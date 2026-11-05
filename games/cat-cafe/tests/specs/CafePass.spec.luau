@@ -207,6 +207,8 @@ return function()
 			expect(clean.claimedPaid :: any).to.deepEqual({})
 			expect(clean.items :: any).to.deepEqual({ tag_maple = true })
 			expect(clean.tag).to.equal(nil)
+			expect(CafePass.sanitize({ tag = "tag_maple" }).tag).to.equal("tag_maple") -- #1626
+			expect(CafePass.sanitize({ tag = "off" }).tag).to.equal("off")
 			expect(CafePass.sanitize(nil).season).to.equal(0)
 		end)
 	end)

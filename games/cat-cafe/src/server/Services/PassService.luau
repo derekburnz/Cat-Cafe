@@ -83,13 +83,31 @@ local function has(set: { [number]: boolean }, id: number): boolean
 	return id ~= 0 and set[id] == true
 end
 
--- Shows the Golden Pond pass on the player for their client (#1368), and the VIP chat tag (#1624).
+-- #1626: each player's chat tag pick and Cafe Pass items (CafePassService.applyTag), so markPlayer can show the
+-- right tag once the join lookup or a purchase says whether they own VIP.
+type TagPick = { pick: string?, items: { [string]: boolean } }
+local tagPicks: { [Player]: TagPick } = {}
+
+-- Shows the Golden Pond pass on the player for their client (#1368), and their chat tag (#1624, #1626): their pick
+-- among VIP and their season tags, or by default VIP, then their first season tag (ChatTags.shown).
 local function markPlayer(player: Player, set: { [number]: boolean })
 	player:SetAttribute(CampExtras.GOLD_POND_ATTRIBUTE, has(set, Config.GoldenPondPassId))
+	local pick = tagPicks[player]
 	player:SetAttribute(
 		ChatTags.CHAT_TAG_ATTRIBUTE,
-		if has(set, Config.VipPassId) then "vip" else nil
+		ChatTags.shown(
+			if pick ~= nil then pick.pick else nil,
+			has(set, Config.VipPassId),
+			if pick ~= nil then pick.items else {}
+		)
 	)
+end
+
+-- #1626: records the player's saved tag pick and pass items and shows their tag now (CafePassService calls it at
+-- join, after a claim and after PassSetTag). `items` is read, never changed.
+function PassService.setTagPick(player: Player, pick: string?, items: { [string]: boolean })
+	tagPicks[player] = { pick = pick, items = items }
+	markPlayer(player, owned[player] or {})
 end
 
 -- The passes an owned-id set gives: the highest Money pass, Long Nap and one slot per extra slot pass.
@@ -221,6 +239,7 @@ function PassService.start()
 	MarketplaceService.PromptGamePassPurchaseFinished:Connect(onPurchaseFinished)
 	Players.PlayerRemoving:Connect(function(player)
 		owned[player] = nil
+		tagPicks[player] = nil
 	end)
 end
 

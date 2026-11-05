@@ -7,6 +7,7 @@
 -- Spins over the banked cap become SPIN_FISH golden fish each. A named item is kept in pass.items forever; the season
 -- cat (Maple Muffin, an exclusive pass cat in Catalog.cats) joins the cafe as a gift cat. Sends CafePassState.
 -- #1626: ProductService's Cafe Pass receipt calls buyPaid, which unlocks the running season's paid track.
+-- PassSetTag picks the chat tag shown (VIP, a season tag or off; ChatTags), and PassService shows it.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,10 +17,12 @@ local CafePass = require(ReplicatedStorage.Shared.CafePass)
 local CafeService = require(script.Parent.CafeService)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local ChatTags = require(ReplicatedStorage.Shared.ChatTags)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
+local PassService = require(script.Parent.PassService)
 local Payout = require(script.Parent.Payout)
 local Spin = require(ReplicatedStorage.Shared.Spin)
 local Telemetry = require(script.Parent.Telemetry)
@@ -35,10 +38,27 @@ local function season(): (number, number, number?)
 	return CafePass.seasonAt(os.time(), RunService:IsStudio())
 end
 
--- Sends the Pass screen its state.
+-- #1626: the chat tags the player may show (ChatTags.choices): VIP if they own the pass, then their season tags.
+local function tagChoices(player: Player, profile: Types.PlayerProfile): { string }
+	return ChatTags.choices(PassService.owns(player, Config.VipPassId), profile.pass.items)
+end
+
+-- Shows the player's chat tag from their saved pick and items (PassService.setTagPick).
+local function applyTag(player: Player, profile: Types.PlayerProfile)
+	PassService.setTagPick(player, profile.pass.tag, profile.pass.items)
+end
+
+-- Sends the Pass screen its state, with the tag picker's choices and the tag shown now.
 function CafePassService.send(player: Player, profile: Types.PlayerProfile)
 	local running, startsAt, endsAt = season()
-	Net.fire(player, "CafePassState", CafePass.view(profile.pass, running, startsAt, endsAt))
+	local view = CafePass.view(profile.pass, running, startsAt, endsAt)
+	view.tags = tagChoices(player, profile)
+	view.tagShown = ChatTags.shown(
+		profile.pass.tag,
+		PassService.owns(player, Config.VipPassId),
+		profile.pass.items
+	)
+	Net.fire(player, "CafePassState", view)
 end
 
 -- Pays one reward of season `of` (already marked claimed, or owed from a season that ended) and returns its lines.
@@ -84,6 +104,9 @@ local function pay(
 			end
 		end
 		table.insert(paid, item.name)
+		if item.kind == "tag" then
+			applyTag(player, profile) -- a new season tag shows straight away when nothing else is picked
+		end
 	end
 	Telemetry.custom(player, "cafe_pass_claim", 1, { track, tostring(level), tostring(of) })
 	return paid
@@ -183,9 +206,33 @@ function CafePassService.buyPaid(player: Player, profile: Types.PlayerProfile): 
 	return bought
 end
 
+-- #1626: PassSetTag(tagId): a tag the player may show now (ChatTags.choices) or "off". Saved as profile.pass.tag.
+local function onSetTag(player: Player, rawTag: unknown)
+	local profile = DataService.get(player)
+	if profile == nil or not ChatTags.validPick(rawTag) then
+		return
+	end
+	local pick = rawTag :: string
+	if pick ~= ChatTags.OFF and table.find(tagChoices(player, profile), pick) == nil then
+		Net.toast(player, "That tag isn't yours yet", "warn")
+		CafePassService.send(player, profile)
+		return
+	end
+	profile.pass.tag = pick
+	applyTag(player, profile)
+	CafePassService.send(player, profile)
+end
+
 function CafePassService.start()
 	Net.on("PassClaim", onClaim)
 	Net.on("PassClaimAll", onClaimAll)
+	Net.on("PassSetTag", onSetTag)
+	PassService.changed:Connect(function(player: Player)
+		local profile = DataService.get(player)
+		if profile ~= nil then
+			CafePassService.send(player, profile) -- VIP bought or found late: the picker's choices change
+		end
+	end)
 	DataService.onLoaded:Connect(function(player: Player, profile: Types.PlayerProfile)
 		task.defer(function()
 			if player.Parent ~= Players then
@@ -194,6 +241,7 @@ function CafePassService.start()
 			if roll(player, profile) then
 				CafeService.sync(player)
 			end
+			applyTag(player, profile)
 			CafePassService.send(player, profile)
 		end)
 	end)

@@ -104,7 +104,7 @@ For a regular who plays two hours a day at Tier 3 or 4:
 | golden fish a day (Tip Jar, spins, Mystery gifts, dailies) | about 63 | about 90 |
 | spins a day (the free one plus banked) | about 5 | about 3 |
 
-The bowl now runs on coins: a Tier 3 player who keeps it busy with Salmon spends about 5,000 coins an hour, under 1% of their income, so it never blocks anyone, but which food to buy is a choice again. The extra 25 to 30 golden fish a day go to the new Fresh Catch shelf (section 3).
+(Since #1281, 11-05, the coin foods are bought at the Corner Shop's 5-minute rotation instead of the bowl; see corner-shop-v2.md section 1b. Prices and the coin sink are unchanged.) The bowl now runs on coins: a Tier 3 player who keeps it busy with Salmon spends about 5,000 coins an hour, under 1% of their income, so it never blocks anyone, but which food to buy is a choice again. The extra 25 to 30 golden fish a day go to the new Fresh Catch shelf (section 3).
 
 ## 3. The Fresh Catch shelf: potions every 5 minutes by day
 

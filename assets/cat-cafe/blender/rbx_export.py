@@ -93,7 +93,7 @@ TAGS = {"CatCafe_Decor_FishTank": ["FishTank"], "CatCafe_Plot_Tier4_Water": ["Fi
         "CatCafe_Alley_NightFenceSegment": ["NightFence"], "CatCafe_Plot_BackDoorClosed": ["NightFence"],
         "_Basket": ["CampBasket"], "_LeaderboardRow_Index": ["Leaderboard"],
         "_LeaderboardRow_Playtime": ["Leaderboard"], "_LeaderboardRow_Money": ["Leaderboard"],
-        "CatCafe_Street_ThanksBoard": ["ThanksBoard"]}
+        "CatCafe_Street_ThanksBoard": ["ThanksBoard"], "CatCafe_Camp_Park_GardenNursery": ["LawnStall"]}
 # Tags on every part of an object, by object name suffix: the crate styles (F53, StyleController) recolour the cafe
 # shell's outer wall layer (Paint) and inner wall layer (Wallpaper), and give each part its own look back after.
 PART_TAGS = {"_Paint": ["Paint"], "_Wallpaper": ["Wallpaper"], "_Trim": ["PaintTrim"]}   # _Trim: a cafe's trims (F89)

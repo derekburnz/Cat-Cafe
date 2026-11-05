@@ -372,23 +372,37 @@ function WorldBuilder.setDressing(plot: Plot, tier: number)
 	end
 end
 
--- The Closed sign with its moon (v0.5 F44) hangs in an owned cafe's front door at night: Dressing/ClosedSign at
--- the plot pivot like the tier sets, nothing on it collides, and its _Moon_Bulb glows with the street's night parts.
--- Skipped while its art is not in ReplicatedStorage.Assets.
-function WorldBuilder.setClosedSign(plot: Plot, shown: boolean)
-	local existing = plot.dressing:FindFirstChild("ClosedSign")
-	if shown and existing == nil and AssetRegistry.has("CatCafe_Plot_ClosedSign") then
-		local sign = place("CatCafe_Plot_ClosedSign", plot.cframe, plot.dressing)
-		sign.Name = "ClosedSign"
-		for _, descendant in sign:GetDescendants() do
-			if descendant:IsA("BasePart") then
-				local signPart = descendant :: BasePart
-				signPart.CanCollide = false
-				signPart.CanTouch = false
-			end
+-- The one door sign (#1140, Model-Agent #1346): CatCafe_Decor_DoorSign hangs from the shell's SignHook (the middle
+-- of the front transom's underside), unturned so OPEN faces the street, while the plot is owned: Dressing/DoorSign.
+-- Every client shows its OPEN board by day and its CLOSED board at night (Effects/DoorSign), so the server places it
+-- once and never swaps it. Nothing on it collides. Skipped while the sign's art or the shell's SignHook is missing.
+-- It replaces the old night-only Closed sign (v0.5 F44, CatCafe_Plot_ClosedSign).
+local DOOR_SIGN = "CatCafe_Decor_DoorSign"
+
+function WorldBuilder.setDoorSign(plot: Plot, shown: boolean)
+	local existing = plot.dressing:FindFirstChild("DoorSign")
+	if not shown then
+		if existing ~= nil then
+			existing:Destroy()
 		end
-	elseif not shown and existing ~= nil then
-		existing:Destroy()
+		return
+	end
+	if existing ~= nil or plot.shell == nil or not AssetRegistry.has(DOOR_SIGN) then
+		return
+	end
+	local hook = (plot.shell :: Model):FindFirstChild("SignHook", true)
+	if hook == nil or not hook:IsA("Attachment") then
+		return
+	end
+	local sign = place(DOOR_SIGN, (hook :: Attachment).WorldCFrame, plot.dressing)
+	sign.Name = "DoorSign"
+	for _, descendant in sign:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			local signPart = descendant :: BasePart
+			signPart.CanCollide = false
+			signPart.CanTouch = false
+			signPart.CanQuery = false
+		end
 	end
 end
 

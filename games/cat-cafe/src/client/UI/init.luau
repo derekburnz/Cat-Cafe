@@ -5639,6 +5639,7 @@ do
 			onOpen = function()
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
 				screen:render(rows(), PassShop.prices())
+				PassShop.refresh() -- a price changed in the Creator Hub shows without a rejoin
 			end,
 			onClose = function()
 				shop.bench = false

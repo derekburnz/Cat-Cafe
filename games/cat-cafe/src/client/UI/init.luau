@@ -5581,6 +5581,7 @@ do
 			catNames = catNames,
 			have = state.potions,
 			starterBought = (state :: any).starterBought,
+			cafePass = UI.pass.offer(), -- #1646: the running season's paid track, nil while closed
 		})
 	end
 
@@ -5731,12 +5732,42 @@ end
 do
 	local CafePass = require(script.Screens.CafePass)
 	local PassLogic = require(script.Components.PassLogic)
+	local PassShop = require(script.Components.PassShop)
+	local SharedPass =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("CafePass")) :: any
 	local pass = {
 		screen = nil :: CafePass.CafePass?,
 		view = nil :: Types.CafePassView?,
 		catalog = nil :: Types.Catalog?, -- the catalog the window's chips have
 		shown = false, -- whether the HUD's tile shows
+		prices = nil :: Signal.Connection?, -- PassShop.changed, for the buy button's price
 	}
+
+	-- The paid track's product id (Config.ProductIds.cafe_pass, #1657), or nil while it is not made.
+	local function productId(): number?
+		local ids = (Config :: any).ProductIds
+		local id = if type(ids) == "table" then ids.cafe_pass else nil
+		return if type(id) == "number" and id ~= 0 then id else nil
+	end
+
+	-- The window's buy button: Roblox's price while the season's paid track is not bought and the product is on sale,
+	-- else hidden (bought, loading or off sale).
+	local function buyButton()
+		local screen = pass.screen
+		if screen == nil then
+			return
+		end
+		local view = pass.view
+		local id = productId()
+		local price = if id then PassShop.prices()[id] else nil
+		if view == nil or not PassLogic.shows(view) or view.paid or price == nil then
+			screen:setBuy(nil)
+		elseif price.forSale and price.robux ~= nil then
+			screen:setBuy(("Paid track  R$%d"):format(price.robux :: number))
+		else
+			screen:setBuy(nil)
+		end
+	end
 
 	-- The HUD's tile from the last CafePassState.
 	local function tile()
@@ -5772,6 +5803,12 @@ do
 			claimAll = function()
 				UI.events.passClaimAll:Fire()
 			end,
+			buy = function()
+				local id = productId()
+				if id then
+					PassShop.prompt(id) -- the server's receipt unlocks the track and sends CafePassState
+				end
+			end,
 			close = function()
 				if modalView:current() == "CafePass" then
 					modalView:close()
@@ -5787,6 +5824,8 @@ do
 			end,
 		})
 		screen:setView(pass.view)
+		pass.prices = PassShop.changed:Connect(buyButton)
+		buyButton()
 		UI.pass.render()
 		tile()
 	end
@@ -5798,7 +5837,24 @@ do
 		if screen then
 			screen:setView(view)
 		end
+		buyButton()
 		tile()
+		UI.store.render() -- the Store's Cafe Pass card follows the season and the purchase
+	end
+
+	-- The running season for the Store's Cafe Pass card (StoreLogic.PassOffer), or nil while the pass is closed.
+	function UI.pass.offer(): any
+		local view = pass.view
+		if view == nil or not PassLogic.shows(view) then
+			return nil
+		end
+		local def = SharedPass.seasonDef(view.season)
+		return {
+			season = view.season,
+			name = if def then def.name else ("Season %d"):format(view.season),
+			paid = view.paid,
+			contents = PassLogic.paidContents(def),
+		}
 	end
 
 	-- Every state update: the day rate and spin bank for the prize chips, and the catalog once it arrives.
@@ -5829,6 +5885,10 @@ do
 
 	-- UI.destroy.
 	function UI.pass.reset()
+		if pass.prices then
+			pass.prices:Disconnect()
+			pass.prices = nil
+		end
 		if pass.screen then
 			pass.screen:destroy()
 			pass.screen = nil

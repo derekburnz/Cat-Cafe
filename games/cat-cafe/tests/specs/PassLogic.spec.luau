@@ -142,6 +142,14 @@ return function()
 			)
 		end)
 
+		it("lists the paid track's exact contents for the Store card", function()
+			expect(PassLogic.paidContents(def)).to.equal(
+				"Season cat Maple Muffin, [Maple] chat tag, 4 uniform colours, 5 accessories, 6 decor pieces, "
+					.. "a sign frame and 15 potions"
+			)
+			expect(PassLogic.paidContents(nil)).to.equal("")
+		end)
+
 		it("names every paid item of season 1 in a few words", function()
 			for level = 1, 30 do
 				local item = def.paid[level].item

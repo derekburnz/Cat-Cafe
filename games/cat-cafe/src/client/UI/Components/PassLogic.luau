@@ -11,6 +11,7 @@
 --   PassLogic.focus(columns, level)  the column to scroll to: the first ready one, else the next to reach
 --   PassLogic.shows(view)          whether the HUD's Pass tile shows (a season is running)
 --   PassLogic.itemGlyph(kind)      a named item's symbol until its picture is drawn
+--   PassLogic.paidContents(def)    the paid track's exact contents in words, for the Store card (monetization policy)
 
 local Types = require(script.Parent.Parent.Types)
 
@@ -216,6 +217,68 @@ function PassLogic.itemText(item: Types.PassItem): string
 		return cat or name
 	end
 	return name
+end
+
+-- How each kind of named item is counted on the Store card: one word, and its plural
+local KIND_WORDS: { { kind: string, one: string, many: string } } = {
+	{ kind = "uniform", one = "a uniform colour", many = "%d uniform colours" },
+	{ kind = "accessory", one = "an accessory", many = "%d accessories" },
+	{ kind = "decor", one = "a decor piece", many = "%d decor pieces" },
+	{ kind = "frame", one = "a sign frame", many = "%d sign frames" },
+}
+
+-- "Season cat Maple Muffin, [Maple] chat tag, 4 uniform colours, 5 accessories, 6 decor pieces, a sign frame and
+-- 15 potions": every paid reward of the season, the cat and the tag by name, the rest counted.
+function PassLogic.paidContents(def: Types.PassSeasonDef?): string
+	if def == nil then
+		return ""
+	end
+	local parts: { string } = {}
+	local counts: { [string]: number } = {}
+	local named: { string } = {}
+	local potions = 0
+	for level = 1, 100 do
+		local reward = def.paid[level]
+		if reward == nil then
+			continue
+		end
+		local item = reward.item
+		if item then
+			if item.kind == "cat" then
+				table.insert(named, 1, "Season cat " .. PassLogic.itemText(item))
+			elseif item.kind == "tag" then
+				table.insert(named, PassLogic.itemText(item))
+			else
+				counts[item.kind] = (counts[item.kind] or 0) + 1
+			end
+		end
+		local prize = reward.prize
+		local bottles: { [string]: number } = if prize and prize.potions then prize.potions else {}
+		for _, count in bottles do
+			potions += count
+		end
+	end
+	for _, name in named do
+		table.insert(parts, name)
+	end
+	for _, words in KIND_WORDS do
+		local count = counts[words.kind] or 0
+		if count == 1 then
+			table.insert(parts, words.one)
+		elseif count > 1 then
+			table.insert(parts, words.many:format(count))
+		end
+	end
+	if potions > 0 then
+		table.insert(parts, if potions == 1 then "a potion" else ("%d potions"):format(potions))
+	end
+	if #parts == 0 then
+		return ""
+	elseif #parts == 1 then
+		return parts[1]
+	end
+	local last = table.remove(parts) :: string
+	return table.concat(parts, ", ") .. " and " .. last
 end
 
 return PassLogic

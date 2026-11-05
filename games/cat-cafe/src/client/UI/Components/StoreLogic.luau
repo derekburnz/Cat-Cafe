@@ -154,18 +154,32 @@ local STARTER: ProductCard = {
 }
 StoreLogic.STARTER = STARTER
 
+-- The Cafe Pass's paid track (#1646, cafe-pass.md section 5): a developer product bought once a season, under the
+-- Cafe Pass tab. It shows only while a season runs (ShopView.cafePass), with the track's exact contents, and reads
+-- Owned once this season's track is bought; the price is Roblox's, read at runtime.
+local CAFE_PASS: ProductCard = {
+	key = "cafePass",
+	productKey = "cafe_pass",
+	effect = "Season %d paid track, a reward every level:",
+}
+StoreLogic.CAFE_PASS = CAFE_PASS
+
 -- What the Store needs to draw the product cards: Catalog.products, potion id to its name, and the player's bag.
 export type ProductPrize = {
 	potions: { [string]: number },
 	cats: { string }?, -- #1625: the Starter Bundle's Sprinkles
 	signStyles: { string }?, -- #1625: the Starter Bundle's Bakery Stripes
 }
+-- The running Cafe Pass season for its card: its number, its name, whether its paid track is bought, and the paid
+-- track's contents in words (PassLogic.paidContents).
+export type PassOffer = { season: number, name: string, paid: boolean, contents: string }
 export type ShopView = {
 	products: { { id: string, name: string, prize: ProductPrize } }?,
 	potionNames: { [string]: string }?,
 	catNames: { [string]: string }?, -- cat id to its name, for a prize's cats
 	have: { [string]: number }?,
 	starterBought: boolean?, -- the server's word on the Starter Bundle (nil: unknown, so it stays hidden)
+	cafePass: PassOffer?, -- #1646: nil while no season runs (or before CafePassState), so the card stays hidden
 }
 
 local function productId(config: any, card: ProductCard): number?
@@ -186,6 +200,10 @@ function StoreLogic.productIds(config: any): { number }
 	local starter = productId(config, STARTER)
 	if starter then
 		table.insert(out, starter)
+	end
+	local cafePass = productId(config, CAFE_PASS)
+	if cafePass then
+		table.insert(out, cafePass)
 	end
 	return out
 end
@@ -313,6 +331,26 @@ local function starterRow(config: any, view: ShopView?): Row?
 		owned = false,
 		product = true,
 		tab = "cats",
+	}
+end
+
+-- The Cafe Pass's row while a season runs, else nil (#1646).
+local function cafePassRow(config: any, view: ShopView?): Row?
+	local id = productId(config, CAFE_PASS)
+	local offer = if view then view.cafePass else nil
+	if id == nil or offer == nil or offer.season <= 0 then
+		return nil
+	end
+	return {
+		key = CAFE_PASS.key,
+		passId = id,
+		name = "Cafe Pass",
+		icon = "🍁",
+		-- "Season 1 paid track, a reward every level:" and the track's exact contents
+		effect = CAFE_PASS.effect:format(offer.season) .. "\n" .. offer.contents,
+		owned = offer.paid,
+		product = true,
+		tab = "cafePass",
 	}
 end
 
@@ -453,6 +491,10 @@ function StoreLogic.rows(
 			if starter then
 				table.insert(rows, starter)
 			end
+			local cafePass = cafePassRow(config, view)
+			if cafePass then
+				table.insert(rows, cafePass)
+			end
 		end
 		local id = passId(config, card)
 		if id then
@@ -496,8 +538,8 @@ export type Featured = { hero: Row?, picks: { Row } }
 
 StoreLogic.PICKS = 3
 -- The hero, in order of preference (#1425): the Starter Bundle while it can be bought (the best first buy for a new
--- cafe), then the King Cat Pack. An owned King Cat Pack gives way to the Royal Cat, then the Grand Cafe Theme.
-local HERO_ORDER = { "starterBundle", "kingPack", "royalCat", "grandTheme" }
+-- cafe), then the running season's Cafe Pass until it is bought (#1646), then the King Cat Pack. An owned King Cat Pack gives way to the Royal Cat, then the Grand Cafe Theme.
+local HERO_ORDER = { "starterBundle", "cafePass", "kingPack", "royalCat", "grandTheme" }
 -- The top picks, left to right: the money ladder's next rung, Long Nap and the King Cat Pack (the Royal Cat when the
 -- King Cat Pack is the hero).
 local PICK_ORDER = { "money", "longNap", "kingPack", "royalCat" }

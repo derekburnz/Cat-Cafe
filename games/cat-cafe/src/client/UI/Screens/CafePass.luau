@@ -8,7 +8,9 @@
 -- reached yet is faded; a paid one before the paid track is bought shows a lock. Under the track: where pass XP comes
 -- from and "These come back in a later season." (section 5). The cards take the track's height, so on a phone both
 -- rows show without scrolling up and down. Claim reads "..." until the next CafePassState or PENDING_SECONDS pass.
--- The paid track's purchase, the Store card and the tag picker come with #1626. Rules: Components/PassLogic.
+-- Before the paid track is bought, a gold "Paid track R$299" button sits in the top strip with Roblox's price read at
+-- runtime (setBuy); it hides once bought, while the price loads and while the product is off sale, and says nothing
+-- else (no timer, no "last chance"). The tag picker comes later. Rules: Components/PassLogic.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -31,6 +33,7 @@ local PAL = Theme.dark
 
 export type Callbacks = {
 	claim: (track: string, level: number) -> (),
+	buy: () -> (), -- the paid track's purchase prompt
 	claimAll: () -> (),
 	close: () -> (),
 }
@@ -39,6 +42,8 @@ export type CafePass = {
 	frame: Frame,
 	setCatalog: (self: CafePass, catalog: Types.Catalog) -> (),
 	setView: (self: CafePass, view: Types.CafePassView?) -> (),
+	-- the buy button's words with the price ("Paid track  R$299"), or nil to hide it
+	setBuy: (self: CafePass, text: string?) -> (),
 	render: (self: CafePass, state: Types.PlayerState) -> (),
 	setNight: (self: CafePass, night: boolean) -> (),
 	onOpen: (self: CafePass) -> (),
@@ -87,6 +92,8 @@ local PENDING_SECONDS = 2
 local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
 local MAPLE = Theme.colors.warn
 local CLAIM_W = 150
+local BUY_W = 180
+local BAR_X = 112
 
 local CafePassScreen = {}
 CafePassScreen.__index = CafePassScreen
@@ -161,8 +168,8 @@ function CafePassScreen.new(callbacks: Callbacks): CafePass
 		BackgroundColor3 = PAL.line,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.new(0, 112, 0.5, 0),
-		Size = UDim2.new(1, -(112 + CLAIM_W + 24), 0, 24),
+		Position = UDim2.new(0, BAR_X, 0.5, 0),
+		Size = UDim2.new(1, -(BAR_X + CLAIM_W + 24), 0, 24),
 		ClipsDescendants = true,
 		Parent = top,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
@@ -194,6 +201,21 @@ function CafePassScreen.new(callbacks: Callbacks): CafePass
 			self:_press(nil, nil)
 		end,
 	})
+	self._bar = bar
+	self._buy = Button.new({
+		name = "Buy",
+		text = "Paid track",
+		style = "store",
+		size = UDim2.fromOffset(BUY_W, CLAIM_H + 2),
+		anchorPoint = Vector2.new(1, 0.5),
+		position = UDim2.new(1, -6, 0.5, -1),
+		textSize = Theme.sizes.textBody + 1,
+		parent = top,
+		onClick = function()
+			self._callbacks.buy()
+		end,
+	})
+	self._buy.instance.Visible = false
 
 	-- the track: the row words on the left, the levels scrolling sideways
 	local trackY = TOP_H + GAP
@@ -506,6 +528,27 @@ function CafePassScreen.setCatalog(self: any, catalog: Types.Catalog)
 	self:_refresh()
 end
 
+-- The buy button and Claim all from the right of the top strip, and the XP bar in the room left.
+function CafePassScreen._placeTop(self: any)
+	local right = 6
+	if self._buy.instance.Visible then
+		right += BUY_W + 8
+	end
+	self._claimAll.instance.Position = UDim2.new(1, -right, 0.5, -1)
+	if self._claimAll.instance.Visible then
+		right += CLAIM_W + 8
+	end
+	self._bar.Size = UDim2.new(1, -(BAR_X + right + 6), 0, 24)
+end
+
+function CafePassScreen.setBuy(self: any, text: string?)
+	self._buy.instance.Visible = text ~= nil
+	if text then
+		self._buy:setText(text)
+	end
+	self:_placeTop()
+end
+
 -- From CafePassState: at join, after each claim and at a season roll.
 function CafePassScreen.setView(self: any, view: Types.CafePassView?)
 	self._view = view
@@ -569,6 +612,7 @@ function CafePassScreen._refresh(self: any)
 		self._xpFill.Size = UDim2.fromScale(0, 1)
 		self._xpText.Text = ""
 		self._claimAll.instance.Visible = false
+		self:_placeTop()
 		return
 	end
 	local def: Types.PassSeasonDef? = SharedPass.seasonDef(view.season)
@@ -587,6 +631,7 @@ function CafePassScreen._refresh(self: any)
 	self._claimAll.instance.Visible = ready > 0
 	self._claimAll:setEnabled(not pending)
 	self._claimAll:setText(if pending then "..." else ("Claim all (%d)"):format(ready))
+	self:_placeTop()
 	local spin: Types.SpinState? = self._spin
 	local look: PrizeChips.Look = {
 		dayRate = TipJarLogic.dayRate(self._income, self._night, NIGHT_SHARE),
@@ -617,6 +662,7 @@ function CafePassScreen.destroy(self: any)
 	self._scaled:Disconnect()
 	self:_clearColumns()
 	self._claimAll:destroy()
+	self._buy:destroy()
 	self._panel:destroy()
 	self._panel = nil
 end

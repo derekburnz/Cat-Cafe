@@ -9,8 +9,8 @@
 -- Moments.NetInReach names the stray a swing would land on right now (shared/NetSwing.pick on the strays' replicated
 -- attributes), for the UI's glow; `UI.net.setEnabled`, when the UI has it, shows the Net button while a swing could
 -- go. Both judge from shared/NetSwing.landingOrigin, where the root will be when the net lands. Controllers/NetMarker
--- draws the swing's landing fan on the ground while a swing could go with a stray within MARKER_STUDS (Derek
--- 2026-11-03), gold while one is in reach, flashing as a press lands.
+-- draws the swing's landing fan on the ground for a moment after each press (Derek 2026-11-03; only on a swing
+-- since #1438), gold while a stray is in reach, flashing as the net lands.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -30,7 +30,6 @@ local NetSwingController = {}
 
 local player = Players.LocalPlayer
 local REACH_TICK = 0.1 -- seconds between in-reach checks
-local MARKER_STUDS = 24 -- the landing marker shows while a swingable stray is this near on the ground plane
 -- A catch or rescue whose end never reached this client stops holding the net back after this long.
 local CATCH_HOLD_SECONDS = 30
 local RESCUE_HOLD_SECONDS = Config.RescueAttemptMaxSeconds + 10
@@ -91,16 +90,15 @@ local function bodyOf(model: Model): BasePart?
 end
 
 -- The stray a swing pressed now would land on, from what the server shows: not running (FleeingUntil) and not
--- locked by someone else (LockedBy); and whether any such stray is within MARKER_STUDS.
-local function findInReach(): (Model?, boolean)
+-- locked by someone else (LockedBy).
+local function findInReach(): Model?
 	local root = rootPart()
 	if root == nil or not canSwing() then
-		return nil, false
+		return nil
 	end
 	local now = Workspace:GetServerTimeNow()
 	local targets: { NetSwing.Target } = {}
 	local byId: { [string]: Model } = {}
-	local near = false
 	for _, instance in CollectionService:GetTagged("Stray") do
 		if not instance:IsA("Model") or not instance:IsDescendantOf(Workspace) then
 			continue
@@ -123,24 +121,21 @@ local function findInReach(): (Model?, boolean)
 		local position = (body :: BasePart).Position
 		byId[id] = model
 		table.insert(targets, { id = id, position = position })
-		local flat = Vector3.new(position.X - root.Position.X, 0, position.Z - root.Position.Z)
-		near = near or flat.Magnitude <= MARKER_STUDS
 	end
 	local origin = NetSwing.landingOrigin(root.Position, root.AssemblyLinearVelocity)
 	local picked = NetSwing.pick(origin, root.CFrame.LookVector, targets)
-	return if picked ~= nil then byId[picked.id] else nil, near
+	return if picked ~= nil then byId[picked.id] else nil
 end
 
 local function watchReach()
 	local enabled: boolean? = nil
 	while true do
-		local found, near = findInReach()
+		local found = findInReach()
 		if found ~= inReach then
 			inReach = found
 			Moments.NetInReach:Fire(found)
 		end
 		local on = canSwing()
-		NetMarker.setShown(on and near)
 		NetMarker.setInReach(found ~= nil)
 		if on ~= enabled then
 			enabled = on

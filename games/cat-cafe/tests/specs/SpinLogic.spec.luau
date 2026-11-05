@@ -107,26 +107,63 @@ return function()
 	end)
 
 	describe("SpinLogic landing", function()
+		local EVEN = SpinLogic.even(6)
+
 		it("stops in the middle of the paid slice after the full turns, clockwise", function()
 			for index = 1, 6 do
 				for _, from in { 0, 37, -125, 721.5 } do
-					local to = SpinLogic.landing(from, index, 6, 5)
+					local to = SpinLogic.landing(from, index, EVEN, 5)
 					expect(to >= from + 5 * 360).to.equal(true)
 					expect(to < from + 6 * 360).to.equal(true)
 					-- the slice's middle, (index - 1) * 60 degrees round, sits under the pointer at the top
 					local offset = (to + (index - 1) * 60) % 360
 					expect(math.min(offset, 360 - offset) < 1e-6).to.equal(true)
-					expect(SpinLogic.slotAt(to, 6)).to.equal(index)
+					expect(SpinLogic.slotAt(to, EVEN)).to.equal(index)
 				end
 			end
 		end)
 
 		it("reads the slot under the pointer as the wheel turns", function()
-			expect(SpinLogic.slotAt(0, 6)).to.equal(1)
-			expect(SpinLogic.slotAt(-60, 6)).to.equal(2)
-			expect(SpinLogic.slotAt(29, 6)).to.equal(1)
-			expect(SpinLogic.slotAt(31, 6)).to.equal(6)
-			expect(SpinLogic.slotAt(360 * 4 - 120, 6)).to.equal(3)
+			expect(SpinLogic.slotAt(0, EVEN)).to.equal(1)
+			expect(SpinLogic.slotAt(-60, EVEN)).to.equal(2)
+			expect(SpinLogic.slotAt(29, EVEN)).to.equal(1)
+			expect(SpinLogic.slotAt(31, EVEN)).to.equal(6)
+			expect(SpinLogic.slotAt(360 * 4 - 120, EVEN)).to.equal(3)
+		end)
+
+		-- #1500: the two jackpots are the world wheel's narrow gold wedges, SliceSpans "52,52,52,52,52,52,24,24"
+		it("gives jackpots 24 degree wedges and the other slices the rest, as the world wheel", function()
+			local rows: { any } = table.clone(ROWS)
+			table.insert(rows, { slice = 7, kind = "crate", crate = "highest_golden", weight = 1, jackpot = true })
+			table.insert(rows, { slice = 8, kind = "fish", count = 100, weight = 1, jackpot = true })
+			local spans = SpinLogic.spans(rows)
+			expect(table.concat(spans, ",")).to.equal("52,52,52,52,52,52,24,24")
+			expect(table.concat(SpinLogic.spans(ROWS), ",")).to.equal("60,60,60,60,60,60")
+			expect(#SpinLogic.spans({})).to.equal(0)
+		end)
+
+		it("lands in the middle of a narrow jackpot wedge and reads it back", function()
+			local spans = { 52, 52, 52, 52, 52, 52, 24, 24 }
+			-- slot 7's middle: six 52s past slot 1's middle (26 in), then 12 into the jackpot
+			expect(SpinLogic.centre(spans, 7)).to.equal(6 * 52 + 12 - 26)
+			expect(SpinLogic.centre(spans, 1)).to.equal(0)
+			for index = 1, 8 do
+				for _, from in { 0, 91, -400 } do
+					local to = SpinLogic.landing(from, index, spans, 5)
+					expect(to >= from + 5 * 360).to.equal(true)
+					expect(to < from + 6 * 360).to.equal(true)
+					expect(SpinLogic.slotAt(to, spans)).to.equal(index)
+					-- still that slot a hair either side of the middle
+					expect(SpinLogic.slotAt(to + spans[index] / 2 - 0.5, spans)).to.equal(index)
+					expect(SpinLogic.slotAt(to - spans[index] / 2 + 0.5, spans)).to.equal(index)
+				end
+			end
+			-- the edges: slot 1 runs from -26 to 26 at rotation 0, slot 8 is the 24 just before it
+			expect(SpinLogic.slotAt(-25, spans)).to.equal(1)
+			expect(SpinLogic.slotAt(-27, spans)).to.equal(2)
+			expect(SpinLogic.slotAt(27, spans)).to.equal(8)
+			expect(SpinLogic.slotAt(49.5, spans)).to.equal(8)
+			expect(SpinLogic.slotAt(50.5, spans)).to.equal(7)
 		end)
 	end)
 

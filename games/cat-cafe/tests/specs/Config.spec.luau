@@ -368,6 +368,7 @@ return function()
 				StraySpawnSpacingStuds = true, -- Derek 22:38: strays spawn spread out; the designer logs it in section 17
 				MysteryRangeStuds = true, -- sections 12b and 15: OpenMysteryGift "within 12 studs"
 				CollectorValue = true, -- section 17's "1, 3, 8, 20, 50 by rarity", checked in Collector.spec
+				CollectorAskWeight = true, -- #1144: a table, checked in Collector.spec
 				CollectorRangeStuds = true, -- section 12b: his card opens "within 12 studs"
 				TipPotionBonus = true, -- section 12b's potion table: "+25% tips"
 				SwiftPotionSpeed = true, -- section 12b's potion table: "+4 walk and carry speed"

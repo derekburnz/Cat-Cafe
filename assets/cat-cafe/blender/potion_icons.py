@@ -42,8 +42,9 @@ POTIONS = {
     "CatWhistleBig": ("cat_whistle", "strong", "whistle"),
 }
 # A colour for a potion Theme.potionColors does not list yet; UI-Engineer adds the same hex there so the slot, the
-# drink pop and the picture agree (the Cat Whistle: a warm orange, apart from the seven others)
-FALLBACK_COLOURS = {"cat_whistle": "F59A4B"}
+# drink pop and the picture agree (the Cat Whistle: sign_teal, the colour its in-game puff and ring already use,
+# Effects/Presets potionWhistle; darker than Steady's pale mint)
+FALLBACK_COLOURS = {"cat_whistle": "1FA58F"}
 SIZE = {"weak": 0.78, "mid": 0.92, "strong": 1.05}  # the flask body's radius
 
 

@@ -2632,4 +2632,23 @@ function Logic.customerStep(
 	return leg, arm, drop, roll
 end
 
+-- Door sign flip (#1140, door-sign.md section 3) ---------------------------------------------------------------
+
+-- The door sign's turn `t` seconds into a flip: how far through the half turn it is (0 to 1, eased in and out over
+-- `flip` seconds), plus the settle swing after it in radians (one back-and-forth of `swing` radians, fading out over
+-- `settle` seconds; 0 before and after). Both are signed by the turn's direction by the caller.
+function Logic.signFlip(t: number, flip: number, settle: number, swing: number): (number, number)
+	if t <= 0 then
+		return 0, 0
+	elseif t < flip then
+		return smoothstep(t / flip), 0
+	end
+	local after = t - flip
+	if settle <= 0 or after >= settle then
+		return 1, 0
+	end
+	local share = after / settle
+	return 1, swing * math.sin(2 * math.pi * share) * (1 - share)
+end
+
 return Logic

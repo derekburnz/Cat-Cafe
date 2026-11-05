@@ -42,6 +42,7 @@ import crates  # noqa: E402
 import icon_art  # noqa: E402
 import hud_icons  # noqa: E402
 import items  # noqa: E402
+import market_icons  # noqa: E402
 import menu  # noqa: E402
 import potion_icons  # noqa: E402
 import potions  # noqa: E402
@@ -79,6 +80,8 @@ def _hud_decor(mat):
 
 
 # icon -> (builder, outline colour, outline width in pixels at 512, (yaw, pitch) of the view)
+MARKET_VIEWS = {"Crates": QUARTER, "Treats": (-14.0, 14.0), "FreshCatch": (-16.0, 24.0)}
+
 ICONS = {
     "CatCafe_Icon_GoldenFish": (icon_art.golden_fish, GOLD_INK, 10, (0.0, 8.0)),
     **{f"CatCafe_Icon_Crate_{p}{'_Gold' if g else ''}": ((lambda m, p=p, g=g: crates.build_crate(p, m, g)),
@@ -102,6 +105,8 @@ ICONS = {
        for k in potions.POTIONS},
     **{f"CatCafe_Icon_PotionFlask_{n}": (fn, INK, 10, (-12.0, 8.0)) for n, fn in potion_icons.BUILDERS.items()},
     **{f"CatCafe_Icon_Menu_{n}": ((lambda m, n=n: menu._BUILDS[n](m)), INK, 10, (-22.0, 30.0)) for n in menu.ITEMS},
+    # #1628: the Golden Fish Market's three tabs (market_icons.py)
+    **{f"CatCafe_Icon_Market_{n}": (fn, INK, 10, MARKET_VIEWS[n]) for n, fn in market_icons.BUILDERS.items()},
     # #1191: the shop-only cats' Store card and cat book picture, the sitting cat in its props, three-quarter front
     **{f"CatCafe_Icon_Cat_{n}": ((lambda m, n=n: cats.build_cat(n, m, body="sit")), INK, 10, (-24.0, 8.0))
        for n, spec in cats.ROSTER.items() if spec.get("shop")},

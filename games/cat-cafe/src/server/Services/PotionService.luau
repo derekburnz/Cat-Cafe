@@ -1,5 +1,6 @@
 --!strict
--- Potions (F64, data-model sections 12b and 13). UsePotion drinks one from the bag (the rules are shared/Potions),
+-- Potions (F64, data-model sections 12b and 13). UsePotion drinks one from the bag (the rules are shared/Potions), or
+-- with a count (#1600, the Bag's "Use all") up to that many, as many as fit under PotionMaxMinutes, in one sync,
 -- and the character attribute ActivePotions names the running ones, oldest drink first, for the glow everyone
 -- nearby sees. The effects are read where they apply: Economy.settle and CafeService's rate (Tip), RichTipService
 -- (Tip), BaitService (Lucky) and CatService's walk speeds (Swift) and circles (Steady). Timers count play time only:
@@ -15,6 +16,7 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local Telemetry = require(script.Parent.Telemetry)
@@ -48,8 +50,15 @@ local function prune(player: Player, profile: Types.PlayerProfile, now: number):
 	return ended
 end
 
-local function onUsePotion(player: Player, rawId: unknown)
+-- The most a "Use all" may ask for at once; the bag's count and PotionMaxMinutes cut it further.
+local MAX_COUNT = 1000
+
+local function onUsePotion(player: Player, rawId: unknown, rawCount: unknown)
 	if type(rawId) ~= "string" then
+		return
+	end
+	local count = if rawCount == nil then 1 else Guard.int(rawCount, 1, MAX_COUNT)
+	if count == nil then
 		return
 	end
 	local def = Catalog.getPotion(rawId)
@@ -71,7 +80,15 @@ local function onUsePotion(player: Player, rawId: unknown)
 	elseif blocker ~= nil then
 		return -- none in the bag: the bag's Use button is grey, so only a stale or forged call lands here
 	end
-	Potions.use(profile, def.id, now)
+	local drunk = Potions.useMany(
+		profile,
+		def.id,
+		math.min(count, Potions.fitCount(profile, def.id, now)),
+		now
+	)
+	if drunk <= 0 then
+		return
+	end
 	-- a Small or Big size runs its regular potion's timer, so the drink order and the chip use that id
 	local buff = Potions.buffOf(def.id)
 	local list = order[player] or {}
@@ -85,7 +102,7 @@ local function onUsePotion(player: Player, rawId: unknown)
 	if buff == Potions.SWIFT then
 		CatService.refreshSpeed(player)
 	end
-	Telemetry.custom(player, "potion_used", 1, { def.id, tostring(Economy.tier(profile)) })
+	Telemetry.custom(player, "potion_used", drunk, { def.id, tostring(Economy.tier(profile)) })
 	CafeService.sync(player)
 end
 

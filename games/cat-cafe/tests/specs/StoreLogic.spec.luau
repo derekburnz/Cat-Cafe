@@ -101,7 +101,11 @@ return function()
 			expect(table.concat(ids, ",")).to.equal("11,12,13,15,20")
 		end)
 		it("marks a bought pass Owned and adds the can't-be-traded line", function()
-			local rows = StoreLogic.rows({ VipPassId = 13, RoyalCatPassId = 14 }, { [13] = true }, nil)
+			local rows = StoreLogic.rows(
+				{ VipPassId = 13, RoyalCatPassId = 14 },
+				{ [13] = true },
+				nil
+			)
 			expect(rows[1].owned).to.equal(true)
 			expect(rows[2].owned).to.equal(false)
 			expect(rows[2].effect:find("Can't be traded", 1, true) ~= nil).to.equal(true)
@@ -111,7 +115,11 @@ return function()
 	describe("StoreLogic product cards (#1182)", function()
 		local view = {
 			products = {
-				{ id = "potion_pack_xs", name = "Potion Pack XS", prize = { potions = { big_tip_potion = 2 } } },
+				{
+					id = "potion_pack_xs",
+					name = "Potion Pack XS",
+					prize = { potions = { big_tip_potion = 2 } },
+				},
 				{
 					id = "potion_pack_s",
 					name = "Potion Pack S",
@@ -140,7 +148,9 @@ return function()
 			expect(table.concat(keys, ",")).to.equal("vip,potionXS,potionS,royalCat")
 			expect(rows[3].product).to.equal(true)
 			expect(rows[3].owned).to.equal(false)
-			expect(rows[3].effect:find("3 Big Money, 1 Swift Potion · You have 4", 1, true) ~= nil).to.equal(true)
+			expect(rows[3].effect:find("3 Big Money, 1 Swift Potion · You have 4", 1, true) ~= nil).to.equal(
+				true
+			)
 			expect(table.concat(StoreLogic.productIds(config), ",")).to.equal("31,32")
 		end)
 	end)
@@ -179,6 +189,104 @@ return function()
 			local button = StoreLogic.button(owned, { robux = 5, forSale = true })
 			expect(button.text).to.equal("Owned")
 			expect(button.enabled).to.equal(false)
+		end)
+	end)
+	describe("StoreLogic tabs and Featured (#1425)", function()
+		local config = {
+			MoneyPassIds = { [2] = 11 },
+			LongNapPassId = 12,
+			VipPassId = 13,
+			RoyalCatPassId = 14,
+			KingPackPassId = 20,
+			ProductIds = { potion_pack_xs = 31, starter_bundle = 40 },
+		}
+		local view = {
+			products = {
+				{
+					id = "potion_pack_xs",
+					name = "Potion Pack XS",
+					prize = { potions = { big_tip_potion = 2 } },
+				},
+				{
+					id = "starter_bundle",
+					name = "Starter Bundle",
+					prize = { potions = { big_tip_potion = 10 } },
+				},
+			},
+			potionNames = { big_tip_potion = "Big Money" },
+			have = {},
+			starterBought = false,
+		}
+		local function keys(rows: { any }): string
+			local out: { string } = {}
+			for _, row in rows do
+				table.insert(out, row.key)
+			end
+			return table.concat(out, ",")
+		end
+
+		it("puts each card under its rail tab", function()
+			local rows = StoreLogic.rows(config, {}, nil, view)
+			expect(keys(StoreLogic.tabRows(rows, "passes"))).to.equal("money,longNap,vip")
+			expect(keys(StoreLogic.tabRows(rows, "cats"))).to.equal(
+				"starterBundle,royalCat,kingPack"
+			)
+			expect(keys(StoreLogic.tabRows(rows, "potions"))).to.equal("potionXS")
+			local tabs = {}
+			for _, tab in StoreLogic.tabs(rows) do
+				table.insert(tabs, tab.id)
+			end
+			-- no Cafe Pass card yet, so no Cafe Pass tab
+			expect(table.concat(tabs, ",")).to.equal("featured,passes,cats,potions")
+		end)
+
+		it("features the Starter Bundle, then the ladder, Long Nap and King Cat Pack", function()
+			local featured = StoreLogic.featured(StoreLogic.rows(config, {}, nil, view))
+			expect(featured.hero.key).to.equal("starterBundle")
+			expect(featured.hero.passId).to.equal(40)
+			expect(keys(featured.picks)).to.equal("money,longNap,kingPack")
+		end)
+
+		it(
+			"swaps the hero to the King Cat Pack once the bundle is bought, with the Royal Cat as a pick",
+			function()
+				local bought: any = table.clone(view)
+				bought.starterBought = true
+				local rows = StoreLogic.rows(config, {}, nil, bought)
+				expect(keys(StoreLogic.tabRows(rows, "cats"))).to.equal("royalCat,kingPack")
+				local featured = StoreLogic.featured(rows)
+				expect(featured.hero.key).to.equal("kingPack")
+				expect(keys(featured.picks)).to.equal("money,longNap,royalCat")
+			end
+		)
+
+		it("keeps the Starter Bundle hidden until the server says it is not bought", function()
+			local unknown: any = table.clone(view)
+			unknown.starterBought = nil
+			local rows = StoreLogic.rows(config, {}, nil, unknown)
+			expect(keys(StoreLogic.tabRows(rows, "cats"))).to.equal("royalCat,kingPack")
+			expect(table.concat(StoreLogic.productIds(config), ",")).to.equal("31,40")
+		end)
+
+		it(
+			"fills an owned pick from the rest of the Store, and never shows a card twice",
+			function()
+				local rows = StoreLogic.rows(
+					config,
+					{ [12] = true },
+					nil,
+					{ products = view.products, have = {} }
+				)
+				local featured = StoreLogic.featured(rows)
+				expect(featured.hero.key).to.equal("kingPack")
+				expect(keys(featured.picks)).to.equal("money,royalCat,vip")
+			end
+		)
+
+		it("has no hero and no picks in an empty Store", function()
+			local featured = StoreLogic.featured({})
+			expect(featured.hero == nil).to.equal(true)
+			expect(#featured.picks).to.equal(0)
 		end)
 	end)
 end

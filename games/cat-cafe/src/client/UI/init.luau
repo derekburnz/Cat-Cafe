@@ -5484,6 +5484,7 @@ do
 		modalView:register("Store", {
 			frame = screen.frame,
 			onOpen = function()
+				screen:showTab("featured") -- #1425: the Store always opens on Featured
 				screen:render(rows(), PassShop.prices())
 			end,
 		})

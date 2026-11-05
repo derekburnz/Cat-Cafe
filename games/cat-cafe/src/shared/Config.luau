@@ -358,9 +358,10 @@ local Config = {
 	TipPileShowSeconds = 90,
 
 	-- The Mystery Visitor and potions (F64, data-model section 12b). Potions are earned only, never sold.
-	-- #1135: on a timer from MysteryEveryMin to MysteryEveryMax seconds of open day (1500 on average, as 120 s at 8%)
-	MysteryEveryMin = 900,
-	MysteryEveryMax = 2100,
+	-- #1135: on a timer from MysteryEveryMin to MysteryEveryMax seconds of open day; 1250 on average, a fifth more
+	-- often than the first 1500 (Derek2 2026-11-05: "up the rates of people leaving them slightly")
+	MysteryEveryMin = 750,
+	MysteryEveryMax = 1750,
 	MysteryStaySeconds = 120, -- the hooded visitor sits this long; dusk or a plot release sends it home sooner
 	MysteryGiftKeepSeconds = 600, -- an unopened gift is gone after this, or when its owner leaves (Derek 01:32)
 	MysteryRangeStuds = 12, -- OpenMysteryGift from this close to the gift

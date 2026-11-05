@@ -17,7 +17,7 @@ Decided by Coordinator for the friend, overnight 11-05, from Derek's 11-04 note 
 - **String and hook:** natural twine in a shallow V to a brass hook. It's tiny, but it's what makes the sign read as hanging.
 - **Budget:** one small model per owned cafe, about 200 triangles. Model-Agent passes the blender-asset-qa gate (no z-fighting on the glass: the board sits 0.02 studs in front of it).
 
-## 3. The flip at dusk and dawn
+## 3. The flip at nightfall and sunrise
 
 - **When:** the client watches `Clock.Phase` (as #1327 does), which is only `day` or `night`, and flips each cafe's sign when the phase changes. Day shows OPEN, night shows CLOSED. Every client reads the same `Clock`, so every player sees the same side.
 - **The flip (VFX-Agent):** the board turns 180 degrees around its hanging string over 0.6 s, eases out with one small back-and-forth swing (about 8 degrees, settling in 0.4 s), and the string stays put. The moon bulb fades in or out over the same 0.6 s.
@@ -41,7 +41,7 @@ Decided by Coordinator for the friend, overnight 11-05, from Derek's 11-04 note 
 ## 5. QA checks
 
 1. On every cafe tier, including the 44 x 34 cafes, the sign touches the door glass with no gap from the street, the side or close up, and doesn't cover the door prompt.
-2. At nightfall it flips to CLOSED with the moon glowing; at dawn it flips to OPEN. With Reduce Motion it swaps instantly.
+2. At nightfall it flips to CLOSED with the moon glowing; at sunrise it flips to OPEN. With Reduce Motion it swaps instantly.
 3. A second player in the server sees the same side at the same time, and a player who joins at night sees CLOSED without a flip.
-5. `CatCafe_Plot_ClosedSign` and `setClosedSign` are gone, and there's only one door sign per cafe.
 4. No sign shows on an unowned plot, and releasing a plot removes its sign.
+5. `CatCafe_Plot_ClosedSign` and `setClosedSign` are gone, and there's only one door sign per cafe.

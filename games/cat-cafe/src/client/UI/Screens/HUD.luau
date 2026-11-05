@@ -170,8 +170,9 @@ local BOWL_ICON = "🥣" -- the bait bowl symbol's glyph, under the Big Bowl per
 local TOUCH = Scale.isTouch()
 local TILE_LAYOUT: Button.Layout = if TOUCH then "tile" else "clean"
 -- #1676 (Derek2 live 11-05: "the buttons became way too big and spread so they take up too much screen"): 66 on a PC
--- (was 78), its label 15, the Store 68 tall, and the gaps only the outline clear of the key caps and red dots
-local MENU_TILE = if TOUCH then 64 else 66
+-- (was 78), its label 15, the Store 68 tall, and the gaps only the outline clear of the key caps and red dots. On a
+-- phone or tablet 60 (was 64): 45 px at the smallest touch scale (Scale.TOUCH_FLOOR), still a finger's 44.
+local MENU_TILE = if TOUCH then 60 else 66
 local MENU_TEXT = if TOUCH then Theme.sizes.textTiny + 1 else 15 -- a menu tile's label
 local MENU_CELL_H = if TOUCH then MENU_TILE else MENU_TILE + MENU_TEXT + 4 -- the square and the label's strip
 local STORE_H = 68 -- the Store's wide tile, two tiles wide, over the grid
@@ -258,8 +259,9 @@ local DROP_W = 104
 -- the arrow tabs that fold the left menu and the bottom row out of the way (Derek 2026-10-27: less clutter)
 local FOLD_W = 44
 local FOLD_H = 34
--- the arrow tab under the grid: the last row's foot, then the clear gap and the tab's own 3 px outline (#1210)
-local FOLD_UNDER = FOOT_REACH + TILE_CLEAR + 3
+-- the arrow tab under the grid: the last row's foot, then the clear gap and the tab's own 3 px outline (#1210), and 2 px
+-- more since TILE_CLEAR went down to the outline (#1676), for the two-bowl Bowl tile's count that sits a little lower
+local FOLD_UNDER = FOOT_REACH + TILE_CLEAR + 5
 local function menuFoldedX(width: number): number
 	return -(width + 40) -- past the left edge, dots too
 end
@@ -2193,7 +2195,8 @@ function HUD._popNew(self: any, key: HudUnlocks.Key)
 		BackgroundColor3 = Theme.colors.gold,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, 6, 0, 2),
+		-- #1676: its right edge 2 px past the side like the red dot, so the tighter columns keep it off the next key cap
+		Position = UDim2.new(1, 2, 0, 2),
 		Size = UDim2.fromOffset(52, 24),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,

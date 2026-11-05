@@ -3,7 +3,8 @@
 -- joined through your invite (or you through theirs), followed you in (or you them), or shares your private server;
 -- every link counts the same. PalService works the links out on the server; this module holds the bonus and the
 -- invite's launch data.
---   bonus(count) -> number          the tip share pals add: 0, PalTipBonus with one, PalTipBonusMax with two or more
+--   bonus(count) -> number          the tip share pals add: 0, PalTipBonus with one, PalTipBonusStep more for each
+--                                   more, at most PalTipBonusMax (#1165)
 --   inviteData(userId) -> string    the LaunchData an invite carries ("pal:<userId>")
 --   inviterOf(launchData) -> number?  the inviter's user id from a join's LaunchData, nil for anything else
 
@@ -17,12 +18,11 @@ export type Link = "friend" | "invite" | "follow" | "private"
 local INVITE_PREFIX = "pal:"
 
 function Pals.bonus(count: number): number
-	if count >= 2 then
-		return Config.PalTipBonusMax
-	elseif count >= 1 then
-		return Config.PalTipBonus
+	local n = math.floor(count)
+	if n < 1 then
+		return 0
 	end
-	return 0
+	return math.min(Config.PalTipBonusMax, Config.PalTipBonus + Config.PalTipBonusStep * (n - 1))
 end
 
 function Pals.inviteData(userId: number): string

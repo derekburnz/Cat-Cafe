@@ -511,7 +511,7 @@ function Potions._row(self: any, potionId: string): Row
 	-- the potion's own bottle (Model-Agent's icons), else the drawn potion glyph
 	local bottles = ShopIcons.potionAll(potionId)
 	if #bottles > 0 then
-		IconArt.setImages(glyph, bottles, 0.92)
+		IconArt.setImages(glyph, bottles, 0.92 * ShopIcons.potionScale(potionId)) -- Small smaller, Big bigger (#1403)
 	else
 		IconArt.set(glyph, Theme.icons.potion, 0.8)
 	end

@@ -2077,6 +2077,24 @@ function UI.bag.fed(catUid: string, level: number, _xp: number)
 	end
 end
 
+-- From MysteryGiftResult(kind, id, count): a card with what the gift held ("Money Potion", "2 Salmon",
+-- "10 golden fish", "1 spin") as a picture, closing by itself, with the giftOpen sound.
+function UI.potions.giftResult(kind: string, id: string?, count: number)
+	if popups == nil then
+		return
+	end
+	local function potionName(potionId: string): string?
+		for _, potion in PotionLogic.list(currentCatalog) do
+			if potion.id == potionId then
+				return potion.name
+			end
+		end
+		return nil
+	end
+	local title = PotionLogic.giftTitle(kind, id, count, foodName, potionName)
+	popups:showGift(title, PotionLogic.giftPrize(kind, id, count))
+end
+
 ----------------------------------------------------------------------------------------------------
 -- The Cat Collector (F63, data-model section 12b)
 ----------------------------------------------------------------------------------------------------

@@ -15,6 +15,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserService = game:GetService("UserService")
 
+local CafeService = require(script.Parent.CafeService)
 local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IdeaCredits = require(ReplicatedStorage.Shared.IdeaCredits)
@@ -199,6 +200,7 @@ local function onSetHideCredit(player: Player, rawHide: unknown)
 	end
 	buildRows()
 	sendAll()
+	CafeService.sync(player) -- the Settings row reads hideCredit from ProfileSync
 end
 
 function IdeaCreditsService.start()

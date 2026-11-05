@@ -276,6 +276,7 @@ export type PlayerState = {
 	introSeen: boolean?, -- F72: the intro has played once; any value shows the Tutorial tile and Settings rows
 	potions: { [string]: number }?, -- F64: potion id -> how many are in the bag
 	catFood: { [string]: number }?, -- #1181: cat food id -> how many are in the Bag (FeedCat feeds one)
+	hideCredit: boolean?, -- #1083: true while the player keeps their name off the Thank You board
 	buffs: { [string]: number }?, -- F64: each running potion's endsAt in server time (Workspace:GetServerTimeNow())
 	quests: QuestsView?, -- F73: the Quests window's Daily and Weekly tabs and the HUD's quest line
 	achievements: { [string]: AchievementView }?, -- F73: achievement id -> its progress and claim
@@ -330,6 +331,7 @@ export type PartialState = {
 	introSeen: boolean?,
 	potions: { [string]: number }?,
 	catFood: { [string]: number }?, -- #1181: the Bag's cat food
+	hideCredit: boolean?, -- #1083: the Settings row's current value
 	buffs: { [string]: number }?,
 	quests: QuestsView?,
 	achievements: { [string]: AchievementView }?,

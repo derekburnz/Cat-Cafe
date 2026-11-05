@@ -983,7 +983,7 @@ New in v0.6 (F49, the Spin Wheel station):
 |---|---|---|---|
 | SpinStationRange | 14 | new | SpinService |
 | SpinCooldownSeconds | 4 | new | SpinService, Spin window animation |
-| SpinBankCap | 20 | new | SpinService, TipJarService |
+| SpinBankCap | 50 (20 until #1414) | new | SpinService, TipJarService |
 
 New in v0.7 (decided 2026-10-27 19:27, [golden-fish.md](golden-fish.md) section 8): CratePrice 60, CrateDuplicateRefund {Common 10, Rare 20, Epic 40, Legendary 80, Mythical 150}, CrateLuckyEvery 20, FishMarketRange 14, CrateOpenCooldownSeconds 2, DecorSpots {2, 3, 4, 5, 6} by tier, DecorIndexBonus 0.05, DecorIndexHalfFish 25, the crate piece bonuses {0.02, 0.04, 0.08, 0.15, 0.25}, FishFirstCatch { Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 40 } and FishRepeatCatch { Epic = 1, Legendary = 3, Mythical = 8 } (maps by rarity, as built in PR #295), FishRankUp { 10, 25, 50, 100 } for Tiers 2 to 5, TipJarStep12Fish 5. A first catch that is also gold pays both the first catch and the first gold catch rows (an Epic: 8 + 16 = 24), because it fills both Index pages.
 

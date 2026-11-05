@@ -1182,20 +1182,21 @@ Catalog.lures = {
 -- milestones and codes) pays half the seconds it did; the minimum coins stay. F94 (rewards-and-shops.md section 2a):
 -- small amounts of golden fish in place of shop food, and at most three pictures on the two hour gift.
 Catalog.tipJar = {
-	{ step = 1, minutes = 2, prize = { coins = 50, coinSeconds = 15 } },
-	{ step = 2, minutes = 5, prize = { fish = 2 } },
-	{ step = 3, minutes = 10, prize = { coins = 100, coinSeconds = 30 } },
-	{ step = 4, minutes = 15, prize = { fish = 2 } },
-	{ step = 5, minutes = 20, prize = { coins = 150, coinSeconds = 45 } },
-	{ step = 6, minutes = 30, prize = { spins = 1 } },
-	{ step = 7, minutes = 40, prize = { coins = 250, coinSeconds = 60 } },
-	{ step = 8, minutes = 50, prize = { fish = 3 } },
+	-- v2 (#1414, rewards-and-shops.md section 2a): coins 2x, golden fish 5x, spins 5x and the crate 2x
+	{ step = 1, minutes = 2, prize = { coins = 100, coinSeconds = 30 } },
+	{ step = 2, minutes = 5, prize = { fish = 10 } },
+	{ step = 3, minutes = 10, prize = { coins = 200, coinSeconds = 60 } },
+	{ step = 4, minutes = 15, prize = { fish = 10 } },
+	{ step = 5, minutes = 20, prize = { coins = 300, coinSeconds = 90 } },
+	{ step = 6, minutes = 30, prize = { spins = 5 } },
+	{ step = 7, minutes = 40, prize = { coins = 500, coinSeconds = 120 } },
+	{ step = 8, minutes = 50, prize = { fish = 15 } },
 	-- v0.10 (F68, round 4 Q10): a pretty good gift at one hour
-	{ step = 9, minutes = 60, prize = { coins = 1000, coinSeconds = 300, fish = 10 } },
-	{ step = 10, minutes = 75, prize = { fish = 5 } },
-	{ step = 11, minutes = 90, prize = { coins = 600, coinSeconds = 150, spins = 1 } },
+	{ step = 9, minutes = 60, prize = { coins = 2000, coinSeconds = 600, fish = 50 } },
+	{ step = 10, minutes = 75, prize = { fish = 25 } },
+	{ step = 11, minutes = 90, prize = { coins = 1200, coinSeconds = 300, spins = 5 } },
 	-- and a really good one at two hours
-	{ step = 12, minutes = 120, prize = { crates = { classic_crate = 1 }, fish = 30 } },
+	{ step = 12, minutes = 120, prize = { crates = { classic_crate = 2 }, fish = 150 } },
 } :: { Types.TipJarStep }
 
 -- Section 11e (F70, round 4 Q9): the Daily Treat card, one stamp per UTC day played and never reset. Days 2 and 4

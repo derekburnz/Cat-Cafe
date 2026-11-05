@@ -115,7 +115,8 @@ Remotes.ClientToServer = {
 	-- (CampExtras.yardStock) not yet taken today, free since #1051; banked for the Market; 1 a second
 	-- F91 front lawn (front-lawn.md section 5; LawnService, shared/Lawn): the caller's own cafe, once its art is in
 	"BuyLawn", -- (id: string, spotId: string?)  a Catalog.lawn piece or Catalog.lawnStyles style not owned yet, the
-	-- caller's tier at its tier and its price in coins (sink "lawn"); a style goes in use at once, a piece onto
+	-- caller within LawnStallRange of a LawnStall Garden Nursery (#1200, once it is in the world), the caller's tier at
+	-- its tier and its rarity's fixed price in coins (sink "lawn"); a style goes in use at once, a piece onto
 	-- `spotId` when it may stand there (Lawn.placeBlocker), else the first empty open spot of its size, if any; 2 a
 	-- second, answered with a toast and a ProfileSync
 	"SetLawnSpot", -- (spotId: string, pieceId: string?)  a Lawn.SPOTS spot open at the caller's tier; an owned piece

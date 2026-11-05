@@ -655,11 +655,14 @@ export type CampExtraDef = {
 -- (Catalog.lawn, Catalog.lawnStyles). `tier` is the tier that sells it; `model` is Model-Agent's (#673, style guide
 -- section 13): CatCafe_Lawn_<Piece>, CatCafe_Lawn_Path_<Style> or CatCafe_Lawn_Fence_<Style>.
 export type LawnSize = "small" | "big"
+-- lawn-nursery.md section 1 (#1200): Uncommon and Golden are lawn-only rungs
+export type LawnRarity = "Common" | "Uncommon" | "Rare" | "Epic" | "Legendary" | "Mythical" | "Golden"
 export type LawnPieceDef = {
 	id: string,
 	name: string,
 	spot: LawnSize,
 	tier: number,
+	rarity: LawnRarity,
 	price: number,
 	model: string,
 }
@@ -669,6 +672,7 @@ export type LawnStyleDef = {
 	name: string,
 	kind: LawnStyleKind,
 	tier: number,
+	rarity: LawnRarity?, -- nil only for the free Grey Slabs
 	price: number, -- 0: every cafe has it (Grey Slabs)
 	model: string,
 }

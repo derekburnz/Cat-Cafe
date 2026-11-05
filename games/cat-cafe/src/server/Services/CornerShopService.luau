@@ -6,7 +6,9 @@
 --     It charges the row's fixed price (sink "corner_shop", event corner_shop_buy) and gives the item: a potion into
 --     the bag, or food into the Bag's catFood (fed later with FeedCat; no cat pick). The cafe shows (the Bubble
 --     Machine and Cafe Fireworks) are gone from the game (#1381).
---     Arguments a v1 window still sends after `window` are ignored. Every buy, bought or refused, answers
+--   BuyCornerShop(itemId, window, shownPrice?): #1281 (section 1b) a "bait" row gives its food into `lures` at
+--     Economy.foodPrice for the player's tier, up to CornerShop.LURE_MAX held, and refuses when that price is above
+--     `shownPrice` (the window showed an older one). Other rows ignore shownPrice; a later catUid is ignored. Every buy, bought or refused, answers
 --     CornerShopStock; a refusal toasts why.
 --   CornerShopStock(stock)  S -> C: on join, at each new window, after every buy.
 -- Nothing here is random, sold for golden fish or Robux, or raises income (corner-shop.md section 3).
@@ -62,11 +64,11 @@ end
 local function send(player: Player, profile: Types.PlayerProfile)
 	local state, window = refreshed(profile)
 	sentWindow[player] = window
-	local stock = CornerShop.view(state, window)
+	local stock = CornerShop.view(state, window, Economy.tier(profile))
 	Net.fire(player, "CornerShopStock", stock)
 end
 
-local function onBuy(player: Player, rawItemId: unknown, rawWindow: unknown)
+local function onBuy(player: Player, rawItemId: unknown, rawWindow: unknown, rawShownPrice: unknown)
 	local profile = DataService.get(player)
 	if profile == nil then
 		return
@@ -77,6 +79,8 @@ local function onBuy(player: Player, rawItemId: unknown, rawWindow: unknown)
 	end
 	local itemId = Guard.id(rawItemId)
 	local seenWindow = Guard.int(rawWindow, 0, 2 ^ 40)
+	-- nil, or not a whole number of coins (a v1 window's), checks no shown price
+	local shownPrice = Guard.int(rawShownPrice, 0, 2 ^ 53)
 	if itemId == nil or seenWindow == nil then
 		send(player, profile)
 		return
@@ -93,28 +97,28 @@ local function onBuy(player: Player, rawItemId: unknown, rawWindow: unknown)
 	Economy.settle(profile, os.time(), ClockService.epoch())
 	local state, window = refreshed(profile)
 	local foodId = row.foodId
+	local lureId = row.lureId
+	local tier = Economy.tier(profile)
 	local blocker = CornerShop.buyBlocker(state, {
 		itemId = itemId,
 		seenWindow = seenWindow,
-		tier = Economy.tier(profile),
+		tier = tier,
 		coins = profile.coins,
 		foodHeld = if foodId ~= nil then profile.catFood[foodId] or 0 else 0,
+		lureHeld = if lureId ~= nil then profile.lures[lureId] or 0 else nil,
+		shownPrice = shownPrice,
 	}, window)
 	if blocker ~= nil then
 		refuse(blocker)
 		return
 	end
-	if not Economy.trySpend(profile, row.price) then
+	local price = CornerShop.priceOf(row, tier)
+	if not Economy.trySpend(profile, price) then
 		refuse("Not enough coins")
 		return
 	end
-	Telemetry.sink(player, profile, row.price, "Shop", "corner_shop")
-	Telemetry.custom(
-		player,
-		"corner_shop_buy",
-		row.price,
-		{ itemId, tostring(Economy.tier(profile)), row.size }
-	)
+	Telemetry.sink(player, profile, price, "Shop", if lureId ~= nil then lureId else "corner_shop")
+	Telemetry.custom(player, "corner_shop_buy", price, { itemId, tostring(tier), row.size })
 	CornerShop.record(state, itemId)
 	if row.kind == "potion" then
 		local potionId = row.potionId :: string
@@ -123,6 +127,9 @@ local function onBuy(player: Player, rawItemId: unknown, rawWindow: unknown)
 	elseif row.kind == "food" and foodId ~= nil then
 		profile.catFood[foodId] = (profile.catFood[foodId] or 0) + 1
 		Net.toast(player, string.format("A %s went into your Bag", row.name), "good")
+	elseif row.kind == "bait" and lureId ~= nil then
+		profile.lures[lureId] = (profile.lures[lureId] or 0) + 1
+		Net.toast(player, string.format("Bought %s (%d)", row.name, profile.lures[lureId]), "good")
 	end
 	send(player, profile)
 	CafeService.sync(player)

@@ -270,19 +270,6 @@ function Logic.restingPurrs(pose: any, night: boolean, loafing: boolean): boolea
 	return pose == "sit" or loafing
 end
 
--- Seconds until the dusk bell (F66): `warning` seconds before a day ends. nil at night, with no end time, or once
--- that moment passed more than a second ago, so joining late rings nothing.
-function Logic.duskBellIn(phase: string?, endsAt: number?, now: number, warning: number): number?
-	if phase ~= "day" or endsAt == nil then
-		return nil
-	end
-	local inSeconds = endsAt - warning - now
-	if inSeconds < -1 then
-		return nil
-	end
-	return math.max(inSeconds, 0)
-end
-
 -- The shout-out cue for a rarity (F58): a Mythical gets its own sting, everything else the two-note chime.
 function Logic.announceCue(rarity: string?): string
 	local step = Logic.rarityStep(rarity)
@@ -527,6 +514,12 @@ end
 -- A tutorial step is done on a seen rise of the step (not the first sync after joining).
 function Logic.tutorialStepDone(before: number?, now: number): boolean
 	return before ~= nil and now > before
+end
+
+-- #1133/#1154/#1232: a camp station chimes when something starts waiting there, on a seen change of `held` from 0
+-- to more while its area is open. nil before (the first state after joining) plays nothing.
+function Logic.stationReady(before: number?, now: number, open: boolean): boolean
+	return open and before == 0 and now > 0
 end
 
 -- Animation beats (Beats.hit) to sounds: the Bellhop Cat's bell (F96) and the camp extras' moving touches (F100).

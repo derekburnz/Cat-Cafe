@@ -1037,18 +1037,51 @@ function Logic.wheelUp(axle: Vector3, back: Vector3): Vector3
 	return up.Unit
 end
 
+-- The world wheel's slice widths in degrees, in Catalog.spinWheel order, from its Wheel Model's `SliceSpans`
+-- attribute ("52,52,52,52,52,52,24,24": the two jackpot slices are narrow, #1411), or `slices` equal ones when it
+-- is missing or its widths are not all above 0 and do not add up to a whole turn.
+function Logic.wheelSpans(value: unknown, slices: number): { number }
+	local spans: { number } = {}
+	local total = 0
+	if type(value) == "string" then
+		for word in string.gmatch(value, "[^,]+") do
+			local span = tonumber(word)
+			if span == nil or span <= 0 then
+				spans = {}
+				break
+			end
+			table.insert(spans, span)
+			total += span
+		end
+	end
+	if #spans == 0 or math.abs(total - 360) > 0.5 then
+		return table.create(slices, 360 / slices)
+	end
+	return spans
+end
+
+-- How far round, in degrees the way the wheel turns, slice `slice`'s middle is from slice 1's, which sits under
+-- the pointer at rest.
+function Logic.sliceMiddle(spans: { number }, slice: number): number
+	local before = 0
+	for i = 1, slice - 1 do
+		before += spans[i]
+	end
+	return before + spans[slice] / 2 - spans[1] / 2
+end
+
 -- Where the world wheel comes to rest after a spin at server time `at`, in radians from where the server placed
--- it: on the won slice when the station says which (`slice`, 1 to `slices`, slice 1 under the pointer at rest and
--- the rest counted round the way the wheel turns), somewhere inside it rather than dead centre, never near an
--- edge, so it can never seem to just miss a better prize. With no slice, anywhere. Every client works out the
--- same angle, so everyone sees the wheel stop in the same place.
-function Logic.wheelRest(at: number, slice: number?, slices: number): number
+-- it: on the won slice when the station says which (`slice`, 1 to #`spans`, slice 1 under the pointer at rest and
+-- the rest counted round the way the wheel turns, each `spans` degrees wide), somewhere inside it rather than dead
+-- centre, never near an edge, so it can never seem to just miss a better prize. With no slice, anywhere. Every
+-- client works out the same angle, so everyone sees the wheel stop in the same place.
+function Logic.wheelRest(at: number, slice: number?, spans: { number }): number
 	local jitter = Logic.phaseOf(string.format("%.3f", at))
-	if slice == nil or slice ~= math.floor(slice) or slice < 1 or slice > slices then
+	if slice == nil or slice ~= math.floor(slice) or slice < 1 or slice > #spans then
 		return jitter * 2 * math.pi
 	end
 	local inside = (jitter - 0.5) * Presets.wheel.landWithin
-	return -((slice - 1) + inside) * 2 * math.pi / slices
+	return -math.rad(Logic.sliceMiddle(spans, slice) + inside * spans[slice])
 end
 
 -- The angle a spin turns to from `from`: `turns` whole turns, then on to `rest`, always forward.
@@ -1057,11 +1090,19 @@ function Logic.wheelTarget(from: number, rest: number, turns: number): number
 	return from + turns * tau + (rest - from) % tau
 end
 
--- How far the pointer is knocked aside, in degrees, at a wheel angle: `tilt` just as a slice edge passes it, back
--- to nothing `share` of a slice later.
-function Logic.pointerTilt(angle: number, slices: number, tilt: number, share: number): number
-	local into = (angle / (2 * math.pi / slices)) % 1
-	return tilt * math.max(0, 1 - into / share)
+-- How far the pointer is knocked aside, in degrees, at a wheel angle (radians, as wheelRest's): `tilt` just as a
+-- slice edge passes it, back to nothing `share` of that slice later. Turning forward, the point under the pointer
+-- runs back through the slices, so the edge it last passed is the far edge of the slice under it now.
+function Logic.pointerTilt(angle: number, spans: { number }, tilt: number, share: number): number
+	local at = (spans[1] / 2 - math.deg(angle)) % 360 -- degrees from slice 1's near edge
+	local edge = 0
+	for _, span in spans do
+		edge += span
+		if at < edge then
+			return tilt * math.max(0, 1 - (edge - at) / span / share)
+		end
+	end
+	return 0
 end
 
 -- Whether rim light `index` is on `t` seconds into a spin: every other one, stepping round each `step` seconds.
@@ -2676,6 +2717,29 @@ function Logic.cutWeight(
 	local into = smoothstep(t / p.swingIn)
 	local out = smoothstep((seconds - t) / p.swingOut)
 	return math.min(into, out)
+end
+
+-- The carry by what rides on the tray (#1576, Presets.cafeWalk.carry.styles): `style`'s chin and tail on top of
+-- Logic.trayCarry, `k` 0 to 1 of the way into carrying.
+function Logic.trayStyle(o: Offsets, k: number, style: { chin: number, tail: number })
+	if k <= 0 then
+		return
+	end
+	o.headPitch += math.rad(style.chin) * k
+	o.tailPitch += math.rad(style.tail) * k
+end
+
+-- How the tray rides this frame for `style`: its roll in radians, side to side once a stride, and its lift in studs
+-- at each step, `stride` strides into the walk at `speed` studs/s (level while standing), `k` of the way into carrying.
+function Logic.traySway(
+	stride: number,
+	speed: number,
+	style: { sway: number, bob: number },
+	k: number
+): (number, number)
+	local moving = math.clamp(speed / Presets.cafeWalk.carry.swayAt, 0, 1) * math.clamp(k, 0, 1)
+	local wave = math.sin(2 * math.pi * stride)
+	return math.rad(style.sway) * wave * moving, style.bob * math.abs(wave) * moving
 end
 
 return Logic

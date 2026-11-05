@@ -29,6 +29,17 @@ return function()
 			expect(Logic.chance("big_cat_snack")).to.equal("In stock 3 times in 10")
 			expect(Logic.chance("cat_feast")).to.equal("In stock 1 time in 10")
 			expect(Logic.effect(snack)).to.equal("+1,200 XP cat food, into your Bag")
+			-- #1281: a bait food row says how many the player has
+			local tuna = {
+				id = "tuna",
+				name = "Tuna",
+				family = "bait",
+				size = "regular",
+				kind = "bait",
+				price = 500,
+			}
+			expect(Logic.effect(tuna, 3)).to.equal("Bait for your bowl · You have 3")
+			expect(Logic.effect(tuna)).to.equal("Bait for your bowl · You have 0")
 			expect(Logic.chance("nothing")).to.equal("")
 		end)
 		it("words the stock line", function()
@@ -55,6 +66,15 @@ return function()
 			expect(
 				Logic.button({ itemId = "x", price = 1, amount = 0, bought = 0 }, nil, 9, 0).text
 			).to.equal("None")
+		end)
+		it("greys a row whose family hit its daily limit as Back tomorrow (#1435)", function()
+			local out: any = { itemId = "x", price = 1, amount = 3, bought = 0, outToday = true }
+			local view = Logic.button(out, nil, 9, 0)
+			expect(view.text).to.equal("Back tomorrow")
+			expect(view.enabled).to.equal(false)
+			-- the window's own stock still reads first
+			out.bought = 3
+			expect(Logic.button(out, nil, 9, 0).text).to.equal("Sold out")
 		end)
 		it(
 			"gates a row by tier and leaves the daily limit to the server (corner-shop-v2.md, #1190)",

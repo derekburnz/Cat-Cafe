@@ -343,7 +343,7 @@ return function()
 			raw.version = 32
 			raw.campExtras.yardSale = { day = today, bought = { park_crate = true } }
 			local profile = ProfileSchema.migrate(raw, T)
-			expect(profile.version).to.equal(33)
+			expect(profile.version).to.equal(ProfileSchema.VERSION) -- 33 then, 34 since the second bowl (#1161)
 			expect(profile.campExtras.yardSale :: any).to.deepEqual({ lastClaimAt = today * DAY, claims = today + 1 })
 			local zone = CampExtras.yardStock(3, profile.campExtras.yardSale.claims)[1]
 			-- T is 01:00 UTC: refused until 04:00, then free

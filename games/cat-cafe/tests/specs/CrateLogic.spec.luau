@@ -85,6 +85,15 @@ return function()
 			expect(CrateLogic.resolve("highest", CRATES, AREAS, 4)).to.equal("park_crate")
 		end)
 
+		it("picks the golden crate of the highest area with one for highest_golden (#1500)", function()
+			expect(CrateLogic.resolve("highest_golden", CRATES, AREAS, 1)).to.equal("alley_golden_crate")
+			-- the Park has no golden crate here, so tier 2 keeps the Alley's; tier 4 reaches the Woods'
+			expect(CrateLogic.resolve("highest_golden", CRATES, AREAS, 2)).to.equal("alley_golden_crate")
+			expect(CrateLogic.resolve("highest_golden", CRATES, AREAS, 4)).to.equal("woods_golden_crate")
+			expect(CrateLogic.resolve("highest_golden", {}, AREAS, 3)).to.equal("highest_golden")
+			expect(CrateLogic.name("highest_golden", nil)).to.equal("Golden Crate")
+		end)
+
 		it("stays highest when nothing matches", function()
 			expect(CrateLogic.resolve("highest", {}, AREAS, 3)).to.equal("highest")
 			expect(CrateLogic.resolve("highest", CRATES, nil, 3)).to.equal("highest")

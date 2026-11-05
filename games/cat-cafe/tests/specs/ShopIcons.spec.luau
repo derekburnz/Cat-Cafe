@@ -41,12 +41,12 @@ return function()
 			"gives each Cat Whistle size its own flask, the regular one behind it (#1302)",
 			function()
 				expect(ShopIcons.potion("cat_whistle_small")).to.equal(
-					"rbxassetid://88245082341165"
+					"rbxassetid://71443833712403"
 				)
-				expect(ShopIcons.potion("cat_whistle")).to.equal("rbxassetid://139758496638549")
-				expect(ShopIcons.potion("cat_whistle_big")).to.equal("rbxassetid://83123481656090")
+				expect(ShopIcons.potion("cat_whistle")).to.equal("rbxassetid://94091051776887")
+				expect(ShopIcons.potion("cat_whistle_big")).to.equal("rbxassetid://82693373943515")
 				local all = ShopIcons.potionAll("cat_whistle_big")
-				expect(all[2]).to.equal("rbxassetid://139758496638549")
+				expect(all[2]).to.equal("rbxassetid://94091051776887")
 			end
 		)
 		it("lists every bottle a potion has, flask first (#1256)", function()
@@ -79,7 +79,7 @@ return function()
 		end)
 		it("has a bottle for every potion in the catalog", function()
 			-- the clean bottle first (#1070), the old picture behind it
-			expect(ShopIcons.potion("gold_rush_potion")).to.equal("rbxassetid://133671235439574") -- the #1193 flask (#1204)
+			expect(ShopIcons.potion("gold_rush_potion")).to.equal("rbxassetid://118260703338891") -- the #1193 flask (#1204)
 			local missing: { string } = {}
 			for _, potion in Catalog.potions do
 				if ShopIcons.potion(potion.id) == nil then

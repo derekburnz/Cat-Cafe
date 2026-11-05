@@ -1,6 +1,6 @@
 --!strict
--- Game passes (F95, economy-ladder.md section 6): which of the Money, Long Nap and extra slot passes a player owns,
--- as Economy.Passes. DataService checks at join, before it works out offline pay, and Economy.setPasses holds the
+-- Game passes (F95, economy-ladder.md section 6): which of the Money, Long Nap, extra slot and Second Bait Bowl
+-- (#1161) passes a player owns, as Economy.Passes. DataService checks at join, before it works out offline pay, and Economy.setPasses holds the
 -- result on the profile for the session; nothing is saved. A pass bought in game counts from the purchase:
 -- MarketplaceService fires PromptGamePassPurchaseFinished on the server, and `changed` passes the new set on.
 -- A Config id of 0 is a pass not made yet and is never looked up, so until Tools-Agent makes them every player has
@@ -12,6 +12,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local ShopCats = require(ReplicatedStorage.Shared.ShopCats)
 local Signal = require(ReplicatedStorage.Shared.Signal)
 
 local PassService = {}
@@ -25,7 +26,8 @@ local owned: { [Player]: { [number]: boolean } } = setmetatable({}, { __mode = "
 
 -- Every pass id Config names that is made (not 0).
 local function passIds(): { number }
-	local ids: { number } = {}
+	-- #1447: the shop-only cats' passes (Royal Cat, King Cat Pack); ShopCatService reads them with `owns`
+	local ids: { number } = ShopCats.passIds()
 	if Config.LongNapPassId ~= 0 then
 		table.insert(ids, Config.LongNapPassId)
 	end
@@ -38,6 +40,9 @@ local function passIds(): { number }
 		if id ~= 0 then
 			table.insert(ids, id)
 		end
+	end
+	if Config.SecondBowlPassId ~= 0 then
+		table.insert(ids, Config.SecondBowlPassId) -- #1161
 	end
 	return ids
 end
@@ -60,6 +65,10 @@ function PassService.fromOwned(set: { [number]: boolean }): Economy.Passes
 		money = money,
 		longNap = Config.LongNapPassId ~= 0 and set[Config.LongNapPassId] == true,
 		slots = slots,
+		-- #1161: bowl 2 (CafeService.secondBowl)
+		secondBowl = if Config.SecondBowlPassId ~= 0 and set[Config.SecondBowlPassId]
+			then true
+			else nil,
 	}
 end
 
@@ -127,6 +136,13 @@ function PassService.check(player: Player): Economy.Passes
 		task.spawn(retry, player, set, failed)
 	end
 	return PassService.fromOwned(set)
+end
+
+-- Whether `player` owns pass `id` as far as this session knows: looked up at join, or bought since (#1447). False
+-- before the join lookup and while a failed lookup waits for its retry, which fires `changed` once it answers.
+function PassService.owns(player: Player, id: number): boolean
+	local set = owned[player]
+	return id ~= 0 and set ~= nil and set[id] == true
 end
 
 local function onPurchaseFinished(player: Player, passId: number, purchased: boolean)

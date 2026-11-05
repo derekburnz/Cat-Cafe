@@ -8,6 +8,7 @@ local Catching = require(script.Parent.Catching)
 local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
 local IndexRewards = require(script.Parent.IndexRewards)
+local Lawn = require(script.Parent.Lawn)
 local Pals = require(script.Parent.Pals)
 local Potions = require(script.Parent.Potions)
 local Types = require(script.Parent.Types)
@@ -15,10 +16,11 @@ local Types = require(script.Parent.Types)
 local Economy = {}
 
 -- What the player's game passes give (F95, economy-ladder.md section 6): `money` the Money pass multiplier (1, or 2,
--- 3 or 4, the highest owned), `longNap` the Long Nap pass's offline rate and cap, `slots` the extra role slots.
+-- 3 or 4, the highest owned), `longNap` the Long Nap pass's offline rate and cap, `slots` the extra role slots,
+-- `secondBowl` the Second Bait Bowl pass (#1161; nil is not owned, and PolicyService still gates the bowl).
 -- PassService checks ownership on the server at join and after a purchase; nothing is saved, so it lives in a
 -- weak table keyed by the profile and a profile without an entry (the specs, the client) has no passes.
-export type Passes = { money: number, longNap: boolean, slots: number }
+export type Passes = { money: number, longNap: boolean, slots: number, secondBowl: boolean? }
 
 local NO_PASSES: Passes = { money = 1, longNap = false, slots = 0 } -- shared; never changed
 local passesByProfile: { [Types.PlayerProfile]: Passes } = setmetatable({}, { __mode = "k" }) :: any
@@ -30,7 +32,12 @@ function Economy.setPasses(profile: Types.PlayerProfile, passes: Passes?)
 		return
 	end
 	local p = passes :: Passes
-	passesByProfile[profile] = { money = p.money, longNap = p.longNap, slots = p.slots }
+	passesByProfile[profile] = {
+		money = p.money,
+		longNap = p.longNap,
+		slots = p.slots,
+		secondBowl = p.secondBowl == true or nil,
+	}
 end
 
 function Economy.passes(profile: Types.PlayerProfile): Passes
@@ -126,9 +133,23 @@ function Economy.replacedDecor(profile: Types.PlayerProfile): { [string]: boolea
 	return replaced
 end
 
+-- lawn-nursery.md section 6a (#1283): the money bonus of the lawn pieces and styles out, by rarity
+-- (Config.LawnRarityBonus, shared/Lawn.bonusOf). A profile from before the lawn (save version 28) has none.
+function Economy.lawnBonus(profile: Types.PlayerProfile): number
+	local raw = profile :: any
+	if
+		type(raw.lawnOwned) ~= "table"
+		or type(raw.lawn) ~= "table"
+		or type(raw.lawnStyles) ~= "table"
+	then
+		return 0
+	end
+	return (Lawn.bonus(profile))
+end
+
 -- cafeMultiplier = 1 + 0.10 x tables + 0.15 x (espresso - 1) + placed decor bonuses, plus GoldenEspressoBonus per
--- Golden Espresso level (F53) and the tips forever of every claimed Index milestone (F54, a full Decor Index
--- page's decor10 among them)
+-- Golden Espresso level (F53), the tips forever of every claimed Index milestone (F54, a full Decor Index page's
+-- decor10 among them) and the front lawn's pieces and styles out (#1283, Economy.lawnBonus)
 function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	local multiplier = 1 + Config.TableBonus * Economy.level(profile, "tables")
 	multiplier += Config.EspressoBonus * math.max(0, Economy.level(profile, "espresso") - 1)
@@ -141,6 +162,7 @@ function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	end
 	multiplier += Config.GoldenEspressoBonus * (profile.fishPerks.golden_espresso or 0)
 	multiplier += IndexRewards.totals(profile).bonus
+	multiplier += Economy.lawnBonus(profile)
 	return multiplier
 end
 

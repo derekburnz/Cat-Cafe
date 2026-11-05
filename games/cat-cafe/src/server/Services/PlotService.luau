@@ -87,7 +87,9 @@ function PlotService.release(player: Player)
 	plot.model:SetAttribute("CatFlap", nil)
 	plot.tables:ClearAllChildren()
 	plot.bait:ClearAllChildren()
+	plot.bait2:ClearAllChildren() -- #1161
 	plot.model:SetAttribute("BaitReadyAt", 0)
+	plot.model:SetAttribute("BaitReadyAt2", 0)
 	LawnBuilder.clear(plot) -- F91: the owner's lawn pieces, path and fence go with them
 	-- RichTipService has already missed any open tip (unclaimed tips are never paid); the marker and its outcome
 	-- must not outlive the owner (review N232)

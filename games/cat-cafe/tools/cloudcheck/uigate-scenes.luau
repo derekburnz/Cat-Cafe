@@ -419,6 +419,35 @@ local function storePrices(forSale)
 		prices[id] = { robux = robux[multiplier] or 25, forSale = forSale }
 	end
 	prices[Config.LongNapPassId] = { robux = 199, forSale = forSale }
+	-- #1425: the rest of the passes and the potion packs at store-skus.md's prices, so every tab has priced cards
+	local others = {
+		VipPassId = 25,
+		CatAccessoriesPassId = 149,
+		UniformStylesPassId = 149,
+		CafeStylePassId = 249,
+		GrandThemePassId = 799,
+		RoyalCatPassId = 599,
+		KingPackPassId = 999,
+	}
+	for key, robux in others do
+		local id = Config[key]
+		if type(id) == "number" and id ~= 0 then
+			prices[id] = { robux = robux, forSale = forSale }
+		end
+	end
+	local slots = Config.ExtraSlotPassIds
+	if type(slots) == "table" then
+		for _, id in slots do
+			prices[id] = { robux = 149, forSale = forSale }
+		end
+	end
+	local packs = { potion_pack_xs = 10, potion_pack_s = 25, potion_pack_m = 49, potion_pack_l = 99 }
+	for key, robux in packs do
+		local id = (Config.ProductIds or {})[key]
+		if type(id) == "number" and id ~= 0 then
+			prices[id] = { robux = robux, forSale = forSale }
+		end
+	end
 	return prices
 end
 
@@ -503,32 +532,41 @@ local function leaderboardSync()
 end
 
 -- #1221 (Derek 2026-11-04: the Store's pass cards "push out past the sides" and "lose their outlines"): every card
--- shown, its gold outline included, sits inside the list's edges with the scroll bar's strip left clear, and its
--- description stays inside the card and left of the button. Fails the scene when a card or its words run past.
-local function assertStoreCards()
+-- shown, its gold outline included, sits inside the page's edges with the scroll bar's strip left clear, and its
+-- description stays inside the card and clear of its button. #1425: on Featured (`featured` true) the hero and the
+-- three picks also fit the page's height, since that tab never scrolls. Fails the scene when a card or its words run
+-- past.
+local function assertStoreCards(featured)
 	local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 	local window = modals and modals:FindFirstChild("Store", true)
-	local list = window and window:FindFirstChild("List", true)
-	assert(list and list:IsA("ScrollingFrame"), "uigate: the Store window has no card list")
-	local left = list.AbsolutePosition.X
-	local right = left + list.AbsoluteSize.X
+	local pageName = if featured then "Featured" else "List"
+	local page = window and window:FindFirstChild(pageName, true)
+	assert(page and page:IsA("GuiObject") and page.Visible, "uigate: the Store window's " .. pageName .. " page is not up")
+	local left = page.AbsolutePosition.X
+	local right = left + page.AbsoluteSize.X
+	local top = page.AbsolutePosition.Y
+	local bottom = top + page.AbsoluteSize.Y
 	local cards = 0
-	for _, card in list:GetChildren() do
-		if not card:IsA("Frame") or not card.Visible then
+	for _, card in page:GetDescendants() do
+		if not card:IsA("Frame") or card:FindFirstChild("Buy") == nil or not card.Visible then
+			continue
+		end
+		local parent = card.Parent
+		if parent and parent:IsA("GuiObject") and not parent.Visible then
 			continue
 		end
 		local buy = card:FindFirstChild("Buy")
 		local stroke = card:FindFirstChildOfClass("UIStroke")
 		assert(buy and buy:IsA("GuiObject") and stroke, "uigate: Store card " .. card.Name .. " has no button or outline")
-		local k = buy.AbsoluteSize.X / buy.Size.X.Offset -- design px to screen px (the window's UIScale)
+		local k = buy.AbsoluteSize.Y / buy.Size.Y.Offset -- design px to screen px (the window's UIScale)
 		local outline = stroke.Thickness * k
-		local bar = list.ScrollBarThickness * k
+		local bar = if page:IsA("ScrollingFrame") then page.ScrollBarThickness * k else 0
 		local x1 = card.AbsolutePosition.X - outline
 		local x2 = card.AbsolutePosition.X + card.AbsoluteSize.X + outline
 		assert(
 			x1 >= left - 0.5 and x2 <= right - bar + 0.5,
 			string.format(
-				"uigate: Store card %s runs past the window's inner edge (%.1f to %.1f, list %.1f to %.1f less a %.1f px bar, #1221)",
+				"uigate: Store card %s runs past the page's inner edge (%.1f to %.1f, page %.1f to %.1f less a %.1f px bar, #1221)",
 				card.Name,
 				x1,
 				x2,
@@ -537,22 +575,64 @@ local function assertStoreCards()
 				bar
 			)
 		)
+		if featured then
+			local y1 = card.AbsolutePosition.Y - outline
+			local y2 = card.AbsolutePosition.Y + card.AbsoluteSize.Y + outline
+			assert(
+				y1 >= top - 0.5 and y2 <= bottom + 0.5,
+				string.format(
+					"uigate: Featured card %s does not fit the page's height (%.1f to %.1f, page %.1f to %.1f, #1425)",
+					card.Name,
+					y1,
+					y2,
+					top,
+					bottom
+				)
+			)
+		end
 		local effect = card:FindFirstChild("Effect")
 		if effect and effect:IsA("TextLabel") and effect.Text ~= "" then
-			local bottom = effect.AbsolutePosition.Y + effect.AbsoluteSize.Y
+			local effectBottom = effect.AbsolutePosition.Y + effect.AbsoluteSize.Y
 			local cardBottom = card.AbsolutePosition.Y + card.AbsoluteSize.Y
+			local clear = effect.AbsolutePosition.X + effect.AbsoluteSize.X <= buy.AbsolutePosition.X + 0.5
+				or effectBottom <= buy.AbsolutePosition.Y + 0.5
 			assert(
-				bottom <= cardBottom + 0.5 and effect.AbsolutePosition.X + effect.AbsoluteSize.X <= buy.AbsolutePosition.X,
+				effectBottom <= cardBottom + 0.5 and clear,
 				"uigate: Store card " .. card.Name .. "'s description runs out of the card or under its button (#1221)"
 			)
 		end
 		cards += 1
 	end
-	assert(cards > 0, "uigate: the Store window shows no cards")
+	assert(cards > 0, "uigate: the Store window shows no cards on " .. pageName)
+	if featured then
+		local hero = page:FindFirstChild("hero")
+		local picks = page:FindFirstChild("Picks")
+		if hero and hero.Visible and picks and picks.Visible then
+			assert(
+				hero.AbsolutePosition.Y + hero.AbsoluteSize.Y <= picks.AbsolutePosition.Y + 0.5,
+				"uigate: the Store's hero card runs over its top picks (#1425)"
+			)
+		end
+	end
 end
 
 -- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
 -- "Daily.Quest2.Claim" walks down one name at a time
+-- #1161: the Bait bowl window, and its bowl tabs shown with `selected` chosen and the status title holding `title`.
+local function baitWindow()
+	local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+	local window = modals and modals:FindFirstChild("Bait", true)
+	assert(window, "uigate: no Bait window")
+	return window
+end
+local function assertBowlTabs(selected, title)
+	local window = baitWindow()
+	local tabs = window:FindFirstChild("Bowls", true)
+	assert(tabs and tabs.Visible, "uigate: two bowls but no bowl tabs (#1161)")
+	local shown = window:FindFirstChild("Status", true):FindFirstChild("Title").Text
+	assert(string.find(shown, title, 1, true), ("uigate: bowl %d's card says %q (#1161)"):format(selected, shown))
+end
+
 local function press(windowName, name)
 	local playerGui = UIShim.playerGui
 	-- windows sit in CatCafeModals.Root.Container; the HUD and the Index have pieces with the same names (Cats)
@@ -715,6 +795,77 @@ local SCENES = {
 	end },
 	{ "Bait", function()
 		UI.bait.openPicker()
+		-- #1281: no Buy on any food; each says how many you have, or where to get more
+		local window = baitWindow()
+		local counts = 0
+		for _, piece in window:GetDescendants() do
+			assert(piece.Name ~= "Buy", "uigate: a Buy button in the bowl menu (#1281: foods sell at the Corner Shop)")
+			if piece.Name == "Count" and piece:IsA("TextLabel") then
+				counts += 1
+				local text = piece.Text
+				assert(
+					string.match(text, "^You have %d+$")
+						or text == "Get more at the Corner Shop"
+						or text == "Sold by the night dealer's cart",
+					("uigate: a food row says %q (#1281)"):format(text)
+				)
+			end
+		end
+		assert(counts == #Catalog.lures, ("uigate: %d food rows for %d foods"):format(counts, #Catalog.lures))
+	end },
+	-- #1161: the Second Bait Bowl pass owned, bowl 1 filling and bowl 2 empty: two tabs, and the screen opens on
+	-- bowl 2 (the empty one that takes food) with its Use buttons live
+	{ "BaitTwoBowls", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.setSecond("on")
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 250, placedAt = now - 50 }, 1)
+		UI.bait.openPicker()
+		assertBowlTabs(2, "Bowl 2 is empty")
+	end },
+	-- #1573: a Tuna bait that has come and gone; the empty bowl offers Refill with the same food
+	{ "BaitRefill", function()
+		local now = workspace:GetServerTimeNow()
+		local tuna = Catalog.lures[2]
+		UI.bait.set({ lureId = tuna.id, readyAt = now - 5, placedAt = now - 600 }, 1)
+		UI.bait.set(nil, 1)
+		UI.bait.openPicker()
+		local status = baitWindow():FindFirstChild("Status", true)
+		local action = status and status:FindFirstChild("Action", true)
+		assert(action and action.Visible, "uigate: no Refill on the empty bowl (#1573)")
+		local sub = status:FindFirstChild("Sub", true)
+		assert(sub and string.find(sub.Text, tuna.name, 1, true), "uigate: Refill does not name the food (#1573)")
+	end },
+	-- #1161: both bowls filling, bowl 2 at night: the tabs count down on their own
+	{ "BaitBothRunning", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.setSecond("on")
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 250, placedAt = now - 50 }, 1)
+		UI.bait.set({ lureId = Catalog.lures[2].id, readyAt = now + 95, placedAt = now - 30, night = true }, 2)
+		UI.bait.openPicker()
+		assertBowlTabs(1, "is in bowl 1")
+	end },
+	-- #1161: no pass: bowl 2's tab is locked; tapping it shows the pass card with its price and bowl 2's odds
+	{ "BaitSecondOffer", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local prices = storePrices(true)
+		prices[Config.SecondBowlPassId] = { robux = 149, forSale = true }
+		UI.store.preview(prices, {})
+		UI.bait.setSecond("offer")
+		UI.bait.openPicker()
+		assertBowlTabs(1, "empty") -- never opens on the locked tab
+		press("Bait", "Bowls.Bowl2")
+		local window = baitWindow()
+		local title = window:FindFirstChild("Status", true):FindFirstChild("Title")
+		assert(title.Text == "Get a second bowl", "uigate: bowl 2's tab shows " .. title.Text .. " (#1161)")
+		local odds = window:FindFirstChild("SecondOdds", true)
+		assert(odds and odds.Visible, "uigate: the locked bowl 2 shows no odds card (#1161)")
+		local lines = 0
+		for _, child in odds:GetChildren() do
+			if child:IsA("TextLabel") and string.sub(child.Name, 1, 5) == "Odds_" then
+				lines += 1
+			end
+		end
+		assert(lines == #Catalog.lures, ("uigate: bowl 2's odds list %d of %d foods (#1161)"):format(lines, #Catalog.lures))
 	end },
 	{ "Dealer", function()
 		UI.dealer.open()
@@ -745,6 +896,25 @@ local SCENES = {
 	{ "SpinOdds", function()
 		UI.spin.open()
 		press("SpinWheel", "Odds")
+	end },
+	-- #1500: the end of the Odds list, where the two 0.5% jackpots sit in gold
+	{ "SpinOddsJackpots", function()
+		UI.spin.open()
+		press("SpinWheel", "Odds")
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("SpinWheel", true)
+		local list = window and window:FindFirstChild("Rows", true)
+		assert(list and list:IsA("ScrollingFrame"), "uigate: no Odds list")
+		list.CanvasPosition = Vector2.new(0, 100000)
+		local count = 0
+		for _, row in list:GetChildren() do
+			if row:IsA("Frame") and string.match(row.Name, "^Slice%d+$") then
+				count += 1
+			end
+		end
+		assert(count == #Catalog.spinWheel, ("uigate: %d odds rows for %d slices"):format(count, #Catalog.spinWheel))
+		local prize = list:FindFirstChild("Slice8") and list.Slice8:FindFirstChild("Prize")
+		assert(prize and string.find(prize.Text, "^Jackpot: 100 golden fish"), "uigate: slice 8 is not the fish jackpot")
 	end },
 	{ "Market", function()
 		UI.market.open()
@@ -865,6 +1035,42 @@ local SCENES = {
 			press("Cats", "Sell")
 		end)
 	end },
+	-- #1573: three spare copies of a resting Common: the grid's first card is Sell extras; its Sell asks first
+	{ "CatsSellExtras", function()
+		local player = samplePlayer(os.time())
+		local common
+		for _, instance in player.cats do
+			local def = Catalog.getCat(instance.catId)
+			if def and def.rarity == "Common" and def.exclusive ~= true then
+				common = instance.catId
+				break
+			end
+		end
+		assert(common, "uigate: the sample player has no Common")
+		for count = 1, 3 do
+			local uid = "gate_extra_" .. count
+			player.cats[uid] = {
+				uid = uid,
+				catId = common,
+				variant = "base",
+				caughtAt = os.time() - 30 * count,
+				level = 1,
+				xp = 0,
+				xpToNext = 40,
+				charm = 50,
+				stars = 1,
+				rating = 1,
+			}
+		end
+		UI.update({ cats = player.cats })
+		UI.open("Cats")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("SellExtras", true)
+		assert(card and card.Visible, "uigate: no Sell extras card")
+		press("Cats", "SellExtras.ExtrasSell")
+		local line = card:FindFirstChild("Line") :: TextLabel
+		assert(string.find(line.Text, "^Sell %d+ extra Commons? for ") ~= nil, "uigate: Sell extras asks: " .. line.Text)
+	end },
 	-- F97 section 6: two spare cats (no Index page) with their "Classic" tag, one gold under its sparkle
 	{ "CatsClassic", function()
 		local player = samplePlayer(os.time())
@@ -928,8 +1134,44 @@ local SCENES = {
 	{ "Potions", function()
 		UI.open("Potions")
 	end },
+	-- #1281: the Bag's Bait tab: the bowl foods the player has, each with its picture, grade badge and count, no Use
+	{ "BagBait", function()
+		UI.update({ lures = { kibble = 12, tuna = 3, salmon = 1 } })
+		UI.open("Potions")
+		press("Potions", "BaitTab")
+		local window = UIShim.playerGui:FindFirstChild("Potions", true)
+		local list = window and window:FindFirstChild("BaitList", true)
+		assert(list and list:IsA("GuiObject") and list.Visible, "uigate: the Bag's Bait list is not up")
+		local tuna = list:FindFirstChild("tuna")
+		assert(tuna, "uigate: no Tuna row on the Bait tab")
+		local count = tuna:FindFirstChild("Count") :: TextLabel
+		assert(count.Text == "x3", "uigate: Tuna count " .. count.Text)
+		assert(list:FindFirstChild("Use", true) == nil, "uigate: the Bait tab has a Use button")
+	end },
 	{ "Quests", function()
 		UI.open("Quests")
+	end },
+	-- #1573: a tap on an unfinished daily pins it: its row reads "📌 ..." and the HUD's quest line follows it
+	{ "QuestsPinned", function()
+		UI.open("Quests")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Quests", true)
+		assert(window, "uigate: no Quests window")
+		local daily = window:FindFirstChild("Quest1", true).Parent
+		local pinnedRow = nil
+		for slot = 1, 5 do
+			local row = daily:FindFirstChild("Quest" .. slot)
+			local claim = row and row:FindFirstChild("Claim", true)
+			local check = row and row:FindFirstChild("Check", true)
+			if row and row.Visible and not (claim and claim.Visible) and not (check and check.Visible) then
+				pinnedRow = row
+				press("Quests", "Quest" .. slot .. ".Pin")
+				break
+			end
+		end
+		assert(pinnedRow, "uigate: no unfinished daily to pin")
+		local title = pinnedRow:FindFirstChild("Title")
+		assert(string.sub(title.Text, 1, 4) == "📌", ("uigate: the pinned quest reads %q (#1573)"):format(title.Text))
 	end },
 	{ "QuestsWeekly", function()
 		UI.open("Quests")
@@ -1192,6 +1434,24 @@ local SCENES = {
 		UI.campExtras.update(campExtras(0, true))
 		UI.cannon.open()
 	end },
+	-- #1463: a Golden Pond owner with 14 fish in the pond: Collect on the Woods strip in place of the red dot
+	{ "CannonPondCollect", function()
+		local extras = campExtras(0, true)
+		extras.pond = { open = true, held = 14 }
+		UI.update({ tier = 4 }) -- the Woods (and its pond) open at Tier 4; Scenes.close puts Tier 3 back
+		game:GetService("Players").LocalPlayer:SetAttribute("GoldenPondPass", true)
+		UI.campExtras.update(extras)
+		UI.cannon.open()
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Cannon", true)
+		local shown = false
+		for _, piece in (window and window:GetDescendants()) or {} do
+			if piece.Name == "Collect" and piece:IsA("GuiObject") and piece.Visible then
+				shown = true
+			end
+		end
+		assert(shown, "uigate: no Collect on the pond strip for a Golden Pond owner (#1463)")
+	end },
 	-- F100: the Yard Sale card, the Classic Crate bought today and the Park Crate for 40 golden fish
 	{ "YardSale", function()
 		local extras = campExtras(0, false)
@@ -1208,7 +1468,7 @@ local SCENES = {
 	{ "LawnStallFences", function()
 		UI.nursery.open("fence")
 	end },
-	-- #1052: the Corner Shop with every line: a Swift Potion left, snacks part bought, no Big Snack, fireworks sold out
+	-- #1052: the Corner Shop with every line: a Swift Potion left, snacks part bought, no Big Snack, a whistle sold out
 	{ "CornerShop", function()
 		UI.cornerShop.setStock({
 			window = 5000000,
@@ -1218,11 +1478,38 @@ local SCENES = {
 				{ itemId = "swift_potion", price = 2400, amount = 3, bought = 1 },
 				{ itemId = "cat_snack", price = 6000, amount = 2, bought = 1 },
 				{ itemId = "big_cat_snack", price = 24000, amount = 0, bought = 0 },
-				{ itemId = "bubble_machine", price = 12000, amount = 1, bought = 0 },
-				{ itemId = "cafe_fireworks", price = 18000, amount = 1, bought = 1 },
+				{ itemId = "cat_feast", price = 12000, amount = 1, bought = 0 },
+				{ itemId = "cat_whistle", price = 18000, amount = 1, bought = 1 },
 			},
 		})
 		UI.cornerShop.open()
+	end },
+	-- #1281: the three bait foods at the Corner Shop: their clean pictures and grade badges, "You have n" from the
+	-- player's lures, Salmon sold out
+	{ "CornerShopBait", function()
+		UI.update({ money = 100000, tier = 2, lures = { kibble = 4, tuna = 1 } })
+		UI.cornerShop.setStock({
+			window = 5000000,
+			restocksAt = workspace:GetServerTimeNow() + 192,
+			snackXp = 0,
+			stock = {
+				{ itemId = "swift_potion", price = 2400, amount = 3, bought = 1 },
+				{ itemId = "kibble", price = 200, amount = 3, bought = 0 },
+				{ itemId = "tuna", price = 1000, amount = 2, bought = 1 },
+				{ itemId = "salmon", price = 5000, amount = 1, bought = 1 },
+			},
+		})
+		UI.cornerShop.open()
+		local window = UIShim.playerGui:FindFirstChild("CornerShop", true)
+		assert(window, "no Corner Shop window")
+		local kibble = window:FindFirstChild("kibble", true)
+		assert(kibble, "no kibble row")
+		local effect = kibble:FindFirstChild("Effect", true) :: TextLabel
+		assert(effect.Text == "Bait for your bowl · You have 4", "kibble effect: " .. effect.Text)
+		local salmon = window:FindFirstChild("salmon", true)
+		assert(salmon, "no salmon row")
+		local salmonEffect = salmon:FindFirstChild("Effect", true) :: TextLabel
+		assert(salmonEffect.Text == "Bait for your bowl · You have 0", "salmon effect: " .. salmonEffect.Text)
 	end },
 	-- F100: the prize toast after the Lost and Found: the line and two pictures
 	{ "CampPrize", function()
@@ -1293,24 +1580,39 @@ local SCENES = {
 	{ "HUDStore", function()
 		UI.store.preview(storePrices(true), {})
 	end },
-	-- the Store window for a new player: 2x Money at R$5 and Long Nap at R$199
+	-- the Store window for a new player (#1425): it opens on Featured, the King Cat Pack as the hero over 2x Money,
+	-- Long Nap and the Royal Cat, all in view with no scrolling
 	{ "Store", function()
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
-		assertStoreCards()
+		assertStoreCards(true)
+	end },
+	-- #1425: the Passes tab, a grid of pass cards 3 across
+	{ "StorePasses", function()
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		press("CatCafeModals", "passes")
+		assertStoreCards(false)
+	end },
+	-- #1425: the Potions tab, each pack with its exact contents and the bag count
+	{ "StorePotions", function()
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		press("CatCafeModals", "potions")
+		assertStoreCards(false)
 	end },
 	-- 2x Money and Long Nap owned: the ladder's next rung (3x, in place of x2) and Long Nap marked Owned
 	{ "StoreOwned", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[2]] = true, [Config.LongNapPassId] = true })
 		UI.open("Store")
-		assertStoreCards()
+		assertStoreCards(true)
 	end },
 	-- the passes off sale (as on live until launch): every card says Soon
 	{ "StoreSoon", function()
 		UI.store.preview(storePrices(false), {})
 		UI.open("Store")
-		assertStoreCards()
+		assertStoreCards(true)
 	end },
 	-- #1167 (Derek 2026-11-04: "the Store UI/menu is missing"): with every pass off sale the HUD's gold Store tile
 	-- still shows, and a press on it opens the Store window. A hidden tile or a window that does not open fails here.
@@ -1327,7 +1629,7 @@ local SCENES = {
 		local container = modalRoot and modalRoot:FindFirstChild("Container")
 		local window = container and container:FindFirstChild("Store")
 		assert(window and window:IsA("GuiObject") and window.Visible, "uigate: the Store tile did not open the Store")
-		assertStoreCards()
+		assertStoreCards(true)
 	end },
 	-- F102: the Trade window's players: Sam to ask, Alex under the minimum tier, Mia busy in a trade
 	{ "TradePlayers", function()
@@ -1439,10 +1741,18 @@ function Scenes.close()
 	UI.close()
 	UI.pals({}) -- F92: no pals, which also takes a pal's marker and Cannon tag away
 	UI.campExtras.update(campExtras(0, false, false)) -- F100: every camp extra shut, so other Cannon scenes stay as they were
+	if game:GetService("Players").LocalPlayer:GetAttribute("GoldenPondPass") ~= nil then
+		-- #1463: no Golden Pond owner outside its scene, and the sample player's Tier 3 back
+		game:GetService("Players").LocalPlayer:SetAttribute("GoldenPondPass", nil)
+		UI.update({ tier = 3 })
+	end
 	UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = workspace:GetServerTimeNow() + 3 * 86400 })) -- F101: no Rally
 	UI.trade.state(nil) -- F102: no trade, no TradeService, and the other players leave
 	UI.setCarrying(nil) -- no carry banner
 	UI.store.preview({}, {}) -- no pass on sale or owned (the HUD's Store tile shows either way, #1167)
+	UI.bait.set(nil, 2) -- #1161: one bowl again, empty
+	UI.bait.set(nil, 1)
+	UI.bait.setSecond(nil)
 	if workspace:GetAttribute("TradingOn") ~= nil then
 		workspace:SetAttribute("TradingOn", nil)
 		-- the HUD drops its Trade tile again, and Trade requests (SettingsTrading) goes back to its default; only

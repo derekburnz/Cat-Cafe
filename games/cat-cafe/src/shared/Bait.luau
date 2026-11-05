@@ -8,12 +8,29 @@
 --                                          (BigBowlWaitCutSeconds, F95), the LureWaitSecondsNight share of it at night;
 --                                          the Index's and potions' baitSpeed come off after (Economy.baitWaitSeconds)
 --   bowlName(bowlLevel) -> string          "Bait Bowl" to "Royal Bowl"
+-- The Second Bait Bowl pass (#1161): a second bowl at the same level, its own food, wait and cat, in profile.bait2.
+--   BOWLS                                  2, the most bowls a cafe has
+--   stateOf(profile, bowl) -> BaitState?   bowl 1's or bowl 2's bait
+--   setState(profile, bowl, state?)        puts or clears it
+--   secondBowl(ownsPass) -> SecondBowl     "on" with the pass, "offer" (the Store shows the pass) without it
+--   oddsCard(bowlLevel) -> { FoodOdds }    every shop and dealer food's odds at that level
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local Types = require(script.Parent.Types)
 
 local Bait = {}
+
+Bait.BOWLS = 2
+
+-- The second bowl for this player (#1161): "on" with the pass, "offer" without it (the Store shows the pass). It is
+-- capacity, not a roll (Derek 2026-11-05, Monetization-Agent on #1436): Robux buys a second place to put food, the
+-- food is bought with coins, coins are never sold and bowl 2 rolls exactly as bowl 1, so it is not a paid random item
+-- and needs no PolicyService gate. That holds only while no Robux item sells bait food, coins or a bowl speed-up.
+export type SecondBowl = Types.SecondBowl
+
+-- A food's odds at a bowl level, as the pass card lists them.
+export type FoodOdds = { lureId: string, name: string, odds: Types.LureOdds }
 
 local NAMES = { "Bait Bowl", "Comfy Bowl", "Fancy Bowl", "Deluxe Bowl", "Royal Bowl" }
 
@@ -59,6 +76,36 @@ end
 
 function Bait.bowlName(bowlLevel: number): string
 	return NAMES[clampLevel(bowlLevel)] or NAMES[1]
+end
+
+-- Bowl 1's bait is profile.bait (every save since version 3) and bowl 2's profile.bait2 (version 34).
+function Bait.stateOf(profile: Types.PlayerProfile, bowl: number): Types.BaitState?
+	return if bowl == 2 then profile.bait2 else profile.bait
+end
+
+function Bait.setState(profile: Types.PlayerProfile, bowl: number, state: Types.BaitState?)
+	if bowl == 2 then
+		profile.bait2 = state
+	else
+		profile.bait = state
+	end
+end
+
+function Bait.secondBowl(ownsPass: boolean): SecondBowl
+	return if ownsPass then "on" else "offer"
+end
+
+-- Each food's odds in a bowl of the player's level, the same Bait.oddsFor bowl 1's roll and its food cards use, so
+-- the second bowl's odds are the first's (for a card that lists them all). Catalog order; each row sums to 100.
+function Bait.oddsCard(bowlLevel: number): { FoodOdds }
+	local rows: { FoodOdds } = {}
+	for _, lure in Catalog.lures do
+		table.insert(
+			rows,
+			{ lureId = lure.id, name = lure.name, odds = Bait.oddsFor(lure.odds, bowlLevel) }
+		)
+	end
+	return rows
 end
 
 return Bait

@@ -317,8 +317,9 @@ export type SpinSlice = {
 	minCoins: number?,
 	lureId: string?,
 	count: number?, -- foods, golden fish or crates
-	crate: string?, -- F54: the crate id, or "highest"
+	crate: string?, -- F54: the crate id, "highest" or (#1500) "highest_golden"
 	weight: number,
+	jackpot: boolean?, -- #1500: one of the two 0.5% slices, with the big win effect and a toast
 }
 
 -- The player's spins (F49): `lastFreeDay` is the UTC day number (os.time() // 86400) of the last free spin, so the
@@ -622,6 +623,9 @@ export type BaitState = {
 	charm: number,
 }
 
+-- The second bowl for a player (#1161, Bait.secondBowl): "on" with the pass, "offer" without it (the Store shows it).
+export type SecondBowl = "on" | "offer"
+
 -- The bowl as ProfileSync sends it: the food and when its cat arrives. `cat` is only there once it has arrived,
 -- so the roll is not spoiled before then (reviewer N30).
 export type BaitView = {
@@ -633,8 +637,8 @@ export type BaitView = {
 }
 
 -- What the Fresh Catch shelf sold this player (F94, rewards-and-shops.md section 6; the shape the night dealer saved
--- before F94): how many of each row, by row id, in the window floor(os.time() / FreshCatchWindowSeconds), and the
--- last window a ShopAlert went to them, so a rejoin in the same window never alerts twice.
+-- before F94): how many of each row, by row id, in the window FreshCatch.window(os.time()) (a game day since #1437),
+-- and the last window a ShopAlert went to them, so a rejoin in the same window never alerts twice.
 export type FreshCatchState = {
 	window: number,
 	bought: { [string]: number },
@@ -790,17 +794,21 @@ export type FreshCatchStock = { window: number, restocksAt: number, stock: { Fre
 -- "potion" row gives `potionId` into the bag, a "food" row `foodId` into the Bag's cat food (its `xp` is that food's)
 -- and a "show" row played `showId` over the buyer's cafe (retired with the Bubble Machine and Cafe Fireworks, #1381; the
 -- kind and its fields go once Effects/CafeShow and CornerShopLogic stop reading them). `needsTier` hides and refuses
--- the row below that tier.
+-- the row below that tier. #1281 (section 1b): a "bait" row sells the bowl food `lureId` into `lures` at its
+-- tier-scaled price (CornerShop.priceOf, so `price` is only its Tier 1 price), its stock rolled from its own `weights`
+-- (the chance of 0, 1, 2 or 3) in place of its size's.
 export type CornerShopSize = "small" | "regular" | "big" | "mega"
 export type CornerShopRow = {
 	id: string,
 	name: string,
 	family: string,
 	size: CornerShopSize,
-	kind: "potion" | "food" | "show",
+	kind: "potion" | "food" | "show" | "bait",
 	price: number,
 	potionId: string?,
 	foodId: string?,
+	lureId: string?, -- #1281: a "bait" row's bowl food
+	weights: { number }?, -- #1281: a "bait" row's stock chances, in place of Config.CornerShopSizeWeights[size]
 	xp: number?,
 	showId: string?,
 	showSeconds: number?,
@@ -823,6 +831,7 @@ export type CornerShopItem = {
 	bought: number,
 	size: CornerShopSize,
 	needsTier: number?,
+	outToday: boolean?, -- #1435: true when the row's family has hit its daily limit today; nil otherwise
 }
 -- What CornerShopStock sends: the window, when it restocks, each row in Catalog order, and the cat food XP bought
 -- today (`snackXp`, its v1 name, which the window reads).
@@ -884,6 +893,7 @@ export type PlayerProfile = {
 	decorPlaced: { [string]: boolean },
 	lures: { [string]: number },
 	bait: BaitState?,
+	bait2: BaitState?, -- #1161: the Second Bait Bowl's bait (save version 34), nil when that bowl is empty
 	freshCatch: FreshCatchState, -- F94 (save version 18; the dealer's saved counts went with it)
 	cats: { [string]: CatInstance },
 	collection: { [string]: number },
@@ -955,6 +965,8 @@ export type PlayerState = {
 	decorPlaced: { [string]: boolean },
 	lures: { [string]: number },
 	bait: BaitView?, -- nil when the bowl is empty
+	bait2: BaitView?, -- #1161: the second bowl's, nil when it is empty
+	secondBowl: SecondBowl?, -- #1161: "on" (the pass: bowl 2 takes food) or "offer" (show the pass in the Store)
 	-- extras (not in the UI contract, used by the client controller)
 	cats: { [string]: CatView },
 	collection: { [string]: number },

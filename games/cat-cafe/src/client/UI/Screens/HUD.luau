@@ -92,6 +92,7 @@ export type HUD = {
 	screenGui: ScreenGui,
 	setCatalog: (self: HUD, catalog: Types.Catalog) -> (),
 	render: (self: HUD, state: Types.PlayerState) -> (),
+	setPinnedQuest: (self: HUD, key: string?) -> (), -- #1573: the quest pinned in the Quests window, or nil
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
 	setClock: (self: HUD, clock: Types.ClockState?) -> (),
@@ -103,6 +104,7 @@ export type HUD = {
 	luckShown: (self: HUD) -> boolean,
 	setAreasOpen: (self: HUD, open: boolean) -> (),
 	setBait: (self: HUD, bait: Types.BaitView?, catWaiting: boolean) -> (),
+	setBowlCount: (self: HUD, count: number) -> (), -- #1161: a "2" on the bowl tile with the second bowl
 	pressTravel: (self: HUD, destination: string) -> boolean,
 	setCannonMode: (self: HUD, on: boolean) -> (),
 	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
@@ -1200,6 +1202,24 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			bowlBadge.AnchorPoint = Vector2.new(1, 0.5) -- inset like the Quests dot (#1176); the F key cap is top left
 			bowlBadge.Position = UDim2.new(1, 2, 0, 3)
 			self._bowlBadge = bowlBadge
+			-- #1161: a small "2" at the bottom right while the cafe has two bowls (the "!" is top right)
+			local count: TextLabel = label({
+				Name = "Count",
+				BackgroundColor3 = Theme.colors.cocoaDeep,
+				BackgroundTransparency = 0,
+				AnchorPoint = Vector2.new(1, 1),
+				Position = UDim2.new(1, 2, 1, 2),
+				Size = UDim2.fromOffset(20, 20),
+				TextSize = Theme.sizes.textTiny,
+				TextXAlignment = Enum.TextXAlignment.Center,
+				Text = "2",
+				Visible = false,
+				ZIndex = 23,
+				Parent = button.instance,
+			})
+			Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = count })
+			Outline.border(count, 2)
+			self._bowlCount = count
 		end
 		self._pills[item.name] = button
 		table.insert(self._buttons, button)
@@ -1598,6 +1618,12 @@ function HUD.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean)
 			self._baitLoop = nil
 		end
 	end)
+end
+
+-- #1161: the Second Bait Bowl's "2" on the tile; setBait gets the sooner bowl and "!" for either bowl's cat.
+function HUD.setBowlCount(self: any, count: number)
+	local badge: TextLabel = self._bowlCount
+	badge.Visible = count >= 2
 end
 
 -- The bowl tile always reads "Bowl" (#1282, Derek 2026-11-04: no countdown on the tile; the Bait bowl window has the
@@ -2293,6 +2319,15 @@ end
 
 -- F73: the Quests pill (shown once ProfileSync has quests) with its count of what is ready to claim, and the quest
 -- line under the goal card once the tutorial is done.
+-- #1573: the quest pinned in the Quests window leads the quest line (QuestLogic.tracker); nil goes back to the closest.
+function HUD.setPinnedQuest(self: any, key: string?)
+	self._pinnedQuest = key
+	local state: Types.PlayerState? = self._state
+	if state then
+		self:_renderQuests(state, self._catalog)
+	end
+end
+
 function HUD._renderQuests(self: any, state: Types.PlayerState, catalog: Types.Catalog?)
 	local pill = self._questsPill
 	local live = state.quests ~= nil
@@ -2312,7 +2347,7 @@ function HUD._renderQuests(self: any, state: Types.PlayerState, catalog: Types.C
 
 	local line: string? = nil
 	if live and (state.tutorialStep or TUTORIAL_DONE) >= TUTORIAL_DONE then
-		local quest = QuestLogic.tracker(state.quests)
+		local quest, pinned = QuestLogic.tracker(state.quests, self._pinnedQuest)
 		if ready > 0 then
 			line = ("%s %d ready to claim"):format(Theme.icons.quests, ready)
 		elseif quest then
@@ -2321,7 +2356,11 @@ function HUD._renderQuests(self: any, state: Types.PlayerState, catalog: Types.C
 			local count = if QuestLogic.isCoins(catalog, quest.id)
 				then Format.money(progress) .. "/" .. Format.money(needs)
 				else ("%d/%d"):format(math.floor(progress), math.floor(needs))
-			line = ("%s %s  %s"):format(Theme.icons.quests, quest.text, count)
+			line = ("%s %s  %s"):format(
+				if pinned then "📌" else Theme.icons.quests,
+				quest.text,
+				count
+			)
 		end
 	end
 	self._questLine.Visible = line ~= nil

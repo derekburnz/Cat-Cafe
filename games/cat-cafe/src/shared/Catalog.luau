@@ -774,6 +774,35 @@ Catalog.cats = {
 		),
 		"free"
 	),
+	-- #1447 (store-skus.md, #1191): the shop-only cats on game passes, given by ShopCatService (shared/ShopCats). Each
+	-- earns like its rarity from the owner's newest area, so its rate climbs with every area opened. Models
+	-- CatCafe_Cat_DuchessMarzipan and CatCafe_Cat_KingCroissant (with _Sit and _Work); never gold.
+	exclusive(
+		cat(
+			"duchess_marzipan",
+			"Duchess Marzipan",
+			"Legendary",
+			"alley",
+			"greeter",
+			"solid", -- lilac silver, a pearl tiara and a velvet cape
+			{ 203, 196, 219 },
+			"The Royal Cat. Greets every guest with a slow, gracious blink."
+		),
+		"shop"
+	),
+	exclusive(
+		cat(
+			"king_croissant",
+			"King Croissant",
+			"Mythical",
+			"alley",
+			"entertainer",
+			"stripes", -- golden croissant fur with flaky dark stripes, a crown and a red cape
+			{ 231, 169, 78 },
+			"The King Cat. Holds court from his velvet cushion, crown and all."
+		),
+		"shop"
+	),
 } :: { Types.CatDef }
 
 -- "tabby" -> "CatCafe_Cat_Tabby", "maine_coon" -> "CatCafe_Cat_MaineCoon"
@@ -882,7 +911,7 @@ Catalog.tiers = {
 	{
 		tier = 2,
 		name = "Cozy Cafe",
-		cost = 13500, -- #1162 (4-friend non-stop pace, Design-Agent 11-05: 9.4 min at 12,000); F95 v2.1 12,000, 10,000 before
+		cost = 30000, -- #1499 (economy-ladder 3 v3.1, dearer bait): 28,000 for #1452, 13,500 for #1162, 10,000 before
 		distinctCats = 5,
 		slots = 4,
 		multiplier = 1.25,
@@ -892,7 +921,7 @@ Catalog.tiers = {
 	{
 		tier = 3,
 		name = "Busy Cafe",
-		cost = 500000, -- F95 v2 (was 350,000; 80,000 before F95)
+		cost = 700000, -- #1452 (economy-ladder 3 v3); F95 v2 500,000 (was 350,000; 80,000 before F95)
 		distinctCats = 12,
 		needsRarity = "Epic",
 		needsRarityCount = 1,
@@ -904,7 +933,7 @@ Catalog.tiers = {
 	{
 		tier = 4,
 		name = "Famous Cafe",
-		cost = 40000000, -- F95 v2 (was 27,000,000; 700,000 before F95)
+		cost = 60000000, -- #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
 		distinctCats = 20,
 		needsRarity = "Legendary",
 		needsRarityCount = 1,
@@ -916,7 +945,7 @@ Catalog.tiers = {
 	{
 		tier = 5,
 		name = "Grand Cafe",
-		cost = 1200000000, -- F95 v2 (was 800,000,000; 5,000,000 before F95)
+		cost = 2000000000, -- #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
 		distinctCats = 30,
 		needsRarity = "Legendary",
 		needsRarityCount = 2,
@@ -1086,13 +1115,13 @@ function Catalog.getDecor(id: string): Types.DecorDef?
 	return Catalog.decorById[id]
 end
 
--- Sections 8 and 8b. Odds are shown before purchase. Shop foods are bought with BuyLure; dealer foods only from
--- the night dealer's stock.
+-- Sections 8 and 8b. Odds are shown before purchase. Shop foods are bought at the Corner Shop (#1281, its "bait" rows;
+-- BuyLure refuses since); dealer foods only from the night dealer's stock.
 Catalog.lures = {
 	{
 		id = "kibble",
 		name = "Kibble",
-		cost = 100, -- F97: about four times 30; Economy.foodPrice grows it by tier
+		cost = 100, -- F97, kept by #1389 (Economy.spec step 7); Economy.foodPrice grows it by tier
 		sortOrder = 1,
 		attracts = "Common",
 		rarity = "Common",
@@ -1104,7 +1133,7 @@ Catalog.lures = {
 	{
 		id = "tuna",
 		name = "Tuna",
-		cost = 500, -- F97: about four times 125; Economy.foodPrice grows it by tier
+		cost = 5000, -- #1389 (x10 on F97's 500); Economy.foodPrice grows it by tier
 		sortOrder = 2,
 		attracts = "Rare",
 		rarity = "Rare",
@@ -1116,7 +1145,7 @@ Catalog.lures = {
 	{
 		id = "salmon",
 		name = "Salmon",
-		cost = 2500, -- F97: about four times 625; Economy.foodPrice grows it by tier
+		cost = 50000, -- #1389 (x20 on F97's 2,500); Economy.foodPrice grows it by tier
 		sortOrder = 4,
 		attracts = "Epic",
 		rarity = "Epic",
@@ -1128,7 +1157,7 @@ Catalog.lures = {
 	{
 		id = "sardines",
 		name = "Moonlit Sardines",
-		cost = 4000, -- F97: about four times 1000; Economy.foodPrice grows it by tier
+		cost = 80000, -- #1389 (x20 on F97's 4,000); Economy.foodPrice grows it by tier
 		sortOrder = 3,
 		attracts = "Rare",
 		rarity = "Rare",
@@ -1140,7 +1169,7 @@ Catalog.lures = {
 	{
 		id = "caviar",
 		name = "Caviar",
-		cost = 15000, -- F97: about four times 3750; Economy.foodPrice grows it by tier
+		cost = 600000, -- #1389 (x40 on F97's 15,000); Economy.foodPrice grows it by tier
 		sortOrder = 5,
 		attracts = "Epic",
 		rarity = "Epic",
@@ -1152,7 +1181,7 @@ Catalog.lures = {
 	{
 		id = "moon_milk",
 		name = "Moon Milk",
-		cost = 50000, -- F97: about four times 12500; Economy.foodPrice grows it by tier
+		cost = 2000000, -- #1389 (x40 on F97's 50,000); Economy.foodPrice grows it by tier
 		sortOrder = 6,
 		attracts = "Epic",
 		rarity = "Legendary",
@@ -1164,7 +1193,7 @@ Catalog.lures = {
 	{
 		id = "star_treat",
 		name = "Star Treat",
-		cost = 200000, -- F97: about four times 50000; Economy.foodPrice grows it by tier
+		cost = 8000000, -- #1389 (x40 on F97's 200,000); Economy.foodPrice grows it by tier
 		sortOrder = 7,
 		attracts = "Legendary",
 		rarity = "Mythical",
@@ -1182,20 +1211,21 @@ Catalog.lures = {
 -- milestones and codes) pays half the seconds it did; the minimum coins stay. F94 (rewards-and-shops.md section 2a):
 -- small amounts of golden fish in place of shop food, and at most three pictures on the two hour gift.
 Catalog.tipJar = {
-	{ step = 1, minutes = 2, prize = { coins = 50, coinSeconds = 15 } },
-	{ step = 2, minutes = 5, prize = { fish = 2 } },
-	{ step = 3, minutes = 10, prize = { coins = 100, coinSeconds = 30 } },
-	{ step = 4, minutes = 15, prize = { fish = 2 } },
-	{ step = 5, minutes = 20, prize = { coins = 150, coinSeconds = 45 } },
-	{ step = 6, minutes = 30, prize = { spins = 1 } },
-	{ step = 7, minutes = 40, prize = { coins = 250, coinSeconds = 60 } },
-	{ step = 8, minutes = 50, prize = { fish = 3 } },
+	-- v2 (#1414, rewards-and-shops.md section 2a): coins 2x, golden fish 5x, spins 5x and the crate 2x
+	{ step = 1, minutes = 2, prize = { coins = 100, coinSeconds = 30 } },
+	{ step = 2, minutes = 5, prize = { fish = 10 } },
+	{ step = 3, minutes = 10, prize = { coins = 200, coinSeconds = 60 } },
+	{ step = 4, minutes = 15, prize = { fish = 10 } },
+	{ step = 5, minutes = 20, prize = { coins = 300, coinSeconds = 90 } },
+	{ step = 6, minutes = 30, prize = { spins = 5 } },
+	{ step = 7, minutes = 40, prize = { coins = 500, coinSeconds = 120 } },
+	{ step = 8, minutes = 50, prize = { fish = 15 } },
 	-- v0.10 (F68, round 4 Q10): a pretty good gift at one hour
-	{ step = 9, minutes = 60, prize = { coins = 1000, coinSeconds = 300, fish = 10 } },
-	{ step = 10, minutes = 75, prize = { fish = 5 } },
-	{ step = 11, minutes = 90, prize = { coins = 600, coinSeconds = 150, spins = 1 } },
+	{ step = 9, minutes = 60, prize = { coins = 2000, coinSeconds = 600, fish = 50 } },
+	{ step = 10, minutes = 75, prize = { fish = 25 } },
+	{ step = 11, minutes = 90, prize = { coins = 1200, coinSeconds = 300, spins = 5 } },
 	-- and a really good one at two hours
-	{ step = 12, minutes = 120, prize = { crates = { classic_crate = 1 }, fish = 30 } },
+	{ step = 12, minutes = 120, prize = { crates = { classic_crate = 2 }, fish = 150 } },
 } :: { Types.TipJarStep }
 
 -- Section 11e (F70, round 4 Q9): the Daily Treat card, one stamp per UTC day played and never reset. Days 2 and 4
@@ -1220,16 +1250,20 @@ Catalog.dailyTreat = {
 	},
 } :: { Types.DailyTreatDay }
 
--- Section 11c (F49): the Spin Wheel's six slices in order around the wheel. Free spins only: no Robux button, pass
--- or product gives spins (monetization-policy), and a spin never gives a cat. Frozen, like the Index prizes. F94
--- (rewards-and-shops.md section 2b): golden fish and a Caviar in place of the shop food.
+-- Section 11c (F49): the Spin Wheel's slices in order around the wheel. Free spins only: no Robux button, pass
+-- or product gives spins (monetization-policy), and a spin never gives a cat. Frozen, like the Index prizes.
+-- v2 (#1500, rewards-and-shops.md section 2b v2, the friend 2026-11-05): 8 slices, coins on 69% of spins and two
+-- 0.5% jackpots to chase. Weights are in half-percents (total 200). The world wheel's slices follow this order
+-- (spinwheel.py; the jackpots are the two narrow gold wedges, SliceSpans "52,52,52,52,52,52,24,24").
 Catalog.spinWheel = {
-	{ slice = 1, kind = "coins", seconds = 120, minCoins = 200, weight = 30 },
-	{ slice = 2, kind = "fish", count = 3, weight = 22 }, -- F94 (was 3 Tuna)
-	{ slice = 3, kind = "coins", seconds = 600, minCoins = 1000, weight = 18 },
-	{ slice = 4, kind = "lure", lureId = "caviar", count = 1, weight = 15 }, -- F94 (was 2 Salmon)
-	{ slice = 5, kind = "fish", count = 8, weight = 10 }, -- F54 (was 2 Moonlit Sardines), 8 since F94 (was 4)
-	{ slice = 6, kind = "crate", crate = "highest", count = 1, weight = 5 }, -- F54 (was 1 Caviar)
+	{ slice = 1, kind = "coins", seconds = 120, minCoins = 200, weight = 70 }, -- 35%
+	{ slice = 2, kind = "coins", seconds = 600, minCoins = 1000, weight = 44 }, -- 22%
+	{ slice = 3, kind = "fish", count = 5, weight = 30 }, -- 15%
+	{ slice = 4, kind = "coins", seconds = 1800, minCoins = 3000, weight = 24 }, -- 12%, new in v2
+	{ slice = 5, kind = "lure", lureId = "caviar", count = 1, weight = 18 }, -- 9%
+	{ slice = 6, kind = "crate", crate = "highest", count = 1, weight = 12 }, -- 6%
+	{ slice = 7, kind = "crate", crate = "highest_golden", count = 1, weight = 1, jackpot = true }, -- 0.5%
+	{ slice = 8, kind = "fish", count = 100, weight = 1, jackpot = true }, -- 0.5%
 } :: { Types.SpinSlice }
 for _, row in Catalog.spinWheel do
 	table.freeze(row)
@@ -1996,19 +2030,22 @@ Catalog.dealerSlotWeights =
 	{ sardines = 50, caviar = 33, moon_milk = 14, star_treat = 3 } :: { [string]: number }
 
 -- Section 8b v0.8 (F59, round 3 Q5): the chance in percent that a stock holds 0, 1, 2, 3 or 4 of each dealer food.
--- Averages 1.85, 0.95, 0.45 and 0.10: a Star Treat turns up about one night in ten. F94 (rewards-and-shops.md
+-- Averages 1.85, 0.95, 0.65 and 0.20: #1442 (Derek 2026-11-05, "a little bit" more) raises Moon Milk from 0.45 (in
+-- stock 40% of nights, now 55%) and Star Treat from 0.10 (one night in ten, now one in five). F94 (rewards-and-shops.md
 -- section 4): each server rolls one stock at dusk that holds all night (was every 5 minutes).
 Catalog.dealerAmountWeights = {
 	sardines = { 15, 25, 30, 20, 10 },
 	caviar = { 35, 40, 20, 5, 0 },
-	moon_milk = { 60, 35, 5, 0, 0 },
-	star_treat = { 90, 10, 0, 0, 0 },
+	moon_milk = { 45, 45, 10, 0, 0 },
+	star_treat = { 80, 20, 0, 0, 0 },
 } :: { [string]: { number } }
 
--- Section 9. Every area has the same odds since v0.13.7 (Derek 2026-10-28 01:50: rare cats come mainly from food
--- and time); farther areas pay more through incomeMultiplier instead. A full wave of waveSize strays spawns in every area at each sunrise, whether or not anyone has it
--- open; since #1159 an area under its floor of live strays gets daytime top-ups (shared/StrayTopUp). Data-model 9 v0.13.5 (Derek 2026-10-28 01:34, "way too many"): 6, 5, 5, 4
--- and 4, 24 a day in all (was 10 each). Every side area's spawn points are its kit set's cat spots (Model-Agent
+-- Section 9. Every area has the same odds since v0.13.7; farther areas pay more through incomeMultiplier instead.
+-- #1452 (Derek 2026-11-05: the food bowl should not be the only realistic way to get rare cats): 54 / 29 / 11 / 4.8 /
+-- 1.2 (was 72 / 22 / 5 / 0.9 / 0.1), so Salmon in a Royal Bowl is 2.5x the wild for Legendary and Mythical. A full
+-- wave of waveSize strays spawns in every area at each sunrise, whether or not anyone has it open; since #1159 an
+-- area under its floor of live strays gets daytime top-ups (shared/StrayTopUp). #1452: 8, 7, 7, 6 and 6, 34 a day
+-- in all (v0.13.5 had 6, 5, 5, 4 and 4 after Derek's 10-28 "way too many"; 10 each before that). Every side area's spawn points are its kit set's cat spots (Model-Agent
 -- #401, the Park's, the Woods', the Sewer's and the Neighbourhood's v3.2 sets #460, #470, #491 and #505).
 Catalog.areas = {
 	{
@@ -2018,9 +2055,9 @@ Catalog.areas = {
 		-- two on the lanes for each cafe's old place, eight nooks at the far end and eight `near` points by the camp for
 		-- the tutorial stray only (layout v3.1; v4, F84, data-model section 9 v0.13.18)
 		spawnPoints = 32,
-		waveSize = 6,
+		waveSize = 8,
 		rescueSpots = 3,
-		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
+		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.alley,
 	},
 	{
@@ -2028,9 +2065,9 @@ Catalog.areas = {
 		name = "Park",
 		tier = 2,
 		spawnPoints = 48, -- F85's long set's cat spots, 20 near the camp and 28 deep
-		waveSize = 5,
+		waveSize = 7,
 		rescueSpots = 5,
-		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
+		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.park,
 	},
 	{
@@ -2038,9 +2075,9 @@ Catalog.areas = {
 		name = "Neighbourhood",
 		tier = 3,
 		spawnPoints = 77, -- F85's long set's cat spots, 32 near the camp and 45 deep (side paths for porches, #905)
-		waveSize = 5,
+		waveSize = 7,
 		rescueSpots = 4, -- two sheds and two gutters
-		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
+		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.neighbourhood,
 	},
 	{
@@ -2048,9 +2085,9 @@ Catalog.areas = {
 		name = "Woods",
 		tier = 4,
 		spawnPoints = 72, -- F85's long set's cat spots, 28 near the camp, 43 deep and the Great Oak's top
-		waveSize = 4,
+		waveSize = 6,
 		rescueSpots = 5, -- two hollow logs, two bramble bushes and the tree house branch
-		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
+		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.woods,
 	},
 	{
@@ -2058,9 +2095,9 @@ Catalog.areas = {
 		name = "Sewer",
 		tier = 5,
 		spawnPoints = 60, -- F85's long set's cat spots, 25 near the camp and 35 deep
-		waveSize = 4,
+		waveSize = 6,
 		rescueSpots = 4, -- two grates and two drain pipes
-		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
+		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.sewer,
 	},
 } :: { Types.AreaDef }
@@ -3282,7 +3319,8 @@ end
 -- The Corner Shop v2 (corner-shop-v2.md section 1, #1180; the stall from corner-shop.md, #1052): sold for coins only,
 -- in this order, at a fixed `price` that never follows income, tier or a pass. Each row's amount in a window is
 -- rolled from its size's Config.CornerShopSizeWeights (shared/CornerShop); `needsTier` hides and refuses it below
--- that tier. Nothing random, nothing that raises income, nothing for golden fish or Robux.
+-- that tier. Nothing random, nothing that raises income, nothing for golden fish or Robux. Prices v3 (#1385): x10
+-- for Small, x20 for regular and x40 for Big and Mega on the v2 prices.
 Catalog.cornerShop = {
 	{
 		id = "swift_potion_small",
@@ -3291,7 +3329,7 @@ Catalog.cornerShop = {
 		size = "small",
 		kind = "potion",
 		potionId = "swift_potion_small",
-		price = 300,
+		price = 3000,
 	},
 	{
 		id = "swift_potion",
@@ -3300,7 +3338,7 @@ Catalog.cornerShop = {
 		size = "regular",
 		kind = "potion",
 		potionId = "swift_potion",
-		price = 5000,
+		price = 100000,
 	},
 	{
 		id = "swift_potion_big",
@@ -3309,7 +3347,7 @@ Catalog.cornerShop = {
 		size = "big",
 		kind = "potion",
 		potionId = "swift_potion_big",
-		price = 500000,
+		price = 20000000,
 		needsTier = 3,
 	},
 	{
@@ -3319,7 +3357,7 @@ Catalog.cornerShop = {
 		size = "small",
 		kind = "potion",
 		potionId = "steady_potion_small",
-		price = 1000,
+		price = 10000,
 	},
 	{
 		id = "steady_potion",
@@ -3328,7 +3366,7 @@ Catalog.cornerShop = {
 		size = "regular",
 		kind = "potion",
 		potionId = "steady_potion",
-		price = 20000,
+		price = 400000,
 	},
 	{
 		id = "steady_potion_big",
@@ -3337,7 +3375,7 @@ Catalog.cornerShop = {
 		size = "big",
 		kind = "potion",
 		potionId = "steady_potion_big",
-		price = 2000000,
+		price = 80000000,
 		needsTier = 3,
 	},
 	{
@@ -3347,7 +3385,7 @@ Catalog.cornerShop = {
 		size = "small",
 		kind = "potion",
 		potionId = "quick_bait_potion_small",
-		price = 2500,
+		price = 25000,
 	},
 	{
 		id = "quick_bait_potion",
@@ -3356,7 +3394,7 @@ Catalog.cornerShop = {
 		size = "regular",
 		kind = "potion",
 		potionId = "quick_bait_potion",
-		price = 60000,
+		price = 1200000,
 	},
 	{
 		id = "quick_bait_potion_big",
@@ -3365,7 +3403,7 @@ Catalog.cornerShop = {
 		size = "big",
 		kind = "potion",
 		potionId = "quick_bait_potion_big",
-		price = 6000000,
+		price = 240000000,
 		needsTier = 3,
 	},
 	{
@@ -3375,7 +3413,7 @@ Catalog.cornerShop = {
 		size = "small",
 		kind = "potion",
 		potionId = "cat_whistle_small",
-		price = 800,
+		price = 8000,
 	},
 	{
 		id = "cat_whistle",
@@ -3384,7 +3422,7 @@ Catalog.cornerShop = {
 		size = "regular",
 		kind = "potion",
 		potionId = "cat_whistle",
-		price = 15000,
+		price = 300000,
 	},
 	{
 		id = "cat_whistle_big",
@@ -3393,7 +3431,7 @@ Catalog.cornerShop = {
 		size = "big",
 		kind = "potion",
 		potionId = "cat_whistle_big",
-		price = 1500000,
+		price = 60000000,
 		needsTier = 3,
 	},
 	{
@@ -3404,7 +3442,7 @@ Catalog.cornerShop = {
 		kind = "food",
 		foodId = "small_cat_snack",
 		xp = 600,
-		price = 400,
+		price = 4000,
 	},
 	{
 		id = "cat_snack",
@@ -3414,7 +3452,7 @@ Catalog.cornerShop = {
 		kind = "food",
 		foodId = "cat_snack",
 		xp = 2000,
-		price = 15000,
+		price = 300000,
 	},
 	{
 		id = "big_cat_snack",
@@ -3424,7 +3462,7 @@ Catalog.cornerShop = {
 		kind = "food",
 		foodId = "big_cat_snack",
 		xp = 6000,
-		price = 1000000,
+		price = 40000000,
 		needsTier = 3,
 	},
 	{
@@ -3435,12 +3473,49 @@ Catalog.cornerShop = {
 		kind = "food",
 		foodId = "cat_feast",
 		xp = 20000,
-		price = 80000000,
+		price = 3200000000,
 		needsTier = 4,
+	},
+	-- #1281 (corner-shop-v2.md section 1b): the three shop bait foods, sold here instead of at the bowl. Last in the
+	-- list, so the rows above keep their rolls. `price` is filled in below from the food's cost; the buy charges
+	-- Economy.foodPrice for the buyer's tier. No daily limit.
+	{
+		id = "kibble",
+		name = "Kibble",
+		family = "bait",
+		size = "small",
+		kind = "bait",
+		lureId = "kibble",
+		price = 0,
+		weights = { 0, 0, 20, 80 },
+	},
+	{
+		id = "tuna",
+		name = "Tuna",
+		family = "bait",
+		size = "regular",
+		kind = "bait",
+		lureId = "tuna",
+		price = 0,
+		weights = { 0, 20, 50, 30 },
+	},
+	{
+		id = "salmon",
+		name = "Salmon",
+		family = "bait",
+		size = "big",
+		kind = "bait",
+		lureId = "salmon",
+		price = 0,
+		weights = { 20, 50, 30, 0 },
 	},
 } :: { Types.CornerShopRow }
 Catalog.cornerShopById = {} :: { [string]: Types.CornerShopRow }
 for _, row in Catalog.cornerShop do
+	local lure = if row.lureId ~= nil then Catalog.luresById[row.lureId] else nil
+	if lure ~= nil then
+		row.price = lure.cost -- its Tier 1 price (FoodTierPriceFactor[1] is 1)
+	end
 	Catalog.cornerShopById[row.id] = row
 	table.freeze(row)
 end
@@ -3723,7 +3798,7 @@ Catalog.lawn = {
 		id = "tulip_bed",
 		name = "Tulip Bed",
 		spot = "small",
-		tier = 1,
+		tier = 2, -- #1382 / lawn-nursery.md section 2: Commons open at Tier 2 (was 1)
 		rarity = "Common",
 		price = 10000,
 		model = "CatCafe_Lawn_TulipBed",
@@ -3732,7 +3807,7 @@ Catalog.lawn = {
 		id = "sandwich_board",
 		name = "Sandwich Board",
 		spot = "small",
-		tier = 1,
+		tier = 2, -- #1382 / lawn-nursery.md section 2: Commons open at Tier 2 (was 1)
 		rarity = "Common",
 		price = 10000,
 		model = "CatCafe_Lawn_SandwichBoard",
@@ -3879,7 +3954,7 @@ Catalog.lawnStyles = {
 		id = "red_brick",
 		name = "Red Brick",
 		kind = "path",
-		tier = 1,
+		tier = 2, -- #1382 / lawn-nursery.md section 2: Commons open at Tier 2 (was 1)
 		rarity = "Common",
 		price = 10000,
 		model = "CatCafe_Lawn_Path_RedBrick",
@@ -3906,7 +3981,7 @@ Catalog.lawnStyles = {
 		id = "white_picket",
 		name = "White Picket",
 		kind = "fence",
-		tier = 1,
+		tier = 2, -- #1382 / lawn-nursery.md section 2: Commons open at Tier 2 (was 1)
 		rarity = "Common",
 		price = 10000,
 		model = "CatCafe_Lawn_Fence_WhitePicket",

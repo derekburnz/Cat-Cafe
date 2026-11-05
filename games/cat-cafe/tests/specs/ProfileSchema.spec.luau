@@ -89,10 +89,11 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 33 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 34 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(33)
-			expect(profile.version).to.equal(33)
+			expect(ProfileSchema.VERSION).to.equal(34)
+			expect(profile.version).to.equal(34)
+			expect(profile.bait2).never.to.be.ok() -- #1161: the second bowl starts empty
 			-- F102 (version 27): no trades yet
 			expect(#profile.tradeLog).to.equal(0)
 			expect(#profile.tradeIds).to.equal(0)
@@ -238,8 +239,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 34 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 35 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 34 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 33 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 32 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 31 })).to.equal(false)
@@ -716,6 +718,36 @@ return function()
 				variant = "base",
 				charm = 100,
 			})
+		end)
+
+		it("keeps the second bowl's bait (#1161, version 34) as bowl 1's, and drops one from an older save", function()
+			local raw = v3Save()
+			raw.version = 34
+			raw.bait2 = {
+				lureId = "salmon",
+				placedAt = 120.4,
+				readyAt = 400,
+				night = true,
+				catId = "siamese",
+				variant = "gold",
+				charm = 70,
+			}
+			expect(ProfileSchema.migrate(raw, 500).bait2 :: any).to.deepEqual({
+				lureId = "salmon",
+				placedAt = 120,
+				readyAt = 400,
+				night = true,
+				catId = "siamese",
+				variant = "gold",
+				charm = 70,
+			})
+			raw.bait2 = { lureId = "tuna", placedAt = 90, catId = "dragon", variant = "base", charm = 50 }
+			expect(ProfileSchema.migrate(raw, 500).bait2).never.to.be.ok()
+			-- a save from before version 34 never had a second bowl
+			local old = v3Save()
+			old.version = 33
+			old.bait2 = { lureId = "tuna", placedAt = 90, catId = "siamese", variant = "base", charm = 50 }
+			expect(ProfileSchema.migrate(old, 500).bait2).never.to.be.ok()
 		end)
 
 		it("keeps a bait's readyAt (F54) inside its placement and the longest wait", function()
@@ -1409,11 +1441,12 @@ return function()
 		end)
 
 		it("keeps whole counts of shelf rows, at most the most a window rolls, and drops the rest", function()
-			local NOW = 5977152 * 300 + 10 -- in window 5977152 (2026-10-28 00:00 UTC)
+			local NOW = Config.ClockEpoch + 3 * 86400 + 10 -- 2026-11-04 00:00:10 UTC (#1437: windows count from the epoch)
+			local W = math.floor((NOW - Config.ClockEpoch) / Config.FreshCatchWindowSeconds)
 			local raw: any = ProfileSchema.template(NOW)
 			raw.freshCatch = {
-				window = 5977152.7,
-				alerted = 5977150,
+				window = W + 0.7,
+				alerted = W - 2,
 				bought = {
 					tip_potion = 2,
 					gold_rush_potion = 7, -- at most 1 a window
@@ -1424,16 +1457,23 @@ return function()
 				},
 			}
 			expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({
-				window = 5977152,
-				alerted = 5977150,
+				window = W,
+				alerted = W - 2,
 				bought = { tip_potion = 2, gold_rush_potion = 1 }, -- the shelf has no crate since #1051
 			})
-			-- a future-dated window comes back to the next one, so the shelf is not "on its way" for days (N299)
-			raw.freshCatch = { window = 9000000, alerted = 9000000, bought = {} }
+			-- a future-dated alert comes back to the next window, so the shelf is not "on its way" for days (N299)
+			raw.freshCatch = { window = W + 1, alerted = 9000000, bought = {} }
 			expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({
-				window = 5977153,
-				alerted = 5977153,
+				window = W + 1,
+				alerted = W + 1,
 				bought = {},
+			})
+			-- a window past the next one (the old 5 minute count, or a damaged save) starts afresh (#1437)
+			raw.freshCatch = { window = 5977152, alerted = 5977150, bought = { tip_potion = 2 } }
+			expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({
+				window = 0,
+				bought = {},
+				alerted = 0,
 			})
 			raw.freshCatch = "junk"
 			expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({

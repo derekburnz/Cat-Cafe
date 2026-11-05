@@ -98,7 +98,8 @@ function CornerShopLogic.stockLine(item: Item): string
 end
 
 -- The Buy button, in the server's order (shared/CornerShop.buyBlocker): "Tier 3", "None", "Sold out",
--- "Food full", else "Buy · $1.2K", greyed when the coins fall short.
+-- "Back tomorrow", "Food full", else "Buy · $1.2K", greyed when the coins fall short. "Back tomorrow" (#1435) is a row
+-- whose family hit its daily limit: the server marks it `outToday` and the window never shows the limit itself (#1190).
 function CornerShopLogic.button(
 	item: Item,
 	row: Row?,
@@ -116,6 +117,9 @@ function CornerShopLogic.button(
 	if item.bought >= item.amount then
 		return { text = "Sold out", enabled = false }
 	end
+	if (item :: any).outToday == true then
+		return { text = "Back tomorrow", enabled = false }
+	end
 	if row and row.kind == "food" and (row.xp or 0) > snackRoom then
 		return { text = "Food full", enabled = false }
 	end
@@ -132,9 +136,12 @@ function CornerShopLogic.snackLine(_snackXp: number): string
 	return ""
 end
 
--- What a row does (corner-shop.md section 2), in one short line.
-function CornerShopLogic.effect(row: Row): string
-	if row.kind == "potion" then
+-- What a row does (corner-shop.md section 2), in one short line. A bait row (#1281) also says how many of that food
+-- the player has (`owned`).
+function CornerShopLogic.effect(row: Row, owned: number?): string
+	if row.kind == "bait" then
+		return ("Bait for your bowl · You have %d"):format(owned or 0)
+	elseif row.kind == "potion" then
 		local potion = if row.potionId then Catalog.getPotion(row.potionId) else nil
 		if potion == nil then
 			return "Into your potion bag"
@@ -143,14 +150,8 @@ function CornerShopLogic.effect(row: Row): string
 	elseif row.kind == "food" then
 		return ("+%s XP cat food, into your Bag"):format(commas(row.xp or 0))
 	end
-	local seconds = row.showSeconds or 0
-	local length = if seconds >= 60
-		then ("%d min"):format(seconds // 60)
-		else ("%d s"):format(seconds)
-	if row.showId == "fireworks" then
-		return ("A %s firework show over your cafe"):format(length)
-	end
-	return ("Bubbles from your cafe's door for %s"):format(length)
+	-- #1483: the bubble machine and fireworks shows are gone, so any other kind has no line yet
+	return ""
 end
 
 -- The player's cats for the snack picker, highest level first (then by name, then uid, so the order holds still).

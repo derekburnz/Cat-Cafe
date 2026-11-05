@@ -5,11 +5,14 @@
 -- shows the same stock and it differs from the Fresh Catch's roll in the same window. The amount is per player: each
 -- player may buy up to it of each row in the window. Prices are fixed (the row's `price`). A UTC day allows at most
 -- Config.CornerDailyLimits of a family, any size (cat food has no daily XP cap since #1255; foodXpToday still counts
--- it); a row's `needsTier` refuses it below that tier. Pure: the server's CornerShopService checks the range, takes the coins and gives the
--- item; the window shows the same numbers.
+-- it); a row's `needsTier` refuses it below that tier. #1281 (section 1b): the "bait" rows sell the bowl foods at
+-- Economy.foodPrice for the buyer's tier (priceOf), from their own stock weights, up to LURE_MAX of each food held.
+-- Pure: the server's CornerShopService checks the range, takes the coins and gives the item; the window shows the
+-- same numbers.
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
+local Economy = require(script.Parent.Economy)
 local FreshCatch = require(script.Parent.FreshCatch)
 local Types = require(script.Parent.Types)
 
@@ -22,14 +25,33 @@ local MULTIPLIER = 48271
 local SALT = 1000003 * 11 + 0x636F726E -- "corn": keeps this roll apart from the Fresh Catch's (salt 7)
 local DAY = 86400
 
--- The global stock window at server time `now` (os.time()).
+-- #1281: a bait food can't be bought past this many held (section 1b's LureMax). A stack already above it (from
+-- prizes) stays; it just can't grow by buying.
+CornerShop.LURE_MAX = 99
+
+-- A row's stock chances (0, 1, 2 or 3): its own `weights` (the bait rows), else its size's.
+local function weightsOf(row: Types.CornerShopRow): { number }?
+	return row.weights or Config.CornerShopSizeWeights[row.size]
+end
+
+-- What a row costs a player at `tier`: the bait rows' food price grows with the tier (Economy.foodPrice, F97), every
+-- other row's price is fixed.
+function CornerShop.priceOf(row: Types.CornerShopRow, tier: number): number
+	if row.kind == "bait" and row.lureId ~= nil then
+		return Economy.foodPrice(row.lureId, tier)
+	end
+	return row.price
+end
+
+-- The global stock window at server time `now` (os.time()). #1437: counted from Config.ClockEpoch, so with a window of
+-- one game day it turns at every sunrise of the global clock.
 function CornerShop.window(now: number): number
-	return math.floor(now / Config.CornerShopWindowSeconds)
+	return math.floor((now - Config.ClockEpoch) / Config.CornerShopWindowSeconds)
 end
 
 -- When the stock after `window` arrives, in os.time().
 function CornerShop.restocksAt(window: number): number
-	return (window + 1) * Config.CornerShopWindowSeconds
+	return Config.ClockEpoch + (window + 1) * Config.CornerShopWindowSeconds
 end
 
 -- The UTC day number of os.time() `now`, which the snack cap counts by.
@@ -56,7 +78,7 @@ function CornerShop.stock(window: number): { ItemAmount }
 	local items: { ItemAmount } = {}
 	for _, row in Catalog.cornerShop do
 		state = (state * MULTIPLIER) % MODULUS
-		local weights = Config.CornerShopSizeWeights[row.size]
+		local weights = weightsOf(row)
 		table.insert(items, {
 			itemId = row.id,
 			amount = if weights ~= nil then FreshCatch.pickAmount(weights, state / MODULUS) else 0,
@@ -111,18 +133,27 @@ function CornerShop.perDay(family: string): number?
 	return Config.CornerDailyLimits[family]
 end
 
--- What CornerShopStock sends for a refreshed state.
-function CornerShop.view(state: Types.CornerShopState, window: number): Types.CornerShopStock
+-- What CornerShopStock sends for a refreshed state, with each row's price for a player at `tier` (nil is Tier 1).
+function CornerShop.view(
+	state: Types.CornerShopState,
+	window: number,
+	tier: number?
+): Types.CornerShopStock
 	local stock: { Types.CornerShopItem } = {}
 	for _, item in CornerShop.stock(window) do
 		local row = Catalog.getCornerShopRow(item.itemId) :: Types.CornerShopRow
+		-- #1435: the row's family is at its daily limit, so the window greys Buy ("Back tomorrow") instead of
+		-- letting every press come back with the toast. The limit itself is still never shown (#1190).
+		local limit = CornerShop.perDay(row.family)
+		local outToday = limit ~= nil and (state.today[row.family] or 0) >= limit
 		table.insert(stock, {
 			itemId = item.itemId,
-			price = row.price,
+			price = CornerShop.priceOf(row, tier or 1),
 			amount = item.amount,
 			bought = state.bought[item.itemId] or 0,
 			size = row.size,
 			needsTier = row.needsTier,
+			outToday = if outToday then true else nil,
 		})
 	end
 	return {
@@ -134,13 +165,16 @@ function CornerShop.view(state: Types.CornerShopState, window: number): Types.Co
 end
 
 -- What a buy is checked against besides the state: the server's window and the player's tier, coins and Bag count of
--- the row's food.
+-- the row's food. #1281: for a bait row, how many of its food the player holds (`lureHeld`) and the price the window
+-- showed (`shownPrice`, nil from a window that sends none).
 export type Buy = {
 	itemId: string,
 	seenWindow: number,
 	tier: number,
 	coins: number,
 	foodHeld: number,
+	lureHeld: number?,
+	shownPrice: number?,
 }
 
 -- Why a buy would be refused for a refreshed state at the server's `window`, or nil (QA checks 3 and 4). The server
@@ -182,7 +216,17 @@ function CornerShop.buyBlocker(state: Types.CornerShopState, buy: Buy, window: n
 			return "Your Bag is full of that food"
 		end
 	end
-	if buy.coins < row.price then
+	local price = CornerShop.priceOf(row, buy.tier)
+	if row.kind == "bait" then
+		if (buy.lureHeld or 0) >= CornerShop.LURE_MAX then
+			return string.format("You have all the %s you can carry", row.name)
+		end
+		-- the price grew since the window showed it (a rank up while it was open): the refusal sends the new one
+		if buy.shownPrice ~= nil and price > buy.shownPrice then
+			return "The price changed. Take another look."
+		end
+	end
+	if buy.coins < price then
 		return "Not enough coins"
 	end
 	return nil
@@ -211,14 +255,18 @@ function CornerShop.sanitize(raw: unknown, now: number): Types.CornerShopState
 	local function whole(x: unknown): number
 		return if type(x) == "number" and x == x and math.abs(x) < 2 ^ 40 then math.floor(x) else 0
 	end
-	state.window = math.clamp(whole(value.window), 0, CornerShop.window(now) + 1)
+	-- #1437: a window past the next one is from the old 5 minute count; its window and buys start afresh (the day's
+	-- family counts below are by UTC day and stay)
+	local latest = math.max(0, CornerShop.window(now) + 1)
+	local oldCount = whole(value.window) > latest
+	state.window = if oldCount then 0 else math.clamp(whole(value.window), 0, latest)
 	state.day = math.clamp(whole(value.day), 0, CornerShop.day(now))
 	state.foodXpToday = math.clamp(whole(value.foodXpToday), 0, 2 ^ 31)
 	local families: { [string]: boolean } = {}
-	if type(value.bought) == "table" then
+	if type(value.bought) == "table" and not oldCount then
 		for _, row in Catalog.cornerShop do
 			families[row.family] = true
-			local weights: { number } = Config.CornerShopSizeWeights[row.size] or {}
+			local weights: { number } = weightsOf(row) or {}
 			local most = 0
 			for index, weight in weights do
 				if weight > 0 then

@@ -22,10 +22,10 @@ Every piece and style, with its rarity and price:
 
 | piece or style | kind | tier it opens | rarity | was | now |
 |---|---|---|---|---|---|
-| Tulip Bed | small spot | 1 | Common | 500 | 10,000 |
-| Sandwich Board | small spot | 1 | Common | 500 | 10,000 |
-| Red Brick | path | 1 | Common | 2,000 | 10,000 |
-| White Picket | fence | 1 | Common | 2,000 | 10,000 |
+| Tulip Bed | small spot | 2 | Common | 500 | 10,000 |
+| Sandwich Board | small spot | 2 | Common | 500 | 10,000 |
+| Red Brick | path | 2 | Common | 2,000 | 10,000 |
+| White Picket | fence | 2 | Common | 2,000 | 10,000 |
 | Potted Cat Topiary | small spot | 1 | Uncommon | 1,000 | 50,000 |
 | Mailbox | small spot | 1 | Uncommon | 1,000 | 50,000 |
 | Stepping Stones | path | 2 | Uncommon | 10,000 | 50,000 |
@@ -58,6 +58,7 @@ Every piece and style, with its rarity and price:
 - **Prices are fixed coin amounts**, the same with or without a money pass. Nothing is random.
 - **The free gifts stay free.** The Tier 2 Garden Bench and Tier 3 Umbrella Table (front-lawn.md section 1b) are now an Epic and a Legendary, so the gifts are worth more than before.
 - **Nobody loses anything.** Owned pieces stay owned and placed, and nothing is refunded or charged again. A player who bought a Golden Paw Statue for 50,000,000 keeps it.
+- **The Commons open at Tier 2 (#1382, 2026-11-05).** QA-Planner's Pace run in #1449 found that a player who buys the best lawn piece as soon as they can reached Tier 2 in 25.1 minutes, over the 20-minute bound, because they spent 10,000 on a Common at Tier 1 with Tier 2 at 13,500. The ladder above already prices Commons as Tier 2 buys ("under a minute at Tier 2"), so the four Tier 1 Commons now open at Tier 2. The nursery shows them with "Opens at Tier 2". The price and the bonus stay. Pieces a player already owns stay owned and placed. Players who saved for the rank up were never slowed.
 - **Tuning.** If QA's pace numbers show a tier is much faster or slower than the model, the ladder stays as it is and pieces move up or down a rung.
 
 ## 2. The Garden Nursery in the Park
@@ -152,3 +153,29 @@ Each piece and style that is **out** on the lawn adds money, by its rarity:
 2. Buying a Golden Paw Statue with both big spots full swaps out the weaker big piece by itself.
 3. `SetLawnSpot` fired by an exploit is refused, and the bonus comes only from the server's picks.
 4. Pace.spec with best-affordable lawn buying keeps every tier inside check 3.
+
+## 7. Lawn pieces sold only at the Yard Sale (#1464)
+
+The friend, 2026-11-05: "update the decor/yard items to just work the same as the rest with equip best accept only obtainable from the yard sale shop that can roll common to mythic yard decor every day reset". Section 6 (#1382) already makes the lawn work like the rest with Equip Best. This section moves where pieces are sold. It replaces section 2.
+
+- **Where:** only the Yard Sale (Neighbourhood camp, camp-stations.md section 3). The Garden Nursery is retired: its stall, `LawnStallPrompt` and the nursery window go, and its Park spot is free for something else (Model-Agent decides whether the stall model is reused). Pieces players already own stay owned and placed.
+- **When it restocks:** at each global game day (#1437, one day is 390 s), the same stock on every server, seeded from the day number like the Corner Shop's window. If #1437 lands as option 2, the stock follows its global 390 s window instead. The card reads "New stock at sunrise".
+- **How many rows:** 6 a day, each a different piece or style. A row is first rolled for rarity, then a piece of that rarity is picked at random. If that rarity has no piece left, the roll moves one rarity down.
+
+  | rarity | chance per row |
+  |---|---|
+  | Common | 28% |
+  | Uncommon | 25% |
+  | Rare | 20% |
+  | Epic | 14% |
+  | Legendary | 8% |
+  | Mythical | 4% |
+  | Golden | 1% |
+
+  About 1 day in 5 has a Mythical row, and about 1 day in 17 has a Golden one. Golden stays in the roll at 1% so the two top pieces aren't lost (the ask said Common to Mythical; Golden is the rare extra above it).
+- **Buying:** fixed coins, the section 1 prices (10,000 to 500,000,000). Each player can buy each row once. A piece they already own shows "Owned" and can't be bought again. Nothing in the Yard Sale is random once it's on show: the player sees exactly what they buy, so it's not a paid random item, and it's coins only.
+- **Tier gates stay.** A row above the player's tier shows "Opens at Tier N" and can't be bought. The Yard Sale itself opens at Tier 3, so the Tier 1 to 3 gates matter less now. The free Tier 2 Garden Bench and Tier 3 Umbrella Table gifts (front-lawn.md section 1b) stay, so a Tier 2 player still gets a lawn piece.
+- **The free crate stays.** The Yard Sale keeps its free zone crate every 4 hours with its "!" (camp-stations.md section 3). The lawn stock is a second panel on the same card: "Free crate" on top, "Yard decor" below.
+- **Equip Best** (section 6) places a piece as soon as it's bought.
+- **Save:** per-player bought rows keyed to the day, like `cornerShop` (`{ day, bought }`), cleared when the day moves on and never on a step back. This needs a save version bump, so claim `DataService.luau`.
+- **QA:** (1) Two servers show the same 6 rows on the same day, and the next day both change at once. (2) A row already bought, or a piece already owned, can't be bought again, and hopping servers doesn't refill it. (3) Over 100,000 seeded days, the rarities land within 0.3 points of the table, and no day repeats a piece. (4) The Garden Nursery is gone, and nothing else sells lawn pieces. (5) A Tier 3 player sees a Tier 4 row as "Opens at Tier 4".

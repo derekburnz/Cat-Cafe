@@ -114,6 +114,7 @@ export type CustomEvent =
 	| "feedback"
 	-- F96 (starter-cat.md section 4): the free Bellhop Cat taken home; the gate it passed, "task" or "group"
 	| "starter_cat"
+	| "shop_cat" -- #1447: a shop-only cat given on its pass (catId)
 	-- F91 (front-lawn.md section 5): a lawn piece or path or fence style bought, value 1, once per id ever (moves log
 	-- nothing, review S119); its id, tier. The coins it cost are the economy sink "lawn"
 	| "lawn_placed"

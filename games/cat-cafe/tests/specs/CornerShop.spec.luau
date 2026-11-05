@@ -12,7 +12,7 @@ return function()
 	local Potions = require(Shared.Potions)
 	local ProfileSchema = require(Shared.ProfileSchema)
 
-	local NOW = 5977152 * 300 + 10 -- 2026-10-28 00:00 UTC, in window 5977152
+	local NOW = Config.ClockEpoch + 3 * 86400 + 10 -- 2026-11-04 00:00:10 UTC, game days count from the epoch (#1437)
 	local WINDOW = CornerShop.window(NOW)
 
 	-- The first window from `from` that stocks at least one of `itemId`.
@@ -32,22 +32,26 @@ return function()
 	describe("the stock (section 1)", function()
 		it("sells every family's sizes at the design's fixed prices, in order", function()
 			local want = {
-				{ "swift_potion_small", "swift", "small", 300 },
-				{ "swift_potion", "swift", "regular", 5000 },
-				{ "swift_potion_big", "swift", "big", 500000 },
-				{ "steady_potion_small", "steady", "small", 1000 },
-				{ "steady_potion", "steady", "regular", 20000 },
-				{ "steady_potion_big", "steady", "big", 2000000 },
-				{ "quick_bait_potion_small", "quick_bait", "small", 2500 },
-				{ "quick_bait_potion", "quick_bait", "regular", 60000 },
-				{ "quick_bait_potion_big", "quick_bait", "big", 6000000 },
-				{ "cat_whistle_small", "whistle", "small", 800 },
-				{ "cat_whistle", "whistle", "regular", 15000 },
-				{ "cat_whistle_big", "whistle", "big", 1500000 },
-				{ "small_cat_snack", "food", "small", 400 },
-				{ "cat_snack", "food", "regular", 15000 },
-				{ "big_cat_snack", "food", "big", 1000000 },
-				{ "cat_feast", "food", "mega", 80000000 },
+				{ "swift_potion_small", "swift", "small", 3000 },
+				{ "swift_potion", "swift", "regular", 100000 },
+				{ "swift_potion_big", "swift", "big", 20000000 },
+				{ "steady_potion_small", "steady", "small", 10000 },
+				{ "steady_potion", "steady", "regular", 400000 },
+				{ "steady_potion_big", "steady", "big", 80000000 },
+				{ "quick_bait_potion_small", "quick_bait", "small", 25000 },
+				{ "quick_bait_potion", "quick_bait", "regular", 1200000 },
+				{ "quick_bait_potion_big", "quick_bait", "big", 240000000 },
+				{ "cat_whistle_small", "whistle", "small", 8000 },
+				{ "cat_whistle", "whistle", "regular", 300000 },
+				{ "cat_whistle_big", "whistle", "big", 60000000 },
+				{ "small_cat_snack", "food", "small", 4000 },
+				{ "cat_snack", "food", "regular", 300000 },
+				{ "big_cat_snack", "food", "big", 40000000 },
+				{ "cat_feast", "food", "mega", 3200000000 },
+				-- #1281: the bait foods, last, at their Tier 1 price (Catalog.lures cost)
+				{ "kibble", "bait", "small", (Catalog.getLure("kibble") :: any).cost },
+				{ "tuna", "bait", "regular", (Catalog.getLure("tuna") :: any).cost },
+				{ "salmon", "bait", "big", (Catalog.getLure("salmon") :: any).cost },
 			}
 			expect(#Catalog.cornerShop).to.equal(#want)
 			for index, row in Catalog.cornerShop do
@@ -57,7 +61,10 @@ return function()
 				expect(row.price).to.equal(want[index][4])
 				expect(Catalog.getCornerShopRow(row.id)).to.equal(row)
 				-- QA check 3: Big from Tier 3, the Cat Feast from Tier 4, the rest for everyone
-				local gate = if row.size == "big" then 3 elseif row.size == "mega" then 4 else nil
+				local gate = if row.kind == "bait" then nil
+					elseif row.size == "big" then 3
+					elseif row.size == "mega" then 4
+					else nil
 				expect(row.needsTier).to.equal(gate)
 				if row.kind == "potion" then
 					expect(Catalog.getPotion(row.potionId :: string)).to.be.ok()
@@ -65,6 +72,10 @@ return function()
 					local food = Catalog.getCatFood(row.foodId :: string)
 					expect(food).to.be.ok()
 					expect(row.xp).to.equal((food :: any).xp)
+				elseif row.kind == "bait" then
+					local lure = Catalog.getLure(row.lureId :: string)
+					expect(lure).to.be.ok()
+					expect((lure :: any).source).to.equal("shop") -- dealer foods stay with the dealer
 				else
 					error(row.id .. ": no shows since #1381") -- the Bubble Machine and Cafe Fireworks are gone
 				end
@@ -135,18 +146,18 @@ return function()
 		it("charges the fixed price and refuses a restock, a tier gate and too few coins", function()
 			local window = assert(windowWith("swift_potion_small", WINDOW))
 			local state = CornerShop.fresh()
-			CornerShop.refresh(state, window, CornerShop.day(window * 300))
+			CornerShop.refresh(state, window, CornerShop.day(CornerShop.restocksAt(window - 1)))
 			local row = Catalog.getCornerShopRow("swift_potion_small") :: any
-			expect(CornerShop.view(state, window).stock[1].price).to.equal(300)
-			expect(row.price).to.equal(300)
+			expect(CornerShop.view(state, window).stock[1].price).to.equal(3000)
+			expect(row.price).to.equal(3000)
 			expect(CornerShop.buyBlocker(state, buy("swift_potion_small", window - 1), window)).to.equal(
 				"The Corner Shop just restocked. Take another look."
 			)
-			expect(CornerShop.buyBlocker(state, buy("swift_potion_small", window, 1, 299), window)).to.equal(
+			expect(CornerShop.buyBlocker(state, buy("swift_potion_small", window, 1, 2999), window)).to.equal(
 				"Not enough coins"
 			)
-			expect(CornerShop.buyBlocker(state, buy("swift_potion_small", window, 1, 300), window)).to.equal(nil)
-			expect(CornerShop.buyBlocker(state, buy("kibble", window), window)).to.equal("That isn't in the Corner Shop.")
+			expect(CornerShop.buyBlocker(state, buy("swift_potion_small", window, 1, 3000), window)).to.equal(nil)
+			expect(CornerShop.buyBlocker(state, buy("caviar", window), window)).to.equal("That isn't in the Corner Shop.")
 			expect(CornerShop.buyBlocker(state, buy("steady_potion_big", window, 2), window)).to.equal(
 				"Opens at Tier 3"
 			)
@@ -205,6 +216,38 @@ return function()
 			expect(CornerShop.buyBlocker(state, buy("swift_potion_small", swiftWindow), swiftWindow)).to.equal(nil)
 			CornerShop.refresh(state, swiftWindow, day + 1)
 			expect(state.today.quick_bait).never.to.be.ok()
+		end)
+
+		it("marks every row of a family out today once it hits its limit, and nothing else (#1435)", function()
+			local window = WINDOW
+			local state = CornerShop.fresh()
+			CornerShop.refresh(state, window, 20400)
+			local function outRows(): { [string]: boolean }
+				local out: { [string]: boolean } = {}
+				for _, item in CornerShop.view(state, window).stock do
+					expect(item.outToday == nil or item.outToday == true).to.equal(true)
+					if item.outToday then
+						out[item.itemId] = true
+					end
+				end
+				return out
+			end
+			expect(next(outRows())).to.equal(nil)
+			CornerShop.record(state, "quick_bait_potion")
+			expect(next(outRows())).to.equal(nil) -- one of two: still for sale
+			CornerShop.record(state, "quick_bait_potion_big")
+			local out = outRows()
+			for _, row in Catalog.cornerShop do
+				expect(out[row.id] == true).to.equal(row.family == "quick_bait")
+			end
+			-- the Swift Potion has no limit, so it is never out today
+			for _ = 1, 20 do
+				CornerShop.record(state, "swift_potion_small")
+			end
+			expect(outRows().swift_potion_small).to.equal(nil)
+			-- a new UTC day clears it
+			CornerShop.refresh(state, window, 20401)
+			expect(next(outRows())).to.equal(nil)
 		end)
 
 		it("sells food past any XP a day (#1255) but never past a full Bag", function()
@@ -285,6 +328,96 @@ return function()
 		end)
 	end)
 
+	describe("the bait foods (section 1b, #1281)", function()
+		local Economy = require(Shared.Economy)
+
+		it("stocks Kibble, Tuna and Salmon from their own chances", function()
+			local want: { [string]: { number } } =
+				{ kibble = { 0, 0, 20, 80 }, tuna = { 0, 20, 50, 30 }, salmon = { 20, 50, 30, 0 } }
+			for id, weights in want do
+				expect((Catalog.getCornerShopRow(id) :: any).weights).to.deepEqual(weights)
+			end
+			local count = 2000
+			local total: { [string]: number } = { kibble = 0, tuna = 0, salmon = 0 }
+			local none: { [string]: number } = { kibble = 0, tuna = 0, salmon = 0 }
+			for window = WINDOW, WINDOW + count - 1 do
+				for id in total do
+					local amount = CornerShop.amountOf(window, id)
+					total[id] += amount
+					none[id] += if amount == 0 then 1 else 0
+				end
+			end
+			expect(total.kibble / count).to.be.near(2.8, 0.1)
+			expect(total.tuna / count).to.be.near(2.1, 0.1)
+			expect(total.salmon / count).to.be.near(1.1, 0.1)
+			expect(none.kibble + none.tuna).to.equal(0) -- Kibble and Tuna are always in
+			expect(none.salmon / count).to.be.near(0.2, 0.03)
+		end)
+
+		it("keeps the other rows' rolls as they were", function()
+			-- the bait rows are last, so each earlier row draws the same number from the window's seed
+			for window = WINDOW, WINDOW + 50 do
+				local state = CornerShop.seed(window)
+				for index, item in CornerShop.stock(window) do
+					state = (state * 48271) % 2147483647
+					local row = Catalog.cornerShop[index]
+					if row.kind ~= "bait" then
+						local weights = Config.CornerShopSizeWeights[row.size]
+						expect(item.amount).to.equal(FreshCatch.pickAmount(weights, state / 2147483647))
+					end
+				end
+			end
+		end)
+
+		it("charges the food's price for the tier and shows it", function()
+			local window = assert(windowWith("salmon", WINDOW))
+			local state = CornerShop.fresh()
+			CornerShop.refresh(state, window, 0)
+			local row = Catalog.getCornerShopRow("salmon") :: any
+			for tier = 1, 5 do
+				expect(CornerShop.priceOf(row, tier)).to.equal(Economy.foodPrice("salmon", tier))
+			end
+			local view = CornerShop.view(state, window, 4)
+			for index, item in view.stock do
+				if Catalog.cornerShop[index].kind == "bait" then
+					expect(item.price).to.equal(Economy.foodPrice(item.itemId, 4))
+				else
+					expect(item.price).to.equal(Catalog.cornerShop[index].price) -- the fixed rows don't move
+				end
+			end
+			local price = Economy.foodPrice("salmon", 4)
+			local function baitBuy(coins: number, held: number?, shown: number?): CornerShop.Buy
+				local b = buy("salmon", window, 4, coins)
+				b.lureHeld = held
+				b.shownPrice = shown
+				return b
+			end
+			expect(CornerShop.buyBlocker(state, baitBuy(price - 1), window)).to.equal("Not enough coins")
+			expect(CornerShop.buyBlocker(state, baitBuy(price), window)).to.equal(nil)
+			expect(CornerShop.buyBlocker(state, baitBuy(price, 0, price), window)).to.equal(nil)
+			-- a rank up while the window was open: the shown price is the old tier's
+			expect(CornerShop.buyBlocker(state, baitBuy(1e12, 0, Economy.foodPrice("salmon", 3)), window)).to.equal(
+				"The price changed. Take another look."
+			)
+			expect(CornerShop.buyBlocker(state, baitBuy(1e12, CornerShop.LURE_MAX), window)).to.equal(
+				"You have all the Salmon you can carry"
+			)
+			expect(CornerShop.buyBlocker(state, baitBuy(1e12, CornerShop.LURE_MAX - 1), window)).to.equal(nil)
+		end)
+
+		it("has no daily limit and no tier gate", function()
+			local window = assert(windowWith("kibble", WINDOW))
+			local state = CornerShop.fresh()
+			CornerShop.refresh(state, window, 0)
+			expect(CornerShop.perDay("bait")).to.equal(nil)
+			state.today.bait = 500
+			expect(CornerShop.buyBlocker(state, buy("kibble", window, 1, 100), window)).to.equal(nil)
+			CornerShop.record(state, "kibble")
+			expect(state.bought.kibble).to.equal(1)
+			expect(state.foodXpToday).to.equal(0)
+		end)
+	end)
+
 	describe("save version 32", function()
 		it("starts an older save afresh for the day and keeps the Bag's food whole", function()
 			expect(ProfileSchema.VERSION >= 32).to.equal(true)
@@ -302,8 +435,8 @@ return function()
 			})
 			expect(migrated.catFood :: any).to.deepEqual({})
 			raw.cornerShop = {
-				window = 9e9,
-				bought = { swift_potion_small = 9, big_cat_snack = 2.5, cafe_fireworks = "1", kibble = 3 },
+				window = WINDOW + 1, -- the next window, from a server a moment ahead
+				bought = { swift_potion_small = 9, big_cat_snack = 2.5, cafe_fireworks = "1", caviar = 3 },
 				day = 1e9,
 				today = { quick_bait = 9, swift = 5, nope = 1 },
 				foodXpToday = 99999,
@@ -318,6 +451,27 @@ return function()
 				foodXpToday = 99999, -- kept as counted: there is no cap to clamp it to (#1255)
 			})
 			expect(migrated.catFood :: any).to.deepEqual({ cat_snack = 3, cat_feast = Config.CatFoodMax })
+		end)
+
+		it("starts a window from the old 5 minute count afresh and keeps the day's counts (#1437)", function()
+			local raw: any = ProfileSchema.template(NOW)
+			raw.cornerShop = {
+				window = math.floor(NOW / 300), -- the old count, far past today's game day window
+				bought = { swift_potion_small = 2 },
+				day = CornerShop.day(NOW),
+				today = { quick_bait = 1 },
+				foodXpToday = 40,
+			}
+			local migrated = ProfileSchema.migrate(raw, NOW)
+			expect(migrated.cornerShop :: any).to.deepEqual({
+				window = 0,
+				bought = {},
+				day = CornerShop.day(NOW),
+				today = { quick_bait = 1 },
+				foodXpToday = 40,
+			})
+			local blocker = CornerShop.buyBlocker(migrated.cornerShop, buy("swift_potion_small", WINDOW), WINDOW)
+			expect(blocker).never.to.equal("The shop is restocking. Try again in a moment.")
 		end)
 	end)
 end

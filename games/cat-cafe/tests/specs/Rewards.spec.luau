@@ -112,19 +112,19 @@ return function()
 	end)
 
 	describe("the new rows (section 2, QA check 3)", function()
-		it("the Tip Jar's two hour gift is a Classic Crate and 30 golden fish", function()
+		it("the Tip Jar's two hour gift is 2 Classic Crates and 150 golden fish (#1414)", function()
 			expect(Catalog.tipJar[12].minutes).to.equal(120)
 			expect(Catalog.tipJar[12].prize :: any).to.deepEqual({
-				crates = { classic_crate = 1 },
-				fish = 30,
+				crates = { classic_crate = 2 },
+				fish = 150,
 			})
 		end)
 
-		it("the wheel's slice 2 pays 3 golden fish and slice 4 a Caviar", function()
-			expect(Catalog.spinWheel[2].kind).to.equal("fish")
-			expect(Catalog.spinWheel[2].count).to.equal(3)
-			expect(Catalog.spinWheel[4].lureId).to.equal("caviar")
-			expect(Catalog.spinWheel[4].count).to.equal(1)
+		it("the wheel's slice 3 pays 5 golden fish and slice 5 a Caviar (Spin Wheel v2, #1500)", function()
+			expect(Catalog.spinWheel[3].kind).to.equal("fish")
+			expect(Catalog.spinWheel[3].count).to.equal(5)
+			expect(Catalog.spinWheel[5].lureId).to.equal("caviar")
+			expect(Catalog.spinWheel[5].count).to.equal(1)
 		end)
 
 		it("cats6 pays each area's crate with fish or two of its dealer food", function()

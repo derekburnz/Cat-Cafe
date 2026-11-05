@@ -1511,6 +1511,42 @@ local SCENES = {
 		local salmonEffect = salmon:FindFirstChild("Effect", true) :: TextLabel
 		assert(salmonEffect.Text == "Bait for your bowl · You have 0", "salmon effect: " .. salmonEffect.Text)
 	end },
+	-- #1599: the whole Day Cart in stock, grouped under Potions, Cat food and Bait, in the compact rows
+	{ "CornerShopSections", function()
+		UI.update({ money = 6000, tier = 3, lures = { kibble = 2 } })
+		UI.cornerShop.setStock({
+			window = 5000001,
+			restocksAt = workspace:GetServerTimeNow() + 192,
+			snackXp = 0,
+			stock = {
+				{ itemId = "swift_potion_small", price = 700, amount = 0, bought = 0 },
+				{ itemId = "swift_potion", price = 1400, amount = 1, bought = 1 },
+				{ itemId = "swift_potion_big", price = 2100, amount = 2, bought = 0 },
+				{ itemId = "steady_potion_small", price = 2800, amount = 0, bought = 0 },
+				{ itemId = "steady_potion", price = 3500, amount = 1, bought = 0 },
+				{ itemId = "steady_potion_big", price = 4200, amount = 2, bought = 0 },
+				{ itemId = "quick_bait_potion_small", price = 4900, amount = 0, bought = 1 },
+				{ itemId = "quick_bait_potion", price = 5600, amount = 1, bought = 0 },
+				{ itemId = "quick_bait_potion_big", price = 6300, amount = 2, bought = 0 },
+				{ itemId = "cat_whistle_small", price = 7000, amount = 0, bought = 0 },
+				{ itemId = "cat_whistle", price = 7700, amount = 1, bought = 0 },
+				{ itemId = "cat_whistle_big", price = 8400, amount = 2, bought = 1 },
+				{ itemId = "small_cat_snack", price = 9100, amount = 0, bought = 0 },
+				{ itemId = "cat_snack", price = 9800, amount = 1, bought = 0 },
+				{ itemId = "big_cat_snack", price = 10500, amount = 2, bought = 0 },
+				{ itemId = "cat_feast", price = 11200, amount = 0, bought = 0 },
+				{ itemId = "kibble", price = 11900, amount = 1, bought = 1 },
+				{ itemId = "tuna", price = 12600, amount = 2, bought = 0 },
+				{ itemId = "salmon", price = 13300, amount = 0, bought = 0 },
+			},
+		})
+		UI.cornerShop.open()
+		local window = UIShim.playerGui:FindFirstChild("CornerShop", true)
+		assert(window, "no Corner Shop window")
+		for _, kind in { "potion", "food", "bait" } do
+			assert(window:FindFirstChild("Section_" .. kind, true), "no section " .. kind)
+		end
+	end },
 	-- F100: the prize toast after the Lost and Found: the line and two pictures
 	{ "CampPrize", function()
 		UI.campExtras.collected(

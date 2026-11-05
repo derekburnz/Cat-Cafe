@@ -297,8 +297,10 @@ local Config = {
 	-- tips pay this share of the day rate at night; offline pay keeps the day rate. F60 (round 3 Q6): full pay, the
 	-- cafe still closed with its cats asleep (v0.5 to v0.8 paid 0.6)
 	NightIncomeMultiplier = 1,
-	RichCheckSeconds = 60, -- by day, how often each earning cafe rolls for a rich customer
-	RichChance = 0.10, -- F61: was 0.15, now that a rich visitor pays far more
+	-- #1135: a rich customer comes when the cafe's timer, drawn from RichEveryMin to RichEveryMax seconds of open day,
+	-- runs out (shared/VisitTimer); 600 on average, as the old 60 s check at 10% gave
+	RichEveryMin = 300,
+	RichEveryMax = 900,
 	RichTipSeconds = 120, -- a rich tip is this many seconds of the day rate (at least $50; F61: was 45)
 	RichTipStaySeconds = 90, -- unclaimed, it is gone after this (Derek 2026-10-28: "if you miss it you miss it")
 	RichTipRangeStuds = 12, -- ClaimRichTip from this close to the plot's RichTipAnchor
@@ -312,19 +314,21 @@ local Config = {
 	TipPileShowSeconds = 90,
 
 	-- The Mystery Visitor and potions (F64, data-model section 12b). Potions are earned only, never sold.
-	MysteryCheckSeconds = 120, -- by day, how often each earning cafe rolls for a Mystery Visitor
-	MysteryChance = 0.08,
+	-- #1135: on a timer from MysteryEveryMin to MysteryEveryMax seconds of open day (1500 on average, as 120 s at 8%)
+	MysteryEveryMin = 900,
+	MysteryEveryMax = 2100,
 	MysteryStaySeconds = 120, -- the hooded visitor sits this long; dusk or a plot release sends it home sooner
 	MysteryGiftKeepSeconds = 600, -- an unopened gift is gone after this, or when its owner leaves (Derek 01:32)
 	MysteryRangeStuds = 12, -- OpenMysteryGift from this close to the gift
-	-- The Cat Collector (F63, data-model section 12b, round 3 Q6): by day, every CollectorCheckSeconds each earning
-	-- cafe with a table and a resting, unlocked cat rolls CollectorChance; he waits at the counter for
-	-- CollectorStaySeconds. He values the cat he asks for at CollectorValue by its rarity, times
+	-- The Cat Collector (F63, data-model section 12b, round 3 Q6): by day, each earning cafe with a table and a
+	-- resting, unlocked cat has him when its timer runs out (#1135: CollectorEveryMin to CollectorEveryMax seconds of
+	-- open day, 1000 on average as the old 120 s check at 12% gave); he waits at the counter for CollectorStaySeconds. He values the cat he asks for at CollectorValue by its rarity, times
 	-- CollectorGoldMultiplier for a gold cat, times a roll from CollectorRollMin to CollectorRollMax, and offers the
 	-- best Catalog.collectorOffers row that value reaches.
-	CollectorCheckSeconds = 120,
-	CollectorChance = 0.12,
+	CollectorEveryMin = 600,
+	CollectorEveryMax = 1400,
 	CollectorStaySeconds = 180,
+	VisitRetrySeconds = 15, -- #1135: a visitor whose timer ran out while the cafe was not ready tries again this often
 	CollectorValue = { Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 50 } :: { [string]: number },
 	CollectorGoldMultiplier = 3,
 	CollectorRollMin = 0.8,

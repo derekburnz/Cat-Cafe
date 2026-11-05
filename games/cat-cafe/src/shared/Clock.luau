@@ -64,15 +64,62 @@ function Clock.sunriseOf(day: number): number
 	return Config.ServerStartDaySeconds + Config.NightLengthSeconds + (math.floor(day) - 2) * cycle
 end
 
--- Every LuckyDayEvery-th day of a server is a Lucky Day: days 4, 8, 12 and on.
-function Clock.isLuckyDay(day: number): boolean
-	return day >= 1 and day % Config.LuckyDayEvery == 0
+-- #1572 (luck-and-rare-moments.md 1g): a day's kinds, each rolled on its own from the global day number with its
+-- own salt (the Park-Miller fold of CornerShop.seed), so every server has the same day and the kinds don't move
+-- together. Day 0 and before (the clock before ClockEpoch) is a plain day.
+export type DayKinds = { lucky: boolean, golden: boolean, rainbow: boolean }
+
+local MODULUS = 2147483647
+local MULTIPLIER = 48271
+local SALTS = { lucky = 0x6C75636B, golden = 0x676F6C64, rainbow = 0x7261696E } -- "luck", "gold", "rain"
+
+-- A number in [0, 1) for `day` and `salt`, the same everywhere.
+local function dayRoll(day: number, salt: number): number
+	local hash = (salt + math.floor(day) % MODULUS) % MODULUS
+	for _ = 1, 3 do
+		hash = (hash * MULTIPLIER) % MODULUS
+		hash = bit32.bxor(hash, bit32.rshift(hash, 13))
+	end
+	hash = (hash * MULTIPLIER) % MODULUS
+	return hash / MODULUS
 end
 
--- The next Lucky Day after `day` (the one after this one when `day` is a Lucky Day).
+function Clock.dayKinds(day: number): DayKinds
+	if day < 1 then
+		return { lucky = false, golden = false, rainbow = false }
+	end
+	return {
+		lucky = dayRoll(day, SALTS.lucky) < Config.LuckyDayChance,
+		golden = dayRoll(day, SALTS.golden) < Config.GoldenDayChance,
+		rainbow = dayRoll(day, SALTS.rainbow) < Config.RainbowDayChance,
+	}
+end
+
+-- Whether `day` rolls lucky: Clock.dayKinds(day).lucky without the table (Pace and the HUD ask often).
+function Clock.isLuckyDay(day: number): boolean
+	return day >= 1 and dayRoll(day, SALTS.lucky) < Config.LuckyDayChance
+end
+
+-- The next Lucky Day after `day`. #1572 drops the countdown (the days are random now); the Clock folder still carries
+-- it until the HUD stops reading it. Looks at most 200 days ahead (a Lucky Day 1 in 3).
 function Clock.nextLuckyDay(day: number): number
-	local every = Config.LuckyDayEvery
-	return (math.floor(math.max(day, 0) / every) + 1) * every
+	local from = math.max(math.floor(day), 0)
+	for next = from + 1, from + 200 do
+		if Clock.isLuckyDay(next) then
+			return next
+		end
+	end
+	return from + 200
+end
+
+-- The gold chance `chance` on a day of `kinds`: x GoldenDayGoldMultiplier on a Golden Day.
+function Clock.goldChance(chance: number, kinds: DayKinds?): number
+	return if kinds ~= nil and kinds.golden then chance * Config.GoldenDayGoldMultiplier else chance
+end
+
+-- The rainbow chance `chance` on a day of `kinds`: x RainbowDayMultiplier on a Rainbow Day (rainbow luck on top).
+function Clock.rainbowChance(chance: number, kinds: DayKinds?): number
+	return if kinds ~= nil and kinds.rainbow then chance * Config.RainbowDayMultiplier else chance
 end
 
 -- Seconds since the server started at which a phase begins its first full run (used to jump the clock).

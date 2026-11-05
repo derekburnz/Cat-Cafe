@@ -193,7 +193,11 @@ return function()
 		LuckPerStatueLevel = 0.1,
 		LuckMax = 3,
 		LuckyPotionLuck = 0.5,
-		LuckyDayEvery = 4,
+		LuckyDayChance = 0.33, -- #1572 (1g): the day rolls that replace LuckyDayEvery
+		GoldenDayChance = 0.2,
+		RainbowDayChance = 0.1,
+		GoldenDayGoldMultiplier = 2,
+		RainbowDayMultiplier = 3,
 		LuckyDayWaveLuck = 2,
 		LuckyDayPlayerLuck = 0.5,
 		LuckyDayWarnSeconds = 15,

@@ -17,12 +17,14 @@ The layout follows the trade menus players already know from the big pet games: 
 
 Derek, 2026-11-05 (Set 6 Q10): "Trading from Tier 3: cats and decor, with a countdown". So decor joins trades now.
 
-- **Which decor.** Any crate decor piece or lawn piece the player owns a spare of, or one they take down first. A placed piece can't be offered: the grid shows it with "Placed: take it down to trade". Never exclusive or Robux decor (pass decor, shop exclusives), never Index prize decor, which is tied to its milestone, and never the free Tier 2 and Tier 3 lawn gifts.
+- **Which decor.** Any crate decor or lawn piece the player owns. Saves hold decor as owned or not, with no counts, so each piece is one item. Never exclusive or Robux decor (pass decor, shop exclusives), never Index prize decor, which is tied to its milestone, and never the free Tier 2 and Tier 3 lawn gifts.
+- **Placed pieces can be offered.** Since #1544 Equip Best places the lawn and EquipBestDecor places decor, so nobody places a piece by hand. At the swap the piece leaves the giver and their Equip Best fills the spot from what's left. The receiver's piece lands placed by their own Equip Best.
+- **Already owned.** A piece the partner already owns can't be added. The grid shows it greyed with "They already have this", so nothing in a trade is ever wasted.
 - **Limits.** Up to `TradeMaxDecor` (9) decor on each side, beside the 9 cats. Legendary and up decor arrives locked like cats (F62), and must be unlocked on its own card before it can be offered.
-- **What shows.** Each piece shows its rarity, its tip bonus and "you have 2". The lopsided warning (section 3) counts decor at its Index bonus value next to the cats' rates.
+- **What shows.** Each piece shows its rarity and tip bonus. The lopsided warning (section 3) counts decor at its bonus value next to the cats' rates.
 - **Index.** A traded piece counts as found on the new owner's Decor Index page (source `trade`), as for cats, and pays no golden fish.
 - **Countdown, safety and log** as for cats: any change resets both Ready presses, and the vault (section 4) holds both sides' decor too. Review-Agent re-runs the security review on the decor change before it ships.
-- Contracts: Config `TradeMaxDecor` 9. A trade offer gains `decor: { id: string, count: number }[]`, and the server checks owned, unplaced, tradeable and count. The trade log gains a decor list. QA: a placed piece can't be offered, an Index prize piece can't be offered, a two-sided cat-and-decor trade arrives complete on both sides, and a disconnect mid-trade returns everything.
+- Contracts: Config `TradeMaxDecor` 9. A trade offer gains `decor: { string }` (piece ids), and the server checks that the giver owns each piece, that it's tradeable and that the receiver doesn't own it, again at the swap. The trade log gains a decor list. QA: a placed piece swaps and both sides' Equip Best refills, a piece the partner owns can't be added, an Index prize piece can't be offered, a two-sided cat-and-decor trade arrives complete on both sides, and a disconnect mid-trade returns everything.
 
 ## 2. Who can trade, and where
 

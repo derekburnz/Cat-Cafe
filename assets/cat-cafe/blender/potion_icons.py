@@ -9,7 +9,9 @@ strong it is within its family:
   mid     a round flask                               Swift (a lightning bolt), Steady (a paw), QuickBait (a fish)
   strong  a bigger flask, a gold collar and sparkles  BigTip (a coin stack), GoldRush (a star)
 
-Tip, BigTip and GoldRush share warm yellows in the Theme, so their badges and sizes carry the difference.
+Tip, BigTip and GoldRush share warm yellows in the Theme, so their badges and sizes carry the difference. The Corner
+Shop's Cat Whistle (a whistle badge) comes in three sizes, CatWhistleSmall, CatWhistle and CatWhistleBig, drawn weak,
+mid and strong; its colour is FALLBACK_COLOURS' until Theme lists it.
 Built in Blender axes (x right, -y toward the camera, z up); nothing here is a game model.
 """
 
@@ -34,7 +36,15 @@ POTIONS = {
     "QuickBait": ("quick_bait_potion", "mid", "fish"),
     "BigTip": ("big_tip_potion", "strong", "coins"),
     "GoldRush": ("gold_rush_potion", "strong", "star"),
+    # the Corner Shop's Cat Whistle (corner-shop-v2.md section 1, #1180) in its three sizes, sized like the tiers
+    "CatWhistleSmall": ("cat_whistle", "weak", "whistle"),
+    "CatWhistle": ("cat_whistle", "mid", "whistle"),
+    "CatWhistleBig": ("cat_whistle", "strong", "whistle"),
 }
+# A colour for a potion Theme.potionColors does not list yet; UI-Engineer adds the same hex there so the slot, the
+# drink pop and the picture agree (the Cat Whistle: sign_teal, the colour its in-game puff and ring already use,
+# Effects/Presets potionWhistle; darker than Steady's pale mint)
+FALLBACK_COLOURS = {"cat_whistle": "1FA58F"}
 SIZE = {"weak": 0.78, "mid": 0.92, "strong": 1.05}  # the flask body's radius
 
 
@@ -101,6 +111,13 @@ def _badge(b0, kind, z, y):
         b.cyl((-0.1, f - 0.04, z + 0.03), 0.025, 0.02, "fur_black", segments=6, rot=X)
     elif kind == "star":
         b.star((0, f, z), 0.2, 0.09, 0.05, "rarity_legend", rot=X)
+    elif kind == "whistle":                         # a gold whistle, mouthpiece to the left, two sound lines
+        b.cyl((0.04, f, z - 0.02), 0.12, 0.05, "gold_mid", segments=14, rot=X)                  # its round body
+        b.box((-0.13, f, z + 0.05), (0.2, 0.05, 0.08), "gold_mid")                             # mouthpiece
+        b.box((0.02, f - 0.03, z + 0.06), (0.06, 0.02, 0.04), "fur_black")                     # the hole on top
+        b.cyl((0.04, f - 0.03, z - 0.02), 0.05, 0.02, "gold_light", segments=10, rot=X)         # a shine
+        for k, (dx, dz, a) in enumerate(((0.23, 0.1, -35), (0.26, -0.02, 0))):                  # sound lines
+            b.box((dx, f, z + dz), (0.1, 0.05, 0.03), "fur_brown", rot=(math.radians(a), "Y"))
 
 
 class _Scaled:
@@ -149,7 +166,8 @@ def _frame(mat, mat_name="_PotionFrame"):
 
 def flask(name, mat):
     pid, tier, badge = POTIONS[name]
-    rgb = theme_colours().get(pid, (0.75, 0.49, 1.0))
+    fallback = FALLBACK_COLOURS.get(pid, "BF7DFF")
+    rgb = theme_colours().get(pid) or tuple(int(fallback[i:i + 2], 16) / 255 for i in (0, 2, 4))
     r = SIZE[tier]
     zc = r                                         # the body sits on the ground
     shell, liquid = Builder(), Builder()

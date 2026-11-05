@@ -870,7 +870,14 @@ local function wireIntents()
 	UI.events.claimAll:Connect(function(what: string)
 		Net.fire("ClaimAll", what)
 	end)
-	-- The Daily Treat (F70): the server stamps the card when a stamp is due and answers with a toast and a sync.
+	-- #1646 (cafe-pass.md section 5): Claim and Claim all on the Pass window; the server checks the level, the track
+	-- and the claim, pays through Payout and answers with CafePassState and a toast.
+	UI.events.passClaim:Connect(function(track: string, level: number)
+		Net.fire("PassClaim", track, level)
+	end)
+	UI.events.passClaimAll:Connect(function()
+		Net.fire("PassClaimAll")
+	end)
 	-- #1624: a Style tab button. The sign's "" is the plain sign (nil); the server checks the player owns the style.
 	-- Uniforms and themes only show once the server sends state.looks, which comes with SetLook.
 	UI.events.pickStyle:Connect(function(kind: string, id: string)
@@ -880,6 +887,7 @@ local function wireIntents()
 			Net.fire("SetLook", kind, if id == "" then "default" else id)
 		end
 	end)
+	-- The Daily Treat (F70): the server stamps the card when a stamp is due and answers with a toast and a sync.
 	UI.events.claimDailyTreat:Connect(function()
 		Net.fire("ClaimDailyTreat")
 	end)
@@ -1426,6 +1434,10 @@ local function wireServerEvents()
 		-- check-in sound.
 		Moments.CheckIn:Fire()
 		Moments.CatFound:Fire(catId, isNew)
+	end)
+	-- The Cafe Pass (#1645, #1646): the season, level, XP and claims, at join, after each claim and at a season roll.
+	Net.on("CafePassState", function(view: Types.CafePassView)
+		UI.pass.set(view)
 	end)
 	-- The Tip Jar's session start and claimed steps (F47), on profile load and after every claim.
 	Net.on("TipJarState", function(jar: Types.TipJarState)

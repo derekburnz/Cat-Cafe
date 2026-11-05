@@ -284,15 +284,61 @@ return function()
 					.. "\n10 Big Money, 5 Swift · You have 2"
 			)
 			-- a cat or style with no name yet still reads as words
-			expect(
-				StoreLogic.extras({
-					potions = {},
-					cats = { "new_cat" },
-					signStyles = { "odd_style" },
-				})
-			).to.equal("New Cat the cat, Odd Style sign style")
+			expect(StoreLogic.extras({
+				potions = {},
+				cats = { "new_cat" },
+				signStyles = { "odd_style" },
+			})).to.equal("New Cat the cat, Odd Style sign style")
 			expect(StoreLogic.extras({ potions = { swift_potion = 1 } })).to.equal(nil)
 		end)
+
+		it(
+			"shows the Cafe Pass card only while a season runs, Owned once bought (#1646)",
+			function()
+				local passConfig: any = table.clone(config)
+				passConfig.ProductIds = { potion_pack_xs = 31, starter_bundle = 40, cafe_pass = 50 }
+				expect(table.concat(StoreLogic.productIds(passConfig), ",")).to.equal("31,40,50")
+				-- no season: no card and no Cafe Pass tab
+				expect(#StoreLogic.tabRows(StoreLogic.rows(passConfig, {}, nil, view), "cafePass")).to.equal(
+					0
+				)
+				local running: any = table.clone(view)
+				running.starterBought = true
+				running.cafePass = {
+					season = 1,
+					name = "Season 1: Maple",
+					paid = false,
+					contents = "Season cat Maple Muffin and 15 potions",
+				}
+				local rows = StoreLogic.rows(passConfig, {}, nil, running)
+				local card = StoreLogic.tabRows(rows, "cafePass")[1]
+				expect(card.passId).to.equal(50)
+				expect(card.product).to.equal(true)
+				expect(card.name).to.equal("Cafe Pass")
+				expect(card.effect).to.equal(
+					"Season 1 paid track, a reward every level:\nSeason cat Maple Muffin and 15 potions"
+				)
+				-- the season's pass is the hero after the Starter Bundle, and never carries a timer
+				expect(StoreLogic.featured(rows).hero.key).to.equal("cafePass")
+				expect(StoreLogic.button(card, { robux = 299, forSale = true }).text).to.equal(
+					"R$299"
+				)
+				running.cafePass.paid = true
+				local bought =
+					StoreLogic.tabRows(StoreLogic.rows(passConfig, {}, nil, running), "cafePass")[1]
+				expect(StoreLogic.button(bought, { robux = 299, forSale = true }).text).to.equal(
+					"Owned"
+				)
+				expect(StoreLogic.featured(StoreLogic.rows(passConfig, {}, nil, running)).hero.key).to.equal(
+					"kingPack"
+				)
+				-- a closed season (0) hides it again
+				running.cafePass.season = 0
+				expect(
+					#StoreLogic.tabRows(StoreLogic.rows(passConfig, {}, nil, running), "cafePass")
+				).to.equal(0)
+			end
+		)
 
 		it("keeps the Starter Bundle hidden until the server says it is not bought", function()
 			local unknown: any = table.clone(view)

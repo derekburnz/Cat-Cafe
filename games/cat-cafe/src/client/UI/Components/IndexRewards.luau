@@ -74,6 +74,7 @@ export type PartKind =
 	| "rainbowLuck"
 	| "potion"
 	| "catFood"
+	| "passXp"
 	| "other"
 export type PrizePart = { kind: PartKind, id: string?, amount: number }
 export type Track = "normal" | "gold" | "rainbow"
@@ -106,6 +107,7 @@ local KNOWN_FIELDS = {
 	decorId = true,
 	potions = true,
 	catFood = true,
+	passXp = true,
 }
 
 local IndexRewards = {}
@@ -412,6 +414,11 @@ function IndexRewards.prizeParts(prize: Prize, dayRate: number?): { PrizePart }
 		if type(amount) == "number" and amount > 0 then
 			table.insert(parts, { kind = perk :: PartKind, amount = amount })
 		end
+	end
+	-- #1646 (quests.md section 8): a quest's Cafe Pass XP, a pill after the pictures
+	local passXp: number? = (prize :: any).passXp
+	if type(passXp) == "number" and passXp > 0 then
+		table.insert(parts, { kind = "passXp" :: PartKind, amount = passXp })
 	end
 	local loose = prize :: any
 	local others: { PrizePart } = {}

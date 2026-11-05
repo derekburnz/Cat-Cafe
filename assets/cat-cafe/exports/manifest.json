@@ -148612,21 +148612,20 @@
       "module": "plot",
       "objects": [
         "CatCafe_Plot_Tier3",
-        "CatCafe_Plot_Tier3_Sign_Tube",
         "CatCafe_Plot_Tier3_StringLights_Bulbs",
         "CatCafe_Plot_Tier3_Bistro"
       ],
-      "triangles": 1294,
+      "triangles": 880,
       "budget": 3000,
       "size_studs": {
         "x": 39.68,
-        "y": 5.22,
+        "y": 3.8,
         "z": 9.71
       },
       "size_roblox": [
         39.68,
         9.71,
-        5.22
+        3.8
       ],
       "bounds_min": [
         -19.84,
@@ -148635,14 +148634,14 @@
       ],
       "bounds_max": [
         19.84,
-        -17.08,
+        -18.5,
         9.86
       ],
       "pivot": "Plot.cframe: floor top centre of the cafe",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Cumulative: place every tier up to the cafe's tier.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Tier3.model.json",
-      "rbx_parts": 90,
+      "rbx_parts": 54,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Plot_Tier3.fbx",
         "assets/cat-cafe/exports/CatCafe_Plot_Tier3.glb"
@@ -148655,13 +148654,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1294/3000 tris",
+          "budget": "880/3000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "751 faces on swatch centers",
+          "uv": "544 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.15 (want 0)",
-          "centered": "footprint center x=0.00 y=-19.69"
+          "centered": "footprint center x=0.00 y=-20.40"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_Tier3.png",

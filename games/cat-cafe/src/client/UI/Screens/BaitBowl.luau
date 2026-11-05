@@ -27,6 +27,7 @@ local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local DayKinds = require(script.Parent.Parent.Components.DayKinds)
 local FoodGrade = require(script.Parent.Parent.Components.FoodGrade)
 local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
 local FoodOrder = require(script.Parent.Parent.Components.FoodOrder)
@@ -676,9 +677,14 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 	self._waitSeconds = FoodOdds.waitSeconds(bowlLevel, self._bigBowl, self._speed, self._night)
 	-- Details: the gold chance with the Index's gold luck (F54) and the running potions (F73) in it and the charm
 	-- stars, then the split
-	local extras =
-		FoodOdds.extras(if totals then totals.goldLuck else 0, boosts.goldLuck, boosts.goldScale)
-	local rainbow = FoodOdds.rainbow(state.rainbowLuck) -- F99: under the gold line once rainbow rolls exist
+	local extras = FoodOdds.extras(
+		if totals then totals.goldLuck else 0,
+		boosts.goldLuck,
+		boosts.goldScale,
+		DayKinds.current.golden -- #1572: a Golden Day's x2
+	)
+	-- F99: under the gold line once rainbow rolls exist; #1572 a Rainbow Day's x3
+	local rainbow = FoodOdds.rainbow(state.rainbowLuck, nil, DayKinds.current.rainbow)
 	if rainbow then
 		extras ..= "\n" .. rainbow
 	end

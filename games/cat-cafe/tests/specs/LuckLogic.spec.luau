@@ -142,34 +142,46 @@ return function()
 		end)
 	end)
 
-	describe("LuckLogic.dayLine", function()
-		it("counts the sunrises to the next Lucky Day", function()
-			expect(LuckLogic.dayLine({ day = 1, nextLuckyDay = 4, phase = "day" })).to.equal(
-				"Lucky Day in 3 days"
-			)
-			expect(LuckLogic.dayLine({ day = 2, nextLuckyDay = 4, phase = "night" })).to.equal(
-				"Lucky Day in 2 days"
-			)
-			expect(LuckLogic.dayLine({ day = 3, nextLuckyDay = 4, phase = "day" })).to.equal(
-				"Lucky Day tomorrow"
-			)
-			expect(LuckLogic.dayLine({ day = 3, nextLuckyDay = 4, phase = "night" })).to.equal(
-				"Lucky Day at sunrise"
-			)
-		end)
-
-		it("says so on the day itself, and counts on from its night", function()
-			expect(LuckLogic.dayLine({ day = 4, nextLuckyDay = 8, luckyDay = true, phase = "day" })).to.equal(
-				"Lucky Day now"
+	describe("LuckLogic.dayLine (#1572, day rolls v2)", function()
+		it("names today's kinds in the day, in a fixed order", function()
+			expect(LuckLogic.dayLine({ luckyDay = true, phase = "day" })).to.equal("Lucky Day")
+			expect(LuckLogic.dayLine({ goldenDay = true, phase = "day" })).to.equal("Golden Day")
+			expect(LuckLogic.dayLine({ rainbowDay = true, luckyDay = true, phase = "day" })).to.equal(
+				"Lucky · Rainbow Day"
 			)
 			expect(
-				LuckLogic.dayLine({ day = 4, nextLuckyDay = 8, luckyDay = false, phase = "night" })
-			).to.equal("Lucky Day in 4 days")
+				LuckLogic.dayLine({
+					luckyDay = true,
+					goldenDay = true,
+					rainbowDay = true,
+					phase = "day",
+				})
+			).to.equal("Lucky · Golden · Rainbow Day")
 		end)
 
-		it("shows nothing without the Clock's numbers", function()
-			expect(LuckLogic.dayLine({ phase = "day" })).to.equal(nil)
-			expect(LuckLogic.dayLine({ day = 4, nextLuckyDay = 4, phase = "day" })).to.equal(nil)
+		it("shows nothing on a plain day or at night, and no countdown", function()
+			expect(LuckLogic.dayLine({ day = 3, nextLuckyDay = 4, phase = "day" })).to.equal(nil)
+			expect(LuckLogic.dayLine({ luckyDay = true, phase = "night" })).to.equal(nil)
+			expect(LuckLogic.dayLine({})).to.equal(nil)
+		end)
+
+		it("gives each kind's card line and the sunrise banner", function()
+			local view = { luckyDay = true, goldenDay = true, phase = "day" }
+			local lines = LuckLogic.dayCard(view)
+			expect(#lines).to.equal(2)
+			expect(lines[1]).to.equal(
+				"Lucky Day: +0.5 Luck: rarer cats more likely until night (1 day in 3)"
+			)
+			expect(lines[2]).to.equal("Golden Day: Gold cats x2 as likely until night (1 day in 5)")
+			expect(LuckLogic.dayCard({ rainbowDay = true })[1]).to.equal(
+				"Rainbow Day: Rainbow cats x3 as likely until night (1 day in 10)"
+			)
+			local title, line = LuckLogic.dayBanner(view)
+			expect(title).to.equal("Lucky Day! Golden Day!")
+			expect(line).to.equal(
+				"+0.5 Luck: rarer cats more likely. Gold cats x2 as likely until night"
+			)
+			expect(LuckLogic.dayBanner({ phase = "day" })).to.equal(nil)
 		end)
 	end)
 

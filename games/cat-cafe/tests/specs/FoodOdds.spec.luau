@@ -278,9 +278,26 @@ return function()
 			expect(FoodOdds.rainbow(9, 0.005)).to.equal("Rainbow 1% (+100% luck)")
 			expect(FoodOdds.rainbow(0.2, 0)).to.equal(nil)
 		end)
+
+		it("triples on a Rainbow Day before the luck (#1572, Clock.rainbowChance)", function()
+			expect(FoodOdds.rainbow(0, 0.015, true)).to.equal("Rainbow 4.5% (Rainbow Day x3)")
+			expect(FoodOdds.rainbow(0.2, 0.015, true)).to.equal(
+				"Rainbow 5.4% (Rainbow Day x3, +20% luck)"
+			)
+			expect(FoodOdds.rainbow(0, 0.015, false)).to.equal("Rainbow 1.5%")
+		end)
 	end)
 
 	describe("FoodOdds.extras", function()
+		it("doubles the base gold chance on a Golden Day (#1572, Clock.goldChance)", function()
+			local Config = require(
+				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
+			) :: any
+			local golden = FoodOdds.extras(0, 0, 1, true)
+			local gold = golden:match("^Gold ([%d%.]+)%% %(Golden Day x2%)$")
+			expect(tonumber(gold or "") :: number).to.be.near(Config.GoldChanceBait * 200, 0.005)
+			expect(FoodOdds.extras(0, 0, 1, false)).to.equal(FoodOdds.extras())
+		end)
 		it(
 			"shows the gold chance the server rolls with and no charm stars (F97 section 5)",
 			function()

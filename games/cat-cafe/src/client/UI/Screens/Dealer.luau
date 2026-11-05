@@ -19,6 +19,7 @@ local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local DayKinds = require(script.Parent.Parent.Components.DayKinds)
 local DealerRows = require(script.Parent.Parent.Components.DealerRows)
 local FoodGrade = require(script.Parent.Parent.Components.FoodGrade)
 local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
@@ -536,8 +537,9 @@ function Dealer._renderAll(self: any)
 	-- it, the chance of each stock amount (F59) and the split
 	local luck = if catalog then IndexRewards.totals(catalog, state).goldLuck else 0
 	local boosts = PotionLogic.boosts(catalog, state, Workspace:GetServerTimeNow())
-	local extras = FoodOdds.extras(luck, boosts.goldLuck, boosts.goldScale)
-	local rainbow = FoodOdds.rainbow(state.rainbowLuck) -- F99: under the gold line once rainbow rolls exist
+	-- #1572: a Golden Day's x2 and a Rainbow Day's x3, as at the bowl
+	local extras = FoodOdds.extras(luck, boosts.goldLuck, boosts.goldScale, DayKinds.current.golden)
+	local rainbow = FoodOdds.rainbow(state.rainbowLuck, nil, DayKinds.current.rainbow) -- F99
 	if rainbow then
 		extras ..= "\n" .. rainbow
 	end

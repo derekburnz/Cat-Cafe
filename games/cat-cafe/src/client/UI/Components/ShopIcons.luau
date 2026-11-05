@@ -177,6 +177,12 @@ local IDS: { [string]: string } = {
 	Icon_Market_Treats = "rbxassetid://77636724948052",
 	Icon_Market_FreshCatch = "rbxassetid://126946598739456",
 	Icon_Hud_NightMarket = "rbxassetid://131849751291155",
+	-- the Store's sidebar tabs (#1674; Tools-Agent's upload run 42123273598, 11-05), by ShopIcons.storeTab
+	Icon_StoreTab_Featured = "rbxassetid://112716091687324",
+	Icon_StoreTab_Passes = "rbxassetid://89112668522346",
+	Icon_StoreTab_Cats = "rbxassetid://82565222378487",
+	Icon_StoreTab_Potions = "rbxassetid://93258406405370",
+	Icon_StoreTab_Codes = "rbxassetid://84291555132213",
 	-- the Store's card pictures, one per pass and product (Tools-Agent 11-05), by ShopIcons.store
 	Icon_Store_Money2x = "rbxassetid://72414082780413",
 	Icon_Store_Money3x = "rbxassetid://93298940995735",
@@ -383,6 +389,15 @@ end
 -- A Fish Market tab's picture: "Crates", "Treats" or "FreshCatch".
 function ShopIcons.market(tab: string): string?
 	return IDS["Icon_Market_" .. tab]
+end
+
+-- A Store sidebar tab's picture by its StoreLogic.TABS id (#1674): "featured", "passes", "cats", "potions" and "codes"
+-- have their own; the Cafe Pass tab uses its Store card's ticket. Nil for any other tab (its emoji stays).
+function ShopIcons.storeTab(id: string): string?
+	if id == "cafePass" then
+		return IDS.Icon_Store_CafePass
+	end
+	return IDS["Icon_StoreTab_" .. id:sub(1, 1):upper() .. id:sub(2)]
 end
 
 -- A menu dish's picture for the order bubbles (#950), by its Catalog.menu id: the dish model's own render, or nil.

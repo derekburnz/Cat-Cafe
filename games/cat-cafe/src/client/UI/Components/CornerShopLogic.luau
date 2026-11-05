@@ -98,7 +98,8 @@ function CornerShopLogic.stockLine(item: Item): string
 end
 
 -- The Buy button, in the server's order (shared/CornerShop.buyBlocker): "Tier 3", "None", "Sold out",
--- "Food full", else "Buy · $1.2K", greyed when the coins fall short.
+-- "Back tomorrow", "Food full", else "Buy · $1.2K", greyed when the coins fall short. "Back tomorrow" (#1435) is a row
+-- whose family hit its daily limit: the server marks it `outToday` and the window never shows the limit itself (#1190).
 function CornerShopLogic.button(
 	item: Item,
 	row: Row?,
@@ -115,6 +116,9 @@ function CornerShopLogic.button(
 	end
 	if item.bought >= item.amount then
 		return { text = "Sold out", enabled = false }
+	end
+	if (item :: any).outToday == true then
+		return { text = "Back tomorrow", enabled = false }
 	end
 	if row and row.kind == "food" and (row.xp or 0) > snackRoom then
 		return { text = "Food full", enabled = false }

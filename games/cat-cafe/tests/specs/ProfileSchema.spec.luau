@@ -1409,11 +1409,12 @@ return function()
 		end)
 
 		it("keeps whole counts of shelf rows, at most the most a window rolls, and drops the rest", function()
-			local NOW = 5977152 * 300 + 10 -- in window 5977152 (2026-10-28 00:00 UTC)
+			local NOW = Config.ClockEpoch + 3 * 86400 + 10 -- 2026-11-04 00:00:10 UTC (#1437: windows count from the epoch)
+			local W = math.floor((NOW - Config.ClockEpoch) / Config.FreshCatchWindowSeconds)
 			local raw: any = ProfileSchema.template(NOW)
 			raw.freshCatch = {
-				window = 5977152.7,
-				alerted = 5977150,
+				window = W + 0.7,
+				alerted = W - 2,
 				bought = {
 					tip_potion = 2,
 					gold_rush_potion = 7, -- at most 1 a window
@@ -1424,16 +1425,23 @@ return function()
 				},
 			}
 			expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({
-				window = 5977152,
-				alerted = 5977150,
+				window = W,
+				alerted = W - 2,
 				bought = { tip_potion = 2, gold_rush_potion = 1 }, -- the shelf has no crate since #1051
 			})
-			-- a future-dated window comes back to the next one, so the shelf is not "on its way" for days (N299)
-			raw.freshCatch = { window = 9000000, alerted = 9000000, bought = {} }
+			-- a future-dated alert comes back to the next window, so the shelf is not "on its way" for days (N299)
+			raw.freshCatch = { window = W + 1, alerted = 9000000, bought = {} }
 			expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({
-				window = 5977153,
-				alerted = 5977153,
+				window = W + 1,
+				alerted = W + 1,
 				bought = {},
+			})
+			-- a window past the next one (the old 5 minute count, or a damaged save) starts afresh (#1437)
+			raw.freshCatch = { window = 5977152, alerted = 5977150, bought = { tip_potion = 2 } }
+			expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({
+				window = 0,
+				bought = {},
+				alerted = 0,
 			})
 			raw.freshCatch = "junk"
 			expect(ProfileSchema.migrate(raw, NOW).freshCatch :: any).to.deepEqual({

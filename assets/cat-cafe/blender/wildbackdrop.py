@@ -9,7 +9,8 @@ CFrame.new(spec.center.x, 0, spec.center.z) * CFrame.Angles(0, math.rad(camp.tur
 
   CatCafe_<Area>_Backdrop           the pieces: buildings, houses, trees, chimneys and the rest, by theme.
   CatCafe_<Area>_Backdrop_Ground    the ground carried on from WorldBuilder's plate under the area and its camp
-                                    (CAMP_GROUND_MARGIN 80 past the walls) out REACH more, top at -0.1 like the plate,
+                                    (CAMP_GROUND_MARGIN 80 past the walls) out to under the far hill ring (#1174: no
+                                    square tray past the hills seen from the cannon), top at -0.1 like the plate,
                                     in the plate's grass (the Alleyway's in asphalt over the plate too).
   CatCafe_<Area>_Backdrop_Hills     the near ring of rolling hills, sunk into the ground (backdrop.Hill).
   CatCafe_<Area>_Backdrop_HillsFar  the far ring, bigger and paler (the Woods': grey mountains, Rock).
@@ -85,6 +86,7 @@ class Frame:
         self.pz0 = -(H + CAMP_D) - MARGIN
         self.pz1 = H + MARGIN
         self.hills = []
+        self.rings = []                                 # (d, corner, across) of every hill ring, for ground()
 
     def out(self, x, z):
         """How far (x, z) is outside the footprint (negative inside)."""
@@ -124,8 +126,10 @@ class Frame:
 def ring(f, d, step, sizes, seed, corner=None):
     """A ring of hills round the footprint, d past it, every hill's foot KEEP + 4 clear of it (shrunk or left out)."""
     rx, rz = f.ex + d, f.hz + d
+    corner = corner if corner is not None else min(0.8 * d, rx, rz)
+    f.rings.append((d, corner, sizes[1]))
     hills = []
-    for h in _ring(rx, rz, corner if corner is not None else min(0.8 * d, rx, rz), step, sizes, seed):
+    for h in _ring(rx, rz, corner, step, sizes, seed):
         h.z += f.cz
         foot = math.sqrt(1 - (Hill.SINK / (1 + Hill.SINK)) ** 2)
         for _ in range(8):
@@ -161,12 +165,59 @@ def _foot_clear(f, h, foot):
     return True
 
 
+def _rounded_sdf(x, z, rx, rz, r):
+    """Signed distance from (x, z) to a rounded rectangle centred on the origin (half sizes rx, rz, corner r)."""
+    qx, qz = abs(x) - (rx - r), abs(z) - (rz - r)
+    return math.hypot(max(qx, 0.0), max(qz, 0.0)) + min(max(qx, qz), 0.0) - r
+
+
+def _ray_to(sdf, ux, uz, far=4000.0):
+    """How far along the unit ray (ux, uz) from the origin the shape with this signed distance is crossed."""
+    lo, hi = 0.0, far
+    for _ in range(48):
+        mid = (lo + hi) / 2
+        lo, hi = (mid, hi) if sdf(ux * mid, uz * mid) < 0 else (lo, mid)
+    return (lo + hi) / 2
+
+
+CORNER_STEPS = 8                 # steps round each rounded corner of the ground's outer edge
+
+
 def ground(f, rb, swatch):
-    """Four slabs round WorldBuilder's plate, out REACH past it, top at TOP."""
-    gx, gz0, gz1 = f.px + REACH, f.pz0 - REACH, f.pz1 + REACH
-    for (x0, x1, z0, z1) in ((-gx, gx, f.pz1, gz1), (-gx, gx, gz0, f.pz0), (f.px, gx, f.pz0, f.pz1),
-                             (-gx, -f.px, f.pz0, f.pz1)):
-        rb.span((x0, TOP - 1.0, z0), (x1, TOP, z1), swatch)
+    """The ground round WorldBuilder's plate, top at TOP: from the plate's edge out to the far hill ring's own
+    rounded rectangle plus half a hill's foot (#1174: a square tray reaching REACH past the plate stuck out past the
+    hills and read from the cannon's flight as a floating square of grass). Its edge lies under the far hills, so
+    from the air the ground ends where the hills do. Built after the theme's rings (Frame.rings)."""
+    d, corner, across = max(f.rings) if f.rings else (REACH, 0.0, 0.0)
+    D = d + across * 0.5
+    rx, rz, r = f.ex + D, f.hz + D, min(corner + across * 0.5, f.ex + D, f.hz + D)
+    cz = (f.pz0 + f.pz1) / 2                                         # the plate's centre; the rings' is f.cz
+    px, pz = f.px, (f.pz1 - f.pz0) / 2
+    outer = lambda x, z: _rounded_sdf(x, z + cz - f.cz, rx, rz, r)   # noqa: E731  (centred on the plate)
+    inner = lambda x, z: max(abs(x) - px, abs(z) - pz)              # noqa: E731
+    # The outline's own points (its straight runs need only their ends; each rounded corner CORNER_STEPS steps), as
+    # angles seen from the plate's centre, and the plate's four corners, so every quad below has its inner edge on one
+    # side of the plate and its outer edge on one straight run or one corner step (Review-Agent: 256 even angles made
+    # ~1,040 WedgeParts per backdrop).
+    angles = [math.atan2(sz * pz, sx * px) % (2 * math.pi) for sx in (-1, 1) for sz in (-1, 1)]   # plate corners
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            ccx, ccz = sx * (rx - r), f.cz + sz * (rz - r) - cz          # corner centre, from the plate's centre
+            for k in range(CORNER_STEPS + 1):
+                t = math.radians(90.0 * k / CORNER_STEPS)
+                ox = ccx + sx * r * math.sin(t)
+                oz = ccz + sz * r * math.cos(t)
+                angles.append(math.atan2(oz, ox) % (2 * math.pi))
+    angles = sorted(set(round(a, 9) for a in angles))
+    ring_pts = []
+    for a in angles:
+        ux, uz = math.cos(a), math.sin(a)
+        ti, to = _ray_to(inner, ux, uz), _ray_to(outer, ux, uz)
+        ring_pts.append(((ux * ti, uz * ti + cz), (ux * to, uz * to + cz)))
+    ring_pts.append(ring_pts[0])
+    for (i0, o0), (i1, o1) in zip(ring_pts, ring_pts[1:]):           # a quad per step, plate edge to outer edge
+        bl = lambda p: (-p[0], p[1])                                  # noqa: E731  Roblox (x, z) -> Blender (x, y)
+        rb.b.fan((0.0, 0.0, TOP - 0.5), bl(i0), [bl(o0), bl(o1), bl(i1)], 1.0, swatch)
 
 
 # ------------------------------------------------------------------------------------------------- turning --
@@ -605,8 +656,8 @@ def builder(area, A, H, theme):
     def build(mat):
         f = Frame(A, H)
         P = {k: RB() for k in ("rb", "ground", "hills", "far", "flowers", "lit", "road", "snow")}
-        ground(f, P["ground"], "fur_charcoal" if city else "leaf_green")
         THEMES[theme](f, P)
+        ground(f, P["ground"], "fur_charcoal" if city else "leaf_green")      # after the rings: it ends under them
         objs = [P["rb"].finalize(n, mat), P["ground"].finalize(n + "_Ground", mat)]
         for key, suffix in (("hills", "_Hills"), ("far", "_HillsFar"), ("flowers", "_Flowers"), ("lit", "_Bulbs"),
                             ("road", "_Road"), ("snow", "_Snow")):

@@ -62994,24 +62994,24 @@
    "children": [
     {
      "name": "CatCafe_Woods_BackdropF85_Ground",
-     "className": "Part",
+     "className": "WedgePart",
      "properties": {
       "CFrame": {
        "CFrame": {
         "position": [
-         0.0,
+         -242.0,
          -0.6,
-         455.0
+         -90.4136
         ],
         "orientation": [
          [
-          1.0,
           0.0,
+          1.0,
           0.0
          ],
          [
+          -1.0,
           0.0,
-          1.0,
           0.0
          ],
          [
@@ -63023,9 +63023,9 @@
        }
       },
       "Size": [
-       840.0,
        1.0,
-       260.0
+       164.0,
+       443.1729
       ],
       "Color": [
        0.4314,
@@ -63043,19 +63043,19 @@
       "PivotOffset": {
        "CFrame": {
         "position": [
-         0.0,
-         0.6,
-         -455.0
+         -0.6,
+         242.0,
+         90.4136
         ],
         "orientation": [
          [
-          1.0,
           0.0,
+          -1.0,
           0.0
          ],
          [
-          0.0,
           1.0,
+          0.0,
           0.0
          ],
          [
@@ -63073,38 +63073,1888 @@
     },
     {
      "name": "CatCafe_Woods_BackdropF85_Ground",
-     "className": "Part",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         242.0,
+         -0.6,
+         206.0864
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7656,
+          0.6433
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.6433,
+          0.7656
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       29.1657,
+       220.2125
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         322.0016,
+         -0.6,
+         301.2894
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7656,
+          -0.6433
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.6433,
+          -0.7656
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       29.1657,
+       28.4952
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         240.0017,
+         -0.6,
+         237.4332
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.7656,
+          -0.6433
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.6433,
+          -0.7656
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       14.2273,
+       231.777
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         160.0,
+         -0.6,
+         142.2302
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.7656,
+          0.6433
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.6433,
+          0.7656
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       14.2273,
+       16.9307
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         240.0017,
+         -0.6,
+         237.4332
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8136,
+          0.5815
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5815,
+          0.8136
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       32.3182,
+       229.9533
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         314.0851,
+         -0.6,
+         341.0885
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8136,
+          -0.5815
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5815,
+          -0.8136
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       32.3182,
+       24.8625
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         234.0835,
+         -0.6,
+         270.3042
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8136,
+          -0.5815
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5815,
+          -0.8136
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       15.5383,
+       233.0751
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         160.0,
+         -0.6,
+         166.6489
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8136,
+          0.5815
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5815,
+          0.8136
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       15.5383,
+       21.7407
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         234.0835,
+         -0.6,
+         270.3042
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8592,
+          0.5116
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5116,
+          0.8592
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       34.9133,
+       230.9686
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         298.5563,
+         -0.6,
+         378.5784
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8592,
+          -0.5116
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5116,
+          -0.8592
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       34.9133,
+       21.0635
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         224.4728,
+         -0.6,
+         304.727
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8592,
+          -0.5116
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5116,
+          -0.8592
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       16.8248,
+       223.7769
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         160.0,
+         -0.6,
+         196.4528
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8592,
+          0.5116
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5116,
+          0.8592
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       16.8248,
+       28.2552
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         224.4728,
+         -0.6,
+         304.727
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9019,
+          0.432
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.432,
+          0.9019
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       36.946,
+       221.3463
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         276.012,
+         -0.6,
+         412.3184
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9019,
+          -0.432
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.432,
+          -0.9019
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       36.946,
+       17.2513
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         211.5391,
+         -0.6,
+         341.2757
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9019,
+          -0.432
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.432,
+          -0.9019
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       17.9623,
+       201.1
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         160.0,
+         -0.6,
+         233.6842
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9019,
+          0.432
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.432,
+          0.9019
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       17.9623,
+       37.4976
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         211.5391,
+         -0.6,
+         341.2757
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9413,
+          0.3377
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.3377,
+          0.9413
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       38.4029,
+       198.2147
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         247.3184,
+         -0.6,
+         441.012
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9413,
+          -0.3377
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.3377,
+          -0.9413
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       38.4029,
+       13.705
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         195.7793,
+         -0.6,
+         381.4865
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9413,
+          -0.3377
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.3377,
+          -0.9413
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       18.4212,
+       160.5697
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         160.0,
+         -0.6,
+         281.7502
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9413,
+          0.3377
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.3377,
+          0.9413
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       18.4212,
+       51.3499
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         195.7793,
+         -0.6,
+         381.4865
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9218,
+          0.3877
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.3877,
+          0.9218
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       9.7826,
+       161.3266
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         227.3697,
+         -0.6,
+         456.6024
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9218,
+          -0.3877
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.3877,
+          -0.9218
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       9.7826,
+       1.65
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         191.5904,
+         -0.6,
+         392.1295
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9218,
+          -0.3877
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.3877,
+          -0.9218
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       6.1921,
+       148.253
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         160.0,
+         -0.6,
+         317.0136
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9218,
+          0.3877
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.3877,
+          0.9218
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       6.1921,
+       14.7236
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         191.5904,
+         -0.6,
+         392.1295
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9723,
+          0.2336
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.2336,
+          0.9723
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       30.0684,
+       145.3038
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         209.3894,
+         -0.6,
+         466.213
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9723,
+          -0.2336
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.2336,
+          -0.9723
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       30.0684,
+       7.0795
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         177.7991,
+         -0.6,
+         399.0835
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9283,
+          -0.3719
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.3719,
+          -0.9283
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       22.064,
+       150.7775
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         148.1154,
+         -0.6,
+         325.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9283,
+          0.3719
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.3719,
+          0.9283
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       22.064,
+       8.8406
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         165.9145,
+         -0.6,
+         399.0835
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.992,
+          0.1262
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.1262,
+          0.992
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       40.2009,
+       154.4727
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         176.0885,
+         -0.6,
+         479.0851
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.992,
+          -0.1262
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.1262,
+          -0.992
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       40.2009,
+       6.8193
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         146.4048,
+         -0.6,
+         405.0016
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9543,
+          -0.2988
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.2988,
+          -0.9543
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       28.3981,
+       158.7723
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         121.3518,
+         -0.6,
+         325.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9543,
+          0.2988
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.2988,
+          0.9543
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       28.3981,
+       8.893
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         136.2894,
+         -0.6,
+         487.0016
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9543,
+          -0.2988
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.2988,
+          -0.9543
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       39.9188,
+       8.3127
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         111.2364,
+         -0.6,
+         407.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9543,
+          0.2988
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.2988,
+          0.9543
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       39.9188,
+       159.3526
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         111.2364,
+         -0.6,
+         407.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9745,
+          -0.2243
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.2243,
+          -0.9745
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       27.4999,
+       161.9584
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         92.3634,
+         -0.6,
+         325.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9745,
+          0.2243
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.2243,
+          0.9745
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       27.4999,
+       6.3293
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         97.127,
+         -0.6,
+         407.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.6451,
+          -0.7641
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.7641,
+          0.6451
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       149.6624,
+       76.9541
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
      "properties": {
       "CFrame": {
        "CFrame": {
         "position": [
          0.0,
          -0.6,
-         -485.0
+         489.0
         ],
         "orientation": [
          [
+          0.0,
+          0.6451,
+          0.7641
+         ],
+         [
           1.0,
           0.0,
           0.0
          ],
          [
           0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
+          0.7641,
+          -0.6451
          ]
         ]
        }
       },
       "Size": [
-       840.0,
        1.0,
-       260.0
+       149.6624,
+       177.2715
       ],
       "Color": [
        0.4314,
@@ -63123,38 +64973,38 @@
     },
     {
      "name": "CatCafe_Woods_BackdropF85_Ground",
-     "className": "Part",
+     "className": "WedgePart",
      "properties": {
       "CFrame": {
        "CFrame": {
         "position": [
-         290.0,
+         -97.127,
          -0.6,
-         -15.0
+         407.0
         ],
         "orientation": [
          [
-          1.0,
+          0.0,
+          -0.6451,
+          0.7641
+         ],
+         [
+          -1.0,
           0.0,
           0.0
          ],
          [
           0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
+          -0.7641,
+          -0.6451
          ]
         ]
        }
       },
       "Size": [
-       260.0,
        1.0,
-       680.0
+       100.9627,
+       134.6376
       ],
       "Color": [
        0.4314,
@@ -63173,16 +65023,21 @@
     },
     {
      "name": "CatCafe_Woods_BackdropF85_Ground",
-     "className": "Part",
+     "className": "WedgePart",
      "properties": {
       "CFrame": {
        "CFrame": {
         "position": [
-         -290.0,
+         0.0,
          -0.6,
-         -15.0
+         325.0
         ],
         "orientation": [
+         [
+          0.0,
+          -0.6451,
+          -0.7641
+         ],
          [
           1.0,
           0.0,
@@ -63190,7 +65045,5802 @@
          ],
          [
           0.0,
+          -0.7641,
+          0.6451
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       100.9627,
+       119.5879
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -97.127,
+         -0.6,
+         407.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8982,
+          -0.4397
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.4397,
+          0.8982
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       38.2035,
+       163.8941
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -136.2894,
+         -0.6,
+         487.0016
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8982,
+          0.4397
+         ],
+         [
           1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.4397,
+          -0.8982
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       38.2035,
+       14.2515
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -131.5258,
+         -0.6,
+         405.0016
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8982,
+          0.4397
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.4397,
+          -0.8982
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       25.3451,
+       165.7386
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -92.3634,
+         -0.6,
+         325.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8982,
+          -0.4397
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.4397,
+          0.8982
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       25.3451,
+       12.4069
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -131.5258,
+         -0.6,
+         405.0016
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8569,
+          -0.5155
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5155,
+          0.8569
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       39.5375,
+       162.937
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -176.0885,
+         -0.6,
+         479.0851
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8569,
+          0.5155
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5155,
+          -0.8569
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       39.5375,
+       9.9698
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -165.9145,
+         -0.6,
+         399.0835
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8569,
+          0.5155
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5155,
+          -0.8569
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       25.5001,
+       157.568
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -121.3518,
+         -0.6,
+         325.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8569,
+          -0.5155
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5155,
+          0.8569
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       25.5001,
+       15.3388
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -165.9145,
+         -0.6,
+         399.0835
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8394,
+          -0.5436
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5436,
+          0.8394
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       30.7116,
+       156.6356
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -209.3894,
+         -0.6,
+         466.213
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8394,
+          0.5436
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5436,
+          -0.8394
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       30.7116,
+       3.32
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -191.5904,
+         -0.6,
+         392.1295
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8394,
+          0.5436
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5436,
+          -0.8394
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       19.9507,
+       147.0349
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -148.1154,
+         -0.6,
+         325.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8394,
+          -0.5436
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5436,
+          0.8394
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       19.9507,
+       12.9206
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -227.3697,
+         -0.6,
+         456.6024
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9048,
+          0.4258
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.4258,
+          -0.9048
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       9.8429,
+       1.2404
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -195.7793,
+         -0.6,
+         389.4728
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9048,
+          -0.4258
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.4258,
+          0.9048
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       9.8429,
+       147.1419
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -195.7793,
+         -0.6,
+         389.4728
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8966,
+          0.4428
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.4428,
+          -0.8966
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       7.0719,
+       147.3011
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -160.0,
+         -0.6,
+         317.0136
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8966,
+          -0.4428
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.4428,
+          0.8966
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       7.0719,
+       14.3219
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -247.3184,
+         -0.6,
+         441.012
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8966,
+          0.4428
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.4428,
+          -0.8966
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       39.7147,
+       9.2386
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -211.5391,
+         -0.6,
+         368.5527
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8966,
+          -0.4428
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.4428,
+          0.8966
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       39.7147,
+       152.3843
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -211.5391,
+         -0.6,
+         368.5527
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8599,
+          0.5105
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5105,
+          -0.8599
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       27.852,
+       154.9919
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -160.0,
+         -0.6,
+         281.7502
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8599,
+          -0.5105
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5105,
+          0.8599
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       27.852,
+       46.9086
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -276.012,
+         -0.6,
+         412.3184
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8599,
+          0.5105
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5105,
+          -0.8599
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       38.3343,
+       13.8959
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -224.4728,
+         -0.6,
+         325.5159
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8599,
+          -0.5105
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5105,
+          0.8599
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       38.3343,
+       188.0046
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -224.4728,
+         -0.6,
+         325.5159
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8184,
+          0.5746
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5746,
+          -0.8184
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       23.8907,
+       190.3799
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -160.0,
+         -0.6,
+         233.6842
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8184,
+          -0.5746
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5746,
+          0.8184
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       23.8907,
+       34.0286
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -298.5563,
+         -0.6,
+         378.5784
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8184,
+          0.5746
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5746,
+          -0.8184
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       36.3943,
+       18.3866
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -234.0835,
+         -0.6,
+         286.7468
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8184,
+          -0.5746
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5746,
+          0.8184
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       36.3943,
+       206.0219
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -234.0835,
+         -0.6,
+         286.7468
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7731,
+          0.6343
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.6343,
+          -0.7731
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       20.8589,
+       208.1693
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -160.0,
+         -0.6,
+         196.4528
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7731,
+          -0.6343
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.6343,
+          0.7731
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       20.8589,
+       25.4232
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -314.0851,
+         -0.6,
+         341.0885
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.7731,
+          0.6343
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.6343,
+          -0.7731
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       33.9004,
+       22.6577
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -240.0017,
+         -0.6,
+         250.7945
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.7731,
+          -0.6343
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.6343,
+          0.7731
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       33.9004,
+       210.9348
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -240.0017,
+         -0.6,
+         250.7945
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7247,
+          0.689
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.689,
+          -0.7247
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       18.4128,
+       212.8466
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -160.0,
+         -0.6,
+         166.6489
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7247,
+          -0.689
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.689,
+          0.7247
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       18.4128,
+       19.3666
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -322.0016,
+         -0.6,
+         301.2894
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.7247,
+          0.689
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.689,
+          -0.7247
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       30.8568,
+       26.6547
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -242.0,
+         -0.6,
+         217.1438
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.7247,
+          -0.689
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.689,
+          0.7247
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       30.8568,
+       205.5585
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -242.0,
+         -0.6,
+         217.1438
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.6745,
+          0.7383
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.7383,
+          -0.6745
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       16.3271,
+       207.2194
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -160.0,
+         -0.6,
+         142.2302
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.6745,
+          -0.7383
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.7383,
+          0.6745
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       16.3271,
+       14.9161
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -242.0,
+         -0.6,
+         206.0864
+        ],
+        "orientation": [
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       164.0,
+       149.8272
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -242.0,
+         -0.6,
+         -236.8333
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9378,
+          0.3471
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.3471,
+          0.9378
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       101.6321,
+       197.9066
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -160.0,
+         -0.6,
+         -15.2469
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9378,
+          -0.3471
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.3471,
+          -0.9378
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       101.6321,
+       274.6377
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -242.0,
+         -0.6,
+         -236.8333
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.7664,
+          -0.6423
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.6423,
+          -0.7664
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       29.1284,
+       220.5621
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -322.0016,
+         -0.6,
+         -332.2894
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.7664,
+          0.6423
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.6423,
+          0.7664
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       29.1284,
+       28.5333
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -240.0017,
+         -0.6,
+         -268.1832
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7664,
+          0.6423
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.6423,
+          0.7664
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       14.2091,
+       232.1414
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -160.0,
+         -0.6,
+         -172.7271
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7664,
+          -0.6423
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.6423,
+          -0.7664
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       14.2091,
+       16.954
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -240.0017,
+         -0.6,
+         -268.1832
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8142,
+          -0.5805
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5805,
+          -0.8142
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       32.2899,
+       230.3234
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -314.0851,
+         -0.6,
+         -372.0885
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8142,
+          0.5805
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5805,
+          0.8142
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       32.2899,
+       24.8993
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -234.0835,
+         -0.6,
+         -301.0638
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8142,
+          0.5805
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5805,
+          0.8142
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       15.5247,
+       233.4487
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -160.0,
+         -0.6,
+         -197.1585
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8142,
+          -0.5805
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5805,
+          -0.8142
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       15.5247,
+       21.774
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -234.0835,
+         -0.6,
+         -301.0638
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8597,
+          -0.5108
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5108,
+          -0.8597
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       34.8928,
+       231.3478
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -298.5563,
+         -0.6,
+         -409.5784
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8597,
+          0.5108
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5108,
+          0.8597
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       34.8928,
+       21.0975
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -224.4728,
+         -0.6,
+         -335.5038
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8597,
+          0.5108
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5108,
+          0.8597
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       16.8149,
+       224.1441
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -160.0,
+         -0.6,
+         -226.9893
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8597,
+          -0.5108
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5108,
+          -0.8597
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       16.8149,
+       28.3013
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -224.4728,
+         -0.6,
+         -335.5038
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9022,
+          -0.4313
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.4313,
+          -0.9022
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       36.9321,
+       221.719
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -276.012,
+         -0.6,
+         -443.3184
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9022,
+          0.4313
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.4313,
+          0.9022
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       36.9321,
+       17.2811
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -211.5391,
+         -0.6,
+         -372.0798
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9022,
+          0.4313
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.4313,
+          0.9022
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       17.9555,
+       201.4389
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -160.0,
+         -0.6,
+         -264.2652
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9022,
+          -0.4313
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.4313,
+          -0.9022
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       17.9555,
+       37.5612
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -211.5391,
+         -0.6,
+         -372.0798
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9415,
+          -0.3371
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.3371,
+          -0.9415
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       38.3944,
+       198.5596
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -247.3184,
+         -0.6,
+         -472.012
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9415,
+          0.3371
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.3371,
+          0.9415
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       38.3944,
+       13.7289
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -195.7793,
+         -0.6,
+         -412.332
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9415,
+          0.3371
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.3371,
+          0.9415
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       18.4171,
+       160.8491
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -160.0,
+         -0.6,
+         -312.3998
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9415,
+          -0.3371
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.3371,
+          -0.9415
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       18.4171,
+       51.4393
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -195.7793,
+         -0.6,
+         -412.332
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9211,
+          -0.3894
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.3894,
+          -0.9211
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       9.3619,
+       161.6292
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -227.553,
+         -0.6,
+         -487.4919
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9211,
+          0.3894
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.3894,
+          0.9211
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       9.3619,
+       1.5711
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -191.7737,
+         -0.6,
+         -422.519
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9211,
+          0.3894
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.3894,
+          0.9211
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       5.9504,
+       149.1246
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -160.0,
+         -0.6,
+         -347.3591
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9211,
+          -0.3894
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.3894,
+          -0.9211
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       5.9504,
+       14.0756
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -191.7737,
+         -0.6,
+         -422.519
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9727,
+          -0.2321
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.2321,
+          -0.9727
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       30.4655,
+       146.1007
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -209.5728,
+         -0.6,
+         -497.1025
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9727,
+          0.2321
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.2321,
+          0.9727
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       30.4655,
+       7.2551
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -177.7991,
+         -0.6,
+         -429.5835
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9285,
+          0.3713
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.3713,
+          0.9285
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       22.3288,
+       151.7215
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -147.9762,
+         -0.6,
+         -355.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9285,
+          -0.3713
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.3713,
+          -0.9285
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       22.3288,
+       8.9284
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -165.7752,
+         -0.6,
+         -429.5835
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9919,
+          -0.1271
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.1271,
+          -0.9919
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       40.2072,
+       155.5371
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -176.0885,
+         -0.6,
+         -510.0851
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9919,
+          0.1271
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.1271,
+          0.9919
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       40.2072,
+       6.7821
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -146.2655,
+         -0.6,
+         -435.5017
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9545,
+          0.2983
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.2983,
+          0.9545
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       28.3401,
+       159.8261
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -121.1063,
+         -0.6,
+         -355.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9545,
+          -0.2983
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.2983,
+          -0.9545
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       28.3401,
+       8.8572
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -136.2894,
+         -0.6,
+         -518.0017
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9545,
+          0.2983
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.2983,
+          0.9545
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       39.9235,
+       8.29
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -111.1302,
+         -0.6,
+         -437.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9545,
+          -0.2983
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.2983,
+          -0.9545
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       39.9235,
+       160.3932
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -111.1302,
+         -0.6,
+         -437.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9746,
+          0.2239
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.2239,
+          0.9746
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       27.4466,
+       162.9925
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -92.1797,
+         -0.6,
+         -355.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9746,
+          -0.2239
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.2239,
+          -0.9746
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       27.4466,
+       6.3046
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -97.0495,
+         -0.6,
+         -437.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.6477,
+          0.7619
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.7619,
+          -0.6477
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       150.2628,
+       77.9909
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.6,
+         -520.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.6477,
+          -0.7619
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.7619,
+          0.6477
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       150.2628,
+       176.7628
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         97.0495,
+         -0.6,
+         -437.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.6477,
+          -0.7619
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.7619,
+          0.6477
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       101.167,
+       135.745
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         -0.6,
+         -355.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.6477,
+          0.7619
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.7619,
+          -0.6477
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       101.167,
+       119.0086
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         97.0495,
+         -0.6,
+         -437.5
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8989,
+          0.4382
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.4382,
+          -0.8989
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       38.2273,
+       164.9247
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         136.2894,
+         -0.6,
+         -518.0017
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8989,
+          -0.4382
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.4382,
+          0.8989
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       38.2273,
+       14.1874
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         131.4196,
+         -0.6,
+         -435.5017
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8989,
+          -0.4382
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.4382,
+          0.8989
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       25.3141,
+       166.7729
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         92.1797,
+         -0.6,
+         -355.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8989,
+          0.4382
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.4382,
+          -0.8989
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       25.3141,
+       12.3392
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         131.4196,
+         -0.6,
+         -435.5017
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8579,
+          0.5138
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5138,
+          -0.8579
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       39.5566,
+       163.9796
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         176.0885,
+         -0.6,
+         -510.0851
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8579,
+          -0.5138
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5138,
+          0.8579
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       39.5566,
+       9.894
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         165.7752,
+         -0.6,
+         -429.5835
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8579,
+          -0.5138
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5138,
+          0.8579
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       25.4729,
+       158.6176
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         121.1063,
+         -0.6,
+         -355.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8579,
+          0.5138
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5138,
+          -0.8579
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       25.4729,
+       15.256
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         165.7752,
+         -0.6,
+         -429.5835
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.839,
+          0.5442
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5442,
+          -0.839
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       31.137,
+       157.6036
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         209.5728,
+         -0.6,
+         -497.1025
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.839,
+          -0.5442
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5442,
+          0.839
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       31.137,
+       3.3566
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         191.7737,
+         -0.6,
+         -422.519
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.839,
+          -0.5442
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5442,
+          0.839
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       20.1749,
+       147.8734
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         147.9762,
+         -0.6,
+         -355.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.839,
+          0.5442
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5442,
+          -0.839
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       20.1749,
+       13.0868
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         227.553,
+         -0.6,
+         -487.4919
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9048,
+          -0.4258
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.4258,
+          0.9048
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       9.4171,
+       1.1966
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         195.7793,
+         -0.6,
+         -419.9728
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.9048,
+          0.4258
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.4258,
+          -0.9048
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       9.4171,
+       148.0467
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         195.7793,
+         -0.6,
+         -419.9728
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.897,
+          -0.442
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.442,
+          0.897
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       6.7544,
+       148.1921
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         160.0,
+         -0.6,
+         -347.3591
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.897,
+          0.442
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.442,
+          -0.897
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       6.7544,
+       13.708
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         247.3184,
+         -0.6,
+         -472.012
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.897,
+          -0.442
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.442,
+          0.897
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       39.7069,
+       9.2722
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         211.5391,
+         -0.6,
+         -399.3983
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.897,
+          0.442
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.442,
+          -0.897
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       39.7069,
+       152.6279
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         211.5391,
+         -0.6,
+         -399.3983
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8604,
+          -0.5097
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5097,
+          0.8604
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       27.8478,
+       155.2302
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         160.0,
+         -0.6,
+         -312.3998
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8604,
+          0.5097
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5097,
+          -0.8604
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       27.8478,
+       47.0074
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         276.012,
+         -0.6,
+         -443.3184
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8604,
+          -0.5097
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5097,
+          0.8604
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       38.3205,
+       13.9338
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         224.4728,
+         -0.6,
+         -356.3199
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8604,
+          0.5097
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5097,
+          -0.8604
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       38.3205,
+       188.3037
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         224.4728,
+         -0.6,
+         -356.3199
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8191,
+          -0.5737
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5737,
+          0.8191
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       23.8831,
+       190.6734
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         160.0,
+         -0.6,
+         -264.2652
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.8191,
+          0.5737
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.5737,
+          -0.8191
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       23.8831,
+       34.1004
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         298.5563,
+         -0.6,
+         -409.5784
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8191,
+          -0.5737
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5737,
+          0.8191
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       36.3733,
+       18.4281
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         234.0835,
+         -0.6,
+         -317.5236
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.8191,
+          0.5737
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.5737,
+          -0.8191
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       36.3733,
+       206.3457
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         234.0835,
+         -0.6,
+         -317.5236
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.7739,
+          -0.6333
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.6333,
+          0.7739
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       20.8476,
+       208.4873
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         160.0,
+         -0.6,
+         -226.9893
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.7739,
+          0.6333
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.6333,
+          -0.7739
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       20.8476,
+       25.4771
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         314.0851,
+         -0.6,
+         -372.0885
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7739,
+          -0.6333
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.6333,
+          0.7739
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       33.8709,
+       22.7018
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         240.0017,
+         -0.6,
+         -281.5541
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7739,
+          0.6333
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.6333,
+          -0.7739
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       33.8709,
+       211.2625
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         240.0017,
+         -0.6,
+         -281.5541
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.7257,
+          -0.688
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.688,
+          0.7257
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       18.3973,
+       213.1681
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         160.0,
+         -0.6,
+         -197.1585
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.7257,
+          0.688
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.688,
+          -0.7257
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       18.3973,
+       19.4078
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         322.0016,
+         -0.6,
+         -332.2894
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7257,
+          -0.688
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.688,
+          0.7257
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       30.8172,
+       26.7004
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         242.0,
+         -0.6,
+         -247.8938
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.7257,
+          0.688
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.688,
+          -0.7257
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       30.8172,
+       205.8755
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         242.0,
+         -0.6,
+         -247.8938
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.6757,
+          -0.7372
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.7372,
+          0.6757
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       16.3066,
+       207.5295
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         160.0,
+         -0.6,
+         -172.7271
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.6757,
+          0.7372
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -0.7372,
+          -0.6757
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       16.3066,
+       14.9477
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         242.0,
+         -0.6,
+         -236.8333
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
           0.0
          ],
          [
@@ -63202,9 +70852,159 @@
        }
       },
       "Size": [
-       260.0,
        1.0,
-       680.0
+       164.0,
+       150.3333
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         242.0,
+         -0.6,
+         59.6667
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       164.0,
+       442.6667
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         242.0,
+         -0.6,
+         206.0864
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9377,
+          -0.3474
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.3474,
+          -0.9377
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       101.7343,
+       197.4697
+      ],
+      "Color": [
+       0.4314,
+       0.6667,
+       0.3529
+      ],
+      "Material": "Grass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "CanQuery": false
+     }
+    },
+    {
+     "name": "CatCafe_Woods_BackdropF85_Ground",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         160.0,
+         -0.6,
+         -15.2469
+        ],
+        "orientation": [
+         [
+          0.0,
+          -0.9377,
+          0.3474
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.3474,
+          0.9377
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       101.7343,
+       274.5999
       ],
       "Color": [
        0.4314,

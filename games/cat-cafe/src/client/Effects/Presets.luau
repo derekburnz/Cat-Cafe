@@ -3321,4 +3321,18 @@ Presets.whistle = {
 	stillTransparency = 0.6,
 }
 
+-- The Picnic Basket's ready glow (#1133, camp-stations.md section 2; Effects/PicnicGlow): while your picnic holds a
+-- potion, one PointLight in `colour`, `brightness` over `range` studs (inside the night glow budget: the street's
+-- night lights are 0.5 over 8), fading in and out over `fade` seconds, on the station's `anchor` attachment, else
+-- `under` of the way up its bounding box. Checked every `pick` seconds for the station streaming in.
+Presets.picnicGlow = {
+	anchor = "GlowAnchor",
+	under = 0.45,
+	colour = Presets.palette.lampWarm,
+	brightness = 0.6,
+	range = 7,
+	fade = 0.6,
+	pick = 1,
+}
+
 return Presets

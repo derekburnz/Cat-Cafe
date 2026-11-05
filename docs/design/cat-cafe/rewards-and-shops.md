@@ -124,7 +124,7 @@ The Golden Fish Market gets a chalkboard on its stall, "Fresh Catch", and a thir
   | Lucky Potion (10 min, +0.5 Luck and double gold on bait) | 25 | 60% | 35% | 5% | 0% | 0.45 |
   | Gold Rush Potion (30 min, +25% gold luck) | 30 | 75% | 25% | 0% | 0% | 0.25 |
 
-- The board and the tab show every item's chance of being in stock, as the dealer's screen does today, and "Fresh catch in 3:12".
+- Since #1190 (the friend, 11-04), the board and the tab show no stock chances, no counts and no "Fresh catch in 3:12" clock: a row is buyable or reads "Sold out". The chances above stay server numbers.
 - **A heads up.** When a window stocks a Gold Rush Potion, players in the server by day who have enough golden fish for it get one small toast, "Gold Rush Potions at the Fish Market!", at most once a window. Settings has a "Shop alerts" switch, on by default.
 - Potions bought here go into the potion bag like any other. The PotionMaxMinutes cap and its "Full" refusal apply when drinking, not when buying.
 - **Earn only.** Everything on the shelf costs golden fish, which are never sold for Robux, so nothing here is a paid random item. If Monetization-Agent's potion bundles ship, the Lucky and Gold Rush Potions stay out of any Robux bundle, because they change odds.

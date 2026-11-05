@@ -29,13 +29,13 @@ A small corner shop stall in the Town Square (town-layout-v3.md), beside the Gol
 - **No dealer food.** The night dealer's amounts are what keep Caviar, Moon Milk and the Star Treat rare (economy-ladder.md section 4). Kibble, Tuna and Salmon are already sold for coins at the bowl.
 - **No golden fish, crates, spins or anything random for coins.** Money passes multiply coins, so a coin route to random items would make them paid random items (monetization-policy section 2).
 - **No looks-only decor.** The front lawn (front-lawn.md) is already the coin decor shop: bought once, chosen freely, never rotating. The Corner Shop card has a line, "Lawn pieces are in Decor, Front lawn", so it points players there and doesn't make a second, rotating copy of the same thing.
-- **Nothing limited.** Every item comes back in a later window, and the stock chances are shown.
+- **Nothing limited.** Every item comes back in a later window. (The stock chances were shown here until #1190; the friend had them removed from every shop.)
 
 ## 4. How it works in game
 
 - **The stall.** Model `CatCafe_Street_CornerShop`: a striped awning, a shop cat behind the counter, jars and a little chalkboard. Tag `CornerShop`, a prompt within 14 studs (`CornerShopRange`) opens its window. Open day and night: it sells for coins, and the night is quieter for coins than the day.
 - **The roll.** The same code as Fresh Catch: every `CornerShopWindowSeconds` (300) window `floor(os.time() / 300)` rolls each item's amount from `CornerShopAmountWeights`, seeded by the window and the salt "corner", so every server shows the same stock and it differs from the Fresh Catch roll. The amount is per player: each player can buy up to that many in the window.
-- **The window.** A cocoa card "Restocks in 3:12" over "The same stock on every server", then a row per item: its picture, name, what it does, how often it is stocked ("In stock 9 times in 10"), a stock line ("x2 left", "You bought 2", "None this time") and a green Buy with the coin price ("Sold out", "None"). The Cat Snacks open a cat picker first (the cat menu's list, highest level first, each showing "Level 23, 1,400 XP to 24").
+- **The window.** (#1190: no restock clock, stock chances or counts; the parts in quotes below that show them are dropped.) A cocoa card "Restocks in 3:12" over "The same stock on every server", then a row per item: its picture, name, what it does, how often it is stocked ("In stock 9 times in 10"), a stock line ("x2 left", "You bought 2", "None this time") and a green Buy with the coin price ("Sold out", "None"). The Cat Snacks open a cat picker first (the cat menu's list, highest level first, each showing "Level 23, 1,400 XP to 24").
 - **No alerts.** Unlike Fresh Catch, the Corner Shop never sends a toast. Nothing here is rare enough to tell anyone about.
 - **Analytics.** The economy sink `corner_shop` (coins) and the custom event `corner_shop_buy` (value coins, fields item id and tier). After launch, growth reads how many coins flow here against the rank ups to see whether it works as a sink.
 

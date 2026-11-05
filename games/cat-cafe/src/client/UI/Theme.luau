@@ -402,6 +402,10 @@ Theme.potionColors = {
 	big_tip_potion = Color3.fromHex("F2B233"),
 	gold_rush_potion = Color3.fromHex("FFE08A"),
 	quick_bait_potion = Color3.fromHex("F5A3C0"),
+	-- #1302: the Cat Whistle's teal (Coordinator 11-05), its sizes too
+	cat_whistle = Color3.fromHex("1FA58F"),
+	cat_whistle_small = Color3.fromHex("1FA58F"),
+	cat_whistle_big = Color3.fromHex("1FA58F"),
 } :: { [string]: Color3 }
 
 -- A glyph per food for shop rows until the asset thread's item model is in ReplicatedStorage.Assets

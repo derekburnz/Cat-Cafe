@@ -134,6 +134,10 @@ local IDS: { [string]: string } = {
 	Icon_Flask_QuickBait = "rbxassetid://102617577148798",
 	Icon_Flask_BigTip = "rbxassetid://137883283288576",
 	Icon_Flask_GoldRush = "rbxassetid://133671235439574",
+	-- #1191 / #1186: the shop-only cats on their Store cards (upload run from main dee66576, 11-05)
+	Icon_ShopCat_Sprinkles = "rbxassetid://123101439533132",
+	Icon_ShopCat_DuchessMarzipan = "rbxassetid://105207350898043",
+	Icon_ShopCat_KingCroissant = "rbxassetid://127183027799927",
 	-- #950: the order bubbles' dishes, one per Catalog.menu model (Model-Agent #1101; upload run 41885238133, 11-04)
 	Icon_Menu_Coffee = "rbxassetid://79738997061623",
 	Icon_Menu_Milk = "rbxassetid://76795195002258",
@@ -302,6 +306,11 @@ end
 -- night dealer, the Tip Jar, Daily Treat, quest and spin prizes) reaches it through ItemIcon.setFood. Only the clean
 -- 2D picture (Icon_Clean_<Food>, assets/cat-cafe/ui/icons-clean-2026-11-03) counts: the older food uploads were 3D
 -- renders, so a food without a clean picture gets nil and the spec fails.
+-- A shop-only cat's picture (#1191) by its name, such as "KingCroissant", or nil.
+function ShopIcons.shopCat(name: string?): string?
+	return if type(name) == "string" then IDS["Icon_ShopCat_" .. name] else nil
+end
+
 -- A menu dish's picture for the order bubbles (#950), by its Catalog.menu id: the dish model's own render, or nil.
 function ShopIcons.menu(orderId: string?): string?
 	local item = if type(orderId) == "string" then Catalog.getMenuItem(orderId) else nil

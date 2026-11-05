@@ -45,7 +45,7 @@ No crates, crate keys, spin tokens or anything random. Money passes multiply coi
   - **Potions:** today's Potions window, as it is.
   - **Cat Food:** a row per food the player has: picture, name, "+2,000 XP", "x3" and a green **Feed**. Feed opens the cat list, highest level first, each showing "Level 23 · 1,400 XP to 24". Tapping a cat feeds one and shows "+2,000 XP" on its card. Foods the player has none of don't show; an empty tab reads "Cat food comes from the Daily Treat, rescues, catches and the Corner Shop."
 - **From the cat's card too.** Each cat's card gets a small **Feed** button when the Bag has any food. It lists the foods the player has, and tapping one feeds this cat.
-- **No feeding cap.** Food in the Bag can be fed at any time, any amount. The only cap is the 20,000 XP a day of food *bought*, so earned food is never stuck.
+- **No feeding cap.** Food in the Bag can be fed at any time, any amount. There was a 20,000 XP a day cap on food bought until #1255 (below).
 - **No daily XP cap on bought food either (#1255, 2026-11-05).** Derek asked to remove the cap, and it's gone. The pacing check, decided by Coordinator for the friend, overnight 11-05:
   - **The stock is the limit now.** A player who buys every food row in every window gets at most about 95,000 XP an hour (Small 2.5 x 600, regular 1.15 x 2,000, Big 0.35 x 6,000 and Feast 0.1 x 20,000, a window, times 12). A working cat earns 3,600 an hour.
   - **Cats top out at level 50** (`CatMaxLevel`, 1.98 times a level-1 cat). Going from 1 to 50 is about 147,000 XP, so a rich player can max one cat in about 1½ hours of buying everything. Maxing six role cats takes most of a day.

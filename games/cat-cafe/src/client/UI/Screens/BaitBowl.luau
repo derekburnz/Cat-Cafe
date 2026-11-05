@@ -2,17 +2,17 @@
 -- Bait bowl screen (F28, data-model section 8): what is in your bowl and every food you can put in it. A food
 -- goes in with Use from anywhere, F included (Derek 2026-10-28); the cat it brings is rolled then and arrives after
 -- the wait, even while you are offline, and you choose Tame or Let go when it comes. Every food card shows its
--- five-rarity odds before Buy or Use as one short row, each rarity in its colour (Derek 2026-10-28: "make it simple
+-- five-rarity odds before Use as one short row, each rarity in its colour (Derek 2026-10-28: "make it simple
 -- and easy can click info/details for more"), and Details opens the gold chance (no charm stars since F97) and the
--- per-cat split (the growth thread's rules for random items). Use and Buy are the same size, and Use is the green
--- one, so the screen never nudges toward spending. F69: each food's picture wears its grade badge, its card a border
+-- per-cat split (the growth thread's rules for random items). #1281 (corner-shop-v2.md section 1b): no Buy here; the
+-- shop foods are sold at the Corner Shop, so each row says "You have 3" and Use, or a calm "Get more at the Corner
+-- Shop" with none left. F69: each food's picture wears its grade badge, its card a border
 -- in the grade's colour, and the chip by its name says what it attracts; the bowl shows the food in it. F54: the gold
 -- chance has the Index's gold luck in it, and the wait the Big Bowl perk and the Index's faster bait; F73 adds a
 -- running Gold Rush, Lucky or Quick Bait Potion's, as the server rolls food set now. F60: food set
 -- at night waits half, so by night the empty bowl's wait is the night one and a night bowl counts down behind a moon.
 -- F82: the odds row, the split and the wait are the bowl level's (shared Bait, as the server rolls), and the title
--- names the bowl you have, "Comfy Bowl" up to "Royal Bowl". F97: Buy shows the food's price at the player's tier
--- (shared Economy.foodPrice, as the server charges), and the foods run in rarity order (Components/FoodOrder).
+-- names the bowl you have, "Comfy Bowl" up to "Royal Bowl". The foods run in rarity order (Components/FoodOrder).
 -- Opened by the bowl's prompt (UI.bait.openPicker), the HUD bowl chip or F.
 -- #1161 (the Second Bait Bowl pass, Derek 2026-11-04: "make sure the bowl menu works perfectly with two bowls"): with a
 -- second bowl a row of two bowl tabs sits over the status card, each with its own state ("Empty", the countdown or
@@ -45,11 +45,9 @@ local Types = require(script.Parent.Parent.Types)
 local PAL = Theme.dark
 
 local Bait = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Bait"))
-local Economy = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Economy"))
 
 export type Callbacks = {
 	useLure: (lureId: string, bowl: number) -> (), -- #1161: into bowl 1 or 2
-	buyLure: (lureId: string) -> (),
 	openUpgrades: () -> (),
 	showCat: (bowl: number) -> (), -- reopens that bowl's Tame or Let go card
 	buySecond: () -> (), -- #1161: Roblox's purchase window for the Second Bait Bowl pass
@@ -389,7 +387,6 @@ end
 function BaitBowl._buildRows(self: any)
 	for _, row in self._rows do
 		row.use:destroy()
-		row.buy:destroy()
 		row.details:destroy()
 		row.icon:destroy()
 		row.frame:Destroy()
@@ -403,7 +400,7 @@ function BaitBowl._buildRows(self: any)
 	assert(catalog, "catalog not set; call UI.init first")
 	-- every food in rarity order, the night dealer's among the shop's (F97 section 3)
 	local foods: { Types.LureDef } = FoodOrder.defs(catalog.lures)
-	-- on a phone Use, Buy and Details grow to a 44 px face and the card's top with them, as in the dealer's list
+	-- on a phone Use and Details grow to a 44 px face and the card's top with them, as in the dealer's list
 	local buttonH = Scale.tapHeight(BUTTON.Y, Theme.sizes.buttonDepth)
 	local detailsH = Scale.tapHeight(DETAILS_H, Theme.sizes.buttonDepth)
 	local topHeight = math.max(ROW_HEIGHT, 12 + buttonH + 10 + detailsH + 12)
@@ -485,34 +482,18 @@ function BaitBowl._buildRows(self: any)
 			Text = FoodOdds.rich(lure.odds, rarityHex),
 			Parent = top,
 		})
+		-- as wide as Details under it, now that Buy has gone to the Corner Shop (#1281)
 		local use = Button.new({
 			name = "Use",
 			text = "Use",
 			style = "primary",
-			size = UDim2.fromOffset(BUTTON.X, buttonH),
+			size = UDim2.fromOffset(BUTTON.X * 2 + 8, buttonH),
 			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(1, -(BUTTON.X + 20), 0, 12),
+			position = UDim2.new(1, -12, 0, 12),
 			textSize = Theme.sizes.textBody,
 			parent = top,
 			onClick = function()
 				self._callbacks.useLure(lure.id, self._selected)
-			end,
-		})
-		-- dealer foods are only sold by the night dealer's cart, so their slot says where to get them
-		local buy = Button.new({
-			name = "Buy",
-			text = if dealer then "Night dealer" else Format.money(lure.cost),
-			style = "secondary",
-			size = UDim2.fromOffset(BUTTON.X, buttonH),
-			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(1, -12, 0, 12),
-			textSize = if dealer then Theme.sizes.textTiny else Theme.sizes.textBody,
-			enabled = not dealer,
-			parent = top,
-			onClick = function()
-				if not dealer then
-					self._callbacks.buyLure(lure.id)
-				end
 			end,
 		})
 		local details = Button.new({
@@ -553,12 +534,10 @@ function BaitBowl._buildRows(self: any)
 			icon = icon,
 			count = count,
 			use = use,
-			buy = buy,
 			details = details,
 			detail = detail,
 			odds = odds,
 			split = nil :: string?, -- the per-cat split for the tier and bowl last drawn
-			price = lure.cost, -- what Buy says: the food's price at the player's tier (render)
 			def = lure,
 			dealer = dealer,
 		}
@@ -716,24 +695,15 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 	for lureId, row in self._rows do
 		row.frame.Visible = not locked -- the locked tab lists bowl 2's odds in place of the foods
 		local have = state.lures[lureId] or 0
-		if row.dealer and have == 0 then
+		-- #1281: where to get more, in calm grey, with none left: the night dealer's cart or the Corner Shop
+		if have > 0 then
+			row.count.Text = ("You have %d"):format(have)
+		elseif row.dealer then
 			row.count.Text = "Sold by the night dealer's cart"
 		else
-			row.count.Text = if have > 0 then ("You have %d"):format(have) else "None yet"
+			row.count.Text = "Get more at the Corner Shop"
 		end
 		row.use:setEnabled(owned and takes and empty and have > 0)
-		if not row.dealer then
-			-- F97: the server charges Economy.foodPrice, the catalog cost times the tier's factor
-			local price = Economy.foodPrice(lureId, state.tier)
-			if price <= 0 then
-				price = row.def.cost
-			end
-			if price ~= row.price then
-				row.price = price
-				row.buy:setText(Format.money(price))
-			end
-			row.buy:setEnabled(state.money >= price)
-		end
 	end
 	self:_renderStatus()
 end
@@ -930,7 +900,6 @@ function BaitBowl.destroy(self: any)
 	self._tick:Disconnect()
 	for _, row in self._rows do
 		row.use:destroy()
-		row.buy:destroy()
 		row.details:destroy()
 		row.icon:destroy()
 	end

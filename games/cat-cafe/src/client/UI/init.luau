@@ -93,7 +93,6 @@ UI.together = {} -- F92 playing together, filled at the end of the file
 UI.campExtras = {} -- F100 camp extras, filled at the end of the file
 UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
 UI.trade = {} -- F102 trading, filled at the end of the file
-UI.lawn = {} -- F91 the front lawn's edit view, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.store = {} -- the Store window behind the HUD's Store tile, filled at the end of the file
 
@@ -106,10 +105,8 @@ UI.events = {
 	buyUpgrade = Signal.new(), -- (upgradeId)
 	buyDecor = Signal.new(), -- (decorId)
 	toggleDecor = Signal.new(), -- (decorId, placed: boolean)
-	-- F91 front lawn (front-lawn.md section 3): forward as BuyLawn, SetLawnSpot and SetLawnStyle
+	-- F91 front lawn (front-lawn.md section 3): forward as BuyLawn (SetLawnSpot and SetLawnStyle retired with #1283)
 	buyLawn = Signal.new(), -- (id, spotId?)  a piece or style; a piece onto spotId, else the first free spot
-	setLawnSpot = Signal.new(), -- (spotId, pieceId)  "" clears the spot
-	setLawnStyle = Signal.new(), -- (kind: "path" | "fence", id)  "" lays Grey Slabs or takes the fence down
 	buyLure = Signal.new(), -- (lureId)
 	placeCat = Signal.new(), -- (uid, spotId)
 	unplaceCat = Signal.new(), -- (uid)
@@ -514,7 +511,6 @@ local function render()
 	UI.campExtras.render(state)
 	UI.cornerShop.render(state)
 	UI.trade.render(state)
-	UI.lawn.render(state)
 	UI.nursery.render(state)
 	UI.store.render()
 	if cannonHint() ~= hintShown then
@@ -773,18 +769,6 @@ function UI.init(config: Types.InitConfig)
 		close = closeModal,
 		equipBest = function()
 			UI.events.equipBestDecor:Fire()
-		end,
-		buyLawn = function(id: string, spotId: string?)
-			UI.events.buyLawn:Fire(id, spotId)
-		end,
-		setLawnSpot = function(spotId: string, pieceId: string)
-			UI.events.setLawnSpot:Fire(spotId, pieceId)
-		end,
-		setLawnStyle = function(kind: Types.LawnStyleKind, id: string)
-			UI.events.setLawnStyle:Fire(kind, id)
-		end,
-		editLawn = function()
-			UI.lawn.edit()
 		end,
 		-- #1624: the Style tab; the sign goes to SetSignStyle, uniforms and themes to SetLook
 		pickStyle = function(kind: string, id: string)
@@ -1356,7 +1340,6 @@ function UI.init(config: Types.InitConfig)
 	UI.cornerShop.start() -- the Corner Shop window (#1052)
 	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
 	UI.trade.start() -- the Trade window in the modal (F102)
-	UI.lawn.start(parent) -- the front lawn's edit view (F91)
 	UI.nursery.start() -- the Garden Nursery window, opened from its stall's prompt (#1200)
 	UI.store.start() -- the Store window and the HUD's Store tile (shown on sale or not, #1167)
 	worldTags = WorldTags.new()
@@ -1469,7 +1452,6 @@ function UI.destroy()
 	UI.campExtras.reset()
 	UI.rally.reset()
 	UI.trade.reset()
-	UI.lawn.reset()
 	UI.nursery.reset()
 	UI.store.reset()
 	UI.bubbles.reset()
@@ -2342,12 +2324,10 @@ function UI.richTip.bind(plot: Instance?)
 	if richTipScreen then
 		richTipScreen:bind(plot)
 	end
-	-- F91: the same plot's LawnPath says the Front lawn tab is live, and its LawnSpots carry the edit view's rings
+	-- F91: the same plot's LawnPath says the Lawn chip is live
 	if decor then
 		decor:bindPlot(plot)
 	end
-	-- cast: the old solver reads UI.lawn before its block at the end of the file fills it
-	(UI.lawn :: any).bind(plot)
 	-- F97: tip piles pay the moment they appear (Gameplay-Engineer #714), so the till's Collect pill stays unbound
 	-- until F90's Waiter gives the till a job
 	if collectorScreen then
@@ -5431,108 +5411,6 @@ do
 			window:destroy()
 		end
 		nursery.window = nil
-	end
-end
-
--- Front lawn edit view (F91)
-----------------------------------------------------------------------------------------------------
-
--- The Front lawn tab's Edit lawn (front-lawn.md section 3): the camera swings to the player's cafe front with a ring
--- over each lawn spot, and a ring's tap opens the picker (Screens/LawnEdit). The HUD steps aside while it is up but the
--- toasts stay, so a buy still says so; Done comes back to the Decor window on its Front lawn tab. Its own block, as
--- the module is short of locals.
-do
-	local LawnEdit = require(script.Screens.LawnEdit)
-	local lawn = {
-		edit = nil :: LawnEdit.LawnEdit?,
-		plot = nil :: Instance?, -- the own plot UI.richTip.bind passed, for an edit view built after it
-	}
-
-	-- UI.init: the edit view, bound to the plot if one came first.
-	function UI.lawn.start(parent: Instance)
-		UI.lawn.reset()
-		local edit = LawnEdit.new(parent, {
-			buyLawn = function(id: string, spotId: string?)
-				UI.events.buyLawn:Fire(id, spotId)
-			end,
-			setLawnSpot = function(spotId: string, pieceId: string)
-				UI.events.setLawnSpot:Fire(spotId, pieceId)
-			end,
-			shown = function(editing: boolean)
-				local show = visible and not editing
-				if hud then
-					hud:setVisible(show)
-				end
-				UI.rally.setVisible(show)
-				if locationMarkers then
-					locationMarkers:setVisible(show)
-				end
-			end,
-			done = function()
-				if decor then
-					decor:showLawn()
-				end
-				if modal then
-					modal:open("Decor")
-				end
-			end,
-		})
-		edit:bind(lawn.plot)
-		edit:render(state)
-		lawn.edit = edit
-	end
-
-	function UI.lawn.bind(plot: Instance?)
-		lawn.plot = plot
-		if lawn.edit then
-			lawn.edit:bind(plot)
-		end
-	end
-
-	function UI.lawn.render(playerState: Types.PlayerState)
-		if lawn.edit then
-			lawn.edit:render(playerState)
-		end
-	end
-
-	-- Edit lawn: the Decor window closes and the camera swings to the cafe front, or a toast says why not (no plot or
-	-- lawn yet, or too far from the cafe). Returns whether the view opened.
-	function UI.lawn.edit(): boolean
-		local edit = lawn.edit
-		if edit == nil then
-			return false
-		end
-		local ok, why = edit:canStart()
-		if not ok then
-			UI.toast(why or "Your lawn is not ready yet.", "info")
-			return false
-		end
-		if modal then
-			modal:close()
-		end
-		return edit:start()
-	end
-
-	-- The picker for a lawn spot (a ring's tap), or closed with nil.
-	function UI.lawn.pick(spotId: string?)
-		if lawn.edit then
-			lawn.edit:pick(spotId)
-		end
-	end
-
-	-- Ends the edit view; `reopen` brings the Decor window back on its Front lawn tab, as Done does.
-	function UI.lawn.stop(reopen: boolean?)
-		if lawn.edit then
-			lawn.edit:stop(reopen == true)
-		end
-	end
-
-	-- UI.destroy: the camera back and the view gone.
-	function UI.lawn.reset()
-		if lawn.edit then
-			lawn.edit:destroy()
-		end
-		lawn.edit = nil
 	end
 end
 

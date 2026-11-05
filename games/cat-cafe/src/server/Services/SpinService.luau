@@ -52,9 +52,12 @@ local function stationNear(player: Player): Model?
 end
 
 -- Pays the slice: coins, golden fish, a crate (banked for the Golden Fish Market; "highest" is the crate of the
--- player's highest open zone, F54) or foods. Returns the amount.
+-- player's highest open zone, F54, "highest_golden" its golden crate, #1500) or foods. Returns the amount. A jackpot
+-- (#1500) also toasts the winner once the wheel has had time to stop (SpinCooldownSeconds, the spin animation); only
+-- the winner, never the server.
 local function pay(player: Player, profile: Types.PlayerProfile, row: Types.SpinSlice): number
 	local amount = Spin.amount(row, Economy.incomePerSecond(profile))
+	local crateId: string? = nil
 	if row.kind == "coins" then
 		Economy.credit(profile, amount)
 		Telemetry.source(player, profile, amount, "Gameplay", "spin_wheel")
@@ -62,13 +65,21 @@ local function pay(player: Player, profile: Types.PlayerProfile, row: Types.Spin
 		GoldenFish.credit(profile, amount)
 		Telemetry.fishSource(player, profile, amount, "Gameplay", "spin_wheel")
 	elseif row.kind == "crate" then
-		local crateId = Prizes.crateFor(row.crate or Prizes.HIGHEST, Economy.tier(profile))
+		crateId = Prizes.crateFor(row.crate or Prizes.HIGHEST, Economy.tier(profile))
 		if crateId ~= nil then
-			profile.crates[crateId] = (profile.crates[crateId] or 0) + amount
+			profile.crates[crateId :: string] = (profile.crates[crateId :: string] or 0) + amount
 		end
 	else
 		local lureId = row.lureId :: string
 		profile.lures[lureId] = (profile.lures[lureId] or 0) + amount
+	end
+	local jackpot = Spin.jackpotText(row, amount, crateId)
+	if jackpot ~= nil then
+		task.delay(Config.SpinCooldownSeconds, function()
+			if player.Parent == Players then
+				Net.toast(player, jackpot :: string, "good")
+			end
+		end)
 	end
 	return amount
 end

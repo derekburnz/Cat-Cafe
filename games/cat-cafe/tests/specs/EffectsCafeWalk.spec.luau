@@ -199,5 +199,22 @@ return function()
 			expect(reach).to.be.near(r, 1e-9)
 			expect(c.tallAbove >= 0 and c.tallAbove < 0.2).to.equal(true)
 		end)
+
+		it("rides the tray by what is on it, level while standing and subtle when walking (#1576)", function()
+			local c = Presets.cafeWalk.carry
+			for _, style in c.styles do
+				local roll, bob = Logic.traySway(0.25, 0, style, 1)
+				expect(roll).to.equal(0)
+				expect(bob).to.equal(0)
+				roll, bob = Logic.traySway(0.25, c.swayAt * 2, style, 1)
+				expect(math.abs(roll) <= math.rad(3)).to.equal(true)
+				expect(bob <= 0.05).to.equal(true)
+			end
+			local drink = Logic.traySway(0.25, c.swayAt, c.styles.drink, 1)
+			local bake = Logic.traySway(0.25, c.swayAt, c.styles.bake, 1)
+			expect(math.abs(drink) < math.abs(bake)).to.equal(true)
+			local none = Logic.traySway(0.25, c.swayAt, c.styles.bake, 0)
+			expect(none).to.equal(0)
+		end)
 	end)
 end

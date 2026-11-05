@@ -677,15 +677,15 @@ return function()
 	end)
 
 	describe("food prices (F97, notes-10-28-to-10-30.md section 3)", function()
-		it("prices food at its base times the tier factor 1, 1, 4, 8, 16", function()
+		it("prices food at its base times the tier factor 1, 1, 4, 8, 16 (bases x10 to x40 above Kibble, #1389)", function()
 			local want: { [string]: { number } } = {
 				kibble = { 100, 100, 400, 800, 1600 },
-				tuna = { 500, 500, 2000, 4000, 8000 },
-				salmon = { 2500, 2500, 10000, 20000, 40000 },
-				sardines = { 4000, 4000, 16000, 32000, 64000 },
-				caviar = { 15000, 15000, 60000, 120000, 240000 },
-				moon_milk = { 50000, 50000, 200000, 400000, 800000 },
-				star_treat = { 200000, 200000, 800000, 1600000, 3200000 },
+				tuna = { 5000, 5000, 20000, 40000, 80000 },
+				salmon = { 50000, 50000, 200000, 400000, 800000 },
+				sardines = { 80000, 80000, 320000, 640000, 1280000 },
+				caviar = { 600000, 600000, 2400000, 4800000, 9600000 },
+				moon_milk = { 2000000, 2000000, 8000000, 16000000, 32000000 },
+				star_treat = { 8000000, 8000000, 32000000, 64000000, 128000000 },
 			}
 			for lureId, prices in want do
 				for tier, price in prices do
@@ -956,17 +956,17 @@ return function()
 		end)
 
 		it(
-			"Tier 1 to 2: 5 different cats and 28,000 coins (#1452), the starter Tabby counts",
+			"Tier 1 to 2: 5 different cats and 30,000 coins (#1499), the starter Tabby counts",
 			function()
 				local p = freshProfile()
-				p.coins = 28000
+				p.coins = 30000
 				for _, id in { "ginger", "tuxedo", "smoke" } do
 					p.collection[id] = 1000
 				end
 				expect(Economy.rankUpBlocker(p)).to.equal("Needs 5 different cats (you have 4)")
 				p.collection.calico = 1000
 				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
-				p.coins = 27999
+				p.coins = 29999
 				expect(Economy.rankUpBlocker(p)).to.equal("Not enough coins")
 			end
 		)

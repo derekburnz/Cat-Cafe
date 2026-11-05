@@ -2,9 +2,9 @@
 -- The Spin Wheel's sums (F49, data-model section 11c): the slices' chances, how many spins the player has, when the
 -- next free one comes and where the wheel stops. Pure: no Theme, so the cloud spec runner can load it.
 --
--- Catalog.spinWheel holds six rows in order round the wheel, clockwise from the top: { slice, kind = "coins" |
--- "lure" | "fish" | "crate", seconds?, minCoins?, lureId?, count?, crate?, weight } (F54 made slice 5 four golden
--- fish and slice 6 a crate, crate = "highest"). The weights add up to 100. state.spin is
+-- Catalog.spinWheel holds the rows in order round the wheel, clockwise from the top: { slice, kind = "coins" |
+-- "lure" | "fish" | "crate", seconds?, minCoins?, lureId?, count?, crate?, weight, jackpot? }. Since v2 (#1500) there
+-- are eight, weights in half-percents, and the two 0.5% jackpots are narrow wedges (spans). state.spin is
 -- { lastFreeDay, banked }: one free spin is due when the UTC day (floor(serverTime / 86400)) is past lastFreeDay,
 -- missed days do not stack, and banked spins come from the Tip Jar. The server's check at spin time is final.
 
@@ -106,20 +106,71 @@ function SpinLogic.indexOf(rows: { Row }, slice: number): number?
 	return nil
 end
 
+-- #1500: a jackpot's wedge, in degrees. The world wheel's two gold jackpots are 24 wide and the six others share the
+-- rest (spinwheel.py SLICES, the Wheel Model's SliceSpans "52,52,52,52,52,52,24,24"), so the window's wheel matches it
+-- and never draws a 0.5% prize as big as a coin slice.
+SpinLogic.JACKPOT_SPAN = 24
+
+-- Each slot's width in degrees, in wheel order: JACKPOT_SPAN for a jackpot row, the rest of the circle shared evenly.
+function SpinLogic.spans(rows: { Row }): { number }
+	local jackpots = 0
+	for _, row in rows do
+		if row.jackpot == true then
+			jackpots += 1
+		end
+	end
+	local others = #rows - jackpots
+	local narrow = if others > 0 then SpinLogic.JACKPOT_SPAN else 360 / math.max(1, jackpots)
+	local wide = if others > 0 then (360 - narrow * jackpots) / others else 0
+	local out: { number } = {}
+	for _, row in rows do
+		table.insert(out, if row.jackpot == true then narrow else wide)
+	end
+	return out
+end
+
+-- Equal slots, for a wheel of `count` slices.
+function SpinLogic.even(count: number): { number }
+	local out: { number } = {}
+	for _ = 1, count do
+		table.insert(out, 360 / count)
+	end
+	return out
+end
+
+-- The middle of slot `index`, in degrees clockwise from slot 1's middle (which sits at the top at rotation 0).
+function SpinLogic.centre(spans: { number }, index: number): number
+	local before = 0
+	for k = 1, index - 1 do
+		before += spans[k] or 0
+	end
+	return before + (spans[index] or 0) / 2 - (spans[1] or 0) / 2
+end
+
 -- The wheel's rotation, in degrees clockwise, that puts the middle of slot `index` (1 at the top, then clockwise)
 -- under the pointer after at least `turns` full turns from `from`. Always the middle, never an edge (N127).
-function SpinLogic.landing(from: number, index: number, count: number, turns: number): number
-	local centre = (index - 1) * 360 / math.max(1, count)
+function SpinLogic.landing(from: number, index: number, spans: { number }, turns: number): number
+	local centre = SpinLogic.centre(spans, index)
 	local base = from + turns * 360
 	local delta = (-centre - base) % 360
 	return base + delta
 end
 
 -- The slot under the pointer at this rotation, for the tick as each slice passes.
-function SpinLogic.slotAt(rotation: number, count: number): number
-	local size = 360 / math.max(1, count)
-	local angle = (-rotation + size / 2) % 360
-	return math.floor(angle / size) % count + 1
+function SpinLogic.slotAt(rotation: number, spans: { number }): number
+	local count = #spans
+	if count == 0 then
+		return 1
+	end
+	local angle = (-rotation + spans[1] / 2) % 360
+	local edge = 0
+	for index, span in spans do
+		edge += span
+		if angle < edge then
+			return index
+		end
+	end
+	return count
 end
 
 -- The big button under the chances (Derek 2026-10-30: "Add a skip to the wheel spin for free"). While the wheel

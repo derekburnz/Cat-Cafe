@@ -1,7 +1,8 @@
 --!strict
 -- Spin Wheel window (F49, data-model section 11c, areas-and-stations B3), like Pet Simulator 99's wheel: the
--- "Spin" prompt on the plaza's wheel station opens it. On the left the wheel: six round prize tiles on a cream disc,
--- each with the prize's picture and what it pays ("$1,200", "x3"), split by spokes, with the paw pointer at the top
+-- "Spin" prompt on the plaza's wheel station opens it. On the left the wheel: a bright wedge per slice (#1500: eight,
+-- the two 0.5% jackpots narrow gold ones, as on the world wheel), each with the prize's picture and what it pays
+-- ("$1,200", "x3"), split by spokes, with the paw pointer at the top
 -- and rim lights that blink while it turns. On the right "Spins: n", the countdown to the next free spin, a big Spin
 -- button and an Odds button. Derek 2026-10-28: "odds menu should be hidden until it is clicked and also the wheel
 -- pictures should reflect whats possible", so the chances live only behind Odds.
@@ -13,7 +14,7 @@
 -- button stays off until the wheel has landed, except as a free Skip while it turns (Derek 2026-10-30), and then
 -- until the server's cooldown has passed. Walking out of range closes the window (N132); a prize that lands
 -- while it is closed comes up as a toast. Spins are free only: nothing here mentions Robux (monetization-policy,
--- N126). The sums live in Components/SpinLogic. F69 (round 4 Q11): the Odds button opens a list of the six slices
+-- N126). The sums live in Components/SpinLogic. F69 (round 4 Q11): the Odds button opens a list of the slices
 -- likeliest first, each with its prize picture, a bar and its chance, and the food prizes wear their grade gems.
 --
 -- The wheel turns by moving the tiles round the hub and turning each spoke about its own middle, so the prizes stay
@@ -94,9 +95,12 @@ type Turn = {
 
 local WHEEL_SHARE = 0.56 -- of the window's width; the side holds only the spins, Spin and Odds
 local FACE = 0.88 -- the turning face inside the rim
-local TILE = 0.3 -- a prize's picture and amount, of the face: under RADIUS (the gap between neighbours on a six-wedge wheel), so
--- tiles never touch (#1280: the $ bag crowded the x3 pill and the Epic gem sat on it)
+local TILE = 0.3 -- a prize's picture and amount, of the face, at most: each tile is cut to TILE_FILL of the gap between
+-- its wedge's edges at its radius, so tiles never touch (#1280: the $ bag crowded the x3 pill and the Epic gem sat on it)
+local TILE_FILL = 0.92
 local RADIUS = 0.32 -- prize middles from the hub, of the face
+local NARROW_RADIUS = 0.39 -- #1500: a jackpot's narrow wedge holds its prize further out, where it is widest
+local NARROW_PILL = 0.36 -- and its amount pill is taller for its smaller tile, so "x100" stays readable
 local SPOKE = 5 -- the white divider between two wedges
 -- The wedges (the user, 2026-11-04: "make the menu ui of the spin section much more satisfying and clean looking"): a
 -- classic prize wheel, each slice a bright wedge. Roblox UI has no pie shape, so a wedge is a fan of thin bars from
@@ -132,15 +136,17 @@ local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
 local COIN_GLYPH = "💰"
 local TAG = "SpinWheel"
 
--- The model's slices, one per slice in wheel order (spinwheel.py SLICES): butter, sky, mint, blush, lilac, deep blue
+-- The model's slices in wheel order (spinwheel.py SLICES, #1500): butter, mint, lilac, sky, blush, galaxy blue, and the
+-- jackpots in gold_mid and gold_light
 local SLICE_COLORS = {
 	Color3.fromHex("F6DFA0"),
-	Color3.fromHex("A8D8F0"),
 	Color3.fromHex("8FD3C1"),
-	Color3.fromHex("E8A0A0"),
 	Color3.fromHex("C9B8E8"),
+	Color3.fromHex("A8D8F0"),
+	Color3.fromHex("E8A0A0"),
 	Color3.fromHex("3B4C8C"),
 }
+local JACKPOT_COLORS = { Color3.fromHex("F2C14E"), Color3.fromHex("FBE49A") }
 
 local SpinWheel = {}
 SpinWheel.__index = SpinWheel
@@ -271,7 +277,10 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 	Outline.border(face, Theme.sizes.outline, Theme.colors.outline)
 	self._face = face
 	-- the wedges turn with the wheel: one frame holds them all and takes the wheel's angle (_setAngle)
-	self._bars = {} :: { { frame: Frame, base: number, side: number } }
+	self._bars = {} :: { { frame: Frame, base: number, side: number, width: number } }
+	self._spans = {} :: { number } -- each slot's degrees (SpinLogic.spans)
+	self._centres = {} :: { number } -- each slot's middle, from slot 1's
+	self._radii = {} :: { number } -- each tile's distance from the hub, of the face
 	self._wedges = Create("Frame", {
 		Name = "Wedges",
 		BackgroundTransparency = 1,
@@ -795,7 +804,7 @@ function SpinWheel.result(self: any, slice: number, amount: number)
 	local start = os.clock()
 	self._turn = {
 		from = self._angle,
-		to = SpinLogic.landing(self._angle, index, #self._rows, if calm then CALM_TURNS else TURNS),
+		to = SpinLogic.landing(self._angle, index, self._spans, if calm then CALM_TURNS else TURNS),
 		start = start,
 		duration = if calm then CALM_SECONDS else SPIN_SECONDS,
 		index = index,
@@ -821,16 +830,29 @@ function SpinWheel._build(self: any)
 		bar:Destroy()
 	end
 	table.clear(self._bars)
-	local count = #self._rows
-	local size = if count > 0 then 360 / count else 360
-	local steps = math.max(2, math.ceil(size / WEDGE_STEP))
-	local step = size / steps
-	-- a bar's width, of the face: wide enough to reach the next ray at the rim, a little more so neighbours overlap
-	local width = 0.5 * math.sin(math.rad(step)) * 1.15
-	self._barWidth = width
-	for index = 1, count do
-		local color = SLICE_COLORS[(index - 1) % #SLICE_COLORS + 1]
-		local from = (index - 1) * size - size / 2
+	local spans = SpinLogic.spans(self._rows)
+	self._spans = spans
+	table.clear(self._centres)
+	table.clear(self._radii)
+	local plain, golds = 0, 0
+	for index, row: Types.SpinRow in self._rows do
+		local size = spans[index]
+		local centre = SpinLogic.centre(spans, index)
+		self._centres[index] = centre
+		self._radii[index] = if row.jackpot == true then NARROW_RADIUS else RADIUS
+		local color: Color3
+		if row.jackpot == true then
+			golds += 1
+			color = JACKPOT_COLORS[(golds - 1) % #JACKPOT_COLORS + 1]
+		else
+			plain += 1
+			color = SLICE_COLORS[(plain - 1) % #SLICE_COLORS + 1]
+		end
+		local steps = math.max(2, math.ceil(size / WEDGE_STEP))
+		local step = size / steps
+		-- a bar's width, of the face: wide enough to reach the next ray at the rim, a little more so neighbours overlap
+		local width = 0.5 * math.sin(math.rad(step)) * 1.15
+		local from = centre - size / 2
 		local function add(base: number, side: number)
 			local bar: Frame = Create("Frame", {
 				Name = "Bar",
@@ -841,7 +863,7 @@ function SpinWheel._build(self: any)
 				ZIndex = 1,
 				Parent = self._wedges,
 			})
-			table.insert(self._bars, { frame = bar, base = base, side = side })
+			table.insert(self._bars, { frame = bar, base = base, side = side, width = width })
 		end
 		for k = 0, math.ceil(steps / 2) - 1 do
 			add(from + k * step, 1) -- from the wedge's first edge, reaching clockwise
@@ -872,10 +894,13 @@ function SpinWheel._build(self: any)
 		)
 		-- the prize on its wedge: one fat picture filling the wedge (Derek's 11-04 mockup), the amount in a dark pill over
 		-- its foot; a gold ring when won
+		local radius = self._radii[index]
+		local fit = math.min(TILE, 2 * radius * math.sin(math.rad(spans[index] / 2)) * TILE_FILL)
+		local narrow = fit < TILE * 0.75
 		local holder = circle({
 			Name = "Slice" .. row.slice,
 			AnchorPoint = Vector2.new(0.5, 0.5),
-			Size = UDim2.fromScale(TILE, TILE),
+			Size = UDim2.fromScale(fit, fit),
 			BackgroundTransparency = 1,
 			BorderSizePixel = 0,
 			ZIndex = 3,
@@ -895,7 +920,7 @@ function SpinWheel._build(self: any)
 			Name = "Pill",
 			AnchorPoint = Vector2.new(0.5, 1),
 			Position = UDim2.fromScale(0.5, 1.04),
-			Size = UDim2.fromScale(0.8, 0.27),
+			Size = UDim2.fromScale(if narrow then 1 else 0.8, if narrow then NARROW_PILL else 0.27),
 			BackgroundColor3 = Theme.colors.outline,
 			BackgroundTransparency = 0.1,
 			BorderSizePixel = 0,
@@ -967,7 +992,15 @@ function SpinWheel._oddsRow(self: any, row: Types.SpinRow, order: number)
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 	})
-	local stroke = Outline.border(line, Theme.sizes.stroke, PAL.cardStroke)
+	local jackpot = row.jackpot == true
+	if jackpot then
+		line.BackgroundColor3 = PAL.goldCard -- #1500: the two jackpots in gold, so the rare chase stands out
+	end
+	local stroke = Outline.border(
+		line,
+		Theme.sizes.stroke,
+		if jackpot then Theme.colors.gold else PAL.cardStroke
+	)
 	local icon = ItemIcon.new({
 		parent = line,
 		size = UDim2.fromOffset(ODDS_ICON, ODDS_ICON),
@@ -997,7 +1030,7 @@ function SpinWheel._oddsRow(self: any, row: Types.SpinRow, order: number)
 	local share = math.clamp(SpinLogic.share(self._rows, row) / 100, 0, 1)
 	Create("Frame", {
 		Name = "Fill",
-		BackgroundColor3 = Theme.colors.berry,
+		BackgroundColor3 = if jackpot then Theme.colors.gold else Theme.colors.berry,
 		BorderSizePixel = 0,
 		Size = UDim2.fromScale(share, 1),
 		Parent = track,
@@ -1036,10 +1069,9 @@ function SpinWheel._setAngle(self: any, angle: number)
 	if count == 0 then
 		return
 	end
-	local size = 360 / count
 	-- a bar turns about its middle: halfway out along its ray, then half its width off the ray into its wedge
-	local offset = (self._barWidth or 0) / 2
 	for _, bar in self._bars do
+		local offset = bar.width / 2
 		local turn = bar.base + angle
 		local theta = math.rad(turn)
 		local sin, cos = math.sin(theta), math.cos(theta)
@@ -1050,12 +1082,13 @@ function SpinWheel._setAngle(self: any, angle: number)
 		bar.frame.Rotation = turn
 	end
 	for index, tile: Tile in self._tiles do
-		local theta = math.rad((index - 1) * size + angle)
+		local theta = math.rad((self._centres[index] or 0) + angle)
+		local radius = self._radii[index] or RADIUS
 		tile.holder.Position =
-			UDim2.fromScale(0.5 + RADIUS * math.sin(theta), 0.5 - RADIUS * math.cos(theta))
+			UDim2.fromScale(0.5 + radius * math.sin(theta), 0.5 - radius * math.cos(theta))
 	end
 	for index, spoke: Frame in self._spokes do
-		local edge = (index - 0.5) * size + angle
+		local edge = (self._centres[index] or 0) + (self._spans[index] or 0) / 2 + angle
 		local theta = math.rad(edge)
 		spoke.Position = UDim2.fromScale(0.5 + 0.25 * math.sin(theta), 0.5 - 0.25 * math.cos(theta))
 		spoke.Rotation = edge
@@ -1074,7 +1107,7 @@ function SpinWheel._step(self: any)
 	-- Quad Out slows at a steady rate: no long crawl over the last slice edge (N127)
 	local eased = TweenService:GetValue(t, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 	self:_setAngle(turn.from + (turn.to - turn.from) * eased)
-	local slot = SpinLogic.slotAt(self._angle, #self._tiles)
+	local slot = SpinLogic.slotAt(self._angle, self._spans)
 	if slot ~= self._slot then
 		self._slot = slot
 		Sound.play("uiSpinTick")
@@ -1096,12 +1129,13 @@ end
 -- The wheel has stopped in the middle of the paid slice: pop it, burst, say the prize.
 function SpinWheel._land(self: any, turn: Turn)
 	self:_setAngle(turn.to % 360)
-	self._slot = SpinLogic.slotAt(self._angle, #self._tiles)
+	self._slot = SpinLogic.slotAt(self._angle, self._spans)
 	self:_blink(nil)
 	self:_light(turn.index)
 	local row: Types.SpinRow? = self._rows[turn.index]
+	local jackpot = row ~= nil and row.jackpot == true
 	local won = if row
-		then "You won " .. self:_prize(row, turn.amount) .. "!"
+		then (if jackpot then "Jackpot! " else "") .. "You won " .. self:_prize(row, turn.amount) .. "!"
 		else "You won a prize!"
 	self:_say(won, PAL.good)
 	local tile: Tile? = self._tiles[turn.index]
@@ -1118,8 +1152,10 @@ function SpinWheel._land(self: any, turn: Turn)
 			ZIndex = 1,
 			Parent = self._face,
 		})
+		-- a jackpot's burst fills the whole wheel (#1500: "the wheel's biggest win effect")
+		local reach = if jackpot then 1.1 else tile.holder.Size.X.Scale * 2.2
 		Tween.to(burst, Tween.RISE, {
-			Size = UDim2.fromScale(TILE * 2.2, TILE * 2.2),
+			Size = UDim2.fromScale(reach, reach),
 			BackgroundTransparency = 1,
 		}).Completed
 			:Once(function()
@@ -1127,7 +1163,8 @@ function SpinWheel._land(self: any, turn: Turn)
 			end)
 	end
 	Sound.play("uiSpinWin")
-	if not self.frame.Visible then
+	-- a jackpot's toast comes from the server (SpinService, #1500), so the closed window does not add a second
+	if not self.frame.Visible and not jackpot then
 		self._callbacks.toast("Spin Wheel: " .. won)
 	end
 	self:_refresh()
@@ -1233,7 +1270,8 @@ function SpinWheel._refresh(self: any)
 		for _, tile: Tile in self._oddsTiles do
 			local prize: TextLabel? = tile.prize
 			if prize then
-				prize.Text = self:_prize(tile.row, nil)
+				local name = self:_prize(tile.row, nil)
+				prize.Text = if tile.row.jackpot == true then "Jackpot: " .. name else name
 			end
 		end
 	end

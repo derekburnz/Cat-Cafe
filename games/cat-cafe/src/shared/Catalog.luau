@@ -1203,11 +1203,12 @@ Catalog.tipJar = {
 -- real shot at a top cat while cats still come only from catching, rescue and bait. Earned only (monetization-policy).
 -- F94 (rewards-and-shops.md section 2c): no shop food, and day 7 drops its spins to three pictures.
 Catalog.dailyTreat = {
-	{ day = 1, prize = { coins = 300, coinSeconds = 150 } },
+	-- #1181 (corner-shop-v2.md section 3): days 1, 3 and 5 give cat food beside their coins
+	{ day = 1, prize = { coins = 300, coinSeconds = 150, catFood = { small_cat_snack = 2 } } },
 	{ day = 2, prize = { fish = 15, spins = 1 } },
-	{ day = 3, prize = { coins = 600, coinSeconds = 300 } },
+	{ day = 3, prize = { coins = 600, coinSeconds = 300, catFood = { cat_snack = 1 } } },
 	{ day = 4, prize = { crates = { classic_crate = 1 }, spins = 1 } },
-	{ day = 5, prize = { coins = 1000, coinSeconds = 450 } },
+	{ day = 5, prize = { coins = 1000, coinSeconds = 450, catFood = { cat_snack = 1 } } },
 	{ day = 6, prize = { potions = { lucky_potion = 1 }, fish = 10 } },
 	{
 		day = 7,
@@ -1977,6 +1978,7 @@ Catalog.collectorOffers = {
 	{ value = 2, fish = 10 },
 	{ value = 4, fish = 15 },
 	{ value = 6, crates = { zone = 1 } },
+	{ value = 8, catFood = { big_cat_snack = 2 } }, -- #1181 (corner-shop-v2.md section 3): "2 Big Snacks"
 	{ value = 11, crates = { zone = 1 }, fish = 20 },
 	{ value = 20, crates = { zone = 2 } },
 	{ value = 35, crates = { golden = 1 } },

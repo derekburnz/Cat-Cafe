@@ -109,7 +109,16 @@ function Collector.prize(offer: Types.CollectorOffer, area: string): Types.Index
 		end
 		crates = paid
 	end
-	return { fish = offer.fish, spins = offer.spins, lures = lures, crates = crates }
+	local catFood: { [string]: number }? = if offer.catFood ~= nil
+		then table.clone(offer.catFood)
+		else nil
+	return {
+		fish = offer.fish,
+		spins = offer.spins,
+		lures = lures,
+		crates = crates,
+		catFood = catFood,
+	}
 end
 
 return Collector

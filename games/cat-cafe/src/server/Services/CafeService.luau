@@ -236,7 +236,9 @@ end
 -- tier multipliers, 0 while napping) and DisplayName (its filtered name, else the catalog name; F33); working cats
 -- are tagged WorkingCat. At night a working cat may be on a bedtime trip or asleep on a sleep spot (F79,
 -- BedtimeService): on the walking body without its outfit, with Bedtime, SleepSpot and Asleep.
-type CatPlacement = { instance: Types.CatInstance, slot: string, anchor: BasePart }
+-- #1534: by day the resting cats past the nap spots nap on the free F79 sleep spots too (slot "bed_<spot id>", at
+-- `at`), best first, so more of the collection is on show; at night those spots are the working cats' beds.
+type CatPlacement = { instance: Types.CatInstance, slot: string, anchor: BasePart?, at: CFrame? }
 
 -- The name over a cat model; a named cat not filtered yet asks NameService, which refreshes once it has the text.
 local function shownName(player: Player, instance: Types.CatInstance): string
@@ -347,6 +349,55 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 				{ instance = instance, slot = "nap_" .. nextSpot, anchor = plot.napSpots[nextSpot] }
 		end
 	end
+	-- #1534: by day the resting cats after the nap spots' few nap on the free sleep spots (cat beds, cat trees, decor
+	-- trees), best first. A spot under a working station (an entertainer on its tree top) or still held by a cat
+	-- walking back from bed is not free. A cat already on a free one keeps it, so the order changing never shuffles
+	-- them; past the last free spot the rest stay in the cat room.
+	if not ClockService.isNight() and #resting > #plot.napSpots then
+		local free: { [string]: SleepSpots.Spot } = {}
+		local order: { SleepSpots.Spot } = {}
+		for _, spot in SleepSpots.list(plot) do
+			free[spot.id] = spot
+			table.insert(order, spot)
+		end
+		for _, placement in wanted do
+			local anchor = placement.anchor
+			if placement.instance.spotId ~= nil and anchor ~= nil then
+				local under = SleepSpots.at(order, anchor.CFrame)
+				if under ~= nil then
+					free[under.id] = nil
+				end
+			end
+		end
+		for _, child in plot.cats:GetChildren() do
+			local held = child:GetAttribute("SleepSpot")
+			if type(held) == "string" then
+				free[held] = nil
+			end
+		end
+		-- the same fill as bedtime (Bedtime.assign): best first, a cat keeps a spot it is on, the rest in spot order
+		local ids: { string } = {}
+		for _, spot in order do
+			if free[spot.id] ~= nil then
+				table.insert(ids, spot.id)
+			end
+		end
+		local uids: { string } = {}
+		for n = #plot.napSpots + 1, #resting do
+			table.insert(uids, resting[n].uid)
+		end
+		local held: { [string]: string } = {}
+		for _, child in plot.cats:GetChildren() do
+			local uid, slot = child:GetAttribute("Uid"), child:GetAttribute("Slot")
+			local id = if type(slot) == "string" then slot:match("^bed_(.+)$") else nil
+			if type(uid) == "string" and id ~= nil then
+				held[uid] = id
+			end
+		end
+		for uid, id in Bedtime.assign(uids, ids, held) do
+			wanted[uid] = { instance = profile.cats[uid], slot = "bed_" .. id, at = free[id].at }
+		end
+	end
 	-- At night (F79) a cat asleep on a spot that has gone (a decor cat tree put away) is built again on a free one.
 	local sleepSpots: { SleepSpots.Spot }? = if ClockService.isNight()
 		then SleepSpots.list(plot)
@@ -422,7 +473,7 @@ local function refreshCats(player: Player, plot: WorldBuilder.Plot, profile: Pro
 			player,
 			placement.instance,
 			placement.slot,
-			if bed ~= nil then bed.at else placement.anchor.CFrame,
+			if bed ~= nil then bed.at else placement.at or (placement.anchor :: BasePart).CFrame,
 			multiplier,
 			profile.tier,
 			if bed ~= nil then bed.id else nil
@@ -1080,16 +1131,10 @@ function CafeService.addCaughtCat(
 	local firstCheckIn = profile.tutorialStep < Config.TutorialGuaranteedStrayStep
 	CafeService.advanceTutorial(player, profile, 2)
 
-	-- The first free open role slot (the Waiter's while the starter Tabby holds the Barista's): the first cat takes
-	-- its job by itself (F87 section 2d), as every cat since v0.2.
-	for _, spot in Catalog.spots do
-		if Economy.spotIsOpen(profile, spot.id) and Economy.catOnSpot(profile, spot.id) == nil then
-			instance.spotId = spot.id
-			CafeService.advanceTutorial(player, profile, 3)
-			Telemetry.onboarding(player, profile, "first_role_assigned")
-			break
-		end
-	end
+	-- #1534 (Derek2 2026-11-05: "best cat/cats depending on how many spots"): the best cats take the open role
+	-- slots, so a better new cat takes the place of a weaker one, and the first cat still takes its job by itself
+	-- (F87 section 2d)
+	CafeService.autoEquip(player, profile)
 	if instance.spotId == nil then
 		Telemetry.custom(player, "slots_full", 1, { tostring(Economy.tier(profile)) })
 	end
@@ -1170,7 +1215,8 @@ end
 
 -- F96 (starter-cat.md section 2): a cat given, not caught (the free Bellhop Cat): level 1, base coat and `charm`,
 -- method "starter". It joins the collection with no first-catch reward and counts toward no catch, quest or Index
--- (an exclusive cat). It takes the first free open role slot, or rests in the cat room when none is free.
+-- (an exclusive cat). The best cats then take the open role slots (#1534), this one when it is among them; else it
+-- rests.
 function CafeService.addGiftCat(
 	player: Player,
 	profile: Profile,
@@ -1185,12 +1231,7 @@ function CafeService.addGiftCat(
 	if profile.collection[def.id] == nil then
 		profile.collection[def.id] = now
 	end
-	for _, spot in Catalog.spots do
-		if Economy.spotIsOpen(profile, spot.id) and Economy.catOnSpot(profile, spot.id) == nil then
-			instance.spotId = spot.id
-			break
-		end
-	end
+	CafeService.autoEquip(player, profile) -- #1534: the best cats take the slots, this one too when it is among them
 	local spot = if instance.spotId ~= nil then Catalog.getSpot(instance.spotId :: string) else nil
 	Net.toast(
 		player,
@@ -1282,6 +1323,35 @@ local function onUnplaceCat(player: Player, rawUid: unknown)
 	instance.spotId = nil
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
+end
+
+-- #1534 (issue, Derek2 2026-11-05: "best cat/cats depending on how many spots"): the best cats take the open role
+-- slots by themselves, as Equip Best would place them, at each join, rank up, new slot (the Extra Slot pass), new
+-- cat and trade. A better cat takes the place of a weaker one; the cats left over rest (CafeService's nap spots,
+-- then the sleep spots by day). Earnings so far settle at the old rate first. Returns how many cats changed spot;
+-- the caller refreshes the plot and syncs.
+function CafeService.autoEquip(player: Player, profile: Profile): number
+	local plan = EquipBest.plan(profile)
+	if EquipBest.isOptimal(profile, plan) then
+		return 0
+	end
+	Economy.settle(profile, os.time(), ClockService.epoch())
+	local before: { [string]: string? } = {}
+	for uid, instance in profile.cats do
+		before[uid] = instance.spotId
+	end
+	local changed = EquipBest.apply(profile, plan)
+	for uid, instance in profile.cats do
+		-- only the cats that took a new spot, so a join or rank up doesn't log the whole cafe again
+		if instance.spotId ~= nil and instance.spotId ~= before[uid] then
+			Telemetry.catWorking(player, uid)
+		end
+	end
+	if plan.catsPlaced > 0 then
+		CafeService.advanceTutorial(player, profile, 3)
+		Telemetry.onboarding(player, profile, "first_role_assigned")
+	end
+	return changed
 end
 
 -- Equip best: one tap gives the owned cats the open role slots for the highest rate (shared/EquipBest).
@@ -1489,6 +1559,7 @@ local function onRankUp(player: Player)
 	)
 	Net.fireAll("Announce", string.format("%s's cafe is now a %s!", player.DisplayName, def.name))
 	giveLawnGifts(player, profile) -- F91: a Garden Bench at Tier 2, an Umbrella Table at Tier 3
+	CafeService.autoEquip(player, profile) -- #1534: the new slots take the best resting cats
 	print(string.format("[CafeService] %s ranked up to Tier %d", player.Name, def.tier))
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
@@ -1691,6 +1762,7 @@ local function onLoaded(player: Player, profile: Profile)
 		Net.toast(player, "The street is full. Try another server.", "warn")
 	end
 	giveLawnGifts(player, profile) -- F91: a cafe already at Tier 2 or 3 when the lawn arrives
+	CafeService.autoEquip(player, profile) -- #1534: the best cats on the open slots
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 	local offline, seconds = DataService.peekPendingOffline(player)
@@ -1723,6 +1795,9 @@ function CafeService.start()
 		local profile = profileFor(player)
 		if profile ~= nil then
 			Economy.setPasses(profile, passes)
+			if CafeService.autoEquip(player, profile) > 0 then -- #1534: an Extra Slot pass's slot fills
+				CafeService.refreshPlot(player)
+			end
 			CafeService.sync(player)
 		end
 	end)
@@ -1770,6 +1845,9 @@ function CafeService.start()
 	-- The rate changes at dusk and dawn: settle the old phase and send the new rate at once.
 	ClockService.changed:Connect(function()
 		for _, player in DataService.loadedPlayers() do
+			-- #1534: at nightfall the cats napping on the sleep spots by day go back to the cat room before the
+			-- working cats walk to bed; at sunrise they come out on the spots that are free
+			CafeService.refreshPlot(player)
 			CafeService.sync(player)
 		end
 	end)

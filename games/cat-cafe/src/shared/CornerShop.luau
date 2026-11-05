@@ -4,8 +4,8 @@
 -- its size's Config.CornerShopSizeWeights, seeded only from the global window with the salt "corner", so every server
 -- shows the same stock and it differs from the Fresh Catch's roll in the same window. The amount is per player: each
 -- player may buy up to it of each row in the window. Prices are fixed (the row's `price`). A UTC day allows at most
--- Config.CornerDailyLimits of a family, any size, and CornerFoodXpPerDay XP of cat food bought; a row's `needsTier`
--- refuses it below that tier. Pure: the server's CornerShopService checks the range, takes the coins and gives the
+-- Config.CornerDailyLimits of a family, any size (cat food has no daily XP cap since #1255; foodXpToday still counts
+-- it); a row's `needsTier` refuses it below that tier. Pure: the server's CornerShopService checks the range, takes the coins and gives the
 -- item; the window shows the same numbers.
 
 local Catalog = require(script.Parent.Catalog)
@@ -99,11 +99,6 @@ function CornerShop.behind(state: Types.CornerShopState, window: number): boolea
 	return window < state.window
 end
 
--- The cat food XP that may still be bought today, for a refreshed state.
-function CornerShop.foodRoom(state: Types.CornerShopState): number
-	return math.max(0, Config.CornerFoodXpPerDay - state.foodXpToday)
-end
-
 -- What the limit toast calls each limited family (corner-shop-v2.md section 1, #1190).
 CornerShop.FAMILY_NAMES = table.freeze({
 	steady = "Steady Paw",
@@ -183,9 +178,6 @@ function CornerShop.buyBlocker(state: Types.CornerShopState, buy: Buy, window: n
 		)
 	end
 	if row.kind == "food" then
-		if (row.xp or 0) > CornerShop.foodRoom(state) then
-			return "Cat food is full for today"
-		end
 		if buy.foodHeld >= Config.CatFoodMax then
 			return "Your Bag is full of that food"
 		end
@@ -221,7 +213,7 @@ function CornerShop.sanitize(raw: unknown, now: number): Types.CornerShopState
 	end
 	state.window = math.clamp(whole(value.window), 0, CornerShop.window(now) + 1)
 	state.day = math.clamp(whole(value.day), 0, CornerShop.day(now))
-	state.foodXpToday = math.clamp(whole(value.foodXpToday), 0, Config.CornerFoodXpPerDay)
+	state.foodXpToday = math.clamp(whole(value.foodXpToday), 0, 2 ^ 31)
 	local families: { [string]: boolean } = {}
 	if type(value.bought) == "table" then
 		for _, row in Catalog.cornerShop do

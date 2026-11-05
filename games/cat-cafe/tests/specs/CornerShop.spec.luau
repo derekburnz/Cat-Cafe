@@ -99,7 +99,7 @@ return function()
 			expect(Config.CornerDailyLimits.quick_bait).to.equal(2)
 			expect(Config.CornerDailyLimits.whistle).to.equal(4)
 			expect(Config.CornerDailyLimits.swift).never.to.be.ok()
-			expect(Config.CornerFoodXpPerDay).to.equal(20000)
+			expect((Config :: any).CornerFoodXpPerDay).never.to.be.ok() -- #1255: no daily cat food cap
 		end)
 	end)
 
@@ -195,8 +195,8 @@ return function()
 			)
 			CornerShop.refresh(state, window, day)
 			-- #1190: the row never carries the day's count or the limit
-			expect(CornerShop.view(state, window).stock[7].today).to.equal(nil)
-			expect(CornerShop.view(state, window).stock[7].perDay).to.equal(nil)
+			expect((CornerShop.view(state, window).stock[7] :: any).today).to.equal(nil)
+			expect((CornerShop.view(state, window).stock[7] :: any).perDay).to.equal(nil)
 			-- the Swift Potion has no limit
 			for _ = 1, 10 do
 				CornerShop.record(state, "swift_potion_small")
@@ -209,16 +209,12 @@ return function()
 			expect(state.today.quick_bait).never.to.be.ok()
 		end)
 
-		it("stops food at 20,000 XP bought a day and a full Bag", function()
+		it("sells food past any XP a day (#1255) but never past a full Bag", function()
 			local window = assert(windowWith("big_cat_snack", WINDOW))
 			local state = CornerShop.fresh()
 			CornerShop.refresh(state, window, 0)
-			state.foodXpToday = 14000
+			state.foodXpToday = 500000
 			expect(CornerShop.buyBlocker(state, buy("big_cat_snack", window), window)).to.equal(nil)
-			state.foodXpToday = 15000
-			expect(CornerShop.buyBlocker(state, buy("big_cat_snack", window), window)).to.equal(
-				"Cat food is full for today"
-			)
 			state.foodXpToday = 0
 			expect(CornerShop.buyBlocker(state, buy("big_cat_snack", window, 5, 1e12, Config.CatFoodMax), window)).to.equal(
 				"Your Bag is full of that food"
@@ -321,7 +317,7 @@ return function()
 				bought = { swift_potion_small = 3, big_cat_snack = 2 },
 				day = CornerShop.day(NOW),
 				today = { quick_bait = 2, swift = 5 },
-				foodXpToday = 20000,
+				foodXpToday = 99999, -- kept as counted: there is no cap to clamp it to (#1255)
 			})
 			expect(migrated.catFood :: any).to.deepEqual({ cat_snack = 3, cat_feast = Config.CatFoodMax })
 		end)

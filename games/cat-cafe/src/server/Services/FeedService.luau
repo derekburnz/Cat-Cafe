@@ -4,8 +4,8 @@
 --   FeedCat(foodId, catUid)  C -> S  4 a second: a known food the player has at least one of, and one of the
 --     player's own cats below CatMaxLevel (a cat at the top level would waste it). It takes one, adds the food's XP
 --     through CatStats.addXp (level ups count in stats.catLevelUps, and CafeService.sync shows them), and answers
---     FeedResult(catUid, level, xp) and a ProfileSync. A refusal toasts why. There is no feeding cap: only buying
---     food is capped a day (CornerFoodXpPerDay), so earned food is never stuck.
+--     FeedResult(catUid, level, xp) and a ProfileSync. A refusal toasts why. There is no feeding cap, and since #1255
+--     no cap on buying food either.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 

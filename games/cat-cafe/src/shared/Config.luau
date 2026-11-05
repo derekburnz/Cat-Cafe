@@ -198,6 +198,14 @@ local Config = {
 	-- Derek 22:38: a wave is scattered, not clumped. A new stray takes a free spawn point at least this far from every
 	-- stray already in its area when one is left (farther ones likelier), else the free point farthest from them all.
 	StraySpawnSpacingStuds = 12,
+	-- #1159 (shared/StrayTopUp): by day an area under its floor of live strays gets one more every 60 to 120 s, at a
+	-- far point first. The floor is StrayFloorBase for one player plus StrayFloorPerPlayer for each more who has the
+	-- area open, never above StrayLiveMax live cats in the area (the 10-28 "way too many" line is a live cap).
+	StrayFloorBase = 5,
+	StrayFloorPerPlayer = 1,
+	StrayLiveMax = 12,
+	StrayTopUpMinSeconds = 60,
+	StrayTopUpMaxSeconds = 120,
 	StrayWanderSpeed = 3,
 	AnnounceMinRarity = "Epic",
 	-- The night dealer (data-model section 8b): buy from this close to the cart. F94 (rewards-and-shops.md section 4):
@@ -221,7 +229,7 @@ local Config = {
 	-- the Town Square, open day and night. Every CornerShopWindowSeconds window rolls an amount of each
 	-- Catalog.cornerShop row from its size's chance in percent of 0, 1, 2 and 3, the same on every server and apart
 	-- from the Fresh Catch roll. Bought within CornerShopRange of a CornerShop stall. A UTC day allows at most
-	-- CornerDailyLimits of a family (any size; a family not listed has none) and CornerFoodXpPerDay XP of cat food.
+	-- CornerDailyLimits of a family (any size; a family not listed has none). Cat food has no daily XP cap (#1255).
 	CornerShopWindowSeconds = 300,
 	CornerShopRange = 14,
 	-- lawn-nursery.md section 2 (#1200): BuyLawn from within this many studs of a LawnStall-tagged Garden Nursery
@@ -233,7 +241,6 @@ local Config = {
 		mega = { 90, 10, 0, 0 },
 	} :: { [string]: { number } },
 	CornerDailyLimits = { steady = 4, quick_bait = 2, whistle = 4 } :: { [string]: number },
-	CornerFoodXpPerDay = 20000,
 	CatFoodMax = 999, -- the most of one food the Bag holds
 	-- corner-shop-v2.md section 3 (#1181): a net catch of a stray drops a Small Snack 1 time in 10 (free, from play,
 	-- and its chance shows in the catch help), and every cat rescued from a trap gives one
@@ -344,10 +351,12 @@ local Config = {
 	SwiftPotionSpeed = 4, -- swift_potion: added to walk and carry speed
 	LuckyPotionGoldScale = 2, -- lucky_potion: food set in the bowl rolls gold at this times the chance
 	TimedTipsMax = 1.0, -- F73: every running tip potion together adds at most +100% (a Tip and a Big Tip: +75%)
-	-- Pals (F92, playing-together.md section 2): tips earn this much more with one pal on the server, the Max with two
-	-- or more, on top of the potions; never offline pay
+	-- Pals (F92, playing-together.md section 2): tips (the money per second, piles and rich visitors) earn PalTipBonus
+	-- more with one pal on the server and PalTipBonusStep more for each more, at most PalTipBonusMax (#1165: +10%, +15%,
+	-- +20% from three, #1347), on top of the potions; never offline pay
 	PalTipBonus = 0.10,
-	PalTipBonusMax = 0.15,
+	PalTipBonusStep = 0.05,
+	PalTipBonusMax = 0.20,
 	-- Team Rescue (F92, playing-together.md section 3): one helper an attempt, within TeamRescueRangeStuds of the trap; a
 	-- helped attempt runs TeamRescueExtraSeconds longer, and the helper's tip is HelperTipSeconds of their own day rate
 	-- (twice that between pals), at most once per TeamRescueTipCooldown seconds a player
@@ -490,16 +499,18 @@ local Config = {
 
 	-- The camp extras (F100, camp-extras.md sections 2 and 4), each filling while the player is away up to its hold.
 	-- The Picnic Basket (Park) bags one PicnicPotion (Design-Agent 11-02: the 10 minute Money Potion) every
-	-- PicnicEverySeconds; the Yard Sale (Neighbourhood) gives one zone crate a UTC day, free (crate-prices.md section
-	-- 5), banked for the Market; the Fish Pond (Woods) lands PondFishPerStep golden
-	-- fish every PondStepSeconds; the Lost and Found (Sewer) keeps one prize a UTC day from LostFoundTable (chances add
+	-- PicnicEverySeconds; the Yard Sale (Neighbourhood) gives one zone crate every YardSaleClaimHours from the last
+	-- take, free (crate-prices.md section 5; camp-stations.md section 3, #1154), banked for the Market; the Fish Pond
+	-- (Woods) lands PondFishPerStep golden fish every PondStepSeconds up to PondHold (#1232: 6 an hour, 6 hours' worth);
+	-- the Lost and Found (Sewer) keeps one prize a UTC day from LostFoundTable (chances add
 	-- to 1, shown on its card). Each is collected within CampExtraRangeStuds of its PromptAnchor.
 	PicnicEverySeconds = 21600,
 	PicnicHold = 2,
 	PicnicPotion = "tip_potion",
-	PondFishPerStep = 2,
-	PondStepSeconds = 1800,
-	PondHold = 24,
+	YardSaleClaimHours = 4,
+	PondFishPerStep = 1,
+	PondStepSeconds = 600,
+	PondHold = 36,
 	LostFoundHold = 3,
 	LostFoundTable = {
 		{ chance = 0.40, fish = 10 },

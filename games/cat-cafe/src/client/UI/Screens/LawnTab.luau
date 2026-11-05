@@ -4,10 +4,11 @@
 --
 -- Like the inside decor: a "Your lawn" strip on top with the path in use, the fence in use ("None") and the lawn
 -- spots ("1 / 2" used of open), then the Edit lawn button. Tapping a slot shows its cards below: path styles, fence
--- styles, or the pieces (yours first, then the shop's). A piece card says Place (onto the first open spot of its
--- size), Put away, Spots full, its price, or the tier that sells it; a style card Use it, In use, Take down (the
--- fence), its price or tier. Edit lawn opens the edit view (Screens/LawnEdit), where a spot is picked by its ring.
--- Everything here is a request: the callbacks become BuyLawn, SetLawnSpot and SetLawnStyle, which the server checks.
+-- styles, or the pieces. Since #1200 (lawn-nursery.md section 3) only what the player owns shows here: lawn pieces
+-- are bought at the Garden Nursery in the Park (Screens/LawnStall), and a line under the strip says so. A piece card
+-- says Place (onto the first open spot of its size), Put away or Spots full; a style card Use it, In use or Take down
+-- (the fence). Edit lawn opens the edit view (Screens/LawnEdit), where a spot is picked by its ring. Everything here is
+-- a request: the callbacks become SetLawnSpot and SetLawnStyle, which the server checks.
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
@@ -39,9 +40,9 @@ export type LawnTab = {
 local CARD_WIDTH = 164 -- the inside decor's cards
 local CARD_TOP = 152
 local STRIP_HEIGHT = 58
+local NOTE_HEIGHT = 22 -- "Get lawn pieces at the Garden Nursery in the Park"
 local SLOT_WIDTH = 164 -- "White Picket" fits beside the picture
 local EDIT_W = 150
-local SHOP_ORDER = 1000 -- a shop card's LayoutOrder past every owned piece
 local STYLE_KINDS: { Types.LawnStyleKind } = { "path", "fence" }
 
 local GLYPH = "🌷" -- a lawn piece or style with no model in Assets yet
@@ -180,7 +181,17 @@ function LawnTab.new(parent: Instance, callbacks: Callbacks): LawnTab
 		end,
 	})
 
-	local gridTop = STRIP_HEIGHT + Theme.sizes.gap
+	self._note = text({
+		Name = "Nursery",
+		Position = UDim2.fromOffset(0, STRIP_HEIGHT + 4),
+		Size = UDim2.new(1, 0, 0, NOTE_HEIGHT),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.subtext,
+		Text = LawnLogic.nurseryNote(nil),
+		Parent = frame,
+	})
+	local gridTop = STRIP_HEIGHT + NOTE_HEIGHT + Theme.sizes.gap
 	self._grid = Create("ScrollingFrame", {
 		Name = "Grid",
 		BackgroundTransparency = 1,
@@ -345,13 +356,22 @@ function LawnTab.setFilter(self: any, filter: Filter)
 		slot.stroke.Thickness = if picked then Theme.sizes.stroke + 1 else Theme.sizes.stroke
 	end
 	for _, entry in self._cards do
-		entry.frame.Visible = (filter == "pieces" and entry.piece ~= nil) or entry.kind == filter
+		entry.frame.Visible = self:_shows(entry)
 	end
 	self._grid.CanvasPosition = Vector2.zero
 end
 
+-- A card shows on its own filter, and only once owned: the Garden Nursery sells the rest (#1200).
+function LawnTab._shows(self: any, entry: any): boolean
+	local filter: Filter = self._filter
+	local onFilter = (filter == "pieces" and entry.piece ~= nil) or entry.kind == filter
+	local state: Types.PlayerState? = self._state
+	return onFilter and state ~= nil and LawnLogic.owns(state, entry.id)
+end
+
 function LawnTab.render(self: any, state: Types.PlayerState)
 	self._state = state
+	self._note.Text = LawnLogic.nurseryNote(state)
 	local used, open = LawnLogic.counts(state)
 	for _, slot in self._slots do
 		if slot.filter == "pieces" then
@@ -378,8 +398,8 @@ function LawnTab.render(self: any, state: Types.PlayerState)
 		local onLawn = action.mode == "away" or action.mode == "inUse" or action.mode == "takeDown"
 		entry.badge.Visible = owned
 		entry.badge.Text = if onLawn then (if entry.piece then "On lawn" else "In use") else "Owned"
-		-- yours first, then the shop's, each in catalog order
-		entry.frame.LayoutOrder = if owned then entry.order else SHOP_ORDER + entry.order
+		entry.frame.LayoutOrder = entry.order
+		entry.frame.Visible = self:_shows(entry)
 	end
 end
 

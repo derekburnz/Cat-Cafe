@@ -94,6 +94,7 @@ UI.campExtras = {} -- F100 camp extras, filled at the end of the file
 UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
 UI.trade = {} -- F102 trading, filled at the end of the file
 UI.lawn = {} -- F91 the front lawn's edit view, filled at the end of the file
+UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.store = {} -- the Store window behind the HUD's Store tile, filled at the end of the file
 
 UI.Types = Types
@@ -501,6 +502,7 @@ local function render()
 	UI.cornerShop.render(state)
 	UI.trade.render(state)
 	UI.lawn.render(state)
+	UI.nursery.render(state)
 	UI.store.render()
 	if cannonHint() ~= hintShown then
 		applyTutorial()
@@ -1322,6 +1324,7 @@ function UI.init(config: Types.InitConfig)
 	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
 	UI.trade.start() -- the Trade window in the modal (F102)
 	UI.lawn.start(parent) -- the front lawn's edit view (F91)
+	UI.nursery.start() -- the Garden Nursery window, opened from its stall's prompt (#1200)
 	UI.store.start() -- the Store window and the HUD's Store tile (shown on sale or not, #1167)
 	worldTags = WorldTags.new()
 	UI.bubbles.start(parent) -- the one-line speech bubbles over the town's key cats (#1079)
@@ -1434,6 +1437,7 @@ function UI.destroy()
 	UI.rally.reset()
 	UI.trade.reset()
 	UI.lawn.reset()
+	UI.nursery.reset()
 	UI.store.reset()
 	UI.bubbles.reset()
 	if hud then
@@ -5136,6 +5140,159 @@ do
 end
 
 ----------------------------------------------------------------------------------------------------
+-- Garden Nursery (#1200, lawn-nursery.md section 2)
+--
+-- The stall in the Park camp (tag LawnStall, Gameplay-Engineer's #1364) carries a Custom-style ProximityPrompt named
+-- LawnStallPrompt; holding it opens the nursery window in the modal, and walking more than LawnStallRange + 4 studs
+-- from the stall closes it. A Buy fires BuyLawn(id), which the server checks (tier, coins, standing at the stall).
+-- Its own block, as the module is short of locals.
+do
+	local LawnStall = require(script.Screens.LawnStall)
+	local SharedConfig =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+	local STALL_TAG = "LawnStall"
+	local PROMPT_NAME = "LawnStallPrompt"
+	local FAR_STUDS: number = (SharedConfig.LawnStallRange or 14) + 4
+	local nursery = {
+		window = nil :: LawnStall.LawnStall?,
+		connections = {} :: { RBXScriptConnection },
+		prompts = {} :: { [ProximityPrompt]: boolean },
+	}
+
+	-- Studs from this player's character to the nearest stall, or nil while either is streamed out.
+	local function stallDistance(): number?
+		local character = Players.LocalPlayer.Character
+		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+		if root == nil or not root:IsA("BasePart") then
+			return nil
+		end
+		local best: number? = nil
+		for _, stall in CollectionService:GetTagged(STALL_TAG) do
+			if stall:IsA("Model") and stall:IsDescendantOf(Workspace) then
+				local distance = (
+					(stall :: Model):GetPivot().Position - (root :: BasePart).Position
+				).Magnitude
+				if best == nil or distance < best then
+					best = distance
+				end
+			end
+		end
+		return best
+	end
+
+	local function open()
+		local window = nursery.window
+		local modalView = modal
+		if window == nil or modalView == nil then
+			return
+		end
+		window:render(state)
+		modalView:open("LawnStall")
+	end
+
+	-- Picks up a placed stall's prompt (again after the model streams back in).
+	local function track(stall: Instance)
+		if not stall:IsDescendantOf(Workspace) then
+			return
+		end
+		local found = stall:FindFirstChild(PROMPT_NAME, true)
+		if found == nil or not found:IsA("ProximityPrompt") then
+			local waiting: RBXScriptConnection
+			waiting = stall.DescendantAdded:Connect(function(child: Instance)
+				if child.Name == PROMPT_NAME and child:IsA("ProximityPrompt") then
+					waiting:Disconnect()
+					track(stall)
+				end
+			end)
+			table.insert(nursery.connections, waiting)
+			return
+		end
+		local prompt = found :: ProximityPrompt
+		if nursery.prompts[prompt] then
+			return
+		end
+		nursery.prompts[prompt] = true
+		table.insert(nursery.connections, prompt.Triggered:Connect(open))
+		table.insert(
+			nursery.connections,
+			prompt.AncestryChanged:Connect(function()
+				if not prompt:IsDescendantOf(Workspace) then
+					nursery.prompts[prompt] = nil
+				end
+			end)
+		)
+	end
+
+	function UI.nursery.start()
+		UI.nursery.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local window = LawnStall.new({
+			buy = function(id: string)
+				UI.events.buyLawn:Fire(id, nil)
+			end,
+			close = function()
+				if modalView:current() == "LawnStall" then
+					modalView:close()
+				end
+			end,
+			far = function(): boolean
+				local distance = stallDistance()
+				return distance ~= nil and distance > FAR_STUDS
+			end,
+		})
+		nursery.window = window
+		modalView:register("LawnStall", {
+			frame = window.frame,
+			onOpen = function()
+				window:render(state)
+				window:opened()
+			end,
+			onClose = function()
+				window:closed()
+			end,
+		})
+		for _, stall in CollectionService:GetTagged(STALL_TAG) do
+			track(stall)
+		end
+		table.insert(
+			nursery.connections,
+			CollectionService:GetInstanceAddedSignal(STALL_TAG):Connect(track)
+		)
+	end
+
+	-- The window on one tab ("pieces" by default), as the stall's prompt opens it; the UI gate's scenes call this too.
+	function UI.nursery.open(tab: string?)
+		local window = nursery.window
+		if window and (tab == "pieces" or tab == "path" or tab == "fence") then
+			window:showTab(tab)
+		end
+		open()
+	end
+
+	function UI.nursery.render(playerState: Types.PlayerState)
+		local window = nursery.window
+		if window then
+			window:render(playerState)
+		end
+	end
+
+	function UI.nursery.reset()
+		for _, connection in nursery.connections do
+			connection:Disconnect()
+		end
+		table.clear(nursery.connections)
+		table.clear(nursery.prompts)
+		local window = nursery.window
+		if window then
+			window:destroy()
+		end
+		nursery.window = nil
+	end
+end
+
 -- Front lawn edit view (F91)
 ----------------------------------------------------------------------------------------------------
 

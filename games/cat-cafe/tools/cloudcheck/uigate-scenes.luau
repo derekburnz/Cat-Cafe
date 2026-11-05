@@ -746,6 +746,25 @@ local SCENES = {
 		UI.spin.open()
 		press("SpinWheel", "Odds")
 	end },
+	-- #1500: the end of the Odds list, where the two 0.5% jackpots sit in gold
+	{ "SpinOddsJackpots", function()
+		UI.spin.open()
+		press("SpinWheel", "Odds")
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("SpinWheel", true)
+		local list = window and window:FindFirstChild("Rows", true)
+		assert(list and list:IsA("ScrollingFrame"), "uigate: no Odds list")
+		list.CanvasPosition = Vector2.new(0, 100000)
+		local count = 0
+		for _, row in list:GetChildren() do
+			if row:IsA("Frame") and string.match(row.Name, "^Slice%d+$") then
+				count += 1
+			end
+		end
+		assert(count == #Catalog.spinWheel, ("uigate: %d odds rows for %d slices"):format(count, #Catalog.spinWheel))
+		local prize = list:FindFirstChild("Slice8") and list.Slice8:FindFirstChild("Prize")
+		assert(prize and string.find(prize.Text, "^Jackpot: 100 golden fish"), "uigate: slice 8 is not the fish jackpot")
+	end },
 	{ "Market", function()
 		UI.market.open()
 		press("FishMarket", "CratesTab")

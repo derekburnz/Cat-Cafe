@@ -829,6 +829,17 @@ No effect may make a bump feel like an attack: no impact flash, no knockback on 
 | RankUp | Palette confetti at the cafe door (16 particles), the new expansion floor rises into place with sparkles along its edge, each newly opened role station gets a soft ring | tween, fx | 16 plus 1 per new station | plot `Tier` rising | P1 |
 | AreaUnlock | The area's gate leaves swing open (0.8 s Back Out) with a sparkle arch, for the player who ranked up | tween, fx | 12 particles | the player's tier reaching the gate's tier | P1 |
 
+### Cafe themes (#1624)
+
+From Gameplay-Engineer's #1687 (the plot's `Theme` "garden" or "grand", and ThemeInside holding the chandelier):
+
+| Effect | Look | Hook |
+|---|---|---|
+| Grand Cafe chandelier | A warm light under the six candle flames flickers softly (up to 18% every 0.07 to 0.16 s), and a flame catches a small glint about every 2.5 s. Nearest 2 within 60 studs. Still with Reduce Motion or in Low performance | the ThemeInside model with `Asset` CatCafe_Plot_ThemeGrandChandelier, its `_Glow` child |
+| Grand Cafe gold trims | Gold Leaf's sweeping glint and night glow on the gold PaintTrim trims (Decor `theme_grand`), without its foil sheen. Off while a Gold Leaf paint is in use, which already does it | the plot's `Theme` "grand" |
+
+The Garden Cafe's flower troughs would get butterflies for free if Model-Agent names them `_Flowers` (Ambient). The VIP plate stays plain (store-pass-looks.md section 1).
+
 ## 8. Day, night and the dealer
 
 The 4 s lighting change and the night parts turning Neon with their lights already exist (WorldController.luau, style guide section 9). Days and nights are 5 minutes each now and the cafe stays open at night.

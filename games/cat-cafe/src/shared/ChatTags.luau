@@ -1,8 +1,8 @@
 --!strict
 -- Chat tags (#1624): the "[VIP]" a VIP pass owner shows before their name in chat. The server sets the player's
 -- CHAT_TAG_ATTRIBUTE to a tag id from TAGS (PassService); each client's ChatTagController reads it on an incoming
--- message and puts the tag's rich text in front of the name. Only ids in TAGS are shown, so a stray value shows nothing.
--- Later tags (the Cafe Pass season tag, cafe-pass.md section 3) join TAGS.
+-- message and puts the tag's rich text in front of the name. Only ids in TAGS are shown, so a stray value shows
+-- nothing. Later tags (the Cafe Pass season tag, cafe-pass.md section 3) join TAGS.
 --   prefixFor(tagId) -> rich text prefix or nil
 
 local ChatTags = {}

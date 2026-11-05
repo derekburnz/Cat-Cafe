@@ -193,7 +193,11 @@ return function()
 		LuckPerStatueLevel = 0.1,
 		LuckMax = 3,
 		LuckyPotionLuck = 0.5,
-		LuckyDayEvery = 4,
+		LuckyDayChance = 0.33, -- #1572 (1g): the day rolls that replace LuckyDayEvery
+		GoldenDayChance = 0.2,
+		RainbowDayChance = 0.1,
+		GoldenDayGoldMultiplier = 2,
+		RainbowDayMultiplier = 3,
 		LuckyDayWaveLuck = 2,
 		LuckyDayPlayerLuck = 0.5,
 		LuckyDayWarnSeconds = 15,
@@ -223,9 +227,9 @@ return function()
 		CrateReelRampSeconds = 0.3,
 		CrateReelStopSeconds = 0.8,
 		CrateReelHoldSeconds = 0.25,
-		RainbowChanceNet = 0.005, -- F99 (rainbow-coat.md section 5)
-		RainbowChanceBait = 0.005,
-		RainbowChanceRescue = 0.01,
+		RainbowChanceNet = 0.015, -- F99 (rainbow-coat.md section 5); v2 section 4b
+		RainbowChanceBait = 0.015,
+		RainbowChanceRescue = 0.03,
 		RainbowMultiplier = 3,
 		RainbowLuckMax = 1.0,
 		CollectorRainbowMultiplier = 10,
@@ -235,6 +239,7 @@ return function()
 		-- F102 (trading.md section 6)
 		TradeMinTier = 3,
 		TradeMaxCats = 9,
+		TradeMaxDecor = 9, -- #1574: decor pieces each side may offer
 		TradeCountdownSeconds = 5,
 		TradeLopsidedRatio = 3,
 		TradeConfirmWaitSeconds = 2,
@@ -763,10 +768,10 @@ return function()
 	end)
 
 	describe("the rainbow coat (F99, rainbow-coat.md section 1)", function()
-		it("is a tenth of gold everywhere and earns twice a gold cat", function()
-			expect(Config.RainbowChanceNet).to.be.near(Config.GoldChanceNet / 10, 1e-9)
-			expect(Config.RainbowChanceBait).to.be.near(Config.GoldChanceBait / 10, 1e-9)
-			expect(Config.RainbowChanceRescue).to.be.near(Config.GoldChanceRescue / 10, 1e-9)
+		it("is three tenths of gold everywhere (v2, section 4b) and earns twice a gold cat", function()
+			expect(Config.RainbowChanceNet).to.be.near(Config.GoldChanceNet * 0.3, 1e-9)
+			expect(Config.RainbowChanceBait).to.be.near(Config.GoldChanceBait * 0.3, 1e-9)
+			expect(Config.RainbowChanceRescue).to.be.near(Config.GoldChanceRescue * 0.3, 1e-9)
 			expect(Config.RainbowMultiplier).to.equal(2 * Config.GoldMultiplier)
 			expect(Config.CollectorRainbowMultiplier > Config.CollectorGoldMultiplier).to.equal(true)
 		end)

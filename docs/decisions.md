@@ -457,6 +457,9 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 ### Corner Shop shows stock counts (#1465), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
 - 2026-11-05: Each Corner Shop row shows "n left", meaning what the player can still buy in this window. This reverses #1190's no-counts rule for the counts only; stock chances and daily-limit lines stay hidden. Why: the friend asked to "show amount in stock for corner shop". A plain count is honest information, not pressure. There's no countdown or "almost gone" copy. Spec: corner-shop-v2.md sections 1 and 4.
 
+### Tip Jar rewards v2 (#1414), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
+- 2026-11-05: The Tip Jar's playtime gifts go up: coins 2x, golden fish 5x, spins 5x (1 to 5 at 30 and 90 minutes) and the two hour crate 2x. A two hour session pays 260 golden fish, 2 Classic Crates and 10 spins. SpinBankCap goes to 50 and SpinAllMax to 51. Why: the friend wants 30 minutes or more of play to feel really rewarding. If Pace.spec finds a tier too fast, the tier cost goes up (rule v0.8). Spec: rewards-and-shops.md section 2a v2.
+
 ### Decided by Derek (2026-11-05, Set 6 Q1 to Q11 and Sets 7 to 9, relayed by Research-Agent, #1571), recorded by the game-designer thread (Design-Agent, friend's project)
 - 2026-11-05: Q1 Tier pace: keep the current pacing, tuned so the whole run takes about 12 hours of play, the top of Pace.spec's 8 to 12 h one-go window. Tier 2's cost is #1367's call. Why: Derek's answer. The Tier 5 bound is already 8 to 12 h, so no spec changes.
 - 2026-11-05: Q2 Intro: plays once on first join with a Skip button bottom right, and replays from the ? button. Why: Derek's answer. Already built as F72 (intro-cutscene.md); #1542 makes it shorter.

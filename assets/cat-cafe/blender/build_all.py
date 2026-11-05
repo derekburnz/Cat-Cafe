@@ -164,8 +164,8 @@ PIVOT_NOTES = {
     "CatCafe_Accessory_AcornHairClip": "attachment point: the walking head's Hat slot; the clip sits by the right ear",
     "CatCafe_Accessory_MushroomCap": "attachment point: the walking head's Hat slot (see attach)",
     "CatCafe_Accessory_ReadingGlasses": "attachment point: the walking head's Glasses slot (see attach)",
-    "CatCafe_Accessory_TinyLantern": "the walking cat's back slot (TinyLantern in accessories.walk_slots); +Z runs back "
-                                     "along the spine",
+    "CatCafe_Accessory_TinyLantern": "the walking cat's back slot (TinyLantern in accessories.walk_slots); "
+                                     "+Z runs back along the spine",
     "CatCafe_Accessory_Sash": "attachment point (see attach_upright)",
     "CatCafe_Accessory_PartyHat": "attachment point (see attach_upright)",
     **{f"CatCafe_Accessory_{n}_Walk": "the walking cat's Outfit_<Piece> slot on the back's middle line under the back "

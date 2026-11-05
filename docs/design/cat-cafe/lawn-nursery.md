@@ -117,7 +117,7 @@ Each piece and style that is **out** on the lawn adds money, by its rarity:
 
   That sits beside the crate decor's "+35% for 7 placed" and is reached only by Tier 5 savers.
 - **Early on it's small:** a Tier 2 lawn of Commons and Uncommons plus the free Garden Bench (Epic) is about +8%.
-- **It never pays back fast.** A Common (10,000) at Tier 2 pays itself back in about 80 minutes of play, and a Golden (500M) at Tier 5 in about 2 hours. So the lawn is a long-term upgrade, not a tier skip (rule v0.8). QA's Pace.spec run with a player who buys the best affordable lawn piece whenever they can must keep every tier inside economy-ladder.md check 3. If not, the bonus row goes down a step; the prices stay.
+- **It never pays back fast.** A Common (10,000) at Tier 2 pays itself back in about 80 minutes of play, and a Golden (500M) at Tier 5 in about 4 hours. So the lawn is a long-term upgrade, not a tier skip (rule v0.8). QA's Pace.spec run with a player who buys the best affordable lawn piece whenever they can must keep every tier inside economy-ladder.md check 3. If not, the bonus row goes down a step; the prices stay.
 - **Where it adds:** in `cafeMultiplier`, alongside decor (`Economy.cafeMultiplier`). The Money boosts card (#1151) gets its own row, "Lawn (6 out) +18%".
 - **Free gifts count.** The Tier 2 Garden Bench (Epic, +3%) and Tier 3 Umbrella Table (Legendary, +5%) give their bonus like any piece.
 

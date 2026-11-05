@@ -2260,13 +2260,13 @@ end
 
 UI.codes = {}
 
--- Opens the code box: call it when this character walks into the Codes Cat's circle (within CodesCircleRadius,
--- flat). No key press and no prompt. A window the player has open (the Market stall is near) stays open instead
--- (review N182).
+-- Opens the Store on Featured, its Codes tab one tap away (#1633): call it when this character walks into the Codes
+-- Cat's circle (within CodesCircleRadius, flat). No key press and no prompt. A window the player has open (the Market
+-- stall is near) stays open instead (review N182).
 function UI.codes.open()
-	-- #1428: the code box lives in the Store's Codes tab, so the circle opens the Store there
+	-- the code box lives in the Store's Codes tab (#1428); the circle opens the Store on Featured (#1633)
 	local store: any = UI.store -- defined further down
-	if store.openCodes() then
+	if store.openAtBench() then
 		return
 	end
 	if modal and modal:current() == nil then
@@ -2274,11 +2274,11 @@ function UI.codes.open()
 	end
 end
 
--- Closes the code box and clears its field: call it once the character is past CodesCircleRadius + 1. A window the
--- player opened meanwhile stays open.
+-- Closes the Store the circle opened (on any tab; the code box clears with it): call it once the character is past
+-- CodesCircleRadius + 1. A window the player opened meanwhile stays open.
 function UI.codes.close()
 	local store: any = UI.store
-	if modal and (modal:current() == "Codes" or store.codesShowing()) then
+	if modal and (modal:current() == "Codes" or store.benchShowing()) then
 		modal:close()
 	end
 end
@@ -5522,6 +5522,7 @@ do
 		screen = nil :: Store.Store?,
 		changed = nil :: Signal.Connection?,
 		open = false, -- whether the HUD's tile shows
+		bench = false, -- #1633: the Codes Cat's circle opened the Store, so walking out closes it
 	}
 
 	-- the potion packs' contents and names from the shared Catalog, the bag from the state (#1182)
@@ -5598,6 +5599,7 @@ do
 				screen:render(rows(), PassShop.prices())
 			end,
 			onClose = function()
+				shop.bench = false
 				screen:closed()
 			end,
 		})
@@ -5617,26 +5619,28 @@ do
 		end
 	end
 
-	-- #1428: the Codes Cat's circle opens the Store on its Codes tab, unless another window is up (review N182).
-	-- False when there is no Store window, so the old Codes window opens instead.
-	function UI.store.openCodes(): boolean
-		local screen = shop.screen
+	-- The Codes Cat's circle opens the Store on Featured, like the Store tile, and the player taps Codes on the rail
+	-- (#1633, Derek2 11-05: "it should open it to featured and have them go down to codes after that way they look at
+	-- products"; #1428 opened it on Codes). A window already up stays open (review N182). False when there is no
+	-- Store window, so the old Codes window opens instead.
+	function UI.store.openAtBench(): boolean
 		local modalView = modal
-		if screen == nil or modalView == nil then
+		if shop.screen == nil or modalView == nil then
 			return false
 		end
-		local current = modalView:current()
-		if current == nil then
+		if modalView:current() == nil then
 			modalView:open("Store")
-			current = modalView:current()
-		end
-		if current == "Store" then
-			screen:showTab("codes")
+			shop.bench = modalView:current() == "Store"
 		end
 		return true
 	end
 
-	-- Whether the Store is up on its Codes tab (the circle's walk-out closes it, and answers show there).
+	-- Whether the Store the circle opened is still up, on any tab (walking out closes it).
+	function UI.store.benchShowing(): boolean
+		return shop.bench and modal ~= nil and modal:current() == "Store"
+	end
+
+	-- Whether the Store is up on its Codes tab (a code's answer shows there, else as a toast).
 	function UI.store.codesShowing(): boolean
 		local screen = shop.screen
 		return screen ~= nil

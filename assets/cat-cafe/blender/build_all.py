@@ -619,7 +619,8 @@ def main():
         if name == "CatCafe_Street_CodesCat":     # the prompt's spot, and the cap rides the cat's Head
             extra = {"attachments": [stations.prompt_attachment()], "nest": {"_Prop": "_Head"}}
         if name == "CatCafe_Street_SpinWheel":    # the Spin prompt's spot; the host's hat rides its Head, its outfit its Body
-            extra = {"attachments": [spinwheel.prompt_attachment()], "nest": {"_Prop": "_Head", "_Outfit": "_Body"}}
+            extra = {"attachments": [spinwheel.prompt_attachment()], "nest": {"_Prop": "_Head", "_Outfit": "_Body"},
+                     "model_attributes": {"_Wheel": {"SliceSpans": spinwheel.SLICE_SPANS}}}   # #1411: 8 slices
         if name == "CatCafe_Street_FishMarket":   # the Shop prompt's spot, and the hat rides the cat's Head
             extra = {"attachments": [market.prompt_attachment()], "nest": {"_Prop": "_Head"}}
         if name == cornershop.NAME:               # #1052: the prompt's spot, and the visor rides the cat's Head

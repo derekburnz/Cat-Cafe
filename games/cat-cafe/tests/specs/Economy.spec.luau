@@ -467,7 +467,7 @@ return function()
 
 		it("keeps its own copy, so changing the table passed in changes nothing", function()
 			local p = working()
-			local passes = { money = 3, longNap = false, slots = 0 }
+			local passes: Economy.Passes = { money = 3, longNap = false, slots = 0 }
 			Economy.setPasses(p, passes)
 			passes.money = 1
 			expect(Economy.passMultiplier(p)).to.equal(3)

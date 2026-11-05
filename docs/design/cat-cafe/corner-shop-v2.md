@@ -52,8 +52,8 @@ Decided by Coordinator for the friend, overnight 11-05, from Derek's 11-04 ask: 
 - **Bowl menu:** no Buy buttons. Each food row shows "You have 3" and **Use**. With none left it reads "Get more at the Corner Shop" in calm grey, and the dealer foods keep "Night dealer". Food earned elsewhere (Daily Treat, prizes) lands in the same `lures` and shows there.
 - **The Bag** gets a third tab, **Bait**, listing the player's foods and counts. It has no Use button there, since bait goes in at the bowl.
 - **Policy:** bait for coins is the same as before; only where it's sold moves. Coins are never sold for Robux, the bowl's odds stay shown before a food goes in, and the Corner Shop row shows the food's rarity badge and its clean picture (#1261).
-- **Server:** `BuyLure` refuses every request with the toast "Bait food is at the Corner Shop now", and is removed in the next cleanup. Food rows go through `BuyCornerShop` like other rows: stock, tier price (the server's, guarded by `shownPrice` as for the others), coins, 2 a second. There's no daily limit for food.
-- **Save:** none. It uses the existing `lures` map, with a new cap of 99 per food (`LureMax`).
+- **Server:** `BuyLure` refuses every request with the toast "Bait food is at the Corner Shop now", and is removed in the next cleanup. Food rows go through `BuyCornerShop` like other rows: stock, coins, 2 a second, and no daily limit. The server charges `Economy.foodPrice` for the player's tier at the moment of the buy. Food rows are the only ones whose price moves, so `BuyCornerShop` takes an optional `shownPrice` for `kind == "food"` rows and refuses, with the fresh stock, when the server's price is above it (for example after a rank up while the window was open). Fixed-price rows ignore it.
+- **Save:** none. It uses the existing `lures` map, with a new cap of 99 per food (`LureMax`) on **new buys only**. A stack already above 99 stays as it is (the sanitize doesn't clamp it), so nobody loses food; it just can't grow by buying until it's used below 99.
 
 ## 2. Still not sold, and why (unchanged from corner-shop.md section 3)
 

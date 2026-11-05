@@ -138,6 +138,23 @@ return function()
 			expect(Potions.useBlocker(p, "nope", 1000)).to.equal("Unknown")
 		end)
 
+		it("counts and drinks as many as fit for Use all (#1600)", function()
+			local p = fresh(1000)
+			p.potions.tip_potion = 5
+			local max = Config.PotionMaxMinutes * 60
+			expect(Potions.fitCount(p, "tip_potion", 1000)).to.equal(5) -- the bag is the limit
+			p.buffs.tip_potion = max - 3 * 600 -- room for three 10 minute potions
+			expect(Potions.fitCount(p, "tip_potion", 1000)).to.equal(3)
+			expect(Potions.useMany(p, "tip_potion", 4, 1000)).to.equal(3) -- the fourth is Full, nothing wasted
+			expect(p.potions.tip_potion).to.equal(2)
+			expect(Potions.left(p, "tip_potion", 1000)).to.equal(max)
+			expect(Potions.fitCount(p, "tip_potion", 1000)).to.equal(0)
+			expect(Potions.useMany(p, "tip_potion", 2, 1000)).to.equal(0)
+			expect(p.stats.potionsUsed).to.equal(3)
+			expect(Potions.fitCount(p, "swift_potion", 1000)).to.equal(0) -- none in the bag
+			expect(Potions.fitCount(p, "nope", 1000)).to.equal(0)
+		end)
+
 		it("ticks every timer down by the time played and drops the ones that ran out", function()
 			local p = fresh(1000)
 			p.buffs.tip_potion = 30

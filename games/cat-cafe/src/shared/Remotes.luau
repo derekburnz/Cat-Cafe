@@ -82,8 +82,9 @@ Remotes.ClientToServer = {
 	-- with StarterCatResult
 	"IntroDone", -- (shot: number, replay: boolean)  integer 0 to 10: 0 when the intro cutscene played to the end, else
 	-- the shot showing at Skip (F72, shared/Intro); 1 a second. The first non-replay call sets introSeen
-	"UsePotion", -- (potionId: string)  F64: a known potion in the bag whose minutes fit under PotionMaxMinutes with
-	-- the time it has left, else a "Full" toast and nothing used; answered with a ProfileSync
+	"UsePotion", -- (potionId: string, count: number?)  F64: a known potion in the bag whose minutes fit under
+	-- PotionMaxMinutes with the time it has left, else a "Full" toast and nothing used; answered with a ProfileSync.
+	-- #1600: count (whole, 1 to 1000; nil is 1) drinks up to that many, cut to the bag's count and to what fits
 	"OpenMysteryGift", -- ()  F64: a gift waits on the caller's own plot, within MysteryRangeStuds of its
 	-- MysteryGiftAnchor (the GiftPrompt's hold does the same); answered with MysteryGiftResult
 	"AnswerCollector", -- (accept: boolean)  F63: a live Cat Collector visit on the caller's own plot, within

@@ -455,6 +455,13 @@ local Cues: { [string]: Cue } = {
 		minGap = 1,
 		range = 40,
 	}, -- F55: a catch pushes the crowd back
+	shiftChime = {
+		ids = {},
+		group = "Sfx",
+		volume = 0.3,
+		minGap = 2,
+		range = 40,
+	}, -- #1191: a shop-only cat starts its shift, a soft three-note celesta lift (under VFX's sparkle, #1259)
 	catPlaced = {
 		ids = { "rbxassetid://101433267853089" },
 		group = "Sfx",

@@ -1492,6 +1492,8 @@ case(
 		fire("ToggleDecor", "plants", "yes")
 		fire("UseLure", 7)
 		fire("ResolveBait", "keep")
+		fire("UseLure", "kibble", 3) -- #1161: a bowl that is not 1 or 2 is dropped, not read as bowl 1
+		fire("ResolveBait", "tame", "2")
 		fire("TutorialAdvance", "two")
 		task.wait(1.2) -- TutorialAdvance allows 1 call per second; wait out the bucket so Guard.int's range check runs
 		fire("TutorialAdvance", 1e9)
@@ -1507,6 +1509,11 @@ case(
 		fire("BuyUpgrade", "jetpack")
 		fire("BuyDecor", "jetpack")
 		fire("UseLure", "jetpack")
+		-- #1161: bowl 2 without the pass takes no food
+		local secondOff = state.secondBowl ~= "on" and state.bait2 == nil
+		if secondOff then
+			fire("UseLure", "kibble", 2)
+		end
 		task.wait(1.5)
 		local unknownToasts = {}
 		local baitAfter = if state.bait ~= nil then state.bait.lureId else "empty"
@@ -1514,6 +1521,7 @@ case(
 			or state.decorOwned["jetpack"] ~= nil
 			or state.lures["jetpack"] ~= nil
 			or baitAfter ~= baitBefore
+			or (secondOff and state.bait2 ~= nil)
 		for _, event in since(unknownAt, "Toast") do
 			table.insert(unknownToasts, event.text)
 			if string.find(event.text, "[good]", 1, true) ~= nil then

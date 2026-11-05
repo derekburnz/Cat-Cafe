@@ -132,8 +132,10 @@ UI.events = {
 	catchPressed = Signal.new(), -- (strayId, index, grade?)   a press on circle `index` with this device's grade (nil after its first Miss): forward strayId and index as CatchPress
 	rankUp = Signal.new(), -- ()   Rank up pressed on the card with every requirement met: forward as RankUp
 	travel = Signal.new(), -- (destination)   "home" or an AreaId from the travel row or Areas panel: forward as Travel
-	useLure = Signal.new(), -- (lureId)   Use on a food in the Bait bowl screen: forward as UseLure (F28)
-	resolveBait = Signal.new(), -- (choice)   "tame" or "letgo" from the bait card: forward as ResolveBait
+	-- (lureId, bowl)   Use on a food in the Bait bowl screen: forward as UseLure (F28); bowl 1 or 2 (#1161)
+	useLure = Signal.new(),
+	-- (choice, bowl)   "tame" or "letgo" from the bait card: forward as ResolveBait, for that bowl's cat (#1161)
+	resolveBait = Signal.new(),
 	-- (index, lureId, window)   Buy on the night dealer screen (F32): forward lureId and window as BuyDealerFood (F59);
 	-- index is the food's row, unused since F59, and window the DealerStock's the screen showed (nil if none came)
 	buyDealerFood = Signal.new(),
@@ -271,8 +273,15 @@ local tutorialTrail: GuideTrail.GuideTrail? = nil
 local parentGui: Instance? = nil
 local baitScreen: BaitBowl.BaitBowl? = nil
 local baitCard: BaitCard.BaitCard? = nil
-local baitView: Types.BaitView? = nil -- what is in the bowl (UI.bait.set)
-local baitCat: Types.BaitCat? = nil -- the cat at the bowl (UI.bait.showReady), until it is resolved
+-- The bait bowls (#1161: bowl 1, and bowl 2 with the Second Bait Bowl pass): what is in each (UI.bait.set), the cat at
+-- each (UI.bait.showReady) until it is resolved, the bowl the Tame or Let go card shows, and the second bowl's kind
+-- ("on", "offer" or nil, UI.bait.setSecond).
+local bowls = {
+	views = {} :: { [number]: Types.BaitView? },
+	cats = {} :: { [number]: Types.BaitCat? },
+	card = 1,
+	second = nil :: string?,
+}
 local dealerScreen: Dealer.Dealer? = nil
 local cartPart: BasePart? = nil -- the night dealer's cart (UI.dealer.setCart), for the range hint
 local settingsScreen: Settings.Settings? = nil -- sound switches and volumes, screen shake and the like (gear in the HUD)
@@ -681,10 +690,11 @@ function UI.init(config: Types.InitConfig)
 	local modalInstance = Modal.new(parent)
 	modal = modalInstance
 
-	-- the bowl chip and F: a cat at the bowl comes first; otherwise the food screen
+	-- the bowl chip and F: a cat at a bowl comes first (bowl 1's, then bowl 2's); otherwise the food screen
 	local function openBait()
-		if baitCat and baitCard and not baitCard:isShowing() then
-			UI.bait.showReady(baitCat :: Types.BaitCat)
+		local waitingBowl = if bowls.cats[1] then 1 elseif bowls.cats[2] then 2 else nil
+		if waitingBowl and baitCard and not baitCard:isShowing() then
+			UI.bait.showReady(bowls.cats[waitingBowl] :: Types.BaitCat, waitingBowl)
 		else
 			modalInstance:toggle("Bait")
 		end
@@ -897,19 +907,21 @@ function UI.init(config: Types.InitConfig)
 		end,
 	})
 	baitScreen = BaitBowl.new({
-		useLure = function(lureId: string)
-			UI.events.useLure:Fire(lureId)
-		end,
-		buyLure = function(lureId: string)
-			UI.events.buyLure:Fire(lureId)
+		useLure = function(lureId: string, bowl: number)
+			UI.events.useLure:Fire(lureId, bowl)
 		end,
 		openUpgrades = function()
 			modalInstance:open("Upgrades")
 		end,
-		showCat = function()
-			if baitCat then
-				UI.bait.showReady(baitCat :: Types.BaitCat)
+		showCat = function(bowl: number)
+			local cat = bowls.cats[bowl]
+			if cat then
+				UI.bait.showReady(cat, bowl)
 			end
+		end,
+		buySecond = function()
+			local api: any = UI.bait -- defined further down
+			api.buySecond()
 		end,
 		close = closeModal,
 	})
@@ -917,12 +929,13 @@ function UI.init(config: Types.InitConfig)
 	modalInstance:register("Bait", {
 		frame = baitBowlView.frame,
 		onOpen = function()
+			baitBowlView:openOn() -- #1161: the bowl with a cat, else an empty one
 			baitBowlView:render(state)
 		end,
 	})
 	baitCard = BaitCard.new(parent, {
 		resolve = function(choice: Types.BaitChoice)
-			UI.events.resolveBait:Fire(choice)
+			UI.events.resolveBait:Fire(choice, bowls.card) -- #1161: the bowl whose cat the card shows
 		end,
 	})
 	dealerScreen = Dealer.new({
@@ -1458,7 +1471,10 @@ function UI.destroy()
 	if baitCard then
 		baitCard:destroy()
 	end
-	baitScreen, baitCard, baitView, baitCat = nil, nil, nil, nil
+	baitScreen, baitCard = nil, nil
+	table.clear(bowls.views)
+	table.clear(bowls.cats)
+	bowls.card, bowls.second = 1, nil
 	if dealerScreen then
 		dealerScreen:destroy()
 	end
@@ -1784,10 +1800,17 @@ function UI.showOfflineEarnings(amount: number, seconds: number)
 	end
 end
 
--- Rising text at a world point ("+$8"). Cheap enough for customers' coin pops.
+-- Rising text at a world point ("+$8"). Cheap enough for customers' coin pops. #1562 (Derek2: "the money pop-up ticks
+-- show at any distance"): only within FLOAT_DISTANCE studs of the camera, like the till tips button. One farther away
+-- is not made at all, and MaxDistance hides one the camera moves away from while it rises.
+local FLOAT_DISTANCE = 80
 function UI.floatText(worldPosition: Vector3, text: string, color: Color3?)
 	local parent = parentGui
 	if not parent then
+		return
+	end
+	local camera = workspace.CurrentCamera
+	if camera and (camera.CFrame.Position - worldPosition).Magnitude > FLOAT_DISTANCE then
 		return
 	end
 	local attachment = Instance.new("Attachment")
@@ -1797,6 +1820,7 @@ function UI.floatText(worldPosition: Vector3, text: string, color: Color3?)
 		Name = "FloatText",
 		Adornee = attachment,
 		AlwaysOnTop = true,
+		MaxDistance = FLOAT_DISTANCE,
 		Size = UDim2.fromOffset(120, 36),
 		StudsOffset = Vector3.new(0, 1, 0),
 		Parent = parent,
@@ -1854,7 +1878,9 @@ end
 
 -- One bowl by your door: Use puts a food in (events.useLure), the cat it rolled arrives after the wait, and
 -- the bait card offers Tame or Let go (events.resolveBait). The HUD's bowl chip shows once the Bait bowl upgrade
--- is owned.
+-- is owned. #1161: with the Second Bait Bowl pass there are two, and set, showReady and hideReady take the bowl (1 or
+-- 2, nil is 1) as ProfileSync's bait and bait2; useLure and resolveBait fire with it as their second argument, for
+-- UseLure(lureId, bowl) and ResolveBait(choice, bowl). setSecond takes ProfileSync's secondBowl.
 UI.bait = {}
 
 local function foodName(lureId: string): string?
@@ -1870,12 +1896,22 @@ local function foodName(lureId: string): string?
 end
 
 local function renderBait()
-	local waiting = baitCat ~= nil
+	-- the HUD tile (#1161): the sooner bowl, so its "!" shows when either cat is in, and a "2" with two bowls
+	local soonest: Types.BaitView? = nil
+	for bowl = 1, 2 do
+		local view = bowls.views[bowl]
+		if view and (soonest == nil or view.readyAt < (soonest :: Types.BaitView).readyAt) then
+			soonest = view
+		end
+	end
+	local waiting = bowls.cats[1] ~= nil or bowls.cats[2] ~= nil
 	if hud then
-		hud:setBait(baitView, waiting)
+		hud:setBait(soonest, waiting)
+		hud:setBowlCount(if bowls.second == "on" or bowls.views[2] ~= nil then 2 else 1)
 	end
 	if baitScreen then
-		baitScreen:setBait(baitView, waiting)
+		baitScreen:setBait(bowls.views[2], bowls.cats[2] ~= nil, 2)
+		baitScreen:setBait(bowls.views[1], bowls.cats[1] ~= nil, 1)
 	end
 end
 
@@ -1886,15 +1922,45 @@ function UI.bait.setBowl(_part: BasePart?) end
 -- What is in the bowl: { lureId, readyAt, placedAt?, night? } with the times in server os.time(), or nil when the
 -- bowl is empty. night (F60) is true for food set at night, which waits half, and the countdowns show a moon. nil
 -- also forgets the cat at the bowl and closes its card (the server resolved it).
-function UI.bait.set(bait: Types.BaitView?)
-	baitView = bait
+function UI.bait.set(bait: Types.BaitView?, bowl: number?)
+	local index = if bowl == 2 then 2 else 1
+	bowls.views[index] = bait
 	if bait == nil then
-		baitCat = nil
-		if baitCard then
+		bowls.cats[index] = nil
+		if baitCard and bowls.card == index then
 			baitCard:hide()
 		end
 	end
 	renderBait()
+end
+
+-- #1161: ProfileSync's secondBowl, "on" (the pass), "offer" (bowl 2's tab shows the pass card) or nil (one bowl).
+-- The card's price is Roblox's (Components/PassShop), so it follows PassShop.changed.
+do
+	local PassShop = require(script.Components.PassShop)
+	local listening: Signal.Connection? = nil
+	local function push()
+		local screen = baitScreen
+		if screen then
+			local id: number = Config.SecondBowlPassId
+			screen:setSecond(bowls.second, if id ~= 0 then PassShop.prices()[id] else nil)
+		end
+	end
+	function UI.bait.setSecond(kind: string?)
+		bowls.second = if kind == "on" or kind == "offer" then kind else nil
+		if listening == nil then
+			listening = PassShop.changed:Connect(push)
+		end
+		push()
+		renderBait()
+	end
+	-- the locked tab's buy button: Roblox's purchase window; the server turns bowl 2 on (PassService)
+	function UI.bait.buySecond()
+		local id: number = Config.SecondBowlPassId
+		if id ~= 0 then
+			PassShop.prompt(id)
+		end
+	end
 end
 
 -- Opens the Bait bowl screen: the bowl's state and every food with its odds, Use and Buy.
@@ -1906,27 +1972,31 @@ end
 
 -- From BaitReady: the cat that came to the bowl, with Tame and Let go. The X hides the card; the bowl chip
 -- and the screen's "See the cat" bring it back until UI.bait.hideReady or UI.bait.set(nil).
-function UI.bait.showReady(cat: Types.BaitCat)
+function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 	local def = lookupCat(cat.catId)
 	if not def then
 		warn(("[CatCafeUI] bait cat %q is not in the catalog"):format(tostring(cat.catId)))
 		return
 	end
-	baitCat = cat
+	local index = if bowl == 2 then 2 else 1
+	bowls.cats[index] = cat
+	bowls.card = index
 	if modal and modal:current() == "Bait" then
 		modal:close()
 	end
 	if baitCard then
-		local lureId = if baitView then (baitView :: Types.BaitView).lureId else nil
+		local view = bowls.views[index]
+		local lureId = if view then view.lureId else nil
 		baitCard:show(def :: Types.CatDef, cat, if lureId then foodName(lureId) else nil)
 	end
 	renderBait()
 end
 
--- The server resolved the cat (tamed or let go): close the card and forget it.
-function UI.bait.hideReady()
-	baitCat = nil
-	if baitCard then
+-- The server resolved the cat (tamed or let go): close its card and forget it. `bowl` is 1 or 2 (#1161), nil is 1.
+function UI.bait.hideReady(bowl: number?)
+	local index = if bowl == 2 then 2 else 1
+	bowls.cats[index] = nil
+	if baitCard and bowls.card == index then
 		baitCard:hide()
 	end
 	renderBait()
@@ -3365,7 +3435,7 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	if
 		previous == "day"
 		and phase == "night"
-		and baitView == nil
+		and bowls.views[1] == nil
 		and (state.upgradeLevels.lure_bowl or 0) >= 1
 	then
 		UI.toast(

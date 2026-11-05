@@ -618,6 +618,21 @@ end
 
 -- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
 -- "Daily.Quest2.Claim" walks down one name at a time
+-- #1161: the Bait bowl window, and its bowl tabs shown with `selected` chosen and the status title holding `title`.
+local function baitWindow()
+	local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+	local window = modals and modals:FindFirstChild("Bait", true)
+	assert(window, "uigate: no Bait window")
+	return window
+end
+local function assertBowlTabs(selected, title)
+	local window = baitWindow()
+	local tabs = window:FindFirstChild("Bowls", true)
+	assert(tabs and tabs.Visible, "uigate: two bowls but no bowl tabs (#1161)")
+	local shown = window:FindFirstChild("Status", true):FindFirstChild("Title").Text
+	assert(string.find(shown, title, 1, true), ("uigate: bowl %d's card says %q (#1161)"):format(selected, shown))
+end
+
 local function press(windowName, name)
 	local playerGui = UIShim.playerGui
 	-- windows sit in CatCafeModals.Root.Container; the HUD and the Index have pieces with the same names (Cats)
@@ -780,6 +795,64 @@ local SCENES = {
 	end },
 	{ "Bait", function()
 		UI.bait.openPicker()
+		-- #1281: no Buy on any food; each says how many you have, or where to get more
+		local window = baitWindow()
+		local counts = 0
+		for _, piece in window:GetDescendants() do
+			assert(piece.Name ~= "Buy", "uigate: a Buy button in the bowl menu (#1281: foods sell at the Corner Shop)")
+			if piece.Name == "Count" and piece:IsA("TextLabel") then
+				counts += 1
+				local text = piece.Text
+				assert(
+					string.match(text, "^You have %d+$")
+						or text == "Get more at the Corner Shop"
+						or text == "Sold by the night dealer's cart",
+					("uigate: a food row says %q (#1281)"):format(text)
+				)
+			end
+		end
+		assert(counts == #Catalog.lures, ("uigate: %d food rows for %d foods"):format(counts, #Catalog.lures))
+	end },
+	-- #1161: the Second Bait Bowl pass owned, bowl 1 filling and bowl 2 empty: two tabs, and the screen opens on
+	-- bowl 2 (the empty one that takes food) with its Use buttons live
+	{ "BaitTwoBowls", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.setSecond("on")
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 250, placedAt = now - 50 }, 1)
+		UI.bait.openPicker()
+		assertBowlTabs(2, "Bowl 2 is empty")
+	end },
+	-- #1161: both bowls filling, bowl 2 at night: the tabs count down on their own
+	{ "BaitBothRunning", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.setSecond("on")
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 250, placedAt = now - 50 }, 1)
+		UI.bait.set({ lureId = Catalog.lures[2].id, readyAt = now + 95, placedAt = now - 30, night = true }, 2)
+		UI.bait.openPicker()
+		assertBowlTabs(1, "is in bowl 1")
+	end },
+	-- #1161: no pass: bowl 2's tab is locked; tapping it shows the pass card with its price and bowl 2's odds
+	{ "BaitSecondOffer", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local prices = storePrices(true)
+		prices[Config.SecondBowlPassId] = { robux = 149, forSale = true }
+		UI.store.preview(prices, {})
+		UI.bait.setSecond("offer")
+		UI.bait.openPicker()
+		assertBowlTabs(1, "empty") -- never opens on the locked tab
+		press("Bait", "Bowls.Bowl2")
+		local window = baitWindow()
+		local title = window:FindFirstChild("Status", true):FindFirstChild("Title")
+		assert(title.Text == "Get a second bowl", "uigate: bowl 2's tab shows " .. title.Text .. " (#1161)")
+		local odds = window:FindFirstChild("SecondOdds", true)
+		assert(odds and odds.Visible, "uigate: the locked bowl 2 shows no odds card (#1161)")
+		local lines = 0
+		for _, child in odds:GetChildren() do
+			if child:IsA("TextLabel") and string.sub(child.Name, 1, 5) == "Odds_" then
+				lines += 1
+			end
+		end
+		assert(lines == #Catalog.lures, ("uigate: bowl 2's odds list %d of %d foods (#1161)"):format(lines, #Catalog.lures))
 	end },
 	{ "Dealer", function()
 		UI.dealer.open()
@@ -1546,6 +1619,9 @@ function Scenes.close()
 	UI.trade.state(nil) -- F102: no trade, no TradeService, and the other players leave
 	UI.setCarrying(nil) -- no carry banner
 	UI.store.preview({}, {}) -- no pass on sale or owned (the HUD's Store tile shows either way, #1167)
+	UI.bait.set(nil, 2) -- #1161: one bowl again, empty
+	UI.bait.set(nil, 1)
+	UI.bait.setSecond(nil)
 	if workspace:GetAttribute("TradingOn") ~= nil then
 		workspace:SetAttribute("TradingOn", nil)
 		-- the HUD drops its Trade tile again, and Trade requests (SettingsTrading) goes back to its default; only

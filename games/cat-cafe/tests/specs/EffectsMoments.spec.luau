@@ -36,14 +36,14 @@ return function()
 		)
 
 		it("celebrates a spin by the prize's chance and never an unknown slice", function()
-			-- the wheel as Catalog.spinWheel has it on 2026-10-27: 30, 22, 18, 15, 10 and 5 in 100
-			local weights = { 30, 22, 18, 15, 10, 5 }
-			local expected = { "small", "small", "small", "good", "good", "jackpot" }
+			-- the v2 wheel as Catalog.spinWheel has it on 2026-11-05 (#1411): out of 200, the two jackpots 1 each
+			local weights = { 70, 44, 30, 24, 18, 12, 1, 1 }
+			local expected = { "small", "small", "good", "good", "good", "good", "jackpot", "jackpot" }
 			for slice, tier in expected do
 				expect(Logic.prizeTier(weights, slice)).to.equal(tier)
 			end
 			expect(Logic.prizeTier(weights, nil)).to.equal("small")
-			expect(Logic.prizeTier(weights, 7)).to.equal("small")
+			expect(Logic.prizeTier(weights, 9)).to.equal("small")
 			expect(Logic.prizeTier({}, 1)).to.equal("small")
 			expect(Presets.wheel.jackpot < Presets.wheel.good).to.equal(true)
 			expect(Presets.wheel.jackpotFlashes > Presets.wheel.flashes).to.equal(true)

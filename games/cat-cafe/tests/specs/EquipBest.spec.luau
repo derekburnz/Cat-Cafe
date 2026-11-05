@@ -295,4 +295,44 @@ return function()
 			end
 		end)
 	end)
+	-- #1534 (Derek2 2026-11-05: "best cat/cats depending on how many spots"): CafeService.autoEquip applies this plan
+	-- at each join, rank up, new slot, new cat and trade, so the best cats always hold the slots.
+	describe("the best cats take the slots by themselves (#1534)", function()
+		it("puts a better new cat in place of the weakest working one, which rests", function()
+			local profile = profileAt(1)
+			addCat(profile, "a", "tabby", 50, 1, "barista_1")
+			addCat(profile, "b", "tuxedo", 10, 1, "waiter_1")
+			addCat(profile, "c", "void", 50, 1) -- a new Legendary, resting
+			local plan = EquipBest.plan(profile)
+			expect(EquipBest.isOptimal(profile, plan)).to.equal(false)
+			EquipBest.apply(profile, plan)
+			expect(profile.cats.c.spotId ~= nil).to.equal(true)
+			local working = 0
+			for _, instance in profile.cats do
+				if instance.spotId ~= nil then
+					working += 1
+				end
+			end
+			expect(working).to.equal(plan.spotsOpen)
+			-- the weaker Common rests, the better one keeps working
+			local weaker = if CatStats.rating(profile.cats.a, 1) < CatStats.rating(profile.cats.b, 1)
+				then profile.cats.a
+				else profile.cats.b
+			expect(weaker.spotId).to.equal(nil)
+		end)
+
+		it("changes nothing once the best cats are working (a weaker new cat rests)", function()
+			local profile = profileAt(1)
+			addCat(profile, "c", "void", 50, 1)
+			addCat(profile, "a", "tabby", 50, 1)
+			EquipBest.apply(profile, EquipBest.plan(profile))
+			addCat(profile, "b", "tuxedo", 0, 1) -- weaker than both
+			local plan = EquipBest.plan(profile)
+			if not EquipBest.isOptimal(profile, plan) then
+				EquipBest.apply(profile, plan)
+			end
+			expect(profile.cats.b.spotId).to.equal(nil)
+			expect(profile.cats.c.spotId ~= nil and profile.cats.a.spotId ~= nil).to.equal(true)
+		end)
+	end)
 end

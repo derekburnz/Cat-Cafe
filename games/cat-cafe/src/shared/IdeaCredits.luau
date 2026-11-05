@@ -109,15 +109,12 @@ function IdeaCredits.rows(
 				or name == ""
 			then IdeaCredits.ANON
 			else name
-		table.insert(
-			rows,
-			{
-				idea = credit.idea,
-				version = credit.version,
-				name = shown,
-				creditId = credit.creditId,
-			}
-		)
+		table.insert(rows, {
+			idea = credit.idea,
+			version = credit.version,
+			name = shown,
+			creditId = credit.creditId,
+		})
 	end
 	return rows
 end

@@ -21,7 +21,7 @@ local Config = {
 	-- Money passes by the income they multiply by (the highest owned counts); each extra slot pass adds a role slot.
 	-- Tools-Agent made the four in tools/opencloud/passes.json on 2026-11-02 (off sale until launch), and the rest on
 	-- 2026-11-04 as off-sale placeholders (#1197). Each stays off sale until the code that grants it is merged; the
-	-- Store cards (#1240) read the ids, and PassService already grants the extra slot to an owner.
+	-- Store cards (#1240) read the ids. Each extra slot (Economy.extraSlots, #1624) opens the next role slot early.
 	LongNapPassId = 2064345084,
 	MoneyPassIds = { [2] = 2064604577, [3] = 2064670602, [4] = 2064357148 } :: { [number]: number },
 	ExtraSlotPassIds = { 2066816325 } :: { number },
@@ -34,6 +34,17 @@ local Config = {
 	KingPackPassId = 2071368679,
 	GoldenPondPassId = 2071704337, -- #1232
 	SecondBowlPassId = 2072132265, -- #1161
+	-- #1624 (economy-ladder.md section 6a v2.4): what the five store passes give. VIP, Cafe Style and Grand Cafe add
+	-- into cafeMultiplier like tables and decor; Cat Accessories and Uniform Styles each multiply every working cat's
+	-- rate; Cafe Style and Grand Cafe add to how often rich visitors come (x(1 + 0.25 + 1.0) with both).
+	VipCafeBonus = 0.10,
+	CafeStyleCafeBonus = 0.50,
+	GrandCafeBonus = 1.50,
+	AccessoriesStaffMultiplier = 1.15,
+	UniformsStaffMultiplier = 1.15,
+	CafeStyleRichRate = 0.25,
+	GrandRichRate = 1.0,
+	GrandExtraSlots = 1, -- #1624: Grand Cafe's +1 job slot at every tier, adding to each Extra Slot pass's 1
 	-- Developer product ids (#1182) by Catalog.products id; a 0 is never granted. ProductService's ProcessReceipt reads
 	-- them. Tools-Agent made these with dev-products.yml on 2026-11-04 (tools/opencloud/products.json), off sale until
 	-- launch. The Starter Bundle (3728336166) and Cafe Pass (3728336202) products exist too, off sale, and join this
@@ -359,9 +370,10 @@ local Config = {
 	TipPileShowSeconds = 90,
 
 	-- The Mystery Visitor and potions (F64, data-model section 12b). Potions are earned only, never sold.
-	-- #1135: on a timer from MysteryEveryMin to MysteryEveryMax seconds of open day (1500 on average, as 120 s at 8%)
-	MysteryEveryMin = 900,
-	MysteryEveryMax = 2100,
+	-- #1135: on a timer from MysteryEveryMin to MysteryEveryMax seconds of open day; 1250 on average, a fifth more
+	-- often than the first 1500 (Derek2 2026-11-05: "up the rates of people leaving them slightly")
+	MysteryEveryMin = 750,
+	MysteryEveryMax = 1750,
 	MysteryStaySeconds = 120, -- the hooded visitor sits this long; dusk or a plot release sends it home sooner
 	MysteryGiftKeepSeconds = 600, -- an unopened gift is gone after this, or when its owner leaves (Derek 01:32)
 	MysteryRangeStuds = 12, -- OpenMysteryGift from this close to the gift

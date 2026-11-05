@@ -129,8 +129,8 @@ return function()
 		TipPileShowSeconds = 90, -- F97 section 1: a paid pile shows this long
 		RichTipStaySeconds = 90,
 		-- the Mystery Visitor and potions (F64, section 12b)
-		MysteryEveryMin = 900, -- #1135: 1500 s on average like the old 120 s check at 8%
-		MysteryEveryMax = 2100,
+		MysteryEveryMin = 750, -- 1250 s on average, a fifth more often than #1135's 1500 (2026-11-05)
+		MysteryEveryMax = 1750,
 		MysteryStaySeconds = 120,
 		MysteryGiftKeepSeconds = 600,
 		PotionMaxMinutes = 1440, -- F95 (economy-ladder.md section 6b): potions stack to 24 hours
@@ -309,6 +309,15 @@ return function()
 		NetMissHopStuds = 12,
 		NetMissHopShare = 0.25,
 		RescueSpeedUpPerHit = 0.08,
+		-- #1624 (economy-ladder.md section 6a v2.4): the store passes
+		VipCafeBonus = 0.10,
+		CafeStyleCafeBonus = 0.50,
+		GrandCafeBonus = 1.50,
+		AccessoriesStaffMultiplier = 1.15,
+		UniformsStaffMultiplier = 1.15,
+		CafeStyleRichRate = 0.25,
+		GrandRichRate = 1.0,
+		GrandExtraSlots = 1,
 	}
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }

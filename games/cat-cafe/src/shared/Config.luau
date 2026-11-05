@@ -56,10 +56,11 @@ local Config = {
 		starter_bundle = 3728336166, -- #1625: once per account (Catalog.products oncePerAccount)
 		cafe_pass = 3728336202, -- #1626: the running season's paid track, once per season (Catalog.products seasonPass)
 	} :: { [string]: number },
-	-- The Cafe Pass (#1645, cafe-pass.md section 1): each season's first day as a UTC date, oldest first. Season 1
-	-- starts the day the game goes public (Derek sets it); with no date the pass is closed outside Studio, where a
-	-- preview season 1 runs for playtests (shared/CafePass).
-	SeasonStarts = {} :: { string },
+	-- The Cafe Pass (#1645, cafe-pass.md section 1): each season's first day as a UTC date, oldest first. With no date
+	-- the pass is closed outside Studio, where a preview season 1 runs for playtests (shared/CafePass).
+	-- 2026-11-05 is a test start so Derek2 can try the pass live; Derek2 resets it to the launch day. Keep one date:
+	-- moving it later only moves the season's end.
+	SeasonStarts = { "2026-11-05" } :: { string },
 	PassLevels = 30,
 	PassXpPerLevel = 800,
 	AutosaveSeconds = 60,

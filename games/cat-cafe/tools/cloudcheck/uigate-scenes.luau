@@ -822,6 +822,19 @@ local SCENES = {
 		UI.bait.openPicker()
 		assertBowlTabs(2, "Bowl 2 is empty")
 	end },
+	-- #1573: a Tuna bait that has come and gone; the empty bowl offers Refill with the same food
+	{ "BaitRefill", function()
+		local now = workspace:GetServerTimeNow()
+		local tuna = Catalog.lures[2]
+		UI.bait.set({ lureId = tuna.id, readyAt = now - 5, placedAt = now - 600 }, 1)
+		UI.bait.set(nil, 1)
+		UI.bait.openPicker()
+		local status = baitWindow():FindFirstChild("Status", true)
+		local action = status and status:FindFirstChild("Action", true)
+		assert(action and action.Visible, "uigate: no Refill on the empty bowl (#1573)")
+		local sub = status:FindFirstChild("Sub", true)
+		assert(sub and string.find(sub.Text, tuna.name, 1, true), "uigate: Refill does not name the food (#1573)")
+	end },
 	-- #1161: both bowls filling, bowl 2 at night: the tabs count down on their own
 	{ "BaitBothRunning", function()
 		local now = workspace:GetServerTimeNow()
@@ -883,6 +896,25 @@ local SCENES = {
 	{ "SpinOdds", function()
 		UI.spin.open()
 		press("SpinWheel", "Odds")
+	end },
+	-- #1500: the end of the Odds list, where the two 0.5% jackpots sit in gold
+	{ "SpinOddsJackpots", function()
+		UI.spin.open()
+		press("SpinWheel", "Odds")
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("SpinWheel", true)
+		local list = window and window:FindFirstChild("Rows", true)
+		assert(list and list:IsA("ScrollingFrame"), "uigate: no Odds list")
+		list.CanvasPosition = Vector2.new(0, 100000)
+		local count = 0
+		for _, row in list:GetChildren() do
+			if row:IsA("Frame") and string.match(row.Name, "^Slice%d+$") then
+				count += 1
+			end
+		end
+		assert(count == #Catalog.spinWheel, ("uigate: %d odds rows for %d slices"):format(count, #Catalog.spinWheel))
+		local prize = list:FindFirstChild("Slice8") and list.Slice8:FindFirstChild("Prize")
+		assert(prize and string.find(prize.Text, "^Jackpot: 100 golden fish"), "uigate: slice 8 is not the fish jackpot")
 	end },
 	{ "Market", function()
 		UI.market.open()
@@ -1068,6 +1100,28 @@ local SCENES = {
 	end },
 	{ "Quests", function()
 		UI.open("Quests")
+	end },
+	-- #1573: a tap on an unfinished daily pins it: its row reads "📌 ..." and the HUD's quest line follows it
+	{ "QuestsPinned", function()
+		UI.open("Quests")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Quests", true)
+		assert(window, "uigate: no Quests window")
+		local daily = window:FindFirstChild("Quest1", true).Parent
+		local pinnedRow = nil
+		for slot = 1, 5 do
+			local row = daily:FindFirstChild("Quest" .. slot)
+			local claim = row and row:FindFirstChild("Claim", true)
+			local check = row and row:FindFirstChild("Check", true)
+			if row and row.Visible and not (claim and claim.Visible) and not (check and check.Visible) then
+				pinnedRow = row
+				press("Quests", "Quest" .. slot .. ".Pin")
+				break
+			end
+		end
+		assert(pinnedRow, "uigate: no unfinished daily to pin")
+		local title = pinnedRow:FindFirstChild("Title")
+		assert(string.sub(title.Text, 1, 4) == "📌", ("uigate: the pinned quest reads %q (#1573)"):format(title.Text))
 	end },
 	{ "QuestsWeekly", function()
 		UI.open("Quests")
@@ -1364,7 +1418,7 @@ local SCENES = {
 	{ "LawnStallFences", function()
 		UI.nursery.open("fence")
 	end },
-	-- #1052: the Corner Shop with every line: a Swift Potion left, snacks part bought, no Big Snack, fireworks sold out
+	-- #1052: the Corner Shop with every line: a Swift Potion left, snacks part bought, no Big Snack, a whistle sold out
 	{ "CornerShop", function()
 		UI.cornerShop.setStock({
 			window = 5000000,
@@ -1374,8 +1428,8 @@ local SCENES = {
 				{ itemId = "swift_potion", price = 2400, amount = 3, bought = 1 },
 				{ itemId = "cat_snack", price = 6000, amount = 2, bought = 1 },
 				{ itemId = "big_cat_snack", price = 24000, amount = 0, bought = 0 },
-				{ itemId = "bubble_machine", price = 12000, amount = 1, bought = 0 },
-				{ itemId = "cafe_fireworks", price = 18000, amount = 1, bought = 1 },
+				{ itemId = "cat_feast", price = 12000, amount = 1, bought = 0 },
+				{ itemId = "cat_whistle", price = 18000, amount = 1, bought = 1 },
 			},
 		})
 		UI.cornerShop.open()

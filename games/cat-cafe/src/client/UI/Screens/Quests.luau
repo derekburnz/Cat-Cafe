@@ -51,6 +51,7 @@ export type Callbacks = {
 	rerollQuest: (kind: string, slot: number) -> (),
 	claimAchievement: (achievementId: string) -> (),
 	claimAll: ((what: string) -> ())?, -- "quests" (all three tabs, #1073); the server also takes the single kinds
+	pin: ((key: string?) -> ())?, -- #1573: a quest tapped to pin it (QuestLogic.pinKey), or nil to unpin
 	close: () -> (),
 }
 
@@ -76,6 +77,7 @@ type QuestRow = {
 	swap: Button.Button,
 	check: TextLabel,
 	claimed: boolean, -- shown as claimed, the server's or a claim on its way
+	questId: string?, -- the quest drawn in this row, for its pin (#1573)
 }
 
 type Page = {
@@ -277,7 +279,7 @@ function Quests.new(callbacks: Callbacks): Quests
 	local panel = Panel.new({
 		name = "Quests",
 		title = "Quests",
-		subtitle = "Fresh quests every day and week",
+		subtitle = "Fresh quests every day and week · Tap one to pin it",
 		color = Theme.colors.goldDark,
 		icon = Theme.icons.quests,
 		dark = true, -- #1028 pilot
@@ -530,6 +532,19 @@ function Quests._buildRow(self: any, kind: string, slot: number, parent: Instanc
 		fitPad = 2,
 		maxPictures = 2, -- F94: two pictures a quest
 	})
+	-- #1573: a tap on the quest (not its buttons) pins it to the HUD's quest line, or unpins it
+	local pinTap: TextButton = Create("TextButton", {
+		Name = "Pin",
+		BackgroundTransparency = 1,
+		Text = "",
+		AutoButtonColor = false,
+		Size = UDim2.new(1, -(ACTION_W + 16), 1, 0),
+		ZIndex = 0,
+		Parent = frame,
+	})
+	pinTap.Activated:Connect(function()
+		self:_togglePin(kind, slot)
+	end)
 	local actionPosition = UDim2.new(1, -10, 0.5, 0)
 	local actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth) -- 64 of the 80 on a phone
 	local claim = Button.new({
@@ -808,7 +823,13 @@ function Quests._renderRow(
 	local needs = math.max(1, quest.needs)
 	local progress = math.clamp(quest.progress, 0, needs)
 	local done = QuestLogic.done(quest)
-	row.title.Text = quest.text
+	row.questId = quest.id
+	local pinned = self._pinned ~= nil and self._pinned == QuestLogic.pinKey(kind, quest.id)
+	row.title.Text = if pinned
+			and not done
+			and not quest.claimed
+		then "📌 " .. quest.text
+		else quest.text
 	row.fill.Size = UDim2.fromScale(progress / needs, 1)
 	row.fill.BackgroundColor3 = if done then Theme.colors.gold else Theme.colors.good
 	row.count.Text = if QuestLogic.isCoins(self._catalog, quest.id)
@@ -970,6 +991,26 @@ function Quests._press(self: any, kind: string, slot: number, action: string)
 		self._callbacks.rerollQuest(kind, slot)
 	end
 	self:_refreshAfter(if action == "claim" then CLAIM_HOLD else PENDING_SECONDS)
+end
+
+-- #1573: pin the quest in this row to the HUD, or unpin it if it is the pinned one.
+function Quests._togglePin(self: any, kind: string, slot: number)
+	local page = self._pages[if kind == "daily" then "Daily" else "Weekly"]
+	local row: QuestRow? = if page then page.rows[slot] else nil
+	if row == nil or row.questId == nil then
+		return
+	end
+	local key = QuestLogic.pinKey(kind, row.questId :: string)
+	self._pinned = if self._pinned == key then nil else key
+	Sound.play("uiTab")
+	local callbacks: Callbacks = self._callbacks
+	if callbacks.pin then
+		callbacks.pin(self._pinned)
+	end
+	local state: Types.PlayerState? = self._state
+	if state then
+		self:render(state)
+	end
 end
 
 function Quests._pressAchievement(self: any, id: string)

@@ -40,6 +40,7 @@ local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Quests = require(ReplicatedStorage.Shared.Quests)
+local SellExtras = require(ReplicatedStorage.Shared.SellExtras)
 local Settings = require(ReplicatedStorage.Shared.Settings)
 local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
 local Telemetry = require(script.Parent.Telemetry)
@@ -1478,6 +1479,44 @@ local function onSellCat(player: Player, rawUid: unknown)
 	CafeService.sync(player)
 end
 
+-- #1573: one tap sells every spare Common and keeps the best of each kind (shared/SellExtras: never a working,
+-- locked, exclusive, gold or rainbow cat, one on a trade offer, or the last cat). Each pays its sellValue, as SellCat.
+local function onSellExtraCommons(player: Player)
+	local profile = profileFor(player)
+	if profile == nil then
+		return
+	end
+	local plan = SellExtras.plan(profile, Economy.tier(profile), function(uid: string): boolean
+		return offerCheck(player, uid)
+	end)
+	if #plan.uids == 0 then
+		Net.toast(player, "No extra Commons to sell. You keep one of each.", "info")
+		CafeService.sync(player)
+		return
+	end
+	local value = Catalog.rarities[SellExtras.RARITY].sellValue
+	for _, uid in plan.uids do
+		local instance = profile.cats[uid]
+		profile.cats[uid] = nil
+		profile.stats.catsSold += 1
+		Telemetry.custom(player, "cat_sold", 1, { instance.catId, instance.variant })
+	end
+	Economy.credit(profile, plan.coins)
+	Telemetry.source(player, profile, plan.coins, "Gameplay", "sell_cat")
+	Net.toast(
+		player,
+		string.format(
+			"Sold %d extra Common%s for $%d",
+			#plan.uids,
+			if #plan.uids == 1 then "" else "s",
+			#plan.uids * value
+		),
+		"good"
+	)
+	CafeService.refreshPlot(player)
+	CafeService.sync(player)
+end
+
 -- F62 (section 4): the lock icon on a cat card. A locked cat cannot be sold or traded to the Cat Collector.
 local function onLockCat(player: Player, rawUid: unknown, rawLocked: unknown)
 	local uid = Guard.id(rawUid)
@@ -1853,6 +1892,7 @@ function CafeService.start()
 	Net.on("EquipBest", onEquipBest)
 	Net.on("UnequipAll", onUnequipAll)
 	Net.on("SellCat", onSellCat)
+	Net.on("SellExtraCommons", onSellExtraCommons)
 	Net.on("LockCat", onLockCat)
 	Net.on("LockDecor", onLockDecor)
 	Net.on("BuyUpgrade", onBuyUpgrade)

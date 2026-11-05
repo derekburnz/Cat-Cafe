@@ -1392,7 +1392,12 @@ Layout.leaderboards = station(40, 0)
 -- facing the cannon. Model-Agent's spot for CatCafe_Street_CornerShop (10.9 x 4.3, #1215; was 15, 23): clear of the
 -- Fish Market by 1.95 studs, the north sign arch's post by 1.2, the bunting line by 0.8, the lamp by 4.4 and the
 -- street by 7.1.
+-- #1577 (day-cart.md section 3): the shop's old building, built only until the Day Cart's model arrives.
 Layout.cornerShop = station(21, 24)
+
+-- The Day Cart (#1577, day-cart.md section 3): the Corner Shop on CatCafe_Town_DayCart, in the square's south-west
+-- quarter opposite the Golden Fish Market. Model-Agent's spot (#1592) keeps the walk lines and the cannon clear.
+Layout.dayCart = station(-17, -24)
 
 -- The Thank You board (#1083, idea-credits.md section 3): CatCafe_Street_ThanksBoard (12 x 1.5), facing the cannon.
 -- #1388 (the friend, 11-05): moved from beside the Codes Cat to the left of the leaderboard row (its Index end, -Z),

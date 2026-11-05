@@ -14,6 +14,7 @@ local CodesController = require(script.Parent.Controllers.CodesController)
 local CustomerController = require(script.Parent.Controllers.CustomerController)
 local DoorController = require(script.Parent.Controllers.DoorController)
 local Effects = require(script.Parent.Effects)
+local GoldHutController = require(script.Parent.Controllers.GoldHutController)
 local IntroController = require(script.Parent.Controllers.IntroController)
 local Moments = require(script.Parent.Moments)
 local NetSwingController = require(script.Parent.Controllers.NetSwingController)
@@ -36,6 +37,7 @@ ShoveController.start()
 NetSwingController.start() -- F93: the net swing, after the UI whose Net button it listens to
 CannonController.start() -- F84: after the UI, whose cannon picker it opens
 CampExtrasController.start() -- F100: the camp extras' prompts, after the UI whose hooks it uses
+GoldHutController.start() -- #1368: the Golden Pond pass's gold Fishing Hut, on its owner's client
 RallyController.start() -- F101: the Rescue Rally's state for the UI's banner
 TradeController.start() -- F102: trading, after the UI whose trade window it feeds
 CodesController.start()

@@ -19,7 +19,6 @@ export type Callbacks = {
 	feedCat: ((foodId: string, uid: string) -> ())?, -- #1181: the Feed button on the cat's detail
 	equipBest: () -> (),
 	unequipAll: () -> (),
-	sellExtras: (() -> ())?, -- #1573: Sell extras in the grid (SellExtraCommons)
 	close: () -> (),
 }
 
@@ -59,7 +58,6 @@ function MyCats.new(callbacks: Callbacks): MyCats
 		feedCat = callbacks.feedCat,
 		equipBest = callbacks.equipBest,
 		unequipAll = callbacks.unequipAll,
-		sellExtras = callbacks.sellExtras,
 	})
 
 	return self :: MyCats

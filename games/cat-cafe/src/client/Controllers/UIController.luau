@@ -574,6 +574,7 @@ local function applyState(s: Types.PlayerState)
 		applySettings()
 	end
 	Audio.setCarrying(s.carrying ~= nil)
+	Audio.setTutorial(s.tutorialStep, setting("tutorialButton") ~= false)
 	if lastTier ~= nil and s.tier > (lastTier :: number) then
 		Moments.RankUp:Fire(s.tier)
 	end
@@ -662,6 +663,10 @@ local function wireIntents()
 	UI.settings.changed:Connect(function()
 		if audioStarted then
 			applySettings()
+			local current = UIController.state
+			if current ~= nil then -- the Tutorial tile's x skips the tutorial music too
+				Audio.setTutorial(current.tutorialStep, setting("tutorialButton") ~= false)
+			end
 		end
 	end)
 	-- An Index reward's Claim (F48); the server answers with a toast and a ProfileSync.
@@ -780,10 +785,6 @@ local function wireIntents()
 	end)
 	UI.events.sellCat:Connect(function(uid: string)
 		Net.fire("SellCat", uid)
-	end)
-	-- #1573: Sell extras in the cat room (asked first there); the server sells the spare Commons and syncs
-	UI.events.sellExtraCommons:Connect(function()
-		Net.fire("SellExtraCommons")
 	end)
 	-- Unequip all on the cat inventory (UI thread). Looked up loosely like equip best below; the UI shows the
 	-- button only once something is connected to the signal.

@@ -116,7 +116,8 @@ return function()
 
 		it("gives every song with a file its length and sections", function()
 			for name, cue in Cues do
-				if string.sub(name, 1, 5) == "music" and #cue.ids > 0 then
+				local isSong = string.sub(name, 1, 5) == "music" and name ~= "musicTutorial"
+				if isSong and #cue.ids > 0 then
 					expect(type(cue.seconds) == "number" and (cue.seconds :: number) > 0).to.equal(
 						true
 					)
@@ -993,6 +994,19 @@ return function()
 			expect(Logic.shiftStarted(true, true)).to.equal(false)
 			expect(Logic.shiftStarted(false, false)).to.equal(false)
 			expect(Cues.shiftChime ~= nil and Cues.shiftChime.volume <= 0.35).to.equal(true)
+		end)
+
+		it("plays the tutorial song through the first steps while the Tutorial tile is on", function()
+			expect(Logic.tutorialSteps(0, 5, true)).to.equal(true)
+			expect(Logic.tutorialSteps(4, 5, true)).to.equal(true)
+			expect(Logic.tutorialSteps(5, 5, true)).to.equal(false)
+			expect(Logic.tutorialSteps(2, 5, false)).to.equal(false)
+			expect(Logic.tutorialSteps(nil, 5, true)).to.equal(false)
+			expect(Logic.tutorialStepDone(1, 2)).to.equal(true)
+			expect(Logic.tutorialStepDone(nil, 2)).to.equal(false)
+			expect(Logic.tutorialStepDone(2, 2)).to.equal(false)
+			expect(Cues.musicTutorial ~= nil and Cues.musicTutorial.looped == true).to.equal(true)
+			expect(Cues.tutorialStepDone ~= nil and Cues.tutorialStepDone.volume <= 0.5).to.equal(true)
 		end)
 
 		it("chimes when a camp station starts holding something", function()

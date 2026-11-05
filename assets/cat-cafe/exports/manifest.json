@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-05 20:49 UTC",
+  "generated": "2026-11-05 21:02 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -178865,6 +178865,337 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Square_PitySign.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Square_PitySign.png"
+    },
+    {
+      "name": "CatCafe_Decor_PumpkinLantern",
+      "category": "Decor",
+      "module": "seasondecor",
+      "objects": [
+        "CatCafe_Decor_PumpkinLantern",
+        "CatCafe_Decor_PumpkinLantern_Glow"
+      ],
+      "triangles": 590,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.3,
+        "y": 2.02,
+        "z": 1.8
+      },
+      "size_roblox": [
+        3.3,
+        1.8,
+        2.02
+      ],
+      "bounds_min": [
+        -1.68,
+        -1.04,
+        -0.0
+      ],
+      "bounds_max": [
+        1.62,
+        0.98,
+        1.8
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_PumpkinLantern.model.json",
+      "rbx_parts": 55,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_PumpkinLantern.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_PumpkinLantern.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "590/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "514 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=-0.03 y=-0.03"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_PumpkinLantern.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_PumpkinLantern.png"
+    },
+    {
+      "name": "CatCafe_Decor_FallenLeafRug",
+      "category": "Decor",
+      "module": "seasondecor",
+      "objects": [
+        "CatCafe_Decor_FallenLeafRug"
+      ],
+      "triangles": 608,
+      "budget": 1000,
+      "size_studs": {
+        "x": 3.74,
+        "y": 2.29,
+        "z": 0.11
+      },
+      "size_roblox": [
+        3.74,
+        0.11,
+        2.29
+      ],
+      "bounds_min": [
+        -1.87,
+        -1.15,
+        0.0
+      ],
+      "bounds_max": [
+        1.87,
+        1.15,
+        0.11
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_FallenLeafRug.model.json",
+      "rbx_parts": 114,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_FallenLeafRug.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_FallenLeafRug.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "608/1000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "294 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_FallenLeafRug.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_FallenLeafRug.png"
+    },
+    {
+      "name": "CatCafe_Decor_CosyKnitCushion",
+      "category": "Decor",
+      "module": "seasondecor",
+      "objects": [
+        "CatCafe_Decor_CosyKnitCushion"
+      ],
+      "triangles": 308,
+      "budget": 800,
+      "size_studs": {
+        "x": 1.71,
+        "y": 1.71,
+        "z": 0.73
+      },
+      "size_roblox": [
+        1.71,
+        0.73,
+        1.71
+      ],
+      "bounds_min": [
+        -0.85,
+        -0.85,
+        0.0
+      ],
+      "bounds_max": [
+        0.85,
+        0.85,
+        0.73
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_CosyKnitCushion.model.json",
+      "rbx_parts": 19,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_CosyKnitCushion.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_CosyKnitCushion.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "308/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "146 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_CosyKnitCushion.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_CosyKnitCushion.png"
+    },
+    {
+      "name": "CatCafe_Decor_HayBaleSeat",
+      "category": "Decor",
+      "module": "seasondecor",
+      "objects": [
+        "CatCafe_Decor_HayBaleSeat"
+      ],
+      "triangles": 364,
+      "budget": 800,
+      "size_studs": {
+        "x": 2.45,
+        "y": 1.98,
+        "z": 1.2
+      },
+      "size_roblox": [
+        2.45,
+        1.2,
+        1.98
+      ],
+      "bounds_min": [
+        -1.25,
+        -0.98,
+        -0.0
+      ],
+      "bounds_max": [
+        1.2,
+        1.0,
+        1.2
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_HayBaleSeat.model.json",
+      "rbx_parts": 25,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_HayBaleSeat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_HayBaleSeat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "364/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "250 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=-0.03 y=0.01"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_HayBaleSeat.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_HayBaleSeat.png"
+    },
+    {
+      "name": "CatCafe_Decor_AppleCrateShelf",
+      "category": "Decor",
+      "module": "seasondecor",
+      "objects": [
+        "CatCafe_Decor_AppleCrateShelf"
+      ],
+      "triangles": 820,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.64,
+        "y": 1.13,
+        "z": 2.19
+      },
+      "size_roblox": [
+        2.64,
+        2.19,
+        1.13
+      ],
+      "bounds_min": [
+        -1.32,
+        -0.58,
+        0.0
+      ],
+      "bounds_max": [
+        1.32,
+        0.55,
+        2.19
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_AppleCrateShelf.model.json",
+      "rbx_parts": 47,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_AppleCrateShelf.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_AppleCrateShelf.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "820/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "598 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.02"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_AppleCrateShelf.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_AppleCrateShelf.png"
+    },
+    {
+      "name": "CatCafe_Decor_MapleTreePlanter",
+      "category": "Decor",
+      "module": "seasondecor",
+      "objects": [
+        "CatCafe_Decor_MapleTreePlanter"
+      ],
+      "triangles": 396,
+      "budget": 1200,
+      "size_studs": {
+        "x": 1.9,
+        "y": 1.64,
+        "z": 3.35
+      },
+      "size_roblox": [
+        1.9,
+        3.35,
+        1.64
+      ],
+      "bounds_min": [
+        -0.95,
+        -0.82,
+        0.0
+      ],
+      "bounds_max": [
+        0.95,
+        0.82,
+        3.35
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_MapleTreePlanter.model.json",
+      "rbx_parts": 72,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_MapleTreePlanter.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_MapleTreePlanter.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "396/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "252 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_MapleTreePlanter.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_MapleTreePlanter.png"
     }
   ]
 }

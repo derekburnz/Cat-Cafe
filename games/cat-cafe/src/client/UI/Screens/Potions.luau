@@ -199,9 +199,9 @@ function Potions._row(self: any, potionId: string): Row
 		Parent = tile,
 	})
 	-- the potion's own bottle (Model-Agent's icons), else the drawn potion glyph
-	local bottle = ShopIcons.potion(potionId)
-	if bottle then
-		IconArt.setImage(glyph, bottle, 0.92)
+	local bottles = ShopIcons.potionAll(potionId)
+	if #bottles > 0 then
+		IconArt.setImages(glyph, bottles, 0.92)
 	else
 		IconArt.set(glyph, Theme.icons.potion, 0.8)
 	end

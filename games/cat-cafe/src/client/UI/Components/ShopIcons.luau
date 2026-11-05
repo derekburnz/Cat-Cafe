@@ -134,6 +134,10 @@ local IDS: { [string]: string } = {
 	Icon_Flask_QuickBait = "rbxassetid://102617577148798",
 	Icon_Flask_BigTip = "rbxassetid://137883283288576",
 	Icon_Flask_GoldRush = "rbxassetid://133671235439574",
+	-- #1191 / #1186: the shop-only cats on their Store cards (upload run from main dee66576, 11-05)
+	Icon_ShopCat_Sprinkles = "rbxassetid://123101439533132",
+	Icon_ShopCat_DuchessMarzipan = "rbxassetid://105207350898043",
+	Icon_ShopCat_KingCroissant = "rbxassetid://127183027799927",
 	-- the Decor window's "Your cafe" slots (#964, upload-image run 41728803377 on 11-03)
 	Icon_Clean_Wallpaper = "rbxassetid://102259047705880",
 	Icon_Clean_Floor = "rbxassetid://100560850589029",
@@ -270,6 +274,11 @@ end
 -- night dealer, the Tip Jar, Daily Treat, quest and spin prizes) reaches it through ItemIcon.setFood. Only the clean
 -- 2D picture (Icon_Clean_<Food>, assets/cat-cafe/ui/icons-clean-2026-11-03) counts: the older food uploads were 3D
 -- renders, so a food without a clean picture gets nil and the spec fails.
+-- A shop-only cat's picture (#1191) by its name, such as "KingCroissant", or nil.
+function ShopIcons.shopCat(name: string?): string?
+	return if type(name) == "string" then IDS["Icon_ShopCat_" .. name] else nil
+end
+
 -- Cat food in the Bag (#1181): the clean star treat for every size until the foods have pictures of their own (they
 -- are XP treats, not bait, so they don't borrow the bait foods' bowls).
 function ShopIcons.catFood(foodId: string?): string?

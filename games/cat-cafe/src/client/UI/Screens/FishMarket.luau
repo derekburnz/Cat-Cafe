@@ -299,6 +299,7 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 		name = "CratesTab",
 		text = "Crates",
 		icon = Theme.icons.crate,
+		image = ShopIcons.market("Crates"), -- Tools-Agent's tab pictures (11-05); the glyph shows until they load
 		style = "gold",
 		size = UDim2.fromOffset(132, tabH),
 		textSize = Theme.sizes.textBody,
@@ -313,6 +314,7 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 		name = "TreatsTab",
 		text = "Treats and perks",
 		icon = "⭐",
+		image = ShopIcons.market("Treats"),
 		style = "ghost",
 		size = UDim2.fromOffset(196, tabH),
 		textSize = Theme.sizes.textBody,
@@ -327,6 +329,7 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 		name = "FreshTab",
 		text = "Fresh Catch",
 		icon = Theme.icons.potion,
+		image = ShopIcons.market("FreshCatch"),
 		style = "ghost",
 		size = UDim2.fromOffset(164, tabH),
 		textSize = Theme.sizes.textBody,

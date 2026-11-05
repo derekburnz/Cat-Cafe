@@ -504,6 +504,7 @@ local function applyState(s: Types.PlayerState)
 		baitSpeed = s.baitSpeed,
 		potions = s.potions, -- F64: the potion bag
 		catFood = s.catFood, -- #1181: the Bag's cat food
+		hideCredit = s.hideCredit, -- #1083: the Settings row "Show my name on the Thank You board" (on when false)
 		buffs = s.buffs, -- F64: each running potion's endsAt in server time
 		quests = s.quests :: any, -- F73: the Quests window's tabs and the HUD's quest line (the UI reads it loosely)
 		achievements = s.achievements :: any, -- F73: each achievement's progress and claim

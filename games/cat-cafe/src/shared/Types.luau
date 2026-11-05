@@ -973,6 +973,7 @@ export type PlayerState = {
 	introSeen: boolean, -- F72: false plays the intro cutscene once this session's first sync carries a plot
 	potions: { [string]: number }, -- F64: potionId -> count in the bag
 	catFood: { [string]: number }, -- #1181: food id -> count in the Bag
+	hideCredit: boolean, -- #1083: true while the player keeps their name off the Thank You board (SetHideCredit)
 	buffs: { [string]: number }, -- F64: each running potion's endsAt in server time (Workspace:GetServerTimeNow())
 	settings: Settings, -- the Settings screen follows these; Audio mutes and sets its channels by them
 	quests: QuestsView, -- F73: the Quests window's Daily and Weekly tabs and the HUD tracker

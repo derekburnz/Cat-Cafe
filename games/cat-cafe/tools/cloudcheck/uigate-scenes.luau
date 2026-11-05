@@ -1052,6 +1052,28 @@ local SCENES = {
 	{ "Quests", function()
 		UI.open("Quests")
 	end },
+	-- #1573: a tap on an unfinished daily pins it: its row reads "📌 ..." and the HUD's quest line follows it
+	{ "QuestsPinned", function()
+		UI.open("Quests")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Quests", true)
+		assert(window, "uigate: no Quests window")
+		local daily = window:FindFirstChild("Quest1", true).Parent
+		local pinnedRow = nil
+		for slot = 1, 5 do
+			local row = daily:FindFirstChild("Quest" .. slot)
+			local claim = row and row:FindFirstChild("Claim", true)
+			local check = row and row:FindFirstChild("Check", true)
+			if row and row.Visible and not (claim and claim.Visible) and not (check and check.Visible) then
+				pinnedRow = row
+				press("Quests", "Quest" .. slot .. ".Pin")
+				break
+			end
+		end
+		assert(pinnedRow, "uigate: no unfinished daily to pin")
+		local title = pinnedRow:FindFirstChild("Title")
+		assert(string.sub(title.Text, 1, 4) == "📌", ("uigate: the pinned quest reads %q (#1573)"):format(title.Text))
+	end },
 	{ "QuestsWeekly", function()
 		UI.open("Quests")
 		press("Quests", "WeeklyTab")

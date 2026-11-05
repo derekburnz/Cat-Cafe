@@ -1168,6 +1168,11 @@ function UI.init(config: Types.InitConfig)
 		claimAll = function(what: string)
 			UI.events.claimAll:Fire(what)
 		end,
+		pin = function(key: string?)
+			if hud then
+				hud:setPinnedQuest(key) -- #1573: for this session
+			end
+		end,
 		close = closeModal,
 	})
 	local questsView = questsScreen :: Quests.Quests

@@ -3347,4 +3347,12 @@ Presets.customerWalk = {
 	idleAfter = 0.08, -- seconds with no walk step before it starts to settle
 }
 
+-- The decor door sign (#1172; Effects/DoorSign): its OPEN board's parts are named `open`, its CLOSED board is the child
+-- Model named `closed` (Model-Agent's CatCafe_Decor_DoorSign, two boards, one shown at a time: OPEN by day, CLOSED
+-- at night).
+Presets.doorSign = {
+	open = "CatCafe_Decor_DoorSign_Open",
+	closed = "CatCafe_Decor_DoorSign_Closed",
+}
+
 return Presets

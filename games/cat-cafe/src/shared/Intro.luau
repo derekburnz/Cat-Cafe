@@ -27,6 +27,9 @@ Intro.STREAM_WAIT = 5 -- seconds the intro waits for the Alleyway's camp to stre
 
 Intro.AREA = "alley" -- the camp shots 2 to 4 and 7 film, where a new player's first flight goes
 Intro.CAMP_CUTS = { "park", "neighbourhood", "woods", "sewer" } -- shot 6, in order
+-- each camp's time in shot 6 (Derek 2026-11-04, #1254: "flashes by too fast"; it was 0.45 s), its slow push-in and
+-- title card readable for the whole cut
+Intro.CAMP_CUT_SECONDS = 2
 -- Smoother cuts between places (#958, Derek 2026-11-03: "make the locations cuts smoother"): a cut or shot boundary
 -- whose next camera place is more than JUMP_STUDS from the last is a jump, and Moments.IntroCut fires CUT_LEAD
 -- before it for Effects' cloud dip. None inside or into the cannon flight shot, which has its own clouds.
@@ -390,7 +393,7 @@ local function campCut(camp: Camp, title: string): Cut
 	return {
 		from = key(position, look),
 		to = key(position + (look - position) * Intro.CUT_PUSH, look),
-		seconds = 0.45,
+		seconds = Intro.CAMP_CUT_SECONDS,
 		title = title,
 		area = camp.area,
 	}
@@ -539,7 +542,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 		{
 			index = 6,
 			starts = 0,
-			seconds = 1.8,
+			seconds = Intro.CAMP_CUT_SECONDS * #Intro.CAMP_CUTS, -- 8 s (was 1.8)
 			caption = "Rank up to fly to new areas!",
 			ease = "Linear",
 			fallback = cannonEnd,

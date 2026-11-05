@@ -29,7 +29,7 @@ return function()
 	local CAMP = Intro.camp("alley") :: Intro.Camp
 
 	describe("the shots (section 2)", function()
-		it("are ten shots of 24.3 s, each starting where the one before ends", function()
+		it("are ten shots of 30.5 s, each starting where the one before ends", function()
 			local shots = Intro.shots(EAST, true)
 			expect(#shots).to.equal(Intro.SHOTS)
 			expect(Intro.SHOTS).to.equal(10)
@@ -44,12 +44,12 @@ return function()
 				expect(cuts).to.be.near(shot.seconds, 1e-9)
 				at += shot.seconds
 			end
-			expect(Intro.length(shots)).to.be.near(24.3, 1e-9)
+			expect(Intro.length(shots)).to.be.near(30.5, 1e-9) -- 24.3 until #1254
 			local starts = {}
 			for _, shot in shots do
 				table.insert(starts, math.floor(shot.starts * 10 + 0.5) / 10)
 			end
-			expect(starts :: any).to.deepEqual({ 0, 2.5, 5, 7.5, 9.5, 12.3, 14.1, 16.6, 19.3, 22.3 })
+			expect(starts :: any).to.deepEqual({ 0, 2.5, 5, 7.5, 9.5, 12.3, 20.3, 22.8, 25.5, 28.5 })
 		end)
 
 		it(
@@ -111,7 +111,7 @@ return function()
 					at += shot.seconds
 				end
 				expect(indexes :: any).to.deepEqual({ 1, 2, 5, 6, 8, 9, 10 })
-				expect(Intro.length(shots)).to.be.near(24.3 - 7, 1e-9)
+				expect(Intro.length(shots)).to.be.near(30.5 - 7, 1e-9)
 				-- shot 2 holds the clouds to its end instead of cutting to the camp
 				local cuts = shots[2].cuts
 				expect(near(cuts[#cuts].from.position, cuts[1].to.position)).to.equal(true)
@@ -148,12 +148,12 @@ return function()
 		)
 
 		it(
-			"cuts shot 6 four times, 0.45 s each, high over each camp looking into its area",
+			"cuts shot 6 four times, 2 s each, high over each camp looking into its area",
 			function()
 				local cuts = Intro.shots(EAST, true)[6].cuts
 				local titles, areas = {}, {}
 				for _, cut in cuts do
-					expect(cut.seconds).to.be.near(0.45, 1e-9)
+					expect(cut.seconds).to.be.near(Intro.CAMP_CUT_SECONDS, 1e-9)
 					table.insert(titles, cut.title)
 					table.insert(areas, cut.area)
 					-- each pushes 6% of the way toward its look point
@@ -469,8 +469,10 @@ return function()
 			expect(Intro.shotAt(shots, 8)).to.equal(4)
 			expect(Intro.shotAt(shots, 10)).to.equal(5)
 			expect(Intro.shotAt(shots, 13)).to.equal(6)
-			expect(Intro.shotAt(shots, 24.29)).to.equal(10)
-			expect(Intro.shotAt(shots, 24.31)).to.equal(0)
+			expect(Intro.shotAt(shots, 20.29)).to.equal(6) -- the camp tour, 8 s since #1254
+			expect(Intro.shotAt(shots, 20.31)).to.equal(7)
+			expect(Intro.shotAt(shots, 30.49)).to.equal(10)
+			expect(Intro.shotAt(shots, 30.51)).to.equal(0)
 			expect(Intro.shotAt(shots, 100)).to.equal(0)
 		end)
 	end)
@@ -484,9 +486,9 @@ return function()
 			expect(#kept).to.equal(3)
 			for _, cut in kept do
 				expect(cut.area ~= "woods").to.equal(true)
-				expect(cut.seconds).to.be.near(0.6, 1e-9)
+				expect(cut.seconds).to.be.near(shot.seconds / 3, 1e-9)
 			end
-			expect(shot.cuts[3].seconds).to.be.near(0.45, 1e-9) -- the shot itself is left alone
+			expect(shot.cuts[3].seconds).to.be.near(Intro.CAMP_CUT_SECONDS, 1e-9) -- shot left alone
 		end)
 
 		it("holds on the cannon with the four title cards when none has streamed in", function()

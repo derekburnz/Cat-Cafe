@@ -152,6 +152,16 @@ return function()
 				expect(Economy.cafeMultiplier(p)).to.be.near(1.30)
 			end)
 
+			it("adds the front lawn's pieces and styles out by rarity (#1283), none for a save without a lawn", function()
+				local p = freshProfile()
+				expect(Economy.lawnBonus(p)).to.equal(0)
+				p.lawnOwned = { garden_bench = true, tulip_bed = true, iron_railing = true }
+				p.lawn = { big1 = "garden_bench", small1 = "tulip_bed" }
+				p.lawnStyles = { path = "grey_slabs", fence = "iron_railing" }
+				expect(Economy.lawnBonus(p)).to.be.near(0.07)
+				expect(Economy.cafeMultiplier(p)).to.be.near(1.07)
+			end)
+
 			it("everything maxed is 1 + 0.6 + 0.6 + 0.3 = 2.5", function()
 				local p = freshProfile()
 				p.upgradeLevels.tables = 6

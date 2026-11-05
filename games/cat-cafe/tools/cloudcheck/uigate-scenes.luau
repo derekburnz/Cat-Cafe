@@ -1049,6 +1049,20 @@ local SCENES = {
 	{ "Potions", function()
 		UI.open("Potions")
 	end },
+	-- #1281: the Bag's Bait tab: the bowl foods the player has, each with its picture, grade badge and count, no Use
+	{ "BagBait", function()
+		UI.update({ lures = { kibble = 12, tuna = 3, salmon = 1 } })
+		UI.open("Potions")
+		press("Potions", "BaitTab")
+		local window = UIShim.playerGui:FindFirstChild("Potions", true)
+		local list = window and window:FindFirstChild("BaitList", true)
+		assert(list and list:IsA("GuiObject") and list.Visible, "uigate: the Bag's Bait list is not up")
+		local tuna = list:FindFirstChild("tuna")
+		assert(tuna, "uigate: no Tuna row on the Bait tab")
+		local count = tuna:FindFirstChild("Count") :: TextLabel
+		assert(count.Text == "x3", "uigate: Tuna count " .. count.Text)
+		assert(list:FindFirstChild("Use", true) == nil, "uigate: the Bait tab has a Use button")
+	end },
 	{ "Quests", function()
 		UI.open("Quests")
 	end },

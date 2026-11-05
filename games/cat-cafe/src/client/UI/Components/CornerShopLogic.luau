@@ -122,11 +122,19 @@ function CornerShopLogic.button(
 	return { text = "Buy · " .. money(item.price), enabled = coins >= item.price }
 end
 
+-- #1255: cat food has no daily XP cap, so with no Config.CornerFoodXpPerDay the room is unlimited and the line is empty.
 function CornerShopLogic.snackRoom(snackXp: number): number
-	return math.max(0, (Config.CornerFoodXpPerDay or 0) - snackXp)
+	local cap: number? = Config.CornerFoodXpPerDay
+	if cap == nil then
+		return math.huge
+	end
+	return math.max(0, cap - snackXp)
 end
 
 function CornerShopLogic.snackLine(snackXp: number): string
+	if Config.CornerFoodXpPerDay == nil then
+		return ""
+	end
 	return ("Cat food today: %s / %s XP"):format(
 		commas(snackXp),
 		commas(Config.CornerFoodXpPerDay or 0)

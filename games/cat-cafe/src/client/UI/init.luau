@@ -163,7 +163,7 @@ UI.events = {
 	-- ()   the HUD's Tutorial tile or Settings' Replay tutorial: play the intro again with UI.intro.start({ replay = true })
 	introReplay = Signal.new(),
 	-- F64
-	usePotion = Signal.new(), -- (potionId)   Use on a potion in the potion bag: forward as UsePotion
+	usePotion = Signal.new(), -- (potionId, count?)   Use (or #1600's Use all) in the potion bag: forward as UsePotion
 	-- F61
 	collectTips = Signal.new(), -- ()   the till's Collect (F61); unbound since F97 pays tip piles on arrival
 	-- F73
@@ -1134,8 +1134,8 @@ function UI.init(config: Types.InitConfig)
 		end,
 	})
 	potionsScreen = Potions.new({
-		use = function(potionId: string)
-			UI.events.usePotion:Fire(potionId)
+		use = function(potionId: string, count: number?)
+			UI.events.usePotion:Fire(potionId, count)
 		end,
 		feed = function(foodId: string, catUid: string)
 			local cat = (state.cats or {})[catUid]

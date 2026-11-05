@@ -693,6 +693,13 @@ local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)
 		end
 		showDecor(plot, def, spot)
 	end
+	-- #1645: the Cafe Pass decor in use takes the next decor spots (no anchors of its own)
+	for _, def in Catalog.passDecor do
+		showDecor(plot, def, if inUse(def) then plot.decorSpots[nextSpot] else nil)
+		if inUse(def) then
+			nextSpot += 1
+		end
+	end
 	-- The wallpaper, floor and paint in use, by decor id, for the client to colour the cafe's tagged shell parts.
 	for _, slot in Crates.STYLE_SLOTS do
 		plot.model:SetAttribute(slot.attribute, Crates.styleInUse(profile, slot.kind))

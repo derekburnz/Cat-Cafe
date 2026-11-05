@@ -3358,7 +3358,8 @@ end
 -- #1645 (cafe-pass.md section 3): the Cafe Pass's season decor, earned on its track and owned forever. Looks only: no
 -- money bonus and no crate, so it is in no Decor Index page and never moves the Index, and it can't be traded
 -- (Trade.piece takes crate pieces only) or bought (Economy.decorBlocker). Each piece takes a decor spot like the crate
--- furniture and decorations, so it joins Catalog.crateDecor, which the server places and the Decor window lists.
+-- furniture and decorations; they are kept apart in Catalog.passDecor (Catalog.crateDecor is the 84 crate pieces), and
+-- the server places them after the crate pieces.
 local PASS_DECOR: { { id: string, name: string, kind: Types.DecorKind, description: string } } = {
 	{
 		id = "decor_pumpkin_lantern",
@@ -3397,6 +3398,7 @@ local PASS_DECOR: { { id: string, name: string, kind: Types.DecorKind, descripti
 		description = "A little maple in red and orange.",
 	},
 }
+Catalog.passDecor = {} :: { Types.DecorDef }
 for _, row in PASS_DECOR do
 	local def: Types.DecorDef = {
 		id = row.id,
@@ -3411,7 +3413,7 @@ for _, row in PASS_DECOR do
 		kind = row.kind,
 	}
 	Catalog.decorById[row.id] = def
-	table.insert(Catalog.crateDecor, def)
+	table.insert(Catalog.passDecor, def)
 end
 
 Catalog.crates = {} :: { Types.CrateDef }

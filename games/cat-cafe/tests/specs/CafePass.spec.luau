@@ -313,6 +313,8 @@ return function()
 							expect(decor.source).to.equal("pass")
 							expect(decor.bonus).to.equal(0) -- no cafeMultiplier
 							expect(Crates.takesSpot(decor)).to.equal(true) -- placed in a decor spot
+							expect(table.find(Catalog.passDecor, decor)).to.be.ok() -- placed after the crate pieces
+							expect(table.find(Catalog.crateDecor, decor)).to.equal(nil)
 							expect(decor.asset:match("^CatCafe_Decor_")).to.be.ok()
 							expect(inPools[item.id]).to.equal(nil) -- in no crate, so on no Decor Index page
 							expect(Economy.decorBlocker(profile, item.id)).to.equal(

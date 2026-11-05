@@ -900,7 +900,7 @@ export type PlayerProfile = {
 	upgradeLevels: { [string]: number },
 	decorOwned: { [string]: boolean },
 	decorPlaced: { [string]: boolean },
-	-- #1574 (trading.md section 1b, save version 35): the Legendary and up pieces (crate decor and lawn pieces) the
+	-- #1574 (trading.md section 1b, no save version bump): the Legendary and up pieces (crate decor and lawn pieces) the
 	-- player unlocked on their card to trade; every other such piece is locked (Trade.pieceLocked)
 	decorUnlocked: { [string]: boolean },
 	lures: { [string]: number },

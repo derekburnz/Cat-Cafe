@@ -199,6 +199,19 @@ local Config = {
 	LuckyDayWaveLuck = 2,
 	LuckyDayPlayerLuck = 0.5,
 	LuckyDayWarnSeconds = 15,
+	-- #1572 (luck-and-rare-moments.md 1h): the global pity cat (shared/Pity). A slot every PityLegendarySeconds from
+	-- ClockEpoch, every PityMythicalEvery-th a Mythical one; its area by PityAreaWeights (by area id), and the first
+	-- catch anywhere claims it in MemoryStore, tried PityClaimRetries times before the catcher keeps it anyway.
+	PityLegendarySeconds = 1800,
+	PityMythicalEvery = 4,
+	PityAreaWeights = {
+		alley = 10,
+		park = 15,
+		neighbourhood = 20,
+		woods = 25,
+		sewer = 30,
+	} :: { [string]: number },
+	PityClaimRetries = 3,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
 	-- F97 (notes-10-28-to-10-30.md section 3): a food's price is its Catalog base times this factor at the buyer's
 	-- tier (Economy.foodPrice), the same growth as the later shop items (economy-ladder.md section 4)

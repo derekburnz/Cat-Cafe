@@ -292,6 +292,15 @@ local function shownName(player: Player, instance: Types.CatInstance): string
 		or (if def ~= nil then def.name else instance.catId)
 end
 
+-- #1624: the Looks uniform `player`'s working cats wear (their owned pick), nil for Classic.
+local function uniformOf(player: Player): string?
+	local profile = DataService.get(player)
+	if profile == nil then
+		return nil
+	end
+	return Looks.shown("uniform", profile.looks.uniform, ownsPassOf(player), profile.pass.items)
+end
+
 -- One cat's model at `at` for its `slot`, not parented yet, its Rate for an owner at `tier`. A working cat stands on
 -- the worker body (S, Model-Agent #826; Derek picked S on 2026-11-02) in its role's outfit, its front legs posed for
 -- the role and holding the role's cup, tray or microphone (CatDress.workPose), else sits on the seated body (B) while
@@ -343,6 +352,7 @@ local function buildCat(
 			model:SetAttribute("SleepSpot", sleepSpot)
 		else
 			CatPose.dress(model, spot.spotType) -- F25: a working cat sits at its station in its role's outfit
+			CatPose.wearUniform(model, uniformOf(player)) -- #1624: in the cafe's uniform style
 		end
 	end
 	return model
@@ -863,10 +873,13 @@ local function refreshLooks(player: Player, plot: WorldBuilder.Plot, profile: Pr
 		end
 		folder.Parent = plot.model
 	end
-	plot.model:SetAttribute(
-		Looks.UNIFORM_ATTRIBUTE,
-		Looks.shown("uniform", profile.looks.uniform, owns, items)
-	)
+	local uniform = Looks.shown("uniform", profile.looks.uniform, owns, items)
+	plot.model:SetAttribute(Looks.UNIFORM_ATTRIBUTE, uniform)
+	for _, cat in plot.cats:GetChildren() do -- a cat built before the pick changed takes the new colours
+		if cat:IsA("Model") and cat:GetAttribute("Role") ~= nil then
+			CatPose.wearUniform(cat :: Model, uniform)
+		end
+	end
 	local vip = Config.VipPassId ~= 0 and PassService.owns(player, Config.VipPassId)
 	local plate = vip and AssetRegistry.has(Looks.VIP_PLATE_MODEL)
 	plot.model:SetAttribute(Looks.VIP_PLATE_ATTRIBUTE, if plate then true else nil)

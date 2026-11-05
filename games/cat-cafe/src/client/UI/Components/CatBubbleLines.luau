@@ -61,7 +61,7 @@ CatBubbleLines.LINES = {
 	{ tag = "CatCollector", text = "Got a cat I'm looking for?", when = "collectorVisiting" },
 	{
 		tag = "CornerShop",
-		text = "Snacks, bubbles and fireworks!",
+		text = "Snacks and potions here!", -- #1483: no more bubbles or fireworks
 		when = "always",
 		anchor = "PromptAnchor",
 	},

@@ -29,6 +29,17 @@ return function()
 			expect(Logic.chance("big_cat_snack")).to.equal("In stock 3 times in 10")
 			expect(Logic.chance("cat_feast")).to.equal("In stock 1 time in 10")
 			expect(Logic.effect(snack)).to.equal("+1,200 XP cat food, into your Bag")
+			-- #1281: a bait food row says how many the player has
+			local tuna = {
+				id = "tuna",
+				name = "Tuna",
+				family = "bait",
+				size = "regular",
+				kind = "bait",
+				price = 500,
+			}
+			expect(Logic.effect(tuna, 3)).to.equal("Bait for your bowl · You have 3")
+			expect(Logic.effect(tuna)).to.equal("Bait for your bowl · You have 0")
 			expect(Logic.chance("nothing")).to.equal("")
 		end)
 		it("words the stock line", function()

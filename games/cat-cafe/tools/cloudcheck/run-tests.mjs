@@ -11,6 +11,13 @@
 // Each spec file runs in its own fresh Luau state (README, "One Luau state per spec file"): one shared
 // state for the whole suite hit a fault in the WebAssembly Luau build once the suite grew past a size,
 // failing tests that pass on their own. --shared runs everything in one state, the old way, to reproduce it.
+//
+// Spec files run in batches of BATCH_SIZE, each batch in its own node process. Every Luau state in a process shares
+// one WebAssembly memory that a state never gives back (each runs with its collector off, and closing one trips the
+// same collector fault), so by 2026-11-05 the whole suite in one process ran out of it ("memory error: not enough
+// memory", "failed to allocate Luau state"). A child is the same script with --batch k/n.
+import { spawnSync } from 'node:child_process';
+import os from 'node:os';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -98,9 +105,31 @@ for (const node of walk(testsNode)) {
   }
 }
 specNames.sort((a, b) => (a.full < b.full ? -1 : a.full > b.full ? 1 : 0));
-const selected = specNames
+const BATCH_SIZE = 30;
+const matching = specNames
   .filter((spec) => args.filter == null || spec.name.includes(args.filter))
   .map((spec) => spec.name);
+const batchCount = Math.max(1, Math.ceil(matching.length / BATCH_SIZE));
+let selected = matching;
+if (args.batch) {
+  const [k] = args.batch.split('/').map(Number);
+  selected = matching.slice((k - 1) * BATCH_SIZE, k * BATCH_SIZE);
+}
+
+// Runs batch k of n in a child process and returns its totals (null when it crashed).
+function runBatch(k) {
+  const out = path.join(os.tmpdir(), `catcafe-tests-${process.pid}-${k}.json`);
+  const forwarded = ['--project', projectFile, '--batch', `${k}/${batchCount}`, '--batch-out', out];
+  if (args.filter != null) forwarded.push('--filter', args.filter);
+  if (verbose) forwarded.push('--verbose');
+  const child = spawnSync(process.execPath, [fileURLToPath(import.meta.url), ...forwarded], {
+    stdio: ['ignore', 'inherit', 'inherit'],
+  });
+  if (!fs.existsSync(out)) return null;
+  const result = JSON.parse(fs.readFileSync(out, 'utf8'));
+  fs.rmSync(out, { force: true });
+  return child.status === 2 ? null : result;
+}
 
 // Runs StudioRunner in a fresh state. `only` names one spec file exactly; nil runs every spec matching the filter.
 async function runInFreshState(only, print) {
@@ -126,7 +155,9 @@ async function runInFreshState(only, print) {
 }
 
 const probe = await Lua.create({ sandbox: false, libraries: 'all' });
-console.log(`Cat Cafe cloud tests (Luau ${probe.version}) using ${path.relative(gameRoot, projectFile)}`);
+if (!args.batch) {
+  console.log(`Cat Cafe cloud tests (Luau ${probe.version}) using ${path.relative(gameRoot, projectFile)}`);
+}
 
 let total;
 try {
@@ -134,8 +165,21 @@ try {
     total = await runInFreshState(null, null);
   } else {
     total = { passed: 0, failed: 0, skipped: 0, seconds: 0, failures: [] };
-    console.log(`TestKit: running ${selected.length} spec file(s), one Luau state each`);
-    for (const name of selected) {
+    const batched = !args.batch && batchCount > 1;
+    if (!args.batch) {
+      console.log(`TestKit: running ${selected.length} spec file(s), one Luau state each`);
+    }
+    for (let k = 1; batched && k <= batchCount; k++) {
+      const result = runBatch(k);
+      if (result == null) throw new Error(`batch ${k} of ${batchCount} crashed`);
+      total.passed += result.passed;
+      total.failed += result.failed;
+      total.skipped += result.skipped;
+      total.seconds += result.seconds;
+      total.failures.push(...result.failures);
+      studioOnly.push(...result.studioOnly);
+    }
+    for (const name of batched ? [] : selected) {
       // Keep each run's per-test lines; the header, failure list and totals are printed once for the suite.
       let listing = true;
       const result = await runInFreshState(name, (line) => {
@@ -151,6 +195,10 @@ try {
       total.skipped += result.skipped;
       total.seconds += result.seconds;
       total.failures.push(...result.failures);
+    }
+    if (args.batch) {
+      fs.writeFileSync(args.batchOut, JSON.stringify({ ...total, studioOnly }));
+      process.exit(0);
     }
     if (total.failures.length > 0) {
       console.log('');
@@ -205,6 +253,8 @@ function parseArgs(argv) {
     else if (arg === '--filter') out.filter = argv[++i];
     else if (arg === '--json') out.json = argv[++i];
     else if (arg === '--shared') out.shared = true;
+    else if (arg === '--batch') out.batch = argv[++i];
+    else if (arg === '--batch-out') out.batchOut = argv[++i];
     else if (arg === '--help' || arg === '-h') {
       console.log('usage: node run-tests.mjs [--project file] [--filter text] [--verbose] [--json out.json] [--shared]');
       process.exit(0);

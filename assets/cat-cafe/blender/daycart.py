@@ -1,6 +1,6 @@
 """The Day Cart (#1577, day-cart.md section 1): the Corner Shop's coin stock moved onto a wooden market cart in the
 Town Square, on the side opposite the Golden Fish Market. The same toffee and white shopkeeper in its green visor
-(cornershop.CAT) now sits on a cushion on the cart's back half, behind a two-step display of what the cart sells:
+(CAT, which kept its look from the retired Corner Shop stall) now sits on a cushion on the cart's back half, behind a two-step display of what the cart sells:
 potions in their own bottle shapes, the Cat Whistle, kibble sacks, tuna tins and a salmon on a board, with little
 coin price tags (coins only). Over it a strawberry and cream striped awning on candy-striped posts, and on top a
 DAY CART sign with a sun at each end (a big painted sun on its back). Two spoked wheels, two legs at the other end
@@ -23,7 +23,6 @@ import math
 from mathutils import Matrix, Vector
 
 import cats
-import cornershop
 import props
 from alleyway import label
 from common import RB, scale_mesh, text_width
@@ -42,8 +41,8 @@ POST_X, POST_FZ, POST_BZ = HX - 0.05, -1.2, 1.2
 AWN_FY, AWN_BY = 5.45, 6.05                 # the awning's front and back edge heights
 AWN_FZ, AWN_BZ = -1.8, 1.65                 # and its front and back edge depths
 STRIPES, VAL_H = 9, 0.42
-AWNING = cornershop.AWNING
-TRIM = cornershop.TRIM
+AWNING = ("fur_strawberry", "cream")
+TRIM = "choco"
 CUSHION = (OX + 0.0, 0.75)                  # the shopkeeper's cushion centre (x, z) on the top board
 CUSHION_H = 0.2
 PROMPT_ROBLOX = (OX, 3.0, -HZ - 0.4)        # the prompt: before the cart's front, 3 up
@@ -56,6 +55,18 @@ SIGN_PX = 0.15
 # cross by 14 and the cannon's landing pad by 9.6.
 SPOT = (-17.0, 0.1, -24.0, math.degrees(math.atan2(-(0 - -17.0), -(0 - -24.0))))
 
+
+# Toffee and white with copper eyes: no collectable cat has this coat, and the green visor says shopkeeper.
+CAT = dict(rarity="Common", fur="fur_toffee", second="fur_white", eyes="eye_copper", pattern="patches", muzzle="fur_white",
+           nose="nose_brick", scale=1.5)
+
+
+def visor(ctx):
+    """A green shopkeeper's visor: a band round the head under the ears' fronts and a wide brim tipped down."""
+    P = ctx.pen("head")
+    P.cyl((0, 0.0, 0.05), 0.47, 0.1, "shirt_green", segments=14)                  # band
+    P.cyl((0, 0.0, 0.1), 0.475, 0.025, "cream", segments=14)                      # its piping
+    P.box((0, -0.52, 0.04), (0.78, 0.42, 0.04), "shirt_green", rot=props._rx(14))   # brim
 
 def _paw(b, x, y, z, s, sw, facing=-1):
     """A paw print standing on a face at depth z (facing -Z, or +Z with facing 1)."""
@@ -311,12 +322,12 @@ def build_day_cart(mat):
     _awning(b, bulb)
     _sign(b)
     out = [b.finalize(NAME, mat), bulb.finalize(NAME + "_Bulb", mat)]
-    spec = cornershop.CAT
+    spec = CAT
     base = NAME + "_Cat"                                                            # the shopkeeper, as before
     cat = cats.build_cat("DayCartCat", mat, spec=spec, base=base, body="sit")
     d = cats.dims(spec, "sit")
     ctx = props.Ctx(spec, "sit", d)
-    cornershop.visor(ctx)
+    visor(ctx)
     k = cats.scale_of(spec, "sit")
     hat = ctx.main.finalize(base + "_Prop", mat, location=tuple(v * k for v in d["pivots"]["Head"]))
     scale_mesh(hat, k)

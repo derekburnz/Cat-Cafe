@@ -1037,6 +1037,17 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				callbacks.openScreen("Decor")
 			end,
 		},
+		-- #1181 (corner-shop-v2.md section 3): the Bag in the left column, opening the Bag window (Potions and Cat Food
+		-- tabs); P opens it too. The corner potion symbol stays, since the potion timers sit beside it.
+		{
+			name = "Bag",
+			icon = "🎒",
+			key = "P",
+			style = "berry",
+			open = function()
+				callbacks.openScreen("Potions")
+			end,
+		},
 		-- #1210 (2026-11-04: "move the food bowl button into the left menu"): the bowl, once the Bait bowl upgrade is
 		-- owned, labelled "Bowl", with a red "!" while a cat waits (_renderBowl)
 		{

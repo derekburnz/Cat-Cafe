@@ -49,6 +49,21 @@ function CollectorLogic.prize(offer: Types.CollectorOffer?, area: string?): Type
 			prize.lures = lures
 		end
 	end
+	-- #1181: "2 Big Snacks" into the Bag
+	local food = (offer :: any).catFood
+	if type(food) == "table" then
+		local foods: { [string]: number } = {}
+		for foodId, count in food do
+			local amount = positive(count)
+			if type(foodId) == "string" and amount then
+				foods[foodId] = amount
+			end
+		end
+		if next(foods) ~= nil then
+			local loose: any = prize
+			loose.catFood = foods
+		end
+	end
 	local crates = offer.crates
 	if type(crates) == "table" and type(area) == "string" and area ~= "" then
 		local paid: { [string]: number } = {}

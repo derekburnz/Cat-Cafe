@@ -117,6 +117,7 @@ return function()
 		CornerShopRange = 14,
 		CornerFoodXpPerDay = 20000, -- corner-shop-v2.md section 4
 		CatFoodMax = 999,
+		CatchSnackChance = 0.10, -- corner-shop-v2.md section 3: a Small Snack 1 catch in 10
 		-- night income and rich customers (F31, sections 11 and 12)
 		NightIncomeMultiplier = 1, -- F60: full pay at night (0.6 until v0.8)
 		RichCheckSeconds = 60,
@@ -391,6 +392,7 @@ return function()
 				RallyPoints = true, -- F101 (rescue-rally.md section 2): a table, checked in Rally.spec
 				RallyForce = true, -- F101: false, checked in Rally.spec (a false value reads as missing above)
 				RescueTreeCircle = true, -- Derek 2026-11-03: false, checked in Rescue.spec (a false value reads as missing)
+				RescueSnack = true, -- #1181 (corner-shop-v2.md section 3): a food id, checked in CornerShop.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

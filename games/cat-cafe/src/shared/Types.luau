@@ -194,6 +194,7 @@ export type IndexPrize = {
 	spins: number?,
 	crates: { [string]: number }?,
 	potions: { [string]: number }?, -- F64: potionId -> count (Tip Jar step 12, codes)
+	catFood: { [string]: number }?, -- #1181: food id -> count into the Bag (Daily Treat, the Collector, catches, rescues)
 	bonus: number?,
 	goldLuck: number?,
 	rainbowLuck: number?, -- F99: on every rainbow roll, the Rainbow track's sum capped at RainbowLuckMax
@@ -240,6 +241,7 @@ export type CollectorOffer = {
 	lures: { [string]: number }?,
 	spins: number?,
 	crates: { zone: number?, golden: number? }?,
+	catFood: { [string]: number }?, -- #1181 (corner-shop-v2.md section 3): his "2 Big Snacks"
 }
 
 -- A code (F65, data-model section 11d), keyed in Catalog.codes by its lowercased text. Its prize uses the Index

@@ -77,6 +77,24 @@ function CornerShopLogic.chance(itemId: string): string
 	return ("In stock %d %s in 10"):format(tenths, if tenths == 1 then "time" else "times")
 end
 
+-- A row the player's tier doesn't open yet (corner-shop-v2.md section 2): "Opens at Tier 3", else nil.
+function CornerShopLogic.gate(item: Item, tier: number?): string?
+	local needs = item.needsTier
+	if needs and (tier or 1) < needs then
+		return ("Opens at Tier %d"):format(needs)
+	end
+	return nil
+end
+
+-- "2 of 4 today" for a family with a daily limit (Config.CornerDailyLimits), else nil.
+function CornerShopLogic.todayLine(item: Item): string?
+	local perDay = item.perDay
+	if perDay == nil or perDay <= 0 then
+		return nil
+	end
+	return ("%d of %d today"):format(math.min(item.today or 0, perDay), perDay)
+end
+
 function CornerShopLogic.stockLine(item: Item): string
 	if item.amount <= 0 then
 		return "None this time"
@@ -88,13 +106,28 @@ function CornerShopLogic.stockLine(item: Item): string
 	return ("x%d left"):format(left)
 end
 
--- The Buy button: "None", "Sold out", "Food full", else "Buy · $1.2K", greyed when the coins fall short.
-function CornerShopLogic.button(item: Item, row: Row?, coins: number, snackRoom: number): ButtonView
+-- The Buy button, in the server's order (shared/CornerShop.buyBlocker): "Tier 3", "None", "Sold out", "Done today",
+-- "Food full", else "Buy · $1.2K", greyed when the coins fall short.
+function CornerShopLogic.button(
+	item: Item,
+	row: Row?,
+	coins: number,
+	snackRoom: number,
+	tier: number?
+): ButtonView
+	local needs = item.needsTier
+	if needs and (tier or 1) < needs then
+		return { text = ("Tier %d"):format(needs), enabled = false }
+	end
 	if item.amount <= 0 then
 		return { text = "None", enabled = false }
 	end
 	if item.bought >= item.amount then
 		return { text = "Sold out", enabled = false }
+	end
+	local perDay = item.perDay
+	if perDay and perDay > 0 and (item.today or 0) >= perDay then
+		return { text = "Done today", enabled = false }
 	end
 	if row and row.kind == "food" and (row.xp or 0) > snackRoom then
 		return { text = "Food full", enabled = false }

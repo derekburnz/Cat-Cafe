@@ -32,6 +32,7 @@ local Mover = require(ReplicatedStorage.Shared.Mover)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
+local Payout = require(script.Parent.Payout)
 local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local RallyService = require(script.Parent.RallyService)
@@ -121,6 +122,7 @@ local strays: { [string]: Stray } = {}
 local occupiedPoints: { [string]: { [number]: string } } = {} -- area -> point index -> stray id
 local carrying: { [Player]: Carry } = {}
 local circleHistory: { [Player]: { boolean } } = {} -- last judged circles per player, true for Perfect (S23)
+local snackRandom = Random.new() -- #1181: the catch's snack drop
 local lastCatchStart: { [Player]: number } = {} -- server time of the player's last catch start or pick up
 local startledUntil: { [Player]: number } = {} -- server time each player's Startled slow ends (F57)
 local rng = Random.new()
@@ -1243,8 +1245,20 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		local homePos = Vector3.new(at.X, stray.home.Y, at.Z)
 		local knocks = stray.knocks
 		local area = stray.area
+		-- #1181 (corner-shop-v2.md section 3): 1 in CatchSnackChance a stray's net catch drops a Small Snack, never a
+		-- Dropped or re-caught cat's, so shoving and catching one cat again cannot farm them
+		local dropsSnack = stray.drop == nil
+			and not stray.recaught
+			and snackRandom:NextNumber() < Config.CatchSnackChance
 		despawn(stray, player)
 		startCarry(player, def, method, charm, variant, nil, funnel, homePos, knocks)
+		if dropsSnack then
+			local paid =
+				Payout.pay(player, profile, { catFood = { small_cat_snack = 1 } }, "catch_snack")
+			if #paid > 0 then
+				Net.toast(player, "The cat dropped a snack: " .. paid[1] .. " in your Bag", "good")
+			end
+		end
 		if area == "park" then
 			Telemetry.onboarding(player, profile, "first_park_catch")
 		end

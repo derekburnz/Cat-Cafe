@@ -781,6 +781,10 @@ local function wireIntents()
 	UI.events.sellCat:Connect(function(uid: string)
 		Net.fire("SellCat", uid)
 	end)
+	-- #1573: Sell extras in the cat room (asked first there); the server sells the spare Commons and syncs
+	UI.events.sellExtraCommons:Connect(function()
+		Net.fire("SellExtraCommons")
+	end)
 	-- Unequip all on the cat inventory (UI thread). Looked up loosely like equip best below; the UI shows the
 	-- button only once something is connected to the signal.
 	local unequipAll = (UI.events :: any).unequipAll

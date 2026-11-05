@@ -1314,6 +1314,55 @@ local function unwatchPlot(plot: Instance)
 	plotWatches[plot] = nil
 end
 
+-- #1191: a shop-only cat (Logic.isShopCat) chimes as it starts a shift, in 3D at the cat, under VFX's sparkle
+-- (Effects/ShopCats). Same rule as the sparkle: a model (by Uid) seen off duty that turns to working (a Role without
+-- Bedtime); a model built or streamed in already working plays nothing.
+local shopCatDuty: { [string]: boolean } = {}
+local shopCatsSeen: { [Instance]: boolean } = {}
+
+local function watchShopCat(instance: Instance)
+	if
+		shopCatsSeen[instance]
+		or not instance:IsA("Model")
+		or not Logic.isShopCat(instance:GetAttribute("CatId"))
+	then
+		return
+	end
+	shopCatsSeen[instance] = true
+	local uid = instance:GetAttribute("Uid")
+	local key = if type(uid) == "string" then uid else instance:GetFullName()
+	local function look()
+		local now = Logic.working(instance:GetAttribute("Role"), instance:GetAttribute("Bedtime"))
+		local before = shopCatDuty[key]
+		shopCatDuty[key] = now
+		local part = partOf(instance)
+		if Logic.shiftStarted(before, now) and part ~= nil then
+			Audio.play("shiftChime", part)
+		end
+	end
+	look()
+	instance:GetAttributeChangedSignal("Role"):Connect(look)
+	instance:GetAttributeChangedSignal("Bedtime"):Connect(look)
+	instance.AncestryChanged:Connect(function()
+		if instance.Parent == nil then
+			shopCatsSeen[instance] = nil
+		end
+	end)
+end
+
+local function followShopCats()
+	local function watchIn(plot: Instance)
+		for _, descendant in plot:GetDescendants() do
+			watchShopCat(descendant)
+		end
+		plot.DescendantAdded:Connect(watchShopCat)
+	end
+	CollectionService:GetInstanceAddedSignal("Plot"):Connect(watchIn)
+	for _, plot in CollectionService:GetTagged("Plot") do
+		watchIn(plot)
+	end
+end
+
 local function followPlots()
 	CollectionService:GetInstanceAddedSignal("Plot"):Connect(watchPlot)
 	CollectionService:GetInstanceRemovedSignal("Plot"):Connect(unwatchPlot)
@@ -1817,6 +1866,7 @@ function Audio.start()
 	followHeldCats()
 	followCharacters()
 	followPlots()
+	followShopCats()
 	followBeats()
 	task.spawn(followSecuredRare)
 	task.spawn(followCatchWords)

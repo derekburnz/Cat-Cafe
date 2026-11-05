@@ -12,8 +12,11 @@
 --                                          first shop food (Kibble)
 --   crate(catalog, state) -> CrateDef?     the crate the card shows: the first plain crate you own, else the Classic
 --   crateOdds(catalog, state, crate, luck) the odds that crate opens on next (MarketLogic.nextOdds with Luck)
---   dayLine(view) -> string?               under the clock: "Lucky Day now", "Lucky Day at sunrise", "Lucky Day
---                                          tomorrow", "Lucky Day in 3 days"; nil without the Clock's attributes
+--   dayLine(view) -> string?               under the clock (#1572, day rolls v2): today's kinds in the day, "Lucky Day",
+--                                          "Lucky · Golden Day", "Lucky · Golden · Rainbow Day"; nil at night or on a
+--                                          plain day (the days are random now, so no countdown)
+--   dayCard(view) -> { string }            the line's card: each kind today, what it does and how often it comes
+--   dayBanner(view) -> (string?, string?)  the sunrise banner naming every kind: "Lucky Day! Golden Day!" and its line
 --   statueLines(level, maxLevel)           the Lucky Cat's shop lines, what it gives now and next, then what Luck does
 --   text(luck) -> string                   shared Luck.text: "Luck x1.3"
 --   oddsRich(odds, hexOf) -> string        the card's odds for a RichText label: only the rarities that can come, a new
@@ -53,8 +56,10 @@ export type Row = {
 
 export type DayView = {
 	day: number?, -- the Clock's Day: the day running, or at night the day that ended
-	nextLuckyDay: number?, -- the Clock's NextLuckyDay
+	nextLuckyDay: number?, -- the Clock's NextLuckyDay (unused since #1572: the days are random)
 	luckyDay: boolean?, -- the Clock's LuckyDay, true from sunrise to dusk on one
+	goldenDay: boolean?, -- #1572: the Clock's GoldenDay, the same way
+	rainbowDay: boolean?, -- #1572: the Clock's RainbowDay, the same way
 	phase: string?, -- "day" | "night"
 }
 
@@ -227,22 +232,92 @@ function LuckLogic.crateOdds(
 	return MarketLogic.nextOdds(crate :: any, opens, LUCKY_EVERY, golden, luck)
 end
 
+-- #1572 (luck-and-rare-moments.md 1g): the kinds of a day, in this order, each with its name, its HUD word, what it
+-- does and how often it comes (from Config, so a tuning shows at once).
+type Kind = { id: string, on: boolean, name: string, word: string, effect: string, chance: number }
+
+local function kinds(view: DayView): { Kind }
+	if view.phase == "night" then
+		return {}
+	end
+	local cfg: any = Config
+	local all: { Kind } = {
+		{
+			id = "lucky",
+			on = view.luckyDay == true,
+			name = "Lucky Day",
+			word = "Lucky",
+			effect = ("+%s Luck: rarer cats more likely"):format(
+				tostring(cfg.LuckyDayPlayerLuck or 0.5)
+			),
+			chance = cfg.LuckyDayChance or 0.33,
+		},
+		{
+			id = "golden",
+			on = view.goldenDay == true,
+			name = "Golden Day",
+			word = "Golden",
+			effect = ("Gold cats x%s as likely"):format(tostring(cfg.GoldenDayGoldMultiplier or 2)),
+			chance = cfg.GoldenDayChance or 0.2,
+		},
+		{
+			id = "rainbow",
+			on = view.rainbowDay == true,
+			name = "Rainbow Day",
+			word = "Rainbow",
+			effect = ("Rainbow cats x%s as likely"):format(tostring(cfg.RainbowDayMultiplier or 3)),
+			chance = cfg.RainbowDayChance or 0.1,
+		},
+	}
+	local out: { Kind } = {}
+	for _, kind in all do
+		if kind.on then
+			table.insert(out, kind)
+		end
+	end
+	return out
+end
+
 function LuckLogic.dayLine(view: DayView): string?
-	local day, nextDay = view.day, view.nextLuckyDay
-	if view.luckyDay == true and view.phase ~= "night" then
-		return "Lucky Day now"
-	end
-	if type(day) ~= "number" or type(nextDay) ~= "number" then
+	local today = kinds(view)
+	if #today == 0 then
 		return nil
 	end
-	-- sunrises until it starts: at night Day is the day that ended, so the next sunrise starts Day + 1 either way
-	local away = math.floor(nextDay - day)
-	if away <= 0 then
-		return nil
-	elseif away == 1 then
-		return if view.phase == "night" then "Lucky Day at sunrise" else "Lucky Day tomorrow"
+	local words: { string } = {}
+	for _, kind in today do
+		table.insert(words, kind.word)
 	end
-	return ("Lucky Day in %d days"):format(away)
+	return table.concat(words, " · ") .. " Day"
+end
+
+-- "1 day in 3"
+local function often(chance: number): string
+	return ("1 day in %d"):format(math.max(1, math.floor(1 / math.max(chance, 0.001) + 0.5)))
+end
+
+function LuckLogic.dayCard(view: DayView): { string }
+	local lines: { string } = {}
+	for _, kind in kinds(view) do
+		table.insert(
+			lines,
+			("%s: %s until night (%s)"):format(kind.name, kind.effect, often(kind.chance))
+		)
+	end
+	return lines
+end
+
+function LuckLogic.dayBanner(view: DayView): (string?, string?)
+	local today = kinds(view)
+	if #today == 0 then
+		return nil, nil
+	end
+	local titles: { string } = {}
+	local effects: { string } = {}
+	for _, kind in today do
+		table.insert(titles, kind.name .. "!")
+		table.insert(effects, kind.effect)
+	end
+	return table.concat(titles, " "), table.concat(effects, ". ") .. " until night"
 end
 
 -- #1153 (Derek 11-04: the odds blocks were hard to read): whole percents, one decimal below 1% ("42%", "0.6%").

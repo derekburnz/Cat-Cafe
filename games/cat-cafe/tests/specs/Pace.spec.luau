@@ -54,6 +54,7 @@ return function()
 	local Prizes = require(Shared.Prizes)
 	local ProfileSchema = require(Shared.ProfileSchema)
 	local Types = require(Shared.Types)
+	local VisitTimer = require(Shared.VisitTimer)
 
 	local INTRO_SECONDS = 25
 	-- hometown-cannon.md 6a (F84): the intro, then about 26 s to fly out, net the tutorial stray waiting just past the
@@ -408,6 +409,7 @@ return function()
 			local area = newestArea()
 			local wave = rollWave(area, luckyAt(offset))
 			local rich: { amount: number, leaves: number }? = nil
+			local richLeft = VisitTimer.draw(Config.RichEveryMin, Config.RichEveryMax, rng())
 			local tipJarPaid: { [number]: boolean } = {}
 			local tripsStarted = 0 -- today's trips, by their place in the day's schedule
 			local trip: { back: number, def: Types.CatDef?, variant: string, rarity: Types.Rarity? }? = nil
@@ -447,13 +449,13 @@ return function()
 						Economy.credit(profile, amount)
 						run.coinsFromPiles += amount
 					end
-					if
-						crossed(clockT, step, Config.RichCheckSeconds)
-						and rich == nil
-						and left > Config.DuskWarningSeconds
-						and rng() < Config.RichChance
-					then
-						rich = { amount = Economy.richTipAmount(r), leaves = s + Config.RichTipStaySeconds }
+					-- #1135: the rich customer's timer counts down by open day while no tip is open
+					if rich == nil and left > Config.DuskWarningSeconds then
+						richLeft -= step
+						if richLeft <= 0 then
+							rich = { amount = Economy.richTipAmount(r), leaves = s + Config.RichTipStaySeconds }
+							richLeft = VisitTimer.draw(Config.RichEveryMin, Config.RichEveryMax, rng())
+						end
 					end
 				end
 				if rich ~= nil and (not day or s >= rich.leaves) then

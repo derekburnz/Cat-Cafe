@@ -15,7 +15,10 @@
 -- Nothing here replicates or fires a remote.
 
 local CollectionService = game:GetService("CollectionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+
+local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog"))
 
 local Avatar = require(script.Parent.Avatar)
 local Context = require(script.Parent.Context)
@@ -36,6 +39,8 @@ type Held = {
 	phase: number, -- so two carried cats do not look about in step
 	refused: Model?, -- the last HeldCat Pose could not move, left showing until retryAt
 	retryAt: number,
+	-- when the copy went on the arms, while it still fades in (nil once it shows fully)
+	fadeFrom: number?,
 }
 
 local held: { [Model]: Held } = {}
@@ -73,20 +78,50 @@ local function release(entry: Held)
 	if cat ~= nil and cat.Parent ~= nil and cat:GetAttribute("HiddenLocal") ~= true then
 		setHidden(cat, false)
 	end
-	entry.cat, entry.copy, entry.copyRig = nil, nil, nil
+	entry.cat, entry.copy, entry.copyRig, entry.fadeFrom = nil, nil, nil, nil
+end
+
+-- The whole cat model the HeldCat was made from, out of ReplicatedStorage.Assets (the gold coat's for a gold one):
+-- what the server cloned in CatService.attachHeldCat. Nil for a cat this client has no model of.
+local function assetOf(cat: Model): Model?
+	local id = cat:GetAttribute("CatId")
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	if type(id) ~= "string" or assets == nil then
+		return nil
+	end
+	local names = { Catalog.catModelName(id) }
+	if cat:GetAttribute("Variant") == "gold" or cat:GetAttribute("Gold") == true then
+		table.insert(names, 1, Catalog.goldModelName(id))
+	end
+	for _, name in names do
+		local found = assets:FindFirstChild(name)
+		if found ~= nil and found:IsA("Model") then
+			return found :: Model
+		end
+	end
+	return nil
 end
 
 -- A copy of `cat` for the arms: every part anchored and out of the way, its welds and tags gone (Pose moves each
--- part, and nothing looks for it by tag), named so nothing takes it for the HeldCat. Its colours, outfit and
--- attributes are the HeldCat's as this client has them, so a gold or rainbow coat (Rainbow watches it like any cat
--- model) and a signature cat's glowing eyes come along.
+-- part, and nothing looks for it by tag), named so nothing takes it for the HeldCat. It is cloned from the cat's
+-- whole model in Assets, not from the HeldCat: the HeldCat's 40 odd parts reach this client a few at a time, and a
+-- copy taken from the first of them was the body alone, a block in the cat's colour on the arms (Derek 2026-11-04,
+-- #1138). The HeldCat's attributes come along, so a gold or rainbow coat (Rainbow watches it like any cat model) and
+-- a signature cat's glowing eyes do too. A cat with no model in Assets falls back to the HeldCat as it is here.
 local function copyOf(cat: Model): Model?
-	cat.Archivable = true -- on this client only; a model that is not archivable clones to nil
-	local copy = cat:Clone() :: Model?
+	local source = assetOf(cat) or cat
+	source.Archivable = true -- on this client only; a model that is not archivable clones to nil
+	local copy = source:Clone() :: Model?
 	if copy == nil then
 		return nil
 	end
 	copy.Name = "CarriedCat"
+	if source ~= cat then
+		for name, value in cat:GetAttributes() do
+			copy:SetAttribute(name, value)
+		end
+		copy:PivotTo(cat:GetPivot())
+	end
 	for _, tag in CollectionService:GetTags(copy) do
 		CollectionService:RemoveTag(copy, tag)
 	end
@@ -130,7 +165,30 @@ local function show(entry: Held, cat: Model, now: number)
 	end
 	entry.cat, entry.copy, entry.copyRig = cat, copy, copyRig
 	entry.phase = rng:NextNumber(0, 100)
+	entry.fadeFrom = now
+	-- hidden, then fading in on the arms over carryPose.blendIn as they fold (#1138: no pop)
+	setHidden(copy, true)
 	setHidden(cat, true)
+end
+
+-- How far the copy has faded in, 0 (hidden) to 1, for this frame; the parts set to match until it is in.
+local function fadeIn(entry: Held, copy: Model, now: number)
+	local from = entry.fadeFrom
+	if from == nil then
+		return
+	end
+	local k = math.clamp((now - from) / Presets.carryPose.blendIn, 0, 1)
+	local value = 1 - k
+	for _, item in copy:GetDescendants() do
+		if item:IsA("BasePart") then
+			(item :: BasePart).LocalTransparencyModifier = value
+		elseif item:IsA("Decal") then
+			(item :: Decal).LocalTransparencyModifier = value
+		end
+	end
+	if k >= 1 then
+		entry.fadeFrom = nil
+	end
 end
 
 -- How far `character`'s arms are folded for a carried cat this frame, 0 to 1, `dt` seconds after the last call;
@@ -148,6 +206,7 @@ function Carry.weight(character: Model, rig: Avatar.Rig, dt: number, near: boole
 			phase = 0,
 			refused = nil,
 			retryAt = 0,
+			fadeFrom = nil,
 		}
 	held[character] = entry
 	entry.rig = rig
@@ -215,6 +274,9 @@ local function place()
 		end
 		Pose.hold(copyRig, floor)
 		Pose.draw(copyRig, Logic.idle("held", now + entry.phase, copyRig.kind), -1)
+		if entry.copy ~= nil then
+			fadeIn(entry, entry.copy :: Model, now)
+		end
 	end
 end
 

@@ -10,7 +10,7 @@
 -- attributes), for the UI's glow; `UI.net.setEnabled`, when the UI has it, shows the Net button while a swing could
 -- go. Both judge from shared/NetSwing.landingOrigin, where the root will be when the net lands. Controllers/NetMarker
 -- draws the swing's landing fan on the ground for a moment after each press (Derek 2026-11-03; only on a swing
--- since #1438), gold while a stray is in reach, flashing as the net lands.
+-- since #1493), gold while a stray is in reach, flashing as the net lands.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")

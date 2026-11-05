@@ -2719,4 +2719,27 @@ function Logic.cutWeight(
 	return math.min(into, out)
 end
 
+-- The carry by what rides on the tray (#1576, Presets.cafeWalk.carry.styles): `style`'s chin and tail on top of
+-- Logic.trayCarry, `k` 0 to 1 of the way into carrying.
+function Logic.trayStyle(o: Offsets, k: number, style: { chin: number, tail: number })
+	if k <= 0 then
+		return
+	end
+	o.headPitch += math.rad(style.chin) * k
+	o.tailPitch += math.rad(style.tail) * k
+end
+
+-- How the tray rides this frame for `style`: its roll in radians, side to side once a stride, and its lift in studs
+-- at each step, `stride` strides into the walk at `speed` studs/s (level while standing), `k` of the way into carrying.
+function Logic.traySway(
+	stride: number,
+	speed: number,
+	style: { sway: number, bob: number },
+	k: number
+): (number, number)
+	local moving = math.clamp(speed / Presets.cafeWalk.carry.swayAt, 0, 1) * math.clamp(k, 0, 1)
+	local wave = math.sin(2 * math.pi * stride)
+	return math.rad(style.sway) * wave * moving, style.bob * math.abs(wave) * moving
+end
+
 return Logic

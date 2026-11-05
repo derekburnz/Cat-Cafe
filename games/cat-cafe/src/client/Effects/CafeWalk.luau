@@ -87,6 +87,8 @@ type Walk = {
 	idle: boolean, -- an idle stroll of its own
 	standUntil: number, -- when an idle stroll heads home
 	carrying: number, -- 0 to 1 of the way into carrying a tray (Presets.cafeWalk.carry.ease)
+	trayFor: Model?, -- the tray `trayStyle` was read for
+	trayStyle: string, -- what rides on it (#1576): "drink", "bake", "gold" or "plain"
 	action: Action?,
 	standing: boolean, -- the station model stands on the work body (S, #826), so it gets up from standing
 }
@@ -196,6 +198,32 @@ local function headOf(walker: Model): BasePart?
 		end
 	end
 	return best
+end
+
+-- What rides on a tray, for its carry (#1576): "gold" for the rich customer's gold plate, "bake" for an oven item,
+-- "drink" for anything else off the menu, "plain" for the coin bag or an empty tray. Read from the names of the
+-- dish's pieces, which keep their model's name (Catalog.menuModelName, or it with a suffix such as "_Plate"), as the
+-- dish itself is renamed "Dish".
+local menuBakes: { [string]: boolean } = {}
+for _, menuItem in Catalog.menu do
+	menuBakes[Catalog.menuModelName(menuItem)] = menuItem.station == "oven"
+end
+
+local function styleOf(tray: Model): string
+	local found: boolean? = nil
+	local items = tray:GetDescendants()
+	table.insert(items, tray)
+	for _, item in items do
+		if item.Name == "GoldPlate" then
+			return "gold"
+		end
+		local name = item.Name:match("^(CatCafe_Menu_[^_]+)")
+		local bake = if name ~= nil then menuBakes[name] else nil
+		if bake ~= nil then
+			found = (found == true) or bake
+		end
+	end
+	return if found == nil then "plain" elseif found then "bake" else "drink"
 end
 
 -- The walker's Carry attachment (in its Head part, at the ear tips), or nil on a body without one.
@@ -379,6 +407,8 @@ local function begin(cat: Model, idle: boolean): Walk?
 		idle = idle,
 		standUntil = math.huge,
 		carrying = 0,
+		trayFor = nil,
+		trayStyle = "plain",
 		action = nil,
 		standing = cat:GetAttribute("Pose") == "work" or Pose.kindOf(cat) == "work",
 	}
@@ -697,6 +727,12 @@ local function advance(walk: Walk, now: number, dt: number)
 	local o = Logic.idle("stray", now + walk.phase, rig.kind)
 	Logic.gait(o, walk.speed, walk.stride, held)
 	Logic.trayCarry(o, held)
+	if carrying and walk.trayFor ~= tray then
+		walk.trayFor = tray
+		walk.trayStyle = styleOf(tray :: Model)
+	end
+	local style = c.carry.styles[walk.trayStyle] or c.carry.styles.plain
+	Logic.trayStyle(o, held, style)
 	Logic.crouch(o, crouch, walk.standing)
 	if action ~= nil then
 		if action.kind == "sweep" then
@@ -720,7 +756,13 @@ local function advance(walk: Walk, now: number, dt: number)
 			top = action.toward:Lerp(top, scoop) + Vector3.new(0, arc, 0)
 		end
 		if top ~= nil then
-			(tray :: Model):PivotTo(CFrame.new(top) * CFrame.Angles(0, walk.yaw, 0))
+			local roll, bob = Logic.traySway(walk.stride, walk.speed, style, held)
+			local riding = tray :: Model
+			riding:PivotTo(
+				CFrame.new(top + Vector3.new(0, bob, 0))
+					* CFrame.Angles(0, walk.yaw, 0)
+					* CFrame.Angles(0, 0, roll)
+			)
 		end
 	end
 	-- tall head props step aside as a tray comes onto the head and come back once it is set down, and fade with the

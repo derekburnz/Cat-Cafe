@@ -48,6 +48,10 @@ return function()
 				{ "cat_snack", "food", "regular", 300000 },
 				{ "big_cat_snack", "food", "big", 40000000 },
 				{ "cat_feast", "food", "mega", 3200000000 },
+				-- #1281: the bait foods, last, at their Tier 1 price (Catalog.lures cost)
+				{ "kibble", "bait", "small", (Catalog.getLure("kibble") :: any).cost },
+				{ "tuna", "bait", "regular", (Catalog.getLure("tuna") :: any).cost },
+				{ "salmon", "bait", "big", (Catalog.getLure("salmon") :: any).cost },
 			}
 			expect(#Catalog.cornerShop).to.equal(#want)
 			for index, row in Catalog.cornerShop do
@@ -57,7 +61,10 @@ return function()
 				expect(row.price).to.equal(want[index][4])
 				expect(Catalog.getCornerShopRow(row.id)).to.equal(row)
 				-- QA check 3: Big from Tier 3, the Cat Feast from Tier 4, the rest for everyone
-				local gate = if row.size == "big" then 3 elseif row.size == "mega" then 4 else nil
+				local gate = if row.kind == "bait" then nil
+					elseif row.size == "big" then 3
+					elseif row.size == "mega" then 4
+					else nil
 				expect(row.needsTier).to.equal(gate)
 				if row.kind == "potion" then
 					expect(Catalog.getPotion(row.potionId :: string)).to.be.ok()
@@ -65,6 +72,10 @@ return function()
 					local food = Catalog.getCatFood(row.foodId :: string)
 					expect(food).to.be.ok()
 					expect(row.xp).to.equal((food :: any).xp)
+				elseif row.kind == "bait" then
+					local lure = Catalog.getLure(row.lureId :: string)
+					expect(lure).to.be.ok()
+					expect((lure :: any).source).to.equal("shop") -- dealer foods stay with the dealer
 				else
 					error(row.id .. ": no shows since #1381") -- the Bubble Machine and Cafe Fireworks are gone
 				end
@@ -146,7 +157,7 @@ return function()
 				"Not enough coins"
 			)
 			expect(CornerShop.buyBlocker(state, buy("swift_potion_small", window, 1, 3000), window)).to.equal(nil)
-			expect(CornerShop.buyBlocker(state, buy("kibble", window), window)).to.equal("That isn't in the Corner Shop.")
+			expect(CornerShop.buyBlocker(state, buy("caviar", window), window)).to.equal("That isn't in the Corner Shop.")
 			expect(CornerShop.buyBlocker(state, buy("steady_potion_big", window, 2), window)).to.equal(
 				"Opens at Tier 3"
 			)
@@ -317,6 +328,96 @@ return function()
 		end)
 	end)
 
+	describe("the bait foods (section 1b, #1281)", function()
+		local Economy = require(Shared.Economy)
+
+		it("stocks Kibble, Tuna and Salmon from their own chances", function()
+			local want: { [string]: { number } } =
+				{ kibble = { 0, 0, 20, 80 }, tuna = { 0, 20, 50, 30 }, salmon = { 20, 50, 30, 0 } }
+			for id, weights in want do
+				expect((Catalog.getCornerShopRow(id) :: any).weights).to.deepEqual(weights)
+			end
+			local count = 2000
+			local total: { [string]: number } = { kibble = 0, tuna = 0, salmon = 0 }
+			local none: { [string]: number } = { kibble = 0, tuna = 0, salmon = 0 }
+			for window = WINDOW, WINDOW + count - 1 do
+				for id in total do
+					local amount = CornerShop.amountOf(window, id)
+					total[id] += amount
+					none[id] += if amount == 0 then 1 else 0
+				end
+			end
+			expect(total.kibble / count).to.be.near(2.8, 0.1)
+			expect(total.tuna / count).to.be.near(2.1, 0.1)
+			expect(total.salmon / count).to.be.near(1.1, 0.1)
+			expect(none.kibble + none.tuna).to.equal(0) -- Kibble and Tuna are always in
+			expect(none.salmon / count).to.be.near(0.2, 0.03)
+		end)
+
+		it("keeps the other rows' rolls as they were", function()
+			-- the bait rows are last, so each earlier row draws the same number from the window's seed
+			for window = WINDOW, WINDOW + 50 do
+				local state = CornerShop.seed(window)
+				for index, item in CornerShop.stock(window) do
+					state = (state * 48271) % 2147483647
+					local row = Catalog.cornerShop[index]
+					if row.kind ~= "bait" then
+						local weights = Config.CornerShopSizeWeights[row.size]
+						expect(item.amount).to.equal(FreshCatch.pickAmount(weights, state / 2147483647))
+					end
+				end
+			end
+		end)
+
+		it("charges the food's price for the tier and shows it", function()
+			local window = assert(windowWith("salmon", WINDOW))
+			local state = CornerShop.fresh()
+			CornerShop.refresh(state, window, 0)
+			local row = Catalog.getCornerShopRow("salmon") :: any
+			for tier = 1, 5 do
+				expect(CornerShop.priceOf(row, tier)).to.equal(Economy.foodPrice("salmon", tier))
+			end
+			local view = CornerShop.view(state, window, 4)
+			for index, item in view.stock do
+				if Catalog.cornerShop[index].kind == "bait" then
+					expect(item.price).to.equal(Economy.foodPrice(item.itemId, 4))
+				else
+					expect(item.price).to.equal(Catalog.cornerShop[index].price) -- the fixed rows don't move
+				end
+			end
+			local price = Economy.foodPrice("salmon", 4)
+			local function baitBuy(coins: number, held: number?, shown: number?): CornerShop.Buy
+				local b = buy("salmon", window, 4, coins)
+				b.lureHeld = held
+				b.shownPrice = shown
+				return b
+			end
+			expect(CornerShop.buyBlocker(state, baitBuy(price - 1), window)).to.equal("Not enough coins")
+			expect(CornerShop.buyBlocker(state, baitBuy(price), window)).to.equal(nil)
+			expect(CornerShop.buyBlocker(state, baitBuy(price, 0, price), window)).to.equal(nil)
+			-- a rank up while the window was open: the shown price is the old tier's
+			expect(CornerShop.buyBlocker(state, baitBuy(1e12, 0, Economy.foodPrice("salmon", 3)), window)).to.equal(
+				"The price changed. Take another look."
+			)
+			expect(CornerShop.buyBlocker(state, baitBuy(1e12, CornerShop.LURE_MAX), window)).to.equal(
+				"You have all the Salmon you can carry"
+			)
+			expect(CornerShop.buyBlocker(state, baitBuy(1e12, CornerShop.LURE_MAX - 1), window)).to.equal(nil)
+		end)
+
+		it("has no daily limit and no tier gate", function()
+			local window = assert(windowWith("kibble", WINDOW))
+			local state = CornerShop.fresh()
+			CornerShop.refresh(state, window, 0)
+			expect(CornerShop.perDay("bait")).to.equal(nil)
+			state.today.bait = 500
+			expect(CornerShop.buyBlocker(state, buy("kibble", window, 1, 100), window)).to.equal(nil)
+			CornerShop.record(state, "kibble")
+			expect(state.bought.kibble).to.equal(1)
+			expect(state.foodXpToday).to.equal(0)
+		end)
+	end)
+
 	describe("save version 32", function()
 		it("starts an older save afresh for the day and keeps the Bag's food whole", function()
 			expect(ProfileSchema.VERSION >= 32).to.equal(true)
@@ -335,7 +436,7 @@ return function()
 			expect(migrated.catFood :: any).to.deepEqual({})
 			raw.cornerShop = {
 				window = WINDOW + 1, -- the next window, from a server a moment ahead
-				bought = { swift_potion_small = 9, big_cat_snack = 2.5, cafe_fireworks = "1", kibble = 3 },
+				bought = { swift_potion_small = 9, big_cat_snack = 2.5, cafe_fireworks = "1", caviar = 3 },
 				day = 1e9,
 				today = { quick_bait = 9, swift = 5, nope = 1 },
 				foodXpToday = 99999,

@@ -795,6 +795,23 @@ local SCENES = {
 	end },
 	{ "Bait", function()
 		UI.bait.openPicker()
+		-- #1281: no Buy on any food; each says how many you have, or where to get more
+		local window = baitWindow()
+		local counts = 0
+		for _, piece in window:GetDescendants() do
+			assert(piece.Name ~= "Buy", "uigate: a Buy button in the bowl menu (#1281: foods sell at the Corner Shop)")
+			if piece.Name == "Count" and piece:IsA("TextLabel") then
+				counts += 1
+				local text = piece.Text
+				assert(
+					string.match(text, "^You have %d+$")
+						or text == "Get more at the Corner Shop"
+						or text == "Sold by the night dealer's cart",
+					("uigate: a food row says %q (#1281)"):format(text)
+				)
+			end
+		end
+		assert(counts == #Catalog.lures, ("uigate: %d food rows for %d foods"):format(counts, #Catalog.lures))
 	end },
 	-- #1161: the Second Bait Bowl pass owned, bowl 1 filling and bowl 2 empty: two tabs, and the screen opens on
 	-- bowl 2 (the empty one that takes food) with its Use buttons live
@@ -866,6 +883,25 @@ local SCENES = {
 	{ "SpinOdds", function()
 		UI.spin.open()
 		press("SpinWheel", "Odds")
+	end },
+	-- #1500: the end of the Odds list, where the two 0.5% jackpots sit in gold
+	{ "SpinOddsJackpots", function()
+		UI.spin.open()
+		press("SpinWheel", "Odds")
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("SpinWheel", true)
+		local list = window and window:FindFirstChild("Rows", true)
+		assert(list and list:IsA("ScrollingFrame"), "uigate: no Odds list")
+		list.CanvasPosition = Vector2.new(0, 100000)
+		local count = 0
+		for _, row in list:GetChildren() do
+			if row:IsA("Frame") and string.match(row.Name, "^Slice%d+$") then
+				count += 1
+			end
+		end
+		assert(count == #Catalog.spinWheel, ("uigate: %d odds rows for %d slices"):format(count, #Catalog.spinWheel))
+		local prize = list:FindFirstChild("Slice8") and list.Slice8:FindFirstChild("Prize")
+		assert(prize and string.find(prize.Text, "^Jackpot: 100 golden fish"), "uigate: slice 8 is not the fish jackpot")
 	end },
 	{ "Market", function()
 		UI.market.open()

@@ -18,6 +18,7 @@ export type Area = { id: string, tier: number }
 local CrateLogic = {}
 
 CrateLogic.HIGHEST = "highest"
+CrateLogic.HIGHEST_GOLDEN = "highest_golden" -- #1500: the Spin Wheel's jackpot crate
 
 -- Catalog.crates by id, from a map or a list; rows that are not tables or have no id are skipped.
 function CrateLogic.byId(crates: any): { [string]: Crate }
@@ -44,17 +45,19 @@ function CrateLogic.isGolden(id: string, crate: Crate?): boolean
 	return string.find(id, "golden", 1, true) ~= nil
 end
 
--- "highest" becomes the plain crate of the highest-tier area the player's tier has opened; any other id stays.
--- With no such crate in the catalog (an older one) it stays "highest", and the screens show a plain crate.
+-- "highest" becomes the plain crate of the highest-tier area the player's tier has opened, and "highest_golden" its
+-- golden crate (#1500, as the server's Prizes.crateFor); any other id stays. With no such crate in the catalog (an
+-- older one) it stays as it was, and the screens show a plain crate.
 function CrateLogic.resolve(
 	crateId: string,
 	crates: { [string]: Crate },
 	areas: { Area }?,
 	tier: number?
 ): string
-	if crateId ~= CrateLogic.HIGHEST then
+	if crateId ~= CrateLogic.HIGHEST and crateId ~= CrateLogic.HIGHEST_GOLDEN then
 		return crateId
 	end
+	local golden = crateId == CrateLogic.HIGHEST_GOLDEN
 	local best: string? = nil
 	local bestTier = -math.huge
 	local list: { Area } = areas or {}
@@ -63,7 +66,7 @@ function CrateLogic.resolve(
 			continue
 		end
 		for id, crate in crates do
-			if crate.area == area.id and not CrateLogic.isGolden(id, crate) then
+			if crate.area == area.id and CrateLogic.isGolden(id, crate) == golden then
 				best = id
 				bestTier = area.tier
 				break
@@ -73,13 +76,16 @@ function CrateLogic.resolve(
 	return best or crateId
 end
 
--- "Woods Crate", else the id made readable ("woods_crate" -> "Woods Crate"); "highest" unresolved is "Crate".
+-- "Woods Crate", else the id made readable ("woods_crate" -> "Woods Crate"); "highest" unresolved is "Crate" and
+-- "highest_golden" "Golden Crate".
 function CrateLogic.name(crateId: string, crate: Crate?): string
 	if crate and type(crate.name) == "string" and crate.name ~= "" then
 		return crate.name
 	end
 	if crateId == CrateLogic.HIGHEST then
 		return "Crate"
+	elseif crateId == CrateLogic.HIGHEST_GOLDEN then
+		return "Golden Crate"
 	end
 	local words = {}
 	for word in string.gmatch(crateId, "[^_]+") do

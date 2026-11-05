@@ -154,6 +154,14 @@ Each piece and style that is **out** on the lawn adds money, by its rarity:
 3. `SetLawnSpot` fired by an exploit is refused, and the bonus comes only from the server's picks.
 4. Pace.spec with best-affordable lawn buying keeps every tier inside check 3.
 
+### 6e. Lawn is just another decor category, and pieces show their rarity (Derek2, 2026-11-05 22:38)
+
+Derek2 after testing live: "decor looks good but should have effects and act like its another plants/floor/walls section no edit lawn bs". 6a to 6d already give the money and Equip Best. This adds the look of it:
+- **A Lawn chip beside Plants, Floor and Walls**, with the same grid cards: picture, name, rarity colour, its bonus ("+3% money") and "Out" or "Stored". Paths and fences are cards in the same grid, tagged "Path" or "Fence". There's no Edit lawn button, no spot rings, no picker strip, no path or fence strip and no Clear. The only buttons are Equip Best (shared with decor) and the Nursery's "Where to buy" hint for pieces not owned.
+- **One total line** at the top of the Lawn chip: "Lawn: 6 out, +18% money". It's the same number as the Money boosts row.
+- **Pieces out on the lawn show their rarity** (vfx-animator, client only, mild and budgeted like the decor effects). Common and Uncommon have nothing. Rare gets a few slow sparkles. Epic gets a soft glow at the base. Legendary gets drifting motes in the rarity colour. Mythical gets a gentle aura. Golden gets a gold shimmer with occasional glints. Effects show only within about 60 studs, pause at night except the lamp-like pieces (Lamp Post, Fairy Light Arch), and switch off with the game's reduced effects setting.
+- Nothing else changes: the bonus row, the best-pick rule and the save are as 6a to 6c say.
+
 ## 7. Lawn pieces sold only at the Yard Sale (#1464)
 
 The friend, 2026-11-05: "update the decor/yard items to just work the same as the rest with equip best accept only obtainable from the yard sale shop that can roll common to mythic yard decor every day reset". Section 6 (#1382) already makes the lawn work like the rest with Equip Best. This section moves where pieces are sold. It replaces section 2.

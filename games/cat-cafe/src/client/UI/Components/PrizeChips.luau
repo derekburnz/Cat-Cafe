@@ -15,6 +15,8 @@
 --                             the "highest" crate (CrateLogic.resolve)
 --   PrizeChips.bonusText(0.02)   "+2% tips forever"; bonusText(0.03, "goldLuck") "+3% gold luck forever"
 --   PrizeChips.perkColor(perk)   the pill's colour
+--   PrizeChips.passOpen   #1646: true while a Cafe Pass season runs (UI.pass); a quest's passXp shows as a
+--                         "+100 pass XP" pill only then, since the server adds none while the pass is closed
 --   PrizeChips.paintPerk(label, perk)   colours a reused bonus label for its perk: the rainbow bands with dark words
 --                                       for rainbow luck, else perkColor with white outlined words
 
@@ -83,6 +85,12 @@ local UNFOLD_SLACK = 2 -- px of spare room a folded picture needs before it come
 
 local PrizeChips = {}
 PrizeChips.__index = PrizeChips
+PrizeChips.passOpen = false
+
+-- a part drawn as a pill rather than a picture: the forever bonuses and a quest's pass XP (#1646)
+local function isPill(kind: string): boolean
+	return IndexRewards.isPerk(kind) or kind == "passXp"
+end
 
 -- a forever pill's text, a little smaller than the amounts
 local function pillTextSize(textSize: number): number
@@ -297,6 +305,14 @@ function PrizeChips.bonusText(fraction: number, perk: string?): string
 end
 local bonusText = PrizeChips.bonusText
 
+-- a pill's words: "+2% tips forever", or "+100 pass XP" (#1646)
+local function pillText(part: IndexRewards.PrizePart): string
+	if part.kind == "passXp" then
+		return ("+%d pass XP"):format(part.amount)
+	end
+	return bonusText(part.amount, part.kind)
+end
+
 -- Tips gold, gold luck a deeper gold, faster bait sky blue, so the tracks' bonuses read apart. Rainbow luck is the
 -- turning bands (paintPerk); berry stands in where a label cannot carry them.
 function PrizeChips.perkColor(perk: string?): Color3
@@ -306,6 +322,8 @@ function PrizeChips.perkColor(perk: string?): Color3
 		return Theme.colors.sky
 	elseif perk == "rainbowLuck" then
 		return Theme.colors.berry
+	elseif perk == "passXp" then
+		return Theme.colors.warnDark -- #1646: the Cafe Pass's maple orange
 	end
 	return Theme.colors.gold
 end
@@ -442,7 +460,11 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 				{ kind = "crate", id = id, amount = raw.amount }
 			part = resolved
 		end
-		if not IndexRewards.isPerk(part.kind) or props.showBonus ~= false then
+		if part.kind == "passXp" then
+			if PrizeChips.passOpen then
+				table.insert(all, part)
+			end
+		elseif not IndexRewards.isPerk(part.kind) or props.showBonus ~= false then
 			table.insert(all, part)
 		end
 	end
@@ -451,7 +473,7 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 	local hasPill = false
 	for _, part in all do
 		table.insert(keys, part.kind .. ":" .. (part.id or ""))
-		if IndexRewards.isPerk(part.kind) then
+		if isPill(part.kind) then
 			hasPill = true
 		else
 			pictures += 1
@@ -478,7 +500,7 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 		parts = {}
 		local kept = 0
 		for _, part in all do
-			if IndexRewards.isPerk(part.kind) then
+			if isPill(part.kind) then
 				table.insert(parts, part)
 			elseif kept < cap then
 				kept += 1
@@ -495,8 +517,8 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 			local label: TextLabel? = self._chips[index].label
 			if label then
 				local _, _, _, amount = self:_partLook(part, shown)
-				label.Text = if IndexRewards.isPerk(part.kind)
-					then bonusText(part.amount, part.kind)
+				label.Text = if isPill(part.kind)
+					then pillText(part)
 					elseif (part.kind :: string) == "more" then "+" .. part.amount
 					else amount
 			end
@@ -524,8 +546,8 @@ function PrizeChips.set(self: any, prize: Types.IndexPrize?, look: Look?)
 			}),
 		})
 		local entry: Chip = { frame = chip, label = nil }
-		if IndexRewards.isPerk(part.kind) then
-			entry.label = self:_bonusPill(chip, bonusText(part.amount, part.kind), part.kind)
+		if isPill(part.kind) then
+			entry.label = self:_bonusPill(chip, pillText(part), part.kind)
 		elseif (part.kind :: string) == "more" then
 			entry.label = self:_morePill(chip, "+" .. part.amount)
 		else

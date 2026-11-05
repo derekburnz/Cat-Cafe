@@ -48,6 +48,8 @@ export type ItemIcon = {
 	-- a food by its LureDef, or by `id` alone when the catalog does not have it: tile, picture and grade badge;
 	-- `image` in place of the food's own uploaded picture
 	setFood: (self: ItemIcon, lure: Types.LureDef?, id: string?, image: string?) -> (),
+	-- a potion's bottle, trying each of its pictures in turn (#1256)
+	setPotion: (self: ItemIcon, potionId: string?, rarity: string?) -> (),
 	destroy: (self: ItemIcon) -> (),
 }
 
@@ -219,6 +221,14 @@ function ItemIcon.set(
 		IconArt.set(self._glyph, if glyph ~= "?" and not hasModel then glyph else nil)
 	end
 	self._glyph.Visible = image ~= nil or not hasModel
+end
+
+function ItemIcon.setPotion(self: any, potionId: string?, rarity: string?)
+	local bottles = ShopIcons.potionAll(potionId)
+	self:set(nil, Theme.icons.potion, rarity, bottles[1])
+	if #bottles > 1 then
+		IconArt.setImages(self._glyph, bottles, IMAGE_SCALE) -- a flask that fails to load hands over to the next
+	end
 end
 
 -- The model in the viewport, or none; a model Assets does not have yet leaves the glyph.

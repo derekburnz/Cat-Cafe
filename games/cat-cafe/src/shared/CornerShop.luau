@@ -5,7 +5,7 @@
 -- only from the global window with the salt "corner", so every server shows the same stock and it differs from the
 -- Fresh Catch's roll in the same window. The amount is per player: each
 -- player may buy up to it of each row in the window. Prices are fixed (the row's `price`). A UTC day allows at most
--- Config.CornerDailyLimits of a family, any size (cat food has no daily XP cap since #1255; foodXpToday still counts
+-- Config.CornerDailyLimits of a family, any size (per game day since #1629) (cat food has no daily XP cap since #1255; foodXpToday still counts
 -- it); a row's `needsTier` refuses it below that tier. #1281 (section 1b): the "bait" rows sell the bowl foods at
 -- Economy.foodPrice for the buyer's tier (priceOf), up to LURE_MAX of each food held.
 -- Pure: the server's CornerShopService checks the range, takes the coins and gives the item; the window shows the
@@ -135,12 +135,14 @@ function CornerShop.fresh(): Types.CornerShopState
 	return { window = 0, bought = {}, day = 0, today = {}, foodXpToday = 0 }
 end
 
--- Clears the bought counts once the window has moved on (never on a step back: two servers' clocks can differ by a
--- second at a window edge, reviewer N32), and the day's counts once the UTC day has.
+-- Clears the bought counts and each family's count toward its daily limit once the window (a game day since #1437)
+-- has moved on (never on a step back: two servers' clocks can differ by a second at a window edge, reviewer N32), and
+-- the food XP once the UTC day has. #1629 (Derek2): the family limits reset at every in-game sunrise, not at 00:00 UTC.
 function CornerShop.refresh(state: Types.CornerShopState, window: number, day: number)
 	if window > state.window then
 		state.window = window
 		state.bought = {}
+		state.today = {}
 	end
 	if day > state.day then
 		state.day = day
@@ -175,7 +177,7 @@ function CornerShop.view(
 	local stock: { Types.CornerShopItem } = {}
 	for _, item in CornerShop.stock(window) do
 		local row = Catalog.getCornerShopRow(item.itemId) :: Types.CornerShopRow
-		-- #1435: the row's family is at its daily limit, so the window greys Buy ("Back tomorrow") instead of
+		-- #1435: the row's family is at its daily limit, so the window greys Buy ("Back at sunrise", #1629) instead of
 		-- letting every press come back with the toast. The limit itself is still never shown (#1190).
 		local limit = CornerShop.perDay(row.family)
 		local outToday = limit ~= nil and (state.today[row.family] or 0) >= limit
@@ -240,7 +242,7 @@ function CornerShop.buyBlocker(state: Types.CornerShopState, buy: Buy, window: n
 	if limit ~= nil and today >= limit then
 		-- #1190: the limits are never shown on a row, only as this toast when a buy hits one
 		return string.format(
-			"That's all the %s for today, back tomorrow!",
+			"That's all the %s for today, back at sunrise!",
 			CornerShop.FAMILY_NAMES[row.family] or row.name
 		)
 	end

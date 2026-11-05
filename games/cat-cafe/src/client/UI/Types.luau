@@ -42,6 +42,7 @@ export type Catalog = {
 	decor: { DecorDef },
 	lures: { LureDef },
 	spots: { SpotDef }?, -- role slots; needed for the cat room's crew strip and Upgrades > Staff
+	allSpots: { SpotDef }?, -- #1624: Catalog.allSpots, the tier slots then the pass-only ones, in opening order
 	tiers: { TierDef }?, -- v0.3: tier names, gates and the rank up card
 	areas: { AreaDef }?, -- v0.3: which areas a tier opens (bait odds pool every unlocked area)
 	tipJar: { TipJarRow }?, -- F47: the twelve playtime gifts (data-model section 11b)

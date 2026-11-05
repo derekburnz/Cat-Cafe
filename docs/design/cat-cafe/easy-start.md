@@ -16,7 +16,7 @@ Written for today's town (the Alleyway behind the cafes, travel buttons), which 
 
 ### 2a. Straight into play
 
-- **The intro stops playing by itself.** `Config.IntroAutoPlay` (false). A new player spawns at their back door, facing the alley, with the first hint and its trail already showing. The Tutorial tile (top right, "?") glows twice and plays the intro for anyone who taps it, as now. Flipping the constant back to true restores today's behaviour. This is a Set 5 question for Derek, since he asked for the intro; the recommendation is off, because 25 seconds of cutscene before the first input is the longest wait in the game.
+- **The intro plays once by itself again (#1575, Derek 2026-11-05, Set 6 Q2: plays once on first join with a Skip button, replayable from the ? button).** `Config.IntroAutoPlay` is true. Before that it was false: A new player spawns at their back door, facing the alley, with the first hint and its trail already showing. The Tutorial tile (top right, "?") glows twice and plays the intro for anyone who taps it, as now. Flipping the constant back to true restores today's behaviour. This is a Set 5 question for Derek, since he asked for the intro; the recommendation is off, because 25 seconds of cutscene before the first input is the longest wait in the game.
 - **The tutorial stray is in view.** The beginner's Common (data-model section 9) waits at its point behind the player's own cafe, as now. Its "!" marker shows from the spawn.
 
 ### 2b. A first catch that cannot fail
@@ -164,7 +164,7 @@ Tutorial cards (`tutorialStep`, `TutorialHints`): card *n* is shown at `tut_<n>_
 
 ### 5b. `onboarding_v3_intro`
 
-The intro has played only from the Tutorial tile or the help card since F87 (`Config.IntroAutoPlay` is off), so a player who never plays it would hold the whole main funnel; it is a funnel of its own. Each step is logged once per player when it is past the furthest one logged; a shot left out (its camp did not stream in) is never logged, and Roblox counts it passed.
+The intro has played only from the Tutorial tile or the help card from F87 until #1575 (`Config.IntroAutoPlay` was off; it is on again since #1575, so new players now enter this funnel on join), so a player who never plays it would hold the whole main funnel; it is a funnel of its own. Each step is logged once per player when it is past the furthest one logged; a shot left out (its camp did not stream in) is never logged, and Roblox counts it passed.
 
 | Step | stepName | Logged when |
 |---|---|---|
@@ -200,7 +200,7 @@ A new player is one still below `tutorialStep` 5 or on the UTC day of their firs
 - **Remotes:** `TipSeen(id)`, client to server, 1 per second, `id` from the tip table, sets `tipsSeen[id]` (the server decides triggers it can see itself, such as `night` and `rank_up`, and tells the client with `ShowTip(id)`); `SendFeedback(face, chip?)`, 1 per 10 s and 5 per session, both values checked against fixed lists; `ClearTips()`, 1 per 10 s.
 - **Server:** the tutorial stray's catch rules (2b) in CatService; the newcomer shield in ShoveService; the automatic first job (2d) in CafeService, through the same code path as `PlaceCat`; the funnel steps and events (5) in Telemetry.
 - **Client and UI:** the small HUD and button unlocks (2f), the device-aware hint, the nudges and help card (2g), the tip queue, cards and camera cuts (3), the feedback page and the one ask (4).
-- **Constants:** IntroAutoPlay false, TutorialShrinkSeconds 1.6, TutorialWindowScale 2, TutorialRetrySeconds 1.0, StuckNudgeSeconds 40, StuckHelpSeconds 90, TipGapSeconds 60, TipCutMaxSeconds 4, FeedbackAskMinutes 12.
+- **Constants:** IntroAutoPlay true (false from F87 until #1575), TutorialShrinkSeconds 1.6, TutorialWindowScale 2, TutorialRetrySeconds 1.0, StuckNudgeSeconds 40, StuckHelpSeconds 90, TipGapSeconds 60, TipCutMaxSeconds 4, FeedbackAskMinutes 12.
 
 ## 7. Who builds what
 

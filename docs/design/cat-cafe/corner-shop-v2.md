@@ -12,12 +12,13 @@ Every item is sold for **coins**, at a **fixed price**. Sizes go Small, regular,
 
 | family | Small | regular | Big | Mega | a day (all sizes together) |
 |---|---|---|---|---|---|
-| Swift Potion (+4 walk speed) | 3 min · 300 | 10 min · 5,000 | 30 min · 500,000 | | no limit |
-| Steady Paw Potion (wider net bands) | 5 min · 1,000 | 10 min · 20,000 | 30 min · 2,000,000 | | 4 |
-| Quick Bait Potion (bait 25% sooner) | 10 min · 2,500 | 30 min · 60,000 | 60 min · 6,000,000 | | 2 |
-| Cat Whistle (a marker on the nearest stray in your area) | 5 min · 800 | 10 min · 15,000 | 30 min · 1,500,000 | | 4 |
-| Cat food (XP for one cat, goes to the Bag) | Small Snack, 600 XP · 400 | Cat Snack, 2,000 XP · 15,000 | Big Snack, 6,000 XP · 1,000,000 | Cat Feast, 20,000 XP · 80,000,000 | up to 20,000 XP bought |
-| Shows (looks only) | | Bubble Machine, 10 min · 50,000 | Cafe Fireworks, 20 s · 250,000 | | no limit |
+| Swift Potion (+4 walk speed) | 3 min · 3,000 | 10 min · 100,000 | 30 min · 20,000,000 | | no limit |
+| Steady Paw Potion (wider net bands) | 5 min · 10,000 | 10 min · 400,000 | 30 min · 80,000,000 | | 4 |
+| Quick Bait Potion (bait 25% sooner) | 10 min · 25,000 | 30 min · 1,200,000 | 60 min · 240,000,000 | | 2 |
+| Cat Whistle (a marker on the nearest stray in your area) | 5 min · 8,000 | 10 min · 300,000 | 30 min · 60,000,000 | | 4 |
+| Cat food (XP for one cat, goes to the Bag) | Small Snack, 600 XP · 4,000 | Cat Snack, 2,000 XP · 300,000 | Big Snack, 6,000 XP · 40,000,000 | Cat Feast, 20,000 XP · 3,200,000,000 | up to 20,000 XP bought |
+
+Prices v3 (#1385, the friend, 2026-11-05: "raise corner shop prices of items by a huge amount and make the better ones exponential"): every coin price is multiplied by its size's factor. Small x10, regular x20, Big x40, Mega x40, so each size step doubles it and regular gets the 20x the friend suggested. The Cat Feast stays at Big's x40, because x80 (6.4B) would cost over five times the Tier 5 rank-up (1.2B). The old prices were 300, 5,000 and 500,000 for the Swift Potion, and the same factors apply to every row. The Bubble Machine and Cafe Fireworks rows are gone (#1381, built in #1386), so they have no new price. Daily limits, stock odds, `needsTier` and the bait foods (section 1b, which follow `Economy.foodPrice`) don't change. These are coins only: nothing here is sold for Robux or golden fish.
 
 **Since #1437 (built in #1473):** the window is one global game day, 390 s from `Config.ClockEpoch`, so the stock restocks at each sunrise, at the same moment on every server (data-model.md section 9). Read "5-minute window" below as that game-day window.
 

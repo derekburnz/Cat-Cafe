@@ -16,6 +16,7 @@ CatCafe_Icon_Hud_<Name> (transparent, dark outline, 512 px) for UI-Engineer to p
   Areas     a red map pin over a little green map
   Potions   a flask (potions.py's Swift Potion)
   Bait      the food bowl (items.py) with a heap of kibble
+  NightMarket  the Night Market map bubble (#1607): the dealer's cart, striped canopy, lantern, gold moon and stars
 
 Each builder lays its object out in Blender axes (x right, -y toward the camera, z up) and returns its objects; nothing
 here is a game model.
@@ -203,6 +204,59 @@ def bait(mat):
     return _fin(b, "Bait", mat)
 
 
+def _moon(b, c, R, W, depth, sw, n=14):
+    """A smooth crescent standing up and facing the camera, its thick middle toward +x and its horns toward -x."""
+    a0, a1 = math.radians(-140), math.radians(140)
+    outer, inner = [], []
+    for i in range(n + 1):
+        t = i / n
+        a = a0 + (a1 - a0) * t
+        w = W * math.sin(math.pi * t) + 0.02
+        outer.append((R * math.cos(a), R * math.sin(a)))
+        inner.append(((R - w) * math.cos(a), (R - w) * math.sin(a)))
+    for i in range(n):
+        b.fan(c, outer[i], [inner[i], inner[i + 1], outer[i + 1]], depth, sw, rot=X)
+
+
+def night_market(mat):
+    """The Night Market map bubble (#1607): the night dealer's cart (street.py) made chunky, a galaxy-blue cart with
+    gold stars on two wheels, a violet and cream striped canopy with a scalloped edge, wares on the counter and a warm
+    lantern at the front corner, under a big gold crescent moon and two stars."""
+    b = Builder()
+    for x in (-0.72, 0.72):                                                        # wheels, axle along Y
+        b.cyl((x, -0.5, 0.36), 0.36, 0.16, "dark_wood", segments=16, rot=X)
+        b.cyl((x, -0.6, 0.36), 0.12, 0.06, "rarity_legend", segments=10, rot=X)
+    b.box((0, 0, 0.9), (2.1, 0.9, 0.84), "galaxy_blue")                            # body
+    for (x, z, r) in ((-0.55, 0.98, 0.17), (0.0, 0.78, 0.11), (0.5, 1.02, 0.14)):  # gold stars on its front
+        b.star((x, -0.47, z), r, r * 0.45, 0.04, "rarity_legend", rot=X)
+    b.box((0, -0.05, 1.38), (2.4, 1.1, 0.12), "caramel_wood")                      # counter
+    b.box((0, -0.61, 1.38), (2.42, 0.04, 0.14), "rarity_legend", bevel=False)      # its gold edge
+    for (x, sw) in ((-0.5, "fur_strawberry"), (0.05, "gold_mid"), (0.6, "mint")):  # the wares
+        b.ico((x, -0.25, 1.58), 0.16, sw)
+    for x in (-1.1, 1.1):                                                          # canopy posts
+        for y in (-0.5, 0.35):
+            b.cyl_base((x, y, 1.44), 0.05, 0.95, "dark_wood", segments=6, bevel=False)
+    n, w, deg = 5, 2.6, 14.0                                                       # canopy slopes down to the front
+    tilt = (math.radians(deg), "X")
+    fy = -0.1 - 0.7 * math.cos(math.radians(deg))                                  # its front edge
+    fz = 2.48 - 0.7 * math.sin(math.radians(deg))
+    half = [(0.26 * math.cos(a), 0.26 * math.sin(a)) for a in (math.radians(-15 * k) for k in range(13))]
+    for i in range(n):
+        x = -w / 2 + w * (i + 0.5) / n
+        sw = ("aurora_violet", "cream")[i % 2]
+        b.box((x, -0.1, 2.48), (w / n, 1.4, 0.12), sw, rot=tilt)
+        b.fan((x, fy - 0.01, fz - 0.04), (0, 0), half, 0.06, sw, rot=X)          # a scallop hanging from the edge
+    lx, ly = -1.1, -0.72                                                           # lantern at the front corner
+    b.cyl((lx, ly, 2.0), 0.02, 0.2, "fur_black", segments=4, bevel=False)
+    b.pyramid((lx, ly, 1.86), 0.3, 0.14, "rarity_legend")                          # cap
+    b.box((lx, ly, 1.66), (0.24, 0.24, 0.36), "lamp_warm", bevel=False)           # glow
+    b.box((lx, ly, 1.47), (0.3, 0.3, 0.05), "fur_black", bevel=False)              # base
+    _moon(b, (0.45, 0.2, 3.3), 0.72, 0.42, 0.16, "rarity_legend")                  # the moon
+    b.star((-0.6, 0.2, 3.4), 0.22, 0.1, 0.08, "rarity_legend", rot=X)
+    b.star((-0.2, 0.2, 3.9), 0.15, 0.07, 0.08, "rarity_legend", rot=X)
+    return _fin(b, "NightMarket", mat)
+
+
 def builders():
     """Picture name -> builder, for icons.py."""
     import icons      # noqa: F401  (icons imports this module; the Decor builder lives there)
@@ -212,5 +266,5 @@ def builders():
         "Decor": icons._hud_decor, "Rewards": gift, "Tutorial": question, "Feedback": speech, "Menu": gear,
         "MyCafe": house, "Cannon": cannon, "Areas": map_pin,
         "Potions": lambda m: potions.build_potion("Swift", m),
-        "Bait": bait,
+        "Bait": bait, "NightMarket": night_market,
     }

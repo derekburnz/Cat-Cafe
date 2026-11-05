@@ -8,6 +8,8 @@
 --                    ("further away the bubbles should be smaller")
 --   isSafe(zone)     the World.Zones name the player stands in: nil (the street) or "Cafe" is safe from shoves,
 --                    an area ("Alley", "Park") is not
+--   homeShows(zone)  whether the My Cafe marker shows there: only in the cafe area, the street and the cafes
+--                    (#1620, Derek2 11-05: "only show the my cafe bubble when in that area")
 -- Pure, no Theme, so the cloud spec runner can load it.
 
 local Wayfinding = {}
@@ -37,6 +39,10 @@ end
 
 function Wayfinding.isSafe(zone: string?): boolean
 	return zone == nil or zone == "Cafe"
+end
+
+function Wayfinding.homeShows(zone: string?): boolean
+	return Wayfinding.isSafe(zone)
 end
 
 return Wayfinding

@@ -224,7 +224,7 @@ return function()
 			expect(state.bought.swift_potion_small).never.to.be.ok()
 		end)
 
-		it("stops a family at its daily limit, any size, until 00:00 UTC", function()
+		it("stops a family at its daily limit, any size, until the next game day (#1629)", function()
 			local window = assert(windowWith("quick_bait_potion_small", WINDOW))
 			local day = 20400
 			local state = CornerShop.fresh()
@@ -232,31 +232,48 @@ return function()
 			CornerShop.record(state, "quick_bait_potion")
 			CornerShop.record(state, "quick_bait_potion_big")
 			expect(CornerShop.buyBlocker(state, buy("quick_bait_potion_small", window), window)).to.equal(
-				"That's all the Quick Bait for today, back tomorrow!"
+				"That's all the Quick Bait for today, back at sunrise!"
 			)
+			local steadyWindow = assert(windowWith("steady_potion_small", window))
+			CornerShop.refresh(state, steadyWindow, day)
 			for _ = 1, 4 do
 				CornerShop.record(state, "steady_potion_small")
 			end
 			state.bought = {} -- the window's own count is checked first; this test is about the day's
-			local steadyWindow = assert(windowWith("steady_potion_small", window))
-			CornerShop.refresh(state, steadyWindow, day)
 			expect(CornerShop.buyBlocker(state, buy("steady_potion_small", steadyWindow), steadyWindow)).to.equal(
-				"That's all the Steady Paw for today, back tomorrow!"
+				"That's all the Steady Paw for today, back at sunrise!"
 			)
 			CornerShop.refresh(state, window, day)
 			-- #1190: the row never carries the day's count or the limit
 			expect((CornerShop.view(state, window).stock[7] :: any).today).to.equal(nil)
 			expect((CornerShop.view(state, window).stock[7] :: any).perDay).to.equal(nil)
 			-- the Swift Potion has no limit
+			local swiftWindow = assert(windowWith("swift_potion_small", window))
+			CornerShop.refresh(state, swiftWindow, day)
 			for _ = 1, 10 do
 				CornerShop.record(state, "swift_potion_small")
 			end
 			state.bought = {}
-			local swiftWindow = assert(windowWith("swift_potion_small", window))
-			CornerShop.refresh(state, swiftWindow, day)
 			expect(CornerShop.buyBlocker(state, buy("swift_potion_small", swiftWindow), swiftWindow)).to.equal(nil)
-			CornerShop.refresh(state, swiftWindow, day + 1)
+		end)
+
+		it("resets the family limits at the next game day, not at 00:00 UTC (#1629)", function()
+			local window = assert(windowWith("quick_bait_potion_small", WINDOW))
+			local day = 20400
+			local state = CornerShop.fresh()
+			CornerShop.refresh(state, window, day)
+			CornerShop.record(state, "quick_bait_potion")
+			CornerShop.record(state, "quick_bait_potion_big")
+			expect(state.today.quick_bait).to.equal(2)
+			-- the same game day on another server, or a second's step back, keeps the count
+			CornerShop.refresh(state, window, day)
+			CornerShop.refresh(state, window - 1, day)
+			expect(state.today.quick_bait).to.equal(2)
+			-- the next sunrise clears it within the same UTC day
+			local later = assert(windowWith("quick_bait_potion_small", window + 1))
+			CornerShop.refresh(state, later, day)
 			expect(state.today.quick_bait).never.to.be.ok()
+			expect(CornerShop.buyBlocker(state, buy("quick_bait_potion_small", later), later)).to.equal(nil)
 		end)
 
 		it("marks every row of a family out today once it hits its limit, and nothing else (#1435)", function()

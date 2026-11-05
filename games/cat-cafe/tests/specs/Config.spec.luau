@@ -78,7 +78,7 @@ return function()
 		RemoteRateLimitPerSecond = 10,
 		AnnounceMinRarity = "Epic",
 		GrabCooldownSeconds = 2,
-		TravelCooldownSeconds = 3, -- v0.4 (F19)
+		TravelCooldownSeconds = 1, -- v0.4 (F19) 3; #1434 1
 		SyncIntervalSeconds = 10,
 		NormalWalkSpeed = 20, -- v0.4
 		CameraMaxZoomStuds = 60, -- Derek 2026-11-02, the zoom card
@@ -160,8 +160,8 @@ return function()
 		-- the Spin Wheel station (F49, section 11c, design v0.6)
 		SpinStationRange = 14,
 		SpinCooldownSeconds = 4,
-		SpinAllMax = 25, -- #1078 (Derek 2026-11-04): Use all spins
-		SpinBankCap = 20,
+		SpinAllMax = 51, -- #1078 (Derek 2026-11-04): Use all spins; 51 since #1414
+		SpinBankCap = 50, -- #1414 (was 20)
 		-- golden fish and crates (F52, F53, golden-fish.md section 8)
 		CrateLuckyEvery = 20,
 		CratePrice = 40,

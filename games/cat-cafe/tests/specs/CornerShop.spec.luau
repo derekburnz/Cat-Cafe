@@ -32,22 +32,22 @@ return function()
 	describe("the stock (section 1)", function()
 		it("sells every family's sizes at the design's fixed prices, in order", function()
 			local want = {
-				{ "swift_potion_small", "swift", "small", 300 },
-				{ "swift_potion", "swift", "regular", 5000 },
-				{ "swift_potion_big", "swift", "big", 500000 },
-				{ "steady_potion_small", "steady", "small", 1000 },
-				{ "steady_potion", "steady", "regular", 20000 },
-				{ "steady_potion_big", "steady", "big", 2000000 },
-				{ "quick_bait_potion_small", "quick_bait", "small", 2500 },
-				{ "quick_bait_potion", "quick_bait", "regular", 60000 },
-				{ "quick_bait_potion_big", "quick_bait", "big", 6000000 },
-				{ "cat_whistle_small", "whistle", "small", 800 },
-				{ "cat_whistle", "whistle", "regular", 15000 },
-				{ "cat_whistle_big", "whistle", "big", 1500000 },
-				{ "small_cat_snack", "food", "small", 400 },
-				{ "cat_snack", "food", "regular", 15000 },
-				{ "big_cat_snack", "food", "big", 1000000 },
-				{ "cat_feast", "food", "mega", 80000000 },
+				{ "swift_potion_small", "swift", "small", 3000 },
+				{ "swift_potion", "swift", "regular", 100000 },
+				{ "swift_potion_big", "swift", "big", 20000000 },
+				{ "steady_potion_small", "steady", "small", 10000 },
+				{ "steady_potion", "steady", "regular", 400000 },
+				{ "steady_potion_big", "steady", "big", 80000000 },
+				{ "quick_bait_potion_small", "quick_bait", "small", 25000 },
+				{ "quick_bait_potion", "quick_bait", "regular", 1200000 },
+				{ "quick_bait_potion_big", "quick_bait", "big", 240000000 },
+				{ "cat_whistle_small", "whistle", "small", 8000 },
+				{ "cat_whistle", "whistle", "regular", 300000 },
+				{ "cat_whistle_big", "whistle", "big", 60000000 },
+				{ "small_cat_snack", "food", "small", 4000 },
+				{ "cat_snack", "food", "regular", 300000 },
+				{ "big_cat_snack", "food", "big", 40000000 },
+				{ "cat_feast", "food", "mega", 3200000000 },
 			}
 			expect(#Catalog.cornerShop).to.equal(#want)
 			for index, row in Catalog.cornerShop do
@@ -137,15 +137,15 @@ return function()
 			local state = CornerShop.fresh()
 			CornerShop.refresh(state, window, CornerShop.day(window * 300))
 			local row = Catalog.getCornerShopRow("swift_potion_small") :: any
-			expect(CornerShop.view(state, window).stock[1].price).to.equal(300)
-			expect(row.price).to.equal(300)
+			expect(CornerShop.view(state, window).stock[1].price).to.equal(3000)
+			expect(row.price).to.equal(3000)
 			expect(CornerShop.buyBlocker(state, buy("swift_potion_small", window - 1), window)).to.equal(
 				"The Corner Shop just restocked. Take another look."
 			)
-			expect(CornerShop.buyBlocker(state, buy("swift_potion_small", window, 1, 299), window)).to.equal(
+			expect(CornerShop.buyBlocker(state, buy("swift_potion_small", window, 1, 2999), window)).to.equal(
 				"Not enough coins"
 			)
-			expect(CornerShop.buyBlocker(state, buy("swift_potion_small", window, 1, 300), window)).to.equal(nil)
+			expect(CornerShop.buyBlocker(state, buy("swift_potion_small", window, 1, 3000), window)).to.equal(nil)
 			expect(CornerShop.buyBlocker(state, buy("kibble", window), window)).to.equal("That isn't in the Corner Shop.")
 			expect(CornerShop.buyBlocker(state, buy("steady_potion_big", window, 2), window)).to.equal(
 				"Opens at Tier 3"

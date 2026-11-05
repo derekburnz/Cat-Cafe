@@ -330,31 +330,6 @@ return function()
 			game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog")
 		) :: any
 
-		it("rings the dusk bell warning seconds before night, by day only", function()
-			expect(Logic.duskBellIn("day", 100, 50, 15)).to.equal(35)
-			expect(Logic.duskBellIn("day", 100, 85, 15)).to.equal(0)
-			expect(Logic.duskBellIn("day", 100, 85.5, 15)).to.equal(0)
-			expect(Logic.duskBellIn("day", 100, 86, 15)).to.equal(0)
-			expect(Logic.duskBellIn("day", 100, 86.5, 15)).never.to.be.ok()
-			for _, phase in { "night", "Day", "", 5 } :: { any } do
-				expect(Logic.duskBellIn(phase, 100, 50, 15)).never.to.be.ok()
-			end
-			expect(Logic.duskBellIn(nil, 100, 50, 15)).never.to.be.ok()
-			expect(Logic.duskBellIn("day", nil, 50, 15)).never.to.be.ok()
-			-- a sweep through the last 20 s of a day: never negative, and the bell lands on its second or is skipped
-			for step = 0, 80 do
-				local now = 80 + step * 0.25
-				local wait = Logic.duskBellIn("day", 100, now, 15)
-				if now <= 85 then
-					expect(wait).to.equal(85 - now)
-				elseif now <= 86 then
-					expect(wait).to.equal(0)
-				else
-					expect(wait).never.to.be.ok()
-				end
-			end
-		end)
-
 		it("gives the Mythical sting to Mythical and the old Secret only, in any case", function()
 			for rarity in Catalog.rarities do
 				local want = if string.lower(rarity) == "mythical"
@@ -414,7 +389,7 @@ return function()
 
 		it("names only cues the table has; giftOpen stays for the result card", function()
 			local names: { string } =
-				{ "duskBell", "announce", "announceMythical", "tipPile", "visitorCollector" }
+				{ "announce", "announceMythical", "tipPile", "visitorCollector" }
 			for _, name in { "visitorMystery", "giftOpen" } do
 				table.insert(names, name)
 			end

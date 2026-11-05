@@ -389,6 +389,9 @@ return function()
 				StrayFloorBase = true, -- #1159: top-ups, checked in StrayTopUp.spec
 				StrayFloorPerPlayer = true,
 				StrayLiveMax = true,
+				StrayEntryFloor = true, -- #1621: the strays kept near each gate, checked in StrayTopUp.spec
+				StrayEntryStuds = true,
+				StrayEntryTopUpSeconds = true,
 				StrayTopUpMinSeconds = true,
 				StrayTopUpMaxSeconds = true,
 				MysteryRangeStuds = true, -- sections 12b and 15: OpenMysteryGift "within 12 studs"

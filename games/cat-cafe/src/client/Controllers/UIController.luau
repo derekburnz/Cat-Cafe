@@ -1787,6 +1787,7 @@ function UIController.start()
 		decor = Catalog.decor,
 		lures = Catalog.lures,
 		spots = Catalog.spots,
+		allSpots = (Catalog :: any).allSpots, -- #1624: with the pass-only slots (nil until the server code has them)
 		tiers = Catalog.tiers,
 		areas = Catalog.areas,
 		rarities = Catalog.rarities,

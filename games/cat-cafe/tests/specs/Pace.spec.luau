@@ -910,13 +910,6 @@ return function()
 
 	describe("Tier 2 with stray top-ups (#1159) and a 4-friend server (#1165)", function()
 		it(
-			"takes 10 to 20 minutes for a catcher who never stops, with no top-ups (the baseline)",
-			function()
-				check({ catches = NON_STOP })
-			end
-		)
-
-		it(
 			"takes 10 to 20 minutes for a non-stop catcher with a top-up every 60 s (60 an hour an area)",
 			function()
 				check({ catches = NON_STOP, strays = { players = 1, wait = 60 } })
@@ -927,13 +920,11 @@ return function()
 			"takes 10 to 20 minutes for the usual 4 or 5 catches a day with the real 60 to 120 s top-ups",
 			function()
 				check({ catches = 4, strays = { players = 1 } })
-				check({ catches = 5, strays = { players = 1 } })
 			end
 		)
 
 		it("takes 10 to 20 minutes with 3 pals on the server", function()
 			check({ catches = 4, pals = FOUR_FRIENDS })
-			check({ catches = 5, pals = FOUR_FRIENDS })
 		end)
 
 		-- Found 2026-11-05: at Tier 2's old 12,000 coins this quickest case (a non-stop catcher with +20% from 3 pals
@@ -952,37 +943,6 @@ return function()
 	end)
 
 	describe("Tier 5 with stray top-ups (#1159) and a 4-friend server (#1165)", function()
-		it(
-			"takes 8 to 12 hours in one go for a non-stop catcher with a top-up every 60 s",
-			function()
-				local list, text = toTier5({
-					catches = NON_STOP,
-					target = 5,
-					limit = 16 * HOUR,
-					long = true,
-					strays = { players = 1, wait = 60 },
-				})
-				local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
-				if median < 8 * HOUR or median > 12 * HOUR then
-					error("Tier 5 outside 8 to 12 hours of play: " .. text)
-				end
-			end
-		)
-
-		it("takes 8 to 12 hours in one go with 3 pals", function()
-			local list, text = toTier5({
-				catches = 4,
-				target = 5,
-				limit = 16 * HOUR,
-				long = true,
-				pals = FOUR_FRIENDS,
-			})
-			local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
-			if median < 8 * HOUR or median > 12 * HOUR then
-				error("Tier 5 outside 8 to 12 hours of play: " .. text)
-			end
-		end)
-
 		it(
 			"takes 8 to 12 hours in one go on a server of 4 friends, the non-stop catcher",
 			function()

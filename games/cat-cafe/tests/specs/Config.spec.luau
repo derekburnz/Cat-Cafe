@@ -369,6 +369,11 @@ return function()
 				CodeWrongWindowSeconds = true, -- section 11d: "5 wrong codes in a minute"
 				GroupCheckSeconds = true, -- section 11d: IsInGroup "cached per player for 60 s"
 				StraySpawnSpacingStuds = true, -- Derek 22:38: strays spawn spread out; the designer logs it in section 17
+				StrayFloorBase = true, -- #1159: top-ups, checked in StrayTopUp.spec
+				StrayFloorPerPlayer = true,
+				StrayLiveMax = true,
+				StrayTopUpMinSeconds = true,
+				StrayTopUpMaxSeconds = true,
 				MysteryRangeStuds = true, -- sections 12b and 15: OpenMysteryGift "within 12 studs"
 				CollectorValue = true, -- section 17's "1, 3, 8, 20, 50 by rarity", checked in Collector.spec
 				CollectorAskWeight = true, -- #1144: a table, checked in Collector.spec

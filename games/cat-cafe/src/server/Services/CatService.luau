@@ -39,6 +39,7 @@ local RallyService = require(script.Parent.RallyService)
 local RareMomentService = require(script.Parent.RareMomentService)
 local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local Shove = require(ReplicatedStorage.Shared.Shove)
+local StrayTopUp = require(ReplicatedStorage.Shared.StrayTopUp)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -611,19 +612,24 @@ local TUTORIAL_AREA, TUTORIAL_ZONE = "alley", "near"
 local NEAR_STRAY_STUDS = 12 -- F87: funnel step near_stray, this close to the own tutorial stray
 local IN_VIEW_STUDS = 40 -- #1273: funnel step first_stray_in_view, this close to it
 local CARRY_STEP_SECONDS = 10 -- #1273: carrying_first_cat, the first cat still held this long after its catch
-local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?): number?
+local function freeSpawnPoint(areaId: string, rarity: Types.Rarity?, far: boolean?): number?
 	local area = world.areas[areaId]
 	local occupied = occupiedPoints[areaId] or {}
 	local slots: { Catching.SpawnSlot } = {}
+	local zones: { string? } = {}
 	for i, point in area.spawnPoints do
 		local zone = point:GetAttribute("Zone")
 		local tutorialOnly = areaId == TUTORIAL_AREA and zone == TUTORIAL_ZONE
+		zones[i] = if type(zone) == "string" then zone else nil
 		table.insert(slots, {
-			zone = if type(zone) == "string" then zone else nil,
+			zone = zones[i],
 			free = occupied[i] == nil and not tutorialOnly,
 		})
 	end
 	local pool = Catching.spawnPool(slots, rarity)
+	if far then
+		pool = StrayTopUp.farPool(pool, zones) -- #1159: a top-up fills the back of the area first
+	end
 	-- Spread out (Derek 22:38): away from every stray already in the area, StraySpawnSpacingStuds apart when it can.
 	local points: { Vector3 } = {}
 	for _, index in pool do
@@ -769,6 +775,56 @@ local function spawnWave(areaDef: Types.AreaDef, luck: number): boolean
 		end
 	end
 	return mythical
+end
+
+-- #1159 (shared/StrayTopUp): each area's seconds left until its next top-up, while it is under its floor.
+local topUpLeft: { [string]: number } = {}
+
+-- Every second, `dt` the time since the last: by day, each area with fewer live strays than its floor (by the players
+-- who have it open) counts its timer down, and when it runs out one stray of the area's normal odds arrives at a far
+-- free point. An area at its floor drops its timer, so the next shortfall draws a fresh one.
+local function topUpTick(dt: number)
+	if not ClockService.areasOpen() then
+		table.clear(topUpLeft)
+		return
+	end
+	local open: { [string]: number } = {}
+	for _, player in DataService.loadedPlayers() do
+		local profile = DataService.get(player)
+		if profile ~= nil then
+			local tier = Economy.tier(profile)
+			for _, areaDef in Catalog.areas do
+				if tier >= areaDef.tier then
+					open[areaDef.id] = (open[areaDef.id] or 0) + 1
+				end
+			end
+		end
+	end
+	for _, areaDef in Catalog.areas do
+		if world.areas[areaDef.id] == nil then
+			continue
+		end
+		local live = 0
+		for _, stray in strays do
+			if stray.alive and stray.area == areaDef.id then
+				live += 1
+			end
+		end
+		if live >= StrayTopUp.floor(math.max(1, open[areaDef.id] or 0)) then
+			topUpLeft[areaDef.id] = nil
+			continue
+		end
+		local left = (topUpLeft[areaDef.id] or StrayTopUp.wait(rng:NextNumber())) - dt
+		if left <= 0 then
+			local rarity: Types.Rarity = Catching.pickRarity(areaDef.odds, rng:NextNumber())
+			local point = freeSpawnPoint(areaDef.id, rarity, true)
+			if point ~= nil then
+				spawnAt(areaDef.id, point, rarity)
+			end
+			left = StrayTopUp.wait(rng:NextNumber())
+		end
+		topUpLeft[areaDef.id] = left
+	end
 end
 
 -- Runs `after` once nobody holds the stray's lock: at once when it is free, else when the catch in progress ends
@@ -2172,11 +2228,22 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		end
 	end)
 
-	-- No trickle by day: every stray arrives with the sunrise wave (NightService), the tutorial rule or bait.
+	-- The sunrise wave (NightService), the tutorial rule, bait and, since #1159, daytime top-ups under the floor.
 	task.spawn(function()
 		while true do
 			task.wait(5)
 			tutorialTick()
+		end
+	end)
+	task.spawn(function()
+		local last = os.clock()
+		while true do
+			task.wait(1)
+			local nowClock = os.clock()
+			xpcall(topUpTick, function(err: unknown)
+				warn("[CatService] top-ups: " .. tostring(err))
+			end, nowClock - last)
+			last = nowClock
 		end
 	end)
 end

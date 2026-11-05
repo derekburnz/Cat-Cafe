@@ -823,6 +823,7 @@ export type CornerShopItem = {
 	bought: number,
 	size: CornerShopSize,
 	needsTier: number?,
+	outToday: boolean?, -- #1435: true when the row's family has hit its daily limit today; nil otherwise
 }
 -- What CornerShopStock sends: the window, when it restocks, each row in Catalog order, and the cat food XP bought
 -- today (`snackXp`, its v1 name, which the window reads).

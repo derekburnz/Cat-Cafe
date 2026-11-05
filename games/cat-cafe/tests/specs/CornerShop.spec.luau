@@ -207,6 +207,38 @@ return function()
 			expect(state.today.quick_bait).never.to.be.ok()
 		end)
 
+		it("marks every row of a family out today once it hits its limit, and nothing else (#1435)", function()
+			local window = WINDOW
+			local state = CornerShop.fresh()
+			CornerShop.refresh(state, window, 20400)
+			local function outRows(): { [string]: boolean }
+				local out: { [string]: boolean } = {}
+				for _, item in CornerShop.view(state, window).stock do
+					expect(item.outToday == nil or item.outToday == true).to.equal(true)
+					if item.outToday then
+						out[item.itemId] = true
+					end
+				end
+				return out
+			end
+			expect(next(outRows())).to.equal(nil)
+			CornerShop.record(state, "quick_bait_potion")
+			expect(next(outRows())).to.equal(nil) -- one of two: still for sale
+			CornerShop.record(state, "quick_bait_potion_big")
+			local out = outRows()
+			for _, row in Catalog.cornerShop do
+				expect(out[row.id] == true).to.equal(row.family == "quick_bait")
+			end
+			-- the Swift Potion has no limit, so it is never out today
+			for _ = 1, 20 do
+				CornerShop.record(state, "swift_potion_small")
+			end
+			expect(outRows().swift_potion_small).to.equal(nil)
+			-- a new UTC day clears it
+			CornerShop.refresh(state, window, 20401)
+			expect(next(outRows())).to.equal(nil)
+		end)
+
 		it("sells food past any XP a day (#1255) but never past a full Bag", function()
 			local window = assert(windowWith("big_cat_snack", WINDOW))
 			local state = CornerShop.fresh()

@@ -116,6 +116,10 @@ function CornerShop.view(state: Types.CornerShopState, window: number): Types.Co
 	local stock: { Types.CornerShopItem } = {}
 	for _, item in CornerShop.stock(window) do
 		local row = Catalog.getCornerShopRow(item.itemId) :: Types.CornerShopRow
+		-- #1435: the row's family is at its daily limit, so the window greys Buy ("Back tomorrow") instead of
+		-- letting every press come back with the toast. The limit itself is still never shown (#1190).
+		local limit = CornerShop.perDay(row.family)
+		local outToday = limit ~= nil and (state.today[row.family] or 0) >= limit
 		table.insert(stock, {
 			itemId = item.itemId,
 			price = row.price,
@@ -123,6 +127,7 @@ function CornerShop.view(state: Types.CornerShopState, window: number): Types.Co
 			bought = state.bought[item.itemId] or 0,
 			size = row.size,
 			needsTier = row.needsTier,
+			outToday = if outToday then true else nil,
 		})
 	end
 	return {

@@ -363,6 +363,33 @@ local function keycap(parent: Instance, text: string, position: UDim2, anchor: V
 	return key
 end
 
+-- The red "!" in a corner, the same badge as the Rewards tile's, on whatever can be claimed (#1074).
+local function claimBadge(parent: Instance, zIndex: number): Frame
+	local badge: Frame = Create("Frame", {
+		Name = "Claim",
+		BackgroundColor3 = Theme.colors.red,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -12, 0.5, -2), -- inside the row's right end, clear of the list's edge
+		Size = UDim2.fromOffset(24, 24),
+		Visible = false,
+		ZIndex = zIndex,
+		Parent = parent,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(badge, 2)
+	local mark = label({
+		Name = "Mark",
+		Size = UDim2.fromScale(1, 1),
+		TextSize = Theme.sizes.textSmall,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "!",
+		ZIndex = zIndex + 1,
+		Parent = badge,
+	})
+	mark.ZIndex = zIndex + 1
+	return badge
+end
+
 function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	local self = setmetatable({}, HUD) :: any
 	self._callbacks = callbacks
@@ -944,7 +971,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	local showKeys = UserInputService.KeyboardEnabled
 	type MenuItem = {
 		name: string,
-		text: string?, -- the label, when it is not the name (the bowl's "Bait")
+		text: string?, -- the label, when it is not the name (the bowl's "Bowl")
 		icon: string,
 		key: string?,
 		style: Button.Style,
@@ -1011,10 +1038,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			end,
 		},
 		-- #1210 (2026-11-04: "move the food bowl button into the left menu"): the bowl, once the Bait bowl upgrade is
-		-- owned, with its state as its label (_renderBowl)
+		-- owned, labelled "Bowl", with a red "!" while a cat waits (_renderBowl)
 		{
 			name = "Bowl",
-			text = "Bait",
+			text = "Bowl", -- always the word; the timer is in the Bait bowl window (#1282)
 			icon = BOWL_ICON,
 			key = "F",
 			style = "secondary",
@@ -1158,6 +1185,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			button.instance.Visible = false -- once the Bait bowl upgrade is owned (_renderBowlSlot)
 			self._bowl = button
 			self._bowlSlot = button.instance
+			local bowlBadge = claimBadge(button.instance, 23)
+			bowlBadge.AnchorPoint = Vector2.new(1, 0.5) -- inset like the Quests dot (#1176); the F key cap is top left
+			bowlBadge.Position = UDim2.new(1, 2, 0, 3)
+			self._bowlBadge = bowlBadge
 		end
 		self._pills[item.name] = button
 		table.insert(self._buttons, button)
@@ -1259,7 +1290,6 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Outline.border(potionCount, 2)
 	self._potionCount = potionCount
-	self._bowlText = "Bait"
 	self._bowlStyle = "secondary" :: Button.Style
 	self._bait = nil :: Types.BaitView?
 	self._catWaiting = false
@@ -1559,28 +1589,23 @@ function HUD.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean)
 	end)
 end
 
--- The bowl tile's label: "Bait" when empty, the time to the cat ("7:42"), then "Cat!" on a gold tile. The night
--- wait (F60: food set at night comes in half the time) is no longer on the tile, no "🌙 Half" and no moon (#1210,
--- 2026-11-04: "remove the 🌙 Half label"); the Bait bowl window says it, with the food's name and the rest.
+-- The bowl tile always reads "Bowl" (#1282, Derek 2026-11-04: no countdown on the tile; the Bait bowl window has the
+-- timer). A red "!" shows only while a cat waits: the wait is over, or the Tame or Let go card has one. No moon or
+-- "Half" either (#1210); the Bait bowl window says the night wait.
 function HUD._renderBowl(self: any)
 	local bait: Types.BaitView? = self._bait
 	local wasReady = self._baitReady
-	local ready = false
-	local text = "Bait" -- the mockup's label (#1176)
-	if bait then
-		local left = bait.readyAt - Workspace:GetServerTimeNow()
-		ready = left <= 0
-		text = if ready then "Cat!" else TipJarLogic.clock(left)
-	end
+	local ready = bait ~= nil and bait.readyAt - Workspace:GetServerTimeNow() <= 0
 	self._baitReady = ready
-	local bowl: Button.Button = self._bowl
-	if text ~= self._bowlText then
-		self._bowlText = text
-		bowl:setText(text)
+	local waiting = ready or self._catWaiting == true
+	local badge: Frame = self._bowlBadge
+	if badge.Visible ~= waiting then
+		badge.Visible = waiting
 	end
-	local style: Button.Style = if ready then "gold" else "secondary"
+	local style: Button.Style = if waiting then "gold" else "secondary"
 	if style ~= self._bowlStyle then
 		self._bowlStyle = style
+		local bowl: Button.Button = self._bowl
 		bowl:setStyle(style)
 	end
 	if ready and not wasReady and self._bowlSlot.Visible then
@@ -2522,33 +2547,6 @@ function HUD._popReady(self: any, id: string): boolean
 		return self._dailyDue == true
 	end
 	return false
-end
-
--- The red "!" in a corner, the same badge as the Rewards tile's, on whatever can be claimed (#1074).
-local function claimBadge(parent: Instance, zIndex: number): Frame
-	local badge: Frame = Create("Frame", {
-		Name = "Claim",
-		BackgroundColor3 = Theme.colors.red,
-		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, -12, 0.5, -2), -- inside the row's right end, clear of the list's edge
-		Size = UDim2.fromOffset(24, 24),
-		Visible = false,
-		ZIndex = zIndex,
-		Parent = parent,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	Outline.border(badge, 2)
-	local mark = label({
-		Name = "Mark",
-		Size = UDim2.fromScale(1, 1),
-		TextSize = Theme.sizes.textSmall,
-		TextXAlignment = Enum.TextXAlignment.Center,
-		Text = "!",
-		ZIndex = zIndex + 1,
-		Parent = badge,
-	})
-	mark.ZIndex = zIndex + 1
-	return badge
 end
 
 -- Opens the kind's list, or closes it when it is already open; another kind's list gives way.

@@ -499,6 +499,24 @@ function Logic.baitArriveCue(variant: any): string
 	return "baitArrive"
 end
 
+-- #1191: the shop-only cats (CatId) whose shift start chimes; a cat chimes once its model carries the CatId.
+local SHOP_CATS = { duchess_marzipan = true, king_croissant = true, sprinkles = true }
+
+function Logic.isShopCat(catId: any): boolean
+	return type(catId) == "string" and SHOP_CATS[catId] == true
+end
+
+-- A cat model is working when it has a Role and is not in bed (the rule Effects/ShopCats uses for the sparkle).
+function Logic.working(role: any, bedtime: any): boolean
+	return role ~= nil and bedtime ~= true
+end
+
+-- A shift starts only on a seen change from off duty to working: nil before (a model just built or streamed in)
+-- plays nothing.
+function Logic.shiftStarted(before: boolean?, now: boolean): boolean
+	return before == false and now
+end
+
 -- Animation beats (Beats.hit) to sounds: the Bellhop Cat's bell (F96) and the camp extras' moving touches (F100).
 local BEAT_CUES: { [string]: string } = {
 	bellRing = "bellhopBell",

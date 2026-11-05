@@ -1910,6 +1910,17 @@ def offline_claim() -> np.ndarray:
     return finish(fade_tail(mix(d, (cloth / np.max(np.abs(cloth)) * 0.15, 0.0), *coins, *chime), 0.3), -7)
 
 
+# --- #1191 the shop-only cats (2026-11-05): Duchess Marzipan, King Croissant and Sprinkles start a shift with a
+# small chime of their own, under VFX-Agent's sparkle (#1259). Soft and short: a shift starts often in a busy cafe.
+def shift_chime() -> np.ndarray:
+    """A shop-only cat clocks in: a soft three-note celesta lift (G, B, D) with a faint shop-bell shimmer on top."""
+    d = 1.0
+    notes = [(bell(d - at, note(n), CELESTA) * a, at) for n, at, a in (("G6", 0.0, 0.5), ("B6", 0.09, 0.45),
+                                                                         ("D7", 0.18, 0.4))]
+    shimmer = bell(d - 0.2, note("G7"), GLOCK) * 0.12
+    return finish(fade_tail(mix(d, *notes, (shimmer, 0.2)), 0.35), -9)
+
+
 SOUNDS = {
     # name: (folder, bus, builder)
     "Click": ("ui", "Ui", ui_click),
@@ -2044,6 +2055,7 @@ SOUNDS = {
     "FoodMoonMilk": ("sheet-parts/sfx", "Sfx", food_moon_milk),
     "FoodStarTreat": ("sheet-parts/sfx", "Sfx", food_star_treat),
     "OfflineClaim": ("sheet-parts/sfx", "Sfx", offline_claim),
+    "ShiftChime": ("sfx", "Sfx", shift_chime),
 }
 
 # Sound sheets (2026-11-01). Roblox lets an account that is not ID verified upload 100 sounds in 30 days, and the

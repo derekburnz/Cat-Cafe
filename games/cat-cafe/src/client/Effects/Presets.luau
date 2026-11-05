@@ -1260,7 +1260,22 @@ Presets.cafeWalk = {
 	-- out of the floor), back legs tucked `tuck` and tail down `tail`, and drops onto all fours over sit.rise while
 	-- the station model fades out; coming home it rears back up as the station model fades in.
 	stand = { drop = -0.12, tuck = 30, pitch = 30, tail = 10 },
-	carry = { ease = 0.25, chin = 6, tail = 20 },
+	carry = {
+		ease = 0.25,
+		chin = 6,
+		tail = 20,
+		-- by what rides on the tray (#1576, Derek 2026-11-05: "extra carrying animations by food type"), kept subtle:
+		-- `chin` and `tail` degrees more, the tray tipping `sway` degrees side to side once a stride and lifting
+		-- `bob` studs at each step, all at full once the walker goes `swayAt` studs/s (still while it stands).
+		-- A drink is carried dead level, a bake rocks a little, the gold plate goes proud and careful.
+		swayAt = 6,
+		styles = {
+			drink = { chin = 2, tail = 0, sway = 0.5, bob = 0 },
+			bake = { chin = 0, tail = 0, sway = 2.5, bob = 0.03 },
+			gold = { chin = 3, tail = 10, sway = 1, bob = 0.01 },
+			plain = { chin = 0, tail = 0, sway = 0, bob = 0 },
+		} :: { [string]: { chin: number, tail: number, sway: number, bob: number } },
+	},
 	sweep = {
 		seconds = 1.1,
 		up = 0.18,

@@ -124,9 +124,12 @@ function CornerShopLogic.snackLine(_snackXp: number): string
 	return ""
 end
 
--- What a row does (corner-shop.md section 2), in one short line.
-function CornerShopLogic.effect(row: Row): string
-	if row.kind == "potion" then
+-- What a row does (corner-shop.md section 2), in one short line. A bait row (#1281) also says how many of that food
+-- the player has (`owned`).
+function CornerShopLogic.effect(row: Row, owned: number?): string
+	if row.kind == "bait" then
+		return ("Bait for your bowl · You have %d"):format(owned or 0)
+	elseif row.kind == "potion" then
 		local potion = if row.potionId then Catalog.getPotion(row.potionId) else nil
 		if potion == nil then
 			return "Into your potion bag"

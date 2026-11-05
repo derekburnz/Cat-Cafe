@@ -5588,6 +5588,14 @@ do
 		if screen and modal and modal:current() == "Store" then
 			screen:render(rows(), PassShop.prices())
 		end
+		-- #1606: the money pass badge beside the HUD's money ("2x" to "4x", or "Get 2x" while the 2x pass is on sale)
+		if hud then
+			local boosts = (state :: any).passBoosts
+			local multiplier = if type(boosts) == "table" then boosts.money else nil
+			hud:setMoneyBadge(
+				StoreLogic.moneyBadge(Config, PassShop.owned(), PassShop.prices(), multiplier)
+			)
+		end
 		local open = screen ~= nil -- the tile shows whenever there is a window for it to open
 		if open ~= shop.open and hud then
 			shop.open = open

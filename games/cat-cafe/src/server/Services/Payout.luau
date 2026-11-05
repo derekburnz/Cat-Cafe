@@ -6,7 +6,9 @@
 -- claims, so they are only named for the toast. The caller has already checked and marked the prize as paid.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
+local CafePass = require(ReplicatedStorage.Shared.CafePass)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
@@ -107,6 +109,14 @@ function Payout.pay(
 	end
 	if prize.tag ~= nil then
 		table.insert(paid, string.format("the %s tag", prize.tag))
+	end
+	if prize.passXp ~= nil and prize.passXp > 0 then
+		-- #1645 (quests.md section 8): Cafe Pass XP for the running season; CafePassService rolls the save onto it
+		local season = CafePass.seasonAt(os.time(), RunService:IsStudio())
+		local added = CafePass.addXp(profile.pass, season, prize.passXp)
+		if added > 0 then
+			table.insert(paid, string.format("+%d pass XP", added))
+		end
 	end
 	return paid, coins
 end

@@ -7,8 +7,8 @@ export type Area = "alley" | "park" | "neighbourhood" | "woods" | "sewer"
 -- A cat's area: one of the five, the spare pool of cats an area-themed cat replaced (data-model 3d, F78), or
 -- "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
 export type CatArea = Area | "spare" | "exclusive"
--- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux.
-export type CatSource = "free" | "shop"
+-- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux, "pass" from the Cafe Pass paid track.
+export type CatSource = "free" | "shop" | "pass"
 export type Role = "barista" | "waiter" | "greeter" | "entertainer"
 -- A role slot is still called a spot in code, so the save field (spotId) and the UI intents keep their names.
 export type SpotType = Role
@@ -184,6 +184,8 @@ export type ProductDef = {
 	prize: { potions: { [string]: number }, cats: { string }?, signStyles: { string }? },
 	-- #1625: sold once per account; a second receipt pays only the potions (Products.prizeFor)
 	oncePerAccount: boolean?,
+	-- #1626: unlocks the running Cafe Pass season's paid track (CafePass.buyPaid); once per season
+	seasonPass: boolean?,
 }
 
 -- Cat food (corner-shop-v2.md section 3, #1181): kept in the Bag (profile.catFood) and fed to one cat with FeedCat.
@@ -203,6 +205,49 @@ export type IndexPrize = {
 	rainbowLuck: number?, -- F99: on every rainbow roll, the Rainbow track's sum capped at RainbowLuckMax
 	baitSpeed: number?,
 	tag: string?,
+	passXp: number?, -- #1645 (quests.md section 8): Cafe Pass XP for the running season (CafePass.addXp)
+}
+
+-- The Cafe Pass (#1645, cafe-pass.md). A paid track's named item, kept forever once claimed: a chat tag, an accessory,
+-- a uniform colour, a looks-only decor piece, a sign frame or the season cat.
+export type PassItemKind = "tag" | "accessory" | "uniform" | "decor" | "frame" | "cat"
+export type PassItem = { kind: PassItemKind, id: string, name: string }
+-- One level's reward on a track: a prize Payout pays, a named item, or both.
+export type PassReward = { prize: IndexPrize?, item: PassItem? }
+-- One season's two tracks, by level (the free track has every second level, the paid track every level).
+export type PassSeasonDef = {
+	id: string,
+	name: string,
+	free: { [number]: PassReward },
+	paid: { [number]: PassReward },
+}
+-- profile.pass (save version 36), see shared/CafePass.
+export type PassState = {
+	season: number,
+	xp: number,
+	paidSeason: number,
+	claimedFree: { number },
+	claimedPaid: { number },
+	items: { [string]: boolean },
+	tag: string?,
+}
+-- CafePassState: what the Pass screen draws (CafePass.view).
+export type CafePassView = {
+	season: number, -- 0 while no season runs
+	startsAt: number,
+	endsAt: number?, -- nil while no later season is set; the screen shows the end as a plain date
+	level: number,
+	xp: number,
+	xpPerLevel: number,
+	levels: number,
+	paid: boolean,
+	claimedFree: { number },
+	claimedPaid: { number },
+	claimable: number, -- how many rewards are ready, for the HUD's red dot
+	items: { [string]: boolean },
+	tag: string?, -- the saved chat tag pick: a ChatTags id, "off", or nil for the default
+	tags: { string }?, -- #1626: the chat tags the player may pick now (ChatTags.choices), set by CafePassService
+	tagShown: string?, -- #1626: the tag their name shows now (ChatTags.shown), nil for none
 }
 
 -- A potion (F64, data-model section 12b): drunk from the bag with UsePotion, it runs `minutes` of play time.
@@ -965,6 +1010,7 @@ export type PlayerProfile = {
 	onceBought: { [string]: boolean },
 	signStyles: { [string]: boolean },
 	signStyle: string?,
+	pass: PassState, -- #1645 (save version 36): the Cafe Pass
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.

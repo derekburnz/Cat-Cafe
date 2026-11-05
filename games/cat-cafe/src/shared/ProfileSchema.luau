@@ -1,6 +1,7 @@
 --!strict
 -- Save data (data-model section 14): template, migration and sanitising. Pure.
 
+local CafePass = require(script.Parent.CafePass)
 local CampExtras = require(script.Parent.CampExtras)
 local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
@@ -101,7 +102,9 @@ local ProfileSchema = {}
 -- and gotDecor. An older server drops them, which only locks those pieces again and shortens old log entries.
 -- Version 35 (#1625) adds onceBought, signStyles and signStyle, the Starter Bundle's once-per-account mark and the
 -- sign styles: an older server would drop them, losing the Bakery Stripes sign and letting the bundle be bought as new.
-ProfileSchema.VERSION = 35
+-- Version 36 (#1645, cafe-pass.md section 6) adds pass, the Cafe Pass's XP, claims, paid season and items: an older
+-- server would drop it, losing the XP and letting a reward be claimed twice by hopping servers during a rollout.
+ProfileSchema.VERSION = 36
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -270,6 +273,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		onceBought = {},
 		signStyles = {},
 		signStyle = nil,
+		pass = CafePass.fresh(0),
 	}
 end
 
@@ -920,6 +924,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.onceBought = Products.sanitizeOnce(raw.onceBought)
 	profile.signStyles = SignStyles.sanitize(raw.signStyles)
 	profile.signStyle = SignStyles.sanitizePick(raw.signStyle)
+	-- #1645 (version 36): the Cafe Pass; saves before it start at season 0 with nothing (CafePassService rolls it on)
+	profile.pass = CafePass.sanitize(raw.pass)
 	-- #1181 (version 32): the Bag's cat food, known foods only, whole counts of 1 to CatFoodMax
 	if type(raw.catFood) == "table" then
 		for _, food in Catalog.catFood do

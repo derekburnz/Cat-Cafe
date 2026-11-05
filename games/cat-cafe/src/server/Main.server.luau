@@ -11,6 +11,7 @@ local AssetRegistry = require(script.Parent.World.AssetRegistry)
 local BaitService = require(script.Parent.Services.BaitService)
 local BedtimeService = require(script.Parent.Services.BedtimeService)
 local BugReportService = require(script.Parent.Services.BugReportService)
+local CafePassService = require(script.Parent.Services.CafePassService)
 local CafeService = require(script.Parent.Services.CafeService)
 local CampExtraService = require(script.Parent.Services.CampExtraService)
 local CannonService = require(script.Parent.Services.CannonService)
@@ -113,6 +114,7 @@ ProductService.start() -- #1182: developer product receipts (ProcessReceipt)
 PalService.start() -- F92: pals; before Telemetry so pal_time goes out before its leave work
 LeaderboardService.start() -- F98: before DataService so its onLoaded sees every join
 CampExtraService.start() -- F100: before DataService so its onLoaded sees every join
+CafePassService.start() -- #1645: the Cafe Pass, before DataService so its onLoaded sees every join
 RallyService.start() -- F101: before Telemetry (rally_points on leave) and DataService (RallyState on join)
 RestartNoticeService.start() -- the restart countdown's warnings; before DataService so a joiner hears one
 TradeService.start() -- F102: before DataService, whose joins it settles owed trades in (onLoading)

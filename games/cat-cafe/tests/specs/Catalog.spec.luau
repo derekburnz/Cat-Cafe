@@ -330,9 +330,9 @@ return function()
 		}
 
 		it(
-			"has exactly 64 cats: the 20 slice, 30 later and 10 spare, the Bellhop Cat, 2 pass cats and Sprinkles",
+			"has exactly 65 cats: the 20 slice, 30 later and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles and Maple Muffin",
 			function()
-				expect(#Catalog.cats).to.equal(64)
+				expect(#Catalog.cats).to.equal(65)
 				for _, def in ipairs(Catalog.cats) do
 					expect(
 						slice[def.id] ~= nil
@@ -342,6 +342,7 @@ return function()
 							or def.id == "duchess_marzipan"
 							or def.id == "king_croissant"
 							or def.id == "sprinkles" -- #1625: the Starter Bundle's cat
+							or def.id == "maple_muffin" -- #1626: the Cafe Pass season cat
 					).to.equal(true)
 				end
 				for id in pairs(slice) do

@@ -1257,6 +1257,24 @@ local SCENES = {
 		UI.campExtras.update(campExtras(0, true))
 		UI.cannon.open()
 	end },
+	-- #1463: a Golden Pond owner with 14 fish in the pond: Collect on the Woods strip in place of the red dot
+	{ "CannonPondCollect", function()
+		local extras = campExtras(0, true)
+		extras.pond = { open = true, held = 14 }
+		UI.update({ tier = 4 }) -- the Woods (and its pond) open at Tier 4; Scenes.close puts Tier 3 back
+		game:GetService("Players").LocalPlayer:SetAttribute("GoldenPondPass", true)
+		UI.campExtras.update(extras)
+		UI.cannon.open()
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Cannon", true)
+		local shown = false
+		for _, piece in (window and window:GetDescendants()) or {} do
+			if piece.Name == "Collect" and piece:IsA("GuiObject") and piece.Visible then
+				shown = true
+			end
+		end
+		assert(shown, "uigate: no Collect on the pond strip for a Golden Pond owner (#1463)")
+	end },
 	-- F100: the Yard Sale card, the Classic Crate bought today and the Park Crate for 40 golden fish
 	{ "YardSale", function()
 		local extras = campExtras(0, false)
@@ -1519,6 +1537,11 @@ function Scenes.close()
 	UI.close()
 	UI.pals({}) -- F92: no pals, which also takes a pal's marker and Cannon tag away
 	UI.campExtras.update(campExtras(0, false, false)) -- F100: every camp extra shut, so other Cannon scenes stay as they were
+	if game:GetService("Players").LocalPlayer:GetAttribute("GoldenPondPass") ~= nil then
+		-- #1463: no Golden Pond owner outside its scene, and the sample player's Tier 3 back
+		game:GetService("Players").LocalPlayer:SetAttribute("GoldenPondPass", nil)
+		UI.update({ tier = 3 })
+	end
 	UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = workspace:GetServerTimeNow() + 3 * 86400 })) -- F101: no Rally
 	UI.trade.state(nil) -- F102: no trade, no TradeService, and the other players leave
 	UI.setCarrying(nil) -- no carry banner

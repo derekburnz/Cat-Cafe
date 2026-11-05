@@ -200,14 +200,14 @@ local Config = {
 	-- Derek 22:38: a wave is scattered, not clumped. A new stray takes a free spawn point at least this far from every
 	-- stray already in its area when one is left (farther ones likelier), else the free point farthest from them all.
 	StraySpawnSpacingStuds = 12,
-	-- #1159 (shared/StrayTopUp): by day an area under its floor of live strays gets one more every 60 to 120 s, at a
+	-- #1159 (shared/StrayTopUp): by day an area under its floor of live strays gets one more every 40 to 80 s, at a
 	-- far point first. The floor is StrayFloorBase for one player plus StrayFloorPerPlayer for each more who has the
 	-- area open, never above StrayLiveMax live cats in the area (the 10-28 "way too many" line is a live cap).
-	StrayFloorBase = 5,
+	StrayFloorBase = 7, -- #1452 (was 5)
 	StrayFloorPerPlayer = 1,
-	StrayLiveMax = 12,
-	StrayTopUpMinSeconds = 60,
-	StrayTopUpMaxSeconds = 120,
+	StrayLiveMax = 14, -- #1452 (was 12)
+	StrayTopUpMinSeconds = 40, -- #1452: 40 to 80 s (was 60 to 120)
+	StrayTopUpMaxSeconds = 80,
 	StrayWanderSpeed = 3,
 	AnnounceMinRarity = "Epic",
 	-- The night dealer (data-model section 8b): buy from this close to the cart. F94 (rewards-and-shops.md section 4):

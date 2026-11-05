@@ -454,6 +454,9 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 ### Intro: the area cuts go (#1542), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
 - 2026-11-05: The intro's shot 6, the four 2 s cuts over the Park, Neighbourhood, Woods and Sewer camps with their title cards, is removed; every other shot stays as it was. The intro is 9 shots and 22.5 s (was 10 and 30.5 s), `Intro.VERSION` 4, `IntroDone` shots 0 to 9. Why: Derek, 2026-11-05: "remove the area section that flashes between each area from the tutorial the rest is good and it makes it much faster". Spec in intro-cutscene.md section 2.
 
+### Corner Shop shows stock counts (#1465), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
+- 2026-11-05: Each Corner Shop row shows "n left", meaning what the player can still buy in this window. This reverses #1190's no-counts rule for the counts only; stock chances and daily-limit lines stay hidden. Why: the friend asked to "show amount in stock for corner shop". A plain count is honest information, not pressure. There's no countdown or "almost gone" copy. Spec: corner-shop-v2.md sections 1 and 4.
+
 ### Decided by Derek (2026-11-05, Set 6 Q1 to Q11 and Sets 7 to 9, relayed by Research-Agent, #1571), recorded by the game-designer thread (Design-Agent, friend's project)
 - 2026-11-05: Q1 Tier pace: keep the current pacing, tuned so the whole run takes about 12 hours of play, the top of Pace.spec's 8 to 12 h one-go window. Tier 2's cost is #1367's call. Why: Derek's answer. The Tier 5 bound is already 8 to 12 h, so no spec changes.
 - 2026-11-05: Q2 Intro: plays once on first join with a Skip button bottom right, and replays from the ? button. Why: Derek's answer. Already built as F72 (intro-cutscene.md); #1542 makes it shorter.

@@ -774,6 +774,35 @@ Catalog.cats = {
 		),
 		"free"
 	),
+	-- #1447 (store-skus.md, #1191): the shop-only cats on game passes, given by ShopCatService (shared/ShopCats). Each
+	-- earns like its rarity from the owner's newest area, so its rate climbs with every area opened. Models
+	-- CatCafe_Cat_DuchessMarzipan and CatCafe_Cat_KingCroissant (with _Sit and _Work); never gold.
+	exclusive(
+		cat(
+			"duchess_marzipan",
+			"Duchess Marzipan",
+			"Legendary",
+			"alley",
+			"greeter",
+			"solid", -- lilac silver, a pearl tiara and a velvet cape
+			{ 203, 196, 219 },
+			"The Royal Cat. Greets every guest with a slow, gracious blink."
+		),
+		"shop"
+	),
+	exclusive(
+		cat(
+			"king_croissant",
+			"King Croissant",
+			"Mythical",
+			"alley",
+			"entertainer",
+			"stripes", -- golden croissant fur with flaky dark stripes, a crown and a red cape
+			{ 231, 169, 78 },
+			"The King Cat. Holds court from his velvet cushion, crown and all."
+		),
+		"shop"
+	),
 } :: { Types.CatDef }
 
 -- "tabby" -> "CatCafe_Cat_Tabby", "maine_coon" -> "CatCafe_Cat_MaineCoon"
@@ -882,7 +911,7 @@ Catalog.tiers = {
 	{
 		tier = 2,
 		name = "Cozy Cafe",
-		cost = 28000, -- #1452 (economy-ladder 3 v3, faster wild catching): 13,500 for #1162, F95 v2.1 12,000, 10,000 before
+		cost = 30000, -- #1499 (economy-ladder 3 v3.1, dearer bait): 28,000 for #1452, 13,500 for #1162, 10,000 before
 		distinctCats = 5,
 		slots = 4,
 		multiplier = 1.25,
@@ -1086,13 +1115,13 @@ function Catalog.getDecor(id: string): Types.DecorDef?
 	return Catalog.decorById[id]
 end
 
--- Sections 8 and 8b. Odds are shown before purchase. Shop foods are bought with BuyLure; dealer foods only from
--- the night dealer's stock.
+-- Sections 8 and 8b. Odds are shown before purchase. Shop foods are bought at the Corner Shop (#1281, its "bait" rows;
+-- BuyLure refuses since); dealer foods only from the night dealer's stock.
 Catalog.lures = {
 	{
 		id = "kibble",
 		name = "Kibble",
-		cost = 100, -- F97: about four times 30; Economy.foodPrice grows it by tier
+		cost = 100, -- F97, kept by #1389 (Economy.spec step 7); Economy.foodPrice grows it by tier
 		sortOrder = 1,
 		attracts = "Common",
 		rarity = "Common",
@@ -1104,7 +1133,7 @@ Catalog.lures = {
 	{
 		id = "tuna",
 		name = "Tuna",
-		cost = 500, -- F97: about four times 125; Economy.foodPrice grows it by tier
+		cost = 5000, -- #1389 (x10 on F97's 500); Economy.foodPrice grows it by tier
 		sortOrder = 2,
 		attracts = "Rare",
 		rarity = "Rare",
@@ -1116,7 +1145,7 @@ Catalog.lures = {
 	{
 		id = "salmon",
 		name = "Salmon",
-		cost = 2500, -- F97: about four times 625; Economy.foodPrice grows it by tier
+		cost = 50000, -- #1389 (x20 on F97's 2,500); Economy.foodPrice grows it by tier
 		sortOrder = 4,
 		attracts = "Epic",
 		rarity = "Epic",
@@ -1128,7 +1157,7 @@ Catalog.lures = {
 	{
 		id = "sardines",
 		name = "Moonlit Sardines",
-		cost = 4000, -- F97: about four times 1000; Economy.foodPrice grows it by tier
+		cost = 80000, -- #1389 (x20 on F97's 4,000); Economy.foodPrice grows it by tier
 		sortOrder = 3,
 		attracts = "Rare",
 		rarity = "Rare",
@@ -1140,7 +1169,7 @@ Catalog.lures = {
 	{
 		id = "caviar",
 		name = "Caviar",
-		cost = 15000, -- F97: about four times 3750; Economy.foodPrice grows it by tier
+		cost = 600000, -- #1389 (x40 on F97's 15,000); Economy.foodPrice grows it by tier
 		sortOrder = 5,
 		attracts = "Epic",
 		rarity = "Epic",
@@ -1152,7 +1181,7 @@ Catalog.lures = {
 	{
 		id = "moon_milk",
 		name = "Moon Milk",
-		cost = 50000, -- F97: about four times 12500; Economy.foodPrice grows it by tier
+		cost = 2000000, -- #1389 (x40 on F97's 50,000); Economy.foodPrice grows it by tier
 		sortOrder = 6,
 		attracts = "Epic",
 		rarity = "Legendary",
@@ -1164,7 +1193,7 @@ Catalog.lures = {
 	{
 		id = "star_treat",
 		name = "Star Treat",
-		cost = 200000, -- F97: about four times 50000; Economy.foodPrice grows it by tier
+		cost = 8000000, -- #1389 (x40 on F97's 200,000); Economy.foodPrice grows it by tier
 		sortOrder = 7,
 		attracts = "Legendary",
 		rarity = "Mythical",
@@ -3447,9 +3476,46 @@ Catalog.cornerShop = {
 		price = 3200000000,
 		needsTier = 4,
 	},
+	-- #1281 (corner-shop-v2.md section 1b): the three shop bait foods, sold here instead of at the bowl. Last in the
+	-- list, so the rows above keep their rolls. `price` is filled in below from the food's cost; the buy charges
+	-- Economy.foodPrice for the buyer's tier. No daily limit.
+	{
+		id = "kibble",
+		name = "Kibble",
+		family = "bait",
+		size = "small",
+		kind = "bait",
+		lureId = "kibble",
+		price = 0,
+		weights = { 0, 0, 20, 80 },
+	},
+	{
+		id = "tuna",
+		name = "Tuna",
+		family = "bait",
+		size = "regular",
+		kind = "bait",
+		lureId = "tuna",
+		price = 0,
+		weights = { 0, 20, 50, 30 },
+	},
+	{
+		id = "salmon",
+		name = "Salmon",
+		family = "bait",
+		size = "big",
+		kind = "bait",
+		lureId = "salmon",
+		price = 0,
+		weights = { 20, 50, 30, 0 },
+	},
 } :: { Types.CornerShopRow }
 Catalog.cornerShopById = {} :: { [string]: Types.CornerShopRow }
 for _, row in Catalog.cornerShop do
+	local lure = if row.lureId ~= nil then Catalog.luresById[row.lureId] else nil
+	if lure ~= nil then
+		row.price = lure.cost -- its Tier 1 price (FoodTierPriceFactor[1] is 1)
+	end
 	Catalog.cornerShopById[row.id] = row
 	table.freeze(row)
 end

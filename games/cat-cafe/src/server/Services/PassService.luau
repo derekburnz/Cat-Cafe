@@ -12,6 +12,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local ShopCats = require(ReplicatedStorage.Shared.ShopCats)
 local Signal = require(ReplicatedStorage.Shared.Signal)
 
 local PassService = {}
@@ -25,7 +26,8 @@ local owned: { [Player]: { [number]: boolean } } = setmetatable({}, { __mode = "
 
 -- Every pass id Config names that is made (not 0).
 local function passIds(): { number }
-	local ids: { number } = {}
+	-- #1447: the shop-only cats' passes (Royal Cat, King Cat Pack); ShopCatService reads them with `owns`
+	local ids: { number } = ShopCats.passIds()
 	if Config.LongNapPassId ~= 0 then
 		table.insert(ids, Config.LongNapPassId)
 	end
@@ -134,6 +136,13 @@ function PassService.check(player: Player): Economy.Passes
 		task.spawn(retry, player, set, failed)
 	end
 	return PassService.fromOwned(set)
+end
+
+-- Whether `player` owns pass `id` as far as this session knows: looked up at join, or bought since (#1447). False
+-- before the join lookup and while a failed lookup waits for its retry, which fires `changed` once it answers.
+function PassService.owns(player: Player, id: number): boolean
+	local set = owned[player]
+	return id ~= 0 and set ~= nil and set[id] == true
 end
 
 local function onPurchaseFinished(player: Player, passId: number, purchased: boolean)

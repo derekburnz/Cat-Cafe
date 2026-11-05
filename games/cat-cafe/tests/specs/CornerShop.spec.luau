@@ -182,10 +182,21 @@ return function()
 			CornerShop.record(state, "quick_bait_potion")
 			CornerShop.record(state, "quick_bait_potion_big")
 			expect(CornerShop.buyBlocker(state, buy("quick_bait_potion_small", window), window)).to.equal(
-				"2 of 2 today"
+				"That's all the Quick Bait for today, back tomorrow!"
 			)
-			expect(CornerShop.view(state, window).stock[7].today).to.equal(2)
-			expect(CornerShop.view(state, window).stock[7].perDay).to.equal(2)
+			for _ = 1, 4 do
+				CornerShop.record(state, "steady_potion_small")
+			end
+			state.bought = {} -- the window's own count is checked first; this test is about the day's
+			local steadyWindow = assert(windowWith("steady_potion_small", window))
+			CornerShop.refresh(state, steadyWindow, day)
+			expect(CornerShop.buyBlocker(state, buy("steady_potion_small", steadyWindow), steadyWindow)).to.equal(
+				"That's all the Steady Paw for today, back tomorrow!"
+			)
+			CornerShop.refresh(state, window, day)
+			-- #1190: the row never carries the day's count or the limit
+			expect(CornerShop.view(state, window).stock[7].today).to.equal(nil)
+			expect(CornerShop.view(state, window).stock[7].perDay).to.equal(nil)
 			-- the Swift Potion has no limit
 			for _ = 1, 10 do
 				CornerShop.record(state, "swift_potion_small")

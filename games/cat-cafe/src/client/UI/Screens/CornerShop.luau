@@ -432,18 +432,9 @@ function CornerShop._paint(self: any)
 		local def = rowOf(item.itemId)
 		local tier = if state then state.tier else 1
 		local gate = CornerShopLogic.gate(item, tier)
-		local parts: { string } = {}
-		if gate then
-			-- a gated row shows no stock or price talk, so a new player isn't shown what they can't buy yet
-			table.insert(parts, gate)
-		else
-			-- no stock counts or chances in shop windows (#1190, #1209); a daily limit is a rule, so it shows
-			local today = CornerShopLogic.todayLine(item)
-			if today then
-				table.insert(parts, today)
-			end
-		end
-		row.line.Text = table.concat(parts, "  ·  ")
+		-- only the tier gate: no stock counts, chances or daily limits in shop windows (#1190, the friend 11-04); a buy
+		-- past a limit gets the server's toast
+		row.line.Text = gate or ""
 		local pressedAt = self._pending[item.itemId]
 		local waiting = pressedAt ~= nil and os.clock() - pressedAt < PENDING_SECONDS
 		local view = CornerShopLogic.button(item, def, coins, room, tier)

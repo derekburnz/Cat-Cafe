@@ -86,15 +86,6 @@ function CornerShopLogic.gate(item: Item, tier: number?): string?
 	return nil
 end
 
--- "2 of 4 today" for a family with a daily limit (Config.CornerDailyLimits), else nil.
-function CornerShopLogic.todayLine(item: Item): string?
-	local perDay = item.perDay
-	if perDay == nil or perDay <= 0 then
-		return nil
-	end
-	return ("%d of %d today"):format(math.min(item.today or 0, perDay), perDay)
-end
-
 function CornerShopLogic.stockLine(item: Item): string
 	if item.amount <= 0 then
 		return "None this time"
@@ -106,7 +97,7 @@ function CornerShopLogic.stockLine(item: Item): string
 	return ("x%d left"):format(left)
 end
 
--- The Buy button, in the server's order (shared/CornerShop.buyBlocker): "Tier 3", "None", "Sold out", "Done today",
+-- The Buy button, in the server's order (shared/CornerShop.buyBlocker): "Tier 3", "None", "Sold out",
 -- "Food full", else "Buy · $1.2K", greyed when the coins fall short.
 function CornerShopLogic.button(
 	item: Item,
@@ -124,10 +115,6 @@ function CornerShopLogic.button(
 	end
 	if item.bought >= item.amount then
 		return { text = "Sold out", enabled = false }
-	end
-	local perDay = item.perDay
-	if perDay and perDay > 0 and (item.today or 0) >= perDay then
-		return { text = "Done today", enabled = false }
 	end
 	if row and row.kind == "food" and (row.xp or 0) > snackRoom then
 		return { text = "Food full", enabled = false }

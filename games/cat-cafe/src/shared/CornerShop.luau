@@ -104,6 +104,13 @@ function CornerShop.foodRoom(state: Types.CornerShopState): number
 	return math.max(0, Config.CornerFoodXpPerDay - state.foodXpToday)
 end
 
+-- What the limit toast calls each limited family (corner-shop-v2.md section 1, #1190).
+CornerShop.FAMILY_NAMES = table.freeze({
+	steady = "Steady Paw",
+	quick_bait = "Quick Bait",
+	whistle = "Cat Whistles",
+}) :: { [string]: string }
+
 -- A family's daily limit, or nil for none (the Swift Potion, food, which counts XP instead, and the shows).
 function CornerShop.perDay(family: string): number?
 	return Config.CornerDailyLimits[family]
@@ -121,8 +128,6 @@ function CornerShop.view(state: Types.CornerShopState, window: number): Types.Co
 			bought = state.bought[item.itemId] or 0,
 			size = row.size,
 			needsTier = row.needsTier,
-			today = state.today[row.family] or 0,
-			perDay = CornerShop.perDay(row.family),
 		})
 	end
 	return {
@@ -171,7 +176,11 @@ function CornerShop.buyBlocker(state: Types.CornerShopState, buy: Buy, window: n
 	local limit = CornerShop.perDay(row.family)
 	local today = state.today[row.family] or 0
 	if limit ~= nil and today >= limit then
-		return string.format("%d of %d today", today, limit)
+		-- #1190: the limits are never shown on a row, only as this toast when a buy hits one
+		return string.format(
+			"That's all the %s for today, back tomorrow!",
+			CornerShop.FAMILY_NAMES[row.family] or row.name
+		)
 	end
 	if row.kind == "food" then
 		if (row.xp or 0) > CornerShop.foodRoom(state) then

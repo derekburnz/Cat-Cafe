@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-04 23:17 UTC",
+  "generated": "2026-11-05 00:03 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -176593,6 +176593,180 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Furniture_KingCushion.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Furniture_KingCushion.png"
+    },
+    {
+      "name": "CatCafe_Plot_SignRoyalCrest",
+      "category": "Plot",
+      "module": "signstyles",
+      "objects": [
+        "CatCafe_Plot_SignRoyalCrest",
+        "CatCafe_Plot_SignRoyalCrest_SignBoard",
+        "CatCafe_Plot_SignRoyalCrest_Frame"
+      ],
+      "triangles": 548,
+      "budget": 3000,
+      "size_studs": {
+        "x": 16.9,
+        "y": 0.54,
+        "z": 6.1
+      },
+      "size_roblox": [
+        16.9,
+        6.1,
+        0.54
+      ],
+      "bounds_min": [
+        -8.45,
+        -18.82,
+        12.95
+      ],
+      "bounds_max": [
+        8.45,
+        -18.28,
+        19.05
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignRoyalCrest.model.json",
+      "rbx_parts": 27,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignRoyalCrest.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignRoyalCrest.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "548/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "209 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=12.95 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.55"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_SignRoyalCrest.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_SignRoyalCrest.png"
+    },
+    {
+      "name": "CatCafe_Plot_SignBakeryStripes",
+      "category": "Plot",
+      "module": "signstyles",
+      "objects": [
+        "CatCafe_Plot_SignBakeryStripes",
+        "CatCafe_Plot_SignBakeryStripes_SignBoard"
+      ],
+      "triangles": 1998,
+      "budget": 3000,
+      "size_studs": {
+        "x": 18.75,
+        "y": 1.15,
+        "z": 5.14
+      },
+      "size_roblox": [
+        18.75,
+        5.14,
+        1.15
+      ],
+      "bounds_min": [
+        -10.05,
+        -19.15,
+        13.0
+      ],
+      "bounds_max": [
+        8.7,
+        -18.0,
+        18.14
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignBakeryStripes.model.json",
+      "rbx_parts": 280,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignBakeryStripes.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignBakeryStripes.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "1998/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1083 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=13.00 (want 0)",
+          "centered": "footprint center x=-0.68 y=-18.58"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_SignBakeryStripes.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_SignBakeryStripes.png"
+    },
+    {
+      "name": "CatCafe_Plot_SignKingCrest",
+      "category": "Plot",
+      "module": "signstyles",
+      "objects": [
+        "CatCafe_Plot_SignKingCrest"
+      ],
+      "triangles": 624,
+      "budget": 1200,
+      "size_studs": {
+        "x": 1.5,
+        "y": 0.25,
+        "z": 1.5
+      },
+      "size_roblox": [
+        1.5,
+        1.5,
+        0.25
+      ],
+      "bounds_min": [
+        -8.4,
+        -18.79,
+        15.95
+      ],
+      "bounds_max": [
+        -6.9,
+        -18.54,
+        17.45
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignKingCrest.model.json",
+      "rbx_parts": 32,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignKingCrest.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignKingCrest.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "624/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "291 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=15.95 (want 0)",
+          "centered": "footprint center x=-7.65 y=-18.67"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_SignKingCrest.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_SignKingCrest.png"
     }
   ]
 }

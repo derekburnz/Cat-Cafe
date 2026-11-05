@@ -756,16 +756,9 @@ local function wireIntents()
 	UI.events.toggleDecor:Connect(function(decorId: string, placed: boolean)
 		Net.fire("ToggleDecor", decorId, placed)
 	end)
-	-- The front lawn (F91). The UI sends "" rather than nil to clear a spot, lay Grey Slabs or take the fence down, and
-	-- LawnService reads "" as no id. The answer is a toast and the next ProfileSync.
+	-- The front lawn (F91): the Garden Nursery's Buy. The answer is a toast and the next ProfileSync.
 	UI.events.buyLawn:Connect(function(id: string, spotId: string?)
 		Net.fire("BuyLawn", id, spotId)
-	end)
-	UI.events.setLawnSpot:Connect(function(spotId: string, pieceId: string)
-		Net.fire("SetLawnSpot", spotId, pieceId)
-	end)
-	UI.events.setLawnStyle:Connect(function(kind: string, id: string)
-		Net.fire("SetLawnStyle", kind, id)
 	end)
 	UI.events.buyLure:Connect(function(lureId: string)
 		Net.fire("BuyLure", lureId)

@@ -6,8 +6,11 @@ return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local CafePass = require(Shared.CafePass)
 	local Catalog = require(Shared.Catalog)
+	local CatStats = require(Shared.CatStats)
 	local Config = require(Shared.Config)
+	local Economy = require(Shared.Economy)
 	local ProfileSchema = require(Shared.ProfileSchema)
+	local Trade = require(Shared.Trade)
 
 	local LEVEL = Config.PassXpPerLevel
 
@@ -223,6 +226,39 @@ return function()
 				end
 				for crateId in prize.crates or {} do
 					expect(Catalog.getCrate(crateId)).to.be.ok()
+				end
+			end
+		end)
+
+		it("makes Maple Muffin an exclusive pass cat that never counts for rank up", function()
+			local def = Catalog.getCat("maple_muffin") :: any
+			expect(def).to.be.ok()
+			expect(def.exclusive).to.equal(true)
+			expect(def.source).to.equal("pass")
+			expect(def.rarity).to.equal("Legendary")
+			expect(Economy.countsForRankUp("maple_muffin")).to.equal(false)
+		end)
+
+		-- monetization-policy: what the pass gives stays with the buyer. A pass cat can't go on a trade (a gift is a
+		-- one-sided trade, so this covers gifting too), and no pass item id is a tradeable decor or lawn piece.
+		it("never lets a pass item be traded or gifted", function()
+			for _, def in Catalog.passSeasons do
+				for _, track in { def.free, def.paid } do
+					for level, row in track do
+						local item = row.item
+						if item ~= nil then
+							if Trade.piece(item.id) ~= nil then
+								fail("level %d item %s is a tradeable piece", level, item.id)
+							end
+							if item.kind == "cat" then
+								local cat: any = CatStats.newInstance("p" .. level, item.id, 100)
+								expect(Trade.offerRefusal(cat, {})).to.equal(
+									Trade.Messages.exclusive
+								)
+								expect(Trade.tradable(cat)).to.equal(false)
+							end
+						end
+					end
 				end
 			end
 		end)

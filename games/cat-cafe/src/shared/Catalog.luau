@@ -818,6 +818,22 @@ Catalog.cats = {
 		),
 		"shop"
 	),
+	-- #1626 (Design #1630, Model #1637): the Cafe Pass season cat, on the paid track at level 30 (CafePassService).
+	-- Earns like a Legendary from the owner's newest area. Model CatCafe_Cat_MapleMuffin (with _Sit and _Work), in
+	-- its Leaf Beret; until the art lands it shows as the placeholder body. Never traded, gifted or gold.
+	exclusive(
+		cat(
+			"maple_muffin",
+			"Maple Muffin",
+			"Legendary",
+			"alley",
+			"waiter",
+			"stripes", -- a ginger tabby with cream paws and a knitted maple-leaf beret
+			{ 214, 128, 62 },
+			"Season 1's cat. Brings every order with a maple leaf on top."
+		),
+		"pass"
+	),
 } :: { Types.CatDef }
 
 -- "tabby" -> "CatCafe_Cat_Tabby", "maine_coon" -> "CatCafe_Cat_MaineCoon"

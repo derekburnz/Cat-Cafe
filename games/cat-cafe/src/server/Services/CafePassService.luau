@@ -5,7 +5,7 @@
 -- reset. Pass XP comes from quests through Payout (prize.passXp). PassClaim(track, level) and PassClaimAll() pay
 -- reached rewards: each claim is marked in the same step as its payment, with no yield between, so it pays once.
 -- Spins over the banked cap become SPIN_FISH golden fish each. A named item is kept in pass.items forever; the season
--- cat joins the cafe once its CatDef exists (Maple Muffin waits on Model-Agent's #1637). Sends CafePassState.
+-- cat (Maple Muffin, an exclusive pass cat in Catalog.cats) joins the cafe as a gift cat. Sends CafePassState.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

@@ -774,6 +774,35 @@ Catalog.cats = {
 		),
 		"free"
 	),
+	-- #1447 (store-skus.md, #1191): the shop-only cats on game passes, given by ShopCatService (shared/ShopCats). Each
+	-- earns like its rarity from the owner's newest area, so its rate climbs with every area opened. Models
+	-- CatCafe_Cat_DuchessMarzipan and CatCafe_Cat_KingCroissant (with _Sit and _Work); never gold.
+	exclusive(
+		cat(
+			"duchess_marzipan",
+			"Duchess Marzipan",
+			"Legendary",
+			"alley",
+			"greeter",
+			"solid", -- lilac silver, a pearl tiara and a velvet cape
+			{ 203, 196, 219 },
+			"The Royal Cat. Greets every guest with a slow, gracious blink."
+		),
+		"shop"
+	),
+	exclusive(
+		cat(
+			"king_croissant",
+			"King Croissant",
+			"Mythical",
+			"alley",
+			"entertainer",
+			"stripes", -- golden croissant fur with flaky dark stripes, a crown and a red cape
+			{ 231, 169, 78 },
+			"The King Cat. Holds court from his velvet cushion, crown and all."
+		),
+		"shop"
+	),
 } :: { Types.CatDef }
 
 -- "tabby" -> "CatCafe_Cat_Tabby", "maine_coon" -> "CatCafe_Cat_MaineCoon"

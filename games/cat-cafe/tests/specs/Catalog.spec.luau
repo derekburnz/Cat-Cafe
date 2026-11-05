@@ -329,14 +329,16 @@ return function()
 			lantern = { "Lantern", "Rare", "sewer", "waiter" },
 		}
 
-		it("has exactly 61 cats: the 20 slice cats, the 30 later ones, the 10 spare and the Bellhop Cat (F96)", function()
-			expect(#Catalog.cats).to.equal(61)
+		it("has exactly 63 cats: the 20 slice, 30 later and 10 spare, the Bellhop Cat (F96) and 2 pass cats (#1447)", function()
+			expect(#Catalog.cats).to.equal(63)
 			for _, def in ipairs(Catalog.cats) do
 				expect(
 					slice[def.id] ~= nil
 						or reserved[def.id] ~= nil
 						or spares[def.id] ~= nil
 						or def.id == "bellhop_cat"
+						or def.id == "duchess_marzipan"
+						or def.id == "king_croissant"
 				).to.equal(true)
 			end
 			for id in pairs(slice) do

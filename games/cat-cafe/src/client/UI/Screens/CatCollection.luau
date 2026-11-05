@@ -807,10 +807,12 @@ function CatCollection._buildIndex(self: any)
 		})
 		local name = text({
 			Name = "Name",
-			Position = UDim2.fromOffset(4, PORTRAIT + 10),
-			Size = UDim2.new(1, -8, 0, 22),
+			Position = UDim2.fromOffset(4, PORTRAIT + 8),
+			Size = UDim2.new(1, -8, 0, 30), -- room for two lines under the portrait
 			FontFace = Theme.fonts.display,
 			TextScaled = true,
+			-- a long name ("Duchess Marzipan") breaks onto two lines on a phone, never under MinTextSize (#1543)
+			TextWrapped = true,
 			TextColor3 = Theme.colors.white,
 			TextXAlignment = Enum.TextXAlignment.Center,
 			Text = "???",

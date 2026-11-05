@@ -25,7 +25,7 @@ The Corner Shop (corner-shop-v2.md) is already that shop: coins only, useful ite
 
 - Config: `DayCartTopChance` 0.95, `DayCartStep` 0.045, `DayCartFloor` 0.05, `DayCartQtyOdds` `{ 50, 30, 20 }`. The size table `CornerStockOdds` goes.
 - `shared/CornerShop.luau`: `CornerShop.stock(day)` returns `{ [rowId]: amount }` from the list order and the seed, pure, with a spec. The save stays `cornerShop = { day, bought, ... }` (no version bump: `bought` is already keyed by row).
-- World: the `CatCafe_Town_DayCart` model with a `ShopPrompt` attachment. The old Corner Shop prompt is removed.
+- World: the `CatCafe_Town_DayCart` model with a `PromptAnchor` attachment, like every station, at station(-17, -24) in the square's south-west quarter, opposite the Fish Market (Model-Agent, #1592). The old Corner Shop prompt is removed.
 - UI: the window title reads "Day Cart". Each row shows its "n left", the stock odds stay hidden as in #1190, and the help line reads "Coins only. New stock at sunrise. The same cart for everyone."
 - Analytics: `corner_shop_stock` gains `rows` (how many rows were in stock that day).
 

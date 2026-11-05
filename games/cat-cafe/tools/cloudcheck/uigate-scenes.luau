@@ -757,6 +757,19 @@ local SCENES = {
 		UI.bait.openPicker()
 		assertBowlTabs(2, "Bowl 2 is empty")
 	end },
+	-- #1573: a Tuna bait that has come and gone; the empty bowl offers Refill with the same food
+	{ "BaitRefill", function()
+		local now = workspace:GetServerTimeNow()
+		local tuna = Catalog.lures[2]
+		UI.bait.set({ lureId = tuna.id, readyAt = now - 5, placedAt = now - 600 }, 1)
+		UI.bait.set(nil, 1)
+		UI.bait.openPicker()
+		local status = baitWindow():FindFirstChild("Status", true)
+		local action = status and status:FindFirstChild("Action", true)
+		assert(action and action.Visible, "uigate: no Refill on the empty bowl (#1573)")
+		local sub = status:FindFirstChild("Sub", true)
+		assert(sub and string.find(sub.Text, tuna.name, 1, true), "uigate: Refill does not name the food (#1573)")
+	end },
 	-- #1161: both bowls filling, bowl 2 at night: the tabs count down on their own
 	{ "BaitBothRunning", function()
 		local now = workspace:GetServerTimeNow()

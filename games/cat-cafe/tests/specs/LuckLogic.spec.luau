@@ -186,7 +186,7 @@ return function()
 				{ Common = 0, Rare = 0, Epic = 71.56, Legendary = 23.44, Mythical = 5 },
 				hex
 			)
-			expect(plain(text)).to.equal("Epic 71.56%   Legendary 23.44%\nMythical 5%")
+			expect(plain(text)).to.equal("Epic 72%   Legendary 23%\nMythical 5%")
 			expect(text:find('<font color="#EEEEEE">', 1, true)).to.be.ok()
 			expect(text:find("Common", 1, true)).to.equal(nil)
 		end)
@@ -197,12 +197,23 @@ return function()
 				hex
 			)
 			expect(plain(text)).to.equal(
-				"Common 43.1%   Rare 27%   Epic 23%\nLegendary 5.75%   Mythical 1.15%"
+				"Common 43%   Rare 27%   Epic 23%\nLegendary 6%   Mythical 1%"
 			)
 			for line in plain(text):gmatch("[^\n]+") do
 				expect(#line <= 36).to.equal(true)
 			end
 			expect(LuckLogic.oddsRich(nil, hex)).to.equal("")
+		end)
+
+		it("marks the rarities Luck makes more likely, in whole percents (#1153)", function()
+			local before = { Common = 57.4, Rare = 27, Epic = 12, Legendary = 3, Mythical = 0.6 }
+			local after = { Common = 50, Rare = 28, Epic = 16, Legendary = 5, Mythical = 1 }
+			expect(plain(LuckLogic.oddsRich(after, hex, before))).to.equal(
+				"Common 50%   Rare 28%↑   Epic 16%↑\nLegendary 5%↑   Mythical 1%↑"
+			)
+			expect(LuckLogic.percent(0.6)).to.equal("0.6%")
+			expect(LuckLogic.percent(42.6)).to.equal("43%")
+			expect(LuckLogic.percent(0.01)).to.equal("<0.1%")
 		end)
 	end)
 

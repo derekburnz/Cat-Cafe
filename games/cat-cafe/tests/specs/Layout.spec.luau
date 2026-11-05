@@ -713,7 +713,7 @@ return function()
 		it(
 			"the bowl and its cat sit in the yard just outside the back wall, facing the Alleyway",
 			function()
-				for _, point in { plot.baitBowl, plot.baitCat } do
+				for _, point in { plot.baitBowl, plot.baitCat, plot.baitBowl2, plot.baitCat2 } do
 					expect(inside(point.x, point.z, plot.yard, 0.5)).to.equal(true)
 					expect(point.z - (halfD + 1) <= 3).to.equal(true) -- on the step, not out in the yard
 					expect(point.y).to.equal(0)
@@ -725,24 +725,39 @@ return function()
 			local door = plot.backDoor
 			local pathX1 = math.min(door.x - door.width / 2, plot.yardGate.x1)
 			local pathX2 = math.max(door.x + door.width / 2, plot.yardGate.x2)
-			for _, point in { plot.baitBowl, plot.baitCat } do
+			for _, point in { plot.baitBowl, plot.baitCat, plot.baitBowl2, plot.baitCat2 } do
 				expect(point.x > pathX2 + 1 or point.x < pathX1 - 1).to.equal(true)
 			end
 		end)
 
+		-- #1161: the Second Bait Bowl and its cat follow the same two rules
+		local bowlPairs = {
+			{ bowl = plot.baitBowl, cat = plot.baitCat },
+			{ bowl = plot.baitBowl2, cat = plot.baitCat2 },
+		}
+
 		it("the cat stands beside the bowl with its head over it", function()
-			local dx = plot.baitCat.x - plot.baitBowl.x
-			local dz = plot.baitCat.z - plot.baitBowl.z
-			expect(math.sqrt(dx * dx + dz * dz)).to.be.near(1.6, 0.01)
+			for _, pair in bowlPairs do
+				local dx = pair.cat.x - pair.bowl.x
+				local dz = pair.cat.z - pair.bowl.z
+				expect(math.sqrt(dx * dx + dz * dz)).to.be.near(1.6, 0.01)
+			end
 		end)
 
 		it("the cat is turned to face the bowl (QA)", function()
 			-- WorldBuilder turns a point by CFrame.Angles(0, rad(rotY), 0), whose LookVector is (-sin, 0, -cos).
-			local yaw = math.rad(plot.baitCat.rotY or 0)
-			local dx = plot.baitBowl.x - plot.baitCat.x
-			local dz = plot.baitBowl.z - plot.baitCat.z
-			local length = math.sqrt(dx * dx + dz * dz)
-			expect((-math.sin(yaw) * dx - math.cos(yaw) * dz) / length > 0.95).to.equal(true)
+			for _, pair in bowlPairs do
+				local yaw = math.rad(pair.cat.rotY or 0)
+				local dx = pair.bowl.x - pair.cat.x
+				local dz = pair.bowl.z - pair.cat.z
+				local length = math.sqrt(dx * dx + dz * dz)
+				expect((-math.sin(yaw) * dx - math.cos(yaw) * dz) / length > 0.95).to.equal(true)
+			end
+		end)
+
+		it("puts the second bowl past the first cat, 2 studs clear, so the pairs never touch (#1161)", function()
+			expect(plot.baitBowl2.z).to.equal(plot.baitBowl.z)
+			expect(plot.baitBowl2.x - plot.baitCat.x >= 2).to.equal(true)
 		end)
 
 		it(

@@ -8,6 +8,7 @@ local Prizes = {}
 
 -- A crate prize may name "highest" instead of a crate id.
 Prizes.HIGHEST = "highest"
+Prizes.HIGHEST_GOLDEN = "highest_golden" -- #1500: the Spin Wheel's jackpot crate
 
 -- Coins at `dayRate` (day income per second): `seconds` of it, never less than `minCoins`.
 function Prizes.coins(minCoins: number?, seconds: number?, dayRate: number): number
@@ -15,18 +16,20 @@ function Prizes.coins(minCoins: number?, seconds: number?, dayRate: number): num
 end
 
 -- The crate id a prize pays. "highest" is the plain crate of the highest-tier zone the player's tier has opened,
--- the first in Catalog.areas order on a tie (the UI's CrateLogic.resolve does the same); nil for an unknown id.
+-- the first in Catalog.areas order on a tie (the UI's CrateLogic.resolve does the same), and "highest_golden" the
+-- golden crate of that zone (#1500); nil for an unknown id.
 function Prizes.crateFor(crateId: string, tier: number): string?
-	if crateId ~= Prizes.HIGHEST then
+	if crateId ~= Prizes.HIGHEST and crateId ~= Prizes.HIGHEST_GOLDEN then
 		return if Catalog.getCrate(crateId) ~= nil then crateId else nil
 	end
+	local suffix = if crateId == Prizes.HIGHEST_GOLDEN then "_golden_crate" else "_crate"
 	local best: string? = nil
 	local bestTier = -math.huge
 	for _, area in Catalog.areas do
 		if area.tier > tier or area.tier <= bestTier then
 			continue
 		end
-		local id = area.id .. "_crate"
+		local id = area.id .. suffix
 		if Catalog.getCrate(id) ~= nil then
 			best = id
 			bestTier = area.tier

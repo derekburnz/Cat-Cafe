@@ -82,6 +82,22 @@ function Spin.amount(row: Types.SpinSlice, dayRate: number): number
 	return row.count or 1
 end
 
+-- #1500 (rewards-and-shops.md section 2b v2): the winner's toast for a jackpot slice, nil for any other. `crateId`
+-- is the crate it paid (Prizes.crateFor of the slice's crate), for its name.
+function Spin.jackpotText(row: Types.SpinSlice, amount: number, crateId: string?): string?
+	if row.jackpot ~= true then
+		return nil
+	end
+	if row.kind == "fish" then
+		return string.format("Jackpot! %d golden fish", amount)
+	end
+	local crate = if crateId ~= nil then Catalog.getCrate(crateId) else nil
+	if crate ~= nil then
+		return "Jackpot! A " .. crate.name
+	end
+	return "Jackpot!"
+end
+
 export type SpinRoll = { slice: number, amount: number }
 export type SpinTotal = { kind: string, id: string?, amount: number }
 

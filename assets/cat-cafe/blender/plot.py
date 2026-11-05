@@ -872,24 +872,15 @@ def build_tier(n, mat):
         bistro = RB()                                 # _Bistro: the lawn code hides it when the lawn is in (F91)
         _bistro(bistro, WX, F - 2.3, "mint")
         extra = [flowers.finalize(name + "_Flowers", mat), bistro.finalize(name + "_Bistro", mat)]
-    elif n == 3:                                                              # neon OPEN, string lights, 2nd bistro
-        tube, bulbs = RB(), RB()
-        cx = WINDOWS[0]
-        z = -HDI                                      # the inner face of the front wall
-        tube.text("OPEN", (cx + 2.4, 2.4, z - 0.3), 0.3, 0.1, "neon_pink", right=(-1, 0, 0))
-        for (x0, x1, y0, y1) in ((cx - 2.75, cx + 2.75, 2.05, 2.15), (cx - 2.75, cx + 2.75, 4.15, 4.25),
-                                 (cx - 2.75, cx - 2.65, 2.05, 4.25), (cx + 2.65, cx + 2.75, 2.05, 4.25)):
-            tube.span((x0, y0, z - 0.32), (x1, y1, z - 0.22), "neon_pink")
-        b.span((cx - 2.9, 1.9, z - 0.22), (cx + 2.9, 4.4, z - 0.1), "fur_black")       # the tubes' backing board
-        for x in (cx - 2.6, cx + 2.6):                                                 # standing on the sill on
-            b.span((x - 0.1, SILL + 0.01, z - 0.24), (x + 0.1, 1.9, z - 0.08), "fur_black")   # two feet (QA M6)
+    elif n == 3:                                                              # string lights, 2nd bistro
+        # #1413: the window's neon OPEN sign came out (the doorway's turning Open/Closed sign says it now)
+        bulbs = RB()
         # a festoon under each awning's scalloped edge (awnings x 5..16 each side, lip at z -18, scallops to y 9.35)
         _string_lights(b, bulbs, -WX - 4.8, -WX + 5.8, 9.25, FRONT - 3.0, 0.6, 7, up=9.86)   # hooked to the valance
         _string_lights(b, bulbs, WX - 5.8, WX + 4.8, 9.25, FRONT - 3.0, 0.6, 7, up=9.86)
         bistro = RB()                                 # _Bistro: the lawn code hides it when the lawn is in (F91)
         _bistro(bistro, -7.6, FRONT - 2.4, "blush")
-        extra = [tube.finalize(name + "_Sign_Tube", mat), bulbs.finalize(name + "_StringLights_Bulbs", mat),
-                 bistro.finalize(name + "_Bistro", mat)]
+        extra = [bulbs.finalize(name + "_StringLights_Bulbs", mat), bistro.finalize(name + "_Bistro", mat)]
     elif n == 4:                                                              # fish tank in the window, back patio
         glass, water = RB(), RB()
         cx, dz = WINDOWS[1], 1.6                       # 1.6 back from the window, clear of the Window plants decor

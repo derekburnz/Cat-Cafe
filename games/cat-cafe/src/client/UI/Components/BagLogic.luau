@@ -7,6 +7,7 @@
 --   xpLine(xp)               "+2,000 XP"
 --   catLine(level, xp)       "Level 23 · 1,400 XP to 24", or "Level 50 · Max" at the cap
 --   canFeed(level)           false at the top level (the server refuses those, FeedCat)
+--   levelChip(level)         the feed grid's short line under a cat (#1404): "Lv 20", or "Max" at the cap
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -74,6 +75,14 @@ function BagLogic.catLine(level: number, xp: number?): string
 	local need = (Config.CatXpBase or 0) * math.max(1, math.floor(level))
 	local left = math.max(0, math.ceil(need - (xp or 0)))
 	return ("Level %d · %s XP to %d"):format(level, commas(left), level + 1)
+end
+
+-- The feed grid's one short line under a cat's picture (#1404: "make the menu just a menu of your cats").
+function BagLogic.levelChip(level: number): string
+	if level >= maxLevel() then
+		return "Max"
+	end
+	return ("Lv %d"):format(math.floor(level))
 end
 
 return BagLogic

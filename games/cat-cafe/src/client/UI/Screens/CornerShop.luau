@@ -1,12 +1,12 @@
 --!strict
 -- The Corner Shop window (#1052, corner-shop.md section 4), opened from the stall's CornerShopPrompt in the Town
--- Square (UI.cornerShop.open). Coins only, open day and night. On top the help line; then the items under a header
+-- Square (UI.cornerShop.open). Coins only, open day and night. The items under a header
 -- per kind ("Potions", "Cat food", "Bait", #1599), each a compact row in Catalog.cornerShop order: its picture, name,
 -- what it does, "Opens at Tier 3" on a row the player's tier doesn't reach yet, else what is left this restock
 -- ("x2 left", #1456; still no chances, restock clock or daily limits: #1190), and a green Buy with the coin price
 -- ("Sold out", "None", "Back tomorrow" past a daily limit, #1435, "Food full"). Food goes to the Bag
--- (corner-shop-v2.md). Bait food rows (#1281) show the food's picture and grade and "You have n". Under the list:
--- "Lawn pieces are in Decor, Front lawn". No toasts of its own: the server's answer is a fresh CornerShopStock and,
+-- (corner-shop-v2.md). Bait food rows (#1281) show the food's picture and grade and "You have n". No help line or
+-- lawn note since #1688 and #1689: the prices and clock say it. No toasts of its own: the server's answer is a fresh CornerShopStock and,
 -- when refused, its toast. Words and rules in Components/CornerShopLogic.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -53,8 +53,6 @@ type Row = {
 }
 
 local MAX_SIZE = Vector2.new(620, 460)
-local TOP_H = 20 -- the help line (#1577); the restock clock and snack line are empty since #1190 and #1255
-local NOTE_H = 22
 -- #1599 (Derek2 11-05: "smaller boxes/text per item so its easiest to see a lot"): compact rows, the name and "x2
 -- left" on one line, what it does under it; the Buy keeps a 44 px face on a phone (Scale.tapHeight)
 local ROW_MIN_H = 50
@@ -138,16 +136,6 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 		Parent = content,
 	})
 	Outline.text(self._clock, 2)
-	-- #1577 (day-cart.md): the help line, "Coins only. New stock at sunrise. The same cart for everyone."
-	text({
-		Name = "Same",
-		Position = UDim2.fromOffset(0, 0),
-		Size = UDim2.new(1, 0, 0, 18),
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
-		Text = CornerShopLogic.HELP,
-		Parent = content,
-	})
 	self._snack = text({
 		Name = "Snacks",
 		AnchorPoint = Vector2.new(1, 0),
@@ -164,8 +152,9 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 		Name = "Items",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(0, TOP_H + GAP),
-		Size = UDim2.new(1, 0, 1, -(TOP_H + GAP + NOTE_H + GAP)),
+		-- the whole window since the help line (#1688) and lawn note (#1689) went; the restock clock and snack
+		-- line above it are empty since #1190 and #1255
+		Size = UDim2.fromScale(1, 1),
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
@@ -189,17 +178,6 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "The shop is opening…",
 		Parent = self._list,
-	})
-	text({
-		Name = "Lawn",
-		AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.fromScale(0, 1),
-		Size = UDim2.new(1, 0, 0, NOTE_H),
-		TextSize = Theme.sizes.textTiny + 1,
-		TextColor3 = PAL.subtext,
-		TextXAlignment = Enum.TextXAlignment.Center,
-		Text = "Lawn pieces are in Decor, Front lawn",
-		Parent = content,
 	})
 
 	self:_buildPicker(content)

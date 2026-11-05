@@ -55,7 +55,6 @@ export type Store = {
 }
 
 local MAX_SIZE = Vector2.new(880, 580)
-local NOTE_H = 24
 local GAP = Theme.sizes.gap
 local RAIL_W = 150
 -- the clean symbol on a pass's picture tile (the glyph shows until it loads, and for a pass without one)
@@ -179,22 +178,13 @@ function Store.new(callbacks: Callbacks): Store
 		})
 	end
 
-	-- the page beside the rail, under the note
+	-- the page beside the rail, from the top (#1690: no note row; cards say "Yours to keep", prices show Robux)
 	local pageX = RAIL_W + GAP + 4
-	text({
-		Name = "Note",
-		Position = UDim2.fromOffset(pageX, 0),
-		Size = UDim2.new(1, -pageX, 0, NOTE_H),
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
-		Text = "Passes are yours to keep. Prices are in Robux.",
-		Parent = panel.content,
-	})
 	local pages: Frame = Create("Frame", {
 		Name = "Pages",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(pageX, NOTE_H + GAP),
-		Size = UDim2.new(1, -pageX, 1, -(NOTE_H + GAP)),
+		Position = UDim2.fromOffset(pageX, 0),
+		Size = UDim2.new(1, -pageX, 1, 0),
 		Parent = panel.content,
 	})
 	self._pages = pages

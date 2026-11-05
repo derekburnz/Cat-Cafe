@@ -3,8 +3,8 @@
 -- camera to a view of the player's cafe front and shows a ring over each lawn spot: a "+" on an open empty spot, a
 -- pencil on one with a piece, a lock and "Tier 3" on a spot the cafe has not opened yet. Tapping a ring opens the
 -- picker along the bottom: the piece on that spot, the other pieces of its size the player owns (Place, or Move here
--- when it stands elsewhere), then the shop's (buying one puts it right there) and the ones a later tier sells. Clear
--- spot empties it and keeps the piece. Done goes back to the Decor screen; walking more than WALK_OFF studs away
+-- when it stands elsewhere); with none, a line says to get pieces at the Garden Nursery (#1200, nothing is sold
+-- here any more). Clear spot empties it and keeps the piece. Done goes back to the Decor screen; walking more than WALK_OFF studs away
 -- (keyboard or gamepad), or the character going, ends the view without it. The HUD and Roblox's touch controls (the
 -- thumbstick and jump button) hide while the view is up, so the picker's buttons are never under a thumb (review S121).
 --
@@ -227,6 +227,19 @@ function LawnEdit.new(parent: Instance, callbacks: Callbacks): LawnEdit
 		onClick = function()
 			self:pick(nil)
 		end,
+	})
+	-- a spot with nothing to offer (#1200: lawn pieces are bought at the Garden Nursery, not here)
+	self._pickEmpty = text({
+		Name = "Nursery",
+		Position = UDim2.fromOffset(16, header),
+		Size = UDim2.new(1, -32, 1, -(header + 8)),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textBody,
+		TextWrapped = true,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = LawnLogic.NURSERY_LINE,
+		Visible = false,
+		Parent = picker,
 	})
 	self._row = Create("ScrollingFrame", {
 		Name = "Row",
@@ -564,7 +577,10 @@ function LawnEdit._renderPicker(self: any)
 	self._clear.instance.Visible = herePiece ~= nil
 	self:_clearCards()
 	local callbacks: Callbacks = self._callbacks
-	for order, choice in LawnLogic.spotChoices(state, spotId) do
+	local choices = LawnLogic.spotChoices(state, spotId)
+	self._pickEmpty.Text = LawnLogic.nurseryNote(state)
+	self._pickEmpty.Visible = #choices == 0
+	for order, choice in choices do
 		local piece = choice.piece
 		local action = choice.action
 		local card: Frame = Create("Frame", {

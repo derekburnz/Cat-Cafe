@@ -106,7 +106,7 @@ CornerShop.FAMILY_NAMES = table.freeze({
 	whistle = "Cat Whistles",
 }) :: { [string]: string }
 
--- A family's daily limit, or nil for none (the Swift Potion, food, which counts XP instead, and the shows).
+-- A family's daily limit, or nil for none (the Swift Potion, and food, which counts XP instead).
 function CornerShop.perDay(family: string): number?
 	return Config.CornerDailyLimits[family]
 end

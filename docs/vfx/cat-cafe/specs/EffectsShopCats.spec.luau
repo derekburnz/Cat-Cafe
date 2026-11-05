@@ -88,5 +88,12 @@ return function()
 			expect(offset).to.equal(0)
 			expect(fade).to.equal(0)
 		end)
+
+		it("runs each face's sweep to its own viewer's right, so the Back mirrors the Front (#1366)", function()
+			local front = Logic.faceU(Enum.NormalId.Front)
+			local back = Logic.faceU(Enum.NormalId.Back)
+			expect(close(front.X, -1) and close(back.X, 1)).to.equal(true)
+			expect(close(front.Y, 0) and close(front.Z, 0) and close(back.Z, 0)).to.equal(true)
+		end)
 	end)
 end

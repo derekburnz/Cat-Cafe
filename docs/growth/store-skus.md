@@ -1,8 +1,8 @@
 # Store SKUs: card copy, spec and Creator Hub list (#1182)
 
-Owner: growth-analyst. Draft 2026-11-04 for the friend's "start on monetization" (via the Coordinator). Prices come from `shop-and-pass-plan-2026-11-01.md` (library), relayed 2026-11-04. Extra Slot is a proposed price. Who does what:
-- **UI-Engineer:** builds the cards after the HUD menus.
-- **Gameplay-Engineer:** builds developer products (ProcessReceipt) and each effect.
+Owner: growth-analyst. Draft 2026-11-04, refreshed 2026-11-05 for the friend's "start on monetization" (via the Coordinator). Prices come from `shop-and-pass-plan-2026-11-01.md` (library), relayed 2026-11-04. Extra Slot is R$149 (decided). Who does what:
+- **UI-Engineer:** builds the cards (pass and product cards are in, hidden while an id is 0; #1240, #1248).
+- **Gameplay-Engineer:** developer products (ProcessReceipt is in, #1207) and each effect.
 - **The friend:** creates the products in Creator Hub. Passes are made by `game-passes.yml` from `passes.json` once each pass's code merges (decision 2026-11-02).
 
 Rules every card follows (monetization-policy, decisions 2026-11-01 22:42):
@@ -30,13 +30,13 @@ Card layout as today: picture, name, one effect line, an optional second line (w
 | grandTheme | Grand Cafe Theme | "The grand look: +150% money, twice the rich visitors, +1 job slot every tier." | | R$799 (R$399) | gold and cream grand cafe front |
 | extraSlot | Extra Slot | "+1 job slot, so one more cat can work." | | R$149 (R$74) | an empty stool with a "+1" |
 | royalCat | Royal Cat | "A cat that always earns like a Legendary from your newest area." | "Yours to keep. Can't be traded." | R$599 (R$299) | the Royal Cat with a small crown |
-| kingPack | King Cat Pack | "The King Cat, who always earns like a Mythical from your newest area, plus a crown sign style." | "Yours to keep. Can't be traded." | R$999 (R$499) | the King Cat in a crown on a velvet cushion (unique model and effect) |
+| kingPack | King Cat Pack | "The King Cat, who always earns like a Mythical from your newest area, plus the Royal Crest sign style." | "Yours to keep. Can't be traded." | R$999 (R$499) | the King Cat in a crown on a velvet cushion (unique model and effect) |
 
-### Developer products (bought each time; need ProcessReceipt first)
+### Developer products (bought each time; ProcessReceipt is in, #1207)
 
 | Key | Card name | Effect line | Contents line | Price (launch week) | Picture |
 |---|---|---|---|---|---|
-| starter | Starter Bundle | "A head start for a new cafe. Once per player." | "1 [starter cat, name TBD], 10 Big Money, 5 Swift, 1 sign style" | R$99 (R$49) | gift box with a cat, potions and a sign |
+| starter | Starter Bundle | "A head start for a new cafe. Once per player." | "1 Sprinkles (the starter cat), 10 Big Money, 5 Swift, 1 Bakery Stripes sign style" | R$99 (R$49) | gift box with a cat, potions and a sign |
 | potionXS | Potion Pack XS | "Big Money Potions: +50% money while they last." | "2 Big Money" | R$10 (no discount) | 2 gold potion bottles |
 | potionS | Potion Pack S | "A small potion mix." | "3 Big Money, 1 Swift, 1 Steady Paw" | R$25 (R$12) | 5 bottles in a basket |
 | potionM | Potion Pack M | "A potion mix." | "10 potions: 5 Big Money, 3 Swift, 2 Steady Paw" | R$49 (R$24) | crate of 10 bottles |
@@ -55,7 +55,7 @@ Notes for UI-Engineer:
 
 Name up to 50 characters. The descriptions avoid the word "game" and don't name the group. Launch prices are set and restored by workflow, so create everything at the regular price, **off sale**.
 
-### Game passes (Tools-Agent adds each to `passes.json` once its code merges; not by hand)
+### Game passes (made off sale by `game-passes.yml` from `passes.json`; Derek OK'd placeholders on 11-04 and all 16 now exist, #1197. Put each on sale only once its code has merged)
 
 ```
 VIP | R$25 | regional pricing on
@@ -80,14 +80,14 @@ Royal Cat | R$599 | regional pricing on
 The Royal Cat joins your cafe and always earns like a Legendary from your newest area. Yours to keep, can't be traded.
 
 King Cat Pack | R$999 | regional pricing on
-The King Cat joins your cafe and always earns like a Mythical from your newest area, plus a crown sign style. Yours to keep, can't be traded.
+The King Cat joins your cafe and always earns like a Mythical from your newest area, plus the Royal Crest sign style. Yours to keep, can't be traded.
 ```
 
-### Developer products (the friend creates these after ProcessReceipt merges, then the ids go in `Config`)
+### Developer products (the friend creates these, then the ids go in `Config`; ProcessReceipt is in, #1207)
 
 ```
 Starter Bundle | R$99
-A head start: 1 [starter cat, name TBD], 10 Big Money Potions, 5 Swift Potions and a cafe sign style. Once per player.
+A head start: 1 Sprinkles, 10 Big Money Potions, 5 Swift Potions and the Bakery Stripes sign style. Once per player.
 
 Potion Pack XS | R$10
 2 Big Money Potions (+50% cafe money while active).
@@ -108,8 +108,8 @@ The paid track for the current Cafe Pass season. Level up with quests to unlock 
 ## 3. Decided and still open
 
 Decided 2026-11-04 (the friend, via the Coordinator, and the library plan):
-- **Starter Bundle cat:** a new starter-only cat that earns like an Epic from the newest area (plan open item 2). It is not the Bellhop Cat. Design-Agent names it and Model-Agent builds it. Until it exists, the bundle can't go on sale.
-- **King Cat Pack:** the plan's Grand cat becomes the "King" whale item the friend remembers: the King Cat (earns like a Mythical, unique model and effect) plus a crown sign style, R$999. It's fixed, never random, always on sale, and can't be traded. Design-Agent names the crown sign style and Model-Agent builds the cat.
+- **Starter Bundle cat:** Sprinkles, a starter-only cat that earns like an Epic from the newest area (#1191, built in #1244). It is not the Bellhop Cat.
+- **King Cat Pack:** the plan's Grand cat becomes the "King" whale item the friend remembers: the King Cat (earns like a Mythical, unique model and effect) plus the Royal Crest sign style, R$999. It's fixed, never random, always on sale, and can't be traded. Names and designs are on #1191: King Croissant and Royal Crest (built, #1289). The "Grand cat" in #1182's body is this pack; this file takes precedence.
 - **Royal Cat** stays at R$599 (earns like a Legendary).
 - **Pack mixes:** M is 5 Big Money, 3 Swift, 2 Steady Paw. L is 10 Big Money, 6 Swift, 6 Steady Paw.
 - **Extra Slot:** R$149.
@@ -117,9 +117,7 @@ Decided 2026-11-04 (the friend, via the Coordinator, and the library plan):
 Still open:
 1. **Stacking (economy check before build):** VIP, Accessories, Uniforms, Cafe Style and Grand Cafe all add money on top of the 4x ladder. The economy ladder modelled "about 24x" for a player with every paid bonus (economy-ladder.md). The game-designer should confirm the plan's numbers still match.
 2. **PolicyService:** nothing here is random, so no odds screen is needed, and nothing bought can be traded. Gameplay-Engineer still reads `PolicyService:GetPolicyInfoForPlayerAsync` per player, as the monetization-policy skill asks, and confirms in review that no flag needs a card hidden.
-3. **Names and models needed** (Design-Agent, then Model-Agent):
-   - the starter-only cat;
-   - the King Cat's look and effect;
-   - the Royal Cat;
-   - the crown sign style;
-   - the Starter Bundle's sign style.
+3. **Names and models:** done on #1191: Sprinkles (starter cat, Epic), Duchess Marzipan (Royal Cat, Legendary), King Croissant (King Cat, Mythical) and the Royal Crest sign style. The Starter Bundle's sign style is Bakery Stripes (#1289); nothing is left to name.
+4. **Policy call (Derek) before Golden Pond (#1232) and Second Bait Bowl (#1161) go on sale:** growth's view is that neither should be sold as specced. Golden fish are banned from Robux items and a second bowl doubles random arrivals.
+5. **Store FAQ:** "every cat is caught by playing" must change in the publish that first sells a shop cat (`store-page.txt`).
+6. **Regional pricing** is off for every pass; turn it on before launch except the money ladder (#1197). All 16 items still use the default icon (pictures in section 1).

@@ -882,7 +882,7 @@ Catalog.tiers = {
 	{
 		tier = 2,
 		name = "Cozy Cafe",
-		cost = 12000, -- F95 v2.1 (QA's Pace with cannon trips: 9.8 min, under the 10 min floor; was 10,000)
+		cost = 13500, -- #1162 (4-friend non-stop pace, Design-Agent 11-05: 9.4 min at 12,000); F95 v2.1 12,000, 10,000 before
 		distinctCats = 5,
 		slots = 4,
 		multiplier = 1.25,
@@ -3437,27 +3437,6 @@ Catalog.cornerShop = {
 		xp = 20000,
 		price = 80000000,
 		needsTier = 4,
-	},
-	{
-		id = "bubble_machine",
-		name = "Bubble Machine",
-		family = "show",
-		size = "regular",
-		kind = "show",
-		showId = "bubbles",
-		showSeconds = 600,
-		price = 50000,
-	},
-	{
-		id = "cafe_fireworks",
-		name = "Cafe Fireworks",
-		family = "show",
-		size = "big",
-		kind = "show",
-		showId = "fireworks",
-		showSeconds = 20,
-		price = 250000,
-		needsTier = 3,
 	},
 } :: { Types.CornerShopRow }
 Catalog.cornerShopById = {} :: { [string]: Types.CornerShopRow }

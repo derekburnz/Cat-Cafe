@@ -4,7 +4,7 @@ Multi-object assets split out parts that need a Studio material (Neon, glass).""
 import math
 
 from alleyway import FACE, MURAL_CATS
-from common import RB, Builder
+from common import RB, Builder, text_width
 from plot import rot_z
 
 
@@ -146,20 +146,80 @@ def _letters(b, text, center, px, swatch, y):
         x += (len(rows[0]) + 1) * px
 
 
+SIGN_W, SIGN_H, SIGN_T = 2.2, 1.1, 0.1         # #1140 door-sign.md section 2: the board
+SIGN_TOP = -0.5                                 # its top edge under the hook (the pivot); its middle at -1.05
+MOON = ("..##.....", ".##......", "###......", "###......", "###......", ".####....", "..#####..")
+
+
+def _rounded(cx, cy, w, h, r, steps=2):
+    """A rounded rectangle's outline (Roblox x, y), counter-clockwise from the right edge."""
+    pts = []
+    for (qx, qy, a0) in ((w / 2 - r, h / 2 - r, 0), (-w / 2 + r, h / 2 - r, 90), (-w / 2 + r, -h / 2 + r, 180),
+                         (w / 2 - r, -h / 2 + r, 270)):
+        for k in range(steps + 1):
+            a = math.radians(a0 + 90 * k / steps)
+            pts.append((cx + qx + r * math.cos(a), cy + qy + r * math.sin(a)))
+    return pts + pts[:1]                                 # closed: the fan draws one wedge per pair
+
+
 def build_door_sign(mat):
-    """Hanging Open / Closed sign. Pivot at the hook. Two objects; the engineer shows one
-    per clock phase (Open by day, Closed at night)."""
-    out = []
-    for word, board, ink in (("OPEN", "mint", "cream"), ("CLOSED", "night_sky", "blush")):
-        b = Builder()
-        for x in (-1.1, 1.1):
-            b.cyl((x, 0, -0.25), 0.03, 0.5, "metal", segments=6, bevel=False)                  # chains
-        b.box((0, 0, -1.15), (3.2, 0.1, 1.3), board)
-        b.box((0, 0.03, -1.15), (3.35, 0.06, 1.45), "dark_wood")                               # frame behind
-        px = min(2.8 / _text_cols(word), 0.2)                                                  # fit 2.8 of the 3.2 board, 1.0 tall max
-        _letters(b, word, (0, -1.15), px, ink, -0.07)
-        out.append(b.finalize(f"CatCafe_Decor_DoorSign_{word.title()}", mat))
-    return out
+    """#1140 (door-sign.md): the cafe's one Open/Closed sign, hung on the front door from the cafe shell's SignHook
+    (under the transom bar). A rounded two-sided wooden board on a twine V from a brass hook. Pivot at the hook point
+    (the board hangs below it, centred on it in x and z), front -Z toward the street:
+      CatCafe_Decor_DoorSign_Open     (parts in the root) the cream OPEN face on the front (-Z), cocoa letters and a
+                                      pink paw print
+      CatCafe_Decor_DoorSign_Hanger   (child Model) the brass hook, the twine and the wooden board with its darker rim:
+                                      always shown
+      CatCafe_Decor_DoorSign_Closed   (child Model) the dusky blue CLOSED face on the back (+Z), cream letters, and
+        ..._Closed_Moon_Bulb          its crescent moon (child Model inside it), which glows with the night parts
+    By day OPEN faces the street; at nightfall Effects/DoorSign turns the whole sign 180 degrees about the hook's
+    vertical axis so CLOSED does (the board is centred on that axis, so it turns in place)."""
+    opn, hang, cls, moon = RB(), RB(), RB(), RB()
+    cy = SIGN_TOP - SIGN_H / 2
+    hang.b.ring(RB.p(0, -0.09, 0), 0.06, 0.018, 0.018, "brass", segments=8, rot=(math.radians(90), "X"))   # hook eye
+    hang.span((-0.015, -0.03, -0.015), (0.015, 0.0, 0.015), "brass")                       # its screw, into the bar
+    for sx in (-1, 1):                                                                      # the twine V
+        ax, ay, bx, by = 0.0, -0.14, sx * 0.75, SIGN_TOP - 0.02
+        L = math.hypot(bx - ax, by - ay)
+        hang.box(((ax + bx) / 2, (ay + by) / 2, 0), (0.03, L + 0.02, 0.03), "treat_tan",
+                 rot=rot_z(math.degrees(math.atan2(bx - ax, ay - by))))
+        hang.cyl((bx, SIGN_TOP - 0.06, 0), 0.04, SIGN_T + 0.02, "brass", axis="Z", segments=6)  # an eyelet
+    hang.fan_z(0, (0, cy), _rounded(0, cy, SIGN_W, SIGN_H, 0.22), SIGN_T, "dark_wood")    # board with its rim
+    fw, fh, ft = SIGN_W - 0.16, SIGN_H - 0.16, 0.02
+    fz = SIGN_T / 2 + ft / 2 - 0.005                                                        # 0.005 into the board
+    opn.fan_z(-fz, (0, cy), _rounded(0, cy, fw, fh, 0.16), ft, "cream")
+    cls.fan_z(fz, (0, cy), _rounded(0, cy, fw, fh, 0.16), ft, "night_sky")
+    # OPEN: cocoa letters, a pink paw after the word (read from the street, -Z)
+    px = 0.085
+    w = text_width("OPEN", px)
+    paw_w = 0.32
+    x0 = -(w + 0.12 + paw_w) / 2
+    face_o = -(fz + ft / 2) + 0.004                      # letters start 0.004 inside the face
+    # x0 is in the street viewer's left-to-right terms, which run along Roblox -X: the first letter sits at x -x0
+    opn.text("OPEN", (-x0, cy - 2.5 * px, face_o), px, 0.03, "choco", right=(-1, 0, 0))
+    pcx = -(x0 + w + 0.12 + paw_w / 2)                                                      # the paw, after the word
+    for dx, dy, r in ((0.0, -0.06, 0.09), (-0.1, 0.07, 0.04), (-0.035, 0.12, 0.04), (0.035, 0.12, 0.04),
+                      (0.1, 0.07, 0.04)):
+        opn.cyl((pcx + dx, cy + dy, face_o - 0.012), r, 0.025, "fur_bubblegum", axis="Z", segments=6)
+    # CLOSED: cream letters and the crescent moon, read from behind (+Z), which faces the street once turned
+    px2 = 0.07
+    w2 = text_width("CLOSED", px2)
+    mp = 0.05
+    mw = 9 * mp
+    face_c = fz + ft / 2 - 0.004
+    xs = -(w2 + 0.1 + mw) / 2                                                               # from the viewer's left
+    cls.text("CLOSED", (xs + mw + 0.1, cy - 2.5 * px2, face_c), px2, 0.03, "offwhite", right=(1, 0, 0))
+    mtop = cy + len(MOON) * mp / 2
+    for r, row in enumerate(MOON):                       # one block per run; seen from +Z, left to right is +X,
+        c0 = row.index("#")                              # so the horns point toward the text
+        c1 = row.rindex("#") + 1
+        moon.span((xs + c0 * mp, mtop - (r + 1) * mp, face_c - 0.002), (xs + c1 * mp, mtop - r * mp, face_c + 0.025),
+                  "sparkle")
+    return [opn.finalize("CatCafe_Decor_DoorSign_Open", mat), hang.finalize("CatCafe_Decor_DoorSign_Hanger", mat),
+            cls.finalize("CatCafe_Decor_DoorSign_Closed", mat), moon.finalize("CatCafe_Decor_DoorSign_Closed_Moon_Bulb", mat)]
+
+
+DOOR_SIGN_NEST = {"_Closed_Moon_Bulb": "_Closed"}
 
 
 def build_string_lights(mat):
@@ -289,7 +349,7 @@ def build_book_bench(mat, name="CatCafe_Decor_ParkBench", slat="caramel_wood", i
 
 
 ASSETS = {
-    "CatCafe_Decor_DoorSign": (build_door_sign, 1500),   # two boards, one visible at a time
+    "CatCafe_Decor_DoorSign": (build_door_sign, 1500),   # #1140: one two-sided board (block letters, no texture)
     "CatCafe_Decor_StringLights": (build_string_lights, 800),
     "CatCafe_Decor_WindowPlants": (build_window_plants, 800),
     "CatCafe_Decor_Rug": (build_rug, 500),

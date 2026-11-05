@@ -75,6 +75,10 @@ BACK_WIN = (HWI - 5.5, HWI - 2.5, 4.0, 7.5)  # x0, x1, y0, y1
 SIGN = (-8.0, 8.0, 13.4, 16.6)               # x0, x1, y0, y1 on the front gable
 SIGN_INFO = {"part": "SignBoard", "face": "Front (-Z)", "size": [16.0, 3.2], "centre": [0.0, 15.0, FRONT - 0.35]}
 CHIMNEY = (10.0, 12.2, zs(8.0), zs(8.0) + 2.2)   # x0, x1, z0, z1 of the chimney stack on the right slope
+# #1140 (door-sign.md section 1): where the Open/Closed sign (CatCafe_Decor_DoorSign, pivot at its hook) hangs, Roblox
+# plot-local: the middle of the front doorway's transom bar's underside, so it hangs in the doorway in front of any
+# door set's leaves (their street faces stand 0.2 behind it) with its board above head height
+SIGN_HOOK = (0.0, round(DOOR[2] - 0.15, 3), FRONT + 0.5)
 CHIMNEY_TOP = (11.1, round(25.1 + (HW - 19.0) * math.tan(PITCH), 2), round(zs(8.0) + 1.1, 2))   # Roblox plot-local, where chimney smoke starts
 
 COLOURS = {                                  # facade, accent (awning stripes, door frame, shutters)

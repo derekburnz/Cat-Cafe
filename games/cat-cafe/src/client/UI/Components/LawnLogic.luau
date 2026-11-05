@@ -8,7 +8,11 @@
 --                           ProfileSync has sent the lawn
 --   pieceAction(state, piece)          a piece card's button in the tab
 --   styleAction(state, style)          a path or fence card's button
---   spotChoices(state, spotId)         the picker's rows for one spot: owned pieces that fit, then the shop's
+--   spotChoices(state, spotId)         the picker's rows for one spot: the piece there, then owned pieces that fit
+--                                      (#1200: nothing is sold here; pieces come from the Garden Nursery)
+--   stallRows(tab)                     the Garden Nursery's rows for "pieces", "path" or "fence" (lawn-nursery.md 2)
+--   stallAction(state, row)            a nursery row's button: Buy with the price, Owned, or Opens at Tier n
+--   NURSERY_LINE, nurseryNote(state)   where lawn pieces are sold, for the Front lawn tab and an empty picker
 --   counts(state)                      lawn spots used and open at the cafe's tier
 --   inUse(state, kind)                 the path or fence in use (nil: no fence)
 
@@ -31,6 +35,7 @@ export type Mode =
 	| "use" -- an owned style not in use
 	| "inUse" -- the path in use
 	| "takeDown" -- the fence in use: no fence
+	| "owned" -- the nursery: already bought
 
 export type Action = {
 	mode: Mode,
@@ -213,7 +218,8 @@ function LawnLogic.styleAction(state: Types.PlayerState, style: Types.LawnStyleD
 end
 
 -- The picker for one open spot: the piece on it, then the other owned pieces of its size (Place, which moves one
--- off another spot), then the shop's pieces of its size (buying places it here), the ones a later tier sells last.
+-- off another spot). Lawn pieces are bought only at the Garden Nursery since #1200 (lawn-nursery.md section 3), so
+-- the shop's pieces are no longer offered here.
 function LawnLogic.spotChoices(state: Types.PlayerState, spotId: string): { Choice }
 	local spot = Lawn.getSpot(spotId)
 	if spot == nil then
@@ -223,8 +229,6 @@ function LawnLogic.spotChoices(state: Types.PlayerState, spotId: string): { Choi
 	local here = profile.lawn[spotId]
 	local first: { Choice } = {}
 	local mine: { Choice } = {}
-	local shop: { Choice } = {}
-	local later: { Choice } = {}
 	for _, piece in LawnLogic.pieces() do
 		if piece.spot ~= spot.size then
 			continue
@@ -248,22 +252,102 @@ function LawnLogic.spotChoices(state: Types.PlayerState, spotId: string): { Choi
 				spotId = spotId,
 			}
 			table.insert(mine, { piece = piece, owned = true, action = place })
-		else
-			local action = buyOrLocked(state, piece.price, piece.tier, spotId)
-			table.insert(if action.mode == "locked" then later else shop, {
-				piece = piece,
-				owned = false,
-				action = action,
-			})
 		end
 	end
 	local out: { Choice } = {}
-	for _, list in { first, mine, shop, later } do
+	for _, list in { first, mine } do
 		for _, choice in list do
 			table.insert(out, choice)
 		end
 	end
 	return out
+end
+
+-- The Garden Nursery (#1200, lawn-nursery.md section 2) -------------------------------------------------------------
+
+export type StallTab = "pieces" | "path" | "fence"
+
+-- One row in the nursery window: a piece or a style for sale (the free Grey Slabs never shows).
+export type StallRow = {
+	id: string,
+	name: string,
+	model: string,
+	tier: number,
+	price: number,
+	rarity: string,
+	detail: string, -- "Small spot", "Big spot", "Path" or "Fence"
+}
+
+LawnLogic.NURSERY_LINE = "Get lawn pieces at the Garden Nursery in the Park"
+LawnLogic.NURSERY_TIER = 2 -- the Park opens at Tier 2, so the nursery does too
+
+-- Where lawn pieces are sold: the Tier 1 line names the tier that opens the Park.
+function LawnLogic.nurseryNote(state: Types.PlayerState?): string
+	if state ~= nil and state.tier < LawnLogic.NURSERY_TIER then
+		return ("Lawn pieces are sold at the Garden Nursery in the Park (Tier %d)"):format(
+			LawnLogic.NURSERY_TIER
+		)
+	end
+	return LawnLogic.NURSERY_LINE
+end
+
+function LawnLogic.stallRows(tab: StallTab): { StallRow }
+	local out: { StallRow } = {}
+	if tab == "pieces" then
+		for _, piece in LawnLogic.pieces() do
+			local rarity: string = piece.rarity or "Common"
+			local row: StallRow = {
+				id = piece.id,
+				name = piece.name,
+				model = piece.model,
+				tier = piece.tier,
+				price = piece.price,
+				rarity = rarity,
+				detail = LawnLogic.sizeName(piece.spot),
+			}
+			table.insert(out, row)
+		end
+		return out
+	end
+	for _, style in LawnLogic.styles(tab) do
+		if style.price <= 0 then
+			continue -- Grey Slabs: every cafe has it
+		end
+		local rarity: string = style.rarity or "Common"
+		local row: StallRow = {
+			id = style.id,
+			name = style.name,
+			model = style.model,
+			tier = style.tier,
+			price = style.price,
+			rarity = rarity,
+			detail = if tab == "path" then "Path" else "Fence",
+		}
+		table.insert(out, row)
+	end
+	return out
+end
+
+-- A nursery row's button: Owned (grey) once bought, "Opens at Tier 3" (grey) before its tier, else Buy with the price,
+-- greyed while the coins are short. The server still checks the tier, the coins and the distance to the stall.
+function LawnLogic.stallAction(state: Types.PlayerState, row: StallRow): Action
+	if Lawn.owns(view(state), row.id) then
+		return { mode = "owned", text = "Owned", style = "ghost", enabled = false }
+	end
+	if state.tier < row.tier then
+		return {
+			mode = "locked",
+			text = ("Opens at Tier %d"):format(row.tier),
+			style = "ghost",
+			enabled = false,
+		}
+	end
+	return {
+		mode = "buy",
+		text = "$" .. ShortNumber.format(row.price),
+		style = "gold",
+		enabled = state.money >= row.price,
+	}
 end
 
 -- The edit view's camera (Screens/LawnEdit): how far back from the lawn's middle it stands, and how high for each stud

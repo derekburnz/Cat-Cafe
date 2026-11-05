@@ -233,6 +233,13 @@ Theme.rarity = {
 }
 Theme.rarityOrder = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 
+-- The lawn's two extra rungs (lawn-nursery.md section 1, #1200): Uncommon (mint) and Golden (shining gold) are
+-- lawn-only, so a lawn rarity is never mixed up with a cat or crate one. The others read from Theme.rarity.
+Theme.lawnRarity = {
+	Uncommon = { color = Color3.fromHex("5FD6A0"), text = Color3.fromHex("0F3B28") },
+	Golden = { color = Color3.fromHex("FFE066"), text = Color3.fromHex("3A2A00") },
+} :: { [string]: { color: Color3, text: Color3 } }
+
 -- The rainbow coat's bands (F99, rainbow-coat.md section 2) for a UIGradient: the big pull's word, edges and rays.
 Theme.rainbow = ColorSequence.new({
 	ColorSequenceKeypoint.new(0, Color3.fromHex("FF5A5F")),
@@ -441,6 +448,15 @@ function Theme.rarityTextColor(rarity: string?): Color3
 		return entry.text
 	end
 	return Theme.rarity.Common.text
+end
+
+-- A lawn rarity's badge colour and its words' colour (the lawn-only rungs first).
+function Theme.lawnRarityColors(rarity: string?): (Color3, Color3)
+	local own = Theme.lawnRarity[rarity or ""]
+	if own then
+		return own.color, own.text
+	end
+	return Theme.rarityColor(rarity), Theme.rarityTextColor(rarity)
 end
 
 -- The rarity as text on a dark card (#1028): its colour a quarter of the way to white, 5.3:1 or better on Theme.dark's

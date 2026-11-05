@@ -122,10 +122,8 @@ PIVOT_NOTES = {
           "same placements" for n in ("CatCafe_Square_RallyBunting", "CatCafe_Square_RallyBuntingShort")},
     "CatCafe_Town_LeaderboardRow": "the plinth's base centre on the paving (world y 0.1), front -Z toward the Cat "
                                    "Cannon; Layout.leaderboards (40, 0.1, 0) turned 90, at the lane's east end",
-    **{n: "the base centre on the camp's ground, front -Z toward the camp, no turn; area space at "
-          "campextras.SPOTS (beside the way out, across from the Index Board)" for n in (
-        "CatCafe_Camp_Park_PicnicBasket", "CatCafe_Camp_Neighbourhood_YardSale", "CatCafe_Camp_Woods_FishPond",
-        "CatCafe_Camp_Sewer_LostFound")},
+    "CatCafe_Camp_Sewer_LostFound": "the base centre on the camp's ground, front -Z toward the camp, no turn; area "
+                                    "space at campextras.SPOTS (beside the way out, across from the Index Board)",
     "CatCafe_Town_WelcomeArch": "the opening's base centre on the street top (world y 0.1), front -Z toward the "
                                 "Town Square; Layout.townEnds at (0, -123) turned 180 and (0, 123) unturned",
     **{f"CatCafe_Plot_LuckyCat_{n}": "the plinth's base centre on the plot floor, front -Z to the street; plot space "
@@ -181,7 +179,6 @@ PIVOT_NOTES = {
     "CatCafe_Plot_Interior": "Plot.cframe: floor top centre of the cafe",
     "CatCafe_Plot_ForRent": "Plot.cframe: floor top centre of the cafe",
     **{f"CatCafe_Plot_Tier{n}": "Plot.cframe: floor top centre of the cafe" for n in range(1, 6)},
-    "CatCafe_Plot_ClosedSign": "Plot.cframe: floor top centre of the cafe",
     **{n: "wall: back plane at the bottom centre; -Z faces into the alley" for n in
        ("CatCafe_Alley_WallWindows", "CatCafe_Alley_WallDoor", "CatCafe_Alley_FireEscape", "CatCafe_Alley_Mural")},
     "CatCafe_Alley_ArchStreet": "base centre of the 36 stud opening; -Z faces the street",
@@ -305,8 +302,6 @@ STUDIO_NOTES = {
                                "with the usual hinged pieces (child Models <name>_Cat_Head with its eyes and ears, "
                                "_Cat_Tail, _Cat_LegF1, _Cat_LegF2) and its cap (_Cat_Prop) rides inside the Head Model. "
                                "_Bulb (the sign lamp) glows at night.",
-    "CatCafe_Plot_ClosedSign": "F44: owned cafes at night only (Clock.Phase), at the Plot pivot. Hangs in the front door "
-                               "above head height; nothing collides. The child Model _Moon_Bulb glows at night.",
     **{f"CatCafe_Cat_{n}_Sit": f"Body B, sitting up: clone this instead of CatCafe_Cat_{n} for a cat resting in the "
                                 "cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> "
                                 "Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, "

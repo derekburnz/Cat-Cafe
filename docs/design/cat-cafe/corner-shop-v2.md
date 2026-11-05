@@ -57,7 +57,7 @@ Decided by Coordinator for the friend, overnight 11-05, from Derek's 11-04 ask: 
 
 ## 2. Still not sold, and why (unchanged from corner-shop.md section 3)
 
-No crates, crate keys, spin tokens or anything random. Money passes multiply coins, so these would become paid random items (monetization-policy section 2). No luck or Catnip, no income or tip boosts (rule v0.8), no net or bowl upgrades, no dealer food and no lawn decor. Nothing is limited-time: every item comes back, and its stock chances show on its row.
+No crates, crate keys, spin tokens or anything random. Money passes multiply coins, so these would become paid random items (monetization-policy section 2). No luck or Catnip, no income or tip boosts (rule v0.8), no net or bowl upgrades, no dealer food and no lawn decor. Nothing is limited-time: every item comes back (stock chances are server numbers only since #1190).
 
 ## 3. Cat food goes to the Bag (#1181)
 

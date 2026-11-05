@@ -25,7 +25,8 @@ return function()
 		-- MaxStraysPerArea are gone, and the wave size lives per area in Catalog.areas (Catalog.spec)
 		DayLengthSeconds = 300,
 		NightLengthSeconds = 90, -- v0.9 (F66): a short night between hunts
-		ServerStartDaySeconds = 300, -- v0.9: a new server opens at sunrise
+		ServerStartDaySeconds = 300, -- v0.9: a new server opens at sunrise; #1437: the global clock's first day
+		ClockEpoch = 1793491200, -- #1437
 		DuskWarningSeconds = 15,
 		NightSweepSeconds = 2,
 		StrayDespawnSeconds = 120,
@@ -111,9 +112,9 @@ return function()
 		GoldMultiplier = 1.5, -- v0.3 (F22)
 		-- the night dealer (F32, section 8b)
 		DealerRangeStuds = 12,
-		FreshCatchWindowSeconds = 300, -- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf rolls every 5 minutes
+		FreshCatchWindowSeconds = 390, -- F94 300; #1437: one game day, a restock at every global sunrise
 		-- #1052 (corner-shop.md section 5): the Corner Shop's window, its reach and the daily Cat Snack cap
-		CornerShopWindowSeconds = 300,
+		CornerShopWindowSeconds = 390, -- #1437 (was 300)
 		CornerShopRange = 14,
 		CatFoodMax = 999,
 		CatchSnackChance = 0.10, -- corner-shop-v2.md section 3: a Small Snack 1 catch in 10
@@ -682,6 +683,15 @@ return function()
 				)
 			end
 		)
+
+		it("#1437: one global clock, and both shops restock at its sunrise once a game day", function()
+			local cycle = Config.DayLengthSeconds + Config.NightLengthSeconds
+			expect(Config.ClockEpoch).to.equal(1793491200) -- 2026-11-01 00:00 UTC
+			-- every sunrise falls on a whole number of cycles from the epoch, so a window of one cycle turns at sunrise
+			expect(Config.ServerStartDaySeconds + Config.NightLengthSeconds).to.equal(cycle)
+			expect(Config.FreshCatchWindowSeconds).to.equal(cycle)
+			expect(Config.CornerShopWindowSeconds).to.equal(cycle)
+		end)
 
 		it(
 			"rescue: the player who failed waits longer, the chances are probabilities, a rescue pays no more",

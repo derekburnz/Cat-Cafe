@@ -22,14 +22,15 @@ local MULTIPLIER = 48271
 local SALT = 1000003 * 11 + 0x636F726E -- "corn": keeps this roll apart from the Fresh Catch's (salt 7)
 local DAY = 86400
 
--- The global stock window at server time `now` (os.time()).
+-- The global stock window at server time `now` (os.time()). #1437: counted from Config.ClockEpoch, so with a window of
+-- one game day it turns at every sunrise of the global clock.
 function CornerShop.window(now: number): number
-	return math.floor(now / Config.CornerShopWindowSeconds)
+	return math.floor((now - Config.ClockEpoch) / Config.CornerShopWindowSeconds)
 end
 
 -- When the stock after `window` arrives, in os.time().
 function CornerShop.restocksAt(window: number): number
-	return (window + 1) * Config.CornerShopWindowSeconds
+	return Config.ClockEpoch + (window + 1) * Config.CornerShopWindowSeconds
 end
 
 -- The UTC day number of os.time() `now`, which the snack cap counts by.
@@ -216,11 +217,15 @@ function CornerShop.sanitize(raw: unknown, now: number): Types.CornerShopState
 	local function whole(x: unknown): number
 		return if type(x) == "number" and x == x and math.abs(x) < 2 ^ 40 then math.floor(x) else 0
 	end
-	state.window = math.clamp(whole(value.window), 0, CornerShop.window(now) + 1)
+	-- #1437: a window past the next one is from the old 5 minute count; its window and buys start afresh (the day's
+	-- family counts below are by UTC day and stay)
+	local latest = math.max(0, CornerShop.window(now) + 1)
+	local oldCount = whole(value.window) > latest
+	state.window = if oldCount then 0 else math.clamp(whole(value.window), 0, latest)
 	state.day = math.clamp(whole(value.day), 0, CornerShop.day(now))
 	state.foodXpToday = math.clamp(whole(value.foodXpToday), 0, 2 ^ 31)
 	local families: { [string]: boolean } = {}
-	if type(value.bought) == "table" then
+	if type(value.bought) == "table" and not oldCount then
 		for _, row in Catalog.cornerShop do
 			families[row.family] = true
 			local weights: { number } = Config.CornerShopSizeWeights[row.size] or {}

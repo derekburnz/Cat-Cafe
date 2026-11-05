@@ -1024,6 +1024,14 @@ Changed or new in v0.8 (Gavin's round 3 answers 1 to 6):
 | PotionMaxMinutes | 60 | new | PotionService |
 | CodesCatRange, CodeMaxLength, CodeWrongLimit, CodeLockSeconds | 12, 20, 5, 60 | new (F65, Derek 19:33) | CodeService |
 
+One global day (#1437, Derek2, 2026-11-05: "restock once per in game day and make it global"): every server counts the same day from Config.ClockEpoch (1793491200, 2026-11-01 00:00 UTC, a sunrise) using `Workspace:GetServerTimeNow()`, so sunrise falls at the same moment on every server, every 390 seconds from the epoch. A new server joins that day where it stands instead of opening at sunrise; ServerStartDaySeconds 300 now only names the day's length at sunrise. The Fresh Catch shelf and the Corner Shop restock once a game day, at that sunrise: their windows count from ClockEpoch and last one day plus one night. A saved window past the next one (the old 5 minute count) starts that shop's window and buys afresh; the Corner Shop's UTC day family counts are kept.
+
+| constant | value | was | used by |
+|---|---|---|---|
+| ClockEpoch | 1793491200 | new | ClockService, FreshCatch, CornerShop |
+| FreshCatchWindowSeconds | 390 (one game day) | 300 | FreshCatch |
+| CornerShopWindowSeconds | 390 (one game day) | 300 | CornerShop |
+
 Changed or new in v0.9 (Derek's short night, F66):
 
 | constant | value | was | used by |

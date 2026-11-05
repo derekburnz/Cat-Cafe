@@ -67,7 +67,11 @@ local Config = {
 	-- short reset between hunts; the catching areas close at dusk and a fresh wave spawns at sunrise.
 	DayLengthSeconds = 300,
 	NightLengthSeconds = 90,
-	ServerStartDaySeconds = 300, -- a new server opens at sunrise: a full day and a fresh wave
+	ServerStartDaySeconds = 300, -- the clock's first day, from ClockEpoch (was each server's start, before #1437)
+	-- #1437 (Derek 2026-11-05: "restock once per in game day and make it global"): every server reads the clock from
+	-- this os.time() (2026-11-01 00:00 UTC) on Workspace:GetServerTimeNow(), so sunrise and dusk fall at the same
+	-- moment in every server; a new server joins the day already under way. Day 1 starts here.
+	ClockEpoch = 1793491200,
 	DuskWarningSeconds = 15, -- players in a catching area get the "Night falls" banner this long before night
 	NightSweepSeconds = 2, -- during night, anyone found in a catching area is sent home this often
 
@@ -214,8 +218,9 @@ local Config = {
 	-- each server rolls its stock once at dusk and it holds all night.
 	DealerRangeStuds = 12,
 	-- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf at the Golden Fish Market, by day. Every window of
-	-- this many seconds rolls an amount of each Catalog.freshCatch row, the same on every server.
-	FreshCatchWindowSeconds = 300,
+	-- this many seconds rolls an amount of each Catalog.freshCatch row, the same on every server. #1437: one game day
+	-- (DayLengthSeconds + NightLengthSeconds) from ClockEpoch, so the shelf restocks at every sunrise (was 300).
+	FreshCatchWindowSeconds = 390,
 	-- The chance in percent that a window stocks 0, 1, 2 or 3 of each Fresh Catch row, by the row's id.
 	FreshCatchAmountWeights = {
 		tip_potion = { 10, 30, 40, 20 },
@@ -232,7 +237,7 @@ local Config = {
 	-- Catalog.cornerShop row from its size's chance in percent of 0, 1, 2 and 3, the same on every server and apart
 	-- from the Fresh Catch roll. Bought within CornerShopRange of a CornerShop stall. A UTC day allows at most
 	-- CornerDailyLimits of a family (any size; a family not listed has none). Cat food has no daily XP cap (#1255).
-	CornerShopWindowSeconds = 300,
+	CornerShopWindowSeconds = 390, -- #1437: one game day from ClockEpoch, a restock at every sunrise (was 300)
 	CornerShopRange = 14,
 	-- lawn-nursery.md section 2 (#1200): BuyLawn from within this many studs of a LawnStall-tagged Garden Nursery
 	LawnStallRange = 14,

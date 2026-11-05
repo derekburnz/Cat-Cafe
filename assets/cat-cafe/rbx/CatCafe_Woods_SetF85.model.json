@@ -227876,104 +227876,6 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -27.5117,
-         2.1667,
-         205.6763
-        ],
-        "orientation": [
-         [
-          -0.9974,
-          0.0,
-          -0.0719
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0719,
-          0.0,
-          -0.9974
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.9,
-       4.3333,
-       2.0087
-      ],
-      "Color": [
-       0.4784,
-       0.3098,
-       0.1804
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_157_GreatOak",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -30.5814,
-         2.1667,
-         201.7294
-        ],
-        "orientation": [
-         [
-          -0.3152,
-          0.0,
-          -0.949
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.949,
-          0.0,
-          -0.3152
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.9,
-       4.3453,
-       2.0087
-      ],
-      "Color": [
-       0.4784,
-       0.3098,
-       0.1804
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_157_GreatOak",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
          -32.3237,
          2.1667,
          201.5117
@@ -228563,7 +228465,7 @@
        "CFrame": {
         "position": [
          -27.6114,
-         6.5,
+         7.4333,
          205.6835
         ],
         "orientation": [
@@ -228587,7 +228489,7 @@
       },
       "Size": [
        0.9,
-       4.3333,
+       2.4667,
        1.9681
       ],
       "Color": [
@@ -228710,7 +228612,7 @@
        "CFrame": {
         "position": [
          -30.613,
-         6.5,
+         7.4363,
          201.8243
         ],
         "orientation": [
@@ -228734,7 +228636,7 @@
       },
       "Size": [
        0.9,
-       4.3453,
+       2.4727,
        1.9681
       ],
       "Color": [
@@ -232286,9 +232188,107 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -27.6026,
+         -27.3309,
          3.1,
-         204.4153
+         206.2187
+        ],
+        "orientation": [
+         [
+          -0.949,
+          0.0,
+          0.3152
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.3152,
+          0.0,
+          -0.949
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.1,
+       6.2,
+       0.5
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_157_GreatOak",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -31.0626,
+         3.1,
+         201.4207
+        ],
+        "orientation": [
+         [
+          0.0719,
+          0.0,
+          -0.9974
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.9974,
+          0.0,
+          0.0719
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.1,
+       6.2,
+       0.5
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_157_GreatOak",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -27.633,
+         5.95,
+         205.3843
         ],
         "orientation": [
          [
@@ -232311,8 +232311,8 @@
       },
       "Size": [
        1.1,
-       6.2,
-       0.5
+       0.5,
+       1.2924
       ],
       "Color": [
        0.3686,
@@ -232335,58 +232335,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -29.3816,
-         3.1,
-         202.128
-        ],
-        "orientation": [
-         [
-          -0.3152,
-          0.0,
-          -0.949
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.949,
-          0.0,
-          -0.3152
-         ]
-        ]
-       }
-      },
-      "Size": [
-       1.1,
-       6.2,
-       0.5
-      ],
-      "Color": [
-       0.3686,
-       0.2745,
-       0.2039
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_157_GreatOak",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -28.2423,
+         -28.0666,
          5.95,
-         203.6777
+         204.0281
         ],
         "orientation": [
          [
@@ -232410,7 +232361,7 @@
       "Size": [
        1.1,
        0.5,
-       1.184
+       1.8924
       ],
       "Color": [
        0.3686,
@@ -232433,9 +232384,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -28.8242,
+         -29.1206,
          5.95,
-         202.9295
+         202.673
         ],
         "orientation": [
          [
@@ -232459,7 +232410,7 @@
       "Size": [
        1.1,
        0.5,
-       1.184
+       1.8924
       ],
       "Color": [
        0.3686,
@@ -232482,9 +232433,58 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -31.6755,
+         -30.3283,
+         5.95,
+         201.9189
+        ],
+        "orientation": [
+         [
+          -0.3152,
+          0.0,
+          -0.949
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.949,
+          0.0,
+          -0.3152
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.1,
+       0.5,
+       1.2924
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_157_GreatOak",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -29.6933,
          9.5,
-         207.3945
+         206.3596
         ],
         "orientation": [
          [
@@ -232531,9 +232531,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -33.2717,
+         -31.7807,
          9.5,
-         205.3422
+         203.6758
         ],
         "orientation": [
          [
@@ -232580,9 +232580,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          0.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -232604,7 +232604,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -232629,9 +232629,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          1.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -232653,7 +232653,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -232678,9 +232678,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          2.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -232702,7 +232702,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -232727,9 +232727,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          3.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -232751,7 +232751,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -232776,9 +232776,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          4.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -232800,7 +232800,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -232825,9 +232825,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          5.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -232849,7 +232849,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -232874,9 +232874,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          6.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -232898,7 +232898,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -232923,9 +232923,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          7.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -232947,7 +232947,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -232972,9 +232972,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          8.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -232996,7 +232996,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -233021,9 +233021,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          9.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -233045,7 +233045,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -233070,9 +233070,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          10.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -233094,7 +233094,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -233119,9 +233119,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          11.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -233143,7 +233143,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -233168,9 +233168,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          12.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -233192,7 +233192,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -233217,9 +233217,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          13.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -233241,7 +233241,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -233266,9 +233266,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          14.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -233290,7 +233290,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -233315,9 +233315,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          15.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -233339,7 +233339,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -233364,9 +233364,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          16.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -233388,7 +233388,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -233413,9 +233413,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.4736,
+         -30.737,
          17.8,
-         206.3684
+         205.0177
         ],
         "orientation": [
          [
@@ -233437,7 +233437,7 @@
        }
       },
       "Size": [
-       2.4,
+       3.2,
        0.2,
        0.2
       ],
@@ -233462,9 +233462,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -30.441,
+         -30.4191,
          17.8,
-         204.7875
+         208.0326
         ],
         "orientation": [
          [
@@ -233486,9 +233486,9 @@
        }
       },
       "Size": [
-       6.3,
+       1.15,
        0.4,
-       2.35
+       6.3
       ],
       "Color": [
        0.7882,
@@ -233511,9 +233511,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -31.4694,
+         -33.5809,
          17.8,
-         208.5961
+         203.9674
         ],
         "orientation": [
          [
@@ -233535,9 +233535,9 @@
        }
       },
       "Size": [
-       1.55,
+       1.15,
        0.4,
-       3.95
+       6.3
       ],
       "Color": [
        0.7882,
@@ -233560,9 +233560,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -34.3856,
+         -33.4406,
          17.8,
-         204.8467
+         207.1204
         ],
         "orientation": [
          [
@@ -233584,9 +233584,9 @@
        }
       },
       "Size": [
-       1.55,
+       4.0,
        0.4,
-       3.95
+       2.65
       ],
       "Color": [
        0.7882,
@@ -233756,9 +233756,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -33.5458,
+         -34.743,
          17.8,
-         209.6727
+         208.1334
         ],
         "orientation": [
          [
@@ -233780,7 +233780,7 @@
        }
       },
       "Size": [
-       0.7,
+       4.6,
        0.4,
        0.65
       ],
@@ -233805,9 +233805,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -35.9402,
-         17.8,
-         206.5942
+         -28.3909,
+         19.3,
+         205.9167
         ],
         "orientation": [
          [
@@ -233829,9 +233829,156 @@
        }
       },
       "Size": [
-       0.7,
-       0.4,
-       0.65
+       0.2,
+       2.6,
+       0.2
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_157_GreatOak",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -29.6341,
+         19.3,
+         206.8836
+        ],
+        "orientation": [
+         [
+          0.6139,
+          0.0,
+          -0.7894
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.7894,
+          0.0,
+          0.6139
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       2.6,
+       0.2
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_157_GreatOak",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -30.9563,
+         19.3,
+         207.912
+        ],
+        "orientation": [
+         [
+          0.6139,
+          0.0,
+          -0.7894
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.7894,
+          0.0,
+          0.6139
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       2.6,
+       0.2
+      ],
+      "Color": [
+       0.3686,
+       0.2745,
+       0.2039
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Woods_SetF85_157_GreatOak",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -29.6341,
+         20.5,
+         206.8836
+        ],
+        "orientation": [
+         [
+          0.6139,
+          0.0,
+          -0.7894
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.7894,
+          0.0,
+          0.6139
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.16,
+       0.16,
+       3.65
       ],
       "Color": [
        0.7882,
@@ -233854,9 +234001,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -30.4125,
+         -31.0309,
          19.3,
-         206.9823
+         202.5225
         ],
         "orientation": [
          [
@@ -233903,9 +234050,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -31.8728,
+         -32.2741,
          19.3,
-         208.1181
+         203.4894
         ],
         "orientation": [
          [
@@ -233952,9 +234099,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -32.7016,
+         -33.5962,
          19.3,
-         208.7627
+         204.5178
         ],
         "orientation": [
          [
@@ -234001,9 +234148,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -31.5571,
+         -32.2741,
          20.5,
-         207.8725
+         203.4894
         ],
         "orientation": [
          [
@@ -234027,203 +234174,7 @@
       "Size": [
        0.16,
        0.16,
-       3.2
-      ],
-      "Color": [
-       0.7882,
-       0.5412,
-       0.2941
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_157_GreatOak",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -32.5613,
-         19.3,
-         204.2196
-        ],
-        "orientation": [
-         [
-          0.6139,
-          0.0,
-          -0.7894
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.7894,
-          0.0,
-          0.6139
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       2.6,
-       0.2
-      ],
-      "Color": [
-       0.3686,
-       0.2745,
-       0.2039
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_157_GreatOak",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -34.0216,
-         19.3,
-         205.3554
-        ],
-        "orientation": [
-         [
-          0.6139,
-          0.0,
-          -0.7894
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.7894,
-          0.0,
-          0.6139
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       2.6,
-       0.2
-      ],
-      "Color": [
-       0.3686,
-       0.2745,
-       0.2039
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_157_GreatOak",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -34.8504,
-         19.3,
-         206.0
-        ],
-        "orientation": [
-         [
-          0.6139,
-          0.0,
-          -0.7894
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.7894,
-          0.0,
-          0.6139
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.2,
-       2.6,
-       0.2
-      ],
-      "Color": [
-       0.3686,
-       0.2745,
-       0.2039
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": true,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth"
-     }
-    },
-    {
-     "name": "CatCafe_Woods_SetF85_157_GreatOak",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -33.7059,
-         20.5,
-         205.1098
-        ],
-        "orientation": [
-         [
-          0.6139,
-          0.0,
-          -0.7894
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.7894,
-          0.0,
-          0.6139
-         ]
-        ]
-       }
-      },
-      "Size": [
-       0.16,
-       0.16,
-       3.2
+       3.65
       ],
       "Color": [
        0.7882,
@@ -234296,9 +234247,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -30.5792,
+         -33.5787,
          18.15,
-         204.8949
+         207.2279
         ],
         "orientation": [
          [
@@ -235903,9 +235854,9 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -33.3419,
+         -31.6053,
          9.0,
-         207.0437
+         205.693
         ],
         "orientation": [
          [
@@ -235949,7 +235900,7 @@
         "position": [
          -142.9604,
          -9.0,
-         -153.431
+         -151.231
         ],
         "orientation": [
          [

@@ -195,8 +195,8 @@ return function()
 			)
 			CornerShop.refresh(state, window, day)
 			-- #1190: the row never carries the day's count or the limit
-			expect(CornerShop.view(state, window).stock[7].today).to.equal(nil)
-			expect(CornerShop.view(state, window).stock[7].perDay).to.equal(nil)
+			expect((CornerShop.view(state, window).stock[7] :: any).today).to.equal(nil)
+			expect((CornerShop.view(state, window).stock[7] :: any).perDay).to.equal(nil)
 			-- the Swift Potion has no limit
 			for _ = 1, 10 do
 				CornerShop.record(state, "swift_potion_small")

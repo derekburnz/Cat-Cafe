@@ -102,10 +102,10 @@ local Cues: { [string]: Cue } = {
 		sections = 4,
 	}, -- "Night Owls"
 	-- 2026-11-05 (#1541, Derek): the tutorial plays its own calm song instead of the day and night songs, from the intro
-	-- cutscene and through the first tutorial steps, until it is skipped or done. Silent (the normal songs keep playing)
-	-- until it has an id.
+	-- cutscene and through the first tutorial steps, until it is skipped or done. Uploaded by upload-audio run
+	-- 42068848366.
 	musicTutorial = {
-		ids = {},
+		ids = { "rbxassetid://84620952630489" },
 		group = "Music",
 		volume = 0.3,
 		looped = true,

@@ -190,18 +190,18 @@ Lists are dense arrays in slot order (the N116 lesson). On load an unknown quest
 |---|---|---|---|---|
 | ClaimQuest | event | kind (`daily` or `weekly`), slot | profile loaded, slot 1 to 5 (daily) or 1 to 3 (weekly), finished, not claimed; 2 per second | pays through Payout, marks it claimed, counts `dailyQuestsDone` or `weeklyQuestsDone`; when that completes the set it also pays the set prize and counts `dailySetsDone` or `weeklySetsDone`; fires QuestResult and ProfileSync |
 | RerollQuest | event | kind, slot | the reroll for that day or week unused, the quest unfinished and unclaimed; 1 per second | picks another eligible row from the same pool with a fresh `base` |
+| ClaimAchievement | event | achievementId | known id, met, not claimed; 2 per second | pays its prize and marks it claimed |
+| QuestResult | server to client | paid (list of strings) | | the toast, as for Index rewards |
 
 **Weekly reroll every day (#1166, decided by Coordinator for the friend, overnight 11-05).**
 - **The rule:** the weekly free swap refreshes every UTC day (the same `floor(os.time() / 86400)` day as the dailies), not once a week. That's **one swap a day across the three weekly quests, with no banking**: an unused swap is gone at midnight UTC. The daily quests keep their own one swap a day.
 - **What it picks:** as today, a fresh eligible row from the same pool, never the one being replaced and never one already in another weekly slot. There's no "easier" weighting: the daily swap is enough to step around a quest that's hard for this player.
-- **Save:** `quests.weeklyRerollDay` (the UTC day number it was last used, or nil) replaces the boolean `weeklyReroll`. "Available" means `weeklyRerollDay ~= today`. Migration: `true` becomes today's day (no second swap right after the update), `false` becomes nil. It takes the next free save version (v33 is the Yard Sale timer, camp-stations.md, so this is v34 unless they ship together). Coordinate in the claim, and say so in the PR's first line.
+- **Save: no change** (as built in #1334). The boolean `quests.weeklyReroll` stays and is cleared when the UTC day changes (the same roll-over that refreshes the dailies), not only when a new week starts. There's no new field and no save version bump.
 - **UI:**
   - Used: the swap button reads "Reroll in 7 h 12 m", counting to the next UTC midnight from `Workspace:GetServerTimeNow()`.
   - Ready: "Reroll", with a small quiet dot on the Weekly tab and no pop-up.
   - The daily swap button shows the same countdown style.
 - **Unchanged:** `RerollQuest` is still 1 a second, unfinished and unclaimed quests only, and never for Robux.
-| ClaimAchievement | event | achievementId | known id, met, not claimed; 2 per second | pays its prize and marks it claimed |
-| QuestResult | server to client | paid (list of strings) | | the toast, as for Index rewards |
 
 ProfileSync adds `quests`, `achievements` and `stats`, which the client needs for achievement progress. Analytics: custom events `quest_claimed` (kind, id, slot), `quest_set` (kind) and `achievement_claimed` (id, size); economy sources `quest_daily`, `quest_weekly` and `achievement`.
 

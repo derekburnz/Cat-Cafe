@@ -1895,15 +1895,19 @@ local LEADERBOARD_BOARDS: { [string]: string } =
 -- The Corner Shop (#1052, corner-shop.md section 4): CatCafe_Street_CornerShop at Layout.cornerShop, tagged
 -- CornerShop, with a "Corner Shop" prompt (CornerShopPrompt) that opens its window on the client; CornerShopService
 -- measures CornerShopRange from the pivot. Left out while Model-Agent's art is missing (it has no placeholder).
+-- #1577 (day-cart.md section 3): the shop stands on the Day Cart, CatCafe_Town_DayCart at Layout.dayCart with a "Day
+-- Cart" prompt (the names in code stay CornerShop*); the old building is built only until the cart's model arrives.
 local CORNER_SHOP = "CatCafe_Street_CornerShop"
+local DAY_CART = "CatCafe_Town_DayCart"
 
 local function buildCornerShop(parent: Instance): Model?
-	if not AssetRegistry.known(CORNER_SHOP) then
+	local onCart = AssetRegistry.known(DAY_CART)
+	if not onCart and not AssetRegistry.known(CORNER_SHOP) then
 		return nil
 	end
-	local spec = Layout.cornerShop
+	local spec = if onCart then Layout.dayCart else Layout.cornerShop
 	local model = place(
-		CORNER_SHOP,
+		if onCart then DAY_CART else CORNER_SHOP,
 		CFrame.new(spec.x, spec.y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY or 0), 0),
 		parent
 	)
@@ -1913,7 +1917,7 @@ local function buildCornerShop(parent: Instance): Model?
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "CornerShopPrompt"
 	prompt.ActionText = "Shop"
-	prompt.ObjectText = "Corner Shop"
+	prompt.ObjectText = if onCart then "Day Cart" else "Corner Shop"
 	prompt.HoldDuration = 0.3
 	prompt.MaxActivationDistance = Config.CornerShopRange - 4
 	prompt.RequiresLineOfSight = false

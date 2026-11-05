@@ -100,10 +100,12 @@ PART_TAGS = {"_Paint": ["Paint"], "_Wallpaper": ["Wallpaper"], "_Trim": ["PaintT
 # Root Model properties by asset name suffix: an Index Board streams in whole, so its Screen is there whenever the
 # board is (reviewer S37, as for the cats).
 # The leaderboard row (F98) streams in whole the same way, with its three Screens.
-# The Thank You board (#1083) streams in whole too, so its Screen is there whenever it is.
+# The Thank You board (#1083) streams in whole too, so its Screen is there whenever it is, and the rare cat sign
+# (#1572) the same.
 MODEL_PROPS = {"_IndexBoard": {"ModelStreamingMode": "Atomic"},
                "_LeaderboardRow": {"ModelStreamingMode": "Atomic"},
-               "_ThanksBoard": {"ModelStreamingMode": "Atomic"}}
+               "_ThanksBoard": {"ModelStreamingMode": "Atomic"},
+               "_PitySign": {"ModelStreamingMode": "Atomic"}}
 # Objects whose Model goes inside another object's Model rather than the root: name suffix -> the suffix of the
 # object it rides, with the same prefix. Turning the Head Model (PivotTo) carries the eyes and ears with it.
 NEST = {"_Eye1": "_Head", "_Eye2": "_Head", "_EarL": "_Head", "_EarR": "_Head",

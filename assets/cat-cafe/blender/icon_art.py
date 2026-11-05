@@ -351,7 +351,7 @@ def coins(mat):
 
 
 def spin_wheel(mat):
-    """The Spin Wheel's own wheel (spinwheel.py): six prize slices, the gold frame with its cat ears and the pink
+    """The Spin Wheel's own wheel (spinwheel.py): eight prize slices, the gold frame with its cat ears and the pink
     pointer at the top, without the stage."""
     w = RB()
     spinwheel._wheel(w)

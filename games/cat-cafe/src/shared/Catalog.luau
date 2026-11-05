@@ -3318,7 +3318,7 @@ end
 
 -- The Corner Shop v2 (corner-shop-v2.md section 1, #1180; the stall from corner-shop.md, #1052): sold for coins only,
 -- in this order, at a fixed `price` that never follows income, tier or a pass. Each row's amount in a window is
--- rolled from its size's Config.CornerShopSizeWeights (shared/CornerShop); `needsTier` hides and refuses it below
+-- rolled by its place in the list by price (#1577, the Day Cart, shared/CornerShop); `needsTier` hides and refuses it below
 -- that tier. Nothing random, nothing that raises income, nothing for golden fish or Robux. Prices v3 (#1385): x10
 -- for Small, x20 for regular and x40 for Big and Mega on the v2 prices.
 Catalog.cornerShop = {
@@ -3476,8 +3476,8 @@ Catalog.cornerShop = {
 		price = 3200000000,
 		needsTier = 4,
 	},
-	-- #1281 (corner-shop-v2.md section 1b): the three shop bait foods, sold here instead of at the bowl. Last in the
-	-- list, so the rows above keep their rolls. `price` is filled in below from the food's cost; the buy charges
+	-- #1281 (corner-shop-v2.md section 1b): the three shop bait foods, sold here instead of at the bowl. `price` is
+	-- filled in below from the food's cost (its Tier 1 price, which places it in the Day Cart's list); the buy charges
 	-- Economy.foodPrice for the buyer's tier. No daily limit.
 	{
 		id = "kibble",
@@ -3487,7 +3487,6 @@ Catalog.cornerShop = {
 		kind = "bait",
 		lureId = "kibble",
 		price = 0,
-		weights = { 0, 0, 20, 80 },
 	},
 	{
 		id = "tuna",
@@ -3497,7 +3496,6 @@ Catalog.cornerShop = {
 		kind = "bait",
 		lureId = "tuna",
 		price = 0,
-		weights = { 0, 20, 50, 30 },
 	},
 	{
 		id = "salmon",
@@ -3507,7 +3505,6 @@ Catalog.cornerShop = {
 		kind = "bait",
 		lureId = "salmon",
 		price = 0,
-		weights = { 20, 50, 30, 0 },
 	},
 } :: { Types.CornerShopRow }
 Catalog.cornerShopById = {} :: { [string]: Types.CornerShopRow }

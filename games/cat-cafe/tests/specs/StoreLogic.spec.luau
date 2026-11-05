@@ -148,9 +148,8 @@ return function()
 			expect(table.concat(keys, ",")).to.equal("vip,potionXS,potionS,royalCat")
 			expect(rows[3].product).to.equal(true)
 			expect(rows[3].owned).to.equal(false)
-			expect(rows[3].effect:find("3 Big Money, 1 Swift Potion · You have 4", 1, true) ~= nil).to.equal(
-				true
-			)
+			-- #1715: a row per potion, then the bag count on its own line
+			expect(rows[3].effect).to.equal("3x Big Money\n1x Swift Potion\nIn your bag: 4")
 			expect(table.concat(StoreLogic.productIds(config), ",")).to.equal("31,32")
 		end)
 	end)
@@ -281,7 +280,7 @@ return function()
 			expect(starter.effect).to.equal(
 				StoreLogic.STARTER.effect
 					.. "\nSprinkles the cat, Bakery Stripes sign style"
-					.. "\n10 Big Money, 5 Swift · You have 2"
+					.. "\n10x Big Money\n5x Swift\nIn your bag: 2"
 			)
 			-- a cat or style with no name yet still reads as words
 			expect(StoreLogic.extras({

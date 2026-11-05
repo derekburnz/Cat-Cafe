@@ -137,11 +137,13 @@ local PRODUCTS: { ProductCard } = {
 	{
 		key = "potionXS",
 		productKey = "potion_pack_xs",
-		effect = "Money Potions: more money while they last.",
+		effect = "More money while they last.", -- #1715: one short line
 	},
-	{ key = "potionS", productKey = "potion_pack_s", effect = "A small potion mix." },
-	{ key = "potionM", productKey = "potion_pack_m", effect = "A potion mix." },
-	{ key = "potionL", productKey = "potion_pack_l", effect = "A big potion mix, with 2 bonus." },
+	-- #1715: the mixes need no line of their own (the name says the size, the rows say what is in it), so a phone card
+	-- keeps its text readable; "with 2 bonus" said nothing
+	{ key = "potionS", productKey = "potion_pack_s", effect = "" },
+	{ key = "potionM", productKey = "potion_pack_m", effect = "" },
+	{ key = "potionL", productKey = "potion_pack_l", effect = "" },
 }
 StoreLogic.PRODUCTS = PRODUCTS
 
@@ -239,7 +241,9 @@ function StoreLogic.extras(prize: ProductPrize, catNames: { [string]: string }?)
 	return if #parts > 0 then table.concat(parts, ", ") else nil
 end
 
--- "3 Money Potion, 1 Swift Potion · You have 4": the exact contents, biggest first, and how many of them are owned.
+-- #1715 (Derek2: "make the potion packs description better organized"): the exact contents, one row per potion,
+-- biggest first, then how many of them are already in the bag on a line of its own:
+--   "3x Money Potion\n1x Swift Potion\nIn your bag: 4"
 function StoreLogic.contents(
 	potions: { [string]: number },
 	names: { [string]: string }?,
@@ -259,11 +263,12 @@ function StoreLogic.contents(
 	local parts: { string } = {}
 	local owned = 0
 	for _, entry in list do
-		table.insert(parts, ("%d %s"):format(entry.count, (names or {})[entry.id] or entry.id))
+		table.insert(parts, ("%dx %s"):format(entry.count, (names or {})[entry.id] or entry.id))
 		local mine: number = (have or {})[entry.id] or 0
 		owned += mine
 	end
-	return table.concat(parts, ", ") .. (" · You have %d"):format(owned)
+	table.insert(parts, ("In your bag: %d"):format(owned))
+	return table.concat(parts, "\n")
 end
 
 local function productRows(config: any, view: ShopView?): { Row }
@@ -285,8 +290,7 @@ local function productRows(config: any, view: ShopView?): { Row }
 				passId = id,
 				name = def.name,
 				icon = "🧪",
-				effect = card.effect
-					.. "\n"
+				effect = (if card.effect ~= "" then card.effect .. "\n" else "")
 					.. StoreLogic.contents(def.prize.potions, view.potionNames, view.have),
 				owned = false,
 				product = true,

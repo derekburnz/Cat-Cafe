@@ -13,7 +13,10 @@
 --   food("moon_milk")                                 Icon_Clean_MoonMilk: every food's clean picture on its rarity
 --                                                     tile (#1070, #1242), in the bowl, bag, shop, dealer and prizes
 --   prize("coins"), prize("fish"), prize("spins")     Icon_Clean_Bag, _Fish, _Spin: the money, golden fish and spin
---                                                     prize pictures (#1242)
+--                                                     prize pictures (#1242); spins the 8-slice wheel (Icon_Hud_Spin,
+--                                                     #1665) once it is uploaded
+--   backup(image)                                     a HUD picture's clean symbol, which IconArt draws if the
+--                                                     picture fails to load (#1665: the flat wheel behind the 8-slice)
 --   net(level)                                        the net the Upgrades row offers next. Net levels are 0 Basic,
 --                                                     1 Sturdy, 2 Pro, 3 Master (Net_L1 to Net_L4, Model-Agent
 --                                                     #688), so level 0 offers Net_L2 and the top level keeps Net_L4
@@ -126,6 +129,8 @@ local IDS: { [string]: string } = {
 	Icon_Hud_Areas = "rbxassetid://74170242876257",
 	Icon_Hud_Potions = "rbxassetid://123878686865679",
 	Icon_Hud_Bait = "rbxassetid://119953797390858",
+	-- #1665: the 8-slice Spin wheel (#1603's render; upload run 42119348490, 11-05), every spin picture prefers it
+	Icon_Hud_Spin = "rbxassetid://87782756235790",
 	-- #1204: Model-Agent's potion flasks (#1193), ShopIcons.potion prefers them; re-uploaded 11-05 with the Cat Whistles
 	Icon_Flask_Tip = "rbxassetid://123800504967936",
 	Icon_Flask_Lucky = "rbxassetid://98048607296719",
@@ -172,6 +177,12 @@ local IDS: { [string]: string } = {
 	Icon_Market_Treats = "rbxassetid://77636724948052",
 	Icon_Market_FreshCatch = "rbxassetid://126946598739456",
 	Icon_Hud_NightMarket = "rbxassetid://131849751291155",
+	-- the Store's sidebar tabs (#1674; Tools-Agent's upload run 42123273598, 11-05), by ShopIcons.storeTab
+	Icon_StoreTab_Featured = "rbxassetid://112716091687324",
+	Icon_StoreTab_Passes = "rbxassetid://89112668522346",
+	Icon_StoreTab_Cats = "rbxassetid://82565222378487",
+	Icon_StoreTab_Potions = "rbxassetid://93258406405370",
+	Icon_StoreTab_Codes = "rbxassetid://84291555132213",
 	-- the Store's card pictures, one per pass and product (Tools-Agent 11-05), by ShopIcons.store
 	Icon_Store_Money2x = "rbxassetid://72414082780413",
 	Icon_Store_Money3x = "rbxassetid://93298940995735",
@@ -218,7 +229,15 @@ local CLEAN_FOR: { [string]: string } = {
 	StarTreat = "StarTreat",
 }
 
+-- #1665 (Derek2 11-05, the 8-slice wheel everywhere): pictures whose 3D render (Icon_Hud_<Name>) wins over the clean
+-- symbol once it is here; the clean one stays as its backup.
+local HUD_FIRST: { [string]: boolean } = { Spin = true }
+
 local function preferClean(name: string): string?
+	local hud = if HUD_FIRST[name] then IDS["Icon_Hud_" .. name] else nil
+	if hud then
+		return hud
+	end
 	local clean = CLEAN_FOR[name]
 	return (if clean then IDS["Icon_Clean_" .. clean] else nil) or IDS[name]
 end
@@ -237,6 +256,22 @@ local HUD_FOR: { [string]: string } =
 	{ Home = "MyCafe", Potion = "Potions", Bowl = "Bait", Bag = "Potions" }
 function ShopIcons.hud(name: string): string?
 	return IDS["Icon_Hud_" .. (HUD_FOR[name] or name)] or IDS["Icon_Clean_" .. name]
+end
+
+-- #1665: each HUD picture's clean symbol, drawn in its place if the picture fails to load (IconArt.setImage). The
+-- HUD names that differ from the clean ones are HUD_FOR's, the other way round.
+local CLEAN_OF_HUD: { [string]: string } = { MyCafe = "Home", Potions = "Potion", Bait = "Bowl" }
+local BACKUP: { [string]: string } = {}
+for key, id in IDS do
+	local name = key:match("^Icon_Hud_(.+)$")
+	local clean = if name then IDS["Icon_Clean_" .. (CLEAN_OF_HUD[name] or name)] else nil
+	if clean and clean ~= id then
+		BACKUP[id] = clean
+	end
+end
+
+function ShopIcons.backup(image: string?): string?
+	return if type(image) == "string" then BACKUP[image] else nil
 end
 
 -- The crate's pool in PascalCase and whether it is the golden twin, or nil for an id that is not a crate.
@@ -356,6 +391,15 @@ function ShopIcons.market(tab: string): string?
 	return IDS["Icon_Market_" .. tab]
 end
 
+-- A Store sidebar tab's picture by its StoreLogic.TABS id (#1674): "featured", "passes", "cats", "potions" and "codes"
+-- have their own; the Cafe Pass tab uses its Store card's ticket. Nil for any other tab (its emoji stays).
+function ShopIcons.storeTab(id: string): string?
+	if id == "cafePass" then
+		return IDS.Icon_Store_CafePass
+	end
+	return IDS["Icon_StoreTab_" .. id:sub(1, 1):upper() .. id:sub(2)]
+end
+
 -- A menu dish's picture for the order bubbles (#950), by its Catalog.menu id: the dish model's own render, or nil.
 function ShopIcons.menu(orderId: string?): string?
 	local item = if type(orderId) == "string" then Catalog.getMenuItem(orderId) else nil
@@ -378,7 +422,8 @@ end
 local PRIZE_FOR: { [string]: string } = { coins = "Bag", fish = "Fish", spins = "Spin" }
 function ShopIcons.prize(kind: string?): string?
 	local name = if type(kind) == "string" then PRIZE_FOR[kind] else nil
-	return if name then IDS["Icon_Clean_" .. name] else nil
+	-- the 8-slice wheel for spins once it is uploaded (#1665), else the clean picture
+	return if name then IDS["Icon_Hud_" .. name] or IDS["Icon_Clean_" .. name] else nil
 end
 
 -- A decor piece's clean picture by its catalog id (#1072, Components/DecorPictures), or nil for an unknown id.

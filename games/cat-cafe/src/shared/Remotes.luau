@@ -115,6 +115,10 @@ Remotes.ClientToServer = {
 	"ClearTips", -- ()  F87: Settings' "Show tips again"; forgets tipsSeen but the asks; 1 per 10 s; ProfileSync
 	"SendFeedback", -- (face: string, chip: string?)  F87 (section 4): face in Tips.FACES, chip nil or in Tips.CHIPS;
 	-- 1 per 10 s and FeedbackSessionLimit (5) a session; logs `feedback` and sets feedbackAsked. Text goes by ReportBug
+	"PassClaim", -- (track: "free" | "paid", level: number)  #1645: level 1 to PassLevels, reached in the running
+	-- season, a reward there, unclaimed, and on the paid track only once it is bought; answered with CafePassState
+	"PassClaimAll", -- ()  #1645: every reward PassClaim would take, in order
+	"PassSetTag", -- (tagId: string)  #1626: a ChatTags id in the player's choices, or "off"; answered with CafePassState
 	"CollectCampExtra", -- (extraId: string)  F100 (camp-extras.md section 4): "picnic", "pond" or "lostFound", the
 	-- player's tier opens its area, within CampExtraRangeStuds (and a little slack) of its PromptAnchor, something held;
 	-- takes it all; 1 a second, answered with CampExtraResult and CampExtrasState
@@ -122,11 +126,11 @@ Remotes.ClientToServer = {
 	-- now (CampExtras.yardStock), YardSaleClaimHours since the last take (#1154), free since #1051; banked for the
 	-- Market; 1 a second
 	-- F91 front lawn (front-lawn.md section 5; LawnService, shared/Lawn): the caller's own cafe, once its art is in
-	"BuyLawn", -- (id: string, spotId: string?)  a Catalog.lawn piece or Catalog.lawnStyles style not owned yet, the
-	-- caller within LawnStallRange of a LawnStall Garden Nursery (#1200, once it is in the world), the caller's tier at
-	-- its tier and its rarity's fixed price in coins (sink "lawn"); a style goes in use at once, a piece onto
-	-- `spotId` when it may stand there (Lawn.placeBlocker), else the first empty open spot of its size, if any; 2 a
-	-- second, answered with a toast and a ProfileSync
+	"BuyLawn", -- (id: string, spotId: string?)  a Catalog.lawn piece or Catalog.lawnStyles style not owned yet and
+	-- in the Yard Sale's stock today (#1537, shared/YardSale), not bought by the caller today, the caller within reach
+	-- of the Yard Sale (Tier 3), the caller's tier at its tier and its rarity's fixed price in coins (sink "lawn");
+	-- the server lays the best lawn (Lawn.applyBest, spotId is ignored); 2 a second, answered with a toast, a
+	-- ProfileSync and a CampExtrasState
 	"SetLawnSpot", -- (spotId: string, pieceId: string?)  a Lawn.SPOTS spot open at the caller's tier; an owned piece
 	-- of the spot's size, taken off any other spot (the spot's old piece goes back to the player's pieces), or nil or
 	-- "" to clear it; 4 a second, answered with a ProfileSync
@@ -253,6 +257,7 @@ Remotes.ServerToClient = {
 	-- cat's area's) and the server time he leaves. catUid "" ends the visit, `traded` true when it ended in a trade
 	"QuestResult", -- (paid: { string })  F73: what a quest, a set or an achievement claim paid ("+$300", "2 spins"),
 	-- after the server's toast with the same words, for the Quests window's own claim effect
+	"CafePassState", -- (state: Types.CafePassView)  #1645: the Pass screen, at join and after each claim or season roll
 	"CampExtrasState", -- (state: Types.CampExtrasState)  F100: each camp extra's open, held, nextAt and the Yard
 	-- Sale's stock today, on join and whenever it changes (a fill, a new UTC day, a rank up, a collect or a buy)
 	"RallyState", -- (state: Types.RallyState)  F101: the server's Rescue Rally bar and this player's part in it, on

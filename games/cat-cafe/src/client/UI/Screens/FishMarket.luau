@@ -9,7 +9,7 @@
 --   Treats: the Star Treat and the perks, each with what it does, its level and what the next level costs.
 --   Fresh Catch (F94, rewards-and-shops.md section 3): by day potions, and now and then a cheaper Classic Crate, for
 --   golden fish, from a stock that rolls every 5 minutes, the same on every server (setFreshStock, from
---   FreshCatchStock). Each row shows how many are left for you, its chance of being in stock and Buy; the top card
+--   FreshCatchStock). Each row shows how many are left for you and Buy (#1673: no stock chance); the top card
 --   counts down "Fresh catch in 3:12". At night (no stock) it reads "Back at sunrise". Buy fires
 --   callbacks.buyFresh(itemId, window). The tab shows only once the shelf is on the server (Config.FreshCatchWindowSeconds).
 -- Odds shows each rarity's chance and every piece's chance before opening (monetization-policy section 2), and
@@ -1567,11 +1567,8 @@ function FishMarket._freshBlurb(self: any, item: FreshCatchLogic.Item): string
 			then ("%d golden fish off the Market price"):format(off)
 			else "A crate for your bank"
 	end
-	local weights = if Config.FreshCatchAmountWeights
-		then Config.FreshCatchAmountWeights[item.itemId]
-		else nil
-	local chance = FreshCatchLogic.chanceText(FreshCatchLogic.inStock(weights))
-	return if chance then line .. " · " .. chance else line
+	-- #1673 (Derek2 11-05): no "In stock 9 times in 10" after it, just the effect
+	return line
 end
 
 function FishMarket._clearFresh(self: any)

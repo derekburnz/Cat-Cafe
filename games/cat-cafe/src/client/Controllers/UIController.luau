@@ -704,8 +704,9 @@ local function wireIntents()
 		end)
 	end
 	-- Use on a potion in the bag (F64); the server answers with a ProfileSync, or a "Full" toast.
-	UI.events.usePotion:Connect(function(potionId: string)
-		Net.fire("UsePotion", potionId)
+	-- #1600: Use all sends a count; the server drinks as many as fit under PotionMaxMinutes in one sync
+	UI.events.usePotion:Connect(function(potionId: string, count: number?)
+		Net.fire("UsePotion", potionId, count)
 	end)
 	-- #1463: Collect on the Woods card (Golden Pond pass, camp-extras.md section 4). The server checks the pass, the
 	-- range and the extraId. Guarded until the UI's collectCampExtra event (PR #1472) is on main.
@@ -877,6 +878,15 @@ local function wireIntents()
 		Net.fire("ClaimAll", what)
 	end)
 	-- The Daily Treat (F70): the server stamps the card when a stamp is due and answers with a toast and a sync.
+	-- #1624: a Style tab button. The sign's "" is the plain sign (nil); the server checks the player owns the style.
+	-- Uniforms and themes only show once the server sends state.looks, which comes with SetLook.
+	UI.events.pickStyle:Connect(function(kind: string, id: string)
+		if kind == "sign" then
+			Net.fire("SetSignStyle", if id == "" then nil else id)
+		elseif kind == "uniform" or kind == "theme" then
+			Net.fire("SetLook", kind, if id == "" then "default" else id)
+		end
+	end)
 	UI.events.claimDailyTreat:Connect(function()
 		Net.fire("ClaimDailyTreat")
 	end)

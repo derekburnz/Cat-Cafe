@@ -65,6 +65,7 @@ return function()
 				potion_pack_m = { big_tip_potion = 5, swift_potion = 3, steady_potion = 2 },
 				potion_pack_l = { big_tip_potion = 10, swift_potion = 6, steady_potion = 6 },
 				starter_bundle = { big_tip_potion = 10, swift_potion = 5 }, -- #1625
+				cafe_pass = {}, -- #1626: everything comes from the paid track's levels
 			}
 			-- #1625: besides potions only the Starter Bundle's named cat and sign style, never anything random
 			local extras = { cats = true, signStyles = true }
@@ -83,6 +84,17 @@ return function()
 					expect(count > 0 and count == math.floor(count)).to.equal(true)
 				end
 				expect(table.isfrozen(product)).to.equal(true)
+			end
+		end)
+
+		it("sells the Cafe Pass as the season's paid track and nothing else (#1626)", function()
+			local pass = Catalog.getProduct("cafe_pass") :: any
+			expect(pass).to.be.ok()
+			expect(pass.seasonPass).to.equal(true)
+			expect(pass.oncePerAccount).to.equal(nil)
+			expect(Products.forProductId(3728336202)).to.equal(pass)
+			for _, product in Catalog.products do
+				expect((product :: any).seasonPass == true).to.equal(product.id == "cafe_pass")
 			end
 		end)
 	end)
@@ -142,14 +154,12 @@ return function()
 		end)
 
 		it("keeps only known once-per-account ids in a save (version 35)", function()
-			expect(
-				Products.sanitizeOnce({
-					starter_bundle = true,
-					potion_pack_s = true,
-					nope = true,
-					x = 1,
-				}) :: any
-			).to.deepEqual({ starter_bundle = true })
+			expect(Products.sanitizeOnce({
+				starter_bundle = true,
+				potion_pack_s = true,
+				nope = true,
+				x = 1,
+			}) :: any).to.deepEqual({ starter_bundle = true })
 			expect(Products.sanitizeOnce("x") :: any).to.deepEqual({})
 			local raw: any = ProfileSchema.template(1000)
 			raw.version = 34

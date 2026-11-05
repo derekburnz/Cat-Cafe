@@ -3,8 +3,9 @@
 -- potions of F73, quests.md section 4). Pure, so the cloud spec runner checks it.
 --   list(catalog)              the potions in bag order: Catalog.potions when the server ships it, else the four
 --                              F64 potions of the data model
---   rows(catalog, state, now)  one row per potion with its count, time left and whether Use can take it; ids the
---                              player holds that the catalog does not name yet come last, named from the id
+--   rows(catalog, state, now)  one row per potion with its count, time left, whether Use can take it and how many
+--                              fit at once (#1600, the Bag's "Use xN"); ids the player holds that the catalog does
+--                              not name yet come last, named from the id
 --   running(catalog, state, now)  the potions with time left, in bag order, for the HUD chips
 --   boosts(catalog, state, now)   what the running potions add to food set in the bowl now, as the server's
 --                              Potions.goldLuck, Potions.baitSpeed and Potions.baitGoldChance (F73): gold luck, bait
@@ -37,6 +38,7 @@ export type Row = {
 	count: number,
 	secondsLeft: number, -- 0 when it is not running
 	canUse: boolean, -- one in the bag and room under PotionMaxMinutes for its time
+	fit: number, -- #1600: how many Use all drinks now, the bag's count cut to the room under PotionMaxMinutes
 }
 
 export type Boosts = {
@@ -176,11 +178,16 @@ function PotionLogic.rows(catalog: Types.Catalog?, state: Types.PlayerState, now
 		local count = counts[potion.id]
 		count = if type(count) == "number" then math.max(0, math.floor(count)) else 0
 		local left = secondsLeft(buffs, potion.id, now)
+		-- as the server's Potions.fitCount: whole potions in the room left under PotionMaxMinutes
+		local fit = if potion.minutes > 0
+			then math.clamp(math.floor((maxSeconds + 0.5 - left) / (potion.minutes * 60)), 0, count)
+			else 0
 		table.insert(rows, {
 			potion = potion,
 			count = count,
 			secondsLeft = left,
 			canUse = count > 0 and left + potion.minutes * 60 <= maxSeconds + 0.5,
+			fit = fit,
 		})
 	end
 	for _, potion in PotionLogic.list(catalog) do

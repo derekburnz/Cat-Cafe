@@ -95,6 +95,7 @@ import props  # noqa: E402
 import rbx_export  # noqa: E402
 import seasondecor  # noqa: E402
 import sewer  # noqa: E402
+import themes  # noqa: E402
 import spinwheel  # noqa: E402
 import square  # noqa: E402
 import stations  # noqa: E402
@@ -108,7 +109,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, sewerf85, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
-           gardennursery, campstations, daycart, pitysign, seasondecor]
+           gardennursery, campstations, daycart, pitysign, seasondecor, themes]
 
 PIVOT_NOTES = {
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
@@ -388,6 +389,12 @@ STUDIO_NOTES = {
 }
 
 
+for _n in themes.ASSETS:   # the Garden and Grand cafe themes (#1624): looks only, no collision
+    STUDIO_NOTES[_n] = ("Cafe theme piece (store-pass-looks.md): " + (
+        "placed at the Plot pivot like the shell, in the CatCafe_Theme_ folder; shown while the plot's Theme "
+        "attribute names it, with the shell's _Awning hidden. _Bulb and _Glow parts are Neon at night."
+        if "_Plot_" in _n else "a prop on each table top or chair seat (Garland: over the counter); pivot base "
+                                "centre (Garland: the middle of its hooks), front -Z.") + " No collision.")
 for _n in seasondecor.ASSETS:   # Cafe Pass season 1 paid-track decor (#1637): looks only, not in the Decor Index
     STUDIO_NOTES[_n] = ("Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, "
                         "no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.")

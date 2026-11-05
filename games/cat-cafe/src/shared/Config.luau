@@ -47,15 +47,21 @@ local Config = {
 	GrandExtraSlots = 1, -- #1624: Grand Cafe's +1 job slot at every tier, adding to each Extra Slot pass's 1
 	-- Developer product ids (#1182) by Catalog.products id; a 0 is never granted. ProductService's ProcessReceipt reads
 	-- them. Tools-Agent made these with dev-products.yml on 2026-11-04 (tools/opencloud/products.json), off sale until
-	-- launch. The Starter Bundle (3728336166) and Cafe Pass (3728336202) products exist too, off sale, and join this
-	-- table with their Catalog.products entries.
+	-- launch. The Starter Bundle (3728336166) and Cafe Pass (3728336202) products were made the same way.
 	ProductIds = {
 		potion_pack_xs = 3728336174,
 		potion_pack_s = 3728336184,
 		potion_pack_m = 3728336191,
 		potion_pack_l = 3728336197,
 		starter_bundle = 3728336166, -- #1625: once per account (Catalog.products oncePerAccount)
+		cafe_pass = 3728336202, -- #1626: the running season's paid track, once per season (Catalog.products seasonPass)
 	} :: { [string]: number },
+	-- The Cafe Pass (#1645, cafe-pass.md section 1): each season's first day as a UTC date, oldest first. Season 1
+	-- starts the day the game goes public (Derek sets it); with no date the pass is closed outside Studio, where a
+	-- preview season 1 runs for playtests (shared/CafePass).
+	SeasonStarts = {} :: { string },
+	PassLevels = 30,
+	PassXpPerLevel = 800,
 	AutosaveSeconds = 60,
 	SyncIntervalSeconds = 10, -- periodic ProfileSync even when nothing changed (the client predicts in between)
 
@@ -265,8 +271,19 @@ local Config = {
 	-- CornerDailyLimits of a family (any size; a family not listed has none). Cat food has no daily XP cap (#1255).
 	CornerShopWindowSeconds = 390, -- #1437: one game day from ClockEpoch, a restock at every sunrise (was 300)
 	CornerShopRange = 14,
-	-- lawn-nursery.md section 2 (#1200): BuyLawn from within this many studs of a LawnStall-tagged Garden Nursery
-	LawnStallRange = 14,
+	-- lawn-nursery.md section 7 (#1537): lawn pieces and styles are sold only at the Yard Sale (the Garden Nursery is
+	-- retired). Each global game day rolls YardDecorRows rows, each a different piece or style: first a rarity by
+	-- these weights (in percent), then a piece of it; a rarity with none left moves the roll one rarity down.
+	YardDecorRows = 6,
+	YardDecorRarityWeights = {
+		Common = 28,
+		Uncommon = 25,
+		Rare = 20,
+		Epic = 14,
+		Legendary = 8,
+		Mythical = 4,
+		Golden = 1,
+	},
 	-- lawn-nursery.md section 6a (#1283): the money bonus of each lawn piece and style out on the lawn, by its rarity,
 	-- added in Economy.cafeMultiplier beside decor. The server picks the best lawn by itself (Lawn.best).
 	LawnRarityBonus = {

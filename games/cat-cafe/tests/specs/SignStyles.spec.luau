@@ -45,16 +45,48 @@ return function()
 		end)
 	end)
 
+	describe("SetSignStyle's check (pickFor)", function()
+		it("refuses a style the player doesn't own", function()
+			expect(SignStyles.pickFor("bakery_stripes", {}, owns({}))).to.equal(false)
+			expect(SignStyles.pickFor("royal_crest", { royal_crest = true }, owns({}))).to.equal(
+				false
+			)
+		end)
+
+		it("refuses an unknown id or a non-string", function()
+			expect(SignStyles.pickFor("nope", { nope = true }, owns({}))).to.equal(false)
+			expect(SignStyles.pickFor(5, {}, owns({}))).to.equal(false)
+			expect(SignStyles.pickFor({}, {}, owns({}))).to.equal(false)
+		end)
+
+		it('takes an owned style, and nil, "" or "default" as the plain sign', function()
+			local ok, pick =
+				SignStyles.pickFor("bakery_stripes", { bakery_stripes = true }, owns({}))
+			expect(ok).to.equal(true)
+			expect(pick).to.equal("bakery_stripes")
+			ok, pick =
+				SignStyles.pickFor("royal_crest", {}, owns({ [Config.KingPackPassId] = true }))
+			expect(ok).to.equal(true)
+			expect(pick).to.equal("royal_crest")
+			ok, pick = SignStyles.pickFor(nil, {}, owns({}))
+			expect(ok).to.equal(true)
+			expect(pick).to.equal(nil)
+			for _, plain in { "", "default" } do
+				ok, pick = SignStyles.pickFor(plain, {}, owns({}))
+				expect(ok).to.equal(true)
+				expect(pick).to.equal(nil)
+			end
+		end)
+	end)
+
 	describe("saves", function()
 		it("keeps only known saved styles and a known pick", function()
-			expect(
-				SignStyles.sanitize({
-					bakery_stripes = true,
-					royal_crest = true,
-					nope = true,
-					x = 1,
-				}) :: any
-			).to.deepEqual({ bakery_stripes = true })
+			expect(SignStyles.sanitize({
+				bakery_stripes = true,
+				royal_crest = true,
+				nope = true,
+				x = 1,
+			}) :: any).to.deepEqual({ bakery_stripes = true })
 			expect(SignStyles.sanitize(nil) :: any).to.deepEqual({})
 			expect(SignStyles.sanitizePick("royal_crest")).to.equal("royal_crest")
 			expect(SignStyles.sanitizePick("nope")).to.equal(nil)

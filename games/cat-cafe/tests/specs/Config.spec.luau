@@ -309,6 +309,9 @@ return function()
 		NetMissHopStuds = 12,
 		NetMissHopShare = 0.25,
 		RescueSpeedUpPerHit = 0.08,
+		-- #1645 (cafe-pass.md section 1)
+		PassLevels = 30,
+		PassXpPerLevel = 800,
 		-- #1624 (economy-ladder.md section 6a v2.4): the store passes
 		VipCafeBonus = 0.10,
 		CafeStyleCafeBonus = 0.50,
@@ -414,6 +417,7 @@ return function()
 				MoneyPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
 				ExtraSlotPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
 				ProductIds = true, -- #1182: a table of developer product ids, checked in Products.spec
+				SeasonStarts = true, -- #1645: a list of UTC dates, checked in CafePass.spec
 				VipPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				CatAccessoriesPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				UniformStylesPassId = true, -- #1197: an off-sale placeholder pass id, checked below
@@ -429,7 +433,8 @@ return function()
 				RescueTreeCircle = true, -- Derek 2026-11-03: false, checked in Rescue.spec (a false value reads as missing)
 				RescueSnack = true,
 				LawnRarityBonus = true, -- #1283 (lawn-nursery.md section 6a): a table, checked in Lawn.spec
-				LawnStallRange = true, -- #1200 (lawn-nursery.md section 4): 14 studs, checked in LawnService -- #1181 (corner-shop-v2.md section 3): a food id, checked in CornerShop.spec
+				YardDecorRows = true, -- #1537 (lawn-nursery.md section 7): checked in YardSale.spec
+				YardDecorRarityWeights = true, -- #1537: a table, checked in YardSale.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

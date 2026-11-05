@@ -163,7 +163,7 @@ UI.events = {
 	-- ()   the HUD's Tutorial tile or Settings' Replay tutorial: play the intro again with UI.intro.start({ replay = true })
 	introReplay = Signal.new(),
 	-- F64
-	usePotion = Signal.new(), -- (potionId)   Use on a potion in the potion bag: forward as UsePotion
+	usePotion = Signal.new(), -- (potionId, count?)   Use (or #1600's Use all) in the potion bag: forward as UsePotion
 	-- F61
 	collectTips = Signal.new(), -- ()   the till's Collect (F61); unbound since F97 pays tip piles on arrival
 	-- F73
@@ -173,6 +173,8 @@ UI.events = {
 	claimAll = Signal.new(), -- (what)   Claim all: "quests" (all three Quests tabs, #1073; or "daily", "weekly", "achievements"; Config.QuestClaimAll), "index" (the Index window, Config.IndexClaimAll) or "tipjar" (the Tip Jar, Config.TipJarClaimAll): forward as ClaimAll
 	-- F63
 	answerCollector = Signal.new(), -- (accept)   Trade (true) or No thanks (false) on the Cat Collector's card: forward as AnswerCollector
+	-- #1624 (store-pass-looks.md)
+	pickStyle = Signal.new(), -- (kind, id)   a Style tab button: kind "sign" forwards as SetSignStyle(id or nil), "uniform" or "theme" as SetLook(kind, id)
 	-- F70
 	claimDailyTreat = Signal.new(), -- ()   Claim on the Daily Treat card's day that is due: forward as ClaimDailyTreat
 	-- F84
@@ -784,6 +786,10 @@ function UI.init(config: Types.InitConfig)
 		editLawn = function()
 			UI.lawn.edit()
 		end,
+		-- #1624: the Style tab; the sign goes to SetSignStyle, uniforms and themes to SetLook
+		pickStyle = function(kind: string, id: string)
+			UI.events.pickStyle:Fire(kind, id)
+		end,
 	})
 	collection = CatCollection.new({
 		claimIndexReward = function(areaId: string, milestoneId: string)
@@ -1134,8 +1140,8 @@ function UI.init(config: Types.InitConfig)
 		end,
 	})
 	potionsScreen = Potions.new({
-		use = function(potionId: string)
-			UI.events.usePotion:Fire(potionId)
+		use = function(potionId: string, count: number?)
+			UI.events.usePotion:Fire(potionId, count)
 		end,
 		feed = function(foodId: string, catUid: string)
 			local cat = (state.cats or {})[catUid]

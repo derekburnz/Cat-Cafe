@@ -14,11 +14,16 @@
 -- #1625: the Starter Bundle is once per account (Catalog.products oncePerAccount, saved in profile.onceBought). Its
 -- first receipt gives Sprinkles (CafeService.addGiftCat), the potions and the Bakery Stripes sign, which the sign then
 -- shows; a second one, which only a prompt the Store never shows could start, pays only the potions.
+-- #1626: the Cafe Pass (Catalog.products seasonPass) unlocks the paid track of the season running at the receipt, in
+-- the same step as the id (CafePassService.buyPaid). With no season running it is not granted (NotProcessedYet), so
+-- Roblox delivers it again once one is; the product is off sale then anyway. A second one in the same season, which
+-- only a prompt the Pass screen never shows could start, changes nothing.
 
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local CafePassService = require(script.Parent.CafePassService)
 local CafeService = require(script.Parent.CafeService)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
@@ -88,7 +93,26 @@ function ProductService.processReceipt(receipt: { [string]: any }): Enum.Product
 	if profile == nil then
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	end
-	if not Products.granted(profile.receipts, purchaseId) then
+	if product.seasonPass == true and not Products.granted(profile.receipts, purchaseId) then
+		if CafePassService.running() == 0 then
+			warn("[ProductService] a Cafe Pass receipt with no season running, for", player.UserId)
+			return Enum.ProductPurchaseDecision.NotProcessedYet
+		end
+		Products.record(profile.receipts, purchaseId)
+		if CafePassService.buyPaid(player, profile) then
+			Net.fire(
+				player,
+				"Toast",
+				"Thank you! The Cafe Pass paid track is yours this season",
+				"good"
+			)
+		else
+			warn("[ProductService] a second Cafe Pass this season for", player.UserId)
+			Net.fire(player, "Toast", "This season's Cafe Pass is already yours", "warn")
+		end
+		CafePassService.send(player, profile)
+		CafeService.sync(player)
+	elseif not Products.granted(profile.receipts, purchaseId) then
 		-- #1625: the id, the once-per-account mark, the sign styles and the cats all land in this one step, no yield
 		Products.record(profile.receipts, purchaseId)
 		local give, first = Products.prizeFor(profile, product)

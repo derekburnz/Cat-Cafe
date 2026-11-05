@@ -30,36 +30,48 @@ return function()
 			expect(list[1].effect).to.equal("+25% money")
 		end)
 
-		it("follows the catalog's order and keeps the bag's short line for known potions", function()
-			local catalog = {
-				potions = {
-					{ id = "swift_potion", name = "Swift Potion", minutes = 5, effect = "server words" },
-					{ id = "tip_potion", minutes = 10 },
-				},
-			}
-			local list = PotionLogic.list(catalog)
-			expect(#list).to.equal(2)
-			expect(list[1].id).to.equal("swift_potion")
-			expect(list[1].effect).to.equal("+4 walk speed")
-			expect(list[2].name).to.equal("Money Potion")
-		end)
+		it(
+			"follows the catalog's order and keeps the bag's short line for known potions",
+			function()
+				local catalog = {
+					potions = {
+						{
+							id = "swift_potion",
+							name = "Swift Potion",
+							minutes = 5,
+							effect = "server words",
+						},
+						{ id = "tip_potion", minutes = 10 },
+					},
+				}
+				local list = PotionLogic.list(catalog)
+				expect(#list).to.equal(2)
+				expect(list[1].id).to.equal("swift_potion")
+				expect(list[1].effect).to.equal("+4 walk speed")
+				expect(list[2].name).to.equal("Money Potion")
+			end
+		)
 
 		it("names an unknown potion from its id and uses the catalog's effect", function()
-			local list = PotionLogic.list({ potions = { { id = "moon_potion", minutes = 15, effect = "Glows" } } })
+			local list = PotionLogic.list({
+				potions = { { id = "moon_potion", minutes = 15, effect = "Glows" } },
+			})
 			expect(list[1].name).to.equal("Moon Potion")
 			expect(list[1].minutes).to.equal(15)
 			expect(list[1].effect).to.equal("Glows")
 		end)
 
 		it("skips rows without an id", function()
-			local list = PotionLogic.list({ potions = { { name = "No id" }, { id = "tip_potion" } } })
+			local list =
+				PotionLogic.list({ potions = { { name = "No id" }, { id = "tip_potion" } } })
 			expect(#list).to.equal(1)
 		end)
 	end)
 
 	describe("PotionLogic.rows", function()
 		it("counts the bag and the time left from endsAt", function()
-			local rows = PotionLogic.rows(nil, state({ tip_potion = 2 }, { tip_potion = NOW + 90 }), NOW)
+			local rows =
+				PotionLogic.rows(nil, state({ tip_potion = 2 }, { tip_potion = NOW + 90 }), NOW)
 			expect(rows[1].count).to.equal(2)
 			expect(rows[1].secondsLeft).to.equal(90)
 			expect(rows[2].count).to.equal(0)
@@ -81,8 +93,34 @@ return function()
 			expect(rows[3].canUse).to.equal(false)
 		end)
 
+		it(
+			"counts how many Use all drinks: the bag cut to the room under the cap (#1600)",
+			function()
+				local max = PotionLogic.MAX_MINUTES * 60
+				local rows = PotionLogic.rows(
+					nil,
+					state({ tip_potion = 9, lucky_potion = 3, swift_potion = 1 }, {
+						tip_potion = NOW + max - 35 * 60, -- 35 minutes of room: three 10-minute potions
+						lucky_potion = NOW + max - 9 * 60, -- one minute short of one
+					}),
+					NOW
+				)
+				expect(rows[1].fit).to.equal(3)
+				expect(rows[2].fit).to.equal(0)
+				expect(rows[3].fit).to.equal(1) -- the bag has one
+				expect(rows[4].fit).to.equal(0) -- none in the bag
+				-- nothing running: the bag's count, up to the cap's worth of 5-minute Swift Potions
+				local swift = PotionLogic.rows(nil, state({ swift_potion = 100000 }, {}), NOW)
+				expect(swift[3].fit).to.equal(PotionLogic.MAX_MINUTES // 5)
+			end
+		)
+
 		it("shows a potion the catalog does not name yet, after the rest, in id order", function()
-			local rows = PotionLogic.rows(nil, state({ zeta_potion = 1, big_tip_potion = 1 }, { alpha_potion = NOW + 5 }), NOW)
+			local rows = PotionLogic.rows(
+				nil,
+				state({ zeta_potion = 1, big_tip_potion = 1 }, { alpha_potion = NOW + 5 }),
+				NOW
+			)
 			expect(ids(rows)).to.equal(
 				"tip_potion,lucky_potion,swift_potion,steady_potion,alpha_potion,big_tip_potion,zeta_potion"
 			)
@@ -91,7 +129,11 @@ return function()
 		end)
 
 		it("reads a finished or broken timer as not running", function()
-			local rows = PotionLogic.rows(nil, state(nil, { tip_potion = NOW - 5, lucky_potion = 0 / 0 }), NOW)
+			local rows = PotionLogic.rows(
+				nil,
+				state(nil, { tip_potion = NOW - 5, lucky_potion = 0 / 0 }),
+				NOW
+			)
 			expect(rows[1].secondsLeft).to.equal(0)
 			expect(rows[2].secondsLeft).to.equal(0)
 		end)
@@ -101,7 +143,10 @@ return function()
 		it("keeps only the potions with time left, in bag order", function()
 			local running = PotionLogic.running(
 				nil,
-				state({}, { steady_potion = NOW + 30, tip_potion = NOW + 600, lucky_potion = NOW - 1 }),
+				state(
+					{},
+					{ steady_potion = NOW + 30, tip_potion = NOW + 600, lucky_potion = NOW - 1 }
+				),
 				NOW
 			)
 			expect(ids(running)).to.equal("tip_potion,steady_potion")
@@ -112,7 +157,10 @@ return function()
 		it("keeps the potions in the bag and the running ones, in bag order", function()
 			local owned = PotionLogic.owned(
 				nil,
-				state({ tip_potion = 2, lucky_potion = 0 }, { steady_potion = NOW + 30, lucky_potion = NOW - 1 }),
+				state(
+					{ tip_potion = 2, lucky_potion = 0 },
+					{ steady_potion = NOW + 30, lucky_potion = NOW - 1 }
+				),
 				NOW
 			)
 			expect(ids(owned)).to.equal("tip_potion,steady_potion")
@@ -157,7 +205,10 @@ return function()
 			}
 			local boosts = PotionLogic.boosts(
 				catalog,
-				state({}, { gold_rush_potion = NOW + 1, quick_bait_potion = NOW - 1, lucky_potion = NOW }),
+				state(
+					{},
+					{ gold_rush_potion = NOW + 1, quick_bait_potion = NOW - 1, lucky_potion = NOW }
+				),
 				NOW
 			)
 			expect(boosts.goldLuck).to.be.near(0.3, 1e-9)
@@ -192,7 +243,9 @@ return function()
 		end)
 
 		it("reads Catalog.mysteryGift when it is there", function()
-			local rows = PotionLogic.giftRows({ mysteryGift = { { kind = "fish", count = 25, chance = 100 } } })
+			local rows = PotionLogic.giftRows({
+				mysteryGift = { { kind = "fish", count = 25, chance = 100 } },
+			})
 			expect(#rows).to.equal(1)
 			expect(rows[1].count).to.equal(25)
 		end)
@@ -204,8 +257,12 @@ return function()
 		end)
 
 		it("names what a gift held", function()
-			expect(PotionLogic.giftTitle("potion", "tip_potion", 1, noFood)).to.equal("Money Potion")
-			expect(PotionLogic.giftTitle("potion", "tip_potion", 2, noFood)).to.equal("2 Money Potions")
+			expect(PotionLogic.giftTitle("potion", "tip_potion", 1, noFood)).to.equal(
+				"Money Potion"
+			)
+			expect(PotionLogic.giftTitle("potion", "tip_potion", 2, noFood)).to.equal(
+				"2 Money Potions"
+			)
 			expect(PotionLogic.giftTitle("lure", "salmon", 2, foodName)).to.equal("2 Salmon")
 			expect(PotionLogic.giftTitle("lure", "star_treat", 1, noFood)).to.equal("1 Star Treat")
 			expect(PotionLogic.giftTitle("fish", nil, 10, noFood)).to.equal("10 golden fish")
@@ -218,12 +275,18 @@ return function()
 			local function potionName(id: string): string?
 				return if id == "tip_potion" then "Tippy Tonic" else nil
 			end
-			expect(PotionLogic.giftTitle("potion", "tip_potion", 1, noFood, potionName)).to.equal("Tippy Tonic")
+			expect(PotionLogic.giftTitle("potion", "tip_potion", 1, noFood, potionName)).to.equal(
+				"Tippy Tonic"
+			)
 		end)
 
 		it("turns a result into the prize the gift card draws", function()
-			expect(PotionLogic.giftPrize("potion", "tip_potion", 1)).to.deepEqual({ potions = { tip_potion = 1 } })
-			expect(PotionLogic.giftPrize("lure", "salmon", 2)).to.deepEqual({ lures = { salmon = 2 } })
+			expect(PotionLogic.giftPrize("potion", "tip_potion", 1)).to.deepEqual({
+				potions = { tip_potion = 1 },
+			})
+			expect(PotionLogic.giftPrize("lure", "salmon", 2)).to.deepEqual({
+				lures = { salmon = 2 },
+			})
 			expect(PotionLogic.giftPrize("fish", nil, 10)).to.deepEqual({ fish = 10 })
 			expect(PotionLogic.giftPrize("spin", nil, 0)).to.deepEqual({ spins = 1 })
 			expect(PotionLogic.giftPrize("hat", nil, 1)).to.deepEqual({})

@@ -61,15 +61,20 @@ return function()
 			)
 		end)
 		it("words the stock line", function()
+			-- #1678: no "None this time" or "You bought 2", the button says None or Sold out
 			expect(Logic.stockLine({ itemId = "x", price = 1, amount = 0, bought = 0 })).to.equal(
-				"None this time"
+				""
 			)
 			expect(Logic.stockLine({ itemId = "x", price = 1, amount = 3, bought = 1 })).to.equal(
 				"x2 left"
 			)
 			expect(Logic.stockLine({ itemId = "x", price = 1, amount = 2, bought = 2 })).to.equal(
-				"You bought 2"
+				""
 			)
+			-- #1671: past the daily limit, no "x3 left" beside "Back at sunrise"
+			local out: any = { itemId = "x", price = 1, amount = 3, bought = 0, outToday = true }
+			expect(Logic.stockLine(out)).to.equal("")
+			expect(Logic.button(out, nil, 1000, 0, nil).text).to.equal("Back at sunrise")
 		end)
 		it("greys the button the server would refuse", function()
 			local item = { itemId = "cat_snack", price = 1500, amount = 2, bought = 0 }

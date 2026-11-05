@@ -7092,6 +7092,8 @@ case(
 			return "SKIP", "the lawn's art is not in this build (WorldBuilder.lawnLive)"
 		end
 		local BUY, SPOT, STYLE = 0.6, 0.3, 0.6 -- the limits: 2, 4 and 2 a second
+		-- #1283 (lawn-nursery.md section 6b): placing by hand is retired; LawnService.RETIRED
+		local RETIRED = "The lawn sets itself"
 		local long = string.rep("a", 5000)
 		local nan = 0 / 0
 
@@ -7225,7 +7227,7 @@ case(
 				end
 			end
 			local said =
-				lawnCall(SPOT, "That spot opens at Tier", "SetLawnSpot", closedSpot.id, owned or "")
+				lawnCall(SPOT, RETIRED, "SetLawnSpot", closedSpot.id, owned or "")
 			if (state :: Types.PlayerState).lawn[closedSpot.id] ~= nil then
 				return "FAIL", string.format("%s took a piece at Tier %d", closedSpot.id, tier)
 			end
@@ -7233,7 +7235,7 @@ case(
 				verdict = downgrade(verdict, "CHECK")
 				table.insert(
 					notes,
-					string.format('closed %s: no "opens at Tier" toast', closedSpot.id)
+					string.format('closed %s: no "%s" toast', closedSpot.id, RETIRED)
 				)
 			end
 		end
@@ -7345,7 +7347,7 @@ case(
 			local wrong = openSpots(if cheap.spot == "small" then "big" else "small")
 			if #wrong > 0 then
 				local before = (state :: Types.PlayerState).lawn[wrong[1].id]
-				local said = lawnCall(SPOT, "needs a", "SetLawnSpot", wrong[1].id, cheap.id)
+				local said = lawnCall(SPOT, RETIRED, "SetLawnSpot", wrong[1].id, cheap.id)
 				if (state :: Types.PlayerState).lawn[wrong[1].id] ~= before then
 					return "FAIL",
 						string.format("%s (%s) went on %s", cheap.id, cheap.spot, wrong[1].id)
@@ -7355,7 +7357,7 @@ case(
 					table.insert(
 						notes,
 						string.format(
-							'%s on %s: no "needs a ... spot" toast',
+							'%s on %s: no "The lawn sets itself" toast',
 							cheap.id,
 							wrong[1].id
 						)
@@ -7397,7 +7399,7 @@ case(
 		end
 		if unowned ~= nil then
 			local spot = openSpots(unowned.spot)[1]
-			local said = lawnCall(SPOT, "Buy the", "SetLawnSpot", spot.id, unowned.id)
+			local said = lawnCall(SPOT, RETIRED, "SetLawnSpot", spot.id, unowned.id)
 			if (state :: Types.PlayerState).lawn[spot.id] == unowned.id then
 				return "FAIL",
 					string.format("%s went on %s without being bought", unowned.id, spot.id)
@@ -7406,13 +7408,13 @@ case(
 				verdict = downgrade(verdict, "CHECK")
 				table.insert(
 					notes,
-					string.format('%s not owned: no "Buy the ... first" toast', unowned.id)
+					string.format('%s not owned: no "%s" toast', unowned.id, RETIRED)
 				)
 			end
 		end
 		local styleBefore = lawnText()
 		local wrongKind =
-			lawnCall(STYLE, "That is not a fence", "SetLawnStyle", "fence", "grey_slabs")
+			lawnCall(STYLE, RETIRED, "SetLawnStyle", "fence", "grey_slabs")
 		local notBought: Types.LawnStyleDef? = nil
 		for _, style in Catalog.lawnStyles do
 			if style.price > 0 and (state :: Types.PlayerState).lawnOwned[style.id] ~= true then
@@ -7422,7 +7424,7 @@ case(
 		end
 		local notBoughtSaid = true
 		if notBought ~= nil then
-			notBoughtSaid = lawnCall(STYLE, "Buy the", "SetLawnStyle", notBought.kind, notBought.id)
+			notBoughtSaid = lawnCall(STYLE, RETIRED, "SetLawnStyle", notBought.kind, notBought.id)
 		end
 		task.wait(0.3)
 		if lawnText() ~= styleBefore then

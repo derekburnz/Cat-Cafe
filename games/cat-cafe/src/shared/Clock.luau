@@ -1,7 +1,8 @@
 --!strict
 -- Pure day and night math (data-model section 9). Pure: no Roblox services, so tests can require it.
--- `t` is seconds since the server started. The server starts in day with ServerStartDaySeconds left, then
--- loops night (NightLengthSeconds) and day (DayLengthSeconds) forever.
+-- `t` is seconds since Config.ClockEpoch (#1437: one global clock for every server; before it, since the server
+-- started). The clock starts in day with ServerStartDaySeconds left, then loops night (NightLengthSeconds) and day
+-- (DayLengthSeconds) forever, so each sunrise falls on a whole number of cycles from the start.
 
 local Config = require(script.Parent.Config)
 local Types = require(script.Parent.Types)

@@ -78,7 +78,7 @@ return function()
 		RemoteRateLimitPerSecond = 10,
 		AnnounceMinRarity = "Epic",
 		GrabCooldownSeconds = 2,
-		TravelCooldownSeconds = 3, -- v0.4 (F19)
+		TravelCooldownSeconds = 1, -- v0.4 (F19) 3; #1434 1
 		SyncIntervalSeconds = 10,
 		NormalWalkSpeed = 20, -- v0.4
 		CameraMaxZoomStuds = 60, -- Derek 2026-11-02, the zoom card

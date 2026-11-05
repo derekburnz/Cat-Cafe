@@ -145,6 +145,12 @@ local function onTravel(player: Player, rawDestination: unknown)
 		return
 	end
 	-- ShovedAt is the server time a tackle last hit this character (ShoveService, server set)
+	-- #1434: with the 1 s cooldown a second trip can come inside a cloud hop home (CloudHopSeconds); its move at
+	-- CloudHopMoveAtSeconds would then pull the player back from wherever the second trip put them
+	if character:GetAttribute("CloudHopAt") ~= nil then
+		Net.fire(player, "TravelResult", destination, false, "Catch your breath first")
+		return
+	end
 	local shovedAt = character:GetAttribute("ShovedAt")
 	local down = Cannon.downRefusal(
 		if type(shovedAt) == "number" then Workspace:GetServerTimeNow() - shovedAt else nil

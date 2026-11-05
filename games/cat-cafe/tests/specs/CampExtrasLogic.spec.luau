@@ -114,7 +114,10 @@ return function()
 			view.nextAt = NOW + 3 * 3600 + 600
 			expect(CampExtrasLogic.yardFooter(view, NOW)).to.equal("New crate in 3 h 10 m")
 			view.nextAt = nil
-			expect(CampExtrasLogic.yardFooter(view, NOW)).to.equal("New crate tomorrow")
+			view.held = 1
+			expect(CampExtrasLogic.yardFooter(view, NOW)).to.equal("A free crate is waiting") -- #1154
+			view.held = 0
+			expect(CampExtrasLogic.yardFooter(view, NOW)).to.equal("New crate soon")
 			expect(CampExtrasLogic.yardFooter(shut(), NOW)).to.equal("Opens at Tier 3")
 		end)
 	end)

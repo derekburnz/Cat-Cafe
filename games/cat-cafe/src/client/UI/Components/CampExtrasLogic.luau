@@ -147,8 +147,9 @@ function CampExtrasLogic.yardFooter(view: SharedTypes.CampExtraView?, now: numbe
 	if view == nil or not view.open then
 		return string.format("Opens at Tier %d", CampExtras.tierOf(CampExtrasLogic.YARD_SALE) or 3)
 	end
+	-- #1154 (save version 33): a crate every 4 h from the last take, so no nextAt means one is waiting now
 	if view.nextAt == nil then
-		return "New crate tomorrow"
+		return if view.held > 0 then "A free crate is waiting" else "New crate soon"
 	end
 	return "New crate in " .. (CampExtras.waitText(view.nextAt - now) :: string)
 end

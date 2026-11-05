@@ -500,16 +500,18 @@ local Config = {
 
 	-- The camp extras (F100, camp-extras.md sections 2 and 4), each filling while the player is away up to its hold.
 	-- The Picnic Basket (Park) bags one PicnicPotion (Design-Agent 11-02: the 10 minute Money Potion) every
-	-- PicnicEverySeconds; the Yard Sale (Neighbourhood) gives one zone crate a UTC day, free (crate-prices.md section
-	-- 5), banked for the Market; the Fish Pond (Woods) lands PondFishPerStep golden
-	-- fish every PondStepSeconds; the Lost and Found (Sewer) keeps one prize a UTC day from LostFoundTable (chances add
+	-- PicnicEverySeconds; the Yard Sale (Neighbourhood) gives one zone crate every YardSaleClaimHours from the last
+	-- take, free (crate-prices.md section 5; camp-stations.md section 3, #1154), banked for the Market; the Fish Pond
+	-- (Woods) lands PondFishPerStep golden fish every PondStepSeconds up to PondHold (#1232: 6 an hour, 6 hours' worth);
+	-- the Lost and Found (Sewer) keeps one prize a UTC day from LostFoundTable (chances add
 	-- to 1, shown on its card). Each is collected within CampExtraRangeStuds of its PromptAnchor.
 	PicnicEverySeconds = 21600,
 	PicnicHold = 2,
 	PicnicPotion = "tip_potion",
-	PondFishPerStep = 2,
-	PondStepSeconds = 1800,
-	PondHold = 24,
+	YardSaleClaimHours = 4,
+	PondFishPerStep = 1,
+	PondStepSeconds = 600,
+	PondHold = 36,
 	LostFoundHold = 3,
 	LostFoundTable = {
 		{ chance = 0.40, fish = 10 },

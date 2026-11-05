@@ -3681,27 +3681,28 @@ Catalog.menuCoinBag = "CatCafe_Menu_CoinBag"
 Catalog.ovenModel = "CatCafe_Cafe_Oven"
 
 -- The camp extras (F100, camp-extras.md section 2), one at each camp from the Park on, in tier order. Model-Agent's
--- models (#750) stand at Layout.campExtras; shared/CampExtras holds their rules.
+-- models (#750; the stations #1348, #1349 and #1351 since #1319) stand at Layout.campExtras; shared/CampExtras
+-- holds their rules.
 Catalog.campExtras = {
 	{
 		id = "picnic",
 		area = "park",
 		name = "Picnic Basket",
-		model = "CatCafe_Camp_Park_PicnicBasket",
+		model = "CatCafe_Camp_Park_PicnicStation", -- #1133 (#1348)
 		kind = "collect",
 	},
 	{
 		id = "yardSale",
 		area = "neighbourhood",
 		name = "Yard Sale",
-		model = "CatCafe_Camp_Neighbourhood_YardSale",
+		model = "CatCafe_Camp_Neighbourhood_YardSaleStall", -- #1154 (#1349)
 		kind = "shop",
 	},
 	{
 		id = "pond",
 		area = "woods",
 		name = "Fish Pond",
-		model = "CatCafe_Camp_Woods_FishPond",
+		model = "CatCafe_Camp_Woods_FishingHut", -- #1232 (#1351)
 		kind = "collect",
 	},
 	{

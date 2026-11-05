@@ -3,9 +3,10 @@
 -- every rank up from Tier 2 to Tier 5 opens one. Pure rules for the server (CampExtraService) and the client (the
 -- prompt's lines and the cannon picker's line):
 --   Picnic Basket (Park): one PicnicPotion every PicnicEverySeconds, up to PicnicHold.
---   Yard Sale (Neighbourhood): one zone crate a UTC day, free, taken once a day and banked for the Market, which opens
---     it (crate-prices.md section 5, #1051). The crate is the player's open areas' crates in Catalog order picked by
---     the day number, so every server gives the same one.
+--   Yard Sale (Neighbourhood): one zone crate, free, every YardSaleClaimHours from the last take (camp-stations.md
+--     section 3, #1154; once a UTC day before save version 33), holding 1, banked for the Market, which opens it
+--     (crate-prices.md section 5, #1051). The crate is the player's open areas' crates in Catalog order picked by the
+--     number of takes so far, so it rotates each take and every server gives the same one.
 --   Fish Pond (Woods): PondFishPerStep golden fish every PondStepSeconds, up to PondHold.
 --   Lost and Found (Sewer): one prize a UTC day from LostFoundTable, up to LostFoundHold.
 -- Each keeps filling while the player is away. An extra whose area is shut does not fill, and the moment it opens one
@@ -25,7 +26,7 @@ CampExtras.PROMPT = "CampExtraPrompt" -- each model's ProximityPrompt, at its Pr
 CampExtras.YARD_SALE = "yardSale"
 CampExtras.COLLECT = { "picnic", "pond", "lostFound" } -- what CollectCampExtra takes
 CampExtras.CLASSIC_CRATE = "classic_crate"
-CampExtras.TAKEN = "You took today's crate. A new one tomorrow"
+CampExtras.TAKEN = "You took this crate" -- buyBlocker adds ". A new one in 3 h 59 m"
 
 -- The UTC day number of os.time() `now`.
 function CampExtras.day(now: number): number
@@ -50,7 +51,7 @@ function CampExtras.fresh(now: number): Types.CampExtrasSave
 	local today = CampExtras.day(now)
 	return {
 		picnic = { at = now - Config.PicnicEverySeconds, held = 0 },
-		yardSale = { day = today, bought = {} },
+		yardSale = { lastClaimAt = 0, claims = 0 },
 		pond = { at = now - Config.PondStepSeconds },
 		lostFound = { day = today - 1, held = 0 },
 	}
@@ -83,17 +84,28 @@ function CampExtras.sanitize(raw: unknown, now: number): Types.CampExtrasSave
 		save.lostFound.held = math.max(0, whole(value.lostFound.held, Config.LostFoundHold, 0))
 	end
 	if type(value.yardSale) == "table" then
-		save.yardSale.day = whole(value.yardSale.day, today, today)
-		if type(value.yardSale.bought) == "table" then
-			for crateId, bought in value.yardSale.bought do
-				if
-					type(crateId) == "string"
-					and bought == true
-					and Catalog.getCrate(crateId) ~= nil
-				then
-					save.yardSale.bought[crateId] = true
+		local yard = value.yardSale
+		if yard.lastClaimAt ~= nil then
+			save.yardSale.lastClaimAt = math.max(0, whole(yard.lastClaimAt, now, 0))
+			save.yardSale.claims = math.max(0, whole(yard.claims, 2 ^ 31, 0))
+		else
+			-- before save version 33 (#1154): { day, bought }. A save that took today's crate waits until
+			-- YardSaleClaimHours after that UTC day began, so nobody gets a second crate at once or loses one.
+			local tookToday = false
+			if whole(yard.day, today, today - 1) == today and type(yard.bought) == "table" then
+				for crateId, bought in yard.bought do
+					if
+						type(crateId) == "string"
+						and bought == true
+						and Catalog.getCrate(crateId) ~= nil
+					then
+						tookToday = true
+					end
 				end
 			end
+			save.yardSale.lastClaimAt = if tookToday then today * DAY else 0
+			-- the old rule picked by the day number, so the next take carries on from tomorrow's crate
+			save.yardSale.claims = math.max(0, today + 1)
 		end
 	end
 	return save
@@ -110,8 +122,8 @@ function CampExtras.pondFish(save: Types.CampExtrasSave, now: number): number
 end
 
 -- Brings a save up to `now` for a player of `tier`, in place: each open extra fills by the time passed up to its hold
--- (a full one's clock waits, so the next fill counts from when it is emptied), the Yard Sale rolls over to today, and
--- a shut extra goes back to its fresh state.
+-- (a full one's clock waits, so the next fill counts from when it is emptied), and a shut extra goes back to its fresh
+-- state. The Yard Sale needs nothing here: its crate is ready once YardSaleClaimHours have passed since the last take.
 function CampExtras.settle(save: Types.CampExtrasSave, tier: number, now: number)
 	local today = CampExtras.day(now)
 	local fresh = CampExtras.fresh(now)
@@ -135,14 +147,14 @@ function CampExtras.settle(save: Types.CampExtrasSave, tier: number, now: number
 		lostFound.held = math.min(Config.LostFoundHold, lostFound.held + today - lostFound.day)
 		lostFound.day = today
 	end
-	if save.yardSale.day ~= today then
-		save.yardSale = { day = today, bought = {} }
+	if not CampExtras.isOpen(CampExtras.YARD_SALE, tier) then
+		save.yardSale = fresh.yardSale
 	end
 end
 
--- The Yard Sale's crate on UTC day `day` for a player of `tier`: the plain crate of one of the player's open areas
--- (Catalog order, picked by the day number), none while the Neighbourhood is shut. A list, as the view sends it.
-function CampExtras.yardStock(tier: number, day: number): { string }
+-- The Yard Sale's crate for a player of `tier` who has taken `claims` crates: the plain crate of one of the player's
+-- open areas (Catalog order, the next one each take), none while the Neighbourhood is shut. A list, as the view sends it.
+function CampExtras.yardStock(tier: number, claims: number): { string }
 	if not CampExtras.isOpen(CampExtras.YARD_SALE, tier) then
 		return {}
 	end
@@ -155,15 +167,19 @@ function CampExtras.yardStock(tier: number, day: number): { string }
 	end
 	local stock: { string } = {}
 	if #zones > 0 then
-		table.insert(stock, zones[day % #zones + 1])
+		table.insert(stock, zones[claims % #zones + 1])
 	end
 	return stock
 end
 
--- True once the player has taken a Yard Sale crate today, whichever it was: the day's crate can change with a rank up
--- (more zones open), and the take is one a day, not one per crate id (#1051 review).
-local function yardTakenToday(save: Types.CampExtrasSave, today: number): boolean
-	return save.yardSale.day == today and next(save.yardSale.bought) ~= nil
+-- When the next Yard Sale crate is ready (server time): YardSaleClaimHours after the last take, whichever crate it
+-- was (the crate can change with a rank up, and the take is one per wait, not one per crate id; #1051 review).
+function CampExtras.yardReadyAt(save: Types.CampExtrasSave): number
+	return save.yardSale.lastClaimAt + Config.YardSaleClaimHours * 3600
+end
+
+local function yardTaken(save: Types.CampExtrasSave, now: number): boolean
+	return now < CampExtras.yardReadyAt(save)
 end
 
 local function shut(): Types.CampExtraView
@@ -206,15 +222,15 @@ function CampExtras.view(
 	local yardSale = shut()
 	if CampExtras.isOpen(CampExtras.YARD_SALE, tier) then
 		local stock: { Types.YardSaleCrate } = {}
-		for _, crateId in CampExtras.yardStock(tier, today) do
-			local bought = yardTakenToday(save, today)
-			table.insert(stock, { crateId = crateId, price = 0, bought = bought })
-			if not bought then
+		local taken = yardTaken(save, now)
+		for _, crateId in CampExtras.yardStock(tier, save.yardSale.claims) do
+			table.insert(stock, { crateId = crateId, price = 0, bought = taken })
+			if not taken then
 				yardSale.held += 1
 			end
 		end
 		yardSale.open = true
-		yardSale.nextAt = tomorrow
+		yardSale.nextAt = if taken then CampExtras.yardReadyAt(save) else nil
 		yardSale.stock = stock
 	end
 	return { day = today, picnic = picnic, yardSale = yardSale, pond = pond, lostFound = lostFound }
@@ -379,13 +395,14 @@ function CampExtras.buyBlocker(
 			CampExtras.tierOf(CampExtras.YARD_SALE) or 0
 		)
 	end
-	local today = CampExtras.day(now)
-	if table.find(CampExtras.yardStock(tier, today), crateId) == nil then
-		return "That crate is not at the Yard Sale today"
+	if table.find(CampExtras.yardStock(tier, save.yardSale.claims), crateId) == nil then
+		return "That crate is not at the Yard Sale now"
 	end
-	-- blocks a second free crate after a rank up moves today's crate to another zone
-	if yardTakenToday(save, today) then
+	-- blocks a second free crate after a rank up moves the crate to another zone
+	if yardTaken(save, now) then
 		return CampExtras.TAKEN
+			.. ". A new one in "
+			.. CampExtras.waitText(CampExtras.yardReadyAt(save) - now)
 	end
 	return nil
 end

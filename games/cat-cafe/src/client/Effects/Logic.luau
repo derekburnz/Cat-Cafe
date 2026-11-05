@@ -2576,4 +2576,15 @@ function Logic.nextShell(startsAt: number, now: number, every: number): number
 	return startsAt + (math.floor((now - startsAt) / every) + 1) * every
 end
 
+-- A shine sweeping once across a sign `width` studs wide (the Royal Crest, #1191), `t` seconds into a `sweep`-second
+-- sweep: how far along the band's middle is, from a sign's width before its left edge (-width) to a sign's width
+-- past it (+width), and how bright it is (0 to 1, brightest halfway). Outside the sweep: at rest and dark.
+function Logic.shineSweep(t: number, sweep: number, width: number): (number, number)
+	if t < 0 or t >= sweep or sweep <= 0 then
+		return 0, 0
+	end
+	local share = t / sweep
+	return -width + share * width * 2, math.sin(math.pi * share)
+end
+
 return Logic

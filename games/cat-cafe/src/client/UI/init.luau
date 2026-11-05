@@ -986,8 +986,8 @@ function UI.init(config: Types.InitConfig)
 	table.insert(connections, player:GetAttributeChangedSignal("Tester"):Connect(renderTester))
 	renderTester()
 	bugReportScreen = BugReport.new({
-		send = function(text: string, kind: string)
-			UI.events.reportBug:Fire(text, kind, ClientErrors.recent())
+		send = function(text: string, kind: string, featureName: boolean?)
+			UI.events.reportBug:Fire(text, kind, ClientErrors.recent(), featureName)
 		end,
 		back = closeModal,
 		close = closeModal,

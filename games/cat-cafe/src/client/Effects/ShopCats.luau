@@ -462,8 +462,11 @@ local function layCrest(frame: Model, c: Crest)
 	for _, bar in frame:GetDescendants() do
 		if bar:IsA("BasePart") then
 			local part = bar :: BasePart
-			local along = (part.Position - pivot.Position):Dot(pivot.RightVector)
 			for _, face in r.faces do
+				-- each face's U runs to its own viewer's right, so the Back face's is the mirror of the Front's:
+				-- measured along it, both sweep left to right as seen and stay one band across the bars (#1366)
+				local u = part.CFrame:VectorToWorldSpace(Logic.faceU(face))
+				local along = (part.Position - pivot.Position):Dot(u)
 				local texture = Instance.new("Texture")
 				texture.Name = "RoyalCrestShine"
 				texture.Texture = Presets.textures.sparkle
@@ -524,6 +527,15 @@ end
 
 local function considerCrest(instance: Instance)
 	local r = Presets.shopCats.royalCrest
+	if instance:IsA("BasePart") then
+		-- a bar streaming in after the shine was laid: lay it again on the next step, with this bar (#1366)
+		local frame = instance:FindFirstAncestor(r.model)
+		local c = if frame ~= nil and frame:IsA("Model") then crests[frame :: Model] else nil
+		if c ~= nil and #c.shine > 0 then
+			clearCrest(c)
+		end
+		return
+	end
 	if instance:IsA("Model") and instance.Name == r.model and crests[instance :: Model] == nil then
 		-- each sign on its own beat, so a street of them never sweeps together; its bars share one
 		local first = os.clock() + math.random() * r.every

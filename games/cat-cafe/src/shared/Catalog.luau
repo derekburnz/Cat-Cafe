@@ -1220,16 +1220,20 @@ Catalog.dailyTreat = {
 	},
 } :: { Types.DailyTreatDay }
 
--- Section 11c (F49): the Spin Wheel's six slices in order around the wheel. Free spins only: no Robux button, pass
--- or product gives spins (monetization-policy), and a spin never gives a cat. Frozen, like the Index prizes. F94
--- (rewards-and-shops.md section 2b): golden fish and a Caviar in place of the shop food.
+-- Section 11c (F49): the Spin Wheel's slices in order around the wheel. Free spins only: no Robux button, pass
+-- or product gives spins (monetization-policy), and a spin never gives a cat. Frozen, like the Index prizes.
+-- v2 (#1500, rewards-and-shops.md section 2b v2, the friend 2026-11-05): 8 slices, coins on 69% of spins and two
+-- 0.5% jackpots to chase. Weights are in half-percents (total 200). The world wheel's slices follow this order
+-- (spinwheel.py; the jackpots are the two narrow gold wedges, SliceSpans "52,52,52,52,52,52,24,24").
 Catalog.spinWheel = {
-	{ slice = 1, kind = "coins", seconds = 120, minCoins = 200, weight = 30 },
-	{ slice = 2, kind = "fish", count = 3, weight = 22 }, -- F94 (was 3 Tuna)
-	{ slice = 3, kind = "coins", seconds = 600, minCoins = 1000, weight = 18 },
-	{ slice = 4, kind = "lure", lureId = "caviar", count = 1, weight = 15 }, -- F94 (was 2 Salmon)
-	{ slice = 5, kind = "fish", count = 8, weight = 10 }, -- F54 (was 2 Moonlit Sardines), 8 since F94 (was 4)
-	{ slice = 6, kind = "crate", crate = "highest", count = 1, weight = 5 }, -- F54 (was 1 Caviar)
+	{ slice = 1, kind = "coins", seconds = 120, minCoins = 200, weight = 70 }, -- 35%
+	{ slice = 2, kind = "coins", seconds = 600, minCoins = 1000, weight = 44 }, -- 22%
+	{ slice = 3, kind = "fish", count = 5, weight = 30 }, -- 15%
+	{ slice = 4, kind = "coins", seconds = 1800, minCoins = 3000, weight = 24 }, -- 12%, new in v2
+	{ slice = 5, kind = "lure", lureId = "caviar", count = 1, weight = 18 }, -- 9%
+	{ slice = 6, kind = "crate", crate = "highest", count = 1, weight = 12 }, -- 6%
+	{ slice = 7, kind = "crate", crate = "highest_golden", count = 1, weight = 1, jackpot = true }, -- 0.5%
+	{ slice = 8, kind = "fish", count = 100, weight = 1, jackpot = true }, -- 0.5%
 } :: { Types.SpinSlice }
 for _, row in Catalog.spinWheel do
 	table.freeze(row)

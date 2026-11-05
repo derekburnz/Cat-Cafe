@@ -256,9 +256,6 @@ Remotes.ServerToClient = {
 	-- bought or refused, on join and at each new window
 	"FeedResult", -- (catUid: string, level: number, xp: number)  #1181: the fed cat's new level and XP into it, after a
 	-- FeedCat that passed (a refusal toasts why)
-	"CafeShow", -- (userId: number, showId: string, endsAt: number)  #1052: the cafe of `userId` plays the show ("bubbles"
-	-- or "fireworks") until `endsAt` (server time), starting showSeconds before it; one show at a time a cafe, so a
-	-- bought show waits for the last to end. Sent to everyone at the buy, and the ones still running to a joiner
 	"ThanksBoard", -- (rows: { IdeaCredits.Row }, hasCredit: boolean)  #1083: the Thank You board's rows, newest first
 	-- (idea, version, display name or "a player"), and whether this player has a credit (the Settings row shows only
 	-- then); on join and after every rebuild

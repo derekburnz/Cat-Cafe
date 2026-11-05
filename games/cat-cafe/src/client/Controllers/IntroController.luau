@@ -113,8 +113,8 @@ type Run = {
 	camp: Intro.Camp, -- the Alleyway's
 	alleyStreamed: boolean,
 	shot: number, -- the position in `shots` of the shot showing, 0 before the first
-	cuts: { Intro.Cut }, -- the showing shot's cuts; shot 6's after the stream check
-	cut: number, -- the cut showing, for shot 6's title cards
+	cuts: { Intro.Cut }, -- the showing shot's cuts (the last shot's ends at the character)
+	cut: number, -- the cut showing
 	jumpFired: number, -- the last place change Moments.IntroCut went out for, as position * 100 + cut (#958)
 	character: Model?, -- the character when it started, so a respawn ends it
 	staged: { Instance }, -- local clones, destroyed at the end
@@ -529,7 +529,7 @@ local function restoreTurret(r: Run)
 end
 
 -- Covers or uncovers the town cannon's barrel on this screen only (section 2a: lifted for shots 1 and 2, dropped
--- for shot 9's night), remembering each part's replicated Transparency for coverBack.
+-- for shot 8's night), remembering each part's replicated Transparency for coverBack.
 local function cover(r: Run, covered: boolean)
 	local cannon = r.cannon
 	if cannon == nil then
@@ -721,11 +721,7 @@ local function enterShot(r: Run, position: number)
 	r.shot = position
 	r.cut = 1
 	r.cuts = shot.cuts
-	if shot.cuts[1] ~= nil and shot.cuts[1].area ~= nil then
-		r.cuts = Intro.keepCuts(shot, function(cut: Intro.Cut): boolean
-			return streamedNear(cut.to.look)
-		end)
-	elseif shot.follow then
+	if shot.follow then
 		local root = rootOf(player.Character)
 		if root ~= nil then
 			local last = table.clone(shot.cuts[1])
@@ -821,7 +817,7 @@ local function enterShot(r: Run, position: number)
 		WorldController.endPreview(shot.seconds) -- the real sky comes back during the swoop
 	end
 
-	UI.intro.setShot(shot.index, shot.caption, if r.cuts[1] ~= nil then r.cuts[1].title else nil)
+	UI.intro.setShot(shot.index, shot.caption)
 	Moments.IntroShot:Fire(shot.index)
 	reportIntro(shot.index)
 end
@@ -1033,7 +1029,7 @@ local function stageJob(r: Run, t: number)
 	end
 end
 
--- The timed beats of shots 8 and 9, `t` seconds into the showing shot.
+-- The timed beats of shots 7 and 8, `t` seconds into the showing shot.
 local function beats(r: Run, shot: Intro.Shot, t: number)
 	local function once(name: string, at: number): boolean
 		if t >= at and not r.done[name] then
@@ -1059,19 +1055,6 @@ local function beats(r: Run, shot: Intro.Shot, t: number)
 		local turn = Intro.ease("Out", t / shot.seconds) * WHEEL_TURNS * 2 * math.pi
 		wheel.model:PivotTo(wheel.base * CFrame.Angles(0, 0, -turn))
 	end
-end
-
--- A shot's first cut as it will play: in shot 6 its first camp that has streamed in, as enterShot keeps them.
-local function firstCut(shot: Intro.Shot): Intro.Cut
-	if shot.cuts[1].area ~= nil then
-		local kept = Intro.keepCuts(shot, function(cut: Intro.Cut): boolean
-			return streamedNear(cut.to.look)
-		end)
-		if kept[1] ~= nil then
-			return kept[1]
-		end
-	end
-	return shot.cuts[1]
 end
 
 -- #958 (Derek 2026-11-03: "make the locations cuts smoother"): CUT_LEAD before the camera jumps to a far place
@@ -1102,7 +1085,7 @@ local function aheadOfJump(
 	else
 		local following = r.shots[position + 1]
 		if following ~= nil and not following.flight and following.cuts[1] ~= nil then
-			nextCut = firstCut(following)
+			nextCut = following.cuts[1]
 		end
 	end
 	if nextCut ~= nil and Intro.jump(r.cuts[cut].to, nextCut.from) then
@@ -1138,10 +1121,7 @@ local function step()
 		end
 		cutStart += c.seconds
 	end
-	if cut ~= r.cut then
-		r.cut = cut
-		UI.intro.setShot(shot.index, shot.caption, r.cuts[cut].title)
-	end
+	r.cut = cut
 	local c = r.cuts[cut]
 	setCamera(Intro.at(c, shot.ease, (t - cutStart) / c.seconds))
 	aheadOfJump(r, position, shot, cut, cutStart, t)
@@ -1244,13 +1224,7 @@ function IntroController.play(replay: boolean)
 	if run ~= nil or state == nil or state.plotIndex == 0 then
 		return
 	end
-	-- the other camps and the Alleyway's board stream in during shots 1 to 4
-	for _, area in Intro.CAMP_CUTS do
-		local other = Intro.camp(area)
-		if other ~= nil then
-			streamAround(other.wayOut + other.u * 10)
-		end
-	end
+	-- the Alleyway's board streams in during shots 1 to 4 (#1542: the other camps are no longer filmed)
 	streamAround(camp.board)
 	local alleyStreamed = streamedNear(camp.pad)
 	local plot = Intro.plot(state.plotIndex)

@@ -441,3 +441,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Bait food prices v2 (#1389), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
 - 2026-11-05: Bait food costs are multiplied by a factor that doubles with the food's rank, capped at x40: Kibble x1 (it stays at 100 for the first-ten-minutes guard in features section 8, as Gameplay-Engineer found), Tuna x10, Salmon x20, Moonlit Sardines x20, and Caviar, Moon Milk and Star Treat x40. `FoodTierPriceFactor` is unchanged, so Salmon is 50,000 at Tier 1 and 400,000 at Tier 4. Why: the friend found Salmon at 20k far too cheap and asked for an exponential rise. If Pace.spec goes over the floors (Tier 2 at 20 min, Tier 5 at 12 h), Tuna's factor is halved first. Spec: corner-shop-v2.md section 1b.
+
+### Tier costs v3 for more wild cats (#1462), game-designer thread (Design-Agent, friend's project)
+- 2026-11-05: Rank-up costs go to 28,000, 700,000, 60M and 2.0B (were 13,500, 500,000, 40M and 1.2B). Why: #1452's extra strays and better wild odds took 6 of 14 Pace checks out of bounds, including one-go Tier 5 at 7 h 51 and the 4-friend case at Tier 2 7.8 min and Tier 5 6 h 31. By rule v0.8 the costs rise and the user's odds stay. At these costs all 14 Pace checks pass on #1462's build. Spec: economy-ladder.md section 3 v3.

@@ -176,13 +176,16 @@ local function tickTimers(dt: number)
 			and tips[plot.index] == nil
 			and dayRate > 0
 			and Economy.level(profile, "tables") >= 1
+		-- #1624: Cafe Style and Grand Cafe bring rich visitors more often (Economy.richRate)
 		local left = timers[player]
 			or VisitTimer.draw(Config.RichEveryMin, Config.RichEveryMax, rng:NextNumber())
+				/ Economy.richRate(profile)
 		local due: boolean
 		left, due = VisitTimer.tick(left, dt, ready)
 		if due then
 			open(player, plot, dayRate * Economy.tipMultiplier(profile, now), now, dusk)
 			left = VisitTimer.draw(Config.RichEveryMin, Config.RichEveryMax, rng:NextNumber())
+				/ Economy.richRate(profile)
 		end
 		timers[player] = left
 	end

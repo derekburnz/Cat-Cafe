@@ -1778,10 +1778,17 @@ function UI.showOfflineEarnings(amount: number, seconds: number)
 	end
 end
 
--- Rising text at a world point ("+$8"). Cheap enough for customers' coin pops.
+-- Rising text at a world point ("+$8"). Cheap enough for customers' coin pops. #1562 (Derek2: "the money pop-up ticks
+-- show at any distance"): only within FLOAT_DISTANCE studs of the camera, like the till tips button. One farther away
+-- is not made at all, and MaxDistance hides one the camera moves away from while it rises.
+local FLOAT_DISTANCE = 80
 function UI.floatText(worldPosition: Vector3, text: string, color: Color3?)
 	local parent = parentGui
 	if not parent then
+		return
+	end
+	local camera = workspace.CurrentCamera
+	if camera and (camera.CFrame.Position - worldPosition).Magnitude > FLOAT_DISTANCE then
 		return
 	end
 	local attachment = Instance.new("Attachment")
@@ -1791,6 +1798,7 @@ function UI.floatText(worldPosition: Vector3, text: string, color: Color3?)
 		Name = "FloatText",
 		Adornee = attachment,
 		AlwaysOnTop = true,
+		MaxDistance = FLOAT_DISTANCE,
 		Size = UDim2.fromOffset(120, 36),
 		StudsOffset = Vector3.new(0, 1, 0),
 		Parent = parent,

@@ -16,14 +16,15 @@ local FreshCatch = {}
 local MODULUS = 2147483647 -- 2^31 - 1, the Park-Miller generator
 local MULTIPLIER = 48271
 
--- The global stock window at server time `now` (os.time()).
+-- The global stock window at server time `now` (os.time()). #1437: counted from Config.ClockEpoch, so with a window of
+-- one game day it turns at every sunrise of the global clock.
 function FreshCatch.window(now: number): number
-	return math.floor(now / Config.FreshCatchWindowSeconds)
+	return math.floor((now - Config.ClockEpoch) / Config.FreshCatchWindowSeconds)
 end
 
 -- When the stock after `window` arrives, in os.time().
 function FreshCatch.restocksAt(window: number): number
-	return (window + 1) * Config.FreshCatchWindowSeconds
+	return Config.ClockEpoch + (window + 1) * Config.FreshCatchWindowSeconds
 end
 
 -- The window's seed, the same on every server. Every product stays under 2^53, so it is exact. Each round folds the
@@ -173,7 +174,12 @@ function FreshCatch.sanitize(raw: unknown, now: number): Types.FreshCatchState
 	local function whole(x: unknown): number
 		return if type(x) == "number" and x == x and math.abs(x) < 2 ^ 40 then math.floor(x) else 0
 	end
-	local latest = FreshCatch.window(now) + 1
+	local latest = math.max(0, FreshCatch.window(now) + 1)
+	-- #1437: a window past the next one is from the old 5 minute count (os.time() / 300, far larger than the game days
+	-- since ClockEpoch); it starts afresh, so nobody waits out a window that will never come
+	if whole(value.window) > latest then
+		return state
+	end
 	state.window = math.clamp(whole(value.window), 0, latest)
 	state.alerted = math.clamp(whole(value.alerted), 0, latest)
 	if type(value.bought) == "table" then

@@ -1951,7 +1951,7 @@ Presets.wheel = {
 	seconds = 3.4, -- turning, easing to a stop
 	turns = 3, -- whole turns before it settles
 	stillTurns = 1, -- with Reduce Motion
-	slices = 6, -- Catalog.spinWheel's six slices
+	slices = 6, -- equal slices for a Wheel with no SliceSpans attribute (the old six-slice wheel)
 	landWithin = 0.6, -- of a slice's width around its centre the wheel stops in, so never by an edge
 	tick = 14, -- degrees the pointer is knocked aside as a slice edge passes it
 	tickShare = 0.18, -- of a slice it takes to spring back
@@ -1964,7 +1964,7 @@ Presets.wheel = {
 	-- "good" one (chance at most `good`) adds a mint ring and confetti from the top of the wheel, a "jackpot" (at
 	-- most `jackpot`) gold confetti, a gold ring, `showers` sparkle showers and longer blinking.
 	good = 0.16,
-	jackpot = 0.06,
+	jackpot = 0.02, -- the v2 wheel's two 0.5% slices only, not its 6% crate (#1411)
 	goodRing = 8,
 	jackpotRing = 12,
 	ringSeconds = 0.6,

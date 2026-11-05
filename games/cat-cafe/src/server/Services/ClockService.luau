@@ -1,7 +1,8 @@
 --!strict
 -- The day and night clock (data-model section 9, features F20). The phase comes from shared/Clock.luau applied to
--- the time since this server started: day with ServerStartDaySeconds left, then night and day forever. It is
--- published as attributes on ReplicatedStorage.Clock (Phase, PhaseEndsAt) so clients read it without a remote.
+-- the time since Config.ClockEpoch on the shared server clock (#1437: one global day, the same sunrise in every
+-- server; before it, the time since this server started): a first day of ServerStartDaySeconds, then night and day.
+-- It is published as attributes on ReplicatedStorage.Clock (Phase, PhaseEndsAt) so clients read it without a remote.
 -- PhaseEndsAt is on the Workspace:GetServerTimeNow() clock, which every client shares, so a countdown never trusts
 -- the device clock. v0.9 (F66): AreasOpen is false from night start to sunrise, when the catching areas are closed
 -- (the client's fences, the travel buttons); NightService does the closing and opening on `changed`.
@@ -14,6 +15,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Clock = require(ReplicatedStorage.Shared.Clock)
+local Config = require(ReplicatedStorage.Shared.Config)
 local Signal = require(ReplicatedStorage.Shared.Signal)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -24,7 +26,7 @@ local ClockService = {}
 ClockService.changed = Signal.new() :: Signal.Signal<Types.ClockPhase, number>
 
 local clockFolder: Folder? = nil
-local startedAt = 0 -- os.clock() when the server started; debugSetPhase shifts it
+local startedAt = 0 -- os.clock() at which the clock read 0 (Config.ClockEpoch); debugSetPhase shifts it
 local currentPhase: Types.ClockPhase = "day"
 local currentEndsAt = 0
 local currentDay = 1
@@ -73,7 +75,9 @@ function ClockService.start()
 		created.Parent = ReplicatedStorage
 		clockFolder = created
 	end
-	startedAt = os.clock()
+	-- #1437: the global clock. GetServerTimeNow is the time every server and client shares, so each server lands on
+	-- the same phase whatever moment it started
+	startedAt = os.clock() - math.max(0, Workspace:GetServerTimeNow() - Config.ClockEpoch)
 	tick()
 end
 
@@ -120,7 +124,7 @@ function ClockService.debugSetPhase(phase: Types.ClockPhase)
 	tick()
 end
 
--- Jumps the clock to `seconds` since the server started, mid phase if so (F88: Debug.toLuckyDay, review N311).
+-- Jumps the clock to `seconds` since its start (ClockEpoch), mid phase if so (F88: Debug.toLuckyDay, review N311).
 function ClockService.debugSetTime(seconds: number)
 	assert(RunService:IsStudio(), "debugSetTime is Studio only")
 	startedAt = os.clock() - math.max(0, seconds)

@@ -57,5 +57,14 @@ return function()
 			expect(k.glow.brightness > 0 and k.glow.brightness <= 1.5).to.equal(true)
 			expect(k.trim.speed > 0 and k.trim.tile > 0).to.equal(true)
 		end)
+
+		it("sweeps the Royal Crest's shine once every 8 s, quickly, on a few signs", function()
+			local r = Presets.shopCats.royalCrest
+			expect(r.every).to.equal(8) -- Design-Agent's brief on #1191
+			expect(r.sweep > 0 and r.sweep < r.every).to.equal(true)
+			expect(r.most >= 1 and r.most <= 4).to.equal(true)
+			expect(r.model).to.equal("CatCafe_Plot_SignRoyalCrest_Frame") -- Model-Agent, #1289
+			expect(r.part).to.equal("Frame")
+		end)
 	end)
 end

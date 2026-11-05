@@ -28,9 +28,9 @@ return function()
 			expect(left).to.equal(5)
 		end)
 
-		it("keeps each visitor's old average rate (60 s at 10%, 120 s at 8%, 120 s at 12%)", function()
+		it("keeps the rich and collector old average rates, the Mystery Visitor a fifth more often (#1638)", function()
 			expect((Config.RichEveryMin + Config.RichEveryMax) / 2).to.equal(600)
-			expect((Config.MysteryEveryMin + Config.MysteryEveryMax) / 2).to.equal(1500)
+			expect((Config.MysteryEveryMin + Config.MysteryEveryMax) / 2).to.equal(1250)
 			expect((Config.CollectorEveryMin + Config.CollectorEveryMax) / 2).to.equal(1000)
 			-- never two visits closer than the minimum: each min is well past its stay
 			expect(Config.RichEveryMin > Config.RichTipStaySeconds).to.equal(true)

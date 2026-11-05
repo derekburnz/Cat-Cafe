@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <radialGradient id="sack" cx="40%" cy="40%" r="75%">
+      <stop offset="0" stop-color="#7EE38A"/><stop offset="0.55" stop-color="#3CC05A"/><stop offset="1" stop-color="#1F8A3B"/>
+    </radialGradient>
+    <radialGradient id="coin" cx="40%" cy="35%" r="70%">
+      <stop offset="0" stop-color="#FFF3A6"/><stop offset="0.5" stop-color="#FFD23F"/><stop offset="1" stop-color="#E89A12"/>
+    </radialGradient>
+  </defs>
+  <!-- sack -->
+  <path d="M96 72 Q30 120 34 182 Q38 240 128 242 Q218 240 222 182 Q226 120 160 72 Z" fill="url(#sack)" stroke="#2a1a12" stroke-width="14" stroke-linejoin="round"/>
+  <!-- neck and tie -->
+  <path d="M92 44 Q128 26 164 44 L152 76 Q128 86 104 76 Z" fill="#3CC05A" stroke="#2a1a12" stroke-width="12" stroke-linejoin="round"/>
+  <rect x="88" y="66" width="80" height="20" rx="10" fill="#C9760A" stroke="#2a1a12" stroke-width="10"/>
+  <!-- coin on the front -->
+  <circle cx="128" cy="164" r="50" fill="url(#coin)" stroke="#2a1a12" stroke-width="11"/>
+  <text x="128" y="193" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="80" text-anchor="middle"
+        fill="#FFFFFF" stroke="#2a1a12" stroke-width="10" paint-order="stroke" stroke-linejoin="round">$</text>
+  <!-- shine -->
+  <path d="M66 150 Q70 118 96 98" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+</svg>

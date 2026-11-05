@@ -76,7 +76,7 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `zoneArea` | `sfx/CatCafe_Sfx_ZoneArea.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 103566569518372 | 2026-10-27 |
 | `travelPoof` | `sfx/CatCafe_Sfx_TravelPoof.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 99298919905979 | 2026-10-27 |
 | `catPlaced` | `sfx/CatCafe_Sfx_CatPlaced.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 101433267853089 | 2026-10-27 |
-| `shiftChime` | `sfx/CatCafe_Sfx_ShiftChime.ogg` | synthesized by `synth/synth.py` (#1191: a shop-only cat starts its shift) | original (Cat Cafe) | sound-designer | this repo |  | 2026-11-05 |
+| `shiftChime` | `sfx/CatCafe_Sfx_ShiftChime.ogg` | synthesized by `synth/synth.py` (#1191: a shop-only cat starts its shift) | original (Cat Cafe) | sound-designer | this repo | 83420169775937 | 2026-11-05 |
 | `catRest` | `sfx/CatCafe_Sfx_CatRest.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 116178484251299 | 2026-10-27 |
 | `giftClaim` | `sfx/CatCafe_Sfx_GiftClaim.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 80009297129343 | 2026-10-27 |
 | `indexReward` | `sfx/CatCafe_Sfx_IndexReward.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 103563370361429 | 2026-10-27 |

@@ -139,8 +139,8 @@ Remotes.ClientToServer = {
 	"TradeCancel", -- (tradeId: string)  ends the caller's open trade with nothing moved, unless it is swapping
 	"BuyCornerShop", -- (itemId: string, window: number)  #1052, v2 corner-shop-v2.md section 4: within
 	-- CornerShopRange of a CornerShop stall, `window` the current one, the row's needsTier met, fewer bought than the
-	-- window stocks, the family's CornerDailyLimits not reached, for food the day's bought XP within
-	-- CornerFoodXpPerDay, the row's fixed price in coins. A potion goes to the bag and food to the Bag's catFood (no
+	-- window stocks, the family's CornerDailyLimits not reached (cat food has no daily cap, #1255), the row's fixed
+	-- price in coins. A potion goes to the bag and food to the Bag's catFood (no
 	-- cat pick); any later arguments are ignored. 2 a second; answered with CornerShopStock
 	"FeedCat", -- (foodId: string, catUid: string)  #1181: one of that food from the Bag to one of the player's cats,
 	-- below CatMaxLevel; its XP through CatStats.addXp. 4 a second; answered with FeedResult and a ProfileSync

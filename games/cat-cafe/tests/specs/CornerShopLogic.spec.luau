@@ -85,10 +85,9 @@ return function()
 				expect(Logic.todayLine).to.equal(nil)
 			end
 		)
-		it("says the cat food XP left today", function()
-			expect(Logic.snackLine(4800)).to.equal("Cat food today: 4,800 / 20,000 XP")
-			expect(Logic.snackRoom(19000)).to.equal(1000)
-			expect(Logic.snackRoom(21000)).to.equal(0)
+		it("shows no cat food line and never fills, with no daily cap (#1255)", function()
+			expect(Logic.snackLine(4800)).to.equal("")
+			expect(Logic.snackRoom(500000)).to.equal(math.huge)
 		end)
 		it("lists the cats highest level first", function()
 			local cats = Logic.catsByLevel({

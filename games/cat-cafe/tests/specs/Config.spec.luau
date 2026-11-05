@@ -115,7 +115,6 @@ return function()
 		-- #1052 (corner-shop.md section 5): the Corner Shop's window, its reach and the daily Cat Snack cap
 		CornerShopWindowSeconds = 300,
 		CornerShopRange = 14,
-		CornerFoodXpPerDay = 20000, -- corner-shop-v2.md section 4
 		CatFoodMax = 999,
 		CatchSnackChance = 0.10, -- corner-shop-v2.md section 3: a Small Snack 1 catch in 10
 		-- night income and rich customers (F31, sections 11 and 12)

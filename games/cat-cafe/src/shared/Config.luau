@@ -229,7 +229,7 @@ local Config = {
 	-- the Town Square, open day and night. Every CornerShopWindowSeconds window rolls an amount of each
 	-- Catalog.cornerShop row from its size's chance in percent of 0, 1, 2 and 3, the same on every server and apart
 	-- from the Fresh Catch roll. Bought within CornerShopRange of a CornerShop stall. A UTC day allows at most
-	-- CornerDailyLimits of a family (any size; a family not listed has none) and CornerFoodXpPerDay XP of cat food.
+	-- CornerDailyLimits of a family (any size; a family not listed has none). Cat food has no daily XP cap (#1255).
 	CornerShopWindowSeconds = 300,
 	CornerShopRange = 14,
 	-- lawn-nursery.md section 2 (#1200): BuyLawn from within this many studs of a LawnStall-tagged Garden Nursery
@@ -241,7 +241,6 @@ local Config = {
 		mega = { 90, 10, 0, 0 },
 	} :: { [string]: { number } },
 	CornerDailyLimits = { steady = 4, quick_bait = 2, whistle = 4 } :: { [string]: number },
-	CornerFoodXpPerDay = 20000,
 	CatFoodMax = 999, -- the most of one food the Bag holds
 	-- corner-shop-v2.md section 3 (#1181): a net catch of a stray drops a Small Snack 1 time in 10 (free, from play,
 	-- and its chance shows in the catch help), and every cat rescued from a trap gives one

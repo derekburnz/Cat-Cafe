@@ -7,7 +7,8 @@
 --   less(a, aId, b, bId) -> boolean   whether food a comes before food b; a def may be nil (a prize names an id the
 --                                     catalog does not have), and the design's grade for the id stands in
 --   sort(list, read)                  sorts any list in place; read(item) gives the item's id and def
---   defs(lures) -> { LureDef }        a sorted copy of a catalog's foods
+--   defs(lures, rarestFirst?)         a sorted copy of a catalog's foods; rarestFirst turns it round, Star Treat
+--                                     first (#1609: the bowl's list and the Bag's Bait tab)
 -- Pure, so the cloud spec runner checks it.
 
 local FoodGrade = require(script.Parent.FoodGrade)
@@ -72,11 +73,17 @@ function FoodOrder.sort<T>(list: { T }, read: (item: T) -> (string, Types.LureDe
 	end)
 end
 
-function FoodOrder.defs(lures: { Types.LureDef }): { Types.LureDef }
+function FoodOrder.defs(lures: { Types.LureDef }, rarestFirst: boolean?): { Types.LureDef }
 	local list = table.clone(lures)
 	FoodOrder.sort(list, function(lure: Types.LureDef): (string, Types.LureDef?)
 		return lure.id, lure
 	end)
+	if rarestFirst then
+		local count = #list
+		for index = 1, count // 2 do
+			list[index], list[count - index + 1] = list[count - index + 1], list[index]
+		end
+	end
 	return list
 end
 

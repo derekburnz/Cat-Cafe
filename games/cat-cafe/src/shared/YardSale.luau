@@ -31,7 +31,8 @@ local RARITIES: { Types.LawnRarity } = {
 	"Mythical",
 	"Golden",
 }
-YardSale.RARITIES = table.freeze(RARITIES)
+table.freeze(RARITIES)
+YardSale.RARITIES = RARITIES
 
 YardSale.Messages = table.freeze({
 	notToday = "That isn't at the Yard Sale today",

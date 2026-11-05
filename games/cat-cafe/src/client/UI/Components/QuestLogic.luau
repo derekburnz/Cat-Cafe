@@ -10,6 +10,8 @@
 --   rowOrder(slot, claimed) -> number            a quest row's LayoutOrder: claimed ones drop to the bottom
 --   isCoins(catalog, id) -> boolean              a coins quest, whose progress reads as money
 --   resetText(seconds) -> string                 "New quests in 5 h"
+--   swapText(seconds) -> string                  "7h 12m": the used weekly Swap's wait (#1166)
+--   swapFree(quests, used) -> boolean            a free swap waits on an unfinished quest (the Weekly tab's dot)
 --   achievementRows(catalog, views) -> rows      ready to claim first, then the closest to done, claimed last
 --   claimedCount(catalog, views) -> number       achievements claimed ("12 of 44")
 --   tracker(quests) -> QuestView?                the closest unfinished, unclaimed daily for the HUD's quest line
@@ -148,6 +150,35 @@ function QuestLogic.resetText(seconds: number): string
 		return ("New quests in %d h"):format(math.floor(left / 3600))
 	end
 	return ("New quests in %d min"):format(math.max(1, math.ceil(left / 60)))
+end
+
+-- The weekly Swap's wait once it is used (#1166: the free weekly swap comes back every UTC day, with the dailies):
+-- "7h 12m", "12m", or "1m" under a minute, short enough for the Swap button.
+function QuestLogic.swapText(seconds: number): string
+	local left = math.max(0, number(seconds))
+	local hours = math.floor(left / 3600)
+	local minutes = math.max(1, math.ceil((left - hours * 3600) / 60))
+	if minutes >= 60 then
+		hours += 1
+		minutes = 0
+	end
+	if hours > 0 then
+		return ("%dh %dm"):format(hours, minutes)
+	end
+	return ("%dm"):format(minutes)
+end
+
+-- Whether a free swap is waiting: unused, and some quest is neither done nor claimed (the Weekly tab's quiet dot).
+function QuestLogic.swapFree(list: { Types.QuestView }, used: boolean): boolean
+	if used then
+		return false
+	end
+	for _, quest in list do
+		if not quest.claimed and not QuestLogic.done(quest) then
+			return true
+		end
+	end
+	return false
 end
 
 function QuestLogic.achievementRows(

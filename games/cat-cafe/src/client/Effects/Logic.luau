@@ -2556,6 +2556,19 @@ function Logic.crownSeen(value: unknown): boolean?
 	return if type(value) == "boolean" then value else nil
 end
 
+-- Which way a Texture's U runs on a part's `face`, in the part's own space: to the right of someone looking at that
+-- face, so the Front's (-Z) is -X and the Back's (+Z) is +X (Effects/ShopCats, Royal Crest, #1366).
+function Logic.faceU(face: Enum.NormalId): Vector3
+	if face == Enum.NormalId.Front then
+		return Vector3.new(-1, 0, 0)
+	elseif face == Enum.NormalId.Right then
+		return Vector3.new(0, 0, -1)
+	elseif face == Enum.NormalId.Left then
+		return Vector3.new(0, 0, 1)
+	end
+	return Vector3.new(1, 0, 0)
+end
+
 -- A shine sweeping once across a sign `width` studs wide (the Royal Crest, #1191), `t` seconds into a `sweep`-second
 -- sweep: how far along the band's middle is, from a sign's width before its left edge (-width) to a sign's width
 -- past it (+width), and how bright it is (0 to 1, brightest halfway). Outside the sweep: at rest and dark.

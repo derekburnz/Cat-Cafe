@@ -167,6 +167,7 @@ function Store.new(callbacks: Callbacks): Store
 			name = id,
 			text = tab.name,
 			icon = tab.icon,
+			image = ShopIcons.storeTab(id), -- #1674: the tab's picture; the emoji shows until it loads
 			style = if id == self._tab then "gold" else "ghost",
 			size = UDim2.new(1, -6, 0, railButtonH),
 			textSize = Theme.sizes.textBody,

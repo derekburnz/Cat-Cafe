@@ -21,6 +21,7 @@ local StarterCat = require(script.Parent.StarterCat)
 local Tips = require(script.Parent.Tips)
 local Trade = require(script.Parent.Trade)
 local Types = require(script.Parent.Types)
+local YardSale = require(script.Parent.YardSale)
 
 local ProfileSchema = {}
 
@@ -104,7 +105,9 @@ local ProfileSchema = {}
 -- sign styles: an older server would drop them, losing the Bakery Stripes sign and letting the bundle be bought as new.
 -- Version 36 (#1645, cafe-pass.md section 6) adds pass, the Cafe Pass's XP, claims, paid season and items: an older
 -- server would drop it, losing the XP and letting a reward be claimed twice by hopping servers during a rollout.
-ProfileSchema.VERSION = 36
+-- Version 37 (#1537, lawn-nursery.md section 7) adds yardDecor, the Yard Sale's lawn rows bought this global game
+-- day: an older server would drop it, letting the player buy the same row again by hopping servers during a rollout.
+ProfileSchema.VERSION = 37
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -267,6 +270,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		lawn = {},
 		lawnStyles = Lawn.freshStyles(),
 		cornerShop = CornerShop.fresh(),
+		yardDecor = YardSale.fresh(),
 		hideCredit = nil,
 		receipts = {},
 		catFood = {},
@@ -916,6 +920,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	end
 	-- #1052 (version 29): the Corner Shop; saves before it have bought nothing and fed no snacks
 	profile.cornerShop = CornerShop.sanitize(raw.cornerShop, now)
+	-- #1537 (version 35): the Yard Sale's lawn rows bought today; saves before it have bought none
+	profile.yardDecor = YardSale.sanitize(raw.yardDecor)
 	-- #1083 (version 30): only true hides the name on the Thank You board; anything else is shown
 	profile.hideCredit = if raw.hideCredit == true then true else nil
 	-- #1182 (version 31): the granted PurchaseIds, kept as strings, newest last; older saves have granted none

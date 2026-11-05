@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-05 21:10 UTC",
+  "generated": "2026-11-05 21:20 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -178183,6 +178183,63 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_SignGoldenLeaf.png"
     },
     {
+      "name": "CatCafe_Plot_SignVipPlate",
+      "category": "Plot",
+      "module": "signstyles",
+      "objects": [
+        "CatCafe_Plot_SignVipPlate"
+      ],
+      "triangles": 356,
+      "budget": 600,
+      "size_studs": {
+        "x": 2.96,
+        "y": 0.22,
+        "z": 0.8
+      },
+      "size_roblox": [
+        2.96,
+        0.8,
+        0.22
+      ],
+      "bounds_min": [
+        -1.48,
+        -18.79,
+        13.05
+      ],
+      "bounds_max": [
+        1.48,
+        -18.57,
+        13.85
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignVipPlate.model.json",
+      "rbx_parts": 55,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignVipPlate.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignVipPlate.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "356/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "170 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=13.05 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.68"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_SignVipPlate.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_SignVipPlate.png"
+    },
+    {
       "name": "CatCafe_Camp_Park_GardenNursery",
       "category": "Camp",
       "module": "gardennursery",
@@ -179255,6 +179312,65 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_MapleTreePlanter.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_MapleTreePlanter.png"
+    },
+    {
+      "name": "CatCafe_Sign_VipPlate",
+      "category": "Sign",
+      "module": "signstyles",
+      "objects": [
+        "CatCafe_Sign_VipPlate"
+      ],
+      "triangles": 412,
+      "budget": 600,
+      "size_studs": {
+        "x": 3.0,
+        "y": 0.22,
+        "z": 0.8
+      },
+      "size_roblox": [
+        3.0,
+        0.8,
+        0.22
+      ],
+      "bounds_min": [
+        -1.5,
+        -18.76,
+        13.05
+      ],
+      "bounds_max": [
+        1.5,
+        -18.54,
+        13.85
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sign_VipPlate.model.json",
+      "rbx_parts": 13,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Sign_VipPlate.fbx",
+        "assets/cat-cafe/exports/CatCafe_Sign_VipPlate.glb"
+      ],
+      "gates": {
+        "pass": false,
+        "failed": [
+          "naming"
+        ],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "412/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "142 faces on swatch centers",
+          "naming": "bad asset name",
+          "pivot": "floor at z=13.05 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.65"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Sign_VipPlate.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Sign_VipPlate.png"
     }
   ]
 }

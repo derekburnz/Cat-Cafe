@@ -20,6 +20,10 @@ the shell's (plot.SIGN_INFO), and the name colour is the UI's (cream on the Roya
                                           frame round it (`_Frame`, its own part like the Royal Crest's) with a gold
                                           maple leaf on each corner, and a cluster of three maple leaves in gold,
                                           rust and orange with two acorns over the top centre
+  CatCafe_Plot_SignVipPlate              the VIP pass's plate (store-pass-looks.md section 1): a small gold plate with
+                                          a cream paw, under the cafe's name on the bottom of the sign and proud of
+                                          every style's frame, shown only for an owner of the pass. No glow, no
+                                          animation
 
 Every model is placed at the Plot's pivot like the tier sets (Plot.cframe: floor top centre, -Z toward the street)
 with no offset; WorldBuilder or the UI shows the one the plot uses. Nothing collides (the signs are high on the
@@ -194,9 +198,29 @@ def build_golden_leaf(mat):
             frame.finalize("CatCafe_Plot_SignGoldenLeaf_Frame", mat)]
 
 
+def build_vip_plate(mat):
+    b = RB()
+    cy, z, d = Y0 + 0.05, FRONT - 0.69, 0.12                                               # proud of every frame
+    w, h = 2.2, 0.8
+
+    def stadium(r, n=5):                                                                    # a plate with round ends
+        return arc(w / 2, cy, r, -90, 90, n) + arc(-w / 2, cy, r, 90, 270, n) + [(w / 2, cy - r)]
+
+    b.fan_z(z + d / 2, (0.0, cy), stadium(h / 2), d, GOLD_DK)                               # the plate's back
+    b.fan_z(z - 0.01, (0.0, cy), stadium(h / 2 - 0.08), 0.06, GOLD)                          # its raised face
+    for sx in (-1, 1):                                                                      # rivets
+        b.cyl((sx * (w / 2 + 0.05), cy, z - 0.06), 0.08, 0.06, GOLD_LT, axis="Z", segments=8)
+    zp = z - 0.07                                                                           # the paw, on the face
+    b.cyl((0.0, cy - 0.1, zp), 0.2, 0.06, "cream", axis="Z", segments=12)                   # its pad
+    for x, y in ((-0.25, 0.08), (-0.09, 0.2), (0.09, 0.2), (0.25, 0.08)):                   # its toes
+        b.cyl((x, cy + y, zp), 0.085, 0.06, "cream", axis="Z", segments=8)
+    return [b.finalize("CatCafe_Plot_SignVipPlate", mat)]
+
+
 ASSETS = {
     "CatCafe_Plot_SignRoyalCrest": (build_royal_crest, 3000),
     "CatCafe_Plot_SignBakeryStripes": (build_bakery_stripes, 3000),
     "CatCafe_Plot_SignKingCrest": (build_king_crest, 1200),
     "CatCafe_Plot_SignGoldenLeaf": (build_golden_leaf, 3000),
+    "CatCafe_Plot_SignVipPlate": (build_vip_plate, 600),
 }

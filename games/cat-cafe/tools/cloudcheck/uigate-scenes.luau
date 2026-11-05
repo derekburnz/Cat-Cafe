@@ -813,6 +813,22 @@ local SCENES = {
 		end
 		assert(counts == #Catalog.lures, ("uigate: %d food rows for %d foods"):format(counts, #Catalog.lures))
 	end },
+	-- #1612 / #1609: compact food rows, rarest first, no "Attracts" chip and no odds on the row; Details on the Star
+	-- Treat opens its odds with the gold line and the split under them
+	{ "BaitDetails", function()
+		UI.bait.openPicker()
+		local window = baitWindow()
+		assert(window:FindFirstChild("Attracts", true) == nil, "uigate: an Attracts chip is back on a food row (#1612)")
+		assert(window:FindFirstChild("Odds", true) == nil, "uigate: an odds line is back on a food row (#1612)")
+		local star = window:FindFirstChild("star_treat", true)
+		local kibble = window:FindFirstChild("kibble", true)
+		assert(star and kibble, "uigate: no Star Treat or Kibble row")
+		assert(star.LayoutOrder < kibble.LayoutOrder, "uigate: the bowl lists Kibble before the Star Treat (#1609)")
+		press("Bait", "star_treat.Details")
+		local detail = star:FindFirstChild("Detail", true) :: TextLabel
+		assert(detail and detail.Visible, "uigate: Details did not open")
+		assert(string.find(detail.Text, "Mythical", 1, true), "uigate: the Details text has no odds: " .. detail.Text)
+	end },
 	-- #1161: the Second Bait Bowl pass owned, bowl 1 filling and bowl 2 empty: two tabs, and the screen opens on
 	-- bowl 2 (the empty one that takes food) with its Use buttons live
 	{ "BaitTwoBowls", function()

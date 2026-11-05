@@ -22,18 +22,21 @@ return function()
 			expect(#Bag.foods(defs, nil)).to.equal(0)
 			expect(#Bag.foods(nil, { cat_snack = 1 })).to.equal(0)
 		end)
-		it("lists the bait foods the player has, in catalog order (#1281)", function()
+		it("lists the bait foods the player has, rarest first (#1281, #1609)", function()
 			local lures = {
 				{ id = "kibble", name = "Kibble" },
 				{ id = "tuna", name = "Tuna" },
 				{ id = "salmon", name = "Salmon" },
+				{ id = "sardines", name = "Moonlit Sardines" },
 			}
-			local baits = Bag.baits(lures, { salmon = 2, kibble = 5, tuna = 0, caviar = 1 })
-			expect(#baits).to.equal(2)
-			expect(baits[1].id).to.equal("kibble")
-			expect(baits[1].count).to.equal(5)
-			expect(baits[2].name).to.equal("Salmon")
-			expect(baits[2].def.id).to.equal("salmon")
+			local baits =
+				Bag.baits(lures, { salmon = 2, kibble = 5, tuna = 0, caviar = 1, sardines = 1 })
+			expect(#baits).to.equal(3)
+			expect(baits[1].name).to.equal("Salmon")
+			expect(baits[1].def.id).to.equal("salmon")
+			expect(baits[2].id).to.equal("sardines")
+			expect(baits[3].id).to.equal("kibble")
+			expect(baits[3].count).to.equal(5)
 			expect(#Bag.baits(lures, nil)).to.equal(0)
 			expect(#Bag.baits(nil, { kibble = 1 })).to.equal(0)
 		end)

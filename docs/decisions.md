@@ -451,6 +451,9 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 ### Lawn Commons open at Tier 2 (#1382), game-designer thread (Design-Agent, friend's project)
 - 2026-11-05: The four Tier 1 lawn Commons (Tulip Bed, Sandwich Board, Red Brick, White Picket) open at Tier 2 instead of Tier 1. Price (10,000) and bonus are unchanged. Why: QA's Pace run (#1449) had a buy-at-once player reach Tier 2 in 25.1 minutes, over the 20-minute bound, because a 10,000 Common at Tier 1 delayed the 13,500 rank up. The ladder already prices Commons for Tier 2. A gate keeps young players from slowing themselves down without cutting the reward. Spec: lawn-nursery.md section 2.
 
+### Intro: the area cuts go (#1542), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
+- 2026-11-05: The intro's shot 6, the four 2 s cuts over the Park, Neighbourhood, Woods and Sewer camps with their title cards, is removed; every other shot stays as it was. The intro is 9 shots and 22.5 s (was 10 and 30.5 s), `Intro.VERSION` 4, `IntroDone` shots 0 to 9. Why: Derek, 2026-11-05: "remove the area section that flashes between each area from the tutorial the rest is good and it makes it much faster". Spec in intro-cutscene.md section 2.
+
 ### Decided by Derek (2026-11-05, Set 6 Q1 to Q11 and Sets 7 to 9, relayed by Research-Agent, #1571), recorded by the game-designer thread (Design-Agent, friend's project)
 - 2026-11-05: Q1 Tier pace: keep the current pacing, tuned so the whole run takes about 12 hours of play, the top of Pace.spec's 8 to 12 h one-go window. Tier 2's cost is #1367's call. Why: Derek's answer. The Tier 5 bound is already 8 to 12 h, so no spec changes.
 - 2026-11-05: Q2 Intro: plays once on first join with a Skip button bottom right, and replays from the ? button. Why: Derek's answer. Already built as F72 (intro-cutscene.md); #1542 makes it shorter.

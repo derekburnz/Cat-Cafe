@@ -1,7 +1,7 @@
 --!strict
 -- The shop-only cats' effects (#1191): Sprinkles' sprinkle puff stays one small rainbow burst, no more often than
--- the brief allows, and Duchess Marzipan's petals are one modest emitter that lies still in Low performance, all
--- inside the phone budget. Written by the vfx-animator for QA to move into tests/specs.
+-- the brief allows, Duchess Marzipan's petals are one modest emitter that lies still in Low performance, and King
+-- Croissant's glow, motes, trim shine and crown pop stay small, all inside the phone budget. Written by the vfx-animator for QA to move into tests/specs.
 return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
@@ -44,6 +44,18 @@ return function()
 			expect(b.low.shopCatEmitters <= b.high.shopCatEmitters).to.equal(true)
 			expect(#Presets.shopCats.duchess.still.spots >= 1).to.equal(true)
 			expect(Presets.shopCats.duchess.shift.sparkles <= 12).to.equal(true)
+		end)
+
+		it("gives King Croissant one gold glow, one mote emitter and a crown pop at most every 20 s", function()
+			local k = Presets.shopCats.king
+			expect(k.catId).to.equal("king_croissant") -- Design-Agent's id on #1191
+			expect(k.pop.gap >= 20).to.equal(true)
+			expect(k.pop.sparkles + k.pop.stars <= 16).to.equal(true) -- one burst
+			local mote = Presets.emitters.goldMote
+			expect(mote ~= nil and mote.rate > 0 and mote.rate <= 3).to.equal(true)
+			expect(k.most >= 1 and k.most <= 3).to.equal(true)
+			expect(k.glow.brightness > 0 and k.glow.brightness <= 1.5).to.equal(true)
+			expect(k.trim.speed > 0 and k.trim.tile > 0).to.equal(true)
 		end)
 	end)
 end

@@ -317,6 +317,7 @@ return function()
 		UniformsStaffMultiplier = 1.15,
 		CafeStyleRichRate = 0.25,
 		GrandRichRate = 1.0,
+		GrandExtraSlots = 1,
 	}
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }

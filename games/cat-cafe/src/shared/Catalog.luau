@@ -881,13 +881,52 @@ Catalog.spots = {
 	{ id = "entertainer_2", spotType = "entertainer", tier = 5 },
 } :: { Types.SpotDef }
 
+-- #1624 (economy-ladder.md section 6, section 6a): two role slots only extra slots reach, for a Tier 5 cafe with Grand
+-- Cafe and the Extra Slot pass; below Tier 5 the extra slots open the next tier's spots early instead. Kept apart from
+-- the tier slots so the Staff list shows them only once the client knows about extra slots.
+Catalog.passSpots = {
+	{ id = "waiter_4", spotType = "waiter", tier = 6, passOnly = true },
+	{ id = "waiter_5", spotType = "waiter", tier = 6, passOnly = true },
+} :: { Types.SpotDef }
+
+-- Every role slot in opening order: the tier slots, then the pass-only ones.
+Catalog.allSpots = table.clone(Catalog.spots)
+for _, def in Catalog.passSpots do
+	table.insert(Catalog.allSpots, def)
+end
+
 Catalog.spotsById = {} :: { [string]: Types.SpotDef }
-for _, def in Catalog.spots do
+for _, def in Catalog.allSpots do
 	Catalog.spotsById[def.id] = def
 end
 
 function Catalog.getSpot(id: string): Types.SpotDef?
 	return Catalog.spotsById[id]
+end
+
+-- #1624: how many role slots are open at `tier` with `extra` extra slots (Economy.extraSlots): the tier's own (every
+-- spot of that tier or below) plus the extras, at most every spot there is. Catalog.allSpots is in opening order, so
+-- the open ones are its first `count`, and an extra slot opens the next tier's spot early.
+function Catalog.openSlotCount(tier: number, extra: number): number
+	local count = 0
+	for _, spot in Catalog.allSpots do
+		if spot.tier <= tier then
+			count += 1
+		end
+	end
+	return math.min(count + math.max(0, math.floor(extra)), #Catalog.allSpots)
+end
+
+-- Whether role slot `spotId` is open at `tier` with `extra` extra slots. The server asks through Economy.spotIsOpen;
+-- the client's slot lists ask with PlayerState.tier and PlayerState.extraSlots.
+function Catalog.slotIsOpen(spotId: string, tier: number, extra: number): boolean
+	local open = Catalog.openSlotCount(tier, extra)
+	for index, spot in Catalog.allSpots do
+		if spot.id == spotId then
+			return index <= open
+		end
+	end
+	return false
 end
 
 -- Station furniture placed under a slot of each role. Baristas work the counter and waiters stand between the

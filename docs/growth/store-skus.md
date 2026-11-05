@@ -118,6 +118,9 @@ Still open:
 1. **Stacking (economy check before build):** VIP, Accessories, Uniforms, Cafe Style and Grand Cafe all add money on top of the 4x ladder. The economy ladder modelled "about 24x" for a player with every paid bonus (economy-ladder.md). The game-designer should confirm the plan's numbers still match.
 2. **PolicyService:** nothing here is random, so no odds screen is needed, and nothing bought can be traded. Gameplay-Engineer still reads `PolicyService:GetPolicyInfoForPlayerAsync` per player, as the monetization-policy skill asks, and confirms in review that no flag needs a card hidden.
 3. **Names and models:** done on #1191: Sprinkles (starter cat, Epic), Duchess Marzipan (Royal Cat, Legendary), King Croissant (King Cat, Mythical) and the Royal Crest sign style. The Starter Bundle's sign style is Bakery Stripes (#1289); nothing is left to name.
-4. **Policy call (Derek) before Golden Pond (#1232) and Second Bait Bowl (#1161) go on sale:** growth's view is that neither should be sold as specced. Golden fish are banned from Robux items and a second bowl doubles random arrivals.
+4. **Derek's calls, 2026-11-05:**
+   - **Private servers (#1000):** free for Premium members, R$50 to R$100 for everyone else (price to be picked inside that range).
+   - **Second Bait Bowl (#1161):** sold for Robux, overriding growth's earlier advice. A second bowl doubles random cat arrivals, so it is a paid random item: before it goes on sale it needs `PolicyService` gating per player, the odds shown on its card and the same rarity odds as the first bowl (`monetization-policy`). Gameplay-Engineer builds that; Monetization-Agent checks it in review.
+   - **Golden Pond (#1232):** stays convenience only at R$99 (decision 2026-11-05). `passes.json` still says "2x golden fish" at R$149 and must be corrected by Tools-Agent.
 5. **Store FAQ:** "every cat is caught by playing" must change in the publish that first sells a shop cat (`store-page.txt`).
 6. **Regional pricing** is off for every pass; turn it on before launch except the money ladder (#1197). All 16 items still use the default icon (pictures in section 1).

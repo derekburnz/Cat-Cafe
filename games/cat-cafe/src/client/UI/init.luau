@@ -5581,7 +5581,7 @@ do
 			catNames = catNames,
 			have = state.potions,
 			starterBought = (state :: any).starterBought,
-			cafePass = UI.pass.offer(), -- #1646: the running season's paid track, nil while closed
+			cafePass = (UI.pass :: any).offer(), -- #1646: the running season's paid track, nil while closed (defined below)
 		})
 	end
 
@@ -5760,9 +5760,8 @@ do
 		local view = pass.view
 		local id = productId()
 		local price = if id then PassShop.prices()[id] else nil
-		if view == nil or not PassLogic.shows(view) or view.paid or price == nil then
-			screen:setBuy(nil)
-		elseif price.forSale and price.robux ~= nil then
+		local sells = view ~= nil and PassLogic.shows(view) and not view.paid
+		if sells and price ~= nil and price.forSale and price.robux ~= nil then
 			screen:setBuy(("Paid track  R$%d"):format(price.robux :: number))
 		else
 			screen:setBuy(nil)

@@ -3438,27 +3438,6 @@ Catalog.cornerShop = {
 		price = 80000000,
 		needsTier = 4,
 	},
-	{
-		id = "bubble_machine",
-		name = "Bubble Machine",
-		family = "show",
-		size = "regular",
-		kind = "show",
-		showId = "bubbles",
-		showSeconds = 600,
-		price = 50000,
-	},
-	{
-		id = "cafe_fireworks",
-		name = "Cafe Fireworks",
-		family = "show",
-		size = "big",
-		kind = "show",
-		showId = "fireworks",
-		showSeconds = 20,
-		price = 250000,
-		needsTier = 3,
-	},
 } :: { Types.CornerShopRow }
 Catalog.cornerShopById = {} :: { [string]: Types.CornerShopRow }
 for _, row in Catalog.cornerShop do

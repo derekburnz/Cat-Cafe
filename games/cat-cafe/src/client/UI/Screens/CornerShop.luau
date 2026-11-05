@@ -2,8 +2,8 @@
 -- The Corner Shop window (#1052, corner-shop.md section 4), opened from the stall's CornerShopPrompt in the Town
 -- Square (UI.cornerShop.open). Coins only, open day and night. On top the cat food line; then a row per item in
 -- Catalog.cornerShop order: its picture, name, what it does, "Opens at Tier 3" on a row the player's tier doesn't
--- reach yet (no stock counts, chances, restock clock or daily limits: #1190), and a green Buy with the coin price
--- ("Sold out", "None", "Food full"). Food goes to the Bag (corner-shop-v2.md). Under the list: "Lawn pieces are in
+-- reach yet, else what is left this restock ("x2 left", #1456; still no chances, restock clock or daily limits: #1190),
+-- and a green Buy with the coin price ("Sold out", "None", "Back tomorrow" past a daily limit, #1435, "Food full"). Food goes to the Bag (corner-shop-v2.md). Under the list: "Lawn pieces are in
 -- Decor, Front lawn". No toasts of its own: the server's answer is a
 -- fresh CornerShopStock and, when refused, its toast. Words and rules in Components/CornerShopLogic.
 
@@ -481,9 +481,9 @@ function CornerShop._paint(self: any)
 		local def = rowOf(item.itemId)
 		local tier = if state then state.tier else 1
 		local gate = CornerShopLogic.gate(item, tier)
-		-- only the tier gate: no stock counts, chances or daily limits in shop windows (#1190, the friend 11-04); a buy
-		-- past a limit gets the server's toast
-		row.line.Text = gate or ""
+		-- the tier gate, else what is left this restock ("x2 left", #1456, the friend 11-05: "show amount in stock");
+		-- still no chances or daily limits in the window (#1190): a family past its limit shows "Back tomorrow"
+		row.line.Text = gate or CornerShopLogic.stockLine(item)
 		local pressedAt = self._pending[item.itemId]
 		local waiting = pressedAt ~= nil and os.clock() - pressedAt < PENDING_SECONDS
 		local view = CornerShopLogic.button(item, def, coins, room, tier)

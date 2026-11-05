@@ -1,9 +1,11 @@
 --!strict
 -- The crate reel (F103, crate-reel.md section 2) over the Golden Fish Market window: a strip of square tiles slides
 -- right to left under a gold marker and lands dead centre on the won piece, the same distance at the same speeds
--- every time (Components/CrateReelLogic). Seven tiles show at once. The fast part shows each tile as its rarity colour
--- and the piece's kind glyph; the tiles from CrateReelProtectFrom on (the last second and everything in view at the
--- stop, never rarer than the prize) show the piece's own picture. At the stop the marker pulses in the won rarity's
+-- every time (Components/CrateReelLogic). Seven tiles show at once, each in its rarity colour with the piece's own
+-- clean decor picture (#1457, the friend 11-05: "a lot of empty panes use actual decor possibilities as shown
+-- squares"; before, the fast part showed only a kind glyph and paints their bare swatch). A piece with no picture yet
+-- shows its 3D model on the tiles in view at the stop (CrateReelProtectFrom on, never rarer than the prize) and its
+-- kind glyph elsewhere. At the stop the marker pulses in the won rarity's
 -- colour (a Legendary or Mythical landing tile glows too), and after CrateReelHoldSeconds `onDone` shows the prize
 -- card. A tap anywhere skips straight to the landing.
 --
@@ -19,6 +21,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
@@ -192,8 +195,11 @@ function CrateReel._build(self: any, play: Play)
 		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }) })
 		Outline.border(view, 3, color:Lerp(Theme.colors.ink, 0.35))
 		local glyph = DecorPieces.kindIcon(piece.kind, Theme.icons.decor)
-		if index >= timing.protectFrom and index <= math.min(#play.tiles, timing.landing + 4) then
-			-- the slow part and everything in view at the stop: the piece's own picture
+		local picture = ShopIcons.decor(tile.id)
+		local near = index >= timing.protectFrom
+			and index <= math.min(#play.tiles, timing.landing + 4)
+		if picture or near then
+			-- the piece's clean picture on every tile; the 3D model only for a piece without one, in view at the stop
 			local icon = ItemIcon.new({
 				parent = view,
 				name = "Icon",
@@ -202,7 +208,7 @@ function CrateReel._build(self: any, play: Play)
 				position = UDim2.fromScale(0.5, 0.5),
 			})
 			icon.frame.ZIndex = Z + 3
-			icon:set(if decor then decor.asset else nil, glyph, tile.rarity)
+			icon:set(if decor and near then decor.asset else nil, glyph, tile.rarity, picture)
 			table.insert(self._icons, icon)
 		else
 			Create("TextLabel", {

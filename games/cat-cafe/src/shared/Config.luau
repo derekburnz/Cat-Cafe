@@ -164,12 +164,20 @@ local Config = {
 	-- F88 Luck (luck-and-rare-moments.md section 1): one number from x1.0 that multiplies the Epic, Legendary and
 	-- Mythical chances of your bait and crate rolls (shared/Luck), at most LuckMax. The Lucky Cat statue adds
 	-- LuckPerStatueLevel a level, a Lucky Potion LuckyPotionLuck while it runs, a Lucky Day LuckyDayPlayerLuck to
-	-- everyone in the server until dusk. Every LuckyDayEvery-th day of a server is a Lucky Day: its sunrise wave and
-	-- traps roll at LuckyDayWaveLuck, and LuckyDayWarnSeconds before its sunrise the players still in are told.
+	-- everyone in the server until dusk. A Lucky Day's sunrise wave and traps roll at LuckyDayWaveLuck, and
+	-- LuckyDayWarnSeconds before its sunrise the players still in are told.
+	-- #1572 (luck-and-rare-moments.md 1g, day rolls v2): each global day (Clock.dayAt, from ClockEpoch) rolls its kinds
+	-- on its own seed (Clock.dayKinds), so every server has the same day: Lucky LuckyDayChance, Golden GoldenDayChance
+	-- (every gold roll x GoldenDayGoldMultiplier) and Rainbow RainbowDayChance (every rainbow roll x RainbowDayMultiplier),
+	-- from sunrise to night, any of them on the same day. LuckyDayEvery (every 4th day) is gone.
 	LuckPerStatueLevel = 0.1,
 	LuckMax = 3,
 	LuckyPotionLuck = 0.5,
-	LuckyDayEvery = 4,
+	LuckyDayChance = 0.33,
+	GoldenDayChance = 0.2,
+	RainbowDayChance = 0.1,
+	GoldenDayGoldMultiplier = 2,
+	RainbowDayMultiplier = 3,
 	LuckyDayWaveLuck = 2,
 	LuckyDayPlayerLuck = 0.5,
 	LuckyDayWarnSeconds = 15,
@@ -482,9 +490,11 @@ local Config = {
 	-- and Lucky Potions never touch it. A rainbow cat earns RainbowMultiplier (gold 1.5) and the Cat Collector values
 	-- it at CollectorRainbowMultiplier (gold 3). Clients animate the bands on at most RainbowAnimateMax rainbow cats
 	-- near the camera; a rainbow stray's server toast goes out at most once every RainbowSpawnToastSeconds.
-	RainbowChanceNet = 0.005,
-	RainbowChanceBait = 0.005,
-	RainbowChanceRescue = 0.01,
+	-- Rainbow v2 (rainbow-coat.md section 4b, Derek 2026-11-05): three times v1 (0.005, 0.005, 0.01), so 3 in 10 of
+	-- gold's chance; no paint.
+	RainbowChanceNet = 0.015,
+	RainbowChanceBait = 0.015,
+	RainbowChanceRescue = 0.03,
 	RainbowMultiplier = 3,
 	RainbowLuckMax = 1.0,
 	CollectorRainbowMultiplier = 10,
@@ -494,8 +504,9 @@ local Config = {
 	-- 200), any way it was found, on top of a new cat's fish (section 1, added after the #795 review)
 	FishFirstRainbowMultiplier = 5,
 
-	-- Trading (F102, trading.md section 6; Derek 2026-10-30: from Tier 3, secure, nothing to scam). Cats only, up to
-	-- TradeMaxCats a side, both players at TradeMinTier or higher (CatCafeDebug tradeMinTier lowers it in one server).
+	-- Trading (F102, trading.md section 6; Derek 2026-10-30: from Tier 3, secure, nothing to scam). Up to TradeMaxCats
+	-- cats (and since #1574 TradeMaxDecor pieces) a side, both players at TradeMinTier or higher (CatCafeDebug
+	-- tradeMinTier lowers it in one server).
 	-- A request waits TradeRequestSeconds; declined or timed out, the asker waits TradeReaskSeconds to ask that player
 	-- again. TradeCountdownSeconds after both press Ready the confirm screen opens; a lopsided trade (one side gives at
 	-- least TradeLopsidedRatio times the Collector value it gets) or a gift holds that side's Confirm for
@@ -504,6 +515,7 @@ local Config = {
 	-- every TradeFlagCheckSeconds.
 	TradeMinTier = 3,
 	TradeMaxCats = 9,
+	TradeMaxDecor = 9, -- #1574 (section 1b): decor and lawn pieces a side, beside the cats
 	TradeCountdownSeconds = 5,
 	TradeLopsidedRatio = 3,
 	TradeConfirmWaitSeconds = 2,

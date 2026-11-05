@@ -175,6 +175,8 @@ UI.events = {
 	claimDailyTreat = Signal.new(), -- ()   Claim on the Daily Treat card's day that is due: forward as ClaimDailyTreat
 	-- F84
 	launchCannon = Signal.new(), -- (cannonId, destination)   Launch on a Cat Cannon card: forward as LaunchCannon
+	collectCampExtra = Signal.new(), -- (extraId)   #1463: Collect on the cannon picker's pond strip (Golden Pond
+	-- owners): forward as CollectCampExtra
 	-- F87 (easy-start.md sections 3 and 6): a context tip shown (skipped true when its camera cut was skipped), and
 	-- Settings' "Show tips again"
 	tipSeen = Signal.new(), -- (id, skipped?)   a shared/Tips id (or like_ask) shown: forward as TipSeen
@@ -831,6 +833,10 @@ function UI.init(config: Types.InitConfig)
 	cannonScreen = Cannon.new({
 		launch = function(cannonId: string, destination: string)
 			UI.events.launchCannon:Fire(cannonId, destination)
+		end,
+		-- #1463: a Golden Pond owner's Collect on the Woods strip (UIController sends CollectCampExtra)
+		collect = function(extraId: string)
+			UI.events.collectCampExtra:Fire(extraId)
 		end,
 		close = closeModal,
 	})

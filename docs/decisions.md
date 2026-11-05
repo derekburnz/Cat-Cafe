@@ -441,3 +441,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Bait food prices v2 (#1389), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
 - 2026-11-05: Bait food costs are multiplied by a factor that doubles with the food's rank, capped at x40: Kibble x1 (it stays at 100 for the first-ten-minutes guard in features section 8, as Gameplay-Engineer found), Tuna x10, Salmon x20, Moonlit Sardines x20, and Caviar, Moon Milk and Star Treat x40. `FoodTierPriceFactor` is unchanged, so Salmon is 50,000 at Tier 1 and 400,000 at Tier 4. Why: the friend found Salmon at 20k far too cheap and asked for an exponential rise. If Pace.spec goes over the floors (Tier 2 at 20 min, Tier 5 at 12 h), Tuna's factor is halved first. Spec: corner-shop-v2.md section 1b.
+
+### Corner Shop shows stock counts (#1465), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
+- 2026-11-05: Each Corner Shop row shows "n left", meaning what the player can still buy in this window. This reverses #1190's no-counts rule for the counts only; stock chances and daily-limit lines stay hidden. Why: the friend asked to "show amount in stock for corner shop". A plain count is honest information, not pressure. There's no countdown or "almost gone" copy. Spec: corner-shop-v2.md sections 1 and 4.

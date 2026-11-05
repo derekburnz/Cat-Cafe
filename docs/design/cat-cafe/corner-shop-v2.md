@@ -19,7 +19,7 @@ Every item is sold for **coins**, at a **fixed price**. Sizes go Small, regular,
 | Cat food (XP for one cat, goes to the Bag) | Small Snack, 600 XP · 400 | Cat Snack, 2,000 XP · 15,000 | Big Snack, 6,000 XP · 1,000,000 | Cat Feast, 20,000 XP · 80,000,000 | up to 20,000 XP bought |
 | Shows (looks only) | | Bubble Machine, 10 min · 50,000 | Cafe Fireworks, 20 s · 250,000 | | no limit |
 
-**How often each size is in stock** (the chance of 0, 1, 2 or 3 in a 5-minute window, the same for every family). These are server numbers only. Since #1190 the window shows no stock chances, no "n left" counts and no restock clock: a row is either buyable or reads "Sold out".
+**How often each size is in stock** (the chance of 0, 1, 2 or 3 in a 5-minute window, the same for every family). These are server numbers only. Since #1465 (the friend, 2026-11-05: "show amount in stock for corner shop") each row shows how many the player can still buy this window ("3 left", from `amount - bought`), and reads "Sold out" at 0. This reverses #1190 for the counts only: the window still shows no stock chances and no daily-limit lines.
 
 | size | 0 | 1 | 2 | 3 | average | shown to |
 |---|---|---|---|---|---|---|
@@ -110,7 +110,7 @@ A daily player earns roughly 5,000 to 6,000 XP of food a day, about 1½ hours of
   - `BuyCornerShop(itemId, window)`: the caller within `CornerShopRange`, the current `window`, the row's `needsTier` met, the window's amount not used up, the family's daily limit not reached, and for food the day's bought XP plus the row's XP no more than 20,000; enough coins. It charges the row's `price`; `shownPrice` and `catId` go, since prices are fixed and food goes to the Bag. Potions go to the potion bag and food to `catFood`. 2 a second. It answers with `CornerShopStock` (rows gain `size` and `needsTier`; `today` and `perDay` stay server-side and are not sent, #1190).
   - New `FeedCat(foodId: string, catUid: string)`: the player owns the cat and has at least one of that food. It takes one, grants the food's XP through `Economy.grantXp` (level ups count in `stats.catLevelUps` as today) and answers with the cat's new level and XP. 4 a second.
 - **Client:**
-  - UI-Engineer: the Bag pill and window (Potions and Cat Food tabs), the Feed button on the cat card, the Corner Shop rows with size and the tier gate (no stock chances, counts, daily-limit lines or restock clock, #1190), and the removal of the buy-time cat picker.
+  - UI-Engineer: the Bag pill and window (Potions and Cat Food tabs), the Feed button on the cat card, the Corner Shop rows with size and the tier gate (an "n left" count since #1465; still no stock chances or daily-limit lines, #1190), and the removal of the buy-time cat picker.
   - The Cat Whistle marker, as in corner-shop.md's v2 note: a `WorldMarker` paw over the nearest replicated stray or trapped cat in the current area, updated on a 0.5 s step.
 - **Analytics:** `corner_shop_buy` gains the field `size`. New `cat_fed` (value XP, fields food id and source: bought or earned).
 - **Who builds:** Gameplay-Engineer (Catalog, Config, save, both remotes, the food sources); UI-Engineer (Bag, Feed, shop rows); VFX (the whistle marker's look, if needed); QA (section 5). This touches `Config.luau`, `Remotes.luau` and the save, so open a `claim` issue first.

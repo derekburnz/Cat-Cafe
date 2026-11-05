@@ -882,7 +882,7 @@ Catalog.tiers = {
 	{
 		tier = 2,
 		name = "Cozy Cafe",
-		cost = 28000, -- #1452 (economy-ladder 3 v3, faster wild catching): 13,500 for #1162, F95 v2.1 12,000, 10,000 before
+		cost = 30000, -- #1499 (economy-ladder 3 v3.1, dearer bait): 28,000 for #1452, 13,500 for #1162, 10,000 before
 		distinctCats = 5,
 		slots = 4,
 		multiplier = 1.25,

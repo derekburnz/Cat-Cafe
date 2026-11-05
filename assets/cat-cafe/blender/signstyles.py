@@ -15,6 +15,15 @@ the shell's (plot.SIGN_INFO), and the name colour is the UI's (cream on the Roya
                                           KingCroissantWorking attribute): the same gold croissant-and-crown crest,
                                           small, standing proud of the sign's top right corner. Deliberately not the
                                           crown emoji the leaderboard crowns use on signs (Screens/Crowns.luau)
+  CatCafe_Plot_SignGoldenLeaf            the Cafe Pass season 1 name plate frame (cafe-pass.md section 3, level 29): a
+                                          warm russet board (SignBoard; cream name text reads best on it), a gold
+                                          frame round it (`_Frame`, its own part like the Royal Crest's) with a gold
+                                          maple leaf on each corner, and a cluster of three maple leaves in gold,
+                                          rust and orange with two acorns over the top centre
+  CatCafe_Plot_SignVipPlate              the VIP pass's plate (store-pass-looks.md section 1): a small gold plate with
+                                          a cream paw, under the cafe's name on the bottom of the sign and proud of
+                                          every style's frame, shown only for an owner of the pass. No glow, no
+                                          animation
 
 Every model is placed at the Plot's pivot like the tier sets (Plot.cframe: floor top centre, -Z toward the street)
 with no offset; WorldBuilder or the UI shows the one the plot uses. Nothing collides (the signs are high on the
@@ -23,8 +32,11 @@ gable). Roblox axes through common.RB.
 
 import math
 
+from mathutils import Matrix
+
 from common import RB
 from plot import FRONT, SIGN, arc
+from seasondecor import maple_leaf
 
 X0, X1, Y0, Y1 = SIGN                       # the shell's board: x -8 to 8, y 13.4 to 16.6, its face at FRONT - 0.35
 FACE = FRONT - 0.38                          # a style's board face, 0.03 in front of the shell's
@@ -145,8 +157,70 @@ def build_king_crest(mat):
     return [b.finalize("CatCafe_Plot_SignKingCrest", mat)]
 
 
+def _maple(b, x, y, z, s, sw, turn=0.0, d=0.08):
+    """A maple leaf standing up on the plane z (its back) and facing -Z, `s` studs tall, turned `turn` degrees in
+    its own plane, with a little stem below it."""
+    maple_leaf(b.b, RB.p(x, y, z - d / 2), s, d, sw,
+               rot=Matrix.Rotation(math.radians(90), 3, "X") @ Matrix.Rotation(math.radians(-turn), 3, "Z"))
+    a = math.radians(turn)
+    sx, sy = math.sin(a), -math.cos(a)                                                      # down the leaf
+    b.box((x + sx * 0.32 * s, y + sy * 0.32 * s, z - d / 2), (0.05 * s, 0.22 * s, d), sw, rot=_rz(turn))
+
+
+def _acorn(b, x, y, z, s):
+    b.ball((x, y, z - 0.12 * s), 0.16 * s, "caramel_wood", scale=(1.0, 1.25, 1.0))         # the nut
+    b.ball((x, y + 0.12 * s, z - 0.12 * s), 0.17 * s, "dark_wood", scale=(1.0, 0.6, 1.0))   # its cap
+    b.box((x, y + 0.26 * s, z - 0.12 * s), (0.04 * s, 0.1 * s, 0.04 * s), "dark_wood")
+
+
+def build_golden_leaf(mat):
+    b, board, frame = RB(), RB(), RB()
+    board.span((X0, Y0, FACE), (X1, Y1, FACE + 0.1), "fur_russet")                        # SignBoard, 0.1 thick
+    f, zf, zb = 0.4, FACE - 0.12, FACE + 0.1                                                # the gold frame
+    for (xa, xb, ya, yb) in ((X0 - f, X1 + f, Y0 - f, Y0), (X0 - f, X1 + f, Y1, Y1 + f),
+                             (X0 - f, X0, Y0, Y1), (X1, X1 + f, Y0, Y1)):
+        frame.span((xa, ya, zf), (xb, yb, zb), GOLD)
+    for k in range(9):                                                                      # a vine of tiny gold leaves
+        x = X0 + 1.4 + k * (X1 - X0 - 2.8) / 8                                              # along the bottom rail
+        b.box((x, Y0 - f / 2, zf - 0.03), (0.28, 0.16, 0.06), GOLD_LT, rot=_rz(35 if k % 2 else -35))
+    for sx in (-1, 1):                                                                      # a gold leaf on each corner
+        for sy in (-1, 1):
+            x, y = sx * (X1 + f / 2), (Y1 + f / 2) if sy > 0 else (Y0 - f / 2)
+            _maple(b, x, y, zf, 1.3, GOLD_LT, turn=sx * sy * -30)
+    cy = Y1 + f                                                                             # the cluster on top
+    b.span((-1.9, cy - 0.02, zf + 0.02), (1.9, cy + 0.12, zb), GOLD)                        # its gold twig
+    _maple(b, 0.0, cy + 1.25, zf + 0.02, 2.4, GOLD)
+    _maple(b, -1.35, cy + 0.85, zf, 1.8, "fur_rust_red", turn=35)
+    _maple(b, 1.35, cy + 0.85, zf, 1.8, "fur_orange", turn=-35)
+    for x in (-0.5, 0.5):
+        _acorn(b, x, cy + 0.15, zf - 0.1, 1.4)
+    return [b.finalize("CatCafe_Plot_SignGoldenLeaf", mat), board.finalize("CatCafe_Plot_SignGoldenLeaf_SignBoard", mat),
+            frame.finalize("CatCafe_Plot_SignGoldenLeaf_Frame", mat)]
+
+
+def build_vip_plate(mat):
+    b = RB()
+    cy, z, d = Y0 + 0.05, FRONT - 0.69, 0.12                                               # proud of every frame
+    w, h = 2.2, 0.8
+
+    def stadium(r, n=5):                                                                    # a plate with round ends
+        return arc(w / 2, cy, r, -90, 90, n) + arc(-w / 2, cy, r, 90, 270, n) + [(w / 2, cy - r)]
+
+    b.fan_z(z + d / 2, (0.0, cy), stadium(h / 2), d, GOLD_DK)                               # the plate's back
+    b.fan_z(z - 0.01, (0.0, cy), stadium(h / 2 - 0.08), 0.06, GOLD)                          # its raised face
+    for sx in (-1, 1):                                                                      # rivets
+        b.cyl((sx * (w / 2 + 0.05), cy, z - 0.06), 0.08, 0.06, GOLD_LT, axis="Z", segments=8)
+    zp = z - 0.07                                                                           # the paw, on the face
+    b.cyl((0.0, cy - 0.1, zp), 0.2, 0.06, "cream", axis="Z", segments=12)                   # its pad
+    for x, y in ((-0.25, 0.08), (-0.09, 0.2), (0.09, 0.2), (0.25, 0.08)):                   # its toes
+        b.cyl((x, cy + y, zp), 0.085, 0.06, "cream", axis="Z", segments=8)
+    return [b.finalize("CatCafe_Plot_SignVipPlate", mat)]
+
+
 ASSETS = {
     "CatCafe_Plot_SignRoyalCrest": (build_royal_crest, 3000),
     "CatCafe_Plot_SignBakeryStripes": (build_bakery_stripes, 3000),
     "CatCafe_Plot_SignKingCrest": (build_king_crest, 1200),
+    "CatCafe_Plot_SignGoldenLeaf": (build_golden_leaf, 3000),
+    "CatCafe_Plot_SignVipPlate": (build_vip_plate, 600),
 }

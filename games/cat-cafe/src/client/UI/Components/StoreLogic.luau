@@ -240,6 +240,11 @@ function StoreLogic.passIds(config: any): { number }
 			table.insert(ids, id)
 		end
 	end
+	-- #1161: the Second Bait Bowl, priced for the Bait bowl window's locked tab (no Store card yet)
+	local second = config.SecondBowlPassId
+	if type(second) == "number" and second ~= 0 then
+		table.insert(ids, second)
+	end
 	return ids
 end
 

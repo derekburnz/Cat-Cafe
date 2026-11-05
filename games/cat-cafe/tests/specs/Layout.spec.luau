@@ -1845,11 +1845,14 @@ return function()
 			end
 		end)
 
-		it("stands them a few studs inside the wall, off the decor beside the door (5 in clears the pieces at x 7.2, 1.6 in)", function()
+		it("stands them a few studs inside the wall, off the decor beside the door (7 in since #1417)", function()
 			for _, id in { "greeter_1", "greeter_2" } do
 				local spot = plot.spots[id]
 				local inside = spot.z - door.z
-				expect(inside >= 3 and inside <= 6).to.equal(true)
+				expect(inside >= 3 and inside <= 8).to.equal(true)
+				-- and short of the first row's lane, where customers walk out to the outer chairs (a big cat
+				-- reaches 0.76 behind its point; 2 studs of walking room)
+				expect(spot.z + 0.76 <= plot.tables[1].lane - 2).to.equal(true)
 			end
 		end)
 
@@ -1866,7 +1869,7 @@ return function()
 		end)
 
 		it("follows the door's own point, not the plot centre", function()
-			expect(plot.spots.greeter_1.z).to.equal(door.z + 5)
+			expect(plot.spots.greeter_1.z).to.equal(door.z + 7)
 		end)
 	end)
 

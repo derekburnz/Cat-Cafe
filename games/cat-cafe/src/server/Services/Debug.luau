@@ -9,6 +9,8 @@
 --   D:Invoke("setPhase", "night")
 --   D:Invoke("baitReady")              -- the bowl's cat arrives now
 --   D:Invoke("baitReady", nil, "rainbow")   -- ... in a rainbow coat ("gold" or "base" too; QA A25, F99)
+--   D:Invoke("baitReady", nil, nil, 2)      -- the second bowl's cat arrives now (#1161)
+--   D:Invoke("secondBowl", nil, true)  -- act as if you own the Second Bait Bowl pass this session (false: as if not)
 --   D:Invoke("richTip", nil, 20)       -- a rich customer's tip at your cafe, gone unpaid in 20 s
 --   D:Invoke("tipPiles", nil, 6)       -- 6 tip piles on your cafe's tables now, whatever the clock (F61)
 --   D:Invoke("knockLoose")             -- your carried cat drops as a knocked-loose stray (stand in an area)
@@ -51,6 +53,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local Bait = require(ReplicatedStorage.Shared.Bait)
 local BugReportService = require(script.Parent.BugReportService)
 local CafeService = require(script.Parent.CafeService)
 local CampExtraService = require(script.Parent.CampExtraService)
@@ -405,10 +408,11 @@ end
 -- `coat` ("gold", "rainbow" or "base") replaces the coat rolled when the food went in, the way nextCoat forces a
 -- stray's, so a test sees and hears a gold or rainbow arrival (QA A25, F99); nil keeps the roll. Returns the rolled
 -- cat id, so a test can check what the card shows.
-function Debug.baitReady(player: (Player | number | string)?, coat: string?): string
+function Debug.baitReady(player: (Player | number | string)?, coat: string?, bowl: number?): string
 	local p = resolve(player)
 	local profile = profileOf(p)
-	local bait = profile.bait
+	assert(bowl == nil or bowl == 1 or bowl == 2, "the bowl is 1 or 2")
+	local bait = Bait.stateOf(profile, bowl or 1)
 	assert(bait ~= nil, "the bait bowl is empty")
 	if coat ~= nil then
 		assert(
@@ -422,6 +426,20 @@ function Debug.baitReady(player: (Player | number | string)?, coat: string?): st
 	CafeService.refreshPlot(p)
 	CafeService.sync(p)
 	return bait.catId
+end
+
+-- #1161: the Second Bait Bowl pass on (true) or off (false) for this session, as a purchase would set it, without
+-- buying it. PolicyService still decides: a player restricted from paid random items gets no bowl 2 either way.
+-- Returns the bowl's state ("on", "offer" or "hidden").
+function Debug.secondBowl(player: (Player | number | string)?, owned: boolean): string
+	local p = resolve(player)
+	local profile = profileOf(p)
+	local passes = table.clone(Economy.passes(profile))
+	passes.secondBowl = if owned then true else nil
+	Economy.setPasses(profile, passes)
+	CafeService.refreshPlot(p)
+	CafeService.sync(p)
+	return CafeService.secondBowl(p, profile)
 end
 
 -- Opens a rich tip at the player's cafe now, whatever the clock and the roll (F31). `staySeconds` shortens the wait

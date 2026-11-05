@@ -7,6 +7,11 @@
 -- "letgo" sends it off; the food is used either way. Both work from anywhere (Derek 2026-10-28: "tame or let go
 -- from anywhere"), as UseLure does. CafeService draws the bowl and sends it in ProfileSync, which
 -- names the cat only once it has arrived (reviewer N30).
+-- #1161: with the Second Bait Bowl pass there are two bowls, each with its own food, wait and cat (profile.bait2),
+-- at the same level and with the same roll. Both remotes take an optional bowl index after their first argument: nil
+-- is bowl 1, so an older client keeps working. Food goes into bowl 2 only while CafeService.secondBowl is "on" (the
+-- pass, and PolicyService says paid random items are not restricted for the player); a cat already at bowl 2 can
+-- always be tamed or let go.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -36,7 +41,22 @@ local BaitService = {}
 local CHOICES = { "tame", "letgo" }
 
 local rng = Random.new()
-local shownArrival: { [Player]: number } = {} -- placedAt of the bait whose arrival this player has been sent
+-- placedAt of the bait whose arrival this player has been sent, by bowl
+local shownArrival: { [Player]: { [number]: number } } = {}
+-- the second bowl's state last drawn and sent (#1161), so a pass bought or a PolicyService answer that comes in
+-- after join puts bowl 2 out within a second
+local shownSecond: { [Player]: Types.SecondBowl } = {}
+
+-- The bowl a remote names: nil is bowl 1, otherwise 1 or 2 exactly. Anything else is dropped.
+local function bowlOf(raw: unknown): number?
+	if raw == nil then
+		return 1
+	end
+	if raw == 1 or raw == 2 then
+		return raw :: number
+	end
+	return nil
+end
 
 -- "10 minutes", "1 minute", "45 seconds"
 local function waitText(seconds: number): string
@@ -48,10 +68,11 @@ local function waitText(seconds: number): string
 	return string.format("%d seconds", seconds)
 end
 
-local function onUseLure(player: Player, rawLureId: unknown)
+local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	local lureId = Guard.id(rawLureId)
+	local bowl = bowlOf(rawBowl)
 	local profile = DataService.get(player)
-	if lureId == nil or profile == nil then
+	if lureId == nil or bowl == nil or profile == nil then
 		return
 	end
 	local lure = Catalog.getLure(lureId)
@@ -62,8 +83,12 @@ local function onUseLure(player: Player, rawLureId: unknown)
 		Net.toast(player, "Buy the Bait bowl in Upgrades first.", "warn")
 		return
 	end
-	if profile.bait ~= nil then
-		Net.toast(player, "There is food in your bowl already.", "warn")
+	if bowl == 2 and CafeService.secondBowl(player, profile) ~= "on" then
+		CafeService.sync(player) -- #1161: no pass, or not allowed here; the menu redraws without bowl 2
+		return
+	end
+	if Bait.stateOf(profile, bowl) ~= nil then
+		Net.toast(player, "There is food in that bowl already.", "warn")
 		return
 	end
 	local stock = profile.lures[lureId] or 0
@@ -126,7 +151,7 @@ local function onUseLure(player: Player, rawLureId: unknown)
 		),
 		charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
 	}
-	profile.bait = bait
+	Bait.setState(profile, bowl, bait)
 	profile.stats.luresUsed += 1
 	Telemetry.onboarding(player, profile, "first_bait")
 	Telemetry.custom(
@@ -153,21 +178,25 @@ local function onUseLure(player: Player, rawLureId: unknown)
 	CafeService.sync(player)
 end
 
-local function onResolveBait(player: Player, rawChoice: unknown)
+local function onResolveBait(player: Player, rawChoice: unknown, rawBowl: unknown)
 	local choice = Guard.oneOf(rawChoice, CHOICES)
+	local bowl = bowlOf(rawBowl)
 	local profile = DataService.get(player)
-	if choice == nil or profile == nil then
+	if choice == nil or bowl == nil or profile == nil then
 		return
 	end
-	local bait = profile.bait
+	local bait = Bait.stateOf(profile, bowl)
 	if bait == nil or os.time() < CafeService.baitReadyAt(profile, bait) then
 		CafeService.sync(player) -- the card waits for a fresh bowl state
 		return
 	end
 
 	-- Empty the bowl before granting, so a second press cannot tame twice.
-	profile.bait = nil
-	shownArrival[player] = nil
+	Bait.setState(profile, bowl, nil)
+	local shown = shownArrival[player]
+	if shown ~= nil then
+		shown[bowl] = nil
+	end
 	Telemetry.onboarding(player, profile, "first_bait_resolved")
 	local def = Catalog.getCat(bait.catId)
 	Telemetry.custom(
@@ -210,16 +239,36 @@ local function checkArrivals()
 	local now = os.time()
 	for _, player in DataService.loadedPlayers() do
 		local profile = DataService.get(player)
-		local bait = if profile ~= nil then profile.bait else nil
-		if
-			bait ~= nil
-			and now >= CafeService.baitReadyAt(profile :: Types.PlayerProfile, bait)
-			and shownArrival[player] ~= bait.placedAt
-		then
-			shownArrival[player] = bait.placedAt
+		if profile == nil then
+			continue
+		end
+		local shown = shownArrival[player]
+		if shown == nil then
+			shown = {}
+			shownArrival[player] = shown
+		end
+		local changed = false
+		for bowl = 1, Bait.BOWLS do
+			local bait = Bait.stateOf(profile, bowl)
+			if
+				bait ~= nil
+				and now >= CafeService.baitReadyAt(profile, bait)
+				and shown[bowl] ~= bait.placedAt
+			then
+				shown[bowl] = bait.placedAt
+				changed = true
+				Telemetry.baitStep(player, bait, 2)
+			end
+		end
+		-- #1161: bowl 2 comes out (or goes) when the pass is bought or the PolicyService answer arrives
+		local second = CafeService.secondBowl(player, profile)
+		if shownSecond[player] ~= second then
+			shownSecond[player] = second
+			changed = true
+		end
+		if changed then
 			CafeService.refreshPlot(player)
 			CafeService.sync(player)
-			Telemetry.baitStep(player, bait, 2)
 		end
 	end
 end
@@ -229,6 +278,7 @@ function BaitService.start()
 	Net.on("ResolveBait", onResolveBait)
 	Players.PlayerRemoving:Connect(function(player)
 		shownArrival[player] = nil
+		shownSecond[player] = nil
 	end)
 	task.spawn(function()
 		while true do

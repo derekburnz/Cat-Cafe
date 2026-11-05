@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
+local Bait = require(ReplicatedStorage.Shared.Bait)
 local Bedtime = require(ReplicatedStorage.Shared.Bedtime)
 local CatPose = require(script.Parent.Parent.World.CatPose)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
@@ -102,9 +103,18 @@ function CafeService.baitReadyAt(_profile: Types.PlayerProfile, bait: Types.Bait
 	return bait.readyAt or bait.placedAt + Config.LureWaitSeconds
 end
 
+-- The Second Bait Bowl for this player (#1161): "on" only with the pass and once PolicyService has answered that paid
+-- random items are not restricted for them. A failed or pending lookup reads as restricted (monetization-policy
+-- section 4: the most restrictive values), so the bowl and the pass card stay off until the answer is in.
+function CafeService.secondBowl(player: Player, profile: Types.PlayerProfile): Types.SecondBowl
+	local policy = DataService.policy(player)
+	local allowed = policy ~= nil and policy.ArePaidRandomItemsRestricted == false
+	return Bait.secondBowl(Economy.passes(profile).secondBowl == true, allowed)
+end
+
 -- The bowl as ProfileSync sends it: the rolled cat only once it has arrived, so the reveal is not spoiled (N30).
-local function baitView(profile: Profile, now: number): Types.BaitView?
-	local bait = profile.bait
+local function baitView(profile: Profile, now: number, bowl: number): Types.BaitView?
+	local bait = Bait.stateOf(profile, bowl)
 	if bait == nil then
 		return nil
 	end
@@ -158,7 +168,9 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		decorOwned = profile.decorOwned,
 		decorPlaced = profile.decorPlaced,
 		lures = profile.lures,
-		bait = baitView(profile, now),
+		bait = baitView(profile, now, 1),
+		bait2 = baitView(profile, now, 2), -- #1161: kept and sent even while the bowl is "hidden", so it can be emptied
+		secondBowl = CafeService.secondBowl(player, profile),
 		cats = CafeService.catViews(player, profile),
 		collection = profile.collection,
 		goldCollection = profile.goldCollection,
@@ -676,27 +688,33 @@ end
 local BOWL_SCALE = 2
 local FOOD_SCALE = 1.2 -- the food item sits in the bowl
 
-local function refreshBait(player: Player, plot: WorldBuilder.Plot, profile: Profile)
-	local owned = Economy.level(profile, "lure_bowl") >= 1
-	local bait = if owned then profile.bait else nil
-	local readyAt = if bait ~= nil then CafeService.baitReadyAt(profile, bait) else 0
-	local ready = bait ~= nil and os.time() >= readyAt
-	plot.model:SetAttribute("BaitReadyAt", readyAt)
-	if not owned then
-		plot.bait:ClearAllChildren()
+-- One bowl's models in its folder (#1161: bowl 1 in Bait/, bowl 2 in Bait2/). `shown` is whether the bowl stands.
+local function refreshBowl(
+	player: Player,
+	folder: Folder,
+	bowlAnchor: BasePart,
+	catAnchor: BasePart,
+	profile: Profile,
+	shown: boolean,
+	bait: Types.BaitState?
+)
+	if not shown then
+		folder:ClearAllChildren()
 		return
 	end
+	local readyAt = if bait ~= nil then CafeService.baitReadyAt(profile, bait) else 0
+	local ready = bait ~= nil and os.time() >= readyAt
 
-	if plot.bait:FindFirstChild("Bowl") == nil then
+	if folder:FindFirstChild("Bowl") == nil then
 		local bowl = AssetRegistry.clone("CatCafe_Item_FoodBowl")
 		bowl.Name = "Bowl"
 		bowl:ScaleTo(BOWL_SCALE)
-		bowl:PivotTo(plot.baitBowl.CFrame)
-		bowl.Parent = plot.bait
+		bowl:PivotTo(bowlAnchor.CFrame)
+		bowl.Parent = folder
 	end
 
 	local lureId = if bait ~= nil then bait.lureId else nil
-	local food = plot.bait:FindFirstChild("Food")
+	local food = folder:FindFirstChild("Food")
 	if food ~= nil and food:GetAttribute("LureId") ~= lureId then
 		food:Destroy()
 		food = nil
@@ -707,15 +725,15 @@ local function refreshBait(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		model.Name = "Food"
 		model:SetAttribute("LureId", lure.id)
 		model:ScaleTo(FOOD_SCALE)
-		model:PivotTo(plot.baitBowl.CFrame * CFrame.new(0, 0.1, 0))
-		model.Parent = plot.bait
+		model:PivotTo(bowlAnchor.CFrame * CFrame.new(0, 0.1, 0))
+		model.Parent = folder
 	end
 
 	-- one cat per food: the key changes with each new food, so a stale cat never stays
 	local key = if ready and bait ~= nil
 		then string.format("%s@%d", bait.catId, bait.placedAt)
 		else nil
-	local cat = plot.bait:FindFirstChild("Cat")
+	local cat = folder:FindFirstChild("Cat")
 	if cat ~= nil and cat:GetAttribute("BaitKey") ~= key then
 		cat:Destroy()
 		cat = nil
@@ -731,9 +749,28 @@ local function refreshBait(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		model:SetAttribute("Variant", bait.variant) -- F99: a rainbow bait cat shows its coat as it arrives
 		model:SetAttribute("OwnerUserId", player.UserId)
 		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
-		model:PivotTo(plot.baitCat.CFrame)
-		model.Parent = plot.bait
+		model:PivotTo(catAnchor.CFrame)
+		model.Parent = folder
 	end
+end
+
+local function refreshBait(player: Player, plot: WorldBuilder.Plot, profile: Profile)
+	local owned = Economy.level(profile, "lure_bowl") >= 1
+	local bait = if owned then profile.bait else nil
+	plot.model:SetAttribute(
+		"BaitReadyAt",
+		if bait ~= nil then CafeService.baitReadyAt(profile, bait) else 0
+	)
+	refreshBowl(player, plot.bait, plot.baitBowl, plot.baitCat, profile, owned, bait)
+	-- #1161: the second bowl stands while it is "on", and while food is still in it after the pass or the policy
+	-- went away, so that food's cat can still be tamed or let go
+	local bait2 = if owned then profile.bait2 else nil
+	local shown2 = owned and (bait2 ~= nil or CafeService.secondBowl(player, profile) == "on")
+	plot.model:SetAttribute(
+		"BaitReadyAt2",
+		if bait2 ~= nil then CafeService.baitReadyAt(profile, bait2) else 0
+	)
+	refreshBowl(player, plot.bait2, plot.baitBowl2, plot.baitCat2, profile, shown2, bait2)
 end
 
 function CafeService.refreshPlot(player: Player)

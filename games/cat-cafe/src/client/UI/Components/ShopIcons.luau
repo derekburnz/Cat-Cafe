@@ -126,14 +126,14 @@ local IDS: { [string]: string } = {
 	Icon_Hud_Areas = "rbxassetid://74170242876257",
 	Icon_Hud_Potions = "rbxassetid://123878686865679",
 	Icon_Hud_Bait = "rbxassetid://119953797390858",
-	-- #1204: Model-Agent's potion flasks (#1193; upload run 41893876000, 11-04), ShopIcons.potion prefers them
-	Icon_Flask_Tip = "rbxassetid://77878202219932",
-	Icon_Flask_Lucky = "rbxassetid://113253860132139",
-	Icon_Flask_Swift = "rbxassetid://90712944202362",
-	Icon_Flask_Steady = "rbxassetid://78819814153561",
-	Icon_Flask_QuickBait = "rbxassetid://102617577148798",
-	Icon_Flask_BigTip = "rbxassetid://137883283288576",
-	Icon_Flask_GoldRush = "rbxassetid://133671235439574",
+	-- #1204: Model-Agent's potion flasks (#1193), ShopIcons.potion prefers them; re-uploaded 11-05 with the Cat Whistles
+	Icon_Flask_Tip = "rbxassetid://123800504967936",
+	Icon_Flask_Lucky = "rbxassetid://98048607296719",
+	Icon_Flask_Swift = "rbxassetid://135893717257825",
+	Icon_Flask_Steady = "rbxassetid://113351212828251",
+	Icon_Flask_QuickBait = "rbxassetid://72948017962638",
+	Icon_Flask_BigTip = "rbxassetid://92073889406433",
+	Icon_Flask_GoldRush = "rbxassetid://118260703338891",
 	-- #1191 / #1186: the shop-only cats on their Store cards (upload run from main dee66576, 11-05)
 	Icon_ShopCat_Sprinkles = "rbxassetid://123101439533132",
 	Icon_ShopCat_DuchessMarzipan = "rbxassetid://105207350898043",
@@ -151,10 +151,10 @@ local IDS: { [string]: string } = {
 	Icon_Menu_Sundae = "rbxassetid://107717113357371",
 	Icon_Menu_StrawberryRoll = "rbxassetid://139023173238823",
 	Icon_Menu_RainbowCake = "rbxassetid://120021844545771",
-	-- #1302: Model-Agent's Cat Whistle flasks, one per size (upload run 41948674097, 11-05)
-	Icon_Flask_CatWhistleSmall = "rbxassetid://88245082341165",
-	Icon_Flask_CatWhistle = "rbxassetid://139758496638549",
-	Icon_Flask_CatWhistleBig = "rbxassetid://83123481656090",
+	-- #1302: Model-Agent's Cat Whistle flasks, one per size (re-uploaded 11-05 with the potion flasks)
+	Icon_Flask_CatWhistleSmall = "rbxassetid://71443833712403",
+	Icon_Flask_CatWhistle = "rbxassetid://94091051776887",
+	Icon_Flask_CatWhistleBig = "rbxassetid://82693373943515",
 	-- the Decor window's "Your cafe" slots (#964, upload-image run 41728803377 on 11-03)
 	Icon_Clean_Wallpaper = "rbxassetid://102259047705880",
 	Icon_Clean_Floor = "rbxassetid://100560850589029",

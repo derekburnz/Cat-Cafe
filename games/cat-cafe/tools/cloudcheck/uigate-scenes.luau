@@ -763,6 +763,8 @@ local SCENES = {
 			looks = {
 				uniform = "midnight",
 				uniforms = { "default", "striped", "midnight", "mint", "uniform_pumpkin" },
+				accessory = "hat", -- #1708
+				accessories = { "hat", "glasses", "acc_leaf_beret", "acc_tiny_lantern" },
 				theme = "garden",
 				themes = { "default", "garden", "grand" },
 			},

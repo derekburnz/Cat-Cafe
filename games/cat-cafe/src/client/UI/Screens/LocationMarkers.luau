@@ -25,6 +25,7 @@ local Workspace = game:GetService("Workspace")
 local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Wayfinding = require(script.Parent.Parent.Components.Wayfinding)
 
@@ -52,6 +53,7 @@ type Spec = {
 	key: string,
 	name: string,
 	glyph: string,
+	image: string?, -- an uploaded picture drawn over the glyph once it loads
 	colour: Color3,
 	find: () -> Vector3?,
 	inZone: ((zone: string?) -> boolean)?, -- where the player must stand for it to show; nil is anywhere
@@ -117,6 +119,7 @@ LocationMarkers.SPECS = {
 		key = "nightMarket",
 		name = "Night Market",
 		glyph = Theme.icons.moon,
+		image = ShopIcons.hud("NightMarket"), -- #1607: the dealer's cart under a gold moon (Tools-Agent 11-05)
 		colour = Theme.colors.berry,
 		find = cartPoint,
 	},
@@ -166,7 +169,11 @@ local function build(parent: Instance, spec: Spec): Marker
 		Text = spec.glyph,
 		Parent = disc,
 	})
-	IconArt.set(glyph, spec.glyph, 0.84)
+	if spec.image then
+		IconArt.setImage(glyph, spec.image, 0.84)
+	else
+		IconArt.set(glyph, spec.glyph, 0.84)
+	end
 	local name: TextLabel = Create("TextLabel", {
 		Name = "Name",
 		BackgroundTransparency = 1,

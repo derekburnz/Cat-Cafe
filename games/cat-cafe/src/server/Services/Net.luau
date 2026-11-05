@@ -45,6 +45,10 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	-- open, each allowlisted and logged at most once a player or a session (Telemetry's onReport)
 	TelemetryReport = RateLimiter.new(40, 60),
 	SetSetting = RateLimiter.new(4, 1), -- a toggle tap; each call sends a full sync
+	PassClaim = RateLimiter.new(4, 1), -- #1645: a Claim tap on the Pass screen
+	PassClaimAll = RateLimiter.new(1, 1), -- #1645
+	PassSetTag = RateLimiter.new(2, 1), -- #1626: the Pass screen's tag picker
+	SetSignStyle = RateLimiter.new(2, 1), -- #1625: a pick on the Style panel; each one refreshes the plot
 	ClaimTipJar = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	ClaimIndexReward = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	SpinAll = RateLimiter.new(1, 1), -- #1078: 1 a second (and the spin cooldown)

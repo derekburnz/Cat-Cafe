@@ -185,26 +185,31 @@ return function()
 				coins = 200,
 				coinSeconds = 90,
 				fish = 2,
+				passXp = 100, -- #1645 (quests.md section 8)
 			})
 			-- F94 (rewards-and-shops.md section 2d): no shop food and no spins
 			expect(Catalog.questPrizes.dailyBig :: any).to.deepEqual({
 				coins = 400,
 				coinSeconds = 150,
 				fish = 5,
+				passXp = 200,
 			})
 			expect(Catalog.questPrizes.dailySet :: any).to.deepEqual({
 				potions = { big_tip_potion = 1, gold_rush_potion = 1 },
 				fish = 10,
+				passXp = 200,
 			})
 			expect(Catalog.questPrizes.weekly :: any).to.deepEqual({
 				coins = 2000,
 				coinSeconds = 600,
 				fish = 15,
+				passXp = 400,
 			})
 			expect(Catalog.questPrizes.weeklySet :: any).to.deepEqual({
 				potions = { big_tip_potion = 3 },
 				crates = { classic_golden_crate = 1 },
 				fish = 40,
+				passXp = 400,
 			})
 			expect(Catalog.achievementPrizes.M :: any).to.deepEqual({
 				coins = 1000,
@@ -472,9 +477,7 @@ return function()
 			expect(Quests.rerollBlocker(p, "daily", 2)).to.equal("You've used today's free swap")
 			expect(Quests.rerollBlocker(p, "weekly", 1)).to.equal(nil)
 			p.quests.weeklyReroll = true
-			expect(Quests.rerollBlocker(p, "weekly", 1)).to.equal(
-				"You've used today's weekly swap"
-			)
+			expect(Quests.rerollBlocker(p, "weekly", 1)).to.equal("You've used today's weekly swap")
 		end)
 
 		it("swaps in a different quest, never the one it replaces", function()

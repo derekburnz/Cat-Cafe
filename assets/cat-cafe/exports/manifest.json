@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-05 17:30 UTC",
+  "generated": "2026-11-05 21:20 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -74504,6 +74504,1200 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_KingCroissant_Work.png"
     },
     {
+      "name": "CatCafe_Cat_MapleMuffin",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_MapleMuffin_Body",
+        "CatCafe_Cat_MapleMuffin_Head",
+        "CatCafe_Cat_MapleMuffin_Eye1",
+        "CatCafe_Cat_MapleMuffin_Eye2",
+        "CatCafe_Cat_MapleMuffin_EarL",
+        "CatCafe_Cat_MapleMuffin_EarR",
+        "CatCafe_Cat_MapleMuffin_Tail",
+        "CatCafe_Cat_MapleMuffin_LegF1",
+        "CatCafe_Cat_MapleMuffin_LegF2",
+        "CatCafe_Cat_MapleMuffin_LegB1",
+        "CatCafe_Cat_MapleMuffin_LegB2",
+        "CatCafe_Cat_MapleMuffin_Prop"
+      ],
+      "triangles": 1328,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.0,
+        "y": 1.97,
+        "z": 1.97
+      },
+      "size_roblox": [
+        1.0,
+        1.97,
+        1.97
+      ],
+      "bounds_min": [
+        -0.5,
+        -0.99,
+        -0.0
+      ],
+      "bounds_max": [
+        0.5,
+        0.98,
+        1.97
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Legendary",
+      "body": "walk",
+      "gold": false,
+      "pattern": "stripes",
+      "coat": {
+        "fur": {
+          "swatch": "fur_ginger",
+          "hex": "#D9662E"
+        },
+        "second": {
+          "swatch": "fur_russet",
+          "hex": "#8E4A2C"
+        },
+        "muzzle": {
+          "swatch": "fur_cream",
+          "hex": "#EFD9B4"
+        },
+        "eyes": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "tip": {
+          "swatch": "fur_cream",
+          "hex": "#EFD9B4"
+        },
+        "socks": {
+          "swatch": "fur_cream",
+          "hex": "#EFD9B4"
+        },
+        "eyes2": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        }
+      },
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.3,
+          0.873
+        ],
+        "Tail": [
+          0.0,
+          0.58,
+          0.823
+        ],
+        "LegF1": [
+          0.22,
+          -0.2,
+          0.42
+        ],
+        "LegF2": [
+          -0.22,
+          -0.2,
+          0.42
+        ],
+        "LegB1": [
+          0.22,
+          0.42,
+          0.42
+        ],
+        "LegB2": [
+          -0.22,
+          0.42,
+          0.42
+        ],
+        "Eye1": [
+          0.253,
+          -0.93,
+          1.133
+        ],
+        "Eye2": [
+          -0.253,
+          -0.93,
+          1.133
+        ],
+        "EarL": [
+          0.3,
+          -0.46,
+          1.583
+        ],
+        "EarR": [
+          -0.3,
+          -0.46,
+          1.583
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          0.87,
+          -0.3
+        ],
+        "Tail": [
+          0.0,
+          0.82,
+          0.58
+        ],
+        "LegF1": [
+          -0.22,
+          0.42,
+          -0.2
+        ],
+        "LegF2": [
+          0.22,
+          0.42,
+          -0.2
+        ],
+        "LegB1": [
+          -0.22,
+          0.42,
+          0.42
+        ],
+        "LegB2": [
+          0.22,
+          0.42,
+          0.42
+        ],
+        "Eye1": [
+          -0.25,
+          1.13,
+          -0.93
+        ],
+        "Eye2": [
+          0.25,
+          1.13,
+          -0.93
+        ],
+        "EarL": [
+          -0.3,
+          1.58,
+          -0.46
+        ],
+        "EarR": [
+          0.3,
+          1.58,
+          -0.46
+        ]
+      },
+      "attachments": {
+        "Glasses": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.67,
+            0.26
+          ],
+          "offset_roblox": [
+            0.0,
+            0.26,
+            -0.67
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Hat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.22,
+            0.74
+          ],
+          "offset_roblox": [
+            0.0,
+            0.74,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "LeafBeret": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.22,
+            0.74
+          ],
+          "offset_roblox": [
+            0.0,
+            0.74,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.28,
+            0.73
+          ],
+          "offset_roblox": [
+            0.0,
+            0.73,
+            -0.28
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.28,
+            0.73
+          ],
+          "offset_roblox": [
+            0.0,
+            0.73,
+            -0.28
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.28,
+            0.73
+          ],
+          "offset_roblox": [
+            0.0,
+            0.73,
+            -0.28
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BowTie": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.5,
+            -0.15
+          ],
+          "offset_roblox": [
+            0.0,
+            -0.15,
+            -0.5
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.06,
+            0.913
+          ],
+          "offset_roblox": [
+            0.0,
+            0.91,
+            -0.06
+          ],
+          "angles_roblox_deg": [
+            -90.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.933
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.933
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.16,
+            0.933
+          ],
+          "offset_roblox": [
+            0.0,
+            0.93,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Carry": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.22,
+            1.0
+          ],
+          "offset_roblox": [
+            0.0,
+            1.0,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_MapleMuffin_Prop"
+        ]
+      },
+      "exclusive": true,
+      "pose_lifts_roblox": {
+        "loaf": [
+          0.0,
+          -0.31,
+          0.0
+        ],
+        "sleep": [
+          0.0,
+          -0.31,
+          0.0
+        ]
+      },
+      "studio": "Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_MapleMuffin.model.json",
+      "rbx_parts": 146,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_MapleMuffin.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_MapleMuffin.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1328/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "730 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_MapleMuffin.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_MapleMuffin.png"
+    },
+    {
+      "name": "CatCafe_Cat_MapleMuffin_Sit",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_MapleMuffin_Sit_Body",
+        "CatCafe_Cat_MapleMuffin_Sit_Head",
+        "CatCafe_Cat_MapleMuffin_Sit_Eye1",
+        "CatCafe_Cat_MapleMuffin_Sit_Eye2",
+        "CatCafe_Cat_MapleMuffin_Sit_EarL",
+        "CatCafe_Cat_MapleMuffin_Sit_EarR",
+        "CatCafe_Cat_MapleMuffin_Sit_Tail",
+        "CatCafe_Cat_MapleMuffin_Sit_LegF1",
+        "CatCafe_Cat_MapleMuffin_Sit_LegF2",
+        "CatCafe_Cat_MapleMuffin_Sit_Prop"
+      ],
+      "triangles": 1352,
+      "budget": 1500,
+      "size_studs": {
+        "x": 1.24,
+        "y": 1.24,
+        "z": 1.91
+      },
+      "size_roblox": [
+        1.24,
+        1.91,
+        1.24
+      ],
+      "bounds_min": [
+        -0.44,
+        -0.65,
+        0.0
+      ],
+      "bounds_max": [
+        0.8,
+        0.6,
+        1.91
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Legendary",
+      "body": "sit",
+      "gold": false,
+      "pattern": "stripes",
+      "coat": {
+        "fur": {
+          "swatch": "fur_ginger",
+          "hex": "#D9662E"
+        },
+        "second": {
+          "swatch": "fur_russet",
+          "hex": "#8E4A2C"
+        },
+        "muzzle": {
+          "swatch": "fur_cream",
+          "hex": "#EFD9B4"
+        },
+        "eyes": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "tip": {
+          "swatch": "fur_cream",
+          "hex": "#EFD9B4"
+        },
+        "socks": {
+          "swatch": "fur_cream",
+          "hex": "#EFD9B4"
+        },
+        "eyes2": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        }
+      },
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.095,
+          0.969
+        ],
+        "Tail": [
+          0.19,
+          0.413,
+          0.104
+        ],
+        "LegF1": [
+          0.162,
+          -0.285,
+          0.589
+        ],
+        "LegF2": [
+          -0.162,
+          -0.285,
+          0.589
+        ],
+        "Eye1": [
+          0.209,
+          -0.589,
+          1.197
+        ],
+        "Eye2": [
+          -0.209,
+          -0.589,
+          1.197
+        ],
+        "EarL": [
+          0.266,
+          -0.171,
+          1.567
+        ],
+        "EarR": [
+          -0.266,
+          -0.171,
+          1.567
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          0.97,
+          -0.09
+        ],
+        "Tail": [
+          -0.19,
+          0.1,
+          0.41
+        ],
+        "LegF1": [
+          -0.16,
+          0.59,
+          -0.28
+        ],
+        "LegF2": [
+          0.16,
+          0.59,
+          -0.28
+        ],
+        "Eye1": [
+          -0.21,
+          1.2,
+          -0.59
+        ],
+        "Eye2": [
+          0.21,
+          1.2,
+          -0.59
+        ],
+        "EarL": [
+          -0.27,
+          1.57,
+          -0.17
+        ],
+        "EarR": [
+          0.27,
+          1.57,
+          -0.17
+        ]
+      },
+      "attachments": {
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.318,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.351,
+            0.703
+          ],
+          "offset_roblox": [
+            0.0,
+            0.7,
+            -0.35
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.057,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.06
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.057,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.06
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            0.204,
+            0.874
+          ],
+          "offset_roblox": [
+            0.0,
+            0.87,
+            0.2
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.19,
+            0.618
+          ],
+          "offset_roblox": [
+            0.0,
+            0.62,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.19,
+            0.618
+          ],
+          "offset_roblox": [
+            0.0,
+            0.62,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.19,
+            0.618
+          ],
+          "offset_roblox": [
+            0.0,
+            0.62,
+            -0.19
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Carry": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.133,
+            0.874
+          ],
+          "offset_roblox": [
+            0.0,
+            0.87,
+            -0.13
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_MapleMuffin_Sit_Prop"
+        ]
+      },
+      "exclusive": true,
+      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_MapleMuffin for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_MapleMuffin_Sit.model.json",
+      "rbx_parts": 148,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_MapleMuffin_Sit.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_MapleMuffin_Sit.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1352/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "742 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.18 y=-0.02"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_MapleMuffin_Sit.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_MapleMuffin_Sit.png"
+    },
+    {
+      "name": "CatCafe_Cat_MapleMuffin_Work",
+      "category": "Cat",
+      "module": "cats",
+      "objects": [
+        "CatCafe_Cat_MapleMuffin_Work_Body",
+        "CatCafe_Cat_MapleMuffin_Work_Head",
+        "CatCafe_Cat_MapleMuffin_Work_Eye1",
+        "CatCafe_Cat_MapleMuffin_Work_Eye2",
+        "CatCafe_Cat_MapleMuffin_Work_EarL",
+        "CatCafe_Cat_MapleMuffin_Work_EarR",
+        "CatCafe_Cat_MapleMuffin_Work_Tail",
+        "CatCafe_Cat_MapleMuffin_Work_LegF1",
+        "CatCafe_Cat_MapleMuffin_Work_LegF2",
+        "CatCafe_Cat_MapleMuffin_Work_LegB1",
+        "CatCafe_Cat_MapleMuffin_Work_LegB2",
+        "CatCafe_Cat_MapleMuffin_Work_Held_Barista",
+        "CatCafe_Cat_MapleMuffin_Work_Held_Waiter",
+        "CatCafe_Cat_MapleMuffin_Work_Held_Entertainer",
+        "CatCafe_Cat_MapleMuffin_Work_Prop"
+      ],
+      "triangles": 1956,
+      "budget": 2400,
+      "size_studs": {
+        "x": 1.53,
+        "y": 1.62,
+        "z": 2.01
+      },
+      "size_roblox": [
+        1.53,
+        2.01,
+        1.62
+      ],
+      "bounds_min": [
+        -0.69,
+        -0.7,
+        0.0
+      ],
+      "bounds_max": [
+        0.85,
+        0.91,
+        2.01
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rarity": "Legendary",
+      "body": "work",
+      "gold": false,
+      "pattern": "stripes",
+      "coat": {
+        "fur": {
+          "swatch": "fur_ginger",
+          "hex": "#D9662E"
+        },
+        "second": {
+          "swatch": "fur_russet",
+          "hex": "#8E4A2C"
+        },
+        "muzzle": {
+          "swatch": "fur_cream",
+          "hex": "#EFD9B4"
+        },
+        "eyes": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        },
+        "nose": {
+          "swatch": "nose_pink",
+          "hex": "#E07A8C"
+        },
+        "tip": {
+          "swatch": "fur_cream",
+          "hex": "#EFD9B4"
+        },
+        "socks": {
+          "swatch": "fur_cream",
+          "hex": "#EFD9B4"
+        },
+        "eyes2": {
+          "swatch": "eye_amber",
+          "hex": "#F2B134"
+        }
+      },
+      "scale": 1.0,
+      "joints": {
+        "Head": [
+          0.0,
+          -0.095,
+          0.969
+        ],
+        "Tail": [
+          0.0,
+          0.19,
+          0.475
+        ],
+        "LegF1": [
+          0.451,
+          -0.057,
+          0.779
+        ],
+        "LegF2": [
+          -0.451,
+          -0.057,
+          0.779
+        ],
+        "LegB1": [
+          0.162,
+          -0.057,
+          0.418
+        ],
+        "LegB2": [
+          -0.162,
+          -0.057,
+          0.418
+        ],
+        "Eye1": [
+          0.24,
+          -0.646,
+          1.216
+        ],
+        "Eye2": [
+          -0.24,
+          -0.646,
+          1.216
+        ],
+        "EarL": [
+          0.285,
+          -0.2,
+          1.643
+        ],
+        "EarR": [
+          -0.285,
+          -0.2,
+          1.643
+        ]
+      },
+      "joints_roblox": {
+        "Head": [
+          0.0,
+          0.97,
+          -0.09
+        ],
+        "Tail": [
+          0.0,
+          0.47,
+          0.19
+        ],
+        "LegF1": [
+          -0.45,
+          0.78,
+          -0.06
+        ],
+        "LegF2": [
+          0.45,
+          0.78,
+          -0.06
+        ],
+        "LegB1": [
+          -0.16,
+          0.42,
+          -0.06
+        ],
+        "LegB2": [
+          0.16,
+          0.42,
+          -0.06
+        ],
+        "Eye1": [
+          -0.24,
+          1.22,
+          -0.65
+        ],
+        "Eye2": [
+          0.24,
+          1.22,
+          -0.65
+        ],
+        "EarL": [
+          -0.28,
+          1.64,
+          -0.2
+        ],
+        "EarR": [
+          0.28,
+          1.64,
+          -0.2
+        ]
+      },
+      "attachments": {
+        "Apron": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.318,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BowTie": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.351,
+            0.703
+          ],
+          "offset_roblox": [
+            0.0,
+            0.7,
+            -0.35
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Vest": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.057,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.06
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Sash": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            -0.057,
+            0.627
+          ],
+          "offset_roblox": [
+            0.0,
+            0.63,
+            -0.06
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Cape": {
+          "part": "Body",
+          "offset": [
+            0.0,
+            0.204,
+            0.874
+          ],
+          "offset_roblox": [
+            0.0,
+            0.87,
+            0.2
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "BaristaCap": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.218,
+            0.694
+          ],
+          "offset_roblox": [
+            0.0,
+            0.69,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Boater": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.218,
+            0.694
+          ],
+          "offset_roblox": [
+            0.0,
+            0.69,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "PartyHat": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.218,
+            0.694
+          ],
+          "offset_roblox": [
+            0.0,
+            0.69,
+            -0.22
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "Carry": {
+          "part": "Head",
+          "offset": [
+            0.0,
+            -0.162,
+            0.95
+          ],
+          "offset_roblox": [
+            0.0,
+            0.95,
+            -0.16
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "prop": {
+        "slot": "Head",
+        "follows": "Head",
+        "objects": [
+          "CatCafe_Cat_MapleMuffin_Work_Prop"
+        ]
+      },
+      "exclusive": true,
+      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_MapleMuffin_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_MapleMuffin_Work.model.json",
+      "rbx_parts": 164,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Cat_MapleMuffin_Work.fbx",
+        "assets/cat-cafe/exports/CatCafe_Cat_MapleMuffin_Work.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1956/2400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1042 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.08 y=0.11"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_MapleMuffin_Work.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Cat_MapleMuffin_Work.png"
+    },
+    {
       "name": "CatCafe_Cat_Tabby_Gold",
       "category": "Cat",
       "module": "gold",
@@ -146670,6 +147864,378 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_Hat.png"
     },
     {
+      "name": "CatCafe_Accessory_LeafBeret",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_LeafBeret"
+      ],
+      "triangles": 352,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.69,
+        "y": 0.72,
+        "z": 0.38
+      },
+      "size_roblox": [
+        0.69,
+        0.38,
+        0.72
+      ],
+      "bounds_min": [
+        -0.36,
+        -0.37,
+        -0.0
+      ],
+      "bounds_max": [
+        0.34,
+        0.35,
+        0.37
+      ],
+      "pivot": "attachment point: the walking head's Hat slot (see attach)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "slot": {
+        "part": "Head",
+        "offset": [
+          0.0,
+          -0.22,
+          0.74
+        ],
+        "offset_roblox": [
+          0.0,
+          0.74,
+          -0.22
+        ],
+        "angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "body": "walk"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_LeafBeret.model.json",
+      "rbx_parts": 57,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_LeafBeret.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_LeafBeret.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "352/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "170 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=-0.01 y=-0.01"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_LeafBeret.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_LeafBeret.png"
+    },
+    {
+      "name": "CatCafe_Accessory_AcornHairClip",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_AcornHairClip"
+      ],
+      "triangles": 276,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.37,
+        "y": 0.21,
+        "z": 0.29
+      },
+      "size_roblox": [
+        0.37,
+        0.29,
+        0.21
+      ],
+      "bounds_min": [
+        -0.35,
+        -0.17,
+        -0.0
+      ],
+      "bounds_max": [
+        0.02,
+        0.03,
+        0.29
+      ],
+      "pivot": "attachment point: the walking head's Hat slot; the clip sits by the right ear",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "slot": {
+        "part": "Head",
+        "offset": [
+          0.0,
+          -0.22,
+          0.74
+        ],
+        "offset_roblox": [
+          0.0,
+          0.74,
+          -0.22
+        ],
+        "angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "body": "walk"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_AcornHairClip.model.json",
+      "rbx_parts": 13,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_AcornHairClip.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_AcornHairClip.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "276/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "161 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=-0.17 y=-0.07"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_AcornHairClip.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_AcornHairClip.png"
+    },
+    {
+      "name": "CatCafe_Accessory_MushroomCap",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_MushroomCap"
+      ],
+      "triangles": 238,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.75,
+        "y": 0.75,
+        "z": 0.26
+      },
+      "size_roblox": [
+        0.75,
+        0.26,
+        0.75
+      ],
+      "bounds_min": [
+        -0.38,
+        -0.37,
+        0.0
+      ],
+      "bounds_max": [
+        0.38,
+        0.38,
+        0.26
+      ],
+      "pivot": "attachment point: the walking head's Hat slot (see attach)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "slot": {
+        "part": "Head",
+        "offset": [
+          0.0,
+          -0.22,
+          0.74
+        ],
+        "offset_roblox": [
+          0.0,
+          0.74,
+          -0.22
+        ],
+        "angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "body": "walk"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_MushroomCap.model.json",
+      "rbx_parts": 16,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_MushroomCap.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_MushroomCap.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "238/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "115 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.01"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_MushroomCap.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_MushroomCap.png"
+    },
+    {
+      "name": "CatCafe_Accessory_ReadingGlasses",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_ReadingGlasses"
+      ],
+      "triangles": 340,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.79,
+        "y": 0.65,
+        "z": 0.3
+      },
+      "size_roblox": [
+        0.79,
+        0.3,
+        0.65
+      ],
+      "bounds_min": [
+        -0.4,
+        -0.04,
+        -0.15
+      ],
+      "bounds_max": [
+        0.4,
+        0.61,
+        0.15
+      ],
+      "pivot": "attachment point: the walking head's Glasses slot (see attach)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "slot": {
+        "part": "Head",
+        "offset": [
+          0.0,
+          -0.67,
+          0.26
+        ],
+        "offset_roblox": [
+          0.0,
+          0.26,
+          -0.67
+        ],
+        "angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "body": "walk"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_ReadingGlasses.model.json",
+      "rbx_parts": 31,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_ReadingGlasses.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_ReadingGlasses.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "340/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "154 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.15 (want 0)",
+          "centered": "footprint center x=0.00 y=0.29"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_ReadingGlasses.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_ReadingGlasses.png"
+    },
+    {
+      "name": "CatCafe_Accessory_TinyLantern",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_TinyLantern"
+      ],
+      "triangles": 166,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.36,
+        "y": 0.42,
+        "z": 0.48
+      },
+      "size_roblox": [
+        0.36,
+        0.48,
+        0.42
+      ],
+      "bounds_min": [
+        -0.18,
+        -0.09,
+        0.0
+      ],
+      "bounds_max": [
+        0.18,
+        0.33,
+        0.48
+      ],
+      "pivot": "the walking cat's back slot (TinyLantern in accessories.walk_slots); +Z runs back along the spine",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "slot": {
+        "part": "Body",
+        "offset": [
+          0.0,
+          -0.16,
+          0.91
+        ],
+        "offset_roblox": [
+          0.0,
+          0.91,
+          -0.16
+        ],
+        "angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "body": "walk"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_TinyLantern.model.json",
+      "rbx_parts": 19,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_TinyLantern.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_TinyLantern.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "166/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "85 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.12"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_TinyLantern.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_TinyLantern.png"
+    },
+    {
       "name": "CatCafe_Accessory_Sash",
       "category": "Accessory",
       "module": "accessories",
@@ -176558,6 +178124,122 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_SignKingCrest.png"
     },
     {
+      "name": "CatCafe_Plot_SignGoldenLeaf",
+      "category": "Plot",
+      "module": "signstyles",
+      "objects": [
+        "CatCafe_Plot_SignGoldenLeaf",
+        "CatCafe_Plot_SignGoldenLeaf_SignBoard",
+        "CatCafe_Plot_SignGoldenLeaf_Frame"
+      ],
+      "triangles": 872,
+      "budget": 3000,
+      "size_studs": {
+        "x": 18.01,
+        "y": 0.69,
+        "z": 6.88
+      },
+      "size_roblox": [
+        18.01,
+        6.88,
+        0.69
+      ],
+      "bounds_min": [
+        -9.0,
+        -18.97,
+        12.66
+      ],
+      "bounds_max": [
+        9.0,
+        -18.28,
+        19.54
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignGoldenLeaf.model.json",
+      "rbx_parts": 196,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignGoldenLeaf.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignGoldenLeaf.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "872/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "560 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=12.66 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.63"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_SignGoldenLeaf.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_SignGoldenLeaf.png"
+    },
+    {
+      "name": "CatCafe_Plot_SignVipPlate",
+      "category": "Plot",
+      "module": "signstyles",
+      "objects": [
+        "CatCafe_Plot_SignVipPlate"
+      ],
+      "triangles": 356,
+      "budget": 600,
+      "size_studs": {
+        "x": 2.96,
+        "y": 0.22,
+        "z": 0.8
+      },
+      "size_roblox": [
+        2.96,
+        0.8,
+        0.22
+      ],
+      "bounds_min": [
+        -1.48,
+        -18.79,
+        13.05
+      ],
+      "bounds_max": [
+        1.48,
+        -18.57,
+        13.85
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignVipPlate.model.json",
+      "rbx_parts": 55,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignVipPlate.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignVipPlate.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "356/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "170 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=13.05 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.68"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_SignVipPlate.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_SignVipPlate.png"
+    },
+    {
       "name": "CatCafe_Camp_Park_GardenNursery",
       "category": "Camp",
       "module": "gardennursery",
@@ -177299,6 +178981,396 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Square_PitySign.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Square_PitySign.png"
+    },
+    {
+      "name": "CatCafe_Decor_PumpkinLantern",
+      "category": "Decor",
+      "module": "seasondecor",
+      "objects": [
+        "CatCafe_Decor_PumpkinLantern",
+        "CatCafe_Decor_PumpkinLantern_Glow"
+      ],
+      "triangles": 622,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.3,
+        "y": 2.02,
+        "z": 1.8
+      },
+      "size_roblox": [
+        3.3,
+        1.8,
+        2.02
+      ],
+      "bounds_min": [
+        -1.68,
+        -1.04,
+        -0.0
+      ],
+      "bounds_max": [
+        1.62,
+        0.98,
+        1.8
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_PumpkinLantern.model.json",
+      "rbx_parts": 59,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_PumpkinLantern.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_PumpkinLantern.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "622/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "532 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=-0.03 y=-0.03"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_PumpkinLantern.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_PumpkinLantern.png"
+    },
+    {
+      "name": "CatCafe_Decor_FallenLeafRug",
+      "category": "Decor",
+      "module": "seasondecor",
+      "objects": [
+        "CatCafe_Decor_FallenLeafRug"
+      ],
+      "triangles": 768,
+      "budget": 1000,
+      "size_studs": {
+        "x": 3.74,
+        "y": 2.29,
+        "z": 0.11
+      },
+      "size_roblox": [
+        3.74,
+        0.11,
+        2.29
+      ],
+      "bounds_min": [
+        -1.87,
+        -1.15,
+        0.0
+      ],
+      "bounds_max": [
+        1.87,
+        1.15,
+        0.11
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_FallenLeafRug.model.json",
+      "rbx_parts": 134,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_FallenLeafRug.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_FallenLeafRug.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "768/1000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "384 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_FallenLeafRug.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_FallenLeafRug.png"
+    },
+    {
+      "name": "CatCafe_Decor_CosyKnitCushion",
+      "category": "Decor",
+      "module": "seasondecor",
+      "objects": [
+        "CatCafe_Decor_CosyKnitCushion"
+      ],
+      "triangles": 308,
+      "budget": 800,
+      "size_studs": {
+        "x": 1.71,
+        "y": 1.71,
+        "z": 0.73
+      },
+      "size_roblox": [
+        1.71,
+        0.73,
+        1.71
+      ],
+      "bounds_min": [
+        -0.85,
+        -0.85,
+        0.0
+      ],
+      "bounds_max": [
+        0.85,
+        0.85,
+        0.73
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_CosyKnitCushion.model.json",
+      "rbx_parts": 19,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_CosyKnitCushion.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_CosyKnitCushion.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "308/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "146 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_CosyKnitCushion.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_CosyKnitCushion.png"
+    },
+    {
+      "name": "CatCafe_Decor_HayBaleSeat",
+      "category": "Decor",
+      "module": "seasondecor",
+      "objects": [
+        "CatCafe_Decor_HayBaleSeat"
+      ],
+      "triangles": 364,
+      "budget": 800,
+      "size_studs": {
+        "x": 2.45,
+        "y": 1.98,
+        "z": 1.2
+      },
+      "size_roblox": [
+        2.45,
+        1.2,
+        1.98
+      ],
+      "bounds_min": [
+        -1.25,
+        -0.98,
+        -0.0
+      ],
+      "bounds_max": [
+        1.2,
+        1.0,
+        1.2
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_HayBaleSeat.model.json",
+      "rbx_parts": 25,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_HayBaleSeat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_HayBaleSeat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "364/800 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "250 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=-0.03 y=0.01"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_HayBaleSeat.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_HayBaleSeat.png"
+    },
+    {
+      "name": "CatCafe_Decor_AppleCrateShelf",
+      "category": "Decor",
+      "module": "seasondecor",
+      "objects": [
+        "CatCafe_Decor_AppleCrateShelf"
+      ],
+      "triangles": 820,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.64,
+        "y": 1.13,
+        "z": 2.19
+      },
+      "size_roblox": [
+        2.64,
+        2.19,
+        1.13
+      ],
+      "bounds_min": [
+        -1.32,
+        -0.58,
+        0.0
+      ],
+      "bounds_max": [
+        1.32,
+        0.55,
+        2.19
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_AppleCrateShelf.model.json",
+      "rbx_parts": 47,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_AppleCrateShelf.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_AppleCrateShelf.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "820/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "598 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.02"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_AppleCrateShelf.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_AppleCrateShelf.png"
+    },
+    {
+      "name": "CatCafe_Decor_MapleTreePlanter",
+      "category": "Decor",
+      "module": "seasondecor",
+      "objects": [
+        "CatCafe_Decor_MapleTreePlanter"
+      ],
+      "triangles": 492,
+      "budget": 1200,
+      "size_studs": {
+        "x": 1.9,
+        "y": 1.64,
+        "z": 3.35
+      },
+      "size_roblox": [
+        1.9,
+        3.35,
+        1.64
+      ],
+      "bounds_min": [
+        -0.95,
+        -0.82,
+        0.0
+      ],
+      "bounds_max": [
+        0.95,
+        0.82,
+        3.35
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_MapleTreePlanter.model.json",
+      "rbx_parts": 84,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_MapleTreePlanter.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_MapleTreePlanter.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "492/1200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "306 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_MapleTreePlanter.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_MapleTreePlanter.png"
+    },
+    {
+      "name": "CatCafe_Sign_VipPlate",
+      "category": "Sign",
+      "module": "signstyles",
+      "objects": [
+        "CatCafe_Sign_VipPlate"
+      ],
+      "triangles": 412,
+      "budget": 600,
+      "size_studs": {
+        "x": 3.0,
+        "y": 0.22,
+        "z": 0.8
+      },
+      "size_roblox": [
+        3.0,
+        0.8,
+        0.22
+      ],
+      "bounds_min": [
+        -1.5,
+        -18.76,
+        13.05
+      ],
+      "bounds_max": [
+        1.5,
+        -18.54,
+        13.85
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sign_VipPlate.model.json",
+      "rbx_parts": 13,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Sign_VipPlate.fbx",
+        "assets/cat-cafe/exports/CatCafe_Sign_VipPlate.glb"
+      ],
+      "gates": {
+        "pass": false,
+        "failed": [
+          "naming"
+        ],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "412/600 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "142 faces on swatch centers",
+          "naming": "bad asset name",
+          "pivot": "floor at z=13.05 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.65"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Sign_VipPlate.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Sign_VipPlate.png"
     }
   ]
 }

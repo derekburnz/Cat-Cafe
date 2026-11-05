@@ -7,8 +7,8 @@ export type Area = "alley" | "park" | "neighbourhood" | "woods" | "sewer"
 -- A cat's area: one of the five, the spare pool of cats an area-themed cat replaced (data-model 3d, F78), or
 -- "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
 export type CatArea = Area | "spare" | "exclusive"
--- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux.
-export type CatSource = "free" | "shop"
+-- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux, "pass" from the Cafe Pass paid track.
+export type CatSource = "free" | "shop" | "pass"
 export type Role = "barista" | "waiter" | "greeter" | "entertainer"
 -- A role slot is still called a spot in code, so the save field (spotId) and the UI intents keep their names.
 export type SpotType = Role
@@ -180,7 +180,12 @@ export type IndexMilestone = {
 export type ProductDef = {
 	id: string,
 	name: string,
-	prize: { potions: { [string]: number } },
+	-- `cats` (shop-only cat ids) and `signStyles` (shared/SignStyles ids) are the Starter Bundle's (#1625)
+	prize: { potions: { [string]: number }, cats: { string }?, signStyles: { string }? },
+	-- #1625: sold once per account; a second receipt pays only the potions (Products.prizeFor)
+	oncePerAccount: boolean?,
+	-- #1626: unlocks the running Cafe Pass season's paid track (CafePass.buyPaid); once per season
+	seasonPass: boolean?,
 }
 
 -- Cat food (corner-shop-v2.md section 3, #1181): kept in the Bag (profile.catFood) and fed to one cat with FeedCat.
@@ -200,6 +205,49 @@ export type IndexPrize = {
 	rainbowLuck: number?, -- F99: on every rainbow roll, the Rainbow track's sum capped at RainbowLuckMax
 	baitSpeed: number?,
 	tag: string?,
+	passXp: number?, -- #1645 (quests.md section 8): Cafe Pass XP for the running season (CafePass.addXp)
+}
+
+-- The Cafe Pass (#1645, cafe-pass.md). A paid track's named item, kept forever once claimed: a chat tag, an accessory,
+-- a uniform colour, a looks-only decor piece, a sign frame or the season cat.
+export type PassItemKind = "tag" | "accessory" | "uniform" | "decor" | "frame" | "cat"
+export type PassItem = { kind: PassItemKind, id: string, name: string }
+-- One level's reward on a track: a prize Payout pays, a named item, or both.
+export type PassReward = { prize: IndexPrize?, item: PassItem? }
+-- One season's two tracks, by level (the free track has every second level, the paid track every level).
+export type PassSeasonDef = {
+	id: string,
+	name: string,
+	free: { [number]: PassReward },
+	paid: { [number]: PassReward },
+}
+-- profile.pass (save version 36), see shared/CafePass.
+export type PassState = {
+	season: number,
+	xp: number,
+	paidSeason: number,
+	claimedFree: { number },
+	claimedPaid: { number },
+	items: { [string]: boolean },
+	tag: string?,
+}
+-- CafePassState: what the Pass screen draws (CafePass.view).
+export type CafePassView = {
+	season: number, -- 0 while no season runs
+	startsAt: number,
+	endsAt: number?, -- nil while no later season is set; the screen shows the end as a plain date
+	level: number,
+	xp: number,
+	xpPerLevel: number,
+	levels: number,
+	paid: boolean,
+	claimedFree: { number },
+	claimedPaid: { number },
+	claimable: number, -- how many rewards are ready, for the HUD's red dot
+	items: { [string]: boolean },
+	tag: string?, -- the saved chat tag pick: a ChatTags id, "off", or nil for the default
+	tags: { string }?, -- #1626: the chat tags the player may pick now (ChatTags.choices), set by CafePassService
+	tagShown: string?, -- #1626: the tag their name shows now (ChatTags.shown), nil for none
 }
 
 -- A potion (F64, data-model section 12b): drunk from the bag with UsePotion, it runs `minutes` of play time.
@@ -373,7 +421,8 @@ export type AreaDef = {
 export type SpotDef = {
 	id: string, -- "barista_1"
 	spotType: SpotType, -- the role
-	tier: number, -- opens at this tier
+	tier: number, -- opens at this tier; a pass-only slot (#1624) has a tier past the last, opened by Economy.extraSlots
+	passOnly: boolean?, -- #1624: opened only by an extra slot (Grand Cafe, the Extra Slot pass), never by a tier
 }
 
 -- One cafe tier (data-model section 5b). RankUp raises the tier when every requirement is met.
@@ -408,6 +457,8 @@ export type CatInstance = {
 	-- Legendary and Mythical cats arrive locked.
 	locked: boolean?,
 }
+
+export type PassBoostsView = { cafe: number, staff: number, rich: number, money: number }
 
 -- One cat as ProfileSync sends it: the saved fields plus the derived numbers the UI shows.
 export type CatView = {
@@ -469,7 +520,7 @@ export type Stats = {
 	bestRate: number,
 	weekPlay: WeekPlay,
 	weekBestRate: WeekRate,
-	-- F102 (trading.md section 6): trades done, and today's count for TradesPerDay (the day is a UTC day number)
+	-- F102 (trading.md section 6): trades done, and today's count for TradesPerDay (the day is a global game day since #1629)
 	trades: number,
 	tradesToday: TradesToday,
 }
@@ -971,6 +1022,12 @@ export type PlayerProfile = {
 	catFood: { [string]: number }, -- #1181 (corner-shop-v2.md section 3, save version 32): food id -> count in the Bag
 	hideCredit: boolean?, -- #1083 (idea-credits.md section 4, save version 30): true keeps the name off the Thank You board
 	receipts: { string }, -- #1182 (save version 31): the newest Products.RECEIPT_LIMIT developer product PurchaseIds granted
+	-- #1625 (save version 35): the once-per-account products already bought (product id -> true), the saved sign
+	-- styles owned (SignStyles id -> true; pass styles are not saved) and the sign's pick (nil: the plain sign)
+	onceBought: { [string]: boolean },
+	signStyles: { [string]: boolean },
+	signStyle: string?,
+	pass: PassState, -- #1645 (save version 36): the Cafe Pass
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.
@@ -1028,11 +1085,19 @@ export type PlayerState = {
 	feedbackAsked: boolean,
 	stuckHelpShown: { [string]: boolean },
 	starterCatClaimed: boolean, -- F96: the Bellhop Cat's stand card reads "Already home with you"
+	starterBought: boolean, -- #1625: the Starter Bundle is bought, so its Store card hides
+	signStyles: { string }, -- #1625: every sign style owned (SignStyles.owned), saved or through a pass
+	signStyle: string?, -- #1625: the pick SetSignStyle saved, nil for the plain sign
 	luck: number, -- F88: the player's Luck now (shared/Luck), x1 to LuckMax; the HUD chip shows it above 1
 	luckSources: { LuckSource }, -- F88: what adds it, in order (statue, potion, lucky_day)
 	-- F95 (economy-ladder.md section 5): the Long Nap pass is owned, so the welcome back card says full pay up to
 	-- OfflineCapPassSeconds instead of half pay up to OfflineCapSeconds
 	longNap: boolean,
+	-- #1624: what the store passes give, for the money card's Boosts list: `cafe` added into the cafe bonus (VIP,
+	-- Cafe Style, Grand Cafe), `staff` the working cats' multiplier (Accessories, Uniforms), `rich` how many times as
+	-- often rich visitors come, `money` the Money pass multiplier
+	passBoosts: PassBoostsView,
+	extraSlots: number?, -- #1624: role slots past the tier's own (Catalog.slotIsOpen), from Grand Cafe and Extra Slot
 	tradeLog: { TradeLogEntry }, -- F102: the Trades page, newest first
 	-- F91: the Decor screen's Front lawn tab (what is owned, on each spot and in use); the street reads the plot's
 	-- Lawn_<spotId>, LawnPath and LawnFence attributes instead

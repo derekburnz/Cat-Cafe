@@ -43,9 +43,11 @@ import crates  # noqa: E402
 import icon_art  # noqa: E402
 import hud_icons  # noqa: E402
 import items  # noqa: E402
+import market_icons  # noqa: E402
 import menu  # noqa: E402
 import potion_icons  # noqa: E402
 import potions  # noqa: E402
+import store_icons  # noqa: E402
 from common import RB  # noqa: E402
 
 OUT = os.path.join(ROOT, "assets", "cat-cafe", "exports", "icons")
@@ -80,6 +82,9 @@ def _hud_decor(mat):
 
 
 # icon -> (builder, outline colour, outline width in pixels at 512, (yaw, pitch) of the view)
+STORE_PAD = 0.34                # the margin each side for the Store icons: the subject stays inside the middle 80%
+MARKET_VIEWS = {"Crates": QUARTER, "Treats": (-14.0, 14.0), "FreshCatch": (-16.0, 24.0)}
+
 ICONS = {
     "CatCafe_Icon_GoldenFish": (icon_art.golden_fish, GOLD_INK, 10, (0.0, 8.0)),
     **{f"CatCafe_Icon_Crate_{p}{'_Gold' if g else ''}": ((lambda m, p=p, g=g: crates.build_crate(p, m, g)),
@@ -103,6 +108,13 @@ ICONS = {
        for k in potions.POTIONS},
     **{f"CatCafe_Icon_PotionFlask_{n}": (fn, INK, 10, (-12.0, 8.0)) for n, fn in potion_icons.BUILDERS.items()},
     **{f"CatCafe_Icon_Menu_{n}": ((lambda m, n=n: menu._BUILDS[n](m)), INK, 10, (-22.0, 30.0)) for n in menu.ITEMS},
+    # #1628: the Golden Fish Market's three tabs (market_icons.py)
+    **{f"CatCafe_Icon_Market_{n}": (fn, INK, 10, MARKET_VIEWS[n]) for n, fn in market_icons.BUILDERS.items()},
+    # #1623: the Store's passes and products, framed wide (STORE_PAD) for Roblox's circle crop (store_icons.py)
+    **{f"CatCafe_Icon_Pass_{n}": (fn, INK, 10, store_icons.VIEWS[n], store_icons.PADS.get(n, STORE_PAD))
+       for n, fn in store_icons.PASSES.items()},
+    **{f"CatCafe_Icon_Product_{n}": (fn, INK, 10, store_icons.VIEWS[n], store_icons.PADS.get(n, STORE_PAD))
+       for n, fn in store_icons.PRODUCTS.items()},
     # #1191: the shop-only cats' Store card and cat book picture, the sitting cat in its props, three-quarter front
     **{f"CatCafe_Icon_Cat_{n}": ((lambda m, n=n: cats.build_cat(n, m, body="sit")), INK, 10, (-24.0, 8.0))
        for n, spec in cats.ROSTER.items() if spec.get("shop")},
@@ -146,7 +158,7 @@ def _lights():
     bg.inputs["Strength"].default_value = 0.7
 
 
-def _camera(objs, view=(0.0, 0.0)):
+def _camera(objs, view=(0.0, 0.0), pad=None):
     """Orthographic, looking at the model's front (-Y in Blender) turned `yaw` degrees about the up axis and
     tilted `pitch` degrees down, framing every vertex with PAD around."""
     yaw, pitch = view
@@ -162,7 +174,7 @@ def _camera(objs, view=(0.0, 0.0)):
     right, up, fwd = R @ Vector((1, 0, 0)), R @ Vector((0, 1, 0)), R @ Vector((0, 0, -1))
     pts = [ob.matrix_world @ v.co for ob in objs for v in ob.data.vertices]
     us, vs = [p.dot(right) for p in pts], [p.dot(up) for p in pts]
-    cd.ortho_scale = max(max(us) - min(us), max(vs) - min(vs)) * (1 + 2 * PAD)
+    cd.ortho_scale = max(max(us) - min(us), max(vs) - min(vs)) * (1 + 2 * (PAD if pad is None else pad))
     centre = right * (max(us) + min(us)) / 2 + up * (max(vs) + min(vs)) / 2
     depth = min(p.dot(fwd) for p in pts)
     cam.location = centre + fwd * (depth - 10.0)
@@ -194,7 +206,8 @@ def _outline(path, colour, width):
 
 
 def render_icon(name, mat, samples=48):
-    build, colour, width, view = ICONS[name]
+    build, colour, width, view = ICONS[name][:4]
+    pad = ICONS[name][4] if len(ICONS[name]) > 4 else None
     objs = build(mat)
     common.hide_all_meshes()
     common.show(objs)
@@ -213,7 +226,7 @@ def render_icon(name, mat, samples=48):
     if fl:
         fl.hide_render = True
     _lights()
-    _camera(objs, view)
+    _camera(objs, view, pad)
     os.makedirs(OUT, exist_ok=True)
     path = os.path.join(OUT, name + ".png")
     sc.render.filepath = path

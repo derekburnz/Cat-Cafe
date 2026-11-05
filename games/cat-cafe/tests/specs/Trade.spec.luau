@@ -9,6 +9,9 @@ return function()
 	local Config = require(Shared.Config)
 	local ProfileSchema = require(Shared.ProfileSchema)
 	local Trade = require(Shared.Trade)
+	-- #1629: TradesPerDay counts the global game day; two sunrises on the shared clock
+	local DAY3 = Config.ClockEpoch + require(Shared.Clock).sunriseOf(3)
+	local DAY4 = Config.ClockEpoch + require(Shared.Clock).sunriseOf(4)
 
 	-- the first catalog cat of `rarity` that spawns (not exclusive)
 	local function catOf(rarity: string): string
@@ -330,18 +333,18 @@ return function()
 		end)
 
 		it(
-			"keeps the last TradeLogMax log entries and TradeIdsMax ids, and counts today by UTC day",
+			"keeps the last TradeLogMax log entries and TradeIdsMax ids, and counts today by game day",
 			function()
 				local p = ProfileSchema.template(1000)
 				for n = 1, Config.TradeIdsMax + 5 do
-					Trade.apply(p, "t" .. n, "Sam", {}, {}, {}, 86400 * 3 + n)
+					Trade.apply(p, "t" .. n, "Sam", {}, {}, {}, DAY3 + n)
 				end
 				expect(#p.tradeLog).to.equal(Config.TradeLogMax)
 				expect(p.tradeLog[1].id).to.equal("t" .. (Config.TradeIdsMax + 5))
 				expect(#p.tradeIds).to.equal(Config.TradeIdsMax)
 				expect(p.tradeIds[1]).to.equal("t6")
-				expect(Trade.today(p, 86400 * 3 + 1)).to.equal(Config.TradeIdsMax + 5)
-				expect(Trade.today(p, 86400 * 4)).to.equal(0)
+				expect(Trade.today(p, DAY3 + 1)).to.equal(Config.TradeIdsMax + 5)
+				expect(Trade.today(p, DAY4)).to.equal(0) -- #1629: the next game day
 			end
 		)
 	end)
@@ -554,6 +557,24 @@ return function()
 			local loaded = ProfileSchema.migrate(raw, 1000)
 			expect(loaded.decorUnlocked :: any).to.deepEqual({ [legend] = true })
 			expect(ProfileSchema.template(1000).decorUnlocked :: any).to.deepEqual({})
+		end)
+	end)
+
+	describe("TradesPerDay by the game day (#1629)", function()
+		it("counts trades per in-game day and starts afresh at the next sunrise", function()
+			local Clock = require(Shared.Clock)
+			local start = Config.ClockEpoch + Clock.sunriseOf(40)
+			local p: any = ProfileSchema.template(start)
+			Trade.countToday(p, start + 10)
+			Trade.countToday(p, start + 20)
+			expect(Trade.today(p, start + 30)).to.equal(2)
+			expect(Trade.day(start + 30)).to.equal(40)
+			-- the next sunrise, well inside the same UTC day
+			local next = Config.ClockEpoch + Clock.sunriseOf(41)
+			expect(Trade.today(p, next)).to.equal(0)
+			-- an old save's UTC day number never matches a game day
+			p.stats.tradesToday = { day = start // 86400, count = 50 }
+			expect(Trade.today(p, start + 30)).to.equal(0)
 		end)
 	end)
 end

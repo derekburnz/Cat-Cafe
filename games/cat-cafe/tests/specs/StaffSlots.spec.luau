@@ -131,6 +131,73 @@ return function()
 			end
 		end)
 
+		-- #1624: Catalog.allSpots as Gameplay's #1652 builds it, the tier slots then two pass-only waiter slots
+		local function allSpots(): { any }
+			local list = table.clone(Catalog.spots)
+			table.insert(list, { id = "waiter_4", spotType = "waiter", tier = 6, passOnly = true })
+			table.insert(list, { id = "waiter_5", spotType = "waiter", tier = 6, passOnly = true })
+			return list
+		end
+
+		it("hides the pass-only slots until extra slots open them (#1624)", function()
+			local waiter = byRole(StaffSlots.rows(allSpots(), Catalog.maxTier, {}))
+			local hidden = 0
+			for _, slot in waiter.waiter.slots do
+				if slot.hidden then
+					hidden += 1
+					expect(slot.kind).to.equal("locked")
+				end
+			end
+			expect(hidden).to.equal(2)
+			-- never "opens at Tier 6": the hidden slots stay out of the summary
+			expect(waiter.waiter.summary:find("Tier 6")).to.equal(nil)
+			expect(waiter.waiter.locked).to.equal(0)
+			-- two extra slots at the top tier open both pass-only slots
+			local extra = byRole(StaffSlots.rows(allSpots(), Catalog.maxTier, {}, 2)).waiter
+			for _, slot in extra.slots do
+				expect(slot.hidden).to.equal(nil)
+				expect(slot.kind).to.equal("open")
+			end
+		end)
+
+		it(
+			"opens the next tier's slot early with an extra slot, as Catalog.slotIsOpen does (#1624)",
+			function()
+				local function openCount(rows: { any }): number
+					local count = 0
+					for _, row in rows do
+						count += row.open + row.working
+					end
+					return count
+				end
+				local base = openCount(StaffSlots.rows(allSpots(), 1, {}))
+				local plusOne = StaffSlots.rows(allSpots(), 1, {}, 1)
+				expect(openCount(plusOne)).to.equal(base + 1)
+				-- the slot opened early is the first spot past tier 1 in opening order
+				local early: any = nil
+				for _, spot in Catalog.spots do
+					if spot.tier > 1 then
+						early = spot
+						break
+					end
+				end
+				local found = false
+				for _, row in plusOne do
+					for _, slot in row.slots do
+						if slot.spotId == early.id then
+							found = true
+							expect(slot.kind).to.equal("open")
+						end
+					end
+				end
+				expect(found).to.equal(true)
+				-- without extra it matches the old tier rule
+				expect(openCount(StaffSlots.rows(Catalog.spots, 2, {}))).to.equal(
+					openCount(StaffSlots.rows(allSpots(), 2, {}, 0))
+				)
+			end
+		)
+
 		it("initial keeps a whole emoji or digit and upper-cases ASCII only", function()
 			expect(StaffSlots.initial("\u{1F431}Mochi")).to.equal("\u{1F431}")
 			expect(StaffSlots.initial("\u{1F44D}\u{1F3FD}")).to.equal("\u{1F44D}")

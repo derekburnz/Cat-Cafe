@@ -329,28 +329,33 @@ return function()
 			lantern = { "Lantern", "Rare", "sewer", "waiter" },
 		}
 
-		it("has exactly 63 cats: the 20 slice, 30 later and 10 spare, the Bellhop Cat (F96) and 2 pass cats (#1447)", function()
-			expect(#Catalog.cats).to.equal(63)
-			for _, def in ipairs(Catalog.cats) do
-				expect(
-					slice[def.id] ~= nil
-						or reserved[def.id] ~= nil
-						or spares[def.id] ~= nil
-						or def.id == "bellhop_cat"
-						or def.id == "duchess_marzipan"
-						or def.id == "king_croissant"
-				).to.equal(true)
+		it(
+			"has exactly 65 cats: the 20 slice, 30 later and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles and Maple Muffin",
+			function()
+				expect(#Catalog.cats).to.equal(65)
+				for _, def in ipairs(Catalog.cats) do
+					expect(
+						slice[def.id] ~= nil
+							or reserved[def.id] ~= nil
+							or spares[def.id] ~= nil
+							or def.id == "bellhop_cat"
+							or def.id == "duchess_marzipan"
+							or def.id == "king_croissant"
+							or def.id == "sprinkles" -- #1625: the Starter Bundle's cat
+							or def.id == "maple_muffin" -- #1626: the Cafe Pass season cat
+					).to.equal(true)
+				end
+				for id in pairs(slice) do
+					expect(Catalog.getCat(id)).to.be.ok()
+				end
+				for id in pairs(reserved) do
+					expect(Catalog.getCat(id)).to.be.ok()
+				end
+				for id in pairs(spares) do
+					expect(Catalog.getCat(id)).to.be.ok()
+				end
 			end
-			for id in pairs(slice) do
-				expect(Catalog.getCat(id)).to.be.ok()
-			end
-			for id in pairs(reserved) do
-				expect(Catalog.getCat(id)).to.be.ok()
-			end
-			for id in pairs(spares) do
-				expect(Catalog.getCat(id)).to.be.ok()
-			end
-		end)
+		)
 
 		it(
 			"keeps every spare cat as it was, in the spare pool, earning at the area it came from",
@@ -449,7 +454,9 @@ return function()
 						expect(def.area).to.equal("exclusive") -- F96: never spawns, earns at the newest area
 					else
 						expect(
-							areaSet[if def.area == "spare" then def.incomeArea :: string else def.area]
+							areaSet[if def.area == "spare"
+								then def.incomeArea :: string
+								else def.area]
 						).to.equal(true)
 					end
 					expect((def :: any).favoriteSpot).never.to.be.ok()
@@ -819,29 +826,32 @@ return function()
 			fish_tank = { rarity = "Epic", bonus = 0.10, asset = "CatCafe_Decor_FishTank" },
 		}
 
-		it("has exactly the four old shop pieces, now never sold and found in the Classic Crate", function()
-			expect(#Catalog.decor).to.equal(4)
-			local classic = assert(Catalog.getCrate("classic_crate"))
-			local inCrate: { [string]: boolean } = {}
-			for _, decorId in classic.pieces do
-				inCrate[decorId] = true
+		it(
+			"has exactly the four old shop pieces, now never sold and found in the Classic Crate",
+			function()
+				expect(#Catalog.decor).to.equal(4)
+				local classic = assert(Catalog.getCrate("classic_crate"))
+				local inCrate: { [string]: boolean } = {}
+				for _, decorId in classic.pieces do
+					inCrate[decorId] = true
+				end
+				for id, row in pairs(expected) do
+					local def = Catalog.getDecor(id)
+					expect(def).to.be.ok()
+					assert(def)
+					expect(def.cost).to.equal(0)
+					expect(def.source).to.equal("crate")
+					expect(def.crate).to.equal("classic")
+					expect(def.rarity).to.equal(row.rarity)
+					expect(def.bonus).to.be.near(row.bonus)
+					expect(def.requiresTier).never.to.be.ok()
+					expect((def :: any).requiresCafeLevel).never.to.be.ok()
+					expect(def.asset).to.equal(row.asset)
+					expect(#def.effect > 0).to.equal(true)
+					expect(inCrate[id]).to.equal(true)
+				end
 			end
-			for id, row in pairs(expected) do
-				local def = Catalog.getDecor(id)
-				expect(def).to.be.ok()
-				assert(def)
-				expect(def.cost).to.equal(0)
-				expect(def.source).to.equal("crate")
-				expect(def.crate).to.equal("classic")
-				expect(def.rarity).to.equal(row.rarity)
-				expect(def.bonus).to.be.near(row.bonus)
-				expect(def.requiresTier).never.to.be.ok()
-				expect((def :: any).requiresCafeLevel).never.to.be.ok()
-				expect(def.asset).to.equal(row.asset)
-				expect(#def.effect > 0).to.equal(true)
-				expect(inCrate[id]).to.equal(true)
-			end
-		end)
+		)
 
 		it("effect text states the bonus percentage", function()
 			for _, def in ipairs(Catalog.decor) do
@@ -1128,10 +1138,10 @@ return function()
 				local want = {
 					-- F95 (economy-ladder.md section 1): income 1, 3, 9, 27, 81
 					{ "alley", "Alleyway", 1, 32, same, 8, 1 }, -- v4 (F84, v0.13.18): 24 and the 8 near points
-					{ "park", "Park", 2, 48, same, 7, 3 }, -- F85's long set's cat spots (#799)
-					{ "neighbourhood", "Neighbourhood", 3, 77, same, 7, 9 }, -- F85's long set's cat spots (#810, #905)
-					{ "woods", "Woods", 4, 72, same, 6, 27 }, -- F85's long set (#847) and the oak top
-					{ "sewer", "Sewer", 5, 60, same, 6, 81 }, -- F85's long set's cat spots (#860)
+					{ "park", "Park", 2, 48, same, 9, 3 }, -- F85's long set's cat spots (#799)
+					{ "neighbourhood", "Neighbourhood", 3, 77, same, 9, 9 }, -- F85's long set's cat spots (#810, #905)
+					{ "woods", "Woods", 4, 72, same, 8, 27 }, -- F85's long set (#847) and the oak top
+					{ "sewer", "Sewer", 5, 60, same, 8, 81 }, -- F85's long set's cat spots (#860)
 				}
 				expect(#Catalog.areas).to.equal(#want)
 				for i, row in want do
@@ -1140,7 +1150,7 @@ return function()
 					expect(def.name).to.equal(row[2])
 					expect(def.tier).to.equal(row[3])
 					expect(def.spawnPoints).to.equal(row[4])
-					expect(def.waveSize).to.equal(row[6]) -- #1452: 8, 7, 7, 6, 6 (v0.13.5 6, 5, 5, 4, 4; 10 each before)
+					expect(def.waveSize).to.equal(row[6]) -- #1621: 8, 9, 9, 8, 8 (#1452 8, 7, 7, 6, 6; v0.13.5 6, 5, 5, 4, 4)
 					expect(def.incomeMultiplier).to.equal(row[7])
 					local odds = row[5] :: { number }
 					expect(def.odds :: any).to.deepEqual({

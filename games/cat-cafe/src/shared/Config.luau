@@ -21,7 +21,7 @@ local Config = {
 	-- Money passes by the income they multiply by (the highest owned counts); each extra slot pass adds a role slot.
 	-- Tools-Agent made the four in tools/opencloud/passes.json on 2026-11-02 (off sale until launch), and the rest on
 	-- 2026-11-04 as off-sale placeholders (#1197). Each stays off sale until the code that grants it is merged; the
-	-- Store cards (#1240) read the ids, and PassService already grants the extra slot to an owner.
+	-- Store cards (#1240) read the ids. Each extra slot (Economy.extraSlots, #1624) opens the next role slot early.
 	LongNapPassId = 2064345084,
 	MoneyPassIds = { [2] = 2064604577, [3] = 2064670602, [4] = 2064357148 } :: { [number]: number },
 	ExtraSlotPassIds = { 2066816325 } :: { number },
@@ -34,16 +34,34 @@ local Config = {
 	KingPackPassId = 2071368679,
 	GoldenPondPassId = 2071704337, -- #1232
 	SecondBowlPassId = 2072132265, -- #1161
+	-- #1624 (economy-ladder.md section 6a v2.4): what the five store passes give. VIP, Cafe Style and Grand Cafe add
+	-- into cafeMultiplier like tables and decor; Cat Accessories and Uniform Styles each multiply every working cat's
+	-- rate; Cafe Style and Grand Cafe add to how often rich visitors come (x(1 + 0.25 + 1.0) with both).
+	VipCafeBonus = 0.10,
+	CafeStyleCafeBonus = 0.50,
+	GrandCafeBonus = 1.50,
+	AccessoriesStaffMultiplier = 1.15,
+	UniformsStaffMultiplier = 1.15,
+	CafeStyleRichRate = 0.25,
+	GrandRichRate = 1.0,
+	GrandExtraSlots = 1, -- #1624: Grand Cafe's +1 job slot at every tier, adding to each Extra Slot pass's 1
 	-- Developer product ids (#1182) by Catalog.products id; a 0 is never granted. ProductService's ProcessReceipt reads
 	-- them. Tools-Agent made these with dev-products.yml on 2026-11-04 (tools/opencloud/products.json), off sale until
-	-- launch. The Starter Bundle (3728336166) and Cafe Pass (3728336202) products exist too, off sale, and join this
-	-- table with their Catalog.products entries.
+	-- launch. The Starter Bundle (3728336166) and Cafe Pass (3728336202) products were made the same way.
 	ProductIds = {
 		potion_pack_xs = 3728336174,
 		potion_pack_s = 3728336184,
 		potion_pack_m = 3728336191,
 		potion_pack_l = 3728336197,
+		starter_bundle = 3728336166, -- #1625: once per account (Catalog.products oncePerAccount)
+		cafe_pass = 3728336202, -- #1626: the running season's paid track, once per season (Catalog.products seasonPass)
 	} :: { [string]: number },
+	-- The Cafe Pass (#1645, cafe-pass.md section 1): each season's first day as a UTC date, oldest first. Season 1
+	-- starts the day the game goes public (Derek sets it); with no date the pass is closed outside Studio, where a
+	-- preview season 1 runs for playtests (shared/CafePass).
+	SeasonStarts = {} :: { string },
+	PassLevels = 30,
+	PassXpPerLevel = 800,
 	AutosaveSeconds = 60,
 	SyncIntervalSeconds = 10, -- periodic ProfileSync even when nothing changed (the client predicts in between)
 
@@ -215,9 +233,15 @@ local Config = {
 	-- #1159 (shared/StrayTopUp): by day an area under its floor of live strays gets one more every 40 to 80 s, at a
 	-- far point first. The floor is StrayFloorBase for one player plus StrayFloorPerPlayer for each more who has the
 	-- area open, never above StrayLiveMax live cats in the area (the 10-28 "way too many" line is a live cap).
-	StrayFloorBase = 7, -- #1452 (was 5)
+	StrayFloorBase = 9, -- #1452 (was 5), more strays near the gates (was 7)
 	StrayFloorPerPlayer = 1,
-	StrayLiveMax = 14, -- #1452 (was 12)
+	StrayLiveMax = 16, -- #1452 (was 12), more strays near the gates (was 14)
+	-- Derek2 2026-11-05, "no cats start of sewer": a gated area keeps StrayEntryFloor live strays within
+	-- StrayEntryStuds of its gate by day. The commonest of each sunrise wave land there, and while it is short one more
+	-- arrives at an entry point every StrayEntryTopUpSeconds, still under StrayLiveMax (shared/StrayTopUp).
+	StrayEntryFloor = 3,
+	StrayEntryStuds = 120,
+	StrayEntryTopUpSeconds = 20,
 	StrayTopUpMinSeconds = 40, -- #1452: 40 to 80 s (was 60 to 120)
 	StrayTopUpMaxSeconds = 80,
 	StrayWanderSpeed = 3,
@@ -363,9 +387,10 @@ local Config = {
 	TipPileShowSeconds = 90,
 
 	-- The Mystery Visitor and potions (F64, data-model section 12b). Potions are earned only, never sold.
-	-- #1135: on a timer from MysteryEveryMin to MysteryEveryMax seconds of open day (1500 on average, as 120 s at 8%)
-	MysteryEveryMin = 900,
-	MysteryEveryMax = 2100,
+	-- #1135: on a timer from MysteryEveryMin to MysteryEveryMax seconds of open day; 1250 on average, a fifth more
+	-- often than the first 1500 (Derek2 2026-11-05: "up the rates of people leaving them slightly")
+	MysteryEveryMin = 750,
+	MysteryEveryMax = 1750,
 	MysteryStaySeconds = 120, -- the hooded visitor sits this long; dusk or a plot release sends it home sooner
 	MysteryGiftKeepSeconds = 600, -- an unopened gift is gone after this, or when its owner leaves (Derek 01:32)
 	MysteryRangeStuds = 12, -- OpenMysteryGift from this close to the gift
@@ -524,9 +549,9 @@ local Config = {
 	-- A request waits TradeRequestSeconds; declined or timed out, the asker waits TradeReaskSeconds to ask that player
 	-- again. TradeCountdownSeconds after both press Ready the confirm screen opens; a lopsided trade (one side gives at
 	-- least TradeLopsidedRatio times the Collector value it gets) or a gift holds that side's Confirm for
-	-- TradeConfirmWaitSeconds. TradeCooldownSeconds between a player's trades, TradesPerDay a UTC day. The Trades page
-	-- keeps TradeLogMax trades, the save TradeIdsMax applied trade ids. Every server reads the CatCafe_Flags kill switch
-	-- every TradeFlagCheckSeconds.
+	-- TradeConfirmWaitSeconds. TradeCooldownSeconds between a player's trades, TradesPerDay a game day (#1629, was a
+	-- UTC day). The Trades page keeps TradeLogMax trades, the save TradeIdsMax applied trade ids. Every server reads the
+	-- CatCafe_Flags kill switch every TradeFlagCheckSeconds.
 	TradeMinTier = 3,
 	TradeMaxCats = 9,
 	TradeMaxDecor = 9, -- #1574 (section 1b): decor and lawn pieces a side, beside the cats

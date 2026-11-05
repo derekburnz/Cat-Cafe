@@ -1,6 +1,7 @@
 --!strict
 -- Save data (data-model section 14): template, migration and sanitising. Pure.
 
+local CafePass = require(script.Parent.CafePass)
 local CampExtras = require(script.Parent.CampExtras)
 local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
@@ -14,6 +15,7 @@ local Onboarding = require(script.Parent.Onboarding)
 local Products = require(script.Parent.Products)
 local Rally = require(script.Parent.Rally)
 local Settings = require(script.Parent.Settings)
+local SignStyles = require(script.Parent.SignStyles)
 local Spin = require(script.Parent.Spin)
 local StarterCat = require(script.Parent.StarterCat)
 local Tips = require(script.Parent.Tips)
@@ -99,9 +101,13 @@ local ProfileSchema = {}
 -- the food and letting the player roll that bowl again by hopping servers during a rollout.
 -- #1574 (no new version): decorUnlocked, the Legendary and up pieces unlocked to trade, and the trade log's gaveDecor
 -- and gotDecor. An older server drops them, which only locks those pieces again and shortens old log entries.
--- Version 35 (#1537, lawn-nursery.md section 7) adds yardDecor, the Yard Sale's lawn rows bought this global game
+-- Version 35 (#1625) adds onceBought, signStyles and signStyle, the Starter Bundle's once-per-account mark and the
+-- sign styles: an older server would drop them, losing the Bakery Stripes sign and letting the bundle be bought as new.
+-- Version 36 (#1645, cafe-pass.md section 6) adds pass, the Cafe Pass's XP, claims, paid season and items: an older
+-- server would drop it, losing the XP and letting a reward be claimed twice by hopping servers during a rollout.
+-- Version 37 (#1537, lawn-nursery.md section 7) adds yardDecor, the Yard Sale's lawn rows bought this global game
 -- day: an older server would drop it, letting the player buy the same row again by hopping servers during a rollout.
-ProfileSchema.VERSION = 35
+ProfileSchema.VERSION = 37
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -268,6 +274,10 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		hideCredit = nil,
 		receipts = {},
 		catFood = {},
+		onceBought = {},
+		signStyles = {},
+		signStyle = nil,
+		pass = CafePass.fresh(0),
 	}
 end
 
@@ -916,6 +926,12 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.hideCredit = if raw.hideCredit == true then true else nil
 	-- #1182 (version 31): the granted PurchaseIds, kept as strings, newest last; older saves have granted none
 	profile.receipts = Products.sanitize(raw.receipts)
+	-- #1625 (version 35): the once-per-account products bought, the saved sign styles and the pick; none before
+	profile.onceBought = Products.sanitizeOnce(raw.onceBought)
+	profile.signStyles = SignStyles.sanitize(raw.signStyles)
+	profile.signStyle = SignStyles.sanitizePick(raw.signStyle)
+	-- #1645 (version 36): the Cafe Pass; saves before it start at season 0 with nothing (CafePassService rolls it on)
+	profile.pass = CafePass.sanitize(raw.pass)
 	-- #1181 (version 32): the Bag's cat food, known foods only, whole counts of 1 to CatFoodMax
 	if type(raw.catFood) == "table" then
 		for _, food in Catalog.catFood do

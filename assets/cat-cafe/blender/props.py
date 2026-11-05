@@ -1553,6 +1553,34 @@ def velvet_cape(ctx):
     U.ico((0, -0.08, 0.08), 0.06, "pearl")                                                      # clasp, at the front
 
 
+def _maple_leaf(P, at, k, rot, sw="fur_rust_red"):
+    """A small maple leaf facing up its pen's z: five spiky lobes round a heart."""
+    P.star(at(0, 0, 0), 0.075 * k, 0.034 * k, 0.02, sw, rot=rot)
+    for (u, v, rr) in ((0.0, 0.035, 0.04), (-0.035, 0.0, 0.032), (0.035, 0.0, 0.032)):   # fuller lobes
+        P.star(at(u * k, v * k, 0.0), rr * k, rr * 0.5 * k, 0.02, sw, rot=rot)
+
+
+def maple_beret(ctx):
+    """#1637 Maple Muffin, the Cafe Pass season 1 cat: a small forest-green knitted beret tipped to the right, a
+    ribbed band, a stalk on top and a red maple leaf pin on its left front."""
+    P = ctx.pen("head")
+    R = _ry(-12)
+    o = Vector((-0.04, 0.0, 0.05))
+
+    def at(u, v, w):
+        return tuple(o + R @ Vector((u, v, w)))
+    P.cyl(at(0, 0, 0), 0.36, 0.08, "leaf_green", rot=R, segments=16)                        # ribbed band
+    for k in range(16):                                                                     # its ribs
+        a = 2 * math.pi * (k + 0.5) / 16
+        P.box(at(0.36 * math.cos(a), 0.36 * math.sin(a), 0.0), (0.03, 0.03, 0.07), "leaf_dark",
+              rot=R @ _rz(math.degrees(a)))
+    P.cyl(at(0, 0, 0.08), 0.38, 0.09, "leaf_dark", rot=R, r2=0.32, segments=16)             # the knit crown
+    P.cyl(at(0, 0, 0.15), 0.31, 0.05, "leaf_dark", rot=R, r2=0.2, segments=14)
+    P.cyl(at(0, 0, 0.2), 0.03, 0.07, "leaf_dark", rot=R, segments=6)                        # stalk
+    _maple_leaf(P, lambda u, v, w: at(0.17 + u, -0.3 + v, 0.11 + w), 2.0, R @ _rx(-70))
+    P.ico(at(0.17, -0.33, 0.12), 0.025, "gold_mid")                                        # the pin's head
+
+
 CROWN_TOP = 0.42                        # King Croissant's crown: its top in head-frame units (CrownTop Attachment)
 
 
@@ -1619,6 +1647,8 @@ PROPS = {
     "Sprinkles": ("Head", pastry_hat),
     "DuchessMarzipan": ("Head", pearl_tiara),
     "KingCroissant": ("Head", king_crown),
+    # #1637 the Cafe Pass season 1 cat
+    "MapleMuffin": ("Head", maple_beret),
 }
 # Second props (data-model 3, v0.10 and v0.13: "one or two props is fine"), in a different slot from the first: the
 # object is `..._Prop2` and the model's PropSlot2 attribute names its slot.

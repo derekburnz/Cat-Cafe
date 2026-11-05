@@ -61,6 +61,35 @@ No Luck is sold for Robux in v1. Paid Luck would turn every roll it touches into
 - Save change: the `lucky_cat` upgrade level, through the existing `upgradeLevels`.
 - Who builds: Gameplay-Engineer (Luck, rolls, Lucky Day, upgrade), UI-Engineer (chip, card, banner, shop row), Model-Agent (the statue at five looks and the plinth), VFX-Agent (the gold sky tint, the statue's level-up sparkle), Animation-Engineer (the waving paw), Sound-Agent (a Lucky Day chime).
 
+### 1g. Day rolls v2: Lucky, Golden and Rainbow Days (#1572)
+
+Derek, 2026-11-05 (Set 6 Q9 and Sets 7 to 9): days are rolled at the start of each day, stackable, "Lucky 33%, Golden 20%, Rainbow 10%", per server or global both fine. This replaces 1c's "every 4th day" (`LuckyDayEvery`). The Lucky Cat statue (1a) is already built and stays as it is.
+
+- **One global roll.** Each kind is rolled on its own from the global day number (`Clock` day since `Config.ClockEpoch`, #1555) with a fixed seed per kind, so every server has the same day at the same moment and nobody gains by hopping servers. All three can land on the same day.
+
+  | day | chance | what it does, from that sunrise to night |
+  |---|---|---|
+  | Lucky Day | 33% (`LuckyDayChance`) | as 1c: the sunrise wave and traps roll at Luck x2, every player gets +0.5 Luck |
+  | Golden Day | 20% (`GoldenDayChance`) | every gold roll (net, bait, rescue) x2 (`GoldenDayGoldMultiplier`), so 5% becomes 10% |
+  | Rainbow Day | 10% (`RainbowDayChance`) | every rainbow roll x3 (`RainbowDayMultiplier`), on top of rainbow luck |
+
+- **What players see.** The sunrise banner names every kind of the day at once ("Lucky Day! Golden Day!"), the sky takes the gold tint for any of them, and the HUD's day clock shows today's kinds as small chips. Each chip's card gives its effect and its chance. Because the roll is random, the old "Lucky Day in 2 days" countdown goes; the warning 15 s before sunrise stays, naming tomorrow's kinds, since the server can already roll them. The food cards and the Fish Market's odds card show the boosted gold and rainbow chances on those days.
+- **Not sold, no urgency.** Days are free, frequent (about 1 day in 3 is lucky) and the same for everyone. No Robux or coin offer appears on or about a special day.
+- Contracts: Config `LuckyDayChance` 0.33, `GoldenDayChance` 0.2, `RainbowDayChance` 0.1, `GoldenDayGoldMultiplier` 2, `RainbowDayMultiplier` 3; `LuckyDayEvery` goes. `Clock.dayKinds(day)` returns `{ lucky, golden, rainbow }`, pure, with a spec that checks the rates over 100,000 days within 0.5 points. The Clock folder gains `GoldenDay` and `RainbowDay` next to `LuckyDay`. Analytics: `lucky_day` gains a `kinds` field.
+
+### 1h. The pity cat (#1572)
+
+Derek, 2026-11-05: a sign on the cat square shows the time until a Legendary (30 min) and a Mythical (2 h). The timer is global. When it ends, one pity cat spawns for the whole game, first come first served, in one random area that prefers the higher areas (the Alleyway still possible). Everyone gets a banner and a sound naming the area, and the cat stays until night.
+
+- **The clock.** Slots run every 30 min (`PityLegendarySeconds` 1800) from `Config.ClockEpoch`, on `Workspace:GetServerTimeNow()`, so every server counts the same slots with no shared store. Every 4th slot (each 2 h, `PityMythicalSeconds` 7200) is a Mythical slot instead of a Legendary one. A slot that falls at night spawns at the next sunrise.
+- **Which area and cat.** Seeded from the slot number, so every server picks the same: area weights Alleyway 10, Park 15, Neighbourhood 20, Woods 25, Sewer 30 (`PityAreaWeights`), then a random Legendary or Mythical of that area. Its coat rolls gold and rainbow as a normal stray. It spawns at one of the area's hiding spots with a gold beam, and it is a normal stray in every way: nettable, tackle and shove rules as usual, secured by carrying it into the camp.
+- **One for the whole game: whoever catches it.** The cat spawns in every server at once, and the first player anywhere to catch it (net catch or bait) gets it. Derek on #1581: "you have to catch it so its only who catches it gets it". On the catch, the server claims `pity:<slot>` in a MemoryStore HashMap with `UpdateAsync` (set only if empty, expiry 1 day). The winner's catch goes on as normal, and every other server is told through MessagingService topic `Pity`, so its copy puffs away with "Sam caught the pity cat!". A catch that loses the claim (two servers within the same second) puffs out of the net with the same banner. There's no consolation prize. If MemoryStore fails 3 times, that server's catcher keeps the cat (we never take a cat away on our own error) and the event logs it. At night every server's uncaught copy goes.
+- **The sign.** A board on the Town Square, `CatCafe_Square_PitySign` (Model-Agent, #1592: a cat-ear frame with a 5.6 x 2.8 Screen at (13.5, -23) facing the spawn, across the street from the Day Cart; the signpost was removed on 11-03) reads "Legendary cat in 12:30" and "Mythical cat in 1:42:10", worked out on each client from the clock, plus "Now in the Woods!" while a pity cat is out and "Caught by Sam" after. The same two lines show on the day clock's card.
+- **Announcements.** At spawn, every server gets a game-wide banner and the rare-cat sound: "A Legendary pity cat appeared in the Woods!". A player whose tier hasn't opened that area sees "(opens at Tier 4)" after it, so the banner never points at a door they can't use.
+- **Security.** No new client remote: the client only reads the clock and the server-set `PityCat` attribute. The server validates the catch as for any stray, and the MemoryStore claim is server-only. Review-Agent gives it the first security review.
+- Contracts: Config `PityLegendarySeconds` 1800, `PityMythicalEvery` 4, `PityAreaWeights`, `PityClaimRetries` 3. `shared/Pity.luau` with `Pity.slot(now)`, `Pity.nextAt(now, kind)` and `Pity.pick(slot)` (area, cat id), all pure with a spec. The server's `PityService` spawns, claims and announces. Remote `PityAnnounce(kind, areaId, state, winnerName?)` to all clients. Analytics `pity_cat` (slot, area, kind, secured or expired, servers that claimed).
+- QA: (1) Two servers show the same countdown to the second and spawn the same cat in the same area. (2) Catching it in server A puffs server B's copy within a few seconds and shows the banner, and only A's player owns the cat. (3) Over 10,000 slots the areas land within 1 point of the weights. (4) A slot at night spawns at sunrise. (5) With MemoryStore blocked in Studio, the catcher keeps the cat and the log says so. (6) No golden fish are paid to anyone who missed it.
+
 ## 2. Rare moments (F89)
 
 ### 2a. When a rare cat is secured

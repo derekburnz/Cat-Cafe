@@ -11,16 +11,27 @@
 -- where the recorded id pays nothing and only the save is waited for. A product id Config does not name, or a
 -- player not in this server, is never granted here. Nothing a product holds is random, so no PolicyService check
 -- applies (ArePaidRandomItemsRestricted is for paid random items).
+-- #1625: the Starter Bundle is once per account (Catalog.products oncePerAccount, saved in profile.onceBought). Its
+-- first receipt gives Sprinkles (CafeService.addGiftCat), the potions and the Bakery Stripes sign, which the sign then
+-- shows; a second one, which only a prompt the Store never shows could start, pays only the potions.
+-- #1626: the Cafe Pass (Catalog.products seasonPass) unlocks the paid track of the season running at the receipt, in
+-- the same step as the id (CafePassService.buyPaid). With no season running it is not granted (NotProcessedYet), so
+-- Roblox delivers it again once one is; the product is off sale then anyway. A second one in the same season, which
+-- only a prompt the Pass screen never shows could start, changes nothing.
 
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local CafePassService = require(script.Parent.CafePassService)
 local CafeService = require(script.Parent.CafeService)
+local CatStats = require(ReplicatedStorage.Shared.CatStats)
+local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local DataService = require(script.Parent.DataService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local Products = require(ReplicatedStorage.Shared.Products)
+local SignStyles = require(ReplicatedStorage.Shared.SignStyles)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local ProductService = {}
@@ -82,11 +93,56 @@ function ProductService.processReceipt(receipt: { [string]: any }): Enum.Product
 	if profile == nil then
 		return Enum.ProductPurchaseDecision.NotProcessedYet
 	end
-	if not Products.granted(profile.receipts, purchaseId) then
+	if product.seasonPass == true and not Products.granted(profile.receipts, purchaseId) then
+		if CafePassService.running() == 0 then
+			warn("[ProductService] a Cafe Pass receipt with no season running, for", player.UserId)
+			return Enum.ProductPurchaseDecision.NotProcessedYet
+		end
 		Products.record(profile.receipts, purchaseId)
-		local prize: Types.IndexPrize = { potions = product.prize.potions }
+		if CafePassService.buyPaid(player, profile) then
+			Net.fire(
+				player,
+				"Toast",
+				"Thank you! The Cafe Pass paid track is yours this season",
+				"good"
+			)
+		else
+			warn("[ProductService] a second Cafe Pass this season for", player.UserId)
+			Net.fire(player, "Toast", "This season's Cafe Pass is already yours", "warn")
+		end
+		CafePassService.send(player, profile)
+		CafeService.sync(player)
+	elseif not Products.granted(profile.receipts, purchaseId) then
+		-- #1625: the id, the once-per-account mark, the sign styles and the cats all land in this one step, no yield
+		Products.record(profile.receipts, purchaseId)
+		local give, first = Products.prizeFor(profile, product)
+		Products.markBought(profile, product, give.signStyles)
+		local prize: Types.IndexPrize = { potions = give.potions }
 		local paid = Payout.pay(player, profile, prize, "product_" .. product.id, "Shop")
+		for _, styleId in give.signStyles do
+			if profile.signStyle == nil then
+				profile.signStyle = styleId -- a new sign shows straight away; the Style panel can change it
+			end
+			local style = SignStyles.get(styleId)
+			table.insert(paid, "the " .. (if style ~= nil then style.name else styleId) .. " sign")
+		end
 		Net.fire(player, "Toast", "Thank you! " .. table.concat(paid, ", "), "good")
+		for _, catId in give.cats do
+			local def = Catalog.getCat(catId)
+			if def ~= nil then
+				CafeService.addGiftCat(player, profile, def, CatStats.DEFAULT_CHARM)
+			end
+		end
+		if not first then
+			warn(
+				"[ProductService] a second",
+				product.id,
+				"for",
+				player.UserId,
+				"paid only its potions"
+			)
+		end
+		CafeService.refreshPlot(player)
 		CafeService.sync(player)
 	end
 	if saveHolding(player, purchaseId) then

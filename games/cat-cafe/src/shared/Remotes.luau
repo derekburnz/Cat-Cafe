@@ -62,6 +62,7 @@ Remotes.ClientToServer = {
 	"ClaimRichTip", -- ()  own plot has an unexpired rich tip, within RichTipRangeStuds of its RichTipAnchor
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
 	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16)
+	"SetSignStyle", -- (styleId: string?)  #1625: an owned shared/SignStyles id, or nil for the plain sign
 	"SetSetting", -- (key: string, value: boolean | number)  a key of shared/Settings: a switch takes a boolean, a
 	-- volume a number clamped to 0 to 1; saved in profile.settings, answered by ProfileSync
 	"ClaimTipJar", -- (step: number)  integer 1 to #Catalog.tipJar, unclaimed this session, its minutes reached (F47)
@@ -114,6 +115,10 @@ Remotes.ClientToServer = {
 	"ClearTips", -- ()  F87: Settings' "Show tips again"; forgets tipsSeen but the asks; 1 per 10 s; ProfileSync
 	"SendFeedback", -- (face: string, chip: string?)  F87 (section 4): face in Tips.FACES, chip nil or in Tips.CHIPS;
 	-- 1 per 10 s and FeedbackSessionLimit (5) a session; logs `feedback` and sets feedbackAsked. Text goes by ReportBug
+	"PassClaim", -- (track: "free" | "paid", level: number)  #1645: level 1 to PassLevels, reached in the running
+	-- season, a reward there, unclaimed, and on the paid track only once it is bought; answered with CafePassState
+	"PassClaimAll", -- ()  #1645: every reward PassClaim would take, in order
+	"PassSetTag", -- (tagId: string)  #1626: a ChatTags id in the player's choices, or "off"; answered with CafePassState
 	"CollectCampExtra", -- (extraId: string)  F100 (camp-extras.md section 4): "picnic", "pond" or "lostFound", the
 	-- player's tier opens its area, within CampExtraRangeStuds (and a little slack) of its PromptAnchor, something held;
 	-- takes it all; 1 a second, answered with CampExtraResult and CampExtrasState
@@ -252,6 +257,7 @@ Remotes.ServerToClient = {
 	-- cat's area's) and the server time he leaves. catUid "" ends the visit, `traded` true when it ended in a trade
 	"QuestResult", -- (paid: { string })  F73: what a quest, a set or an achievement claim paid ("+$300", "2 spins"),
 	-- after the server's toast with the same words, for the Quests window's own claim effect
+	"CafePassState", -- (state: Types.CafePassView)  #1645: the Pass screen, at join and after each claim or season roll
 	"CampExtrasState", -- (state: Types.CampExtrasState)  F100: each camp extra's open, held, nextAt and the Yard
 	-- Sale's stock today, on join and whenever it changes (a fill, a new UTC day, a rank up, a collect or a buy)
 	"RallyState", -- (state: Types.RallyState)  F101: the server's Rescue Rally bar and this player's part in it, on

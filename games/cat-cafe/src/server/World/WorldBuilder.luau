@@ -765,7 +765,7 @@ local function buildPlot(index: number, parent: Instance): Plot
 	local furnitureFolder = folder("SpotFurniture", model)
 	local spots: { [string]: BasePart } = {}
 	local spotFurniture: { [string]: Model } = {}
-	for _, def in Catalog.spots do
+	for _, def in Catalog.allSpots do -- #1624: the pass-only slots too
 		local point = Layout.plot.spots[def.id]
 		local spot = anchor(def.id, localCFrame(cframe, point), spotsFolder)
 		spot:SetAttribute("SpotType", def.spotType)

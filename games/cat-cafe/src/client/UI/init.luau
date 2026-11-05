@@ -1295,11 +1295,14 @@ function UI.init(config: Types.InitConfig)
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
 	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker")
 	-- the Cat Whistle (corner-shop-v2.md section 4): a paw over the nearest stray while its buff runs
-	CatWhistle.new(WorldMarker.new(parent, "CatCafeWhistleMarker"), function(): boolean
-		local buffs: { [string]: number }? = state.buffs
-		local endsAt = if buffs then buffs.cat_whistle else nil
-		return type(endsAt) == "number" and endsAt > Workspace:GetServerTimeNow()
-	end)
+	CatWhistle.new(
+		WorldMarker.new(parent, "CatCafeWhistleMarker", CatWhistle.REACH),
+		function(): boolean
+			local buffs: { [string]: number }? = state.buffs
+			local endsAt = if buffs then buffs.cat_whistle else nil
+			return type(endsAt) == "number" and endsAt > Workspace:GetServerTimeNow()
+		end
+	)
 	tutorialTrail = GuideTrail.new("CatCafeTutorialTrail")
 	-- signs over every gate tagged AreaGate, including gates that stream in later
 	gateSigns = GateSigns.new(parent)

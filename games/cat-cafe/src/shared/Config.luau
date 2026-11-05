@@ -330,6 +330,9 @@ local Config = {
 	CollectorStaySeconds = 180,
 	VisitRetrySeconds = 15, -- #1135: a visitor whose timer ran out while the cafe was not ready tries again this often
 	CollectorValue = { Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 50 } :: { [string]: number },
+	-- #1144: how much more often he asks for each askable catId by its rarity (Collector.pickCat), so a player's few
+	-- rarer resting cats come up often for the bigger offers, not one time in many among their commons
+	CollectorAskWeight = { Common = 1, Rare = 3, Epic = 5, Legendary = 6, Mythical = 6 } :: { [string]: number },
 	CollectorGoldMultiplier = 3,
 	CollectorRollMin = 0.8,
 	CollectorRollMax = 1.5,

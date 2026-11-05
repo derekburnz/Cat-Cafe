@@ -46,6 +46,13 @@ local ICON = 64
 local CLEAN_PICTURE: { [string]: string } = {
 	money = "Bag",
 }
+-- #1191: a card that sells a shop-only cat shows that cat (Coordinator 11-05); each card stays hidden while its id
+-- is 0 (StoreLogic)
+local SHOP_CAT: { [string]: string } = {
+	royalCat = "DuchessMarzipan",
+	kingPack = "KingCroissant",
+	starterBundle = "Sprinkles",
+}
 -- the picture tile's fill: the gold of the HUD Store tile and price button (Theme.button.store)
 local TILE_FILL = ColorSequence.new(Theme.button.store.top, Theme.button.store.bottom)
 local BUTTON_W = 116 -- #1176 live: "the buttons overlap and are too big"
@@ -276,6 +283,7 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 		-- a potion pack shows the Potions flask picture (#1256) until it has a pack picture of its own
 		local image = if picture
 			then ShopIcons.clean(picture)
+			elseif SHOP_CAT[row.key] then ShopIcons.shopCat(SHOP_CAT[row.key])
 			elseif row.product then ShopIcons.hud("Potion")
 			else nil
 		if image then

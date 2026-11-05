@@ -5,10 +5,12 @@
 -- a soft teal ring pulses out at the cat's feet every `every` seconds with a few teal sparkles, one small burst
 -- each time. With Reduce Motion a still, faint teal ring lies at its feet instead.
 --
--- Source: the local `WhistleTarget` attribute on models tagged Stray or StuckCat (the same cats Cats.luau moves).
+-- Source: the local `WhistleTarget` attribute on models tagged Stray or StuckCat or under World.Strays, the same set
+-- UI-Engineer's CatWhistle (#1300) picks from.
 -- Listening only. Numbers in Presets.whistle.
 
 local CollectionService = game:GetService("CollectionService")
+local Workspace = game:GetService("Workspace")
 
 local Context = require(script.Parent.Context)
 local Particles = require(script.Parent.Particles)
@@ -54,15 +56,24 @@ end
 local function step()
 	local w = Presets.whistle
 	local now = os.clock()
-	local target: Model? = nil
+	-- the same cats UI-Engineer's CatWhistle picks from: tagged Stray or StuckCat, or any child of World.Strays
+	local pool: { Instance } = {}
 	for _, tag in TAGS do
 		for _, instance in CollectionService:GetTagged(tag) do
-			if instance:IsA("Model") and instance:GetAttribute("WhistleTarget") == true then
-				target = instance :: Model
-				break
-			end
+			table.insert(pool, instance)
 		end
-		if target ~= nil then
+	end
+	local world = Workspace:FindFirstChild("World")
+	local folder = if world ~= nil then world:FindFirstChild("Strays") else nil
+	if folder ~= nil then
+		for _, child in folder:GetChildren() do
+			table.insert(pool, child)
+		end
+	end
+	local target: Model? = nil
+	for _, instance in pool do
+		if instance:IsA("Model") and instance:GetAttribute("WhistleTarget") == true then
+			target = instance :: Model
 			break
 		end
 	end

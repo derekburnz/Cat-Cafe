@@ -992,11 +992,10 @@ return function()
 			end
 		)
 
-		-- Found 2026-11-05: a player who spends on the best affordable lawn piece the moment it can (a 10,000 Common at
-		-- Tier 1, where Tier 2 costs 13,500) reaches Tier 2 at a median of 25.1 min, over the 20 minute bound; its Tier 5
-		-- pace stays inside 8 to 12 hours. Design-Agent decides (lawn-nursery.md 6d: the bonus row goes down a step, the
-		-- prices stay), then change `xit` to `it`.
-		xit(
+		-- Found 2026-11-05: while the Common lawn pieces opened at Tier 1, a player who spent on the best affordable one
+		-- the moment it could (10,000, where Tier 2 costs 13,500) reached Tier 2 at a median of 25.1 min, over the 20
+		-- minute bound. Design-Agent (#1451) opened the Commons at Tier 2 instead.
+		it(
 			"takes 10 to 20 minutes for a player who buys the best affordable lawn piece at once (#1283)",
 			function()
 				check({ catches = 4, lawn = "greedy" })

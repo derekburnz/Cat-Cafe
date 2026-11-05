@@ -2719,8 +2719,9 @@ local function watchDusk(phase: Types.ClockPhase, phaseEndsAt: number)
 end
 
 -- The World.Zones name the player stands in, from the controller's zone check (the one that picks the ambience):
--- nil or "Cafe" on the safe street and in the cafes, else the area ("Alley"). It only times the dusk warning now:
--- the "Safe zone" chip went on 2026-10-28 (Derek: "no need for 'safe zone' or danger zone bubble its just clutter")
+-- nil or "Cafe" on the safe street and in the cafes, else the area ("Alley"). It times the dusk warning, sets the net
+-- button and hides the My Cafe marker away from the cafe area (#1620).
+-- The "Safe zone" chip went on 2026-10-28 (Derek: "no need for 'safe zone' or danger zone bubble its just clutter")
 -- and the "Safe zone: no tackling here" toast on 2026-11-02 (Derek 2026-10-28: "no need for the safe area reached
 -- banner either").
 function UI.setZone(zone: string?)
@@ -2728,6 +2729,9 @@ function UI.setZone(zone: string?)
 	showDusk() -- walking into an area during the dusk warning
 	if netButton then
 		netButton:setInArea(not Wayfinding.isSafe(zone))
+	end
+	if locationMarkers then
+		locationMarkers:setZone(zone) -- #1620: the My Cafe marker only in the cafe area
 	end
 end
 

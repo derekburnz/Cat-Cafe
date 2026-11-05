@@ -10,6 +10,8 @@
 -- hes there and disappears when gone") brings one back: a berry moon icon with "Night Market" and the distance over
 -- the dealer's cart, only while a `DealerCart` model is out with Open set (the server parks it at nightfall and
 -- removes it at dawn, DealerService). The Settings switch (Map icons) turns both off.
+-- #1620 (Derek2 11-05: "only show the my cafe bubble when in that area"): the My Cafe marker shows only while the
+-- player is in the cafe area, the street and the cafes (Wayfinding.homeShows), and hides in the catching areas.
 -- The points come from model pivots, so a marker shows before the parts stream in.
 --
 -- Roblox terms: a BillboardGui draws 2D UI at a 3D point, facing the camera; AlwaysOnTop shows it through walls.
@@ -30,6 +32,7 @@ export type LocationMarkers = {
 	setCarrying: (self: LocationMarkers, carrying: boolean) -> (),
 	setVisible: (self: LocationMarkers, visible: boolean) -> (),
 	setEnabled: (self: LocationMarkers, enabled: boolean) -> (),
+	setZone: (self: LocationMarkers, zone: string?) -> (),
 	destroy: (self: LocationMarkers) -> (),
 }
 
@@ -51,6 +54,7 @@ type Spec = {
 	glyph: string,
 	colour: Color3,
 	find: () -> Vector3?,
+	inZone: ((zone: string?) -> boolean)?, -- where the player must stand for it to show; nil is anywhere
 }
 
 -- One icon with its name and distance: the billboard and the parts that fade.
@@ -107,6 +111,7 @@ LocationMarkers.SPECS = {
 		glyph = Theme.icons.home,
 		colour = Theme.colors.gold,
 		find = homePoint,
+		inZone = Wayfinding.homeShows,
 	},
 	{
 		key = "nightMarket",
@@ -209,6 +214,7 @@ function LocationMarkers.new(parent: Instance): LocationMarkers
 	self._carrying = false
 	self._visible = true
 	self._enabled = true -- the Map icons switch in Settings
+	self._zone = nil :: string? -- the World.Zones name the player stands in (UI.setZone)
 	local markers: { Marker } = {}
 	for _, spec in LocationMarkers.SPECS do
 		table.insert(markers, build(parent, spec))
@@ -243,6 +249,12 @@ end
 -- The player's Map icons setting; off hides the markers until it is turned back on.
 function LocationMarkers.setEnabled(self: any, enabled: boolean)
 	self._enabled = enabled
+	self:_fade()
+end
+
+-- The World.Zones name the player stands in: the My Cafe marker hides in the catching areas.
+function LocationMarkers.setZone(self: any, zone: string?)
+	self._zone = zone
 	self:_fade()
 end
 
@@ -291,7 +303,9 @@ function LocationMarkers._fade(self: any)
 	local hidden = not self._visible or not self._enabled or self._carrying
 	for _, marker: Marker in self._markers do
 		local point: Vector3? = marker.point
-		if hidden or point == nil or from == nil then
+		local inZone = marker.spec.inZone
+		local away = inZone ~= nil and not inZone(self._zone)
+		if hidden or away or point == nil or from == nil then
 			applyAlpha(marker, 0)
 		else
 			local distance = ((point :: Vector3) - (from :: Vector3)).Magnitude

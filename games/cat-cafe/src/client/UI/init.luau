@@ -75,6 +75,7 @@ local Sound = require(script.Components.Sound)
 local SpinWheel = require(script.Screens.SpinWheel)
 local TackleBar = require(script.Screens.TackleBar)
 local TackleLogic = require(script.Components.TackleLogic)
+local ThanksBoard = require(script.Screens.ThanksBoard)
 local Theme = require(script.Theme)
 local TillTipsButton = require(script.Screens.TillTipsButton)
 local TipCard = require(script.Screens.TipCard)
@@ -244,6 +245,8 @@ local cannonOpened: string? = nil
 local hintTier: number? = nil -- the tier in the last update that carried one, to see the rank up to Tier 2
 local hintShown: string? = nil -- the cannon hint on screen, so render only redraws the line when it changes
 local gateSigns: GateSigns.GateSigns? = nil
+local thanksBoard: ThanksBoard.ThanksBoard? = nil -- #1083: the Thank You board's face in the Town Square
+local thanksRows: { any } = {} -- its rows before the board is built
 local indexBoards: IndexBoards.IndexBoards? = nil -- each area's Index Board (F50), drawn from this player's Index
 local areaTitle: AreaTitle.AreaTitle? = nil
 local locationMarkers: LocationMarkers.LocationMarkers? = nil -- My Cafe, area and dealer icons that fade up close
@@ -1281,6 +1284,8 @@ function UI.init(config: Types.InitConfig)
 	-- signs over every gate tagged AreaGate, including gates that stream in later
 	gateSigns = GateSigns.new(parent)
 	-- every area's Index Board, including boards that stream in later; its prompt opens that area's Index page
+	thanksBoard = ThanksBoard.new(parent);
+	(thanksBoard :: ThanksBoard.ThanksBoard):setRows(thanksRows)
 	indexBoards = IndexBoards.new(parent, {
 		open = function(areaId: string)
 			UI.openIndex(areaId)
@@ -2063,6 +2068,15 @@ end
 ----------------------------------------------------------------------------------------------------
 -- Potions and the Mystery gift (F64, data-model section 12b)
 ----------------------------------------------------------------------------------------------------
+
+-- The Thank You board (#1083): ThanksBoard(rows, hasCredit) from IdeaCreditsService, on join and at each rebuild.
+-- `hasCredit` is for Settings' "Show my name" row, which comes with the Feedback tick in the next PR.
+function UI.thanksBoard(rows: { any }, _hasCredit: boolean)
+	thanksRows = if type(rows) == "table" then rows else {}
+	if thanksBoard then
+		thanksBoard:setRows(thanksRows)
+	end
+end
 
 UI.potions = {}
 

@@ -295,15 +295,17 @@ function LawnLogic.stallRows(tab: StallTab): { StallRow }
 	local out: { StallRow } = {}
 	if tab == "pieces" then
 		for _, piece in LawnLogic.pieces() do
-			table.insert(out, {
+			local rarity: string = piece.rarity or "Common"
+			local row: StallRow = {
 				id = piece.id,
 				name = piece.name,
 				model = piece.model,
 				tier = piece.tier,
 				price = piece.price,
-				rarity = piece.rarity or "Common",
+				rarity = rarity,
 				detail = LawnLogic.sizeName(piece.spot),
-			})
+			}
+			table.insert(out, row)
 		end
 		return out
 	end
@@ -311,15 +313,17 @@ function LawnLogic.stallRows(tab: StallTab): { StallRow }
 		if style.price <= 0 then
 			continue -- Grey Slabs: every cafe has it
 		end
-		table.insert(out, {
+		local rarity: string = style.rarity or "Common"
+		local row: StallRow = {
 			id = style.id,
 			name = style.name,
 			model = style.model,
 			tier = style.tier,
 			price = style.price,
-			rarity = style.rarity or "Common",
+			rarity = rarity,
 			detail = if tab == "path" then "Path" else "Fence",
-		})
+		}
+		table.insert(out, row)
 	end
 	return out
 end

@@ -123,5 +123,5 @@ A daily player earns roughly 5,000 to 6,000 XP of food a day, about 1½ hours of
 5. Bag: buying a Cat Snack opens no picker, and the Bag's Cat Food tab shows "x1". Feeding it to a cat gives exactly 2,000 XP and the count drops; feeding with none left is refused.
 6. Sources: Daily Treat day 1 gives 2 Small Snacks; a rescue gives 1; over 500 net catches the drop rate is within 2 points of 10%; the Collector can offer "2 Big Snacks".
 7. Mixing sizes: drinking a Small then a Big Steady Paw shows one chip with 35 minutes, not two chips.
-8. Pace.spec: a player who buys every daily limit (2 Big Quick Bait, 4 Big Steady Paw, and every food row in stock since #1255) every day. No tier time falls under economy-ladder.md check 3; if one does, lower the daily limits first (rule v0.8 says raise costs, and here the limits are the cost).
+8. Pace.spec: a player who buys every daily limit (2 Big Quick Bait, 4 Big Steady Paw, and every food row in stock since #1255) every day. No tier time falls under economy-ladder.md check 3; if one does, lower the potion daily limits first, and for food double the Big Snack and Cat Feast prices (food has no daily limit since #1255).
 9. Nothing in the Corner Shop costs Robux or golden fish, and nothing bought is random.

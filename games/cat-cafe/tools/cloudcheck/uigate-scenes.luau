@@ -975,12 +975,29 @@ local SCENES = {
 	{ "FeedbackAsk", function()
 		UI.tips.showAsk()
 	end },
+	-- #1633: the Codes Cat's circle opens the Store on Featured; the player taps Codes on the rail
 	{ "Codes", function()
 		UI.codes.open()
 	end },
 	{ "CodesPrize", function()
 		UI.codes.open()
+		press("Store", "codes")
 		UI.codes.result(true, "Code redeemed!", CODE_PRIZE)
+	end },
+	-- #1633: the circle's Store opens on Featured, and walking out closes it from any tab; a Store the player opened
+	-- with the tile stays when they walk out
+	{ "CodesBenchWalkOut", function()
+		UI.codes.open()
+		assert(UI.store.benchShowing(), "the circle should open the Store")
+		assert(not UI.store.codesShowing(), "the circle should open the Store on Featured, not Codes")
+		press("Store", "codes")
+		UI.codes.close()
+		assert(not UI.store.benchShowing(), "walking out should close the Store the circle opened")
+		UI.store.open()
+		UI.codes.open()
+		assert(not UI.store.benchShowing(), "a Store already open is not the circle's")
+		UI.codes.close()
+		assert(UI.store.codesShowing() == false, "the tile's Store stays on Featured")
 	end },
 	-- F96: the Bellhop Cat's stand card before the first goals are done, Take me home greyed
 	{ "Bellhop", function()

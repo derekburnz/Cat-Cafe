@@ -816,7 +816,7 @@ local function topUpTick(dt: number)
 		end
 		local left = (topUpLeft[areaDef.id] or StrayTopUp.wait(rng:NextNumber())) - dt
 		if left <= 0 then
-			local rarity = Catching.pickRarity(areaDef.odds, rng:NextNumber())
+			local rarity: Types.Rarity = Catching.pickRarity(areaDef.odds, rng:NextNumber())
 			local point = freeSpawnPoint(areaDef.id, rarity, true)
 			if point ~= nil then
 				spawnAt(areaDef.id, point, rarity)

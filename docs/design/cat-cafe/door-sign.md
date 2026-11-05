@@ -34,7 +34,7 @@ Decided by Coordinator for the friend, overnight 11-05, from Derek's 11-04 note 
 - **Gameplay-Engineer:**
   - `WorldBuilder` places `CatCafe_Decor_DoorSign` **once** on an owned plot's `SignHook`, and removes it when the plot is freed;
   - remove `WorldBuilder.setClosedSign` and its calls in `PlotService`;
-  - the decor door sign is no longer placed as a separate decor piece. If any save lists it as owned decor, it simply has no separate spot; nothing is lost, since the same sign now hangs on every owned cafe.
+  - **the decor door sign is retired as decor** (the Coordinator's call, overnight 11-05). It comes out of the decor shop and stops being placed separately. `CatCafe_Decor_DoorSign` has no sellable row in `Catalog` today (it's carried on the door dressing, and `removeDoorSign` takes it off a door set's back door), so nobody bought it and there's nothing to refund. If any save does list it as owned decor, it stays listed as owned and harmless: the same sign now hangs on every owned cafe, so nothing is lost.
   - There's no new remote or attribute: the client reads `Clock.Phase`.
 - **VFX-Agent:** **extend the existing `Effects/DoorSign.luau`** (#1327). Today it hides one board instantly; at a phase change it now plays the 180° flip from section 3, while still hiding the right board on join and keeping the instant swap for Reduce Motion. The names stay in `Presets.doorSign`.
 

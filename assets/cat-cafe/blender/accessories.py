@@ -59,7 +59,10 @@ def slots(spec, body="sit"):
     h = cats.dims(spec, "walk")["head"]
     return {"Glasses": ("Head", (0.0, round(h["fy"] - 0.05, 4), h["fz"]), (0, 0, 0)),
             "Hat": ("Head", (0.0, h["c"][1], round(h["top"], 4)), (0, 0, 0)),
-            "LeafBeret": ("Head", (0.0, h["c"][1], round(h["top"], 4)), (0, 0, 0)), **walk_slots(spec)}
+            "LeafBeret": ("Head", (0.0, h["c"][1], round(h["top"], 4)), (0, 0, 0)),
+            "AcornHairClip": ("Head", (0.0, h["c"][1], round(h["top"], 4)), (0, 0, 0)),
+            "MushroomCap": ("Head", (0.0, h["c"][1], round(h["top"], 4)), (0, 0, 0)),
+            "ReadingGlasses": ("Head", (0.0, round(h["fy"] - 0.05, 4), h["fz"]), (0, 0, 0)), **walk_slots(spec)}
 
 
 # Role pieces on the walking body A (Animation-Engineer, 2026-11-02): the three hats, the bow tie and the cape fit A as
@@ -88,7 +91,8 @@ def walk_slots(spec):
     on_back = (0.0, round(head_back - 0.04, 4), round(bc[2] + bs[2] / 2 + lift, 4))
     return {"BaristaCap": ("Head", hat, (0, 0, 0)), "Boater": ("Head", hat, (0, 0, 0)),
             "PartyHat": ("Head", hat, (0, 0, 0)), "BowTie": ("Head", chin, (0, 0, 0)),
-            "Cape": ("Body", back, (90, 0, 0)), **{p: ("Body", on_back, (0, 0, 0)) for p in WALK_MESHES}}
+            "Cape": ("Body", back, (90, 0, 0)), "TinyLantern": ("Body", on_back, (0, 0, 0)),
+            **{p: ("Body", on_back, (0, 0, 0)) for p in WALK_MESHES}}
 
 def _x(deg):
     return (math.radians(deg), "X")
@@ -307,6 +311,75 @@ def build_leaf_beret(mat):
     return [ob]                                                                         # its low side on the slot
 
 
+# #1637 the Cafe Pass season 1 accessories (cafe-pass.md section 3): looks any cat can wear, on the walking head's
+# Hat or Glasses slot or on the back (walk_slots). Each is one mesh built about its slot.
+def build_acorn_hair_clip(mat):
+    """Level 16: a little acorn and an oak leaf on a gold hair clip, sitting by the right ear (the slot is the head
+    top's middle, so it is built off to the side)."""
+    b = Builder()
+    x, y = -0.24, -0.05                                                                 # by the right ear
+    b.box((x + 0.02, y, 0.015), (0.2, 0.06, 0.03), "gold_mid", bevel=False)            # the clip
+    b.sphere((x, y - 0.02, 0.13), 0.09, "caramel_wood", segments=10, rings=6, scale=(1, 1, 1.25))   # the nut
+    b.ico((x, y - 0.02, 0.06), 0.03, "fur_brown")                                       # its tip
+    b.cyl_base((x, y - 0.02, 0.17), 0.105, 0.07, "dark_wood", segments=10, radius2=0.08, bevel=False)   # the cup
+    for k in range(6):                                                                  # its scales
+        a = 2 * math.pi * k / 6
+        b.box((x + 0.1 * math.cos(a), y - 0.02 + 0.1 * math.sin(a), 0.2), (0.03, 0.03, 0.03), "fur_brown",
+              bevel=False)
+    b.cyl_base((x, y - 0.02, 0.24), 0.012, 0.05, "dark_wood", segments=5, bevel=False)  # stalk
+    leaf = Matrix.Translation((x + 0.13, y + 0.02, 0.06)) @ Matrix.Rotation(math.radians(-60), 4, "Y")
+    b.ico(tuple(leaf @ Vector((0, 0, 0))), 0.09, "fur_rust_red", scale=(1.6, 0.25, 0.7))   # an oak leaf
+    return [b.finalize("CatCafe_Accessory_AcornHairClip", mat)]
+
+
+def build_mushroom_cap(mat):
+    """Level 10: a small autumn toadstool cap, rust red in three steps with cream gills, white spots and a fallen
+    leaf stuck to its side."""
+    b = Builder()
+    b.cyl_base((0, 0, 0), 0.34, 0.04, "cream", segments=12, bevel=False)                # gills
+    b.cyl_base((0, 0, 0.04), 0.37, 0.08, "fur_rust_red", segments=12, radius2=0.32, bevel=False)
+    b.cyl_base((0, 0, 0.12), 0.32, 0.08, "fur_rust_red", segments=12, radius2=0.22, bevel=False)
+    b.cyl_base((0, 0, 0.2), 0.22, 0.06, "fur_rust_red", segments=12, radius2=0.0, bevel=False)
+    for (az, rad, z, r) in ((-30, 0.35, 0.08, 0.05), (70, 0.35, 0.08, 0.045), (160, 0.35, 0.08, 0.05),
+                            (250, 0.35, 0.08, 0.045), (20, 0.26, 0.16, 0.045), (200, 0.26, 0.16, 0.04),
+                            (0, 0.0, 0.24, 0.05)):
+        a = math.radians(az)
+        b.box((rad * math.sin(a), -rad * math.cos(a), z), (r * 1.6, r * 1.6, r * 0.8), "offwhite", bevel=False,
+              rot=(a, "Z"))
+    b.ico((0.24, -0.2, 0.11), 0.07, "pastel_butter", scale=(1.4, 0.3, 0.8))            # a fallen leaf
+    return [b.finalize("CatCafe_Accessory_MushroomCap", mat)]
+
+
+def build_reading_glasses(mat):
+    """Level 22: round tortoiseshell reading glasses with gold bridges, arms back along the head (the Glasses
+    slot, like CatCafe_Accessory_Glasses)."""
+    b = Builder()
+    for x in (-0.2, 0.2):
+        b.ring((x, 0, 0), 0.15, 0.035, 0.05, "caramel_wood", segments=12, bevel=False, rot=_x(90))   # rims
+        b.cyl((x, 0.005, 0), 0.12, 0.02, "glass", segments=12, bevel=False, rot=_x(90))              # lenses
+    b.box((0, 0, 0.03), (0.12, 0.04, 0.035), "gold_mid", bevel=False)                   # bridge
+    for x in (-0.36, 0.36):
+        b.box((x, 0.3, 0.03), (0.04, 0.62, 0.04), "caramel_wood", bevel=False)          # arms
+        b.box((x, -0.01, 0.03), (0.07, 0.05, 0.055), "gold_mid", bevel=False)          # hinges
+    return [b.finalize("CatCafe_Accessory_ReadingGlasses", mat)]
+
+
+def build_tiny_lantern(mat):
+    """Level 26: a tiny lantern standing on a little saddle pad on the back, a warm glow inside a black frame, a
+    gold cap and a ring handle (on the back slot, like the walking pieces: +Y runs back along the spine)."""
+    b = Builder()
+    b.box((0, 0.12, 0.02), (0.36, 0.42, 0.04), "fur_rust_red", bevel=False)            # the saddle pad
+    b.box((0, 0.12, 0.045), (0.28, 0.34, 0.02), "pastel_butter", bevel=False)
+    b.box((0, 0.12, 0.08), (0.2, 0.2, 0.05), "fur_black", bevel=False)                  # lantern base
+    b.box((0, 0.12, 0.2), (0.14, 0.14, 0.2), "lamp_warm", bevel=False)                  # the glow
+    for dx in (-0.08, 0.08):                                                            # frame posts
+        for dy in (-0.08, 0.08):
+            b.box((dx, 0.12 + dy, 0.2), (0.025, 0.025, 0.22), "fur_black", bevel=False)
+    b.pyramid((0, 0.12, 0.31), 0.22, 0.1, "gold_mid")                                   # cap
+    b.ring((0, 0.12, 0.43), 0.05, 0.015, 0.02, "fur_black", segments=8, bevel=False, rot=_x(90))   # handle
+    return [b.finalize("CatCafe_Accessory_TinyLantern", mat)]
+
+
 # The walking versions (WALK_MESHES): built about the slot on the back's middle line just under the back of the head,
 # +Y running back along the spine, each 0.03 into the back so the coat's stripes and specks stay under it.
 def _back_panel(b, y0, y1, swatch, top=BACK_TOP, w=BACK_W):
@@ -366,6 +439,10 @@ ASSETS = {
     "CatCafe_Accessory_Apron": (build_apron, 200),
     "CatCafe_Accessory_Hat": (build_hat, 300),
     "CatCafe_Accessory_LeafBeret": (build_leaf_beret, 500),
+    "CatCafe_Accessory_AcornHairClip": (build_acorn_hair_clip, 500),
+    "CatCafe_Accessory_MushroomCap": (build_mushroom_cap, 500),
+    "CatCafe_Accessory_ReadingGlasses": (build_reading_glasses, 500),
+    "CatCafe_Accessory_TinyLantern": (build_tiny_lantern, 500),
     "CatCafe_Accessory_Sash": (build_sash, 300),
     "CatCafe_Accessory_PartyHat": (build_party_hat, 300),
     "CatCafe_Accessory_BaristaCap": (build_barista_cap, 300),

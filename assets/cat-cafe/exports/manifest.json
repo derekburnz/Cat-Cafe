@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-05 20:43 UTC",
+  "generated": "2026-11-05 20:49 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -147935,6 +147935,305 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_LeafBeret.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_LeafBeret.png"
+    },
+    {
+      "name": "CatCafe_Accessory_AcornHairClip",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_AcornHairClip"
+      ],
+      "triangles": 276,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.37,
+        "y": 0.21,
+        "z": 0.29
+      },
+      "size_roblox": [
+        0.37,
+        0.29,
+        0.21
+      ],
+      "bounds_min": [
+        -0.35,
+        -0.17,
+        -0.0
+      ],
+      "bounds_max": [
+        0.02,
+        0.03,
+        0.29
+      ],
+      "pivot": "attachment point: the walking head's Hat slot; the clip sits by the right ear",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "slot": {
+        "part": "Head",
+        "offset": [
+          0.0,
+          -0.22,
+          0.74
+        ],
+        "offset_roblox": [
+          0.0,
+          0.74,
+          -0.22
+        ],
+        "angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "body": "walk"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_AcornHairClip.model.json",
+      "rbx_parts": 13,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_AcornHairClip.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_AcornHairClip.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "276/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "161 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=-0.17 y=-0.07"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_AcornHairClip.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_AcornHairClip.png"
+    },
+    {
+      "name": "CatCafe_Accessory_MushroomCap",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_MushroomCap"
+      ],
+      "triangles": 238,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.75,
+        "y": 0.75,
+        "z": 0.26
+      },
+      "size_roblox": [
+        0.75,
+        0.26,
+        0.75
+      ],
+      "bounds_min": [
+        -0.38,
+        -0.37,
+        0.0
+      ],
+      "bounds_max": [
+        0.38,
+        0.38,
+        0.26
+      ],
+      "pivot": "attachment point: the walking head's Hat slot (see attach)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "slot": {
+        "part": "Head",
+        "offset": [
+          0.0,
+          -0.22,
+          0.74
+        ],
+        "offset_roblox": [
+          0.0,
+          0.74,
+          -0.22
+        ],
+        "angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "body": "walk"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_MushroomCap.model.json",
+      "rbx_parts": 16,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_MushroomCap.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_MushroomCap.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "238/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "115 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.01"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_MushroomCap.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_MushroomCap.png"
+    },
+    {
+      "name": "CatCafe_Accessory_ReadingGlasses",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_ReadingGlasses"
+      ],
+      "triangles": 340,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.79,
+        "y": 0.65,
+        "z": 0.3
+      },
+      "size_roblox": [
+        0.79,
+        0.3,
+        0.65
+      ],
+      "bounds_min": [
+        -0.4,
+        -0.04,
+        -0.15
+      ],
+      "bounds_max": [
+        0.4,
+        0.61,
+        0.15
+      ],
+      "pivot": "attachment point: the walking head's Glasses slot (see attach)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "slot": {
+        "part": "Head",
+        "offset": [
+          0.0,
+          -0.67,
+          0.26
+        ],
+        "offset_roblox": [
+          0.0,
+          0.26,
+          -0.67
+        ],
+        "angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "body": "walk"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_ReadingGlasses.model.json",
+      "rbx_parts": 31,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_ReadingGlasses.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_ReadingGlasses.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "340/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "154 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.15 (want 0)",
+          "centered": "footprint center x=0.00 y=0.29"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_ReadingGlasses.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_ReadingGlasses.png"
+    },
+    {
+      "name": "CatCafe_Accessory_TinyLantern",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_TinyLantern"
+      ],
+      "triangles": 166,
+      "budget": 500,
+      "size_studs": {
+        "x": 0.36,
+        "y": 0.42,
+        "z": 0.48
+      },
+      "size_roblox": [
+        0.36,
+        0.48,
+        0.42
+      ],
+      "bounds_min": [
+        -0.18,
+        -0.09,
+        0.0
+      ],
+      "bounds_max": [
+        0.18,
+        0.33,
+        0.48
+      ],
+      "pivot": "the walking cat's back slot (TinyLantern in accessories.walk_slots); +Z runs back along the spine",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "slot": {
+        "part": "Body",
+        "offset": [
+          0.0,
+          -0.16,
+          0.91
+        ],
+        "offset_roblox": [
+          0.0,
+          0.91,
+          -0.16
+        ],
+        "angles_roblox_deg": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "body": "walk"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_TinyLantern.model.json",
+      "rbx_parts": 19,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_TinyLantern.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_TinyLantern.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "166/500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "85 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.12"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_TinyLantern.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_TinyLantern.png"
     },
     {
       "name": "CatCafe_Accessory_Sash",

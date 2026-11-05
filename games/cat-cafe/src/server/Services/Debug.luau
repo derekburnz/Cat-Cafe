@@ -43,6 +43,8 @@
 --   D:Invoke("bugReports", 10, nil, true)  -- the newest 10 sent from Studio playtests today (keys s_ not r_)
 --   D:Invoke("leaderboardHide", 123)   -- hide user id 123 from every leaderboard (live store with API access; F98)
 --   D:Invoke("leaderboardHide", 123, true)  -- show them again
+--   D:Invoke("leaderboards")           -- why the boards read what they do: writes on/off, hidden list, per list the
+--                                         value now, last write and read, rows read and shown, rank (#941)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -603,6 +605,12 @@ function Debug.leaderboardHide(userId: number, show: boolean?): number
 	guard()
 	assert(type(userId) == "number" and userId > 0, "a user id")
 	return LeaderboardService.debugHide(userId, show)
+end
+
+-- #941: LeaderboardService.debugState for `player` (nil means the first player), for an empty or odd board.
+function Debug.leaderboards(player: Player | number | string | nil): { [string]: any }
+	guard()
+	return LeaderboardService.debugState(resolve(player))
 end
 
 -- F88 (review N311): jumps the clock into the night before the next Lucky Day, `lead` seconds before its sunrise

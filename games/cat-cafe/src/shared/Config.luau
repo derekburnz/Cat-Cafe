@@ -239,8 +239,19 @@ local Config = {
 	-- CornerDailyLimits of a family (any size; a family not listed has none). Cat food has no daily XP cap (#1255).
 	CornerShopWindowSeconds = 390, -- #1437: one game day from ClockEpoch, a restock at every sunrise (was 300)
 	CornerShopRange = 14,
-	-- lawn-nursery.md section 2 (#1200): BuyLawn from within this many studs of a LawnStall-tagged Garden Nursery
-	LawnStallRange = 14,
+	-- lawn-nursery.md section 7 (#1537): lawn pieces and styles are sold only at the Yard Sale (the Garden Nursery is
+	-- retired). Each global game day rolls YardDecorRows rows, each a different piece or style: first a rarity by
+	-- these weights (in percent), then a piece of it; a rarity with none left moves the roll one rarity down.
+	YardDecorRows = 6,
+	YardDecorRarityWeights = {
+		Common = 28,
+		Uncommon = 25,
+		Rare = 20,
+		Epic = 14,
+		Legendary = 8,
+		Mythical = 4,
+		Golden = 1,
+	},
 	-- lawn-nursery.md section 6a (#1283): the money bonus of each lawn piece and style out on the lawn, by its rarity,
 	-- added in Economy.cafeMultiplier beside decor. The server picks the best lawn by itself (Lawn.best).
 	LawnRarityBonus = {

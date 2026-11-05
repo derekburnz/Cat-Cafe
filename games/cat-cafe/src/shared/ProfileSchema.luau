@@ -19,6 +19,7 @@ local StarterCat = require(script.Parent.StarterCat)
 local Tips = require(script.Parent.Tips)
 local Trade = require(script.Parent.Trade)
 local Types = require(script.Parent.Types)
+local YardSale = require(script.Parent.YardSale)
 
 local ProfileSchema = {}
 
@@ -96,7 +97,9 @@ local ProfileSchema = {}
 -- YardSaleClaimHours after that UTC day began (CampExtras.sanitize).
 -- Version 34 (#1161) adds bait2, the Second Bait Bowl's food and rolled cat: an older server would drop it, losing
 -- the food and letting the player roll that bowl again by hopping servers during a rollout.
-ProfileSchema.VERSION = 34
+-- Version 35 (#1537, lawn-nursery.md section 7) adds yardDecor, the Yard Sale's lawn rows bought this global game
+-- day: an older server would drop it, letting the player buy the same row again by hopping servers during a rollout.
+ProfileSchema.VERSION = 35
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -258,6 +261,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		lawn = {},
 		lawnStyles = Lawn.freshStyles(),
 		cornerShop = CornerShop.fresh(),
+		yardDecor = YardSale.fresh(),
 		hideCredit = nil,
 		receipts = {},
 		catFood = {},
@@ -888,6 +892,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 		Lawn.sanitize(raw.lawnOwned, raw.lawn, raw.lawnStyles, profile.tier)
 	-- #1052 (version 29): the Corner Shop; saves before it have bought nothing and fed no snacks
 	profile.cornerShop = CornerShop.sanitize(raw.cornerShop, now)
+	-- #1537 (version 35): the Yard Sale's lawn rows bought today; saves before it have bought none
+	profile.yardDecor = YardSale.sanitize(raw.yardDecor)
 	-- #1083 (version 30): only true hides the name on the Thank You board; anything else is shown
 	profile.hideCredit = if raw.hideCredit == true then true else nil
 	-- #1182 (version 31): the granted PurchaseIds, kept as strings, newest last; older saves have granted none

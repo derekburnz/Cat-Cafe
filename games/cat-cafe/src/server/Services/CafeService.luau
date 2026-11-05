@@ -40,6 +40,7 @@ local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Quests = require(ReplicatedStorage.Shared.Quests)
+local SellExtras = require(ReplicatedStorage.Shared.SellExtras)
 local Settings = require(ReplicatedStorage.Shared.Settings)
 local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
 local Telemetry = require(script.Parent.Telemetry)
@@ -1465,6 +1466,44 @@ local function onSellCat(player: Player, rawUid: unknown)
 	CafeService.sync(player)
 end
 
+-- #1573: one tap sells every spare Common and keeps the best of each kind (shared/SellExtras: never a working,
+-- locked, exclusive, gold or rainbow cat, one on a trade offer, or the last cat). Each pays its sellValue, as SellCat.
+local function onSellExtraCommons(player: Player)
+	local profile = profileFor(player)
+	if profile == nil then
+		return
+	end
+	local plan = SellExtras.plan(profile, Economy.tier(profile), function(uid: string): boolean
+		return offerCheck(player, uid)
+	end)
+	if #plan.uids == 0 then
+		Net.toast(player, "No extra Commons to sell. You keep one of each.", "info")
+		CafeService.sync(player)
+		return
+	end
+	local value = Catalog.rarities[SellExtras.RARITY].sellValue
+	for _, uid in plan.uids do
+		local instance = profile.cats[uid]
+		profile.cats[uid] = nil
+		profile.stats.catsSold += 1
+		Telemetry.custom(player, "cat_sold", 1, { instance.catId, instance.variant })
+	end
+	Economy.credit(profile, plan.coins)
+	Telemetry.source(player, profile, plan.coins, "Gameplay", "sell_cat")
+	Net.toast(
+		player,
+		string.format(
+			"Sold %d extra Common%s for $%d",
+			#plan.uids,
+			if #plan.uids == 1 then "" else "s",
+			#plan.uids * value
+		),
+		"good"
+	)
+	CafeService.refreshPlot(player)
+	CafeService.sync(player)
+end
+
 -- F62 (section 4): the lock icon on a cat card. A locked cat cannot be sold or traded to the Cat Collector.
 local function onLockCat(player: Player, rawUid: unknown, rawLocked: unknown)
 	local uid = Guard.id(rawUid)
@@ -1510,6 +1549,15 @@ local function onBuyUpgrade(player: Player, rawId: unknown)
 		Telemetry.onboarding(player, profile, "first_table")
 	elseif upgradeId == "lure_bowl" then
 		Telemetry.onboarding(player, profile, "bowl_bought")
+		-- #1281: food is sold at the Corner Shop now, so a first bowl comes with one Kibble for the tutorial's last
+		-- step ("Put Kibble in your bowl"); a player who already has food or has baited before gets none
+		local held = 0
+		for _, count in profile.lures do
+			held += count
+		end
+		if profile.stats.luresUsed == 0 and held <= 0 then
+			profile.lures.kibble = 1
+		end
 	end
 	local def = Catalog.getUpgrade(upgradeId) :: Types.UpgradeDef
 	Net.toast(
@@ -1665,36 +1713,13 @@ local function onEquipBestDecor(player: Player)
 	CafeService.sync(player)
 end
 
-local function onBuyLure(player: Player, rawId: unknown)
-	local lureId = Guard.id(rawId)
-	local profile = profileFor(player)
-	if profile == nil or lureId == nil then
+-- #1281 (corner-shop-v2.md section 1b): the bowl foods are sold at the Corner Shop now (its "bait" rows), so every
+-- BuyLure is refused with a pointer there. The remote goes in the next cleanup.
+local function onBuyLure(player: Player, _rawId: unknown)
+	if profileFor(player) == nil then
 		return
 	end
-	local def = Catalog.getLure(lureId)
-	if def == nil or def.source ~= "shop" then
-		return -- dealer foods are only sold by the night dealer
-	end
-	-- Lures cost coins only, so the paid-random-items policy gate is a no-op in the slice. Logged so the hook exists.
-	local policy = DataService.policy(player)
-	if policy ~= nil and policy.ArePaidRandomItemsRestricted == true then
-		print(
-			string.format(
-				"[CafeService] policy note: paid random items restricted for %d (lures are coin-only, allowed)",
-				player.UserId
-			)
-		)
-	end
-	local price = Economy.foodPrice(lureId, Economy.tier(profile)) -- F97: grows with the tier
-	if not Economy.trySpend(profile, price) then
-		Net.toast(player, "Not enough coins", "warn")
-		CafeService.sync(player)
-		return
-	end
-	Telemetry.sink(player, profile, price, "Shop", lureId)
-	profile.lures[lureId] = (profile.lures[lureId] or 0) + 1
-	Net.toast(player, string.format("Bought %s (%d)", def.name, profile.lures[lureId]), "good")
-	CafeService.sync(player)
+	Net.toast(player, "Bait food is at the Corner Shop now", "info")
 end
 
 local function onClaimOffline(player: Player)
@@ -1824,6 +1849,7 @@ function CafeService.start()
 	Net.on("EquipBest", onEquipBest)
 	Net.on("UnequipAll", onUnequipAll)
 	Net.on("SellCat", onSellCat)
+	Net.on("SellExtraCommons", onSellExtraCommons)
 	Net.on("LockCat", onLockCat)
 	Net.on("BuyUpgrade", onBuyUpgrade)
 	Net.on("BuyDecor", onBuyDecor)

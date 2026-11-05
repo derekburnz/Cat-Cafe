@@ -34,7 +34,9 @@
 --   rolls at LuckyDayWaveLuck and its food at LuckyDayPlayerLuck more;
 -- - rolls each cat's coat as the game does (F99, Catching.rollCoat): rainbow first, then gold on the same roll, with
 --   the Rainbow track's luck from the Rainbow page it claims as well; a rainbow cat earns RainbowMultiplier.
--- Spins, golden fish and their perks, crates, potions, quests, the Daily Treat, rescues, the night dealer and the lawn
+-- With LAWN it also buys the best affordable front lawn piece or style whenever it can (lawn-nursery.md section 6d
+-- check 4) and lays the best lawn (Lawn.applyBest), after the rank up and before the cheapest shop item.
+-- Spins, golden fish and their perks, crates, potions, quests, the Daily Treat, rescues and the night dealer
 -- are left out, as in the economy-ladder.md section 3 model, so real players run a little faster.
 return function()
 	local ServerScriptService = game:GetService("ServerScriptService")
@@ -50,6 +52,7 @@ return function()
 	local Economy = require(Shared.Economy)
 	local EquipBest = require(Shared.EquipBest)
 	local IndexRewards = require(Shared.IndexRewards)
+	local Lawn = require(Shared.Lawn)
 	local Luck = require(Shared.Luck)
 	local Prizes = require(Shared.Prizes)
 	local ProfileSchema = require(Shared.ProfileSchema)
@@ -100,6 +103,7 @@ return function()
 		money: number?, -- the Money pass multiplier, none when nil
 		long: boolean?, -- a long run to Tier 5: bigger steps (LONG_STEP, LONG_SETTLE and LONG_PLAN)
 		strays: StrayModel?, -- #1159's daytime top-ups into the area the player hunts in; none when nil
+		lawn: ("greedy" | "saving")?, -- #1283: buys the best affordable lawn piece or style and lays the best lawn; "greedy" the moment it can, "saving" only with the next rank up's cost left over
 		pals: number?, -- pals on the server (Economy.setPals, #1165): tips, piles and rich visitors earn the pal bonus
 	}
 	-- The daytime top-ups (#1159, shared/StrayTopUp) as the one catcher sees them. `players` sets the floor of live
@@ -404,6 +408,52 @@ return function()
 			return cheapest, cheapestCost, isDecor
 		end
 
+		-- The best affordable lawn piece or style (#1283, lawn-nursery.md 6d check 4): the highest bonus first, then the
+		-- cheaper, and only one that raises the lawn's bonus once the best lawn is laid. One that cannot is skipped until
+		-- the next rank up opens more spots.
+		local noGain: { [string]: boolean } = {}
+		local function buyBestLawn(): boolean
+			local best: string? = nil
+			local bestBonus, bestPrice = 0, math.huge
+			local nextTier = Catalog.getTier(Economy.tier(profile) + 1)
+			local reserve = if options.lawn == "saving" and nextTier ~= nil
+				then nextTier.cost
+				else 0
+			local function consider(id: string, rarity: string?, price: number)
+				local bonus = Lawn.rarityBonus(rarity :: any)
+				if
+					price > 0
+					and bonus > 0
+					and noGain[id] ~= true
+					and Lawn.buyBlocker(profile, id) == nil
+					and Economy.canAfford(profile, price + reserve)
+					and (bonus > bestBonus or (bonus == bestBonus and price < bestPrice))
+				then
+					best, bestBonus, bestPrice = id, bonus, price
+				end
+			end
+			for _, def in Catalog.lawn do
+				consider(def.id, def.rarity, def.price)
+			end
+			for _, def in Catalog.lawnStyles do
+				consider(def.id, def.rarity, def.price)
+			end
+			if best == nil then
+				return false
+			end
+			local before = Lawn.bonus(profile)
+			profile.lawnOwned[best] = true
+			local placed, styles = Lawn.best(profile)
+			if Lawn.bonusOf(profile.lawnOwned, placed, styles) <= before then
+				profile.lawnOwned[best] = nil -- no better than what is out: not worth the coins
+				noGain[best] = true
+				return false
+			end
+			assert(Economy.trySpend(profile, bestPrice))
+			Lawn.applyBest(profile)
+			return true
+		end
+
 		local played = 0 -- seconds of play before this session
 		local leftAt: number? = nil
 		local baitLuck = 1 -- the Luck the food in the bowl was rolled at (F88)
@@ -664,8 +714,15 @@ return function()
 						return run
 					end
 					placeBest(nil) -- the new role slots
+					if options.lawn then
+						Lawn.grantTierGifts(profile)
+						Lawn.applyBest(profile)
+						table.clear(noGain)
+					end
 					area = newestArea()
 					wave = rollWave(area, lucky)
+					dirty = true
+				elseif options.lawn and buyBestLawn() then
 					dirty = true
 				else
 					local id, cost, isDecor = cheapestItem()
@@ -735,6 +792,11 @@ return function()
 				if strays.players == 1 then "" else "s",
 				if strays.wait ~= nil then tostring(strays.wait) else "60 to 120"
 			)
+		end
+		if options.lawn then
+			text ..= if options.lawn == "saving"
+				then ", best lawn bought after saving for the rank up"
+				else ", best lawn bought at once"
 		end
 		if options.pals ~= nil then
 			text ..= string.format(
@@ -923,6 +985,23 @@ return function()
 			end
 		)
 
+		it(
+			"takes 10 to 20 minutes for a player who buys the best affordable lawn piece after saving for the rank up (#1283)",
+			function()
+				check({ catches = 4, lawn = "saving" })
+			end
+		)
+
+		-- Found 2026-11-05: while the Common lawn pieces opened at Tier 1, a player who spent on the best affordable one
+		-- the moment it could (10,000, where Tier 2 costs 13,500) reached Tier 2 at a median of 25.1 min, over the 20
+		-- minute bound. Design-Agent (#1451) opened the Commons at Tier 2 instead.
+		it(
+			"takes 10 to 20 minutes for a player who buys the best affordable lawn piece at once (#1283)",
+			function()
+				check({ catches = 4, lawn = "greedy" })
+			end
+		)
+
 		it("takes 10 to 20 minutes with 3 pals on the server", function()
 			check({ catches = 4, pals = FOUR_FRIENDS })
 		end)
@@ -931,7 +1010,7 @@ return function()
 		-- and every top-up of a 4-player floor to itself) reached Tier 2 at a median of 9.4 min, under the 10 minute
 		-- floor; Design-Agent raised the cost to 13,500 (rule v0.8). #1452's faster wild catching (more strays, better
 		-- Rare+ odds) put it at 7.8 min again, so economy-ladder section 3 v3 makes Tier 2 28,000 and the later tiers
-		-- 700,000, 60M and 2B.
+		-- 700,000, 60M and 2B. #1499's dearer bait (less sunk into food) put it at 9.9 min, so v3.1 makes it 30,000.
 		it(
 			"takes 10 to 20 minutes on a server of 4 friends, the non-stop catcher with every top-up to itself",
 			function()
@@ -945,6 +1024,23 @@ return function()
 	end)
 
 	describe("Tier 5 with stray top-ups (#1159) and a 4-friend server (#1165)", function()
+		it(
+			"takes 8 to 12 hours in one go for a player who buys the best affordable lawn (#1283)",
+			function()
+				local list, text = toTier5({
+					catches = 4,
+					target = 5,
+					limit = 16 * HOUR,
+					long = true,
+					lawn = "greedy",
+				})
+				local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
+				if median < 8 * HOUR or median > 12 * HOUR then
+					error("Tier 5 outside 8 to 12 hours of play: " .. text)
+				end
+			end
+		)
+
 		it(
 			"takes 8 to 12 hours in one go on a server of 4 friends, the non-stop catcher",
 			function()

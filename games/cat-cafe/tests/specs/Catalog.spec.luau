@@ -329,14 +329,16 @@ return function()
 			lantern = { "Lantern", "Rare", "sewer", "waiter" },
 		}
 
-		it("has exactly 61 cats: the 20 slice cats, the 30 later ones, the 10 spare and the Bellhop Cat (F96)", function()
-			expect(#Catalog.cats).to.equal(61)
+		it("has exactly 63 cats: the 20 slice, 30 later and 10 spare, the Bellhop Cat (F96) and 2 pass cats (#1447)", function()
+			expect(#Catalog.cats).to.equal(63)
 			for _, def in ipairs(Catalog.cats) do
 				expect(
 					slice[def.id] ~= nil
 						or reserved[def.id] ~= nil
 						or spares[def.id] ~= nil
 						or def.id == "bellhop_cat"
+						or def.id == "duchess_marzipan"
+						or def.id == "king_croissant"
 				).to.equal(true)
 			end
 			for id in pairs(slice) do
@@ -591,8 +593,8 @@ return function()
 		-- tier -> { name, cost, distinctCats, needsRarity, needsRarityCount, slots, multiplier, area, caps }
 		local expected: { { any } } = {
 			{ "Corner Cafe", 0, 0, nil, nil, 2, 1.00, "alley", { 2, 2, 1 } },
-			{ "Cozy Cafe", 28000, 5, nil, nil, 4, 1.25, "park", { 4, 3, 2 } },
-			-- economy-ladder.md section 3 v3 (#1452, more wild cats): 28,000, 700,000, 60M and 2B (v2: 13,500, 500,000, 40M, 1.2B)
+			{ "Cozy Cafe", 30000, 5, nil, nil, 4, 1.25, "park", { 4, 3, 2 } },
+			-- economy-ladder.md section 3 v3.1 (#1452, more wild cats; #1499 Tier 2 30,000): 30,000, 700,000, 60M and 2B
 			{ "Busy Cafe", 700000, 12, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
 			{ "Famous Cafe", 60000000, 20, "Legendary", 1, 8, 1.75, "woods", { 6, 5, 3 } },
 			{ "Grand Cafe", 2000000000, 30, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
@@ -863,7 +865,7 @@ return function()
 			{
 				kibble = {
 					name = "Kibble",
-					cost = 100, -- F97: about four times the old price
+					cost = 100, -- F97; #1389 keeps it
 					sortOrder = 1,
 					source = "shop",
 					attracts = "Common",
@@ -871,7 +873,7 @@ return function()
 				},
 				tuna = {
 					name = "Tuna",
-					cost = 500, -- F97: about four times the old price
+					cost = 5000, -- #1389: F97's 500, x10
 					sortOrder = 2,
 					source = "shop",
 					attracts = "Rare",
@@ -879,7 +881,7 @@ return function()
 				},
 				salmon = {
 					name = "Salmon",
-					cost = 2500, -- F97: about four times the old price
+					cost = 50000, -- #1389: F97's 2500, x20
 					sortOrder = 4,
 					source = "shop",
 					attracts = "Epic",
@@ -887,7 +889,7 @@ return function()
 				},
 				sardines = {
 					name = "Moonlit Sardines",
-					cost = 4000, -- F97: about four times the old price
+					cost = 80000, -- #1389: F97's 4000, x20
 					sortOrder = 3,
 					source = "dealer",
 					attracts = "Rare",
@@ -895,7 +897,7 @@ return function()
 				},
 				caviar = {
 					name = "Caviar",
-					cost = 15000, -- F97: about four times the old price
+					cost = 600000, -- #1389: F97's 15000, x40
 					sortOrder = 5,
 					source = "dealer",
 					attracts = "Epic",
@@ -903,7 +905,7 @@ return function()
 				},
 				moon_milk = {
 					name = "Moon Milk",
-					cost = 50000, -- F97: about four times the old price
+					cost = 2000000, -- #1389: F97's 50000, x40
 					sortOrder = 6,
 					source = "dealer",
 					attracts = "Epic",
@@ -911,7 +913,7 @@ return function()
 				},
 				star_treat = {
 					name = "Star Treat",
-					cost = 200000, -- F97: about four times the old price
+					cost = 8000000, -- #1389: F97's 200000, x40
 					sortOrder = 7,
 					source = "dealer",
 					attracts = "Legendary",

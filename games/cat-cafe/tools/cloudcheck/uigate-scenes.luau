@@ -795,6 +795,23 @@ local SCENES = {
 	end },
 	{ "Bait", function()
 		UI.bait.openPicker()
+		-- #1281: no Buy on any food; each says how many you have, or where to get more
+		local window = baitWindow()
+		local counts = 0
+		for _, piece in window:GetDescendants() do
+			assert(piece.Name ~= "Buy", "uigate: a Buy button in the bowl menu (#1281: foods sell at the Corner Shop)")
+			if piece.Name == "Count" and piece:IsA("TextLabel") then
+				counts += 1
+				local text = piece.Text
+				assert(
+					string.match(text, "^You have %d+$")
+						or text == "Get more at the Corner Shop"
+						or text == "Sold by the night dealer's cart",
+					("uigate: a food row says %q (#1281)"):format(text)
+				)
+			end
+		end
+		assert(counts == #Catalog.lures, ("uigate: %d food rows for %d foods"):format(counts, #Catalog.lures))
 	end },
 	-- #1161: the Second Bait Bowl pass owned, bowl 1 filling and bowl 2 empty: two tabs, and the screen opens on
 	-- bowl 2 (the empty one that takes food) with its Use buttons live
@@ -804,6 +821,19 @@ local SCENES = {
 		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 250, placedAt = now - 50 }, 1)
 		UI.bait.openPicker()
 		assertBowlTabs(2, "Bowl 2 is empty")
+	end },
+	-- #1573: a Tuna bait that has come and gone; the empty bowl offers Refill with the same food
+	{ "BaitRefill", function()
+		local now = workspace:GetServerTimeNow()
+		local tuna = Catalog.lures[2]
+		UI.bait.set({ lureId = tuna.id, readyAt = now - 5, placedAt = now - 600 }, 1)
+		UI.bait.set(nil, 1)
+		UI.bait.openPicker()
+		local status = baitWindow():FindFirstChild("Status", true)
+		local action = status and status:FindFirstChild("Action", true)
+		assert(action and action.Visible, "uigate: no Refill on the empty bowl (#1573)")
+		local sub = status:FindFirstChild("Sub", true)
+		assert(sub and string.find(sub.Text, tuna.name, 1, true), "uigate: Refill does not name the food (#1573)")
 	end },
 	-- #1161: both bowls filling, bowl 2 at night: the tabs count down on their own
 	{ "BaitBothRunning", function()
@@ -866,6 +896,25 @@ local SCENES = {
 	{ "SpinOdds", function()
 		UI.spin.open()
 		press("SpinWheel", "Odds")
+	end },
+	-- #1500: the end of the Odds list, where the two 0.5% jackpots sit in gold
+	{ "SpinOddsJackpots", function()
+		UI.spin.open()
+		press("SpinWheel", "Odds")
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("SpinWheel", true)
+		local list = window and window:FindFirstChild("Rows", true)
+		assert(list and list:IsA("ScrollingFrame"), "uigate: no Odds list")
+		list.CanvasPosition = Vector2.new(0, 100000)
+		local count = 0
+		for _, row in list:GetChildren() do
+			if row:IsA("Frame") and string.match(row.Name, "^Slice%d+$") then
+				count += 1
+			end
+		end
+		assert(count == #Catalog.spinWheel, ("uigate: %d odds rows for %d slices"):format(count, #Catalog.spinWheel))
+		local prize = list:FindFirstChild("Slice8") and list.Slice8:FindFirstChild("Prize")
+		assert(prize and string.find(prize.Text, "^Jackpot: 100 golden fish"), "uigate: slice 8 is not the fish jackpot")
 	end },
 	{ "Market", function()
 		UI.market.open()
@@ -986,6 +1035,42 @@ local SCENES = {
 			press("Cats", "Sell")
 		end)
 	end },
+	-- #1573: three spare copies of a resting Common: the grid's first card is Sell extras; its Sell asks first
+	{ "CatsSellExtras", function()
+		local player = samplePlayer(os.time())
+		local common
+		for _, instance in player.cats do
+			local def = Catalog.getCat(instance.catId)
+			if def and def.rarity == "Common" and def.exclusive ~= true then
+				common = instance.catId
+				break
+			end
+		end
+		assert(common, "uigate: the sample player has no Common")
+		for count = 1, 3 do
+			local uid = "gate_extra_" .. count
+			player.cats[uid] = {
+				uid = uid,
+				catId = common,
+				variant = "base",
+				caughtAt = os.time() - 30 * count,
+				level = 1,
+				xp = 0,
+				xpToNext = 40,
+				charm = 50,
+				stars = 1,
+				rating = 1,
+			}
+		end
+		UI.update({ cats = player.cats })
+		UI.open("Cats")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("SellExtras", true)
+		assert(card and card.Visible, "uigate: no Sell extras card")
+		press("Cats", "SellExtras.ExtrasSell")
+		local line = card:FindFirstChild("Line") :: TextLabel
+		assert(string.find(line.Text, "^Sell %d+ extra Commons? for ") ~= nil, "uigate: Sell extras asks: " .. line.Text)
+	end },
 	-- F97 section 6: two spare cats (no Index page) with their "Classic" tag, one gold under its sparkle
 	{ "CatsClassic", function()
 		local player = samplePlayer(os.time())
@@ -1049,8 +1134,44 @@ local SCENES = {
 	{ "Potions", function()
 		UI.open("Potions")
 	end },
+	-- #1281: the Bag's Bait tab: the bowl foods the player has, each with its picture, grade badge and count, no Use
+	{ "BagBait", function()
+		UI.update({ lures = { kibble = 12, tuna = 3, salmon = 1 } })
+		UI.open("Potions")
+		press("Potions", "BaitTab")
+		local window = UIShim.playerGui:FindFirstChild("Potions", true)
+		local list = window and window:FindFirstChild("BaitList", true)
+		assert(list and list:IsA("GuiObject") and list.Visible, "uigate: the Bag's Bait list is not up")
+		local tuna = list:FindFirstChild("tuna")
+		assert(tuna, "uigate: no Tuna row on the Bait tab")
+		local count = tuna:FindFirstChild("Count") :: TextLabel
+		assert(count.Text == "x3", "uigate: Tuna count " .. count.Text)
+		assert(list:FindFirstChild("Use", true) == nil, "uigate: the Bait tab has a Use button")
+	end },
 	{ "Quests", function()
 		UI.open("Quests")
+	end },
+	-- #1573: a tap on an unfinished daily pins it: its row reads "📌 ..." and the HUD's quest line follows it
+	{ "QuestsPinned", function()
+		UI.open("Quests")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Quests", true)
+		assert(window, "uigate: no Quests window")
+		local daily = window:FindFirstChild("Quest1", true).Parent
+		local pinnedRow = nil
+		for slot = 1, 5 do
+			local row = daily:FindFirstChild("Quest" .. slot)
+			local claim = row and row:FindFirstChild("Claim", true)
+			local check = row and row:FindFirstChild("Check", true)
+			if row and row.Visible and not (claim and claim.Visible) and not (check and check.Visible) then
+				pinnedRow = row
+				press("Quests", "Quest" .. slot .. ".Pin")
+				break
+			end
+		end
+		assert(pinnedRow, "uigate: no unfinished daily to pin")
+		local title = pinnedRow:FindFirstChild("Title")
+		assert(string.sub(title.Text, 1, 4) == "📌", ("uigate: the pinned quest reads %q (#1573)"):format(title.Text))
 	end },
 	{ "QuestsWeekly", function()
 		UI.open("Quests")
@@ -1347,7 +1468,7 @@ local SCENES = {
 	{ "LawnStallFences", function()
 		UI.nursery.open("fence")
 	end },
-	-- #1052: the Corner Shop with every line: a Swift Potion left, snacks part bought, no Big Snack, fireworks sold out
+	-- #1052: the Corner Shop with every line: a Swift Potion left, snacks part bought, no Big Snack, a whistle sold out
 	{ "CornerShop", function()
 		UI.cornerShop.setStock({
 			window = 5000000,
@@ -1357,11 +1478,38 @@ local SCENES = {
 				{ itemId = "swift_potion", price = 2400, amount = 3, bought = 1 },
 				{ itemId = "cat_snack", price = 6000, amount = 2, bought = 1 },
 				{ itemId = "big_cat_snack", price = 24000, amount = 0, bought = 0 },
-				{ itemId = "bubble_machine", price = 12000, amount = 1, bought = 0 },
-				{ itemId = "cafe_fireworks", price = 18000, amount = 1, bought = 1 },
+				{ itemId = "cat_feast", price = 12000, amount = 1, bought = 0 },
+				{ itemId = "cat_whistle", price = 18000, amount = 1, bought = 1 },
 			},
 		})
 		UI.cornerShop.open()
+	end },
+	-- #1281: the three bait foods at the Corner Shop: their clean pictures and grade badges, "You have n" from the
+	-- player's lures, Salmon sold out
+	{ "CornerShopBait", function()
+		UI.update({ money = 100000, tier = 2, lures = { kibble = 4, tuna = 1 } })
+		UI.cornerShop.setStock({
+			window = 5000000,
+			restocksAt = workspace:GetServerTimeNow() + 192,
+			snackXp = 0,
+			stock = {
+				{ itemId = "swift_potion", price = 2400, amount = 3, bought = 1 },
+				{ itemId = "kibble", price = 200, amount = 3, bought = 0 },
+				{ itemId = "tuna", price = 1000, amount = 2, bought = 1 },
+				{ itemId = "salmon", price = 5000, amount = 1, bought = 1 },
+			},
+		})
+		UI.cornerShop.open()
+		local window = UIShim.playerGui:FindFirstChild("CornerShop", true)
+		assert(window, "no Corner Shop window")
+		local kibble = window:FindFirstChild("kibble", true)
+		assert(kibble, "no kibble row")
+		local effect = kibble:FindFirstChild("Effect", true) :: TextLabel
+		assert(effect.Text == "Bait for your bowl · You have 4", "kibble effect: " .. effect.Text)
+		local salmon = window:FindFirstChild("salmon", true)
+		assert(salmon, "no salmon row")
+		local salmonEffect = salmon:FindFirstChild("Effect", true) :: TextLabel
+		assert(salmonEffect.Text == "Bait for your bowl · You have 0", "salmon effect: " .. salmonEffect.Text)
 	end },
 	-- F100: the prize toast after the Lost and Found: the line and two pictures
 	{ "CampPrize", function()

@@ -165,6 +165,32 @@ return function()
 			expect(QuestLogic.tracker(nil)).to.equal(nil)
 		end)
 
+		it("leads with the pinned quest while it is unfinished, daily or weekly (#1573)", function()
+			local quests: any = {
+				daily = {
+					quest("d_perfect10", 3, 10),
+					quest("d_rescue2", 1, 2),
+					quest("d_catch5", 5, 5),
+				},
+				weekly = { quest("w_serve200", 20, 200) },
+			}
+			local picked, pinned =
+				QuestLogic.tracker(quests, QuestLogic.pinKey("daily", "d_perfect10"))
+			expect(picked.id).to.equal("d_perfect10")
+			expect(pinned).to.equal(true)
+			picked, pinned = QuestLogic.tracker(quests, QuestLogic.pinKey("weekly", "w_serve200"))
+			expect(picked.id).to.equal("w_serve200")
+			expect(pinned).to.equal(true)
+			-- a done, swapped away or unknown pin falls back to the closest daily
+			for _, pin in
+				{ QuestLogic.pinKey("daily", "d_catch5"), "daily:gone", "weekly:d_perfect10" }
+			do
+				picked, pinned = QuestLogic.tracker(quests, pin)
+				expect(picked.id).to.equal("d_rescue2")
+				expect(pinned).to.equal(false)
+			end
+		end)
+
 		it("counts Claim all's ready rewards across all three tabs (#1073)", function()
 			local count = QuestLogic.claimAllCount
 			expect(count({ Daily = 1, Weekly = 0, Achievements = 0 })).to.equal(1)

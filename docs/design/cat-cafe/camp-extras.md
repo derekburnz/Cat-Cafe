@@ -1,5 +1,7 @@
 # One extra thing at each camp (F100)
 
+**2026-11-05 (overnight): [camp-stations.md](camp-stations.md) turns the Picnic Basket, Yard Sale and Fish Pond into full stations with a "!" when ready. The Yard Sale moves to a 4-hour timer, and the pond to 1 fish every 10 minutes (holding 36).** The Lost and Found is unchanged.
+
 Status: decided by Derek, specced by the game-designer thread, 2026-11-01. Derek's Set 4 Q4 answer (2026-10-29): "I like the idea and its def a good thing it might get annoying to cannon to each location to checkout whatever the benefits are so rethink a way of unlocking and using those new features without making the cannon teleporting between locations tedious, if the cannon between is fast then it wouldn't be terrible and can show the little feature of each area in the menu and clean it up if needed if not plan out some other possible options on how to have unlocks with every or every couple new tiers." His release rule of 2026-11-01 22:59 puts it before release.
 
 ## 1. The rules that keep it from being a chore

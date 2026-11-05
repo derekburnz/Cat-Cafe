@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <radialGradient id="face" cx="40%" cy="35%" r="70%">
+      <stop offset="0" stop-color="#FFF3A6"/><stop offset="0.45" stop-color="#FFD23F"/><stop offset="1" stop-color="#E89A12"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFC93C"/><stop offset="1" stop-color="#C9760A"/>
+    </linearGradient>
+  </defs>
+  <!-- edge (the coin's thickness) -->
+  <ellipse cx="128" cy="140" rx="110" ry="110" fill="#B5650A" stroke="#2a1a12" stroke-width="14"/>
+  <!-- face -->
+  <circle cx="128" cy="124" r="110" fill="url(#rim)" stroke="#2a1a12" stroke-width="14"/>
+  <circle cx="128" cy="124" r="82" fill="url(#face)" stroke="#C47A0C" stroke-width="8"/>
+  <!-- embossed $ -->
+  <text x="128" y="164" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="118" text-anchor="middle"
+        fill="#FFFFFF" stroke="#2a1a12" stroke-width="14" paint-order="stroke" stroke-linejoin="round">$</text>
+  <!-- shine -->
+  <path d="M60 92 A80 80 0 0 1 112 46" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" opacity="0.85"/>
+  <path d="M212 30 l6 14 14 6 -14 6 -6 14 -6 -14 -14 -6 14 -6z" fill="#FFFFFF" stroke="#2a1a12" stroke-width="6" stroke-linejoin="round"/>
+</svg>

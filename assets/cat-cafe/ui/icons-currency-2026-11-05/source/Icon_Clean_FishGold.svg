@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFF0A0"/><stop offset="0.5" stop-color="#FFC92E"/><stop offset="1" stop-color="#E0880E"/>
+    </linearGradient>
+    <linearGradient id="fin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFB323"/><stop offset="1" stop-color="#D2700A"/>
+    </linearGradient>
+  </defs>
+  <!-- tail -->
+  <path d="M176 128 L240 70 Q226 128 240 186 Z" fill="url(#fin)" stroke="#2a1a12" stroke-width="14" stroke-linejoin="round"/>
+  <!-- top fin -->
+  <path d="M92 74 Q120 30 160 66 Z" fill="url(#fin)" stroke="#2a1a12" stroke-width="12" stroke-linejoin="round"/>
+  <!-- body -->
+  <path d="M14 128 Q60 52 140 62 Q196 72 200 128 Q196 184 140 194 Q60 204 14 128 Z" fill="url(#body)" stroke="#2a1a12" stroke-width="14" stroke-linejoin="round"/>
+  <!-- belly fin -->
+  <path d="M98 186 Q112 222 138 196" fill="url(#fin)" stroke="#2a1a12" stroke-width="10" stroke-linejoin="round"/>
+  <!-- gill -->
+  <path d="M74 92 Q92 128 74 164" fill="none" stroke="#C47A0C" stroke-width="9" stroke-linecap="round"/>
+  <!-- scales -->
+  <path d="M110 104 q12 12 0 24 M134 98 q12 15 0 30 M158 104 q12 12 0 24 M122 136 q12 12 0 24 M146 136 q12 12 0 24" fill="none" stroke="#D98A10" stroke-width="7" stroke-linecap="round"/>
+  <!-- eye -->
+  <circle cx="50" cy="118" r="17" fill="#FFFFFF" stroke="#2a1a12" stroke-width="7"/>
+  <circle cx="53" cy="119" r="8" fill="#2a1a12"/>
+  <!-- shine -->
+  <path d="M84 80 Q120 66 156 74" fill="none" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round" opacity="0.9"/>
+</svg>

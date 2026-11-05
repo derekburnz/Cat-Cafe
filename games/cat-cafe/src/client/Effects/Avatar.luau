@@ -628,6 +628,16 @@ function Avatar.netModel(level: unknown): number
 	return math.clamp(n + 1, 1, 4)
 end
 
+-- How hidden a carried cat's copy (Carry.luau) is `elapsed` seconds after its carry ended (#1138), from `start`
+-- (how hidden it was then) up to 1 over what is left of `seconds`: a copy still fading in goes out in step with
+-- how far in it got.
+function Avatar.fadeLeft(start: number, elapsed: number, seconds: number): number
+	if seconds <= 0 then
+		return 1
+	end
+	return math.clamp(start + math.max(elapsed, 0) / seconds, start, 1)
+end
+
 -- The hold's weight `dt` seconds on, easing towards 1 while it holds and 0 while it does not, over the blend times
 -- of `blend` (Presets.netHold when not given).
 function Avatar.holdWeight(

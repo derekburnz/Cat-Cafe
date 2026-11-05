@@ -55,7 +55,10 @@ local NOTE_H = 22
 local ROW_H = 84
 local PICTURE = 60
 local BUY_W = 150
-local PENDING_SECONDS = 5 -- a buy with no answer lets the button go again after this long
+local PENDING_SECONDS = 3 -- a buy with no answer lets the button go again after this long (#1384)
+-- The server takes BuyCornerShop 2 a second and drops the rest with no answer (Net.luau), which left a fast buyer's
+-- button on "..." (#1384). Buys are spaced this far apart; a press inside the gap waits its turn instead.
+local SEND_GAP = 0.55
 local GAP = Theme.sizes.gap
 
 -- a picture glyph per row until a drawn picture exists; the potion draws its clean flask
@@ -96,6 +99,9 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 	self._state = nil :: Types.PlayerState?
 	self._rows = {} :: { Row }
 	self._pending = {} :: { [string]: number } -- itemId -> os.clock() of a buy with no answer yet
+	self._lastSent = -math.huge -- os.clock() of the last buy sent
+	self._queued = false -- a press inside SEND_GAP waits to be sent (one at a time)
+	self._alive = true
 	self._open = false
 	self._tick = 0
 	self._buyH = Scale.tapHeight(44, Theme.sizes.buttonDepth)
@@ -293,14 +299,58 @@ function CornerShop._pickCat(
 	self._picker.Visible = true
 end
 
-function CornerShop._send(self: any, item: SharedTypes.CornerShopItem, catUid: string?)
+-- Sends one buy now, from the stock as it is now (a new window may have come while it waited).
+function CornerShop._fire(self: any, itemId: string, catUid: string?)
 	local stock: SharedTypes.CornerShopStock? = self._stock
-	if stock == nil then
+	local item: SharedTypes.CornerShopItem? = nil
+	if stock ~= nil then
+		for _, each in stock.stock do
+			if each.itemId == itemId then
+				item = each
+			end
+		end
+	end
+	if stock == nil or item == nil then
+		self._pending[itemId] = nil -- gone from the shop while it waited
+		self:_paint()
 		return
 	end
-	self._pending[item.itemId] = os.clock()
-	self._callbacks.buy(item.itemId, stock.window, item.price, catUid)
+	local price: number = (item :: SharedTypes.CornerShopItem).price
+	local now = os.clock()
+	self._lastSent = now
+	self._pending[itemId] = now -- the wait runs from the send
+	self._callbacks.buy(itemId, stock.window, price, catUid)
+	-- the "..." always lets go, even with the window's own repaint stopped (#1384)
+	task.delay(PENDING_SECONDS + 0.1, function()
+		if self._alive then
+			self:_paint()
+		end
+	end)
 	self:_paint()
+end
+
+function CornerShop._send(self: any, item: SharedTypes.CornerShopItem, catUid: string?)
+	if self._stock == nil then
+		return
+	end
+	local itemId = item.itemId
+	local wait = self._lastSent + SEND_GAP - os.clock()
+	if wait <= 0 then
+		self:_fire(itemId, catUid)
+		return
+	end
+	if self._queued then
+		return -- one buy already waits its turn; this press is too fast to send
+	end
+	self._queued = true
+	self._pending[itemId] = os.clock()
+	self:_paint()
+	task.delay(wait, function()
+		self._queued = false
+		if self._alive then
+			self:_fire(itemId, catUid)
+		end
+	end)
 end
 
 function CornerShop._press(self: any, itemId: string)
@@ -498,6 +548,7 @@ end
 
 function CornerShop.destroy(self: any)
 	self._open = false
+	self._alive = false
 	self:_clear()
 	self:_clearPicker()
 	self._pickerBack:destroy()

@@ -44,6 +44,9 @@ type Held = {
 }
 
 local held: { [Model]: Held } = {}
+-- copies whose carry ended, left where they last lay and fading out over carryPose.blendOut (#1138: no pop)
+type Leaving = { copy: Model, from: number, start: number }
+local leaving: { Leaving } = {}
 local started = false
 local rng = Random.new()
 
@@ -69,11 +72,35 @@ local function setHidden(cat: Model, hidden: boolean)
 	end
 end
 
--- Takes the copy off the arms and shows the HeldCat on its weld again (unless Show other cats hides it).
-local function release(entry: Held)
+-- Every part and decal of `model` at `value` LocalTransparencyModifier, 0 (shown) to 1 (hidden).
+local function setFade(model: Model, value: number)
+	for _, item in model:GetDescendants() do
+		if item:IsA("BasePart") then
+			(item :: BasePart).LocalTransparencyModifier = value
+		elseif item:IsA("Decal") then
+			(item :: Decal).LocalTransparencyModifier = value
+		end
+	end
+end
+
+-- How hidden a copy is now, read off its first part (it fades as one), 0 when it has none.
+local function fadeOf(model: Model): number
+	local part = model:FindFirstChildWhichIsA("BasePart", true)
+	return if part ~= nil then (part :: BasePart).LocalTransparencyModifier else 0
+end
+
+-- Takes the copy off the arms and shows the HeldCat on its weld again (unless Show other cats hides it). With
+-- `fadeAt`, the copy stays where it last lay and fades out from there (Avatar.fadeLeft) instead of going at once.
+local function release(entry: Held, fadeAt: number?)
 	local cat = entry.cat
-	if entry.copy ~= nil then
-		entry.copy:Destroy()
+	local copy = entry.copy
+	if copy ~= nil then
+		if fadeAt ~= nil and copy.Parent ~= nil then
+			copy.Name = "CarriedCatLeaving"
+			table.insert(leaving, { copy = copy, from = fadeAt, start = fadeOf(copy) })
+		else
+			copy:Destroy()
+		end
 	end
 	if cat ~= nil and cat.Parent ~= nil and cat:GetAttribute("HiddenLocal") ~= true then
 		setHidden(cat, false)
@@ -167,7 +194,7 @@ local function show(entry: Held, cat: Model, now: number)
 	entry.phase = rng:NextNumber(0, 100)
 	entry.fadeFrom = now
 	-- hidden, then fading in on the arms over carryPose.blendIn as they fold (#1138: no pop)
-	setHidden(copy, true)
+	setFade(copy, 1)
 	setHidden(cat, true)
 end
 
@@ -178,14 +205,7 @@ local function fadeIn(entry: Held, copy: Model, now: number)
 		return
 	end
 	local k = math.clamp((now - from) / Presets.carryPose.blendIn, 0, 1)
-	local value = 1 - k
-	for _, item in copy:GetDescendants() do
-		if item:IsA("BasePart") then
-			(item :: BasePart).LocalTransparencyModifier = value
-		elseif item:IsA("Decal") then
-			(item :: Decal).LocalTransparencyModifier = value
-		end
-	end
+	setFade(copy, 1 - k)
 	if k >= 1 then
 		entry.fadeFrom = nil
 	end
@@ -240,6 +260,16 @@ end
 -- have put them, and takes its next breath and look.
 local function place()
 	local now = os.clock()
+	for i = #leaving, 1, -1 do
+		local item = leaving[i]
+		local value = Avatar.fadeLeft(item.start, now - item.from, Presets.carryPose.blendOut)
+		if value >= 1 or item.copy.Parent == nil then
+			item.copy:Destroy()
+			table.remove(leaving, i)
+		else
+			setFade(item.copy, value)
+		end
+	end
 	for character, entry in held do
 		if not character:IsDescendantOf(game) then
 			Carry.forget(character)
@@ -257,7 +287,7 @@ local function place()
 			entry.cat ~= nil
 			and (not wanted or entry.cat ~= cat or copy == nil or copy.Parent == nil)
 		then
-			release(entry)
+			release(entry, now) -- put down (or out of range): it fades where it lay
 		end
 		if wanted and entry.cat == nil and cat ~= nil then
 			show(entry, cat, now)

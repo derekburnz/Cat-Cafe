@@ -69,11 +69,13 @@ function Products.prizeFor(
 	local first = not (product.oncePerAccount == true and profile.onceBought[product.id] == true)
 	local cats: { string } = {}
 	local styles: { string } = {}
+	local prizeCats: { string } = product.prize.cats or {}
+	local prizeStyles: { string } = product.prize.signStyles or {}
 	if first then
-		for _, catId in product.prize.cats or {} do
+		for _, catId in prizeCats do
 			table.insert(cats, catId)
 		end
-		for _, styleId in product.prize.signStyles or {} do
+		for _, styleId in prizeStyles do
 			table.insert(styles, styleId)
 		end
 	end

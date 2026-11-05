@@ -757,6 +757,21 @@ local SCENES = {
 		UI.open("Decor")
 		press("Decor", "FrontLawn")
 	end },
+	-- #1624: the Style tab, the cafe sign (Royal Crest in use) and the uniforms once the server sends looks
+	{ "DecorStyle", function()
+		UI.update({
+			signStyles = { "bakery_stripes", "royal_crest" },
+			signStyle = "royal_crest",
+			looks = {
+				uniform = "midnight",
+				uniforms = { "default", "striped", "midnight", "mint", "uniform_pumpkin" },
+				theme = "garden",
+				themes = { "default", "garden", "grand" },
+			},
+		})
+		UI.open("Decor")
+		press("Decor", "Style")
+	end },
 	-- F91: Edit lawn's view with the picker open on the first small spot (the Tulip Bed is on it)
 	{ "LawnEdit", function()
 		bindLawnPlot()

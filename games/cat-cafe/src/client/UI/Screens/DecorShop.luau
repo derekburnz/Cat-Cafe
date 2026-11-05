@@ -21,6 +21,9 @@
 -- F91 (front-lawn.md section 3): a "Front lawn" chip after All, shown while the lawn is live (the bound plot's
 -- LawnPath attribute is set and ProfileSync has sent the lawn, Components/LawnLogic.live). Picking it swaps the strip
 -- and grid for the Front lawn tab (Screens/LawnTab) and hides Equip Best, which is for the inside.
+-- #1624 (store-pass-looks.md, the cafe's Style panel): a "Style" chip at the end, shown while the player owns a sign
+-- style, uniform style or theme to pick (Components/StyleLogic.shows). Picking it swaps the strip and grid for the
+-- Style tab (Screens/StyleTab) the same way.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -36,6 +39,8 @@ local LawnTab = require(script.Parent.LawnTab)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
+local StyleLogic = require(script.Parent.Parent.Components.StyleLogic)
+local StyleTab = require(script.Parent.StyleTab)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -54,6 +59,8 @@ export type Callbacks = {
 	setLawnSpot: (spotId: string, pieceId: string) -> (),
 	setLawnStyle: (kind: Types.LawnStyleKind, id: string) -> (),
 	editLawn: () -> (),
+	-- #1624: a Style tab button, kind "sign", "uniform" or "theme" and id "" for the default; no Style chip without it
+	pickStyle: ((kind: string, id: string) -> ())?,
 }
 
 export type DecorShop = {
@@ -63,6 +70,7 @@ export type DecorShop = {
 	-- F91: the player's own plot, whose LawnPath attribute says the lawn is live; nil stops watching
 	bindPlot: (self: DecorShop, plot: Instance?) -> (),
 	showLawn: (self: DecorShop) -> (), -- the Front lawn chip picked, when the lawn is live
+	showStyle: (self: DecorShop) -> (), -- #1624: the Style chip picked, when the player owns a style
 	destroy: (self: DecorShop) -> (),
 }
 
@@ -81,6 +89,7 @@ local LATE_KINDS: { [string]: boolean } = { door = true, catflap = true } -- sho
 local SPOTS_BY_TIER: { number } = Config.DecorSpots or DecorPieces.SPOTS_BY_TIER
 local LAWN_CHIP = "Front lawn" -- F91: the chip that shows the Front lawn tab (the filter key)
 local LAWN_TEXT = "Lawn" -- its words on the chip, short so the row is roomier (#964)
+local STYLE_CHIP = "Style" -- #1624: the chip that shows the Style tab
 -- the Decor spots slot's filter (#1120): the pieces that stand on a spot (furniture and decorations), under no one chip
 local SPOTS_FILTER = "Decor spots"
 -- the "Your cafe" slots' clean symbols and light tiles (#964, the sheet in assets/cat-cafe/ui/icons-clean-2026-11-03):
@@ -135,6 +144,7 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	self._plot = nil :: Instance?
 	self._plotConnection = nil :: RBXScriptConnection?
 	self._lawnLive = false
+	self._styleLive = false -- #1624: the player owns a style to pick
 	self._state = nil :: Types.PlayerState?
 	self._dirty = true
 	-- a phone's buttons grow to a 44 px face
@@ -298,6 +308,15 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	lawnTab.frame.Size = UDim2.new(1, 0, 1, -(chipHeight + Theme.sizes.gap))
 	self._lawnTab = lawnTab
 
+	-- #1624: the Style tab, the same way
+	local pickStyle = callbacks.pickStyle
+	if pickStyle then
+		local styleTab = StyleTab.new(panel.content, { pick = pickStyle })
+		styleTab.frame.Position = UDim2.fromOffset(0, chipHeight + Theme.sizes.gap)
+		styleTab.frame.Size = UDim2.new(1, 0, 1, -(chipHeight + Theme.sizes.gap))
+		self._styleTab = styleTab
+	end
+
 	return self :: DecorShop
 end
 
@@ -331,17 +350,27 @@ function DecorShop._setFilter(self: any, category: string, slot: string?)
 	for _, chip in self._chips do
 		chip.button:setStyle(if chip.category == category then "gold" else "ghost")
 	end
-	-- F91: the Front lawn tab takes the strip's and grid's place, and Equip Best (for the inside) steps aside
+	-- F91: the Front lawn tab takes the strip's and grid's place, and Equip Best (for the inside) steps aside; the
+	-- Style tab too (#1624)
 	local lawn = category == LAWN_CHIP
+	local style = category == STYLE_CHIP
+	local tab = lawn or style
 	self._lawnTab.frame.Visible = lawn
-	self._grid.Visible = not lawn
-	self._strip.Visible = not lawn and self._hasPieces == true
+	local styleTab: StyleTab.StyleTab? = self._styleTab
+	if styleTab then
+		styleTab.frame.Visible = style
+	end
+	self._grid.Visible = not tab
+	self._strip.Visible = not tab and self._hasPieces == true
 	local equipBest: Button.Button? = self._equipBest
 	if equipBest then
-		equipBest.instance.Visible = not lawn
+		equipBest.instance.Visible = not tab
 	end
 	if lawn and self._state then
 		self._lawnTab:render(self._state)
+	end
+	if style and styleTab and self._state then
+		styleTab:render(self._state)
 	end
 	self:_applyVisible()
 end
@@ -360,6 +389,34 @@ function DecorShop._renderLawnLive(self: any)
 	self:_layoutChips()
 	if not live and self._filter == LAWN_CHIP then
 		self:_setFilter("All")
+	end
+end
+
+-- #1624: whether the Style chip shows; off with its tab picked goes back to All.
+function DecorShop._renderStyleLive(self: any, state: Types.PlayerState)
+	if self._styleTab == nil then
+		return
+	end
+	local live = StyleLogic.shows(state)
+	if live == self._styleLive then
+		return
+	end
+	self._styleLive = live
+	for _, chip in self._chips do
+		if chip.category == STYLE_CHIP then
+			chip.button.instance.Visible = live
+		end
+	end
+	self:_layoutChips()
+	if not live and self._filter == STYLE_CHIP then
+		self:_setFilter("All")
+	end
+end
+
+-- #1624: the Style chip picked, when the player owns a style.
+function DecorShop.showStyle(self: any)
+	if self._styleLive then
+		self:_setFilter(STYLE_CHIP)
 	end
 end
 
@@ -574,6 +631,9 @@ function DecorShop._build(self: any)
 			table.insert(categories, chip)
 		end
 	end
+	if self._styleTab then
+		table.insert(categories, STYLE_CHIP) -- #1624: shown while the player owns a style to pick
+	end
 	for index, category in categories do
 		local lawn = category == LAWN_CHIP
 		local button = Button.new({
@@ -590,7 +650,10 @@ function DecorShop._build(self: any)
 				self:_setFilter(category)
 			end,
 		})
-		button.instance.Visible = not lawn or self._lawnLive
+		button.instance.Visible = if lawn
+			then self._lawnLive
+			elseif category == STYLE_CHIP then self._styleLive
+			else true
 		table.insert(self._chips, { category = category, button = button })
 	end
 	self:_layoutChips()
@@ -774,7 +837,12 @@ function DecorShop._build(self: any)
 			mode = "buy",
 		}
 	end
-	self:_setFilter(if self._filter == LAWN_CHIP and self._lawnLive then LAWN_CHIP else "All")
+	self:_setFilter(
+		if self._filter == LAWN_CHIP and self._lawnLive
+			then LAWN_CHIP
+			elseif self._filter == STYLE_CHIP and self._styleLive then STYLE_CHIP
+			else "All"
+	)
 end
 
 function DecorShop.setCatalog(self: any, catalog: Types.Catalog)
@@ -807,6 +875,7 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 	self._bestPressed = nil -- the sync the server sends after Equip Best
 	self:_renderBest()
 	self:_renderLawnLive()
+	self:_renderStyleLive(state)
 	if not self.frame.Visible then
 		self._dirty = true
 		return
@@ -814,6 +883,10 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 	self._dirty = false
 	if self._filter == LAWN_CHIP then
 		self._lawnTab:render(state)
+	end
+	local styleTab: StyleTab.StyleTab? = self._styleTab
+	if self._filter == STYLE_CHIP and styleTab then
+		styleTab:render(state)
 	end
 	local replaced = if self._catalog then IndexRewards.replacedBy(self._catalog, state) else {}
 	local used = DecorPieces.spotsUsed(self._decor, state.decorPlaced, replaced)
@@ -925,6 +998,10 @@ function DecorShop.destroy(self: any)
 	local equipBest: Button.Button? = self._equipBest
 	if equipBest then
 		equipBest:destroy()
+	end
+	local styleTab: StyleTab.StyleTab? = self._styleTab
+	if styleTab then
+		styleTab:destroy()
 	end
 	local connection: RBXScriptConnection? = self._plotConnection
 	if connection then

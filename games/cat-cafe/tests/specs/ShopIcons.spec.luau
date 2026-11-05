@@ -184,5 +184,36 @@ return function()
 			expect(ShopIcons.clean("Store")).to.equal("rbxassetid://125596282319075")
 			expect(ShopIcons.clean("Nope")).to.equal(nil)
 		end)
+
+		it(
+			"gives every Store card its own picture, the money card by rung (Tools-Agent 11-05)",
+			function()
+				local StoreLogic = require(Components:WaitForChild("StoreLogic")) :: any
+				for _, card in StoreLogic.PASSES do
+					expect(ShopIcons.store(card.key)).never.to.equal(nil)
+				end
+				for _, card in StoreLogic.PRODUCTS do
+					expect(ShopIcons.store(card.key)).never.to.equal(nil)
+				end
+				expect(ShopIcons.store(StoreLogic.STARTER.key)).to.equal(
+					"rbxassetid://72549988670948"
+				)
+				expect(ShopIcons.store("longNap")).to.equal("rbxassetid://110728484969633")
+				expect(ShopIcons.store("money", 2)).to.equal("rbxassetid://72414082780413")
+				expect(ShopIcons.store("money", 3)).to.equal("rbxassetid://93298940995735")
+				expect(ShopIcons.store("money", 4)).to.equal("rbxassetid://106773934084025")
+				expect(ShopIcons.store("money")).to.equal(nil)
+				expect(ShopIcons.store("money", 9)).to.equal(nil)
+				expect(ShopIcons.store("nope")).to.equal(nil)
+				expect(ShopIcons.store(nil)).to.equal(nil)
+			end
+		)
+
+		it("draws the Fish Market tabs and the Night Market bubble (Tools-Agent 11-05)", function()
+			expect(ShopIcons.market("Crates")).to.equal("rbxassetid://136579300796731")
+			expect(ShopIcons.market("Treats")).to.equal("rbxassetid://77636724948052")
+			expect(ShopIcons.market("FreshCatch")).to.equal("rbxassetid://126946598739456")
+			expect(ShopIcons.hud("NightMarket")).to.equal("rbxassetid://131849751291155")
+		end)
 	end)
 end

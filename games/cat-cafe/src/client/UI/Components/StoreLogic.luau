@@ -23,6 +23,7 @@ export type Row = {
 	owned: boolean,
 	product: boolean?, -- a developer product (bought each time; passId holds its product id, never Owned)
 	tab: string, -- the rail tab it shows under: "passes", "cats", "potions" or "cafePass"
+	multiplier: number?, -- the money card's rung (2, 3, 4), for its picture (ShopIcons.store)
 }
 
 -- The Store's left rail, top to bottom (#1425). Featured and Codes (#1428, the code box) always show; another tab
@@ -322,7 +323,7 @@ local function starterRow(config: any, view: ShopView?): Row?
 	if potions and next(potions) ~= nil then
 		effect ..= "\n" .. StoreLogic.contents(potions, view.potionNames, view.have)
 	end
-	return {
+	local row: Row = {
 		key = STARTER.key,
 		passId = id,
 		name = def.name,
@@ -332,6 +333,7 @@ local function starterRow(config: any, view: ShopView?): Row?
 		product = true,
 		tab = "cats",
 	}
+	return row
 end
 
 -- The Cafe Pass's row while a season runs, else nil (#1646).
@@ -442,6 +444,7 @@ function StoreLogic.rows(
 				passId = nextRung.id,
 				name = ("%dx Money"):format(nextRung.multiplier),
 				icon = MONEY_ICON,
+				multiplier = nextRung.multiplier,
 				effect = if top > 1
 					then ("All your cafe's money x%d, in place of x%d."):format(
 						nextRung.multiplier,
@@ -458,6 +461,7 @@ function StoreLogic.rows(
 				passId = last.id,
 				name = ("%dx Money"):format(last.multiplier),
 				icon = MONEY_ICON,
+				multiplier = last.multiplier,
 				effect = ("All your cafe's money x%d."):format(last.multiplier),
 				owned = true,
 				tab = "passes",

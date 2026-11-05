@@ -19,7 +19,14 @@ return function()
 				-- under the roof, above the ground
 				expect(e.under > 0 and e.under < 1).to.equal(true)
 				expect(e.colour ~= nil).to.equal(true)
+				expect(e.atLeast >= 1).to.equal(true)
 			end
+		end)
+
+		it("shows the pond only once it is worth a trip", function()
+			local Config = require(game:GetService("ReplicatedStorage").Shared.Config) :: any
+			local atLeast = Presets.campGlow.extras.pond.atLeast
+			expect(atLeast > 1 and atLeast <= Config.PondHold).to.equal(true)
 		end)
 
 		it("glows only while something waits", function()

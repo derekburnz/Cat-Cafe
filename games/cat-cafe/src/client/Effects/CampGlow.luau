@@ -2,7 +2,7 @@
 -- The camp stations' ready glows (camp-stations.md: the Picnic Basket #1133, section 2, "when a potion waits, a soft
 -- warm glow sits under the parasol (VFX, a single PointLight, inside the night glow budget). It's off while
 -- refilling."; the Yard Sale #1154 and the Fish Pond #1232 in the same style). While one of your stations holds
--- something (Picnic potions, a free Yard Sale crate, Fish Pond fish), one soft PointLight glows under its roof,
+-- something (Picnic potions, a free Yard Sale crate, 18 or more Fish Pond fish), one soft PointLight glows under its roof,
 -- fading in and out over `fade` seconds as it fills and is collected (instant with Reduce Motion). Each client only
 -- knows its own stations, so only the owner sees them, like UI-Engineer's ReadyBang "!" over them. Off in Low
 -- performance, as the street's night lights are (WorldController).
@@ -27,7 +27,7 @@ local CampGlow = {}
 local TAG = "CampExtra" -- shared/CampExtras.TAG
 local SPOT = "CampGlowSpot"
 
-type Extra = { under: number, colour: Color3 }
+type Extra = { under: number, colour: Color3, atLeast: number }
 local EXTRAS: { [string]: Extra } = Presets.campGlow.extras :: any
 
 type Glow = {
@@ -126,7 +126,7 @@ function CampGlow.start()
 	if moments.CampExtrasState ~= nil then
 		moments.CampExtrasState:Connect(function(state: unknown)
 			for extraId, glow in glows do
-				local now = Logic.campHeld(state, extraId) > 0
+				local now = Logic.campHeld(state, extraId) >= math.max(1, EXTRAS[extraId].atLeast)
 				if now ~= glow.ready then
 					glow.ready = now
 					apply(extraId, glow)

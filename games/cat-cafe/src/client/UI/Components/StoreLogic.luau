@@ -190,11 +190,11 @@ function StoreLogic.productIds(config: any): { number }
 	return out
 end
 
--- The sign styles' names (Gameplay's PlayerState.signStyles ids, #1625).
+-- The sign styles' names (shared/SignStyles' ids, #1625): Bakery Stripes from the Starter Bundle, Royal Crest from
+-- the King Cat Pack.
 StoreLogic.SIGN_STYLE_NAMES = {
 	bakery_stripes = "Bakery Stripes",
 	royal_crest = "Royal Crest",
-	king_crest = "King Crest",
 } :: { [string]: string }
 
 -- "Sprinkles the cat, Bakery Stripes sign style": a prize's cats and sign styles in words, or nil when it has none.

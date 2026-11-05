@@ -60,7 +60,7 @@ A spin is now worth about 1.5 golden fish on average (was 0.4), so fewer spins (
 | 7 | **Jackpot:** 1 golden crate of the highest zone unlocked (new, `crate = "highest_golden"`) | 1 | 0.5% |
 | 8 | **Jackpot:** 100 golden fish (new) | 1 | 0.5% |
 
-- **Coins first.** Coins land on 69% of spins (was 48%), and the average spin pays about 395 s of day rate (was 144 s), so a spin is a quick money top-up.
+- **Coins first.** Coins land on 69% of spins (was 48%), and the average spin pays about 390 s of day rate (was 144 s), so a spin is a quick money top-up.
 - **Something to chase.** The two jackpots together hit about 1 spin in 100. With one free spin a day plus the Tip Jar's, a regular player hits one every month or two, and the odds are always shown. Golden fish average 1.25 a spin (was 1.46), crates 0.065 (was 0.05).
 - **Jackpot moment.** A jackpot gets the wheel's biggest win effect and sound, plus a toast for the winner: "Jackpot! 100 golden fish". There's no server-wide announcement, because that would push other players to spin.
 - **Policy.** Spins stay free only: no Robux button, pass or product gives spins, so the wheel is not a paid random item (monetization-policy). Monetization-Agent confirms the Cafe Pass paid tier and any bundle give no spins. If one ever does, PolicyService gating and odds-before-buy apply first.

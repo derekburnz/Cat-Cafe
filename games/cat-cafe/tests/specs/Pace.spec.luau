@@ -27,10 +27,10 @@
 --   the tables and the bait bowl;
 -- - plays in one go, or SESSION seconds a day (F95): away the rest of the day, it is paid Economy.offlineGain at the
 --   next join (half its day rate for up to 8 hours), its bowl keeps counting, and it joins a running server at a
---   random point of its day and of its LuckyDayEvery days with a fresh wave and a new Tip Jar;
+--   random point of its day and of the global days (#1572) with a fresh wave and a new Tip Jar;
 -- - with MONEY owns that Money pass (Economy.setPasses; 24 stands for owning every paid bonus);
 -- - has Luck (F88, shared/Luck): the Lucky Cat levels it buys from the shop go into each food's roll, fixed when the
---   food goes in, and on a Lucky Day (the day phase of every LuckyDayEvery-th day of its server) the sunrise wave
+--   food goes in, and on a Lucky Day (the day phase of a day Clock.dayKinds rolls lucky, #1572) the sunrise wave
 --   rolls at LuckyDayWaveLuck and its food at LuckyDayPlayerLuck more;
 -- - rolls each cat's coat as the game does (F99, Catching.rollCoat): rainbow first, then gold on the same roll, with
 --   the Rainbow track's luck from the Rainbow page it claims as well; a rainbow cat earns RainbowMultiplier.
@@ -58,6 +58,7 @@ return function()
 	local VisitTimer = require(Shared.VisitTimer)
 
 	local INTRO_SECONDS = 25
+	local RANDOM_DAYS = 1000 -- #1572: a running server joins on a random one of this many global days
 	-- hometown-cannon.md 6a (F84): the intro, then about 26 s to fly out, net the tutorial stray waiting just past the
 	-- Alleyway's camp and walk it in (75 s through the back door before)
 	local TUTORIAL_CHECKIN = 51
@@ -411,14 +412,14 @@ return function()
 		local session = 0
 		while played < limit do
 			session += 1
-			-- a running server at a random point of its day and night and of its run of LuckyDayEvery days (F88), or a
-			-- fresh one at sunrise with FRESH_SERVER
+			-- a running server at a random point of its day and night and of the global days (F88; #1572 rolls each day's
+			-- kinds, so a random one of RANDOM_DAYS), or a fresh one at sunrise with FRESH_SERVER
 			local offset = if options.freshServer and session == 1
 				then 0
 				else Config.ServerStartDaySeconds + math.floor(
 					rng()
 						* (Config.DayLengthSeconds + Config.NightLengthSeconds)
-						* Config.LuckyDayEvery
+						* RANDOM_DAYS
 				)
 			local joined = base + (session - 1) * DAY
 			epoch = joined - offset
@@ -434,7 +435,7 @@ return function()
 				run.coinsOffline += coins
 			end
 			profile.lastTick = joined -- DataService.load: time away settles nothing
-			-- F88: a Lucky Day is the day phase of every LuckyDayEvery-th day of the server (ClockService.luckyDay)
+			-- F88: a Lucky Day is the day phase of a Lucky Day (#1572: rolled from the day, ClockService.luckyDay)
 			local function luckyAt(clockT: number): boolean
 				return Clock.phaseAt(clockT) == "day" and Clock.isLuckyDay(Clock.dayAt(clockT))
 			end

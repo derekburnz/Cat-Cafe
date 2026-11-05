@@ -6,7 +6,9 @@
 -- Roblox's own purchase window directly; nothing goes through our remotes. The server's PassService hears the same
 -- purchase finish and turns the pass on.
 --
---   start(ids)       look up each pass once; `changed` fires as answers arrive
+--   start(ids)       look up each pass; `changed` fires as answers arrive
+--   refresh()        look the prices up again (the Store opening, at most once a REFRESH_SECONDS), so a price or
+--                    on-sale change made in the Creator Hub shows without a rejoin
 --   prompt(id)       Roblox's purchase window for a pass
 --   preview(prices, owned)   the UI gate's and a Studio preview's answers, in place of Roblox's
 --
@@ -26,6 +28,34 @@ local products: { [number]: boolean } = {} -- developer product ids (#1182): pri
 local owned: { [number]: boolean } = {}
 local started = false
 local finished: RBXScriptConnection? = nil
+local passIds: { number } = {}
+local productIdList: { number } = {}
+local lastLook = -math.huge -- os.clock() of the last price look-up
+local previewing = false -- preview() set the answers, so Roblox's own do not replace them
+
+PassShop.REFRESH_SECONDS = 60
+
+local function samePrice(a: StoreLogic.Price?, b: StoreLogic.Price): boolean
+	return a ~= nil and a.robux == b.robux and a.forSale == b.forSale
+end
+
+-- One price from Roblox: a product's or a pass's, kept and `changed` fired only when it differs from what we have.
+local function lookPrice(service: MarketplaceService, id: number, infoType: Enum.InfoType)
+	local okInfo, info = pcall(function()
+		return service:GetProductInfoAsync(id, infoType)
+	end)
+	if okInfo and type(info) == "table" and not previewing then
+		local robux = info.PriceInRobux
+		local price: StoreLogic.Price = {
+			robux = if type(robux) == "number" then robux else nil,
+			forSale = info.IsForSale == true,
+		}
+		if not samePrice(prices[id], price) then
+			prices[id] = price
+			PassShop.changed:Fire()
+		end
+	end
+end
 
 local function market(): MarketplaceService?
 	local ok, service = pcall(function()
@@ -45,35 +75,16 @@ function PassShop.start(ids: { number }, productIds: { number }?)
 		return
 	end
 	local productList: { number } = productIds or {}
+	passIds = table.clone(ids)
+	productIdList = table.clone(productList)
+	lastLook = os.clock()
 	for _, id in productList do
 		products[id] = true
-		task.spawn(function()
-			local okInfo, info = pcall(function()
-				return service:GetProductInfoAsync(id, Enum.InfoType.Product)
-			end)
-			if okInfo and type(info) == "table" and prices[id] == nil then
-				local robux = info.PriceInRobux
-				prices[id] = {
-					robux = if type(robux) == "number" then robux else nil,
-					forSale = info.IsForSale == true,
-				}
-				PassShop.changed:Fire()
-			end
-		end)
+		task.spawn(lookPrice, service, id, Enum.InfoType.Product)
 	end
 	for _, id in ids do
 		task.spawn(function()
-			local okInfo, info = pcall(function()
-				return service:GetProductInfoAsync(id, Enum.InfoType.GamePass)
-			end)
-			if okInfo and type(info) == "table" and prices[id] == nil then
-				local robux = info.PriceInRobux
-				prices[id] = {
-					robux = if type(robux) == "number" then robux else nil,
-					forSale = info.IsForSale == true,
-				}
-				PassShop.changed:Fire()
-			end
+			lookPrice(service, id, Enum.InfoType.GamePass)
 			local okOwn, has = pcall(function()
 				return service:UserOwnsGamePassAsync(player.UserId, id)
 			end)
@@ -95,6 +106,22 @@ function PassShop.start(ids: { number }, productIds: { number }?)
 	end)
 	if okSignal then
 		finished = connection
+	end
+end
+
+-- The Store opened: every price again, at most once a REFRESH_SECONDS (the Roblox call has a rate limit). A changed
+-- price or on-sale flag fires `changed`, so the open window's cards update.
+function PassShop.refresh()
+	local service = market()
+	if not started or service == nil or os.clock() - lastLook < PassShop.REFRESH_SECONDS then
+		return
+	end
+	lastLook = os.clock()
+	for _, id in productIdList do
+		task.spawn(lookPrice, service, id, Enum.InfoType.Product)
+	end
+	for _, id in passIds do
+		task.spawn(lookPrice, service, id, Enum.InfoType.GamePass)
 	end
 end
 
@@ -130,6 +157,7 @@ function PassShop.preview(
 )
 	table.clear(prices)
 	table.clear(owned)
+	previewing = next(newPrices) ~= nil or next(newOwned) ~= nil
 	for id, price in newPrices do
 		prices[id] = price
 	end
@@ -149,6 +177,8 @@ function PassShop.stop()
 	table.clear(owned)
 	table.clear(products)
 	started = false
+	previewing = false
+	lastLook = -math.huge
 end
 
 return PassShop

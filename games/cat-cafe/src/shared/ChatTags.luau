@@ -17,9 +17,12 @@ ChatTags.CHAT_TAG_ATTRIBUTE = "ChatTag"
 export type Tag = { text: string, color: string }
 
 local TAGS: { [string]: Tag } = {
-	vip = table.freeze({ text = "[VIP]", color = "#F2C14E" }),
-	tag_maple = table.freeze({ text = "[Maple]", color = "#D9822B" }), -- #1626: Season 1's paid track, level 1
+	vip = { text = "[VIP]", color = "#F2C14E" },
+	tag_maple = { text = "[Maple]", color = "#D9822B" }, -- #1626: Season 1's paid track, level 1
 }
+for _, tag in TAGS do
+	table.freeze(tag)
+end
 table.freeze(TAGS)
 ChatTags.TAGS = TAGS
 

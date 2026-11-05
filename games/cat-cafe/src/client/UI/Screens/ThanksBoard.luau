@@ -35,6 +35,11 @@ local BERRY = Color3.fromRGB(196, 74, 104)
 local ThanksBoard = {}
 ThanksBoard.__index = ThanksBoard
 
+-- The newest rows and the board drawing them: init keeps neither (it is at Luau's 200 locals), so ThanksBoard(rows)
+-- can arrive before or after the board is built.
+local latest: { ThanksBoardLogic.Row } = {}
+local current: any = nil
+
 local function text(props: { [string]: any }): TextLabel
 	local merged: { [string]: any } = {
 		BackgroundTransparency = 1,
@@ -171,6 +176,9 @@ function ThanksBoard.new(parent: Instance): ThanksBoard
 		Parent = page,
 	})
 
+	current = self
+	self._rows = latest
+	self:_paint()
 	for _, model in CollectionService:GetTagged(TAG) do
 		self:_hang(model)
 	end
@@ -204,6 +212,14 @@ function ThanksBoard._hang(self: any, model: Instance)
 	self._gui.Adornee = screen
 	self._gui.Face = Enum.NormalId.Front
 	self._gui.Enabled = true
+end
+
+-- ThanksBoard(rows, hasCredit) from the server: kept, and drawn on the board once there is one.
+function ThanksBoard.show(rows: { ThanksBoardLogic.Row })
+	latest = rows
+	if current then
+		current:setRows(rows)
+	end
 end
 
 function ThanksBoard.setRows(self: any, rows: { ThanksBoardLogic.Row })
@@ -271,6 +287,9 @@ function ThanksBoard.destroy(self: any)
 		connection:Disconnect()
 	end
 	self._gui:Destroy()
+	if current == self then
+		current = nil
+	end
 end
 
 return ThanksBoard

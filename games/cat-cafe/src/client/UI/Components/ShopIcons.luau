@@ -134,6 +134,10 @@ local IDS: { [string]: string } = {
 	Icon_Flask_QuickBait = "rbxassetid://102617577148798",
 	Icon_Flask_BigTip = "rbxassetid://137883283288576",
 	Icon_Flask_GoldRush = "rbxassetid://133671235439574",
+	-- #1302: Model-Agent's Cat Whistle flasks, one per size (upload run 41948674097, 11-05)
+	Icon_Flask_CatWhistleSmall = "rbxassetid://88245082341165",
+	Icon_Flask_CatWhistle = "rbxassetid://139758496638549",
+	Icon_Flask_CatWhistleBig = "rbxassetid://83123481656090",
 	-- the Decor window's "Your cafe" slots (#964, upload-image run 41728803377 on 11-03)
 	Icon_Clean_Wallpaper = "rbxassetid://102259047705880",
 	Icon_Clean_Floor = "rbxassetid://100560850589029",
@@ -225,6 +229,12 @@ end
 local POTION_STANDIN: { [string]: string } = {
 	cat_whistle = "Icon_Flask_Lucky",
 }
+-- A size with a flask of its own (#1302) shows it first, then its regular potion's bottles behind it.
+local OWN_FLASK: { [string]: string } = {
+	cat_whistle_small = "Icon_Flask_CatWhistleSmall",
+	cat_whistle = "Icon_Flask_CatWhistle",
+	cat_whistle_big = "Icon_Flask_CatWhistleBig",
+}
 
 -- Every bottle a potion has, best first (#1256): Model-Agent's flask (#1204), the clean flask in the potion's colour
 -- (#1070), the older bottle. IconArt.setImages draws the first that loads, so a flask not yet shared with the game
@@ -235,9 +245,18 @@ function ShopIcons.potionAll(potionId: string?): { string }
 	if type(potionId) ~= "string" then
 		return list
 	end
+	local own = OWN_FLASK[potionId]
+	if own and IDS[own] then
+		table.insert(list, IDS[own])
+	end
 	local def = Catalog.getPotion(potionId)
 	if def and def.buff and def.buff ~= potionId then
-		return ShopIcons.potionAll(def.buff)
+		for _, id in ShopIcons.potionAll(def.buff) do
+			if not table.find(list, id) then
+				table.insert(list, id)
+			end
+		end
+		return list
 	end
 	local standin = POTION_STANDIN[potionId]
 	if standin and IDS[standin] then

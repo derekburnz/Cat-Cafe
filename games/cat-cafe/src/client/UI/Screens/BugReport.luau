@@ -41,7 +41,8 @@ local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 
 export type Callbacks = {
-	send: (text: string, kind: string) -> (),
+	-- featureName (#1083): the Idea chip's "Feature my name" tick; nil on the other chips
+	send: (text: string, kind: string, featureName: boolean?) -> (),
 	back: () -> (), -- Cancel: closes the window, keeping the draft
 	close: () -> (),
 	feedback: ((face: string, chip: string?) -> ())?, -- F87: one answer from the faces page; no faces page without it
@@ -77,6 +78,10 @@ local COUNTER_WIDTH = 80
 local BUTTON_HEIGHT = 48
 local BUTTON_COMPACT = 100
 local GAP = Theme.sizes.gap
+local TICK_HEIGHT = 38 -- #1083: the Idea chip's "Feature my name" row under the box
+local TICK_NOTE = 16 -- and its grey line
+local FEATURE_TEXT = "Feature my name if you use my idea"
+local FEATURE_NOTE = "Only your display name goes on the Thank You board in town."
 local TOP_EDGE = 30 -- compact: room above the window for the panel's ears and badge
 local BOTTOM_EDGE = 8 -- compact: room between the window and the keyboard
 local COMPACT_MIN = 150 -- compact: the window never gets shorter, keyboard or not
@@ -213,6 +218,29 @@ function BugReport.new(callbacks: Callbacks): BugReport
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Right,
+		Parent = content,
+	})
+
+	-- #1083 (idea-credits.md section 2): only on the Idea chip, off by default, so nothing about a player shows
+	-- unless they ask
+	self._feature = false
+	self._tick = Button.new({
+		name = "FeatureName",
+		text = "☐  " .. FEATURE_TEXT,
+		style = "ghost",
+		parent = content,
+		sound = "uiToggle",
+		onClick = function()
+			self._feature = not self._feature
+			self:_refresh()
+		end,
+	})
+	self._tickNote = text({
+		Name = "FeatureNote",
+		Size = UDim2.new(1, 0, 0, TICK_NOTE),
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = PAL.subtext,
+		Text = FEATURE_NOTE,
 		Parent = content,
 	})
 
@@ -442,6 +470,9 @@ function BugReport._showPage(self: any, page: "faces" | "chips" | "report")
 	self._prompt.Visible = report and not self._compact
 	self._note.Visible = report and not self._compact
 	self._counter.Visible = report and not self._compact
+	local idea = report and not self._compact and self._kind == "idea"
+	self._tick.instance.Visible = idea
+	self._tickNote.Visible = idea
 	self._box.Visible = report
 	self._cancel.instance.Visible = report
 	self._send.instance.Visible = report
@@ -479,6 +510,9 @@ end
 
 -- Places everything for the normal window, or the compact one above a phone's keyboard.
 function BugReport._layout(self: any, compact: boolean)
+	local showTick = not compact and self._kind == "idea" and self._page == "report"
+	self._tick.instance.Visible = showTick
+	self._tickNote.Visible = showTick
 	self._prompt.Visible = not compact
 	self._note.Visible = not compact
 	self._counter.Visible = not compact
@@ -503,6 +537,16 @@ function BugReport._layout(self: any, compact: boolean)
 		self._box.Size = UDim2.new(1, 0, 1, -(CHIP.Y + GAP))
 	else
 		local below = GAP + FOOT_HEIGHT + GAP + BUTTON_HEIGHT -- the foot line and the buttons under the box
+		local idea = self._kind == "idea"
+		if idea then
+			-- the tick and its line between the box and the foot line
+			below += TICK_HEIGHT + TICK_NOTE + GAP
+			local tickTop = BUTTON_HEIGHT + GAP + FOOT_HEIGHT + GAP + TICK_NOTE + TICK_HEIGHT
+			self._tick.instance.AnchorPoint = Vector2.zero
+			self._tick.instance.Position = UDim2.new(0, 0, 1, -tickTop)
+			self._tick.instance.Size = UDim2.new(1, 0, 0, TICK_HEIGHT)
+			self._tickNote.Position = UDim2.new(0, 4, 1, -(tickTop - TICK_HEIGHT))
+		end
 		local top = chipTop + CHIP.Y + GAP
 		self._box.Position = UDim2.fromOffset(0, top)
 		self._box.Size = UDim2.new(1, 0, 1, -(top + below))
@@ -589,6 +633,13 @@ function BugReport._refresh(self: any)
 	end
 	self._prompt.Text = BugReportLogic.prompt(self._kind)
 	self._box.PlaceholderText = BugReportLogic.example(self._kind)
+	self._tick:setText((if self._feature then "☑  " else "☐  ") .. FEATURE_TEXT)
+	self._tick:setStyle(if self._feature then "secondary" else "ghost")
+	-- the Idea chip makes room for the tick under the box; the others give it back
+	if self._laidKind ~= self._kind then
+		self._laidKind = self._kind
+		self:_layout(self._compact)
+	end
 end
 
 function BugReport.setKind(self: any, id: string)
@@ -620,7 +671,11 @@ function BugReport._submit(self: any)
 		self._box:ReleaseFocus()
 	end
 	self:_refresh()
-	self._callbacks.send(text, BugReportLogic.kindOf(self._kind))
+	self._callbacks.send(
+		text,
+		BugReportLogic.kindOf(self._kind),
+		if self._kind == "idea" then self._feature else nil
+	)
 	task.delay(SEND_TIMEOUT, function()
 		if self._alive and self._pending and token == self._token then
 			self._pending = false
@@ -640,6 +695,7 @@ function BugReport.result(self: any, ok: boolean)
 	if ok then
 		self._box.Text = ""
 		self._kind = BugReportLogic.KINDS[1].id
+		self._feature = false -- the next idea asks again
 		if self._open then
 			self._callbacks.close()
 		end
@@ -693,6 +749,7 @@ function BugReport.destroy(self: any)
 		chip:destroy()
 	end
 	table.clear(self._chips)
+	self._tick:destroy()
 	self._cancel:destroy()
 	self._send:destroy()
 	for _, button: Button.Button in self._faceButtons do

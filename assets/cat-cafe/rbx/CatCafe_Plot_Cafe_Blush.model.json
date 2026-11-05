@@ -81,7 +81,41 @@
    },
    "attributes": {
     "Rojo_Id": "CatCafe_Plot_Cafe_Blush/0"
-   }
+   },
+   "children": [
+    {
+     "name": "SignHook",
+     "className": "Attachment",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         23.1,
+         7.05,
+         -17.5
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     }
+    }
+   ]
   },
   {
    "name": "CatCafe_Plot_Cafe_Blush",

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-05 06:20 UTC",
+  "generated": "2026-11-05 07:04 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -143655,35 +143655,37 @@
       "module": "decor",
       "objects": [
         "CatCafe_Decor_DoorSign_Open",
-        "CatCafe_Decor_DoorSign_Closed"
+        "CatCafe_Decor_DoorSign_Hanger",
+        "CatCafe_Decor_DoorSign_Closed",
+        "CatCafe_Decor_DoorSign_Closed_Moon_Bulb"
       ],
-      "triangles": 1292,
+      "triangles": 1400,
       "budget": 1500,
       "size_studs": {
-        "x": 3.35,
-        "y": 0.15,
-        "z": 1.88
+        "x": 2.2,
+        "y": 0.18,
+        "z": 1.6
       },
       "size_roblox": [
-        3.35,
-        1.88,
-        0.15
+        2.2,
+        1.6,
+        0.18
       ],
       "bounds_min": [
-        -1.67,
+        -1.1,
         -0.09,
-        -1.88
+        -1.6
       ],
       "bounds_max": [
-        1.67,
-        0.06,
+        1.1,
+        0.09,
         0.0
       ],
       "pivot": "hook (geometry hangs below the pivot)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "Show Open by day and Closed at night (Clock.Phase). Hang on the door at eye height.",
+      "studio": "#1140 (door-sign.md): the cafe's one Open/Closed sign. Pivot at its hook: place it on the cafe shell's SignHook attachment, unturned. OPEN (root parts) faces the street; at nightfall turn the whole sign 180 about Y so the CLOSED face (_Closed Model, with its _Moon_Bulb) does. _Hanger (hook, twine, board) always shows.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_DoorSign.model.json",
-      "rbx_parts": 113,
+      "rbx_parts": 162,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_DoorSign.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_DoorSign.glb"
@@ -143695,13 +143697,13 @@
           "pivot"
         ],
         "checks": {
-          "budget": "1292/1500 tris",
+          "budget": "1400/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "654 faces on swatch centers",
+          "uv": "722 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-1.88 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.02"
+          "pivot": "floor at z=-1.60 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_DoorSign.png",
@@ -148051,6 +148053,11 @@
           -18.35
         ]
       },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -17.5
+      ],
       "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Mint.model.json",
       "rbx_parts": 523,
@@ -148142,6 +148149,11 @@
           -18.35
         ]
       },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -17.5
+      ],
       "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Blush.model.json",
       "rbx_parts": 523,
@@ -148233,6 +148245,11 @@
           -18.35
         ]
       },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -17.5
+      ],
       "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Butter.model.json",
       "rbx_parts": 523,
@@ -148324,6 +148341,11 @@
           -18.35
         ]
       },
+      "sign_hook_roblox": [
+        0.0,
+        7.35,
+        -17.5
+      ],
       "studio": "Replaces the code-built walls, door header, windows and sign. Walls and glass collide. The child Model <name>_Roof (roof, ridge, chimney) fades for the owner inside. Put the owner sign's SurfaceGui on the -Z face of the part named SignBoard (16 x 3.2 studs). Doors: front 7 wide at x 0, back 6 wide at x -8, both 7.5 high. Front garden z -20..-15. F53: the walls' pastel outer layer is the child Model <name>_Paint (every part tagged Paint) and their cream inner layer <name>_Wallpaper (tagged Wallpaper). F89: the chunky trims (window and door frames, sills, keystones, pilasters, cornices, the attic vent, the awnings' head rails, the sign frame) are the child Model <name>_Trim and the roof's barge boards and fascias <name>_Roof_Trim inside <name>_Roof, every part tagged PaintTrim (the Gold Leaf glint).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_Cafe_Lilac.model.json",
       "rbx_parts": 523,

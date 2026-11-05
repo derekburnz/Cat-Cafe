@@ -247,7 +247,10 @@ STUDIO_NOTES = {
     "CatCafe_Park_TrashCan": "Rescue trap trashcan. Put the stuck cat at stuck_pose. The Lid turns about its "
                              "part_pivots_roblox point (the back of the rim). CollisionFidelity Hull on the Can.",
     "CatCafe_Alley_ShopWindow": "Pane: day = Color glass, Material Glass, Transparency 0.5; night = Material Neon, Color lamp_warm, Transparency 0.3, plus a PointLight (Brightness 0.8, Range 10).",
-    "CatCafe_Decor_DoorSign": "Show Open by day and Closed at night (Clock.Phase). Hang on the door at eye height.",
+    "CatCafe_Decor_DoorSign": ("#1140 (door-sign.md): the cafe's one Open/Closed sign. Pivot at its hook: place it on the "
+                               "cafe shell's SignHook attachment, unturned. OPEN (root parts) faces the street; at "
+                               "nightfall turn the whole sign 180 about Y so the CLOSED face (_Closed Model, with its "
+                               "_Moon_Bulb) does. _Hanger (hook, twine, board) always shows."),
     "CatCafe_Decor_StringLights": "Bulbs: Neon lamp_warm at night with one soft PointLight per strand (Brightness 0.8, Range 10); SmoothPlastic by day.",
     **{f"CatCafe_Item_Net_L{n}": f"The {items.NET_NAMES[n - 1]} Net (F93), held all the time by Effects' NetHold: the "
                                  "Attachment Grip (mid wrap, on the Handle, the net's axes) goes in the hand. Child "
@@ -608,6 +611,8 @@ def main():
             extra = {"attachments": [cornershop.prompt_attachment()], "nest": {"_Prop": "_Head"}}
         if name == gardennursery.NAME:            # #1200: the prompt and bubble spots; the sun hat rides the cat's Head
             extra = {"attachments": gardennursery.attachments(), "nest": {"_Prop": "_Head"}}
+        if name == "CatCafe_Decor_DoorSign":      # #1140: the moon rides the CLOSED face's Model
+            extra = {"nest": decor.DOOR_SIGN_NEST}
         if name == "CatCafe_Street_DealerCart":   # the dealer's cat: its hood rides its Head
             extra = {"nest": {"_Prop": "_Head"}}
         if name in shopcats.ASSETS:               # #1191: King Croissant's cushion throne, its Seat
@@ -626,6 +631,7 @@ def main():
             extra = {**extra, **crate_decor.MOVING[name]}
         if name.startswith("CatCafe_Plot_Cafe_"):  # the roof's trims ride the roof (it fades while you are inside)
             extra = {"nest": {"_Roof_Trim": "_Roof", "_LampPost_Bulb": "_Garden", "_Flowers": "_Garden"}}
+            extra["attachments"] = [(name, "SignHook", Matrix.Translation(Vector(common.RB.p(*plot.SIGN_HOOK))))]   # #1140
         if name == doors.NAME:                    # the leaf's CatFlap spot; glass, flap and sign ride the leaf
             extra = {"attachments": [doors.cat_flap_attachment()], "nest": doors.NEST}
         if name.startswith("CatCafe_Item_Net_L"):  # the hand's spot for the net hold (Animation-Engineer)
@@ -748,6 +754,7 @@ def main():
         if name.startswith("CatCafe_Plot_Cafe_"):
             entry["chimney_top_roblox"] = list(plot.CHIMNEY_TOP)
             entry["sign_board_roblox"] = plot.SIGN_INFO
+            entry["sign_hook_roblox"] = list(plot.SIGN_HOOK)          # #1140: the door sign hangs here
         if name in boards.AREA_OF:
             host, (px, py, pz, turn) = boards.PLACEMENT[boards.AREA_OF[name]]
             entry["area"] = boards.AREA_OF[name]

@@ -1837,10 +1837,12 @@ Presets.cannonGlide = {
 -- up and back of the way it goes over the ground, so the soaring flyer shows side on), easing there over `catch`
 -- seconds (the boom's shake is Cannon.luau's, on top).
 -- Under the clouds it waits. From `over` seconds before the drop it looks the way the landing pad faces at the
--- player's own pitch, following the flyer down from `wide` times the player's own distance, and closes in to `land`
--- times it and onto the player's own focus as the feet touch (cannonPose's `open`); over the hero landing it settles
--- slowly onto the player's own distance, where the game's camera takes over again at cannonPose's `ends`. `land` was
--- 1 (Derek 2026-11-04, #1081: "camera zoom in on cannon landing is just a little too much").
+-- player's own pitch, following the flyer down from `wide` times the player's own distance, and closes in to it and
+-- onto the player's own focus as the feet touch (cannonPose's `open`). At the touch it gives one quick, slight push in
+-- (`push`, a fraction closer: 0.12 is 12%) that peaks `bumpIn` of the way through `bump` seconds and is back on the
+-- player's own distance by the end of them, where the game's camera takes over (cannonPose's `ends`); with Reduce
+-- Motion there is no bump. The landing used to close to `land` (1.35, #1081) and settle slowly; #1131 (Derek
+-- 2026-11-04) asked for a quick, slight zoom in and straight back.
 Presets.cannonCamera = {
 	launch = Vector3.new(5, 5, 14),
 	ahead = 12,
@@ -1848,7 +1850,9 @@ Presets.cannonCamera = {
 	catch = 0.15,
 	over = 0.1,
 	wide = 1.8,
-	land = 1.35,
+	push = 0.12,
+	bump = 0.5, -- touch + bump = cannonPose.ends, where the game camera takes over
+	bumpIn = 0.25,
 }
 
 -- After a catch and after a miss (design v0.8, data-model section 10c). The getaway (F55): a net catch or rescue

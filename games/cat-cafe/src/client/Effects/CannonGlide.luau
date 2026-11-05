@@ -305,7 +305,7 @@ local view: View? = nil
 -- While this player is in flight and until the server lets go of the landed character (its root anchored until
 -- Config.CannonLaunchSeconds, and a moment more for that to reach this client), the Left and Right arrows are
 -- swallowed here: the character cannot walk yet, so Roblox's camera took them as a turn and the view swung round
--- on landing (#1439, Derek 2026-11-05). Once the character can move they work as usual.
+-- on landing (#1478, Derek 2026-11-05). Once the character can move they work as usual.
 local ARROWS_ACTION = "CannonHoldArrows"
 local arrowsHeld = false
 

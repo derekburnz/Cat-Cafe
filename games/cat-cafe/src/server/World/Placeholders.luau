@@ -848,8 +848,9 @@ local builders: { [string]: () -> Model } = {
 	CatCafe_Sewer_Gate = function()
 		return gate("CatCafe_Sewer_Gate", Color3.fromRGB(60, 75, 70), 30)
 	end,
-	-- The Spin Wheel station (F49, areas-and-stations B3) until the art is synced: a striped booth, a six-slice
-	-- wheel facing -Z on two posts, a paw pointer on top and rim lights. Wheel is a Model pivoted at the hub that
+	-- The Spin Wheel station (F49, areas-and-stations B3) until the art is synced: a striped booth, an eight-slice
+	-- wheel (#1500: six 52 degree slices and the two 24 degree gold jackpots, carried as the Wheel's SliceSpans like
+	-- the model) facing -Z on two posts, a paw pointer on top and rim lights. Wheel is a Model pivoted at the hub that
 	-- turns about its own Z axis, with its Face inside; PromptAnchor sits at the front, 3 studs up. At rest slice 1 is
 	-- under the pointer and the rest follow clockwise seen from the front (toward -X), in Catalog.spinWheel order.
 	CatCafe_Street_SpinWheel = function()
@@ -893,13 +894,23 @@ local builders: { [string]: () -> Model } = {
 			color = CREAM,
 		})
 		face.Parent = wheel
+		local gold = Color3.fromRGB(240, 200, 80)
 		local sliceColors =
-			{ MINT, LAMP_WARM, NEON_PINK, GLASS, Color3.fromRGB(200, 170, 230), WOOD }
+			{ MINT, LAMP_WARM, NEON_PINK, GLASS, Color3.fromRGB(200, 170, 230), WOOD, gold, gold }
+		local spans = { 52, 52, 52, 52, 52, 52, 24, 24 }
+		local spanText: { string } = {}
+		for _, span in spans do
+			table.insert(spanText, tostring(span))
+		end
+		wheel:SetAttribute("SliceSpans", table.concat(spanText, ","))
+		local before = 0
 		for index, color in sliceColors do
-			local angle = (index - 1) * 60
+			-- slice k's middle, measured from slice 1's (under the pointer at rest)
+			local angle = before + spans[index] / 2 - spans[1] / 2
+			before += spans[index]
 			local slice = addPart(model, {
 				name = "Slice" .. index,
-				size = Vector3.new(1.4, 3.4, 0.12),
+				size = Vector3.new(if spans[index] < 52 then 0.7 else 1.4, 3.4, 0.12),
 				offset = hub + Vector3.new(
 					-math.sin(math.rad(angle)) * 1.9,
 					math.cos(math.rad(angle)) * 1.9,

@@ -1554,7 +1554,11 @@ local function onLockDecor(player: Player, rawId: unknown, rawLocked: unknown)
 		CafeService.sync(player)
 		return
 	end
-	profile.decorUnlocked[id] = if rawLocked then nil else true
+	if rawLocked then
+		profile.decorUnlocked[id] = nil
+	else
+		profile.decorUnlocked[id] = true
+	end
 	CafeService.sync(player)
 end
 

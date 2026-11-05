@@ -84,7 +84,7 @@ function Trade.piece(id: string): PieceInfo?
 		return {
 			kind = "decor",
 			name = decor.name,
-			rarity = decor.rarity or "Common",
+			rarity = (decor.rarity or "Common") :: string,
 			bonus = decor.bonus,
 		}
 	end
@@ -100,7 +100,7 @@ function Trade.piece(id: string): PieceInfo?
 	return {
 		kind = "lawn",
 		name = lawn.name,
-		rarity = lawn.rarity,
+		rarity = lawn.rarity :: string,
 		bonus = Lawn.rarityBonus(lawn.rarity),
 	}
 end
@@ -353,8 +353,9 @@ function Trade.apply(
 	for _, uid in gave do
 		profile.cats[uid] = nil
 	end
-	local gavePieces = if pieces ~= nil then pieces.gave else {}
-	local gotPieces = if pieces ~= nil then pieces.got else {}
+	local none: { string } = {}
+	local gavePieces: { string } = if pieces ~= nil then pieces.gave else none
+	local gotPieces: { string } = if pieces ~= nil then pieces.got else none
 	for _, piece in gavePieces do
 		takePiece(profile, piece)
 	end

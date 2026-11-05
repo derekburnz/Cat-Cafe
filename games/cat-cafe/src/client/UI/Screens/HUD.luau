@@ -121,6 +121,9 @@ export type HUD = {
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
 	-- the gold Store tile at the top of the left menu, shown once init's Store block has its window (#1167)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
+	-- #1646: the Cafe Pass tile, shown with the function that opens the Pass window while a season runs (nil hides
+	-- it), and its red "!" while `ready` rewards wait
+	setPass: (self: HUD, open: (() -> ())?, ready: number) -> (),
 	setTutorialButton: (self: HUD, shown: boolean) -> (),
 	glowTutorial: (self: HUD) -> (),
 	pulseTutorial: (self: HUD) -> (),
@@ -1075,6 +1078,18 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				callbacks.openScreen("Quests")
 			end,
 		},
+		-- #1646 (cafe-pass.md): the Cafe Pass, only while a season runs (setPass); hidden, the grid closes up
+		{
+			name = "Pass",
+			icon = "🍁",
+			style = "purple",
+			open = function()
+				local open: (() -> ())? = self._passOpen
+				if open then
+					open()
+				end
+			end,
+		},
 		{
 			name = "Upgrades",
 			icon = Theme.icons.upgrades,
@@ -1250,6 +1265,13 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				Parent = dot,
 			})
 			self._questDot = dot
+		elseif item.name == "Pass" then
+			button.instance.Visible = false -- while a Cafe Pass season runs (setPass)
+			self._passTile = button
+			local passBadge = claimBadge(button.instance, 23)
+			passBadge.AnchorPoint = Vector2.new(1, 0.5) -- inset like the Quests dot (#1176)
+			passBadge.Position = UDim2.new(1, 2, 0, 3)
+			self._passBadge = passBadge
 		elseif item.name == "Bowl" then
 			button.instance.Visible = false -- once the Bait bowl upgrade is owned (_renderBowlSlot)
 			self._bowl = button
@@ -1282,6 +1304,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	end
 	self._menu = menu
 	self._storeOpen = nil :: (() -> ())?
+	self._passOpen = nil :: (() -> ())?
 	self._menuFolded = false
 	-- The arrow tab under the tiles folds them off the left edge and back. Key binds still open every screen while
 	-- they are folded, and the tab carries a red dot whenever a folded pill has one, so news is never hidden.
@@ -2746,6 +2769,21 @@ function HUD.setStore(self: any, open: (() -> ())?)
 		tile.instance.Visible = shown
 		self:_layoutMenu()
 	end
+end
+
+-- #1646: the Cafe Pass tile in the left menu, shown with the function that opens the Pass window while a season runs
+-- and hidden with nil (the grid closes up), with a red "!" while rewards are ready to claim. No badge for the season's
+-- end (cafe-pass.md section 1).
+function HUD.setPass(self: any, open: (() -> ())?, ready: number)
+	self._passOpen = open
+	local tile: Button.Button = self._passTile
+	local shown = open ~= nil
+	if tile.instance.Visible ~= shown then
+		tile.instance.Visible = shown
+		self:_layoutMenu()
+	end
+	local badge: Frame = self._passBadge
+	badge.Visible = shown and ready > 0
 end
 
 -- From the modal's changed signal: opening a screen marks what it shows as seen and clears its dot. The Index has

@@ -906,6 +906,24 @@ local SCENES = {
 	{ "TipJar", function()
 		UI.tipJar.open()
 	end },
+	-- #1646: the Cafe Pass at level 4 with level 2's free spin claimed, the paid track locked
+	{ "CafePass", function()
+		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,
+			levels = 30, paid = false, claimedFree = { 2 }, claimedPaid = {}, claimable = 1, items = {} })
+		UI.pass.open()
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("CafePass", true)
+		assert(window and window:IsA("GuiObject") and window.Visible, "uigate: the Cafe Pass is not open")
+		local level4 = window:FindFirstChild("Level4", true)
+		local claim = level4 and level4:FindFirstChild("Free") and level4.Free:FindFirstChild("Claim")
+		assert(claim and claim:IsA("GuiObject") and claim.Visible, "uigate: level 4's free reward has no Claim")
+	end },
+	-- #1646: the paid track bought at level 7, its reached rewards ready to claim
+	{ "CafePassPaid", function()
+		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 7, xp = 5900, xpPerLevel = 800,
+			levels = 30, paid = true, claimedFree = { 2, 4 }, claimedPaid = { 1 }, claimable = 7, items = {} })
+		UI.pass.open()
+	end },
 	{ "Spin", function()
 		UI.spin.open()
 	end },

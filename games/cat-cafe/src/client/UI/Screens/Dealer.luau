@@ -603,12 +603,11 @@ function Dealer._renderStrip(self: any)
 		title = "Packing up..."
 		sub = "The dealer leaves at sunrise."
 	else
-		local current = stock :: Types.DealerStock
-		local clock = DealerRows.clock(current.restocksAt - Workspace:GetServerTimeNow())
-		title = "Here until sunrise · " .. clock
+		-- No stock counts or restock clocks in shop windows (#1190, the friend 11-04); the server's stock rules are unchanged.
+		title = "Here until sunrise"
 		sub = if reason == "away"
 			then "Walk back to the cart to buy."
-			else "One stock all night on this server. Dealer food goes in your bait bowl."
+			else "Dealer food goes in your bait bowl."
 	end
 	self._stripTitle.Text = title
 	self._stripSub.Text = sub

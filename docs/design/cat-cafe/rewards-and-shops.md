@@ -47,6 +47,26 @@ The odd steps keep their coins. A two hour session now pays 52 golden fish (was 
 
 A spin is now worth about 1.5 golden fish on average (was 0.4), so fewer spins (section 2 cuts several) each feel better. The wheel model's slice faces come from data, so only the pictures change.
 
+**v2, jackpots (#1411, the friend, 2026-11-05: "have it have some bigger hits so players have something to chase like Golden crate for low odds and like 100 gold fish but also a quick way to get money from the spins and make money the most common").** The wheel goes to 8 slices. Weights are in halves of a percent, so they stay whole numbers (total 200):
+
+| slice | prize | weight | chance |
+|---|---|---|---|
+| 1 | coins: 120 s of day rate, at least 200 | 70 | 35% |
+| 2 | coins: 600 s of day rate, at least 1,000 | 44 | 22% |
+| 3 | 5 golden fish | 30 | 15% |
+| 4 | coins: 1,800 s of day rate, at least 3,000 (new) | 24 | 12% |
+| 5 | 1 Caviar | 18 | 9% |
+| 6 | 1 crate of the highest zone unlocked | 12 | 6% |
+| 7 | **Jackpot:** 1 golden crate of the highest zone unlocked (new, `crate = "highest_golden"`) | 1 | 0.5% |
+| 8 | **Jackpot:** 100 golden fish (new) | 1 | 0.5% |
+
+- **Coins first.** Coins land on 69% of spins (was 48%), and the average spin pays about 395 s of day rate (was 144 s), so a spin is a quick money top-up.
+- **Something to chase.** The two jackpots together hit about 1 spin in 100. With one free spin a day plus the Tip Jar's, a regular player hits one every month or two, and the odds are always shown. Golden fish average 1.25 a spin (was 1.46), crates 0.065 (was 0.05).
+- **Jackpot moment.** A jackpot gets the wheel's biggest win effect and sound, plus a toast for the winner: "Jackpot! 100 golden fish". There's no server-wide announcement, because that would push other players to spin.
+- **Policy.** Spins stay free only: no Robux button, pass or product gives spins, so the wheel is not a paid random item (monetization-policy). Monetization-Agent confirms the Cafe Pass paid tier and any bundle give no spins. If one ever does, PolicyService gating and odds-before-buy apply first.
+- **Build.** `Catalog.spinWheel` gets these 8 rows (frozen as before) and `crate = "highest_golden"` resolves to the golden version of the highest unlocked zone's crate. The Spin window's Odds list and slice faces show 8 slices, likeliest first, adding up to 100%. If the world wheel model has a fixed 6 wedges, Model-Agent adds two narrow gold wedges for the jackpots.
+- **QA.** Over 200,000 seeded spins each slice lands within 0.1 point of its chance. A jackpot crate is the golden crate of the player's highest zone, and the Odds list shows 0.5% for each jackpot.
+
 ### 2c. Daily Treat (data-model 11e)
 
 | day | now | was |

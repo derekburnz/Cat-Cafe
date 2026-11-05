@@ -438,3 +438,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Decided by Coordinator for the friend, overnight 11-05 (#1357, with #1159 and #1165), written up by the game-designer thread (Design-Agent, friend's project)
 - 2026-11-05: Tier 2's rank-up cost goes from 12,000 to 13,500 coins (+12.5%). Why: Pace.spec's stacked worst case (a non-stop catcher, 3 pals at +20% and every top-up of a 4-player floor to itself) reached Tier 2 at 9.4 min, under the 10 minute floor. By rule v0.8 the cost goes up and the rewards stay. 13,000 still gave 9.9 min; at 13,500 all 17 Pace checks pass, and Tier 5 is unchanged. Spec: economy-ladder.md section 3, v2.2.
+
+### Spin Wheel jackpots (#1411), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
+- 2026-11-05: The Spin Wheel goes to 8 slices. Coins are 69% (a new 1,800 s slice at 12%), there are two 0.5% jackpots (a golden crate of the highest zone, and 100 golden fish), and the rest of the slices are reweighted. Why: the friend wants something to chase and spins to be a quick money source. Spins stay free only, so it isn't a paid random item. Spec: rewards-and-shops.md section 2b v2.

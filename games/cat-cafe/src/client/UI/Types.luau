@@ -35,6 +35,11 @@ export type LawnStyleKind = SharedTypes.LawnStyleKind
 export type LawnStyleDef = SharedTypes.LawnStyleDef
 export type LawnSpot = SharedTypes.LawnSpot
 export type LawnStyles = SharedTypes.LawnStyles
+-- the Cafe Pass (#1645, #1646): CafePassState and the season's two tracks
+export type CafePassView = SharedTypes.CafePassView
+export type PassItem = SharedTypes.PassItem
+export type PassReward = SharedTypes.PassReward
+export type PassSeasonDef = SharedTypes.PassSeasonDef
 
 export type Catalog = {
 	cats: { CatDef },

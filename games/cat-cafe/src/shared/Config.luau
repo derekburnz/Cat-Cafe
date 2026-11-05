@@ -224,6 +224,8 @@ local Config = {
 	-- CornerDailyLimits of a family (any size; a family not listed has none) and CornerFoodXpPerDay XP of cat food.
 	CornerShopWindowSeconds = 300,
 	CornerShopRange = 14,
+	-- lawn-nursery.md section 2 (#1200): BuyLawn from within this many studs of a LawnStall-tagged Garden Nursery
+	LawnStallRange = 14,
 	CornerShopSizeWeights = {
 		small = { 0, 10, 30, 60 },
 		regular = { 20, 50, 25, 5 },

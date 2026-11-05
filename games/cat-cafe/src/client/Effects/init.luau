@@ -11,7 +11,7 @@
 -- lid, the camp pipe's drips, the pond's jumping fish, the camp extras' collect bursts, the pal wave at a front door,
 -- the cafe orders' steam, flour, oven glow and ding, the leaderboard crown's glint and the Corner Shop's bubbles
 -- and fireworks over a cafe, the shop cats' own effects, the Cat Whistle's paw ring on its stray, the door
--- sign's OPEN by day and CLOSED at night and the Picnic Basket's ready glow, all on this client only.
+-- sign's OPEN by day and CLOSED at night and the camp stations' ready glows, all on this client only.
 -- Effects read replicated world state (tags and attributes) and this player's own events; they never fire a remote,
 -- never change game state and never move a part the server moves for gameplay. Rules:
 -- .claude/skills/animation-vfx/SKILL.md.
@@ -23,6 +23,7 @@ local CafeShow = require(script.CafeShow)
 local CafeWalk = require(script.CafeWalk)
 local CampCollect = require(script.CampCollect)
 local CampExtras = require(script.CampExtras)
+local CampGlow = require(script.CampGlow)
 local CampWater = require(script.CampWater)
 local Campfire = require(script.Campfire)
 local Cannon = require(script.Cannon)
@@ -48,7 +49,6 @@ local Mystery = require(script.Mystery)
 local NetTrail = require(script.NetTrail)
 local Orders = require(script.Orders)
 local PalWave = require(script.PalWave)
-local PicnicGlow = require(script.PicnicGlow)
 local Plots = require(script.Plots)
 local Potions = require(script.Potions)
 local Pull = require(script.Pull)
@@ -125,7 +125,7 @@ function Effects.start()
 	ShopCats.start()
 	Whistle.start()
 	DoorSign.start()
-	PicnicGlow.start()
+	CampGlow.start()
 end
 
 -- "low" on a phone or tablet or in Low performance mode, "high" on a PC or console (Presets.budget).

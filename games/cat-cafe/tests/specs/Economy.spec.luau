@@ -568,6 +568,42 @@ return function()
 				end
 			)
 
+			it(
+				"extra slots open the next tier's spots early, and the pass-only ones at Tier 5 (#1624)",
+				function()
+					local p = working()
+					p.tier = 1
+					expect(Economy.extraSlots(p)).to.equal(0)
+					expect(Economy.spotIsOpen(p, "waiter_2")).to.equal(false)
+					Economy.setPasses(p, with({ grand = true }))
+					expect(Economy.extraSlots(p)).to.equal(1)
+					expect(Economy.spotIsOpen(p, "waiter_2")).to.equal(true) -- the third spot in order, a Tier 2 one
+					expect(Economy.spotIsOpen(p, "greeter_1")).to.equal(false)
+					Economy.setPasses(p, { money = 1, longNap = false, slots = 1, grand = true })
+					expect(Economy.extraSlots(p)).to.equal(2)
+					expect(Economy.spotIsOpen(p, "greeter_1")).to.equal(true)
+					p.tier = 5
+					expect(Economy.spotIsOpen(p, "waiter_4")).to.equal(true)
+					expect(Economy.spotIsOpen(p, "waiter_5")).to.equal(true)
+					Economy.setPasses(p, with({ grand = true }))
+					expect(Economy.spotIsOpen(p, "waiter_4")).to.equal(true)
+					expect(Economy.spotIsOpen(p, "waiter_5")).to.equal(false)
+					Economy.setPasses(p, nil)
+					expect(Economy.spotIsOpen(p, "entertainer_2")).to.equal(true)
+					expect(Economy.spotIsOpen(p, "waiter_4")).to.equal(false)
+				end
+			)
+
+			it("counts open slots as the tier's own plus the extras, at most every spot", function()
+				expect(Catalog.openSlotCount(1, 0)).to.equal(2)
+				expect(Catalog.openSlotCount(1, 2)).to.equal(4)
+				expect(Catalog.openSlotCount(5, 0)).to.equal(10)
+				expect(Catalog.openSlotCount(5, 2)).to.equal(12)
+				expect(Catalog.openSlotCount(5, 9)).to.equal(#Catalog.allSpots)
+				expect(Catalog.openSlotCount(1, -3)).to.equal(2)
+				expect(Catalog.slotIsOpen("nope", 5, 2)).to.equal(false)
+			end)
+
 			it("no store pass changes nothing, and luck never reads them", function()
 				local p = working()
 				expect(Economy.passCafeBonus(p)).to.equal(0)

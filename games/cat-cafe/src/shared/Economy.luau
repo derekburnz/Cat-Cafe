@@ -603,9 +603,17 @@ function Economy.rankUpBlocker(profile: Types.PlayerProfile): string?
 	return nil
 end
 
+-- #1624: role slots past the tier's own, one per Extra Slot pass (PassService's `slots`) and Grand Cafe's
+-- GrandExtraSlots.
+function Economy.extraSlots(profile: Types.PlayerProfile): number
+	local passes = Economy.passes(profile)
+	return math.max(0, passes.slots) + (if passes.grand == true then Config.GrandExtraSlots else 0)
+end
+
+-- Whether role slot `spotId` is open (Catalog.slotIsOpen): an extra slot opens the next tier's spot early, and at
+-- Tier 5 the pass-only ones (#1624).
 function Economy.spotIsOpen(profile: Types.PlayerProfile, spotId: string): boolean
-	local spot = Catalog.getSpot(spotId)
-	return spot ~= nil and Economy.tier(profile) >= spot.tier
+	return Catalog.slotIsOpen(spotId, Economy.tier(profile), Economy.extraSlots(profile))
 end
 
 function Economy.catOnSpot(profile: Types.PlayerProfile, spotId: string): Types.CatInstance?

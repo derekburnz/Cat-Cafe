@@ -228,6 +228,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 			rich = Economy.richRate(profile),
 			money = Economy.passMultiplier(profile),
 		},
+		extraSlots = Economy.extraSlots(profile), -- #1624: Catalog.slotIsOpen's extra slots
 		tradeLog = table.clone(profile.tradeLog), -- F102: the Trades page
 		lawnOwned = profile.lawnOwned, -- F91: the Front lawn tab
 		lawn = profile.lawn,
@@ -1348,7 +1349,13 @@ local function onPlaceCat(player: Player, rawUid: unknown, rawSpot: unknown)
 		return
 	end
 	if not Economy.spotIsOpen(profile, spotId) then
-		Net.toast(player, string.format("That role opens at Tier %d.", spot.tier), "warn")
+		Net.toast(
+			player,
+			if spot.passOnly == true
+				then "That slot comes with Grand Cafe or an Extra Slot pass."
+				else string.format("That role opens at Tier %d.", spot.tier),
+			"warn"
+		)
 		return
 	end
 	if Economy.catOnSpot(profile, spotId) ~= nil then

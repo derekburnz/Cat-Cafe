@@ -150,8 +150,8 @@ local function hasRestingCatAndFreeSpot(s: Types.PlayerState): boolean
 	if not resting then
 		return false
 	end
-	for _, spot in Catalog.spots do
-		if s.tier >= spot.tier and not used[spot.id] then
+	for _, spot in Catalog.allSpots do
+		if Catalog.slotIsOpen(spot.id, s.tier, s.extraSlots or 0) and not used[spot.id] then
 			return true
 		end
 	end

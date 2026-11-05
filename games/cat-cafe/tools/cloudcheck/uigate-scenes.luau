@@ -1430,6 +1430,17 @@ local SCENES = {
 		})
 		press("CatCafeHUD", "Counters.Money")
 	end },
+	-- #1624: the same card for a player with VIP, Cafe Style, both outfit passes and 2x Money: three more rows
+	{ "HUDBoostsPasses", function()
+		UI.pals({ 4242 })
+		local t = workspace:GetServerTimeNow()
+		UI.update({
+			buffs = { tip_potion = t + 492, swift_potion = t + 130 },
+			fishPerks = { golden_espresso = 2 },
+			passBoosts = { cafe = 0.6, staff = 1.3225, rich = 1.25, money = 2 },
+		})
+		press("CatCafeHUD", "Counters.Money")
+	end },
 	-- F88: a Lucky Day with a Lucky Potion running: the Luck chip with gold text at the start of the potion row, its card
 	-- open over the counters (closing the boosts card), and "Lucky Day now" under the clock
 	{ "HUDLuck", function()

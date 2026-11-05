@@ -983,9 +983,9 @@ return function()
 				end
 				return total
 			end
-			-- From the tables: kibble 100 vs 100, tuna 60 vs 28, salmon 40 vs 6.
+			-- From the tables: kibble 100 vs 100, tuna 60 vs 46, salmon 40 vs 17 (#1452's wild odds).
 			local numbers: { [string]: { number } } =
-				{ kibble = { 100, 100 }, tuna = { 60, 28 }, salmon = { 40, 6 } }
+				{ kibble = { 100, 100 }, tuna = { 60, 46 }, salmon = { 40, 17 } }
 			for id, row in pairs(numbers) do
 				local def = Catalog.getLure(id)
 				assert(def)
@@ -1054,20 +1054,20 @@ return function()
 				expect(alley.tier).to.equal(1)
 				expect(alley.name).to.equal("Alleyway")
 				expect(alley.odds :: any).to.deepEqual({
-					Common = 72,
-					Rare = 22,
-					Epic = 5,
-					Legendary = 0.9,
-					Mythical = 0.1,
+					Common = 54, -- #1452 (was 72 / 22 / 5 / 0.9 / 0.1)
+					Rare = 29,
+					Epic = 11,
+					Legendary = 4.8,
+					Mythical = 1.2,
 				})
 				expect(park.tier).to.equal(2)
 				expect(park.name).to.equal("Park")
 				expect(park.odds :: any).to.deepEqual({
-					Common = 72,
-					Rare = 22,
-					Epic = 5,
-					Legendary = 0.9,
-					Mythical = 0.1,
+					Common = 54, -- #1452 (was 72 / 22 / 5 / 0.9 / 0.1)
+					Rare = 29,
+					Epic = 11,
+					Legendary = 4.8,
+					Mythical = 1.2,
 				})
 				expect((park :: any).unlock).never.to.be.ok()
 			end
@@ -1122,14 +1122,14 @@ return function()
 			"five areas in tier order with the section 9 spawn points, wave sizes (v0.13.5), odds and income (v0.13.7)",
 			function()
 				-- id -> { name, tier, spawnPoints, odds, waveSize, incomeMultiplier }; v0.13.7: one set of odds everywhere
-				local same = { 72, 22, 5, 0.9, 0.1 }
+				local same = { 54, 29, 11, 4.8, 1.2 } -- #1452 (was 72, 22, 5, 0.9, 0.1)
 				local want = {
 					-- F95 (economy-ladder.md section 1): income 1, 3, 9, 27, 81
-					{ "alley", "Alleyway", 1, 32, same, 6, 1 }, -- v4 (F84, v0.13.18): 24 and the 8 near points
-					{ "park", "Park", 2, 48, same, 5, 3 }, -- F85's long set's cat spots (#799)
-					{ "neighbourhood", "Neighbourhood", 3, 77, same, 5, 9 }, -- F85's long set's cat spots (#810, #905)
-					{ "woods", "Woods", 4, 72, same, 4, 27 }, -- F85's long set (#847) and the oak top
-					{ "sewer", "Sewer", 5, 60, same, 4, 81 }, -- F85's long set's cat spots (#860)
+					{ "alley", "Alleyway", 1, 32, same, 8, 1 }, -- v4 (F84, v0.13.18): 24 and the 8 near points
+					{ "park", "Park", 2, 48, same, 7, 3 }, -- F85's long set's cat spots (#799)
+					{ "neighbourhood", "Neighbourhood", 3, 77, same, 7, 9 }, -- F85's long set's cat spots (#810, #905)
+					{ "woods", "Woods", 4, 72, same, 6, 27 }, -- F85's long set (#847) and the oak top
+					{ "sewer", "Sewer", 5, 60, same, 6, 81 }, -- F85's long set's cat spots (#860)
 				}
 				expect(#Catalog.areas).to.equal(#want)
 				for i, row in want do
@@ -1138,7 +1138,7 @@ return function()
 					expect(def.name).to.equal(row[2])
 					expect(def.tier).to.equal(row[3])
 					expect(def.spawnPoints).to.equal(row[4])
-					expect(def.waveSize).to.equal(row[6]) -- data-model 9 v0.13.5 (was 10 each)
+					expect(def.waveSize).to.equal(row[6]) -- #1452: 8, 7, 7, 6, 6 (v0.13.5 6, 5, 5, 4, 4; 10 each before)
 					expect(def.incomeMultiplier).to.equal(row[7])
 					local odds = row[5] :: { number }
 					expect(def.odds :: any).to.deepEqual({

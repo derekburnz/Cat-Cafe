@@ -201,10 +201,20 @@ return function()
 			return sum
 		end
 
-		it("Alleyway 72 / 22 / 5 / 0.9 / 0.1 becomes 56.25 / 34.375 / 7.8125 / 1.40625 / 0.15625", function()
+		it("Alleyway 54 / 29 / 11 / 4.8 / 1.2 (#1452) becomes 54 / 58 / 22 / 9.6 / 2.4 over 146", function()
 			local alley = Catalog.getArea("alley")
 			assert(alley)
 			local rescue: any = Catching.rescueOdds(alley.odds)
+			expect(rescue.Common).to.be.near(54 / 146 * 100, 1e-9)
+			expect(rescue.Rare).to.be.near(58 / 146 * 100, 1e-9)
+			expect(rescue.Epic).to.be.near(22 / 146 * 100, 1e-9)
+			expect(rescue.Legendary).to.be.near(9.6 / 146 * 100, 1e-9)
+			expect(rescue.Mythical).to.be.near(2.4 / 146 * 100, 1e-9)
+		end)
+
+		it("the old Alleyway 72 / 22 / 5 / 0.9 / 0.1 becomes 56.25 / 34.375 / 7.8125 / 1.40625 / 0.15625", function()
+			local rescue: any =
+				Catching.rescueOdds({ Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 })
 			expect(rescue.Common).to.be.near(56.25, 1e-9)
 			expect(rescue.Rare).to.be.near(34.375, 1e-9)
 			expect(rescue.Epic).to.be.near(7.8125, 1e-9)
@@ -247,7 +257,7 @@ return function()
 			expect(empty).to.deepEqual({ Common = 100, Rare = 0, Epic = 0, Legendary = 0, Mythical = 0 })
 		end)
 
-		it("a rescue roll over the Alleyway gives a Rare 34.375% of the time", function()
+		it("a rescue roll over the Alleyway gives a Rare 58 / 146 of the time", function()
 			local alley = Catalog.getArea("alley")
 			assert(alley)
 			local rescue = Catching.rescueOdds(alley.odds)
@@ -257,7 +267,7 @@ return function()
 					rares += 1
 				end
 			end
-			expect(rares / n).to.be.near(0.34375, 0.001)
+			expect(rares / n).to.be.near(58 / 146, 0.001)
 		end)
 	end)
 

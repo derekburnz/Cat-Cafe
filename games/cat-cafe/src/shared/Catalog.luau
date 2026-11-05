@@ -2005,10 +2005,12 @@ Catalog.dealerAmountWeights = {
 	star_treat = { 90, 10, 0, 0, 0 },
 } :: { [string]: { number } }
 
--- Section 9. Every area has the same odds since v0.13.7 (Derek 2026-10-28 01:50: rare cats come mainly from food
--- and time); farther areas pay more through incomeMultiplier instead. A full wave of waveSize strays spawns in every area at each sunrise, whether or not anyone has it
--- open; since #1159 an area under its floor of live strays gets daytime top-ups (shared/StrayTopUp). Data-model 9 v0.13.5 (Derek 2026-10-28 01:34, "way too many"): 6, 5, 5, 4
--- and 4, 24 a day in all (was 10 each). Every side area's spawn points are its kit set's cat spots (Model-Agent
+-- Section 9. Every area has the same odds since v0.13.7; farther areas pay more through incomeMultiplier instead.
+-- #1452 (Derek 2026-11-05: the food bowl should not be the only realistic way to get rare cats): 54 / 29 / 11 / 4.8 /
+-- 1.2 (was 72 / 22 / 5 / 0.9 / 0.1), so Salmon in a Royal Bowl is 2.5x the wild for Legendary and Mythical. A full
+-- wave of waveSize strays spawns in every area at each sunrise, whether or not anyone has it open; since #1159 an
+-- area under its floor of live strays gets daytime top-ups (shared/StrayTopUp). #1452: 8, 7, 7, 6 and 6, 34 a day
+-- in all (v0.13.5 had 6, 5, 5, 4 and 4 after Derek's 10-28 "way too many"; 10 each before that). Every side area's spawn points are its kit set's cat spots (Model-Agent
 -- #401, the Park's, the Woods', the Sewer's and the Neighbourhood's v3.2 sets #460, #470, #491 and #505).
 Catalog.areas = {
 	{
@@ -2018,9 +2020,9 @@ Catalog.areas = {
 		-- two on the lanes for each cafe's old place, eight nooks at the far end and eight `near` points by the camp for
 		-- the tutorial stray only (layout v3.1; v4, F84, data-model section 9 v0.13.18)
 		spawnPoints = 32,
-		waveSize = 6,
+		waveSize = 8,
 		rescueSpots = 3,
-		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
+		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.alley,
 	},
 	{
@@ -2028,9 +2030,9 @@ Catalog.areas = {
 		name = "Park",
 		tier = 2,
 		spawnPoints = 48, -- F85's long set's cat spots, 20 near the camp and 28 deep
-		waveSize = 5,
+		waveSize = 7,
 		rescueSpots = 5,
-		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
+		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.park,
 	},
 	{
@@ -2038,9 +2040,9 @@ Catalog.areas = {
 		name = "Neighbourhood",
 		tier = 3,
 		spawnPoints = 77, -- F85's long set's cat spots, 32 near the camp and 45 deep (side paths for porches, #905)
-		waveSize = 5,
+		waveSize = 7,
 		rescueSpots = 4, -- two sheds and two gutters
-		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
+		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.neighbourhood,
 	},
 	{
@@ -2048,9 +2050,9 @@ Catalog.areas = {
 		name = "Woods",
 		tier = 4,
 		spawnPoints = 72, -- F85's long set's cat spots, 28 near the camp, 43 deep and the Great Oak's top
-		waveSize = 4,
+		waveSize = 6,
 		rescueSpots = 5, -- two hollow logs, two bramble bushes and the tree house branch
-		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
+		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.woods,
 	},
 	{
@@ -2058,9 +2060,9 @@ Catalog.areas = {
 		name = "Sewer",
 		tier = 5,
 		spawnPoints = 60, -- F85's long set's cat spots, 25 near the camp and 35 deep
-		waveSize = 4,
+		waveSize = 6,
 		rescueSpots = 4, -- two grates and two drain pipes
-		odds = { Common = 72, Rare = 22, Epic = 5, Legendary = 0.9, Mythical = 0.1 },
+		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.sewer,
 	},
 } :: { Types.AreaDef }

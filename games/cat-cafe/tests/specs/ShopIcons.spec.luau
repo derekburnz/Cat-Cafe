@@ -29,8 +29,12 @@ return function()
 		end)
 
 		it("gives a potion size its regular potion's bottle (#1250)", function()
-			expect(ShopIcons.potion("swift_potion_small")).to.equal(ShopIcons.potion("swift_potion"))
-			expect(ShopIcons.potion("quick_bait_potion_big")).to.equal(ShopIcons.potion("quick_bait_potion"))
+			expect(ShopIcons.potion("swift_potion_small")).to.equal(
+				ShopIcons.potion("swift_potion")
+			)
+			expect(ShopIcons.potion("quick_bait_potion_big")).to.equal(
+				ShopIcons.potion("quick_bait_potion")
+			)
 			expect(ShopIcons.potion("cat_whistle_big")).to.equal(ShopIcons.potion("cat_whistle"))
 			expect(ShopIcons.potion("cat_whistle") ~= nil).to.equal(true)
 		end)
@@ -41,6 +45,20 @@ return function()
 			expect(all[1] ~= all[2]).to.equal(true)
 			expect(#ShopIcons.potionAll("not_a_potion")).to.equal(0)
 			expect(#ShopIcons.potionAll(nil)).to.equal(0)
+		end)
+		it("has a dish picture for every menu item (#950)", function()
+			local Catalog = require(
+				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog")
+			)
+			local missing = {}
+			for _, item in Catalog.menu do
+				if ShopIcons.menu(item.id) == nil then
+					table.insert(missing, item.id)
+				end
+			end
+			expect(table.concat(missing, ",")).to.equal("")
+			expect(ShopIcons.menu("paw_cookie")).to.equal("rbxassetid://105880991505196")
+			expect(ShopIcons.menu("nothing")).to.equal(nil)
 		end)
 		it("has a bottle for every potion in the catalog", function()
 			-- the clean bottle first (#1070), the old picture behind it

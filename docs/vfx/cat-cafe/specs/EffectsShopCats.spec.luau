@@ -7,6 +7,11 @@ return function()
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
 	local Effects = Client:WaitForChild("Effects")
 	local Presets = require(Effects:WaitForChild("Presets")) :: any
+	local Logic = require(Effects:WaitForChild("Logic")) :: any
+
+	local function close(a: number, b: number): boolean
+		return math.abs(a - b) < 1e-6
+	end
 
 	describe("Effects shop cats", function()
 		it("puffs Sprinkles at most once every 20 s", function()
@@ -56,6 +61,32 @@ return function()
 			expect(k.most >= 1 and k.most <= 3).to.equal(true)
 			expect(k.glow.brightness > 0 and k.glow.brightness <= 1.5).to.equal(true)
 			expect(k.trim.speed > 0 and k.trim.tile > 0).to.equal(true)
+		end)
+
+		it("sweeps the Royal Crest's shine once every 8 s, quickly, on a few signs", function()
+			local r = Presets.shopCats.royalCrest
+			expect(r.every).to.equal(8) -- Design-Agent's brief on #1191
+			expect(r.sweep > 0 and r.sweep < r.every).to.equal(true)
+			expect(r.most >= 1 and r.most <= 4).to.equal(true)
+			-- Model-Agent's #1289: the Model's four bars all carry the Model's own name, so every part counts
+			expect(r.model).to.equal("CatCafe_Plot_SignRoyalCrest_Frame")
+			expect(r.part).to.equal(nil)
+		end)
+
+		it("slides the Royal Crest's band right across the sign and back to dark", function()
+			local offset, fade = Logic.shineSweep(-0.5, 1.2, 6) -- waiting for the next sweep
+			expect(offset).to.equal(0)
+			expect(fade).to.equal(0)
+			offset, fade = Logic.shineSweep(0, 1.2, 6)
+			-- a sign's width before its left edge, still dark
+			expect(close(offset, -6) and close(fade, 0)).to.equal(true)
+			offset, fade = Logic.shineSweep(0.6, 1.2, 6)
+			expect(close(offset, 0) and close(fade, 1)).to.equal(true) -- mid-sign, brightest
+			local late = Logic.shineSweep(1.1, 1.2, 6)
+			expect(late > 4 and late < 6).to.equal(true)
+			offset, fade = Logic.shineSweep(1.2, 1.2, 6) -- over
+			expect(offset).to.equal(0)
+			expect(fade).to.equal(0)
 		end)
 	end)
 end

@@ -226,26 +226,40 @@ local POTION_STANDIN: { [string]: string } = {
 	cat_whistle = "Icon_Flask_Lucky",
 }
 
-function ShopIcons.potion(potionId: string?): string?
+-- Every bottle a potion has, best first (#1256): Model-Agent's flask (#1204), the clean flask in the potion's colour
+-- (#1070), the older bottle. IconArt.setImages draws the first that loads, so a flask not yet shared with the game
+-- falls back to the next bottle instead of the emoji. A Small or Big size runs its regular potion's timer, so it wears
+-- that potion's bottles (corner-shop-v2.md, #1250).
+function ShopIcons.potionAll(potionId: string?): { string }
+	local list: { string } = {}
 	if type(potionId) ~= "string" then
-		return nil
+		return list
 	end
-	-- a Small or Big size runs its regular potion's timer, so it wears that potion's bottle (corner-shop-v2.md)
 	local def = Catalog.getPotion(potionId)
 	if def and def.buff and def.buff ~= potionId then
-		return ShopIcons.potion(def.buff)
+		return ShopIcons.potionAll(def.buff)
 	end
 	local standin = POTION_STANDIN[potionId]
-	if standin then
-		return IDS[standin]
+	if standin and IDS[standin] then
+		table.insert(list, IDS[standin])
+		return list
 	end
 	local name = potionId:match("^(.+)_potion$")
 	if name == nil then
-		return nil
+		return list
 	end
-	-- Model-Agent's flask (#1204), else the clean flask in the potion's colour (#1070), else the older bottle
 	local key = pascal(name)
-	return IDS["Icon_Flask_" .. key] or IDS["Icon_Clean_Potion" .. key] or IDS["Potion_" .. key]
+	for _, prefix in { "Icon_Flask_", "Icon_Clean_Potion", "Potion_" } do
+		local id = IDS[prefix .. key]
+		if id then
+			table.insert(list, id)
+		end
+	end
+	return list
+end
+
+function ShopIcons.potion(potionId: string?): string?
+	return ShopIcons.potionAll(potionId)[1]
 end
 
 function ShopIcons.perk(perkId: string?): string?

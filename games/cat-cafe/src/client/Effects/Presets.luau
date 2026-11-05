@@ -86,6 +86,7 @@ export type Budget = {
 	crownGlints: number, -- crowned players whose crown glints now and then (F98), the nearest first
 	cafeBubbles: number, -- cafes blowing Bubble Machine bubbles at once (#1052), the nearest first
 	cafeFireworks: number, -- cafes firing firework shells at once (#1052), the nearest first
+	shopCatEmitters: number, -- shop cats with a steady emitter on at once (#1191: Duchess Marzipan's petals)
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -127,6 +128,7 @@ Presets.budget = {
 		crownGlints = 2,
 		cafeBubbles = 1,
 		cafeFireworks = 1,
+		shopCatEmitters = 1,
 	},
 	high = {
 		animatedCats = 16,
@@ -163,6 +165,7 @@ Presets.budget = {
 		crownGlints = 5,
 		cafeBubbles = 2,
 		cafeFireworks = 2,
+		shopCatEmitters = 2,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -199,6 +202,7 @@ Presets.budget = {
 		crownGlints = 1,
 		cafeBubbles = 1,
 		cafeFireworks = 1,
+		shopCatEmitters = 0,
 	},
 } :: { [string]: Budget }
 
@@ -826,6 +830,35 @@ Presets.emitters = {
 		drag = 1.5,
 		lightEmission = 0.4,
 		rotSpeed = { -360, 360 },
+	},
+	-- Duchess Marzipan's lilac petals (Effects/ShopCats, #1191): a few soft petals that drift out round her, turning
+	-- slowly as they settle.
+	lilacPetal = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(200, 170, 230), Presets.palette.furRose },
+		size = { 0.22, 0.16 },
+		transparency = { 0.15, 0.9 },
+		lifetime = { 2.5, 3.5 },
+		speed = { 0.4, 0.9 },
+		spread = 120,
+		rate = 1.5,
+		acceleration = Vector3.new(0.15, -0.35, 0.1),
+		drag = 0.6,
+		rotSpeed = { -60, 60 },
+	},
+	-- King Croissant's gold motes (Effects/ShopCats, #1191): a slow drift of tiny warm gold lights rising off him.
+	goldMote = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.golden },
+		size = { 0.14, 0.05 },
+		transparency = { 0.2, 1 },
+		lifetime = { 2, 3 },
+		speed = { 0.2, 0.5 },
+		spread = 70,
+		rate = 2,
+		acceleration = Vector3.new(0, 0.25, 0),
+		drag = 0.6,
+		lightEmission = 1,
 	},
 	-- A glint on a leaderboard crown (Effects/Crown, F98): a few gold stars that flash and fade where they are.
 	crownGlint = {
@@ -3209,6 +3242,48 @@ Presets.shopCats = {
 			Presets.palette.aurora,
 		},
 		glow = { seconds = 1.2, range = 8, brightness = 1.5, colour = Presets.palette.furRose },
+	},
+	-- Duchess Marzipan (`catId`): the `lilacPetal` emitter on her Head's BubbleAnchor, on the nearest
+	-- budget.shopCatEmitters within `within` studs, chosen every `pick` seconds. In Low performance or with Reduce
+	-- Motion, `still` instead: petals `size` studs long at `spots` ({ x, z, turn }) on the floor round her feet,
+	-- smoke-sprite decals in `colour`. As she starts a shift, `shift.sparkles` lilac sparkles over her ears (else
+	-- `overPivot` studs over her pivot) and a `shift.ring` ring at her feet.
+	duchess = {
+		catId = "duchess_marzipan",
+		within = 40,
+		pick = 0.5,
+		overPivot = 2.5,
+		colour = Color3.fromRGB(200, 170, 230), -- lilac, her cape
+		still = {
+			size = 0.5,
+			colour = Color3.fromRGB(200, 170, 230),
+			transparency = 0.25,
+			spots = { { 0.9, 0.3, 0.4 }, { -0.7, 0.6, 1.9 }, { 0.2, -0.9, 3.1 } } :: { { number } },
+		},
+		shift = { sparkles = 8, ring = 3, ringSeconds = 0.5 },
+	},
+	-- King Croissant (`catId`), on the nearest `most` within `within` studs, stepped every `step` seconds: a soft
+	-- gold `glow` (a PointLight on his chest's Glow attachment, kept with Reduce Motion and Low performance), the
+	-- `goldMote` emitter there (none with Reduce Motion, in Low performance or with no budget.shopCatEmitters), and
+	-- a sparkle Texture in `trim.colour` tiled every `trim.tile` studs on `trim.faces` of his cape trim's band,
+	-- scrolling `trim.speed` studs a second (still with Reduce Motion). When his table pays (the same moment as
+	-- Sprinkles), `pop.sparkles` gold sparkles, `pop.stars` gold stars and a `pop.ring` ring off his CrownTop (else
+	-- `overPivot` studs over him), at most once every `pop.gap` seconds; not with Reduce Motion.
+	king = {
+		catId = "king_croissant",
+		within = 60,
+		most = 2,
+		step = 0.1,
+		overPivot = 3.2,
+		glow = { colour = Presets.palette.goldLight, range = 8, brightness = 0.8 },
+		trim = {
+			colour = Presets.palette.golden,
+			transparency = 0.35,
+			tile = 1.2,
+			speed = 0.4,
+			faces = { Enum.NormalId.Back, Enum.NormalId.Front } :: { Enum.NormalId },
+		},
+		pop = { gap = 20, sparkles = 10, stars = 5, ring = 4, ringSeconds = 0.55 },
 	},
 }
 

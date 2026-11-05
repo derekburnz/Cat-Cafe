@@ -1098,6 +1098,20 @@ local SCENES = {
 	{ "Potions", function()
 		UI.open("Potions")
 	end },
+	-- #1281: the Bag's Bait tab: the bowl foods the player has, each with its picture, grade badge and count, no Use
+	{ "BagBait", function()
+		UI.update({ lures = { kibble = 12, tuna = 3, salmon = 1 } })
+		UI.open("Potions")
+		press("Potions", "BaitTab")
+		local window = UIShim.playerGui:FindFirstChild("Potions", true)
+		local list = window and window:FindFirstChild("BaitList", true)
+		assert(list and list:IsA("GuiObject") and list.Visible, "uigate: the Bag's Bait list is not up")
+		local tuna = list:FindFirstChild("tuna")
+		assert(tuna, "uigate: no Tuna row on the Bait tab")
+		local count = tuna:FindFirstChild("Count") :: TextLabel
+		assert(count.Text == "x3", "uigate: Tuna count " .. count.Text)
+		assert(list:FindFirstChild("Use", true) == nil, "uigate: the Bait tab has a Use button")
+	end },
 	{ "Quests", function()
 		UI.open("Quests")
 	end },
@@ -1433,6 +1447,33 @@ local SCENES = {
 			},
 		})
 		UI.cornerShop.open()
+	end },
+	-- #1281: the three bait foods at the Corner Shop: their clean pictures and grade badges, "You have n" from the
+	-- player's lures, Salmon sold out
+	{ "CornerShopBait", function()
+		UI.update({ money = 100000, tier = 2, lures = { kibble = 4, tuna = 1 } })
+		UI.cornerShop.setStock({
+			window = 5000000,
+			restocksAt = workspace:GetServerTimeNow() + 192,
+			snackXp = 0,
+			stock = {
+				{ itemId = "swift_potion", price = 2400, amount = 3, bought = 1 },
+				{ itemId = "kibble", price = 200, amount = 3, bought = 0 },
+				{ itemId = "tuna", price = 1000, amount = 2, bought = 1 },
+				{ itemId = "salmon", price = 5000, amount = 1, bought = 1 },
+			},
+		})
+		UI.cornerShop.open()
+		local window = UIShim.playerGui:FindFirstChild("CornerShop", true)
+		assert(window, "no Corner Shop window")
+		local kibble = window:FindFirstChild("kibble", true)
+		assert(kibble, "no kibble row")
+		local effect = kibble:FindFirstChild("Effect", true) :: TextLabel
+		assert(effect.Text == "Bait for your bowl · You have 4", "kibble effect: " .. effect.Text)
+		local salmon = window:FindFirstChild("salmon", true)
+		assert(salmon, "no salmon row")
+		local salmonEffect = salmon:FindFirstChild("Effect", true) :: TextLabel
+		assert(salmonEffect.Text == "Bait for your bowl · You have 0", "salmon effect: " .. salmonEffect.Text)
 	end },
 	-- F100: the prize toast after the Lost and Found: the line and two pictures
 	{ "CampPrize", function()

@@ -26,6 +26,10 @@ CampExtras.PROMPT = "CampExtraPrompt" -- each model's ProximityPrompt, at its Pr
 CampExtras.YARD_SALE = "yardSale"
 CampExtras.COLLECT = { "picnic", "pond", "lostFound" } -- what CollectCampExtra takes
 CampExtras.CLASSIC_CRATE = "classic_crate"
+-- #1368: the Golden Pond pass's gold Fishing Hut. PassService sets GOLD_POND_ATTRIBUTE true on an owner's Player;
+-- that owner's client recolours the shared hut from GOLD_HUT_MODEL (Controllers/GoldHutController).
+CampExtras.GOLD_POND_ATTRIBUTE = "GoldenPondPass"
+CampExtras.GOLD_HUT_MODEL = "CatCafe_Camp_Woods_FishingHut_Gold"
 CampExtras.TAKEN = "You took this crate" -- buyBlocker adds ". A new one in 3 h 59 m"
 
 -- The UTC day number of os.time() `now`.

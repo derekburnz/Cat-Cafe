@@ -156,7 +156,8 @@ end
 
 -- What `profile`'s money multipliers make of one cat's rate.
 local function scale(profile: Profile): number
-	return Economy.cafeMultiplier(profile)
+	return Economy.staffMultiplier(profile)
+		* Economy.cafeMultiplier(profile)
 		* Economy.tierMultiplier(profile)
 		* Economy.passMultiplier(profile)
 end

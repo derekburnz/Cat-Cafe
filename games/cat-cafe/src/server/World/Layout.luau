@@ -250,6 +250,11 @@ Layout.plot = {
 		-- the cat tree's top cushion, at its sit point (-0.5, 4.47, -0.4 from the tree's pivot)
 		entertainer_1 = { x = -17.61, y = 4.47, z = 9.31 },
 		entertainer_2 = { x = 16.61, y = 4.47, z = 9.31 },
+		-- #1624: the two pass-only waiters (Grand Cafe and the Extra Slot pass at Tier 5), clear of the aisle's
+		-- customers (aisleX + 2), the tables and the order queue's 3 studs: one across from waiter_3, off the straight
+		-- walk from the back door to the front door, the other in front of the Collector's spot.
+		waiter_4 = { x = -7, y = 0, z = 4.25 },
+		waiter_5 = { x = 4.5, y = 0, z = 8 },
 	} :: { [string]: Point },
 
 	-- Station furniture under a slot, for the roles that have one (Catalog.spotFurniture)

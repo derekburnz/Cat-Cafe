@@ -93,6 +93,7 @@ import plot  # noqa: E402
 import poses  # noqa: E402
 import props  # noqa: E402
 import rbx_export  # noqa: E402
+import seasondecor  # noqa: E402
 import sewer  # noqa: E402
 import spinwheel  # noqa: E402
 import square  # noqa: E402
@@ -107,7 +108,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, sewerf85, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
-           gardennursery, campstations, daycart, pitysign]
+           gardennursery, campstations, daycart, pitysign, seasondecor]
 
 PIVOT_NOTES = {
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
@@ -387,6 +388,9 @@ STUDIO_NOTES = {
 }
 
 
+for _n in seasondecor.ASSETS:   # Cafe Pass season 1 paid-track decor (#1637): looks only, not in the Decor Index
+    STUDIO_NOTES[_n] = ("Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, "
+                        "no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.")
 for _n in {**crate_decor.ASSETS, **rallycrate.ASSETS}:   # F53 crate pieces (F101 Rally's too): on decor spots
     _index = _n.endswith(("MailboxPlanter", "MushroomLamp", "PipeFountain"))
     STUDIO_NOTES[_n] = ("F53 crate piece: " + ("its zone's Epic, on the Index anchor or a decor spot" if _index

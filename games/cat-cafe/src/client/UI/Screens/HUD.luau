@@ -151,6 +151,7 @@ local CORNER_W = MONEY_W + COUNTER_GAP + COUNTER_COIN + 8 + 90
 local BUFFS_GAP = 8 -- the potion timers sit this far over the counters (F64)
 local BOOSTS_W = 300 -- the money's boosts card
 local BOOST_ROW_H = 24
+local BOOST_ROWS_TIGHT = 10 -- more rows than this draw each row shorter (#1624)
 -- F66: in the last DUSK_SECONDS of a day the clock turns orange and counts to night; CLOSED_TEXT is the Alley
 -- button while the areas are shut for the night
 local DUSK_SECONDS: number = (Config :: any).DuskWarningSeconds or 15
@@ -2954,6 +2955,9 @@ local BOOST_GLYPH: { [string]: string } = {
 	index = "📖",
 	tier = "⭐",
 	pals = "👋",
+	passes = "⭐", -- #1624: VIP and the cafe theme passes
+	outfits = "🎀", -- #1624: Cat Accessories and Uniform Styles
+	moneyPass = "💰",
 }
 local function boostPicture(key: string): string?
 	if key == "tables" then
@@ -3002,12 +3006,25 @@ function HUD._renderBoosts(self: any)
 			child:Destroy()
 		end
 	end
+	-- #1624: the pass rows make a long list, so past BOOST_ROWS_TIGHT rows the grey +0% rows go and each row is a
+	-- little shorter, and the card stays clear of Roblox's buttons at the top of a phone
+	local tight = #rows > BOOST_ROWS_TIGHT
+	if tight then
+		local kept = {}
+		for _, row in rows do
+			if row.active then
+				table.insert(kept, row)
+			end
+		end
+		rows = kept
+	end
+	local rowH = if tight then BOOST_ROW_H - 5 else BOOST_ROW_H
 	for order, row in rows do
 		local total = row.kind == "total"
 		local frame: Frame = Create("Frame", {
 			Name = row.key,
 			BackgroundTransparency = 1,
-			Size = UDim2.new(1, 0, 0, if total then BOOST_ROW_H + 8 else BOOST_ROW_H),
+			Size = UDim2.new(1, 0, 0, if total then rowH + 8 else rowH),
 			LayoutOrder = order,
 			ZIndex = 6,
 			Parent = holder,
@@ -3030,13 +3047,13 @@ function HUD._renderBoosts(self: any)
 			})
 		end
 		local picture = if total then nil else boostPicture(row.key)
-		local iconW = if total then 0 else BOOST_ROW_H
+		local iconW = if total then 0 else rowH
 		if not total then
 			local icon = label({
 				Name = "Icon",
 				AnchorPoint = Vector2.new(0, 1),
 				Position = UDim2.new(0, 0, 1, 0),
-				Size = UDim2.fromOffset(BOOST_ROW_H - 2, BOOST_ROW_H - 2),
+				Size = UDim2.fromOffset(rowH - 2, rowH - 2),
 				TextSize = Theme.sizes.textSmall,
 				TextXAlignment = Enum.TextXAlignment.Center,
 				TextTransparency = if row.active then 0 else 0.4,
@@ -3053,7 +3070,7 @@ function HUD._renderBoosts(self: any)
 			Name = "Name",
 			AnchorPoint = Vector2.new(0, 1),
 			Position = UDim2.new(0, iconW + 2, 1, 0),
-			Size = UDim2.new(0.68, -(iconW + 2), 0, BOOST_ROW_H),
+			Size = UDim2.new(0.68, -(iconW + 2), 0, rowH),
 			TextSize = if total then Theme.sizes.textBody + 1 else Theme.sizes.textSmall + 1,
 			TextColor3 = color,
 			TextTransparency = if row.active then 0 else 0.25,
@@ -3065,7 +3082,7 @@ function HUD._renderBoosts(self: any)
 			Name = "Value",
 			AnchorPoint = Vector2.new(1, 1),
 			Position = UDim2.fromScale(1, 1),
-			Size = UDim2.new(0.32, 0, 0, BOOST_ROW_H),
+			Size = UDim2.new(0.32, 0, 0, rowH),
 			TextSize = if total then Theme.sizes.textBody + 2 else Theme.sizes.textBody,
 			TextColor3 = if total
 				then Theme.colors.gold

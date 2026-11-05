@@ -146,5 +146,40 @@ return function()
 			expect(two.pals.value).to.equal("+15%")
 			expect(two.total.value).to.equal("x1.9") -- 1 + 0.25 + 0.5 + 0.15
 		end)
+
+		it(
+			"shows the store passes only once owned, and multiplies them in as the server does (#1624)",
+			function()
+				local none = byKey(BoostList.rows(Catalog, state(), NOW))
+				expect(none.passes).to.equal(nil)
+				expect(none.outfits).to.equal(nil)
+				expect(none.moneyPass).to.equal(nil)
+				local unowned = byKey(
+					BoostList.rows(
+						Catalog,
+						state({ passBoosts = { cafe = 0, staff = 1, rich = 1, money = 1 } }),
+						NOW
+					)
+				)
+				expect(unowned.passes).to.equal(nil)
+				expect(unowned.outfits).to.equal(nil)
+				expect(unowned.moneyPass).to.equal(nil)
+				expect(unowned.total.value).to.equal("x1")
+				-- VIP and Cafe Style (+0.6), both outfit passes (1.15 x 1.15) and 2x Money
+				local owned = byKey(
+					BoostList.rows(
+						Catalog,
+						state({
+							passBoosts = { cafe = 0.6, staff = 1.3225, rich = 1.25, money = 2 },
+						}),
+						NOW
+					)
+				)
+				expect(owned.passes.value).to.equal("+60%")
+				expect(owned.outfits.value).to.equal("x1.32")
+				expect(owned.moneyPass.value).to.equal("x2")
+				expect(owned.total.amount).to.be.near(1.6 * 1.3225 * 2, 1e-9)
+			end
+		)
 	end)
 end

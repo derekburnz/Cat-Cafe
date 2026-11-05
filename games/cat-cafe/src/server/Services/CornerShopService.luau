@@ -1,12 +1,12 @@
 --!strict
--- The Corner Shop on the server (corner-shop.md, #1052; the rules are shared/CornerShop). A coins-only stall tagged
--- CornerShop in the Town Square, open day and night.
---   BuyCornerShop(itemId, window, shownPrice, catUid?)  C -> S  2 a second: within CornerShopRange of a stall, the
---     current window, fewer bought than the window stocks, the server's price (Economy.cornerPrice of the day rate)
---     not above `shownPrice`, the coins; a snack's catUid one of the player's cats and its XP within today's cap. It
---     charges the server's price (sink "corner_shop", event corner_shop_buy) and gives the item: a potion into the
---     bag, the snack's XP to that cat (a level up shows through CafeService.sync), or a show over the buyer's cafe.
---     Every buy, bought or refused, answers CornerShopStock; a refusal toasts why.
+-- The Corner Shop on the server (corner-shop.md, #1052; v2 corner-shop-v2.md, #1180 and #1181; the rules are
+-- shared/CornerShop). A coins-only stall tagged CornerShop in the Town Square, open day and night.
+--   BuyCornerShop(itemId, window)  C -> S  2 a second: within CornerShopRange of a stall, then CornerShop.buyBlocker
+--     (the tier gate, the current window, the window's amount, the family's daily limit, the food XP cap, the coins).
+--     It charges the row's fixed price (sink "corner_shop", event corner_shop_buy) and gives the item: a potion into
+--     the bag, food into the Bag's catFood (fed later with FeedCat; no cat pick), or a show over the buyer's cafe.
+--     Arguments a v1 window still sends after `window` are ignored. Every buy, bought or refused, answers
+--     CornerShopStock; a refusal toasts why.
 --   CornerShopStock(stock)  S -> C: on join, at each new window, after every buy.
 --   CafeShow(userId, showId, endsAt)  S -> all: one show at a time a cafe, so a bought show starts when the last one
 --     ends, and at most SHOW_QUEUE_MAX are held (one playing, one waiting); a joiner gets every show still running
@@ -19,7 +19,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local CafeService = require(script.Parent.CafeService)
-local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -70,7 +69,7 @@ end
 local function send(player: Player, profile: Types.PlayerProfile)
 	local state, window = refreshed(profile)
 	sentWindow[player] = window
-	local stock = CornerShop.view(state, window, Economy.incomePerSecond(profile))
+	local stock = CornerShop.view(state, window)
 	Net.fire(player, "CornerShopStock", stock)
 end
 
@@ -103,22 +102,7 @@ local function startShow(player: Player, row: Types.CornerShopRow): number
 	return show.endsAt
 end
 
--- The cat `rawUid` names, if it is one of the player's.
-local function ownCat(profile: Types.PlayerProfile, rawUid: unknown): Types.CatInstance?
-	if rawUid == nil then
-		return nil
-	end
-	local uid = Guard.id(rawUid)
-	return if uid ~= nil then profile.cats[uid] else nil
-end
-
-local function onBuy(
-	player: Player,
-	rawItemId: unknown,
-	rawWindow: unknown,
-	rawShownPrice: unknown,
-	rawCatUid: unknown
-)
+local function onBuy(player: Player, rawItemId: unknown, rawWindow: unknown)
 	local profile = DataService.get(player)
 	if profile == nil then
 		return
@@ -129,8 +113,7 @@ local function onBuy(
 	end
 	local itemId = Guard.id(rawItemId)
 	local seenWindow = Guard.int(rawWindow, 0, 2 ^ 40)
-	local shownPrice = Guard.int(rawShownPrice, 0, 2 ^ 53)
-	if itemId == nil or seenWindow == nil or shownPrice == nil then
+	if itemId == nil or seenWindow == nil then
 		send(player, profile)
 		return
 	end
@@ -145,14 +128,14 @@ local function onBuy(
 	end
 	Economy.settle(profile, os.time(), ClockService.epoch())
 	local state, window = refreshed(profile)
-	local price = Economy.cornerPrice(row, Economy.incomePerSecond(profile))
-	local cat = if row.kind == "snack" then ownCat(profile, rawCatUid) else nil
+	local foodId = row.foodId
 	local blocker = CornerShop.buyBlocker(state, {
 		itemId = itemId,
 		seenWindow = seenWindow,
-		shownPrice = shownPrice,
-		ownsCat = row.kind ~= "snack" or cat ~= nil,
-	}, window, price, profile.coins)
+		tier = Economy.tier(profile),
+		coins = profile.coins,
+		foodHeld = if foodId ~= nil then profile.catFood[foodId] or 0 else 0,
+	}, window)
 	if blocker ~= nil then
 		refuse(blocker)
 		return
@@ -162,28 +145,25 @@ local function onBuy(
 		refuse("A show is already waiting over your cafe. Try again after it starts.")
 		return
 	end
-	if not Economy.trySpend(profile, price) then
+	if not Economy.trySpend(profile, row.price) then
 		refuse("Not enough coins")
 		return
 	end
-	Telemetry.sink(player, profile, price, "Shop", "corner_shop")
-	Telemetry.custom(player, "corner_shop_buy", price, { itemId, tostring(Economy.tier(profile)) })
-	state.bought[itemId] = (state.bought[itemId] or 0) + 1
+	Telemetry.sink(player, profile, row.price, "Shop", "corner_shop")
+	Telemetry.custom(
+		player,
+		"corner_shop_buy",
+		row.price,
+		{ itemId, tostring(Economy.tier(profile)), row.size }
+	)
+	CornerShop.record(state, itemId)
 	if row.kind == "potion" then
 		local potionId = row.potionId :: string
 		profile.potions[potionId] = (profile.potions[potionId] or 0) + 1
 		Net.toast(player, string.format("A %s went into your bag", row.name), "good")
-	elseif row.kind == "snack" and cat ~= nil then
-		local xp = row.xp or 0
-		state.snackXp += xp
-		local gained = CatStats.addXp(cat, xp)
-		if gained > 0 then
-			profile.stats.catLevelUps = (profile.stats.catLevelUps or 0) + gained
-		end
-		-- the catalog name: a typed name is filtered only where it is shown (CafeService), never in a toast
-		local def = Catalog.getCat(cat.catId)
-		local name = if def ~= nil then def.name else "Your cat"
-		Net.toast(player, string.format("%s loved the %s: +%d XP", name, row.name, xp), "good")
+	elseif row.kind == "food" and foodId ~= nil then
+		profile.catFood[foodId] = (profile.catFood[foodId] or 0) + 1
+		Net.toast(player, string.format("A %s went into your Bag", row.name), "good")
 	elseif row.kind == "show" then
 		local endsAt = startShow(player, row)
 		local waits = endsAt - (row.showSeconds or 0) > os.time()

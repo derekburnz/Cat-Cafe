@@ -53,6 +53,7 @@ export type Catalog = {
 	fishShop: { FishShopRow }?, -- F53: Catalog.fishShop, what golden fish buy at the Market (section 3)
 	crateDecor: { DecorDef }?, -- F53: Catalog.crateDecor, the crate pieces that are not in Catalog.decor
 	potions: { PotionDef }?, -- F64: Catalog.potions, the potion bag's order (data-model section 12b)
+	catFood: { SharedTypes.CatFoodDef }?, -- #1181: Catalog.catFood, the Bag's Cat Food tab order
 	mysteryGift: { MysteryGiftRow }?, -- F64: Catalog.mysteryGift, what a Mystery Visitor's gift can hold
 	-- F59: Catalog.dealerAmountWeights, lureId -> percent chance of stocking 0, 1, 2, 3 or 4 (the dealer's Details)
 	dealerAmountWeights: { [string]: { number } }?,
@@ -274,6 +275,7 @@ export type PlayerState = {
 	luckSources: { LuckSource }?,
 	introSeen: boolean?, -- F72: the intro has played once; any value shows the Tutorial tile and Settings rows
 	potions: { [string]: number }?, -- F64: potion id -> how many are in the bag
+	catFood: { [string]: number }?, -- #1181: cat food id -> how many are in the Bag (FeedCat feeds one)
 	buffs: { [string]: number }?, -- F64: each running potion's endsAt in server time (Workspace:GetServerTimeNow())
 	quests: QuestsView?, -- F73: the Quests window's Daily and Weekly tabs and the HUD's quest line
 	achievements: { [string]: AchievementView }?, -- F73: achievement id -> its progress and claim
@@ -327,6 +329,7 @@ export type PartialState = {
 	luckSources: { LuckSource }?,
 	introSeen: boolean?,
 	potions: { [string]: number }?,
+	catFood: { [string]: number }?, -- #1181: the Bag's cat food
 	buffs: { [string]: number }?,
 	quests: QuestsView?,
 	achievements: { [string]: AchievementView }?,

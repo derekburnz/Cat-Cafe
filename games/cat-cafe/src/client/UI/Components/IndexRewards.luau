@@ -73,6 +73,7 @@ export type PartKind =
 	| "baitSpeed"
 	| "rainbowLuck"
 	| "potion"
+	| "catFood"
 	| "other"
 export type PrizePart = { kind: PartKind, id: string?, amount: number }
 export type Track = "normal" | "gold" | "rainbow"
@@ -104,6 +105,7 @@ local KNOWN_FIELDS = {
 	tag = true,
 	decorId = true,
 	potions = true,
+	catFood = true,
 }
 
 local IndexRewards = {}
@@ -380,6 +382,21 @@ function IndexRewards.prizeParts(prize: Prize, dayRate: number?): { PrizePart }
 		return (a.id or "") < (b.id or "")
 	end)
 	for _, part in potionParts do
+		table.insert(parts, part)
+	end
+	-- #1181: cat food into the Bag (Daily Treat days 1, 3 and 5, the Collector's "2 Big Snacks"), by id
+	local found: { [string]: number }? = (prize :: any).catFood
+	local foods: { [string]: number } = found or {}
+	local foodParts: { PrizePart } = {}
+	for id, count in foods do
+		if type(count) == "number" and count > 0 then
+			table.insert(foodParts, { kind = "catFood" :: PartKind, id = id, amount = count })
+		end
+	end
+	table.sort(foodParts, function(a: PrizePart, b: PrizePart): boolean
+		return (a.id or "") < (b.id or "")
+	end)
+	for _, part in foodParts do
 		table.insert(parts, part)
 	end
 	local tag = prize.tag

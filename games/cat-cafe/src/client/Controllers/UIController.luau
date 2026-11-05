@@ -503,6 +503,7 @@ local function applyState(s: Types.PlayerState)
 		goldLuck = s.goldLuck, -- F54: the Index's gold luck and faster bait, capped
 		baitSpeed = s.baitSpeed,
 		potions = s.potions, -- F64: the potion bag
+		catFood = s.catFood, -- #1181: the Bag's cat food
 		buffs = s.buffs, -- F64: each running potion's endsAt in server time
 		quests = s.quests :: any, -- F73: the Quests window's tabs and the HUD's quest line (the UI reads it loosely)
 		achievements = s.achievements :: any, -- F73: each achievement's progress and claim
@@ -645,6 +646,13 @@ local function wireIntents()
 				Net.fire("BuyCornerShop", itemId, window, shownPrice, catUid)
 			end
 		)
+	end
+	-- Feed on the Bag's Cat Food tab or a cat card (#1181): the server answers FeedResult and a ProfileSync, or a toast.
+	-- Loose until UI-Engineer's Signal (friend/bag-ui) is on main.
+	if looseEvents.feedCat ~= nil then
+		looseEvents.feedCat:Connect(function(foodId: string, catUid: string)
+			Net.fire("FeedCat", foodId, catUid)
+		end)
 	end
 	-- Use on a potion in the bag (F64); the server answers with a ProfileSync, or a "Full" toast.
 	UI.events.usePotion:Connect(function(potionId: string)
@@ -1407,6 +1415,13 @@ local function wireServerEvents()
 			end
 		end
 	)
+	-- The fed cat's new level and XP (#1181), for the Bag's feed effect; loose until UI.bag is on main.
+	Net.on("FeedResult", function(catUid: string, level: number, xp: number)
+		local bag: any = (UI :: any).bag
+		if type(bag) == "table" and type(bag.fed) == "function" then
+			(bag.fed :: any)(catUid, level, xp)
+		end
+	end)
 	-- What this player's opened Mystery gift held (F64): the gift card, and the ribbon pop in Effects.
 	Net.on("MysteryGiftResult", function(kind: string, id: string?, count: number)
 		UI.potions.giftResult(kind, id, count)
@@ -1725,6 +1740,7 @@ function UIController.start()
 		crateDecor = Catalog.crateDecor, -- F53: the 60 crate pieces (the Decor shop keeps reading decor)
 		fishShop = Catalog.fishShop, -- F53: what the Golden Fish Market sells
 		potions = Catalog.potions, -- F64: the potion bag's rows
+		catFood = Catalog.catFood, -- #1181: the Bag's Cat Food tab rows
 		mysteryGift = Catalog.mysteryGift, -- F64: what a Mystery gift can hold, shown before opening
 		dealerAmountWeights = Catalog.dealerAmountWeights, -- F59: the dealer's stock odds under Details
 		quests = Catalog.quests, -- F73: the quest rows (to tell a coins quest)

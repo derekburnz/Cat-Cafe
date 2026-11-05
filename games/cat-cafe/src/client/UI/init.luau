@@ -189,6 +189,8 @@ UI.events = {
 	buyYardSale = Signal.new(), -- (crateId)   Buy on the Yard Sale card: forward as BuyYardSale
 	-- (itemId, window, shownPrice, catUid?)   Buy in the Corner Shop (#1052): forward as BuyCornerShop
 	buyCornerShop = Signal.new(),
+	-- (foodId, catUid)   #1181: Feed a cat from the Bag's Cat Food tab: forward as FeedCat; FeedResult calls UI.bag.fed
+	feedCat = Signal.new(),
 	-- F102 (trading.md section 6): the client only asks; TradeState answers
 	requestTrade = Signal.new(), -- (userId)   Trade on a players list row: forward as TradeRequest
 	respondTrade = Signal.new(), -- (requestId, accept)   Accept or Decline on the request card: forward as TradeRespond
@@ -276,6 +278,7 @@ local freshStock: FreshCatchLogic.Stock? = nil -- the last FreshCatchStock, nil 
 local bugReportScreen: BugReport.BugReport? = nil -- the Feedback window, from the HUD's Feedback tile
 local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking into the Codes Cat's circle
 local potionsScreen: Potions.Potions? = nil -- the potion bag (F64), from the Potions pill, P or a HUD timer
+local bagFed: { [string]: number } = {} -- #1181: cat uid -> its level when fed, so FeedResult can tell a level up
 local questsScreen: Quests.Quests? = nil -- the Quests window (F73), from the Quests pill, J or the HUD's quest line
 local collectorScreen: Collector.Collector? = nil -- the Cat Collector's card and tag (F63, UI.collector.offer)
 local dailyTreatScreen: DailyTreat.DailyTreat? = nil -- the Daily Treat card (F70), from the HUD's Daily tile
@@ -1097,6 +1100,12 @@ function UI.init(config: Types.InitConfig)
 	potionsScreen = Potions.new({
 		use = function(potionId: string)
 			UI.events.usePotion:Fire(potionId)
+		end,
+		feed = function(foodId: string, catUid: string)
+			local cat = (state.cats or {})[catUid]
+			bagFed[catUid] = if cat and type(cat.level) == "number" then cat.level else 0
+			local events: any = UI.events
+			events.feedCat:Fire(foodId, catUid)
 		end,
 		close = closeModal,
 	})
@@ -2056,6 +2065,17 @@ end
 ----------------------------------------------------------------------------------------------------
 
 UI.potions = {}
+
+-- The Bag's Feed (#1181): FeedResult(catUid, level, xp) from the server after a FeedCat it took. The server already
+-- toasts "<cat> loved the <food>: +N XP", so this only adds a level up; the counts move with the ProfileSync after.
+UI.bag = {}
+function UI.bag.fed(catUid: string, level: number, _xp: number)
+	local before = bagFed[catUid]
+	bagFed[catUid] = nil
+	if before and before > 0 and level > before then
+		UI.toast(("Level up! Level %d"):format(level), "good")
+	end
+end
 
 -- From MysteryGiftResult(kind, id, count): a card with what the gift held ("Money Potion", "2 Salmon",
 -- "10 golden fish", "1 spin") as a picture, closing by itself, with the giftOpen sound.

@@ -31,7 +31,8 @@ local CafePass = {}
 export type Track = "free" | "paid"
 export type Claim = { season: number, track: Track, level: number }
 
-CafePass.TRACKS = table.freeze({ "free", "paid" }) :: { Track }
+local TRACKS: { Track } = { "free", "paid" }
+CafePass.TRACKS = table.freeze(TRACKS)
 
 local DAY = 86400
 

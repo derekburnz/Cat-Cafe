@@ -513,9 +513,9 @@ local Config = {
 	-- A request waits TradeRequestSeconds; declined or timed out, the asker waits TradeReaskSeconds to ask that player
 	-- again. TradeCountdownSeconds after both press Ready the confirm screen opens; a lopsided trade (one side gives at
 	-- least TradeLopsidedRatio times the Collector value it gets) or a gift holds that side's Confirm for
-	-- TradeConfirmWaitSeconds. TradeCooldownSeconds between a player's trades, TradesPerDay a UTC day. The Trades page
-	-- keeps TradeLogMax trades, the save TradeIdsMax applied trade ids. Every server reads the CatCafe_Flags kill switch
-	-- every TradeFlagCheckSeconds.
+	-- TradeConfirmWaitSeconds. TradeCooldownSeconds between a player's trades, TradesPerDay a game day (#1629, was a
+	-- UTC day). The Trades page keeps TradeLogMax trades, the save TradeIdsMax applied trade ids. Every server reads the
+	-- CatCafe_Flags kill switch every TradeFlagCheckSeconds.
 	TradeMinTier = 3,
 	TradeMaxCats = 9,
 	TradeMaxDecor = 9, -- #1574 (section 1b): decor and lawn pieces a side, beside the cats

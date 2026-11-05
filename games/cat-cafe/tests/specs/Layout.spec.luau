@@ -1845,11 +1845,14 @@ return function()
 			end
 		end)
 
-		it("stands them a few studs inside the wall, off the decor beside the door (5 in clears the pieces at x 7.2, 1.6 in)", function()
+		it("stands them a few studs inside the wall, off the decor beside the door (7 in since #1417)", function()
 			for _, id in { "greeter_1", "greeter_2" } do
 				local spot = plot.spots[id]
 				local inside = spot.z - door.z
-				expect(inside >= 3 and inside <= 6).to.equal(true)
+				expect(inside >= 3 and inside <= 8).to.equal(true)
+				-- and short of the first row's lane, where customers walk out to the outer chairs (a big cat
+				-- reaches 0.76 behind its point; 2 studs of walking room)
+				expect(spot.z + 0.76 <= plot.tables[1].lane - 2).to.equal(true)
 			end
 		end)
 
@@ -1866,7 +1869,7 @@ return function()
 		end)
 
 		it("follows the door's own point, not the plot centre", function()
-			expect(plot.spots.greeter_1.z).to.equal(door.z + 5)
+			expect(plot.spots.greeter_1.z).to.equal(door.z + 7)
 		end)
 	end)
 
@@ -2262,6 +2265,21 @@ return function()
 					expect(apart(x, z, point.x, point.z) > 6).to.equal(true)
 				end
 			end
+		end)
+
+		it("stands the Garden Nursery in the Park camp, turned 90 on the camp, clear of the extra and the pad (#1200)", function()
+			local x, y, z, turn = Layout.lawnStallAt()
+			assert(x ~= nil and y ~= nil and z ~= nil and turn ~= nil, "no Garden Nursery spot")
+			local camp = Layout.camps.park
+			expect(Layout.campAt(x, z)).to.equal("park")
+			expect(y).to.equal(Layout.areas.park.floorY)
+			-- front (-Z) faces set -X: the camp's turn + 90
+			expect(turn).to.equal(camp.turn + 90)
+			local ex, _, ez = Layout.campExtraAt("park")
+			assert(ex ~= nil and ez ~= nil, "no park extra")
+			expect(apart(x, z, ex, ez) > 6).to.equal(true)
+			local pad = Layout.landingPads.park.centre
+			expect(apart(x, z, pad.x, pad.z) > W.LandingPadRadius + 3).to.equal(true)
 		end)
 	end)
 end

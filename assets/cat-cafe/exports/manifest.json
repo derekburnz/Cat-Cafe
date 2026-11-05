@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-05 10:10 UTC",
+  "generated": "2026-11-05 15:10 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -148785,65 +148785,6 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_Tier5.png"
     },
     {
-      "name": "CatCafe_Plot_ClosedSign",
-      "category": "Plot",
-      "module": "plot",
-      "objects": [
-        "CatCafe_Plot_ClosedSign",
-        "CatCafe_Plot_ClosedSign_Moon_Bulb"
-      ],
-      "triangles": 1166,
-      "budget": 1500,
-      "size_studs": {
-        "x": 6.04,
-        "y": 0.26,
-        "z": 1.97
-      },
-      "size_roblox": [
-        6.04,
-        1.97,
-        0.26
-      ],
-      "bounds_min": [
-        -3.02,
-        -17.63,
-        5.38
-      ],
-      "bounds_max": [
-        3.02,
-        -17.37,
-        7.35
-      ],
-      "pivot": "Plot.cframe: floor top centre of the cafe",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "F44: owned cafes at night only (Clock.Phase), at the Plot pivot. Hangs in the front door above head height; nothing collides. The child Model _Moon_Bulb glows at night.",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_ClosedSign.model.json",
-      "rbx_parts": 108,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Plot_ClosedSign.fbx",
-        "assets/cat-cafe/exports/CatCafe_Plot_ClosedSign.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [
-          "pivot",
-          "centered"
-        ],
-        "checks": {
-          "budget": "1166/1500 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "583 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=5.38 (want 0)",
-          "centered": "footprint center x=0.00 y=-17.50"
-        }
-      },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_ClosedSign.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_ClosedSign.png"
-    },
-    {
       "name": "CatCafe_Alley_ArchStreet",
       "category": "Alley",
       "module": "alleyway",
@@ -153562,7 +153503,7 @@
         "CatCafe_Woods_Set_049_Thicket",
         "CatCafe_Woods_Set_050_Stream_Water"
       ],
-      "triangles": 27222,
+      "triangles": 27114,
       "budget": 80000,
       "size_studs": {
         "x": 119.0,
@@ -153606,19 +153547,19 @@
         ],
         "nook_great_oak": [
           [
-            2.3,
+            2.4,
             18.0,
-            4.5
+            7.6
           ],
           [
-            -2.3,
+            -2.4,
             18.0,
-            4.5
+            7.6
           ],
           [
             -0.0,
             18.3,
-            4.2
+            8.0
           ]
         ],
         "bridge": [
@@ -153736,7 +153677,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_Set.model.json",
-      "rbx_parts": 1206,
+      "rbx_parts": 1205,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_Set.glb"
@@ -153748,15 +153689,17 @@
           "pivot"
         ],
         "checks": {
-          "budget": "27222/80000 tris",
+          "budget": "27114/80000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "15688 faces on swatch centers",
+          "uv": "15622 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.40 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Woods_Set.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Woods_Set.png"
     },
     {
       "name": "CatCafe_Sewer_Set",
@@ -156898,7 +156841,7 @@
         "CatCafe_Woods_SetV32_208_PineTall",
         "CatCafe_Woods_SetV32_209_PineTall"
       ],
-      "triangles": 115676,
+      "triangles": 115568,
       "budget": 120000,
       "size_studs": {
         "x": 240.0,
@@ -157337,21 +157280,21 @@
         ],
         "nook_great_oak": [
           [
-            -35.79,
+            -38.66,
             18.0,
-            89.63,
+            90.81,
             "deep"
           ],
           [
-            -37.4,
+            -40.34,
             18.0,
-            85.32,
+            86.31,
             "deep"
           ],
           [
-            -36.31,
+            -39.87,
             18.3,
-            87.37,
+            88.7,
             "deep"
           ]
         ],
@@ -157412,7 +157355,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_SetV32.model.json",
-      "rbx_parts": 5483,
+      "rbx_parts": 5482,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_SetV32.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_SetV32.glb"
@@ -157424,15 +157367,17 @@
           "pivot"
         ],
         "checks": {
-          "budget": "115676/120000 tris",
+          "budget": "115568/120000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "71401 faces on swatch centers",
+          "uv": "71335 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.84 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Woods_SetV32.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Woods_SetV32.png"
     },
     {
       "name": "CatCafe_Sewer_SetV32",
@@ -160599,7 +160544,7 @@
         "CatCafe_Woods_SetF85_283_OakRound",
         "CatCafe_Woods_SetF85_284_OakRound"
       ],
-      "triangles": 127272,
+      "triangles": 127164,
       "budget": 150000,
       "size_studs": {
         "x": 160.0,
@@ -161088,21 +161033,21 @@
         ],
         "nook_great_oak": [
           [
-            -29.4,
+            -31.79,
             18.0,
-            206.89,
+            208.88,
             "deep"
           ],
           [
-            -32.23,
+            -34.74,
             18.0,
-            203.26,
+            205.09,
             "deep"
           ],
           [
-            -30.58,
+            -33.58,
             18.3,
-            204.89,
+            207.23,
             "deep"
           ]
         ],
@@ -161155,7 +161100,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_SetF85.model.json",
-      "rbx_parts": 5991,
+      "rbx_parts": 5990,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_SetF85.glb"
@@ -161168,15 +161113,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "127272/150000 tris",
+          "budget": "127164/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "79551 faces on swatch centers",
+          "uv": "79485 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.98 (want 0)",
           "centered": "footprint center x=0.00 y=0.25"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Woods_SetF85.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Woods_SetF85.png"
     },
     {
       "name": "CatCafe_Sewer_SetF85",
@@ -170945,32 +170892,32 @@
         "CatCafe_Town_Backdrop_Sails",
         "CatCafe_Town_Backdrop_Bulbs"
       ],
-      "triangles": 22246,
+      "triangles": 22286,
       "budget": 60000,
       "size_studs": {
-        "x": 872.0,
-        "y": 932.0,
+        "x": 617.43,
+        "y": 730.57,
         "z": 242.51
       },
       "size_roblox": [
-        872.0,
+        617.43,
         242.51,
-        932.0
+        730.57
       ],
       "bounds_min": [
-        -436.0,
-        -466.0,
+        -306.7,
+        -366.03,
         -178.0
       ],
       "bounds_max": [
-        436.0,
-        466.0,
+        310.73,
+        364.54,
         64.51
       ],
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Town_Backdrop.model.json",
-      "rbx_parts": 985,
+      "rbx_parts": 1015,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Town_Backdrop.fbx",
         "assets/cat-cafe/exports/CatCafe_Town_Backdrop.glb"
@@ -170979,18 +170926,21 @@
         "pass": true,
         "failed": [],
         "warnings": [
-          "pivot"
+          "pivot",
+          "centered"
         ],
         "checks": {
-          "budget": "22246/60000 tris",
+          "budget": "22286/60000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "16769 faces on swatch centers",
+          "uv": "16805 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-178.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.00"
+          "centered": "footprint center x=2.02 y=-0.74"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Town_Backdrop.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Town_Backdrop.png"
     },
     {
       "name": "CatCafe_Alleyway_Backdrop",
@@ -172000,209 +171950,6 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=0.05"
-        }
-      }
-    },
-    {
-      "name": "CatCafe_Camp_Park_PicnicBasket",
-      "category": "Camp",
-      "module": "campextras",
-      "objects": [
-        "CatCafe_Camp_Park_PicnicBasket"
-      ],
-      "triangles": 1052,
-      "budget": 3000,
-      "size_studs": {
-        "x": 4.4,
-        "y": 3.6,
-        "z": 1.66
-      },
-      "size_roblox": [
-        4.4,
-        1.66,
-        3.6
-      ],
-      "bounds_min": [
-        -2.2,
-        -1.8,
-        0.0
-      ],
-      "bounds_max": [
-        2.2,
-        1.8,
-        1.66
-      ],
-      "pivot": "the base centre on the camp's ground, front -Z toward the camp, no turn; area space at campextras.SPOTS (beside the way out, across from the Index Board)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Park_PicnicBasket.model.json",
-      "rbx_parts": 65,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Camp_Park_PicnicBasket.fbx",
-        "assets/cat-cafe/exports/CatCafe_Camp_Park_PicnicBasket.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [],
-        "checks": {
-          "budget": "1052/3000 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "470 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.00"
-        }
-      }
-    },
-    {
-      "name": "CatCafe_Camp_Neighbourhood_YardSale",
-      "category": "Camp",
-      "module": "campextras",
-      "objects": [
-        "CatCafe_Camp_Neighbourhood_YardSale",
-        "CatCafe_Camp_Neighbourhood_YardSale_Sign_Swing"
-      ],
-      "triangles": 1722,
-      "budget": 3000,
-      "size_studs": {
-        "x": 5.7,
-        "y": 2.2,
-        "z": 3.36
-      },
-      "size_roblox": [
-        5.7,
-        3.36,
-        2.2
-      ],
-      "bounds_min": [
-        -3.4,
-        -1.2,
-        0.0
-      ],
-      "bounds_max": [
-        2.3,
-        1.0,
-        3.36
-      ],
-      "pivot": "the base centre on the camp's ground, front -Z toward the camp, no turn; area space at campextras.SPOTS (beside the way out, across from the Index Board)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "part_pivots": {
-        "CatCafe_Camp_Neighbourhood_YardSale_Sign_Swing": [
-          -2.55,
-          0.0,
-          2.55
-        ]
-      },
-      "part_pivots_roblox": {
-        "CatCafe_Camp_Neighbourhood_YardSale_Sign_Swing": [
-          2.55,
-          2.55,
-          0.0
-        ]
-      },
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Neighbourhood_YardSale.model.json",
-      "rbx_parts": 144,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood_YardSale.fbx",
-        "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood_YardSale.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [
-          "centered"
-        ],
-        "checks": {
-          "budget": "1722/3000 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "859 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=-0.55 y=-0.10"
-        }
-      }
-    },
-    {
-      "name": "CatCafe_Camp_Woods_FishPond",
-      "category": "Camp",
-      "module": "campextras",
-      "objects": [
-        "CatCafe_Camp_Woods_FishPond",
-        "CatCafe_Camp_Woods_FishPond_Water",
-        "CatCafe_Camp_Woods_FishPond_Rod",
-        "CatCafe_Camp_Woods_FishPond_Fish"
-      ],
-      "triangles": 1036,
-      "budget": 3000,
-      "size_studs": {
-        "x": 6.56,
-        "y": 5.7,
-        "z": 2.98
-      },
-      "size_roblox": [
-        6.56,
-        2.98,
-        5.7
-      ],
-      "bounds_min": [
-        -3.22,
-        -2.7,
-        -0.29
-      ],
-      "bounds_max": [
-        3.34,
-        3.0,
-        2.69
-      ],
-      "pivot": "the base centre on the camp's ground, front -Z toward the camp, no turn; area space at campextras.SPOTS (beside the way out, across from the Index Board)",
-      "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "part_pivots": {
-        "CatCafe_Camp_Woods_FishPond_Rod": [
-          -0.45,
-          -0.55,
-          1.0
-        ],
-        "CatCafe_Camp_Woods_FishPond_Fish": [
-          1.0,
-          0.6,
-          0.16
-        ]
-      },
-      "part_pivots_roblox": {
-        "CatCafe_Camp_Woods_FishPond_Rod": [
-          0.45,
-          1.0,
-          -0.55
-        ],
-        "CatCafe_Camp_Woods_FishPond_Fish": [
-          -1.0,
-          0.16,
-          0.6
-        ]
-      },
-      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Woods_FishPond.model.json",
-      "rbx_parts": 61,
-      "files": [
-        "assets/cat-cafe/exports/CatCafe_Camp_Woods_FishPond.fbx",
-        "assets/cat-cafe/exports/CatCafe_Camp_Woods_FishPond.glb"
-      ],
-      "gates": {
-        "pass": true,
-        "failed": [],
-        "warnings": [
-          "pivot",
-          "centered"
-        ],
-        "checks": {
-          "budget": "1036/3000 tris",
-          "transforms": "scale 1, rotation 0",
-          "material": "one material (CatCafe_Palette)",
-          "uv": "658 faces on swatch centers",
-          "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-0.29 (want 0)",
-          "centered": "footprint center x=0.06 y=0.15"
         }
       }
     },

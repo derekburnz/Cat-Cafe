@@ -69,7 +69,6 @@ local rng = Random.new()
 local ready = false -- set by the first applySettings
 local enabled: { [string]: boolean } = { Music = true, Ambience = true, Sfx = true, Ui = true }
 local phase: string? = nil
-local phaseEndsAt: number? = nil
 local bedGeneration = 0
 local catchToken = 0
 local zone: string? = nil
@@ -476,34 +475,14 @@ local function refreshAmbience()
 	end
 end
 
--- F66: the town bell rings DuskWarningSeconds before night, with the warning banner. Rescheduled on every clock
--- change; a generation number drops a bell that a newer schedule replaced.
-local DUSK_WARNING = 15 -- until Config has DuskWarningSeconds
-local duskGeneration = 0
-
-local function scheduleDuskBell()
-	duskGeneration += 1
-	local generation = duskGeneration
-	local configured = (Config :: any).DuskWarningSeconds
-	local warning = if type(configured) == "number" then configured else DUSK_WARNING
-	local inSeconds = Logic.duskBellIn(phase, phaseEndsAt, Workspace:GetServerTimeNow(), warning)
-	if inSeconds ~= nil then
-		task.delay(inSeconds, function()
-			if generation == duskGeneration then
-				Audio.play("duskBell")
-			end
-		end)
-	end
-end
+-- 2026-11-05 (Derek): the town bell's two dings before night are gone. The UI's "Night falls in 15 s" banner is the
+-- only warning; the dusk stinger still plays when night starts.
 
 local function followClock()
 	local clock = ReplicatedStorage:WaitForChild("Clock")
 	local function read()
 		local value = clock:GetAttribute("Phase")
 		phase = if type(value) == "string" then value else nil
-		local endsAt = clock:GetAttribute("PhaseEndsAt")
-		phaseEndsAt = if type(endsAt) == "number" then endsAt else nil
-		scheduleDuskBell()
 	end
 	read()
 	clock:GetAttributeChangedSignal("Phase"):Connect(function()
@@ -512,7 +491,6 @@ local function followClock()
 		refreshMusic(before ~= nil)
 		refreshAmbience()
 	end)
-	clock:GetAttributeChangedSignal("PhaseEndsAt"):Connect(read)
 	-- F88: a Lucky Day starts at sunrise (the Clock's LuckyDay turns true): its chime follows the sunrise sting.
 	-- Joining in the middle of one plays nothing.
 	clock:GetAttributeChangedSignal("LuckyDay"):Connect(function()
@@ -1614,7 +1592,33 @@ end
 -- Moment name to sounds (sound list section 6). NightStart and DayStart are absent on purpose: the music already
 -- follows the clock attribute, so it also knows the phase on join. CarryStart is absent too: the purr follows the
 -- synced carrying state (Audio.setCarrying), so a missed moment can never leave it purring.
+-- #1133/#1154/#1232: the Picnic Basket, Yard Sale and Fish Pond chime once as something starts waiting (the same
+-- `held` the "!" marker follows), in 2D. The first CampExtrasState after joining only records what waits.
+local STATION_EXTRAS = { "picnic", "yardSale", "pond" }
+local stationHeld: { [string]: number } = {}
+
+local function stationsReady(state: any)
+	if type(state) ~= "table" then
+		return
+	end
+	local ready = false
+	for _, id in STATION_EXTRAS do
+		local extra = state[id]
+		local held = if type(extra) == "table" then num(extra.held) else nil
+		if held ~= nil then
+			if Logic.stationReady(stationHeld[id], held, extra.open == true) then
+				ready = true
+			end
+			stationHeld[id] = held
+		end
+	end
+	if ready then
+		Audio.play("stationReady")
+	end
+end
+
 local HANDLERS: { [string]: (...any) -> () } = {
+	CampExtrasState = stationsReady,
 	CatchStart = function()
 		duckForCatch(true)
 		Audio.play("catchStart")

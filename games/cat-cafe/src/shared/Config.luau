@@ -67,7 +67,11 @@ local Config = {
 	-- short reset between hunts; the catching areas close at dusk and a fresh wave spawns at sunrise.
 	DayLengthSeconds = 300,
 	NightLengthSeconds = 90,
-	ServerStartDaySeconds = 300, -- a new server opens at sunrise: a full day and a fresh wave
+	ServerStartDaySeconds = 300, -- the clock's first day, from ClockEpoch (was each server's start, before #1437)
+	-- #1437 (Derek 2026-11-05: "restock once per in game day and make it global"): every server reads the clock from
+	-- this os.time() (2026-11-01 00:00 UTC) on Workspace:GetServerTimeNow(), so sunrise and dusk fall at the same
+	-- moment in every server; a new server joins the day already under way. Day 1 starts here.
+	ClockEpoch = 1793491200,
 	DuskWarningSeconds = 15, -- players in a catching area get the "Night falls" banner this long before night
 	NightSweepSeconds = 2, -- during night, anyone found in a catching area is sent home this often
 
@@ -92,7 +96,9 @@ local Config = {
 	StartledWalkSpeed = 12,
 	StartledSeconds = 2,
 	GrabCooldownSeconds = 2, -- per player, between two catches started
-	TravelCooldownSeconds = 3, -- per player, between two fast travels (features F19)
+	-- per player, between two fast travels (features F19); #1434 (Derek 2026-11-05): 1 (was 3), a quick anti-spam
+	-- cooldown rather than a wait. A trip still never starts while a cloud hop home is under way (TravelService).
+	TravelCooldownSeconds = 1,
 	-- The Cat Cannon (F84, hometown-cannon.md section 3b): a flight takes CannonLaunchSeconds from LaunchCannon to
 	-- control, the server moving the anchored character onto the landing pad at CannonTeleportAtSeconds, inside the
 	-- clouds; then CannonCooldownSeconds from landing before the next launch. Home from a wild area is a cloud hop
@@ -198,22 +204,23 @@ local Config = {
 	-- Derek 22:38: a wave is scattered, not clumped. A new stray takes a free spawn point at least this far from every
 	-- stray already in its area when one is left (farther ones likelier), else the free point farthest from them all.
 	StraySpawnSpacingStuds = 12,
-	-- #1159 (shared/StrayTopUp): by day an area under its floor of live strays gets one more every 60 to 120 s, at a
+	-- #1159 (shared/StrayTopUp): by day an area under its floor of live strays gets one more every 40 to 80 s, at a
 	-- far point first. The floor is StrayFloorBase for one player plus StrayFloorPerPlayer for each more who has the
 	-- area open, never above StrayLiveMax live cats in the area (the 10-28 "way too many" line is a live cap).
-	StrayFloorBase = 5,
+	StrayFloorBase = 7, -- #1452 (was 5)
 	StrayFloorPerPlayer = 1,
-	StrayLiveMax = 12,
-	StrayTopUpMinSeconds = 60,
-	StrayTopUpMaxSeconds = 120,
+	StrayLiveMax = 14, -- #1452 (was 12)
+	StrayTopUpMinSeconds = 40, -- #1452: 40 to 80 s (was 60 to 120)
+	StrayTopUpMaxSeconds = 80,
 	StrayWanderSpeed = 3,
 	AnnounceMinRarity = "Epic",
 	-- The night dealer (data-model section 8b): buy from this close to the cart. F94 (rewards-and-shops.md section 4):
 	-- each server rolls its stock once at dusk and it holds all night.
 	DealerRangeStuds = 12,
 	-- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf at the Golden Fish Market, by day. Every window of
-	-- this many seconds rolls an amount of each Catalog.freshCatch row, the same on every server.
-	FreshCatchWindowSeconds = 300,
+	-- this many seconds rolls an amount of each Catalog.freshCatch row, the same on every server. #1437: one game day
+	-- (DayLengthSeconds + NightLengthSeconds) from ClockEpoch, so the shelf restocks at every sunrise (was 300).
+	FreshCatchWindowSeconds = 390,
 	-- The chance in percent that a window stocks 0, 1, 2 or 3 of each Fresh Catch row, by the row's id.
 	FreshCatchAmountWeights = {
 		tip_potion = { 10, 30, 40, 20 },
@@ -230,10 +237,21 @@ local Config = {
 	-- Catalog.cornerShop row from its size's chance in percent of 0, 1, 2 and 3, the same on every server and apart
 	-- from the Fresh Catch roll. Bought within CornerShopRange of a CornerShop stall. A UTC day allows at most
 	-- CornerDailyLimits of a family (any size; a family not listed has none). Cat food has no daily XP cap (#1255).
-	CornerShopWindowSeconds = 300,
+	CornerShopWindowSeconds = 390, -- #1437: one game day from ClockEpoch, a restock at every sunrise (was 300)
 	CornerShopRange = 14,
 	-- lawn-nursery.md section 2 (#1200): BuyLawn from within this many studs of a LawnStall-tagged Garden Nursery
 	LawnStallRange = 14,
+	-- lawn-nursery.md section 6a (#1283): the money bonus of each lawn piece and style out on the lawn, by its rarity,
+	-- added in Economy.cafeMultiplier beside decor. The server picks the best lawn by itself (Lawn.best).
+	LawnRarityBonus = {
+		Common = 0.01,
+		Uncommon = 0.015,
+		Rare = 0.02,
+		Epic = 0.03,
+		Legendary = 0.05,
+		Mythical = 0.08,
+		Golden = 0.12,
+	} :: { [string]: number },
 	CornerShopSizeWeights = {
 		small = { 0, 10, 30, 60 },
 		regular = { 20, 50, 25, 5 },
@@ -403,8 +421,8 @@ local Config = {
 	-- The Spin Wheel station (F49, data-model section 11c). Pure rules in Spin.
 	SpinStationRange = 14, -- SpinWheel from this close to a station tagged SpinWheel
 	SpinCooldownSeconds = 4, -- the spin animation; a player's next spin waits this long
-	SpinAllMax = 25, -- #1078: Use all spends at most this many spins in one press (SpinBankCap and today's free one fit)
-	SpinBankCap = 20, -- banked spins (Tip Jar steps 11 and 12) stop here
+	SpinAllMax = 51, -- #1078: Use all spends at most this many spins in one press (SpinBankCap and today's free one fit)
+	SpinBankCap = 50, -- banked spins stop here (#1414: 20 to 50, so two Tip Jar sessions a day keep every spin)
 
 	-- Golden fish (F52, golden-fish.md sections 1 and 2): the rare currency, earned only, never sold or given for
 	-- Robux. Pure rules in GoldenFish.

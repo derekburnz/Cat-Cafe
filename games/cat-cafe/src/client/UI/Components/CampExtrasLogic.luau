@@ -13,6 +13,8 @@
 --   yardOddsLines(odds)              the card's Odds lines (#1051, crate-prices.md section 5): "Common  60%" per
 --                                    rarity the crate can give, Common first
 --   prizeTitle(extraId, paid)        the prize toast's line: "Fish Pond: +14 golden fish"
+--   bangShows(state, extraId)        whether a station's red "!" (ReadyBang, camp-stations.md section 1) shows: the
+--                                    extra is open and holds something to claim; BANG_EXTRAS lists the stations
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -167,6 +169,35 @@ function CampExtrasLogic.prizeTitle(extraId: string, paid: { string }?): string
 		return name
 	end
 	return name .. ": " .. table.concat(words, ", ")
+end
+
+-- The camp stations with a red "!" over them (camp-stations.md section 1); the Lost and Found keeps its card only.
+-- #1463 (camp-stations.md section 4): a Golden Pond owner collects the pond's fish from anywhere. The server sets
+-- this Player attribute for an owner and skips CollectCampExtra("pond")'s range check for them (Gameplay-Engineer,
+-- PR #1406); the cannon picker's Woods strip then gets a Collect button while the pond holds fish.
+CampExtrasLogic.GOLD_POND_ATTRIBUTE = "GoldenPondPass" -- shared/CampExtras.GOLD_POND_ATTRIBUTE
+CampExtrasLogic.POND = "pond"
+
+-- Whether the picker's strip for `line` shows Collect: the pond, with fish waiting, for a Golden Pond owner.
+function CampExtrasLogic.remoteCollect(line: Line?, owner: boolean): boolean
+	return owner and line ~= nil and line.extraId == CampExtrasLogic.POND and line.ready
+end
+
+CampExtrasLogic.BANG_EXTRAS = { "picnic", "yardSale", "pond" }
+CampExtrasLogic.BANG_RANGE = 150 -- studs, camp-stations.md section 5 (ReadyBangRange)
+
+-- Whether `extraId`'s "!" shows for this CampExtrasState: the extra is open and holds something to claim (`held > 0`,
+-- the same state the Cat Cannon picker's dot reads), so it hides the moment it's claimed and while it refills.
+function CampExtrasLogic.bangShows(state: unknown, extraId: string): boolean
+	if type(state) ~= "table" then
+		return false
+	end
+	local view = (state :: any)[extraId]
+	if type(view) ~= "table" or view.open ~= true then
+		return false
+	end
+	local held = view.held
+	return type(held) == "number" and held > 0
 end
 
 return CampExtrasLogic

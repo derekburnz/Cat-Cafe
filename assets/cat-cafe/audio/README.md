@@ -77,6 +77,7 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `travelPoof` | `sfx/CatCafe_Sfx_TravelPoof.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 99298919905979 | 2026-10-27 |
 | `catPlaced` | `sfx/CatCafe_Sfx_CatPlaced.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 101433267853089 | 2026-10-27 |
 | `shiftChime` | `sfx/CatCafe_Sfx_ShiftChime.ogg` | synthesized by `synth/synth.py` (#1191: a shop-only cat starts its shift) | original (Cat Cafe) | sound-designer | this repo | 83420169775937 | 2026-11-05 |
+| `stationReady` | `sfx/CatCafe_Sfx_StationReady.ogg` | synthesized by `synth/synth.py` (#1133/#1154/#1232: a camp station has something waiting) | original (Cat Cafe) | sound-designer | this repo | 87937080610110 | 2026-11-05 |
 | `catRest` | `sfx/CatCafe_Sfx_CatRest.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 116178484251299 | 2026-10-27 |
 | `giftClaim` | `sfx/CatCafe_Sfx_GiftClaim.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 80009297129343 | 2026-10-27 |
 | `indexReward` | `sfx/CatCafe_Sfx_IndexReward.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 103563370361429 | 2026-10-27 |
@@ -89,7 +90,7 @@ One row per file or Creator Store asset, added the moment it is picked, before u
 | `uiGiftReady` | `ui/CatCafe_Ui_GiftReady.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 109161742998311 | 2026-10-27 |
 | `uiBadge` | `ui/CatCafe_Ui_Badge.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 132178490173046 | 2026-10-27 |
 | `uiSpinStart` | `ui/CatCafe_Ui_SpinStart.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 89767919141598 | 2026-10-27 |
-| `duskBell` | `sfx/CatCafe_Sfx_DuskBell.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 94140238394787 | 2026-10-27 |
+| `duskBell` | `sfx/CatCafe_Sfx_DuskBell.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 94140238394787 | 2026-10-27 | retired 2026-11-05, no longer played
 | `stingDusk` | `music/CatCafe_Music_StingDusk.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 72211264391144 | 2026-10-27 |
 | `stingDawn` | `music/CatCafe_Music_StingDawn.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 78519815757270 | 2026-10-27 |
 | `catPickUp` | `sfx/CatCafe_Sfx_CatPickUp.ogg` | synthesized by `synth/synth.py` | original (Cat Cafe) | sound-designer | this repo | 117560666331463 | 2026-10-27 |

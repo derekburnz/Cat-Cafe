@@ -25,7 +25,8 @@ return function()
 		-- MaxStraysPerArea are gone, and the wave size lives per area in Catalog.areas (Catalog.spec)
 		DayLengthSeconds = 300,
 		NightLengthSeconds = 90, -- v0.9 (F66): a short night between hunts
-		ServerStartDaySeconds = 300, -- v0.9: a new server opens at sunrise
+		ServerStartDaySeconds = 300, -- v0.9: a new server opens at sunrise; #1437: the global clock's first day
+		ClockEpoch = 1793491200, -- #1437
 		DuskWarningSeconds = 15,
 		NightSweepSeconds = 2,
 		StrayDespawnSeconds = 120,
@@ -78,7 +79,7 @@ return function()
 		RemoteRateLimitPerSecond = 10,
 		AnnounceMinRarity = "Epic",
 		GrabCooldownSeconds = 2,
-		TravelCooldownSeconds = 3, -- v0.4 (F19)
+		TravelCooldownSeconds = 1, -- v0.4 (F19) 3; #1434 1
 		SyncIntervalSeconds = 10,
 		NormalWalkSpeed = 20, -- v0.4
 		CameraMaxZoomStuds = 60, -- Derek 2026-11-02, the zoom card
@@ -111,9 +112,9 @@ return function()
 		GoldMultiplier = 1.5, -- v0.3 (F22)
 		-- the night dealer (F32, section 8b)
 		DealerRangeStuds = 12,
-		FreshCatchWindowSeconds = 300, -- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf rolls every 5 minutes
+		FreshCatchWindowSeconds = 390, -- F94 300; #1437: one game day, a restock at every global sunrise
 		-- #1052 (corner-shop.md section 5): the Corner Shop's window, its reach and the daily Cat Snack cap
-		CornerShopWindowSeconds = 300,
+		CornerShopWindowSeconds = 390, -- #1437 (was 300)
 		CornerShopRange = 14,
 		CatFoodMax = 999,
 		CatchSnackChance = 0.10, -- corner-shop-v2.md section 3: a Small Snack 1 catch in 10
@@ -160,8 +161,8 @@ return function()
 		-- the Spin Wheel station (F49, section 11c, design v0.6)
 		SpinStationRange = 14,
 		SpinCooldownSeconds = 4,
-		SpinAllMax = 25, -- #1078 (Derek 2026-11-04): Use all spins
-		SpinBankCap = 20,
+		SpinAllMax = 51, -- #1078 (Derek 2026-11-04): Use all spins; 51 since #1414
+		SpinBankCap = 50, -- #1414 (was 20)
 		-- golden fish and crates (F52, F53, golden-fish.md section 8)
 		CrateLuckyEvery = 20,
 		CratePrice = 40,
@@ -401,6 +402,7 @@ return function()
 				RallyForce = true, -- F101: false, checked in Rally.spec (a false value reads as missing above)
 				RescueTreeCircle = true, -- Derek 2026-11-03: false, checked in Rescue.spec (a false value reads as missing)
 				RescueSnack = true,
+				LawnRarityBonus = true, -- #1283 (lawn-nursery.md section 6a): a table, checked in Lawn.spec
 				LawnStallRange = true, -- #1200 (lawn-nursery.md section 4): 14 studs, checked in LawnService -- #1181 (corner-shop-v2.md section 3): a food id, checked in CornerShop.spec
 			}
 			for name, value in pairs(Config :: any) do
@@ -681,6 +683,15 @@ return function()
 				)
 			end
 		)
+
+		it("#1437: one global clock, and both shops restock at its sunrise once a game day", function()
+			local cycle = Config.DayLengthSeconds + Config.NightLengthSeconds
+			expect(Config.ClockEpoch).to.equal(1793491200) -- 2026-11-01 00:00 UTC
+			-- every sunrise falls on a whole number of cycles from the epoch, so a window of one cycle turns at sunrise
+			expect(Config.ServerStartDaySeconds + Config.NightLengthSeconds).to.equal(cycle)
+			expect(Config.FreshCatchWindowSeconds).to.equal(cycle)
+			expect(Config.CornerShopWindowSeconds).to.equal(cycle)
+		end)
 
 		it(
 			"rescue: the player who failed waits longer, the chances are probabilities, a rescue pays no more",

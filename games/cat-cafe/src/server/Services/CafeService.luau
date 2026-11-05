@@ -757,10 +757,14 @@ end
 -- Bench at Tier 2, an Umbrella Table at Tier 3), each placed in an empty big spot when there is one, with a toast.
 -- Rank up and load both call it, so a cafe already past those tiers when the lawn arrives gets them too. Only once the
 -- lawn's art is in, so nothing is given that the player cannot see.
+-- #1283 (lawn-nursery.md section 6b): then it lays the best lawn (Lawn.applyBest), which fills the spots a rank up
+-- opens and, on a save's first load after #1283, replaces a lawn placed by hand. Pieces out add money, so what was
+-- earned so far settles at the old rate first.
 local function giveLawnGifts(player: Player, profile: Profile)
 	if not WorldBuilder.lawnLive() then
 		return
 	end
+	Economy.settle(profile, os.time(), ClockService.epoch())
 	local names: { string } = {}
 	for _, id in Lawn.grantTierGifts(profile) do
 		local piece = Catalog.getLawn(id)
@@ -776,6 +780,7 @@ local function giveLawnGifts(player: Player, profile: Profile)
 			"good"
 		)
 	end
+	Lawn.applyBest(profile)
 end
 
 -- Bedtime (F79, BedtimeService) ----------------------------------------------------------------------------------
@@ -1515,7 +1520,8 @@ local function onToggleDecor(player: Player, rawId: unknown, rawPlaced: unknown)
 end
 
 -- Equip Best for decor (Derek 2026-10-28): the best owned pieces out for the most money (shared/DecorBest), the rest
--- put away, then one toast and a sync. Only owned pieces move.
+-- put away, then one toast and a sync. Only owned pieces move. Since #1283 (lawn-nursery.md section 6b) it lays the
+-- best lawn too (Lawn.applyBest; the server keeps it best anyway) and the toast counts both.
 local function onEquipBestDecor(player: Player)
 	local profile = profileFor(player)
 	if profile == nil then
@@ -1523,13 +1529,20 @@ local function onEquipBestDecor(player: Player)
 	end
 	local cap = Crates.spotCap(Economy.tier(profile), profile.fishPerks.extra_decor_spot or 0)
 	local plan = DecorBest.plan(profile, cap)
-	if plan.pieces == 0 then
+	local lawnChanged = WorldBuilder.lawnLive() and Lawn.applyBest(profile)
+	local lawnBonus, lawnOut = Lawn.bonus(profile)
+	if plan.pieces == 0 and lawnOut == 0 then
 		Net.toast(player, "No decor yet. Find some in the Market's crates.", "info")
 		CafeService.sync(player)
 		return
 	end
-	if DecorBest.isSame(profile, plan) then
-		Net.toast(player, "Your best decor is already out.", "info")
+	local what = if lawnOut > 0 then "decor and lawn" else "decor"
+	if DecorBest.isSame(profile, plan) and not lawnChanged then
+		Net.toast(
+			player,
+			string.format("Your best %s %s already out.", what, if lawnOut > 0 then "are" else "is"),
+			"info"
+		)
 		CafeService.sync(player)
 		return
 	end
@@ -1538,10 +1551,9 @@ local function onEquipBestDecor(player: Player)
 	Net.toast(
 		player,
 		string.format(
-			"Best decor out: %d piece%s, +%d%% money",
-			plan.pieces,
-			if plan.pieces == 1 then "" else "s",
-			math.floor(plan.bonus * 100 + 0.5)
+			"Best %s out: +%d%% money",
+			what,
+			math.floor((plan.bonus + lawnBonus) * 100 + 0.5)
 		),
 		"good"
 	)

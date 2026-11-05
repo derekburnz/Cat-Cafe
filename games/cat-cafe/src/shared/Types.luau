@@ -633,8 +633,8 @@ export type BaitView = {
 }
 
 -- What the Fresh Catch shelf sold this player (F94, rewards-and-shops.md section 6; the shape the night dealer saved
--- before F94): how many of each row, by row id, in the window floor(os.time() / FreshCatchWindowSeconds), and the
--- last window a ShopAlert went to them, so a rejoin in the same window never alerts twice.
+-- before F94): how many of each row, by row id, in the window FreshCatch.window(os.time()) (a game day since #1437),
+-- and the last window a ShopAlert went to them, so a rejoin in the same window never alerts twice.
 export type FreshCatchState = {
 	window: number,
 	bought: { [string]: number },
@@ -788,7 +788,9 @@ export type FreshCatchStock = { window: number, restocksAt: number, stock: { Fre
 -- v2 (corner-shop-v2.md section 4, #1180): every row sold for coins at a fixed `price`, in a `family` (its daily limit
 -- counts the family, Config.CornerDailyLimits) and a `size` (its stock chance, Config.CornerShopSizeWeights). A
 -- "potion" row gives `potionId` into the bag, a "food" row `foodId` into the Bag's cat food (its `xp` is that food's)
--- and a "show" row plays `showId` over the buyer's cafe. `needsTier` hides and refuses the row below that tier.
+-- and a "show" row played `showId` over the buyer's cafe (retired with the Bubble Machine and Cafe Fireworks, #1381; the
+-- kind and its fields go once Effects/CafeShow and CornerShopLogic stop reading them). `needsTier` hides and refuses
+-- the row below that tier.
 export type CornerShopSize = "small" | "regular" | "big" | "mega"
 export type CornerShopRow = {
 	id: string,
@@ -821,6 +823,7 @@ export type CornerShopItem = {
 	bought: number,
 	size: CornerShopSize,
 	needsTier: number?,
+	outToday: boolean?, -- #1435: true when the row's family has hit its daily limit today; nil otherwise
 }
 -- What CornerShopStock sends: the window, when it restocks, each row in Catalog order, and the cat food XP bought
 -- today (`snackXp`, its v1 name, which the window reads).

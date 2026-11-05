@@ -19,7 +19,9 @@ Every item is sold for **coins**, at a **fixed price**. Sizes go Small, regular,
 | Cat food (XP for one cat, goes to the Bag) | Small Snack, 600 XP · 400 | Cat Snack, 2,000 XP · 15,000 | Big Snack, 6,000 XP · 1,000,000 | Cat Feast, 20,000 XP · 80,000,000 | up to 20,000 XP bought |
 | Shows (looks only) | | Bubble Machine, 10 min · 50,000 | Cafe Fireworks, 20 s · 250,000 | | no limit |
 
-**How often each size is in stock** (the chance of 0, 1, 2 or 3 in a 5-minute window, the same for every family). These are server numbers only. Since #1190 the window shows no stock chances, no "n left" counts and no restock clock: a row is either buyable or reads "Sold out".
+**Since #1437 (built in #1473):** the window is one global game day, 390 s from `Config.ClockEpoch`, so the stock restocks at each sunrise, at the same moment on every server (data-model.md section 9). Read "5-minute window" below as that game-day window.
+
+**How often each size is in stock** (the chance of 0, 1, 2 or 3 in a window, the same for every family). These are server numbers only. Since #1190 the window shows no stock chances, no "n left" counts and no restock clock: a row is either buyable or reads "Sold out".
 
 | size | 0 | 1 | 2 | 3 | average | shown to |
 |---|---|---|---|---|---|---|
@@ -39,8 +41,9 @@ Every item is sold for **coins**, at a **fixed price**. Sizes go Small, regular,
 Decided by Coordinator for the friend, overnight 11-05, from Derek's 11-04 ask: "foods shouldn't be buyable from the bait bowl menu", sell them at the Corner Shop "with limited stock in its 5 minute rotations".
 
 - **Which foods:** the three shop foods, Kibble (Common), Tuna (Rare) and Salmon (Epic). The dealer foods (Moonlit Sardines, Caviar, Moon Milk, Star Treat) stay with the night dealer, so they keep their rarity and their reason to visit at night.
-- **Price:** each food keeps today's tier-scaled price, `Economy.foodPrice` (Kibble 100, Tuna 500, Salmon 2,500 at Tier 1, growing by `FoodTierPriceFactor`). This is the one exception to section 1's fixed prices, because a fixed bait price would be free late on and the bowl is a coin sink by design (rewards-and-shops.md section 2g).
-- **Stock per 5-minute window**, using the section 1 roll with its own weights (chance of 0, 1, 2 or 3):
+- **Price:** each food keeps its tier-scaled price, `Economy.foodPrice` (its Catalog `cost` at Tier 1, growing by `FoodTierPriceFactor` {1, 1, 4, 8, 16}).
+- **Prices v2 (#1389, the friend, 2026-11-05: "salmon should not be 20k that is insanely cheap again make it an exponential increase"):** each food's `cost` is multiplied by a factor that doubles with its rank, capped at x40, from Tuna up. Kibble stays at x1 (100), because the first-ten-minutes guard (features section 8, step 7: two tables, the bait bowl and Kibble inside 10 minutes) leaves only about 100 coins for it. Tuna x10 (500 to 5,000), Salmon x20 (2,500 to 50,000, so 400,000 at Tier 4 instead of 20,000). The dealer foods change too: Moonlit Sardines x20 (80,000), Caviar x40 (600,000), Moon Milk x40 (2,000,000) and Star Treat x40 (8,000,000). The tier factor is unchanged. The bowl stays a coin sink that keeps biting late on. Pace guard: Pace.spec keeps the bowl going, so QA runs it on the build. If Tier 2 goes over 20 min or one-go Tier 5 goes over 12 h, Tuna's factor is halved first, and Salmon and the foods above it stay. This is the one exception to section 1's fixed prices, because a fixed bait price would be free late on and the bowl is a coin sink by design (rewards-and-shops.md section 2g).
+- **Stock per window** (one game day since #1437), using the section 1 roll with its own weights (chance of 0, 1, 2 or 3):
 
   | food | 0 | 1 | 2 | 3 | average |
   |---|---|---|---|---|---|
@@ -82,7 +85,7 @@ No crates, crate keys, spin tokens or anything random. Money passes multiply coi
 | Night rescues | 1 Small Snack for every cat rescued from a trap | each rescue |
 | Net catches | a 10% chance of a Small Snack with any net catch of a stray. The chance is in the catch help ("Sometimes a cat drops a snack: 1 in 10") | each catch |
 | The Cat Collector | a new offer row, "2 Big Snacks", valued between his fish offers (Gameplay-Engineer sets its `value` next to the 20-fish row) | when he visits |
-| The Corner Shop | the food row in section 1 | the 5-minute roll |
+| The Corner Shop | the food row in section 1 | each game day's roll (#1437) |
 
 A daily player earns roughly 5,000 to 6,000 XP of food a day, about 1½ hours of a cat's work: one Daily Treat stamp, about 5 rescues and about 20 net catches. That's useful but doesn't push the cat level leaderboard much.
 

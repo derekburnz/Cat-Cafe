@@ -3,7 +3,7 @@
 -- Square (UI.cornerShop.open). Coins only, open day and night. On top the cat food line; then a row per item in
 -- Catalog.cornerShop order: its picture, name, what it does, "Opens at Tier 3" on a row the player's tier doesn't
 -- reach yet, else what is left this restock ("x2 left", #1456; still no chances, restock clock or daily limits: #1190),
--- and a green Buy with the coin price ("Sold out", "None", "Back tomorrow" past a daily limit, #1435, "Food full"). Food goes to the Bag (corner-shop-v2.md). Under the list: "Lawn pieces are in
+-- and a green Buy with the coin price ("Sold out", "None", "Back tomorrow" past a daily limit, #1435, "Food full"). Food goes to the Bag (corner-shop-v2.md). Bait food rows (#1281) show the food's picture and grade and "You have n". Under the list: "Lawn pieces are in
 -- Decor, Front lawn". No toasts of its own: the server's answer is a
 -- fresh CornerShopStock and, when refused, its toast. Words and rules in Components/CornerShopLogic.
 
@@ -45,6 +45,7 @@ type Row = {
 	itemId: string,
 	frame: Frame,
 	icon: ItemIcon.ItemIcon,
+	effect: TextLabel,
 	line: TextLabel,
 	buy: Button.Button,
 }
@@ -395,15 +396,21 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 			Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 		})
+		local bait = def ~= nil and def.kind == "bait"
 		local icon = ItemIcon.new({
 			parent = frame,
 			size = UDim2.fromOffset(PICTURE, PICTURE),
 			anchorPoint = Vector2.new(0, 0.5),
 			position = UDim2.new(0, 10, 0.5, 0),
+			badge = if bait then "gem" else nil,
 		})
 		local potion = def and def.kind == "potion"
 		if potion and def then
 			icon:setPotion(def.potionId, "Epic")
+		elseif bait and def then
+			-- #1281 (corner-shop-v2.md section 1b, #1261): the bowl food's clean picture and its grade badge
+			local lureId = def.lureId or itemId
+			icon:setFood(Catalog.getLure(lureId), lureId)
 		else
 			icon:set(nil, GLYPHS[itemId] or Theme.icons.potion, "Rare", nil)
 		end
@@ -419,7 +426,7 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 			Parent = frame,
 		})
 		Outline.text(name, 2)
-		text({
+		local effect = text({
 			Name = "Effect",
 			Position = UDim2.fromOffset(left, 33),
 			Size = UDim2.new(1, -(left + right), 0, 18),
@@ -452,7 +459,7 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 		})
 		table.insert(
 			self._rows,
-			{ itemId = itemId, frame = frame, icon = icon, line = line, buy = buy }
+			{ itemId = itemId, frame = frame, icon = icon, effect = effect, line = line, buy = buy }
 		)
 	end
 end
@@ -477,6 +484,12 @@ function CornerShop._paint(self: any)
 			continue
 		end
 		local def = rowOf(item.itemId)
+		if def and def.kind == "bait" then
+			-- #1281: how many of this food the player has, so they know when to stock up
+			local lures = if state then state.lures else nil
+			local lureId = def.lureId or item.itemId
+			row.effect.Text = CornerShopLogic.effect(def, if lures then lures[lureId] or 0 else 0)
+		end
 		local tier = if state then state.tier else 1
 		local gate = CornerShopLogic.gate(item, tier)
 		-- the tier gate, else what is left this restock ("x2 left", #1456, the friend 11-05: "show amount in stock");

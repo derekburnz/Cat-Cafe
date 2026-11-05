@@ -200,7 +200,7 @@ return function()
 		-- Pals (F92, playing-together.md 6)
 		PalTipBonus = 0.10,
 		PalTipBonusStep = 0.05, -- #1165: +5% for each more pal
-		PalTipBonusMax = 0.25, -- #1165: was 0.15
+		PalTipBonusMax = 0.20, -- #1165 (#1347): was 0.15
 		TeamRescueRangeStuds = 10,
 		TeamRescueExtraSeconds = 5,
 		HelperTipSeconds = 60,

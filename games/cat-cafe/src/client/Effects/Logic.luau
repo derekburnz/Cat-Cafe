@@ -2587,4 +2587,49 @@ function Logic.shineSweep(t: number, sweep: number, width: number): (number, num
 	return -width + share * width * 2, math.sin(math.pi * share)
 end
 
+-- Which piece of a customer a part is (Presets.customerWalk, #1143), from its middle `x` and `y` and its `bottom`
+-- and `top` heights over the feet, in the model's own frame: "legL"/"legR" below the hip, "armL"/"armR" out at the
+-- side up to the shoulder, nil for the body. Left is -X (the models face -Z).
+function Logic.customerPiece(x: number, bottom: number, top: number): string?
+	local c = Presets.customerWalk
+	local side = if x < 0 then "L" else "R"
+	if top <= c.legTop and math.abs(x) > 0.05 and math.abs(x) < c.legHalfWidth then
+		return "leg" .. side
+	end
+	if math.abs(x) >= c.armFrom and bottom >= c.armBottom - 0.05 and top <= c.armTop then
+		return "arm" .. side
+	end
+	return nil
+end
+
+-- Where a customer's feet are and which way they face on the floor, from its model's pivot now (`at`, `look`) and the
+-- `drop` its body was last laid out with (Effects/CustomerWalk, #1143). The pivot follows the body (the models'
+-- PrimaryPart is the head), whose origin is the feet's dropped straight down (the roll turns about the feet's own
+-- forward line, so it moves neither the origin nor the look), so this gives the same feet frame after frame, and
+-- after a whole-model turn (Mover.face) too: it never sinks or tilts.
+function Logic.customerFeet(at: Vector3, look: Vector3, drop: number): (Vector3, Vector3)
+	local flat = Vector3.new(look.X, 0, look.Z)
+	local facing = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, -1)
+	return at - Vector3.new(0, drop, 0), facing
+end
+
+-- A customer's step at `phase` radians through its walk cycle (2 pi per Presets.customerWalk.stride studs) and
+-- `weight` 0 to 1 of the way into walking: the left leg's swing about the hip (radians, the right leg's is minus
+-- it), the left arm's about the shoulder (opposite the leg), the body's drop (studs, 0 or less: the hip lowers as
+-- the legs leave the upright, so the feet stay on the floor) and its side to side roll (radians).
+function Logic.customerStep(
+	phase: number,
+	weight: number,
+	reduced: boolean?
+): (number, number, number, number)
+	local c = Presets.customerWalk
+	local scale = math.clamp(weight, 0, 1) * (if reduced then c.reduced else 1)
+	local s = math.sin(phase)
+	local leg = math.rad(c.legSwing) * scale * s
+	local arm = -math.rad(c.armSwing) * scale * s
+	local drop = -c.hip * (1 - math.cos(leg))
+	local roll = math.rad(c.roll) * scale * s
+	return leg, arm, drop, roll
+end
+
 return Logic

@@ -3305,4 +3305,20 @@ Presets.shopCats = {
 	},
 }
 
+-- The Cat Whistle's look on the cat it points at (Effects/Whistle, corner-shop-v2.md section 4): on the model UI's
+-- marker sets `WhistleTarget` on, checked every `pick` seconds, a `ring` stud teal ring pulses out at its feet over
+-- `ringSeconds` every `every` seconds with `sparkles` teal sparkles `sparkleLift` studs up, within `within` studs.
+-- With Reduce Motion a still teal ring (`stillTransparency`) lies at its feet instead.
+Presets.whistle = {
+	pick = 0.25,
+	every = 1.5,
+	within = 150,
+	colour = Presets.palette.signTeal, -- the potion's own glow colour
+	ring = 4,
+	ringSeconds = 0.8,
+	sparkles = 4,
+	sparkleLift = 1,
+	stillTransparency = 0.6,
+}
+
 return Presets

@@ -6,7 +6,8 @@
 -- sends glints over it, both seen from the street; the Blossom Tree drops petals. Which piece gets what is
 -- Presets.decor by decor id. Gold Leaf's real gold trims (F89 2c, luck-and-rare-moments.md: Model-Agent's `_Trim`
 -- parts tagged PaintTrim) catch a glint that sweeps across them every 5 s and glow softly at night with a few warm
--- lights (goldTrims); a cafe without them yet gets a sheen over its front instead.
+-- lights (goldTrims); a cafe without them yet gets a sheen over its front instead. The Grand Cafe theme (#1624, the
+-- plot's `Theme` "grand") gives its gold trims the same sweep and night glow, unless a Gold Leaf paint already does.
 --
 -- Sources: each Plot's Wallpaper, Floor and Paint attributes (the style in use, which StyleController paints on the
 -- plot's parts with the same tag) and placed pieces carrying DecorId. Walls, floor and front are measured from those
@@ -770,6 +771,17 @@ local function build(piece: Piece, mode: Mode): boolean
 			sprayer(piece, at, Vector3.new(size.X * pad, 0.2, size.Z * pad))
 		end
 		return true
+	elseif look == "grandTrims" then
+		-- The Grand Cafe theme (#1624): its gold trims (the server colours the PaintTrim parts) take Gold Leaf's
+		-- sweeping glint and night glow, with no foil sheen and no sparkles over the front.
+		local box = measure(plot, "Paint")
+		if box == nil then
+			return false
+		end
+		if mode ~= "still" then
+			goldTrims(piece, box, mode, nil)
+		end
+		return true
 	end
 	return true
 end
@@ -823,6 +835,26 @@ local function scan()
 			if piece == nil and spec ~= nil and spec.on == slot.attribute then
 				inPlot[slot.attribute] = newPiece(plot, decorId :: string, spec, nil)
 			end
+		end
+		-- The plot's cafe theme (#1624: `Theme` "grand" is "theme_grand"). A Gold Leaf paint already sweeps the
+		-- same trims, so the theme stands down while one is in use.
+		local theme = plot:GetAttribute("Theme")
+		local paint = plot:GetAttribute("Paint")
+		local paintSpec: Presets.DecorSpec? = if type(paint) == "string"
+			then Presets.decor[paint]
+			else nil
+		local themeId = if type(theme) == "string" then "theme_" .. theme else ""
+		local themeSpec: Presets.DecorSpec? = if paintSpec and paintSpec.look == "goldLeaf"
+			then nil
+			else Presets.decor[themeId]
+		local current: Piece? = inPlot.Theme
+		if current and (not themeSpec or current.decorId ~= themeId) then
+			stop(current)
+			inPlot.Theme = nil
+			current = nil
+		end
+		if not current and themeSpec and themeSpec.on == "Theme" then
+			inPlot.Theme = newPiece(plot, themeId, themeSpec, nil)
 		end
 	end
 	for plot, slots in styles do

@@ -50,7 +50,7 @@ type Row = {
 }
 
 local MAX_SIZE = Vector2.new(620, 460)
-local TOP_H = 46
+local TOP_H = 20 -- the help line (#1577); the restock clock and snack line are empty since #1190 and #1255
 local NOTE_H = 22
 local ROW_H = 84
 local PICTURE = 60
@@ -107,7 +107,7 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 	local panel = Panel.new({
 		dark = true,
 		name = "CornerShop",
-		title = "Corner Shop",
+		title = CornerShopLogic.TITLE, -- "Day Cart" (#1577, day-cart.md: only the shown name changes)
 		subtitle = "Coins only",
 		color = Theme.colors.caramel,
 		icon = "🏪",
@@ -128,13 +128,14 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 		Parent = content,
 	})
 	Outline.text(self._clock, 2)
+	-- #1577 (day-cart.md): the help line, "Coins only. New stock at sunrise. The same cart for everyone."
 	text({
 		Name = "Same",
-		Position = UDim2.fromOffset(0, 26),
-		Size = UDim2.new(0.55, 0, 0, 18),
+		Position = UDim2.fromOffset(0, 0),
+		Size = UDim2.new(1, 0, 0, 18),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,
-		Text = "",
+		Text = CornerShopLogic.HELP,
 		Parent = content,
 	})
 	self._snack = text({

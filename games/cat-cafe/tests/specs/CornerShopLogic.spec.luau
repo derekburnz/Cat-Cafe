@@ -22,14 +22,32 @@ return function()
 			expect(Logic.clock(1192, 1000)).to.equal("Restocks in 3:12")
 			expect(Logic.clock(900, 1000)).to.equal("Restocks in 0:00")
 		end)
-		it("says how often a row is in stock from the weights", function()
-			-- by size (corner-shop-v2.md section 1): small {0,..}, regular 20 of 100 none, big 70, mega 90
-			expect(Logic.chance("swift_potion_small")).to.equal("Always in stock")
-			expect(Logic.chance("cat_snack")).to.equal("In stock 8 times in 10")
-			expect(Logic.chance("big_cat_snack")).to.equal("In stock 3 times in 10")
-			expect(Logic.chance("cat_feast")).to.equal("In stock 1 time in 10")
-			expect(Logic.effect(snack)).to.equal("+1,200 XP cat food, into your Bag")
-			expect(Logic.chance("nothing")).to.equal("")
+		it(
+			"says how often a row is in stock from its place by price (#1577, day-cart.md)",
+			function()
+				local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+				local Catalog = require(Shared:WaitForChild("Catalog")) :: any
+				local CornerShop = require(Shared:WaitForChild("CornerShop")) :: any
+				local order = CornerShop.listOrder()
+				local cheapest = Catalog.cornerShop[order[1]].id
+				local second = Catalog.cornerShop[order[2]].id
+				local dearest = Catalog.cornerShop[order[#order]].id
+				expect(Logic.chance(cheapest)).to.equal("In stock 95% of days")
+				expect(Logic.chance(second)).to.equal("In stock 90.5% of days")
+				-- 95% less 4.5% a place reaches the 5% floor by the 21st place
+				local floor = if #order >= 21 then "In stock 5% of days" else nil
+				if floor then
+					expect(Logic.chance(dearest)).to.equal(floor)
+				end
+				expect(Logic.effect(snack)).to.equal("+1,200 XP cat food, into your Bag")
+				expect(Logic.chance("nothing")).to.equal("")
+			end
+		)
+		it("shows the Day Cart's name and help line (#1577)", function()
+			expect(Logic.TITLE).to.equal("Day Cart")
+			expect(Logic.HELP).to.equal(
+				"Coins only. New stock at sunrise. The same cart for everyone."
+			)
 		end)
 		it("words the stock line", function()
 			expect(Logic.stockLine({ itemId = "x", price = 1, amount = 0, bought = 0 })).to.equal(

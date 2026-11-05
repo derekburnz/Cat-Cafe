@@ -17,10 +17,14 @@ local ShortNumber = require(script.Parent.ShortNumber)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalog = require(Shared:WaitForChild("Catalog"))
-local Config = require(Shared:WaitForChild("Config")) :: any
+local CornerShop = require(Shared:WaitForChild("CornerShop"))
 local SharedTypes = require(Shared:WaitForChild("Types"))
 
 local CornerShopLogic = {}
+
+-- #1577 (day-cart.md): the window's shown name and help line; code keeps the CornerShop names
+CornerShopLogic.TITLE = "Day Cart"
+CornerShopLogic.HELP = "Coins only. New stock at sunrise. The same cart for everyone."
 
 export type Item = SharedTypes.CornerShopItem
 export type Row = SharedTypes.CornerShopRow
@@ -48,33 +52,17 @@ function CornerShopLogic.clock(restocksAt: number, now: number): string
 	return ("Restocks in %d:%02d"):format(left // 60, left % 60)
 end
 
--- How often the row is in stock, from Config.CornerShopSizeWeights by the row's size (corner-shop-v2.md section 1;
--- index 1 is the chance of none), in tenths.
+-- How often the row is in stock (#1577, day-cart.md): its place in the list by price (CornerShop.listOrder, cheapest
+-- first) gives shared CornerShop.stockChance, 95% down 4.5% a place to 5%: "In stock 95% of days". The window keeps
+-- the odds hidden (#1190); this is for the spec and any later odds card.
 function CornerShopLogic.chance(itemId: string): string
-	local row = Catalog.getCornerShopRow(itemId)
-	if row == nil then
-		return ""
+	for place, index in CornerShop.listOrder() do
+		if Catalog.cornerShop[index].id == itemId then
+			local percent = math.floor(CornerShop.stockChance(place) * 1000 + 0.5) / 10
+			return ("In stock %s%% of days"):format(tostring(percent))
+		end
 	end
-	local weights: { number }? = (Config.CornerShopSizeWeights or {})[row.size]
-	if weights == nil then
-		return ""
-	end
-	local total = 0
-	for _, weight in weights do
-		total += weight
-	end
-	if total <= 0 then
-		return ""
-	end
-	local none = weights[1] or 0
-	if none <= 0 then
-		return "Always in stock"
-	end
-	local tenths = math.floor((1 - none / total) * 10 + 0.5)
-	if tenths <= 0 then
-		return "Rarely in stock"
-	end
-	return ("In stock %d %s in 10"):format(tenths, if tenths == 1 then "time" else "times")
+	return ""
 end
 
 -- A row the player's tier doesn't open yet (corner-shop-v2.md section 2): "Opens at Tier 3", else nil.

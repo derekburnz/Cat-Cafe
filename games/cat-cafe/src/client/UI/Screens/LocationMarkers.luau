@@ -1,14 +1,19 @@
 --!strict
--- The My Cafe marker (UI plan 2026-10-27, the world icons of Pet Simulator 99 and Grow a Garden): a gold round icon
--- with "My Cafe" and the distance over the player's own Plot, seen from anywhere on the map. It fades out between
--- Wayfinding.FAR and Wayfinding.NEAR studs, so the cafe in front of the player is never covered, and draws smaller
--- the further away it is (Wayfinding.scale). It hides while carrying, when the carry marker leads to the door.
+-- The My Cafe and Night Market markers (UI plan 2026-10-27, the world icons of Pet Simulator 99 and Grow a Garden):
+-- a gold round icon with "My Cafe" and the distance over the player's own Plot, seen from anywhere on the map. Each
+-- marker fades out between Wayfinding.FAR and Wayfinding.NEAR studs, so the place in front of the player is never
+-- covered, and draws smaller the further away it is (Wayfinding.scale). They hide while carrying, when the carry
+-- marker leads to the door.
 -- The areas, the night dealer's cart and the Town Square had markers too until Derek 2026-10-28: "toggle off the ui
 -- bubbles for all places except your cafe people can just rely on signs in game" (the gate signs).
--- The point comes from the plot's pivot, so the marker shows before the parts stream in.
+-- #1418 (Derek 11-05: "add a ui bubble similar to this cafe one but for night market that appears during night when
+-- hes there and disappears when gone") brings one back: a berry moon icon with "Night Market" and the distance over
+-- the dealer's cart, only while a `DealerCart` model is out with Open set (the server parks it at nightfall and
+-- removes it at dawn, DealerService). The Settings switch (Map icons) turns both off.
+-- The points come from model pivots, so a marker shows before the parts stream in.
 --
 -- Roblox terms: a BillboardGui draws 2D UI at a 3D point, facing the camera; AlwaysOnTop shows it through walls.
--- This one is adorned to an Attachment in Terrain at the marker's point.
+-- Each one is adorned to an Attachment in Terrain at the marker's point.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -32,29 +37,93 @@ local ICON = 46
 local WIDTH = 160
 local HEIGHT = ICON + 40
 local FADE_STEP = 0.1 -- seconds between distance checks
-local POINT_STEP = 1 -- seconds between looking the plot up again (a plot is claimed)
+local POINT_STEP = 1 -- seconds between looking the points up again (a plot is claimed, the cart comes or goes)
 local STUDS_PER_METRE = 3.57 -- as the carry marker (Components/WorldMarker)
 local HOME_LIFT = 18
+local CART_LIFT = 12 -- over the dealer's head and his Shop pill (4 studs up)
 
 local LocationMarkers = {}
 LocationMarkers.__index = LocationMarkers
 
-function LocationMarkers.new(parent: Instance): LocationMarkers
-	local self = setmetatable({}, LocationMarkers) :: any
-	self._carrying = false
-	self._visible = true
-	self._enabled = true -- the My Cafe icon switch in Settings
-	self._point = nil :: Vector3?
-	self._size = 1 -- the scale last applied
-	self._shown = -1 -- the alpha last applied, so a still frame costs nothing
+type Spec = {
+	key: string,
+	name: string,
+	glyph: string,
+	colour: Color3,
+	find: () -> Vector3?,
+}
 
+-- One icon with its name and distance: the billboard and the parts that fade.
+type Marker = {
+	spec: Spec,
+	point: Vector3?,
+	size: number, -- the scale last applied
+	shown: number, -- the alpha last applied, so a still frame costs nothing
+	attachment: Attachment,
+	billboard: BillboardGui,
+	scale: UIScale,
+	disc: Frame,
+	discStroke: UIStroke,
+	glyph: TextLabel,
+	name: TextLabel,
+	nameStroke: UIStroke,
+	sub: TextLabel,
+	subStroke: UIStroke,
+}
+
+local function ownPlot(): Model?
+	local player = Players.LocalPlayer
+	for _, plot in CollectionService:GetTagged("Plot") do
+		if plot:IsA("Model") and plot:GetAttribute("OwnerUserId") == player.UserId then
+			return plot :: Model
+		end
+	end
+	return nil
+end
+
+local function homePoint(): Vector3?
+	local plot = ownPlot()
+	return if plot then plot:GetPivot().Position + Vector3.new(0, HOME_LIFT, 0) else nil
+end
+
+-- The dealer's cart while it is out and open (the same check as the Night Market banner in UI/init).
+local function cartPoint(): Vector3?
+	for _, cart in CollectionService:GetTagged("DealerCart") do
+		if
+			cart:IsA("Model")
+			and cart:IsDescendantOf(Workspace)
+			and cart:GetAttribute("Open") ~= false
+		then
+			return (cart :: Model):GetPivot().Position + Vector3.new(0, CART_LIFT, 0)
+		end
+	end
+	return nil
+end
+
+LocationMarkers.SPECS = {
+	{
+		key = "home",
+		name = "My Cafe",
+		glyph = Theme.icons.home,
+		colour = Theme.colors.gold,
+		find = homePoint,
+	},
+	{
+		key = "nightMarket",
+		name = "Night Market",
+		glyph = Theme.icons.moon,
+		colour = Theme.colors.berry,
+		find = cartPoint,
+	},
+} :: { Spec }
+
+local function build(parent: Instance, spec: Spec): Marker
 	local attachment: Attachment = Create("Attachment", {
-		Name = "CatCafeMarker_home",
+		Name = "CatCafeMarker_" .. spec.key,
 		Parent = Workspace.Terrain,
 	})
-	self._attachment = attachment
 	local billboard: BillboardGui = Create("BillboardGui", {
-		Name = "CatCafeMarker_home",
+		Name = "CatCafeMarker_" .. spec.key,
 		Adornee = attachment,
 		AlwaysOnTop = true,
 		LightInfluence = 0,
@@ -64,7 +133,6 @@ function LocationMarkers.new(parent: Instance): LocationMarkers
 		Enabled = false,
 		Parent = parent,
 	})
-	self._billboard = billboard
 	-- everything sits in one full-size frame that a UIScale shrinks, while the billboard's own size follows it
 	local root: Frame = Create("Frame", {
 		Name = "Root",
@@ -72,18 +140,17 @@ function LocationMarkers.new(parent: Instance): LocationMarkers
 		Size = UDim2.fromOffset(WIDTH, HEIGHT),
 		Parent = billboard,
 	})
-	self._scale = Create("UIScale", { Parent = root })
+	local scale: UIScale = Create("UIScale", { Parent = root })
 	local disc: Frame = Create("Frame", {
 		Name = "Icon",
-		BackgroundColor3 = Theme.colors.gold,
+		BackgroundColor3 = spec.colour,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.fromScale(0.5, 0),
 		Size = UDim2.fromOffset(ICON, ICON),
 		Parent = root,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	self._disc = disc
-	self._discStroke = Outline.border(disc, 3, Theme.colors.white)
+	local discStroke = Outline.border(disc, 3, Theme.colors.white)
 	local glyph: TextLabel = Create("TextLabel", {
 		Name = "Glyph",
 		BackgroundTransparency = 1,
@@ -91,11 +158,10 @@ function LocationMarkers.new(parent: Instance): LocationMarkers
 		FontFace = Theme.fonts.display,
 		TextSize = 24,
 		TextColor3 = Theme.colors.white,
-		Text = Theme.icons.home,
+		Text = spec.glyph,
 		Parent = disc,
 	})
-	IconArt.set(glyph, Theme.icons.home, 0.84)
-	self._glyph = glyph
+	IconArt.set(glyph, spec.glyph, 0.84)
 	local name: TextLabel = Create("TextLabel", {
 		Name = "Name",
 		BackgroundTransparency = 1,
@@ -104,11 +170,10 @@ function LocationMarkers.new(parent: Instance): LocationMarkers
 		FontFace = Theme.fonts.display,
 		TextSize = 17,
 		TextColor3 = Theme.colors.white,
-		Text = "My Cafe",
+		Text = spec.name,
 		Parent = root,
 	})
-	self._name = name
-	self._nameStroke = Outline.text(name, 2)
+	local nameStroke = Outline.text(name, 2)
 	local sub: TextLabel = Create("TextLabel", {
 		Name = "Distance",
 		BackgroundTransparency = 1,
@@ -120,8 +185,35 @@ function LocationMarkers.new(parent: Instance): LocationMarkers
 		Text = "",
 		Parent = root,
 	})
-	self._sub = sub
-	self._subStroke = Outline.text(sub, 1.5)
+	local subStroke = Outline.text(sub, 1.5)
+	return {
+		spec = spec,
+		point = nil,
+		size = 1,
+		shown = -1,
+		attachment = attachment,
+		billboard = billboard,
+		scale = scale,
+		disc = disc,
+		discStroke = discStroke,
+		glyph = glyph,
+		name = name,
+		nameStroke = nameStroke,
+		sub = sub,
+		subStroke = subStroke,
+	}
+end
+
+function LocationMarkers.new(parent: Instance): LocationMarkers
+	local self = setmetatable({}, LocationMarkers) :: any
+	self._carrying = false
+	self._visible = true
+	self._enabled = true -- the Map icons switch in Settings
+	local markers: { Marker } = {}
+	for _, spec in LocationMarkers.SPECS do
+		table.insert(markers, build(parent, spec))
+	end
+	self._markers = markers
 
 	local fadeClock, pointClock = 0, POINT_STEP
 	self._loop = RunService.Heartbeat:Connect(function(dt: number)
@@ -129,7 +221,7 @@ function LocationMarkers.new(parent: Instance): LocationMarkers
 		pointClock += dt
 		if pointClock >= POINT_STEP then
 			pointClock = 0
-			self:_findPoint()
+			self:_findPoints()
 		end
 		if fadeClock >= FADE_STEP then
 			fadeClock = 0
@@ -148,80 +240,78 @@ function LocationMarkers.setVisible(self: any, visible: boolean)
 	self:_fade()
 end
 
--- The player's My Cafe icon setting; off hides the marker until it is turned back on.
+-- The player's Map icons setting; off hides the markers until it is turned back on.
 function LocationMarkers.setEnabled(self: any, enabled: boolean)
 	self._enabled = enabled
 	self:_fade()
 end
 
-local function ownPlot(): Model?
-	local player = Players.LocalPlayer
-	for _, plot in CollectionService:GetTagged("Plot") do
-		if plot:IsA("Model") and plot:GetAttribute("OwnerUserId") == player.UserId then
-			return plot :: Model
+-- Each marker looks its point up again; nil (no plot yet, no cart tonight) hides it.
+function LocationMarkers._findPoints(self: any)
+	for _, marker: Marker in self._markers do
+		local point = marker.spec.find()
+		marker.point = point
+		if point then
+			marker.attachment.WorldPosition = point
 		end
 	end
-	return nil
 end
 
-function LocationMarkers._findPoint(self: any)
-	local plot = ownPlot()
-	local point = if plot then plot:GetPivot().Position + Vector3.new(0, HOME_LIFT, 0) else nil
-	self._point = point
-	if point then
-		self._attachment.WorldPosition = point
-	end
-end
-
--- Shrinks the marker and its billboard together, in steps so a slow walk does not resize it every check.
-function LocationMarkers._applySize(self: any, size: number)
+-- Shrinks a marker and its billboard together, in steps so a slow walk does not resize it every check.
+local function applySize(marker: Marker, size: number)
 	local stepped = math.floor(size * 20 + 0.5) / 20
-	if self._size == stepped then
+	if marker.size == stepped then
 		return
 	end
-	self._size = stepped
-	self._scale.Scale = stepped
-	self._billboard.Size = UDim2.fromOffset(WIDTH * stepped, HEIGHT * stepped)
+	marker.size = stepped
+	marker.scale.Scale = stepped
+	marker.billboard.Size = UDim2.fromOffset(WIDTH * stepped, HEIGHT * stepped)
 end
 
-function LocationMarkers._applyAlpha(self: any, alpha: number)
-	if self._shown == alpha then
+local function applyAlpha(marker: Marker, alpha: number)
+	if marker.shown == alpha then
 		return
 	end
-	self._shown = alpha
-	self._billboard.Enabled = alpha > 0
+	marker.shown = alpha
+	marker.billboard.Enabled = alpha > 0
 	local fade = 1 - alpha
-	self._disc.BackgroundTransparency = fade
-	self._discStroke.Transparency = fade
-	IconArt.setTransparency(self._glyph, fade)
-	self._name.TextTransparency = fade
-	self._nameStroke.Transparency = fade
-	self._sub.TextTransparency = fade
-	self._subStroke.Transparency = fade
+	marker.disc.BackgroundTransparency = fade
+	marker.discStroke.Transparency = fade
+	IconArt.setTransparency(marker.glyph, fade)
+	marker.name.TextTransparency = fade
+	marker.nameStroke.Transparency = fade
+	marker.sub.TextTransparency = fade
+	marker.subStroke.Transparency = fade
 end
 
 function LocationMarkers._fade(self: any)
 	local character = Players.LocalPlayer.Character
 	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
 	local from: Vector3? = if root and root:IsA("BasePart") then root.Position else nil
-	local point: Vector3? = self._point
-	if not point or not from or not self._visible or not self._enabled or self._carrying then
-		self:_applyAlpha(0)
-		return
+	local hidden = not self._visible or not self._enabled or self._carrying
+	for _, marker: Marker in self._markers do
+		local point: Vector3? = marker.point
+		if hidden or point == nil or from == nil then
+			applyAlpha(marker, 0)
+		else
+			local distance = ((point :: Vector3) - (from :: Vector3)).Magnitude
+			local alpha = Wayfinding.alpha(distance)
+			if alpha > 0 then
+				marker.sub.Text = ("%d m"):format(math.floor(distance / STUDS_PER_METRE + 0.5))
+				applySize(marker, Wayfinding.scale(distance))
+			end
+			applyAlpha(marker, alpha)
+		end
 	end
-	local distance = (point - from).Magnitude
-	local alpha = Wayfinding.alpha(distance)
-	if alpha > 0 then
-		self._sub.Text = ("%d m"):format(math.floor(distance / STUDS_PER_METRE + 0.5))
-		self:_applySize(Wayfinding.scale(distance))
-	end
-	self:_applyAlpha(alpha)
 end
 
 function LocationMarkers.destroy(self: any)
 	self._loop:Disconnect()
-	self._billboard:Destroy()
-	self._attachment:Destroy()
+	for _, marker: Marker in self._markers do
+		marker.billboard:Destroy()
+		marker.attachment:Destroy()
+	end
+	table.clear(self._markers)
 end
 
 return LocationMarkers

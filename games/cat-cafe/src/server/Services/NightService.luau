@@ -101,7 +101,8 @@ end
 function NightService.start(builtWorld: WorldBuilder.World)
 	world = builtWorld
 	ClockService.changed:Connect(onPhase)
-	-- ClockService published the first phase before this connected; a new server opens at sunrise (ServerStartDaySeconds)
+	-- ClockService published the first phase before this connected. #1437: a new server joins the global day where it
+	-- stands, with a wave if it opens by day, closed areas if it opens at night
 	if ClockService.areasOpen() then
 		sunrise()
 	else

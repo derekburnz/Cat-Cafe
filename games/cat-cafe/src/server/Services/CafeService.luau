@@ -1297,9 +1297,14 @@ function CafeService.autoEquip(player: Player, profile: Profile): number
 		return 0
 	end
 	Economy.settle(profile, os.time(), ClockService.epoch())
+	local before: { [string]: string? } = {}
+	for uid, instance in profile.cats do
+		before[uid] = instance.spotId
+	end
 	local changed = EquipBest.apply(profile, plan)
 	for uid, instance in profile.cats do
-		if instance.spotId ~= nil then
+		-- only the cats that took a new spot, so a join or rank up doesn't log the whole cafe again
+		if instance.spotId ~= nil and instance.spotId ~= before[uid] then
 			Telemetry.catWorking(player, uid)
 		end
 	end

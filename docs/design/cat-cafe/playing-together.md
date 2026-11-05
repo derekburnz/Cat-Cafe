@@ -13,11 +13,16 @@ A **pal** is someone on your server who is any of these:
 
 How a pal joined never matters: a friend already on the server, one who joined through an invite and one in a private server all count the same.
 
-## 2. Pal bonus
+## 2. Pal bonus (friends money boost, #1165)
 
-- While at least one pal is on your server, your tips earn PalTipBonus (+10%), and with two or more pals +PalTipBonusMax (+15%). It is a multiplier on `incomePerSecond` like the Tip Potion, split in `Economy.settle` where it starts and ends.
-- A HUD chip shows the pals' headshots and "+10% with pals". It shows nothing when you have none, so a solo player never sees a missing bonus.
-- The bonus does not touch offline earnings.
+Decided by Coordinator for the friend, overnight 11-05 (#1165). This replaces the old two-step bonus (PalTipBonus +10%, PalTipBonusMax +15%).
+
+- **Size and cap:** +10% income with 1 pal on your server, +15% with 2, **+20% with 3 or more**. It never goes above +20%, however many pals join. Config: `PalBonusSteps = { 0.10, 0.15, 0.20 }` (the last step is the cap), replacing `PalTipBonus` and `PalTipBonusMax`. It replaces the old bonus; it does not stack with it.
+- **How pals are counted:** exactly as section 1 (a Roblox friend, an invite either way, the same private server, a follow). The server counts; the client never says who its friends are. `Player:IsFriendsWith` runs in a `pcall` once per pair when either player joins, is cached for the session, and the count is recomputed when anyone joins or leaves. A failed check counts as "not a pal" and is retried once 30 s later. You are never your own pal.
+- **Where it applies:** a multiplier on `incomePerSecond`, like the Tip Potion, split in `Economy.settle` where it starts and ends. It multiplies with the money passes and potions (it is not added to them), and `TimedTipsMax` doesn't limit it, since it isn't a potion. It never applies to offline pay.
+- **Money boosts card (#1151):** its own row, "Friends here (2) +15%". With no pals the row reads "Friends here (0)" with an **Invite friends** button, and the button opens `SocialService:PromptGameInvite` only on a tap. The game never prompts, pops up or reminds anyone to invite.
+- **HUD pals chip:** the pals' headshots and "+15% with pals" (the current step). It hides when you have none, so a solo player never sees a missing bonus.
+- **Why +20%:** a full group of 3 friends is worth about one Tip Potion, and it is free. Pace.spec runs a 4-friend server; if a tier gets faster than economy-ladder.md check 3 allows, tier costs rise (rule v0.8), and the bonus stays.
 
 ## 3. Team Rescue
 
@@ -45,14 +50,16 @@ How a pal joined never matters: a friend already on the server, one who joined t
 
 - Server: `PalService` keeps each player's pal set (friends, invite and follow links, private server members) and fires `PalsChanged(userIds)` to the player; `Economy` reads the pal bonus; RescueService takes `RescueHelp(rescueSpotId)` (1 per second, 10 studs, not carrying, the trap locked to someone else with no helper yet) and judges the helper's `RescuePress` against the same challenge; CafeService's `CollectTips` accepts a pal on the owner's plot while the owner is not on it and pays both as in section 4; spawning reads the join data for the invite or follow.
 - Remotes: `RescueHelp(rescueSpotId)` new; `PalsChanged` new; `CollectTips` keeps its name and gains the pal case on the server only.
-- Constants: PalTipBonus 0.10, PalTipBonusMax 0.15, TeamRescueExtraSeconds 5, HelperTipSeconds 60, TeamRescueTipCooldown 120, PalCollectShare 0.25, PalCollectCapSeconds 600.
+- Constants: PalBonusSteps { 0.10, 0.15, 0.20 } (#1165, replacing PalTipBonus and PalTipBonusMax), TeamRescueExtraSeconds 5, HelperTipSeconds 60, TeamRescueTipCooldown 120, PalCollectShare 0.25, PalCollectCapSeconds 600.
 - Analytics: `pal_time` (value minutes with at least one pal, fields how the first pal is linked: friend, invite, follow or private, and tier), `team_rescue` (value 1, fields rarity, success, pals yes or no), `pal_collect` (value coins to the owner, field tier). The economy events get the sources `pal_bonus`, `helper_tip` and `pal_share`.
 - No save change: pals are worked out each session.
 - Who builds: Gameplay-Engineer (PalService, the rescue helper, the pal collect, spawning), UI-Engineer (the pal chip, Help prompt, the helper's bar, toasts and the invite nudge), VFX-Agent (the Team Rescue pop, the wave), Sound-Agent (a short two-note chime for Team Rescue), QA-Planner (section 7).
 
 ## 7. QA checks
 
-1. Two Roblox friends on one server both see "+10% with pals" and earn 10% more; a third friend makes it 15%; a stranger changes nothing.
+1. Two Roblox friends on one server both see "+10% with pals" and earn 10% more; with 2 pals it is 15%, with 3 it is 20%, and a 4th and 5th pal keep it at 20%. A stranger changes nothing. The Money boosts card shows "Friends here (n) +x%", offline pay is unchanged, and when a pal leaves the bonus drops within one settle.
+7. With no pals, the Money boosts card shows an Invite friends button; the invite prompt opens only when it is tapped, and nothing else ever prompts.
+8. Pace.spec with a 4-friend server: no tier faster than economy-ladder.md check 3 allows (if one is, its cost rises; the bonus stays).
 2. A player who joins through an invite from a non-friend counts as a pal for both, and so does everyone in a private server.
 3. A helper joins a Mythical rescue: either player's hits count, the helper's misses cost no paw, the deadline is 5 s longer, the cat goes to the rescuer and the helper gets the helper's tip once in 120 s.
 4. A stranger cannot collect your tip piles; a pal can while you are away, you are paid in full and they get 25% on top, up to their cap.

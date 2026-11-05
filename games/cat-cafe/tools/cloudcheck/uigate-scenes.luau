@@ -717,10 +717,8 @@ local function tapCircles()
 	})
 end
 
--- F91: the player's own plot as UIController binds it, with the lawn live (LawnPath) and the six LawnSpots parts the
--- edit view's rings stand on
+-- F91: the player's own plot as UIController binds it, with the lawn live (LawnPath) and the six LawnSpots parts
 local lawnPlot = nil
-local lawnKeeper = nil -- the player's character on the lawn for the Edit lawn view (removed by Scenes.close)
 local function bindLawnPlot()
 	if lawnPlot == nil then
 		local Lawn = UIShim.require("ReplicatedStorage.Shared.Lawn")
@@ -751,7 +749,7 @@ local SCENES = {
 	{ "Decor", function()
 		UI.open("Decor")
 	end },
-	-- F91: the Front lawn tab, the path and fence slots over the pieces (yours first)
+	-- F91, #1283: the Lawn chip, the total over the owned pieces, path and fence cards (out first)
 	{ "DecorLawn", function()
 		bindLawnPlot()
 		UI.open("Decor")
@@ -771,23 +769,6 @@ local SCENES = {
 		})
 		UI.open("Decor")
 		press("Decor", "Style")
-	end },
-	-- F91: Edit lawn's view with the picker open on the first small spot (the Tulip Bed is on it)
-	{ "LawnEdit", function()
-		bindLawnPlot()
-		-- a character standing on the lawn: Edit lawn needs one to measure walking off from (review N342)
-		local character = Instance.new("Model")
-		character.Name = "Tester"
-		local root = Instance.new("Part")
-		root.Name = "HumanoidRootPart"
-		root.Anchored = true
-		root.Position = Vector3.new(0, 3, -18)
-		root.Parent = character
-		character.Parent = workspace
-		game:GetService("Players").LocalPlayer.Character = character
-		lawnKeeper = character
-		UI.lawn.edit()
-		UI.lawn.pick("small1")
 	end },
 	{ "Index", function()
 		UI.open("Collection")
@@ -920,6 +901,55 @@ local SCENES = {
 	end },
 	{ "TipJar", function()
 		UI.tipJar.open()
+	end },
+	-- #1646: the Cafe Pass at level 4 with level 2's free spin claimed, the paid track locked
+	{ "CafePass", function()
+		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,
+			levels = 30, paid = false, claimedFree = { 2 }, claimedPaid = {}, claimable = 1, items = {} })
+		UI.pass.open()
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("CafePass", true)
+		assert(window and window:IsA("GuiObject") and window.Visible, "uigate: the Cafe Pass is not open")
+		local level4 = window:FindFirstChild("Level4", true)
+		local claim = level4 and level4:FindFirstChild("Free") and level4.Free:FindFirstChild("Claim")
+		assert(claim and claim:IsA("GuiObject") and claim.Visible, "uigate: level 4's free reward has no Claim")
+	end },
+	-- #1646: the paid track not bought yet, with Roblox's price on the buy button, and the Store's Cafe Pass card
+	{ "CafePassBuy", function()
+		UI.store.preview({ [3728336202] = { robux = 299, forSale = true } }, {})
+		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,
+			levels = 30, paid = false, claimedFree = {}, claimedPaid = {}, claimable = 2, items = {} })
+		UI.pass.open()
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("CafePass", true)
+		local buy = window and window:FindFirstChild("Buy", true)
+		assert(buy and buy:IsA("GuiObject") and buy.Visible, "uigate: no buy button on the Cafe Pass")
+	end },
+	{ "StoreCafePass", function()
+		UI.store.preview({ [3728336202] = { robux = 299, forSale = true } }, {})
+		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,
+			levels = 30, paid = false, claimedFree = {}, claimedPaid = {}, claimable = 2, items = {} })
+		UI.store.open()
+		press("Store", "cafePass")
+	end },
+	-- #1646: the paid track bought at level 7, its reached rewards ready to claim
+	{ "CafePassPaid", function()
+		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 7, xp = 5900, xpPerLevel = 800,
+			levels = 30, paid = true, claimedFree = { 2, 4 }, claimedPaid = { 1 }, claimable = 7, items = {},
+			tags = { "vip", "tag_maple" }, tagShown = "tag_maple" })
+		UI.pass.open()
+	end },
+	-- #1626: the busiest top strip, a VIP owner who has not bought the paid track: Buy, Claim all and the chat tag
+	{ "CafePassTag", function()
+		UI.store.preview({ [3728336202] = { robux = 299, forSale = true } }, {})
+		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,
+			levels = 30, paid = false, claimedFree = {}, claimedPaid = {}, claimable = 2, items = {},
+			tags = { "vip" }, tagShown = "vip" })
+		UI.pass.open()
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("CafePass", true)
+		local tag = window and window:FindFirstChild("ChatTag", true)
+		assert(tag and tag:IsA("GuiObject") and tag.Visible, "uigate: no chat tag button on the Cafe Pass")
 	end },
 	{ "Spin", function()
 		UI.spin.open()
@@ -1836,12 +1866,6 @@ end
 
 function Scenes.close()
 	reel(false)
-	UI.lawn.stop(false) -- F91: the edit view ends and the camera goes back
-	if lawnKeeper ~= nil then
-		game:GetService("Players").LocalPlayer.Character = nil
-		lawnKeeper:Destroy()
-		lawnKeeper = nil
-	end
 	UI.close()
 	UI.pals({}) -- F92: no pals, which also takes a pal's marker and Cannon tag away
 	UI.campExtras.update(campExtras(0, false, false)) -- F100: every camp extra shut, so other Cannon scenes stay as they were

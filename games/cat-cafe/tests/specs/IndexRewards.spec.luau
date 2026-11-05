@@ -323,6 +323,11 @@ return function()
 			local prize = { goldenFish = 5, coins = 0, lures = { tuna = 0 }, spins = 0, note = "x" }
 			expect(kinds(IndexRewards.prizeParts(prize))).to.equal("other:goldenFish=5")
 		end)
+
+		it("shows a quest's Cafe Pass XP after the pictures (#1646)", function()
+			local prize = { coins = 200, fish = 2, passXp = 100 }
+			expect(kinds(IndexRewards.prizeParts(prize))).to.equal("coins=200,fish=2,passXp=100")
+		end)
 	end)
 
 	-- golden-fish.md sections 5, 5b and 8: two tracks per area, rows { id, track, needs }, the "all" page and the

@@ -470,6 +470,10 @@ local function finish(trade: TradeBook.OpenTrade)
 			#swap.mine.cats + #swap.theirs.cats,
 			{ tostring(#swap.mine.cats), tostring(#swap.theirs.cats), bestRarity(swap.theirs.cats) }
 		)
+		local landed = DataService.get(player)
+		if landed ~= nil then
+			CafeService.autoEquip(player, landed) -- #1534: the best cats, new ones too, fill the slots
+		end
 		CafeService.refreshPlot(player)
 		CafeService.sync(player)
 	end

@@ -16,10 +16,11 @@ local Types = require(script.Parent.Types)
 local Economy = {}
 
 -- What the player's game passes give (F95, economy-ladder.md section 6): `money` the Money pass multiplier (1, or 2,
--- 3 or 4, the highest owned), `longNap` the Long Nap pass's offline rate and cap, `slots` the extra role slots.
+-- 3 or 4, the highest owned), `longNap` the Long Nap pass's offline rate and cap, `slots` the extra role slots,
+-- `secondBowl` the Second Bait Bowl pass (#1161; nil is not owned, and PolicyService still gates the bowl).
 -- PassService checks ownership on the server at join and after a purchase; nothing is saved, so it lives in a
 -- weak table keyed by the profile and a profile without an entry (the specs, the client) has no passes.
-export type Passes = { money: number, longNap: boolean, slots: number }
+export type Passes = { money: number, longNap: boolean, slots: number, secondBowl: boolean? }
 
 local NO_PASSES: Passes = { money = 1, longNap = false, slots = 0 } -- shared; never changed
 local passesByProfile: { [Types.PlayerProfile]: Passes } = setmetatable({}, { __mode = "k" }) :: any
@@ -31,7 +32,12 @@ function Economy.setPasses(profile: Types.PlayerProfile, passes: Passes?)
 		return
 	end
 	local p = passes :: Passes
-	passesByProfile[profile] = { money = p.money, longNap = p.longNap, slots = p.slots }
+	passesByProfile[profile] = {
+		money = p.money,
+		longNap = p.longNap,
+		slots = p.slots,
+		secondBowl = p.secondBowl == true or nil,
+	}
 end
 
 function Economy.passes(profile: Types.PlayerProfile): Passes

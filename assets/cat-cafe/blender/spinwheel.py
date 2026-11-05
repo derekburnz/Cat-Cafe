@@ -9,10 +9,12 @@ hat) at a microphone on its right and a pile of prizes on its left.
                                        at the front of the stage
   CatCafe_Street_SpinWheel_Wheel       everything that turns, one Model pivoted at the hub with its Z axis along the
                                        axle (the wheel faces -Z): the disc (its biggest part and PrimaryPart, thinnest
-                                       along the axle), the six slices with their prize pictures, the spokes, rim
-                                       band, pegs and hub cap. Slice 1 is under the pointer at rest and slice n is
-                                       (n - 1) sixths of a turn round from it, clockwise seen from the front, in
-                                       Catalog.spinWheel order: coins, Tuna, more coins, Salmon, golden fish, crate
+                                       along the axle), the eight slices with their prize pictures, the spokes, rim
+                                       band, pegs and hub cap. Slice 1 is under the pointer at rest and the rest
+                                       follow clockwise seen from the front, each SPANS degrees wide (attribute
+                                       SliceSpans, "52,52,52,52,52,52,24,24"), in Catalog.spinWheel order (#1411):
+                                       coins, more coins, golden fish, a coin pile, Caviar, crate, and the two narrow
+                                       gold jackpots, a golden crate and 100 golden fish
   CatCafe_Street_SpinWheel_Pointer     one part, the pink diamond at the top, outside the Wheel
   CatCafe_Street_SpinWheel_RimLight    16 bulbs on the frame (Neon), outside the Wheel, for the chase and blink
   CatCafe_Street_SpinWheel_Bulbs       the stage's marquee bulbs, lit at night
@@ -40,19 +42,32 @@ STAGE_W, STAGE_F, STAGE_B, STAGE_H = 6.7, -2.6, 2.2, 0.8
 TOP = STAGE_H + 0.06                           # the stage's top
 HOST_X, HOST_Z, PODIUM_H = 5.35, -0.75, 1.3
 PROMPT_ROBLOX = (0.0, 3.0, STAGE_F - 0.3)
-SLICES = (                                     # (colour, picture) in Catalog.spinWheel order
-    ("pastel_butter", "coin"), ("pastel_sky", "tuna"), ("mint", "coins"),
-    ("blush", "salmon"), ("pastel_lilac", "golden_fish"), ("galaxy_blue", "crate"),
+# (colour, picture, span in degrees) in Catalog.spinWheel order (#1411, rewards-and-shops.md 2b v2): eight slices,
+# the six regular ones 52 degrees each and the two 0.5% jackpots narrow gold wedges of 24, so the wheel never makes
+# a jackpot look as likely as a coin slice. The Wheel Model carries the spans as its SliceSpans attribute.
+SLICES = (
+    ("pastel_butter", "coin", 52), ("mint", "coins", 52), ("pastel_lilac", "golden_fish", 52),
+    ("pastel_sky", "coin_pile", 52), ("blush", "caviar", 52), ("galaxy_blue", "crate", 52),
+    ("gold_mid", "golden_crate", 24), ("gold_light", "fish_100", 24),
 )
+SPANS = [span for _, _, span in SLICES]
+assert sum(SPANS) == 360
+SLICE_SPANS = ",".join(str(span) for span in SPANS)     # the Wheel Model's SliceSpans attribute, for Effects/Wheel
 HOST = dict(rarity="Common", fur="fur_black", second="fur_white", eyes="eye_amber", pattern="patches",
             muzzle="fur_white", tuxedo=True, scale=1.5)
 JACKET, LAPEL, BOW = "aurora_violet", "rarity_legend", "neon_pink"
 
 
 def _slice_at(k):
-    """Slice k's middle (1-based), degrees about +Z from the top: (k - 1) sixths of a turn, so its middle is at
-    (-sin, cos) times the radius, clockwise seen from the front (-Z)."""
-    return 60.0 * (k - 1)
+    """Slice k's middle (1-based), degrees about +Z from the top, with slice 1's middle at the top (under the
+    pointer at rest) and the rest following round, each its own SPANS wide; its middle is at (-sin, cos) times the
+    radius, clockwise seen from the front (-Z)."""
+    return sum(SPANS[:k - 1]) + SPANS[k - 1] / 2 - SPANS[0] / 2
+
+
+def _edge_at(k):
+    """The edge before slice k (1-based), degrees as _slice_at."""
+    return sum(SPANS[:k - 1]) - SPANS[0] / 2
 
 
 class _Icon:
@@ -121,30 +136,45 @@ def _wheel(w):
     """The turning wheel, hub at the origin, its face toward -Z."""
     w.cyl((0, 0, 0), R_DISC, 0.3, "galaxy_blue", axis="Z", segments=40)          # the disc, z -0.15 to 0.15
     zf = -0.15                                                                   # the disc's face
-    for k, (sw, pic) in enumerate(SLICES, start=1):
+    for k, (sw, pic, span) in enumerate(SLICES, start=1):
         mid = _slice_at(k)
+        steps = max(2, round(span / 10))
         pts = []
-        for j in range(7):                                                       # the slice's arc, 6 segments
-            a = math.radians(mid - 30 + 10 * j)
+        for j in range(steps + 1):                                               # the slice's arc
+            a = math.radians(mid - span / 2 + span * j / steps)
             pts.append((-math.sin(a) * R_SLICE, math.cos(a) * R_SLICE))
         w.fan_z(zf - 0.03, (0.0, 0.0), pts, 0.06, sw)                            # z -0.15 to -0.21
-        icon = _Icon(w, mid, 2.55)
+        icon = _Icon(w, mid, 2.55 if span > 30 else 3.0)
         zi = zf - 0.1                                                            # pictures on the slice
         if pic == "coin":
-            icon.coin(0, 0, zi, 0.78)
+            icon.coin(0, 0, zi, 0.68)
         elif pic == "coins":
-            for (u, v, r) in ((-0.48, -0.32, 0.5), (0.48, -0.32, 0.5), (0.0, 0.35, 0.56)):
+            for (u, v, r) in ((-0.42, -0.25, 0.43), (0.42, -0.25, 0.43), (0.0, 0.38, 0.5)):
                 icon.coin(u, v, zi - (0.03 if v > 0 else 0), r)
-        elif pic == "tuna":
-            for j, v in enumerate((-0.62, 0.0, 0.62)):
-                icon.fish(0.08 * (j - 1), v, zi - 0.025 * j, 1.0, "fish_blue", "shirt_blue")
-        elif pic == "salmon":
-            for j, v in enumerate((-0.45, 0.45)):
-                icon.fish(0, v, zi - 0.025 * j, 1.4, "fur_peach", "nose_pink")
+        elif pic == "coin_pile":                                                 # 1,800 s of coins: a tall stack
+            for j in range(4):
+                icon.coin(0.0, -0.45 + 0.3 * j, zi - 0.03 * j, 0.5, dollar=(j == 3))
+        elif pic == "caviar":                                                    # a tin of caviar, lid open
+            icon.box(0, -0.25, zi, (1.4, 0.6, 0.1), "metal")
+            icon.box(0, -0.05, zi - 0.06, (1.2, 0.22, 0.04), "fur_black")
+            for u in (-0.4, -0.15, 0.1, 0.35):
+                icon.box(u, 0.0, zi - 0.09, (0.14, 0.14, 0.03), "night_sky", deg=45)
+            icon.box(0, 0.55, zi, (1.4, 0.18, 0.1), "metal", deg=-12)            # the lid, tipped back
+        elif pic == "golden_crate":                                              # jackpot: a gold crate
+            icon.box(0, -0.1, zi, (0.78, 0.66, 0.12), "rarity_legend")
+            icon.box(0, -0.1, zi - 0.07, (0.82, 0.08, 0.04), "gold_mid")
+            icon.box(0, 0.3, zi, (0.84, 0.16, 0.14), "fur_golden")              # lid
+            icon.box(0, -0.08, zi - 0.1, (0.16, 0.18, 0.04), "offwhite")         # the lock
+            _sparkle(icon, 0.0, 0.75, zi - 0.03, 0.3, "offwhite")
+            _sparkle(icon, 0.05, -0.75, zi - 0.03, 0.2, "offwhite")
+        elif pic == "fish_100":                                                  # jackpot: a heap of golden fish
+            for j, v in enumerate((-0.45, -0.05, 0.35)):
+                icon.fish(0.12, v, zi - 0.025 * j, 0.6, "fur_golden", "rarity_legend")
+            _sparkle(icon, 0.0, 0.85, zi - 0.03, 0.3, "offwhite")
         elif pic == "golden_fish":
-            icon.fish(0.12, 0, zi, 1.7, "fur_golden", "rarity_legend")   # tail clear of the spoke
-            _sparkle(icon, 0.85, 0.75, zi - 0.03, 0.45)
-            _sparkle(icon, -0.95, -0.6, zi - 0.03, 0.32)
+            icon.fish(0.15, 0, zi, 1.4, "fur_golden", "rarity_legend")   # tail clear of the spoke
+            _sparkle(icon, 0.7, 0.75, zi - 0.03, 0.4)
+            _sparkle(icon, -0.75, -0.55, zi - 0.03, 0.28)
         elif pic == "crate":
             icon.box(0, -0.05, zi, (1.5, 1.15, 0.12), "caramel_wood")
             for dv in (-0.36, 0.3):                                              # bands
@@ -153,9 +183,9 @@ def _wheel(w):
             icon.box(0, -0.02, zi - 0.1, (0.32, 0.36, 0.04), "rarity_legend")    # the lock
             _sparkle(icon, 0.95, 0.95, zi - 0.03, 0.42, "rarity_legend")
             _sparkle(icon, -0.95, 0.8, zi - 0.03, 0.3, "rarity_legend")
-            _sparkle(icon, 0.85, -0.85, zi - 0.03, 0.26, "offwhite")
-    for k in range(6):                                                           # spokes on the slice edges
-        a = math.radians(30 + 60 * k)
+            _sparkle(icon, 0.55, -0.8, zi - 0.03, 0.24, "offwhite")
+    for k in range(1, len(SLICES) + 1):                                          # spokes on the slice edges
+        a = math.radians(_edge_at(k))
         ux, uy = -math.sin(a), math.cos(a)
         r0, r1 = 0.9, R_SLICE
         c = (r0 + r1) / 2

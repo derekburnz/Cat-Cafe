@@ -47,6 +47,10 @@ export type Plot = {
 	baitBowl: BasePart, -- BaitBowl, in the front garden: range checks, and the owner's client puts its prompt here
 	baitCat: BasePart, -- BaitCat, where the cat that came to the bowl sits
 	bait: Folder, -- Bait/, the bowl, its food and the cat while the owner has the Bait bowl upgrade
+	-- #1161: the Second Bait Bowl's, the same three on its own anchors; Bait2/ is empty without the pass
+	baitBowl2: BasePart,
+	baitCat2: BasePart,
+	bait2: Folder,
 	richTipAnchor: BasePart, -- RichTipAnchor on table 1: the rich tip's coin pile, marker and claim range
 	-- F91 front lawn (LawnBuilder): Lawn/, the owner's pieces, path and fence; LawnSpots/<spotId>, each lawn spot's
 	-- base centre for the client's rings; the shell (Shell) and its own path (`<shell>_Path`), which LawnBuilder takes
@@ -822,6 +826,8 @@ local function buildPlot(index: number, parent: Instance): Plot
 	-- the owner's client makes the bowl's prompt itself, so nobody else sees one at this cafe.
 	local baitBowl = anchor("BaitBowl", localCFrame(cframe, Layout.plot.baitBowl), model)
 	local baitCat = anchor("BaitCat", localCFrame(cframe, Layout.plot.baitCat), model)
+	local baitBowl2 = anchor("BaitBowl2", localCFrame(cframe, Layout.plot.baitBowl2), model) -- #1161
+	local baitCat2 = anchor("BaitCat2", localCFrame(cframe, Layout.plot.baitCat2), model)
 	local richTipAnchor = anchor("RichTipAnchor", localCFrame(cframe, Layout.plot.richTip), model)
 	-- the Cat Collector's spot (F63): CollectorService measures range from it and clients stand him on it
 	anchor("CollectorSpot", localCFrame(cframe, Layout.plot.collectorSpot), model)
@@ -875,6 +881,9 @@ local function buildPlot(index: number, parent: Instance): Plot
 		baitBowl = baitBowl,
 		baitCat = baitCat,
 		bait = folder("Bait", model),
+		baitBowl2 = baitBowl2,
+		baitCat2 = baitCat2,
+		bait2 = folder("Bait2", model),
 		richTipAnchor = richTipAnchor,
 		lawn = folder("Lawn", model),
 		lawnSpots = lawnSpots,

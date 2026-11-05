@@ -11,10 +11,17 @@
 --                                            and one in Theme.cleanGlyphs its clean symbol (#1027) before the sheet
 --   IconArt.setImage(label, image, scale?)   a whole uploaded picture instead of a sheet cell (the shop icons of
 --                                            Components/ShopIcons); nil goes back to the glyph
+--   IconArt.setImages(label, images, scale?) the first of several pictures that loads (a failed fetch moves on)
 --   IconArt.setTransparency(label, value)    fade or grey the icon, picture or emoji, whichever shows
 --
 -- Roblox terms: ImageRectOffset and ImageRectSize cut one cell out of a bigger picture; IsLoaded turns true once
 -- the picture has downloaded.
+--
+-- Live fix (11-04, "it is still this old ui"): a picture waits at WAITING, not fully see-through. Roblox does not
+-- fetch an image it would not draw, so at ImageTransparency 1 IsLoaded never turned true and every menu showed its
+-- emoji (the Decor tile's sofa draws nothing, hence its blank tile). ContentProvider also fetches each new picture.
+
+local ContentProvider = game:GetService("ContentProvider")
 
 local Create = require(script.Parent.Create)
 local ShopIcons = require(script.Parent.ShopIcons)
@@ -24,6 +31,20 @@ local IconArt = {}
 
 local ART = "IconArt"
 local BASE = "IconTransparency" -- the transparency the caller asked for, whichever of the two shows
+local WAITING = 0.99 -- a picture still loading: as good as hidden, but still drawn, so Roblox downloads it
+local fetched: { [string]: boolean } = {} -- pictures already asked of ContentProvider
+-- #1242 (Derek live 11-04: the Tip Jar's money, fish and spin tiles stayed emoji): a picture ContentProvider has
+-- fetched counts as loaded for every label showing it, and every label waiting on that fetch is redrawn when it ends.
+-- Before, only the first label to ask was redrawn and the rest waited on their own IsLoaded change.
+local loaded: { [string]: boolean } = {}
+-- #1256: a picture whose fetch failed (not moderated or not shared with the game yet), and each label's list of
+-- pictures to try in order (IconArt.setImages), so a failed one hands over to the next instead of to the emoji
+local failed: { [string]: boolean } = {}
+local choices: { [TextLabel]: { images: { string }, scale: number? } } = setmetatable(
+	{},
+	{ __mode = "k" }
+) :: any
+local waiting: { [string]: { [TextLabel]: boolean } } = {}
 
 -- The sheet cell for a glyph, or nil when the sheet has no picture of it or is not uploaded.
 function IconArt.cell(glyph: string?): Vector2?
@@ -38,13 +59,13 @@ local function apply(label: TextLabel)
 	local art = label:FindFirstChild(ART) :: ImageLabel?
 	local value = label:GetAttribute(BASE)
 	local transparency = if type(value) == "number" then value else 0
-	if art and art.Visible and art.IsLoaded then
+	if art and art.Visible and (art.IsLoaded or loaded[art.Image] == true) then
 		label.TextTransparency = 1
 		art.ImageTransparency = transparency
 	else
 		label.TextTransparency = transparency
 		if art then
-			art.ImageTransparency = 1
+			art.ImageTransparency = if art.Visible then WAITING else 1
 		end
 	end
 end
@@ -68,7 +89,7 @@ local function artFor(label: TextLabel, image: string?, scale: number?): ImageLa
 			BackgroundTransparency = 1,
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.fromScale(0.5, 0.5),
-			ImageTransparency = 1,
+			ImageTransparency = WAITING,
 			ScaleType = Enum.ScaleType.Fit,
 			ZIndex = label.ZIndex,
 			Parent = label,
@@ -83,14 +104,58 @@ local function artFor(label: TextLabel, image: string?, scale: number?): ImageLa
 	picture.Image = image :: string
 	picture.Size = UDim2.fromScale(size, size)
 	picture.Visible = true
+	local id = image :: string
+	-- wait on the fetch only while it runs: after a failed one the label's own IsLoaded change redraws it
+	if not loaded[id] and (not fetched[id] or waiting[id] ~= nil) then
+		local labels: { [TextLabel]: boolean }? = waiting[id]
+		if labels == nil then
+			local made: { [TextLabel]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+			waiting[id] = made
+			labels = made
+		end
+		local set = labels :: { [TextLabel]: boolean }
+		set[label] = true
+	end
+	if not fetched[id] then
+		fetched[id] = true
+		task.spawn(function()
+			pcall(function()
+				ContentProvider:PreloadAsync({ id }, function(_, status: Enum.AssetFetchStatus)
+					if status == Enum.AssetFetchStatus.Success then
+						loaded[id] = true
+					elseif status == Enum.AssetFetchStatus.Failure then
+						failed[id] = true
+					end
+				end)
+			end)
+			local labels = waiting[id]
+			waiting[id] = nil
+			if labels then
+				for each in labels do
+					if each.Parent then
+						local pick = choices[each]
+						local art = each:FindFirstChild(ART) :: ImageLabel?
+						if failed[id] and pick and art and art.Image == id then
+							IconArt.setImages(each, pick.images, pick.scale) -- the next picture in its list
+						else
+							apply(each)
+						end
+					end
+				end
+			end
+		end)
+	end
 	return picture
 end
 
 function IconArt.set(label: TextLabel, glyph: string?, scale: number?)
+	choices[label] = nil
 	local whole = if glyph then Theme.glyphImages[glyph] else nil
 	local clean = if glyph then Theme.cleanGlyphs[glyph] else nil
 	if (whole == nil or whole == "") and clean then
-		whole = ShopIcons.clean(clean)
+		-- the HUD's 3D button picture when there is one (#1185), so a window's badge matches its HUD tile (#1203: the
+		-- Decor header was blank, its 🪴 draws nothing), else the clean symbol
+		whole = ShopIcons.hud(clean)
 	end
 	if whole and whole ~= "" then
 		IconArt.setImage(label, whole, scale)
@@ -106,6 +171,25 @@ function IconArt.set(label: TextLabel, glyph: string?, scale: number?)
 end
 
 function IconArt.setImage(label: TextLabel, image: string?, scale: number?)
+	choices[label] = nil
+	IconArt._draw(label, image, scale)
+end
+
+-- The first picture of the list that has not failed to load; when one fails, the next takes its place (#1256: the
+-- newest potion flasks drew the emoji on live while their older bottles were fine). An empty list shows the glyph.
+function IconArt.setImages(label: TextLabel, images: { string }, scale: number?)
+	choices[label] = { images = images, scale = scale }
+	local pick: string? = nil
+	for _, image in images do
+		if not failed[image] then
+			pick = image
+			break
+		end
+	end
+	IconArt._draw(label, pick, scale)
+end
+
+function IconArt._draw(label: TextLabel, image: string?, scale: number?)
 	local picture = artFor(label, image, scale)
 	if picture then
 		picture.ImageRectSize = Vector2.zero

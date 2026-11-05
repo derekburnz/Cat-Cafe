@@ -65,8 +65,9 @@ jobs:
     name: Luau unit tests and strict type check (WebAssembly Luau)
     runs-on: ubuntu-latest
     # 8 to 10 minutes on main by 11-02 (2402 tests plus the UI gate's 82 scenes on desktop, laptop and phone), so 10
-    # cut the phone pass off (#830); 20 leaves room while the UI gate grows
-    timeout-minutes: 20
+    # cut the phone pass off (#830). By 11-04 it is about 4 minutes of tests plus about 5.7 per device size, near 21,
+    # so 20 timed PRs out (#1186, #1102); 35 leaves room while the UI gate grows
+    timeout-minutes: 35
     defaults:
       run:
         working-directory: games/cat-cafe/tools/cloudcheck

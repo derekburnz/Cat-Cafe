@@ -254,8 +254,7 @@ local function campExtras(picnic, bought, open)
 			held = if bought then 0 else 2,
 			nextAt = now + 3 * 3600,
 			stock = {
-				{ crateId = "classic_crate", price = 40, bought = bought },
-				{ crateId = "park_crate", price = 40, bought = bought },
+				{ crateId = "park_crate", price = 0, bought = bought }, -- #1051: one free crate a day
 			},
 		},
 		pond = { open = false, held = 0 },
@@ -501,6 +500,55 @@ local function leaderboardSync()
 		},
 		week = 2901,
 	}
+end
+
+-- #1221 (Derek 2026-11-04: the Store's pass cards "push out past the sides" and "lose their outlines"): every card
+-- shown, its gold outline included, sits inside the list's edges with the scroll bar's strip left clear, and its
+-- description stays inside the card and left of the button. Fails the scene when a card or its words run past.
+local function assertStoreCards()
+	local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+	local window = modals and modals:FindFirstChild("Store", true)
+	local list = window and window:FindFirstChild("List", true)
+	assert(list and list:IsA("ScrollingFrame"), "uigate: the Store window has no card list")
+	local left = list.AbsolutePosition.X
+	local right = left + list.AbsoluteSize.X
+	local cards = 0
+	for _, card in list:GetChildren() do
+		if not card:IsA("Frame") or not card.Visible then
+			continue
+		end
+		local buy = card:FindFirstChild("Buy")
+		local stroke = card:FindFirstChildOfClass("UIStroke")
+		assert(buy and buy:IsA("GuiObject") and stroke, "uigate: Store card " .. card.Name .. " has no button or outline")
+		local k = buy.AbsoluteSize.X / buy.Size.X.Offset -- design px to screen px (the window's UIScale)
+		local outline = stroke.Thickness * k
+		local bar = list.ScrollBarThickness * k
+		local x1 = card.AbsolutePosition.X - outline
+		local x2 = card.AbsolutePosition.X + card.AbsoluteSize.X + outline
+		assert(
+			x1 >= left - 0.5 and x2 <= right - bar + 0.5,
+			string.format(
+				"uigate: Store card %s runs past the window's inner edge (%.1f to %.1f, list %.1f to %.1f less a %.1f px bar, #1221)",
+				card.Name,
+				x1,
+				x2,
+				left,
+				right,
+				bar
+			)
+		)
+		local effect = card:FindFirstChild("Effect")
+		if effect and effect:IsA("TextLabel") and effect.Text ~= "" then
+			local bottom = effect.AbsolutePosition.Y + effect.AbsoluteSize.Y
+			local cardBottom = card.AbsolutePosition.Y + card.AbsoluteSize.Y
+			assert(
+				bottom <= cardBottom + 0.5 and effect.AbsolutePosition.X + effect.AbsoluteSize.X <= buy.AbsolutePosition.X,
+				"uigate: Store card " .. card.Name .. "'s description runs out of the card or under its button (#1221)"
+			)
+		end
+		cards += 1
+	end
+	assert(cards > 0, "uigate: the Store window shows no cards")
 end
 
 -- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
@@ -1088,7 +1136,7 @@ local SCENES = {
 		})
 		press("CatCafeHUD", "Counters.Money")
 	end },
-	-- F88: a Lucky Day with a Lucky Potion running: the Luck chip glowing at the start of the potion row, its card
+	-- F88: a Lucky Day with a Lucky Potion running: the Luck chip with gold text at the start of the potion row, its card
 	-- open over the counters (closing the boosts card), and "Lucky Day now" under the clock
 	{ "HUDLuck", function()
 		local t = workspace:GetServerTimeNow()
@@ -1151,6 +1199,22 @@ local SCENES = {
 		extras.yardSale.held = 1
 		UI.campExtras.update(extras)
 		UI.campExtras.openYardSale(extras.yardSale)
+	end },
+	-- #1052: the Corner Shop with every line: a Swift Potion left, snacks part bought, no Big Snack, fireworks sold out
+	{ "CornerShop", function()
+		UI.cornerShop.setStock({
+			window = 5000000,
+			restocksAt = workspace:GetServerTimeNow() + 192,
+			snackXp = 4800,
+			stock = {
+				{ itemId = "swift_potion", price = 2400, amount = 3, bought = 1 },
+				{ itemId = "cat_snack", price = 6000, amount = 2, bought = 1 },
+				{ itemId = "big_cat_snack", price = 24000, amount = 0, bought = 0 },
+				{ itemId = "bubble_machine", price = 12000, amount = 1, bought = 0 },
+				{ itemId = "cafe_fireworks", price = 18000, amount = 1, bought = 1 },
+			},
+		})
+		UI.cornerShop.open()
 	end },
 	-- F100: the prize toast after the Lost and Found: the line and two pictures
 	{ "CampPrize", function()
@@ -1217,7 +1281,7 @@ local SCENES = {
 	{ "HUDCarry", function()
 		UI.setCarrying({ catId = Catalog.cats[1].id, catName = Catalog.cats[1].name, rarity = Catalog.cats[1].rarity })
 	end },
-	-- the Store (Derek 2026-11-02 20:01): passes on sale, so the HUD's gold Store tile shows at the top of the left grid
+	-- the Store (Derek 2026-11-02 20:01): passes on sale; the HUD's gold Store tile at the top of the left grid
 	{ "HUDStore", function()
 		UI.store.preview(storePrices(true), {})
 	end },
@@ -1225,18 +1289,37 @@ local SCENES = {
 	{ "Store", function()
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
+		assertStoreCards()
 	end },
 	-- 2x Money and Long Nap owned: the ladder's next rung (3x, in place of x2) and Long Nap marked Owned
 	{ "StoreOwned", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[2]] = true, [Config.LongNapPassId] = true })
 		UI.open("Store")
+		assertStoreCards()
 	end },
-	-- the passes off sale (a Studio preview with StoreOpen): every card says Soon
+	-- the passes off sale (as on live until launch): every card says Soon
 	{ "StoreSoon", function()
-		workspace:SetAttribute("StoreOpen", true)
 		UI.store.preview(storePrices(false), {})
 		UI.open("Store")
+		assertStoreCards()
+	end },
+	-- #1167 (Derek 2026-11-04: "the Store UI/menu is missing"): with every pass off sale the HUD's gold Store tile
+	-- still shows, and a press on it opens the Store window. A hidden tile or a window that does not open fails here.
+	{ "HUDStoreOffSale", function()
+		UI.store.preview(storePrices(false), {})
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local hudRoot = hud and hud:FindFirstChild("Root")
+		local menu = hudRoot and hudRoot:FindFirstChild("Menu") -- on touch the tile is the grid's first square
+		local tile = hudRoot and (hudRoot:FindFirstChild("Store") or (menu and menu:FindFirstChild("Store")))
+		assert(tile and tile:IsA("GuiObject") and tile.Visible, "uigate: the HUD's Store tile is hidden (#1167)")
+		press("CatCafeHUD", "Store")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local modalRoot = modals and modals:FindFirstChild("Root")
+		local container = modalRoot and modalRoot:FindFirstChild("Container")
+		local window = container and container:FindFirstChild("Store")
+		assert(window and window:IsA("GuiObject") and window.Visible, "uigate: the Store tile did not open the Store")
+		assertStoreCards()
 	end },
 	-- F102: the Trade window's players: Sam to ask, Alex under the minimum tier, Mia busy in a trade
 	{ "TradePlayers", function()
@@ -1351,8 +1434,7 @@ function Scenes.close()
 	UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = workspace:GetServerTimeNow() + 3 * 86400 })) -- F101: no Rally
 	UI.trade.state(nil) -- F102: no trade, no TradeService, and the other players leave
 	UI.setCarrying(nil) -- no carry banner
-	UI.store.preview({}, {}) -- no pass on sale or owned, so the HUD's Store tile hides again
-	workspace:SetAttribute("StoreOpen", nil)
+	UI.store.preview({}, {}) -- no pass on sale or owned (the HUD's Store tile shows either way, #1167)
 	if workspace:GetAttribute("TradingOn") ~= nil then
 		workspace:SetAttribute("TradingOn", nil)
 		-- the HUD drops its Trade tile again, and Trade requests (SettingsTrading) goes back to its default; only

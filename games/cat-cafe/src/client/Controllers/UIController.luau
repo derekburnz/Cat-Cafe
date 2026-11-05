@@ -7,6 +7,7 @@ local CollectionService = game:GetService("CollectionService")
 local ExperienceNotificationService = game:GetService("ExperienceNotificationService")
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -34,6 +35,7 @@ local UIController = {}
 
 local player = Players.LocalPlayer
 local state: Types.PlayerState? = nil
+local SCREEN_REPORT_SECONDS = 5 -- #1273: the open screen goes to the server at most this often
 local predictedMoney = 0
 local lastCarrying: string? = nil
 local lastPushedMoney = -1
@@ -192,10 +194,25 @@ local function showTutorial(
 	UI.tutorial.show(tutorialLine(s, line), target, label)
 end
 
+-- #1273, analytics only: a funnel step only this client sees (a tutorial card, the catch card), once a session each
+-- as TelemetryReport("step", name); the server allowlists the names and logs each once per player.
+local stepsReported: { [string]: boolean } = {}
+local function reportStep(name: string)
+	if not stepsReported[name] then
+		stepsReported[name] = true
+		Net.fire("TelemetryReport", "step", name)
+	end
+end
+
 local function refreshTutorial(s: Types.PlayerState)
 	if s.carrying ~= nil then
 		UI.tutorial.hide()
 		return
+	end
+	-- the cards the funnel counts: 0 (to the alley), 1 (catch the cat), 3 (a table) and 4 (the bowl and its food);
+	-- card 2 shows only when the first cat found no free role
+	if s.tutorialStep <= 1 or s.tutorialStep == 3 or s.tutorialStep == 4 then
+		reportStep(string.format("tut_%d_shown", s.tutorialStep))
 	end
 	if s.tutorialStep < 2 then
 		showTutorial(
@@ -486,6 +503,7 @@ local function applyState(s: Types.PlayerState)
 		goldLuck = s.goldLuck, -- F54: the Index's gold luck and faster bait, capped
 		baitSpeed = s.baitSpeed,
 		potions = s.potions, -- F64: the potion bag
+		catFood = s.catFood, -- #1181: the Bag's cat food
 		buffs = s.buffs, -- F64: each running potion's endsAt in server time
 		quests = s.quests :: any, -- F73: the Quests window's tabs and the HUD's quest line (the UI reads it loosely)
 		achievements = s.achievements :: any, -- F73: each achievement's progress and claim
@@ -613,6 +631,29 @@ local function wireIntents()
 	UI.events.spinWheel:Connect(function()
 		Net.fire("SpinWheel")
 	end)
+	-- Use all on the Spin window (#1078); the server answers with SpinAllResult and a ProfileSync. Loose until
+	-- UI-Engineer's button is on main, as are the Corner Shop's hooks below.
+	local looseEvents: any = UI.events
+	if looseEvents.spinAll ~= nil then
+		looseEvents.spinAll:Connect(function()
+			Net.fire("SpinAll")
+		end)
+	end
+	-- Buy on a Corner Shop row (#1052): the window and price the row showed, and for a snack the cat picked.
+	if looseEvents.buyCornerShop ~= nil then
+		looseEvents.buyCornerShop:Connect(
+			function(itemId: string, window: number, shownPrice: number, catUid: string?)
+				Net.fire("BuyCornerShop", itemId, window, shownPrice, catUid)
+			end
+		)
+	end
+	-- Feed on the Bag's Cat Food tab or a cat card (#1181): the server answers FeedResult and a ProfileSync, or a toast.
+	-- Loose until UI-Engineer's Signal (friend/bag-ui) is on main.
+	if looseEvents.feedCat ~= nil then
+		looseEvents.feedCat:Connect(function(foodId: string, catUid: string)
+			Net.fire("FeedCat", foodId, catUid)
+		end)
+	end
 	-- Use on a potion in the bag (F64); the server answers with a ProfileSync, or a "Full" toast.
 	UI.events.usePotion:Connect(function(potionId: string)
 		Net.fire("UsePotion", potionId)
@@ -636,9 +677,18 @@ local function wireIntents()
 		end)
 	end
 	-- Send on Report a bug; the server answers with a toast, which the window reads to close or keep the text.
-	UI.events.reportBug:Connect(function(text: string, kind: string, clientErrors: { string })
-		Net.fire("ReportBug", text, kind, clientErrors)
-	end)
+	-- featureName (#1083): the idea chip's "Feature my name" tick, once UI-Engineer's window sends it (nil until then).
+	UI.events.reportBug:Connect(
+		function(text: string, kind: string, clientErrors: { string }, featureName: boolean?)
+			Net.fire("ReportBug", text, kind, clientErrors, featureName)
+		end
+	)
+	-- Settings' "Show my name on the Thank You board" (#1083): true keeps the name off. Loose until UI-Engineer's Signal.
+	if uiEvents.setHideCredit ~= nil then
+		uiEvents.setHideCredit:Connect(function(hide: boolean)
+			Net.fire("SetHideCredit", hide)
+		end)
+	end
 	UI.events.buyUpgrade:Connect(function(upgradeId: string)
 		Net.fire("BuyUpgrade", upgradeId)
 	end)
@@ -833,11 +883,51 @@ local function wireIntents()
 	-- Analytics only (F16): which screens players find at all, once per screen a session so toggling a panel never
 	-- reaches the remote's rate limit (reviewer N97). The server allowlists the names.
 	local screensReported: { [string]: boolean } = {}
+	-- #1273: the screen open now ("none" when it closes), for a new player's time markers and leave events. Sent while
+	-- the first loop or Tier 1 lasts, at most once per SCREEN_REPORT_SECONDS with the latest one sent at its end.
+	local screenNow = "none"
+	local screenSent = "none"
+	local screenWaiting = false
+	local function sendScreen()
+		screenWaiting = false
+		if screenNow ~= screenSent then
+			screenSent = screenNow
+			Net.fire("TelemetryReport", "screen", screenNow)
+		end
+	end
 	UI.events.screenOpened:Connect(function(name: string?)
 		if name ~= nil and not screensReported[name] then
 			screensReported[name] = true
 			Net.fire("TelemetryReport", "ui_opened", name)
 		end
+		local s = state
+		if s == nil or (s.tutorialStep >= 5 and s.tier >= 2) then
+			return
+		end
+		screenNow = name or "none"
+		if not screenWaiting then
+			screenWaiting = true
+			task.delay(SCREEN_REPORT_SECONDS, sendScreen)
+		end
+	end)
+	-- #1273: the catch card (a stray's or a stuck cat's prompt) on screen, the funnel's catch_card_opened
+	ProximityPromptService.PromptShown:Connect(function(prompt: ProximityPrompt)
+		if stepsReported.catch_card_opened or prompt.Style ~= Enum.ProximityPromptStyle.Custom then
+			return
+		end
+		local model = prompt:FindFirstAncestorOfClass("Model")
+		local parent = prompt.Parent
+		if
+			prompt:GetAttribute("CatId") ~= nil
+			or (model ~= nil and model:GetAttribute("CatId") ~= nil)
+			or (parent ~= nil and parent:GetAttribute("CatId") ~= nil)
+		then
+			reportStep("catch_card_opened")
+		end
+	end)
+	-- #1273: the Tutorial tile's red X
+	UI.events.tutorialClosed:Connect(function()
+		Net.fire("TelemetryReport", "tutorial_closed", "x")
 	end)
 	-- The net (data-model section 10): since F93 a swing starts the circles or picks a Dropped cat up
 	-- (Controllers/NetSwingController); the server answers with CatchSchedule, and each press on a circle sends only
@@ -986,7 +1076,7 @@ local function bindDealerCart()
 	end
 end
 
--- The Spin Wheel (F49) and the Golden Fish Market (F53) in the street plaza.
+-- The Spin Wheel (F49), the Golden Fish Market (F53) and the Corner Shop (#1052) in the street plaza.
 local function bindStations()
 	bindStationPrompts("SpinWheel", "SpinPrompt", function()
 		UI.spin.open()
@@ -995,6 +1085,13 @@ local function bindStations()
 		local market = marketUI()
 		if market ~= nil then
 			market.open()
+		end
+	end)
+	-- The Corner Shop (#1052): its window closes itself out of CornerShopRange, as the Market's does.
+	bindStationPrompts("CornerShop", "CornerShopPrompt", function()
+		local shop: any = (UI :: any).cornerShop
+		if shop ~= nil and type(shop.open) == "function" then
+			(shop.open :: any)()
 		end
 	end)
 end
@@ -1286,6 +1383,28 @@ local function wireServerEvents()
 	Net.on("SpinResult", function(slice: number, amount: number)
 		UI.spin.result(slice, amount)
 	end)
+	-- Use all (#1078): each spin's slice and amount and the prizes added up; both empty when refused.
+	Net.on("SpinAllResult", function(rolls: { any }, totals: { any })
+		local spin: any = UI.spin
+		if type(spin.allResult) == "function" then
+			(spin.allResult :: any)(rolls, totals)
+		end
+	end)
+	-- The Thank You board (#1083): its rows, newest first, and whether this player has a credit (the Settings row shows
+	-- only then); on join and at each rebuild. Loose until UI-Engineer's `UI.thanksBoard(rows, hasCredit)`.
+	Net.on("ThanksBoard", function(rows: { any }, hasCredit: boolean)
+		local board = (UI :: any).thanksBoard
+		if type(board) == "function" then
+			(board :: any)(rows, hasCredit)
+		end
+	end)
+	-- The Corner Shop's stock (#1052): on join, at each 5 minute window and after every buy.
+	Net.on("CornerShopStock", function(stock: any)
+		local shop: any = (UI :: any).cornerShop
+		if shop ~= nil and type(shop.setStock) == "function" then
+			(shop.setStock :: any)(stock)
+		end
+	end)
 	-- The piece a crate gave, whether it was a duplicate and its refund; "", false, 0 when the server refused (F53).
 	Net.on(
 		"CrateResult",
@@ -1296,6 +1415,13 @@ local function wireServerEvents()
 			end
 		end
 	)
+	-- The fed cat's new level and XP (#1181), for the Bag's feed effect; loose until UI.bag is on main.
+	Net.on("FeedResult", function(catUid: string, level: number, xp: number)
+		local bag: any = (UI :: any).bag
+		if type(bag) == "table" and type(bag.fed) == "function" then
+			(bag.fed :: any)(catUid, level, xp)
+		end
+	end)
 	-- What this player's opened Mystery gift held (F64): the gift card, and the ribbon pop in Effects.
 	Net.on("MysteryGiftResult", function(kind: string, id: string?, count: number)
 		UI.potions.giftResult(kind, id, count)
@@ -1614,6 +1740,7 @@ function UIController.start()
 		crateDecor = Catalog.crateDecor, -- F53: the 60 crate pieces (the Decor shop keeps reading decor)
 		fishShop = Catalog.fishShop, -- F53: what the Golden Fish Market sells
 		potions = Catalog.potions, -- F64: the potion bag's rows
+		catFood = Catalog.catFood, -- #1181: the Bag's Cat Food tab rows
 		mysteryGift = Catalog.mysteryGift, -- F64: what a Mystery gift can hold, shown before opening
 		dealerAmountWeights = Catalog.dealerAmountWeights, -- F59: the dealer's stock odds under Details
 		quests = Catalog.quests, -- F73: the quest rows (to tell a coins quest)

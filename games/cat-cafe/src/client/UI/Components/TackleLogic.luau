@@ -19,7 +19,7 @@ end
 
 TackleLogic.REACH = number(Config.TackleLungeStuds, 12) -- how far the lunge goes
 TackleLogic.LUNGE = number(Config.TackleLungeSeconds, 0.35)
-TackleLogic.COOLDOWN = number(Config.TackleCooldownSeconds, 8)
+TackleLogic.COOLDOWN = number(Config.TackleCooldownSeconds, 5)
 TackleLogic.HIT_RECOVER = number(Config.TackleHitRecoverSeconds, 0.4)
 TackleLogic.MISS_RECOVER = number(Config.TackleMissRecoverSeconds, 1.2)
 -- the knockback takes 0.25 s (ShoveController's push), then the target is down TackledDownSeconds

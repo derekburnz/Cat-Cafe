@@ -48,9 +48,9 @@ Theme.colors = {
 	berryDark = Color3.fromHex("C2477A"),
 }
 
--- Button fills (Derek 2026-10-27: "copy the ui button background from the popular games"): each face is a
--- gradient from `top` to `bottom` over a darker `depth` lip, under faint tile marks, a light rim and a gloss
--- (Components/Button). Brighter than the cafe palette above, as in popular simulators, in the same hues.
+-- Button fills (Derek 2026-10-27: "copy the ui button background from the popular games"; the clean look since
+-- 2026-11-03, #961): each face is a gradient from `top` to `bottom` over a darker `depth` lip, with a light bar along
+-- the top (Components/Button). Brighter than the cafe palette above, as in popular simulators, in the same hues.
 Theme.button = {
 	primary = {
 		top = Color3.fromHex("7BE85A"),
@@ -72,11 +72,12 @@ Theme.button = {
 		bottom = Color3.fromHex("F0479F"),
 		depth = Color3.fromHex("B8336F"),
 	},
-	-- white, not beige, since 2026-11-03 (#961: "should be remade to look clean"); its words stay dark
+	-- white, not beige, since 2026-11-03 (#961: "should be remade to look clean"); its words stay dark. A neutral grey
+	-- lip, not a beige one, as in Derek's 11-04 button mockup (library/UI-Engineer/mockups-2026-11-04)
 	ghost = {
 		top = Color3.fromHex("FFFFFF"),
-		bottom = Color3.fromHex("ECE6DE"),
-		depth = Color3.fromHex("CFC4B6"),
+		bottom = Color3.fromHex("F1F1F1"),
+		depth = Color3.fromHex("C8C8C8"),
 	},
 	danger = {
 		top = Color3.fromHex("FFAD55"),
@@ -133,7 +134,9 @@ Theme.fish = {
 Theme.textures = {
 	-- the golden fish, one picture everywhere (F97 section 4: a shiny gold fish with a white glint; it replaced the
 	-- cat-face coin; assets/cat-cafe/exports/icons/CatCafe_Icon_GoldenFish.png, Model-Agent #690)
-	fishCoin = "rbxassetid://75310291409772",
+	-- the clean yellow fish (Icon_Clean_Fish) since #1208 (the friend 11-04: "the golden fish icons are still the old
+	-- pictures"); the shiny CatCafe_Icon_GoldenFish was 75310291409772
+	fishCoin = "rbxassetid://111395416488950",
 }
 
 -- HUD panels float over the 3D world, so they are dark and solid for contrast, with a thick dark outline
@@ -309,6 +312,14 @@ Theme.sizes = {
 	gap = 8,
 }
 
+-- The HUD's Luck chip (#1258, Derek's drawing): a dark green circle with a thin dark edge and no ring or glow, so the
+-- bright green clover picture (Icon_Clean_Clover, black outline drawn in) stands clear of it on grass and dark floors
+Theme.luck = {
+	circle = Color3.fromRGB(27, 127, 58),
+	edge = Theme.colors.outline,
+	edgeThickness = 1,
+}
+
 -- Icon glyphs for buttons and chips. Colour emoji render on every Roblox platform, so they stand in until
 -- the asset thread draws real icons.
 Theme.icons = {
@@ -343,34 +354,21 @@ Theme.icons = {
 	quests = "📜", -- F73: the Quests pill, window badge and the HUD quest line
 	daily = "📅", -- F70: the HUD's Daily tile and the Daily Treat window's badge
 	tutorial = "?", -- F72: the Tutorial tile's big question mark, drawn in the display font
+	store = "🛍️", -- the Store window's badge, drawn as the clean chest (CleanGlyphs)
 	replay = "🎬", -- F72: Settings' Replay tutorial row
+	luck = "🍀", -- F88: LuckLogic.ICON, drawn as the clean clover (#1258) on the chip, card, Lucky Day line and tip
 }
 
 -- The drawn icon sheet (assets/cat-cafe/ui/icons/UI_IconSheet.png, Derek 2026-10-27: "a lot of the symbols like
 -- index upgrades and cats could use a tiny bit more quality also"): sixteen 256 px icons in a 4 x 4 grid, one upload.
 -- Each glyph above that has a picture maps to its cell (column, row); Components/IconArt draws the picture over the
 -- glyph wherever a button, window badge, prize tile or place icon shows it, with the emoji as the fallback.
+-- Unused since #1136: every glyph on the sheet has a clean symbol in Components/CleanGlyphs, which IconArt.set draws first,
+-- so IconArt never reaches the sheet. Kept as IconArt's fallback for a glyph added here without a clean symbol.
 Theme.iconSheet = {
 	image = "rbxassetid://105899778786945",
 	cell = 256,
-	cells = {
-		[Theme.icons.cats] = Vector2.new(0, 0),
-		[Theme.icons.collection] = Vector2.new(1, 0),
-		[Theme.icons.upgrades] = Vector2.new(2, 0),
-		[Theme.icons.decor] = Vector2.new(3, 0),
-		[Theme.icons.home] = Vector2.new(0, 1),
-		[Theme.icons.travel] = Vector2.new(1, 1),
-		[Theme.icons.alley] = Vector2.new(2, 1),
-		[Theme.icons.equipBest] = Vector2.new(3, 1),
-		[Theme.icons.gifts] = Vector2.new(0, 2),
-		[Theme.icons.settings] = Vector2.new(1, 2),
-		[Theme.icons.invite] = Vector2.new(2, 2),
-		[Theme.icons.tutorial] = Vector2.new(3, 2),
-		[Theme.icons.spin] = Vector2.new(0, 3),
-		[Theme.icons.lock] = Vector2.new(1, 3),
-		[Theme.icons.crate] = Vector2.new(2, 3),
-		[Theme.icons.potion] = Vector2.new(3, 3),
-	} :: { [string]: Vector2 },
+	cells = CleanGlyphs.sheet(Theme.icons), -- glyph -> cell, from CleanGlyphs.sheetCells
 }
 
 -- Glyphs drawn as a whole uploaded picture in place of the sheet (Components/IconArt.set): the golden fish on every
@@ -404,6 +402,10 @@ Theme.potionColors = {
 	big_tip_potion = Color3.fromHex("F2B233"),
 	gold_rush_potion = Color3.fromHex("FFE08A"),
 	quick_bait_potion = Color3.fromHex("F5A3C0"),
+	-- #1302: the Cat Whistle's teal (Coordinator 11-05), its sizes too
+	cat_whistle = Color3.fromHex("1FA58F"),
+	cat_whistle_small = Color3.fromHex("1FA58F"),
+	cat_whistle_big = Color3.fromHex("1FA58F"),
 } :: { [string]: Color3 }
 
 -- A glyph per food for shop rows until the asset thread's item model is in ReplicatedStorage.Assets

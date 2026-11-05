@@ -32,6 +32,7 @@ local CannonLogic = require(script.Components.CannonLogic)
 local CatCard = require(script.Screens.CatCard)
 local CatCollection = require(script.Screens.CatCollection)
 local CatVariant = require(script.Components.CatVariant)
+local CatWhistle = require(script.Components.CatWhistle)
 local CatchCircles = require(script.Screens.CatchCircles)
 local CatchPrompt = require(script.Screens.CatchPrompt)
 local ClientErrors = require(script.Components.ClientErrors)
@@ -147,6 +148,7 @@ UI.events = {
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
 	spinAll = Signal.new(), -- ()   Use all on the Spin window (#1078): forward as SpinAll
 	openCrate = Signal.new(), -- (crateId)   Open on a Golden Fish Market crate card: forward as OpenCrate (F53)
+	buyCrateBundle = Signal.new(), -- (crateId)   Buy 5 on a Market crate card: forward as BuyCrateBundle (#1051)
 	buyFishItem = Signal.new(), -- (itemId)   Buy on a Market treat or perk row: forward as BuyFishItem (F53)
 	buyFreshCatch = Signal.new(), -- (itemId, window?)   Buy on a Fresh Catch row: forward as BuyFreshCatch (F94)
 	setSetting = Signal.new(), -- (key, value)   a Settings switch (boolean) or volume (0 to 1, on release): forward as SetSetting (Audio follows UI.settings.changed)
@@ -165,7 +167,7 @@ UI.events = {
 	claimQuest = Signal.new(), -- (kind, slot)   Claim on a finished quest, kind "daily" or "weekly": forward as ClaimQuest
 	rerollQuest = Signal.new(), -- (kind, slot)   Swap on an unfinished quest (the free reroll): forward as RerollQuest
 	claimAchievement = Signal.new(), -- (achievementId)   Claim on a met achievement: forward as ClaimAchievement
-	claimAll = Signal.new(), -- (what)   Claim all: "daily", "weekly" or "achievements" (Quests, Config.QuestClaimAll), "index" (the Index window, Config.IndexClaimAll) or "tipjar" (the Tip Jar, Config.TipJarClaimAll): forward as ClaimAll
+	claimAll = Signal.new(), -- (what)   Claim all: "quests" (all three Quests tabs, #1073; or "daily", "weekly", "achievements"; Config.QuestClaimAll), "index" (the Index window, Config.IndexClaimAll) or "tipjar" (the Tip Jar, Config.TipJarClaimAll): forward as ClaimAll
 	-- F63
 	answerCollector = Signal.new(), -- (accept)   Trade (true) or No thanks (false) on the Cat Collector's card: forward as AnswerCollector
 	-- F70
@@ -178,6 +180,7 @@ UI.events = {
 	clearTips = Signal.new(), -- ()   Show tips again in Settings: forward as ClearTips
 	sendFeedback = Signal.new(), -- (face, chip?)   one answer on the feedback faces (Tips.FACES, Tips.CHIPS): forward as SendFeedback
 	-- F87 (easy-start.md sections 2g and 5), analytics only: where the intro was played from, and each stuck nudge
+	tutorialClosed = Signal.new(), -- ()   #1273: the Tutorial tile's red X, analytics only: forward as TelemetryReport("tutorial_closed")
 	introChoice = Signal.new(), -- (from)   "tile" (the Tutorial tile) or "help" (Show me on Need a hand?): forward as TelemetryReport("intro_choice", from)
 	stuckNudge = Signal.new(), -- (kind)   "pulse", "help_shown" or "show_me": forward as TelemetryReport("stuck_nudge", kind)
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
@@ -185,6 +188,10 @@ UI.events = {
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
 	-- F100 (camp-extras.md section 3)
 	buyYardSale = Signal.new(), -- (crateId)   Buy on the Yard Sale card: forward as BuyYardSale
+	-- (itemId, window, shownPrice, catUid?)   Buy in the Corner Shop (#1052): forward as BuyCornerShop
+	buyCornerShop = Signal.new(),
+	-- (foodId, catUid)   #1181: Feed a cat from the Bag's Cat Food tab: forward as FeedCat; FeedResult calls UI.bag.fed
+	feedCat = Signal.new(),
 	-- F102 (trading.md section 6): the client only asks; TradeState answers
 	requestTrade = Signal.new(), -- (userId)   Trade on a players list row: forward as TradeRequest
 	respondTrade = Signal.new(), -- (requestId, accept)   Accept or Decline on the request card: forward as TradeRespond
@@ -272,6 +279,7 @@ local freshStock: FreshCatchLogic.Stock? = nil -- the last FreshCatchStock, nil 
 local bugReportScreen: BugReport.BugReport? = nil -- the Feedback window, from the HUD's Feedback tile
 local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking into the Codes Cat's circle
 local potionsScreen: Potions.Potions? = nil -- the potion bag (F64), from the Potions pill, P or a HUD timer
+local bagFed: { [string]: number } = {} -- #1181: cat uid -> its level when fed, so FeedResult can tell a level up
 local questsScreen: Quests.Quests? = nil -- the Quests window (F73), from the Quests pill, J or the HUD's quest line
 local collectorScreen: Collector.Collector? = nil -- the Cat Collector's card and tag (F63, UI.collector.offer)
 local dailyTreatScreen: DailyTreat.DailyTreat? = nil -- the Daily Treat card (F70), from the HUD's Daily tile
@@ -488,6 +496,7 @@ local function render()
 		cannonScreen:render(state, hud:isCarrying())
 	end
 	UI.campExtras.render(state)
+	UI.cornerShop.render(state)
 	UI.trade.render(state)
 	UI.lawn.render(state)
 	UI.store.render()
@@ -704,6 +713,7 @@ function UI.init(config: Types.InitConfig)
 			UI.events.introReplay:Fire()
 		end,
 		hideTutorialButton = function()
+			UI.events.tutorialClosed:Fire() -- #1273: analytics only
 			tutorialButtonOn = false
 			renderTutorialButton()
 			applyTutorial()
@@ -783,6 +793,13 @@ function UI.init(config: Types.InitConfig)
 		end,
 		renameCat = function(uid: string, name: string)
 			UI.events.renameCat:Fire(uid, name)
+		end,
+		-- #1181: Feed on the cat's detail, the same FeedCat as the Bag's (its level kept for the level-up toast)
+		feedCat = function(foodId: string, uid: string)
+			local cat = (state.cats or {})[uid]
+			bagFed[uid] = if cat and type(cat.level) == "number" then cat.level else 0
+			local events: any = UI.events
+			events.feedCat:Fire(foodId, uid)
 		end,
 		equipBest = function()
 			UI.events.equipBest:Fire()
@@ -976,8 +993,8 @@ function UI.init(config: Types.InitConfig)
 	table.insert(connections, player:GetAttributeChangedSignal("Tester"):Connect(renderTester))
 	renderTester()
 	bugReportScreen = BugReport.new({
-		send = function(text: string, kind: string)
-			UI.events.reportBug:Fire(text, kind, ClientErrors.recent())
+		send = function(text: string, kind: string, featureName: boolean?)
+			UI.events.reportBug:Fire(text, kind, ClientErrors.recent(), featureName)
 		end,
 		back = closeModal,
 		close = closeModal,
@@ -1041,6 +1058,9 @@ function UI.init(config: Types.InitConfig)
 		openCrate = function(crateId: string)
 			UI.events.openCrate:Fire(crateId)
 		end,
+		buyCrateBundle = function(crateId: string)
+			UI.events.buyCrateBundle:Fire(crateId)
+		end,
 		buyItem = function(itemId: string)
 			UI.events.buyFishItem:Fire(itemId)
 		end,
@@ -1088,6 +1108,12 @@ function UI.init(config: Types.InitConfig)
 	potionsScreen = Potions.new({
 		use = function(potionId: string)
 			UI.events.usePotion:Fire(potionId)
+		end,
+		feed = function(foodId: string, catUid: string)
+			local cat = (state.cats or {})[catUid]
+			bagFed[catUid] = if cat and type(cat.level) == "number" then cat.level else 0
+			local events: any = UI.events
+			events.feedCat:Fire(foodId, catUid)
 		end,
 		close = closeModal,
 	})
@@ -1259,10 +1285,17 @@ function UI.init(config: Types.InitConfig)
 	})
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
 	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker")
+	-- the Cat Whistle (corner-shop-v2.md section 4): a paw over the nearest stray while its buff runs
+	CatWhistle.new(WorldMarker.new(parent, "CatCafeWhistleMarker"), function(): boolean
+		local buffs: { [string]: number }? = state.buffs
+		local endsAt = if buffs then buffs.cat_whistle else nil
+		return type(endsAt) == "number" and endsAt > Workspace:GetServerTimeNow()
+	end)
 	tutorialTrail = GuideTrail.new("CatCafeTutorialTrail")
 	-- signs over every gate tagged AreaGate, including gates that stream in later
 	gateSigns = GateSigns.new(parent)
 	-- every area's Index Board, including boards that stream in later; its prompt opens that area's Index page
+	require(script.Screens.ThanksBoard).new(parent) -- #1083: the Thank You board's face (no local: init is at Luau's 200)
 	indexBoards = IndexBoards.new(parent, {
 		open = function(areaId: string)
 			UI.openIndex(areaId)
@@ -1278,11 +1311,13 @@ function UI.init(config: Types.InitConfig)
 	UI.leaderboards.start(parent) -- the town boards' faces and the crowns over heads (F98)
 	UI.together.start(parent) -- the Team Rescue pop and the pal chip (F92)
 	UI.campExtras.start() -- the Yard Sale card and the Cannon picker's camp extra strips (F100)
+	UI.cornerShop.start() -- the Corner Shop window (#1052)
 	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
 	UI.trade.start() -- the Trade window in the modal (F102)
 	UI.lawn.start(parent) -- the front lawn's edit view (F91)
-	UI.store.start() -- the Store window and the HUD's Store tile, once a pass is on sale
+	UI.store.start() -- the Store window and the HUD's Store tile (shown on sale or not, #1167)
 	worldTags = WorldTags.new()
+	UI.bubbles.start(parent) -- the one-line speech bubbles over the town's key cats (#1079)
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
 	catCard = CatCard.new(parent, {
 		blocked = function()
@@ -1393,6 +1428,7 @@ function UI.destroy()
 	UI.trade.reset()
 	UI.lawn.reset()
 	UI.store.reset()
+	UI.bubbles.reset()
 	if hud then
 		hud:destroy()
 	end
@@ -2043,7 +2079,24 @@ end
 -- Potions and the Mystery gift (F64, data-model section 12b)
 ----------------------------------------------------------------------------------------------------
 
+-- The Thank You board (#1083): ThanksBoard(rows, hasCredit) from IdeaCreditsService, on join and at each rebuild.
+-- `hasCredit` is for Settings' "Show my name" row, which comes with the Feedback tick in the next PR.
+function UI.thanksBoard(rows: { any }, _hasCredit: boolean)
+	require(script.Screens.ThanksBoard).show(if type(rows) == "table" then rows else {})
+end
+
 UI.potions = {}
+
+-- The Bag's Feed (#1181): FeedResult(catUid, level, xp) from the server after a FeedCat it took. The server already
+-- toasts "<cat> loved the <food>: +N XP", so this only adds a level up; the counts move with the ProfileSync after.
+UI.bag = {}
+function UI.bag.fed(catUid: string, level: number, _xp: number)
+	local before = bagFed[catUid]
+	bagFed[catUid] = nil
+	if before and before > 0 and level > before then
+		UI.toast(("Level up! Level %d"):format(level), "good")
+	end
+end
 
 -- From MysteryGiftResult(kind, id, count): a card with what the gift held ("Money Potion", "2 Salmon",
 -- "10 golden fish", "1 spin") as a picture, closing by itself, with the giftOpen sound.
@@ -2436,10 +2489,12 @@ function UI.cannon.open(cannonId: string?)
 	windows:open("Cannon")
 end
 
--- CannonLaunch(destination, launchAt) from the server: the picker closes, and the name card shows in the clouds
--- from 1.6 s after launchAt (server time) to 2.6 s. Ends the first-flight and Tier 2 hints. The intro's shot 2 calls
--- it too, for its staged flight to the Alleyway, with `hold` 0.4 and launchAt 0.9 s before the shot starts (card up
--- 0.7 to 1.1 s in); while the intro plays only the card shows, so the first-flight hint still follows the intro.
+-- CannonLaunch(destination, launchAt) from the server: the picker closes, and the name card pops in at once, as it
+-- closes, zips off with the BOOM 0.5 s after launchAt and is gone by 0.7 (CannonLogic.CHOSEN_HOLD, #1163; a refused
+-- Launch never comes here). Ends the first-flight and Tier 2 hints. The intro's shot 2 calls it too, for its staged flight to the
+-- Alleyway, with `hold` 0.4 and launchAt 0.9 s before the shot starts: given a `hold`, the card keeps the cloud
+-- schedule, from 1.6 s after launchAt (card up 0.7 to 1.1 s in); while the intro plays only the card shows, so the
+-- first-flight hint still follows the intro.
 function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 	-- no context tip pops up in the clouds or as the player lands (F87)
 	tipsHeldUntil = os.clock()
@@ -2461,7 +2516,18 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 		end
 	end
 	if cannonCard then
-		cannonCard:show(destination, name, launchAt, hold)
+		if hold ~= nil then
+			cannonCard:show(destination, name, launchAt, hold) -- the intro's, in the clouds
+		else
+			-- counted from launchAt, so the zip lands on the BOOM whatever the lag; it still pops in on arrival
+			cannonCard:show(
+				destination,
+				name,
+				launchAt,
+				CannonLogic.CHOSEN_HOLD,
+				CannonLogic.CHOSEN_IN
+			)
+		end
 	end
 end
 
@@ -2570,14 +2636,8 @@ function UI.showAreaTitle(areaId: string)
 	end
 	local catalog = currentCatalog
 	if areaId == "home" then
-		local tierName: string? = nil
-		local tiers: { Types.TierDef } = if catalog then catalog.tiers or {} else {}
-		for _, def in tiers do
-			if def.tier == state.tier then
-				tierName = def.name
-			end
-		end
-		card:show("home", tierName or "Your Cafe", if tierName then "Your cafe" else nil)
+		-- no card for the player's own cafe (the friend 11-04: the "Busy Cafe" pop-up is clutter); the tier's name
+		-- lives in the rank card and the rank up moment
 		return
 	end
 	local areas: { Types.AreaDef } = if catalog then catalog.areas or {} else {}
@@ -3613,7 +3673,8 @@ do
 		if state.tipsSeen == nil then
 			return
 		end
-		-- F88 (luck-and-rare-moments.md 1d): the first Luck source shows the chip, and the chip the tip
+		-- F88 (luck-and-rare-moments.md 1d): the first Luck source lifts luck above 1x, and that shows the tip (the chip
+		-- itself always shows since #1150)
 		if not tipKnown("luck") and hud ~= nil and hud:luckShown() then
 			UI.tips.show("luck")
 		end
@@ -4429,6 +4490,116 @@ end
 -- Camp extras (F100, camp-extras.md section 3)
 ----------------------------------------------------------------------------------------------------
 
+-- The Corner Shop (#1052, corner-shop.md; Gameplay-Engineer #1069): the controller calls UI.cornerShop.open() from
+-- the stall's CornerShopPrompt, setStock(stock) with every CornerShopStock, and close() when it wants it shut; a Buy
+-- fires UI.events.buyCornerShop(itemId, window, shownPrice, catUid?). Walking away from the stall closes the window.
+-- The last stock is kept, so a rebuilt UI shows it at once. Its own block, as the module is short of locals.
+UI.cornerShop = {}
+do
+	local CornerShop = require(script.Screens.CornerShop)
+	local SharedConfig =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+	local SHOP_TAG = "CornerShop" -- shared/CornerShop.TAG: the stall, CatCafe_Street_CornerShop
+	local FAR_STUDS: number = (SharedConfig.CornerShopRange or 14) + 6
+	local corner = {
+		stock = nil :: any,
+		view = nil :: CornerShop.CornerShop?,
+	}
+
+	-- Studs from this player's character to the nearest stall, or nil while either is streamed out.
+	local function shopDistance(): number?
+		local character = Players.LocalPlayer.Character
+		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+		if root == nil or not root:IsA("BasePart") then
+			return nil
+		end
+		local best: number? = nil
+		for _, model in CollectionService:GetTagged(SHOP_TAG) do
+			if model:IsA("Model") and model:IsDescendantOf(Workspace) then
+				local distance = (
+					(model :: Model):GetPivot().Position - (root :: BasePart).Position
+				).Magnitude
+				if best == nil or distance < best then
+					best = distance
+				end
+			end
+		end
+		return best
+	end
+
+	function UI.cornerShop.start()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local old = corner.view
+		if old then
+			old:destroy()
+		end
+		local view = CornerShop.new({
+			buy = function(itemId: string, window: number, shownPrice: number, catUid: string?)
+				UI.events.buyCornerShop:Fire(itemId, window, shownPrice, catUid)
+			end,
+			close = function()
+				if modalView:current() == "CornerShop" then
+					modalView:close()
+				end
+			end,
+			far = function(): boolean
+				local distance = shopDistance()
+				return distance ~= nil and distance > FAR_STUDS
+			end,
+		})
+		corner.view = view
+		modalView:register("CornerShop", {
+			frame = view.frame,
+			onOpen = function()
+				view:render(state)
+				view:opened()
+			end,
+			onClose = function()
+				view:closed()
+			end,
+		})
+		view:setStock(corner.stock)
+	end
+
+	function UI.cornerShop.render(playerState: Types.PlayerState)
+		local view = corner.view
+		if view then
+			view:render(playerState)
+		end
+	end
+
+	-- CornerShopStock(stock): on join, every 5 minute window and after every buy.
+	function UI.cornerShop.setStock(stock: any)
+		if type(stock) ~= "table" then
+			return
+		end
+		corner.stock = stock
+		local view = corner.view
+		if view then
+			view:setStock(stock)
+		end
+	end
+
+	-- The stall's prompt.
+	function UI.cornerShop.open()
+		local modalView = modal
+		if corner.view == nil or modalView == nil then
+			return
+		end
+		modalView:open("CornerShop")
+	end
+
+	function UI.cornerShop.close()
+		local modalView = modal
+		if modalView and modalView:current() == "CornerShop" then
+			modalView:close()
+		end
+	end
+end
+
 -- Controllers/CampExtrasController calls these when present: update(state) with every CampExtrasState (the Cannon
 -- picker's strips and the Yard Sale card), openYardSale(view) from the Yard Sale's prompt, collected(extraId, paid,
 -- prize) after a collect or a buy (the prize toast) and refused(extraId) after a refusal, whose reason the server
@@ -5016,8 +5187,9 @@ end
 ----------------------------------------------------------------------------------------------------
 
 -- The Store window (Derek 2026-11-02: "store still needs to be added"; Monetization-Agent's shop-and-pass-plan). The
--- HUD's gold Store tile shows once Roblox says any of our passes is on sale (they are off sale until launch), or
--- while the Workspace has StoreOpen = true for a preview. Each pass's card reads its price from Roblox and opens
+-- HUD's gold Store tile shows as soon as the window exists, on sale or not (Derek 2026-11-04, #1167: "the Store
+-- UI/menu is missing"; it used to wait for a pass on sale, and every pass is off sale until launch). An off-sale
+-- pass's card says "Soon". Each pass's card reads its price from Roblox and opens
 -- Roblox's own purchase window (Components/PassShop); the server's PassService turns a bought pass on. Its own
 -- block, as the module is short of locals.
 do
@@ -5027,12 +5199,22 @@ do
 	local shop = {
 		screen = nil :: Store.Store?,
 		changed = nil :: Signal.Connection?,
-		preview = nil :: RBXScriptConnection?,
 		open = false, -- whether the HUD's tile shows
 	}
 
+	-- the potion packs' contents and names from the shared Catalog, the bag from the state (#1182)
+	local SharedCatalog =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
+	local potionNames: { [string]: string } = {}
+	for _, def in SharedCatalog.potions or {} do
+		potionNames[def.id] = def.name
+	end
 	local function rows(): { StoreLogic.Row }
-		return StoreLogic.rows(Config, PassShop.owned(), state.longNap)
+		return StoreLogic.rows(Config, PassShop.owned(), state.longNap, {
+			products = SharedCatalog.products,
+			potionNames = potionNames,
+			have = state.potions,
+		})
 	end
 
 	-- The window's cards when it is up, and the HUD's tile when its open state changes.
@@ -5041,8 +5223,7 @@ do
 		if screen and modal and modal:current() == "Store" then
 			screen:render(rows(), PassShop.prices())
 		end
-		local open = StoreLogic.anyForSale(PassShop.prices())
-			or Workspace:GetAttribute("StoreOpen") == true
+		local open = screen ~= nil -- the tile shows whenever there is a window for it to open
 		if open ~= shop.open and hud then
 			shop.open = open
 			hud:setStore(if open
@@ -5080,8 +5261,7 @@ do
 			end,
 		})
 		shop.changed = PassShop.changed:Connect(refresh)
-		shop.preview = Workspace:GetAttributeChangedSignal("StoreOpen"):Connect(refresh)
-		PassShop.start(StoreLogic.passIds(Config))
+		PassShop.start(StoreLogic.passIds(Config), StoreLogic.productIds(Config))
 		refresh()
 	end
 
@@ -5108,16 +5288,63 @@ do
 			shop.changed:Disconnect()
 			shop.changed = nil
 		end
-		if shop.preview then
-			shop.preview:Disconnect()
-			shop.preview = nil
-		end
 		if shop.screen then
 			shop.screen:destroy()
 			shop.screen = nil
 		end
+		if shop.open and hud then
+			hud:setStore(nil) -- no window left for the tile to open
+		end
 		shop.open = false
 		PassShop.stop()
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Cat speech bubbles (#1079, cat-bubbles.md)
+----------------------------------------------------------------------------------------------------
+
+-- One short line over the nearest key cat (Screens/CatBubbles), hidden while any window, pop-up or bait card is
+-- open, during the catch circles or a rescue, while carrying, in the intro and while the UI is hidden. The Bellhop
+-- Cat's line needs `starterCatClaimed` in UI.update (false shows it); without it that line stays quiet. Its own
+-- block, as the module is short of locals.
+UI.bubbles = {}
+do
+	local CatBubbles = require(script.Screens.CatBubbles)
+	local bubbles: CatBubbles.CatBubbles? = nil
+
+	-- UI.init. Off unless Config.CatBubblesEnabled is true (#1188, the friend 11-04: "vault the text bubble pop-ups
+	-- from walking near cats/npc's"); the code stays so they can come back.
+	function UI.bubbles.start(parent: Instance)
+		UI.bubbles.reset()
+		if (Config :: any).CatBubblesEnabled ~= true then
+			return
+		end
+		bubbles = CatBubbles.new(parent, {
+			blocked = function(): boolean
+				return not visible
+					or (modal ~= nil and modal:current() ~= nil)
+					or (popups ~= nil and popups:isShowing())
+					or (baitCard ~= nil and baitCard:isShowing())
+					or (askCard ~= nil and askCard:isShowing())
+					or (hud ~= nil and hud:isCarrying())
+					or UI.catch.circlesActive()
+					or UI.rescue.isActive()
+					or UI.intro.playing()
+			end,
+			claimed = function(): boolean?
+				local claimed = (state :: any).starterCatClaimed
+				return if type(claimed) == "boolean" then claimed else nil
+			end,
+		})
+	end
+
+	-- UI.destroy.
+	function UI.bubbles.reset()
+		if bubbles then
+			bubbles:destroy()
+			bubbles = nil
+		end
 	end
 end
 

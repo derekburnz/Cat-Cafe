@@ -127,6 +127,11 @@ function MarketLogic.percent(value: number): string
 	return text .. "%"
 end
 
+-- A greyed price button's words when the player is short (crate-prices.md section 3): "Need 12 more fish".
+function MarketLogic.needText(short: number): string
+	return ("Need %d more fish"):format(math.max(1, math.ceil(short)))
+end
+
 -- A zone crate opens with its zone, the Classic Crate from Tier 1. An area the catalog does not list stays open.
 function MarketLogic.isOpen(crate: Crate, tier: number, areas: { Area }?): boolean
 	local area = crate.area

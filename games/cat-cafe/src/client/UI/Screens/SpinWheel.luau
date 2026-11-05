@@ -28,7 +28,6 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
-local CleanGlyphs = require(script.Parent.Parent.Components.CleanGlyphs)
 local CrateLogic = require(script.Parent.Parent.Components.CrateLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
@@ -647,7 +646,7 @@ function SpinWheel._paintCrate(self: any, tile: Tile)
 	end
 	tile.crate = id
 	local crate: CrateLogic.Crate? = self._crates[id]
-	-- the clean crate symbol (#966: "too small"), the crate's model until it loads
+	-- the clean crate symbol (#966: "too small"); the crate's model only if that picture were missing (#1242)
 	tile.icon:set(
 		if crate then crate.asset else nil,
 		Theme.icons.crate,
@@ -947,13 +946,8 @@ function SpinWheel._paint(self: any, tile: Tile)
 	elseif row.kind == "crate" then
 		self:_paintCrate(tile)
 	elseif row.kind == "lure" then
-		-- a food with a clean symbol (caviar's tin, kibble's bowl) shows that in place of its upload (#966)
-		local clean = CleanGlyphs.foods[row.lureId or ""]
-		icon:setFood(
-			if row.lureId then self._lureById[row.lureId] else nil,
-			row.lureId,
-			if clean then ShopIcons.clean(clean) else nil
-		)
+		-- the food's clean picture from the one food lookup (ShopIcons.food, #1242), as in the bowl and the Market
+		icon:setFood(if row.lureId then self._lureById[row.lureId] else nil, row.lureId)
 	else
 		-- the clean money bag (#966, Derek: "The money bag ... too hard to understand what it is or too small")
 		icon:set(nil, COIN_GLYPH, "Legendary", ShopIcons.clean("Bag"))

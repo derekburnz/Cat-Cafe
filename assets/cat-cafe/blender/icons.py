@@ -14,6 +14,14 @@ workflow (Actions) to turn into an rbxassetid for an ImageLabel.
   CatCafe_Icon_Coins, _Spin the prize pictures: a stack of three gold coins and the Spin Wheel's wheel (icon_art.py)
   CatCafe_Icon_Net_L<n>     the catching net at each level, L1 Basic to L4 Master (items.py)
   CatCafe_Icon_Decor        the HUD's Decor button: a cat-eared armchair and a potted plant (Set 5 Q10)
+  CatCafe_Icon_PotionFlask_<Name>  the potion rework (#1176, potion_icons.py): a clear flask per potion in its Theme
+                            colour, sized weak, mid or strong within its family, with a badge for what it does
+  CatCafe_Icon_Hud_<Name>   the HUD buttons (#1176, hud_icons.py): Store, Cats, Index, Quests, Upgrades, Decor,
+                            Rewards, Tutorial, Feedback, Menu, MyCafe, Cannon, Areas, Potions and Bait
+  CatCafe_Icon_Cat_<Name>   the shop-only cats' Store card and cat book picture (#1191): the sitting cat in its props
+  CatCafe_Icon_Menu_<Id>    the F90 order bubble pictures (#950): each of the 12 menu dishes on its plate (menu.py),
+                            Coffee, Milk, CakeSlice, PawCookie, Tea, FishBiscuit, KittyCupcake, HotCocoa,
+                            PancakeStack, Sundae, StrawberryRoll and RainbowCake, from the front and a little above
 """
 import argparse
 import math
@@ -29,9 +37,13 @@ import numpy as np  # noqa: E402
 from mathutils import Vector  # noqa: E402
 
 import common  # noqa: E402
+import cats  # noqa: E402
 import crates  # noqa: E402
 import icon_art  # noqa: E402
+import hud_icons  # noqa: E402
 import items  # noqa: E402
+import menu  # noqa: E402
+import potion_icons  # noqa: E402
 import potions  # noqa: E402
 from common import RB  # noqa: E402
 
@@ -88,7 +100,23 @@ ICONS = {
     **{f"CatCafe_Icon_Net_L{n}": ((lambda m, n=n: items.build_net(n, m)), INK, 10, (-62.0, 40.0)) for n in (1, 2, 3, 4)},
     **{f"CatCafe_Icon_Potion_{k}": ((lambda m, k=k: potions.build_potion(k, m)), INK, 10, (8.0, 10.0))
        for k in potions.POTIONS},
+    **{f"CatCafe_Icon_PotionFlask_{n}": (fn, INK, 10, (-12.0, 8.0)) for n, fn in potion_icons.BUILDERS.items()},
+    **{f"CatCafe_Icon_Menu_{n}": ((lambda m, n=n: menu._BUILDS[n](m)), INK, 10, (-22.0, 30.0)) for n in menu.ITEMS},
+    # #1191: the shop-only cats' Store card and cat book picture, the sitting cat in its props, three-quarter front
+    **{f"CatCafe_Icon_Cat_{n}": ((lambda m, n=n: cats.build_cat(n, m, body="sit")), INK, 10, (-24.0, 8.0))
+       for n, spec in cats.ROSTER.items() if spec.get("shop")},
 }
+# The HUD buttons (#1176): name -> (yaw, pitch); builders in hud_icons.py
+HUD_VIEWS = {"Store": (24.0, 18.0), "Cats": (-14.0, 8.0), "Index": (-8.0, 52.0), "Quests": (-14.0, 8.0),
+             "Upgrades": (-20.0, 10.0), "Decor": (-24.0, 16.0), "Rewards": (-26.0, 22.0), "Tutorial": (-12.0, 6.0),
+             "Feedback": (-14.0, 8.0), "Menu": (-16.0, 8.0), "MyCafe": (-28.0, 16.0), "Cannon": (-32.0, 12.0),
+             "Areas": (-20.0, 24.0), "Potions": (8.0, 10.0), "Bait": (-24.0, 20.0)}
+
+
+def _hud_icons():
+    return {f"CatCafe_Icon_Hud_{n}": (fn, INK, 10, HUD_VIEWS[n]) for n, fn in hud_icons.builders().items()}
+
+
 SIZE, PAD = 512, 0.05
 
 
@@ -201,6 +229,7 @@ def main():
     wanted = [w for w in args.only.split(",") if w]
     common.reset_scene()
     mat = common.palette_material(os.path.join(ROOT, "assets", "cat-cafe", "exports", "CatCafe_Palette.png"))
+    ICONS.update(_hud_icons())
     for name in ICONS:
         if not wanted or any(w in name for w in wanted):
             print("icon", render_icon(name, mat), flush=True)

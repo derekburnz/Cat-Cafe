@@ -3,10 +3,12 @@
 -- in a cannon flight, a ticket with the place's picture and "To the Woods!" on a ribbon in its colour. Since Derek
 -- 2026-11-03 ("have the picture be top and you be shown still in the frame below the location as it's cool to see
 -- your character fly") it is a smaller card at the top centre, so the flying character in the middle stays in view,
--- and the "Landing at the Woods camp" line is gone (less text). It pops in with a white ring as the clouds close (1.6 s after CannonLaunchAt), wobbles
--- as the tunnel takes the place's colour (2.0), zips up and off as they part (2.4) and is gone by 2.6. With reduced
--- motion it only shows from 1.6 to 2.4. DisplayOrder 46 sits just over VFX's cloud tunnel (45) and under the intro
--- (50); it never takes input. No card for a cloud hop home.
+-- and the "Landing at the Woods camp" line is gone (less text). Since #1163 (Derek 2026-11-04) a player's own flight
+-- shows it as the picker closes: it pops in with a white ring at once, wobbles, zips up and off with the BOOM (0.5 s
+-- after CannonLaunchAt) and is gone by 0.7 (CannonLogic.CHOSEN_HOLD). The intro's shot 2 keeps the cloud schedule:
+-- in at 1.6 s after its launchAt, wobble, zip off at 2.0 and gone by 2.2 (CannonLogic.cardTimes(0.4)). With reduced
+-- motion it fades in and out instead, with no pop, ring, wobble or zip. DisplayOrder 46 sits just over VFX's cloud
+-- tunnel (45) and under the intro (50); it never takes input. No card for a cloud hop home.
 
 local GuiService = game:GetService("GuiService")
 local Workspace = game:GetService("Workspace")
@@ -20,14 +22,16 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 
 export type CannonCard = {
 	screenGui: ScreenGui,
-	-- destination is "town" or an area id; launchAt is the flight's CannonLaunchAt (server time); hold is how long it
-	-- stays up (CannonLogic.cardTimes)
+	-- destination is "town" or an area id; startAt is the server time its steps count from (the intro's CannonLaunchAt,
+	-- or the moment a player's picker closed); hold and from are how long it stays up and when it pops in
+	-- (CannonLogic.cardTimes)
 	show: (
 		self: CannonCard,
 		destination: string,
 		name: string,
-		launchAt: number,
-		hold: number?
+		startAt: number,
+		hold: number?,
+		from: number?
 	) -> (),
 	hide: (self: CannonCard) -> (),
 	destroy: (self: CannonCard) -> (),
@@ -46,6 +50,45 @@ local ZIP = TweenInfo.new(
 	Enum.EasingStyle.Back,
 	Enum.EasingDirection.In
 )
+-- Reduce Motion: the whole ticket fades in, and out over the zip's time, in place
+local FADE_IN = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local FADE_OUT = TweenInfo.new(
+	CannonLogic.CARD_GONE - CannonLogic.CARD_OUT,
+	Enum.EasingStyle.Quad,
+	Enum.EasingDirection.In
+)
+
+-- One transparency property of a part of the ticket, at its built value, for the Reduce Motion fade.
+type Fade = { instance: Instance, property: string, base: number }
+
+-- Every transparency the fade moves: the ticket's and its descendants' (not the pop ring, which never shows then).
+local function fadesOf(ticket: Frame, ring: Frame): { Fade }
+	local list: { Fade } = {}
+	local function add(instance: Instance, property: string)
+		table.insert(
+			list,
+			{ instance = instance, property = property, base = (instance :: any)[property] }
+		)
+	end
+	local items: { Instance } = ticket:GetDescendants()
+	table.insert(items, 1, ticket)
+	for _, item in items do
+		if item == (ring :: Instance) or item:IsDescendantOf(ring) then
+			continue
+		end
+		if item:IsA("GuiObject") then
+			add(item, "BackgroundTransparency")
+		end
+		if item:IsA("TextLabel") then
+			add(item, "TextTransparency")
+		elseif item:IsA("ImageLabel") then
+			add(item, "ImageTransparency")
+		elseif item:IsA("UIStroke") then
+			add(item, "Transparency")
+		end
+	end
+	return list
+end
 
 local CannonCard = {}
 CannonCard.__index = CannonCard
@@ -158,6 +201,8 @@ function CannonCard.new(parent: Instance): CannonCard
 		Parent = ribbon,
 	})
 	Outline.text(self._title, 4)
+	self._fades = fadesOf(ticket, ring)
+	self._fading = {} :: { Tween }
 	self._token = 0
 	return self :: CannonCard
 end
@@ -166,16 +211,43 @@ local function still(): boolean
 	return GuiService.ReducedMotionEnabled
 end
 
+-- Stops a running fade and puts every transparency back at its built value.
+local function unfade(self: any)
+	for _, tween in self._fading do
+		tween:Cancel()
+	end
+	table.clear(self._fading)
+	for _, fade in self._fades :: { Fade } do
+		(fade.instance :: any)[fade.property] = fade.base
+	end
+end
+
+-- Fades the ticket from fully clear to as built (`visible`), or from as built to clear.
+local function fade(self: any, visible: boolean, info: TweenInfo)
+	unfade(self)
+	for _, f in self._fades :: { Fade } do
+		local clear = 1
+		if visible then
+			(f.instance :: any)[f.property] = clear
+		end
+		table.insert(
+			self._fading,
+			Tween.to(f.instance, info, { [f.property] = if visible then f.base else clear })
+		)
+	end
+end
+
 function CannonCard.show(
 	self: any,
 	destination: string,
 	name: string,
-	launchAt: number,
-	hold: number?
+	startAt: number,
+	hold: number?,
+	from: number?
 )
 	self:hide() -- a card still up from an earlier flight goes first
-	local inAt, wobbleAt, outAt, goneAt = CannonLogic.cardTimes(hold)
-	local elapsed = Workspace:GetServerTimeNow() - launchAt
+	local inAt, wobbleAt, outAt, goneAt = CannonLogic.cardTimes(hold, from)
+	local elapsed = Workspace:GetServerTimeNow() - startAt
 	if elapsed >= outAt then
 		return -- joined the flight too late to matter
 	end
@@ -203,6 +275,7 @@ function CannonCard.show(
 		self._ringStroke.Transparency = 1
 		if still() then
 			self._scale.Scale = 1
+			fade(self, true, FADE_IN)
 			return
 		end
 		self._scale.Scale = 1.12
@@ -221,25 +294,32 @@ function CannonCard.show(
 	end)
 	at(outAt, function()
 		if still() then
-			self._ticket.Visible = false
+			fade(self, false, FADE_OUT)
 			return
 		end
-		Tween.to(self._ticket, ZIP, { Position = UDim2.new(0.5, 0, -0.4, 0) })
+		self._zip = Tween.to(self._ticket, ZIP, { Position = UDim2.new(0.5, 0, -0.4, 0) })
 	end)
 	at(goneAt, function()
 		self._ticket.Visible = false
 		self._ticket.Position = HOME
+		unfade(self)
 	end)
 end
 
 function CannonCard.hide(self: any)
 	self._token += 1
+	unfade(self)
+	if self._zip ~= nil then
+		self._zip:Cancel() -- an older card's zip would drag the new one off screen
+		self._zip = nil
+	end
 	self._ticket.Visible = false
 	self._ticket.Position = HOME
 end
 
 function CannonCard.destroy(self: any)
 	self._token += 1
+	unfade(self)
 	Scale.unbind(self._uiScale)
 	self.screenGui:Destroy()
 end

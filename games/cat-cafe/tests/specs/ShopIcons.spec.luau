@@ -28,10 +28,38 @@ return function()
 			expect(ShopIcons.crate(nil)).to.equal(nil)
 		end)
 
-		it("has a bottle for every potion in the catalog", function()
-			expect(ShopIcons.potion("gold_rush_potion")).to.equal(
-				ShopIcons.image("Potion_GoldRush")
+		it("gives a potion size its regular potion's bottle (#1250)", function()
+			expect(ShopIcons.potion("swift_potion_small")).to.equal(
+				ShopIcons.potion("swift_potion")
 			)
+			expect(ShopIcons.potion("quick_bait_potion_big")).to.equal(
+				ShopIcons.potion("quick_bait_potion")
+			)
+			expect(ShopIcons.potion("cat_whistle") ~= nil).to.equal(true)
+		end)
+		it(
+			"gives each Cat Whistle size its own flask, the regular one behind it (#1302)",
+			function()
+				expect(ShopIcons.potion("cat_whistle_small")).to.equal(
+					"rbxassetid://88245082341165"
+				)
+				expect(ShopIcons.potion("cat_whistle")).to.equal("rbxassetid://139758496638549")
+				expect(ShopIcons.potion("cat_whistle_big")).to.equal("rbxassetid://83123481656090")
+				local all = ShopIcons.potionAll("cat_whistle_big")
+				expect(all[2]).to.equal("rbxassetid://139758496638549")
+			end
+		)
+		it("lists every bottle a potion has, flask first (#1256)", function()
+			local all = ShopIcons.potionAll("swift_potion")
+			expect(#all).to.equal(3)
+			expect(all[1]).to.equal(ShopIcons.potion("swift_potion"))
+			expect(all[1] ~= all[2]).to.equal(true)
+			expect(#ShopIcons.potionAll("not_a_potion")).to.equal(0)
+			expect(#ShopIcons.potionAll(nil)).to.equal(0)
+		end)
+		it("has a bottle for every potion in the catalog", function()
+			-- the clean bottle first (#1070), the old picture behind it
+			expect(ShopIcons.potion("gold_rush_potion")).to.equal("rbxassetid://133671235439574") -- the #1193 flask (#1204)
 			local missing: { string } = {}
 			for _, potion in Catalog.potions do
 				if ShopIcons.potion(potion.id) == nil then
@@ -48,11 +76,28 @@ return function()
 					expect(ShopIcons.perk(row.id)).to.be.ok()
 				end
 			end
-			expect(ShopIcons.food("star_treat")).to.equal("rbxassetid://84410663358335")
-			expect(ShopIcons.food("moon_milk")).to.equal(ShopIcons.image("MoonMilk"))
+			-- the clean food pictures (#1070)
+			expect(ShopIcons.food("star_treat")).to.equal("rbxassetid://127060767808144")
+			expect(ShopIcons.food("moon_milk")).to.equal("rbxassetid://107176560784324")
+			-- the spin wheel's food (#1242)
+			expect(ShopIcons.food("caviar")).to.equal(ShopIcons.clean("Caviar"))
+			-- #1242: every food in the catalog, shop and dealer alike, resolves to its clean 2D picture, so
+			-- ItemIcon never falls back to the old 3D render for a food
+			local clean: { [string]: string } = {
+				kibble = "Kibble",
+				tuna = "Tuna",
+				salmon = "Salmon",
+				sardines = "Sardines",
+				caviar = "Caviar",
+				moon_milk = "MoonMilk",
+				star_treat = "StarTreat",
+			}
 			local missing: { string } = {}
 			for _, lure in Catalog.lures do
-				if ShopIcons.food(lure.id) == nil then
+				local picture = ShopIcons.food(lure.id)
+				local name = clean[lure.id]
+				if picture == nil or name == nil or picture ~= ShopIcons.clean(name) then
+					-- a new food needs a clean picture and a line above
 					table.insert(missing, lure.id)
 				end
 			end
@@ -61,9 +106,22 @@ return function()
 			expect(ShopIcons.food(nil)).to.equal(nil)
 		end)
 
+		it("has the clean money, golden fish and spin prize pictures (#1242)", function()
+			expect(ShopIcons.prize("coins")).to.equal(ShopIcons.clean("Bag"))
+			-- the same id as Theme.textures.fishCoin
+			expect(ShopIcons.prize("fish")).to.equal(ShopIcons.clean("Fish"))
+			expect(ShopIcons.prize("spins")).to.equal(ShopIcons.clean("Spin"))
+			for _, kind in { "coins", "fish", "spins" } do
+				local picture = ShopIcons.prize(kind) :: string
+				expect(string.match(picture, "^rbxassetid://%d+$")).to.be.ok()
+			end
+			expect(ShopIcons.prize("lure")).to.equal(nil)
+			expect(ShopIcons.prize(nil)).to.equal(nil)
+		end)
+
 		it("has the prize pictures for coins and spins (F97 section 4)", function()
 			expect(ShopIcons.image("Coins")).to.equal("rbxassetid://114567888385946")
-			expect(ShopIcons.image("Spin")).to.equal("rbxassetid://109715715479737")
+			expect(ShopIcons.image("Spin")).to.equal("rbxassetid://126057350997233") -- the clean wheel (#1070)
 		end)
 
 		it("offers the next net, staying on the top one", function()
@@ -76,12 +134,27 @@ return function()
 			expect(ShopIcons.image("Net_L4")).to.be.ok()
 		end)
 
+		it("has a clean picture for every decor piece in the catalog (#1072)", function()
+			local missing: { string } = {}
+			for _, decor in Catalog.decor do
+				if ShopIcons.decor(decor.id) == nil then
+					table.insert(missing, decor.id)
+				end
+			end
+			expect(table.concat(missing, ",")).to.equal("")
+			expect(ShopIcons.decor("alley_brick_wall")).to.equal("rbxassetid://95796519921389")
+			expect(ShopIcons.decor("not_a_piece")).to.equal(nil)
+			expect(ShopIcons.decor(nil)).to.equal(nil)
+		end)
+
 		it("has the HUD's Decor picture", function()
 			expect(ShopIcons.image("Icon_Decor")).to.equal("rbxassetid://132974074427583")
 		end)
 
 		it("has a clean symbol for every HUD tile (2026-11-03)", function()
-			for _, name in { "Store", "Cats", "Index", "Quests", "Upgrades", "Decor", "Tutorial", "Rewards" } do
+			for _, name in
+				{ "Store", "Cats", "Index", "Quests", "Upgrades", "Decor", "Tutorial", "Rewards" }
+			do
 				expect(ShopIcons.clean(name)).to.equal(ShopIcons.image("Icon_Clean_" .. name))
 				expect(string.match(ShopIcons.clean(name) :: string, "^rbxassetid://%d+$")).to.be.ok()
 			end

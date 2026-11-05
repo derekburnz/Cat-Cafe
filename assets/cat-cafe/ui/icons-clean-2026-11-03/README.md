@@ -37,9 +37,40 @@ Derek OK'd the look on 2026-11-03 ("Build it as shown"; the crate was redrawn af
 | Icon_Clean_Door | 82896268186640 (#964, 11-03 22:13, run 41728803377) |
 | Icon_Clean_Catflap | 99900172207666 (#964, 11-03 22:13, run 41728803377) |
 | Icon_Clean_Trade | 86243209880722 (new 11-03 for #1024: two swap arrows, the HUD's Trade tile) |
+| Icon_Clean_PotionTip | 86488148454995 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_PotionLucky | 105359839986454 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_PotionSwift | 123223898814902 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_PotionSteady | 121053101784702 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_PotionBigTip | 89235368935178 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_PotionGoldRush | 117084495995856 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_PotionQuickBait | 103272653422076 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_Tuna | 128749627858421 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_Salmon | 78789450804337 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_Sardines | 133035243124941 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_MoonMilk | 107176560784324 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_StarTreat | 127060767808144 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_Spin | 126057350997233 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_EquipBest | 89501318892947 (#1136, 11-04, run 41889328270) |
+| Icon_Clean_Invite | 136442901295833 (#1136, 11-04, run 41889328270) |
+| Icon_Clean_Lock | 133489571923895 (#1136, 11-04, run 41889328270) |
+| Icon_Clean_Clover | 70755641486261 (#1258, 11-04, run 41904365295) |
 
 Tile colours used in the mockup (top to bottom gradient): Cats #6fc0ff to #2f86ef, Index #7ae86f to #2fb043, Quests #ffe46b to #f5ac12, Upgrades #ffb15a to #f06a1d, Decor #62ecd2 to #18ab95, Store (a wide tile, first in the left column) #fff07a to #ffc61f to #ff8f1f with a white shine, Tutorial and Potions #cf96ff to #8a47ea, Rewards and Cannon #ff8a7a to #e4402f, Feedback and Areas #8fe3ff to #2bb3e6, Menu #c9d4e3 to #7f8fa6, My Cafe orange like Upgrades, Bait blue like Cats. Outline 4 px #2a1a12, corner 20 px on a 78 px tile, label 18 px Fredoka bold, white with a 5 px dark outline.
 
 ## #1024 redraw (friend's UI-Engineer, 2026-11-03)
 
 Derek, live v181: "cafe and cannon simple still suck and potions", plus a missing Trade symbol. Home, Cannon and Potion were redrawn with more detail (awning and window, banded barrel on a wooden carriage, glass with bubbles), and Trade is new. Re-render only these with `node iconshot.cjs <abs>/icons-render.html <abs out dir> home,cannon,potion,trade`. Uploaded 11-03 with `upload-image.yml` (run 41649292093); the ids above are in `games/cat-cafe/src/client/UI/Components/ShopIcons.luau`. `asset-permissions.yml` still has to run for the group-owned game before the pictures show in the live game.
+
+## #1136: Equip Best, Invite and Lock (Derek's UI-Engineer, 2026-11-04)
+
+Derek, live v187: live still shows "the old images on ui buttons". These were the last three glyphs that drew the 2026-10-27 icon sheet (`Theme.iconSheet`): Equip Best is a big gold sparkle with a white and a blue one, Invite a white envelope with a pink heart seal, the lock a gold padlock with a grey shackle. Where they show: the Equip Best buttons (Cats and Decor windows, Button's inline `image`), the Invite row in the Menu list and the Invite ask card, and the lock badges on the Areas cards and locked cat cards. A 🔒 inside a sentence ("🔒 Locked") or on a staff slot square stays the emoji. Group Use permission: `asset-permissions.yml` grant runs on main once this merges. `mockup/preview-1136.png` (from `source/preview-1136.html`) shows them on HUD tiles beside Rewards and Feedback. Re-render with `node iconshot.cjs <abs>/icons-render.html <abs out dir> equipBest,invite,lock`.
+
+## #1242: every food shows its clean picture (Derek's UI-Engineer, 2026-11-04)
+
+Derek, live 11-04: only the Deluxe Bowl's "is in the bowl" card showed the new food pictures; the bowl's food rows, the time rewards and the spin prizes still drew the old 3D renders. All seven catalog foods already had a clean picture (Kibble, Tuna, Moonlit Sardines, Salmon, Caviar, Moon Milk, Star Treat), so nothing new was drawn or uploaded. The fault was in `Components/ItemIcon`: it loaded the food's 3D model under the picture and hid it only on a re-check after the picture loaded, which only the bowl's card got (it is set again on every state update). Now an item with a picture never loads its model, and `ShopIcons.food` returns only the clean picture. `mockup/preview-1242.png` (from `source/preview-1242.html`) shows every food on its rarity tile at row size and prize-chip size.
+
+Added the same day (#1253 folded in): the Tip Jar's money, golden fish and spin tiles showed their emoji. Their clean pictures (Bag, Fish, Spin) were in ShopIcons and granted (asset-permissions run 41899161626: 302 granted, 0 failed). The cause was `Components/IconArt`: the one ContentProvider fetch per picture redrew only the first label that asked for it, so every other tile with the same picture waited on its own `IsLoaded` change and kept the emoji. Now a fetched picture counts as loaded for every label, and every label waiting on that fetch is redrawn when it ends. `ShopIcons.prize(kind)` is the one lookup for those three pictures, and they are on the preview sheet's bottom row.
+
+## #1258: the luck clover (Derek's UI-Engineer, 2026-11-04)
+
+Derek's drawing for the luck chip: a dark green circle (#1B7F3A, drawn in Luau with a 1 px dark edge and no ring, stroke or glow) with a bright green (#22B04B) four-leaf clover in the middle, a thin black outline traced round each leaf and the stem. The emoji 🍀 can't take an outline, so the outline is in this picture (2.6 of 64 units, about 1 px at the chip's 28 px circle). It maps to 🍀 in `Components/CleanGlyphs.luau` (`luck = "Clover"`), and `Screens/LuckChip.circle` draws the circle and clover for the chip, the luck card's title, the Lucky Day line and the luck tip's card. `mockup/preview-1258.png` (from `source/preview-1258.html`) shows the chip at real size on grass and on a dark floor. Re-render with `node iconshot.cjs <abs>/icons-render.html <abs out dir> clover`.

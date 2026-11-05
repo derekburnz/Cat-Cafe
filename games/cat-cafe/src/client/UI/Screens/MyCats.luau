@@ -16,6 +16,7 @@ export type Callbacks = {
 	sellCat: (uid: string) -> (),
 	lockCat: (uid: string, locked: boolean) -> (),
 	renameCat: (uid: string, name: string) -> (),
+	feedCat: ((foodId: string, uid: string) -> ())?, -- #1181: the Feed button on the cat's detail
 	equipBest: () -> (),
 	unequipAll: () -> (),
 	close: () -> (),
@@ -54,6 +55,7 @@ function MyCats.new(callbacks: Callbacks): MyCats
 		sellCat = callbacks.sellCat,
 		lockCat = callbacks.lockCat,
 		renameCat = callbacks.renameCat,
+		feedCat = callbacks.feedCat,
 		equipBest = callbacks.equipBest,
 		unequipAll = callbacks.unequipAll,
 	})

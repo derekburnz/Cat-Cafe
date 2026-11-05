@@ -23,7 +23,9 @@ local CornerShopService = require(script.Parent.Services.CornerShopService)
 local DailyTreatService = require(script.Parent.Services.DailyTreatService)
 local DataService = require(script.Parent.Services.DataService)
 local DealerService = require(script.Parent.Services.DealerService)
+local FeedService = require(script.Parent.Services.FeedService)
 local FishMarketService = require(script.Parent.Services.FishMarketService)
+local IdeaCreditsService = require(script.Parent.Services.IdeaCreditsService)
 local IndexRewardService = require(script.Parent.Services.IndexRewardService)
 local IntroService = require(script.Parent.Services.IntroService)
 local LawnService = require(script.Parent.Services.LawnService)
@@ -36,6 +38,7 @@ local PalService = require(script.Parent.Services.PalService)
 local PassService = require(script.Parent.Services.PassService)
 local PlotService = require(script.Parent.Services.PlotService)
 local PotionService = require(script.Parent.Services.PotionService)
+local ProductService = require(script.Parent.Services.ProductService)
 local QuestService = require(script.Parent.Services.QuestService)
 local RallyService = require(script.Parent.Services.RallyService)
 local RareMomentService = require(script.Parent.Services.RareMomentService)
@@ -95,13 +98,16 @@ ClaimAllService.start() -- Claim all in the Quests window, the Index and the Tip
 SpinService.start()
 FishMarketService.start()
 CornerShopService.start() -- #1052: the coins-only Corner Shop
+FeedService.start() -- #1181: cat food from the Bag (FeedCat)
 CodeService.start()
 StarterCatService.start() -- F96: the free Bellhop Cat
 RareMomentService.start() -- F89: the toast clock
 IntroService.start()
 TipService.start() -- F87: context tips and feedback; before DataService so its onLoaded sees every join
 BugReportService.start(world)
+IdeaCreditsService.start() -- #1083: the Thank You board's credits
 PassService.start() -- F95: purchases in game; DataService checks owned passes at each join
+ProductService.start() -- #1182: developer product receipts (ProcessReceipt)
 PalService.start() -- F92: pals; before Telemetry so pal_time goes out before its leave work
 LeaderboardService.start() -- F98: before DataService so its onLoaded sees every join
 CampExtraService.start() -- F100: before DataService so its onLoaded sees every join

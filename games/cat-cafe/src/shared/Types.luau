@@ -174,6 +174,18 @@ export type IndexMilestone = {
 -- (when set) pays max(coins, floor(dayRate x coinSeconds)). `crates` maps a crate id, or "highest" (the plain crate
 -- of the player's highest open zone), to a count. `bonus` (tips), `goldLuck`, `rainbowLuck` (F99) and `baitSpeed` are
 -- permanent fractions from the claim on; a milestone has one kind. `tag` names a title the prize unlocks.
+-- A developer product (#1182): sold for Robux in the Store, granted by ProductService's ProcessReceipt. `prize` is a
+-- fixed bundle of Big Money, Swift and Steady Paw Potions only (monetization-policy, decision 2026-11-01 22:42): never
+-- coins, golden fish, crates, spins or anything random. The price is read from Roblox at runtime, never stored here.
+export type ProductDef = {
+	id: string,
+	name: string,
+	prize: { potions: { [string]: number } },
+}
+
+-- Cat food (corner-shop-v2.md section 3, #1181): kept in the Bag (profile.catFood) and fed to one cat with FeedCat.
+export type CatFoodDef = { id: string, name: string, xp: number }
+
 export type IndexPrize = {
 	coins: number?,
 	coinSeconds: number?,
@@ -182,6 +194,7 @@ export type IndexPrize = {
 	spins: number?,
 	crates: { [string]: number }?,
 	potions: { [string]: number }?, -- F64: potionId -> count (Tip Jar step 12, codes)
+	catFood: { [string]: number }?, -- #1181: food id -> count into the Bag (Daily Treat, the Collector, catches, rescues)
 	bonus: number?,
 	goldLuck: number?,
 	rainbowLuck: number?, -- F99: on every rainbow roll, the Rainbow track's sum capped at RainbowLuckMax
@@ -193,6 +206,10 @@ export type IndexPrize = {
 -- `effect` is one short line for the bag. Potions are earned only.
 export type PotionDef = {
 	id: string,
+	-- corner-shop-v2.md section 4: a Small or Big size of another potion runs that potion's timer (`buff`), so one chip
+	-- shows the summed minutes; `shopOnly` keeps a size or the Cat Whistle out of Mystery gifts.
+	buff: string?,
+	shopOnly: boolean?,
 	name: string,
 	minutes: number,
 	effect: string,
@@ -224,6 +241,7 @@ export type CollectorOffer = {
 	lures: { [string]: number }?,
 	spins: number?,
 	crates: { zone: number?, golden: number? }?,
+	catFood: { [string]: number }?, -- #1181 (corner-shop-v2.md section 3): his "2 Big Snacks"
 }
 
 -- A code (F65, data-model section 11d), keyed in Catalog.codes by its lowercased text. Its prize uses the Index
@@ -762,29 +780,48 @@ export type FreshCatchRow = {
 export type FreshCatchItem = { itemId: string, fish: number, amount: number, bought: number }
 export type FreshCatchStock = { window: number, restocksAt: number, stock: { FreshCatchItem } }
 
--- The Corner Shop (corner-shop.md section 5, #1052). A row sells for coins only: a potion into the bag, a snack of
--- `xp` for one cat the player picks, or a show (`showId`, `showSeconds` long) over the buyer's cafe. Its price is
--- `seconds` of the player's day rate, at least `atLeast` (Economy.cornerPrice).
+-- The Corner Shop (corner-shop.md, #1052): sold for coins only.
+-- v2 (corner-shop-v2.md section 4, #1180): every row sold for coins at a fixed `price`, in a `family` (its daily limit
+-- counts the family, Config.CornerDailyLimits) and a `size` (its stock chance, Config.CornerShopSizeWeights). A
+-- "potion" row gives `potionId` into the bag, a "food" row `foodId` into the Bag's cat food (its `xp` is that food's)
+-- and a "show" row plays `showId` over the buyer's cafe. `needsTier` hides and refuses the row below that tier.
+export type CornerShopSize = "small" | "regular" | "big" | "mega"
 export type CornerShopRow = {
 	id: string,
 	name: string,
-	kind: "potion" | "snack" | "show",
+	family: string,
+	size: CornerShopSize,
+	kind: "potion" | "food" | "show",
+	price: number,
 	potionId: string?,
+	foodId: string?,
 	xp: number?,
 	showId: string?,
 	showSeconds: number?,
-	seconds: number,
-	atLeast: number,
+	needsTier: number?,
 }
--- Saved (version 29): the window the bought counts belong to, and the snack XP given on UTC day `snackDay`.
+-- Saved (version 32): the window the bought counts belong to, and on UTC day `day` each family's buys (`today`) and
+-- the cat food XP bought (`foodXpToday`).
 export type CornerShopState = {
 	window: number,
 	bought: { [string]: number },
-	snackDay: number,
-	snackXp: number,
+	day: number,
+	today: { [string]: number },
+	foodXpToday: number,
 }
-export type CornerShopItem = { itemId: string, price: number, amount: number, bought: number }
--- What CornerShopStock sends: the window, when it restocks, each row in Catalog order, and today's snack XP.
+-- One row as CornerShopStock sends it: `today` the family's buys today and `perDay` its limit (nil: none).
+export type CornerShopItem = {
+	itemId: string,
+	price: number,
+	amount: number,
+	bought: number,
+	size: CornerShopSize,
+	needsTier: number?,
+	today: number,
+	perDay: number?,
+}
+-- What CornerShopStock sends: the window, when it restocks, each row in Catalog order, and the cat food XP bought
+-- today (`snackXp`, its v1 name, which the window reads).
 export type CornerShopStock = {
 	window: number,
 	restocksAt: number,
@@ -793,15 +830,18 @@ export type CornerShopStock = {
 }
 
 -- The onboarding funnel's place (data-model section 14, growth analytics-plan 3.2): the last step logged, and later
--- steps already done but held back until every step before them is logged. Keys are "1" to "12" (JSON-shaped).
+-- steps already done but held back until every step before them is logged. Keys are step numbers (JSON-shaped).
 export type TelemetryState = {
 	onboardingStep: number,
 	achieved: { [string]: boolean },
-	-- F87 (easy-start.md sections 5 and 6): the onboarding funnel's version (2 since F87; Onboarding.fromV1 moves a 1)
-	-- and the UTC day number (os.time() // 86400) of the account's first join, 0 when it is not known (an account from
-	-- before version 19), for new_player_left
+	-- F87 (easy-start.md sections 5 and 6): the onboarding funnel's version (3 since #1273; Onboarding.fromOld moves a
+	-- 1 or 2) and the UTC day number (os.time() // 86400) of the account's first join, 0 when it is not known (an
+	-- account from before version 19), for new_player_left and the session time markers
 	funnel: number,
 	firstDay: number,
+	-- #1273: the furthest step logged of the intro funnel (Onboarding.INTRO_STEPS), 0 before any. A field inside
+	-- telemetry with a default, so it needs no save version
+	introStep: number,
 }
 
 -- One player's dealer stock as DealerStock sends it: every dealer food in Dealer.FOODS order with tonight's amount
@@ -886,7 +926,10 @@ export type PlayerProfile = {
 	lawnOwned: { [string]: boolean },
 	lawn: { [string]: string },
 	lawnStyles: LawnStyles,
-	cornerShop: CornerShopState, -- #1052 (corner-shop.md section 5, save version 29)
+	cornerShop: CornerShopState, -- #1052 (corner-shop.md section 5, save version 29; v2 counters version 32)
+	catFood: { [string]: number }, -- #1181 (corner-shop-v2.md section 3, save version 32): food id -> count in the Bag
+	hideCredit: boolean?, -- #1083 (idea-credits.md section 4, save version 30): true keeps the name off the Thank You board
+	receipts: { string }, -- #1182 (save version 31): the newest Products.RECEIPT_LIMIT developer product PurchaseIds granted
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.
@@ -928,6 +971,7 @@ export type PlayerState = {
 	tutorialStep: number,
 	introSeen: boolean, -- F72: false plays the intro cutscene once this session's first sync carries a plot
 	potions: { [string]: number }, -- F64: potionId -> count in the bag
+	catFood: { [string]: number }, -- #1181: food id -> count in the Bag
 	buffs: { [string]: number }, -- F64: each running potion's endsAt in server time (Workspace:GetServerTimeNow())
 	settings: Settings, -- the Settings screen follows these; Audio mutes and sets its channels by them
 	quests: QuestsView, -- F73: the Quests window's Daily and Weekly tabs and the HUD tracker

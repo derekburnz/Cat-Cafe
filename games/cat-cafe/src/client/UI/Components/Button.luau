@@ -43,13 +43,15 @@ export type Style =
 -- where the labels under would stack too high). "row" has the clean look too.
 -- A row with `iconSize` draws its icon as its own picture that size at the left, then the text (the HUD's pills).
 -- An inline icon with a whole picture in Theme.glyphImages (the golden fish on a price, F97 section 4) is drawn as that
--- picture just before the text, the two centred together, the emoji showing until the picture loads.
+-- picture just before the text, the two centred together, the emoji showing until the picture loads. An inline icon
+-- with an `image` (a clean symbol, #1136) is drawn the same way.
 export type Layout = "row" | "tile" | "clean" | "wide"
 
 export type Props = {
 	text: string?,
 	icon: string?,
-	image: string?, -- clean and wide layouts: the symbol's uploaded picture (the icon glyph shows until it loads)
+	image: string?, -- clean and wide layouts, and an inline icon: the symbol's uploaded picture (the glyph shows until
+	-- it loads)
 	iconSize: number?, -- row layout: the icon's own size in px, bigger than the text (default: inline with the text)
 	layout: Layout?,
 	style: Style?,
@@ -118,7 +120,7 @@ local HOVER_SCALE = 1.05
 local CLEAN_OUTLINE = 4
 local CLEAN_OUTLINE_SMALL = 3
 local SMALL = 40 -- a button under this many px tall is small
-local CLEAN_DEPTH = 5
+local CLEAN_DEPTH = 0 -- no foot or lip under the face (live, 11-04: "every button still has the dark shade at the bottom")
 local CLEAN_CORNER = 0.26
 local CLEAN_SYMBOL = 0.72
 local CLEAN_LIP = 0.84
@@ -126,6 +128,10 @@ local CLEAN_SHINE_TRANSPARENCY = 0.6
 
 local Button = {}
 Button.__index = Button
+-- what a clean button draws past its box, for layouts that keep a clear gap between them (#1210): its outline, and
+-- how much a hover grows it (the scale is round its middle, so each side gains half of the extra)
+Button.OUTLINE = CLEAN_OUTLINE
+Button.HOVER_SCALE = HOVER_SCALE
 
 local function brighten(color: Color3, amount: number): Color3
 	return color:Lerp(Theme.colors.white, amount)
@@ -134,7 +140,7 @@ end
 -- The face is white under a UIGradient, so the gradient's colours are the face's colours: top to bottom colour, then
 -- a band of the darker depth colour along the bottom (the lip).
 local function fill(colors: Look, lighten: number): ColorSequence
-	local lip = brighten(colors.depth, lighten)
+	local lip = brighten(colors.bottom, lighten) -- the same as the face's foot: no darker band (#1176)
 	return ColorSequence.new({
 		ColorSequenceKeypoint.new(0, brighten(colors.top, lighten)),
 		ColorSequenceKeypoint.new(CLEAN_LIP, brighten(colors.bottom, lighten)),
@@ -170,11 +176,12 @@ function Button.new(props: Props): Button
 		ZIndex = props.zIndex or 1,
 	})
 
-	-- The depth frame spans the whole button so its outline wraps the face and the bottom edge together. The bottom
-	-- edge is the outline's own dark colour, a thicker outline along the foot.
+	-- The depth frame spans the whole button so its outline wraps the face and the bottom edge together. The foot under
+	-- the face is the style's own darker shade (applyStyle), not black (#1075, Derek's live v184 check: "all ui buttons
+	-- have an unnecessary shadow looking black tint on the bottom").
 	local depthFrame: Frame = Create("Frame", {
 		Name = "Depth",
-		BackgroundColor3 = Theme.colors.outline,
+		BackgroundColor3 = STYLES[style].bottom,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 1, -band),
 		ZIndex = props.zIndex or 1,
@@ -225,7 +232,9 @@ function Button.new(props: Props): Button
 	local inlineIcon = props.icon ~= nil and not isTile and not square and iconSize == nil
 	local symbol = math.max(8, math.floor(faceH * (if layout == "wide" then 0.9 else CLEAN_SYMBOL)))
 	-- an inline glyph with a whole picture: the picture and the text side by side in a centred row
-	local inlinePicture = if inlineIcon then Theme.glyphImages[props.icon :: string] else nil
+	local inlinePicture = if inlineIcon
+		then Theme.glyphImages[props.icon :: string] or props.image
+		else nil
 	local pictureRow: Frame? = nil
 	if inlinePicture and inlinePicture ~= "" then
 		inlineIcon = false
@@ -427,6 +436,7 @@ function Button.new(props: Props): Button
 	local function applyStyle()
 		local colors = STYLES[if self._enabled then self._style else "disabled"]
 		gradient.Color = fill(colors, 0)
+		depthFrame.BackgroundColor3 = colors.bottom
 		label.TextColor3 = colors.text
 		textOutline.Enabled = colors.outlined
 		if icon then
@@ -451,7 +461,7 @@ function Button.new(props: Props): Button
 		Tween.to(
 			face,
 			Tween.FAST,
-			{ Position = UDim2.fromOffset(0, if down then depth - 1 else 0) }
+			{ Position = UDim2.fromOffset(0, if down then math.max(depth - 1, 1) else 0) }
 		)
 	end
 

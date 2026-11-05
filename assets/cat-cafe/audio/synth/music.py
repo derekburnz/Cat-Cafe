@@ -1,8 +1,8 @@
-"""Synthesize Cat Cafe's music beds: three quiet, cosy loops that take turns with the day and night.
+"""Synthesize Cat Cafe's music beds: three quiet, cozy loops that take turns with the day and night.
 
 Run from the repo root:  python assets/cat-cafe/audio/synth/music.py [--only DayA,NightA] [--preview DIR]
 
-Derek (2026-10-27): the ambience beds are not needed; play a couple of cosy songs that rotate, quietly.
+Derek (2026-10-27): the ambience beds are not needed; play a couple of cozy songs that rotate, quietly.
 The Audio module already rotates beds with the clock (sound list section 3): DayA for the first half of
 the day, DayB for the second, NightA through the short night, then DayA again at sunrise.
 
@@ -524,7 +524,7 @@ def day_d(tmp: Path) -> np.ndarray:
 
 
 def night_b(tmp: Path) -> np.ndarray:
-    """Night Owls: late and cosy, a little dreamy. A soft electric piano on major seventh chords, upright bass and
+    """Night Owls: late and cozy, a little dreamy. A soft electric piano on major seventh chords, upright bass and
     brushes; the music box tune; the vibraphone dreams it an octave down; the music box again."""
     s = Song(76, 4, seed=61, swing=0.07)
     bars = [

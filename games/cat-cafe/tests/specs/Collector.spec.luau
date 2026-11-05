@@ -32,12 +32,13 @@ return function()
 	end
 
 	describe("Catalog.collectorOffers (section 12b)", function()
-		it("is the design's nine rows, lowest value first", function()
+		it("is the design's ten rows, lowest value first", function()
 			expect(Catalog.collectorOffers :: any).to.deepEqual({
 				{ value = 1, fish = 5 },
 				{ value = 2, fish = 10 }, -- F94 (was 3 Tuna and a spin)
 				{ value = 4, fish = 15 },
 				{ value = 6, crates = { zone = 1 } },
+				{ value = 8, catFood = { big_cat_snack = 2 } }, -- #1181 (corner-shop-v2.md section 3): "2 Big Snacks"
 				{ value = 11, crates = { zone = 1 }, fish = 20 },
 				{ value = 20, crates = { zone = 2 } },
 				{ value = 35, crates = { golden = 1 } },
@@ -88,12 +89,12 @@ return function()
 			end
 			expect(offers(firstOf("Common"), "base") :: any).to.deepEqual({ [1] = true })
 			expect(offers(firstOf("Rare"), "base") :: any).to.deepEqual({ [2] = true, [4] = true })
-			expect(offers(firstOf("Epic"), "base") :: any).to.deepEqual({ [6] = true, [11] = true })
+			expect(offers(firstOf("Epic"), "base") :: any).to.deepEqual({ [6] = true, [8] = true, [11] = true })
 			expect(offers(firstOf("Legendary"), "base") :: any).to.deepEqual({ [11] = true, [20] = true })
 			expect(offers(firstOf("Mythical"), "base") :: any).to.deepEqual({ [35] = true, [60] = true })
 			-- features.md F63 done when: a gold Epic offers a crate and 20 fish, two crates or a golden crate
 			expect(offers(firstOf("Epic"), "gold") :: any).to.deepEqual({ [11] = true, [20] = true, [35] = true })
-			expect(offers(firstOf("Rare"), "gold") :: any).to.deepEqual({ [6] = true, [11] = true })
+			expect(offers(firstOf("Rare"), "gold") :: any).to.deepEqual({ [6] = true, [8] = true, [11] = true })
 			expect(offers(firstOf("Legendary"), "gold") :: any).to.deepEqual({ [35] = true, [60] = true })
 			expect(offers(firstOf("Mythical"), "gold") :: any).to.deepEqual({ [120] = true })
 		end)

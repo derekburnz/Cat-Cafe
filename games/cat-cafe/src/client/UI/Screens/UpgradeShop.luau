@@ -222,7 +222,8 @@ function UpgradeShop.new(
 	local rank = card("RankUp", RANK_HEIGHT, 0, self._staff)
 	self._rankTitle = text({
 		Name = "Title",
-		Position = UDim2.fromOffset(16, 10),
+		AnchorPoint = Vector2.new(0, 0.5), -- centred in the card, with no line under it (#1225)
+		Position = UDim2.new(0, 16, 0.5, 0),
 		Size = UDim2.new(1, -(BUTTON_W + 40), 0, 26),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge - 2,
@@ -605,16 +606,13 @@ function UpgradeShop._renderStaff(self: any, state: Types.PlayerState)
 			progress.tier,
 			if current then "  ·  " .. current.name else ""
 		)
+		-- just "Tier N · Name" (#1225, the friend 11-04): the tier quest already says what comes next
+		self._rankSub.Text = ""
 		if nextTier then
-			local opens = if #progress.opens > 0
-				then " opens " .. table.concat(progress.opens, ", ")
-				else ""
-			self._rankSub.Text = "Next: " .. nextTier.name .. opens
 			self._rankButton:setText(if progress.ready then "Rank up!" else "See goals")
 			self._rankButton:setStyle(if progress.ready then "gold" else "secondary")
 			self._rankButton.instance.Visible = true
 		else
-			self._rankSub.Text = "Top tier: every slot is open"
 			self._rankButton.instance.Visible = false
 		end
 	end

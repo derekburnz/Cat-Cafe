@@ -9,7 +9,8 @@ return function()
 
 	describe("CollectorLogic.prize", function()
 		it("names the wanted cat's own area crates", function()
-			local prize = CollectorLogic.prize({ value = 12, crates = { zone = 1 }, fish = 20 }, "park")
+			local prize =
+				CollectorLogic.prize({ value = 12, crates = { zone = 1 }, fish = 20 }, "park")
 			expect(prize.fish).to.equal(20)
 			expect(prize.crates.park_crate).to.equal(1)
 			expect(prize.crates.park_golden_crate).to.equal(nil)
@@ -20,12 +21,14 @@ return function()
 		end)
 
 		it("keeps foods and spins and drops empty parts", function()
-			local prize = CollectorLogic.prize({ value = 2, lures = { tuna = 3 }, spins = 1 }, "alley")
+			local prize =
+				CollectorLogic.prize({ value = 2, lures = { tuna = 3 }, spins = 1 }, "alley")
 			expect(prize.lures.tuna).to.equal(3)
 			expect(prize.spins).to.equal(1)
 			expect(prize.fish).to.equal(nil)
 			expect(prize.crates).to.equal(nil)
-			local odd = CollectorLogic.prize({ value = 1, fish = 0, lures = { tuna = -1 } }, "alley")
+			local odd =
+				CollectorLogic.prize({ value = 1, fish = 0, lures = { tuna = -1 } }, "alley")
 			expect(odd.fish).to.equal(nil)
 			expect(odd.lures).to.equal(nil)
 		end)
@@ -72,6 +75,14 @@ return function()
 			expect(CollectorLogic.clock(180)).to.equal("3:00")
 			expect(CollectorLogic.clock(161.2)).to.equal("2:42")
 			expect(CollectorLogic.clock(-4)).to.equal("0:00")
+		end)
+		it("keeps the cat food in an offer (#1181)", function()
+			local prize = CollectorLogic.prize(
+				{ value = 8, catFood = { big_cat_snack = 2, nothing = 0 } },
+				"alley"
+			)
+			expect(prize.catFood.big_cat_snack).to.equal(2)
+			expect(prize.catFood.nothing).to.equal(nil)
 		end)
 	end)
 end

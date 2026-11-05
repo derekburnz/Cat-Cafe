@@ -86,6 +86,21 @@ end
 
 -- How big the gift's card is: one thing (spins aside, which then wear a badge) fits a small card, two or three
 -- pictures take a wide one, and four or more the whole row, so the bigger gifts stand out.
+-- Whether a gift's spins go on the card's "+1 spin" badge rather than among its pictures: on a small card that has
+-- another prize to show. A gift of spins alone (the 30 minute gift) shows the spin as its picture (#1070: "The
+-- 30-minute reward has no picture at all").
+function TipJarLogic.spinsAsBadge(prize: Prize): boolean
+	if (prize.spins or 0) <= 0 or TipJarLogic.size(prize) ~= "small" then
+		return false
+	end
+	for _, part in IndexRewards.prizeParts(prize, nil) do
+		if part.kind ~= "spins" then
+			return true
+		end
+	end
+	return false
+end
+
 function TipJarLogic.size(prize: Prize): Size
 	local parts = IndexRewards.prizeParts(prize, nil)
 	local things = 0

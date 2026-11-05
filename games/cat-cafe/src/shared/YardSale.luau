@@ -97,7 +97,7 @@ function YardSale.pickRarity(draw: number): Types.LawnRarity
 	for _, rarity in YardSale.RARITIES do
 		local weight = math.max(0, weights[rarity] or 0)
 		if point < weight then
-			return rarity
+			return rarity :: Types.LawnRarity
 		end
 		point -= weight
 	end
@@ -118,13 +118,13 @@ local function withPieces(
 	for at = rank, 1, -1 do
 		local candidate = YardSale.RARITIES[at]
 		if #left[candidate] > 0 then
-			return candidate
+			return candidate :: Types.LawnRarity
 		end
 	end
 	for at = rank + 1, #YardSale.RARITIES do
 		local candidate = YardSale.RARITIES[at]
 		if #left[candidate] > 0 then
-			return candidate
+			return candidate :: Types.LawnRarity
 		end
 	end
 	return nil
@@ -150,7 +150,7 @@ function YardSale.stock(day: number): { string }
 		local rolled = YardSale.pickRarity(state / MODULUS)
 		state = nextState(state)
 		local pickDraw = state / MODULUS
-		local rarity = withPieces(left, rolled)
+		local rarity = withPieces(left, rolled :: Types.LawnRarity)
 		if rarity == nil then
 			break
 		end
@@ -239,7 +239,7 @@ function YardSale.view(
 		local row: Types.YardDecorRow = {
 			id = id,
 			name = name or id,
-			rarity = if rarity ~= nil then rarity else "Common",
+			rarity = (if rarity ~= nil then rarity else "Common") :: Types.LawnRarity,
 			price = price,
 			tier = tier,
 			bought = behind or state.bought[id] == true,

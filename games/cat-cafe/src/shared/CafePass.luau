@@ -279,6 +279,17 @@ function CafePass.claimable(state: Types.PassState, season: number): { Claim }
 	return unclaimed(state)
 end
 
+-- #1626: unlocks the paid track of the running `season` for a save already rolled onto it, in the same step as the
+-- receipt (ProductService). True when it was bought now; false with no season running, the save on another season,
+-- or this season's track already bought (paidSeason stays, so a season's paid rewards are never lost).
+function CafePass.buyPaid(state: Types.PassState, season: number): boolean
+	if season == 0 or state.season ~= season or state.paidSeason == season then
+		return false
+	end
+	state.paidSeason = season
+	return true
+end
+
 -- Marks a claim in the save's season (and an item reward owned), in the same step the caller pays it.
 function CafePass.markClaimed(state: Types.PassState, track: Track, level: number, season: number)
 	local list = claimedList(state, track)

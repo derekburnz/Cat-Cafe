@@ -184,6 +184,8 @@ export type ProductDef = {
 	prize: { potions: { [string]: number }, cats: { string }?, signStyles: { string }? },
 	-- #1625: sold once per account; a second receipt pays only the potions (Products.prizeFor)
 	oncePerAccount: boolean?,
+	-- #1626: unlocks the running Cafe Pass season's paid track (CafePass.buyPaid); once per season
+	seasonPass: boolean?,
 }
 
 -- Cat food (corner-shop-v2.md section 3, #1181): kept in the Bag (profile.catFood) and fed to one cat with FeedCat.

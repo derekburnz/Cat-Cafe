@@ -64,6 +64,7 @@ export type CustomEvent =
 	| "rally_points" -- F101: value a player's points this Rally on this server, at its end or their leave; laps paid
 	| "camp_extra" -- F100 (camp-extras.md section 4): value the fills taken or 1; the extra, what was taken, tier
 	| "cafe_pass_claim" -- #1645: value 1; the track, the level and the season
+	| "cafe_pass_bought" -- #1626: value 1; the season whose paid track was bought
 	| "shove"
 	| "drop_outcome"
 	| "left_after_shove"

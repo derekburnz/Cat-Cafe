@@ -6,6 +6,7 @@
 -- reached rewards: each claim is marked in the same step as its payment, with no yield between, so it pays once.
 -- Spins over the banked cap become SPIN_FISH golden fish each. A named item is kept in pass.items forever; the season
 -- cat (Maple Muffin, an exclusive pass cat in Catalog.cats) joins the cafe as a gift cat. Sends CafePassState.
+-- #1626: ProductService's Cafe Pass receipt calls buyPaid, which unlocks the running season's paid track.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -163,6 +164,23 @@ local function onClaimAll(player: Player)
 		CafeService.sync(player)
 	end
 	CafePassService.send(player, profile)
+end
+
+-- The running season (0 while the pass is closed).
+function CafePassService.running(): number
+	return (season())
+end
+
+-- #1626: the Cafe Pass receipt. Rolls the save onto the running season first (so a season still owed is paid with
+-- its own track), then unlocks this season's paid track; no yield, so the caller records the receipt in the same
+-- step. True when it was bought now, false when this season's track was already the player's.
+function CafePassService.buyPaid(player: Player, profile: Types.PlayerProfile): boolean
+	roll(player, profile)
+	local bought = CafePass.buyPaid(profile.pass, (season()))
+	if bought then
+		Telemetry.custom(player, "cafe_pass_bought", 1, { tostring(profile.pass.season) })
+	end
+	return bought
 end
 
 function CafePassService.start()

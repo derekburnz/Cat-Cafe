@@ -125,6 +125,30 @@ return function()
 		end)
 	end)
 
+	describe("buying the paid track (#1626)", function()
+		it("unlocks the running season once, only for a save already on it", function()
+			local state = CafePass.fresh(0)
+			expect(CafePass.buyPaid(state, 0)).to.equal(false)
+			expect(CafePass.buyPaid(state, 1)).to.equal(false) -- not rolled onto season 1 yet
+			CafePass.roll(state, 1)
+			expect(CafePass.buyPaid(state, 1)).to.equal(true)
+			expect(state.paidSeason).to.equal(1)
+			expect(CafePass.buyPaid(state, 1)).to.equal(false)
+			expect(state.paidSeason).to.equal(1)
+		end)
+
+		it("opens the paid claims it unlocks", function()
+			local state = CafePass.fresh(0)
+			CafePass.roll(state, 1)
+			CafePass.addXp(state, 1, LEVEL)
+			expect(CafePass.claimBlocker(state, 1, "paid", 1)).to.equal(
+				"That one is on the paid track"
+			)
+			CafePass.buyPaid(state, 1)
+			expect(CafePass.claimBlocker(state, 1, "paid", 1)).to.equal(nil)
+		end)
+	end)
+
 	describe("the season roll (QA case 4)", function()
 		it(
 			"returns the old season's reached, unclaimed rewards, then resets XP and claims",

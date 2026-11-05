@@ -3677,6 +3677,14 @@ Catalog.products = {
 			signStyles = { "bakery_stripes" },
 		},
 	},
+	-- #1626 (cafe-pass.md section 1): the paid track of the season running when it is bought. It holds no potions:
+	-- everything comes from the track's levels as they are reached (CafePassService).
+	{
+		id = "cafe_pass",
+		name = "Cafe Pass",
+		seasonPass = true,
+		prize = { potions = {} },
+	},
 } :: { Types.ProductDef }
 Catalog.productsById = {} :: { [string]: Types.ProductDef }
 for _, product in Catalog.products do

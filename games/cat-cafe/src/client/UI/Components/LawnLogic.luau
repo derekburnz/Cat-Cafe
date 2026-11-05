@@ -1,21 +1,21 @@
 --!strict
--- The front lawn's buttons and counts (F91, front-lawn.md section 3) for the Decor screen's Front lawn tab
--- (Screens/LawnTab) and the edit view's picker (Screens/LawnEdit). Pure: it reads the PlayerState's lawnOwned, lawn
--- and lawnStyles with shared/Lawn's own rules, so a button the UI offers is one LawnService takes. The server still
--- checks every press.
+-- The front lawn's cards and counts (F91, front-lawn.md section 3; lawn-nursery.md section 6e) for the Decor
+-- screen's Lawn chip (Screens/LawnTab). Pure: it reads the PlayerState's lawnOwned, lawn and lawnStyles with
+-- shared/Lawn's own rules. Since #1283 the server lays the best owned pieces and styles by itself (LawnService,
+-- Lawn.best), so the chip only shows what is out and what is stored.
 --
---   live(state, lawnPath)   whether the tab shows: the plot's LawnPath attribute is set (the lawn art is in) and
+--   live(state, lawnPath)   whether the chip shows: the plot's LawnPath attribute is set (the lawn art is in) and
 --                           ProfileSync has sent the lawn
---   pieceAction(state, piece)          a piece card's button in the tab
---   styleAction(state, style)          a path or fence card's button
---   spotChoices(state, spotId)         the picker's rows for one spot: the piece there, then owned pieces that fit
---                                      (#1200: nothing is sold here; pieces come from the Garden Nursery)
+--   cards(state)                       the Lawn chip's cards (#1283): each owned piece, path and fence, out first
+--   total(state)                       its line on top: "Lawn: 6 out, +18% money", the Money boosts row's number
+--   pieceAction(state, piece)          a piece's button from before #1283 (no screen shows it now)
+--   styleAction(state, style)          a path or fence's button from before #1283 (no screen shows it now)
+--   spotChoices(state, spotId)         the old edit view's picker rows (no screen shows them now)
 --   stallRows(tab)                     the Garden Nursery's rows for "pieces", "path" or "fence" (lawn-nursery.md 2)
 --   stallAction(state, row)            a nursery row's button: Buy with the price, Owned, or Opens at Tier n
---   NURSERY_LINE, nurseryNote(state)   where lawn pieces are sold, for the Front lawn tab and an empty picker
+--   NURSERY_LINE, nurseryNote(state)   where lawn pieces are sold
 --   counts(state)                      lawn spots used and open at the cafe's tier
 --   inUse(state, kind)                 the path or fence in use (nil: no fence)
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local ShortNumber = require(script.Parent.ShortNumber)
@@ -350,19 +350,102 @@ function LawnLogic.stallAction(state: Types.PlayerState, row: StallRow): Action
 	}
 end
 
--- The edit view's camera (Screens/LawnEdit): how far back from the lawn's middle it stands, and how high for each stud
--- back, so the lawn fills the screen's width without a spot cut off.
-LawnLogic.EDIT_RISE = 0.6
-LawnLogic.EDIT_MIN = 16
-LawnLogic.EDIT_MAX = 40
-
--- Studs back from the lawn's middle so `half` studs either side (plus one) fit the width of a screen `aspect` wide
--- for each unit high at the vertical field of view `fov` in degrees; between EDIT_MIN and EDIT_MAX.
-function LawnLogic.editDistance(half: number, fov: number, aspect: number): number
-	local across = math.tan(math.rad(fov) / 2) * math.max(aspect, 0.5)
-	local back = (half + 1) / math.max(across, 0.1)
-	return math.clamp(back, LawnLogic.EDIT_MIN, LawnLogic.EDIT_MAX)
+-- 0.035 -> "3.5%", 0.18 -> "18%" (Format.percent's rule; Format needs Theme, which the pure specs leave out)
+local function percent(fraction: number): string
+	local value = fraction * 100
+	local text = string.format(if value >= 10 or value == 0 then "%.0f" else "%.1f", value)
+	return (text:gsub("%.0$", "")) .. "%"
 end
+
+-- The Lawn chip (#1283, lawn-nursery.md section 6e) ---------------------------------------------------------------
+
+-- One card: an owned piece, path or fence, its rarity and the money it adds while out, and whether it is out now.
+export type Card = {
+	id: string,
+	name: string,
+	model: string,
+	kind: string, -- "piece", "path" or "fence"
+	rarity: string?, -- "Common" to "Golden"; nil for none
+	bonus: number, -- the fraction it adds while out (0.03 for "+3% money")
+	out: boolean, -- on a lawn spot, or the path or fence in use
+}
+
+-- Each owned piece, path and fence (not the free Grey Slabs, which adds nothing): the ones out first, then the bigger
+-- bonus, then by name.
+function LawnLogic.cards(state: Types.PlayerState): { Card }
+	local owned = state.lawnOwned or {}
+	local list: { Card } = {}
+	for _, piece in LawnLogic.pieces() do
+		if owned[piece.id] == true then
+			table.insert(list, {
+				id = piece.id,
+				name = piece.name,
+				model = piece.model,
+				kind = "piece",
+				rarity = piece.rarity :: string?,
+				bonus = Lawn.rarityBonus(piece.rarity),
+				out = LawnLogic.spotOf(state, piece.id) ~= nil,
+			})
+		end
+	end
+	local function addStyles(kind: Types.LawnStyleKind)
+		local using = LawnLogic.inUse(state, kind)
+		for _, style in LawnLogic.styles(kind) do
+			if owned[style.id] == true and style.rarity ~= nil then
+				table.insert(list, {
+					id = style.id,
+					name = style.name,
+					model = style.model,
+					kind = style.kind :: string,
+					rarity = style.rarity :: string?,
+					bonus = Lawn.rarityBonus(style.rarity),
+					out = using == style.id,
+				})
+			end
+		end
+	end
+	addStyles("path")
+	addStyles("fence")
+	table.sort(list, function(a: Card, b: Card): boolean
+		if a.out ~= b.out then
+			return a.out
+		end
+		if a.bonus ~= b.bonus then
+			return a.bonus > b.bonus
+		end
+		if a.name ~= b.name then
+			return a.name < b.name
+		end
+		return a.id < b.id
+	end)
+	return list
+end
+
+-- The line under a card's name: "+3% money", "Path · +2% money" or "Fence · +2% money".
+function LawnLogic.cardLine(card: Card): string
+	local money = ("+%s money"):format(percent(card.bonus))
+	if card.kind == "path" then
+		return "Path · " .. money
+	elseif card.kind == "fence" then
+		return "Fence · " .. money
+	end
+	return money
+end
+
+-- The Lawn chip's line on top: "Lawn: 6 out, +18% money" (the same sum as the Money boosts row, Lawn.bonusOf), or
+-- "Lawn: nothing out yet".
+function LawnLogic.total(state: Types.PlayerState): string
+	local v = view(state)
+	local bonus, out = Lawn.bonusOf(v.lawnOwned, v.lawn, v.lawnStyles)
+	if out <= 0 then
+		return "Lawn: nothing out yet"
+	end
+	return ("Lawn: %d out, +%s money"):format(out, percent(bonus))
+end
+
+-- Where to buy more, for the grid's last card (lawn-nursery.md section 7: only the Yard Sale sells lawn pieces).
+LawnLogic.SHOP_TITLE = "Find more lawn decor"
+LawnLogic.SHOP_WHERE = "Yard Sale"
 
 -- "Small spot" or "Big spot".
 function LawnLogic.sizeName(size: Types.LawnSize): string

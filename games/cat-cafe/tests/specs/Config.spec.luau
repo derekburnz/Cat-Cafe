@@ -433,7 +433,8 @@ return function()
 				RescueTreeCircle = true, -- Derek 2026-11-03: false, checked in Rescue.spec (a false value reads as missing)
 				RescueSnack = true,
 				LawnRarityBonus = true, -- #1283 (lawn-nursery.md section 6a): a table, checked in Lawn.spec
-				LawnStallRange = true, -- #1200 (lawn-nursery.md section 4): 14 studs, checked in LawnService -- #1181 (corner-shop-v2.md section 3): a food id, checked in CornerShop.spec
+				YardDecorRows = true, -- #1537 (lawn-nursery.md section 7): checked in YardSale.spec
+				YardDecorRarityWeights = true, -- #1537: a table, checked in YardSale.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

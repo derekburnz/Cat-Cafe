@@ -1,16 +1,14 @@
 --!strict
--- The Decor screen's Front lawn tab (F91, front-lawn.md section 3). DecorShop shows it in place of its strip and grid
--- when the "Front lawn" chip is picked, and only while the lawn is live (Components/LawnLogic.live).
+-- The Decor screen's Lawn chip (F91; #1283, lawn-nursery.md section 6e, Derek2 11-05: "act like its another
+-- plants/floor/walls section no edit lawn bs"). DecorShop shows it in place of its strip and grid when the Lawn chip
+-- is picked, and only while the lawn is live (Components/LawnLogic.live).
 --
--- Like the inside decor: a "Your lawn" strip on top with the path in use, the fence in use ("None") and the lawn
--- spots ("1 / 2" used of open), then the Edit lawn button. Tapping a slot shows its cards below: path styles, fence
--- styles, or the pieces. Since #1200 (lawn-nursery.md section 3) only what the player owns shows here: lawn pieces
--- are bought at the Garden Nursery in the Park (Screens/LawnStall), and a line under the strip says so. A piece card
--- says Place (onto the first open spot of its size), Put away or Spots full; a style card Use it, In use or Take down
--- (the fence). Edit lawn opens the edit view (Screens/LawnEdit), where a spot is picked by its ring. Everything here is
--- a request: the callbacks become SetLawnSpot and SetLawnStyle, which the server checks.
+-- Like Plants, Floor and Walls: one line on top with the total ("Lawn: 6 out, +18% money", the Money boosts row's
+-- number), then a grid of the same cards, one per owned piece, path and fence (Components/LawnLogic.cards): the model
+-- on a tile in its rarity colour, the rarity, the name, its bonus ("+3% money", paths and fences tagged "Path" or
+-- "Fence") and "Out" or "Stored". The server lays the best owned pieces by itself after every buy (LawnService,
+-- Lawn.best), and the window's Equip Best stays, so nothing here is a button. The grid ends with where to buy more.
 
-local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local LawnLogic = require(script.Parent.Parent.Components.LawnLogic)
@@ -21,40 +19,20 @@ local Types = require(script.Parent.Parent.Types)
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = Theme.dark
 
-export type Callbacks = {
-	buyLawn: (id: string, spotId: string?) -> (),
-	setLawnSpot: (spotId: string, pieceId: string) -> (), -- "" clears the spot
-	setLawnStyle: (kind: Types.LawnStyleKind, id: string) -> (), -- "" lays Grey Slabs or takes the fence down
-	editLawn: () -> (),
-}
-
-export type Filter = "pieces" | "path" | "fence"
-
 export type LawnTab = {
 	frame: Frame,
 	render: (self: LawnTab, state: Types.PlayerState) -> (),
-	setFilter: (self: LawnTab, filter: Filter) -> (),
 	destroy: (self: LawnTab) -> (),
 }
 
 local CARD_WIDTH = 164 -- the inside decor's cards
 local CARD_TOP = 152
-local STRIP_HEIGHT = 58
-local NOTE_HEIGHT = 22 -- "Get lawn pieces at the Garden Nursery in the Park"
-local SLOT_WIDTH = 164 -- "White Picket" fits beside the picture
-local EDIT_W = 150
-local STYLE_KINDS: { Types.LawnStyleKind } = { "path", "fence" }
+local TOTAL_HEIGHT = 28 -- "Lawn: 6 out, +18% money"
+local FOOTER_GLYPH = 56
 
-local GLYPH = "🌷" -- a lawn piece or style with no model in Assets yet
+local GLYPH = "🌷" -- a lawn piece with no model in Assets yet
 local PATH_GLYPH = "🧱"
 local FENCE_GLYPH = "🚧"
-local EDIT_GLYPH = "✏️"
-
-local SLOTS: { { filter: Filter, label: string, glyph: string } } = {
-	{ filter = "path", label = "Path", glyph = PATH_GLYPH },
-	{ filter = "fence", label = "Fence", glyph = FENCE_GLYPH },
-	{ filter = "pieces", label = "Lawn spots", glyph = GLYPH },
-}
 
 local LawnTab = {}
 LawnTab.__index = LawnTab
@@ -75,14 +53,21 @@ local function text(props: { [string]: any }): TextLabel
 	return Create("TextLabel", merged)
 end
 
-function LawnTab.new(parent: Instance, callbacks: Callbacks): LawnTab
+-- A small round pill: the rarity on the art, "Out" or "Stored" at the foot.
+local function pill(label: TextLabel): TextLabel
+	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = label })
+	Create("UIPadding", {
+		PaddingLeft = UDim.new(0, 8),
+		PaddingRight = UDim.new(0, 8),
+		Parent = label,
+	})
+	return label
+end
+
+function LawnTab.new(parent: Instance): LawnTab
 	local self = setmetatable({}, LawnTab) :: any
-	self._callbacks = callbacks
-	self._filter = "pieces" :: Filter
-	self._cards = {} :: { any }
-	self._slots = {} :: { any }
-	self._state = nil :: Types.PlayerState?
-	self._actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
+	self._cards = {} :: { [string]: any }
+	self._statusHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
 
 	local frame: Frame = Create("Frame", {
 		Name = "Lawn",
@@ -93,105 +78,15 @@ function LawnTab.new(parent: Instance, callbacks: Callbacks): LawnTab
 	})
 	self.frame = frame
 
-	local strip: ScrollingFrame = Create("ScrollingFrame", {
-		Name = "YourLawn",
-		BackgroundTransparency = 1,
-		BorderSizePixel = 0,
-		Size = UDim2.new(1, -(EDIT_W + Theme.sizes.gap), 0, STRIP_HEIGHT),
-		CanvasSize = UDim2.new(),
-		AutomaticCanvasSize = Enum.AutomaticSize.X,
-		ScrollBarThickness = 0,
-		ScrollingDirection = Enum.ScrollingDirection.X,
-		Parent = frame,
-	}, {
-		Create("UIListLayout", {
-			FillDirection = Enum.FillDirection.Horizontal,
-			Padding = UDim.new(0, Theme.sizes.gap),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-		}),
-	})
-	for order, def in SLOTS do
-		local slot: TextButton = Create("TextButton", {
-			Name = (def.label:gsub(" ", "")),
-			Text = "",
-			AutoButtonColor = false,
-			BackgroundColor3 = PAL.card,
-			BorderSizePixel = 0,
-			LayoutOrder = order,
-			Size = UDim2.fromOffset(SLOT_WIDTH, STRIP_HEIGHT),
-			Parent = strip,
-		}, {
-			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		})
-		local stroke: UIStroke = Create("UIStroke", {
-			Color = PAL.cardStroke,
-			Thickness = Theme.sizes.stroke,
-			Parent = slot,
-		})
-		local icon = ItemIcon.new({
-			parent = slot,
-			size = UDim2.fromOffset(STRIP_HEIGHT - 12, STRIP_HEIGHT - 12),
-			anchorPoint = Vector2.new(0, 0.5),
-			position = UDim2.new(0, 6, 0.5, 0),
-		})
-		text({
-			Name = "Kind",
-			Position = UDim2.fromOffset(STRIP_HEIGHT, 7),
-			Size = UDim2.new(1, -(STRIP_HEIGHT + 6), 0, 16),
-			FontFace = Theme.fonts.bodyBold,
-			TextSize = Theme.sizes.textTiny,
-			TextColor3 = PAL.subtext,
-			Text = def.label,
-			Parent = slot,
-		})
-		local value = text({
-			Name = "Value",
-			Position = UDim2.fromOffset(STRIP_HEIGHT, 24),
-			Size = UDim2.new(1, -(STRIP_HEIGHT + 6), 0, 24),
-			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textBody,
-			Parent = slot,
-		})
-		local connection = slot.Activated:Connect(function()
-			self:setFilter(def.filter)
-		end)
-		table.insert(self._slots, {
-			filter = def.filter,
-			glyph = def.glyph,
-			frame = slot,
-			stroke = stroke,
-			icon = icon,
-			value = value,
-			connection = connection,
-		})
-	end
-
-	self._edit = Button.new({
-		name = "EditLawn",
-		text = "Edit lawn",
-		icon = EDIT_GLYPH,
-		style = "gold",
-		size = UDim2.fromOffset(EDIT_W, STRIP_HEIGHT),
-		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(1, 0, 0, 0),
-		textSize = Theme.sizes.textBody,
-		parent = frame,
-		onClick = function()
-			callbacks.editLawn()
-		end,
-	})
-
-	self._note = text({
-		Name = "Nursery",
-		Position = UDim2.fromOffset(0, STRIP_HEIGHT + 4),
-		Size = UDim2.new(1, 0, 0, NOTE_HEIGHT),
-		FontFace = Theme.fonts.bodyBold,
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
-		Text = LawnLogic.nurseryNote(nil),
+	self._total = text({
+		Name = "Total",
+		Size = UDim2.new(1, 0, 0, TOTAL_HEIGHT),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		Text = "Lawn",
 		Parent = frame,
 	})
-	local gridTop = STRIP_HEIGHT + NOTE_HEIGHT + Theme.sizes.gap
+	local gridTop = TOTAL_HEIGHT + Theme.sizes.gap
 	self._grid = Create("ScrollingFrame", {
 		Name = "Grid",
 		BackgroundTransparency = 1,
@@ -206,7 +101,7 @@ function LawnTab.new(parent: Instance, callbacks: Callbacks): LawnTab
 		Parent = frame,
 	}, {
 		Create("UIGridLayout", {
-			CellSize = UDim2.fromOffset(CARD_WIDTH, CARD_TOP + self._actionHeight),
+			CellSize = UDim2.fromOffset(CARD_WIDTH, CARD_TOP + self._statusHeight),
 			CellPadding = UDim2.fromOffset(Theme.sizes.gap, Theme.sizes.gap),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 			HorizontalAlignment = Enum.HorizontalAlignment.Left,
@@ -214,31 +109,56 @@ function LawnTab.new(parent: Instance, callbacks: Callbacks): LawnTab
 		Create("UIPadding", { PaddingRight = UDim.new(0, 10) }),
 	})
 
-	for _, piece in LawnLogic.pieces() do
-		self:_card(piece.id, piece.name, piece.model, nil, piece, nil)
-	end
-	for _, kind in STYLE_KINDS do
-		for _, style in LawnLogic.styles(kind) do
-			self:_card(style.id, style.name, style.model, style.kind, nil, style)
-		end
-	end
-	self:setFilter("pieces")
+	-- the last cell: where lawn pieces are sold, like the decor grid's "Find more in crates"
+	local footer: Frame = Create("Frame", {
+		Name = "FindMore",
+		LayoutOrder = 100000,
+		BackgroundColor3 = PAL.card,
+		BorderSizePixel = 0,
+		Parent = self._grid,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+	})
+	text({
+		Name = "Glyph",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 18),
+		Size = UDim2.fromOffset(FOOTER_GLYPH, FOOTER_GLYPH),
+		TextScaled = true,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = GLYPH,
+		Parent = footer,
+	})
+	text({
+		Name = "Title",
+		Position = UDim2.fromOffset(10, FOOTER_GLYPH + 26),
+		Size = UDim2.new(1, -20, 0, 22),
+		FontFace = Theme.fonts.display,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = LawnLogic.SHOP_TITLE,
+		TextScaled = true,
+		Parent = footer,
+	})
+	text({
+		Name = "Where",
+		Position = UDim2.fromOffset(10, FOOTER_GLYPH + 50),
+		Size = UDim2.new(1, -20, 0, 18),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.subtext,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = LawnLogic.SHOP_WHERE,
+		Parent = footer,
+	})
 
 	return self :: LawnTab
 end
 
--- One card: the model on a tile, the On lawn / In use / Owned pill, the name, what it is, and the button.
-function LawnTab._card(
-	self: any,
-	id: string,
-	name: string,
-	model: string,
-	kind: Types.LawnStyleKind?,
-	piece: Types.LawnPieceDef?,
-	style: Types.LawnStyleDef?
-)
-	local card: Frame = Create("Frame", {
-		Name = id,
+-- One card, made the first time its piece or style is owned and kept: the model on a tile in its rarity colour, the
+-- rarity, the name, the bonus line and the Out / Stored pill.
+function LawnTab._card(self: any, card: LawnLogic.Card): any
+	local frame: Frame = Create("Frame", {
+		Name = card.id,
 		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Parent = self._grid,
@@ -247,172 +167,92 @@ function LawnTab._card(
 		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
 	})
 	local icon = ItemIcon.new({
-		parent = card,
+		parent = frame,
 		size = UDim2.fromOffset(76, 76),
 		anchorPoint = Vector2.new(0.5, 0),
 		position = UDim2.new(0.5, 0, 0, 10),
 	})
 	icon:set(
-		model,
-		if kind == "path" then PATH_GLYPH elseif kind == "fence" then FENCE_GLYPH else GLYPH,
-		nil
+		card.model,
+		if card.kind == "path"
+			then PATH_GLYPH
+			elseif card.kind == "fence" then FENCE_GLYPH
+			else GLYPH,
+		card.rarity
 	)
-	local badge = text({
-		Name = "Owned",
-		BackgroundColor3 = Theme.colors.good,
+	pill(text({
+		Name = "Rarity",
 		BackgroundTransparency = 0,
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -10, 0, 10),
+		BackgroundColor3 = Theme.rarityColor(card.rarity),
+		Position = UDim2.fromOffset(16, 16),
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, 20),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textTiny,
-		TextColor3 = Theme.colors.goodText,
+		TextColor3 = Theme.rarityTextColor(card.rarity),
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.None,
-		Visible = false,
+		Text = card.rarity or "",
 		ZIndex = 3,
-		Parent = card,
-	})
-	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = badge })
-	Create("UIPadding", {
-		PaddingLeft = UDim.new(0, 8),
-		PaddingRight = UDim.new(0, 8),
-		Parent = badge,
-	})
+		Parent = frame,
+	}))
 	text({
 		Name = "Name",
 		Position = UDim2.fromOffset(10, 92),
 		Size = UDim2.new(1, -20, 0, 22),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody,
-		Text = name,
-		Parent = card,
+		Text = card.name,
+		Parent = frame,
 	})
-	local what = if piece
-		then ("%s · Tier %d"):format(LawnLogic.sizeName(piece.spot), piece.tier)
-		elseif kind == "path" then "Path"
-		else "Fence"
 	text({
 		Name = "Effect",
 		Position = UDim2.fromOffset(10, 114),
 		Size = UDim2.new(1, -20, 0, 18),
 		TextSize = Theme.sizes.textTiny,
 		TextColor3 = PAL.subtext,
-		Text = what,
-		Parent = card,
+		Text = LawnLogic.cardLine(card),
+		Parent = frame,
 	})
-	local entry: any = {
-		id = id,
-		kind = kind,
-		piece = piece,
-		style = style,
-		frame = card,
-		icon = icon,
-		badge = badge,
-		order = #self._cards + 1,
-		action = nil :: LawnLogic.Action?,
-	}
-	entry.button = Button.new({
-		name = "Action",
-		text = "",
-		style = "primary",
-		size = UDim2.new(1, -20, 0, self._actionHeight),
-		position = UDim2.new(0, 10, 1, -(self._actionHeight + 10)),
-		textSize = Theme.sizes.textSmall + 1,
-		parent = card,
-		onClick = function()
-			self:_press(entry)
-		end,
+	local status = text({
+		Name = "Status",
+		BackgroundTransparency = 0,
+		Position = UDim2.new(0, 10, 1, -(self._statusHeight + 10)),
+		Size = UDim2.new(1, -20, 0, self._statusHeight - Theme.sizes.buttonDepth),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textSmall + 1,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Parent = frame,
 	})
-	table.insert(self._cards, entry)
-end
-
-function LawnTab._press(self: any, entry: any)
-	local action: LawnLogic.Action? = entry.action
-	if action == nil or not action.enabled then
-		return
-	end
-	local callbacks: Callbacks = self._callbacks
-	local mode = action.mode
-	if mode == "buy" then
-		callbacks.buyLawn(entry.id, nil)
-	elseif mode == "place" and action.spotId then
-		callbacks.setLawnSpot(action.spotId, entry.id)
-	elseif mode == "away" and action.spotId then
-		callbacks.setLawnSpot(action.spotId, "")
-	elseif mode == "use" and entry.kind then
-		callbacks.setLawnStyle(entry.kind, entry.id)
-	elseif mode == "takeDown" then
-		callbacks.setLawnStyle("fence", "")
-	end
-end
-
-function LawnTab.setFilter(self: any, filter: Filter)
-	self._filter = filter
-	for _, slot in self._slots do
-		local picked = slot.filter == filter
-		slot.stroke.Color = if picked then Theme.colors.gold else PAL.cardStroke
-		slot.stroke.Thickness = if picked then Theme.sizes.stroke + 1 else Theme.sizes.stroke
-	end
-	for _, entry in self._cards do
-		entry.frame.Visible = self:_shows(entry)
-	end
-	self._grid.CanvasPosition = Vector2.zero
-end
-
--- A card shows on its own filter, and only once owned: the Garden Nursery sells the rest (#1200).
-function LawnTab._shows(self: any, entry: any): boolean
-	local filter: Filter = self._filter
-	local onFilter = (filter == "pieces" and entry.piece ~= nil) or entry.kind == filter
-	local state: Types.PlayerState? = self._state
-	return onFilter and state ~= nil and LawnLogic.owns(state, entry.id)
+	Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall), Parent = status })
+	local entry = { frame = frame, icon = icon, status = status }
+	self._cards[card.id] = entry
+	return entry
 end
 
 function LawnTab.render(self: any, state: Types.PlayerState)
-	self._state = state
-	self._note.Text = LawnLogic.nurseryNote(state)
-	local used, open = LawnLogic.counts(state)
-	for _, slot in self._slots do
-		if slot.filter == "pieces" then
-			slot.icon:set(nil, slot.glyph, nil)
-			slot.value.Text = ("%d / %d"):format(used, open)
-			slot.value.TextColor3 = if open > 0 and used >= open then Theme.colors.red else PAL.text
-			continue
-		end
-		local id = LawnLogic.inUse(state, slot.filter)
-		local style = if id ~= nil then LawnLogic.getStyle(id) else nil
-		slot.icon:set(if style then style.model else nil, slot.glyph, nil)
-		slot.value.Text = if style then style.name else "None"
-		slot.value.TextColor3 = if style then PAL.text else PAL.subtext
+	self._total.Text = LawnLogic.total(state)
+	local shown: { [string]: boolean } = {}
+	for order, card in LawnLogic.cards(state) do
+		local entry = self._cards[card.id] or self:_card(card)
+		entry.frame.LayoutOrder = order
+		entry.frame.Visible = true
+		entry.status.Text = if card.out then "Out" else "Stored"
+		entry.status.BackgroundColor3 = if card.out then Theme.colors.good else PAL.cardStroke
+		entry.status.TextColor3 = if card.out then Theme.colors.goodText else PAL.subtext
+		shown[card.id] = true
 	end
-	for _, entry in self._cards do
-		local action = if entry.piece
-			then LawnLogic.pieceAction(state, entry.piece)
-			else LawnLogic.styleAction(state, entry.style)
-		entry.action = action
-		entry.button:setText(action.text)
-		entry.button:setStyle(action.style :: any)
-		entry.button:setEnabled(action.enabled)
-		local owned = LawnLogic.owns(state, entry.id)
-		local onLawn = action.mode == "away" or action.mode == "inUse" or action.mode == "takeDown"
-		entry.badge.Visible = owned
-		entry.badge.Text = if onLawn then (if entry.piece then "On lawn" else "In use") else "Owned"
-		entry.frame.LayoutOrder = entry.order
-		entry.frame.Visible = self:_shows(entry)
+	for id, entry in self._cards do
+		if not shown[id] then
+			entry.frame.Visible = false
+		end
 	end
 end
 
 function LawnTab.destroy(self: any)
-	for _, slot in self._slots do
-		slot.icon:destroy()
-		slot.connection:Disconnect()
-	end
 	for _, entry in self._cards do
 		entry.icon:destroy()
-		entry.button:destroy()
 	end
-	self._edit:destroy()
 	self.frame:Destroy()
 end
 

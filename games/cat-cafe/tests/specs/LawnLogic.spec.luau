@@ -1,6 +1,6 @@
 --!strict
--- UI/Components/LawnLogic.luau: the Front lawn tab's and the edit view's buttons and counts (F91, front-lawn.md
--- section 3), on shared/Lawn's rules and Catalog.lawn's prices.
+-- UI/Components/LawnLogic.luau: the Lawn chip's cards and total (#1283), the old Front lawn buttons and counts (F91,
+-- front-lawn.md section 3), on shared/Lawn's rules and Catalog.lawn's prices.
 return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
@@ -130,7 +130,9 @@ return function()
 			expect(buy.mode).to.equal("buy")
 			expect(buy.enabled).to.equal(true)
 			expect(LawnLogic.styleAction(state, style("paw_print_path")).text).to.equal("Tier 3")
-			expect(LawnLogic.styleAction(player(1, 10000), style("white_picket")).text).to.equal("Tier 2")
+			expect(LawnLogic.styleAction(player(1, 10000), style("white_picket")).text).to.equal(
+				"Tier 2"
+			)
 		end)
 
 		it("reads Grey Slabs as owned and in use on a fresh lawn", function()
@@ -221,18 +223,61 @@ return function()
 		end)
 	end)
 
-	describe("LawnLogic.editDistance", function()
-		it("stands back far enough for the lawn's width, within its limits", function()
-			local wide = LawnLogic.editDistance(17, 70, 16 / 9)
-			expect(wide >= LawnLogic.EDIT_MIN).to.equal(true)
-			expect(wide <= LawnLogic.EDIT_MAX).to.equal(true)
-			-- the half width plus a stud fits the screen at that distance
-			local across = math.tan(math.rad(70) / 2) * (16 / 9) * wide
-			expect(across >= 18 - 1e-6).to.equal(true)
-			expect(LawnLogic.editDistance(17, 70, 0.6) > LawnLogic.editDistance(17, 70, 2)).to.equal(
-				true
+	describe("LawnLogic.cards (#1283)", function()
+		it("lists each owned piece, path and fence, out first, then the bigger bonus", function()
+			local state = player(
+				3,
+				0,
+				{ "tulip_bed", "potted_cat_topiary", "mailbox", "red_brick", "stepping_stones" },
+				{ small1 = "tulip_bed" },
+				{ path = "red_brick" }
 			)
-			expect(LawnLogic.editDistance(500, 70, 1)).to.equal(LawnLogic.EDIT_MAX)
+			local cards = LawnLogic.cards(state)
+			local ids = {}
+			for _, card in cards do
+				table.insert(ids, card.id)
+			end
+			-- out: Red Brick and the Tulip Bed (both Common, by name); stored: the three Uncommons
+			expect(cards[1].out).to.equal(true)
+			expect(cards[2].out).to.equal(true)
+			expect(cards[3].out).to.equal(false)
+			expect(table.concat(ids, ",", 1, 2)).to.equal("red_brick,tulip_bed")
+			expect(#cards).to.equal(5)
+			for index = 4, #cards do
+				expect(cards[index - 1].bonus >= cards[index].bonus).to.equal(true)
+			end
+		end)
+
+		it("leaves out what is not owned and the free Grey Slabs", function()
+			local cards = LawnLogic.cards(player(3, 0, { "tulip_bed" }))
+			expect(#cards).to.equal(1)
+			expect(cards[1].id).to.equal("tulip_bed")
+			expect(cards[1].kind).to.equal("piece")
+			expect(cards[1].out).to.equal(false)
+			expect(#LawnLogic.cards(player(1, 0, nil))).to.equal(0)
+		end)
+
+		it("tags paths and fences on the bonus line", function()
+			local path = LawnLogic.cards(player(3, 0, { "red_brick" }))[1]
+			expect(LawnLogic.cardLine(path)).to.equal("Path · +1% money")
+			expect(LawnLogic.cardLine({ kind = "fence", bonus = 0.03 })).to.equal(
+				"Fence · +3% money"
+			)
+			expect(LawnLogic.cardLine({ kind = "piece", bonus = 0.015 })).to.equal("+1.5% money")
+		end)
+	end)
+
+	describe("LawnLogic.total (#1283)", function()
+		it("counts what is out and sums its bonus, as the Money boosts row does", function()
+			local state = player(
+				3,
+				0,
+				{ "tulip_bed", "potted_cat_topiary", "red_brick" },
+				{ small1 = "tulip_bed", small2 = "potted_cat_topiary" },
+				{ path = "red_brick" }
+			)
+			expect(LawnLogic.total(state)).to.equal("Lawn: 3 out, +3.5% money")
+			expect(LawnLogic.total(player(3, 0, { "tulip_bed" }))).to.equal("Lawn: nothing out yet")
 		end)
 	end)
 

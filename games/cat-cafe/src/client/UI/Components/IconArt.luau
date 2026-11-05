@@ -171,6 +171,12 @@ function IconArt.set(label: TextLabel, glyph: string?, scale: number?)
 end
 
 function IconArt.setImage(label: TextLabel, image: string?, scale: number?)
+	-- #1665: a HUD picture keeps its clean symbol behind it, drawn if the picture fails to load
+	local backup = ShopIcons.backup(image)
+	if image and backup then
+		IconArt.setImages(label, { image, backup }, scale)
+		return
+	end
 	choices[label] = nil
 	IconArt._draw(label, image, scale)
 end

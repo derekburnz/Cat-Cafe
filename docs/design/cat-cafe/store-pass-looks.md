@@ -24,3 +24,9 @@ A small gold plate with a paw on it, under the cafe name on the sign. It's a sep
 - A player who owns both picks one on the Style panel; default, Garden or Grand. The money bonus stays on whichever theme shows.
 - Themes swap parts on the cafe model (`CatCafe_Theme_Garden`, `CatCafe_Theme_Grand` folders under ReplicatedStorage.Assets), and the server sets a `Theme` attribute on the plot. Nothing changes collision, the door, the camera or a station's position.
 - Other players see the owner's theme, so it's a status look that never blocks anyone.
+
+## 6. Cat Accessories (#1624, agreed with Gameplay-Engineer 2026-11-05)
+- **One pick for the whole cafe**, like the uniform style, on the Style panel. Every working cat wears it. There are no per-cat picks; they'd be a chore with 12 slots.
+- **The pass gives two pieces:** Tiny Hat (`CatCafe_Accessory_Hat`, Head) and Round Glasses (`CatCafe_Accessory_Glasses`, Face). Cafe Pass pieces (cafe-pass.md §3) join the picker once earned, as looks only.
+- **Slot rule** (data-model.md props): a Head piece replaces the role hat, a Back piece replaces the Cape, and a Face piece clashes with nothing. A cat whose own themed prop already fills that slot keeps its prop and skips the accessory.
+- **Money:** the +15% comes with the pass and applies to every working cat, whatever is picked, even "none" (economy-ladder.md §6a). The picker never changes income.

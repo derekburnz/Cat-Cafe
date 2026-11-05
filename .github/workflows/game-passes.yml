@@ -2,7 +2,8 @@
 # Start it from the Actions tab (game-passes > Run workflow) or from any thread with the GitHub actions_run_trigger
 # tool on main. list prints every pass with its id; create makes each pass in
 # games/cat-cafe/tools/opencloud/passes.json that is missing, off sale unless for_sale is ticked, and prints the
-# Config lines for its ids; set changes one pass's price, sale state, regional pricing or icon. Passes cannot be
+# Config lines for its ids; set changes one pass's price, sale state, regional pricing or icon; set with batch changes
+# many passes in one run. Passes cannot be
 # deleted, so a pass is named and described as final before it goes in passes.json. Since 2026-11-04 (Derek) a pass
 # may be made ahead of its code as an off-sale placeholder; it stays off sale until the code that grants it is merged.
 # Needs the repo secret ROBLOX_PUBLISH_KEY with game-pass:read and game-pass:write (docs/setup-guide.md step 22).
@@ -22,6 +23,10 @@ on:
         default: ""
       changes:
         description: "set: one or more of price=N forSale=true|false regional=true|false icon=<image path from the repo root>"
+        required: false
+        default: ""
+      batch:
+        description: "set, many passes in one run (instead of pass and changes): entries separated by ; each as name-or-id|changes"
         required: false
         default: ""
       for_sale:
@@ -47,6 +52,7 @@ jobs:
       ACTION: ${{ inputs.action }}
       PASS: ${{ inputs.pass }}
       CHANGES: ${{ inputs.changes }}
+      BATCH: ${{ inputs.batch }}
       FOR_SALE: ${{ inputs.for_sale }}
     steps:
       - uses: actions/checkout@v5
@@ -65,8 +71,23 @@ jobs:
           case "$ACTION" in
           list | create) bash "$script" "$ACTION" ;;
           set)
-            read -r -a changes <<<"$CHANGES"
-            bash "$script" set "$PASS" "${changes[@]}"
+            if [ -n "$BATCH" ]; then
+              IFS=';' read -r -a items <<<"$BATCH"
+              failed=0
+              for item in "${items[@]}"; do
+                target=${item%%|*}
+                read -r -a changes <<<"${item#*|}"
+                bash "$script" set "$target" "${changes[@]}" || failed=$((failed + 1))
+                sleep 1
+              done
+              if [ "$failed" -gt 0 ]; then
+                echo "::error::$failed change(s) failed; see the log above"
+                exit 1
+              fi
+            else
+              read -r -a changes <<<"$CHANGES"
+              bash "$script" set "$PASS" "${changes[@]}"
+            fi
             ;;
           *)
             echo "::error::unknown action: $ACTION"

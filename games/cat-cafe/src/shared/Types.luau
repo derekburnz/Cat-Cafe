@@ -776,6 +776,22 @@ export type CampExtraView = {
 	held: number,
 	nextAt: number?,
 	stock: { YardSaleCrate }?,
+	decor: { YardDecorRow }?, -- #1537: the Yard Sale's lawn rows today (shared/YardSale)
+	decorAt: number?, -- #1537: when the Yard Sale's next lawn stock arrives (server time), the next sunrise
+}
+
+-- Saved (version 35, #1537): the global game day the Yard Sale rows were bought on, and those ids.
+export type YardDecorState = { day: number, bought: { [string]: boolean } }
+-- One Yard Sale lawn row as CampExtrasState sends it: a piece or style id, its name, rarity, fixed coin price and the
+-- tier that opens it; `bought` today (or the server is behind the saved day), `owned` already.
+export type YardDecorRow = {
+	id: string,
+	name: string,
+	rarity: LawnRarity,
+	price: number,
+	tier: number,
+	bought: boolean,
+	owned: boolean,
 }
 
 -- CampExtrasState (server to client): every extra's view by id, and the UTC day it was worked out on.
@@ -1002,6 +1018,7 @@ export type PlayerProfile = {
 	lawn: { [string]: string },
 	lawnStyles: LawnStyles,
 	cornerShop: CornerShopState, -- #1052 (corner-shop.md section 5, save version 29; v2 counters version 32)
+	yardDecor: YardDecorState, -- #1537 (lawn-nursery.md section 7, save version 35): the Yard Sale rows bought today
 	catFood: { [string]: number }, -- #1181 (corner-shop-v2.md section 3, save version 32): food id -> count in the Bag
 	hideCredit: boolean?, -- #1083 (idea-credits.md section 4, save version 30): true keeps the name off the Thank You board
 	receipts: { string }, -- #1182 (save version 31): the newest Products.RECEIPT_LIMIT developer product PurchaseIds granted

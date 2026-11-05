@@ -7,6 +7,8 @@
 -- button. A running potion with none left in the bag has no Use. Use reads "Full" when another would take the timer
 -- past PotionMaxMinutes (60). A pressed Use reads "..." for a moment; the server's answer is the next ProfileSync, and
 -- a refusal is the server's toast. The drink sound plays when the bag's count drops, which is the server accepting.
+-- #1600: beside Use, "Use x4" drinks as many as fit under PotionMaxMinutes in one press (UsePotion with a count);
+-- it shows only while two or more would fit.
 -- Timers pause while the player is away, so a rejoin shows what was left. Rows and sums: Components/PotionLogic.
 --
 -- The Bag (corner-shop-v2.md section 3, #1181): this window is the Bag, with two tabs. Potions is the potion bag
@@ -37,7 +39,7 @@ local Types = require(script.Parent.Parent.Types)
 local PAL = Theme.dark
 
 export type Callbacks = {
-	use: (potionId: string) -> (),
+	use: (potionId: string, count: number?) -> (), -- count: #1600's Use all, nil for one
 	feed: ((foodId: string, catUid: string) -> ())?, -- #1181: one food to one cat (FeedCat)
 	close: () -> (),
 }
@@ -68,6 +70,7 @@ type Row = {
 	effect: TextLabel,
 	left: TextLabel,
 	use: Button.Button,
+	useAll: Button.Button, -- #1600
 }
 
 local Potions = {}
@@ -97,6 +100,7 @@ function Potions.new(callbacks: Callbacks): Potions
 	self._rows = {} :: { [string]: Row }
 	self._counts = nil :: { [string]: number }? -- the bag at the last render, to hear a drink land
 	self._pending = {} :: { [string]: number } -- potion id -> os.clock() of the press
+	self._fits = {} :: { [string]: number } -- #1600: potion id -> how many Use all drinks now
 
 	local panel = Panel.new({
 		dark = true, -- #1028
@@ -659,7 +663,7 @@ function Potions._row(self: any, potionId: string): Row
 		Parent = count,
 	})
 	local textLeft = TILE + 24
-	local textRight = USE_W + 20
+	local textRight = USE_W + 20 -- _refresh widens it while Use all shows
 	local name = text({
 		Name = "PotionName",
 		Position = UDim2.fromOffset(textLeft, 12),
@@ -689,6 +693,21 @@ function Potions._row(self: any, potionId: string): Row
 		Visible = false,
 		Parent = frame,
 	})
+	-- one press: Use drinks one, Use all (#1600) as many as fit; the server cuts the count to what fits again
+	local function press(count: number?)
+		local pressedAt = self._pending[potionId]
+		if pressedAt and os.clock() - pressedAt < PENDING_SECONDS then
+			return
+		end
+		self._pending[potionId] = os.clock()
+		self._callbacks.use(potionId, count)
+		self:_refresh()
+		task.delay(PENDING_SECONDS, function()
+			if self._rows[potionId] then
+				self:_refresh()
+			end
+		end)
+	end
 	local use = Button.new({
 		name = "Use",
 		text = "Use",
@@ -699,20 +718,26 @@ function Potions._row(self: any, potionId: string): Row
 		textSize = Theme.sizes.textBody + 1,
 		parent = frame,
 		onClick = function()
-			local pressedAt = self._pending[potionId]
-			if pressedAt and os.clock() - pressedAt < PENDING_SECONDS then
-				return
-			end
-			self._pending[potionId] = os.clock()
-			self._callbacks.use(potionId)
-			self:_refresh()
-			task.delay(PENDING_SECONDS, function()
-				if self._rows[potionId] then
-					self:_refresh()
-				end
-			end)
+			press(nil)
 		end,
 	})
+	local useAll = Button.new({
+		name = "UseAll",
+		text = "Use all",
+		style = "teal",
+		size = UDim2.fromOffset(USE_W, 38),
+		anchorPoint = Vector2.new(1, 1),
+		position = UDim2.new(1, -(USE_W + 18), 1, -10),
+		textSize = Theme.sizes.textBody + 1,
+		parent = frame,
+		onClick = function()
+			local view = self._fits[potionId]
+			if view and view >= 2 then
+				press(view)
+			end
+		end,
+	})
+	useAll.instance.Visible = false
 	return {
 		frame = frame,
 		tile = tile,
@@ -721,6 +746,7 @@ function Potions._row(self: any, potionId: string): Row
 		effect = effect,
 		left = left,
 		use = use,
+		useAll = useAll,
 	}
 end
 
@@ -760,11 +786,23 @@ function Potions._refresh(self: any)
 		row.use:setEnabled(view.canUse and not pending)
 		-- a running potion with none left in the bag: no Use, just its time left
 		row.use.instance.Visible = view.count > 0
+		-- #1600: Use all while two or more fit, its count on the button; the words make room for it
+		self._fits[potion.id] = view.fit
+		local many = view.count > 0 and view.fit >= 2
+		row.useAll.instance.Visible = many
+		row.useAll:setText(if pending then "..." else ("Use x%d"):format(view.fit))
+		row.useAll:setEnabled(many and not pending)
+		local textRight = if many then 2 * USE_W + 28 else USE_W + 20
+		local textLeft = TILE + 24
+		row.name.Size = UDim2.new(1, -(textLeft + textRight), 0, 26)
+		row.effect.Size = UDim2.new(1, -(textLeft + textRight), 0, 22)
 		any = true
 	end
 	for id, row in self._rows do
 		if not shown[id] then
 			row.use:destroy()
+			row.useAll:destroy()
+			self._fits[id] = nil
 			row.frame:Destroy()
 			self._rows[id] = nil
 		end
@@ -787,6 +825,7 @@ function Potions.destroy(self: any)
 	self._back:destroy()
 	for _, row in self._rows do
 		row.use:destroy()
+		row.useAll:destroy()
 	end
 	table.clear(self._rows)
 	self._panel:destroy()

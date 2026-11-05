@@ -473,7 +473,7 @@ return function()
 			expect(Quests.rerollBlocker(p, "weekly", 1)).to.equal(nil)
 			p.quests.weeklyReroll = true
 			expect(Quests.rerollBlocker(p, "weekly", 1)).to.equal(
-				"You've used this week's free swap"
+				"You've used today's weekly swap"
 			)
 		end)
 

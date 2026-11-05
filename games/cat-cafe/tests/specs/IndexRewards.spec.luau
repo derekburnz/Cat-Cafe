@@ -725,13 +725,13 @@ return function()
 			expect(IndexRewards.rainbowChance(0.005, 0.5)).to.be.near(0.0075, 1e-12)
 			expect(IndexRewards.rainbowChance(0.005, 9)).to.be.near(0.01, 1e-12)
 			expect(IndexRewards.perkLabel("rainbowLuck", 0.2)).to.equal(
-				"+20% rainbow luck (rainbow 0.6%)"
+				"+20% rainbow luck (rainbow 1.8%)"
 			)
 			expect(IndexRewards.perkLabel("rainbowLuck", 0.5)).to.equal(
-				"+50% rainbow luck (rainbow 0.75%)"
+				"+50% rainbow luck (rainbow 2.25%)"
 			)
 			expect(IndexRewards.perkLabel("rainbowLuck", 1)).to.equal(
-				"+100% rainbow luck (rainbow 1%)"
+				"+100% rainbow luck (rainbow 3%)"
 			)
 			expect(IndexRewards.perkLabel("rainbowLuck", 0)).to.equal(nil)
 		end)

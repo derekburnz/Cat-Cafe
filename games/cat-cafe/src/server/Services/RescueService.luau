@@ -238,10 +238,13 @@ local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePa
 		def,
 		rng:NextNumber(),
 		IndexRewards.rainbowChance(
-			Config.RainbowChanceRescue,
+			Clock.rainbowChance(Config.RainbowChanceRescue, ClockService.dayKinds()),
 			CatService.rainbowLuckFor(areaDef.id)
 		),
-		IndexRewards.rollChance(Config.GoldChanceRescue, CatService.goldLuckFor(areaDef.id))
+		IndexRewards.rollChance(
+			Clock.goldChance(Config.GoldChanceRescue, ClockService.dayKinds()),
+			CatService.goldLuckFor(areaDef.id)
+		)
 	)
 	return spawnStuck(spotId, areaDef.id, spot, def, charm, variant)
 end

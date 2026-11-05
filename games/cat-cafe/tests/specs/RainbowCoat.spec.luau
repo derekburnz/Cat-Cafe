@@ -66,25 +66,25 @@ return function()
 			return rainbow / n, gold / n
 		end
 
-		it("rolls bait at exactly 0.5% rainbow and 5% gold over evenly spread rolls, alike for every rarity", function()
+		it("rolls bait at exactly 1.5% rainbow and 5% gold over evenly spread rolls, alike for every rarity", function()
 			for _, rarity in { "Common", "Rare", "Epic", "Legendary", "Mythical" } do
 				local def = catsOf(rarity, false)[1]
 				assert(def, rarity)
 				local rainbow, gold = shares(def, 100000, function(i: number): number
 					return (i - 0.5) / 100000
 				end)
-				expect(rainbow).to.be.near(0.005, 1e-9)
+				expect(rainbow).to.be.near(0.015, 1e-9) -- v2 (section 4b): 0.5% before
 				expect(gold).to.be.near(0.05, 1e-9)
 			end
 		end)
 
-		it("rolls bait near 0.5% rainbow and 5% gold over 100,000 random placements (check 2)", function()
+		it("rolls bait near 1.5% rainbow and 5% gold over 100,000 random placements (check 2)", function()
 			local rng = Random.new(99)
 			local rainbow, gold = shares(common, 100000, function(): number
 				return rng:NextNumber()
 			end)
-			-- three standard deviations of 100,000 rolls: 0.07 points for rainbow, 0.21 for gold
-			expect(math.abs(rainbow - 0.005) <= 0.0007).to.equal(true)
+			-- three standard deviations of 100,000 rolls: 0.12 points for rainbow, 0.21 for gold
+			expect(math.abs(rainbow - 0.015) <= 0.0012).to.equal(true)
 			expect(math.abs(gold - 0.05) <= 0.0021).to.equal(true)
 		end)
 	end)
@@ -156,10 +156,10 @@ return function()
 			)
 		end)
 
-		it("lifts the food card's rainbow line to 0.6%, 0.75% and 1% as rainbow5, 10 and 25 are claimed (check 7)", function()
+		it("lifts the food card's rainbow line to 1.8%, 2.25% and 3% as rainbow5, 10 and 25 are claimed (check 7)", function()
 			expect(IndexRewards.rainbowLuck(profileWith({}))).to.equal(0)
 			local claims: { [string]: boolean } = {}
-			local chances: { [string]: number } = { rainbow5 = 0.006, rainbow10 = 0.0075, rainbow25 = 0.01 }
+			local chances: { [string]: number } = { rainbow5 = 0.018, rainbow10 = 0.0225, rainbow25 = 0.03 }
 			for _, id in { "rainbow5", "rainbow10", "rainbow25" } do
 				claims[id] = true
 				local luck = IndexRewards.rainbowLuck(profileWith({}, table.clone(claims)))

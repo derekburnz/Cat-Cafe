@@ -20,6 +20,7 @@ local CafeService = require(script.Parent.CafeService)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Catching = require(ReplicatedStorage.Shared.Catching)
+local Clock = require(ReplicatedStorage.Shared.Clock)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
@@ -126,10 +127,11 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	local night = ClockService.phase() == "night"
 	local wait = Economy.baitWaitSeconds(profile, night, now)
 	-- F73: a Gold Rush Potion's luck and a Quick Bait Potion's speed running now are fixed in with the Index's
+	local kinds = ClockService.dayKinds() -- #1572: a Golden or Rainbow Day lifts the chances fixed in now
 	local goldChance = Potions.baitGoldChance(
 		profile,
 		IndexRewards.rollChance(
-			Config.GoldChanceBait,
+			Clock.goldChance(Config.GoldChanceBait, kinds),
 			totals.goldLuck + Potions.goldLuck(profile, now)
 		),
 		now
@@ -145,7 +147,10 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 		variant = Catching.rollCoat(
 			def,
 			rng:NextNumber(),
-			IndexRewards.rainbowChance(Config.RainbowChanceBait, IndexRewards.rainbowLuck(profile)),
+			IndexRewards.rainbowChance(
+				Clock.rainbowChance(Config.RainbowChanceBait, kinds),
+				IndexRewards.rainbowLuck(profile)
+			),
 			goldChance
 		),
 		charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),

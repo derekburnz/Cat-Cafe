@@ -1921,6 +1921,14 @@ def shift_chime() -> np.ndarray:
     return finish(fade_tail(mix(d, *notes, (shimmer, 0.2)), 0.35), -9)
 
 
+def station_ready() -> np.ndarray:
+    """A camp station has something to collect (#1133, #1154, #1232): a soft two-note glockenspiel "ta-ding" (D6, A6)."""
+    d = 0.7
+    first = bell(d, note("D6"), GLOCK) * 0.5
+    second = bell(d - 0.12, note("A6"), GLOCK) * 0.45
+    return finish(fade_tail(mix(d, (first, 0.0), (second, 0.12)), 0.3), -10)
+
+
 SOUNDS = {
     # name: (folder, bus, builder)
     "Click": ("ui", "Ui", ui_click),
@@ -2056,6 +2064,7 @@ SOUNDS = {
     "FoodStarTreat": ("sheet-parts/sfx", "Sfx", food_star_treat),
     "OfflineClaim": ("sheet-parts/sfx", "Sfx", offline_claim),
     "ShiftChime": ("sfx", "Sfx", shift_chime),
+    "StationReady": ("sfx", "Sfx", station_ready),
 }
 
 # Sound sheets (2026-11-01). Roblox lets an account that is not ID verified upload 100 sounds in 30 days, and the

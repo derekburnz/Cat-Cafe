@@ -106,6 +106,22 @@ PAVES = [(-8.0, -5.0, -IN_Z, S1_Z - 8), (5.0, 8.0, -IN_Z, S1_Z - 8),
          (-ROAD_END, ROAD_END, S4_Z - 8, S4_Z - 5), (-ROAD_END, ROAD_END, S4_Z + 5, S4_Z + 8),
          (-ROAD_END, ROAD_END, S5_Z - 8, S5_Z - 5), (-ROAD_END, ROAD_END, S5_Z + 5, S5_Z + 8)]
 GRAVEL = "paving_sand"
+# the footpaths' bends (x, z): across the green and through the allotments, and through the back gardens
+WALKS = ([(G1_X, S2_Z + 8), (16.0, -88.0), (0.0, -72.0), (0.0, -40.0), (30.0, -16.0), (30.0, S3_Z - 8)],
+         [(G2_X, S4_Z + 8), (-14.0, 104.0), (30.0, 128.0), (30.0, WALL_Z)])
+JOINT_SEGMENTS = 16
+
+
+def _walk(g, pts, w, swatch, top):
+    """#1155: one footpath through its bends. Straight strips that each end on a bend's centre, and over every bend a
+    round paving joint (top 0.008 above the strips) wide enough to cover both strips' square ends: the outer gap and
+    the inner overlap both lie within w / 2 of the bend, so the walk reads as one piece that turns smoothly, with no
+    gap, notch or sliver and no two tops in one plane."""
+    for a, b in zip(pts, pts[1:]):
+        _strip(g, a, b, w, swatch, top)
+    r = w / 2 / math.cos(math.pi / JOINT_SEGMENTS) + 0.02      # the polygon's flats clear the strips' corners
+    for p in pts[1:-1]:
+        g.cyl_base(bl(*p), r, top + 0.008, swatch, segments=JOINT_SEGMENTS, bevel=False)
 
 
 # ------------------------------------------------------------------------------------------------- ground --
@@ -134,12 +150,10 @@ def _ground():
         dashes((-ROAD_END + 4, z), (ROAD_END - 4, z))
     dashes((G1_X, S1_Z + 6), (G1_X, S2_Z - 6))
     dashes((G2_X, S3_Z + 6), (G2_X, S4_Z - 6))
-    # footpaths: across the green, through the allotments, through the back gardens
-    for pts in ([(G1_X, S2_Z + 8), (16.0, -88.0), (0.0, -72.0), (0.0, FENCE_Z)],
-                [(0.0, FENCE_Z + 3.0), (0.0, -40.0), (30.0, -16.0), (30.0, S3_Z - 8)],
-                [(G2_X, S4_Z + 8), (-14.0, 104.0), (30.0, 128.0), (30.0, WALL_Z)]):
-        for a, b in zip(pts, pts[1:]):
-            _strip(g, a, b, 3.0, GRAVEL, 0.05)
+    # footpaths: across the green and on through the gap in its fence into the allotments (one walk since #1155:
+    # it stopped 3 short of the fence line on both sides), and through the back gardens
+    for pts in WALKS:
+        _walk(g, pts, 3.0, GRAVEL, 0.05)
     for (a, b) in (((30.0, -16.0), (80.0, -16.0)), ((-84.0, 112.0), (-24.0, 112.0))):
         _strip(g, a, b, 2.4, GRAVEL, 0.044)
     for (x, z0, z1) in SIDE_PATHS:

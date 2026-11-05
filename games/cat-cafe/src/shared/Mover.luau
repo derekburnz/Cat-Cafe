@@ -22,8 +22,16 @@ end
 
 -- Walks at `speed` studs per second with a small bob. Returns true on arrival, false when cancelled.
 -- The walk is tracked on the ground at the target's height and the bob is drawn on top each frame; stepping
--- from the bobbed pivot instead would add the bob up frame after frame and float the model away.
-function Mover.walkTo(model: Model, target: Vector3, speed: number, alive: () -> boolean): boolean
+-- from the bobbed pivot instead would add the bob up frame after frame and float the model away. `draw`, when
+-- given, draws each step instead (the client's customers, Effects/CustomerWalk, #1143): the model, its feet's
+-- frame on the ground, the studs moved this step and the step's seconds; false back moves it the plain way.
+function Mover.walkTo(
+	model: Model,
+	target: Vector3,
+	speed: number,
+	alive: () -> boolean,
+	draw: ((Model, CFrame, number, number) -> boolean)?
+): boolean
 	local elapsed = 0
 	local start = model:GetPivot().Position
 	local ground = Vector3.new(start.X, target.Y, start.Z)
@@ -37,12 +45,24 @@ function Mover.walkTo(model: Model, target: Vector3, speed: number, alive: () ->
 			if direction.Magnitude < 0.05 then
 				direction = Vector3.new(0, 0, -1)
 			end
-			model:PivotTo(CFrame.lookAt(target, target + direction.Unit))
+			local arrived = CFrame.lookAt(target, target + direction.Unit)
+			if draw == nil or not draw(model, arrived, 0, 0) then
+				model:PivotTo(arrived)
+			end
 			return true
 		end
-		ground += delta.Unit * math.min(speed * dt, distance)
-		local shown = ground + Vector3.new(0, math.abs(math.sin(elapsed * 9)) * 0.12, 0)
+		local moved = math.min(speed * dt, distance)
+		ground += delta.Unit * moved
 		local facing = flat(delta)
+		if draw ~= nil then
+			local feet = if facing.Magnitude < 0.05
+				then CFrame.new(ground)
+				else CFrame.lookAt(ground, ground + facing.Unit)
+			if draw(model, feet, moved, dt) then
+				continue
+			end
+		end
+		local shown = ground + Vector3.new(0, math.abs(math.sin(elapsed * 9)) * 0.12, 0)
 		if facing.Magnitude < 0.05 then
 			model:PivotTo(CFrame.new(shown))
 		else

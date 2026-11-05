@@ -19,8 +19,9 @@ function Collector.askable(instance: Types.CatInstance): boolean
 		and instance.locked ~= true
 end
 
--- The cat he wants from `cats`: a catId chosen evenly among the distinct catIds of the askable cats, so a pile of
--- Tabbies does not crowd out the rest, then that catId's askable cat with the lowest rating for an owner at `tier`
+-- The cat he wants from `cats`: a catId among the distinct catIds of the askable cats, so a pile of Tabbies does not
+-- crowd out the rest, weighted by its rarity's Config.CollectorAskWeight (#1144: a player's few rarer resting cats get
+-- asked for often, not one time in many), then that catId's askable cat with the lowest rating for an owner at `tier`
 -- (the lowest uid on a tie). `roll` returns 0 to 1. Nil when no cat is askable.
 function Collector.pickCat(
 	cats: { [string]: Types.CatInstance },
@@ -45,7 +46,23 @@ function Collector.pickCat(
 		return nil
 	end
 	table.sort(ids) -- the same pick for the same roll, whatever order the save's map comes out in
-	local catId = ids[math.clamp(math.floor(roll() * #ids) + 1, 1, #ids)]
+	local weights: { number } = {}
+	local total = 0
+	for index, id in ids do
+		local def = Catalog.getCat(id) :: Types.CatDef
+		local weight = math.max(0, Config.CollectorAskWeight[def.rarity] or 1)
+		weights[index] = weight
+		total += weight
+	end
+	local catId = ids[#ids]
+	local pick = math.clamp(roll(), 0, 1) * total
+	for index, id in ids do
+		if pick < weights[index] then
+			catId = id
+			break
+		end
+		pick -= weights[index]
+	end
 	local best: Types.CatInstance? = nil
 	local bestRating = math.huge
 	for _, instance in byId[catId] do

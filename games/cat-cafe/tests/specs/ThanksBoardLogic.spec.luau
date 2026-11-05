@@ -30,5 +30,35 @@ return function()
 			expect(#last.rows).to.equal(2)
 			expect(Logic.page({}, 1).pages).to.equal(1)
 		end)
+		it("lines up What's new with its icon, short date and linked credit (#1216)", function()
+			local updates = {
+				{
+					id = "a",
+					date = "2026-11-05",
+					icon = "faster",
+					text = "Faster cannon",
+					creditId = "c2",
+				},
+				{
+					id = "b",
+					date = "2026-11-04",
+					icon = "fix",
+					text = "Fixed a bug",
+					creditId = "c9",
+				},
+				{ id = "c", date = "2026-11-03", icon = "look", text = "Cleaner buttons" },
+			}
+			local board = {
+				{ idea = "x", version = 1, name = "MochiPie", creditId = "c2" },
+				{ idea = "y", version = 1, name = "a player", creditId = "c9" },
+			}
+			local lines = Logic.whatsNew(updates, board)
+			expect(lines[1].glyph).to.equal("⚡")
+			expect(lines[1].date).to.equal("Nov 5")
+			expect(lines[1].credit).to.equal("💡 Idea from MochiPie")
+			expect(lines[2].credit).to.equal("💡 A player's idea")
+			expect(lines[3].credit).to.equal(nil)
+			expect(Logic.whatsNew(updates, nil)[1].credit).to.equal("💡 A player's idea")
+		end)
 	end)
 end

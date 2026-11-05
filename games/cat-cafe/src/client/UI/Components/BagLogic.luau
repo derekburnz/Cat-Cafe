@@ -3,6 +3,7 @@
 -- Screens/Potions draws the Bag: its Potions tab is the potion bag as before, its Cat Food tab these rows.
 --
 --   foods(defs, have)        the foods the player has, in catalog order: { id, name, xp, count }
+--   baits(defs, have)        #1281: the bait foods (lures) the player has, in catalog order: { id, name, count, def }
 --   total(state)             everything in the Bag (potions plus cat food), for the HUD tile's count
 --   xpLine(xp)               "+2,000 XP"
 --   catLine(level, xp)       "Level 23 · 1,400 XP to 24", or "Level 50 · Max" at the cap
@@ -34,6 +35,26 @@ function BagLogic.foods(defs: { any }?, have: { [string]: number }?): { Food }
 			table.insert(
 				out,
 				{ id = def.id, name = def.name, xp = def.xp or 0, count = math.floor(count) }
+			)
+		end
+	end
+	return out
+end
+
+export type Bait = { id: string, name: string, count: number, def: any }
+
+-- #1281 (corner-shop-v2.md section 1b): the Bag's Bait tab lists the bowl foods the player has; they go in at the
+-- bowl, so the tab has no Use.
+function BagLogic.baits(defs: { any }?, have: { [string]: number }?): { Bait }
+	local out: { Bait } = {}
+	local owned: { [string]: number } = have or {}
+	local list: { any } = defs or {}
+	for _, def in list do
+		local count = owned[def.id]
+		if type(count) == "number" and count >= 1 then
+			table.insert(
+				out,
+				{ id = def.id, name = def.name, count = math.floor(count), def = def }
 			)
 		end
 	end

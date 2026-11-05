@@ -456,7 +456,7 @@ local Cues: { [string]: Cue } = {
 		range = 40,
 	}, -- F55: a catch pushes the crowd back
 	shiftChime = {
-		ids = {},
+		ids = { "rbxassetid://83420169775937" },
 		group = "Sfx",
 		volume = 0.3,
 		minGap = 2,

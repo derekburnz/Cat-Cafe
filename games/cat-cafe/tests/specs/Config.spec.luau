@@ -119,8 +119,8 @@ return function()
 		CatchSnackChance = 0.10, -- corner-shop-v2.md section 3: a Small Snack 1 catch in 10
 		-- night income and rich customers (F31, sections 11 and 12)
 		NightIncomeMultiplier = 1, -- F60: full pay at night (0.6 until v0.8)
-		RichCheckSeconds = 60,
-		RichChance = 0.10, -- F61: was 0.15
+		RichEveryMin = 300, -- #1135: a random timer, 600 s on average like the old 60 s check at 10%
+		RichEveryMax = 900,
 		RichTipSeconds = 120, -- F61: was 45
 		TipPileSeconds = 30, -- F61: tip piles (section 12)
 		TipPileRateSeconds = 6,
@@ -128,8 +128,8 @@ return function()
 		TipPileShowSeconds = 90, -- F97 section 1: a paid pile shows this long
 		RichTipStaySeconds = 90,
 		-- the Mystery Visitor and potions (F64, section 12b)
-		MysteryCheckSeconds = 120,
-		MysteryChance = 0.08,
+		MysteryEveryMin = 900, -- #1135: 1500 s on average like the old 120 s check at 8%
+		MysteryEveryMax = 2100,
 		MysteryStaySeconds = 120,
 		MysteryGiftKeepSeconds = 600,
 		PotionMaxMinutes = 1440, -- F95 (economy-ladder.md section 6b): potions stack to 24 hours
@@ -150,8 +150,9 @@ return function()
 		HopMaxRise = 2.6,
 		BedtimeTimeoutSeconds = 15,
 		-- the Cat Collector (F63, section 12b); CollectorValue is a table, checked in Collector.spec
-		CollectorCheckSeconds = 120,
-		CollectorChance = 0.12,
+		CollectorEveryMin = 600, -- #1135: 1000 s on average like the old 120 s check at 12%
+		CollectorEveryMax = 1400,
+		VisitRetrySeconds = 15,
 		CollectorStaySeconds = 180,
 		CollectorGoldMultiplier = 3,
 		CollectorRollMin = 0.8,
@@ -367,6 +368,7 @@ return function()
 				StraySpawnSpacingStuds = true, -- Derek 22:38: strays spawn spread out; the designer logs it in section 17
 				MysteryRangeStuds = true, -- sections 12b and 15: OpenMysteryGift "within 12 studs"
 				CollectorValue = true, -- section 17's "1, 3, 8, 20, 50 by rarity", checked in Collector.spec
+				CollectorAskWeight = true, -- #1144: a table, checked in Collector.spec
 				CollectorRangeStuds = true, -- section 12b: his card opens "within 12 studs"
 				TipPotionBonus = true, -- section 12b's potion table: "+25% tips"
 				SwiftPotionSpeed = true, -- section 12b's potion table: "+4 walk and carry speed"
@@ -391,7 +393,8 @@ return function()
 				RallyPoints = true, -- F101 (rescue-rally.md section 2): a table, checked in Rally.spec
 				RallyForce = true, -- F101: false, checked in Rally.spec (a false value reads as missing above)
 				RescueTreeCircle = true, -- Derek 2026-11-03: false, checked in Rescue.spec (a false value reads as missing)
-				RescueSnack = true, -- #1181 (corner-shop-v2.md section 3): a food id, checked in CornerShop.spec
+				RescueSnack = true,
+				LawnStallRange = true, -- #1200 (lawn-nursery.md section 4): 14 studs, checked in LawnService -- #1181 (corner-shop-v2.md section 3): a food id, checked in CornerShop.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

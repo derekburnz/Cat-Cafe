@@ -68,10 +68,11 @@ return function()
 
 	describe("LawnLogic.pieceAction", function()
 		it("sells an open piece at its price, grey when the coins fall short", function()
-			local action = LawnLogic.pieceAction(player(1, 500), piece("tulip_bed"))
+			-- #1200: the Tulip Bed is a Common, 10,000 at the Garden Nursery
+			local action = LawnLogic.pieceAction(player(1, 10000), piece("tulip_bed"))
 			expect(action.mode).to.equal("buy")
 			expect(action.enabled).to.equal(true)
-			expect(LawnLogic.pieceAction(player(1, 499), piece("tulip_bed")).enabled).to.equal(
+			expect(LawnLogic.pieceAction(player(1, 9999), piece("tulip_bed")).enabled).to.equal(
 				false
 			)
 		end)
@@ -123,7 +124,7 @@ return function()
 		end)
 
 		it("offers an owned style, sells an open one and names the tier of a later one", function()
-			local state = player(1, 2000, { "red_brick" })
+			local state = player(1, 10000, { "red_brick" })
 			expect(LawnLogic.styleAction(state, style("red_brick")).mode).to.equal("use")
 			local buy = LawnLogic.styleAction(state, style("white_picket"))
 			expect(buy.mode).to.equal("buy")

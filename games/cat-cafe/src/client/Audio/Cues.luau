@@ -463,7 +463,7 @@ local Cues: { [string]: Cue } = {
 		range = 40,
 	}, -- #1191: a shop-only cat starts its shift, a soft three-note celesta lift (under VFX's sparkle, #1259)
 	stationReady = {
-		ids = {},
+		ids = { "rbxassetid://87937080610110" },
 		group = "Sfx",
 		volume = 0.3,
 		minGap = 3,

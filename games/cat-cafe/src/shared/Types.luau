@@ -481,6 +481,8 @@ export type TradesToday = { day: number, count: number }
 -- F102 trading (trading.md; shapes agreed with the UI thread 2026-11-02). One cat as a trade's log and its done card
 -- show it.
 export type CatSummary = { catId: string, rarity: string, variant: string?, level: number }
+-- #1574 (section 1b): one decor or lawn piece as the log and the done card show it; `kind` "decor" or "lawn".
+export type DecorSummary = { id: string, kind: string, rarity: string }
 -- One of the last TradeLogMax trades, newest first: its id, when (os.time()), the partner's display name then, and
 -- both sides.
 export type TradeLogEntry = {
@@ -489,6 +491,8 @@ export type TradeLogEntry = {
 	partnerName: string,
 	gave: { CatSummary },
 	got: { CatSummary },
+	gaveDecor: { DecorSummary }?, -- #1574; nil in entries from before decor trading
+	gotDecor: { DecorSummary }?,
 }
 -- One cat on offer, as TradeState shows it to one player: `rateForMe` is what it earns (or would earn) per second in
 -- that player's cafe.
@@ -501,15 +505,19 @@ export type TradeTile = {
 	charm: number?,
 	rateForMe: number,
 }
+-- #1574: one decor or lawn piece on offer: its id, name, `kind` ("decor" or "lawn"), rarity and the money bonus it
+-- adds while placed (0.05 is +5%).
+export type TradeDecorTile = { id: string, name: string, kind: string, rarity: string, bonus: number }
 export type TradeSide = {
 	userId: number,
 	name: string, -- the display name
 	ready: boolean,
 	confirmed: boolean,
 	cats: { TradeTile },
+	decor: { TradeDecorTile }, -- #1574
 }
--- The last change to an offer, for the yellow flash and "Changed!" (section 3): whose side, which cat, when (server
--- time).
+-- The last change to an offer, for the yellow flash and "Changed!" (section 3): whose side, which cat uid or piece
+-- id, when (server time).
 export type TradeChange = { side: string, uid: string, at: number }
 -- TradeState(state?) for one player: nil closes the window.
 export type TradeStateView = {
@@ -528,6 +536,7 @@ export type TradeStateView = {
 	theirRateForMe: number, -- what their cats would earn in my cafe, per second
 	confirmAt: number?, -- server time from which my Confirm counts (TradeConfirmWaitSeconds after a lopsided or gift
 	-- confirm screen opens); nil when there is no wait
+	theyHave: { string }, -- #1574: my tradeable pieces the other player already owns (grey, "They already have this")
 }
 
 -- F98: one row of a leaderboard list as LeaderboardSync sends it: the player's display name, the list's whole-number
@@ -806,13 +815,12 @@ export type FreshCatchStock = { window: number, restocksAt: number, stock: { Fre
 
 -- The Corner Shop (corner-shop.md, #1052): sold for coins only.
 -- v2 (corner-shop-v2.md section 4, #1180): every row sold for coins at a fixed `price`, in a `family` (its daily limit
--- counts the family, Config.CornerDailyLimits) and a `size` (its stock chance, Config.CornerShopSizeWeights). A
+-- counts the family, Config.CornerDailyLimits) and a `size` (Big and Mega rows are tier gated). A
 -- "potion" row gives `potionId` into the bag, a "food" row `foodId` into the Bag's cat food (its `xp` is that food's)
 -- and a "show" row played `showId` over the buyer's cafe (retired with the Bubble Machine and Cafe Fireworks, #1381; the
 -- kind and its fields go once Effects/CafeShow and CornerShopLogic stop reading them). `needsTier` hides and refuses
 -- the row below that tier. #1281 (section 1b): a "bait" row sells the bowl food `lureId` into `lures` at its
--- tier-scaled price (CornerShop.priceOf, so `price` is only its Tier 1 price), its stock rolled from its own `weights`
--- (the chance of 0, 1, 2 or 3) in place of its size's.
+-- tier-scaled price (CornerShop.priceOf, so `price` is only its Tier 1 price).
 export type CornerShopSize = "small" | "regular" | "big" | "mega"
 export type CornerShopRow = {
 	id: string,
@@ -824,7 +832,6 @@ export type CornerShopRow = {
 	potionId: string?,
 	foodId: string?,
 	lureId: string?, -- #1281: a "bait" row's bowl food
-	weights: { number }?, -- #1281: a "bait" row's stock chances, in place of Config.CornerShopSizeWeights[size]
 	xp: number?,
 	showId: string?,
 	showSeconds: number?,
@@ -907,6 +914,9 @@ export type PlayerProfile = {
 	upgradeLevels: { [string]: number },
 	decorOwned: { [string]: boolean },
 	decorPlaced: { [string]: boolean },
+	-- #1574 (trading.md section 1b, no save version bump): the Legendary and up pieces (crate decor and lawn pieces) the
+	-- player unlocked on their card to trade; every other such piece is locked (Trade.pieceLocked)
+	decorUnlocked: { [string]: boolean },
 	lures: { [string]: number },
 	bait: BaitState?,
 	bait2: BaitState?, -- #1161: the Second Bait Bowl's bait (save version 34), nil when that bowl is empty
@@ -980,6 +990,7 @@ export type PlayerState = {
 	upgradeLevels: { [string]: number },
 	decorOwned: { [string]: boolean },
 	decorPlaced: { [string]: boolean },
+	decorUnlocked: { [string]: boolean }, -- #1574: the Legendary and up pieces unlocked to trade
 	lures: { [string]: number },
 	bait: BaitView?, -- nil when the bowl is empty
 	bait2: BaitView?, -- #1161: the second bowl's, nil when it is empty

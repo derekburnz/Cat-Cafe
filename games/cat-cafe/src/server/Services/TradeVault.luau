@@ -35,6 +35,7 @@ export type RecordSide = {
 	userId: number,
 	name: string, -- the display name at the time, for the other player's log
 	cats: { Types.CatInstance }, -- the cats this side gives, as they were
+	decor: { string }?, -- #1574: the decor and lawn piece ids this side gives (nil in records from before)
 }
 
 export type Record = {

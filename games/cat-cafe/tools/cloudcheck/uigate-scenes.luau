@@ -813,6 +813,22 @@ local SCENES = {
 		end
 		assert(counts == #Catalog.lures, ("uigate: %d food rows for %d foods"):format(counts, #Catalog.lures))
 	end },
+	-- #1612 / #1609: compact food rows, rarest first, no "Attracts" chip and no odds on the row; Details on the Star
+	-- Treat opens its odds with the gold line and the split under them
+	{ "BaitDetails", function()
+		UI.bait.openPicker()
+		local window = baitWindow()
+		assert(window:FindFirstChild("Attracts", true) == nil, "uigate: an Attracts chip is back on a food row (#1612)")
+		assert(window:FindFirstChild("Odds", true) == nil, "uigate: an odds line is back on a food row (#1612)")
+		local star = window:FindFirstChild("star_treat", true)
+		local kibble = window:FindFirstChild("kibble", true)
+		assert(star and kibble, "uigate: no Star Treat or Kibble row")
+		assert(star.LayoutOrder < kibble.LayoutOrder, "uigate: the bowl lists Kibble before the Star Treat (#1609)")
+		press("Bait", "star_treat.Details")
+		local detail = star:FindFirstChild("Detail", true) :: TextLabel
+		assert(detail and detail.Visible, "uigate: Details did not open")
+		assert(string.find(detail.Text, "Mythical", 1, true), "uigate: the Details text has no odds: " .. detail.Text)
+	end },
 	-- #1161: the Second Bait Bowl pass owned, bowl 1 filling and bowl 2 empty: two tabs, and the screen opens on
 	-- bowl 2 (the empty one that takes food) with its Use buttons live
 	{ "BaitTwoBowls", function()
@@ -1035,41 +1051,11 @@ local SCENES = {
 			press("Cats", "Sell")
 		end)
 	end },
-	-- #1573: three spare copies of a resting Common: the grid's first card is Sell extras; its Sell asks first
-	{ "CatsSellExtras", function()
-		local player = samplePlayer(os.time())
-		local common
-		for _, instance in player.cats do
-			local def = Catalog.getCat(instance.catId)
-			if def and def.rarity == "Common" and def.exclusive ~= true then
-				common = instance.catId
-				break
-			end
-		end
-		assert(common, "uigate: the sample player has no Common")
-		for count = 1, 3 do
-			local uid = "gate_extra_" .. count
-			player.cats[uid] = {
-				uid = uid,
-				catId = common,
-				variant = "base",
-				caughtAt = os.time() - 30 * count,
-				level = 1,
-				xp = 0,
-				xpToNext = 40,
-				charm = 50,
-				stars = 1,
-				rating = 1,
-			}
-		end
-		UI.update({ cats = player.cats })
+	-- #1618 (Derek2 11-05: "don't even need that button just remove it"): no Sell extras card in the cat room
+	{ "CatsNoSellExtras", function()
 		UI.open("Cats")
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
-		local card = modals and modals:FindFirstChild("SellExtras", true)
-		assert(card and card.Visible, "uigate: no Sell extras card")
-		press("Cats", "SellExtras.ExtrasSell")
-		local line = card:FindFirstChild("Line") :: TextLabel
-		assert(string.find(line.Text, "^Sell %d+ extra Commons? for ") ~= nil, "uigate: Sell extras asks: " .. line.Text)
+		assert(modals and modals:FindFirstChild("SellExtras", true) == nil, "uigate: the Sell extras card is back")
 	end },
 	-- F97 section 6: two spare cats (no Index page) with their "Classic" tag, one gold under its sparkle
 	{ "CatsClassic", function()
@@ -1402,8 +1388,8 @@ local SCENES = {
 		UI.clock.bind(clock)
 		press("CatCafeHUD", "Luck")
 	end },
-	-- F88: the night before a Lucky Day, LuckyDayWarnSeconds before sunrise: the warning banner and "Lucky Day at
-	-- sunrise" under the clock, the Luck card from the scene before closed
+	-- F88: the night before a Lucky Day, LuckyDayWarnSeconds before sunrise: the warning banner (no countdown line under
+	-- the clock since #1572), the Luck card from the scene before closed
 	{ "LuckyDaySoon", function()
 		local t = workspace:GetServerTimeNow()
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
@@ -1422,6 +1408,28 @@ local SCENES = {
 		clock:SetAttribute("LuckyDay", false)
 		UI.clock.bind(clock)
 		UI.luckyDay("warning", "A Lucky Day starts at sunrise!")
+	end },
+	-- #1572: a Lucky, Golden and Rainbow Day at once: "Lucky · Golden · Rainbow Day" under the clock, its card open
+	{ "HUDDayKinds", function()
+		local t = workspace:GetServerTimeNow()
+		local clock = Instance.new("Folder")
+		clock.Name = "Clock"
+		clock:SetAttribute("Phase", "day")
+		clock:SetAttribute("PhaseEndsAt", t + 190)
+		clock:SetAttribute("AreasOpen", true)
+		clock:SetAttribute("Day", 9)
+		clock:SetAttribute("LuckyDay", true)
+		clock:SetAttribute("GoldenDay", true)
+		clock:SetAttribute("RainbowDay", true)
+		UI.clock.bind(clock)
+		task.wait(0.1)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local line = hud and hud:FindFirstChild("LuckyDay", true) :: TextLabel
+		assert(line and line.Visible, "uigate: no day line under the clock")
+		assert(line.Text == "Lucky · Golden · Rainbow Day", "uigate: day line " .. line.Text)
+		press("CatCafeHUD", "LuckyDay.Tap")
+		local card = hud:FindFirstChild("DayCard", true) :: Frame
+		assert(card and card.Visible, "uigate: the day card did not open")
 	end },
 	-- F100: the Cannon picker with the Tier 3 player's camp extras: the Picnic Basket ready (red dot), the Yard Sale's
 	-- new crates (no dot)
@@ -1600,6 +1608,23 @@ local SCENES = {
 		UI.open("Store")
 		press("CatCafeModals", "potions")
 		assertStoreCards(false)
+	end },
+	-- #1605 (Derek2 11-05: "scrolling down in shop causes it to snap back up"): a scrolled tab keeps its place when the
+	-- window renders again on a state change; another tab still starts at the top
+	{ "StoreScrollHolds", function()
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		press("CatCafeModals", "potions")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Store", true)
+		local list = window and window:FindFirstChild("List", true) :: ScrollingFrame
+		assert(list, "no Store list")
+		list.CanvasPosition = Vector2.new(0, 120)
+		UI.update(samplePlayer(os.time()))
+		UI.store.preview(storePrices(true), {})
+		assert(list.CanvasPosition.Y == 120, "the list snapped to " .. list.CanvasPosition.Y)
+		press("CatCafeModals", "passes")
+		assert(list.CanvasPosition.Y == 0, "a new tab did not start at the top")
 	end },
 	-- 2x Money and Long Nap owned: the ladder's next rung (3x, in place of x2) and Long Nap marked Owned
 	{ "StoreOwned", function()

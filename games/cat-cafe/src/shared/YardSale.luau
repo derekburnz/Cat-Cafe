@@ -22,7 +22,7 @@ local MULTIPLIER = 48271
 local SALT = 1000003 * 13 + 0x79617264 -- "yard": keeps this roll apart from the other shops'
 
 -- Lowest first: the order a roll moves down (and, past Common, up) when a rarity has no piece left.
-YardSale.RARITIES = table.freeze({
+local RARITIES: { Types.LawnRarity } = {
 	"Common",
 	"Uncommon",
 	"Rare",
@@ -30,7 +30,8 @@ YardSale.RARITIES = table.freeze({
 	"Legendary",
 	"Mythical",
 	"Golden",
-}) :: { Types.LawnRarity }
+}
+YardSale.RARITIES = table.freeze(RARITIES)
 
 YardSale.Messages = table.freeze({
 	notToday = "That isn't at the Yard Sale today",
@@ -237,7 +238,7 @@ function YardSale.view(
 		local row: Types.YardDecorRow = {
 			id = id,
 			name = name or id,
-			rarity = rarity or "Common" :: Types.LawnRarity,
+			rarity = if rarity ~= nil then rarity else "Common",
 			price = price,
 			tier = tier,
 			bought = behind or state.bought[id] == true,

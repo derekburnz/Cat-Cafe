@@ -30,6 +30,8 @@ Remotes.ClientToServer = {
 	"SellExtraCommons", -- ()  #1573: sells every spare Common, keeping the best of each kind (shared/SellExtras);
 	-- never a working, locked, exclusive, gold or rainbow cat, one on offer, or the last cat. 1 per 2 s
 	"LockCat", -- (uid: string, locked: boolean)  F62: owns uid; a locked cat cannot be sold or traded
+	"LockDecor", -- (pieceId: string, locked: boolean)  #1574: an owned Legendary and up decor or lawn piece; a locked
+	-- piece cannot be traded, and one on offer cannot be locked; 4 a second
 	"BuyUpgrade", -- (upgradeId: string)
 	"BuyDecor", -- (decorId: string)
 	"RankUp", -- ()  next tier's cost, different cats and rarity (Economy.rankUpBlocker); spends and raises the tier
@@ -82,8 +84,9 @@ Remotes.ClientToServer = {
 	-- with StarterCatResult
 	"IntroDone", -- (shot: number, replay: boolean)  integer 0 to 10: 0 when the intro cutscene played to the end, else
 	-- the shot showing at Skip (F72, shared/Intro); 1 a second. The first non-replay call sets introSeen
-	"UsePotion", -- (potionId: string)  F64: a known potion in the bag whose minutes fit under PotionMaxMinutes with
-	-- the time it has left, else a "Full" toast and nothing used; answered with a ProfileSync
+	"UsePotion", -- (potionId: string, count: number?)  F64: a known potion in the bag whose minutes fit under
+	-- PotionMaxMinutes with the time it has left, else a "Full" toast and nothing used; answered with a ProfileSync.
+	-- #1600: count (whole, 1 to 1000; nil is 1) drinks up to that many, cut to the bag's count and to what fits
 	"OpenMysteryGift", -- ()  F64: a gift waits on the caller's own plot, within MysteryRangeStuds of its
 	-- MysteryGiftAnchor (the GiftPrompt's hold does the same); answered with MysteryGiftResult
 	"AnswerCollector", -- (accept: boolean)  F63: a live Cat Collector visit on the caller's own plot, within
@@ -133,8 +136,10 @@ Remotes.ClientToServer = {
 	-- camp, not busy, one request out, re-ask wait, cooldown, daily cap, the target's tradeRequests); 1 a second
 	"TradeRespond", -- (requestId: string, accept: boolean)  a running request to the caller;
 	-- an accept checks both again and opens the trade
-	"TradeOffer", -- (tradeId: string, action: "add" | "remove", uid: string)  the caller's open trade; add: their
-	-- cat, unlocked, not exclusive, up to TradeMaxCats, one cat kept back; any change resets both sides; 5 a second
+	"TradeOffer", -- (tradeId: string, action: "add" | "remove", uid: string, kind: "cat" | "decor"?)  the caller's
+	-- open trade; add: their cat, unlocked, not exclusive, up to TradeMaxCats, one cat kept back; any change resets
+	-- both sides; 5 a second. #1574: kind "decor" (nil is "cat") offers a piece id instead: their crate decor or lawn
+	-- piece, tradeable, unlocked, not owned by the partner, up to TradeMaxDecor
 	"TradeReady", -- (tradeId: string, version: number, ready: boolean)  the version on the table, not with both
 	-- offers empty; both Ready starts the countdown
 	"TradeConfirm", -- (tradeId: string, version: number)  on the confirm screen, the version on the table, after
@@ -160,7 +165,8 @@ Remotes.ServerToClient = {
 	-- receiver to trade; expiresAt is server time (Workspace:GetServerTimeNow())
 	"TradeState", -- (state: Types.TradeStateView?)  the receiver's view of their open trade after every change; nil
 	-- closes the window
-	"TradeDone", -- (tradeId: string, gave: { Types.CatSummary }, got: { Types.CatSummary })  the swap happened
+	"TradeDone", -- (tradeId: string, gave: { Types.CatSummary }, got: { Types.CatSummary }, gaveDecor:
+	-- { Types.DecorSummary }, gotDecor: { Types.DecorSummary })  the swap happened (the decor lists since #1574)
 	"TradeEnded", -- (tradeId: string, reason: string)  ended with nothing moved, in words ("Sam left")
 	"CatCaught", -- (catId: string, isNew: boolean, variant: string)  variant "base", "gold" or "rainbow" (F99), for the
 	-- Cat found card's coat

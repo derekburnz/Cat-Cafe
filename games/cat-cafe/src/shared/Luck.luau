@@ -1,7 +1,7 @@
 --!strict
 -- Luck (F88, luck-and-rare-moments.md section 1), pure. One number from x1.0 that adds up every source the player
 -- has now, at most Config.LuckMax: the Lucky Cat statue (LuckPerStatueLevel a lucky_cat level), a running Lucky
--- Potion (LuckyPotionLuck) and a Lucky Day (LuckyDayPlayerLuck, the day phase of every LuckyDayEvery-th day of a
+-- Potion (LuckyPotionLuck) and a Lucky Day (LuckyDayPlayerLuck, the day phase of a Lucky Day, #1572 Clock.dayKinds, of a
 -- server, shared/Clock). On a roll it multiplies the Epic, Legendary and Mythical chances; Rare keeps its chance and
 -- Common takes the difference, so the odds keep their total.
 --   sources(profile, now, luckyDay) -> { Source }   what adds Luck now, in a fixed order (statue, potion, day)

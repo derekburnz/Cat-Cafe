@@ -76,4 +76,34 @@ return function()
 			end
 		)
 	end)
+
+	describe("CampExtrasLogic.bubble (#1614)", function()
+		local NOW = 1000000
+
+		it("always has words for an open station: what waits, or when the next comes", function()
+			local s = state(0, 1, 14, true)
+			s.picnic.nextAt = NOW + 7800
+			local pond = CampExtrasLogic.bubble(s, "pond", NOW)
+			expect(pond.icon).to.equal("🎣")
+			expect(pond.name).to.equal("Fish Pond")
+			expect(pond.state).to.equal("14 fish")
+			expect(pond.ready).to.equal(true)
+			local picnic = CampExtrasLogic.bubble(s, "picnic", NOW)
+			expect(picnic.state).to.equal("Next in 2 h 10 m")
+			expect(picnic.ready).to.equal(false)
+			expect(CampExtrasLogic.bubble(s, "yardSale", NOW).ready).to.equal(true)
+		end)
+
+		it(
+			"shows nothing over a shut station, before the first state or for a broken one",
+			function()
+				expect(CampExtrasLogic.bubble(state(0, 0, 6, false), "pond", NOW)).to.equal(nil)
+				expect(CampExtrasLogic.bubble(nil, "pond", NOW)).to.equal(nil)
+				expect(CampExtrasLogic.bubble({ pond = { open = true, held = "2" } }, "pond", NOW)).to.equal(
+					nil
+				)
+				expect(CampExtrasLogic.bubble(state(1, 1, 1, true), "nothing", NOW)).to.equal(nil)
+			end
+		)
+	end)
 end

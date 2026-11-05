@@ -414,9 +414,21 @@ local MUSIC_PLAY_SECTIONS = 2
 local MUSIC_REST = { 15, 30 }
 local MUSIC_FALLBACK = 60 -- seconds of a song whose cue gives no length
 local lastSong: string? = nil
+local introActive = false -- #1541: the intro cutscene is playing
+local stepsActive = false -- #1541: the first tutorial steps are showing
+local lastTutorialStep: number? = nil
+
+local function tutorialMusic(): boolean
+	return (introActive or stepsActive) and has("musicTutorial")
+end
 
 local function playSong(generation: number, fromTop: boolean)
 	if generation ~= bedGeneration or not enabled.Music then
+		return
+	end
+	if tutorialMusic() then -- its own loop replaces the normal songs until it ends or is skipped
+		lastSong = nil
+		crossfade(music, "musicTutorial", MUSIC_FADE)
 		return
 	end
 	local cueId = Logic.nextSong(Logic.songsFor(phase, has), lastSong, rng:NextNumber())
@@ -1618,6 +1630,19 @@ local function stationsReady(state: any)
 end
 
 local HANDLERS: { [string]: (...any) -> () } = {
+	-- #1541: the intro cutscene takes the music; it comes back when the intro is played out or skipped.
+	IntroStart = function()
+		if not introActive then
+			introActive = true
+			refreshMusic(false)
+		end
+	end,
+	IntroEnd = function()
+		if introActive then
+			introActive = false
+			refreshMusic(false)
+		end
+	end,
 	CampExtrasState = stationsReady,
 	CatchStart = function()
 		duckForCatch(true)
@@ -1910,6 +1935,25 @@ function Audio.applySettings(settings: Settings)
 	end
 	if enabled.Ambience ~= ambienceWas then
 		refreshAmbience()
+	end
+end
+
+-- #1541: the first tutorial steps. Call it on every ProfileSync with the player's tutorialStep and whether the Tutorial
+-- tile is on (its x turns it off, which skips the tutorial). Swaps the music only when the state changes, and chimes
+-- when a step is done.
+function Audio.setTutorial(step: number?, tileOn: boolean)
+	local configured = (Config :: any).StarterCatTutorialStep
+	local lastStep = if type(configured) == "number" then configured else 5
+	local active = Logic.tutorialSteps(step, lastStep, tileOn)
+	if step ~= nil then
+		if tileOn and Logic.tutorialStepDone(lastTutorialStep, step) then
+			Audio.play("tutorialStepDone")
+		end
+		lastTutorialStep = step
+	end
+	if active ~= stepsActive then
+		stepsActive = active
+		refreshMusic(false)
 	end
 end
 

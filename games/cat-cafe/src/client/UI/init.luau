@@ -174,6 +174,7 @@ UI.events = {
 	-- #1646 (cafe-pass.md section 5)
 	passClaim = Signal.new(), -- (track, level)   Claim on a Cafe Pass reward, track "free" or "paid": forward as PassClaim
 	passClaimAll = Signal.new(), -- ()   Claim all on the Pass window: forward as PassClaimAll
+	passSetTag = Signal.new(), -- (pick)   #1626: the Pass window's chat tag button, a ChatTags id or "off": forward as PassSetTag
 	-- #1624 (store-pass-looks.md)
 	pickStyle = Signal.new(), -- (kind, id)   a Style tab button: kind "sign" forwards as SetSignStyle(id or nil), "uniform" or "theme" as SetLook(kind, id)
 	-- F70
@@ -5686,6 +5687,9 @@ do
 			end,
 			claimAll = function()
 				UI.events.passClaimAll:Fire()
+			end,
+			setTag = function(pick: string)
+				UI.events.passSetTag:Fire(pick)
 			end,
 			buy = function()
 				local id = productId()

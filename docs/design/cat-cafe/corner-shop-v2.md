@@ -34,6 +34,27 @@ Every item is sold for **coins**, at a **fixed price**. Sizes go Small, regular,
 - **Durations, not strengths.** Sizes differ in how long they last (or how much XP they give). A Small and a Big Steady Paw give the same bands, so mixing sizes adds minutes to one buff chip and never shows two strengths at once. Each drink adds its minutes up to `PotionMaxMinutes` (24 hours), as today.
 - **The Fresh Catch shelf** keeps selling the regular Steady Paw and Quick Bait Potions for golden fish, with no daily limit. That stays the way to get more than the coin limits allow.
 
+## 1b. Bait foods move here from the bowl (#1281)
+
+Decided by Coordinator for the friend, overnight 11-05, from Derek's 11-04 ask: "foods shouldn't be buyable from the bait bowl menu", sell them at the Corner Shop "with limited stock in its 5 minute rotations".
+
+- **Which foods:** the three shop foods, Kibble (Common), Tuna (Rare) and Salmon (Epic). The dealer foods (Moonlit Sardines, Caviar, Moon Milk, Star Treat) stay with the night dealer, so they keep their rarity and their reason to visit at night.
+- **Price:** each food keeps today's tier-scaled price, `Economy.foodPrice` (Kibble 100, Tuna 500, Salmon 2,500 at Tier 1, growing by `FoodTierPriceFactor`). This is the one exception to section 1's fixed prices, because a fixed bait price would be free late on and the bowl is a coin sink by design (rewards-and-shops.md section 2g).
+- **Stock per 5-minute window**, using the section 1 roll with its own weights (chance of 0, 1, 2 or 3):
+
+  | food | 0 | 1 | 2 | 3 | average |
+  |---|---|---|---|---|---|
+  | Kibble | 0% | 0% | 20% | 80% | 2.8 |
+  | Tuna | 0% | 20% | 50% | 30% | 2.1 |
+  | Salmon | 20% | 50% | 30% | 0% | 1.1 |
+
+- **Enough to keep baiting.** A bowl takes a food every 8 to 10 minutes by day and every 5 at night, so about 1 food per window, or 2 with the Second Bowl pass. The shop offers about 6 a window. A normal player is never short. Salmon, the best coin food, sometimes isn't there, and that's the "limited" part. Bought food stacks in the player's `lures` (up to 99 of each), so one visit can stock up for a whole session or an offline night.
+- **Bowl menu:** no Buy buttons. Each food row shows "You have 3" and **Use**. With none left it reads "Get more at the Corner Shop" in calm grey, and the dealer foods keep "Night dealer". Food earned elsewhere (Daily Treat, prizes) lands in the same `lures` and shows there.
+- **The Bag** gets a third tab, **Bait**, listing the player's foods and counts. It has no Use button there, since bait goes in at the bowl.
+- **Policy:** bait for coins is the same as before; only where it's sold moves. Coins are never sold for Robux, the bowl's odds stay shown before a food goes in, and the Corner Shop row shows the food's rarity badge and its clean picture (#1261).
+- **Server:** `BuyLure` refuses every request with the toast "Bait food is at the Corner Shop now", and is removed in the next cleanup. Food rows go through `BuyCornerShop` like other rows: stock, tier price (the server's, guarded by `shownPrice` as for the others), coins, 2 a second. There's no daily limit for food.
+- **Save:** none. It uses the existing `lures` map, with a new cap of 99 per food (`LureMax`).
+
 ## 2. Still not sold, and why (unchanged from corner-shop.md section 3)
 
 No crates, crate keys, spin tokens or anything random. Money passes multiply coins, so these would become paid random items (monetization-policy section 2). No luck or Catnip, no income or tip boosts (rule v0.8), no net or bowl upgrades, no dealer food and no lawn decor. Nothing is limited-time: every item comes back, and its stock chances show on its row.

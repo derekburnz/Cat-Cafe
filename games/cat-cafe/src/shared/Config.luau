@@ -92,7 +92,9 @@ local Config = {
 	StartledWalkSpeed = 12,
 	StartledSeconds = 2,
 	GrabCooldownSeconds = 2, -- per player, between two catches started
-	TravelCooldownSeconds = 3, -- per player, between two fast travels (features F19)
+	-- per player, between two fast travels (features F19); #1434 (Derek 2026-11-05): 1 (was 3), a quick anti-spam
+	-- cooldown rather than a wait. A trip still never starts while a cloud hop home is under way (TravelService).
+	TravelCooldownSeconds = 1,
 	-- The Cat Cannon (F84, hometown-cannon.md section 3b): a flight takes CannonLaunchSeconds from LaunchCannon to
 	-- control, the server moving the anchored character onto the landing pad at CannonTeleportAtSeconds, inside the
 	-- clouds; then CannonCooldownSeconds from landing before the next launch. Home from a wild area is a cloud hop
@@ -403,8 +405,8 @@ local Config = {
 	-- The Spin Wheel station (F49, data-model section 11c). Pure rules in Spin.
 	SpinStationRange = 14, -- SpinWheel from this close to a station tagged SpinWheel
 	SpinCooldownSeconds = 4, -- the spin animation; a player's next spin waits this long
-	SpinAllMax = 25, -- #1078: Use all spends at most this many spins in one press (SpinBankCap and today's free one fit)
-	SpinBankCap = 20, -- banked spins (Tip Jar steps 11 and 12) stop here
+	SpinAllMax = 51, -- #1078: Use all spends at most this many spins in one press (SpinBankCap and today's free one fit)
+	SpinBankCap = 50, -- banked spins stop here (#1414: 20 to 50, so two Tip Jar sessions a day keep every spin)
 
 	-- Golden fish (F52, golden-fish.md sections 1 and 2): the rare currency, earned only, never sold or given for
 	-- Robux. Pure rules in GoldenFish.

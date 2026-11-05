@@ -155,7 +155,7 @@ UI.events = {
 	setSetting = Signal.new(), -- (key, value)   a Settings switch (boolean) or volume (0 to 1, on release): forward as SetSetting (Audio follows UI.settings.changed)
 	reportBug = Signal.new(), -- (text, kind, clientErrors)   Send on Report a bug (trimmed text, "bug" | "stuck" | "idea", up to 3 client error lines): forward all three as ReportBug
 	redeemCode = Signal.new(), -- (code)   Redeem in the code box (letters and digits, at most CodeMaxLength): forward as RedeemCode (F65)
-	-- F72 intro: (shot)   Skip or gamepad B, once per play, with the shot showing (1 to Intro.SHOTS, 10); end the intro, call
+	-- F72 intro: (shot)   Skip or gamepad B, once per play, with the shot showing (1 to Intro.SHOTS); end the intro, call
 	-- UI.intro.finish and fire IntroDone(shot, replay)
 	introSkip = Signal.new(),
 	-- ()   the HUD's Tutorial tile or Settings' Replay tutorial: play the intro again with UI.intro.start({ replay = true })
@@ -1295,11 +1295,14 @@ function UI.init(config: Types.InitConfig)
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
 	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker")
 	-- the Cat Whistle (corner-shop-v2.md section 4): a paw over the nearest stray while its buff runs
-	CatWhistle.new(WorldMarker.new(parent, "CatCafeWhistleMarker"), function(): boolean
-		local buffs: { [string]: number }? = state.buffs
-		local endsAt = if buffs then buffs.cat_whistle else nil
-		return type(endsAt) == "number" and endsAt > Workspace:GetServerTimeNow()
-	end)
+	CatWhistle.new(
+		WorldMarker.new(parent, "CatCafeWhistleMarker", CatWhistle.REACH),
+		function(): boolean
+			local buffs: { [string]: number }? = state.buffs
+			local endsAt = if buffs then buffs.cat_whistle else nil
+			return type(endsAt) == "number" and endsAt > Workspace:GetServerTimeNow()
+		end
+	)
 	tutorialTrail = GuideTrail.new("CatCafeTutorialTrail")
 	-- signs over every gate tagged AreaGate, including gates that stream in later
 	gateSigns = GateSigns.new(parent)
@@ -2176,6 +2179,11 @@ UI.codes = {}
 -- flat). No key press and no prompt. A window the player has open (the Market stall is near) stays open instead
 -- (review N182).
 function UI.codes.open()
+	-- #1428: the code box lives in the Store's Codes tab, so the circle opens the Store there
+	local store: any = UI.store -- defined further down
+	if store.openCodes() then
+		return
+	end
 	if modal and modal:current() == nil then
 		modal:open("Codes")
 	end
@@ -2184,7 +2192,8 @@ end
 -- Closes the code box and clears its field: call it once the character is past CodesCircleRadius + 1. A window the
 -- player opened meanwhile stays open.
 function UI.codes.close()
-	if modal and modal:current() == "Codes" then
+	local store: any = UI.store
+	if modal and (modal:current() == "Codes" or store.codesShowing()) then
 		modal:close()
 	end
 end
@@ -2195,7 +2204,8 @@ function UI.codes.result(ok: boolean, message: string, prize: Types.IndexPrize?)
 	if codesScreen then
 		codesScreen:result(ok, message, prize)
 	end
-	if toasts and not (modal and modal:current() == "Codes") then
+	local store: any = UI.store
+	if toasts and not (modal and modal:current() == "Codes") and not store.codesShowing() then
 		toasts:show(message, if ok then "good" else "warn")
 	end
 end
@@ -2417,11 +2427,11 @@ function UI.intro.start(options: Types.IntroOptions?)
 	screen:start(options)
 end
 
--- A shot begins: index 1 to Intro.SHOTS (10) lights its dot, the caption pops. In the areas shot (6) call again for
--- each cut with the next title card ("THE PARK", "THE NEIGHBOURHOOD", ...); the caption stays.
-function UI.intro.setShot(index: number, caption: string, titleCard: string?)
+-- A shot begins: index 1 to Intro.SHOTS lights its dot, the caption pops. #1542 (Derek): the camp shot and its area
+-- title cards are gone; a third argument is still taken and ignored, so the controller's calls stand until it drops it.
+function UI.intro.setShot(index: number, caption: string, _titleCard: string?)
 	if introScreen then
-		introScreen:setShot(index, caption, titleCard)
+		introScreen:setShot(index, caption)
 	end
 end
 
@@ -2504,11 +2514,11 @@ function UI.cannon.open(cannonId: string?)
 end
 
 -- CannonLaunch(destination, launchAt) from the server: the picker closes, and the name card pops in at once, as it
--- closes, zips off with the BOOM 0.5 s after launchAt and is gone by 0.7 (CannonLogic.CHOSEN_HOLD, #1163; a refused
--- Launch never comes here). Ends the first-flight and Tier 2 hints. The intro's shot 2 calls it too, for its staged flight to the
--- Alleyway, with `hold` 0.4 and launchAt 0.9 s before the shot starts: given a `hold`, the card keeps the cloud
--- schedule, from 1.6 s after launchAt (card up 0.7 to 1.1 s in); while the intro plays only the card shows, so the
--- first-flight hint still follows the intro.
+-- closes, zips off 2.5 s after launchAt and is gone by 2.7 (CannonLogic.CHOSEN_HOLD, #1163, 2 s longer since #1444; a
+-- refused Launch never comes here). Ends the first-flight and Tier 2 hints. The intro's shot 2 calls it too, for its
+-- staged flight to the Alleyway, with `hold` 0.4 and launchAt 0.9 s before the shot starts: given a `hold`, the card
+-- keeps the cloud schedule, from 1.6 s after launchAt (card up 0.7 to 1.1 s in); while the intro plays only the card
+-- shows, so the first-flight hint still follows the intro.
 function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 	-- no context tip pops up in the clouds or as the player lands (F87)
 	tipsHeldUntil = os.clock()
@@ -5479,12 +5489,31 @@ do
 					modalView:close()
 				end
 			end,
+			-- #1428: the code box starts fresh on the Codes tab and clears when it leaves view
+			codes = function(shown: boolean)
+				local codes = codesScreen
+				if codes == nil then
+					return
+				end
+				if shown then
+					codes:onOpen()
+				else
+					codes:onClose()
+				end
+			end,
 		})
 		shop.screen = screen
+		if codesScreen then
+			codesScreen:mount(screen.codesPage) -- #1428: the code box is the Store's Codes tab
+		end
 		modalView:register("Store", {
 			frame = screen.frame,
 			onOpen = function()
+				screen:showTab("featured") -- #1425: the Store always opens on Featured
 				screen:render(rows(), PassShop.prices())
+			end,
+			onClose = function()
+				screen:closed()
 			end,
 		})
 		shop.changed = PassShop.changed:Connect(refresh)
@@ -5503,6 +5532,34 @@ do
 		end
 	end
 
+	-- #1428: the Codes Cat's circle opens the Store on its Codes tab, unless another window is up (review N182).
+	-- False when there is no Store window, so the old Codes window opens instead.
+	function UI.store.openCodes(): boolean
+		local screen = shop.screen
+		local modalView = modal
+		if screen == nil or modalView == nil then
+			return false
+		end
+		local current = modalView:current()
+		if current == nil then
+			modalView:open("Store")
+			current = modalView:current()
+		end
+		if current == "Store" then
+			screen:showTab("codes")
+		end
+		return true
+	end
+
+	-- Whether the Store is up on its Codes tab (the circle's walk-out closes it, and answers show there).
+	function UI.store.codesShowing(): boolean
+		local screen = shop.screen
+		return screen ~= nil
+			and modal ~= nil
+			and modal:current() == "Store"
+			and screen:tab() == "codes"
+	end
+
 	-- The UI gate's and a Studio preview's answers in place of Roblox's: pass id to { robux, forSale }, and pass id
 	-- to true for the passes owned. preview({}, {}) clears them.
 	function UI.store.preview(prices: { [number]: StoreLogic.Price }, owned: { [number]: boolean })
@@ -5516,6 +5573,9 @@ do
 			shop.changed = nil
 		end
 		if shop.screen then
+			if codesScreen then
+				codesScreen:mount(nil) -- back in its own window before the Store goes
+			end
 			shop.screen:destroy()
 			shop.screen = nil
 		end

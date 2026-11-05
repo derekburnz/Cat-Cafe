@@ -108,6 +108,8 @@ For a regular who plays two hours a day at Tier 3 or 4:
 
 ## 3. The Fresh Catch shelf: potions every 5 minutes by day
 
+**Since #1437 (built in #1473):** the window is one global game day, 390 s from `Config.ClockEpoch`, so the stock restocks at each sunrise, at the same moment on every server (data-model.md section 9). Read "5-minute window" below as that game-day window.
+
 The Golden Fish Market gets a chalkboard on its stall, "Fresh Catch", and a third tab in its window. By day it sells potions for golden fish, with a stock that rolls every 5 minutes. This answers both of Derek's ideas at one station, with no new model beyond the board: potions in the Fish Market, and a daytime shop that rotates every 5 minutes.
 
 - **The roll.** The stock uses the code the night dealer uses today (data-model 8b, v0.8), moved here: every FreshCatchWindowSeconds (300) a window `floor(os.time() / 300)` rolls an amount of each item from `FreshCatchAmountWeights`, seeded only by the window, so every server shows the same stock and nobody can hop servers for a better one. The amount is per player: each player can buy up to that many in the window.

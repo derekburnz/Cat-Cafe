@@ -4,11 +4,12 @@
 -- 2026-11-03 ("have the picture be top and you be shown still in the frame below the location as it's cool to see
 -- your character fly") it is a smaller card at the top centre, so the flying character in the middle stays in view,
 -- and the "Landing at the Woods camp" line is gone (less text). Since #1163 (Derek 2026-11-04) a player's own flight
--- shows it as the picker closes: it pops in with a white ring at once, wobbles, zips up and off with the BOOM (0.5 s
--- after CannonLaunchAt) and is gone by 0.7 (CannonLogic.CHOSEN_HOLD). The intro's shot 2 keeps the cloud schedule:
--- in at 1.6 s after its launchAt, wobble, zip off at 2.0 and gone by 2.2 (CannonLogic.cardTimes(0.4)). With reduced
--- motion it fades in and out instead, with no pop, ring, wobble or zip. DisplayOrder 46 sits just over VFX's cloud
--- tunnel (45) and under the intro (50); it never takes input. No card for a cloud hop home.
+-- shows it as the picker closes: it pops in with a white ring at once, wobbles, and since #1444 holds through the
+-- flight, zipping up and off at 2.5 s after CannonLaunchAt and gone by 2.7 (CannonLogic.CHOSEN_HOLD). The intro's shot
+-- 2 keeps the cloud schedule: in at 1.6 s after its launchAt, wobble, zip off at 2.0 and gone by 2.2
+-- (CannonLogic.cardTimes(0.4)). With reduced motion it fades in and out instead, with no pop, ring, wobble or zip.
+-- DisplayOrder 46 sits just over VFX's cloud tunnel (45) and under the intro (50); it never takes input. No card for a
+-- cloud hop home.
 
 local GuiService = game:GetService("GuiService")
 local Workspace = game:GetService("Workspace")

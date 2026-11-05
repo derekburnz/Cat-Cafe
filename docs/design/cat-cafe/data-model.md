@@ -330,10 +330,10 @@ Each dealer food's `attracts` chip is its likeliest rarity: sardines Rare, cavia
 |---|---|---|---|---|---|---|
 | Moonlit Sardines | 15 | 25 | 30 | 20 | 10 | 1.85 |
 | Caviar | 35 | 40 | 20 | 5 | 0 | 0.95 |
-| Moon Milk | 60 | 35 | 5 | 0 | 0 | 0.45 |
-| Star Treat | 90 | 10 | 0 | 0 | 0 | 0.10 |
+| Moon Milk | 45 | 45 | 10 | 0 | 0 | 0.65 |
+| Star Treat | 80 | 20 | 0 | 0 | 0 | 0.20 |
 
-A Star Treat turns up about one window in ten. Since v0.9 a night lasts 90 seconds, so most nights see one window and about one in four sees a restock part way through; coins still limit what a player buys because the prices are unchanged. The dealer is the main reason to be out at night, and the plaza is under 10 seconds from every cafe door. The dealer screen shows these chances per food, as it showed the slot weights.
+#1442 (Derek 2026-11-05: "increase the night markets rate of having moon milk / star treat's by a little bit"): Moon Milk was 60 / 35 / 5 (0.45) and Star Treat 90 / 10 (0.10); now Moon Milk is in stock 55% of nights (was 40%) and a Star Treat turns up about one night in five (was one in ten). Prices and food odds are unchanged. Since v0.9 a night lasts 90 seconds, so most nights see one window and about one in four sees a restock part way through; coins still limit what a player buys because the prices are unchanged. The dealer is the main reason to be out at night, and the plaza is under 10 seconds from every cafe door. The dealer screen shows these chances per food, as it showed the slot weights.
 
 ## 9. Areas, the clock and spawning
 
@@ -887,7 +887,7 @@ Removed: GrabEnd (replaced by CatchPress), RescueEnd (replaced by RescuePress), 
 
 v0.13.17 (F84, [hometown-cannon.md](hometown-cannon.md)): area travel is by cannon only. `Travel` keeps `home` from anywhere when not carrying, with the cloud hop from a wild area (CloudHopSeconds 1.6, the move at CloudHopMoveAtSeconds 0.6), adds `cannon` (Derek 14:10: the Cannon button moves the caller at once to the front of the nearest cannon, the Town Square cannon in town or their camp's cannon in a wild area, refused while carrying) and drops `alley` and the area destinations. `LaunchCannon` below is the way into and out of a wild area.
 
-v0.4 addition, `Travel(destination)` (engineer's F19, the shape is theirs): `home` or an area id; the area is unlocked, the player is not carrying, holds no catch or rescue lock (reviewer N47) and TravelCooldownSeconds (3) has passed; moves the character to that destination's entry point.
+v0.4 addition, `Travel(destination)` (engineer's F19, the shape is theirs): `home` or an area id; the area is unlocked, the player is not carrying, holds no catch or rescue lock (reviewer N47) and TravelCooldownSeconds (1 since #1434, was 3) has passed and no cloud hop home is under way; moves the character to that destination's entry point.
 
 ## 16. Analytics events (AnalyticsService)
 
@@ -956,7 +956,7 @@ Changed or new in v0.4:
 | AutoPressClearRate | 0.85 | new | CatService |
 | NormalWalkSpeed | 20 | 16 | CatService, PlotService |
 | CarryWalkSpeed | 16 | 13 | CatService |
-| TravelCooldownSeconds | 3 | new | Travel (F19) |
+| TravelCooldownSeconds | 1 (3 until #1434) | new | Travel (F19); no trip starts during a cloud hop home |
 | alley spawnPoints | 24 | 14 | Catalog areas |
 
 Changed or new in v0.5 (Gavin's round 2):
@@ -983,7 +983,7 @@ New in v0.6 (F49, the Spin Wheel station):
 |---|---|---|---|
 | SpinStationRange | 14 | new | SpinService |
 | SpinCooldownSeconds | 4 | new | SpinService, Spin window animation |
-| SpinBankCap | 20 | new | SpinService, TipJarService |
+| SpinBankCap | 50 (20 until #1414) | new | SpinService, TipJarService |
 
 New in v0.7 (decided 2026-10-27 19:27, [golden-fish.md](golden-fish.md) section 8): CratePrice 60, CrateDuplicateRefund {Common 10, Rare 20, Epic 40, Legendary 80, Mythical 150}, CrateLuckyEvery 20, FishMarketRange 14, CrateOpenCooldownSeconds 2, DecorSpots {2, 3, 4, 5, 6} by tier, DecorIndexBonus 0.05, DecorIndexHalfFish 25, the crate piece bonuses {0.02, 0.04, 0.08, 0.15, 0.25}, FishFirstCatch { Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 40 } and FishRepeatCatch { Epic = 1, Legendary = 3, Mythical = 8 } (maps by rarity, as built in PR #295), FishRankUp { 10, 25, 50, 100 } for Tiers 2 to 5, TipJarStep12Fish 5. A first catch that is also gold pays both the first catch and the first gold catch rows (an Epic: 8 + 16 = 24), because it fills both Index pages.
 

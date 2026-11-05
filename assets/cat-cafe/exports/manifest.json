@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-05 00:00 UTC",
+  "generated": "2026-11-05 00:14 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -170980,7 +170980,7 @@
         "CatCafe_Alleyway_Backdrop_Bulbs",
         "CatCafe_Alleyway_Backdrop_Road"
       ],
-      "triangles": 20380,
+      "triangles": 17740,
       "budget": 60000,
       "size_studs": {
         "x": 667.33,
@@ -171005,7 +171005,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alleyway_Backdrop.model.json",
-      "rbx_parts": 2236,
+      "rbx_parts": 1356,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alleyway_Backdrop.fbx",
         "assets/cat-cafe/exports/CatCafe_Alleyway_Backdrop.glb"
@@ -171018,10 +171018,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "20380/60000 tris",
+          "budget": "17740/60000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "11861 faces on swatch centers",
+          "uv": "10101 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-167.40 (want 0)",
           "centered": "footprint center x=1.98 y=-13.46"
@@ -171042,7 +171042,7 @@
         "CatCafe_Park_Backdrop_Flowers",
         "CatCafe_Park_Backdrop_Bulbs"
       ],
-      "triangles": 19770,
+      "triangles": 17130,
       "budget": 60000,
       "size_studs": {
         "x": 631.46,
@@ -171067,7 +171067,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_Backdrop.model.json",
-      "rbx_parts": 1712,
+      "rbx_parts": 832,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_Backdrop.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_Backdrop.glb"
@@ -171080,10 +171080,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "19770/60000 tris",
+          "budget": "17130/60000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "15149 faces on swatch centers",
+          "uv": "13389 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-164.24 (want 0)",
           "centered": "footprint center x=1.39 y=-14.01"
@@ -171105,7 +171105,7 @@
         "CatCafe_Neighbourhood_Backdrop_Bulbs",
         "CatCafe_Neighbourhood_Backdrop_Road"
       ],
-      "triangles": 24998,
+      "triangles": 22358,
       "budget": 60000,
       "size_studs": {
         "x": 806.3,
@@ -171130,7 +171130,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_Backdrop.model.json",
-      "rbx_parts": 2100,
+      "rbx_parts": 1220,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_Backdrop.fbx",
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_Backdrop.glb"
@@ -171143,10 +171143,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "24998/60000 tris",
+          "budget": "22358/60000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "18373 faces on swatch centers",
+          "uv": "16613 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-167.52 (want 0)",
           "centered": "footprint center x=-3.62 y=-15.44"
@@ -171166,7 +171166,7 @@
         "CatCafe_Woods_Backdrop_HillsFar",
         "CatCafe_Woods_Backdrop_Snow"
       ],
-      "triangles": 28584,
+      "triangles": 25944,
       "budget": 60000,
       "size_studs": {
         "x": 822.22,
@@ -171191,7 +171191,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_Backdrop.model.json",
-      "rbx_parts": 2005,
+      "rbx_parts": 1125,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_Backdrop.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_Backdrop.glb"
@@ -171204,10 +171204,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "28584/60000 tris",
+          "budget": "25944/60000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "23530 faces on swatch centers",
+          "uv": "21770 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-386.84 (want 0)",
           "centered": "footprint center x=2.66 y=-12.64"
@@ -171228,7 +171228,7 @@
         "CatCafe_Sewer_Backdrop_Bulbs",
         "CatCafe_Sewer_Backdrop_Road"
       ],
-      "triangles": 23308,
+      "triangles": 20668,
       "budget": 60000,
       "size_studs": {
         "x": 709.72,
@@ -171253,7 +171253,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_Backdrop.model.json",
-      "rbx_parts": 1972,
+      "rbx_parts": 1092,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Sewer_Backdrop.fbx",
         "assets/cat-cafe/exports/CatCafe_Sewer_Backdrop.glb"
@@ -171266,10 +171266,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "23308/60000 tris",
+          "budget": "20668/60000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "16139 faces on swatch centers",
+          "uv": "14379 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-166.92 (want 0)",
           "centered": "footprint center x=-1.72 y=-15.62"
@@ -171290,7 +171290,7 @@
         "CatCafe_Park_BackdropF85_Flowers",
         "CatCafe_Park_BackdropF85_Bulbs"
       ],
-      "triangles": 25186,
+      "triangles": 22546,
       "budget": 60000,
       "size_studs": {
         "x": 592.24,
@@ -171315,7 +171315,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_BackdropF85.model.json",
-      "rbx_parts": 1929,
+      "rbx_parts": 1049,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_BackdropF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_BackdropF85.glb"
@@ -171328,10 +171328,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "25186/60000 tris",
+          "budget": "22546/60000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "19563 faces on swatch centers",
+          "uv": "17803 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-164.24 (want 0)",
           "centered": "footprint center x=1.19 y=-10.59"
@@ -171353,7 +171353,7 @@
         "CatCafe_Neighbourhood_BackdropF85_Bulbs",
         "CatCafe_Neighbourhood_BackdropF85_Road"
       ],
-      "triangles": 26660,
+      "triangles": 24020,
       "budget": 60000,
       "size_studs": {
         "x": 709.37,
@@ -171378,7 +171378,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Neighbourhood_BackdropF85.model.json",
-      "rbx_parts": 2188,
+      "rbx_parts": 1308,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_BackdropF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Neighbourhood_BackdropF85.glb"
@@ -171391,10 +171391,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "26660/60000 tris",
+          "budget": "24020/60000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "19554 faces on swatch centers",
+          "uv": "17794 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-167.52 (want 0)",
           "centered": "footprint center x=-2.08 y=-15.00"
@@ -171414,7 +171414,7 @@
         "CatCafe_Woods_BackdropF85_HillsFar",
         "CatCafe_Woods_BackdropF85_Snow"
       ],
-      "triangles": 35408,
+      "triangles": 32768,
       "budget": 60000,
       "size_studs": {
         "x": 747.8,
@@ -171439,7 +171439,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_BackdropF85.model.json",
-      "rbx_parts": 2273,
+      "rbx_parts": 1393,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_BackdropF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_BackdropF85.glb"
@@ -171452,10 +171452,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "35408/60000 tris",
+          "budget": "32768/60000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "29220 faces on swatch centers",
+          "uv": "27460 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-398.57 (want 0)",
           "centered": "footprint center x=-0.54 y=-15.92"
@@ -171476,7 +171476,7 @@
         "CatCafe_Sewer_BackdropF85_Bulbs",
         "CatCafe_Sewer_BackdropF85_Road"
       ],
-      "triangles": 36396,
+      "triangles": 33756,
       "budget": 60000,
       "size_studs": {
         "x": 648.5,
@@ -171501,7 +171501,7 @@
       "pivot": "base center (floor contact)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_BackdropF85.model.json",
-      "rbx_parts": 2656,
+      "rbx_parts": 1776,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Sewer_BackdropF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Sewer_BackdropF85.glb"
@@ -171514,10 +171514,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "36396/60000 tris",
+          "budget": "33756/60000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "24079 faces on swatch centers",
+          "uv": "22319 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-167.36 (want 0)",
           "centered": "footprint center x=-2.33 y=-15.28"

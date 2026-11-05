@@ -180,6 +180,9 @@ def _ray_to(sdf, ux, uz, far=4000.0):
     return (lo + hi) / 2
 
 
+CORNER_STEPS = 8                 # steps round each rounded corner of the ground's outer edge
+
+
 def ground(f, rb, swatch):
     """The ground round WorldBuilder's plate, top at TOP: from the plate's edge out to the far hill ring's own
     rounded rectangle plus half a hill's foot (#1174: a square tray reaching REACH past the plate stuck out past the
@@ -192,8 +195,19 @@ def ground(f, rb, swatch):
     px, pz = f.px, (f.pz1 - f.pz0) / 2
     outer = lambda x, z: _rounded_sdf(x, z + cz - f.cz, rx, rz, r)   # noqa: E731  (centred on the plate)
     inner = lambda x, z: max(abs(x) - px, abs(z) - pz)              # noqa: E731
-    angles = [2 * math.pi * k / 256 for k in range(256)]
-    angles += [math.atan2(sz * pz, sx * px) % (2 * math.pi) for sx in (-1, 1) for sz in (-1, 1)]   # plate corners
+    # The outline's own points (its straight runs need only their ends; each rounded corner CORNER_STEPS steps), as
+    # angles seen from the plate's centre, and the plate's four corners, so every quad below has its inner edge on one
+    # side of the plate and its outer edge on one straight run or one corner step (Review-Agent: 256 even angles made
+    # ~1,040 WedgeParts per backdrop).
+    angles = [math.atan2(sz * pz, sx * px) % (2 * math.pi) for sx in (-1, 1) for sz in (-1, 1)]   # plate corners
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            ccx, ccz = sx * (rx - r), f.cz + sz * (rz - r) - cz          # corner centre, from the plate's centre
+            for k in range(CORNER_STEPS + 1):
+                t = math.radians(90.0 * k / CORNER_STEPS)
+                ox = ccx + sx * r * math.sin(t)
+                oz = ccz + sz * r * math.cos(t)
+                angles.append(math.atan2(oz, ox) % (2 * math.pi))
     angles = sorted(set(round(a, 9) for a in angles))
     ring_pts = []
     for a in angles:

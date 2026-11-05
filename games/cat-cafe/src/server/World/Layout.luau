@@ -353,6 +353,10 @@ Layout.plot = {
 	-- beside it with its head over the bowl.
 	baitBowl = { x = -2.6, y = 0, z = halfD + 2.6 } :: Point,
 	baitCat = { x = -1, y = 0, z = halfD + 2.6, rotY = 90 } :: Point,
+	-- The Second Bait Bowl (#1161) on the same step, further right, its cat on its right the same way, so the two
+	-- pairs read as bowl, cat, bowl, cat from the door: 2 studs between the first cat and the second bowl.
+	baitBowl2 = { x = 1, y = 0, z = halfD + 2.6 } :: Point,
+	baitCat2 = { x = 2.6, y = 0, z = halfD + 2.6, rotY = 90 } :: Point,
 
 	-- The patio yard behind the back wall, fenced. Its gate onto the back alley closed with the back alley (v4, F84);
 	-- yardGate is where it stood, and the path from the back door to it stays clear of the yard's dressing.

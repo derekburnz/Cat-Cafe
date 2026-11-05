@@ -94,7 +94,9 @@ local ProfileSchema = {}
 -- { lastClaimAt, claims }, one free crate every YardSaleClaimHours: an older server would read it as no crate taken
 -- today and give a second one by server hopping during a rollout. A save that took today's crate waits until
 -- YardSaleClaimHours after that UTC day began (CampExtras.sanitize).
-ProfileSchema.VERSION = 33
+-- Version 34 (#1161) adds bait2, the Second Bait Bowl's food and rolled cat: an older server would drop it, losing
+-- the food and letting the player roll that bowl again by hopping servers during a rollout.
+ProfileSchema.VERSION = 34
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -210,6 +212,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		decorPlaced = {},
 		lures = {},
 		bait = nil,
+		bait2 = nil,
 		freshCatch = FreshCatch.fresh(),
 		cats = {
 			[STARTER_UID] = starter,
@@ -764,6 +767,9 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	end
 	if fromVersion >= 3 then
 		profile.bait = sanitizeBait(raw.bait)
+	end
+	if fromVersion >= 34 then
+		profile.bait2 = sanitizeBait(raw.bait2) -- #1161: kept even if the pass is not seen this session
 	end
 
 	sanitizeCats(raw, profile, fromVersion, now)

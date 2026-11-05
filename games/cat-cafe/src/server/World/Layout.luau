@@ -1140,8 +1140,9 @@ Layout.woods = {
 		do
 			table.insert(points, point)
 		end
-		-- up the ladder inside the Great Oak to its top nook (Derek 2026-10-28 01:35: a higher rare chance there)
-		table.insert(points, setPoints(WX, WZ, WTURN, 0.1, { { -30.58, 18.3, 204.89 } }, "rare")[1])
+		-- up the ladder inside the Great Oak to its top nook (Derek 2026-10-28 01:35: a higher rare chance there), on
+		-- its cushion behind the ladder since #1461
+		table.insert(points, setPoints(WX, WZ, WTURN, 0.1, { { -33.58, 18.3, 207.23 } }, "rare")[1])
 		return points
 	end)(),
 	rescueSpots = {

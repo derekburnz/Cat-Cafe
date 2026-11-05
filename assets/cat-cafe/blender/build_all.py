@@ -73,6 +73,7 @@ import doors  # noqa: E402
 import doorsets  # noqa: E402
 import market  # noqa: E402
 import cornershop  # noqa: E402
+import daycart  # noqa: E402
 import gardennursery  # noqa: E402
 import thanksboard  # noqa: E402
 import npc  # noqa: E402
@@ -87,6 +88,7 @@ import woodsset  # noqa: E402
 import yardfence  # noqa: E402
 import sewerset  # noqa: E402
 import neighbourhoodset  # noqa: E402
+import pitysign  # noqa: E402
 import plot  # noqa: E402
 import poses  # noqa: E402
 import props  # noqa: E402
@@ -105,7 +107,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, sewerf85, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
-           gardennursery, campstations]
+           gardennursery, campstations, daycart, pitysign]
 
 PIVOT_NOTES = {
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
@@ -194,6 +196,9 @@ PIVOT_NOTES = {
     "CatCafe_Street_CodesCat": "base centre; the desk front (-Z) faces the players",
     "CatCafe_Street_FishMarket": "base centre; the counter front (-Z) faces the players",
     "CatCafe_Street_CornerShop": "base centre; the counter front (-Z) faces the players",
+    daycart.NAME: "base centre; the display front (-Z) faces the players",
+    pitysign.NAME: "the base centre between its posts on the square's floor (world y 0.1), front -Z; "
+                   "pitysign.SPOT, facing the player spawn",
     campstations.PIC: "the base centre on the camp's ground, front -Z, no turn; the Picnic Basket's spot "
                       "(Layout.campExtras.park, Park set space)",
     campstations.YARD: "the base centre on the camp's ground, front -Z, no turn; the Yard Sale's spot "
@@ -329,6 +334,15 @@ STUDIO_NOTES = {
                                  "Layout.cornerShop; WorldBuilder tags it CornerShop and hangs the prompt on the "
                                  "Attachment PromptAnchor (counter front, 3 up). The jars' glass is _Glass "
                                  "(see-through), the shop cat's visor rides its Head Model, the sign Bulb is lit at night.",
+    daycart.NAME: "#1577 (day-cart.md section 1): the Corner Shop's stock on a cart in the Town Square, opposite the "
+                  "Golden Fish Market; WorldBuilder places it (suggested spot daycart.SPOT, turned to face the cannon), "
+                  "tags it CornerShop and hangs the shop prompt on the Attachment PromptAnchor (cart front, 3 up). "
+                  "The shop cat's visor rides its Head Model, the lantern Bulb is lit at night. It replaces "
+                  "CatCafe_Street_CornerShop, which goes once the cart is wired.",
+    pitysign.NAME: "#1572 (luck-and-rare-moments.md section 1h): the rare cat sign in the Town Square (suggested "
+                   "spot pitysign.SPOT, across the street from the Day Cart, facing the spawn). Streams Atomic. The "
+                   "UI's SurfaceGui (Adornee = the part named Screen, 5.6 x 2.8, night blue) draws the Legendary and "
+                   "Mythical countdowns on its Front (-Z) face.",
     campstations.PIC: "#1133 (camp-stations.md section 2): the Picnic station, replacing CatCafe_Camp_Park_PicnicBasket "
                       "at Layout.campExtras.park. Attachments PromptAnchor (table front, 1.5 up), BangAnchor (2 over the "
                       "A-frame sign, for ReadyBang), GlowAnchor (under the parasol, the ready glow's PointLight, #1328) "
@@ -624,6 +638,8 @@ def main():
             extra = {"attachments": [market.prompt_attachment()], "nest": {"_Prop": "_Head"}}
         if name == cornershop.NAME:               # #1052: the prompt's spot, and the visor rides the cat's Head
             extra = {"attachments": [cornershop.prompt_attachment()], "nest": {"_Prop": "_Head"}}
+        if name == daycart.NAME:                  # #1577: the prompt's spot, and the visor rides the cat's Head
+            extra = {"attachments": [daycart.prompt_attachment()], "nest": {"_Prop": "_Head"}}
         if name == gardennursery.NAME:            # #1200: the prompt and bubble spots; the sun hat rides the cat's Head
             extra = {"attachments": gardennursery.attachments(), "nest": {"_Prop": "_Head"}}
         if name == "CatCafe_Decor_DoorSign":      # #1140: the moon rides the CLOSED face's Model
@@ -754,6 +770,12 @@ def main():
             entry["prompt_anchor_roblox"] = list(market.PROMPT_ROBLOX)
         if name == cornershop.NAME:
             entry["prompt_anchor_roblox"] = list(cornershop.PROMPT_ROBLOX)
+        if name == daycart.NAME:
+            entry["prompt_anchor_roblox"] = list(daycart.PROMPT_ROBLOX)
+            entry["placement_suggested_roblox"] = [round(v, 2) for v in daycart.SPOT]
+        if name == pitysign.NAME:
+            entry["screen"] = {"part": "Screen", "face": "Front (-Z)", "size": [pitysign.SW, pitysign.SH]}
+            entry["placement_suggested_roblox"] = [round(v, 2) for v in pitysign.SPOT]
         if name == gardennursery.NAME:
             entry["prompt_anchor_roblox"] = list(gardennursery.PROMPT_ROBLOX)
             entry["placement_park_set_roblox"] = list(gardennursery.SPOT)

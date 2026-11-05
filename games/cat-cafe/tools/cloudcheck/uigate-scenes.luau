@@ -1587,6 +1587,23 @@ local SCENES = {
 		press("CatCafeModals", "potions")
 		assertStoreCards(false)
 	end },
+	-- #1605 (Derek2 11-05: "scrolling down in shop causes it to snap back up"): a scrolled tab keeps its place when the
+	-- window renders again on a state change; another tab still starts at the top
+	{ "StoreScrollHolds", function()
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		press("CatCafeModals", "potions")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Store", true)
+		local list = window and window:FindFirstChild("List", true) :: ScrollingFrame
+		assert(list, "no Store list")
+		list.CanvasPosition = Vector2.new(0, 120)
+		UI.update(samplePlayer(os.time()))
+		UI.store.preview(storePrices(true), {})
+		assert(list.CanvasPosition.Y == 120, "the list snapped to " .. list.CanvasPosition.Y)
+		press("CatCafeModals", "passes")
+		assert(list.CanvasPosition.Y == 0, "a new tab did not start at the top")
+	end },
 	-- 2x Money and Long Nap owned: the ladder's next rung (3x, in place of x2) and Long Nap marked Owned
 	{ "StoreOwned", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")

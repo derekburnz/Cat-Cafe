@@ -5559,10 +5559,20 @@ do
 		potionNames[def.id] = def.name
 	end
 	local function rows(): { StoreLogic.Row }
+		-- #1625: the Starter Bundle's cats by name, and the server's word on whether it is bought
+		local catNames: { [string]: string } = {}
+		for _, product in SharedCatalog.products or {} do
+			for _, catId in (product.prize or {}).cats or {} do
+				local def = SharedCatalog.getCat(catId)
+				catNames[catId] = if def then def.name else nil
+			end
+		end
 		return StoreLogic.rows(Config, PassShop.owned(), state.longNap, {
 			products = SharedCatalog.products,
 			potionNames = potionNames,
+			catNames = catNames,
 			have = state.potions,
+			starterBought = (state :: any).starterBought,
 		})
 	end
 

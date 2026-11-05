@@ -56,6 +56,15 @@ One track for the whole Index (not per area, since one rainbow Mythical can take
 
 The three luck steps add up to +100%, the RainbowLuckMax cap, so a Rainbow Master rolls rainbow at 1% on strays and bait. Each prize shows at most three pictures (F94).
 
+## 4b. Rainbow v2: a first rainbow in about 2 hours (#1572, #1574)
+
+Derek, 2026-11-05: rainbows are far too rare (he had 10 gold and no rainbow), so a first rainbow should come after about 2 to 3 hours of play, with gold still more common. On #1581 he set aside a crate item for it: "just change it to be a big increase like the other cosmetics". So rainbow comes from a much higher chance on every roll and from Rainbow Days. It multiplies with the 2x, 3x and 4x money passes.
+
+- **Rates.** `RainbowChanceNet` and `RainbowChanceBait` go from 0.005 to 0.015 (x3), and `RainbowChanceRescue` from 0.01 to 0.03 (rescues stay at 2x). Gold stays 5% and 10%, so gold is still about 3 times as common. Why: a steady player secures about 30 cats an hour (section 1: about 300 on the way to Tier 5 in about 10 h). With Rainbow Days (luck-and-rare-moments.md section 1g, 1 day in 10 at x3, so x1.2 on average) a roll is about 1.8%, so the first rainbow comes after about 56 cats, about 1.9 h. About 4 players in 5 have one by 3 h. The food and Fish Market odds cards show "Rainbow 1.5%".
+- **No crate item.** Crates stay decor only. There is no Rainbow Paint (it was dropped on #1581).
+- **Money passes.** A rainbow cat's x3 is part of its rate, and the money pass multiplies the whole cafe last (economy-ladder.md section 6a). So a rainbow cat with the 4x pass earns x12, with no highest-wins rule. That's already how it's built; the build only adds a spec check for it.
+- Contracts: Config `RainbowChanceNet` 0.015, `RainbowChanceBait` 0.015, `RainbowChanceRescue` 0.03. No save, remote or Pace.spec change (rainbow isn't in the pace sim). QA: over 100,000 seeded stray rolls, rainbow lands within 0.1 points of 1.5%, and 4.5% on a Rainbow Day.
+
 ## 5. Contracts
 
 - Save: `variant` may be `"rainbow"`; the Index entry per cat gains `rainbow` (bool) next to `gold`, which is what makes a rainbow coat the first one (`GoldenFish.forCatch` gains `firstRainbow`); `stats.rainbowCatches`; the Rainbow track's claimed milestones sit with the other tracks' claims.

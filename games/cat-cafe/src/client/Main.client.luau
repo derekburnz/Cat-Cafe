@@ -10,6 +10,7 @@ ReplicatedStorage:WaitForChild("Remotes")
 local Audio = require(script.Parent.Audio)
 local CampExtrasController = require(script.Parent.Controllers.CampExtrasController)
 local CannonController = require(script.Parent.Controllers.CannonController)
+local ChatTagController = require(script.Parent.Controllers.ChatTagController)
 local CodesController = require(script.Parent.Controllers.CodesController)
 local CustomerController = require(script.Parent.Controllers.CustomerController)
 local DoorController = require(script.Parent.Controllers.DoorController)
@@ -41,6 +42,7 @@ GoldHutController.start() -- #1368: the Golden Pond pass's gold Fishing Hut, on 
 RallyController.start() -- F101: the Rescue Rally's state for the UI's banner
 TradeController.start() -- F102: trading, after the UI whose trade window it feeds
 CodesController.start()
+ChatTagController.start() -- #1624: the VIP tag in chat
 StarterCatController.start() -- F96: the Bellhop Cat's stand card
 CustomerController.start()
 Effects.start()

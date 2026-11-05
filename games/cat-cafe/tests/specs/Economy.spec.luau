@@ -152,15 +152,18 @@ return function()
 				expect(Economy.cafeMultiplier(p)).to.be.near(1.30)
 			end)
 
-			it("adds the front lawn's pieces and styles out by rarity (#1283), none for a save without a lawn", function()
-				local p = freshProfile()
-				expect(Economy.lawnBonus(p)).to.equal(0)
-				p.lawnOwned = { garden_bench = true, tulip_bed = true, iron_railing = true }
-				p.lawn = { big1 = "garden_bench", small1 = "tulip_bed" }
-				p.lawnStyles = { path = "grey_slabs", fence = "iron_railing" }
-				expect(Economy.lawnBonus(p)).to.be.near(0.07)
-				expect(Economy.cafeMultiplier(p)).to.be.near(1.07)
-			end)
+			it(
+				"adds the front lawn's pieces and styles out by rarity (#1283), none for a save without a lawn",
+				function()
+					local p = freshProfile()
+					expect(Economy.lawnBonus(p)).to.equal(0)
+					p.lawnOwned = { garden_bench = true, tulip_bed = true, iron_railing = true }
+					p.lawn = { big1 = "garden_bench", small1 = "tulip_bed" }
+					p.lawnStyles = { path = "grey_slabs", fence = "iron_railing" }
+					expect(Economy.lawnBonus(p)).to.be.near(0.07)
+					expect(Economy.cafeMultiplier(p)).to.be.near(1.07)
+				end
+			)
 
 			it("everything maxed is 1 + 0.6 + 0.6 + 0.3 = 2.5", function()
 				local p = freshProfile()
@@ -257,7 +260,9 @@ return function()
 					"Found in Cafe Crates, not for sale"
 				)
 				expect(Economy.decorBlocker(p, "index_park_gold")).to.equal("Unknown decor")
-				expect(Economy.decorBlocker(p, "rug")).to.equal("Found in Cafe Crates, not for sale") -- F97
+				expect(Economy.decorBlocker(p, "rug")).to.equal(
+					"Found in Cafe Crates, not for sale"
+				) -- F97
 			end)
 		end
 	)
@@ -505,6 +510,107 @@ return function()
 				)
 			end
 		)
+
+		describe("the five store passes (#1624, economy-ladder.md section 6a)", function()
+			local function with(extra: { [string]: boolean }): Economy.Passes
+				local passes: any = { money = 1, longNap = false, slots = 0 }
+				for key, value in extra do
+					passes[key] = value
+				end
+				return passes
+			end
+
+			it(
+				"VIP, Cafe Style and Grand Cafe add into cafeMultiplier, +0.10, +0.50 and +1.50",
+				function()
+					local p = working()
+					local base = Economy.cafeMultiplier(p)
+					Economy.setPasses(p, with({ vip = true }))
+					expect(Economy.cafeMultiplier(p)).to.be.near(base + 0.10, 1e-9)
+					Economy.setPasses(p, with({ vip = true, cafeStyle = true, grand = true }))
+					expect(Economy.passCafeBonus(p)).to.be.near(2.10, 1e-9)
+					expect(Economy.cafeMultiplier(p)).to.be.near(base + 2.10, 1e-9)
+				end
+			)
+
+			it(
+				"Accessories and Uniforms each multiply the working cats by 1.15, x1.3225 together",
+				function()
+					local p = working()
+					local base = Economy.incomePerSecond(p)
+					Economy.setPasses(p, with({ accessories = true }))
+					expect(Economy.incomePerSecond(p)).to.be.near(base * 1.15, 1e-6)
+					Economy.setPasses(p, with({ accessories = true, uniforms = true }))
+					expect(Economy.staffMultiplier(p)).to.be.near(1.3225, 1e-9)
+					expect(Economy.incomePerSecond(p)).to.be.near(base * 1.3225, 1e-6)
+				end
+			)
+
+			it("the Money pass still comes last: Grand Cafe and 4x Money", function()
+				local p = working()
+				local cafe = Economy.cafeMultiplier(p)
+				local base = Economy.incomePerSecond(p)
+				Economy.setPasses(p, { money = 4, longNap = false, slots = 0, grand = true })
+				expect(Economy.incomePerSecond(p)).to.be.near(base / cafe * (cafe + 1.5) * 4, 1e-6)
+			end)
+
+			it(
+				"rich visitors come 1.25x as often with Cafe Style, 2x with Grand Cafe, 2.25x with both",
+				function()
+					local p = working()
+					expect(Economy.richRate(p)).to.equal(1)
+					Economy.setPasses(p, with({ cafeStyle = true }))
+					expect(Economy.richRate(p)).to.be.near(1.25, 1e-9)
+					Economy.setPasses(p, with({ grand = true }))
+					expect(Economy.richRate(p)).to.be.near(2, 1e-9)
+					Economy.setPasses(p, with({ cafeStyle = true, grand = true }))
+					expect(Economy.richRate(p)).to.be.near(2.25, 1e-9)
+				end
+			)
+
+			it(
+				"extra slots open the next tier's spots early, and the pass-only ones at Tier 5 (#1624)",
+				function()
+					local p = working()
+					p.tier = 1
+					expect(Economy.extraSlots(p)).to.equal(0)
+					expect(Economy.spotIsOpen(p, "waiter_2")).to.equal(false)
+					Economy.setPasses(p, with({ grand = true }))
+					expect(Economy.extraSlots(p)).to.equal(1)
+					expect(Economy.spotIsOpen(p, "waiter_2")).to.equal(true) -- the third spot in order, a Tier 2 one
+					expect(Economy.spotIsOpen(p, "greeter_1")).to.equal(false)
+					Economy.setPasses(p, { money = 1, longNap = false, slots = 1, grand = true })
+					expect(Economy.extraSlots(p)).to.equal(2)
+					expect(Economy.spotIsOpen(p, "greeter_1")).to.equal(true)
+					p.tier = 5
+					expect(Economy.spotIsOpen(p, "waiter_4")).to.equal(true)
+					expect(Economy.spotIsOpen(p, "waiter_5")).to.equal(true)
+					Economy.setPasses(p, with({ grand = true }))
+					expect(Economy.spotIsOpen(p, "waiter_4")).to.equal(true)
+					expect(Economy.spotIsOpen(p, "waiter_5")).to.equal(false)
+					Economy.setPasses(p, nil)
+					expect(Economy.spotIsOpen(p, "entertainer_2")).to.equal(true)
+					expect(Economy.spotIsOpen(p, "waiter_4")).to.equal(false)
+				end
+			)
+
+			it("counts open slots as the tier's own plus the extras, at most every spot", function()
+				expect(Catalog.openSlotCount(1, 0)).to.equal(2)
+				expect(Catalog.openSlotCount(1, 2)).to.equal(4)
+				expect(Catalog.openSlotCount(5, 0)).to.equal(10)
+				expect(Catalog.openSlotCount(5, 2)).to.equal(12)
+				expect(Catalog.openSlotCount(5, 9)).to.equal(#Catalog.allSpots)
+				expect(Catalog.openSlotCount(1, -3)).to.equal(2)
+				expect(Catalog.slotIsOpen("nope", 5, 2)).to.equal(false)
+			end)
+
+			it("no store pass changes nothing, and luck never reads them", function()
+				local p = working()
+				expect(Economy.passCafeBonus(p)).to.equal(0)
+				expect(Economy.staffMultiplier(p)).to.equal(1)
+				expect(Economy.richRate(p)).to.equal(1)
+			end)
+		end)
 	end)
 
 	describe("spending", function()
@@ -661,9 +767,13 @@ return function()
 			p.coins = 1e9
 			p.tier = 5
 			for _, def in Catalog.decor do
-				expect(Economy.decorBlocker(p, def.id)).to.equal("Found in Cafe Crates, not for sale")
+				expect(Economy.decorBlocker(p, def.id)).to.equal(
+					"Found in Cafe Crates, not for sale"
+				)
 				p.decorOwned[def.id] = true -- bought before F97: kept, still never sold
-				expect(Economy.decorBlocker(p, def.id)).to.equal("Found in Cafe Crates, not for sale")
+				expect(Economy.decorBlocker(p, def.id)).to.equal(
+					"Found in Cafe Crates, not for sale"
+				)
 			end
 		end)
 
@@ -677,22 +787,25 @@ return function()
 	end)
 
 	describe("food prices (F97, notes-10-28-to-10-30.md section 3)", function()
-		it("prices food at its base times the tier factor 1, 1, 4, 8, 16 (bases x10 to x40 above Kibble, #1389)", function()
-			local want: { [string]: { number } } = {
-				kibble = { 100, 100, 400, 800, 1600 },
-				tuna = { 5000, 5000, 20000, 40000, 80000 },
-				salmon = { 50000, 50000, 200000, 400000, 800000 },
-				sardines = { 80000, 80000, 320000, 640000, 1280000 },
-				caviar = { 600000, 600000, 2400000, 4800000, 9600000 },
-				moon_milk = { 2000000, 2000000, 8000000, 16000000, 32000000 },
-				star_treat = { 8000000, 8000000, 32000000, 64000000, 128000000 },
-			}
-			for lureId, prices in want do
-				for tier, price in prices do
-					expect(Economy.foodPrice(lureId, tier)).to.equal(price)
+		it(
+			"prices food at its base times the tier factor 1, 1, 4, 8, 16 (bases x10 to x40 above Kibble, #1389)",
+			function()
+				local want: { [string]: { number } } = {
+					kibble = { 100, 100, 400, 800, 1600 },
+					tuna = { 5000, 5000, 20000, 40000, 80000 },
+					salmon = { 50000, 50000, 200000, 400000, 800000 },
+					sardines = { 80000, 80000, 320000, 640000, 1280000 },
+					caviar = { 600000, 600000, 2400000, 4800000, 9600000 },
+					moon_milk = { 2000000, 2000000, 8000000, 16000000, 32000000 },
+					star_treat = { 8000000, 8000000, 32000000, 64000000, 128000000 },
+				}
+				for lureId, prices in want do
+					for tier, price in prices do
+						expect(Economy.foodPrice(lureId, tier)).to.equal(price)
+					end
 				end
 			end
-		end)
+		)
 
 		it("clamps the tier and prices unknown food at 0", function()
 			expect(Economy.foodPrice("kibble", 0)).to.equal(100)

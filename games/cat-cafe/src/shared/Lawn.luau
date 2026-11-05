@@ -2,8 +2,11 @@
 -- The front lawn (F91, front-lawn.md): six lawn spots in the front garden, the pieces bought for them with coins and
 -- one path and one fence style at a time. Pure rules for LawnService, CafeService's tier gifts and the save (version
 -- 28); the rows are Catalog.lawn and Catalog.lawnStyles, the world side server/World/LawnBuilder.
+-- Since #1283 (lawn-nursery.md section 6) every piece and style out adds money by its rarity (`bonusOf`, in
+-- Economy.cafeMultiplier), and the server lays the best lawn by itself (`best`, `applyBest`): nothing is placed by hand.
 
 local Catalog = require(script.Parent.Catalog)
+local Config = require(script.Parent.Config)
 local Types = require(script.Parent.Types)
 
 type Profile = Types.PlayerProfile
@@ -197,6 +200,184 @@ function Lawn.grantTierGifts(profile: Profile): { string }
 		end
 	end
 	return given
+end
+
+-- Section 6a (#1283): the money bonus a lawn piece or style of `rarity` adds while it is out (0 for none, the free
+-- Grey Slabs).
+function Lawn.rarityBonus(rarity: Types.LawnRarity?): number
+	if rarity == nil then
+		return 0
+	end
+	return Config.LawnRarityBonus[rarity] or 0
+end
+
+local function pieceBonus(id: string?): number
+	local piece = if id ~= nil then Catalog.getLawn(id) else nil
+	return if piece ~= nil then Lawn.rarityBonus(piece.rarity) else 0
+end
+
+local function styleBonus(id: string?): number
+	local style = if id ~= nil then Catalog.getLawnStyle(id) else nil
+	return if style ~= nil then Lawn.rarityBonus(style.rarity) else 0
+end
+
+-- Section 6a: the money bonus of a lawn (each owned piece on a spot, and the path and fence in use when owned or
+-- free) and how many pieces and styles earn it. Takes the fields, not the profile, so the client can call it on its
+-- synced view (the Money boosts row, "Lawn (6 out) +18%").
+function Lawn.bonusOf(
+	owned: { [string]: boolean },
+	lawn: { [string]: string },
+	styles: Types.LawnStyles
+): (number, number)
+	local bonus, out = 0, 0
+	for _, spot in Lawn.SPOTS do
+		local pieceId = lawn[spot.id]
+		if pieceId ~= nil and owned[pieceId] == true then
+			local add = pieceBonus(pieceId)
+			if add > 0 then
+				bonus += add
+				out += 1
+			end
+		end
+	end
+	for _, id in { styles.path, styles.fence } :: { string? } do
+		if id ~= nil and owned[id] == true then
+			local add = styleBonus(id)
+			if add > 0 then
+				bonus += add
+				out += 1
+			end
+		end
+	end
+	return bonus, out
+end
+
+-- Section 6b: whether piece or style `a` is a better pick than `b`: the higher bonus, then the one out now (so a
+-- tie never moves a piece for nothing), then the lower id. The design's "newest owned" is not saved, so the id
+-- stands in for it.
+local function better(
+	aId: string,
+	aBonus: number,
+	bId: string,
+	bBonus: number,
+	isOut: (string) -> boolean
+): boolean
+	if aBonus ~= bBonus then
+		return aBonus > bBonus
+	end
+	local aOut, bOut = isOut(aId), isOut(bId)
+	if aOut ~= bOut then
+		return aOut
+	end
+	return aId < bId
+end
+
+-- Section 6b: the best lawn for the cafe's tier from what it owns, without changing the profile. Per spot size, the
+-- best owned pieces fill the open spots: a picked piece already out keeps its spot, the rest fill the empty open spots
+-- in Lawn.SPOTS order. The path and fence are the best owned style of each kind (Grey Slabs, or no fence, when
+-- nothing owned beats them).
+function Lawn.best(profile: Profile): ({ [string]: string }, Types.LawnStyles)
+	local tier = tierOf(profile)
+	local current: { [string]: boolean } = {}
+	for _, spot in Lawn.SPOTS do
+		local pieceId = profile.lawn[spot.id]
+		if pieceId ~= nil and tier >= spot.tier then
+			current[pieceId] = true
+		end
+	end
+	local function isOutPiece(id: string): boolean
+		return current[id] == true
+	end
+	local placed: { [string]: string } = {}
+	for _, size in { "small", "big" } :: { Types.LawnSize } do
+		local open: { Types.LawnSpot } = {}
+		for _, spot in Lawn.SPOTS do
+			if spot.size == size and tier >= spot.tier then
+				table.insert(open, spot)
+			end
+		end
+		local pieces: { Types.LawnPieceDef } = {}
+		for _, piece in Catalog.lawn do
+			if piece.spot == size and profile.lawnOwned[piece.id] == true then
+				table.insert(pieces, piece)
+			end
+		end
+		table.sort(pieces, function(a: Types.LawnPieceDef, b: Types.LawnPieceDef): boolean
+			return better(
+				a.id,
+				Lawn.rarityBonus(a.rarity),
+				b.id,
+				Lawn.rarityBonus(b.rarity),
+				isOutPiece
+			)
+		end)
+		local waiting: { string } = {}
+		for i = 1, math.min(#pieces, #open) do
+			local id = pieces[i].id
+			local from = Lawn.spotOf(profile, id)
+			local spot = if from ~= nil then Lawn.getSpot(from) else nil
+			if spot ~= nil and spot.size == size and tier >= spot.tier then
+				placed[spot.id] = id
+			else
+				table.insert(waiting, id)
+			end
+		end
+		local fill = 1
+		for _, spot in open do
+			if placed[spot.id] == nil and waiting[fill] ~= nil then
+				placed[spot.id] = waiting[fill]
+				fill += 1
+			end
+		end
+	end
+	local styles = Lawn.freshStyles()
+	for _, kind in { "path", "fence" } :: { Types.LawnStyleKind } do
+		local inUse = if kind == "path" then profile.lawnStyles.path else profile.lawnStyles.fence
+		local function isOutStyle(id: string): boolean
+			return id == inUse
+		end
+		local bestId: string? = nil
+		local bestBonus = 0
+		for _, style in Catalog.lawnStyles do
+			if style.kind == kind and style.price > 0 and profile.lawnOwned[style.id] == true then
+				local bonus = Lawn.rarityBonus(style.rarity)
+				if
+					bestId == nil
+					or better(style.id, bonus, bestId :: string, bestBonus, isOutStyle)
+				then
+					bestId, bestBonus = style.id, bonus
+				end
+			end
+		end
+		if kind == "path" then
+			styles.path = bestId or Lawn.DEFAULT_PATH
+		else
+			styles.fence = bestId
+		end
+	end
+	return placed, styles
+end
+
+-- Lays Lawn.best on the profile. Returns true when anything changed.
+function Lawn.applyBest(profile: Profile): boolean
+	local placed, styles = Lawn.best(profile)
+	local changed = styles.path ~= profile.lawnStyles.path
+		or styles.fence ~= profile.lawnStyles.fence
+	for _, spot in Lawn.SPOTS do
+		if placed[spot.id] ~= profile.lawn[spot.id] then
+			changed = true
+		end
+	end
+	if changed then
+		profile.lawn = placed
+		profile.lawnStyles = styles
+	end
+	return changed
+end
+
+-- The money bonus of the cafe's lawn as it stands (section 6a), and how many pieces and styles earn it.
+function Lawn.bonus(profile: Profile): (number, number)
+	return Lawn.bonusOf(profile.lawnOwned, profile.lawn, profile.lawnStyles)
 end
 
 -- The lawn of a loaded save (version 28; older saves have none), made valid for `tier`: only known pieces and styles

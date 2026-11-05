@@ -8,6 +8,7 @@ local Catching = require(script.Parent.Catching)
 local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
 local IndexRewards = require(script.Parent.IndexRewards)
+local Lawn = require(script.Parent.Lawn)
 local Pals = require(script.Parent.Pals)
 local Potions = require(script.Parent.Potions)
 local Types = require(script.Parent.Types)
@@ -126,9 +127,23 @@ function Economy.replacedDecor(profile: Types.PlayerProfile): { [string]: boolea
 	return replaced
 end
 
+-- lawn-nursery.md section 6a (#1283): the money bonus of the lawn pieces and styles out, by rarity
+-- (Config.LawnRarityBonus, shared/Lawn.bonusOf). A profile from before the lawn (save version 28) has none.
+function Economy.lawnBonus(profile: Types.PlayerProfile): number
+	local raw = profile :: any
+	if
+		type(raw.lawnOwned) ~= "table"
+		or type(raw.lawn) ~= "table"
+		or type(raw.lawnStyles) ~= "table"
+	then
+		return 0
+	end
+	return (Lawn.bonus(profile))
+end
+
 -- cafeMultiplier = 1 + 0.10 x tables + 0.15 x (espresso - 1) + placed decor bonuses, plus GoldenEspressoBonus per
--- Golden Espresso level (F53) and the tips forever of every claimed Index milestone (F54, a full Decor Index
--- page's decor10 among them)
+-- Golden Espresso level (F53), the tips forever of every claimed Index milestone (F54, a full Decor Index page's
+-- decor10 among them) and the front lawn's pieces and styles out (#1283, Economy.lawnBonus)
 function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	local multiplier = 1 + Config.TableBonus * Economy.level(profile, "tables")
 	multiplier += Config.EspressoBonus * math.max(0, Economy.level(profile, "espresso") - 1)
@@ -141,6 +156,7 @@ function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	end
 	multiplier += Config.GoldenEspressoBonus * (profile.fishPerks.golden_espresso or 0)
 	multiplier += IndexRewards.totals(profile).bonus
+	multiplier += Economy.lawnBonus(profile)
 	return multiplier
 end
 

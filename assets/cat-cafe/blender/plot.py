@@ -610,7 +610,7 @@ def _frames(b):
 
 
 def _string_lights(b, bulbs, x0, x1, y, z, sag, n_bulbs, cols=("sparkle", "fur_orange", "mint", "blush"),
-                   wall=None, up=None):
+                   wall=None, up=None, r=0.2):
     """A sagging strand from x0 to x1. Its ends hang on hooks: back to a wall at depth `wall`, or up to height `up`
     (the underside of whatever it hangs from), so the strand is held by something (QA world scan M4, M6)."""
     for x in (x0, x1):
@@ -630,7 +630,7 @@ def _string_lights(b, bulbs, x0, x1, y, z, sag, n_bulbs, cols=("sparkle", "fur_o
     for k in range(n_bulbs):
         t = (k + 0.5) / n_bulbs
         x, yy = x0 + (x1 - x0) * t, y - sag * 4 * t * (1 - t)
-        bulbs.ball((x, yy - 0.3, z), 0.2, cols[k % len(cols)], scale=(1, 1.25, 1))
+        bulbs.ball((x, yy - 0.05 - 1.25 * r, z), r, cols[k % len(cols)], scale=(1, 1.25, 1))
 
 
 def build_interior(mat):
@@ -899,26 +899,29 @@ def build_tier(n, mat):
             b.span((fx + 0.25, fy - 0.15, -13.08 + dz), (fx + 0.4, fy + 0.15, -12.92 + dz), sw)
         for px in (cx - 1.8, cx + 0.2, cx + 1.9):
             b.span((px - 0.1, 1.1, -13.2 + dz), (px + 0.1, 2.3, -13.0 + dz), "leaf_green")
-        # back patio: deck path to the yard gate, pergola over the back door, planters, lights
+        # back patio: deck path to the yard gate, pergola over the back door, planters, lights. #1260: the pergola is
+        # wood (dark posts, caramel beams and rafters), not the near-white trim, which the string lights' night light
+        # and bloom washed out to a white haze, and its bulbs are smaller
         bd0, bd1 = BACK_DOOR[0], BACK_DOOR[1]
+        post, beam = "dark_wood", "caramel_wood"
         b.span((bd0 - 0.5, 0, BACK + 0.2), (bd1 + 0.5, 0.15, BACK + YARD - 0.5), "caramel_wood")   # stops short of the yard fence's posts (z 24.575)
         for k in range(12):
             z = BACK + 0.6 + k * 0.8
             b.span((bd0 - 0.5, 0.15, z - 0.04), (bd1 + 0.5, 0.17, z + 0.04), "kibble")
         for x in (bd0 - 0.9, bd1 + 0.9):
             for z in (BACK + 1.2, BACK + 4.2):
-                b.span((x - 0.2, 0, z - 0.2), (x + 0.2, 8.2, z + 0.2), TRIM)
+                b.span((x - 0.2, 0, z - 0.2), (x + 0.2, 8.2, z + 0.2), post)
         for z in (BACK + 1.2, BACK + 4.2):
-            b.span((bd0 - 1.4, 8.2, z - 0.2), (bd1 + 1.4, 8.6, z + 0.2), TRIM)
+            b.span((bd0 - 1.4, 8.2, z - 0.2), (bd1 + 1.4, 8.6, z + 0.2), beam)
         for k in range(6):
             x = bd0 - 1.0 + k * (bd1 - bd0 + 2.0) / 5
-            b.span((x - 0.1, 8.6, BACK + 0.8), (x + 0.1, 8.85, BACK + 4.6), TRIM)
+            b.span((x - 0.1, 8.58, BACK + 0.8), (x + 0.1, 8.85, BACK + 4.6), beam)   # 0.02 into the beams
         for x in (bd0 - 2.2, bd1 + 2.2):
             for z in (BACK + 4.0, BACK + 8.0):
                 b.span((x - 0.7, 0, z - 0.7), (x + 0.7, 1.0, z + 0.7), "terracotta")
                 b.ball((x, 1.5, z), 0.8, "leaf_green")
         bulbs = RB()
-        _string_lights(b, bulbs, bd0 - 1.0, bd1 + 1.0, 8.4, BACK + 4.2, 0.8, 6)
+        _string_lights(b, bulbs, bd0 - 1.0, bd1 + 1.0, 8.4, BACK + 4.2, 0.8, 6, r=0.13)
         extra = [glass.finalize(name + "_Glass", mat), water.finalize(name + "_Water", mat),
                  bulbs.finalize(name + "_StringLights_Bulbs", mat)]
     elif n == 5:                                                              # gold trim, rooftop sign, red carpet

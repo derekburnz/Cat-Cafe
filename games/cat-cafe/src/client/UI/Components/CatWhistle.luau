@@ -49,13 +49,16 @@ local function bodyOf(model: Model): BasePart?
 	return model:FindFirstChildWhichIsA("BasePart") :: BasePart?
 end
 
--- Strays (tagged Stray) and trapped cats (Rescue) the player could go to: not another beginner's tutorial stray.
+-- Strays (tagged Stray) and trapped cats (tagged StuckCat) the player could go to: not another beginner's tutorial stray.
 local function candidates(userId: number): { Candidate }
 	local out: { Candidate } = {}
 	local world = Workspace:FindFirstChild("World")
 	local folder = if world then world:FindFirstChild("Strays") else nil
 	local seen: { [Instance]: boolean } = {}
 	local pool: { Instance } = CollectionService:GetTagged("Stray")
+	for _, stuck in CollectionService:GetTagged("StuckCat") do -- trapped cats (RescueService)
+		table.insert(pool, stuck)
+	end
 	if folder then
 		for _, child in folder:GetChildren() do
 			table.insert(pool, child)

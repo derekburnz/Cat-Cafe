@@ -199,6 +199,8 @@ PIVOT_NOTES = {
     "CatCafe_Street_CornerShop": "base centre; the counter front (-Z) faces the players",
     campstations.PIC: "the base centre on the camp's ground, front -Z, no turn; the Picnic Basket's spot "
                       "(Layout.campExtras.park, Park set space)",
+    campstations.YARD: "the base centre on the camp's ground, front -Z, no turn; the Yard Sale's spot "
+                       "(Layout.campExtras.neighbourhood, Neighbourhood set space)",
     gardennursery.NAME: "the base centre on the camp's ground, the bench front (-Z) toward the players; Park set space "
                         "(Layout.campExtras' space) at gardennursery.SPOT (34, 0, -166) turned 90, facing the pad",
     "CatCafe_Street_ThanksBoard": "base centre; the Screen's Front (-Z) face looks at the players",
@@ -334,6 +336,10 @@ STUDIO_NOTES = {
                       "at Layout.campExtras.park. Attachments PromptAnchor (table front, 1.5 up), BangAnchor (2 over the "
                       "A-frame sign, for ReadyBang), GlowAnchor (under the parasol, the ready glow's PointLight, #1328) "
                       "and Steam (the thermos). Everything collides and can be climbed.",
+    campstations.YARD: "#1154 (camp-stations.md section 3): the Yard Sale stall, replacing "
+                       "CatCafe_Camp_Neighbourhood_YardSale at Layout.campExtras.neighbourhood. Attachments PromptAnchor "
+                       "(table front, 1.5 up), BangAnchor (2 over the YARD SALE board, for ReadyBang) and GlowAnchor (under "
+                       "the awning). Everything collides and can be climbed.",
     gardennursery.NAME: "#1200 (lawn-nursery.md section 2): the Garden Nursery at the Park camp, at gardennursery.SPOT "
                         "in the Park's set space, tagged LawnStall; the game hangs the Nursery prompt on the "
                         "Attachment PromptAnchor (bench front, 3 up) and the gardener's speech bubble on BubbleAnchor "

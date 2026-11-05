@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-05 07:38 UTC",
+  "generated": "2026-11-05 07:51 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -177074,6 +177074,63 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Park_PicnicStation.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Park_PicnicStation.png"
+    },
+    {
+      "name": "CatCafe_Camp_Neighbourhood_YardSaleStall",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_Neighbourhood_YardSaleStall"
+      ],
+      "triangles": 2044,
+      "budget": 4000,
+      "size_studs": {
+        "x": 7.99,
+        "y": 3.12,
+        "z": 5.61
+      },
+      "size_roblox": [
+        7.99,
+        5.61,
+        3.12
+      ],
+      "bounds_min": [
+        -4.84,
+        -1.71,
+        0.0
+      ],
+      "bounds_max": [
+        3.15,
+        1.41,
+        5.61
+      ],
+      "pivot": "the base centre on the camp's ground, front -Z, no turn; the Yard Sale's spot (Layout.campExtras.neighbourhood, Neighbourhood set space)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#1154 (camp-stations.md section 3): the Yard Sale stall, replacing CatCafe_Camp_Neighbourhood_YardSale at Layout.campExtras.neighbourhood. Attachments PromptAnchor (table front, 1.5 up), BangAnchor (2 over the YARD SALE board, for ReadyBang) and GlowAnchor (under the awning). Everything collides and can be climbed.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Neighbourhood_YardSaleStall.model.json",
+      "rbx_parts": 206,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood_YardSaleStall.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood_YardSaleStall.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2044/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1044 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.85 y=-0.15"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Neighbourhood_YardSaleStall.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Neighbourhood_YardSaleStall.png"
     }
   ]
 }

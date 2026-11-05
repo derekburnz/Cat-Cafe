@@ -18,8 +18,8 @@ On every wall it lays each thing out as a rectangle in the wall's plane (along t
          or a fixture, or into a door
   SPOTS  two floor spots on the same wall whose pieces would overlap
 Every decor spot is filled at Tier 5 with the Extra Decor Spot perk, so the check takes all eight at once; the tier
-sets add nothing on the inside walls apart from the Tier 3 OPEN sign, which stands in its window on purpose (as do
-the Window plants on their sill), so those two are allowed in their window.
+sets add nothing on the inside walls (the Tier 3 set's window OPEN sign came out in #1413), and the Window plants
+stand on their sill on purpose, so they are allowed in their window.
 
     python wall_fit.py            # prints the table, exits 1 on any clash
 """

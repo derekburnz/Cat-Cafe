@@ -44,6 +44,11 @@ local listWeek = 0 -- the week the weekly lists were read for
 local names: { [number]: string } = {}
 local hidden: { [number]: boolean } = {}
 local crowned: { [number]: boolean } = {}
+-- For the Studio readout (#941): the last write and read per list, and whether the hidden list's last read worked.
+type Outcome = { ok: boolean, at: number, count: number? }
+local lastWrite: { [List]: Outcome } = {}
+local lastRead: { [List]: Outcome } = {}
+local hiddenRead: Outcome? = nil
 
 -- A list as shown: as last read with the players here put in (no rows before the first merge).
 local function listOf(list: List): { Row }
@@ -80,6 +85,7 @@ local function writeValues(player: Player, values: { [List]: number }, week: num
 		local ok = pcall(function()
 			DataStoreService:GetOrderedDataStore(name):SetAsync(tostring(player.UserId), value)
 		end)
+		lastWrite[list] = { ok = ok, at = os.time() }
 		if ok then
 			mine[name] = value
 		else
@@ -185,6 +191,7 @@ local function readHidden()
 	local ok, value = pcall(function()
 		return DataStoreService:GetDataStore(HIDDEN_STORE):GetAsync(HIDDEN_KEY)
 	end)
+	hiddenRead = { ok = ok, at = os.time() }
 	if not ok then
 		return -- keep the last list
 	end
@@ -206,7 +213,10 @@ local function readList(list: List, week: number)
 			:GetSortedAsync(false, Config.LeaderboardSize)
 		return pages:GetCurrentPage()
 	end)
-	if not ok or type(entries) ~= "table" then
+	local usable = ok and type(entries) == "table"
+	lastRead[list] =
+		{ ok = usable, at = os.time(), count = if usable then #(entries :: { any }) else nil }
+	if not usable then
 		return
 	end
 	local ids: { number } = {}
@@ -323,6 +333,53 @@ function LeaderboardService.debugHide(userId: number, show: boolean?): number
 	end)
 	readHidden()
 	return count
+end
+
+-- Studio only (Debug.leaderboards, #941): why a board reads what it does, with no names or ids. For `player`:
+-- whether this server writes, the hidden list's size and last read, whether they are hidden, and per list their
+-- value now, the last write and read (ok, seconds ago, entries read), the rows as read and as shown, and their rank.
+function LeaderboardService.debugState(player: Player): { [string]: any }
+	assert(RunService:IsStudio(), "debugState is Studio only")
+	local now = os.time()
+	local function ago(outcome: Outcome?): { [string]: any }?
+		if outcome == nil then
+			return nil
+		end
+		return { ok = outcome.ok, secondsAgo = now - outcome.at, count = outcome.count }
+	end
+	local hiddenCount = 0
+	for _ in hidden do
+		hiddenCount += 1
+	end
+	local profile = DataService.get(player)
+	local values = if profile ~= nil then valuesOf(player, profile, now) else {}
+	local perList: { [string]: any } = {}
+	for _, list in Leaderboards.LISTS do
+		perList[list] = {
+			store = Leaderboards.storeName(list, Leaderboards.week(now)),
+			value = values[list],
+			lastWrite = ago(lastWrite[list]),
+			lastRead = ago(lastRead[list]),
+			rowsRead = #(lists[list] or {}),
+			rowsShown = #listOf(list),
+			rank = Leaderboards.rankOf(listOf(list), player.UserId),
+		}
+	end
+	return {
+		writes = canWrite(),
+		writesOff = if canWrite()
+			then nil
+			elseif not Config.LeaderboardWrites then "Config.LeaderboardWrites is false"
+			else "Studio never writes the live boards; the players here are shown at their values now",
+		week = Leaderboards.week(now),
+		listWeek = listWeek,
+		hidden = {
+			count = hiddenCount,
+			lastRead = ago(hiddenRead),
+			me = hidden[player.UserId] == true,
+		},
+		lists = perList,
+	}
 end
 
 -- A rank up writes at once (section 4).

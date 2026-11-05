@@ -201,6 +201,8 @@ PIVOT_NOTES = {
                       "(Layout.campExtras.park, Park set space)",
     campstations.YARD: "the base centre on the camp's ground, front -Z, no turn; the Yard Sale's spot "
                        "(Layout.campExtras.neighbourhood, Neighbourhood set space)",
+    **{n: "the base centre on the camp's ground, front -Z, no turn; the Fish Pond's spot (Layout.campExtras.woods, "
+          "Woods set space)" for n in (campstations.HUT, campstations.HUT + "_Gold")},
     gardennursery.NAME: "the base centre on the camp's ground, the bench front (-Z) toward the players; Park set space "
                         "(Layout.campExtras' space) at gardennursery.SPOT (34, 0, -166) turned 90, facing the pad",
     "CatCafe_Street_ThanksBoard": "base centre; the Screen's Front (-Z) face looks at the players",
@@ -340,6 +342,11 @@ STUDIO_NOTES = {
                        "CatCafe_Camp_Neighbourhood_YardSale at Layout.campExtras.neighbourhood. Attachments PromptAnchor "
                        "(table front, 1.5 up), BangAnchor (2 over the YARD SALE board, for ReadyBang) and GlowAnchor (under "
                        "the awning). Everything collides and can be climbed.",
+    **{n: "#1232 (camp-stations.md section 4): the Fishing Hut, replacing CatCafe_Camp_Woods_FishPond at "
+          "Layout.campExtras.woods (_Gold for a Golden Pond pass owner). _Water is see-through, _Rod pivots at its butt "
+          "(the cast turns it), _Fish swims under the water; Attachments FishJump, PromptAnchor (the jetty's foot), "
+          "BangAnchor (2 over the FISH POND sign) and GlowAnchor (the doorway). Everything else collides and can be "
+          "climbed." for n in (campstations.HUT, campstations.HUT + "_Gold")},
     gardennursery.NAME: "#1200 (lawn-nursery.md section 2): the Garden Nursery at the Park camp, at gardennursery.SPOT "
                         "in the Park's set space, tagged LawnStall; the game hangs the Nursery prompt on the "
                         "Attachment PromptAnchor (bench front, 3 up) and the gardener's speech bubble on BubbleAnchor "

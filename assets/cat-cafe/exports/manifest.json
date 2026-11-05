@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-05 07:51 UTC",
+  "generated": "2026-11-05 10:10 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -177131,6 +177131,172 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Neighbourhood_YardSaleStall.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Neighbourhood_YardSaleStall.png"
+    },
+    {
+      "name": "CatCafe_Camp_Woods_FishingHut",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_Woods_FishingHut",
+        "CatCafe_Camp_Woods_FishingHut_Water",
+        "CatCafe_Camp_Woods_FishingHut_Rod",
+        "CatCafe_Camp_Woods_FishingHut_Fish"
+      ],
+      "triangles": 2480,
+      "budget": 5000,
+      "size_studs": {
+        "x": 7.95,
+        "y": 7.38,
+        "z": 5.22
+      },
+      "size_roblox": [
+        7.95,
+        5.22,
+        7.38
+      ],
+      "bounds_min": [
+        -3.94,
+        -3.6,
+        -0.31
+      ],
+      "bounds_max": [
+        4.0,
+        3.78,
+        4.91
+      ],
+      "pivot": "the base centre on the camp's ground, front -Z, no turn; the Fish Pond's spot (Layout.campExtras.woods, Woods set space)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Woods_FishingHut_Rod": [
+          -0.6,
+          -0.6,
+          1.0
+        ],
+        "CatCafe_Camp_Woods_FishingHut_Fish": [
+          1.3,
+          -0.3,
+          0.16
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Woods_FishingHut_Rod": [
+          0.6,
+          1.0,
+          -0.6
+        ],
+        "CatCafe_Camp_Woods_FishingHut_Fish": [
+          -1.3,
+          0.16,
+          -0.3
+        ]
+      },
+      "studio": "#1232 (camp-stations.md section 4): the Fishing Hut, replacing CatCafe_Camp_Woods_FishPond at Layout.campExtras.woods (_Gold for a Golden Pond pass owner). _Water is see-through, _Rod pivots at its butt (the cast turns it), _Fish swims under the water; Attachments FishJump, PromptAnchor (the jetty's foot), BangAnchor (2 over the FISH POND sign) and GlowAnchor (the doorway). Everything else collides and can be climbed.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Woods_FishingHut.model.json",
+      "rbx_parts": 182,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Woods_FishingHut.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Woods_FishingHut.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "2480/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1414 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.31 (want 0)",
+          "centered": "footprint center x=0.03 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Woods_FishingHut.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Woods_FishingHut.png"
+    },
+    {
+      "name": "CatCafe_Camp_Woods_FishingHut_Gold",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_Woods_FishingHut_Gold",
+        "CatCafe_Camp_Woods_FishingHut_Gold_Water",
+        "CatCafe_Camp_Woods_FishingHut_Gold_Rod",
+        "CatCafe_Camp_Woods_FishingHut_Gold_Fish"
+      ],
+      "triangles": 2480,
+      "budget": 5000,
+      "size_studs": {
+        "x": 7.95,
+        "y": 7.38,
+        "z": 5.22
+      },
+      "size_roblox": [
+        7.95,
+        5.22,
+        7.38
+      ],
+      "bounds_min": [
+        -3.94,
+        -3.6,
+        -0.31
+      ],
+      "bounds_max": [
+        4.0,
+        3.78,
+        4.91
+      ],
+      "pivot": "the base centre on the camp's ground, front -Z, no turn; the Fish Pond's spot (Layout.campExtras.woods, Woods set space)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Woods_FishingHut_Gold_Rod": [
+          -0.6,
+          -0.6,
+          1.0
+        ],
+        "CatCafe_Camp_Woods_FishingHut_Gold_Fish": [
+          1.3,
+          -0.3,
+          0.16
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Woods_FishingHut_Gold_Rod": [
+          0.6,
+          1.0,
+          -0.6
+        ],
+        "CatCafe_Camp_Woods_FishingHut_Gold_Fish": [
+          -1.3,
+          0.16,
+          -0.3
+        ]
+      },
+      "studio": "#1232 (camp-stations.md section 4): the Fishing Hut, replacing CatCafe_Camp_Woods_FishPond at Layout.campExtras.woods (_Gold for a Golden Pond pass owner). _Water is see-through, _Rod pivots at its butt (the cast turns it), _Fish swims under the water; Attachments FishJump, PromptAnchor (the jetty's foot), BangAnchor (2 over the FISH POND sign) and GlowAnchor (the doorway). Everything else collides and can be climbed.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Woods_FishingHut_Gold.model.json",
+      "rbx_parts": 182,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "2480/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1414 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.31 (want 0)",
+          "centered": "footprint center x=0.03 y=0.09"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Woods_FishingHut_Gold.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Woods_FishingHut_Gold.png"
     }
   ]
 }

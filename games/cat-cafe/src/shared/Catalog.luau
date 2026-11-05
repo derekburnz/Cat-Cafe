@@ -1579,17 +1579,86 @@ Catalog.quests = {
 -- What finishing a quest pays, in the Index prize shape: coins are `coinSeconds` of the day rate when claimed, at
 -- least `coins`. F94 (rewards-and-shops.md section 2d): no shop food and no spins, two pictures a quest and three on
 -- the sets.
+-- #1645 (quests.md section 8): each also pays Cafe Pass XP (passXp), 800 for a full day and 1,600 for a full week.
 Catalog.questPrizes = {
-	daily = { coins = 200, coinSeconds = 90, fish = 2 },
-	dailyBig = { coins = 400, coinSeconds = 150, fish = 5 },
-	dailySet = { potions = { big_tip_potion = 1, gold_rush_potion = 1 }, fish = 10 },
-	weekly = { coins = 2000, coinSeconds = 600, fish = 15 },
+	daily = { coins = 200, coinSeconds = 90, fish = 2, passXp = 100 },
+	dailyBig = { coins = 400, coinSeconds = 150, fish = 5, passXp = 200 },
+	dailySet = { potions = { big_tip_potion = 1, gold_rush_potion = 1 }, fish = 10, passXp = 200 },
+	weekly = { coins = 2000, coinSeconds = 600, fish = 15, passXp = 400 },
 	weeklySet = {
 		potions = { big_tip_potion = 3 },
 		crates = { classic_golden_crate = 1 },
 		fish = 40,
+		passXp = 400,
 	},
 } :: { [string]: Types.IndexPrize }
+
+-- The Cafe Pass seasons (#1645, #1626; cafe-pass.md sections 2 and 3), by season number (CafePass.seasonDef wraps
+-- round, so a later season can rerun one). The free track rewards every second level and may be random (nobody pays
+-- for it); the paid track rewards every level with fixed things only: Big Money, Swift and Steady Paw potions and
+-- named items, never crates, spins, golden fish, coins, minutes of income or Lucky Potions (CafePass.spec walks it).
+-- "Minutes of income" is coinSeconds of the day rate.
+local function item(kind: Types.PassItemKind, id: string, name: string): Types.PassReward
+	return { item = { kind = kind, id = id, name = name } }
+end
+local function potions(set: { [string]: number }): Types.PassReward
+	return { prize = { potions = set } }
+end
+Catalog.passSeasons = {
+	{
+		id = "season_1",
+		name = "Season 1: Maple",
+		free = {
+			[2] = { prize = { spins = 1 } },
+			[4] = { prize = { fish = 15 } },
+			[6] = potions({ lucky_potion = 1 }),
+			[8] = { prize = { coinSeconds = 600 } },
+			[10] = { prize = { crates = { classic_crate = 1 } } },
+			[12] = { prize = { spins = 1 } },
+			[14] = { prize = { fish = 25 } },
+			[16] = potions({ tip_potion = 1, swift_potion = 1 }),
+			[18] = { prize = { coinSeconds = 1200 } },
+			[20] = { prize = { crates = { classic_crate = 1 } } },
+			[22] = { prize = { spins = 2 } },
+			[24] = { prize = { fish = 40 } },
+			[26] = potions({ lucky_potion = 1, steady_potion = 1 }),
+			[28] = { prize = { coinSeconds = 1800 } },
+			[30] = { prize = { crates = { classic_crate = 1 }, fish = 50 } },
+		},
+		paid = {
+			[1] = item("tag", "tag_maple", "Season 1 chat tag [Maple]"),
+			[2] = potions({ big_tip_potion = 1 }),
+			[3] = item("uniform", "uniform_pumpkin", "Uniform colour: Pumpkin"),
+			[4] = potions({ swift_potion = 1 }),
+			[5] = item("accessory", "acc_leaf_beret", "Leaf Beret"),
+			[6] = potions({ steady_potion = 1 }),
+			[7] = item("decor", "decor_pumpkin_lantern", "Pumpkin Lantern"),
+			[8] = potions({ big_tip_potion = 1 }),
+			[9] = item("uniform", "uniform_acorn_brown", "Uniform colour: Acorn Brown"),
+			[10] = item("accessory", "acc_mushroom_cap", "Mushroom Cap"),
+			[11] = potions({ swift_potion = 1 }),
+			[12] = item("decor", "decor_fallen_leaf_rug", "Fallen Leaf Rug"),
+			[13] = potions({ big_tip_potion = 1 }),
+			[14] = item("uniform", "uniform_forest_green", "Uniform colour: Forest Green"),
+			[15] = item("decor", "decor_cosy_knit_cushion", "Cosy Knit Cushion"),
+			[16] = item("accessory", "acc_acorn_hair_clip", "Acorn Hair Clip"),
+			[17] = potions({ steady_potion = 1 }),
+			[18] = item("decor", "decor_hay_bale_seat", "Hay Bale Seat"),
+			[19] = potions({ big_tip_potion = 1 }),
+			[20] = item("uniform", "uniform_cranberry", "Uniform colour: Cranberry"),
+			[21] = potions({ swift_potion = 1, steady_potion = 1 }),
+			[22] = item("accessory", "acc_round_reading_glasses", "Round Reading Glasses"),
+			[23] = potions({ big_tip_potion = 1 }),
+			[24] = item("decor", "decor_apple_crate_shelf", "Apple Crate Shelf"),
+			[25] = potions({ big_tip_potion = 2 }),
+			[26] = item("accessory", "acc_tiny_lantern", "Tiny Lantern"),
+			[27] = potions({ steady_potion = 1, swift_potion = 1 }),
+			[28] = item("decor", "decor_maple_tree_planter", "Maple Tree Planter"),
+			[29] = item("frame", "frame_golden_leaf", "Name plate frame: Golden Leaf"),
+			[30] = item("cat", "maple_muffin", "Season cat: Maple Muffin"),
+		},
+	},
+} :: { Types.PassSeasonDef }
 
 -- The 44 achievements, each on its own and paid once, in the design's table order.
 Catalog.achievements = {

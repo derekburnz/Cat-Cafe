@@ -203,6 +203,47 @@ export type IndexPrize = {
 	rainbowLuck: number?, -- F99: on every rainbow roll, the Rainbow track's sum capped at RainbowLuckMax
 	baitSpeed: number?,
 	tag: string?,
+	passXp: number?, -- #1645 (quests.md section 8): Cafe Pass XP for the running season (CafePass.addXp)
+}
+
+-- The Cafe Pass (#1645, cafe-pass.md). A paid track's named item, kept forever once claimed: a chat tag, an accessory,
+-- a uniform colour, a looks-only decor piece, a sign frame or the season cat.
+export type PassItemKind = "tag" | "accessory" | "uniform" | "decor" | "frame" | "cat"
+export type PassItem = { kind: PassItemKind, id: string, name: string }
+-- One level's reward on a track: a prize Payout pays, a named item, or both.
+export type PassReward = { prize: IndexPrize?, item: PassItem? }
+-- One season's two tracks, by level (the free track has every second level, the paid track every level).
+export type PassSeasonDef = {
+	id: string,
+	name: string,
+	free: { [number]: PassReward },
+	paid: { [number]: PassReward },
+}
+-- profile.pass (save version 36), see shared/CafePass.
+export type PassState = {
+	season: number,
+	xp: number,
+	paidSeason: number,
+	claimedFree: { number },
+	claimedPaid: { number },
+	items: { [string]: boolean },
+	tag: string?,
+}
+-- CafePassState: what the Pass screen draws (CafePass.view).
+export type CafePassView = {
+	season: number, -- 0 while no season runs
+	startsAt: number,
+	endsAt: number?, -- nil while no later season is set; the screen shows the end as a plain date
+	level: number,
+	xp: number,
+	xpPerLevel: number,
+	levels: number,
+	paid: boolean,
+	claimedFree: { number },
+	claimedPaid: { number },
+	claimable: number, -- how many rewards are ready, for the HUD's red dot
+	items: { [string]: boolean },
+	tag: string?,
 }
 
 -- A potion (F64, data-model section 12b): drunk from the bag with UsePotion, it runs `minutes` of play time.
@@ -962,6 +1003,7 @@ export type PlayerProfile = {
 	onceBought: { [string]: boolean },
 	signStyles: { [string]: boolean },
 	signStyle: string?,
+	pass: PassState, -- #1645 (save version 36): the Cafe Pass
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.

@@ -45,6 +45,12 @@ local Config = {
 		potion_pack_l = 3728336197,
 		starter_bundle = 3728336166, -- #1625: once per account (Catalog.products oncePerAccount)
 	} :: { [string]: number },
+	-- The Cafe Pass (#1645, cafe-pass.md section 1): each season's first day as a UTC date, oldest first. Season 1
+	-- starts the day the game goes public (Derek sets it); with no date the pass is closed outside Studio, where a
+	-- preview season 1 runs for playtests (shared/CafePass).
+	SeasonStarts = {} :: { string },
+	PassLevels = 30,
+	PassXpPerLevel = 800,
 	AutosaveSeconds = 60,
 	SyncIntervalSeconds = 10, -- periodic ProfileSync even when nothing changed (the client predicts in between)
 

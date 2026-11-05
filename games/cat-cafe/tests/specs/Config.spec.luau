@@ -309,6 +309,9 @@ return function()
 		NetMissHopStuds = 12,
 		NetMissHopShare = 0.25,
 		RescueSpeedUpPerHit = 0.08,
+		-- #1645 (cafe-pass.md section 1)
+		PassLevels = 30,
+		PassXpPerLevel = 800,
 	}
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }
@@ -402,6 +405,7 @@ return function()
 				MoneyPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
 				ExtraSlotPassIds = true, -- F95 (economy-ladder.md section 7): a table, checked below
 				ProductIds = true, -- #1182: a table of developer product ids, checked in Products.spec
+				SeasonStarts = true, -- #1645: a list of UTC dates, checked in CafePass.spec
 				VipPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				CatAccessoriesPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				UniformStylesPassId = true, -- #1197: an off-sale placeholder pass id, checked below

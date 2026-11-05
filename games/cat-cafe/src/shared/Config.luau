@@ -21,7 +21,7 @@ local Config = {
 	-- Money passes by the income they multiply by (the highest owned counts); each extra slot pass adds a role slot.
 	-- Tools-Agent made the four in tools/opencloud/passes.json on 2026-11-02 (off sale until launch), and the rest on
 	-- 2026-11-04 as off-sale placeholders (#1197). Each stays off sale until the code that grants it is merged; the
-	-- Store cards (#1240) read the ids, and PassService already grants the extra slot to an owner.
+	-- Store cards (#1240) read the ids. Each extra slot (Economy.extraSlots, #1624) opens the next role slot early.
 	LongNapPassId = 2064345084,
 	MoneyPassIds = { [2] = 2064604577, [3] = 2064670602, [4] = 2064357148 } :: { [number]: number },
 	ExtraSlotPassIds = { 2066816325 } :: { number },
@@ -44,6 +44,7 @@ local Config = {
 	UniformsStaffMultiplier = 1.15,
 	CafeStyleRichRate = 0.25,
 	GrandRichRate = 1.0,
+	GrandExtraSlots = 1, -- #1624: Grand Cafe's +1 job slot at every tier, adding to each Extra Slot pass's 1
 	-- Developer product ids (#1182) by Catalog.products id; a 0 is never granted. ProductService's ProcessReceipt reads
 	-- them. Tools-Agent made these with dev-products.yml on 2026-11-04 (tools/opencloud/products.json), off sale until
 	-- launch. The Starter Bundle (3728336166) and Cafe Pass (3728336202) products exist too, off sale, and join this

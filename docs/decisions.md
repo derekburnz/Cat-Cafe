@@ -438,3 +438,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Decided by Coordinator for the friend, overnight 11-05 (#1357, with #1159 and #1165), written up by the game-designer thread (Design-Agent, friend's project)
 - 2026-11-05: Tier 2's rank-up cost goes from 12,000 to 13,500 coins (+12.5%). Why: Pace.spec's stacked worst case (a non-stop catcher, 3 pals at +20% and every top-up of a 4-player floor to itself) reached Tier 2 at 9.4 min, under the 10 minute floor. By rule v0.8 the cost goes up and the rewards stay. 13,000 still gave 9.9 min; at 13,500 all 17 Pace checks pass, and Tier 5 is unchanged. Spec: economy-ladder.md section 3, v2.2.
+
+### Tip Jar rewards v2 (#1414), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
+- 2026-11-05: The Tip Jar's playtime gifts go up: coins 2x, golden fish 5x, spins 5x (1 to 5 at 30 and 90 minutes) and the two hour crate 2x. A two hour session pays 260 golden fish, 2 Classic Crates and 10 spins. SpinBankCap goes to 50 and SpinAllMax to 51. Why: the friend wants 30 minutes or more of play to feel really rewarding. If Pace.spec finds a tier too fast, the tier cost goes up (rule v0.8). Spec: rewards-and-shops.md section 2a v2.

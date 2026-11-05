@@ -34,6 +34,29 @@ Coins are always `max(min, floor(dayRate x seconds))`, as now. Rows not listed a
 
 The odd steps keep their coins. A two hour session now pays 52 golden fish (was 35), 2 spins (was 4) and no food (was 8 foods).
 
+**v2, much bigger (#1414, the friend, 2026-11-05: "at least 2x more suggested 5x for gold fish we don't have too be this stingey it should be really rewarding to play 30min+ like make 1x spin 5x spin").** Coins (both the minimum and the seconds) go up 2x, golden fish 5x, spins 5x and crates 2x. This replaces the table above:
+
+| step | minutes | prize |
+|---|---|---|
+| 1 | 2 | coins: 30 s of day rate (at least 100) |
+| 2 | 5 | 10 golden fish |
+| 3 | 10 | coins: 60 s (at least 200) |
+| 4 | 15 | 10 golden fish |
+| 5 | 20 | coins: 90 s (at least 300) |
+| 6 | 30 | **5 spins** |
+| 7 | 40 | coins: 120 s (at least 500) |
+| 8 | 50 | 15 golden fish |
+| 9 | 60 | coins: 600 s (at least 2,000) and **50 golden fish** |
+| 10 | 75 | 25 golden fish |
+| 11 | 90 | coins: 300 s (at least 1,200) and **5 spins** |
+| 12 | 120 | **2 Classic Crates and 150 golden fish** |
+
+- **What a session pays.** One hour: 85 golden fish and 5 spins (was 17 and 1). Two hours: 260 golden fish, about 6 Market crates at 40, plus 2 Classic Crates and 10 spins (was 52 fish, 1 crate and 2 spins). Still at most three pictures a prize (section 1).
+- **With the Spin Wheel v2 (section 2b, #1411).** 10 spins at 1-in-100 jackpot odds give about a 1-in-10 chance of a jackpot in a two hour session, so it stays a rare chase. At the v2 wheel's average of about 390 s of day rate a spin, the 10 spins add roughly an hour of income, which is the "really rewarding" part.
+- **Spin bank.** `SpinBankCap` goes from 20 to 50 and `SpinAllMax` from 25 to 51 (the bank plus today's free spin), so a player who plays twice in a day keeps every spin.
+- **Pace.** More coins, fish and crates mean faster coins and a faster cat count. QA-Planner runs Pace.spec on the build. If a tier comes in under its floor, its cost goes up and the rewards stay (rule v0.8, economy-ladder.md section 3).
+- **Policy.** Nothing changes: the jar is free and can't be bought, and crates and spins from it are free random rewards with their odds shown.
+
 ### 2b. Spin Wheel (data-model 11c)
 
 | slice | prize | weight |

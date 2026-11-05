@@ -711,7 +711,7 @@ function CatRoom._buildCrew(self: any)
 		return
 	end
 	assert(catalog, "catalog")
-	for index, row in StaffSlots.rows(catalog.spots or {}, 1, nil) do
+	for index, row in StaffSlots.rows(catalog.allSpots or catalog.spots or {}, 1, nil) do
 		local group: Frame = Create("Frame", {
 			Name = row.role,
 			BackgroundTransparency = 1,
@@ -734,7 +734,8 @@ function CatRoom._buildCrew(self: any)
 			Name = "Slots",
 			BackgroundTransparency = 1,
 			Position = UDim2.fromOffset(0, CREW_LABEL + 4),
-			Size = UDim2.fromOffset(#row.slots * (SQUARE + 6) - 6, SQUARE),
+			Size = UDim2.fromOffset(0, SQUARE),
+			AutomaticSize = Enum.AutomaticSize.X, -- a hidden pass-only square takes no room (#1624)
 			Parent = group,
 		}, {
 			Create("UIListLayout", {
@@ -1301,7 +1302,13 @@ function CatRoom._renderCrew(
 		local instance = cats[selected]
 		placingDef = if instance then self._catById[instance.catId] else nil
 	end
-	local rows = StaffSlots.rows(catalog.spots or {}, state.tier, cats)
+	-- #1624: every slot, the pass-only ones too, opened by the tier and the extra slots (Grand Cafe, Extra Slot)
+	local rows = StaffSlots.rows(
+		catalog.allSpots or catalog.spots or {},
+		state.tier,
+		cats,
+		(state :: any).extraSlots
+	)
 	for index, row in rows do
 		local role = self._roles[index]
 		if not (role and role.role == row.role) then
@@ -1320,6 +1327,7 @@ function CatRoom._renderCrew(
 			end
 			square.kind = slot.kind
 			square.uid = slot.catUid
+			square.button.Visible = not slot.hidden
 			local instance = if slot.catUid then cats[slot.catUid] else nil
 			local color = Theme.colors.disabled
 			local glyph = Theme.icons.lock

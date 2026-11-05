@@ -863,7 +863,7 @@ return function()
 			{
 				kibble = {
 					name = "Kibble",
-					cost = 100, -- F97: about four times the old price
+					cost = 100, -- F97; #1389 keeps it
 					sortOrder = 1,
 					source = "shop",
 					attracts = "Common",
@@ -871,7 +871,7 @@ return function()
 				},
 				tuna = {
 					name = "Tuna",
-					cost = 500, -- F97: about four times the old price
+					cost = 5000, -- #1389: F97's 500, x10
 					sortOrder = 2,
 					source = "shop",
 					attracts = "Rare",
@@ -879,7 +879,7 @@ return function()
 				},
 				salmon = {
 					name = "Salmon",
-					cost = 2500, -- F97: about four times the old price
+					cost = 50000, -- #1389: F97's 2500, x20
 					sortOrder = 4,
 					source = "shop",
 					attracts = "Epic",
@@ -887,7 +887,7 @@ return function()
 				},
 				sardines = {
 					name = "Moonlit Sardines",
-					cost = 4000, -- F97: about four times the old price
+					cost = 80000, -- #1389: F97's 4000, x20
 					sortOrder = 3,
 					source = "dealer",
 					attracts = "Rare",
@@ -895,7 +895,7 @@ return function()
 				},
 				caviar = {
 					name = "Caviar",
-					cost = 15000, -- F97: about four times the old price
+					cost = 600000, -- #1389: F97's 15000, x40
 					sortOrder = 5,
 					source = "dealer",
 					attracts = "Epic",
@@ -903,7 +903,7 @@ return function()
 				},
 				moon_milk = {
 					name = "Moon Milk",
-					cost = 50000, -- F97: about four times the old price
+					cost = 2000000, -- #1389: F97's 50000, x40
 					sortOrder = 6,
 					source = "dealer",
 					attracts = "Epic",
@@ -911,7 +911,7 @@ return function()
 				},
 				star_treat = {
 					name = "Star Treat",
-					cost = 200000, -- F97: about four times the old price
+					cost = 8000000, -- #1389: F97's 200000, x40
 					sortOrder = 7,
 					source = "dealer",
 					attracts = "Legendary",

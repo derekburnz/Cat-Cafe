@@ -1092,7 +1092,7 @@ Catalog.lures = {
 	{
 		id = "kibble",
 		name = "Kibble",
-		cost = 100, -- F97: about four times 30; Economy.foodPrice grows it by tier
+		cost = 100, -- F97, kept by #1389 (Economy.spec step 7); Economy.foodPrice grows it by tier
 		sortOrder = 1,
 		attracts = "Common",
 		rarity = "Common",
@@ -1104,7 +1104,7 @@ Catalog.lures = {
 	{
 		id = "tuna",
 		name = "Tuna",
-		cost = 500, -- F97: about four times 125; Economy.foodPrice grows it by tier
+		cost = 5000, -- #1389 (x10 on F97's 500); Economy.foodPrice grows it by tier
 		sortOrder = 2,
 		attracts = "Rare",
 		rarity = "Rare",
@@ -1116,7 +1116,7 @@ Catalog.lures = {
 	{
 		id = "salmon",
 		name = "Salmon",
-		cost = 2500, -- F97: about four times 625; Economy.foodPrice grows it by tier
+		cost = 50000, -- #1389 (x20 on F97's 2,500); Economy.foodPrice grows it by tier
 		sortOrder = 4,
 		attracts = "Epic",
 		rarity = "Epic",
@@ -1128,7 +1128,7 @@ Catalog.lures = {
 	{
 		id = "sardines",
 		name = "Moonlit Sardines",
-		cost = 4000, -- F97: about four times 1000; Economy.foodPrice grows it by tier
+		cost = 80000, -- #1389 (x20 on F97's 4,000); Economy.foodPrice grows it by tier
 		sortOrder = 3,
 		attracts = "Rare",
 		rarity = "Rare",
@@ -1140,7 +1140,7 @@ Catalog.lures = {
 	{
 		id = "caviar",
 		name = "Caviar",
-		cost = 15000, -- F97: about four times 3750; Economy.foodPrice grows it by tier
+		cost = 600000, -- #1389 (x40 on F97's 15,000); Economy.foodPrice grows it by tier
 		sortOrder = 5,
 		attracts = "Epic",
 		rarity = "Epic",
@@ -1152,7 +1152,7 @@ Catalog.lures = {
 	{
 		id = "moon_milk",
 		name = "Moon Milk",
-		cost = 50000, -- F97: about four times 12500; Economy.foodPrice grows it by tier
+		cost = 2000000, -- #1389 (x40 on F97's 50,000); Economy.foodPrice grows it by tier
 		sortOrder = 6,
 		attracts = "Epic",
 		rarity = "Legendary",
@@ -1164,7 +1164,7 @@ Catalog.lures = {
 	{
 		id = "star_treat",
 		name = "Star Treat",
-		cost = 200000, -- F97: about four times 50000; Economy.foodPrice grows it by tier
+		cost = 8000000, -- #1389 (x40 on F97's 200,000); Economy.foodPrice grows it by tier
 		sortOrder = 7,
 		attracts = "Legendary",
 		rarity = "Mythical",

@@ -3,7 +3,8 @@
 # from any thread with the GitHub actions_run_trigger tool on main. list prints every product with its id; create
 # makes each product in games/cat-cafe/tools/opencloud/products.json that is missing, always off sale, and prints the
 # Config lines for its ids; set changes one product's price, sale state, regional pricing or
-# icon. Products cannot be deleted, so a product is named and described as final before it goes in products.json,
+# icon; set with batch changes many products in one run. Products cannot be deleted, so a product is named and
+# described as final before it goes in products.json,
 # and it stays off sale until the code that grants it (ProductService, Catalog.products) is merged.
 # Needs the repo secret ROBLOX_PUBLISH_KEY with developer-product:read and developer-product:write.
 name: dev-products
@@ -22,6 +23,10 @@ on:
         default: ""
       changes:
         description: "set: one or more of price=N forSale=true|false regional=true|false icon=<image path from the repo root>"
+        required: false
+        default: ""
+      batch:
+        description: "set, many products in one run (instead of product and changes): entries separated by ; each as name-or-id|changes"
         required: false
         default: ""
 
@@ -43,6 +48,7 @@ jobs:
       ACTION: ${{ inputs.action }}
       PRODUCT: ${{ inputs.product }}
       CHANGES: ${{ inputs.changes }}
+      BATCH: ${{ inputs.batch }}
     steps:
       - uses: actions/checkout@v5
 
@@ -60,8 +66,23 @@ jobs:
           case "$ACTION" in
           list | create) bash "$script" "$ACTION" ;;
           set)
-            read -r -a changes <<<"$CHANGES"
-            bash "$script" set "$PRODUCT" "${changes[@]}"
+            if [ -n "$BATCH" ]; then
+              IFS=';' read -r -a items <<<"$BATCH"
+              failed=0
+              for item in "${items[@]}"; do
+                target=${item%%|*}
+                read -r -a changes <<<"${item#*|}"
+                bash "$script" set "$target" "${changes[@]}" || failed=$((failed + 1))
+                sleep 1
+              done
+              if [ "$failed" -gt 0 ]; then
+                echo "::error::$failed change(s) failed; see the log above"
+                exit 1
+              fi
+            else
+              read -r -a changes <<<"$CHANGES"
+              bash "$script" set "$PRODUCT" "${changes[@]}"
+            fi
             ;;
           *)
             echo "::error::unknown action: $ACTION"

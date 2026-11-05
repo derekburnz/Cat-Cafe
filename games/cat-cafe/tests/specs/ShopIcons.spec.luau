@@ -224,6 +224,17 @@ return function()
 			end
 		)
 
+		it("gives every Store sidebar tab a picture (#1674)", function()
+			local StoreLogic = require(Components:WaitForChild("StoreLogic")) :: any
+			for _, tab in StoreLogic.TABS do
+				expect(ShopIcons.storeTab(tab.id)).never.to.equal(nil)
+			end
+			expect(ShopIcons.storeTab("featured")).to.equal("rbxassetid://112716091687324")
+			expect(ShopIcons.storeTab("codes")).to.equal("rbxassetid://84291555132213")
+			expect(ShopIcons.storeTab("cafePass")).to.equal(ShopIcons.store("cafePass"))
+			expect(ShopIcons.storeTab("nope")).to.equal(nil)
+		end)
+
 		it("draws the Fish Market tabs and the Night Market bubble (Tools-Agent 11-05)", function()
 			expect(ShopIcons.market("Crates")).to.equal("rbxassetid://136579300796731")
 			expect(ShopIcons.market("Treats")).to.equal("rbxassetid://77636724948052")

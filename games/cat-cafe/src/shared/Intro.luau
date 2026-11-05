@@ -2,11 +2,11 @@
 -- The intro cutscene's shots (F72, docs/design/cat-cafe/intro-cutscene.md section 2, reshot for the hometown and the
 -- Cat Cannon, F84): when each starts, its caption, and where the camera flies. Studs, y up. Shot 1 follows the
 -- player's own plot (`x`, `z` and `side`, -1 for the west row and +1 for the east row, the street toward -side) up
--- to the Town Square's cannon, where your copy climbs in. Shots 2 to 4 and 7 are at the Alleyway's camp: the flight,
--- the catch just past its way out, the carry into the camp and its Index Board. Shot 5 is in your cafe, shot 6 at the
--- other four camps and shots 8 to 10 in the Town Square. The camps are worked out from Config as the server's
--- Layout.camps does (a test checks they match), so the client needs neither the server module nor the camps to have
--- streamed in. The positions are starting points to tune in Studio. Pure apart from Vector3.
+-- to the Town Square's cannon, where your copy climbs in. Shots 2 to 4 and 6 are at the Alleyway's camp: the flight,
+-- the catch just past its way out, the carry into the camp and its Index Board. Shot 5 is in your cafe and shots 7 to 9
+-- in the Town Square (#1542, Derek 2026-11-05, took out the old shot 6's cuts over the other camps). The camps are
+-- worked out from Config as the server's Layout.camps does (a test checks they match), so the client needs neither
+-- the server module nor the camps to have streamed in. The positions are starting points to tune in Studio. Pure apart from Vector3.
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
@@ -16,20 +16,15 @@ local Types = require(script.Parent.Types)
 
 local Intro = {}
 
-Intro.SHOTS = 10
--- The intro_cutscene event's version: the shots moved again for the hometown and the cannon (F84), so old and new
--- drop-offs never mix (section 3).
-Intro.VERSION = 3
+Intro.SHOTS = 9
+-- The intro_cutscene event's version, so old and new drop-offs never mix (section 3): 3 for the hometown and the
+-- cannon (F84), 4 since #1542 took out the camp cuts.
+Intro.VERSION = 4
 Intro.SKIP_AFTER = 5.0 -- seconds into the first play before Skip can be pressed (its bar fills until then; Derek 00:57); a replay allows it at once
 Intro.MAX_CAPTION = 46 -- characters, so a caption fits one line on a phone ("about 45")
-Intro.CUT_PUSH = 0.06 -- shot 6: each camp cut pushes this share of the way toward its look point
 Intro.STREAM_WAIT = 5 -- seconds the intro waits for the Alleyway's camp to stream in before it starts (section 3)
 
-Intro.AREA = "alley" -- the camp shots 2 to 4 and 7 film, where a new player's first flight goes
-Intro.CAMP_CUTS = { "park", "neighbourhood", "woods", "sewer" } -- shot 6, in order
--- each camp's time in shot 6 (Derek 2026-11-04, #1254: "flashes by too fast"; it was 0.45 s), its slow push-in and
--- title card readable for the whole cut
-Intro.CAMP_CUT_SECONDS = 2
+Intro.AREA = "alley" -- the camp shots 2 to 4 and 6 film, where a new player's first flight goes
 -- Smoother cuts between places (#958, Derek 2026-11-03: "make the locations cuts smoother"): a cut or shot boundary
 -- whose next camera place is more than JUMP_STUDS from the last is a jump, and Moments.IntroCut fires CUT_LEAD
 -- before it for Effects' cloud dip. None inside or into the cannon flight shot, which has its own clouds.
@@ -107,21 +102,20 @@ Intro.NIGHT_TO = 0.95
 Intro.SUNRISE_FROM = 1.8
 Intro.SUNRISE_TO = 2.3
 
--- Shot 10 lands this far behind and above the character, looking at its head.
+-- Shot 9 lands this far behind and above the character, looking at its head.
 Intro.FOLLOW_BACK = 12
 Intro.FOLLOW_UP = 6
 Intro.HEAD_UP = 1.5
 
 Intro.CODES_CAPTION = "Free spin every day. Codes at the Codes Cat!"
-Intro.SPIN_CAPTION = "Spin the wheel for a free prize every day!" -- shot 8 before a Codes Cat stands in the world
+Intro.SPIN_CAPTION = "Spin the wheel for a free prize every day!" -- shot 7 before a Codes Cat stands in the world
 
 export type Ease = "InOut" | "Out" | "Linear"
 export type Plot = { x: number, z: number, side: number, index: number }
 -- One camera place: where it is and what it looks at.
 export type Key = { position: Vector3, look: Vector3 }
--- One continuous move. `via` bends it through a third place halfway; `area` names the camp a shot 6 cut shows,
--- which is skipped when that camp has not streamed in.
-export type Cut = { from: Key, to: Key, via: Key?, seconds: number, title: string?, area: string? }
+-- One continuous move. `via` bends it through a third place halfway.
+export type Cut = { from: Key, to: Key, via: Key?, seconds: number }
 export type Shot = {
 	index: number, -- its number in section 2, which Skip reports, also when the fallback leaves shots out
 	starts: number,
@@ -130,17 +124,16 @@ export type Shot = {
 	ease: Ease,
 	cuts: { Cut },
 	you: boolean?, -- shots 1 to 4: your local copy plays the scene and the real character is hidden
-	camp: boolean?, -- shots 3, 4 and 7 need the Alleyway's camp and are left out when it has not streamed in
+	camp: boolean?, -- shots 3, 4 and 6 need the Alleyway's camp and are left out when it has not streamed in
 	cannon: boolean?, -- shots 1 and 2: the town cannon is turned toward the Alleyway and uncovered on this screen
 	launch: boolean?, -- shot 1: you climb into the cannon, it turns, the fuse fizzes
 	flight: boolean?, -- shot 2: the BOOM, the arc, the clouds and the landing on the Alleyway's pad
 	catch: boolean?, -- shot 3: the demo ring, then the cat hops into your arms
 	run: boolean?, -- shot 4: you run it into the camp, where it checks in
 	job: boolean?, -- shot 5: the cat takes the waiter spot in its outfit
-	spinWheel: boolean?, -- shot 8: the world wheel turns two spins on this screen
-	night: boolean?, -- shot 9: night falls and the sun rises on this screen
-	follow: boolean?, -- shot 10: the last cut ends behind the character (Intro.follow), not at `to`
-	fallback: Key?, -- shot 6: where it holds when none of its camps has streamed in
+	spinWheel: boolean?, -- shot 7: the world wheel turns two spins on this screen
+	night: boolean?, -- shot 8: night falls and the sun rises on this screen
+	follow: boolean?, -- shot 9: the last cut ends behind the character (Intro.follow), not at `to`
 }
 
 -- A camp the intro films (Layout.camps, hometown-cannon.md section 4), in the world. `origin` is the middle of the
@@ -384,23 +377,8 @@ function Intro.demoName(): string
 	return if def ~= nil then def.name else "Tuxedo"
 end
 
--- A shot 6 cut over `camp`: high over its back wall by its cannon, looking out over the pad and through the way out
--- into the area, pushing CUT_PUSH of the way.
-local function campCut(camp: Camp, title: string): Cut
-	local g = camp.wayOut
-	local position = g - camp.u * 28 + v(0, 24, 0)
-	local look = g + camp.u * 10
-	return {
-		from = key(position, look),
-		to = key(position + (look - position) * Intro.CUT_PUSH, look),
-		seconds = Intro.CAMP_CUT_SECONDS,
-		title = title,
-		area = camp.area,
-	}
-end
-
--- The ten shots for this plot. `codesCat` is false until a Codes Cat station stands in the Workspace (F65);
--- `alleyStreamed` false leaves out the shots at the Alleyway's camp (3, 4 and 7) and holds shot 2 in the clouds.
+-- The nine shots for this plot. `codesCat` is false until a Codes Cat station stands in the Workspace (F65);
+-- `alleyStreamed` false leaves out the shots at the Alleyway's camp (3, 4 and 6) and holds shot 2 in the clouds.
 function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { Shot }
 	local px, pz, s = plot.x, plot.z, plot.side
 	local camp = alleyCamp()
@@ -426,22 +404,14 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 	-- the cafe's half depth: the shots below keep their distance to its front wall as the cafes grow (#917)
 	local halfD = Config.World.PlotDepth / 2
 	local aisle = local3(-7.3, 2, 7.3)
-	-- shot 7: the Alleyway camp's board from its front left
+	-- shot 6: the Alleyway camp's board from its front left
 	local B, f = camp.board, camp.boardFacing
 	local l = rightOf(f) -- the left hand as you face the board, along -f
 	local cannonEnd = key(v(10, 8, -18), v(0, 6, 0)) -- shot 1's last frame, from the square's south east side
 	local launchTilt = key(v(10, 7, -18), v(-6, 14, -6))
-	local town = v(0, 0, -20) -- shot 9 looks up the whole town from the south
+	local town = v(0, 0, -20) -- shot 8 looks up the whole town from the south
 	local stations = v(-28, 4, 0) -- between the Spin Wheel and the Codes Cat
 	local shotFrom = key(v(px - (halfD + 16) * s, 9, pz - 6), v(px - (halfD + 0.3) * s, 7, pz))
-	local camps: { Cut } = {}
-	local titles = { "THE PARK", "THE NEIGHBOURHOOD", "THE WOODS", "THE SEWER" }
-	for i, area in Intro.CAMP_CUTS do
-		local each = Intro.camp(area)
-		if each ~= nil then
-			table.insert(camps, campCut(each, titles[i]))
-		end
-	end
 	local streamed = alleyStreamed ~= false
 	local all: { Shot } = {
 		{
@@ -542,15 +512,6 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 		{
 			index = 6,
 			starts = 0,
-			seconds = Intro.CAMP_CUT_SECONDS * #Intro.CAMP_CUTS, -- 8 s (was 1.8)
-			caption = "Rank up to fly to new areas!",
-			ease = "Linear",
-			fallback = cannonEnd,
-			cuts = camps,
-		},
-		{
-			index = 7,
-			starts = 0,
 			seconds = 2.5,
 			caption = "Find all 50 cats for Index rewards",
 			ease = "Out",
@@ -564,7 +525,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 			},
 		},
 		{
-			index = 8,
+			index = 7,
 			starts = 0,
 			seconds = 2.7,
 			caption = if codesCat then Intro.CODES_CAPTION else Intro.SPIN_CAPTION,
@@ -580,7 +541,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 			},
 		},
 		{
-			index = 9,
+			index = 8,
 			starts = 0,
 			seconds = 3,
 			caption = "Night closes the areas. Fresh cats at sunrise!",
@@ -596,7 +557,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 			},
 		},
 		{
-			index = 10,
+			index = 9,
 			starts = 0,
 			seconds = 2,
 			caption = "Your first cat is waiting in the Alleyway!",
@@ -646,34 +607,6 @@ function Intro.jump(from: Key, to: Key): boolean
 	return (to.position - from.position).Magnitude > Intro.JUMP_STUDS
 end
 
--- Shot 6's cuts that `streamed` says are there, sharing the shot's whole time between them, so a skipped camp gives
--- its time to the others. With none streamed in, the shot holds on its fallback place with the title cards.
-function Intro.keepCuts(shot: Shot, streamed: (Cut) -> boolean): { Cut }
-	local kept: { Cut } = {}
-	for _, cut in shot.cuts do
-		if streamed(cut) then
-			table.insert(kept, cut)
-		end
-	end
-	local hold = shot.fallback
-	if #kept == 0 then
-		for _, cut in shot.cuts do
-			local copy = table.clone(cut)
-			if hold ~= nil then
-				copy.from, copy.to = hold, hold
-			end
-			table.insert(kept, copy)
-		end
-	end
-	local out: { Cut } = {}
-	for _, cut in kept do
-		local copy = table.clone(cut)
-		copy.seconds = shot.seconds / #kept
-		table.insert(out, copy)
-	end
-	return out
-end
-
 -- The eased share of a move `t` (0 to 1) of the way through, the curves TweenService calls Quad.
 function Intro.ease(kind: Ease, t: number): number
 	t = math.clamp(t, 0, 1)
@@ -710,7 +643,7 @@ function Intro.at(cut: Cut, ease: Ease, t: number): Key
 	}
 end
 
--- Shot 10's end: FOLLOW_BACK behind and FOLLOW_UP above a character standing at `root`, looking at its head.
+-- Shot 9's end: FOLLOW_BACK behind and FOLLOW_UP above a character standing at `root`, looking at its head.
 function Intro.follow(rootPosition: Vector3, facing: Vector3): Key
 	local flat = Vector3.new(facing.X, 0, facing.Z)
 	local back = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, -1)

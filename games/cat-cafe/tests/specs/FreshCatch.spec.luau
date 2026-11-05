@@ -9,8 +9,8 @@ return function()
 	local Config = require(Shared.Config)
 	local FreshCatch = require(Shared.FreshCatch)
 
-	-- the real windows from 2026-10-28 00:00 UTC
-	local TODAY = FreshCatch.window(1793145600)
+	-- the real windows from 2026-11-04 00:00 UTC, a few game days after Config.ClockEpoch (#1437)
+	local TODAY = FreshCatch.window(1793750400)
 
 	-- A window at or after `from` whose stock has `itemId`, else nil.
 	local function windowWith(itemId: string, from: number): number?
@@ -93,11 +93,13 @@ return function()
 	describe("windows and stock (QA check 4)", function()
 		it("are FreshCatchWindowSeconds long and restock at the next one", function()
 			local w = Config.FreshCatchWindowSeconds
-			expect(w).to.equal(300)
-			expect(FreshCatch.window(0)).to.equal(0)
-			expect(FreshCatch.window(w - 1)).to.equal(0)
-			expect(FreshCatch.window(w)).to.equal(1)
-			expect(FreshCatch.restocksAt(FreshCatch.window(w * 5 + 30))).to.equal(w * 6)
+			local epoch = Config.ClockEpoch
+			-- one game day (#1437), counted from the global clock's first sunrise
+			expect(w).to.equal(Config.DayLengthSeconds + Config.NightLengthSeconds)
+			expect(FreshCatch.window(epoch)).to.equal(0)
+			expect(FreshCatch.window(epoch + w - 1)).to.equal(0)
+			expect(FreshCatch.window(epoch + w)).to.equal(1)
+			expect(FreshCatch.restocksAt(FreshCatch.window(epoch + w * 5 + 30))).to.equal(epoch + w * 6)
 		end)
 
 		it("is the same stock for everyone in a window, in shelf order", function()
@@ -251,7 +253,7 @@ return function()
 	describe("saved state (save version 18)", function()
 		it("starts fresh and sanitizes a damaged save", function()
 			expect(FreshCatch.fresh() :: any).to.deepEqual({ window = 0, bought = {}, alerted = 0 })
-			local now = 20 * 300 + 5 -- window 20
+			local now = Config.ClockEpoch + 20 * Config.FreshCatchWindowSeconds + 5 -- window 20
 			expect(FreshCatch.sanitize(nil, now) :: any).to.deepEqual({
 				window = 0,
 				bought = {},
@@ -262,11 +264,18 @@ return function()
 				bought = {},
 				alerted = 0,
 			})
-			-- a window or alert past the next window (a damaged or future-dated save) comes back to it (review N299)
-			expect(FreshCatch.sanitize({ window = 99, alerted = 50, bought = {} }, now) :: any).to.deepEqual({
+			-- an alert past the next window (a damaged or future-dated save) comes back to it (review N299)
+			expect(FreshCatch.sanitize({ window = 21, alerted = 50, bought = {} }, now) :: any).to.deepEqual({
 				window = 21,
 				bought = {},
 				alerted = 21,
+			})
+			-- a window past the next one (the old 5 minute count, or a damaged save) starts afresh (#1437)
+			local old = { window = math.floor(now / 300), alerted = 99, bought = { tip_potion = 2 } }
+			expect(FreshCatch.sanitize(old, now) :: any).to.deepEqual({
+				window = 0,
+				bought = {},
+				alerted = 0,
 			})
 			expect(
 				FreshCatch.sanitize(

@@ -9,8 +9,8 @@
 -- gold ring, falling sparkles and longer blinking (Logic.prizeTier, from the slice's chance in Catalog.spinWheel).
 --
 -- The station is a model tagged SpinWheel, its front toward -Z of its pivot. Its `Wheel` (or `..._Wheel`) is a Model
--- pivoted at the hub, with slice 1 under the pointer at rest and slice n (n - 1) sixths of a turn round from it, the
--- way the wheel turns (the placeholder's layout); `Pointer` and the `RimLight` parts sit outside it. The whole Wheel
+-- pivoted at the hub, with slice 1 under the pointer at rest and the others round from it the way the wheel turns,
+-- as wide as its `SliceSpans` attribute says in degrees (#1411), else Presets.wheel.slices equal ones; `Pointer` and the `RimLight` parts sit outside it. The whole Wheel
 -- turns as one about its axle, which is the thinnest axis of its disc (its PrimaryPart, else its biggest part)
 -- pointing to the back of the station. The Wheel's own pivot only gives the hub: on the placeholder its rotation lay
 -- in the wheel's face (a Model with a PrimaryPart ignores the WorldPivot it sets), so turning about it flipped the
@@ -47,6 +47,7 @@ type Station = {
 	began: number, -- os.clock() the turn started, moved back by how late LastSpinAt replicated
 	spinning: boolean,
 	prize: Logic.PrizeTier, -- how the slice it is turning to is celebrated when it stops
+	spans: { number }, -- slice widths in degrees, read from the Wheel's SliceSpans at each spin
 }
 
 local stations: { [Model]: Station } = {}
@@ -133,6 +134,7 @@ local function bind(model: Model): Station?
 		began = 0,
 		spinning = false,
 		prize = "small",
+		spans = Logic.wheelSpans(wheel:GetAttribute("SliceSpans"), Presets.wheel.slices),
 	}
 	for _, part in parts do
 		table.insert(station.offsets, rest:Inverse() * part.CFrame)
@@ -273,7 +275,10 @@ local function step()
 		if k < 1 then
 			local angle = station.from + (station.to - station.from) * Logic.wheelEase(k)
 			draw(station, angle)
-			tiltPointer(station, Logic.pointerTilt(angle, w.slices, w.tick, w.tickShare) * (1 - k))
+			tiltPointer(
+				station,
+				Logic.pointerTilt(angle, station.spans, w.tick, w.tickShare) * (1 - k)
+			)
 			if not still then
 				setLights(station, function(i: number): boolean
 					return Logic.chaseOn(i, t, w.chaseStep)
@@ -322,7 +327,8 @@ local function spun(model: Model)
 	local w = Presets.wheel
 	local slice = model:GetAttribute("LastSlice")
 	local won = if type(slice) == "number" then slice else nil
-	local rest = Logic.wheelRest(at, won, w.slices)
+	station.spans = Logic.wheelSpans(station.wheel:GetAttribute("SliceSpans"), w.slices)
+	local rest = Logic.wheelRest(at, won, station.spans)
 	station.prize = Logic.prizeTier(weights, won)
 	local late = math.max(0, Workspace:GetServerTimeNow() - at)
 	if late >= w.seconds or Context.distance(station.rest.Position) > w.within then

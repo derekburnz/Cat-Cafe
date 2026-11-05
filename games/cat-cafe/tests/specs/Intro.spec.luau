@@ -29,10 +29,11 @@ return function()
 	local CAMP = Intro.camp("alley") :: Intro.Camp
 
 	describe("the shots (section 2)", function()
-		it("are ten shots of 30.5 s, each starting where the one before ends", function()
+		it("are nine shots of 22.5 s, each starting where the one before ends (#1542)", function()
 			local shots = Intro.shots(EAST, true)
 			expect(#shots).to.equal(Intro.SHOTS)
-			expect(Intro.SHOTS).to.equal(10)
+			expect(Intro.SHOTS).to.equal(9)
+			expect(Intro.VERSION).to.equal(4)
 			local at = 0
 			for i, shot in shots do
 				expect(shot.index).to.equal(i)
@@ -44,12 +45,12 @@ return function()
 				expect(cuts).to.be.near(shot.seconds, 1e-9)
 				at += shot.seconds
 			end
-			expect(Intro.length(shots)).to.be.near(30.5, 1e-9) -- 24.3 until #1254
+			expect(Intro.length(shots)).to.be.near(22.5, 1e-9) -- 30.5 with the camp cuts, until #1542
 			local starts = {}
 			for _, shot in shots do
 				table.insert(starts, math.floor(shot.starts * 10 + 0.5) / 10)
 			end
-			expect(starts :: any).to.deepEqual({ 0, 2.5, 5, 7.5, 9.5, 12.3, 20.3, 22.8, 25.5, 28.5 })
+			expect(starts :: any).to.deepEqual({ 0, 2.5, 5, 7.5, 9.5, 12.3, 14.8, 17.5, 20.5 })
 		end)
 
 		it(
@@ -72,13 +73,17 @@ return function()
 				expect(which("catch") :: any).to.deepEqual({ 3 })
 				expect(which("run") :: any).to.deepEqual({ 4 })
 				expect(which("job") :: any).to.deepEqual({ 5 })
-				expect(which("camp") :: any).to.deepEqual({ 3, 4, 7 })
-				expect(which("spinWheel") :: any).to.deepEqual({ 8 })
-				expect(which("night") :: any).to.deepEqual({ 9 })
-				expect(which("follow") :: any).to.deepEqual({ 10 })
+				expect(which("camp") :: any).to.deepEqual({ 3, 4, 6 })
+				expect(which("spinWheel") :: any).to.deepEqual({ 7 })
+				expect(which("night") :: any).to.deepEqual({ 8 })
+				expect(which("follow") :: any).to.deepEqual({ 9 })
 				expect(shots[1].caption).to.equal("Fly the Cat Cannon to catch stray cats!")
 				expect(shots[4].caption).to.equal("Carry it into the camp to keep it!")
-				expect(shots[10].caption).to.equal("Your first cat is waiting in the Alleyway!")
+				expect(shots[9].caption).to.equal("Your first cat is waiting in the Alleyway!")
+				-- #1542: no shot shows the other camps any more
+				for _, shot in shots do
+					expect(shot.caption ~= "Rank up to fly to new areas!").to.equal(true)
+				end
 			end
 		)
 
@@ -94,13 +99,13 @@ return function()
 			end
 		end)
 
-		it("names the Codes Cat in shot 8 only once one stands in the world", function()
-			expect(Intro.shots(EAST, true)[8].caption).to.equal(Intro.CODES_CAPTION)
-			expect(Intro.shots(EAST, false)[8].caption).to.equal(Intro.SPIN_CAPTION)
+		it("names the Codes Cat in shot 7 only once one stands in the world", function()
+			expect(Intro.shots(EAST, true)[7].caption).to.equal(Intro.CODES_CAPTION)
+			expect(Intro.shots(EAST, false)[7].caption).to.equal(Intro.SPIN_CAPTION)
 		end)
 
 		it(
-			"leaves out shots 3, 4 and 7 when the Alleyway's camp has not streamed in, about 7 s shorter",
+			"leaves out shots 3, 4 and 6 when the Alleyway's camp has not streamed in, 7 s shorter: 15.5 s",
 			function()
 				local shots = Intro.shots(EAST, true, false)
 				local indexes = {}
@@ -110,8 +115,8 @@ return function()
 					expect(shot.starts).to.be.near(at, 1e-9)
 					at += shot.seconds
 				end
-				expect(indexes :: any).to.deepEqual({ 1, 2, 5, 6, 8, 9, 10 })
-				expect(Intro.length(shots)).to.be.near(30.5 - 7, 1e-9)
+				expect(indexes :: any).to.deepEqual({ 1, 2, 5, 7, 8, 9 })
+				expect(Intro.length(shots)).to.be.near(15.5, 1e-9)
 				-- shot 2 holds the clouds to its end instead of cutting to the camp
 				local cuts = shots[2].cuts
 				expect(near(cuts[#cuts].from.position, cuts[1].to.position)).to.equal(true)
@@ -144,39 +149,6 @@ return function()
 						)
 					end
 				end
-			end
-		)
-
-		it(
-			"cuts shot 6 four times, 2 s each, high over each camp looking into its area",
-			function()
-				local cuts = Intro.shots(EAST, true)[6].cuts
-				local titles, areas = {}, {}
-				for _, cut in cuts do
-					expect(cut.seconds).to.be.near(Intro.CAMP_CUT_SECONDS, 1e-9)
-					table.insert(titles, cut.title)
-					table.insert(areas, cut.area)
-					-- each pushes 6% of the way toward its look point
-					expect(
-						near(cut.to.position, cut.from.position:Lerp(cut.from.look, Intro.CUT_PUSH))
-					).to.equal(true)
-					local camp = Layout.camps[cut.area :: string]
-					expect(Layout.campAt(cut.from.position.X, cut.from.position.Z)).to.equal(
-						cut.area
-					)
-					expect(cut.from.position.Y - camp.origin.y).to.be.near(24, 1e-6)
-					expect(Layout.campAt(cut.from.look.X, cut.from.look.Z)).to.equal(nil)
-					-- the look point is just past the gate, inside the area
-					local mine = Intro.camp(cut.area :: string) :: Intro.Camp
-					expect((cut.from.look - mine.origin):Dot(mine.u)).to.be.near(10, 1e-6)
-				end
-				expect(titles :: any).to.deepEqual({
-					"THE PARK",
-					"THE NEIGHBOURHOOD",
-					"THE WOODS",
-					"THE SEWER",
-				})
-				expect(areas :: any).to.deepEqual({ "park", "neighbourhood", "woods", "sewer" })
 			end
 		)
 
@@ -226,7 +198,7 @@ return function()
 					2,
 					1e-6
 				)
-				for _, key in { shots[7].cuts[1].from, shots[7].cuts[1].to } do
+				for _, key in { shots[6].cuts[1].from, shots[6].cuts[1].to } do
 					expect(Layout.campAt(key.position.X, key.position.Z)).to.equal("alley")
 					expect((key.position - CAMP.board):Dot(CAMP.boardFacing) > 0).to.equal(true)
 					expect(near(key.look, CAMP.board + Vector3.new(0, 4, 0))).to.equal(true)
@@ -468,40 +440,12 @@ return function()
 			expect(Intro.shotAt(shots, 5)).to.equal(3)
 			expect(Intro.shotAt(shots, 8)).to.equal(4)
 			expect(Intro.shotAt(shots, 10)).to.equal(5)
-			expect(Intro.shotAt(shots, 13)).to.equal(6)
-			expect(Intro.shotAt(shots, 20.29)).to.equal(6) -- the camp tour, 8 s since #1254
-			expect(Intro.shotAt(shots, 20.31)).to.equal(7)
-			expect(Intro.shotAt(shots, 30.49)).to.equal(10)
-			expect(Intro.shotAt(shots, 30.51)).to.equal(0)
+			expect(Intro.shotAt(shots, 13)).to.equal(6) -- the Index Board, straight after the cafe since #1542
+			expect(Intro.shotAt(shots, 14.79)).to.equal(6)
+			expect(Intro.shotAt(shots, 14.81)).to.equal(7)
+			expect(Intro.shotAt(shots, 22.49)).to.equal(9)
+			expect(Intro.shotAt(shots, 22.51)).to.equal(0)
 			expect(Intro.shotAt(shots, 100)).to.equal(0)
-		end)
-	end)
-
-	describe("keepCuts (a camp that has not streamed in)", function()
-		it("drops it and shares its time between the others", function()
-			local shot = Intro.shots(EAST, true)[6]
-			local kept = Intro.keepCuts(shot, function(cut)
-				return cut.area ~= "woods"
-			end)
-			expect(#kept).to.equal(3)
-			for _, cut in kept do
-				expect(cut.area ~= "woods").to.equal(true)
-				expect(cut.seconds).to.be.near(shot.seconds / 3, 1e-9)
-			end
-			expect(shot.cuts[3].seconds).to.be.near(Intro.CAMP_CUT_SECONDS, 1e-9) -- shot left alone
-		end)
-
-		it("holds on the cannon with the four title cards when none has streamed in", function()
-			local shot = Intro.shots(EAST, true)[6]
-			local kept = Intro.keepCuts(shot, function()
-				return false
-			end)
-			expect(#kept).to.equal(4)
-			for i, cut in kept do
-				expect(cut.title).to.equal(shot.cuts[i].title)
-				expect(near(cut.from.position, Vector3.new(10, 8, -18))).to.equal(true)
-				expect(near(cut.to.look, Vector3.new(0, 6, 0))).to.equal(true)
-			end
 		end)
 	end)
 
@@ -560,7 +504,7 @@ return function()
 		end
 
 		it(
-			"dips into your cafe, each camp of the tour, the board, the square and the town",
+			"dips into your cafe, the board, the square and the town (no camp tour since #1542)",
 			function()
 				for _, plotIndex in { 1, 2, 5, 8 } do
 					local jumps = {}
@@ -569,14 +513,14 @@ return function()
 							table.insert(jumps, string.format("%d.%d", change.shot, change.cut))
 						end
 					end
-					expect(table.concat(jumps, " ")).to.equal("5.1 6.1 6.2 6.3 6.4 7.1 8.1 9.1")
+					expect(table.concat(jumps, " ")).to.equal("5.1 6.1 7.1 8.1")
 				end
 			end
 		)
 
 		it("keeps the Alleyway's catch and run and the end behind you as plain cuts", function()
 			for _, change in changes(EAST) do
-				if change.shot == 3 or change.shot == 4 or change.shot == 10 then
+				if change.shot == 3 or change.shot == 4 or change.shot == 9 then
 					expect(change.jump).to.equal(false)
 				end
 			end
@@ -586,8 +530,8 @@ return function()
 	end)
 
 	describe("the intro_cutscene event", function()
-		it("carries version 3 since the shots moved for the hometown and the cannon", function()
-			expect(Intro.VERSION).to.equal(3)
+		it("carries version 4 since #1542 took out the camp cuts (3 for the hometown and the cannon)", function()
+			expect(Intro.VERSION).to.equal(4)
 		end)
 
 		it(

@@ -65,8 +65,6 @@ local GAP = Theme.sizes.gap
 local GLYPHS: { [string]: string } = {
 	cat_snack = "🍪",
 	big_cat_snack = "🧁",
-	bubble_machine = "🫧",
-	cafe_fireworks = "🎆",
 }
 
 local CornerShop = {}

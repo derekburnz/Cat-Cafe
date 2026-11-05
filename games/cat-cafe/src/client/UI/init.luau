@@ -119,7 +119,6 @@ UI.events = {
 	equipBest = Signal.new(), -- ()   server places the highest-rated cats on the open spots
 	equipBestDecor = Signal.new(), -- ()   Equip Best on the Decor page: forward as EquipBestDecor (#828)
 	unequipAll = Signal.new(), -- ()   Unequip All in the cat room: every working cat rests; forward as UnequipAll
-	sellExtraCommons = Signal.new(), -- ()   #1573: Sell extras in the cat room, after its ask; forward as SellExtraCommons
 	claimOffline = Signal.new(), -- ()
 	grabBegan = Signal.new(), -- (strayId, catId)   via catch.bindProximityPrompts
 	rescueBegan = Signal.new(), -- (rescueSpotId, catId)   a press on a stuck cat's prompt: forward as RescueBegin
@@ -823,9 +822,6 @@ function UI.init(config: Types.InitConfig)
 		end,
 		unequipAll = function()
 			UI.events.unequipAll:Fire()
-		end,
-		sellExtras = function()
-			UI.events.sellExtraCommons:Fire()
 		end,
 		close = closeModal,
 	})

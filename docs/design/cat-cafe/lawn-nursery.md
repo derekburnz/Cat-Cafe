@@ -54,7 +54,7 @@ Every piece and style, with its rarity and price:
   - A Mythical is about 8 minutes at Tier 4.
   - A Golden piece is about 30 minutes at Tier 5.
 - **The ladder now does the job of the tier gates.** Tier gates still decide when a piece can be bought. The Golden pieces are the long-term goals.
-- **Rarity is a label, not a bonus.** Lawn pieces still give no money bonus (front-lawn.md section 2). The badge only says how special a piece is, in the same rarity colours the game already uses. Uncommon (mint) and Golden (shining gold) are new, lawn-only colours, so a lawn rarity is never mixed up with a cat or crate rarity.
+- **Rarity sets a real money bonus since #1283** (section 6). Uncommon (mint) and Golden (shining gold) are lawn-only colours, so a lawn rarity is never mixed up with a cat or crate rarity.
 - **Prices are fixed coin amounts**, the same with or without a money pass. Nothing is random.
 - **The free gifts stay free.** The Tier 2 Garden Bench and Tier 3 Umbrella Table (front-lawn.md section 1b) are now an Epic and a Legendary, so the gifts are worth more than before.
 - **Nobody loses anything.** Owned pieces stay owned and placed, and nothing is refunded or charged again. A player who bought a Golden Paw Statue for 50,000,000 keeps it.
@@ -96,3 +96,58 @@ Every piece and style, with its rarity and price:
 4. Owned before v2: a player who bought a Golden Paw Statue at 50,000,000 keeps it placed after the update, and nothing is charged.
 5. Gifts: ranking up to Tier 2 still gives a free Garden Bench, placed in an empty big spot.
 6. A Tier 1 player sees the Decor line pointing to the Park (Tier 2) and can't buy, because the Park is still locked.
+
+## 6. Lawn pieces earn, and Equip Best places them (#1283)
+
+Decided by Coordinator for the friend, overnight 11-05, from Derek's 11-04 ask: lawn pieces should work with Equip Best, auto-pick their slots, and "have more than a cosmetic effect".
+
+### 6a. The bonus
+
+Each piece and style that is **out** on the lawn adds money, by its rarity:
+
+| rarity | Common | Uncommon | Rare | Epic | Legendary | Mythical | Golden |
+|---|---|---|---|---|---|---|---|
+| money while out | +1% | +1.5% | +2% | +3% | +5% | +8% | +12% |
+
+- **A full best lawn**, with every piece owned, adds about **+46%**:
+  - 2 big spots with the 2 Golden pieces: +24%;
+  - 4 small spots (Balloon Bunch, then three Rares): +11%;
+  - a Paw Print Path or Iron Railing path: +3%;
+  - a Flower Box Fence: +8%.
+
+  That sits beside the crate decor's "+35% for 7 placed" and is reached only by Tier 5 savers.
+- **Early on it's small:** a Tier 2 lawn of Commons and Uncommons plus the free Garden Bench (Epic) is about +8%.
+- **It never pays back fast.** A Common (10,000) at Tier 2 pays itself back in about 80 minutes of play, and a Golden (500M) at Tier 5 in about 2 hours. So the lawn is a long-term upgrade, not a tier skip (rule v0.8). QA's Pace.spec run with a player who buys the best affordable lawn piece whenever they can must keep every tier inside economy-ladder.md check 3. If not, the bonus row goes down a step; the prices stay.
+- **Where it adds:** in `cafeMultiplier`, alongside decor (`Economy.cafeMultiplier`). The Money boosts card (#1151) gets its own row, "Lawn (6 out) +18%".
+- **Free gifts count.** The Tier 2 Garden Bench (Epic, +3%) and Tier 3 Umbrella Table (Legendary, +5%) give their bonus like any piece.
+
+### 6b. Equip Best and automatic slots
+
+- **One button.** The Decor window's existing **Equip Best** fills the decor spots and the lawn in one go, with one toast: "Best decor and lawn out: +53% money".
+- **The rule, per spot size (small and big):** the highest bonus first, then the higher rarity, then the newest owned. Path and fence each take the best owned style the same way.
+- **On buy:** a new piece goes straight onto the lawn if it beats the weakest piece out in its size, or fills an empty spot. The toast says "Tulip Bed is out on your lawn (+1% money)". Nothing to place by hand.
+- **No manual placing.** Edit lawn, the spot rings, the picker and Clear (front-lawn.md section 3) go. The Decor window's Lawn chip just lists what you own, with "Out" or "Stored" and each piece's bonus.
+- **Server decides.** The server picks the pieces and works out the bonus, and the client never names a spot or a bonus. The existing `lawn` and `lawnStyles` saves hold the result. There's no new save field. `SetLawnSpot` and `SetLawnStyle` are retired (they refuse with "The lawn sets itself now"), and `EquipBestDecor` covers the lawn.
+- **Looks stay.** A player who liked a cheaper piece's look loses that choice. That trade is Derek's ask ("auto pick slots the same way decor does"). If players miss it, a later "Pin this piece" toggle can keep one chosen piece out.
+
+### 6c. Contracts
+
+- **Config:** `LawnRarityBonus = { Common = 0.01, Uncommon = 0.015, Rare = 0.02, Epic = 0.03, Legendary = 0.05, Mythical = 0.08, Golden = 0.12 }`.
+- **Economy:**
+  - `Economy.lawnBonus(profile)` sums the bonus of each out piece and style;
+  - `cafeMultiplier` adds it;
+  - `Economy.bestLawn(profile)` returns the spot-to-piece and style picks (shared, with a spec).
+- **Server:**
+  - `EquipBestDecor` also applies `bestLawn`;
+  - `BuyLawn` auto-places;
+  - `SetLawnSpot` and `SetLawnStyle` refuse;
+  - plot attributes as today, so every client builds the lawn.
+- **UI-Engineer:** the Lawn chip's list, the Money boosts row, and removing the edit view.
+- **Who builds:** Gameplay-Engineer (shared `Config` and `Economy`, so open a `claim` first), UI-Engineer, QA (section 6d).
+
+### 6d. QA checks
+
+1. Equip Best with a Tulip Bed, a Garden Bench and a Little Fountain owned puts the Fountain and the Bench in the big spots and the Tulip Bed in a small one. The Money boosts card shows "Lawn (3 out) +9%".
+2. Buying a Golden Paw Statue with both big spots full swaps out the weaker big piece by itself.
+3. `SetLawnSpot` fired by an exploit is refused, and the bonus comes only from the server's picks.
+4. Pace.spec with best-affordable lawn buying keeps every tier inside check 3.

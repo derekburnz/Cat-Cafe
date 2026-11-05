@@ -454,5 +454,8 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 ### Intro: the area cuts go (#1542), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
 - 2026-11-05: The intro's shot 6, the four 2 s cuts over the Park, Neighbourhood, Woods and Sewer camps with their title cards, is removed; every other shot stays as it was. The intro is 9 shots and 22.5 s (was 10 and 30.5 s), `Intro.VERSION` 4, `IntroDone` shots 0 to 9. Why: Derek, 2026-11-05: "remove the area section that flashes between each area from the tutorial the rest is good and it makes it much faster". Spec in intro-cutscene.md section 2.
 
+### Corner Shop shows stock counts (#1465), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
+- 2026-11-05: Each Corner Shop row shows "n left", meaning what the player can still buy in this window. This reverses #1190's no-counts rule for the counts only; stock chances and daily-limit lines stay hidden. Why: the friend asked to "show amount in stock for corner shop". A plain count is honest information, not pressure. There's no countdown or "almost gone" copy. Spec: corner-shop-v2.md sections 1 and 4.
+
 ### Spin Wheel jackpots (#1411), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
 - 2026-11-05: The Spin Wheel goes to 8 slices. Coins are 69% (a new 1,800 s slice at 12%), there are two 0.5% jackpots (a golden crate of the highest zone, and 100 golden fish), and the rest of the slices are reweighted. Why: the friend wants something to chase and spins to be a quick money source. Spins stay free only, so it isn't a paid random item. Spec: rewards-and-shops.md section 2b v2.

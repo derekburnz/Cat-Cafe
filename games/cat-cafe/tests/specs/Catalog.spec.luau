@@ -1023,11 +1023,11 @@ return function()
 				expect(Catalog.dealerAmountWeights :: any).to.deepEqual({
 					sardines = { 15, 25, 30, 20, 10 },
 					caviar = { 35, 40, 20, 5, 0 },
-					moon_milk = { 60, 35, 5, 0, 0 },
-					star_treat = { 90, 10, 0, 0, 0 },
+					moon_milk = { 45, 45, 10, 0, 0 }, -- #1442
+					star_treat = { 80, 20, 0, 0, 0 },
 				})
 				local averages =
-					{ sardines = 1.85, caviar = 0.95, moon_milk = 0.45, star_treat = 0.10 }
+					{ sardines = 1.85, caviar = 0.95, moon_milk = 0.65, star_treat = 0.20 }
 				for id, weights in pairs(Catalog.dealerAmountWeights) do
 					local def = Catalog.getLure(id)
 					assert(def, id)

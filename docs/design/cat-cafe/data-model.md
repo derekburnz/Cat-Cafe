@@ -330,10 +330,10 @@ Each dealer food's `attracts` chip is its likeliest rarity: sardines Rare, cavia
 |---|---|---|---|---|---|---|
 | Moonlit Sardines | 15 | 25 | 30 | 20 | 10 | 1.85 |
 | Caviar | 35 | 40 | 20 | 5 | 0 | 0.95 |
-| Moon Milk | 60 | 35 | 5 | 0 | 0 | 0.45 |
-| Star Treat | 90 | 10 | 0 | 0 | 0 | 0.10 |
+| Moon Milk | 45 | 45 | 10 | 0 | 0 | 0.65 |
+| Star Treat | 80 | 20 | 0 | 0 | 0 | 0.20 |
 
-A Star Treat turns up about one window in ten. Since v0.9 a night lasts 90 seconds, so most nights see one window and about one in four sees a restock part way through; coins still limit what a player buys because the prices are unchanged. The dealer is the main reason to be out at night, and the plaza is under 10 seconds from every cafe door. The dealer screen shows these chances per food, as it showed the slot weights.
+#1442 (Derek 2026-11-05: "increase the night markets rate of having moon milk / star treat's by a little bit"): Moon Milk was 60 / 35 / 5 (0.45) and Star Treat 90 / 10 (0.10); now Moon Milk is in stock 55% of nights (was 40%) and a Star Treat turns up about one night in five (was one in ten). Prices and food odds are unchanged. Since v0.9 a night lasts 90 seconds, so most nights see one window and about one in four sees a restock part way through; coins still limit what a player buys because the prices are unchanged. The dealer is the main reason to be out at night, and the plaza is under 10 seconds from every cafe door. The dealer screen shows these chances per food, as it showed the slot weights.
 
 ## 9. Areas, the clock and spawning
 

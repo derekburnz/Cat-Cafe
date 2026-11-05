@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-05 06:32 UTC",
+  "generated": "2026-11-05 06:46 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -176786,6 +176786,214 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_SignKingCrest.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_SignKingCrest.png"
+    },
+    {
+      "name": "CatCafe_Camp_Park_GardenNursery",
+      "category": "Camp",
+      "module": "gardennursery",
+      "objects": [
+        "CatCafe_Camp_Park_GardenNursery",
+        "CatCafe_Camp_Park_GardenNursery_Bulb",
+        "CatCafe_Camp_Park_GardenNursery_Cat_Body",
+        "CatCafe_Camp_Park_GardenNursery_Cat_Head",
+        "CatCafe_Camp_Park_GardenNursery_Cat_Eye1",
+        "CatCafe_Camp_Park_GardenNursery_Cat_Eye2",
+        "CatCafe_Camp_Park_GardenNursery_Cat_EarL",
+        "CatCafe_Camp_Park_GardenNursery_Cat_EarR",
+        "CatCafe_Camp_Park_GardenNursery_Cat_Tail",
+        "CatCafe_Camp_Park_GardenNursery_Cat_LegF1",
+        "CatCafe_Camp_Park_GardenNursery_Cat_LegF2",
+        "CatCafe_Camp_Park_GardenNursery_Cat_LegB1",
+        "CatCafe_Camp_Park_GardenNursery_Cat_LegB2",
+        "CatCafe_Camp_Park_GardenNursery_Cat_Prop"
+      ],
+      "triangles": 7382,
+      "budget": 7500,
+      "size_studs": {
+        "x": 9.81,
+        "y": 4.31,
+        "z": 8.2
+      },
+      "size_roblox": [
+        9.81,
+        8.2,
+        4.31
+      ],
+      "bounds_min": [
+        -5.17,
+        -2.03,
+        0.0
+      ],
+      "bounds_max": [
+        4.64,
+        2.28,
+        8.2
+      ],
+      "pivot": "the base centre on the camp's ground, the bench front (-Z) toward the players; Park set space (Layout.campExtras' space) at gardennursery.SPOT (34, 0, -166) turned 90, facing the pad",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Park_GardenNursery_Cat_Body": [
+          0.0,
+          0.85,
+          1.0
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_Head": [
+          0.0,
+          0.71,
+          2.45
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_Eye1": [
+          0.36,
+          -0.12,
+          2.82
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_Eye2": [
+          -0.36,
+          -0.12,
+          2.82
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_EarL": [
+          0.43,
+          0.55,
+          3.47
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_EarR": [
+          -0.43,
+          0.55,
+          3.47
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_Tail": [
+          0.0,
+          1.13,
+          1.71
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_LegF1": [
+          0.68,
+          0.76,
+          2.17
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_LegF2": [
+          -0.68,
+          0.76,
+          2.17
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_LegB1": [
+          0.24,
+          0.76,
+          1.63
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_LegB2": [
+          -0.24,
+          0.76,
+          1.63
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_Prop": [
+          0.0,
+          0.71,
+          2.45
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Park_GardenNursery_Cat_Body": [
+          0.0,
+          1.0,
+          0.85
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_Head": [
+          0.0,
+          2.45,
+          0.71
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_Eye1": [
+          -0.36,
+          2.82,
+          -0.12
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_Eye2": [
+          0.36,
+          2.82,
+          -0.12
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_EarL": [
+          -0.43,
+          3.47,
+          0.55
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_EarR": [
+          0.43,
+          3.47,
+          0.55
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_Tail": [
+          0.0,
+          1.71,
+          1.13
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_LegF1": [
+          -0.68,
+          2.17,
+          0.76
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_LegF2": [
+          0.68,
+          2.17,
+          0.76
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_LegB1": [
+          -0.24,
+          1.63,
+          0.76
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_LegB2": [
+          0.24,
+          1.63,
+          0.76
+        ],
+        "CatCafe_Camp_Park_GardenNursery_Cat_Prop": [
+          0.0,
+          2.45,
+          0.71
+        ]
+      },
+      "prompt_anchor_roblox": [
+        0.0,
+        3.0,
+        -1.7999999999999998
+      ],
+      "placement_park_set_roblox": [
+        34.0,
+        0.0,
+        -166.0,
+        90.0
+      ],
+      "tags": [
+        "LawnStall"
+      ],
+      "studio": "#1200 (lawn-nursery.md section 2): the Garden Nursery at the Park camp, at gardennursery.SPOT in the Park's set space, tagged LawnStall; the game hangs the Nursery prompt on the Attachment PromptAnchor (bench front, 3 up) and the gardener's speech bubble on BubbleAnchor (in the cat's Head part, over the hat). The sun hat rides the cat's Head Model; the mini lamp post's lantern (_Bulb) is lit at night.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Park_GardenNursery.model.json",
+      "rbx_parts": 633,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Park_GardenNursery.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Park_GardenNursery.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "7382/7500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "3700 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.27 y=0.13"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Park_GardenNursery.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Park_GardenNursery.png"
     }
   ]
 }

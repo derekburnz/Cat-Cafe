@@ -70,6 +70,10 @@ return function()
 			expect(Logic.stockLine({ itemId = "x", price = 1, amount = 2, bought = 2 })).to.equal(
 				"You bought 2"
 			)
+			-- #1671: past the daily limit, no "x3 left" beside "Back at sunrise"
+			local out: any = { itemId = "x", price = 1, amount = 3, bought = 0, outToday = true }
+			expect(Logic.stockLine(out)).to.equal("")
+			expect(Logic.button(out, nil, 1000, 0, nil).text).to.equal("Back at sunrise")
 		end)
 		it("greys the button the server would refuse", function()
 			local item = { itemId = "cat_snack", price = 1500, amount = 2, bought = 0 }

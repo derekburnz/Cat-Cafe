@@ -539,7 +539,7 @@ function CornerShop._paint(self: any)
 		local tier = if state then state.tier else 1
 		local gate = CornerShopLogic.gate(item, tier)
 		-- the tier gate, else what is left this restock ("x2 left", #1456, the friend 11-05: "show amount in stock");
-		-- still no chances or daily limits in the window (#1190): a family past its limit shows "Back tomorrow"
+		-- still no chances or daily limits in the window (#1190): a family past its limit shows no count, only "Back at sunrise" (#1671)
 		row.line.Text = gate or CornerShopLogic.stockLine(item)
 		local pressedAt = self._pending[item.itemId]
 		local waiting = pressedAt ~= nil and os.clock() - pressedAt < PENDING_SECONDS

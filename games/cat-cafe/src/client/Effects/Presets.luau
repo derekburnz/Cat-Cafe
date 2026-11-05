@@ -3366,12 +3366,19 @@ Presets.campGlow = {
 	},
 }
 
--- The decor door sign (#1172; Effects/DoorSign): its OPEN board's parts are named `open`, its CLOSED board is the child
--- Model named `closed` (Model-Agent's CatCafe_Decor_DoorSign, two boards, one shown at a time: OPEN by day, CLOSED
--- at night).
+-- The door sign (#1172, #1140; Effects/DoorSign). Model-Agent's CatCafe_Decor_DoorSign: its OPEN face's parts are
+-- named `open`, its CLOSED face is the child Model `closed`, and a sign with a `hanger` child Model (#1346: the hook,
+-- twine and two-sided board, pivot at the hook) turns half a turn about its pivot at nightfall and sunrise over `flip`
+-- seconds, then settles with one `swing` degree back-and-forth over `settle`; nearer than `within` studs, else (and
+-- with Reduce Motion, or on joining) it snaps. A sign without a hanger (the two-board one) hides the other board.
 Presets.doorSign = {
 	open = "CatCafe_Decor_DoorSign_Open",
 	closed = "CatCafe_Decor_DoorSign_Closed",
+	hanger = "CatCafe_Decor_DoorSign_Hanger",
+	flip = 0.6,
+	settle = 0.4,
+	swing = 8,
+	within = 200,
 }
 
 return Presets

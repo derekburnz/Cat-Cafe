@@ -115,7 +115,6 @@ return function()
 		-- #1052 (corner-shop.md section 5): the Corner Shop's window, its reach and the daily Cat Snack cap
 		CornerShopWindowSeconds = 300,
 		CornerShopRange = 14,
-		CornerFoodXpPerDay = 20000, -- corner-shop-v2.md section 4
 		CatFoodMax = 999,
 		CatchSnackChance = 0.10, -- corner-shop-v2.md section 3: a Small Snack 1 catch in 10
 		-- night income and rich customers (F31, sections 11 and 12)
@@ -199,7 +198,8 @@ return function()
 		LuckyDayWarnSeconds = 15,
 		-- Pals (F92, playing-together.md 6)
 		PalTipBonus = 0.10,
-		PalTipBonusMax = 0.15,
+		PalTipBonusStep = 0.05, -- #1165: +5% for each more pal
+		PalTipBonusMax = 0.20, -- #1165 (#1347): was 0.15
 		TeamRescueRangeStuds = 10,
 		TeamRescueExtraSeconds = 5,
 		HelperTipSeconds = 60,
@@ -247,9 +247,10 @@ return function()
 		PicnicEverySeconds = 21600, -- F100 (camp-extras.md section 4); LostFoundTable is checked in CampExtras.spec
 		PicnicHold = 2,
 		PicnicPotion = "tip_potion", -- Design-Agent 11-02: one 10 minute Money Potion a fill, not a 15 minute one
-		PondFishPerStep = 2,
-		PondStepSeconds = 1800,
-		PondHold = 24,
+		YardSaleClaimHours = 4, -- #1154
+		PondFishPerStep = 1, -- #1232: was 2
+		PondStepSeconds = 600, -- #1232: was 1800
+		PondHold = 36, -- #1232: was 24
 		LostFoundHold = 3,
 		CampExtraRangeStuds = 8,
 		RallyStartWeekday = 6, -- F101 (rescue-rally.md section 5); RallyPoints is checked in Rally.spec
@@ -367,6 +368,11 @@ return function()
 				CodeWrongWindowSeconds = true, -- section 11d: "5 wrong codes in a minute"
 				GroupCheckSeconds = true, -- section 11d: IsInGroup "cached per player for 60 s"
 				StraySpawnSpacingStuds = true, -- Derek 22:38: strays spawn spread out; the designer logs it in section 17
+				StrayFloorBase = true, -- #1159: top-ups, checked in StrayTopUp.spec
+				StrayFloorPerPlayer = true,
+				StrayLiveMax = true,
+				StrayTopUpMinSeconds = true,
+				StrayTopUpMaxSeconds = true,
 				MysteryRangeStuds = true, -- sections 12b and 15: OpenMysteryGift "within 12 studs"
 				CollectorValue = true, -- section 17's "1, 3, 8, 20, 50 by rarity", checked in Collector.spec
 				CollectorAskWeight = true, -- #1144: a table, checked in Collector.spec

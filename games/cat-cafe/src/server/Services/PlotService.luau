@@ -35,7 +35,6 @@ function PlotService.start(builtWorld: WorldBuilder.World)
 	ClockService.changed:Connect(function(phase: Types.ClockPhase)
 		for player, plot in plotOf do
 			plot.sign.Text = signText(player, phase)
-			WorldBuilder.setClosedSign(plot, phase == "night") -- the cafe closes at night (F44)
 		end
 	end)
 end
@@ -58,7 +57,7 @@ function PlotService.assign(player: Player): WorldBuilder.Plot?
 			-- capped, so the UI's sign (CafeSigns: headshot and "<OwnerName>'s Cafe") fits a long name too
 			plot.model:SetAttribute("OwnerName", CafeName.shown(player.DisplayName))
 			plot.sign.Text = signText(player, ClockService.phase())
-			WorldBuilder.setClosedSign(plot, ClockService.phase() == "night")
+			WorldBuilder.setDoorSign(plot, true) -- #1140: OPEN by day, CLOSED at night, on every client
 			-- every client hears the shutters roll up and sees the shop open, at the shop front (F38)
 			Net.fireAll("PlotOpened", plot.door.Position, plot.index)
 			return plot
@@ -120,7 +119,7 @@ function PlotService.release(player: Player)
 	end
 	WorldBuilder.setBackDoorOpen(plot, false)
 	WorldBuilder.setDressing(plot, 0)
-	WorldBuilder.setClosedSign(plot, false)
+	WorldBuilder.setDoorSign(plot, false)
 end
 
 -- What the street sees of an owned cafe (F36 name sign, F37 rate tags): the plot's TierName and Rate (tips per

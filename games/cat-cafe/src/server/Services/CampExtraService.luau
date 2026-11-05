@@ -179,7 +179,9 @@ local function onBuyYardSale(player: Player, rawCrateId: unknown)
 	end
 	-- free since #1051 (crate-prices.md section 5): no fish taken; the take logs as camp_extra below
 	profile.crates[crateId] = (profile.crates[crateId] or 0) + 1
-	profile.campExtras.yardSale.bought[crateId] = true
+	local yard = profile.campExtras.yardSale
+	yard.lastClaimAt = now -- the next is YardSaleClaimHours from now (#1154)
+	yard.claims += 1
 	Telemetry.custom(player, "camp_extra", 1, { CampExtras.YARD_SALE, crateId, tostring(tier) })
 	local bought: Types.IndexPrize = { crates = { [crateId] = 1 } }
 	Net.fire(player, "CampExtraResult", CampExtras.YARD_SALE, true, { "1 " .. crate.name }, bought)
@@ -210,8 +212,8 @@ function CampExtraService.start()
 end
 
 -- Studio-only test hooks (Debug.campExtras): moves every extra's clock `seconds` into the past, as if the player had
--- been away that long (a UTC day for each 86400 s on the Lost and Found and the Yard Sale), then settles and sends the
--- state; returns it.
+-- been away that long (a UTC day for each 86400 s on the Lost and Found), then settles and sends the state; returns
+-- it.
 function CampExtraService.debugAway(
 	player: Player,
 	profile: Types.PlayerProfile,
@@ -222,7 +224,7 @@ function CampExtraService.debugAway(
 	save.picnic.at -= seconds
 	save.pond.at -= seconds
 	save.lostFound.day -= days
-	save.yardSale.day -= days
+	save.yardSale.lastClaimAt = math.max(0, save.yardSale.lastClaimAt - seconds)
 	refresh(player, profile, true)
 	return CampExtras.view(save, Economy.tier(profile), os.time())
 end

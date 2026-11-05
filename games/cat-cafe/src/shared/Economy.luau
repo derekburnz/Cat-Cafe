@@ -55,7 +55,7 @@ function Economy.pals(profile: Types.PlayerProfile): number
 	return palsByProfile[profile] or 0
 end
 
--- The tip share the pals add: PalTipBonus with one, PalTipBonusMax with two or more.
+-- The tip share the pals add (Pals.bonus): PalTipBonus with one, PalTipBonusStep more each, at most PalTipBonusMax.
 function Economy.palBonus(profile: Types.PlayerProfile): number
 	return Pals.bonus(Economy.pals(profile))
 end

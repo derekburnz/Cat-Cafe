@@ -2007,7 +2007,7 @@ Catalog.dealerAmountWeights = {
 
 -- Section 9. Every area has the same odds since v0.13.7 (Derek 2026-10-28 01:50: rare cats come mainly from food
 -- and time); farther areas pay more through incomeMultiplier instead. A full wave of waveSize strays spawns in every area at each sunrise, whether or not anyone has it
--- open, with no top-ups during the day. Data-model 9 v0.13.5 (Derek 2026-10-28 01:34, "way too many"): 6, 5, 5, 4
+-- open; since #1159 an area under its floor of live strays gets daytime top-ups (shared/StrayTopUp). Data-model 9 v0.13.5 (Derek 2026-10-28 01:34, "way too many"): 6, 5, 5, 4
 -- and 4, 24 a day in all (was 10 each). Every side area's spawn points are its kit set's cat spots (Model-Agent
 -- #401, the Park's, the Woods', the Sewer's and the Neighbourhood's v3.2 sets #460, #470, #491 and #505).
 Catalog.areas = {
@@ -3681,27 +3681,28 @@ Catalog.menuCoinBag = "CatCafe_Menu_CoinBag"
 Catalog.ovenModel = "CatCafe_Cafe_Oven"
 
 -- The camp extras (F100, camp-extras.md section 2), one at each camp from the Park on, in tier order. Model-Agent's
--- models (#750) stand at Layout.campExtras; shared/CampExtras holds their rules.
+-- models (#750; the stations #1348, #1349 and #1351 since #1319) stand at Layout.campExtras; shared/CampExtras
+-- holds their rules.
 Catalog.campExtras = {
 	{
 		id = "picnic",
 		area = "park",
 		name = "Picnic Basket",
-		model = "CatCafe_Camp_Park_PicnicBasket",
+		model = "CatCafe_Camp_Park_PicnicStation", -- #1133 (#1348)
 		kind = "collect",
 	},
 	{
 		id = "yardSale",
 		area = "neighbourhood",
 		name = "Yard Sale",
-		model = "CatCafe_Camp_Neighbourhood_YardSale",
+		model = "CatCafe_Camp_Neighbourhood_YardSaleStall", -- #1154 (#1349)
 		kind = "shop",
 	},
 	{
 		id = "pond",
 		area = "woods",
 		name = "Fish Pond",
-		model = "CatCafe_Camp_Woods_FishPond",
+		model = "CatCafe_Camp_Woods_FishingHut", -- #1232 (#1351)
 		kind = "collect",
 	},
 	{

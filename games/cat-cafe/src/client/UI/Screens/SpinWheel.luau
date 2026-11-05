@@ -94,7 +94,8 @@ type Turn = {
 
 local WHEEL_SHARE = 0.56 -- of the window's width; the side holds only the spins, Spin and Odds
 local FACE = 0.88 -- the turning face inside the rim
-local TILE = 0.34 -- a prize's picture and amount, of the face
+local TILE = 0.3 -- a prize's picture and amount, of the face: under RADIUS (the gap between neighbours on a six-wedge wheel), so
+-- tiles never touch (#1280: the $ bag crowded the x3 pill and the Epic gem sat on it)
 local RADIUS = 0.32 -- prize middles from the hub, of the face
 local SPOKE = 5 -- the white divider between two wedges
 -- The wedges (the user, 2026-11-04: "make the menu ui of the spin section much more satisfying and clean looking"): a

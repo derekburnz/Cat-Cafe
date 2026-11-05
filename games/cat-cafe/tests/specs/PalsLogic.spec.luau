@@ -30,12 +30,13 @@ return function()
 
 	describe("PalsLogic.chip", function()
 		it(
-			"says the tips the pals add: 10% with one, 15% with two or more, nothing alone",
+			"says the tips the pals add: 10% with one, 5% more each, at most 20% (#1165, #1347), nothing alone",
 			function()
 				expect(PalsLogic.chip(0)).to.equal(nil)
 				expect(PalsLogic.chip(1)).to.equal("+10% with pals")
 				expect(PalsLogic.chip(2)).to.equal("+15% with pals")
-				expect(PalsLogic.chip(6)).to.equal("+15% with pals")
+				expect(PalsLogic.chip(3)).to.equal("+20% with pals")
+				expect(PalsLogic.chip(6)).to.equal("+20% with pals")
 			end
 		)
 	end)

@@ -14,6 +14,7 @@ local Onboarding = require(script.Parent.Onboarding)
 local Products = require(script.Parent.Products)
 local Rally = require(script.Parent.Rally)
 local Settings = require(script.Parent.Settings)
+local SignStyles = require(script.Parent.SignStyles)
 local Spin = require(script.Parent.Spin)
 local StarterCat = require(script.Parent.StarterCat)
 local Tips = require(script.Parent.Tips)
@@ -98,7 +99,9 @@ local ProfileSchema = {}
 -- the food and letting the player roll that bowl again by hopping servers during a rollout.
 -- #1574 (no new version): decorUnlocked, the Legendary and up pieces unlocked to trade, and the trade log's gaveDecor
 -- and gotDecor. An older server drops them, which only locks those pieces again and shortens old log entries.
-ProfileSchema.VERSION = 34
+-- Version 35 (#1625) adds onceBought, signStyles and signStyle, the Starter Bundle's once-per-account mark and the
+-- sign styles: an older server would drop them, losing the Bakery Stripes sign and letting the bundle be bought as new.
+ProfileSchema.VERSION = 35
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -264,6 +267,9 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		hideCredit = nil,
 		receipts = {},
 		catFood = {},
+		onceBought = {},
+		signStyles = {},
+		signStyle = nil,
 	}
 end
 
@@ -910,6 +916,10 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.hideCredit = if raw.hideCredit == true then true else nil
 	-- #1182 (version 31): the granted PurchaseIds, kept as strings, newest last; older saves have granted none
 	profile.receipts = Products.sanitize(raw.receipts)
+	-- #1625 (version 35): the once-per-account products bought, the saved sign styles and the pick; none before
+	profile.onceBought = Products.sanitizeOnce(raw.onceBought)
+	profile.signStyles = SignStyles.sanitize(raw.signStyles)
+	profile.signStyle = SignStyles.sanitizePick(raw.signStyle)
 	-- #1181 (version 32): the Bag's cat food, known foods only, whole counts of 1 to CatFoodMax
 	if type(raw.catFood) == "table" then
 		for _, food in Catalog.catFood do

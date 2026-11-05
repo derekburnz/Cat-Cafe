@@ -42,6 +42,7 @@ local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Quests = require(ReplicatedStorage.Shared.Quests)
 local SellExtras = require(ReplicatedStorage.Shared.SellExtras)
 local Settings = require(ReplicatedStorage.Shared.Settings)
+local SignStyles = require(ReplicatedStorage.Shared.SignStyles)
 local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
 local Telemetry = require(script.Parent.Telemetry)
 local TipService = require(script.Parent.TipService)
@@ -52,6 +53,13 @@ local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 type Profile = Types.PlayerProfile
 
 local CafeService = {}
+
+-- Whether `player` owns pass `passId`, for the pass sign styles (#1625).
+local function ownsPassOf(player: Player): (number) -> boolean
+	return function(passId: number): boolean
+		return PassService.owns(player, passId)
+	end
+end
 
 local PLAIN_FLAP = "CatCafe_CatFlap_Plain" -- the cafe's own cat flap alone, for a door set with none picked (F80)
 
@@ -208,6 +216,9 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		feedbackAsked = profile.feedbackAsked,
 		stuckHelpShown = table.clone(profile.stuckHelpShown),
 		starterCatClaimed = profile.starterCatClaimed, -- F96
+		starterBought = profile.onceBought.starter_bundle == true, -- #1625: the Store card hides
+		signStyles = SignStyles.owned(profile.signStyles, ownsPassOf(player)), -- #1625
+		signStyle = profile.signStyle,
 		luck = luck, -- F88
 		luckSources = luckSources,
 		longNap = Economy.passes(profile).longNap, -- F95: the welcome back card's line
@@ -739,6 +750,33 @@ local function refreshLuckyCat(plot: WorldBuilder.Plot, profile: Profile)
 	model.Parent = plot.model
 end
 
+-- #1625: the cafe's sign style. The plot's SignStyle attribute names the style shown (nil: the plain sign), and the
+-- style's model (signstyles.py) stands at the plot pivot over the shell's sign, its own SignBoard carrying the name.
+local function refreshSignStyle(player: Player, plot: WorldBuilder.Plot, profile: Profile)
+	local shown = SignStyles.shown(profile.signStyles, profile.signStyle, ownsPassOf(player))
+	local style = if shown ~= nil then SignStyles.get(shown) else nil
+	local assetName = if style ~= nil and AssetRegistry.has(style.model) then style.model else nil
+	plot.model:SetAttribute(
+		SignStyles.SIGN_STYLE_ATTRIBUTE,
+		if assetName ~= nil then shown else nil
+	)
+	local existing = plot.model:FindFirstChild("SignStyle")
+	if existing ~= nil and existing:GetAttribute("Asset") == assetName then
+		return
+	end
+	if existing ~= nil then
+		existing:Destroy()
+	end
+	if assetName == nil then
+		return
+	end
+	local model = AssetRegistry.clone(assetName)
+	model.Name = "SignStyle"
+	model:SetAttribute("Asset", assetName)
+	model:PivotTo(plot.cframe)
+	model.Parent = plot.model
+end
+
 -- The bait bowl in the front garden (data-model section 8): the bowl once the upgrade is bought, the food in it
 -- while a cat is on its way and the cat itself, eating, once it has arrived, so the street sees it. The item
 -- models are tiny, so they are scaled up to read from the path. BaitReadyAt is for display only.
@@ -845,6 +883,7 @@ function CafeService.refreshPlot(player: Player)
 	refreshTables(plot, profile)
 	refreshBait(player, plot, profile)
 	LawnBuilder.refresh(plot, profile) -- F91: the front lawn's pieces, path and fence
+	refreshSignStyle(player, plot, profile) -- #1625
 end
 
 -- F91 (front-lawn.md section 1b): the front lawn pieces the cafe's tier has earned and it does not own yet (a Garden
@@ -1811,6 +1850,32 @@ local function onTutorialAdvance(player: Player, rawStep: unknown)
 	end
 end
 
+-- #1625: picks the cafe sign's style: an owned SignStyles id, or nil for the plain sign. Saved, then the plot shows it.
+local function onSetSignStyle(player: Player, rawId: unknown)
+	local profile = profileFor(player)
+	if profile == nil then
+		return
+	end
+	local pick: string? = nil
+	if rawId ~= nil then
+		local id = Guard.id(rawId)
+		if
+			id == nil
+			or table.find(SignStyles.owned(profile.signStyles, ownsPassOf(player)), id) == nil
+		then
+			Net.toast(player, "You don't have that sign style yet.", "warn")
+			return
+		end
+		pick = id
+	end
+	if profile.signStyle == pick then
+		return
+	end
+	profile.signStyle = pick
+	CafeService.refreshPlot(player)
+	CafeService.sync(player)
+end
+
 -- The Settings screen (data-model section 14 `settings`): a switch takes a boolean, a volume a number it clamps
 -- to 0 to 1, a choice one of its strings (shared/Settings). Unknown keys and values that do not fit are dropped.
 local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
@@ -1908,6 +1973,7 @@ function CafeService.start()
 	Net.on("ClaimOffline", onClaimOffline)
 	Net.on("TutorialAdvance", onTutorialAdvance)
 	Net.on("SetSetting", onSetSetting)
+	Net.on("SetSignStyle", onSetSignStyle) -- #1625
 	Net.on("RequestSync", function(player)
 		CafeService.sync(player)
 		local offline, seconds = DataService.peekPendingOffline(player)

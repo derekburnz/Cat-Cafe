@@ -55,6 +55,61 @@ function Products.record(receipts: { string }, purchaseId: string)
 	end
 end
 
+-- #1625: what a receipt for `product` gives `profile`: the whole prize the first time, and for a once-per-account
+-- product already bought only its potions (a second purchase can only come from a prompt the Store never shows, and
+-- the Robux are not taken for nothing). `first` says which. Pure; ProductService pays it and calls markBought.
+function Products.prizeFor(
+	profile: Types.PlayerProfile,
+	product: Types.ProductDef
+): ({
+	potions: { [string]: number },
+	cats: { string },
+	signStyles: { string },
+}, boolean)
+	local first = not (product.oncePerAccount == true and profile.onceBought[product.id] == true)
+	local cats: { string } = {}
+	local styles: { string } = {}
+	if first then
+		for _, catId in product.prize.cats or {} do
+			table.insert(cats, catId)
+		end
+		for _, styleId in product.prize.signStyles or {} do
+			table.insert(styles, styleId)
+		end
+	end
+	return { potions = product.prize.potions, cats = cats, signStyles = styles }, first
+end
+
+-- #1625: notes a once-per-account product bought and its sign styles owned, in the same step as the receipt.
+function Products.markBought(
+	profile: Types.PlayerProfile,
+	product: Types.ProductDef,
+	signStyles: { string }
+)
+	if product.oncePerAccount == true then
+		profile.onceBought[product.id] = true
+	end
+	for _, styleId in signStyles do
+		profile.signStyles[styleId] = true
+	end
+end
+
+-- #1625: a saved onceBought set made whole: known once-per-account product ids set to true.
+function Products.sanitizeOnce(raw: unknown): { [string]: boolean }
+	local out: { [string]: boolean } = {}
+	if type(raw) == "table" then
+		for id, value in raw :: { [any]: any } do
+			if type(id) == "string" and value == true then
+				local product = Catalog.getProduct(id)
+				if product ~= nil and product.oncePerAccount == true then
+					out[id] = true
+				end
+			end
+		end
+	end
+	return out
+end
+
 -- The product a Roblox product id sells, or nil for an id Config does not name (or a 0, a product not made yet).
 function Products.forProductId(productId: unknown): Types.ProductDef?
 	if type(productId) ~= "number" or productId <= 0 then

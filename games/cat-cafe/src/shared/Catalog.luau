@@ -803,6 +803,21 @@ Catalog.cats = {
 		),
 		"shop"
 	),
+	-- #1625 (store-skus.md, #1191, built in #1244): the Starter Bundle's cat, given once with its receipt by
+	-- ProductService; earns like an Epic from the owner's newest area. Model CatCafe_Cat_Sprinkles (with _Sit and _Work).
+	exclusive(
+		cat(
+			"sprinkles",
+			"Sprinkles",
+			"Epic",
+			"alley",
+			"barista",
+			"patches", -- custard with caramel patches, a sprinkle apron and a tilted pastry chef hat
+			{ 248, 228, 190 },
+			"The Starter Bundle's baker. Tosses sprinkles over every table that pays."
+		),
+		"shop"
+	),
 } :: { Types.CatDef }
 
 -- "tabby" -> "CatCafe_Cat_Tabby", "maine_coon" -> "CatCafe_Cat_MaineCoon"
@@ -3566,11 +3581,28 @@ Catalog.products = {
 		name = "Potion Pack L",
 		prize = { potions = { big_tip_potion = 10, swift_potion = 6, steady_potion = 6 } },
 	},
+	-- #1625 (store-skus.md): R$99, once per account. Sprinkles, 10 Big Money, 5 Swift and the Bakery Stripes sign.
+	{
+		id = "starter_bundle",
+		name = "Starter Bundle",
+		oncePerAccount = true,
+		prize = {
+			potions = { big_tip_potion = 10, swift_potion = 5 },
+			cats = { "sprinkles" },
+			signStyles = { "bakery_stripes" },
+		},
+	},
 } :: { Types.ProductDef }
 Catalog.productsById = {} :: { [string]: Types.ProductDef }
 for _, product in Catalog.products do
 	Catalog.productsById[product.id] = product
 	table.freeze(product.prize.potions)
+	if product.prize.cats ~= nil then
+		table.freeze(product.prize.cats)
+	end
+	if product.prize.signStyles ~= nil then
+		table.freeze(product.prize.signStyles)
+	end
 	table.freeze(product.prize)
 	table.freeze(product)
 end

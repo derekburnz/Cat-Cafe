@@ -43,6 +43,7 @@ local Config = {
 		potion_pack_s = 3728336184,
 		potion_pack_m = 3728336191,
 		potion_pack_l = 3728336197,
+		starter_bundle = 3728336166, -- #1625: once per account (Catalog.products oncePerAccount)
 	} :: { [string]: number },
 	AutosaveSeconds = 60,
 	SyncIntervalSeconds = 10, -- periodic ProfileSync even when nothing changed (the client predicts in between)

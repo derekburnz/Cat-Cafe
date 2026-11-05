@@ -975,12 +975,29 @@ local SCENES = {
 	{ "FeedbackAsk", function()
 		UI.tips.showAsk()
 	end },
+	-- #1633: the Codes Cat's circle opens the Store on Featured; the player taps Codes on the rail
 	{ "Codes", function()
 		UI.codes.open()
 	end },
 	{ "CodesPrize", function()
 		UI.codes.open()
+		press("Store", "codes")
 		UI.codes.result(true, "Code redeemed!", CODE_PRIZE)
+	end },
+	-- #1633: the circle's Store opens on Featured, and walking out closes it from any tab; a Store the player opened
+	-- with the tile stays when they walk out
+	{ "CodesBenchWalkOut", function()
+		UI.codes.open()
+		assert(UI.store.benchShowing(), "the circle should open the Store")
+		assert(not UI.store.codesShowing(), "the circle should open the Store on Featured, not Codes")
+		press("Store", "codes")
+		UI.codes.close()
+		assert(not UI.store.benchShowing(), "walking out should close the Store the circle opened")
+		UI.store.open()
+		UI.codes.open()
+		assert(not UI.store.benchShowing(), "a Store already open is not the circle's")
+		UI.codes.close()
+		assert(UI.store.codesShowing() == false, "the tile's Store stays on Featured")
 	end },
 	-- F96: the Bellhop Cat's stand card before the first goals are done, Take me home greyed
 	{ "Bellhop", function()
@@ -1388,8 +1405,8 @@ local SCENES = {
 		UI.clock.bind(clock)
 		press("CatCafeHUD", "Luck")
 	end },
-	-- F88: the night before a Lucky Day, LuckyDayWarnSeconds before sunrise: the warning banner and "Lucky Day at
-	-- sunrise" under the clock, the Luck card from the scene before closed
+	-- F88: the night before a Lucky Day, LuckyDayWarnSeconds before sunrise: the warning banner (no countdown line under
+	-- the clock since #1572), the Luck card from the scene before closed
 	{ "LuckyDaySoon", function()
 		local t = workspace:GetServerTimeNow()
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
@@ -1408,6 +1425,28 @@ local SCENES = {
 		clock:SetAttribute("LuckyDay", false)
 		UI.clock.bind(clock)
 		UI.luckyDay("warning", "A Lucky Day starts at sunrise!")
+	end },
+	-- #1572: a Lucky, Golden and Rainbow Day at once: "Lucky · Golden · Rainbow Day" under the clock, its card open
+	{ "HUDDayKinds", function()
+		local t = workspace:GetServerTimeNow()
+		local clock = Instance.new("Folder")
+		clock.Name = "Clock"
+		clock:SetAttribute("Phase", "day")
+		clock:SetAttribute("PhaseEndsAt", t + 190)
+		clock:SetAttribute("AreasOpen", true)
+		clock:SetAttribute("Day", 9)
+		clock:SetAttribute("LuckyDay", true)
+		clock:SetAttribute("GoldenDay", true)
+		clock:SetAttribute("RainbowDay", true)
+		UI.clock.bind(clock)
+		task.wait(0.1)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local line = hud and hud:FindFirstChild("LuckyDay", true) :: TextLabel
+		assert(line and line.Visible, "uigate: no day line under the clock")
+		assert(line.Text == "Lucky · Golden · Rainbow Day", "uigate: day line " .. line.Text)
+		press("CatCafeHUD", "LuckyDay.Tap")
+		local card = hud:FindFirstChild("DayCard", true) :: Frame
+		assert(card and card.Visible, "uigate: the day card did not open")
 	end },
 	-- F100: the Cannon picker with the Tier 3 player's camp extras: the Picnic Basket ready (red dot), the Yard Sale's
 	-- new crates (no dot)
@@ -1496,6 +1535,42 @@ local SCENES = {
 		assert(salmon, "no salmon row")
 		local salmonEffect = salmon:FindFirstChild("Effect", true) :: TextLabel
 		assert(salmonEffect.Text == "Bait for your bowl · You have 0", "salmon effect: " .. salmonEffect.Text)
+	end },
+	-- #1599: the whole Day Cart in stock, grouped under Potions, Cat food and Bait, in the compact rows
+	{ "CornerShopSections", function()
+		UI.update({ money = 6000, tier = 3, lures = { kibble = 2 } })
+		UI.cornerShop.setStock({
+			window = 5000001,
+			restocksAt = workspace:GetServerTimeNow() + 192,
+			snackXp = 0,
+			stock = {
+				{ itemId = "swift_potion_small", price = 700, amount = 0, bought = 0 },
+				{ itemId = "swift_potion", price = 1400, amount = 1, bought = 1 },
+				{ itemId = "swift_potion_big", price = 2100, amount = 2, bought = 0 },
+				{ itemId = "steady_potion_small", price = 2800, amount = 0, bought = 0 },
+				{ itemId = "steady_potion", price = 3500, amount = 1, bought = 0 },
+				{ itemId = "steady_potion_big", price = 4200, amount = 2, bought = 0 },
+				{ itemId = "quick_bait_potion_small", price = 4900, amount = 0, bought = 1 },
+				{ itemId = "quick_bait_potion", price = 5600, amount = 1, bought = 0 },
+				{ itemId = "quick_bait_potion_big", price = 6300, amount = 2, bought = 0 },
+				{ itemId = "cat_whistle_small", price = 7000, amount = 0, bought = 0 },
+				{ itemId = "cat_whistle", price = 7700, amount = 1, bought = 0 },
+				{ itemId = "cat_whistle_big", price = 8400, amount = 2, bought = 1 },
+				{ itemId = "small_cat_snack", price = 9100, amount = 0, bought = 0 },
+				{ itemId = "cat_snack", price = 9800, amount = 1, bought = 0 },
+				{ itemId = "big_cat_snack", price = 10500, amount = 2, bought = 0 },
+				{ itemId = "cat_feast", price = 11200, amount = 0, bought = 0 },
+				{ itemId = "kibble", price = 11900, amount = 1, bought = 1 },
+				{ itemId = "tuna", price = 12600, amount = 2, bought = 0 },
+				{ itemId = "salmon", price = 13300, amount = 0, bought = 0 },
+			},
+		})
+		UI.cornerShop.open()
+		local window = UIShim.playerGui:FindFirstChild("CornerShop", true)
+		assert(window, "no Corner Shop window")
+		for _, kind in { "potion", "food", "bait" } do
+			assert(window:FindFirstChild("Section_" .. kind, true), "no section " .. kind)
+		end
 	end },
 	-- F100: the prize toast after the Lost and Found: the line and two pictures
 	{ "CampPrize", function()

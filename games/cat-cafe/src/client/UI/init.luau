@@ -2256,13 +2256,13 @@ end
 
 UI.codes = {}
 
--- Opens the code box: call it when this character walks into the Codes Cat's circle (within CodesCircleRadius,
--- flat). No key press and no prompt. A window the player has open (the Market stall is near) stays open instead
--- (review N182).
+-- Opens the Store on Featured, its Codes tab one tap away (#1633): call it when this character walks into the Codes
+-- Cat's circle (within CodesCircleRadius, flat). No key press and no prompt. A window the player has open (the Market
+-- stall is near) stays open instead (review N182).
 function UI.codes.open()
-	-- #1428: the code box lives in the Store's Codes tab, so the circle opens the Store there
+	-- the code box lives in the Store's Codes tab (#1428); the circle opens the Store on Featured (#1633)
 	local store: any = UI.store -- defined further down
-	if store.openCodes() then
+	if store.openAtBench() then
 		return
 	end
 	if modal and modal:current() == nil then
@@ -2270,11 +2270,11 @@ function UI.codes.open()
 	end
 end
 
--- Closes the code box and clears its field: call it once the character is past CodesCircleRadius + 1. A window the
--- player opened meanwhile stays open.
+-- Closes the Store the circle opened (on any tab; the code box clears with it): call it once the character is past
+-- CodesCircleRadius + 1. A window the player opened meanwhile stays open.
 function UI.codes.close()
 	local store: any = UI.store
-	if modal and (modal:current() == "Codes" or store.codesShowing()) then
+	if modal and (modal:current() == "Codes" or store.benchShowing()) then
 		modal:close()
 	end
 end
@@ -2719,8 +2719,9 @@ local function watchDusk(phase: Types.ClockPhase, phaseEndsAt: number)
 end
 
 -- The World.Zones name the player stands in, from the controller's zone check (the one that picks the ambience):
--- nil or "Cafe" on the safe street and in the cafes, else the area ("Alley"). It only times the dusk warning now:
--- the "Safe zone" chip went on 2026-10-28 (Derek: "no need for 'safe zone' or danger zone bubble its just clutter")
+-- nil or "Cafe" on the safe street and in the cafes, else the area ("Alley"). It times the dusk warning, sets the net
+-- button and hides the My Cafe marker away from the cafe area (#1620).
+-- The "Safe zone" chip went on 2026-10-28 (Derek: "no need for 'safe zone' or danger zone bubble its just clutter")
 -- and the "Safe zone: no tackling here" toast on 2026-11-02 (Derek 2026-10-28: "no need for the safe area reached
 -- banner either").
 function UI.setZone(zone: string?)
@@ -2728,6 +2729,9 @@ function UI.setZone(zone: string?)
 	showDusk() -- walking into an area during the dusk warning
 	if netButton then
 		netButton:setInArea(not Wayfinding.isSafe(zone))
+	end
+	if locationMarkers then
+		locationMarkers:setZone(zone) -- #1620: the My Cafe marker only in the cafe area
 	end
 end
 
@@ -3570,6 +3574,10 @@ end
 -- the old PhaseEndsAt would read as the last second of the day and show the dusk banner at sunrise.
 function UI.clock.bind(clock: Instance)
 	UI.clock.unbind()
+	-- #1572 (required here: the main chunk is at Luau's 200 locals)
+	local DayKinds = require(script.Components.DayKinds)
+	local LuckLogic = require(script.Components.LuckLogic)
+	DayKinds.bound = false -- the clock's first read is a join, not a sunrise, so it shows no day banner
 	local function read()
 		local phase = clock:GetAttribute("Phase")
 		local endsAt = clock:GetAttribute("PhaseEndsAt")
@@ -3579,15 +3587,43 @@ function UI.clock.bind(clock: Instance)
 			UI.clock.clear()
 		end
 		UI.clock.setAreasOpen(NightClock.areasOpen(clock:GetAttribute("AreasOpen")))
-		-- F88: the next Lucky Day under the clock
-		if hud then
-			local day, nextDay = clock:GetAttribute("Day"), clock:GetAttribute("NextLuckyDay")
-			hud:setLuckyDay({
-				day = if type(day) == "number" then day else nil,
-				nextLuckyDay = if type(nextDay) == "number" then nextDay else nil,
-				luckyDay = clock:GetAttribute("LuckyDay") == true,
-			})
+		-- F88, #1572: today's kinds under the clock (Lucky, Golden, Rainbow), and the odds cards' gold and rainbow lines
+		local day = clock:GetAttribute("Day")
+		local kinds: DayKinds.Kinds = {
+			lucky = clock:GetAttribute("LuckyDay") == true,
+			golden = clock:GetAttribute("GoldenDay") == true,
+			rainbow = clock:GetAttribute("RainbowDay") == true,
+		}
+		local before = DayKinds.current
+		local began = (kinds.lucky and not before.lucky)
+			or (kinds.golden and not before.golden)
+			or (kinds.rainbow and not before.rainbow)
+		if DayKinds.set(kinds) then
+			render() -- the bowl and dealer odds show the day's gold and rainbow chances
 		end
+		local view: LuckLogic.DayView = {
+			day = if type(day) == "number" then day else nil,
+			luckyDay = kinds.lucky,
+			goldenDay = kinds.golden,
+			rainbowDay = kinds.rainbow,
+			phase = if type(phase) == "string" then phase else nil,
+		}
+		if hud then
+			hud:setLuckyDay(view)
+		end
+		-- the sunrise banner names every kind of the day at once ("Lucky Day! Golden Day!"), after the sunrise's own
+		-- (not on a join: a day already running only shows on the line)
+		if began and DayKinds.bound then
+			local title, line = LuckLogic.dayBanner(view)
+			if title then
+				task.delay(SUNRISE_HOLD + 0.4, function()
+					if areaTitle then
+						areaTitle:banner("lucky_day", title, line, Theme.colors.gold, 4)
+					end
+				end)
+			end
+		end
+		DayKinds.bound = true
 	end
 	local queued = false
 	local function queueRead()
@@ -3600,7 +3636,9 @@ function UI.clock.bind(clock: Instance)
 			read()
 		end)
 	end
-	for _, name in { "Phase", "PhaseEndsAt", "AreasOpen", "Day", "NextLuckyDay", "LuckyDay" } do
+	for _, name in
+		{ "Phase", "PhaseEndsAt", "AreasOpen", "Day", "LuckyDay", "GoldenDay", "RainbowDay" }
+	do
 		table.insert(clockConnections, clock:GetAttributeChangedSignal(name):Connect(queueRead))
 	end
 	read()
@@ -3628,15 +3666,7 @@ function UI.luckyDay(kind: string, line: string)
 		end
 		return
 	end
-	if kind ~= "start" then
-		return
-	end
-	local title, rest = line:match("^(.-!)%s+(.+)$")
-	task.delay(SUNRISE_HOLD + 0.4, function()
-		if areaTitle then
-			areaTitle:banner("lucky_day", title or line, rest, Theme.colors.gold, 4)
-		end
-	end)
+	-- "start": #1572 the clock read banners every kind of the day at once (LuckLogic.dayBanner), so nothing here
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -5518,6 +5548,7 @@ do
 		screen = nil :: Store.Store?,
 		changed = nil :: Signal.Connection?,
 		open = false, -- whether the HUD's tile shows
+		bench = false, -- #1633: the Codes Cat's circle opened the Store, so walking out closes it
 	}
 
 	-- the potion packs' contents and names from the shared Catalog, the bag from the state (#1182)
@@ -5594,6 +5625,7 @@ do
 				screen:render(rows(), PassShop.prices())
 			end,
 			onClose = function()
+				shop.bench = false
 				screen:closed()
 			end,
 		})
@@ -5613,26 +5645,28 @@ do
 		end
 	end
 
-	-- #1428: the Codes Cat's circle opens the Store on its Codes tab, unless another window is up (review N182).
-	-- False when there is no Store window, so the old Codes window opens instead.
-	function UI.store.openCodes(): boolean
-		local screen = shop.screen
+	-- The Codes Cat's circle opens the Store on Featured, like the Store tile, and the player taps Codes on the rail
+	-- (#1633, Derek2 11-05: "it should open it to featured and have them go down to codes after that way they look at
+	-- products"; #1428 opened it on Codes). A window already up stays open (review N182). False when there is no
+	-- Store window, so the old Codes window opens instead.
+	function UI.store.openAtBench(): boolean
 		local modalView = modal
-		if screen == nil or modalView == nil then
+		if shop.screen == nil or modalView == nil then
 			return false
 		end
-		local current = modalView:current()
-		if current == nil then
+		if modalView:current() == nil then
 			modalView:open("Store")
-			current = modalView:current()
-		end
-		if current == "Store" then
-			screen:showTab("codes")
+			shop.bench = modalView:current() == "Store"
 		end
 		return true
 	end
 
-	-- Whether the Store is up on its Codes tab (the circle's walk-out closes it, and answers show there).
+	-- Whether the Store the circle opened is still up, on any tab (walking out closes it).
+	function UI.store.benchShowing(): boolean
+		return shop.bench and modal ~= nil and modal:current() == "Store"
+	end
+
+	-- Whether the Store is up on its Codes tab (a code's answer shows there, else as a toast).
 	function UI.store.codesShowing(): boolean
 		local screen = shop.screen
 		return screen ~= nil

@@ -85,10 +85,10 @@ return function()
 				Logic.button({ itemId = "x", price = 1, amount = 0, bought = 0 }, nil, 9, 0).text
 			).to.equal("None")
 		end)
-		it("greys a row whose family hit its daily limit as Back tomorrow (#1435)", function()
+		it("greys a row whose family hit its limit as Back at sunrise (#1435, #1631)", function()
 			local out: any = { itemId = "x", price = 1, amount = 3, bought = 0, outToday = true }
 			local view = Logic.button(out, nil, 9, 0)
-			expect(view.text).to.equal("Back tomorrow")
+			expect(view.text).to.equal("Back at sunrise")
 			expect(view.enabled).to.equal(false)
 			-- the window's own stock still reads first
 			out.bought = 3
@@ -138,5 +138,32 @@ return function()
 			expect(cats[2].uid).to.equal("a")
 			expect(cats[3].level).to.equal(1)
 		end)
+
+		it(
+			"groups the stock under Potions, Cat food and Bait in the stock's order (#1599)",
+			function()
+				local function item(id: string): any
+					return { itemId = id, price = 100, amount = 1, bought = 0 }
+				end
+				local sections = Logic.sections({
+					item("swift_potion"),
+					item("cat_snack"),
+					item("kibble"),
+					item("steady_potion"),
+					item("mystery"),
+					item("tuna"),
+				})
+				expect(#sections).to.equal(4)
+				expect(sections[1].title).to.equal("Potions")
+				expect(table.concat(sections[1].indexes, ",")).to.equal("1,4")
+				expect(sections[2].title).to.equal("Cat food")
+				expect(table.concat(sections[2].indexes, ",")).to.equal("2")
+				expect(sections[3].title).to.equal("Bait")
+				expect(table.concat(sections[3].indexes, ",")).to.equal("3,6")
+				expect(sections[4].title).to.equal("More")
+				expect(table.concat(sections[4].indexes, ",")).to.equal("5")
+				expect(#Logic.sections({})).to.equal(0)
+			end
+		)
 	end)
 end

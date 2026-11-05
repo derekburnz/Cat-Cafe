@@ -268,6 +268,8 @@ local GOAL_TOP = CLOCK_TOP + CLOCK_H + 6
 local NIGHT_LINE = 20
 local LUCKY_LINE_W = 260 -- F88: the Lucky Day line under the clock
 local LUCKY_CLOVER = 18 -- #1258: the luck chip's circle in front of that line
+local DAY_CARD_W = 300 -- #1572: the day line's card
+local DAY_CARD_Z = 20
 -- The top right column (icon row, clock, tips line, tier and goal) is this wide at most. The HUD keeps clear of
 -- Roblox's top bar, which left a tall empty band over that column (Derek 2026-10-27); when the bar's free stretch
 -- (GuiService.TopbarInset) runs over the column, the column moves up into it. TOPBAR_SLACK is how far short of the
@@ -865,8 +867,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Visible = false,
 		Parent = root,
 	})
-	-- F88 (luck-and-rare-moments.md 1c): the next Lucky Day under the clock, in gold, from the Clock folder's Day,
-	-- NextLuckyDay and LuckyDay (LuckLogic.dayLine); shown with the clock
+	-- F88 (luck-and-rare-moments.md 1c): the day line under the clock, in gold; since #1572 today's kinds from the Clock
+	-- folder's LuckyDay, GoldenDay and RainbowDay (LuckLogic.dayLine, "Lucky · Golden Day"), with a card on a tap
 	self._luckyLine = label({
 		Name = "LuckyDay",
 		AnchorPoint = Vector2.new(1, 0),
@@ -895,7 +897,61 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			luckyClover.Position = UDim2.new(1, -(width + 4), 0.5, 0)
 		end)
 	)
+	self._luckyClover = luckyClover
 	self._luckyDay = nil :: LuckLogic.DayView?
+	-- #1572: a tap on the day line opens its card (each kind today, what it does and how often it comes); another tap
+	-- or a window opening closes it. The tap area is a finger tall over the 20 px line.
+	local dayTap: TextButton = Create("TextButton", {
+		Name = "Tap",
+		Text = "",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.fromScale(0, 0.5),
+		Size = UDim2.new(1, 0, 0, Scale.tapHeight(Theme.sizes.touchMin)),
+		ZIndex = luckyLine.ZIndex + 1,
+		Parent = luckyLine,
+	})
+	self._dayCard = Create("Frame", {
+		Name = "DayCard",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H + NIGHT_LINE + 4),
+		Size = UDim2.fromOffset(DAY_CARD_W, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		BackgroundColor3 = Theme.dark.panel,
+		BorderSizePixel = 0,
+		ZIndex = DAY_CARD_Z, -- over the goal card and the quest line under the clock
+		Visible = false,
+		Parent = root,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
+		Create("UIStroke", { Color = Theme.colors.gold, Thickness = 2 }),
+		Create("UIPadding", {
+			PaddingTop = UDim.new(0, 8),
+			PaddingBottom = UDim.new(0, 8),
+			PaddingLeft = UDim.new(0, 10),
+			PaddingRight = UDim.new(0, 10),
+		}),
+	})
+	self._dayCardText = Create("TextLabel", {
+		Name = "Lines",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		FontFace = Theme.fonts.body,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.dark.text,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextWrapped = true,
+		Text = "",
+		ZIndex = DAY_CARD_Z + 1,
+		Parent = self._dayCard,
+	})
+	table.insert(
+		self._connections,
+		dayTap.Activated:Connect(function()
+			self:_toggleDayCard()
+		end)
+	)
 	-- F101 (rescue-rally.md section 1): the Friday countdown to the Rescue Rally, under the Lucky Day line
 	self._rallyLine = label({
 		Name = "RallySoon",
@@ -1583,6 +1639,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	if parent then
 		screenGui.Parent = parent
 	end
+	-- #1572: the day card goes last in the root, so it draws over the goal card and the quest line however the
+	-- renderer orders siblings
+	self._dayCard.Parent = nil
+	self._dayCard.Parent = root
 	return self :: HUD
 end
 
@@ -2227,15 +2287,27 @@ function HUD._renderLuckyLine(self: any)
 	local clock: Types.ClockState? = self._clockState
 	local line: string? = nil
 	if view ~= nil and clock ~= nil then
-		line = LuckLogic.dayLine({
+		local today: LuckLogic.DayView = {
 			day = view.day,
-			nextLuckyDay = view.nextLuckyDay,
 			luckyDay = view.luckyDay,
+			goldenDay = view.goldenDay,
+			rainbowDay = view.rainbowDay,
 			phase = clock.phase,
-		})
+		}
+		line = LuckLogic.dayLine(today)
+		self._dayCardText.Text = table.concat(LuckLogic.dayCard(today), "\n")
 	end
-	self._luckyLine.Text = line or "" -- the clover is the circle in front (LuckChip.circle)
+	self._luckyLine.Text = line or "" -- the clover is the circle in front (LuckChip.circle) on a Lucky Day
+	self._luckyClover.Visible = view ~= nil and view.luckyDay == true
 	self._luckyLine.Visible = line ~= nil and self._clock.Visible
+	if not self._luckyLine.Visible then
+		self._dayCard.Visible = false
+	end
+end
+
+-- #1572: the day line's card, open or shut.
+function HUD._toggleDayCard(self: any)
+	self._dayCard.Visible = not self._dayCard.Visible and self._luckyLine.Visible
 end
 
 -- F101: the Rescue Rally countdown under the clock (RallyLogic.soon), shown with the clock; nil hides it.
@@ -2301,6 +2373,7 @@ function HUD._layoutRight(self: any)
 	end
 	-- F88: the Lucky Day line under the clock (and under the night tips line when that shows)
 	self._luckyLine.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
+	self._dayCard.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift + NIGHT_LINE + 4)
 	if self._luckyLine.Visible then
 		top += NIGHT_LINE
 	end
@@ -2682,6 +2755,7 @@ function HUD.screenOpened(self: any, name: string?)
 	if name then
 		self:_hideBoosts() -- a window over the world closes the money's card
 		self._luck:hide() -- and the Luck card (F88)
+		self._dayCard.Visible = false -- and the day line's card (#1572)
 		self:_closePop() -- and the Rewards or Menu list
 	end
 	local candidates: Notices.Candidates? = self._candidates

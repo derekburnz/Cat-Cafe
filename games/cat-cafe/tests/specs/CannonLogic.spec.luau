@@ -110,26 +110,27 @@ return function()
 		end)
 
 		it(
-			"pops in at once on a player's own flight and is gone in under a second (#1163)",
+			"pops in at once on a player's own flight and stays 2 s longer than before (#1163, #1444)",
 			function()
 				local inAt, wobbleAt, outAt, goneAt =
 					CannonLogic.cardTimes(CannonLogic.CHOSEN_HOLD, CannonLogic.CHOSEN_IN)
 				expect(inAt).to.equal(0)
-				expect(math.abs(wobbleAt - 0.25) < 1e-9).to.equal(true)
-				expect(math.abs(outAt - 0.5) < 1e-9).to.equal(true)
-				expect(math.abs(goneAt - 0.7) < 1e-9).to.equal(true)
+				expect(math.abs(wobbleAt - 1.25) < 1e-9).to.equal(true)
+				expect(math.abs(outAt - 2.5) < 1e-9).to.equal(true)
+				expect(math.abs(goneAt - 2.7) < 1e-9).to.equal(true)
 				local hold, from = CannonLogic.CHOSEN_HOLD, CannonLogic.CHOSEN_IN
 				expect(CannonLogic.cardPhase(0, hold, from)).to.equal("in")
-				expect(CannonLogic.cardPhase(0.3, hold, from)).to.equal("wobble")
-				expect(CannonLogic.cardPhase(0.6, hold, from)).to.equal("out")
-				expect(CannonLogic.cardPhase(0.71, hold, from)).to.equal("gone")
+				expect(CannonLogic.cardPhase(1.3, hold, from)).to.equal("wobble")
+				expect(CannonLogic.cardPhase(2.6, hold, from)).to.equal("out")
+				expect(CannonLogic.cardPhase(2.71, hold, from)).to.equal("gone")
 			end
 		)
 
-		it("zips off by the BOOM, half a second after CannonLaunchAt", function()
+		it("is gone by the landing (CannonTeleportAtSeconds 2.6, plus its 0.2 s zip)", function()
 			local _, _, outAt, goneAt =
 				CannonLogic.cardTimes(CannonLogic.CHOSEN_HOLD, CannonLogic.CHOSEN_IN)
-			expect(outAt <= 0.5).to.equal(true) -- Presets.cannon.boomAt, both counted from CannonLaunchAt
+			expect(outAt <= 2.6).to.equal(true)
+			expect(goneAt <= 2.8).to.equal(true)
 		end)
 	end)
 

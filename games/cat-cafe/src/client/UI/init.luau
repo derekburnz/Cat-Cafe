@@ -2504,11 +2504,11 @@ function UI.cannon.open(cannonId: string?)
 end
 
 -- CannonLaunch(destination, launchAt) from the server: the picker closes, and the name card pops in at once, as it
--- closes, zips off with the BOOM 0.5 s after launchAt and is gone by 0.7 (CannonLogic.CHOSEN_HOLD, #1163; a refused
--- Launch never comes here). Ends the first-flight and Tier 2 hints. The intro's shot 2 calls it too, for its staged flight to the
--- Alleyway, with `hold` 0.4 and launchAt 0.9 s before the shot starts: given a `hold`, the card keeps the cloud
--- schedule, from 1.6 s after launchAt (card up 0.7 to 1.1 s in); while the intro plays only the card shows, so the
--- first-flight hint still follows the intro.
+-- closes, zips off 2.5 s after launchAt and is gone by 2.7 (CannonLogic.CHOSEN_HOLD, #1163, 2 s longer since #1444; a
+-- refused Launch never comes here). Ends the first-flight and Tier 2 hints. The intro's shot 2 calls it too, for its
+-- staged flight to the Alleyway, with `hold` 0.4 and launchAt 0.9 s before the shot starts: given a `hold`, the card
+-- keeps the cloud schedule, from 1.6 s after launchAt (card up 0.7 to 1.1 s in); while the intro plays only the card
+-- shows, so the first-flight hint still follows the intro.
 function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 	-- no context tip pops up in the clouds or as the player lands (F87)
 	tipsHeldUntil = os.clock()

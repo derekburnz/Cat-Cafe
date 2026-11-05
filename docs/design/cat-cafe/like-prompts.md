@@ -1,6 +1,6 @@
 # Like and favourite prompts with a playtime gift (#1578)
 
-Status: specced by the game-designer thread (Design-Agent, friend's project), 2026-11-05, from Derek's Set 6 Q5 and Set 7 to 9 answers. Builders: UI-Engineer (cards), Gameplay-Engineer (the gift and its save flag). Monetization-Agent and Review-Agent check it against Roblox's rules before it ships. Reading to confirm with Derek: the like card at 10 minutes, the favourite card at 30.
+Status: specced by the game-designer thread (Design-Agent, friend's project), 2026-11-05, from Derek's Set 6 Q5 and Set 7 to 9 answers. Builders: UI-Engineer (cards), Gameplay-Engineer (the gift and its save flag). Monetization-Agent and Review-Agent check it against Roblox's rules before it ships. Derek confirmed the times on 2026-11-05 20:58 ("confirm those times"): the like card at 10 minutes, the favourite card at 30.
 
 ## 1. The rule this follows
 

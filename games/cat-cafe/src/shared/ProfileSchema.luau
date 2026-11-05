@@ -90,7 +90,11 @@ local ProfileSchema = {}
 -- Version 32 (#1180, #1181; corner-shop-v2.md section 4) adds catFood, the Bag's cat food, and the Corner Shop's day
 -- counters (day, today, foodXpToday; snackDay and snackXp go): an older server would drop them, losing the food
 -- bought and letting a player pass a daily limit by hopping servers during a rollout.
-ProfileSchema.VERSION = 32
+-- Version 33 (#1154, camp-stations.md section 3) turns campExtras.yardSale from { day, bought } into
+-- { lastClaimAt, claims }, one free crate every YardSaleClaimHours: an older server would read it as no crate taken
+-- today and give a second one by server hopping during a rollout. A save that took today's crate waits until
+-- YardSaleClaimHours after that UTC day began (CampExtras.sanitize).
+ProfileSchema.VERSION = 33
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 

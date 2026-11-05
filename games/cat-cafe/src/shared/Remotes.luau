@@ -111,8 +111,9 @@ Remotes.ClientToServer = {
 	"CollectCampExtra", -- (extraId: string)  F100 (camp-extras.md section 4): "picnic", "pond" or "lostFound", the
 	-- player's tier opens its area, within CampExtraRangeStuds (and a little slack) of its PromptAnchor, something held;
 	-- takes it all; 1 a second, answered with CampExtraResult and CampExtrasState
-	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), today's crate
-	-- (CampExtras.yardStock) not yet taken today, free since #1051; banked for the Market; 1 a second
+	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), the crate up
+	-- now (CampExtras.yardStock), YardSaleClaimHours since the last take (#1154), free since #1051; banked for the
+	-- Market; 1 a second
 	-- F91 front lawn (front-lawn.md section 5; LawnService, shared/Lawn): the caller's own cafe, once its art is in
 	"BuyLawn", -- (id: string, spotId: string?)  a Catalog.lawn piece or Catalog.lawnStyles style not owned yet, the
 	-- caller within LawnStallRange of a LawnStall Garden Nursery (#1200, once it is in the world), the caller's tier at

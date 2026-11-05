@@ -155,7 +155,7 @@ UI.events = {
 	setSetting = Signal.new(), -- (key, value)   a Settings switch (boolean) or volume (0 to 1, on release): forward as SetSetting (Audio follows UI.settings.changed)
 	reportBug = Signal.new(), -- (text, kind, clientErrors)   Send on Report a bug (trimmed text, "bug" | "stuck" | "idea", up to 3 client error lines): forward all three as ReportBug
 	redeemCode = Signal.new(), -- (code)   Redeem in the code box (letters and digits, at most CodeMaxLength): forward as RedeemCode (F65)
-	-- F72 intro: (shot)   Skip or gamepad B, once per play, with the shot showing (1 to Intro.SHOTS, 10); end the intro, call
+	-- F72 intro: (shot)   Skip or gamepad B, once per play, with the shot showing (1 to Intro.SHOTS); end the intro, call
 	-- UI.intro.finish and fire IntroDone(shot, replay)
 	introSkip = Signal.new(),
 	-- ()   the HUD's Tutorial tile or Settings' Replay tutorial: play the intro again with UI.intro.start({ replay = true })
@@ -2427,11 +2427,11 @@ function UI.intro.start(options: Types.IntroOptions?)
 	screen:start(options)
 end
 
--- A shot begins: index 1 to Intro.SHOTS (10) lights its dot, the caption pops. In the areas shot (6) call again for
--- each cut with the next title card ("THE PARK", "THE NEIGHBOURHOOD", ...); the caption stays.
-function UI.intro.setShot(index: number, caption: string, titleCard: string?)
+-- A shot begins: index 1 to Intro.SHOTS lights its dot, the caption pops. #1542 (Derek): the camp shot and its area
+-- title cards are gone; a third argument is still taken and ignored, so the controller's calls stand until it drops it.
+function UI.intro.setShot(index: number, caption: string, _titleCard: string?)
 	if introScreen then
-		introScreen:setShot(index, caption, titleCard)
+		introScreen:setShot(index, caption)
 	end
 end
 

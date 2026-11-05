@@ -421,7 +421,8 @@ export type AreaDef = {
 export type SpotDef = {
 	id: string, -- "barista_1"
 	spotType: SpotType, -- the role
-	tier: number, -- opens at this tier
+	tier: number, -- opens at this tier; a pass-only slot (#1624) has a tier past the last, opened by Economy.extraSlots
+	passOnly: boolean?, -- #1624: opened only by an extra slot (Grand Cafe, the Extra Slot pass), never by a tier
 }
 
 -- One cafe tier (data-model section 5b). RankUp raises the tier when every requirement is met.
@@ -519,7 +520,7 @@ export type Stats = {
 	bestRate: number,
 	weekPlay: WeekPlay,
 	weekBestRate: WeekRate,
-	-- F102 (trading.md section 6): trades done, and today's count for TradesPerDay (the day is a UTC day number)
+	-- F102 (trading.md section 6): trades done, and today's count for TradesPerDay (the day is a global game day since #1629)
 	trades: number,
 	tradesToday: TradesToday,
 }
@@ -1079,6 +1080,7 @@ export type PlayerState = {
 	-- Cafe Style, Grand Cafe), `staff` the working cats' multiplier (Accessories, Uniforms), `rich` how many times as
 	-- often rich visitors come, `money` the Money pass multiplier
 	passBoosts: PassBoostsView,
+	extraSlots: number?, -- #1624: role slots past the tier's own (Catalog.slotIsOpen), from Grand Cafe and Extra Slot
 	tradeLog: { TradeLogEntry }, -- F102: the Trades page, newest first
 	-- F91: the Decor screen's Front lawn tab (what is owned, on each spot and in use); the street reads the plot's
 	-- Lawn_<spotId>, LawnPath and LawnFence attributes instead

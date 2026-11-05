@@ -107,7 +107,7 @@ end
 -- Open spots in catalog order.
 function EquipBest.openSpots(profile: Types.PlayerProfile): { Types.SpotDef }
 	local open: { Types.SpotDef } = {}
-	for _, spot in Catalog.spots do
+	for _, spot in Catalog.allSpots do -- #1624: the pass-only slots too
 		if Economy.spotIsOpen(profile, spot.id) then
 			table.insert(open, spot)
 		end

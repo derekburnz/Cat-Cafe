@@ -1,9 +1,14 @@
 --!strict
 -- The Staff tab of Upgrades (2026-10-27, replaces the floating role slot labels): one row per role with its slots
 -- in the order they open, so the player sees at a glance what the next tier unlocks.
---   rows(spots, tier, cats) -> { Row }
+--   rows(spots, tier, cats, extra?) -> { Row }
 --     a slot is "working" when a cat's spotId is on it, "open" when this tier has opened it and no cat works it,
 --     "locked" until its tier. Without cats (state.cats not sent) an opened slot counts as open.
+--     #1624: `spots` is Catalog.allSpots (opening order: the tier slots, then the pass-only ones) and `extra` is
+--     PlayerState.extraSlots (Grand Cafe and the Extra Slot pass). As the server's Catalog.slotIsOpen counts, the
+--     first (slots of this tier or below) + extra spots are open, so an extra slot opens the next tier's spot early.
+--     A pass-only slot that is still locked is `hidden` (Slot.hidden), never "opens at Tier 6", and stays out of
+--     the counts and the summary; the screens hide its square.
 --   Row.summary   "2 working · 1 free", then "· next at Tier 3" while a slot is still locked; "Opens at Tier 3"
 --                 for a role with no slot open yet; "All 3 working" when nothing is free or locked.
 --   initial(name)  the first letter of a cat's name for its slot square, a whole code point (reviewer S55: names
@@ -21,6 +26,7 @@ export type Slot = {
 	kind: SlotKind,
 	tier: number,
 	catUid: string?,
+	hidden: boolean?, -- #1624: a pass-only slot the player has not opened; its square is not drawn
 }
 
 export type Row = {
@@ -51,8 +57,22 @@ end
 function StaffSlots.rows(
 	spots: { Types.SpotDef },
 	tier: number,
-	cats: { [string]: Types.CatInstance }?
+	cats: { [string]: Types.CatInstance }?,
+	extra: number?
 ): { Row }
+	-- the open slots are the first `open` of the list, as Catalog.openSlotCount counts them
+	local open = 0
+	for _, spot in spots do
+		if spot.tier <= tier then
+			open += 1
+		end
+	end
+	open = math.min(open + math.max(0, math.floor(extra or 0)), #spots)
+	local opened: { [string]: boolean } = {}
+	for index, spot in spots do
+		opened[spot.id] = index <= open
+	end
+
 	local workers: { [string]: string } = {}
 	if cats ~= nil then
 		for uid, cat in cats do
@@ -83,14 +103,18 @@ function StaffSlots.rows(
 			row = created
 		end
 		local catUid = workers[spot.id]
-		local kind: SlotKind = if spot.tier > tier
+		local kind: SlotKind = if not opened[spot.id]
 			then "locked"
 			elseif catUid ~= nil then "working"
 			else "open"
-		table.insert(
-			row.slots,
-			{ spotId = spot.id, kind = kind, tier = spot.tier, catUid = catUid }
-		)
+		local passOnly = (spot :: any).passOnly == true
+		table.insert(row.slots, {
+			spotId = spot.id,
+			kind = kind,
+			tier = spot.tier,
+			catUid = catUid,
+			hidden = if passOnly and kind == "locked" then true else nil,
+		})
 	end
 
 	for _, row in rows do
@@ -102,6 +126,8 @@ function StaffSlots.rows(
 				row.working += 1
 			elseif slot.kind == "open" then
 				row.open += 1
+			elseif slot.hidden then
+				continue
 			else
 				row.locked += 1
 				local soonest = row.nextTier

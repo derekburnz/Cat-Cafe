@@ -7,11 +7,24 @@ The layout follows the trade menus players already know from the big pet games: 
 ## 1. What can be traded
 
 - **Cats only, at first.** Any cat the player owns, with its rarity, coat (base, gold or rainbow), charm and level. Up to TradeMaxCats (9) on each side.
-- **Never:** coins, golden fish, potions, food, crates, spins or decor, and never exclusive cats (the Bellhop Cat, shop cats and anything bought with Robux). So nothing in a trade can be bought with Robux, and there is no way to turn Robux or coins into another player's cats. Decor can join later, once trades have run clean for a while.
+- **Never:** coins, golden fish, potions, food, crates, spins or decor, and never exclusive cats (the Bellhop Cat, shop cats and anything bought with Robux). So nothing in a trade can be bought with Robux, and there is no way to turn Robux or coins into another player's cats. Decor joined on 2026-11-05 (section 1b).
 - **Locked cats cannot be offered.** Gold, rainbow, Legendary and Mythical cats arrive locked (F62), so a player has to unlock a good cat on its own card, outside the trade window, before they can trade it. That one step stops most rushed giveaways.
 - A traded cat keeps its rarity, coat, charm, level and rescued flag. Its custom name goes back to its kind's name. It arrives locked if it is gold, rainbow, Legendary or Mythical, and it counts as found in the new owner's Index pages (collection, gold and rainbow; source "trade"), so it can fill milestones, but it pays no golden fish, so passing cats back and forth cannot farm fish.
 - **Why traded cats count for the Index** (decided 2026-11-02 after the #854 security review): in the big pet games a traded pet fills the index, and that is a large part of why players trade, so we do the same. It does mean a group of friends can lend each other cats to fill their Index pages, Gold and Rainbow tabs and claim those milestones. We accept that: it is playing together, every milestone pays once per player, nothing in it is sold for Robux, the luck rewards are capped (GoldLuckMax, RainbowLuckMax), and TradesPerDay (50) with TradeMaxCats (9) bounds how fast it goes. If the ads week shows Index milestones being claimed far faster by traders than by catchers, the fix is a hold time before a traded cat counts, not taking trades out of the Index.
 - **Nothing pays per trade.** `stats.trades` is for the trade log and analytics only. No quest, achievement, milestone or prize may ever count trades, because two friends can swap one cat back and forth.
+
+### 1b. Decor joins (#1574)
+
+Derek, 2026-11-05 (Set 6 Q10): "Trading from Tier 3: cats and decor, with a countdown". So decor joins trades now.
+
+- **Which decor.** Any crate decor or lawn piece the player owns. Saves hold decor as owned or not, with no counts, so each piece is one item. Never exclusive or Robux decor (pass decor, shop exclusives), never Index prize decor, which is tied to its milestone, and never the free Tier 2 and Tier 3 lawn gifts.
+- **Placed pieces can be offered.** Since #1544 Equip Best places the lawn and EquipBestDecor places decor, so nobody places a piece by hand. At the swap the piece leaves the giver and their Equip Best fills the spot from what's left. The receiver's piece lands placed by their own Equip Best.
+- **Already owned.** A piece the partner already owns can't be added. The grid shows it greyed with "They already have this", so nothing in a trade is ever wasted.
+- **Limits.** Up to `TradeMaxDecor` (9) decor on each side, beside the 9 cats. Legendary and up decor arrives locked like cats (F62), and must be unlocked on its own card before it can be offered.
+- **What shows.** Each piece shows its rarity and tip bonus. The lopsided warning (section 3) counts decor at its bonus value next to the cats' rates.
+- **Index.** A traded piece counts as found on the new owner's Decor Index page (source `trade`), as for cats, and pays no golden fish.
+- **Countdown, safety and log** as for cats: any change resets both Ready presses, and the vault (section 4) holds both sides' decor too. Review-Agent re-runs the security review on the decor change before it ships.
+- Contracts: Config `TradeMaxDecor` 9. A trade offer gains `decor: { string }` (piece ids), and the server checks that the giver owns each piece, that it's tradeable and that the receiver doesn't own it, again at the swap. The trade log gains a decor list. QA: a placed piece swaps and both sides' Equip Best refills, a piece the partner owns can't be added, an Index prize piece can't be offered, a two-sided cat-and-decor trade arrives complete on both sides, and a disconnect mid-trade returns everything.
 
 ## 2. Who can trade, and where
 

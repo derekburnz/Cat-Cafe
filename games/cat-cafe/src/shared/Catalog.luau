@@ -912,13 +912,52 @@ Catalog.spots = {
 	{ id = "entertainer_2", spotType = "entertainer", tier = 5 },
 } :: { Types.SpotDef }
 
+-- #1624 (economy-ladder.md section 6, section 6a): two role slots only extra slots reach, for a Tier 5 cafe with Grand
+-- Cafe and the Extra Slot pass; below Tier 5 the extra slots open the next tier's spots early instead. Kept apart from
+-- the tier slots so the Staff list shows them only once the client knows about extra slots.
+Catalog.passSpots = {
+	{ id = "waiter_4", spotType = "waiter", tier = 6, passOnly = true },
+	{ id = "waiter_5", spotType = "waiter", tier = 6, passOnly = true },
+} :: { Types.SpotDef }
+
+-- Every role slot in opening order: the tier slots, then the pass-only ones.
+Catalog.allSpots = table.clone(Catalog.spots)
+for _, def in Catalog.passSpots do
+	table.insert(Catalog.allSpots, def)
+end
+
 Catalog.spotsById = {} :: { [string]: Types.SpotDef }
-for _, def in Catalog.spots do
+for _, def in Catalog.allSpots do
 	Catalog.spotsById[def.id] = def
 end
 
 function Catalog.getSpot(id: string): Types.SpotDef?
 	return Catalog.spotsById[id]
+end
+
+-- #1624: how many role slots are open at `tier` with `extra` extra slots (Economy.extraSlots): the tier's own (every
+-- spot of that tier or below) plus the extras, at most every spot there is. Catalog.allSpots is in opening order, so
+-- the open ones are its first `count`, and an extra slot opens the next tier's spot early.
+function Catalog.openSlotCount(tier: number, extra: number): number
+	local count = 0
+	for _, spot in Catalog.allSpots do
+		if spot.tier <= tier then
+			count += 1
+		end
+	end
+	return math.min(count + math.max(0, math.floor(extra)), #Catalog.allSpots)
+end
+
+-- Whether role slot `spotId` is open at `tier` with `extra` extra slots. The server asks through Economy.spotIsOpen;
+-- the client's slot lists ask with PlayerState.tier and PlayerState.extraSlots.
+function Catalog.slotIsOpen(spotId: string, tier: number, extra: number): boolean
+	local open = Catalog.openSlotCount(tier, extra)
+	for index, spot in Catalog.allSpots do
+		if spot.id == spotId then
+			return index <= open
+		end
+	end
+	return false
 end
 
 -- Station furniture placed under a slot of each role. Baristas work the counter and waiters stand between the
@@ -2144,8 +2183,9 @@ Catalog.dealerAmountWeights = {
 -- #1452 (Derek 2026-11-05: the food bowl should not be the only realistic way to get rare cats): 54 / 29 / 11 / 4.8 /
 -- 1.2 (was 72 / 22 / 5 / 0.9 / 0.1), so Salmon in a Royal Bowl is 2.5x the wild for Legendary and Mythical. A full
 -- wave of waveSize strays spawns in every area at each sunrise, whether or not anyone has it open; since #1159 an
--- area under its floor of live strays gets daytime top-ups (shared/StrayTopUp). #1452: 8, 7, 7, 6 and 6, 34 a day
--- in all (v0.13.5 had 6, 5, 5, 4 and 4 after Derek's 10-28 "way too many"; 10 each before that). Every side area's spawn points are its kit set's cat spots (Model-Agent
+-- area under its floor of live strays gets daytime top-ups (shared/StrayTopUp). #1621: 8, 9, 9, 8 and 8, 42 a
+-- day in all (#1452 had 8, 7, 7, 6 and 6; v0.13.5 6, 5, 5, 4 and 4 after Derek's 10-28 "way too many"; 10 each
+-- before that). Every side area's spawn points are its kit set's cat spots (Model-Agent
 -- #401, the Park's, the Woods', the Sewer's and the Neighbourhood's v3.2 sets #460, #470, #491 and #505).
 Catalog.areas = {
 	{
@@ -2155,7 +2195,7 @@ Catalog.areas = {
 		-- two on the lanes for each cafe's old place, eight nooks at the far end and eight `near` points by the camp for
 		-- the tutorial stray only (layout v3.1; v4, F84, data-model section 9 v0.13.18)
 		spawnPoints = 32,
-		waveSize = 8,
+		waveSize = 8, -- the tutorial area stays at #1452's 8 (#1621 raises the long areas)
 		rescueSpots = 3,
 		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.alley,
@@ -2165,7 +2205,7 @@ Catalog.areas = {
 		name = "Park",
 		tier = 2,
 		spawnPoints = 48, -- F85's long set's cat spots, 20 near the camp and 28 deep
-		waveSize = 7,
+		waveSize = 9,
 		rescueSpots = 5,
 		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.park,
@@ -2175,7 +2215,7 @@ Catalog.areas = {
 		name = "Neighbourhood",
 		tier = 3,
 		spawnPoints = 77, -- F85's long set's cat spots, 32 near the camp and 45 deep (side paths for porches, #905)
-		waveSize = 7,
+		waveSize = 9,
 		rescueSpots = 4, -- two sheds and two gutters
 		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.neighbourhood,
@@ -2185,7 +2225,7 @@ Catalog.areas = {
 		name = "Woods",
 		tier = 4,
 		spawnPoints = 72, -- F85's long set's cat spots, 28 near the camp, 43 deep and the Great Oak's top
-		waveSize = 6,
+		waveSize = 8,
 		rescueSpots = 5, -- two hollow logs, two bramble bushes and the tree house branch
 		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.woods,
@@ -2195,7 +2235,7 @@ Catalog.areas = {
 		name = "Sewer",
 		tier = 5,
 		spawnPoints = 60, -- F85's long set's cat spots, 25 near the camp and 35 deep
-		waveSize = 6,
+		waveSize = 8,
 		rescueSpots = 4, -- two grates and two drain pipes
 		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.sewer,

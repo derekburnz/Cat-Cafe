@@ -18,6 +18,13 @@ Potions.STEADY = "steady_potion"
 Potions.BIG_TIP = "big_tip_potion"
 Potions.GOLD_RUSH = "gold_rush_potion"
 Potions.QUICK_BAIT = "quick_bait_potion"
+Potions.WHISTLE = "cat_whistle" -- corner-shop-v2.md section 1: the client marks the nearest stray while it runs
+
+-- The timer a potion runs (corner-shop-v2.md section 4): a Small or Big size's regular potion, else its own id.
+function Potions.buffOf(potionId: string): string
+	local def = Catalog.getPotion(potionId)
+	return if def ~= nil and def.buff ~= nil then def.buff else potionId
+end
 
 -- Seconds of play time left on a potion at `now`, 0 when it is not running. Nil-safe for fixtures without buffs.
 function Potions.left(profile: Types.PlayerProfile, potionId: string, now: number): number
@@ -103,7 +110,7 @@ function Potions.useBlocker(profile: Types.PlayerProfile, potionId: string, now:
 		return "None"
 	end
 	if
-		Potions.left(profile, potionId, now) + def.minutes * 60
+		Potions.left(profile, Potions.buffOf(potionId), now) + def.minutes * 60
 		> Config.PotionMaxMinutes * 60 + 0.5
 	then
 		return "Full"
@@ -124,9 +131,10 @@ function Potions.use(profile: Types.PlayerProfile, potionId: string, now: number
 	else
 		profile.potions[potionId] = nil
 	end
-	local left = Potions.left(profile, potionId, now) + def.minutes * 60
+	local buff = Potions.buffOf(potionId)
+	local left = Potions.left(profile, buff, now) + def.minutes * 60
 	-- stored as of lastTick, so Potions.left reads `left` at `now`
-	profile.buffs[potionId] = left + math.max(0, now - profile.lastTick)
+	profile.buffs[buff] = left + math.max(0, now - profile.lastTick)
 	profile.stats.potionsUsed = (profile.stats.potionsUsed or 0) + 1
 	return true
 end
@@ -174,10 +182,10 @@ function Potions.endsAt(profile: Types.PlayerProfile, now: number): { [string]: 
 end
 
 -- The potions a Mystery gift can hold, at even odds: every one but the quest potions (F73), which only quests and
--- achievements pay.
+-- achievements pay, and the Corner Shop's own (corner-shop-v2.md: its sizes and the Cat Whistle).
 local GIFT_POTIONS: { string } = {}
 for _, def in Catalog.potions do
-	if def.quest ~= true then
+	if def.quest ~= true and def.shopOnly ~= true then
 		table.insert(GIFT_POTIONS, def.id)
 	end
 end

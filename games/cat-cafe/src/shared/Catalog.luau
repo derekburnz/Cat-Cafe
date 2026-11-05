@@ -1262,7 +1262,8 @@ Catalog.potions = {
 		minutes = 10,
 		effect = "Luck +0.5 and double gold chance on bait", -- F88: Config.LuckyPotionLuck
 	},
-	{ id = "swift_potion", name = "Swift Potion", minutes = 5, effect = "+4 walk speed" },
+	-- corner-shop-v2.md section 1: the regular Swift Potion runs 10 minutes (was 5)
+	{ id = "swift_potion", name = "Swift Potion", minutes = 10, effect = "+4 walk speed" },
 	{
 		id = "steady_potion",
 		name = "Steady Paw Potion",
@@ -1293,6 +1294,80 @@ Catalog.potions = {
 		effect = "Bait ready 25% sooner",
 		baitSpeed = 0.25,
 		quest = true,
+	},
+	-- corner-shop-v2.md section 1 (#1180): the Cat Whistle, a paw marker over the nearest stray in your area, and the
+	-- Corner Shop's Small and Big sizes. A size runs its regular potion's timer (`buff`), so one chip shows the summed
+	-- minutes; all of these are sold only there, never in a Mystery gift (`shopOnly`).
+	{
+		id = "cat_whistle",
+		name = "Cat Whistle",
+		minutes = 10,
+		effect = "Shows the nearest stray",
+		shopOnly = true,
+	},
+	{
+		id = "swift_potion_small",
+		name = "Small Swift Potion",
+		minutes = 3,
+		effect = "+4 walk speed",
+		buff = "swift_potion",
+		shopOnly = true,
+	},
+	{
+		id = "swift_potion_big",
+		name = "Big Swift Potion",
+		minutes = 30,
+		effect = "+4 walk speed",
+		buff = "swift_potion",
+		shopOnly = true,
+	},
+	{
+		id = "steady_potion_small",
+		name = "Small Steady Paw Potion",
+		minutes = 5,
+		effect = "Easier catch circles",
+		buff = "steady_potion",
+		shopOnly = true,
+	},
+	{
+		id = "steady_potion_big",
+		name = "Big Steady Paw Potion",
+		minutes = 30,
+		effect = "Easier catch circles",
+		buff = "steady_potion",
+		shopOnly = true,
+	},
+	{
+		id = "quick_bait_potion_small",
+		name = "Small Quick Bait Potion",
+		minutes = 10,
+		effect = "Bait ready 25% sooner",
+		buff = "quick_bait_potion",
+		shopOnly = true,
+	},
+	{
+		id = "quick_bait_potion_big",
+		name = "Big Quick Bait Potion",
+		minutes = 60,
+		effect = "Bait ready 25% sooner",
+		buff = "quick_bait_potion",
+		shopOnly = true,
+	},
+	{
+		id = "cat_whistle_small",
+		name = "Small Cat Whistle",
+		minutes = 5,
+		effect = "Shows the nearest stray",
+		buff = "cat_whistle",
+		shopOnly = true,
+	},
+	{
+		id = "cat_whistle_big",
+		name = "Big Cat Whistle",
+		minutes = 30,
+		effect = "Shows the nearest stray",
+		buff = "cat_whistle",
+		shopOnly = true,
 	},
 } :: { Types.PotionDef }
 Catalog.potionsById = {} :: { [string]: Types.PotionDef }
@@ -3202,51 +3277,185 @@ function Catalog.getFreshCatchRow(id: string): Types.FreshCatchRow?
 	return Catalog.freshCatchById[id]
 end
 
--- The Corner Shop (corner-shop.md section 2, #1052): sold for coins only, in this order, each row's amount in a window
--- rolled from Config.CornerShopAmountWeights (shared/CornerShop). `seconds` is the price in seconds of the day rate,
--- `atLeast` the floor. Nothing random, nothing that raises income, nothing for golden fish or Robux.
+-- The Corner Shop v2 (corner-shop-v2.md section 1, #1180; the stall from corner-shop.md, #1052): sold for coins only,
+-- in this order, at a fixed `price` that never follows income, tier or a pass. Each row's amount in a window is
+-- rolled from its size's Config.CornerShopSizeWeights (shared/CornerShop); `needsTier` hides and refuses it below
+-- that tier. Nothing random, nothing that raises income, nothing for golden fish or Robux.
 Catalog.cornerShop = {
+	{
+		id = "swift_potion_small",
+		name = "Small Swift Potion",
+		family = "swift",
+		size = "small",
+		kind = "potion",
+		potionId = "swift_potion_small",
+		price = 300,
+	},
 	{
 		id = "swift_potion",
 		name = "Swift Potion",
+		family = "swift",
+		size = "regular",
 		kind = "potion",
 		potionId = "swift_potion",
-		seconds = 120,
-		atLeast = 200,
+		price = 5000,
+	},
+	{
+		id = "swift_potion_big",
+		name = "Big Swift Potion",
+		family = "swift",
+		size = "big",
+		kind = "potion",
+		potionId = "swift_potion_big",
+		price = 500000,
+		needsTier = 3,
+	},
+	{
+		id = "steady_potion_small",
+		name = "Small Steady Paw Potion",
+		family = "steady",
+		size = "small",
+		kind = "potion",
+		potionId = "steady_potion_small",
+		price = 1000,
+	},
+	{
+		id = "steady_potion",
+		name = "Steady Paw Potion",
+		family = "steady",
+		size = "regular",
+		kind = "potion",
+		potionId = "steady_potion",
+		price = 20000,
+	},
+	{
+		id = "steady_potion_big",
+		name = "Big Steady Paw Potion",
+		family = "steady",
+		size = "big",
+		kind = "potion",
+		potionId = "steady_potion_big",
+		price = 2000000,
+		needsTier = 3,
+	},
+	{
+		id = "quick_bait_potion_small",
+		name = "Small Quick Bait Potion",
+		family = "quick_bait",
+		size = "small",
+		kind = "potion",
+		potionId = "quick_bait_potion_small",
+		price = 2500,
+	},
+	{
+		id = "quick_bait_potion",
+		name = "Quick Bait Potion",
+		family = "quick_bait",
+		size = "regular",
+		kind = "potion",
+		potionId = "quick_bait_potion",
+		price = 60000,
+	},
+	{
+		id = "quick_bait_potion_big",
+		name = "Big Quick Bait Potion",
+		family = "quick_bait",
+		size = "big",
+		kind = "potion",
+		potionId = "quick_bait_potion_big",
+		price = 6000000,
+		needsTier = 3,
+	},
+	{
+		id = "cat_whistle_small",
+		name = "Small Cat Whistle",
+		family = "whistle",
+		size = "small",
+		kind = "potion",
+		potionId = "cat_whistle_small",
+		price = 800,
+	},
+	{
+		id = "cat_whistle",
+		name = "Cat Whistle",
+		family = "whistle",
+		size = "regular",
+		kind = "potion",
+		potionId = "cat_whistle",
+		price = 15000,
+	},
+	{
+		id = "cat_whistle_big",
+		name = "Big Cat Whistle",
+		family = "whistle",
+		size = "big",
+		kind = "potion",
+		potionId = "cat_whistle_big",
+		price = 1500000,
+		needsTier = 3,
+	},
+	{
+		id = "small_cat_snack",
+		name = "Small Snack",
+		family = "food",
+		size = "small",
+		kind = "food",
+		foodId = "small_cat_snack",
+		xp = 600,
+		price = 400,
 	},
 	{
 		id = "cat_snack",
 		name = "Cat Snack",
-		kind = "snack",
-		xp = 1200,
-		seconds = 300,
-		atLeast = 500,
+		family = "food",
+		size = "regular",
+		kind = "food",
+		foodId = "cat_snack",
+		xp = 2000,
+		price = 15000,
 	},
 	{
 		id = "big_cat_snack",
-		name = "Big Cat Snack",
-		kind = "snack",
+		name = "Big Snack",
+		family = "food",
+		size = "big",
+		kind = "food",
+		foodId = "big_cat_snack",
 		xp = 6000,
-		seconds = 1200,
-		atLeast = 2500,
+		price = 1000000,
+		needsTier = 3,
+	},
+	{
+		id = "cat_feast",
+		name = "Cat Feast",
+		family = "food",
+		size = "mega",
+		kind = "food",
+		foodId = "cat_feast",
+		xp = 20000,
+		price = 80000000,
+		needsTier = 4,
 	},
 	{
 		id = "bubble_machine",
 		name = "Bubble Machine",
+		family = "show",
+		size = "regular",
 		kind = "show",
 		showId = "bubbles",
 		showSeconds = 600,
-		seconds = 600,
-		atLeast = 1000,
+		price = 50000,
 	},
 	{
 		id = "cafe_fireworks",
 		name = "Cafe Fireworks",
+		family = "show",
+		size = "big",
 		kind = "show",
 		showId = "fireworks",
 		showSeconds = 20,
-		seconds = 900,
-		atLeast = 1500,
+		price = 250000,
+		needsTier = 3,
 	},
 } :: { Types.CornerShopRow }
 Catalog.cornerShopById = {} :: { [string]: Types.CornerShopRow }
@@ -3258,6 +3467,25 @@ table.freeze(Catalog.cornerShop)
 
 function Catalog.getCornerShopRow(id: string): Types.CornerShopRow?
 	return Catalog.cornerShopById[id]
+end
+
+-- Cat food (corner-shop-v2.md section 3, #1181): kept in the Bag and fed to one cat at any time (FeedCat), each
+-- giving `xp` to that cat. Bought at the Corner Shop or earned (the Daily Treat, rescues, catches, the Collector).
+Catalog.catFood = {
+	{ id = "small_cat_snack", name = "Small Snack", xp = 600 },
+	{ id = "cat_snack", name = "Cat Snack", xp = 2000 },
+	{ id = "big_cat_snack", name = "Big Snack", xp = 6000 },
+	{ id = "cat_feast", name = "Cat Feast", xp = 20000 },
+} :: { Types.CatFoodDef }
+Catalog.catFoodById = {} :: { [string]: Types.CatFoodDef }
+for _, food in Catalog.catFood do
+	Catalog.catFoodById[food.id] = food
+	table.freeze(food)
+end
+table.freeze(Catalog.catFood)
+
+function Catalog.getCatFood(id: string): Types.CatFoodDef?
+	return Catalog.catFoodById[id]
 end
 
 -- #1182 step 1: the developer products whose contents are set (shop-and-pass-plan 2026-11-01, #1186, #1191; the

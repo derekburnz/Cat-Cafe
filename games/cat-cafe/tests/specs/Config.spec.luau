@@ -115,7 +115,8 @@ return function()
 		-- #1052 (corner-shop.md section 5): the Corner Shop's window, its reach and the daily Cat Snack cap
 		CornerShopWindowSeconds = 300,
 		CornerShopRange = 14,
-		CornerSnackXpPerDay = 12000,
+		CornerFoodXpPerDay = 20000, -- corner-shop-v2.md section 4
+		CatFoodMax = 999,
 		-- night income and rich customers (F31, sections 11 and 12)
 		NightIncomeMultiplier = 1, -- F60: full pay at night (0.6 until v0.8)
 		RichCheckSeconds = 60,
@@ -357,7 +358,8 @@ return function()
 				FishRankUp = true, -- a table, checked below
 				CratePieceBonus = true, -- a table, checked below
 				FreshCatchAmountWeights = true, -- a table, checked in FreshCatch.spec
-				CornerShopAmountWeights = true, -- a table, checked in CornerShop.spec
+				CornerShopSizeWeights = true, -- a table, checked in CornerShop.spec
+				CornerDailyLimits = true, -- a table, checked in CornerShop.spec
 				CrateDuplicateRefund = true, -- a table, checked below
 				DecorSpots = true, -- a table, checked below
 				CodeWrongWindowSeconds = true, -- section 11d: "5 wrong codes in a minute"

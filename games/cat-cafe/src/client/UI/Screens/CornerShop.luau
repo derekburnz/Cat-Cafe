@@ -315,12 +315,8 @@ function CornerShop._press(self: any, itemId: string)
 	end
 	for _, item in stock.stock do
 		if item.itemId == itemId then
-			local row = rowOf(itemId)
-			if row and row.kind == "snack" then
-				self:_pickCat(item, row)
-			else
-				self:_send(item, nil)
-			end
+			-- Corner Shop v2 (#1181): food goes to the Bag, so no row opens the cat picker on buy
+			self:_send(item, nil)
 			return
 		end
 	end

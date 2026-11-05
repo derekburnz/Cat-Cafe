@@ -252,10 +252,10 @@ end
 function QuestLogic.tracker(quests: Types.QuestsView?, pin: string?): (Types.QuestView?, boolean)
 	if quests and pin then
 		for _, kind in { "daily", "weekly" } do
-			local list: { Types.QuestView } = if kind == "daily"
-				then quests.daily
-				else quests.weekly
-			for _, quest in list or {} do
+			local list: { Types.QuestView } = (
+				if kind == "daily" then quests.daily else quests.weekly
+			) or {}
+			for _, quest in list do
 				if
 					QuestLogic.pinKey(kind, quest.id) == pin
 					and not quest.claimed

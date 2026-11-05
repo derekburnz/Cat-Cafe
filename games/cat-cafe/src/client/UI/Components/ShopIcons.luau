@@ -129,6 +129,8 @@ local IDS: { [string]: string } = {
 	Icon_Hud_Areas = "rbxassetid://74170242876257",
 	Icon_Hud_Potions = "rbxassetid://123878686865679",
 	Icon_Hud_Bait = "rbxassetid://119953797390858",
+	-- #1665: the 8-slice Spin wheel (#1603's render; upload run 42119348490, 11-05), every spin picture prefers it
+	Icon_Hud_Spin = "rbxassetid://87782756235790",
 	-- #1204: Model-Agent's potion flasks (#1193), ShopIcons.potion prefers them; re-uploaded 11-05 with the Cat Whistles
 	Icon_Flask_Tip = "rbxassetid://123800504967936",
 	Icon_Flask_Lucky = "rbxassetid://98048607296719",

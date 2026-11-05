@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-05 07:17 UTC",
+  "generated": "2026-11-05 07:38 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -177016,6 +177016,64 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Park_GardenNursery.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Park_GardenNursery.png"
+    },
+    {
+      "name": "CatCafe_Camp_Park_PicnicStation",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_Park_PicnicStation"
+      ],
+      "triangles": 2510,
+      "budget": 4000,
+      "size_studs": {
+        "x": 8.66,
+        "y": 7.42,
+        "z": 7.58
+      },
+      "size_roblox": [
+        8.66,
+        7.58,
+        7.42
+      ],
+      "bounds_min": [
+        -4.95,
+        -3.71,
+        -0.1
+      ],
+      "bounds_max": [
+        3.71,
+        3.71,
+        7.48
+      ],
+      "pivot": "the base centre on the camp's ground, front -Z, no turn; the Picnic Basket's spot (Layout.campExtras.park, Park set space)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#1133 (camp-stations.md section 2): the Picnic station, replacing CatCafe_Camp_Park_PicnicBasket at Layout.campExtras.park. Attachments PromptAnchor (table front, 1.5 up), BangAnchor (2 over the A-frame sign, for ReadyBang), GlowAnchor (under the parasol, the ready glow's PointLight, #1328) and Steam (the thermos). Everything collides and can be climbed.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Park_PicnicStation.model.json",
+      "rbx_parts": 236,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Park_PicnicStation.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Park_PicnicStation.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "2510/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1225 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.10 (want 0)",
+          "centered": "footprint center x=-0.62 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Park_PicnicStation.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Park_PicnicStation.png"
     }
   ]
 }

@@ -37,6 +37,7 @@ import wildbackdrop  # noqa: E402
 import luckycat  # noqa: E402
 import welcomearch  # noqa: E402
 import campextras  # noqa: E402
+import campstations  # noqa: E402
 import leaderboards  # noqa: E402
 import rally  # noqa: E402
 import menu  # noqa: E402
@@ -104,7 +105,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, sewerf85, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
-           gardennursery]
+           gardennursery, campstations]
 
 PIVOT_NOTES = {
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
@@ -196,6 +197,8 @@ PIVOT_NOTES = {
     "CatCafe_Street_CodesCat": "base centre; the desk front (-Z) faces the players",
     "CatCafe_Street_FishMarket": "base centre; the counter front (-Z) faces the players",
     "CatCafe_Street_CornerShop": "base centre; the counter front (-Z) faces the players",
+    campstations.PIC: "the base centre on the camp's ground, front -Z, no turn; the Picnic Basket's spot "
+                      "(Layout.campExtras.park, Park set space)",
     gardennursery.NAME: "the base centre on the camp's ground, the bench front (-Z) toward the players; Park set space "
                         "(Layout.campExtras' space) at gardennursery.SPOT (34, 0, -166) turned 90, facing the pad",
     "CatCafe_Street_ThanksBoard": "base centre; the Screen's Front (-Z) face looks at the players",
@@ -327,6 +330,10 @@ STUDIO_NOTES = {
                                  "Layout.cornerShop; WorldBuilder tags it CornerShop and hangs the prompt on the "
                                  "Attachment PromptAnchor (counter front, 3 up). The jars' glass is _Glass "
                                  "(see-through), the shop cat's visor rides its Head Model, the sign Bulb is lit at night.",
+    campstations.PIC: "#1133 (camp-stations.md section 2): the Picnic station, replacing CatCafe_Camp_Park_PicnicBasket "
+                      "at Layout.campExtras.park. Attachments PromptAnchor (table front, 1.5 up), BangAnchor (2 over the "
+                      "A-frame sign, for ReadyBang), GlowAnchor (under the parasol, the ready glow's PointLight, #1328) "
+                      "and Steam (the thermos). Everything collides and can be climbed.",
     gardennursery.NAME: "#1200 (lawn-nursery.md section 2): the Garden Nursery at the Park camp, at gardennursery.SPOT "
                         "in the Park's set space, tagged LawnStall; the game hangs the Nursery prompt on the "
                         "Attachment PromptAnchor (bench front, 3 up) and the gardener's speech bubble on BubbleAnchor "
@@ -652,6 +659,8 @@ def main():
             extra = {"nest": leaderboards.NEST}
         if name in menu.ATTACHMENTS:              # F90: the tray's Item spot, the oven's DoorGlow
             extra = {"attachments": menu.rbx_attachments(name)}
+        if name in campstations.ASSETS:           # #1319: PromptAnchor, BangAnchor, and GlowAnchor / Steam
+            extra = {"attachments": campstations.rbx_attachments(name)}
         if name in campextras.ATTACHMENTS:          # F100: PromptAnchor, and Steam, FishJump or Drip
             extra = {"attachments": campextras.rbx_attachments(name)}
         if name in luckycat.ATTACHED:             # F88: PawHinge at the shoulder the _Paw model turns about

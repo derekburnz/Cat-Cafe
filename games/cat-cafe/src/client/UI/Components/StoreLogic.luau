@@ -25,14 +25,16 @@ export type Row = {
 	tab: string, -- the rail tab it shows under: "passes", "cats", "potions" or "cafePass"
 }
 
--- The Store's left rail, top to bottom (#1425). Featured always shows; another tab only while it has a card.
-export type Tab = { id: string, name: string, icon: string }
+-- The Store's left rail, top to bottom (#1425). Featured and Codes (#1428, the code box) always show; another tab
+-- only while it has a card.
+export type Tab = { id: string, name: string, icon: string, always: boolean? }
 StoreLogic.TABS = {
-	{ id = "featured", name = "Featured", icon = "⭐" },
+	{ id = "featured", name = "Featured", icon = "⭐", always = true },
 	{ id = "passes", name = "Passes", icon = "🎟️" },
 	{ id = "cats", name = "Cats", icon = "🐱" },
 	{ id = "potions", name = "Potions", icon = "🧪" },
 	{ id = "cafePass", name = "Cafe Pass", icon = "🎫" },
+	{ id = "codes", name = "Codes", icon = "🔑", always = true },
 } :: { Tab }
 
 -- What Roblox said about a pass: its price in Robux and whether it is on sale. Missing until the lookup returns.
@@ -432,11 +434,11 @@ function StoreLogic.tabRows(rows: { Row }, tab: string): { Row }
 	return out
 end
 
--- The rail's tabs for these rows: Featured, then each tab that has a card.
+-- The rail's tabs for these rows: Featured, each tab that has a card, then Codes.
 function StoreLogic.tabs(rows: { Row }): { Tab }
 	local out: { Tab } = {}
 	for _, tab in StoreLogic.TABS do
-		if tab.id == "featured" or #StoreLogic.tabRows(rows, tab.id) > 0 then
+		if tab.always or #StoreLogic.tabRows(rows, tab.id) > 0 then
 			table.insert(out, tab)
 		end
 	end

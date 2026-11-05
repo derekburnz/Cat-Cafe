@@ -877,6 +877,15 @@ local function wireIntents()
 		Net.fire("ClaimAll", what)
 	end)
 	-- The Daily Treat (F70): the server stamps the card when a stamp is due and answers with a toast and a sync.
+	-- #1624: a Style tab button. The sign's "" is the plain sign (nil); the server checks the player owns the style.
+	-- Uniforms and themes only show once the server sends state.looks, which comes with SetLook.
+	UI.events.pickStyle:Connect(function(kind: string, id: string)
+		if kind == "sign" then
+			Net.fire("SetSignStyle", if id == "" then nil else id)
+		elseif kind == "uniform" or kind == "theme" then
+			Net.fire("SetLook", kind, if id == "" then "default" else id)
+		end
+	end)
 	UI.events.claimDailyTreat:Connect(function()
 		Net.fire("ClaimDailyTreat")
 	end)

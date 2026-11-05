@@ -1696,7 +1696,8 @@ Presets.palWave = {
 -- of the arms, head to the character's left (Derek 2026-11-02 12:01: "it should be straight across middle of arms";
 -- before, it lay out at the left side facing back over the shoulder, for the camera behind, which he found off
 -- centre). `loafForward` keeps its big head clear of the character's face, its back just in front of it, while it
--- looks about. Sitting up it turns `sitTurn` (facing out), `forward` out. The arms ease in over `blendIn` and out over `blendOut` seconds. A HeldCat Pose
+-- looks about. Sitting up it turns `sitTurn` (facing out), `forward` out. The arms ease in over `blendIn` and out over
+-- `blendOut` seconds, and the cat on them fades in and out over the same (#1138). A HeldCat Pose
 -- cannot move part by part (still streaming in, or on Motor6D joints) stays on its weld and is tried again after
 -- `retry` seconds.
 Presets.carryPose = {

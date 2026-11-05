@@ -1598,12 +1598,11 @@ function FishMarket._buildFresh(self: any, stock: FreshCatchLogic.Stock)
 			position = UDim2.new(0, 8, 0.5, 0),
 		})
 		local potion: PotionLogic.Potion? = self._potionById[itemId]
-		icon:set(
-			nil,
-			if potion then Theme.icons.potion else Theme.icons.crate,
-			if potion then "Rare" else "Common",
-			if potion then ShopIcons.potion(itemId) else ShopIcons.crate(itemId)
-		)
+		if potion then
+			icon:setPotion(itemId, "Rare")
+		else
+			icon:set(nil, Theme.icons.crate, "Common", ShopIcons.crate(itemId))
+		end
 		local name = text({
 			Name = "Name",
 			Position = UDim2.fromOffset(ROW_HEIGHT, 8),

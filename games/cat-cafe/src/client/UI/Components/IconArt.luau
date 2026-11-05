@@ -11,6 +11,7 @@
 --                                            and one in Theme.cleanGlyphs its clean symbol (#1027) before the sheet
 --   IconArt.setImage(label, image, scale?)   a whole uploaded picture instead of a sheet cell (the shop icons of
 --                                            Components/ShopIcons); nil goes back to the glyph
+--   IconArt.setImages(label, images, scale?) the first of several pictures that loads (a failed fetch moves on)
 --   IconArt.setTransparency(label, value)    fade or grey the icon, picture or emoji, whichever shows
 --
 -- Roblox terms: ImageRectOffset and ImageRectSize cut one cell out of a bigger picture; IsLoaded turns true once
@@ -36,6 +37,13 @@ local fetched: { [string]: boolean } = {} -- pictures already asked of ContentPr
 -- fetched counts as loaded for every label showing it, and every label waiting on that fetch is redrawn when it ends.
 -- Before, only the first label to ask was redrawn and the rest waited on their own IsLoaded change.
 local loaded: { [string]: boolean } = {}
+-- #1256: a picture whose fetch failed (not moderated or not shared with the game yet), and each label's list of
+-- pictures to try in order (IconArt.setImages), so a failed one hands over to the next instead of to the emoji
+local failed: { [string]: boolean } = {}
+local choices: { [TextLabel]: { images: { string }, scale: number? } } = setmetatable(
+	{},
+	{ __mode = "k" }
+) :: any
 local waiting: { [string]: { [TextLabel]: boolean } } = {}
 
 -- The sheet cell for a glyph, or nil when the sheet has no picture of it or is not uploaded.
@@ -115,6 +123,8 @@ local function artFor(label: TextLabel, image: string?, scale: number?): ImageLa
 				ContentProvider:PreloadAsync({ id }, function(_, status: Enum.AssetFetchStatus)
 					if status == Enum.AssetFetchStatus.Success then
 						loaded[id] = true
+					elseif status == Enum.AssetFetchStatus.Failure then
+						failed[id] = true
 					end
 				end)
 			end)
@@ -123,7 +133,13 @@ local function artFor(label: TextLabel, image: string?, scale: number?): ImageLa
 			if labels then
 				for each in labels do
 					if each.Parent then
-						apply(each)
+						local pick = choices[each]
+						local art = each:FindFirstChild(ART) :: ImageLabel?
+						if failed[id] and pick and art and art.Image == id then
+							IconArt.setImages(each, pick.images, pick.scale) -- the next picture in its list
+						else
+							apply(each)
+						end
 					end
 				end
 			end
@@ -133,6 +149,7 @@ local function artFor(label: TextLabel, image: string?, scale: number?): ImageLa
 end
 
 function IconArt.set(label: TextLabel, glyph: string?, scale: number?)
+	choices[label] = nil
 	local whole = if glyph then Theme.glyphImages[glyph] else nil
 	local clean = if glyph then Theme.cleanGlyphs[glyph] else nil
 	if (whole == nil or whole == "") and clean then
@@ -154,6 +171,25 @@ function IconArt.set(label: TextLabel, glyph: string?, scale: number?)
 end
 
 function IconArt.setImage(label: TextLabel, image: string?, scale: number?)
+	choices[label] = nil
+	IconArt._draw(label, image, scale)
+end
+
+-- The first picture of the list that has not failed to load; when one fails, the next takes its place (#1256: the
+-- newest potion flasks drew the emoji on live while their older bottles were fine). An empty list shows the glyph.
+function IconArt.setImages(label: TextLabel, images: { string }, scale: number?)
+	choices[label] = { images = images, scale = scale }
+	local pick: string? = nil
+	for _, image in images do
+		if not failed[image] then
+			pick = image
+			break
+		end
+	end
+	IconArt._draw(label, pick, scale)
+end
+
+function IconArt._draw(label: TextLabel, image: string?, scale: number?)
 	local picture = artFor(label, image, scale)
 	if picture then
 		picture.ImageRectSize = Vector2.zero

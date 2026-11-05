@@ -48,8 +48,6 @@ return function()
 				{ "cat_snack", "food", "regular", 300000 },
 				{ "big_cat_snack", "food", "big", 40000000 },
 				{ "cat_feast", "food", "mega", 3200000000 },
-				{ "bubble_machine", "show", "regular", 50000 },
-				{ "cafe_fireworks", "show", "big", 250000 },
 			}
 			expect(#Catalog.cornerShop).to.equal(#want)
 			for index, row in Catalog.cornerShop do
@@ -68,7 +66,7 @@ return function()
 					expect(food).to.be.ok()
 					expect(row.xp).to.equal((food :: any).xp)
 				else
-					expect(row.kind).to.equal("show")
+					error(row.id .. ": no shows since #1381") -- the Bubble Machine and Cafe Fireworks are gone
 				end
 			end
 			expect(table.isfrozen(Catalog.cornerShop)).to.equal(true)

@@ -1366,7 +1366,9 @@ Layout.townSquare = {
 Layout.spinWheel = station(-28, 16)
 Layout.fishMarket = station(33.5, 20)
 Layout.codesCat = station(-28, -16)
-Layout.dealerCart = station(28, -16)
+-- #1388: the night market parks in front of the Thank You board (below), on its line to the cannon, so the board
+-- stands 8.5 studs behind the cart with about 6.5 clear between them.
+Layout.dealerCart = station(29.5, -16)
 Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
 -- The free Bellhop Cat's stand (F96, starter-cat.md section 2): between the Codes Cat and the Spin Wheel, at the west
 -- end of the lane, which leads nowhere since the side arches closed (v4). Out at x -38 its 12 stud card stays clear
@@ -1384,10 +1386,11 @@ Layout.leaderboards = station(40, 0)
 -- street by 7.1.
 Layout.cornerShop = station(21, 24)
 
--- The Thank You board (#1083, idea-credits.md section 3): CatCafe_Street_ThanksBoard (12 x 1.5) near the Codes Cat,
--- mirroring the Corner Shop in its quarter and facing the cannon. Model-Agent's spot (#1126): clear of the Codes Cat's
--- circle by 2.8 studs, the south sign arch by 3.5 and the street lane by 1.6.
-Layout.thanksBoard = station(-15, -23)
+-- The Thank You board (#1083, idea-credits.md section 3): CatCafe_Street_ThanksBoard (12 x 1.5), facing the cannon.
+-- #1388 (the friend, 11-05): moved from beside the Codes Cat to the left of the leaderboard row (its Index end, -Z),
+-- with the night dealer's cart parked in front of it. Model-Agent's spot: it runs from about (34, -25) to (40, -15),
+-- clear of the row's corner by 2.5 studs, the east bench behind it by 5, the south bench by 3.1 and the lane by 8.4.
+Layout.thanksBoard = station(37, -20)
 
 -- The Index Boards (F50, areas-and-stations.md; the asset manifest's `placement`): one in each camp (v4, F84,
 -- hometown-cannon.md section 4), in camp space (Layout.campPoint), filled in with the camps below.
@@ -1527,6 +1530,26 @@ function Layout.campExtraAt(areaId: string): (number?, number?, number?, number?
 		spec.floorY,
 		spec.center.z - at.x * s + at.z * c,
 		camp.turn
+end
+
+-- The Garden Nursery (#1200, lawn-nursery.md section 3; Model-Agent #1332): CatCafe_Camp_Park_GardenNursery's pivot
+-- (its base centre) in the Park's set space, the space Layout.campExtras uses, turned `turn` on top of the camp's
+-- turn so its front (-Z) faces set -X, toward the landing pad.
+Layout.lawnStall = { area = "park", x = 34, y = 0, z = -166, turn = 90 }
+
+-- Where the Garden Nursery stands in the world: x, the floor's y and z, and its turn about Y in degrees (the camp's
+-- plus its own), or nil when its area or camp is missing.
+function Layout.lawnStallAt(): (number?, number?, number?, number?)
+	local at = Layout.lawnStall
+	local spec, camp = Layout.areas[at.area], Layout.camps[at.area]
+	if spec == nil or camp == nil then
+		return nil, nil, nil, nil
+	end
+	local c, s = math.cos(math.rad(camp.turn)), math.sin(math.rad(camp.turn))
+	return spec.center.x + at.x * c + at.z * s,
+		spec.floorY + at.y,
+		spec.center.z - at.x * s + at.z * c,
+		camp.turn + at.turn
 end
 
 -- The camp an x, z stands in, by its rect (edges included), or nil.

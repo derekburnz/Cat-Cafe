@@ -288,5 +288,60 @@ return function()
 				end
 			end
 		end)
+
+		it("makes every decor item a placeable, looks-only piece outside the Decor Index (#1645)", function()
+			local Crates = require(Shared.Crates)
+			local Quests = require(Shared.Quests)
+			local inPools: { [string]: boolean } = {}
+			for _, crate in Catalog.crates do
+				for _, id in crate.pieces do
+					inPools[id] = true
+				end
+			end
+			local profile = ProfileSchema.template(0)
+			local before = Quests.measure(profile, "decorOwned")
+			for _, def in Catalog.passSeasons do
+				for _, track in { def.free, def.paid } do
+					for level, row in track do
+						local item = row.item
+						if item ~= nil and item.kind == "decor" then
+							local decor = Catalog.getDecor(item.id)
+							if decor == nil then
+								fail("level %d decor %s has no DecorDef", level, item.id)
+								return
+							end
+							expect(decor.source).to.equal("pass")
+							expect(decor.bonus).to.equal(0) -- no cafeMultiplier
+							expect(Crates.takesSpot(decor)).to.equal(true) -- placed in a decor spot
+							expect(decor.asset:match("^CatCafe_Decor_")).to.be.ok()
+							expect(inPools[item.id]).to.equal(nil) -- in no crate, so on no Decor Index page
+							expect(Economy.decorBlocker(profile, item.id)).to.equal(
+								"Earned on the Cafe Pass, not for sale"
+							)
+							expect(Trade.piece(item.id)).never.to.be.ok()
+							CafePass.grantItem(profile, item.id)
+							expect(profile.decorOwned[item.id]).to.equal(true)
+						end
+					end
+				end
+			end
+			-- owning them moves no decor quest or achievement
+			expect(Quests.measure(profile, "decorOwned")).to.equal(before)
+		end)
+
+		it("makes the Golden Leaf frame a sign style once claimed, and grants claimed items on load", function()
+			local SignStyles = require(Shared.SignStyles)
+			expect(SignStyles.get("frame_golden_leaf")).to.be.ok()
+			local profile = ProfileSchema.template(0)
+			CafePass.grantItem(profile, "frame_golden_leaf")
+			expect(profile.signStyles.frame_golden_leaf).to.equal(true)
+			-- a save whose items were claimed before they had a place gets them on load
+			local raw: any = ProfileSchema.template(0)
+			raw.pass.items = { frame_golden_leaf = true, decor_hay_bale_seat = true, acc_leaf_beret = true }
+			local migrated = ProfileSchema.migrate(raw, 0)
+			expect(migrated.signStyles.frame_golden_leaf).to.equal(true)
+			expect(migrated.decorOwned.decor_hay_bale_seat).to.equal(true)
+			expect(migrated.decorOwned.acc_leaf_beret).to.equal(nil)
+		end)
 	end)
 end

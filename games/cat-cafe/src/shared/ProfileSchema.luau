@@ -938,6 +938,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.signStyle = SignStyles.sanitizePick(raw.signStyle)
 	-- #1645 (version 36): the Cafe Pass; saves before it start at season 0 with nothing (CafePassService rolls it on)
 	profile.pass = CafePass.sanitize(raw.pass)
+	CafePass.grantOwned(profile) -- #1645: pass decor and the frame claimed before they had a place (decor, sign styles)
 	-- #1624 (version 38): the theme and uniform picks, and (39) the accessory, known ids only; saves before show Classic
 	profile.looks = Looks.sanitize(raw.looks)
 	-- #1181 (version 32): the Bag's cat food, known foods only, whole counts of 1 to CatFoodMax

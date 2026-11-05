@@ -152,6 +152,16 @@ return function()
 				expect(Economy.cafeMultiplier(p)).to.be.near(1.30)
 			end)
 
+			it("adds the front lawn's pieces and styles out by rarity (#1283), none for a save without a lawn", function()
+				local p = freshProfile()
+				expect(Economy.lawnBonus(p)).to.equal(0)
+				p.lawnOwned = { garden_bench = true, tulip_bed = true, iron_railing = true }
+				p.lawn = { big1 = "garden_bench", small1 = "tulip_bed" }
+				p.lawnStyles = { path = "grey_slabs", fence = "iron_railing" }
+				expect(Economy.lawnBonus(p)).to.be.near(0.07)
+				expect(Economy.cafeMultiplier(p)).to.be.near(1.07)
+			end)
+
 			it("everything maxed is 1 + 0.6 + 0.6 + 0.3 = 2.5", function()
 				local p = freshProfile()
 				p.upgradeLevels.tables = 6
@@ -889,7 +899,7 @@ return function()
 		): any
 			local p = freshProfile()
 			p.tier = tier
-			p.coins = coins or 1e10 -- F95 v2: Tier 5 costs 1.2B
+			p.coins = coins or 1e10 -- Tier 5 costs 2B (#1452)
 			p.collection = {}
 			local added = 0
 			if rarity ~= nil then
@@ -946,17 +956,17 @@ return function()
 		end)
 
 		it(
-			"Tier 1 to 2: 5 different cats and 13,500 coins (11-05), the starter Tabby counts",
+			"Tier 1 to 2: 5 different cats and 28,000 coins (#1452), the starter Tabby counts",
 			function()
 				local p = freshProfile()
-				p.coins = 13500
+				p.coins = 28000
 				for _, id in { "ginger", "tuxedo", "smoke" } do
 					p.collection[id] = 1000
 				end
 				expect(Economy.rankUpBlocker(p)).to.equal("Needs 5 different cats (you have 4)")
 				p.collection.calico = 1000
 				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
-				p.coins = 13499
+				p.coins = 27999
 				expect(Economy.rankUpBlocker(p)).to.equal("Not enough coins")
 			end
 		)

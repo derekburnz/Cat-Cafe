@@ -633,8 +633,8 @@ export type BaitView = {
 }
 
 -- What the Fresh Catch shelf sold this player (F94, rewards-and-shops.md section 6; the shape the night dealer saved
--- before F94): how many of each row, by row id, in the window floor(os.time() / FreshCatchWindowSeconds), and the
--- last window a ShopAlert went to them, so a rejoin in the same window never alerts twice.
+-- before F94): how many of each row, by row id, in the window FreshCatch.window(os.time()) (a game day since #1437),
+-- and the last window a ShopAlert went to them, so a rejoin in the same window never alerts twice.
 export type FreshCatchState = {
 	window: number,
 	bought: { [string]: number },
@@ -823,6 +823,7 @@ export type CornerShopItem = {
 	bought: number,
 	size: CornerShopSize,
 	needsTier: number?,
+	outToday: boolean?, -- #1435: true when the row's family has hit its daily limit today; nil otherwise
 }
 -- What CornerShopStock sends: the window, when it restocks, each row in Catalog order, and the cat food XP bought
 -- today (`snackXp`, its v1 name, which the window reads).

@@ -146,6 +146,7 @@ A helper's bar fires the same RescueStart, RescueHit, RescueDone and RescueFail 
 | `getaway` | a character's `RushUntil` moves ahead (F55: a catch pushes everyone within 10 studs back and the catcher rushes) | 3D on the catcher | 0.85 s | a puff of air bursting outward, then quick light paws rushing off | P1 |
 | `catPlaced` | CatPlaced (a cat starts a role: Staff tab, Equip Best) | 2D, one per sync | 0.6 s | soft hop thump, a happy "mrrp" and three sparkles | P1 |
 | `shiftChime` | a shop-only cat (Duchess Marzipan; King Croissant and Sprinkles once their models ship) goes from off duty to working, seen by Audio from its `Role` and `Bedtime` attributes; not when its model is built or streams in already working (#1191) | 3D at the cat, 40 studs | 1.0 s | a soft three-note celesta lift (G, B, D) and a faint bell shimmer, at 0.3, at most every 2 s; plays under VFX's lilac sparkle (#1259) | P2 |
+| `stationReady` | the Picnic Basket, Yard Sale or Fish Pond goes from holding nothing to something (`CampExtrasState` `held` 0 to more, area open); not on the first state after joining (#1133, #1154, #1232) | 2D | 0.7 s | a soft two-note glockenspiel "ta-ding" (D, A), at 0.3, at most every 3 s; plays with UI's red "!" (#1376) | P2 |
 | `catRest` | UnplaceCat (a cat leaves its role; Unequip All plays it once) | 2D | 0.65 s | a sleepy sigh, a small falling "mew" and a soft flop | P1 |
 | `catLevelUp` | CatLevelUp (F75: one of your cats reaches a new level; the owner only). Silent since 2026-11-02 with its toast (Derek 2026-10-28: "a little spammy", UI PR #669) | 2D, quiet, 1.5 s apart at most | 0.9 s | three quick celesta notes up and a small twinkle, beside the toast and the sparkle | P1 |
 | `catSold` | CatSold | 2D | 0.6 s | coin clink and a small goodbye meow | P2 |
@@ -195,7 +196,7 @@ None of these needs a moment: Audio follows the `bait` in each ProfileSync (`Log
 |---|---|---|---|---|---|
 | `signFlip` | NightStart, DayStart, PlotOpened | 3D on your door sign | 0.4 s | wooden sign turning between sun and moon, or to OPEN | P1 |
 | `lampOn` | NightStart | 3D on each street lamp | 0.5 s | click and hum start | P2 |
-| `duskBell` | `Clock` `PhaseEndsAt` minus DuskWarningSeconds (15) by day, with the F66 warning banner; Audio schedules it itself | 2D | 3.4 s | the town clock's bell tolling twice, warm and unhurried | P1 |
+| ~~`duskBell`~~ | Removed 2026-11-05 (Derek: no dings before night; the "Night falls" banner is the only warning). The file stays uploaded but is unused | | | | |
 
 ### 5.8 UI
 

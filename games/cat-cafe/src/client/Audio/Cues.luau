@@ -462,6 +462,12 @@ local Cues: { [string]: Cue } = {
 		minGap = 2,
 		range = 40,
 	}, -- #1191: a shop-only cat starts its shift, a soft three-note celesta lift (under VFX's sparkle, #1259)
+	stationReady = {
+		ids = { "rbxassetid://87937080610110" },
+		group = "Sfx",
+		volume = 0.3,
+		minGap = 3,
+	}, -- #1133/#1154/#1232: a camp station has something to collect, a soft two-note glockenspiel (2D, no id until uploaded)
 	catPlaced = {
 		ids = { "rbxassetid://101433267853089" },
 		group = "Sfx",
@@ -734,8 +740,6 @@ local Cues: { [string]: Cue } = {
 		voices = 4,
 		range = 20,
 	},
-
-	duskBell = { ids = { "rbxassetid://94140238394787" }, group = "Sfx", volume = 0.5 }, -- F66: DuskWarningSeconds before night
 
 	-- Visitors, codes and potions (5.11) -------------------------------------------------------------------
 	visitorCollector = {

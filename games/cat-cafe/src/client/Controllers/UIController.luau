@@ -659,6 +659,14 @@ local function wireIntents()
 	UI.events.usePotion:Connect(function(potionId: string)
 		Net.fire("UsePotion", potionId)
 	end)
+	-- #1463: Collect on the Woods card (Golden Pond pass, camp-extras.md section 4). The server checks the pass, the
+	-- range and the extraId. Guarded until the UI's collectCampExtra event (PR #1472) is on main.
+	local collectCampExtra = (UI.events :: any).collectCampExtra
+	if collectCampExtra then
+		collectCampExtra:Connect(function(extraId: string)
+			Net.fire("CollectCampExtra", extraId)
+		end)
+	end
 	-- Open on a Market crate card and Buy on a Market row (F53); the server answers with CrateResult or a toast, and
 	-- a ProfileSync.
 	local uiEvents: any = UI.events

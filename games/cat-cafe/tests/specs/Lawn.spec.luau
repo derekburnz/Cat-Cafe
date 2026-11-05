@@ -41,8 +41,8 @@ return function()
 
 		it("sells the sixteen pieces at their sizes, tiers, rarities and ladder prices", function()
 			local expected = {
-				{ "tulip_bed", "small", 1, "Common" },
-				{ "sandwich_board", "small", 1, "Common" },
+				{ "tulip_bed", "small", 2, "Common" },
+				{ "sandwich_board", "small", 2, "Common" },
 				{ "potted_cat_topiary", "small", 1, "Uncommon" },
 				{ "mailbox", "small", 1, "Uncommon" },
 				{ "lamp_post", "small", 2, "Rare" },
@@ -73,10 +73,10 @@ return function()
 		it("sells four paths and four fences, Grey Slabs free", function()
 			local expected: { { any } } = {
 				{ "grey_slabs", "path", 1, nil },
-				{ "red_brick", "path", 1, "Common" },
+				{ "red_brick", "path", 2, "Common" },
 				{ "stepping_stones", "path", 2, "Uncommon" },
 				{ "paw_print_path", "path", 3, "Epic" },
-				{ "white_picket", "fence", 1, "Common" },
+				{ "white_picket", "fence", 2, "Common" },
 				{ "low_hedge", "fence", 2, "Uncommon" },
 				{ "iron_railing", "fence", 3, "Epic" },
 				{ "flower_box_fence", "fence", 4, "Mythical" },
@@ -161,7 +161,9 @@ return function()
 				"The Paw Print Path opens at Tier 3."
 			)
 			expect(Lawn.buyBlocker(profileAt(2), "lamp_post")).never.to.be.ok()
-			expect(Lawn.buyBlocker(profileAt(1), "tulip_bed")).never.to.be.ok()
+			-- #1382: the four Commons open at Tier 2 (lawn-nursery.md section 2, the Tier 2 pace bound)
+			expect(Lawn.buyBlocker(profileAt(1), "tulip_bed")).to.equal("The Tulip Bed opens at Tier 2.")
+			expect(Lawn.buyBlocker(profileAt(2), "tulip_bed")).never.to.be.ok()
 			expect(Lawn.buyBlocker(profileAt(5), "golden_paw_statue")).never.to.be.ok()
 		end)
 
@@ -344,6 +346,137 @@ return function()
 				expect(profile.lawn.big1).never.to.be.ok()
 			end
 		)
+	end)
+
+	describe("the money bonus and the best lawn (lawn-nursery.md section 6, #1283)", function()
+		local function own(profile: any, ids: { string })
+			for _, id in ids do
+				profile.lawnOwned[id] = true
+			end
+		end
+
+		it("gives each rarity its section 6a bonus", function()
+			expect(Lawn.rarityBonus("Common")).to.be.near(0.01)
+			expect(Lawn.rarityBonus("Uncommon")).to.be.near(0.015)
+			expect(Lawn.rarityBonus("Rare")).to.be.near(0.02)
+			expect(Lawn.rarityBonus("Epic")).to.be.near(0.03)
+			expect(Lawn.rarityBonus("Legendary")).to.be.near(0.05)
+			expect(Lawn.rarityBonus("Mythical")).to.be.near(0.08)
+			expect(Lawn.rarityBonus("Golden")).to.be.near(0.12)
+			expect(Lawn.rarityBonus(nil)).to.equal(0)
+		end)
+
+		it("counts only owned pieces out, and the path and fence in use (Grey Slabs earns nothing)", function()
+			local profile = profileAt(3)
+			expect((Lawn.bonus(profile))).to.equal(0)
+			profile.lawn.small1 = "tulip_bed" -- out but never bought
+			expect((Lawn.bonus(profile))).to.equal(0)
+			own(profile, { "tulip_bed", "lamp_post", "red_brick", "white_picket" })
+			profile.lawnStyles.fence = "white_picket"
+			local bonus, out = Lawn.bonus(profile)
+			expect(bonus).to.be.near(0.02) -- the Tulip Bed and the White Picket; the Lamp Post and Red Brick are stored
+			expect(out).to.equal(2)
+		end)
+
+		it("QA check 1: puts the Fountain and the Bench in the big spots and the Tulip Bed in a small one, +9%", function()
+			local profile = profileAt(2)
+			own(profile, { "tulip_bed", "garden_bench", "little_fountain" })
+			expect(Lawn.applyBest(profile)).to.equal(true)
+			expect(profile.lawn.small1).to.equal("tulip_bed")
+			expect(profile.lawn.big1).to.equal("little_fountain")
+			expect(profile.lawn.big2).to.equal("garden_bench")
+			local bonus, out = Lawn.bonus(profile)
+			expect(bonus).to.be.near(0.09)
+			expect(out).to.equal(3)
+			expect(Lawn.applyBest(profile)).to.equal(false) -- already best: nothing moves
+		end)
+
+		it("QA check 2: a Golden Paw Statue swaps out the weaker big piece by itself", function()
+			local profile = profileAt(2)
+			own(profile, { "garden_bench", "little_fountain" })
+			Lawn.applyBest(profile)
+			expect(profile.lawn.big1).to.equal("little_fountain")
+			expect(profile.lawn.big2).to.equal("garden_bench")
+			own(profile, { "golden_paw_statue" })
+			expect(Lawn.applyBest(profile)).to.equal(true)
+			expect(profile.lawn.big1).to.equal("little_fountain") -- a picked piece keeps its spot
+			expect(profile.lawn.big2).to.equal("golden_paw_statue")
+			expect(Lawn.spotOf(profile, "garden_bench")).never.to.be.ok()
+			expect(profile.lawnOwned.garden_bench).to.equal(true) -- stored, never lost
+		end)
+
+		it("fills only the spots open at the tier, and a rank up's new spots on the next pass", function()
+			local profile = profileAt(1)
+			own(profile, { "tulip_bed", "sandwich_board", "mailbox", "garden_bench" })
+			Lawn.applyBest(profile)
+			expect(count(profile.lawn)).to.equal(2)
+			expect(profile.lawn.small1).to.equal("mailbox") -- Uncommon first
+			expect(profile.lawn.small2).to.equal("sandwich_board") -- then the lower id of the two Commons
+			expect(Lawn.spotOf(profile, "garden_bench")).never.to.be.ok()
+			profile.tier = 3
+			Lawn.applyBest(profile)
+			expect(profile.lawn.small1).to.equal("mailbox")
+			expect(profile.lawn.small2).to.equal("sandwich_board")
+			expect(profile.lawn.big1).to.equal("garden_bench")
+			expect(profile.lawn.small3).to.equal("tulip_bed")
+		end)
+
+		it("keeps the piece already out on a tie, so nothing moves for nothing", function()
+			local profile = profileAt(1)
+			own(profile, { "lamp_post", "bird_bath", "garden_gnome_cat" })
+			profile.lawn.small1 = "lamp_post"
+			profile.lawn.small2 = "garden_gnome_cat"
+			expect(Lawn.applyBest(profile)).to.equal(false)
+			expect(profile.lawn.small1).to.equal("lamp_post")
+			expect(profile.lawn.small2).to.equal("garden_gnome_cat")
+		end)
+
+		it("replaces a lawn placed by hand: a weak piece out and a strong one stored", function()
+			local profile = profileAt(2)
+			own(profile, { "tulip_bed", "lamp_post", "flower_cart", "garden_bench" })
+			profile.lawn.small1 = "tulip_bed"
+			profile.lawn.big2 = "garden_bench"
+			expect(Lawn.applyBest(profile)).to.equal(true)
+			expect(profile.lawn.big2).to.equal("garden_bench")
+			expect(profile.lawn.big1).to.equal("flower_cart")
+			expect(profile.lawn.small1).to.equal("tulip_bed") -- picked and out: it keeps its spot
+			expect(profile.lawn.small2).to.equal("lamp_post")
+		end)
+
+		it("picks the best owned path and fence, Grey Slabs and no fence when none is owned", function()
+			local profile = profileAt(1)
+			profile.lawnStyles.path = "red_brick" -- in use but not owned (a damaged save)
+			Lawn.applyBest(profile)
+			expect(profile.lawnStyles.path).to.equal("grey_slabs")
+			expect(profile.lawnStyles.fence).never.to.be.ok()
+			own(profile, { "red_brick", "paw_print_path", "white_picket", "flower_box_fence" })
+			Lawn.applyBest(profile)
+			expect(profile.lawnStyles.path).to.equal("paw_print_path")
+			expect(profile.lawnStyles.fence).to.equal("flower_box_fence")
+		end)
+
+		it("comes to about +46% with every piece and style owned at Tier 3 (section 6a)", function()
+			local profile = profileAt(3)
+			for _, piece in Catalog.lawn do
+				profile.lawnOwned[piece.id] = true
+			end
+			for _, style in Catalog.lawnStyles do
+				profile.lawnOwned[style.id] = true
+			end
+			Lawn.applyBest(profile)
+			local bonus, out = Lawn.bonus(profile)
+			expect(bonus).to.be.near(0.46)
+			expect(out).to.equal(8)
+			expect(profile.lawn.small1).to.equal("balloon_bunch")
+		end)
+
+		it("works on the synced view's fields (bonusOf) the same as on the profile", function()
+			local profile = profileAt(2)
+			own(profile, { "tulip_bed", "garden_bench", "red_brick" })
+			Lawn.applyBest(profile)
+			local a = Lawn.bonusOf(profile.lawnOwned, profile.lawn, profile.lawnStyles)
+			expect(a).to.be.near(0.05)
+		end)
 	end)
 
 	describe("save version 28", function()

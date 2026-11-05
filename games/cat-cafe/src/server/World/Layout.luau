@@ -191,10 +191,13 @@ local INDEX_SPOTS: { [string]: Point } = {
 }
 
 -- Greeters (#1145): this far past each door jamb, so the cat clears the open leaf (a stud and a half of thickness and
--- paw room), and this far in from the front wall; each is turned to face the middle of the doorway.
+-- paw room), and this far in from the front wall; each is turned to face the middle of the doorway. #1417 (the friend,
+-- 11-05): 7 in (was 5), a little further into the cafe. Model-Agent's fit check: the cat (z -10.8 to -9.2) stays 2.5
+-- clear of the front tables' chairs (x 8.52 out), 2.7 in front of the first row's lane (z -6.56) and 4 behind the
+-- front decor spots; the aisle (x -2 to 2) is untouched.
 local FRONT_DOOR = { x = 0, y = 0, z = -halfD } :: Point
 local GREETER_OUT = 1.8
-local GREETER_IN = 5
+local GREETER_IN = 7
 
 local function greeterSlot(side: number): Point
 	local x = FRONT_DOOR.x + side * (W.DoorWidth / 2 + GREETER_OUT)
@@ -1140,8 +1143,9 @@ Layout.woods = {
 		do
 			table.insert(points, point)
 		end
-		-- up the ladder inside the Great Oak to its top nook (Derek 2026-10-28 01:35: a higher rare chance there)
-		table.insert(points, setPoints(WX, WZ, WTURN, 0.1, { { -30.58, 18.3, 204.89 } }, "rare")[1])
+		-- up the ladder inside the Great Oak to its top nook (Derek 2026-10-28 01:35: a higher rare chance there), on
+		-- its cushion behind the ladder since #1461
+		table.insert(points, setPoints(WX, WZ, WTURN, 0.1, { { -33.58, 18.3, 207.23 } }, "rare")[1])
 		return points
 	end)(),
 	rescueSpots = {

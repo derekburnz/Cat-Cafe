@@ -18,5 +18,11 @@ return function()
 			expect(CatWhistle.pick(Vector3.zero, list, 10)).to.equal(nil)
 			expect(CatWhistle.pick(Vector3.zero, {}, 600)).to.equal(nil)
 		end)
+		it("reaches a stray 900 studs off, far past the rarity gems' 80 (#1458)", function()
+			local stray = { name = "stray" }
+			local list = { { model = stray, position = Vector3.new(900, 0, 0) } }
+			expect(CatWhistle.REACH >= 1000).to.equal(true)
+			expect(CatWhistle.pick(Vector3.zero, list, CatWhistle.REACH)).to.equal(stray)
+		end)
 	end)
 end

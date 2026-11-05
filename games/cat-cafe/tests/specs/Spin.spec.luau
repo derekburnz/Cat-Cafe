@@ -69,8 +69,8 @@ return function()
 			expect(table.isfrozen(Catalog.spinWheel)).to.equal(true)
 		end)
 
-		it("banks a spin from Tip Jar steps 6 and 11 and none from the rest (F94)", function()
-			local spins = { [6] = 1, [11] = 1 }
+		it("banks 5 spins from Tip Jar steps 6 and 11 and none from the rest (#1414)", function()
+			local spins = { [6] = 5, [11] = 5 }
 			for _, row in Catalog.tipJar do
 				expect(row.prize.spins).to.equal(spins[row.step])
 			end

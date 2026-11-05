@@ -330,10 +330,10 @@ Each dealer food's `attracts` chip is its likeliest rarity: sardines Rare, cavia
 |---|---|---|---|---|---|---|
 | Moonlit Sardines | 15 | 25 | 30 | 20 | 10 | 1.85 |
 | Caviar | 35 | 40 | 20 | 5 | 0 | 0.95 |
-| Moon Milk | 60 | 35 | 5 | 0 | 0 | 0.45 |
-| Star Treat | 90 | 10 | 0 | 0 | 0 | 0.10 |
+| Moon Milk | 45 | 45 | 10 | 0 | 0 | 0.65 |
+| Star Treat | 80 | 20 | 0 | 0 | 0 | 0.20 |
 
-A Star Treat turns up about one window in ten. Since v0.9 a night lasts 90 seconds, so most nights see one window and about one in four sees a restock part way through; coins still limit what a player buys because the prices are unchanged. The dealer is the main reason to be out at night, and the plaza is under 10 seconds from every cafe door. The dealer screen shows these chances per food, as it showed the slot weights.
+#1442 (Derek 2026-11-05: "increase the night markets rate of having moon milk / star treat's by a little bit"): Moon Milk was 60 / 35 / 5 (0.45) and Star Treat 90 / 10 (0.10); now Moon Milk is in stock 55% of nights (was 40%) and a Star Treat turns up about one night in five (was one in ten). Prices and food odds are unchanged. Since v0.9 a night lasts 90 seconds, so most nights see one window and about one in four sees a restock part way through; coins still limit what a player buys because the prices are unchanged. The dealer is the main reason to be out at night, and the plaza is under 10 seconds from every cafe door. The dealer screen shows these chances per food, as it showed the slot weights.
 
 ## 9. Areas, the clock and spawning
 
@@ -377,7 +377,7 @@ Spacing (v0.12.1, Derek 22:38, PR #368): a new stray keeps StraySpawnSpacingStud
 
 Tutorial rule: a player with `tutorialStep` below 2 always finds a Common stray waiting, v0.4 at the `lane` spawn point behind their own cafe so it is right outside the back door. v0.13.18 (F84 moves the Alleyway out, so the lane points are now spread along the far lanes): the beginner's Common waits just past the Alleyway camp's way out instead. The Alleyway set gets eight `near` spawn points, four just past each lane's way out at 10 and 16 studs into the lane and 5 studs either side of its middle line (`g + 10u + 5r`, `g + 10u - 5r`, `g + 16u + 5r`, `g + 16u - 5r`, with `g` the middle of the way out on the camp line, `u` the flat direction into the area and `r` the right hand facing in). Plot p owns near point p, the east lane's (the one on the town side) first and `g + 10u + 5r` before the others, so plot 1, the one most new players get, finds its stray where the intro shows it ([intro-cutscene.md](intro-cutscene.md) shot 3). Only the tutorial rule spawns at `near` points; waves, bait and drops never use them, so a wave's Rare never blocks a beginner. The tick is as before: if the player's own near point holds no live Common and is free, a Common spawns there (by day only). The old per-plot lane points stay as ordinary `lane` points. Strays are workspace models with attributes (section 13).
 
-Stray top-ups (#1159, decided by Coordinator for the friend, overnight 11-05; built in Gameplay's #1345, whose numbers this OKs): in long areas, players who walk to the back found it empty once the wave was caught. By day only, each area keeps a live-stray floor: `floor = StrayFloorBase (5) + StrayFloorPerPlayer (1) x (players - 1)`, where players counts the loaded players on the server who have that area unlocked, wherever they stand,, capped at `StrayLiveMax` (12). Whenever an area is under its floor, it adds **one** stray every 60 to 120 s (`StrayTopUpMinSeconds`, `StrayTopUpMaxSeconds`, a random wait each time), so a cleared area refills slowly instead of all at once. Rules:
+Stray top-ups (#1159, decided by Coordinator for the friend, overnight 11-05; built in Gameplay's #1345, whose numbers this OKs): in long areas, players who walk to the back found it empty once the wave was caught. By day only, each area keeps a live-stray floor: `floor = StrayFloorBase (5) + StrayFloorPerPlayer (1) x (players - 1)`, where players counts the loaded players on the server who have that area unlocked, wherever they stand, capped at `StrayLiveMax` (12). Whenever an area is under its floor, it adds **one** stray every 60 to 120 s (`StrayTopUpMinSeconds`, `StrayTopUpMaxSeconds`, a random wait each time), so a cleared area refills slowly instead of all at once. Rules:
 - **Where:** far points first: `farPool` picks from the area's `deep` and `nook` spawn points, and uses the area's other points only when none of those is free. StraySpawnSpacingStuds (12) still holds.
 - **Odds:** the area's normal odds, rolled like any stray. No guaranteed Epic, no Lucky Day roll, no extra rescue traps, and further areas still pay more only through their own odds and incomeMultiplier.
 - **Limits:** never at night (the night closing rules above stand), never above `StrayLiveMax`, and the sunrise and night waves are unchanged. A top-up is an ordinary stray: same catch, same despawn at nightfall, no save change.
@@ -887,7 +887,7 @@ Removed: GrabEnd (replaced by CatchPress), RescueEnd (replaced by RescuePress), 
 
 v0.13.17 (F84, [hometown-cannon.md](hometown-cannon.md)): area travel is by cannon only. `Travel` keeps `home` from anywhere when not carrying, with the cloud hop from a wild area (CloudHopSeconds 1.6, the move at CloudHopMoveAtSeconds 0.6), adds `cannon` (Derek 14:10: the Cannon button moves the caller at once to the front of the nearest cannon, the Town Square cannon in town or their camp's cannon in a wild area, refused while carrying) and drops `alley` and the area destinations. `LaunchCannon` below is the way into and out of a wild area.
 
-v0.4 addition, `Travel(destination)` (engineer's F19, the shape is theirs): `home` or an area id; the area is unlocked, the player is not carrying, holds no catch or rescue lock (reviewer N47) and TravelCooldownSeconds (3) has passed; moves the character to that destination's entry point.
+v0.4 addition, `Travel(destination)` (engineer's F19, the shape is theirs): `home` or an area id; the area is unlocked, the player is not carrying, holds no catch or rescue lock (reviewer N47) and TravelCooldownSeconds (1 since #1434, was 3) has passed and no cloud hop home is under way; moves the character to that destination's entry point.
 
 ## 16. Analytics events (AnalyticsService)
 
@@ -913,6 +913,7 @@ Changed or new in v0.3 (everything not listed keeps its v0.2 value):
 | NetWindows | per section 10 table | new | CatService, UI |
 | CatchLatencyCapSeconds | 0.15 | new | CatService |
 | RescueSpawnChance | 0.6 | 0.5 | CatService |
+| LawnRarityBonus | Common 0.01, Uncommon 0.015, Rare 0.02, Epic 0.03, Legendary 0.05, Mythical 0.08, Golden 0.12 | new (#1283) | Lawn, Economy.cafeMultiplier (lawn-nursery.md section 6a) |
 | RescueMinStuck | 1 | new | CatService, stuck cats guaranteed per area per night |
 | RescueBarSpeed, RescueZoneWidth | per section 10b table | new | CatService, UI |
 | RescueTolerance | 0.03 | new | CatService |
@@ -956,7 +957,7 @@ Changed or new in v0.4:
 | AutoPressClearRate | 0.85 | new | CatService |
 | NormalWalkSpeed | 20 | 16 | CatService, PlotService |
 | CarryWalkSpeed | 16 | 13 | CatService |
-| TravelCooldownSeconds | 3 | new | Travel (F19) |
+| TravelCooldownSeconds | 1 (3 until #1434) | new | Travel (F19); no trip starts during a cloud hop home |
 | alley spawnPoints | 24 | 14 | Catalog areas |
 
 Changed or new in v0.5 (Gavin's round 2):
@@ -983,7 +984,7 @@ New in v0.6 (F49, the Spin Wheel station):
 |---|---|---|---|
 | SpinStationRange | 14 | new | SpinService |
 | SpinCooldownSeconds | 4 | new | SpinService, Spin window animation |
-| SpinBankCap | 20 | new | SpinService, TipJarService |
+| SpinBankCap | 50 (20 until #1414) | new | SpinService, TipJarService |
 
 New in v0.7 (decided 2026-10-27 19:27, [golden-fish.md](golden-fish.md) section 8): CratePrice 60, CrateDuplicateRefund {Common 10, Rare 20, Epic 40, Legendary 80, Mythical 150}, CrateLuckyEvery 20, FishMarketRange 14, CrateOpenCooldownSeconds 2, DecorSpots {2, 3, 4, 5, 6} by tier, DecorIndexBonus 0.05, DecorIndexHalfFish 25, the crate piece bonuses {0.02, 0.04, 0.08, 0.15, 0.25}, FishFirstCatch { Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 40 } and FishRepeatCatch { Epic = 1, Legendary = 3, Mythical = 8 } (maps by rarity, as built in PR #295), FishRankUp { 10, 25, 50, 100 } for Tiers 2 to 5, TipJarStep12Fish 5. A first catch that is also gold pays both the first catch and the first gold catch rows (an Epic: 8 + 16 = 24), because it fills both Index pages.
 
@@ -1022,6 +1023,14 @@ Changed or new in v0.8 (Gavin's round 3 answers 1 to 6):
 | MysteryCheckSeconds, MysteryChance, MysteryStaySeconds, MysteryGiftKeepSeconds | 120, 0.08, 120, 600 | new | VisitorService |
 | PotionMaxMinutes | 60 | new | PotionService |
 | CodesCatRange, CodeMaxLength, CodeWrongLimit, CodeLockSeconds | 12, 20, 5, 60 | new (F65, Derek 19:33) | CodeService |
+
+One global day (#1437, Derek2, 2026-11-05: "restock once per in game day and make it global"): every server counts the same day from Config.ClockEpoch (1793491200, 2026-11-01 00:00 UTC, a sunrise) using `Workspace:GetServerTimeNow()`, so sunrise falls at the same moment on every server, every 390 seconds from the epoch. A new server joins that day where it stands instead of opening at sunrise; ServerStartDaySeconds 300 now only names the day's length at sunrise. The Fresh Catch shelf and the Corner Shop restock once a game day, at that sunrise: their windows count from ClockEpoch and last one day plus one night. A saved window past the next one (the old 5 minute count) starts that shop's window and buys afresh; the Corner Shop's UTC day family counts are kept.
+
+| constant | value | was | used by |
+|---|---|---|---|
+| ClockEpoch | 1793491200 | new | ClockService, FreshCatch, CornerShop |
+| FreshCatchWindowSeconds | 390 (one game day) | 300 | FreshCatch |
+| CornerShopWindowSeconds | 390 (one game day) | 300 | CornerShop |
 
 Changed or new in v0.9 (Derek's short night, F66):
 

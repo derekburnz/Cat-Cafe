@@ -283,6 +283,8 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	})
 	self._actionKind = nil :: string?
 	self._actionStyle = "gold"
+	-- #1573: the food each bowl last held this session, for Refill once it is empty again
+	self._lastLure = {} :: { [number]: string? }
 
 	self._list = Create("ScrollingFrame", {
 		Name = "Foods",
@@ -568,6 +570,9 @@ function BaitBowl.setBait(self: any, bait: Types.BaitView?, catWaiting: boolean,
 	local index = if bowl == 2 then 2 else 1
 	self._baits[index] = bait
 	self._waiting[index] = catWaiting
+	if bait ~= nil then
+		self._lastLure[index] = bait.lureId
+	end
 	self:_layout()
 	local state: Types.PlayerState? = self._state
 	if state then
@@ -792,6 +797,7 @@ function BaitBowl._renderStatus(self: any)
 			then ("Bowl %d is empty"):format(selected)
 			else "Your bowl is empty"
 		local wait = Format.duration(self._waitSeconds)
+		local refill: Types.LureDef? = self:_refillFood(state, selected)
 		sub = if not self:_takesFood(selected)
 			then "Bowl 2 takes new food with the Second Bait Bowl pass."
 			elseif
@@ -800,7 +806,16 @@ function BaitBowl._renderStatus(self: any)
 				Theme.icons.moon,
 				wait
 			)
+			elseif
+				refill
+			then ("Refill puts in another %s, or pick a food and press Use. A cat comes by in %s."):format(
+				refill.name,
+				wait
+			)
 			else "Pick a food and press Use. A cat comes by in " .. wait .. ", even if you leave."
+		if refill then
+			action = "refill"
+		end
 	else
 		local left = bait.readyAt - Workspace:GetServerTimeNow()
 		local foodName = bait.lureId
@@ -865,6 +880,9 @@ function BaitBowl._renderStatus(self: any)
 		self._action:setText("Upgrades")
 	elseif action == "cat" then
 		self._action:setText("See the cat")
+	elseif action == "refill" then
+		self._action:setText("Refill")
+		style = "primary"
 	elseif action == "buy" then
 		-- the price from Roblox, never from here (shop-and-pass-plan section 1): "..." until it answers, Soon off sale
 		local price: PassPrice? = self._price
@@ -893,7 +911,26 @@ function BaitBowl._pressAction(self: any)
 		self._callbacks.showCat(self._selected)
 	elseif self._actionKind == "buy" then
 		self._callbacks.buySecond()
+	elseif self._actionKind == "refill" then
+		local state: Types.PlayerState? = self._state
+		local food = if state then self:_refillFood(state, self._selected) else nil
+		if food then
+			self._callbacks.useLure(food.id, self._selected)
+		end
 	end
+end
+
+-- #1573 Refill: the food this bowl last held, while the bowl is empty, takes food and you still have one.
+function BaitBowl._refillFood(self: any, state: Types.PlayerState, bowl: number): Types.LureDef?
+	local lureId: string? = self._lastLure[bowl]
+	if lureId == nil or self._baits[bowl] ~= nil or not self:_takesFood(bowl) then
+		return nil
+	end
+	if (state.lures[lureId] or 0) <= 0 then
+		return nil
+	end
+	local row = self._rows[lureId]
+	return if row then row.def else nil
 end
 
 function BaitBowl.destroy(self: any)

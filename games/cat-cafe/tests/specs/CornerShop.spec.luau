@@ -1,7 +1,7 @@
 --!strict
 -- CornerShop.luau, Catalog.cornerShop, Catalog.catFood and the size potions against corner-shop-v2.md (#1180, #1181):
--- the rows at fixed prices with their sizes and tier gates, the size chances, a roll the same for everyone and apart
--- from the Fresh Catch, the buy's refusals (QA checks 1 to 4), the daily limits by UTC day, the sizes sharing one
+-- the rows at fixed prices with their sizes and tier gates, the Day Cart's roll by price (#1577, day-cart.md section 2),
+-- a roll the same for everyone and apart from the Fresh Catch, the buy's refusals (QA checks 1 to 4), the daily limits by UTC day, the sizes sharing one
 -- timer (QA check 7), nothing for Robux or golden fish (QA check 9), and the save (version 32).
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
@@ -91,19 +91,18 @@ return function()
 			end
 		end)
 
-		it("has each size's chances of 0 to 3, out of 100, and the day's limits", function()
-			local means: { [string]: number } = { small = 2.5, regular = 1.15, big = 0.35, mega = 0.1 }
-			for size, mean in means do
-				local weights = assert(Config.CornerShopSizeWeights[size], size)
-				expect(#weights).to.equal(4)
-				local total, got = 0, 0
-				for index, weight in weights do
-					total += weight
-					got += (index - 1) * weight / 100
-				end
-				expect(total).to.equal(100)
-				expect(got).to.be.near(mean, 1e-9)
-			end
+		it("has the Day Cart's odds (#1577, day-cart.md section 2) and the day's limits", function()
+			expect(Config.DayCartTopChance).to.equal(0.95)
+			expect(Config.DayCartStep).to.equal(0.045)
+			expect(Config.DayCartFloor).to.equal(0.05)
+			expect(Config.DayCartQtyOdds :: any).to.deepEqual({ 50, 30, 20 })
+			expect((Config :: any).CornerShopSizeWeights).never.to.be.ok() -- the size table went with the cart
+			expect(CornerShop.MOST).to.equal(3)
+			expect(CornerShop.stockChance(1)).to.be.near(0.95, 1e-9)
+			expect(CornerShop.stockChance(2)).to.be.near(0.905, 1e-9)
+			expect(CornerShop.stockChance(11)).to.be.near(0.5, 1e-9)
+			expect(CornerShop.stockChance(21)).to.be.near(0.05, 1e-9)
+			expect(CornerShop.stockChance(40)).to.equal(0.05)
 			expect(Config.CornerDailyLimits.steady).to.equal(4)
 			expect(Config.CornerDailyLimits.quick_bait).to.equal(2)
 			expect(Config.CornerDailyLimits.whistle).to.equal(4)
@@ -126,19 +125,60 @@ return function()
 			expect(differs).to.equal(true)
 		end)
 
-		it("keeps Small rows in stock, Big about 30% and the Cat Feast about 10% over many windows", function()
-			local count = 2000
-			local inStock: { [string]: number } = {}
-			for window = WINDOW, WINDOW + count - 1 do
-				for _, item in CornerShop.stock(window) do
-					if item.amount > 0 then
-						inStock[item.itemId] = (inStock[item.itemId] or 0) + 1
+		it("lists every row once, cheapest Tier 1 price first, ties in Catalog order (#1577)", function()
+			local order = CornerShop.listOrder()
+			expect(#order).to.equal(#Catalog.cornerShop)
+			local seen: { [number]: boolean } = {}
+			for place, index in order do
+				expect(seen[index]).never.to.be.ok()
+				seen[index] = true
+				if place > 1 then
+					local before, row = Catalog.cornerShop[order[place - 1]], Catalog.cornerShop[index]
+					expect(before.price <= row.price).to.equal(true)
+					if before.price == row.price then
+						expect(order[place - 1] < index).to.equal(true)
 					end
 				end
 			end
-			expect((inStock.swift_potion_small or 0) / count >= 0.95).to.equal(true)
-			expect((inStock.steady_potion_big or 0) / count).to.be.near(0.3, 0.05)
-			expect((inStock.cat_feast or 0) / count).to.be.near(0.1, 0.03)
+			expect(Catalog.cornerShop[order[#order]].id).to.equal("cat_feast") -- the dearest, so the rarest
+		end)
+
+		it("stocks each row at its place's chance and 1, 2 or 3 at 50/30/20 over 100,000 days (QA check 2)", function()
+			local count = 100000
+			local inStock: { number } = table.create(#Catalog.cornerShop, 0)
+			local amounts = { 0, 0, 0 }
+			local shown = 0
+			for window = WINDOW, WINDOW + count - 1 do
+				for index, item in CornerShop.stock(window) do
+					if item.amount > 0 then
+						inStock[index] += 1
+						amounts[item.amount] += 1
+						shown += 1
+					end
+				end
+			end
+			for place, index in CornerShop.listOrder() do
+				expect(inStock[index] / count).to.be.near(CornerShop.stockChance(place), 0.005)
+			end
+			expect(amounts[1] / shown).to.be.near(0.5, 0.005)
+			expect(amounts[2] / shown).to.be.near(0.3, 0.005)
+			expect(amounts[3] / shown).to.be.near(0.2, 0.005)
+		end)
+
+		it("draws both rolls for every row down the list, so one row's result never moves another's", function()
+			local odds = { 0, 50, 30, 20 }
+			for window = WINDOW, WINDOW + 50 do
+				local stock = CornerShop.stock(window)
+				local state = CornerShop.seed(window)
+				for place, index in CornerShop.listOrder() do
+					state = (state * 48271) % 2147483647
+					local inStock = state / 2147483647 < CornerShop.stockChance(place)
+					state = (state * 48271) % 2147483647
+					local want = if inStock then FreshCatch.pickAmount(odds, state / 2147483647) else 0
+					expect(stock[index].itemId).to.equal(Catalog.cornerShop[index].id)
+					expect(stock[index].amount).to.equal(want)
+				end
+			end
 		end)
 	end)
 
@@ -331,41 +371,10 @@ return function()
 	describe("the bait foods (section 1b, #1281)", function()
 		local Economy = require(Shared.Economy)
 
-		it("stocks Kibble, Tuna and Salmon from their own chances", function()
-			local want: { [string]: { number } } =
-				{ kibble = { 0, 0, 20, 80 }, tuna = { 0, 20, 50, 30 }, salmon = { 20, 50, 30, 0 } }
-			for id, weights in want do
-				expect((Catalog.getCornerShopRow(id) :: any).weights).to.deepEqual(weights)
-			end
-			local count = 2000
-			local total: { [string]: number } = { kibble = 0, tuna = 0, salmon = 0 }
-			local none: { [string]: number } = { kibble = 0, tuna = 0, salmon = 0 }
-			for window = WINDOW, WINDOW + count - 1 do
-				for id in total do
-					local amount = CornerShop.amountOf(window, id)
-					total[id] += amount
-					none[id] += if amount == 0 then 1 else 0
-				end
-			end
-			expect(total.kibble / count).to.be.near(2.8, 0.1)
-			expect(total.tuna / count).to.be.near(2.1, 0.1)
-			expect(total.salmon / count).to.be.near(1.1, 0.1)
-			expect(none.kibble + none.tuna).to.equal(0) -- Kibble and Tuna are always in
-			expect(none.salmon / count).to.be.near(0.2, 0.03)
-		end)
-
-		it("keeps the other rows' rolls as they were", function()
-			-- the bait rows are last, so each earlier row draws the same number from the window's seed
-			for window = WINDOW, WINDOW + 50 do
-				local state = CornerShop.seed(window)
-				for index, item in CornerShop.stock(window) do
-					state = (state * 48271) % 2147483647
-					local row = Catalog.cornerShop[index]
-					if row.kind ~= "bait" then
-						local weights = Config.CornerShopSizeWeights[row.size]
-						expect(item.amount).to.equal(FreshCatch.pickAmount(weights, state / 2147483647))
-					end
-				end
+		it("rolls Kibble, Tuna and Salmon by their place in the list, like every row (#1577)", function()
+			for _, id in { "kibble", "tuna", "salmon" } do
+				expect((Catalog.getCornerShopRow(id) :: any).weights).never.to.be.ok() -- their own chances went
+				expect(windowWith(id, WINDOW)).to.be.ok()
 			end
 		end)
 

@@ -362,7 +362,7 @@ return function()
 				FishRankUp = true, -- a table, checked below
 				CratePieceBonus = true, -- a table, checked below
 				FreshCatchAmountWeights = true, -- a table, checked in FreshCatch.spec
-				CornerShopSizeWeights = true, -- a table, checked in CornerShop.spec
+				DayCartQtyOdds = true, -- #1577: a table, checked in CornerShop.spec
 				CornerDailyLimits = true, -- a table, checked in CornerShop.spec
 				CrateDuplicateRefund = true, -- a table, checked below
 				DecorSpots = true, -- a table, checked below

@@ -1,6 +1,7 @@
 --!strict
--- F102 trading (docs/design/cat-cafe/trading.md sections 2 to 4): one server's trade requests and open trades, held in
--- memory and pure (no Roblox service, no yield), so the specs walk every step and TradeService keeps one book a server.
+-- F102 trading (docs/design/cat-cafe/trading.md sections 2 to 4; decor since #1574, section 1b): one server's trade
+-- requests and open trades, held in memory and pure (no Roblox service, no yield), so the specs walk every step and
+-- TradeService keeps one book a server.
 -- TradeService checks who may ask (Trade.askRefusal) and which cat may go on offer (Trade.offerRefusal) against the
 -- profiles; the book keeps the order of things:
 -- - A request runs TradeRequestSeconds. Declined or run out, the asker waits TradeReaskSeconds before asking that
@@ -42,6 +43,8 @@ export type Side = {
 	name: string, -- the display name, for the other player's window and the log
 	cats: { string }, -- the uids on offer, in the order added
 	values: { [string]: number }, -- each one's Collector value (Trade.value)
+	decor: { string }, -- #1574: the piece ids on offer, in the order added
+	decorValues: { [string]: number }, -- each one's Collector value (Trade.pieceValue)
 	ready: boolean,
 	confirmed: boolean,
 	confirmAt: number, -- when this side's Confirm counts on the confirm screen (0 before it)
@@ -168,6 +171,8 @@ local function newSide(player: Player): Side
 		name = player.name,
 		cats = {},
 		values = {},
+		decor = {},
+		decorValues = {},
 		ready = false,
 		confirmed = false,
 		confirmAt = 0,
@@ -211,6 +216,16 @@ function TradeBook.sides(trade: OpenTrade, userId: number): (Side?, Side?)
 		return trade.b, trade.a
 	end
 	return nil, nil
+end
+
+-- #1574: whether piece `id` is on offer in the trade `userId` is in (locking it waits for it).
+function TradeBook.isPieceOffered(book: Book, userId: number, id: string): boolean
+	local trade = TradeBook.tradeFor(book, userId)
+	if trade == nil then
+		return false
+	end
+	local mine = TradeBook.sides(trade, userId)
+	return mine ~= nil and table.find(mine.decor, id) ~= nil
 end
 
 -- Whether `uid` is on offer in the trade `userId` is in (selling, the Collector, locking and resetting wait for it).
@@ -280,10 +295,54 @@ function TradeBook.remove(trade: OpenTrade, userId: number, uid: string, now: nu
 	return true
 end
 
+-- #1574: puts piece `id` (Collector value `value`) on `userId`'s side, as `add` does a cat: false when they are not
+-- in the trade, it is committing, the piece is on offer already or the side has TradeMaxDecor. TradeService checks
+-- Trade.pieceRefusal first (theirs, tradeable, unlocked, not the partner's already).
+function TradeBook.addDecor(
+	trade: OpenTrade,
+	userId: number,
+	id: string,
+	value: number,
+	now: number
+): boolean
+	local mine = TradeBook.sides(trade, userId)
+	if
+		mine == nil
+		or trade.phase == "committing"
+		or table.find(mine.decor, id) ~= nil
+		or #mine.decor >= Config.TradeMaxDecor
+	then
+		return false
+	end
+	table.insert(mine.decor, id)
+	mine.decorValues[id] = value
+	changed(trade, userId, id, now)
+	return true
+end
+
+-- #1574: takes piece `id` off `userId`'s side: false when it was not there or the trade is committing.
+function TradeBook.removeDecor(trade: OpenTrade, userId: number, id: string, now: number): boolean
+	local mine = TradeBook.sides(trade, userId)
+	if mine == nil or trade.phase == "committing" then
+		return false
+	end
+	local index = table.find(mine.decor, id)
+	if index == nil then
+		return false
+	end
+	table.remove(mine.decor, index)
+	mine.decorValues[id] = nil
+	changed(trade, userId, id, now)
+	return true
+end
+
 local function sideValue(side: Side): number
 	local total = 0
 	for _, uid in side.cats do
 		total += side.values[uid] or 0
+	end
+	for _, id in side.decor do
+		total += side.decorValues[id] or 0
 	end
 	return total
 end
@@ -294,7 +353,7 @@ function TradeBook.warnings(trade: OpenTrade, userId: number): (boolean, boolean
 	if mine == nil or theirs == nil then
 		return false, false
 	end
-	return Trade.warnings(sideValue(mine), sideValue(theirs), #theirs.cats)
+	return Trade.warnings(sideValue(mine), sideValue(theirs), #theirs.cats + #theirs.decor)
 end
 
 -- `userId` presses Ready (`ready` true) or takes it back on `version`: nil when it took, else STALE, PHASE or EMPTY.
@@ -323,7 +382,7 @@ function TradeBook.ready(
 	if trade.phase ~= "offer" then
 		return TradeBook.PHASE -- counting down or confirming: Ready is pressed already
 	end
-	if #mine.cats == 0 and #theirs.cats == 0 then
+	if #mine.cats == 0 and #theirs.cats == 0 and #mine.decor == 0 and #theirs.decor == 0 then
 		return TradeBook.EMPTY
 	end
 	mine.ready = true
@@ -415,10 +474,14 @@ end
 
 -- TradeState for `userId` (shared Types.TradeStateView), or nil when they are not in `trade`. `tile(ownerId, uid)`
 -- is the tile TradeService makes from the owner's profile with rateForMe for this viewer; nil leaves a cat out.
+-- #1574: `pieceTile(id)` makes a piece's tile (nil leaves it out), and `theyHave` lists the viewer's pieces the other
+-- player owns already.
 function TradeBook.view(
 	trade: OpenTrade,
 	userId: number,
-	tile: (ownerId: number, uid: string) -> Types.TradeTile?
+	tile: (ownerId: number, uid: string) -> Types.TradeTile?,
+	pieceTile: ((id: string) -> Types.TradeDecorTile?)?,
+	theyHave: { string }?
 ): Types.TradeStateView?
 	local mine, theirs = TradeBook.sides(trade, userId)
 	if mine == nil or theirs == nil then
@@ -434,12 +497,21 @@ function TradeBook.view(
 				rate += shown.rateForMe
 			end
 		end
+		local decor: { Types.TradeDecorTile } = {}
+		local makePiece = pieceTile
+		for _, id in side.decor do
+			local shown = if makePiece ~= nil then makePiece(id) else nil
+			if shown ~= nil then
+				table.insert(decor, shown)
+			end
+		end
 		return {
 			userId = side.userId,
 			name = side.name,
 			ready = side.ready,
 			confirmed = side.confirmed,
 			cats = cats,
+			decor = decor,
 		},
 			rate
 	end
@@ -470,6 +542,7 @@ function TradeBook.view(
 		myRateNow = myRate,
 		theirRateForMe = theirRate,
 		confirmAt = if confirming and mine.confirmAt > 0 then mine.confirmAt else nil,
+		theyHave = theyHave or {},
 	}
 	return view
 end

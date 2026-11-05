@@ -444,4 +444,52 @@ return function()
 			expect(stale >= 500).to.equal(true)
 		end)
 	end)
+
+	describe("decor (section 1b, #1574)", function()
+		it("puts pieces on and off a side, resetting both and counting them in the warnings", function()
+			local book, trade = opened()
+			expect(TradeBook.ready(trade, 1, 1, true, 100)).to.equal(TradeBook.EMPTY)
+			expect(TradeBook.addDecor(trade, 1, "rug", 1, 101)).to.equal(true)
+			expect(TradeBook.addDecor(trade, 1, "rug", 1, 101)).to.equal(false) -- on offer already
+			expect(trade.version).to.equal(2)
+			expect(TradeBook.isPieceOffered(book, 1, "rug")).to.equal(true)
+			expect(TradeBook.isPieceOffered(book, 2, "rug")).to.equal(false)
+			expect(TradeBook.ready(trade, 2, 2, true, 102)).never.to.be.ok() -- a piece alone is an offer
+			expect(TradeBook.addDecor(trade, 2, "fish_tank", 8, 103)).to.equal(true)
+			expect(trade.b.ready).to.equal(false) -- any change resets both
+			expect(trade.changed :: any).to.deepEqual({ userId = 2, uid = "fish_tank", at = 103 })
+			local lopsided, gift = TradeBook.warnings(trade, 2)
+			expect(lopsided).to.equal(true) -- gives 8 for 1
+			expect(gift).to.equal(false)
+			expect(TradeBook.removeDecor(trade, 1, "rug", 104)).to.equal(true)
+			expect(TradeBook.removeDecor(trade, 1, "rug", 104)).to.equal(false)
+			lopsided, gift = TradeBook.warnings(trade, 2)
+			expect(gift).to.equal(true)
+			for i = 1, Config.TradeMaxDecor do
+				TradeBook.addDecor(trade, 1, "p" .. i, 1, 105)
+			end
+			expect(TradeBook.addDecor(trade, 1, "one_more", 1, 106)).to.equal(false)
+			TradeBook.commit(trade)
+			expect(TradeBook.removeDecor(trade, 1, "p1", 107)).to.equal(false)
+		end)
+
+		it("shows each side's pieces and the viewer's pieces the other player owns", function()
+			local _, trade = opened()
+			TradeBook.addDecor(trade, 1, "rug", 1, 101)
+			TradeBook.addDecor(trade, 1, "nope", 0, 101)
+			local function piece(id: string): any
+				return if id == "rug"
+					then { id = id, name = "Cozy rug", kind = "decor", rarity = "Common", bonus = 0.05 }
+					else nil
+			end
+			local sam = TradeBook.view(trade, 1, tile, piece, { "neon_sign" }) :: any
+			expect(#sam.me.decor).to.equal(1) -- an unknown piece is left out
+			expect(sam.me.decor[1].name).to.equal("Cozy rug")
+			expect(#sam.them.decor).to.equal(0)
+			expect(sam.theyHave).to.deepEqual({ "neon_sign" })
+			local alex = TradeBook.view(trade, 2, tile) :: any
+			expect(#alex.them.decor).to.equal(0) -- no piece tiles without the maker
+			expect(alex.theyHave).to.deepEqual({})
+		end)
+	end)
 end

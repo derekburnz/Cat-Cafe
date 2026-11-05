@@ -45,7 +45,11 @@ local function publish(phase: Types.ClockPhase, secondsLeft: number)
 		folder:SetAttribute("AreasOpen", phase == "day")
 		folder:SetAttribute("Day", currentDay)
 		folder:SetAttribute("NextLuckyDay", Clock.nextLuckyDay(currentDay))
-		folder:SetAttribute("LuckyDay", phase == "day" and Clock.isLuckyDay(currentDay))
+		-- #1572: the day's kinds, each true from its sunrise to night
+		local kinds = Clock.dayKinds(currentDay)
+		folder:SetAttribute("LuckyDay", phase == "day" and kinds.lucky)
+		folder:SetAttribute("GoldenDay", phase == "day" and kinds.golden)
+		folder:SetAttribute("RainbowDay", phase == "day" and kinds.rainbow)
 	end
 	ClockService.changed:Fire(phase, currentEndsAt)
 end
@@ -94,9 +98,15 @@ function ClockService.areasOpen(): boolean
 	return currentPhase == "day"
 end
 
--- F88: true in the day phase of a Lucky Day (every LuckyDayEvery-th day of this server).
+-- F88: true in the day phase of a Lucky Day (#1572: one day in three, rolled from the global day).
 function ClockService.luckyDay(): boolean
 	return currentPhase == "day" and Clock.isLuckyDay(currentDay)
+end
+
+-- #1572: the kinds of today in the day phase (Lucky, Golden, Rainbow), nil at night, for Clock.goldChance and
+-- Clock.rainbowChance.
+function ClockService.dayKinds(): Clock.DayKinds?
+	return if currentPhase == "day" then Clock.dayKinds(currentDay) else nil
 end
 
 -- The server's day number (Clock.dayAt): at night, the day that just ended.

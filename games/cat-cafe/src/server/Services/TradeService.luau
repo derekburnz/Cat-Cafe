@@ -16,6 +16,10 @@
 --   players are sent to rejoin so their joins settle it.
 -- - Selling, the Cat Collector, locking and Reset my save wait for a cat on offer (CafeService.isOffered,
 --   TradeService.isTrading).
+-- - #1574 (section 1b): decor joins. TradeOffer with kind "decor" offers a crate decor or lawn piece that
+--   Trade.pieceRefusal lets go (theirs, tradeable, unlocked, not the partner's already, up to TradeMaxDecor), checked
+--   again at the swap. The record carries each side's piece ids; after the swap both sides' decor and lawn Equip Best
+--   runs (CafeService.autoEquipDecor), so a placed piece that left is refilled and an arriving one goes out.
 -- - Player attributes Tier and Trading, Workspace attributes TradingOn and TradeMinTier (the live minimum: Debug in
 --   Studio, else CatCafe_Flags.tradeMinTier, else Config) for the UI. CatCafe_Flags is read every
 --   TradeFlagCheckSeconds.
@@ -193,12 +197,55 @@ local function tilesFor(
 	end
 end
 
+-- #1574: a piece's tile, or nil for one that can't be traded.
+local function pieceTile(id: string): Types.TradeDecorTile?
+	local info = Trade.piece(id)
+	if info == nil then
+		return nil
+	end
+	return { id = id, name = info.name, kind = info.kind, rarity = info.rarity, bonus = info.bonus }
+end
+
+-- #1574: the viewer's tradeable pieces the other player owns already (greyed, "They already have this").
+local function theyHave(profile: Profile, partner: Profile?): { string }
+	local out: { string } = {}
+	if partner == nil then
+		return out
+	end
+	local function check(id: string)
+		if Trade.piece(id) ~= nil and Trade.ownsPiece(partner, id) then
+			table.insert(out, id)
+		end
+	end
+	for id in profile.decorOwned do
+		check(id)
+	end
+	for id in profile.lawnOwned do
+		check(id)
+	end
+	table.sort(out)
+	return out
+end
+
 local function sendStateTo(trade: TradeBook.OpenTrade, player: Player)
 	local profile = DataService.get(player)
 	if profile == nil then
 		return
 	end
-	Net.fire(player, "TradeState", TradeBook.view(trade, player.UserId, tilesFor(player, profile)))
+	local _, theirs = TradeBook.sides(trade, player.UserId)
+	local partner = if theirs ~= nil then playerOf(theirs.userId) else nil
+	local partnerProfile = if partner ~= nil then DataService.get(partner) else nil
+	Net.fire(
+		player,
+		"TradeState",
+		TradeBook.view(
+			trade,
+			player.UserId,
+			tilesFor(player, profile),
+			pieceTile,
+			theyHave(profile, partnerProfile)
+		)
+	)
 end
 
 local function sendState(trade: TradeBook.OpenTrade)
@@ -258,7 +305,21 @@ local function recordSide(raw: any): TradeVault.RecordSide?
 		end
 	end
 	local name = if type(raw.name) == "string" then string.sub(raw.name, 1, 40) else "A player"
-	return { userId = raw.userId, name = name, cats = cats }
+	-- #1574: known tradeable piece ids only, each once
+	local decor: { string } = {}
+	if type(raw.decor) == "table" then
+		for _, id in raw.decor do
+			if
+				type(id) == "string"
+				and Trade.piece(id) ~= nil
+				and table.find(decor, id) == nil
+				and #decor < Config.TradeMaxDecor
+			then
+				table.insert(decor, id)
+			end
+		end
+	end
+	return { userId = raw.userId, name = name, cats = cats, decor = decor }
 end
 
 -- `userId`'s side of `record` and the other one, or nil.
@@ -300,7 +361,8 @@ local function applySide(
 		uidsOf(mine.cats),
 		Trade.summaries(mine.cats),
 		theirs.cats,
-		at
+		at,
+		{ gave = mine.decor or {}, got = theirs.decor or {} }
 	)
 end
 
@@ -332,6 +394,19 @@ local function stillGives(
 		table.insert(cats, table.clone(instance))
 	end
 	return cats
+end
+
+-- #1574: the pieces `side` gives, copied, when every one is still theirs, tradeable, unlocked and not owned by the
+-- other profile; else nil.
+local function stillGivesDecor(side: TradeBook.Side, profile: Profile, other: Profile): { string }?
+	local pieces: { string } = {}
+	for _, id in side.decor do
+		if Trade.pieceRefusal(profile, other, id, {}) ~= nil then
+			return nil
+		end
+		table.insert(pieces, id)
+	end
+	return pieces
 end
 
 -- Both confirmed: the swap (section 4). Runs in its own thread; the trade is "committing" and nothing changes it.
@@ -369,9 +444,13 @@ local function finish(trade: TradeBook.OpenTrade)
 	end
 	local catsA, catsB =
 		stillGives(trade.a, profileA, profileB), stillGives(trade.b, profileB, profileA)
+	local decorA, decorB =
+		stillGivesDecor(trade.a, profileA, profileB), stillGivesDecor(trade.b, profileB, profileA)
 	if
 		catsA == nil
 		or catsB == nil
+		or decorA == nil
+		or decorB == nil
 		or ProfileSchema.catCount(profileA) - #catsA + #catsB < 1
 		or ProfileSchema.catCount(profileB) - #catsB + #catsA < 1
 	then
@@ -382,8 +461,8 @@ local function finish(trade: TradeBook.OpenTrade)
 		id = trade.id,
 		at = at,
 		state = "pending",
-		a = { userId = trade.a.userId, name = trade.a.name, cats = catsA },
-		b = { userId = trade.b.userId, name = trade.b.name, cats = catsB },
+		a = { userId = trade.a.userId, name = trade.a.name, cats = catsA, decor = decorA },
+		b = { userId = trade.b.userId, name = trade.b.name, cats = catsB, decor = decorB },
 	}
 	if not TradeVault.write(record) then
 		endAll(trade, Trade.Ended.failed)
@@ -457,22 +536,28 @@ local function finish(trade: TradeBook.OpenTrade)
 		DataService.save(player)
 		setTrading(player, false)
 		Net.fire(player, "TradeState", nil)
+		local gaveDecor, gotDecor = swap.mine.decor or {}, swap.theirs.decor or {}
 		Net.fire(
 			player,
 			"TradeDone",
 			record.id,
 			Trade.summaries(swap.mine.cats),
-			Trade.summaries(swap.theirs.cats)
+			Trade.summaries(swap.theirs.cats),
+			Trade.pieceSummaries(gaveDecor),
+			Trade.pieceSummaries(gotDecor)
 		)
 		Telemetry.custom(
 			player,
 			"trade_done",
-			#swap.mine.cats + #swap.theirs.cats,
+			#swap.mine.cats + #swap.theirs.cats + #gaveDecor + #gotDecor,
 			{ tostring(#swap.mine.cats), tostring(#swap.theirs.cats), bestRarity(swap.theirs.cats) }
 		)
 		local landed = DataService.get(player)
 		if landed ~= nil then
 			CafeService.autoEquip(player, landed) -- #1534: the best cats, new ones too, fill the slots
+			if #gaveDecor + #gotDecor > 0 then
+				CafeService.autoEquipDecor(player, landed) -- #1574: refill what left, put out what arrived
+			end
 		end
 		CafeService.refreshPlot(player)
 		CafeService.sync(player)
@@ -576,12 +661,62 @@ local function tradeOf(player: Player, rawTradeId: unknown): TradeBook.OpenTrade
 	return if tradeId ~= nil and trade ~= nil and trade.id == tradeId then trade else nil
 end
 
-local function onOffer(player: Player, rawTradeId: unknown, rawAction: unknown, rawUid: unknown)
+-- #1574: a piece on or off the caller's side (TradeOffer with kind "decor").
+local function onOfferDecor(
+	player: Player,
+	trade: TradeBook.OpenTrade,
+	action: string,
+	id: string,
+	profile: Profile
+)
+	local at = now()
+	if action == "remove" then
+		if TradeBook.removeDecor(trade, player.UserId, id, at) then
+			sendState(trade)
+		end
+		return
+	end
+	local mine, theirs = TradeBook.sides(trade, player.UserId)
+	if
+		mine == nil
+		or theirs == nil
+		or trade.phase == "committing"
+		or table.find(mine.decor, id) ~= nil
+	then
+		return
+	end
+	local partner = playerOf(theirs.userId)
+	local partnerProfile = if partner ~= nil then DataService.get(partner) else nil
+	if partnerProfile == nil then
+		return
+	end
+	local refusal = Trade.pieceRefusal(profile, partnerProfile, id, mine.decor)
+	if refusal ~= nil then
+		Net.toast(player, refusal, "warn")
+		return
+	end
+	if TradeBook.addDecor(trade, player.UserId, id, Trade.pieceValue(id), at) then
+		sendState(trade)
+	end
+end
+
+local function onOffer(
+	player: Player,
+	rawTradeId: unknown,
+	rawAction: unknown,
+	rawUid: unknown,
+	rawKind: unknown
+)
 	local trade = tradeOf(player, rawTradeId)
 	local action = Guard.oneOf(rawAction, { "add", "remove" })
 	local uid = Guard.id(rawUid)
+	local kind = if rawKind == nil then "cat" else Guard.oneOf(rawKind, { "cat", "decor" })
 	local profile = DataService.get(player)
-	if trade == nil or action == nil or uid == nil or profile == nil then
+	if trade == nil or action == nil or uid == nil or kind == nil or profile == nil then
+		return
+	end
+	if kind == "decor" then
+		onOfferDecor(player, trade, action, uid, profile)
 		return
 	end
 	local at = now()
@@ -817,6 +952,9 @@ function TradeService.start()
 	publish()
 	CafeService.setOfferCheck(function(player: Player, uid: string): boolean
 		return TradeBook.isOffered(book, player.UserId, uid)
+	end)
+	CafeService.setPieceOfferCheck(function(player: Player, id: string): boolean
+		return TradeBook.isPieceOffered(book, player.UserId, id)
 	end)
 	DataService.onLoading(settle)
 	DataService.onLoaded:Connect(onLoaded)

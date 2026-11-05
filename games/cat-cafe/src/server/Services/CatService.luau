@@ -257,11 +257,18 @@ end
 -- The coat a stray of `def` spawning in the area gets (F99): one roll, rainbow first and then gold
 -- (Catching.rollCoat), each with the best luck in the server for the area.
 local function rollStrayCoat(def: Types.CatDef, areaId: string): string
+	local kinds = ClockService.dayKinds() -- #1572: a Golden or Rainbow Day lifts both chances until night
 	return Catching.rollCoat(
 		def,
 		rng:NextNumber(),
-		IndexRewards.rainbowChance(Config.RainbowChanceNet, CatService.rainbowLuckFor(areaId)),
-		IndexRewards.rollChance(Config.GoldChanceNet, CatService.goldLuckFor(areaId))
+		IndexRewards.rainbowChance(
+			Clock.rainbowChance(Config.RainbowChanceNet, kinds),
+			CatService.rainbowLuckFor(areaId)
+		),
+		IndexRewards.rollChance(
+			Clock.goldChance(Config.GoldChanceNet, kinds),
+			CatService.goldLuckFor(areaId)
+		)
 	)
 end
 

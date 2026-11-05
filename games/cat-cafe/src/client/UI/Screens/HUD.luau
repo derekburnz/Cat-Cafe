@@ -92,6 +92,7 @@ export type HUD = {
 	screenGui: ScreenGui,
 	setCatalog: (self: HUD, catalog: Types.Catalog) -> (),
 	render: (self: HUD, state: Types.PlayerState) -> (),
+	setPinnedQuest: (self: HUD, key: string?) -> (), -- #1573: the quest pinned in the Quests window, or nil
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
 	setClock: (self: HUD, clock: Types.ClockState?) -> (),
@@ -2318,6 +2319,15 @@ end
 
 -- F73: the Quests pill (shown once ProfileSync has quests) with its count of what is ready to claim, and the quest
 -- line under the goal card once the tutorial is done.
+-- #1573: the quest pinned in the Quests window leads the quest line (QuestLogic.tracker); nil goes back to the closest.
+function HUD.setPinnedQuest(self: any, key: string?)
+	self._pinnedQuest = key
+	local state: Types.PlayerState? = self._state
+	if state then
+		self:_renderQuests(state, self._catalog)
+	end
+end
+
 function HUD._renderQuests(self: any, state: Types.PlayerState, catalog: Types.Catalog?)
 	local pill = self._questsPill
 	local live = state.quests ~= nil
@@ -2337,7 +2347,7 @@ function HUD._renderQuests(self: any, state: Types.PlayerState, catalog: Types.C
 
 	local line: string? = nil
 	if live and (state.tutorialStep or TUTORIAL_DONE) >= TUTORIAL_DONE then
-		local quest = QuestLogic.tracker(state.quests)
+		local quest, pinned = QuestLogic.tracker(state.quests, self._pinnedQuest)
 		if ready > 0 then
 			line = ("%s %d ready to claim"):format(Theme.icons.quests, ready)
 		elseif quest then
@@ -2346,7 +2356,11 @@ function HUD._renderQuests(self: any, state: Types.PlayerState, catalog: Types.C
 			local count = if QuestLogic.isCoins(catalog, quest.id)
 				then Format.money(progress) .. "/" .. Format.money(needs)
 				else ("%d/%d"):format(math.floor(progress), math.floor(needs))
-			line = ("%s %s  %s"):format(Theme.icons.quests, quest.text, count)
+			line = ("%s %s  %s"):format(
+				if pinned then "📌" else Theme.icons.quests,
+				quest.text,
+				count
+			)
 		end
 	end
 	self._questLine.Visible = line ~= nil

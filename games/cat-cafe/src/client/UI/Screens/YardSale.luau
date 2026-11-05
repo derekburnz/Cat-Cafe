@@ -7,8 +7,6 @@
 -- fish the player has, when the next crate comes, and that a taken crate opens free at the Golden Fish Market, which
 -- keeps the crate reel there. A priced crate (an older server) still shows its price with the gold fish. Words and rules in Components/CampExtrasLogic; nothing is sold for Robux.
 
-local Workspace = game:GetService("Workspace")
-
 local Button = require(script.Parent.Parent.Components.Button)
 local CampExtrasLogic = require(script.Parent.Parent.Components.CampExtrasLogic)
 local Create = require(script.Parent.Parent.Components.Create)
@@ -373,11 +371,8 @@ function YardSale._paint(self: any)
 		card.name.TextTransparency = faded
 		card.market.TextTransparency = faded
 	end
-	local now = Workspace:GetServerTimeNow()
-	self._have.Text = ("You have %s golden fish · %s"):format(
-		ShortNumber.format(self._fish),
-		CampExtrasLogic.yardFooter(self._view, now)
-	)
+	-- No stock counts or restock clocks in shop windows (#1190, the friend 11-04); the server's stock rules are unchanged.
+	self._have.Text = ("You have %s golden fish"):format(ShortNumber.format(self._fish))
 end
 
 function YardSale.setCatalog(self: any, catalog: Types.Catalog)

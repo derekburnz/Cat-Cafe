@@ -131,7 +131,6 @@ local TAG = "FishMarket"
 -- the Fresh Catch shelf is on this server (F94): Gameplay-Engineer's #679 adds its Config
 local FRESH_ON = Config.FreshCatchWindowSeconds ~= nil
 local FRESH_HEAD = 58
-local FRESH_MINUTES = math.max(1, math.floor((Config.FreshCatchWindowSeconds or 300) / 60))
 local RANGE: number = Config.FishMarketRange or 14
 local CLOSE_SLACK = 2 -- studs past the server's range before the window closes
 local LUCKY_EVERY: number = Config.CrateLuckyEvery or 20
@@ -1700,12 +1699,9 @@ function FishMarket._renderFresh(self: any)
 		self:_buildFresh(current)
 	end
 	local left = current.restocksAt - Workspace:GetServerTimeNow() -- the server's clock, as restocksAt is (S102)
-	self._freshTitle.Text = if left > 0
-		then FreshCatchLogic.countdown(left)
-		else "Fresh catch coming..."
-	self._freshSub.Text = ("The same stock on every server. New stock every %d minutes."):format(
-		FRESH_MINUTES
-	)
+	-- No stock counts or restock clocks in shop windows (#1190, the friend 11-04); the server's stock rules are unchanged.
+	self._freshTitle.Text = if left > 0 then "Fresh catch" else "Fresh catch coming..."
+	self._freshSub.Text = ""
 	local state: Types.PlayerState? = self._state
 	local fish = if state then math.floor(state.goldenFish or 0) else 0
 	for index, row: FreshRow in self._freshRows do
@@ -1715,10 +1711,7 @@ function FishMarket._renderFresh(self: any)
 		end
 		local can = FreshCatchLogic.left(item)
 		local none = item.amount == 0
-		row.stock.Text = if none
-			then "None this time"
-			elseif can > 0 then ("x%d left"):format(can)
-			else ("You bought %d"):format(item.bought)
+		row.stock.Text = ""
 		row.stock.TextColor3 = if can > 0 then PAL.good else PAL.subtext
 		row.blurb.Text = self:_freshBlurb(item)
 		local pending = self:_pendingFor("fresh:" .. item.itemId)

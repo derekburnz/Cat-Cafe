@@ -1,14 +1,13 @@
 --!strict
 -- The Corner Shop window (#1052, corner-shop.md section 4), opened from the stall's CornerShopPrompt in the Town
--- Square (UI.cornerShop.open). Coins only, open day and night. On top "Restocks in 3:12" over "The same stock on
--- every server", and the snack line on the right; then a row per item in Catalog.cornerShop order: its picture, name,
--- what it does, how often it is stocked and what is left ("x2 left", "You bought 2", "None this time"), and a green
--- Buy with the coin price ("Sold out", "None", "Snacks full"). A Cat Snack opens a cat picker first (highest level
--- first). Under the list: "Lawn pieces are in Decor, Front lawn". No toasts of its own: the server's answer is a
+-- Square (UI.cornerShop.open). Coins only, open day and night. On top the cat food line; then a row per item in
+-- Catalog.cornerShop order: its picture, name, what it does, "Opens at Tier 3" on a row the player's tier doesn't
+-- reach yet (no stock counts, chances, restock clock or daily limits: #1190), and a green Buy with the coin price
+-- ("Sold out", "None", "Food full"). Food goes to the Bag (corner-shop-v2.md). Under the list: "Lawn pieces are in
+-- Decor, Front lawn". No toasts of its own: the server's answer is a
 -- fresh CornerShopStock and, when refused, its toast. Words and rules in Components/CornerShopLogic.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local CornerShopLogic = require(script.Parent.Parent.Components.CornerShopLogic)
@@ -105,7 +104,7 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 		dark = true,
 		name = "CornerShop",
 		title = "Corner Shop",
-		subtitle = "Coins only · new stock every 5 minutes",
+		subtitle = "Coins only",
 		color = Theme.colors.caramel,
 		icon = "🏪",
 		size = UDim2.fromScale(1, 1), -- the modal's area, so a phone keeps it clear of Roblox's top bar
@@ -131,7 +130,7 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 		Size = UDim2.new(0.55, 0, 0, 18),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,
-		Text = "The same stock on every server",
+		Text = "",
 		Parent = content,
 	})
 	self._snack = text({
@@ -412,14 +411,14 @@ end
 
 function CornerShop._paint(self: any)
 	local stock: SharedTypes.CornerShopStock? = self._stock
-	local now = Workspace:GetServerTimeNow()
 	self._empty.Visible = stock == nil
 	if stock == nil then
 		self._clock.Text = ""
 		self._snack.Text = ""
 		return
 	end
-	self._clock.Text = CornerShopLogic.clock(stock.restocksAt, now)
+	-- No stock counts or restock clocks in shop windows (#1190, the friend 11-04); the server's stock rules are unchanged.
+	self._clock.Text = ""
 	self._snack.Text = CornerShopLogic.snackLine(stock.snackXp)
 	local state: Types.PlayerState? = self._state
 	local coins = if state then state.money else 0

@@ -10,8 +10,13 @@
 -- Roblox terms: an Attachment is a named point and rotation inside a part; its WorldCFrame follows the part.
 
 local Catalog = require(script.Parent.Catalog)
+local Looks = require(script.Parent.Looks)
 
 local CatDress = {}
+
+local PIECE_ATTRIBUTE = "OutfitPiece" -- on each piece dress puts on: the piece's name ("Apron")
+local BUILT_COLOR_ATTRIBUTE = "BuiltColor" -- on a recoloured part: its colour as built
+local UNIFORM_ATTRIBUTE = "UniformStyle" -- on a dressed cat: the Looks uniform it wears, nil for Classic
 
 -- The exporter's object Model whose name ends in _<suffix> ("Head", "Tail"), or nil (placeholder cats have none).
 local function objectModel(model: Model, suffix: string): Model?
@@ -209,10 +214,90 @@ function CatDress.dress(model: Model, role: string, clone: (assetName: string) -
 				part:SetAttribute("Follows", follows)
 			end
 		end
+		accessory:SetAttribute(PIECE_ATTRIBUTE, piece) -- #1624: recolour finds the outfit pieces by it
 		accessory.Parent = model
 		worn += 1
 	end
 	return worn
+end
+
+-- #1624 (store-pass-looks.md section 2): a uniform style recolours the role pieces with no new meshes. In each piece
+-- the colour that covers the most surface becomes the style's `main`, the next one its `trim`, and any others (a
+-- cocoa band, a gold star) stay as built. Pure, for the specs: `areas` maps each colour (any key) to its surface,
+-- and the answer maps the main and trim keys to "main" and "trim". Ties go to the smaller key, so it never flickers.
+function CatDress.uniformSlots(areas: { [string]: number }): { [string]: string }
+	local keys: { string } = {}
+	for key in areas do
+		table.insert(keys, key)
+	end
+	table.sort(keys, function(a: string, b: string): boolean
+		if areas[a] ~= areas[b] then
+			return areas[a] > areas[b]
+		end
+		return a < b
+	end)
+	local slots: { [string]: string } = {}
+	if keys[1] ~= nil then
+		slots[keys[1]] = "main"
+	end
+	if keys[2] ~= nil then
+		slots[keys[2]] = "trim"
+	end
+	return slots
+end
+
+-- A part's colour as built, kept the first time a uniform recolours it so Classic can put it back.
+local function builtColor(part: BasePart): Color3
+	local kept = part:GetAttribute(BUILT_COLOR_ATTRIBUTE)
+	if typeof(kept) == "Color3" then
+		return kept :: Color3
+	end
+	part:SetAttribute(BUILT_COLOR_ATTRIBUTE, part.Color)
+	return part.Color
+end
+
+-- Recolours every outfit piece `model` wears (the ones CatDress.dress put on) in the Looks uniform `uniformId`'s main
+-- and trim colours, or back to their built colours for nil or an unknown id (Classic). The model's UniformStyle
+-- attribute names the style it wears, so a second call with the same one does nothing. The server calls it on the
+-- working cats with the plot's UniformStyle; a client copy of a cat (CafeWalk's walkers) can call it the same way.
+function CatDress.wearUniform(model: Model, uniformId: string?)
+	local uniform = if uniformId ~= nil then Looks.uniform(uniformId) else nil
+	local id = if uniform ~= nil then uniform.id else nil
+	if model:GetAttribute(UNIFORM_ATTRIBUTE) == id then
+		return
+	end
+	local main = if uniform ~= nil
+		then Color3.fromRGB(uniform.main[1], uniform.main[2], uniform.main[3])
+		else nil
+	local trim = if uniform ~= nil
+		then Color3.fromRGB(uniform.trim[1], uniform.trim[2], uniform.trim[3])
+		else nil
+	model:SetAttribute(UNIFORM_ATTRIBUTE, id)
+	for _, child in model:GetChildren() do
+		if not child:IsA("Model") or child:GetAttribute(PIECE_ATTRIBUTE) == nil then
+			continue
+		end
+		local parts: { BasePart } = {}
+		local areas: { [string]: number } = {}
+		for _, descendant in child:GetDescendants() do
+			if descendant:IsA("BasePart") then
+				local part = descendant :: BasePart
+				table.insert(parts, part)
+				local size = part.Size
+				local key = builtColor(part):ToHex()
+				areas[key] = (areas[key] or 0) + size.X * size.Y + size.Y * size.Z + size.X * size.Z
+			end
+		end
+		local slots = if uniform ~= nil then CatDress.uniformSlots(areas) else {}
+		for _, part in parts do
+			local built = builtColor(part)
+			local slot = slots[built:ToHex()]
+			part.Color = if slot == "main" and main ~= nil
+				then main
+				elseif slot == "trim" and trim ~= nil then trim
+				else built
+		end
+	end
 end
 
 return CatDress

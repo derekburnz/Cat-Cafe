@@ -20,6 +20,7 @@
 -- camera.
 -- Listening only: nothing here fires a remote.
 
+local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -301,12 +302,55 @@ type View = {
 }
 local view: View? = nil
 
+-- While this player is in flight and until the server lets go of the landed character (its root anchored until
+-- Config.CannonLaunchSeconds, and a moment more for that to reach this client), the Left and Right arrows are
+-- swallowed here: the character cannot walk yet, so Roblox's camera took them as a turn and the view swung round
+-- on landing (#1478, Derek 2026-11-05). Once the character can move they work as usual.
+local ARROWS_ACTION = "CannonHoldArrows"
+local arrowsHeld = false
+
+local function sinkArrows(): Enum.ContextActionResult
+	return Enum.ContextActionResult.Sink
+end
+
+local function holdArrows(on: boolean)
+	if on == arrowsHeld then
+		return
+	end
+	arrowsHeld = on
+	if on then
+		ContextActionService:BindActionAtPriority(
+			ARROWS_ACTION,
+			sinkArrows,
+			false,
+			Enum.ContextActionPriority.High.Value,
+			Enum.KeyCode.Left,
+			Enum.KeyCode.Right
+		)
+	else
+		ContextActionService:UnbindAction(ARROWS_ACTION)
+	end
+end
+
+-- True while this player's character flies or stands landed but still held by the server.
+local function grounded(me: Model?): boolean
+	if me == nil then
+		return true
+	end
+	if me:GetAttribute("Launching") == true then
+		return false
+	end
+	local root = me:FindFirstChild("HumanoidRootPart")
+	return not (root ~= nil and root:IsA("BasePart") and (root :: BasePart).Anchored and arrowsHeld)
+end
+
 -- The camera for this player's own flight, after the game's camera has had its turn each frame.
 local function track()
 	local camera = Workspace.CurrentCamera
 	local me = Players.LocalPlayer.Character
 	local f = if me ~= nil then flights[me] else nil
 	local launchAt = if f ~= nil then f.launchAt else nil
+	holdArrows(launchAt ~= nil or not grounded(me))
 	if camera == nil or me == nil or f == nil or launchAt == nil then
 		if view ~= nil and camera ~= nil then
 			camera.CameraType = Enum.CameraType.Custom -- the game's camera again, from where this left it

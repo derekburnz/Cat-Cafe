@@ -15,6 +15,7 @@
 -- Nothing here replicates or fires a remote.
 
 local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
@@ -44,6 +45,21 @@ type Held = {
 }
 
 local held: { [Model]: Held } = {}
+
+-- #1480 (Derek2 2026-11-05: the arms fold but no cat shows): one line in the F9 console each time this player's own
+-- carry changes state, so a live game can say where the copy went. Only the local player's own character reports,
+-- at most once per state. Remove once #1480 is closed.
+local reported: { [string]: boolean } = {}
+local function report(character: Model, key: string, message: string)
+	if character ~= Players.LocalPlayer.Character or reported[key] then
+		return
+	end
+	reported[key] = true
+	print("[Carry #1480] " .. message)
+end
+local function forgetReports()
+	table.clear(reported)
+end
 -- copies whose carry ended, left where they last lay and fading out over carryPose.blendOut (#1138: no pop)
 type Leaving = { copy: Model, from: number, start: number }
 local leaving: { Leaving } = {}
@@ -177,19 +193,48 @@ end
 
 -- Puts a copy of `cat` on the carrier's arms and hides the HeldCat. A cat Pose cannot move part by part (one with
 -- Motor6D joints) is left showing on its weld and tried again after Presets.carryPose.retry seconds.
-local function show(entry: Held, cat: Model, now: number)
+local function show(character: Model, entry: Held, cat: Model, now: number)
 	local copy = copyOf(cat)
 	if copy ~= nil then
 		copy.Parent = Context.folder()
 	end
 	local copyRig = if copy ~= nil then Pose.bind(copy) else nil -- its parts are anchored: Pose moves each one
 	if copy == nil or copyRig == nil or copyRig.usesMotors then
+		report(
+			character,
+			"refused",
+			string.format(
+				"%s left on its weld: copy %s, rig %s, motors %s, model in Assets %s",
+				tostring(cat:GetAttribute("CatId")),
+				tostring(copy ~= nil),
+				tostring(copyRig ~= nil),
+				tostring(copyRig ~= nil and copyRig.usesMotors),
+				tostring(assetOf(cat) ~= nil)
+			)
+		)
 		if copy ~= nil then
 			copy:Destroy()
 		end
 		entry.refused, entry.retryAt = cat, now + Presets.carryPose.retry
 		return
 	end
+	local parts = 0
+	for _, item in copy:GetDescendants() do
+		if item:IsA("BasePart") then
+			parts += 1
+		end
+	end
+	report(
+		character,
+		"shown",
+		string.format(
+			"%s copy made from %s, %d parts, body %s",
+			tostring(cat:GetAttribute("CatId")),
+			if assetOf(cat) ~= nil then "Assets" else "the HeldCat",
+			parts,
+			copyRig.body.Name
+		)
+	)
 	entry.cat, entry.copy, entry.copyRig = cat, copy, copyRig
 	entry.phase = rng:NextNumber(0, 100)
 	entry.fadeFrom = now
@@ -290,7 +335,24 @@ local function place()
 			release(entry, now) -- put down (or out of range): it fades where it lay
 		end
 		if wanted and entry.cat == nil and cat ~= nil then
-			show(entry, cat, now)
+			show(character, entry, cat, now)
+		end
+		if not entry.carrying then
+			if character == Players.LocalPlayer.Character then
+				forgetReports()
+			end
+		elseif cat == nil then
+			report(character, "nocat", "carrying, but no HeldCat in the character on this client")
+		elseif not wanted then
+			report(
+				character,
+				"unwanted",
+				string.format(
+					"HeldCat not shown: near %s, hidden by Show other cats %s",
+					tostring(entry.near),
+					tostring(cat:GetAttribute("HiddenLocal") == true)
+				)
+			)
 		end
 		local copyRig = entry.copyRig
 		if copyRig == nil or cat == nil then
@@ -299,13 +361,44 @@ local function place()
 		setHidden(cat, true) -- the camera scripts put the character's parts back every so often
 		local floor = Avatar.cradle(entry.rig, "loaf", frameOf)
 		if floor == nil or not Pose.read(copyRig) then
+			report(
+				character,
+				"dropped",
+				if floor == nil
+					then "copy taken off: no arms found to rest it on (Avatar.cradle)"
+					else "copy taken off: one of its parts went (Pose.read)"
+			)
 			release(entry)
 			continue
 		end
 		Pose.hold(copyRig, floor)
 		Pose.draw(copyRig, Logic.idle("held", now + entry.phase, copyRig.kind), -1)
 		if entry.copy ~= nil then
-			fadeIn(entry, entry.copy :: Model, now)
+			local copy = entry.copy :: Model
+			fadeIn(entry, copy, now)
+			if entry.fadeFrom == nil then
+				local at = copy:GetPivot().Position
+				local root = character:FindFirstChild("HumanoidRootPart")
+				local away = if root ~= nil and root:IsA("BasePart")
+					then (at - (root :: BasePart).Position).Magnitude
+					else -1
+				local body = copyRig.body
+				report(
+					character,
+					"placed",
+					string.format(
+						"copy at %.1f, %.1f, %.1f, %.1f studs from the root, in %s, body hidden %.2f, "
+							.. "transparency %.2f",
+						at.X,
+						at.Y,
+						at.Z,
+						away,
+						if copy.Parent ~= nil then copy.Parent:GetFullName() else "nothing",
+						body.LocalTransparencyModifier,
+						body.Transparency
+					)
+				)
+			end
 		end
 	end
 end

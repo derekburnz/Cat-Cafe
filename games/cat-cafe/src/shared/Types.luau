@@ -813,8 +813,7 @@ export type CornerShopState = {
 	today: { [string]: number },
 	foodXpToday: number,
 }
--- One row as CornerShopStock sends it. `today` and `perDay` are no longer sent (#1190: the daily limits stay on the
--- server and show only as a refusal toast); they stay optional here until the window stops reading them.
+-- One row as CornerShopStock sends it. The daily limits stay on the server and show only as a refusal toast (#1190).
 export type CornerShopItem = {
 	itemId: string,
 	price: number,
@@ -822,8 +821,6 @@ export type CornerShopItem = {
 	bought: number,
 	size: CornerShopSize,
 	needsTier: number?,
-	today: number?,
-	perDay: number?,
 }
 -- What CornerShopStock sends: the window, when it restocks, each row in Catalog order, and the cat food XP bought
 -- today (`snackXp`, its v1 name, which the window reads).

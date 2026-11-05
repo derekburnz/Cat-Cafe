@@ -21,7 +21,6 @@ local ActionPill = require(script.Screens.ActionPill)
 local AreaTitle = require(script.Screens.AreaTitle)
 local Areas = require(script.Screens.Areas)
 local AskCard = require(script.Screens.AskCard)
-local BagLogic = require(script.Components.BagLogic)
 local BaitBowl = require(script.Screens.BaitBowl)
 local BaitCard = require(script.Screens.BaitCard)
 local BugReport = require(script.Screens.BugReport)
@@ -279,7 +278,7 @@ local freshStock: FreshCatchLogic.Stock? = nil -- the last FreshCatchStock, nil 
 local bugReportScreen: BugReport.BugReport? = nil -- the Feedback window, from the HUD's Feedback tile
 local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking into the Codes Cat's circle
 local potionsScreen: Potions.Potions? = nil -- the potion bag (F64), from the Potions pill, P or a HUD timer
-local bagFed: { [string]: string } = {} -- #1181: cat uid -> the food just fed to it, for FeedResult's toast
+local bagFed: { [string]: number } = {} -- #1181: cat uid -> its level when fed, so FeedResult can tell a level up
 local questsScreen: Quests.Quests? = nil -- the Quests window (F73), from the Quests pill, J or the HUD's quest line
 local collectorScreen: Collector.Collector? = nil -- the Cat Collector's card and tag (F63, UI.collector.offer)
 local dailyTreatScreen: DailyTreat.DailyTreat? = nil -- the Daily Treat card (F70), from the HUD's Daily tile
@@ -1103,7 +1102,8 @@ function UI.init(config: Types.InitConfig)
 			UI.events.usePotion:Fire(potionId)
 		end,
 		feed = function(foodId: string, catUid: string)
-			bagFed[catUid] = foodId
+			local cat = (state.cats or {})[catUid]
+			bagFed[catUid] = if cat and type(cat.level) == "number" then cat.level else 0
 			local events: any = UI.events
 			events.feedCat:Fire(foodId, catUid)
 		end,
@@ -2066,37 +2066,15 @@ end
 
 UI.potions = {}
 
--- The Bag's Feed (#1181): FeedResult(catUid, level, xp) from the server after a FeedCat it took. A toast with the
--- food's XP and the cat's level; the counts move with the ProfileSync that follows.
+-- The Bag's Feed (#1181): FeedResult(catUid, level, xp) from the server after a FeedCat it took. The server already
+-- toasts "<cat> loved the <food>: +N XP", so this only adds a level up; the counts move with the ProfileSync after.
 UI.bag = {}
 function UI.bag.fed(catUid: string, level: number, _xp: number)
-	local foodId = bagFed[catUid]
+	local before = bagFed[catUid]
 	bagFed[catUid] = nil
-	local gained = ""
-	for _, def in (currentCatalog and (currentCatalog :: any).catFood) or {} do
-		if def.id == foodId then
-			gained = BagLogic.xpLine(def.xp) .. " · "
-		end
+	if before and before > 0 and level > before then
+		UI.toast(("Level up! Level %d"):format(level), "good")
 	end
-	UI.toast(("%sLevel %d"):format(gained, level), "good")
-end
-
--- From MysteryGiftResult(kind, id, count): a card with what the gift held ("Money Potion", "2 Salmon",
--- "10 golden fish", "1 spin") as a picture, closing by itself, with the giftOpen sound.
-function UI.potions.giftResult(kind: string, id: string?, count: number)
-	if popups == nil then
-		return
-	end
-	local function potionName(potionId: string): string?
-		for _, potion in PotionLogic.list(currentCatalog) do
-			if potion.id == potionId then
-				return potion.name
-			end
-		end
-		return nil
-	end
-	local title = PotionLogic.giftTitle(kind, id, count, foodName, potionName)
-	popups:showGift(title, PotionLogic.giftPrize(kind, id, count))
 end
 
 ----------------------------------------------------------------------------------------------------

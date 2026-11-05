@@ -3,7 +3,8 @@
 -- gift appears on the table with a little sparkle, a faint twinkle hangs over your own gift while it waits, and
 -- opening it pops the ribbon in confetti with sparkles and a ring in the colour of what was inside. The pop plays in
 -- that colour from its first frame and never shows anything better first. An unopened gift that runs out, or goes
--- with a plot release, leaves with no pop, so it never looks opened.
+-- with a plot release, leaves with no pop, so it never looks opened. Every waiting gift, yours or another cafe's,
+-- wears a red "!" that bobs over it (Derek2 2026-11-05, #1638) and goes with the gift.
 --
 -- Sources: the `MysteryVisitor` and `MysteryGift` tags on the models each client builds under a Plot from
 -- `MysteryVisitorUntil` and `MysteryGiftAt` (data-model 13), the plot's `OwnerUserId`, and this player's own
@@ -12,6 +13,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
@@ -29,6 +31,7 @@ local visitors: { [Instance]: Vector3 } = {} -- where each visitor sat, for the 
 local mine: Model? = nil -- your own gift while it waits
 local mineSpot: Spot? = nil -- where it is or was, for the pop
 local twinkle: Attachment? = nil
+local bangs: { [Instance]: Attachment } = {} -- the "!" over each waiting gift
 local started = false
 
 local function spotOf(model: Model): Spot
@@ -87,6 +90,52 @@ local function stopTwinkle()
 	end
 end
 
+local function removeBang(gift: Instance)
+	local anchor = bangs[gift]
+	if anchor ~= nil then
+		anchor:Destroy()
+		bangs[gift] = nil
+	end
+end
+
+-- The red "!" over a waiting gift, seen by everyone: a BillboardGui `bang.lift` studs over the gift's top, drawn
+-- within `bang.within` studs and hidden by walls, bobbing `bang.bob` studs every `bang.seconds` (still with Reduce
+-- Motion). Roblox terms: a BillboardGui is 2D UI drawn at a point in the world, always facing the camera.
+local function addBang(gift: Model, spot: Spot)
+	removeBang(gift)
+	local b = Presets.mystery.bang
+	local anchor = Particles.anchor("GiftBang", spot.top + Vector3.new(0, b.lift, 0))
+	local gui = Instance.new("BillboardGui")
+	gui.Name = "GiftBang"
+	gui.Size = UDim2.new(b.studs, b.pixels, b.studs, b.pixels)
+	gui.LightInfluence = 0
+	gui.AlwaysOnTop = false
+	gui.MaxDistance = b.within
+	gui.Adornee = anchor
+	gui.Parent = anchor
+	local label = Instance.new("TextLabel")
+	label.BackgroundTransparency = 1
+	label.Size = UDim2.fromScale(1, 1)
+	label.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json")
+	label.Text = "!"
+	label.TextScaled = true
+	label.TextColor3 = b.colour
+	label.TextStrokeColor3 = Presets.palette.offwhite
+	label.TextStrokeTransparency = 0
+	label.Parent = gui
+	if not Context.reducedMotion() then
+		local info = TweenInfo.new(
+			b.seconds / 2,
+			Enum.EasingStyle.Sine,
+			Enum.EasingDirection.InOut,
+			-1,
+			true
+		)
+		TweenService:Create(gui, info, { StudsOffset = Vector3.new(0, b.bob, 0) }):Play()
+	end
+	bangs[gift] = anchor
+end
+
 local function visitorAdded(instance: Instance)
 	settled(instance, function(model: Model)
 		local frame = model:GetBoundingBox()
@@ -114,6 +163,9 @@ local function giftAdded(instance: Instance)
 				Presets.palette.sparkle
 			)
 		end
+		if CollectionService:HasTag(model, "MysteryGift") and model:IsDescendantOf(Workspace) then
+			addBang(model, spot)
+		end
 		if ownerOf(model) ~= Players.LocalPlayer.UserId then
 			return
 		end
@@ -126,6 +178,7 @@ local function giftAdded(instance: Instance)
 end
 
 local function giftRemoved(instance: Instance)
+	removeBang(instance)
 	if instance == mine then
 		mine = nil -- mineSpot stays for a MysteryGiftResult that lands just after the gift goes
 		stopTwinkle()

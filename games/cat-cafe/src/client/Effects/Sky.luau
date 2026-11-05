@@ -9,7 +9,8 @@
 -- WindAffectsDrag, and there is no terrain grass), so the wind only moves the clouds. Only this client's copy
 -- changes. Numbers in Presets.sky.
 --
--- A Lucky Day (F88, luck-and-rare-moments.md 1c): while the Clock's `LuckyDay` is on by day, the world takes a warm
+-- A Lucky Day (F88, luck-and-rare-moments.md 1c), and since day rolls v2 (1g, #1572) a Golden or Rainbow Day
+-- too: while the Clock's `LuckyDay`, `GoldenDay` or `RainbowDay` is on by day, the world takes a warm
 -- gold tint through a ColorCorrectionEffect of this client's own (the place's Atmosphere and its day and night curve
 -- in WorldController are untouched) and our clouds turn gold, easing in at sunrise and out at dusk. Joining during one
 -- shows it at once. Numbers in Presets.luckyDay.
@@ -98,18 +99,20 @@ end
 local function followClock()
 	local clock = ReplicatedStorage:WaitForChild("Clock")
 	local function read(instant: boolean)
-		setLucky(
-			Logic.luckyDayOn(clock:GetAttribute("LuckyDay"), clock:GetAttribute("Phase")),
-			instant
+		local on = Logic.specialDayOn(
+			clock:GetAttribute("LuckyDay"),
+			clock:GetAttribute("GoldenDay"),
+			clock:GetAttribute("RainbowDay"),
+			clock:GetAttribute("Phase")
 		)
+		setLucky(on, instant)
 	end
 	read(true)
-	clock:GetAttributeChangedSignal("LuckyDay"):Connect(function()
-		read(false)
-	end)
-	clock:GetAttributeChangedSignal("Phase"):Connect(function()
-		read(false)
-	end)
+	for _, name in { "LuckyDay", "GoldenDay", "RainbowDay", "Phase" } do
+		clock:GetAttributeChangedSignal(name):Connect(function()
+			read(false)
+		end)
+	end
 end
 
 function Sky.start()

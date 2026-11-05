@@ -173,7 +173,7 @@ Everything here runs on this client only. Effects read replicated world state (t
 | Camp ready glows | `Moments.CampExtrasState` (`picnic.held`, `yardSale.held`, `pond.held`); the `CampExtra`-tagged Models with `ExtraId` "picnic", "yardSale" and "pond" (Model-Agent's `CatCafe_Camp_Park_PicnicStation`, `CatCafe_Camp_Neighbourhood_YardSaleStall`, `CatCafe_Camp_Woods_FishingHut`) and their optional `GlowAnchor` attachments |
 | Trap shake, rescue free pop | `Moments.RescueStart`, `RescueHit` and `RescueDone` (your own rescue); the `RescueSpot` anchor with that `RescueSpotId` and the `<rescueSpotId>_Trap` model in its folder; the ground under the spot for the free pop's ring |
 | Net whoosh | `Moments.NetSmackPress` (yours) and `Moments.NetSwung(userId)` (others); the net copy from `NetHold.net(character)`, its `Grip` attachment and its part farthest from it (the hoop) |
-| Lucky Day tint | the Clock's `LuckyDay` and `Phase` (`Logic.luckyDayOn`) |
+| Lucky, Golden and Rainbow Day tint | the Clock's `LuckyDay`, `GoldenDay`, `RainbowDay` and `Phase` (`Logic.specialDayOn`, #1572) |
 | Lucky Cat sparkle, jade shimmer | the `LuckyCat` tag in Workspace and its `Level` (else the `_<n>` in its name); the last level seen per plot (the statue's parent) for a level up |
 | Pipe drip | Attachments named `Drip` in Workspace; what of that camp extra's model is below one within 3 studs (a raycast once a drop, the lid as it is then) |
 | Camp extras collect | `Moments.CampExtraCollect(extraId, position)` (your own collect or Yard Sale buy); the `CampExtra`-tagged Model in Workspace with that `ExtraId` nearest `position` within 12 studs, its bounding box, its `FishJump` attachment and its child Model ending `_Lid` |

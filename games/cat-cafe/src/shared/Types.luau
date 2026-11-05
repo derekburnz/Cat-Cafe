@@ -788,7 +788,9 @@ export type FreshCatchStock = { window: number, restocksAt: number, stock: { Fre
 -- v2 (corner-shop-v2.md section 4, #1180): every row sold for coins at a fixed `price`, in a `family` (its daily limit
 -- counts the family, Config.CornerDailyLimits) and a `size` (its stock chance, Config.CornerShopSizeWeights). A
 -- "potion" row gives `potionId` into the bag, a "food" row `foodId` into the Bag's cat food (its `xp` is that food's)
--- and a "show" row plays `showId` over the buyer's cafe. `needsTier` hides and refuses the row below that tier.
+-- and a "show" row played `showId` over the buyer's cafe (retired with the Bubble Machine and Cafe Fireworks, #1381; the
+-- kind and its fields go once Effects/CafeShow and CornerShopLogic stop reading them). `needsTier` hides and refuses
+-- the row below that tier.
 export type CornerShopSize = "small" | "regular" | "big" | "mega"
 export type CornerShopRow = {
 	id: string,

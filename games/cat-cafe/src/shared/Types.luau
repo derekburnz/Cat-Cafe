@@ -317,8 +317,9 @@ export type SpinSlice = {
 	minCoins: number?,
 	lureId: string?,
 	count: number?, -- foods, golden fish or crates
-	crate: string?, -- F54: the crate id, or "highest"
+	crate: string?, -- F54: the crate id, "highest" or (#1500) "highest_golden"
 	weight: number,
+	jackpot: boolean?, -- #1500: one of the two 0.5% slices, with the big win effect and a toast
 }
 
 -- The player's spins (F49): `lastFreeDay` is the UTC day number (os.time() // 86400) of the last free spin, so the

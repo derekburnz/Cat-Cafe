@@ -133,7 +133,8 @@ local function onCollect(player: Player, rawExtraId: unknown)
 	end
 	-- #1463 (camp-stations.md section 4): a Golden Pond owner collects the pond from anywhere, the same fish a walker
 	-- gets. PassService sets the attribute on the server, and a client's own attribute never reaches it.
-	local anywhere = extraId == "pond" and player:GetAttribute(CampExtras.GOLD_POND_ATTRIBUTE) == true
+	local anywhere = extraId == "pond"
+		and player:GetAttribute(CampExtras.GOLD_POND_ATTRIBUTE) == true
 	if not anywhere and not inReach(player, def) then
 		refuse(player, extraId, string.format("Walk up to the %s first", def.name))
 		return

@@ -735,8 +735,6 @@ local Cues: { [string]: Cue } = {
 		range = 20,
 	},
 
-	duskBell = { ids = { "rbxassetid://94140238394787" }, group = "Sfx", volume = 0.5 }, -- F66: DuskWarningSeconds before night
-
 	-- Visitors, codes and potions (5.11) -------------------------------------------------------------------
 	visitorCollector = {
 		ids = { "rbxassetid://89641081512860" },

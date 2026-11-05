@@ -8,21 +8,21 @@ return function()
 	describe("Catalog.tipJar (section 11b table, v0.10 F68)", function()
 		-- step -> { minutes, prize }
 		local expected: { { any } } = {
-			-- F94 (rewards-and-shops.md section 2a): golden fish and a spin in place of the shop food
-			{ 2, { coins = 50, coinSeconds = 15 } },
-			{ 5, { fish = 2 } },
-			{ 10, { coins = 100, coinSeconds = 30 } },
-			{ 15, { fish = 2 } },
-			{ 20, { coins = 150, coinSeconds = 45 } },
-			{ 30, { spins = 1 } },
-			{ 40, { coins = 250, coinSeconds = 60 } },
-			{ 50, { fish = 3 } },
+			-- v2 (#1414, rewards-and-shops.md section 2a): coins 2x, golden fish 5x, spins 5x, the crate 2x
+			{ 2, { coins = 100, coinSeconds = 30 } },
+			{ 5, { fish = 10 } },
+			{ 10, { coins = 200, coinSeconds = 60 } },
+			{ 15, { fish = 10 } },
+			{ 20, { coins = 300, coinSeconds = 90 } },
+			{ 30, { spins = 5 } },
+			{ 40, { coins = 500, coinSeconds = 120 } },
+			{ 50, { fish = 15 } },
 			-- the pretty good gift at an hour (round 4 Q10)
-			{ 60, { coins = 1000, coinSeconds = 300, fish = 10 } },
-			{ 75, { fish = 5 } },
-			{ 90, { coins = 600, coinSeconds = 150, spins = 1 } },
+			{ 60, { coins = 2000, coinSeconds = 600, fish = 50 } },
+			{ 75, { fish = 25 } },
+			{ 90, { coins = 1200, coinSeconds = 300, spins = 5 } },
 			-- and the really good one at two hours
-			{ 120, { crates = { classic_crate = 1 }, fish = 30 } },
+			{ 120, { crates = { classic_crate = 2 }, fish = 150 } },
 		}
 
 		it(
@@ -91,15 +91,15 @@ return function()
 		end)
 
 		it("a coins step pays its seconds of day rate, never under its floor", function()
-			expect(TipJar.coins(first, 0)).to.equal(50)
-			expect(TipJar.coins(first, 1.5)).to.equal(50) -- 22 is under the floor
-			expect(TipJar.coins(first, 10)).to.equal(150) -- F95: coin prizes pay half their seconds
-			expect(TipJar.coins(first, 10.55)).to.equal(158) -- floored
-			expect(TipJar.coins(first, -5)).to.equal(50)
-			expect(TipJar.coins(Catalog.tipJar[11], 100)).to.equal(15000)
-			-- step 9 (v0.10): 300 s of day rate since F95 (was 600), at least 1,000
-			expect(TipJar.coins(Catalog.tipJar[9], 1)).to.equal(1000)
-			expect(TipJar.coins(Catalog.tipJar[9], 2.5)).to.equal(1000) -- 750 is under the floor since F95
+			expect(TipJar.coins(first, 0)).to.equal(100)
+			expect(TipJar.coins(first, 1.5)).to.equal(100) -- 45 is under the floor
+			expect(TipJar.coins(first, 10)).to.equal(300) -- #1414: 30 s of day rate (was 15)
+			expect(TipJar.coins(first, 10.55)).to.equal(316) -- floored
+			expect(TipJar.coins(first, -5)).to.equal(100)
+			expect(TipJar.coins(Catalog.tipJar[11], 100)).to.equal(30000)
+			-- step 9 (v0.10): 600 s of day rate since #1414 (300 since F95), at least 2,000
+			expect(TipJar.coins(Catalog.tipJar[9], 1)).to.equal(2000)
+			expect(TipJar.coins(Catalog.tipJar[9], 2.5)).to.equal(2000) -- 1,500 is under the floor
 		end)
 
 		it("a step without coins pays none", function()

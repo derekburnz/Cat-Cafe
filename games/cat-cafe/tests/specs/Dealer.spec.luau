@@ -18,7 +18,7 @@ return function()
 
 	describe("one stock a night (F94)", function()
 		it("rolls an amount of every dealer food in order, one roll each", function()
-			local stock = Dealer.roll(rolls({ 0, 0.99, 0.5, 0.95 }))
+			local stock = Dealer.roll(rolls({ 0, 0.99, 0.4, 0.95 }))
 			expect(#stock).to.equal(#Dealer.FOODS)
 			for index, food in stock do
 				expect(food.lureId).to.equal(Dealer.FOODS[index])
@@ -26,8 +26,8 @@ return function()
 				expect(def).to.be.ok()
 				expect((def :: any).source).to.equal("dealer")
 			end
-			-- sardines { 15, 25, 30, 20, 10 } at 0, caviar { 35, 40, 20, 5, 0 } at 0.99, moon milk { 60, 35, 5 } at
-			-- 0.5, star treat { 90, 10 } at 0.95
+			-- sardines { 15, 25, 30, 20, 10 } at 0, caviar { 35, 40, 20, 5, 0 } at 0.99, moon milk { 45, 45, 10 } at
+			-- 0.4, star treat { 80, 20 } at 0.95 (#1442)
 			expect(stock[1].amount).to.equal(0)
 			expect(stock[2].amount).to.equal(3)
 			expect(stock[3].amount).to.equal(0)
@@ -96,7 +96,7 @@ return function()
 
 	describe("dealer amounts edges (QA, F59)", function()
 		it("the weights match the design: 0 to 4 of each, out of 100, Sardines most and Star Treat least", function()
-			local means = { sardines = 1.85, caviar = 0.95, moon_milk = 0.45, star_treat = 0.10 }
+			local means = { sardines = 1.85, caviar = 0.95, moon_milk = 0.65, star_treat = 0.20 } -- #1442
 			for _, lureId in Dealer.FOODS do
 				local weights = Catalog.dealerAmountWeights[lureId]
 				assert(weights, lureId)

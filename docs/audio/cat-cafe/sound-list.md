@@ -195,7 +195,7 @@ None of these needs a moment: Audio follows the `bait` in each ProfileSync (`Log
 |---|---|---|---|---|---|
 | `signFlip` | NightStart, DayStart, PlotOpened | 3D on your door sign | 0.4 s | wooden sign turning between sun and moon, or to OPEN | P1 |
 | `lampOn` | NightStart | 3D on each street lamp | 0.5 s | click and hum start | P2 |
-| `duskBell` | `Clock` `PhaseEndsAt` minus DuskWarningSeconds (15) by day, with the F66 warning banner; Audio schedules it itself | 2D | 3.4 s | the town clock's bell tolling twice, warm and unhurried | P1 |
+| ~~`duskBell`~~ | Removed 2026-11-05 (Derek: no dings before night; the "Night falls" banner is the only warning). The file stays uploaded but is unused | | | | |
 
 ### 5.8 UI
 

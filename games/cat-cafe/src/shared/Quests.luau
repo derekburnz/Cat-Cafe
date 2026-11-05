@@ -300,7 +300,7 @@ function Quests.rerollBlocker(
 	elseif used then
 		return if kind == "daily"
 			then "You've used today's free swap"
-			else "You've used this week's free swap"
+			else "You've used today's weekly swap"
 	elseif entry.claimed or Quests.done(profile, entry) then
 		return "That quest is done"
 	end

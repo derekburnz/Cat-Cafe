@@ -17,7 +17,7 @@ function ChatTagController.start()
 	TextChatService.OnIncomingMessage = function(
 		message: TextChatMessage
 	): TextChatMessageProperties?
-		local source = message.TextSource
+		local source: TextSource? = message.TextSource -- nil for a system message
 		if source == nil then
 			return nil
 		end

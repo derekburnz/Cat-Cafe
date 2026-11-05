@@ -1701,6 +1701,11 @@ Presets.carryPose = {
 	blendIn = 0.2,
 	blendOut = 0.2,
 	retry = 1,
+	-- #1480: the copy never rests further than `reach` studs from the carrier's root. A cradle further off (or a
+	-- copy found there after drawing) is put back at the root's own chest spot, `rootUp` up and `rootForward` ahead.
+	reach = 6,
+	rootUp = 0.6,
+	rootForward = 1.15,
 }
 
 -- The Cat Cannon flight (F84, hometown-cannon.md section 3b; Derek 2026-11-03: "much further with less summer

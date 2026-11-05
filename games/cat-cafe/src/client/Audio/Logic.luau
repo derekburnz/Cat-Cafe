@@ -504,6 +504,18 @@ function Logic.shiftStarted(before: boolean?, now: boolean): boolean
 	return before == false and now
 end
 
+-- #1541: the tutorial's own song plays while the intro cutscene runs, or while the first tutorial steps (steps below
+-- `lastStep`) show with the Tutorial tile on. The tile's x (its setting off) or finishing the steps ends it. With no
+-- step known yet nothing plays.
+function Logic.tutorialSteps(step: number?, lastStep: number, tileOn: boolean): boolean
+	return tileOn and step ~= nil and step < lastStep
+end
+
+-- A tutorial step is done on a seen rise of the step (not the first sync after joining).
+function Logic.tutorialStepDone(before: number?, now: number): boolean
+	return before ~= nil and now > before
+end
+
 -- #1133/#1154/#1232: a camp station chimes when something starts waiting there, on a seen change of `held` from 0
 -- to more while its area is open. nil before (the first state after joining) plays nothing.
 function Logic.stationReady(before: number?, now: number, open: boolean): boolean

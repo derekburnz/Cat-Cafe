@@ -1,18 +1,19 @@
 --!strict
 -- Bait bowl screen (F28, data-model section 8): what is in your bowl and every food you can put in it. A food
 -- goes in with Use from anywhere, F included (Derek 2026-10-28); the cat it brings is rolled then and arrives after
--- the wait, even while you are offline, and you choose Tame or Let go when it comes. Every food card shows its
--- five-rarity odds before Use as one short row, each rarity in its colour (Derek 2026-10-28: "make it simple
--- and easy can click info/details for more"), and Details opens the gold chance (no charm stars since F97) and the
--- per-cat split (the growth thread's rules for random items). #1281 (corner-shop-v2.md section 1b): no Buy here; the
+-- the wait, even while you are offline, and you choose Tame or Let go when it comes. Since #1612 (Derek2 11-05: "no
+-- need to show odds of everything everywhere") each food is one compact row: its picture, name, grade and "You have
+-- 3", with Use and Details; Details opens the five-rarity odds in their colours, the gold chance (no charm stars
+-- since F97) and the per-cat split (the growth thread's rules for random items). #1281 (corner-shop-v2.md section 1b): no Buy here; the
 -- shop foods are sold at the Corner Shop, so each row says "You have 3" and Use, or a calm "Get more at the Corner
 -- Shop" with none left. F69: each food's picture wears its grade badge, its card a border
--- in the grade's colour, and the chip by its name says what it attracts; the bowl shows the food in it. F54: the gold
+-- in the grade's colour, and the grade by its name (the "Attracts" chip went in #1612); the bowl shows the food in it. F54: the gold
 -- chance has the Index's gold luck in it, and the wait the Big Bowl perk and the Index's faster bait; F73 adds a
 -- running Gold Rush, Lucky or Quick Bait Potion's, as the server rolls food set now. F60: food set
 -- at night waits half, so by night the empty bowl's wait is the night one and a night bowl counts down behind a moon.
 -- F82: the odds row, the split and the wait are the bowl level's (shared Bait, as the server rolls), and the title
--- names the bowl you have, "Comfy Bowl" up to "Royal Bowl". The foods run in rarity order (Components/FoodOrder).
+-- names the bowl you have, "Comfy Bowl" up to "Royal Bowl". The foods run in rarity order, rarest first since #1609
+-- (Components/FoodOrder).
 -- Opened by the bowl's prompt (UI.bait.openPicker), the HUD bowl chip or F.
 -- #1161 (the Second Bait Bowl pass, Derek 2026-11-04: "make sure the bowl menu works perfectly with two bowls"): with a
 -- second bowl a row of two bowl tabs sits over the status card, each with its own state ("Empty", the countdown or
@@ -73,12 +74,14 @@ export type BaitBowl = {
 }
 
 local STATUS_HEIGHT = 92
-local ROW_HEIGHT = 132 -- room for the odds row to wrap onto a second line on a narrow screen
+-- #1612 (Derek2 11-05: "just have it in a smaller line/image have the symbol the name the rarity of the food (remove
+-- what it attracts) remove odds and just put that under details"): a compact row, Use and Details side by side
 local BUTTON = Vector2.new(112, Theme.sizes.touchMin)
+local DETAILS_W = 100
 local DETAILS_H = 42 -- a 37 px face, over the 36 px a mouse needs (the UI gate's tap check)
-local ICON = 84 -- the food's picture, as in the dealer's list and the Grow a Garden seed shop
-local TEXT_LEFT = ICON + 28
-local TEXT_WIDTH = -(TEXT_LEFT + BUTTON.X * 2 + 32)
+local ICON = 52 -- the food's picture with its grade gem
+local TEXT_LEFT = ICON + 24
+local TEXT_WIDTH = -(TEXT_LEFT + BUTTON.X + DETAILS_W + 8 + 24)
 local TAB_H = 42 -- the bowl tabs (#1161), as tall as Details
 local ODDS_LINE = 22
 local TITLE = "Bait bowl"
@@ -108,26 +111,9 @@ local function rarityHex(rarity: string): string
 	return Theme.rarityLight(rarity):ToHex() -- light odds on the dark cards (#1028)
 end
 
--- "Attracts Epic": the rarity the food is known for, on paper with a border in that rarity's colour, so the solid
--- badge on the picture stays the food's own grade (F69)
-local function attractsChip(parent: Instance, lure: Types.LureDef, order: number): TextLabel
-	return Create("TextLabel", {
-		Name = "Attracts",
-		BackgroundColor3 = Theme.colors.paper,
-		BorderSizePixel = 0,
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 20),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textTiny,
-		TextColor3 = Theme.colors.ink, -- dark words on the paper chip
-		Text = FoodGrade.attracts(lure),
-		LayoutOrder = order,
-		Parent = parent,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
-		Create("UIStroke", { Color = Theme.rarityColor(lure.attracts), Thickness = 2 }),
-	})
+-- Text that goes into a RichText label as it reads (the Details text sits under the coloured odds).
+local function plain(value: string): string
+	return (value:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;"))
 end
 
 function BaitBowl.new(callbacks: Callbacks): BaitBowl
@@ -400,12 +386,13 @@ function BaitBowl._buildRows(self: any)
 		return
 	end
 	assert(catalog, "catalog not set; call UI.init first")
-	-- every food in rarity order, the night dealer's among the shop's (F97 section 3)
-	local foods: { Types.LureDef } = FoodOrder.defs(catalog.lures)
+	-- every food in rarity order, the night dealer's among the shop's (F97 section 3); rarest first since #1609
+	-- (Derek2 11-05), as the Bag's Bait tab
+	local foods: { Types.LureDef } = FoodOrder.defs(catalog.lures, true)
 	-- on a phone Use and Details grow to a 44 px face and the card's top with them, as in the dealer's list
 	local buttonH = Scale.tapHeight(BUTTON.Y, Theme.sizes.buttonDepth)
 	local detailsH = Scale.tapHeight(DETAILS_H, Theme.sizes.buttonDepth)
-	local topHeight = math.max(ROW_HEIGHT, 12 + buttonH + 10 + detailsH + 12)
+	local topHeight = math.max(ICON + 16, buttonH + 16, detailsH + 16)
 	for index, lure in foods do
 		local dealer = lure.source == "dealer"
 		local row: Frame = Create("Frame", {
@@ -435,14 +422,16 @@ function BaitBowl._buildRows(self: any)
 		local icon = ItemIcon.new({
 			parent = top,
 			size = UDim2.fromOffset(ICON, ICON),
-			position = UDim2.fromOffset(12, 12),
+			anchorPoint = Vector2.new(0, 0.5),
+			position = UDim2.new(0, 12, 0.5, 0),
+			badge = "gem",
 		})
 		icon:setFood(lure)
 		local heading: Frame = Create("Frame", {
 			Name = "Heading",
 			BackgroundTransparency = 1,
-			Position = UDim2.fromOffset(TEXT_LEFT, 10),
-			Size = UDim2.new(1, TEXT_WIDTH, 0, 26),
+			Position = UDim2.new(0, TEXT_LEFT, 0.5, -24),
+			Size = UDim2.new(1, TEXT_WIDTH, 0, 24),
 			Parent = top,
 		}, {
 			Create("UIListLayout", {
@@ -455,43 +444,42 @@ function BaitBowl._buildRows(self: any)
 		text({
 			Name = "Name",
 			AutomaticSize = Enum.AutomaticSize.X,
-			Size = UDim2.fromOffset(0, 26),
+			Size = UDim2.fromOffset(0, 24),
 			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textLarge - 2,
+			TextSize = Theme.sizes.textBody + 2,
 			Text = lure.name,
 			LayoutOrder = 1,
 			Parent = heading,
 		})
-		attractsChip(heading, lure, 2)
+		-- the food's own grade in its colour, where the "Attracts" chip was (#1612)
+		local grade = FoodGrade.of(lure)
+		text({
+			Name = "Grade",
+			Size = UDim2.fromOffset(90, 24), -- "Legendary" at full width, beside a name of any length
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = Theme.rarityLight(grade),
+			TextTruncate = Enum.TextTruncate.None,
+			Text = grade,
+			LayoutOrder = 2,
+			Parent = heading,
+		})
 		local count = text({
 			Name = "Count",
-			Position = UDim2.fromOffset(TEXT_LEFT, 38),
+			Position = UDim2.new(0, TEXT_LEFT, 0.5, 2),
 			Size = UDim2.new(1, TEXT_WIDTH, 0, 18),
 			TextSize = Theme.sizes.textSmall,
 			TextColor3 = PAL.subtext,
 			Parent = top,
 		})
-		local odds = text({
-			Name = "Odds",
-			Position = UDim2.fromOffset(TEXT_LEFT, 60),
-			Size = UDim2.new(1, TEXT_WIDTH, 0, topHeight - 66),
-			FontFace = Theme.fonts.bodyBold,
-			TextSize = Theme.sizes.textSmall,
-			TextWrapped = true,
-			TextTruncate = Enum.TextTruncate.None,
-			TextYAlignment = Enum.TextYAlignment.Top,
-			RichText = true,
-			Text = FoodOdds.rich(lure.odds, rarityHex),
-			Parent = top,
-		})
-		-- as wide as Details under it, now that Buy has gone to the Corner Shop (#1281)
+		-- Use on the right and Details beside it (#1612); the odds live under Details
 		local use = Button.new({
 			name = "Use",
 			text = "Use",
 			style = "primary",
-			size = UDim2.fromOffset(BUTTON.X * 2 + 8, buttonH),
-			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(1, -12, 0, 12),
+			size = UDim2.fromOffset(BUTTON.X, buttonH),
+			anchorPoint = Vector2.new(1, 0.5),
+			position = UDim2.new(1, -12, 0.5, 0),
 			textSize = Theme.sizes.textBody,
 			parent = top,
 			onClick = function()
@@ -502,9 +490,9 @@ function BaitBowl._buildRows(self: any)
 			name = "Details",
 			text = "Details",
 			style = "ghost",
-			size = UDim2.fromOffset(BUTTON.X * 2 + 8, detailsH),
-			anchorPoint = Vector2.new(1, 0),
-			position = UDim2.new(1, -12, 0, 12 + buttonH + 10),
+			size = UDim2.fromOffset(DETAILS_W, detailsH),
+			anchorPoint = Vector2.new(1, 0.5),
+			position = UDim2.new(1, -(12 + BUTTON.X + 8), 0.5, 0),
 			textSize = Theme.sizes.textSmall,
 			parent = top,
 			onClick = function()
@@ -520,6 +508,7 @@ function BaitBowl._buildRows(self: any)
 			TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None,
 			TextYAlignment = Enum.TextYAlignment.Top,
+			RichText = true, -- the odds in their colours, then the gold line and the split
 			Text = "",
 			Visible = false,
 			LayoutOrder = 2,
@@ -538,7 +527,7 @@ function BaitBowl._buildRows(self: any)
 			use = use,
 			details = details,
 			detail = detail,
-			odds = odds,
+			odds = FoodOdds.rich(lure.odds, rarityHex), -- the five-rarity odds at the bowl's level, for Details
 			split = nil :: string?, -- the per-cat split for the tier and bowl last drawn
 			def = lure,
 			dealer = dealer,
@@ -664,7 +653,7 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 		self._luck = luck
 		self._panel:setTitle(if bowlLevel >= 1 then Bait.bowlName(bowlLevel) else TITLE, SUBTITLE)
 		for _, row in self._rows do
-			row.odds.Text = FoodOdds.rich(FoodOdds.atBowl(row.def.odds, bowlLevel, luck), rarityHex)
+			row.odds = FoodOdds.rich(FoodOdds.atBowl(row.def.odds, bowlLevel, luck), rarityHex)
 			row.split = FoodOdds.split(catalog, row.def, state.tier, bowlLevel, luck)
 		end
 	end
@@ -685,7 +674,7 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 	if oddsChanged or extras ~= self._extras then
 		self._extras = extras
 		for _, row in self._rows do
-			row.detail.Text = extras .. "\n" .. (row.split or "")
+			row.detail.Text = row.odds .. "\n" .. plain(extras .. "\n" .. (row.split or ""))
 		end
 	end
 	local owned = ownsBowl(state)

@@ -18,15 +18,11 @@
 --               card and its detail; the detail's tag says why when pressed (Components/KeepUp). The rate shown is
 --               the server's kept-up rating.
 --   Classic     (F97 section 6) a spare cat (F78), which has no Index page, has a small "Classic" tag on its card.
---   Extras      (#1573) with spare Commons (shared/SellExtras.plan: one of each kind kept, never a working, locked,
---               gold or rainbow cat), the grid's first card is "Sell extras" with the count and coins. A sale can't
---               be undone, so its Sell asks first ("Sell 7 extra Commons for $175?") and then fires SellExtraCommons.
+--   Extras      #1573's "Sell extras" card was removed (#1618, Derek2 11-05: its button could stick on "...").
 -- Phone   on a short touch screen (under COMPACT_H design px of room) the grid takes the whole width and the
 --          picked cat's detail opens over the window as a sheet with Back to the grid, its buttons a finger tall
 --          (Scale.tapHeight); Assign drops the sheet so a "+" in the crew strip can be tapped, and it comes back after.
 -- MyCats owns the window; this view only reads state and calls back.
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local BagLogic = require(script.Parent.Parent.Components.BagLogic)
 local Button = require(script.Parent.Parent.Components.Button)
@@ -50,9 +46,6 @@ local StaffSlots = require(script.Parent.Parent.Components.StaffSlots)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
-local SellExtras =
-	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("SellExtras")) :: any
-
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = Theme.dark
 
@@ -65,7 +58,6 @@ export type Callbacks = {
 	feedCat: ((foodId: string, uid: string) -> ())?, -- #1181: one food from the Bag to this cat (FeedCat)
 	equipBest: () -> (),
 	unequipAll: () -> (),
-	sellExtras: (() -> ())?, -- #1573: sell every spare Common (SellExtraCommons)
 }
 
 export type CatRoom = {
@@ -340,7 +332,6 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 		}),
 	})
 	local grid: ScrollingFrame = self._grid
-	self:_buildSellExtras(grid)
 	table.insert(
 		self._connections,
 		grid:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
@@ -826,130 +817,6 @@ function CatRoom._buildCrew(self: any)
 	end
 end
 
--- #1573: the "Sell extras" card, first in the grid while there are spare Commons. Its Sell asks first.
-function CatRoom._buildSellExtras(self: any, grid: ScrollingFrame)
-	self._extrasAsk = false -- the card is asking "Sell 7 extra Commons for $175?"
-	self._extrasSent = false -- Sell was pressed; waits for the next state
-	local card: Frame = Create("Frame", {
-		Name = "SellExtras",
-		BackgroundColor3 = PAL.card,
-		BorderSizePixel = 0,
-		LayoutOrder = 0,
-		Visible = false,
-		Parent = grid,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", {
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			Color = Theme.colors.gold,
-			Thickness = Theme.sizes.stroke,
-		}),
-	})
-	self._extrasCard = card
-	local title = text({
-		Name = "Title",
-		Position = UDim2.fromOffset(4, 4),
-		Size = UDim2.new(1, -8, 0, 20),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody,
-		TextXAlignment = Enum.TextXAlignment.Center,
-		Text = "Sell extras",
-		Parent = card,
-	})
-	Outline.text(title, 2)
-	self._extrasTitle = title
-	self._extrasLine = text({
-		Name = "Line",
-		Position = UDim2.fromOffset(4, 24),
-		Size = UDim2.new(1, -8, 0, 30),
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
-		TextXAlignment = Enum.TextXAlignment.Center,
-		TextYAlignment = Enum.TextYAlignment.Top,
-		TextWrapped = true,
-		TextTruncate = Enum.TextTruncate.None,
-		Parent = card,
-	})
-	self._extrasSell = Button.new({
-		name = "ExtrasSell", -- not "Sell": the UI gate presses the detail's Sell by name
-		text = "Sell",
-		style = "gold",
-		size = UDim2.new(1, -8, 0, 36),
-		anchorPoint = Vector2.new(0.5, 1),
-		position = UDim2.new(0.5, 0, 1, -44),
-		textSize = Theme.sizes.textSmall,
-		parent = card,
-		onClick = function()
-			self:_pressSellExtras()
-		end,
-	})
-	self._extrasKeep = Button.new({
-		name = "ExtrasKeep",
-		text = "Keep",
-		style = "ghost",
-		size = UDim2.new(1, -8, 0, 36),
-		anchorPoint = Vector2.new(0.5, 1),
-		position = UDim2.new(0.5, 0, 1, -4),
-		textSize = Theme.sizes.textSmall,
-		parent = card,
-		onClick = function()
-			self._extrasAsk = false
-			self:_refresh()
-		end,
-	})
-end
-
-function CatRoom._pressSellExtras(self: any)
-	local callbacks: Callbacks = self._callbacks
-	local sell = callbacks.sellExtras
-	if sell == nil or self._extrasSent then
-		return
-	end
-	if not self._extrasAsk then
-		self._extrasAsk = true
-		self:_refresh()
-		return
-	end
-	self._extrasAsk = false
-	self._extrasSent = true
-	sell()
-	self:_refresh()
-end
-
--- The card's words from the spare Commons; hidden with none, while searching, on Working, or with no remote.
-function CatRoom._renderSellExtras(self: any, state: Types.PlayerState)
-	local plan = if state.cats then SellExtras.plan(state :: any, state.tier) else nil
-	local count = if plan then #plan.uids else 0
-	local shown = count > 0
-		and self._callbacks.sellExtras ~= nil
-		and self._filter ~= "Working"
-		and (self._query or "") == ""
-	self._extrasCard.Visible = shown
-	if not shown then
-		self._extrasAsk = false
-		return
-	end
-	local coins = Format.money(plan.coins)
-	local noun = if count == 1 then "Common" else "Commons"
-	-- asking: the question takes the title's room and Keep sits under Sell; else Sell sits at the bottom
-	local ask = self._extrasAsk
-	self._extrasTitle.Visible = not ask
-	self._extrasLine.Position = UDim2.fromOffset(4, if ask then 4 else 24)
-	self._extrasLine.Size = UDim2.new(1, -8, 0, if ask then 50 else 66)
-	self._extrasSell.instance.Position = UDim2.new(0.5, 0, 1, if ask then -44 else -4)
-	if ask then
-		self._extrasLine.Text = ("Sell %d extra %s for %s?"):format(count, noun, coins)
-		self._extrasSell:setText("Sell")
-		self._extrasSell:setStyle("danger")
-	else
-		self._extrasLine.Text = ("%d extra %s. One of each stays."):format(count, noun)
-		self._extrasSell:setText(if self._extrasSent then "..." else coins)
-		self._extrasSell:setStyle("gold")
-	end
-	self._extrasSell:setEnabled(not self._extrasSent)
-	self._extrasKeep.instance.Visible = self._extrasAsk
-end
-
 function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 	local def: Types.CatDef? = self._catById[instance.catId]
 	local rarity = if def then def.rarity else "Common"
@@ -1338,7 +1205,6 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 	end
 	self._equipBest:setEnabled(counts.all > 0)
 	self._unequipAll:setEnabled(counts.working > 0)
-	self:_renderSellExtras(state)
 
 	-- grid
 	local shown = CatRoomList.list(cats, self._catById, rarityRank, self._filter, self._query)

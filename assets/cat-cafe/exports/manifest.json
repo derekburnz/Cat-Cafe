@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-05 15:10 UTC",
+  "generated": "2026-11-05 17:30 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -177045,6 +177045,260 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Woods_FishingHut_Gold.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Woods_FishingHut_Gold.png"
+    },
+    {
+      "name": "CatCafe_Town_DayCart",
+      "category": "Town",
+      "module": "daycart",
+      "objects": [
+        "CatCafe_Town_DayCart",
+        "CatCafe_Town_DayCart_Bulb",
+        "CatCafe_Town_DayCart_Cat_Body",
+        "CatCafe_Town_DayCart_Cat_Head",
+        "CatCafe_Town_DayCart_Cat_Eye1",
+        "CatCafe_Town_DayCart_Cat_Eye2",
+        "CatCafe_Town_DayCart_Cat_EarL",
+        "CatCafe_Town_DayCart_Cat_EarR",
+        "CatCafe_Town_DayCart_Cat_Tail",
+        "CatCafe_Town_DayCart_Cat_LegF1",
+        "CatCafe_Town_DayCart_Cat_LegF2",
+        "CatCafe_Town_DayCart_Cat_Prop"
+      ],
+      "triangles": 6210,
+      "budget": 7000,
+      "size_studs": {
+        "x": 8.41,
+        "y": 3.6,
+        "z": 7.61
+      },
+      "size_roblox": [
+        8.41,
+        7.61,
+        3.6
+      ],
+      "bounds_min": [
+        -4.1,
+        -1.82,
+        0.0
+      ],
+      "bounds_max": [
+        4.31,
+        1.78,
+        7.61
+      ],
+      "pivot": "base centre; the display front (-Z) faces the players",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Town_DayCart_Cat_Body": [
+          1.0,
+          0.75,
+          2.64
+        ],
+        "CatCafe_Town_DayCart_Cat_Head": [
+          1.0,
+          0.61,
+          4.09
+        ],
+        "CatCafe_Town_DayCart_Cat_Eye1": [
+          1.31,
+          -0.13,
+          4.44
+        ],
+        "CatCafe_Town_DayCart_Cat_Eye2": [
+          0.69,
+          -0.13,
+          4.44
+        ],
+        "CatCafe_Town_DayCart_Cat_EarL": [
+          1.4,
+          0.49,
+          4.99
+        ],
+        "CatCafe_Town_DayCart_Cat_EarR": [
+          0.6,
+          0.49,
+          4.99
+        ],
+        "CatCafe_Town_DayCart_Cat_Tail": [
+          1.28,
+          1.37,
+          2.8
+        ],
+        "CatCafe_Town_DayCart_Cat_LegF1": [
+          1.24,
+          0.32,
+          3.52
+        ],
+        "CatCafe_Town_DayCart_Cat_LegF2": [
+          0.76,
+          0.32,
+          3.52
+        ],
+        "CatCafe_Town_DayCart_Cat_Prop": [
+          1.0,
+          0.61,
+          4.09
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Town_DayCart_Cat_Body": [
+          -1.0,
+          2.64,
+          0.75
+        ],
+        "CatCafe_Town_DayCart_Cat_Head": [
+          -1.0,
+          4.09,
+          0.61
+        ],
+        "CatCafe_Town_DayCart_Cat_Eye1": [
+          -1.31,
+          4.44,
+          -0.13
+        ],
+        "CatCafe_Town_DayCart_Cat_Eye2": [
+          -0.69,
+          4.44,
+          -0.13
+        ],
+        "CatCafe_Town_DayCart_Cat_EarL": [
+          -1.4,
+          4.99,
+          0.49
+        ],
+        "CatCafe_Town_DayCart_Cat_EarR": [
+          -0.6,
+          4.99,
+          0.49
+        ],
+        "CatCafe_Town_DayCart_Cat_Tail": [
+          -1.28,
+          2.8,
+          1.37
+        ],
+        "CatCafe_Town_DayCart_Cat_LegF1": [
+          -1.24,
+          3.52,
+          0.32
+        ],
+        "CatCafe_Town_DayCart_Cat_LegF2": [
+          -0.76,
+          3.52,
+          0.32
+        ],
+        "CatCafe_Town_DayCart_Cat_Prop": [
+          -1.0,
+          4.09,
+          0.61
+        ]
+      },
+      "prompt_anchor_roblox": [
+        -1.0,
+        3.0,
+        -1.7000000000000002
+      ],
+      "placement_suggested_roblox": [
+        -17.0,
+        0.1,
+        -24.0,
+        -144.69
+      ],
+      "studio": "#1577 (day-cart.md section 1): the Corner Shop's stock on a cart in the Town Square, opposite the Golden Fish Market; WorldBuilder places it (suggested spot daycart.SPOT, turned to face the cannon), tags it CornerShop and hangs the shop prompt on the Attachment PromptAnchor (cart front, 3 up). The shop cat's visor rides its Head Model, the lantern Bulb is lit at night. It replaces CatCafe_Street_CornerShop, which goes once the cart is wired.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Town_DayCart.model.json",
+      "rbx_parts": 463,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Town_DayCart.fbx",
+        "assets/cat-cafe/exports/CatCafe_Town_DayCart.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "6210/7000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "3062 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.11 y=-0.02"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Town_DayCart.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Town_DayCart.png"
+    },
+    {
+      "name": "CatCafe_Square_PitySign",
+      "category": "Square",
+      "module": "pitysign",
+      "objects": [
+        "CatCafe_Square_PitySign",
+        "CatCafe_Square_PitySign_Screen"
+      ],
+      "triangles": 734,
+      "budget": 4000,
+      "size_studs": {
+        "x": 8.24,
+        "y": 1.2,
+        "z": 7.65
+      },
+      "size_roblox": [
+        8.24,
+        7.65,
+        1.2
+      ],
+      "bounds_min": [
+        -4.12,
+        -0.6,
+        0.0
+      ],
+      "bounds_max": [
+        4.12,
+        0.6,
+        7.65
+      ],
+      "pivot": "the base centre between its posts on the square's floor (world y 0.1), front -Z; pitysign.SPOT, facing the player spawn",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placements_roblox": [],
+      "screen": {
+        "part": "Screen",
+        "face": "Front (-Z)",
+        "size": [
+          5.6,
+          2.8
+        ]
+      },
+      "placement_suggested_roblox": [
+        13.5,
+        0.1,
+        -23.0,
+        123.69
+      ],
+      "studio": "#1572 (luck-and-rare-moments.md section 1h): the rare cat sign in the Town Square (suggested spot pitysign.SPOT, across the street from the Day Cart, facing the spawn). Streams Atomic. The UI's SurfaceGui (Adornee = the part named Screen, 5.6 x 2.8, night blue) draws the Legendary and Mythical countdowns on its Front (-Z) face.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_PitySign.model.json",
+      "rbx_parts": 85,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_PitySign.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_PitySign.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "734/4000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "365 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Square_PitySign.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Square_PitySign.png"
     }
   ]
 }

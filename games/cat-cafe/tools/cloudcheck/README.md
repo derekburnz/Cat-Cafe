@@ -139,10 +139,11 @@ window's UIScale. About 50 s for all three.
 | `fonts` | A third font family besides Fredoka One and Nunito (emoji and symbols do not count). |
 | `jitter` | Once the scene has settled, a property that changes 6 or more times in a second between only two or three values (Derek 2026-10-28: prize rows "spassing back and forth"). A bob or a countdown takes many values or changes rarely, so it passes. |
 | `error` | A script error while the scene was built, with its stack. |
+| `tiles` | Two HUD tiles, both in the left column (the menu grid, the Store, the arrow tab) or the bottom right corner, whose drawn edges come closer than their outline (#1210). A tile's drawn edges are every piece under its `Components/Button`, each grown by its UIStroke: the square, the label's words, the key cap, the red dot, the Store's glow; the invisible `Hit` pad is left out. |
 
 Warnings, in the report only: `fit` (a word clearly wider or taller than its box; text measures from average glyph
 widths, so about 10% either way), `overlap` (a pressable covering a quarter of another in the same screen),
-`thumbs` (on the phone, a pressable under Roblox's thumbstick or jump button) and `warning` (a `warn()` call).
+`thumbs` (on the phone, a pressable under Roblox's thumbstick or jump button), `tilesnear` (the `tiles` check for any other pair of HUD tiles: the top right icons, the bottom row, the carry banner) and `warning` (a `warn()` call).
 
 `uigate-baseline.json` holds the findings accepted when the gate started (203: mostly 29 to 35 px buttons and the
 phone's small tiles; 234 once the weekly quests and a code prize became scenes, with their shrunk prize text; 197

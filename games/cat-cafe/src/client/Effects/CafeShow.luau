@@ -9,13 +9,17 @@
 --
 -- Source: the server's `CafeShow(userId, showId, endsAt)` (showId "bubbles" or "fireworks", endsAt in server time)
 -- to every client, hooked when the remote appears; the Plot whose `OwnerUserId` is userId, its `Door` part and its
--- bounding box. Listening only. Numbers in Presets.cafeShow.
+-- bounding box; how long each show runs from its Catalog.cornerShop row's showSeconds. Listening only. Numbers in
+-- Presets.cafeShow.
 
 local CollectionService = game:GetService("CollectionService")
 local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
+
+local Catalog = require(ReplicatedStorage.Shared.Catalog)
 
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
@@ -211,10 +215,7 @@ local function add(userId: unknown, showId: unknown, endsAt: unknown)
 	if #shows >= Presets.cafeShow.most then
 		return
 	end
-	local seconds = if kind == "bubbles"
-		then Presets.cafeShow.bubbles.seconds
-		else Presets.cafeShow.fireworks.seconds
-	local startsAt = endsAt - seconds
+	local startsAt = endsAt - CafeShow.seconds(kind)
 	table.insert(shows, {
 		owner = userId,
 		kind = kind,
@@ -225,6 +226,19 @@ local function add(userId: unknown, showId: unknown, endsAt: unknown)
 		nextShell = startsAt,
 		glowed = false,
 	})
+end
+
+-- How long a show runs: its Catalog.cornerShop row's `showSeconds` (the server's own number), else Presets.cafeShow.
+function CafeShow.seconds(kind: "bubbles" | "fireworks"): number
+	for _, row in Catalog.cornerShop do
+		local seconds = row.showSeconds
+		local shows = row.kind == "show" and row.showId == kind
+		if shows and type(seconds) == "number" and seconds > 0 then
+			return seconds
+		end
+	end
+	local c = Presets.cafeShow
+	return if kind == "bubbles" then c.bubbles.seconds else c.fireworks.seconds
 end
 
 function CafeShow.start()

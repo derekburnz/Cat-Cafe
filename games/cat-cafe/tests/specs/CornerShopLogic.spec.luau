@@ -9,10 +9,12 @@ return function()
 	local snack = {
 		id = "cat_snack",
 		name = "Cat Snack",
-		kind = "snack",
+		family = "snack",
+		size = "regular",
+		kind = "food",
+		foodId = "cat_snack",
+		price = 1500,
 		xp = 1200,
-		seconds = 300,
-		atLeast = 500,
 	}
 
 	describe("CornerShopLogic", function()
@@ -21,9 +23,12 @@ return function()
 			expect(Logic.clock(900, 1000)).to.equal("Restocks in 0:00")
 		end)
 		it("says how often a row is in stock from the weights", function()
-			expect(Logic.chance("swift_potion")).to.equal("Always in stock")
-			expect(Logic.chance("cat_snack")).to.equal("In stock 9 times in 10")
-			expect(Logic.chance("big_cat_snack")).to.equal("In stock 4 times in 10")
+			-- by size (corner-shop-v2.md section 1): small {0,..}, regular 20 of 100 none, big 70, mega 90
+			expect(Logic.chance("swift_potion_small")).to.equal("Always in stock")
+			expect(Logic.chance("cat_snack")).to.equal("In stock 8 times in 10")
+			expect(Logic.chance("big_cat_snack")).to.equal("In stock 3 times in 10")
+			expect(Logic.chance("cat_feast")).to.equal("In stock 1 time in 10")
+			expect(Logic.effect(snack)).to.equal("+1,200 XP cat food, into your Bag")
 			expect(Logic.chance("nothing")).to.equal("")
 		end)
 		it("words the stock line", function()
@@ -43,7 +48,7 @@ return function()
 			expect(ok.text).to.equal("Buy · $1,500")
 			expect(ok.enabled).to.equal(true)
 			expect(Logic.button(item, snack, 1000, 12000).enabled).to.equal(false)
-			expect(Logic.button(item, snack, 9000, 1000).text).to.equal("Snacks full")
+			expect(Logic.button(item, snack, 9000, 1000).text).to.equal("Food full")
 			expect(
 				Logic.button({ itemId = "x", price = 1, amount = 1, bought = 1 }, nil, 9, 0).text
 			).to.equal("Sold out")
@@ -51,10 +56,39 @@ return function()
 				Logic.button({ itemId = "x", price = 1, amount = 0, bought = 0 }, nil, 9, 0).text
 			).to.equal("None")
 		end)
-		it("says the snack XP left today", function()
-			expect(Logic.snackLine(4800)).to.equal("Snacks today: 4,800 / 12,000 XP")
-			expect(Logic.snackRoom(11000)).to.equal(1000)
-			expect(Logic.snackRoom(13000)).to.equal(0)
+		it(
+			"gates a row by tier and leaves the daily limit to the server (corner-shop-v2.md, #1190)",
+			function()
+				local big = {
+					itemId = "swift_potion_big",
+					price = 9,
+					amount = 2,
+					bought = 0,
+					needsTier = 3,
+					today = 0,
+				}
+				expect(Logic.gate(big, 2)).to.equal("Opens at Tier 3")
+				expect(Logic.gate(big, 3)).to.equal(nil)
+				expect(Logic.button(big, nil, 100, 0, 2).text).to.equal("Tier 3")
+				expect(Logic.button(big, nil, 100, 0, 2).enabled).to.equal(false)
+				expect(Logic.button(big, nil, 100, 0, 3).enabled).to.equal(true)
+				-- #1190: no daily-limit words or grey state; the server's toast says it
+				local quick = {
+					itemId = "quick_bait_potion",
+					price = 9,
+					amount = 3,
+					bought = 0,
+					today = 2,
+					perDay = 2,
+				}
+				expect(Logic.button(quick, nil, 100, 0, 5).enabled).to.equal(true)
+				expect(Logic.todayLine).to.equal(nil)
+			end
+		)
+		it("says the cat food XP left today", function()
+			expect(Logic.snackLine(4800)).to.equal("Cat food today: 4,800 / 20,000 XP")
+			expect(Logic.snackRoom(19000)).to.equal(1000)
+			expect(Logic.snackRoom(21000)).to.equal(0)
 		end)
 		it("lists the cats highest level first", function()
 			local cats = Logic.catsByLevel({

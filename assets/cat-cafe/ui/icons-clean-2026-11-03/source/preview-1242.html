@@ -1,0 +1,46 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Food Pictures 1242</title>
+<!-- #1242: every bait food's clean 2D picture on its rarity tile, drawn the way Components/ItemIcon.setFood draws it
+     (tile = rarity colour 55% toward cream F6EBDD, 2 px border = rarity 35% toward outline 2A1C15, picture 86%,
+     grade word badge across the bottom edge). Rendered to ../mockup/preview-1242.png with a Playwright full-page screenshot (1300 px wide, scale 2). -->
+<style>
+body{margin:0;background:#3b2a22;font-family:"Fredoka One","Fredoka",system-ui,sans-serif;color:#fff}
+h1{font-size:22px;margin:18px 24px 4px}p{margin:0 24px 14px;font:14px system-ui;color:#f6ebdd}
+.row{display:flex;gap:22px;padding:8px 24px 28px;flex-wrap:wrap}
+.cell{width:156px;text-align:center}
+.tile{position:relative;width:128px;height:128px;margin:0 auto 22px;border-radius:12px;border:2px solid;box-sizing:border-box}
+.tile img{position:absolute;left:7%;top:7%;width:86%;height:86%;object-fit:contain}
+.badge{position:absolute;left:-4px;right:-4px;bottom:-14px;height:28px;border-radius:14px;border:1.5px solid #2a1c15;
+  font-size:13px;line-height:26px;letter-spacing:.5px}
+.small .tile{width:56px;height:56px}
+.small .badge{left:auto;right:-10px;top:-10px;bottom:auto;width:22px;height:22px;line-height:20px;border-radius:11px;font-size:12px;letter-spacing:0}
+.name{font-size:16px}.id{font:12px monospace;color:#d9c8b8}
+</style></head><body>
+<h1>Bait foods on their rarity tiles (#1242)</h1>
+<p>Row 1: the Bait bowl's food rows and Market size (128 px). Row 2: a prize chip or spin tile (56 px, the grade as a lettered gem).</p>
+<div class="row" id="big"></div><div class="row small" id="small"></div>
+<h1>Money, golden fish and spin prizes (Tip Jar, Daily Treat, quests)</h1>
+<p>ShopIcons.prize: the tiles PrizeChips draws, no grade gem.</p>
+<div class="row" id="prizes"></div>
+<script>
+const R={Common:["8E97B2","FFFFFF"],Rare:["5FA8FF","FFFFFF"],Epic:["C07CFF","FFFFFF"],Legendary:["FFC94D","3A2A00"],Mythical:["FF5E7E","FFFFFF"]};
+const foods=[["kibble","Kibble","Common","Kibble"],["tuna","Tuna","Rare","Tuna"],["sardines","Moonlit Sardines","Rare","Sardines"],
+ ["salmon","Salmon","Epic","Salmon"],["caviar","Caviar","Epic","Caviar"],["moon_milk","Moon Milk","Legendary","MoonMilk"],["star_treat","Star Treat","Mythical","StarTreat"]];
+const hex=h=>[0,2,4].map(i=>parseInt(h.substr(i,2),16));
+const mix=(a,b,t)=>"rgb("+hex(a).map((v,i)=>Math.round(v+(hex(b)[i]-v)*t)).join(",")+")";
+for(const [id,name,grade,file] of foods){
+ for(const [where,small] of [["big",false],["small",true]]){
+  const c=document.createElement("div");c.className="cell";
+  c.innerHTML=`<div class="tile" style="background:${mix(R[grade][0],"F6EBDD",.55)};border-color:${mix(R[grade][0],"2A1C15",.35)}">
+   <img src="../Icon_Clean_${file}.png"><div class="badge" style="background:#${R[grade][0]};color:#${R[grade][1]}">${small?grade[0]:grade.toUpperCase()}</div></div>`+
+   (small?"":`<div class="name">${name}</div><div class="id">${id}</div>`);
+  document.getElementById(where).appendChild(c);
+ }
+}
+const prizes=[["coins","Money","Legendary","Bag","$1.13M"],["fish","Golden fish","Legendary","Fish","x2"],["spins","Spin","Epic","Spin","x1"]];
+for(const [kind,name,grade,file,amt] of prizes){
+ const c=document.createElement("div");c.className="cell";
+ c.innerHTML=`<div class="tile" style="width:72px;height:72px;margin-bottom:8px;background:${mix(R[grade][0],"F6EBDD",.55)};border-color:${mix(R[grade][0],"2A1C15",.35)}"><img src="../Icon_Clean_${file}.png"></div><div class="name">${name} ${amt}</div><div class="id">${kind}</div>`;
+ document.getElementById("prizes").appendChild(c);
+}
+</script></body></html>

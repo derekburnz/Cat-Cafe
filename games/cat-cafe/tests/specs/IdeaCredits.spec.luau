@@ -25,6 +25,21 @@ return function()
 			expect(IdeaCredits.sanitize({ userId = 7, idea = "\255bad", version = 1, addedAt = 1 })).to.equal(nil)
 		end)
 
+		it("keeps a creditId of c and digits only (#1216)", function()
+			local function idOf(raw: unknown): string?
+				local credit = IdeaCredits.sanitize({ userId = 7, idea = "Idea", version = 1, addedAt = 1, creditId = raw })
+				return (credit :: any).creditId
+			end
+			expect(idOf("c3")).to.equal("c3")
+			expect(idOf("c120")).to.equal("c120")
+			expect(idOf("3")).to.equal(nil)
+			expect(idOf("c")).to.equal(nil)
+			expect(idOf("cx1")).to.equal(nil)
+			expect(idOf("c1 ")).to.equal(nil)
+			expect(idOf(5)).to.equal(nil)
+			expect(idOf("c" .. string.rep("1", 20))).to.equal(nil)
+		end)
+
 		it("trims, drops control characters and cuts a long idea at a whole character", function()
 			local trimmed = IdeaCredits.sanitize({ userId = 7, idea = "  two\nlines  ", version = 1, addedAt = 1 })
 			expect((trimmed :: any).idea).to.equal("two lines")
@@ -48,6 +63,15 @@ return function()
 				{ idea = "Old idea", version = 190, name = "MochiPie" },
 			})
 			expect(IdeaCredits.ANON).to.equal("a player")
+		end)
+
+		it("carries each credit's creditId onto its row, hidden or not (#1216)", function()
+			local linked = credit(1, "Linked idea", 2)
+			linked.creditId = "c4"
+			local rows = IdeaCredits.rows({ linked, credit(2, "Other", 1) }, { [1] = "MochiPie" }, { [1] = true })
+			expect(rows[1].creditId).to.equal("c4")
+			expect(rows[1].name).to.equal(IdeaCredits.ANON)
+			expect(rows[2].creditId).to.equal(nil)
 		end)
 
 		it("never puts a user id in a row", function()
@@ -74,7 +98,7 @@ return function()
 
 	describe("save version 30", function()
 		it("keeps hideCredit only as true", function()
-			expect(ProfileSchema.VERSION).to.equal(30)
+			expect(ProfileSchema.VERSION >= 30).to.equal(true)
 			expect(ProfileSchema.template(1000).hideCredit).to.equal(nil)
 			local raw: any = ProfileSchema.template(1000)
 			raw.version = 29

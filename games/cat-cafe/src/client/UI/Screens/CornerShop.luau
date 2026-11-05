@@ -1,10 +1,10 @@
 --!strict
 -- The Corner Shop window (#1052, corner-shop.md section 4), opened from the stall's CornerShopPrompt in the Town
--- Square (UI.cornerShop.open). Coins only, open day and night. On top "Restocks in 3:12" over "The same stock on
--- every server", and the snack line on the right; then a row per item in Catalog.cornerShop order: its picture, name,
--- what it does, how often it is stocked and what is left ("x2 left", "You bought 2", "None this time"), and a green
--- Buy with the coin price ("Sold out", "None", "Snacks full"). A Cat Snack opens a cat picker first (highest level
--- first). Under the list: "Lawn pieces are in Decor, Front lawn". No toasts of its own: the server's answer is a
+-- Square (UI.cornerShop.open). Coins only, open day and night. On top the cat food line; then a row per item in
+-- Catalog.cornerShop order: its picture, name, what it does, "Opens at Tier 3" on a row the player's tier doesn't
+-- reach yet (no stock counts, chances, restock clock or daily limits: #1190), and a green Buy with the coin price
+-- ("Sold out", "None", "Food full"). Food goes to the Bag (corner-shop-v2.md). Under the list: "Lawn pieces are in
+-- Decor, Front lawn". No toasts of its own: the server's answer is a
 -- fresh CornerShopStock and, when refused, its toast. Words and rules in Components/CornerShopLogic.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,7 +16,6 @@ local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
-local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -315,12 +314,8 @@ function CornerShop._press(self: any, itemId: string)
 	end
 	for _, item in stock.stock do
 		if item.itemId == itemId then
-			local row = rowOf(itemId)
-			if row and row.kind == "snack" then
-				self:_pickCat(item, row)
-			else
-				self:_send(item, nil)
-			end
+			-- Corner Shop v2 (#1181): food goes to the Bag, so no row opens the cat picker on buy
+			self:_send(item, nil)
 			return
 		end
 	end
@@ -359,12 +354,11 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 			position = UDim2.new(0, 10, 0.5, 0),
 		})
 		local potion = def and def.kind == "potion"
-		icon:set(
-			nil,
-			GLYPHS[itemId] or Theme.icons.potion,
-			if potion then "Epic" else "Rare",
-			if potion and def then ShopIcons.potion(def.potionId) else nil
-		)
+		if potion and def then
+			icon:setPotion(def.potionId, "Epic")
+		else
+			icon:set(nil, GLYPHS[itemId] or Theme.icons.potion, "Rare", nil)
+		end
 		local left = 10 + PICTURE + 12
 		local right = BUY_W + 20
 		local name = text({
@@ -435,10 +429,14 @@ function CornerShop._paint(self: any)
 			continue
 		end
 		local def = rowOf(item.itemId)
-		row.line.Text = ""
+		local tier = if state then state.tier else 1
+		local gate = CornerShopLogic.gate(item, tier)
+		-- only the tier gate: no stock counts, chances or daily limits in shop windows (#1190, the friend 11-04); a buy
+		-- past a limit gets the server's toast
+		row.line.Text = gate or ""
 		local pressedAt = self._pending[item.itemId]
 		local waiting = pressedAt ~= nil and os.clock() - pressedAt < PENDING_SECONDS
-		local view = CornerShopLogic.button(item, def, coins, room)
+		local view = CornerShopLogic.button(item, def, coins, room, tier)
 		row.buy:setText(if waiting then "..." else view.text)
 		row.buy:setEnabled(view.enabled and not waiting)
 	end

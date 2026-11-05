@@ -23,6 +23,7 @@
 --          (Scale.tapHeight); Assign drops the sheet so a "+" in the crew strip can be tapped, and it comes back after.
 -- MyCats owns the window; this view only reads state and calls back.
 
+local BagLogic = require(script.Parent.Parent.Components.BagLogic)
 local Button = require(script.Parent.Parent.Components.Button)
 local CatBuffs = require(script.Parent.Parent.Components.CatBuffs)
 local CatLock = require(script.Parent.Parent.Components.CatLock)
@@ -31,12 +32,14 @@ local CatRoomList = require(script.Parent.Parent.Components.CatRoomList)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local KeepUp = require(script.Parent.Parent.Components.KeepUp)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local RenameDialog = require(script.Parent.RenameDialog)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local StaffSlots = require(script.Parent.Parent.Components.StaffSlots)
 local Theme = require(script.Parent.Parent.Theme)
@@ -51,6 +54,7 @@ export type Callbacks = {
 	sellCat: (uid: string) -> (),
 	lockCat: (uid: string, locked: boolean) -> (),
 	renameCat: (uid: string, name: string) -> (),
+	feedCat: ((foodId: string, uid: string) -> ())?, -- #1181: one food from the Bag to this cat (FeedCat)
 	equipBest: () -> (),
 	unequipAll: () -> (),
 }
@@ -271,7 +275,9 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	-- Equip best: the server fills the open slots with the highest-rated cats (cat stats thread)
 	self._equipBest = Button.new({
 		name = "EquipBest",
-		text = Theme.icons.equipBest .. " Equip Best",
+		text = "Equip Best",
+		icon = Theme.icons.equipBest,
+		image = ShopIcons.clean("EquipBest"), -- the clean sparkles (#1136)
 		style = "gold",
 		size = UDim2.fromOffset(ACTION_W, TOOL_H),
 		anchorPoint = Vector2.new(1, 0),
@@ -437,7 +443,7 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 	self._detailStats = text({
 		Name = "Stats",
 		Position = UDim2.fromOffset(textLeft, 50),
-		Size = UDim2.new(1, -(textLeft + 8), 0, 18),
+		Size = UDim2.new(1, -(textLeft + RENAME_W + 10), 0, 18), -- clear of the Feed button
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.caramel,
 		Parent = body,
@@ -456,6 +462,48 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		end,
 	})
 	table.insert(self._buttons, self._renameButton)
+	-- #1181 (corner-shop-v2.md section 3, "from the cat's card too"): Feed under Rename while the Bag holds food and
+	-- the cat can still level; it opens a short list of the foods, and a tap feeds this cat one
+	self._feedButton = Button.new({
+		name = "Feed",
+		text = "🍪",
+		style = "primary",
+		size = UDim2.fromOffset(renameW, renameW),
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(1, -8, 0, 6 + renameW + 4),
+		textSize = Theme.sizes.textSmall,
+		parent = body,
+		onClick = function()
+			self._feedMenu.Visible = not self._feedMenu.Visible
+			self:_renderFeed()
+		end,
+	})
+	self._feedButton.instance.Visible = false
+	table.insert(self._buttons, self._feedButton)
+	self._feedMenu = Create("Frame", {
+		Name = "FeedMenu",
+		BackgroundColor3 = PAL.card,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(8, 6 + (renameW + 4) * 2),
+		Size = UDim2.new(1, -16, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		ZIndex = 10, -- over the stats, chips and story it opens on
+		Visible = false,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+		Create(
+			"UIListLayout",
+			{ Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }
+		),
+		Create("UIPadding", {
+			PaddingTop = UDim.new(0, 6),
+			PaddingBottom = UDim.new(0, 6),
+			PaddingLeft = UDim.new(0, 6),
+			PaddingRight = UDim.new(0, 6),
+		}),
+	})
+	self._feedRows = {} :: { Button.Button }
 	self._detailRate = text({
 		Name = "Rate",
 		Position = UDim2.fromOffset(10, DETAIL_ART + 14),
@@ -625,6 +673,8 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 			self:_pressSell()
 		end,
 	})
+	-- the Feed list goes in last, so it draws over the rest of the detail on every renderer
+	self._feedMenu.Parent = body
 end
 
 function CatRoom.setCatalog(self: any, catalog: Types.Catalog)
@@ -829,6 +879,7 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 	lock.AnchorPoint = Vector2.new(1, 1)
 	lock.Position = UDim2.new(1, -4, 0, CARD_ART + 4)
 	lock.Visible = false
+	IconArt.set(lock, Theme.icons.lock) -- the clean padlock (#1136)
 	-- F86: on the picture's lower left corner while an older Legendary or Mythical keeps up
 	local keep = badge(button, KeepUp.TAG, Theme.colors.goodDark, Theme.colors.white)
 	keep.AnchorPoint = Vector2.new(0, 1)
@@ -937,7 +988,15 @@ function CatRoom._layout(self: any)
 		rename.instance.Position =
 			UDim2.new(1, if compact then -(8 + self._backW + 6) else -8, 0, 6)
 	end
-	local textRight = self._textLeft + renameW + 10 + (if compact then self._backW + 6 else 0)
+	-- #1181: Feed under the pencil, or on a phone beside it in the sheet's top row; its food list hangs below
+	local feedX = if compact then -(8 + self._backW + 6 + renameW + 6) else -8
+	local feedY = if compact then 6 else 6 + renameW + 4
+	self._feedButton.instance.Position = UDim2.new(1, feedX, 0, feedY)
+	self._feedMenu.Position = UDim2.fromOffset(8, feedY + renameW + 4)
+	local textRight = self._textLeft
+		+ renameW
+		+ 10
+		+ (if compact then self._backW + 6 + renameW + 6 else 0)
 	self._detailName.Size = UDim2.new(1, -textRight, 0, 24)
 	self._detailBreed.Size = UDim2.new(1, -textRight, 0, 18)
 	self:_refresh()
@@ -1294,6 +1353,63 @@ function CatRoom._renderCrew(
 	end
 end
 
+-- The Feed button and its food list for the picked cat (#1181): shown while the Bag has food and the cat can level.
+function CatRoom._renderFeed(self: any)
+	for _, button in self._feedRows do
+		button:destroy()
+	end
+	table.clear(self._feedRows)
+	local state: any = self._state
+	local uid: string? = self._selected
+	local instance = if state and uid and state.cats then state.cats[uid] else nil
+	local catalog: any = self._catalog
+	local foods = BagLogic.foods(
+		if catalog then catalog.catFood else nil,
+		if state then state.catFood else nil
+	)
+	local level = if instance and type(instance.level) == "number" then instance.level else 1
+	local can = instance ~= nil
+		and #foods > 0
+		and BagLogic.canFeed(level)
+		and self._callbacks.feedCat ~= nil
+	self._feedButton.instance.Visible = can
+	if not can then
+		self._feedMenu.Visible = false
+		return
+	end
+	if not self._feedMenu.Visible then
+		return
+	end
+	for order, food in foods do
+		local button = Button.new({
+			name = food.id,
+			text = ("%s x%d · %s"):format(food.name, food.count, BagLogic.xpLine(food.xp)),
+			style = "secondary",
+			size = UDim2.new(1, 0, 0, 36),
+			textSize = Theme.sizes.textSmall,
+			layoutOrder = order,
+			parent = self._feedMenu,
+			onClick = function()
+				local feed: ((string, string) -> ())? = self._callbacks.feedCat
+				local picked: string? = self._selected
+				if feed and picked then
+					feed(food.id, picked)
+				end
+				self._feedMenu.Visible = false
+				self:_renderFeed()
+			end,
+		})
+		-- over the detail's chips however the window layers (every part of the row, not only its frame)
+		button.instance.ZIndex = 11
+		for _, part in button.instance:GetDescendants() do
+			if part:IsA("GuiObject") then
+				(part :: GuiObject).ZIndex = 12
+			end
+		end
+		table.insert(self._feedRows, button)
+	end
+end
+
 function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	local uid: string? = self._selected
 	local instance = if uid then cats[uid] else nil
@@ -1332,6 +1448,11 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	-- F97: charm as a plain percentage, no stars
 	local charm: number? = instance.charm
 	self._detailStats.Text = if charm then CatBuffs.charmText(charm) else ""
+	if self._feedFor ~= instance.uid then
+		self._feedFor = instance.uid
+		self._feedMenu.Visible = false -- a new cat picked: its menu starts closed
+	end
+	self:_renderFeed()
 
 	local rate, favorite = self:_rateOf(instance)
 	local state: Types.PlayerState? = self._state
@@ -1521,6 +1642,9 @@ function CatRoom._loadPortraits(self: any)
 end
 
 function CatRoom.destroy(self: any)
+	for _, button in self._feedRows do
+		button:destroy()
+	end
 	for _, connection in self._connections do
 		connection:Disconnect()
 	end

@@ -74,4 +74,35 @@ return function()
 			end
 		)
 	end)
+
+	-- #1205: every cannon turns to the pad it fires at, so the seat's look (WorldBuilder.cannonSeat: fireTurn +
+	-- AimTurn) is CannonHeading and the client bends the flight by 0 degrees.
+	describe("aimTurn (#1205)", function()
+		local Layout = require(game:GetService("ServerScriptService").Server.World.Layout)
+
+		it("points every cannon's seat at every landing pad, within 1 degree", function()
+			local checked = 0
+			for cannonId, spec in Layout.cannons do
+				local from = Vector3.new(spec.x, spec.y, spec.z)
+				local fireTurn = spec.rotY or 0
+				local rest = Vector3.new(math.sin(math.rad(fireTurn)), 0, math.cos(math.rad(fireTurn)))
+				for destination, pad in Layout.landingPads do
+					if destination ~= cannonId then
+						local heading =
+							Cannon.heading(from, Vector3.new(pad.centre.x, pad.centre.y, pad.centre.z), rest)
+						local turn = math.rad(fireTurn + Cannon.aimTurn(heading, fireTurn))
+						local look = Vector3.new(math.sin(turn), 0, math.cos(turn))
+						expect(look:Dot(heading) >= math.cos(math.rad(1))).to.equal(true)
+						checked += 1
+					end
+				end
+			end
+			expect(checked > 0).to.equal(true)
+		end)
+
+		it("keeps a cannon's own look when the pad is under it", function()
+			local heading = Cannon.heading(Vector3.zero, Vector3.new(0.2, 0, 0.2), Vector3.new(1, 0, 0))
+			expect(Cannon.aimTurn(heading, 90)).to.be.near(0, 1e-6)
+		end)
+	end)
 end

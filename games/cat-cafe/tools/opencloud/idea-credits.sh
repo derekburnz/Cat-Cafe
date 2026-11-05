@@ -24,7 +24,8 @@
 # add refuses unless the report is an idea whose player ticked "Feature my name" (kind "idea", featureName true),
 # and takes the player's user id from the report itself. The log is public, so it prints counts, keys without the
 # user id (r_<day>_<time>_..., which is still unique), ideas and versions, never a user id or a name. add and remove end with a
-# list, so every change is read back. Needs curl and jq.
+# list, so every change is read back. add also prints the credit's short creditId (c1, c2, ...), the id a WhatsNew
+# row links (idea-credits.md 7d), and sets it as the step output creditId. Needs curl and jq.
 set -euo pipefail
 
 UNIVERSE_ID=${UNIVERSE_ID:-10773193456}
@@ -32,6 +33,7 @@ STORE=IdeaCredits_v1        # IdeaCredits.STORE
 REPORTS=BugReports_v1       # BugReportService
 CREDIT=credit/              # IdeaCredits.CREDIT_PREFIX
 HIDE=hide/                  # IdeaCredits.HIDE_PREFIX
+SEQ=meta/creditSeq          # the creditId counter (this script only; the game never lists meta/)
 IDEA_BYTES=48               # IdeaCredits.IDEA_BYTES
 : "${ROBLOX_PUBLISH_KEY:?set ROBLOX_PUBLISH_KEY (docs/setup-guide.md step 24)}"
 base=https://apis.roblox.com/cloud/v2/universes/$UNIVERSE_ID/data-stores
@@ -156,9 +158,9 @@ list() {
 		[ "$status" = 200 ] || fail
 		local line
 		if [ "$(jq -r '.value.removed // false' <<<"$body")" = true ]; then
-			line="$(mask "$key")  (removed: the board skips it)"
+			line="$(mask "$key")  $(jq -r '.value.creditId // "-"' <<<"$body")  (removed: the board skips it)"
 		else
-			line="$(mask "$key")  v$(jq -r '.value.version' <<<"$body")  $(jq -r '.value.addedAt | tonumber? // 0 | strftime("%Y-%m-%d")' <<<"$body")  \"$(jq -r '.value.idea' <<<"$body")\""
+			line="$(mask "$key")  $(jq -r '.value.creditId // "-"' <<<"$body")  v$(jq -r '.value.version' <<<"$body")  $(jq -r '.value.addedAt | tonumber? // 0 | strftime("%Y-%m-%d")' <<<"$body")  \"$(jq -r '.value.idea' <<<"$body")\""
 		fi
 		echo "$line"
 		summary "- \`$line\`"
@@ -207,15 +209,47 @@ add() {
 		echo "Refused: $(mask "$report") already has a credit ($(mask "$existing")); remove it first to change it." >&2
 		exit 1
 	fi
+	local creditId
+	creditId=$(next_credit_id) || exit 1
 	now=$(date -u +%s)
 	key=$CREDIT$(printf '%010d' $((9999999999 - now)))-$report
-	value=$(jq -cn --argjson u "$userId" --arg i "$idea" --argjson v "$version" --argjson t "$now" \
-		'{userId: $u, idea: $i, version: $v, addedAt: $t}')
+	value=$(jq -cn --argjson u "$userId" --arg i "$idea" --argjson v "$version" --argjson t "$now" --arg c "$creditId" \
+		'{userId: $u, idea: $i, version: $v, addedAt: $t, creditId: $c}')
 	call PATCH "$base/$STORE/entries/$(uri "$key")?allowMissing=true" -H "Content-Type: application/json" \
 		--data "$(jq -cn --argjson v "$value" --arg u "users/$userId" '{value: $v, users: [$u]}')"
 	[ "$status" = 200 ] || fail
 	echo "Wrote $(mask "$key"): v$version \"$idea\""
-	summary "Wrote \`$(mask "$key")\`: v$version \"$idea\""
+	echo "creditId: $creditId (link it from WhatsNew as creditId = \"$creditId\")"
+	summary "Wrote \`$(mask "$key")\`: v$version \"$idea\", **creditId \`$creditId\`**"
+	[ -z "${GITHUB_OUTPUT:-}" ] || echo "creditId=$creditId" >>"$GITHUB_OUTPUT"
+}
+
+# next_credit_id -> the next short id (c1, c2, ...) for WhatsNew's creditId (idea-credits.md 7d). The counter lives
+# in meta/creditSeq, which the game never reads (it lists only credit/ and hide/), so an id is never handed out twice,
+# even after its credit is deleted. With no counter yet it starts above the highest creditId on a credit.
+next_credit_id() {
+	local seq out key n
+	call GET "$base/$STORE/entries/$(uri "$SEQ")"
+	if [ "$status" = 200 ]; then
+		seq=$(jq -r '.value | numbers | floor' <<<"$body")
+	elif [ "$status" = 404 ]; then
+		seq=0
+		out=$(keys "$STORE" "$CREDIT") || exit 1
+		for key in $out; do
+			call GET "$base/$STORE/entries/$(uri "$key")"
+			[ "$status" = 200 ] || fail
+			n=$(jq -r '.value.creditId // empty' <<<"$body" | sed -nE 's/^c([0-9]+)$/\1/p')
+			[ -z "$n" ] || [ "$n" -le "$seq" ] || seq=$n
+		done
+	else
+		fail
+	fi
+	[[ $seq =~ ^[0-9]+$ ]] || seq=0
+	seq=$((seq + 1))
+	call PATCH "$base/$STORE/entries/$(uri "$SEQ")?allowMissing=true" -H "Content-Type: application/json" \
+		--data "$(jq -cn --argjson n "$seq" '{value: $n}')"
+	[ "$status" = 200 ] || fail
+	echo "c$seq"
 }
 
 # credits_for report -> that report's live credit keys (credit/<inverted time>-<report>), one a line; a credit
@@ -240,6 +274,10 @@ remove() {
 	while IFS= read -r key; do
 		[ -n "$key" ] || continue
 		found=1
+		# the blank keeps the credit's short id, so a WhatsNew link to it stays unambiguous
+		call GET "$base/$STORE/entries/$(uri "$key")"
+		local cid=
+		[ "$status" != 200 ] || cid=$(jq -r '.value.creditId // empty' <<<"$body" | grep -E '^c[0-9]+$' || true)
 		call DELETE "$base/$STORE/entries/$(uri "$key")"
 		case "$status" in
 		200 | 204) echo "Removed $(mask "$key")" && summary "Removed \`$(mask "$key")\`" ;;
@@ -247,7 +285,7 @@ remove() {
 		403)
 			# no :delete on the key: blank the credit instead (no userId, so IdeaCredits.sanitize drops it)
 			call PATCH "$base/$STORE/entries/$(uri "$key")" -H "Content-Type: application/json" \
-				--data '{"value":{"removed":true},"users":[]}'
+				--data "$(jq -cn --arg c "$cid" '{value: ({removed: true} + (if $c == "" then {} else {creditId: $c} end)), users: []}')"
 			case "$status" in
 			200) echo "Blanked $(mask "$key") (the key has no delete permission); the board skips it" &&
 				summary "Blanked \`$(mask "$key")\`" ;;

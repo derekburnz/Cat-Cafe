@@ -38,6 +38,7 @@ local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
 local PalService = require(script.Parent.PalService)
+local Payout = require(script.Parent.Payout)
 local RallyService = require(script.Parent.RallyService)
 local Rescue = require(ReplicatedStorage.Shared.Rescue)
 local Telemetry = require(script.Parent.Telemetry)
@@ -416,7 +417,17 @@ local function finish(
 		clearStuck(entry)
 		if profile ~= nil then
 			profile.stats.rescues += 1
-			Telemetry.onboarding(player, profile, "first_rescue_done") -- F87 funnel v2
+			Telemetry.onboarding(player, profile, "first_rescue_done")
+			-- #1181 (corner-shop-v2.md section 3): a Small Snack into the Bag for every cat rescued
+			local paid = Payout.pay(
+				player,
+				profile,
+				{ catFood = { [Config.RescueSnack] = 1 } },
+				"rescue_snack"
+			)
+			if #paid > 0 then
+				Net.toast(player, paid[1] .. " in your Bag", "good")
+			end
 		end
 		-- the spot it was stuck at, so a Drop walks it back near the trap (F67)
 		CatService.startCarry(player, def, "rescue", charm, variant, funnel, entry.spot.Position)
@@ -551,7 +562,7 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 	profile.stats.rescueAttempts += 1
 	Net.fire(player, "RescueChallenge", spotId, challenge)
 	entry.funnel = Telemetry.catchEngaged(player, entry.def.rarity, "rescue", entry.area)
-	Telemetry.onboarding(player, profile, "first_rescue_started") -- F87 funnel v2
+	Telemetry.onboarding(player, profile, "first_rescue_started")
 	watch(player, entry, attempt)
 end
 

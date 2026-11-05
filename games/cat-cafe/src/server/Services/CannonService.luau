@@ -140,9 +140,11 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	local flyer = character :: Model
 	local body = root :: BasePart
 	local cannon = model :: Model
-	if cannonId == Cannon.TOWN then
-		WorldBuilder.aimCannon(cannon, Layout.cannonAim(destination))
-	end
+	-- every cannon (town and camps) turns to the landing pad, so the barrel, the seat and CannonHeading agree and the
+	-- flight is one arc with no turn in the air (#1205); a pad under the cannon keeps the seat's own look
+	local heading = headingFor(cannon, destination, WorldBuilder.cannonSeat(cannon))
+	local fireTurn = (cannon:GetAttribute("FireTurn") :: number?) or 0
+	WorldBuilder.aimCannon(cannon, Cannon.aimTurn(heading, fireTurn))
 	local seat = WorldBuilder.cannonSeat(cannon)
 	body.Anchored = true
 	flyer:PivotTo(seat)
@@ -150,9 +152,13 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	flyer:SetAttribute("CannonLaunchAt", now)
 	flyer:SetAttribute("CannonFrom", cannonId)
 	flyer:SetAttribute("CannonTo", destination)
-	flyer:SetAttribute("CannonHeading", headingFor(cannon, destination, seat))
+	flyer:SetAttribute("CannonHeading", heading)
 	Net.fire(player, "CannonLaunch", destination, now)
 	Telemetry.custom(player, "cannon_launch", 1, { cannonId, destination })
+	local launcher = DataService.get(player)
+	if launcher ~= nil then
+		Telemetry.onboarding(player, launcher, "first_cannon") -- #1273: the way out to the first catch
+	end
 
 	-- this flight is still the character's: not respawned, not left, not a newer flight
 	local function current(): boolean

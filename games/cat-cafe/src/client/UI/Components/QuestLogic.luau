@@ -14,7 +14,9 @@
 --   swapFree(quests, used) -> boolean            a free swap waits on an unfinished quest (the Weekly tab's dot)
 --   achievementRows(catalog, views) -> rows      ready to claim first, then the closest to done, claimed last
 --   claimedCount(catalog, views) -> number       achievements claimed ("12 of 44")
---   tracker(quests) -> QuestView?                the closest unfinished, unclaimed daily for the HUD's quest line
+--   tracker(quests, pin?) -> QuestView?, pinned  the HUD's quest line: the pinned quest while it is unfinished (#1573),
+--                                                else the closest unfinished, unclaimed daily
+--   pinKey(kind, id) -> string                   a pinned quest's key, "daily:<id>" or "weekly:<id>"
 -- Pure: no Theme, Format or CFrame, so the cloud test runner checks it.
 
 local Types = require(script.Parent.Parent.Types)
@@ -241,7 +243,29 @@ function QuestLogic.claimedCount(
 	return count
 end
 
-function QuestLogic.tracker(quests: Types.QuestsView?): Types.QuestView?
+function QuestLogic.pinKey(kind: string, id: string): string
+	return kind .. ":" .. id
+end
+
+-- #1573 goal pinning (Derek, 2026-11-05: "tap a goal to pin it"): a pinned quest leads the HUD's line until it is done
+-- or claimed, or a swap or the reset replaces it; then the line goes back to the closest daily.
+function QuestLogic.tracker(quests: Types.QuestsView?, pin: string?): (Types.QuestView?, boolean)
+	if quests and pin then
+		for _, kind in { "daily", "weekly" } do
+			local list: { Types.QuestView } = (
+				if kind == "daily" then quests.daily else quests.weekly
+			) or {}
+			for _, quest in list do
+				if
+					QuestLogic.pinKey(kind, quest.id) == pin
+					and not quest.claimed
+					and not QuestLogic.done(quest)
+				then
+					return quest, true
+				end
+			end
+		end
+	end
 	local best: Types.QuestView? = nil
 	local bestShare = -1
 	local daily: { Types.QuestView } = if quests then quests.daily else {}
@@ -254,7 +278,7 @@ function QuestLogic.tracker(quests: Types.QuestsView?): Types.QuestView?
 			best, bestShare = quest, share
 		end
 	end
-	return best
+	return best, false
 end
 
 return QuestLogic

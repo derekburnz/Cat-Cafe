@@ -227,9 +227,9 @@ return function()
 		CrateReelRampSeconds = 0.3,
 		CrateReelStopSeconds = 0.8,
 		CrateReelHoldSeconds = 0.25,
-		RainbowChanceNet = 0.005, -- F99 (rainbow-coat.md section 5)
-		RainbowChanceBait = 0.005,
-		RainbowChanceRescue = 0.01,
+		RainbowChanceNet = 0.015, -- F99 (rainbow-coat.md section 5); v2 section 4b
+		RainbowChanceBait = 0.015,
+		RainbowChanceRescue = 0.03,
 		RainbowMultiplier = 3,
 		RainbowLuckMax = 1.0,
 		CollectorRainbowMultiplier = 10,
@@ -768,10 +768,10 @@ return function()
 	end)
 
 	describe("the rainbow coat (F99, rainbow-coat.md section 1)", function()
-		it("is a tenth of gold everywhere and earns twice a gold cat", function()
-			expect(Config.RainbowChanceNet).to.be.near(Config.GoldChanceNet / 10, 1e-9)
-			expect(Config.RainbowChanceBait).to.be.near(Config.GoldChanceBait / 10, 1e-9)
-			expect(Config.RainbowChanceRescue).to.be.near(Config.GoldChanceRescue / 10, 1e-9)
+		it("is three tenths of gold everywhere (v2, section 4b) and earns twice a gold cat", function()
+			expect(Config.RainbowChanceNet).to.be.near(Config.GoldChanceNet * 0.3, 1e-9)
+			expect(Config.RainbowChanceBait).to.be.near(Config.GoldChanceBait * 0.3, 1e-9)
+			expect(Config.RainbowChanceRescue).to.be.near(Config.GoldChanceRescue * 0.3, 1e-9)
 			expect(Config.RainbowMultiplier).to.equal(2 * Config.GoldMultiplier)
 			expect(Config.CollectorRainbowMultiplier > Config.CollectorGoldMultiplier).to.equal(true)
 		end)

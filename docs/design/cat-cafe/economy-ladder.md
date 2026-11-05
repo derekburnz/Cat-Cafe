@@ -40,7 +40,7 @@ Keep up (F86) let an older Legendary or Mythical earn as if it came from the are
 
 | tier | was | now |
 |---|---|---|
-| 2 | 8,000 | 12,000 |
+| 2 | 8,000 | 13,500 (v2.2; 12,000 in v2.1) |
 | 3 | 80,000 | 500,000 |
 | 4 | 700,000 | 40,000,000 |
 | 5 | 5,000,000 | 1,200,000,000 |
@@ -48,6 +48,8 @@ Keep up (F86) let an older Legendary or Mythical earn as if it came from the are
 v2, 2026-11-02: QA's Pace.spec found that F97's Epic or rarer stray in every sunrise wave (#714) brought Tier 5 down to 7 h in one go, under check 3's 8 to 12 h. By rule v0.8 the costs went up from 8,000, 350,000, 27M and 800M to QA's probe above, which passes every check. Medians of QA's runs with the wave Epic in: one go Tier 5 at 8 h 28 (10th to 90th percentile 7 h 36 to 10 h 48), an hour a day on day 5, 4x Money 4 h 04, about 24x 1 h 41, Tier 2 at 10.6 to 12.7 minutes. On a full server the wave Epic is shared, so real players run a little slower than this. The table below is the v1 model, kept for the reasoning.
 
 v2.1, 2026-11-02: QA moved Pace.spec's trips from the old 45 s back door walk to the F84 cannon trip as built (hometown-cannon.md 6a: the walk to the cannon, the flight, the walk to a spawn the stray's rarity can take, the carry home with the 10 s catch rush, the cloud hop, and the tutorial check-in at 51 s). Tier 2 came in 1 to 1.5 minutes sooner, and the tables and bowl player with 5 catches reached it in 9.8 minutes, under check 3's 10. By rule v0.8 Tier 2 goes from 10,000 to 12,000, which also leaves a margin for later speed-ups and sits nearer Q5's 15 minutes. Tier 3 to 5 are unchanged; their checks passed on the new trips (one go 10 h 01, an hour a day day 5, 4x Money 3 h 38, every bonus 1 h 31). QA's rerun at 12,000, 200 runs: Tier 2 at 13.5 and 11.9 minutes for the pace player (4 and 5 catches), 11.1 and 10.2 for the tables and bowl player (10th to 90th percentile 6.2 to 14.1), 14.5 with shaky presses; the Tier 5 checks as above. The tables and bowl player's Tier 2 hardly moves with the price (9.8 at 10,000, 10.0 at 11,000, 10.2 at 12,000), because Tier 2's 5 different cats hold them back more than the coins. So if a later speed-up takes Tier 2 under 10 again, the lever is the cats (Tier 2's `distinctCats` 5 to 6) or the bowl's first wait, not the price.
+
+v2.2, 2026-11-05 (decided by Coordinator for the friend, overnight 11-05): QA-Planner's Pace.spec for stray top-ups (#1159) and the friends boost (#1165) in #1357 found one stacked case under the 10 minute floor: a non-stop catcher with +20% from 3 pals and every top-up of a 4-player floor to itself reached Tier 2 at a median of 9.4 min (10th to 90th 4.8 to 13.7). Each piece alone passes. By rule v0.8 Tier 2 goes from 12,000 to **13,500** (+12.5%), and the rewards stay. Design-Agent ran Pace.spec at both numbers: 13,000 gave 9.9 min, still under the floor. At 13,500 all 17 Pace checks pass, including the slower Tier 2 players under 20 minutes; Tier 5 doesn't move.
 
 Time to each tier, in minutes or hours of play (the day it comes in brackets). Medians of the pace model, 40 to 200 seeded runs:
 
@@ -126,7 +128,7 @@ A cafe now earns about 4 times today's figure at Tier 3, about 8 times at Tier 4
 
 1. At charm 50 and level 1 an Alleyway Mythical earns 75, a Park Legendary 75, a Neighbourhood Epic 72, a Woods Rare 81 and a Sewer Common 81.
 2. At Tier 5 an Alleyway Legendary earns 25 and shows no "Keeps up" tag.
-3. Rank ups cost 12,000, 500,000, 40M and 1.2B (v2.1). Pace.spec: one-go play reaches Tier 2 in 10 to 20 minutes and Tier 5 in 8 to 12 hours; an hour a day with offline reaches Tier 5 on day 4 to 6.
+3. Rank ups cost 13,500, 500,000, 40M and 1.2B (v2.2; Tier 2 was 12,000 in v2.1). Pace.spec: one-go play reaches Tier 2 in 10 to 20 minutes and Tier 5 in 8 to 12 hours; an hour a day with offline reaches Tier 5 on day 4 to 6.
 4. Away 10 hours, a free player gets 8 hours at half their day rate. With Long Nap, 10 hours at the full rate; away 20 hours, 16.
 5. A running potion does not raise offline pay. A 2x Money pass doubles the income, the tip piles and offline pay.
 6. An exclusive cat at Tier 3 earns like a Neighbourhood cat of its rarity and does not count for Tier 4's 20 different cats.

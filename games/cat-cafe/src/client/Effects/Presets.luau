@@ -84,8 +84,6 @@ export type Budget = {
 	rallyBoards: number, -- Rally boards running their marquee at once (F101); 0 leaves them as built
 	cafeOrders: number, -- orders in other cafes showing their puff, oven glow and ding at once (F90); your own always
 	crownGlints: number, -- crowned players whose crown glints now and then (F98), the nearest first
-	cafeBubbles: number, -- cafes blowing Bubble Machine bubbles at once (#1052), the nearest first
-	cafeFireworks: number, -- cafes firing firework shells at once (#1052), the nearest first
 	shopCatEmitters: number, -- shop cats with a steady emitter on at once (#1191: Duchess Marzipan's petals)
 }
 
@@ -126,8 +124,6 @@ Presets.budget = {
 		rallyBoards = 1,
 		cafeOrders = 0,
 		crownGlints = 2,
-		cafeBubbles = 1,
-		cafeFireworks = 1,
 		shopCatEmitters = 1,
 	},
 	high = {
@@ -163,8 +159,6 @@ Presets.budget = {
 		rallyBoards = 1,
 		cafeOrders = 3,
 		crownGlints = 5,
-		cafeBubbles = 2,
-		cafeFireworks = 2,
 		shopCatEmitters = 2,
 	},
 	lowPerformance = {
@@ -200,8 +194,6 @@ Presets.budget = {
 		rallyBoards = 0,
 		cafeOrders = 0,
 		crownGlints = 1,
-		cafeBubbles = 1,
-		cafeFireworks = 1,
 		shopCatEmitters = 0,
 	},
 } :: { [string]: Budget }
@@ -784,36 +776,6 @@ Presets.emitters = {
 		drag = 4,
 		lightEmission = 0.6,
 		rotSpeed = { -180, 180 },
-	},
-	-- The Corner Shop's Bubble Machine (Effects/CafeShow, #1052): soft pastel bubbles drifting up and away from a
-	-- cafe's door. A steady emitter; the smoke sprite stands in until a bubble sprite is uploaded.
-	cafeBubble = {
-		texture = Presets.textures.smoke,
-		colors = { Presets.palette.pastelSky, Presets.palette.furRose, Presets.palette.mint },
-		size = { 0.45, 0.7 },
-		transparency = { 0.35, 0.85 },
-		lifetime = { 3, 5 },
-		speed = { 1, 2 },
-		spread = 35,
-		rate = 6,
-		acceleration = Vector3.new(0.3, 0.4, 0.2),
-		drag = 0.4,
-		lightEmission = 0.3,
-	},
-	-- One firework shell bursting over a cafe (Effects/CafeShow, #1052): stars thrown out in a ball that sag and fade,
-	-- tinted per shell.
-	fireworkStar = {
-		texture = Presets.textures.sparkle,
-		colors = { Presets.palette.offwhite },
-		size = { 0.6, 0.15 },
-		transparency = { 0, 1 },
-		lifetime = { 0.9, 1.4 },
-		speed = { 9, 13 },
-		spread = 180,
-		rate = 0,
-		acceleration = Vector3.new(0, -6, 0),
-		drag = 2.5,
-		lightEmission = 1,
 	},
 	-- Sprinkles' rainbow sprinkle puff (Effects/ShopCats, #1191): little sprinkles tossed up over the cat that tumble
 	-- and fall, tinted one colour per burst.
@@ -1696,7 +1658,8 @@ Presets.palWave = {
 -- of the arms, head to the character's left (Derek 2026-11-02 12:01: "it should be straight across middle of arms";
 -- before, it lay out at the left side facing back over the shoulder, for the camera behind, which he found off
 -- centre). `loafForward` keeps its big head clear of the character's face, its back just in front of it, while it
--- looks about. Sitting up it turns `sitTurn` (facing out), `forward` out. The arms ease in over `blendIn` and out over `blendOut` seconds. A HeldCat Pose
+-- looks about. Sitting up it turns `sitTurn` (facing out), `forward` out. The arms ease in over `blendIn` and out over
+-- `blendOut` seconds, and the cat on them fades in and out over the same (#1138). A HeldCat Pose
 -- cannot move part by part (still streaming in, or on Motor6D joints) stays on its weld and is tried again after
 -- `retry` seconds.
 Presets.carryPose = {
@@ -3183,47 +3146,6 @@ Presets.crown = {
 	},
 }
 
--- The Corner Shop's shows (corner-shop.md sections 2 and 5, #1052): the server's `CafeShow(userId, showId, endsAt)`
--- plays `showId` over the cafe whose plot's OwnerUserId is `userId` from `endsAt - seconds` to `endsAt` (server
--- time; `seconds` is read from Catalog.cornerShop's showSeconds, and the numbers here are only the fallback for a
--- missing row: bubble_machine 600 and cafe_fireworks 20). A client that
--- joins late starts partway. `pick` is how often the shows are chosen. The Bubble Machine blows the `cafeBubble`
--- emitter `lift` studs over the middle of the cafe's `Door` part, on the nearest budget.cafeBubbles cafes within
--- `within`. Cafe Fireworks fire a shell every `every[tier]` seconds from `lift` studs over the cafe's top, on the
--- nearest budget.cafeFireworks cafes within `within`: a glowing ball rises to `height` studs over `rise` seconds,
--- up to `spread` studs off the middle, and bursts in `stars` fireworkStar particles in one of `colours` with
--- `glitter` gold dingSparkles; no shell starts in the last `rise` seconds. With Reduce Motion neither moves: the
--- door, or the sky over the cafe, glows once in the show's colour, fading in and out over `glow.seconds`.
-Presets.cafeShow = {
-	pick = 0.2,
-	most = 16, -- shows kept at once on this client (the server runs one per cafe)
-	bubbles = {
-		seconds = 600,
-		within = 120,
-		lift = 2,
-		glow = { seconds = 2, range = 12, brightness = 1.5, colour = Presets.palette.pastelSky },
-	},
-	fireworks = {
-		seconds = 20,
-		within = 250,
-		lift = 4,
-		every = { high = 0.8, low = 1.6 } :: { [string]: number },
-		rise = 0.7,
-		height = { 14, 22 },
-		spread = 8,
-		stars = 28,
-		glitter = 6,
-		colours = {
-			Presets.palette.neonPink,
-			Presets.palette.golden,
-			Presets.palette.mint,
-			Presets.palette.eyeBlue,
-			Presets.palette.aurora,
-		},
-		glow = { seconds = 2, range = 40, brightness = 2, colour = Presets.palette.lampWarm },
-	},
-}
-
 -- The shop-only cats (#1191, Design-Agent's brief 2026-11-04; Effects/ShopCats). Sprinkles (`catId`): when a tip is
 -- swept off a paid table in a cafe where it works (Moments.TipSwept, your own cafe), a puff of `each` sprinkle
 -- particles in each of `colours` (one small burst in all, scaled by the budget) pops `lift` studs over its Head's
@@ -3379,6 +3301,27 @@ Presets.doorSign = {
 	settle = 0.4,
 	swing = 8,
 	within = 200,
+}
+
+-- The context tips' camera cut (#976, easy-start.md section 3; ContextCut.luau, Logic.cutEye and Logic.cutWeight):
+-- the camera swings out to the place over `swingIn` seconds, holds, and swings back over the last `swingOut`. It
+-- looks from `extent * fit` studs away (at least `near`, at most `far`), raised by `rise` of that, at a point `lookUp`
+-- of the place's height above its middle. Any press after `skipAfter` s skips: it swings back over `skipOut`. Black
+-- bars of `bars` of the screen's height slide in with the caption (outlined white text, `captionSize` px, on the
+-- lower bar), on a ScreenGui at `displayOrder` (over the HUD, under the tip card's 11 and the cloud tunnel's 45).
+Presets.contextCut = {
+	swingIn = 0.7,
+	swingOut = 0.6,
+	fit = 1.4,
+	near = 16,
+	far = 70,
+	rise = 0.45,
+	lookUp = 0.15,
+	skipAfter = 1,
+	skipOut = 0.35,
+	bars = 0.11,
+	captionSize = 26,
+	displayOrder = 10,
 }
 
 return Presets

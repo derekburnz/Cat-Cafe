@@ -1200,6 +1200,14 @@ local SCENES = {
 		UI.campExtras.update(extras)
 		UI.campExtras.openYardSale(extras.yardSale)
 	end },
+	-- #1200: the Garden Nursery at Tier 3: owned pieces read Owned, the rest Buy with the price, Tier 4 and 5 pieces
+	-- "Opens at Tier 4"; then its Fences tab
+	{ "LawnStall", function()
+		UI.nursery.open("pieces")
+	end },
+	{ "LawnStallFences", function()
+		UI.nursery.open("fence")
+	end },
 	-- #1052: the Corner Shop with every line: a Swift Potion left, snacks part bought, no Big Snack, fireworks sold out
 	{ "CornerShop", function()
 		UI.cornerShop.setStock({

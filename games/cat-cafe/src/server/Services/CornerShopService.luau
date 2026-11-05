@@ -4,13 +4,11 @@
 --   BuyCornerShop(itemId, window)  C -> S  2 a second: within CornerShopRange of a stall, then CornerShop.buyBlocker
 --     (the tier gate, the current window, the window's amount, the family's daily limit, the food XP cap, the coins).
 --     It charges the row's fixed price (sink "corner_shop", event corner_shop_buy) and gives the item: a potion into
---     the bag, food into the Bag's catFood (fed later with FeedCat; no cat pick), or a show over the buyer's cafe.
+--     the bag, or food into the Bag's catFood (fed later with FeedCat; no cat pick). The cafe shows (the Bubble
+--     Machine and Cafe Fireworks) are gone from the game (#1381).
 --     Arguments a v1 window still sends after `window` are ignored. Every buy, bought or refused, answers
 --     CornerShopStock; a refusal toasts why.
 --   CornerShopStock(stock)  S -> C: on join, at each new window, after every buy.
---   CafeShow(userId, showId, endsAt)  S -> all: one show at a time a cafe, so a bought show starts when the last one
---     ends, and at most SHOW_QUEUE_MAX are held (one playing, one waiting); a joiner gets every show still running
---     or waiting. Kept in memory: a show is a moment, not a save.
 -- Nothing here is random, sold for golden fish or Robux, or raises income (corner-shop.md section 3).
 
 local CollectionService = game:GetService("CollectionService")
@@ -32,12 +30,7 @@ local Types = require(ReplicatedStorage.Shared.Types)
 
 local CornerShopService = {}
 
-type Show = { showId: string, endsAt: number }
-
-local SHOW_QUEUE_MAX = 2 -- shows a cafe holds at once: the one playing and the next
-
 local sentWindow: { [Player]: number } = {} -- the window each player's last CornerShopStock was for
-local shows: { [number]: { Show } } = {} -- each cafe owner's shows still running or waiting, in order
 
 local function nearStall(player: Player): boolean
 	local character = player.Character
@@ -71,35 +64,6 @@ local function send(player: Player, profile: Types.PlayerProfile)
 	sentWindow[player] = window
 	local stock = CornerShop.view(state, window)
 	Net.fire(player, "CornerShopStock", stock)
-end
-
--- The shows of `userId` still running or waiting at `now`, the ended ones dropped.
-local function liveShows(userId: number, now: number): { Show }
-	local list: { Show } = shows[userId] or {}
-	local live: { Show } = {}
-	for _, show in list do
-		if show.endsAt > now then
-			table.insert(live, show)
-		end
-	end
-	if #live > 0 then
-		shows[userId] = live
-	else
-		shows[userId] = nil
-	end
-	return live
-end
-
--- Queues a show over the buyer's cafe after the last one and tells everyone. Returns when it ends.
-local function startShow(player: Player, row: Types.CornerShopRow): number
-	local now = os.time()
-	local live = liveShows(player.UserId, now)
-	local startsAt = if #live > 0 then live[#live].endsAt else now
-	local show: Show = { showId = row.showId :: string, endsAt = startsAt + (row.showSeconds or 0) }
-	table.insert(live, show)
-	shows[player.UserId] = live
-	Net.fireAll("CafeShow", player.UserId, show.showId, show.endsAt)
-	return show.endsAt
 end
 
 local function onBuy(player: Player, rawItemId: unknown, rawWindow: unknown)
@@ -140,11 +104,6 @@ local function onBuy(player: Player, rawItemId: unknown, rawWindow: unknown)
 		refuse(blocker)
 		return
 	end
-	-- review: the running show plus one waiting at most, so a cafe's queue never runs on for many minutes
-	if row.kind == "show" and #liveShows(player.UserId, os.time()) >= SHOW_QUEUE_MAX then
-		refuse("A show is already waiting over your cafe. Try again after it starts.")
-		return
-	end
 	if not Economy.trySpend(profile, row.price) then
 		refuse("Not enough coins")
 		return
@@ -164,16 +123,6 @@ local function onBuy(player: Player, rawItemId: unknown, rawWindow: unknown)
 	elseif row.kind == "food" and foodId ~= nil then
 		profile.catFood[foodId] = (profile.catFood[foodId] or 0) + 1
 		Net.toast(player, string.format("A %s went into your Bag", row.name), "good")
-	elseif row.kind == "show" then
-		local endsAt = startShow(player, row)
-		local waits = endsAt - (row.showSeconds or 0) > os.time()
-		Net.toast(
-			player,
-			if waits
-				then string.format("%s next, after the show over your cafe", row.name)
-				else string.format("%s over your cafe!", row.name),
-			"good"
-		)
 	end
 	send(player, profile)
 	CafeService.sync(player)
@@ -183,16 +132,9 @@ function CornerShopService.start()
 	Net.on("BuyCornerShop", onBuy)
 	DataService.onLoaded:Connect(function(player: Player, profile: Types.PlayerProfile)
 		send(player, profile)
-		local now = os.time()
-		for userId in shows do
-			for _, show in liveShows(userId, now) do
-				Net.fire(player, "CafeShow", userId, show.showId, show.endsAt)
-			end
-		end
 	end)
 	Players.PlayerRemoving:Connect(function(player: Player)
 		sentWindow[player] = nil
-		shows[player.UserId] = nil -- their cafe empties, so its shows end with it
 	end)
 	-- A new window restocks everyone's shop; one check a second catches the edge.
 	task.spawn(function()

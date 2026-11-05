@@ -142,26 +142,25 @@ return function()
 
 	describe("LawnLogic.spotChoices", function()
 		it(
-			"lists the piece here, the other owned pieces of the size, the shop, then later tiers",
+			"lists the piece here, then the other owned pieces of the size, and sells nothing (#1200)",
 			function()
 				local state = player(
 					1,
-					1000,
+					1e9,
 					{ "tulip_bed", "mailbox" },
 					{ small1 = "tulip_bed", small2 = "mailbox" }
 				)
 				local choices = LawnLogic.spotChoices(state, "small1")
+				expect(#choices).to.equal(2)
 				expect(choices[1].piece.id).to.equal("tulip_bed")
 				expect(choices[1].action.mode).to.equal("here")
 				expect(choices[2].piece.id).to.equal("mailbox")
 				expect(choices[2].action.mode).to.equal("place")
 				expect(choices[2].action.text).to.equal("Move here")
-				expect(choices[3].action.mode).to.equal("buy")
-				expect(choices[3].action.spotId).to.equal("small1")
-				expect(choices[#choices].action.mode).to.equal("locked")
 				for _, choice in choices do
-					expect(choice.piece.spot).to.equal("small")
+					expect(choice.owned).to.equal(true)
 				end
+				expect(#LawnLogic.spotChoices(player(1, 1e9), "small1")).to.equal(0)
 			end
 		)
 
@@ -174,6 +173,51 @@ return function()
 				expect(#LawnLogic.spotChoices(player(2, 0), "nowhere")).to.equal(0)
 			end
 		)
+	end)
+
+	describe("LawnLogic Garden Nursery (#1200)", function()
+		it("lists every piece, and every path and fence but the free Grey Slabs", function()
+			expect(#LawnLogic.stallRows("pieces")).to.equal(#LawnLogic.pieces())
+			for _, kind in { "path", "fence" } do
+				for _, row in LawnLogic.stallRows(kind :: any) do
+					expect(row.price > 0).to.equal(true)
+					expect(row.detail).to.equal(if kind == "path" then "Path" else "Fence")
+				end
+			end
+			for _, row in LawnLogic.stallRows("path") do
+				expect(row.id ~= "grey_slabs").to.equal(true)
+			end
+		end)
+
+		it("reads Buy with the price, Owned, or the tier that opens it", function()
+			local rows = LawnLogic.stallRows("pieces")
+			local tulip, bench
+			for _, row in rows do
+				if row.id == "tulip_bed" then
+					tulip = row
+				elseif row.id == "garden_bench" then
+					bench = row
+				end
+			end
+			local buy = LawnLogic.stallAction(player(2, tulip.price), tulip)
+			expect(buy.mode).to.equal("buy")
+			expect(buy.enabled).to.equal(true)
+			expect(buy.style).to.equal("gold")
+			expect(LawnLogic.stallAction(player(2, tulip.price - 1), tulip).enabled).to.equal(false)
+			local owned = LawnLogic.stallAction(player(2, 0, { "tulip_bed" }), tulip)
+			expect(owned.mode).to.equal("owned")
+			expect(owned.text).to.equal("Owned")
+			local locked = LawnLogic.stallAction(player(1, 1e12), bench)
+			expect(locked.mode).to.equal("locked")
+			expect(locked.text).to.equal("Opens at Tier 2")
+		end)
+
+		it("points Tier 1 at the Park's tier and everyone else at the nursery", function()
+			expect(LawnLogic.nurseryNote(player(1, 0))).to.equal(
+				"Lawn pieces are sold at the Garden Nursery in the Park (Tier 2)"
+			)
+			expect(LawnLogic.nurseryNote(player(3, 0))).to.equal(LawnLogic.NURSERY_LINE)
+		end)
 	end)
 
 	describe("LawnLogic.editDistance", function()
@@ -312,16 +356,13 @@ return function()
 						elseif action.mode == "use" then { "SetLawnStyle", kind, style.id }
 						elseif action.mode == "takeDown" then { "SetLawnStyle", "fence", "" }
 						else nil
-					table.insert(
-						out,
-						{
-							where = "tab",
-							id = style.id,
-							style = style,
-							action = action,
-							call = call,
-						}
-					)
+					table.insert(out, {
+						where = "tab",
+						id = style.id,
+						style = style,
+						action = action,
+						call = call,
+					})
 				end
 			end
 			for _, spot in LawnLogic.SPOTS do
@@ -579,7 +620,10 @@ return function()
 					fail("%s: the tab shows %s %d times", label, def.id, tab[def.id] or 0)
 				end
 				for _, spot in LawnLogic.SPOTS do
-					local want = if state.tier >= spot.tier and def.spot == spot.size
+					-- #1200: the picker lists only owned pieces (the Garden Nursery sells the rest)
+					local want = if state.tier >= spot.tier
+							and def.spot == spot.size
+							and Lawn.owns(state, def.id)
 						then 1
 						else nil
 					if (picks[spot.id] or {})[def.id] ~= want then

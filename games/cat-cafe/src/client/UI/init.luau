@@ -794,6 +794,13 @@ function UI.init(config: Types.InitConfig)
 		renameCat = function(uid: string, name: string)
 			UI.events.renameCat:Fire(uid, name)
 		end,
+		-- #1181: Feed on the cat's detail, the same FeedCat as the Bag's (its level kept for the level-up toast)
+		feedCat = function(foodId: string, uid: string)
+			local cat = (state.cats or {})[uid]
+			bagFed[uid] = if cat and type(cat.level) == "number" then cat.level else 0
+			local events: any = UI.events
+			events.feedCat:Fire(foodId, uid)
+		end,
 		equipBest = function()
 			UI.events.equipBest:Fire()
 		end,

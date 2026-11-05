@@ -215,7 +215,10 @@ function ContextCut.play(
 		return false
 	end
 	local target = targetFor(id)
-	local frame, size = if target ~= nil then boundsOf(target) else nil, nil
+	if target == nil then
+		return false
+	end
+	local frame: CFrame?, size: Vector3? = boundsOf(target)
 	if frame == nil or size == nil then
 		return false
 	end

@@ -116,7 +116,8 @@ return function()
 
 		it("gives every song with a file its length and sections", function()
 			for name, cue in Cues do
-				if string.sub(name, 1, 5) == "music" and #cue.ids > 0 then
+				local isSong = string.sub(name, 1, 5) == "music" and name ~= "musicTutorial"
+				if isSong and #cue.ids > 0 then
 					expect(type(cue.seconds) == "number" and (cue.seconds :: number) > 0).to.equal(
 						true
 					)

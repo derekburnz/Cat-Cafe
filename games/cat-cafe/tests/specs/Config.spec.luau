@@ -309,6 +309,14 @@ return function()
 		NetMissHopStuds = 12,
 		NetMissHopShare = 0.25,
 		RescueSpeedUpPerHit = 0.08,
+		-- #1624 (economy-ladder.md section 6a v2.4): the store passes
+		VipCafeBonus = 0.10,
+		CafeStyleCafeBonus = 0.50,
+		GrandCafeBonus = 1.50,
+		AccessoriesStaffMultiplier = 1.15,
+		UniformsStaffMultiplier = 1.15,
+		CafeStyleRichRate = 0.25,
+		GrandRichRate = 1.0,
 	}
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }

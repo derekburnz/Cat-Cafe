@@ -409,6 +409,8 @@ export type CatInstance = {
 	locked: boolean?,
 }
 
+export type PassBoostsView = { cafe: number, staff: number, rich: number, money: number }
+
 -- One cat as ProfileSync sends it: the saved fields plus the derived numbers the UI shows.
 export type CatView = {
 	uid: string,
@@ -1016,6 +1018,10 @@ export type PlayerState = {
 	-- F95 (economy-ladder.md section 5): the Long Nap pass is owned, so the welcome back card says full pay up to
 	-- OfflineCapPassSeconds instead of half pay up to OfflineCapSeconds
 	longNap: boolean,
+	-- #1624: what the store passes give, for the money card's Boosts list: `cafe` added into the cafe bonus (VIP,
+	-- Cafe Style, Grand Cafe), `staff` the working cats' multiplier (Accessories, Uniforms), `rich` how many times as
+	-- often rich visitors come, `money` the Money pass multiplier
+	passBoosts: PassBoostsView,
 	tradeLog: { TradeLogEntry }, -- F102: the Trades page, newest first
 	-- F91: the Decor screen's Front lawn tab (what is owned, on each spot and in use); the street reads the plot's
 	-- Lawn_<spotId>, LawnPath and LawnFence attributes instead

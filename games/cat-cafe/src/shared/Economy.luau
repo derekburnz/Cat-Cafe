@@ -17,10 +17,21 @@ local Economy = {}
 
 -- What the player's game passes give (F95, economy-ladder.md section 6): `money` the Money pass multiplier (1, or 2,
 -- 3 or 4, the highest owned), `longNap` the Long Nap pass's offline rate and cap, `slots` the extra role slots,
--- `secondBowl` the Second Bait Bowl pass (#1161; nil is not owned, and PolicyService still gates the bowl).
--- PassService checks ownership on the server at join and after a purchase; nothing is saved, so it lives in a
--- weak table keyed by the profile and a profile without an entry (the specs, the client) has no passes.
-export type Passes = { money: number, longNap: boolean, slots: number, secondBowl: boolean? }
+-- `secondBowl` the Second Bait Bowl pass (#1161; nil is not owned, and PolicyService still gates the bowl), and the
+-- five store passes (#1624, economy-ladder.md section 6a): `vip`, `accessories`, `uniforms`, `cafeStyle` and `grand`
+-- (nil is not owned). PassService checks ownership on the server at join and after a purchase; nothing is saved, so
+-- it lives in a weak table keyed by the profile and a profile without an entry (the specs, the client) has no passes.
+export type Passes = {
+	money: number,
+	longNap: boolean,
+	slots: number,
+	secondBowl: boolean?,
+	vip: boolean?,
+	accessories: boolean?,
+	uniforms: boolean?,
+	cafeStyle: boolean?,
+	grand: boolean?,
+}
 
 local NO_PASSES: Passes = { money = 1, longNap = false, slots = 0 } -- shared; never changed
 local passesByProfile: { [Types.PlayerProfile]: Passes } = setmetatable({}, { __mode = "k" }) :: any
@@ -37,6 +48,11 @@ function Economy.setPasses(profile: Types.PlayerProfile, passes: Passes?)
 		longNap = p.longNap,
 		slots = p.slots,
 		secondBowl = p.secondBowl == true or nil,
+		vip = p.vip == true or nil,
+		accessories = p.accessories == true or nil,
+		uniforms = p.uniforms == true or nil,
+		cafeStyle = p.cafeStyle == true or nil,
+		grand = p.grand == true or nil,
 	}
 end
 
@@ -83,6 +99,50 @@ end
 -- The Money pass multiplier on all cafe income, 1 without one.
 function Economy.passMultiplier(profile: Types.PlayerProfile): number
 	return math.max(1, Economy.passes(profile).money)
+end
+
+-- #1624 (economy-ladder.md section 6a): what VIP, Cafe Style and Grand Cafe add into cafeMultiplier, 0 without them.
+function Economy.passCafeBonus(profile: Types.PlayerProfile): number
+	local passes = Economy.passes(profile)
+	local bonus = 0
+	if passes.vip == true then
+		bonus += Config.VipCafeBonus
+	end
+	if passes.cafeStyle == true then
+		bonus += Config.CafeStyleCafeBonus
+	end
+	if passes.grand == true then
+		bonus += Config.GrandCafeBonus
+	end
+	return bonus
+end
+
+-- #1624: Cat Accessories and Uniform Styles, each a multiplier on every working cat's rate (a dressed working cat
+-- earns x1.3225 with both); 1 without them. Every working cat wears its role's outfit, so each one counts as dressed.
+function Economy.staffMultiplier(profile: Types.PlayerProfile): number
+	local passes = Economy.passes(profile)
+	local multiplier = 1
+	if passes.accessories == true then
+		multiplier *= Config.AccessoriesStaffMultiplier
+	end
+	if passes.uniforms == true then
+		multiplier *= Config.UniformsStaffMultiplier
+	end
+	return multiplier
+end
+
+-- #1624 (section 6a v2.4): how many times as often rich visitors come, 1 + Cafe Style's 0.25 + Grand Cafe's 1.0.
+-- RichTipService divides each drawn wait by it.
+function Economy.richRate(profile: Types.PlayerProfile): number
+	local passes = Economy.passes(profile)
+	local rate = 1
+	if passes.cafeStyle == true then
+		rate += Config.CafeStyleRichRate
+	end
+	if passes.grand == true then
+		rate += Config.GrandRichRate
+	end
+	return rate
 end
 
 function Economy.level(profile: Types.PlayerProfile, upgradeId: string): number
@@ -149,7 +209,8 @@ end
 
 -- cafeMultiplier = 1 + 0.10 x tables + 0.15 x (espresso - 1) + placed decor bonuses, plus GoldenEspressoBonus per
 -- Golden Espresso level (F53), the tips forever of every claimed Index milestone (F54, a full Decor Index page's
--- decor10 among them) and the front lawn's pieces and styles out (#1283, Economy.lawnBonus)
+-- decor10 among them), the front lawn's pieces and styles out (#1283, Economy.lawnBonus) and the store passes'
+-- cafe bonus (#1624, Economy.passCafeBonus)
 function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	local multiplier = 1 + Config.TableBonus * Economy.level(profile, "tables")
 	multiplier += Config.EspressoBonus * math.max(0, Economy.level(profile, "espresso") - 1)
@@ -163,6 +224,7 @@ function Economy.cafeMultiplier(profile: Types.PlayerProfile): number
 	multiplier += Config.GoldenEspressoBonus * (profile.fishPerks.golden_espresso or 0)
 	multiplier += IndexRewards.totals(profile).bonus
 	multiplier += Economy.lawnBonus(profile)
+	multiplier += Economy.passCafeBonus(profile)
 	return multiplier
 end
 
@@ -212,7 +274,8 @@ function Economy.variantMultiplier(variant: string): number
 	return CatStats.variantMultiplier(variant)
 end
 
--- incomePerSecond = sum over working cats of (rating x favorite) x cafeMultiplier x tierMultiplier x passMultiplier
+-- incomePerSecond = sum over working cats of (rating x favorite) x staffMultiplier x cafeMultiplier x tierMultiplier
+-- x passMultiplier
 -- (F95). The whole income formula lives here, so the night multiplier and a customer-driven model change one
 -- function. The pass multiplies whatever the potions add in settle, so 4x with a Big Money Potion is 6x, and the
 -- tip piles, rich visitors and coin prizes that read the day rate scale with it.
@@ -222,6 +285,7 @@ function Economy.incomePerSecond(profile: Types.PlayerProfile): number
 		total += Economy.catRate(instance, profile.tier)
 	end
 	return total
+		* Economy.staffMultiplier(profile)
 		* Economy.cafeMultiplier(profile)
 		* Economy.tierMultiplier(profile)
 		* Economy.passMultiplier(profile)

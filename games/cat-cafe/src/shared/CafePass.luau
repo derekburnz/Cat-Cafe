@@ -23,6 +23,7 @@
 --   view(state, season, startsAt, endsAt?) -> Types.CafePassView
 
 local Catalog = require(script.Parent.Catalog)
+local ChatTags = require(script.Parent.ChatTags)
 local Config = require(script.Parent.Config)
 local Types = require(script.Parent.Types)
 
@@ -199,7 +200,7 @@ function CafePass.sanitize(raw: unknown): Types.PassState
 		claimedFree = levelList(t.claimedFree),
 		claimedPaid = levelList(t.claimedPaid),
 		items = items,
-		tag = if type(t.tag) == "string" and knownItems[t.tag] then t.tag else nil,
+		tag = if ChatTags.validPick(t.tag) then t.tag else nil, -- #1626: a tag id or "off" (ChatTags)
 	}
 end
 

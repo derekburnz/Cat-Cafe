@@ -57,7 +57,7 @@ local IDS: { [string]: string } = {
 	Perk_BigBowl = "rbxassetid://106206692502921",
 	Perk_ExtraDecorSpot = "rbxassetid://72709782259210",
 	Coins = "rbxassetid://114567888385946",
-	Spin = "rbxassetid://109715715479737",
+	Spin = "rbxassetid://121432011555252", -- the 8-slice wheel (#1603, Tools-Agent 11-05); was 109715715479737
 	-- the redesigned nets (#989, Model-Agent; rendered and uploaded by Tools-Agent 2026-11-03, PR #1012)
 	Net_L1 = "rbxassetid://78131427035748", -- Basic
 	Net_L2 = "rbxassetid://126997379642004", -- Sturdy
@@ -167,6 +167,32 @@ local IDS: { [string]: string } = {
 	Icon_Clean_Invite = "rbxassetid://136442901295833",
 	Icon_Clean_Lock = "rbxassetid://133489571923895",
 	Icon_Clean_Clover = "rbxassetid://70755641486261", -- #1258: the luck clover (upload-image run 41904365295, 11-04)
+	-- Tools-Agent's uploads of 11-05: the Fish Market's tabs and the Night Market bubble (#1607)
+	Icon_Market_Crates = "rbxassetid://136579300796731",
+	Icon_Market_Treats = "rbxassetid://77636724948052",
+	Icon_Market_FreshCatch = "rbxassetid://126946598739456",
+	Icon_Hud_NightMarket = "rbxassetid://131849751291155",
+	-- the Store's card pictures, one per pass and product (Tools-Agent 11-05), by ShopIcons.store
+	Icon_Store_Money2x = "rbxassetid://72414082780413",
+	Icon_Store_Money3x = "rbxassetid://93298940995735",
+	Icon_Store_Money4x = "rbxassetid://106773934084025",
+	Icon_Store_LongNap = "rbxassetid://110728484969633",
+	Icon_Store_Vip = "rbxassetid://133569273850177",
+	Icon_Store_Accessories = "rbxassetid://91892368233364",
+	Icon_Store_Uniforms = "rbxassetid://116190763390206",
+	Icon_Store_CafeStyle = "rbxassetid://125700174103006",
+	Icon_Store_GrandTheme = "rbxassetid://135539710810962",
+	Icon_Store_ExtraSlot = "rbxassetid://130412920081703",
+	Icon_Store_RoyalCat = "rbxassetid://106295146921956",
+	Icon_Store_KingPack = "rbxassetid://96230403324433",
+	Icon_Store_GoldenPond = "rbxassetid://118816331540525",
+	Icon_Store_SecondBowl = "rbxassetid://130144477542913",
+	Icon_Store_StarterBundle = "rbxassetid://72549988670948",
+	Icon_Store_PotionXS = "rbxassetid://134857251578252",
+	Icon_Store_PotionS = "rbxassetid://123654589605243",
+	Icon_Store_PotionM = "rbxassetid://140183392726574",
+	Icon_Store_PotionL = "rbxassetid://123626192150241",
+	Icon_Store_CafePass = "rbxassetid://114155805195660",
 }
 local NETS = 4
 
@@ -309,6 +335,25 @@ end
 -- A shop-only cat's picture (#1191) by its name, such as "KingCroissant", or nil.
 function ShopIcons.shopCat(name: string?): string?
 	return if type(name) == "string" then IDS["Icon_ShopCat_" .. name] else nil
+end
+
+-- A Store card's own picture (Tools-Agent's uploads, 11-05), by the card's StoreLogic key: "vip" is Icon_Store_Vip.
+-- The money card takes its rung ("money", 3 is Icon_Store_Money3x). Nil for a card with no picture yet.
+function ShopIcons.store(key: string?, multiplier: number?): string?
+	if type(key) ~= "string" or key == "" then
+		return nil
+	end
+	if key == "money" then
+		return if type(multiplier) == "number"
+			then IDS[("Icon_Store_Money%dx"):format(multiplier)]
+			else nil
+	end
+	return IDS["Icon_Store_" .. key:sub(1, 1):upper() .. key:sub(2)]
+end
+
+-- A Fish Market tab's picture: "Crates", "Treats" or "FreshCatch".
+function ShopIcons.market(tab: string): string?
+	return IDS["Icon_Market_" .. tab]
 end
 
 -- A menu dish's picture for the order bubbles (#950), by its Catalog.menu id: the dish model's own render, or nil.

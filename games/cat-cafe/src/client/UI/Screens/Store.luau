@@ -453,18 +453,30 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	entry.passId = row.passId
 	entry.name.Text = row.name
 	entry.effect.Text = row.effect
-	if entry.key ~= row.key then
-		entry.key = row.key
+	-- the money card's rung is part of its picture (2x, 3x and 4x each have one)
+	local art = row.key .. (if row.multiplier then tostring(row.multiplier) else "")
+	if entry.key ~= art then
+		entry.key = art
 		entry.glyph.Text = row.icon
+		-- the card's own Store picture first (Tools-Agent 11-05), then the older stand-ins while it loads or if it
+		-- fails: the clean symbol, the shop-only cat, and for a potion pack the Potions flask (#1256)
+		local images: { string } = {}
+		local function add(image: string?)
+			if image then
+				table.insert(images, image)
+			end
+		end
+		add(ShopIcons.store(row.key, row.multiplier))
 		local picture = CLEAN_PICTURE[row.key]
-		-- a potion pack shows the Potions flask picture (#1256) until it has a pack picture of its own
-		local image = if picture
-			then ShopIcons.clean(picture)
-			elseif SHOP_CAT[row.key] then ShopIcons.shopCat(SHOP_CAT[row.key])
-			elseif row.product then ShopIcons.hud("Potion")
-			else nil
-		if image then
-			IconArt.setImage(entry.glyph, image, 1.3)
+		add(
+			if picture
+				then ShopIcons.clean(picture)
+				elseif SHOP_CAT[row.key] then ShopIcons.shopCat(SHOP_CAT[row.key])
+				elseif row.product then ShopIcons.hud("Potion")
+				else nil
+		)
+		if #images > 0 then
+			IconArt.setImages(entry.glyph, images, 1.3)
 		else
 			IconArt.setImage(entry.glyph, nil)
 			IconArt.set(entry.glyph, row.icon)

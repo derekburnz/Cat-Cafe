@@ -245,7 +245,9 @@ export type CafePassView = {
 	claimedPaid: { number },
 	claimable: number, -- how many rewards are ready, for the HUD's red dot
 	items: { [string]: boolean },
-	tag: string?,
+	tag: string?, -- the saved chat tag pick: a ChatTags id, "off", or nil for the default
+	tags: { string }?, -- #1626: the chat tags the player may pick now (ChatTags.choices), set by CafePassService
+	tagShown: string?, -- #1626: the tag their name shows now (ChatTags.shown), nil for none
 }
 
 -- A potion (F64, data-model section 12b): drunk from the bag with UsePotion, it runs `minutes` of play time.

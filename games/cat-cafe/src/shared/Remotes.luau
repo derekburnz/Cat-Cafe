@@ -118,6 +118,7 @@ Remotes.ClientToServer = {
 	"PassClaim", -- (track: "free" | "paid", level: number)  #1645: level 1 to PassLevels, reached in the running
 	-- season, a reward there, unclaimed, and on the paid track only once it is bought; answered with CafePassState
 	"PassClaimAll", -- ()  #1645: every reward PassClaim would take, in order
+	"PassSetTag", -- (tagId: string)  #1626: a ChatTags id in the player's choices, or "off"; answered with CafePassState
 	"CollectCampExtra", -- (extraId: string)  F100 (camp-extras.md section 4): "picnic", "pond" or "lostFound", the
 	-- player's tier opens its area, within CampExtraRangeStuds (and a little slack) of its PromptAnchor, something held;
 	-- takes it all; 1 a second, answered with CampExtraResult and CampExtrasState

@@ -177,6 +177,8 @@ UI.events = {
 	-- #1646 (cafe-pass.md section 5)
 	passClaim = Signal.new(), -- (track, level)   Claim on a Cafe Pass reward, track "free" or "paid": forward as PassClaim
 	passClaimAll = Signal.new(), -- ()   Claim all on the Pass window: forward as PassClaimAll
+	-- #1624 (store-pass-looks.md)
+	pickStyle = Signal.new(), -- (kind, id)   a Style tab button: kind "sign" forwards as SetSignStyle(id or nil), "uniform" or "theme" as SetLook(kind, id)
 	-- F70
 	claimDailyTreat = Signal.new(), -- ()   Claim on the Daily Treat card's day that is due: forward as ClaimDailyTreat
 	-- F84
@@ -788,6 +790,10 @@ function UI.init(config: Types.InitConfig)
 		end,
 		editLawn = function()
 			UI.lawn.edit()
+		end,
+		-- #1624: the Style tab; the sign goes to SetSignStyle, uniforms and themes to SetLook
+		pickStyle = function(kind: string, id: string)
+			UI.events.pickStyle:Fire(kind, id)
 		end,
 	})
 	collection = CatCollection.new({

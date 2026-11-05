@@ -876,7 +876,6 @@ local function wireIntents()
 	UI.events.claimAll:Connect(function(what: string)
 		Net.fire("ClaimAll", what)
 	end)
-	-- The Daily Treat (F70): the server stamps the card when a stamp is due and answers with a toast and a sync.
 	-- #1646 (cafe-pass.md section 5): Claim and Claim all on the Pass window; the server checks the level, the track
 	-- and the claim, pays through Payout and answers with CafePassState and a toast.
 	UI.events.passClaim:Connect(function(track: string, level: number)
@@ -885,6 +884,16 @@ local function wireIntents()
 	UI.events.passClaimAll:Connect(function()
 		Net.fire("PassClaimAll")
 	end)
+	-- #1624: a Style tab button. The sign's "" is the plain sign (nil); the server checks the player owns the style.
+	-- Uniforms and themes only show once the server sends state.looks, which comes with SetLook.
+	UI.events.pickStyle:Connect(function(kind: string, id: string)
+		if kind == "sign" then
+			Net.fire("SetSignStyle", if id == "" then nil else id)
+		elseif kind == "uniform" or kind == "theme" then
+			Net.fire("SetLook", kind, if id == "" then "default" else id)
+		end
+	end)
+	-- The Daily Treat (F70): the server stamps the card when a stamp is due and answers with a toast and a sync.
 	UI.events.claimDailyTreat:Connect(function()
 		Net.fire("ClaimDailyTreat")
 	end)

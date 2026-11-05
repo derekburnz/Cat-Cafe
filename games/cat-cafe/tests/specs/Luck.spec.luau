@@ -1,8 +1,8 @@
 --!strict
 -- Luck.luau, Clock's day numbers and the rolls Luck touches against luck-and-rare-moments.md section 1 (F88): one
 -- number from x1.0 that adds up the Lucky Cat statue, a running Lucky Potion and a Lucky Day, at most LuckMax; on a
--- roll it multiplies the Epic and rarer chances, Rare keeps its chance and Common takes the rest; every
--- LuckyDayEvery-th day of a server is a Lucky Day.
+-- roll it multiplies the Epic and rarer chances, Rare keeps its chance and Common takes the rest; each global day
+-- rolls Lucky, Golden and Rainbow on its own (#1572, Clock.dayKinds).
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Bait = require(Shared.Bait)
@@ -199,14 +199,43 @@ return function()
 			end
 		end)
 
-		it("makes every LuckyDayEvery-th day a Lucky Day", function()
-			expect(Config.LuckyDayEvery).to.equal(4)
-			for _, n in { 0, 1, 2, 3, 5, 6, 7, 9 } do
-				expect(Clock.isLuckyDay(n)).to.equal(false)
+		it("rolls Lucky, Golden and Rainbow Days on their own at 33%, 20% and 10% (#1572, 1g)", function()
+			expect(Config.LuckyDayChance).to.equal(0.33)
+			expect(Config.GoldenDayChance).to.equal(0.2)
+			expect(Config.RainbowDayChance).to.equal(0.1)
+			local n = 100000
+			local count = { lucky = 0, golden = 0, rainbow = 0, all = 0, luckyGolden = 0 }
+			for day = 1, n do
+				local kinds = Clock.dayKinds(day)
+				if day <= 1000 then
+					expect(Clock.isLuckyDay(day)).to.equal(kinds.lucky)
+				end
+				count.lucky += if kinds.lucky then 1 else 0
+				count.golden += if kinds.golden then 1 else 0
+				count.rainbow += if kinds.rainbow then 1 else 0
+				count.all += if kinds.lucky and kinds.golden and kinds.rainbow then 1 else 0
+				count.luckyGolden += if kinds.lucky and kinds.golden then 1 else 0
 			end
-			for _, n in { 4, 8, 12 } do
-				expect(Clock.isLuckyDay(n)).to.equal(true)
-			end
+			-- QA: within half a point of each chance over 100,000 days
+			expect(math.abs(count.lucky / n - 0.33) <= 0.005).to.equal(true)
+			expect(math.abs(count.golden / n - 0.2) <= 0.005).to.equal(true)
+			expect(math.abs(count.rainbow / n - 0.1) <= 0.005).to.equal(true)
+			-- stackable and apart: all three land together, about as often as their product
+			expect(count.all > 0).to.equal(true)
+			expect(math.abs(count.luckyGolden / n - 0.33 * 0.2) <= 0.005).to.equal(true)
+			-- the same day everywhere, and no kinds before the clock starts
+			expect(Clock.dayKinds(1234)).to.deepEqual(Clock.dayKinds(1234))
+			expect(Clock.dayKinds(0)).to.deepEqual({ lucky = false, golden = false, rainbow = false })
+		end)
+
+		it("doubles gold on a Golden Day and triples rainbow on a Rainbow Day (#1572)", function()
+			local plain = { lucky = true, golden = false, rainbow = false }
+			local both = { lucky = false, golden = true, rainbow = true }
+			expect(Clock.goldChance(0.05, nil)).to.equal(0.05)
+			expect(Clock.goldChance(0.05, plain)).to.equal(0.05)
+			expect(Clock.goldChance(0.05, both)).to.be.near(0.1, 1e-12)
+			expect(Clock.rainbowChance(0.015, plain)).to.equal(0.015)
+			expect(Clock.rainbowChance(0.015, both)).to.be.near(0.045, 1e-12)
 		end)
 
 		it("starts each day at its sunrise, the night before it ending there", function()
@@ -221,11 +250,14 @@ return function()
 		end)
 
 		it("names the next Lucky Day after this one", function()
-			expect(Clock.nextLuckyDay(0)).to.equal(4)
-			expect(Clock.nextLuckyDay(1)).to.equal(4)
-			expect(Clock.nextLuckyDay(3)).to.equal(4)
-			expect(Clock.nextLuckyDay(4)).to.equal(8)
-			expect(Clock.nextLuckyDay(7)).to.equal(8)
+			for day = 0, 60 do
+				local next = Clock.nextLuckyDay(day)
+				expect(next > day).to.equal(true)
+				expect(Clock.isLuckyDay(next)).to.equal(true)
+				for between = day + 1, next - 1 do
+					expect(Clock.isLuckyDay(between)).to.equal(false)
+				end
+			end
 		end)
 
 		it("words the warning, the banner and a Lucky Day Mythical as the section does", function()
@@ -422,7 +454,14 @@ return function()
 					end
 				end
 			end
-			-- eight days and nights at half a second: Lucky only in the day phase of days 4 and 8, whole each time
+			-- eight days and nights at half a second: Lucky only in the day phase of its Lucky Days, whole each time
+			-- the window holds days 1 to 9 whole (day 1's day phase is ServerStartDaySeconds long)
+			local want = 0
+			for day = 1, 9 do
+				if Clock.isLuckyDay(day) then
+					want += if day == 1 then Config.ServerStartDaySeconds else Config.DayLengthSeconds
+				end
+			end
 			local lucky, lastDay = 0, 1
 			for i = 0, (Config.ServerStartDaySeconds + 8 * cycle) * 2 - 1 do
 				local t = i / 2
@@ -433,7 +472,7 @@ return function()
 					lucky += 0.5
 				end
 			end
-			expect(lucky).to.equal(2 * Config.DayLengthSeconds)
+			expect(lucky).to.equal(want)
 			-- the warning before a Lucky Day's sunrise comes in the night before it
 			local warn = Config.LuckyDayWarnSeconds
 			expect(warn > 0 and warn <= Config.NightLengthSeconds).to.equal(true)

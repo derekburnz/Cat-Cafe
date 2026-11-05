@@ -298,6 +298,40 @@ function ShopIcons.potion(potionId: string?): string?
 	return ShopIcons.potionAll(potionId)[1]
 end
 
+export type PotionSize = "small" | "regular" | "big"
+
+-- A potion's size in its family (#1403): the Corner Shop's `_small` and `_big` sizes (they run their regular
+-- potion's timer, `buff`), the regular potion they share, and Big Money (`big_tip_potion`) over Money. nil for a
+-- potion with no sizes, which keeps its usual picture.
+function ShopIcons.potionSize(potionId: string?): PotionSize?
+	if type(potionId) ~= "string" then
+		return nil
+	end
+	if potionId:match("_small$") then
+		return "small"
+	end
+	if potionId:match("_big$") or potionId:match("^big_") then
+		return "big"
+	end
+	if Catalog.getPotion("big_" .. potionId) ~= nil then
+		return "regular" -- Money under Big Money
+	end
+	for _, size in { "_small", "_big" } do
+		if Catalog.getPotion(potionId .. size) ~= nil then
+			return "regular"
+		end
+	end
+	return nil
+end
+
+-- How big a potion's bottle draws against its usual size (#1403): Small clearly smaller, Big clearly bigger.
+ShopIcons.POTION_SCALE = { small = 0.72, regular = 1, big = 1.15 } :: { [string]: number }
+
+function ShopIcons.potionScale(potionId: string?): number
+	local size = ShopIcons.potionSize(potionId)
+	return if size ~= nil then ShopIcons.POTION_SCALE[size] else 1
+end
+
 function ShopIcons.perk(perkId: string?): string?
 	return if type(perkId) == "string" then IDS["Perk_" .. pascal(perkId)] else nil
 end

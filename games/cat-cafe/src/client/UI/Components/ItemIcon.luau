@@ -226,8 +226,10 @@ end
 function ItemIcon.setPotion(self: any, potionId: string?, rarity: string?)
 	local bottles = ShopIcons.potionAll(potionId)
 	self:set(nil, Theme.icons.potion, rarity, bottles[1])
-	if #bottles > 1 then
-		IconArt.setImages(self._glyph, bottles, IMAGE_SCALE) -- a flask that fails to load hands over to the next
+	local scale = ShopIcons.potionScale(potionId) -- Small smaller, Big bigger (#1403)
+	if #bottles > 1 or scale ~= 1 then
+		-- a flask that fails to load hands over to the next
+		IconArt.setImages(self._glyph, bottles, IMAGE_SCALE * scale)
 	end
 end
 

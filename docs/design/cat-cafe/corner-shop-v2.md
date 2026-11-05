@@ -66,7 +66,12 @@ No crates, crate keys, spin tokens or anything random. Money passes multiply coi
   - **Potions:** today's Potions window, as it is.
   - **Cat Food:** a row per food the player has: picture, name, "+2,000 XP", "x3" and a green **Feed**. Feed opens the cat list, highest level first, each showing "Level 23 · 1,400 XP to 24". Tapping a cat feeds one and shows "+2,000 XP" on its card. Foods the player has none of don't show; an empty tab reads "Cat food comes from the Daily Treat, rescues, catches and the Corner Shop."
 - **From the cat's card too.** Each cat's card gets a small **Feed** button when the Bag has any food. It lists the foods the player has, and tapping one feeds this cat.
-- **No feeding cap.** Food in the Bag can be fed at any time, any amount. The only cap is the 20,000 XP a day of food *bought*, so earned food is never stuck.
+- **No feeding cap.** Food in the Bag can be fed at any time, any amount. There was a 20,000 XP a day cap on food bought until #1255 (below).
+- **No daily XP cap on bought food either (#1255, 2026-11-05).** Derek asked to remove the cap, and it's gone. The pacing check, decided by Coordinator for the friend, overnight 11-05:
+  - **The stock is the limit now.** A player who buys every food row in every window gets at most about 95,000 XP an hour (Small 2.5 x 600, regular 1.15 x 2,000, Big 0.35 x 6,000 and Feast 0.1 x 20,000, a window, times 12). A working cat earns 3,600 an hour.
+  - **Cats top out at level 50** (`CatMaxLevel`, 1.98 times a level-1 cat). Going from 1 to 50 is about 147,000 XP, so a rich player can max one cat in about 1½ hours of buying everything. Maxing six role cats takes most of a day.
+  - **The cost** of buying everything is about 100M coins an hour at the fixed prices. That's most of a Tier 4 player's income and trivial only at Tier 5. So snacks mostly help late-game players who would reach Tier 5 soon anyway. Six maxed cats against typical level-20 cats is about +40% income: a real reward, not a skip.
+  - **Verdict: OK, with a check.** QA's Pace.spec gets a profile that buys every food row it can afford in every window. If any tier time falls under economy-ladder.md check 3, the Big Snack and Cat Feast prices double (rule v0.8: raise prices). A cap does not come back. The cat level leaderboard is bounded by the same stock for everyone, since late on everyone can afford it.
 - **Earlier buys.** v1 Cat Snacks were fed at once on buy, so no save holds any yet; nothing to migrate.
 
 ### Where cat food comes from
@@ -95,7 +100,7 @@ A daily player earns roughly 5,000 to 6,000 XP of food a day, about 1½ hours of
   - `Catalog.dailyTreat` days 1, 3 and 5 gain their food, and `Catalog.collectorOffers` gains the "2 Big Snacks" row.
 - **Config:**
   - `CornerShopSizeWeights = { small = { 0, 10, 30, 60 }, regular = { 20, 50, 25, 5 }, big = { 70, 25, 5, 0 }, mega = { 90, 10, 0, 0 } }`. This replaces the per-row `CornerShopAmountWeights`.
-  - `CornerDailyLimits = { steady = 4, quick_bait = 2, whistle = 4 }`, by family. `CornerFoodXpPerDay` 20000 replaces `CornerSnackXpPerDay`.
+  - `CornerDailyLimits = { steady = 4, quick_bait = 2, whistle = 4 }`, by family. `CornerFoodXpPerDay` is removed with #1255 (it was 20000 and replaced `CornerSnackXpPerDay`). `snackXp` can stay unused in the save until a later bump.
   - `CatchSnackChance` 0.10 and `RescueSnack` "small_cat_snack".
 - **Profile (next save version, coordinate with the idea-credits bump in claim #1113):**
   - `catFood = { [foodId] = count }`, known ids only, whole counts from 1 to 999.
@@ -114,9 +119,9 @@ A daily player earns roughly 5,000 to 6,000 XP of food a day, about 1½ hours of
 1. Prices: a Small Swift Potion costs 300 coins at Tier 1 and at Tier 5, with or without a 2x Money pass.
 2. Rotation: over 200 windows, Small rows are in stock at least 95% of the time, Big rows about 30% and the Cat Feast about 10%. Two servers show the same stock in the same window.
 3. Tier gates: at Tier 2 the Big rows read "Opens at Tier 3" and can't be bought (a forced `BuyCornerShop` is refused); at Tier 3 the Cat Feast still reads "Opens at Tier 4".
-4. Daily limits: a third Quick Bait Potion of any size in one UTC day is refused with the toast "That's all the Quick Bait for today, back tomorrow!", and a fifth Steady Paw or Whistle with the matching toast. No row ever shows a daily count. Food stops at 20,000 XP bought a day: a Big Snack bought on top of 15,000 XP is refused. All of these reset at 00:00 UTC.
+4. Daily limits: a third Quick Bait Potion of any size in one UTC day is refused with the toast "That's all the Quick Bait for today, back tomorrow!", and a fifth Steady Paw or Whistle with the matching toast. No row ever shows a daily count. Food has no daily XP limit since #1255: a Big Snack bought on top of 15,000 XP the same day goes through. All of these reset at 00:00 UTC.
 5. Bag: buying a Cat Snack opens no picker, and the Bag's Cat Food tab shows "x1". Feeding it to a cat gives exactly 2,000 XP and the count drops; feeding with none left is refused.
 6. Sources: Daily Treat day 1 gives 2 Small Snacks; a rescue gives 1; over 500 net catches the drop rate is within 2 points of 10%; the Collector can offer "2 Big Snacks".
 7. Mixing sizes: drinking a Small then a Big Steady Paw shows one chip with 35 minutes, not two chips.
-8. Pace.spec: a player who buys every daily limit (2 Big Quick Bait, 4 Big Steady Paw, 20,000 XP of food) every day. No tier time falls under economy-ladder.md check 3; if one does, lower the daily limits first (rule v0.8 says raise costs, and here the limits are the cost).
+8. Pace.spec: a player who buys every daily limit (2 Big Quick Bait, 4 Big Steady Paw, and every food row in stock since #1255) every day. No tier time falls under economy-ladder.md check 3; if one does, lower the potion daily limits first, and for food double the Big Snack and Cat Feast prices (food has no daily limit since #1255).
 9. Nothing in the Corner Shop costs Robux or golden fish, and nothing bought is random.

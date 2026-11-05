@@ -3723,17 +3723,29 @@ function Catalog.getCampExtra(id: string): Types.CampExtraDef?
 end
 
 -- The front lawn (F91, front-lawn.md section 2): pieces for the six lawn spots (shared/Lawn.SPOTS) and the path and
--- fence styles, bought with coins in the Decor screen's Front lawn tab at the tier that sells them. No tip bonus: the
--- lawn is looks only. Prices are section 2's, times 4 at Tier 3, 8 at Tier 4 and 16 at Tier 5 (economy-ladder.md
--- section 4, which wins; its example rounds the Golden Paw Statue's 48,000,000 to 50,000,000, as the Royal Bowl's).
+-- fence styles, bought with coins at the Garden Nursery in the Park (lawn-nursery.md, #1200) at the tier that sells
+-- them. Each has a `rarity` and costs that rarity's Catalog.lawnRarityPrices rung (lawn-nursery.md section 1), fixed
+-- coins, the same with or without a money pass.
 -- Models are Model-Agent's (#673, style guide section 13).
+-- lawn-nursery.md section 1 (#1200): the fixed coin price of each lawn rarity, about 5 times a step and 10 at the top
+Catalog.lawnRarityPrices = table.freeze({
+	Common = 10000,
+	Uncommon = 50000,
+	Rare = 250000,
+	Epic = 1000000,
+	Legendary = 5000000,
+	Mythical = 50000000,
+	Golden = 500000000,
+}) :: { [string]: number }
+
 Catalog.lawn = {
 	{
 		id = "tulip_bed",
 		name = "Tulip Bed",
 		spot = "small",
 		tier = 1,
-		price = 500,
+		rarity = "Common",
+		price = 10000,
 		model = "CatCafe_Lawn_TulipBed",
 	},
 	{
@@ -3741,7 +3753,8 @@ Catalog.lawn = {
 		name = "Sandwich Board",
 		spot = "small",
 		tier = 1,
-		price = 500,
+		rarity = "Common",
+		price = 10000,
 		model = "CatCafe_Lawn_SandwichBoard",
 	},
 	{
@@ -3749,7 +3762,8 @@ Catalog.lawn = {
 		name = "Potted Cat Topiary",
 		spot = "small",
 		tier = 1,
-		price = 1000,
+		rarity = "Uncommon",
+		price = 50000,
 		model = "CatCafe_Lawn_PottedCatTopiary",
 	},
 	{
@@ -3757,7 +3771,8 @@ Catalog.lawn = {
 		name = "Mailbox",
 		spot = "small",
 		tier = 1,
-		price = 1000,
+		rarity = "Uncommon",
+		price = 50000,
 		model = "CatCafe_Lawn_Mailbox",
 	},
 	{
@@ -3765,7 +3780,8 @@ Catalog.lawn = {
 		name = "Lamp Post",
 		spot = "small",
 		tier = 2,
-		price = 3000,
+		rarity = "Rare",
+		price = 250000,
 		model = "CatCafe_Lawn_LampPost",
 	},
 	{
@@ -3773,7 +3789,8 @@ Catalog.lawn = {
 		name = "Bird Bath",
 		spot = "small",
 		tier = 2,
-		price = 3000,
+		rarity = "Rare",
+		price = 250000,
 		model = "CatCafe_Lawn_BirdBath",
 	},
 	{
@@ -3781,7 +3798,8 @@ Catalog.lawn = {
 		name = "Garden Gnome Cat",
 		spot = "small",
 		tier = 2,
-		price = 5000,
+		rarity = "Rare",
+		price = 250000,
 		model = "CatCafe_Lawn_GardenGnomeCat",
 	},
 	{
@@ -3789,7 +3807,8 @@ Catalog.lawn = {
 		name = "Bicycle with Basket",
 		spot = "big",
 		tier = 2,
-		price = 8000,
+		rarity = "Epic",
+		price = 1000000,
 		model = "CatCafe_Lawn_BicycleWithBasket",
 	},
 	{
@@ -3797,7 +3816,8 @@ Catalog.lawn = {
 		name = "Garden Bench",
 		spot = "big",
 		tier = 2,
-		price = 8000,
+		rarity = "Epic",
+		price = 1000000,
 		model = "CatCafe_Lawn_GardenBench",
 	},
 	{
@@ -3805,7 +3825,8 @@ Catalog.lawn = {
 		name = "Umbrella Table",
 		spot = "big",
 		tier = 3,
-		price = 100000,
+		rarity = "Legendary",
+		price = 5000000,
 		model = "CatCafe_Lawn_UmbrellaTable",
 	},
 	{
@@ -3813,7 +3834,8 @@ Catalog.lawn = {
 		name = "Little Fountain",
 		spot = "big",
 		tier = 3,
-		price = 160000,
+		rarity = "Legendary",
+		price = 5000000,
 		model = "CatCafe_Lawn_LittleFountain",
 	},
 	{
@@ -3821,7 +3843,8 @@ Catalog.lawn = {
 		name = "Fairy Light Arch",
 		spot = "big",
 		tier = 4,
-		price = 1200000,
+		rarity = "Mythical",
+		price = 50000000,
 		model = "CatCafe_Lawn_FairyLightArch",
 	},
 	{
@@ -3829,7 +3852,8 @@ Catalog.lawn = {
 		name = "Flower Cart",
 		spot = "big",
 		tier = 4,
-		price = 1600000,
+		rarity = "Mythical",
+		price = 50000000,
 		model = "CatCafe_Lawn_FlowerCart",
 	},
 	{
@@ -3837,7 +3861,8 @@ Catalog.lawn = {
 		name = "Balloon Bunch",
 		spot = "small",
 		tier = 4,
-		price = 800000,
+		rarity = "Legendary",
+		price = 5000000,
 		model = "CatCafe_Lawn_BalloonBunch",
 	},
 	{
@@ -3845,7 +3870,8 @@ Catalog.lawn = {
 		name = "Cat Tree Sign",
 		spot = "big",
 		tier = 5,
-		price = 16000000,
+		rarity = "Golden",
+		price = 500000000,
 		model = "CatCafe_Lawn_CatTreeSign",
 	},
 	{
@@ -3853,7 +3879,8 @@ Catalog.lawn = {
 		name = "Golden Paw Statue",
 		spot = "big",
 		tier = 5,
-		price = 50000000,
+		rarity = "Golden",
+		price = 500000000,
 		model = "CatCafe_Lawn_GoldenPawStatue",
 	},
 } :: { Types.LawnPieceDef }
@@ -3873,7 +3900,8 @@ Catalog.lawnStyles = {
 		name = "Red Brick",
 		kind = "path",
 		tier = 1,
-		price = 2000,
+		rarity = "Common",
+		price = 10000,
 		model = "CatCafe_Lawn_Path_RedBrick",
 	},
 	{
@@ -3881,7 +3909,8 @@ Catalog.lawnStyles = {
 		name = "Stepping Stones",
 		kind = "path",
 		tier = 2,
-		price = 10000,
+		rarity = "Uncommon",
+		price = 50000,
 		model = "CatCafe_Lawn_Path_SteppingStones",
 	},
 	{
@@ -3889,7 +3918,8 @@ Catalog.lawnStyles = {
 		name = "Paw Print Path",
 		kind = "path",
 		tier = 3,
-		price = 200000,
+		rarity = "Epic",
+		price = 1000000,
 		model = "CatCafe_Lawn_Path_PawPrintPath",
 	},
 	{
@@ -3897,7 +3927,8 @@ Catalog.lawnStyles = {
 		name = "White Picket",
 		kind = "fence",
 		tier = 1,
-		price = 2000,
+		rarity = "Common",
+		price = 10000,
 		model = "CatCafe_Lawn_Fence_WhitePicket",
 	},
 	{
@@ -3905,7 +3936,8 @@ Catalog.lawnStyles = {
 		name = "Low Hedge",
 		kind = "fence",
 		tier = 2,
-		price = 10000,
+		rarity = "Uncommon",
+		price = 50000,
 		model = "CatCafe_Lawn_Fence_LowHedge",
 	},
 	{
@@ -3913,7 +3945,8 @@ Catalog.lawnStyles = {
 		name = "Iron Railing",
 		kind = "fence",
 		tier = 3,
-		price = 200000,
+		rarity = "Epic",
+		price = 1000000,
 		model = "CatCafe_Lawn_Fence_IronRailing",
 	},
 	{
@@ -3921,7 +3954,8 @@ Catalog.lawnStyles = {
 		name = "Flower Box Fence",
 		kind = "fence",
 		tier = 4,
-		price = 1600000,
+		rarity = "Mythical",
+		price = 50000000,
 		model = "CatCafe_Lawn_Fence_FlowerBoxFence",
 	},
 } :: { Types.LawnStyleDef }

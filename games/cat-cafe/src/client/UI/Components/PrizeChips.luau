@@ -232,6 +232,8 @@ local function partImage(part: IndexRewards.PrizePart): string?
 		return ShopIcons.clean("Crate") or ShopIcons.crate(part.id)
 	elseif kind == "potion" then
 		return ShopIcons.potion(part.id)
+	elseif kind == "catFood" then
+		return ShopIcons.catFood(part.id)
 	end
 	-- money, golden fish and spins: the clean bag, fish coin and wheel (#1242)
 	return ShopIcons.prize(kind)
@@ -268,6 +270,8 @@ function PrizeChips._partLook(
 			amount
 	elseif kind == "potion" then
 		return nil, Theme.icons.potion, "Epic", amount
+	elseif kind == "catFood" then
+		return nil, "🍪", "Rare", amount
 	elseif kind == "tag" then
 		return nil, Theme.icons.tag, "Mythical", part.id or ""
 	elseif kind == "decor" then

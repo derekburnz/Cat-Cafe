@@ -22,10 +22,10 @@ Every piece and style, with its rarity and price:
 
 | piece or style | kind | tier it opens | rarity | was | now |
 |---|---|---|---|---|---|
-| Tulip Bed | small spot | 1 | Common | 500 | 10,000 |
-| Sandwich Board | small spot | 1 | Common | 500 | 10,000 |
-| Red Brick | path | 1 | Common | 2,000 | 10,000 |
-| White Picket | fence | 1 | Common | 2,000 | 10,000 |
+| Tulip Bed | small spot | 2 | Common | 500 | 10,000 |
+| Sandwich Board | small spot | 2 | Common | 500 | 10,000 |
+| Red Brick | path | 2 | Common | 2,000 | 10,000 |
+| White Picket | fence | 2 | Common | 2,000 | 10,000 |
 | Potted Cat Topiary | small spot | 1 | Uncommon | 1,000 | 50,000 |
 | Mailbox | small spot | 1 | Uncommon | 1,000 | 50,000 |
 | Stepping Stones | path | 2 | Uncommon | 10,000 | 50,000 |
@@ -58,6 +58,7 @@ Every piece and style, with its rarity and price:
 - **Prices are fixed coin amounts**, the same with or without a money pass. Nothing is random.
 - **The free gifts stay free.** The Tier 2 Garden Bench and Tier 3 Umbrella Table (front-lawn.md section 1b) are now an Epic and a Legendary, so the gifts are worth more than before.
 - **Nobody loses anything.** Owned pieces stay owned and placed, and nothing is refunded or charged again. A player who bought a Golden Paw Statue for 50,000,000 keeps it.
+- **The Commons open at Tier 2 (#1382, 2026-11-05).** QA-Planner's Pace run in #1449 found that a player who buys the best lawn piece as soon as they can reached Tier 2 in 25.1 minutes, over the 20-minute bound, because they spent 10,000 on a Common at Tier 1 with Tier 2 at 13,500. The ladder above already prices Commons as Tier 2 buys ("under a minute at Tier 2"), so the four Tier 1 Commons now open at Tier 2. The nursery shows them with "Opens at Tier 2". The price and the bonus stay, and nothing is lost: nobody could own one before #1449 ships. Players who saved for the rank up were never slowed.
 - **Tuning.** If QA's pace numbers show a tier is much faster or slower than the model, the ladder stays as it is and pieces move up or down a rung.
 
 ## 2. The Garden Nursery in the Park

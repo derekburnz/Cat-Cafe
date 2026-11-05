@@ -171,7 +171,7 @@ The friend, 2026-11-05: "update the decor/yard items to just work the same as th
   | Mythical | 4% |
   | Golden | 1% |
 
-  About 1 day in 4 has a Mythical row, and about 1 day in 17 has a Golden one. Golden stays in the roll at 1% so the two top pieces aren't lost (the ask said Common to Mythical; Golden is the rare extra above it).
+  About 1 day in 5 has a Mythical row, and about 1 day in 17 has a Golden one. Golden stays in the roll at 1% so the two top pieces aren't lost (the ask said Common to Mythical; Golden is the rare extra above it).
 - **Buying:** fixed coins, the section 1 prices (10,000 to 500,000,000). Each player can buy each row once. A piece they already own shows "Owned" and can't be bought again. Nothing in the Yard Sale is random once it's on show: the player sees exactly what they buy, so it's not a paid random item, and it's coins only.
 - **Tier gates stay.** A row above the player's tier shows "Opens at Tier N" and can't be bought. The Yard Sale itself opens at Tier 3, so the Tier 1 to 3 gates matter less now. The free Tier 2 Garden Bench and Tier 3 Umbrella Table gifts (front-lawn.md section 1b) stay, so a Tier 2 player still gets a lawn piece.
 - **The free crate stays.** The Yard Sale keeps its free zone crate every 4 hours with its "!" (camp-stations.md section 3). The lawn stock is a second panel on the same card: "Free crate" on top, "Yard decor" below.

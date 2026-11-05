@@ -7,7 +7,7 @@
 --   chance(itemId)                "In stock 9 times in 10", "Always in stock"
 --   stockLine(item)               "x2 left", "You bought 2", "None this time"
 --   button(item, row, coins, room) the Buy button's words and whether it can be pressed
---   snackLine(snackXp)            "Cat food today: 4,800 / 20,000 XP"
+--   snackLine(snackXp)            "" (#1255: no daily cat food cap any more)
 --   effect(row)                   what the row does, in a line
 --   catsByLevel(cats)             the snack's cat picker, highest level first
 
@@ -122,23 +122,14 @@ function CornerShopLogic.button(
 	return { text = "Buy · " .. money(item.price), enabled = coins >= item.price }
 end
 
--- #1255: cat food has no daily XP cap, so with no Config.CornerFoodXpPerDay the room is unlimited and the line is empty.
-function CornerShopLogic.snackRoom(snackXp: number): number
-	local cap: number? = Config.CornerFoodXpPerDay
-	if cap == nil then
-		return math.huge
-	end
-	return math.max(0, cap - snackXp)
+-- #1255: cat food has no daily XP cap, so the room is unlimited and the line is empty. Both stay for the window's
+-- callers until UI-Engineer drops the line.
+function CornerShopLogic.snackRoom(_snackXp: number): number
+	return math.huge
 end
 
-function CornerShopLogic.snackLine(snackXp: number): string
-	if Config.CornerFoodXpPerDay == nil then
-		return ""
-	end
-	return ("Cat food today: %s / %s XP"):format(
-		commas(snackXp),
-		commas(Config.CornerFoodXpPerDay or 0)
-	)
+function CornerShopLogic.snackLine(_snackXp: number): string
+	return ""
 end
 
 -- What a row does (corner-shop.md section 2), in one short line.

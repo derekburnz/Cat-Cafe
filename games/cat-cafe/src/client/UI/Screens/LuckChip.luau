@@ -221,7 +221,7 @@ function LuckChip.new(
 		LayoutOrder = 2,
 		Parent = titleRow,
 	})
-	label({
+	self._subtitle = label({
 		Name = "Subtitle",
 		Size = UDim2.new(1, 0, 0, 18),
 		TextSize = Theme.sizes.textSmall,
@@ -470,15 +470,20 @@ function LuckChip._renderCard(self: any)
 	for _, row in rows do
 		table.insert(parts, ("%s=%s=%s"):format(row.name, row.value, row.time or ""))
 	end
+	-- #1153: headings that say what the numbers are, and a ↑ on each rarity Luck makes more likely than at x1
 	local foodTitle = ""
 	if food then
 		foodTitle = if bowlLevel >= 1
-			then ("%s on your %s"):format(food.name, Bait.bowlName(bowlLevel))
-			else ("%s in the Bait bowl"):format(food.name)
+			then ("Your next cat from %s (%s)"):format(food.name, Bait.bowlName(bowlLevel))
+			else ("Your next cat from %s"):format(food.name)
 	end
-	local foodText = LuckLogic.oddsRich(foodOdds :: any, rarityHex)
-	local crateTitle = if crate then "Next " .. crate.name else ""
-	local crateText = LuckLogic.oddsRich(crateOdds, rarityHex)
+	local foodBefore = if food and luck > 1 then FoodOdds.atBowl(food.odds, bowlLevel, 1) else nil
+	local foodText = LuckLogic.oddsRich(foodOdds :: any, rarityHex, foodBefore :: any)
+	local crateTitle = if crate then "Your next " .. crate.name else ""
+	local crateBefore = if crate and luck > 1
+		then LuckLogic.crateOdds(catalog, state, crate, 1)
+		else nil
+	local crateText = LuckLogic.oddsRich(crateOdds, rarityHex, crateBefore)
 	table.insert(parts, foodTitle .. foodText .. crateTitle .. crateText)
 	local said = table.concat(parts, ";")
 	if said == self._said then
@@ -486,6 +491,8 @@ function LuckChip._renderCard(self: any)
 	end
 	self._said = said
 	self._title.Text = LuckLogic.text(luck)
+	-- #1153: say what the ↑ marks mean while Luck lifts anything
+	self._subtitle.Text = if luck > 1 then "↑ more likely with your Luck" else LuckLogic.SUBTITLE
 	self._foodTitle.Text = foodTitle
 	self._foodTitle.Visible = food ~= nil
 	self._foodOdds.Text = foodText

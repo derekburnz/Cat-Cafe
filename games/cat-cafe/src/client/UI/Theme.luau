@@ -136,7 +136,8 @@ Theme.textures = {
 	-- cat-face coin; assets/cat-cafe/exports/icons/CatCafe_Icon_GoldenFish.png, Model-Agent #690)
 	-- the clean yellow fish (Icon_Clean_Fish) since #1208 (the friend 11-04: "the golden fish icons are still the old
 	-- pictures"); the shiny CatCafe_Icon_GoldenFish was 75310291409772
-	fishCoin = "rbxassetid://111395416488950",
+	-- Icon_Clean_FishGold since #1253 (Derek 11-04: the fish "somehow got worse"; was 111395416488950)
+	fishCoin = "rbxassetid://105273249926486",
 }
 
 -- HUD panels float over the 3D world, so they are dark and solid for contrast, with a thick dark outline

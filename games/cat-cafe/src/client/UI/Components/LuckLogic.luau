@@ -24,7 +24,6 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local FoodOdds = require(script.Parent.FoodOdds)
 local MarketLogic = require(script.Parent.MarketLogic)
 local Types = require(script.Parent.Parent.Types)
 
@@ -246,7 +245,24 @@ function LuckLogic.dayLine(view: DayView): string?
 	return ("Lucky Day in %d days"):format(away)
 end
 
-function LuckLogic.oddsRich(odds: { [string]: number }?, hexOf: (rarity: string) -> string): string
+-- #1153 (Derek 11-04: the odds blocks were hard to read): whole percents, one decimal below 1% ("42%", "0.6%").
+function LuckLogic.percent(value: number): string
+	if value >= 1 then
+		return ("%d%%"):format(math.floor(value + 0.5))
+	end
+	local tenths = math.floor(value * 10 + 0.5) / 10
+	if tenths <= 0 then
+		return "<0.1%"
+	end
+	return ("%s%%"):format(tostring(tenths))
+end
+
+-- `before`, the same odds without Luck: a rarity Luck makes more likely gets a small ↑ (#1153: "show what luck does").
+function LuckLogic.oddsRich(
+	odds: { [string]: number }?,
+	hexOf: (rarity: string) -> string,
+	before: { [string]: number }?
+): string
 	if odds == nil then
 		return ""
 	end
@@ -256,8 +272,10 @@ function LuckLogic.oddsRich(odds: { [string]: number }?, hexOf: (rarity: string)
 	for _, rarity in RARITIES do
 		local share = odds[rarity]
 		if type(share) == "number" and share > 0 then
-			local shown = FoodOdds.percent(share)
-			local width = #rarity + 1 + #shown
+			local was = if before then before[rarity] else nil
+			local up = type(was) == "number" and share > was + 0.05
+			local shown = LuckLogic.percent(share) .. (if up then "↑" else "")
+			local width = #rarity + 1 + (utf8.len(shown) or #shown) -- the ↑ is one letter wide
 			if #line > 0 and letters + 3 + width > LINE_CHARS then
 				table.insert(lines, table.concat(line, "   "))
 				line = {}

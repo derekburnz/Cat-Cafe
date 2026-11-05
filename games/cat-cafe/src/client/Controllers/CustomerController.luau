@@ -36,6 +36,8 @@ local Config = require(Shared:WaitForChild("Config"))
 local Effects = require(script.Parent.Parent.Effects)
 local Moments = require(script.Parent.Parent.Moments)
 local Mover = require(Shared:WaitForChild("Mover"))
+-- a customer's walk: a step and a sway instead of the plain hop (Effects/CustomerWalk, #1143)
+local walkStep = require(script.Parent.Parent.Effects.CustomerWalk).draw
 local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
 
@@ -301,14 +303,14 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 	local speed = Config.CustomerWalkSpeed
 	local own = isOwnPlot(plot)
 	local ticket: CafeOrders.Ticket? = nil -- its order (F90), once it reached the counter
-	local arrived = Mover.walkTo(model, door, speed, isAlive)
+	local arrived = Mover.walkTo(model, door, speed, isAlive, walkStep)
 	-- order at the counter, standing a little to one side so a queue spreads out
 	if arrived and order ~= nil and (visit ~= nil or isDay()) then
 		local counter = order :: Vector3
 		local inward = ((counter - door) * Vector3.new(1, 0, 1)).Unit -- from the door toward the counter
 		local spot = Vector3.new(counter.X, entry.Y, counter.Z)
 			+ inward:Cross(Vector3.yAxis) * rng:NextNumber(-3, 3)
-		arrived = Mover.walkTo(model, spot, speed, isAlive)
+		arrived = Mover.walkTo(model, spot, speed, isAlive, walkStep)
 		if arrived then
 			Mover.face(model, spot + inward)
 			local place: CafeOrders.Place = {
@@ -327,7 +329,13 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 		if not (arrived and (visit ~= nil or isDay())) then
 			break
 		end
-		arrived = Mover.walkTo(model, Vector3.new(point.X, entry.Y, point.Z), speed, isAlive)
+		arrived = Mover.walkTo(
+			model,
+			Vector3.new(point.X, entry.Y, point.Z),
+			speed,
+			isAlive,
+			walkStep
+		)
 		if arrived then
 			walked += 1
 		end
@@ -335,7 +343,7 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 	if
 		arrived
 		and (visit ~= nil or isDay())
-		and Mover.walkTo(model, seatPosition, speed, isAlive)
+		and Mover.walkTo(model, seatPosition, speed, isAlive, walkStep)
 	then
 		if tableTop ~= nil then
 			Mover.face(model, tableTop.Position)
@@ -400,10 +408,16 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 	end
 	if isAlive() then
 		for i = walked, 1, -1 do
-			Mover.walkTo(model, Vector3.new(route[i].X, entry.Y, route[i].Z), speed, isAlive)
+			Mover.walkTo(
+				model,
+				Vector3.new(route[i].X, entry.Y, route[i].Z),
+				speed,
+				isAlive,
+				walkStep
+			)
 		end
-		Mover.walkTo(model, door, speed, isAlive)
-		Mover.walkTo(model, entry, speed, isAlive)
+		Mover.walkTo(model, door, speed, isAlive, walkStep)
+		Mover.walkTo(model, entry, speed, isAlive, walkStep)
 	end
 	alive = false
 	model:Destroy()

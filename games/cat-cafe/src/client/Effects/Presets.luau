@@ -3321,4 +3321,30 @@ Presets.whistle = {
 	stillTransparency = 0.6,
 }
 
+-- Customers walking (Derek 2026-11-04, #1143: "walking looks like mini hopping"; Effects/CustomerWalk.luau). The
+-- customer models are loose parts on a pivot at the feet, so the legs are the parts below `legTop` within
+-- `legHalfWidth` of the middle and the arms the ones from `armBottom` to `armTop` at least `armFrom` out (a side that
+-- also has a part lower down there, a bag, keeps its arm still). Each leg swings `legSwing` degrees either way about
+-- the hip and each arm `armSwing` the other way about the shoulder, one cycle per `stride` studs walked (two steps:
+-- Config.CustomerWalkSpeed 7 makes 2.5 a second), the body rolls `roll` degrees side to side once a cycle and drops
+-- as a leg leaves the upright so the feet stay on the floor (the bob). It eases in over `easeIn` seconds and back to
+-- standing over `settle` once it stops; `reduced` scales the swing, roll and bob with Reduce Motion.
+Presets.customerWalk = {
+	legTop = 1.7,
+	legHalfWidth = 0.6,
+	armFrom = 0.75,
+	armBottom = 1.7,
+	armTop = 3.6,
+	hip = 1.65,
+	shoulder = 3.3,
+	stride = 2.8,
+	legSwing = 22,
+	armSwing = 16,
+	roll = 2,
+	easeIn = 0.2,
+	settle = 0.2,
+	reduced = 0.5,
+	idleAfter = 0.08, -- seconds with no walk step before it starts to settle
+}
+
 return Presets

@@ -691,12 +691,12 @@ export type LawnSpot = {
 export type LawnStyles = { path: string, fence: string? }
 
 -- What the camp extras hold (section 4, save version 25), all times server os.time(): the Picnic Basket's potions
--- and when the next started filling; the Yard Sale's UTC day number (os.time() // 86400) and the crates bought that
--- day; the Fish Pond's fill start (its fish follow from the time); the Lost and Found's last settled UTC day and its
+-- and when the next started filling; the Yard Sale's last take (0 for never) and how many it has given (save version
+-- 33, #1154; it picks the next crate); the Fish Pond's fill start (its fish follow from the time); the Lost and Found's last settled UTC day and its
 -- prizes waiting. Settled on load and every few seconds (shared/CampExtras.settle).
 export type CampExtrasSave = {
 	picnic: { at: number, held: number },
-	yardSale: { day: number, bought: { [string]: boolean } },
+	yardSale: { lastClaimAt: number, claims: number },
 	pond: { at: number },
 	lostFound: { day: number, held: number },
 }

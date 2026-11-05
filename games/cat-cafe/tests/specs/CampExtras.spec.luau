@@ -86,16 +86,20 @@ return function()
 			expect(CampExtras.view(save, 2, T + 20 * HOUR).picnic.nextAt).to.equal(T + 26 * HOUR)
 		end)
 
-		it("lands 2 golden fish every 30 minutes up to 24, keeping a part step when collected", function()
+		it("lands 1 golden fish every 10 minutes up to 36, keeping a part step when collected (#1232)", function()
 			local save = emptied(4)
-			local view = at(save, 4, T + 45 * 60)
+			local view = at(save, 4, T + 25 * 60)
 			expect(view.pond.held).to.equal(2)
-			expect(view.pond.nextAt).to.equal(T + HOUR)
-			local prize = CampExtras.take(save, "pond", 4, T + 45 * 60, half)
+			expect(view.pond.nextAt).to.equal(T + 30 * 60)
+			local prize = CampExtras.take(save, "pond", 4, T + 25 * 60, half)
 			expect(prize :: any).to.deepEqual({ fish = 2 })
-			-- the second step still ends at the hour
-			expect(at(save, 4, T + HOUR).pond.held).to.equal(2)
-			expect(at(save, 4, T + 30 * HOUR).pond.held).to.equal(Config.PondHold)
+			-- the third step still ends at the half hour
+			expect(at(save, 4, T + 30 * 60).pond.held).to.equal(1)
+			-- camp-stations.md QA 3: 6 after an hour away, 36 and no more after 7 hours
+			local away = emptied(4)
+			expect(at(away, 4, T + HOUR).pond.held).to.equal(6)
+			expect(at(away, 4, T + 7 * HOUR).pond.held).to.equal(36)
+			expect(Config.PondHold).to.equal(36)
 		end)
 
 		it("keeps one Lost and Found prize a UTC day from midnight, up to 3", function()
@@ -110,15 +114,15 @@ return function()
 			expect(prize :: any).to.deepEqual({ potions = { lucky_potion = 3 } }) -- a roll of 0.5 is the Lucky Potion
 		end)
 
-		it("finds the pond at 24 and the picnic at 1 after 7 hours away, both with a ! (check 2)", function()
+		it("finds the pond at 36 and the picnic at 1 after 7 hours away, both with a ! (check 2)", function()
 			local save = emptied(5)
 			local now = T + 7 * HOUR
 			local view = at(save, 5, now)
-			expect(view.pond.held).to.equal(24)
+			expect(view.pond.held).to.equal(36)
 			expect(view.picnic.held).to.equal(1)
 			local woods, woodsReady = CampExtras.pickerLine(view, "woods", now)
 			local park, parkReady = CampExtras.pickerLine(view, "park", now)
-			expect(woods).to.equal("Fish Pond: 24 fish !")
+			expect(woods).to.equal("Fish Pond: 36 fish !")
 			expect(park).to.equal("Picnic Basket: 1 ready !")
 			expect(woodsReady and parkReady).to.equal(true)
 		end)
@@ -133,58 +137,63 @@ return function()
 	end)
 
 	describe("the Yard Sale (sections 2 and 4)", function()
-		it("gives one open zone's crate, the same for everyone on a day, a new zone each day (crate-prices.md 5)", function()
+		it("gives one open zone's crate, the same in any server, the next zone each take (crate-prices.md 5, #1154)", function()
 			local zones = { "alley_crate", "park_crate", "neighbourhood_crate" }
 			local seen: { [string]: boolean } = {}
-			for day = 20000, 20002 do
-				local stock = CampExtras.yardStock(3, day)
-				expect(stock :: any).to.deepEqual({ zones[day % 3 + 1] })
-				expect(CampExtras.yardStock(3, day) :: any).to.deepEqual(stock)
+			for claims = 0, 2 do
+				local stock = CampExtras.yardStock(3, claims)
+				expect(stock :: any).to.deepEqual({ zones[claims % 3 + 1] })
+				expect(CampExtras.yardStock(3, claims) :: any).to.deepEqual(stock)
 				seen[stock[1]] = true
 			end
 			for _, crateId in zones do
 				expect(seen[crateId]).to.equal(true)
 			end
-			expect(#CampExtras.yardStock(2, 20000)).to.equal(0)
+			expect(#CampExtras.yardStock(2, 0)).to.equal(0)
 			-- Tier 5 picks from every area
-			for day = 20000, 20004 do
-				local zone = CampExtras.yardStock(5, day)[1]
+			for claims = 0, 4 do
+				local zone = CampExtras.yardStock(5, claims)[1]
 				expect(Catalog.getCrate(zone)).to.be.ok()
 				expect((Catalog.getCrate(zone) :: any).golden).to.equal(false)
 			end
 		end)
 
-		it("gives today's crate free once a day, and a new one the next day (crate-prices.md 5)", function()
+		it("gives a free crate every 4 hours from the last take, holding 1 (camp-stations.md QA 2)", function()
 			local save = emptied(3)
-			local today = CampExtras.day(T)
-			local zone = CampExtras.yardStock(3, today)[1]
+			expect(Config.YardSaleClaimHours).to.equal(4)
+			local zone = CampExtras.yardStock(3, save.yardSale.claims)[1]
 			expect(CampExtras.buyBlocker(save, zone, 3, T)).to.equal(nil) -- free: no fish needed
-			expect(CampExtras.buyBlocker(save, "classic_crate", 3, T)).to.equal(
-				"That crate is not at the Yard Sale today"
-			)
+			expect(CampExtras.buyBlocker(save, "classic_crate", 3, T)).to.equal("That crate is not at the Yard Sale now")
 			expect(CampExtras.buyBlocker(save, "classic_golden_crate", 3, T)).to.equal(
-				"That crate is not at the Yard Sale today"
+				"That crate is not at the Yard Sale now"
 			)
 			local before = CampExtras.view(save, 3, T)
 			expect(before.yardSale.held).to.equal(1)
+			expect(before.yardSale.nextAt).to.equal(nil)
 			expect((before.yardSale.stock :: any)[1].price).to.equal(0)
 			expect((CampExtras.nextYardCrate(before.yardSale) :: any).crateId).to.equal(zone)
-			save.yardSale.bought[zone] = true
-			expect(CampExtras.buyBlocker(save, zone, 3, T)).to.equal(CampExtras.TAKEN)
-			local view = CampExtras.view(save, 3, T)
+			-- a take, as CampExtraService does it
+			save.yardSale.lastClaimAt = T
+			save.yardSale.claims += 1
+			local nextZone = CampExtras.yardStock(3, save.yardSale.claims)[1]
+			expect(nextZone).never.to.equal(zone)
+			expect(CampExtras.buyBlocker(save, nextZone, 3, T + 4 * HOUR - 60)).to.equal(
+				CampExtras.TAKEN .. ". A new one in 1 m"
+			)
+			expect(CampExtras.buyBlocker(save, nextZone, 3, T + 1)).to.equal(CampExtras.TAKEN .. ". A new one in 4 h")
+			local view = CampExtras.view(save, 3, T + HOUR)
 			expect(view.yardSale.held).to.equal(0)
+			expect(view.yardSale.nextAt).to.equal(T + 4 * HOUR)
 			expect(CampExtras.nextYardCrate(view.yardSale)).to.equal(nil)
-			-- a rank up the same day can move today's crate to another zone: still one take a day (#1051 review)
+			-- a rank up can move the crate to another zone: still one take per wait (#1051 review)
 			for tier = 4, 5 do
-				local other = CampExtras.yardStock(tier, today)[1]
-				expect(CampExtras.buyBlocker(save, other, tier, T)).to.equal(CampExtras.TAKEN)
-				local ranked = CampExtras.view(save, tier, T)
-				expect(ranked.yardSale.held).to.equal(0)
+				local other = CampExtras.yardStock(tier, save.yardSale.claims)[1]
+				expect(string.find(CampExtras.buyBlocker(save, other, tier, T + HOUR) or "", CampExtras.TAKEN, 1, true)).to.equal(1)
+				expect(CampExtras.view(save, tier, T + HOUR).yardSale.held).to.equal(0)
 			end
-			local tomorrow = at(save, 3, T + DAY)
-			expect(tomorrow.yardSale.held).to.equal(1)
-			local nextCrate = CampExtras.yardStock(3, today + 1)[1]
-			expect(CampExtras.buyBlocker(save, nextCrate, 3, T + DAY)).to.equal(nil)
+			-- at 4 h it works, and a long wait still holds just 1
+			expect(CampExtras.buyBlocker(save, nextZone, 3, T + 4 * HOUR)).to.equal(nil)
+			expect(at(save, 3, T + 40 * HOUR).yardSale.held).to.equal(1)
 		end)
 
 		it("shows a ! on the Yard Sale's picker line while the free crate waits (#1051)", function()
@@ -193,11 +202,10 @@ return function()
 			local line, ready = CampExtras.pickerLine(view, "neighbourhood", T)
 			expect(line).to.equal("Yard Sale: free crate !")
 			expect(ready).to.equal(true)
-			for _, crate in view.yardSale.stock do
-				save.yardSale.bought[crate.crateId] = true
-			end
+			save.yardSale.lastClaimAt = T
+			save.yardSale.claims += 1
 			local soldOut, readyAfter = CampExtras.pickerLine(CampExtras.view(save, 3, T), "neighbourhood", T)
-			expect(soldOut).to.equal("Yard Sale: new crate in 23 h")
+			expect(soldOut).to.equal("Yard Sale: new crate in 4 h")
 			expect(readyAfter).to.equal(false)
 		end)
 	end)
@@ -268,14 +276,14 @@ return function()
 			expect(CampExtras.pickerLine(tier2, "alley", T + 6 * HOUR)).to.equal(nil)
 			expect(CampExtras.pickerLine(tier2, "park", T + 6 * HOUR)).to.equal("Picnic Basket: 1 ready !")
 			expect(CampExtras.pickerLine(tier2, "neighbourhood", T + 6 * HOUR)).to.equal(nil)
-			local now = T + 15 * 60
+			local now = T + 5 * 60 -- inside the pond's first 10 minute step (#1232)
 			local tier4 = at(emptied(4), 4, now)
 			for _, areaId in { "park", "neighbourhood", "woods" } do
 				expect(CampExtras.pickerLine(tier4, areaId, now)).to.be.ok()
 			end
 			expect(CampExtras.pickerLine(tier4, "sewer", now)).to.equal(nil)
-			expect(CampExtras.pickerLine(tier4, "park", now)).to.equal("Picnic Basket: next in 5 h 45 m")
-			expect(CampExtras.pickerLine(tier4, "woods", now)).to.equal("Fish Pond: next in 15 m")
+			expect(CampExtras.pickerLine(tier4, "park", now)).to.equal("Picnic Basket: next in 5 h 55 m")
+			expect(CampExtras.pickerLine(tier4, "woods", now)).to.equal("Fish Pond: next in 5 m")
 		end)
 
 		it("words each prompt with what a press does or when the next fill comes", function()
@@ -284,7 +292,7 @@ return function()
 			local view = at(save, 5, now)
 			local name, action = CampExtras.promptText("pond", view.pond, now)
 			expect(name).to.equal("Fish Pond")
-			expect(action).to.equal("Collect 24 fish")
+			expect(action).to.equal("Collect 36 fish")
 			expect(select(2, CampExtras.promptText("picnic", view.picnic, now))).to.equal("Collect 1 Money Potion")
 			expect(select(2, CampExtras.promptText("lostFound", view.lostFound, now))).to.equal("Next in 16 h")
 			expect(select(2, CampExtras.promptText("yardSale", view.yardSale, now))).to.equal("Take a free crate")
@@ -299,7 +307,7 @@ return function()
 				picnic = { at = T + 999, held = 9 },
 				pond = { at = "soon" },
 				lostFound = { day = 99999999, held = -2 },
-				yardSale = { day = 5, bought = { classic_crate = true, not_a_crate = true, park_crate = "yes" } },
+				yardSale = { lastClaimAt = T + 999, claims = -3 },
 			}
 			local save = CampExtras.sanitize(raw, T)
 			expect(save.picnic.at).to.equal(T)
@@ -307,7 +315,7 @@ return function()
 			expect(save.pond.at).to.equal(T - Config.PondStepSeconds)
 			expect(save.lostFound.day).to.equal(CampExtras.day(T))
 			expect(save.lostFound.held).to.equal(0)
-			expect(save.yardSale :: any).to.deepEqual({ day = 5, bought = { classic_crate = true } })
+			expect(save.yardSale :: any).to.deepEqual({ lastClaimAt = T, claims = 0 })
 			expect(CampExtras.sanitize(save, T) :: any).to.deepEqual(save)
 		end)
 
@@ -319,11 +327,40 @@ return function()
 			expect(profile.version).to.equal(ProfileSchema.VERSION)
 			expect(profile.campExtras :: any).to.deepEqual(CampExtras.fresh(T))
 			profile.campExtras.picnic = { at = T - HOUR, held = 1 }
-			profile.campExtras.yardSale.bought.classic_crate = true
+			profile.campExtras.yardSale = { lastClaimAt = T - HOUR, claims = 4 }
 			local again = ProfileSchema.migrate(profile, T)
 			expect(again.campExtras.picnic :: any).to.deepEqual({ at = T - HOUR, held = 1 })
-			expect(again.campExtras.yardSale.bought.classic_crate).to.equal(true)
+			expect(again.campExtras.yardSale :: any).to.deepEqual({ lastClaimAt = T - HOUR, claims = 4 })
 			expect(ProfileSchema.migrate(again, T) :: any).to.deepEqual(again)
+		end)
+	end)
+
+	describe("save version 33 (#1154, camp-stations.md section 3)", function()
+		local today = CampExtras.day(T)
+
+		it("makes a version 32 Yard Sale that took today's crate wait 4 h from the start of that UTC day", function()
+			local raw: any = ProfileSchema.template(T)
+			raw.version = 32
+			raw.campExtras.yardSale = { day = today, bought = { park_crate = true } }
+			local profile = ProfileSchema.migrate(raw, T)
+			expect(profile.version).to.equal(33)
+			expect(profile.campExtras.yardSale :: any).to.deepEqual({ lastClaimAt = today * DAY, claims = today + 1 })
+			local zone = CampExtras.yardStock(3, profile.campExtras.yardSale.claims)[1]
+			-- T is 01:00 UTC: refused until 04:00, then free
+			expect(CampExtras.buyBlocker(profile.campExtras, zone, 3, T)).to.equal(CampExtras.TAKEN .. ". A new one in 3 h")
+			expect(CampExtras.buyBlocker(profile.campExtras, zone, 3, today * DAY + 4 * HOUR)).to.equal(nil)
+		end)
+
+		it("lets a version 32 Yard Sale that took no crate today take one at once", function()
+			for _, yard in { { day = today - 1, bought = { park_crate = true } }, { day = today, bought = {} } } do
+				local raw: any = ProfileSchema.template(T)
+				raw.version = 32
+				raw.campExtras.yardSale = yard
+				local profile = ProfileSchema.migrate(raw, T)
+				expect(profile.campExtras.yardSale.lastClaimAt).to.equal(0)
+				local zone = CampExtras.yardStock(3, profile.campExtras.yardSale.claims)[1]
+				expect(CampExtras.buyBlocker(profile.campExtras, zone, 3, T)).to.equal(nil)
+			end
 		end)
 	end)
 end

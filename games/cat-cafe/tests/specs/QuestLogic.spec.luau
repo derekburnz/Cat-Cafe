@@ -106,6 +106,26 @@ return function()
 		end)
 	end)
 
+	describe("QuestLogic.swapText and swapFree (#1166)", function()
+		it("counts the used weekly swap down in hours and minutes", function()
+			expect(QuestLogic.swapText(7 * 3600 + 12 * 60)).to.equal("7h 12m")
+			expect(QuestLogic.swapText(7 * 3600 + 11 * 60 + 1)).to.equal("7h 12m")
+			expect(QuestLogic.swapText(3599.5)).to.equal("1h 0m")
+			expect(QuestLogic.swapText(12 * 60)).to.equal("12m")
+			expect(QuestLogic.swapText(-5)).to.equal("1m")
+		end)
+
+		it("is free only while unused and a quest is unfinished and unclaimed", function()
+			local open = { id = "w1", progress = 1, needs = 5, claimed = false }
+			local done = { id = "w2", progress = 5, needs = 5, claimed = false }
+			local claimed = { id = "w3", progress = 5, needs = 5, claimed = true }
+			expect(QuestLogic.swapFree({ open, done } :: any, false)).to.equal(true)
+			expect(QuestLogic.swapFree({ open } :: any, true)).to.equal(false)
+			expect(QuestLogic.swapFree({ done, claimed } :: any, false)).to.equal(false)
+			expect(QuestLogic.swapFree({}, false)).to.equal(false)
+		end)
+	end)
+
 	describe("QuestLogic.achievementRows", function()
 		it("puts ready ones first, then the closest to done, and claimed ones last", function()
 			local rows = QuestLogic.achievementRows(catalog, {

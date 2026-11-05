@@ -246,9 +246,10 @@ return function()
 		PicnicEverySeconds = 21600, -- F100 (camp-extras.md section 4); LostFoundTable is checked in CampExtras.spec
 		PicnicHold = 2,
 		PicnicPotion = "tip_potion", -- Design-Agent 11-02: one 10 minute Money Potion a fill, not a 15 minute one
-		PondFishPerStep = 2,
-		PondStepSeconds = 1800,
-		PondHold = 24,
+		YardSaleClaimHours = 4, -- #1154
+		PondFishPerStep = 1, -- #1232: was 2
+		PondStepSeconds = 600, -- #1232: was 1800
+		PondHold = 36, -- #1232: was 24
 		LostFoundHold = 3,
 		CampExtraRangeStuds = 8,
 		RallyStartWeekday = 6, -- F101 (rescue-rally.md section 5); RallyPoints is checked in Rally.spec

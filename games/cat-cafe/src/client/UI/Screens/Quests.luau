@@ -6,7 +6,9 @@
 --                 little pictures (Components/PrizeChips) and Claim once done, ✓ once claimed, or Swap (the day's
 --                 one free reroll) while it is unfinished and the swap unused. Claimed rows drop to the bottom
 --                 (Derek 2026-10-29).
---   Weekly        the same for the week's three.
+--   Weekly        the same for the week's three. Its free swap comes back every UTC day with the dailies (#1166):
+--                 once used, Swap stays on the unfinished rows, greyed, counting down ("7h 12m") to
+--                 quests.dailyResetsAt; while it is free and nothing is ready, the tab carries a small quiet dot.
 --   Achievements  "12 of 44 claimed", then a card each: name, goal, bar, prize and Claim once met. Ready ones come
 --                 first, then the closest to done; claimed ones go last, faded.
 -- A tab with something to claim carries a red count. A Claim all button right of the tabs shows while anything in
@@ -84,6 +86,7 @@ type Page = {
 	setChips: PrizeChips.PrizeChips,
 	setStatus: TextLabel,
 	rows: { QuestRow },
+	swapWait: boolean, -- Weekly: the swap is used, so Swap shows the wait
 }
 
 type Card = {
@@ -300,7 +303,8 @@ function Quests.new(callbacks: Callbacks): Quests
 	-- on a phone the row is tall enough for a 44 px finger (Scale.tapHeight), as the Spin and Decor windows
 	local tabHeight = Scale.tapHeight(TAB_HEIGHT, Theme.sizes.buttonDepth)
 	tabs.Size = UDim2.new(1, 0, 0, tabHeight)
-	self._tabs = {} :: { [string]: { button: Button.Button, dot: Frame, count: TextLabel } }
+	self._tabs =
+		{} :: { [string]: { button: Button.Button, dot: Frame, count: TextLabel, quiet: Frame } }
 	for index, tab in TABS do
 		local button = Button.new({
 			name = tab .. "Tab",
@@ -316,7 +320,20 @@ function Quests.new(callbacks: Callbacks): Quests
 			end,
 		})
 		local dot, count = countDot(button.instance)
-		self._tabs[tab] = { button = button, dot = dot, count = count }
+		-- the quiet dot (#1166): a small cream dot, no number, for "a free swap waits" on Weekly
+		local quiet: Frame = Create("Frame", {
+			Name = "QuietDot",
+			BackgroundColor3 = Theme.colors.cream,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.new(1, -8, 0, 8),
+			Size = UDim2.fromOffset(12, 12),
+			Visible = false,
+			ZIndex = 6,
+			Parent = button.instance,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+		Outline.border(quiet, 2)
+		self._tabs[tab] = { button = button, dot = dot, count = count, quiet = quiet }
 	end
 	-- Claim all, right of the tabs: every ready daily, weekly and achievement reward in one go (#1073)
 	self._readyByTab = {} :: { [string]: number }
@@ -468,6 +485,7 @@ function Quests._buildPage(
 		setChips = setChips,
 		setStatus = setStatus,
 		rows = rows,
+		swapWait = false,
 	}
 end
 
@@ -761,11 +779,24 @@ function Quests.render(self: any, state: Types.PlayerState)
 				if not quest.claimed and not claiming and QuestLogic.done(quest) then
 					ready += 1
 				end
-				self:_renderRow(row, kind, slot, quest, rerollUsed, look, pending)
+				self:_renderRow(
+					row,
+					kind,
+					slot,
+					quest,
+					rerollUsed and kind ~= "weekly",
+					look,
+					pending
+				)
 			end
 		end
 		self._readyByTab[tab] = ready
 		self:_setTabCount(tab, ready)
+		page.swapWait = kind == "weekly" and quests ~= nil and rerollUsed
+		self._tabs[tab].quiet.Visible = kind == "weekly"
+			and ready == 0
+			and quests ~= nil
+			and QuestLogic.swapFree(list, rerollUsed)
 	end
 	self:_renderAchievements(state, look)
 	self:_syncClaimAll()
@@ -798,8 +829,10 @@ function Quests._renderRow(
 	local swapping = pending ~= nil and pending.action == "swap"
 	row.claim.instance.Visible = done and not claimed
 	row.swap.instance.Visible = not done and not claimed and not rerollUsed
-	row.swap:setText(if swapping then "..." else "Swap")
-	row.swap:setEnabled(not swapping)
+	if rerollUsed or row.swap.instance:GetAttribute("Waiting") ~= true then
+		row.swap:setText(if swapping then "..." else "Swap")
+		row.swap:setEnabled(not swapping)
+	end
 	row.check.Visible = claimed
 	if claimed and not row.claimed and self._open then
 		Tween.popIn(row.check, 0.6)
@@ -888,6 +921,22 @@ function Quests._tickResets(self: any)
 			then (if page.kind == "daily" then quests.dailyResetsAt else quests.weeklyResetsAt)
 			else nil
 		page.resets.Text = if at then QuestLogic.resetText(at - now) else ""
+		-- the used weekly swap: Swap greyed with the wait until the daily reset brings it back (#1166)
+		local back = if quests then quests.dailyResetsAt else nil
+		local wait = if page.swapWait and back then QuestLogic.swapText(back - now) else nil
+		for _, row in page.rows do
+			local swap = row.swap
+			local was = swap.instance:GetAttribute("Waiting") == true
+			if wait then
+				swap.instance:SetAttribute("Waiting", true)
+				swap:setText(wait)
+				swap:setEnabled(false)
+			elseif was then
+				swap.instance:SetAttribute("Waiting", nil)
+				swap:setText("Swap")
+				swap:setEnabled(true)
+			end
+		end
 	end
 end
 

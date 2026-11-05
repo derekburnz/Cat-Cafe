@@ -20,6 +20,8 @@ workflow (Actions) to turn into an rbxassetid for an ImageLabel.
                             Rewards, Tutorial, Feedback, Menu, MyCafe, Cannon, Areas, Potions, Bait and
                             NightMarket (the Night Market map bubble, #1607)
   CatCafe_Icon_Cat_<Name>   the shop-only cats' Store card and cat book picture (#1191): the sitting cat in its props
+  CatCafe_Icon_StoreTab_<Tab>  the Store's sidebar tabs (#1674, store_tabs.py): Featured, Passes, Cats, Potions and
+                            Codes, in place of the tabs' emoji
   CatCafe_Icon_Menu_<Id>    the F90 order bubble pictures (#950): each of the 12 menu dishes on its plate (menu.py),
                             Coffee, Milk, CakeSlice, PawCookie, Tea, FishBiscuit, KittyCupcake, HotCocoa,
                             PancakeStack, Sundae, StrawberryRoll and RainbowCake, from the front and a little above
@@ -48,6 +50,7 @@ import menu  # noqa: E402
 import potion_icons  # noqa: E402
 import potions  # noqa: E402
 import store_icons  # noqa: E402
+import store_tabs  # noqa: E402
 from common import RB  # noqa: E402
 
 OUT = os.path.join(ROOT, "assets", "cat-cafe", "exports", "icons")
@@ -110,6 +113,8 @@ ICONS = {
     **{f"CatCafe_Icon_Menu_{n}": ((lambda m, n=n: menu._BUILDS[n](m)), INK, 10, (-22.0, 30.0)) for n in menu.ITEMS},
     # #1628: the Golden Fish Market's three tabs (market_icons.py)
     **{f"CatCafe_Icon_Market_{n}": (fn, INK, 10, MARKET_VIEWS[n]) for n, fn in market_icons.BUILDERS.items()},
+    # #1674: the Store's sidebar tabs (store_tabs.py)
+    **{f"CatCafe_Icon_StoreTab_{n}": (fn, INK, 10, store_tabs.VIEWS[n]) for n, fn in store_tabs.BUILDERS.items()},
     # #1623: the Store's passes and products, framed wide (STORE_PAD) for Roblox's circle crop (store_icons.py)
     **{f"CatCafe_Icon_Pass_{n}": (fn, INK, 10, store_icons.VIEWS[n], store_icons.PADS.get(n, STORE_PAD))
        for n, fn in store_icons.PASSES.items()},

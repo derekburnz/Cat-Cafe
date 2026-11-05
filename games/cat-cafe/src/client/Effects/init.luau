@@ -10,8 +10,8 @@
 -- Cat statue and its beckoning paw, the Lucky Day's gold tint, the big pull's happy hop, the camp extras' rod and
 -- lid, the camp pipe's drips, the pond's jumping fish, the camp extras' collect bursts, the pal wave at a front door,
 -- the cafe orders' steam, flour, oven glow and ding, the leaderboard crown's glint and the Corner Shop's bubbles
--- and fireworks over a cafe, the shop cats' own effects, the Cat Whistle's paw ring on its stray and the Picnic
--- Basket's ready glow, all on this client only.
+-- and fireworks over a cafe, the shop cats' own effects, the Cat Whistle's paw ring on its stray, the door
+-- sign's OPEN by day and CLOSED at night and the Picnic Basket's ready glow, all on this client only.
 -- Effects read replicated world state (tags and attributes) and this player's own events; they never fire a remote,
 -- never change game state and never move a part the server moves for gameplay. Rules:
 -- .claude/skills/animation-vfx/SKILL.md.
@@ -34,6 +34,7 @@ local Codes = require(script.Codes)
 local Context = require(script.Context)
 local Crown = require(script.Crown)
 local Decor = require(script.Decor)
+local DoorSign = require(script.DoorSign)
 local Equip = require(script.Equip)
 local Fish = require(script.Fish)
 local Intro = require(script.Intro)
@@ -123,6 +124,7 @@ function Effects.start()
 	CafeShow.start()
 	ShopCats.start()
 	Whistle.start()
+	DoorSign.start()
 	PicnicGlow.start()
 end
 

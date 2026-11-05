@@ -60,6 +60,8 @@ Prices follow the tier's wallet: a Tier 1 piece is about a minute or two of inco
 
 ## 3. How it is placed
 
+**Replaced on 2026-11-05 (#1283):** the lawn is placed by Equip Best and on buy, and lawn pieces give money by rarity. See [lawn-nursery.md](lawn-nursery.md) section 6. The manual edit view below is retired.
+
 - The Decor screen gets a Front lawn tab with Shop and Mine rows. "Edit lawn" swings the camera to a view of the cafe front (the edit view) and shows a ring on each open spot.
 - Tapping a ring opens a picker of owned pieces that fit that spot, with the shop's pieces below; buying one places it there. "Clear" empties the spot and keeps the piece. A piece can stand in one spot at a time and moves by placing it in another.
 - Path and fence styles are chips at the top of the tab, like the wallpaper chips.

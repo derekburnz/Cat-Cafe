@@ -41,8 +41,8 @@ return function()
 
 		it("sells the sixteen pieces at their sizes, tiers, rarities and ladder prices", function()
 			local expected = {
-				{ "tulip_bed", "small", 1, "Common" },
-				{ "sandwich_board", "small", 1, "Common" },
+				{ "tulip_bed", "small", 2, "Common" },
+				{ "sandwich_board", "small", 2, "Common" },
 				{ "potted_cat_topiary", "small", 1, "Uncommon" },
 				{ "mailbox", "small", 1, "Uncommon" },
 				{ "lamp_post", "small", 2, "Rare" },
@@ -73,10 +73,10 @@ return function()
 		it("sells four paths and four fences, Grey Slabs free", function()
 			local expected: { { any } } = {
 				{ "grey_slabs", "path", 1, nil },
-				{ "red_brick", "path", 1, "Common" },
+				{ "red_brick", "path", 2, "Common" },
 				{ "stepping_stones", "path", 2, "Uncommon" },
 				{ "paw_print_path", "path", 3, "Epic" },
-				{ "white_picket", "fence", 1, "Common" },
+				{ "white_picket", "fence", 2, "Common" },
 				{ "low_hedge", "fence", 2, "Uncommon" },
 				{ "iron_railing", "fence", 3, "Epic" },
 				{ "flower_box_fence", "fence", 4, "Mythical" },
@@ -161,7 +161,9 @@ return function()
 				"The Paw Print Path opens at Tier 3."
 			)
 			expect(Lawn.buyBlocker(profileAt(2), "lamp_post")).never.to.be.ok()
-			expect(Lawn.buyBlocker(profileAt(1), "tulip_bed")).never.to.be.ok()
+			-- #1382: the four Commons open at Tier 2 (lawn-nursery.md section 2, the Tier 2 pace bound)
+			expect(Lawn.buyBlocker(profileAt(1), "tulip_bed")).to.equal("The Tulip Bed opens at Tier 2.")
+			expect(Lawn.buyBlocker(profileAt(2), "tulip_bed")).never.to.be.ok()
 			expect(Lawn.buyBlocker(profileAt(5), "golden_paw_statue")).never.to.be.ok()
 		end)
 

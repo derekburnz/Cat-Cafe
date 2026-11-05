@@ -51,4 +51,29 @@ return function()
 			expect(CampExtrasLogic.BANG_RANGE).to.equal(150)
 		end)
 	end)
+
+	describe("CampExtrasLogic.remoteCollect (#1463)", function()
+		it(
+			"offers Collect on the pond strip only to a Golden Pond owner with fish waiting",
+			function()
+				local pond = {
+					extraId = "pond",
+					icon = "",
+					name = "Fish Pond",
+					state = "14 fish",
+					ready = true,
+				}
+				expect(CampExtrasLogic.remoteCollect(pond, true)).to.equal(true)
+				expect(CampExtrasLogic.remoteCollect(pond, false)).to.equal(false)
+				local empty = table.clone(pond)
+				empty.ready = false
+				expect(CampExtrasLogic.remoteCollect(empty, true)).to.equal(false)
+				local picnic = table.clone(pond)
+				picnic.extraId = "picnic"
+				expect(CampExtrasLogic.remoteCollect(picnic, true)).to.equal(false)
+				expect(CampExtrasLogic.remoteCollect(nil, true)).to.equal(false)
+				expect(CampExtrasLogic.GOLD_POND_ATTRIBUTE).to.equal("GoldenPondPass")
+			end
+		)
+	end)
 end

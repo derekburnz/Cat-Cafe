@@ -7,6 +7,10 @@
 -- rung above the highest owned (2x, then 3x, then 4x), or the top rung marked Owned. Long Nap shows once made. Every
 -- price comes from Roblox at runtime, never from here (plan section 1), so a card reads "..." until it is known and
 -- "Soon" while the pass is off sale.
+--
+-- #1425 (Derek2 11-05: "if people have to scroll down for the best packs they will never be bought"): every row
+-- names its tab on the Store's left rail (TABS), and StoreLogic.featured picks the Featured tab's hero card and its
+-- three top picks. Featured means shown first, never louder: no badges, no timers, nothing pre-selected.
 
 local StoreLogic = {}
 
@@ -18,7 +22,20 @@ export type Row = {
 	effect: string,
 	owned: boolean,
 	product: boolean?, -- a developer product (bought each time; passId holds its product id, never Owned)
+	tab: string, -- the rail tab it shows under: "passes", "cats", "potions" or "cafePass"
 }
+
+-- The Store's left rail, top to bottom (#1425). Featured and Codes (#1428, the code box) always show; another tab
+-- only while it has a card.
+export type Tab = { id: string, name: string, icon: string, always: boolean? }
+StoreLogic.TABS = {
+	{ id = "featured", name = "Featured", icon = "⭐", always = true },
+	{ id = "passes", name = "Passes", icon = "🎟️" },
+	{ id = "cats", name = "Cats", icon = "🐱" },
+	{ id = "potions", name = "Potions", icon = "🧪" },
+	{ id = "cafePass", name = "Cafe Pass", icon = "🎫" },
+	{ id = "codes", name = "Codes", icon = "🔑", always = true },
+} :: { Tab }
 
 -- What Roblox said about a pass: its price in Robux and whether it is on sale. Missing until the lookup returns.
 export type Price = {
@@ -45,6 +62,7 @@ export type PassCard = {
 	icon: string,
 	effect: string,
 	note: string?,
+	tab: string?, -- default "passes"
 }
 local PASSES: { PassCard } = {
 	{
@@ -89,6 +107,7 @@ local PASSES: { PassCard } = {
 		icon = "👑",
 		effect = "A cat that always earns like a Legendary from your newest area.",
 		note = "Yours to keep. Can't be traded.",
+		tab = "cats",
 	},
 	{
 		key = "grandTheme",
@@ -104,6 +123,7 @@ local PASSES: { PassCard } = {
 		icon = "🤴",
 		effect = "The King Cat, who always earns like a Mythical from your newest area, plus a crown sign style.",
 		note = "Yours to keep. Can't be traded.",
+		tab = "cats",
 	},
 }
 StoreLogic.PASSES = PASSES
@@ -124,11 +144,22 @@ local PRODUCTS: { ProductCard } = {
 }
 StoreLogic.PRODUCTS = PRODUCTS
 
+-- The Starter Bundle (store-skus.md section 1): a developer product sold once per account, under Cats and as the
+-- Featured hero. It shows only while the server says it has not been bought (ShopView.starterBought false), so it can
+-- never be bought twice; with no word from the server (nil) or no product id yet it stays hidden.
+local STARTER: ProductCard = {
+	key = "starterBundle",
+	productKey = "starter_bundle",
+	effect = "A head start for a new cafe. Once per player.",
+}
+StoreLogic.STARTER = STARTER
+
 -- What the Store needs to draw the product cards: Catalog.products, potion id to its name, and the player's bag.
 export type ShopView = {
 	products: { { id: string, name: string, prize: { potions: { [string]: number } } } }?,
 	potionNames: { [string]: string }?,
 	have: { [string]: number }?,
+	starterBought: boolean?, -- the server's word on the Starter Bundle (nil: unknown, so it stays hidden)
 }
 
 local function productId(config: any, card: ProductCard): number?
@@ -145,6 +176,10 @@ function StoreLogic.productIds(config: any): { number }
 		if id then
 			table.insert(out, id)
 		end
+	end
+	local starter = productId(config, STARTER)
+	if starter then
+		table.insert(out, starter)
 	end
 	return out
 end
@@ -200,10 +235,43 @@ local function productRows(config: any, view: ShopView?): { Row }
 					.. StoreLogic.contents(def.prize.potions, view.potionNames, view.have),
 				owned = false,
 				product = true,
+				tab = "potions",
 			})
 		end
 	end
 	return rows
+end
+
+-- The Starter Bundle's row while it can be bought, else nil.
+local function starterRow(config: any, view: ShopView?): Row?
+	local id = productId(config, STARTER)
+	if id == nil or view == nil or view.starterBought ~= false then
+		return nil
+	end
+	local def = nil
+	local defs: { any } = view.products or {}
+	for _, product in defs do
+		if product.id == STARTER.productKey then
+			def = product
+		end
+	end
+	if def == nil then
+		return nil
+	end
+	local potions = def.prize.potions
+	local effect = if potions and next(potions) ~= nil
+		then STARTER.effect .. "\n" .. StoreLogic.contents(potions, view.potionNames, view.have)
+		else STARTER.effect
+	return {
+		key = STARTER.key,
+		passId = id,
+		name = def.name,
+		icon = "🎁",
+		effect = effect,
+		owned = false,
+		product = true,
+		tab = "cats",
+	}
 end
 
 -- A pass card's id from the Config, or nil while it is not made (0, missing, or an empty list).
@@ -296,6 +364,7 @@ function StoreLogic.rows(
 					)
 					else ("All your cafe's money x%d."):format(nextRung.multiplier),
 				owned = false,
+				tab = "passes",
 			})
 		else
 			local last = ladder[#ladder]
@@ -306,6 +375,7 @@ function StoreLogic.rows(
 				icon = MONEY_ICON,
 				effect = ("All your cafe's money x%d."):format(last.multiplier),
 				owned = true,
+				tab = "passes",
 			})
 		end
 	end
@@ -323,6 +393,7 @@ function StoreLogic.rows(
 				hours(config.OfflineCapSeconds or 28800)
 			),
 			owned = owned[nap] == true or longNap == true,
+			tab = "passes",
 		})
 	end
 	-- the order of store-skus.md: the ladder, Long Nap, VIP, the potion packs, then the rest by price
@@ -330,6 +401,10 @@ function StoreLogic.rows(
 		if index == 2 then
 			for _, row in productRows(config, view) do
 				table.insert(rows, row)
+			end
+			local starter = starterRow(config, view)
+			if starter then
+				table.insert(rows, starter)
 			end
 		end
 		local id = passId(config, card)
@@ -341,10 +416,86 @@ function StoreLogic.rows(
 				icon = card.icon,
 				effect = if card.note then card.effect .. "\n" .. card.note else card.effect,
 				owned = owned[id] == true,
+				tab = card.tab or "passes",
 			})
 		end
 	end
 	return rows
+end
+
+-- The rows under one rail tab, in the Store's order.
+function StoreLogic.tabRows(rows: { Row }, tab: string): { Row }
+	local out: { Row } = {}
+	for _, row in rows do
+		if row.tab == tab then
+			table.insert(out, row)
+		end
+	end
+	return out
+end
+
+-- The rail's tabs for these rows: Featured, each tab that has a card, then Codes.
+function StoreLogic.tabs(rows: { Row }): { Tab }
+	local out: { Tab } = {}
+	for _, tab in StoreLogic.TABS do
+		if tab.always or #StoreLogic.tabRows(rows, tab.id) > 0 then
+			table.insert(out, tab)
+		end
+	end
+	return out
+end
+
+export type Featured = { hero: Row?, picks: { Row } }
+
+StoreLogic.PICKS = 3
+-- The hero, in order of preference (#1425): the Starter Bundle while it can be bought (the best first buy for a new
+-- cafe), then the King Cat Pack. An owned King Cat Pack gives way to the Royal Cat, then the Grand Cafe Theme.
+local HERO_ORDER = { "starterBundle", "kingPack", "royalCat", "grandTheme" }
+-- The top picks, left to right: the money ladder's next rung, Long Nap and the King Cat Pack (the Royal Cat when the
+-- King Cat Pack is the hero).
+local PICK_ORDER = { "money", "longNap", "kingPack", "royalCat" }
+
+-- The Featured tab's cards: one hero and up to three picks, never the same row twice. Owned rows give way to ones
+-- that can still be bought, and an empty spot is filled from the rest of the Store in its order.
+function StoreLogic.featured(rows: { Row }): Featured
+	local byKey: { [string]: Row } = {}
+	for _, row in rows do
+		byKey[row.key] = row
+	end
+	local hero: Row? = nil
+	for _, key in HERO_ORDER do
+		local row = byKey[key]
+		if row and not row.owned then
+			hero = row
+			break
+		end
+	end
+	local used: { [string]: boolean } = {}
+	if hero then
+		used[hero.key] = true
+	end
+	local picks: { Row } = {}
+	local function take(row: Row?)
+		if row and not used[row.key] and #picks < StoreLogic.PICKS then
+			used[row.key] = true
+			table.insert(picks, row)
+		end
+	end
+	for _, key in PICK_ORDER do
+		local row = byKey[key]
+		if row and not row.owned then
+			take(row)
+		end
+	end
+	for _, row in rows do
+		if not row.owned then
+			take(row)
+		end
+	end
+	for _, key in PICK_ORDER do
+		take(byKey[key]) -- everything bought: the picks still show, marked Owned
+	end
+	return { hero = hero, picks = picks }
 end
 
 -- A card's button: Owned, "..." while the price loads, Soon while off sale, else the price in Robux.

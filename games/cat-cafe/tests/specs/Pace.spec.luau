@@ -929,7 +929,9 @@ return function()
 
 		-- Found 2026-11-05: at Tier 2's old 12,000 coins this quickest case (a non-stop catcher with +20% from 3 pals
 		-- and every top-up of a 4-player floor to itself) reached Tier 2 at a median of 9.4 min, under the 10 minute
-		-- floor; Design-Agent raised the cost to 13,500 (rule v0.8).
+		-- floor; Design-Agent raised the cost to 13,500 (rule v0.8). #1452's faster wild catching (more strays, better
+		-- Rare+ odds) put it at 7.8 min again, so economy-ladder section 3 v3 makes Tier 2 28,000 and the later tiers
+		-- 700,000, 60M and 2B.
 		it(
 			"takes 10 to 20 minutes on a server of 4 friends, the non-stop catcher with every top-up to itself",
 			function()

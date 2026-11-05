@@ -253,6 +253,33 @@ return function()
 		end)
 	end)
 
+	describe("where cat food comes from (section 3, QA check 6)", function()
+		local Collector = require(Shared.Collector)
+		local DailyTreat = require(Shared.DailyTreat)
+
+		it("gives food on Daily Treat days 1, 3 and 5 beside their coins", function()
+			expect(DailyTreat.prize(1).catFood :: any).to.deepEqual({ small_cat_snack = 2 })
+			expect(DailyTreat.prize(3).catFood :: any).to.deepEqual({ cat_snack = 1 })
+			expect(DailyTreat.prize(5).catFood :: any).to.deepEqual({ cat_snack = 1 })
+			expect(DailyTreat.prize(2).catFood).never.to.be.ok()
+			for _, day in { 1, 3, 5 } do
+				expect((DailyTreat.prize(day).coins or 0) > 0).to.equal(true)
+			end
+		end)
+
+		it("lets the Collector offer 2 Big Snacks between his fish offers", function()
+			local offer = Collector.offerFor(8)
+			expect(offer.catFood :: any).to.deepEqual({ big_cat_snack = 2 })
+			expect(Collector.prize(offer, "alley").catFood :: any).to.deepEqual({ big_cat_snack = 2 })
+			expect(Collector.offerFor(11).fish).to.equal(20)
+		end)
+
+		it("drops a Small Snack 1 time in 10 on a catch and gives one per rescue", function()
+			expect(Config.CatchSnackChance).to.equal(0.1)
+			expect(Catalog.getCatFood(Config.RescueSnack)).to.be.ok()
+		end)
+	end)
+
 	describe("save version 32", function()
 		it("starts an older save afresh for the day and keeps the Bag's food whole", function()
 			expect(ProfileSchema.VERSION >= 32).to.equal(true)

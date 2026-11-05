@@ -438,3 +438,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Decided by Coordinator for the friend, overnight 11-05 (#1357, with #1159 and #1165), written up by the game-designer thread (Design-Agent, friend's project)
 - 2026-11-05: Tier 2's rank-up cost goes from 12,000 to 13,500 coins (+12.5%). Why: Pace.spec's stacked worst case (a non-stop catcher, 3 pals at +20% and every top-up of a 4-player floor to itself) reached Tier 2 at 9.4 min, under the 10 minute floor. By rule v0.8 the cost goes up and the rewards stay. 13,000 still gave 9.9 min; at 13,500 all 17 Pace checks pass, and Tier 5 is unchanged. Spec: economy-ladder.md section 3, v2.2.
+
+### Corner Shop prices v3 (#1385), the friend's ask, written up by the game-designer thread (Design-Agent, friend's project)
+- 2026-11-05: Corner Shop coin prices go up by size: Small x10, regular x20, Big and Mega x40 (Swift Potion 3,000 / 100,000 / 20M, Cat Feast 3.2B). Why: the friend found them far too cheap and asked for a huge rise that climbs faster for the better items, with about 20x being fine. Each size step doubles the factor. The Feast stays at x40 so it costs no more than about 2.7 Tier 5 rank-ups. Daily limits, odds, tiers and bait foods are unchanged. Spec: corner-shop-v2.md section 1.

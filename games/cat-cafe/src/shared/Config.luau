@@ -482,9 +482,11 @@ local Config = {
 	-- and Lucky Potions never touch it. A rainbow cat earns RainbowMultiplier (gold 1.5) and the Cat Collector values
 	-- it at CollectorRainbowMultiplier (gold 3). Clients animate the bands on at most RainbowAnimateMax rainbow cats
 	-- near the camera; a rainbow stray's server toast goes out at most once every RainbowSpawnToastSeconds.
-	RainbowChanceNet = 0.005,
-	RainbowChanceBait = 0.005,
-	RainbowChanceRescue = 0.01,
+	-- Rainbow v2 (rainbow-coat.md section 4b, Derek 2026-11-05): three times v1 (0.005, 0.005, 0.01), so 3 in 10 of
+	-- gold's chance; no paint.
+	RainbowChanceNet = 0.015,
+	RainbowChanceBait = 0.015,
+	RainbowChanceRescue = 0.03,
 	RainbowMultiplier = 3,
 	RainbowLuckMax = 1.0,
 	CollectorRainbowMultiplier = 10,

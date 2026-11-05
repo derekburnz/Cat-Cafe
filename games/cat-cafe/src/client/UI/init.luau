@@ -177,6 +177,7 @@ UI.events = {
 	-- #1646 (cafe-pass.md section 5)
 	passClaim = Signal.new(), -- (track, level)   Claim on a Cafe Pass reward, track "free" or "paid": forward as PassClaim
 	passClaimAll = Signal.new(), -- ()   Claim all on the Pass window: forward as PassClaimAll
+	passSetTag = Signal.new(), -- (pick)   #1626: the Pass window's chat tag button, a ChatTags id or "off": forward as PassSetTag
 	-- F70
 	claimDailyTreat = Signal.new(), -- ()   Claim on the Daily Treat card's day that is due: forward as ClaimDailyTreat
 	-- F84
@@ -5802,6 +5803,9 @@ do
 			end,
 			claimAll = function()
 				UI.events.passClaimAll:Fire()
+			end,
+			setTag = function(pick: string)
+				UI.events.passSetTag:Fire(pick)
 			end,
 			buy = function()
 				local id = productId()

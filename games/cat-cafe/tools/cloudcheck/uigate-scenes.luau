@@ -845,7 +845,11 @@ local SCENES = {
 		local action = status and status:FindFirstChild("Action", true)
 		assert(action and action.Visible, "uigate: no Refill on the empty bowl (#1573)")
 		local sub = status:FindFirstChild("Sub", true)
-		assert(sub and string.find(sub.Text, tuna.name, 1, true), "uigate: Refill does not name the food (#1573)")
+		-- #1693: the line is just the wait now; Refill puts the same food back in
+		assert(
+			sub and string.find(sub.Text, "A cat comes by in", 1, true),
+			"uigate: the empty bowl's line is not the wait (#1693)"
+		)
 	end },
 	-- #1161: both bowls filling, bowl 2 at night: the tabs count down on their own
 	{ "BaitBothRunning", function()

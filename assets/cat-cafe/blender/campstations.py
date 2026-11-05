@@ -14,6 +14,15 @@ its prompt card and a BangAnchor 2 studs over its sign for the owner's red "!" (
                                       and a cash tin; boxes stacked on the rug; a hand-painted YARD SALE board nailed to
                                       a stake. Attachments: PromptAnchor (the table's front, 1.5 up), BangAnchor (2
                                       over the board), GlowAnchor (under the awning).
+  CatCafe_Camp_Woods_FishingHut       (#1232, section 4) a small wooden fishing hut with a pitched roof on a deck on
+                                      stilts over the back of a stone-ringed pond, reached by a plank jetty; a FISH POND
+                                      sign on the roof's front slope, a lantern by the door, a rod rack, a bucket of
+                                      golden fish and a rod in its holder with its line in the water; lily pads, reeds.
+                                      Child Models `_Water` (see-through), `_Rod` (pivot at its butt), `_Fish` (pivot at
+                                      its middle, under the water). Attachments: FishJump (the water over the fish),
+                                      PromptAnchor (the jetty's foot, 1.5 up), BangAnchor (2 over the sign), GlowAnchor
+                                      (in the doorway). `_Gold` is the Golden Pond pass look: gold trim, sign frame,
+                                      ridge and gold lily pads, the same parts and attachments.
 
 Every model: pivot at the base centre on the camp's ground, front -Z, no turn of its own, placed where its camp extra
 stands (Layout.campExtras, the area's set space) so Gameplay only swaps the asset name.
@@ -319,6 +328,170 @@ def build_yardsale_stall(mat):
     return [b.finalize(YARD, mat)]
 
 
+# --------------------------------------------------------------------------------------------- fishing hut --
+HUT = "CatCafe_Camp_Woods_FishingHut"
+PA, PC, PZ = 3.3, 2.5, 0.6                      # the pond's half axes (x, z) and its centre z
+JY = 0.5                                        # the jetty's and the hut deck's top
+DECK = (-1.7, 1.7, 0.9, 3.0)                    # the hut's deck over the back of the pond: x0, x1, z0, z1
+HUT_W, HUT_D, HUT_H = 2.9, 1.8, 2.9             # the hut on it: width, depth, walls' height above the deck
+RIDGE = 1.3                                     # the roof's rise above the walls
+
+
+def _pond(b, water, gold):
+    b.ball((0, 0.1, PZ), 1.0, "pants_navy", scale=(PA, 0.06, PC))                               # its deep bottom
+    water.ball((0, 0.22, PZ), 1.0, "fish_blue", scale=(PA - 0.05, 0.06, PC - 0.05))
+    stones = ("paving_grout", "fur_ash", "concrete", "fur_pewter")
+    n = 20
+    for k in range(n):
+        a = 2 * math.pi * k / n
+        if abs(a - 1.5 * math.pi) < 0.3:                                                         # the jetty's gap
+            continue
+        r = 0.55 + 0.07 * ((k * 7) % 3)
+        b.ball(((PA + 0.15) * math.cos(a), 0.12, PZ + (PC + 0.15) * math.sin(a)), r, stones[k % 4],
+               scale=(1.0, 0.62, 0.9))
+    pad = "gold_mid" if gold else "leaf_green"
+    for (lx, lz, r, flower) in ((-2.1, -0.4, 0.4, True), (-1.4, -1.2, 0.3, False), (2.2, -0.6, 0.36, False),
+                                (1.4, -1.4, 0.3, True)):
+        b.cyl((lx, 0.29, PZ + lz), r, 0.03, pad, segments=10)                                   # lily pads
+        b.span((lx + 0.1 - 0.025, 0.08, PZ + lz - 0.025), (lx + 0.1 + 0.025, 0.28, PZ + lz + 0.025), "leaf_dark")
+        if flower:
+            b.span((lx - 0.08, 0.3, PZ + lz - 0.08), (lx + 0.08, 0.42, PZ + lz + 0.08),
+                   "gold_light" if gold else "nose_pink")
+            b.span((lx - 0.04, 0.42, PZ + lz - 0.04), (lx + 0.04, 0.47, PZ + lz + 0.04), "pastel_butter")
+    for k, (rx, rz, h) in enumerate(((-2.9, 1.9, 1.5), (-2.6, 2.3, 1.2), (-3.2, 1.4, 1.1), (2.8, 2.0, 1.3),
+                                     (3.1, 1.5, 1.0), (2.5, 2.4, 1.6))):
+        sc = math.hypot(rx / (PA + 0.15), (rz) / (PC + 0.15))                                   # rooted in the stones
+        rx, rz = rx / sc, rz / sc
+        b.span((rx - 0.04, 0.0, PZ + rz - 0.04), (rx + 0.04, 0.2 + h, PZ + rz + 0.04), "leaf_dark")   # reeds
+        if k % 2 == 0:
+            b.span((rx - 0.07, 0.2 + h - 0.35, PZ + rz - 0.07), (rx + 0.07, 0.2 + h - 0.05, PZ + rz + 0.07),
+                   "choco")
+
+
+def _jetty(b):
+    """Planks on stringers from the bank (z -3.6) out to the hut's deck, on posts."""
+    z0, z1 = -3.6, DECK[2]
+    for x in (-0.5, 0.5):
+        b.span((x - 0.07, JY - 0.16, z0), (x + 0.07, JY, z1), DARK)
+        for z in (z0 + 0.25, (z0 + z1) / 2, z1 - 0.25):
+            b.span((x - 0.09, 0.0, z - 0.09), (x + 0.09, JY - 0.16, z + 0.09), DARK)
+    k, z = 0, z0
+    while z + 0.34 <= z1 + 1e-6:
+        b.span((-0.7, JY, z), (0.7, JY + 0.09, z + 0.34), WOOD if k % 2 else "kibble")
+        z += 0.36
+        k += 1
+
+
+def _hut(b, gold):
+    x0, x1, z0, z1 = DECK
+    trim = "gold_mid" if gold else "offwhite"
+    for x in (x0 + 0.15, x1 - 0.15):                                                            # stilts
+        for z in (z0 + 0.15, z1 - 0.15):
+            b.span((x - 0.12, 0.0, z - 0.12), (x + 0.12, JY - 0.12, z + 0.12), DARK)
+    b.span((x0, JY - 0.12, z0), (x1, JY + 0.09, z1), WOOD)                                       # the deck
+    for k in range(int((x1 - x0) / 0.38)):
+        x = x0 + 0.19 + k * 0.38
+        b.span((x - 0.015, JY + 0.09, z0 + 0.02), (x + 0.015, JY + 0.1, z1 - 0.02), DARK)        # board lines
+    y0 = JY + 0.09
+    hz0, hz1 = z1 - 0.1 - HUT_D, z1 - 0.1                                                       # the hut, at the back
+    hw = HUT_W / 2
+    t = 0.14
+    b.span((-hw, y0, hz1 - t), (hw, y0 + HUT_H, hz1), WOOD)                                      # back wall
+    for sx in (-1, 1):                                                                          # side walls
+        xa, xb = sorted((sx * hw, sx * (hw - t)))
+        b.span((xa, y0, hz0), (xb, y0 + HUT_H, hz1 - t), WOOD)
+    # front wall either side of the doorway, and over it
+    dw, dh = 1.2, 2.2
+    for xa, xb in ((-hw, -dw / 2), (dw / 2, hw)):
+        b.span((xa, y0, hz0), (xb, y0 + HUT_H, hz0 + t), WOOD)
+    b.span((-dw / 2, y0 + dh, hz0), (dw / 2, y0 + HUT_H, hz0 + t), WOOD)
+    for xa, xb in ((-dw / 2 - 0.1, -dw / 2 + 0.04), (dw / 2 - 0.04, dw / 2 + 0.1)):              # door frame,
+        b.span((xa, y0, hz0 - 0.04), (xb, y0 + dh + 0.1, hz0 + t + 0.01), trim)                 # a hair into the
+    b.span((-dw / 2 - 0.1, y0 + dh - 0.04, hz0 - 0.04), (dw / 2 + 0.1, y0 + dh + 0.1, hz0 + t + 0.01), trim)   # opening
+    for sx in (-1, 1):                                                                          # plank lines
+        for k in range(3):
+            x = sx * (dw / 2 + 0.25 + k * 0.28)
+            b.span((x - 0.02, y0 + 0.1, hz0 - 0.015), (x + 0.02, y0 + HUT_H - 0.1, hz0 + 0.01), DARK)
+    b.span((-hw - 0.05, y0, hz0 - 0.05), (hw + 0.05, y0 + 0.12, hz1 + 0.05), DARK)              # a sill round it
+    # a pitched roof (ridge along x), its gable ends filled, a trim board on the front edge
+    yt = y0 + HUT_H
+    over = 0.35
+    run = HUT_D / 2 + over
+    slope = math.hypot(run, RIDGE)
+    ang = math.degrees(math.atan2(RIDGE, run))
+    zc = (hz0 + hz1) / 2
+    for sz in (-1, 1):
+        b.box((0, yt + RIDGE / 2 - 0.02, zc + sz * run / 2), (HUT_W + 2 * over, 0.14, slope + 0.05),
+              "fur_charcoal", rot=rot_x(sz * ang))
+    for sx in (-1, 1):                                                                          # the gables: a
+        x = sx * (hw - t / 2)                                                                   # triangle each end,
+        _tri(b, (x, yt - 0.01, hz0 + 0.02), (x, yt - 0.01, hz1 - 0.02), (x, yt + RIDGE - 0.08, zc), t, WOOD)   # under the roof
+    b.span((-hw - over - 0.03, yt + RIDGE - 0.05, zc - 0.1), (hw + over + 0.03, yt + RIDGE + 0.12, zc + 0.1), trim)  # ridge
+    # the FISH POND sign standing on the roof's front slope, its face toward -Z
+    sy0 = yt + 0.25
+    sz_ = hz0 - over * 0.5
+    b.span((-1.15, sy0, sz_ - 0.06), (1.15, sy0 + 0.75, sz_ + 0.06), "cream")
+    frame = "gold_mid" if gold else DARK
+    for (xa, xb, ya, yb) in ((-1.25, 1.25, sy0 - 0.08, sy0 + 0.01), (-1.25, 1.25, sy0 + 0.74, sy0 + 0.83),
+                             (-1.25, -1.14, sy0, sy0 + 0.75), (1.14, 1.25, sy0, sy0 + 0.75)):
+        b.span((xa, ya, sz_ - 0.08), (xb, yb, sz_ + 0.08), frame)
+    _label_front(b, "FISH POND", 0, sy0 + 0.22, sz_ - 0.06, 0.06, 0.02, "fish_blue")
+    for sx in (-1, 1):                                                                          # its legs on the roof
+        b.span((sx * 0.8 - 0.05, yt - 0.1, sz_ - 0.04), (sx * 0.8 + 0.05, sy0, sz_ + 0.04), frame)
+    # a lantern by the door, the rod rack against the left wall and a stool inside
+    b.span((dw / 2 + 0.25, y0 + 1.9, hz0 - 0.25), (dw / 2 + 0.31, y0 + 2.0, hz0 + 0.01), "fur_black")
+    b.cyl((dw / 2 + 0.28, y0 + 1.7, hz0 - 0.25), 0.11, 0.3, "lamp_warm", segments=8)
+    b.cyl((dw / 2 + 0.28, y0 + 1.88, hz0 - 0.25), 0.13, 0.06, "fur_black", segments=8)
+    rx = -hw                                                                                    # against the wall
+    b.span((rx - 0.08, y0, hz0 + 0.2), (rx, y0 + 0.2, hz1 - 0.3), DARK)                          # rack foot
+    b.span((rx - 0.08, y0 + 1.6, hz0 + 0.2), (rx, y0 + 1.75, hz1 - 0.3), DARK)                   # rack bar
+    for k, sw in enumerate(("fur_black", "shirt_blue", "bowl_red")):
+        z = hz0 + 0.4 + k * 0.4
+        b.box((rx - 0.1, y0 + 1.3, z), (0.05, 2.6, 0.05), sw, rot=rot_x(6 - 4 * k))               # rods
+    return (0.0, sy0 + 0.83, sz_)
+
+
+def build_fishing_hut(mat, gold=False):
+    name = HUT + ("_Gold" if gold else "")
+    b, water, rod, fish = RB(), RB(), RB(), RB()
+    _pond(b, water, gold)
+    _jetty(b)
+    top = _hut(b, gold)
+    # a bucket of golden fish on the jetty
+    bz = -2.4
+    b.cyl((-0.35, JY + 0.09 + 0.18, bz), 0.24, 0.36, "metal", segments=12)
+    b.cyl((-0.35, JY + 0.09 + 0.3675, bz), 0.2, 0.015, "fish_blue", segments=12)
+    gold_fish(b, -0.41, JY + 0.47, bz - 0.03, 0.9, up=True)
+    gold_fish(b, -0.27, JY + 0.44, bz + 0.07, 0.8, up=True)
+    # the rod holder at the jetty's side, the rod in it (pivot at its butt) leaning out over the water to the +X
+    hx, hz = 0.6, -0.6
+    b.span((hx - 0.08, JY + 0.09, hz - 0.08), (hx + 0.08, JY + 0.5, hz + 0.08), DARK)
+    butt = (hx, JY + 0.5, hz)
+    L, ang = 2.6, 50.0
+    dy, dz = L * math.cos(math.radians(ang)), L * math.sin(math.radians(ang))
+    R = Matrix.Rotation(math.radians(-90), 3, "Y")                     # the rod leans toward +X, out over the pond
+    def turned(p):
+        v = R @ Vector(p)
+        return (v.x, v.y, v.z)
+    rod.box(turned((0, dy / 2, dz / 2)), (0.06, L, 0.06), "fur_black", rot=R @ rot_x(ang))
+    rod.box(turned((0, 0.235 * math.cos(math.radians(ang)), 0.235 * math.sin(math.radians(ang)))), (0.1, 0.53, 0.1),
+            "kibble", rot=R @ rot_x(ang))
+    by = 0.3 - butt[1]
+    tip = turned((0, dy, dz))
+    rod.span((tip[0] - 0.012, by, tip[2] - 0.012), (tip[0] + 0.012, tip[1], tip[2] + 0.012), "offwhite")   # line
+    rod.ball((tip[0], by, tip[2]), 0.07, "bowl_red")                                                # bobber
+    fx, fz = -1.3, PZ - 0.9                                                                         # the fish
+    fish.span((-0.22, -0.06, -0.07), (0.16, 0.06, 0.07), "fur_orange")
+    fish.span((0.16, -0.09, -0.03), (0.3, 0.09, 0.03), "fur_orange_dark")
+    _anchor(name, "FishJump", (fx, 0.3, fz))
+    _anchor(name, "PromptAnchor", (0.0, 1.5, -3.6 - 0.6))
+    _anchor(name, "BangAnchor", (top[0], top[1] + 2.0, top[2]))
+    _anchor(name, "GlowAnchor", (0.0, JY + 2.0, DECK[2] - 0.1 - HUT_D / 2))
+    return [b.finalize(name, mat), water.finalize(name + "_Water", mat),
+            rod.finalize(name + "_Rod", mat, location=butt),
+            fish.finalize(name + "_Fish", mat, location=(fx, 0.16, fz))]
+
+
 def rbx_attachments(name):
     seen = {}
     for n, p in ATTACHMENTS.get(name, []):
@@ -329,4 +502,6 @@ def rbx_attachments(name):
 ASSETS = {
     PIC: (build_picnic_station, 4000),
     YARD: (build_yardsale_stall, 4000),
+    HUT: (build_fishing_hut, 5000),
+    HUT + "_Gold": (lambda m: build_fishing_hut(m, gold=True), 5000),
 }

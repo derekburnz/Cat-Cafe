@@ -7,7 +7,8 @@
 -- starts a shift (the chime is Sound-Agent's). King Croissant, the King cat: a soft gold glow round him, one steady
 -- emitter of drifting gold motes, a slow gold shine scrolling along his cape's dotted trim, and a gold pop off his
 -- crown when his table pays (at most every `pop.gap` seconds). Reduce Motion keeps only the glow (the trim held
--- still); Low performance drops the motes.
+-- still); Low performance drops the motes. The King Cat Pack's Royal Crest sign style: a slow gold shine sweeps
+-- across its gold frame every 8 s, a scrolling Texture with no particles, none with Reduce Motion.
 --
 -- Source: Moments.TipSwept(cat, position), fired in your own cafe when a Waiter or Greeter sweeps a paid table's tip
 -- into its bag (Gameplay-Engineer's CafeOrders). The puff plays over every Sprinkles working in that cafe (a Model
@@ -18,8 +19,9 @@
 -- `Bedtime`), so a cafe rebuilding her model or her streaming back in plays nothing. King: every Model with CatId
 -- "king_croissant" (Model-Agent, friend/cat-king), his `Glow` attachment in the Body for the light and the motes,
 -- `CrownTop` (in the crown Prop inside the Head Model) for the pop, and the largest part of the Model ending
--- `_CapeTrim` (inside Prop2) for the scrolling shine, the same Moments.TipSwept as Sprinkles for the pop. Listening
--- only. Numbers in Presets.shopCats.
+-- `_CapeTrim` (inside Prop2) for the scrolling shine, the same Moments.TipSwept as Sprinkles for the pop. The
+-- Royal Crest: every part (the frame's bars) in a Model named `CatCafe_Plot_SignRoyalCrest_Frame` (#1289).
+-- Listening only. Numbers in Presets.shopCats.
 
 local CollectionService = game:GetService("CollectionService")
 local Debris = game:GetService("Debris")
@@ -431,6 +433,104 @@ local function stepKings()
 	end
 end
 
+-- The Royal Crest sign style (King Cat Pack) -------------------------------------------------------------
+
+type Crest = {
+	shine: { Texture }, -- on the front and back faces of every bar
+	along: { [Texture]: number }, -- studs along the sign from its middle to each texture's bar
+	width: number, -- the sign's width, in studs
+	nextAt: number, -- os.clock() when the next sweep starts
+}
+
+local crests: { [Model]: Crest } = {}
+
+local function clearCrest(c: Crest)
+	for _, texture in c.shine do
+		texture:Destroy()
+	end
+	c.shine = {}
+	c.along = {}
+end
+
+-- Lays a soft gold sprite twice the sign's width on both faces of every bar of the frame, each bar's texture shifted
+-- by where the bar sits along the sign, so one band of light travels across all of them together.
+local function layCrest(frame: Model, c: Crest)
+	local r = Presets.shopCats.royalCrest
+	local pivot = frame:GetPivot()
+	local _, size = frame:GetBoundingBox()
+	c.width = math.max(size.X, size.Z)
+	for _, bar in frame:GetDescendants() do
+		if bar:IsA("BasePart") then
+			local part = bar :: BasePart
+			local along = (part.Position - pivot.Position):Dot(pivot.RightVector)
+			for _, face in r.faces do
+				local texture = Instance.new("Texture")
+				texture.Name = "RoyalCrestShine"
+				texture.Texture = Presets.textures.sparkle
+				texture.Color3 = r.colour
+				texture.Transparency = 1
+				texture.StudsPerTileU = c.width * 2
+				texture.StudsPerTileV = size.Y * 1.5
+				texture.Face = face
+				texture.Parent = part
+				table.insert(c.shine, texture)
+				c.along[texture] = along
+			end
+		end
+	end
+end
+
+-- A slow gold shine sweeping once across the frame every `every` seconds: the band slides from one side of the sign
+-- to the other over `sweep` seconds, then hides until the next. Held off with Reduce Motion.
+local function stepCrests()
+	local r = Presets.shopCats.royalCrest
+	local now = os.clock()
+	local candidates: { Logic.Candidate<Model> } = {}
+	for frame, c in crests do
+		if frame.Parent == nil then
+			clearCrest(c)
+			crests[frame] = nil
+		else
+			local distance = Context.distance(frame:GetPivot().Position)
+			table.insert(candidates, { key = frame, distance = distance })
+		end
+	end
+	local chosen: { [Model]: boolean } = {}
+	if not Context.reducedMotion() then
+		for _, frame in Logic.nearest(candidates, r.within, r.most) do
+			chosen[frame] = true
+			local c = crests[frame]
+			if #c.shine == 0 then
+				layCrest(frame, c)
+			end
+			local t = now - c.nextAt
+			if t >= r.sweep then
+				c.nextAt = now + r.every - r.sweep
+				t = -1
+			end
+			local travel, fade = Logic.shineSweep(t, r.sweep, c.width)
+			for _, texture in c.shine do
+				texture.OffsetStudsU = travel - (c.along[texture] or 0)
+				texture.Transparency = 1 - fade * (1 - r.transparency)
+			end
+		end
+	end
+	for frame, c in crests do
+		if not chosen[frame] then
+			clearCrest(c)
+		end
+	end
+end
+
+local function considerCrest(instance: Instance)
+	local r = Presets.shopCats.royalCrest
+	if instance:IsA("Model") and instance.Name == r.model and crests[instance :: Model] == nil then
+		-- each sign on its own beat, so a street of them never sweeps together; its bars share one
+		local first = os.clock() + math.random() * r.every
+		crests[instance :: Model] = { shine = {}, along = {}, width = 0, nextAt = first }
+	end
+end
+
 -- The server sets CatId before it parents a cat (CafeService.buildCat), so it arrives with the model.
 local function consider(instance: Instance)
 	if not instance:IsA("Model") then
@@ -452,8 +552,10 @@ function ShopCats.start()
 	Moments.TipSwept:Connect(swept)
 	for _, descendant in Workspace:GetDescendants() do
 		consider(descendant)
+		considerCrest(descendant)
 	end
 	Workspace.DescendantAdded:Connect(consider)
+	Workspace.DescendantAdded:Connect(considerCrest)
 	task.spawn(function()
 		while true do
 			task.wait(Presets.shopCats.duchess.pick)
@@ -464,6 +566,7 @@ function ShopCats.start()
 		while true do
 			task.wait(Presets.shopCats.king.step)
 			stepKings()
+			stepCrests()
 		end
 	end)
 end

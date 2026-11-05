@@ -15,8 +15,8 @@
 -- launching player's screen, their own character flies through them (Avatar.glide, Presets.cannonGlide), a copy of
 -- it posed in a ViewportFrame that VFX-Agent's cloud tunnel lays between its clouds (`CannonGlide.mount`).
 -- The launching player's camera (section 7): it follows the hop, chases the flyer out of the barrel, waits under the
--- clouds, follows it down onto the pad from further out than the player's own view and settles in to that view,
--- then hands back to the game's camera at the end of the flight (Presets.cannonCamera). Everyone else keeps their own
+-- clouds, follows it down onto the pad from further out than the player's own view, closes to that view, gives one
+-- quick, slight push in at the touch and straight back, then hands back to the game's camera at the end of the flight (Presets.cannonCamera). Everyone else keeps their own
 -- camera.
 -- Listening only: nothing here fires a remote.
 
@@ -25,6 +25,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Avatar = require(script.Parent.Avatar)
+local Context = require(script.Parent.Context)
 local Presets = require(script.Parent.Presets)
 
 local CannonGlide = {}
@@ -362,7 +363,7 @@ local function track()
 		target = v.last -- under the clouds
 	else
 		-- behind the flyer as it comes down onto the pad, as the player had the camera but `wide` times as far, closing
-		-- in to `land` times as far by the touch
+		-- in to the player's own distance by the touch
 		local fall = smooth((seconds - c.drop) / (c.touch - c.drop))
 		local rest = root.Position + v.focus
 		local coming = if body ~= nil
@@ -372,12 +373,17 @@ local function track()
 			then coming:Lerp(rest, smooth((seconds - (c.touch - c.open)) / c.open))
 			else rest
 		local look = root.LookVector * math.cos(v.pitch) + Vector3.yAxis * math.sin(v.pitch)
-		-- `wide` times the player's distance down to `land` times it at the touch, then a slow settle onto the
-		-- player's own distance by the hand back at `ends` (#1081: the close-in read as too much zoom)
-		local settle = smooth((seconds - c.touch) / (c.ends - c.touch))
-		local scale = if seconds < c.touch
-			then k.land + (k.wide - k.land) * (1 - fall)
-			else 1 + (k.land - 1) * (1 - settle)
+		-- `wide` times the player's distance down to the player's own by the touch, then one quick, slight push in
+		-- (`push` closer) that is back on the player's own distance within `bump` seconds, and the game's camera
+		-- after (#1131). Reduce Motion: no bump.
+		local scale = if seconds < c.touch then 1 + (k.wide - 1) * (1 - fall) else 1
+		if seconds >= c.touch and not Context.reducedMotion() then
+			local t = math.clamp((seconds - c.touch) / k.bump, 0, 1)
+			local pulse = if t < k.bumpIn
+				then smooth(t / k.bumpIn)
+				else 1 - smooth((t - k.bumpIn) / (1 - k.bumpIn))
+			scale = 1 - k.push * pulse
+		end
 		local distance = v.distance * scale
 		target = CFrame.lookAt(focus - look * distance, focus)
 	end

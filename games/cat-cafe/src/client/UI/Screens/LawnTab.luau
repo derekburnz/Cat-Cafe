@@ -12,6 +12,7 @@
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local LawnLogic = require(script.Parent.Parent.Components.LawnLogic)
 local Scale = require(script.Parent.Parent.Scale)
@@ -214,11 +215,18 @@ function LawnTab.new(parent: Instance, callbacks: Callbacks): LawnTab
 		Create("UIPadding", { PaddingRight = UDim.new(0, 10) }),
 	})
 
-	for _, piece in LawnLogic.pieces() do
+	-- rarest first (#1409)
+	local function pieceRarity(piece: Types.LawnPieceDef): string?
+		return piece.rarity
+	end
+	local function styleRarity(style: Types.LawnStyleDef): string?
+		return style.rarity
+	end
+	for _, piece in DecorPieces.byRarity(LawnLogic.pieces(), pieceRarity) do
 		self:_card(piece.id, piece.name, piece.model, nil, piece, nil)
 	end
 	for _, kind in STYLE_KINDS do
-		for _, style in LawnLogic.styles(kind) do
+		for _, style in DecorPieces.byRarity(LawnLogic.styles(kind), styleRarity) do
 			self:_card(style.id, style.name, style.model, style.kind, nil, style)
 		end
 	end

@@ -329,13 +329,8 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 		if not (arrived and (visit ~= nil or isDay())) then
 			break
 		end
-		arrived = Mover.walkTo(
-			model,
-			Vector3.new(point.X, entry.Y, point.Z),
-			speed,
-			isAlive,
-			walkStep
-		)
+		arrived =
+			Mover.walkTo(model, Vector3.new(point.X, entry.Y, point.Z), speed, isAlive, walkStep)
 		if arrived then
 			walked += 1
 		end

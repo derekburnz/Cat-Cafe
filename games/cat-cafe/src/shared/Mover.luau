@@ -45,7 +45,10 @@ function Mover.walkTo(
 			if direction.Magnitude < 0.05 then
 				direction = Vector3.new(0, 0, -1)
 			end
-			model:PivotTo(CFrame.lookAt(target, target + direction.Unit))
+			local arrived = CFrame.lookAt(target, target + direction.Unit)
+			if draw == nil or not draw(model, arrived, 0, 0) then
+				model:PivotTo(arrived)
+			end
 			return true
 		end
 		local moved = math.min(speed * dt, distance)

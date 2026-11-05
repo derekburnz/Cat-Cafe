@@ -2602,6 +2602,17 @@ function Logic.customerPiece(x: number, bottom: number, top: number): string?
 	return nil
 end
 
+-- Where a customer's feet are and which way they face on the floor, from its model's pivot now (`at`, `look`) and the
+-- `drop` its body was last laid out with (Effects/CustomerWalk, #1143). The pivot follows the body (the models'
+-- PrimaryPart is the head), whose origin is the feet's dropped straight down (the roll turns about the feet's own
+-- forward line, so it moves neither the origin nor the look), so this gives the same feet frame after frame, and
+-- after a whole-model turn (Mover.face) too: it never sinks or tilts.
+function Logic.customerFeet(at: Vector3, look: Vector3, drop: number): (Vector3, Vector3)
+	local flat = Vector3.new(look.X, 0, look.Z)
+	local facing = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, -1)
+	return at - Vector3.new(0, drop, 0), facing
+end
+
 -- A customer's step at `phase` radians through its walk cycle (2 pi per Presets.customerWalk.stride studs) and
 -- `weight` 0 to 1 of the way into walking: the left leg's swing about the hip (radians, the right leg's is minus
 -- it), the left arm's about the shoulder (opposite the leg), the body's drop (studs, 0 or less: the hip lowers as

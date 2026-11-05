@@ -30,6 +30,9 @@ type Rig = {
 	phase: number,
 	weight: number,
 	lastStep: number,
+	-- the body's last drop off the feet: GetPivot() follows the head (the models' PrimaryPart), so the feet are
+	-- worked back out of it (Logic.customerFeet) instead of re-basing on a dropped, rolled pivot
+	drop: number,
 	-- a part came or went (a dish handed over the counter rides in its hands, CafeOrders)
 	dirty: boolean,
 }
@@ -76,6 +79,7 @@ local function build(model: Model): Rig
 		phase = 0,
 		weight = 0,
 		lastStep = 0,
+		drop = 0,
 		dirty = false,
 	}
 	local function changed(descendant: Instance)
@@ -125,6 +129,7 @@ local function lay(rig: Rig, ground: CFrame)
 	end
 	local leg, arm, drop, roll = Logic.customerStep(rig.phase, rig.weight, Context.reducedMotion())
 	local body = ground * CFrame.new(0, drop, 0) * CFrame.Angles(0, 0, roll)
+	rig.drop = drop
 	local hipL, hipR = CFrame.Angles(leg, 0, 0), CFrame.Angles(-leg, 0, 0)
 	local armL, armR = CFrame.Angles(arm, 0, 0), CFrame.Angles(-arm, 0, 0)
 	for i, rest in rig.rest do
@@ -145,7 +150,10 @@ local function lay(rig: Rig, ground: CFrame)
 			rig.frames[i] = body * CFrame.new(hinge) * turn * CFrame.new(-hinge) * rest
 		end
 	end
-	rig.model.WorldPivot = ground
+	if rig.model.PrimaryPart == nil then
+		-- with a PrimaryPart (the customers' head) the pivot follows that part, so it is the body frame already
+		rig.model.WorldPivot = body
+	end
 	Workspace:BulkMoveTo(rig.parts, rig.frames, Enum.BulkMoveMode.FireCFrameChanged)
 end
 
@@ -158,7 +166,9 @@ local function settle(dt: number)
 			settling[rig] = nil
 		elseif now - rig.lastStep > c.idleAfter then
 			rig.weight = math.max(0, rig.weight - dt / c.settle)
-			lay(rig, rig.model:GetPivot())
+			local pivot = rig.model:GetPivot()
+			local at, look = Logic.customerFeet(pivot.Position, pivot.LookVector, rig.drop)
+			lay(rig, CFrame.lookAt(at, at + look))
 			if rig.weight <= 0 then
 				settling[rig] = nil
 			end

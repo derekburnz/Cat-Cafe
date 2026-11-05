@@ -50,6 +50,29 @@ return function()
 			expect(stepsPerSecond > 3 and stepsPerSecond < 7).to.equal(true)
 		end)
 
+		it("settles on the same feet frame after frame, never sinking (#1331 review)", function()
+			-- the models' pivot follows the head (their PrimaryPart), so it carries the body's drop each frame
+			local ground, facing = Vector3.new(4, 2, -3), Vector3.new(1, 0, 2).Unit
+			local feet, look, drop = ground, facing, 0
+			for i = 1, 120 do
+				-- where the last frame left the body's origin
+				local pivot = feet + Vector3.new(0, drop, 0)
+				feet, look = Logic.customerFeet(pivot, look, drop) -- what settle reads back
+				local _, _, nextDrop = Logic.customerStep(i * 0.37, 1 - i / 120)
+				drop = nextDrop
+			end
+			expect((feet - ground).Magnitude < 1e-9).to.equal(true)
+			expect((look - facing).Magnitude < 1e-9).to.equal(true)
+		end)
+
+		it("stands the look flat whatever the pivot's tilt", function()
+			local _, look = Logic.customerFeet(Vector3.zero, Vector3.new(0.3, -0.2, 0.9), 0)
+			expect(look.Y).to.equal(0)
+			expect(math.abs(look.Magnitude - 1) < 1e-9).to.equal(true)
+			local _, straight = Logic.customerFeet(Vector3.zero, Vector3.yAxis, 0)
+			expect(straight.Z).to.equal(-1)
+		end)
+
 		it("moves less with Reduce Motion", function()
 			local leg, _, _, roll = Logic.customerStep(math.pi / 2, 1, true)
 			local full, _, _, fullRoll = Logic.customerStep(math.pi / 2, 1)

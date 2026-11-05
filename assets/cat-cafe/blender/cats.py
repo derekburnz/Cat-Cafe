@@ -173,6 +173,9 @@ ROSTER = {
     "DuchessMarzipan": dict(rarity="Legendary", fur="fur_lilac_silver", second="pastel_lilac", eyes="eye_violet",
                             pattern="solid", muzzle="pearl", nose="nose_pink", fluffy=True, lids=True, curl=True,
                             body_scale=(0.9, 1.05, 1.0), tip="pearl", exclusive=True, shop=True),
+    "KingCroissant": dict(rarity="Mythical", fur="fur_croissant", second="fur_croissant_dark", eyes="eye_amber",
+                          pattern="stripes", muzzle="fur_custard", ruff="fur_custard", fluffy=True, scale=1.3,
+                          body_scale=(1.1, 1.0, 1.08), tail_thick=0.3, nose="nose_brick", exclusive=True, shop=True),
 }
 
 COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks", "blaze")

@@ -103,13 +103,10 @@ function CafeService.baitReadyAt(_profile: Types.PlayerProfile, bait: Types.Bait
 	return bait.readyAt or bait.placedAt + Config.LureWaitSeconds
 end
 
--- The Second Bait Bowl for this player (#1161): "on" only with the pass and once PolicyService has answered that paid
--- random items are not restricted for them. A failed or pending lookup reads as restricted (monetization-policy
--- section 4: the most restrictive values), so the bowl and the pass card stay off until the answer is in.
-function CafeService.secondBowl(player: Player, profile: Types.PlayerProfile): Types.SecondBowl
-	local policy = DataService.policy(player)
-	local allowed = policy ~= nil and policy.ArePaidRandomItemsRestricted == false
-	return Bait.secondBowl(Economy.passes(profile).secondBowl == true, allowed)
+-- The Second Bait Bowl for this player (#1161): "on" with the pass, "offer" without it. Capacity, not a paid random
+-- item (Bait.secondBowl), so no PolicyService gate. `player` stays for callers that may need it later.
+function CafeService.secondBowl(_player: Player, profile: Types.PlayerProfile): Types.SecondBowl
+	return Bait.secondBowl(Economy.passes(profile).secondBowl == true)
 end
 
 -- The bowl as ProfileSync sends it: the rolled cat only once it has arrived, so the reveal is not spoiled (N30).
@@ -169,7 +166,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		decorPlaced = profile.decorPlaced,
 		lures = profile.lures,
 		bait = baitView(profile, now, 1),
-		bait2 = baitView(profile, now, 2), -- #1161: kept and sent even while the bowl is "hidden", so it can be emptied
+		bait2 = baitView(profile, now, 2), -- #1161: sent while food is in it, even after the pass went, so it can be emptied
 		secondBowl = CafeService.secondBowl(player, profile),
 		cats = CafeService.catViews(player, profile),
 		collection = profile.collection,
@@ -762,8 +759,8 @@ local function refreshBait(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		if bait ~= nil then CafeService.baitReadyAt(profile, bait) else 0
 	)
 	refreshBowl(player, plot.bait, plot.baitBowl, plot.baitCat, profile, owned, bait)
-	-- #1161: the second bowl stands while it is "on", and while food is still in it after the pass or the policy
-	-- went away, so that food's cat can still be tamed or let go
+	-- #1161: the second bowl stands while it is "on", and while food is still in it without the pass (a refund),
+	-- so that food's cat can still be tamed or let go
 	local bait2 = if owned then profile.bait2 else nil
 	local shown2 = owned and (bait2 ~= nil or CafeService.secondBowl(player, profile) == "on")
 	plot.model:SetAttribute(

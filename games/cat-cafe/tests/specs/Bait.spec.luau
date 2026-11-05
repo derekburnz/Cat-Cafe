@@ -174,18 +174,15 @@ return function()
 		end)
 
 		it(
-			"is on only with the pass where paid random items are allowed, and offered only there",
+			"is on with the pass and offered without it (capacity, not a paid random item)",
 			function()
-				expect(Bait.secondBowl(true, true)).to.equal("on")
-				expect(Bait.secondBowl(false, true)).to.equal("offer")
-				-- restricted, or PolicyService has not answered: no bowl 2 and no pass card, owned or not
-				expect(Bait.secondBowl(true, false)).to.equal("hidden")
-				expect(Bait.secondBowl(false, false)).to.equal("hidden")
+				expect(Bait.secondBowl(true)).to.equal("on")
+				expect(Bait.secondBowl(false)).to.equal("offer")
 			end
 		)
 
 		it(
-			"lists every food's odds for the pass card, the first bowl's odds, each summing to 100",
+			"lists every food's odds at a level, the first bowl's odds, each summing to 100",
 			function()
 				for level = 1, Bait.MAX_LEVEL do
 					local rows = Bait.oddsCard(level)

@@ -63,7 +63,7 @@ function PassService.fromOwned(set: { [number]: boolean }): Economy.Passes
 		money = money,
 		longNap = Config.LongNapPassId ~= 0 and set[Config.LongNapPassId] == true,
 		slots = slots,
-		-- #1161: owning it is not enough for bowl 2; CafeService.secondBowl adds the PolicyService check
+		-- #1161: bowl 2 (CafeService.secondBowl)
 		secondBowl = if Config.SecondBowlPassId ~= 0 and set[Config.SecondBowlPassId]
 			then true
 			else nil,

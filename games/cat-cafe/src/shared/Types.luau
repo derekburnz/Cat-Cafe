@@ -622,9 +622,8 @@ export type BaitState = {
 	charm: number,
 }
 
--- The second bowl for a player (#1161, Bait.secondBowl): "on" with the pass, "offer" without it (the pass card shows),
--- "hidden" where paid random items are restricted for them or PolicyService has not answered.
-export type SecondBowl = "on" | "offer" | "hidden"
+-- The second bowl for a player (#1161, Bait.secondBowl): "on" with the pass, "offer" without it (the Store shows it).
+export type SecondBowl = "on" | "offer"
 
 -- The bowl as ProfileSync sends it: the food and when its cat arrives. `cat` is only there once it has arrived,
 -- so the roll is not spoiled before then (reviewer N30).
@@ -961,9 +960,7 @@ export type PlayerState = {
 	lures: { [string]: number },
 	bait: BaitView?, -- nil when the bowl is empty
 	bait2: BaitView?, -- #1161: the second bowl's, nil when it is empty
-	-- #1161: "on" (the pass and the policy allow bowl 2), "offer" (show the pass card) or "hidden" (no card, no bowl 2);
-	-- nil reads as "hidden"
-	secondBowl: SecondBowl?,
+	secondBowl: SecondBowl?, -- #1161: "on" (the pass: bowl 2 takes food) or "offer" (show the pass in the Store)
 	-- extras (not in the UI contract, used by the client controller)
 	cats: { [string]: CatView },
 	collection: { [string]: number },

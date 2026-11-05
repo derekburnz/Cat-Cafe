@@ -10,8 +10,7 @@
 -- #1161: with the Second Bait Bowl pass there are two bowls, each with its own food, wait and cat (profile.bait2),
 -- at the same level and with the same roll. Both remotes take an optional bowl index after their first argument: nil
 -- is bowl 1, so an older client keeps working. Food goes into bowl 2 only while CafeService.secondBowl is "on" (the
--- pass, and PolicyService says paid random items are not restricted for the player); a cat already at bowl 2 can
--- always be tamed or let go.
+-- pass); a cat already at bowl 2 can always be tamed or let go.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -43,8 +42,8 @@ local CHOICES = { "tame", "letgo" }
 local rng = Random.new()
 -- placedAt of the bait whose arrival this player has been sent, by bowl
 local shownArrival: { [Player]: { [number]: number } } = {}
--- the second bowl's state last drawn and sent (#1161), so a pass bought or a PolicyService answer that comes in
--- after join puts bowl 2 out within a second
+-- the second bowl's state last drawn and sent (#1161), so a pass bought in game, or one whose lookup failed at join
+-- and was found on a retry, puts bowl 2 out within a second
 local shownSecond: { [Player]: Types.SecondBowl } = {}
 
 -- The bowl a remote names: nil is bowl 1, otherwise 1 or 2 exactly. Anything else is dropped.
@@ -84,7 +83,7 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 		return
 	end
 	if bowl == 2 and CafeService.secondBowl(player, profile) ~= "on" then
-		CafeService.sync(player) -- #1161: no pass, or not allowed here; the menu redraws without bowl 2
+		CafeService.sync(player) -- #1161: no pass; the menu redraws without bowl 2
 		return
 	end
 	if Bait.stateOf(profile, bowl) ~= nil then
@@ -260,7 +259,7 @@ local function checkArrivals()
 				Telemetry.baitStep(player, bait, 2)
 			end
 		end
-		-- #1161: bowl 2 comes out (or goes) when the pass is bought or the PolicyService answer arrives
+		-- #1161: bowl 2 comes out when the pass is bought or found
 		local second = CafeService.secondBowl(player, profile)
 		if shownSecond[player] ~= second then
 			shownSecond[player] = second

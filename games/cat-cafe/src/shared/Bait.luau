@@ -12,8 +12,8 @@
 --   BOWLS                                  2, the most bowls a cafe has
 --   stateOf(profile, bowl) -> BaitState?   bowl 1's or bowl 2's bait
 --   setState(profile, bowl, state?)        puts or clears it
---   secondBowl(ownsPass, allowed) -> SecondBowl   "on", "offer" (the pass card shows) or "hidden" (no card, no bowl 2)
---   oddsCard(bowlLevel) -> { FoodOdds }    every shop and dealer food's odds at that level, for the pass card
+--   secondBowl(ownsPass) -> SecondBowl     "on" with the pass, "offer" (the Store shows the pass) without it
+--   oddsCard(bowlLevel) -> { FoodOdds }    every shop and dealer food's odds at that level
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
@@ -23,10 +23,10 @@ local Bait = {}
 
 Bait.BOWLS = 2
 
--- The second bowl for this player (#1161): "on" with the pass, "offer" without it (the shop shows the pass card),
--- "hidden" where Roblox restricts paid random items for the player or the PolicyService answer is not in (yet or
--- at all): the second bowl doubles the random cats, so it is a paid random item (Derek 2026-11-05, monetization-
--- policy section 2).
+-- The second bowl for this player (#1161): "on" with the pass, "offer" without it (the Store shows the pass). It is
+-- capacity, not a roll (Derek 2026-11-05, Monetization-Agent on #1436): Robux buys a second place to put food, the
+-- food is bought with coins, coins are never sold and bowl 2 rolls exactly as bowl 1, so it is not a paid random item
+-- and needs no PolicyService gate. That holds only while no Robux item sells bait food, coins or a bowl speed-up.
 export type SecondBowl = Types.SecondBowl
 
 -- A food's odds at a bowl level, as the pass card lists them.
@@ -91,17 +91,12 @@ function Bait.setState(profile: Types.PlayerProfile, bowl: number, state: Types.
 	end
 end
 
--- `allowed` is true only once PolicyService has answered and paid random items are not restricted for the player.
-function Bait.secondBowl(ownsPass: boolean, allowed: boolean): SecondBowl
-	if not allowed then
-		return "hidden"
-	end
+function Bait.secondBowl(ownsPass: boolean): SecondBowl
 	return if ownsPass then "on" else "offer"
 end
 
--- The odds the pass card shows before purchase (monetization-policy section 2): each food's odds in a bowl of the
--- player's level, the same Bait.oddsFor bowl 1's roll and its food cards use, so the second bowl's odds are the
--- first's. Catalog order; each row sums to 100.
+-- Each food's odds in a bowl of the player's level, the same Bait.oddsFor bowl 1's roll and its food cards use, so
+-- the second bowl's odds are the first's (for a card that lists them all). Catalog order; each row sums to 100.
 function Bait.oddsCard(bowlLevel: number): { FoodOdds }
 	local rows: { FoodOdds } = {}
 	for _, lure in Catalog.lures do

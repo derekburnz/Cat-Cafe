@@ -429,8 +429,7 @@ function Debug.baitReady(player: (Player | number | string)?, coat: string?, bow
 end
 
 -- #1161: the Second Bait Bowl pass on (true) or off (false) for this session, as a purchase would set it, without
--- buying it. PolicyService still decides: a player restricted from paid random items gets no bowl 2 either way.
--- Returns the bowl's state ("on", "offer" or "hidden").
+-- buying it. Returns the bowl's state ("on" or "offer").
 function Debug.secondBowl(player: (Player | number | string)?, owned: boolean): string
 	local p = resolve(player)
 	local profile = profileOf(p)

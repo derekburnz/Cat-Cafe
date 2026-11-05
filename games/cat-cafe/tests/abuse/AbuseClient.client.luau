@@ -1509,7 +1509,7 @@ case(
 		fire("BuyUpgrade", "jetpack")
 		fire("BuyDecor", "jetpack")
 		fire("UseLure", "jetpack")
-		-- #1161: bowl 2 without the pass (or where PolicyService restricts it) takes no food
+		-- #1161: bowl 2 without the pass takes no food
 		local secondOff = state.secondBowl ~= "on" and state.bait2 == nil
 		if secondOff then
 			fire("UseLure", "kibble", 2)

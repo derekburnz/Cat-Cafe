@@ -270,19 +270,6 @@ function Logic.restingPurrs(pose: any, night: boolean, loafing: boolean): boolea
 	return pose == "sit" or loafing
 end
 
--- Seconds until the dusk bell (F66): `warning` seconds before a day ends. nil at night, with no end time, or once
--- that moment passed more than a second ago, so joining late rings nothing.
-function Logic.duskBellIn(phase: string?, endsAt: number?, now: number, warning: number): number?
-	if phase ~= "day" or endsAt == nil then
-		return nil
-	end
-	local inSeconds = endsAt - warning - now
-	if inSeconds < -1 then
-		return nil
-	end
-	return math.max(inSeconds, 0)
-end
-
 -- The shout-out cue for a rarity (F58): a Mythical gets its own sting, everything else the two-note chime.
 function Logic.announceCue(rarity: string?): string
 	local step = Logic.rarityStep(rarity)

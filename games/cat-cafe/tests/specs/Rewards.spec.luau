@@ -112,11 +112,11 @@ return function()
 	end)
 
 	describe("the new rows (section 2, QA check 3)", function()
-		it("the Tip Jar's two hour gift is a Classic Crate and 30 golden fish", function()
+		it("the Tip Jar's two hour gift is 2 Classic Crates and 150 golden fish (#1414)", function()
 			expect(Catalog.tipJar[12].minutes).to.equal(120)
 			expect(Catalog.tipJar[12].prize :: any).to.deepEqual({
-				crates = { classic_crate = 1 },
-				fish = 30,
+				crates = { classic_crate = 2 },
+				fish = 150,
 			})
 		end)
 

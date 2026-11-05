@@ -8,9 +8,12 @@ the Park end), placed once with no turn at (0, 0, 0).
   CatCafe_Town_Backdrop          the pieces in palette colours: trees, the north cottages, the windmill on the
                                  street's line past the north arch, the south garden with its wall, hedges and
                                  bandstand, the east barn and hay bales, the west pond, meadow flowers.
-  CatCafe_Town_Backdrop_Ground   the ground carried on past the town's own ground plate (260 x 300, WorldBuilder) out
-                                 to GROUND_X, GROUND_Z: four slabs round the plate, top at 0, in the plate's own grass
-                                 colour and Grass material, so there is no seam and no edge in view.
+  CatCafe_Town_Backdrop_Ground   the ground carried on past the town's own ground plate (WorldBuilder) out to a rounded
+                                 outline GROUND_PAD past the far ring's line, where the far hills stand 15+ over it, so
+                                 its edge is buried in them: four flat pieces round the plate, top at 0, in the plate's
+                                 own grass colour and Grass material, so there is no seam and no edge in view. Until
+                                 #1445 it was a square out to 436 x 466 that stuck out ~150 past the hills, a flat green
+                                 plane round the island seen from the camps (Derek2 2026-11-05).
   CatCafe_Town_Backdrop_Hills    the near ring of rolling hills, in the same grass, sunk well into the ground so each
                                  rises gently from it; the ring hides the town ground's edge.
   CatCafe_Town_Backdrop_HillsFar the far ring, bigger and paler, so the horizon reads as layers of countryside.
@@ -32,7 +35,6 @@ N = "CatCafe_Town_Backdrop"
 TOWN_X, TOWN_Z = TOWN_EDGE_X + 1, STREET_END_Z + 2.5   # the hedges round the town (Layout.townEdges), outer faces
 DX, DZ = TOWN_X - 64.0, TOWN_Z - 126.5               # how far the town grew past 64 x 126.5: everything moves out by it
 PLATE_X, PLATE_Z = TOWN_X + 66, TOWN_Z + 23.5         # the town's ground plate (Config.World.TownGroundWidth and Depth halves)
-GROUND_X, GROUND_Z = 430.0 + DX, 450.0 + DZ          # the backdrop's ground reaches this far
 GRASS_RGB = (110, 170, 90)            # WorldBuilder's GRASS, so the ground and near hills meet the plate seamlessly
 LOOK = {
     N + "_Ground": (GRASS_RGB, "Grass"),
@@ -121,7 +123,58 @@ def _low_on_the_line(hills):
 
 
 NEAR = _low_on_the_line(_ring(134.0 + DX, 182.0 + DZ, 60.0, 46.0, (44.0, 30.0, 9.0, 19.0), 1))
-FAR = _ring(238.0 + DX, 282.0 + DZ, 110.0, 72.0, (66.0, 48.0, 24.0, 44.0), 2)
+FAR_RING = (238.0 + DX, 282.0 + DZ, 110.0)
+FAR = _ring(*FAR_RING, 72.0, (66.0, 48.0, 24.0, 44.0), 2)
+GROUND_PAD = 20.0   # the ground's outline this far past the far ring's line, inside the hills' feet (#1445)
+
+
+def _ground_outline(steps=2):
+    """The backdrop ground's outer edge: the far ring's rounded rectangle grown by GROUND_PAD, counter-clockwise, each
+    corner in `steps` chords. Two chords a corner keep the edge 15+ under the far hills all round (as the arc does) and
+    the part count low: the exporter makes each triangle two WedgeParts."""
+    rx, rz, corner = (v + GROUND_PAD for v in FAR_RING)
+    sx, sz = rx - corner, rz - corner
+    pts = []
+    for cx, cz, a0 in ((sx, sz, 0), (-sx, sz, 90), (-sx, -sz, 180), (sx, -sz, 270)):
+        for i in range(steps + 1):
+            a = math.radians(a0 + 90 * i / steps)
+            pts.append((cx + corner * math.cos(a), cz + corner * math.sin(a)))
+    return pts
+
+
+def _clip(poly, inside, cross):
+    """Sutherland-Hodgman: the part of convex `poly` where inside(p); cross(p, q) is where p-q meets the line."""
+    out = []
+    for i, p in enumerate(poly):
+        q = poly[i - 1]
+        if inside(p):
+            if not inside(q):
+                out.append(cross(q, p))
+            out.append(p)
+        elif inside(q):
+            out.append(cross(q, p))
+    return out
+
+
+def _cut(poly, axis, value, keep_above):
+    def inside(p):
+        return p[axis] >= value if keep_above else p[axis] <= value
+
+    def cross(p, q):
+        t = (value - p[axis]) / (q[axis] - p[axis])
+        return (p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t)
+
+    return _clip(poly, inside, cross)
+
+
+def _ground_pieces():
+    """The outline less the town's plate: the north and south bands across the full width, as convex outlines, and
+    the east and west strips between them beside the plate, as (x0, x1, z0, z1) boxes."""
+    outline = _ground_outline()
+    bands = [_cut(outline, 1, PLATE_Z, True), _cut(outline, 1, -PLATE_Z, False)]
+    rx = max(x for x, _ in outline)
+    strips = [(PLATE_X, rx, -PLATE_Z, PLATE_Z), (-rx, -PLATE_X, -PLATE_Z, PLATE_Z)]
+    return bands, strips
 
 
 def ground_y(x, z):
@@ -344,9 +397,13 @@ def meadow(rb, flowers):
 
 def build_backdrop(mat):
     rb, ground, near, far, flowers, hay, sails, lit = RB(), RB(), RB(), RB(), RB(), RB(), RB(), RB()
-    # the ground: four slabs round the town's plate, top at 0
-    for (x0, x1, z0, z1) in ((-GROUND_X, GROUND_X, PLATE_Z, GROUND_Z), (-GROUND_X, GROUND_X, -GROUND_Z, -PLATE_Z),
-                             (PLATE_X, GROUND_X, -PLATE_Z, PLATE_Z), (-GROUND_X, -PLATE_X, -PLATE_Z, PLATE_Z)):
+    # the ground: four flat pieces round the town's plate, top at 0, out to the outline under the far hills
+    bands, strips = _ground_pieces()
+    for band in bands:
+        cx = sum(x for x, _ in band) / len(band)
+        cz = sum(z for _, z in band) / len(band)
+        ground.b.prism(RB.p(cx, -0.5, cz), [(-(x - cx), z - cz) for x, z in band], 1.0, "leaf_green")
+    for x0, x1, z0, z1 in strips:
         ground.span((x0, -1.0, z0), (x1, 0.0, z1), "leaf_green")
     for h in NEAR:
         h.add(near, "leaf_green")

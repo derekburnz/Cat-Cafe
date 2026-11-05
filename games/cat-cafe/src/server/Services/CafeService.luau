@@ -179,6 +179,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		introSeen = profile.introSeen,
 		potions = profile.potions, -- F64
 		catFood = profile.catFood, -- #1181: the Bag's cat food
+		hideCredit = profile.hideCredit == true, -- #1083: the Settings row "Show my name on the Thank You board"
 		buffs = Potions.endsAt(profile, now), -- F64: endsAt in server time; the save keeps seconds left
 		settings = Settings.copy(profile.settings),
 		quests = Quests.view(profile, now), -- F73

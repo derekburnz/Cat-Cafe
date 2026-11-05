@@ -234,6 +234,17 @@ local Config = {
 	CornerShopRange = 14,
 	-- lawn-nursery.md section 2 (#1200): BuyLawn from within this many studs of a LawnStall-tagged Garden Nursery
 	LawnStallRange = 14,
+	-- lawn-nursery.md section 6a (#1283): the money bonus of each lawn piece and style out on the lawn, by its rarity,
+	-- added in Economy.cafeMultiplier beside decor. The server picks the best lawn by itself (Lawn.best).
+	LawnRarityBonus = {
+		Common = 0.01,
+		Uncommon = 0.015,
+		Rare = 0.02,
+		Epic = 0.03,
+		Legendary = 0.05,
+		Mythical = 0.08,
+		Golden = 0.12,
+	} :: { [string]: number },
 	CornerShopSizeWeights = {
 		small = { 0, 10, 30, 60 },
 		regular = { 20, 50, 25, 5 },

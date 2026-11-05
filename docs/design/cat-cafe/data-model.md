@@ -469,7 +469,7 @@ v0.11 change, the Tackle (Derek, 2026-10-27 22:31: "shove should be changed into
 - **Hit or miss:** the server decides. For TackleLungeSeconds plus TackleHitGraceSeconds (0.25, for lag) after the press reaches it, it checks every frame for another player whose root is within TackleHitRadiusStuds (3, plus TackleHitSlackStuds 1.5 for client-owned positions) of the tackler's root and not behind where the lunge started. The first such player who could be shoved under the rules above is hit, and the lunge stops there. A player who could not be shoved (in a minigame, in their safe zone, shoved in the last ShoveTargetImmuneSeconds, or this tackler's target in the last BumpSameTargetSeconds) is passed through, and the lunge can still hit someone behind them. Positions the server sees farther than TackleLungeStuds plus the slack from the start count for nothing, so a teleport cannot reach far.
 - **Hit:** a landed shove: the target is pushed ShoveKnockbackStuds (10) away from the tackler and falls for TackledDownSeconds (0.8) before they can move, then the knock-loose roll runs as today. The tackler stops and is up again after TackleHitRecoverSeconds (0.4).
 - **Miss:** nobody was hit. The tackler slides to a stop on their belly and cannot move or jump for TackleMissRecoverSeconds (1.2). In that time a carrier gets about 19 studs away, and the cooldown keeps the next try well off, so a miss usually means they are gone.
-- **Cooldown:** TackleCooldownSeconds (8) starts at the press, hit or miss, and is never refunded. BumpCooldownSeconds goes.
+- **Cooldown:** TackleCooldownSeconds (5, was 8 until 2026-11-04) starts at the press, hit or miss, and is never refunded. BumpCooldownSeconds goes.
 - **Remote:** `Tackle()` with no arguments replaces `Bump(targetUserId)`; the server reads where the tackler faces from its root when the press arrives. `ShoveResult` keeps its shape with the outcome `miss` added, sent to the tackler alone at the end of a window with no hit; a hit goes to everyone as `shove`, `loose` or `held`. The names in code may keep Shove and Bump; players see the word Tackle.
 - **Display:** the tackler's character gets `TackleAt` (server time of the press) for the lunge pose and dust, and `TackleMissAt` (server time a window ended with no hit) for the belly slide and the get up. A hit still sets the target's `ShovedAt` and `ShovedBy` (section 13).
 - **Telemetry:** `stats.bumpsGiven` counts presses and `stats.bumpsLanded` hits, so the hit rate shows. The `shove` analytics event gains the outcome `miss`.
@@ -1048,7 +1048,7 @@ Changed or new in v0.11 (the Tackle, Derek 22:31):
 | TackleHitGraceSeconds | 0.25 | new | CatService, extra hit window for lag |
 | TackleHitRadiusStuds | 3 | new | CatService |
 | TackleHitSlackStuds | 1.5 | new | CatService, client-owned positions |
-| TackleCooldownSeconds | 8 | new | CatService, from the press, hit or miss, never refunded |
+| TackleCooldownSeconds | 5 | new | CatService, from the press, hit or miss, never refunded |
 | TackleHitRecoverSeconds | 0.4 | new | the tackler's client after a hit |
 | TackleMissRecoverSeconds | 1.2 | new | the tackler's client after a miss, no moving or jumping |
 | TackledDownSeconds | 0.8 | new | the target's client, down after the knockback |

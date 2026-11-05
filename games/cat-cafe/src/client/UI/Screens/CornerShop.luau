@@ -17,7 +17,6 @@ local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
-local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -316,12 +315,8 @@ function CornerShop._press(self: any, itemId: string)
 	end
 	for _, item in stock.stock do
 		if item.itemId == itemId then
-			local row = rowOf(itemId)
-			if row and row.kind == "snack" then
-				self:_pickCat(item, row)
-			else
-				self:_send(item, nil)
-			end
+			-- Corner Shop v2 (#1181): food goes to the Bag, so no row opens the cat picker on buy
+			self:_send(item, nil)
 			return
 		end
 	end
@@ -360,12 +355,11 @@ function CornerShop._build(self: any, stock: SharedTypes.CornerShopStock)
 			position = UDim2.new(0, 10, 0.5, 0),
 		})
 		local potion = def and def.kind == "potion"
-		icon:set(
-			nil,
-			GLYPHS[itemId] or Theme.icons.potion,
-			if potion then "Epic" else "Rare",
-			if potion and def then ShopIcons.potion(def.potionId) else nil
-		)
+		if potion and def then
+			icon:setPotion(def.potionId, "Epic")
+		else
+			icon:set(nil, GLYPHS[itemId] or Theme.icons.potion, "Rare", nil)
+		end
 		local left = 10 + PICTURE + 12
 		local right = BUY_W + 20
 		local name = text({
@@ -436,12 +430,23 @@ function CornerShop._paint(self: any)
 			continue
 		end
 		local def = rowOf(item.itemId)
-		local chance = CornerShopLogic.chance(item.itemId)
-		local stockLine = CornerShopLogic.stockLine(item)
-		row.line.Text = if chance ~= "" then chance .. "  ·  " .. stockLine else stockLine
+		local tier = if state then state.tier else 1
+		local gate = CornerShopLogic.gate(item, tier)
+		local parts: { string } = {}
+		if gate then
+			-- a gated row shows no stock or price talk, so a new player isn't shown what they can't buy yet
+			table.insert(parts, gate)
+		else
+			-- no stock counts or chances in shop windows (#1190, #1209); a daily limit is a rule, so it shows
+			local today = CornerShopLogic.todayLine(item)
+			if today then
+				table.insert(parts, today)
+			end
+		end
+		row.line.Text = table.concat(parts, "  ·  ")
 		local pressedAt = self._pending[item.itemId]
 		local waiting = pressedAt ~= nil and os.clock() - pressedAt < PENDING_SECONDS
-		local view = CornerShopLogic.button(item, def, coins, room)
+		local view = CornerShopLogic.button(item, def, coins, room, tier)
 		row.buy:setText(if waiting then "..." else view.text)
 		row.buy:setEnabled(view.enabled and not waiting)
 	end

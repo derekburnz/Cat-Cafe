@@ -51,7 +51,7 @@ local ProfileSchema = {}
 -- drops dealer, whose stock is now per server per night and kept in memory: an older server would drop freshCatch,
 -- letting a player buy a window's stock twice by hopping servers during a rollout.
 -- Version 19 (F87, easy-start.md section 5) moves telemetry to the 24 step onboarding funnel v2 (`funnel` 2, with
--- the old step carried over by Onboarding.fromV1) and adds telemetry.firstDay: an older server would read a v2 step
+-- the old step carried over; since #1273 Onboarding.fromOld) and adds telemetry.firstDay: an older server would read a v2 step
 -- as a v1 one and log the wrong steps.
 -- Version 20 (F87, easy-start.md section 6) adds tipsSeen, feedbackAsked and stuckHelpShown: an older server would
 -- drop them and show every context tip and the one feedback ask again. A save from before version 20 that is past
@@ -84,7 +84,13 @@ local ProfileSchema = {}
 -- You board: an older server would drop it, and the player's name would come back on the board after a rollout.
 -- Version 31 (#1182) adds receipts, the developer product PurchaseIds already granted: an older server would drop
 -- them, and a receipt Roblox delivers again after a rollout would grant its potions twice.
-ProfileSchema.VERSION = 31
+-- #1273 (no new version): telemetry moves to the onboarding funnel v3 (`funnel` 3, sanitizeTelemetry) and gains
+-- telemetry.introStep. It is analytics only: an older server during a rollout reads funnel 3 as v1 and saves funnel 2,
+-- which this one then takes back to v3's start or out of it, and a step Roblox sees twice counts once.
+-- Version 32 (#1180, #1181; corner-shop-v2.md section 4) adds catFood, the Bag's cat food, and the Corner Shop's day
+-- counters (day, today, foodXpToday; snackDay and snackXp go): an older server would drop them, losing the food
+-- bought and letting a player pass a daily limit by hopping servers during a rollout.
+ProfileSchema.VERSION = 32
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -230,6 +236,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 			achieved = {},
 			funnel = Onboarding.VERSION,
 			firstDay = now // DAY_SECONDS,
+			introStep = 0,
 		},
 		tipsSeen = {},
 		feedbackAsked = false,
@@ -246,6 +253,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		cornerShop = CornerShop.fresh(),
 		hideCredit = nil,
 		receipts = {},
+		catFood = {},
 	}
 end
 
@@ -649,25 +657,37 @@ local function sanitizeCodes(value: any): { [string]: number }
 	return out
 end
 
--- F87: a state saved before version 19 counts its steps in the 12 step funnel v1; Onboarding.fromV1 carries the
--- step and the held steps over to v2. A first day in the future is clamped to today.
+-- F87: a state saved before version 19 counts its steps in the 12 step funnel v1, one before #1273 in the 25 step
+-- funnel v2; Onboarding.fromOld takes either out of the funnel v3 once it had logged a first catch, else back to its
+-- start (#1273: no save version, since `funnel` already tells the funnels apart). A first day in the future is
+-- clamped to today.
 local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
-	local telemetry: Types.TelemetryState =
-		{ onboardingStep = 0, achieved = {}, funnel = Onboarding.VERSION, firstDay = 0 }
+	local telemetry: Types.TelemetryState = {
+		onboardingStep = 0,
+		achieved = {},
+		funnel = Onboarding.VERSION,
+		firstDay = 0,
+		introStep = 0,
+	}
 	if type(value) ~= "table" then
 		return telemetry
 	end
 	local step = math.max(0, asInt(value.onboardingStep, 0))
 	local achieved: { [string]: boolean } = {}
-	if type(value.achieved) == "table" then
-		for key, held in value.achieved do
-			if type(key) == "string" and held == true then
-				achieved[key] = true
+	local introStep = math.max(0, asInt(value.introStep, 0))
+	if value.funnel == Onboarding.VERSION then
+		if type(value.achieved) == "table" then
+			for key, held in value.achieved do
+				if type(key) == "string" and held == true then
+					achieved[key] = true
+				end
 			end
 		end
-	end
-	if value.funnel ~= Onboarding.VERSION then
-		step, achieved = Onboarding.fromV1(math.min(step, #Onboarding.V1_STEPS), achieved)
+	else
+		local old = if type(value.funnel) == "number" then value.funnel else nil
+		step = Onboarding.fromOld(old, step)
+		-- a player out of the funnel is out of the intro one too
+		introStep = if step >= Onboarding.COUNT then Onboarding.INTRO_COUNT else 0
 	end
 	telemetry.onboardingStep = math.clamp(step, 0, Onboarding.COUNT)
 	for later = telemetry.onboardingStep + 1, Onboarding.COUNT do
@@ -676,6 +696,7 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 			telemetry.achieved[key] = true
 		end
 	end
+	telemetry.introStep = math.clamp(introStep, 0, Onboarding.INTRO_COUNT)
 	telemetry.firstDay = math.clamp(asInt(value.firstDay, 0), 0, now // DAY_SECONDS)
 	return telemetry
 end
@@ -861,6 +882,15 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.hideCredit = if raw.hideCredit == true then true else nil
 	-- #1182 (version 31): the granted PurchaseIds, kept as strings, newest last; older saves have granted none
 	profile.receipts = Products.sanitize(raw.receipts)
+	-- #1181 (version 32): the Bag's cat food, known foods only, whole counts of 1 to CatFoodMax
+	if type(raw.catFood) == "table" then
+		for _, food in Catalog.catFood do
+			local count = raw.catFood[food.id]
+			if type(count) == "number" and count == count and count >= 1 then
+				profile.catFood[food.id] = math.min(math.floor(count), Config.CatFoodMax)
+			end
+		end
+	end
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

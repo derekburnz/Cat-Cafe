@@ -40,13 +40,17 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	Tackle = RateLimiter.new(2, 1), -- a flood guard; ShoveService holds TackleCooldownSeconds from each press
 	LockCat = RateLimiter.new(4, 1), -- data-model section 15: 4 a second (tapping the lock icon on cat cards)
 	RenameCat = RateLimiter.new(1, 1), -- a flood guard; NameService answers RenameCooldownSeconds with a reason
-	TelemetryReport = RateLimiter.new(10, 60), -- data-model section 15: 10 a minute
+	-- data-model section 15 said 10 a minute; #1273 adds the intro's eleven shots, the tutorial cards and the screen
+	-- open, each allowlisted and logged at most once a player or a session (Telemetry's onReport)
+	TelemetryReport = RateLimiter.new(40, 60),
 	SetSetting = RateLimiter.new(4, 1), -- a toggle tap; each call sends a full sync
 	ClaimTipJar = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	ClaimIndexReward = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	SpinAll = RateLimiter.new(1, 1), -- #1078: 1 a second (and the spin cooldown)
 	SpinWheel = RateLimiter.new(2, 1), -- SpinService also holds each player to SpinCooldownSeconds between spins
-	OpenCrate = RateLimiter.new(1, 1), -- golden-fish.md section 8: 1 a second; FishMarketService holds 2 s between opens
+	-- #1146: a flood guard only; FishMarketService refuses an open while one is in flight or within
+	-- CrateOpenCooldownSeconds (0.3 s) of the last, so Quick open and Buy 5's crates one by one go through
+	OpenCrate = RateLimiter.new(3, 1),
 	BuyCrateBundle = RateLimiter.new(1, 1), -- #1051: 1 a second
 	BuyFishItem = RateLimiter.new(2, 1), -- golden-fish.md section 8: 2 a second
 	BuyFreshCatch = RateLimiter.new(2, 1), -- F94 (rewards-and-shops.md section 6): answers with FreshCatchStock every time
@@ -69,6 +73,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	CollectCampExtra = RateLimiter.new(1, 1), -- F100 (camp-extras.md section 4): 1 a second
 	BuyYardSale = RateLimiter.new(1, 1), -- F100: 1 a second
 	BuyCornerShop = RateLimiter.new(2, 1), -- #1052: 2 a second
+	FeedCat = RateLimiter.new(4, 1), -- #1181: 4 a second
 	-- F91 (front-lawn.md section 5): each rebuilds the lawn and sends a full sync
 	BuyLawn = RateLimiter.new(2, 1),
 	SetLawnSpot = RateLimiter.new(4, 1),

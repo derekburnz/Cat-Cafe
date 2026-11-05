@@ -2,7 +2,8 @@
 -- Analytics (feature F16, growth analytics-plan.md): the onboarding funnel, the catch_attempt and bait_cycle funnels,
 -- coin sources and sinks, tier and area Index progression and the custom events, sent through AnalyticsService.
 -- Server only; Roblox records nothing from Studio or a client. What only the client knows (its device, a screen it
--- opened) arrives through TelemetryReport, allowlisted and limited to 10 a minute.
+-- opened, a tutorial card or an intro shot it showed) arrives through TelemetryReport, allowlisted and limited to 40 a
+-- minute; nothing it sends pays anything.
 -- Every Log call is wrapped in pcall: telemetry must never throw into gameplay. In Studio the last LOG_SIZE events
 -- are also kept in memory for QA (`recent`, Debug.telemetry).
 -- Custom fields are positional (CustomField01 to 03); the plan names each position. Values are short enum-like
@@ -23,6 +24,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local Intro = require(ReplicatedStorage.Shared.Intro)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
@@ -45,6 +47,8 @@ export type CustomEvent =
 	| "fresh_catch_buy"
 	-- #1052 (corner-shop.md section 4): a Corner Shop buy, value the coins spent; the row id, tier
 	| "corner_shop_buy"
+	-- #1181 (corner-shop-v2.md section 4): a food fed from the Bag, value its XP; the food id
+	| "cat_fed"
 	| "rich_tip"
 	| "cat_sold"
 	| "cat_renamed"
@@ -128,6 +132,19 @@ export type CustomEvent =
 	-- F102 (trading.md section 6): a trade swapped, for each player in it; value the cats that moved, fields the cats
 	-- given, the cats got and the best rarity got. Never who
 	| "trade_done"
+	-- #1273 (easy-start.md section 5): for a new player, a mark at 30 s, 60 s, 2, 5 and 10 minutes into the session,
+	-- value the seconds; the furthest onboarding step, the screen open, device
+	| "session_30s"
+	| "session_60s"
+	| "session_2m"
+	| "session_5m"
+	| "session_10m"
+	-- #1273: the first catch, value the catch attempts it took (one is a first try); how it came (net or rescue)
+	| "first_catch_tries"
+	-- #1273: the first window a player opens (first_window_opened), value 1; the screen
+	| "first_window"
+	-- #1273: the Tutorial tile's red X, value 1, once a session; tutorialStep
+	| "tutorial_closed"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.
@@ -153,9 +170,17 @@ local FLUSH_SECONDS = 60
 local SWING_FLUSH_SECONDS = 300
 local LOG_SIZE = 200
 local DAY_SECONDS = 86400
-local DEVICE_WAIT_SECONDS = 10 -- the joined step waits this long for the client's device report
 local LEFT_AFTER_SHOVE_SECONDS = 120
-local REPORTS = { "device", "ui_opened", "intro_choice", "stuck_nudge" }
+local REPORTS = {
+	"device",
+	"ui_opened",
+	"intro_choice",
+	"stuck_nudge",
+	"step",
+	"intro",
+	"screen",
+	"tutorial_closed",
+}
 local DEVICES = { "phone", "tablet", "pc", "console" }
 -- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
 -- kind a session (the hint pulses every 40 s while it waits); an intro choice at most INTRO_CHOICES times a session.
@@ -164,7 +189,7 @@ local NUDGE_KINDS = { "pulse", "help_shown", "show_me" }
 local INTRO_CHOICES = 5
 local FIRST_MOVE_STUDS = 8 -- first_move: this far across the ground from where the character was first seen
 local WATCH_SECONDS = 1 -- how often first_move and rank_up_ready are looked for
-local NEW_PLAYER_STEP = 5 -- new_player_left is logged while tutorialStep is below this, or on the first day
+local SCREEN_NAME_MAX = 32 -- a screen report longer than this is dropped; one not in SCREENS reads "other"
 -- the UI's ScreenName (screenOpened) to the ui_opened field value
 local SCREENS: { [string]: string } = {
 	Upgrades = "upgrades",
@@ -197,6 +222,9 @@ type Session = {
 	origin: Vector3?, -- F87: where the character's root was first seen this session, for first_move
 	nudges: { [string]: boolean }, -- F87: stuck_nudge already logged this session, by "<tutorialStep>:<kind>"
 	introChoices: number, -- F87: intro_choice events logged this session
+	screen: string, -- #1273: the screen open as last reported (a SCREENS value, "other" or "none")
+	uiOpened: { [string]: boolean }, -- ui_opened logged this session, by screen, so a flood logs each once (review)
+	tutorialClosed: boolean, -- #1273: tutorial_closed logged this session
 }
 
 local sessions: { [Player]: Session } = {}
@@ -332,6 +360,10 @@ local function flushTips(player: Player, profile: Profile, pending: number)
 		return
 	end
 	session.accounted += tips
+	-- #1273: the cafe's first tips (a cat in a role serving customers), when the watch missed them between syncs
+	if Onboarding.reached(profile.telemetry, "first_role_assigned") then
+		Telemetry.onboarding(player, profile, "first_customer_served")
+	end
 	-- F92: the pal bonus's share of it goes out as its own source, pal_bonus
 	local pal = math.clamp(math.floor(Economy.takePalEarned(profile)), 0, tips)
 	if tips - pal >= 1 then
@@ -354,9 +386,9 @@ end
 
 -- One onboarding step (analytics-plan section 3). Logged at once when it is the next step, along with any later
 -- steps already reached; held in profile.telemetry otherwise (Onboarding.reach). `values` go with this step only.
--- F87 (easy-start.md section 5): the 24 step funnel v2 goes out as the funnel Onboarding.FUNNEL ("onboarding_v2")
+-- #1273 (easy-start.md section 5): the 37 step funnel v3 goes out as the funnel Onboarding.FUNNEL ("onboarding_v3")
 -- with the player's user id as its one funnel session, since LogOnboardingFunnelStepEvent has no name to keep it
--- apart from the alpha's 12 step funnel.
+-- apart from the earlier funnels. It replaced onboarding_v2 outright (Derek 2026-11-04).
 function Telemetry.onboarding(
 	player: Player,
 	profile: Profile,
@@ -378,6 +410,26 @@ function Telemetry.onboarding(
 			)
 		end)
 	end
+end
+
+-- One step of the intro funnel (#1273, Onboarding.INTRO_FUNNEL): logged when it is past the furthest intro step
+-- logged, once per player.
+function Telemetry.intro(player: Player, profile: Profile, stepName: Onboarding.IntroStepName)
+	if not Onboarding.reachIntro(profile.telemetry, stepName) then
+		return
+	end
+	local step = Onboarding.introIndex(stepName)
+	remember(player, "onboarding intro", stepName, step, {})
+	send("onboarding " .. stepName, function()
+		AnalyticsService:LogFunnelStepEvent(
+			player,
+			Onboarding.INTRO_FUNNEL,
+			tostring(player.UserId),
+			step,
+			stepName,
+			nil
+		)
+	end)
 end
 
 -- Call right after Economy.credit(profile, amount) for anything that is not cafe income (section 5).
@@ -693,9 +745,7 @@ function Telemetry.rankedUp(player: Player, profile: Profile)
 		+ (if session ~= nil then math.max(0, os.time() - session.joinedAt) else 0)
 	Telemetry.custom(player, "rank_up", math.floor(seconds / 60), { tostring(tier) })
 	if tier == 2 then
-		-- RankUp is pressed on the Rank Up card with the needs met, so both steps before tier_2 happened (F87)
-		Telemetry.onboarding(player, profile, "rank_up_card_seen")
-		Telemetry.onboarding(player, profile, "rank_up_ready")
+		-- RankUp is pressed on the Rank Up card with the needs met: tier_2 implies both steps before it (F87)
 		Telemetry.onboarding(player, profile, "tier_2")
 	elseif tier == 3 then
 		Telemetry.onboarding(player, profile, "tier_3")
@@ -721,8 +771,8 @@ end
 
 -- Join and leave --------------------------------------------------------------------------------------------------
 
--- The joined step carries the device, so it waits for the client's report or DEVICE_WAIT_SECONDS, whichever is
--- first. Steps reached meanwhile are held behind it as usual.
+-- joined goes out as the profile loads (#1273: loaded carries the device now), then returned_next_day and the
+-- steps the save already shows, so a save is never stuck behind a step it passed silently (QA S72).
 local function logJoined(player: Player)
 	local session = sessions[player]
 	local profile = DataService.get(player)
@@ -730,11 +780,10 @@ local function logJoined(player: Player)
 		return
 	end
 	session.joinLogged = true
-	Telemetry.onboarding(player, profile, "joined", { session.device or "unknown" })
+	Telemetry.onboarding(player, profile, "joined")
 	if session.returnedNextDay then
 		Telemetry.onboarding(player, profile, "returned_next_day")
 	end
-	-- steps the save already shows, so a converted save is never stuck behind a step it passed silently (QA S72)
 	local parkCats = 0
 	for catId in profile.collection do
 		local def = Catalog.getCat(catId)
@@ -756,28 +805,42 @@ local function logJoined(player: Player)
 	end
 end
 
+-- A new player (#1273, F87): their first UTC day of play, or still in the first loop (Onboarding.isNewPlayer).
+local function isNewPlayer(profile: Profile, now: number): boolean
+	return Onboarding.isNewPlayer(profile.tutorialStep, profile.telemetry.firstDay, now)
+end
+
+-- The three fields of the time markers and the leave events: the furthest step logged, the screen open, and `third`.
+local function whereInFunnel(profile: Profile, session: Session, third: string): { string }
+	return { Onboarding.furthest(profile.telemetry), session.screen, third }
+end
+
+-- What the client reports (TelemetryReport), analytics only: every name and value is allowlisted or range checked,
+-- the remote is limited to 40 a minute (Net), and nothing here pays, unlocks or saves anything but telemetry. A
+-- funnel step a client sends is reached by itself (Onboarding.CLIENT_STEPS) and logs once per player.
 local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 	local name = Guard.oneOf(rawName, REPORTS)
 	local session = sessions[player]
-	if name == nil or session == nil then
+	local profile = DataService.get(player)
+	if name == nil or session == nil or profile == nil then
 		return
 	end
 	if name == "device" then
 		local device = Guard.oneOf(rawValue, DEVICES)
 		if device ~= nil and session.device == nil then
 			session.device = device
-			logJoined(player)
+			Telemetry.onboarding(player, profile, "loaded", { device })
 		end
 	elseif name == "intro_choice" then
 		local from = Guard.oneOf(rawValue, INTRO_FROM)
 		if from ~= nil and session.introChoices < INTRO_CHOICES then
 			session.introChoices += 1
 			Telemetry.custom(player, "intro_choice", 1, { from })
+			Telemetry.intro(player, profile, "intro_choice_made")
 		end
 	elseif name == "stuck_nudge" then
 		local kind = Guard.oneOf(rawValue, NUDGE_KINDS)
-		local profile = DataService.get(player)
-		if kind ~= nil and profile ~= nil then
+		if kind ~= nil then
 			local step = tostring(profile.tutorialStep)
 			local key = step .. ":" .. kind
 			if not session.nudges[key] then
@@ -785,22 +848,69 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				Telemetry.custom(player, "stuck_nudge", 1, { step, kind })
 			end
 		end
+	elseif name == "step" then
+		-- a tutorial card or the catch card on screen (Onboarding.REPORTABLE)
+		local step = Guard.oneOf(rawValue, Onboarding.REPORTABLE)
+		if step ~= nil then
+			Telemetry.onboarding(player, profile, step :: Onboarding.StepName)
+		end
+	elseif name == "intro" then
+		-- 0 as the intro starts, then each shot as it shows
+		local shot = Guard.int(rawValue, 0, Intro.SHOTS)
+		if shot ~= nil then
+			local step = if shot == 0 then "intro_started" else "intro_shot_" .. tostring(shot)
+			Telemetry.intro(player, profile, step :: Onboarding.IntroStepName)
+		end
+	elseif name == "screen" then
+		-- the screen open now, "none" when it closed; kept for the time markers and the leave events
+		if type(rawValue) == "string" and #(rawValue :: string) <= SCREEN_NAME_MAX then
+			local raw = rawValue :: string
+			session.screen = if raw == "none" then "none" else SCREENS[raw] or "other"
+		end
+	elseif name == "tutorial_closed" then
+		if not session.tutorialClosed then
+			session.tutorialClosed = true
+			Telemetry.custom(player, "tutorial_closed", 1, { tostring(profile.tutorialStep) })
+		end
 	else
 		local screen = if type(rawValue) == "string" then SCREENS[rawValue] else nil
-		if screen ~= nil then
+		if screen ~= nil and not session.uiOpened[screen] then
+			session.uiOpened[screen] = true
 			Telemetry.custom(player, "ui_opened", 1, { screen })
-			local profile = DataService.get(player)
-			if screen == "rank_up" and profile ~= nil and Economy.tier(profile) == 1 then
+			if not Onboarding.reached(profile.telemetry, "first_window_opened") then
+				Telemetry.custom(player, "first_window", 1, { screen })
+				Telemetry.onboarding(player, profile, "first_window_opened", { screen })
+			end
+			if screen == "rank_up" and Economy.tier(profile) == 1 then
 				Telemetry.onboarding(player, profile, "rank_up_card_seen") -- Tier 2's needs showing (F87)
 			end
 		end
 	end
 end
 
+-- #1273: a new player's time markers (Onboarding.MARKERS), each logged if this session is still the one that
+-- started them.
+local function startMarkers(player: Player, session: Session)
+	for _, marker in Onboarding.MARKERS do
+		task.delay(marker.seconds, function()
+			local profile = DataService.get(player)
+			if sessions[player] ~= session or profile == nil then
+				return
+			end
+			Telemetry.custom(
+				player,
+				marker.name :: CustomEvent,
+				marker.seconds,
+				whereInFunnel(profile, session, session.device or "unknown")
+			)
+		end)
+	end
+end
+
 local function onLoaded(player: Player, profile: Profile)
 	local now = os.time()
 	local firstSession = profile.stats.sessions <= 1
-	sessions[player] = {
+	local session: Session = {
 		accounted = profile.lifetimeCoins,
 		joinedAt = now,
 		caughtAtJoin = profile.stats.catsCaught,
@@ -816,7 +926,11 @@ local function onLoaded(player: Player, profile: Profile)
 		origin = nil,
 		nudges = {},
 		introChoices = 0,
+		screen = "none",
+		uiOpened = {},
+		tutorialClosed = false,
 	}
+	sessions[player] = session
 	if firstSession then
 		-- the template's coins never pass through Economy.credit, so they are not in lifetimeCoins
 		logEconomy(
@@ -843,7 +957,10 @@ local function onLoaded(player: Player, profile: Profile)
 			}
 		)
 	end
-	task.delay(DEVICE_WAIT_SECONDS, logJoined, player)
+	logJoined(player)
+	if isNewPlayer(profile, now) then
+		startMarkers(player, session)
+	end
 end
 
 local CAFE_REACH = 32 -- studs from the player's own plot's pivot that count as at the cafe for quit_point
@@ -930,33 +1047,36 @@ local function onRelease(player: Player, profile: Profile)
 		tierText(profile),
 		session.device or "unknown",
 	})
-	-- F87: a new player leaving, in Roblox's bounce windows (easy-start.md section 5)
+	-- F87: a new player leaving, in Roblox's bounce windows (easy-start.md section 5); #1273: with the furthest step
+	-- logged and the screen open as they left, the value the seconds in game
 	local played = math.max(0, now - session.joinedAt)
-	if
-		profile.tutorialStep < NEW_PLAYER_STEP
-		or profile.telemetry.firstDay == now // DAY_SECONDS
-	then
-		local furthest = Onboarding.STEPS[profile.telemetry.onboardingStep]
-		Telemetry.custom(player, "new_player_left", played, {
-			if furthest ~= nil then furthest else "none",
-			bucket(played, { 60, 180, 600 }, { "0-60s", "61-180s", "3-10m", "10m+" }),
-			session.device or "unknown",
-		})
+	if isNewPlayer(profile, now) then
+		Telemetry.custom(
+			player,
+			"new_player_left",
+			played,
+			whereInFunnel(
+				profile,
+				session,
+				bucket(played, { 60, 180, 600 }, { "0-60s", "61-180s", "3-10m", "10m+" })
+			)
+		)
 	end
 	if Economy.tier(profile) < 2 then
-		local reached = Onboarding.STEPS[profile.telemetry.onboardingStep]
-		Telemetry.custom(player, "quit_point", math.max(0, now - session.joinedAt), {
-			if reached ~= nil then reached else "none",
-			if profile.introSeen then "t" .. tostring(profile.tutorialStep) else "intro",
-			whereOf(player),
-		})
+		Telemetry.custom(
+			player,
+			"quit_point",
+			played,
+			whereInFunnel(profile, session, whereOf(player))
+		)
 	end
 	sessions[player] = nil
 end
 
--- F87: the two onboarding steps nothing else announces. first_move once the character has gone FIRST_MOVE_STUDS
--- across the ground from where it was first seen this session; rank_up_ready once a Tier 1 cafe meets Tier 2's needs
--- (Economy.rankUpBlocker), which coins earned in the background can do between syncs.
+-- F87: the onboarding steps nothing else announces. first_move once the character has gone FIRST_MOVE_STUDS across
+-- the ground from where it was first seen this session; first_customer_served (#1273) once a cafe with a cat in a role
+-- has earned its first tips; rank_up_ready once a Tier 1 cafe meets Tier 2's needs (Economy.rankUpBlocker), which
+-- coins earned in the background can do between syncs.
 local function watchOnboarding(player: Player, session: Session)
 	local profile = DataService.get(player)
 	if profile == nil then
@@ -976,6 +1096,14 @@ local function watchOnboarding(player: Player, session: Session)
 				Telemetry.onboarding(player, profile, "first_move")
 			end
 		end
+	end
+	-- #1273: the cafe's first tips, settled into lifetimeCoins by CafeService's sync and not logged as a Source yet
+	if
+		not Onboarding.reached(profile.telemetry, "first_customer_served")
+		and Onboarding.reached(profile.telemetry, "first_role_assigned")
+		and profile.lifetimeCoins - session.accounted >= 1
+	then
+		Telemetry.onboarding(player, profile, "first_customer_served")
 	end
 	if
 		Economy.tier(profile) == 1

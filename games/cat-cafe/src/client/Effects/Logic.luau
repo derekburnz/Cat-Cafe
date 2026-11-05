@@ -1550,8 +1550,9 @@ function Logic.note(age: number, phase: number): (Vector3, number)
 end
 
 -- Whether a stray's rarity gem (Presets.rarityMark) can show: its `Rarity` is one that shows, nobody is catching it
--- (`LockedBy` is 0 or not set) and you are within maxDistance studs but not close: one `shown` hides at hideWithin or
--- nearer, where the Catch card names the cat, and one hidden comes back only past hideWithin + showAfter.
+-- (`LockedBy` is 0 or not set) and you are within maxDistance studs. With hideWithin at 0 it stays up close while
+-- the cat is free; a larger hideWithin would hide a `shown` gem at that distance or nearer, and a hidden one would
+-- come back only past hideWithin + showAfter.
 function Logic.rarityMarkShows(
 	rarity: unknown,
 	lockedBy: unknown,
@@ -2573,6 +2574,17 @@ function Logic.nextShell(startsAt: number, now: number, every: number): number
 		return startsAt
 	end
 	return startsAt + (math.floor((now - startsAt) / every) + 1) * every
+end
+
+-- A shine sweeping once across a sign `width` studs wide (the Royal Crest, #1191), `t` seconds into a `sweep`-second
+-- sweep: how far along the band's middle is, from a sign's width before its left edge (-width) to a sign's width
+-- past it (+width), and how bright it is (0 to 1, brightest halfway). Outside the sweep: at rest and dark.
+function Logic.shineSweep(t: number, sweep: number, width: number): (number, number)
+	if t < 0 or t >= sweep or sweep <= 0 then
+		return 0, 0
+	end
+	local share = t / sweep
+	return -width + share * width * 2, math.sin(math.pi * share)
 end
 
 return Logic

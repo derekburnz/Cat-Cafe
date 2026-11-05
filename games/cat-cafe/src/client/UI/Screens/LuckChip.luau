@@ -1,8 +1,9 @@
 --!strict
 -- The HUD's Luck chip and its card (F88, luck-and-rare-moments.md section 1d). The chip leads the potion timers' row
--- over the money (Screens/BuffChips), in their look: a round green tile with a four-leaf clover and "Luck x1.3" in
--- outlined white, no panel behind it. It shows from the first Luck source (hidden before that) and on a Lucky Day its
--- text turns gold and a gold ring pulses round the tile (a steady ring with Reduce Motion). A tap opens the card over
+-- over the money (Screens/BuffChips): a dark green circle with a thin dark edge and the clean clover (bright green,
+-- black outline in the art; #1258, Derek's drawing: no yellow, gold or white ring or glow round the circle) and
+-- "Luck x1.3" in outlined white, no panel behind it. It shows from the first Luck source (hidden before that) and on a
+-- Lucky Day its text turns gold. A tap opens the card over
 -- the counters, as the money's boosts card does: the Luck and what it does, each source with its share and time
 -- left (Components/LuckLogic.rows), the food in your bag on your bowl and the next crate, both with the odds the roll
 -- uses now (shared Bait.oddsFor then Luck.apply; MarketLogic.nextOdds with Luck). The card opens next to its chip,
@@ -10,13 +11,13 @@
 -- the menu on a phone), so the chip stays in view. A tap on the card closes it, and so does any window opening
 -- (HUD.screenOpened).
 
-local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
 local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
@@ -44,8 +45,9 @@ local CARD_W = 330
 local ROW_H = 24
 local GAP = 6 -- between the chip and its card
 local EDGE = 8 -- the card keeps this far from the screen's right edge
-local GREEN = Color3.fromHex("5ED36A") -- the clover's tile, bright so it reads on grass (#1189)
-local PULSE = TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+local CLOVER = 0.82 -- the clover picture's share of the circle
+local TITLE_ICON = 22 -- the card title's circle
+local TITLE_GAP = 6
 
 local LuckChip = {}
 LuckChip.__index = LuckChip
@@ -77,6 +79,28 @@ local function rarityHex(rarity: string): string
 	return Theme.rarityColor(rarity):ToHex()
 end
 
+-- The chip's circle at `size` px: dark green, a thin dark edge, the clean clover in the middle (#1258). The luck card's
+-- title and the HUD's Lucky Day line show the same one. `props` are the label's own (Name, LayoutOrder, Parent...).
+function LuckChip.circle(size: number, props: { [string]: any }): TextLabel
+	local merged: { [string]: any } = {
+		Name = "Clover",
+		BackgroundColor3 = Theme.luck.circle,
+		BorderSizePixel = 0,
+		Size = UDim2.fromOffset(size, size),
+		FontFace = Theme.fonts.body,
+		TextSize = math.max(Theme.sizes.textTiny, math.floor(size * 0.6)), -- the emoji until the picture loads; 9 px+ on a phone
+		Text = LuckLogic.ICON,
+	}
+	for key, value in props do
+		merged[key] = value
+	end
+	local tile: TextLabel =
+		Create("TextLabel", merged, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(tile, Theme.luck.edgeThickness, Theme.luck.edge) -- the thin dark edge, the only line round the circle
+	IconArt.set(tile, LuckLogic.ICON, CLOVER) -- the clean clover over the emoji, which stays the fallback
+	return tile
+end
+
 -- `row`: the potion timers' row (BuffChips.frame), which the chip leads; `root`: the HUD's scaled root, for the
 -- card; `cardPosition`: where the card's bottom left corner sits before the chip has a place on screen.
 -- `onShown` hears when the chip shows or hides, `onOpen` when its card opens (the HUD closes the boosts card).
@@ -94,11 +118,11 @@ function LuckChip.new(
 	self._catalog = nil :: Types.Catalog?
 	self._state = nil :: Types.PlayerState?
 	self._shown = false
-	self._lucky = false
+	self._boosted = false
+	self._look = "plain"
 	self._onShown = onShown
 	self._said = nil :: string?
 	self._loop = nil :: RBXScriptConnection?
-	self._pulse = nil :: Tween?
 	self._clock = 0
 
 	-- the chip: the whole of it takes the tap, as tall as a potion chip's tap area
@@ -106,11 +130,7 @@ function LuckChip.new(
 		Name = "Luck",
 		Text = "",
 		AutoButtonColor = false,
-		-- a dark pill with the gold outline, so it reads over the grass (#1189, the friend 11-04: "blends into the
-		-- green grass")
-		BackgroundColor3 = Theme.colors.outline,
-		BackgroundTransparency = 0.15,
-		BorderSizePixel = 0,
+		BackgroundTransparency = 1,
 		Size = UDim2.fromOffset(0, Scale.tapHeight(36)),
 		AutomaticSize = Enum.AutomaticSize.X,
 		LayoutOrder = 0, -- before every potion chip
@@ -120,48 +140,17 @@ function LuckChip.new(
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Horizontal,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
-			Padding = UDim.new(0, 6),
+			Padding = UDim.new(0, 4),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 12) }),
-		Create("UIStroke", {
-			Color = Theme.colors.gold,
-			Thickness = 2,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		}),
 	})
-	local tile: TextLabel = Create("TextLabel", {
-		Name = "Tile",
-		BackgroundColor3 = GREEN,
-		BorderSizePixel = 0,
-		Size = UDim2.fromOffset(TILE, TILE),
-		FontFace = Theme.fonts.body,
-		TextSize = 17,
-		Text = LuckLogic.ICON,
-		LayoutOrder = 1,
-		Parent = chip,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	Outline.border(tile, 2, Theme.colors.white) -- a white stroke round the clover's tile
-	-- the Lucky Day ring, a little wider than the tile
-	local ring: Frame = Create("Frame", {
-		Name = "Glow",
-		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.new(1, 8, 1, 8),
-		Visible = false,
-		Parent = tile,
-	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	self._ringStroke =
-		Create("UIStroke", { Color = Theme.colors.gold, Thickness = 3, Parent = ring })
-	self._ring = ring
+	LuckChip.circle(TILE, { Name = "Tile", LayoutOrder = 1, Parent = chip })
 	self._text = label({
 		Name = "Amount",
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, 30),
 		TextSize = 18,
-		TextColor3 = Theme.colors.white,
+		TextColor3 = Theme.hud.subtext, -- a plain 1x (_setLook)
 		TextTruncate = Enum.TextTruncate.None,
 		ZIndex = 1,
 		LayoutOrder = 2,
@@ -207,13 +196,30 @@ function LuckChip.new(
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	-- the title: the chip's circle and clover, then "Luck x1.9" (#1258: the clover picture, not the emoji)
+	local titleRow: Frame = Create("Frame", {
+		Name = "TitleRow",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 26),
+		LayoutOrder = 1,
+		ZIndex = 6,
+		Parent = list,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, TITLE_GAP),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	LuckChip.circle(TITLE_ICON, { LayoutOrder = 1, ZIndex = 6, Parent = titleRow })
 	self._title = label({
 		Name = "Title",
-		Size = UDim2.new(1, 0, 0, 26),
+		Size = UDim2.new(1, -(TITLE_ICON + TITLE_GAP), 1, 0),
 		TextSize = Theme.sizes.textBody + 2,
 		TextColor3 = Theme.colors.gold,
-		LayoutOrder = 1,
-		Parent = list,
+		LayoutOrder = 2,
+		Parent = titleRow,
 	})
 	label({
 		Name = "Subtitle",
@@ -309,6 +315,11 @@ function LuckChip.isShown(self: any): boolean
 	return self._shown
 end
 
+-- Luck is above 1x (the chip always shows, so the luck tip waits for this, #1150).
+function LuckChip.isBoosted(self: any): boolean
+	return self._boosted
+end
+
 function LuckChip.isOpen(self: any): boolean
 	return self.card.Visible
 end
@@ -326,11 +337,12 @@ function LuckChip._draw(self: any)
 	local shown = state ~= nil and LuckLogic.shown(state, now)
 	if state ~= nil and shown then
 		self._text.Text = LuckLogic.text(LuckLogic.current(state, now))
-		self:_setLucky(LuckLogic.lucky(state, now))
+		self:_setLook(LuckLogic.lucky(state, now), LuckLogic.boosted(state, now))
 	else
-		self:_setLucky(false)
+		self:_setLook(false, false)
 	end
 	self.chip.Visible = shown
+	self._boosted = state ~= nil and LuckLogic.boosted(state, now)
 	if shown ~= self._shown then
 		self._shown = shown
 		if not shown then
@@ -364,23 +376,18 @@ function LuckChip._draw(self: any)
 	end
 end
 
--- A Lucky Day: gold text and a gold ring round the tile, pulsing unless Reduce Motion is on.
-function LuckChip._setLucky(self: any, lucky: boolean)
-	if lucky == self._lucky then
+-- A Lucky Day: gold text (no ring round the circle, #1258). Boosted: white. A plain 1x: the quieter subtext colour
+-- (#1150). The circle and clover never change.
+function LuckChip._setLook(self: any, lucky: boolean, boosted: boolean)
+	local look = if lucky then "lucky" elseif boosted then "boosted" else "plain"
+	if look == self._look then
 		return
 	end
-	self._lucky = lucky
-	self._text.TextColor3 = if lucky then Theme.colors.gold else Theme.colors.white
-	self._ring.Visible = lucky
-	local pulse: Tween? = self._pulse
-	if pulse then
-		pulse:Cancel()
-		self._pulse = nil
-	end
-	self._ringStroke.Transparency = 0
-	if lucky and not GuiService.ReducedMotionEnabled then
-		self._pulse = Tween.to(self._ringStroke, PULSE, { Transparency = 0.75 })
-	end
+	self._look = look
+	self._text.TextColor3 = if lucky
+		then Theme.colors.gold
+		elseif boosted then Theme.colors.white
+		else Theme.hud.subtext
 end
 
 function LuckChip.toggle(self: any)
@@ -478,7 +485,7 @@ function LuckChip._renderCard(self: any)
 		return
 	end
 	self._said = said
-	self._title.Text = LuckLogic.ICON .. " " .. LuckLogic.text(luck)
+	self._title.Text = LuckLogic.text(luck)
 	self._foodTitle.Text = foodTitle
 	self._foodTitle.Visible = food ~= nil
 	self._foodOdds.Text = foodText
@@ -527,10 +534,6 @@ function LuckChip.destroy(self: any)
 	if loop then
 		loop:Disconnect()
 		self._loop = nil
-	end
-	local pulse: Tween? = self._pulse
-	if pulse then
-		pulse:Cancel()
 	end
 	for _, connection in self._connections do
 		connection:Disconnect()

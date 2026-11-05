@@ -2,12 +2,13 @@
 -- Pays a prize in the Index prize shape (F54, F65, F68; data-model sections 11b and 11d) for Index rewards, codes,
 -- the Tip Jar and Mystery gifts: coins (a minimum or seconds of the day rate), foods, golden fish, banked spins (up
 -- to SpinBankCap; the rest are dropped), crates (banked for the Golden Fish Market, "highest" resolved now) and
--- potions (into the bag, F64). The permanent bonuses are not paid here: IndexRewards.totals reads them from the
+-- potions (into the bag, F64) and cat food (into the Bag, #1181). The permanent bonuses are not paid here: IndexRewards.totals reads them from the
 -- claims, so they are only named for the toast. The caller has already checked and marked the prize as paid.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Prizes = require(ReplicatedStorage.Shared.Prizes)
@@ -68,6 +69,18 @@ function Payout.pay(
 			if paidId ~= nil and crate ~= nil then
 				profile.crates[paidId] = (profile.crates[paidId] or 0) + count
 				table.insert(paid, string.format("%d %s", count, crate.name))
+			end
+		end
+	end
+	if prize.catFood ~= nil then
+		-- #1181: into the Bag, up to CatFoodMax of each food (the rest is dropped)
+		for foodId, count in prize.catFood do
+			local food = Catalog.getCatFood(foodId)
+			local held = profile.catFood[foodId] or 0
+			local added = math.min(count, Config.CatFoodMax - held)
+			if food ~= nil and added > 0 then
+				profile.catFood[foodId] = held + added
+				table.insert(paid, string.format("%d %s", added, food.name))
 			end
 		end
 	end

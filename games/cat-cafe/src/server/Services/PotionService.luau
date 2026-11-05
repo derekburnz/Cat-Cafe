@@ -72,15 +72,17 @@ local function onUsePotion(player: Player, rawId: unknown)
 		return -- none in the bag: the bag's Use button is grey, so only a stale or forged call lands here
 	end
 	Potions.use(profile, def.id, now)
+	-- a Small or Big size runs its regular potion's timer, so the drink order and the chip use that id
+	local buff = Potions.buffOf(def.id)
 	local list = order[player] or {}
-	local at = table.find(list, def.id)
+	local at = table.find(list, buff)
 	if at ~= nil then
 		table.remove(list, at) -- a kind already running moves to the end, as the newest drink
 	end
-	table.insert(list, def.id)
+	table.insert(list, buff)
 	order[player] = list
 	showActive(player)
-	if def.id == Potions.SWIFT then
+	if buff == Potions.SWIFT then
 		CatService.refreshSpeed(player)
 	end
 	Telemetry.custom(player, "potion_used", 1, { def.id, tostring(Economy.tier(profile)) })

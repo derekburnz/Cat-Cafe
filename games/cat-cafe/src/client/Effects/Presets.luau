@@ -86,6 +86,7 @@ export type Budget = {
 	crownGlints: number, -- crowned players whose crown glints now and then (F98), the nearest first
 	cafeBubbles: number, -- cafes blowing Bubble Machine bubbles at once (#1052), the nearest first
 	cafeFireworks: number, -- cafes firing firework shells at once (#1052), the nearest first
+	shopCatEmitters: number, -- shop cats with a steady emitter on at once (#1191: Duchess Marzipan's petals)
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -127,6 +128,7 @@ Presets.budget = {
 		crownGlints = 2,
 		cafeBubbles = 1,
 		cafeFireworks = 1,
+		shopCatEmitters = 1,
 	},
 	high = {
 		animatedCats = 16,
@@ -163,6 +165,7 @@ Presets.budget = {
 		crownGlints = 5,
 		cafeBubbles = 2,
 		cafeFireworks = 2,
+		shopCatEmitters = 2,
 	},
 	lowPerformance = {
 		animatedCats = 4,
@@ -199,6 +202,7 @@ Presets.budget = {
 		crownGlints = 1,
 		cafeBubbles = 1,
 		cafeFireworks = 1,
+		shopCatEmitters = 0,
 	},
 } :: { [string]: Budget }
 
@@ -664,6 +668,19 @@ Presets.emitters = {
 		acceleration = Vector3.new(0, -4, 0),
 		drag = 0.5,
 	},
+	-- The Cat Whistle (Corner Shop v2, #1250): little teal notes of air puffing up off the hands, as if it is blown.
+	potionWhistle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.signTeal, Presets.palette.offwhite },
+		size = { 0.16, 0.08 },
+		transparency = { 0.1, 0.8 },
+		lifetime = { 0.6, 1 },
+		speed = { 0.6, 1.2 },
+		spread = 30,
+		rate = 2,
+		drag = 1,
+		lightEmission = 0.4,
+	},
 	-- A faint twinkle over the owner's own Mystery Visitor gift while it waits (Mystery.luau).
 	giftTwinkle = {
 		texture = Presets.textures.sparkle,
@@ -796,6 +813,51 @@ Presets.emitters = {
 		rate = 0,
 		acceleration = Vector3.new(0, -6, 0),
 		drag = 2.5,
+		lightEmission = 1,
+	},
+	-- Sprinkles' rainbow sprinkle puff (Effects/ShopCats, #1191): little sprinkles tossed up over the cat that tumble
+	-- and fall, tinted one colour per burst.
+	sprinkle = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.offwhite },
+		size = { 0.3, 0.2 },
+		transparency = { 0, 0.6 },
+		lifetime = { 0.6, 0.9 },
+		speed = { 3, 5 },
+		spread = 50,
+		rate = 0,
+		acceleration = Vector3.new(0, -12, 0),
+		drag = 1.5,
+		lightEmission = 0.4,
+		rotSpeed = { -360, 360 },
+	},
+	-- Duchess Marzipan's lilac petals (Effects/ShopCats, #1191): a few soft petals that drift out round her, turning
+	-- slowly as they settle.
+	lilacPetal = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(200, 170, 230), Presets.palette.furRose },
+		size = { 0.22, 0.16 },
+		transparency = { 0.15, 0.9 },
+		lifetime = { 2.5, 3.5 },
+		speed = { 0.4, 0.9 },
+		spread = 120,
+		rate = 1.5,
+		acceleration = Vector3.new(0.15, -0.35, 0.1),
+		drag = 0.6,
+		rotSpeed = { -60, 60 },
+	},
+	-- King Croissant's gold motes (Effects/ShopCats, #1191): a slow drift of tiny warm gold lights rising off him.
+	goldMote = {
+		texture = Presets.textures.sparkle,
+		colors = { Presets.palette.goldLight, Presets.palette.golden },
+		size = { 0.14, 0.05 },
+		transparency = { 0.2, 1 },
+		lifetime = { 2, 3 },
+		speed = { 0.2, 0.5 },
+		spread = 70,
+		rate = 2,
+		acceleration = Vector3.new(0, 0.25, 0),
+		drag = 0.6,
 		lightEmission = 1,
 	},
 	-- A glint on a leaderboard crown (Effects/Crown, F98): a few gold stars that flash and fade where they are.
@@ -1789,10 +1851,12 @@ Presets.cannonGlide = {
 -- up and back of the way it goes over the ground, so the soaring flyer shows side on), easing there over `catch`
 -- seconds (the boom's shake is Cannon.luau's, on top).
 -- Under the clouds it waits. From `over` seconds before the drop it looks the way the landing pad faces at the
--- player's own pitch, following the flyer down from `wide` times the player's own distance, and closes in to `land`
--- times it and onto the player's own focus as the feet touch (cannonPose's `open`); over the hero landing it settles
--- slowly onto the player's own distance, where the game's camera takes over again at cannonPose's `ends`. `land` was
--- 1 (Derek 2026-11-04, #1081: "camera zoom in on cannon landing is just a little too much").
+-- player's own pitch, following the flyer down from `wide` times the player's own distance, and closes in to it and
+-- onto the player's own focus as the feet touch (cannonPose's `open`). At the touch it gives one quick, slight push in
+-- (`push`, a fraction closer: 0.12 is 12%) that peaks `bumpIn` of the way through `bump` seconds and is back on the
+-- player's own distance by the end of them, where the game's camera takes over (cannonPose's `ends`); with Reduce
+-- Motion there is no bump. The landing used to close to `land` (1.35, #1081) and settle slowly; #1131 (Derek
+-- 2026-11-04) asked for a quick, slight zoom in and straight back.
 Presets.cannonCamera = {
 	launch = Vector3.new(5, 5, 14),
 	ahead = 12,
@@ -1800,7 +1864,9 @@ Presets.cannonCamera = {
 	catch = 0.15,
 	over = 0.1,
 	wide = 1.8,
-	land = 1.35,
+	push = 0.12,
+	bump = 0.5, -- touch + bump = cannonPose.ends, where the game camera takes over
+	bumpIn = 0.25,
 }
 
 -- After a catch and after a miss (design v0.8, data-model section 10c). The getaway (F55): a net catch or rescue
@@ -2820,8 +2886,9 @@ Presets.decorFx = {
 -- up to it and looking at the name"): a small gem in the rarity colour (Presets.rarity) bobs `above` studs over each
 -- stray whose rarity `shows`, `size` studs tall plus `pixels` so a far one still reads. It is a square turned 45
 -- degrees, `gem` of the gui across, lit from the top (`light` of the way to white, `dark` to black at the bottom)
--- with a white edge; a Mythical one glints now and then. It hides within hideWithin studs, where the Catch card
--- shows the name, comes back past hideWithin + showAfter, and shows to maxDistance for the `most` nearest.
+-- with a white edge; a Mythical one glints now and then. It stays up close while the cat is free (hideWithin is 0,
+-- so the gem and the Catch card's name sit together), hides only while someone is catching the cat, and shows to
+-- maxDistance for the `most` nearest. A hidden gem comes back past hideWithin + showAfter (both 0, so at once).
 Presets.rarityMark = {
 	shows = { Common = true, Rare = true, Epic = true, Legendary = true, Mythical = true } :: { [string]: boolean },
 	glints = { Mythical = true } :: { [string]: boolean },
@@ -2839,8 +2906,8 @@ Presets.rarityMark = {
 	glintSize = 0.34,
 	glintSeconds = 0.3, -- one way
 	glintEvery = 2.2,
-	hideWithin = 10,
-	showAfter = 1,
+	hideWithin = 0,
+	showAfter = 0,
 	maxDistance = 80,
 	most = 12,
 	checkEvery = 0.25,
@@ -2883,6 +2950,9 @@ Presets.potions = {
 	big_tip_potion = { emitter = "potionBigTip", on = "Body", colour = palette.golden },
 	gold_rush_potion = { emitter = "potionGoldRush", on = "Body", colour = palette.goldLight },
 	quick_bait_potion = { emitter = "potionQuickBait", on = "Hands", colour = palette.blush },
+	-- the Corner Shop's Cat Whistle (corner-shop-v2.md); its Small and Big sizes add minutes to it (`buff`), so
+	-- ActivePotions only ever names `cat_whistle` and they need no glow of their own
+	cat_whistle = { emitter = "potionWhistle", on = "Hands", colour = palette.signTeal },
 } :: { [string]: PotionSpec }
 Presets.potionFx =
 	{ radius = 50, pickEvery = 0.5, sparkles = 10, chest = 0.5, ring = 3, ringSeconds = 0.45 }
@@ -3152,6 +3222,103 @@ Presets.cafeShow = {
 		},
 		glow = { seconds = 2, range = 40, brightness = 2, colour = Presets.palette.lampWarm },
 	},
+}
+
+-- The shop-only cats (#1191, Design-Agent's brief 2026-11-04; Effects/ShopCats). Sprinkles (`catId`): when a tip is
+-- swept off a paid table in a cafe where it works (Moments.TipSwept, your own cafe), a puff of `each` sprinkle
+-- particles in each of `colours` (one small burst in all, scaled by the budget) pops `lift` studs over its Head's
+-- BubbleAnchor (else `overPivot` studs over its pivot, or `overPile` over the pile when it swept itself), at most once
+-- every `gap` seconds and within `within` studs. With Reduce Motion: a short glow in `glow.colour` instead.
+Presets.shopCats = {
+	sprinkles = {
+		catId = "sprinkles",
+		gap = 20,
+		within = 120,
+		lift = 0.3,
+		overPivot = 2.5,
+		overPile = 2.5,
+		each = 2,
+		colours = {
+			Presets.palette.neonPink,
+			Presets.palette.golden,
+			Presets.palette.mint,
+			Presets.palette.eyeBlue,
+			Presets.palette.aurora,
+		},
+		glow = { seconds = 1.2, range = 8, brightness = 1.5, colour = Presets.palette.furRose },
+	},
+	-- Duchess Marzipan (`catId`): the `lilacPetal` emitter on her Head's BubbleAnchor, on the nearest
+	-- budget.shopCatEmitters within `within` studs, chosen every `pick` seconds. In Low performance or with Reduce
+	-- Motion, `still` instead: petals `size` studs long at `spots` ({ x, z, turn }) on the floor round her feet,
+	-- smoke-sprite decals in `colour`. As she starts a shift, `shift.sparkles` lilac sparkles over her ears (else
+	-- `overPivot` studs over her pivot) and a `shift.ring` ring at her feet.
+	duchess = {
+		catId = "duchess_marzipan",
+		within = 40,
+		pick = 0.5,
+		overPivot = 2.5,
+		colour = Color3.fromRGB(200, 170, 230), -- lilac, her cape
+		still = {
+			size = 0.5,
+			colour = Color3.fromRGB(200, 170, 230),
+			transparency = 0.25,
+			spots = { { 0.9, 0.3, 0.4 }, { -0.7, 0.6, 1.9 }, { 0.2, -0.9, 3.1 } } :: { { number } },
+		},
+		shift = { sparkles = 8, ring = 3, ringSeconds = 0.5 },
+	},
+	-- King Croissant (`catId`), on the nearest `most` within `within` studs, stepped every `step` seconds: a soft
+	-- gold `glow` (a PointLight on his chest's Glow attachment, kept with Reduce Motion and Low performance), the
+	-- `goldMote` emitter there (none with Reduce Motion, in Low performance or with no budget.shopCatEmitters), and
+	-- a sparkle Texture in `trim.colour` tiled every `trim.tile` studs on `trim.faces` of his cape trim's band,
+	-- scrolling `trim.speed` studs a second (still with Reduce Motion). When his table pays (the same moment as
+	-- Sprinkles), `pop.sparkles` gold sparkles, `pop.stars` gold stars and a `pop.ring` ring off his CrownTop (else
+	-- `overPivot` studs over him), at most once every `pop.gap` seconds; not with Reduce Motion.
+	king = {
+		catId = "king_croissant",
+		within = 60,
+		most = 2,
+		step = 0.1,
+		overPivot = 3.2,
+		glow = { colour = Presets.palette.goldLight, range = 8, brightness = 0.8 },
+		trim = {
+			colour = Presets.palette.golden,
+			transparency = 0.35,
+			tile = 1.2,
+			speed = 0.4,
+			faces = { Enum.NormalId.Back, Enum.NormalId.Front } :: { Enum.NormalId },
+		},
+		pop = { gap = 20, sparkles = 10, stars = 5, ring = 4, ringSeconds = 0.55 },
+	},
+	-- The Royal Crest sign style (King Cat Pack, #1191): on every bar (part) of a Model named `model`, on the
+	-- nearest `most` within `within` studs, a soft gold sparkle Texture on `faces` slides once across the frame over
+	-- `sweep` seconds every `every` seconds (each sign on its own beat), fading in and out and at its brightest at
+	-- `transparency`. None with Reduce Motion: the frame stays as modelled.
+	royalCrest = {
+		model = "CatCafe_Plot_SignRoyalCrest_Frame",
+		within = 100,
+		most = 3,
+		every = 8,
+		sweep = 1.2,
+		transparency = 0.35,
+		colour = Presets.palette.goldLight,
+		faces = { Enum.NormalId.Front, Enum.NormalId.Back } :: { Enum.NormalId },
+	},
+}
+
+-- The Cat Whistle's look on the cat it points at (Effects/Whistle, corner-shop-v2.md section 4): on the model UI's
+-- marker sets `WhistleTarget` on, checked every `pick` seconds, a `ring` stud teal ring pulses out at its feet over
+-- `ringSeconds` every `every` seconds with `sparkles` teal sparkles `sparkleLift` studs up, within `within` studs.
+-- With Reduce Motion a still teal ring (`stillTransparency`) lies at its feet instead.
+Presets.whistle = {
+	pick = 0.25,
+	every = 1.5,
+	within = 150,
+	colour = Presets.palette.signTeal, -- the potion's own glow colour
+	ring = 4,
+	ringSeconds = 0.8,
+	sparkles = 4,
+	sparkleLift = 1,
+	stillTransparency = 0.6,
 }
 
 return Presets

@@ -32,6 +32,7 @@ local CannonLogic = require(script.Components.CannonLogic)
 local CatCard = require(script.Screens.CatCard)
 local CatCollection = require(script.Screens.CatCollection)
 local CatVariant = require(script.Components.CatVariant)
+local CatWhistle = require(script.Components.CatWhistle)
 local CatchCircles = require(script.Screens.CatchCircles)
 local CatchPrompt = require(script.Screens.CatchPrompt)
 local ClientErrors = require(script.Components.ClientErrors)
@@ -179,6 +180,7 @@ UI.events = {
 	clearTips = Signal.new(), -- ()   Show tips again in Settings: forward as ClearTips
 	sendFeedback = Signal.new(), -- (face, chip?)   one answer on the feedback faces (Tips.FACES, Tips.CHIPS): forward as SendFeedback
 	-- F87 (easy-start.md sections 2g and 5), analytics only: where the intro was played from, and each stuck nudge
+	tutorialClosed = Signal.new(), -- ()   #1273: the Tutorial tile's red X, analytics only: forward as TelemetryReport("tutorial_closed")
 	introChoice = Signal.new(), -- (from)   "tile" (the Tutorial tile) or "help" (Show me on Need a hand?): forward as TelemetryReport("intro_choice", from)
 	stuckNudge = Signal.new(), -- (kind)   "pulse", "help_shown" or "show_me": forward as TelemetryReport("stuck_nudge", kind)
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
@@ -188,6 +190,8 @@ UI.events = {
 	buyYardSale = Signal.new(), -- (crateId)   Buy on the Yard Sale card: forward as BuyYardSale
 	-- (itemId, window, shownPrice, catUid?)   Buy in the Corner Shop (#1052): forward as BuyCornerShop
 	buyCornerShop = Signal.new(),
+	-- (foodId, catUid)   #1181: Feed a cat from the Bag's Cat Food tab: forward as FeedCat; FeedResult calls UI.bag.fed
+	feedCat = Signal.new(),
 	-- F102 (trading.md section 6): the client only asks; TradeState answers
 	requestTrade = Signal.new(), -- (userId)   Trade on a players list row: forward as TradeRequest
 	respondTrade = Signal.new(), -- (requestId, accept)   Accept or Decline on the request card: forward as TradeRespond
@@ -275,6 +279,7 @@ local freshStock: FreshCatchLogic.Stock? = nil -- the last FreshCatchStock, nil 
 local bugReportScreen: BugReport.BugReport? = nil -- the Feedback window, from the HUD's Feedback tile
 local codesScreen: Codes.Codes? = nil -- the code box (F65), opened by walking into the Codes Cat's circle
 local potionsScreen: Potions.Potions? = nil -- the potion bag (F64), from the Potions pill, P or a HUD timer
+local bagFed: { [string]: number } = {} -- #1181: cat uid -> its level when fed, so FeedResult can tell a level up
 local questsScreen: Quests.Quests? = nil -- the Quests window (F73), from the Quests pill, J or the HUD's quest line
 local collectorScreen: Collector.Collector? = nil -- the Cat Collector's card and tag (F63, UI.collector.offer)
 local dailyTreatScreen: DailyTreat.DailyTreat? = nil -- the Daily Treat card (F70), from the HUD's Daily tile
@@ -708,6 +713,7 @@ function UI.init(config: Types.InitConfig)
 			UI.events.introReplay:Fire()
 		end,
 		hideTutorialButton = function()
+			UI.events.tutorialClosed:Fire() -- #1273: analytics only
 			tutorialButtonOn = false
 			renderTutorialButton()
 			applyTutorial()
@@ -1096,6 +1102,12 @@ function UI.init(config: Types.InitConfig)
 		use = function(potionId: string)
 			UI.events.usePotion:Fire(potionId)
 		end,
+		feed = function(foodId: string, catUid: string)
+			local cat = (state.cats or {})[catUid]
+			bagFed[catUid] = if cat and type(cat.level) == "number" then cat.level else 0
+			local events: any = UI.events
+			events.feedCat:Fire(foodId, catUid)
+		end,
 		close = closeModal,
 	})
 	local potionsView = potionsScreen :: Potions.Potions
@@ -1266,6 +1278,12 @@ function UI.init(config: Types.InitConfig)
 	})
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
 	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker")
+	-- the Cat Whistle (corner-shop-v2.md section 4): a paw over the nearest stray while its buff runs
+	CatWhistle.new(WorldMarker.new(parent, "CatCafeWhistleMarker"), function(): boolean
+		local buffs: { [string]: number }? = state.buffs
+		local endsAt = if buffs then buffs.cat_whistle else nil
+		return type(endsAt) == "number" and endsAt > Workspace:GetServerTimeNow()
+	end)
 	tutorialTrail = GuideTrail.new("CatCafeTutorialTrail")
 	-- signs over every gate tagged AreaGate, including gates that stream in later
 	gateSigns = GateSigns.new(parent)
@@ -2055,6 +2073,17 @@ end
 
 UI.potions = {}
 
+-- The Bag's Feed (#1181): FeedResult(catUid, level, xp) from the server after a FeedCat it took. The server already
+-- toasts "<cat> loved the <food>: +N XP", so this only adds a level up; the counts move with the ProfileSync after.
+UI.bag = {}
+function UI.bag.fed(catUid: string, level: number, _xp: number)
+	local before = bagFed[catUid]
+	bagFed[catUid] = nil
+	if before and before > 0 and level > before then
+		UI.toast(("Level up! Level %d"):format(level), "good")
+	end
+end
+
 -- From MysteryGiftResult(kind, id, count): a card with what the gift held ("Money Potion", "2 Salmon",
 -- "10 golden fish", "1 spin") as a picture, closing by itself, with the giftOpen sound.
 function UI.potions.giftResult(kind: string, id: string?, count: number)
@@ -2446,10 +2475,12 @@ function UI.cannon.open(cannonId: string?)
 	windows:open("Cannon")
 end
 
--- CannonLaunch(destination, launchAt) from the server: the picker closes, and the name card shows in the clouds
--- from 1.6 s after launchAt (server time) to 2.6 s. Ends the first-flight and Tier 2 hints. The intro's shot 2 calls
--- it too, for its staged flight to the Alleyway, with `hold` 0.4 and launchAt 0.9 s before the shot starts (card up
--- 0.7 to 1.1 s in); while the intro plays only the card shows, so the first-flight hint still follows the intro.
+-- CannonLaunch(destination, launchAt) from the server: the picker closes, and the name card pops in at once, as it
+-- closes, zips off with the BOOM 0.5 s after launchAt and is gone by 0.7 (CannonLogic.CHOSEN_HOLD, #1163; a refused
+-- Launch never comes here). Ends the first-flight and Tier 2 hints. The intro's shot 2 calls it too, for its staged flight to the
+-- Alleyway, with `hold` 0.4 and launchAt 0.9 s before the shot starts: given a `hold`, the card keeps the cloud
+-- schedule, from 1.6 s after launchAt (card up 0.7 to 1.1 s in); while the intro plays only the card shows, so the
+-- first-flight hint still follows the intro.
 function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 	-- no context tip pops up in the clouds or as the player lands (F87)
 	tipsHeldUntil = os.clock()
@@ -2471,7 +2502,18 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 		end
 	end
 	if cannonCard then
-		cannonCard:show(destination, name, launchAt, hold)
+		if hold ~= nil then
+			cannonCard:show(destination, name, launchAt, hold) -- the intro's, in the clouds
+		else
+			-- counted from launchAt, so the zip lands on the BOOM whatever the lag; it still pops in on arrival
+			cannonCard:show(
+				destination,
+				name,
+				launchAt,
+				CannonLogic.CHOSEN_HOLD,
+				CannonLogic.CHOSEN_IN
+			)
+		end
 	end
 end
 
@@ -2580,14 +2622,8 @@ function UI.showAreaTitle(areaId: string)
 	end
 	local catalog = currentCatalog
 	if areaId == "home" then
-		local tierName: string? = nil
-		local tiers: { Types.TierDef } = if catalog then catalog.tiers or {} else {}
-		for _, def in tiers do
-			if def.tier == state.tier then
-				tierName = def.name
-			end
-		end
-		card:show("home", tierName or "Your Cafe", if tierName then "Your cafe" else nil)
+		-- no card for the player's own cafe (the friend 11-04: the "Busy Cafe" pop-up is clutter); the tier's name
+		-- lives in the rank card and the rank up moment
 		return
 	end
 	local areas: { Types.AreaDef } = if catalog then catalog.areas or {} else {}
@@ -3623,7 +3659,8 @@ do
 		if state.tipsSeen == nil then
 			return
 		end
-		-- F88 (luck-and-rare-moments.md 1d): the first Luck source shows the chip, and the chip the tip
+		-- F88 (luck-and-rare-moments.md 1d): the first Luck source lifts luck above 1x, and that shows the tip (the chip
+		-- itself always shows since #1150)
 		if not tipKnown("luck") and hud ~= nil and hud:luckShown() then
 			UI.tips.show("luck")
 		end
@@ -5151,8 +5188,19 @@ do
 		open = false, -- whether the HUD's tile shows
 	}
 
+	-- the potion packs' contents and names from the shared Catalog, the bag from the state (#1182)
+	local SharedCatalog =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
+	local potionNames: { [string]: string } = {}
+	for _, def in SharedCatalog.potions or {} do
+		potionNames[def.id] = def.name
+	end
 	local function rows(): { StoreLogic.Row }
-		return StoreLogic.rows(Config, PassShop.owned(), state.longNap)
+		return StoreLogic.rows(Config, PassShop.owned(), state.longNap, {
+			products = SharedCatalog.products,
+			potionNames = potionNames,
+			have = state.potions,
+		})
 	end
 
 	-- The window's cards when it is up, and the HUD's tile when its open state changes.
@@ -5199,7 +5247,7 @@ do
 			end,
 		})
 		shop.changed = PassShop.changed:Connect(refresh)
-		PassShop.start(StoreLogic.passIds(Config))
+		PassShop.start(StoreLogic.passIds(Config), StoreLogic.productIds(Config))
 		refresh()
 	end
 

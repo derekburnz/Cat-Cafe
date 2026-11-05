@@ -16,8 +16,17 @@ IdeaCredits.MAX_ROWS = 60 -- the newest this many credits; the board pages throu
 IdeaCredits.IDEA_BYTES = 48
 IdeaCredits.ANON = "a player"
 
-export type Credit = { userId: number, idea: string, version: number, addedAt: number }
-export type Row = { idea: string, version: number, name: string }
+-- creditId (#1216, idea-credits.md 7d): the credit's short id, c1, c2 and so on, which a WhatsNew row links by
+export type Credit = {
+	userId: number,
+	idea: string,
+	version: number,
+	addedAt: number,
+	creditId: string?,
+}
+export type Row = { idea: string, version: number, name: string, creditId: string? }
+
+IdeaCredits.CREDIT_ID_BYTES = 12
 
 local function whole(x: unknown, min: number, max: number): number?
 	if type(x) ~= "number" or x ~= x or x < min or x > max then
@@ -59,7 +68,20 @@ function IdeaCredits.sanitize(raw: unknown): Credit?
 	if #idea == 0 then
 		return nil
 	end
-	return { userId = userId, idea = idea, version = version, addedAt = addedAt }
+	-- #1216: kept only as c followed by digits, so a WhatsNew row can link it; anything else is dropped
+	local rawId = value.creditId
+	local creditId = if type(rawId) == "string"
+			and #rawId <= IdeaCredits.CREDIT_ID_BYTES
+			and string.match(rawId, "^c%d+$") ~= nil
+		then rawId
+		else nil
+	return {
+		userId = userId,
+		idea = idea,
+		version = version,
+		addedAt = addedAt,
+		creditId = creditId,
+	}
 end
 
 -- The board's rows, newest first and at most MAX_ROWS: each credit's idea and version with the player's display name
@@ -87,7 +109,12 @@ function IdeaCredits.rows(
 				or name == ""
 			then IdeaCredits.ANON
 			else name
-		table.insert(rows, { idea = credit.idea, version = credit.version, name = shown })
+		table.insert(rows, {
+			idea = credit.idea,
+			version = credit.version,
+			name = shown,
+			creditId = credit.creditId,
+		})
 	end
 	return rows
 end

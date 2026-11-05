@@ -150,7 +150,7 @@ function BuffChips._chip(self: any, potionId: string, order: number): Chip
 		Text = Theme.icons.potion,
 		Parent = frame,
 	})
-	IconArt.setImage(bottle, ShopIcons.potion(potionId)) -- the bottle; the glyph until it loads
+	IconArt.setImages(bottle, ShopIcons.potionAll(potionId)) -- the first bottle that loads; the glyph until then
 	local time: TextLabel = Create("TextLabel", {
 		Name = "Time",
 		BackgroundTransparency = 1,

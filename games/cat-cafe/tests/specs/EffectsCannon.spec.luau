@@ -236,9 +236,12 @@ return function()
 			expect((Avatar.glide(c.gone, 0))).to.equal(nil)
 		end)
 
-		it("lands the camera a little wide of the player's own view, not right in (#1081)", function()
-			local k = Presets.cannonCamera
-			expect(k.land > 1 and k.land < k.wide).to.equal(true)
+		it("lands with one quick, slight push in and straight back (#1131)", function()
+			local k, c = Presets.cannonCamera, Presets.cannonPose
+			expect(k.push >= 0.1 and k.push <= 0.15).to.equal(true)
+			expect(k.bump > 0 and k.bump < 1).to.equal(true) -- well under a second
+			expect(k.bumpIn > 0 and k.bumpIn < 1).to.equal(true)
+			expect(c.touch + k.bump <= c.ends).to.equal(true)
 		end)
 	end)
 end

@@ -224,21 +224,19 @@ function PrizeChips.setCatalog(self: any, catalog: Types.Catalog)
 	end
 end
 
--- The uploaded picture for a part (Components/ShopIcons; the golden fish is Theme's), drawn in place of its model.
+-- The uploaded picture for a part (Components/ShopIcons), drawn in place of its model.
 local function partImage(part: IndexRewards.PrizePart): string?
+	-- #1071, #1208: crates draw the clean symbol, with the older picture until its id is in ShopIcons
 	local kind = part.kind
 	if kind == "crate" then
-		return ShopIcons.crate(part.id)
+		return ShopIcons.clean("Crate") or ShopIcons.crate(part.id)
 	elseif kind == "potion" then
 		return ShopIcons.potion(part.id)
-	elseif kind == "coins" then
-		return ShopIcons.image("Coins")
-	elseif kind == "spins" then
-		return ShopIcons.image("Spin")
-	elseif kind == "fish" then
-		return Theme.textures.fishCoin
+	elseif kind == "catFood" then
+		return ShopIcons.catFood(part.id)
 	end
-	return nil
+	-- money, golden fish and spins: the clean bag, fish coin and wheel (#1242)
+	return ShopIcons.prize(kind)
 end
 
 -- The picture, the glyph without a model, the tile's rarity colour and the amount text for one part.
@@ -272,6 +270,8 @@ function PrizeChips._partLook(
 			amount
 	elseif kind == "potion" then
 		return nil, Theme.icons.potion, "Epic", amount
+	elseif kind == "catFood" then
+		return nil, "🍪", "Rare", amount
 	elseif kind == "tag" then
 		return nil, Theme.icons.tag, "Mythical", part.id or ""
 	elseif kind == "decor" then

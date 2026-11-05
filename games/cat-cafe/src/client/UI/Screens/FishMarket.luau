@@ -63,6 +63,8 @@ local Types = require(script.Parent.Parent.Types)
 local PAL = Theme.dark
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+-- #1146: Crates.openRefusal, the server's own in-flight and spam rule for OpenCrate
+local Crates = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Crates"))
 
 export type Callbacks = {
 	openCrate: (crateId: string) -> (),
@@ -134,6 +136,7 @@ local RANGE: number = Config.FishMarketRange or 14
 local CLOSE_SLACK = 2 -- studs past the server's range before the window closes
 local LUCKY_EVERY: number = Config.CrateLuckyEvery or 20
 local PENDING_SECONDS = 5 -- a pressed Open or Buy waits this long for the server before it can be pressed again
+local GATE_SLACK = 0.2 -- #1146: seconds the Open buttons wait past the server's crate spam limit, for network jitter
 local REVEAL_SECONDS = 2
 local CARD = Vector2.new(196, 300) -- 56 px taller than before #1051, for Buy 5 under Open
 local CRATE_BUTTON_H = 42 -- Open and Buy 5: a 37 px face over the lip, a mouse's 36 px tap (#1051)
@@ -1305,13 +1308,66 @@ function FishMarket._pendingFor(self: any, id: string): boolean
 	return pressedAt ~= nil and os.clock() - pressedAt < PENDING_SECONDS
 end
 
+-- #1146: the server's OpenCrate rule (Crates.openRefusal) from here: "busy" while any crate's open is waiting for
+-- its CrateResult, "spam" for CrateOpenCooldownSeconds after the last open started, else nil.
+function FishMarket._crateGate(self: any): ("busy" | "spam")?
+	local inFlight = false
+	for _, entry: CrateCard in self._crateCards do
+		if self:_pendingFor(entry.crate.id) then
+			inFlight = true
+			break
+		end
+	end
+	return Crates.openRefusal(inFlight, self._lastOpenAt, os.clock(), GATE_SLACK)
+end
+
+-- Refreshes once the spam limit since the last open has passed, so the Open buttons stop showing busy on time.
+function FishMarket._refreshAfterGate(self: any)
+	local last: number? = self._lastOpenAt
+	if last == nil then
+		return
+	end
+	local wait = math.max(0, last + Config.CrateOpenCooldownSeconds + GATE_SLACK - os.clock())
+		+ 0.02
+	task.delay(wait, function()
+		if not self._destroyed then
+			self:_refresh()
+		end
+	end)
+end
+
 function FishMarket._open(self: any, crate: Types.CrateDef)
-	if self:_pendingFor(crate.id) or self._revealing then
+	if self._revealing then
+		return
+	end
+	local gate = self:_crateGate()
+	if gate == "busy" then
+		return
+	elseif gate == "spam" then
+		-- #1146: a press just after the last open (a Quick open, then the next crate) waits out the short spam limit
+		-- and goes then, instead of reaching the server early and being refused
+		if self._queued == nil then
+			self._queued = crate.id
+			local last = self._lastOpenAt :: number
+			task.delay(
+				math.max(0, last + Config.CrateOpenCooldownSeconds + GATE_SLACK - os.clock()) + 0.02,
+				function()
+					local queued = self._queued
+					self._queued = nil
+					if not self._destroyed and queued == crate.id and self.frame.Visible then
+						self:_open(crate)
+					end
+				end
+			)
+		end
+		self:_refresh()
 		return
 	end
 	self._pending[crate.id] = os.clock()
+	self._lastOpenAt = os.clock()
 	self._callbacks.openCrate(crate.id)
 	self:_refresh()
+	self:_refreshAfterGate()
 end
 
 function FishMarket._buyBundle(self: any, crate: Types.CrateDef)
@@ -1370,6 +1426,7 @@ function FishMarket._refresh(self: any)
 	self._balance.Text = Format.short(fish)
 	local areas: { MarketLogic.Area } = (catalog.areas or {}) :: any
 	local shown = 0
+	local gate = self:_crateGate()
 	for _, entry: CrateCard in self._crateCards do
 		local crate = entry.crate
 		local count = if state.crates then math.floor(state.crates[crate.id] or 0) else 0
@@ -1388,7 +1445,8 @@ function FishMarket._refresh(self: any)
 		entry.tier.Text = if tier then ("Tier %d"):format(tier) else ""
 		entry.tier.BackgroundColor3 = if open then Theme.colors.good else Theme.colors.muted
 		local price = crate.price or 0
-		local pending = self:_pendingFor(crate.id)
+		-- #1146: every Open shows busy while any crate is in flight or within the short spam limit
+		local pending = self:_pendingFor(crate.id) or gate ~= nil or self._queued == crate.id
 		showFish(entry.open, count <= 0 and open and not pending)
 		if count > 0 then
 			entry.line.Text = ("You have %s"):format(Format.commas(count))
@@ -1540,12 +1598,11 @@ function FishMarket._buildFresh(self: any, stock: FreshCatchLogic.Stock)
 			position = UDim2.new(0, 8, 0.5, 0),
 		})
 		local potion: PotionLogic.Potion? = self._potionById[itemId]
-		icon:set(
-			nil,
-			if potion then Theme.icons.potion else Theme.icons.crate,
-			if potion then "Rare" else "Common",
-			if potion then ShopIcons.potion(itemId) else ShopIcons.crate(itemId)
-		)
+		if potion then
+			icon:setPotion(itemId, "Rare")
+		else
+			icon:set(nil, Theme.icons.crate, "Common", ShopIcons.crate(itemId))
+		end
 		local name = text({
 			Name = "Name",
 			Position = UDim2.fromOffset(ROW_HEIGHT, 8),
@@ -1686,6 +1743,7 @@ function FishMarket.result(
 	refund: number
 )
 	self._pending[crateId] = nil
+	self:_refreshAfterGate() -- #1146: the Open buttons free up once the spam limit has passed too
 	if decorId == "" then
 		Sound.play("uiError")
 		self:_refresh()
@@ -1725,6 +1783,8 @@ function FishMarket._checkRange(self: any)
 end
 
 function FishMarket.destroy(self: any)
+	self._destroyed = true
+	self._queued = nil
 	self._revealToken += 1
 	self._pullToken += 1
 	if self._tick then

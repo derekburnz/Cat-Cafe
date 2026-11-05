@@ -7,6 +7,7 @@ local CollectionService = game:GetService("CollectionService")
 local ExperienceNotificationService = game:GetService("ExperienceNotificationService")
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -34,6 +35,7 @@ local UIController = {}
 
 local player = Players.LocalPlayer
 local state: Types.PlayerState? = nil
+local SCREEN_REPORT_SECONDS = 5 -- #1273: the open screen goes to the server at most this often
 local predictedMoney = 0
 local lastCarrying: string? = nil
 local lastPushedMoney = -1
@@ -192,10 +194,25 @@ local function showTutorial(
 	UI.tutorial.show(tutorialLine(s, line), target, label)
 end
 
+-- #1273, analytics only: a funnel step only this client sees (a tutorial card, the catch card), once a session each
+-- as TelemetryReport("step", name); the server allowlists the names and logs each once per player.
+local stepsReported: { [string]: boolean } = {}
+local function reportStep(name: string)
+	if not stepsReported[name] then
+		stepsReported[name] = true
+		Net.fire("TelemetryReport", "step", name)
+	end
+end
+
 local function refreshTutorial(s: Types.PlayerState)
 	if s.carrying ~= nil then
 		UI.tutorial.hide()
 		return
+	end
+	-- the cards the funnel counts: 0 (to the alley), 1 (catch the cat), 3 (a table) and 4 (the bowl and its food);
+	-- card 2 shows only when the first cat found no free role
+	if s.tutorialStep <= 1 or s.tutorialStep == 3 or s.tutorialStep == 4 then
+		reportStep(string.format("tut_%d_shown", s.tutorialStep))
 	end
 	if s.tutorialStep < 2 then
 		showTutorial(
@@ -486,6 +503,7 @@ local function applyState(s: Types.PlayerState)
 		goldLuck = s.goldLuck, -- F54: the Index's gold luck and faster bait, capped
 		baitSpeed = s.baitSpeed,
 		potions = s.potions, -- F64: the potion bag
+		catFood = s.catFood, -- #1181: the Bag's cat food
 		buffs = s.buffs, -- F64: each running potion's endsAt in server time
 		quests = s.quests :: any, -- F73: the Quests window's tabs and the HUD's quest line (the UI reads it loosely)
 		achievements = s.achievements :: any, -- F73: each achievement's progress and claim
@@ -628,6 +646,13 @@ local function wireIntents()
 				Net.fire("BuyCornerShop", itemId, window, shownPrice, catUid)
 			end
 		)
+	end
+	-- Feed on the Bag's Cat Food tab or a cat card (#1181): the server answers FeedResult and a ProfileSync, or a toast.
+	-- Loose until UI-Engineer's Signal (friend/bag-ui) is on main.
+	if looseEvents.feedCat ~= nil then
+		looseEvents.feedCat:Connect(function(foodId: string, catUid: string)
+			Net.fire("FeedCat", foodId, catUid)
+		end)
 	end
 	-- Use on a potion in the bag (F64); the server answers with a ProfileSync, or a "Full" toast.
 	UI.events.usePotion:Connect(function(potionId: string)
@@ -858,11 +883,51 @@ local function wireIntents()
 	-- Analytics only (F16): which screens players find at all, once per screen a session so toggling a panel never
 	-- reaches the remote's rate limit (reviewer N97). The server allowlists the names.
 	local screensReported: { [string]: boolean } = {}
+	-- #1273: the screen open now ("none" when it closes), for a new player's time markers and leave events. Sent while
+	-- the first loop or Tier 1 lasts, at most once per SCREEN_REPORT_SECONDS with the latest one sent at its end.
+	local screenNow = "none"
+	local screenSent = "none"
+	local screenWaiting = false
+	local function sendScreen()
+		screenWaiting = false
+		if screenNow ~= screenSent then
+			screenSent = screenNow
+			Net.fire("TelemetryReport", "screen", screenNow)
+		end
+	end
 	UI.events.screenOpened:Connect(function(name: string?)
 		if name ~= nil and not screensReported[name] then
 			screensReported[name] = true
 			Net.fire("TelemetryReport", "ui_opened", name)
 		end
+		local s = state
+		if s == nil or (s.tutorialStep >= 5 and s.tier >= 2) then
+			return
+		end
+		screenNow = name or "none"
+		if not screenWaiting then
+			screenWaiting = true
+			task.delay(SCREEN_REPORT_SECONDS, sendScreen)
+		end
+	end)
+	-- #1273: the catch card (a stray's or a stuck cat's prompt) on screen, the funnel's catch_card_opened
+	ProximityPromptService.PromptShown:Connect(function(prompt: ProximityPrompt)
+		if stepsReported.catch_card_opened or prompt.Style ~= Enum.ProximityPromptStyle.Custom then
+			return
+		end
+		local model = prompt:FindFirstAncestorOfClass("Model")
+		local parent = prompt.Parent
+		if
+			prompt:GetAttribute("CatId") ~= nil
+			or (model ~= nil and model:GetAttribute("CatId") ~= nil)
+			or (parent ~= nil and parent:GetAttribute("CatId") ~= nil)
+		then
+			reportStep("catch_card_opened")
+		end
+	end)
+	-- #1273: the Tutorial tile's red X
+	UI.events.tutorialClosed:Connect(function()
+		Net.fire("TelemetryReport", "tutorial_closed", "x")
 	end)
 	-- The net (data-model section 10): since F93 a swing starts the circles or picks a Dropped cat up
 	-- (Controllers/NetSwingController); the server answers with CatchSchedule, and each press on a circle sends only
@@ -1350,6 +1415,13 @@ local function wireServerEvents()
 			end
 		end
 	)
+	-- The fed cat's new level and XP (#1181), for the Bag's feed effect; loose until UI.bag is on main.
+	Net.on("FeedResult", function(catUid: string, level: number, xp: number)
+		local bag: any = (UI :: any).bag
+		if type(bag) == "table" and type(bag.fed) == "function" then
+			(bag.fed :: any)(catUid, level, xp)
+		end
+	end)
 	-- What this player's opened Mystery gift held (F64): the gift card, and the ribbon pop in Effects.
 	Net.on("MysteryGiftResult", function(kind: string, id: string?, count: number)
 		UI.potions.giftResult(kind, id, count)
@@ -1668,6 +1740,7 @@ function UIController.start()
 		crateDecor = Catalog.crateDecor, -- F53: the 60 crate pieces (the Decor shop keeps reading decor)
 		fishShop = Catalog.fishShop, -- F53: what the Golden Fish Market sells
 		potions = Catalog.potions, -- F64: the potion bag's rows
+		catFood = Catalog.catFood, -- #1181: the Bag's Cat Food tab rows
 		mysteryGift = Catalog.mysteryGift, -- F64: what a Mystery gift can hold, shown before opening
 		dealerAmountWeights = Catalog.dealerAmountWeights, -- F59: the dealer's stock odds under Details
 		quests = Catalog.quests, -- F73: the quest rows (to tell a coins quest)

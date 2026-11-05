@@ -19,6 +19,7 @@
 
 local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
+local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
 local Lawn = require(script.Parent.Lawn)
 local Types = require(script.Parent.Types)
@@ -399,9 +400,11 @@ function Trade.apply(
 	return true
 end
 
--- The UTC day number of `now`, the day TradesPerDay counts.
+-- The global game day of `now` (os.time()), the day TradesPerDay counts. #1629 (Derek2: "nothing about real world day
+-- for limits"): it turns at every in-game sunrise, the same on every server (was the UTC day; a saved UTC day number
+-- never matches a game day, so an old count just starts afresh).
 function Trade.day(now: number): number
-	return now // 86400
+	return Clock.dayAt(now - Config.ClockEpoch)
 end
 
 -- Trades the player has done today.

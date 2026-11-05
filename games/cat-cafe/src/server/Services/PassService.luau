@@ -5,6 +5,8 @@
 -- MarketplaceService fires PromptGamePassPurchaseFinished on the server, and `changed` passes the new set on.
 -- The Golden Pond pass (#1368, camp-stations.md section 4) gives no Economy.Passes: PassService sets the owner's
 -- CampExtras.GOLD_POND_ATTRIBUTE so their client shows the gold Fishing Hut.
+-- The five store passes (#1624, economy-ladder.md section 6a): VIP, Cat Accessories, Uniform Styles, Cafe Style and
+-- Grand Cafe give Economy.Passes flags, and VIP also sets the player's ChatTags attribute for the "[VIP]" chat tag.
 -- A Config id of 0 is a pass not made yet and is never looked up, so until Tools-Agent makes them every player has
 -- Economy's no passes.
 
@@ -13,6 +15,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
+local ChatTags = require(ReplicatedStorage.Shared.ChatTags)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local ShopCats = require(ReplicatedStorage.Shared.ShopCats)
@@ -26,6 +29,25 @@ PassService.changed = Signal.new() :: Signal.Signal<Player, Economy.Passes>
 -- pass id -> owned, per player, from join; a purchase sets its id true. Weak keys: a player who leaves during the
 -- join lookup is never seen by PlayerRemoving afterwards.
 local owned: { [Player]: { [number]: boolean } } = setmetatable({}, { __mode = "k" }) :: any
+
+-- The five store passes (#1624) that are made (not 0).
+local function storePassIds(): { number }
+	local ids: { number } = {}
+	for _, id in
+		{
+			Config.VipPassId,
+			Config.CatAccessoriesPassId,
+			Config.UniformStylesPassId,
+			Config.CafeStylePassId,
+			Config.GrandThemePassId,
+		}
+	do
+		if id ~= 0 then
+			table.insert(ids, id)
+		end
+	end
+	return ids
+end
 
 -- Every pass id Config names that is made (not 0).
 local function passIds(): { number }
@@ -50,13 +72,24 @@ local function passIds(): { number }
 	if Config.SecondBowlPassId ~= 0 then
 		table.insert(ids, Config.SecondBowlPassId) -- #1161
 	end
+	for _, id in storePassIds() do
+		table.insert(ids, id) -- #1624
+	end
 	return ids
 end
 
--- Shows the Golden Pond pass on the player for their client (#1368).
-local function markGoldenPond(player: Player, set: { [number]: boolean })
-	local owns = Config.GoldenPondPassId ~= 0 and set[Config.GoldenPondPassId] == true
-	player:SetAttribute(CampExtras.GOLD_POND_ATTRIBUTE, owns)
+-- Whether `set` holds pass `id` (never for a 0 id).
+local function has(set: { [number]: boolean }, id: number): boolean
+	return id ~= 0 and set[id] == true
+end
+
+-- Shows the Golden Pond pass on the player for their client (#1368), and the VIP chat tag (#1624).
+local function markPlayer(player: Player, set: { [number]: boolean })
+	player:SetAttribute(CampExtras.GOLD_POND_ATTRIBUTE, has(set, Config.GoldenPondPassId))
+	player:SetAttribute(
+		ChatTags.CHAT_TAG_ATTRIBUTE,
+		if has(set, Config.VipPassId) then "vip" else nil
+	)
 end
 
 -- The passes an owned-id set gives: the highest Money pass, Long Nap and one slot per extra slot pass.
@@ -81,6 +114,12 @@ function PassService.fromOwned(set: { [number]: boolean }): Economy.Passes
 		secondBowl = if Config.SecondBowlPassId ~= 0 and set[Config.SecondBowlPassId]
 			then true
 			else nil,
+		-- #1624: the five store passes
+		vip = if has(set, Config.VipPassId) then true else nil,
+		accessories = if has(set, Config.CatAccessoriesPassId) then true else nil,
+		uniforms = if has(set, Config.UniformStylesPassId) then true else nil,
+		cafeStyle = if has(set, Config.CafeStylePassId) then true else nil,
+		grand = if has(set, Config.GrandThemePassId) then true else nil,
 	}
 end
 
@@ -121,7 +160,7 @@ local function retry(player: Player, set: { [number]: boolean }, failed: { numbe
 			end
 		end
 		if gained then
-			markGoldenPond(player, set)
+			markPlayer(player, set)
 			PassService.changed:Fire(player, PassService.fromOwned(set))
 		end
 		left = still
@@ -145,7 +184,7 @@ function PassService.check(player: Player): Economy.Passes
 		end
 	end
 	owned[player] = set
-	markGoldenPond(player, set)
+	markPlayer(player, set)
 	if #failed > 0 then
 		task.spawn(retry, player, set, failed)
 	end
@@ -174,7 +213,7 @@ local function onPurchaseFinished(player: Player, passId: number, purchased: boo
 		return
 	end
 	set[passId] = true
-	markGoldenPond(player, set)
+	markPlayer(player, set)
 	PassService.changed:Fire(player, PassService.fromOwned(set))
 end
 

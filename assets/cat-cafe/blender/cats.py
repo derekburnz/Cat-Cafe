@@ -176,6 +176,11 @@ ROSTER = {
     "KingCroissant": dict(rarity="Mythical", fur="fur_croissant", second="fur_croissant_dark", eyes="eye_amber",
                           pattern="stripes", muzzle="fur_custard", ruff="fur_custard", fluffy=True, scale=1.3,
                           body_scale=(1.1, 1.0, 1.08), tail_thick=0.3, nose="nose_brick", exclusive=True, shop=True),
+    # #1637 the Cafe Pass season 1 cat (cafe-pass.md section 4): Maple Muffin, a ginger tabby with cream paws and
+    # muzzle in a knitted beret with a maple leaf pin (props.py). Exclusive, Legendary rate, sold only through the pass.
+    "MapleMuffin": dict(rarity="Legendary", fur="fur_ginger", second="fur_russet", eyes="eye_amber", pattern="stripes",
+                        muzzle="fur_cream", socks="fur_cream", tip="fur_cream", nose="nose_pink", eye_k=1.06,
+                        body_scale=(1.0, 1.0, 1.04), exclusive=True, shop=True),
 }
 
 COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks", "blaze")

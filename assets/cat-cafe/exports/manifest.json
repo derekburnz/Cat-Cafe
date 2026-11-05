@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-05 21:02 UTC",
+  "generated": "2026-11-05 21:10 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -178124,6 +178124,65 @@
       "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_SignKingCrest.png"
     },
     {
+      "name": "CatCafe_Plot_SignGoldenLeaf",
+      "category": "Plot",
+      "module": "signstyles",
+      "objects": [
+        "CatCafe_Plot_SignGoldenLeaf",
+        "CatCafe_Plot_SignGoldenLeaf_SignBoard",
+        "CatCafe_Plot_SignGoldenLeaf_Frame"
+      ],
+      "triangles": 872,
+      "budget": 3000,
+      "size_studs": {
+        "x": 18.01,
+        "y": 0.69,
+        "z": 6.88
+      },
+      "size_roblox": [
+        18.01,
+        6.88,
+        0.69
+      ],
+      "bounds_min": [
+        -9.0,
+        -18.97,
+        12.66
+      ],
+      "bounds_max": [
+        9.0,
+        -18.28,
+        19.54
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignGoldenLeaf.model.json",
+      "rbx_parts": 196,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignGoldenLeaf.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignGoldenLeaf.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "872/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "560 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=12.66 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.63"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_SignGoldenLeaf.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_SignGoldenLeaf.png"
+    },
+    {
       "name": "CatCafe_Camp_Park_GardenNursery",
       "category": "Camp",
       "module": "gardennursery",
@@ -178874,7 +178933,7 @@
         "CatCafe_Decor_PumpkinLantern",
         "CatCafe_Decor_PumpkinLantern_Glow"
       ],
-      "triangles": 590,
+      "triangles": 622,
       "budget": 1500,
       "size_studs": {
         "x": 3.3,
@@ -178900,7 +178959,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_PumpkinLantern.model.json",
-      "rbx_parts": 55,
+      "rbx_parts": 59,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_PumpkinLantern.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_PumpkinLantern.glb"
@@ -178910,10 +178969,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "590/1500 tris",
+          "budget": "622/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "514 faces on swatch centers",
+          "uv": "532 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
           "centered": "footprint center x=-0.03 y=-0.03"
@@ -178929,7 +178988,7 @@
       "objects": [
         "CatCafe_Decor_FallenLeafRug"
       ],
-      "triangles": 608,
+      "triangles": 768,
       "budget": 1000,
       "size_studs": {
         "x": 3.74,
@@ -178955,7 +179014,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_FallenLeafRug.model.json",
-      "rbx_parts": 114,
+      "rbx_parts": 134,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_FallenLeafRug.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_FallenLeafRug.glb"
@@ -178965,10 +179024,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "608/1000 tris",
+          "budget": "768/1000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "294 faces on swatch centers",
+          "uv": "384 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -179149,7 +179208,7 @@
       "objects": [
         "CatCafe_Decor_MapleTreePlanter"
       ],
-      "triangles": 396,
+      "triangles": 492,
       "budget": 1200,
       "size_studs": {
         "x": 1.9,
@@ -179175,7 +179234,7 @@
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_MapleTreePlanter.model.json",
-      "rbx_parts": 72,
+      "rbx_parts": 84,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Decor_MapleTreePlanter.fbx",
         "assets/cat-cafe/exports/CatCafe_Decor_MapleTreePlanter.glb"
@@ -179185,10 +179244,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "396/1200 tris",
+          "budget": "492/1200 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "252 faces on swatch centers",
+          "uv": "306 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"

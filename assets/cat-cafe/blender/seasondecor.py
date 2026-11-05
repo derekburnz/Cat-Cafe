@@ -41,9 +41,21 @@ def _pumpkin(b, x, z, r, h=None, sw=PUMPKIN, stem="leaf_dark", ribs=6, y=0.0):
     return h
 
 
+_HALF = ((0.0, 1.0), (0.16, 0.55), (0.72, 0.66), (0.42, 0.26), (0.62, 0.04), (0.1, -0.02), (0.0, -0.3))
+MAPLE_OUTLINE = _HALF + tuple((-x, y) for x, y in reversed(_HALF[:-1]))    # a maple leaf, 1.44 wide, tip at y 1
+
+
+def maple_leaf(bb, center, s, depth, sw, rot=None):
+    """A maple leaf `s` studs tall on a Builder `bb`: five pointed lobes fanned from its heart, lying in the local
+    XY plane with the tip toward +Y and `depth` thick along Z (rot stands it up)."""
+    k = s / 1.3
+    pts = [(x * k, (y - 0.3) * k) for x, y in MAPLE_OUTLINE]
+    return bb.fan(center, (0.0, 0.0), pts, depth, sw, rot=rot)
+
+
 def _leaf(b, x, y, z, s, sw):
-    """A maple leaf lying flat: a five-pointed star with deep notches."""
-    b.b.star(RB.p(x, y + 0.015, z), 0.5 * s, 0.24 * s, 0.03, sw)
+    """A maple leaf lying flat on the floor plane at height y, its tip toward the back."""
+    maple_leaf(b.b, RB.p(x, y + 0.015, z), s, 0.03, sw)
 
 
 def build_pumpkin_lantern(mat):

@@ -1,7 +1,7 @@
 --!strict
--- The Cat Collector (F63, data-model section 12b, round 3 Q6). By day, every CollectorCheckSeconds, each owned cafe
--- that earns, has a table, has more than one cat and has a resting, unlocked area cat rolls CollectorChance, outside
--- the last DuskWarningSeconds. A hit picks the cat he wants and his offer now (shared/Collector) and he waits at the
+-- The Cat Collector (F63, data-model section 12b, round 3 Q6). By day, each owned cafe that earns, has a table, has
+-- more than one cat and has a resting, unlocked area cat gets him when its timer runs out (#1135: CollectorEveryMin to
+-- CollectorEveryMax seconds of open day, shared/VisitTimer), outside the last DuskWarningSeconds. A hit picks the cat he wants and his offer now (shared/Collector) and he waits at the
 -- counter's CollectorSpot for CollectorStaySeconds. The plot attributes CollectorUntil and CollectorCatId are display
 -- only: every client stands him there from them (CustomerController) and Audio plays his arrival. The owner gets
 -- CollectorOffer(catUid, offer, endsAt) for the card, and CollectorOffer("") when the visit ends.
@@ -31,6 +31,7 @@ local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Telemetry = require(script.Parent.Telemetry)
 local Trade = require(ReplicatedStorage.Shared.Trade)
 local Types = require(ReplicatedStorage.Shared.Types)
+local VisitTimer = require(ReplicatedStorage.Shared.VisitTimer)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local CollectorService = {}
@@ -221,26 +222,39 @@ local function wantedAt(player: Player, plot: WorldBuilder.Plot): Types.CatInsta
 	return Collector.pickCat(profile.cats, roll, profile.tier)
 end
 
--- By day only, before the last DuskWarningSeconds: each eligible cafe without a visit rolls CollectorChance.
-local function rollVisits()
+-- Each cafe's Collector timer (#1135, shared/VisitTimer): seconds of open day left until he next comes.
+local timers: { [Player]: number } = setmetatable({}, { __mode = "k" }) :: any
+
+-- Every second, `dt` the time since the last: by day only, before the last DuskWarningSeconds, each owned cafe
+-- without a visit counts its timer down. When it runs out he comes if the cafe has a cat for him to ask for
+-- (wantedAt) and a new timer is drawn; with none, he tries again in VisitRetrySeconds.
+local function tickTimers(dt: number)
 	local now = os.time()
 	local dusk = math.floor(ClockService.phaseEndsAt())
-	if ClockService.isNight() or dusk - now <= Config.DuskWarningSeconds then
-		return
-	end
+	local open_ = not ClockService.isNight() and dusk - now > Config.DuskWarningSeconds
 	for _, player in DataService.loadedPlayers() do
 		local plot = PlotService.get(player)
-		if
-			plot == nil
-			or visits[plot.index] ~= nil
-			or rng:NextNumber() >= Config.CollectorChance
-		then
+		if plot == nil then
 			continue
 		end
-		local instance = wantedAt(player, plot)
-		if instance ~= nil then
-			arrive(player, plot, instance, now)
+		local left = timers[player]
+			or VisitTimer.draw(Config.CollectorEveryMin, Config.CollectorEveryMax, rng:NextNumber())
+		local due: boolean
+		left, due = VisitTimer.tick(left, dt, open_ and visits[plot.index] == nil)
+		if due then
+			local instance = wantedAt(player, plot)
+			if instance ~= nil then
+				arrive(player, plot, instance, now)
+				left = VisitTimer.draw(
+					Config.CollectorEveryMin,
+					Config.CollectorEveryMax,
+					rng:NextNumber()
+				)
+			else
+				left = Config.VisitRetrySeconds
+			end
 		end
+		timers[player] = left
 	end
 end
 
@@ -288,14 +302,13 @@ function CollectorService.start()
 		end
 	end)
 	task.spawn(function()
-		local nextRoll = os.clock() + Config.CollectorCheckSeconds
+		local last = os.clock()
 		while true do
 			task.wait(1)
 			checkVisits()
-			if os.clock() >= nextRoll then
-				nextRoll = os.clock() + Config.CollectorCheckSeconds
-				rollVisits()
-			end
+			local nowClock = os.clock()
+			tickTimers(nowClock - last)
+			last = nowClock
 		end
 	end)
 end

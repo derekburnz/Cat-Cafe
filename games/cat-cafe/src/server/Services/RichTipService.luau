@@ -1,6 +1,6 @@
 --!strict
--- Rich customers (F31, data-model section 12). By day, every RichCheckSeconds, each owned cafe that earns and has a
--- table rolls RichChance for a rich customer. A hit records a tip in this service's own table, keyed by plot:
+-- Rich customers (F31, data-model section 12). By day, each owned cafe that earns and has a table gets a rich
+-- customer when its timer runs out (#1135: RichEveryMin to RichEveryMax seconds of open day, shared/VisitTimer). A hit records a tip in this service's own table, keyed by plot:
 -- { ownerUserId, serial, amount = Economy.richTipAmount(day rate), expiresAt = now + RichTipStaySeconds }. The
 -- amount and expiry are mirrored to the plot attributes RichTipAmount and RichTipExpiresAt for display only (the
 -- UI's gold marker, the client's rich customer and coin pile); decisions read the table.
@@ -25,6 +25,7 @@ local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
+local VisitTimer = require(ReplicatedStorage.Shared.VisitTimer)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local RichTipService = {}
@@ -153,28 +154,37 @@ local function open(
 	return tip
 end
 
--- By day only, before the last DuskWarningSeconds: each owned cafe that earns, has a table for the rich
--- customer to sit at and has no tip open rolls RichChance. The tip ends at dusk at the latest. A Tip Potion running
--- when the visitor comes adds its share to the tip (F64).
-local function roll()
+-- Each cafe's rich-customer timer (#1135, shared/VisitTimer): seconds of open day left until the next one.
+local timers: { [Player]: number } = setmetatable({}, { __mode = "k" }) :: any
+
+-- Every second, `dt` the time since the last: by day only, before the last DuskWarningSeconds, each owned cafe that
+-- earns, has a table for the rich customer to sit at and has no tip open counts its timer down, and when it runs out
+-- the rich customer comes and a new timer is drawn. The tip ends at dusk at the latest. A Tip Potion running when the
+-- visitor comes adds its share to the tip (F64).
+local function tickTimers(dt: number)
 	local now = os.time()
 	local dusk = math.floor(ClockService.phaseEndsAt())
-	if ClockService.isNight() or dusk - now <= Config.DuskWarningSeconds then
-		return
-	end
+	local open_ = not ClockService.isNight() and dusk - now > Config.DuskWarningSeconds
 	for _, player in DataService.loadedPlayers() do
 		local plot = PlotService.get(player)
 		local profile = DataService.get(player)
-		if plot == nil or profile == nil or tips[plot.index] ~= nil then
+		if plot == nil or profile == nil then
 			continue
 		end
 		local dayRate = Economy.incomePerSecond(profile)
-		if dayRate <= 0 or Economy.level(profile, "tables") < 1 then
-			continue
-		end
-		if rng:NextNumber() < Config.RichChance then
+		local ready = open_
+			and tips[plot.index] == nil
+			and dayRate > 0
+			and Economy.level(profile, "tables") >= 1
+		local left = timers[player]
+			or VisitTimer.draw(Config.RichEveryMin, Config.RichEveryMax, rng:NextNumber())
+		local due: boolean
+		left, due = VisitTimer.tick(left, dt, ready)
+		if due then
 			open(player, plot, dayRate * Economy.tipMultiplier(profile, now), now, dusk)
+			left = VisitTimer.draw(Config.RichEveryMin, Config.RichEveryMax, rng:NextNumber())
 		end
+		timers[player] = left
 	end
 end
 
@@ -197,14 +207,13 @@ function RichTipService.start()
 		end
 	end)
 	task.spawn(function()
-		local nextRoll = os.clock() + Config.RichCheckSeconds
+		local last = os.clock()
 		while true do
 			task.wait(1)
 			checkExpiries()
-			if os.clock() >= nextRoll then
-				nextRoll = os.clock() + Config.RichCheckSeconds
-				roll()
-			end
+			local nowClock = os.clock()
+			tickTimers(nowClock - last)
+			last = nowClock
 		end
 	end)
 end

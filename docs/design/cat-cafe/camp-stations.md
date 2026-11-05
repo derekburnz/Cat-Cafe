@@ -23,7 +23,7 @@ Decided by the Coordinator for the friend, overnight 11-05, from Derek's 11-04 a
   - **Crate choice:** the crate is the next zone crate of the player's open areas in Catalog order, rotating each claim, so it's the same rule in any server.
   - **Balance:** crates are free and their odds don't change, so Mythicals stay about 1 in 190 crates. Two or three extra crates a day mostly speed up Commons and Rares, which is what makes the Decor Index feel alive.
 - **Odds:** the card keeps its Odds button (monetization-policy, even though it's free).
-- **Save:** `yardSale = { lastClaimAt }` replaces `{ day, bought }`. Migration: a save that took today's crate gets `lastClaimAt` = the start of that UTC day, so nobody gets a second crate right away or loses one. This goes in the next save version; coordinate with the friend's claim #1241 (version 32), and say so in the PR's first line.
+- **Save:** `yardSale = { lastClaimAt }` replaces `{ day, bought }`. Migration: a save that took today's crate gets `lastClaimAt` = the start of that UTC day, so nobody gets a second crate right away or loses one. This needs **save version 33** (v32 shipped with Corner Shop v2), with the migration above. Say so in the PR's first line.
 
 ## 4. Fish Pond (Woods, Tier 4) (#1232)
 
@@ -45,7 +45,7 @@ Decided by the Coordinator for the friend, overnight 11-05, from Derek's 11-04 a
   - `PondFishPerStep` 1, `PondStepSeconds` 600, `PondHold` 36.
   - `ReadyBangRange` 150.
   - `GoldenPondPassId` stays.
-- **Save:** `yardSale.lastClaimAt` (see section 3). The pond and picnic saves are unchanged.
+- **Save:** `yardSale.lastClaimAt`, save version 33 (see section 3). The pond and picnic saves are unchanged.
 - **Remotes:**
   - `BuyYardSale(crateId)` checks `now >= lastClaimAt + 4 h` and the rotating crate, and refuses with the next time otherwise.
   - `CollectCampExtra("pond")` waives the range check for Golden Pond owners.

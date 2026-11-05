@@ -5,7 +5,8 @@
 -- nothing is lost by missing a day), then rolls a fresh set counting from the counters' values now. A save's unknown
 -- or misplaced quest gets a fresh pick for its slot.
 -- ClaimQuest(kind, slot) pays a finished quest and, when it is the set's last, the set prize (potions for the bag,
--- never drunk at once). RerollQuest(kind, slot) spends the day's or week's free swap on an unfinished quest.
+-- never drunk at once). RerollQuest(kind, slot) spends a free swap on an unfinished quest: one a UTC day for the
+-- dailies and, since #1166, one a UTC day for the weeklies too (the weekly flag clears at each new day).
 -- ClaimAchievement(id) pays a met achievement once. Every claim is marked before it pays, so it pays once. Nothing here
 -- is sold for Robux, and nothing skips a quest.
 -- Claim all (ClaimAllService): `claimAll(player, kind)` pays every finished quest of the daily or weekly set, and
@@ -103,6 +104,8 @@ local function renew(
 	local set = Quests.rollSet(profile, kind, dayRate, avoid, roll)
 	if kind == "daily" then
 		quests.day, quests.daily, quests.dailyReroll, quests.dailySet = period, set, false, false
+		-- #1166: the weekly quests' free swap comes back every UTC day too (use it or lose it, no banking)
+		quests.weeklyReroll = false
 	else
 		quests.week, quests.weekly, quests.weeklyReroll, quests.weeklySet =
 			period, set, false, false

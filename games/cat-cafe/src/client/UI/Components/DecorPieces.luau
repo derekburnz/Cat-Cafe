@@ -45,6 +45,47 @@ type Pages = { [string]: { Types.DecorDef } }
 local pageCache: { [Types.Catalog]: Pages } = setmetatable({}, { __mode = "k" }) :: any
 
 -- Every decor item: Catalog.decor, then the crate pieces in Catalog.crateDecor that are not already in it.
+-- Rarest first (#1409, the friend 11-05: "sort decor by default ... highest rarity at top"): Golden (lawn) and
+-- Mythical down to Common, then anything with no rarity (coin decor); ties keep their catalog order.
+local SORT_RANK: { [string]: number } = {
+	Golden = 7,
+	Mythical = 6,
+	Legendary = 5,
+	Epic = 4,
+	Rare = 3,
+	Uncommon = 2,
+	Common = 1,
+}
+
+function DecorPieces.rarityRank(rarity: string?): number
+	return if rarity ~= nil then SORT_RANK[rarity] or 0 else 0
+end
+
+-- A sorted copy of `list`, rarest first; `rarityOf` reads an entry's rarity (a DecorDef's by default).
+function DecorPieces.byRarity<T>(list: { T }, rarityOf: ((T) -> string?)?): { T }
+	local read: (T) -> string? = rarityOf
+		or function(entry: T): string?
+			return DecorPieces.info(entry :: any).rarity
+		end
+	local ranks: { number } = {}
+	local order: { number } = {}
+	for index, entry in list do
+		ranks[index] = DecorPieces.rarityRank(read(entry))
+		order[index] = index
+	end
+	table.sort(order, function(a: number, b: number): boolean
+		if ranks[a] ~= ranks[b] then
+			return ranks[a] > ranks[b]
+		end
+		return a < b
+	end)
+	local out: { T } = {}
+	for _, index in order do
+		table.insert(out, list[index])
+	end
+	return out
+end
+
 function DecorPieces.all(catalog: Types.Catalog): { Types.DecorDef }
 	local list: { Types.DecorDef } = table.clone(catalog.decor)
 	local pieces: { Types.DecorDef } = catalog.crateDecor or {}

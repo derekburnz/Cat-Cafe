@@ -344,10 +344,12 @@ local Config = {
 	SwiftPotionSpeed = 4, -- swift_potion: added to walk and carry speed
 	LuckyPotionGoldScale = 2, -- lucky_potion: food set in the bowl rolls gold at this times the chance
 	TimedTipsMax = 1.0, -- F73: every running tip potion together adds at most +100% (a Tip and a Big Tip: +75%)
-	-- Pals (F92, playing-together.md section 2): tips earn this much more with one pal on the server, the Max with two
-	-- or more, on top of the potions; never offline pay
+	-- Pals (F92, playing-together.md section 2): tips (the money per second, piles and rich visitors) earn PalTipBonus
+	-- more with one pal on the server and PalTipBonusStep more for each more, at most PalTipBonusMax (#1165: +10%, +15%,
+	-- +20% from three, #1347), on top of the potions; never offline pay
 	PalTipBonus = 0.10,
-	PalTipBonusMax = 0.15,
+	PalTipBonusStep = 0.05,
+	PalTipBonusMax = 0.20,
 	-- Team Rescue (F92, playing-together.md section 3): one helper an attempt, within TeamRescueRangeStuds of the trap; a
 	-- helped attempt runs TeamRescueExtraSeconds longer, and the helper's tip is HelperTipSeconds of their own day rate
 	-- (twice that between pals), at most once per TeamRescueTipCooldown seconds a player

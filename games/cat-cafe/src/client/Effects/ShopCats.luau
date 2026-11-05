@@ -20,7 +20,7 @@
 -- "king_croissant" (Model-Agent, friend/cat-king), his `Glow` attachment in the Body for the light and the motes,
 -- `CrownTop` (in the crown Prop inside the Head Model) for the pop, and the largest part of the Model ending
 -- `_CapeTrim` (inside Prop2) for the scrolling shine, the same Moments.TipSwept as Sprinkles for the pop. The
--- Royal Crest: every part named `Frame` in a Model named `CatCafe_Plot_SignRoyalCrest_Frame` (Model-Agent, #1289).
+-- Royal Crest: every part (the frame's bars) in a Model named `CatCafe_Plot_SignRoyalCrest_Frame` (#1289).
 -- Listening only. Numbers in Presets.shopCats.
 
 local CollectionService = game:GetService("CollectionService")
@@ -436,64 +436,81 @@ end
 -- The Royal Crest sign style (King Cat Pack) -------------------------------------------------------------
 
 type Crest = {
-	shine: { Texture }, -- on the frame's front and back faces
+	shine: { Texture }, -- on the front and back faces of every bar
+	along: { [Texture]: number }, -- studs along the sign from its middle to each texture's bar
+	width: number, -- the sign's width, in studs
 	nextAt: number, -- os.clock() when the next sweep starts
 }
 
-local crests: { [BasePart]: Crest } = {}
+local crests: { [Model]: Crest } = {}
 
 local function clearCrest(c: Crest)
 	for _, texture in c.shine do
 		texture:Destroy()
 	end
 	c.shine = {}
+	c.along = {}
 end
 
--- A slow gold shine sweeping once across the frame every `every` seconds: a soft gold sprite as wide as the frame
--- slides from one side to the other over `sweep` seconds, then hides until the next. Held off with Reduce Motion.
+-- Lays a soft gold sprite twice the sign's width on both faces of every bar of the frame, each bar's texture shifted
+-- by where the bar sits along the sign, so one band of light travels across all of them together.
+local function layCrest(frame: Model, c: Crest)
+	local r = Presets.shopCats.royalCrest
+	local pivot = frame:GetPivot()
+	local _, size = frame:GetBoundingBox()
+	c.width = math.max(size.X, size.Z)
+	for _, bar in frame:GetDescendants() do
+		if bar:IsA("BasePart") then
+			local part = bar :: BasePart
+			local along = (part.Position - pivot.Position):Dot(pivot.RightVector)
+			for _, face in r.faces do
+				local texture = Instance.new("Texture")
+				texture.Name = "RoyalCrestShine"
+				texture.Texture = Presets.textures.sparkle
+				texture.Color3 = r.colour
+				texture.Transparency = 1
+				texture.StudsPerTileU = c.width * 2
+				texture.StudsPerTileV = size.Y * 1.5
+				texture.Face = face
+				texture.Parent = part
+				table.insert(c.shine, texture)
+				c.along[texture] = along
+			end
+		end
+	end
+end
+
+-- A slow gold shine sweeping once across the frame every `every` seconds: the band slides from one side of the sign
+-- to the other over `sweep` seconds, then hides until the next. Held off with Reduce Motion.
 local function stepCrests()
 	local r = Presets.shopCats.royalCrest
 	local now = os.clock()
-	local candidates: { Logic.Candidate<BasePart> } = {}
+	local candidates: { Logic.Candidate<Model> } = {}
 	for frame, c in crests do
 		if frame.Parent == nil then
 			clearCrest(c)
 			crests[frame] = nil
 		else
-			table.insert(candidates, { key = frame, distance = Context.distance(frame.Position) })
+			local distance = Context.distance(frame:GetPivot().Position)
+			table.insert(candidates, { key = frame, distance = distance })
 		end
 	end
-	local chosen: { [BasePart]: boolean } = {}
+	local chosen: { [Model]: boolean } = {}
 	if not Context.reducedMotion() then
 		for _, frame in Logic.nearest(candidates, r.within, r.most) do
 			chosen[frame] = true
 			local c = crests[frame]
-			local width = math.max(frame.Size.X, frame.Size.Z)
 			if #c.shine == 0 then
-				for _, face in r.faces do
-					local texture = Instance.new("Texture")
-					texture.Name = "RoyalCrestShine"
-					texture.Texture = Presets.textures.sparkle
-					texture.Color3 = r.colour
-					texture.Transparency = 1
-					texture.StudsPerTileU = width * 2
-					texture.StudsPerTileV = frame.Size.Y * 1.5
-					texture.Face = face
-					texture.Parent = frame
-					table.insert(c.shine, texture)
-				end
+				layCrest(frame, c)
 			end
 			local t = now - c.nextAt
 			if t >= r.sweep then
 				c.nextAt = now + r.every - r.sweep
 				t = -1
 			end
-			local sweeping = t >= 0
-			-- the sprite's middle runs from a frame width before the left edge to past the right edge
-			local offset = if sweeping then -width + (t / r.sweep) * width * 2 else 0
-			local fade = if sweeping then math.sin(math.pi * t / r.sweep) else 0
+			local travel, fade = Logic.shineSweep(t, r.sweep, c.width)
 			for _, texture in c.shine do
-				texture.OffsetStudsU = offset
+				texture.OffsetStudsU = travel - (c.along[texture] or 0)
 				texture.Transparency = 1 - fade * (1 - r.transparency)
 			end
 		end
@@ -507,13 +524,10 @@ end
 
 local function considerCrest(instance: Instance)
 	local r = Presets.shopCats.royalCrest
-	if instance:IsA("BasePart") and instance.Name == r.part then
-		local parent = instance.Parent
-		if parent ~= nil and parent.Name == r.model and crests[instance :: BasePart] == nil then
-			-- each sign on its own beat, so a street of them never sweeps together
-			local first = os.clock() + math.random() * r.every
-			crests[instance :: BasePart] = { shine = {}, nextAt = first }
-		end
+	if instance:IsA("Model") and instance.Name == r.model and crests[instance :: Model] == nil then
+		-- each sign on its own beat, so a street of them never sweeps together; its bars share one
+		local first = os.clock() + math.random() * r.every
+		crests[instance :: Model] = { shine = {}, along = {}, width = 0, nextAt = first }
 	end
 end
 

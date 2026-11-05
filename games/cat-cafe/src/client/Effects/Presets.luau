@@ -3285,13 +3285,12 @@ Presets.shopCats = {
 		},
 		pop = { gap = 20, sparkles = 10, stars = 5, ring = 4, ringSeconds = 0.55 },
 	},
-	-- The Royal Crest sign style (King Cat Pack, #1191): on the part named `part` in a Model named `model`, on the
+	-- The Royal Crest sign style (King Cat Pack, #1191): on every bar (part) of a Model named `model`, on the
 	-- nearest `most` within `within` studs, a soft gold sparkle Texture on `faces` slides once across the frame over
 	-- `sweep` seconds every `every` seconds (each sign on its own beat), fading in and out and at its brightest at
 	-- `transparency`. None with Reduce Motion: the frame stays as modelled.
 	royalCrest = {
 		model = "CatCafe_Plot_SignRoyalCrest_Frame",
-		part = "Frame",
 		within = 100,
 		most = 3,
 		every = 8,

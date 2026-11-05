@@ -2793,6 +2793,36 @@ function HUD._hideBoosts(self: any)
 	self._boosts.Visible = false
 end
 
+-- #1151 (Derek 11-04: "a very small symbol beside each boost"): each row's picture from the clean set, so the big
+-- boosts are easy to spot; no new uploads. A row with no picture (the total) has none.
+local BOOST_GLYPH: { [string]: string } = {
+	tables = "🪑",
+	espresso = "☕",
+	golden_espresso = "☕",
+	decor = "🪴",
+	index = "📖",
+	tier = "⭐",
+	pals = "👋",
+}
+local function boostPicture(key: string): string?
+	if key == "tables" then
+		return ShopIcons.hud("Home")
+	elseif key == "espresso" then
+		return ShopIcons.menu("coffee")
+	elseif key == "golden_espresso" then
+		return Theme.textures.fishCoin -- a Golden Fish Market perk
+	elseif key == "decor" then
+		return ShopIcons.hud("Decor")
+	elseif key == "index" then
+		return ShopIcons.hud("Index")
+	elseif key == "tier" then
+		return ShopIcons.hud("Upgrades")
+	elseif key == "pals" then
+		return ShopIcons.clean("Invite")
+	end
+	return ShopIcons.potion(key) -- a running money potion's row is keyed by its potion id
+end
+
 function HUD._renderBoosts(self: any)
 	local state: Types.PlayerState? = self._state
 	if state == nil then
@@ -2848,11 +2878,31 @@ function HUD._renderBoosts(self: any)
 				Parent = frame,
 			})
 		end
+		local picture = if total then nil else boostPicture(row.key)
+		local iconW = if total then 0 else BOOST_ROW_H
+		if not total then
+			local icon = label({
+				Name = "Icon",
+				AnchorPoint = Vector2.new(0, 1),
+				Position = UDim2.new(0, 0, 1, 0),
+				Size = UDim2.fromOffset(BOOST_ROW_H - 2, BOOST_ROW_H - 2),
+				TextSize = Theme.sizes.textSmall,
+				TextXAlignment = Enum.TextXAlignment.Center,
+				TextTransparency = if row.active then 0 else 0.4,
+				Text = BOOST_GLYPH[row.key] or (if picture then "" else "•"),
+				ZIndex = 6,
+				Parent = frame,
+			})
+			if picture then
+				IconArt.setImage(icon, picture, 1.1)
+				IconArt.setTransparency(icon, if row.active then 0 else 0.4)
+			end
+		end
 		label({
 			Name = "Name",
 			AnchorPoint = Vector2.new(0, 1),
-			Position = UDim2.fromScale(0, 1),
-			Size = UDim2.new(0.68, 0, 0, BOOST_ROW_H),
+			Position = UDim2.new(0, iconW + 2, 1, 0),
+			Size = UDim2.new(0.68, -(iconW + 2), 0, BOOST_ROW_H),
 			TextSize = if total then Theme.sizes.textBody + 1 else Theme.sizes.textSmall + 1,
 			TextColor3 = color,
 			TextTransparency = if row.active then 0 else 0.25,

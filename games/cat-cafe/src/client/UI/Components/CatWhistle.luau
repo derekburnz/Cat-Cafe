@@ -3,6 +3,10 @@
 -- every 0.5 s the nearest stray or trapped cat in reach gets a WorldMarker paw over it, and the local attribute
 -- WhistleTarget = true (cleared on the one before), which VFX-Agent's ring effect reads. Client only: it shows what
 -- the server already replicates, so it changes nothing about catching.
+-- #1458 (the friend 11-05: "increase the stray nearby pop up with potion because gem stones appear first"): the reach
+-- is 1,000 studs (it was 600, and its marker drew only within 500), the marker draws as far as the reach
+-- (CatWhistle.REACH, passed to WorldMarker.new), and it looks every 0.25 s, so the paw is up well before any rarity
+-- gem (Effects/Rarity, 80 studs) comes into view.
 --
 --   CatWhistle.pick(from, candidates, maxStuds)   the nearest candidate within maxStuds, or nil (pure, for the specs)
 --   CatWhistle.new(marker, running)                the marker, picking while running() is true; :destroy()
@@ -21,8 +25,9 @@ type Marker = {
 local CatWhistle = {}
 CatWhistle.__index = CatWhistle
 
-local STEP = 0.5 -- seconds between picks
-local REACH = 600 -- studs: "the current area" without a zone lookup; an area is smaller than this
+local STEP = 0.25 -- seconds between picks
+local REACH = 1000 -- studs: "the current area" without a zone lookup; an area is smaller than this
+CatWhistle.REACH = REACH
 local ATTRIBUTE = "WhistleTarget"
 local PAW = Color3.fromRGB(255, 201, 77)
 
@@ -96,7 +101,7 @@ function CatWhistle.new(marker: Marker, running: () -> boolean): CatWhistle
 	self._marker = marker
 	self._target = nil :: Model?
 	self._running = running
-	local clock = 0
+	local clock = STEP -- the first pick on the first frame
 	self._loop = RunService.Heartbeat:Connect(function(dt: number)
 		clock += dt
 		if clock < STEP then

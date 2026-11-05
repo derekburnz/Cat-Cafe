@@ -172,6 +172,17 @@ function CampExtrasLogic.prizeTitle(extraId: string, paid: { string }?): string
 end
 
 -- The camp stations with a red "!" over them (camp-stations.md section 1); the Lost and Found keeps its card only.
+-- #1463 (camp-stations.md section 4): a Golden Pond owner collects the pond's fish from anywhere. The server sets
+-- this Player attribute for an owner and skips CollectCampExtra("pond")'s range check for them (Gameplay-Engineer,
+-- PR #1406); the cannon picker's Woods strip then gets a Collect button while the pond holds fish.
+CampExtrasLogic.GOLD_POND_ATTRIBUTE = "GoldenPondPass" -- shared/CampExtras.GOLD_POND_ATTRIBUTE
+CampExtrasLogic.POND = "pond"
+
+-- Whether the picker's strip for `line` shows Collect: the pond, with fish waiting, for a Golden Pond owner.
+function CampExtrasLogic.remoteCollect(line: Line?, owner: boolean): boolean
+	return owner and line ~= nil and line.extraId == CampExtrasLogic.POND and line.ready
+end
+
 CampExtrasLogic.BANG_EXTRAS = { "picnic", "yardSale", "pond" }
 CampExtrasLogic.BANG_RANGE = 150 -- studs, camp-stations.md section 5 (ReadyBangRange)
 

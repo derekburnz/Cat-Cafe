@@ -217,7 +217,7 @@ end
 local function unclaimed(state: Types.PassState): { Claim }
 	local out: { Claim } = {}
 	local reached = CafePass.levelOf(state.xp)
-	for _, track in CafePass.TRACKS do
+	for _, track: Track in TRACKS do
 		if track == "paid" and state.paidSeason ~= state.season then
 			continue
 		end
@@ -226,7 +226,8 @@ local function unclaimed(state: Types.PassState): { Claim }
 				CafePass.rewardOf(state.season, track, level) ~= nil
 				and not CafePass.isClaimed(state, track, level)
 			then
-				table.insert(out, { season = state.season, track = track, level = level })
+				local claim: Claim = { season = state.season, track = track, level = level }
+				table.insert(out, claim)
 			end
 		end
 	end

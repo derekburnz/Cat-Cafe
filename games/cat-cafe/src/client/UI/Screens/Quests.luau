@@ -4,7 +4,8 @@
 --   Daily         "3 of 5 done" and "New quests in 5 h", a strip with what finishing all five pays (✓ once paid),
 --                 then a row per quest: its text, a bar with "3/5" ("$320/$600" for a coins quest), what it pays as
 --                 little pictures (Components/PrizeChips) and Claim once done, ✓ once claimed, or Swap (the day's
---                 one free reroll) while it is unfinished and the swap unused. Claimed rows drop to the bottom
+--                 one free reroll) while it is unfinished; once used, Swap stays greyed with its wait ("7h 12m",
+--                 #1166), the same as Weekly. Claimed rows drop to the bottom
 --                 (Derek 2026-10-29).
 --   Weekly        the same for the week's three. Its free swap comes back every UTC day with the dailies (#1166):
 --                 once used, Swap stays on the unfinished rows, greyed, counting down ("7h 12m") to
@@ -86,7 +87,7 @@ type Page = {
 	setChips: PrizeChips.PrizeChips,
 	setStatus: TextLabel,
 	rows: { QuestRow },
-	swapWait: boolean, -- Weekly: the swap is used, so Swap shows the wait
+	swapWait: boolean, -- the swap is used, so Swap shows the wait
 }
 
 type Card = {
@@ -779,20 +780,12 @@ function Quests.render(self: any, state: Types.PlayerState)
 				if not quest.claimed and not claiming and QuestLogic.done(quest) then
 					ready += 1
 				end
-				self:_renderRow(
-					row,
-					kind,
-					slot,
-					quest,
-					rerollUsed and kind ~= "weekly",
-					look,
-					pending
-				)
+				self:_renderRow(row, kind, slot, quest, look, pending)
 			end
 		end
 		self._readyByTab[tab] = ready
 		self:_setTabCount(tab, ready)
-		page.swapWait = kind == "weekly" and quests ~= nil and rerollUsed
+		page.swapWait = quests ~= nil and rerollUsed
 		self._tabs[tab].quiet.Visible = kind == "weekly"
 			and ready == 0
 			and quests ~= nil
@@ -809,7 +802,6 @@ function Quests._renderRow(
 	kind: string,
 	slot: number,
 	quest: Types.QuestView,
-	rerollUsed: boolean,
 	look: PrizeChips.Look,
 	pending: Pending?
 )
@@ -828,8 +820,9 @@ function Quests._renderRow(
 	local claimed = quest.claimed or (pending ~= nil and pending.action == "claim")
 	local swapping = pending ~= nil and pending.action == "swap"
 	row.claim.instance.Visible = done and not claimed
-	row.swap.instance.Visible = not done and not claimed and not rerollUsed
-	if rerollUsed or row.swap.instance:GetAttribute("Waiting") ~= true then
+	-- a used swap stays, greyed, with its wait: _tickResets sets that text (#1166)
+	row.swap.instance.Visible = not done and not claimed
+	if row.swap.instance:GetAttribute("Waiting") ~= true then
 		row.swap:setText(if swapping then "..." else "Swap")
 		row.swap:setEnabled(not swapping)
 	end
@@ -921,7 +914,7 @@ function Quests._tickResets(self: any)
 			then (if page.kind == "daily" then quests.dailyResetsAt else quests.weeklyResetsAt)
 			else nil
 		page.resets.Text = if at then QuestLogic.resetText(at - now) else ""
-		-- the used weekly swap: Swap greyed with the wait until the daily reset brings it back (#1166)
+		-- a used swap (daily or weekly): Swap greyed with the wait until the daily reset brings it back (#1166)
 		local back = if quests then quests.dailyResetsAt else nil
 		local wait = if page.swapWait and back then QuestLogic.swapText(back - now) else nil
 		for _, row in page.rows do

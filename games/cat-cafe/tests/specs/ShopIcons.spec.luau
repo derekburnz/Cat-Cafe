@@ -57,6 +57,20 @@ return function()
 			expect(#ShopIcons.potionAll("not_a_potion")).to.equal(0)
 			expect(#ShopIcons.potionAll(nil)).to.equal(0)
 		end)
+		it("has a dish picture for every menu item (#950)", function()
+			local Catalog = require(
+				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog")
+			)
+			local missing = {}
+			for _, item in Catalog.menu do
+				if ShopIcons.menu(item.id) == nil then
+					table.insert(missing, item.id)
+				end
+			end
+			expect(table.concat(missing, ",")).to.equal("")
+			expect(ShopIcons.menu("paw_cookie")).to.equal("rbxassetid://105880991505196")
+			expect(ShopIcons.menu("nothing")).to.equal(nil)
+		end)
 		it("has a bottle for every potion in the catalog", function()
 			-- the clean bottle first (#1070), the old picture behind it
 			expect(ShopIcons.potion("gold_rush_potion")).to.equal("rbxassetid://133671235439574") -- the #1193 flask (#1204)

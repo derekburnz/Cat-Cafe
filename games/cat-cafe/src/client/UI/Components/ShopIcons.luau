@@ -134,6 +134,19 @@ local IDS: { [string]: string } = {
 	Icon_Flask_QuickBait = "rbxassetid://102617577148798",
 	Icon_Flask_BigTip = "rbxassetid://137883283288576",
 	Icon_Flask_GoldRush = "rbxassetid://133671235439574",
+	-- #950: the order bubbles' dishes, one per Catalog.menu model (Model-Agent #1101; upload run 41885238133, 11-04)
+	Icon_Menu_Coffee = "rbxassetid://79738997061623",
+	Icon_Menu_Milk = "rbxassetid://76795195002258",
+	Icon_Menu_CakeSlice = "rbxassetid://138724649868181",
+	Icon_Menu_PawCookie = "rbxassetid://105880991505196",
+	Icon_Menu_Tea = "rbxassetid://134890892831983",
+	Icon_Menu_FishBiscuit = "rbxassetid://118748045182640",
+	Icon_Menu_KittyCupcake = "rbxassetid://88442415090027",
+	Icon_Menu_HotCocoa = "rbxassetid://85103380790377",
+	Icon_Menu_PancakeStack = "rbxassetid://132289857954730",
+	Icon_Menu_Sundae = "rbxassetid://107717113357371",
+	Icon_Menu_StrawberryRoll = "rbxassetid://139023173238823",
+	Icon_Menu_RainbowCake = "rbxassetid://120021844545771",
 	-- #1302: Model-Agent's Cat Whistle flasks, one per size (upload run 41948674097, 11-05)
 	Icon_Flask_CatWhistleSmall = "rbxassetid://88245082341165",
 	Icon_Flask_CatWhistle = "rbxassetid://139758496638549",
@@ -289,6 +302,13 @@ end
 -- night dealer, the Tip Jar, Daily Treat, quest and spin prizes) reaches it through ItemIcon.setFood. Only the clean
 -- 2D picture (Icon_Clean_<Food>, assets/cat-cafe/ui/icons-clean-2026-11-03) counts: the older food uploads were 3D
 -- renders, so a food without a clean picture gets nil and the spec fails.
+-- A menu dish's picture for the order bubbles (#950), by its Catalog.menu id: the dish model's own render, or nil.
+function ShopIcons.menu(orderId: string?): string?
+	local item = if type(orderId) == "string" then Catalog.getMenuItem(orderId) else nil
+	local model = if item then (item :: any).model else nil
+	return if type(model) == "string" then IDS["Icon_Menu_" .. model] else nil
+end
+
 -- Cat food in the Bag (#1181): the clean star treat for every size until the foods have pictures of their own (they
 -- are XP treats, not bait, so they don't borrow the bait foods' bowls).
 function ShopIcons.catFood(foodId: string?): string?

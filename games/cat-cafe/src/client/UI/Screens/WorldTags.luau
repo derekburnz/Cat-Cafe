@@ -25,8 +25,10 @@ local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local ProgressRing = require(script.Parent.Parent.Components.ProgressRing)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 
@@ -74,6 +76,12 @@ local function orderGlyph(order: string): string
 		return item.glyph
 	end
 	return ORDER_ICONS[order] or "?"
+end
+
+-- The order on a bubble: the dish's picture (#950), its glyph until the picture loads or without one.
+local function showOrder(icon: TextLabel, order: string)
+	icon.Text = orderGlyph(order)
+	IconArt.setImage(icon, ShopIcons.menu(order), 1.2)
 end
 
 -- The part a label hangs from and how far above that part's centre the model's top is.
@@ -289,7 +297,7 @@ function WorldTags._renderMaking(self: any, cat: Instance, part: BasePart, above
 	bubble.seconds = makeSeconds(cat)
 	bubble.startAt = os.clock()
 	bubble.on = true
-	bubble.icon.Text = orderGlyph(item)
+	showOrder(bubble.icon, item)
 	bubble.ring:set(0)
 	bubble.billboard.Enabled = true
 	Tween.popIn(bubble.bubble, 0.6)
@@ -423,6 +431,7 @@ function WorldTags._attachCustomer(self: any, customer: Instance)
 		if isServed and not served then
 			served = true
 			icon.Text = HEART
+			IconArt.setImage(icon, nil) -- the heart is a glyph
 			icon.TextColor3 = Theme.colors.red
 			bubble.BackgroundColor3 = Theme.colors.pink
 			Tween.popIn(bubble, 1.4)
@@ -434,7 +443,7 @@ function WorldTags._attachCustomer(self: any, customer: Instance)
 				end
 			end)
 		elseif not isServed then
-			icon.Text = orderGlyph(order :: string)
+			showOrder(icon, order :: string)
 			Tween.popIn(bubble, 0.6)
 		end
 	end

@@ -18,7 +18,6 @@ All images here are rendered from the generated Blender assets in `assets/cat-ca
 | `views/<Name>.png` | Five-view inspection sheet per asset (front, left, back, top, three-quarter), no floor; Workbench shading on a PC, Cycles CPU in a cloud container (see `assets/cat-cafe/blender/README.md`). Written by `build_all.py --render`; pairs with `assets/cat-cafe/exports/gates.md`. |
 | `rbx/<Name>.png` | The Part-built model from `assets/cat-cafe/rbx/` drawn with Roblox's own shapes by `rbx_preview.py`, which is what Studio shows without any mesh upload. |
 | `rbx/alley_row.png` | A back alley as Parts, shortened to fit the frame: the staff door, fire escape (with the crate stack to climb it) and cat mural building backs on the left, a Mint cafe on the right with its back to the alley, long string lights, a laundry line, a dumpster, a trash bin, puddles and the arch into the Alley Square at the far end. |
-| `rbx/cafe_closed.png` | A Mint cafe at night as Parts with `CatCafe_Plot_ClosedSign` hung in its front door (F44): CLOSED, two stars and a crescent moon that glows at night. |
 | `rbx/street_row.png` | Three plots side by side as Parts, left to right: a Butter cafe at tier 5, a Blush plot For Rent and a Mint cafe at tier 3. |
 | `CatCafe_Palette.png` | The 64-swatch texture every mesh uses (style guide section 2). |
 

@@ -34,6 +34,38 @@ return function()
 		end)
 	end)
 
+	describe("StoreLogic.moneyBadge (#1606)", function()
+		local onSale = { [200] = { robux = 5, forSale = true } }
+
+		it("shows the highest money pass owned", function()
+			local badge = StoreLogic.moneyBadge(CONFIG, { [200] = true, [400] = true }, onSale)
+			expect(badge.text).to.equal("4x")
+			expect(badge.owned).to.equal(true)
+			expect(StoreLogic.moneyBadge(CONFIG, { [300] = true }, {}).text).to.equal("3x")
+			-- the server's PlayerState.passBoosts.money counts too
+			expect(StoreLogic.moneyBadge(CONFIG, {}, {}, 2).text).to.equal("2x")
+			expect(StoreLogic.moneyBadge(CONFIG, { [200] = true }, {}, 4).text).to.equal("4x")
+			expect(StoreLogic.moneyBadge(CONFIG, {}, onSale, 1).text).to.equal("Get 2x")
+		end)
+
+		it("offers Get 2x with none owned while the 2x pass is on sale", function()
+			local badge = StoreLogic.moneyBadge(CONFIG, {}, onSale)
+			expect(badge.text).to.equal("Get 2x")
+			expect(badge.owned).to.equal(false)
+		end)
+
+		it(
+			"hides while the 2x pass is off sale or not priced yet, or with no money passes",
+			function()
+				expect(StoreLogic.moneyBadge(CONFIG, {}, {})).to.equal(nil)
+				expect(
+					StoreLogic.moneyBadge(CONFIG, {}, { [200] = { robux = 5, forSale = false } })
+				).to.equal(nil)
+				expect(StoreLogic.moneyBadge({ MoneyPassIds = {} }, {}, onSale)).to.equal(nil)
+			end
+		)
+	end)
+
 	describe("StoreLogic.rows", function()
 		it("shows the first rung and Long Nap for a new player", function()
 			local rows = StoreLogic.rows(CONFIG, {}, false)
@@ -284,13 +316,11 @@ return function()
 					.. "\n10 Big Money, 5 Swift · You have 2"
 			)
 			-- a cat or style with no name yet still reads as words
-			expect(
-				StoreLogic.extras({
-					potions = {},
-					cats = { "new_cat" },
-					signStyles = { "odd_style" },
-				})
-			).to.equal("New Cat the cat, Odd Style sign style")
+			expect(StoreLogic.extras({
+				potions = {},
+				cats = { "new_cat" },
+				signStyles = { "odd_style" },
+			})).to.equal("New Cat the cat, Odd Style sign style")
 			expect(StoreLogic.extras({ potions = { swift_potion = 1 } })).to.equal(nil)
 		end)
 

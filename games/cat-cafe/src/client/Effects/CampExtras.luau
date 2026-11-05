@@ -26,8 +26,9 @@ local Presets = require(script.Parent.Presets)
 
 local CampExtras = {}
 
--- the pond's rod: the FishPond's, or the Woods FishingHut's (Model-Agent, #1351), pivot at the butt, casting about X
-local RODS = { "_FishPond_Rod", "_FishingHut_Rod" }
+-- the pond's rod: any child Model named ..._Rod (the FishPond's, the Woods FishingHut's and its gold coat's
+-- ..._FishingHut_Gold_Rod, Model-Agent #1351), pivot at the butt, casting about X
+local ROD = "_Rod"
 local LID = "_LostFound_Lid"
 
 type Kind = "cast" | "rattle" | "pop"
@@ -62,7 +63,7 @@ local function found(instance: Instance)
 	if not instance:IsA("Model") then
 		return
 	end
-	if endsWith(instance.Name, RODS[1]) or endsWith(instance.Name, RODS[2]) then
+	if endsWith(instance.Name, ROD) then
 		rods[instance :: Model] = true
 	elseif endsWith(instance.Name, LID) then
 		lids[instance :: Model] = true

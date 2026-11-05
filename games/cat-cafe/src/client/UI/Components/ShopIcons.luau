@@ -186,7 +186,8 @@ end
 
 -- A HUD tile's picture (#1185): the 3D-rendered button picture when there is one, else the clean symbol. Named as the
 -- clean symbols are (Home is My Cafe, Potion the Potions tile, Bowl the Bait tile).
-local HUD_FOR: { [string]: string } = { Home = "MyCafe", Potion = "Potions", Bowl = "Bait" }
+local HUD_FOR: { [string]: string } =
+	{ Home = "MyCafe", Potion = "Potions", Bowl = "Bait", Bag = "Potions" }
 function ShopIcons.hud(name: string): string?
 	return IDS["Icon_Hud_" .. (HUD_FOR[name] or name)] or IDS["Icon_Clean_" .. name]
 end
@@ -255,6 +256,12 @@ end
 -- night dealer, the Tip Jar, Daily Treat, quest and spin prizes) reaches it through ItemIcon.setFood. Only the clean
 -- 2D picture (Icon_Clean_<Food>, assets/cat-cafe/ui/icons-clean-2026-11-03) counts: the older food uploads were 3D
 -- renders, so a food without a clean picture gets nil and the spec fails.
+-- Cat food in the Bag (#1181): the clean star treat for every size until the foods have pictures of their own (they
+-- are XP treats, not bait, so they don't borrow the bait foods' bowls).
+function ShopIcons.catFood(foodId: string?): string?
+	return if type(foodId) == "string" then IDS.Icon_Clean_StarTreat else nil
+end
+
 function ShopIcons.food(lureId: string?): string?
 	return if type(lureId) == "string" then IDS["Icon_Clean_" .. pascal(lureId)] else nil
 end

@@ -8,11 +8,18 @@
 -- past PotionMaxMinutes (60). A pressed Use reads "..." for a moment; the server's answer is the next ProfileSync, and
 -- a refusal is the server's toast. The drink sound plays when the bag's count drops, which is the server accepting.
 -- Timers pause while the player is away, so a rejoin shows what was left. Rows and sums: Components/PotionLogic.
+--
+-- The Bag (corner-shop-v2.md section 3, #1181): this window is the Bag, with two tabs. Potions is the potion bag
+-- above; Cat Food lists each food the player has (picture, name, "+2,000 XP", "x3" and a green Feed). Feed shows the
+-- player's cats, highest level first ("Level 23 · 1,400 XP to 24"); a tap feeds that cat one (FeedCat) and the
+-- server's FeedResult toasts the XP. Nothing opens on buy any more. Words and lists: Components/BagLogic.
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local BagLogic = require(script.Parent.Parent.Components.BagLogic)
 local Button = require(script.Parent.Parent.Components.Button)
+local CornerShopLogic = require(script.Parent.Parent.Components.CornerShopLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -28,19 +35,25 @@ local PAL = Theme.dark
 
 export type Callbacks = {
 	use: (potionId: string) -> (),
+	feed: ((foodId: string, catUid: string) -> ())?, -- #1181: one food to one cat (FeedCat)
 	close: () -> (),
 }
+
+export type Tab = "Potions" | "Food"
 
 export type Potions = {
 	frame: Frame,
 	setCatalog: (self: Potions, catalog: Types.Catalog) -> (),
 	render: (self: Potions, state: Types.PlayerState) -> (),
+	showTab: (self: Potions, tab: Tab) -> (),
 	destroy: (self: Potions) -> (),
 }
 
 local ROW_H = 76
 local TILE = 56
 local USE_W = 104
+local TAB_H = 40
+local FOOD_W = 104 -- the Feed button
 local PENDING_SECONDS = 1 -- a pressed Use waits this long for the server before it can be pressed again
 
 type Row = {
@@ -84,8 +97,8 @@ function Potions.new(callbacks: Callbacks): Potions
 	local panel = Panel.new({
 		dark = true, -- #1028
 		name = "Potions",
-		title = "Potions",
-		subtitle = "Drink one for a boost · timers pause while you're away",
+		title = "Bag",
+		subtitle = "Potions for a boost, cat food for XP",
 		color = Theme.colors.berry,
 		icon = Theme.icons.potion,
 		size = UDim2.fromScale(1, 1),
@@ -95,11 +108,59 @@ function Potions.new(callbacks: Callbacks): Potions
 	self._panel = panel
 	self.frame = panel.frame
 
+	self._tab = "Potions" :: Tab
+	self._foodRows = {} :: { [string]: { frame: Frame, count: TextLabel, feed: Button.Button } }
+	self._catRows = {} :: { Button.Button }
+	self._feeding = nil :: string? -- the food whose cat list shows
+	local tabs: Frame = Create("Frame", {
+		Name = "Tabs",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, TAB_H),
+		Parent = panel.content,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, Theme.sizes.gap),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._tabButtons = {
+		Potions = Button.new({
+			name = "PotionsTab",
+			text = "Potions",
+			icon = Theme.icons.potion,
+			style = "berry",
+			size = UDim2.fromOffset(150, TAB_H - 4),
+			textSize = Theme.sizes.textBody,
+			layoutOrder = 1,
+			parent = tabs,
+			sound = "uiTab",
+			onClick = function()
+				self:showTab("Potions")
+			end,
+		}),
+		Food = Button.new({
+			name = "FoodTab",
+			text = "Cat Food",
+			icon = "🍪",
+			style = "ghost",
+			size = UDim2.fromOffset(150, TAB_H - 4),
+			textSize = Theme.sizes.textBody,
+			layoutOrder = 2,
+			parent = tabs,
+			sound = "uiTab",
+			onClick = function()
+				self:showTab("Food")
+			end,
+		}),
+	}
+
 	self._list = Create("ScrollingFrame", {
 		Name = "List",
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Size = UDim2.fromScale(1, 1),
+		Position = UDim2.fromOffset(0, TAB_H + 6),
+		Size = UDim2.new(1, 0, 1, -(TAB_H + 6)),
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollBarThickness = 6,
@@ -129,6 +190,58 @@ function Potions.new(callbacks: Callbacks): Potions
 		LayoutOrder = 1000,
 		Visible = false,
 		Parent = self._list,
+	})
+
+	self._foodList = (self._list :: ScrollingFrame):Clone()
+	self._foodList.Name = "FoodList"
+	for _, child in self._foodList:GetChildren() do
+		if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
+			child:Destroy()
+		end
+	end
+	self._foodList.Visible = false
+	self._foodList.Parent = panel.content
+	self._foodHint = text({
+		Name = "Hint",
+		Size = UDim2.new(1, 0, 0, 40),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.subtext,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextWrapped = true,
+		Text = "Cat food comes from the Daily Treat, rescues, catches and the Corner Shop.",
+		LayoutOrder = 1000,
+		Visible = false,
+		Parent = self._foodList,
+	})
+	-- Feed's cat list: a heading with Back, then a row per cat
+	self._catList = (self._list :: ScrollingFrame):Clone()
+	self._catList.Name = "CatList"
+	for _, child in self._catList:GetChildren() do
+		if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
+			child:Destroy()
+		end
+	end
+	self._catList.Visible = false
+	self._catList.Parent = panel.content
+	self._catTitle = text({
+		Name = "Title",
+		Size = UDim2.new(1, -110, 0, 36),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 2,
+		LayoutOrder = 0,
+		Parent = self._catList,
+	})
+	self._back = Button.new({
+		name = "Back",
+		text = "Back",
+		style = "ghost",
+		size = UDim2.fromOffset(100, 34),
+		textSize = Theme.sizes.textBody,
+		layoutOrder = 0,
+		parent = self._catList,
+		onClick = function()
+			self:_pickFood(nil)
+		end,
 	})
 
 	-- once a second while open, so the times left count down
@@ -167,6 +280,202 @@ function Potions.render(self: any, state: Types.PlayerState)
 	self._counts = table.clone(counts)
 	self._state = state
 	self:_refresh()
+end
+
+function Potions.showTab(self: any, tab: Tab)
+	self._tab = tab
+	self._feeding = nil
+	for name, button in self._tabButtons do
+		button:setStyle(
+			if name == tab then (if tab == "Food" then "primary" else "berry") else "ghost"
+		)
+	end
+	self:_refreshFood()
+end
+
+-- Feed on a food row: the cat list for that food; nil goes back to the foods.
+function Potions._pickFood(self: any, foodId: string?)
+	self._feeding = foodId
+	self:_refreshFood()
+end
+
+function Potions._refreshFood(self: any)
+	local food = self._tab == "Food"
+	self._list.Visible = not food
+	self._foodList.Visible = food and self._feeding == nil
+	self._catList.Visible = food and self._feeding ~= nil
+	local state: Types.PlayerState? = self._state
+	if state == nil or not food then
+		return
+	end
+	local catalog: any = self._catalog
+	local foods = BagLogic.foods(if catalog then catalog.catFood else nil, (state :: any).catFood)
+	local shown: { [string]: boolean } = {}
+	local feeding: BagLogic.Food? = nil
+	for order, entry in foods do
+		shown[entry.id] = true
+		if entry.id == self._feeding then
+			feeding = entry
+		end
+		local row = self._foodRows[entry.id] or self:_foodRow(entry)
+		self._foodRows[entry.id] = row
+		row.frame.LayoutOrder = order
+		row.count.Text = "x" .. entry.count
+	end
+	for id, row in self._foodRows do
+		if not shown[id] then
+			row.feed:destroy()
+			row.frame:Destroy()
+			self._foodRows[id] = nil
+		end
+	end
+	self._foodHint.Visible = #foods == 0
+	if self._feeding ~= nil and feeding == nil then
+		-- the last of that food went: back to the foods
+		self._feeding = nil
+		self._foodList.Visible = true
+		self._catList.Visible = false
+		return
+	end
+	if feeding then
+		self:_renderCats(feeding)
+	end
+end
+
+function Potions._foodRow(self: any, entry: BagLogic.Food)
+	local frame: Frame = Create("Frame", {
+		Name = entry.id,
+		BackgroundColor3 = PAL.card,
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, 0, 0, ROW_H),
+		Parent = self._foodList,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+	})
+	local tile: Frame = Create("Frame", {
+		Name = "Tile",
+		BackgroundColor3 = Theme.colors.cream,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 10, 0.5, 0),
+		Size = UDim2.fromOffset(TILE, TILE),
+		Parent = frame,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(tile, 2)
+	local glyph = text({
+		Name = "Glyph",
+		Size = UDim2.fromScale(1, 1),
+		TextSize = 28,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "🍪",
+		Parent = tile,
+	})
+	local picture = ShopIcons.catFood(entry.id)
+	if picture then
+		IconArt.setImage(glyph, picture, 0.92)
+	end
+	local count = text({
+		Name = "Count",
+		AnchorPoint = Vector2.new(1, 1),
+		Position = UDim2.new(1, 6, 1, 4),
+		Size = UDim2.fromOffset(0, 20),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundTransparency = 0,
+		BackgroundColor3 = Theme.colors.ink,
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextTruncate = Enum.TextTruncate.None,
+		ZIndex = 2,
+		Parent = tile,
+	})
+	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = count })
+	Create(
+		"UIPadding",
+		{ PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6), Parent = count }
+	)
+	local textLeft = TILE + 24
+	local textRight = FOOD_W + 20
+	text({
+		Name = "FoodName",
+		Position = UDim2.fromOffset(textLeft, 12),
+		Size = UDim2.new(1, -(textLeft + textRight), 0, 26),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 3,
+		Text = entry.name,
+		Parent = frame,
+	})
+	text({
+		Name = "Xp",
+		Position = UDim2.fromOffset(textLeft, 40),
+		Size = UDim2.new(1, -(textLeft + textRight), 0, 22),
+		TextSize = Theme.sizes.textSmall + 1,
+		TextColor3 = PAL.good,
+		Text = BagLogic.xpLine(entry.xp) .. " for one cat",
+		Parent = frame,
+	})
+	local feed = Button.new({
+		name = "Feed",
+		text = "Feed",
+		style = "primary",
+		size = UDim2.fromOffset(FOOD_W, 38),
+		anchorPoint = Vector2.new(1, 0.5),
+		position = UDim2.new(1, -10, 0.5, 0),
+		textSize = Theme.sizes.textBody + 1,
+		parent = frame,
+		onClick = function()
+			self:_pickFood(entry.id)
+		end,
+	})
+	return { frame = frame, count = count, feed = feed }
+end
+
+-- The cats to feed `food` to, highest level first; a tap feeds that cat one.
+function Potions._renderCats(self: any, food: BagLogic.Food)
+	for _, button in self._catRows do
+		button:destroy()
+	end
+	table.clear(self._catRows)
+	local state: any = self._state
+	self._catTitle.Text = ("Feed a %s (x%d) · %s"):format(
+		food.name,
+		food.count,
+		BagLogic.xpLine(food.xp)
+	)
+	local catalog: any = self._catalog
+	local names: { [string]: string } = {}
+	for _, def in (if catalog then catalog.cats else nil) or {} do
+		if type(def) == "table" and def.id and def.name then
+			names[def.id] = def.name
+		end
+	end
+	local cats = CornerShopLogic.catsByLevel(state.cats, names)
+	for order, cat in cats do
+		local instance = (state.cats or {})[cat.uid]
+		local xp = if type(instance) == "table" and type(instance.xp) == "number"
+			then instance.xp
+			else 0
+		local open = BagLogic.canFeed(cat.level)
+		local button = Button.new({
+			name = cat.uid,
+			text = ("%s  ·  %s"):format(cat.name or cat.catId, BagLogic.catLine(cat.level, xp)),
+			style = "secondary",
+			size = UDim2.new(1, 0, 0, 44),
+			textSize = Theme.sizes.textBody,
+			layoutOrder = order,
+			parent = self._catList,
+			onClick = function()
+				local feed: ((string, string) -> ())? = self._callbacks.feed
+				if open and feed then
+					feed(food.id, cat.uid)
+				end
+			end,
+		})
+		button:setEnabled(open)
+		table.insert(self._catRows, button)
+	end
 end
 
 function Potions._row(self: any, potionId: string): Row
@@ -340,10 +649,21 @@ function Potions._refresh(self: any)
 		end
 	end
 	self._hint.Visible = not any
+	self:_refreshFood()
 end
 
 function Potions.destroy(self: any)
 	self._tick:Disconnect()
+	for _, row in self._foodRows do
+		row.feed:destroy()
+	end
+	for _, button in self._catRows do
+		button:destroy()
+	end
+	for _, button in self._tabButtons do
+		button:destroy()
+	end
+	self._back:destroy()
 	for _, row in self._rows do
 		row.use:destroy()
 	end

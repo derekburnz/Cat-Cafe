@@ -419,6 +419,35 @@ local function storePrices(forSale)
 		prices[id] = { robux = robux[multiplier] or 25, forSale = forSale }
 	end
 	prices[Config.LongNapPassId] = { robux = 199, forSale = forSale }
+	-- #1425: the rest of the passes and the potion packs at store-skus.md's prices, so every tab has priced cards
+	local others = {
+		VipPassId = 25,
+		CatAccessoriesPassId = 149,
+		UniformStylesPassId = 149,
+		CafeStylePassId = 249,
+		GrandThemePassId = 799,
+		RoyalCatPassId = 599,
+		KingPackPassId = 999,
+	}
+	for key, robux in others do
+		local id = Config[key]
+		if type(id) == "number" and id ~= 0 then
+			prices[id] = { robux = robux, forSale = forSale }
+		end
+	end
+	local slots = Config.ExtraSlotPassIds
+	if type(slots) == "table" then
+		for _, id in slots do
+			prices[id] = { robux = 149, forSale = forSale }
+		end
+	end
+	local packs = { potion_pack_xs = 10, potion_pack_s = 25, potion_pack_m = 49, potion_pack_l = 99 }
+	for key, robux in packs do
+		local id = (Config.ProductIds or {})[key]
+		if type(id) == "number" and id ~= 0 then
+			prices[id] = { robux = robux, forSale = forSale }
+		end
+	end
 	return prices
 end
 
@@ -503,32 +532,41 @@ local function leaderboardSync()
 end
 
 -- #1221 (Derek 2026-11-04: the Store's pass cards "push out past the sides" and "lose their outlines"): every card
--- shown, its gold outline included, sits inside the list's edges with the scroll bar's strip left clear, and its
--- description stays inside the card and left of the button. Fails the scene when a card or its words run past.
-local function assertStoreCards()
+-- shown, its gold outline included, sits inside the page's edges with the scroll bar's strip left clear, and its
+-- description stays inside the card and clear of its button. #1425: on Featured (`featured` true) the hero and the
+-- three picks also fit the page's height, since that tab never scrolls. Fails the scene when a card or its words run
+-- past.
+local function assertStoreCards(featured)
 	local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 	local window = modals and modals:FindFirstChild("Store", true)
-	local list = window and window:FindFirstChild("List", true)
-	assert(list and list:IsA("ScrollingFrame"), "uigate: the Store window has no card list")
-	local left = list.AbsolutePosition.X
-	local right = left + list.AbsoluteSize.X
+	local pageName = if featured then "Featured" else "List"
+	local page = window and window:FindFirstChild(pageName, true)
+	assert(page and page:IsA("GuiObject") and page.Visible, "uigate: the Store window's " .. pageName .. " page is not up")
+	local left = page.AbsolutePosition.X
+	local right = left + page.AbsoluteSize.X
+	local top = page.AbsolutePosition.Y
+	local bottom = top + page.AbsoluteSize.Y
 	local cards = 0
-	for _, card in list:GetChildren() do
-		if not card:IsA("Frame") or not card.Visible then
+	for _, card in page:GetDescendants() do
+		if not card:IsA("Frame") or card:FindFirstChild("Buy") == nil or not card.Visible then
+			continue
+		end
+		local parent = card.Parent
+		if parent and parent:IsA("GuiObject") and not parent.Visible then
 			continue
 		end
 		local buy = card:FindFirstChild("Buy")
 		local stroke = card:FindFirstChildOfClass("UIStroke")
 		assert(buy and buy:IsA("GuiObject") and stroke, "uigate: Store card " .. card.Name .. " has no button or outline")
-		local k = buy.AbsoluteSize.X / buy.Size.X.Offset -- design px to screen px (the window's UIScale)
+		local k = buy.AbsoluteSize.Y / buy.Size.Y.Offset -- design px to screen px (the window's UIScale)
 		local outline = stroke.Thickness * k
-		local bar = list.ScrollBarThickness * k
+		local bar = if page:IsA("ScrollingFrame") then page.ScrollBarThickness * k else 0
 		local x1 = card.AbsolutePosition.X - outline
 		local x2 = card.AbsolutePosition.X + card.AbsoluteSize.X + outline
 		assert(
 			x1 >= left - 0.5 and x2 <= right - bar + 0.5,
 			string.format(
-				"uigate: Store card %s runs past the window's inner edge (%.1f to %.1f, list %.1f to %.1f less a %.1f px bar, #1221)",
+				"uigate: Store card %s runs past the page's inner edge (%.1f to %.1f, page %.1f to %.1f less a %.1f px bar, #1221)",
 				card.Name,
 				x1,
 				x2,
@@ -537,18 +575,45 @@ local function assertStoreCards()
 				bar
 			)
 		)
+		if featured then
+			local y1 = card.AbsolutePosition.Y - outline
+			local y2 = card.AbsolutePosition.Y + card.AbsoluteSize.Y + outline
+			assert(
+				y1 >= top - 0.5 and y2 <= bottom + 0.5,
+				string.format(
+					"uigate: Featured card %s does not fit the page's height (%.1f to %.1f, page %.1f to %.1f, #1425)",
+					card.Name,
+					y1,
+					y2,
+					top,
+					bottom
+				)
+			)
+		end
 		local effect = card:FindFirstChild("Effect")
 		if effect and effect:IsA("TextLabel") and effect.Text ~= "" then
-			local bottom = effect.AbsolutePosition.Y + effect.AbsoluteSize.Y
+			local effectBottom = effect.AbsolutePosition.Y + effect.AbsoluteSize.Y
 			local cardBottom = card.AbsolutePosition.Y + card.AbsoluteSize.Y
+			local clear = effect.AbsolutePosition.X + effect.AbsoluteSize.X <= buy.AbsolutePosition.X + 0.5
+				or effectBottom <= buy.AbsolutePosition.Y + 0.5
 			assert(
-				bottom <= cardBottom + 0.5 and effect.AbsolutePosition.X + effect.AbsoluteSize.X <= buy.AbsolutePosition.X,
+				effectBottom <= cardBottom + 0.5 and clear,
 				"uigate: Store card " .. card.Name .. "'s description runs out of the card or under its button (#1221)"
 			)
 		end
 		cards += 1
 	end
-	assert(cards > 0, "uigate: the Store window shows no cards")
+	assert(cards > 0, "uigate: the Store window shows no cards on " .. pageName)
+	if featured then
+		local hero = page:FindFirstChild("hero")
+		local picks = page:FindFirstChild("Picks")
+		if hero and hero.Visible and picks and picks.Visible then
+			assert(
+				hero.AbsolutePosition.Y + hero.AbsoluteSize.Y <= picks.AbsolutePosition.Y + 0.5,
+				"uigate: the Store's hero card runs over its top picks (#1425)"
+			)
+		end
+	end
 end
 
 -- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
@@ -1293,24 +1358,39 @@ local SCENES = {
 	{ "HUDStore", function()
 		UI.store.preview(storePrices(true), {})
 	end },
-	-- the Store window for a new player: 2x Money at R$5 and Long Nap at R$199
+	-- the Store window for a new player (#1425): it opens on Featured, the King Cat Pack as the hero over 2x Money,
+	-- Long Nap and the Royal Cat, all in view with no scrolling
 	{ "Store", function()
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
-		assertStoreCards()
+		assertStoreCards(true)
+	end },
+	-- #1425: the Passes tab, a grid of pass cards 3 across
+	{ "StorePasses", function()
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		press("CatCafeModals", "passes")
+		assertStoreCards(false)
+	end },
+	-- #1425: the Potions tab, each pack with its exact contents and the bag count
+	{ "StorePotions", function()
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		press("CatCafeModals", "potions")
+		assertStoreCards(false)
 	end },
 	-- 2x Money and Long Nap owned: the ladder's next rung (3x, in place of x2) and Long Nap marked Owned
 	{ "StoreOwned", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[2]] = true, [Config.LongNapPassId] = true })
 		UI.open("Store")
-		assertStoreCards()
+		assertStoreCards(true)
 	end },
 	-- the passes off sale (as on live until launch): every card says Soon
 	{ "StoreSoon", function()
 		UI.store.preview(storePrices(false), {})
 		UI.open("Store")
-		assertStoreCards()
+		assertStoreCards(true)
 	end },
 	-- #1167 (Derek 2026-11-04: "the Store UI/menu is missing"): with every pass off sale the HUD's gold Store tile
 	-- still shows, and a press on it opens the Store window. A hidden tile or a window that does not open fails here.
@@ -1327,7 +1407,7 @@ local SCENES = {
 		local container = modalRoot and modalRoot:FindFirstChild("Container")
 		local window = container and container:FindFirstChild("Store")
 		assert(window and window:IsA("GuiObject") and window.Visible, "uigate: the Store tile did not open the Store")
-		assertStoreCards()
+		assertStoreCards(true)
 	end },
 	-- F102: the Trade window's players: Sam to ask, Alex under the minimum tier, Mia busy in a trade
 	{ "TradePlayers", function()

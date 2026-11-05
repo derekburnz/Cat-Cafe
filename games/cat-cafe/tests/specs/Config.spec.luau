@@ -239,6 +239,7 @@ return function()
 		-- F102 (trading.md section 6)
 		TradeMinTier = 3,
 		TradeMaxCats = 9,
+		TradeMaxDecor = 9, -- #1574: decor pieces each side may offer
 		TradeCountdownSeconds = 5,
 		TradeLopsidedRatio = 3,
 		TradeConfirmWaitSeconds = 2,

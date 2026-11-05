@@ -1873,17 +1873,11 @@ local function onSetSignStyle(player: Player, rawId: unknown)
 	if profile == nil then
 		return
 	end
-	local pick: string? = nil
-	if rawId ~= nil then
-		local id = Guard.id(rawId)
-		if
-			id == nil
-			or table.find(SignStyles.owned(profile.signStyles, ownsPassOf(player)), id) == nil
-		then
-			Net.toast(player, "You don't have that sign style yet.", "warn")
-			return
-		end
-		pick = id
+	-- the whole check is SignStyles.pickFor (owned styles only, specced in SignStyles.spec)
+	local ok, pick = SignStyles.pickFor(rawId, profile.signStyles, ownsPassOf(player))
+	if not ok then
+		Net.toast(player, "You don't have that sign style yet.", "warn")
+		return
 	end
 	if profile.signStyle == pick then
 		return

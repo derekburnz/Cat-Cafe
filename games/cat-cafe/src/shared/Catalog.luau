@@ -3282,7 +3282,8 @@ end
 -- The Corner Shop v2 (corner-shop-v2.md section 1, #1180; the stall from corner-shop.md, #1052): sold for coins only,
 -- in this order, at a fixed `price` that never follows income, tier or a pass. Each row's amount in a window is
 -- rolled from its size's Config.CornerShopSizeWeights (shared/CornerShop); `needsTier` hides and refuses it below
--- that tier. Nothing random, nothing that raises income, nothing for golden fish or Robux.
+-- that tier. Nothing random, nothing that raises income, nothing for golden fish or Robux. Prices v3 (#1385): x10
+-- for Small, x20 for regular and x40 for Big and Mega on the v2 prices.
 Catalog.cornerShop = {
 	{
 		id = "swift_potion_small",
@@ -3291,7 +3292,7 @@ Catalog.cornerShop = {
 		size = "small",
 		kind = "potion",
 		potionId = "swift_potion_small",
-		price = 300,
+		price = 3000,
 	},
 	{
 		id = "swift_potion",
@@ -3300,7 +3301,7 @@ Catalog.cornerShop = {
 		size = "regular",
 		kind = "potion",
 		potionId = "swift_potion",
-		price = 5000,
+		price = 100000,
 	},
 	{
 		id = "swift_potion_big",
@@ -3309,7 +3310,7 @@ Catalog.cornerShop = {
 		size = "big",
 		kind = "potion",
 		potionId = "swift_potion_big",
-		price = 500000,
+		price = 20000000,
 		needsTier = 3,
 	},
 	{
@@ -3319,7 +3320,7 @@ Catalog.cornerShop = {
 		size = "small",
 		kind = "potion",
 		potionId = "steady_potion_small",
-		price = 1000,
+		price = 10000,
 	},
 	{
 		id = "steady_potion",
@@ -3328,7 +3329,7 @@ Catalog.cornerShop = {
 		size = "regular",
 		kind = "potion",
 		potionId = "steady_potion",
-		price = 20000,
+		price = 400000,
 	},
 	{
 		id = "steady_potion_big",
@@ -3337,7 +3338,7 @@ Catalog.cornerShop = {
 		size = "big",
 		kind = "potion",
 		potionId = "steady_potion_big",
-		price = 2000000,
+		price = 80000000,
 		needsTier = 3,
 	},
 	{
@@ -3347,7 +3348,7 @@ Catalog.cornerShop = {
 		size = "small",
 		kind = "potion",
 		potionId = "quick_bait_potion_small",
-		price = 2500,
+		price = 25000,
 	},
 	{
 		id = "quick_bait_potion",
@@ -3356,7 +3357,7 @@ Catalog.cornerShop = {
 		size = "regular",
 		kind = "potion",
 		potionId = "quick_bait_potion",
-		price = 60000,
+		price = 1200000,
 	},
 	{
 		id = "quick_bait_potion_big",
@@ -3365,7 +3366,7 @@ Catalog.cornerShop = {
 		size = "big",
 		kind = "potion",
 		potionId = "quick_bait_potion_big",
-		price = 6000000,
+		price = 240000000,
 		needsTier = 3,
 	},
 	{
@@ -3375,7 +3376,7 @@ Catalog.cornerShop = {
 		size = "small",
 		kind = "potion",
 		potionId = "cat_whistle_small",
-		price = 800,
+		price = 8000,
 	},
 	{
 		id = "cat_whistle",
@@ -3384,7 +3385,7 @@ Catalog.cornerShop = {
 		size = "regular",
 		kind = "potion",
 		potionId = "cat_whistle",
-		price = 15000,
+		price = 300000,
 	},
 	{
 		id = "cat_whistle_big",
@@ -3393,7 +3394,7 @@ Catalog.cornerShop = {
 		size = "big",
 		kind = "potion",
 		potionId = "cat_whistle_big",
-		price = 1500000,
+		price = 60000000,
 		needsTier = 3,
 	},
 	{
@@ -3404,7 +3405,7 @@ Catalog.cornerShop = {
 		kind = "food",
 		foodId = "small_cat_snack",
 		xp = 600,
-		price = 400,
+		price = 4000,
 	},
 	{
 		id = "cat_snack",
@@ -3414,7 +3415,7 @@ Catalog.cornerShop = {
 		kind = "food",
 		foodId = "cat_snack",
 		xp = 2000,
-		price = 15000,
+		price = 300000,
 	},
 	{
 		id = "big_cat_snack",
@@ -3424,7 +3425,7 @@ Catalog.cornerShop = {
 		kind = "food",
 		foodId = "big_cat_snack",
 		xp = 6000,
-		price = 1000000,
+		price = 40000000,
 		needsTier = 3,
 	},
 	{
@@ -3435,7 +3436,7 @@ Catalog.cornerShop = {
 		kind = "food",
 		foodId = "cat_feast",
 		xp = 20000,
-		price = 80000000,
+		price = 3200000000,
 		needsTier = 4,
 	},
 	{

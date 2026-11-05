@@ -155,9 +155,15 @@ local STARTER: ProductCard = {
 StoreLogic.STARTER = STARTER
 
 -- What the Store needs to draw the product cards: Catalog.products, potion id to its name, and the player's bag.
+export type ProductPrize = {
+	potions: { [string]: number },
+	cats: { string }?, -- #1625: the Starter Bundle's Sprinkles
+	signStyles: { string }?, -- #1625: the Starter Bundle's Bakery Stripes
+}
 export type ShopView = {
-	products: { { id: string, name: string, prize: { potions: { [string]: number } } } }?,
+	products: { { id: string, name: string, prize: ProductPrize } }?,
 	potionNames: { [string]: string }?,
+	catNames: { [string]: string }?, -- cat id to its name, for a prize's cats
 	have: { [string]: number }?,
 	starterBought: boolean?, -- the server's word on the Starter Bundle (nil: unknown, so it stays hidden)
 }
@@ -182,6 +188,36 @@ function StoreLogic.productIds(config: any): { number }
 		table.insert(out, starter)
 	end
 	return out
+end
+
+-- The sign styles' names (Gameplay's PlayerState.signStyles ids, #1625).
+StoreLogic.SIGN_STYLE_NAMES = {
+	bakery_stripes = "Bakery Stripes",
+	royal_crest = "Royal Crest",
+	king_crest = "King Crest",
+} :: { [string]: string }
+
+-- "Sprinkles the cat, Bakery Stripes sign style": a prize's cats and sign styles in words, or nil when it has none.
+-- An id with no name yet reads as its words ("new_cat" is "New Cat").
+local function titled(id: string): string
+	local words: { string } = {}
+	for _, word in id:split("_") do
+		table.insert(words, word:sub(1, 1):upper() .. word:sub(2))
+	end
+	return table.concat(words, " ")
+end
+function StoreLogic.extras(prize: ProductPrize, catNames: { [string]: string }?): string?
+	local parts: { string } = {}
+	local names: { [string]: string } = catNames or {}
+	local cats: { string } = prize.cats or {}
+	for _, id in cats do
+		table.insert(parts, (names[id] or titled(id)) .. " the cat")
+	end
+	local styles: { string } = prize.signStyles or {}
+	for _, id in styles do
+		table.insert(parts, (StoreLogic.SIGN_STYLE_NAMES[id] or titled(id)) .. " sign style")
+	end
+	return if #parts > 0 then table.concat(parts, ", ") else nil
 end
 
 -- "3 Money Potion, 1 Swift Potion · You have 4": the exact contents, biggest first, and how many of them are owned.
@@ -258,10 +294,16 @@ local function starterRow(config: any, view: ShopView?): Row?
 	if def == nil then
 		return nil
 	end
+	-- #1625: the exact contents on the card (monetization policy): the cat and sign style, then the potions
+	local effect = STARTER.effect
+	local extras = StoreLogic.extras(def.prize, view.catNames)
+	if extras then
+		effect ..= "\n" .. extras
+	end
 	local potions = def.prize.potions
-	local effect = if potions and next(potions) ~= nil
-		then STARTER.effect .. "\n" .. StoreLogic.contents(potions, view.potionNames, view.have)
-		else STARTER.effect
+	if potions and next(potions) ~= nil then
+		effect ..= "\n" .. StoreLogic.contents(potions, view.potionNames, view.have)
+	end
 	return {
 		key = STARTER.key,
 		passId = id,

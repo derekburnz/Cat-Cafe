@@ -797,7 +797,7 @@ function BaitBowl._renderStatus(self: any)
 			then ("Bowl %d is empty"):format(selected)
 			else "Your bowl is empty"
 		local wait = Format.duration(self._waitSeconds)
-		local refill = self:_refillFood(state, selected)
+		local refill: Types.LureDef? = self:_refillFood(state, selected)
 		sub = if not self:_takesFood(selected)
 			then "Bowl 2 takes new food with the Second Bait Bowl pass."
 			elseif

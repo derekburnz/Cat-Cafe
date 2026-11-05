@@ -2556,26 +2556,6 @@ function Logic.crownSeen(value: unknown): boolean?
 	return if type(value) == "boolean" then value else nil
 end
 
--- Where a Corner Shop show is (#1052): "waiting" before `startsAt` (queued behind another show on the same cafe),
--- "on" from `startsAt` until `endsAt`, then "over".
-function Logic.showPhase(now: number, startsAt: number, endsAt: number): "waiting" | "on" | "over"
-	if now >= endsAt then
-		return "over"
-	elseif now < startsAt then
-		return "waiting"
-	end
-	return "on"
-end
-
--- The next firework shell after `now` on a show's own beat: shells go off at startsAt, startsAt + every and so on,
--- so a late joiner or a show that comes back into range keeps the cadence instead of firing a catch-up volley.
-function Logic.nextShell(startsAt: number, now: number, every: number): number
-	if now < startsAt then
-		return startsAt
-	end
-	return startsAt + (math.floor((now - startsAt) / every) + 1) * every
-end
-
 -- A shine sweeping once across a sign `width` studs wide (the Royal Crest, #1191), `t` seconds into a `sweep`-second
 -- sweep: how far along the band's middle is, from a sign's width before its left edge (-width) to a sign's width
 -- past it (+width), and how bright it is (0 to 1, brightest halfway). Outside the sweep: at rest and dark.

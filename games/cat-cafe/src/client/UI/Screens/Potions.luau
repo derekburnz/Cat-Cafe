@@ -446,7 +446,8 @@ function Potions._renderCats(self: any, food: BagLogic.Food)
 	)
 	local catalog: any = self._catalog
 	local names: { [string]: string } = {}
-	for _, def in (if catalog then catalog.cats else nil) or {} do
+	local defs: { any } = (if catalog then catalog.cats else nil) or {}
+	for _, def in defs do
 		if type(def) == "table" and def.id and def.name then
 			names[def.id] = def.name
 		end

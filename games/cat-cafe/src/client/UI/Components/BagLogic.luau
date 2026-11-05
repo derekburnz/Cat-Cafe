@@ -43,8 +43,9 @@ end
 function BagLogic.total(state: any): number
 	local sum = 0
 	for _, field in { "potions", "catFood" } do
-		local bag: { [string]: number }? = if type(state) == "table" then state[field] else nil
-		for _, count in bag or {} do
+		local found: { [string]: number }? = if type(state) == "table" then state[field] else nil
+		local bag: { [string]: number } = found or {}
+		for _, count in bag do
 			if type(count) == "number" and count > 0 then
 				sum += math.floor(count)
 			end

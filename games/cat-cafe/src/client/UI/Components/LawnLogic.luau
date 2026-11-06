@@ -447,7 +447,8 @@ end
 
 -- Where to buy more, for the grid's last card (lawn-nursery.md section 7: only the Yard Sale sells lawn pieces).
 LawnLogic.SHOP_TITLE = "Find more lawn decor"
-LawnLogic.SHOP_WHERE = "Yard Sale"
+-- #1760: name the camp and the tier, since nothing else in the game says where the Yard Sale is.
+LawnLogic.SHOP_WHERE = "Yard Sale, Neighbourhood camp (Tier 3)"
 
 -- "Small spot" or "Big spot".
 function LawnLogic.sizeName(size: Types.LawnSize): string

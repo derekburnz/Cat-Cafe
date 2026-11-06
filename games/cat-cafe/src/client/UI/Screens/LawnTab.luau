@@ -148,6 +148,7 @@ function LawnTab.new(parent: Instance): LawnTab
 		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = LawnLogic.SHOP_WHERE,
+		TextScaled = true, -- the longer line still fits a narrow card
 		Parent = footer,
 	})
 

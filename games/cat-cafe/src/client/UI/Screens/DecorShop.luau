@@ -552,6 +552,8 @@ function DecorShop._build(self: any)
 		-- #1711: the rarity pill on every piece with a rarity, the first four Classic Crate pieces (no kind) too
 		-- #1721: a Cafe Pass piece wears a "Cafe Pass" tag in its place (it is never found in crates)
 		local passPiece = (decor :: any).source == "pass"
+		-- #1822: a piece from a bundle names it ("King Cat Pack", Catalog.passDecor's pack), else the Cafe Pass
+		local passName: string = (decor :: any).pack or "Cafe Pass"
 		if piece.rarity or passPiece then
 			local rarity = text({
 				Name = "Rarity",
@@ -569,7 +571,7 @@ function DecorShop._build(self: any)
 					else Theme.rarityTextColor(piece.rarity),
 				TextXAlignment = Enum.TextXAlignment.Center,
 				TextTruncate = Enum.TextTruncate.None,
-				Text = if passPiece then "Cafe Pass" else piece.rarity or "",
+				Text = if passPiece then passName else piece.rarity or "",
 				ZIndex = 3,
 				Parent = card,
 			})
@@ -809,7 +811,7 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 			card.mode = "crate"
 			card.action:setText(
 				if (def :: any).source == "pass"
-					then "From the Cafe Pass"
+					then "From the " .. ((def :: any).pack or "Cafe Pass")
 					else Theme.icons.crate .. " From crates"
 			)
 			card.action:setStyle("ghost")

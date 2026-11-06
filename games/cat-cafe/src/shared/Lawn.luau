@@ -3,7 +3,8 @@
 -- one path and one fence style at a time. Pure rules for LawnService, CafeService's tier gifts and the save (version
 -- 28); the rows are Catalog.lawn and Catalog.lawnStyles, the world side server/World/LawnBuilder.
 -- Since #1283 (lawn-nursery.md section 6) every piece and style out adds money by its rarity (`bonusOf`, in
--- Economy.cafeMultiplier), and the server lays the best lawn by itself (`best`, `applyBest`): nothing is placed by hand.
+-- Economy.cafeMultiplier). Equip Best lays the best lawn (`best`, `applyBest`); since #1751 the player places and takes
+-- in pieces and styles by hand too, and a buy only fills an empty spot (`putOut`), so a manual pick sticks.
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
@@ -356,6 +357,59 @@ function Lawn.best(profile: Profile): ({ [string]: string }, Types.LawnStyles)
 		end
 	end
 	return placed, styles
+end
+
+-- #1751: a newly owned piece or style goes out without moving anything the player chose: a piece onto the first empty
+-- open spot of its size, a path when Grey Slabs is down, a fence when none is up. Returns true when it went out.
+function Lawn.putOut(profile: Profile, id: string): boolean
+	if not Lawn.owns(profile, id) then
+		return false
+	end
+	local piece, style = Catalog.getLawn(id), Catalog.getLawnStyle(id)
+	if piece ~= nil then
+		if Lawn.spotOf(profile, id) ~= nil then
+			return true
+		end
+		local spotId = Lawn.firstFreeSpot(profile, piece.spot)
+		if spotId == nil then
+			return false
+		end
+		Lawn.place(profile, spotId, id)
+		return true
+	elseif style ~= nil then
+		local inUse = if style.kind == "path"
+			then profile.lawnStyles.path
+			else profile.lawnStyles.fence
+		if inUse == id then
+			return true
+		end
+		local empty = if style.kind == "path" then inUse == Lawn.DEFAULT_PATH else inUse == nil
+		if not empty then
+			return false
+		end
+		Lawn.setStyle(profile, style.kind, id)
+		return true
+	end
+	return false
+end
+
+-- #1751: takes off the lawn what the cafe no longer owns or its tier has not opened (after a trade), and nothing else.
+-- Returns true when anything changed.
+function Lawn.keepOwned(profile: Profile): boolean
+	local _, placed, styles =
+		Lawn.sanitize(profile.lawnOwned, profile.lawn, profile.lawnStyles, tierOf(profile))
+	local changed = styles.path ~= profile.lawnStyles.path
+		or styles.fence ~= profile.lawnStyles.fence
+	for _, spot in Lawn.SPOTS do
+		if placed[spot.id] ~= profile.lawn[spot.id] then
+			changed = true
+		end
+	end
+	if changed then
+		profile.lawn = placed
+		profile.lawnStyles = styles
+	end
+	return changed
 end
 
 -- Lays Lawn.best on the profile. Returns true when anything changed.

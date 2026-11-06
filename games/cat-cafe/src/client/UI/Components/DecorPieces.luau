@@ -272,6 +272,29 @@ function DecorPieces.poolPieces(catalog: Types.Catalog, pool: string): { Types.D
 	return list
 end
 
+-- #1751 (Derek2 11-06: "sort each section in decor by rarity highest first to lowest"): a piece's rarity as a
+-- number, Mythical 5 down to Common 1; coin decor with no rarity is 0, so it comes last.
+function DecorPieces.rarityRank(def: Types.DecorDef?): number
+	return RARITY_RANK[DecorPieces.info(def).rarity or ""] or 0
+end
+
+-- #1751: the decor list highest rarity first, the catalog's own order within a rarity.
+function DecorPieces.byRarity(list: { Types.DecorDef }): { Types.DecorDef }
+	local order: { [Types.DecorDef]: number } = {}
+	for index, def in list do
+		order[def] = index
+	end
+	local sorted = table.clone(list)
+	table.sort(sorted, function(a: Types.DecorDef, b: Types.DecorDef): boolean
+		local rankA, rankB = DecorPieces.rarityRank(a), DecorPieces.rarityRank(b)
+		if rankA ~= rankB then
+			return rankA > rankB
+		end
+		return order[a] < order[b]
+	end)
+	return sorted
+end
+
 -- A page's pieces owned and in all.
 function DecorPieces.pageCounts(
 	catalog: Types.Catalog,

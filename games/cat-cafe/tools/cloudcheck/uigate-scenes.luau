@@ -1678,6 +1678,10 @@ local SCENES = {
 		press("CatCafeHUD", "LuckyDay.Tap")
 		local card = hud:FindFirstChild("DayCard", true) :: Frame
 		assert(card and card.Visible, "uigate: the day card did not open")
+		-- #1572 (1h): the pity sign's two lines on the day card too
+		local pity = card:FindFirstChild("Pity") :: TextLabel
+		assert(pity and string.find(pity.Text, "Legendary cat in", 1, true), "uigate: the day card has no pity lines (#1572)")
+		assert(string.find(pity.Text, "Mythical cat in", 1, true), "uigate: the day card has no Mythical line (#1572)")
 	end },
 	-- F100: the Cannon picker with the Tier 3 player's camp extras: the Picnic Basket ready (red dot), the Yard Sale's
 	-- new crates (no dot)

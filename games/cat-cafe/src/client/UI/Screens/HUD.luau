@@ -64,6 +64,7 @@ local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PalChip = require(script.Parent.PalChip)
 local PalMarker = require(script.Parent.PalMarker)
+local PityLogic = require(script.Parent.Parent.Components.PityLogic)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
@@ -1022,9 +1023,30 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			PaddingLeft = UDim.new(0, 10),
 			PaddingRight = UDim.new(0, 10),
 		}),
+		Create(
+			"UIListLayout",
+			{ Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }
+		),
+	})
+	-- #1572 (luck-and-rare-moments.md 1h): under the day kinds, the pity sign's lines, ticking while the card is open
+	self._dayPity = Create("TextLabel", {
+		Name = "Pity",
+		LayoutOrder = 2,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.gold,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextWrapped = true,
+		Text = "",
+		ZIndex = DAY_CARD_Z + 1,
+		Parent = self._dayCard,
 	})
 	self._dayCardText = Create("TextLabel", {
 		Name = "Lines",
+		LayoutOrder = 1,
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 0),
 		AutomaticSize = Enum.AutomaticSize.Y,
@@ -2420,6 +2442,31 @@ end
 -- #1572: the day line's card, open or shut.
 function HUD._toggleDayCard(self: any)
 	self._dayCard.Visible = not self._dayCard.Visible and self._luckyLine.Visible
+	if not self._dayCard.Visible then
+		return
+	end
+	-- #1572: the pity lines count down each second while the card stays open
+	local token = {}
+	self._pityToken = token
+	self:_paintPity()
+	task.spawn(function()
+		while true do
+			task.wait(1)
+			if
+				self._pityToken ~= token
+				or not self._dayCard.Visible
+				or self._dayCard.Parent == nil
+			then
+				return
+			end
+			self:_paintPity()
+		end
+	end)
+end
+
+function HUD._paintPity(self: any)
+	local t = Workspace:GetServerTimeNow() - Config.ClockEpoch
+	self._dayPity.Text = table.concat(PityLogic.lines(PityLogic.view(t, PityLogic.current())), "\n")
 end
 
 -- F101: the Rescue Rally countdown under the clock (RallyLogic.soon), shown with the clock; nil hides it.

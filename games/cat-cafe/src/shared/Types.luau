@@ -154,6 +154,8 @@ export type DecorDef = {
 	material: Enum.Material?,
 	-- #1822: a pass decor piece that comes with this game pass (by name) instead of the Cafe Pass track
 	pack: string?,
+	-- #1168 row 3: the Config field of the game pass that gives this pass decor piece (PassDecor.toGrant)
+	passKey: string?,
 }
 
 -- Data-model section 11b and golden-fish.md sections 5 and 5b (F54): a milestone on an Index page, `needs` of what
@@ -188,6 +190,8 @@ export type ProductDef = {
 	oncePerAccount: boolean?,
 	-- #1626: unlocks the running Cafe Pass season's paid track (CafePass.buyPaid); once per season
 	seasonPass: boolean?,
+	-- #1168 row 4: buying it marks the player a supporter (the Thank You Badge; Products.isSupporter)
+	supporter: boolean?,
 }
 
 -- Cat food (corner-shop-v2.md section 3, #1181): kept in the Bag (profile.catFood) and fed to one cat with FeedCat.

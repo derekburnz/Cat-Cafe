@@ -35,6 +35,8 @@ local Config = {
 	RoyalCatPassId = 2066438426,
 	KingPackPassId = 2071368679,
 	KingCatPassId = 2074682301, -- #1822: the King Cat alone (R$799); the pass is made off sale and goes on sale after this is live
+	SignStylePackPassId = 0, -- #1168 row 1: three sign styles (R$79); 0 until made, after Model-Agent's signs are in
+	GardenDecorPackPassId = 0, -- #1168 row 3: six looks-only decor pieces (R$149); 0 until made, after the models
 	GoldenPondPassId = 2071704337, -- #1232
 	SecondBowlPassId = 2072132265, -- #1161
 	-- #1624 (economy-ladder.md section 6a v2.4): what the five store passes give. VIP, Cafe Style and Grand Cafe add
@@ -56,6 +58,8 @@ local Config = {
 		potion_pack_s = 3728336184,
 		potion_pack_m = 3728336191,
 		potion_pack_l = 3728336197,
+		steady_paw_pack = 3728717974, -- #1168 row 8: made by Tools-Agent (dev-products.yml), off sale until live
+		thank_you_badge = 3728719483, -- #1168 row 4: once per account (Tools-Agent, 2026-11-06), off sale until live
 		starter_bundle = 3728336166, -- #1625: once per account (Catalog.products oncePerAccount)
 		cafe_pass = 3728336202, -- #1626: the running season's paid track, once per season (Catalog.products seasonPass)
 	} :: { [string]: number },

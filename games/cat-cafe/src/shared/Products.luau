@@ -114,6 +114,17 @@ function Products.sanitizeOnce(raw: unknown): { [string]: boolean }
 	return out
 end
 
+-- #1168 row 4: whether the player bought a supporter product (the Thank You Badge), once per account.
+Products.SUPPORTER_ATTRIBUTE = "Supporter" -- on the Player while true, for any client view of the badge
+function Products.isSupporter(profile: Types.PlayerProfile): boolean
+	for _, product in Catalog.products do
+		if product.supporter == true and profile.onceBought[product.id] == true then
+			return true
+		end
+	end
+	return false
+end
+
 -- The product a Roblox product id sells, or nil for an id Config does not name (or a 0, a product not made yet).
 function Products.forProductId(productId: unknown): Types.ProductDef?
 	if type(productId) ~= "number" or productId <= 0 then

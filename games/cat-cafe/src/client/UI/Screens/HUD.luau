@@ -75,6 +75,8 @@ local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
+local TutorialGlow = require(script.Parent.Parent.Components.TutorialGlow)
+local TutorialHints = require(script.Parent.Parent.Components.TutorialHints)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
@@ -1312,6 +1314,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			})
 			self._dots[screen] = dot
 		end
+		if item.name == "Upgrades" then
+			self._upgradesTile = button -- #1796: glows while a tutorial step asks for an upgrade
+		end
 		if item.name == "Store" then
 			button.instance.Visible = false -- until setStore hands it a window to open
 			self._storeTile = button
@@ -1395,6 +1400,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			local passBadge = claimBadge(button.instance, 23)
 			passBadge.AnchorPoint = Vector2.new(1, 0.5) -- inset like the Quests dot (#1176)
 			passBadge.Position = UDim2.new(1, 2, 0, 3)
+			passBadge.Size = UDim2.fromOffset(22, 22) -- the menu dots' size: the 24 px badge poked into the Store's glow
 			self._passBadge = passBadge
 		elseif item.name == "Bowl" then
 			button.instance.Visible = false -- once the Bait bowl upgrade is owned (_renderBowlSlot)
@@ -1403,6 +1409,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			local bowlBadge = claimBadge(button.instance, 23)
 			bowlBadge.AnchorPoint = Vector2.new(1, 0.5) -- inset like the Quests dot (#1176); the F key cap is top left
 			bowlBadge.Position = UDim2.new(1, 2, 0, 3)
+			bowlBadge.Size = UDim2.fromOffset(22, 22) -- as the Pass tile's
 			self._bowlBadge = bowlBadge
 			-- #1161: a small "2" at the bottom right while the cafe has two bowls (the "!" is top right)
 			local count: TextLabel = label({
@@ -2082,6 +2089,11 @@ end
 
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
+	-- #1796: the Upgrades tile glows while the tutorial asks for a table or the Bait bowl
+	TutorialGlow.set(
+		self._upgradesTile.instance,
+		TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
+	)
 	-- F102: the Trade tile from the live minimum tier, with the rest of the full HUD, once TradeService runs (it sets
 	-- the Workspace's TradingOn; while that is false the window says trading is resting)
 	self._tradeTile.instance.Visible = self:_open("invite")

@@ -26,7 +26,13 @@ export type Callbacks = {
 
 export type BaitCard = {
 	screenGui: ScreenGui,
-	show: (self: BaitCard, def: Types.CatDef, cat: Types.BaitCat, foodName: string?) -> (),
+	show: (
+		self: BaitCard,
+		def: Types.CatDef,
+		cat: Types.BaitCat,
+		foodName: string?,
+		bowl: number?
+	) -> (),
 	hide: (self: BaitCard) -> (),
 	isShowing: (self: BaitCard) -> boolean,
 	-- true at the bowl, false away from it, nil when the bowl part is unknown (the server decides)
@@ -113,9 +119,22 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 		TextSize = Theme.sizes.textLarge - 2,
 		TextColor3 = Theme.colors.white,
 		Text = "A CAT CAME TO YOUR BOWL!",
+		TextScaled = true, -- #1161: it ran under the X on a phone; it shrinks to fit between the paddings instead
 		ZIndex = 3,
 		Parent = card,
 	})
+	-- the X's width on both sides, so the words stay centred and clear of it
+	Create("UIPadding", {
+		PaddingLeft = UDim.new(0, Theme.sizes.touchMin + 8),
+		PaddingRight = UDim.new(0, Theme.sizes.touchMin + 8),
+		PaddingTop = UDim.new(0, 8),
+		PaddingBottom = UDim.new(0, 8),
+		Parent = self._banner,
+	})
+	Create(
+		"UITextSizeConstraint",
+		{ MaxTextSize = Theme.sizes.textLarge - 2, Parent = self._banner }
+	)
 	Create(
 		"UICorner",
 		{ CornerRadius = UDim.new(0, Theme.sizes.radius + 6), Parent = self._banner }
@@ -278,8 +297,18 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 	return self :: BaitCard
 end
 
-function BaitCard.show(self: any, def: Types.CatDef, cat: Types.BaitCat, foodName: string?)
+-- #1161: `bowl` (1 or 2) only with two bowls, so the banner says which one the cat came to.
+function BaitCard.show(
+	self: any,
+	def: Types.CatDef,
+	cat: Types.BaitCat,
+	foodName: string?,
+	bowl: number?
+)
 	self._token += 1
+	self._banner.Text = if bowl
+		then ("A CAT CAME TO BOWL %d!"):format(bowl)
+		else "A CAT CAME TO YOUR BOWL!"
 	self._pending = false
 	self._confirmUntil = 0
 	local rarity = def.rarity

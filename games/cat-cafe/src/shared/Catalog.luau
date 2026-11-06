@@ -2281,6 +2281,18 @@ Catalog.indexMilestones = {
 	{ id = "rainbow5", track = "rainbow", needs = 5 },
 	{ id = "rainbow10", track = "rainbow", needs = 10 },
 	{ id = "rainbow25", track = "rainbow", needs = 25 },
+	-- #1772 (Derek2: "Gold cats X / 50" like the Rainbow cats): the gold track on the All Cats page, different gold
+	-- cats across every area (profile.goldCollection), next to total5 to total50
+	{ id = "goldtotal5", track = "gold", needs = 5 },
+	{ id = "goldtotal10", track = "gold", needs = 10 },
+	{ id = "goldtotal15", track = "gold", needs = 15 },
+	{ id = "goldtotal20", track = "gold", needs = 20 },
+	{ id = "goldtotal25", track = "gold", needs = 25 },
+	{ id = "goldtotal30", track = "gold", needs = 30 },
+	{ id = "goldtotal35", track = "gold", needs = 35 },
+	{ id = "goldtotal40", track = "gold", needs = 40 },
+	{ id = "goldtotal45", track = "gold", needs = 45 },
+	{ id = "goldtotal50", track = "gold", needs = 50 },
 } :: { Types.IndexMilestone }
 
 -- What each milestone pays per page (golden-fish.md sections 4, 5 and 5b). Everything is free and only the server
@@ -2440,6 +2452,23 @@ Catalog.indexPrizes = {
 			spins = 10,
 			tag = "Cat Master",
 			baitSpeed = 0.10,
+		},
+		-- #1772 (Design-Agent's table on the issue): the gold cats track, a little richer than the totals as gold is
+		-- rarer. No gold luck: the five area gold tracks already reach GoldLuckMax, which would eat it
+		goldtotal5 = { fish = 15, spins = 1 },
+		goldtotal10 = { fish = 25, crates = { classic_golden_crate = 1 } },
+		goldtotal15 = { fish = 30, spins = 2 },
+		goldtotal20 = { fish = 40, crates = { highest = 1 } },
+		goldtotal25 = { fish = 50, crates = { classic_golden_crate = 2 } },
+		goldtotal30 = { fish = 60, spins = 3 },
+		goldtotal35 = { fish = 75, crates = { highest = 1 } },
+		goldtotal40 = { fish = 90, crates = { classic_golden_crate = 2 } },
+		goldtotal45 = { fish = 110, spins = 5 },
+		goldtotal50 = {
+			fish = 250,
+			crates = { classic_golden_crate = 4 },
+			spins = 10,
+			tag = "Golden Paw",
 		},
 	},
 	decor_alley = {
@@ -3353,6 +3382,67 @@ for _, def in Catalog.decor do
 	if def.crate ~= nil then
 		table.insert(poolPieces[def.crate], def.id)
 	end
+end
+
+-- #1645 (cafe-pass.md section 3): the Cafe Pass's season decor, earned on its track and owned forever. Looks only: no
+-- money bonus and no crate, so it is in no Decor Index page and never moves the Index, and it can't be traded
+-- (Trade.piece takes crate pieces only) or bought (Economy.decorBlocker). Each piece takes a decor spot like the crate
+-- furniture and decorations; they are kept apart in Catalog.passDecor (Catalog.crateDecor is the 84 crate pieces), and
+-- the server places them after the crate pieces.
+local PASS_DECOR: { { id: string, name: string, kind: Types.DecorKind, description: string } } = {
+	{
+		id = "decor_pumpkin_lantern",
+		name = "Pumpkin Lantern",
+		kind = "decoration",
+		description = "A friendly cat face, glowing warm.",
+	},
+	{
+		id = "decor_fallen_leaf_rug",
+		name = "Fallen Leaf Rug",
+		kind = "decoration",
+		description = "A big maple leaf to curl up on.",
+	},
+	{
+		id = "decor_cosy_knit_cushion",
+		name = "Cosy Knit Cushion",
+		kind = "furniture",
+		description = "A soft knitted pouf in pumpkin bands.",
+	},
+	{
+		id = "decor_hay_bale_seat",
+		name = "Hay Bale Seat",
+		kind = "furniture",
+		description = "Harvest time, sit a while.",
+	},
+	{
+		id = "decor_apple_crate_shelf",
+		name = "Apple Crate Shelf",
+		kind = "furniture",
+		description = "Crates of red apples, stacked as shelves.",
+	},
+	{
+		id = "decor_maple_tree_planter",
+		name = "Maple Tree Planter",
+		kind = "decoration",
+		description = "A little maple in red and orange.",
+	},
+}
+Catalog.passDecor = {} :: { Types.DecorDef }
+for _, row in PASS_DECOR do
+	local def: Types.DecorDef = {
+		id = row.id,
+		name = row.name,
+		cost = 0,
+		category = KIND_CATEGORY[row.kind],
+		effect = "Looks only",
+		description = row.description,
+		bonus = 0,
+		asset = "CatCafe_Decor_" .. (row.name:gsub("[^%w]", "")),
+		source = "pass",
+		kind = row.kind,
+	}
+	Catalog.decorById[row.id] = def
+	table.insert(Catalog.passDecor, def)
 end
 
 Catalog.crates = {} :: { Types.CrateDef }

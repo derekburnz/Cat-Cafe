@@ -204,6 +204,9 @@ Remotes.ServerToClient = {
 	-- prompt open. Since F93 a stray has no prompt: a swing's refusal is a toast and its outcome CatchResult.
 	"NetSwung", -- (userId: number, hit: boolean)  F93: a swing landed, to the swinger and every client within 150 studs,
 	-- for the smack, the bounce on a miss and the whoosh; hit is true when it started a catch or a pick up
+	"PityAnnounce", -- (kind: "Legendary" | "Mythical", areaId: string, state: "out" | "caught" | "gone", winnerName:
+	-- string?)  #1572 (luck-and-rare-moments.md 1h): to everyone as a pity cat spawns, is caught (anywhere) or leaves
+	-- at night. The banner text itself goes out as Announce; ReplicatedStorage.Pity holds the state for late joiners.
 	"CatchSchedule", -- (strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
 	"CatchResult", -- (strayId: string, grades: { Types.CircleGrade }, success: boolean, charmGain: number,
 	-- retryAt: number?)  grades up to and including the first Miss; after a miss the stray sprints off and anyone may

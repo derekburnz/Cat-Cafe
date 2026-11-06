@@ -829,6 +829,24 @@ No effect may make a bump feel like an attack: no impact flash, no knockback on 
 | RankUp | Palette confetti at the cafe door (16 particles), the new expansion floor rises into place with sparkles along its edge, each newly opened role station gets a soft ring | tween, fx | 16 plus 1 per new station | plot `Tier` rising | P1 |
 | AreaUnlock | The area's gate leaves swing open (0.8 s Back Out) with a sparkle arch, for the player who ranked up | tween, fx | 12 particles | the player's tier reaching the gate's tier | P1 |
 
+### Front lawn pieces (#1283)
+
+Derek2, 2026-11-05: lawn decor "should have effects". Already live from the models' names: `_Bulbs` glow at night, the balloons, lanterns, star and paw move (Motion), `_Flowers` draw butterflies, `_Water` splashes. New in `Effects/Lawn.luau`, on the nearest 3 pieces on a phone and 6 on a PC within 40 studs, none in Low performance:
+
+| Piece | Rarity | Effect |
+|---|---|---|
+| Lamp Post | Rare | a few slow fireflies round the lantern at night |
+| Bird Bath | Rare | a milky ripple ring on the water every 3.5 s (none with Reduce Motion) |
+| Garden Gnome Cat | Rare | a small warm light in its lantern at night |
+| Little Fountain | Legendary | drops spilling off the upper bowl, a ring on the basin every 2.5 s, a pale blue glow under it at night |
+| Balloon Bunch | Legendary | a little sparkle in the balloons every 5 s |
+| Fairy Light Arch | Mythical | at night a glint on a random bulb every 0.5 s, and a few fireflies |
+| Flower Cart | Mythical | petals drifting off the blooms (the Blossom Tree's) |
+| Cat Tree Sign | Golden | a gold glint off the spinning star every 4 s; at night bulb twinkles every 0.8 s |
+| Golden Paw Statue | Golden | gold motes drifting off the paw and a gold glint every 6 s |
+
+Reduce Motion keeps the lights and glints and drops the drifting particles and rings. Commons and Uncommons keep their butterflies and the Mailbox flag.
+
 ### Cafe themes (#1624)
 
 From Gameplay-Engineer's #1687 (the plot's `Theme` "garden" or "grand", and ThemeInside holding the chandelier):

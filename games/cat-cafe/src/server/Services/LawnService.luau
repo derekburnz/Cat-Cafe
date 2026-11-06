@@ -4,10 +4,12 @@
 -- #1537 (lawn-nursery.md section 7) only the Yard Sale sells them: the id must be in the global day's stock
 -- (shared/YardSale), not bought by this player today, and the caller within reach of the Yard Sale (checked here,
 -- never trusted). The Garden Nursery is retired.
--- Since #1283 (lawn-nursery.md section 6b) the server lays the lawn by itself: after a buy it lays Lawn.best, so the
--- new piece or style goes out when it beats one out (or fills an empty spot) and is stored otherwise; `spotId` is
--- still checked for shape but no longer chooses anything. SetLawnSpot and SetLawnStyle are retired and refuse with
--- RETIRED. Each needs the caller's own cafe and the lawn's art in (WorldBuilder.lawnLive), validates every argument,
+-- #1751 (Derek2: Use and Remove on the Decor window's Lawn tab): a buy puts the new piece or style out only where
+-- nothing stands (Lawn.putOut: an empty spot of its size, Grey Slabs, no fence) and stores it otherwise, so nothing the
+-- player chose moves; `spotId` is still checked for shape but chooses nothing. Equip Best (CafeService) lays Lawn.best.
+-- SetLawnSpot(spotId, pieceId?) puts an owned piece on an open spot of its size or takes the spot's piece in, and
+-- SetLawnStyle(kind, id) lays an owned path or fence ("" for Grey Slabs or no fence); #1283 had retired both. Each
+-- needs the caller's own cafe and the lawn's art in (WorldBuilder.lawnLive), validates every argument,
 -- toasts why when it refuses, and otherwise rebuilds the lawn and sends a ProfileSync. A buy logs lawn_placed (its id,
 -- the tier), once per piece or style ever (review S119).
 -- Lawn pieces and styles out add money (Economy.lawnBonus), so coins are settled before anything changes.
@@ -35,9 +37,6 @@ type Profile = Types.PlayerProfile
 local LawnService = {}
 
 local KINDS = { "path", "fence" }
-
--- What SetLawnSpot and SetLawnStyle say now (section 6b); the abuse client matches it as a prefix.
-LawnService.RETIRED = "The lawn sets itself now"
 
 -- "+1%" or "+1.5%": a lawn bonus as the toasts show it.
 function LawnService.percent(bonus: number): string
@@ -128,7 +127,7 @@ local function onBuyLawn(player: Player, rawId: unknown, rawSpotId: unknown)
 	profile.lawnOwned[id] = true
 	profile.yardDecor.bought[id] = true -- the same save write as the coins and the piece
 	bought(player, profile, id)
-	Lawn.applyBest(profile)
+	Lawn.putOut(profile, id)
 	local name = if piece ~= nil then piece.name elseif style ~= nil then style.name else id
 	local rarity: Types.LawnRarity? = if piece ~= nil
 		then piece.rarity
@@ -147,7 +146,7 @@ local function onBuyLawn(player: Player, rawId: unknown, rawSpotId: unknown)
 	else
 		Net.toast(
 			player,
-			string.format("%s bought. Your lawn's better pieces stay out.", name),
+			string.format("%s bought. Put it out from the Decor window's Lawn tab.", name),
 			"good"
 		)
 	end
@@ -155,8 +154,8 @@ local function onBuyLawn(player: Player, rawId: unknown, rawSpotId: unknown)
 	CampExtraService.resend(player)
 end
 
--- Section 6b: the lawn sets itself, so placing by hand is refused (an old client, or an exploit): arguments of the
--- old shape get RETIRED, anything else is dropped without a word, as before.
+-- #1751: an owned piece onto an open spot of its size (off any other spot; the spot's old piece goes back to the
+-- player's pieces), or nil or "" to take the spot's piece in. Junk is dropped without a word; a reason is toasted.
 local function onSetLawnSpot(player: Player, rawSpotId: unknown, rawPieceId: unknown)
 	local spotId = Guard.id(rawSpotId)
 	local pieceId, pieceOk = optionalId(rawPieceId)
@@ -166,16 +165,52 @@ local function onSetLawnSpot(player: Player, rawSpotId: unknown, rawPieceId: unk
 	if pieceId ~= nil and Catalog.getLawn(pieceId) == nil then
 		return
 	end
-	refuse(player, LawnService.RETIRED)
+	local profile, plot = ready(player)
+	if profile == nil or plot == nil then
+		return
+	end
+	local blocker = Lawn.placeBlocker(profile, spotId, pieceId)
+	if blocker ~= nil then
+		refuse(player, blocker)
+		return
+	end
+	if profile.lawn[spotId] == pieceId then
+		CafeService.sync(player)
+		return
+	end
+	Economy.settle(profile, os.time(), ClockService.epoch()) -- the lawn's money changes from now
+	Lawn.place(profile, spotId, pieceId)
+	rebuild(player, profile, plot)
 end
 
+-- #1751: an owned path or fence in use, or "" for Grey Slabs or no fence.
 local function onSetLawnStyle(player: Player, rawKind: unknown, rawId: unknown)
-	local kind = Guard.oneOf(rawKind, KINDS)
-	local _id, idOk = optionalId(rawId)
+	local kind: Types.LawnStyleKind? = Guard.oneOf(rawKind, KINDS) :: any
+	local id, idOk = optionalId(rawId)
 	if kind == nil or not idOk or rawId == nil then
 		return
 	end
-	refuse(player, LawnService.RETIRED)
+	if id ~= nil and Catalog.getLawnStyle(id) == nil and Catalog.getLawn(id) == nil then
+		return
+	end
+	local profile, plot = ready(player)
+	if profile == nil or plot == nil then
+		return
+	end
+	local blocker = Lawn.styleBlocker(profile, kind, id)
+	if blocker ~= nil then
+		refuse(player, blocker)
+		return
+	end
+	local current = if kind == "path" then profile.lawnStyles.path else profile.lawnStyles.fence
+	local wanted = if kind == "path" then id or Lawn.DEFAULT_PATH else id
+	if current == wanted then
+		CafeService.sync(player)
+		return
+	end
+	Economy.settle(profile, os.time(), ClockService.epoch())
+	Lawn.setStyle(profile, kind, id)
+	rebuild(player, profile, plot)
 end
 
 function LawnService.start()

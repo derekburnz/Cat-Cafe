@@ -1027,9 +1027,9 @@ end
 -- Bench at Tier 2, an Umbrella Table at Tier 3), each placed in an empty big spot when there is one, with a toast.
 -- Rank up and load both call it, so a cafe already past those tiers when the lawn arrives gets them too. Only once the
 -- lawn's art is in, so nothing is given that the player cannot see.
--- #1283 (lawn-nursery.md section 6b): then it lays the best lawn (Lawn.applyBest), which fills the spots a rank up
--- opens and, on a save's first load after #1283, replaces a lawn placed by hand. Pieces out add money, so what was
--- earned so far settles at the old rate first.
+-- #1751: it no longer lays the best lawn (#1283 did, on every load and rank up), so a piece the player took in stays
+-- in; Equip Best fills the spots a rank up opens. Pieces out add money, so what was earned so far settles at the old
+-- rate first.
 local function giveLawnGifts(player: Player, profile: Profile)
 	if not WorldBuilder.lawnLive() then
 		return
@@ -1050,7 +1050,6 @@ local function giveLawnGifts(player: Player, profile: Profile)
 			"good"
 		)
 	end
-	Lawn.applyBest(profile)
 end
 
 -- Bedtime (F79, BedtimeService) ----------------------------------------------------------------------------------
@@ -1746,12 +1745,13 @@ local function onLockDecor(player: Player, rawId: unknown, rawLocked: unknown)
 	CafeService.sync(player)
 end
 
--- #1574: after a trade moved decor or lawn pieces, the best owned pieces go out (as EquipBestDecor, without its toast).
+-- #1574: after a trade moved decor or lawn pieces, the best owned decor goes out (as EquipBestDecor, without its
+-- toast). #1751: the lawn only loses what was traded away; a piece that came in waits for Use or Equip Best.
 function CafeService.autoEquipDecor(_player: Player, profile: Profile)
 	local cap = Crates.spotCap(Economy.tier(profile), profile.fishPerks.extra_decor_spot or 0)
 	profile.decorPlaced = DecorBest.plan(profile, cap).placed
 	if WorldBuilder.lawnLive() then
-		Lawn.applyBest(profile)
+		Lawn.keepOwned(profile)
 	end
 end
 
@@ -1905,7 +1905,8 @@ end
 
 -- Equip Best for decor (Derek 2026-10-28): the best owned pieces out for the most money (shared/DecorBest), the rest
 -- put away, then one toast and a sync. Only owned pieces move. Since #1283 (lawn-nursery.md section 6b) it lays the
--- best lawn too (Lawn.applyBest; the server keeps it best anyway) and the toast counts both.
+-- best lawn too (Lawn.applyBest; since #1751 the only call that does, so a manual pick holds until then) and the toast
+-- counts both.
 local function onEquipBestDecor(player: Player)
 	local profile = profileFor(player)
 	if profile == nil then

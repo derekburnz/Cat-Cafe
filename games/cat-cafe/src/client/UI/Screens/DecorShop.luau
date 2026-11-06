@@ -532,6 +532,25 @@ function DecorShop._build(self: any)
 				ShopIcons.decor(decor.id)
 			)
 			icon = pieceIcon
+		else
+			-- the piece's clean picture (#1072) on its coloured block; the first letter stands in until it loads
+			-- (DecorDef.asset names the 3D model, not an image)
+			local letter = text({
+				Size = UDim2.fromScale(1, 1),
+				FontFace = Theme.fonts.display,
+				TextSize = 34,
+				TextColor3 = Theme.colors.paper,
+				TextXAlignment = Enum.TextXAlignment.Center,
+				Text = decor.name:sub(1, 1),
+				Parent = art,
+			})
+			local picture = ShopIcons.decor(decor.id)
+			if picture then
+				IconArt.setImage(letter, picture, 0.86)
+			end
+		end
+		-- #1711: the rarity pill on every piece with a rarity, the first four Classic Crate pieces (no kind) too
+		if piece.rarity then
 			local rarity = text({
 				Name = "Rarity",
 				BackgroundTransparency = 0,
@@ -554,22 +573,6 @@ function DecorShop._build(self: any)
 				PaddingRight = UDim.new(0, 8),
 				Parent = rarity,
 			})
-		else
-			-- the piece's clean picture (#1072) on its coloured block; the first letter stands in until it loads
-			-- (DecorDef.asset names the 3D model, not an image)
-			local letter = text({
-				Size = UDim2.fromScale(1, 1),
-				FontFace = Theme.fonts.display,
-				TextSize = 34,
-				TextColor3 = Theme.colors.paper,
-				TextXAlignment = Enum.TextXAlignment.Center,
-				Text = decor.name:sub(1, 1),
-				Parent = art,
-			})
-			local picture = ShopIcons.decor(decor.id)
-			if picture then
-				IconArt.setImage(letter, picture, 0.86)
-			end
 		end
 		-- Index decor (F48): a dark ribbon over the art says which Index milestone wins it, until it is claimed
 		local unlock: TextLabel? = nil

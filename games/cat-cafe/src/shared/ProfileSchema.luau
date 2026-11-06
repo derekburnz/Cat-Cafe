@@ -112,7 +112,10 @@ local ProfileSchema = {}
 -- showing Classic until the player picks again.
 -- Version 39 (#1624, store-pass-looks.md section 6) adds looks.accessory, the cats' accessory pick: an older server's
 -- Looks.sanitize would drop it, showing no accessory until the player picks again.
-ProfileSchema.VERSION = 39
+-- Version 40 (#1732, camp-stations.md section 4b) turns campExtras.lostFound from { day, held } into { at, held }, one
+-- find every LostFoundEverySeconds: an older server would read it as a day number far in the past and fill it to the
+-- hold at once. An older save's clock starts at the load, keeping what it held (CampExtras.sanitize).
+ProfileSchema.VERSION = 40
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 

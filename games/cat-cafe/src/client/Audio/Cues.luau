@@ -107,7 +107,7 @@ local Cues: { [string]: Cue } = {
 	musicTutorial = {
 		ids = { "rbxassetid://84620952630489" },
 		group = "Music",
-		volume = 0.3,
+		volume = 0.18, -- Derek 2026-11-06 (#1793): a little loud under the tutorial text, so lower than the day songs (0.3)
 		looped = true,
 		seconds = 40, -- 16 bars at 96 BPM
 	}, -- "Step by Step"

@@ -774,7 +774,7 @@ export type CampExtrasSave = {
 	picnic: { at: number, held: number },
 	yardSale: { lastClaimAt: number, claims: number },
 	pond: { at: number },
-	lostFound: { day: number, held: number },
+	lostFound: { at: number, held: number }, -- #1732 (save version 40): was { day, held }, one a UTC day
 }
 
 -- One of the Yard Sale's crates today: its crate id, its price in golden fish and whether this player bought it.

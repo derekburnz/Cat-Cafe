@@ -556,20 +556,26 @@ function DecorShop._build(self: any)
 			end
 		end
 		-- #1711: the rarity pill on every piece with a rarity, the first four Classic Crate pieces (no kind) too
-		if piece.rarity then
+		-- #1721: a Cafe Pass piece wears a "Cafe Pass" tag in its place (it is never found in crates)
+		local passPiece = (decor :: any).source == "pass"
+		if piece.rarity or passPiece then
 			local rarity = text({
 				Name = "Rarity",
 				BackgroundTransparency = 0,
-				BackgroundColor3 = Theme.rarityColor(piece.rarity),
+				BackgroundColor3 = if passPiece
+					then Theme.colors.berry
+					else Theme.rarityColor(piece.rarity),
 				Position = UDim2.fromOffset(16, 16),
 				AutomaticSize = Enum.AutomaticSize.X,
 				Size = UDim2.fromOffset(0, 20),
 				FontFace = Theme.fonts.display,
 				TextSize = Theme.sizes.textTiny,
-				TextColor3 = Theme.rarityTextColor(piece.rarity),
+				TextColor3 = if passPiece
+					then Theme.colors.white
+					else Theme.rarityTextColor(piece.rarity),
 				TextXAlignment = Enum.TextXAlignment.Center,
 				TextTruncate = Enum.TextTruncate.None,
-				Text = piece.rarity or "",
+				Text = if passPiece then "Cafe Pass" else piece.rarity or "",
 				ZIndex = 3,
 				Parent = card,
 			})
@@ -804,9 +810,14 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 			card.action:setStyle("ghost")
 			card.action:setEnabled(false)
 		elseif card.crateOnly then
-			-- F97: crate find only (hidden until owned, so this only shows for a moment after a trade or a reset)
+			-- F97: crate find only (hidden until owned, so this only shows for a moment after a trade or a reset); a
+			-- Cafe Pass piece (#1721) says where it really comes from
 			card.mode = "crate"
-			card.action:setText(Theme.icons.crate .. " From crates")
+			card.action:setText(
+				if (def :: any).source == "pass"
+					then "From the Cafe Pass"
+					else Theme.icons.crate .. " From crates"
+			)
 			card.action:setStyle("ghost")
 			card.action:setEnabled(false)
 		elseif locked then

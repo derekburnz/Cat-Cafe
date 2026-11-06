@@ -6,7 +6,9 @@
 -- Like Plants, Floor and Walls: one line on top with the total ("Lawn: 6 out, +18% money", the Money boosts row's
 -- number), then a grid of the same cards, one per owned piece, path and fence (Components/LawnLogic.cards): the model
 -- on a tile in its rarity colour, the rarity, the name, its bonus ("+3% money", paths and fences tagged "Path" or
--- "Fence"), and a Use or Remove button (below). The grid ends with where to buy more.
+-- "Fence"), and a Use or Remove button (below). #1729 (Derek2: keep it light, lawn-nursery.md section 6e): a big-spot
+-- piece has a tiny "Big spot" tag in the art's top right corner, and nothing else explains the spots. The grid ends
+-- with where to buy more.
 
 -- #1751 part 3 (Derek2: "lawn section is missing remove/use it buttons"): each card ends in one button,
 -- LawnLogic.cardAction's Remove (green edge: it is out) or Use, forwarded as SetLawnSpot or SetLawnStyle; Equip Best
@@ -211,6 +213,24 @@ function LawnTab._card(self: any, card: LawnLogic.Card): any
 		ZIndex = 3,
 		Parent = frame,
 	}))
+	if card.big then
+		pill(text({
+			Name = "BigSpot",
+			BackgroundTransparency = 0,
+			BackgroundColor3 = PAL.cardStroke,
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.new(1, -10, 0, 16),
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, 18),
+			TextSize = Theme.sizes.textTiny, -- as small as the rarity pill, still 9 px on a phone
+			TextColor3 = PAL.text,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			TextTruncate = Enum.TextTruncate.None,
+			Text = LawnLogic.sizeName("big"),
+			ZIndex = 3,
+			Parent = frame,
+		}))
+	end
 	text({
 		Name = "Name",
 		Position = UDim2.fromOffset(10, 92),

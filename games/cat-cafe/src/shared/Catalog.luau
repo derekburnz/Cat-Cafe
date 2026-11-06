@@ -2281,6 +2281,18 @@ Catalog.indexMilestones = {
 	{ id = "rainbow5", track = "rainbow", needs = 5 },
 	{ id = "rainbow10", track = "rainbow", needs = 10 },
 	{ id = "rainbow25", track = "rainbow", needs = 25 },
+	-- #1772 (Derek2: "Gold cats X / 50" like the Rainbow cats): the gold track on the All Cats page, different gold
+	-- cats across every area (profile.goldCollection), next to total5 to total50
+	{ id = "goldtotal5", track = "gold", needs = 5 },
+	{ id = "goldtotal10", track = "gold", needs = 10 },
+	{ id = "goldtotal15", track = "gold", needs = 15 },
+	{ id = "goldtotal20", track = "gold", needs = 20 },
+	{ id = "goldtotal25", track = "gold", needs = 25 },
+	{ id = "goldtotal30", track = "gold", needs = 30 },
+	{ id = "goldtotal35", track = "gold", needs = 35 },
+	{ id = "goldtotal40", track = "gold", needs = 40 },
+	{ id = "goldtotal45", track = "gold", needs = 45 },
+	{ id = "goldtotal50", track = "gold", needs = 50 },
 } :: { Types.IndexMilestone }
 
 -- What each milestone pays per page (golden-fish.md sections 4, 5 and 5b). Everything is free and only the server
@@ -2440,6 +2452,23 @@ Catalog.indexPrizes = {
 			spins = 10,
 			tag = "Cat Master",
 			baitSpeed = 0.10,
+		},
+		-- #1772 (Design-Agent's table on the issue): the gold cats track, a little richer than the totals as gold is
+		-- rarer. No gold luck: the five area gold tracks already reach GoldLuckMax, which would eat it
+		goldtotal5 = { fish = 15, spins = 1 },
+		goldtotal10 = { fish = 25, crates = { classic_golden_crate = 1 } },
+		goldtotal15 = { fish = 30, spins = 2 },
+		goldtotal20 = { fish = 40, crates = { highest = 1 } },
+		goldtotal25 = { fish = 50, crates = { classic_golden_crate = 2 } },
+		goldtotal30 = { fish = 60, spins = 3 },
+		goldtotal35 = { fish = 75, crates = { highest = 1 } },
+		goldtotal40 = { fish = 90, crates = { classic_golden_crate = 2 } },
+		goldtotal45 = { fish = 110, spins = 5 },
+		goldtotal50 = {
+			fish = 250,
+			crates = { classic_golden_crate = 4 },
+			spins = 10,
+			tag = "Golden Paw",
 		},
 	},
 	decor_alley = {
@@ -3925,7 +3954,7 @@ Catalog.campExtras = {
 		id = "lostFound",
 		area = "sewer",
 		name = "Lost and Found",
-		model = "CatCafe_Camp_Sewer_LostFound",
+		model = "CatCafe_Camp_Sewer_LostFoundBooth", -- #1732: the lost-property kiosk, was the small crate
 		kind = "collect",
 	},
 } :: { Types.CampExtraDef }

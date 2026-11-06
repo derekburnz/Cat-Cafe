@@ -402,7 +402,8 @@ local function startLoop(cueId: string, at: Target?): (() -> (), Sound?)
 		tweenVolume(sound, 0, LOOP_FADE).Completed:Once(function()
 			dropVoice(voice)
 		end)
-	end, sound
+	end,
+		sound
 end
 
 function Audio.loop(cueId: string, at: Target?): () -> ()
@@ -1493,14 +1494,24 @@ local CATCH_NEED_FALLBACK = 12 -- the Epic need, used until a result or schedule
 
 local function followCatchWords()
 	-- CatchJudged(strayId, index, grade, trust): the purr follows the trust after every ring.
-	onRemote("CatchJudged", function(_strayId: unknown, _index: unknown, _grade: unknown, trust: unknown)
-		if type(trust) == "number" then
-			Audio.setCatchTrust(trust, CATCH_NEED_FALLBACK)
+	onRemote(
+		"CatchJudged",
+		function(_strayId: unknown, _index: unknown, _grade: unknown, trust: unknown)
+			if type(trust) == "number" then
+				Audio.setCatchTrust(trust, CATCH_NEED_FALLBACK)
+			end
 		end
-	end)
+	)
 	onRemote(
 		"CatchResult",
-		function(_strayId: unknown, grades: unknown, success: unknown, _gain: unknown, _retryAt: unknown, result: unknown)
+		function(
+			_strayId: unknown,
+			grades: unknown,
+			success: unknown,
+			_gain: unknown,
+			_retryAt: unknown,
+			result: unknown
+		)
 			local cue = wordFor(result, grades, success)
 			if cue ~= nil then
 				Audio.play(cue)

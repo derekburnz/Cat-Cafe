@@ -19,10 +19,11 @@ Each milestone is read from the profile, so it needs no new tracking, and each o
 | 3 | Five different cats | 5 distinct cats owned | 1 spin | 12 min |
 | 4 | Rank up to Tier 2 | `tier` 2 | 10 golden fish | 15 min |
 | 5 | Catch a cat in the Park | the first catch in the Park | 1 Swift Potion | 20 min |
-| 6 | A full cafe | every role slot of the tier filled at once | 1 spin | 30 min |
-| 7 | Ten different cats | 10 distinct cats owned | 10 golden fish | 40 min |
+| 6 | A full Tier 2 cafe | at Tier 2 or above, every role slot filled at once (Tier 1's two slots don't count) | 1 spin | 30 min |
+| 7 | Twelve different cats | 12 distinct cats owned (Tier 3's own need) | 10 golden fish | 40 min |
 | 8 | **Grand Opening!** Rank up to Tier 3 | `tier` 3 | 50 golden fish, 1 crate of the highest zone and the "Grand Opener" chat tag | 50 to 60 min |
 
+- Steps 6 and 7 changed on 2026-11-06 after Gameplay-Engineer's Pace runs (PR #1917): "a full cafe" at Tier 1 finished at minute 1.3, and ten cats at minute 18. See §4b.
 - In total it pays 80 golden fish, 2 spins, 1 potion and 1 crate over the first hour. That's under one Fish Market crate's worth (40 fish) per 30 minutes, so the economy hardly moves. The tag is the keepsake.
 - Milestones can finish in any order. A player who ranks up before buying a fifth cat still gets both. The card always highlights the lowest unfinished one.
 
@@ -75,3 +76,8 @@ QA's first-hour sim (`docs/playtests/2026-11-06-first-hour.md`) found buys come 
 - **Decided: a third buy in that gap.** Lucky Cat level 3 moves into Tier 2 (cap `lucky_cat = 3`), priced so the median buy lands at about minute 32. It adds Luck, not income, so Tier 3 hardly moves. Re-check Tier 3 and keep its median at 45 to 55 minutes.
 - **Count the roadmap in the "something new" gap.** Grand Opening steps (section 1) pay a reward and play a toast, so the Pace model counts them along with new cats. Steps 5 to 7 land at about 20, 30 and 40 minutes.
 - The targets stay at 12 and 6. If they're still missed after these two changes, the guard keeps today's 18 and 12, and Design looks again with live data from the `grand_opening` funnel instead of the model.
+
+### 4b. Second fit (PR #1917) and the roadmap re-time
+- **Logged:** Lucky Cat 3 at Tier 2 costs 300,000 and is bought at 31.2 minutes. 600k pushed Tier 3 to 60 minutes. Tier 3 now lands at 54.3 minutes (fastest tenth 47.2), Tier 2 at 12.1, Tables 5 at 22.4 and Espresso 4 at 41.5. The longest gap is 15.7 minutes for buys and rank-ups, and 11.0 counting new cats and roadmap steps. The guard passes, and the 12 and 6 targets stay as the `xit`.
+- **Decided:** roadmap steps 6 and 7 are re-timed into the gap (table in §1a). Step 6 needs every role slot filled at Tier 2 or above. Step 7 needs 12 different cats, which is also Tier 3's need, so it shows real progress toward the rank-up.
+- After this re-run, no more model tuning. The next look uses the live `grand_opening` funnel (step times by player) and the `onboarding_v4` drop-off.

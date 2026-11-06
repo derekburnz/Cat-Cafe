@@ -104,6 +104,7 @@ return function()
 		money: number?, -- the Money pass multiplier, none when nil
 		long: boolean?, -- a long run to Tier 5: bigger steps (LONG_STEP, LONG_SETTLE and LONG_PLAN)
 		strays: StrayModel?, -- #1159's daytime top-ups into the area the player hunts in; none when nil
+		quickBait: boolean?, -- #1716: a Quick Bait Potion runs the whole time (+0.25 bait speed, inside BaitSpeedMax)
 		lawn: ("greedy" | "saving")?, -- #1283: buys the best affordable lawn piece or style and lays the best lawn; "greedy" the moment it can, "saving" only with the next rank up's cost left over
 		pals: number?, -- pals on the server (Economy.setPals, #1165): tips, piles and rich visitors earn the pal bonus
 	}
@@ -455,6 +456,16 @@ return function()
 			return true
 		end
 
+		-- The wait for food going in now. With QUICK_BAIT, a Quick Bait Potion is running the whole time: the Day Cart
+		-- sells 2 of each size a day (10, 30 and 60 minutes, #1716), so an hour a day is covered from one day's buys.
+		local function baitWait(night: boolean): number
+			local speed = IndexRewards.totals(profile).baitSpeed
+			if options.quickBait then
+				speed = math.min(speed + 0.25, Config.BaitSpeedMax)
+			end
+			return math.floor(Economy.lureWaitSeconds(profile, night) * (1 - speed) + 1e-6)
+		end
+
 		local played = 0 -- seconds of play before this session
 		local leftAt: number? = nil
 		local baitLuck = 1 -- the Luck the food in the bowl was rolled at (F88)
@@ -686,7 +697,7 @@ return function()
 							profile.bait = {
 								lureId = food,
 								placedAt = now,
-								readyAt = now + Economy.baitWaitSeconds(profile, not day),
+								readyAt = now + baitWait(not day),
 								night = if day then nil else true,
 							}
 						end
@@ -791,6 +802,9 @@ return function()
 				if strays.players == 1 then "" else "s",
 				if strays.wait ~= nil then tostring(strays.wait) else "60 to 120"
 			)
+		end
+		if options.quickBait then
+			text ..= ", Quick Bait Potion running"
 		end
 		if options.lawn then
 			text ..= if options.lawn == "saving"
@@ -1091,6 +1105,7 @@ return function()
 		end)
 	end)
 
+<<<<<<< ours
 	-- The Cafe Pass (#1644, #1667): its levels come from quests only, so a player who finishes a full day of quests
 	-- (one level a day) has reached level `day` by Tier 5's latest day (6, the top of the day 4 to 6 check). The money
 	-- those levels pay, counted as income minutes (a minute of the day rate; a tip potion's minutes times its `tips`,
@@ -1128,6 +1143,39 @@ return function()
 						)
 					)
 				end
+=======
+	-- The Day Cart (#1716): each row has its own daily stock, so a day's buys are up to 2 Quick Bait Potions of each
+	-- size. Pace leaves potions out; this runs the worst case, one running the whole time, through Tier 5.
+	describe("Tier 5 with a Quick Bait Potion always running (#1716)", function()
+		it("takes 8 to 12 hours of play in one go", function()
+			local list, text = toTier5({
+				catches = 4,
+				target = 5,
+				limit = 16 * HOUR,
+				long = true,
+				quickBait = true,
+			})
+			local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
+			if median < 8 * HOUR or median > 12 * HOUR then
+				error("Tier 5 outside 8 to 12 hours of play: " .. text)
+			end
+		end)
+
+		it("comes on day 4 to 6 for an hour a day", function()
+			local list, text = toTier5({
+				catches = 4,
+				target = 5,
+				limit = 10 * HOUR,
+				session = HOUR,
+				long = true,
+				quickBait = true,
+			})
+			local day = quantile(list, function(run: Run): number?
+				return run.dayAt[5]
+			end, 0.5, math.huge)
+			if day < 4 or day > 6 then
+				error("Tier 5 outside day 4 to 6: " .. text)
+>>>>>>> theirs
 			end
 		end)
 	end)

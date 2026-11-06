@@ -3407,4 +3407,40 @@ Presets.themes = {
 	},
 }
 
+-- The pity cat (Effects/Pity, #1572 luck-and-rare-moments.md 1h). As one appears: `beams` beams (Particles.beam)
+-- `width` wide and `height` tall in `colours`, `spread` studs round it, for `seconds`, and `sparkles` ding sparkles
+-- `lift` studs over it; only within `within` studs. When it is caught in another server or goes: a `puff` of smoke,
+-- gold sparkles and a ring. A removal up to `lateSeconds` before the announcement still puffs where the cat stood;
+-- positions are tracked every `track` seconds.
+Presets.pity = {
+	within = 300,
+	seconds = 3,
+	lift = 2,
+	track = 0.5,
+	lateSeconds = 3,
+	legendary = {
+		beams = 1,
+		width = 1.6,
+		height = 40,
+		spread = 0,
+		sparkles = 14,
+		colours = { Presets.palette.golden },
+	},
+	mythical = {
+		beams = 3,
+		width = 1.2,
+		height = 48,
+		spread = 0.9,
+		sparkles = 20,
+		colours = { Presets.palette.golden, Presets.palette.aurora, Presets.palette.goldLight },
+	},
+	puff = {
+		smoke = 10,
+		sparkles = 12,
+		colour = Presets.palette.golden,
+		ring = 4,
+		ringSeconds = 0.5,
+	},
+}
+
 return Presets

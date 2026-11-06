@@ -840,6 +840,15 @@ From Gameplay-Engineer's #1687 (the plot's `Theme` "garden" or "grand", and Them
 
 The Garden Cafe's flower troughs would get butterflies for free if Model-Agent names them `_Flowers` (Ambient). The VIP plate stays plain (store-pass-looks.md section 1).
 
+### The pity cat (#1572)
+
+From luck-and-rare-moments.md 1h ("it spawns at one of the area's hiding spots with a gold beam") and Gameplay-Engineer's #1744:
+
+| Effect | Look | Hook |
+|---|---|---|
+| Pity cat appears | A gold beam 40 studs tall rises from it for 3 s with a burst of 14 gold sparkles; a Mythical gets three beams (gold, violet, light gold) 48 tall and 20 sparkles. Within 300 studs; none with Reduce Motion | a Stray-tagged model with `PityCat` |
+| Caught elsewhere, or gone at night | Its copy puffs away: 10 smoke puffs, 12 gold sparkles and a gold ring 4 studs across. Not for a catch in this server, which plays the usual catch | `PityAnnounce` state "caught" (winner not in this server) or "gone" |
+
 ## 8. Day, night and the dealer
 
 The 4 s lighting change and the night parts turning Neon with their lights already exist (WorldController.luau, style guide section 9). Days and nights are 5 minutes each now and the cafe stays open at night.

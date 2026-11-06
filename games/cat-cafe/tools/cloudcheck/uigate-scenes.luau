@@ -755,6 +755,17 @@ local SCENES = {
 		bindLawnPlot()
 		UI.open("Decor")
 		press("Decor", "FrontLawn")
+		-- #1751: the Garden Bench is out (Remove), the Lamp Post stored (Use)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local lawn = modals and modals:FindFirstChild("Lawn", true)
+		local function action(id: string): string
+			local card = lawn and lawn:FindFirstChild(id, true)
+			local button = card and card:FindFirstChild("Action", true)
+			local label = button and (if button:IsA("TextButton") then button else button:FindFirstChildWhichIsA("TextLabel", true))
+			return if label then label.Text else "?"
+		end
+		assert(string.find(action("garden_bench"), "Remove", 1, true), "uigate: the out Garden Bench reads " .. action("garden_bench") .. " (#1751)")
+		assert(string.find(action("lamp_post"), "Use", 1, true), "uigate: the stored Lamp Post reads " .. action("lamp_post") .. " (#1751)")
 	end },
 	-- #1624: the Style tab, the cafe sign (Royal Crest in use) and the uniforms once the server sends looks
 	{ "DecorStyle", function()

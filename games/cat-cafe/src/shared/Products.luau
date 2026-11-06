@@ -9,6 +9,7 @@
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
+local KingPack = require(script.Parent.KingPack)
 local Types = require(script.Parent.Types)
 
 local Products = {}
@@ -96,14 +97,15 @@ function Products.markBought(
 	end
 end
 
--- #1625: a saved onceBought set made whole: known once-per-account product ids set to true.
+-- #1625: a saved onceBought set made whole: known once-per-account product ids set to true, and (#1822) the King
+-- Cat Pack's gift mark.
 function Products.sanitizeOnce(raw: unknown): { [string]: boolean }
 	local out: { [string]: boolean } = {}
 	if type(raw) == "table" then
 		for id, value in raw :: { [any]: any } do
 			if type(id) == "string" and value == true then
 				local product = Catalog.getProduct(id)
-				if product ~= nil and product.oncePerAccount == true then
+				if id == KingPack.MARK or (product ~= nil and product.oncePerAccount == true) then
 					out[id] = true
 				end
 			end

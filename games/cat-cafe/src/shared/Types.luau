@@ -152,6 +152,8 @@ export type DecorDef = {
 	kind: DecorKind?,
 	color: Color3?,
 	material: Enum.Material?,
+	-- #1822: a pass decor piece that comes with this game pass (by name) instead of the Cafe Pass track
+	pack: string?,
 }
 
 -- Data-model section 11b and golden-fish.md sections 5 and 5b (F54): a milestone on an Index page, `needs` of what

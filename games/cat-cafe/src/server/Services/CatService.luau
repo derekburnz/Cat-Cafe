@@ -33,6 +33,7 @@ local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local Payout = require(script.Parent.Payout)
+local Pity = require(ReplicatedStorage.Shared.Pity)
 local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local RallyService = require(script.Parent.RallyService)
@@ -128,6 +129,8 @@ local lastCatchStart: { [Player]: number } = {} -- server time of the player's l
 local startledUntil: { [Player]: number } = {} -- server time each player's Startled slow ends (F57)
 local rng = Random.new()
 local nextStrayNumber = 0
+-- #1572: PityService's claim on a pity cat's catch (the first catch in any server wins): true to keep it. It yields.
+local pityClaim: ((Player, number) -> boolean)? = nil
 local debugNextCoat: string? = nil -- Studio's debug hook: the coat the next stray spawned by a wave or refill gets
 local lastRainbowToastAt: number? = nil -- os.clock() of this server's last rainbow stray toast (F99)
 -- RescueService's answer to "is this player in a rescue attempt?", so a catch cannot start during one.
@@ -1329,10 +1332,30 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	elseif not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2) then
 		forfeit = "Too far away"
 	end
+	local succeeded = forfeit == nil and Circles.succeeded(attempt)
+	local pitySlot = stray.model:GetAttribute(Pity.SLOT_ATTRIBUTE)
+	local claim = pityClaim
+	if succeeded and type(pitySlot) == "number" and claim ~= nil then
+		-- #1572 (luck-and-rare-moments.md 1h): only the first catch anywhere gets the pity cat. The claim yields, so
+		-- the lock is held meanwhile and nobody else starts on it.
+		setLock(stray, player.UserId, serverNow() + 15)
+		local kept = claim(player, pitySlot)
+		if not stray.alive then
+			return -- night came, or another server's catch puffed it meanwhile
+		end
+		if not kept then
+			setLock(stray, 0)
+			despawn(stray) -- puffs out of the net; PityService has told everyone who caught it
+			return
+		end
+		if player.Parent ~= Players or carrying[player] ~= nil then
+			setLock(stray, 0) -- left, or picked up another cat meanwhile: the claim stands and the cat stays out
+			return
+		end
+	end
 	setLock(stray, 0)
 	local funnel = stray.funnel
 	stray.funnel = nil
-	local succeeded = forfeit == nil and Circles.succeeded(attempt)
 	local perfect = Circles.perfectCount(attempt)
 	local rarity: string = stray.def.rarity
 	local result: string = if not succeeded
@@ -2495,6 +2518,51 @@ end
 
 function CatService.strayCount(areaId: string): number
 	return countStrays(areaId)
+end
+
+-- #1572 (luck-and-rare-moments.md 1h): spawns slot `slot`'s pity cat `catId` (`kind`) at a free hiding spot of the
+-- area for its rarity (point 1 when all are taken), coat rolled as any stray's, out until dusk. ATTRIBUTE (its kind,
+-- for the gold beam) and SLOT_ATTRIBUTE go on the model. A normal stray in every way, except that a catch asks the
+-- pity claim first. Nil when the area or cat is unknown.
+function CatService.spawnPity(catId: string, areaId: string, kind: string, slot: number): string?
+	local def = Catalog.getCat(catId)
+	local area = world.areas[areaId]
+	if def == nil or area == nil or #area.spawnPoints == 0 then
+		return nil
+	end
+	local pointIndex = freeSpawnPoint(areaId, def.rarity) or 1
+	local point = area.spawnPoints[pointIndex]
+	local stray = spawnStray(def, areaId, point.Position, pointIndex)
+	stray.model:SetAttribute(Pity.ATTRIBUTE, kind)
+	stray.model:SetAttribute(Pity.SLOT_ATTRIBUTE, slot)
+	return stray.id
+end
+
+-- #1572: the pity cat of `slot` leaves this server (another server's catch got it): every copy still out puffs
+-- away, a catch in progress on it included. A copy already caught here is someone's carry and stays.
+function CatService.removePity(slot: number): number
+	local leaving: { Stray } = {}
+	for _, stray in strays do
+		if stray.alive and stray.model:GetAttribute(Pity.SLOT_ATTRIBUTE) == slot then
+			table.insert(leaving, stray)
+		end
+	end
+	for _, stray in leaving do
+		local holder = if stray.lockedBy ~= 0
+			then Players:GetPlayerByUserId(stray.lockedBy)
+			else nil
+		setLock(stray, 0)
+		despawn(stray)
+		if holder ~= nil then
+			Net.fire(holder, "CatchResult", stray.id, {}, false, 0)
+		end
+	end
+	return #leaving
+end
+
+-- #1572: PityService's claim, asked on a pity cat's catch.
+function CatService.setPityClaim(claim: (Player, number) -> boolean)
+	pityClaim = claim
 end
 
 -- Studio-only test hook: spawns a given cat at a free spawn point of the area (or point 1 if all are taken), in the

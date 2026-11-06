@@ -121,6 +121,7 @@ export type HUD = {
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
 	-- the gold Store tile at the top of the left menu, shown once init's Store block has its window (#1167)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
+	setOwnerTest: (self: HUD, label: string?) -> (), -- #1770 owner test mode
 	-- #1646: the Cafe Pass tile, shown with the function that opens the Pass window while a season runs (nil hides
 	-- it), and its red "!" while `ready` rewards wait
 	setPass: (self: HUD, open: (() -> ())?, ready: number) -> (),
@@ -2811,6 +2812,42 @@ function HUD._closePop(self: any)
 	end
 	table.clear(self._popRows)
 	table.clear(self._popBadges)
+end
+
+-- #1770 owner test mode: a small calm label at the top middle for the owner's account only (the text from
+-- shared/OwnerTest.LABEL), so a screenshot or a playtest never mistakes a free grant for a real purchase; nil hides it.
+function HUD.setOwnerTest(self: any, label: string?)
+	local tag: TextLabel? = self._ownerTag
+	if label == nil then
+		if tag then
+			tag.Visible = false
+		end
+		return
+	end
+	if tag == nil then
+		local made: TextLabel = Create("TextLabel", {
+			Name = "OwnerTest",
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.new(0.5, 0, 0, 4),
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, 22),
+			BackgroundColor3 = Theme.colors.cocoaDeep,
+			BackgroundTransparency = 0.2,
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = Theme.colors.gold,
+			ZIndex = 5,
+			Parent = self._root,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
+		})
+		self._ownerTag = made
+		tag = made
+	end
+	local shown = tag :: TextLabel
+	shown.Text = label
+	shown.Visible = true
 end
 
 -- The gold Store tile at the top of the left menu (Derek 2026-11-02: "store still needs to be added"): shown with

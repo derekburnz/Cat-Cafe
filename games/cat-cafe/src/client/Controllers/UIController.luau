@@ -747,6 +747,10 @@ local function wireIntents()
 			Net.fire("SetHideCredit", hide)
 		end)
 	end
+	-- #1770 owner test mode: the server drops it from anyone but the owner's account
+	UI.events.ownerGrant:Connect(function(productId: number)
+		Net.fire("OwnerGrant", productId)
+	end)
 	UI.events.buyUpgrade:Connect(function(upgradeId: string)
 		Net.fire("BuyUpgrade", upgradeId)
 	end)

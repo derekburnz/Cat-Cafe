@@ -203,6 +203,8 @@ UI.events = {
 	feedCat = Signal.new(),
 	-- (hide)   #1083: Settings' "Show my name on the Thank You board" off (true) or on: forward as SetHideCredit
 	setHideCredit = Signal.new(),
+	-- (productId)  #1770 owner test mode: a product's buy button on the owner's account; forward as OwnerGrant
+	ownerGrant = Signal.new(),
 	-- F102 (trading.md section 6): the client only asks; TradeState answers
 	requestTrade = Signal.new(), -- (userId)   Trade on a players list row: forward as TradeRequest
 	respondTrade = Signal.new(), -- (requestId, accept)   Accept or Decline on the request card: forward as TradeRespond
@@ -5440,6 +5442,7 @@ do
 	local shop = {
 		screen = nil :: Store.Store?,
 		changed = nil :: Signal.Connection?,
+		grant = nil :: Signal.Connection?, -- PassShop.ownerGrant to UI.events.ownerGrant (#1770)
 		open = false, -- whether the HUD's tile shows
 		bench = false, -- #1633: the Codes Cat's circle opened the Store, so walking out closes it
 	}
@@ -5483,6 +5486,9 @@ do
 			hud:setMoneyBadge(
 				StoreLogic.moneyBadge(Config, PassShop.owned(), PassShop.prices(), multiplier)
 			)
+		end
+		if hud then
+			hud:setOwnerTest(PassShop.ownerLabel()) -- #1770: the owner's account only
 		end
 		local open = screen ~= nil -- the tile shows whenever there is a window for it to open
 		if open ~= shop.open and hud then
@@ -5543,6 +5549,9 @@ do
 			end,
 		})
 		shop.changed = PassShop.changed:Connect(refresh)
+		shop.grant = PassShop.ownerGrant:Connect(function(productId: number)
+			UI.events.ownerGrant:Fire(productId)
+		end)
 		PassShop.start(StoreLogic.passIds(Config), StoreLogic.productIds(Config))
 		refresh()
 	end
@@ -5599,6 +5608,10 @@ do
 		if shop.changed then
 			shop.changed:Disconnect()
 			shop.changed = nil
+		end
+		if shop.grant then
+			shop.grant:Disconnect()
+			shop.grant = nil
 		end
 		if shop.screen then
 			if codesScreen then

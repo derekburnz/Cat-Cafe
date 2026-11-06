@@ -226,7 +226,9 @@ local function step()
 	local done: { Play } = {}
 	for model, play in playing do
 		local t = now - play.started
-		if (still and play.kind ~= "ring") or model.Parent == nil or t >= length(play.kind) then
+		-- only the booth's bell rings on with Reduce Motion (a separate boolean keeps play.kind's type whole below)
+		local stops: boolean = still and play.kind ~= "ring"
+		if stops or model.Parent == nil or t >= length(play.kind) then
 			table.insert(done, play)
 		else
 			local angle = angleOf(play.kind, t)

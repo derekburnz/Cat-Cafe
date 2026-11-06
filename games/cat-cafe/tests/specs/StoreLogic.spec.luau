@@ -348,7 +348,7 @@ return function()
 				expect(card.product).to.equal(true)
 				expect(card.name).to.equal("Cafe Pass")
 				expect(card.effect).to.equal(
-					"Season 1 paid track, a reward every level:\nSeason cat Maple Muffin and 15 potions"
+					"Season 1 paid track:\nSeason cat Maple Muffin and 15 potions"
 				)
 				-- the season's pass is the hero after the Starter Bundle, and never carries a timer
 				expect(StoreLogic.featured(rows).hero.key).to.equal("cafePass")

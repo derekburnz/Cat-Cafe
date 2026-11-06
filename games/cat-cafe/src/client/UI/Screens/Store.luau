@@ -29,6 +29,7 @@ local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local StoreBurst = require(script.Parent.Parent.Parent.Effects.StoreBurst)
 local StoreLogic = require(script.Parent.Parent.Components.StoreLogic)
+local StoreMotion = require(script.Parent.Parent.Parent.Effects.StoreMotion)
 local Theme = require(script.Parent.Parent.Theme)
 
 export type Callbacks = {
@@ -454,6 +455,9 @@ function Store._makeCard(
 		parent = card,
 		onClick = function()
 			if entry.passId ~= 0 then
+				-- #1823: the card dips with the tap (the Buy button already dips through its own UIScale, so
+				-- StoreMotion moves the card rather than fight that tween)
+				StoreMotion.press(entry.frame :: any) -- press takes a GuiButton; it only scales the object
 				self._callbacks.buy(entry.passId)
 			end
 		end,
@@ -716,6 +720,7 @@ function Store._thank(self: any, rows: { StoreLogic.Row })
 	for _, key in bought do
 		for _, entry in self._cards do
 			if entry.rowKey == key and entry.frame.Visible then
+				StoreMotion.bought(entry.frame) -- Animation's pop and flash (#1840) under VFX's burst
 				StoreBurst.play(entry.frame, "pass")
 			end
 		end

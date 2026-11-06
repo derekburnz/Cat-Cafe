@@ -2083,6 +2083,20 @@ local SCENES = {
 		local card = modals and modals:FindFirstChild("grid:steadyPaw", true)
 		assert(card and card.Visible, "uigate: no Steady Paw Pack card on the Potions tab (#1168)")
 	end },
+	-- #1823: a pass the server confirms while the Store is open gets Animation's pop (StoreMotion) and VFX's burst on
+	-- its card, and the card still sits inside the page afterwards
+	{ "StoreBoughtMotion", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		press("Store", "passes")
+		UI.store.preview(storePrices(true), { [Config.VipPassId] = true })
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("grid:vip", true)
+		assert(card, "uigate: no VIP card on Passes (#1823)")
+		assert(card:FindFirstChildOfClass("UIScale"), "uigate: the bought VIP card did not pop (StoreMotion, #1823)")
+		assertStoreCards(false)
+	end },
 	-- #1168: the Thank You Badge (a product, hidden for a supporter) and the Sign Style Pack (a pass, hidden at 0)
 	-- on the Passes tab, each saying what it holds
 	{ "StoreThankYouSign", function()

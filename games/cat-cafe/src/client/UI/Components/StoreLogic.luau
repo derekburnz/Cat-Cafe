@@ -52,6 +52,18 @@ export type Button = {
 	enabled: boolean,
 }
 
+-- "1,450"
+local function commas(value: number): string
+	local text = tostring(math.floor(value))
+	while true do
+		local grouped, count = text:gsub("^(%d+)(%d%d%d)", "%1,%2")
+		text = grouped
+		if count == 0 then
+			return text
+		end
+	end
+end
+
 local MONEY_ICON = "💰"
 local NAP_ICON = "😴"
 
@@ -401,26 +413,61 @@ local function kingWorth(config: any): { number }?
 	return nil
 end
 
--- #1822 (store doc §3B): the bundle's "Worth R$X" line, the real sum of Roblox's prices for its parts sold alone. Only
--- when every part has a price on sale and the sum is more than the bundle's own price, so it never overstates.
-function StoreLogic.worthLine(row: Row, prices: { [number]: Price }): string?
+-- #1822/#1823 (store-layout-v2.md §2, §4): what a bundle's parts the player doesn't own yet cost bought apart, the
+-- real sum of Roblox's prices, rounded down to R$5. nil while a part's price hasn't loaded or is off sale (never
+-- guessed), for an owned bundle, or for a row that isn't a bundle. `owned` is the passes the player owns.
+function StoreLogic.worth(
+	row: Row,
+	prices: { [number]: Price },
+	owned: { [number]: boolean }?
+): number?
 	local ids = row.worthIds
-	local own = prices[row.passId]
-	if ids == nil or #ids == 0 or row.owned or own == nil or own.robux == nil then
+	if ids == nil or #ids == 0 or row.owned then
 		return nil
 	end
 	local sum = 0
 	for _, id in ids do
+		if owned and owned[id] then
+			continue
+		end
 		local price = prices[id]
 		if price == nil or not price.forSale or price.robux == nil then
 			return nil
 		end
 		sum += price.robux :: number
 	end
-	if sum <= (own.robux :: number) then
+	return math.floor(sum / 5) * 5
+end
+
+-- The bundle's "Worth R$X" line (§2: muted, no strike-through, no "% off"); only when the parts left are worth more
+-- than the bundle's own price, so it never reads as a loss.
+function StoreLogic.worthLine(
+	row: Row,
+	prices: { [number]: Price },
+	owned: { [number]: boolean }?
+): string?
+	local worth = StoreLogic.worth(row, prices, owned)
+	local own = prices[row.passId]
+	if worth == nil or own == nil or own.robux == nil or worth <= (own.robux :: number) then
 		return nil
 	end
-	return ("Worth R$%d bought apart"):format(sum)
+	return ("Worth R$%s"):format(commas(worth))
+end
+
+-- §2: one badge at most. "Best Value" only when the parts left are worth at least 1.25 x the bundle's price; nothing
+-- else ("Most Popular" waits for real sales data).
+StoreLogic.BEST_VALUE = 1.25
+function StoreLogic.badge(
+	row: Row,
+	prices: { [number]: Price },
+	owned: { [number]: boolean }?
+): string?
+	local worth = StoreLogic.worth(row, prices, owned)
+	local own = prices[row.passId]
+	if worth == nil or own == nil or own.robux == nil or (own.robux :: number) <= 0 then
+		return nil
+	end
+	return if worth >= StoreLogic.BEST_VALUE * (own.robux :: number) then "Best Value" else nil
 end
 
 -- Every pass id the Config names that is made, money ladder first.
@@ -629,10 +676,12 @@ export type Featured = { hero: Row?, picks: { Row } }
 StoreLogic.PICKS = 3
 -- The hero, in order of preference (#1425): the Starter Bundle while it can be bought (the best first buy for a new
 -- cafe), then the running season's Cafe Pass until it is bought (#1646), then the King Cat Pack. An owned King Cat Pack gives way to the Royal Cat, then the Grand Cafe Theme.
-local HERO_ORDER = { "starterBundle", "cafePass", "kingPack", "royalCat", "grandTheme" }
+-- #1823 (store-layout-v2.md §1): the Starter Bundle until bought, then the King Cat bundle, then the Cafe Pass
+local HERO_ORDER = { "starterBundle", "kingPack", "cafePass", "royalCat", "grandTheme" }
 -- The top picks, left to right: the money ladder's next rung, Long Nap and the King Cat Pack (the Royal Cat when the
 -- King Cat Pack is the hero).
-local PICK_ORDER = { "money", "longNap", "kingPack", "royalCat" }
+-- #1823 §1: the Cafe Pass first, then the best sellers (2x Money and Long Nap until the growth thread has sales data)
+local PICK_ORDER = { "cafePass", "money", "longNap", "kingPack", "royalCat" }
 
 -- The Featured tab's cards: one hero and up to three picks, never the same row twice. Owned rows give way to ones
 -- that can still be bought, and an empty spot is filled from the rest of the Store in its order.
@@ -680,7 +729,7 @@ end
 -- A card's button: Owned, "..." while the price loads, Soon while off sale, else the price in Robux.
 function StoreLogic.button(row: Row, price: Price?): Button
 	if row.owned then
-		return { text = "Owned", style = "ghost", enabled = false }
+		return { text = "Yours", style = "ghost", enabled = false } -- #1823 §4
 	end
 	if price == nil then
 		return { text = "...", style = "ghost", enabled = false }

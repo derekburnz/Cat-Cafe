@@ -137,6 +137,7 @@ function Store.new(callbacks: Callbacks): Store
 	self._tab = "featured"
 	self._rows = {} :: { StoreLogic.Row }
 	self._prices = {} :: { [number]: StoreLogic.Price }
+	self._ownedIds = {} :: { [number]: boolean }
 	self._actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
 	self._cellMin = CARD_PAD + TILE + 6 + EFFECT_MIN + 6 + self._actionHeight + CARD_PAD
 	self._pickCompact = CARD_PAD + TILE + 6 + self._actionHeight + CARD_PAD
@@ -385,11 +386,46 @@ function Store._makeCard(
 		TextSize = Theme.sizes.textLarge,
 		TextColor3 = PAL.good,
 		TextXAlignment = Enum.TextXAlignment.Center,
-		Text = "Owned ✓",
+		Text = "✓ Yours", -- #1823 (store-layout-v2.md §4)
 		Visible = false,
+		ZIndex = 3,
 		Parent = card,
 	})
 	Outline.text(owned)
+	-- #1823 §4: an owned card stays, greyed, so nobody buys twice and nothing hides
+	local dim: Frame = Create("Frame", {
+		Name = "Dim",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = Color3.new(0, 0, 0),
+		BackgroundTransparency = 0.55,
+		BorderSizePixel = 0,
+		Visible = false,
+		ZIndex = 2,
+		Parent = card,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
+	-- #1823 §2: one badge at most, top right ("Best Value" only when the parts left are worth 1.25 x the price)
+	local badge = text({
+		Name = "Badge",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -6, 0, 6),
+		Size = UDim2.fromOffset(0, 20),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundTransparency = 0,
+		BackgroundColor3 = PAL.good,
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = Color3.new(1, 1, 1),
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextTruncate = Enum.TextTruncate.None,
+		Visible = false,
+		ZIndex = 3,
+		Parent = card,
+	})
+	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = badge })
+	Create(
+		"UIPadding",
+		{ PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8), Parent = badge }
+	)
 	local entry: any = {
 		frame = card,
 		look = look,
@@ -399,6 +435,8 @@ function Store._makeCard(
 		effect = effect,
 		effectMax = effect.TextSize, -- fitText's top size (the hero's drops on a short page)
 		owned = owned,
+		dim = dim,
+		badge = badge,
 		passId = 0,
 		key = "",
 	}
@@ -466,7 +504,7 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	entry.passId = row.passId
 	entry.name.Text = row.name
 	-- #1822: a bundle adds its "Worth R$X bought apart" line once every part's price is in
-	local worth = StoreLogic.worthLine(row, self._prices)
+	local worth = StoreLogic.worthLine(row, self._prices, self._ownedIds)
 	entry.effect.Text = if worth then row.effect .. "\n" .. worth else row.effect
 	fitText(entry.effect, entry.effectMax)
 	-- the money card's rung is part of its picture (2x, 3x and 4x each have one)
@@ -513,6 +551,10 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	entry.button:setEnabled(button.enabled)
 	entry.button.instance.Visible = not row.owned
 	entry.owned.Visible = row.owned
+	entry.dim.Visible = row.owned
+	local badge = StoreLogic.badge(row, self._prices, self._ownedIds)
+	entry.badge.Visible = badge ~= nil
+	entry.badge.Text = badge or ""
 end
 
 -- Sizes the hero, the picks and the grid's cells to the page (design px; the window's UIScale shrinks it all).
@@ -611,6 +653,14 @@ end
 function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: StoreLogic.Price })
 	self._rows = rows
 	self._prices = prices
+	-- #1823 §4: the passes owned, so a bundle's worth counts only the parts still to buy
+	local ownedIds: { [number]: boolean } = {}
+	for _, row in rows do
+		if row.owned then
+			ownedIds[row.passId] = true
+		end
+	end
+	self._ownedIds = ownedIds
 	-- the rail: Featured and each tab with a card
 	local visibleTabs: { [string]: boolean } = {}
 	for _, tab in StoreLogic.tabs(rows) do

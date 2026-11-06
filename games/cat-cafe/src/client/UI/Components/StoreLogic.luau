@@ -138,7 +138,7 @@ local PASSES: { PassCard } = {
 		configKey = "KingCatPassId",
 		name = "King Cat",
 		icon = "🤴",
-		effect = "King Croissant, who always earns like a Mythical from your newest area.",
+		effect = "A cat that always earns like a Mythical from your newest area.", -- fits a phone's card
 		note = "Also in the King Cat Pack. Can't be traded.",
 		tab = "cats",
 	},

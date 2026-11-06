@@ -548,3 +548,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### 2026-11-06 First hour: Index find hints and a 40-minute session recap (#1919, #1920, Design-Agent, friend's project)
 - Missing cats in the Index say how to get them: catch in the area, or bait, or "opens at Tier n", plus "Shy: walk up slowly" for Epic and above. The new-cat reveal shows the area's count, and while Grand Opening step 7 is next the goal card points to the Index. A calm recap card shows once a session at about 40 minutes, when idle. It leads with what's next, then bait, offline pay and tomorrow, with no countdowns or leave-guilt. Why: Research-Agent's picks 6 and 7 for Derek2's first-hour ask. The Index already had silhouettes, so only the hint was missing. Roblox can't show a card on leave, so the recap comes late in the hour and also points to the Grand Opening. Spec: first-hour.md §5 and §6.
+
+### 2026-11-06 First hour: re-fit after Catch v3 (#1896, Design-Agent, friend's project)
+- Espresso 4 costs 550,000 (was 700,000) and Tier 3 costs 800,000 (was 900,000). Why: Catch v3 (#1910) moved the first hour, which failed the Tier 3 45 to 55 minute check and the Espresso 4 at about minute 42 check. With Gameplay-Engineer's re-fit in PR #1917, Tier 3 lands at 53.8 minutes, Espresso 4 at 42.6 and Tier 2 at 11.7. Spec: first-hour.md §4c.

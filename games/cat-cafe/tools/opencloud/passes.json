@@ -137,6 +137,7 @@
 	},
 	{
 		"name": "Jukebox Pass",
+		"id": 2075072428,
 		"config": "JukeboxPassId",
 		"price": 99,
 		"regionalPricing": true,

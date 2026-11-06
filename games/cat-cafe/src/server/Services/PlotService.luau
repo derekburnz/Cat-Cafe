@@ -111,7 +111,14 @@ function PlotService.release(player: Player)
 		anchor:Destroy()
 	end
 	plot.model:SetAttribute("SignStyle", nil) -- #1625: the plain sign again (CafeService's refreshSignStyle)
-	for _, name in { "Espresso", "LuckyCat", "SignStyle" } do
+	-- #1624: no theme, uniform or VIP plate (CafeService's refreshLooks); the shell's own awning shows again
+	plot.model:SetAttribute("Theme", nil)
+	plot.model:SetAttribute("UniformStyle", nil)
+	plot.model:SetAttribute("VipPlate", nil)
+	WorldBuilder.setAwningHidden(plot, false)
+	for _, name in
+		{ "Espresso", "LuckyCat", "SignStyle", "Theme", "ThemeSign", "ThemeInside", "VipPlate" }
+	do
 		local owned = plot.model:FindFirstChild(name)
 		if owned ~= nil then
 			owned:Destroy()

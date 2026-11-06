@@ -210,6 +210,11 @@ export type IndexPrize = {
 
 -- The Cafe Pass (#1645, cafe-pass.md). A paid track's named item, kept forever once claimed: a chat tag, an accessory,
 -- a uniform colour, a looks-only decor piece, a sign frame or the season cat.
+-- #1624 (store-pass-looks.md): the saved theme and uniform picks (shared/Looks ids), nil for Classic.
+export type LookPicks = { theme: string?, uniform: string? }
+-- What the Style tab reads: the picks (the shown look, nil for Classic) and every owned id of each kind.
+export type LooksView = { theme: string?, uniform: string?, themes: { string }, uniforms: { string } }
+
 export type PassItemKind = "tag" | "accessory" | "uniform" | "decor" | "frame" | "cat"
 export type PassItem = { kind: PassItemKind, id: string, name: string }
 -- One level's reward on a track: a prize Payout pays, a named item, or both.
@@ -1028,6 +1033,7 @@ export type PlayerProfile = {
 	signStyles: { [string]: boolean },
 	signStyle: string?,
 	pass: PassState, -- #1645 (save version 36): the Cafe Pass
+	looks: LookPicks, -- #1624 (save version 38): the cafe theme and uniform picks (shared/Looks)
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.
@@ -1089,6 +1095,7 @@ export type PlayerState = {
 	codesRedeemed: { [string]: number }?, -- #1714: code id -> os.time() redeemed, for the Store's Codes tab
 	signStyles: { string }, -- #1625: every sign style owned (SignStyles.owned), saved or through a pass
 	signStyle: string?, -- #1625: the pick SetSignStyle saved, nil for the plain sign
+	looks: LooksView, -- #1624: the Style tab's theme and uniform rows (shared/Looks), SetLook
 	luck: number, -- F88: the player's Luck now (shared/Luck), x1 to LuckMax; the HUD chip shows it above 1
 	luckSources: { LuckSource }, -- F88: what adds it, in order (statue, potion, lucky_day)
 	-- F95 (economy-ladder.md section 5): the Long Nap pass is owned, so the welcome back card says full pay up to

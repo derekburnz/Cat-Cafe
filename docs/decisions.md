@@ -532,6 +532,9 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 ### 2026-11-06 Catch v3 re-fit: spare-ring cap (Design-Agent, friend's project)
 - A catch try now ends after the all-Perfect ring count + `CatchSpareRings` (2), not 2x, with catchWindow 1.15 / 1.032 / 0.908 / 0.796 / 0.688. Why: Gameplay-Engineer's exact DP showed tuning catchWindow alone could not keep the catch-chance table within 5 points (off by 8). With the cap every cell fits except a Basic Net Mythical at 50 ms (18% vs 23%), which we accept. Spec: catch-rework.md §7b.
 
+### 2026-11-06 Catch v3: paw rings are free and the catchWindow re-fit (Design-Agent, friend's project)
+- A paw ring doesn't use a ring slot toward the try's cap, while a double ring uses two. Legendary and Mythical catchWindow becomes 0.742 and 0.636 (was 0.796 and 0.688). Why: in Gameplay-Engineer's DP, counting a paw as a ring cost Legendary and Mythical 8 points, and making it free without a re-fit added up to 10. With the re-fit, every cell of catch-rework.md §2 is within 5 points; the worst is a Basic Net Mythical at 50 ms, 19% against 23%. Built in PR #1910. Spec: catch-rework.md §7b and §7c.
+
 - 2026-11-06: First-hour retention (#1893, #1897). An eight-step "Grand Opening" roadmap shows from the tutorial's end up to Tier 3, about 60 minutes in. Each step pays a small reward at once. The last step pays 50 golden fish, a crate and the "Grand Opener" tag. Each account's second bait result is also guaranteed Rare or better (85% Rare, 15% Epic), with an honest preview on the bowl and the rare-moment effects. Odds for everything else are unchanged and nothing is sold. Spec in first-hour.md. Why: Derek2 wants new players to stay past 10 minutes and ideally an hour, and the research points to visible mid and long goals plus a moment of joy.
 
 ### 2026-11-06 First hour: fill the Tier 2 dead window (#1896, Design-Agent, friend's project)

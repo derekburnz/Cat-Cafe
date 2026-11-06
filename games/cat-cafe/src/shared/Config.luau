@@ -56,7 +56,7 @@ local Config = {
 		potion_pack_s = 3728336184,
 		potion_pack_m = 3728336191,
 		potion_pack_l = 3728336197,
-		thank_you_badge = 0, -- #1168 row 4: once per account; 0 until Tools-Agent makes it with dev-products.yml
+		thank_you_badge = 3728719483, -- #1168 row 4: once per account (Tools-Agent, 2026-11-06)
 		starter_bundle = 3728336166, -- #1625: once per account (Catalog.products oncePerAccount)
 		cafe_pass = 3728336202, -- #1626: the running season's paid track, once per season (Catalog.products seasonPass)
 	} :: { [string]: number },

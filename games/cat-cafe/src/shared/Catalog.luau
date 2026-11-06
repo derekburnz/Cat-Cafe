@@ -1011,7 +1011,7 @@ Catalog.tiers = {
 	{
 		tier = 3,
 		name = "Busy Cafe",
-		cost = 900000, -- #1896 (first-hour.md 4): 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
+		cost = 800000, -- #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
 		distinctCats = 12,
 		needsRarity = "Epic",
 		needsRarityCount = 1,
@@ -1081,7 +1081,7 @@ Catalog.upgrades = {
 		description = "Better coffee, more money from every cat",
 		maxLevel = 5,
 		-- F95: level 4 four times, 5 (Tier 4) 7.5 times; #1896 (first-hour.md 4): level 4 700,000 (was 400,000), now Tier 2
-		costs = { 0, 2000, 15000, 700000, 6000000 },
+		costs = { 0, 2000, 15000, 550000, 6000000 }, -- #1896 re-fit with Catch v3: Espresso 4 700,000 before
 		startLevel = 1,
 	},
 	{

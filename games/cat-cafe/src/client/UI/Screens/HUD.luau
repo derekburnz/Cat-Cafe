@@ -64,6 +64,7 @@ local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PalChip = require(script.Parent.PalChip)
 local PalMarker = require(script.Parent.PalMarker)
+local PityLogic = require(script.Parent.Parent.Components.PityLogic)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
@@ -124,6 +125,7 @@ export type HUD = {
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
 	-- the gold Store tile at the top of the left menu, shown once init's Store block has its window (#1167)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
+	setOwnerTest: (self: HUD, label: string?) -> (), -- #1770 owner test mode
 	-- #1646: the Cafe Pass tile, shown with the function that opens the Pass window while a season runs (nil hides
 	-- it), and its red "!" while `ready` rewards wait
 	setPass: (self: HUD, open: (() -> ())?, ready: number) -> (),
@@ -1024,9 +1026,30 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			PaddingLeft = UDim.new(0, 10),
 			PaddingRight = UDim.new(0, 10),
 		}),
+		Create(
+			"UIListLayout",
+			{ Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }
+		),
+	})
+	-- #1572 (luck-and-rare-moments.md 1h): under the day kinds, the pity sign's lines, ticking while the card is open
+	self._dayPity = Create("TextLabel", {
+		Name = "Pity",
+		LayoutOrder = 2,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.gold,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextWrapped = true,
+		Text = "",
+		ZIndex = DAY_CARD_Z + 1,
+		Parent = self._dayCard,
 	})
 	self._dayCardText = Create("TextLabel", {
 		Name = "Lines",
+		LayoutOrder = 1,
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 0),
 		AutomaticSize = Enum.AutomaticSize.Y,
@@ -2430,6 +2453,31 @@ end
 -- #1572: the day line's card, open or shut.
 function HUD._toggleDayCard(self: any)
 	self._dayCard.Visible = not self._dayCard.Visible and self._luckyLine.Visible
+	if not self._dayCard.Visible then
+		return
+	end
+	-- #1572: the pity lines count down each second while the card stays open
+	local token = {}
+	self._pityToken = token
+	self:_paintPity()
+	task.spawn(function()
+		while true do
+			task.wait(1)
+			if
+				self._pityToken ~= token
+				or not self._dayCard.Visible
+				or self._dayCard.Parent == nil
+			then
+				return
+			end
+			self:_paintPity()
+		end
+	end)
+end
+
+function HUD._paintPity(self: any)
+	local t = Workspace:GetServerTimeNow() - Config.ClockEpoch
+	self._dayPity.Text = table.concat(PityLogic.lines(PityLogic.view(t, PityLogic.current())), "\n")
 end
 
 -- F101: the Rescue Rally countdown under the clock (RallyLogic.soon), shown with the clock; nil hides it.
@@ -2855,6 +2903,42 @@ function HUD._closePop(self: any)
 	end
 	table.clear(self._popRows)
 	table.clear(self._popBadges)
+end
+
+-- #1770 owner test mode: a small calm label at the top middle for the owner's account only (the text from
+-- shared/OwnerTest.LABEL), so a screenshot or a playtest never mistakes a free grant for a real purchase; nil hides it.
+function HUD.setOwnerTest(self: any, label: string?)
+	local tag: TextLabel? = self._ownerTag
+	if label == nil then
+		if tag then
+			tag.Visible = false
+		end
+		return
+	end
+	if tag == nil then
+		local made: TextLabel = Create("TextLabel", {
+			Name = "OwnerTest",
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.new(0.5, 0, 0, 4),
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, 22),
+			BackgroundColor3 = Theme.colors.cocoaDeep,
+			BackgroundTransparency = 0.2,
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = Theme.colors.gold,
+			ZIndex = 5,
+			Parent = self._root,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
+		})
+		self._ownerTag = made
+		tag = made
+	end
+	local shown = tag :: TextLabel
+	shown.Text = label
+	shown.Visible = true
 end
 
 -- The gold Store tile at the top of the left menu (Derek 2026-11-02: "store still needs to be added"): shown with

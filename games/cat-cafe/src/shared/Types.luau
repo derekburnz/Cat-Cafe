@@ -119,7 +119,7 @@ export type UpgradeDef = {
 
 -- "shop" decor is bought with BuyDecor; "crate" decor (F53) only comes out of a Cafe Crate. The F48 Index pieces
 -- became their zones' Epic crate pieces in F54, and the gold Index pieces were retired before anyone earned one.
-export type DecorSource = "shop" | "crate"
+export type DecorSource = "shop" | "crate" | "pass" -- #1645: "pass", a Cafe Pass piece (looks only)
 
 -- What a crate piece is (F53, golden-fish.md section 4). The cafe has one wallpaper, one floor and one paint in use
 -- at a time, and since F80 (section 4b) one door set (front and back door together) and one cat flap; furniture and
@@ -152,6 +152,8 @@ export type DecorDef = {
 	kind: DecorKind?,
 	color: Color3?,
 	material: Enum.Material?,
+	-- #1822: a pass decor piece that comes with this game pass (by name) instead of the Cafe Pass track
+	pack: string?,
 }
 
 -- Data-model section 11b and golden-fish.md sections 5 and 5b (F54): a milestone on an Index page, `needs` of what
@@ -774,7 +776,7 @@ export type CampExtrasSave = {
 	picnic: { at: number, held: number },
 	yardSale: { lastClaimAt: number, claims: number },
 	pond: { at: number },
-	lostFound: { day: number, held: number },
+	lostFound: { at: number, held: number }, -- #1732 (save version 40): was { day, held }, one a UTC day
 }
 
 -- One of the Yard Sale's crates today: its crate id, its price in golden fish and whether this player bought it.

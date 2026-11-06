@@ -8,7 +8,9 @@
 --     (crate-prices.md section 5, #1051). The crate is the player's open areas' crates in Catalog order picked by the
 --     number of takes so far, so it rotates each take and every server gives the same one.
 --   Fish Pond (Woods): PondFishPerStep golden fish every PondStepSeconds, up to PondHold.
---   Lost and Found (Sewer): one prize a UTC day from LostFoundTable, up to LostFoundHold.
+--   Lost and Found (Sewer): one find every LostFoundEverySeconds, up to LostFoundHold (#1732, camp-stations.md section
+--     4b; one a UTC day before save version 40), each a roll of LostFoundTable. A lostCat row is a lost Epic from the
+--     player's open areas, which CampExtraService brings to the cafe like a rescued cat.
 -- Each keeps filling while the player is away. An extra whose area is shut does not fill, and the moment it opens one
 -- fill waits (a basket, two fish, a prize), so each rank up has something to fetch. Collecting takes everything that
 -- waits. Nothing here is sold, sped up or refilled for Robux.
@@ -53,12 +55,11 @@ end
 -- What every shut extra holds at os.time() `now`: one fill short of nothing, so the first fill waits the moment its
 -- area opens. A new save starts here.
 function CampExtras.fresh(now: number): Types.CampExtrasSave
-	local today = CampExtras.day(now)
 	return {
 		picnic = { at = now - Config.PicnicEverySeconds, held = 0 },
 		yardSale = { lastClaimAt = 0, claims = 0 },
 		pond = { at = now - Config.PondStepSeconds },
-		lostFound = { day = today - 1, held = 0 },
+		lostFound = { at = now - Config.LostFoundEverySeconds, held = 0 },
 	}
 end
 
@@ -85,7 +86,10 @@ function CampExtras.sanitize(raw: unknown, now: number): Types.CampExtrasSave
 		save.pond.at = whole(value.pond.at, now, save.pond.at)
 	end
 	if type(value.lostFound) == "table" then
-		save.lostFound.day = whole(value.lostFound.day, today, save.lostFound.day)
+		-- before save version 40 (#1732): { day, held }, one a UTC day. The clock starts now and what was held stays.
+		save.lostFound.at = if value.lostFound.at ~= nil
+			then whole(value.lostFound.at, now, save.lostFound.at)
+			else now
 		save.lostFound.held = math.max(0, whole(value.lostFound.held, Config.LostFoundHold, 0))
 	end
 	if type(value.yardSale) == "table" then
@@ -126,31 +130,32 @@ function CampExtras.pondFish(save: Types.CampExtrasSave, now: number): number
 	return math.min(Config.PondHold, pondSteps(save, now) * Config.PondFishPerStep)
 end
 
+-- Adds the fills `every` seconds apart since `slot.at`, up to `hold`, in place: the clock moves on by the fills
+-- added, and a full slot's clock waits at `now`, so the next fill counts from when it is emptied.
+local function fill(slot: { at: number, held: number }, every: number, hold: number, now: number)
+	local steps = math.max(0, math.floor((now - slot.at) / every))
+	local add = math.min(steps, math.max(0, hold - slot.held))
+	slot.held = math.min(hold, slot.held + add)
+	slot.at = if slot.held >= hold then now else slot.at + add * every
+end
+
 -- Brings a save up to `now` for a player of `tier`, in place: each open extra fills by the time passed up to its hold
 -- (a full one's clock waits, so the next fill counts from when it is emptied), and a shut extra goes back to its fresh
 -- state. The Yard Sale needs nothing here: its crate is ready once YardSaleClaimHours have passed since the last take.
 function CampExtras.settle(save: Types.CampExtrasSave, tier: number, now: number)
-	local today = CampExtras.day(now)
 	local fresh = CampExtras.fresh(now)
 	if not CampExtras.isOpen("picnic", tier) then
 		save.picnic = fresh.picnic
 	else
-		local picnic = save.picnic
-		local every = Config.PicnicEverySeconds
-		local steps = math.max(0, math.floor((now - picnic.at) / every))
-		local add = math.min(steps, math.max(0, Config.PicnicHold - picnic.held))
-		picnic.held = math.min(Config.PicnicHold, picnic.held + add)
-		picnic.at = if picnic.held >= Config.PicnicHold then now else picnic.at + add * every
+		fill(save.picnic, Config.PicnicEverySeconds, Config.PicnicHold, now)
 	end
 	if not CampExtras.isOpen("pond", tier) then
 		save.pond = fresh.pond
 	end
 	if not CampExtras.isOpen("lostFound", tier) then
 		save.lostFound = fresh.lostFound
-	elseif today > save.lostFound.day then
-		local lostFound = save.lostFound
-		lostFound.held = math.min(Config.LostFoundHold, lostFound.held + today - lostFound.day)
-		lostFound.day = today
+	else
+		fill(save.lostFound, Config.LostFoundEverySeconds, Config.LostFoundHold, now)
 	end
 	if not CampExtras.isOpen(CampExtras.YARD_SALE, tier) then
 		save.yardSale = fresh.yardSale
@@ -198,7 +203,6 @@ function CampExtras.view(
 	now: number
 ): Types.CampExtrasState
 	local today = CampExtras.day(now)
-	local tomorrow = (today + 1) * DAY
 	local picnic = shut()
 	if CampExtras.isOpen("picnic", tier) then
 		picnic.open = true
@@ -221,7 +225,7 @@ function CampExtras.view(
 		lostFound.open = true
 		lostFound.held = save.lostFound.held
 		if save.lostFound.held < Config.LostFoundHold then
-			lostFound.nextAt = tomorrow
+			lostFound.nextAt = save.lostFound.at + Config.LostFoundEverySeconds
 		end
 	end
 	local yardSale = shut()
@@ -241,25 +245,36 @@ function CampExtras.view(
 	return { day = today, picnic = picnic, yardSale = yardSale, pond = pond, lostFound = lostFound }
 end
 
--- A LostFoundTable row as a prize.
-local function rowPrize(
-	row: { chance: number, fish: number?, potion: string?, crate: string? }
-): Types.IndexPrize
+type LostFoundRow = {
+	chance: number,
+	fish: number?,
+	potions: { [string]: number }?,
+	spins: number?,
+	crate: string?,
+	lostCat: string?,
+}
+
+-- A LostFoundTable row as a prize, and the rarity of the lost cat it brings (nil for none).
+local function rowPrize(row: LostFoundRow): (Types.IndexPrize, string?)
 	local prize: Types.IndexPrize = {}
 	if row.fish ~= nil then
 		prize.fish = row.fish
 	end
-	if row.potion ~= nil then
-		prize.potions = { [row.potion] = 1 }
+	if row.potions ~= nil then
+		prize.potions = table.clone(row.potions)
+	end
+	if row.spins ~= nil then
+		prize.spins = row.spins
 	end
 	if row.crate ~= nil then
 		prize.crates = { [row.crate] = 1 }
 	end
-	return prize
+	return prize, row.lostCat
 end
 
--- One Lost and Found prize for a roll in [0, 1): the LostFoundTable row the roll lands in.
-function CampExtras.lostFoundPrize(roll: number): Types.IndexPrize
+-- One Lost and Found find for a roll in [0, 1): the LostFoundTable row the roll lands in, as a prize and the rarity
+-- of the lost cat it brings (nil for none; the server picks the cat).
+function CampExtras.lostFoundPrize(roll: number): (Types.IndexPrize, string?)
 	local rows = Config.LostFoundTable
 	local total = 0
 	for _, row in rows do
@@ -285,12 +300,16 @@ local function addCounts(
 	return counts
 end
 
--- Two prizes as one: their golden fish, potions and crates added up.
+-- Two prizes as one: their golden fish, spins, potions and crates added up.
 function CampExtras.merge(a: Types.IndexPrize, b: Types.IndexPrize): Types.IndexPrize
 	local prize: Types.IndexPrize = {}
 	local fish = (a.fish or 0) + (b.fish or 0)
 	if fish > 0 then
 		prize.fish = fish
+	end
+	local spins = (a.spins or 0) + (b.spins or 0)
+	if spins > 0 then
+		prize.spins = spins
 	end
 	prize.potions = addCounts(addCounts(nil, a.potions), b.potions)
 	prize.crates = addCounts(addCounts(nil, a.crates), b.crates)
@@ -341,49 +360,55 @@ function CampExtras.collectBlocker(
 	return nil
 end
 
--- Takes everything `extraId` holds from a save for a player of `tier` (settling it first): the prize and how many
--- fills it was, or nil and 0 when nothing waits. `roll` gives the Lost and Found's rolls in [0, 1), one a prize.
+-- Takes everything `extraId` holds from a save for a player of `tier` (settling it first): the prize, how many
+-- fills it was and the rarities of the Lost and Found's lost cats (#1732), or nil, 0 and none when nothing waits.
+-- `roll` gives the Lost and Found's rolls in [0, 1), one a find.
 function CampExtras.take(
 	save: Types.CampExtrasSave,
 	extraId: string,
 	tier: number,
 	now: number,
 	roll: () -> number
-): (Types.IndexPrize?, number)
+): (Types.IndexPrize?, number, { string })
 	CampExtras.settle(save, tier, now)
 	if not CampExtras.isOpen(extraId, tier) then
-		return nil, 0
+		return nil, 0, {}
 	end
 	if extraId == "picnic" then
 		local held = save.picnic.held
 		if held <= 0 then
-			return nil, 0
+			return nil, 0, {}
 		end
 		save.picnic.held = 0
-		return { potions = { [Config.PicnicPotion] = held } }, held
+		return { potions = { [Config.PicnicPotion] = held } }, held, {}
 	elseif extraId == "pond" then
 		local steps = pondSteps(save, now)
 		local fish = CampExtras.pondFish(save, now)
 		if fish <= 0 then
-			return nil, 0
+			return nil, 0, {}
 		end
 		save.pond.at = if steps * Config.PondFishPerStep >= Config.PondHold
 			then now
 			else save.pond.at + steps * Config.PondStepSeconds
-		return { fish = fish }, fish
+		return { fish = fish }, fish, {}
 	elseif extraId == "lostFound" then
 		local held = save.lostFound.held
 		if held <= 0 then
-			return nil, 0
+			return nil, 0, {}
 		end
 		local prize: Types.IndexPrize = {}
+		local lostCats: { string } = {}
 		for _ = 1, held do
-			prize = CampExtras.merge(prize, CampExtras.lostFoundPrize(roll()))
+			local find, lostCat = CampExtras.lostFoundPrize(roll())
+			prize = CampExtras.merge(prize, find)
+			if lostCat ~= nil then
+				table.insert(lostCats, lostCat)
+			end
 		end
 		save.lostFound.held = 0
-		return prize, held
+		return prize, held, lostCats
 	end
-	return nil, 0
+	return nil, 0, {}
 end
 
 -- Why taking `crateId` at the Yard Sale would be refused for a settled save, or nil. It is free, so golden fish are
@@ -446,7 +471,7 @@ function CampExtras.promptText(
 		elseif extraId == "pond" then
 			return name, string.format("Collect %d fish", view.held)
 		elseif extraId == "lostFound" then
-			return name, "Collect " .. plural(view.held, "prize", "prizes")
+			return name, "Collect " .. plural(view.held, "find", "finds") -- #1732: "Collect 3 finds"
 		end
 		return name, "Take a free crate"
 	end

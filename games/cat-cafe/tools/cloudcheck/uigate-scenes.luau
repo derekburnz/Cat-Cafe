@@ -685,6 +685,29 @@ local function press(windowName, name)
 	UIShim.fire(UIShim.eventOf(button, "Activated")) -- Components/Button listens to Activated only
 end
 
+-- #1919: the first cat of an area that the sample player has not found (every other catalog cat is), Epic and up
+-- when `shy`
+local function missingCat(areaId, shy)
+	for index, def in Catalog.cats do
+		local rare = def.rarity == "Epic" or def.rarity == "Legendary" or def.rarity == "Mythical"
+		if index % 2 == 0 and def.area == areaId and def.exclusive ~= true and (shy == nil or rare == shy) then
+			return def
+		end
+	end
+	error("uigate: no missing cat in " .. areaId)
+end
+
+-- #1919: the Index's detail line for a missing cat (its tile on the area's page, opened with a tap)
+local function indexHint(def)
+	UI.openIndex(def.area)
+	press("Collection", def.id)
+	local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+	local window = modals and modals:FindFirstChild("Collection", true)
+	local cover = window and window:FindFirstChild("Description", true)
+	assert(cover, "uigate: no detail card description in the Index")
+	return cover.Text
+end
+
 -- a code that pays a big prize (F94: up to three pictures)
 local CODE_PRIZE = {
 	coins = 5000,
@@ -877,6 +900,17 @@ local SCENES = {
 	{ "Index", function()
 		UI.open("Collection")
 	end },
+	-- #1919: a missing Park cat at Tier 3 says to catch it there or wait for bait
+	{ "IndexHintPark", function()
+		local text = indexHint(missingCat("park"))
+		assert(string.find(text, "Catch one in the Park, or it may come to your bait.", 1, true), "uigate: the Park hint reads " .. text)
+	end },
+	-- #1919: a missing Woods cat (Epic or up) at Tier 3 says the Woods opens at Tier 4, and to walk up slowly
+	{ "IndexHintWoods", function()
+		local text = indexHint(missingCat("woods", true))
+		assert(string.find(text, "opens at Tier 4", 1, true), "uigate: the Woods hint reads " .. text)
+		assert(string.find(text, "Shy: walk up slowly.", 1, true), "uigate: no shy line on an Epic or rarer: " .. text)
+	end },
 	{ "Cats", function()
 		UI.open("Cats")
 	end },
@@ -987,6 +1021,15 @@ local SCENES = {
 		UI.bait.openPicker()
 		assertBowlTabs(2, "Bowl 2 is empty")
 	end },
+	-- #1897: the account's first wow cat is on its way, and the bowl says so honestly
+	{ "BaitWow", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 250, placedAt = now - 50, wow = true }, 1)
+		UI.bait.openPicker()
+		local window = baitWindow()
+		local title = window:FindFirstChild("Status", true):FindFirstChild("Title").Text
+		assert(title == "Your next cat will be Rare or better!", "uigate: the wow bowl reads " .. title)
+	end },
 	-- #1893 (first-hour.md 1b): the Grand Opening strip under the goal card at 3/8, tapped open into its eight steps
 	-- (the next one highlighted), then milestone 4's toast and dot
 	{ "GrandOpening", function()
@@ -999,6 +1042,46 @@ local SCENES = {
 		local steps = strip:FindFirstChild("Steps")
 		assert(steps and steps.Visible, "uigate: a tap didn't open the Grand Opening steps (#1893)")
 		UI.roadmap.step(4)
+	end },
+	-- #1919 (first-hour.md 5): while step 7 (twelve cats) is next, the goal card reads "Find N more cats" with the
+	-- Index icon; a tap opens the Index on an open area's page and reports index_hint_tap with it
+	{ "IndexNudge", function()
+		local few = {}
+		for index, def in Catalog.cats do
+			if index <= 6 and def.exclusive ~= true then
+				few[def.id] = os.time() - index * 60
+			end
+		end
+		Scenes._fewCats = true -- Scenes.close puts the sample collection back
+		UI.update({ tutorialStep = 9, collection = few, grandOpening = { done = { [1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true } } })
+		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true)
+		local title = goal and goal:FindFirstChild("Title")
+		assert(title and string.match(title.Text, "^Find %d+ more cats?$"), "uigate: the goal card reads " .. tostring(title and title.Text) .. " (#1919)")
+		assert(goal:FindFirstChild("IndexIcon").Visible, "uigate: no Index icon on the nudge (#1919)")
+	end },
+	{ "IndexNudgeTap", function()
+		local few = {}
+		for index, def in Catalog.cats do
+			if index <= 6 and def.exclusive ~= true then
+				few[def.id] = os.time() - index * 60
+			end
+		end
+		Scenes._fewCats = true
+		UI.update({ tutorialStep = 9, collection = few, grandOpening = { done = { [1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true } } })
+		local tapped = nil
+		local connection = UI.events.indexHintTap:Connect(function(areaId)
+			tapped = areaId
+		end)
+		UIShim.fire(UIShim.eventOf(UIShim.playerGui:FindFirstChild("TierGoal", true), "Activated"))
+		connection:Disconnect()
+		assert(UI.isOpen() == "Collection", "uigate: the nudge opened " .. tostring(UI.isOpen()) .. ", not the Index (#1919)")
+		local open = false
+		for _, area in Catalog.areas do
+			if area.id == tapped and area.tier <= 3 then
+				open = true
+			end
+		end
+		assert(open, "uigate: index_hint_tap named " .. tostring(tapped) .. ", not an open area (#1919)")
 	end },
 	-- #1893: step 8's Grand Opening banner
 	{ "GrandOpeningDone", function()
@@ -1069,6 +1152,14 @@ local SCENES = {
 		UI.bait.setSecond("on")
 		UI.bait.set({ lureId = Catalog.lures[2].id, readyAt = now - 5, placedAt = now - 300 }, 2)
 		UI.bait.showReady({ catId = Catalog.cats[2].id, stars = 2 }, 2)
+	end },
+	-- #1919: the Tame card shows the cat's area count as it stands ("Park N / M"), in the Park's colour
+	{ "BaitCardArea", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now - 5, placedAt = now - 300 }, 1)
+		UI.bait.showReady({ catId = missingCat("park").id, stars = 2 }, 1)
+		local pill = UIShim.playerGui:FindFirstChild("CatCafeBaitCard"):FindFirstChild("AreaCount", true)
+		assert(pill and pill.Visible and string.match(pill.Text, "^Park %d+ / %d+$"), "uigate: the Tame card's area line reads " .. tostring(pill and pill.Text))
 	end },
 	-- #1161: a cat at each bowl: bowl 1 first, and each tab says its own bowl
 	{ "BaitBothReady", function()
@@ -1843,6 +1934,13 @@ local SCENES = {
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
 	end },
+	-- #1919: a new Park cat's reveal shows "Park N / M" in the Park's colour, counting the new cat
+	{ "CatFoundArea", function()
+		local def = missingCat("park")
+		UI.showCatFound(def.id, true)
+		local pill = UIShim.playerGui:FindFirstChild("CatCafePopups"):FindFirstChild("AreaCount", true)
+		assert(pill and pill.Visible and string.match(pill.Text, "^Park %d+ / %d+$"), "uigate: the reveal's area line reads " .. tostring(pill and pill.Text))
+	end },
 	-- F99: a rainbow cat's card: NEW RAINBOW ... CAT! and a turning rainbow edge
 	{ "CatFoundRainbow", function()
 		UI.showCatFound(Catalog.cats[2].id, true, { rainbow = true })
@@ -1858,6 +1956,27 @@ local SCENES = {
 	{ "BigPullCat", function()
 		task.delay(0.5, function()
 			UI.securedRare(localUserId(), mythicalCat(), "Mythical", true, "gold")
+		end)
+	end },
+	-- #1897: the first wow cat's card, "YOUR FIRST EPIC!", and the same cat's first Epic card (SecuredRare) right
+	-- after it plays nothing more. The smaller card closes at 2 s, so it starts 0.9 s in to be up when the gate looks
+	{ "BigPullWow", function()
+		local epic = nil
+		for _, def in Catalog.cats do
+			if def.rarity == "Epic" then
+				epic = def.id
+				break
+			end
+		end
+		assert(epic, "uigate: no Epic cat in the catalog")
+		task.delay(0.9, function()
+			-- BaitReady first, then FirstWow(rarity, first): the card takes the bowl cat of that rarity for its portrait
+			UI.bait.showReady({ catId = epic }, 1)
+			UI.bait.wow("Epic", true)
+			UI.securedRare(localUserId(), epic, "Epic", false, nil)
+			local pull = UIShim.playerGui:FindFirstChild("CatCafeBigPull")
+			local word = pull and pull:FindFirstChild("Word", true)
+			assert(word and word.Text == "YOUR FIRST EPIC!", "uigate: the wow card reads " .. tostring(word and word.Text))
 		end)
 	end },
 	-- F89 and F99: the longest rarity word, RAINBOW LEGENDARY!, on a rainbow card
@@ -2576,6 +2695,10 @@ end
 
 function Scenes.close()
 	reel(false)
+	if Scenes._fewCats then
+		Scenes._fewCats = nil
+		UI.update({ collection = samplePlayer(os.time()).collection }) -- #1919's nudge scenes
+	end
 	UI.close()
 	UI.pals({}) -- F92: no pals, which also takes a pal's marker and Cannon tag away
 	UI.campExtras.update(campExtras(0, false, false)) -- F100: every camp extra shut, so other Cannon scenes stay as they were

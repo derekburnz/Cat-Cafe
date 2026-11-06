@@ -1,7 +1,8 @@
 --!strict
 -- Circles.luau against data-model v0.3.1 section 10 (the net as closing circles) and the reviewer's S23 and S24.
 -- F26 done-when: all Perfect catches at 100%, all Good at 50%; a forged early or late press scores 0; a Mythical
--- with a Basic Net shows uneven circle speeds.
+-- with a Basic Net shows uneven circle speeds. #1884 (catch-rework.md 7b): a net catch keeps a trust bar, so a Miss
+-- costs trust and the try goes on until the bar fills, drops below 0 or the rings run out.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
@@ -25,10 +26,38 @@ return function()
 
 	local NOW = 1000
 
-	-- An attempt over a fresh schedule, plus its circles for convenience.
+	-- An attempt over a fresh schedule with the rarity's trust bar (#1884), plus its circles for convenience. The
+	-- bands are the net's own (not times catchWindow), so the offsets below grade the same on every rarity.
 	local function attemptFor(rarity: string, netLevel: number, seed: number?)
 		local circles = Circles.schedule(rarity :: any, netLevel, NOW, lcg(seed or 11))
-		return Circles.newAttempt(circles, Circles.windows(netLevel)), circles
+		return Circles.newAttempt(
+			circles,
+			Circles.windows(netLevel),
+			Circles.trustFor(rarity :: any)
+		),
+			circles
+	end
+
+	-- The same with every ring a plain "single": rolls of 0.5 never pass a twist's chance (#1884, 7c).
+	local function plainFor(rarity: string, netLevel: number)
+		local circles = Circles.schedule(rarity :: any, netLevel, NOW, constant(0.5))
+		return Circles.newAttempt(
+			circles,
+			Circles.windows(netLevel),
+			Circles.trustFor(rarity :: any)
+		),
+			circles
+	end
+
+	-- The rings of a schedule a ring cap counts: every circle but a paw ring (a double's halves count one each).
+	local function used(circles: { any }): number
+		local n = 0
+		for _, circle in circles do
+			if circle.kind ~= "paw" then
+				n += 1
+			end
+		end
+		return n
 	end
 
 	describe("net windows (section 10 table)", function()
@@ -39,14 +68,17 @@ return function()
 			[3] = { 0.08, 0.18 },
 		}
 
-		it("Basic, Sturdy, Pro and Master match the table, with no jitter of their own (F93)", function()
-			for level, row in pairs(expected) do
-				local windows = Circles.windows(level)
-				expect(windows.perfect).to.be.near(row[1], 1e-9)
-				expect(windows.good).to.be.near(row[2], 1e-9)
-				expect((windows :: any).jitter).never.to.be.ok()
+		it(
+			"Basic, Sturdy, Pro and Master match the table, with no jitter of their own (F93)",
+			function()
+				for level, row in pairs(expected) do
+					local windows = Circles.windows(level)
+					expect(windows.perfect).to.be.near(row[1], 1e-9)
+					expect(windows.good).to.be.near(row[2], 1e-9)
+					expect((windows :: any).jitter).never.to.be.ok()
+				end
 			end
-		end)
+		)
 
 		it("a better net widens both windows", function()
 			for level = 1, 3 do
@@ -70,7 +102,10 @@ return function()
 		end)
 
 		it("CatchSchedule sends only perfect and good", function()
-			expect(Circles.publicWindows(Circles.windows(2)) :: any).to.deepEqual({ perfect = 0.065, good = 0.155 })
+			expect(Circles.publicWindows(Circles.windows(2)) :: any).to.deepEqual({
+				perfect = 0.065,
+				good = 0.155,
+			})
 		end)
 	end)
 
@@ -88,15 +123,18 @@ return function()
 			end
 		end)
 
-		it("a Basic Net Mythical's bands are 0.6 of the net's, and the net's own table is untouched (F93)", function()
-			local mythical = Circles.windowsFor(0, "Mythical")
-			expect(mythical.perfect).to.be.near(0.027, 1e-12)
-			expect(mythical.good).to.be.near(0.066, 1e-12)
-			-- the widest Good of all, a Master Net Common, still clears CircleGapMin with the latency cap (S24)
-			expect(Circles.windowsFor(3, "Common").good).to.be.near(0.198, 1e-12)
-			expect(0.198 + Config.CatchLatencyCapSeconds < Config.CircleGapMin).to.equal(true)
-			expect(Circles.windows(0).good).to.equal(0.11)
-		end)
+		it(
+			"a Basic Net Mythical's bands are 0.636 of the net's, and the net's own table is untouched (#1884)",
+			function()
+				local mythical = Circles.windowsFor(0, "Mythical")
+				expect(mythical.perfect).to.be.near(0.02862, 1e-12)
+				expect(mythical.good).to.be.near(0.06996, 1e-12)
+				-- the widest Good of all, a Master Net Common, still clears CircleGapMin with the latency cap (S24)
+				expect(Circles.windowsFor(3, "Common").good).to.be.near(0.207, 1e-12)
+				expect(0.207 + Config.CatchLatencyCapSeconds < Config.CircleGapMin).to.equal(true)
+				expect(Circles.windows(0).good).to.equal(0.11)
+			end
+		)
 
 		it("rarer is never wider, at every net", function()
 			for level = 0, 3 do
@@ -111,15 +149,46 @@ return function()
 	end)
 
 	describe("schedule (section 10 flow step 1)", function()
-		it("has circles[rarity] circles: 3 for a Common up to 7 for a Mythical, on every net (F93)", function()
-			local want = { Common = 3, Rare = 4, Epic = 5, Legendary = 6, Mythical = 7 }
-			for _, rarity in ipairs(Catalog.rarityOrder) do
-				for level = 0, 3 do
-					local circles = Circles.schedule(rarity, level, NOW, lcg(3))
-					expect(#circles).to.equal(want[rarity])
+		it(
+			"has the rarity's ring cap: 3 to 7 all-Perfect rings plus CatchSpareRings 2, on every net (#1884)",
+			function()
+				local want = { Common = 5, Rare = 6, Epic = 7, Legendary = 8, Mythical = 9 }
+				expect(Config.CatchSpareRings).to.equal(2)
+				for _, rarity in ipairs(Catalog.rarityOrder) do
+					expect(Circles.ringCap(rarity)).to.equal(want[rarity])
+					for level = 0, 3 do
+						local circles = Circles.schedule(rarity, level, NOW, lcg(3))
+						expect(used(circles)).to.equal(want[rarity])
+						expect(#Circles.schedule(rarity, level, NOW, constant(0.5))).to.equal(
+							want[rarity]
+						)
+						expect(#circles <= Circles.maxCircles()).to.equal(true)
+					end
 				end
 			end
-		end)
+		)
+
+		it(
+			"rings come on a steady beat: each shrink time plus CircleGapMin after the last (#1884)",
+			function()
+				for seed = 1, 10 do
+					local circles = Circles.schedule("Epic", 0, NOW, lcg(seed))
+					for i = 2, #circles do
+						if circles[i].half == 2 then
+							expect(circles[i].startsAt - circles[i - 1].startsAt).to.be.near(
+								Config.DoubleRingGap,
+								1e-9
+							)
+						else
+							expect(circles[i].startsAt - Circles.target(circles[i - 1])).to.be.near(
+								Config.CircleGapMin,
+								1e-9
+							)
+						end
+					end
+				end
+			end
+		)
 
 		it("the first circle starts CircleLeadInSeconds (0.6) after GrabBegin", function()
 			expect(Config.CircleLeadInSeconds).to.be.near(0.6, 1e-9)
@@ -129,21 +198,28 @@ return function()
 			end
 		end)
 
-		it("shrink times stay within shrinkSeconds x (1 +/- CircleJitter 0.10) for every net (F93)", function()
-			expect(Config.CircleJitter).to.be.near(0.10, 1e-12)
-			for _, rarity in ipairs(Catalog.rarityOrder) do
-				local base = Catalog.rarities[rarity].shrinkSeconds
-				for level = 0, 3 do
-					local jitter = Config.CircleJitter
-					for seed = 1, 20 do
-						for _, circle in ipairs(Circles.schedule(rarity, level, NOW, lcg(seed))) do
-							expect(circle.shrinkSeconds >= base * (1 - jitter) - 1e-9).to.equal(true)
-							expect(circle.shrinkSeconds <= base * (1 + jitter) + 1e-9).to.equal(true)
+		it(
+			"shrink times stay within shrinkSeconds x (1 +/- CircleJitter 0.10) for every net (F93)",
+			function()
+				expect(Config.CircleJitter).to.be.near(0.10, 1e-12)
+				for _, rarity in ipairs(Catalog.rarityOrder) do
+					local base = Catalog.rarities[rarity].shrinkSeconds
+					for level = 0, 3 do
+						local jitter = Config.CircleJitter
+						for seed = 1, 20 do
+							for _, circle in ipairs(Circles.schedule(rarity, level, NOW, lcg(seed))) do
+								expect(circle.shrinkSeconds >= base * (1 - jitter) - 1e-9).to.equal(
+									true
+								)
+								expect(circle.shrinkSeconds <= base * (1 + jitter) + 1e-9).to.equal(
+									true
+								)
+							end
 						end
 					end
 				end
 			end
-		end)
+		)
 
 		it("the extreme rolls hit the ends of the jitter and gap ranges", function()
 			local low = Circles.schedule("Rare", 0, NOW, constant(0))
@@ -151,32 +227,43 @@ return function()
 			expect(low[2].startsAt - Circles.target(low[1])).to.be.near(Config.CircleGapMin, 1e-9)
 			local high = Circles.schedule("Rare", 0, NOW, constant(0.999999))
 			expect(high[1].shrinkSeconds).to.be.near(1.00 * 1.1, 1e-5)
-			expect(high[2].startsAt - Circles.target(high[1])).to.be.near(Config.CircleGapMax, 1e-5)
+			expect(high[2].startsAt - Circles.target(high[1])).to.be.near(Config.CircleGapMin, 1e-5) -- #1884
 		end)
 
-		it("circles are separated by a gap of CircleGapMin to CircleGapMax (0.40 to 0.75 s)", function()
-			expect(Config.CircleGapMin).to.be.near(0.40, 1e-9)
-			expect(Config.CircleGapMax).to.be.near(0.75, 1e-9)
-			for seed = 1, 50 do
-				local circles = Circles.schedule("Mythical", 0, NOW, lcg(seed))
-				for i = 2, #circles do
-					local gap = circles[i].startsAt - Circles.target(circles[i - 1])
-					expect(gap >= Config.CircleGapMin - 1e-9).to.equal(true)
-					expect(gap <= Config.CircleGapMax + 1e-9).to.equal(true)
-				end
-			end
-		end)
-
-		it("the net never changes the rhythm: the same rolls give the same circles on every net (F93)", function()
-			for _, rarity in ipairs(Catalog.rarityOrder) do
-				for seed = 1, 10 do
-					local basic = Circles.schedule(rarity, 0, NOW, lcg(seed))
-					for level = 1, 3 do
-						expect(Circles.schedule(rarity, level, NOW, lcg(seed)) :: any).to.deepEqual(basic)
+		it(
+			"circles are separated by a gap of CircleGapMin to CircleGapMax (0.40 to 0.75 s)",
+			function()
+				expect(Config.CircleGapMin).to.be.near(0.40, 1e-9)
+				expect(Config.CircleGapMax).to.be.near(0.75, 1e-9)
+				for seed = 1, 50 do
+					local circles = Circles.schedule("Mythical", 0, NOW, lcg(seed))
+					for i = 2, #circles do
+						if circles[i].half == 2 then
+							continue -- a double's second half follows its first by DoubleRingGap (#1884)
+						end
+						local gap = circles[i].startsAt - Circles.target(circles[i - 1])
+						expect(gap >= Config.CircleGapMin - 1e-9).to.equal(true)
+						expect(gap <= Config.CircleGapMax + 1e-9).to.equal(true)
 					end
 				end
 			end
-		end)
+		)
+
+		it(
+			"the net never changes the rhythm: the same rolls give the same circles on every net (F93)",
+			function()
+				for _, rarity in ipairs(Catalog.rarityOrder) do
+					for seed = 1, 10 do
+						local basic = Circles.schedule(rarity, 0, NOW, lcg(seed))
+						for level = 1, 3 do
+							expect(Circles.schedule(rarity, level, NOW, lcg(seed)) :: any).to.deepEqual(
+								basic
+							)
+						end
+					end
+				end
+			end
+		)
 
 		it("a Mythical with a Basic Net shows uneven circle speeds (F26 done-when)", function()
 			local circles = Circles.schedule("Mythical", 0, NOW, lcg(42))
@@ -205,36 +292,58 @@ return function()
 	end)
 
 	describe("targets, deadlines and the lock", function()
-		it("target is startsAt + shrinkSeconds; the deadline adds good and the latency cap", function()
-			local circle = { startsAt = 10, shrinkSeconds = 1.4, x = 0.5, y = 0.5 }
-			local windows = Circles.windows(0)
-			expect(Circles.target(circle)).to.be.near(11.4, 1e-9)
-			expect(Circles.deadline(circle, windows)).to.be.near(11.4 + 0.11 + 0.15, 1e-9)
-		end)
-
-		it("the attempt ends at the last deadline and the lock lasts to the last target + good + 1 s", function()
-			for _, rarity in ipairs(Catalog.rarityOrder) do
-				local circles = Circles.schedule(rarity, 2, NOW, lcg(4))
-				local windows = Circles.windows(2)
-				local last = circles[#circles]
-				expect(Circles.endsAt(circles, windows)).to.be.near(Circles.deadline(last, windows), 1e-9)
-				expect(Circles.lockUntil(circles, windows)).to.be.near(Circles.target(last) + windows.good + 1, 1e-9)
-				-- nobody else can take the stray before every circle is judged
-				expect(Circles.lockUntil(circles, windows) > Circles.endsAt(circles, windows)).to.equal(true)
+		it(
+			"target is startsAt + shrinkSeconds; the deadline adds good and the latency cap",
+			function()
+				local circle: any = { startsAt = 10, shrinkSeconds = 1.4, x = 0.5, y = 0.5 }
+				local windows = Circles.windows(0)
+				expect(Circles.target(circle)).to.be.near(11.4, 1e-9)
+				expect(Circles.deadline(circle, windows)).to.be.near(11.4 + 0.11 + 0.15, 1e-9)
 			end
-		end)
+		)
 
-		it("S24: every next circle starts after the previous circle's deadline, for every net", function()
-			for level = 0, 3 do
-				local windows = Circles.windows(level)
-				for seed = 1, 30 do
-					local circles = Circles.schedule("Mythical", level, NOW, lcg(seed))
-					for i = 2, #circles do
-						expect(circles[i].startsAt > Circles.deadline(circles[i - 1], windows)).to.equal(true)
+		it(
+			"the attempt ends at the last deadline and the lock lasts to the last target + good + 1 s",
+			function()
+				for _, rarity in ipairs(Catalog.rarityOrder) do
+					local circles = Circles.schedule(rarity, 2, NOW, lcg(4))
+					local windows = Circles.windows(2)
+					local last = circles[#circles]
+					expect(Circles.endsAt(circles, windows)).to.be.near(
+						Circles.deadline(last, windows),
+						1e-9
+					)
+					expect(Circles.lockUntil(circles, windows)).to.be.near(
+						Circles.target(last) + windows.good + 1,
+						1e-9
+					)
+					-- nobody else can take the stray before every circle is judged
+					expect(Circles.lockUntil(circles, windows) > Circles.endsAt(circles, windows)).to.equal(
+						true
+					)
+				end
+			end
+		)
+
+		it(
+			"S24: every next ring starts after the previous ring's deadline, for every net",
+			function()
+				for level = 0, 3 do
+					local windows = Circles.windows(level)
+					for seed = 1, 30 do
+						local circles = Circles.schedule("Mythical", level, NOW, lcg(seed))
+						for i = 2, #circles do
+							if circles[i].half == 2 then
+								continue -- #1884: a double's halves overlap on purpose
+							end
+							expect(circles[i].startsAt > Circles.deadline(circles[i - 1], windows)).to.equal(
+								true
+							)
+						end
 					end
 				end
 			end
-		end)
+		)
 	end)
 
 	describe("the tutorial stray (F87, easy-start.md section 2b)", function()
@@ -279,45 +388,54 @@ return function()
 	describe("tutorial edges (QA)", function()
 		local RANK: { [string]: number } = { miss = 0, good = 1, perfect = 2 }
 
-		it("is never stricter than a Common's: every offset on every net grades as well or better", function()
-			for level = 0, 3 do
-				local common = Circles.windowsFor(level, "Common")
-				local tutorial = Circles.tutorialWindows(level)
-				for step = 0, 60 do
-					local offset = step / 100
-					for _, err in { offset, -offset } do
-						local easy = RANK[Circles.grade(err, tutorial)]
-						expect(easy >= RANK[Circles.grade(err, common)]).to.equal(true)
+		it(
+			"is never stricter than a Common's: every offset on every net grades as well or better",
+			function()
+				for level = 0, 3 do
+					local common = Circles.windowsFor(level, "Common")
+					local tutorial = Circles.tutorialWindows(level)
+					for step = 0, 60 do
+						local offset = step / 100
+						for _, err in { offset, -offset } do
+							local easy = RANK[Circles.grade(err, tutorial)]
+							expect(easy >= RANK[Circles.grade(err, common)]).to.equal(true)
+						end
 					end
 				end
 			end
-		end)
+		)
 
-		it("can still be missed (so the retry happens): a press as the circle starts misses", function()
-			for level = 0, 3 do
-				local circles = Circles.tutorialSchedule(NOW, constant(0.5))
-				local attempt = Circles.newAttempt(circles, Circles.tutorialWindows(level))
-				local at = circles[1].startsAt + 0.01
-				expect(Circles.press(attempt, 1, at, at)).to.equal("miss")
-				expect(Circles.succeeded(attempt)).to.equal(false)
-				expect(Circles.isDone(attempt)).to.equal(true)
+		it(
+			"can still be missed (so the retry happens): a press as the circle starts misses",
+			function()
+				for level = 0, 3 do
+					local circles = Circles.tutorialSchedule(NOW, constant(0.5))
+					local attempt = Circles.newAttempt(circles, Circles.tutorialWindows(level))
+					local at = circles[1].startsAt + 0.01
+					expect(Circles.press(attempt, 1, at, at)).to.equal("miss")
+					expect(Circles.succeeded(attempt)).to.equal(false)
+					expect(Circles.isDone(attempt)).to.equal(true)
+				end
 			end
-		end)
+		)
 
-		it("an unpressed circle ends missed at its deadline, and the lock outlasts that deadline", function()
-			for level = 0, 3 do
-				local circles = Circles.tutorialSchedule(NOW, lcg(level + 1))
-				local windows = Circles.tutorialWindows(level)
-				local attempt = Circles.newAttempt(circles, windows)
-				local deadline = Circles.deadline(circles[1], windows)
-				Circles.expire(attempt, deadline)
-				expect(Circles.isDone(attempt)).to.equal(false)
-				Circles.expire(attempt, deadline + 0.01)
-				expect(Circles.isDone(attempt)).to.equal(true)
-				expect(Circles.succeeded(attempt)).to.equal(false)
-				expect(Circles.lockUntil(circles, windows) > deadline).to.equal(true)
+		it(
+			"an unpressed circle ends missed at its deadline, and the lock outlasts that deadline",
+			function()
+				for level = 0, 3 do
+					local circles = Circles.tutorialSchedule(NOW, lcg(level + 1))
+					local windows = Circles.tutorialWindows(level)
+					local attempt = Circles.newAttempt(circles, windows)
+					local deadline = Circles.deadline(circles[1], windows)
+					Circles.expire(attempt, deadline)
+					expect(Circles.isDone(attempt)).to.equal(false)
+					Circles.expire(attempt, deadline + 0.01)
+					expect(Circles.isDone(attempt)).to.equal(true)
+					expect(Circles.succeeded(attempt)).to.equal(false)
+					expect(Circles.lockUntil(circles, windows) > deadline).to.equal(true)
+				end
 			end
-		end)
+		)
 	end)
 
 	describe("latency (section 10 flow step 3)", function()
@@ -365,17 +483,26 @@ return function()
 	end)
 
 	describe("press and expire (section 10 flow step 4)", function()
-		it("all Perfect catches at 100% and all Good at 50% (F26 done-when)", function()
+		it("all Perfect scores 100% and all Good 50% (F26 done-when)", function()
 			for _, rarity in ipairs(Catalog.rarityOrder) do
+				local count = Catalog.rarities[rarity].circles
 				for _, offset in ipairs({ 0, 0.1 }) do
 					local attempt, circles = attemptFor(rarity, 0)
 					for i, circle in ipairs(circles) do
+						if Circles.isDone(attempt) then
+							break
+						end
 						local at = Circles.target(circle) + offset
-						expect(Circles.press(attempt, i, at, at + 0.05)).to.equal(if offset == 0 then "perfect" else "good")
+						expect(Circles.press(attempt, i, at, at + 0.05)).to.equal(
+							if offset == 0 then "perfect" else "good"
+						)
 					end
 					expect(Circles.isDone(attempt)).to.equal(true)
-					expect(Circles.chance(attempt.scores)).to.be.near(if offset == 0 then 1 else 0.5, 1e-9)
-					expect(Circles.perfectCount(attempt)).to.equal(if offset == 0 then #circles else 0)
+					expect(Circles.chance(attempt.scores)).to.be.near(
+						if offset == 0 then 1 else 0.5,
+						1e-9
+					)
+					expect(Circles.perfectCount(attempt)).to.equal(if offset == 0 then count else 0)
 				end
 			end
 		end)
@@ -386,22 +513,28 @@ return function()
 			expect(attempt.errors[1]).to.be.near(-0.02, 1e-9)
 		end)
 
-		it("a press before its circle starts is ignored and the circle can still be judged", function()
-			local attempt, circles = attemptFor("Common", 0)
-			local early = circles[1].startsAt - 0.01
-			expect(Circles.press(attempt, 1, early, early)).never.to.be.ok()
-			expect(attempt.nextIndex).to.equal(1)
-			local at = Circles.target(circles[1])
-			expect(Circles.press(attempt, 1, at, at)).to.equal("perfect")
-		end)
+		it(
+			"a press before its circle starts is ignored and the circle can still be judged",
+			function()
+				local attempt, circles = attemptFor("Common", 0)
+				local early = circles[1].startsAt - 0.01
+				expect(Circles.press(attempt, 1, early, early)).never.to.be.ok()
+				expect(attempt.nextIndex).to.equal(1)
+				local at = Circles.target(circles[1])
+				expect(Circles.press(attempt, 1, at, at)).to.equal("perfect")
+			end
+		)
 
-		it("a forged early press after the start but far from the target scores 0 (F26 done-when)", function()
-			local attempt, circles = attemptFor("Common", 3)
-			local at = circles[1].startsAt + 0.01
-			expect(Circles.press(attempt, 1, at, at)).to.equal("miss")
-			expect(attempt.scores[1]).to.equal(0)
-			expect(Circles.chance(attempt.scores)).to.equal(0)
-		end)
+		it(
+			"a forged early press after the start but far from the target scores 0 (F26 done-when)",
+			function()
+				local attempt, circles = attemptFor("Common", 3)
+				local at = circles[1].startsAt + 0.01
+				expect(Circles.press(attempt, 1, at, at)).to.equal("miss")
+				expect(attempt.scores[1]).to.equal(0)
+				expect(Circles.chance(attempt.scores)).to.equal(0)
+			end
+		)
 
 		it("only the first press per index counts", function()
 			local attempt, circles = attemptFor("Epic", 1)
@@ -425,20 +558,35 @@ return function()
 			expect(Circles.press(attempt, 1, at, at)).to.equal("perfect")
 		end)
 
-		it("a circle with no press by its deadline is a Miss that ends the attempt (v0.4)", function()
-			local attempt, circles = attemptFor("Rare", 0)
-			local windows = Circles.windows(0)
-			local second = Circles.target(circles[2])
-			-- the press for circle 2 arrives after circle 1's deadline, so circle 1 expires first and nothing follows
-			expect(second > Circles.deadline(circles[1], windows)).to.equal(true)
-			expect(Circles.press(attempt, 2, second, second)).never.to.be.ok()
-			expect(attempt.scores[1]).to.equal(0)
-			expect(attempt.grades[1]).to.equal("miss")
-			expect(attempt.errors[1]).never.to.be.ok()
-			expect(attempt.grades[2]).never.to.be.ok()
-			expect(Circles.isDone(attempt)).to.equal(true)
-			expect(Circles.succeeded(attempt)).to.equal(false)
-		end)
+		it(
+			"a circle with no press by its deadline is a Miss that costs trust, and the try goes on (#1884)",
+			function()
+				local attempt, circles = attemptFor("Rare", 0)
+				local windows = Circles.windows(0)
+				local second = Circles.target(circles[2])
+				-- the press for circle 2 arrives after circle 1's deadline, so circle 1 expires first, then 2 is judged
+				expect(second > Circles.deadline(circles[1], windows)).to.equal(true)
+				expect(Circles.press(attempt, 2, second, second)).to.equal("perfect")
+				expect(attempt.scores[1]).to.equal(0)
+				expect(attempt.grades[1]).to.equal("miss")
+				expect(attempt.errors[1]).never.to.be.ok()
+				expect(attempt.trust).to.equal(2 - 2 + 2)
+				expect(Circles.isDone(attempt)).to.equal(false)
+			end
+		)
+
+		it(
+			"without a trust bar (a rescue's tree circle) the first Miss still ends the attempt (v0.4)",
+			function()
+				local circles = Circles.schedule("Rare", 0, NOW, lcg(11))
+				local attempt = Circles.newAttempt(circles, Circles.windows(0))
+				local second = Circles.target(circles[2])
+				expect(Circles.press(attempt, 2, second, second)).never.to.be.ok()
+				expect(attempt.grades[1]).to.equal("miss")
+				expect(Circles.isDone(attempt)).to.equal(true)
+				expect(Circles.succeeded(attempt)).to.equal(false)
+			end
+		)
 
 		it("a late press for an expired circle is ignored, not scored on the next one", function()
 			local attempt, circles = attemptFor("Rare", 3)
@@ -457,36 +605,60 @@ return function()
 			-- arrives 0.2 s late with 0.15 s of latency taken off: a 0.05 s error, just outside Perfect
 			local arrival = target + 0.2
 			expect(arrival <= Circles.deadline(circles[1], windows)).to.equal(true)
-			expect(Circles.press(attempt, 1, arrival - Circles.latency(0.3), arrival)).to.equal("good")
+			expect(Circles.press(attempt, 1, arrival - Circles.latency(0.3), arrival)).to.equal(
+				"good"
+			)
 			expect(attempt.errors[1]).to.be.near(0.05, 1e-9)
 		end)
 
-		it("expire marks only the first overdue circle a Miss, which ends the attempt (v0.4)", function()
-			local attempt, circles = attemptFor("Mythical", 0)
-			local windows = Circles.windows(0)
-			expect(Circles.expire(attempt, circles[1].startsAt)).to.equal(0)
-			expect(Circles.isDone(attempt)).to.equal(false)
-			expect(Circles.expire(attempt, Circles.deadline(circles[2], windows) + 0.001)).to.equal(1)
-			expect(attempt.nextIndex).to.equal(2)
-			expect(Circles.isDone(attempt)).to.equal(true)
-			expect(Circles.expire(attempt, Circles.endsAt(circles, windows) + 1)).to.equal(0)
-			expect(Circles.chance(attempt.scores)).to.equal(0)
-			local at = Circles.endsAt(circles, windows) + 2
-			expect(Circles.press(attempt, 2, at, at)).never.to.be.ok()
-		end)
-
-		it("the first Miss ends a mixed run: Perfect, Good, miss judges three and fails (v0.4)", function()
-			local attempt, circles = attemptFor("Mythical", 0, 7)
-			local offsets = { 0, 0.08, 0.5, -0.01, -0.1, 0, 0 }
-			for i, circle in ipairs(circles) do
-				local at = Circles.target(circle) + offsets[i]
-				Circles.press(attempt, i, at, at)
+		it(
+			"expire marks every overdue circle a Miss; two from the start take trust below 0 and bolt (#1884)",
+			function()
+				local attempt, circles = attemptFor("Mythical", 0)
+				local windows = Circles.windows(0)
+				expect(Circles.expire(attempt, circles[1].startsAt)).to.equal(0)
+				expect(Circles.isDone(attempt)).to.equal(false)
+				expect(Circles.expire(attempt, Circles.deadline(circles[2], windows) + 0.001)).to.equal(
+					2
+				)
+				expect(attempt.nextIndex).to.equal(3)
+				expect(attempt.trust).to.equal(-2)
+				expect(Circles.isDone(attempt)).to.equal(true)
+				expect(Circles.finish(attempt)).to.equal("bolt")
+				expect(Circles.expire(attempt, Circles.endsAt(circles, windows) + 1)).to.equal(0)
+				expect(Circles.chance(attempt.scores)).to.equal(0)
+				local at = Circles.endsAt(circles, windows) + 2
+				expect(Circles.press(attempt, 2, at, at)).never.to.be.ok()
 			end
-			expect(attempt.grades :: any).to.deepEqual({ "perfect", "good", "miss" })
-			expect(Circles.succeeded(attempt)).to.equal(false)
-			expect(Circles.charmGain(attempt)).to.equal(0)
-			expect(Circles.perfectCount(attempt)).to.equal(1)
-		end)
+		)
+
+		it(
+			"a run with a Miss can still fill the bar: Perfect +2, Miss -2, caught at trustNeed (#1884)",
+			function()
+				local attempt, circles = plainFor("Mythical", 0)
+				local offsets = { 0, 0, 0.5, 0, 0, 0, 0, 0, 0 }
+				for i, circle in ipairs(circles) do
+					local at = Circles.target(circle) + offsets[i]
+					Circles.press(attempt, i, at, at)
+				end
+				-- 2 + 2 + 2 - 2 + 6 x 2 = 16, the Mythical's need, on the ninth and last ring
+				expect(attempt.grades[3]).to.equal("miss")
+				expect(#attempt.grades).to.equal(9)
+				expect(attempt.trust).to.equal(16)
+				expect(Circles.succeeded(attempt)).to.equal(true)
+				expect(Circles.finish(attempt)).to.equal("great")
+				expect(Circles.perfectCount(attempt)).to.equal(8)
+				-- with a Good as well there are not rings enough: 2 + 2 + 1 - 2 + 6 x 2 = 15 after nine
+				local short, shortCircles = plainFor("Mythical", 0)
+				local shortOffsets = { 0, 0.08, 0.5, 0, 0, 0, 0, 0, 0 }
+				for i, circle in ipairs(shortCircles) do
+					local at = Circles.target(circle) + shortOffsets[i]
+					Circles.press(short, i, at, at)
+				end
+				expect(short.trust).to.equal(15)
+				expect(Circles.finish(short)).to.equal("bolt")
+			end
+		)
 
 		it("chance of no scores is 0", function()
 			expect(Circles.chance({})).to.equal(0)
@@ -513,69 +685,326 @@ return function()
 			return out
 		end
 
-		it("every circle Good or Perfect is a sure catch, for every rarity", function()
-			for _, rarity in ipairs(Catalog.rarityOrder) do
-				local count = Catalog.rarities[rarity].circles
-				for _, offset in ipairs({ 0, 0.08, -0.08 }) do
-					local attempt = run(rarity, same(offset, count))
+		it(
+			"all Perfect catches in the rarity's `circles` rings, a PURRFECT, for every rarity (#1884)",
+			function()
+				for _, rarity in ipairs(Catalog.rarityOrder) do
+					local count = Catalog.rarities[rarity].circles
+					local attempt = run(rarity, same(0, count))
 					expect(Circles.isDone(attempt)).to.equal(true)
 					expect(Circles.succeeded(attempt)).to.equal(true)
+					expect(#attempt.grades).to.equal(count)
+					expect(Circles.finish(attempt)).to.equal("purrfect")
 				end
 			end
+		)
+
+		it(
+			"one Good is GREAT, two or more NICE; all Good runs out of rings and bolts (#1884, 7d)",
+			function()
+				local great = run("Common", { 0.08, 0, 0, 0 }) -- 3, 5, 7, 9
+				expect(Circles.finish(great)).to.equal("great")
+				local nice = run("Common", { 0.08, 0.08, 0, 0, 0 }) -- 3, 4, 6, 8
+				expect(Circles.finish(nice)).to.equal("nice")
+				expect(#nice.grades).to.equal(4)
+				local slow = run("Common", same(0.08, 5)) -- 3 to 7 over all five rings
+				expect(Circles.isDone(slow)).to.equal(true)
+				expect(Circles.succeeded(slow)).to.equal(false)
+				expect(Circles.finish(slow)).to.equal("bolt")
+			end
+		)
+
+		it(
+			"one early Miss on a Rare is won back; two in a row from the start bolt (7f check 3)",
+			function()
+				local back = run("Rare", { -0.3, 0, 0, 0, 0, 0 }) -- 0, then 2 to 10
+				expect(Circles.succeeded(back)).to.equal(true)
+				expect(Circles.finish(back)).to.equal("great")
+				local bolted = run("Rare", { -0.3, -0.3 })
+				expect(Circles.isDone(bolted)).to.equal(true)
+				expect(Circles.succeeded(bolted)).to.equal(false)
+				expect(bolted.trust).to.equal(-2)
+			end
+		)
+
+		it("takes its trust steps from Config (#1884)", function()
+			expect(Circles.trustDelta("perfect")).to.equal(Config.TrustPerfect)
+			expect(Circles.trustDelta("good")).to.equal(Config.TrustGood)
+			expect(Circles.trustDelta("miss")).to.equal(Config.TrustMiss)
+			expect(Circles.trustFor("Epic").start).to.equal(Config.TrustStart)
+			expect(Circles.trustFor("Epic", 1).start).to.equal(Config.TrustStart + 1)
+			expect(Circles.trustFor("Epic").need).to.equal(Catalog.rarities.Epic.trustNeed)
+			-- the tutorial stray: one Good or Perfect still catches it
+			local tutorial = Circles.tutorialTrust()
+			expect(tutorial.start + Config.TrustGood >= tutorial.need).to.equal(true)
+			expect(tutorial.start + Config.TrustMiss < tutorial.need).to.equal(true)
 		end)
 
-		it("one Miss fails the catch, even on the last circle", function()
-			local attempt = run("Mythical", { 0, 0.08, 0, -0.08, 0, 0.08, 0.5 })
-			expect(attempt.grades :: any).to.deepEqual({ "perfect", "good", "perfect", "good", "perfect", "good", "miss" })
-			expect(Circles.isDone(attempt)).to.equal(true)
-			expect(Circles.succeeded(attempt)).to.equal(false)
-		end)
+		it(
+			"a run that is not over has not succeeded yet, and its next deadline is the waiting circle's",
+			function()
+				local attempt, circles = run("Rare", { 0 })
+				expect(Circles.isDone(attempt)).to.equal(false)
+				expect(Circles.succeeded(attempt)).to.equal(false)
+				expect(Circles.nextDeadline(attempt)).to.be.near(
+					Circles.deadline(circles[2], attempt.windows),
+					1e-9
+				)
+				local fresh, freshCircles = attemptFor("Epic", 0)
+				expect(Circles.nextDeadline(fresh)).to.be.near(
+					Circles.deadline(freshCircles[1], fresh.windows),
+					1e-9
+				)
+			end
+		)
 
-		it("a run that is not over has not succeeded yet, and its next deadline is the waiting circle's", function()
-			local attempt, circles = run("Rare", { 0 })
-			expect(Circles.isDone(attempt)).to.equal(false)
-			expect(Circles.succeeded(attempt)).to.equal(false)
-			expect(Circles.nextDeadline(attempt)).to.be.near(Circles.deadline(circles[2], attempt.windows), 1e-9)
-			local fresh, freshCircles = attemptFor("Epic", 0)
-			expect(Circles.nextDeadline(fresh)).to.be.near(Circles.deadline(freshCircles[1], fresh.windows), 1e-9)
-		end)
-
-		it("a missed press ends the attempt at once: no deadline left and later circles are ignored", function()
-			local attempt, circles = run("Epic", { 0, -0.3 })
-			expect(attempt.errors[2]).to.be.near(-0.3, 1e-9) -- judged as a press, not expired
-			expect(attempt.grades :: any).to.deepEqual({ "perfect", "miss" })
-			expect(Circles.isDone(attempt)).to.equal(true)
-			expect(Circles.nextDeadline(attempt)).never.to.be.ok()
-			local at = Circles.target(circles[3])
-			expect(Circles.press(attempt, 3, at, at)).never.to.be.ok()
-			expect(Circles.expire(attempt, Circles.endsAt(circles, attempt.windows) + 1)).to.equal(0)
-			expect(#attempt.grades).to.equal(2)
-		end)
+		it(
+			"a bolt ends the attempt at once: no deadline left and later circles are ignored",
+			function()
+				local attempt, circles = run("Epic", { -0.3, -0.3 })
+				expect(attempt.errors[2]).to.be.near(-0.3, 1e-9) -- judged as a press, not expired
+				expect(attempt.grades :: any).to.deepEqual({ "miss", "miss" })
+				expect(Circles.isDone(attempt)).to.equal(true)
+				expect(Circles.nextDeadline(attempt)).never.to.be.ok()
+				local at = Circles.target(circles[3])
+				expect(Circles.press(attempt, 3, at, at)).never.to.be.ok()
+				expect(Circles.expire(attempt, Circles.endsAt(circles, attempt.windows) + 1)).to.equal(
+					0
+				)
+				expect(#attempt.grades).to.equal(2)
+			end
+		)
 
 		it("nothing is left to expire after a sure catch", function()
 			local attempt, circles = run("Legendary", same(0, 6))
 			expect(Circles.nextDeadline(attempt)).never.to.be.ok()
-			expect(Circles.expire(attempt, Circles.endsAt(circles, attempt.windows) + 1)).to.equal(0)
+			expect(Circles.expire(attempt, Circles.endsAt(circles, attempt.windows) + 1)).to.equal(
+				0
+			)
 			expect(Circles.succeeded(attempt)).to.equal(true)
 		end)
 
-		it("charm: 4 per Perfect, doubled when every circle is Perfect", function()
+		it("charm: 4 per Perfect, doubled for a PURRFECT", function()
 			expect(Circles.charmGain((run("Common", same(0, 3))))).to.equal(24)
 			expect(Circles.charmGain((run("Legendary", same(0, 6))))).to.equal(48)
 			expect(Circles.charmGain((run("Mythical", same(0, 7))))).to.equal(56)
-			expect(Circles.charmGain((run("Epic", { 0, 0.08, 0, 0.08, 0.08 })))).to.equal(8)
-			expect(Circles.charmGain((run("Rare", { 0, -0.08, -0.08, -0.08 })))).to.equal(4)
-			expect(Circles.charmGain((run("Rare", same(0.08, 4))))).to.equal(0)
+			expect(Circles.charmGain((run("Epic", { 0, 0.08, 0, 0.08, 0, 0 })))).to.equal(16)
+			expect(Circles.charmGain((run("Rare", { 0, -0.08, 0, 0, 0 })))).to.equal(16)
+			expect(Circles.charmGain((run("Rare", same(0.08, 4))))).to.equal(0) -- not over yet
+			expect(Circles.charmGain((run("Rare", same(0.08, 6))))).to.equal(0) -- out of rings
 			expect(Circles.charmGain((run("Epic", { 0, 0, 0 })))).to.equal(0) -- not over yet: no charm
 		end)
 
-		it("charm: nothing for a failed or unfinished catch, however many Perfects came first", function()
-			expect(Circles.charmGain((run("Mythical", { 0, 0, 0, 0, 0.5 })))).to.equal(0)
-			expect(Circles.charmGain((run("Rare", { 0 })))).to.equal(0)
-			local attempt, circles = attemptFor("Common", 0)
-			Circles.expire(attempt, Circles.deadline(circles[1], attempt.windows) + 0.01)
-			expect(Circles.charmGain(attempt)).to.equal(0)
+		it(
+			"charm: nothing for a failed or unfinished catch, however many Perfects came first",
+			function()
+				expect(Circles.charmGain((run("Mythical", { 0, 0, 0, 0, 0.5 })))).to.equal(0)
+				expect(Circles.charmGain((run("Rare", { 0 })))).to.equal(0)
+				local attempt, circles = attemptFor("Common", 0)
+				Circles.expire(attempt, Circles.deadline(circles[1], attempt.windows) + 0.01)
+				expect(Circles.charmGain(attempt)).to.equal(0)
+			end
+		)
+	end)
+
+	describe("rarity twists (#1884, catch-rework.md 7c)", function()
+		local function kindsOf(rarity: string, seeds: number): { [string]: number }
+			local counts = { single = 0, double = 0, paw = 0 }
+			for seed = 1, seeds do
+				for _, circle in Circles.schedule(rarity :: any, 0, NOW, lcg(seed)) do
+					counts[circle.kind :: string] += 1
+				end
+			end
+			return counts
+		end
+
+		it(
+			"Commons and Rares keep plain rings; Epics get doubles, Legendaries and Mythicals paw rings too",
+			function()
+				for _, rarity in { "Common", "Rare" } do
+					local counts = kindsOf(rarity, 200)
+					expect(counts.double + counts.paw).to.equal(0)
+				end
+				local epic = kindsOf("Epic", 200)
+				expect(epic.double > 0).to.equal(true)
+				expect(epic.paw).to.equal(0)
+				for _, rarity in { "Legendary", "Mythical" } do
+					local counts = kindsOf(rarity, 200)
+					expect(counts.double > 0 and counts.paw > 0).to.equal(true)
+				end
+			end
+		)
+
+		it(
+			"a double is two circles on one spot DoubleRingGap (0.18 s) apart, half 1 then 2, never the first ring",
+			function()
+				expect(Config.DoubleRingGap).to.be.near(0.18, 1e-12)
+				expect(Config.DoubleRingChance).to.be.near(0.25, 1e-12)
+				for seed = 1, 100 do
+					local circles = Circles.schedule("Mythical", 0, NOW, lcg(seed))
+					expect(circles[1].kind ~= "double").to.equal(true)
+					for i, circle in circles do
+						if circle.kind == "double" and circle.half == 1 then
+							local second = circles[i + 1]
+							expect(second.kind).to.equal("double")
+							expect(second.half).to.equal(2)
+							expect(second.startsAt - circle.startsAt).to.be.near(0.18, 1e-9)
+							expect(second.shrinkSeconds).to.equal(circle.shrinkSeconds)
+							expect(second.x == circle.x and second.y == circle.y).to.equal(true)
+						end
+					end
+				end
+			end
+		)
+
+		it("a paw ring comes after the second ring and never twice in a row", function()
+			expect(Config.PawRingChance).to.be.near(1 / 6, 1e-12)
+			for seed = 1, 200 do
+				local circles = Circles.schedule("Legendary", 0, NOW, lcg(seed))
+				local ring = 0
+				for i, circle in circles do
+					if circle.half ~= 2 then
+						ring += 1
+					end
+					if circle.kind == "paw" then
+						expect(ring > 2).to.equal(true)
+						expect(circles[i - 1].kind ~= "paw").to.equal(true)
+					end
+				end
+			end
 		end)
+
+		it("the twists roll at about their chances", function()
+			local rings, doubles = 0, 0
+			for seed = 1, 400 do
+				local circles = Circles.schedule("Epic", 0, NOW, lcg(seed))
+				for i, circle in circles do
+					if i > 1 and circle.half ~= 2 then
+						rings += 1
+						if circle.kind == "double" then
+							doubles += 1
+						end
+					end
+				end
+			end
+			-- a double needs two rings left, so the last ring is always single: a little under a quarter
+			expect(doubles / rings > 0.17 and doubles / rings < 0.27).to.equal(true)
+		end)
+
+		it(
+			"a paw ring left alone is judged left, +1 trust; tapped it is a Miss, -2 (7c)",
+			function()
+				local circles = {
+					{ startsAt = NOW, shrinkSeconds = 0.6, x = 0.5, y = 0.5, kind = "paw" },
+					{ startsAt = NOW + 1.6, shrinkSeconds = 0.6, x = 0.5, y = 0.5, kind = "paw" },
+				} :: { any }
+				local windows = Circles.windows(0)
+				local left = Circles.newAttempt(circles, windows, Circles.trustFor("Legendary"))
+				expect(Circles.expire(left, Circles.deadline(circles[1], windows) + 0.01)).to.equal(
+					1
+				)
+				expect(left.grades[1]).to.equal("left")
+				expect(left.trust).to.equal(Config.TrustStart + Config.TrustPawLeft)
+				expect(Circles.trustDelta("left")).to.equal(1)
+				local tapped = Circles.newAttempt(circles, windows, Circles.trustFor("Legendary"))
+				local at = Circles.target(circles[1])
+				expect(Circles.press(tapped, 1, at, at)).to.equal("miss")
+				expect(tapped.trust).to.equal(Config.TrustStart + Config.TrustMiss)
+			end
+		)
+
+		it("a paw ring left alone keeps a PURRFECT; a tapped one does not (7d)", function()
+			local circles = {} :: { any }
+			for i = 1, 7 do
+				table.insert(circles, {
+					startsAt = NOW + (i - 1) * 2,
+					shrinkSeconds = 0.6,
+					x = 0.5,
+					y = 0.5,
+					kind = if i == 3 then "paw" else "single",
+				})
+			end
+			local windows = Circles.windows(0)
+			local attempt = Circles.newAttempt(circles, windows, Circles.trustFor("Legendary"))
+			for i, circle in circles do
+				if circle.kind ~= "paw" then
+					local at = Circles.target(circle)
+					Circles.press(attempt, i, at, at)
+				end
+			end
+			-- 2 + 2 + 2 + 1 (left) + 2 x 3 = 13 after six, then 15 on the seventh: caught
+			expect(attempt.grades[3]).to.equal("left")
+			expect(Circles.succeeded(attempt)).to.equal(true)
+			expect(Circles.finish(attempt)).to.equal("purrfect")
+		end)
+
+		it(
+			"a press for a double's second half judges an unpressed first half once its Good band is past",
+			function()
+				local circles = {
+					{
+						startsAt = NOW,
+						shrinkSeconds = 0.6,
+						x = 0.5,
+						y = 0.5,
+						kind = "double",
+						half = 1,
+					},
+					{
+						startsAt = NOW + 0.18,
+						shrinkSeconds = 0.6,
+						x = 0.5,
+						y = 0.5,
+						kind = "double",
+						half = 2,
+					},
+					{ startsAt = NOW + 2, shrinkSeconds = 0.6, x = 0.5, y = 0.5, kind = "single" },
+				} :: { any }
+				local windows = Circles.windows(0)
+				local attempt = Circles.newAttempt(circles, windows, Circles.trustFor("Epic"))
+				-- too soon: half 1 could still be hit
+				local soon = Circles.target(circles[1]) + 0.05
+				expect(Circles.press(attempt, 2, soon, soon)).never.to.be.ok()
+				expect(attempt.nextIndex).to.equal(1)
+				-- on half 2's target, before half 1's deadline (which allows for ping): half 1 a Miss, half 2 Perfect
+				local at = Circles.target(circles[2])
+				expect(at < Circles.deadline(circles[1], windows)).to.equal(true)
+				expect(Circles.press(attempt, 2, at, at)).to.equal("perfect")
+				expect(attempt.grades[1]).to.equal("miss")
+				expect(attempt.trust).to.equal(
+					Config.TrustStart + Config.TrustMiss + Config.TrustPerfect
+				)
+			end
+		)
+
+		it(
+			"a paw ring uses none of the ring cap, so no schedule is ever short of rings (7f check 7)",
+			function()
+				for _, rarity in ipairs(Catalog.rarityOrder) do
+					for seed = 1, 100 do
+						local circles = Circles.schedule(rarity, 0, NOW, lcg(seed))
+						expect(used(circles)).to.equal(Circles.ringCap(rarity))
+						-- all Perfect, paw rings left alone, always fills the bar
+						local attempt = Circles.newAttempt(
+							circles,
+							Circles.windows(0),
+							Circles.trustFor(rarity)
+						)
+						for i, circle in circles do
+							if Circles.isDone(attempt) then
+								break
+							end
+							if circle.kind ~= "paw" then
+								local at = Circles.target(circle)
+								Circles.press(attempt, i, at, at)
+							end
+						end
+						Circles.expire(attempt, Circles.endsAt(circles, Circles.windows(0)) + 1)
+						expect(Circles.finish(attempt)).to.equal("purrfect")
+					end
+				end
+			end
+		)
 	end)
 
 	describe("scripted press check (reviewer S23)", function()
@@ -607,24 +1036,27 @@ return function()
 			expect(Circles.looksScripted({})).to.equal(false)
 		end)
 
-		it("clears only on a full window at or below 85% Perfect, never a partial one (v0.4, reviewer N46)", function()
-			expect(Circles.AUTO_PRESS_CLEAR_RATE).to.be.near(0.85, 1e-9)
-			expect(Circles.AUTO_PRESS_RATE).to.equal(Config.AutoPressFlagRate)
-			expect(Circles.AUTO_PRESS_CLEAR_RATE).to.equal(Config.AutoPressClearRate)
-			local function history(perfect: number, total: number): { boolean }
-				local out = {}
-				for i = 1, total do
-					table.insert(out, i <= perfect)
+		it(
+			"clears only on a full window at or below 85% Perfect, never a partial one (v0.4, reviewer N46)",
+			function()
+				expect(Circles.AUTO_PRESS_CLEAR_RATE).to.be.near(0.85, 1e-9)
+				expect(Circles.AUTO_PRESS_RATE).to.equal(Config.AutoPressFlagRate)
+				expect(Circles.AUTO_PRESS_CLEAR_RATE).to.equal(Config.AutoPressClearRate)
+				local function history(perfect: number, total: number): { boolean }
+					local out = {}
+					for i = 1, total do
+						table.insert(out, i <= perfect)
+					end
+					return out
 				end
-				return out
+				expect(Circles.looksHonest(history(0, 49))).to.equal(false) -- a rejoin's short history
+				expect(Circles.looksHonest(history(0, 50))).to.equal(true)
+				expect(Circles.looksHonest(history(42, 50))).to.equal(true) -- 84%
+				expect(Circles.looksHonest(history(43, 50))).to.equal(false) -- 86%
+				expect(Circles.looksHonest(history(85, 100))).to.equal(true) -- exactly 85%
+				expect(Circles.looksHonest({})).to.equal(false)
 			end
-			expect(Circles.looksHonest(history(0, 49))).to.equal(false) -- a rejoin's short history
-			expect(Circles.looksHonest(history(0, 50))).to.equal(true)
-			expect(Circles.looksHonest(history(42, 50))).to.equal(true) -- 84%
-			expect(Circles.looksHonest(history(43, 50))).to.equal(false) -- 86%
-			expect(Circles.looksHonest(history(85, 100))).to.equal(true) -- exactly 85%
-			expect(Circles.looksHonest({})).to.equal(false)
-		end)
+		)
 
 		it("between 85% and 95% Perfect the flag neither sets nor clears", function()
 			local history = {}

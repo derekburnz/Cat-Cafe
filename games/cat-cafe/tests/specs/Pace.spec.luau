@@ -14,8 +14,9 @@
 --   rush, then carry speed) and the cloud hop home;
 -- - nets each stray with presses that land PRESS_SPREAD seconds either side of the target (one standard deviation,
 --   ping wobble included; data-model 10, v0.13.15), graded by Circles on its net level's windows times the
---   stray's `catchWindow` (F83). A miss costs the chase: the stray sprints and rests (Catching.fleeUntil), the
---   misser waits its growing step longer (Catching.selfRetrySeconds) and walks over, startled at first. A trip
+--   stray's `catchWindow` (F83), on the trust bar (#1884). A bolt costs the chase: the stray sprints and rests
+--   (Catching.fleeUntil), the misser waits its growing step longer (Catching.selfRetrySeconds) and walks over,
+--   startled at first. A trip
 --   that runs late delays the next one, and a stray still loose at the dusk banner is left behind;
 -- - is paid each tip pile the moment it appears, wherever it is (F97); at home claims a waiting rich visitor, tames a
 --   ready bait cat and puts food in an empty bowl, buying the best shop food whose price at its tier
@@ -186,6 +187,9 @@ return function()
 
 	local function simulate(options: Options, seed: number): Run
 		local rng = generator(seed)
+		-- the presses and the rings have their own rolls, so a change to the catch (#1884) leaves which cats come,
+		-- and when, as they were
+		local pressRng = generator(seed * 3 + 1)
 		local step = if options.long then LONG_STEP else 1
 		local limit = options.limit or LIMIT
 		local target = options.target or 2
@@ -222,9 +226,9 @@ return function()
 		local epoch = 0 -- the session's server clock start, for settling across day and night
 		local dirty = true -- the rate changed since the last settle: settle on the next tick
 
-		-- A press's error: normal, by Box and Muller from two of the run's rolls (never 0, so the log is safe).
+		-- A press's error: normal, by Box and Muller from two of the press rolls (never 0, so the log is safe).
 		local function pressError(): number
-			return spread * math.sqrt(-2 * math.log(rng())) * math.cos(2 * math.pi * rng())
+			return spread * math.sqrt(-2 * math.log(pressRng())) * math.cos(2 * math.pi * pressRng())
 		end
 
 		-- Seconds from the first try on a stray to the try that nets it, or nil after MAX_TRIES.
@@ -236,17 +240,27 @@ return function()
 			local startsAt = 0
 			for _ = 1, MAX_TRIES do
 				run.tries += 1
-				local missedAt: number? = nil
-				for _, circle in Circles.schedule(rarity, netLevel, startsAt, rng) do
-					local err = pressError()
-					if Circles.grade(err, windows) == "miss" then
-						missedAt = Circles.target(circle) + err
+				-- #1884 (catch-rework.md 7b): the trust bar decides the try, ring by ring as the server judges it
+				local circles = Circles.schedule(rarity, netLevel, startsAt, pressRng)
+				local attempt = Circles.newAttempt(circles, windows, Circles.trustFor(rarity))
+				local endedAt = startsAt
+				for i, circle in circles do
+					local at = Circles.target(circle) + pressError()
+					if circle.kind == "paw" then
+						-- #1884 (7c): a paw ring is left alone (+1 trust)
+						Circles.expire(attempt, Circles.deadline(circle, windows) + 1e-6)
+					elseif Circles.press(attempt, i, at, at) == nil then
+						Circles.expire(attempt, Circles.deadline(circle, windows) + 1e-6)
+					end
+					endedAt = math.max(at, Circles.target(circle))
+					if Circles.isDone(attempt) then
 						break
 					end
 				end
-				if missedAt == nil then
+				if Circles.succeeded(attempt) then
 					return startsAt
 				end
+				local missedAt = endedAt
 				run.misses += 1
 				streak = Catching.nextMiss(streak, missedAt)
 				local count = assert(streak).count

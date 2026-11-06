@@ -19,6 +19,7 @@ local RunService = game:GetService("RunService")
 local CrateReelLogic = require(script.Parent.Parent.Components.CrateReelLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
@@ -180,6 +181,15 @@ function CrateReel._build(self: any, play: Play)
 	self:_clear()
 	local timing = play.timing
 	self._strip.Size = UDim2.fromOffset(STEP * #play.tiles, TILE)
+	-- #1728: the Market fetched these when it opened; any still missing start now, before the tiles ask one by one
+	local images: { string } = {}
+	for _, tile in play.tiles do
+		local picture = ShopIcons.decor(tile.id)
+		if picture then
+			table.insert(images, picture)
+		end
+	end
+	IconArt.preload(images)
 	for index, tile in play.tiles do
 		local decor: Types.DecorDef? = play.decorById[tile.id]
 		local piece = DecorPieces.info(decor)

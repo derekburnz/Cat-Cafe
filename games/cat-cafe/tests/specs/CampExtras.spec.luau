@@ -353,7 +353,7 @@ return function()
 	end)
 
 	describe("save version 25 (section 4)", function()
-		it("turns a version 38 Lost and Found into { at, held } at the load, keeping what it held (#1732)", function()
+		it("turns a version 39 Lost and Found into { at, held } at the load, keeping what it held (#1732)", function()
 			local save = CampExtras.sanitize({ lostFound = { day = CampExtras.day(T), held = 2 } }, T)
 			expect(save.lostFound :: any).to.deepEqual({ at = T, held = 2 })
 			local damaged = CampExtras.sanitize({ lostFound = { at = T + 999, held = 9 } }, T)

@@ -1721,6 +1721,8 @@ Presets.carryPose = {
 	reach = 6,
 	rootUp = 0.6,
 	rootForward = 1.15,
+	-- how far a copy held still (Carry.luau, #1480) rises and falls with its breath, in studs
+	stillBreath = 0.03,
 }
 
 -- The Cat Cannon flight (F84, hometown-cannon.md section 3b; Derek 2026-11-03: "much further with less summer

@@ -9,7 +9,7 @@
 --     number of takes so far, so it rotates each take and every server gives the same one.
 --   Fish Pond (Woods): PondFishPerStep golden fish every PondStepSeconds, up to PondHold.
 --   Lost and Found (Sewer): one find every LostFoundEverySeconds, up to LostFoundHold (#1732, camp-stations.md section
---     4b; one a UTC day before save version 39), each a roll of LostFoundTable. A lostCat row is a lost Epic from the
+--     4b; one a UTC day before save version 40), each a roll of LostFoundTable. A lostCat row is a lost Epic from the
 --     player's open areas, which CampExtraService brings to the cafe like a rescued cat.
 -- Each keeps filling while the player is away. An extra whose area is shut does not fill, and the moment it opens one
 -- fill waits (a basket, two fish, a prize), so each rank up has something to fetch. Collecting takes everything that
@@ -86,7 +86,7 @@ function CampExtras.sanitize(raw: unknown, now: number): Types.CampExtrasSave
 		save.pond.at = whole(value.pond.at, now, save.pond.at)
 	end
 	if type(value.lostFound) == "table" then
-		-- before save version 39 (#1732): { day, held }, one a UTC day. The clock starts now and what was held stays.
+		-- before save version 40 (#1732): { day, held }, one a UTC day. The clock starts now and what was held stays.
 		save.lostFound.at = if value.lostFound.at ~= nil
 			then whole(value.lostFound.at, now, save.lostFound.at)
 			else now

@@ -211,9 +211,16 @@ export type IndexPrize = {
 -- The Cafe Pass (#1645, cafe-pass.md). A paid track's named item, kept forever once claimed: a chat tag, an accessory,
 -- a uniform colour, a looks-only decor piece, a sign frame or the season cat.
 -- #1624 (store-pass-looks.md): the saved theme and uniform picks (shared/Looks ids), nil for Classic.
-export type LookPicks = { theme: string?, uniform: string? }
+export type LookPicks = { theme: string?, uniform: string?, accessory: string? }
 -- What the Style tab reads: the picks (the shown look, nil for Classic) and every owned id of each kind.
-export type LooksView = { theme: string?, uniform: string?, themes: { string }, uniforms: { string } }
+export type LooksView = {
+	theme: string?,
+	uniform: string?,
+	accessory: string?, -- #1624 section 6: the cats' accessory (save version 39)
+	themes: { string },
+	uniforms: { string },
+	accessories: { string },
+}
 
 export type PassItemKind = "tag" | "accessory" | "uniform" | "decor" | "frame" | "cat"
 export type PassItem = { kind: PassItemKind, id: string, name: string }
@@ -767,7 +774,7 @@ export type CampExtrasSave = {
 	picnic: { at: number, held: number },
 	yardSale: { lastClaimAt: number, claims: number },
 	pond: { at: number },
-	lostFound: { at: number, held: number }, -- #1732 (save version 39): was { day, held }, one a UTC day
+	lostFound: { at: number, held: number }, -- #1732 (save version 40): was { day, held }, one a UTC day
 }
 
 -- One of the Yard Sale's crates today: its crate id, its price in golden fish and whether this player bought it.
@@ -1088,6 +1095,7 @@ export type PlayerState = {
 	stuckHelpShown: { [string]: boolean },
 	starterCatClaimed: boolean, -- F96: the Bellhop Cat's stand card reads "Already home with you"
 	starterBought: boolean, -- #1625: the Starter Bundle is bought, so its Store card hides
+	codesRedeemed: { [string]: number }?, -- #1714: code id -> os.time() redeemed, for the Store's Codes tab
 	signStyles: { string }, -- #1625: every sign style owned (SignStyles.owned), saved or through a pass
 	signStyle: string?, -- #1625: the pick SetSignStyle saved, nil for the plain sign
 	looks: LooksView, -- #1624: the Style tab's theme and uniform rows (shared/Looks), SetLook

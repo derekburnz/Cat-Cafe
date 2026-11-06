@@ -3486,12 +3486,19 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 						and windows:current() == nil
 						and tips.quiet()
 					then
+						-- #1737 (Derek2 11-06): the Night Market's own cart picture, as on its map marker, not the moon
+						-- (required here: this file is at Luau's 200-local limit)
+						local picture: string? =
+							require(script.Components.ShopIcons).hud("NightMarket")
 						banner:banner(
 							"night_market",
-							Theme.icons.moon .. " The Night Market is open!",
+							if picture
+								then "The Night Market is open!"
+								else Theme.icons.moon .. " The Night Market is open!",
 							"Rare foods tonight at the dealer's cart in town.",
 							Theme.colors.berry,
-							6
+							6,
+							picture
 						)
 						return
 					end

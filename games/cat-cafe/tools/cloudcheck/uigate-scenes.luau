@@ -890,6 +890,55 @@ local SCENES = {
 	{ "RankUp", function()
 		UI.open("RankUp")
 	end },
+	{ "MoodIcons", function()
+		-- Catch v3 (catch-rework.md 7a): a mood icon over each stray with a Mood, Skittish with its arc; hidden
+		-- while caught (LockedBy), gone with the Mood
+		local function stray(id: string, mood: string?, x: number): Model
+			local model = Instance.new("Model")
+			model.Name = "Stray_" .. id
+			local body = Instance.new("Part")
+			body.Name = "Body"
+			body.Size = Vector3.new(2, 2, 3)
+			body.Position = Vector3.new(x, 3, -12)
+			body.Parent = model
+			model.PrimaryPart = body
+			model:SetAttribute("StrayId", id)
+			if mood then
+				model:SetAttribute("Mood", mood)
+			end
+			model.Parent = workspace
+			model:AddTag("Stray")
+			return model
+		end
+		local sleepy = stray("mood_1", "Sleepy", -4)
+		local skittish = stray("mood_2", "Skittish", 0)
+		local plain = stray("mood_3", nil, 4)
+		-- the shim's tag signals never fire, so start the icons again to pick the three up
+		UI.catch.moods:destroy()
+		UI.catch.moods = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.MoodIcons").new()
+		local function iconOf(model: Model): BillboardGui?
+			return (model.PrimaryPart :: BasePart):FindFirstChild("CatCafeMoodIcon") :: BillboardGui?
+		end
+		local a, b = iconOf(sleepy), iconOf(skittish)
+		assert(a and b, "uigate: no mood icon over a stray with a Mood")
+		assert(iconOf(plain) == nil, "uigate: a mood icon over a stray with no Mood")
+		assert((a :: any).Icon.Glyph.Text == "zZ", "uigate: Sleepy should show zZ")
+		assert((b :: any).Icon.Glyph.Text == "!", "uigate: Skittish should show !")
+		assert((a :: any).Arc.Visible == false and (b :: any).Arc.Visible == true, "uigate: only Skittish shows the arc")
+		assert((b :: BillboardGui).MaxDistance == 20, "uigate: the icon shows within MoodIconStuds (20)")
+		plain:SetAttribute("Mood", "Curious")
+		local c = iconOf(plain)
+		assert(c and (c :: any).Icon.Glyph.Text == "?", "uigate: a Mood set later should show its icon")
+		skittish:SetAttribute("LockedBy", 1)
+		assert((b :: BillboardGui).Enabled == false, "uigate: the icon should hide while the cat is caught")
+		skittish:SetAttribute("LockedBy", 0)
+		assert((b :: BillboardGui).Enabled == true, "uigate: the icon should come back after the catch")
+		sleepy:SetAttribute("Mood", nil)
+		assert(iconOf(sleepy) == nil, "uigate: the icon should go with the Mood")
+		for _, model in { sleepy, skittish, plain } do
+			model:Destroy()
+		end
+	end },
 	{ "Cannon", function()
 		UI.cannon.open()
 	end },

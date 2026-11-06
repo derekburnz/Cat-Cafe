@@ -781,13 +781,13 @@ local function step(dt: number)
 			local w = entry.moodWeight * entry.moodWeight * (3 - 2 * entry.moodWeight)
 			Logic.moodLayer(o, mood, t, w * (1 - Logic.runFactor(rig.speed)))
 		end
-		local react = entry.react
+		local react: Logic.CatchReact? = entry.react
 		if react ~= nil then
 			local k = (now - entry.reactAt) / (Presets.catchReact :: any)[react].seconds
 			if k >= 1 then
 				entry.react = nil
 			else
-				Logic.catchReact(o, react, k)
+				Logic.catchReact(o, react :: Logic.CatchReact, k)
 			end
 		end
 		local alpha = -1
@@ -896,14 +896,19 @@ end
 
 -- Catch v3: true while this player is catching the stray, so a Sleepy one wakes up for it.
 function Cats.setCatching(model: Model, on: boolean)
-	catching[model] = if on then true else nil
+	if on then
+		catching[model] = true
+	else
+		catching[model] = nil
+	end
 	local entry: Entry? = active[model]
 	if entry ~= nil then
-		local style = styleOf(model)
-		if style ~= entry.style then
-			entry.from = entry.style
+		local style: Logic.Style = styleOf(model)
+		local was: Logic.Style = entry.style
+		if style ~= was then
+			entry.from = was
 			entry.changedAt = os.clock()
-			entry.settleFor = Logic.settleSeconds(entry.style, style)
+			entry.settleFor = Logic.settleSeconds(was, style)
 			entry.style = style
 			dress(entry)
 		end

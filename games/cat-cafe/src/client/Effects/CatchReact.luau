@@ -132,9 +132,9 @@ function CatchReact.start()
 			return
 		end
 		local kind = if type(index) == "number" then entry.kinds[index] else nil
-		local react = Logic.catchReactFor(grade, kind)
+		local react: Logic.CatchReact? = Logic.catchReactFor(grade, kind)
 		if react ~= nil then
-			Cats.react(entry.model, react)
+			Cats.react(entry.model, react :: Logic.CatchReact)
 		end
 	end)
 

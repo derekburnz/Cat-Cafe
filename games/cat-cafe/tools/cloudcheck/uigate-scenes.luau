@@ -730,6 +730,32 @@ local function startCatch(strayId, rarity, count, first, shrink)
 	return list
 end
 
+-- Catch v3 (#1884): the same circles with CatchSchedule's trust and ring kinds, over a stray model tagged as the
+-- server tags them (kinds: a list of "single", "double" or "paw", one per ring)
+local function startCatchV3(strayId, rarity, kinds, trustStart, trustNeed)
+	local model = Instance.new("Model")
+	model.Name = "Stray_" .. strayId
+	local body = Instance.new("Part")
+	body.Name = "Body"
+	body.Size = Vector3.new(2, 2, 3)
+	body.Position = Vector3.new(0, 3, -12)
+	body.Parent = model
+	model.PrimaryPart = body
+	model:SetAttribute("StrayId", strayId)
+	model.Parent = workspace
+	model:AddTag("Stray")
+	local t = workspace:GetServerTimeNow()
+	local list = {}
+	local at = t + 0.3
+	for index, kind in kinds do
+		table.insert(list, { startsAt = at, shrinkSeconds = 0.8, x = 0.5, y = 0.5, kind = kind, half = if kind == "double" then (index % 2 == 0 and 2 or 1) else nil })
+		at += if kind == "double" and index % 2 == 1 then 0.18 else 0.7
+	end
+	UI.catch.show({ strayId = strayId, catId = Catalog.cats[2].id, catName = "Mochi", rarity = rarity })
+	UI.catch.showCircles(strayId, list, { perfect = 0.037, good = 0.09 }, trustStart, trustNeed)
+	return list, model
+end
+
 -- a tap anywhere on the circles, as a finger does
 local function tapCircles()
 	local tap = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles"):FindFirstChild("Tap")
@@ -1618,6 +1644,68 @@ local SCENES = {
 		task.delay(1.8, function()
 			UI.catch.showGrades("gate_stray", { "perfect", "good", "perfect", "perfect" }, true, 0)
 		end)
+	end },
+	-- Catch v3 (#1884, catch-rework.md 7b, 7c): the trust bar over the stray, no progress strip, a red paw ring with a
+	-- paw print, and the bar moving to the server's trust from CatchJudged
+	{ "CatchV3Trust", function()
+		startCatchV3("gate_v3", "Legendary", { "single", "paw", "double", "double", "single" }, 2, 14)
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+		local strip = layer and layer:FindFirstChild("Strip", true)
+		assert(strip and not strip.Visible, "uigate: Catch v3 still shows the progress strip (#1884)")
+		local bar = UIShim.playerGui:FindFirstChild("CatchTrustBar")
+		assert(bar and bar.Enabled and bar.Adornee ~= nil, "uigate: Catch v3 has no trust bar over the stray (#1884)")
+		local paw = layer:FindFirstChild("Circle2", true)
+		local number = paw and paw:FindFirstChild("Number", true)
+		assert(number and number.Text == "🐾", "uigate: the paw ring has no paw print (#1884)")
+		UI.catch.judged("gate_v3", 1, "perfect", 4)
+		task.wait(0.4)
+		local fill = bar:FindFirstChild("Fill", true)
+		assert(fill and math.abs(fill.Size.X.Scale - 4 / 14) < 0.02, "uigate: the trust bar isn't at the server's trust (#1884)")
+	end },
+	-- Catch v3 (#1884, 7d): a Purrfect catch's banner (Root.FinishBanner, after the net wrap) and the HUD's streak
+	{ "CatchV3Finish", function()
+		startCatchV3("gate_v3f", "Common", { "single", "single", "single" }, 2, 8)
+		task.wait(0.4)
+		UI.catch.showGrades("gate_v3f", { "perfect", "perfect", "perfect" }, true, 0, nil,
+			{ trust = 8, trustNeed = 8, finish = "purrfect", streak = 3 })
+		task.wait(0.75)
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+		local banner = layer and layer:FindFirstChild("FinishBanner", true)
+		assert(banner and banner.Visible and banner.Text == "PURRFECT!", "uigate: no PURRFECT! banner after the wrap (#1884)")
+		local streak = UIShim.playerGui:FindFirstChild("PurrfectStreak", true)
+		assert(streak and streak.Visible and streak.Text == "🐾 Purrfect x3", "uigate: the HUD has no Purrfect x3 streak (#1884)")
+	end },
+	-- Catch v3 (#1884): UIController's way in: the circles first, then UI.catch.trust; a Miss doesn't end it; then
+	-- UI.catch.finished just before the grades
+	{ "CatchV3Hooks", function()
+		startCatchV3("gate_v3h", "Rare", { "single", "single", "single", "single", "single" }, nil, nil)
+		UI.catch.trust("gate_v3h", 2, 10)
+		local bar = UIShim.playerGui:FindFirstChild("CatchTrustBar")
+		assert(bar and bar.Enabled, "uigate: UI.catch.trust didn't show the trust bar (#1884)")
+		UI.catch.judged("gate_v3h", 1, "miss", 0)
+		task.wait(0.3)
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+		local second = layer and layer:FindFirstChild("Circle2", true)
+		local art = second and second:FindFirstChild("Art")
+		assert(art and art.Visible, "uigate: a Miss ended a Catch v3 try (#1884)")
+		UI.catch.finished("gate_v3h", { trust = -1, trustNeed = 10, finish = "bolt", streak = 0 })
+		UI.catch.showGrades("gate_v3h", { "miss", "miss" }, false, 0)
+		task.wait(0.2)
+		local banner = layer:FindFirstChild("FinishBanner", true)
+		assert(banner and banner.Visible and banner.Text == "So close!", "uigate: a bolt doesn't read So close! (#1884)")
+	end },
+	-- Catch v3 (#1884, 7d): NICE! in cream for a catch with a Miss in it
+	{ "CatchV3Nice", function()
+		startCatchV3("gate_v3n", "Rare", { "single", "single", "single", "single", "single" }, 2, 10)
+		task.wait(0.4)
+		UI.catch.showGrades("gate_v3n", { "perfect", "miss", "good", "perfect", "perfect" }, true, 0, nil,
+			{ trust = 10, trustNeed = 10, finish = "nice", streak = 0 })
+		task.wait(0.75)
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+		local banner = layer and layer:FindFirstChild("FinishBanner", true)
+		assert(banner and banner.Visible and banner.Text == "NICE!", "uigate: no NICE! banner (#1884)")
+		local streak = UIShim.playerGui:FindFirstChild("PurrfectStreak", true)
+		assert(streak and not streak.Visible, "uigate: the streak still shows after a NICE (#1884)")
 	end },
 	-- 2026-11-03 (Derek: "too much text on screen make pictures easy for kids"): the prompt cards with no hint line,
 	-- a little picture of the minigame in its place: a stuck cat's rescue bar, a stray's catch ring

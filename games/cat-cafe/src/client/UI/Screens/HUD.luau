@@ -47,6 +47,7 @@ local BuffChips = require(script.Parent.BuffChips)
 local Button = require(script.Parent.Parent.Components.Button)
 local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
+local CatchTrust = require(script.Parent.Parent.Components.CatchTrust)
 local Create = require(script.Parent.Parent.Components.Create)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
@@ -119,6 +120,7 @@ export type HUD = {
 	bottomTop: (self: HUD) -> number,
 	setCatching: (self: HUD, active: boolean) -> (),
 	roadmapStep: (self: HUD, n: number) -> (),
+	setCatchStreak: (self: HUD, streak: number) -> (),
 	-- F101: fires (active) when a catch or rescue starts or ends, so the Rally banner gets out of its way
 	catchingChanged: Signal.Signal,
 	isCatching: (self: HUD) -> boolean,
@@ -1795,6 +1797,22 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		self:_toggleBoosts()
 	end)
 	self._palMarker = PalMarker.new()
+	-- Catch v3 (#1884, catch-rework.md 7d): "🐾 Purrfect x3" in the potion timers' row over the money from the second
+	-- Purrfect in a row (Components/CatchTrust.streakText); this session only, gone on any other result
+	self._streak = Create("TextLabel", {
+		Name = "PurrfectStreak",
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 28),
+		FontFace = Theme.fonts.display,
+		TextSize = 18,
+		TextColor3 = Theme.colors.gold,
+		Text = "",
+		LayoutOrder = 90, -- after the Luck chip and the potion timers, before the pals
+		Visible = false,
+		Parent = self._buffs.frame,
+	})
+	Outline.text(self._streak, 2)
 	self:_layoutMenu()
 	-- the left side follows the screen's size (a phone turned, a window resized)
 	table.insert(
@@ -1961,6 +1979,18 @@ end
 -- #1893: RoadmapStep(n) from the server: the strip's dot pops gold (the toast is the UI's)
 function HUD.roadmapStep(self: any, n: number)
 	self._roadmap:pop(n)
+end
+
+function HUD.setCatchStreak(self: any, streak: number)
+	local line = CatchTrust.streakText(streak)
+	local label: TextLabel = self._streak
+	local was = label.Text
+	label.Text = if line then "🐾 " .. line else ""
+	label.Visible = line ~= nil
+	self._buffs:setLead(line ~= nil, "streak")
+	if line ~= nil and label.Text ~= was then
+		Tween.popIn(label, 0.6)
+	end
 end
 
 function HUD.isCatching(self: any): boolean

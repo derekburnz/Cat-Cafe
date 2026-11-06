@@ -116,7 +116,7 @@ function CafePass.levelOf(xp: number): number
 	return math.clamp(math.floor(math.max(0, xp) / Config.PassXpPerLevel), 0, Config.PassLevels)
 end
 
--- The reward at `level` of `track` in season `season`, or nil (the free track rewards every second level).
+-- The reward at `level` of `track` in season `season`, or nil (season 1 rewards every level on both tracks, #1883).
 function CafePass.rewardOf(season: number, track: Track, level: number): Types.PassReward?
 	local def = CafePass.seasonDef(season)
 	if def == nil then

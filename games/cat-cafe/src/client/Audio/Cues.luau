@@ -105,7 +105,7 @@ local Cues: { [string]: Cue } = {
 	-- pick plays in place of the day and night rotation (Audio.setJukebox); silent until sheetMusicJukebox has an id.
 	-- Rendered by synth/music.py, which prints the regions. Each name matches its shared/Jukebox track `cue`.
 	sheetMusicJukebox = {
-		ids = {},
+		ids = { "rbxassetid://121751896614087" },
 		group = "Music",
 		volume = 0.3,
 	}, -- stereo, 189.5 s: Rainy Window, Catnap Waltz, Bakery Bounce, Starlight Purr with 0.5 s of silence between

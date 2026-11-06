@@ -507,4 +507,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 - 2026-11-06: The Lost and Found is reworked and buffed (Derek2: "needs a re-work and a massive buff"). It becomes a lost-property booth with the shared "!". It gives one find every 2 hours, holding 3, where it used to give one a day. The new free prize table has 40 fish, two potions, 2 spins, a Sewer Crate, Golden crates, and a 2% chance of a lost Epic cat. Spec in camp-stations.md §4b. Why: it was the weakest camp extra, though it is the last one unlocked. Nothing is sold and no odds of luck change.
 
+- 2026-11-06: Lawn cards show a tiny "Big spot" tag on big-spot pieces, and nothing else explains Equip Best. The spot counts and the best-pick rule stay as they are. Spec in lawn-nursery.md §6e. Why: Derek2 picked option 1 on #1729 and then asked to keep the cards light, with no long "Stored: ..." sentence.
+
 - 2026-11-06 (overnight, under Derek2's go-ahead): The Spin window is tidied with no prize changes. It has two columns, and the right one holds only the title, the spin count, Spin, a small "Use all" and a small "Odds". All 8 slices get equal pills with short amounts, crate slices show real crate art, and a win turns the pill gold instead of putting a ring on the picture. Spec in rewards-and-shops.md §2b v3. Why: Derek2's ask on #1816.

@@ -6,7 +6,8 @@
 -- Like Plants, Floor and Walls: one line on top with the total ("Lawn: 6 out, +18% money", the Money boosts row's
 -- number), then a grid of the same cards, one per owned piece, path and fence (Components/LawnLogic.cards): the model
 -- on a tile in its rarity colour, the rarity, the name, its bonus ("+3% money", paths and fences tagged "Path" or
--- "Fence") and "Out" or "Stored". The server lays the best owned pieces by itself after every buy (LawnService,
+-- "Fence") and "Out" or "Stored". #1729 (Derek2: keep it light, lawn-nursery.md section 6e): a big-spot piece has a
+-- tiny "Big spot" tag in the art's top right corner, and nothing else explains the spots. The server lays the best owned pieces by itself after every buy (LawnService,
 -- Lawn.best), and the window's Equip Best stays, so nothing here is a button. The grid ends with where to buy more.
 
 local Create = require(script.Parent.Parent.Components.Create)
@@ -196,6 +197,24 @@ function LawnTab._card(self: any, card: LawnLogic.Card): any
 		ZIndex = 3,
 		Parent = frame,
 	}))
+	if card.big then
+		pill(text({
+			Name = "BigSpot",
+			BackgroundTransparency = 0,
+			BackgroundColor3 = PAL.cardStroke,
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.new(1, -10, 0, 16),
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, 18),
+			TextSize = Theme.sizes.textTiny, -- as small as the rarity pill, still 9 px on a phone
+			TextColor3 = PAL.text,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			TextTruncate = Enum.TextTruncate.None,
+			Text = LawnLogic.sizeName("big"),
+			ZIndex = 3,
+			Parent = frame,
+		}))
+	end
 	text({
 		Name = "Name",
 		Position = UDim2.fromOffset(10, 92),

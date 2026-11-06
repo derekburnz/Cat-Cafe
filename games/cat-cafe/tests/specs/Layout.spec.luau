@@ -2233,6 +2233,17 @@ return function()
 				end
 			end
 		)
+
+		it("stands the right side's nap beds on the wall line with the F79 beds, square to the wall (#1809)", function()
+			-- Derek2 11-06: one of the two beds by the display case stood out toward the middle of the cafe
+			local wall = plot.beds[4].x -- bed_4 and bed_6 sit on the right wall's line
+			expect(plot.beds[6].x).to.equal(wall)
+			for _, n in { 2, 3 } do
+				local spot = plot.napSpots[n]
+				expect(spot.x).to.equal(wall)
+				expect(spot.rotY).to.equal(90)
+			end
+		end)
 	end)
 
 	describe("cats make the orders (F90, cats-make-orders.md section 3)", function()

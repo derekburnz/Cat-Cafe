@@ -32,6 +32,7 @@ local Config = {
 	GrandThemePassId = 2071158673,
 	RoyalCatPassId = 2066438426,
 	KingPackPassId = 2071368679,
+	KingCatPassId = 0, -- #1822: the King Cat alone (R$799); 0 until made, and the Store card stays hidden
 	GoldenPondPassId = 2071704337, -- #1232
 	SecondBowlPassId = 2072132265, -- #1161
 	-- #1624 (economy-ladder.md section 6a v2.4): what the five store passes give. VIP, Cafe Style and Grand Cafe add

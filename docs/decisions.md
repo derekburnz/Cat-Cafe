@@ -525,6 +525,8 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 - 2026-11-06: The design docs no longer describe the Bubble Machine or the Cafe Fireworks. corner-shop.md drops their rows, the show remote and their QA check, and the Corner Shop cat's bubble now reads "Snacks and potions!". The code and models were already clean. Why: Derek2's ask in #1483.
 
+- 2026-11-06: Cafe Pass season 1 gets more rewards (#1883). The free track now pays every level, and its two crates are highest-zone crates rather than Classic. The paid track gets +1 potion on its potion levels. Levels 31 to 34 add four paid looks: Autumn Leaf Crown, Maple Leaf Lamp, Harvest Cider Cart and the Maple Board sign. Those levels ship once their models exist. XP stays at 800 a level. Spec in cafe-pass.md §3a. Why: Derek2 wants no season 2 for now and a richer season 1, and the economy barely moves.
+
 - 2026-11-06: Catch v3 (#1884). Strays get a mood: Sleepy, Curious, or Skittish (Epic and above only, and they notice you from the front). A trust bar replaces one-Miss-ends-it: Perfect +2, Good +1, Miss -2, and the cat bolts below 0. All-Perfect runs keep today's ring counts. Epic and above get double rings, and Legendary and above get "don't tap" paw rings. A PURRFECT catch joins at level 2. The catch chances are re-fitted to stay within 5 points of today. The spec is in catch-rework.md §7. Why: Derek2 said catching is the core loop and has to be fun, and he picked every recommendation.
 
 ### 2026-11-06 Catch v3 re-fit: spare-ring cap (Design-Agent, friend's project)

@@ -7,6 +7,9 @@
 --   tone(gold, variant) -> Tone                   what colours the edges, the rays and the word
 --   times(card) -> (tapAfter, closeAt)            seconds from the card's start
 --   mine(userId, localUserId) -> boolean          only the securing player's screen plays the card
+--   wowWord(rarity, first) -> string              #1897 the first wow cat's word: "YOUR FIRST RARE!", "AN EPIC VISITOR!"
+--   wowLine(rarity, first) -> string              its toast when there is no card: "Your first Rare!"
+--   WOW_LINE                                      the bowl's line while that cat is on its way
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -84,6 +87,30 @@ end
 
 function BigPullLogic.mine(userId: unknown, localUserId: number): boolean
 	return type(userId) == "number" and userId == localUserId
+end
+
+-- #1897 (first-hour.md 2): the second bait result is Rare or better, and the bowl says so honestly while it waits
+BigPullLogic.WOW_LINE = "Your next cat will be Rare or better!"
+
+-- "a Rare", "an Epic"
+local function article(rarity: string): string
+	return if string.match(rarity, "^[AEIOUaeiou]") then "an" else "a"
+end
+
+-- The card's word for the first wow cat: the first of its rarity the player has, else a visitor of it
+function BigPullLogic.wowWord(rarity: string, first: boolean?): string
+	if first then
+		return "YOUR FIRST " .. rarity:upper() .. "!"
+	end
+	return ("%s %s VISITOR!"):format(article(rarity):upper(), rarity:upper())
+end
+
+function BigPullLogic.wowLine(rarity: string, first: boolean?): string
+	if first then
+		return ("Your first %s!"):format(rarity)
+	end
+	local a = article(rarity)
+	return ("%s%s %s visitor!"):format(a:sub(1, 1):upper(), a:sub(2), rarity)
 end
 
 return BigPullLogic

@@ -27,6 +27,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local BigPullLogic = require(script.Parent.Parent.Components.BigPullLogic) -- #1897: the wow cat's bowl line
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local DayKinds = require(script.Parent.Parent.Components.DayKinds)
@@ -812,8 +813,9 @@ function BaitBowl._renderStatus(self: any)
 			self._bowlFood:setFood(food, bait.lureId)
 		end
 		if left > 0 then
-			title = if self._tabsShown
-				then foodName .. " is in bowl " .. tostring(selected)
+			title = if bait.wow == true
+				then BigPullLogic.WOW_LINE -- #1897: the first wow cat on its way (the food shows in the picture)
+				elseif self._tabsShown then foodName .. " is in bowl " .. tostring(selected)
 				else foodName .. " is in the bowl"
 			local inTime = Format.duration(math.ceil(left))
 			sub = if bait.night

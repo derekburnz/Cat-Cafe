@@ -55,6 +55,7 @@ local Format = require(script.Parent.Parent.Components.Format)
 local GoalCard = require(script.Parent.GoalCard)
 local HudUnlocks = require(script.Parent.Parent.Components.HudUnlocks)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
+local IndexHints = require(script.Parent.Parent.Components.IndexHints)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local Invite = require(script.Parent.Parent.Components.Invite)
 local LuckChip = require(script.Parent.LuckChip)
@@ -95,6 +96,8 @@ export type Callbacks = {
 	hideTutorialButton: () -> (), -- the Tutorial tile's red ×
 	openFeedback: () -> (), -- the Feedback tile: the Feedback window on its Idea chip
 	setSetting: ((key: string, value: boolean) -> ())?, -- #1893: the Grand Opening strip saves roadmapOpen
+	-- #1919: the goal card's "Find N more cats" nudge opens the Index on this area's page (nil: its first page)
+	openIndexAt: ((areaId: string?) -> ())?,
 }
 
 export type HUD = {
@@ -1093,8 +1096,14 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- Tier and next goal (right, under the clock): the tier, the next tier's requirements as slim bars; a tap opens
 	-- rank up
 	self._goal = GoalCard.new(root, UDim2.new(1, -MARGIN, 0, GOAL_TOP), function()
+		local openAt = callbacks.openIndexAt
+		if openAt and self._goal:nudging() then
+			openAt(self._goalArea) -- #1919
+			return
+		end
 		callbacks.openScreen("RankUp")
 	end)
+	self._goalArea = nil :: string?
 	-- #1893 (first-hour.md 1b): the Grand Opening strip just under the goal card; a tap opens or closes its steps,
 	-- saved as the roadmapOpen setting
 	self._roadmap = Roadmap.new(root, UDim2.new(1, -MARGIN, 0, GOAL_TOP), function(open: boolean)
@@ -2220,7 +2229,14 @@ function HUD.render(self: any, state: Types.PlayerState)
 	if catalog and catalog.tiers and state.tier then
 		tierProgress = RankUp.progress(catalog, state)
 	end
-	self._goal:render(tierProgress, Format.tier(state.tier, if catalog then catalog.tiers else nil))
+	-- #1919: "Find N more cats" while the Grand Opening's twelve cats step is next
+	local nudge = if catalog then IndexHints.nudge(catalog, state) else nil
+	self._goalArea = if nudge then nudge.area else nil
+	self._goal:render(
+		tierProgress,
+		Format.tier(state.tier, if catalog then catalog.tiers else nil),
+		if nudge then nudge.text else nil
+	)
 	if not self:_open("goal") then
 		self._goal.frame.Visible = false
 	end

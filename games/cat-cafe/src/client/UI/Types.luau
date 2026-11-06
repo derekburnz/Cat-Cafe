@@ -506,6 +506,7 @@ export type CatFoundExtra = {
 	banner: string?, -- in place of "NEW RARE CAT!"
 	line: string?, -- in gold under the name, in place of the description
 	rate: number?, -- in place of the catalog's incomePerSecond (an exclusive cat earns like its rarity in the newest area)
+	areaLine: { text: string, area: string }?, -- #1919: "Park 4 / 10" in the area's colour (Components/IndexHints)
 }
 
 export type InitConfig = {

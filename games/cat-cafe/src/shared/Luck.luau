@@ -121,6 +121,12 @@ function Luck.applyMap(odds: { [string]: number }, luck: number): { [string]: nu
 	}
 end
 
+-- #1776 (luck-and-rare-moments.md section 1d): how much more likely Luck makes each of Epic, Legendary and Mythical,
+-- in whole percent, since apply multiplies those three by it: x1.3 is 30, x2.0 is 100, x1 or below 0.
+function Luck.boostPercent(luck: number): number
+	return math.max(0, math.floor((round(luck) - 1) * 100 + 0.5))
+end
+
 -- One decimal, two when a hundredth shows: "Luck x1.0", "Luck x1.3", "Luck x1.25".
 function Luck.text(luck: number): string
 	local value = round(luck)

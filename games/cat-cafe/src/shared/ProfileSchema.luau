@@ -19,6 +19,7 @@ local Settings = require(script.Parent.Settings)
 local SignStyles = require(script.Parent.SignStyles)
 local Spin = require(script.Parent.Spin)
 local StarterCat = require(script.Parent.StarterCat)
+local StoreTabs = require(script.Parent.StoreTabs)
 local Tips = require(script.Parent.Tips)
 local Trade = require(script.Parent.Trade)
 local Types = require(script.Parent.Types)
@@ -104,6 +105,8 @@ local ProfileSchema = {}
 -- and gotDecor. An older server drops them, which only locks those pieces again and shortens old log entries.
 -- Version 35 (#1625) adds onceBought, signStyles and signStyle, the Starter Bundle's once-per-account mark and the
 -- sign styles: an older server would drop them, losing the Bakery Stripes sign and letting the bundle be bought as new.
+-- #1842 (no new version): storeSeen, the Store tab versions last opened. An older server drops it, which only shows the
+-- tabs' "New" dots again.
 -- Version 36 (#1645, cafe-pass.md section 6) adds pass, the Cafe Pass's XP, claims, paid season and items: an older
 -- server would drop it, losing the XP and letting a reward be claimed twice by hopping servers during a rollout.
 -- Version 37 (#1537, lawn-nursery.md section 7) adds yardDecor, the Yard Sale's lawn rows bought this global game
@@ -112,7 +115,10 @@ local ProfileSchema = {}
 -- showing Classic until the player picks again.
 -- Version 39 (#1624, store-pass-looks.md section 6) adds looks.accessory, the cats' accessory pick: an older server's
 -- Looks.sanitize would drop it, showing no accessory until the player picks again.
-ProfileSchema.VERSION = 39
+-- Version 40 (#1732, camp-stations.md section 4b) turns campExtras.lostFound from { day, held } into { at, held }, one
+-- find every LostFoundEverySeconds: an older server would read it as a day number far in the past and fill it to the
+-- hold at once. An older save's clock starts at the load, keeping what it held (CampExtras.sanitize).
+ProfileSchema.VERSION = 40
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -282,6 +288,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		onceBought = {},
 		signStyles = {},
 		signStyle = nil,
+		storeSeen = {},
 		pass = CafePass.fresh(0),
 		looks = {},
 	}
@@ -936,8 +943,11 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.onceBought = Products.sanitizeOnce(raw.onceBought)
 	profile.signStyles = SignStyles.sanitize(raw.signStyles)
 	profile.signStyle = SignStyles.sanitizePick(raw.signStyle)
+	-- #1842 (no new version): the Store tabs opened; none before
+	profile.storeSeen = StoreTabs.sanitize(raw.storeSeen)
 	-- #1645 (version 36): the Cafe Pass; saves before it start at season 0 with nothing (CafePassService rolls it on)
 	profile.pass = CafePass.sanitize(raw.pass)
+	CafePass.grantOwned(profile) -- #1645: pass decor and the frame claimed before they had a place (decor, sign styles)
 	-- #1624 (version 38): the theme and uniform picks, and (39) the accessory, known ids only; saves before show Classic
 	profile.looks = Looks.sanitize(raw.looks)
 	-- #1181 (version 32): the Bag's cat food, known foods only, whole counts of 1 to CatFoodMax

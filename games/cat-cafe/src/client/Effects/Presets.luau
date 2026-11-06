@@ -1460,6 +1460,12 @@ Presets.campExtras = {
 		pop = { { 0, 0 }, { 0.18, 28 }, { 0.55, 26 }, { 0.8, 0 }, { 0.9, 4 }, { 1, 0 } },
 		within = 30, -- studs from the collect's position to the lid it plays on
 	},
+	-- the Lost and Found booth's desk bell (#1732, camp-stations.md section 4b): while a prize waits it rings, a
+	-- wobble side to side about its base that dies away, every few seconds; it plays with Reduce Motion too
+	bell = {
+		every = { 3.5, 6.5 }, -- seconds between rings while a prize waits
+		ring = { seconds = 0.7, degrees = 9, wobbles = 3 }, -- tips each way `wobbles` times, each smaller
+	},
 }
 
 -- The store's motion (#1823, StoreMotion.luau): a pressed button dips to `dip` of its size in `down` seconds and
@@ -3398,6 +3404,16 @@ Presets.campGlow = {
 		picnic = { under = 0.45, colour = Presets.palette.lampWarm, atLeast = 1 },
 		yardSale = { under = 0.5, colour = Presets.palette.lampWarm, atLeast = 1 },
 		pond = { under = 0.4, colour = Presets.palette.golden, atLeast = 18 },
+	},
+	-- The Lost and Found booth's sign bulb (#1732, camp-stations.md section 4b): while a find waits, the `part`
+	-- bulb(s) under the `extra` station go Neon in `colour` for `on` seconds, then back for `off` seconds. Under 1
+	-- blink a second, so it stays on with Reduce Motion and Low performance (a material swap, no light).
+	blink = {
+		extra = "lostFound",
+		part = "CatCafe_Camp_Sewer_LostFoundBooth_Blink_Bulb",
+		colour = Presets.palette.lampWarm,
+		on = 0.6,
+		off = 0.6,
 	},
 }
 

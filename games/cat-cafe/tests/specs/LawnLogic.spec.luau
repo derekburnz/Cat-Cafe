@@ -66,6 +66,39 @@ return function()
 		end)
 	end)
 
+	describe("LawnLogic.cardAction (#1751)", function()
+		local function card(state: any, id: string): any
+			for _, each in LawnLogic.cards(state) do
+				if each.id == id then
+					return each
+				end
+			end
+			error("no card " .. id)
+		end
+		it("reads Remove for an out piece and Use for a stored one", function()
+			local state = player(3, 0, { "garden_bench", "lamp_post" }, { big1 = "garden_bench" })
+			local out = LawnLogic.cardAction(state, card(state, "garden_bench"))
+			expect(out.text).to.equal("Remove")
+			expect(out.spotId).to.equal("big1")
+			expect(out.pieceId).to.equal("")
+			local stored = LawnLogic.cardAction(state, card(state, "lamp_post"))
+			expect(stored.text).to.equal("Use")
+			expect(stored.pieceId).to.equal("lamp_post")
+			expect(stored.spotId ~= nil).to.equal(true)
+		end)
+		it("reads Remove for the path in use and Use for another owned one", function()
+			local state = player(3, 0, { "red_brick", "white_picket" }, {}, { path = "red_brick" })
+			local path = LawnLogic.cardAction(state, card(state, "red_brick"))
+			expect(path.text).to.equal("Remove")
+			expect(path.styleKind).to.equal("path")
+			expect(path.styleId).to.equal("")
+			local fence = LawnLogic.cardAction(state, card(state, "white_picket"))
+			expect(fence.text).to.equal("Use")
+			expect(fence.styleKind).to.equal("fence")
+			expect(fence.styleId).to.equal("white_picket")
+		end)
+	end)
+
 	describe("LawnLogic.pieceAction", function()
 		it("sells an open piece at its price, grey when the coins fall short", function()
 			-- #1200: the Tulip Bed is a Common, 10,000 at the Garden Nursery; open from Tier 2 since #1382

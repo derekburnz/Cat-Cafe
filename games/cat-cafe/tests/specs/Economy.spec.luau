@@ -324,7 +324,7 @@ return function()
 			local p = freshProfile(1000)
 			local earned = Economy.settle(p, 1010)
 			expect(earned).to.be.near(15)
-			expect(p.coins).to.be.near(65)
+			expect(p.coins).to.be.near(Config.StartCoins + 15)
 			expect(p.lifetimeCoins).to.be.near(15)
 			expect(p.lastTick).to.equal(1010)
 			expect(Economy.settle(p, 1010)).to.equal(0)
@@ -616,6 +616,7 @@ return function()
 	describe("spending", function()
 		it("canAfford: exact amount yes, one short no, negative cost never", function()
 			local p = freshProfile()
+			p.coins = 50
 			expect(Economy.canAfford(p, 50)).to.equal(true)
 			expect(Economy.canAfford(p, 51)).to.equal(false)
 			expect(Economy.canAfford(p, 0)).to.equal(true)
@@ -624,6 +625,7 @@ return function()
 
 		it("trySpend only takes coins when affordable", function()
 			local p = freshProfile()
+			p.coins = 50
 			expect(Economy.trySpend(p, 60)).to.equal(false)
 			expect(p.coins).to.equal(50)
 			expect(Economy.trySpend(p, 50)).to.equal(true)
@@ -634,6 +636,7 @@ return function()
 
 		it("credit adds to coins and lifetimeCoins", function()
 			local p = freshProfile()
+			p.coins = 50
 			Economy.credit(p, 25)
 			expect(p.coins).to.equal(75)
 			expect(p.lifetimeCoins).to.equal(25)
@@ -655,8 +658,9 @@ return function()
 			expect(Economy.nextUpgradeCost(p, "jetpack")).never.to.be.ok()
 		end)
 
-		it("fresh profile: Tables is not affordable at 50 coins (150, v0.13.6)", function()
+		it("Tables costs 150: not affordable at 149 (v0.13.6)", function()
 			local p = freshProfile()
+			p.coins = 149
 			expect(Economy.upgradeBlocker(p, "tables")).to.equal("Not enough coins")
 			p.coins = 150
 			expect(Economy.upgradeBlocker(p, "tables")).never.to.be.ok()
@@ -666,6 +670,7 @@ return function()
 			"the Bait bowl needs no tier: Tier 1 can buy it at 600 (loop step 5, v0.13.6)",
 			function()
 				local p = freshProfile()
+				p.coins = 599
 				expect(Economy.upgradeBlocker(p, "lure_bowl")).to.equal("Not enough coins")
 				p.coins = 600
 				expect(Economy.upgradeBlocker(p, "lure_bowl")).never.to.be.ok()
@@ -886,9 +891,9 @@ return function()
 	end)
 
 	describe("features.md section 8: the ten minute loop in numbers (v0.3)", function()
-		it("step 1: $50 and 1.5 per second with the Tabby as Barista", function()
+		it("step 1: $850 (#1796, was $50) and 1.5 per second with the Tabby as Barista", function()
 			local p = freshProfile()
-			expect(p.coins).to.equal(50)
+			expect(p.coins).to.equal(850)
 			expect(Economy.incomePerSecond(p)).to.be.near(1.5)
 		end)
 
@@ -928,6 +933,15 @@ return function()
 				expect(seconds <= 120).to.equal(true)
 			end
 		)
+
+		it("a new save buys the first table, the Bait bowl and Kibble straight away (#1796)", function()
+			-- tutorial steps 3 and 4 ask for them in a row, so none of them waits on coins
+			local p = freshProfile(0)
+			local spend = Catalog.upgradesById.tables.costs[1]
+				+ Catalog.upgradesById.lure_bowl.costs[1]
+				+ Economy.foodPrice("kibble", Economy.tier(p))
+			expect(p.coins >= spend).to.equal(true)
+		end)
 
 		it(
 			"step 7: two tables, the bait bowl and Kibble are affordable inside 10 minutes",

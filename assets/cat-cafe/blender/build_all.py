@@ -73,6 +73,7 @@ import doors  # noqa: E402
 import doorsets  # noqa: E402
 import market  # noqa: E402
 import daycart  # noqa: E402
+import gardendecor  # noqa: E402
 import gardennursery  # noqa: E402
 import thanksboard  # noqa: E402
 import npc  # noqa: E402
@@ -108,7 +109,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, sewerf85, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
-           gardennursery, campstations, daycart, pitysign, seasondecor, themes]
+           gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor]
 
 PIVOT_NOTES = {
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
@@ -167,6 +168,8 @@ PIVOT_NOTES = {
     "CatCafe_Accessory_ReadingGlasses": "attachment point: the walking head's Glasses slot (see attach)",
     "CatCafe_Accessory_TinyLantern": "the walking cat's back slot (TinyLantern in accessories.walk_slots); "
                                      "+Z runs back along the spine",
+    "CatCafe_Accessory_TinyLantern_Sit": "the sitting and working cats' Outfit_TinyLantern on the upper back "
+                                         "(accessories.LANTERN_SIT_AT); +Z runs back from the coat",
     "CatCafe_Accessory_Sash": "attachment point (see attach_upright)",
     "CatCafe_Accessory_PartyHat": "attachment point (see attach_upright)",
     **{f"CatCafe_Accessory_{n}_Walk": "the walking cat's Outfit_<Piece> slot on the back's middle line under the back "
@@ -353,8 +356,10 @@ STUDIO_NOTES = {
                       "and Steam (the thermos). Everything collides and can be climbed.",
     campstations.YARD: "#1154 (camp-stations.md section 3): the Yard Sale stall, replacing "
                        "CatCafe_Camp_Neighbourhood_YardSale at Layout.campExtras.neighbourhood. Attachments PromptAnchor "
-                       "(table front, 1.5 up), BangAnchor (2 over the YARD SALE board, for ReadyBang) and GlowAnchor (under "
-                       "the awning). Everything collides and can be climbed.",
+                       "(table front, 1.5 up), BangAnchor (2 over the YARD SALE sign's arm, for ReadyBang) and GlowAnchor "
+                       "(under the awning). _Sign_Swing (#1800) is the hanging board and its chains, pivoted at the ring "
+                       "under the arm; Effects/Motion swings it about its pivot's Z, so leave it where it was modelled. "
+                       "Everything collides and can be climbed.",
     **{n: "#1232 (camp-stations.md section 4): the Fishing Hut, replacing CatCafe_Camp_Woods_FishPond at "
           "Layout.campExtras.woods (_Gold for a Golden Pond pass owner). _Water is see-through, _Rod pivots at its butt "
           "(the cast turns it), _Fish swims under the water; Attachments FishJump, PromptAnchor (the jetty's foot), "
@@ -400,6 +405,9 @@ for _n in themes.ASSETS:   # the Garden and Grand cafe themes (#1624): looks onl
 for _n in seasondecor.ASSETS:   # Cafe Pass season 1 paid-track decor (#1637): looks only, not in the Decor Index
     STUDIO_NOTES[_n] = ("Cafe Pass season 1 decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, "
                         "no collision (CatCafe_Decor_). Looks only: no cafeMultiplier. _Glow parts are Neon all day.")
+for _n in gardendecor.ASSETS:   # the Garden Decor Pack pass's decor (#1852, #1851): looks only, not in the Decor Index
+    STUDIO_NOTES[_n] = ("Garden Decor Pack decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, "
+                        "no collision (CatCafe_Decor_). Looks only: no cafeMultiplier.")
 for _n in {**crate_decor.ASSETS, **rallycrate.ASSETS}:   # F53 crate pieces (F101 Rally's too): on decor spots
     _index = _n.endswith(("MailboxPlanter", "MushroomLamp", "PipeFountain"))
     STUDIO_NOTES[_n] = ("F53 crate piece: " + ("its zone's Epic, on the Index anchor or a decor spot" if _index
@@ -539,7 +547,8 @@ def cat_rbx_extras(name):
     """A cat's Part model carries its Scale, the Attachment Carry in the Head part (cats.carry_at) and one Attachment
     per role outfit piece (Outfit_<Piece>) at that piece's slot, times the scale, in the Body or Head part: every
     piece on the sitting model, the pieces that fit the walking body on the walking one (accessories.WALK_PIECES), so
-    the game needs no manifest at runtime. A themed cat also carries PropSlot (Head, Face or Back) and its prop's
+    the game needs no manifest at runtime. #1624: every body also has an Outfit_<Look> for each accessories.LOOKS
+    (head top, face, back; no back one under a Back prop). A themed cat also carries PropSlot (Head, Face or Back) and its prop's
     parts carry Follows (Head or Body); a Head or Face prop's Model rides inside the Head Model. A second prop adds
     PropSlot2 and `_Prop2` parts the same way."""
     cat, _gold, body = cats.parse(name)
@@ -567,6 +576,9 @@ def cat_rbx_extras(name):
         pieces &= set(accessories.WALK_PIECES)
         if "Back" in (props.slot(cat), props.slot2(cat)):   # a Back prop: no back pieces (the cape is off too, F71)
             pieces -= set(accessories.WALK_MESHES)
+    pieces |= set(accessories.LOOKS)        # #1624: every body has a slot for each look any cat can wear
+    if "Back" in (props.slot(cat), props.slot2(cat)):
+        pieces -= set(accessories.BACK_LOOKS)
     for n, (part, off, r) in accessories.slots(spec, body).items():
         if n in pieces:
             turn = Euler([math.radians(a) for a in r], "XYZ").to_matrix().to_4x4()
@@ -702,7 +714,7 @@ def main():
         if name in menu.ATTACHMENTS:              # F90: the tray's Item spot, the oven's DoorGlow
             extra = {"attachments": menu.rbx_attachments(name)}
         if name in campstations.ASSETS:           # #1319: PromptAnchor, BangAnchor, and GlowAnchor / Steam
-            extra = {"attachments": campstations.rbx_attachments(name)}
+            extra = {"attachments": campstations.rbx_attachments(name), **campstations.MOVING.get(name, {})}
         if name in campextras.ATTACHMENTS:          # F100: PromptAnchor, and Steam, FishJump or Drip
             extra = {"attachments": campextras.rbx_attachments(name)}
         if name in luckycat.ATTACHED:             # F88: PawHinge at the shoulder the _Paw model turns about
@@ -780,6 +792,9 @@ def main():
             if n == "Walk":                         # a walking version: its slot on the walking Tabby
                 n = name.split("_")[-2]
                 entry["slot"] = dict(_slot_entry(*accessories.slots(cats.ROSTER["Tabby"], "walk")[n]), body="walk")
+            elif n == "Sit":                        # a sitting version: its slot on the sitting Tabby (and _Work)
+                n = name.split("_")[-2]
+                entry["slot"] = dict(_slot_entry(*accessories.slots(cats.ROSTER["Tabby"], "sit")[n]), body="sit")
             elif n in accessories.SIT_SLOTS:
                 entry["slot"] = dict(_slot_entry(*accessories.SIT_SLOTS[n]), body="sit")
             elif n in accessories.slots(cats.ROSTER["Tabby"], "walk"):

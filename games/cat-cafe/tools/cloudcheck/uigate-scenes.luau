@@ -634,6 +634,26 @@ local function assertBowlTabs(selected, title)
 	assert(string.find(shown, title, 1, true), ("uigate: bowl %d's card says %q (#1161)"):format(selected, shown))
 end
 
+-- #1161: the status card's button reads `text`
+local function assertBowlAction(text)
+	local status = baitWindow():FindFirstChild("Status", true)
+	local action = status and status:FindFirstChild("Action", true)
+	assert(action and action.Visible, "uigate: the bowl card has no button (#1161)")
+	local shown = action:FindFirstChildWhichIsA("TextLabel", true)
+	local label = if action:IsA("TextButton") then action.Text elseif shown then shown.Text else ""
+	assert(string.find(label, text, 1, true), ("uigate: the bowl card's button says %q (#1161)"):format(label))
+end
+-- #1161: the HUD's bowl tile with its "2", and its "!" while a cat waits at either bowl
+local function assertBowlTile(catWaiting)
+	local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+	local tile = hud and hud:FindFirstChild("Bowl", true)
+	assert(tile and tile.Visible, "uigate: no HUD bowl tile (#1161)")
+	local count = tile:FindFirstChild("Count")
+	assert(count and count.Visible, "uigate: the HUD bowl tile has no 2 with two bowls (#1161)")
+	local mark = tile:FindFirstChild("Claim")
+	assert(mark and mark.Visible == catWaiting, "uigate: the HUD bowl tile's ! is wrong for a waiting cat (#1161)")
+end
+
 local function press(windowName, name)
 	local playerGui = UIShim.playerGui
 	-- windows sit in CatCafeModals.Root.Container; the HUD and the Index have pieces with the same names (Cats)
@@ -755,6 +775,22 @@ local SCENES = {
 		bindLawnPlot()
 		UI.open("Decor")
 		press("Decor", "FrontLawn")
+		-- #1751: the Garden Bench is out (Remove), the Lamp Post stored (Use)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local lawn = modals and modals:FindFirstChild("Lawn", true)
+		local function action(id: string): string
+			local card = lawn and lawn:FindFirstChild(id, true)
+			local button = card and card:FindFirstChild("Action", true)
+			local label = button and (if button:IsA("TextButton") then button else button:FindFirstChildWhichIsA("TextLabel", true))
+			return if label then label.Text else "?"
+		end
+		assert(string.find(action("garden_bench"), "Remove", 1, true), "uigate: the out Garden Bench reads " .. action("garden_bench") .. " (#1751)")
+		assert(string.find(action("lamp_post"), "Use", 1, true), "uigate: the stored Lamp Post reads " .. action("lamp_post") .. " (#1751)")
+		-- #1729: the big-spot Garden Bench has the small "Big spot" tag, the small-spot Tulip Bed none
+		local bench = lawn and lawn:FindFirstChild("garden_bench", true)
+		local tulips = lawn and lawn:FindFirstChild("tulip_bed", true)
+		assert(bench and bench:FindFirstChild("BigSpot"), "uigate: the Garden Bench card has no Big spot tag (#1729)")
+		assert(tulips and tulips:FindFirstChild("BigSpot") == nil, "uigate: the Tulip Bed card has a Big spot tag (#1729)")
 	end },
 	-- #1624: the Style tab, the cafe sign (Royal Crest in use) and the uniforms once the server sends looks
 	{ "DecorStyle", function()
@@ -862,6 +898,76 @@ local SCENES = {
 		UI.bait.set({ lureId = Catalog.lures[2].id, readyAt = now + 95, placedAt = now - 30, night = true }, 2)
 		UI.bait.openPicker()
 		assertBowlTabs(1, "is in bowl 1")
+	end },
+	-- #1161: bowl 1 filling and a cat at bowl 2: the window opens on bowl 2 with See the cat, and the HUD's bowl tile
+	-- shows the "!" for it and the "2"
+	{ "BaitOneReady", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.setSecond("on")
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 250, placedAt = now - 50 }, 1)
+		UI.bait.set({ lureId = Catalog.lures[2].id, readyAt = now - 5, placedAt = now - 300 }, 2)
+		UI.bait.showReady({ catId = Catalog.cats[2].id, stars = 2 }, 2)
+		local banner = UIShim.playerGui:FindFirstChild("CatCafeBaitCard"):FindFirstChild("Banner", true)
+		assert(banner.Text == "A CAT CAME TO BOWL 2!", "uigate: the cat's card says " .. banner.Text .. " (#1161)")
+		press("CatCafeBaitCard", "Close") -- the X; See the cat brings it back
+		assertBowlTile(true)
+		UI.bait.openPicker()
+		assertBowlTabs(2, "A cat is at bowl 2!")
+		assertBowlAction("See the cat")
+		press("Bait", "Bowls.Bowl1")
+		assertBowlTabs(1, "is in bowl 1")
+	end },
+	-- #1161: the cat's card with two bowls names the bowl, and its banner stays clear of the X on a phone
+	{ "BaitCardBowl2", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.setSecond("on")
+		UI.bait.set({ lureId = Catalog.lures[2].id, readyAt = now - 5, placedAt = now - 300 }, 2)
+		UI.bait.showReady({ catId = Catalog.cats[2].id, stars = 2 }, 2)
+	end },
+	-- #1161: a cat at each bowl: bowl 1 first, and each tab says its own bowl
+	{ "BaitBothReady", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.setSecond("on")
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now - 20, placedAt = now - 300 }, 1)
+		UI.bait.set({ lureId = Catalog.lures[2].id, readyAt = now - 5, placedAt = now - 300 }, 2)
+		UI.bait.showReady({ catId = Catalog.cats[2].id, stars = 2 }, 2)
+		UI.bait.showReady({ catId = Catalog.cats[3].id, stars = 3 }, 1)
+		press("CatCafeBaitCard", "Close")
+		assertBowlTile(true)
+		UI.bait.openPicker()
+		assertBowlTabs(1, "A cat is at bowl 1!")
+		assertBowlAction("See the cat")
+		press("Bait", "Bowls.Bowl2")
+		assertBowlTabs(2, "A cat is at bowl 2!")
+		assertBowlAction("See the cat")
+	end },
+	-- #1161: the pass bought with the window open: ProfileSync's secondBowl goes from "offer" to "on", and the locked
+	-- card gives way to an empty bowl 2 that takes food, with the HUD's "2", no rejoin
+	{ "BaitBoughtMidSession", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local prices = storePrices(true)
+		prices[Config.SecondBowlPassId] = { robux = 149, forSale = true }
+		UI.store.preview(prices, {})
+		UI.bait.setSecond("offer")
+		UI.bait.openPicker()
+		press("Bait", "Bowls.Bowl2")
+		assertBowlTabs(2, "Get a second bowl")
+		UI.bait.setSecond("on")
+		assertBowlTabs(2, "Bowl 2 is empty")
+		-- Use on a food the player has puts it in bowl 2
+		local food = Catalog.lures[1].id
+		UI.update({ lures = { [food] = 3 } })
+		local sent = nil
+		local connection = UI.events.useLure:Connect(function(lureId, bowl)
+			sent = tostring(lureId) .. "@" .. tostring(bowl)
+		end)
+		press("Bait", food .. ".Use")
+		connection:Disconnect()
+		assert(sent == food .. "@2", "uigate: Use after the pass sent " .. tostring(sent) .. " (#1161)")
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local count = hud and hud:FindFirstChild("Bowl", true)
+		count = count and count:FindFirstChild("Count")
+		assert(count and count.Visible, "uigate: the HUD bowl tile has no 2 after the pass (#1161)")
 	end },
 	-- #1161: no pass: bowl 2's tab is locked; tapping it shows the pass card with its price. #1767: under it three
 	-- short lines on what it gives, not the seven-food odds table
@@ -1164,6 +1270,23 @@ local SCENES = {
 		end
 		UI.update({ cats = player.cats })
 		UI.open("Cats")
+	end },
+	-- #1766: the Decor Index's Rally page says where its pieces come from, and a piece not owned reads "Rally Crate"
+	{ "IndexDecorRally", function()
+		UI.open("Collection")
+		press("Collection", "DecorTab")
+		press("Collection", "rally")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true)
+		local source = window and window:FindFirstChild("Source", true)
+		assert(source and source.Visible, "uigate: the Rally page does not say where its pieces come from (#1766)")
+		local locked = 0
+		for _, child in window:GetDescendants() do
+			if child:IsA("TextLabel") and child.Text == "Rally Crate" and child.Visible then
+				locked += 1
+			end
+		end
+		assert(locked > 0, "uigate: no Rally piece reads Rally Crate (#1766)")
 	end },
 	-- #1772: the Gold tab opens with a Gold cats line over the areas, as the Rainbow tab has Rainbow cats
 	{ "IndexGold", function()
@@ -1484,6 +1607,27 @@ local SCENES = {
 		player.tutorialStep = 5
 		UI.update(player)
 	end },
+	-- #1796: tutorial step 3 asks for a table: the HUD's Upgrades tile and the table row in Upgrades glow; step 4 moves
+	-- the glow to the Bait bowl row
+	{ "TutorialUpgradeGlow", function()
+		local levels = { tables = 0, lure_bowl = 0, espresso = 0, net = 0, lucky_cat = 0 }
+		UI.update({ tutorialStep = 3, tier = 1, upgradeLevels = levels } :: any)
+		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local tile = hud and hud:FindFirstChild("Upgrades", true)
+		assert(tile and tile:FindFirstChild("TutorialGlow"), "uigate: the Upgrades tile does not glow at step 3 (#1796)")
+		UI.open("Upgrades")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Upgrades", true)
+		local tables = window and window:FindFirstChild("tables", true)
+		local bowl = window and window:FindFirstChild("lure_bowl", true)
+		assert(tables and tables:FindFirstChild("TutorialGlow"), "uigate: the table row does not glow at step 3 (#1796)")
+		assert(bowl and bowl:FindFirstChild("TutorialGlow") == nil, "uigate: the Bait bowl row glows at step 3 (#1796)")
+		UI.update({ tutorialStep = 4 } :: any)
+		assert(tables:FindFirstChild("TutorialGlow") == nil, "uigate: the table row still glows at step 4 (#1796)")
+		assert(bowl:FindFirstChild("TutorialGlow"), "uigate: the Bait bowl row does not glow at step 4 (#1796)")
+		task.wait(0.1) -- the list scrolls the Bait bowl row into view
+	end },
 	-- F87 section 2g: "Need a hand?" after 90 s on one tutorial step
 	{ "HelpCard", function()
 		UI.tutorial.showHelp()
@@ -1585,6 +1729,16 @@ local SCENES = {
 		clock:SetAttribute("LuckyDay", true)
 		UI.clock.bind(clock)
 		press("CatCafeHUD", "Luck")
+		-- #1776: one line of what Luck does to each rarity, no next cat or next crate odds
+		local hud = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeHUD")
+		local boost = hud:FindFirstChild("Boost", true)
+		assert(boost and boost.Visible, "uigate: the Luck card shows no rarity pills (#1776)")
+		for _, rarity in { "Epic", "Legendary", "Mythical" } do
+			local pill = boost:FindFirstChild(rarity)
+			local want = rarity .. " +130%"
+			assert(pill and pill.Text == want, "uigate: the Luck card's " .. rarity .. " pill reads " .. tostring(pill and pill.Text) .. " (#1776)")
+		end
+		assert(hud:FindFirstChild("FoodOdds", true) == nil, "uigate: the Luck card still lists the next cat's odds (#1776)")
 	end },
 	-- F88: the night before a Lucky Day, LuckyDayWarnSeconds before sunrise: the warning banner (no countdown line under
 	-- the clock since #1572), the Luck card from the scene before closed
@@ -1644,6 +1798,10 @@ local SCENES = {
 		press("CatCafeHUD", "LuckyDay.Tap")
 		local card = hud:FindFirstChild("DayCard", true) :: Frame
 		assert(card and card.Visible, "uigate: the day card did not open")
+		-- #1572 (1h): the pity sign's two lines on the day card too
+		local pity = card:FindFirstChild("Pity") :: TextLabel
+		assert(pity and string.find(pity.Text, "Legendary cat in", 1, true), "uigate: the day card has no pity lines (#1572)")
+		assert(string.find(pity.Text, "Mythical cat in", 1, true), "uigate: the day card has no Mythical line (#1572)")
 	end },
 	-- F100: the Cannon picker with the Tier 3 player's camp extras: the Picnic Basket ready (red dot), the Yard Sale's
 	-- new crates (no dot)
@@ -1838,13 +1996,23 @@ local SCENES = {
 	{ "HUDStore", function()
 		UI.store.preview(storePrices(true), {})
 	end },
-	-- #1606: the money pass badge beside the money: "Get 2x" with no money pass and the 2x on sale, "3x" once owned
+	-- #1606: the money pass badge beside the money: the rainbow "X2 Cash / Only R$5" (#1759) with no money pass and the
+	-- 2x on sale, "3x" once owned
 	{ "HUDMoneyBadge", function()
 		UI.store.preview(storePrices(true), {})
 	end },
 	{ "HUDMoneyBadgeOwned", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[3]] = true })
+	end },
+	-- #1770 owner test mode: the server's OwnerTest attribute on the owner's account shows a small label up top
+	{ "HUDOwnerTest", function()
+		local player = game:GetService("Players").LocalPlayer
+		player:SetAttribute("OwnerTest", true)
+		UI.store.preview(storePrices(true), {})
+		local tag = player.PlayerGui:FindFirstChild("OwnerTest", true)
+		assert(tag and tag.Visible, "uigate: owner test mode shows no label (#1770)")
+		assert(tag.Text == "Owner test mode", "uigate: the owner label reads " .. tostring(tag.Text) .. " (#1770)")
 	end },
 	-- the Store window for a new player (#1425): it opens on Featured, the King Cat Pack as the hero over 2x Money,
 	-- Long Nap and the Royal Cat, all in view with no scrolling
@@ -1890,6 +2058,20 @@ local SCENES = {
 		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[2]] = true, [Config.LongNapPassId] = true })
 		UI.open("Store")
 		assertStoreCards(true)
+	end },
+	-- #1823 (store-layout-v2.md §4): an owned pass keeps its card, greyed, with "✓ Yours" where the price was
+	{ "StoreYours", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[2]] = true, [Config.LongNapPassId] = true })
+		UI.open("Store")
+		press("Store", "passes")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("grid:longNap", true)
+		assert(card, "uigate: no Long Nap card on the Passes tab (#1823)")
+		local owned = card:FindFirstChild("Owned") :: TextLabel
+		local dim = card:FindFirstChild("Dim") :: Frame
+		assert(owned and owned.Visible and owned.Text == "✓ Yours", "uigate: the owned Long Nap does not say Yours (#1823)")
+		assert(dim and dim.Visible, "uigate: the owned Long Nap is not greyed (#1823)")
 	end },
 	-- the passes off sale (as on live until launch): every card says Soon
 	{ "StoreSoon", function()

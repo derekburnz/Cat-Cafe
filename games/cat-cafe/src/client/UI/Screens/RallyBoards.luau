@@ -74,6 +74,7 @@ function RallyBoards.new(parent: Instance): RallyBoards
 	self._state = nil :: Types.RallyState?
 	self._boards = {} :: { [Instance]: Board }
 	self._connections = {} :: { RBXScriptConnection }
+	self._waiting = {} :: { [Instance]: RBXScriptConnection }
 	self._alive = true
 	for _, model in CollectionService:GetTagged(TAG) do
 		self:_attach(model)
@@ -107,6 +108,24 @@ function RallyBoards._attach(self: any, model: Instance)
 	end
 	local screen = screenOf(model)
 	if screen == nil then
+		-- the Screen part can stream in after the tag fires (#1803): wait for it, then attach
+		if self._waiting[model] == nil then
+			self._waiting[model] = model.DescendantAdded:Connect(function(child: Instance)
+				if
+					child:IsA("BasePart")
+					and (child.Name == "Screen" or child.Name:match("_Screen$"))
+				then
+					local waiting = self._waiting[model]
+					if waiting then
+						waiting:Disconnect()
+						self._waiting[model] = nil
+					end
+					if self._alive then
+						self:_attach(model)
+					end
+				end
+			end)
+		end
 		return
 	end
 	local gui: SurfaceGui = Create("SurfaceGui", {
@@ -167,6 +186,11 @@ function RallyBoards._attach(self: any, model: Instance)
 end
 
 function RallyBoards._detach(self: any, model: Instance)
+	local waiting = self._waiting[model]
+	if waiting then
+		waiting:Disconnect()
+		self._waiting[model] = nil
+	end
 	local board: Board? = self._boards[model]
 	if board then
 		board.bar:destroy()
@@ -203,6 +227,10 @@ function RallyBoards.destroy(self: any)
 	for _, connection in self._connections do
 		connection:Disconnect()
 	end
+	for _, waiting in self._waiting do
+		waiting:Disconnect()
+	end
+	table.clear(self._waiting)
 	for model in self._boards do
 		self:_detach(model)
 	end

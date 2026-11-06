@@ -3384,6 +3384,142 @@ for _, def in Catalog.decor do
 	end
 end
 
+-- #1645 (cafe-pass.md section 3): the Cafe Pass's season decor, earned on its track and owned forever. Looks only: no
+-- money bonus and no crate, so it is in no Decor Index page and never moves the Index, and it can't be traded
+-- (Trade.piece takes crate pieces only) or bought (Economy.decorBlocker). Each piece takes a decor spot like the crate
+-- furniture and decorations; they are kept apart in Catalog.passDecor (Catalog.crateDecor is the 84 crate pieces), and
+-- the server places them after the crate pieces.
+-- #1822: a row with `pack` comes with that game pass instead (the King Cat Pack's booth, granted once by
+-- ShopCatService through shared/KingPack), with the same looks-only rules; `asset` names a model other than the one
+-- its name gives.
+local PASS_DECOR: {
+	{
+		id: string,
+		name: string,
+		kind: Types.DecorKind,
+		description: string,
+		asset: string?,
+		pack: string?,
+		passKey: string?,
+	}
+} =
+	{
+		{
+			id = "decor_pumpkin_lantern",
+			name = "Pumpkin Lantern",
+			kind = "decoration",
+			description = "A friendly cat face, glowing warm.",
+		},
+		{
+			id = "decor_fallen_leaf_rug",
+			name = "Fallen Leaf Rug",
+			kind = "decoration",
+			description = "A big maple leaf to curl up on.",
+		},
+		{
+			id = "decor_cosy_knit_cushion",
+			name = "Cosy Knit Cushion",
+			kind = "furniture",
+			description = "A soft knitted pouf in pumpkin bands.",
+		},
+		{
+			id = "decor_hay_bale_seat",
+			name = "Hay Bale Seat",
+			kind = "furniture",
+			description = "Harvest time, sit a while.",
+		},
+		{
+			id = "decor_apple_crate_shelf",
+			name = "Apple Crate Shelf",
+			kind = "furniture",
+			description = "Crates of red apples, stacked as shelves.",
+		},
+		{
+			id = "decor_maple_tree_planter",
+			name = "Maple Tree Planter",
+			kind = "decoration",
+			description = "A little maple in red and orange.",
+		},
+		{
+			id = "decor_royal_velvet_booth",
+			name = "Royal Velvet Booth",
+			kind = "furniture",
+			description = "A deep red booth fit for a king.",
+			asset = "CatCafe_Decor_VelvetBooth",
+			pack = "King Cat Pack",
+		},
+		-- #1168 row 3 (Monetization-Agent, 2026-11-06): the Garden Decor Pack pass's six pieces, owned while the pass
+		-- is (PassDecor.toGrant, given into decorOwned by ShopCatService). Model-Agent makes the models; the pass id
+		-- stays 0 until they are in.
+		{
+			id = "decor_garden_hanging_fern",
+			name = "Hanging Fern Basket",
+			kind = "decoration",
+			description = "A leafy fern spilling from a woven basket.",
+			pack = "Garden Decor Pack",
+			passKey = "GardenDecorPackPassId",
+		},
+		{
+			id = "decor_garden_sunflower_pot",
+			name = "Sunflower Pot",
+			kind = "decoration",
+			description = "Three tall sunflowers in a sunny pot.",
+			pack = "Garden Decor Pack",
+			passKey = "GardenDecorPackPassId",
+		},
+		{
+			id = "decor_garden_watering_can",
+			name = "Watering Can Planter",
+			kind = "decoration",
+			description = "An old tin can, now full of daisies.",
+			pack = "Garden Decor Pack",
+			passKey = "GardenDecorPackPassId",
+		},
+		{
+			id = "decor_garden_lemon_tree",
+			name = "Potted Lemon Tree",
+			kind = "decoration",
+			description = "A little tree with bright lemons.",
+			pack = "Garden Decor Pack",
+			passKey = "GardenDecorPackPassId",
+		},
+		{
+			id = "decor_garden_ivy_trellis",
+			name = "Ivy Trellis",
+			kind = "furniture",
+			description = "A wooden trellis climbing with ivy.",
+			pack = "Garden Decor Pack",
+			passKey = "GardenDecorPackPassId",
+		},
+		{
+			id = "decor_garden_bench",
+			name = "Garden Swing Seat",
+			kind = "furniture",
+			description = "A cosy swing seat wrapped in flowers.",
+			pack = "Garden Decor Pack",
+			passKey = "GardenDecorPackPassId",
+		},
+	}
+Catalog.passDecor = {} :: { Types.DecorDef }
+for _, row in PASS_DECOR do
+	local def: Types.DecorDef = {
+		id = row.id,
+		name = row.name,
+		cost = 0,
+		category = KIND_CATEGORY[row.kind],
+		effect = "Looks only",
+		description = row.description,
+		bonus = 0,
+		asset = row.asset or "CatCafe_Decor_" .. (row.name:gsub("[^%w]", "")),
+		source = "pass",
+		kind = row.kind,
+		pack = row.pack,
+		passKey = row.passKey,
+	}
+	Catalog.decorById[row.id] = def
+	table.insert(Catalog.passDecor, def)
+end
+
 Catalog.crates = {} :: { Types.CrateDef }
 for _, pool in CRATE_POOLS do
 	table.insert(Catalog.crates, {
@@ -3735,6 +3871,12 @@ Catalog.products = {
 		name = "Potion Pack L",
 		prize = { potions = { big_tip_potion = 10, swift_potion = 6, steady_potion = 6 } },
 	},
+	-- #1168 row 8 (Monetization-Agent, 2026-11-06): R$25, repeatable, 10 Steady Paw potions (easier catch circles only)
+	{
+		id = "steady_paw_pack",
+		name = "Steady Paw Pack",
+		prize = { potions = { steady_potion = 10 } },
+	},
 	-- #1625 (store-skus.md): R$99, once per account. Sprinkles, 10 Big Money, 5 Swift and the Bakery Stripes sign.
 	{
 		id = "starter_bundle",
@@ -3745,6 +3887,15 @@ Catalog.products = {
 			cats = { "sprinkles" },
 			signStyles = { "bakery_stripes" },
 		},
+	},
+	-- #1168 row 4 (Monetization-Agent, 2026-11-06): R$25, once per account, no gameplay effect. It marks the buyer a
+	-- supporter (Products.isSupporter): a gold heart by their name on the Thank You board and a "[Thank You]" chat tag.
+	{
+		id = "thank_you_badge",
+		name = "Thank You Badge",
+		oncePerAccount = true,
+		supporter = true,
+		prize = { potions = {} },
 	},
 	-- #1626 (cafe-pass.md section 1): the paid track of the season running when it is bought. It holds no potions:
 	-- everything comes from the track's levels as they are reached (CafePassService).
@@ -3954,7 +4105,7 @@ Catalog.campExtras = {
 		id = "lostFound",
 		area = "sewer",
 		name = "Lost and Found",
-		model = "CatCafe_Camp_Sewer_LostFound",
+		model = "CatCafe_Camp_Sewer_LostFoundBooth", -- #1732: the lost-property kiosk, was the small crate
 		kind = "collect",
 	},
 } :: { Types.CampExtraDef }

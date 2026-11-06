@@ -47,6 +47,13 @@ The bowl's own luck is renamed on its card to "Comfy bowl: rarer visitors" so pl
 
 A small pill under the coins on the HUD: a four-leaf clover and "Luck x1.3", shown from the first Luck source (before that, hidden). Tapping it opens a card that lists each source with its share and time left, the odds of the food in your bag on your bowl, and the next crate's odds. The first source shows the `luck` context tip from easy-start.md.
 
+**The card, v2 (#1776, Derek2 2026-11-06: "those odds are not helpful just say overall 5% increase to this rarity 10% increase to this").** The two odds blocks ("Your next cat from ..." and "Your next ... Crate") go. In their place is one row of rarity pills, which say what Luck does to every roll at once, whatever the bait or crate:
+- **The maths.** `Luck.apply` multiplies the Epic, Legendary and Mythical chances by the Luck number and leaves Rare as it was, and Common gives up the difference. So the boost to each of the three is the same: `boost = round((luck - 1) * 100)` percent. At x1.3 that's +30%, and at x3 (LuckMax) it's +200%. It's relative to the chance at x1.0, so "+30%" on a 4% Epic means about 5.2%. This is the honest number for every table. A point gain ("+1.2 points") would differ per bait and crate, and that's the kind of detail Derek2 asked to drop. Add `Luck.boostPercent(luck): number` to `shared/Luck` so the card and the server can never disagree, and it returns 0 at or below x1.
+- **The row.** Three pills in their rarity colours, "Epic +30%", "Legendary +30%" and "Mythical +30%", using the rarity pill from the Index (#1711 look), in one line under the source list. Rare and Common get no pill. Text stays at that and nothing more: no "relative to", no table and no footnote. The hue carries which rarity is which.
+- **Nothing to show.** At Luck x1.0 the chip is hidden (above), so the card never shows "+0%".
+- **The cap.** In the rare case where the three boosted chances fill a whole table (the scaled branch of `Luck.apply`), the real gain is smaller than the pill says. Only a near-empty Common/Rare table at x3 gets there, so the pill keeps the simple number.
+- **QA.** (1) With a statue level 3 (x1.3), the card shows Epic, Legendary and Mythical +30% in their colours, and no odds blocks. (2) A Lucky Potion on top (x1.8) changes all three to +80% within a second. (3) The card fits on phone, tablet and desktop in the UI gate.
+
 ### 1e. Not sold
 
 No Luck is sold for Robux in v1. Paid Luck would turn every roll it touches into a paid random item under Roblox's May 2026 rules, and docs/growth/monetization.md keeps those out of the first release. The Lucky Cat is coins only and potions stay earn-only.

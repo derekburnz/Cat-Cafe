@@ -19,6 +19,7 @@ local GoldHutController = require(script.Parent.Controllers.GoldHutController)
 local IntroController = require(script.Parent.Controllers.IntroController)
 local Moments = require(script.Parent.Moments)
 local NetSwingController = require(script.Parent.Controllers.NetSwingController)
+local PitySignController = require(script.Parent.Controllers.PitySignController)
 local RallyController = require(script.Parent.Controllers.RallyController)
 local ShoveController = require(script.Parent.Controllers.ShoveController)
 local StarterCatController = require(script.Parent.Controllers.StarterCatController)
@@ -38,6 +39,7 @@ ShoveController.start()
 NetSwingController.start() -- F93: the net swing, after the UI whose Net button it listens to
 CannonController.start() -- F84: after the UI, whose cannon picker it opens
 CampExtrasController.start() -- F100: the camp extras' prompts, after the UI whose hooks it uses
+PitySignController.start() -- #1753: the pity cat's countdown on the Town Square sign
 GoldHutController.start() -- #1368: the Golden Pond pass's gold Fishing Hut, on its owner's client
 RallyController.start() -- F101: the Rescue Rally's state for the UI's banner
 TradeController.start() -- F102: trading, after the UI whose trade window it feeds

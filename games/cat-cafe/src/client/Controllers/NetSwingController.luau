@@ -8,9 +8,8 @@
 -- during the intro) does nothing here either, so the net never smacks for nothing.
 -- Moments.NetInReach names the stray a swing would land on right now (shared/NetSwing.pick on the strays' replicated
 -- attributes), for the UI's glow; `UI.net.setEnabled`, when the UI has it, shows the Net button while a swing could
--- go. Both judge from shared/NetSwing.landingOrigin, where the root will be when the net lands. Controllers/NetMarker
--- draws the swing's landing fan on the ground for a moment after each press (Derek 2026-11-03; only on a swing
--- since #1493), gold while a stray is in reach, flashing as the net lands.
+-- go. Both judge from shared/NetSwing.landingOrigin, where the root will be when the net lands. The ground
+-- outline that showed where a swing lands (Controllers/NetMarker) is gone (Derek2 2026-11-06, #1885: clutter).
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -22,7 +21,6 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
-local NetMarker = require(script.Parent.NetMarker)
 local NetSwing = require(Shared:WaitForChild("NetSwing"))
 local UI = require(script.Parent.Parent.UI)
 
@@ -75,7 +73,6 @@ local function press()
 		return
 	end
 	nextSwingAt = now + Config.NetSwingCooldown
-	NetMarker.pressed()
 	Moments.NetSmackPress:Fire()
 	Net.fire("SwingNet")
 end
@@ -136,7 +133,6 @@ local function watchReach()
 			Moments.NetInReach:Fire(found)
 		end
 		local on = canSwing()
-		NetMarker.setInReach(found ~= nil)
 		if on ~= enabled then
 			enabled = on
 			local net: any = (UI :: any).net
@@ -209,7 +205,6 @@ function NetSwingController.start()
 		catchingUntil = 0
 		rescuingUntil = 0
 	end)
-	NetMarker.start(rootPart)
 	task.spawn(watchReach)
 end
 

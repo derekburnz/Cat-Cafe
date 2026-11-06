@@ -29,6 +29,7 @@ local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local StoreBurst = require(script.Parent.Parent.Parent.Effects.StoreBurst)
 local StoreLogic = require(script.Parent.Parent.Components.StoreLogic)
+local StoreMotion = require(script.Parent.Parent.Parent.Effects.StoreMotion)
 local Theme = require(script.Parent.Parent.Theme)
 
 export type Callbacks = {
@@ -145,6 +146,9 @@ function Store.new(callbacks: Callbacks): Store
 	self._tab = "featured"
 	self._rows = {} :: { StoreLogic.Row }
 	self._seen = {} :: StoreLogic.Seen -- #1823: each card's pass and Owned at the last render, for the thank-you burst
+	-- #1870: true until the first render after the window opens; that render only notes what is owned, so a pass
+	-- bought while the Store was shut doesn't pop and burst on opening (and the cards are measured at rest)
+	self._fresh = true
 	self._prices = {} :: { [number]: StoreLogic.Price }
 	self._ownedIds = {} :: { [number]: boolean }
 	self._actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
@@ -473,6 +477,9 @@ function Store._makeCard(
 		parent = card,
 		onClick = function()
 			if entry.passId ~= 0 then
+				-- #1823: the card dips with the tap (the Buy button already dips through its own UIScale, so
+				-- StoreMotion moves the card rather than fight that tween)
+				StoreMotion.press(entry.frame :: any) -- press takes a GuiButton; it only scales the object
 				self._callbacks.buy(entry.passId)
 			end
 		end,
@@ -706,6 +713,7 @@ function Store.closed(self: any)
 		onCodes(false)
 	end
 	self._tab = "featured"
+	self._fresh = true
 end
 
 function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: StoreLogic.Price })
@@ -764,12 +772,15 @@ end
 function Store._thank(self: any, rows: { StoreLogic.Row })
 	local bought, seen = StoreLogic.justBought(self._seen, rows)
 	self._seen = seen
-	if #bought == 0 or not self.frame.Visible then
+	local fresh = self._fresh
+	self._fresh = false
+	if fresh or #bought == 0 or not self.frame.Visible then
 		return
 	end
 	for _, key in bought do
 		for _, entry in self._cards do
 			if entry.rowKey == key and entry.frame.Visible then
+				StoreMotion.bought(entry.frame) -- Animation's pop and flash (#1840) under VFX's burst
 				StoreBurst.play(entry.frame, "pass")
 			end
 		end

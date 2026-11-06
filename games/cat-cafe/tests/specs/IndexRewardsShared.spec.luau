@@ -66,6 +66,16 @@ return function()
 				"rainbow5",
 				"rainbow10",
 				"rainbow25",
+				"goldtotal5", -- #1772: the All Cats page's gold track
+				"goldtotal10",
+				"goldtotal15",
+				"goldtotal20",
+				"goldtotal25",
+				"goldtotal30",
+				"goldtotal35",
+				"goldtotal40",
+				"goldtotal45",
+				"goldtotal50",
 			})
 		end)
 
@@ -141,10 +151,12 @@ return function()
 			local all = Catalog.indexPrizes.all
 			local n = 0
 			for id, prize in pairs(all) do
-				n += 1
-				expect(string.sub(id, 1, 5)).to.equal("total")
-				expect(prize.bonus).never.to.be.ok()
-				expect(prize.goldLuck).never.to.be.ok()
+				if string.sub(id, 1, 9) ~= "goldtotal" then
+					n += 1
+					expect(string.sub(id, 1, 5)).to.equal("total")
+					expect(prize.bonus).never.to.be.ok()
+					expect(prize.goldLuck).never.to.be.ok()
+				end
 			end
 			expect(n).to.equal(10)
 			expect(sum(all, "baitSpeed")).to.be.near(0.38, 1e-9)
@@ -159,6 +171,30 @@ return function()
 		end)
 
 		it(
+			"gives All Cats a gold cats track: ten steps to 50, no luck, ending with Golden Paw (#1772)",
+			function()
+				local all = Catalog.indexPrizes.all
+				local n, luck = 0, 0
+				for id, prize in pairs(all) do
+					if string.sub(id, 1, 9) == "goldtotal" then
+						n += 1
+						luck += prize.goldLuck or 0
+						expect(prize.bonus).never.to.be.ok()
+						expect(prize.baitSpeed).never.to.be.ok()
+					end
+				end
+				expect(n).to.equal(10)
+				expect(luck).to.equal(0) -- the area gold tracks already reach GoldLuckMax
+				expect(all.goldtotal50 :: any).to.deepEqual({
+					fish = 250,
+					crates = { classic_golden_crate = 4 },
+					spins = 10,
+					tag = "Golden Paw",
+				})
+			end
+		)
+
+		it(
 			"gives each Decor Index page 25 fish at five pieces and +5% tips forever at all twelve",
 			function()
 				for _, pool in POOLS do
@@ -170,22 +206,27 @@ return function()
 			end
 		)
 
-		it("has no page beyond the areas, All Cats, the seven Decor Index pages and Rainbow", function()
-			for pageId in pairs(Catalog.indexPrizes) do
-				local known = table.find(AREAS, pageId) ~= nil
-					or pageId == "all"
-					or pageId == "rainbow" -- F99
-					or table.find(POOLS, string.sub(pageId, 7)) ~= nil
-						and string.sub(pageId, 1, 6) == "decor_"
-				expect(known).to.equal(true)
+		it(
+			"has no page beyond the areas, All Cats, the seven Decor Index pages and Rainbow",
+			function()
+				for pageId in pairs(Catalog.indexPrizes) do
+					local known = table.find(AREAS, pageId) ~= nil
+						or pageId == "all"
+						or pageId == "rainbow" -- F99
+						or table.find(POOLS, string.sub(pageId, 7)) ~= nil
+							and string.sub(pageId, 1, 6) == "decor_"
+					expect(known).to.equal(true)
+				end
 			end
-		end)
+		)
 
 		it("the prize table is frozen, so no write can change a prize (S61)", function()
 			expect(table.isfrozen(Catalog.indexPrizes)).to.equal(true)
 			expect(table.isfrozen(Catalog.indexPrizes.alley)).to.equal(true)
 			expect(table.isfrozen(Catalog.indexPrizes.alley.cats3)).to.equal(true)
-			expect(table.isfrozen(Catalog.indexPrizes.neighbourhood.cats6.lures :: any)).to.equal(true)
+			expect(table.isfrozen(Catalog.indexPrizes.neighbourhood.cats6.lures :: any)).to.equal(
+				true
+			)
 			expect(table.isfrozen(Catalog.indexPrizes.alley.cats6.crates :: any)).to.equal(true)
 			expect(pcall(function()
 				(Catalog.indexPrizes.alley :: any).cats3 = true
@@ -826,7 +867,8 @@ return function()
 						-- F97: a `whole` milestone (decor10) needs every piece of its page, sixteen on the Classic page
 						local needs = milestone.needs
 						if milestone.whole == true then
-							local crate = Catalog.getCrate(string.sub(areaId, #"decor_" + 1) .. "_crate")
+							local crate =
+								Catalog.getCrate(string.sub(areaId, #"decor_" + 1) .. "_crate")
 							needs = math.max(needs, if crate ~= nil then #crate.pieces else 0)
 						end
 						local left = needs - ownCount(profile, areaId, milestone.track)
@@ -877,7 +919,13 @@ return function()
 		it(
 			"takes exactly the claimed percent off the bait wait, with and without the Big Bowl",
 			function()
-				local order = milestonesOf("all")
+				-- the bait track only: #1772's gold cats steps on the same page pay no bait speed
+				local order: { string } = {}
+				for _, id in milestonesOf("all") do
+					if Catalog.indexPrizes.all[id].baitSpeed ~= nil then
+						table.insert(order, id)
+					end
+				end
 				table.sort(order, function(a: string, b: string): boolean
 					local ma = IndexRewards.milestone(a) :: Types.IndexMilestone
 					local mb = IndexRewards.milestone(b) :: Types.IndexMilestone
@@ -917,7 +965,13 @@ return function()
 			"halves the night wait with every claim and the Big Bowl, and the bowl's screen agrees (F60)",
 			function()
 				local FoodOdds = require(Components:WaitForChild("FoodOdds")) :: any
-				local order = milestonesOf("all")
+				-- the bait track only: #1772's gold cats steps on the same page pay no bait speed
+				local order: { string } = {}
+				for _, id in milestonesOf("all") do
+					if Catalog.indexPrizes.all[id].baitSpeed ~= nil then
+						table.insert(order, id)
+					end
+				end
 				table.sort(order, function(a: string, b: string): boolean
 					local ma = IndexRewards.milestone(a) :: Types.IndexMilestone
 					local mb = IndexRewards.milestone(b) :: Types.IndexMilestone

@@ -30,6 +30,7 @@ local Workspace = game:GetService("Workspace")
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local DayKinds = require(script.Parent.Parent.Components.DayKinds)
+local FirstBait = require(script.Parent.Parent.Components.FirstBait)
 local FoodGrade = require(script.Parent.Parent.Components.FoodGrade)
 local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
 local FoodOrder = require(script.Parent.Parent.Components.FoodOrder)
@@ -672,6 +673,9 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 	self._bigBowl = (fishPerks.big_bowl or 0) >= 1
 	self._speed = (if totals then totals.baitSpeed else 0) + boosts.baitSpeed
 	self._waitSeconds = FoodOdds.waitSeconds(bowlLevel, self._bigBowl, self._speed, self._night)
+	-- #1895: the account's first bait waits at most FirstBaitWaitSeconds (shared Bait.firstWait), so the empty bowl
+	-- promises that
+	self._waitSeconds = FirstBait.firstWait((state :: any).firstBait, self._waitSeconds)
 	-- Details: the gold chance with the Index's gold luck (F54) and the running potions (F73) in it and the charm
 	-- stars, then the split
 	local extras = FoodOdds.extras(
@@ -818,6 +822,8 @@ function BaitBowl._renderStatus(self: any)
 			local inTime = Format.duration(math.ceil(left))
 			sub = if bait.night
 				then ("%s Night bait: a cat comes by in %s"):format(Theme.icons.moon, inTime)
+				elseif FirstBait.coming(bait) then "A cat is coming! "
+					.. inTime -- #1895: the short first wait
 				else "A cat comes by in " .. inTime
 			-- the bowl's own wait from placedAt, else today's for its phase
 			local total = if bait.placedAt

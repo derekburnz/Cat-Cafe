@@ -368,6 +368,7 @@ return function()
 			-- LureReserveSeconds: the doc now says a lured stray is reserved until despawn, so the constant is optional.
 			local known = {
 				World = true,
+				OwnerTestUserIds = true, -- #1770: checked in OwnerTest.spec
 				NetWindows = true, -- a table, checked below
 				CharmStarOdds = true, -- a table, checked below
 				RescueBarSpeed = true, -- a table, checked below

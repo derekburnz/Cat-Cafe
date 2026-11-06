@@ -2,8 +2,10 @@
 # Print the first-session numbers from Roblox analytics (Open Cloud Analytics Query API, beta), so a thread reads
 # where new players quit without Creator Hub. Read only. Sections:
 #   1. every funnel, players (or runs, for catch_attempt and bait_cycle) per step: the onboarding funnels
-#      (src/shared/Onboarding.luau: onboarding_v3 and onboarding_v3_intro since #1273, onboarding_v2 before it and
-#      the alpha's twelve step one before that) and the recurring ones (docs/growth/analytics-plan.md section 4),
+#      (src/shared/Onboarding.luau: onboarding_v4 and onboarding_v4_intro since #1888, onboarding_v3 and its intro
+#      since #1273, onboarding_v2 before it and the alpha's twelve step one before that), the Store funnel (store,
+#      src/shared/StoreFunnel.luau: opened, tab_viewed, buy_pressed, completed) and the recurring ones
+#      (docs/growth/analytics-plan.md section 4),
 #      with the share of step 1 left and how many were
 #      lost since the step before; the biggest loss is the first thing to fix. Roblox lets FunnelName be a filter
 #      only, so the script asks which funnels were logged (dimension-values) and then reads each funnel on its own.
@@ -11,6 +13,8 @@
 #   3. how long new players' first sessions lasted (Roblox's session time buckets)
 #   4. the most logged custom events (tutorial_step, intro_cutscene, travel and the rest of Telemetry.custom), each
 #      read on its own the same way, since CustomEventName is a filter only too
+#      (session_start carries the join source in its first field: organic, unknown or ad_<tag> from a link's
+#      launchData=ad_<tag>; robux_purchase, store_cancelled, cafe_pass_level and jukebox_pick since #1888)
 # The API takes 30 queries a minute, and a window with 40 custom events needs about 90, so a run paces itself and can
 # take three or four minutes.
 # Run by .github/workflows/analytics.yml; also works from Git Bash on a PC with the same variables set.
@@ -179,31 +183,45 @@ say() { printf '%s\n' "$*" >>"$out"; }
 failed() { say "_${result//|/\\|}_" && say ""; }
 
 # Step names: the onboarding funnels' from Onboarding.luau (names never change once shipped), the recurring ones'
-# from Telemetry.luau. Roblox labels a step with its name when it has one, which wins. Since #1273 the funnel named
-# Onboarding.FUNNEL (onboarding_v3) numbers its 37 steps by Onboarding.STEPS and Onboarding.INTRO_FUNNEL
-# (onboarding_v3_intro) its 13 by Onboarding.INTRO_STEPS; onboarding_v2 (F87 to #1273, still in a window that starts
-# before it) by Onboarding.V2_STEPS, and the alpha's funnel before it by Onboarding.V1_STEPS.
+# from Telemetry.luau, the Store funnel's from StoreFunnel.luau. Roblox labels a step with its name when it has one,
+# which wins. Since #1888 the funnel named Onboarding.FUNNEL (onboarding_v4) numbers its 45 steps by Onboarding.STEPS
+# and Onboarding.INTRO_FUNNEL (onboarding_v4_intro) its 13 by Onboarding.INTRO_STEPS; onboarding_v3 and
+# onboarding_v3_intro (#1273 to #1888, still in a window that starts before it) keep their first 37 steps
+# (Onboarding.V3_STEPS) and the same intro steps; onboarding_v2 (F87 to #1273) uses Onboarding.V2_STEPS, and the
+# alpha's funnel before it Onboarding.V1_STEPS. The store funnel (one run per Store visit) uses StoreFunnel.STEPS.
 declare -A names=(
 	[catch_attempt.1]=swing_hit [catch_attempt.2]=engaged [catch_attempt.3]=caught [catch_attempt.4]=checked_in
 	[catch_attempt.5]=working [bait_cycle.1]=set [bait_cycle.2]=seen [bait_cycle.3]=tamed
 )
-onboardingFunnel=onboarding_v3
-introFunnel=onboarding_v3_intro
+onboardingFunnel=onboarding_v4
+introFunnel=onboarding_v4_intro
 onboardingSteps=()
 introSteps=()
+onboardingV3Steps=()
 onboardingV2Steps=()
+storeFunnel=store
+storeSteps=()
 onboardingV1Steps=()
 if [ -f "$onboarding" ]; then
 	luaNames() { sed -n "/^Onboarding\.$1 = {/,/^}/p" "$onboarding" | grep -o '"[a-z0-9_]*"' | tr -d '"'; }
 	luaString() { sed -n "s/^Onboarding\.$1 = \"\([A-Za-z0-9_]*\)\".*/\1/p" "$onboarding"; }
 	mapfile -t onboardingSteps < <(luaNames STEPS)
 	mapfile -t introSteps < <(luaNames INTRO_STEPS)
+	# V3_STEPS is the first V3_COUNT of STEPS (a table.move, not a literal), so cut them here
+	v3Count=$(sed -n 's/^Onboarding\.V3_COUNT = \([0-9]*\).*/\1/p' "$onboarding")
+	onboardingV3Steps=("${onboardingSteps[@]:0:${v3Count:-37}}")
 	mapfile -t onboardingV2Steps < <(luaNames V2_STEPS)
 	mapfile -t onboardingV1Steps < <(luaNames V1_STEPS)
 	funnelName=$(luaString FUNNEL)
 	onboardingFunnel=${funnelName:-$onboardingFunnel}
 	funnelName=$(luaString INTRO_FUNNEL)
 	introFunnel=${funnelName:-$introFunnel}
+fi
+storeFunnelFile=$here/../../src/shared/StoreFunnel.luau
+if [ -f "$storeFunnelFile" ]; then
+	mapfile -t storeSteps < <(sed -n '/^StoreFunnel\.STEPS = {/p' "$storeFunnelFile" | grep -o '"[a-z0-9_]*"' | tr -d '"')
+	funnelName=$(sed -n 's/^StoreFunnel\.NAME = "\([A-Za-z0-9_]*\)".*/\1/p' "$storeFunnelFile")
+	storeFunnel=${funnelName:-$storeFunnel}
 fi
 stepName() { # funnel step label
 	local funnel=$1 step=$2 label=$3
@@ -213,11 +231,15 @@ stepName() { # funnel step label
 	elif [ -n "${names[$funnel.$step]:-}" ]; then
 		printf '%s' "${names[$funnel.$step]}"
 	elif [[ $step =~ ^[0-9]+$ ]] && [ "$step" -ge 1 ]; then
-		# exact names first: onboarding_v3_intro also contains onboarding_v3
-		if [ "${funnel,,}" = "${introFunnel,,}" ]; then
+		# exact names first: onboarding_v4_intro also contains onboarding_v4
+		if [ "${funnel,,}" = "${introFunnel,,}" ] || [ "${funnel,,}" = onboarding_v3_intro ]; then
 			list=("${introSteps[@]}")
 		elif [ "${funnel,,}" = "${onboardingFunnel,,}" ]; then
 			list=("${onboardingSteps[@]}")
+		elif [ "${funnel,,}" = onboarding_v3 ]; then
+			list=("${onboardingV3Steps[@]}")
+		elif [ "${funnel,,}" = "${storeFunnel,,}" ]; then
+			list=("${storeSteps[@]}")
 		elif [ "${funnel,,}" = onboarding_v2 ]; then
 			list=("${onboardingV2Steps[@]}")
 		elif [[ ${funnel,,} == *onboarding* ]]; then

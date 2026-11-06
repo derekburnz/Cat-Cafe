@@ -18,6 +18,7 @@ export type Tag = { text: string, color: string }
 
 local TAGS: { [string]: Tag } = {
 	vip = { text = "[VIP]", color = "#F2C14E" },
+	supporter = { text = "[Thank You]", color = "#FFC94D" }, -- #1168 row 4: the Thank You Badge (ChatTags.withSupporter)
 	tag_maple = { text = "[Maple]", color = "#D9822B" }, -- #1626: Season 1's paid track, level 1
 }
 for _, tag in TAGS do
@@ -27,7 +28,7 @@ table.freeze(TAGS)
 ChatTags.TAGS = TAGS
 
 -- The order tags are offered in and the default falls through: VIP, then the season tags oldest first.
-local ORDER: { string } = { "vip", "tag_maple" }
+local ORDER: { string } = { "vip", "supporter", "tag_maple" }
 table.freeze(ORDER)
 ChatTags.ORDER = ORDER
 
@@ -67,6 +68,24 @@ function ChatTags.shown(pick: string?, ownsVip: boolean, items: { [string]: bool
 		return pick
 	end
 	return choices[1]
+end
+
+-- #1168 row 4: the items `choices` and `shown` read, with the supporter tag added for a Thank You Badge buyer. A
+-- copy; `items` is never changed.
+function ChatTags.withSupporter(
+	items: { [string]: boolean },
+	supporter: boolean
+): { [string]: boolean }
+	local out: { [string]: boolean } = {}
+	for id, has in items do
+		if id ~= "supporter" then
+			out[id] = has
+		end
+	end
+	if supporter then
+		out.supporter = true
+	end
+	return out
 end
 
 -- Whether `pick` may be saved: a known tag id or OFF (whether the player may show it is checked when shown).

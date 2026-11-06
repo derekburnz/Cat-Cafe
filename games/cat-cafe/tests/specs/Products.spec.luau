@@ -66,6 +66,7 @@ return function()
 				potion_pack_l = { big_tip_potion = 10, swift_potion = 6, steady_potion = 6 },
 				steady_paw_pack = { steady_potion = 10 }, -- #1168 row 8
 				starter_bundle = { big_tip_potion = 10, swift_potion = 5 }, -- #1625
+				thank_you_badge = {}, -- #1168 row 4: a supporter mark only
 				cafe_pass = {}, -- #1626: everything comes from the paid track's levels
 			}
 			-- #1625: besides potions only the Starter Bundle's named cat and sign style, never anything random
@@ -110,6 +111,24 @@ return function()
 			expect(#ProfileSchema.migrate(raw, 1000).receipts).to.equal(0)
 			raw.receipts = { "abc", 7, "abc", "def" }
 			expect(ProfileSchema.migrate(raw, 1000).receipts :: any).to.deepEqual({ "abc", "def" })
+		end)
+	end)
+
+	describe("the Thank You Badge (#1168 row 4)", function()
+		it("is once per account, holds nothing, and makes the buyer a supporter for good", function()
+			local badge = Catalog.getProduct("thank_you_badge") :: any
+			expect(badge.oncePerAccount).to.equal(true)
+			expect(badge.supporter).to.equal(true)
+			expect(next(badge.prize.potions)).to.equal(nil)
+			local profile = ProfileSchema.template(1000)
+			expect(Products.isSupporter(profile)).to.equal(false)
+			local give, first = Products.prizeFor(profile, badge)
+			expect(first).to.equal(true)
+			Products.markBought(profile, badge, give.signStyles)
+			expect(Products.isSupporter(profile)).to.equal(true)
+			expect(Products.sanitizeOnce(profile.onceBought).thank_you_badge).to.equal(true)
+			local _, again = Products.prizeFor(profile, badge)
+			expect(again).to.equal(false)
 		end)
 	end)
 

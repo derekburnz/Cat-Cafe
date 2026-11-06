@@ -161,7 +161,7 @@ StoreLogic.STARTER = STARTER
 local CAFE_PASS: ProductCard = {
 	key = "cafePass",
 	productKey = "cafe_pass",
-	effect = "Season %d paid track, a reward every level:",
+	effect = "Season %d paid track:", -- short so a phone card keeps 9 px text
 }
 StoreLogic.CAFE_PASS = CAFE_PASS
 
@@ -348,7 +348,7 @@ local function cafePassRow(config: any, view: ShopView?): Row?
 		passId = id,
 		name = "Cafe Pass",
 		icon = "🍁",
-		-- "Season 1 paid track, a reward every level:" and the track's exact contents
+		-- "Season 1 paid track:" and the track's exact contents
 		effect = CAFE_PASS.effect:format(offer.season) .. "\n" .. offer.contents,
 		owned = offer.paid,
 		product = true,
@@ -409,6 +409,38 @@ local function rungs(config: any): { { multiplier: number, id: number } }
 		end
 	end
 	return out
+end
+
+-- #1606 (Derek2 11-05: "shows 2x money on your screen somewhere near your money always and replaces itself with
+-- 3x/4x if bought"): the badge beside the HUD's money. The highest money pass owned (Roblox's answer in `owned`, or
+-- the server's PlayerState.passBoosts.money as `serverMultiplier`) reads "2x", "3x" or "4x"; with none, "Get 2x"
+-- while the 2x pass is on sale (a tap opens the Store), else no badge.
+export type MoneyBadge = { text: string, owned: boolean }
+function StoreLogic.moneyBadge(
+	config: any,
+	owned: { [number]: boolean },
+	prices: { [number]: Price },
+	serverMultiplier: number?
+): MoneyBadge?
+	local ladder = rungs(config)
+	local top = if type(serverMultiplier) == "number"
+			and serverMultiplier == serverMultiplier
+		then math.max(1, math.floor(serverMultiplier))
+		else 1
+	for _, rung in ladder do
+		if owned[rung.id] then
+			top = math.max(top, rung.multiplier)
+		end
+	end
+	if top > 1 then
+		return { text = ("%dx"):format(top), owned = true }
+	end
+	local first = ladder[1]
+	local price = if first ~= nil then prices[first.id] else nil
+	if price ~= nil and price.forSale then
+		return { text = ("Get %dx"):format(first.multiplier), owned = false }
+	end
+	return nil
 end
 
 local function hours(seconds: number): number

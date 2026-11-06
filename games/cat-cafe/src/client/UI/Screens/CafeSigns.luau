@@ -8,7 +8,8 @@
 -- attribute the server sets on the owner's Player (and on their sign part or plot).
 --
 -- Plots are the server's models tagged "Plot" with OwnerUserId, OwnerName, TierName and Rate attributes. The sign
--- board is the shell's SignBoard part, else the code-built Sign part. This draws a local SurfaceGui on its street
+-- board is a picked sign style's board (#1625), else the theme's own sign (#1624), else the shell's SignBoard part,
+-- else the code-built Sign part. This draws a local SurfaceGui on its street
 -- face and hides the server's plain SignGui on this client only, so the server's text stays as the fallback.
 --
 -- Roblox terms: a SurfaceGui draws 2D UI flat on one face of a part. With PixelsPerStud sizing, its canvas is the
@@ -31,6 +32,9 @@ export type CafeSigns = {
 
 local TAG = "Plot"
 local BOARD_NAMES = { "SignBoard", "Sign" }
+local LOOK_SIGNS = { "SignStyle", "ThemeSign" } -- the plot's look models with their own board, picked first
+-- the plot attributes that swap those models; the sign moves to the new board
+local LOOK_ATTRIBUTES = { "SignStyle", "Theme" }
 local PIXELS_PER_STUD = 50
 local MAX_DISTANCE = 150
 local WATCHED = { "OwnerUserId", "OwnerName", "TierName", "Rate", "Crown" }
@@ -55,14 +59,27 @@ type Sign = {
 local CafeSigns = {}
 CafeSigns.__index = CafeSigns
 
-local function findBoard(plot: Instance): BasePart?
+local function boardIn(root: Instance): BasePart?
 	for _, name in BOARD_NAMES do
-		local found = plot:FindFirstChild(name, true)
+		local found = root:FindFirstChild(name, true)
 		if found and found:IsA("BasePart") then
 			return found :: BasePart
 		end
 	end
 	return nil
+end
+
+-- #1624/#1625: a picked sign style's board (the plot's SignStyle model) wins, then the theme's own sign
+-- (ThemeSign), then the shell's SignBoard or the code-built Sign
+local function findBoard(plot: Instance): BasePart?
+	for _, owner in LOOK_SIGNS do
+		local model = plot:FindFirstChild(owner)
+		local board = if model then boardIn(model) else nil
+		if board then
+			return board
+		end
+	end
+	return boardIn(plot)
 end
 
 local function label(props: { [string]: any }, outline: number): TextLabel
@@ -97,8 +114,8 @@ local function hang(sign: Sign)
 	sign.gui.Adornee = board :: any
 	sign.gui.Enabled = board ~= nil
 	if board then
-		-- the server's text sits on the code-built Sign, which may stay beside a shell's SignBoard
-		local found = sign.plot:FindFirstChild("SignGui", true)
+		-- the server's text sits on the board, else on the code-built Sign, which may stay beside a shell's SignBoard
+		local found = board:FindFirstChild("SignGui") or sign.plot:FindFirstChild("SignGui", true)
 		if found and found:IsA("SurfaceGui") then
 			local serverGui = found :: SurfaceGui
 			sign.serverGui = serverGui
@@ -265,6 +282,28 @@ function CafeSigns._attach(self: any, plot: Instance)
 			end
 		end)
 	)
+	-- a look model going away (a new style or theme picked, or the plot released) hands the sign back
+	local function rehang()
+		task.defer(function()
+			if self._signs[plot] == sign then
+				hang(sign)
+			end
+		end)
+	end
+	table.insert(
+		sign.connections,
+		plot.DescendantRemoving:Connect(function(descendant: Instance)
+			if
+				descendant == sign.board
+				or (descendant.Parent == plot and table.find(LOOK_SIGNS, descendant.Name))
+			then
+				rehang()
+			end
+		end)
+	)
+	for _, attribute in LOOK_ATTRIBUTES do
+		table.insert(sign.connections, plot:GetAttributeChangedSignal(attribute):Connect(rehang))
+	end
 	hang(sign)
 	self:_render(sign)
 end

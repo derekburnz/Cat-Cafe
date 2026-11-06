@@ -26,4 +26,10 @@ function CatPose.dress(model: Model, role: string): number
 	end)
 end
 
+-- #1624: recolours a dressed working cat's outfit in the Looks uniform `uniformId` (nil: Classic, as built). The cat
+-- keeps the id in its UniformStyle attribute, which client copies of it (CafeWalk's walkers) read.
+function CatPose.wearUniform(model: Model, uniformId: string?)
+	CatDress.wearUniform(model, uniformId)
+end
+
 return CatPose

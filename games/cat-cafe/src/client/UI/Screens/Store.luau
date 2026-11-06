@@ -55,7 +55,6 @@ export type Store = {
 }
 
 local MAX_SIZE = Vector2.new(880, 580)
-local NOTE_H = 24
 local GAP = Theme.sizes.gap
 local RAIL_W = 150
 -- the clean symbol on a pass's picture tile (the glyph shows until it loads, and for a pass without one)
@@ -194,22 +193,13 @@ function Store.new(callbacks: Callbacks): Store
 		})
 	end
 
-	-- the page beside the rail, under the note
+	-- the page beside the rail, from the top (#1690: no note row; cards say "Yours to keep", prices show Robux)
 	local pageX = RAIL_W + GAP + 4
-	text({
-		Name = "Note",
-		Position = UDim2.fromOffset(pageX, 0),
-		Size = UDim2.new(1, -pageX, 0, NOTE_H),
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
-		Text = "Passes are yours to keep. Prices are in Robux.",
-		Parent = panel.content,
-	})
 	local pages: Frame = Create("Frame", {
 		Name = "Pages",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(pageX, NOTE_H + GAP),
-		Size = UDim2.new(1, -pageX, 1, -(NOTE_H + GAP)),
+		Position = UDim2.fromOffset(pageX, 0),
+		Size = UDim2.new(1, -pageX, 1, 0),
 		Parent = panel.content,
 	})
 	self._pages = pages
@@ -545,8 +535,10 @@ function Store._layout(self: any)
 		hero.effect.TextSize = hero.effectMax
 		self:_place(hero)
 	end
-	-- the grid: 3 across (2 on a narrow page), 2 rows in view when there is room
-	local columns = if width < NARROW then 2 else GRID_COLUMNS
+	-- the grid: 3 across (2 on a narrow page), 2 rows in view when there is room. A tab with one card (the Cafe Pass)
+	-- gives it the whole width, so its long contents keep readable text on a phone.
+	local single = #StoreLogic.tabRows(self._rows, self._tab) == 1
+	local columns = if single then 1 elseif width < NARROW then 2 else GRID_COLUMNS
 	local cellW = math.floor((width - SCROLL_BAR - (columns - 1) * spacing) / columns)
 	local cellH = math.clamp(math.floor((height - spacing) / 2), self._cellMin, CELL_MAX)
 	self._grid.CellSize = UDim2.fromOffset(cellW, cellH)
@@ -562,6 +554,9 @@ function Store.showTab(self: any, tab: string)
 	end
 	local was = self._tab
 	self._tab = if shown then tab else "featured"
+	if was ~= self._tab then
+		self:_layout() -- a one-card tab takes the whole width
+	end
 	for id, button in self._railButtons do
 		button:setStyle(if id == self._tab then "gold" else "ghost")
 	end

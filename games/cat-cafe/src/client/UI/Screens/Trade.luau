@@ -280,7 +280,7 @@ function Trade._buildPlayers(self: any, content: Frame)
 		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextWrapped = true,
-		Text = "Cats only. Locked cats stay home until you unlock them on their card.",
+		Text = "Locked cats can't be traded.",
 		Parent = players,
 	})
 end
@@ -790,7 +790,7 @@ function Trade._renderPlayers(self: any)
 	self._empty.Visible = #others == 0
 	self._rule.Text = if resting
 		then "Trading is resting for now. Try again later!"
-		else "Cats only. Locked cats stay home until you unlock them on their card."
+		else "Locked cats can't be traded."
 	self._rule.TextColor3 = if resting then PAL.red else PAL.subtext
 end
 

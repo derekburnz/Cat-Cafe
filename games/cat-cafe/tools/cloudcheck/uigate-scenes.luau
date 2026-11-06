@@ -1779,8 +1779,8 @@ local SCENES = {
 		end
 		assert(hud:FindFirstChild("FoodOdds", true) == nil, "uigate: the Luck card still lists the next cat's odds (#1776)")
 	end },
-	-- F88: the night before a Lucky Day, LuckyDayWarnSeconds before sunrise: the warning banner (no countdown line under
-	-- the clock since #1572), the Luck card from the scene before closed
+	-- F88: the night before a Lucky, Golden and Rainbow Day, LuckyDayWarnSeconds before sunrise: "Triple Day soon!"
+	-- over the three names, on a small phone too (#1572; no countdown line under the clock since #1572), the Luck card from the scene before closed
 	{ "LuckyDaySoon", function()
 		local t = workspace:GetServerTimeNow()
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
@@ -1798,7 +1798,15 @@ local SCENES = {
 		clock:SetAttribute("NextLuckyDay", 4)
 		clock:SetAttribute("LuckyDay", false)
 		UI.clock.bind(clock)
-		UI.luckyDay("warning", "A Lucky Day starts at sunrise!")
+		UI.luckyDay("warning", "A Lucky Day starts at sunrise!", { lucky = true, golden = true, rainbow = true })
+		-- #1572: the warning names every kind tomorrow brings
+		local found = false
+		for _, d in UIShim.playerGui:GetDescendants() do
+			if d:IsA("TextLabel") and d.Text == "Triple Day soon!" then
+				found = true
+			end
+		end
+		assert(found, "uigate: the sunrise warning doesn't say tomorrow is a Triple Day (#1572)")
 	end },
 	-- #1737: the Night Market banner at nightfall with the market cart's picture left of the title (was a moon emoji)
 	{ "NightMarketBanner", function()

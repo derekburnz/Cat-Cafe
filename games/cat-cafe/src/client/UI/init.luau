@@ -3685,13 +3685,22 @@ end
 -- LuckyDay turns true at that sunrise: the banner ("Lucky Day!" over "Rare cats are twice as likely until night")
 -- waits until the sunrise banner has had its SUNRISE_HOLD, in step with Audio's chime after the sunrise sting. The
 -- HUD's Luck chip glows from the server's next sync.
-function UI.luckyDay(kind: string, line: string)
+-- #1572: a warning with `coming` (tomorrow's Clock.dayKinds) names every kind it brings (LuckLogic.warnBanner).
+function UI.luckyDay(
+	kind: string,
+	line: string,
+	coming: { lucky: boolean?, golden: boolean?, rainbow: boolean? }?
+)
 	if type(line) ~= "string" then
 		return
 	end
 	if kind == "warning" then
-		if areaTitle then
-			areaTitle:banner("lucky_warning", "Lucky Day soon!", line, Theme.colors.gold, 4)
+		local title: string?, said: string? = "Lucky Day soon!", line
+		if type(coming) == "table" then
+			title, said = (require(script.Components.LuckLogic) :: any).warnBanner(coming)
+		end
+		if areaTitle and title ~= nil then
+			areaTitle:banner("lucky_warning", title, said or line, Theme.colors.gold, 4)
 		end
 		return
 	end

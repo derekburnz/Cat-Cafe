@@ -383,6 +383,10 @@ function ShopIcons.store(key: string?, multiplier: number?): string?
 			then IDS[("Icon_Store_Money%dx"):format(multiplier)]
 			else nil
 	end
+	-- #1822: the King Cat alone shows the pack's King Cat picture until it has a render of its own
+	if key == "kingCat" then
+		return IDS.Icon_Store_KingPack
+	end
 	return IDS["Icon_Store_" .. key:sub(1, 1):upper() .. key:sub(2)]
 end
 

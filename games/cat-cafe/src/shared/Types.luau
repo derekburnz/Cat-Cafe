@@ -870,12 +870,10 @@ export type FreshCatchItem = { itemId: string, fish: number, amount: number, bou
 export type FreshCatchStock = { window: number, restocksAt: number, stock: { FreshCatchItem } }
 
 -- The Corner Shop (corner-shop.md, #1052): sold for coins only.
--- v2 (corner-shop-v2.md section 4, #1180): every row sold for coins at a fixed `price`, in a `family` (its daily limit
--- counts the family, Config.CornerDailyLimits) and a `size` (Big and Mega rows are tier gated). A
--- "potion" row gives `potionId` into the bag, a "food" row `foodId` into the Bag's cat food (its `xp` is that food's)
--- and a "show" row played `showId` over the buyer's cafe (retired with the Bubble Machine and Cafe Fireworks, #1381; the
--- kind and its fields go once Effects/CafeShow and CornerShopLogic stop reading them). `needsTier` hides and refuses
--- the row below that tier. #1281 (section 1b): a "bait" row sells the bowl food `lureId` into `lures` at its
+-- v2 (corner-shop-v2.md section 4, #1180): every row sold for coins at a fixed `price`, in a `family` (its daily limit,
+-- Config.CornerDailyLimits) and a `size` (Big and Mega rows are tier gated). A "potion" row gives `potionId` into the
+-- bag and a "food" row `foodId` into the Bag's cat food (its `xp` is that food's). The "show" rows (Bubble Machine and
+-- Cafe Fireworks) are gone (#1381, #1483). `needsTier` hides and refuses the row below that tier. #1281 (section 1b): a "bait" row sells the bowl food `lureId` into `lures` at its
 -- tier-scaled price (CornerShop.priceOf, so `price` is only its Tier 1 price).
 export type CornerShopSize = "small" | "regular" | "big" | "mega"
 export type CornerShopRow = {
@@ -883,14 +881,12 @@ export type CornerShopRow = {
 	name: string,
 	family: string,
 	size: CornerShopSize,
-	kind: "potion" | "food" | "show" | "bait",
+	kind: "potion" | "food" | "bait",
 	price: number,
 	potionId: string?,
 	foodId: string?,
 	lureId: string?, -- #1281: a "bait" row's bowl food
 	xp: number?,
-	showId: string?,
-	showSeconds: number?,
 	needsTier: number?,
 }
 -- Saved (version 32): the window the bought counts belong to, and on UTC day `day` each row's buys (`today`, #1712) and

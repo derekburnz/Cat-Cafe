@@ -585,6 +585,7 @@ end
 function CafePassScreen.render(self: any, state: Types.PlayerState)
 	self._income = state.incomePerSecond
 	self._spin = state.spin
+	self._tier = state.tier
 	self:_refresh()
 end
 
@@ -666,6 +667,9 @@ function CafePassScreen._refresh(self: any)
 	local look: PrizeChips.Look = {
 		dayRate = TipJarLogic.dayRate(self._income, self._night, NIGHT_SHARE),
 		spinsBanked = if spin then spin.banked else nil,
+		-- #1883: levels 15 and 25 give the "highest" crate, the crate of the highest area this tier opens (as the
+		-- server's Prizes.crateFor), so the card shows that crate's picture and name
+		tier = self._tier,
 	}
 	for index, column: Column in self._columns do
 		local cell = cells[index]

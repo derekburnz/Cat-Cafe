@@ -1120,7 +1120,7 @@ local function refreshShowcase(player: Player, profile: Profile)
 		player,
 		currentRate(profile),
 		ProfileSchema.collectionCount(profile),
-		tierName
+		Economy.tier(profile)
 	)
 end
 

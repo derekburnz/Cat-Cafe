@@ -211,6 +211,8 @@ PIVOT_NOTES = {
                        "(Layout.campExtras.neighbourhood, Neighbourhood set space)",
     **{n: "the base centre on the camp's ground, front -Z, no turn; the Fish Pond's spot (Layout.campExtras.woods, "
           "Woods set space)" for n in (campstations.HUT, campstations.HUT + "_Gold")},
+    campstations.LOST: "the base centre on the camp's ground, front -Z, no turn; the Lost and Found's spot "
+                       "(Layout.campExtras.sewer, Sewer set space), its back wall toward the gate line",
     gardennursery.NAME: "the base centre on the camp's ground, the bench front (-Z) toward the players; Park set space "
                         "(Layout.campExtras' space) at gardennursery.SPOT (34, 0, -166) turned 90, facing the pad",
     "CatCafe_Street_ThanksBoard": "base centre; the Screen's Front (-Z) face looks at the players",
@@ -358,6 +360,12 @@ STUDIO_NOTES = {
           "(the cast turns it), _Fish swims under the water; Attachments FishJump, PromptAnchor (the jetty's foot), "
           "BangAnchor (2 over the FISH POND sign) and GlowAnchor (the doorway). Everything else collides and can be "
           "climbed." for n in (campstations.HUT, campstations.HUT + "_Gold")},
+    campstations.LOST: "#1732 (camp-stations.md section 4b): the Lost and Found booth, replacing "
+                       "CatCafe_Camp_Sewer_LostFound at Layout.campExtras.sewer. _Bell is the desk bell (pivot at its "
+                       "base, for the ring-wobble), _Bulb the sign's bulbs (night glow), _Blink_Bulb the one that "
+                       "blinks while a find waits. Attachments PromptAnchor (counter front, 1.5 up), BangAnchor (2 over "
+                       "the LOST & FOUND sign, for ReadyBang) and Drip (the pipe's mouth). Everything collides and can "
+                       "be climbed.",
     gardennursery.NAME: "#1200 (lawn-nursery.md section 2): the Garden Nursery at the Park camp, at gardennursery.SPOT "
                         "in the Park's set space, tagged LawnStall; the game hangs the Nursery prompt on the "
                         "Attachment PromptAnchor (bench front, 3 up) and the gardener's speech bubble on BubbleAnchor "

@@ -209,6 +209,10 @@ Remotes.ServerToClient = {
 	-- retryAt: number?)  grades up to and including the first Miss; after a miss the stray sprints off and anyone may
 	-- try again (v0.5). retryAt (server time, miss only) is when this player may try that stray again (F57: 3, 6
 	-- then 10 s after it stops, by their miss streak).
+	"CatchJudged", -- (strayId: string, index: number, grade: Types.CircleGrade)  #1727: the server's grade for each
+	-- circle a press judged, to the catcher alone, as it is judged. A device that called its press a Miss keeps the
+	-- later circles drawn until this (Good or Perfect: the catch goes on) or CatchResult comes. CatchResult stays the
+	-- final word.
 	"RescueChallenge", -- (rescueSpotId: string, challenge: Types.RescueChallenge)  the bar, or a tree's falling cat
 	"RescueResult", -- (rescueSpotId: string, hits: number, pawsLeft: number, done: boolean, success: boolean,
 	-- bar: Types.RescueBar)  after every judged press, when a zone runs out (F93) and when the attempt ends; `bar` is

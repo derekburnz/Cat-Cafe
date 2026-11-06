@@ -1582,6 +1582,8 @@ local function onCatchPress(player: Player, rawStrayId: unknown, rawIndex: unkno
 	for judged = before, attempt.nextIndex - 1 do
 		logCircle(player, strayId, attempt, judged)
 		local grade = attempt.grades[judged]
+		-- #1727: the server's grade at once, so a device that guessed Miss on an edge press (S101) shows the rest
+		Net.fire(player, "CatchJudged", strayId, judged, grade)
 		if grade == "good" or grade == "perfect" then
 			local profile = DataService.get(player)
 			if profile ~= nil then

@@ -67,7 +67,8 @@ return function()
 	end)
 
 	describe("levels and XP", function()
-		it("is 30 levels of 800 XP, capped", function()
+		it("is 34 levels of 800 XP, capped (#1883: 30 before the Maple showpieces)", function()
+			expect(Config.PassLevels).to.equal(34)
 			expect(CafePass.levelOf(0)).to.equal(0)
 			expect(CafePass.levelOf(LEVEL - 1)).to.equal(0)
 			expect(CafePass.levelOf(LEVEL)).to.equal(1)
@@ -97,7 +98,7 @@ return function()
 			)
 			expect(CafePass.claimBlocker(state, 1, "free", 2)).to.equal("Reach that level first")
 			state.xp = 7 * LEVEL
-			expect(CafePass.claimBlocker(state, 1, "free", 31)).to.equal("Nothing at that level") -- past the last level
+			expect(CafePass.claimBlocker(state, 1, "free", 35)).to.equal("Nothing at that level") -- past the last level
 			expect(CafePass.claimBlocker(state, 1, "free", 2)).to.equal(nil)
 			expect(CafePass.claimBlocker(state, 1, "paid", 7)).to.equal(
 				"That one is on the paid track"
@@ -198,7 +199,7 @@ return function()
 				season = 1,
 				xp = -5,
 				paidSeason = 1.5,
-				claimedFree = { 2, 2, 31, "x", 4 },
+				claimedFree = { 2, 2, 35, "x", 4 },
 				claimedPaid = "no",
 				items = { tag_maple = true, made_up = true },
 				tag = "made_up",

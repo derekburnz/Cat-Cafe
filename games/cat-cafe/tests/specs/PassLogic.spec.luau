@@ -144,8 +144,8 @@ return function()
 
 		it("lists the paid track's exact contents for the Store card", function()
 			expect(PassLogic.paidContents(def)).to.equal(
-				"Season cat Maple Muffin, [Maple] chat tag, 4 uniform colours, 5 accessories, 6 decor pieces, "
-					.. "a sign frame and 24 potions" -- #1883: +1 on nine potion levels
+				"Season cat Maple Muffin, [Maple] chat tag, 4 uniform colours, 6 accessories, 8 decor pieces, "
+					.. "2 sign frames and 24 potions" -- #1883: +1 on nine potion levels; part C's levels 31 to 34
 			)
 			expect(PassLogic.paidContents(nil)).to.equal("")
 		end)

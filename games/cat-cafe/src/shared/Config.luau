@@ -299,9 +299,10 @@ local Config = {
 	-- #1577 (day-cart.md section 2): the Day Cart's roll, which replaces the size table. Row i of the list by Tier 1
 	-- price (cheapest first) is in stock with max(DayCartFloor, DayCartTopChance - DayCartStep x (i - 1)), and a row
 	-- in stock has 1, 2 or 3 by DayCartQtyOdds.
-	DayCartTopChance = 0.95,
-	DayCartStep = 0.045,
-	DayCartFloor = 0.05,
+	-- #1740 (Derek2, 2026-11-06): more of the cart in stock, about 14 of the 19 rows a day (was about 10)
+	DayCartTopChance = 1,
+	DayCartStep = 0.03,
+	DayCartFloor = 0.25,
 	DayCartQtyOdds = { 50, 30, 20 } :: { number },
 	CornerDailyLimits = { steady = 4, quick_bait = 2, whistle = 4 } :: { [string]: number },
 	CatFoodMax = 999, -- the most of one food the Bag holds

@@ -94,14 +94,13 @@ type Turn = {
 	skippable: boolean, -- past SpinLogic.SKIP_AFTER, so the button is a Skip
 }
 
-local WHEEL_SHARE = 0.56 -- of the window's width; the side holds only the spins, Spin and Odds
+local WHEEL_SHARE = 0.6 -- of the window's width (#1816 v3); the side holds only the title, spins, Spin, Use all, Odds
 local FACE = 0.88 -- the turning face inside the rim
 local TILE = 0.3 -- a prize's picture and amount, of the face, at most: each tile is cut to TILE_FILL of the gap between
 -- its wedge's edges at its radius, so tiles never touch (#1280: the $ bag crowded the x3 pill and the Epic gem sat on it)
 local TILE_FILL = 0.92
 local RADIUS = 0.32 -- prize middles from the hub, of the face
 local NARROW_RADIUS = 0.39 -- #1500: a jackpot's narrow wedge holds its prize further out, where it is widest
-local NARROW_PILL = 0.36 -- and its amount pill is taller for its smaller tile, so "x100" stays readable
 local SPOKE = 5 -- the white divider between two wedges
 -- The wedges (the user, 2026-11-04: "make the menu ui of the spin section much more satisfying and clean looking"): a
 -- classic prize wheel, each slice a bright wedge. Roblox UI has no pie shape, so a wedge is a fan of thin bars from
@@ -119,9 +118,17 @@ local LIGHT_OFF_COLOR = Color3.fromHex("D9A23A") -- a bulb between flashes, dark
 local CAP_COLOR = Color3.fromHex("FF6B81") -- neon_pink, the hub's cap and the pointer
 local RIM_LIGHTS = 16
 local SPIN_HEIGHT = 64
-local COUNT_BADGE = 56 -- the spins count's gold badge (#965)
+local COUNT_HEIGHT = 48 -- the big "Spins: 3" line (#1816 v3, rewards-and-shops.md §2b)
+local LINK_HEIGHT = 36 -- Use all and Odds: small text buttons under Spin (#1816 v3)
+-- #1816 v3: every slice's amount pill is the same size, of the face, and every pill's text the same size, set by the
+-- longest label (a FredokaOne glyph is about LABEL_EM of its size wide)
+local PILL_W = 0.25
+local PILL_H = 0.075
+local LABEL_EM = 0.56
+local LABEL_MIN = 12 -- 9 px or more after a phone's UI scale
+local LABEL_MAX = 18
+local JACKPOT_EDGE = Color3.fromHex("E0A82E") -- the jackpot wedges' thin gold edge (#1816 v3), on their spokes
 local SIDE_PAD = 12 -- inside the side card on every edge, so no button's outline or lip is clipped (#965)
-local ODDS_HEIGHT = 44 -- full width; it was 84 x 36 (Derek 2026-10-28: "a little squished"). Both grow on a phone.
 local ODDS_ROW = 64
 local ODDS_ICON = 48
 local ODDS_CHANCE = 84 -- the chance column's width
@@ -218,8 +225,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 	local panel = Panel.new({
 		dark = true, -- #1028
 		name = "SpinWheel",
-		title = "Spin Wheel",
-		subtitle = "A free spin every day",
+		title = "Spin Wheel", -- #1816 v3: no subtitle
 		color = Theme.colors.berry,
 		icon = Theme.icons.spin,
 		size = UDim2.fromScale(1, 1),
@@ -367,78 +373,18 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 			PaddingRight = UDim.new(0, SIDE_PAD + 6),
 		}),
 	})
-	-- the spins count: a gold badge with the number, "Spins" beside it
-	local count: Frame = Create("Frame", {
-		Name = "Count",
-		LayoutOrder = 1,
-		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, COUNT_BADGE),
-		Parent = side,
-	}, {
-		Create("UIListLayout", {
-			FillDirection = Enum.FillDirection.Horizontal,
-			HorizontalAlignment = Enum.HorizontalAlignment.Center,
-			VerticalAlignment = Enum.VerticalAlignment.Center,
-			Padding = UDim.new(0, 10),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-		}),
-	})
-	local badge = circle({
-		Name = "Badge",
-		LayoutOrder = 1,
-		Size = UDim2.fromOffset(COUNT_BADGE, COUNT_BADGE),
-		BackgroundColor3 = Theme.colors.gold,
-		BorderSizePixel = 0,
-		Parent = count,
-	})
-	Outline.border(badge, Theme.sizes.outline, Theme.colors.outline)
-	self._spinsCount = text({
-		Name = "Number",
-		Size = UDim2.fromScale(1, 1),
-		FontFace = Theme.fonts.display,
-		TextSize = 30,
-		TextColor3 = Theme.colors.white,
-		TextXAlignment = Enum.TextXAlignment.Center,
-		TextTruncate = Enum.TextTruncate.None,
-		Parent = badge,
-	})
-	Outline.text(self._spinsCount, Theme.sizes.textOutline)
+	-- the spins count, one big line: "Spins: 3" (#1816 v3; the badge and the free-spin chip are gone)
 	self._spinsLabel = text({
 		Name = "Spins",
-		LayoutOrder = 2,
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, COUNT_BADGE),
+		LayoutOrder = 1,
+		Size = UDim2.new(1, 0, 0, COUNT_HEIGHT),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge + 2,
+		TextSize = Theme.sizes.textLarge + 8,
+		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.None,
-		Parent = count,
+		Parent = side,
 	})
 	Outline.text(self._spinsLabel, 2)
-	-- the free spin line as a chip
-	local chip: Frame = Create("Frame", {
-		Name = "FreeChip",
-		LayoutOrder = 2,
-		BackgroundColor3 = PAL.line,
-		BorderSizePixel = 0,
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 26),
-		Parent = side,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12) }),
-		Create("UISizeConstraint", { MaxSize = Vector2.new(math.huge, 26) }),
-	})
-	self._freeChip = chip
-	self._freeLabel = text({
-		Name = "Free",
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromScale(0, 1),
-		FontFace = Theme.fonts.bodyBold,
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
-		TextTruncate = Enum.TextTruncate.None,
-		Parent = chip,
-	})
 	self._button = Button.new({
 		name = "Spin",
 		text = "Spin!",
@@ -452,54 +398,39 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 			self:_press()
 		end,
 	})
-	-- Use all and Odds share one row, so a phone's card holds them without scrolling (#1078)
-	local actionH = Scale.tapHeight(ODDS_HEIGHT, Theme.sizes.buttonDepth)
-	local actions: Frame = Create("Frame", {
-		Name = "Actions",
-		BackgroundTransparency = 1,
-		LayoutOrder = 4,
-		Size = UDim2.new(1, 0, 0, actionH),
-		Parent = side,
-	}, {
-		Create("UIListLayout", {
-			FillDirection = Enum.FillDirection.Horizontal,
-			Padding = UDim.new(0, 8),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-		}),
-	})
-	self._oddsButton = Button.new({
-		name = "Odds",
-		text = "Odds",
-		icon = "📊",
-		style = "secondary",
-		size = UDim2.new(1, 0, 1, 0),
-		textSize = Theme.sizes.textBody + 1,
-		layoutOrder = 2,
-		parent = actions,
-		onClick = function()
-			self:_showOdds(true)
-		end,
-	})
-	-- #1078 Use all: under Spin, while two or more spins wait (SpinLogic.allText)
+	-- #1816 v3: Use all (2 or more spins) and Odds are small text buttons under Spin; Spin is the only big button
+	local linkH = Scale.tapHeight(LINK_HEIGHT, 0)
 	self._allPending = nil :: number? -- os.clock() of a Use all press still waiting for SpinAllResult
 	self._allButton = Button.new({
 		name = "UseAll",
 		text = "Use all",
-		icon = Theme.icons.spin,
-		style = "purple",
-		size = UDim2.new(0.5, -4, 1, 0),
-		textSize = Theme.sizes.textBody + 1,
-		layoutOrder = 1,
-		parent = actions,
+		style = "ghost",
+		size = UDim2.new(0.8, 0, 0, linkH),
+		textSize = Theme.sizes.textBody,
+		layoutOrder = 4,
+		parent = side,
 		onClick = function()
 			self:_pressAll()
 		end,
 	})
 	self._allButton.instance.Visible = false
+	self._oddsButton = Button.new({
+		name = "Odds",
+		text = "Odds",
+		style = "ghost",
+		size = UDim2.new(0.8, 0, 0, linkH),
+		textSize = Theme.sizes.textBody,
+		layoutOrder = 7,
+		parent = side,
+		onClick = function()
+			self:_showOdds(true)
+		end,
+	})
 	self._message = text({
 		Name = "Message",
 		LayoutOrder = 6,
 		Size = UDim2.new(1, 0, 0, 40),
+		Visible = false,
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textBody,
 		TextWrapped = true,
@@ -879,7 +810,12 @@ function SpinWheel._build(self: any)
 				Name = "Spoke" .. index,
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				Size = UDim2.new(0, SPOKE, 0.5, 0),
-				BackgroundColor3 = Theme.colors.white,
+				-- #1816 v3: a spoke beside a jackpot wedge is its thin gold edge (spoke i ends slice i)
+				BackgroundColor3 = if row.jackpot == true
+						or (self._rows[index % #self._rows + 1] :: Types.SpinRow).jackpot
+							== true
+					then JACKPOT_EDGE
+					else Theme.colors.white,
 				BorderSizePixel = 0,
 				ZIndex = 2,
 				Parent = self._face,
@@ -889,7 +825,6 @@ function SpinWheel._build(self: any)
 		-- its foot; the pill turns gold when won (#1816: the old gold ring read as "a random yellow circle")
 		local radius = self._radii[index]
 		local fit = math.min(TILE, 2 * radius * math.sin(math.rad(spans[index] / 2)) * TILE_FILL)
-		local narrow = fit < TILE * 0.75
 		local holder = circle({
 			Name = "Slice" .. row.slice,
 			AnchorPoint = Vector2.new(0.5, 0.5),
@@ -907,11 +842,14 @@ function SpinWheel._build(self: any)
 			badge = "gem",
 			plain = true,
 		})
+		-- #1816 v3: every pill the same size (of the face, not the tile), under its picture; a jackpot's narrow
+		-- wedge keeps its pill inside its own tile, so it never covers the next slice's
+		local pillW = if row.jackpot == true then math.min(PILL_W, fit) else PILL_W
 		local pill: Frame = Create("Frame", {
 			Name = "Pill",
-			AnchorPoint = Vector2.new(0.5, 1),
-			Position = UDim2.fromScale(0.5, 1.04),
-			Size = UDim2.fromScale(if narrow then 1 else 0.8, if narrow then NARROW_PILL else 0.27),
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.95),
+			Size = UDim2.fromScale(pillW / fit, PILL_H / fit),
 			BackgroundColor3 = Theme.colors.outline,
 			BackgroundTransparency = 0.1,
 			BorderSizePixel = 0,
@@ -922,13 +860,13 @@ function SpinWheel._build(self: any)
 			Name = "Amount",
 			Size = UDim2.fromScale(1, 1),
 			FontFace = Theme.fonts.display,
-			TextScaled = true,
+			TextSize = LABEL_MAX,
 			TextColor3 = Theme.colors.white,
 			TextXAlignment = Enum.TextXAlignment.Center,
+			TextTruncate = Enum.TextTruncate.None,
 			ZIndex = 5,
 			Parent = pill,
 		})
-		Create("UITextSizeConstraint", { MaxTextSize = 18, MinTextSize = 9, Parent = amount })
 		Create("UIPadding", {
 			PaddingLeft = UDim.new(0, 4),
 			PaddingRight = UDim.new(0, 4),
@@ -1125,10 +1063,7 @@ function SpinWheel._land(self: any, turn: Turn)
 	self:_light(turn.index)
 	local row: Types.SpinRow? = self._rows[turn.index]
 	local jackpot = row ~= nil and row.jackpot == true
-	local won = if row
-		then (if jackpot then "Jackpot! " else "") .. "You won " .. self:_prize(row, turn.amount) .. "!"
-		else "You won a prize!"
-	self:_say(won, PAL.good)
+	-- #1816 v3: the landed slice's pill turns gold (_light); no "You won" line, only a refusal ever shows
 	local tile: Tile? = self._tiles[turn.index]
 	if tile and self.frame.Visible then
 		Tween.popIn(tile.holder, 1.35)
@@ -1156,6 +1091,9 @@ function SpinWheel._land(self: any, turn: Turn)
 	Sound.play("uiSpinWin")
 	-- a jackpot's toast comes from the server (SpinService, #1500), so the closed window does not add a second
 	if not self.frame.Visible and not jackpot then
+		local won = if row
+			then "You won " .. self:_prize(row, turn.amount) .. "!"
+			else "You won a prize!"
 		self._callbacks.toast("Spin Wheel: " .. won)
 	end
 	self:_refresh()
@@ -1190,6 +1128,7 @@ end
 function SpinWheel._say(self: any, message: string, color: Color3)
 	self._message.Text = message
 	self._message.TextColor3 = color
+	self._message.Visible = message ~= "" -- #1816 v3: only a refusal shows, so no empty gap above Odds
 end
 
 -- "3 Tuna", "$1,200", "4 golden fish", "1 Woods Crate"; `amount` is what SpinResult paid, else the estimate at the
@@ -1211,12 +1150,28 @@ function SpinWheel._prize(self: any, row: Types.SpinRow, amount: number?): strin
 	return ("%d %s"):format(count, if lure then lure.name else (row.lureId or "food"))
 end
 
--- A wheel tile's short line: the coins at the current day rate, else "x3".
+-- A wheel tile's short line (#1816 v3): "+1.2K" (the coins at the current day rate), "5 fish", "1 Crate", "1 Caviar".
 function SpinWheel._amount(self: any, row: Types.SpinRow): string
 	if row.kind == "coins" then
-		return self:_prize(row, nil)
+		local dayRate = TipJarLogic.dayRate(self._income, self._night, NIGHT_SHARE)
+		return "+" .. Format.short(SpinLogic.coins(row, dayRate))
 	end
-	return "x" .. Format.short(row.count or 1)
+	local count = row.count or 1
+	if row.jackpot == true then
+		-- a jackpot's narrow wedge has a narrower pill: "x100" (its picture and gold edge say the rest)
+		return "x" .. Format.short(count)
+	elseif row.kind == "fish" then
+		return ("%s fish"):format(Format.short(count))
+	elseif row.kind == "crate" then
+		return if count == 1 then "1 Crate" else ("%s Crates"):format(Format.short(count))
+	end
+	local lure: Types.LureDef? = if row.lureId then self._lureById[row.lureId] else nil
+	local name = if lure then lure.name else nil
+	-- a long food name would shrink every pill's text; it reads "x2" then (the Odds list has the full name)
+	if name and #name <= 7 then
+		return ("%s %s"):format(Format.short(count), name)
+	end
+	return "x" .. Format.short(count)
 end
 
 function SpinWheel._press(self: any)
@@ -1259,10 +1214,31 @@ function SpinWheel._refresh(self: any)
 	if not self.frame.Visible then
 		return
 	end
+	-- #1816 v3: one text size for every pill, the largest every label fits, in the window's own units (AbsoluteSize
+	-- already carries the UI scale, and TextSize gets it again)
+	local unit = math.max(Scale.get(), 0.1)
+	local labelSize: number = LABEL_MAX
 	for _, tile: Tile in self._tiles do
+		local pill: Frame? = tile.pill
 		local amount: TextLabel? = tile.amount
 		if amount then
 			amount.Text = self:_amount(tile.row)
+			if pill and pill.AbsoluteSize.X > 0 then
+				local chars = utf8.len(amount.Text) or #amount.Text
+				local width = pill.AbsoluteSize.X / unit - 8
+				labelSize = math.min(
+					labelSize,
+					width / (LABEL_EM * chars),
+					pill.AbsoluteSize.Y / unit * 0.8
+				)
+			end
+		end
+	end
+	labelSize = math.floor(math.clamp(labelSize, LABEL_MIN, LABEL_MAX))
+	for _, tile: Tile in self._tiles do
+		local amount: TextLabel? = tile.amount
+		if amount then
+			amount.TextSize = labelSize
 		end
 	end
 	if self._odds.Visible then
@@ -1276,19 +1252,7 @@ function SpinWheel._refresh(self: any)
 	end
 
 	local spins = SpinLogic.spins(spin, now)
-	local banked = if spin then math.max(0, math.floor(spin.banked)) else 0
-	self._spinsCount.Text = tostring(spins)
-	self._spinsLabel.Text = if spins == 1 then "Spin" else "Spins"
-	local freeLine = if SpinLogic.freeDue(spin, now)
-		then "Free spin ready!"
-		else "Next free spin in " .. SpinLogic.wait(SpinLogic.nextFreeIn(spin, now))
-	if banked > 0 then
-		freeLine ..= ("  ·  %d saved"):format(banked)
-	end
-	self._freeLabel.Text = freeLine
-	local due = SpinLogic.freeDue(spin, now)
-	self._freeLabel.TextColor3 = if due then PAL.good else PAL.subtext
-	self._freeChip.BackgroundColor3 = if due then PAL.goldCard else PAL.line
+	self._spinsLabel.Text = ("Spins: %d"):format(spins)
 
 	local turn: Turn? = self._turn
 	local button = SpinLogic.button({
@@ -1307,9 +1271,6 @@ function SpinWheel._refresh(self: any)
 	local all: Button.Button = self._allButton
 	local showAll = self._callbacks.spinAll ~= nil and spins > 1
 	all.instance.Visible = showAll
-	self._oddsButton.instance.Size = if showAll
-		then UDim2.new(0.5, -4, 1, 0)
-		else UDim2.fromScale(1, 1)
 	all:setText(if allPending then "..." else SpinLogic.allText(spins, (Config :: any).SpinAllMax))
 	all:setEnabled(not allPending and turn == nil and self._pressedAt == nil)
 end

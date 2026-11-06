@@ -4,8 +4,10 @@
 --   sign      the cafe's name sign: Plain or an owned shared/SignStyles style (#1625: Bakery Stripes from the Starter
 --             Bundle, Royal Crest from the King Cat Pack); PlayerState.signStyles and signStyle, SetSignStyle(id?)
 --   uniform   every job's uniform: Classic or an owned style (the Uniform Styles pass, Cafe Pass colours)
+--   accessory the working cats' accessory (#1708, Cat Accessories pass and Cafe Pass pieces): None or an owned one
 --   theme     the cafe's theme: Classic, Garden (Cafe Style pass) or Grand (Grand Cafe Theme)
--- Uniforms and themes read PlayerState.looks = { theme, uniform, themes, uniforms } once the server sends it (SetLook);
+-- Uniforms, accessories and themes read PlayerState.looks = { theme, uniform, accessory, themes, uniforms,
+-- accessories } once the server sends it (SetLook);
 -- until then those rows stay hidden. A row shows only when the player owns more than the default, so the tab (and its
 -- chip) shows only for a player with something to pick.
 --   StyleLogic.rows(state, signNames?)   the rows, each with its options and which one is picked
@@ -13,7 +15,7 @@
 
 local StyleLogic = {}
 
-export type Kind = "sign" | "uniform" | "theme"
+export type Kind = "sign" | "uniform" | "accessory" | "theme"
 export type Option = {
 	id: string, -- "" is the default (the plain sign, Classic)
 	name: string,
@@ -37,17 +39,27 @@ local NAMES: { [string]: string } = {
 	uniform_acorn_brown = "Acorn Brown",
 	uniform_forest_green = "Forest Green",
 	uniform_cranberry = "Cranberry",
+	-- #1708: shared/Looks.ACCESSORIES
+	hat = "Tiny Hat",
+	glasses = "Round Glasses",
+	acc_leaf_beret = "Leaf Beret",
+	acc_mushroom_cap = "Mushroom Cap",
+	acc_acorn_hair_clip = "Acorn Hair Clip",
+	acc_round_reading_glasses = "Round Reading Glasses",
+	acc_tiny_lantern = "Tiny Lantern",
 }
 
 local TITLES: { [Kind]: string } = {
 	sign = "Cafe sign",
 	uniform = "Uniforms",
+	accessory = "Cat accessory",
 	theme = "Cafe theme",
 }
 
 local DEFAULT_NAMES: { [Kind]: string } = {
 	sign = "Plain",
 	uniform = "Classic",
+	accessory = "None",
 	theme = "Classic",
 }
 
@@ -114,6 +126,14 @@ function StyleLogic.rows(state: any, names: { [string]: string }?): { Row }
 		local uniform = row("uniform", uniforms, looks.uniform, names)
 		if uniform then
 			table.insert(out, uniform)
+		end
+		-- #1708: next to the uniform, as Design wants
+		local accessories: { string } = if type(looks.accessories) == "table"
+			then looks.accessories
+			else {}
+		local accessory = row("accessory", accessories, looks.accessory, names)
+		if accessory then
+			table.insert(out, accessory)
 		end
 		local themes: { string } = if type(looks.themes) == "table" then looks.themes else {}
 		local theme = row("theme", themes, looks.theme, names)

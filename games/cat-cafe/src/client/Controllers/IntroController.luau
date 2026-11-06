@@ -529,7 +529,7 @@ local function restoreTurret(r: Run)
 end
 
 -- Covers or uncovers the town cannon's barrel on this screen only (section 2a: lifted for shots 1 and 2, dropped
--- for shot 8's night), remembering each part's replicated Transparency for coverBack.
+-- for shot 7's night), remembering each part's replicated Transparency for coverBack.
 local function cover(r: Run, covered: boolean)
 	local cannon = r.cannon
 	if cannon == nil then
@@ -1029,7 +1029,7 @@ local function stageJob(r: Run, t: number)
 	end
 end
 
--- The timed beats of shots 7 and 8, `t` seconds into the showing shot.
+-- The timed beats of shots 6 and 7, `t` seconds into the showing shot.
 local function beats(r: Run, shot: Intro.Shot, t: number)
 	local function once(name: string, at: number): boolean
 		if t >= at and not r.done[name] then

@@ -173,6 +173,9 @@ local function makeWalker(station: Model, home: CFrame): Model?
 				then (found :: Model):Clone() :: Model
 				else nil
 		end)
+		-- the plot's Uniform Styles pick (#1624): the working cat wears it as its UniformStyle, so the walker matches
+		local uniform = station:GetAttribute("UniformStyle")
+		CatDress.wearUniform(walker, if type(uniform) == "string" then uniform else nil)
 	end
 	walker:PivotTo(home)
 	for _, part in partsOf(walker) do

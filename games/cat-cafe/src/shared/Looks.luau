@@ -1,22 +1,22 @@
 --!strict
--- Cafe looks (#1624, store-pass-looks.md), pure: the cafe theme and the staff uniform a player picks on the Decor
--- window's Style tab, which they own, and what shows. A look is owned through a pass (looked up each session, so
--- nothing is saved for it) or, for the Cafe Pass's season uniform colours, through profile.pass.items (kept forever).
--- profile.looks = { theme, uniform } holds the picks, nil for the default (Classic); a pick the player no longer owns
+-- Cafe looks (#1624, store-pass-looks.md), pure: the cafe theme, the staff uniform and the cats' accessory a player
+-- picks on the Decor window's Style tab, which they own, and what shows. A look is owned through a pass (looked up
+-- each session, so nothing is saved for it) or, for the Cafe Pass's season uniform colours and accessories, through
+-- profile.pass.items (kept forever). profile.looks = { theme, uniform, accessory } holds the picks, nil for the default (Classic); a pick the player no longer owns
 -- shows the default. Every look is cosmetic: the money of the Cafe Style, Grand Cafe and Uniform Styles passes is in
 -- Economy (economy-ladder.md section 6a) and never depends on what is picked.
 --   owned(kind, ownsPass, items) -> { id }          every owned id of `kind`, in list order
 --   shown(kind, pick, ownsPass, items) -> id?       the pick if it is owned, else nil (the default)
 --   pickFor(kind, raw, ownsPass, items) -> (ok, id?) what SetLook may save: the default, or an owned id
---   sanitize(raw) -> { theme, uniform }             saved picks made whole (known ids only)
--- CafeService puts the theme (THEME_ATTRIBUTE and its models), the uniform (UNIFORM_ATTRIBUTE) and the VIP plate
--- (VIP_PLATE_ATTRIBUTE and its model) on the owner's plot.
+--   sanitize(raw) -> Picks                          saved picks made whole (known ids only)
+-- CafeService puts the theme (THEME_ATTRIBUTE and its models), the uniform (UNIFORM_ATTRIBUTE), the accessory
+-- (ACCESSORY_ATTRIBUTE) and the VIP plate (VIP_PLATE_ATTRIBUTE and its model) on the owner's plot.
 
 local Config = require(script.Parent.Config)
 
 local Looks = {}
 
-export type Kind = "theme" | "uniform"
+export type Kind = "theme" | "uniform" | "accessory"
 export type Rgb = { number }
 -- A theme's models, each placed at the plot pivot (themes.py, signstyles.py): `front` the outside pieces, `sign` the
 -- theme's own name sign (with a SignBoard), shown while no sign style is picked, and `inside` the extra inside pieces.
@@ -31,14 +31,20 @@ export type Theme = {
 -- A uniform style: the colour of every job's outfit pieces (`main`) and their trim. `passKey` names the pass that
 -- gives it; a Cafe Pass season colour has none and is owned through profile.pass.items.
 export type Uniform = { id: string, name: string, passKey: string?, main: Rgb, trim: Rgb }
-export type Picks = { theme: string?, uniform: string? }
+-- A cat accessory (store-pass-looks.md section 6): `piece` is the CatCafe_Accessory_<piece> model, worn at the cat's
+-- Outfit_<piece> Attachment, and `slot` the data-model prop slot it fills. `passKey` names the pass that gives it; a
+-- Cafe Pass piece has none and is owned through profile.pass.items.
+export type Slot = "Head" | "Face" | "Back"
+export type Accessory = { id: string, name: string, passKey: string?, piece: string, slot: Slot }
+export type Picks = { theme: string?, uniform: string?, accessory: string? }
 
-local KINDS: { Kind } = { "theme", "uniform" }
+local KINDS: { Kind } = { "theme", "uniform", "accessory" }
 table.freeze(KINDS)
 Looks.KINDS = KINDS
 Looks.DEFAULT = "default" -- the Style tab's Classic; "" and nil mean the same
 Looks.THEME_ATTRIBUTE = "Theme"
 Looks.UNIFORM_ATTRIBUTE = "UniformStyle"
+Looks.ACCESSORY_ATTRIBUTE = "Accessory" -- on the plot and on each dressed working cat: the Looks accessory id
 Looks.VIP_PLATE_ATTRIBUTE = "VipPlate"
 Looks.VIP_PLATE_MODEL = "CatCafe_Plot_SignVipPlate" -- #1650: the gold plate with a paw, under the name on the sign
 
@@ -103,6 +109,45 @@ end
 table.freeze(UNIFORMS)
 Looks.UNIFORMS = UNIFORMS
 
+-- Section 6: the Cat Accessories pass gives the Tiny Hat and Round Glasses; the Cafe Pass pieces (cafe-pass.md
+-- section 3) are looks only. The pass's +15% is in Economy and never depends on the pick.
+local ACCESSORIES: { Accessory } = {
+	{
+		id = "hat",
+		name = "Tiny Hat",
+		passKey = "CatAccessoriesPassId",
+		piece = "Hat",
+		slot = "Head",
+	},
+	{
+		id = "glasses",
+		name = "Round Glasses",
+		passKey = "CatAccessoriesPassId",
+		piece = "Glasses",
+		slot = "Face",
+	},
+	{ id = "acc_leaf_beret", name = "Leaf Beret", piece = "LeafBeret", slot = "Head" },
+	{ id = "acc_mushroom_cap", name = "Mushroom Cap", piece = "MushroomCap", slot = "Head" },
+	{
+		id = "acc_acorn_hair_clip",
+		name = "Acorn Hair Clip",
+		piece = "AcornHairClip",
+		slot = "Head",
+	},
+	{
+		id = "acc_round_reading_glasses",
+		name = "Round Reading Glasses",
+		piece = "ReadingGlasses",
+		slot = "Face",
+	},
+	{ id = "acc_tiny_lantern", name = "Tiny Lantern", piece = "TinyLantern", slot = "Back" },
+}
+for _, accessory in ACCESSORIES do
+	table.freeze(accessory)
+end
+table.freeze(ACCESSORIES)
+Looks.ACCESSORIES = ACCESSORIES
+
 local themesById: { [string]: Theme } = {}
 for _, theme in THEMES do
 	themesById[theme.id] = theme
@@ -111,6 +156,10 @@ local uniformsById: { [string]: Uniform } = {}
 for _, uniform in UNIFORMS do
 	uniformsById[uniform.id] = uniform
 end
+local accessoriesById: { [string]: Accessory } = {}
+for _, accessory in ACCESSORIES do
+	accessoriesById[accessory.id] = accessory
+end
 
 function Looks.theme(id: string): Theme?
 	return themesById[id]
@@ -118,6 +167,10 @@ end
 
 function Looks.uniform(id: string): Uniform?
 	return uniformsById[id]
+end
+
+function Looks.accessory(id: string): Accessory?
+	return accessoriesById[id]
 end
 
 -- The pass id Config holds under `key`, or 0 (not made, or no key).
@@ -131,7 +184,26 @@ end
 Looks.passIdOf = passIdOf
 
 local function known(kind: Kind, id: string): boolean
-	return if kind == "theme" then themesById[id] ~= nil else uniformsById[id] ~= nil
+	if kind == "theme" then
+		return themesById[id] ~= nil
+	elseif kind == "uniform" then
+		return uniformsById[id] ~= nil
+	end
+	return accessoriesById[id] ~= nil
+end
+
+-- Whether a uniform or accessory is owned: through its pass while `passKey` names one, else through `items`.
+local function has(
+	id: string,
+	passKey: string?,
+	ownsPass: (passId: number) -> boolean,
+	items: { [string]: boolean }
+): boolean
+	if passKey ~= nil then
+		local passId = passIdOf(passKey)
+		return passId ~= 0 and ownsPass(passId)
+	end
+	return items[id] == true
 end
 
 -- Every owned id of `kind`, in list order: a pass look while `ownsPass` says the player has its pass, a season colour
@@ -149,13 +221,16 @@ function Looks.owned(
 				table.insert(ids, theme.id)
 			end
 		end
-	else
+	elseif kind == "uniform" then
 		for _, uniform in UNIFORMS do
-			local has = if uniform.passKey ~= nil
-				then passIdOf(uniform.passKey) ~= 0 and ownsPass(passIdOf(uniform.passKey))
-				else items[uniform.id] == true
-			if has then
+			if has(uniform.id, uniform.passKey, ownsPass, items) then
 				table.insert(ids, uniform.id)
+			end
+		end
+	else
+		for _, accessory in ACCESSORIES do
+			if has(accessory.id, accessory.passKey, ownsPass, items) then
+				table.insert(ids, accessory.id)
 			end
 		end
 	end
@@ -184,7 +259,7 @@ function Looks.pickFor(
 	ownsPass: (passId: number) -> boolean,
 	items: { [string]: boolean }
 ): (boolean, string?)
-	if kind ~= "theme" and kind ~= "uniform" then
+	if kind ~= "theme" and kind ~= "uniform" and kind ~= "accessory" then
 		return false, nil
 	end
 	if raw == nil or raw == "" or raw == Looks.DEFAULT then
@@ -193,7 +268,10 @@ function Looks.pickFor(
 	if type(raw) ~= "string" then
 		return false, nil
 	end
-	local k: Kind = if kind == "theme" then "theme" else "uniform"
+	local k: Kind = if kind == "theme"
+		then "theme"
+		elseif kind == "uniform" then "uniform"
+		else "accessory"
 	local id = raw :: string
 	if not known(k, id) or table.find(Looks.owned(k, ownsPass, items), id) == nil then
 		return false, nil
@@ -206,10 +284,14 @@ function Looks.sanitize(raw: unknown): Picks
 	local t: { [any]: any } = if type(raw) == "table" then raw :: any else {}
 	local theme = t.theme
 	local uniform = t.uniform
+	local accessory = t.accessory
 	return {
 		theme = if type(theme) == "string" and themesById[theme] ~= nil then theme else nil,
 		uniform = if type(uniform) == "string" and uniformsById[uniform] ~= nil
 			then uniform
+			else nil,
+		accessory = if type(accessory) == "string" and accessoriesById[accessory] ~= nil
+			then accessory
 			else nil,
 	}
 end

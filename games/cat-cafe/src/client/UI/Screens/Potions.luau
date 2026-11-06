@@ -17,12 +17,19 @@
 -- server's FeedResult toasts the XP. Nothing opens on buy any more. Words and lists: Components/BagLogic.
 -- #1281 (corner-shop-v2.md section 1b) adds a third tab, Bait: each bowl food the player has (its picture with the
 -- grade badge, name and count). It has no Use, since bait goes in at the bowl.
+-- #1771 (Derek2: "bag has a lot of the old ui images/buttons"): the tabs draw the HUD's own Potions and Bait pictures
+-- and the Market's treat, and the chosen tab is gold, as in the Store and the Fish Market. #1773 (Derek2: the blue
+-- feeding list should "show what cat is being fed much easier"): Feed's cat list is a card per cat with its head in
+-- its rarity's colour, its gold or rainbow coat on the edge and name, "Epic · Level 24" and a bar toward the next
+-- level, and a green Feed.
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local BagLogic = require(script.Parent.Parent.Components.BagLogic)
 local Button = require(script.Parent.Parent.Components.Button)
+local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
+local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local CornerShopLogic = require(script.Parent.Parent.Components.CornerShopLogic)
 local Create = require(script.Parent.Parent.Components.Create)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
@@ -30,6 +37,7 @@ local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
+local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
@@ -61,6 +69,11 @@ local TAB_H = 40
 local TAB_W = 136 -- three tabs fit the small phone's window
 local FOOD_W = 104 -- the Feed button
 local PENDING_SECONDS = 1 -- a pressed Use waits this long for the server before it can be pressed again
+local CAT_CARD_H = 68 -- #1773: a cat card in Feed's list
+local CAT_HEAD = 56 -- its head picture on the rarity's colour
+local CAT_FEED_W = 92
+
+type CatCard = { frame: Frame, portrait: CatPortrait.CatPortrait, feed: Button.Button }
 
 type Row = {
 	frame: Frame,
@@ -118,7 +131,7 @@ function Potions.new(callbacks: Callbacks): Potions
 
 	self._tab = "Potions" :: Tab
 	self._foodRows = {} :: { [string]: { frame: Frame, count: TextLabel, feed: Button.Button } }
-	self._catRows = {} :: { Button.Button }
+	self._catRows = {} :: { CatCard }
 	self._baitRows = {} :: { [string]: { frame: Frame, icon: ItemIcon.ItemIcon, count: TextLabel } }
 	self._feeding = nil :: string? -- the food whose cat list shows
 	local tabs: Frame = Create("Frame", {
@@ -138,7 +151,8 @@ function Potions.new(callbacks: Callbacks): Potions
 			name = "PotionsTab",
 			text = "Potions",
 			icon = Theme.icons.potion,
-			style = "berry",
+			image = ShopIcons.hud("Potion"), -- #1771: the HUD's Potions picture; the glyph shows until it loads
+			style = "gold",
 			size = UDim2.fromOffset(TAB_W, TAB_H - 4),
 			textSize = Theme.sizes.textBody,
 			layoutOrder = 1,
@@ -151,7 +165,8 @@ function Potions.new(callbacks: Callbacks): Potions
 		Food = Button.new({
 			name = "FoodTab",
 			text = "Cat Food",
-			icon = "🍪",
+			icon = ShopIcons.SNACK_GLYPH,
+			image = ShopIcons.market("Treats"), -- #1771: the Fish Market's treat
 			style = "ghost",
 			size = UDim2.fromOffset(TAB_W, TAB_H - 4),
 			textSize = Theme.sizes.textBody,
@@ -166,6 +181,7 @@ function Potions.new(callbacks: Callbacks): Potions
 			name = "BaitTab",
 			text = "Bait",
 			icon = Theme.icons.food,
+			image = ShopIcons.hud("Bowl"), -- #1771: the HUD's Bowl picture
 			style = "ghost",
 			size = UDim2.fromOffset(TAB_W, TAB_H - 4),
 			textSize = Theme.sizes.textBody,
@@ -280,7 +296,7 @@ function Potions.new(callbacks: Callbacks): Potions
 		name = "Back",
 		text = "Back",
 		style = "ghost",
-		size = UDim2.fromOffset(100, 34),
+		size = UDim2.fromOffset(100, 42), -- over the 36 px a mouse needs (the UI gate's tap check)
 		textSize = Theme.sizes.textBody,
 		layoutOrder = 0,
 		parent = self._catList,
@@ -331,9 +347,7 @@ function Potions.showTab(self: any, tab: Tab)
 	self._tab = tab
 	self._feeding = nil
 	for name, button in self._tabButtons do
-		button:setStyle(
-			if name == tab then (if tab == "Potions" then "berry" else "primary") else "ghost"
-		)
+		button:setStyle(if name == tab then "gold" else "ghost") -- #1771: as the Store's and the Market's tabs
 	end
 	self:_refreshFood()
 end
@@ -492,7 +506,7 @@ function Potions._foodRow(self: any, entry: BagLogic.Food)
 		Size = UDim2.fromScale(1, 1),
 		TextSize = 28,
 		TextXAlignment = Enum.TextXAlignment.Center,
-		Text = "🍪",
+		Text = ShopIcons.snackGlyph(entry.id), -- #1616: each size its own
 		Parent = tile,
 	})
 	local picture = ShopIcons.catFood(entry.id)
@@ -558,8 +572,10 @@ end
 
 -- The cats to feed `food` to, highest level first; a tap feeds that cat one.
 function Potions._renderCats(self: any, food: BagLogic.Food)
-	for _, button in self._catRows do
-		button:destroy()
+	for _, card in self._catRows do
+		card.feed:destroy()
+		card.portrait:destroy()
+		card.frame:Destroy()
 	end
 	table.clear(self._catRows)
 	local state: any = self._state
@@ -570,10 +586,12 @@ function Potions._renderCats(self: any, food: BagLogic.Food)
 	)
 	local catalog: any = self._catalog
 	local names: { [string]: string } = {}
+	local byId: { [string]: any } = {}
 	local defs: { any } = (if catalog then catalog.cats else nil) or {}
 	for _, def in defs do
 		if type(def) == "table" and def.id and def.name then
 			names[def.id] = def.name
+			byId[def.id] = def
 		end
 	end
 	local cats = CornerShopLogic.catsByLevel(state.cats, names)
@@ -582,25 +600,123 @@ function Potions._renderCats(self: any, food: BagLogic.Food)
 		local xp = if type(instance) == "table" and type(instance.xp) == "number"
 			then instance.xp
 			else 0
-		local open = BagLogic.canFeed(cat.level)
-		local button = Button.new({
-			name = cat.uid,
-			text = ("%s  ·  %s"):format(cat.name or cat.catId, BagLogic.catLine(cat.level, xp)),
-			style = "secondary",
-			size = UDim2.new(1, 0, 0, 44),
-			textSize = Theme.sizes.textBody,
-			layoutOrder = order,
-			parent = self._catList,
-			onClick = function()
-				local feed: ((string, string) -> ())? = self._callbacks.feed
-				if open and feed then
-					feed(food.id, cat.uid)
-				end
-			end,
-		})
-		button:setEnabled(open)
-		table.insert(self._catRows, button)
+		local variant = if type(instance) == "table" then instance.variant else nil
+		local card: CatCard = self:_catCard(food.id, cat, byId[cat.catId], variant, xp, order)
+		table.insert(self._catRows, card)
 	end
+end
+
+-- #1773: one cat's card in Feed's list: its head on its rarity's colour, the name ("Gold Comet" in gold, a rainbow
+-- one in the turning bands, as its edge), "Epic · Level 24 · 2,303 XP to 25" over a bar toward the next level, and
+-- Feed, which feeds this cat one (Max at the top level, off).
+function Potions._catCard(
+	self: any,
+	foodId: string,
+	cat: { uid: string, catId: string, name: string?, level: number },
+	def: Types.CatDef?,
+	variant: string?,
+	xp: number,
+	order: number
+): CatCard
+	local open = BagLogic.canFeed(cat.level)
+	local rarity: string = if def then def.rarity else "Common"
+	local gold = CatVariant.isGold(variant)
+	local rainbow = CatVariant.isRainbow(variant)
+	local frame: Frame = Create("Frame", {
+		Name = cat.uid,
+		BackgroundColor3 = PAL.card,
+		BorderSizePixel = 0,
+		Size = UDim2.new(1, 0, 0, CAT_CARD_H),
+		LayoutOrder = order,
+		Parent = self._catList,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
+	local edge: UIStroke = Create("UIStroke", {
+		Color = if gold then Theme.colors.gold else Theme.rarityColor(rarity),
+		Thickness = if gold or rainbow then 3 else 2,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Parent = frame,
+	})
+	if rainbow then
+		Rainbow.stroke(edge)
+	end
+	local head: Frame = Create("Frame", {
+		Name = "Head",
+		BackgroundColor3 = Theme.rarityColor(rarity),
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 6, 0.5, 0),
+		Size = UDim2.fromOffset(CAT_HEAD, CAT_HEAD),
+		Parent = frame,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
+	local portrait = CatPortrait.new({
+		parent = head,
+		size = UDim2.fromScale(1, 1),
+		still = true,
+		head = true,
+	})
+	portrait:set(def, gold)
+	local left = CAT_HEAD + 16
+	local right = CAT_FEED_W + 16
+	local name = text({
+		Name = "CatName",
+		Position = UDim2.fromOffset(left, 6),
+		Size = UDim2.new(1, -(left + right), 0, 24),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 2,
+		TextColor3 = if gold then Theme.colors.gold else PAL.text,
+		Text = CatVariant.word(variant) .. (cat.name or cat.catId),
+		Parent = frame,
+	})
+	if rainbow then
+		Rainbow.text(name)
+	end
+	text({
+		Name = "Level",
+		Position = UDim2.fromOffset(left, 30),
+		Size = UDim2.new(1, -(left + right), 0, 18),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.subtext,
+		RichText = true,
+		Text = ('<font color="#%s">%s</font> · %s'):format(
+			Theme.rarityLight(rarity):ToHex(),
+			rarity,
+			BagLogic.catLine(cat.level, xp)
+		),
+		Parent = frame,
+	})
+	local track: Frame = Create("Frame", {
+		Name = "XpBar",
+		BackgroundColor3 = Theme.colors.cocoa,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(left, 52),
+		Size = UDim2.new(1, -(left + right), 0, 8),
+		Parent = frame,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Create("Frame", {
+		Name = "Fill",
+		BackgroundColor3 = if open then PAL.good else Theme.colors.gold,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(BagLogic.xpFraction(cat.level, xp), 1),
+		Parent = track,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	local feed = Button.new({
+		name = "Feed",
+		text = if open then "Feed" else "Max",
+		style = "primary",
+		size = UDim2.fromOffset(CAT_FEED_W, 40),
+		anchorPoint = Vector2.new(1, 0.5),
+		position = UDim2.new(1, -8, 0.5, 0),
+		textSize = Theme.sizes.textBody + 1,
+		parent = frame,
+		onClick = function()
+			local feedCat: ((string, string) -> ())? = self._callbacks.feed
+			if open and feedCat then
+				feedCat(foodId, cat.uid)
+			end
+		end,
+	})
+	feed:setEnabled(open)
+	return { frame = frame, portrait = portrait, feed = feed }
 end
 
 function Potions._row(self: any, potionId: string): Row
@@ -816,8 +932,9 @@ function Potions.destroy(self: any)
 	for _, row in self._foodRows do
 		row.feed:destroy()
 	end
-	for _, button in self._catRows do
-		button:destroy()
+	for _, card in self._catRows do
+		card.feed:destroy()
+		card.portrait:destroy()
 	end
 	for _, button in self._tabButtons do
 		button:destroy()

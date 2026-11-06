@@ -41,6 +41,7 @@ local function catalogLikeTheGame()
 		achievements = Catalog.achievements,
 		achievementPrizes = Catalog.achievementPrizes,
 		dailyTreat = Catalog.dailyTreat,
+		catFood = Catalog.catFood, -- #1616: the Bag's Cat food tab rows, as UIController
 	}
 end
 
@@ -763,6 +764,8 @@ local SCENES = {
 			looks = {
 				uniform = "midnight",
 				uniforms = { "default", "striped", "midnight", "mint", "uniform_pumpkin" },
+				accessory = "hat", -- #1708
+				accessories = { "hat", "glasses", "acc_leaf_beret", "acc_tiny_lantern" },
 				theme = "garden",
 				themes = { "default", "garden", "grand" },
 			},
@@ -860,7 +863,8 @@ local SCENES = {
 		UI.bait.openPicker()
 		assertBowlTabs(1, "is in bowl 1")
 	end },
-	-- #1161: no pass: bowl 2's tab is locked; tapping it shows the pass card with its price and bowl 2's odds
+	-- #1161: no pass: bowl 2's tab is locked; tapping it shows the pass card with its price. #1767: under it three
+	-- short lines on what it gives, not the seven-food odds table
 	{ "BaitSecondOffer", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		local prices = storePrices(true)
@@ -874,14 +878,15 @@ local SCENES = {
 		local title = window:FindFirstChild("Status", true):FindFirstChild("Title")
 		assert(title.Text == "Get a second bowl", "uigate: bowl 2's tab shows " .. title.Text .. " (#1161)")
 		local odds = window:FindFirstChild("SecondOdds", true)
-		assert(odds and odds.Visible, "uigate: the locked bowl 2 shows no odds card (#1161)")
+		assert(odds and odds.Visible, "uigate: the locked bowl 2 shows no card under it (#1161)")
 		local lines = 0
 		for _, child in odds:GetChildren() do
-			if child:IsA("TextLabel") and string.sub(child.Name, 1, 5) == "Odds_" then
+			if child:IsA("TextLabel") then
 				lines += 1
+				assert(string.sub(child.Name, 1, 5) ~= "Odds_", "uigate: bowl 2 lists a food's odds again (#1767)")
 			end
 		end
-		assert(lines == #Catalog.lures, ("uigate: bowl 2's odds list %d of %d foods (#1161)"):format(lines, #Catalog.lures))
+		assert(lines == 4, ("uigate: bowl 2's card has %d lines, wants a heading and 3 (#1767)"):format(lines))
 	end },
 	{ "Dealer", function()
 		UI.dealer.open()
@@ -1029,9 +1034,21 @@ local SCENES = {
 		UI.codes.open()
 	end },
 	{ "CodesPrize", function()
+		-- #1714: the used list, newest first; a code no longer in the table shows its code and date only
+		UI.update({ codesRedeemed = { playtest = 1793900000, old_code = 1793000000 } } :: any)
 		UI.codes.open()
 		press("Store", "codes")
 		UI.codes.result(true, "Code redeemed!", CODE_PRIZE)
+		local store = UIShim.playerGui:FindFirstChild("Store", true)
+		local used = store and store:FindFirstChild("Used", true)
+		assert(used and used:FindFirstChild("playtest") and used:FindFirstChild("old_code"), "uigate: no used codes (#1714)")
+		assert(store:FindFirstChild("Header", true), "uigate: no Codes header (#1714)")
+	end },
+	-- #1714: a refusal is one calm line in place; nothing used yet says so
+	{ "CodesRefused", function()
+		UI.codes.open()
+		press("Store", "codes")
+		UI.codes.result(false, "That code doesn't exist", nil)
 	end },
 	-- #1633: the circle's Store opens on Featured, and walking out closes it from any tab; a Store the player opened
 	-- with the tile stays when they walk out
@@ -1148,6 +1165,19 @@ local SCENES = {
 		UI.update({ cats = player.cats })
 		UI.open("Cats")
 	end },
+	-- #1772: the Gold tab opens with a Gold cats line over the areas, as the Rainbow tab has Rainbow cats
+	{ "IndexGold", function()
+		UI.open("Collection")
+		press("Collection", "GoldTab")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true)
+		local line = window and window:FindFirstChild("all", true)
+		assert(line and line.Visible, "uigate: the Gold tab has no overall line (#1772)")
+		local title = line:FindFirstChild("Area", true)
+		assert(title and title.Text == "Gold cats", "uigate: the Gold tab's line reads " .. tostring(title and title.Text) .. " (#1772)")
+		press("Collection", "IndexTab")
+		assert(title.Text ~= "Gold cats", "uigate: the Cats tab's line still reads Gold cats (#1772)")
+	end },
 	-- F99 section 3: the Index's Rainbow tab, the Rainbow cats line with its strip open on "Reward ready", rainbow
 	-- tiles on turning borders
 	{ "IndexRainbow", function()
@@ -1199,6 +1229,67 @@ local SCENES = {
 		local count = tuna:FindFirstChild("Count") :: TextLabel
 		assert(count.Text == "x3", "uigate: Tuna count " .. count.Text)
 		assert(list:FindFirstChild("Use", true) == nil, "uigate: the Bait tab has a Use button")
+	end },
+	-- #1616: the Bag's Cat food tab: each snack size shows its own picture, not the same star
+	{ "BagFood", function()
+		UI.update({ catFood = { small_cat_snack = 2, cat_snack = 3, big_cat_snack = 1, cat_feast = 1 } } :: any)
+		UI.open("Potions")
+		press("Potions", "FoodTab")
+		local window = UIShim.playerGui:FindFirstChild("Potions", true)
+		local list = window and window:FindFirstChild("FoodList", true)
+		assert(list and list:IsA("GuiObject") and list.Visible, "uigate: the Bag's Cat food list is not up")
+		local seen: { [string]: boolean } = {}
+		for _, id in { "small_cat_snack", "cat_snack", "big_cat_snack", "cat_feast" } do
+			local row = list:FindFirstChild(id)
+			local glyph = row and row:FindFirstChild("Glyph", true) :: TextLabel?
+			assert(glyph, "uigate: no " .. id .. " row on the Cat food tab")
+			assert(not seen[glyph.Text], "uigate: two snacks share the picture " .. glyph.Text .. " (#1616)")
+			seen[glyph.Text] = true
+		end
+	end },
+	-- #1773: Feed's cat list as cards: two cats of one kind, a gold one and a rainbow one, each with its head, rarity
+	-- and level line, a bar toward the next level and its own Feed. #1771: the tabs are gold when chosen.
+	{ "BagFeed", function()
+		local cats = {}
+		local picks = {}
+		for _, def in Catalog.cats do
+			if def.area ~= "spare" and #picks < 3 then
+				table.insert(picks, def)
+			end
+		end
+		local function add(uid: string, def: any, variant: string, level: number, xp: number)
+			cats[uid] = {
+				uid = uid,
+				catId = def.id,
+				variant = variant,
+				caughtAt = os.time() - 60,
+				level = level,
+				xp = xp,
+				xpToNext = 40,
+				charm = 50,
+				stars = 3,
+				rating = 12,
+			}
+		end
+		add("gate_feed_1", picks[1], "base", 24, 300)
+		add("gate_feed_2", picks[1], "base", 7, 20)
+		add("gate_feed_3", picks[2], "gold", 15, 100)
+		add("gate_feed_4", picks[3], "rainbow", 3, 5)
+		UI.update({ cats = cats, catFood = { cat_snack = 3 } } :: any)
+		UI.open("Potions")
+		press("Potions", "FoodTab")
+		press("Potions", "cat_snack.Feed")
+		local window = UIShim.playerGui:FindFirstChild("Potions", true)
+		local list = window and window:FindFirstChild("CatList", true)
+		assert(list and list.Visible, "uigate: Feed's cat list is not up (#1773)")
+		for index = 1, 4 do
+			local card = list:FindFirstChild("gate_feed_" .. index)
+			assert(card and card:IsA("Frame"), "uigate: no card for cat " .. index .. " (#1773)")
+			assert(card:FindFirstChild("Head") and card:FindFirstChild("XpBar"), "uigate: cat card " .. index .. " has no head or bar (#1773)")
+			assert(card:FindFirstChild("Feed", true), "uigate: cat card " .. index .. " has no Feed (#1773)")
+		end
+		local gold = list:FindFirstChild("gate_feed_3"):FindFirstChild("CatName")
+		assert(string.sub(gold.Text, 1, 5) == "Gold ", "uigate: the gold cat's card reads " .. gold.Text .. " (#1773)")
 	end },
 	{ "Quests", function()
 		UI.open("Quests")
@@ -1310,6 +1401,36 @@ local SCENES = {
 			local target = list[index].startsAt + list[index].shrinkSeconds
 			task.delay(target - t0 + delay, tapCircles)
 		end
+	end },
+	-- #1727: circle 1 hit, circle 2 pressed just past its Good band (a Miss on this device), then the server's
+	-- CatchJudged calls that press Good: circles 3 and 4 never went away, so the catch goes on in view
+	{ "CatchEdgeMiss", function()
+		local list = startCatch("gate_stray", "Common", 4, 0.3, 0.82)
+		local function art(index)
+			local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+			local holder = layer and layer:FindFirstChild("Circle" .. index, true)
+			return holder and holder:FindFirstChild("Art")
+		end
+		local function waitUntil(at)
+			local wait = at - workspace:GetServerTimeNow()
+			if wait > 0 then
+				task.wait(wait)
+			end
+		end
+		local function target(index)
+			return list[index].startsAt + list[index].shrinkSeconds
+		end
+		waitUntil(target(1))
+		tapCircles()
+		waitUntil(target(2) + 0.12)
+		tapCircles()
+		task.wait(0.3)
+		local third = art(3)
+		assert(third and third.Visible, "CatchEdgeMiss: circle 3 went before the server's word on circle 2")
+		UI.catch.judged("gate_stray", 2, "good")
+		waitUntil(target(3) - 0.2)
+		third = art(3)
+		assert(third and third.Visible, "CatchEdgeMiss: circle 3 went after the server called circle 2 Good")
 	end },
 	-- F93: the result word over the strip once the server's grades land (three Perfects of four: EXCELLENT!)
 	{ "CatchResult", function()
@@ -1485,6 +1606,22 @@ local SCENES = {
 		clock:SetAttribute("LuckyDay", false)
 		UI.clock.bind(clock)
 		UI.luckyDay("warning", "A Lucky Day starts at sunrise!")
+	end },
+	-- #1737: the Night Market banner at nightfall with the market cart's picture left of the title (was a moon emoji)
+	{ "NightMarketBanner", function()
+		local AreaTitle = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.AreaTitle")
+		local ShopIcons = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.ShopIcons")
+		local picture = ShopIcons.hud("NightMarket")
+		assert(picture ~= nil, "NightMarketBanner: no Night Market picture")
+		local card = AreaTitle.new(UIShim.playerGui)
+		card:banner(
+			"night_market",
+			"The Night Market is open!",
+			"Rare foods tonight at the dealer's cart in town.",
+			UI.Theme.colors.berry,
+			6,
+			picture
+		)
 	end },
 	-- #1572: a Lucky, Golden and Rainbow Day at once: "Lucky · Golden · Rainbow Day" under the clock, its card open
 	{ "HUDDayKinds", function()

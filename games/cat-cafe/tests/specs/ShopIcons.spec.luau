@@ -213,7 +213,7 @@ return function()
 				expect(ShopIcons.store(StoreLogic.STARTER.key)).to.equal(
 					"rbxassetid://72549988670948"
 				)
-				expect(ShopIcons.store("longNap")).to.equal("rbxassetid://110728484969633")
+				expect(ShopIcons.store("longNap")).to.equal("rbxassetid://95823829256556")
 				expect(ShopIcons.store("money", 2)).to.equal("rbxassetid://72414082780413")
 				expect(ShopIcons.store("money", 3)).to.equal("rbxassetid://93298940995735")
 				expect(ShopIcons.store("money", 4)).to.equal("rbxassetid://106773934084025")

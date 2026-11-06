@@ -37,6 +37,10 @@ local player = Players.LocalPlayer
 local state: Types.PlayerState? = nil
 local SCREEN_REPORT_SECONDS = 5 -- #1273: the open screen goes to the server at most this often
 local predictedMoney = 0
+-- os.clock() of the last Corner Shop buy. Its food shows up in `lures`, but every row of that shop sounds with the
+-- toast pop, so the bigger purchase ding stays off for it.
+local lastCornerShopBuy = -math.huge
+local CORNER_SHOP_QUIET_SECONDS = 3
 local lastCarrying: string? = nil
 local lastPushedMoney = -1
 local lastTier: number? = nil
@@ -285,7 +289,11 @@ end
 
 -- Something bought since the last sync: an upgrade level, a decor item, a lawn piece or style (F91, front-lawn.md
 -- section 3, which also sparkles the Tier 2 and 3 gifts) or a lure count went up.
-local function boughtSomething(old: Types.PlayerState, new: Types.PlayerState): boolean
+local function boughtSomething(
+	old: Types.PlayerState,
+	new: Types.PlayerState,
+	shopBuy: boolean
+): boolean
 	for id, level in new.upgradeLevels do
 		if level > (old.upgradeLevels[id] or 0) then
 			return true
@@ -302,7 +310,7 @@ local function boughtSomething(old: Types.PlayerState, new: Types.PlayerState): 
 		end
 	end
 	for id, count in new.lures do
-		if count > (old.lures[id] or 0) then
+		if not shopBuy and count > (old.lures[id] or 0) then
 			return true
 		end
 	end
@@ -505,7 +513,8 @@ end
 
 local function applyState(s: Types.PlayerState)
 	local previous = state
-	if previous ~= nil and boughtSomething(previous, s) then
+	local shopBuy = os.clock() - lastCornerShopBuy < CORNER_SHOP_QUIET_SECONDS
+	if previous ~= nil and boughtSomething(previous, s, shopBuy) then
 		Moments.Purchase:Fire()
 	end
 	if previous ~= nil then
@@ -566,6 +575,14 @@ local function applyState(s: Types.PlayerState)
 		lawnOwned = s.lawnOwned,
 		lawn = s.lawn,
 		lawnStyles = s.lawnStyles,
+		-- Derek2 live 11-06 (the Starter Bundle card never showed): these were sent but never copied, so the Store,
+		-- the money card's Boosts list, the Style tab's sign, theme and uniform rows and the Trades page read nil
+		starterBought = s.starterBought, -- #1625: the Starter Bundle card shows while false
+		signStyles = s.signStyles, -- #1625: the Style tab's sign row
+		signStyle = s.signStyle,
+		looks = s.looks, -- #1624: the Style tab's theme and uniform rows
+		passBoosts = s.passBoosts, -- #1624: the store passes in the money card's Boosts list
+		tradeLog = s.tradeLog, -- F102: the Trades page
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.
@@ -692,6 +709,7 @@ local function wireIntents()
 	if looseEvents.buyCornerShop ~= nil then
 		looseEvents.buyCornerShop:Connect(
 			function(itemId: string, window: number, shownPrice: number, catUid: string?)
+				lastCornerShopBuy = os.clock()
 				Net.fire("BuyCornerShop", itemId, window, shownPrice, catUid)
 			end
 		)
@@ -887,7 +905,7 @@ local function wireIntents()
 	UI.events.pickStyle:Connect(function(kind: string, id: string)
 		if kind == "sign" then
 			Net.fire("SetSignStyle", if id == "" then nil else id)
-		elseif kind == "uniform" or kind == "theme" then
+		elseif kind == "uniform" or kind == "accessory" or kind == "theme" then -- #1708: accessory
 			Net.fire("SetLook", kind, if id == "" then "default" else id)
 		end
 	end)
@@ -1654,6 +1672,14 @@ local function wireServerEvents()
 			end
 		end
 	)
+	-- #1727: the server's grade for each pressed circle as it is judged, for the circles screen (UI.catch.judged once
+	-- the UI has it). A Good or Perfect after this device's own Miss means the catch goes on.
+	Net.on("CatchJudged", function(strayId: string, index: number, grade: Types.CircleGrade)
+		local judged: ((string, number, Types.CircleGrade) -> ())? = (UI.catch :: any).judged
+		if judged ~= nil then
+			judged(strayId, index, grade)
+		end
+	end)
 	-- The rescue bar, or a tree's falling cat after its shakes; then the server's count after every judged press.
 	Net.on("RescueChallenge", function(rescueSpotId: string, challenge: Types.RescueChallenge)
 		UI.rescue.show(rescueSpotId, challenge)

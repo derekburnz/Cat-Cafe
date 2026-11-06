@@ -1,16 +1,14 @@
 --!strict
--- Codes and the Codes Cat (F65, data-model section 11d). RedeemCode(text) from a player within CodesCatRange of a
--- station tagged CodesCat: the text is trimmed and lowercased (shared/Codes), looked up in Catalog.codes and paid
--- once per player through Payout, the code id saved in codesRedeemed before anything is paid. The answer is
+-- Codes and the Codes Cat (F65, data-model section 11d). RedeemCode(text) from anywhere (#1747: the Store's Codes
+-- tab as well as the Codes Cat's box, so there is no distance check): the text is trimmed and lowercased
+-- (shared/Codes), looked up in Catalog.codes and paid once per player through Payout, the code id saved in codesRedeemed before anything is paid. The answer is
 -- CodeResult(ok, message, prize?). After CodeWrongLimit codes that do not exist within CodeWrongWindowSeconds the
 -- box locks for CodeLockSeconds, so nobody can guess codes. A requiresGroup code asks IsInGroupAsync(Config.GroupId) in a
 -- pcall, kept GroupCheckSeconds per player. The typed text is never shown to anyone or saved, so it needs no filter.
 -- Nothing about codes is sold.
 
-local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
 
 local CafeService = require(script.Parent.CafeService)
 local Codes = require(ReplicatedStorage.Shared.Codes)
@@ -26,29 +24,6 @@ local CodeService = {}
 local guards: { [Player]: Codes.WrongGuard } = {} -- wrong codes and the lock, in os.clock()
 local busy: { [Player]: boolean } = {} -- a redeem waiting on the group check
 local groupAnswers: { [Player]: { member: boolean, at: number } } = {}
-
--- True when the player stands within CodesCatRange of a Codes Cat station, measured flat so a tall avatar on the far
--- edge of the circle (11 studs out) is still in range (review N176).
-local function nearStation(player: Player): boolean
-	local character = player.Character
-	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
-	if root == nil or not root:IsA("BasePart") then
-		return false
-	end
-	local position = (root :: BasePart).Position
-	for _, instance in CollectionService:GetTagged(Codes.TAG) do
-		if instance:IsA("Model") and instance:IsDescendantOf(Workspace) then
-			local pivot = (instance :: Model):GetPivot().Position
-			if
-				Vector2.new(pivot.X - position.X, pivot.Z - position.Z).Magnitude
-				<= Config.CodesCatRange
-			then
-				return true
-			end
-		end
-	end
-	return false
-end
 
 -- Whether the player is in Config.GroupId. A yes is kept for GroupCheckSeconds; a no or a failed call is not kept, so a
 -- player who joins after "Join our group to use this code!" can use it at once (#1118, as StarterCatService). Yields.
@@ -90,10 +65,6 @@ local function onRedeemCode(player: Player, raw: unknown)
 	local guard = guardFor(player)
 	if Codes.locked(guard, os.clock()) then
 		answer(player, false, Codes.LOCKED)
-		return
-	end
-	if not nearStation(player) then
-		answer(player, false, Codes.FAR)
 		return
 	end
 	local code = Codes.normalize(raw)

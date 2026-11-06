@@ -2156,6 +2156,51 @@ local SCENES = {
 		UI.open("Store")
 		assertStoreCards(true)
 	end },
+	-- #1888: the Store funnel reports each tab once a visit (deferred past the open) and the first buy of a visit
+	{ "StoreFunnel", function()
+		UI.store.preview(storePrices(true), {})
+		local sent = {}
+		local connection = UI.events.storeReport:Connect(function(kind, value)
+			table.insert(sent, kind .. "=" .. tostring(value))
+		end)
+		UI.open("Store")
+		assert(#sent == 0, "uigate: the open's first tab should wait for the modal's store_opened")
+		task.wait(0.05)
+		press("CatCafeModals", "passes")
+		press("CatCafeModals", "featured")
+		press("CatCafeModals", "passes")
+		task.wait(0.05)
+		local joined = table.concat(sent, ",")
+		assert(joined == "store_tab=featured,store_tab=passes", "uigate: Store tabs reported " .. joined)
+		-- a priced card on the Passes tab, pressed twice
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local cardName = nil
+		local storeWindow = modals:FindFirstChild("Store", true)
+		assert(storeWindow, "uigate: no Store window")
+		for _, card in storeWindow:GetDescendants() do
+			local buy = card:FindFirstChild("Buy")
+			local parent = card.Parent
+			if card:IsA("Frame") and card.Visible and buy and parent and parent:IsA("GuiObject") and parent.Visible then
+				cardName = card.Name
+				break
+			end
+		end
+		assert(cardName, "uigate: no Store card on the Passes tab")
+		press("Store", cardName .. ".Buy")
+		press("Store", cardName .. ".Buy")
+		local buys = 0
+		for _, line in sent do
+			if string.sub(line, 1, 10) == "store_buy=" then
+				buys += 1
+			end
+		end
+		assert(buys == 1, "uigate: a buy should report once a visit, got " .. buys .. " pressing " .. tostring(cardName))
+		UI.close()
+		UI.open("Store")
+		task.wait(0.05)
+		assert(sent[#sent] == "store_tab=featured", "uigate: a new visit should report its first tab again")
+		connection:Disconnect()
+	end },
 	-- #1425: the Passes tab, a grid of pass cards 3 across
 	{ "StorePasses", function()
 		UI.store.preview(storePrices(true), {})

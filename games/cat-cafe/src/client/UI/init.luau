@@ -151,6 +151,9 @@ UI.events = {
 	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
 	storeSeen = Signal.new(), -- (tab)   a Store tab with a New dot opened: forward as MarkStoreSeen (#1823 §4)
+	-- (kind, value)   #1888 the Store funnel: "store_tab" (a tab id, once a visit) or "store_buy" (the pass or product
+	-- id, once a visit), forward as TelemetryReport(kind, value) after the visit's store_opened
+	storeReport = Signal.new(),
 	spinAll = Signal.new(), -- ()   Use all on the Spin window (#1078): forward as SpinAll
 	openCrate = Signal.new(), -- (crateId)   Open on a Golden Fish Market crate card: forward as OpenCrate (F53)
 	buyCrateBundle = Signal.new(), -- (crateId)   Buy 5 on a Market crate card: forward as BuyCrateBundle (#1051)
@@ -712,6 +715,12 @@ function UI.init(config: Types.InitConfig)
 	hud = HUD.new(parent, {
 		openScreen = function(name: Types.ScreenName)
 			modalInstance:toggle(name)
+			if name == "Store" and modalInstance:current() ~= "Store" then
+				-- #1888: the tap closed the Store, so a noted source tags no open
+				local funnel: any =
+					require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StoreFunnel"))
+				funnel.takeSource()
+			end
 		end,
 		travel = function(destination: string)
 			UI.events.travel:Fire(destination)
@@ -5569,6 +5578,8 @@ do
 				ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Products")
 			) :: any).SUPPORTER_ATTRIBUTE :: string,
 		supporter = nil :: RBXScriptConnection?, -- its change hides the badge's card at once
+		funnel = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StoreFunnel")) :: any, -- #1888
+		reported = {} :: { [string]: true }, -- #1888: this visit's tabs and buys already reported
 	}
 
 	-- the potion packs' contents and names from the shared Catalog, the bag from the state (#1182)
@@ -5633,7 +5644,14 @@ do
 			hud:setStore(if open
 				then function()
 					if modal then
+						-- #1888: the tile with its New dot showing, or plain
+						shop.funnel.noteSource(
+							if screen and screen:hasNew() then "new_dot" else "hud_tile"
+						)
 						modal:toggle("Store")
+						if modal:current() ~= "Store" then
+							shop.funnel.takeSource() -- the tap closed it: no open to tag
+						end
 					end
 				end
 				else nil)
@@ -5649,7 +5667,23 @@ do
 		end
 		local screen = Store.new({
 			buy = function(passId: number)
+				-- #1888: the funnel's buy_pressed, the first buy of a visit
+				local key = "buy:" .. tostring(passId)
+				if not shop.reported[key] then
+					shop.reported[key] = true
+					UI.events.storeReport:Fire("store_buy", passId)
+				end
 				PassShop.prompt(passId)
+			end,
+			tabShown = function(tab: string)
+				local key = "tab:" .. tab
+				if not shop.reported[key] then
+					shop.reported[key] = true
+					-- deferred: the open's first tab shows before the modal says the Store opened (store_opened)
+					task.defer(function()
+						UI.events.storeReport:Fire("store_tab", tab)
+					end)
+				end
 			end,
 			close = function()
 				if modalView:current() == "Store" then
@@ -5679,6 +5713,7 @@ do
 		modalView:register("Store", {
 			frame = screen.frame,
 			onOpen = function()
+				shop.reported = {} -- #1888: a new Store visit, a new funnel session
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
 				screen:render(rows(), PassShop.prices())
 				PassShop.refresh() -- a price changed in the Creator Hub shows without a rejoin

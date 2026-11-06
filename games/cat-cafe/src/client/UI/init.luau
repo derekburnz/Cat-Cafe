@@ -106,8 +106,11 @@ UI.events = {
 	buyUpgrade = Signal.new(), -- (upgradeId)
 	buyDecor = Signal.new(), -- (decorId)
 	toggleDecor = Signal.new(), -- (decorId, placed: boolean)
-	-- F91 front lawn (front-lawn.md section 3): forward as BuyLawn (SetLawnSpot and SetLawnStyle retired with #1283)
+	-- F91 front lawn (front-lawn.md section 3): forward as BuyLawn
 	buyLawn = Signal.new(), -- (id, spotId?)  a piece or style; a piece onto spotId, else the first free spot
+	-- #1751 (back with #1758): the Lawn cards' Use and Remove
+	setLawnSpot = Signal.new(), -- (spotId, pieceId)  forward as SetLawnSpot; pieceId "" takes the spot's piece in
+	setLawnStyle = Signal.new(), -- (kind, id)  forward as SetLawnStyle; id "" for Grey Slabs or no fence
 	buyLure = Signal.new(), -- (lureId)
 	placeCat = Signal.new(), -- (uid, spotId)
 	unplaceCat = Signal.new(), -- (uid)
@@ -779,6 +782,12 @@ function UI.init(config: Types.InitConfig)
 		-- #1624: the Style tab; the sign goes to SetSignStyle, uniforms and themes to SetLook
 		pickStyle = function(kind: string, id: string)
 			UI.events.pickStyle:Fire(kind, id)
+		end,
+		setLawnSpot = function(spotId: string, pieceId: string)
+			UI.events.setLawnSpot:Fire(spotId, pieceId)
+		end,
+		setLawnStyle = function(kind: string, id: string)
+			UI.events.setLawnStyle:Fire(kind, id)
 		end,
 	})
 	collection = CatCollection.new({

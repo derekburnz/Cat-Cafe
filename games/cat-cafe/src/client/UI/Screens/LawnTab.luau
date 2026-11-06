@@ -6,10 +6,15 @@
 -- Like Plants, Floor and Walls: one line on top with the total ("Lawn: 6 out, +18% money", the Money boosts row's
 -- number), then a grid of the same cards, one per owned piece, path and fence (Components/LawnLogic.cards): the model
 -- on a tile in its rarity colour, the rarity, the name, its bonus ("+3% money", paths and fences tagged "Path" or
--- "Fence") and "Out" or "Stored". #1729 (Derek2: keep it light, lawn-nursery.md section 6e): a big-spot piece has a
--- tiny "Big spot" tag in the art's top right corner, and nothing else explains the spots. The server lays the best owned pieces by itself after every buy (LawnService,
--- Lawn.best), and the window's Equip Best stays, so nothing here is a button. The grid ends with where to buy more.
+-- "Fence"), and a Use or Remove button (below). #1729 (Derek2: keep it light, lawn-nursery.md section 6e): a big-spot
+-- piece has a tiny "Big spot" tag in the art's top right corner, and nothing else explains the spots. The grid ends
+-- with where to buy more.
 
+-- #1751 part 3 (Derek2: "lawn section is missing remove/use it buttons"): each card ends in one button,
+-- LawnLogic.cardAction's Remove (green edge: it is out) or Use, forwarded as SetLawnSpot or SetLawnStyle; Equip Best
+-- still lays the best lawn.
+
+local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local LawnLogic = require(script.Parent.Parent.Components.LawnLogic)
@@ -19,6 +24,12 @@ local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = Theme.dark
+
+export type Callbacks = {
+	-- #1751: Use or Remove on a card; a piece's spot and id ("" takes it in), or a path or fence and id ("" for none)
+	setSpot: ((spotId: string, pieceId: string) -> ())?,
+	setStyle: ((kind: string, id: string) -> ())?,
+}
 
 export type LawnTab = {
 	frame: Frame,
@@ -54,7 +65,7 @@ local function text(props: { [string]: any }): TextLabel
 	return Create("TextLabel", merged)
 end
 
--- A small round pill: the rarity on the art, "Out" or "Stored" at the foot.
+-- A small round pill: the rarity on the art.
 local function pill(label: TextLabel): TextLabel
 	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = label })
 	Create("UIPadding", {
@@ -65,8 +76,9 @@ local function pill(label: TextLabel): TextLabel
 	return label
 end
 
-function LawnTab.new(parent: Instance): LawnTab
+function LawnTab.new(parent: Instance, callbacks: Callbacks?): LawnTab
 	local self = setmetatable({}, LawnTab) :: any
+	self._callbacks = callbacks or {}
 	self._cards = {} :: { [string]: any }
 	self._statusHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
 
@@ -165,7 +177,11 @@ function LawnTab._card(self: any, card: LawnLogic.Card): any
 		Parent = self._grid,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
+	})
+	local edge: UIStroke = Create("UIStroke", {
+		Color = PAL.cardStroke,
+		Thickness = Theme.sizes.stroke,
+		Parent = frame,
 	})
 	local icon = ItemIcon.new({
 		parent = frame,
@@ -233,18 +249,30 @@ function LawnTab._card(self: any, card: LawnLogic.Card): any
 		Text = LawnLogic.cardLine(card),
 		Parent = frame,
 	})
-	local status = text({
-		Name = "Status",
-		BackgroundTransparency = 0,
-		Position = UDim2.new(0, 10, 1, -(self._statusHeight + 10)),
-		Size = UDim2.new(1, -20, 0, self._statusHeight - Theme.sizes.buttonDepth),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textSmall + 1,
-		TextXAlignment = Enum.TextXAlignment.Center,
-		Parent = frame,
+	local entry: any = { frame = frame, icon = icon, edge = edge, action = nil }
+	-- #1751: Use or Remove, from LawnLogic.cardAction at each render
+	entry.button = Button.new({
+		name = "Action",
+		text = "",
+		style = "primary",
+		size = UDim2.new(1, -20, 0, self._statusHeight),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.new(0.5, 0, 1, -10),
+		textSize = Theme.sizes.textSmall + 1,
+		parent = frame,
+		onClick = function()
+			local action: LawnLogic.CardAction? = entry.action
+			if action == nil or not action.enabled then
+				return
+			end
+			local callbacks: Callbacks = self._callbacks
+			if action.spotId ~= nil and action.pieceId ~= nil and callbacks.setSpot then
+				callbacks.setSpot(action.spotId, action.pieceId)
+			elseif action.styleKind ~= nil and action.styleId ~= nil and callbacks.setStyle then
+				callbacks.setStyle(action.styleKind, action.styleId)
+			end
+		end,
 	})
-	Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall), Parent = status })
-	local entry = { frame = frame, icon = icon, status = status }
 	self._cards[card.id] = entry
 	return entry
 end
@@ -256,9 +284,17 @@ function LawnTab.render(self: any, state: Types.PlayerState)
 		local entry = self._cards[card.id] or self:_card(card)
 		entry.frame.LayoutOrder = order
 		entry.frame.Visible = true
-		entry.status.Text = if card.out then "Out" else "Stored"
-		entry.status.BackgroundColor3 = if card.out then Theme.colors.good else PAL.cardStroke
-		entry.status.TextColor3 = if card.out then Theme.colors.goodText else PAL.subtext
+		local action = LawnLogic.cardAction(state, card)
+		entry.action = action
+		entry.button:setText(action.text)
+		if entry.style ~= action.style then
+			entry.style = action.style
+			entry.button:setStyle(action.style :: any)
+		end
+		entry.button:setEnabled(action.enabled)
+		-- an out piece, path or fence wears a green edge (the Out pill's place before #1751)
+		entry.edge.Color = if card.out then Theme.colors.good else PAL.cardStroke
+		entry.edge.Thickness = if card.out then Theme.sizes.stroke + 1 else Theme.sizes.stroke
 		shown[card.id] = true
 	end
 	for id, entry in self._cards do
@@ -271,6 +307,7 @@ end
 function LawnTab.destroy(self: any)
 	for _, entry in self._cards do
 		entry.icon:destroy()
+		entry.button:destroy()
 	end
 	self.frame:Destroy()
 end

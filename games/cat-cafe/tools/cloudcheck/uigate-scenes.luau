@@ -755,9 +755,18 @@ local SCENES = {
 		bindLawnPlot()
 		UI.open("Decor")
 		press("Decor", "FrontLawn")
-		-- #1729: the big-spot Garden Bench has the small "Big spot" tag, the small-spot Tulip Bed none
+		-- #1751: the Garden Bench is out (Remove), the Lamp Post stored (Use)
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local lawn = modals and modals:FindFirstChild("Lawn", true)
+		local function action(id: string): string
+			local card = lawn and lawn:FindFirstChild(id, true)
+			local button = card and card:FindFirstChild("Action", true)
+			local label = button and (if button:IsA("TextButton") then button else button:FindFirstChildWhichIsA("TextLabel", true))
+			return if label then label.Text else "?"
+		end
+		assert(string.find(action("garden_bench"), "Remove", 1, true), "uigate: the out Garden Bench reads " .. action("garden_bench") .. " (#1751)")
+		assert(string.find(action("lamp_post"), "Use", 1, true), "uigate: the stored Lamp Post reads " .. action("lamp_post") .. " (#1751)")
+		-- #1729: the big-spot Garden Bench has the small "Big spot" tag, the small-spot Tulip Bed none
 		local bench = lawn and lawn:FindFirstChild("garden_bench", true)
 		local tulips = lawn and lawn:FindFirstChild("tulip_bed", true)
 		assert(bench and bench:FindFirstChild("BigSpot"), "uigate: the Garden Bench card has no Big spot tag (#1729)")

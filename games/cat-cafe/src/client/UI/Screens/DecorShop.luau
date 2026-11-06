@@ -56,6 +56,9 @@ export type Callbacks = {
 	equipBest: (() -> ())?, -- Equip Best on the chips row; no button without it
 	-- #1624: a Style tab button, kind "sign", "uniform" or "theme" and id "" for the default; no Style chip without it
 	pickStyle: ((kind: string, id: string) -> ())?,
+	-- #1751: the Lawn cards' Use and Remove (SetLawnSpot and SetLawnStyle)
+	setLawnSpot: ((spotId: string, pieceId: string) -> ())?,
+	setLawnStyle: ((kind: string, id: string) -> ())?,
 }
 
 export type DecorShop = {
@@ -263,7 +266,10 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	self._footer = footer
 
 	-- F91: the Lawn cards, in place of the strip and grid while its chip is picked (#1283)
-	local lawnTab = LawnTab.new(panel.content)
+	local lawnTab = LawnTab.new(panel.content, {
+		setSpot = callbacks.setLawnSpot,
+		setStyle = callbacks.setLawnStyle,
+	})
 	lawnTab.frame.Position = UDim2.fromOffset(0, chipHeight + Theme.sizes.gap)
 	lawnTab.frame.Size = UDim2.new(1, 0, 1, -(chipHeight + Theme.sizes.gap))
 	self._lawnTab = lawnTab

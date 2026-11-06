@@ -39,6 +39,26 @@ SignStyles.LIST = table.freeze({
 		name = "Golden Leaf",
 		model = "CatCafe_Plot_SignGoldenLeaf",
 	}),
+	-- #1168 row 1 (Monetization-Agent, 2026-11-06): the Sign Style Pack pass's three styles, looks only. Model-Agent
+	-- makes the models (signstyles.py); SignStylePackPassId stays 0 until they are in.
+	table.freeze({
+		id = "pack_flower_box",
+		name = "Flower Box",
+		model = "CatCafe_Plot_SignFlowerBox",
+		passKey = "SignStylePackPassId",
+	}),
+	table.freeze({
+		id = "pack_starry_night",
+		name = "Starry Night",
+		model = "CatCafe_Plot_SignStarryNight",
+		passKey = "SignStylePackPassId",
+	}),
+	table.freeze({
+		id = "pack_paw_chalkboard",
+		name = "Paw Chalkboard",
+		model = "CatCafe_Plot_SignPawChalkboard",
+		passKey = "SignStylePackPassId",
+	}),
 }) :: { Style }
 
 local byId: { [string]: Style } = {}

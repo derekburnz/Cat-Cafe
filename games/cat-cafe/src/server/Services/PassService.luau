@@ -43,6 +43,7 @@ local function storePassIds(): { number }
 			Config.CafeStylePassId,
 			Config.GrandThemePassId,
 			Config.SignStylePackPassId, -- #1168 row 1: SignStyles reads it with `owns`
+			Config.GardenDecorPackPassId, -- #1168 row 3: ShopCatService gives its decor (PassDecor)
 		}
 	do
 		if id ~= 0 then

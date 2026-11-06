@@ -1387,6 +1387,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			local passBadge = claimBadge(button.instance, 23)
 			passBadge.AnchorPoint = Vector2.new(1, 0.5) -- inset like the Quests dot (#1176)
 			passBadge.Position = UDim2.new(1, 2, 0, 3)
+			passBadge.Size = UDim2.fromOffset(22, 22) -- the menu dots' size: the 24 px badge poked into the Store's glow
 			self._passBadge = passBadge
 		elseif item.name == "Bowl" then
 			button.instance.Visible = false -- once the Bait bowl upgrade is owned (_renderBowlSlot)
@@ -1395,6 +1396,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			local bowlBadge = claimBadge(button.instance, 23)
 			bowlBadge.AnchorPoint = Vector2.new(1, 0.5) -- inset like the Quests dot (#1176); the F key cap is top left
 			bowlBadge.Position = UDim2.new(1, 2, 0, 3)
+			bowlBadge.Size = UDim2.fromOffset(22, 22) -- as the Pass tile's
 			self._bowlBadge = bowlBadge
 			-- #1161: a small "2" at the bottom right while the cafe has two bowls (the "!" is top right)
 			local count: TextLabel = label({

@@ -64,7 +64,7 @@ Remotes.ClientToServer = {
 	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16)
 	"SetSignStyle", -- (styleId: string?)  #1625: an owned shared/SignStyles id, or nil for the plain sign
 	"SetLook", -- (kind: string, id: string?)  #1624: "theme", "uniform" or "accessory"; an owned Looks id or "default"
-	"SetJukeboxTrack", -- (trackId: string?)  #1168 row 2: a shared/Jukebox track with the Jukebox Pass, or nil/"default"
+	"SetJukeboxTrack", -- (trackId: string?)  #1168 row 2: a shared/Jukebox track (free, #1875), or nil/"default"
 	"MarkStoreSeen", -- (tab: string)  #1842: a shared/StoreTabs id; saves that tab's version so its "New" dot clears
 	"SetSetting", -- (key: string, value: boolean | number)  a key of shared/Settings: a switch takes a boolean, a
 	-- volume a number clamped to 0 to 1; saved in profile.settings, answered by ProfileSync

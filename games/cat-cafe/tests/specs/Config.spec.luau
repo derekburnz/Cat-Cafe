@@ -533,7 +533,7 @@ return function()
 			-- #1822: the King Cat alone is 0 until Tools-Agent makes it, then a pass id of its own
 			expect(type(c.KingCatPassId)).to.equal("number")
 			expect(c.KingCatPassId == 0 or ids[c.KingCatPassId] == nil).to.equal(true)
-			-- #1168 row 2: the Jukebox Pass is 0 until made, then a pass id of its own
+			-- #1168 row 2: the Jukebox Pass (off sale since #1875) keeps a pass id of its own
 			expect(type(c.JukeboxPassId)).to.equal("number")
 			expect(c.JukeboxPassId == 0 or ids[c.JukeboxPassId] == nil).to.equal(true)
 			-- #1168 row 1: the Sign Style Pack is 0 until made, then a pass id of its own

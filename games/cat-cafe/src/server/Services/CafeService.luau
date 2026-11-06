@@ -222,8 +222,8 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		starterCatClaimed = profile.starterCatClaimed, -- F96
 		starterBought = profile.onceBought.starter_bundle == true, -- #1625: the Store card hides
 		storeSeen = table.clone(profile.storeSeen), -- #1842: the Store tabs' "New" dots
-		jukeboxTracks = Jukebox.owned(ownsPassOf(player)), -- #1168 row 2
-		jukebox = Jukebox.shown(profile.jukebox, ownsPassOf(player)),
+		jukeboxTracks = Jukebox.owned(), -- #1168 row 2, free since #1875
+		jukebox = Jukebox.shown(profile.jukebox),
 		codesRedeemed = table.clone(profile.codesRedeemed), -- #1714: the Store's Codes tab lists the codes used
 		signStyles = SignStyles.owned(profile.signStyles, ownsPassOf(player)), -- #1625
 		signStyle = profile.signStyle,
@@ -2042,17 +2042,16 @@ local function onMarkStoreSeen(player: Player, rawTab: unknown)
 	end
 end
 
--- #1168 row 2: SetJukeboxTrack(trackId?) picks a Jukebox Pass song, or nil/"default" for the normal rotation. The
--- whole check is Jukebox.pickFor (a known track, and the pass owned).
+-- #1168 row 2: SetJukeboxTrack(trackId?) picks a Jukebox song, or nil/"default" for the normal rotation. The whole
+-- check is Jukebox.pickFor (a known track); the songs are free for everyone since #1875.
 local function onSetJukeboxTrack(player: Player, rawId: unknown)
 	local profile = profileFor(player)
 	if profile == nil then
 		return
 	end
-	local ok, pick = Jukebox.pickFor(rawId, ownsPassOf(player))
+	local ok, pick = Jukebox.pickFor(rawId)
 	if not ok then
-		Net.toast(player, "That song comes with the Jukebox Pass.", "warn")
-		return
+		return -- not a known track: a stale or forged id, nothing to tell the player
 	end
 	if profile.jukebox == pick then
 		return

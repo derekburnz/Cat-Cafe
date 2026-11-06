@@ -1042,7 +1042,7 @@ export type PlayerProfile = {
 	signStyles: { [string]: boolean },
 	signStyle: string?,
 	storeSeen: { [string]: number }, -- #1842 (no new version): Store tab id -> the tab version last opened (StoreTabs)
-	jukebox: string?, -- #1168 row 2 (no new version): the Jukebox Pass track picked (shared/Jukebox), nil for the rotation
+	jukebox: string?, -- #1168 row 2 (no new version): the Jukebox track picked (shared/Jukebox), nil for the rotation
 	pass: PassState, -- #1645 (save version 36): the Cafe Pass
 	looks: LookPicks, -- #1624 (save version 38): the cafe theme and uniform picks (shared/Looks)
 }

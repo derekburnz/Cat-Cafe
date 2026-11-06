@@ -535,8 +535,10 @@ function Store._layout(self: any)
 		hero.effect.TextSize = hero.effectMax
 		self:_place(hero)
 	end
-	-- the grid: 3 across (2 on a narrow page), 2 rows in view when there is room
-	local columns = if width < NARROW then 2 else GRID_COLUMNS
+	-- the grid: 3 across (2 on a narrow page), 2 rows in view when there is room. A tab with one card (the Cafe Pass)
+	-- gives it the whole width, so its long contents keep readable text on a phone.
+	local single = #StoreLogic.tabRows(self._rows, self._tab) == 1
+	local columns = if single then 1 elseif width < NARROW then 2 else GRID_COLUMNS
 	local cellW = math.floor((width - SCROLL_BAR - (columns - 1) * spacing) / columns)
 	local cellH = math.clamp(math.floor((height - spacing) / 2), self._cellMin, CELL_MAX)
 	self._grid.CellSize = UDim2.fromOffset(cellW, cellH)
@@ -552,6 +554,9 @@ function Store.showTab(self: any, tab: string)
 	end
 	local was = self._tab
 	self._tab = if shown then tab else "featured"
+	if was ~= self._tab then
+		self:_layout() -- a one-card tab takes the whole width
+	end
 	for id, button in self._railButtons do
 		button:setStyle(if id == self._tab then "gold" else "ghost")
 	end

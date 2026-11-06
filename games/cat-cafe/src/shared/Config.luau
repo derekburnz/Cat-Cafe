@@ -34,7 +34,8 @@ local Config = {
 	GrandThemePassId = 2071158673,
 	RoyalCatPassId = 2066438426,
 	KingPackPassId = 2071368679,
-	KingCatPassId = 2074682301, -- #1822: the King Cat alone (R$799); the pass is made off sale and goes on sale after this is live
+	KingCatPassId = 2074682301,
+	GardenDecorPackPassId = 0, -- #1168 row 3: six looks-only decor pieces (R$149); 0 until made, after the models -- #1822: the King Cat alone (R$799); the pass is made off sale and goes on sale after this is live
 	GoldenPondPassId = 2071704337, -- #1232
 	SecondBowlPassId = 2072132265, -- #1161
 	-- #1624 (economy-ladder.md section 6a v2.4): what the five store passes give. VIP, Cafe Style and Grand Cafe add

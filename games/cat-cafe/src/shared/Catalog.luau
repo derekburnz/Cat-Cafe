@@ -3829,6 +3829,15 @@ Catalog.products = {
 			signStyles = { "bakery_stripes" },
 		},
 	},
+	-- #1168 row 4 (Monetization-Agent, 2026-11-06): R$25, once per account, no gameplay effect. It marks the buyer a
+	-- supporter (Products.isSupporter): a gold heart by their name on the Thank You board and a "[Thank You]" chat tag.
+	{
+		id = "thank_you_badge",
+		name = "Thank You Badge",
+		oncePerAccount = true,
+		supporter = true,
+		prize = { potions = {} },
+	},
 	-- #1626 (cafe-pass.md section 1): the paid track of the season running when it is bought. It holds no potions:
 	-- everything comes from the track's levels as they are reached (CafePassService).
 	{

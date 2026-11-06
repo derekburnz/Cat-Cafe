@@ -188,6 +188,8 @@ export type ProductDef = {
 	oncePerAccount: boolean?,
 	-- #1626: unlocks the running Cafe Pass season's paid track (CafePass.buyPaid); once per season
 	seasonPass: boolean?,
+	-- #1168 row 4: buying it marks the player a supporter (the Thank You Badge; Products.isSupporter)
+	supporter: boolean?,
 }
 
 -- Cat food (corner-shop-v2.md section 3, #1181): kept in the Bag (profile.catFood) and fed to one cat with FeedCat.

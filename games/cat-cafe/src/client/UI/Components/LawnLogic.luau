@@ -279,13 +279,14 @@ export type StallRow = {
 	detail: string, -- "Small spot", "Big spot", "Path" or "Fence"
 }
 
-LawnLogic.NURSERY_LINE = "Get lawn pieces at the Garden Nursery in the Park"
-LawnLogic.NURSERY_TIER = 2 -- the Park opens at Tier 2, so the nursery does too
+-- #1760: the Garden Nursery is retired; only the Yard Sale (Neighbourhood camp, Tier 3) sells lawn pieces.
+LawnLogic.NURSERY_LINE = "Get lawn pieces at the Yard Sale in the Neighbourhood camp"
+LawnLogic.NURSERY_TIER = 3 -- the Neighbourhood opens at Tier 3, so the Yard Sale does too
 
--- Where lawn pieces are sold: the Tier 1 line names the tier that opens the Park.
+-- Where lawn pieces are sold: below the Neighbourhood's tier the line names that tier.
 function LawnLogic.nurseryNote(state: Types.PlayerState?): string
 	if state ~= nil and state.tier < LawnLogic.NURSERY_TIER then
-		return ("Lawn pieces are sold at the Garden Nursery in the Park (Tier %d)"):format(
+		return ("Lawn pieces are sold at the Yard Sale in the Neighbourhood camp (Tier %d)"):format(
 			LawnLogic.NURSERY_TIER
 		)
 	end

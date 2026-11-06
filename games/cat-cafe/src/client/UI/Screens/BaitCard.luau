@@ -6,6 +6,7 @@
 -- buttons with a "walk to your bowl" line, should a range ever come back; nothing calls it now.
 -- The X hides the card; the bowl chip brings it back while the cat waits.
 
+local AreaPill = require(script.Parent.Parent.Components.AreaPill)
 local Button = require(script.Parent.Parent.Components.Button)
 local CatBuffs = require(script.Parent.Parent.Components.CatBuffs)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
@@ -31,7 +32,8 @@ export type BaitCard = {
 		def: Types.CatDef,
 		cat: Types.BaitCat,
 		foodName: string?,
-		bowl: number?
+		bowl: number?,
+		areaLine: { text: string, area: string }?
 	) -> (),
 	hide: (self: BaitCard) -> (),
 	isShowing: (self: BaitCard) -> boolean,
@@ -156,6 +158,8 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 		end,
 	})
 
+	-- #1919: "Park 4 / 10" in the area's colour at the top left, clear of the GOLD and RAINBOW stickers
+	self._area = AreaPill.new(card, UDim2.fromOffset(14, 56), 4)
 	self._disc = Create("Frame", {
 		Name = "Disc",
 		BackgroundColor3 = Theme.colors.line,
@@ -303,9 +307,11 @@ function BaitCard.show(
 	def: Types.CatDef,
 	cat: Types.BaitCat,
 	foodName: string?,
-	bowl: number?
+	bowl: number?,
+	areaLine: { text: string, area: string }?
 )
 	self._token += 1
+	AreaPill.set(self._area, areaLine) -- #1919: "Park 4 / 10"
 	self._banner.Text = if bowl
 		then ("A CAT CAME TO BOWL %d!"):format(bowl)
 		else "A CAT CAME TO YOUR BOWL!"

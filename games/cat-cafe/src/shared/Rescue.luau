@@ -304,7 +304,8 @@ function Rescue.pressCircle(attempt: Attempt, pressTime: number, now: number): T
 	if attempt.stage ~= "circle" or circle == nil then
 		return nil
 	end
-	local grade: Types.CircleGrade? = Circles.press(circle, 1, pressTime, now)
+	-- the tree circle is never a paw ring, so its grade is never "left" (#1884)
+	local grade: Types.CircleGrade? = Circles.press(circle, 1, pressTime, now) :: any
 	if Circles.isDone(circle) then -- judged, or expired before this press arrived
 		attempt.stage = "done"
 		attempt.success = Circles.succeeded(circle)

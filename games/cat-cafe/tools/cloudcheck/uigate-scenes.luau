@@ -810,6 +810,44 @@ local SCENES = {
 		UI.open("Decor")
 		press("Decor", "Style")
 	end },
+	-- #1168 row 2: a Jukebox Pass owner's Cafe music row under the looks, Catnap Waltz in use; a tap asks for the song
+	{ "DecorStyleMusic", function()
+		UI.update({
+			signStyles = { "bakery_stripes", "royal_crest" },
+			signStyle = "royal_crest",
+			looks = {
+				uniform = "midnight",
+				uniforms = { "default", "striped", "midnight", "mint", "uniform_pumpkin" },
+				accessory = "hat",
+				accessories = { "hat", "glasses", "acc_leaf_beret", "acc_tiny_lantern" },
+				theme = "garden",
+				themes = { "default", "garden", "grand" },
+			},
+			jukeboxTracks = {
+				"jukebox_rainy_window",
+				"jukebox_catnap_waltz",
+				"jukebox_bakery_bounce",
+				"jukebox_starlight_purr",
+			},
+			jukebox = "jukebox_catnap_waltz",
+		} :: any)
+		UI.open("Decor")
+		press("Decor", "Style")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local row = modals and modals:FindFirstChild("music", true)
+		assert(row, "uigate: no Cafe music row on the Style tab (#1168)")
+		local asked: { string } = {}
+		local connection = UI.events.pickStyle:Connect(function(kind: string, id: string)
+			table.insert(asked, kind .. ":" .. id)
+		end)
+		press("Decor", "music.jukebox_starlight_purr")
+		press("Decor", "music.Default")
+		connection:Disconnect()
+		assert(
+			table.concat(asked, ",") == "music:jukebox_starlight_purr,music:",
+			"uigate: the music row asked " .. table.concat(asked, ",")
+		)
+	end },
 	{ "Index", function()
 		UI.open("Collection")
 	end },

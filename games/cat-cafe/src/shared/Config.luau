@@ -56,7 +56,7 @@ local Config = {
 		potion_pack_s = 3728336184,
 		potion_pack_m = 3728336191,
 		potion_pack_l = 3728336197,
-		steady_paw_pack = 0, -- #1168 row 8: 0 until Tools-Agent makes it with dev-products.yml
+		steady_paw_pack = 3728717974, -- #1168 row 8: made by Tools-Agent (dev-products.yml), off sale until live
 		starter_bundle = 3728336166, -- #1625: once per account (Catalog.products oncePerAccount)
 		cafe_pass = 3728336202, -- #1626: the running season's paid track, once per season (Catalog.products seasonPass)
 	} :: { [string]: number },

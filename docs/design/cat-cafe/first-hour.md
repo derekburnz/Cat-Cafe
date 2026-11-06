@@ -55,3 +55,16 @@ Each milestone is read from the profile, so it needs no new tracking, and each o
 4. A fresh account's second bait result is Rare or better, with the preview line and the rare-moment effects. The third result uses normal odds.
 5. Rejoining between the bait set and its result keeps the guarantee, and it never happens twice.
 6. Pace.spec: Tier 2 and Tier 3 times move by under 5% with the rewards. The phone and desktop playtest shows no new console errors.
+
+## 4. Filling the Tier 2 dead window (#1896, from QA-Planner's audit in PR #1907)
+
+QA's first-hour sim (`docs/playtests/2026-11-06-first-hour.md`) found buys come in bursts and then nothing is affordable for 20 to 30 minutes. That window is Tier 2: the last Tier 2 item costs 25,000 (the Basic to Steady net) and the next coin goal is Tier 3 at 700,000. Decided 2026-11-06 by Design-Agent under Derek2's go-ahead:
+
+- **Two existing upgrade levels move down into Tier 2.** Tier 2's caps go from `tables = 4, espresso = 3` to `tables = 5, espresso = 4` (Catalog.tiers). So Tables level 5 and Espresso level 4 can be bought at Tier 2. No new items, art or remotes.
+- **Their prices are re-fitted** so the Pace.spec median buys Tables 5 at about minute 22 and Espresso 4 at about minute 42 (QA's dead windows at 20 to 25 and around 45). Today's prices (200,000 and 400,000) are the starting point. Gameplay-Engineer fits them; Tier 3 players see the same price.
+- **Tier 3's cost goes up to compensate.** Both buys raise income, so Tier 3 would come sooner. Gameplay-Engineer raises `tierCosts[3]` (700,000 today) until the Tier 3 median sits at 45 to 55 minutes with the 10th percentile at 35 minutes or later, which also pulls up QA's fast runs near 20 minutes. Tier 2 (30,000) doesn't change.
+- **Targets for Pace.spec "The first hour (#1896)":** the median longest gap between shop buys is 12 minutes or less, and with new cats and roadmap milestones counted it's 6 minutes or less. The 4-minute `xit` stays as the long-term goal.
+- **Tier 2 at 10 to 20 minutes stays** the guard, and Tier 3 at 40 to 60 is the "big rank-up" moment. That is Grand Opening step 8 (section 1), so QA's reading of the issue matches the roadmap.
+- **It fits the roadmap.** Steps 5 to 7 (a Park catch at about 20 minutes, a full cafe at about 30 and ten cats at about 40) already land in the same window as non-coin goals. With the two buys, something new happens about every 5 to 10 minutes from minute 15 to 50.
+- Rank-up screen (RankUp.luau): it lists the next tier's unlocks from `requiresTier`, so Tables 5 and Espresso 4 drop out of Tier 3's list and appear in Tier 2's automatically. UI-Engineer checks that the Tier 2 card still fits.
+- Claim: `shared/Catalog.luau` (tiers and upgrades) and `Config.luau` if `tierCosts` lives there. Gameplay-Engineer opens it.

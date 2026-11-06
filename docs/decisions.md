@@ -509,4 +509,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 - 2026-11-06: Lawn cards show a tiny "Big spot" tag on big-spot pieces, and nothing else explains Equip Best. The spot counts and the best-pick rule stay as they are. Spec in lawn-nursery.md §6e. Why: Derek2 picked option 1 on #1729 and then asked to keep the cards light, with no long "Stored: ..." sentence.
 
+- 2026-11-06: The intro cutscene drops the old shot 6, the cut back to the Alleyway camp's Index Board after the cafe shot. It is now eight shots in 20 s, and the `intro_cutscene` event is version 5, so old and new drop-offs never mix. intro-cutscene.md section 2 matches the build in #1786. Why: Derek2 asked in #1782 to "remove the tutorial ending that flashes to the Alleyway".
+
 - 2026-11-06 (overnight, under Derek2's go-ahead): The Spin window is tidied with no prize changes. It has two columns, and the right one holds only the title, the spin count, Spin, a small "Use all" and a small "Odds". All 8 slices get equal pills with short amounts, crate slices show real crate art, and a win turns the pill gold instead of putting a ring on the picture. Spec in rewards-and-shops.md §2b v3. Why: Derek2's ask on #1816.

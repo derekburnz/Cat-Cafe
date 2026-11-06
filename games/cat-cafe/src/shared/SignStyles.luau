@@ -32,6 +32,13 @@ SignStyles.LIST = table.freeze({
 		model = "CatCafe_Plot_SignRoyalCrest",
 		passKey = "KingPackPassId",
 	}),
+	-- #1645 (cafe-pass.md section 3, level 29): the Cafe Pass's name plate frame, saved once claimed (its id is the
+	-- pass item's, so profile.pass.items and profile.signStyles agree)
+	table.freeze({
+		id = "frame_golden_leaf",
+		name = "Golden Leaf",
+		model = "CatCafe_Plot_SignGoldenLeaf",
+	}),
 }) :: { Style }
 
 local byId: { [string]: Style } = {}

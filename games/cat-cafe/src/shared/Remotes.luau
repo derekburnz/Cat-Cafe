@@ -163,6 +163,9 @@ Remotes.ClientToServer = {
 	-- below CatMaxLevel; its XP through CatStats.addXp. 4 a second; answered with FeedResult and a ProfileSync
 	"SetHideCredit", -- (hide: boolean)  #1083: keeps the player's display name off the Thank You board (true) or puts it
 	-- back (false); saves profile.hideCredit and the board shows it from its next build; 1 a second
+	"OwnerGrant", -- (productId: number)  #1770 owner test mode: only a Config.OwnerTestUserIds caller (anyone else is
+	-- dropped and logged); a made product's Roblox id; granted as a receipt would be, with no receipt record and no
+	-- Robux (OwnerTestService); 1 a second, answered with a toast
 }
 
 -- Server -> client.

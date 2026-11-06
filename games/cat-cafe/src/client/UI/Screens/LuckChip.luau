@@ -6,7 +6,7 @@
 -- Lucky Day its text turns gold. A tap opens the card over
 -- the counters, as the money's boosts card does: the Luck and what it does, each source with its share and time
 -- left (Components/LuckLogic.rows), and one line of how much more likely Luck makes each rare rarity (#1776,
--- LuckLogic.boostRich; it replaced the next cat's and next crate's odds blocks). The card opens next to its chip,
+-- three rarity pills, LuckLogic.boostPills; they replaced the next cat's and next crate's odds blocks). The card opens next to its chip,
 -- over the row when the row sits low (over the counters on a computer) and under it when it sits high (level with
 -- the menu on a phone), so the chip stays in view. A tap on the card closes it, and so does any window opening
 -- (HUD.screenOpened).
@@ -44,6 +44,8 @@ local EDGE = 8 -- the card keeps this far from the screen's right edge
 local CLOVER = 0.82 -- the clover picture's share of the circle
 local TITLE_ICON = 22 -- the card title's circle
 local TITLE_GAP = 6
+local PILL_H = 22 -- #1776: a rarity pill
+local PILL_GAP = 4
 
 local LuckChip = {}
 LuckChip.__index = LuckChip
@@ -68,11 +70,6 @@ local function label(props: { [string]: any }): TextLabel
 		Outline.text(text)
 	end
 	return text
-end
-
--- a rarity's colour as hex for the odds rows, the bright one, since the card is dark
-local function rarityHex(rarity: string): string
-	return Theme.rarityColor(rarity):ToHex()
 end
 
 -- The chip's circle at `size` px: dark green, a thin dark edge, the clean clover in the middle (#1258). The luck card's
@@ -250,24 +247,46 @@ function LuckChip.new(
 			Parent = list,
 		})
 	end
-	local function odds(name: string, order: number): TextLabel
-		return label({
-			Name = name,
-			Size = UDim2.fromScale(1, 0),
-			AutomaticSize = Enum.AutomaticSize.Y,
-			FontFace = Theme.fonts.bodyBold,
-			TextSize = Theme.sizes.textSmall,
-			TextWrapped = true,
-			TextTruncate = Enum.TextTruncate.None,
-			RichText = true,
-			LayoutOrder = order,
-			Parent = list,
-		})
-	end
 	-- #1776: one heading and one line of what Luck does to each rarity
 	self._boostTitle = heading("BoostTitle", 4)
 	self._boostTitle.Text = LuckLogic.BOOST_TITLE
-	self._boost = odds("Boost", 5)
+	-- the three pills in a row, each in its rarity's colour (luck-and-rare-moments.md section 1d)
+	self._boost = Create("Frame", {
+		Name = "Boost",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, PILL_H + 4),
+		LayoutOrder = 5,
+		ZIndex = 6,
+		Parent = list,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, PILL_GAP),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+		}),
+	})
+	self._pills = {} :: { TextLabel }
+	for index, rarity in LuckLogic.BOOST_RARITIES do
+		local pill = label({
+			Name = rarity,
+			BackgroundTransparency = 0,
+			BackgroundColor3 = Theme.rarityColor(rarity),
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, PILL_H),
+			TextSize = Theme.sizes.textTiny + 1, -- three fit the 330 px card at Luck's top (+200%)
+			TextXAlignment = Enum.TextXAlignment.Center,
+			LayoutOrder = index,
+			Parent = self._boost,
+		})
+		Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = pill })
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, 6),
+			PaddingRight = UDim.new(0, 6),
+			Parent = pill,
+		})
+		self._pills[index] = pill
+	end
 	label({
 		Name = "Hint",
 		Size = UDim2.new(1, 0, 0, 18),
@@ -468,10 +487,13 @@ function LuckChip._renderCard(self: any)
 	self._title.Text = LuckLogic.text(luck)
 	self._subtitle.Text = LuckLogic.SUBTITLE
 	-- #1776: how much more likely each rare rarity is, shown while Luck lifts anything
-	local boost = LuckLogic.boostRich(luck, rarityHex)
-	self._boost.Text = boost
-	self._boost.Visible = boost ~= ""
-	self._boostTitle.Visible = boost ~= ""
+	local pills = LuckLogic.boostPills(luck)
+	for index, pill in self._pills do
+		local entry = pills[index]
+		pill.Text = if entry then entry.text else ""
+	end
+	self._boost.Visible = #pills > 0
+	self._boostTitle.Visible = #pills > 0
 	local holder: Frame = self._rows
 	for _, child in holder:GetChildren() do
 		if child:IsA("GuiObject") then

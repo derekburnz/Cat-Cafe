@@ -369,28 +369,25 @@ function LuckLogic.oddsRich(
 	return table.concat(lines, "\n")
 end
 
--- #1776 (Derek2: the next cat and next crate odds were "not helpful, just say overall 5% increase to this rarity"):
--- the Luck card's one line of what Luck does to each rarity. shared/Luck.apply multiplies the Epic, Legendary and
--- Mythical chances by the Luck and leaves Rare as it was, so the three share one boost: x2.0 reads
--- "Epic · Legendary · Mythical  +100%", each name in its colour and the boost in green. Empty at x1 or below.
-local BOOST_GREEN = "7CFC6A"
+-- #1776 (Derek2: the next cat and next crate odds were "not helpful, just say overall 5% increase to this rarity";
+-- luck-and-rare-moments.md section 1d): the Luck card's three rarity pills, "Epic +30%", "Legendary +30%" and
+-- "Mythical +30%" at x1.3 (shared Luck.boostPercent: apply multiplies those three by the Luck, Rare keeps its chance).
+-- Empty at x1 or below.
 LuckLogic.BOOST_RARITIES = { "Epic", "Legendary", "Mythical" } :: { string }
 LuckLogic.BOOST_TITLE = "Your Luck makes rare cats more likely"
 
-function LuckLogic.boostRich(luck: number, hexOf: (rarity: string) -> string): string
-	local percent = math.floor((luck - 1) * 100 + 0.5)
+export type BoostPill = { rarity: string, text: string }
+
+function LuckLogic.boostPills(luck: number): { BoostPill }
+	local percent = Luck.boostPercent(luck)
+	local out: { BoostPill } = {}
 	if percent <= 0 then
-		return ""
+		return out
 	end
-	local names: { string } = {}
 	for _, rarity in LuckLogic.BOOST_RARITIES do
-		table.insert(names, ('<font color="#%s">%s</font>'):format(hexOf(rarity), rarity))
+		table.insert(out, { rarity = rarity, text = ("%s +%d%%"):format(rarity, percent) })
 	end
-	return ('%s  <font color="#%s">+%d%%</font>'):format(
-		table.concat(names, " · "),
-		BOOST_GREEN,
-		percent
-	)
+	return out
 end
 
 -- Level 0: "A beckoning cat by your front door" then "Each level: Luck +0.1, rarer bait cats and crate finds".

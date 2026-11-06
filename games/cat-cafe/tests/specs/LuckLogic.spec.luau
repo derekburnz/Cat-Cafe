@@ -229,20 +229,17 @@ return function()
 		end)
 	end)
 
-	describe("LuckLogic.boostRich", function()
-		local function hex(rarity: string): string
-			return rarity:lower()
-		end
-		it("says how much more likely each rare rarity is (#1776)", function()
-			expect(LuckLogic.boostRich(2, hex)).to.equal(
-				'<font color="#epic">Epic</font> · <font color="#legendary">Legendary</font> · '
-					.. '<font color="#mythical">Mythical</font>  <font color="#7CFC6A">+100%</font>'
-			)
-			expect(string.find(LuckLogic.boostRich(1.3, hex), "+30%", 1, true)).to.be.ok()
-			expect(string.find(LuckLogic.boostRich(1.3, hex), "Rare", 1, true)).never.to.be.ok()
+	describe("LuckLogic.boostPills", function()
+		it("gives Epic, Legendary and Mythical the same boost (#1776)", function()
+			local pills = LuckLogic.boostPills(2)
+			expect(#pills).to.equal(3)
+			expect(pills[1].text).to.equal("Epic +100%")
+			expect(pills[2].text).to.equal("Legendary +100%")
+			expect(pills[3].text).to.equal("Mythical +100%")
+			expect(LuckLogic.boostPills(1.3)[1].text).to.equal("Epic +30%")
 		end)
 		it("is empty with no Luck", function()
-			expect(LuckLogic.boostRich(1, hex)).to.equal("")
+			expect(#LuckLogic.boostPills(1)).to.equal(0)
 		end)
 	end)
 

@@ -431,6 +431,43 @@ return function()
 			expect(profile.lawn.small2).to.equal("garden_gnome_cat")
 		end)
 
+		it("#1751: a new piece or style goes out only where nothing stands", function()
+			local profile = profileAt(1)
+			own(profile, { "lamp_post", "tulip_bed", "mailbox" })
+			profile.lawn.small1 = "lamp_post"
+			expect(Lawn.putOut(profile, "tulip_bed")).to.equal(true)
+			expect(profile.lawn.small2).to.equal("tulip_bed")
+			-- both small spots of Tier 1 taken: the Mailbox waits, and nothing the player chose moves
+			expect(Lawn.putOut(profile, "mailbox")).to.equal(false)
+			expect(profile.lawn.small1).to.equal("lamp_post")
+			expect(profile.lawn.small2).to.equal("tulip_bed")
+			expect(Lawn.putOut(profile, "garden_bench")).to.equal(false) -- not owned
+			-- a path over Grey Slabs and a fence where none stands, but never over one the player laid
+			own(profile, { "red_brick", "white_picket" })
+			expect(Lawn.putOut(profile, "red_brick")).to.equal(true)
+			expect(profile.lawnStyles.path).to.equal("red_brick")
+			profile.lawnStyles.fence = nil
+			expect(Lawn.putOut(profile, "white_picket")).to.equal(true)
+			expect(profile.lawnStyles.fence).to.equal("white_picket")
+			profile.lawnStyles.path = Lawn.DEFAULT_PATH
+			profile.lawnOwned.red_brick = nil
+			expect(Lawn.putOut(profile, "red_brick")).to.equal(false)
+		end)
+
+		it("#1751: after a trade, takes in only what the cafe no longer owns", function()
+			local profile = profileAt(1)
+			own(profile, { "lamp_post", "tulip_bed", "red_brick" })
+			profile.lawn.small1 = "lamp_post"
+			profile.lawnStyles.path = "red_brick"
+			expect(Lawn.keepOwned(profile)).to.equal(false) -- the small2 spot the player emptied stays empty
+			expect(profile.lawn.small2).never.to.be.ok()
+			profile.lawnOwned.lamp_post = nil
+			profile.lawnOwned.red_brick = nil
+			expect(Lawn.keepOwned(profile)).to.equal(true)
+			expect(profile.lawn.small1).never.to.be.ok()
+			expect(profile.lawnStyles.path).to.equal(Lawn.DEFAULT_PATH)
+		end)
+
 		it("replaces a lawn placed by hand: a weak piece out and a strong one stored", function()
 			local profile = profileAt(2)
 			own(profile, { "tulip_bed", "lamp_post", "flower_cart", "garden_bench" })

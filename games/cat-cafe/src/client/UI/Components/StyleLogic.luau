@@ -6,8 +6,8 @@
 --   uniform   every job's uniform: Classic or an owned style (the Uniform Styles pass, Cafe Pass colours)
 --   accessory the working cats' accessory (#1708, Cat Accessories pass and Cafe Pass pieces): None or an owned one
 --   theme     the cafe's theme: Classic, Garden (Cafe Style pass) or Grand (Grand Cafe Theme)
---   music     the cafe's music (#1168 row 2, Jukebox Pass): the day and night mix or an owned shared/Jukebox song;
---             PlayerState.jukeboxTracks and jukebox, SetJukeboxTrack(id or "default")
+--   music     the cafe's music (#1875: free for everyone): the day and night mix or a shared/Jukebox song;
+--             PlayerState.jukeboxTracks (every song) and jukebox, SetJukeboxTrack(id or "default")
 -- Uniforms, accessories and themes read PlayerState.looks = { theme, uniform, accessory, themes, uniforms,
 -- accessories } once the server sends it (SetLook);
 -- until then those rows stay hidden. A row shows only when the player owns more than the default, so the tab (and its

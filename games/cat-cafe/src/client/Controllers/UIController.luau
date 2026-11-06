@@ -606,7 +606,7 @@ local function applyState(s: Types.PlayerState)
 	Audio.setCarrying(s.carrying ~= nil)
 	Audio.setTutorial(s.tutorialStep, setting("tutorialButton") ~= false)
 	local track = if s.jukebox ~= nil then Jukebox.get(s.jukebox) else nil
-	Audio.setJukebox(if track ~= nil then track.cue else nil) -- #1168: the Jukebox Pass pick
+	Audio.setJukebox(if track ~= nil then track.cue else nil) -- #1875: the Jukebox pick (free)
 	if lastTier ~= nil and s.tier > (lastTier :: number) then
 		Moments.RankUp:Fire(s.tier)
 	end
@@ -954,7 +954,7 @@ local function wireIntents()
 			Net.fire("SetSignStyle", if id == "" then nil else id)
 		elseif kind == "uniform" or kind == "accessory" or kind == "theme" then -- #1708: accessory
 			Net.fire("SetLook", kind, if id == "" then "default" else id)
-		elseif kind == "music" then -- #1168 row 2: the Jukebox Pass song, "default" for the day and night mix
+		elseif kind == "music" then -- #1875: a Jukebox song, "default" for the day and night mix
 			Net.fire("SetJukeboxTrack", if id == "" then "default" else id)
 		end
 	end)

@@ -150,6 +150,7 @@ UI.events = {
 	claimTipJar = Signal.new(), -- (step)   Claim on a ready Tip Jar gift: forward as ClaimTipJar (F47)
 	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
+	storeSeen = Signal.new(), -- (tab)   a Store tab with a New dot opened: forward as MarkStoreSeen (#1823 §4)
 	spinAll = Signal.new(), -- ()   Use all on the Spin window (#1078): forward as SpinAll
 	openCrate = Signal.new(), -- (crateId)   Open on a Golden Fish Market crate card: forward as OpenCrate (F53)
 	buyCrateBundle = Signal.new(), -- (crateId)   Buy 5 on a Market crate card: forward as BuyCrateBundle (#1051)
@@ -5476,6 +5477,7 @@ do
 		grant = nil :: Signal.Connection?, -- PassShop.ownerGrant to UI.events.ownerGrant (#1770)
 		open = false, -- whether the HUD's tile shows
 		bench = false, -- #1633: the Codes Cat's circle opened the Store, so walking out closes it
+		tabs = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StoreTabs")) :: any, -- #1823 §4
 		-- #1168 row 4: the Player attribute the server sets on a Thank You Badge buyer (Products.SUPPORTER_ATTRIBUTE)
 		supporterKey = (require(
 				ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Products")
@@ -5513,8 +5515,20 @@ do
 	-- The window's cards when it is up, and the HUD's tile when its open state changes.
 	local function refresh()
 		local screen = shop.screen
-		if screen and modal and modal:current() == "Store" then
-			screen:render(rows(), PassShop.prices())
+		if screen then
+			-- #1823 §4: the New dots, on the rail and on the HUD's tile while any tab has one. The rows are built
+			-- only while the window is up or a dot could show. The dots go first, so render clears the open tab's.
+			local seen = (state :: any).storeSeen
+			local unseen = shop.tabs.unseen(if type(seen) == "table" then seen else {})
+			local up = modal ~= nil and modal:current() == "Store"
+			local list = if up or next(unseen) ~= nil then rows() else nil
+			screen:setNew(if list then StoreLogic.newTabs(unseen, list) else {})
+			if up and list then
+				screen:render(list, PassShop.prices())
+			end
+			if hud then
+				hud:setStoreNew(screen:hasNew())
+			end
 		end
 		-- #1606: the money pass badge beside the HUD's money ("2x" to "4x", or "Get 2x" while the 2x pass is on sale)
 		if hud then
@@ -5557,6 +5571,9 @@ do
 				end
 			end,
 			-- #1428: the code box starts fresh on the Codes tab and clears when it leaves view
+			seen = function(tab: string)
+				UI.events.storeSeen:Fire(tab)
+			end,
 			codes = function(shown: boolean)
 				local codes = codesScreen
 				if codes == nil then

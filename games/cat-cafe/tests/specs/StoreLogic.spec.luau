@@ -273,6 +273,19 @@ return function()
 			expect(table.concat(tabs, ",")).to.equal("featured,passes,cats,potions,codes")
 		end)
 
+		it("lights a New dot only on a tab the rail shows (#1823 section 4)", function()
+			local rows = StoreLogic.rows(config, {}, nil, view)
+			local unseen = { featured = true, cafePass = true, potions = true, codes = true }
+			local new = StoreLogic.newTabs(unseen, rows)
+			-- no Cafe Pass card between seasons, so its dot never keeps the HUD's Store dot lit
+			expect(new.cafePass).to.equal(nil)
+			expect(new.featured).to.equal(true)
+			expect(new.potions).to.equal(true)
+			expect(new.codes).to.equal(true)
+			expect(new.passes).to.equal(nil)
+			expect(next(StoreLogic.newTabs({}, rows))).to.equal(nil)
+		end)
+
 		it("features the Starter Bundle, then the ladder, Long Nap and King Cat Pack", function()
 			local featured = StoreLogic.featured(StoreLogic.rows(config, {}, nil, view))
 			expect(featured.hero.key).to.equal("starterBundle")

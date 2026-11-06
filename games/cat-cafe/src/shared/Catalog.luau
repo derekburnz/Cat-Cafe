@@ -3384,6 +3384,67 @@ for _, def in Catalog.decor do
 	end
 end
 
+-- #1645 (cafe-pass.md section 3): the Cafe Pass's season decor, earned on its track and owned forever. Looks only: no
+-- money bonus and no crate, so it is in no Decor Index page and never moves the Index, and it can't be traded
+-- (Trade.piece takes crate pieces only) or bought (Economy.decorBlocker). Each piece takes a decor spot like the crate
+-- furniture and decorations; they are kept apart in Catalog.passDecor (Catalog.crateDecor is the 84 crate pieces), and
+-- the server places them after the crate pieces.
+local PASS_DECOR: { { id: string, name: string, kind: Types.DecorKind, description: string } } = {
+	{
+		id = "decor_pumpkin_lantern",
+		name = "Pumpkin Lantern",
+		kind = "decoration",
+		description = "A friendly cat face, glowing warm.",
+	},
+	{
+		id = "decor_fallen_leaf_rug",
+		name = "Fallen Leaf Rug",
+		kind = "decoration",
+		description = "A big maple leaf to curl up on.",
+	},
+	{
+		id = "decor_cosy_knit_cushion",
+		name = "Cosy Knit Cushion",
+		kind = "furniture",
+		description = "A soft knitted pouf in pumpkin bands.",
+	},
+	{
+		id = "decor_hay_bale_seat",
+		name = "Hay Bale Seat",
+		kind = "furniture",
+		description = "Harvest time, sit a while.",
+	},
+	{
+		id = "decor_apple_crate_shelf",
+		name = "Apple Crate Shelf",
+		kind = "furniture",
+		description = "Crates of red apples, stacked as shelves.",
+	},
+	{
+		id = "decor_maple_tree_planter",
+		name = "Maple Tree Planter",
+		kind = "decoration",
+		description = "A little maple in red and orange.",
+	},
+}
+Catalog.passDecor = {} :: { Types.DecorDef }
+for _, row in PASS_DECOR do
+	local def: Types.DecorDef = {
+		id = row.id,
+		name = row.name,
+		cost = 0,
+		category = KIND_CATEGORY[row.kind],
+		effect = "Looks only",
+		description = row.description,
+		bonus = 0,
+		asset = "CatCafe_Decor_" .. (row.name:gsub("[^%w]", "")),
+		source = "pass",
+		kind = row.kind,
+	}
+	Catalog.decorById[row.id] = def
+	table.insert(Catalog.passDecor, def)
+end
+
 Catalog.crates = {} :: { Types.CrateDef }
 for _, pool in CRATE_POOLS do
 	table.insert(Catalog.crates, {

@@ -2,7 +2,7 @@
 # Start it from the Actions tab (game-passes > Run workflow) or from any thread with the GitHub actions_run_trigger
 # tool on main. list prints every pass with its id; create makes each pass in
 # games/cat-cafe/tools/opencloud/passes.json that is missing, off sale unless for_sale is ticked, and prints the
-# Config lines for its ids; set changes one pass's price, sale state, regional pricing or icon; set with batch changes
+# Config lines for its ids; set changes one pass's price, sale state, regional pricing, icon or description; set with batch changes
 # many passes in one run. Passes cannot be
 # deleted, so a pass is named and described as final before it goes in passes.json. Since 2026-11-04 (Derek) a pass
 # may be made ahead of its code as an off-sale placeholder; it stays off sale until the code that grants it is merged.
@@ -22,7 +22,7 @@ on:
         required: false
         default: ""
       changes:
-        description: "set: one or more of price=N forSale=true|false regional=true|false icon=<image path from the repo root>"
+        description: "set: one or more of price=N forSale=true|false regional=true|false icon=<image path from the repo root> description=passes.json"
         required: false
         default: ""
       batch:

@@ -3389,44 +3389,65 @@ end
 -- (Trade.piece takes crate pieces only) or bought (Economy.decorBlocker). Each piece takes a decor spot like the crate
 -- furniture and decorations; they are kept apart in Catalog.passDecor (Catalog.crateDecor is the 84 crate pieces), and
 -- the server places them after the crate pieces.
-local PASS_DECOR: { { id: string, name: string, kind: Types.DecorKind, description: string } } = {
+-- #1822: a row with `pack` comes with that game pass instead (the King Cat Pack's booth, granted once by
+-- ShopCatService through shared/KingPack), with the same looks-only rules; `asset` names a model other than the one
+-- its name gives.
+local PASS_DECOR: {
 	{
-		id = "decor_pumpkin_lantern",
-		name = "Pumpkin Lantern",
-		kind = "decoration",
-		description = "A friendly cat face, glowing warm.",
-	},
+		id: string,
+		name: string,
+		kind: Types.DecorKind,
+		description: string,
+		asset: string?,
+		pack: string?,
+	}
+} =
 	{
-		id = "decor_fallen_leaf_rug",
-		name = "Fallen Leaf Rug",
-		kind = "decoration",
-		description = "A big maple leaf to curl up on.",
-	},
-	{
-		id = "decor_cosy_knit_cushion",
-		name = "Cosy Knit Cushion",
-		kind = "furniture",
-		description = "A soft knitted pouf in pumpkin bands.",
-	},
-	{
-		id = "decor_hay_bale_seat",
-		name = "Hay Bale Seat",
-		kind = "furniture",
-		description = "Harvest time, sit a while.",
-	},
-	{
-		id = "decor_apple_crate_shelf",
-		name = "Apple Crate Shelf",
-		kind = "furniture",
-		description = "Crates of red apples, stacked as shelves.",
-	},
-	{
-		id = "decor_maple_tree_planter",
-		name = "Maple Tree Planter",
-		kind = "decoration",
-		description = "A little maple in red and orange.",
-	},
-}
+		{
+			id = "decor_pumpkin_lantern",
+			name = "Pumpkin Lantern",
+			kind = "decoration",
+			description = "A friendly cat face, glowing warm.",
+		},
+		{
+			id = "decor_fallen_leaf_rug",
+			name = "Fallen Leaf Rug",
+			kind = "decoration",
+			description = "A big maple leaf to curl up on.",
+		},
+		{
+			id = "decor_cosy_knit_cushion",
+			name = "Cosy Knit Cushion",
+			kind = "furniture",
+			description = "A soft knitted pouf in pumpkin bands.",
+		},
+		{
+			id = "decor_hay_bale_seat",
+			name = "Hay Bale Seat",
+			kind = "furniture",
+			description = "Harvest time, sit a while.",
+		},
+		{
+			id = "decor_apple_crate_shelf",
+			name = "Apple Crate Shelf",
+			kind = "furniture",
+			description = "Crates of red apples, stacked as shelves.",
+		},
+		{
+			id = "decor_maple_tree_planter",
+			name = "Maple Tree Planter",
+			kind = "decoration",
+			description = "A little maple in red and orange.",
+		},
+		{
+			id = "decor_royal_velvet_booth",
+			name = "Royal Velvet Booth",
+			kind = "furniture",
+			description = "A deep red booth fit for a king.",
+			asset = "CatCafe_Decor_VelvetBooth",
+			pack = "King Cat Pack",
+		},
+	}
 Catalog.passDecor = {} :: { Types.DecorDef }
 for _, row in PASS_DECOR do
 	local def: Types.DecorDef = {
@@ -3437,9 +3458,10 @@ for _, row in PASS_DECOR do
 		effect = "Looks only",
 		description = row.description,
 		bonus = 0,
-		asset = "CatCafe_Decor_" .. (row.name:gsub("[^%w]", "")),
+		asset = row.asset or "CatCafe_Decor_" .. (row.name:gsub("[^%w]", "")),
 		source = "pass",
 		kind = row.kind,
+		pack = row.pack,
 	}
 	Catalog.decorById[row.id] = def
 	table.insert(Catalog.passDecor, def)

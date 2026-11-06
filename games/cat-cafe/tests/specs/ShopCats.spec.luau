@@ -14,6 +14,8 @@ return function()
 	local ROWS = {
 		{ catId = "duchess_marzipan", rarity = "Legendary", passId = Config.RoyalCatPassId },
 		{ catId = "king_croissant", rarity = "Mythical", passId = Config.KingPackPassId },
+		-- #1822: the King Cat alone, the same cat on a pass of its own (0 until made)
+		{ catId = "king_croissant", rarity = "Mythical", passId = (Config :: any).KingCatPassId },
 	}
 
 	-- The native cat of `rarity` in the area that opens at `tier`, the newest one at that tier.
@@ -95,7 +97,8 @@ return function()
 
 		it("lists both made passes for PassService to look up", function()
 			local ids = ShopCats.passIds()
-			expect(#ids).to.equal(2)
+			-- #1822: the King Cat alone joins the list once its pass is made
+			expect(#ids).to.equal(if (Config :: any).KingCatPassId == 0 then 2 else 3)
 			expect(ids[1]).to.equal(Config.RoyalCatPassId)
 			expect(ids[2]).to.equal(Config.KingPackPassId)
 		end)
@@ -118,6 +121,14 @@ return function()
 			expect(#ShopCats.toGive(profile, both)).to.equal(0)
 			profile.cats.d = nil
 			expect(ShopCats.toGive(profile, both) :: any).to.deepEqual({ "duchess_marzipan" })
+		end)
+
+		it("gives the King Cat once when both the pack and the King Cat alone are owned", function()
+			local profile = ProfileSchema.template(1000)
+			local all = function(id: number): boolean
+				return id ~= 0 and id ~= Config.RoyalCatPassId
+			end
+			expect(ShopCats.toGive(profile, all) :: any).to.deepEqual({ "king_croissant" })
 		end)
 
 		it("never gives a cat for a pass id of 0", function()

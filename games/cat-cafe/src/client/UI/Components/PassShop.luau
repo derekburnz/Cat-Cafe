@@ -5,6 +5,9 @@
 -- pass bought now), and the purchase prompt itself. Like Components/Invite with Roblox's invite window, the UI opens
 -- Roblox's own purchase window directly; nothing goes through our remotes. The server's PassService hears the same
 -- purchase finish and turns the pass on.
+-- #1770 owner test mode: while the server has set the OwnerTest attribute on the local player (shared/OwnerTest, the
+-- owner's account only), every pass counts as owned here as it does on the server, and prompt(id) for a product fires
+-- `ownerGrant` (UIController sends OwnerGrant) in place of Roblox's purchase window; the server checks the caller.
 --
 --   start(ids)       look up each pass; `changed` fires as answers arrive
 --   refresh()        look the prices up again (the Store opening, at most once a REFRESH_SECONDS), so a price or
@@ -15,6 +18,7 @@
 -- Roblox terms: a game pass is a one-time purchase Roblox keeps track of, so no saved receipt is needed.
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Signal = require(script.Parent.Signal)
 local StoreLogic = require(script.Parent.StoreLogic)
@@ -22,12 +26,14 @@ local StoreLogic = require(script.Parent.StoreLogic)
 local PassShop = {}
 
 PassShop.changed = Signal.new() -- prices or ownership changed
+PassShop.ownerGrant = Signal.new() -- (productId) #1770: owner test mode's grant in place of a purchase
 
 local prices: { [number]: StoreLogic.Price } = {}
 local products: { [number]: boolean } = {} -- developer product ids (#1182): priced as products, bought each time
 local owned: { [number]: boolean } = {}
 local started = false
 local finished: RBXScriptConnection? = nil
+local ownerWatch: RBXScriptConnection? = nil -- the OwnerTest attribute's changes (#1770)
 local passIds: { number } = {}
 local productIdList: { number } = {}
 local lastLook = -math.huge -- os.clock() of the last price look-up
@@ -57,6 +63,51 @@ local function lookPrice(service: MarketplaceService, id: number, infoType: Enum
 	end
 end
 
+-- #1770: shared/OwnerTest (nil where the shared folder is missing, as in a bare test).
+local function ownerModule(): any
+	local shared = ReplicatedStorage:FindFirstChild("Shared")
+	local module = if shared then shared:FindFirstChild("OwnerTest") else nil
+	if module == nil or not module:IsA("ModuleScript") then
+		return nil
+	end
+	return require(module) :: any
+end
+
+local function ownerAttribute(): string?
+	local module = ownerModule()
+	return if module ~= nil then module.ATTRIBUTE else nil
+end
+
+-- Whether the server put the local player in owner test mode (#1770). Only the server sets it.
+function PassShop.ownerTest(): boolean
+	local player = Players.LocalPlayer
+	local name = ownerAttribute()
+	return player ~= nil and name ~= nil and player:GetAttribute(name) == true
+end
+
+-- The HUD's "Owner test mode" label while in it (#1770), else nil.
+function PassShop.ownerLabel(): string?
+	local module = ownerModule()
+	return if module ~= nil and PassShop.ownerTest() then module.LABEL else nil
+end
+
+-- #1770: every pass owned while in owner test mode, as the server counts them.
+local function markOwnerPasses()
+	if previewing or not PassShop.ownerTest() then
+		return
+	end
+	local any = false
+	for _, id in passIds do
+		if not owned[id] then
+			owned[id] = true
+			any = true
+		end
+	end
+	if any then
+		PassShop.changed:Fire()
+	end
+end
+
 local function market(): MarketplaceService?
 	local ok, service = pcall(function()
 		return game:GetService("MarketplaceService")
@@ -77,6 +128,14 @@ function PassShop.start(ids: { number }, productIds: { number }?)
 	local productList: { number } = productIds or {}
 	passIds = table.clone(ids)
 	productIdList = table.clone(productList)
+	local attribute = ownerAttribute()
+	if attribute ~= nil then
+		ownerWatch = player:GetAttributeChangedSignal(attribute):Connect(function()
+			markOwnerPasses()
+			PassShop.changed:Fire() -- the HUD's label follows the attribute either way
+		end)
+	end
+	markOwnerPasses()
 	lastLook = os.clock()
 	for _, id in productList do
 		products[id] = true
@@ -128,6 +187,15 @@ end
 function PassShop.prompt(id: number)
 	local service = market()
 	local player = Players.LocalPlayer
+	if PassShop.ownerTest() then
+		-- #1770: no Roblox window; a product is granted by the server, a pass already counts as owned
+		if products[id] then
+			PassShop.ownerGrant:Fire(id)
+		else
+			markOwnerPasses()
+		end
+		return
+	end
 	if service == nil or player == nil then
 		return
 	end
@@ -172,6 +240,10 @@ function PassShop.stop()
 	if finished then
 		finished:Disconnect()
 		finished = nil
+	end
+	if ownerWatch then
+		ownerWatch:Disconnect()
+		ownerWatch = nil
 	end
 	table.clear(prices)
 	table.clear(owned)

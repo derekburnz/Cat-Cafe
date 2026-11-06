@@ -20,10 +20,13 @@ export type Kind = "theme" | "uniform" | "accessory"
 export type Rgb = { number }
 -- A theme's models, each placed at the plot pivot (themes.py, signstyles.py): `front` the outside pieces, `sign` the
 -- theme's own name sign (with a SignBoard), shown while no sign style is picked, and `inside` the extra inside pieces.
+-- `alsoKey` names a second pass that gives the theme as a look only (#1822: the King Cat Pack's Grand look; the Grand
+-- Cafe pass's money and job slot stay on GrandThemePassId in Economy).
 export type Theme = {
 	id: string,
 	name: string,
 	passKey: string,
+	alsoKey: string?,
 	front: string,
 	sign: string,
 	inside: { string },
@@ -61,6 +64,7 @@ local THEMES: { Theme } = {
 		id = "grand",
 		name = "Grand",
 		passKey = "GrandThemePassId",
+		alsoKey = "KingPackPassId",
 		front = "CatCafe_Plot_ThemeGrand",
 		sign = "CatCafe_Plot_SignGrand",
 		inside = { "CatCafe_Plot_ThemeGrandChandelier" },
@@ -217,7 +221,8 @@ function Looks.owned(
 	if kind == "theme" then
 		for _, theme in THEMES do
 			local passId = passIdOf(theme.passKey)
-			if passId ~= 0 and ownsPass(passId) then
+			local alsoId = passIdOf(theme.alsoKey)
+			if (passId ~= 0 and ownsPass(passId)) or (alsoId ~= 0 and ownsPass(alsoId)) then
 				table.insert(ids, theme.id)
 			end
 		end

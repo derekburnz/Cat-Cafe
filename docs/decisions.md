@@ -511,4 +511,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 - 2026-11-06: The intro cutscene drops the old shot 6, the cut back to the Alleyway camp's Index Board after the cafe shot. It is now eight shots in 20 s, and the `intro_cutscene` event is version 5, so old and new drop-offs never mix. intro-cutscene.md section 2 matches the build in #1786. Why: Derek2 asked in #1782 to "remove the tutorial ending that flashes to the Alleyway".
 
+- 2026-11-06: The Luck card drops its two odds blocks. Instead it shows one row of rarity pills, for example "Epic +30%  Legendary +30%  Mythical +30%". Luck multiplies those three chances alike, so the boost is (luck - 1) x 100 percent, relative to x1.0. The number comes from a new shared `Luck.boostPercent`. The spec is in luck-and-rare-moments.md §1d. Why: Derek2 on #1776 said the odds "are not helpful"; he asked for a plain per-rarity increase shown mostly by hue.
+
 - 2026-11-06: The Day Cart keeps more in stock: row i is in stock with max(25%, 100% - 3% x (i - 1)), about 14 of the 19 rows a day instead of about 10. Quantities and daily limits are unchanged. day-cart.md §2 matches the build in #1743. Why: Derek2 asked for more Day Cart items in stock (#1740).

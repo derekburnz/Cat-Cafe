@@ -600,4 +600,27 @@ return function()
 			end
 		end)
 	end)
+	describe("StoreLogic #1168 Jukebox Pass card", function()
+		it("names every Jukebox song and hides while JukeboxPassId is 0", function()
+			local Jukebox = require(
+				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Jukebox")
+			) :: any
+			local function find(rows: { any }): any
+				for _, row in rows do
+					if row.key == "jukebox" then
+						return row
+					end
+				end
+				return nil
+			end
+			local row = find(StoreLogic.rows({ JukeboxPassId = 77 }, {}, nil, nil))
+			expect(row).to.be.ok()
+			expect(row.passId).to.equal(77)
+			expect(row.tab).to.equal("passes")
+			for _, track in Jukebox.TRACKS do
+				expect(row.effect:find(track.name, 1, true)).to.be.ok()
+			end
+			expect(find(StoreLogic.rows({ JukeboxPassId = 0 }, {}, nil, nil))).to.equal(nil)
+		end)
+	end)
 end

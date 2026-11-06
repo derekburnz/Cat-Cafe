@@ -150,6 +150,14 @@ local PASSES: { PassCard } = {
 		icon = "🪧",
 		effect = "Three cafe sign looks: Flower Box, Starry Night and Paw Chalkboard. Looks only.",
 	},
+	-- #1168 row 2: the four songs of shared/Jukebox, by name; hidden while JukeboxPassId is 0
+	{
+		key = "jukebox",
+		configKey = "JukeboxPassId",
+		name = "Jukebox Pass",
+		icon = "🎵",
+		effect = "Four more cafe songs to pick: Rainy Window, Catnap Waltz, Bakery Bounce and Starlight Purr.",
+	},
 	-- #1822 (Monetization's store doc §3C): the King Cat alone sits just before its bundle under Cats, so the bundle
 	-- reads as the better deal; hidden while KingCatPassId is 0
 	{

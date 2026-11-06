@@ -204,6 +204,12 @@ local IDS: { [string]: string } = {
 	Icon_Store_PotionM = "rbxassetid://105174680715086",
 	Icon_Store_PotionL = "rbxassetid://78484581183767",
 	Icon_Store_CafePass = "rbxassetid://74467013890390",
+	-- #1168 cards (Tools-Agent 11-06; store-icon-asset-ids-2026-11-06.md)
+	Icon_Store_SteadyPaw = "rbxassetid://80888086047548",
+	Icon_Store_ThankYou = "rbxassetid://132722097256875",
+	Icon_Store_Jukebox = "rbxassetid://84493998133754",
+	Icon_Store_SignStylePack = "rbxassetid://82755598634285",
+	Icon_Store_GardenDecor = "rbxassetid://76257173019480",
 }
 local NETS = 4
 
@@ -386,15 +392,6 @@ function ShopIcons.store(key: string?, multiplier: number?): string?
 	-- #1822: the King Cat alone shows the pack's King Cat picture until it has a render of its own
 	if key == "kingCat" then
 		return IDS.Icon_Store_KingPack
-	end
-	-- #1168: until they have store renders, the Steady Paw Pack shows its potion and the Garden Decor Pack the Decor
-	-- picture
-	if key == "steadyPaw" then
-		return ShopIcons.potion("steady_potion")
-	elseif key == "gardenDecor" then
-		return IDS.Icon_Decor
-	elseif key == "signStylePack" then -- #1168: the cafe look's picture until the pack has a render of its own
-		return IDS.Icon_Store_CafeStyle
 	end
 	return IDS["Icon_Store_" .. key:sub(1, 1):upper() .. key:sub(2)]
 end

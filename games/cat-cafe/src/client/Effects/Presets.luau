@@ -3675,4 +3675,34 @@ Presets.pity = {
 	},
 }
 
+-- Catch v3 (catch-rework.md section 7, #1892; Logic.catchReact, Logic.netWrap, Logic.moodLayer, Effects/CatchReact):
+-- how the cat answers each judged ring, in degrees and seconds. perk on a hit, wriggle on a Miss, swat on a tapped
+-- paw ring (the paw flicks up by `up` of the way through and is back down by the end, staying up until `hold`). wrap:
+-- the net closes from `open` to `snug` times the cat's size over `settle` of the `seconds` and rocks `roll` degrees
+-- `wobbles` times, the cat hunkering `sink` into it; `seconds` matches VFX-Agent's Presets.catchFinish.wrap, so the
+-- finish pop lands as the wobble ends. mood: the Curious head tilt and the Skittish crouch on a stray's idle,
+-- easing in over `ease` seconds. None of it with Reduce Motion, except the net, which closes without rocking.
+Presets.catchReact = {
+	perk = { seconds = 0.45, ears = 18, nose = 8, lean = 6, tailUp = 20 },
+	wriggle = { seconds = 0.7, wriggles = 3, roll = 12, head = 10, tail = 30, ears = 30 },
+	swat = { seconds = 0.45, up = 0.25, hold = 0.45, paw = 70, rear = 8, lean = 6, ears = 45 },
+	wrap = {
+		seconds = 0.6,
+		settle = 0.25,
+		wobbles = 2,
+		roll = 10,
+		sink = 0.35,
+		ears = 35,
+		open = 1.5,
+		snug = 1.08,
+		color = Color3.fromRGB(245, 236, 214),
+		transparency = 0.35,
+	},
+	mood = {
+		ease = 0.4,
+		curious = { tilt = 14, seconds = 2.4, tailUp = 25, ears = 10 },
+		skittish = { crouch = 0.35, headDown = 10, tailDown = 15, ears = 25 },
+	},
+}
+
 return Presets

@@ -12,16 +12,21 @@
 --
 -- IMPLIES: a step the server sees proves the steps it lists were passed (a catch is started in reach of a stray), so
 -- reaching it reaches them first. Only server steps imply anything: a step a client reports (CLIENT_STEPS) is reached
--- by itself and can never move a server step. A save from funnel v1 or v2 that is past its first catch leaves the
+-- by itself and can never move a server step. A save from funnel v1, v2 or v3 that is past its first catch leaves the
 -- funnel (fromOld): the funnel is for new players, and a veteran would log the first minutes it never replays.
+--
+-- Version 4 (#1888, Derek2 2026-11-06: good funnels for the release tests once ads run): `onboarding_v4` keeps v3's 37
+-- steps as they were and adds eight for what came out since (the Store, the Cafe Pass, the camp stations, Equip best,
+-- Tier 4 and the first Robux spend). The intro funnel moves with it, `onboarding_v4_intro`. A v3 save past its first
+-- catch leaves the funnel like the older ones, so the funnel counts only players who start on v4.
 
 local Types = require(script.Parent.Types)
 
 local Onboarding = {}
 
-Onboarding.VERSION = 3
-Onboarding.FUNNEL = "onboarding_v3"
-Onboarding.INTRO_FUNNEL = "onboarding_v3_intro"
+Onboarding.VERSION = 4
+Onboarding.FUNNEL = "onboarding_v4"
+Onboarding.INTRO_FUNNEL = "onboarding_v4_intro"
 
 export type StepName =
 	-- loading and the first catch
@@ -64,6 +69,15 @@ export type StepName =
 	| "first_offline_claim"
 	| "tier_3"
 	| "starter_cat"
+	-- v4 (#1888): what came out since v3
+	| "first_store_open"
+	| "first_pass_xp"
+	| "first_pass_claim"
+	| "first_camp_collect"
+	| "first_equip_best"
+	| "pass_level_5"
+	| "tier_4"
+	| "first_robux_purchase"
 
 export type IntroStepName =
 	"intro_choice_made"
@@ -119,9 +133,21 @@ Onboarding.STEPS = {
 	"first_offline_claim",
 	"tier_3",
 	"starter_cat",
+	"first_store_open", -- the Store opened (a client step)
+	"first_pass_xp", -- the first Cafe Pass XP (a quest's prize)
+	"first_pass_claim", -- a Cafe Pass reward claimed
+	"first_camp_collect", -- a camp station collected (CampExtras.COLLECT)
+	"first_equip_best", -- the Equip best button pressed
+	"pass_level_5", -- Cafe Pass level 5
+	"tier_4",
+	"first_robux_purchase", -- the account's first pass or product bought (robux_purchase tells it apart in time)
 } :: { StepName }
 
 Onboarding.COUNT = #Onboarding.STEPS
+
+-- v3's steps, the first V3_COUNT of v4's (fromOld, and the report's labels for onboarding_v3).
+Onboarding.V3_COUNT = 37
+Onboarding.V3_STEPS = table.move(Onboarding.STEPS, 1, Onboarding.V3_COUNT, 1, {}) :: { string }
 
 -- The intro funnel: picked from the tile or the help card, started, each of Intro.SHOTS shots shown, played out. A
 -- shot left out (its camp did not stream in) or a choice the Settings row skipped is never logged; Roblox counts it
@@ -154,6 +180,7 @@ Onboarding.CLIENT_STEPS = {
 	first_window_opened = true, -- ui_opened
 	tut_4_shown = true,
 	rank_up_card_seen = true, -- ui_opened RankUp at Tier 1
+	first_store_open = true, -- store_opened (#1888)
 } :: { [string]: boolean }
 
 -- The client steps TelemetryReport("step", name) may send; the others come with their own reports.
@@ -190,6 +217,9 @@ Onboarding.IMPLIES = {
 	tier_2 = { "rank_up_card_seen", "rank_up_ready" }, -- RankUp is pressed on the card with the needs met
 	first_park_catch = { "tier_2" }, -- the Park opens at Tier 2
 	tier_3 = { "tier_2" },
+	first_pass_claim = { "first_pass_xp" }, -- a reward needs a level, and a level needs XP
+	pass_level_5 = { "first_pass_xp" },
+	tier_4 = { "tier_3" },
 } :: { [string]: { string } }
 
 -- The v2 funnel's 25 steps (F87 to #1273), for a save from it (fromOld) and the report's labels for onboarding_v2.
@@ -267,10 +297,13 @@ function Onboarding.furthest(state: Types.TelemetryState): string
 	return Onboarding.STEPS[state.onboardingStep] or "none"
 end
 
--- The v3 step for a state saved by funnel `funnel` (1 or 2, nil before F87) at `step`: COUNT (out of the funnel)
--- once that funnel had logged its first catch, else 0 (a new player, who starts v3 from joined).
+-- The v4 step for a state saved by funnel `funnel` (1, 2 or 3, nil before F87) at `step`: COUNT (out of the funnel)
+-- once that funnel had logged its first catch, else 0 (a new player, who starts v4 from joined).
 function Onboarding.fromOld(funnel: number?, step: number): number
-	local list = if funnel == 2 then Onboarding.V2_STEPS else Onboarding.V1_STEPS
+	local list = if funnel == 3
+		then Onboarding.V3_STEPS
+		elseif funnel == 2 then Onboarding.V2_STEPS
+		else Onboarding.V1_STEPS
 	local caught = table.find(list, "first_catch") :: number
 	return if step >= caught then Onboarding.COUNT else 0
 end
@@ -362,6 +395,11 @@ export type SaveFacts = {
 	tier: number,
 	parkCats: number, -- cats owned from the Park (a spare cat counts by its old area)
 	starterCat: boolean?, -- F96: the Bellhop Cat claimed
+	-- #1888: the Cafe Pass this season (its XP and the rewards claimed) and whether the account has spent Robux here
+	passXp: number?,
+	passClaims: number?,
+	passLevel: number?,
+	spent: boolean?,
 }
 
 -- The steps a save already shows, in step order (QA S72). Logged on every join, so a step the save passed without
@@ -394,6 +432,21 @@ function Onboarding.fromSave(facts: SaveFacts): { StepName }
 	end
 	if facts.starterCat == true then
 		add("starter_cat")
+	end
+	if (facts.passXp or 0) > 0 then
+		add("first_pass_xp")
+	end
+	if (facts.passClaims or 0) > 0 then
+		add("first_pass_claim")
+	end
+	if (facts.passLevel or 0) >= 5 then
+		add("pass_level_5")
+	end
+	if facts.tier >= 4 then
+		add("tier_4")
+	end
+	if facts.spent == true then
+		add("first_robux_purchase")
 	end
 	return out
 end

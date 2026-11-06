@@ -164,6 +164,7 @@ local function startSlot(slot: number)
 	publishState()
 	if not late then
 		announceSpawn(c)
+		log(nil, c, "spawned") -- #1888: so secured, lost, gone and expired read against the cats that came
 	end
 end
 

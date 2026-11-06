@@ -27,6 +27,7 @@ local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local RareMoments = require(Shared:WaitForChild("RareMoments"))
 local Settings = require(Shared:WaitForChild("Settings"))
+local StoreFunnel = require(Shared:WaitForChild("StoreFunnel"))
 local Tips = require(Shared:WaitForChild("Tips"))
 local Types = require(Shared:WaitForChild("Types"))
 local UI = require(script.Parent.Parent.UI)
@@ -1036,6 +1037,10 @@ local function wireIntents()
 		end
 	end
 	UI.events.screenOpened:Connect(function(name: string?)
+		if name == "Store" then
+			-- #1888: every Store visit starts a Store funnel, with where the UI said it was opened from
+			Net.fire("TelemetryReport", "store_opened", StoreFunnel.takeSource())
+		end
 		if name ~= nil and not screensReported[name] then
 			screensReported[name] = true
 			Net.fire("TelemetryReport", "ui_opened", name)

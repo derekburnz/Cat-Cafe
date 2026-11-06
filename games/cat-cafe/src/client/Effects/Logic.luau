@@ -2804,4 +2804,108 @@ function Logic.traySway(
 	return math.rad(style.sway) * wave * moving, style.bob * math.abs(wave) * moving
 end
 
+-- Catch v3 (catch-rework.md section 7, #1892): how the cat answers each ring the server judges (CatchJudged), from
+-- the grade and the ring's kind on its CatchSchedule circle. A hit perks it up, a Miss makes it wriggle, a tapped paw
+-- ring (graded "miss") swats at the net, and a paw ring left alone ("left") gets a small perk. nil for anything else.
+export type CatchReact = "perk" | "wriggle" | "swat" | "wrap"
+function Logic.catchReactFor(grade: unknown, kind: unknown): CatchReact?
+	if grade == "perfect" or grade == "good" or grade == "left" then
+		return "perk"
+	elseif grade == "miss" then
+		return if kind == "paw" then "swat" else "wriggle"
+	end
+	return nil
+end
+
+-- One catch reaction, `alpha` 0 to 1 through it (Presets.catchReact), layered on whatever the cat does and gone by
+-- the end. perk: ears up and forward, nose up, a small lean in. wriggle: the body rocks side to side with the tail
+-- lashing, dying away. swat: the right front paw flicks up and back down with the ears back. wrap: the cat hunkers
+-- into the net and wobbles twice with it.
+function Logic.catchReact(o: Offsets, kind: CatchReact, alpha: number)
+	if alpha < 0 or alpha >= 1 then
+		return
+	end
+	local r = Presets.catchReact
+	local arc = math.sin(alpha * math.pi)
+	if kind == "perk" then
+		local p = r.perk
+		o.earL = math.min(o.earL, -math.rad(p.ears) * arc)
+		o.earR = math.min(o.earR, -math.rad(p.ears) * arc)
+		o.headPitch += math.rad(p.nose) * arc
+		o.bodyPitch -= math.rad(p.lean) * arc
+		o.tailPitch += math.rad(p.tailUp) * arc
+	elseif kind == "wriggle" then
+		local w = r.wriggle
+		local fade = (1 - alpha) * math.min(1, alpha * 8)
+		local rock = math.sin(alpha * w.wriggles * 2 * math.pi) * fade
+		o.bodyRoll += math.rad(w.roll) * rock
+		o.headYaw -= math.rad(w.head) * rock
+		o.tailYaw += math.rad(w.tail) * rock
+		o.earL = math.max(o.earL, math.rad(w.ears) * arc)
+		o.earR = math.max(o.earR, math.rad(w.ears) * arc)
+	elseif kind == "swat" then
+		local s = r.swat
+		local flick = Logic.envelope(alpha, 0, s.up, s.hold, 1)
+		o.pawFR = math.max(o.pawFR, math.rad(s.paw) * flick)
+		o.bodyPitch += math.rad(s.rear) * flick
+		o.bodyRoll -= math.rad(s.lean) * flick
+		o.earL = math.max(o.earL, math.rad(s.ears) * arc)
+		o.earR = math.max(o.earR, math.rad(s.ears) * arc)
+	else
+		local w = r.wrap
+		local hunker = math.min(1, alpha / w.settle)
+		local rock = math.sin(alpha * w.wobbles * 2 * math.pi) * (1 - alpha * 0.5)
+		o.sink = math.max(o.sink, w.sink * hunker)
+		o.bodyRoll += math.rad(w.roll) * rock
+		o.headRoll += math.rad(w.roll) * rock
+		o.earL = math.max(o.earL, math.rad(w.ears) * hunker)
+		o.earR = math.max(o.earR, math.rad(w.ears) * hunker)
+		o.tailYaw *= 1 - hunker
+	end
+end
+
+-- The net's own wobble as it wraps the cat (Presets.catchReact.wrap), `alpha` 0 to 1: how much bigger than the cat it
+-- is (it closes from `open` to `snug` over `settle`) and the radians it rocks, two wobbles dying away.
+function Logic.netWrap(alpha: number): (number, number)
+	local w = Presets.catchReact.wrap
+	local a = math.clamp(alpha, 0, 1)
+	local close = math.min(1, a / w.settle)
+	local eased = 1 - (1 - close) * (1 - close)
+	local scale = w.open + (w.snug - w.open) * eased
+	local rock = math.sin(a * w.wobbles * 2 * math.pi) * (1 - a * 0.5)
+	return scale, math.rad(w.roll) * rock
+end
+
+-- A stray's mood (catch-rework.md 7a, the server's Mood attribute) shown in how it stands. Sleepy curls up in a nap
+-- until a catch of it starts (`catching`); Curious and Skittish keep the stray's idle with moodLayer on top.
+function Logic.moodStyle(mood: unknown, catching: boolean): Style?
+	if mood == "Sleepy" and not catching then
+		return "nap"
+	end
+	return nil
+end
+
+-- On top of a stray's idle: Curious tilts its head side to side with its tail up in a hook and ears forward;
+-- Skittish crouches low with its ears half back, tail down and head low. `weight` 0 to 1 eases it in and out.
+function Logic.moodLayer(o: Offsets, mood: unknown, t: number, weight: number)
+	if weight <= 0 then
+		return
+	end
+	local m = Presets.catchReact.mood
+	if mood == "Curious" then
+		local c = m.curious
+		o.headRoll += math.rad(c.tilt) * math.sin(t * 2 * math.pi / c.seconds) * weight
+		o.tailPitch += math.rad(c.tailUp) * weight
+		o.earL = math.min(o.earL, -math.rad(c.ears) * weight)
+		o.earR = math.min(o.earR, -math.rad(c.ears) * weight)
+	elseif mood == "Skittish" then
+		local k = m.skittish
+		o.sink = math.max(o.sink, k.crouch * weight)
+		o.headPitch -= math.rad(k.headDown) * weight
+		o.tailPitch -= math.rad(k.tailDown) * weight
+		o.earL = math.max(o.earL, math.rad(k.ears) * weight)
+		o.earR = math.max(o.earR, math.rad(k.ears) * weight)
+	end
+end
+
 return Logic

@@ -43,7 +43,10 @@ function Pity.dueAt(slot: number): number
 end
 
 function Pity.kindOf(slot: number): Kind
-	return if math.floor(slot) % Config.PityMythicalEvery == 0 then "Mythical" else "Legendary"
+	local kind: Kind = if math.floor(slot) % Config.PityMythicalEvery == 0
+		then "Mythical"
+		else "Legendary"
+	return kind
 end
 
 -- When slot `slot`'s cat spawns: when it is due, or at the next sunrise if that falls at night.
@@ -118,7 +121,7 @@ end
 
 -- Slot `slot`'s pity cat: its kind, area and cat.
 function Pity.pick(slot: number): Pick
-	local kind = Pity.kindOf(slot)
+	local kind: Kind = if Pity.kindOf(slot) == "Mythical" then "Mythical" else "Legendary"
 	local areaId = Pity.areaFor(roll(slot, SALT_AREA))
 	local def = Catching.pickCat(kind, areaId, roll(slot, SALT_CAT))
 	return { slot = math.floor(slot), kind = kind, areaId = areaId, catId = def.id }

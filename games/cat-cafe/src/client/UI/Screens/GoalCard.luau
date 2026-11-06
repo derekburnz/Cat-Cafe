@@ -8,16 +8,21 @@
 --   Coins      $879 / $1.5K  per rank up requirement a caption and its numbers over a slim bar, the same numbers as
 --   [=======-----]           the rank up card; a bar turns gold when its requirement is met
 -- At the top tier only the tier line shows. A tap anywhere on it opens the rank up card.
+-- #1919 (first-hour.md section 5): while the Grand Opening's twelve cats step is next and no rank up is ready, the
+-- card reads "📖 Find 3 more cats" alone (render's `nudge`), and the HUD opens the Index from it instead.
 
 local Create = require(script.Parent.Parent.Components.Create)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local RankUp = require(script.Parent.RankUp)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 
 export type GoalCard = {
 	frame: TextButton,
-	render: (self: GoalCard, progress: RankUp.Progress?, tierText: string) -> (),
+	render: (self: GoalCard, progress: RankUp.Progress?, tierText: string, nudge: string?) -> (),
+	nudging: (self: GoalCard) -> boolean, -- the card shows the nudge, so a tap should open the Index
 	destroy: (self: GoalCard) -> (),
 }
 
@@ -38,6 +43,8 @@ local CARD_TRANSPARENCY = 0.12
 local PILL_COLOR = Color3.fromHex("FF6B81")
 local ROWS = 3
 local SMALL_OUTLINE = 2 -- small text over the bright world needs a little more outline than in a window
+local ICON = 24 -- the nudge's Index icon
+local NUDGE_CAPTION = "Tap to see where in the Index"
 
 type Row = { frame: Frame, fill: Frame, label: TextLabel, status: TextLabel }
 
@@ -126,6 +133,31 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 	})
 	Outline.text(self._badge)
 	Outline.border(self._badge, 2)
+	-- #1919: the nudge's Index icon, the HUD's Index picture with the book emoji until it loads
+	self._icon = text({
+		Name = "IndexIcon",
+		Position = UDim2.fromOffset(0, (TITLE_H - ICON) / 2),
+		Size = UDim2.fromOffset(ICON, ICON),
+		TextSize = Theme.sizes.textBody,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextTruncate = Enum.TextTruncate.None,
+		Text = "📖",
+		Visible = false,
+		Parent = frame,
+	})
+	IconArt.setImage(self._icon, ShopIcons.hud("Index"))
+	-- under the nudge, so the card stays a finger tall on a phone
+	self._caption = text({
+		Name = "Caption",
+		Position = UDim2.fromOffset(0, TITLE_H + 2),
+		Size = UDim2.new(1, 0, 0, CAPTION_H),
+		TextColor3 = Theme.hud.subtext,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = NUDGE_CAPTION,
+		Visible = false,
+		Parent = frame,
+	})
+	self._nudging = false
 
 	local rows: { Row } = {}
 	for index = 1, ROWS do
@@ -182,12 +214,33 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 end
 
 -- progress nil (no tiers in the catalog yet) shows tierText alone.
-function GoalCard.render(self: any, progress: RankUp.Progress?, tierText: string)
+function GoalCard.render(self: any, progress: RankUp.Progress?, tierText: string, nudge: string?)
 	self.frame.Visible = true
 	self._tier.Text = tierText
+	local ready = progress ~= nil and progress.ready
+	local nudging = nudge ~= nil and not ready -- a ready rank up still comes first
+	self._nudging = nudging
+	self._icon.Visible = nudging
+	self._caption.Visible = nudging
+	if nudging then
+		self._tier.Visible = false
+		self._title.Visible = true
+		self._title.Text = nudge
+		self._title.TextColor3 = Theme.hud.text
+		self._title.Position = UDim2.fromOffset(ICON + 6, 0)
+		self._title.Size = UDim2.new(1, -(ICON + 6), 0, TITLE_H)
+		for _, row in self._rows do
+			row.frame.Visible = false
+		end
+		self.frame.Size = UDim2.fromOffset(WIDTH, TITLE_H + 2 + CAPTION_H + PAD * 2)
+		self._badge.Visible = false
+		self._ready = false
+		return
+	end
+	self._title.Position = UDim2.fromOffset(0, 0)
+	self._title.Size = UDim2.new(1, -96, 0, TITLE_H)
 	local nextTier = if progress then progress.nextTier else nil
 	self._tier.Visible = nextTier == nil -- the top tier: its line alone
-	local ready = progress ~= nil and progress.ready
 	self._title.Visible = nextTier ~= nil
 	local count = 0
 	for index, row in self._rows do
@@ -215,6 +268,10 @@ function GoalCard.render(self: any, progress: RankUp.Progress?, tierText: string
 		Tween.popIn(self._badge, 0.7)
 	end
 	self._ready = ready
+end
+
+function GoalCard.nudging(self: any): boolean
+	return self._nudging == true
 end
 
 function GoalCard.destroy(self: any)

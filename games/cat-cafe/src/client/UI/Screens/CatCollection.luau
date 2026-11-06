@@ -34,6 +34,7 @@ local DecorIndex = require(script.Parent.DecorIndex)
 local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
 local Format = require(script.Parent.Parent.Components.Format)
 local IndexBook = require(script.Parent.Parent.Components.IndexBook)
+local IndexHints = require(script.Parent.Parent.Components.IndexHints)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local IndexStrip = require(script.Parent.IndexStrip)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -1153,8 +1154,12 @@ function CatCollection._showDetail(self: any)
 		table.insert(meta, "lives in the " .. Format.areaName(def.area or IndexBook.FALLBACK_AREA))
 	end
 	self._detailMeta.Text = table.concat(meta, "  ·  ")
-	-- the description waits until the cat is found; its slot says so, leaving the one-line meta room for the area
-	self._detailDesc.Text = if found then (def.description or "") else "Not found yet"
+	-- the description waits until the cat is found; its slot says how to find it (#1919: catch or bait, or the tier
+	-- that opens its area, and "Shy" from Epic up), leaving the one-line meta room for the area
+	local hint = if found or not self._catalog
+		then nil
+		else IndexHints.hint(self._catalog, state, def)
+	self._detailDesc.Text = if found then (def.description or "") else hint or IndexHints.NOT_FOUND
 	if not self._cover.Visible then
 		self._cover.Visible = true
 		Tween.popIn(self._cover:FindFirstChild("Card") :: GuiObject, 0.9)

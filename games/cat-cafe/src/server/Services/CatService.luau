@@ -28,6 +28,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Luck = require(ReplicatedStorage.Shared.Luck)
+local Moods = require(ReplicatedStorage.Shared.Moods)
 local Mover = require(ReplicatedStorage.Shared.Mover)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
@@ -87,6 +88,12 @@ type Stray = {
 	-- model's Beginner attribute (0 when none). Only they can swing at it; their catch is one slow circle and a
 	-- Miss brings it back instead of sending the cat running. LockedBy stays the catch lock the effects read.
 	beginner: number?,
+	-- #1884 (catch-rework.md 7a): its mood, rolled at spawn (the Mood attribute); a Curious one's walk toward a
+	-- player (server time, nil until it notices one) and a Skittish one's last hop (server time)
+	mood: Types.CatMood,
+	curiousAt: number?,
+	skittishAt: number?,
+	walk: number, -- bumped by every walk that starts, so an older walk stops where it is
 	alive: boolean,
 }
 
@@ -105,6 +112,7 @@ type Carry = {
 	rushUntil: number?, -- server time the Catch Rush ends (F55); nil for a picked-up cat
 	homePos: Vector3?, -- F67: where it was caught (a rescue: the cat spot nearest its trap), for a Drop to walk back to
 	knocks: number, -- F84: times tackles knocked it loose since it was first caught (camp_checkin)
+	bonusXp: number?, -- #1884 (catch-rework.md 7d): a PURRFECT catch's XP, given as it checks in
 }
 
 -- What a Dropped cat keeps from the arms it fell out of (section 10c): charm, gold and rescued flag.
@@ -138,10 +146,7 @@ local inRescue: (Player) -> boolean = function(_player: Player): boolean
 	return false
 end
 
-local MAX_CIRCLES = 1 -- the most circles any rarity has; bounds the CatchPress index
-for _, rarity in Catalog.rarities do
-	MAX_CIRCLES = math.max(MAX_CIRCLES, rarity.circles)
-end
+local MAX_CIRCLES = Circles.maxCircles() -- #1884: the most circles any schedule holds; bounds the CatchPress index
 
 -- Helpers -------------------------------------------------------------------------------------------------
 
@@ -476,12 +481,19 @@ local PERCH_ABOVE = 0.5
 
 local function wander(stray: Stray)
 	local area = world.areas[stray.area]
-	local alive = function()
-		return stray.alive and stray.lockedBy == 0
+	if stray.mood == "Sleepy" then
+		stray.model:SetAttribute("Napping", true) -- #1884 (7a): curled up from the start
 	end
 	while stray.alive do
 		task.wait(rng:NextNumber(3, 7))
 		if not canWander(stray) then
+			continue
+		end
+		if stray.mood == "Sleepy" then
+			-- #1884 (7a): a Sleepy cat never wanders; a swing wakes it (setLock) and it curls up again after
+			if stray.model:GetAttribute("Napping") ~= true then
+				stray.model:SetAttribute("Napping", true)
+			end
 			continue
 		end
 		if rng:NextNumber() < NAP_CHANCE and not nap(stray) then
@@ -501,7 +513,11 @@ local function wander(stray: Stray)
 			2,
 			at
 		)
-		Mover.walkTo(stray.model, clearPath(at, target), Config.StrayWanderSpeed, alive)
+		stray.walk += 1
+		local walk = stray.walk
+		Mover.walkTo(stray.model, clearPath(at, target), Config.StrayWanderSpeed, function()
+			return stray.alive and stray.lockedBy == 0 and stray.walk == walk
+		end)
 	end
 end
 
@@ -545,6 +561,9 @@ local function spawnStray(
 	model:SetAttribute("Dropped", kept ~= nil)
 	model:SetAttribute("PickUp", kept ~= nil)
 	model:SetAttribute("Returning", kept ~= nil and kept.returning == true) -- F67: walking home
+	-- #1884 (catch-rework.md 7a): the tutorial stray is always Sleepy
+	local mood: Types.CatMood = Moods.roll(def.rarity, rng:NextNumber(), beginner ~= nil)
+	model:SetAttribute("Mood", mood)
 	CollectionService:AddTag(model, "Stray")
 	-- F93 (catch-rework.md section 1): no Catch prompt; the net swing finds the stray (SwingNet).
 
@@ -579,6 +598,8 @@ local function spawnStray(
 		knocks = if kept ~= nil then kept.knocks or 0 else 0,
 		recaught = false,
 		beginner = beginner,
+		mood = mood,
+		walk = 0,
 		alive = true,
 	}
 	strays[id] = stray
@@ -1051,7 +1072,8 @@ local function startCarry(
 	pickedUp: boolean?,
 	funnel: Telemetry.CatchFunnel?,
 	homePos: Vector3?,
-	knocks: number?
+	knocks: number?,
+	bonusXp: number?
 ): boolean
 	if carrying[player] ~= nil then
 		warn(
@@ -1074,6 +1096,7 @@ local function startCarry(
 		funnel = funnel,
 		homePos = homePos,
 		knocks = knocks or 0,
+		bonusXp = bonusXp,
 	}
 	carrying[player] = carry
 	attachHeldCat(player, carry)
@@ -1142,6 +1165,34 @@ local function endCarry(player: Player): Carry?
 	return carry
 end
 
+-- #1884 (catch-rework.md 7d): each player's PURRFECT catches in a row this session; any other result resets it.
+local purrfectStreak: { [Player]: number } = {}
+
+-- The finish CatchResult carries (#1884): the trust reached, the need, how it ended and the streak after it.
+local function finishOf(
+	player: Player,
+	attempt: Circles.Attempt,
+	finish: Types.CatchFinishKind
+): Types.CatchFinish
+	local streak = if finish == "purrfect" then (purrfectStreak[player] or 0) + 1 else 0
+	purrfectStreak[player] = streak
+	return {
+		trust = attempt.trust or 0,
+		trustNeed = attempt.need or 0,
+		finish = finish,
+		streak = streak,
+	}
+end
+
+-- #1727, #1884: the server's grade and the trust after it, for every circle judged since `before` (pressed or
+-- expired), to the catcher alone.
+local function sendJudged(player: Player, strayId: string, attempt: Circles.Attempt, before: number)
+	for judged = before, attempt.nextIndex - 1 do
+		local grade = attempt.grades[judged]
+		Net.fire(player, "CatchJudged", strayId, judged, grade, attempt.trust)
+	end
+end
+
 local function logCircle(player: Player, strayId: string, attempt: Circles.Attempt, index: number)
 	-- Studio only: QA reads what the server scored; live servers stay quiet.
 	if not RunService:IsStudio() then
@@ -1172,10 +1223,14 @@ local function recordCircles(player: Player, profile: Types.PlayerProfile, attem
 		history = {}
 		circleHistory[player] = history
 	end
+	local pressed = 0
 	for _, grade in attempt.grades do
-		Circles.pushHistory(history, grade == "perfect")
+		if grade ~= "left" then -- #1884: a paw ring left alone was never pressed
+			Circles.pushHistory(history, grade == "perfect")
+			pressed += 1
+		end
 	end
-	profile.stats.circlesTotal += #attempt.grades
+	profile.stats.circlesTotal += pressed
 	profile.stats.perfectCircles += Circles.perfectCount(attempt)
 	if not profile.flags.autoPress and Circles.looksScripted(history) then
 		profile.flags.autoPress = true
@@ -1280,7 +1335,8 @@ local function tutorialMiss(
 		attempt.grades,
 		false,
 		0,
-		serverNow() + Config.TutorialRetrySeconds
+		serverNow() + Config.TutorialRetrySeconds,
+		finishOf(player, attempt, "bolt")
 	)
 	if forfeit ~= nil then
 		Net.toast(player, forfeit, "warn")
@@ -1358,9 +1414,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	stray.funnel = nil
 	local perfect = Circles.perfectCount(attempt)
 	local rarity: string = stray.def.rarity
+	local finishKind: Types.CatchFinishKind = if succeeded then Circles.finish(attempt) else "bolt"
 	local result: string = if not succeeded
 		then (if forfeit ~= nil then "forfeit" else "missed")
-		elseif perfect == #attempt.circles then "purrfect"
+		elseif finishKind == "purrfect" then "purrfect"
 		else "caught"
 	Telemetry.custom(
 		player,
@@ -1378,7 +1435,11 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 				or stray.recaught
 			then 0
 			else Circles.charmGain(attempt)
-		Net.fire(player, "CatchResult", stray.id, attempt.grades, true, gain)
+		local finish = finishOf(player, attempt, finishKind)
+		Net.fire(player, "CatchResult", stray.id, attempt.grades, true, gain, nil, finish)
+		-- #1884: catch-rework.md 7d's finish, value the rings it took; finish, rarity, mood (PR 2)
+		local fields: { string } = { finishKind, rarity, stray.mood }
+		Telemetry.custom(player, "catch_finish", #attempt.grades, fields)
 		profile.stats.grabsSucceeded += 1
 		local method: Types.CatchMethod = stray.method
 		local def, variant = stray.def, stray.variant
@@ -1394,7 +1455,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 			and not stray.recaught
 			and snackRandom:NextNumber() < Config.CatchSnackChance
 		despawn(stray, player)
-		startCarry(player, def, method, charm, variant, nil, funnel, homePos, knocks)
+		local bonusXp = if finishKind == "purrfect" and not profile.flags.autoPress
+			then Config.CatXpBase
+			else nil
+		startCarry(player, def, method, charm, variant, nil, funnel, homePos, knocks, bonusXp)
 		if dropsSnack then
 			local paid =
 				Payout.pay(player, profile, { catFood = { small_cat_snack = 1 } }, "catch_snack")
@@ -1425,8 +1489,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		attempt.grades,
 		false,
 		0,
-		stray.selfRetryAt[player.UserId]
+		stray.selfRetryAt[player.UserId],
+		finishOf(player, attempt, "bolt")
 	)
+	Telemetry.custom(player, "catch_finish", #attempt.grades, { "bolt", rarity, stray.mood })
 	startle(player)
 	-- The catch HUD says the cat got away (UI.catch.showGrades); only a forfeit needs words from here (reviewer S39).
 	Net.toast(player, if forfeit ~= nil then forfeit else "Your paws are shaking!", "warn")
@@ -1541,17 +1607,31 @@ function startCatch(
 	local circles = if tutorial
 		then Circles.tutorialSchedule(now, roll)
 		else Circles.schedule(stray.def.rarity, netLevel, now, roll)
-	local attempt = Circles.newAttempt(circles, windows)
+	-- #1884 (catch-rework.md 7b): the trust bar; the tutorial stray's one ring catches on a Good or Perfect
+	-- #1884 (7a): a swing landing just as a Curious cat walks up starts with CuriousTrustBonus more
+	local trust = if tutorial
+		then Circles.tutorialTrust()
+		else Circles.trustFor(stray.def.rarity, Moods.trustBonus(stray.curiousAt, now))
+	local attempt = Circles.newAttempt(circles, windows, trust)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
 	stray.attempt = attempt
 	profile.stats.grabsAttempted += 1
-	Net.fire(player, "CatchSchedule", stray.id, circles, Circles.publicWindows(windows))
+	Net.fire(
+		player,
+		"CatchSchedule",
+		stray.id,
+		circles,
+		Circles.publicWindows(windows),
+		trust.start,
+		trust.need
+	)
 	stray.funnel = Telemetry.catchEngaged(player, stray.def.rarity, "net", stray.area, funnel)
 	-- a catch starts in reach of a stray, so catch_started implies near_stray when the tutorial stray was never the one
 	-- (a player who caught another cat first would hold every later step behind it)
 	Telemetry.onboarding(player, profile, "catch_started")
 
-	-- A circle nobody presses is a Miss at its deadline, which ends the catch; so is walking out of range.
+	-- A circle nobody presses is a Miss at its deadline (#1884: trust lost, and the catch ends only if the cat bolts);
+	-- walking out of range ends it.
 	task.spawn(function()
 		while stray.attempt == attempt do
 			local deadline = Circles.nextDeadline(attempt)
@@ -1562,7 +1642,9 @@ function startCatch(
 			if stray.attempt ~= attempt then
 				return
 			end
+			local before = attempt.nextIndex
 			Circles.expire(attempt, serverNow())
+			sendJudged(player, stray.id, attempt, before)
 			if
 				Circles.isDone(attempt)
 				or not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2)
@@ -1602,11 +1684,11 @@ local function onCatchPress(player: Player, rawStrayId: unknown, rawIndex: unkno
 	local pressTime = arrival - Circles.latency(player:GetNetworkPing())
 	local before = attempt.nextIndex
 	Circles.press(attempt, index, pressTime, arrival)
+	-- #1727: the server's grade at once, so a device that guessed Miss on an edge press (S101) shows the rest
+	sendJudged(player, strayId, attempt, before)
 	for judged = before, attempt.nextIndex - 1 do
 		logCircle(player, strayId, attempt, judged)
 		local grade = attempt.grades[judged]
-		-- #1727: the server's grade at once, so a device that guessed Miss on an edge press (S101) shows the rest
-		Net.fire(player, "CatchJudged", strayId, judged, grade)
 		if grade == "good" or grade == "perfect" then
 			local profile = DataService.get(player)
 			if profile ~= nil then
@@ -1662,7 +1744,7 @@ local SWUNG_RANGE_STUDS = 150
 -- its area, then catches its breath like a miss, so the next swing cannot land on it straight away. It is no miss on
 -- the cat: no hiss, no selfRetry and no streak. `HopAt` (server time) is for the sound and effects. A stray on a
 -- perch stays put, as flee keeps it (S86).
-local function hop(stray: Stray, player: Player)
+local function hop(stray: Stray, player: Player, studs: number?)
 	local at = stray.model:GetPivot().Position
 	local area = world.areas[stray.area]
 	if area == nil or at.Y > area.floorY + PERCH_ABOVE then
@@ -1676,7 +1758,12 @@ local function hop(stray: Stray, player: Player)
 	end
 	local target = clearPath(
 		at,
-		WorldBuilder.clampToArea(area, at + away.Unit * NetSwing.hopStuds(stray.def.rarity), 2, at)
+		WorldBuilder.clampToArea(
+			area,
+			at + away.Unit * (studs or NetSwing.hopStuds(stray.def.rarity)),
+			2,
+			at
+		)
 	)
 	local now = serverNow()
 	local sprint = Vector3.new(target.X - at.X, 0, target.Z - at.Z).Magnitude
@@ -1685,9 +1772,12 @@ local function hop(stray: Stray, player: Player)
 	stray.model:SetAttribute("FleeingUntil", stray.fleeingUntil)
 	stray.jumping = true
 	stray.home = target
+	stray.model:SetAttribute("Napping", false) -- a hop wakes a Sleepy cat (#1884)
+	stray.walk += 1
+	local walk = stray.walk
 	task.spawn(function()
 		Mover.walkTo(stray.model, target, Config.StrayFleeSpeed, function()
-			return stray.alive and stray.lockedBy == 0
+			return stray.alive and stray.lockedBy == 0 and stray.walk == walk
 		end)
 		task.wait(math.max(0, stray.fleeingUntil - serverNow()))
 		stray.jumping = false
@@ -1835,6 +1925,10 @@ local function checkIn(player: Player, carry: Carry, notify: boolean, profile: T
 		carry.method,
 		carry.variant
 	)
+	local bonusXp = carry.bonusXp
+	if bonusXp ~= nil and bonusXp > 0 then
+		CatStats.addXp(instance, bonusXp) -- #1884: a PURRFECT catch joins a level up (CatXpBase is level 2)
+	end
 	if notify then
 		local current = DataService.get(player)
 		if current ~= nil then
@@ -2229,6 +2323,93 @@ end
 
 -- Lifecycle -----------------------------------------------------------------------------------------------
 
+-- #1884 (catch-rework.md 7a): how often strays look round for players to be curious or skittish about.
+local MOOD_TICK_SECONDS = 0.2
+
+-- Whether a Curious or Skittish stray is free to react: alive, nobody catching it, not running or resting from a
+-- miss or hop, not Dropped or walking home, and on the floor (a perch cat stays put, as for wandering).
+local function canReact(stray: Stray, now: number): boolean
+	if not stray.alive or stray.lockedBy ~= 0 or stray.jumping or now < stray.fleeingUntil then
+		return false
+	end
+	if stray.drop ~= nil or stray.returning or stray.beginner ~= nil then
+		return false
+	end
+	local area = world.areas[stray.area]
+	return area ~= nil and stray.home.Y <= area.floorY + PERCH_ABOVE
+end
+
+-- A Curious stray walks CuriousWalkStuds toward the first player who comes within CuriousRangeStuds, once.
+local function curious(stray: Stray, _player: Player, root: Vector3, now: number)
+	local at = stray.model:GetPivot().Position
+	if not Moods.noticed(at, root) then
+		return
+	end
+	stray.curiousAt = now
+	stray.model:SetAttribute("CuriousAt", now)
+	stray.model:SetAttribute("Napping", false)
+	local area = world.areas[stray.area]
+	local target =
+		clearPath(at, WorldBuilder.clampToArea(area, Moods.curiousTarget(at, root), 2, at))
+	stray.walk += 1
+	local walk = stray.walk
+	task.spawn(function()
+		Mover.walkTo(stray.model, target, Config.StrayWanderSpeed, function()
+			return stray.alive and stray.lockedBy == 0 and stray.walk == walk
+		end)
+	end)
+end
+
+-- A Skittish stray hops SkittishHopStuds away from a player inside its front arc, at most once a SkittishCooldown;
+-- never from a player before tutorialStep 2 (7a).
+local function skittish(stray: Stray, player: Player, root: Vector3, now: number): boolean
+	if not Moods.hopReady(stray.skittishAt, now) then
+		return false
+	end
+	local pivot = stray.model:GetPivot()
+	if not Moods.inFrontArc(pivot.Position, pivot.LookVector, root) then
+		return false
+	end
+	local profile = DataService.get(player)
+	if profile == nil or not Moods.canStartle(profile.tutorialStep) then
+		return false
+	end
+	stray.skittishAt = now
+	hop(stray, player, Config.SkittishHopStuds)
+	return true
+end
+
+local function moodTick()
+	local now = serverNow()
+	local roots: { [Player]: Vector3 } = {}
+	for _, player in Players:GetPlayers() do
+		local root = rootPosition(player)
+		if root ~= nil and carrying[player] == nil and not inFlight(player) then
+			roots[player] = root
+		end
+	end
+	if next(roots) == nil then
+		return
+	end
+	for _, stray in strays do
+		local reacts = (stray.mood == "Curious" and stray.curiousAt == nil)
+			or stray.mood == "Skittish"
+		if not reacts or not canReact(stray, now) then
+			continue
+		end
+		for player, root in roots do
+			if stray.mood == "Curious" then
+				curious(stray, player, root, now)
+				if stray.curiousAt ~= nil then
+					break
+				end
+			elseif skittish(stray, player, root, now) then
+				break
+			end
+		end
+	end
+end
+
 function CatService.start(builtWorld: WorldBuilder.World)
 	world = builtWorld
 	local folder = Instance.new("Folder")
@@ -2301,6 +2482,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		end)
 	end)
 	Players.PlayerRemoving:Connect(function(player)
+		purrfectStreak[player] = nil
 		-- endCarry (via the finalizer above) clears the carry record; this only mops up when the profile is
 		-- already gone, so the handler order between services does not matter.
 		if carrying[player] ~= nil and DataService.get(player) == nil then
@@ -2333,6 +2515,14 @@ function CatService.start(builtWorld: WorldBuilder.World)
 				warn("[CatService] top-ups: " .. tostring(err))
 			end, nowClock - last)
 			last = nowClock
+		end
+	end)
+	task.spawn(function()
+		while true do
+			task.wait(MOOD_TICK_SECONDS)
+			xpcall(moodTick, function(err: unknown)
+				warn("[CatService] moods: " .. tostring(err))
+			end)
 		end
 	end)
 end

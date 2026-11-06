@@ -67,6 +67,8 @@ export type CustomEvent =
 	| "autopress_flag"
 	| "cat_caught"
 	| "catch_circles"
+	-- #1884 (catch-rework.md 7d): a net catch's end, value the rings judged; purrfect, great, nice or bolt, rarity, mood
+	| "catch_finish"
 	| "rescue_attempt"
 	| "bait_rolled"
 	| "bait_resolved"

@@ -987,6 +987,15 @@ local SCENES = {
 		UI.bait.openPicker()
 		assertBowlTabs(2, "Bowl 2 is empty")
 	end },
+	-- #1897: the account's first wow cat is on its way, and the bowl says so honestly
+	{ "BaitWow", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 250, placedAt = now - 50, wow = true }, 1)
+		UI.bait.openPicker()
+		local window = baitWindow()
+		local title = window:FindFirstChild("Status", true):FindFirstChild("Title").Text
+		assert(title == "Your next cat will be Rare or better!", "uigate: the wow bowl reads " .. title)
+	end },
 	-- #1893 (first-hour.md 1b): the Grand Opening strip under the goal card at 3/8, tapped open into its eight steps
 	-- (the next one highlighted), then milestone 4's toast and dot
 	{ "GrandOpening", function()
@@ -1860,6 +1869,27 @@ local SCENES = {
 			UI.securedRare(localUserId(), mythicalCat(), "Mythical", true, "gold")
 		end)
 	end },
+	-- #1897: the first wow cat's card, "YOUR FIRST EPIC!", and the same cat's first Epic card (SecuredRare) right
+	-- after it plays nothing more. The smaller card closes at 2 s, so it starts 0.9 s in to be up when the gate looks
+	{ "BigPullWow", function()
+		local epic = nil
+		for _, def in Catalog.cats do
+			if def.rarity == "Epic" then
+				epic = def.id
+				break
+			end
+		end
+		assert(epic, "uigate: no Epic cat in the catalog")
+		task.delay(0.9, function()
+			-- BaitReady first, then FirstWow(rarity, first): the card takes the bowl cat of that rarity for its portrait
+			UI.bait.showReady({ catId = epic }, 1)
+			UI.bait.wow("Epic", true)
+			UI.securedRare(localUserId(), epic, "Epic", false, nil)
+			local pull = UIShim.playerGui:FindFirstChild("CatCafeBigPull")
+			local word = pull and pull:FindFirstChild("Word", true)
+			assert(word and word.Text == "YOUR FIRST EPIC!", "uigate: the wow card reads " .. tostring(word and word.Text))
+		end)
+	end },
 	-- F89 and F99: the longest rarity word, RAINBOW LEGENDARY!, on a rainbow card
 	{ "BigPullRainbow", function()
 		task.delay(0.5, function()
@@ -2236,6 +2266,62 @@ local SCENES = {
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
 		assertStoreCards(true)
+	end },
+	-- #1888: the Store funnel reports each tab once a visit (deferred past the open) and the first buy of a visit
+	{ "StoreFunnel", function()
+		UI.store.preview(storePrices(true), {})
+		local sent = {}
+		local connection = UI.events.storeReport:Connect(function(kind, value)
+			table.insert(sent, kind .. "=" .. tostring(value))
+		end)
+		UI.open("Store")
+		assert(#sent == 0, "uigate: the open's first tab should wait for the modal's store_opened")
+		task.wait(0.05)
+		press("CatCafeModals", "passes")
+		press("CatCafeModals", "featured")
+		press("CatCafeModals", "passes")
+		task.wait(0.05)
+		local joined = table.concat(sent, ",")
+		assert(joined == "store_tab=featured,store_tab=passes", "uigate: Store tabs reported " .. joined)
+		-- a priced card on the Passes tab (the List page, not Featured's hidden cards), its Buy pressed twice
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local storeWindow = modals and modals:FindFirstChild("Store", true)
+		local list = storeWindow and storeWindow:FindFirstChild("List", true)
+		assert(list and list.Visible, "uigate: the Passes tab's list is not up")
+		local button = nil
+		for _, card in list:GetDescendants() do
+			local buy = card:IsA("Frame") and card.Visible and card:FindFirstChild("Buy")
+			if buy then
+				local candidates = { buy }
+				for _, piece in buy:GetDescendants() do
+					table.insert(candidates, piece)
+				end
+				for _, piece in candidates do
+					if piece:IsA("GuiButton") and piece.Interactable ~= false and piece.Active ~= false then
+						button = piece
+						break
+					end
+				end
+			end
+			if button then
+				break
+			end
+		end
+		assert(button, "uigate: no live Buy on the Passes tab")
+		UIShim.fire(UIShim.eventOf(button, "Activated"))
+		UIShim.fire(UIShim.eventOf(button, "Activated"))
+		local buys = 0
+		for _, line in sent do
+			if string.sub(line, 1, 10) == "store_buy=" then
+				buys += 1
+			end
+		end
+		assert(buys == 1, "uigate: a buy should report once a visit, got " .. buys)
+		UI.close()
+		UI.open("Store")
+		task.wait(0.05)
+		assert(sent[#sent] == "store_tab=featured", "uigate: a new visit should report its first tab again")
+		connection:Disconnect()
 	end },
 	-- #1425: the Passes tab, a grid of pass cards 3 across
 	{ "StorePasses", function()

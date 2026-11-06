@@ -998,6 +998,14 @@ local function wireIntents()
 	-- F87 part 3 (UI #745), analytics only: the intro's choice ("tile" or "help") and the stuck nudges ("pulse",
 	-- "help_shown", "show_me") as TelemetryReport, which allowlists both with their session caps. A nudge goes once
 	-- per tutorial step and kind, as the server logs it, so a repeating pulse never reaches the remote's limit.
+	-- #1888: the Store funnel's tab_viewed and buy_pressed (the UI sends each once a visit; the server allowlists both)
+	if events.storeReport ~= nil then
+		events.storeReport:Connect(function(kind: string, value: any)
+			if kind == "store_tab" or kind == "store_buy" then
+				Net.fire("TelemetryReport", kind, value)
+			end
+		end)
+	end
 	if events.introChoice ~= nil then
 		events.introChoice:Connect(function(from: string)
 			Net.fire("TelemetryReport", "intro_choice", from)
@@ -1670,8 +1678,19 @@ local function wireServerEvents()
 	end)
 	Net.on(
 		"CatchSchedule",
-		function(strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
+		function(
+			strayId: string,
+			circles: { Types.CatchCircle },
+			windows: Types.CatchWindows,
+			trustStart: number?,
+			trustNeed: number?
+		)
 			UI.catch.showCircles(strayId, circles, windows)
+			-- #1884 (catch-rework.md 7b): the trust bar, for the UI once it draws one
+			local trust: ((string, number, number) -> ())? = (UI.catch :: any).trust
+			if trust ~= nil and type(trustStart) == "number" and type(trustNeed) == "number" then
+				trust(strayId, trustStart, trustNeed)
+			end
 			Moments.CatchStart:Fire(strayId)
 			cancelCircleTimers()
 			for index, circle in circles do
@@ -1699,11 +1718,17 @@ local function wireServerEvents()
 			grades: { Types.CircleGrade },
 			success: boolean,
 			charmGain: number,
-			retryAt: number?
+			retryAt: number?,
+			finish: Types.CatchFinish?
 		)
 			local allPerfect = #grades > 0
 			for _, grade in grades do
 				allPerfect = allPerfect and grade == "perfect"
+			end
+			-- #1884 (catch-rework.md 7d): PURRFECT, GREAT, NICE or a bolt, the trust and the Purrfect streak
+			local finished: ((string, Types.CatchFinish) -> ())? = (UI.catch :: any).finished
+			if finished ~= nil and type(finish) == "table" then
+				finished(strayId, finish)
 			end
 			UI.catch.showGrades(
 				strayId,
@@ -1728,12 +1753,16 @@ local function wireServerEvents()
 	)
 	-- #1727: the server's grade for each pressed circle as it is judged, for the circles screen (UI.catch.judged once
 	-- the UI has it). A Good or Perfect after this device's own Miss means the catch goes on.
-	Net.on("CatchJudged", function(strayId: string, index: number, grade: Types.CircleGrade)
-		local judged: ((string, number, Types.CircleGrade) -> ())? = (UI.catch :: any).judged
-		if judged ~= nil then
-			judged(strayId, index, grade)
+	-- #1884: with the trust after it, and for an expired circle too.
+	Net.on(
+		"CatchJudged",
+		function(strayId: string, index: number, grade: Types.CircleGrade, trust: number?)
+			local judged: ((string, number, Types.CircleGrade, number?) -> ())? = (UI.catch :: any).judged
+			if judged ~= nil then
+				judged(strayId, index, grade, if type(trust) == "number" then trust else nil)
+			end
 		end
-	end)
+	)
 	-- #1893: a Grand Opening milestone was just paid; the ProfileSync that shows it came first. UI.roadmap.step plays
 	-- the toast and confetti (and on the last, the Grand Opening) once the UI has it.
 	Net.on("RoadmapStep", function(n: number)

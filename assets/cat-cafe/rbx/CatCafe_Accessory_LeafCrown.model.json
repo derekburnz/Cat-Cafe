@@ -1,0 +1,2124 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Accessory_LeafCrown/0",
+  "PartBuilt": true
+ },
+ "children": [
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.3325,
+       -0.3416
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.0,
+        0.7071
+       ],
+       [
+        -0.6964,
+        -0.1736,
+        0.6964
+       ],
+       [
+        0.1228,
+        -0.9848,
+        -0.1228
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.2268,
+     0.03,
+     0.2268
+    ],
+    "Color": [
+     0.949,
+     0.6941,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       0.2735,
+       -0.2786,
+       -0.2735
+      ],
+      "orientation": [
+       [
+        0.7071,
+        -0.6964,
+        0.1228
+       ],
+       [
+        0.0,
+        -0.1736,
+        -0.9848
+       ],
+       [
+        0.7071,
+        0.6964,
+        -0.1228
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Accessory_LeafCrown/0"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2327,
+       0.025,
+       -0.2173
+      ],
+      "orientation": [
+       [
+        0.8318,
+        0.0,
+        -0.5551
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.5551,
+        0.0,
+        0.8318
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1494,
+     0.05,
+     0.04
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1232,
+       0.025,
+       -0.268
+      ],
+      "orientation": [
+       [
+        0.9596,
+        0.0,
+        -0.2814
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.2814,
+        0.0,
+        0.9596
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1547,
+     0.05,
+     0.04
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.025,
+       -0.2855
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1567,
+     0.05,
+     0.04
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1232,
+       0.025,
+       -0.268
+      ],
+      "orientation": [
+       [
+        0.9596,
+        0.0,
+        0.2814
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.2814,
+        0.0,
+        0.9596
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1547,
+     0.05,
+     0.04
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2327,
+       0.025,
+       -0.2173
+      ],
+      "orientation": [
+       [
+        0.8318,
+        0.0,
+        0.5551
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.5551,
+        0.0,
+        0.8318
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1494,
+     0.05,
+     0.04
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.208,
+       0.025,
+       0.2937
+      ],
+      "orientation": [
+       [
+        -0.8727,
+        0.0,
+        0.4883
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.4883,
+        0.0,
+        -0.8727
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.136,
+     0.05,
+     0.04
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1087,
+       0.025,
+       0.3331
+      ],
+      "orientation": [
+       [
+        -0.9692,
+        0.0,
+        0.2464
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.2464,
+        0.0,
+        -0.9692
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1397,
+     0.05,
+     0.04
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.025,
+       0.3466
+      ],
+      "orientation": [
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.141,
+     0.05,
+     0.04
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1087,
+       0.025,
+       0.3331
+      ],
+      "orientation": [
+       [
+        -0.9692,
+        0.0,
+        -0.2464
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.2464,
+        0.0,
+        -0.9692
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1397,
+     0.05,
+     0.04
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.208,
+       0.025,
+       0.2937
+      ],
+      "orientation": [
+       [
+        -0.8727,
+        0.0,
+        -0.4883
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.4883,
+        0.0,
+        -0.8727
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.136,
+     0.05,
+     0.04
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1034,
+       0.285,
+       -0.3332
+      ],
+      "orientation": [
+       [
+        -0.0872,
+        0.0,
+        0.9962
+       ],
+       [
+        -0.9811,
+        -0.1736,
+        -0.0858
+       ],
+       [
+        0.173,
+        -0.9848,
+        0.0151
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1728,
+     0.027,
+     0.1728
+    ],
+    "Color": [
+     0.949,
+     0.6941,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1034,
+       0.285,
+       -0.3332
+      ],
+      "orientation": [
+       [
+        0.9962,
+        0.0,
+        -0.0872
+       ],
+       [
+        0.0858,
+        -0.1736,
+        0.9811
+       ],
+       [
+        -0.0151,
+        -0.9848,
+        -0.173
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1728,
+     0.024,
+     0.1728
+    ],
+    "Color": [
+     0.949,
+     0.6941,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0863,
+       0.1686,
+       -0.3127
+      ],
+      "orientation": [
+       [
+        -0.9063,
+        0.0,
+        0.4226
+       ],
+       [
+        -0.4162,
+        -0.1736,
+        -0.8925
+       ],
+       [
+        0.0734,
+        -0.9848,
+        0.1574
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.108,
+     0.021,
+     0.108
+    ],
+    "Color": [
+     0.949,
+     0.6941,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0863,
+       0.1686,
+       -0.3127
+      ],
+      "orientation": [
+       [
+        0.4226,
+        0.0,
+        -0.9063
+       ],
+       [
+        0.8925,
+        -0.1736,
+        0.4162
+       ],
+       [
+        -0.1574,
+        -0.9848,
+        -0.0734
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.108,
+     0.018,
+     0.108
+    ],
+    "Color": [
+     0.949,
+     0.6941,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.0719,
+       -0.2956
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        -0.1736,
+        0.9848
+       ],
+       [
+        0.0,
+        -0.9848,
+        -0.1736
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.015,
+     0.0864
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1607,
+       0.2458,
+       -0.2987
+      ],
+      "orientation": [
+       [
+        0.6245,
+        0.3315,
+        0.7072
+       ],
+       [
+        -0.6964,
+        -0.1736,
+        0.6964
+       ],
+       [
+        0.3536,
+        -0.9273,
+        0.1224
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1596,
+     0.03,
+     0.1596
+    ],
+    "Color": [
+     0.7686,
+     0.3176,
+     0.1843
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2272,
+       0.2124,
+       -0.2687
+      ],
+      "orientation": [
+       [
+        -0.1403,
+        0.3315,
+        0.933
+       ],
+       [
+        -0.9811,
+        -0.1736,
+        -0.0858
+       ],
+       [
+        0.1336,
+        -0.9273,
+        0.3496
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1216,
+     0.027,
+     0.1216
+    ],
+    "Color": [
+     0.7686,
+     0.3176,
+     0.1843
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0902,
+       0.2124,
+       -0.3177
+      ],
+      "orientation": [
+       [
+        0.9432,
+        0.3315,
+        -0.0238
+       ],
+       [
+        0.0858,
+        -0.1736,
+        0.9811
+       ],
+       [
+        0.3211,
+        -0.9273,
+        -0.1922
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1216,
+     0.024,
+     0.1216
+    ],
+    "Color": [
+     0.7686,
+     0.3176,
+     0.1843
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.211,
+       0.1305,
+       -0.2592
+      ],
+      "orientation": [
+       [
+        -0.8781,
+        0.3315,
+        0.345
+       ],
+       [
+        -0.4162,
+        -0.1736,
+        -0.8925
+       ],
+       [
+        -0.236,
+        -0.9273,
+        0.2904
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.076,
+     0.021,
+     0.076
+    ],
+    "Color": [
+     0.7686,
+     0.3176,
+     0.1843
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0967,
+       0.1305,
+       -0.3
+      ],
+      "orientation": [
+       [
+        0.4509,
+        0.3315,
+        -0.8287
+       ],
+       [
+        0.8925,
+        -0.1736,
+        0.4162
+       ],
+       [
+        -0.0059,
+        -0.9273,
+        -0.3742
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.076,
+     0.018,
+     0.076
+    ],
+    "Color": [
+     0.7686,
+     0.3176,
+     0.1843
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1498,
+       0.0625,
+       -0.2683
+      ],
+      "orientation": [
+       [
+        0.9416,
+        0.3315,
+        0.0584
+       ],
+       [
+        0.0,
+        -0.1736,
+        0.9848
+       ],
+       [
+        0.3366,
+        -0.9273,
+        -0.1635
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.015,
+     0.0608
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1607,
+       0.2458,
+       -0.2987
+      ],
+      "orientation": [
+       [
+        0.7072,
+        -0.3315,
+        0.6245
+       ],
+       [
+        -0.6964,
+        -0.1736,
+        0.6964
+       ],
+       [
+        -0.1224,
+        -0.9273,
+        -0.3536
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1596,
+     0.03,
+     0.1596
+    ],
+    "Color": [
+     0.9137,
+     0.6353,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0902,
+       0.2124,
+       -0.3177
+      ],
+      "orientation": [
+       [
+        -0.0238,
+        -0.3315,
+        0.9432
+       ],
+       [
+        -0.9811,
+        -0.1736,
+        -0.0858
+       ],
+       [
+        0.1922,
+        -0.9273,
+        -0.3211
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1216,
+     0.027,
+     0.1216
+    ],
+    "Color": [
+     0.9137,
+     0.6353,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2272,
+       0.2124,
+       -0.2687
+      ],
+      "orientation": [
+       [
+        0.933,
+        -0.3315,
+        -0.1403
+       ],
+       [
+        0.0858,
+        -0.1736,
+        0.9811
+       ],
+       [
+        -0.3496,
+        -0.9273,
+        -0.1336
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1216,
+     0.024,
+     0.1216
+    ],
+    "Color": [
+     0.9137,
+     0.6353,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0967,
+       0.1305,
+       -0.3
+      ],
+      "orientation": [
+       [
+        -0.8287,
+        -0.3315,
+        0.4509
+       ],
+       [
+        -0.4162,
+        -0.1736,
+        -0.8925
+       ],
+       [
+        0.3742,
+        -0.9273,
+        0.0059
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.076,
+     0.021,
+     0.076
+    ],
+    "Color": [
+     0.9137,
+     0.6353,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.211,
+       0.1305,
+       -0.2592
+      ],
+      "orientation": [
+       [
+        0.345,
+        -0.3315,
+        -0.8781
+       ],
+       [
+        0.8925,
+        -0.1736,
+        0.4162
+       ],
+       [
+        -0.2904,
+        -0.9273,
+        0.236
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.076,
+     0.018,
+     0.076
+    ],
+    "Color": [
+     0.9137,
+     0.6353,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1498,
+       0.0625,
+       -0.2683
+      ],
+      "orientation": [
+       [
+        0.9416,
+        -0.3315,
+        -0.0584
+       ],
+       [
+        0.0,
+        -0.1736,
+        0.9848
+       ],
+       [
+        -0.3366,
+        -0.9273,
+        -0.1635
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.015,
+     0.0608
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1072,
+       0.2675,
+       0.3782
+      ],
+      "orientation": [
+       [
+        -0.6627,
+        -0.2168,
+        -0.7168
+       ],
+       [
+        -0.6964,
+        -0.1736,
+        0.6964
+       ],
+       [
+        -0.2754,
+        0.9607,
+        -0.0359
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1764,
+     0.03,
+     0.1764
+    ],
+    "Color": [
+     0.7686,
+     0.3176,
+     0.1843
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1842,
+       0.2306,
+       0.3542
+      ],
+      "orientation": [
+       [
+        0.1231,
+        -0.2168,
+        -0.9684
+       ],
+       [
+        -0.9811,
+        -0.1736,
+        -0.0858
+       ],
+       [
+        -0.1496,
+        0.9607,
+        -0.234
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1344,
+     0.027,
+     0.1344
+    ],
+    "Color": [
+     0.7686,
+     0.3176,
+     0.1843
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0273,
+       0.2306,
+       0.3896
+      ],
+      "orientation": [
+       [
+        -0.9751,
+        -0.2168,
+        0.0469
+       ],
+       [
+        0.0858,
+        -0.1736,
+        0.9811
+       ],
+       [
+        -0.2045,
+        0.9607,
+        0.1879
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1344,
+     0.024,
+     0.1344
+    ],
+    "Color": [
+     0.7686,
+     0.3176,
+     0.1843
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1677,
+       0.14,
+       0.3415
+      ],
+      "orientation": [
+       [
+        0.9002,
+        -0.2168,
+        -0.3776
+       ],
+       [
+        -0.4162,
+        -0.1736,
+        -0.8925
+       ],
+       [
+        0.1279,
+        0.9607,
+        -0.2465
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.084,
+     0.021,
+     0.084
+    ],
+    "Color": [
+     0.7686,
+     0.3176,
+     0.1843
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0368,
+       0.14,
+       0.3711
+      ],
+      "orientation": [
+       [
+        -0.4469,
+        -0.2168,
+        0.8679
+       ],
+       [
+        0.8925,
+        -0.1736,
+        0.4162
+       ],
+       [
+        0.0605,
+        0.9607,
+        0.2711
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.084,
+     0.018,
+     0.084
+    ],
+    "Color": [
+     0.7686,
+     0.3176,
+     0.1843
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0993,
+       0.0648,
+       0.3434
+      ],
+      "orientation": [
+       [
+        -0.9755,
+        -0.2168,
+        -0.0382
+       ],
+       [
+        0.0,
+        -0.1736,
+        0.9848
+       ],
+       [
+        -0.2201,
+        0.9607,
+        0.1694
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.015,
+     0.0672
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1072,
+       0.2675,
+       0.3782
+      ],
+      "orientation": [
+       [
+        -0.7168,
+        0.2168,
+        -0.6627
+       ],
+       [
+        -0.6964,
+        -0.1736,
+        0.6964
+       ],
+       [
+        0.0359,
+        0.9607,
+        0.2754
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1764,
+     0.03,
+     0.1764
+    ],
+    "Color": [
+     0.9137,
+     0.6353,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0273,
+       0.2306,
+       0.3896
+      ],
+      "orientation": [
+       [
+        0.0469,
+        0.2168,
+        -0.9751
+       ],
+       [
+        -0.9811,
+        -0.1736,
+        -0.0858
+       ],
+       [
+        -0.1879,
+        0.9607,
+        0.2045
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1344,
+     0.027,
+     0.1344
+    ],
+    "Color": [
+     0.9137,
+     0.6353,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1842,
+       0.2306,
+       0.3542
+      ],
+      "orientation": [
+       [
+        -0.9684,
+        0.2168,
+        0.1231
+       ],
+       [
+        0.0858,
+        -0.1736,
+        0.9811
+       ],
+       [
+        0.234,
+        0.9607,
+        0.1496
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.1344,
+     0.024,
+     0.1344
+    ],
+    "Color": [
+     0.9137,
+     0.6353,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0368,
+       0.14,
+       0.3711
+      ],
+      "orientation": [
+       [
+        0.8679,
+        0.2168,
+        -0.4469
+       ],
+       [
+        -0.4162,
+        -0.1736,
+        -0.8925
+       ],
+       [
+        -0.2711,
+        0.9607,
+        -0.0605
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.084,
+     0.021,
+     0.084
+    ],
+    "Color": [
+     0.9137,
+     0.6353,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1677,
+       0.14,
+       0.3415
+      ],
+      "orientation": [
+       [
+        -0.3776,
+        0.2168,
+        0.9002
+       ],
+       [
+        0.8925,
+        -0.1736,
+        0.4162
+       ],
+       [
+        0.2465,
+        0.9607,
+        -0.1279
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.084,
+     0.018,
+     0.084
+    ],
+    "Color": [
+     0.9137,
+     0.6353,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0993,
+       0.0648,
+       0.3434
+      ],
+      "orientation": [
+       [
+        -0.9755,
+        0.2168,
+        0.0382
+       ],
+       [
+        0.0,
+        -0.1736,
+        0.9848
+       ],
+       [
+        0.2201,
+        0.9607,
+        0.1694
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.015,
+     0.0672
+    ],
+    "Color": [
+     0.5569,
+     0.2902,
+     0.1725
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.07,
+       0.07,
+       -0.31
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.0,
+        0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.7071,
+        0.0,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.06,
+     0.06
+    ],
+    "Color": [
+     0.851,
+     0.298,
+     0.2314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_LeafCrown",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.07,
+       0.07,
+       -0.31
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.0,
+        0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.7071,
+        0.0,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.06,
+     0.06
+    ],
+    "Color": [
+     0.851,
+     0.298,
+     0.2314
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

@@ -4,6 +4,7 @@
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
+	local Config = require(Shared.Config)
 
 	local ROLES = { "barista", "waiter", "greeter", "entertainer" }
 	local ROLE_SET: { [string]: boolean } =
@@ -132,12 +133,31 @@ return function()
 		end
 
 		it(
-			"catchWindow scales the net 1.1 / 0.95 / 0.82 / 0.70 / 0.60 by rarity (v0.13.15 F83, F93)",
+			"catchWindow scales the net 1.15 / 1.032 / 0.908 / 0.742 / 0.636 by rarity (F83, F93, #1884 re-fit with paw rings)",
 			function()
-				local windows =
-					{ Common = 1.1, Rare = 0.95, Epic = 0.82, Legendary = 0.70, Mythical = 0.60 }
+				local windows = {
+					Common = 1.15,
+					Rare = 1.032,
+					Epic = 0.908,
+					Legendary = 0.742,
+					Mythical = 0.636,
+				}
 				for _, rarity in ipairs(RARITIES) do
 					expect(Catalog.rarities[rarity].catchWindow).to.be.near(windows[rarity], 1e-12)
+				end
+			end
+		)
+
+		it(
+			"trustNeed is 8 / 10 / 12 / 14 / 16: an all-Perfect run takes `circles` rings (#1884, 7b)",
+			function()
+				local needs = { Common = 8, Rare = 10, Epic = 12, Legendary = 14, Mythical = 16 }
+				for _, rarity in ipairs(RARITIES) do
+					local def = Catalog.rarities[rarity]
+					expect(def.trustNeed).to.equal(needs[rarity])
+					expect(Config.TrustStart + def.circles * Config.TrustPerfect).to.equal(
+						def.trustNeed
+					)
 				end
 			end
 		)

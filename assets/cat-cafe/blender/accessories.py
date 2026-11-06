@@ -16,6 +16,7 @@ import math
 from mathutils import Matrix, Vector
 
 import cats
+import seasondecor
 from common import Builder, scale_mesh
 
 K = cats.SIT_SCALE
@@ -48,7 +49,7 @@ ROLE_OUTFITS = {"barista": ("Apron", "BaristaCap"), "waiter": ("BowTie", "Vest")
 # The looks any cat can wear (#1624, cafe-pass.md section 3): on the head top, before the face, or on the back. Every
 # body carries an Outfit_<Piece> slot for each (build_all.cat_rbx_extras), so the game dresses by name. A standing
 # lantern can't stand on an upright back, so the sitting and working bodies wear TinyLantern_Sit, hung on the back.
-HEAD_LOOKS = ("Hat", "LeafBeret", "AcornHairClip", "MushroomCap")
+HEAD_LOOKS = ("Hat", "LeafBeret", "AcornHairClip", "MushroomCap", "LeafCrown")
 FACE_LOOKS = ("Glasses", "ReadingGlasses")
 BACK_LOOKS = ("TinyLantern",)
 LOOKS = HEAD_LOOKS + FACE_LOOKS + BACK_LOOKS
@@ -368,6 +369,51 @@ def build_mushroom_cap(mat):
     return [b.finalize("CatCafe_Accessory_MushroomCap", mat)]
 
 
+def _crown_leaf(b, phi, s, sw, tilt=18.0, rx=0.38, ry=0.32, cy=0.03, z0=0.04):
+    """One maple leaf of the Leaf Crown standing on the twig band at angle `phi` (degrees, 270 the front): `s` tall,
+    facing out from the head and leaning `tilt` degrees outward. Cheap on parts (each is one Roblox Part): three
+    pointed lobes, each a square turned to a diamond (the middle one up, two 52 degrees out and two small ones low at
+    the sides), on a short stem down to the band."""
+    a = math.radians(phi)
+    x, y = rx * math.cos(a), cy + ry * math.sin(a)
+    out = math.atan2(math.sin(a) / ry, math.cos(a) / rx)                                # the ellipse's outward normal
+    R = Matrix.Rotation(out + math.pi / 2, 3, "Z") @ Matrix.Rotation(math.radians(90 + tilt), 3, "X")
+    base = Vector((x, y, z0))
+    d = 0.03
+    heart = 0.3 * s
+    for lobe, size, reach, dd in ((0.0, 0.42, 0.25, 1.0), (50.0, 0.32, 0.25, 0.9), (-50.0, 0.32, 0.25, 0.8),
+                                  (110.0, 0.2, 0.17, 0.7), (-110.0, 0.2, 0.17, 0.6)):   # depths differ: no shared verts
+        t = math.radians(lobe)
+        c = Vector((-math.sin(t) * reach * s, heart + math.cos(t) * reach * s, 0))
+        b.box(tuple(base + R @ c), (size * s, size * s, d * dd), sw, bevel=False,
+              rot=R @ Matrix.Rotation(math.radians(45) + t, 3, "Z"))
+    b.box(tuple(base + R @ Vector((0, 0.06 * s, 0))), (0.04, 0.16 * s, d * 0.5), "fur_russet", bevel=False, rot=R)
+
+
+def build_leaf_crown(mat):
+    """#1883 level 31, the Autumn Leaf Crown: a ring of red, orange and gold maple leaves on a thin twig band, a big
+    gold leaf at the front between a red and an orange one, and two more at the back. It sits on the walking head's Hat slot
+    like the Leaf Beret: an ellipse round the head top, a little back, with gaps at its sides where the ears come up."""
+    b = Builder()
+    rx, ry, cy = 0.38, 0.32, 0.03
+    for a0, a1 in ((222, 318), (48, 132)):                                              # the twig band, front and back
+        n = 5
+        for k in range(n):
+            ta, tb = (math.radians(a0 + (a1 - a0) * t / n) for t in (k, k + 1))
+            pa = Vector((rx * math.cos(ta), cy + ry * math.sin(ta)))
+            pb = Vector((rx * math.cos(tb), cy + ry * math.sin(tb)))
+            m, d = (pa + pb) / 2, pb - pa
+            b.box((m.x, m.y, 0.025), (d.length + 0.03, 0.04, 0.05), "fur_russet", bevel=False,
+                  rot=(math.atan2(d.y, d.x), "Z"))
+    gold, red, orange = "eye_amber", "fur_rust_red", "fur_orange"
+    for phi, s, sw in ((270, 0.54, gold), (247, 0.38, red), (293, 0.38, orange), (75, 0.42, red),
+                       (105, 0.42, orange)):
+        _crown_leaf(b, phi, s, sw, tilt=10)
+    for x in (-0.07, 0.07):                                                             # two red berries at the front
+        b.box((x, cy - ry - 0.02, 0.07), (0.06, 0.06, 0.06), "bowl_red", bevel=False, rot=(math.radians(45), "Z"))
+    return [b.finalize("CatCafe_Accessory_LeafCrown", mat)]
+
+
 def build_reading_glasses(mat):
     """Level 22: round tortoiseshell reading glasses with gold bridges, arms back along the head (the Glasses
     slot, like CatCafe_Accessory_Glasses)."""
@@ -483,6 +529,7 @@ ASSETS = {
     "CatCafe_Accessory_MushroomCap": (build_mushroom_cap, 500),
     "CatCafe_Accessory_ReadingGlasses": (build_reading_glasses, 500),
     "CatCafe_Accessory_TinyLantern": (build_tiny_lantern, 500),
+    "CatCafe_Accessory_LeafCrown": (build_leaf_crown, 600),
     "CatCafe_Accessory_TinyLantern_Sit": (build_tiny_lantern_sit, 600),
     "CatCafe_Accessory_Sash": (build_sash, 300),
     "CatCafe_Accessory_PartyHat": (build_party_hat, 300),

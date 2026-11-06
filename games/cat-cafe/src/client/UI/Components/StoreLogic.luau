@@ -161,7 +161,7 @@ StoreLogic.STARTER = STARTER
 local CAFE_PASS: ProductCard = {
 	key = "cafePass",
 	productKey = "cafe_pass",
-	effect = "Season %d paid track, a reward every level:",
+	effect = "Season %d paid track:", -- short so a phone card keeps 9 px text
 }
 StoreLogic.CAFE_PASS = CAFE_PASS
 
@@ -348,7 +348,7 @@ local function cafePassRow(config: any, view: ShopView?): Row?
 		passId = id,
 		name = "Cafe Pass",
 		icon = "🍁",
-		-- "Season 1 paid track, a reward every level:" and the track's exact contents
+		-- "Season 1 paid track:" and the track's exact contents
 		effect = CAFE_PASS.effect:format(offer.season) .. "\n" .. offer.contents,
 		owned = offer.paid,
 		product = true,

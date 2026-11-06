@@ -31,6 +31,8 @@ local Presets = require(script.Parent.Presets)
 
 local Cats = {}
 
+local catching: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+
 type Entry = {
 	model: Model,
 	rig: Pose.Rig,
@@ -40,6 +42,9 @@ type Entry = {
 	phase: number,
 	hissAt: number?,
 	startleAt: number?, -- os.clock() of a near miss's spring (HopAt), until it lands
+	react: Logic.CatchReact?, -- catch v3 (#1892): the reaction to a judged ring or the net wrap playing now
+	reactAt: number, -- os.clock() it started
+	moodWeight: number, -- 0 to 1, how far the Curious or Skittish stance is eased in
 	head: BasePart?,
 	dustAt: number,
 	huffAt: number,
@@ -320,7 +325,11 @@ local function styleOf(model: Model): Logic.Style
 	elseif CollectionService:HasTag(model, "StuckCat") then
 		return Logic.stuckStyle(model:GetAttribute("TrapType"))
 	elseif CollectionService:HasTag(model, "Stray") then
-		return "stray"
+		-- catch v3 (#1892): a Sleepy stray curls up until a catch of it starts on this screen
+		local fleeing = model:GetAttribute("FleeingUntil")
+		local awake = catching[model] == true
+			or (type(fleeing) == "number" and fleeing > Workspace:GetServerTimeNow())
+		return Logic.moodStyle(model:GetAttribute("Mood"), awake) or "stray"
 	end
 	local role = roleOf(model)
 	local style: Logic.Style? = if role ~= nil then ROLES[role] else nil
@@ -477,7 +486,10 @@ local function dress(entry: Entry)
 	else
 		removeYarn(entry)
 	end
-	if entry.style == "nap" or entry.style == "doze" then
+	-- A Sleepy stray's mood icon already shows its zZ (catch v3), so it gets no floating z's of its own.
+	local sleepyStray = CollectionService:HasTag(entry.model, "Stray")
+		and entry.model:GetAttribute("Mood") == "Sleepy"
+	if (entry.style == "nap" or entry.style == "doze") and not sleepyStray then
 		addNaps(entry)
 	else
 		removeNaps(entry)
@@ -505,6 +517,9 @@ local function bind(model: Model): Entry?
 		phase = rng:NextNumber(0, 20),
 		hissAt = nil,
 		startleAt = nil,
+		react = nil,
+		reactAt = 0,
+		moodWeight = 0,
 		head = partNamed(model, "Head"),
 		dustAt = 0,
 		huffAt = 0,
@@ -615,7 +630,12 @@ local function pick()
 		if
 			model.Parent == nil
 			or hidden(model)
-			or (not keep[model] and entry.hissAt == nil and entry.startleAt == nil)
+			or (
+				not keep[model]
+				and entry.hissAt == nil
+				and entry.startleAt == nil
+				and entry.react == nil
+			)
 		then
 			drop(model, entry)
 		else
@@ -751,6 +771,25 @@ local function step(dt: number)
 				Logic.startle(o, k)
 			end
 		end
+		-- catch v3 (#1892): the mood stance on a free stray, and the reaction to a judged ring or the net wrap
+		local mood = if entry.style == "stray" then model:GetAttribute("Mood") else nil
+		local moodOn = (mood == "Curious" or mood == "Skittish") and not fleeing
+		local moodStep = stepDt / Presets.catchReact.mood.ease
+		entry.moodWeight =
+			math.clamp(entry.moodWeight + (if moodOn then moodStep else -moodStep), 0, 1)
+		if entry.moodWeight > 0 then
+			local w = entry.moodWeight * entry.moodWeight * (3 - 2 * entry.moodWeight)
+			Logic.moodLayer(o, mood, t, w * (1 - Logic.runFactor(rig.speed)))
+		end
+		local react = entry.react
+		if react ~= nil then
+			local k = (now - entry.reactAt) / (Presets.catchReact :: any)[react].seconds
+			if k >= 1 then
+				entry.react = nil
+			else
+				Logic.catchReact(o, react, k)
+			end
+		end
 		local alpha = -1
 		local hissAt = entry.hissAt
 		if hissAt ~= nil then
@@ -836,6 +875,38 @@ function Cats.hiss(model: Model, lag: number?)
 	if entry ~= nil then
 		entry.hissAt = os.clock() - (lag or 0)
 		Pose.startHop(entry.rig)
+	end
+end
+
+-- Catch v3 (#1892, Effects/CatchReact): plays a catch reaction on the cat, picked up at once like a hiss so it is
+-- never lost. A new one replaces the one playing.
+function Cats.react(model: Model, kind: Logic.CatchReact)
+	if hidden(model) then
+		return
+	end
+	local entry: Entry? = active[model]
+	if entry == nil and model.Parent ~= nil then
+		entry = bind(model)
+	end
+	if entry ~= nil then
+		entry.react = kind
+		entry.reactAt = os.clock()
+	end
+end
+
+-- Catch v3: true while this player is catching the stray, so a Sleepy one wakes up for it.
+function Cats.setCatching(model: Model, on: boolean)
+	catching[model] = if on then true else nil
+	local entry: Entry? = active[model]
+	if entry ~= nil then
+		local style = styleOf(model)
+		if style ~= entry.style then
+			entry.from = entry.style
+			entry.changedAt = os.clock()
+			entry.settleFor = Logic.settleSeconds(entry.style, style)
+			entry.style = style
+			dress(entry)
+		end
 	end
 end
 

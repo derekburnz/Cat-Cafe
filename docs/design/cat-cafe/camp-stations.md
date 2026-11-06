@@ -1,6 +1,6 @@
 # Camp stations: Picnic Basket, Yard Sale and Fish Pond as real stations (#1133, #1154, #1232)
 
-Decided by the Coordinator for the friend, overnight 11-05, from Derek's 11-04 asks. Written up by Design-Agent. Owner: game-designer. Readers: Model-Agent, UI-Engineer, VFX, Gameplay-Engineer, QA. This changes [camp-extras.md](camp-extras.md) sections 2 and 3 for these three extras. The Lost and Found (Sewer) is unchanged.
+Decided by the Coordinator for the friend, overnight 11-05, from Derek's 11-04 asks. Written up by Design-Agent. Owner: game-designer. Readers: Model-Agent, UI-Engineer, VFX, Gameplay-Engineer, QA. This changes [camp-extras.md](camp-extras.md) sections 2 and 3 for these three extras. The Lost and Found (Sewer) gets its rework in section 4b (2026-11-06).
 
 ## 1. One shared "!" (all three)
 
@@ -37,6 +37,30 @@ Decided by the Coordinator for the friend, overnight 11-05, from Derek's 11-04 a
   - **If Derek still wants 2x fish,** the whole crate system needs the paid-random treatment first: PolicyService checks on every crate open and a restricted-player fallback. That's a separate design.
   - **Price:** R$99, the low end of Derek's R$100 to R$200, since it's convenience only. The store card reads: "Collect your Fish Pond from anywhere, plus a golden pond look. Same fish, less walking."
   - **Server:** `PassService` owner check (cached, granted on `PromptGamePassPurchaseFinished`). `CollectCampExtra("pond")` skips the range check only for an owner.
+
+## 4b. Lost and Found (Sewer, Tier 5): rework and a big buff (Derek2, 2026-11-06)
+
+Derek2: "the lost and found station needs a re-work and a massive buff". Today it's a small box by a pipe with one prize a UTC day, so a Tier 5 player barely notices it. It becomes the best of the four camp extras, because it's the last one a player unlocks.
+
+- **Station:** `CatCafe_Camp_Sewer_LostFoundBooth`. A little lost-property kiosk built into the camp wall: a counter window under a striped awning, a brass bell on the counter, and shelves behind it piled with odd finds (an umbrella, one boot, a teddy bear, a lamp and a cat bed). It has a "Lost & Found" sign on a bulb-lit board, the dripping pipe stays above, and it's about 8 studs wide. It's solid, climbable and finished on every side, with a `PromptAnchor` at the counter and a `BangAnchor` above the sign.
+- **Moving touch:** when something waits, the bell gives a little ring-wobble every few seconds and a bulb on the sign blinks. It's still on Reduce Motion.
+- **The "!":** uses the shared `ReadyBang` (section 1) like the other three. It was left out when this spec was first written.
+- **Timer:** one find every **2 hours** from the last fill, holding **3** (6 hours, like the pond). That's up to 12 a day, where it used to be 1. A player who visits morning and evening gets about 6.
+- **Prize table (free, odds on the card):**
+
+  | find | chance |
+  |---|---|
+  | 40 golden fish | 30% |
+  | Lucky Potion + Gold Rush Potion | 22% |
+  | 2 spins | 15% |
+  | Sewer Crate | 18% |
+  | Golden Classic Crate | 10% |
+  | Golden Sewer Crate (if the Sewer pool has a golden crate, else a second Golden Classic Crate) | 3% |
+  | **A lost cat:** a random Epic from one of the player's open areas, who walks into the cafe like a rescued cat | 2% |
+
+- **Collect all:** the prompt says "Lost & Found: 3 finds, collect". One press opens them one after another in a single prize toast, with at most two pictures each.
+- **Balance:** about 6 finds a day give about 72 fish, 1.3 potion pairs, 0.9 spin bundles and 1.9 crates, plus a lost cat about every 8 days. Golden fish and crates don't gate tiers, and Tier 5 is the end, so Pace.spec doesn't move. Nothing here is sold, sped up or refilled for Robux, and luck, gold and rainbow odds aren't touched (the lost cat rolls gold and rainbow like a rescue).
+- **Contracts:** `LostFoundEverySeconds` 7200, `LostFoundHold` 3, `LostFoundTable` as above (`{ chance, fish?, potions?, spins?, crate?, lostCat? }`). Save: `lostFound = { at, held }` in place of `{ day, held }`. Migration: `at = now`, and `held` stays as saved. This is a save version bump, so claim `DataService`. `CollectCampExtra("lostFound")` pays every held find. QA: after 7 hours away, 3 are held. 10,000 cloud rolls match the table within one point. A lost cat is an Epic from an open area.
 
 ## 5. Contracts
 

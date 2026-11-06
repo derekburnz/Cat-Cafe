@@ -56,10 +56,11 @@ local Config = {
 		starter_bundle = 3728336166, -- #1625: once per account (Catalog.products oncePerAccount)
 		cafe_pass = 3728336202, -- #1626: the running season's paid track, once per season (Catalog.products seasonPass)
 	} :: { [string]: number },
-	-- The Cafe Pass (#1645, cafe-pass.md section 1): each season's first day as a UTC date, oldest first. Season 1
-	-- starts the day the game goes public (Derek sets it); with no date the pass is closed outside Studio, where a
-	-- preview season 1 runs for playtests (shared/CafePass).
-	SeasonStarts = {} :: { string },
+	-- The Cafe Pass (#1645, cafe-pass.md section 1): each season's first day as a UTC date, oldest first. With no date
+	-- the pass is closed outside Studio, where a preview season 1 runs for playtests (shared/CafePass).
+	-- 2026-11-05 is a test start so Derek2 can try the pass live; Derek2 resets it to the launch day. Keep one date:
+	-- moving it later only moves the season's end.
+	SeasonStarts = { "2026-11-05" } :: { string },
 	PassLevels = 30,
 	PassXpPerLevel = 800,
 	AutosaveSeconds = 60,
@@ -199,6 +200,19 @@ local Config = {
 	LuckyDayWaveLuck = 2,
 	LuckyDayPlayerLuck = 0.5,
 	LuckyDayWarnSeconds = 15,
+	-- #1572 (luck-and-rare-moments.md 1h): the global pity cat (shared/Pity). A slot every PityLegendarySeconds from
+	-- ClockEpoch, every PityMythicalEvery-th a Mythical one; its area by PityAreaWeights (by area id), and the first
+	-- catch anywhere claims it in MemoryStore, tried PityClaimRetries times before the catcher keeps it anyway.
+	PityLegendarySeconds = 1800,
+	PityMythicalEvery = 4,
+	PityAreaWeights = {
+		alley = 10,
+		park = 15,
+		neighbourhood = 20,
+		woods = 25,
+		sewer = 30,
+	} :: { [string]: number },
+	PityClaimRetries = 3,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
 	-- F97 (notes-10-28-to-10-30.md section 3): a food's price is its Catalog base times this factor at the buyer's
 	-- tier (Economy.foodPrice), the same growth as the later shop items (economy-ladder.md section 4)
@@ -299,9 +313,10 @@ local Config = {
 	-- #1577 (day-cart.md section 2): the Day Cart's roll, which replaces the size table. Row i of the list by Tier 1
 	-- price (cheapest first) is in stock with max(DayCartFloor, DayCartTopChance - DayCartStep x (i - 1)), and a row
 	-- in stock has 1, 2 or 3 by DayCartQtyOdds.
-	DayCartTopChance = 0.95,
-	DayCartStep = 0.045,
-	DayCartFloor = 0.05,
+	-- #1740 (Derek2, 2026-11-06): more of the cart in stock, about 14 of the 19 rows a day (was about 10)
+	DayCartTopChance = 1,
+	DayCartStep = 0.03,
+	DayCartFloor = 0.25,
 	DayCartQtyOdds = { 50, 30, 20 } :: { number },
 	CornerDailyLimits = { steady = 4, quick_bait = 2, whistle = 4 } :: { [string]: number },
 	CatFoodMax = 999, -- the most of one food the Bag holds
@@ -606,7 +621,7 @@ local Config = {
 	RallyStateSeconds = 0.5, -- RallyState goes out at most this often while points come in (steps go at once)
 
 	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters, digits and Codes.SYMBOLS, in any case.
-	CodesCatRange = 12, -- RedeemCode from this close to a CodesCat station's pivot
+	CodesCatRange = 12, -- the Codes Cat's box opens this close to a CodesCat station's pivot (RedeemCode works anywhere, #1747)
 	CodesCircleRadius = 4, -- the code box opens within this flat distance of the CodesCircle, closes past it + 1
 	CodeMaxLength = 20,
 	CodeWrongLimit = 5, -- this many wrong codes within CodeWrongWindowSeconds lock the box

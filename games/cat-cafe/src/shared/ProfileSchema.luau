@@ -110,7 +110,9 @@ local ProfileSchema = {}
 -- day: an older server would drop it, letting the player buy the same row again by hopping servers during a rollout.
 -- Version 38 (#1624, store-pass-looks.md) adds looks, the cafe theme and uniform picks: an older server would drop them,
 -- showing Classic until the player picks again.
-ProfileSchema.VERSION = 38
+-- Version 39 (#1624, store-pass-looks.md section 6) adds looks.accessory, the cats' accessory pick: an older server's
+-- Looks.sanitize would drop it, showing no accessory until the player picks again.
+ProfileSchema.VERSION = 39
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -936,7 +938,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.signStyle = SignStyles.sanitizePick(raw.signStyle)
 	-- #1645 (version 36): the Cafe Pass; saves before it start at season 0 with nothing (CafePassService rolls it on)
 	profile.pass = CafePass.sanitize(raw.pass)
-	-- #1624 (version 38): the theme and uniform picks, known ids only; saves before it show Classic
+	-- #1624 (version 38): the theme and uniform picks, and (39) the accessory, known ids only; saves before show Classic
 	profile.looks = Looks.sanitize(raw.looks)
 	-- #1181 (version 32): the Bag's cat food, known foods only, whole counts of 1 to CatFoodMax
 	if type(raw.catFood) == "table" then

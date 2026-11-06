@@ -432,6 +432,7 @@ return function()
 				KingPackPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				KingCatPassId = true, -- #1822: the King Cat alone, 0 until made, checked below
 				JukeboxPassId = true, -- #1168 row 2: 0 until made, checked below
+				GardenDecorPackPassId = true, -- #1168 row 3: 0 until made, checked below
 				GoldenPondPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				SecondBowlPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				LostFoundTable = true, -- F100 (camp-extras.md section 2): a table, checked in CampExtras.spec
@@ -534,6 +535,9 @@ return function()
 			-- #1168 row 2: the Jukebox Pass is 0 until made, then a pass id of its own
 			expect(type(c.JukeboxPassId)).to.equal("number")
 			expect(c.JukeboxPassId == 0 or ids[c.JukeboxPassId] == nil).to.equal(true)
+			-- #1168 row 3: the Garden Decor Pack is 0 until made, then a pass id of its own
+			expect(type(c.GardenDecorPackPassId)).to.equal("number")
+			expect(c.GardenDecorPackPassId == 0 or ids[c.GardenDecorPackPassId] == nil).to.equal(true)
 			-- keep up is off: the shop-only cats use areaMultiplier instead, and it can come back by config
 			expect(next(Config.KeepUpRarities)).to.equal(nil)
 		end)

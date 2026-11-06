@@ -31,6 +31,7 @@ local Layout = require(script.Parent.Parent.World.Layout)
 local LeaderboardService = require(script.Parent.LeaderboardService)
 local Leaderboards = require(ReplicatedStorage.Shared.Leaderboards)
 local Leaderstats = require(script.Parent.Leaderstats)
+local Looks = require(ReplicatedStorage.Shared.Looks)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
@@ -219,6 +220,22 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		starterBought = profile.onceBought.starter_bundle == true, -- #1625: the Store card hides
 		signStyles = SignStyles.owned(profile.signStyles, ownsPassOf(player)), -- #1625
 		signStyle = profile.signStyle,
+		looks = { -- #1624: the Style tab's theme and uniform rows (the shown pick, nil for Classic, and what is owned)
+			theme = Looks.shown(
+				"theme",
+				profile.looks.theme,
+				ownsPassOf(player),
+				profile.pass.items
+			),
+			uniform = Looks.shown(
+				"uniform",
+				profile.looks.uniform,
+				ownsPassOf(player),
+				profile.pass.items
+			),
+			themes = Looks.owned("theme", ownsPassOf(player), profile.pass.items),
+			uniforms = Looks.owned("uniform", ownsPassOf(player), profile.pass.items),
+		},
 		luck = luck, -- F88
 		luckSources = luckSources,
 		longNap = Economy.passes(profile).longNap, -- F95: the welcome back card's line
@@ -275,6 +292,15 @@ local function shownName(player: Player, instance: Types.CatInstance): string
 		or (if def ~= nil then def.name else instance.catId)
 end
 
+-- #1624: the Looks uniform `player`'s working cats wear (their owned pick), nil for Classic.
+local function uniformOf(player: Player): string?
+	local profile = DataService.get(player)
+	if profile == nil then
+		return nil
+	end
+	return Looks.shown("uniform", profile.looks.uniform, ownsPassOf(player), profile.pass.items)
+end
+
 -- One cat's model at `at` for its `slot`, not parented yet, its Rate for an owner at `tier`. A working cat stands on
 -- the worker body (S, Model-Agent #826; Derek picked S on 2026-11-02) in its role's outfit, its front legs posed for
 -- the role and holding the role's cup, tray or microphone (CatDress.workPose), else sits on the seated body (B) while
@@ -326,6 +352,7 @@ local function buildCat(
 			model:SetAttribute("SleepSpot", sleepSpot)
 		else
 			CatPose.dress(model, spot.spotType) -- F25: a working cat sits at its station in its role's outfit
+			CatPose.wearUniform(model, uniformOf(player)) -- #1624: in the cafe's uniform style
 		end
 	end
 	return model
@@ -786,6 +813,79 @@ local function refreshSignStyle(player: Player, plot: WorldBuilder.Plot, profile
 	model.Parent = plot.model
 end
 
+-- One look model on the plot, named `name` and placed at the plot pivot: `assetName` (nil or not in the Assets folder
+-- takes it away). Left alone while the same asset already stands.
+local function showLookModel(plot: WorldBuilder.Plot, name: string, assetName: string?)
+	local wanted = if assetName ~= nil and AssetRegistry.has(assetName) then assetName else nil
+	local existing = plot.model:FindFirstChild(name)
+	if existing ~= nil and existing:GetAttribute("Asset") == wanted then
+		return
+	end
+	if existing ~= nil then
+		existing:Destroy()
+	end
+	if wanted == nil then
+		return
+	end
+	local model = AssetRegistry.clone(wanted)
+	model.Name = name
+	model:SetAttribute("Asset", wanted)
+	model:PivotTo(plot.cframe)
+	model.Parent = plot.model
+end
+
+-- #1624 (store-pass-looks.md): the cafe's looks, after refreshSignStyle. The theme shown (an owned pick, else the
+-- default) puts its front (`Theme`, with its own awning in place of the shell's), its inside pieces (`ThemeInside`)
+-- and, while no sign style shows, its own name sign (`ThemeSign`) at the plot pivot, and names itself in the plot's
+-- Theme attribute. The uniform shown goes in UniformStyle for the cats' outfits. A VIP owner's sign gets the gold
+-- plate (`VipPlate`, VipPlate attribute true). Everyone sees all of it; none of it changes collision or money.
+local function refreshLooks(player: Player, plot: WorldBuilder.Plot, profile: Profile)
+	local owns = ownsPassOf(player)
+	local items = profile.pass.items
+	local themeId = Looks.shown("theme", profile.looks.theme, owns, items)
+	local theme = if themeId ~= nil then Looks.theme(themeId) else nil
+	local front = if theme ~= nil and AssetRegistry.has(theme.front) then theme.front else nil
+	if front == nil then
+		theme = nil -- the theme's art is not in yet: the default look
+	end
+	plot.model:SetAttribute(Looks.THEME_ATTRIBUTE, if theme ~= nil then theme.id else nil)
+	showLookModel(plot, "Theme", front)
+	WorldBuilder.setAwningHidden(plot, theme ~= nil)
+	local signStyled = plot.model:GetAttribute(SignStyles.SIGN_STYLE_ATTRIBUTE) ~= nil
+	showLookModel(plot, "ThemeSign", if theme ~= nil and not signStyled then theme.sign else nil)
+	local insideNames: { string } = if theme ~= nil then theme.inside else {}
+	local insideKey = table.concat(insideNames, ",")
+	local inside = plot.model:FindFirstChild("ThemeInside")
+	if inside ~= nil and inside:GetAttribute("Assets") ~= insideKey then
+		inside:Destroy()
+		inside = nil
+	end
+	if inside == nil and #insideNames > 0 then
+		local folder = Instance.new("Model")
+		folder.Name = "ThemeInside"
+		folder:SetAttribute("Assets", insideKey)
+		for _, assetName in insideNames do
+			if AssetRegistry.has(assetName) then
+				local piece = AssetRegistry.clone(assetName)
+				piece:PivotTo(plot.cframe)
+				piece.Parent = folder
+			end
+		end
+		folder.Parent = plot.model
+	end
+	local uniform = Looks.shown("uniform", profile.looks.uniform, owns, items)
+	plot.model:SetAttribute(Looks.UNIFORM_ATTRIBUTE, uniform)
+	for _, cat in plot.cats:GetChildren() do -- a cat built before the pick changed takes the new colours
+		if cat:IsA("Model") and cat:GetAttribute("Role") ~= nil then
+			CatPose.wearUniform(cat :: Model, uniform)
+		end
+	end
+	local vip = Config.VipPassId ~= 0 and PassService.owns(player, Config.VipPassId)
+	local plate = vip and AssetRegistry.has(Looks.VIP_PLATE_MODEL)
+	plot.model:SetAttribute(Looks.VIP_PLATE_ATTRIBUTE, if plate then true else nil)
+	showLookModel(plot, "VipPlate", if plate then Looks.VIP_PLATE_MODEL else nil)
+end
+
 -- The bait bowl in the front garden (data-model section 8): the bowl once the upgrade is bought, the food in it
 -- while a cat is on its way and the cat itself, eating, once it has arrived, so the street sees it. The item
 -- models are tiny, so they are scaled up to read from the path. BaitReadyAt is for display only.
@@ -893,6 +993,7 @@ function CafeService.refreshPlot(player: Player)
 	refreshBait(player, plot, profile)
 	LawnBuilder.refresh(plot, profile) -- F91: the front lawn's pieces, path and fence
 	refreshSignStyle(player, plot, profile) -- #1625
+	refreshLooks(player, plot, profile) -- #1624: after the sign style, which hides a theme's own sign
 end
 
 -- F91 (front-lawn.md section 1b): the front lawn pieces the cafe's tier has earned and it does not own yet (a Garden
@@ -1887,6 +1988,33 @@ local function onSetSignStyle(player: Player, rawId: unknown)
 	CafeService.sync(player)
 end
 
+-- #1624: picks a look of `rawKind` ("theme" or "uniform"): an owned Looks id, or nil for the default (Classic).
+-- Saved in profile.looks, then the plot shows it.
+local function onSetLook(player: Player, rawKind: unknown, rawId: unknown)
+	local profile = profileFor(player)
+	if profile == nil then
+		return
+	end
+	-- the whole check is Looks.pickFor (known kinds, owned looks only, specced in Looks.spec)
+	local ok, pick = Looks.pickFor(rawKind, rawId, ownsPassOf(player), profile.pass.items)
+	if not ok then
+		Net.toast(player, "You don't have that look yet.", "warn")
+		return
+	end
+	local kind = rawKind :: Looks.Kind
+	local looks = profile.looks
+	if (if kind == "theme" then looks.theme else looks.uniform) == pick then
+		return
+	end
+	if kind == "theme" then
+		looks.theme = pick
+	else
+		looks.uniform = pick
+	end
+	CafeService.refreshPlot(player)
+	CafeService.sync(player)
+end
+
 -- The Settings screen (data-model section 14 `settings`): a switch takes a boolean, a volume a number it clamps
 -- to 0 to 1, a choice one of its strings (shared/Settings). Unknown keys and values that do not fit are dropped.
 local function onSetSetting(player: Player, rawKey: unknown, rawValue: unknown)
@@ -1943,9 +2071,8 @@ function CafeService.start()
 		local profile = profileFor(player)
 		if profile ~= nil then
 			Economy.setPasses(profile, passes)
-			if CafeService.autoEquip(player, profile) > 0 then -- #1534: an Extra Slot pass's slot fills
-				CafeService.refreshPlot(player)
-			end
+			CafeService.autoEquip(player, profile) -- #1534: an Extra Slot pass's slot fills
+			CafeService.refreshPlot(player) -- #1624: and a look pass's theme, VIP plate or sign shows
 			CafeService.sync(player)
 		end
 	end)
@@ -1985,6 +2112,7 @@ function CafeService.start()
 	Net.on("TutorialAdvance", onTutorialAdvance)
 	Net.on("SetSetting", onSetSetting)
 	Net.on("SetSignStyle", onSetSignStyle) -- #1625
+	Net.on("SetLook", onSetLook) -- #1624
 	Net.on("RequestSync", function(player)
 		CafeService.sync(player)
 		local offline, seconds = DataService.peekPendingOffline(player)

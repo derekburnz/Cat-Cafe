@@ -202,6 +202,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		goldLuck = totals.goldLuck,
 		rainbowLuck = IndexRewards.rainbowLuck(profile), -- F99: the food card's "Rainbow 0.5%" line
 		baitSpeed = totals.baitSpeed,
+		firstBait = profile.stats.luresUsed <= 0, -- #1895: the next bait waits at most 2 minutes (Bait.firstWait)
 		plotIndex = if plot ~= nil then plot.index else 0,
 		carrying = carrying[player],
 		dataSaves = DataService.saves(),

@@ -134,6 +134,14 @@ return function()
 			expect(Bait.waitSeconds(0, false)).to.equal(Config.LureWaitSeconds)
 		end)
 
+		it("the account's first bait waits at most 2 minutes, later ones as usual (#1895)", function()
+			expect(Config.FirstBaitWaitSeconds).to.equal(120)
+			expect(Bait.firstWait(600, 0)).to.equal(120)
+			expect(Bait.firstWait(90, 0)).to.equal(90) -- a speed-up only ever shortens it
+			expect(Bait.firstWait(600, 1)).to.equal(600)
+			expect(Bait.firstWait(480, 7)).to.equal(480)
+		end)
+
 		it("names the five bowls", function()
 			local names = {}
 			for level = 1, 5 do

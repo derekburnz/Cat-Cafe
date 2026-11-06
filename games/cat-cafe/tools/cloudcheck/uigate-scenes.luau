@@ -987,6 +987,20 @@ local SCENES = {
 		UI.bait.openPicker()
 		assertBowlTabs(2, "Bowl 2 is empty")
 	end },
+	-- #1895: the account's short first bait (2 minutes) in the bowl: "A cat is coming!" on the HUD's row over the money
+	-- and in the Bait bowl window
+	{ "BaitFirstComing", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 102, placedAt = now - 18 }, 1)
+		local chip = UIShim.playerGui:FindFirstChild("CatComing", true)
+		assert(chip and chip.Visible and string.find(chip.Text, "A cat is coming!", 1, true),
+			"uigate: no \"A cat is coming!\" over the money during the first bait (#1895)")
+		UI.bait.openPicker()
+		local status = baitWindow():FindFirstChild("Status", true)
+		local sub = status and status:FindFirstChild("Sub", true)
+		assert(sub and string.find(sub.Text, "A cat is coming!", 1, true),
+			"uigate: the bowl window doesn't say a cat is coming (#1895)")
+	end },
 	-- #1573: a Tuna bait that has come and gone; the empty bowl offers Refill with the same food
 	{ "BaitRefill", function()
 		local now = workspace:GetServerTimeNow()

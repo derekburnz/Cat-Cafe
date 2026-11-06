@@ -5,7 +5,7 @@ subject inside the middle 80%. One picture serves the Creator Hub icon and the i
 
 Passes
   Money2x, Money3x, Money4x  the gold coin stack (icon_art.coins) with a cream tag reading x2, x3 or x4
-  LongNap         a ginger cat asleep on a plump blush cushion, a crescent moon and Zz above
+  LongNap         a ginger cat curled up asleep on a night-blue cushion, a gold alarm clock, big Zs (#1738)
   VIP             a gold plate reading VIP with a cream crest and a gold paw on top
   Accessories     a cream cat in a bow tie and a straw boater drawn big, a spare beret and a pink ribbon bow beside her
   Uniforms        a ginger barista cat in the apron and cap
@@ -144,16 +144,41 @@ def money(mark):
 
 
 def long_nap(mat):
+    """#1738 (Derek2 11-06: "make a better image for long nap pass thats more obvious"): a ginger cat curled up asleep
+    on a night-blue cushion, a big gold alarm clock behind it and a tall stack of white Zs rising off it, so the card
+    reads as "sleep longer" at tile size."""
     b = Builder()
-    b.sphere((0, 0, 0.32), 1.0, "blush", segments=24, rings=12, scale=(1.35, 1.0, 0.34))       # the cushion
-    b.cyl((0, 0, 0.64), 0.09, 0.04, "fur_bubblegum", segments=10)                             # its button
+    b.sphere((0, 0, 0.3), 1.0, "pants_navy", segments=24, rings=12, scale=(1.3, 0.95, 0.3))   # the cushion
+    b.cyl((0, 0, 0.3), 1.31, 0.08, "gold_mid", segments=28, scale=(1.0, 0.73, 1.0))          # its gold piping
     for sx in (-1, 1):
         for sy in (-1, 1):
-            b.ico((sx * 1.25, sy * 0.88, 0.3), 0.12, "fur_bubblegum")                         # corner tufts
-    _moon(b, (0.95, 0.0, 2.1), 0.42, 0.24, 0.08, "rarity_legend")
-    _text(b, "Z", -0.55, -0.1, 1.75, 0.09, 0.06, "pastel_sky")
-    _text(b, "Z", -0.2, -0.1, 2.1, 0.065, 0.06, "pastel_sky")
-    cat = place(_cat("Ginger", mat, body="walk", pose="sleep"), at=(0.0, 0.05, 0.45), yaw=-90)
+            b.ico((sx * 1.2, sy * 0.84, 0.3), 0.13, "gold_mid")                                # corner tufts
+    # the alarm clock, standing behind the cat at the right
+    cx, cy, cz, R = 0.95, 0.75, 1.55, 0.7
+    b.cyl((cx, cy, cz), R, 0.4, "gold_mid", segments=28, rot=X)                                 # its case
+    b.cyl((cx, cy - 0.21, cz), R - 0.12, 0.04, "cream", segments=28, rot=X)                    # the face
+    for k in range(12):                                                                       # the hour marks
+        a = math.radians(90 - 30 * k)
+        L = 0.13 if k % 3 == 0 else 0.07
+        r = R - 0.2 - L / 2
+        b.box((cx + r * math.cos(a), cy - 0.24, cz + r * math.sin(a)), (0.05, 0.03, L), "fur_black", bevel=False,
+              rot=(math.radians(30 * k), "Y"))
+    b.box((cx, cy - 0.27, cz + 0.17), (0.07, 0.03, 0.36), "fur_black", bevel=False)            # hour hand: 12
+    b.box((cx + 0.16, cy - 0.29, cz - 0.08), (0.05, 0.03, 0.42), "royal_berry", bevel=False,
+          rot=(math.radians(-60), "Y"))                                                       # minute hand: past 4
+    b.cyl((cx, cy - 0.31, cz), 0.06, 0.04, "gold_dark", segments=10, rot=X)                   # the pin
+    for sx in (-1, 1):                                                                        # the bells and legs
+        a = math.radians(90 + sx * 40)
+        bx, bz = cx + (R + 0.05) * math.cos(a), cz + (R + 0.05) * math.sin(a)
+        b.sphere((bx, cy, bz), 0.28, "gold_light", segments=14, rings=7, scale=(1, 1, 0.8))
+        b.box((cx + sx * 0.45, cy, cz - R - 0.08), (0.1, 0.12, 0.28), "gold_dark", bevel=False,
+              rot=(math.radians(sx * 25), "Y"))
+    b.box((cx, cy, cz + R + 0.12), (0.12, 0.12, 0.2), "gold_dark", bevel=False)                # the hammer
+    # the Zs, getting bigger as they rise to the left
+    _text(b, "Z", -0.2, -0.45, 1.75, 0.09, 0.08, "offwhite")
+    _text(b, "Z", -0.7, -0.45, 2.15, 0.12, 0.08, "offwhite")
+    _text(b, "Z", -1.3, -0.45, 2.65, 0.16, 0.08, "offwhite")
+    cat = place(_cat("Ginger", mat, body="walk", pose="sleep"), at=(-0.1, -0.15, 0.45), yaw=-90, scale=1.1)
     return _fin(b, "LongNap", mat) + cat
 
 

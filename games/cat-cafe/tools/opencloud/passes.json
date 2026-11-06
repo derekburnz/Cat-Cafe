@@ -121,7 +121,7 @@
 	},
 	{
 		"name": "Sign Style Pack",
-		"id": 0,
+		"id": 2075396351,
 		"config": "SignStylePackPassId",
 		"price": 79,
 		"regionalPricing": true,
@@ -129,7 +129,7 @@
 	},
 	{
 		"name": "Garden Decor Pack",
-		"id": 0,
+		"id": 2075342357,
 		"config": "GardenDecorPackPassId",
 		"price": 149,
 		"regionalPricing": true,

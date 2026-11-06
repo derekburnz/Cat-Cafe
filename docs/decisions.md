@@ -509,4 +509,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 - 2026-11-06: Lawn cards show a tiny "Big spot" tag on big-spot pieces, and nothing else explains Equip Best. The spot counts and the best-pick rule stay as they are. Spec in lawn-nursery.md §6e. Why: Derek2 picked option 1 on #1729 and then asked to keep the cards light, with no long "Stored: ..." sentence.
 
+- 2026-11-06: The intro cutscene drops the old shot 6, the cut back to the Alleyway camp's Index Board after the cafe shot. It is now eight shots in 20 s, and the `intro_cutscene` event is version 5, so old and new drop-offs never mix. intro-cutscene.md section 2 matches the build in #1786. Why: Derek2 asked in #1782 to "remove the tutorial ending that flashes to the Alleyway".
+
 - 2026-11-06: The Day Cart keeps more in stock: row i is in stock with max(25%, 100% - 3% x (i - 1)), about 14 of the 19 rows a day instead of about 10. Quantities and daily limits are unchanged. day-cart.md §2 matches the build in #1743. Why: Derek2 asked for more Day Cart items in stock (#1740).

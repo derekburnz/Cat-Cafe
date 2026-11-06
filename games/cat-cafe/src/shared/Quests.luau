@@ -340,8 +340,10 @@ function Quests.measure(profile: Types.PlayerProfile, measure: string): number
 		return n
 	elseif measure == "decorOwned" then
 		local n = 0
-		for _, owned in profile.decorOwned do
-			if owned then
+		for decorId, owned in profile.decorOwned do
+			local def = if owned then Catalog.getDecor(decorId) else nil
+			-- #1645: Cafe Pass decor is looks only and never moves progress, like an exclusive cat above
+			if owned and not (def ~= nil and def.source == "pass") then
 				n += 1
 			end
 		end

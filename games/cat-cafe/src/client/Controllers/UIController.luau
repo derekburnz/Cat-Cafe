@@ -1017,6 +1017,17 @@ local function wireIntents()
 			end
 		end)
 	end
+	-- #1920: the session recap card showed, and how long it stayed up; the server allowlists both
+	if events.sessionRecap ~= nil then
+		events.sessionRecap:Connect(function()
+			Net.fire("TelemetryReport", "session_recap", true)
+		end)
+	end
+	if events.sessionRecapClose ~= nil then
+		events.sessionRecapClose:Connect(function(secondsUp: number)
+			Net.fire("TelemetryReport", "session_recap_close", secondsUp)
+		end)
+	end
 	-- Fast travel (F19): the travel row and the Areas panel; the server answers every request with TravelResult.
 	UI.events.travel:Connect(function(destination: string)
 		Net.fire("Travel", destination)

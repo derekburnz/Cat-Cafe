@@ -196,6 +196,9 @@ UI.events = {
 	tutorialClosed = Signal.new(), -- ()   #1273: the Tutorial tile's red X, analytics only: forward as TelemetryReport("tutorial_closed")
 	introChoice = Signal.new(), -- (from)   "tile" (the Tutorial tile) or "help" (Show me on Need a hand?): forward as TelemetryReport("intro_choice", from)
 	stuckNudge = Signal.new(), -- (kind)   "pulse", "help_shown" or "show_me": forward as TelemetryReport("stuck_nudge", kind)
+	-- #1920 (first-hour.md section 6), analytics only: the session recap card showed, then went after this many seconds
+	sessionRecap = Signal.new(), -- ()   forward as TelemetryReport("session_recap"); the server adds the minutes and step
+	sessionRecapClose = Signal.new(), -- (secondsUp)   forward as TelemetryReport("session_recap_close", secondsUp)
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
 	claimStarterCat = Signal.new(), -- ()   Take me home: forward as ClaimStarterCat
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
@@ -1309,6 +1312,7 @@ function UI.init(config: Types.InitConfig)
 	toasts = Toasts.new(parent)
 	popups = Popups.new(parent)
 	tipCard = TipCard.new(parent)
+	UI.recap.card = require(script.Screens.RecapCard).new(parent) -- #1920
 	askCard = AskCard.new(parent, {
 		lift = function()
 			return hudInstance:bottomTop() - Theme.sizes.gap
@@ -1648,6 +1652,11 @@ function UI.destroy()
 		tipCard:destroy()
 	end
 	tipCard = nil
+	if UI.recap.card then
+		UI.recap.card:destroy()
+		UI.recap.card = nil
+	end
+	UI.recap.waiting = nil
 	if askCard then
 		askCard:destroy()
 	end
@@ -6056,6 +6065,121 @@ end
 function UI.demo(): () -> ()
 	local Demo = require(script.Demo) :: any
 	return Demo.run(UI)
+end
+
+----------------------------------------------------------------------------------------------------
+-- Session recap (#1920, first-hour.md section 6)
+----------------------------------------------------------------------------------------------------
+
+-- UIController's hook for SessionRecap(view): Gameplay sends it once a session after RecapAfterSeconds of play with
+-- view = { minutes, newCats, earned } for this session. The card waits for a calm moment (after the tutorial, not
+-- catching, carrying or in a menu or card, idle RecapLogic.IDLE_SECONDS) and shows once; with the sessionRecap
+-- setting off it never shows. The other lines come from what the client holds (Components/RecapLogic).
+UI.recap = {
+	card = nil :: any,
+	waiting = nil :: { [string]: any }?,
+	shown = false,
+	lastInput = os.clock(),
+	watching = false,
+}
+
+local function recapIdleSeconds(): number
+	local player = game:GetService("Players").LocalPlayer
+	local character = player and player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if humanoid and humanoid.MoveDirection.Magnitude > 0.05 then
+		UI.recap.lastInput = os.clock() -- walking with a held key or the thumbstick
+	end
+	return os.clock() - UI.recap.lastInput
+end
+
+local function recapLines(view: { [string]: any }): { string }
+	local RecapLogic = require(script.Components.RecapLogic)
+	local catalog = currentCatalog
+	local nextTier: string? = nil
+	if catalog and catalog.tiers and state.tier then
+		for _, tier in catalog.tiers :: { any } do
+			if tier.tier == state.tier + 1 and type(tier.name) == "string" then
+				nextTier = tier.name
+			end
+		end
+	end
+	local readyAt: { number } = {}
+	for _, bowl in bowls.views do
+		if bowl and type(bowl.readyAt) == "number" then
+			table.insert(readyAt, bowl.readyAt)
+		end
+	end
+	local longNap = state.longNap == true
+	return RecapLogic.lines({
+		view = view,
+		state = state :: any,
+		nextTier = nextTier,
+		baitReadyAt = readyAt,
+		now = Workspace:GetServerTimeNow(),
+		offlineRate = if longNap then Config.OfflineRatePass else Config.OfflineRate,
+		offlineCapSeconds = if longNap
+			then Config.OfflineCapPassSeconds
+			else Config.OfflineCapSeconds,
+		money = Format.money,
+	})
+end
+
+local function recapTry(): boolean
+	local view = UI.recap.waiting
+	local card = UI.recap.card
+	if view == nil or card == nil or UI.recap.shown then
+		return true
+	end
+	local RecapLogic = require(script.Components.RecapLogic)
+	local settings: { [string]: any } = state.settings or {}
+	if settings[RecapLogic.SETTING] == false then
+		UI.recap.waiting = nil -- off: this session's card is dropped
+		return true
+	end
+	local busy = (modal ~= nil and modal:current() ~= nil)
+		or (baitCard ~= nil and baitCard:isShowing())
+		or (tipCard ~= nil and tipCard:isShowing())
+		or not visible
+	if
+		not RecapLogic.canShow({
+			enabled = true,
+			tutorialStep = state.tutorialStep,
+			catching = hud ~= nil and hud:isCatching(),
+			carrying = state.carrying ~= nil,
+			menuOpen = busy,
+			idleSeconds = recapIdleSeconds(),
+		})
+	then
+		return false
+	end
+	UI.recap.shown = true
+	UI.recap.waiting = nil
+	card:show(recapLines(view), function(secondsUp: number)
+		UI.events.sessionRecapClose:Fire(secondsUp)
+	end)
+	UI.events.sessionRecap:Fire()
+	return true
+end
+
+function UI.recap.show(view: any)
+	if type(view) ~= "table" or UI.recap.shown or UI.recap.waiting ~= nil then
+		return
+	end
+	UI.recap.waiting = view
+	if not UI.recap.watching then
+		UI.recap.watching = true
+		local inputs = UserInputService.InputBegan:Connect(function()
+			UI.recap.lastInput = os.clock()
+		end)
+		task.spawn(function()
+			while not recapTry() do
+				task.wait(1)
+			end
+			inputs:Disconnect()
+			UI.recap.watching = false
+		end)
+	end
 end
 
 return UI

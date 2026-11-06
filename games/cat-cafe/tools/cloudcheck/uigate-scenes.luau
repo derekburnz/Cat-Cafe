@@ -1000,6 +1000,27 @@ local SCENES = {
 		assert(steps and steps.Visible, "uigate: a tap didn't open the Grand Opening steps (#1893)")
 		UI.roadmap.step(4)
 	end },
+	-- #1920 (first-hour.md 6): the session recap card at a calm moment: today, the Grand Opening's next step, a cooking
+	-- bait cat and the offline share with tomorrow, and an X; no countdown and no store link
+	{ "SessionRecap", function()
+		local now = workspace:GetServerTimeNow()
+		UI.update({ tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true, [3] = true } } })
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 170, placedAt = now - 50 }, 1)
+		UI.recap.shown = false
+		UI.recap.lastInput = os.clock() - 30 -- idle
+		UI.recap.show({ minutes = 41, newCats = 3, earned = 12500 })
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeRecap")
+		local card = gui and gui:FindFirstChild("Card", true)
+		assert(card and card.Visible, "uigate: no session recap card when idle (#1920)")
+		local first = card:FindFirstChild("Line1")
+		assert(first and first.Text == "Today: 3 new cats, $12,500 earned", "uigate: the recap's first line reads " .. tostring(first and first.Text))
+		local second = card:FindFirstChild("Line2")
+		assert(second and string.find(second.Text, "Grand Opening 3/8", 1, true), "uigate: the recap's next line reads " .. tostring(second and second.Text))
+		assert(card:FindFirstChild("Line3").Text == "Your bait cat arrives in 3 min. It waits for you", "uigate: the recap's bait line reads " .. card:FindFirstChild("Line3").Text)
+		assert(card:FindFirstChild("Line4").Visible, "uigate: no offline line on the recap")
+		UI.recap.show({ minutes = 80, newCats = 1, earned = 1 })
+		assert(first.Text == "Today: 3 new cats, $12,500 earned", "uigate: the recap showed twice in a session (#1920)")
+	end },
 	-- #1893: step 8's Grand Opening banner
 	{ "GrandOpeningDone", function()
 		UI.update({ tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true } } })
@@ -2520,6 +2541,9 @@ end
 
 function Scenes.close()
 	reel(false)
+	if UI.recap.card and UI.recap.card:isShowing() then
+		UI.recap.card:hide() -- #1920
+	end
 	UI.close()
 	UI.pals({}) -- F92: no pals, which also takes a pal's marker and Cannon tag away
 	UI.campExtras.update(campExtras(0, false, false)) -- F100: every camp extra shut, so other Cannon scenes stay as they were

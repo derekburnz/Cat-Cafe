@@ -95,6 +95,34 @@ return function()
 		end)
 	end)
 
+	describe("the cafe front (#1922)", function()
+		it("shows the ribbon while the roadmap shows, then the bunting for 2 hours of play", function()
+			local profile = fresh()
+			profile.tutorialStep = 4
+			expect(GrandOpening.plotLook(profile, 0)).to.equal(nil) -- before the tutorial ends
+			profile.tutorialStep = 5
+			expect(GrandOpening.plotLook(profile, 100)).to.equal(GrandOpening.RIBBON)
+			GrandOpening.mark(profile.grandOpening, GrandOpening.COUNT, 3000)
+			expect(profile.grandOpening.finishedAt).to.equal(3000)
+			expect(GrandOpening.plotLook(profile, 3000)).to.equal(GrandOpening.BUNTING)
+			expect(GrandOpening.plotLook(profile, 3000 + 7199)).to.equal(GrandOpening.BUNTING)
+			expect(GrandOpening.plotLook(profile, 3000 + 7200)).to.equal(nil)
+			expect(GrandOpening.BUNTING_SECONDS).to.equal(7200)
+		end)
+
+		it("keeps the finish time in the save, and an old Tier 3 save never sees either", function()
+			local kept = GrandOpening.sanitize({ done = {}, finished = true, finishedAt = 4200 }, 41, 3)
+			expect(kept.finishedAt).to.equal(4200)
+			local bad = GrandOpening.sanitize({ done = {}, finished = true, finishedAt = 0 / 0 }, 41, 3)
+			expect(bad.finishedAt).to.equal(nil)
+			local notDone = GrandOpening.sanitize({ done = {}, finishedAt = 10 }, 41, 2)
+			expect(notDone.finishedAt).to.equal(nil)
+			local old = fresh()
+			old.grandOpening = GrandOpening.sanitize(nil, 40, 3)
+			expect(GrandOpening.plotLook(old, 0)).to.equal(nil)
+		end)
+	end)
+
 	describe("paying and the strip (1b, 1c)", function()
 		it(
 			"is quiet before tutorialStep 5, then pays what was met, lowest first, once each",

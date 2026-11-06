@@ -156,10 +156,12 @@ function LawnTab.new(parent: Instance, callbacks: Callbacks?): LawnTab
 	text({
 		Name = "Where",
 		Position = UDim2.fromOffset(10, FOOTER_GLYPH + 50),
-		Size = UDim2.new(1, -20, 0, 18),
+		Size = UDim2.new(1, -20, 0, 44), -- room for the line to wrap to three lines at full size
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,
 		TextXAlignment = Enum.TextXAlignment.Center,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		TextWrapped = true,
 		Text = LawnLogic.SHOP_WHERE,
 		Parent = footer,
 	})

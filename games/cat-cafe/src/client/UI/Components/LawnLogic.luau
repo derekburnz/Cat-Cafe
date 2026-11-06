@@ -449,7 +449,8 @@ end
 
 -- Where to buy more, for the grid's last card (lawn-nursery.md section 7: only the Yard Sale sells lawn pieces).
 LawnLogic.SHOP_TITLE = "Find more lawn decor"
-LawnLogic.SHOP_WHERE = "Yard Sale"
+-- #1760: name the camp and the tier, since nothing else in the game says where the Yard Sale is.
+LawnLogic.SHOP_WHERE = "Yard Sale, Neighbourhood camp (Tier 3)"
 
 -- #1751 part 3 (Derek2: "lawn section is missing remove/use it buttons"): a Lawn card's one button. An out piece
 -- reads Remove (SetLawnSpot(spot, "") takes it in), a stored one Use onto the first open spot of its size, or "Spots

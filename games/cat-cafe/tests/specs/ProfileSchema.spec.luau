@@ -108,14 +108,16 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 36 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 38 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(36)
-			expect(profile.version).to.equal(36)
+			expect(ProfileSchema.VERSION).to.equal(38)
+			expect(profile.version).to.equal(38)
 			-- #1625 (version 35): no once-per-account product bought, no sign styles, the plain sign
 			expect(next(profile.onceBought)).never.to.be.ok()
 			expect(next(profile.signStyles)).never.to.be.ok()
 			expect(profile.signStyle).never.to.be.ok()
+			expect(profile.yardDecor).to.deepEqual({ day = 0, bought = {} }) -- #1537 (version 37): no Yard Sale rows bought
+			expect(profile.looks).to.deepEqual({}) -- #1624 (version 38): the default theme and uniform
 			expect(profile.bait2).never.to.be.ok() -- #1161: the second bowl starts empty
 			-- F102 (version 27): no trades yet
 			expect(#profile.tradeLog).to.equal(0)
@@ -303,9 +305,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 37 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 39 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
-			expect(ProfileSchema.isNewerThanCode({ version = 36 })).to.equal(false)
+			expect(ProfileSchema.isNewerThanCode({ version = 38 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 35 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 34 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 33 })).to.equal(false)

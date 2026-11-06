@@ -5,7 +5,8 @@
 -- it free. Both check that the player's tier opens the extra's area and that they stand within CampExtraRangeStuds
 -- (plus RANGE_SLACK for lag) of its PromptAnchor, then settle the save and check what it holds or sells; a refusal
 -- toasts why. Each answers CampExtraResult(extraId, ok, paid, prize) and logs camp_extra (the extra, what was taken, the
--- tier). CampExtrasState goes to a player on join and whenever their view changes (a fill, a new UTC day, a rank up,
+-- tier). Since #1537 the Yard Sale also sells the day's lawn rows (shared/YardSale; LawnService takes the BuyLawn),
+-- shown as its view's `decor`. CampExtrasState goes to a player on join and whenever their view changes (a fill, a new UTC day, a rank up,
 -- a collect or a buy), checked every CHECK_SECONDS for every loaded player, which also keeps a shut extra fresh so it
 -- opens with one fill waiting. Golden fish here are earned only: nothing is sold for Robux (monetization-policy).
 
@@ -27,6 +28,7 @@ local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
+local YardSale = require(ReplicatedStorage.Shared.YardSale)
 
 local CampExtraService = {}
 
@@ -82,6 +84,11 @@ local function refresh(player: Player, profile: Types.PlayerProfile, force: bool
 	local tier = Economy.tier(profile)
 	CampExtras.settle(profile.campExtras, tier, now)
 	local state = CampExtras.view(profile.campExtras, tier, now)
+	-- #1537: the Yard Sale's second panel, the day's lawn rows (lawn-nursery.md section 7)
+	local day = YardSale.dayAt(now)
+	YardSale.refresh(profile.yardDecor, day)
+	state.yardSale.decor = YardSale.view(profile, profile.yardDecor, day)
+	state.yardSale.decorAt = YardSale.restocksAt(day)
 	local encoded = HttpService:JSONEncode(state)
 	if force or sent[player] ~= encoded then
 		sent[player] = encoded
@@ -191,6 +198,20 @@ local function onBuyYardSale(player: Player, rawCrateId: unknown)
 	Net.fire(player, "CampExtraResult", CampExtras.YARD_SALE, true, { "1 " .. crate.name }, bought)
 	CafeService.sync(player)
 	refresh(player, profile, false)
+end
+
+-- #1537: true when the player's tier opens the Yard Sale and they stand within reach of it (LawnService's BuyLawn).
+function CampExtraService.atYardSale(player: Player, tier: number): boolean
+	local def = Catalog.getCampExtra(CampExtras.YARD_SALE)
+	return def ~= nil and CampExtras.isOpen(CampExtras.YARD_SALE, tier) and inReach(player, def)
+end
+
+-- #1537: sends the player's CampExtrasState again (after a Yard Sale lawn buy, or a refused one).
+function CampExtraService.resend(player: Player)
+	local profile = DataService.get(player)
+	if profile ~= nil then
+		refresh(player, profile, true)
+	end
 end
 
 function CampExtraService.start()

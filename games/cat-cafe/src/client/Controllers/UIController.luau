@@ -704,8 +704,9 @@ local function wireIntents()
 		end)
 	end
 	-- Use on a potion in the bag (F64); the server answers with a ProfileSync, or a "Full" toast.
-	UI.events.usePotion:Connect(function(potionId: string)
-		Net.fire("UsePotion", potionId)
+	-- #1600: Use all sends a count; the server drinks as many as fit under PotionMaxMinutes in one sync
+	UI.events.usePotion:Connect(function(potionId: string, count: number?)
+		Net.fire("UsePotion", potionId, count)
 	end)
 	-- #1463: Collect on the Woods card (Golden Pond pass, camp-extras.md section 4). The server checks the pass, the
 	-- range and the extraId. Guarded until the UI's collectCampExtra event (PR #1472) is on main.
@@ -755,16 +756,9 @@ local function wireIntents()
 	UI.events.toggleDecor:Connect(function(decorId: string, placed: boolean)
 		Net.fire("ToggleDecor", decorId, placed)
 	end)
-	-- The front lawn (F91). The UI sends "" rather than nil to clear a spot, lay Grey Slabs or take the fence down, and
-	-- LawnService reads "" as no id. The answer is a toast and the next ProfileSync.
+	-- The front lawn (F91): the Garden Nursery's Buy. The answer is a toast and the next ProfileSync.
 	UI.events.buyLawn:Connect(function(id: string, spotId: string?)
 		Net.fire("BuyLawn", id, spotId)
-	end)
-	UI.events.setLawnSpot:Connect(function(spotId: string, pieceId: string)
-		Net.fire("SetLawnSpot", spotId, pieceId)
-	end)
-	UI.events.setLawnStyle:Connect(function(kind: string, id: string)
-		Net.fire("SetLawnStyle", kind, id)
 	end)
 	UI.events.buyLure:Connect(function(lureId: string)
 		Net.fire("BuyLure", lureId)
@@ -876,7 +870,18 @@ local function wireIntents()
 	UI.events.claimAll:Connect(function(what: string)
 		Net.fire("ClaimAll", what)
 	end)
-	-- The Daily Treat (F70): the server stamps the card when a stamp is due and answers with a toast and a sync.
+	-- #1646 (cafe-pass.md section 5): Claim and Claim all on the Pass window; the server checks the level, the track
+	-- and the claim, pays through Payout and answers with CafePassState and a toast.
+	UI.events.passClaim:Connect(function(track: string, level: number)
+		Net.fire("PassClaim", track, level)
+	end)
+	UI.events.passClaimAll:Connect(function()
+		Net.fire("PassClaimAll")
+	end)
+	-- #1626: the chat tag pick; the server takes one of the player's tags or "off" and answers with CafePassState
+	UI.events.passSetTag:Connect(function(pick: string)
+		Net.fire("PassSetTag", pick)
+	end)
 	-- #1624: a Style tab button. The sign's "" is the plain sign (nil); the server checks the player owns the style.
 	-- Uniforms and themes only show once the server sends state.looks, which comes with SetLook.
 	UI.events.pickStyle:Connect(function(kind: string, id: string)
@@ -886,6 +891,7 @@ local function wireIntents()
 			Net.fire("SetLook", kind, if id == "" then "default" else id)
 		end
 	end)
+	-- The Daily Treat (F70): the server stamps the card when a stamp is due and answers with a toast and a sync.
 	UI.events.claimDailyTreat:Connect(function()
 		Net.fire("ClaimDailyTreat")
 	end)
@@ -1432,6 +1438,10 @@ local function wireServerEvents()
 		-- check-in sound.
 		Moments.CheckIn:Fire()
 		Moments.CatFound:Fire(catId, isNew)
+	end)
+	-- The Cafe Pass (#1645, #1646): the season, level, XP and claims, at join, after each claim and at a season roll.
+	Net.on("CafePassState", function(view: Types.CafePassView)
+		UI.pass.set(view)
 	end)
 	-- The Tip Jar's session start and claimed steps (F47), on profile load and after every claim.
 	Net.on("TipJarState", function(jar: Types.TipJarState)

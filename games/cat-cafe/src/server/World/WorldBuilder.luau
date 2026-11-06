@@ -383,6 +383,36 @@ end
 -- It replaces the old night-only Closed sign (v0.5 F44, CatCafe_Plot_ClosedSign).
 local DOOR_SIGN = "CatCafe_Decor_DoorSign"
 
+-- #1624 (themes.py): a cafe theme brings its own awning, so the shell's `_Awning` child Models hide while one shows.
+-- Hiding keeps each part's own transparency in an attribute and puts it back after; nothing on an awning collides.
+local AWNING_TRANSPARENCY = "ThemeTransparency"
+
+function WorldBuilder.setAwningHidden(plot: Plot, hidden: boolean)
+	local shell = plot.shell
+	if shell == nil then
+		return
+	end
+	for _, child in shell:GetChildren() do
+		if not child:IsA("Model") or child.Name:sub(-7) ~= "_Awning" then
+			continue
+		end
+		for _, descendant in child:GetDescendants() do
+			if not descendant:IsA("BasePart") then
+				continue
+			end
+			local piece = descendant :: BasePart
+			local kept = piece:GetAttribute(AWNING_TRANSPARENCY)
+			if hidden and kept == nil then
+				piece:SetAttribute(AWNING_TRANSPARENCY, piece.Transparency)
+				piece.Transparency = 1
+			elseif not hidden and type(kept) == "number" then
+				piece.Transparency = kept
+				piece:SetAttribute(AWNING_TRANSPARENCY, nil)
+			end
+		end
+	end
+end
+
 function WorldBuilder.setDoorSign(plot: Plot, shown: boolean)
 	local existing = plot.dressing:FindFirstChild("DoorSign")
 	if not shown then
@@ -1714,46 +1744,8 @@ local function buildCampExtras(parent: Instance)
 	end
 end
 
--- The Garden Nursery (#1200, lawn-nursery.md section 3) at Layout.lawnStallAt, tagged LawnStall (its model file
--- carries the tag too): LawnService lets BuyLawn through only within LawnStallRange of its pivot once it stands. Its
--- hold-E "Nursery" prompt (LAWN_STALL_PROMPT, Custom: the UI's action pill) sits at its PromptAnchor for UI-Engineer's
--- Garden Nursery window. Placed only once Model-Agent's art is in ReplicatedStorage.Assets: no stand-in, so buying
--- stays open from the Decor screen until then. Atomic, as the camp extras.
-local LAWN_STALL = "CatCafe_Camp_Park_GardenNursery"
-local LAWN_STALL_PROMPT = "LawnStallPrompt"
-
-local function buildLawnStall(parent: Instance)
-	local x, y, z, turn = Layout.lawnStallAt()
-	if x == nil or y == nil or z == nil or turn == nil or not AssetRegistry.has(LAWN_STALL) then
-		return
-	end
-	local at = CFrame.new(x, y, z) * CFrame.Angles(0, math.rad(turn), 0)
-	local model = place(LAWN_STALL, at, parent)
-	model.Name = "GardenNursery"
-	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
-	CollectionService:AddTag(model, "LawnStall")
-	local anchor = model:FindFirstChild("PromptAnchor", true)
-	if anchor == nil or not anchor:IsA("Attachment") then
-		local host = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
-		if host == nil then
-			return
-		end
-		local float = Instance.new("Attachment")
-		float.Name = "PromptAnchor"
-		float.Parent = host
-		float.WorldPosition = (at * CFrame.new(0, 3, -1.8)).Position
-		anchor = float
-	end
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.Name = LAWN_STALL_PROMPT
-	prompt.ObjectText = "Garden Nursery"
-	prompt.ActionText = "Nursery"
-	prompt.HoldDuration = 0.3
-	prompt.MaxActivationDistance = Config.LawnStallRange
-	prompt.RequiresLineOfSight = false
-	prompt.Style = Enum.ProximityPromptStyle.Custom
-	prompt.Parent = anchor
-end
+-- The Garden Nursery (#1200) is retired by #1537 (lawn-nursery.md section 7): lawn pieces are sold only at the Yard
+-- Sale, so its stall is no longer placed. Layout.lawnStallAt keeps its Park spot for Model-Agent to reuse.
 
 -- The Spin Wheel station (F49) in the Town Square (Layout.spinWheel), tagged SpinWheel: SpinService measures its
 -- range from the pivot and sets LastSpinAt, which turns the Wheel on every client. Its hold-E "Spin" prompt (Custom:
@@ -2481,7 +2473,6 @@ function WorldBuilder.build(): World
 	buildIndexBoards(boardsFolder)
 	local extrasFolder = folder("CampExtras", root)
 	buildCampExtras(extrasFolder)
-	buildLawnStall(extrasFolder) -- #1200
 	-- the SAFE ZONE words last among the camp's dressing, so they find room clear of the gate, the Index Board and the
 	-- extras too (#1132)
 	for _, info in areas do

@@ -63,6 +63,7 @@ Remotes.ClientToServer = {
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
 	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16)
 	"SetSignStyle", -- (styleId: string?)  #1625: an owned shared/SignStyles id, or nil for the plain sign
+	"SetLook", -- (kind: string, id: string?)  #1624: "theme" or "uniform", an owned shared/Looks id or "default"
 	"SetSetting", -- (key: string, value: boolean | number)  a key of shared/Settings: a switch takes a boolean, a
 	-- volume a number clamped to 0 to 1; saved in profile.settings, answered by ProfileSync
 	"ClaimTipJar", -- (step: number)  integer 1 to #Catalog.tipJar, unclaimed this session, its minutes reached (F47)
@@ -126,11 +127,11 @@ Remotes.ClientToServer = {
 	-- now (CampExtras.yardStock), YardSaleClaimHours since the last take (#1154), free since #1051; banked for the
 	-- Market; 1 a second
 	-- F91 front lawn (front-lawn.md section 5; LawnService, shared/Lawn): the caller's own cafe, once its art is in
-	"BuyLawn", -- (id: string, spotId: string?)  a Catalog.lawn piece or Catalog.lawnStyles style not owned yet, the
-	-- caller within LawnStallRange of a LawnStall Garden Nursery (#1200, once it is in the world), the caller's tier at
-	-- its tier and its rarity's fixed price in coins (sink "lawn"); a style goes in use at once, a piece onto
-	-- `spotId` when it may stand there (Lawn.placeBlocker), else the first empty open spot of its size, if any; 2 a
-	-- second, answered with a toast and a ProfileSync
+	"BuyLawn", -- (id: string, spotId: string?)  a Catalog.lawn piece or Catalog.lawnStyles style not owned yet and
+	-- in the Yard Sale's stock today (#1537, shared/YardSale), not bought by the caller today, the caller within reach
+	-- of the Yard Sale (Tier 3), the caller's tier at its tier and its rarity's fixed price in coins (sink "lawn");
+	-- the server lays the best lawn (Lawn.applyBest, spotId is ignored); 2 a second, answered with a toast, a
+	-- ProfileSync and a CampExtrasState
 	"SetLawnSpot", -- (spotId: string, pieceId: string?)  a Lawn.SPOTS spot open at the caller's tier; an owned piece
 	-- of the spot's size, taken off any other spot (the spot's old piece goes back to the player's pieces), or nil or
 	-- "" to clear it; 4 a second, answered with a ProfileSync

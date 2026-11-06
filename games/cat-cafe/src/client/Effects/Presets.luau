@@ -85,7 +85,7 @@ export type Budget = {
 	rallyBoards: number, -- Rally boards running their marquee at once (F101); 0 leaves them as built
 	cafeOrders: number, -- orders in other cafes showing their puff, oven glow and ding at once (F90); your own always
 	crownGlints: number, -- crowned players whose crown glints now and then (F98), the nearest first
-	shopCatEmitters: number, -- shop cats with a steady emitter on at once (#1191: Duchess Marzipan's petals)
+	shopCatEmitters: number, -- shop cats with a steady emitter on at once (Duchess's petals #1191, Maple's leaves #1668)
 }
 
 -- "low" is a phone or a tablet (touch with no keyboard): 150 live particles, bursts of 12, 4 steady emitters
@@ -811,6 +811,21 @@ Presets.emitters = {
 		acceleration = Vector3.new(0.15, -0.35, 0.1),
 		drag = 0.6,
 		rotSpeed = { -60, 60 },
+	},
+	-- Maple Muffin's autumn leaves (Effects/ShopCats, #1668): a few amber leaves turning rust as they fall off it
+	-- while it works, rocking as they go. Mild on purpose (cafe-pass.md section 4).
+	mapleLeaf = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(232, 140, 52), Color3.fromRGB(196, 84, 44) },
+		size = { 0.24, 0.18 },
+		transparency = { 0.1, 0.9 },
+		lifetime = { 2.5, 3.5 },
+		speed = { 0.3, 0.7 },
+		spread = 140,
+		rate = 1.2,
+		acceleration = Vector3.new(0.2, -0.6, 0.1),
+		drag = 0.7,
+		rotSpeed = { -90, 90 },
 	},
 	-- King Croissant's gold motes (Effects/ShopCats, #1191): a slow drift of tiny warm gold lights rising off him.
 	goldMote = {
@@ -2799,6 +2814,8 @@ Presets.decor = {
 		emitter = "decorGlint",
 		colors = { palette.offwhite, palette.goldLight },
 	},
+	-- The Grand Cafe theme (#1624, the plot's `Theme` "grand"): Gold Leaf's sweep and night glow on its gold trims.
+	theme_grand = { look = "grandTrims", on = "Theme" },
 } :: { [string]: DecorSpec }
 
 -- How the Mythical styles look. Walls: Midnight Sky's stars and moon and Aurora Sky's lights are pictures on a
@@ -2987,6 +3004,17 @@ Presets.mystery = {
 	ringSeconds = 0.45,
 	confetti = 0.4,
 	ribbon = { palette.neonPink, palette.aurora, palette.sparkle, palette.offwhite },
+	-- the red "!" over every waiting gift (#1638): `studs` wide plus `pixels`, so it still reads from across the
+	-- street, `lift` studs over the gift, seen within `within` studs, bobbing `bob` studs every `seconds`
+	bang = {
+		studs = 1.2,
+		pixels = 18,
+		lift = 1.2,
+		within = 120,
+		bob = 0.5,
+		seconds = 1.6,
+		colour = Color3.fromRGB(240, 82, 79), -- the HUD's and the camp stations' red "!"
+	},
 	-- what was inside: a potion in its own colour, the rest by kind
 	kinds = {
 		lure = palette.blush,
@@ -3239,6 +3267,19 @@ Presets.shopCats = {
 		},
 		shift = { sparkles = 8, ring = 3, ringSeconds = 0.5 },
 	},
+	-- Maple Muffin (`catId`), the Season 1 cat (#1668): the `mapleLeaf` emitter on its Head's BubbleAnchor while it
+	-- works (a Role without Bedtime), sharing Duchess's budget.shopCatEmitters and her `pick` beat, within `within`
+	-- studs. In Low performance or with Reduce Motion, `still` leaves on the floor round its feet instead.
+	maple = {
+		catId = "maple_muffin",
+		within = 40,
+		still = {
+			size = 0.5,
+			colour = Color3.fromRGB(222, 120, 48), -- amber, its fur
+			transparency = 0.2,
+			spots = { { -0.8, 0.4, 0.7 }, { 0.6, -0.7, 2.2 }, { 0.3, 0.9, 4.0 } } :: { { number } },
+		},
+	},
 	-- King Croissant (`catId`), on the nearest `most` within `within` studs, stepped every `step` seconds: a soft
 	-- gold `glow` (a PointLight on his chest's Glow attachment, kept with Reduce Motion and Low performance), the
 	-- `goldMote` emitter there (none with Reduce Motion, in Low performance or with no budget.shopCatEmitters), and
@@ -3484,6 +3525,28 @@ Presets.lawn = {
 			},
 		},
 	} :: { [string]: LawnSpec },
+}
+
+-- The cafe themes' touches (Effects/Themes, #1624). The Grand Cafe's chandelier (`asset`): a PointLight in `colour`
+-- `below` studs under its flames' centre, `brightness` and `range`, flickering by up to `flicker` of its brightness
+-- every `flickerEvery` seconds, and `glints` sparkles on a flame of the `radius`-stud ring about every `glintEvery`
+-- seconds. The nearest `most` within `within` studs, checked every `step` seconds.
+Presets.themes = {
+	step = 0.05,
+	chandelier = {
+		asset = "CatCafe_Plot_ThemeGrandChandelier",
+		within = 60,
+		most = 2,
+		colour = Color3.fromRGB(255, 196, 120),
+		below = 0.2,
+		range = 14,
+		brightness = 0.9,
+		flicker = 0.18,
+		flickerEvery = { 0.07, 0.16 },
+		glintEvery = 2.5,
+		glints = 2,
+		radius = 1,
+	},
 }
 
 return Presets

@@ -210,6 +210,11 @@ export type IndexPrize = {
 
 -- The Cafe Pass (#1645, cafe-pass.md). A paid track's named item, kept forever once claimed: a chat tag, an accessory,
 -- a uniform colour, a looks-only decor piece, a sign frame or the season cat.
+-- #1624 (store-pass-looks.md): the saved theme and uniform picks (shared/Looks ids), nil for Classic.
+export type LookPicks = { theme: string?, uniform: string? }
+-- What the Style tab reads: the picks (the shown look, nil for Classic) and every owned id of each kind.
+export type LooksView = { theme: string?, uniform: string?, themes: { string }, uniforms: { string } }
+
 export type PassItemKind = "tag" | "accessory" | "uniform" | "decor" | "frame" | "cat"
 export type PassItem = { kind: PassItemKind, id: string, name: string }
 -- One level's reward on a track: a prize Payout pays, a named item, or both.
@@ -776,6 +781,22 @@ export type CampExtraView = {
 	held: number,
 	nextAt: number?,
 	stock: { YardSaleCrate }?,
+	decor: { YardDecorRow }?, -- #1537: the Yard Sale's lawn rows today (shared/YardSale)
+	decorAt: number?, -- #1537: when the Yard Sale's next lawn stock arrives (server time), the next sunrise
+}
+
+-- Saved (version 35, #1537): the global game day the Yard Sale rows were bought on, and those ids.
+export type YardDecorState = { day: number, bought: { [string]: boolean } }
+-- One Yard Sale lawn row as CampExtrasState sends it: a piece or style id, its name, rarity, fixed coin price and the
+-- tier that opens it; `bought` today (or the server is behind the saved day), `owned` already.
+export type YardDecorRow = {
+	id: string,
+	name: string,
+	rarity: LawnRarity,
+	price: number,
+	tier: number,
+	bought: boolean,
+	owned: boolean,
 }
 
 -- CampExtrasState (server to client): every extra's view by id, and the UTC day it was worked out on.
@@ -1002,6 +1023,7 @@ export type PlayerProfile = {
 	lawn: { [string]: string },
 	lawnStyles: LawnStyles,
 	cornerShop: CornerShopState, -- #1052 (corner-shop.md section 5, save version 29; v2 counters version 32)
+	yardDecor: YardDecorState, -- #1537 (lawn-nursery.md section 7, save version 35): the Yard Sale rows bought today
 	catFood: { [string]: number }, -- #1181 (corner-shop-v2.md section 3, save version 32): food id -> count in the Bag
 	hideCredit: boolean?, -- #1083 (idea-credits.md section 4, save version 30): true keeps the name off the Thank You board
 	receipts: { string }, -- #1182 (save version 31): the newest Products.RECEIPT_LIMIT developer product PurchaseIds granted
@@ -1011,6 +1033,7 @@ export type PlayerProfile = {
 	signStyles: { [string]: boolean },
 	signStyle: string?,
 	pass: PassState, -- #1645 (save version 36): the Cafe Pass
+	looks: LookPicks, -- #1624 (save version 38): the cafe theme and uniform picks (shared/Looks)
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.
@@ -1071,6 +1094,7 @@ export type PlayerState = {
 	starterBought: boolean, -- #1625: the Starter Bundle is bought, so its Store card hides
 	signStyles: { string }, -- #1625: every sign style owned (SignStyles.owned), saved or through a pass
 	signStyle: string?, -- #1625: the pick SetSignStyle saved, nil for the plain sign
+	looks: LooksView, -- #1624: the Style tab's theme and uniform rows (shared/Looks), SetLook
 	luck: number, -- F88: the player's Luck now (shared/Luck), x1 to LuckMax; the HUD chip shows it above 1
 	luckSources: { LuckSource }, -- F88: what adds it, in order (statue, potion, lucky_day)
 	-- F95 (economy-ladder.md section 5): the Long Nap pass is owned, so the welcome back card says full pay up to

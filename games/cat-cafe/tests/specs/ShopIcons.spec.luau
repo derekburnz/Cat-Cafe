@@ -130,7 +130,8 @@ return function()
 			expect(ShopIcons.prize("coins")).to.equal(ShopIcons.clean("Bag"))
 			-- the same id as Theme.textures.fishCoin
 			expect(ShopIcons.prize("fish")).to.equal(ShopIcons.clean("Fish"))
-			expect(ShopIcons.prize("spins")).to.equal(ShopIcons.clean("Spin"))
+			-- the 8-slice wheel once uploaded (#1665), else the flat clean wheel
+			expect(ShopIcons.prize("spins")).to.equal(ShopIcons.hud("Spin"))
 			for _, kind in { "coins", "fish", "spins" } do
 				local picture = ShopIcons.prize(kind) :: string
 				expect(string.match(picture, "^rbxassetid://%d+$")).to.be.ok()
@@ -141,7 +142,21 @@ return function()
 
 		it("has the prize pictures for coins and spins (F97 section 4)", function()
 			expect(ShopIcons.image("Coins")).to.equal("rbxassetid://114567888385946")
-			expect(ShopIcons.image("Spin")).to.equal("rbxassetid://126057350997233") -- the clean wheel (#1070)
+			-- the 8-slice wheel once uploaded (#1665), else the clean wheel (#1070)
+			expect(ShopIcons.image("Spin")).to.equal(ShopIcons.hud("Spin"))
+			expect(ShopIcons.clean("Spin")).to.equal("rbxassetid://126057350997233")
+		end)
+
+		it("keeps each HUD picture's clean symbol as its backup (#1665)", function()
+			expect(ShopIcons.backup(ShopIcons.hud("Cats"))).to.equal(ShopIcons.clean("Cats"))
+			expect(ShopIcons.backup(ShopIcons.hud("Home"))).to.equal(ShopIcons.clean("Home"))
+			expect(ShopIcons.backup(ShopIcons.hud("Spin"))).to.equal(
+				if ShopIcons.hud("Spin") == ShopIcons.clean("Spin")
+					then nil
+					else ShopIcons.clean("Spin")
+			)
+			expect(ShopIcons.backup(ShopIcons.clean("Cats"))).to.equal(nil)
+			expect(ShopIcons.backup(nil)).to.equal(nil)
 		end)
 
 		it("offers the next net, staying on the top one", function()
@@ -208,6 +223,17 @@ return function()
 				expect(ShopIcons.store(nil)).to.equal(nil)
 			end
 		)
+
+		it("gives every Store sidebar tab a picture (#1674)", function()
+			local StoreLogic = require(Components:WaitForChild("StoreLogic")) :: any
+			for _, tab in StoreLogic.TABS do
+				expect(ShopIcons.storeTab(tab.id)).never.to.equal(nil)
+			end
+			expect(ShopIcons.storeTab("featured")).to.equal("rbxassetid://112716091687324")
+			expect(ShopIcons.storeTab("codes")).to.equal("rbxassetid://84291555132213")
+			expect(ShopIcons.storeTab("cafePass")).to.equal(ShopIcons.store("cafePass"))
+			expect(ShopIcons.storeTab("nope")).to.equal(nil)
+		end)
 
 		it("draws the Fish Market tabs and the Night Market bubble (Tools-Agent 11-05)", function()
 			expect(ShopIcons.market("Crates")).to.equal("rbxassetid://136579300796731")

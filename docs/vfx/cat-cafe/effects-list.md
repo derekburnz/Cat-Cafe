@@ -175,9 +175,11 @@ Design: `docs/design/cat-cafe/camp-stations.md` section 2 (#1319): "when a potio
 | Yard Sale ready glow | While a free crate waits, the same warm light under the stall's awning; it fades out when you claim it and comes back when the next one is ready | `yardSale.held`; `ExtraId` "yardSale", its `GlowAnchor`, else 50% of the way up |
 | Fish Pond ready glow | Once 18 or more fish wait in your pond (half its 36, so it reads as worth a trip), a soft gold light (the golden fish's colour) under the hut's roof; it fades out when you collect them | `pond.held` at least `atLeast` 18; `ExtraId` "pond", its `GlowAnchor`, else 40% of the way up |
 
-All three: PointLight 0.6 over 7 studs, under the street's night lights at 0.5 over 8 plus their Neon, so at most 3 lights per player and only near their own stations (each sits in a different area). Only you see yours. Reduce Motion: they switch instantly. Low performance: off.
+| Lost and Found bulb blink (#1732, section 4b) | While a find waits at the booth, its one `_Blink_Bulb` on the LOST & FOUND sign goes warm Neon for 0.6 s and back for 0.6 s; it gets its own look back when you collect. Still on with Reduce Motion (under 1 blink a second) and Low performance (no light, a material swap). The bell's ring-wobble is Animation-Engineer's | `lostFound.held` above 0; `ExtraId` "lostFound", parts named `CatCafe_Camp_Sewer_LostFoundBooth_Blink_Bulb` |
 
-Two cases are in `docs/vfx/cat-cafe/specs/EffectsCampGlow.spec.luau` for QA. Studio checks: with a potion, a free crate and fish waiting, each station glows (warm, warm, gold), by day and at night; collect each and its glow fades out; a second player whose stations are empty sees no glow at them; Low performance turns them off and back on. No new console errors.
+All three glows: PointLight 0.6 over 7 studs, under the street's night lights at 0.5 over 8 plus their Neon, so at most 3 lights per player and only near their own stations (each sits in a different area). Only you see yours. Reduce Motion: they switch instantly. Low performance: off.
+
+Two cases are in `docs/vfx/cat-cafe/specs/EffectsCampGlow.spec.luau` for QA. Studio checks: with a potion, a free crate and fish waiting, each station glows (warm, warm, gold), by day and at night; with a find waiting the booth's sign bulb blinks, and stops (back to its own colour) once collected; collect each and its glow fades out; a second player whose stations are empty sees no glow at them; Low performance turns them off and back on. No new console errors.
 
 ## Camp extras collect bursts (F100, 2026-11-02)
 

@@ -16,6 +16,15 @@ return function()
 			)
 			expect(Logic.creditLine({ idea = "x" })).to.equal("Idea from a player")
 		end)
+		it("puts a gold heart by a supporter's name, never on a hidden one (#1168)", function()
+			expect(Logic.creditLine({ idea = "x", version = 2, name = "MochiPie", supporter = true })).to.equal(
+				"v2 · Idea from MochiPie 💛"
+			)
+			expect(Logic.creditLine({ idea = "x", name = "MochiPie", supporter = false })).to.equal(
+				"Idea from MochiPie"
+			)
+			expect(Logic.creditLine({ idea = "x", supporter = true })).to.equal("Idea from a player")
+		end)
 		it("pages six cards at a time and clamps the page", function()
 			local rows = {}
 			for index = 1, 14 do

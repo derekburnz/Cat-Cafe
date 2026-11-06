@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-06 01:33 UTC",
+  "generated": "2026-11-06 02:40 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -154894,7 +154894,7 @@
         "CatCafe_Woods_Set_049_Thicket",
         "CatCafe_Woods_Set_050_Stream_Water"
       ],
-      "triangles": 27114,
+      "triangles": 27522,
       "budget": 80000,
       "size_studs": {
         "x": 119.0,
@@ -155068,7 +155068,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_Set.model.json",
-      "rbx_parts": 1205,
+      "rbx_parts": 1216,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_Set.glb"
@@ -155080,17 +155080,15 @@
           "pivot"
         ],
         "checks": {
-          "budget": "27114/80000 tris",
+          "budget": "27522/80000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "15622 faces on swatch centers",
+          "uv": "15870 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.40 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Woods_Set.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Woods_Set.png"
+      }
     },
     {
       "name": "CatCafe_Sewer_Set",
@@ -158234,7 +158232,7 @@
         "CatCafe_Woods_SetV32_208_PineTall",
         "CatCafe_Woods_SetV32_209_PineTall"
       ],
-      "triangles": 115568,
+      "triangles": 115976,
       "budget": 120000,
       "size_studs": {
         "x": 240.0,
@@ -158748,7 +158746,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_SetV32.model.json",
-      "rbx_parts": 5482,
+      "rbx_parts": 5493,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_SetV32.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_SetV32.glb"
@@ -158760,17 +158758,15 @@
           "pivot"
         ],
         "checks": {
-          "budget": "115568/120000 tris",
+          "budget": "115976/120000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "71335 faces on swatch centers",
+          "uv": "71583 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.84 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Woods_SetV32.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Woods_SetV32.png"
+      }
     },
     {
       "name": "CatCafe_Sewer_SetV32",
@@ -161937,7 +161933,7 @@
         "CatCafe_Woods_SetF85_283_OakRound",
         "CatCafe_Woods_SetF85_284_OakRound"
       ],
-      "triangles": 127164,
+      "triangles": 127572,
       "budget": 150000,
       "size_studs": {
         "x": 160.0,
@@ -162493,7 +162489,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_SetF85.model.json",
-      "rbx_parts": 5990,
+      "rbx_parts": 6001,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_SetF85.glb"
@@ -162506,17 +162502,15 @@
           "centered"
         ],
         "checks": {
-          "budget": "127164/150000 tris",
+          "budget": "127572/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "79485 faces on swatch centers",
+          "uv": "79733 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.98 (want 0)",
           "centered": "footprint center x=0.00 y=0.25"
         }
-      },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Woods_SetF85.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Woods_SetF85.png"
+      }
     },
     {
       "name": "CatCafe_Sewer_SetF85",

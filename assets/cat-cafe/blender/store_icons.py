@@ -9,7 +9,8 @@ Passes
   VIP             a gold plate reading VIP with a cream crest and a gold paw on top
   Accessories     a cream cat in a bow tie and a straw boater drawn big, a spare beret and a pink ribbon bow beside her
   Uniforms        a ginger barista cat in the apron and cap
-  CafeStyle       a cosy cafe front: mint and cream striped awning, a round cat sign, a cake in the window
+  CafeStyle       the Garden Cafe front (themes.py's palette): sage and warm white striped awning, a brass cat
+                  sign, a terracotta trough of flowers under a cake in the window
   GrandTheme      the grand cafe front: gold columns, a berry pediment with the cat sign, a big gold crown on top,
                   a gold awning over cakes in the windows
   ExtraSlot       a tuxedo cat in an apron on a cafe stool with a big mint +1 tag (one more cat at work)
@@ -249,7 +250,7 @@ def cafe_style(mat):
     b = Builder()
     W, H = 2.6, 2.2
     b.box((0, 0.2, H / 2), (W, 0.4, H), "cream")                                               # the wall
-    b.box((0, 0.2, H + 0.08), (W + 0.12, 0.5, 0.16), "fur_strawberry")                        # cornice
+    b.box((0, 0.2, H + 0.08), (W + 0.12, 0.5, 0.16), "fur_moss")                              # cornice
     b.box((0.55, -0.02, 0.85), (1.1, 0.06, 0.9), "pastel_sky")                                 # window
     b.box((0.55, -0.04, 0.85), (1.18, 0.04, 0.08), "offwhite", bevel=False)
     b.cyl((0.55, -0.12, 0.52), 0.26, 0.06, "offwhite", segments=14)                           # a cake on a stand
@@ -258,9 +259,13 @@ def cafe_style(mat):
     b.box((-0.7, -0.02, 0.62), (0.62, 0.06, 1.24), "caramel_wood")                             # door
     b.cyl((-0.48, -0.08, 0.62), 0.05, 0.04, "gold_mid", segments=8, rot=X)
     b.box((-0.7, -0.06, 0.95), (0.36, 0.03, 0.34), "pastel_sky", bevel=False)
-    b.box((0, -0.05, 0.03), (W + 0.1, 0.12, 0.06), "mint")                                    # step trim
-    _awning(b, -W / 2 - 0.05, W / 2 + 0.05, 1.55, 0.7, ("mint", "cream"), 6)
-    b.cyl((0, 0.02, 2.55), 0.5, 0.12, "fur_strawberry", segments=24, rot=X)                    # the round sign
+    b.box((0, -0.05, 0.03), (W + 0.1, 0.12, 0.06), "fur_fern")                                # step trim
+    b.box((0.55, -0.2, 0.2), (1.25, 0.34, 0.3), "terracotta")                                  # a flower trough
+    for k in range(7):
+        b.ico((0.0 + 0.183 * k, -0.22, 0.42 + 0.03 * (k % 2)), 0.1, ("blush", "offwhite", "pastel_butter")[k % 3])
+        b.ico((0.09 + 0.183 * k, -0.12, 0.38), 0.09, "leaf_green")
+    _awning(b, -W / 2 - 0.05, W / 2 + 0.05, 1.55, 0.7, ("fur_fern", "offwhite"), 6)
+    b.cyl((0, 0.02, 2.55), 0.5, 0.12, "brass", segments=24, rot=X)                             # the round sign
     b.cyl((0, -0.05, 2.55), 0.42, 0.06, "cream", segments=24, rot=X)
     hud = place(hud_icons.cat_face(mat), at=(0, -0.12, 2.27), scale=0.32)                     # a cat face on it
     return _fin(b, "CafeStyle", mat) + hud
@@ -473,6 +478,30 @@ def cafe_pass(mat):
     _star(b, 0, -0.14, 0.95, 0.16)
     _twinkle(b, 1.1, -0.3, 1.55, 0.4)
     return _fin(b, "CafePass", mat)
+
+
+def crown_sign(mat):
+    """#1823: the Royal Crest sign style (signstyles.py) cut down to an icon: a short berry board reading CAFE in a gold
+    frame with jewel corners, under the crest's medallion with the crown on its croissant, drawn big."""
+    from common import RB, text_width
+    from signstyles import _crest
+    b = RB()
+    x1, y1, f, z = 2.0, 1.5, 0.32, 0.0
+    b.span((-x1, 0, z), (x1, y1, z + 0.1), "royal_berry")                                       # the board
+    for (xa, xb, ya, yb) in ((-x1 - f, x1 + f, -f, 0), (-x1 - f, x1 + f, y1, y1 + f), (-x1 - f, -x1, 0, y1),
+                             (x1, x1 + f, 0, y1)):
+        b.span((xa, ya, z - 0.14), (xb, yb, z + 0.1), "gold_mid")                              # the raised frame
+    for sx in (-1, 1):
+        for sy, y in ((-1, -f / 2), (1, y1 + f / 2)):
+            b.cyl((sx * (x1 + f / 2), y, z - 0.18), 0.12, 0.08, "bowl_red" if sy > 0 else "shirt_blue", axis="Z",
+                  segments=10)
+    px = 0.14
+    b.text("CAFE", (text_width("CAFE", px) / 2, y1 / 2 - 2.5 * px, z - 0.02), px, 0.04, "cream", right=(-1, 0, 0))
+    cy = y1 + f + 0.95
+    b.cyl((0.0, cy, z - 0.02), 1.0, 0.24, "gold_mid", axis="Z", segments=20)                 # the medallion,
+    b.cyl((0.0, cy, z - 0.16), 0.85, 0.06, "royal_berry", axis="Z", segments=20)             # berry in a gold ring
+    _crest(b, 0.0, cy - 0.05, z - 0.19, 1.6)
+    return [b.finalize("CatCafe_IconArt_Store_CrownSign", mat)]
 
 
 PASSES = {"Money2x": money("2"), "Money3x": money("3"), "Money4x": money("4"), "LongNap": long_nap, "VIP": vip,

@@ -774,6 +774,10 @@ local function wireIntents()
 			Net.fire("SetHideCredit", hide)
 		end)
 	end
+	-- #1770 owner test mode: the server drops it from anyone but the owner's account
+	UI.events.ownerGrant:Connect(function(productId: number)
+		Net.fire("OwnerGrant", productId)
+	end)
 	UI.events.buyUpgrade:Connect(function(upgradeId: string)
 		Net.fire("BuyUpgrade", upgradeId)
 	end)
@@ -911,6 +915,13 @@ local function wireIntents()
 	end)
 	-- #1624: a Style tab button. The sign's "" is the plain sign (nil); the server checks the player owns the style.
 	-- Uniforms and themes only show once the server sends state.looks, which comes with SetLook.
+	-- #1751: the Lawn cards' Use and Remove; LawnService (#1758) checks and toasts any refusal
+	UI.events.setLawnSpot:Connect(function(spotId: string, pieceId: string)
+		Net.fire("SetLawnSpot", spotId, pieceId)
+	end)
+	UI.events.setLawnStyle:Connect(function(kind: string, id: string)
+		Net.fire("SetLawnStyle", kind, id)
+	end)
 	UI.events.pickStyle:Connect(function(kind: string, id: string)
 		if kind == "sign" then
 			Net.fire("SetSignStyle", if id == "" then nil else id)

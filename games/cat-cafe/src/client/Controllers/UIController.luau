@@ -887,7 +887,7 @@ local function wireIntents()
 	UI.events.pickStyle:Connect(function(kind: string, id: string)
 		if kind == "sign" then
 			Net.fire("SetSignStyle", if id == "" then nil else id)
-		elseif kind == "uniform" or kind == "theme" then
+		elseif kind == "uniform" or kind == "accessory" or kind == "theme" then -- #1708: accessory
 			Net.fire("SetLook", kind, if id == "" then "default" else id)
 		end
 	end)

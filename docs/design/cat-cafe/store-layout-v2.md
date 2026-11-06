@@ -1,6 +1,6 @@
 # Store layout v2: hero card, bundle cards, New dots and Yours ticks (#1823, #1822)
 
-Status: **mockup**, 2026-11-06. Design-Agent (friend's project) wrote it from Monetization-Agent's proposal (`/mnt/project-files/monetization/store-ux-and-king-bundle-2026-11-06.md`). Derek2 asked for a store that is "more enticing" and easier to buy from. The layout can be built now behind the owner test mode (#1774). The King Cat bundle's contents and prices wait for Derek2's OK. Until then, its card shows today's King Cat Pack. Builders: UI-Engineer (cards, tabs), Gameplay-Engineer (product data), Model-Agent (icons). monetization-policy applies throughout: fixed contents, nothing random, no fake countdowns, no guilt text and no pop-up on join.
+Status: specced 2026-11-06, decided overnight under Derek2's go-ahead ("go with your recommended"). Design-Agent (friend's project) wrote it from Monetization-Agent's proposal (`/mnt/project-files/monetization/store-ux-and-king-bundle-2026-11-06.md`). Derek2 asked for a store that is "more enticing" and easier to buy from. The layout can be built now behind the owner test mode (#1774). The King Cat bundle's contents are in section 7. Builders: UI-Engineer (cards, tabs), Gameplay-Engineer (product data), Model-Agent (icons). monetization-policy applies throughout: fixed contents, nothing random, no fake countdowns, no guilt text and no pop-up on join.
 
 ## 1. The Featured tab
 
@@ -46,3 +46,10 @@ Theme icons: Garden Cafe and Grand Cafe (a tiny cafe front in each palette). Sig
 4. An owned pass shows "Yours" and greyed out, with no buy prompt. Owning one part of a bundle lowers its Worth line.
 5. A New dot shows after a catalog change and clears when the tab is opened. It never comes back for the same change.
 6. The phone, tablet and desktop scenes pass the UI gate. Nothing in the store moves by itself or counts down except the real season end.
+
+## 7. The King Cat bundle (#1822, decided overnight 2026-11-06 under Derek2's go-ahead)
+
+- **Same pass, same price.** `KingPackPassId` 2071368679, R$999 (R$499 in launch week). No new product.
+- **Contents, in icon order:** the King Cat, the Grand Cafe theme, the Royal Crest crown sign, one decor piece and one allowed potion set. Gameplay-Engineer picks the decor piece and potion set from items that already exist, and they stay fixed. A buyer who already owns the Grand theme pass keeps it, and the bundle's Worth line counts only the parts they don't have (section 4).
+- **Badge:** "Best Value" when the live Worth reaches 1.25 x the price, which it should for a new buyer once the King Cat sells alone at R$799, since the Grand theme is a pass of its own.
+- **The King Cat alone** in the Cats tab: R$799 (R$399 in launch week), on a new pass that Derek2 creates by hand. Its card stays hidden until `KingCatPassId` is set in Config. Until then the cat counts at R$0 in the Worth line (section 2: a part not sold alone), so the badge may be missing at first. That's honest, and it fixes itself once the pass exists.

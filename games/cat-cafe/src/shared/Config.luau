@@ -5,7 +5,9 @@
 
 local Config = {
 	ServerPlayers = 8,
-	StartCoins = 50,
+	-- #1796 (Derek2 11-06: the tutorial asks for a table and then the Bait bowl, and $50 covered neither): the first
+	-- table, the Bait bowl and its Kibble ($150 + $600 + $100), so tutorial steps 3 and 4 never wait on coins
+	StartCoins = 850,
 
 	-- Income (data-model section 11)
 	FavoriteMultiplier = 1.5,
@@ -56,10 +58,11 @@ local Config = {
 		starter_bundle = 3728336166, -- #1625: once per account (Catalog.products oncePerAccount)
 		cafe_pass = 3728336202, -- #1626: the running season's paid track, once per season (Catalog.products seasonPass)
 	} :: { [string]: number },
-	-- The Cafe Pass (#1645, cafe-pass.md section 1): each season's first day as a UTC date, oldest first. Season 1
-	-- starts the day the game goes public (Derek sets it); with no date the pass is closed outside Studio, where a
-	-- preview season 1 runs for playtests (shared/CafePass).
-	SeasonStarts = {} :: { string },
+	-- The Cafe Pass (#1645, cafe-pass.md section 1): each season's first day as a UTC date, oldest first. With no date
+	-- the pass is closed outside Studio, where a preview season 1 runs for playtests (shared/CafePass).
+	-- 2026-11-05 is a test start so Derek2 can try the pass live; Derek2 resets it to the launch day. Keep one date:
+	-- moving it later only moves the season's end.
+	SeasonStarts = { "2026-11-05" } :: { string },
 	PassLevels = 30,
 	PassXpPerLevel = 800,
 	AutosaveSeconds = 60,
@@ -199,6 +202,19 @@ local Config = {
 	LuckyDayWaveLuck = 2,
 	LuckyDayPlayerLuck = 0.5,
 	LuckyDayWarnSeconds = 15,
+	-- #1572 (luck-and-rare-moments.md 1h): the global pity cat (shared/Pity). A slot every PityLegendarySeconds from
+	-- ClockEpoch, every PityMythicalEvery-th a Mythical one; its area by PityAreaWeights (by area id), and the first
+	-- catch anywhere claims it in MemoryStore, tried PityClaimRetries times before the catcher keeps it anyway.
+	PityLegendarySeconds = 1800,
+	PityMythicalEvery = 4,
+	PityAreaWeights = {
+		alley = 10,
+		park = 15,
+		neighbourhood = 20,
+		woods = 25,
+		sewer = 30,
+	} :: { [string]: number },
+	PityClaimRetries = 3,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
 	-- F97 (notes-10-28-to-10-30.md section 3): a food's price is its Catalog base times this factor at the buyer's
 	-- tier (Economy.foodPrice), the same growth as the later shop items (economy-ladder.md section 4)
@@ -607,7 +623,7 @@ local Config = {
 	RallyStateSeconds = 0.5, -- RallyState goes out at most this often while points come in (steps go at once)
 
 	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters, digits and Codes.SYMBOLS, in any case.
-	CodesCatRange = 12, -- RedeemCode from this close to a CodesCat station's pivot
+	CodesCatRange = 12, -- the Codes Cat's box opens this close to a CodesCat station's pivot (RedeemCode works anywhere, #1747)
 	CodesCircleRadius = 4, -- the code box opens within this flat distance of the CodesCircle, closes past it + 1
 	CodeMaxLength = 20,
 	CodeWrongLimit = 5, -- this many wrong codes within CodeWrongWindowSeconds lock the box

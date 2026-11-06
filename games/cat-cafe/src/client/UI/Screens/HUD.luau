@@ -38,6 +38,7 @@
 local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
@@ -130,7 +131,7 @@ export type HUD = {
 	glowTutorial: (self: HUD) -> (),
 	pulseTutorial: (self: HUD) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
-	setMoneyBadge: (self: HUD, badge: { text: string, owned: boolean }?) -> (), -- #1606
+	setMoneyBadge: (self: HUD, badge: { text: string, owned: boolean, price: string? }?) -> (), -- #1606, #1759
 	-- F92: the pals on the server (PalsChanged), for the chip and the boosts card
 	setPals: (self: HUD, userIds: { number }) -> (),
 	-- F92: "Sam is in the Park" over the travel button to that area, glowing; nil text takes it away
@@ -150,6 +151,13 @@ local COUNTER_COIN = 36
 local COUNTER_TEXT = 30
 local MONEY_BADGE_H = 30 -- #1606: the money pass badge beside the money
 local MONEY_BADGE_TEXT = 22
+-- #1759 (Derek2 11-06: "more in your face then that slight 2x"): the not-owned badge, a rainbow "X2 Cash" pill with
+-- "Only R$5" under it that pulses gently
+local CASH_H = 30
+local CASH_TEXT = 22
+local CASH_PRICE_H = 14
+local CASH_PULSE = 1.08 -- the badge's scale at the top of each pulse
+local CASH_PULSE_SECONDS = 0.7 -- one way
 local COUNTER_GAP = 14
 -- the row's widest usual reach (the money at MONEY_W and "12.3K" golden fish): the bottom row moves right of it
 local CORNER_W = MONEY_W + COUNTER_GAP + COUNTER_COIN + 8 + 90
@@ -171,11 +179,14 @@ local BOWL_ICON = "🥣" -- the bait bowl symbol's glyph, under the Big Bowl per
 -- so the grid stays up at the top, clear of Roblox's thumbstick on a small phone.
 local TOUCH = Scale.isTouch()
 local TILE_LAYOUT: Button.Layout = if TOUCH then "tile" else "clean"
-local MENU_TILE = if TOUCH then 64 else 78
-local MENU_TEXT = if TOUCH then Theme.sizes.textTiny + 1 else 17 -- a menu tile's label
+-- #1676 (Derek2 live 11-05: "the buttons became way too big and spread so they take up too much screen"): 66 on a PC
+-- (was 78), its label 15, the Store 68 tall, and the gaps only the outline clear of the key caps and red dots. On a
+-- phone or tablet 60 (was 64): 45 px at the smallest touch scale (Scale.TOUCH_FLOOR), still a finger's 44.
+local MENU_TILE = if TOUCH then 60 else 66
+local MENU_TEXT = if TOUCH then Theme.sizes.textTiny + 1 else 15 -- a menu tile's label
 local MENU_CELL_H = if TOUCH then MENU_TILE else MENU_TILE + MENU_TEXT + 4 -- the square and the label's strip
-local STORE_H = 80 -- the Store's wide tile, two tiles wide, over the grid
-local STORE_TEXT = 27
+local STORE_H = 68 -- the Store's wide tile, two tiles wide, over the grid
+local STORE_TEXT = 24
 -- the Store's shine sweeps across in 0.9 s, then waits 3.5 s, for good; a still shine under reduced motion
 local STORE_SHINE =
 	TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, -1, false, 3.5)
@@ -192,9 +203,9 @@ local THUMB_ZONE = 180
 -- rows below the same): every tile and every row keeps a clear gap of at least the outline plus the button foot
 -- (#1105) between what each one draws, not between their boxes. A tile draws past its box: its outline all round,
 -- the key cap on its top left corner, the red dot on its top right and, on the Store, the gold glow and its hover.
--- the empty space between two tiles' drawn edges (9): the outline plus the button foot, as #1210 asks, though the
--- clean tiles draw no foot since #1105, so it is a little more room than the drawing needs
-local TILE_CLEAR = Button.OUTLINE + Theme.sizes.buttonDepth
+-- the empty space between two tiles' drawn edges: #1210 asked for the outline plus the button foot (9), but the clean
+-- tiles draw no foot since #1105 and #1676 asks for a tighter column, so it is the outline's width (4)
+local TILE_CLEAR = Button.OUTLINE
 local KEY_REACH = 6 -- a key cap at (-4, -4) with its 2 px outline pokes this far past the tile's top and left
 -- the red dot (22 px, its middle 3 px down the tile's top edge, its right edge 2 px past the side since #1176, a 2 px
 -- outline) past the tile's top and its right side
@@ -258,8 +269,9 @@ local DROP_W = 104
 -- the arrow tabs that fold the left menu and the bottom row out of the way (Derek 2026-10-27: less clutter)
 local FOLD_W = 44
 local FOLD_H = 34
--- the arrow tab under the grid: the last row's foot, then the clear gap and the tab's own 3 px outline (#1210)
-local FOLD_UNDER = FOOT_REACH + TILE_CLEAR + 3
+-- the arrow tab under the grid: the last row's foot, then the clear gap and the tab's own 3 px outline (#1210), and 2 px
+-- more since TILE_CLEAR went down to the outline (#1676), for the two-bowl Bowl tile's count that sits a little lower
+local FOLD_UNDER = FOOT_REACH + TILE_CLEAR + 5
 local function menuFoldedX(width: number): number
 	return -(width + 40) -- past the left edge, dots too
 end
@@ -544,8 +556,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- Golden fish (F52): the rare currency's counter beside the money, with the gold fish (F97). Hidden until
 	-- ProfileSync sends goldenFish.
 	-- #1606: the money pass badge beside the money (setMoneyBadge): "2x" to "4x" in gold once a money pass is owned
-	-- (a tap opens the boosts card, as the money does), or a small berry "Get 2x" pill while none is (a tap opens the
-	-- Store). Hidden until the Store knows.
+	-- (a tap opens the boosts card, as the money does), or while none is (a tap opens the Store) a rainbow "X2 Cash"
+	-- pill with "Only R$5" under it, pulsing (#1759). Hidden until the Store knows.
 	-- the tap area is the counters' height and at least as wide (a finger's 44 px on a phone); the pill sits inside it
 	local badge: TextButton = Create("TextButton", {
 		Name = "MoneyBadge",
@@ -562,8 +574,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Create("UIListLayout", {
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
+			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	self._moneyPulse = Create("UIScale", { Parent = badge }) :: UIScale
 	local pill: TextLabel = Create("TextLabel", {
 		Name = "Pill",
 		BackgroundColor3 = Theme.colors.berry,
@@ -574,13 +588,32 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		TextSize = MONEY_BADGE_TEXT,
 		TextColor3 = Theme.colors.gold,
 		Text = "",
+		LayoutOrder = 1,
 		Parent = badge,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
+		-- #1759: the rainbow under the "X2 Cash" words while no money pass is owned
+		Create("UIGradient", { Name = "Rainbow", Color = Theme.rainbow, Enabled = false }),
 	})
 	Outline.text(pill, 2.5)
 	self._moneyPill = pill
+	local price: TextLabel = Create("TextLabel", {
+		Name = "Price",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(0, CASH_PRICE_H),
+		AutomaticSize = Enum.AutomaticSize.X,
+		FontFace = Theme.fonts.display,
+		TextSize = CASH_PRICE_H,
+		TextColor3 = Theme.colors.white,
+		RichText = true,
+		Text = "",
+		LayoutOrder = 2,
+		Visible = false,
+		Parent = badge,
+	})
+	Outline.text(price, 2)
+	self._moneyPrice = price
 	self._moneyBadge = badge
 	self._moneyBadgeOwned = false
 	table.insert(
@@ -2201,7 +2234,8 @@ function HUD._popNew(self: any, key: HudUnlocks.Key)
 		BackgroundColor3 = Theme.colors.gold,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, 6, 0, 2),
+		-- #1676: its right edge 2 px past the side like the red dot, so the tighter columns keep it off the next key cap
+		Position = UDim2.new(1, 2, 0, 2),
 		Size = UDim2.fromOffset(52, 24),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,
@@ -2882,7 +2916,7 @@ end
 
 -- #1606: the money pass badge (StoreLogic.moneyBadge): "3x" in gold once owned, a berry "Get 2x" pill while not, or
 -- hidden with nil.
-function HUD.setMoneyBadge(self: any, badge: { text: string, owned: boolean }?)
+function HUD.setMoneyBadge(self: any, badge: { text: string, owned: boolean, price: string? }?)
 	local button: TextButton = self._moneyBadge
 	button.Visible = badge ~= nil
 	if badge == nil then
@@ -2890,10 +2924,52 @@ function HUD.setMoneyBadge(self: any, badge: { text: string, owned: boolean }?)
 	end
 	self._moneyBadgeOwned = badge.owned
 	local pill: TextLabel = self._moneyPill
+	local sell = not badge.owned
 	pill.Text = badge.text
-	pill.TextSize = if badge.owned then MONEY_BADGE_TEXT else MONEY_BADGE_TEXT - 6
-	pill.TextColor3 = if badge.owned then Theme.colors.gold else Theme.colors.white
-	pill.BackgroundTransparency = if badge.owned then 1 else 0
+	pill.Size = UDim2.fromOffset(0, if sell then CASH_H else MONEY_BADGE_H)
+	pill.TextSize = if sell then CASH_TEXT else MONEY_BADGE_TEXT
+	pill.TextColor3 = if sell then Theme.colors.white else Theme.colors.gold
+	-- #1759: a rainbow pill (white under the gradient) while for sale, bare gold words once owned
+	pill.BackgroundColor3 = Theme.colors.white
+	pill.BackgroundTransparency = if sell then 0 else 1
+	local rainbow = pill:FindFirstChild("Rainbow") :: UIGradient?
+	if rainbow then
+		rainbow.Enabled = sell
+	end
+	local price: TextLabel = self._moneyPrice
+	local line = if sell then badge.price else nil
+	price.Visible = line ~= nil
+	if line ~= nil then
+		-- "Only" in green, the price in white, as in Derek2's reference
+		price.Text = (line:gsub("^Only", '<font color="#7CFC6A">Only</font>'))
+	end
+	self:_pulseMoneyBadge(sell)
+end
+
+-- #1759: the for-sale badge grows and shrinks a little, over and over; it holds still once owned or with Reduce
+-- Motion on.
+function HUD._pulseMoneyBadge(self: any, on: boolean)
+	local want = on and not GuiService.ReducedMotionEnabled
+	local tween: Tween? = self._moneyPulseTween
+	if want == (tween ~= nil) then
+		return
+	end
+	if tween then
+		tween:Cancel()
+		self._moneyPulseTween = nil
+		self._moneyPulse.Scale = 1
+		return
+	end
+	local info = TweenInfo.new(
+		CASH_PULSE_SECONDS,
+		Enum.EasingStyle.Sine,
+		Enum.EasingDirection.InOut,
+		-1,
+		true
+	)
+	local made = TweenService:Create(self._moneyPulse, info, { Scale = CASH_PULSE })
+	made:Play()
+	self._moneyPulseTween = made
 end
 
 function HUD.setVisible(self: any, visible: boolean)

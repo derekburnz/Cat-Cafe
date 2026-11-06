@@ -63,7 +63,7 @@ Remotes.ClientToServer = {
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
 	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16)
 	"SetSignStyle", -- (styleId: string?)  #1625: an owned shared/SignStyles id, or nil for the plain sign
-	"SetLook", -- (kind: string, id: string?)  #1624: "theme" or "uniform", an owned shared/Looks id or "default"
+	"SetLook", -- (kind: string, id: string?)  #1624: "theme", "uniform" or "accessory"; an owned Looks id or "default"
 	"SetSetting", -- (key: string, value: boolean | number)  a key of shared/Settings: a switch takes a boolean, a
 	-- volume a number clamped to 0 to 1; saved in profile.settings, answered by ProfileSync
 	"ClaimTipJar", -- (step: number)  integer 1 to #Catalog.tipJar, unclaimed this session, its minutes reached (F47)
@@ -78,7 +78,7 @@ Remotes.ClientToServer = {
 	-- none (Crates.bundleBlocker); 1 a second, answered with a toast and a ProfileSync
 	"BuyFishItem", -- (itemId: string)  within FishMarketRange of a FishMarket, a lure or perk row of Catalog.fishShop,
 	-- below its max level, its cost in golden fish (F53); answered with a toast and a ProfileSync
-	"RedeemCode", -- (text: string)  within CodesCatRange of a CodesCat, at most 40 bytes, trimmed and lowercased to 1
+	"RedeemCode", -- (text: string)  from anywhere (#1747), at most 40 bytes, trimmed and lowercased to 1
 	-- to CodeMaxLength letters and digits, a known active code not yet redeemed (F65, shared/Codes); 1 per 2 s, locked
 	-- CodeLockSeconds after CodeWrongLimit wrong codes; answered with CodeResult
 	"ClaimStarterCat", -- ()  F96 (starter-cat.md section 4): within StarterCatRangeStuds of a BellhopStand, the
@@ -204,6 +204,9 @@ Remotes.ServerToClient = {
 	-- prompt open. Since F93 a stray has no prompt: a swing's refusal is a toast and its outcome CatchResult.
 	"NetSwung", -- (userId: number, hit: boolean)  F93: a swing landed, to the swinger and every client within 150 studs,
 	-- for the smack, the bounce on a miss and the whoosh; hit is true when it started a catch or a pick up
+	"PityAnnounce", -- (kind: "Legendary" | "Mythical", areaId: string, state: "out" | "caught" | "gone", winnerName:
+	-- string?)  #1572 (luck-and-rare-moments.md 1h): to everyone as a pity cat spawns, is caught (anywhere) or leaves
+	-- at night. The banner text itself goes out as Announce; ReplicatedStorage.Pity holds the state for late joiners.
 	"CatchSchedule", -- (strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
 	"CatchResult", -- (strayId: string, grades: { Types.CircleGrade }, success: boolean, charmGain: number,
 	-- retryAt: number?)  grades up to and including the first Miss; after a miss the stray sprints off and anyone may

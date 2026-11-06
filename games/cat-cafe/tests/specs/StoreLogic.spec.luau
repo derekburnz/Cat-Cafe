@@ -45,13 +45,15 @@ return function()
 			-- the server's PlayerState.passBoosts.money counts too
 			expect(StoreLogic.moneyBadge(CONFIG, {}, {}, 2).text).to.equal("2x")
 			expect(StoreLogic.moneyBadge(CONFIG, { [200] = true }, {}, 4).text).to.equal("4x")
-			expect(StoreLogic.moneyBadge(CONFIG, {}, onSale, 1).text).to.equal("Get 2x")
+			expect(StoreLogic.moneyBadge(CONFIG, {}, onSale, 1).text).to.equal("X2 Cash")
 		end)
 
-		it("offers Get 2x with none owned while the 2x pass is on sale", function()
+		it("offers X2 Cash with its price with none owned while the 2x pass is on sale (#1759)", function()
 			local badge = StoreLogic.moneyBadge(CONFIG, {}, onSale)
-			expect(badge.text).to.equal("Get 2x")
+			expect(badge.text).to.equal("X2 Cash")
+			expect(badge.price).to.equal("Only R$5")
 			expect(badge.owned).to.equal(false)
+			expect(StoreLogic.moneyBadge(CONFIG, { [200] = true }, onSale).price).to.equal(nil)
 		end)
 
 		it(
@@ -180,9 +182,8 @@ return function()
 			expect(table.concat(keys, ",")).to.equal("vip,potionXS,potionS,royalCat")
 			expect(rows[3].product).to.equal(true)
 			expect(rows[3].owned).to.equal(false)
-			expect(rows[3].effect:find("3 Big Money, 1 Swift Potion · You have 4", 1, true) ~= nil).to.equal(
-				true
-			)
+			-- #1715: a row per potion, then the bag count on its own line
+			expect(rows[3].effect).to.equal("3x Big Money\n1x Swift Potion\nIn your bag: 4")
 			expect(table.concat(StoreLogic.productIds(config), ",")).to.equal("31,32")
 		end)
 	end)
@@ -313,7 +314,7 @@ return function()
 			expect(starter.effect).to.equal(
 				StoreLogic.STARTER.effect
 					.. "\nSprinkles the cat, Bakery Stripes sign style"
-					.. "\n10 Big Money, 5 Swift · You have 2"
+					.. "\n10x Big Money\n5x Swift\nIn your bag: 2"
 			)
 			-- a cat or style with no name yet still reads as words
 			expect(StoreLogic.extras({

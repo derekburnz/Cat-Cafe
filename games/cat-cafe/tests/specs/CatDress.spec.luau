@@ -74,11 +74,14 @@ return function()
 			expect(CatDress.isWalking(body("CatCafe_Cat_Tabby_Gold_Work"))).to.equal(false)
 		end)
 
-		it("tries the walking cut first on a walking body and only the plain piece on a seated one", function()
+		it("tries the walking cut first on a walking body and the seated cut first on a seated one", function()
 			expect(table.concat(CatDress.assetNames("Vest", true), ",")).to.equal(
 				"CatCafe_Accessory_Vest_Walk,CatCafe_Accessory_Vest"
 			)
-			expect(table.concat(CatDress.assetNames("Vest", false), ",")).to.equal("CatCafe_Accessory_Vest")
+			-- #1624: a seated cut (only the Tiny Lantern has one) else the plain piece
+			expect(table.concat(CatDress.assetNames("Vest", false), ",")).to.equal(
+				"CatCafe_Accessory_Vest_Sit,CatCafe_Accessory_Vest"
+			)
 		end)
 	end)
 
@@ -129,6 +132,47 @@ return function()
 
 		it("breaks a tie by the smaller key, the same every time", function()
 			expect(CatDress.uniformSlots({ b = 1, a = 1, c = 0.5 }) :: any).to.deepEqual({ a = "main", b = "trim" })
+		end)
+	end)
+
+	describe("the cafe's accessory (#1624 section 6)", function()
+		it("puts a Head accessory on in place of the role hat", function()
+			local wear, off, on = CatDress.plan("barista", nil, nil, "Head")
+			expect(table.concat(wear, ",")).to.equal("Apron")
+			expect(off).to.equal(nil)
+			expect(on).to.equal(true)
+		end)
+
+		it("puts a Back accessory on in place of the cape, and a Face one beside the whole outfit", function()
+			local wear, _, on = CatDress.plan("entertainer", nil, nil, "Back")
+			expect(table.concat(wear, ",")).to.equal("PartyHat")
+			expect(on).to.equal(true)
+			local fwear, _, fon = CatDress.plan("waiter", nil, nil, "Face")
+			expect(table.concat(fwear, ",")).to.equal("BowTie,Vest")
+			expect(fon).to.equal(true)
+		end)
+
+		it("skips the accessory on a cat whose own prop fills its slot", function()
+			local wear, _, on = CatDress.plan("greeter", "Head", nil, "Head")
+			expect(table.concat(wear, ",")).to.equal("Sash")
+			expect(on).to.equal(false)
+			-- the Entertainer with a Head and a Back prop keeps its party hat exception and skips a Head accessory
+			local ewear, eoff, eon = CatDress.plan("entertainer", "Head", "Back", "Head")
+			expect(table.concat(ewear, ",")).to.equal("PartyHat")
+			expect(eoff).to.equal("Prop")
+			expect(eon).to.equal(false)
+		end)
+
+		it("wears the plain outfit with no accessory", function()
+			local wear, _, on = CatDress.plan("barista", nil, nil, nil)
+			expect(table.concat(wear, ",")).to.equal("Apron,BaristaCap")
+			expect(on).to.equal(false)
+		end)
+
+		it("tries a seated cut first on a seated body", function()
+			expect(table.concat(CatDress.assetNames("TinyLantern", false), ",")).to.equal(
+				"CatCafe_Accessory_TinyLantern_Sit,CatCafe_Accessory_TinyLantern"
+			)
 		end)
 	end)
 end

@@ -1917,6 +1917,9 @@ local SCENES = {
 	-- opening a tab clears its dot and tells the server once, and the tile's dot goes when every tab is seen
 	{ "StoreNewDots", function()
 		UI.store.preview(storePrices(true), {})
+		-- every tab seen first, so tabs an earlier scene opened (sent as seen, never saved here) start fresh
+		local allSeen = { featured = 1, passes = 1, cats = 1, potions = 1, cafePass = 1, codes = 1 }
+		UI.update({ storeSeen = allSeen } :: any)
 		UI.update({ storeSeen = { featured = 1 } } :: any)
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
 		local hudRoot = hud and hud:FindFirstChild("Root")
@@ -1946,9 +1949,7 @@ local SCENES = {
 		press("Store", "passes")
 		assert(#sent == 1, "uigate: Passes was sent as seen twice (#1823)")
 		connection:Disconnect()
-		UI.update({
-			storeSeen = { featured = 1, passes = 1, cats = 1, potions = 1, cafePass = 1, codes = 1 },
-		} :: any)
+		UI.update({ storeSeen = allSeen } :: any)
 		assert(not (tileDot :: GuiObject).Visible, "uigate: the Store tile's New dot stays with every tab seen (#1823)")
 		press("Store", "cats")
 	end },

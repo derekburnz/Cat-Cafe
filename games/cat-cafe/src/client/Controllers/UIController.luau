@@ -707,9 +707,26 @@ local function wireIntents()
 	UI.events.spinWheel:Connect(function()
 		Net.fire("SpinWheel")
 	end)
-	-- #1823 §4: a Store tab with a New dot opened; the server saves its version (rate-limited, known tabs only)
+	-- #1823 §4: a Store tab with a New dot opened; the server saves its version (known tabs only). The server takes
+	-- two a second, so tabs tapped faster than that wait their turn here instead of being dropped.
+	local seenQueue: { string } = {}
+	local seenSending = false
 	UI.events.storeSeen:Connect(function(tab: string)
-		Net.fire("MarkStoreSeen", tab)
+		if table.find(seenQueue, tab) then
+			return
+		end
+		table.insert(seenQueue, tab)
+		if seenSending then
+			return
+		end
+		seenSending = true
+		task.spawn(function()
+			while #seenQueue > 0 do
+				Net.fire("MarkStoreSeen", table.remove(seenQueue, 1) :: string)
+				task.wait(0.6)
+			end
+			seenSending = false
+		end)
 	end)
 	-- Use all on the Spin window (#1078); the server answers with SpinAllResult and a ProfileSync. Loose until
 	-- UI-Engineer's button is on main, as are the Corner Shop's hooks below.

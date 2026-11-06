@@ -666,9 +666,14 @@ function Store.showTab(self: any, tab: string)
 	end
 end
 
--- #1823 §4: the tabs with a New dot (StoreLogic.newTabs). A tab already sent as seen this session stays clear while
--- the server's save is on its way back.
+-- #1823 §4: the tabs with a New dot (StoreLogic.newTabs). A tab already sent as seen stays clear while the server's
+-- save is on its way back, and is forgotten once the server's word says it is seen.
 function Store.setNew(self: any, tabs: { [string]: true })
+	for id in self._marked do
+		if not tabs[id] then
+			self._marked[id] = nil
+		end
+	end
 	local new: { [string]: true } = {}
 	for id in tabs do
 		if not self._marked[id] then

@@ -1894,6 +1894,15 @@ local SCENES = {
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[3]] = true })
 	end },
+	-- #1770 owner test mode: the server's OwnerTest attribute on the owner's account shows a small label up top
+	{ "HUDOwnerTest", function()
+		local player = game:GetService("Players").LocalPlayer
+		player:SetAttribute("OwnerTest", true)
+		UI.store.preview(storePrices(true), {})
+		local tag = player.PlayerGui:FindFirstChild("OwnerTest", true)
+		assert(tag and tag.Visible, "uigate: owner test mode shows no label (#1770)")
+		assert(tag.Text == "Owner test mode", "uigate: the owner label reads " .. tostring(tag.Text) .. " (#1770)")
+	end },
 	-- the Store window for a new player (#1425): it opens on Featured, the King Cat Pack as the hero over 2x Money,
 	-- Long Nap and the Royal Cat, all in view with no scrolling
 	{ "Store", function()

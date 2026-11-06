@@ -2476,7 +2476,7 @@ Presets.netTrail = {
 -- the rings.
 Presets.catchWord = {
 	displayOrder = 26, -- just over the catch screen (CatCafeCatchCircles, 25), under toasts (30)
-	targets = { "ResultWord", "Outcome" },
+	targets = { "FinishBanner", "ResultWord", "Outcome" }, -- FinishBanner: v3 (#1884)
 	wait = 0.5,
 	size = 12,
 	seconds = 0.6,
@@ -2490,7 +2490,36 @@ Presets.catchWord = {
 		purrfect = { sparkles = 18, rings = 2, colour = Presets.palette.golden },
 		excellent = { sparkles = 11, rings = 1, colour = Presets.palette.golden },
 		great = { sparkles = 7, rings = 1, colour = Presets.palette.mint },
+		nice = { sparkles = 5, rings = 1, colour = Presets.palette.cream }, -- v3 (#1884 7d)
 	} :: { [string]: { sparkles: number, rings: number, colour: Color3 } },
+}
+
+-- Catch v3 (#1884, catch-rework.md 7b to 7d; Effects/Catch). Each ring the server judges (CatchJudged) pops at the
+-- cat's head in its grade's colour: `sparkles` sparkles and a ring `ring` studs across over `ringSeconds`, a Miss a
+-- grey puff instead of sparkles. A Perfect holds the camera and your character's animations for `hitStop` seconds
+-- first (client only; the rings never pause, so timing stays fair). Reduce Motion: sparkles only, no ring and no
+-- hit-stop. Low performance: the budget's burst scale.
+Presets.catchJudge = {
+	hitStop = 0.06,
+	ringSeconds = 0.3,
+	grades = {
+		perfect = { colour = Presets.palette.golden, sparkles = 6, ring = 1.8, puff = 0 },
+		good = { colour = Presets.palette.mint, sparkles = 3, ring = 1.4, puff = 0 },
+		miss = { colour = Presets.palette.furGrey, sparkles = 0, ring = 1.2, puff = 2 },
+		left = { colour = Presets.palette.mint, sparkles = 2, ring = 1.2, puff = 0 }, -- a paw ring rightly left alone
+	} :: { [string]: { colour: Color3, sparkles: number, ring: number, puff: number } },
+}
+
+-- The v3 finish (7d): the pop waits `wrap` seconds for the net to wrap the cat and wobble twice (Animation-Engineer),
+-- then the catch pops (a Purrfect as `Catch` always has, gold) with confetti, `confetti` of the budget's in the
+-- finish's `colours`. The banner's screen burst is `catchWord.words`.
+Presets.catchFinish = {
+	wrap = 0.6,
+	confetti = { purrfect = 0.6, great = 0.35, nice = 0.25 } :: { [string]: number },
+	colours = {
+		great = { Presets.palette.mint, Presets.palette.sparkle, Presets.palette.offwhite },
+		nice = { Presets.palette.cream, Presets.palette.offwhite, Presets.palette.sparkle },
+	} :: { [string]: { Color3 } },
 }
 
 -- Rescues (F93 section 4): the trap (the `<rescueSpotId>_Trap` model by its anchor) shakes on every hit of your
@@ -3643,6 +3672,36 @@ Presets.pity = {
 		colour = Presets.palette.golden,
 		ring = 4,
 		ringSeconds = 0.5,
+	},
+}
+
+-- Catch v3 (catch-rework.md section 7, #1892; Logic.catchReact, Logic.netWrap, Logic.moodLayer, Effects/CatchReact):
+-- how the cat answers each judged ring, in degrees and seconds. perk on a hit, wriggle on a Miss, swat on a tapped
+-- paw ring (the paw flicks up by `up` of the way through and is back down by the end, staying up until `hold`). wrap:
+-- the net closes from `open` to `snug` times the cat's size over `settle` of the `seconds` and rocks `roll` degrees
+-- `wobbles` times, the cat hunkering `sink` into it; `seconds` matches VFX-Agent's Presets.catchFinish.wrap, so the
+-- finish pop lands as the wobble ends. mood: the Curious head tilt and the Skittish crouch on a stray's idle,
+-- easing in over `ease` seconds. None of it with Reduce Motion, except the net, which closes without rocking.
+Presets.catchReact = {
+	perk = { seconds = 0.45, ears = 18, nose = 8, lean = 6, tailUp = 20 },
+	wriggle = { seconds = 0.7, wriggles = 3, roll = 12, head = 10, tail = 30, ears = 30 },
+	swat = { seconds = 0.45, up = 0.25, hold = 0.45, paw = 70, rear = 8, lean = 6, ears = 45 },
+	wrap = {
+		seconds = 0.6,
+		settle = 0.25,
+		wobbles = 2,
+		roll = 10,
+		sink = 0.35,
+		ears = 35,
+		open = 1.5,
+		snug = 1.08,
+		color = Color3.fromRGB(245, 236, 214),
+		transparency = 0.35,
+	},
+	mood = {
+		ease = 0.4,
+		curious = { tilt = 14, seconds = 2.4, tailUp = 25, ears = 10 },
+		skittish = { crouch = 0.35, headDown = 10, tailDown = 15, ears = 25 },
 	},
 }
 

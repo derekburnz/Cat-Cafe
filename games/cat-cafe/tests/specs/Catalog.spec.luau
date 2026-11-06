@@ -610,9 +610,10 @@ return function()
 		-- tier -> { name, cost, distinctCats, needsRarity, needsRarityCount, slots, multiplier, area, caps }
 		local expected: { { any } } = {
 			{ "Corner Cafe", 0, 0, nil, nil, 2, 1.00, "alley", { 2, 2, 1 } },
-			{ "Cozy Cafe", 30000, 5, nil, nil, 4, 1.25, "park", { 4, 3, 2 } },
-			-- economy-ladder.md section 3 v3.1 (#1452, more wild cats; #1499 Tier 2 30,000): 30,000, 700,000, 60M and 2B
-			{ "Busy Cafe", 700000, 12, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
+			{ "Cozy Cafe", 30000, 5, nil, nil, 4, 1.25, "park", { 5, 4, 2 } }, -- #1896: Tables 5 and Espresso 4
+			-- economy-ladder.md section 3 v3.1 (#1452, more wild cats; #1499 Tier 2 30,000): 30,000, 700,000, 60M and 2B;
+			-- #1896 (first-hour.md 4): Tier 3 900,000
+			{ "Busy Cafe", 900000, 12, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
 			{ "Famous Cafe", 60000000, 20, "Legendary", 1, 8, 1.75, "woods", { 6, 5, 3 } },
 			{ "Grand Cafe", 2000000000, 30, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 		}
@@ -705,12 +706,12 @@ return function()
 				{ "tables", 2, 1 },
 				{ "tables", 3, 2 },
 				{ "tables", 4, 2 },
-				{ "tables", 5, 3 },
+				{ "tables", 5, 2 }, -- #1896
 				{ "tables", 6, 3 },
 				{ "tables", 7, nil },
 				{ "espresso", 2, 1 },
 				{ "espresso", 3, 2 },
-				{ "espresso", 4, 3 },
+				{ "espresso", 4, 2 }, -- #1896
 				{ "espresso", 5, 4 },
 				{ "net", 1, 1 },
 				{ "net", 2, 2 },
@@ -741,16 +742,16 @@ return function()
 				tables = {
 					name = "Tables",
 					maxLevel = 6,
-					costs = { 150, 600, 3000, 10000, 200000, 600000 }, -- F95 (economy-ladder.md section 4)
+					costs = { 150, 600, 3000, 10000, 170000, 600000 }, -- F95 (economy-ladder.md section 4); #1896
 					startLevel = 0,
-					atLevel = { [3] = 2, [4] = 2, [5] = 3, [6] = 3 },
+					atLevel = { [3] = 2, [4] = 2, [5] = 2, [6] = 3 }, -- #1896: Tables 5 at Tier 2
 				},
 				espresso = {
 					name = "Espresso machine",
 					maxLevel = 5,
-					costs = { 0, 2000, 15000, 400000, 6000000 }, -- F95
+					costs = { 0, 2000, 15000, 700000, 6000000 }, -- F95; #1896
 					startLevel = 1,
-					atLevel = { [3] = 2, [4] = 3, [5] = 4 },
+					atLevel = { [3] = 2, [4] = 2, [5] = 4 }, -- #1896: Espresso 4 at Tier 2
 				},
 				net = {
 					name = "Net",

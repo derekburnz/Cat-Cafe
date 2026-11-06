@@ -125,7 +125,9 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	-- F60: food set at night comes in half the time, read from the phase now and fixed in readyAt, so a rejoin, a
 	-- server hop or sunrise never moves it
 	local night = ClockService.phase() == "night"
-	local wait = Economy.baitWaitSeconds(profile, night, now)
+	-- #1895: the account's first bait comes within 2 minutes (luresUsed counts up below)
+	local wait =
+		Bait.firstWait(Economy.baitWaitSeconds(profile, night, now), profile.stats.luresUsed)
 	-- F73: a Gold Rush Potion's luck and a Quick Bait Potion's speed running now are fixed in with the Index's
 	local kinds = ClockService.dayKinds() -- #1572: a Golden or Rainbow Day lifts the chances fixed in now
 	local goldChance = Potions.baitGoldChance(

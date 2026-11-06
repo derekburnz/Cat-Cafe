@@ -369,6 +369,30 @@ function LuckLogic.oddsRich(
 	return table.concat(lines, "\n")
 end
 
+-- #1776 (Derek2: the next cat and next crate odds were "not helpful, just say overall 5% increase to this rarity"):
+-- the Luck card's one line of what Luck does to each rarity. shared/Luck.apply multiplies the Epic, Legendary and
+-- Mythical chances by the Luck and leaves Rare as it was, so the three share one boost: x2.0 reads
+-- "Epic · Legendary · Mythical  +100%", each name in its colour and the boost in green. Empty at x1 or below.
+local BOOST_GREEN = "7CFC6A"
+LuckLogic.BOOST_RARITIES = { "Epic", "Legendary", "Mythical" } :: { string }
+LuckLogic.BOOST_TITLE = "Your Luck makes rare cats more likely"
+
+function LuckLogic.boostRich(luck: number, hexOf: (rarity: string) -> string): string
+	local percent = math.floor((luck - 1) * 100 + 0.5)
+	if percent <= 0 then
+		return ""
+	end
+	local names: { string } = {}
+	for _, rarity in LuckLogic.BOOST_RARITIES do
+		table.insert(names, ('<font color="#%s">%s</font>'):format(hexOf(rarity), rarity))
+	end
+	return ('%s  <font color="#%s">+%d%%</font>'):format(
+		table.concat(names, " · "),
+		BOOST_GREEN,
+		percent
+	)
+end
+
 -- Level 0: "A beckoning cat by your front door" then "Each level: Luck +0.1, rarer bait cats and crate finds".
 -- Level 2 of 5: "Luck +0.2 now, +0.3 next level". At the top: "Luck +0.5, the most it gives".
 function LuckLogic.statueLines(level: number, maxLevel: number): (string, string)

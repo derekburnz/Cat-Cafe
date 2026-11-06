@@ -1464,6 +1464,12 @@ local SCENES = {
 		clock:SetAttribute("LuckyDay", true)
 		UI.clock.bind(clock)
 		press("CatCafeHUD", "Luck")
+		-- #1776: one line of what Luck does to each rarity, no next cat or next crate odds
+		local hud = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeHUD")
+		local boost = hud:FindFirstChild("Boost", true)
+		assert(boost and boost.Visible, "uigate: the Luck card shows no boost line (#1776)")
+		assert(string.find(boost.Text, "+130%", 1, true), "uigate: the Luck card's boost reads " .. boost.Text .. " (#1776)")
+		assert(hud:FindFirstChild("FoodOdds", true) == nil, "uigate: the Luck card still lists the next cat's odds (#1776)")
 	end },
 	-- F88: the night before a Lucky Day, LuckyDayWarnSeconds before sunrise: the warning banner (no countdown line under
 	-- the clock since #1572), the Luck card from the scene before closed

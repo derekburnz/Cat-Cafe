@@ -5,18 +5,16 @@
 -- "Luck x1.3" in outlined white, no panel behind it. It shows from the first Luck source (hidden before that) and on a
 -- Lucky Day its text turns gold. A tap opens the card over
 -- the counters, as the money's boosts card does: the Luck and what it does, each source with its share and time
--- left (Components/LuckLogic.rows), the food in your bag on your bowl and the next crate, both with the odds the roll
--- uses now (shared Bait.oddsFor then Luck.apply; MarketLogic.nextOdds with Luck). The card opens next to its chip,
+-- left (Components/LuckLogic.rows), and one line of how much more likely Luck makes each rare rarity (#1776,
+-- LuckLogic.boostRich; it replaced the next cat's and next crate's odds blocks). The card opens next to its chip,
 -- over the row when the row sits low (over the counters on a computer) and under it when it sits high (level with
 -- the menu on a phone), so the chip stays in view. A tap on the card closes it, and so does any window opening
 -- (HUD.screenOpened).
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
-local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -25,8 +23,6 @@ local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
-
-local Bait = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Bait"))
 
 export type LuckChip = {
 	chip: TextButton,
@@ -268,10 +264,10 @@ function LuckChip.new(
 			Parent = list,
 		})
 	end
-	self._foodTitle = heading("FoodTitle", 4)
-	self._foodOdds = odds("FoodOdds", 5)
-	self._crateTitle = heading("CrateTitle", 6)
-	self._crateOdds = odds("CrateOdds", 7)
+	-- #1776: one heading and one line of what Luck does to each rarity
+	self._boostTitle = heading("BoostTitle", 4)
+	self._boostTitle.Text = LuckLogic.BOOST_TITLE
+	self._boost = odds("Boost", 5)
 	label({
 		Name = "Hint",
 		Size = UDim2.new(1, 0, 0, 18),
@@ -455,52 +451,27 @@ function LuckChip._renderCard(self: any)
 	if state == nil then
 		return
 	end
-	local catalog: Types.Catalog? = self._catalog
 	local now = Workspace:GetServerTimeNow()
 	local luck = LuckLogic.current(state, now)
 	local rows = LuckLogic.rows(state, now)
-	local bowlLevel: number = state.upgradeLevels.lure_bowl or 0
-	local food = LuckLogic.food(catalog, state)
-	local crate = LuckLogic.crate(catalog, state)
-	local foodOdds = if food then FoodOdds.atBowl(food.odds, bowlLevel, luck) else nil
-	local crateOdds = if crate then LuckLogic.crateOdds(catalog, state, crate, luck) else nil
 	-- the card's words, so it is drawn again only when they change (the money ticks render the HUD five times a
 	-- second)
-	local parts: { string } = { tostring(luck), tostring(bowlLevel) }
+	local parts: { string } = { tostring(luck) }
 	for _, row in rows do
 		table.insert(parts, ("%s=%s=%s"):format(row.name, row.value, row.time or ""))
 	end
-	-- #1153: headings that say what the numbers are, and a ↑ on each rarity Luck makes more likely than at x1
-	local foodTitle = ""
-	if food then
-		foodTitle = if bowlLevel >= 1
-			then ("Your next cat from %s (%s)"):format(food.name, Bait.bowlName(bowlLevel))
-			else ("Your next cat from %s"):format(food.name)
-	end
-	local foodBefore = if food and luck > 1 then FoodOdds.atBowl(food.odds, bowlLevel, 1) else nil
-	local foodText = LuckLogic.oddsRich(foodOdds :: any, rarityHex, foodBefore :: any)
-	local crateTitle = if crate then "Your next " .. crate.name else ""
-	local crateBefore = if crate and luck > 1
-		then LuckLogic.crateOdds(catalog, state, crate, 1)
-		else nil
-	local crateText = LuckLogic.oddsRich(crateOdds, rarityHex, crateBefore)
-	table.insert(parts, foodTitle .. foodText .. crateTitle .. crateText)
 	local said = table.concat(parts, ";")
 	if said == self._said then
 		return
 	end
 	self._said = said
 	self._title.Text = LuckLogic.text(luck)
-	-- #1153: say what the ↑ marks mean while Luck lifts anything
-	self._subtitle.Text = if luck > 1 then "↑ more likely with your Luck" else LuckLogic.SUBTITLE
-	self._foodTitle.Text = foodTitle
-	self._foodTitle.Visible = food ~= nil
-	self._foodOdds.Text = foodText
-	self._foodOdds.Visible = food ~= nil
-	self._crateTitle.Text = crateTitle
-	self._crateTitle.Visible = crate ~= nil
-	self._crateOdds.Text = crateText
-	self._crateOdds.Visible = crate ~= nil
+	self._subtitle.Text = LuckLogic.SUBTITLE
+	-- #1776: how much more likely each rare rarity is, shown while Luck lifts anything
+	local boost = LuckLogic.boostRich(luck, rarityHex)
+	self._boost.Text = boost
+	self._boost.Visible = boost ~= ""
+	self._boostTitle.Visible = boost ~= ""
 	local holder: Frame = self._rows
 	for _, child in holder:GetChildren() do
 		if child:IsA("GuiObject") then

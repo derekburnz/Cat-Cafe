@@ -268,7 +268,8 @@ local Config = {
 	-- the Town Square, open day and night. Every CornerShopWindowSeconds window rolls an amount of each
 	-- Catalog.cornerShop row from its size's chance in percent of 0, 1, 2 and 3, the same on every server and apart
 	-- from the Fresh Catch roll. Bought within CornerShopRange of a CornerShop stall. A UTC day allows at most
-	-- CornerDailyLimits of a family (any size; a family not listed has none). Cat food has no daily XP cap (#1255).
+	-- CornerDailyLimits of a family, counted for each row on its own (#1712; a family not listed has none). Cat
+	-- food has no daily XP cap (#1255).
 	CornerShopWindowSeconds = 390, -- #1437: one game day from ClockEpoch, a restock at every sunrise (was 300)
 	CornerShopRange = 14,
 	-- lawn-nursery.md section 7 (#1537): lawn pieces and styles are sold only at the Yard Sale (the Garden Nursery is

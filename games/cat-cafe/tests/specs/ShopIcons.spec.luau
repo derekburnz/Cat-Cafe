@@ -241,5 +241,20 @@ return function()
 			expect(ShopIcons.market("FreshCatch")).to.equal("rbxassetid://126946598739456")
 			expect(ShopIcons.hud("NightMarket")).to.equal("rbxassetid://131849751291155")
 		end)
+
+		it("gives each cat food its own glyph, not the same star (#1616)", function()
+			local seen: { [string]: boolean } = {}
+			for _, food in Catalog.catFood do
+				local glyph = ShopIcons.snackGlyph(food.id)
+				expect(seen[glyph]).to.equal(nil)
+				seen[glyph] = true
+				expect(ShopIcons.catFood(food.id)).to.equal(nil)
+			end
+			expect(ShopIcons.snackGlyph("cat_snack")).to.equal("🍪")
+			expect(ShopIcons.snackGlyph("big_cat_snack")).to.equal("🧁")
+			expect(ShopIcons.snackGlyph("nope")).to.equal(ShopIcons.SNACK_GLYPH)
+			expect(ShopIcons.catFood("nope")).never.to.equal(nil)
+			expect(ShopIcons.catFood(nil)).to.equal(nil)
+		end)
 	end)
 end

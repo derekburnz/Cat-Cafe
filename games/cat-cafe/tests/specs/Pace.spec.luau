@@ -1105,7 +1105,6 @@ return function()
 		end)
 	end)
 
-<<<<<<< ours
 	-- The Cafe Pass (#1644, #1667): its levels come from quests only, so a player who finishes a full day of quests
 	-- (one level a day) has reached level `day` by Tier 5's latest day (6, the top of the day 4 to 6 check). The money
 	-- those levels pay, counted as income minutes (a minute of the day rate; a tip potion's minutes times its `tips`,
@@ -1143,7 +1142,10 @@ return function()
 						)
 					)
 				end
-=======
+			end
+		end)
+	end)
+
 	-- The Day Cart (#1716): each row has its own daily stock, so a day's buys are up to 2 Quick Bait Potions of each
 	-- size. Pace leaves potions out; this runs the worst case, one running the whole time, through Tier 5.
 	describe("Tier 5 with a Quick Bait Potion always running (#1716)", function()
@@ -1175,7 +1177,6 @@ return function()
 			end, 0.5, math.huge)
 			if day < 4 or day > 6 then
 				error("Tier 5 outside day 4 to 6: " .. text)
->>>>>>> theirs
 			end
 		end)
 	end)

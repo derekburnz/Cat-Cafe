@@ -998,6 +998,14 @@ local function wireIntents()
 	-- F87 part 3 (UI #745), analytics only: the intro's choice ("tile" or "help") and the stuck nudges ("pulse",
 	-- "help_shown", "show_me") as TelemetryReport, which allowlists both with their session caps. A nudge goes once
 	-- per tutorial step and kind, as the server logs it, so a repeating pulse never reaches the remote's limit.
+	-- #1888: the Store funnel's tab_viewed and buy_pressed (the UI sends each once a visit; the server allowlists both)
+	if events.storeReport ~= nil then
+		events.storeReport:Connect(function(kind: string, value: any)
+			if kind == "store_tab" or kind == "store_buy" then
+				Net.fire("TelemetryReport", kind, value)
+			end
+		end)
+	end
 	if events.introChoice ~= nil then
 		events.introChoice:Connect(function(from: string)
 			Net.fire("TelemetryReport", "intro_choice", from)

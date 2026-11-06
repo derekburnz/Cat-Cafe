@@ -1366,6 +1366,9 @@ function UI.init(config: Types.InitConfig)
 	UI.store.start() -- the Store window and the HUD's Store tile (shown on sale or not, #1167)
 	UI.pass.start() -- the Cafe Pass window; its HUD tile shows while a season runs (#1646)
 	worldTags = WorldTags.new()
+	-- Catch v3 (catch-rework.md 7a): the mood icon over each stray within 20 studs (inline: the module is short of locals)
+	local catchUI: any = UI.catch
+	catchUI.moods = require(script.Screens.MoodIcons).new()
 	UI.bubbles.start(parent) -- the one-line speech bubbles over the town's key cats (#1079)
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
 	catCard = CatCard.new(parent, {
@@ -1606,6 +1609,11 @@ function UI.destroy()
 	end
 	if worldTags then
 		worldTags:destroy()
+	end
+	local catchUI: any = UI.catch
+	if catchUI.moods then
+		catchUI.moods:destroy()
+		catchUI.moods = nil
 	end
 	if catCard then
 		catCard:destroy()

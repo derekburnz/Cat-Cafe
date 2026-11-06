@@ -33,6 +33,7 @@ local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local Products = require(ReplicatedStorage.Shared.Products)
 local SignStyles = require(ReplicatedStorage.Shared.SignStyles)
+local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local ProductService = {}
@@ -141,6 +142,7 @@ function ProductService.processReceipt(receipt: { [string]: any }): Enum.Product
 			return Enum.ProductPurchaseDecision.NotProcessedYet
 		end
 		Products.record(profile.receipts, purchaseId)
+		Telemetry.productBought(player, profile, receipt.ProductId, receipt.CurrencySpent) -- #1888
 		if CafePassService.buyPaid(player, profile) then
 			Net.fire(
 				player,
@@ -157,6 +159,7 @@ function ProductService.processReceipt(receipt: { [string]: any }): Enum.Product
 	elseif not Products.granted(profile.receipts, purchaseId) then
 		-- #1625: the id, the once-per-account mark, the sign styles and the cats all land in this one step, no yield
 		Products.record(profile.receipts, purchaseId)
+		Telemetry.productBought(player, profile, receipt.ProductId, receipt.CurrencySpent) -- #1888
 		ProductService.give(player, profile, product, "product_" .. product.id, "Thank you! ")
 	end
 	if saveHolding(player, purchaseId) then

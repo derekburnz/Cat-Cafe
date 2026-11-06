@@ -113,7 +113,11 @@ return function()
 	-- non-stop catcher can be given: 60 an hour an area), nil draws the real 60 to 120 s each time. The catcher has the
 	-- whole supply to itself, so the other players on a full server are not taking strays: the pace's worst case.
 	type StrayModel = { players: number, wait: number? }
+	-- #1896: what a run bought or unlocked and when (seconds of play): a shop item or lawn piece ("buy"), a rank up
+	-- ("rank") or a cat the Index had not met ("newcat")
+	type Event = { t: number, kind: string, id: string }
 	type Run = {
+		events: { Event },
 		tierAt: { [number]: number }, -- seconds of play at each rank up
 		dayAt: { [number]: number }, -- the day (session) of each rank up
 		catsReady: number?, -- seconds of play when the cats for Tier 2 were in
@@ -198,6 +202,7 @@ return function()
 		-- Economy.tipMultiplier; Economy.settle pays it on the per second income itself); offline pay has none
 		local palBoost = 1 + Economy.palBonus(profile)
 		local run: Run = {
+			events = {},
 			tierAt = {},
 			dayAt = {},
 			coinsFromPiles = 0,
@@ -325,6 +330,7 @@ return function()
 			profile.cats[instance.uid] = instance
 			if profile.collection[def.id] == nil then
 				profile.collection[def.id] = now
+				table.insert(run.events, { t = now - base, kind = "newcat", id = def.id })
 				Economy.credit(profile, Catalog.rarities[def.rarity].firstCatchReward)
 			end
 			if variant == "gold" and profile.goldCollection[def.id] == nil then
@@ -719,6 +725,7 @@ return function()
 					assert(Economy.trySpend(profile, def.cost))
 					profile.tier = def.tier
 					run.tierAt[def.tier] = t
+					table.insert(run.events, { t = t, kind = "rank", id = "tier" .. def.tier })
 					run.dayAt[def.tier] = session
 					if def.tier >= target then
 						return run
@@ -733,6 +740,7 @@ return function()
 					wave = rollWave(area, lucky)
 					dirty = true
 				elseif options.lawn and buyBestLawn() then
+					table.insert(run.events, { t = t, kind = "buy", id = "lawn" })
 					dirty = true
 				else
 					local id, cost, isDecor = cheapestItem()
@@ -743,6 +751,7 @@ return function()
 						else
 							profile.upgradeLevels[id] = Economy.level(profile, id) + 1
 						end
+						table.insert(run.events, { t = t, kind = "buy", id = id })
 						dirty = true
 					end
 				end
@@ -1177,6 +1186,68 @@ return function()
 			end, 0.5, math.huge)
 			if day < 4 or day > 6 then
 				error("Tier 5 outside day 4 to 6: " .. text)
+			end
+		end)
+	end)
+	-- #1896: the first hour. What a new player buys or unlocks, and the gaps between. The run plays one hour with the
+	-- pace model player (4 catches a day; the day's other income is left out, so a real player has a little more to do).
+	describe("The first hour (#1896)", function()
+		local HOUR_RUNS = 10
+		local GAP = 240 -- the target: something to buy or unlock at least every 4 minutes
+
+		local function firstHour(): { Run }
+			return runs({ catches = 4, target = 9, limit = HOUR }, HOUR_RUNS)
+		end
+
+		-- the times of a run's buys and rank ups in the first hour (a rank up and a buy in the same second count once)
+		local function spendTimes(run: Run): { number }
+			local out = {}
+			for _, event in run.events do
+				if (event.kind == "buy" or event.kind == "rank") and event.t <= HOUR then
+					if #out == 0 or event.t > out[#out] then
+						table.insert(out, event.t)
+					end
+				end
+			end
+			return out
+		end
+
+		local function longestGap(times: { number }): number
+			local worst, last = 0, 0
+			for _, at in times do
+				worst = math.max(worst, at - last)
+				last = at
+			end
+			return math.max(worst, HOUR - last)
+		end
+
+		it("buys something in the first 3 minutes", function()
+			for _, run in firstHour() do
+				local first = spendTimes(run)[1]
+				if first == nil or first > 180 then
+					error("no first buy within 3 minutes: " .. tostring(first))
+				end
+			end
+		end)
+
+		it("reaches Tier 3 between 40 and 60 minutes (the middle run)", function()
+			local list = firstHour()
+			local median = quantile(list, tierAt(3), 0.5, HOUR + 1) / 60
+			if median < 40 or median > 60 then
+				error(string.format("Tier 3 at %.1f min, outside 40 to 60", median))
+			end
+		end)
+
+		-- Known miss, recorded for Design (docs/playtests/2026-11-06-first-hour.md): the shop's items per tier are
+		-- bought in a burst within about 15 minutes of each rank up, then the player waits 20 to 35 minutes for the next
+		-- one. Turn this on when Design adds steps between rank ups.
+		xit("always has something to buy within 4 minutes", function()
+			local worst = 0
+			for _, run in firstHour() do
+				worst = math.max(worst, longestGap(spendTimes(run)))
+			end
+			if worst > GAP then
+				error(string.format("longest gap without a buy %.1f min, over 4", worst / 60))
 			end
 		end)
 	end)

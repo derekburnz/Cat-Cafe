@@ -1,8 +1,8 @@
 --!strict
--- Onboarding.luau against easy-start.md section 5 (#1273): the funnel v3's 37 steps and the intro funnel's 13, each
+-- Onboarding.luau against easy-start.md section 5 (#1273) and #1888: the funnel v4's 45 steps (v3's 37, then eight) and the intro funnel's 13, each
 -- logged once and only in order. A step reached early is held until every step before it is logged, so a rank up
 -- before bait never fakes the bait steps. A server step reaches the steps it implies first; a client step implies
--- nothing. A save from funnel v1 or v2 past its first catch leaves the funnel. The time markers come at 30 s, 60 s,
+-- nothing. A save from funnel v1, v2 or v3 past its first catch leaves the funnel. The time markers come at 30 s, 60 s,
 -- 2, 5 and 10 minutes for a new player.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
@@ -10,7 +10,7 @@ return function()
 	local Types = require(Shared.Types)
 
 	local function fresh(): Types.TelemetryState
-		return { onboardingStep = 0, achieved = {}, funnel = 3, firstDay = 0, introStep = 0 }
+		return { onboardingStep = 0, achieved = {}, funnel = 4, firstDay = 0, introStep = 0 }
 	end
 
 	-- every step a list of reach calls logs, in the order they were logged
@@ -25,11 +25,15 @@ return function()
 	end
 
 	describe("steps", function()
-		it("are the 37 of funnel v3, logged as onboarding_v3 (and the intro's 13 as onboarding_v3_intro)", function()
-			expect(Onboarding.VERSION).to.equal(3)
-			expect(Onboarding.FUNNEL).to.equal("onboarding_v3")
-			expect(Onboarding.INTRO_FUNNEL).to.equal("onboarding_v3_intro")
-			expect(Onboarding.COUNT).to.equal(37)
+		it("are the 45 of funnel v4, logged as onboarding_v4 (and the intro's 13 as onboarding_v4_intro)", function()
+			expect(Onboarding.VERSION).to.equal(4)
+			expect(Onboarding.FUNNEL).to.equal("onboarding_v4")
+			expect(Onboarding.INTRO_FUNNEL).to.equal("onboarding_v4_intro")
+			expect(Onboarding.COUNT).to.equal(45)
+			expect(#Onboarding.V3_STEPS).to.equal(37)
+			for i, name in Onboarding.V3_STEPS do
+				expect(Onboarding.STEPS[i]).to.equal(name) -- v3's steps keep their numbers
+			end
 			expect(Onboarding.INTRO_COUNT).to.equal(13)
 			-- Roblox: at most 100 steps a funnel and 10 funnels
 			expect(Onboarding.COUNT <= 100).to.equal(true)
@@ -74,6 +78,14 @@ return function()
 				"first_offline_claim",
 				"tier_3",
 				"starter_cat",
+				"first_store_open",
+				"first_pass_xp",
+				"first_pass_claim",
+				"first_camp_collect",
+				"first_equip_best",
+				"pass_level_5",
+				"tier_4",
+				"first_robux_purchase",
 			})
 			expect(Onboarding.INTRO_STEPS[1]).to.equal("intro_choice_made")
 			expect(Onboarding.INTRO_STEPS[2]).to.equal("intro_started")
@@ -277,7 +289,7 @@ return function()
 		end)
 	end)
 
-	describe("fromOld (funnels v1 and v2)", function()
+	describe("fromOld (funnels v1, v2 and v3)", function()
 		it("takes a save past its first catch out of the funnel, and starts any other at joined", function()
 			expect(Onboarding.fromOld(2, 7)).to.equal(Onboarding.COUNT) -- v2 step 7 is first_catch
 			expect(Onboarding.fromOld(2, 25)).to.equal(Onboarding.COUNT)
@@ -285,6 +297,9 @@ return function()
 			expect(Onboarding.fromOld(1, 3)).to.equal(Onboarding.COUNT) -- v1 step 3 is first_catch
 			expect(Onboarding.fromOld(nil, 2)).to.equal(0)
 			expect(Onboarding.fromOld(2, 0)).to.equal(0)
+			expect(Onboarding.fromOld(3, 13)).to.equal(Onboarding.COUNT) -- v3 step 13 is first_catch
+			expect(Onboarding.fromOld(3, 37)).to.equal(Onboarding.COUNT)
+			expect(Onboarding.fromOld(3, 12)).to.equal(0)
 		end)
 	end)
 
@@ -312,6 +327,21 @@ return function()
 				last = Onboarding.index(name)
 			end
 			expect(#shown).to.equal(7)
+		end)
+
+		it("shows the Cafe Pass, Tier 4 and a Robux spend (#1888)", function()
+			local shown = Onboarding.fromSave(facts({
+				tier = 4,
+				passXp = 4000,
+				passClaims = 2,
+				passLevel = 5,
+				spent = true,
+			} :: any))
+			for _, name in { "first_pass_xp", "first_pass_claim", "pass_level_5", "tier_4", "first_robux_purchase" } do
+				expect(table.find(shown, name :: any)).to.be.ok()
+			end
+			local none = Onboarding.fromSave(facts({ passXp = 0, passClaims = 0, passLevel = 4 } :: any))
+			expect(#none).to.equal(0)
 		end)
 
 		it("logs nothing twice on the next join", function()

@@ -2376,7 +2376,12 @@ function CatService.sunriseWave()
 		local players = DataService.loadedPlayers()
 		local someone: Player? = players[1]
 		if someone ~= nil then
-			Telemetry.custom(someone, "lucky_day", #players, { mythicalArea, table.concat(kindNames, "+") })
+			Telemetry.custom(
+				someone,
+				"lucky_day",
+				#players,
+				{ mythicalArea, table.concat(kindNames, "+") }
+			)
 		end
 	end
 end

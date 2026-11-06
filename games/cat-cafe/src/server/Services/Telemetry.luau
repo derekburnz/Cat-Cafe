@@ -858,7 +858,12 @@ end
 
 -- #1888: whether the player has spent Robux here before this purchase: a product receipt on the save (`receipts`
 -- counts this one when it is a product), or a pass of ours other than `passId` owned.
-local function spentBefore(player: Player, profile: Profile, receipts: number, passId: number?): boolean
+local function spentBefore(
+	player: Player,
+	profile: Profile,
+	receipts: number,
+	passId: number?
+): boolean
 	if #profile.receipts > receipts then
 		return true
 	end
@@ -890,7 +895,12 @@ function Telemetry.robuxPurchase(
 end
 
 -- #1888: ProductService's newly granted receipt (already recorded on the save), `robux` its CurrencySpent.
-function Telemetry.productBought(player: Player, profile: Profile, productId: number, robux: unknown)
+function Telemetry.productBought(
+	player: Player,
+	profile: Profile,
+	productId: number,
+	robux: unknown
+)
 	local sku = StoreFunnel.productSku(productId) or "product_other"
 	local paid = if type(robux) == "number" then robux else 0
 	Telemetry.robuxPurchase(player, profile, sku, paid, not spentBefore(player, profile, 1, nil))
@@ -1099,7 +1109,11 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			local kind: "pass" | "product" = if passSku ~= nil then "pass" else "product"
 			task.spawn(function()
 				local price = priceOf(kind, rawValue :: number)
-				storeStep(player, "buy_pressed", { sku, if price ~= nil then tostring(price) else "unknown" })
+				storeStep(
+					player,
+					"buy_pressed",
+					{ sku, if price ~= nil then tostring(price) else "unknown" }
+				)
 			end)
 		end
 	else

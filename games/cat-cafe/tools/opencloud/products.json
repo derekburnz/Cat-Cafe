@@ -57,7 +57,7 @@
 	},
 	{
 		"name": "Thank You Badge",
-		"id": 0,
+		"id": 3728719483,
 		"config": "ProductIds.thank_you_badge",
 		"price": 25,
 		"regionalPricing": false,

@@ -566,6 +566,14 @@ local function applyState(s: Types.PlayerState)
 		lawnOwned = s.lawnOwned,
 		lawn = s.lawn,
 		lawnStyles = s.lawnStyles,
+		-- Derek2 live 11-06 (the Starter Bundle card never showed): these were sent but never copied, so the Store,
+		-- the money card's Boosts list, the Style tab's sign, theme and uniform rows and the Trades page read nil
+		starterBought = s.starterBought, -- #1625: the Starter Bundle card shows while false
+		signStyles = s.signStyles, -- #1625: the Style tab's sign row
+		signStyle = s.signStyle,
+		looks = s.looks, -- #1624: the Style tab's theme and uniform rows
+		passBoosts = s.passBoosts, -- #1624: the store passes in the money card's Boosts list
+		tradeLog = s.tradeLog, -- F102: the Trades page
 	})
 	-- After the first sync, sound and Effects follow UI.settings.changed rather than each sync; the purr follows the
 	-- server's carry state.

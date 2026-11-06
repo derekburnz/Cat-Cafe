@@ -1034,9 +1034,21 @@ local SCENES = {
 		UI.codes.open()
 	end },
 	{ "CodesPrize", function()
+		-- #1714: the used list, newest first; a code no longer in the table shows its code and date only
+		UI.update({ codesRedeemed = { playtest = 1793900000, old_code = 1793000000 } } :: any)
 		UI.codes.open()
 		press("Store", "codes")
 		UI.codes.result(true, "Code redeemed!", CODE_PRIZE)
+		local store = UIShim.playerGui:FindFirstChild("Store", true)
+		local used = store and store:FindFirstChild("Used", true)
+		assert(used and used:FindFirstChild("playtest") and used:FindFirstChild("old_code"), "uigate: no used codes (#1714)")
+		assert(store:FindFirstChild("Header", true), "uigate: no Codes header (#1714)")
+	end },
+	-- #1714: a refusal is one calm line in place; nothing used yet says so
+	{ "CodesRefused", function()
+		UI.codes.open()
+		press("Store", "codes")
+		UI.codes.result(false, "That code doesn't exist", nil)
 	end },
 	-- #1633: the circle's Store opens on Featured, and walking out closes it from any tab; a Store the player opened
 	-- with the tile stays when they walk out
@@ -1153,6 +1165,19 @@ local SCENES = {
 		UI.update({ cats = player.cats })
 		UI.open("Cats")
 	end },
+	-- #1772: the Gold tab opens with a Gold cats line over the areas, as the Rainbow tab has Rainbow cats
+	{ "IndexGold", function()
+		UI.open("Collection")
+		press("Collection", "GoldTab")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true)
+		local line = window and window:FindFirstChild("all", true)
+		assert(line and line.Visible, "uigate: the Gold tab has no overall line (#1772)")
+		local title = line:FindFirstChild("Area", true)
+		assert(title and title.Text == "Gold cats", "uigate: the Gold tab's line reads " .. tostring(title and title.Text) .. " (#1772)")
+		press("Collection", "IndexTab")
+		assert(title.Text ~= "Gold cats", "uigate: the Cats tab's line still reads Gold cats (#1772)")
+	end },
 	-- F99 section 3: the Index's Rainbow tab, the Rainbow cats line with its strip open on "Reward ready", rainbow
 	-- tiles on turning borders
 	{ "IndexRainbow", function()
@@ -1221,6 +1246,50 @@ local SCENES = {
 			assert(not seen[glyph.Text], "uigate: two snacks share the picture " .. glyph.Text .. " (#1616)")
 			seen[glyph.Text] = true
 		end
+	end },
+	-- #1773: Feed's cat list as cards: two cats of one kind, a gold one and a rainbow one, each with its head, rarity
+	-- and level line, a bar toward the next level and its own Feed. #1771: the tabs are gold when chosen.
+	{ "BagFeed", function()
+		local cats = {}
+		local picks = {}
+		for _, def in Catalog.cats do
+			if def.area ~= "spare" and #picks < 3 then
+				table.insert(picks, def)
+			end
+		end
+		local function add(uid: string, def: any, variant: string, level: number, xp: number)
+			cats[uid] = {
+				uid = uid,
+				catId = def.id,
+				variant = variant,
+				caughtAt = os.time() - 60,
+				level = level,
+				xp = xp,
+				xpToNext = 40,
+				charm = 50,
+				stars = 3,
+				rating = 12,
+			}
+		end
+		add("gate_feed_1", picks[1], "base", 24, 300)
+		add("gate_feed_2", picks[1], "base", 7, 20)
+		add("gate_feed_3", picks[2], "gold", 15, 100)
+		add("gate_feed_4", picks[3], "rainbow", 3, 5)
+		UI.update({ cats = cats, catFood = { cat_snack = 3 } } :: any)
+		UI.open("Potions")
+		press("Potions", "FoodTab")
+		press("Potions", "cat_snack.Feed")
+		local window = UIShim.playerGui:FindFirstChild("Potions", true)
+		local list = window and window:FindFirstChild("CatList", true)
+		assert(list and list.Visible, "uigate: Feed's cat list is not up (#1773)")
+		for index = 1, 4 do
+			local card = list:FindFirstChild("gate_feed_" .. index)
+			assert(card and card:IsA("Frame"), "uigate: no card for cat " .. index .. " (#1773)")
+			assert(card:FindFirstChild("Head") and card:FindFirstChild("XpBar"), "uigate: cat card " .. index .. " has no head or bar (#1773)")
+			assert(card:FindFirstChild("Feed", true), "uigate: cat card " .. index .. " has no Feed (#1773)")
+		end
+		local gold = list:FindFirstChild("gate_feed_3"):FindFirstChild("CatName")
+		assert(string.sub(gold.Text, 1, 5) == "Gold ", "uigate: the gold cat's card reads " .. gold.Text .. " (#1773)")
 	end },
 	{ "Quests", function()
 		UI.open("Quests")
@@ -1769,7 +1838,8 @@ local SCENES = {
 	{ "HUDStore", function()
 		UI.store.preview(storePrices(true), {})
 	end },
-	-- #1606: the money pass badge beside the money: "Get 2x" with no money pass and the 2x on sale, "3x" once owned
+	-- #1606: the money pass badge beside the money: the rainbow "X2 Cash / Only R$5" (#1759) with no money pass and the
+	-- 2x on sale, "3x" once owned
 	{ "HUDMoneyBadge", function()
 		UI.store.preview(storePrices(true), {})
 	end },

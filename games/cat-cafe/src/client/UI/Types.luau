@@ -351,6 +351,12 @@ export type PartialState = {
 	lawnOwned: { [string]: boolean }?,
 	lawn: { [string]: string }?,
 	lawnStyles: LawnStyles?,
+	-- the paid items' state, read loosely as (state :: any) by the Store, the money card and the Style tab
+	starterBought: boolean?, -- #1625
+	signStyles: { string }?, -- #1625
+	signStyle: string?, -- #1625
+	looks: SharedTypes.LooksView?, -- #1624
+	passBoosts: SharedTypes.PassBoostsView?, -- #1624
 }
 
 export type ScreenName =

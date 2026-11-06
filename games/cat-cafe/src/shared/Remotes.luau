@@ -78,7 +78,7 @@ Remotes.ClientToServer = {
 	-- none (Crates.bundleBlocker); 1 a second, answered with a toast and a ProfileSync
 	"BuyFishItem", -- (itemId: string)  within FishMarketRange of a FishMarket, a lure or perk row of Catalog.fishShop,
 	-- below its max level, its cost in golden fish (F53); answered with a toast and a ProfileSync
-	"RedeemCode", -- (text: string)  within CodesCatRange of a CodesCat, at most 40 bytes, trimmed and lowercased to 1
+	"RedeemCode", -- (text: string)  from anywhere (#1747), at most 40 bytes, trimmed and lowercased to 1
 	-- to CodeMaxLength letters and digits, a known active code not yet redeemed (F65, shared/Codes); 1 per 2 s, locked
 	-- CodeLockSeconds after CodeWrongLimit wrong codes; answered with CodeResult
 	"ClaimStarterCat", -- ()  F96 (starter-cat.md section 4): within StarterCatRangeStuds of a BellhopStand, the

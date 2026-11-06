@@ -21,7 +21,7 @@ Codes.USED = "You already used that code"
 Codes.EXPIRED = "That code has expired"
 Codes.GROUP = "Join our group to use this code!"
 Codes.LOCKED = "Too many tries, wait a minute"
-Codes.FAR = "Walk up to the Codes Cat"
+Codes.FAR = "Walk up to the Codes Cat" -- #1747: no longer sent; codes redeem from anywhere
 
 -- Wrong codes inside the window and when the lock ends, in one clock (the server's os.clock()).
 export type WrongGuard = { wrong: { number }, lockedUntil: number }

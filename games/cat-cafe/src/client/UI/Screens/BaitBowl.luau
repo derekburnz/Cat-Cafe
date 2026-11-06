@@ -18,8 +18,9 @@
 -- #1161 (the Second Bait Bowl pass, Derek 2026-11-04: "make sure the bowl menu works perfectly with two bowls"): with a
 -- second bowl a row of two bowl tabs sits over the status card, each with its own state ("Empty", the countdown or
 -- "Cat!"), and the status card, Use and "See the cat" are the chosen bowl's, so nothing is shared by accident. Without
--- the pass ("offer") bowl 2's tab is locked: choosing it shows a calm "Get a second bowl" card with the pass's price
--- from Roblox and every food's odds in that bowl (shared Bait.oddsCard, the same as bowl 1's). The screen never opens
+-- the pass ("offer") bowl 2's tab is locked: choosing it shows a calm "Get a second bowl" card with the pass's
+-- picture and its price from Roblox, and three short lines on what it gives (#1767: Derek2 found the seven-food odds
+-- table under it "way too much bloated text"; bowl 2's odds are bowl 1's, so one line says so). The screen never opens
 -- on the locked tab, so the offer only shows when the player taps it. One bowl only (nil): no tabs, as before.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -33,6 +34,7 @@ local FoodGrade = require(script.Parent.Parent.Components.FoodGrade)
 local FoodOdds = require(script.Parent.Parent.Components.FoodOdds)
 local FoodOrder = require(script.Parent.Parent.Components.FoodOrder)
 local Format = require(script.Parent.Parent.Components.Format)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
@@ -40,6 +42,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -84,7 +87,7 @@ local ICON = 52 -- the food's picture with its grade gem
 local TEXT_LEFT = ICON + 24
 local TEXT_WIDTH = -(TEXT_LEFT + BUTTON.X + DETAILS_W + 8 + 24)
 local TAB_H = 42 -- the bowl tabs (#1161), as tall as Details
-local ODDS_LINE = 22
+local PERK_LINE = 24 -- #1767: one of the locked bowl 2 card's three lines
 local TITLE = "Bait bowl"
 local SUBTITLE = "Put food in and a cat comes to your door"
 
@@ -129,7 +132,6 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	self._price = nil :: PassPrice?
 	self._selected = 1
 	self._tabsShown = false
-	self._oddsLevel = -1 -- the bowl level the locked bowl's odds card was written for
 	self._tier = 0
 	self._extras = "" -- the gold and charm line the Details were written with
 	self._waitSeconds = FoodOdds.waitSeconds(0, false, 0)
@@ -206,6 +208,7 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = bowlTile })
 	Outline.border(bowlTile, 2)
 	self._bowlTile = bowlTile
+	self._bowlPicture = nil :: string? -- the picture IconArt draws on the bowl tile (#1767)
 	-- F69: the food in the bowl, with its grade badge, in place of the bowl while it waits
 	self._bowlFood = ItemIcon.new({
 		parent = status,
@@ -293,7 +296,7 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 		Create("UIPadding", { PaddingRight = UDim.new(0, 10), PaddingBottom = UDim.new(0, 6) }),
 	})
 
-	-- #1161: the locked bowl 2's odds, every food's in a bowl of the player's level (shared Bait.oddsCard)
+	-- #1161, #1767: under the locked bowl 2's card, what the pass gives in three short lines
 	local oddsCard: Frame = Create("Frame", {
 		Name = "SecondOdds",
 		BackgroundColor3 = PAL.card,
@@ -322,23 +325,28 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 		Size = UDim2.new(1, 0, 0, 26),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge - 2,
-		Text = "Bowl 2's odds",
+		Text = "What you get",
 		LayoutOrder = 0,
 		Parent = oddsCard,
 	})
-	self._oddsNote = text({
-		Name = "Note",
-		Size = UDim2.new(1, 0, 0, 36),
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
-		TextWrapped = true,
-		TextTruncate = Enum.TextTruncate.None,
-		Text = "",
-		LayoutOrder = 1,
-		Parent = oddsCard,
-	})
+	local perks: { TextLabel } = {}
+	for index = 1, 3 do
+		perks[index] = text({
+			Name = "Perk" .. tostring(index),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			Size = UDim2.new(1, 0, 0, PERK_LINE),
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textBody,
+			TextWrapped = true,
+			TextTruncate = Enum.TextTruncate.None,
+			RichText = true,
+			Text = "",
+			LayoutOrder = index,
+			Parent = oddsCard,
+		})
+	end
 	self._oddsCard = oddsCard
-	self._oddsLines = {} :: { TextLabel }
+	self._perks = perks
 
 	-- the countdown ticks once a second while the screen is open
 	self._tick = RunService.Heartbeat:Connect(function(dt: number)
@@ -690,10 +698,10 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 	local locked = self:_locked(selected)
 	self._oddsCard.Visible = locked
 	if locked then
-		self:_renderOdds(bowlLevel, luck)
+		self:_renderPerks(luck)
 	end
 	for lureId, row in self._rows do
-		row.frame.Visible = not locked -- the locked tab lists bowl 2's odds in place of the foods
+		row.frame.Visible = not locked -- the locked tab shows what bowl 2 gives in place of the foods
 		local have = state.lures[lureId] or 0
 		-- #1281: where to get more, in calm grey, with none left: the night dealer's cart or the Corner Shop
 		if have > 0 then
@@ -708,38 +716,21 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 	self:_renderStatus()
 end
 
--- #1161: the locked bowl's odds card, one line per food in a bowl of this level (the same as bowl 1's).
-function BaitBowl._renderOdds(self: any, bowlLevel: number, luck: number)
-	self._oddsNote.Text = if luck > 1
-		then ("Same foods and odds as bowl 1. Your %s helps both bowls the same way."):format(
-			LuckLogic.text(luck)
+-- #1767: the locked bowl 2's three lines; the odds are bowl 1's, so they get one line, not a table per food.
+local PERK_MARK = '<font color="#7CFC6A">+</font> '
+
+function BaitBowl._renderPerks(self: any, luck: number)
+	local perks: { TextLabel } = self._perks
+	perks[1].Text = PERK_MARK .. "A second bowl by your door"
+	perks[2].Text = PERK_MARK .. "Two baits at once: two cats on the way"
+	perks[3].Text = PERK_MARK
+		.. (
+			if luck > 1
+				then ("Same odds as bowl 1, and your %s helps both"):format(
+					plain(LuckLogic.text(luck))
+				)
+				else "Same foods and odds as bowl 1"
 		)
-		else "Same foods and odds as bowl 1, at your bowl's level."
-	if self._oddsLevel == bowlLevel then
-		return
-	end
-	self._oddsLevel = bowlLevel
-	for _, line in self._oddsLines do
-		line:Destroy()
-	end
-	table.clear(self._oddsLines)
-	local rows: { any } = Bait.oddsCard(bowlLevel)
-	for index, row in rows do
-		local line = text({
-			Name = "Odds_" .. tostring(row.lureId),
-			AutomaticSize = Enum.AutomaticSize.Y,
-			Size = UDim2.new(1, 0, 0, ODDS_LINE),
-			FontFace = Theme.fonts.bodyBold,
-			TextSize = Theme.sizes.textSmall,
-			TextWrapped = true,
-			TextTruncate = Enum.TextTruncate.None,
-			RichText = true,
-			Text = ("%s: %s"):format(row.name, FoodOdds.rich(row.odds, rarityHex)),
-			LayoutOrder = 1 + index,
-			Parent = self._oddsCard,
-		})
-		table.insert(self._oddsLines, line)
-	end
 end
 
 -- #1161: each tab's state, "Bowl 1 · 4m 10s", "Bowl 2 · Empty" or "Bowl 2 · Cat!", the chosen one in gold.
@@ -778,6 +769,7 @@ function BaitBowl._renderStatus(self: any)
 	local sub: string
 	local action: string? = nil
 	local ready = false
+	local picture: string? = nil -- #1767: the pass's own picture on the locked bowl 2's card
 	self._track.Visible = false
 	if not ownsBowl(state) then
 		title = "No bait bowl yet"
@@ -785,8 +777,9 @@ function BaitBowl._renderStatus(self: any)
 		action = "upgrades"
 	elseif self:_locked(selected) then
 		title = "Get a second bowl"
-		sub = "Run two baits at once: a second bowl by your door."
+		sub = "Two baits at once, so twice the cats come to your door."
 		action = "buy"
+		picture = ShopIcons.store("secondBowl")
 	elseif bait == nil then
 		title = if self._tabsShown
 			then ("Bowl %d is empty"):format(selected)
@@ -853,6 +846,10 @@ function BaitBowl._renderStatus(self: any)
 	end
 	self._bowlFood.frame.Visible = bait ~= nil and ownsBowl(state)
 	self._bowlTile.Visible = not self._bowlFood.frame.Visible
+	if picture ~= self._bowlPicture then
+		self._bowlPicture = picture
+		IconArt.setImage(self._bowlTile, picture)
+	end
 	self._statusTitle.Text = title
 	self._statusTitle.TextColor3 = if ready then Theme.colors.gold else Theme.colors.white
 	self._statusSub.Text = sub

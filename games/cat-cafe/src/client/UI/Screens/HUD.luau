@@ -169,11 +169,14 @@ local BOWL_ICON = "🥣" -- the bait bowl symbol's glyph, under the Big Bowl per
 -- so the grid stays up at the top, clear of Roblox's thumbstick on a small phone.
 local TOUCH = Scale.isTouch()
 local TILE_LAYOUT: Button.Layout = if TOUCH then "tile" else "clean"
-local MENU_TILE = if TOUCH then 64 else 78
-local MENU_TEXT = if TOUCH then Theme.sizes.textTiny + 1 else 17 -- a menu tile's label
+-- #1676 (Derek2 live 11-05: "the buttons became way too big and spread so they take up too much screen"): 66 on a PC
+-- (was 78), its label 15, the Store 68 tall, and the gaps only the outline clear of the key caps and red dots. On a
+-- phone or tablet 60 (was 64): 45 px at the smallest touch scale (Scale.TOUCH_FLOOR), still a finger's 44.
+local MENU_TILE = if TOUCH then 60 else 66
+local MENU_TEXT = if TOUCH then Theme.sizes.textTiny + 1 else 15 -- a menu tile's label
 local MENU_CELL_H = if TOUCH then MENU_TILE else MENU_TILE + MENU_TEXT + 4 -- the square and the label's strip
-local STORE_H = 80 -- the Store's wide tile, two tiles wide, over the grid
-local STORE_TEXT = 27
+local STORE_H = 68 -- the Store's wide tile, two tiles wide, over the grid
+local STORE_TEXT = 24
 -- the Store's shine sweeps across in 0.9 s, then waits 3.5 s, for good; a still shine under reduced motion
 local STORE_SHINE =
 	TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, -1, false, 3.5)
@@ -190,9 +193,9 @@ local THUMB_ZONE = 180
 -- rows below the same): every tile and every row keeps a clear gap of at least the outline plus the button foot
 -- (#1105) between what each one draws, not between their boxes. A tile draws past its box: its outline all round,
 -- the key cap on its top left corner, the red dot on its top right and, on the Store, the gold glow and its hover.
--- the empty space between two tiles' drawn edges (9): the outline plus the button foot, as #1210 asks, though the
--- clean tiles draw no foot since #1105, so it is a little more room than the drawing needs
-local TILE_CLEAR = Button.OUTLINE + Theme.sizes.buttonDepth
+-- the empty space between two tiles' drawn edges: #1210 asked for the outline plus the button foot (9), but the clean
+-- tiles draw no foot since #1105 and #1676 asks for a tighter column, so it is the outline's width (4)
+local TILE_CLEAR = Button.OUTLINE
 local KEY_REACH = 6 -- a key cap at (-4, -4) with its 2 px outline pokes this far past the tile's top and left
 -- the red dot (22 px, its middle 3 px down the tile's top edge, its right edge 2 px past the side since #1176, a 2 px
 -- outline) past the tile's top and its right side
@@ -256,8 +259,9 @@ local DROP_W = 104
 -- the arrow tabs that fold the left menu and the bottom row out of the way (Derek 2026-10-27: less clutter)
 local FOLD_W = 44
 local FOLD_H = 34
--- the arrow tab under the grid: the last row's foot, then the clear gap and the tab's own 3 px outline (#1210)
-local FOLD_UNDER = FOOT_REACH + TILE_CLEAR + 3
+-- the arrow tab under the grid: the last row's foot, then the clear gap and the tab's own 3 px outline (#1210), and 2 px
+-- more since TILE_CLEAR went down to the outline (#1676), for the two-bowl Bowl tile's count that sits a little lower
+local FOLD_UNDER = FOOT_REACH + TILE_CLEAR + 5
 local function menuFoldedX(width: number): number
 	return -(width + 40) -- past the left edge, dots too
 end
@@ -2191,7 +2195,8 @@ function HUD._popNew(self: any, key: HudUnlocks.Key)
 		BackgroundColor3 = Theme.colors.gold,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, 6, 0, 2),
+		-- #1676: its right edge 2 px past the side like the red dot, so the tighter columns keep it off the next key cap
+		Position = UDim2.new(1, 2, 0, 2),
 		Size = UDim2.fromOffset(52, 24),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textSmall,

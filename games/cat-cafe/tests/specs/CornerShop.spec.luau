@@ -92,17 +92,17 @@ return function()
 		end)
 
 		it("has the Day Cart's odds (#1577, day-cart.md section 2) and the day's limits", function()
-			expect(Config.DayCartTopChance).to.equal(0.95)
-			expect(Config.DayCartStep).to.equal(0.045)
-			expect(Config.DayCartFloor).to.equal(0.05)
+			expect(Config.DayCartTopChance).to.equal(1) -- #1740: was 0.95, 0.045 and 0.05
+			expect(Config.DayCartStep).to.equal(0.03)
+			expect(Config.DayCartFloor).to.equal(0.25)
 			expect(Config.DayCartQtyOdds :: any).to.deepEqual({ 50, 30, 20 })
 			expect((Config :: any).CornerShopSizeWeights).never.to.be.ok() -- the size table went with the cart
 			expect(CornerShop.MOST).to.equal(3)
-			expect(CornerShop.stockChance(1)).to.be.near(0.95, 1e-9)
-			expect(CornerShop.stockChance(2)).to.be.near(0.905, 1e-9)
-			expect(CornerShop.stockChance(11)).to.be.near(0.5, 1e-9)
-			expect(CornerShop.stockChance(21)).to.be.near(0.05, 1e-9)
-			expect(CornerShop.stockChance(40)).to.equal(0.05)
+			expect(CornerShop.stockChance(1)).to.be.near(1, 1e-9)
+			expect(CornerShop.stockChance(2)).to.be.near(0.97, 1e-9)
+			expect(CornerShop.stockChance(19)).to.be.near(0.46, 1e-9)
+			expect(CornerShop.stockChance(26)).to.be.near(0.25, 1e-9)
+			expect(CornerShop.stockChance(40)).to.equal(0.25)
 			expect(Config.CornerDailyLimits.steady).to.equal(4)
 			expect(Config.CornerDailyLimits.quick_bait).to.equal(2)
 			expect(Config.CornerDailyLimits.whistle).to.equal(4)
@@ -123,6 +123,19 @@ return function()
 				end
 			end
 			expect(differs).to.equal(true)
+		end)
+
+		it("stocks about 14 of the 19 rows a day on average (#1740)", function()
+			local total, windows = 0, 2000
+			for window = WINDOW, WINDOW + windows - 1 do
+				for _, item in CornerShop.stock(window) do
+					if item.amount > 0 then
+						total += 1
+					end
+				end
+			end
+			local average = total / windows
+			expect(average > 13 and average < 15).to.equal(true)
 		end)
 
 		it("lists every row once, cheapest Tier 1 price first, ties in Catalog order (#1577)", function()

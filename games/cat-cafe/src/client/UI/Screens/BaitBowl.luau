@@ -793,21 +793,14 @@ function BaitBowl._renderStatus(self: any)
 			else "Your bowl is empty"
 		local wait = Format.duration(self._waitSeconds)
 		local refill: Types.LureDef? = self:_refillFood(state, selected)
+		-- #1693: just the wait; the Refill and Use buttons explain themselves
 		sub = if not self:_takesFood(selected)
 			then "Bowl 2 takes new food with the Second Bait Bowl pass."
-			elseif
-				self._night
-			then ("%s Night bait: half the wait. Use a food now and a cat comes by in %s."):format(
+			elseif self._night then ("%s Night bait: a cat comes by in %s"):format(
 				Theme.icons.moon,
 				wait
 			)
-			elseif
-				refill
-			then ("Refill puts in another %s, or pick a food and press Use. A cat comes by in %s."):format(
-				refill.name,
-				wait
-			)
-			else "Pick a food and press Use. A cat comes by in " .. wait .. ", even if you leave."
+			else "A cat comes by in " .. wait
 		if refill then
 			action = "refill"
 		end
@@ -831,11 +824,8 @@ function BaitBowl._renderStatus(self: any)
 				else foodName .. " is in the bowl"
 			local inTime = Format.duration(math.ceil(left))
 			sub = if bait.night
-				then ("%s Night bait: half the wait. A cat comes by in %s."):format(
-					Theme.icons.moon,
-					inTime
-				)
-				else ("A cat comes by in %s. You can leave; it waits for you."):format(inTime)
+				then ("%s Night bait: a cat comes by in %s"):format(Theme.icons.moon, inTime)
+				else "A cat comes by in " .. inTime
 			-- the bowl's own wait from placedAt, else today's for its phase
 			local total = if bait.placedAt
 				then bait.readyAt - bait.placedAt

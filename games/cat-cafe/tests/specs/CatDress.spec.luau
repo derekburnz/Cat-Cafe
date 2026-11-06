@@ -114,4 +114,21 @@ return function()
 			expect(Catalog.workModelName("CatCafe_Cat_Tabby_Gold")).to.equal("CatCafe_Cat_Tabby_Gold_Work")
 		end)
 	end)
+
+	describe("uniform styles (#1624)", function()
+		it("puts the main colour on the biggest surface and the trim on the next, leaving the rest", function()
+			-- the Boater: straw over most of it, a red band, a cream bow
+			local slots = CatDress.uniformSlots({ e3b77a = 1.47, d9483b = 0.42, fff9f2 = 0.02 })
+			expect(slots :: any).to.deepEqual({ e3b77a = "main", d9483b = "trim" })
+		end)
+
+		it("gives a one-colour piece only the main and an empty piece nothing", function()
+			expect(CatDress.uniformSlots({ e8a0a0 = 0.24 }) :: any).to.deepEqual({ e8a0a0 = "main" })
+			expect(CatDress.uniformSlots({}) :: any).to.deepEqual({})
+		end)
+
+		it("breaks a tie by the smaller key, the same every time", function()
+			expect(CatDress.uniformSlots({ b = 1, a = 1, c = 0.5 }) :: any).to.deepEqual({ a = "main", b = "trim" })
+		end)
+	end)
 end

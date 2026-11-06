@@ -187,6 +187,9 @@ return function()
 
 	local function simulate(options: Options, seed: number): Run
 		local rng = generator(seed)
+		-- the presses and the rings have their own rolls, so a change to the catch (#1884) leaves which cats come,
+		-- and when, as they were
+		local pressRng = generator(seed * 3 + 1)
 		local step = if options.long then LONG_STEP else 1
 		local limit = options.limit or LIMIT
 		local target = options.target or 2
@@ -223,9 +226,9 @@ return function()
 		local epoch = 0 -- the session's server clock start, for settling across day and night
 		local dirty = true -- the rate changed since the last settle: settle on the next tick
 
-		-- A press's error: normal, by Box and Muller from two of the run's rolls (never 0, so the log is safe).
+		-- A press's error: normal, by Box and Muller from two of the press rolls (never 0, so the log is safe).
 		local function pressError(): number
-			return spread * math.sqrt(-2 * math.log(rng())) * math.cos(2 * math.pi * rng())
+			return spread * math.sqrt(-2 * math.log(pressRng())) * math.cos(2 * math.pi * pressRng())
 		end
 
 		-- Seconds from the first try on a stray to the try that nets it, or nil after MAX_TRIES.
@@ -238,7 +241,7 @@ return function()
 			for _ = 1, MAX_TRIES do
 				run.tries += 1
 				-- #1884 (catch-rework.md 7b): the trust bar decides the try, ring by ring as the server judges it
-				local circles = Circles.schedule(rarity, netLevel, startsAt, rng)
+				local circles = Circles.schedule(rarity, netLevel, startsAt, pressRng)
 				local attempt = Circles.newAttempt(circles, windows, Circles.trustFor(rarity))
 				local endedAt = startsAt
 				for i, circle in circles do

@@ -1654,6 +1654,14 @@ local function wireServerEvents()
 			end
 		end
 	)
+	-- #1727: the server's grade for each pressed circle as it is judged, for the circles screen (UI.catch.judged once
+	-- the UI has it). A Good or Perfect after this device's own Miss means the catch goes on.
+	Net.on("CatchJudged", function(strayId: string, index: number, grade: Types.CircleGrade)
+		local judged: ((string, number, Types.CircleGrade) -> ())? = (UI.catch :: any).judged
+		if judged ~= nil then
+			judged(strayId, index, grade)
+		end
+	end)
 	-- The rescue bar, or a tree's falling cat after its shakes; then the server's count after every judged press.
 	Net.on("RescueChallenge", function(rescueSpotId: string, challenge: Types.RescueChallenge)
 		UI.rescue.show(rescueSpotId, challenge)

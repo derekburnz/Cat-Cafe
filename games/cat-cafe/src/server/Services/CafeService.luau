@@ -43,8 +43,10 @@ local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Quests = require(ReplicatedStorage.Shared.Quests)
 local SellExtras = require(ReplicatedStorage.Shared.SellExtras)
 local Settings = require(ReplicatedStorage.Shared.Settings)
+local ShortNumber = require(ReplicatedStorage.Shared.ShortNumber)
 local SignStyles = require(ReplicatedStorage.Shared.SignStyles)
 local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
+local StoreTabs = require(ReplicatedStorage.Shared.StoreTabs)
 local Telemetry = require(script.Parent.Telemetry)
 local TipService = require(script.Parent.TipService)
 local Trade = require(ReplicatedStorage.Shared.Trade)
@@ -218,6 +220,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		stuckHelpShown = table.clone(profile.stuckHelpShown),
 		starterCatClaimed = profile.starterCatClaimed, -- F96
 		starterBought = profile.onceBought.starter_bundle == true, -- #1625: the Store card hides
+		storeSeen = table.clone(profile.storeSeen), -- #1842: the Store tabs' "New" dots
 		codesRedeemed = table.clone(profile.codesRedeemed), -- #1714: the Store's Codes tab lists the codes used
 		signStyles = SignStyles.owned(profile.signStyles, ownsPassOf(player)), -- #1625
 		signStyle = profile.signStyle,
@@ -693,6 +696,13 @@ local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)
 			nextSpot += 1
 		end
 		showDecor(plot, def, spot)
+	end
+	-- #1645: the Cafe Pass decor in use takes the next decor spots (no anchors of its own)
+	for _, def in Catalog.passDecor do
+		showDecor(plot, def, if inUse(def) then plot.decorSpots[nextSpot] else nil)
+		if inUse(def) then
+			nextSpot += 1
+		end
 	end
 	-- The wallpaper, floor and paint in use, by decor id, for the client to colour the cafe's tagged shell parts.
 	for _, slot in Crates.STYLE_SLOTS do
@@ -1970,7 +1980,12 @@ local function onClaimOffline(player: Player)
 		else "60+"
 	Telemetry.custom(player, "offline_claim", amount, { away })
 	Telemetry.onboarding(player, profile, "first_offline_claim")
-	Net.toast(player, string.format("Welcome back! +$%d while you were away", amount), "good")
+	-- #1814: short like the HUD's counter ("+$3.42M"), not every digit
+	Net.toast(
+		player,
+		string.format("Welcome back! +$%s while you were away", ShortNumber.format(amount)),
+		"good"
+	)
 	CafeService.sync(player)
 end
 
@@ -2012,6 +2027,18 @@ end
 
 -- #1624: picks a look of `rawKind` ("theme", "uniform" or "accessory"): an owned Looks id, or nil for the default
 -- (Classic, or no accessory). Saved in profile.looks, then the plot shows it.
+-- #1842: the Store opened on `rawTab`; the whole check is StoreTabs.markSeen (a known tab id only). No toast: the UI
+-- clears the dot as it opens the tab, and the next sync agrees.
+local function onMarkStoreSeen(player: Player, rawTab: unknown)
+	local profile = profileFor(player)
+	if profile == nil then
+		return
+	end
+	if StoreTabs.markSeen(profile.storeSeen, rawTab) then
+		CafeService.sync(player)
+	end
+end
+
 local function onSetLook(player: Player, rawKind: unknown, rawId: unknown)
 	local profile = profileFor(player)
 	if profile == nil then
@@ -2140,6 +2167,7 @@ function CafeService.start()
 	Net.on("SetSetting", onSetSetting)
 	Net.on("SetSignStyle", onSetSignStyle) -- #1625
 	Net.on("SetLook", onSetLook) -- #1624
+	Net.on("MarkStoreSeen", onMarkStoreSeen) -- #1842
 	Net.on("RequestSync", function(player)
 		CafeService.sync(player)
 		local offline, seconds = DataService.peekPendingOffline(player)

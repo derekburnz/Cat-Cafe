@@ -175,9 +175,11 @@ Design: `docs/design/cat-cafe/camp-stations.md` section 2 (#1319): "when a potio
 | Yard Sale ready glow | While a free crate waits, the same warm light under the stall's awning; it fades out when you claim it and comes back when the next one is ready | `yardSale.held`; `ExtraId` "yardSale", its `GlowAnchor`, else 50% of the way up |
 | Fish Pond ready glow | Once 18 or more fish wait in your pond (half its 36, so it reads as worth a trip), a soft gold light (the golden fish's colour) under the hut's roof; it fades out when you collect them | `pond.held` at least `atLeast` 18; `ExtraId` "pond", its `GlowAnchor`, else 40% of the way up |
 
-All three: PointLight 0.6 over 7 studs, under the street's night lights at 0.5 over 8 plus their Neon, so at most 3 lights per player and only near their own stations (each sits in a different area). Only you see yours. Reduce Motion: they switch instantly. Low performance: off.
+| Lost and Found bulb blink (#1732, section 4b) | While a find waits at the booth, its one `_Blink_Bulb` on the LOST & FOUND sign goes warm Neon for 0.6 s and back for 0.6 s; it gets its own look back when you collect. Still on with Reduce Motion (under 1 blink a second) and Low performance (no light, a material swap). The bell's ring-wobble is Animation-Engineer's | `lostFound.held` above 0; `ExtraId` "lostFound", parts named `CatCafe_Camp_Sewer_LostFoundBooth_Blink_Bulb` |
 
-Two cases are in `docs/vfx/cat-cafe/specs/EffectsCampGlow.spec.luau` for QA. Studio checks: with a potion, a free crate and fish waiting, each station glows (warm, warm, gold), by day and at night; collect each and its glow fades out; a second player whose stations are empty sees no glow at them; Low performance turns them off and back on. No new console errors.
+All three glows: PointLight 0.6 over 7 studs, under the street's night lights at 0.5 over 8 plus their Neon, so at most 3 lights per player and only near their own stations (each sits in a different area). Only you see yours. Reduce Motion: they switch instantly. Low performance: off.
+
+Two cases are in `docs/vfx/cat-cafe/specs/EffectsCampGlow.spec.luau` for QA. Studio checks: with a potion, a free crate and fish waiting, each station glows (warm, warm, gold), by day and at night; with a find waiting the booth's sign bulb blinks, and stops (back to its own colour) once collected; collect each and its glow fades out; a second player whose stations are empty sees no glow at them; Low performance turns them off and back on. No new console errors.
 
 ## Camp extras collect bursts (F100, 2026-11-02)
 
@@ -938,3 +940,20 @@ The store remake (#1823, the v2 layout in #1824). UI-Engineer calls `StoreBurst.
 | `bundle` (the King Cat bundle reveal) | 20 gold diamonds and two rings, a quarter second apart |
 
 It is a thank-you only. It shows what was already bought, with no random reveal and no "buy more" nudge, so it stays inside monetization-policy. Reduce Motion: half the sparkles and no rings. Low performance: half the sparkles. It draws on its own ScreenGui (`EffectsStore`, DisplayOrder 22), over the store window (20) and under the toasts (30), and never changes a UI object. A case is in `docs/vfx/cat-cafe/specs/EffectsStoreBurst.spec.luau`. Studio checks, once the v2 store calls it: buy a pass in a test server and its card sparkles once with a ring; cancel the prompt and nothing shows; with Reduce Motion there is no ring. No new console errors.
+
+## Testing Reduce Motion and Low performance (2026-11-06)
+
+QA asked after #1019 check 3, because Derek2 couldn't find Reduce Motion in Settings.
+- **Reduce Motion** is Roblox's own accessibility setting, not one of ours. Effects read it as `GuiService.ReducedMotionEnabled` (`Context.reducedMotion()`). On the live client it is in the Roblox menu: Esc, then Settings, then Reduce Motion. If a Studio playtest's Roblox menu doesn't show it, check these lines on the live client.
+- **Low performance** is ours, the switch on the game's Settings screen (`Context.lowPerformance`, through `Effects.applySettings`). It sets the effects budget to its low tier.
+
+Where each check from #1019 is wired (checked in code, 2026-11-06):
+
+| Check | Reduce Motion | Low performance |
+|---|---|---|
+| Oven door stays shut, glow steady | `Orders.luau`: the door doesn't swing; the glow skips its flicker | `Orders.luau`: no oven PointLight |
+| Woods pond fish holds still | `CampWater.luau`: the fish stays home (and goes home at once if turned on mid jump) | `budget.campFish` 0 |
+| Door sign snaps instead of flipping | `DoorSign.luau` | (not gated, it's a single flip) |
+| Rally board chase stops | `RallyBoard.luau` | `budget.rallyBoards` 0 |
+
+Each ring from `Particles.ring` (the dish served blush ring among them) is skipped with Reduce Motion.

@@ -134,5 +134,22 @@ return function()
 			expect(Pity.countdownText(0.2)).to.equal("0:01")
 			expect(Pity.countdownText(-3)).to.equal("0:00")
 		end)
+
+		it("writes the sign's three lines from the clock and the Pity folder (#1753)", function()
+			-- a daytime moment: count to the next of each kind with nextAt, the same on every client
+			local t = Pity.spawnAt(5) + 10
+			local lines = Pity.signLines(t, "", "", "")
+			local legendaryAt = Pity.nextAt(t, "Legendary")
+			local mythicalAt = Pity.nextAt(t, "Mythical")
+			expect(lines[1]).to.equal("Legendary cat in " .. Pity.countdownText(legendaryAt - t))
+			expect(lines[2]).to.equal("Mythical cat in " .. Pity.countdownText(mythicalAt - t))
+			expect(lines[3]).to.equal("")
+			expect(Pity.signLines(t, "out", "woods", "")[3]).to.equal("Now in the Woods!")
+			expect(Pity.signLines(t, "caught", "woods", "Sam")[3]).to.equal("Caught by Sam")
+			-- a half-filled folder (no area yet, no winner) leaves the line empty
+			expect(Pity.signLines(t, "out", "", "")[3]).to.equal("")
+			expect(Pity.signLines(t, "caught", "woods", "")[3]).to.equal("")
+			expect(Pity.signLines(t, nil, nil, nil)[3]).to.equal("")
+		end)
 	end)
 end

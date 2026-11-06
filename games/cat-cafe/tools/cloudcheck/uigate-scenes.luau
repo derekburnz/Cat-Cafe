@@ -1034,9 +1034,21 @@ local SCENES = {
 		UI.codes.open()
 	end },
 	{ "CodesPrize", function()
+		-- #1714: the used list, newest first; a code no longer in the table shows its code and date only
+		UI.update({ codesRedeemed = { playtest = 1793900000, old_code = 1793000000 } } :: any)
 		UI.codes.open()
 		press("Store", "codes")
 		UI.codes.result(true, "Code redeemed!", CODE_PRIZE)
+		local store = UIShim.playerGui:FindFirstChild("Store", true)
+		local used = store and store:FindFirstChild("Used", true)
+		assert(used and used:FindFirstChild("playtest") and used:FindFirstChild("old_code"), "uigate: no used codes (#1714)")
+		assert(store:FindFirstChild("Header", true), "uigate: no Codes header (#1714)")
+	end },
+	-- #1714: a refusal is one calm line in place; nothing used yet says so
+	{ "CodesRefused", function()
+		UI.codes.open()
+		press("Store", "codes")
+		UI.codes.result(false, "That code doesn't exist", nil)
 	end },
 	-- #1633: the circle's Store opens on Featured, and walking out closes it from any tab; a Store the player opened
 	-- with the tile stays when they walk out

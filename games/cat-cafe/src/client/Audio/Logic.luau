@@ -504,6 +504,15 @@ function Logic.shiftStarted(before: boolean?, now: boolean): boolean
 	return before == false and now
 end
 
+-- #1168 row 2: the Jukebox Pass song the player picked plays in place of the rotation, once its cue has a file.
+-- nil means the normal day and night rotation.
+function Logic.jukeboxSong(cueId: string?, has: (string) -> boolean): string?
+	if cueId ~= nil and has(cueId) then
+		return cueId
+	end
+	return nil
+end
+
 -- #1541: the tutorial's own song plays while the intro cutscene runs, or while the first tutorial steps (steps below
 -- `lastStep`) show with the Tutorial tile on. The tile's x (its setting off) or finishing the steps ends it. With no
 -- step known yet nothing plays.

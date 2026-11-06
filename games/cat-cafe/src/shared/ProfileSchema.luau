@@ -10,6 +10,7 @@ local CornerShop = require(script.Parent.CornerShop)
 local DailyTreat = require(script.Parent.DailyTreat)
 local EquipBest = require(script.Parent.EquipBest)
 local FreshCatch = require(script.Parent.FreshCatch)
+local Jukebox = require(script.Parent.Jukebox)
 local Lawn = require(script.Parent.Lawn)
 local Looks = require(script.Parent.Looks)
 local Onboarding = require(script.Parent.Onboarding)
@@ -105,6 +106,8 @@ local ProfileSchema = {}
 -- and gotDecor. An older server drops them, which only locks those pieces again and shortens old log entries.
 -- Version 35 (#1625) adds onceBought, signStyles and signStyle, the Starter Bundle's once-per-account mark and the
 -- sign styles: an older server would drop them, losing the Bakery Stripes sign and letting the bundle be bought as new.
+-- #1168 row 2 (no new version): jukebox, the Jukebox Pass track pick. An older server drops it, which only plays the
+-- normal rotation until the player picks again.
 -- #1842 (no new version): storeSeen, the Store tab versions last opened. An older server drops it, which only shows the
 -- tabs' "New" dots again.
 -- Version 36 (#1645, cafe-pass.md section 6) adds pass, the Cafe Pass's XP, claims, paid season and items: an older
@@ -289,6 +292,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		signStyles = {},
 		signStyle = nil,
 		storeSeen = {},
+		jukebox = nil,
 		pass = CafePass.fresh(0),
 		looks = {},
 	}
@@ -945,6 +949,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.signStyle = SignStyles.sanitizePick(raw.signStyle)
 	-- #1842 (no new version): the Store tabs opened; none before
 	profile.storeSeen = StoreTabs.sanitize(raw.storeSeen)
+	-- #1168 row 2 (no new version): the Jukebox pick; none before
+	profile.jukebox = Jukebox.sanitizePick(raw.jukebox)
 	-- #1645 (version 36): the Cafe Pass; saves before it start at season 0 with nothing (CafePassService rolls it on)
 	profile.pass = CafePass.sanitize(raw.pass)
 	CafePass.grantOwned(profile) -- #1645: pass decor and the frame claimed before they had a place (decor, sign styles)

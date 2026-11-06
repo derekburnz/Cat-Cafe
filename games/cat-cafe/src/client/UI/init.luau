@@ -2870,7 +2870,14 @@ do
 		end
 		screen:show(circleList, windows, header, function(index: number, grade: Types.CircleGrade?)
 			UI.events.catchPressed:Fire(strayId, index, grade)
-		end)
+		end, strayId)
+	end
+
+	-- #1727: CatchJudged, the server's grade for one of this player's presses, as it is judged
+	function UI.catch.judged(strayId: string, index: number, grade: Types.CircleGrade)
+		if circles then
+			circles:judged(strayId, index, grade)
+		end
 	end
 
 	-- The toast after a miss (data-model section 10 step 5, v0.5): the cat sprints off and can be tried again

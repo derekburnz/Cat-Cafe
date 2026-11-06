@@ -1311,6 +1311,36 @@ local SCENES = {
 			task.delay(target - t0 + delay, tapCircles)
 		end
 	end },
+	-- #1727: circle 1 hit, circle 2 pressed just past its Good band (a Miss on this device), then the server's
+	-- CatchJudged calls that press Good: circles 3 and 4 never went away, so the catch goes on in view
+	{ "CatchEdgeMiss", function()
+		local list = startCatch("gate_stray", "Common", 4, 0.3, 0.82)
+		local function art(index)
+			local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+			local holder = layer and layer:FindFirstChild("Circle" .. index, true)
+			return holder and holder:FindFirstChild("Art")
+		end
+		local function waitUntil(at)
+			local wait = at - workspace:GetServerTimeNow()
+			if wait > 0 then
+				task.wait(wait)
+			end
+		end
+		local function target(index)
+			return list[index].startsAt + list[index].shrinkSeconds
+		end
+		waitUntil(target(1))
+		tapCircles()
+		waitUntil(target(2) + 0.12)
+		tapCircles()
+		task.wait(0.3)
+		local third = art(3)
+		assert(third and third.Visible, "CatchEdgeMiss: circle 3 went before the server's word on circle 2")
+		UI.catch.judged("gate_stray", 2, "good")
+		waitUntil(target(3) - 0.2)
+		third = art(3)
+		assert(third and third.Visible, "CatchEdgeMiss: circle 3 went after the server called circle 2 Good")
+	end },
 	-- F93: the result word over the strip once the server's grades land (three Perfects of four: EXCELLENT!)
 	{ "CatchResult", function()
 		startCatch("gate_stray", "Rare", 4, 1, 1)

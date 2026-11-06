@@ -528,4 +528,51 @@ return function()
 			expect(commas).to.equal(5)
 		end)
 	end)
+	describe("StoreLogic #1168 Thank You Badge and Sign Style Pack cards", function()
+		local function find(rows: { any }, key: string): any
+			for _, row in rows do
+				if row.key == key then
+					return row
+				end
+			end
+			return nil
+		end
+		local config: any = { ProductIds = { thank_you_badge = 55 }, SignStylePackPassId = 66 }
+		it("shows the Thank You Badge under Passes until the player is a supporter", function()
+			local row = find(StoreLogic.rows(config, {}, nil, { supporter = false }), "thankYou")
+			expect(row).to.be.ok()
+			expect(row.passId).to.equal(55)
+			expect(row.product).to.equal(true)
+			expect(row.tab).to.equal("passes")
+			expect(row.effect:find("chat tag", 1, true)).to.be.ok()
+			expect(row.effect:find("gold heart", 1, true)).to.be.ok()
+			expect(find(StoreLogic.rows(config, {}, nil, { supporter = true }), "thankYou")).to.equal(nil)
+			expect(table.find(StoreLogic.productIds(config), 55)).to.be.ok()
+		end)
+		it("hides the Thank You Badge while its product id is 0", function()
+			local zero: any = { ProductIds = { thank_you_badge = 0 } }
+			expect(find(StoreLogic.rows(zero, {}, nil, { supporter = false }), "thankYou")).to.equal(nil)
+			expect(table.find(StoreLogic.productIds(zero), 0)).to.equal(nil)
+		end)
+		it("lists the pack's three sign styles by name, and hides it while the id is 0", function()
+			local row = find(StoreLogic.rows(config, {}, nil, nil), "signStylePack")
+			expect(row).to.be.ok()
+			expect(row.passId).to.equal(66)
+			for _, name in { "Flower Box", "Starry Night", "Paw Chalkboard", "Looks only" } do
+				expect(row.effect:find(name, 1, true)).to.be.ok()
+			end
+			expect(row.owned).to.equal(false)
+			expect(find(StoreLogic.rows(config, { [66] = true }, nil, nil), "signStylePack").owned).to.equal(true)
+			expect(find(StoreLogic.rows({ SignStylePackPassId = 0 }, {}, nil, nil), "signStylePack")).to.equal(nil)
+		end)
+		it("names every style the pass sells in shared/SignStyles", function()
+			local SignStyles = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("SignStyles")) :: any
+			local row = find(StoreLogic.rows(config, {}, nil, nil), "signStylePack")
+			for _, style in SignStyles.LIST do
+				if style.passKey == "SignStylePackPassId" then
+					expect(row.effect:find(style.name, 1, true)).to.be.ok()
+				end
+			end
+		end)
+	end)
 end

@@ -141,6 +141,15 @@ local PASSES: { PassCard } = {
 		effect = "Hanging Fern Basket, Sunflower Pot, Watering Can Planter, Potted Lemon Tree, Ivy Trellis, "
 			.. "Garden Swing Seat. Looks only.",
 	},
+	-- #1168 row 1: the three sign styles of shared/SignStyles with passKey SignStylePackPassId, by name; hidden while
+	-- the id is 0. Owned, they show on the Style tab with the rest.
+	{
+		key = "signStylePack",
+		configKey = "SignStylePackPassId",
+		name = "Sign Style Pack",
+		icon = "🪧",
+		effect = "Three cafe sign looks: Flower Box, Starry Night and Paw Chalkboard. Looks only.",
+	},
 	-- #1822 (Monetization's store doc §3C): the King Cat alone sits just before its bundle under Cats, so the bundle
 	-- reads as the better deal; hidden while KingCatPassId is 0
 	{
@@ -206,6 +215,15 @@ local CAFE_PASS: ProductCard = {
 }
 StoreLogic.CAFE_PASS = CAFE_PASS
 
+-- #1168 row 4: the Thank You Badge, a developer product sold once per account with no gameplay in it. It shows only
+-- while the player is not a supporter (ShopView.supporter, the Player attribute), so it isn't bought twice.
+local THANK_YOU: ProductCard = {
+	key = "thankYou",
+	productKey = "thank_you_badge",
+	effect = "A [Thank You] chat tag and a gold heart by your name on the ideas board.",
+}
+StoreLogic.THANK_YOU = THANK_YOU
+
 -- What the Store needs to draw the product cards: Catalog.products, potion id to its name, and the player's bag.
 export type ProductPrize = {
 	potions: { [string]: number },
@@ -222,6 +240,7 @@ export type ShopView = {
 	have: { [string]: number }?,
 	starterBought: boolean?, -- the server's word on the Starter Bundle (nil: unknown, so it stays hidden)
 	cafePass: PassOffer?, -- #1646: nil while no season runs (or before CafePassState), so the card stays hidden
+	supporter: boolean?, -- #1168: the Player's Supporter attribute; the Thank You Badge hides while true
 }
 
 local function productId(config: any, card: ProductCard): number?
@@ -246,6 +265,10 @@ function StoreLogic.productIds(config: any): { number }
 	local cafePass = productId(config, CAFE_PASS)
 	if cafePass then
 		table.insert(out, cafePass)
+	end
+	local thanks = productId(config, THANK_YOU)
+	if thanks then
+		table.insert(out, thanks)
 	end
 	return out
 end
@@ -396,6 +419,24 @@ local function cafePassRow(config: any, view: ShopView?): Row?
 		owned = offer.paid,
 		product = true,
 		tab = "cafePass",
+	}
+end
+
+-- #1168: the Thank You Badge's row while the player is not a supporter, else nil.
+local function thankYouRow(config: any, view: ShopView?): Row?
+	local id = productId(config, THANK_YOU)
+	if id == nil or view == nil or view.supporter == true then
+		return nil
+	end
+	return {
+		key = THANK_YOU.key,
+		passId = id,
+		name = "Thank You Badge",
+		icon = "💛",
+		effect = THANK_YOU.effect,
+		owned = false,
+		product = true,
+		tab = "passes",
 	}
 end
 
@@ -648,6 +689,10 @@ function StoreLogic.rows(
 			local cafePass = cafePassRow(config, view)
 			if cafePass then
 				table.insert(rows, cafePass)
+			end
+			local thanks = thankYouRow(config, view)
+			if thanks then
+				table.insert(rows, thanks)
 			end
 		end
 		local id = passId(config, card)

@@ -14,7 +14,7 @@
 --   spotChoices(state, spotId)         the old edit view's picker rows (no screen shows them now)
 --   stallRows(tab)                     the Garden Nursery's rows for "pieces", "path" or "fence" (lawn-nursery.md 2)
 --   stallAction(state, row)            a nursery row's button: Buy with the price, Owned, or Opens at Tier n
---   NURSERY_LINE, nurseryNote(state)   where lawn pieces are sold
+--   NURSERY_LINE, nurseryNote(state)   where lawn pieces are sold (the Yard Sale, #1760)
 --   counts(state)                      lawn spots used and open at the cafe's tier
 --   inUse(state, kind)                 the path or fence in use (nil: no fence)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -279,15 +279,15 @@ export type StallRow = {
 	detail: string, -- "Small spot", "Big spot", "Path" or "Fence"
 }
 
-LawnLogic.NURSERY_LINE = "Get lawn pieces at the Garden Nursery in the Park"
-LawnLogic.NURSERY_TIER = 2 -- the Park opens at Tier 2, so the nursery does too
+-- #1760 (Design-Agent 11-06): the Garden Nursery is retired (lawn-nursery.md section 7), so every hint about buying
+-- lawn pieces names the Yard Sale in the Neighbourhood camp, which opens at Tier 3.
+LawnLogic.NURSERY_LINE = "Sold at the Yard Sale, Neighbourhood camp"
+LawnLogic.NURSERY_TIER = 3 -- the Neighbourhood camp, and so the Yard Sale, opens at Tier 3
 
--- Where lawn pieces are sold: the Tier 1 line names the tier that opens the Park.
+-- Where lawn pieces are sold: below Tier 3 the line also names the tier that opens the Yard Sale.
 function LawnLogic.nurseryNote(state: Types.PlayerState?): string
 	if state ~= nil and state.tier < LawnLogic.NURSERY_TIER then
-		return ("Lawn pieces are sold at the Garden Nursery in the Park (Tier %d)"):format(
-			LawnLogic.NURSERY_TIER
-		)
+		return ("Sold at the Yard Sale (Tier %d)"):format(LawnLogic.NURSERY_TIER)
 	end
 	return LawnLogic.NURSERY_LINE
 end

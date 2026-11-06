@@ -248,11 +248,11 @@ return function()
 			expect(locked.text).to.equal("Opens at Tier 2")
 		end)
 
-		it("points Tier 1 at the Park's tier and everyone else at the nursery", function()
-			expect(LawnLogic.nurseryNote(player(1, 0))).to.equal(
-				"Lawn pieces are sold at the Garden Nursery in the Park (Tier 2)"
-			)
-			expect(LawnLogic.nurseryNote(player(3, 0))).to.equal(LawnLogic.NURSERY_LINE)
+		it("points below Tier 3 at the Yard Sale's tier and everyone else at the Yard Sale (#1760)", function()
+			expect(LawnLogic.nurseryNote(player(1, 0))).to.equal("Sold at the Yard Sale (Tier 3)")
+			expect(LawnLogic.nurseryNote(player(2, 0))).to.equal("Sold at the Yard Sale (Tier 3)")
+			expect(LawnLogic.nurseryNote(player(3, 0))).to.equal("Sold at the Yard Sale, Neighbourhood camp")
+			expect(string.find(LawnLogic.NURSERY_LINE, "Nursery", 1, true)).never.to.be.ok()
 		end)
 	end)
 

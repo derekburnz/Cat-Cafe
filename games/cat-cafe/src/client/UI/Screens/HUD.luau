@@ -151,6 +151,7 @@ export type HUD = {
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
+local StoreFunnel = require(Shared:WaitForChild("StoreFunnel")) -- #1888: where a Store open came from
 
 local MARGIN = 16
 -- the money and golden fish counters, one row in the bottom left corner with no box behind them (the lighter HUD);
@@ -632,6 +633,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			if self._moneyBadgeOwned then
 				self:_toggleBoosts()
 			else
+				-- #1888: the money badge's "Get 2x" is a nudge into the Store
+				StoreFunnel.noteSource("nudge")
 				self._callbacks.openScreen("Store")
 			end
 		end)

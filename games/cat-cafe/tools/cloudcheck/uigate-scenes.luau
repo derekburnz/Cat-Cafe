@@ -2237,6 +2237,62 @@ local SCENES = {
 		UI.open("Store")
 		assertStoreCards(true)
 	end },
+	-- #1888: the Store funnel reports each tab once a visit (deferred past the open) and the first buy of a visit
+	{ "StoreFunnel", function()
+		UI.store.preview(storePrices(true), {})
+		local sent = {}
+		local connection = UI.events.storeReport:Connect(function(kind, value)
+			table.insert(sent, kind .. "=" .. tostring(value))
+		end)
+		UI.open("Store")
+		assert(#sent == 0, "uigate: the open's first tab should wait for the modal's store_opened")
+		task.wait(0.05)
+		press("CatCafeModals", "passes")
+		press("CatCafeModals", "featured")
+		press("CatCafeModals", "passes")
+		task.wait(0.05)
+		local joined = table.concat(sent, ",")
+		assert(joined == "store_tab=featured,store_tab=passes", "uigate: Store tabs reported " .. joined)
+		-- a priced card on the Passes tab (the List page, not Featured's hidden cards), its Buy pressed twice
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local storeWindow = modals and modals:FindFirstChild("Store", true)
+		local list = storeWindow and storeWindow:FindFirstChild("List", true)
+		assert(list and list.Visible, "uigate: the Passes tab's list is not up")
+		local button = nil
+		for _, card in list:GetDescendants() do
+			local buy = card:IsA("Frame") and card.Visible and card:FindFirstChild("Buy")
+			if buy then
+				local candidates = { buy }
+				for _, piece in buy:GetDescendants() do
+					table.insert(candidates, piece)
+				end
+				for _, piece in candidates do
+					if piece:IsA("GuiButton") and piece.Interactable ~= false and piece.Active ~= false then
+						button = piece
+						break
+					end
+				end
+			end
+			if button then
+				break
+			end
+		end
+		assert(button, "uigate: no live Buy on the Passes tab")
+		UIShim.fire(UIShim.eventOf(button, "Activated"))
+		UIShim.fire(UIShim.eventOf(button, "Activated"))
+		local buys = 0
+		for _, line in sent do
+			if string.sub(line, 1, 10) == "store_buy=" then
+				buys += 1
+			end
+		end
+		assert(buys == 1, "uigate: a buy should report once a visit, got " .. buys)
+		UI.close()
+		UI.open("Store")
+		task.wait(0.05)
+		assert(sent[#sent] == "store_tab=featured", "uigate: a new visit should report its first tab again")
+		connection:Disconnect()
+	end },
 	-- #1425: the Passes tab, a grid of pass cards 3 across
 	{ "StorePasses", function()
 		UI.store.preview(storePrices(true), {})

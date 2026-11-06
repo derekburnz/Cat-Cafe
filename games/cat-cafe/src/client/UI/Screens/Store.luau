@@ -39,6 +39,8 @@ export type Callbacks = {
 	codes: ((shown: boolean) -> ())?,
 	-- #1823 §4: a tab with a New dot came into view, so the server can save it as seen
 	seen: ((tab: string) -> ())?,
+	-- #1888: every tab shown, the first on open included (the Store funnel's tab_viewed)
+	tabShown: ((tab: string) -> ())?,
 }
 
 -- the dark window palette (#1028), in place of Theme.modal
@@ -654,6 +656,10 @@ function Store.showTab(self: any, tab: string)
 		if onSeen then
 			onSeen(self._tab)
 		end
+	end
+	local onShown: ((string) -> ())? = self._callbacks.tabShown
+	if onShown then
+		onShown(self._tab)
 	end
 	local featured = self._tab == "featured"
 	local codes = self._tab == "codes"

@@ -1247,6 +1247,50 @@ local SCENES = {
 			seen[glyph.Text] = true
 		end
 	end },
+	-- #1773: Feed's cat list as cards: two cats of one kind, a gold one and a rainbow one, each with its head, rarity
+	-- and level line, a bar toward the next level and its own Feed. #1771: the tabs are gold when chosen.
+	{ "BagFeed", function()
+		local cats = {}
+		local picks = {}
+		for _, def in Catalog.cats do
+			if def.area ~= "spare" and #picks < 3 then
+				table.insert(picks, def)
+			end
+		end
+		local function add(uid: string, def: any, variant: string, level: number, xp: number)
+			cats[uid] = {
+				uid = uid,
+				catId = def.id,
+				variant = variant,
+				caughtAt = os.time() - 60,
+				level = level,
+				xp = xp,
+				xpToNext = 40,
+				charm = 50,
+				stars = 3,
+				rating = 12,
+			}
+		end
+		add("gate_feed_1", picks[1], "base", 24, 300)
+		add("gate_feed_2", picks[1], "base", 7, 20)
+		add("gate_feed_3", picks[2], "gold", 15, 100)
+		add("gate_feed_4", picks[3], "rainbow", 3, 5)
+		UI.update({ cats = cats, catFood = { cat_snack = 3 } } :: any)
+		UI.open("Potions")
+		press("Potions", "FoodTab")
+		press("Potions", "cat_snack.Feed")
+		local window = UIShim.playerGui:FindFirstChild("Potions", true)
+		local list = window and window:FindFirstChild("CatList", true)
+		assert(list and list.Visible, "uigate: Feed's cat list is not up (#1773)")
+		for index = 1, 4 do
+			local card = list:FindFirstChild("gate_feed_" .. index)
+			assert(card and card:IsA("Frame"), "uigate: no card for cat " .. index .. " (#1773)")
+			assert(card:FindFirstChild("Head") and card:FindFirstChild("XpBar"), "uigate: cat card " .. index .. " has no head or bar (#1773)")
+			assert(card:FindFirstChild("Feed", true), "uigate: cat card " .. index .. " has no Feed (#1773)")
+		end
+		local gold = list:FindFirstChild("gate_feed_3"):FindFirstChild("CatName")
+		assert(string.sub(gold.Text, 1, 5) == "Gold ", "uigate: the gold cat's card reads " .. gold.Text .. " (#1773)")
+	end },
 	{ "Quests", function()
 		UI.open("Quests")
 	end },

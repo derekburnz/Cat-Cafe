@@ -1536,6 +1536,22 @@ local SCENES = {
 		UI.clock.bind(clock)
 		UI.luckyDay("warning", "A Lucky Day starts at sunrise!")
 	end },
+	-- #1737: the Night Market banner at nightfall with the market cart's picture left of the title (was a moon emoji)
+	{ "NightMarketBanner", function()
+		local AreaTitle = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.AreaTitle")
+		local ShopIcons = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.ShopIcons")
+		local picture = ShopIcons.hud("NightMarket")
+		assert(picture ~= nil, "NightMarketBanner: no Night Market picture")
+		local card = AreaTitle.new(UIShim.playerGui)
+		card:banner(
+			"night_market",
+			"The Night Market is open!",
+			"Rare foods tonight at the dealer's cart in town.",
+			UI.Theme.colors.berry,
+			6,
+			picture
+		)
+	end },
 	-- #1572: a Lucky, Golden and Rainbow Day at once: "Lucky · Golden · Rainbow Day" under the clock, its card open
 	{ "HUDDayKinds", function()
 		local t = workspace:GetServerTimeNow()

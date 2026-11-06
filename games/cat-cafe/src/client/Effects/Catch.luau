@@ -11,6 +11,14 @@
 -- burst off it and rings grow round it in its colour, gold and biggest for PURRFECT!, gold for EXCELLENT!, mint for
 -- GREAT!, none for "So close!". The word comes from CatchResult's grades (Logic.catchWord) and the burst waits for the
 -- label to show (Presets.catchWord.targets in CatCafeCatchCircles). Screen only, over the UI through ScreenFx.
+--
+-- Catch v3 (#1884, catch-rework.md 7b to 7d). Each ring the server judges (CatchJudged) pops at the cat's head in
+-- its grade's colour, gold for Perfect, mint for Good and a grey puff for a Miss, and a Perfect first holds the camera
+-- and your character's animations for 60 ms (a hit-stop, this client only: the rings never pause, so the timing stays
+-- fair). When CatchResult carries the server's `finish`, the pop waits for the net to wrap and wobble, then bursts
+-- with confetti in the finish's colours (a Purrfect as before, gold and biggest) and the banner's screen burst. Reduce
+-- Motion: no rings and no hit-stop, fewer confetti; Low performance: the budget's smaller bursts. Numbers in
+-- Presets.catchJudge and Presets.catchFinish.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -230,6 +238,97 @@ local function wordBurst(word: string)
 	end)
 end
 
+-- The hit-stop on a Perfect: the camera and this player's character animations hold for `hitStop` seconds. A second
+-- Perfect while one holds stretches it rather than stacking. Off with Reduce Motion.
+local held: { [AnimationTrack]: number } = {}
+local holdUntil = 0
+local HOLD = "CatCafeCatchHitStop"
+
+local function hitStop()
+	local seconds = Presets.catchJudge.hitStop
+	if seconds <= 0 or Context.reducedMotion() then
+		return
+	end
+	local camera = Workspace.CurrentCamera
+	local first = holdUntil <= os.clock()
+	holdUntil = os.clock() + seconds
+	if first then
+		if camera ~= nil then
+			local frame = camera.CFrame
+			RunService:BindToRenderStep(HOLD, Enum.RenderPriority.Camera.Value + 2, function()
+				camera.CFrame = frame
+			end)
+		end
+		local character = Players.LocalPlayer.Character
+		local animator = if character ~= nil
+			then character:FindFirstChildWhichIsA("Animator", true)
+			else nil
+		if animator ~= nil then
+			for _, track in (animator :: Animator):GetPlayingAnimationTracks() do
+				held[track] = track.Speed
+				track:AdjustSpeed(0)
+			end
+		end
+	end
+	task.delay(seconds, function()
+		if os.clock() < holdUntil - 0.001 then
+			return -- a later Perfect still holds
+		end
+		RunService:UnbindFromRenderStep(HOLD)
+		for track, speed in held do
+			if track.IsPlaying then
+				track:AdjustSpeed(speed)
+			end
+		end
+		table.clear(held)
+	end)
+end
+
+-- One ring judged (CatchJudged): its pop at the cat's head in the grade's colour.
+local function judged(strayId: string, grade: unknown)
+	local name = Logic.gradeName(grade)
+	if name == nil then
+		return
+	end
+	local j = Presets.catchJudge
+	local look = j.grades[name]
+	local entry: Scheduled? = scheduled[strayId]
+	local model = if entry ~= nil then entry.model else strayById(strayId)
+	if model == nil or model.Parent == nil then
+		return
+	end
+	local head = headOf(model)
+	local at = if head ~= nil then head.Position else topOf(model)
+	if name == "perfect" then
+		hitStop()
+	end
+	if look.sparkles > 0 then
+		Particles.burst("catchSparkle", at, look.sparkles, look.colour)
+	end
+	if look.puff > 0 then
+		Particles.burst("smokePuff", at, look.puff, look.colour)
+	end
+	Particles.ring(at, look.colour, look.ring, j.ringSeconds)
+end
+
+-- The v3 finish, once the net has wrapped and wobbled: the catch pops with confetti and the banner bursts.
+local function finished(spot: Scheduled, finish: string)
+	local f = Presets.catchFinish
+	task.delay(f.wrap, function()
+		wordBurst(finish)
+		if finish == "purrfect" then
+			purrfect(spot.position, spot.ground, spot.rarity)
+			return
+		end
+		caught(spot.position, spot.ground, spot.rarity)
+		local share = f.confetti[finish]
+		local colours = f.colours[finish]
+		if share ~= nil and colours ~= nil then
+			Particles.confetti(spot.position, math.ceil(Context.budget.confetti * share), colours)
+		end
+	end)
+end
+
 local function watchStray(instance: Instance)
 	if not instance:IsA("Model") then
 		return
@@ -274,9 +373,13 @@ function Catch.start()
 		end
 	end)
 
+	Net.on("CatchJudged", function(strayId: string, _index: number, grade: unknown)
+		judged(strayId, grade)
+	end)
+
 	Net.on(
 		"CatchResult",
-		function(strayId: string, grades: { Logic.Grade }, third: any, fourth: any)
+		function(strayId: string, grades: { Logic.Grade }, third: any, fourth: any, ...: any)
 			local entry: Scheduled? = scheduled[strayId]
 			scheduled[strayId] = nil
 			local model = if entry ~= nil then entry.model else strayById(strayId)
@@ -284,7 +387,8 @@ function Catch.start()
 				return
 			end
 			if Logic.catchSucceeded(third, fourth) then
-				local word = Logic.catchWord(grades)
+				local finish = Logic.catchFinish(third, fourth, ...) -- v3 (#1884); nil on the v2 catch
+				local word = if finish == nil then Logic.catchWord(grades) else nil
 				if word ~= nil then
 					wordBurst(word) -- on the screen, wherever the cat is
 				end
@@ -302,7 +406,9 @@ function Catch.start()
 				if spot == nil then
 					return
 				end
-				if Logic.isPurrfect(grades) then
+				if finish ~= nil then
+					finished(spot, finish)
+				elseif Logic.isPurrfect(grades) then
 					purrfect(spot.position, spot.ground, spot.rarity)
 				else
 					caught(spot.position, spot.ground, spot.rarity)

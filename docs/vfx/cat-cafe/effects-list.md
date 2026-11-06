@@ -957,3 +957,15 @@ The store remake (#1823, the v2 layout in #1824). UI-Engineer calls `StoreBurst.
 | `bundle` (the King Cat bundle reveal) | 20 gold diamonds and two rings, a quarter second apart |
 
 It is a thank-you only. It shows what was already bought, with no random reveal and no "buy more" nudge, so it stays inside monetization-policy. Reduce Motion: half the sparkles and no rings. Low performance: half the sparkles. It draws on its own ScreenGui (`EffectsStore`, DisplayOrder 22), over the store window (20) and under the toasts (30), and never changes a UI object. A case is in `docs/vfx/cat-cafe/specs/EffectsStoreBurst.spec.luau`. Studio checks, once the v2 store calls it: buy a pass in a test server and its card sparkles once with a ring; cancel the prompt and nothing shows; with Reduce Motion there is no ring. No new console errors.
+
+## Catch v3: ring pops, hit-stop and the finish (#1884, 2026-11-06)
+
+Design: `docs/design/cat-cafe/catch-rework.md` section 7 (#1890). Derek2 picked every recommendation. Gameplay-Engineer builds trust and the finish first, then moods and ring twists. Files: `Effects/Catch.luau`, `Logic.gradeName`, `Logic.catchFinish`, numbers in `Presets.catchJudge` and `Presets.catchFinish`.
+
+| Effect | Look | Hook |
+|---|---|---|
+| Ring pop | Each ring pops at the cat's head as it is judged: 6 gold sparkles and a gold ring 1.8 studs across for Perfect, 3 mint sparkles and a 1.4 stud ring for Good, a small grey puff and ring for a Miss. Each half of a double ring pops on its own, and a tapped paw ring pops as the Miss it is | `CatchJudged(strayId, index, grade)` |
+| Perfect hit-stop | The camera and your character's animations hold for 60 ms on a Perfect, so it lands with weight. This client only. The rings never pause, so the timing stays fair. A second Perfect inside the hold stretches it rather than stacking | the same, grade Perfect |
+| Finish | 0.6 s after the result (the net wraps and wobbles twice, Animation-Engineer's), the catch pops. PURRFECT! is the gold Purrfect burst with its ring, confetti and beam. GREAT! and NICE! get the rarity pop plus confetti in mint, or in cream. The banner gets its screen burst (gold, mint or cream) | `CatchResult`'s `finish` ("purrfect", "great", "nice"; "bolt" plays the hiss as now) and UI-Engineer's `FinishBanner` |
+
+Until the server sends `finish`, the v2 catch plays exactly as before (`Logic.catchWord`). Reduce Motion: no rings, no hit-stop, the screen sparkles halved and confetti at 40%. Low performance: the budget's smaller bursts and confetti. The cases are in `docs/vfx/cat-cafe/specs/EffectsCatchV3.spec.luau`. Studio checks, once Gameplay's trust PR is in: catch a Common with three Perfects, and each ring pops gold with a tiny hold, then PURRFECT! bursts gold after the wobble. One Good and two Perfects give GREAT! in mint. A Miss that doesn't bolt shows a grey puff. With Reduce Motion there are no rings and no hold. No new console errors.

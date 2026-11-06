@@ -114,6 +114,12 @@ function ClockService.day(): number
 	return currentDay
 end
 
+-- #1572: seconds since Config.ClockEpoch on this server's clock (a debug jump moves it), the `t` of shared/Clock and
+-- shared/Pity.
+function ClockService.now(): number
+	return os.clock() - startedAt
+end
+
 -- Server time (Workspace:GetServerTimeNow()) when the current phase ends.
 function ClockService.phaseEndsAt(): number
 	return currentEndsAt

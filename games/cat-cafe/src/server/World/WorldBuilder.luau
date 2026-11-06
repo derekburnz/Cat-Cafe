@@ -1987,6 +1987,8 @@ local RALLY_TWINS: { [string]: string } = {
 	CatCafe_Square_BuntingShort = "CatCafe_Square_RallyBuntingShort",
 }
 local RALLY_BOARD_TAG = "RallyBoard"
+-- #1753: the pity cat's sign (Layout.townSquare.pitySign), tagged for the client's countdown on its Screen part.
+local PITY_SIGN_TAG = "PitySign"
 
 type RallySwap = { plain: Instance?, rally: Instance, home: Instance }
 
@@ -2113,6 +2115,17 @@ local function buildTownSquare(parent: Instance)
 		end
 	end
 	placeRallyBoard(square)
+	local sign = spec.pitySign
+	if AssetRegistry.known(sign.asset) then
+		local model = place(
+			sign.asset,
+			CFrame.new(sign.x, sign.y or 0.1, sign.z)
+				* CFrame.Angles(0, math.rad(sign.rotY or 0), 0),
+			square
+		)
+		model.Name = sign.asset
+		CollectionService:AddTag(model, PITY_SIGN_TAG)
+	end
 end
 
 -- The paw paths (Layout.pawPrints): each print a pad and four toes, flat on what it lies on, in its area's colour.

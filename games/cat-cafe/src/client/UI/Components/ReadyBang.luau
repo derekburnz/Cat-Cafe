@@ -14,7 +14,8 @@
 -- the part or attachment it hangs from, and MaxDistance hides it past that many studs. CollectionService tags let
 -- the client find the stations the server placed, including ones that stream in later (Model-Agent's
 -- CatCafe_Camp_Park_PicnicStation, CatCafe_Camp_Neighbourhood_YardSaleStall and CatCafe_Camp_Woods_FishingHut,
--- tagged `CampExtra` with an ExtraId attribute).
+-- tagged `CampExtra` with an ExtraId attribute). #1733: the Sewer's Lost and Found (CatCafe_Camp_Sewer_LostFound)
+-- wears one too.
 --
 --   ReadyBang.new(parent)   the billboards; :update(state) with every CampExtrasState, :destroy()
 -- When each shows is CampExtrasLogic.bangShows (pure, so the cloud specs check it).
@@ -39,6 +40,7 @@ ReadyBang.__index = ReadyBang
 
 ReadyBang.TAG = "CampExtra" -- shared/CampExtras.TAG
 ReadyBang.ANCHOR = "BangAnchor"
+ReadyBang.FALLBACK_STUDS = 2 -- #1733: over the top of a station model that has no BangAnchor
 ReadyBang.BOB_STUDS = 1
 ReadyBang.BOB_SECONDS = 2 -- one full bob, up and back down
 ReadyBang.LOOK_SECONDS = 1 -- the bubble's words move on, and a station not streamed in yet is looked for again
@@ -51,8 +53,11 @@ type Bang = {
 	bob: Tween?,
 }
 
--- The station's BangAnchor attachment, or nil while the station (or that part of it) is streamed out.
-local function anchorFor(extraId: string): Attachment?
+-- The station's BangAnchor attachment, or nil while the station (or that part of it) is streamed out. #1733
+-- (Derek2 11-06: no bubble over the Sewer's Lost and Found): a station model with no BangAnchor (the Lost and Found's
+-- old box) hangs it from its main part instead, FALLBACK_STUDS over the top of the model; the second value is that
+-- lift, zero for an anchor.
+local function anchorFor(extraId: string): (Instance?, Vector3)
 	for _, instance in CollectionService:GetTagged(ReadyBang.TAG) do
 		if
 			instance:IsA("Model")
@@ -61,11 +66,18 @@ local function anchorFor(extraId: string): Attachment?
 		then
 			local anchor = instance:FindFirstChild(ReadyBang.ANCHOR, true)
 			if anchor ~= nil and anchor:IsA("Attachment") then
-				return anchor :: Attachment
+				return anchor :: Attachment, Vector3.zero
+			end
+			local model = instance :: Model
+			local part = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+			if part ~= nil then
+				local box, size = model:GetBoundingBox()
+				local top = box.Position.Y + size.Y / 2
+				return part, Vector3.new(0, top - part.Position.Y + ReadyBang.FALLBACK_STUDS, 0)
 			end
 		end
 	end
-	return nil
+	return nil, Vector3.zero
 end
 
 local function label(props: { [string]: any }): TextLabel
@@ -215,10 +227,16 @@ function ReadyBang._apply(self: any)
 	for extraId, bang: Bang in self._bangs do
 		local view = CampExtrasLogic.bubble(self._state, extraId, now)
 		local ready = CampExtrasLogic.bangShows(self._state, extraId)
-		local anchor = if view ~= nil then anchorFor(extraId) else nil
+		local anchor: Instance?, lift = nil, Vector3.zero
+		if view ~= nil then
+			anchor, lift = anchorFor(extraId)
+		end
 		local gui: any = bang.gui
 		if gui.Adornee ~= anchor then
 			gui.Adornee = anchor -- nil while hidden, so a streamed-out station isn't held on to
+		end
+		if gui.StudsOffsetWorldSpace ~= lift then
+			gui.StudsOffsetWorldSpace = lift
 		end
 		local on = anchor ~= nil
 		bang.gui.Enabled = on

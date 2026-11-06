@@ -20,6 +20,7 @@ local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IdeaCredits = require(ReplicatedStorage.Shared.IdeaCredits)
 local Net = require(script.Parent.Net)
+local Products = require(ReplicatedStorage.Shared.Products)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local IdeaCreditsService = {}
@@ -32,6 +33,7 @@ local MIRROR_SECONDS = 30 -- the most often one player's hide/<userId> key is wr
 local credits: { IdeaCredits.Credit } = {}
 local names: { [number]: string } = {}
 local hidden: { [number]: boolean } = {}
+local supporters: { [number]: boolean } = {} -- #1168 row 4: Thank You Badge buyers (SUPPORTER_PREFIX keys and players here)
 local rows: { IdeaCredits.Row } = {}
 local pendingMirror: { [number]: boolean } = {} -- each player's hide choice not yet mirrored to the store
 local mirroredAt: { [number]: number } = {} -- os.clock() of each player's last mirror write
@@ -110,7 +112,7 @@ local function sendAll()
 end
 
 local function buildRows()
-	rows = IdeaCredits.rows(credits, names, hidden)
+	rows = IdeaCredits.rows(credits, names, hidden, supporters)
 end
 
 -- Reads the credits and hide keys, looks the names up afresh and tells everyone.
@@ -137,14 +139,25 @@ local function rebuild()
 			table.insert(ids, credit.userId)
 		end
 	end
-	-- a player here who keeps their name off counts even if their hide key failed to save
+	local backers: { [number]: boolean } = {}
+	for _, key in keyNames(IdeaCredits.SUPPORTER_PREFIX, SCAN_KEYS) do
+		local userId = tonumber(string.sub(key, #IdeaCredits.SUPPORTER_PREFIX + 1))
+		if userId ~= nil then
+			backers[userId] = true
+		end
+	end
+	-- a player here who keeps their name off counts even if their hide key failed to save, and a supporter here
+	-- counts even if their supporter key did
 	for _, player in Players:GetPlayers() do
 		local profile = DataService.get(player)
 		if profile ~= nil and profile.hideCredit == true then
 			hide[player.UserId] = true
 		end
+		if profile ~= nil and Products.isSupporter(profile) then
+			backers[player.UserId] = true
+		end
 	end
-	credits, hidden, names = fresh, hide, lookUp(ids)
+	credits, hidden, supporters, names = fresh, hide, backers, lookUp(ids)
 	buildRows()
 	sendAll()
 end
@@ -175,6 +188,31 @@ local function flushMirror(userId: number)
 	pendingMirror[userId] = nil
 	mirroredAt[userId] = os.clock()
 	task.spawn(writeMirror, userId, wanted)
+end
+
+-- #1168 row 4: notes a Thank You Badge buyer for the board (a supporter/<userId> key, written once, so the heart
+-- shows by their name while they are in no server) and marks them on their Player for any client view. Called at a
+-- supporter's join and on the purchase.
+function IdeaCreditsService.markSupporter(player: Player, profile: Types.PlayerProfile)
+	if not Products.isSupporter(profile) then
+		return
+	end
+	player:SetAttribute(Products.SUPPORTER_ATTRIBUTE, true)
+	local userId = player.UserId
+	if supporters[userId] then
+		return
+	end
+	supporters[userId] = true
+	task.spawn(function()
+		local ok, err = pcall(function()
+			store():SetAsync(IdeaCredits.SUPPORTER_PREFIX .. tostring(userId), true, { userId })
+		end)
+		if not ok then
+			warn("[IdeaCredits] supporter save failed: " .. tostring(err))
+		end
+	end)
+	buildRows()
+	sendAll()
 end
 
 local function onSetHideCredit(player: Player, rawHide: unknown)
@@ -219,6 +257,7 @@ function IdeaCreditsService.start()
 		end
 	end)
 	DataService.onLoaded:Connect(function(player: Player, profile: Types.PlayerProfile)
+		IdeaCreditsService.markSupporter(player, profile) -- #1168 row 4: a new supporter here resends the board
 		if profile.hideCredit == true and not hidden[player.UserId] then
 			hidden[player.UserId] = true
 			buildRows()

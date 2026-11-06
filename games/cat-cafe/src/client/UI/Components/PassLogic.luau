@@ -12,7 +12,11 @@
 --   PassLogic.shows(view)          whether the HUD's Pass tile shows (a season is running)
 --   PassLogic.itemGlyph(kind)      a named item's symbol until its picture is drawn
 --   PassLogic.paidContents(def)    the paid track's exact contents in words, for the Store card (monetization policy)
+--   PassLogic.tagButton(view)      the chat tag button (#1626): its words and the pick its next tap asks for
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local ChatTags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("ChatTags"))
 local Types = require(script.Parent.Parent.Types)
 
 export type Track = "free" | "paid"
@@ -279,6 +283,34 @@ function PassLogic.paidContents(def: Types.PassSeasonDef?): string
 	end
 	local last = table.remove(parts) :: string
 	return table.concat(parts, ", ") .. " and " .. last
+end
+
+-- #1626 (cafe-pass.md section 3): the chat tag button on the Pass window's top strip, shown while the player has a tag
+-- to show (view.tags: VIP when owned, then their season tags). It reads the tag their name shows now, in its chat
+-- colour; a tap asks for the next of their tags, then "off", then the first again (PassSetTag; the server checks the
+-- pick and answers with CafePassState, which moves the words on).
+export type TagButton = { text: string, nextPick: string }
+
+function PassLogic.tagButton(view: Types.CafePassView?): TagButton?
+	local tags: { string } = if view and type(view.tags) == "table" then view.tags else {}
+	local cycle: { string } = {}
+	for _, id in tags do
+		if ChatTags.TAGS[id] ~= nil then
+			table.insert(cycle, id)
+		end
+	end
+	if #cycle == 0 or view == nil then
+		return nil
+	end
+	table.insert(cycle, ChatTags.OFF)
+	local shown: string = view.tagShown or ChatTags.OFF
+	local at = table.find(cycle, shown) or #cycle
+	local nextPick = cycle[at % #cycle + 1]
+	local tag = ChatTags.TAGS[shown]
+	local text = if tag
+		then ('Chat tag <font color="%s">%s</font>'):format(tag.color, tag.text)
+		else "Chat tag: off"
+	return { text = text, nextPick = nextPick }
 end
 
 return PassLogic

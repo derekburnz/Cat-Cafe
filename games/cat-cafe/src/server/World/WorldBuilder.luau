@@ -383,6 +383,36 @@ end
 -- It replaces the old night-only Closed sign (v0.5 F44, CatCafe_Plot_ClosedSign).
 local DOOR_SIGN = "CatCafe_Decor_DoorSign"
 
+-- #1624 (themes.py): a cafe theme brings its own awning, so the shell's `_Awning` child Models hide while one shows.
+-- Hiding keeps each part's own transparency in an attribute and puts it back after; nothing on an awning collides.
+local AWNING_TRANSPARENCY = "ThemeTransparency"
+
+function WorldBuilder.setAwningHidden(plot: Plot, hidden: boolean)
+	local shell = plot.shell
+	if shell == nil then
+		return
+	end
+	for _, child in shell:GetChildren() do
+		if not child:IsA("Model") or child.Name:sub(-7) ~= "_Awning" then
+			continue
+		end
+		for _, descendant in child:GetDescendants() do
+			if not descendant:IsA("BasePart") then
+				continue
+			end
+			local piece = descendant :: BasePart
+			local kept = piece:GetAttribute(AWNING_TRANSPARENCY)
+			if hidden and kept == nil then
+				piece:SetAttribute(AWNING_TRANSPARENCY, piece.Transparency)
+				piece.Transparency = 1
+			elseif not hidden and type(kept) == "number" then
+				piece.Transparency = kept
+				piece:SetAttribute(AWNING_TRANSPARENCY, nil)
+			end
+		end
+	end
+end
+
 function WorldBuilder.setDoorSign(plot: Plot, shown: boolean)
 	local existing = plot.dressing:FindFirstChild("DoorSign")
 	if not shown then

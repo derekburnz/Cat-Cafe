@@ -128,6 +128,7 @@ export type HUD = {
 	glowTutorial: (self: HUD) -> (),
 	pulseTutorial: (self: HUD) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
+	setMoneyBadge: (self: HUD, badge: { text: string, owned: boolean }?) -> (), -- #1606
 	-- F92: the pals on the server (PalsChanged), for the chip and the boosts card
 	setPals: (self: HUD, userIds: { number }) -> (),
 	-- F92: "Sam is in the Park" over the travel button to that area, glowing; nil text takes it away
@@ -145,6 +146,8 @@ local MONEY_W = 232
 local MONEY_H = 44
 local COUNTER_COIN = 36
 local COUNTER_TEXT = 30
+local MONEY_BADGE_H = 30 -- #1606: the money pass badge beside the money
+local MONEY_BADGE_TEXT = 22
 local COUNTER_GAP = 14
 -- the row's widest usual reach (the money at MONEY_W and "12.3K" golden fish): the bottom row moves right of it
 local CORNER_W = MONEY_W + COUNTER_GAP + COUNTER_COIN + 8 + 90
@@ -538,7 +541,58 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 
 	-- Golden fish (F52): the rare currency's counter beside the money, with the gold fish (F97). Hidden until
 	-- ProfileSync sends goldenFish.
-	local fish = counter("Fish", 2, "Frame")
+	-- #1606: the money pass badge beside the money (setMoneyBadge): "2x" to "4x" in gold once a money pass is owned
+	-- (a tap opens the boosts card, as the money does), or a small berry "Get 2x" pill while none is (a tap opens the
+	-- Store). Hidden until the Store knows.
+	-- the tap area is the counters' height and at least as wide (a finger's 44 px on a phone); the pill sits inside it
+	local badge: TextButton = Create("TextButton", {
+		Name = "MoneyBadge",
+		AutoButtonColor = false,
+		BackgroundTransparency = 1,
+		Text = "",
+		Size = UDim2.fromOffset(0, counterH),
+		AutomaticSize = Enum.AutomaticSize.X,
+		LayoutOrder = 2,
+		Visible = false,
+		Parent = counters,
+	}, {
+		Create("UISizeConstraint", { MinSize = Vector2.new(counterH, 0) }),
+		Create("UIListLayout", {
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+		}),
+	})
+	local pill: TextLabel = Create("TextLabel", {
+		Name = "Pill",
+		BackgroundColor3 = Theme.colors.berry,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(0, MONEY_BADGE_H),
+		AutomaticSize = Enum.AutomaticSize.X,
+		FontFace = Theme.fonts.display,
+		TextSize = MONEY_BADGE_TEXT,
+		TextColor3 = Theme.colors.gold,
+		Text = "",
+		Parent = badge,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
+	})
+	Outline.text(pill, 2.5)
+	self._moneyPill = pill
+	self._moneyBadge = badge
+	self._moneyBadgeOwned = false
+	table.insert(
+		self._connections,
+		badge.Activated:Connect(function()
+			if self._moneyBadgeOwned then
+				self:_toggleBoosts()
+			else
+				self._callbacks.openScreen("Store")
+			end
+		end)
+	)
+
+	local fish = counter("Fish", 3, "Frame")
 	fish.Visible = false
 	self._fishPanel = fish
 	FishCoin.new({
@@ -2814,6 +2868,22 @@ function HUD._stopClock(self: any)
 		connection:Disconnect()
 		self._clockConnection = nil
 	end
+end
+
+-- #1606: the money pass badge (StoreLogic.moneyBadge): "3x" in gold once owned, a berry "Get 2x" pill while not, or
+-- hidden with nil.
+function HUD.setMoneyBadge(self: any, badge: { text: string, owned: boolean }?)
+	local button: TextButton = self._moneyBadge
+	button.Visible = badge ~= nil
+	if badge == nil then
+		return
+	end
+	self._moneyBadgeOwned = badge.owned
+	local pill: TextLabel = self._moneyPill
+	pill.Text = badge.text
+	pill.TextSize = if badge.owned then MONEY_BADGE_TEXT else MONEY_BADGE_TEXT - 6
+	pill.TextColor3 = if badge.owned then Theme.colors.gold else Theme.colors.white
+	pill.BackgroundTransparency = if badge.owned then 1 else 0
 end
 
 function HUD.setVisible(self: any, visible: boolean)

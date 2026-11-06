@@ -2236,6 +2236,17 @@ function Logic.luckyDayOn(luckyDay: unknown, phase: unknown): boolean
 	return luckyDay == true and phase ~= "night"
 end
 
+-- Whether the gold sky tint is on (luck-and-rare-moments.md 1g, #1572): any of the day's kinds (the Clock's
+-- `LuckyDay`, `GoldenDay` and `RainbowDay`) is true and its `Phase` is not night.
+function Logic.specialDayOn(
+	lucky: unknown,
+	golden: unknown,
+	rainbow: unknown,
+	phase: unknown
+): boolean
+	return (lucky == true or golden == true or rainbow == true) and phase ~= "night"
+end
+
 -- A Lucky Cat statue's level from its model's name (`CatCafe_Plot_LuckyCat_3` is 3), or nil when the name ends in no
 -- level from 0 to 5.
 function Logic.luckyCatLevel(name: string): number?

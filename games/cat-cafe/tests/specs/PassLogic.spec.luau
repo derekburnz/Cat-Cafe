@@ -150,6 +150,26 @@ return function()
 			expect(PassLogic.paidContents(nil)).to.equal("")
 		end)
 
+		it("walks the chat tag button through the player's tags, then off (#1626)", function()
+			local view: any = { season = 1, tags = { "vip", "tag_maple" }, tagShown = "vip" }
+			local button = PassLogic.tagButton(view)
+			expect(button.text).to.equal('Chat tag <font color="#F2C14E">[VIP]</font>')
+			expect(button.nextPick).to.equal("tag_maple")
+			view.tagShown = "tag_maple"
+			expect(PassLogic.tagButton(view).text).to.equal(
+				'Chat tag <font color="#D9822B">[Maple]</font>'
+			)
+			expect(PassLogic.tagButton(view).nextPick).to.equal("off")
+			view.tagShown = nil
+			expect(PassLogic.tagButton(view).text).to.equal("Chat tag: off")
+			expect(PassLogic.tagButton(view).nextPick).to.equal("vip")
+			-- no tags, an unknown one only, or no view: no button
+			expect(PassLogic.tagButton({ season = 1, tags = {} } :: any)).to.equal(nil)
+			expect(PassLogic.tagButton({ season = 1, tags = { "nope" } } :: any)).to.equal(nil)
+			expect(PassLogic.tagButton({ season = 1 } :: any)).to.equal(nil)
+			expect(PassLogic.tagButton(nil)).to.equal(nil)
+		end)
+
 		it("names every paid item of season 1 in a few words", function()
 			for level = 1, 30 do
 				local item = def.paid[level].item

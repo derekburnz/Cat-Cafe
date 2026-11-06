@@ -4,6 +4,9 @@
 --   view(t, state) -> View   "Legendary cat in 12:30", "Mythical cat in 1:42:10", and while a pity cat is out
 --                            "Now in the Woods!" (its kind in statusKind, for the colour), after a catch "Caught by Sam"
 -- `state` is ReplicatedStorage.Pity's attributes (PityService): Kind, Area, State ("out", "caught" or ""), Winner.
+--   current() -> State?      those attributes now (nil before the server makes the folder)
+--   lines(view) -> {string}  the view as the day clock card's lines (1h: "the same two lines show on the day clock's
+--                            card"), the status last when there is one
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -48,6 +51,32 @@ function PityLogic.view(t: number, state: State?): View
 		view.statusKind = state.kind
 	end
 	return view
+end
+
+local function attr(folder: Instance, name: string): string
+	local value = folder:GetAttribute(name)
+	return if type(value) == "string" then value else ""
+end
+
+function PityLogic.current(): State?
+	local folder = ReplicatedStorage:FindFirstChild(Pity.FOLDER)
+	if folder == nil then
+		return nil
+	end
+	return {
+		kind = attr(folder, "Kind"),
+		area = attr(folder, "Area"),
+		state = attr(folder, "State"),
+		winner = attr(folder, "Winner"),
+	}
+end
+
+function PityLogic.lines(view: View): { string }
+	local lines = { view.legendary, view.mythical }
+	if view.status then
+		table.insert(lines, view.status)
+	end
+	return lines
 end
 
 return PityLogic

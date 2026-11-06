@@ -10,7 +10,7 @@ return function()
 
 	local expected: { [string]: any } = {
 		ServerPlayers = 8,
-		StartCoins = 50,
+		StartCoins = 850, -- #1796: was 50
 		FavoriteMultiplier = 1.5,
 		TableBonus = 0.10,
 		EspressoBonus = 0.15,
@@ -201,6 +201,9 @@ return function()
 		LuckyDayWaveLuck = 2,
 		LuckyDayPlayerLuck = 0.5,
 		LuckyDayWarnSeconds = 15,
+		PityLegendarySeconds = 1800, -- #1572 (1h): the global pity cat (shared/Pity)
+		PityMythicalEvery = 4,
+		PityClaimRetries = 3,
 		-- Pals (F92, playing-together.md 6)
 		PalTipBonus = 0.10,
 		PalTipBonusStep = 0.05, -- #1165: +5% for each more pal
@@ -435,6 +438,7 @@ return function()
 				LawnRarityBonus = true, -- #1283 (lawn-nursery.md section 6a): a table, checked in Lawn.spec
 				YardDecorRows = true, -- #1537 (lawn-nursery.md section 7): checked in YardSale.spec
 				YardDecorRarityWeights = true, -- #1537: a table, checked in YardSale.spec
+				PityAreaWeights = true, -- #1572 (luck-and-rare-moments.md 1h): a table, checked in Pity.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

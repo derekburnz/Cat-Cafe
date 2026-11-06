@@ -130,6 +130,9 @@ export type CustomEvent =
 	-- won, tier) and a Lucky Day's sunrise (value the players in the server; the area of a Mythical, or none)
 	| "luck_used"
 	| "lucky_day"
+	-- #1572 (luck-and-rare-moments.md 1h): a pity cat's end in this server (value the slot; area, kind, and secured,
+	-- lost (another server's catch came first), gone (caught elsewhere) or expired (night came first))
+	| "pity_cat"
 	-- F89 (luck-and-rare-moments.md 2d): a big pull; rarity, gold yes or no, catch, bait or rescue
 	| "rare_secured"
 	-- F102 (trading.md section 6): a trade swapped, for each player in it; value the cats that moved, fields the cats

@@ -48,7 +48,9 @@ return function()
 		for size, prize in Catalog.achievementPrizes do
 			add("achievement " .. size, prize, size == "XL")
 		end
-		local finishers = { cats10 = true, gold10 = true, total25 = true, total50 = true }
+		-- #1772: goldtotal50 ends the All Cats page's gold cats track
+		local finishers =
+			{ cats10 = true, gold10 = true, total25 = true, total50 = true, goldtotal50 = true }
 		for page, prizes in Catalog.indexPrizes do
 			for id, prize in prizes do
 				add("index " .. page .. " " .. id, prize, finishers[id] == true)

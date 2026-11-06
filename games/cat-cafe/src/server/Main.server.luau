@@ -37,6 +37,7 @@ local Net = require(script.Parent.Services.Net)
 local NightService = require(script.Parent.Services.NightService)
 local PalService = require(script.Parent.Services.PalService)
 local PassService = require(script.Parent.Services.PassService)
+local PityService = require(script.Parent.Services.PityService)
 local PlotService = require(script.Parent.Services.PlotService)
 local PotionService = require(script.Parent.Services.PotionService)
 local ProductService = require(script.Parent.Services.ProductService)
@@ -83,6 +84,7 @@ CatService.start(world)
 RescueService.start(world)
 TravelService.start(world)
 NightService.start(world) -- after the cats, traps and travel: the first sunrise wave
+PityService.start() -- #1572: the global pity cat, after the cats it spawns and the clock it counts on
 CannonService.start(world) -- F84: after the cats, travel and the night sweep it hands landings to
 DealerService.start()
 RichTipService.start()

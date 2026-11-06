@@ -86,6 +86,9 @@ local DETAIL_ART = 176
 local ALL_AREA = IndexRewards.ALL_AREA
 local RAINBOW_AREA = IndexRewards.RAINBOW_AREA -- the Rainbow cats line (F99)
 local RAINBOW_NAME = "Rainbow cats"
+-- #1772 (Derek2: "index is missing overall gold milestones from any place even rainbow has it"): on the Gold tab the
+-- All cats line becomes Gold cats, every area's gold cats against the All Cats page's gold track (goldtotal5 to 50)
+local GOLD_NAME = "Gold cats"
 local PORTRAITS_PER_FRAME = 10 -- a tab's 50-odd models are cloned over a few frames
 
 local CatCollection = {}
@@ -767,7 +770,8 @@ function CatCollection._buildIndex(self: any)
 
 	-- every area the catalog or its cats name, in tier order; the All cats line first (the Rainbow cats line takes
 	-- its place on the Rainbow tab)
-	self:_buildSection(ALL_AREA, Format.areaName(ALL_AREA), 0, false)
+	local allLine = self:_buildSection(ALL_AREA, Format.areaName(ALL_AREA), 0, false)
+	self._allTitleColor = allLine.title.TextColor3 -- back from the Gold tab's gold (#1772)
 	local rainbowLine = self:_buildSection(RAINBOW_AREA, RAINBOW_NAME, 0, false)
 	Rainbow.text(rainbowLine.title)
 	Rainbow.fill(rainbowLine.fill)
@@ -956,13 +960,22 @@ function CatCollection._renderBook(self: any, state: Types.PlayerState)
 			section.hint.Text = IndexBook.EXCLUSIVE_NOTE -- F96: it counts toward nothing and has no rewards
 		end
 	end
-	-- the line over the areas: the All Cats track on the Cats tab, the Rainbow track on the Rainbow tab, none on Gold
-	local lineId: string? = if tab == "Index" then ALL_AREA elseif rainbow then RAINBOW_AREA else nil
+	-- the line over the areas: the All Cats track on the Cats tab, its gold track as Gold cats on the Gold tab (#1772)
+	-- and the Rainbow track on the Rainbow tab
+	local lineId: string? = if tab == "Index" or gold
+		then ALL_AREA
+		elseif rainbow then RAINBOW_AREA
+		else nil
 	local line = if lineId then self._sections[lineId] else nil
 	if line and lineId then
 		local counts = IndexRewards.counts(catalog, state, lineId)
 		local views = IndexRewards.views(catalog, state, lineId)
-		local have, total = if rainbow then counts.rainbow else counts.found, counts.total
+		local have = if rainbow then counts.rainbow elseif gold then counts.gold else counts.found
+		local total = counts.total
+		if lineId == ALL_AREA then
+			line.title.Text = if gold then GOLD_NAME else Format.areaName(ALL_AREA)
+			line.title.TextColor3 = if gold then Theme.colors.gold else self._allTitleColor
+		end
 		self:_paintHeader(
 			line,
 			have,

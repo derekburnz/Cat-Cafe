@@ -18,6 +18,7 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog"))
 
@@ -42,6 +43,10 @@ type Held = {
 	retryAt: number,
 	-- when the copy went on the arms, while it still fades in (nil once it shows fully)
 	fadeFrom: number?,
+	-- #1480: a copy held still as one piece (no Pose idle), each part at its offset from the copy's pivot. Used when
+	-- Pose cannot read the copy or once it drew any of it away from the arms on a live server.
+	still: { BasePart }?,
+	stillAt: { CFrame }?,
 }
 
 local held: { [Model]: Held } = {}
@@ -122,6 +127,38 @@ local function release(entry: Held, fadeAt: number?)
 		setHidden(cat, false)
 	end
 	entry.cat, entry.copy, entry.copyRig, entry.fadeFrom = nil, nil, nil, nil
+	entry.still, entry.stillAt = nil, nil
+end
+
+-- Holds `copy` still as one piece from now on: each part's offset from its pivot, read where it was just seated.
+local function holdStill(entry: Held, copy: Model)
+	local pivot = copy:GetPivot()
+	local parts: { BasePart } = {}
+	local offsets: { CFrame } = {}
+	for _, item in copy:GetDescendants() do
+		if item:IsA("BasePart") then
+			local part = item :: BasePart
+			local offset: CFrame = pivot:ToObjectSpace(part.CFrame)
+			table.insert(parts, part)
+			table.insert(offsets, offset)
+		end
+	end
+	entry.copyRig, entry.still, entry.stillAt = nil, parts, offsets
+end
+
+-- Draws a still copy on the arms at `floor`, breathing a little up and down.
+local function drawStill(entry: Held, floor: CFrame, now: number)
+	local parts, offsets = entry.still, entry.stillAt
+	if parts == nil or offsets == nil then
+		return
+	end
+	local at = floor
+		* CFrame.new(0, Presets.carryPose.stillBreath * math.sin((now + entry.phase) * 2), 0)
+	local frames: { CFrame } = {}
+	for i, offset in offsets do
+		frames[i] = at * offset
+	end
+	Workspace:BulkMoveTo(parts, frames, Enum.BulkMoveMode.FireCFrameChanged)
 end
 
 -- The whole cat model the HeldCat was made from, out of ReplicatedStorage.Assets (the gold coat's for a gold one):
@@ -229,7 +266,7 @@ local function show(character: Model, entry: Held, cat: Model, now: number)
 		copy.Parent = Context.folder()
 	end
 	local copyRig = if copy ~= nil then Pose.bind(copy) else nil -- its parts are anchored: Pose moves each one
-	if copy == nil or copyRig == nil or copyRig.usesMotors then
+	if copy == nil then
 		report(
 			character,
 			"refused",
@@ -262,10 +299,17 @@ local function show(character: Model, entry: Held, cat: Model, now: number)
 			tostring(cat:GetAttribute("CatId")),
 			if assetOf(cat) ~= nil then "Assets" else "the HeldCat",
 			parts,
-			copyRig.body.Name
+			if copyRig ~= nil and not copyRig.usesMotors
+				then copyRig.body.Name
+				else "none: held still"
 		)
 	)
-	entry.cat, entry.copy, entry.copyRig = cat, copy, copyRig
+	entry.cat, entry.copy = cat, copy
+	if copyRig ~= nil and not copyRig.usesMotors then
+		entry.copyRig, entry.still, entry.stillAt = copyRig, nil, nil
+	else
+		holdStill(entry, copy)
+	end
 	entry.phase = rng:NextNumber(0, 100)
 	entry.fadeFrom = now
 	-- hidden, then fading in on the arms over carryPose.blendIn as they fold (#1138: no pop)
@@ -384,72 +428,92 @@ local function place()
 				)
 			)
 		end
-		local copyRig = entry.copyRig
-		if copyRig == nil or cat == nil then
+		local copy = entry.copy
+		if copy == nil or cat == nil or (entry.copyRig == nil and entry.still == nil) then
 			continue
 		end
 		setHidden(cat, true) -- the camera scripts put the character's parts back every so often
 		local floor = restingFloor(character, entry)
-		if not Pose.read(copyRig) then
-			report(character, "dropped", "copy taken off: one of its parts went (Pose.read)")
-			release(entry)
-			continue
-		end
-		Pose.hold(copyRig, floor)
-		Pose.draw(copyRig, Logic.idle("held", now + entry.phase, copyRig.kind), -1)
-		-- #1480: drawn somewhere else (the parts did not take the move, or something else moved them): seat it again
-		-- and read it afresh there
-		local drawnAt = copyRig.body.Position
-		if (drawnAt - floor.Position).Magnitude > Presets.carryPose.reach and entry.copy ~= nil then
-			local copy = entry.copy :: Model
-			report(
-				character,
-				"reseated",
-				string.format(
-					"copy drawn at %.1f, %.1f, %.1f, not on the arms at %.1f, %.1f, %.1f: seated again",
-					drawnAt.X,
-					drawnAt.Y,
-					drawnAt.Z,
-					floor.X,
-					floor.Y,
-					floor.Z
-				)
-			)
-			copy:PivotTo(floor)
-			local again = Pose.bind(copy)
-			if again ~= nil and not again.usesMotors then
-				entry.copyRig = again
-				copyRig = again
-				Pose.hold(again, floor)
-				Pose.draw(again, Logic.idle("held", now + entry.phase, again.kind), -1)
+		local copyRig = entry.copyRig
+		if copyRig ~= nil then
+			if not Pose.read(copyRig) then
+				report(character, "dropped", "copy taken off: one of its parts went (Pose.read)")
+				release(entry)
+				continue
 			end
-		end
-		if entry.copy ~= nil then
-			local copy = entry.copy :: Model
-			fadeIn(entry, copy, now)
-			if entry.fadeFrom == nil then
-				local at = copy:GetPivot().Position
-				local root = character:FindFirstChild("HumanoidRootPart")
-				local away = if root ~= nil and root:IsA("BasePart")
-					then (at - (root :: BasePart).Position).Magnitude
-					else -1
-				local body = copyRig.body
+			Pose.hold(copyRig, floor)
+			Pose.draw(copyRig, Logic.idle("held", now + entry.phase, copyRig.kind), -1)
+			-- #1480 (Derek2 2026-11-06): on a live server Pose drew the copy hundreds of studs off the arms, and seating
+			-- it again brought back only the body. Any part drawn that far off: a fresh copy, held still from now on.
+			local farthest = 0
+			for _, part in copyRig.parts do
+				farthest = math.max(farthest, (part.Position - floor.Position).Magnitude)
+			end
+			if farthest > Presets.carryPose.reach then
+				local drawnAt = copyRig.body.Position
 				report(
 					character,
-					"placed",
+					"still",
 					string.format(
-						"copy at %.1f, %.1f, %.1f, %.1f studs from the root, in %s, body hidden %.2f, "
-							.. "transparency %.2f",
-						at.X,
-						at.Y,
-						at.Z,
-						away,
-						if copy.Parent ~= nil then copy.Parent:GetFullName() else "nothing",
-						body.LocalTransparencyModifier,
-						body.Transparency
+						"copy drawn up to %.1f studs off the arms (body at %.1f, %.1f, %.1f, arms at %.1f, %.1f, %.1f): "
+							.. "a fresh copy held still",
+						farthest,
+						drawnAt.X,
+						drawnAt.Y,
+						drawnAt.Z,
+						floor.X,
+						floor.Y,
+						floor.Z
 					)
 				)
+				local fresh = copyOf(cat)
+				if fresh == nil then
+					release(entry)
+					continue
+				end
+				fresh:PivotTo(floor)
+				fresh.Parent = Context.folder()
+				setFade(fresh, fadeOf(copy))
+				copy:Destroy()
+				copy = fresh
+				entry.copy = fresh
+				holdStill(entry, fresh)
 			end
+		end
+		if entry.still ~= nil then
+			drawStill(entry, floor, now)
+		end
+		fadeIn(entry, copy, now)
+		if entry.fadeFrom == nil then
+			local at = copy:GetPivot().Position
+			local root = character:FindFirstChild("HumanoidRootPart")
+			local away = if root ~= nil and root:IsA("BasePart")
+				then (at - (root :: BasePart).Position).Magnitude
+				else -1
+			local farthest = 0
+			for _, item in copy:GetDescendants() do
+				if item:IsA("BasePart") then
+					farthest = math.max(farthest, ((item :: BasePart).Position - at).Magnitude)
+				end
+			end
+			local body = copy.PrimaryPart or copy:FindFirstChildWhichIsA("BasePart", true)
+			report(
+				character,
+				"placed",
+				string.format(
+					"copy at %.1f, %.1f, %.1f, %.1f studs from the root, every part within %.1f of it, %s, in %s, "
+						.. "body hidden %.2f, transparency %.2f",
+					at.X,
+					at.Y,
+					at.Z,
+					away,
+					farthest,
+					if entry.still ~= nil then "held still" else "posed",
+					if copy.Parent ~= nil then copy.Parent:GetFullName() else "nothing",
+					if body ~= nil then (body :: BasePart).LocalTransparencyModifier else -1,
+					if body ~= nil then (body :: BasePart).Transparency else -1
+				)
+			)
 		end
 	end
 end

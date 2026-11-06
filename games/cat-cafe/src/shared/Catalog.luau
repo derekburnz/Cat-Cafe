@@ -3871,6 +3871,12 @@ Catalog.products = {
 		name = "Potion Pack L",
 		prize = { potions = { big_tip_potion = 10, swift_potion = 6, steady_potion = 6 } },
 	},
+	-- #1168 row 8 (Monetization-Agent, 2026-11-06): R$25, repeatable, 10 Steady Paw potions (easier catch circles only)
+	{
+		id = "steady_paw_pack",
+		name = "Steady Paw Pack",
+		prize = { potions = { steady_potion = 10 } },
+	},
 	-- #1625 (store-skus.md): R$99, once per account. Sprinkles, 10 Big Money, 5 Swift and the Bakery Stripes sign.
 	{
 		id = "starter_bundle",
@@ -3881,6 +3887,15 @@ Catalog.products = {
 			cats = { "sprinkles" },
 			signStyles = { "bakery_stripes" },
 		},
+	},
+	-- #1168 row 4 (Monetization-Agent, 2026-11-06): R$25, once per account, no gameplay effect. It marks the buyer a
+	-- supporter (Products.isSupporter): a gold heart by their name on the Thank You board and a "[Thank You]" chat tag.
+	{
+		id = "thank_you_badge",
+		name = "Thank You Badge",
+		oncePerAccount = true,
+		supporter = true,
+		prize = { potions = {} },
 	},
 	-- #1626 (cafe-pass.md section 1): the paid track of the season running when it is bought. It holds no potions:
 	-- everything comes from the track's levels as they are reached (CafePassService).

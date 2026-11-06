@@ -1,18 +1,11 @@
 --!strict
--- Jukebox.luau (#1168 row 2): the Jukebox Pass's four songs, owned only through the pass, the pick SetJukeboxTrack
--- may save, and saves made whole.
+-- Jukebox.luau (#1168 row 2, free since #1875): the four cafe songs every player has, the pick SetJukeboxTrack may
+-- save, and saves made whole.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Config = require(Shared.Config)
 	local Jukebox = require(Shared.Jukebox)
 	local ProfileSchema = require(Shared.ProfileSchema)
-
-	local none = function(): boolean
-		return false
-	end
-	local all = function(id: number): boolean
-		return id ~= 0
-	end
 
 	describe("Jukebox", function()
 		it("lists four songs, each with its own id and client cue", function()
@@ -26,33 +19,35 @@ return function()
 			end
 		end)
 
-		it("owns the songs only with a made pass", function()
-			expect(#Jukebox.owned(none)).to.equal(0)
-			expect(#Jukebox.owned(function(id: number): boolean
-				return id == 0
-			end)).to.equal(0)
-			if (Config :: any).JukeboxPassId ~= 0 then
-				expect(#Jukebox.owned(all)).to.equal(4)
+		it("gives every player all four songs, with no pass (#1875)", function()
+			local ids = Jukebox.owned()
+			expect(#ids).to.equal(4)
+			for i, track in Jukebox.TRACKS do
+				expect(ids[i]).to.equal(track.id)
 			end
 		end)
 
-		it("lets SetJukeboxTrack save the rotation always, a song only with the pass", function()
+		it("lets SetJukeboxTrack save the rotation or any known song, and nothing else", function()
 			for _, plain in { nil :: any, "", Jukebox.DEFAULT } do
-				local ok, pick = Jukebox.pickFor(plain, none)
+				local ok, pick = Jukebox.pickFor(plain)
 				expect(ok).to.equal(true)
 				expect(pick).to.equal(nil)
 			end
-			local id = Jukebox.TRACKS[1].id
-			expect(Jukebox.pickFor(id, none)).to.equal(false)
-			expect(Jukebox.pickFor("nope", all)).to.equal(false)
-			expect(Jukebox.pickFor(5, all)).to.equal(false)
-			expect(Jukebox.shown(id, none)).to.equal(nil)
-			if (Config :: any).JukeboxPassId ~= 0 then
-				local ok, pick = Jukebox.pickFor(id, all)
+			for _, track in Jukebox.TRACKS do
+				local ok, pick = Jukebox.pickFor(track.id)
 				expect(ok).to.equal(true)
-				expect(pick).to.equal(id)
-				expect(Jukebox.shown(id, all)).to.equal(id)
+				expect(pick).to.equal(track.id)
+				expect(Jukebox.shown(track.id)).to.equal(track.id)
 			end
+			expect(Jukebox.pickFor("nope")).to.equal(false)
+			expect(Jukebox.pickFor(5)).to.equal(false)
+			expect(Jukebox.pickFor({})).to.equal(false)
+			expect(Jukebox.shown("nope")).to.equal(nil)
+			expect(Jukebox.shown(nil)).to.equal(nil)
+		end)
+
+		it("keeps the pass id in Config so earlier buyers see no errors", function()
+			expect(type((Config :: any).JukeboxPassId)).to.equal("number")
 		end)
 
 		it("keeps a known pick through a save, and drops anything else", function()

@@ -40,8 +40,8 @@ end
 -- Tweens `object`'s scale through `steps` ({ multiple of its rest scale, seconds, style }), one after the other.
 local function scaleThrough(object: GuiObject, steps: { { any } })
 	local scale, base = scaleOf(object)
-	local old = running[object]
-	if old ~= nil then
+	local old: Tween? = running[object]
+	if old then
 		old:Cancel()
 	end
 	local i = 0

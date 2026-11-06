@@ -105,6 +105,7 @@ type Carry = {
 	rushUntil: number?, -- server time the Catch Rush ends (F55); nil for a picked-up cat
 	homePos: Vector3?, -- F67: where it was caught (a rescue: the cat spot nearest its trap), for a Drop to walk back to
 	knocks: number, -- F84: times tackles knocked it loose since it was first caught (camp_checkin)
+	bonusXp: number?, -- #1884 (catch-rework.md 7d): a PURRFECT catch's XP, given as it checks in
 }
 
 -- What a Dropped cat keeps from the arms it fell out of (section 10c): charm, gold and rescued flag.
@@ -140,7 +141,7 @@ end
 
 local MAX_CIRCLES = 1 -- the most circles any rarity has; bounds the CatchPress index
 for _, rarity in Catalog.rarities do
-	MAX_CIRCLES = math.max(MAX_CIRCLES, rarity.circles)
+	MAX_CIRCLES = math.max(MAX_CIRCLES, rarity.circles + Config.CatchSpareRings) -- #1884: Circles.ringCap
 end
 
 -- Helpers -------------------------------------------------------------------------------------------------
@@ -1051,7 +1052,8 @@ local function startCarry(
 	pickedUp: boolean?,
 	funnel: Telemetry.CatchFunnel?,
 	homePos: Vector3?,
-	knocks: number?
+	knocks: number?,
+	bonusXp: number?
 ): boolean
 	if carrying[player] ~= nil then
 		warn(
@@ -1074,6 +1076,7 @@ local function startCarry(
 		funnel = funnel,
 		homePos = homePos,
 		knocks = knocks or 0,
+		bonusXp = bonusXp,
 	}
 	carrying[player] = carry
 	attachHeldCat(player, carry)
@@ -1140,6 +1143,34 @@ local function endCarry(player: Player): Carry?
 		character:SetAttribute("RushUntil", 0) -- checked in or knocked loose mid-rush: the speed lines stop (F55)
 	end
 	return carry
+end
+
+-- #1884 (catch-rework.md 7d): each player's PURRFECT catches in a row this session; any other result resets it.
+local purrfectStreak: { [Player]: number } = {}
+
+-- The finish CatchResult carries (#1884): the trust reached, the need, how it ended and the streak after it.
+local function finishOf(
+	player: Player,
+	attempt: Circles.Attempt,
+	finish: Types.CatchFinishKind
+): Types.CatchFinish
+	local streak = if finish == "purrfect" then (purrfectStreak[player] or 0) + 1 else 0
+	purrfectStreak[player] = streak
+	return {
+		trust = attempt.trust or 0,
+		trustNeed = attempt.need or 0,
+		finish = finish,
+		streak = streak,
+	}
+end
+
+-- #1727, #1884: the server's grade and the trust after it, for every circle judged since `before` (pressed or
+-- expired), to the catcher alone.
+local function sendJudged(player: Player, strayId: string, attempt: Circles.Attempt, before: number)
+	for judged = before, attempt.nextIndex - 1 do
+		local grade = attempt.grades[judged]
+		Net.fire(player, "CatchJudged", strayId, judged, grade, attempt.trust)
+	end
 end
 
 local function logCircle(player: Player, strayId: string, attempt: Circles.Attempt, index: number)
@@ -1280,7 +1311,8 @@ local function tutorialMiss(
 		attempt.grades,
 		false,
 		0,
-		serverNow() + Config.TutorialRetrySeconds
+		serverNow() + Config.TutorialRetrySeconds,
+		finishOf(player, attempt, "bolt")
 	)
 	if forfeit ~= nil then
 		Net.toast(player, forfeit, "warn")
@@ -1358,9 +1390,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	stray.funnel = nil
 	local perfect = Circles.perfectCount(attempt)
 	local rarity: string = stray.def.rarity
+	local finishKind: Types.CatchFinishKind = if succeeded then Circles.finish(attempt) else "bolt"
 	local result: string = if not succeeded
 		then (if forfeit ~= nil then "forfeit" else "missed")
-		elseif perfect == #attempt.circles then "purrfect"
+		elseif finishKind == "purrfect" then "purrfect"
 		else "caught"
 	Telemetry.custom(
 		player,
@@ -1378,7 +1411,11 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 				or stray.recaught
 			then 0
 			else Circles.charmGain(attempt)
-		Net.fire(player, "CatchResult", stray.id, attempt.grades, true, gain)
+		local finish = finishOf(player, attempt, finishKind)
+		Net.fire(player, "CatchResult", stray.id, attempt.grades, true, gain, nil, finish)
+		-- #1884: catch-rework.md 7d's finish, value the rings it took; finish, rarity, mood (PR 2)
+		local fields: { string } = { finishKind, rarity, "none" }
+		Telemetry.custom(player, "catch_finish", #attempt.grades, fields)
 		profile.stats.grabsSucceeded += 1
 		local method: Types.CatchMethod = stray.method
 		local def, variant = stray.def, stray.variant
@@ -1394,7 +1431,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 			and not stray.recaught
 			and snackRandom:NextNumber() < Config.CatchSnackChance
 		despawn(stray, player)
-		startCarry(player, def, method, charm, variant, nil, funnel, homePos, knocks)
+		local bonusXp = if finishKind == "purrfect" and not profile.flags.autoPress
+			then Config.CatXpBase
+			else nil
+		startCarry(player, def, method, charm, variant, nil, funnel, homePos, knocks, bonusXp)
 		if dropsSnack then
 			local paid =
 				Payout.pay(player, profile, { catFood = { small_cat_snack = 1 } }, "catch_snack")
@@ -1425,8 +1465,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		attempt.grades,
 		false,
 		0,
-		stray.selfRetryAt[player.UserId]
+		stray.selfRetryAt[player.UserId],
+		finishOf(player, attempt, "bolt")
 	)
+	Telemetry.custom(player, "catch_finish", #attempt.grades, { "bolt", rarity, "none" })
 	startle(player)
 	-- The catch HUD says the cat got away (UI.catch.showGrades); only a forfeit needs words from here (reviewer S39).
 	Net.toast(player, if forfeit ~= nil then forfeit else "Your paws are shaking!", "warn")
@@ -1541,17 +1583,28 @@ function startCatch(
 	local circles = if tutorial
 		then Circles.tutorialSchedule(now, roll)
 		else Circles.schedule(stray.def.rarity, netLevel, now, roll)
-	local attempt = Circles.newAttempt(circles, windows)
+	-- #1884 (catch-rework.md 7b): the trust bar; the tutorial stray's one ring catches on a Good or Perfect
+	local trust = if tutorial then Circles.tutorialTrust() else Circles.trustFor(stray.def.rarity)
+	local attempt = Circles.newAttempt(circles, windows, trust)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
 	stray.attempt = attempt
 	profile.stats.grabsAttempted += 1
-	Net.fire(player, "CatchSchedule", stray.id, circles, Circles.publicWindows(windows))
+	Net.fire(
+		player,
+		"CatchSchedule",
+		stray.id,
+		circles,
+		Circles.publicWindows(windows),
+		trust.start,
+		trust.need
+	)
 	stray.funnel = Telemetry.catchEngaged(player, stray.def.rarity, "net", stray.area, funnel)
 	-- a catch starts in reach of a stray, so catch_started implies near_stray when the tutorial stray was never the one
 	-- (a player who caught another cat first would hold every later step behind it)
 	Telemetry.onboarding(player, profile, "catch_started")
 
-	-- A circle nobody presses is a Miss at its deadline, which ends the catch; so is walking out of range.
+	-- A circle nobody presses is a Miss at its deadline (#1884: trust lost, and the catch ends only if the cat bolts);
+	-- walking out of range ends it.
 	task.spawn(function()
 		while stray.attempt == attempt do
 			local deadline = Circles.nextDeadline(attempt)
@@ -1562,7 +1615,9 @@ function startCatch(
 			if stray.attempt ~= attempt then
 				return
 			end
+			local before = attempt.nextIndex
 			Circles.expire(attempt, serverNow())
+			sendJudged(player, stray.id, attempt, before)
 			if
 				Circles.isDone(attempt)
 				or not withinRange(player, stray.body.Position, Config.GrabRangeStuds + 2)
@@ -1602,11 +1657,11 @@ local function onCatchPress(player: Player, rawStrayId: unknown, rawIndex: unkno
 	local pressTime = arrival - Circles.latency(player:GetNetworkPing())
 	local before = attempt.nextIndex
 	Circles.press(attempt, index, pressTime, arrival)
+	-- #1727: the server's grade at once, so a device that guessed Miss on an edge press (S101) shows the rest
+	sendJudged(player, strayId, attempt, before)
 	for judged = before, attempt.nextIndex - 1 do
 		logCircle(player, strayId, attempt, judged)
 		local grade = attempt.grades[judged]
-		-- #1727: the server's grade at once, so a device that guessed Miss on an edge press (S101) shows the rest
-		Net.fire(player, "CatchJudged", strayId, judged, grade)
 		if grade == "good" or grade == "perfect" then
 			local profile = DataService.get(player)
 			if profile ~= nil then
@@ -1835,6 +1890,10 @@ local function checkIn(player: Player, carry: Carry, notify: boolean, profile: T
 		carry.method,
 		carry.variant
 	)
+	local bonusXp = carry.bonusXp
+	if bonusXp ~= nil and bonusXp > 0 then
+		CatStats.addXp(instance, bonusXp) -- #1884: a PURRFECT catch joins a level up (CatXpBase is level 2)
+	end
 	if notify then
 		local current = DataService.get(player)
 		if current ~= nil then
@@ -2301,6 +2360,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		end)
 	end)
 	Players.PlayerRemoving:Connect(function(player)
+		purrfectStreak[player] = nil
 		-- endCarry (via the finalizer above) clears the carry record; this only mops up when the profile is
 		-- already gone, so the handler order between services does not matter.
 		if carrying[player] ~= nil and DataService.get(player) == nil then

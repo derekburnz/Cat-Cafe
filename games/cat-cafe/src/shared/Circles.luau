@@ -10,6 +10,10 @@
 -- v0.13.15 (F83): a stray's perfect and good are its net's times its rarity's catchWindow (windowsFor).
 -- v0.4: the first Miss (a press outside Good, or no press by a circle's deadline) ends the attempt, and an attempt
 -- with every circle Good or Perfect is a sure catch. No roll.
+-- #1884 (catch-rework.md 7b): a net catch keeps a trust bar instead. It starts at Config.TrustStart and each ring
+-- adds TrustPerfect, TrustGood or TrustMiss: the cat is caught once trust reaches the rarity's trustNeed and bolts
+-- below 0, or when the rings run out (the all-Perfect count plus CatchSpareRings). Rings come on a steady beat,
+-- CircleGapMin apart. An attempt with no trust (a rescue's tree circle) keeps the v0.4 rule.
 
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
@@ -26,8 +30,15 @@ export type Attempt = {
 	grades: { Types.CircleGrade },
 	errors: { [number]: number },
 	nextIndex: number, -- the next circle to judge; #circles + 1 after the last
-	missed: boolean, -- a circle was a Miss, which ends the attempt
+	missed: boolean, -- over without a catch: a Miss under the v0.4 rule, or the cat bolted (#1884)
+	-- #1884: the trust bar, nil for the v0.4 rule. caught once trust reached need
+	trust: number?,
+	need: number?,
+	caught: boolean,
 }
+
+-- #1884: the trust bar an attempt starts with and the trust that catches the cat.
+export type Trust = { start: number, need: number }
 
 -- Where circles may appear on screen, as fractions of its width and height.
 local SCREEN_MIN_X, SCREEN_MAX_X = 0.25, 0.75
@@ -76,11 +87,11 @@ function Circles.schedule(
 	local jitter = Config.CircleJitter
 	local circles: { Types.CatchCircle } = {}
 	local startsAt = now + Config.CircleLeadInSeconds
-	for i = 1, def.circles do
+	for i = 1, Circles.ringCap(rarity) do
 		if i > 1 then
+			-- #1884: a steady beat, one ring every shrink time plus CircleGapMin
 			local previous = circles[i - 1]
-			local gap = Config.CircleGapMin + roll() * (Config.CircleGapMax - Config.CircleGapMin)
-			startsAt = previous.startsAt + previous.shrinkSeconds + gap
+			startsAt = previous.startsAt + previous.shrinkSeconds + Config.CircleGapMin
 		end
 		local u = (roll() * 2 - 1) * jitter
 		table.insert(circles, {
@@ -88,9 +99,25 @@ function Circles.schedule(
 			shrinkSeconds = def.shrinkSeconds * (1 + u),
 			x = SCREEN_MIN_X + roll() * (SCREEN_MAX_X - SCREEN_MIN_X),
 			y = SCREEN_MIN_Y + roll() * (SCREEN_MAX_Y - SCREEN_MIN_Y),
+			kind = "single",
 		})
 	end
 	return circles
+end
+
+-- #1884: the most rings a try at `rarity` can use: its all-Perfect count (`circles`) plus CatchSpareRings.
+function Circles.ringCap(rarity: Types.Rarity): number
+	return Catalog.rarities[rarity].circles + Config.CatchSpareRings
+end
+
+-- #1884: the trust bar of a net catch at `rarity`, TrustStart plus `bonus`, and the tutorial stray's (one ring,
+-- caught on a Good or Perfect as before).
+function Circles.trustFor(rarity: Types.Rarity, bonus: number?): Trust
+	return { start = Config.TrustStart + (bonus or 0), need = Catalog.rarities[rarity].trustNeed }
+end
+
+function Circles.tutorialTrust(): Trust
+	return { start = Config.TrustStart, need = Config.TrustStart + Config.TrustGood }
 end
 
 -- F87 (easy-start.md section 2b): a beginner's own tutorial stray, a Common, is caught on one circle that shrinks
@@ -109,6 +136,7 @@ function Circles.tutorialSchedule(now: number, roll: () -> number): { Types.Catc
 			shrinkSeconds = Config.TutorialShrinkSeconds,
 			x = SCREEN_MIN_X + roll() * (SCREEN_MAX_X - SCREEN_MIN_X),
 			y = SCREEN_MIN_Y + roll() * (SCREEN_MAX_Y - SCREEN_MIN_Y),
+			kind = "single",
 		},
 	}
 end
@@ -150,7 +178,12 @@ function Circles.grade(errorSeconds: number, windows: Types.NetWindows): (Types.
 	return "miss", 0
 end
 
-function Circles.newAttempt(circles: { Types.CatchCircle }, windows: Types.NetWindows): Attempt
+-- `trust` nil keeps the v0.4 rule (a rescue's tree circle); a net catch passes Circles.trustFor's.
+function Circles.newAttempt(
+	circles: { Types.CatchCircle },
+	windows: Types.NetWindows,
+	trust: Trust?
+): Attempt
 	return {
 		circles = circles,
 		windows = windows,
@@ -159,16 +192,66 @@ function Circles.newAttempt(circles: { Types.CatchCircle }, windows: Types.NetWi
 		errors = {},
 		nextIndex = 1,
 		missed = false,
+		trust = if trust ~= nil then trust.start else nil,
+		need = if trust ~= nil then trust.need else nil,
+		caught = false,
 	}
 end
 
-function Circles.isDone(attempt: Attempt): boolean
-	return attempt.missed or attempt.nextIndex > #attempt.circles
+-- The trust a grade adds (#1884).
+function Circles.trustDelta(grade: Types.CircleGrade): number
+	if grade == "perfect" then
+		return Config.TrustPerfect
+	elseif grade == "good" then
+		return Config.TrustGood
+	end
+	return Config.TrustMiss
 end
 
--- Every circle judged Good or Perfect: a sure catch (v0.4).
+-- Records the grade of the circle just judged (nextIndex already moved past it) and ends the attempt when it
+-- should: the v0.4 rule ends at a Miss, the trust bar when it fills, drops below 0 or runs out of rings.
+local function settle(attempt: Attempt, grade: Types.CircleGrade)
+	local trust = attempt.trust
+	if trust == nil then
+		if grade == "miss" then
+			attempt.missed = true
+		end
+		return
+	end
+	trust += Circles.trustDelta(grade)
+	attempt.trust = trust
+	if trust >= (attempt.need :: number) then
+		attempt.caught = true
+	elseif trust < 0 or attempt.nextIndex > #attempt.circles then
+		attempt.missed = true -- bolted, or no rings left
+	end
+end
+
+function Circles.isDone(attempt: Attempt): boolean
+	return attempt.missed or attempt.caught or attempt.nextIndex > #attempt.circles
+end
+
+-- Caught: the trust bar filled (#1884), or under the v0.4 rule every circle judged Good or Perfect.
 function Circles.succeeded(attempt: Attempt): boolean
+	if attempt.trust ~= nil then
+		return attempt.caught
+	end
 	return not attempt.missed and attempt.nextIndex > #attempt.circles
+end
+
+-- #1884 (catch-rework.md 7d): PURRFECT when every judged ring was Perfect, GREAT with at most one that was not,
+-- NICE otherwise; "bolt" for an attempt that did not catch.
+function Circles.finish(attempt: Attempt): Types.CatchFinishKind
+	if not Circles.succeeded(attempt) then
+		return "bolt"
+	end
+	local off = 0
+	for _, grade in attempt.grades do
+		if grade ~= "perfect" then
+			off += 1
+		end
+	end
+	return if off == 0 then "purrfect" elseif off == 1 then "great" else "nice"
 end
 
 -- The deadline of the circle waiting to be judged, or nil once the attempt is over.
@@ -179,18 +262,21 @@ function Circles.nextDeadline(attempt: Attempt): number?
 	return Circles.deadline(attempt.circles[attempt.nextIndex], attempt.windows)
 end
 
--- Marks the waiting circle a Miss once its deadline has passed by `now`, which ends the attempt. Returns how many
--- circles expired: 0 or 1, since nothing after a Miss is judged.
+-- Marks each waiting circle whose deadline has passed by `now` a Miss, in order, until one has not or the attempt is
+-- over (under the v0.4 rule the first Miss ends it). Returns how many circles expired.
 function Circles.expire(attempt: Attempt, now: number): number
-	local deadline = Circles.nextDeadline(attempt)
-	if deadline == nil or now <= deadline then
-		return 0
+	local expired = 0
+	while true do
+		local deadline = Circles.nextDeadline(attempt)
+		if deadline == nil or now <= deadline then
+			return expired
+		end
+		attempt.scores[attempt.nextIndex] = 0
+		attempt.grades[attempt.nextIndex] = "miss"
+		attempt.nextIndex += 1
+		expired += 1
+		settle(attempt, "miss")
 	end
-	attempt.scores[attempt.nextIndex] = 0
-	attempt.grades[attempt.nextIndex] = "miss"
-	attempt.nextIndex += 1
-	attempt.missed = true
-	return 1
 end
 
 -- Judges a press for circle `index`. `pressTime` is the latency-corrected press, `now` the arrival time. Returns
@@ -216,9 +302,7 @@ function Circles.press(
 	attempt.grades[index] = grade
 	attempt.errors[index] = err
 	attempt.nextIndex += 1
-	if grade == "miss" then
-		attempt.missed = true
-	end
+	settle(attempt, grade)
 	return grade
 end
 
@@ -246,15 +330,14 @@ function Circles.perfectCount(attempt: Attempt): number
 end
 
 -- Charm a successful catch adds (data-model section 10 step 5): PerfectCharmBonus per Perfect, times
--- PurrfectCharmMultiplier when every circle is Perfect. 0 for a failed attempt; the caller caps charm at 100 and
--- gives nothing to a profile flagged autoPress.
+-- PurrfectCharmMultiplier for a PURRFECT (every judged ring Perfect, #1884). 0 for a failed attempt; the caller caps
+-- charm at 100 and gives nothing to a profile flagged autoPress.
 function Circles.charmGain(attempt: Attempt): number
 	if not Circles.succeeded(attempt) then
 		return 0
 	end
-	local perfect = Circles.perfectCount(attempt)
-	local gain = Config.PerfectCharmBonus * perfect
-	if perfect == #attempt.circles then
+	local gain = Config.PerfectCharmBonus * Circles.perfectCount(attempt)
+	if Circles.finish(attempt) == "purrfect" then
 		gain *= Config.PurrfectCharmMultiplier
 	end
 	return gain

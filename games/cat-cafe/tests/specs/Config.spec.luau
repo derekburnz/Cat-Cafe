@@ -58,6 +58,12 @@ return function()
 		CircleLeadInSeconds = 0.6,
 		CircleGapMin = 0.40,
 		CircleGapMax = 0.75,
+		-- #1884 (catch-rework.md 7b): the trust bar
+		TrustStart = 2,
+		TrustPerfect = 2,
+		TrustGood = 1,
+		TrustMiss = -2,
+		CatchSpareRings = 2,
 		CircleScorePerfect = 1.0,
 		CircleScoreGood = 0.5,
 		CatchLatencyCapSeconds = 0.15,

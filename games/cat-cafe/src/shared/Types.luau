@@ -25,6 +25,7 @@ export type RarityDef = {
 	circles: number, -- closing circles in a net catch (data-model section 10)
 	shrinkSeconds: number, -- base shrink time of each circle
 	catchWindow: number, -- times the net's Perfect and Good for a cat of this rarity (v0.13.15 F83)
+	trustNeed: number, -- #1884 (catch-rework.md 7b): the trust a net catch must reach (TrustStart, +2 a Perfect)
 	fleeStuds: number, -- how far a stray sprints after a missed catch (v0.5, data-model section 10 step 5)
 	rescueHits: number, -- bar hits that free a stuck cat (section 10b)
 	sellValue: number,
@@ -39,6 +40,19 @@ export type CatchCircle = {
 	shrinkSeconds: number,
 	x: number,
 	y: number,
+	-- #1884 (catch-rework.md 7c): what the ring is. "single" until the twists (a double ring is two circles in a row,
+	-- both "double", `half` 1 and 2; a "paw" ring is left alone)
+	kind: CircleKind?,
+	half: number?,
+}
+export type CircleKind = "single" | "double" | "paw"
+-- #1884 (catch-rework.md 7d): how a net catch ended, and CatchResult's last argument
+export type CatchFinishKind = "purrfect" | "great" | "nice" | "bolt"
+export type CatchFinish = {
+	trust: number,
+	trustNeed: number,
+	finish: CatchFinishKind,
+	streak: number,
 }
 
 -- Timing windows of a net level: half-widths in seconds either side of each target (F93: the shrink time's wobble

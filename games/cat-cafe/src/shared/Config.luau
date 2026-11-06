@@ -152,6 +152,15 @@ local Config = {
 	-- CatchLatencyCapSeconds, so a late press for one circle can never land on the next (reviewer S24).
 	CircleGapMin = 0.40,
 	CircleGapMax = 0.75,
+	-- #1884 (catch-rework.md 7b): the trust bar. A net catch starts at TrustStart and each ring adds TrustPerfect,
+	-- TrustGood or TrustMiss; it is caught at the rarity's trustNeed and bolts below 0. Rings come on a steady beat
+	-- (CircleGapMin apart), up to the all-Perfect count plus CatchSpareRings (one early Miss can still be won back).
+	-- The spare rings, not 2x the count, keep catch-rework.md section 2's table within about 5 points.
+	TrustStart = 2,
+	TrustPerfect = 2,
+	TrustGood = 1,
+	TrustMiss = -2,
+	CatchSpareRings = 2,
 	CircleScorePerfect = 1.0, -- v0.4: grades decide the catch; the scores stay for tests and analytics only
 	CircleScoreGood = 0.5,
 	PerfectCharmBonus = 4, -- charm added to a caught cat per Perfect circle, capped at 100 (section 10 step 5)

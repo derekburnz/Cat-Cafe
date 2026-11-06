@@ -36,10 +36,37 @@ return function()
 		return erf(half / (spread * math.sqrt(2)))
 	end
 
-	-- Percent of tries that net a stray: every circle Good or better (v0.4: the first Miss ends the try).
+	-- Percent of tries that net a stray (#1884, catch-rework.md 7b): worked out exactly over the trust bar, from
+	-- TrustStart, each ring adding Circles.trustDelta of its grade, caught at trustNeed and bolting below 0 or once
+	-- Circles.ringCap rings are used.
 	local function catchChance(netLevel: number, rarity: Types.Rarity, spread: number): number
-		local good = Circles.windowsFor(netLevel, rarity).good
-		return 100 * within(good, spread) ^ Catalog.rarities[rarity].circles
+		local windows = Circles.windowsFor(netLevel, rarity)
+		local perfect = within(windows.perfect, spread)
+		local good = within(windows.good, spread) - perfect
+		local outcomes = {
+			{ Circles.trustDelta("perfect"), perfect },
+			{ Circles.trustDelta("good"), good },
+			{ Circles.trustDelta("miss"), 1 - perfect - good },
+		}
+		local need = Catalog.rarities[rarity].trustNeed
+		local alive: { [number]: number } = { [Config.TrustStart] = 1 }
+		local caught = 0
+		for _ = 1, Circles.ringCap(rarity) do
+			local nextAlive: { [number]: number } = {}
+			for trust, chance in alive do
+				for _, outcome in outcomes do
+					local after = trust + outcome[1]
+					local p = chance * outcome[2]
+					if after >= need then
+						caught += p
+					elseif after >= 0 then
+						nextAlive[after] = (nextAlive[after] or 0) + p
+					end
+				end
+			end
+			alive = nextAlive
+		end
+		return 100 * caught
 	end
 
 	-- The chance one bar press is a hit, worked out on the real marker and zone: the marker crossing a zone in the
@@ -101,19 +128,22 @@ return function()
 	end
 
 	describe("F83 and F93 catch and rescue feel (QA, data-model 10 and 10b, catch-rework.md)", function()
+		-- #1884: the trust bar's figures, which the designer accepted (catch-rework.md 7b, 2026-11-06), each within 5.3
+		-- points of section 2's table (the v2 rule's, kept below), the Basic 50 ms Mythical the furthest at 18%.
 		it("nets a stray as often as the design's table, every net at 50 ms and Basic and Master at 70 ms", function()
 			local rows = {
-				{ "Basic 50 ms", 0, 0.05, { 95, 86, 69, 46, 23 } },
-				{ "Sturdy 50 ms", 1, 0.05, { 99, 95, 84, 65, 41 } },
-				{ "Pro 50 ms", 2, 0.05, { 100, 99, 94, 83, 63 } },
-				{ "Master 50 ms", 3, 0.05, { 100, 100, 98, 93, 80 } },
-				{ "Basic 70 ms", 0, 0.07, { 77, 56, 33, 15, 5 } },
-				{ "Master 70 ms", 3, 0.07, { 99, 94, 83, 64, 40 } },
+				{ "Basic 50 ms", 0, 0.05, { 96, 88, 69, 42, 18 }, { 95, 86, 69, 46, 23 } },
+				{ "Sturdy 50 ms", 1, 0.05, { 99, 97, 88, 67, 38 }, { 99, 95, 84, 65, 41 } },
+				{ "Pro 50 ms", 2, 0.05, { 100, 99, 97, 87, 63 }, { 100, 99, 94, 83, 63 } },
+				{ "Master 50 ms", 3, 0.05, { 100, 100, 100, 97, 85 }, { 100, 100, 98, 93, 80 } },
+				{ "Basic 70 ms", 0, 0.07, { 76, 53, 28, 11, 3 }, { 77, 56, 33, 15, 5 } },
+				{ "Master 70 ms", 3, 0.07, { 99, 97, 88, 68, 39 }, { 99, 94, 83, 64, 40 } },
 			}
 			for _, row in rows do
 				local got = {}
 				for i, rarity in RARITIES do
 					got[i] = catchChance(row[2] :: number, rarity, row[3] :: number)
+					expect(math.abs(got[i] - (row[5] :: { number })[i]) <= 5.5).to.equal(true)
 				end
 				rowMatches(row[1] :: string, got, row[4] :: { number })
 			end

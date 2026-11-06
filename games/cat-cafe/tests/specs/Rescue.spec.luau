@@ -370,7 +370,7 @@ return function()
 			expect(attempt.stage).to.equal("circle")
 			local windows = Circles.windowsFor(Rescue.CIRCLE_NET_LEVEL, "Common")
 			expect((circle.windows :: any).good).to.equal(windows.good)
-			expect((circle.windows :: any).good).to.be.near(0.1705, 1e-12) -- the Pro Net's 0.155 x 1.1 (F93)
+			expect((circle.windows :: any).good).to.be.near(0.17825, 1e-12) -- the Pro Net's 0.155 x 1.15 (F93, #1884)
 			local c = circle.circle :: any
 			expect(c.startsAt).to.be.near(now + Config.CircleLeadInSeconds, 1e-9)
 			expect(c.shrinkSeconds).to.be.near(Catalog.rarities.Common.shrinkSeconds, 1e-9)
@@ -380,15 +380,15 @@ return function()
 			expect(attempt.success).to.equal(true)
 		end)
 
-		it("a Mythical's falling circle has the Pro Net's windows times 0.6 (F83, F93)", function()
+		it("a Mythical's falling circle has the Pro Net's windows times 0.688 (F83, F93, #1884)", function()
 			local attempt = fallen("Mythical")
 			local challenge = Rescue.startCircle(attempt, 10, rolls({ 0.5 }))
-			expect((challenge.windows :: any).good).to.be.near(0.093, 1e-12)
-			expect((challenge.windows :: any).perfect).to.be.near(0.039, 1e-12)
+			expect((challenge.windows :: any).good).to.be.near(0.10664, 1e-9)
+			expect((challenge.windows :: any).perfect).to.be.near(0.04472, 1e-9)
 			local circle = challenge.circle :: any
 			local target = Circles.target(circle)
 			-- Good on a Common's circle, a Miss on a Mythical's
-			expect(Rescue.pressCircle(attempt, target + 0.1, target + 0.1)).to.equal("miss")
+			expect(Rescue.pressCircle(attempt, target + 0.12, target + 0.12)).to.equal("miss")
 		end)
 
 		it("a missed circle means the cat climbs back up", function()

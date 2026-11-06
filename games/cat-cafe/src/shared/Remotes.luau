@@ -213,15 +213,19 @@ Remotes.ServerToClient = {
 	-- string?)  #1572 (luck-and-rare-moments.md 1h): to everyone as a pity cat spawns, is caught (anywhere) or leaves
 	-- at night. The banner text itself goes out as Announce; ReplicatedStorage.Pity holds the state for late joiners.
 	"CatchSchedule", -- (strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows, trustStart: number,
-	-- trustNeed: number)  #1884: every ring a try can use (Circles.ringCap), each with its kind; the trust bar starts
-	-- at trustStart and catches at trustNeed
-	"CatchResult", -- (strayId: string, grades: { Types.CircleGrade }, success: boolean, charmGain: number,
+	-- trustNeed: number)  #1884: every ring a try can use (Circles.ringCap), each with its kind: "single", "double"
+	-- (two circles 0.18 s apart on one spot, half 1 and 2, each its own press; Epic and above) or "paw" (don't tap:
+	-- left alone it is judged "left", +1 trust; Legendary and above). The trust bar starts at trustStart (one more
+	-- after a Curious cat's walk up) and catches at trustNeed. The stray's Mood attribute ("Sleepy", "Curious" or
+	-- "Skittish", catch-rework.md 7a) is set at spawn; CuriousAt (server time) marks a Curious cat's walk up.
+	"CatchResult", -- (strayId: string, grades: { Types.RingGrade }, success: boolean, charmGain: number,
 	-- retryAt: number?, finish: Types.CatchFinish)  the grades judged; after a bolt the stray sprints off and anyone
 	-- may try again (v0.5). retryAt (server time, bolt only) is when this player may try that stray again (F57: 3, 6
 	-- then 10 s after it stops, by their miss streak). #1884: finish has the trust reached, the need, purrfect, great,
 	-- nice or bolt, and the player's PURRFECT streak this session (0 after anything else).
-	"CatchJudged", -- (strayId: string, index: number, grade: Types.CircleGrade, trust: number?)  #1727: the server's
-	-- grade for each circle judged (pressed, or #1884 expired with no press), to the catcher alone, as it is judged,
+	"CatchJudged", -- (strayId: string, index: number, grade: Types.RingGrade, trust: number?)  #1727: the server's
+	-- grade for each circle judged (pressed, or #1884 expired with no press: "miss", or "left" for a paw ring), to the
+	-- catcher alone, as it is judged,
 	-- with the trust after it (#1884). A device that called its press a Miss keeps the
 	-- later circles drawn until this (Good or Perfect: the catch goes on) or CatchResult comes. CatchResult stays the
 	-- final word.

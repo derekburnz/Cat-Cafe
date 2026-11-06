@@ -28,6 +28,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Luck = require(ReplicatedStorage.Shared.Luck)
+local Moods = require(ReplicatedStorage.Shared.Moods)
 local Mover = require(ReplicatedStorage.Shared.Mover)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
@@ -87,6 +88,12 @@ type Stray = {
 	-- model's Beginner attribute (0 when none). Only they can swing at it; their catch is one slow circle and a
 	-- Miss brings it back instead of sending the cat running. LockedBy stays the catch lock the effects read.
 	beginner: number?,
+	-- #1884 (catch-rework.md 7a): its mood, rolled at spawn (the Mood attribute); a Curious one's walk toward a
+	-- player (server time, nil until it notices one) and a Skittish one's last hop (server time)
+	mood: Types.CatMood,
+	curiousAt: number?,
+	skittishAt: number?,
+	walk: number, -- bumped by every walk that starts, so an older walk stops where it is
 	alive: boolean,
 }
 
@@ -139,10 +146,7 @@ local inRescue: (Player) -> boolean = function(_player: Player): boolean
 	return false
 end
 
-local MAX_CIRCLES = 1 -- the most circles any rarity has; bounds the CatchPress index
-for _, rarity in Catalog.rarities do
-	MAX_CIRCLES = math.max(MAX_CIRCLES, rarity.circles + Config.CatchSpareRings) -- #1884: Circles.ringCap
-end
+local MAX_CIRCLES = Circles.maxCircles() -- #1884: the most circles any schedule holds; bounds the CatchPress index
 
 -- Helpers -------------------------------------------------------------------------------------------------
 
@@ -477,12 +481,19 @@ local PERCH_ABOVE = 0.5
 
 local function wander(stray: Stray)
 	local area = world.areas[stray.area]
-	local alive = function()
-		return stray.alive and stray.lockedBy == 0
+	if stray.mood == "Sleepy" then
+		stray.model:SetAttribute("Napping", true) -- #1884 (7a): curled up from the start
 	end
 	while stray.alive do
 		task.wait(rng:NextNumber(3, 7))
 		if not canWander(stray) then
+			continue
+		end
+		if stray.mood == "Sleepy" then
+			-- #1884 (7a): a Sleepy cat never wanders; a swing wakes it (setLock) and it curls up again after
+			if stray.model:GetAttribute("Napping") ~= true then
+				stray.model:SetAttribute("Napping", true)
+			end
 			continue
 		end
 		if rng:NextNumber() < NAP_CHANCE and not nap(stray) then
@@ -502,7 +513,11 @@ local function wander(stray: Stray)
 			2,
 			at
 		)
-		Mover.walkTo(stray.model, clearPath(at, target), Config.StrayWanderSpeed, alive)
+		stray.walk += 1
+		local walk = stray.walk
+		Mover.walkTo(stray.model, clearPath(at, target), Config.StrayWanderSpeed, function()
+			return stray.alive and stray.lockedBy == 0 and stray.walk == walk
+		end)
 	end
 end
 
@@ -546,6 +561,9 @@ local function spawnStray(
 	model:SetAttribute("Dropped", kept ~= nil)
 	model:SetAttribute("PickUp", kept ~= nil)
 	model:SetAttribute("Returning", kept ~= nil and kept.returning == true) -- F67: walking home
+	-- #1884 (catch-rework.md 7a): the tutorial stray is always Sleepy
+	local mood: Types.CatMood = Moods.roll(def.rarity, rng:NextNumber(), beginner ~= nil)
+	model:SetAttribute("Mood", mood)
 	CollectionService:AddTag(model, "Stray")
 	-- F93 (catch-rework.md section 1): no Catch prompt; the net swing finds the stray (SwingNet).
 
@@ -580,6 +598,8 @@ local function spawnStray(
 		knocks = if kept ~= nil then kept.knocks or 0 else 0,
 		recaught = false,
 		beginner = beginner,
+		mood = mood,
+		walk = 0,
 		alive = true,
 	}
 	strays[id] = stray
@@ -1203,10 +1223,14 @@ local function recordCircles(player: Player, profile: Types.PlayerProfile, attem
 		history = {}
 		circleHistory[player] = history
 	end
+	local pressed = 0
 	for _, grade in attempt.grades do
-		Circles.pushHistory(history, grade == "perfect")
+		if grade ~= "left" then -- #1884: a paw ring left alone was never pressed
+			Circles.pushHistory(history, grade == "perfect")
+			pressed += 1
+		end
 	end
-	profile.stats.circlesTotal += #attempt.grades
+	profile.stats.circlesTotal += pressed
 	profile.stats.perfectCircles += Circles.perfectCount(attempt)
 	if not profile.flags.autoPress and Circles.looksScripted(history) then
 		profile.flags.autoPress = true
@@ -1414,7 +1438,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		local finish = finishOf(player, attempt, finishKind)
 		Net.fire(player, "CatchResult", stray.id, attempt.grades, true, gain, nil, finish)
 		-- #1884: catch-rework.md 7d's finish, value the rings it took; finish, rarity, mood (PR 2)
-		local fields: { string } = { finishKind, rarity, "none" }
+		local fields: { string } = { finishKind, rarity, stray.mood }
 		Telemetry.custom(player, "catch_finish", #attempt.grades, fields)
 		profile.stats.grabsSucceeded += 1
 		local method: Types.CatchMethod = stray.method
@@ -1468,7 +1492,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		stray.selfRetryAt[player.UserId],
 		finishOf(player, attempt, "bolt")
 	)
-	Telemetry.custom(player, "catch_finish", #attempt.grades, { "bolt", rarity, "none" })
+	Telemetry.custom(player, "catch_finish", #attempt.grades, { "bolt", rarity, stray.mood })
 	startle(player)
 	-- The catch HUD says the cat got away (UI.catch.showGrades); only a forfeit needs words from here (reviewer S39).
 	Net.toast(player, if forfeit ~= nil then forfeit else "Your paws are shaking!", "warn")
@@ -1584,7 +1608,10 @@ function startCatch(
 		then Circles.tutorialSchedule(now, roll)
 		else Circles.schedule(stray.def.rarity, netLevel, now, roll)
 	-- #1884 (catch-rework.md 7b): the trust bar; the tutorial stray's one ring catches on a Good or Perfect
-	local trust = if tutorial then Circles.tutorialTrust() else Circles.trustFor(stray.def.rarity)
+	-- #1884 (7a): a swing landing just as a Curious cat walks up starts with CuriousTrustBonus more
+	local trust = if tutorial
+		then Circles.tutorialTrust()
+		else Circles.trustFor(stray.def.rarity, Moods.trustBonus(stray.curiousAt, now))
 	local attempt = Circles.newAttempt(circles, windows, trust)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
 	stray.attempt = attempt
@@ -1717,7 +1744,7 @@ local SWUNG_RANGE_STUDS = 150
 -- its area, then catches its breath like a miss, so the next swing cannot land on it straight away. It is no miss on
 -- the cat: no hiss, no selfRetry and no streak. `HopAt` (server time) is for the sound and effects. A stray on a
 -- perch stays put, as flee keeps it (S86).
-local function hop(stray: Stray, player: Player)
+local function hop(stray: Stray, player: Player, studs: number?)
 	local at = stray.model:GetPivot().Position
 	local area = world.areas[stray.area]
 	if area == nil or at.Y > area.floorY + PERCH_ABOVE then
@@ -1731,7 +1758,12 @@ local function hop(stray: Stray, player: Player)
 	end
 	local target = clearPath(
 		at,
-		WorldBuilder.clampToArea(area, at + away.Unit * NetSwing.hopStuds(stray.def.rarity), 2, at)
+		WorldBuilder.clampToArea(
+			area,
+			at + away.Unit * (studs or NetSwing.hopStuds(stray.def.rarity)),
+			2,
+			at
+		)
 	)
 	local now = serverNow()
 	local sprint = Vector3.new(target.X - at.X, 0, target.Z - at.Z).Magnitude
@@ -1740,9 +1772,12 @@ local function hop(stray: Stray, player: Player)
 	stray.model:SetAttribute("FleeingUntil", stray.fleeingUntil)
 	stray.jumping = true
 	stray.home = target
+	stray.model:SetAttribute("Napping", false) -- a hop wakes a Sleepy cat (#1884)
+	stray.walk += 1
+	local walk = stray.walk
 	task.spawn(function()
 		Mover.walkTo(stray.model, target, Config.StrayFleeSpeed, function()
-			return stray.alive and stray.lockedBy == 0
+			return stray.alive and stray.lockedBy == 0 and stray.walk == walk
 		end)
 		task.wait(math.max(0, stray.fleeingUntil - serverNow()))
 		stray.jumping = false
@@ -2288,6 +2323,93 @@ end
 
 -- Lifecycle -----------------------------------------------------------------------------------------------
 
+-- #1884 (catch-rework.md 7a): how often strays look round for players to be curious or skittish about.
+local MOOD_TICK_SECONDS = 0.2
+
+-- Whether a Curious or Skittish stray is free to react: alive, nobody catching it, not running or resting from a
+-- miss or hop, not Dropped or walking home, and on the floor (a perch cat stays put, as for wandering).
+local function canReact(stray: Stray, now: number): boolean
+	if not stray.alive or stray.lockedBy ~= 0 or stray.jumping or now < stray.fleeingUntil then
+		return false
+	end
+	if stray.drop ~= nil or stray.returning or stray.beginner ~= nil then
+		return false
+	end
+	local area = world.areas[stray.area]
+	return area ~= nil and stray.home.Y <= area.floorY + PERCH_ABOVE
+end
+
+-- A Curious stray walks CuriousWalkStuds toward the first player who comes within CuriousRangeStuds, once.
+local function curious(stray: Stray, player: Player, root: Vector3, now: number)
+	local at = stray.model:GetPivot().Position
+	if not Moods.noticed(at, root) then
+		return
+	end
+	stray.curiousAt = now
+	stray.model:SetAttribute("CuriousAt", now)
+	stray.model:SetAttribute("Napping", false)
+	local area = world.areas[stray.area]
+	local target =
+		clearPath(at, WorldBuilder.clampToArea(area, Moods.curiousTarget(at, root), 2, at))
+	stray.walk += 1
+	local walk = stray.walk
+	task.spawn(function()
+		Mover.walkTo(stray.model, target, Config.StrayWanderSpeed, function()
+			return stray.alive and stray.lockedBy == 0 and stray.walk == walk
+		end)
+	end)
+end
+
+-- A Skittish stray hops SkittishHopStuds away from a player inside its front arc, at most once a SkittishCooldown;
+-- never from a player before tutorialStep 2 (7a).
+local function skittish(stray: Stray, player: Player, root: Vector3, now: number): boolean
+	if not Moods.hopReady(stray.skittishAt, now) then
+		return false
+	end
+	local pivot = stray.model:GetPivot()
+	if not Moods.inFrontArc(pivot.Position, pivot.LookVector, root) then
+		return false
+	end
+	local profile = DataService.get(player)
+	if profile == nil or not Moods.canStartle(profile.tutorialStep) then
+		return false
+	end
+	stray.skittishAt = now
+	hop(stray, player, Config.SkittishHopStuds)
+	return true
+end
+
+local function moodTick()
+	local now = serverNow()
+	local roots: { [Player]: Vector3 } = {}
+	for _, player in Players:GetPlayers() do
+		local root = rootPosition(player)
+		if root ~= nil and carrying[player] == nil and not inFlight(player) then
+			roots[player] = root
+		end
+	end
+	if next(roots) == nil then
+		return
+	end
+	for _, stray in strays do
+		local reacts = (stray.mood == "Curious" and stray.curiousAt == nil)
+			or stray.mood == "Skittish"
+		if not reacts or not canReact(stray, now) then
+			continue
+		end
+		for player, root in roots do
+			if stray.mood == "Curious" then
+				curious(stray, player, root, now)
+				if stray.curiousAt ~= nil then
+					break
+				end
+			elseif skittish(stray, player, root, now) then
+				break
+			end
+		end
+	end
+end
+
 function CatService.start(builtWorld: WorldBuilder.World)
 	world = builtWorld
 	local folder = Instance.new("Folder")
@@ -2393,6 +2515,14 @@ function CatService.start(builtWorld: WorldBuilder.World)
 				warn("[CatService] top-ups: " .. tostring(err))
 			end, nowClock - last)
 			last = nowClock
+		end
+	end)
+	task.spawn(function()
+		while true do
+			task.wait(MOOD_TICK_SECONDS)
+			xpcall(moodTick, function(err: unknown)
+				warn("[CatService] moods: " .. tostring(err))
+			end)
 		end
 	end)
 end

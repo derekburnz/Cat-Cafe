@@ -21,6 +21,9 @@ Catalog.rarities = {
 		shrinkSeconds = 1.20,
 		catchWindow = 1.15, -- #1884 re-fit for the trust bar (catch-rework.md 7b)
 		trustNeed = 8,
+		moods = { Sleepy = 55, Curious = 45, Skittish = 0 }, -- #1884 (catch-rework.md 7a)
+		doubleRings = false, -- #1884 (7c)
+		pawRings = false,
 		fleeStuds = 24,
 		rescueHits = 3,
 		sellValue = 25,
@@ -33,6 +36,9 @@ Catalog.rarities = {
 		shrinkSeconds = 1.00,
 		catchWindow = 1.032, -- #1884 re-fit for the trust bar (catch-rework.md 7b)
 		trustNeed = 10,
+		moods = { Sleepy = 55, Curious = 45, Skittish = 0 }, -- #1884 (catch-rework.md 7a)
+		doubleRings = false, -- #1884 (7c)
+		pawRings = false,
 		fleeStuds = 32,
 		rescueHits = 4,
 		sellValue = 150,
@@ -45,6 +51,9 @@ Catalog.rarities = {
 		shrinkSeconds = 0.82,
 		catchWindow = 0.908, -- #1884 re-fit for the trust bar (catch-rework.md 7b)
 		trustNeed = 12,
+		moods = { Sleepy = 30, Curious = 35, Skittish = 35 }, -- #1884 (catch-rework.md 7a)
+		doubleRings = true, -- #1884 (7c)
+		pawRings = false,
 		fleeStuds = 40,
 		rescueHits = 5,
 		sellValue = 600,
@@ -55,8 +64,11 @@ Catalog.rarities = {
 		incomePerSecond = 25,
 		circles = 6,
 		shrinkSeconds = 0.68,
-		catchWindow = 0.796, -- #1884 re-fit for the trust bar (catch-rework.md 7b)
+		catchWindow = 0.742, -- #1884 re-fit for the trust bar and paw rings (catch-rework.md 7b, 7c)
 		trustNeed = 14,
+		moods = { Sleepy = 20, Curious = 30, Skittish = 50 }, -- #1884 (catch-rework.md 7a)
+		doubleRings = true, -- #1884 (7c)
+		pawRings = true,
 		fleeStuds = 52,
 		rescueHits = 6,
 		sellValue = 3000,
@@ -67,8 +79,11 @@ Catalog.rarities = {
 		incomePerSecond = 75,
 		circles = 7,
 		shrinkSeconds = 0.56,
-		catchWindow = 0.688, -- #1884 re-fit for the trust bar (catch-rework.md 7b)
+		catchWindow = 0.636, -- #1884 re-fit for the trust bar and paw rings (catch-rework.md 7b, 7c)
 		trustNeed = 16,
+		moods = { Sleepy = 20, Curious = 30, Skittish = 50 }, -- #1884 (catch-rework.md 7a)
+		doubleRings = true, -- #1884 (7c)
+		pawRings = true,
 		fleeStuds = 64,
 		rescueHits = 7,
 		sellValue = 12000,

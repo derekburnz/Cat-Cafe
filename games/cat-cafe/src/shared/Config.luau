@@ -161,6 +161,26 @@ local Config = {
 	TrustGood = 1,
 	TrustMiss = -2,
 	CatchSpareRings = 2,
+	-- #1884 (catch-rework.md 7c): the rarity twists. A double ring is two halves DoubleRingGap apart, each graded as
+	-- its own press and each using one of the rings above; a paw ring (red, don't tap) adds TrustPawLeft when left
+	-- alone and is a Miss when tapped, and uses none of them, so it never shortens a run.
+	DoubleRingChance = 0.25,
+	DoubleRingGap = 0.18,
+	PawRingChance = 1 / 6,
+	TrustPawLeft = 1,
+	-- #1884 (7a): moods. A Curious stray walks CuriousWalkStuds toward the first player within CuriousRangeStuds, and
+	-- a swing landing within CuriousBonusSeconds of that starts with CuriousTrustBonus more trust. A Skittish one hops
+	-- SkittishHopStuds away from a player within SkittishRangeStuds inside its SkittishArcDegrees front arc, at most
+	-- once every SkittishCooldown seconds. The client shows the mood icon within MoodIconStuds.
+	CuriousTrustBonus = 1,
+	CuriousRangeStuds = 12,
+	CuriousWalkStuds = 4,
+	CuriousBonusSeconds = 2,
+	SkittishRangeStuds = 10,
+	SkittishArcDegrees = 90,
+	SkittishHopStuds = 6,
+	SkittishCooldown = 8,
+	MoodIconStuds = 20,
 	CircleScorePerfect = 1.0, -- v0.4: grades decide the catch; the scores stay for tests and analytics only
 	CircleScoreGood = 0.5,
 	PerfectCharmBonus = 4, -- charm added to a caught cat per Perfect circle, capped at 100 (section 10 step 5)

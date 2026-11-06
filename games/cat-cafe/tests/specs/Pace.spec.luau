@@ -238,7 +238,10 @@ return function()
 				local endedAt = startsAt
 				for i, circle in circles do
 					local at = Circles.target(circle) + pressError()
-					if Circles.press(attempt, i, at, at) == nil then
+					if circle.kind == "paw" then
+						-- #1884 (7c): a paw ring is left alone (+1 trust)
+						Circles.expire(attempt, Circles.deadline(circle, windows) + 1e-6)
+					elseif Circles.press(attempt, i, at, at) == nil then
 						Circles.expire(attempt, Circles.deadline(circle, windows) + 1e-6)
 					end
 					endedAt = math.max(at, Circles.target(circle))

@@ -380,16 +380,19 @@ return function()
 			expect(attempt.success).to.equal(true)
 		end)
 
-		it("a Mythical's falling circle has the Pro Net's windows times 0.688 (F83, F93, #1884)", function()
-			local attempt = fallen("Mythical")
-			local challenge = Rescue.startCircle(attempt, 10, rolls({ 0.5 }))
-			expect((challenge.windows :: any).good).to.be.near(0.10664, 1e-9)
-			expect((challenge.windows :: any).perfect).to.be.near(0.04472, 1e-9)
-			local circle = challenge.circle :: any
-			local target = Circles.target(circle)
-			-- Good on a Common's circle, a Miss on a Mythical's
-			expect(Rescue.pressCircle(attempt, target + 0.12, target + 0.12)).to.equal("miss")
-		end)
+		it(
+			"a Mythical's falling circle has the Pro Net's windows times 0.636 (F83, F93, #1884)",
+			function()
+				local attempt = fallen("Mythical")
+				local challenge = Rescue.startCircle(attempt, 10, rolls({ 0.5 }))
+				expect((challenge.windows :: any).good).to.be.near(0.09858, 1e-9)
+				expect((challenge.windows :: any).perfect).to.be.near(0.04134, 1e-9)
+				local circle = challenge.circle :: any
+				local target = Circles.target(circle)
+				-- Good on a Common's circle, a Miss on a Mythical's
+				expect(Rescue.pressCircle(attempt, target + 0.12, target + 0.12)).to.equal("miss")
+			end
+		)
 
 		it("a missed circle means the cat climbs back up", function()
 			local attempt = fallen("Rare")

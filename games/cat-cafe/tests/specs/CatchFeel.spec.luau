@@ -25,7 +25,11 @@ return function()
 		x = math.abs(x)
 		local t = 1 / (1 + 0.3275911 * x)
 		local y = 1
-			- (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592)
+			- (
+					((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736)
+						* t
+					+ 0.254829592
+				)
 				* t
 				* math.exp(-x * x)
 		return sign * y
@@ -36,9 +40,11 @@ return function()
 		return erf(half / (spread * math.sqrt(2)))
 	end
 
-	-- Percent of tries that net a stray (#1884, catch-rework.md 7b): worked out exactly over the trust bar, from
-	-- TrustStart, each ring adding Circles.trustDelta of its grade, caught at trustNeed and bolting below 0 or once
-	-- Circles.ringCap rings are used.
+	-- Percent of tries that net a stray (#1884, catch-rework.md 7b, 7c): worked out exactly over the trust bar, from
+	-- TrustStart, each press adding Circles.trustDelta of its grade, caught at trustNeed and bolting below 0 or once
+	-- Circles.ringCap rings are used. With the rarity's twists, each ring after the first is a double (two presses,
+	-- two rings, while two are left) at DoubleRingChance and each after the second a paw ring (left alone: +1, no
+	-- ring used; never two in a row) at PawRingChance, as Circles.ringKind rolls them.
 	local function catchChance(netLevel: number, rarity: Types.Rarity, spread: number): number
 		local windows = Circles.windowsFor(netLevel, rarity)
 		local perfect = within(windows.perfect, spread)
@@ -48,23 +54,80 @@ return function()
 			{ Circles.trustDelta("good"), good },
 			{ Circles.trustDelta("miss"), 1 - perfect - good },
 		}
-		local need = Catalog.rarities[rarity].trustNeed
-		local alive: { [number]: number } = { [Config.TrustStart] = 1 }
+		local def = Catalog.rarities[rarity]
+		local need = def.trustNeed
+		local cap = Circles.ringCap(rarity)
 		local caught = 0
-		for _ = 1, Circles.ringCap(rarity) do
-			local nextAlive: { [number]: number } = {}
+		-- presses from `alive` (trust -> chance), catching what fills the bar and dropping what bolts
+		local function pressed(alive: { [number]: number }): { [number]: number }
+			local after: { [number]: number } = {}
 			for trust, chance in alive do
 				for _, outcome in outcomes do
-					local after = trust + outcome[1]
+					local t = trust + outcome[1]
 					local p = chance * outcome[2]
-					if after >= need then
+					if t >= need then
 						caught += p
-					elseif after >= 0 then
-						nextAlive[after] = (nextAlive[after] or 0) + p
+					elseif t >= 0 then
+						after[t] = (after[t] or 0) + p
 					end
 				end
 			end
-			alive = nextAlive
+			return after
+		end
+		-- state key: trust, rings used and whether the last ring was a paw ring
+		local states: { [string]: { trust: number, used: number, paw: boolean, chance: number } } =
+			{
+				start = { trust = Config.TrustStart, used = 0, paw = false, chance = 1 },
+			}
+		local ring = 0
+		while next(states) ~= nil do
+			ring += 1
+			local nextStates: { [string]: { trust: number, used: number, paw: boolean, chance: number } } =
+				{}
+			local function add(trust: number, usedNow: number, paw: boolean, p: number)
+				if usedNow >= cap and not (trust >= need) then
+					return -- out of rings: a bolt
+				end
+				local key = string.format("%d/%d/%s", trust, usedNow, tostring(paw))
+				local state = nextStates[key]
+				if state == nil then
+					nextStates[key] = { trust = trust, used = usedNow, paw = paw, chance = p }
+				else
+					state.chance += p
+				end
+			end
+			for _, state in states do
+				local pawChance = if def.pawRings
+						and ring > 2
+						and not state.paw
+					then Config.PawRingChance
+					else 0
+				local doubleChance = if def.doubleRings
+						and ring > 1
+						and cap - state.used >= 2
+					then Config.DoubleRingChance
+					else 0
+				local c = state.chance
+				if pawChance > 0 then
+					local t = state.trust + Circles.trustDelta("left")
+					if t >= need then
+						caught += c * pawChance
+					else
+						add(t, state.used, true, c * pawChance)
+					end
+				end
+				local single = c * (1 - pawChance) * (1 - doubleChance)
+				for t, p in pressed({ [state.trust] = single }) do
+					add(t, state.used + 1, false, p)
+				end
+				local double = c * (1 - pawChance) * doubleChance
+				if double > 0 then
+					for t, p in pressed(pressed({ [state.trust] = double })) do
+						add(t, state.used + 2, false, p)
+					end
+				end
+			end
+			states = nextStates
 		end
 		return 100 * caught
 	end
@@ -122,76 +185,110 @@ return function()
 	local function rowMatches(label: string, got: { number }, want: { number })
 		for i, rarity in RARITIES do
 			if math.abs(got[i] - want[i]) > 1 then
-				error(string.format("%s %s: %.1f%%, design says %d%%", label, rarity, got[i], want[i]))
+				error(
+					string.format("%s %s: %.1f%%, design says %d%%", label, rarity, got[i], want[i])
+				)
 			end
 		end
 	end
 
-	describe("F83 and F93 catch and rescue feel (QA, data-model 10 and 10b, catch-rework.md)", function()
-		-- #1884: the trust bar's figures, which the designer accepted (catch-rework.md 7b, 2026-11-06), each within 5.3
-		-- points of section 2's table (the v2 rule's, kept below), the Basic 50 ms Mythical the furthest at 18%.
-		it("nets a stray as often as the design's table, every net at 50 ms and Basic and Master at 70 ms", function()
-			local rows = {
-				{ "Basic 50 ms", 0, 0.05, { 96, 88, 69, 42, 18 }, { 95, 86, 69, 46, 23 } },
-				{ "Sturdy 50 ms", 1, 0.05, { 99, 97, 88, 67, 38 }, { 99, 95, 84, 65, 41 } },
-				{ "Pro 50 ms", 2, 0.05, { 100, 99, 97, 87, 63 }, { 100, 99, 94, 83, 63 } },
-				{ "Master 50 ms", 3, 0.05, { 100, 100, 100, 97, 85 }, { 100, 100, 98, 93, 80 } },
-				{ "Basic 70 ms", 0, 0.07, { 76, 53, 28, 11, 3 }, { 77, 56, 33, 15, 5 } },
-				{ "Master 70 ms", 3, 0.07, { 99, 97, 88, 68, 39 }, { 99, 94, 83, 64, 40 } },
-			}
-			for _, row in rows do
-				local got = {}
-				for i, rarity in RARITIES do
-					got[i] = catchChance(row[2] :: number, rarity, row[3] :: number)
-					expect(math.abs(got[i] - (row[5] :: { number })[i]) <= 5.5).to.equal(true)
+	describe(
+		"F83 and F93 catch and rescue feel (QA, data-model 10 and 10b, catch-rework.md)",
+		function()
+			-- #1884: the trust bar's figures with the twists (catch-rework.md 7b, 7c; Legendary and Mythical re-fit to 0.742
+			-- and 0.636 for the paw rings, 2026-11-06), each within 5 points of section 2's table (the v2 rule's, kept
+			-- below), the Basic 50 ms Mythical the furthest at 19%.
+			it(
+				"nets a stray as often as the design's table, every net at 50 ms and Basic and Master at 70 ms",
+				function()
+					local rows = {
+						{ "Basic 50 ms", 0, 0.05, { 96, 88, 69, 43, 19 }, { 95, 86, 69, 46, 23 } },
+						{ "Sturdy 50 ms", 1, 0.05, { 99, 97, 88, 67, 39 }, { 99, 95, 84, 65, 41 } },
+						{ "Pro 50 ms", 2, 0.05, { 100, 99, 97, 86, 63 }, { 100, 99, 94, 83, 63 } },
+						{
+							"Master 50 ms",
+							3,
+							0.05,
+							{ 100, 100, 100, 96, 84 },
+							{ 100, 100, 98, 93, 80 },
+						},
+						{ "Basic 70 ms", 0, 0.07, { 76, 53, 28, 12, 3 }, { 77, 56, 33, 15, 5 } },
+						{ "Master 70 ms", 3, 0.07, { 99, 97, 88, 67, 39 }, { 99, 94, 83, 64, 40 } },
+					}
+					for _, row in rows do
+						local got = {}
+						for i, rarity in RARITIES do
+							got[i] = catchChance(row[2] :: number, rarity, row[3] :: number)
+							expect(math.abs(got[i] - (row[5] :: { number })[i]) <= 5).to.equal(true)
+						end
+						rowMatches(row[1] :: string, got, row[4] :: { number })
+					end
 				end
-				rowMatches(row[1] :: string, got, row[4] :: { number })
-			end
-		end)
+			)
 
-		it("keeps a new player's Common easy and makes every better net help at every rarity", function()
-			-- the intro's catch and a new player's first five cats are Commons: one or two tries (F93: three circles, so
-			-- a shaky young player on a phone needs a second try a quarter of the time)
-			expect(catchChance(0, "Common", 0.05) >= 94).to.equal(true)
-			expect(catchChance(0, "Common", 0.07) >= 75).to.equal(true)
-			for _, rarity in RARITIES do
-				for level = 1, 3 do
-					expect(catchChance(level, rarity, 0.05) > catchChance(level - 1, rarity, 0.05)).to.equal(true)
+			it(
+				"keeps a new player's Common easy and makes every better net help at every rarity",
+				function()
+					-- the intro's catch and a new player's first five cats are Commons: one or two tries (F93: three circles, so
+					-- a shaky young player on a phone needs a second try a quarter of the time)
+					expect(catchChance(0, "Common", 0.05) >= 94).to.equal(true)
+					expect(catchChance(0, "Common", 0.07) >= 75).to.equal(true)
+					for _, rarity in RARITIES do
+						for level = 1, 3 do
+							expect(
+								catchChance(level, rarity, 0.05)
+									> catchChance(level - 1, rarity, 0.05)
+							).to.equal(true)
+						end
+					end
+					for i = 2, #RARITIES do
+						expect(
+							catchChance(0, RARITIES[i], 0.05)
+								< catchChance(0, RARITIES[i - 1], 0.05)
+						).to.equal(true)
+					end
 				end
-			end
-			for i = 2, #RARITIES do
-				expect(catchChance(0, RARITIES[i], 0.05) < catchChance(0, RARITIES[i - 1], 0.05)).to.equal(true)
-			end
-		end)
+			)
 
-		it("frees a stuck cat on the bar as often as the design's table, at 50 and 70 ms", function()
-			local at50, at70 = {}, {}
-			for i, rarity in RARITIES do
-				at50[i] = rescueChance(rarity, 0.05)
-				at70[i] = rescueChance(rarity, 0.07)
-			end
-			-- Derek 2026-11-03: zones wait to be hit, so a slow press no longer costs a paw (was 100, 98, 78, 36, 9 and
-			-- 100, 88, 44, 11, 2 with F93's run-out)
-			rowMatches("bar 50 ms", at50, { 100, 100, 85, 41, 11 })
-			rowMatches("bar 70 ms", at70, { 100, 93, 51, 13, 2 })
-		end)
+			it(
+				"frees a stuck cat on the bar as often as the design's table, at 50 and 70 ms",
+				function()
+					local at50, at70 = {}, {}
+					for i, rarity in RARITIES do
+						at50[i] = rescueChance(rarity, 0.05)
+						at70[i] = rescueChance(rarity, 0.07)
+					end
+					-- Derek 2026-11-03: zones wait to be hit, so a slow press no longer costs a paw (was 100, 98, 78, 36, 9 and
+					-- 100, 88, 44, 11, 2 with F93's run-out)
+					rowMatches("bar 50 ms", at50, { 100, 100, 85, 41, 11 })
+					rowMatches("bar 70 ms", at70, { 100, 93, 51, 13, 2 })
+				end
+			)
 
-		it("gives a steady player time for every hit and every spare paw inside the 15 s deadline", function()
-			for _, rarity in RARITIES do
-				local presses = Rescue.hitsNeeded(rarity, "bar") + Config.RescuePatience - 1
-				-- each press waits at most one trip out and back for the marker to reach its zone
-				local worst = Config.CircleLeadInSeconds + presses * 2 / Config.RescueBarSpeed[rarity]
-				expect(worst < Config.RescueAttemptMaxSeconds).to.equal(true)
-			end
-		end)
+			it(
+				"gives a steady player time for every hit and every spare paw inside the 15 s deadline",
+				function()
+					for _, rarity in RARITIES do
+						local presses = Rescue.hitsNeeded(rarity, "bar") + Config.RescuePatience - 1
+						-- each press waits at most one trip out and back for the marker to reach its zone
+						local worst = Config.CircleLeadInSeconds
+							+ presses * 2 / Config.RescueBarSpeed[rarity]
+						expect(worst < Config.RescueAttemptMaxSeconds).to.equal(true)
+					end
+				end
+			)
 
-		it("judges the tree's falling cat (RescueTreeCircle) on the Pro Net times its catchWindow, easier than a net catch", function()
-			for _, rarity in RARITIES do
-				local windows = Circles.windowsFor(Rescue.CIRCLE_NET_LEVEL, rarity)
-				local falling = 100 * within(windows.good, 0.05)
-				expect(falling > 85).to.equal(true) -- one circle: the shakes are the hard part
-				expect(falling >= catchChance(0, rarity, 0.05)).to.equal(true)
-			end
-		end)
-	end)
+			it(
+				"judges the tree's falling cat (RescueTreeCircle) on the Pro Net times its catchWindow, easier than a net catch",
+				function()
+					for _, rarity in RARITIES do
+						local windows = Circles.windowsFor(Rescue.CIRCLE_NET_LEVEL, rarity)
+						local falling = 100 * within(windows.good, 0.05)
+						expect(falling > 85).to.equal(true) -- one circle: the shakes are the hard part
+						expect(falling >= catchChance(0, rarity, 0.05)).to.equal(true)
+					end
+				end
+			)
+		end
+	)
 end

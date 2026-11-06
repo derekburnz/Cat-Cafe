@@ -28,6 +28,7 @@ local CafeService = require(script.Parent.CafeService)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local DataService = require(script.Parent.DataService)
+local IdeaCreditsService = require(script.Parent.IdeaCreditsService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local Products = require(ReplicatedStorage.Shared.Products)
@@ -91,6 +92,12 @@ function ProductService.give(
 		end
 		local style = SignStyles.get(styleId)
 		table.insert(paid, "the " .. (if style ~= nil then style.name else styleId) .. " sign")
+	end
+	if first and product.supporter == true then
+		-- #1168 row 4: the mark is profile.onceBought (markBought, above); the board, chat tag and attribute follow
+		IdeaCreditsService.markSupporter(player, profile)
+		CafePassService.refreshTag(player, profile)
+		table.insert(paid, "your gold Thank You badge")
 	end
 	Net.fire(player, "Toast", thanks .. table.concat(paid, ", "), "good")
 	for _, catId in give.cats do

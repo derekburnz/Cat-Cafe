@@ -74,6 +74,18 @@ return function()
 			expect(rows[2].creditId).to.equal(nil)
 		end)
 
+		it("marks a supporter's row, never one shown as 'a player' (#1168 row 4)", function()
+			local rows = IdeaCredits.rows(
+				{ credit(1, "Shown", 2), credit(2, "Hidden", 1) },
+				{ [1] = "MochiPie", [2] = "Biscuit" },
+				{ [2] = true },
+				{ [1] = true, [2] = true }
+			)
+			expect(rows[1].supporter).to.equal(true)
+			expect(rows[2].supporter).to.equal(nil)
+			expect(IdeaCredits.rows({ credit(1, "Shown", 2) }, { [1] = "MochiPie" }, {})[1].supporter).to.equal(nil)
+		end)
+
 		it("never puts a user id in a row", function()
 			local rows = IdeaCredits.rows({ credit(123456789, "Idea", 1) }, {}, {})
 			expect(string.find(rows[1].name, "123456789", 1, true)).to.equal(nil)

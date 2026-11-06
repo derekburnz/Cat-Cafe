@@ -38,6 +38,25 @@ return function()
 			)
 		end)
 
+		it("gives the Sign Style Pack's three styles only through its pass (#1168 row 1)", function()
+			local pack = { "pack_flower_box", "pack_starry_night", "pack_paw_chalkboard" }
+			for _, id in pack do
+				local style = SignStyles.get(id) :: any
+				expect(style).to.be.ok()
+				expect(style.passKey).to.equal("SignStylePackPassId")
+			end
+			-- a saved copy means nothing (pass styles are never saved), and a pass id of 0 gives nothing
+			expect(SignStyles.sanitize({ pack_flower_box = true }) :: any).to.deepEqual({})
+			expect(#SignStyles.owned({}, function(id: number): boolean
+				return id == 0
+			end)).to.equal(0)
+			local packId = (Config :: any).SignStylePackPassId
+			if packId ~= 0 then
+				local owned = SignStyles.owned({}, owns({ [packId] = true }))
+				expect(owned :: any).to.deepEqual(pack)
+			end
+		end)
+
 		it("names a model for every style", function()
 			for _, style in SignStyles.LIST do
 				expect(style.model:match("^CatCafe_Plot_Sign")).to.be.ok()

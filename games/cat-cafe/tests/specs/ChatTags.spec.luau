@@ -39,6 +39,19 @@ return function()
 			expect(ChatTags.shown(ChatTags.OFF, true, MAPLE)).to.equal(nil)
 		end)
 
+		it("offers the Thank You tag to a supporter, after VIP and before the season tags (#1168 row 4)", function()
+			local items = ChatTags.withSupporter(MAPLE, true)
+			expect(MAPLE.supporter).to.equal(nil) -- a copy
+			expect(ChatTags.choices(true, items) :: any).to.deepEqual({ "vip", "supporter", "tag_maple" })
+			expect(ChatTags.shown(nil, false, items)).to.equal("supporter")
+			expect(ChatTags.choices(false, ChatTags.withSupporter(MAPLE, false)) :: any).to.deepEqual({
+				"tag_maple",
+			})
+			expect(ChatTags.prefixFor("supporter")).to.equal('<font color="#FFC94D">[Thank You]</font> ')
+			-- only the server's supporter mark gives it: a saved item named supporter means nothing once rebuilt
+			expect(ChatTags.withSupporter({ supporter = true }, false).supporter).to.equal(nil)
+		end)
+
 		it("never shows a tag the player can't show any more", function()
 			expect(ChatTags.shown("vip", false, MAPLE)).to.equal("tag_maple") -- VIP not owned
 			expect(ChatTags.shown("tag_maple", false, {})).to.equal(nil)

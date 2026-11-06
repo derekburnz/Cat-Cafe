@@ -64,6 +64,7 @@ return function()
 				potion_pack_s = { big_tip_potion = 3, swift_potion = 1, steady_potion = 1 },
 				potion_pack_m = { big_tip_potion = 5, swift_potion = 3, steady_potion = 2 },
 				potion_pack_l = { big_tip_potion = 10, swift_potion = 6, steady_potion = 6 },
+				steady_paw_pack = { steady_potion = 10 }, -- #1168 row 8
 				starter_bundle = { big_tip_potion = 10, swift_potion = 5 }, -- #1625
 				thank_you_badge = {}, -- #1168 row 4: a supporter mark only
 				cafe_pass = {}, -- #1626: everything comes from the paid track's levels

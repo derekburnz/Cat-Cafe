@@ -216,11 +216,11 @@ return function()
 			expect(StoreLogic.button(row, { forSale = true }).text).to.equal("Soon")
 		end)
 
-		it("says Owned and cannot be pressed for an owned pass", function()
+		it("says Yours (#1823) and cannot be pressed for an owned pass", function()
 			local owned = table.clone(row)
 			owned.owned = true
 			local button = StoreLogic.button(owned, { robux = 5, forSale = true })
-			expect(button.text).to.equal("Owned")
+			expect(button.text).to.equal("Yours")
 			expect(button.enabled).to.equal(false)
 		end)
 	end)
@@ -326,7 +326,7 @@ return function()
 		end)
 
 		it(
-			"shows the Cafe Pass card only while a season runs, Owned once bought (#1646)",
+			"shows the Cafe Pass card only while a season runs, Yours once bought (#1646)",
 			function()
 				local passConfig: any = table.clone(config)
 				passConfig.ProductIds = { potion_pack_xs = 31, starter_bundle = 40, cafe_pass = 50 }
@@ -351,8 +351,10 @@ return function()
 				expect(card.effect).to.equal(
 					"Season 1 paid track:\nSeason cat Maple Muffin and 15 potions"
 				)
-				-- the season's pass is the hero after the Starter Bundle, and never carries a timer
-				expect(StoreLogic.featured(rows).hero.key).to.equal("cafePass")
+				-- #1823 (store-layout-v2.md §1): after the Starter Bundle the King Cat bundle is the hero, and the season's
+				-- pass leads the picks (never with a restarting timer)
+				expect(StoreLogic.featured(rows).hero.key).to.equal("kingPack")
+				expect(StoreLogic.featured(rows).picks[1].key).to.equal("cafePass")
 				expect(StoreLogic.button(card, { robux = 299, forSale = true }).text).to.equal(
 					"R$299"
 				)
@@ -360,11 +362,11 @@ return function()
 				local bought =
 					StoreLogic.tabRows(StoreLogic.rows(passConfig, {}, nil, running), "cafePass")[1]
 				expect(StoreLogic.button(bought, { robux = 299, forSale = true }).text).to.equal(
-					"Owned"
+					"Yours"
 				)
-				expect(StoreLogic.featured(StoreLogic.rows(passConfig, {}, nil, running)).hero.key).to.equal(
-					"kingPack"
-				)
+				local after = StoreLogic.featured(StoreLogic.rows(passConfig, {}, nil, running))
+				expect(after.hero.key).to.equal("kingPack")
+				expect(after.picks[1].key).to.equal("money") -- bought: it gives its spot to one still for sale
 				-- a closed season (0) hides it again
 				running.cafePass.season = 0
 				expect(
@@ -400,6 +402,96 @@ return function()
 			local featured = StoreLogic.featured({})
 			expect(featured.hero == nil).to.equal(true)
 			expect(#featured.picks).to.equal(0)
+		end)
+	end)
+	describe("StoreLogic King Cat cards (#1822)", function()
+		local config = {
+			KingPackPassId = 100,
+			KingCatPassId = 200,
+			ProductIds = { potion_pack_m = 300 },
+		}
+		local function find(rows: { any }, key: string): any
+			for _, row in rows do
+				if row.key == key then
+					return row
+				end
+			end
+			return nil
+		end
+		it("shows the King Cat alone just before its bundle, under Cats", function()
+			local rows = StoreLogic.rows(config, {}, false, nil)
+			local cat, pack
+			for index, row in rows do
+				if row.key == "kingCat" then
+					cat = index
+				elseif row.key == "kingPack" then
+					pack = index
+				end
+			end
+			expect(cat).to.be.ok()
+			expect(pack).to.equal(cat + 1)
+			expect(rows[cat].tab).to.equal("cats")
+		end)
+		it("hides the King Cat alone while its pass is not made", function()
+			local rows = StoreLogic.rows({ KingPackPassId = 100, KingCatPassId = 0 }, {}, false, nil)
+			expect(find(rows, "kingCat")).to.equal(nil)
+			expect(find(rows, "kingPack").worthIds).to.equal(nil)
+		end)
+		it("adds up the parts for the worth line, only when it beats the bundle's price", function()
+			local pack = find(StoreLogic.rows(config, {}, false, nil), "kingPack")
+			local prices = {
+				[100] = { robux = 999, forSale = true },
+				[200] = { robux = 799, forSale = true },
+				[300] = { robux = 450, forSale = true },
+			}
+			expect(StoreLogic.worthLine(pack, prices)).to.equal("Worth R$1,245")
+			prices[300] = { robux = 150, forSale = true }
+			expect(StoreLogic.worthLine(pack, prices)).to.equal(nil)
+			prices[300] = nil
+			expect(StoreLogic.worthLine(pack, prices)).to.equal(nil)
+		end)
+		it("drops the worth line once the bundle is owned", function()
+			local pack = find(StoreLogic.rows(config, { [100] = true }, false, nil), "kingPack")
+			local prices = {
+				[100] = { robux = 999, forSale = true },
+				[200] = { robux = 799, forSale = true },
+				[300] = { robux = 450, forSale = true },
+			}
+			expect(StoreLogic.worthLine(pack, prices)).to.equal(nil)
+		end)
+	end)
+	describe("StoreLogic bundle worth and badge (#1823, store-layout-v2.md §2 and §4)", function()
+		local pack: any = {
+			key = "kingPack",
+			passId = 100,
+			owned = false,
+			worthIds = { 200, 300 },
+			name = "King Cat Pack",
+			icon = "",
+			effect = "",
+			tab = "cats",
+		}
+		local function prices(cat: number?, potions: number?): any
+			return {
+				[100] = { robux = 999, forSale = true },
+				[200] = if cat then { robux = cat, forSale = true } else nil,
+				[300] = if potions then { robux = potions, forSale = true } else nil,
+			}
+		end
+		it("sums the live prices rounded down to R$5, and hides when one is missing", function()
+			expect(StoreLogic.worth(pack, prices(799, 452))).to.equal(1250)
+			expect(StoreLogic.worthLine(pack, prices(799, 452))).to.equal("Worth R$1,250")
+			expect(StoreLogic.worth(pack, prices(799, nil))).to.equal(nil)
+		end)
+		it("gives Best Value only at 1.25 x the price or more", function()
+			expect(StoreLogic.badge(pack, prices(799, 452))).to.equal("Best Value")
+			expect(StoreLogic.badge(pack, prices(799, 400))).to.equal(nil) -- 1195 < 1248.75
+		end)
+		it("counts only the parts not owned yet, dropping the line and badge below the price", function()
+			local owned = { [200] = true }
+			expect(StoreLogic.worth(pack, prices(799, 452), owned)).to.equal(450)
+			expect(StoreLogic.worthLine(pack, prices(799, 452), owned)).to.equal(nil)
+			expect(StoreLogic.badge(pack, prices(799, 452), owned)).to.equal(nil)
 		end)
 	end)
 end

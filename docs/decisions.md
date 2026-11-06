@@ -507,4 +507,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 - 2026-11-06: The Lost and Found is reworked and buffed (Derek2: "needs a re-work and a massive buff"). It becomes a lost-property booth with the shared "!". It gives one find every 2 hours, holding 3, where it used to give one a day. The new free prize table has 40 fish, two potions, 2 spins, a Sewer Crate, Golden crates, and a 2% chance of a lost Epic cat. Spec in camp-stations.md §4b. Why: it was the weakest camp extra, though it is the last one unlocked. Nothing is sold and no odds of luck change.
 
+- 2026-11-06: Lawn cards show a tiny "Big spot" tag on big-spot pieces, and nothing else explains Equip Best. The spot counts and the best-pick rule stay as they are. Spec in lawn-nursery.md §6e. Why: Derek2 picked option 1 on #1729 and then asked to keep the cards light, with no long "Stored: ..." sentence.
+
 - 2026-11-06: The Luck card drops its two odds blocks. Instead it shows one row of rarity pills, for example "Epic +30%  Legendary +30%  Mythical +30%". Luck multiplies those three chances alike, so the boost is (luck - 1) x 100 percent, relative to x1.0. The number comes from a new shared `Luck.boostPercent`. The spec is in luck-and-rare-moments.md §1d. Why: Derek2 on #1776 said the odds "are not helpful"; he asked for a plain per-rarity increase shown mostly by hue.

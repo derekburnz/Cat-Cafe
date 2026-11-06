@@ -369,6 +369,7 @@ export type Card = {
 	rarity: string?, -- "Common" to "Golden"; nil for none
 	bonus: number, -- the fraction it adds while out (0.03 for "+3% money")
 	out: boolean, -- on a lawn spot, or the path or fence in use
+	big: boolean?, -- #1729: a piece for a big spot (the card's small "Big spot" tag); nil for the rest
 }
 
 -- Each owned piece, path and fence (not the free Grey Slabs, which adds nothing): the ones out first, then the bigger
@@ -386,6 +387,7 @@ function LawnLogic.cards(state: Types.PlayerState): { Card }
 				rarity = piece.rarity :: string?,
 				bonus = Lawn.rarityBonus(piece.rarity),
 				out = LawnLogic.spotOf(state, piece.id) ~= nil,
+				big = if piece.spot == "big" then true else nil,
 			})
 		end
 	end

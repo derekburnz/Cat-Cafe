@@ -945,3 +945,15 @@ Where each check from #1019 is wired (checked in code, 2026-11-06):
 | Rally board chase stops | `RallyBoard.luau` | `budget.rallyBoards` 0 |
 
 Each ring from `Particles.ring` (the dish served blush ring among them) is skipped with Reduce Motion.
+
+## Store thank-you burst (#1823, 2026-11-06)
+
+The store remake (#1823, the v2 layout in #1824). UI-Engineer calls `StoreBurst.play(card, kind)` with the bought card once the server confirms the buy (`PassShop.changed` or the pack's grant sync), so a cancelled prompt never sparkles. Files: `Effects/StoreBurst.luau`, numbers in `Presets.storeBurst`.
+
+| Kind | Look |
+|---|---|
+| `pass` | 12 gold diamonds fly out from round the card's edge over 0.5 s, and one gold ring grows from 0.6 to 1.4 times the card's longer side |
+| `pack` | the same in pale gold |
+| `bundle` (the King Cat bundle reveal) | 20 gold diamonds and two rings, a quarter second apart |
+
+It is a thank-you only. It shows what was already bought, with no random reveal and no "buy more" nudge, so it stays inside monetization-policy. Reduce Motion: half the sparkles and no rings. Low performance: half the sparkles. It draws on its own ScreenGui (`EffectsStore`, DisplayOrder 22), over the store window (20) and under the toasts (30), and never changes a UI object. A case is in `docs/vfx/cat-cafe/specs/EffectsStoreBurst.spec.luau`. Studio checks, once the v2 store calls it: buy a pass in a test server and its card sparkles once with a ring; cancel the prompt and nothing shows; with Reduce Motion there is no ring. No new console errors.

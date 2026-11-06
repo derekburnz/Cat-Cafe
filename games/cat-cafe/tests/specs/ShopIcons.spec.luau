@@ -211,12 +211,12 @@ return function()
 					expect(ShopIcons.store(card.key)).never.to.equal(nil)
 				end
 				expect(ShopIcons.store(StoreLogic.STARTER.key)).to.equal(
-					"rbxassetid://72549988670948"
+					"rbxassetid://130873773933365"
 				)
-				expect(ShopIcons.store("longNap")).to.equal("rbxassetid://95823829256556")
-				expect(ShopIcons.store("money", 2)).to.equal("rbxassetid://72414082780413")
-				expect(ShopIcons.store("money", 3)).to.equal("rbxassetid://93298940995735")
-				expect(ShopIcons.store("money", 4)).to.equal("rbxassetid://106773934084025")
+				expect(ShopIcons.store("longNap")).to.equal("rbxassetid://91856746794190")
+				expect(ShopIcons.store("money", 2)).to.equal("rbxassetid://121944110626702")
+				expect(ShopIcons.store("money", 3)).to.equal("rbxassetid://128857807794745")
+				expect(ShopIcons.store("money", 4)).to.equal("rbxassetid://120500180047666")
 				expect(ShopIcons.store("money")).to.equal(nil)
 				expect(ShopIcons.store("money", 9)).to.equal(nil)
 				expect(ShopIcons.store("nope")).to.equal(nil)

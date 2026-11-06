@@ -24,6 +24,8 @@ export type Row = {
 	product: boolean?, -- a developer product (bought each time; passId holds its product id, never Owned)
 	tab: string, -- the rail tab it shows under: "passes", "cats", "potions" or "cafePass"
 	multiplier: number?, -- the money card's rung (2, 3, 4), for its picture (ShopIcons.store)
+	-- #1822: the ids of what the bundle holds that is also sold alone (passes and products), for its "Worth" line
+	worthIds: { number }?,
 }
 
 -- The Store's left rail, top to bottom (#1425). Featured and Codes (#1428, the code box) always show; another tab
@@ -49,6 +51,18 @@ export type Button = {
 	style: string, -- a Button style
 	enabled: boolean,
 }
+
+-- "1,450"
+local function commas(value: number): string
+	local text = tostring(math.floor(value))
+	while true do
+		local grouped, count = text:gsub("^(%d+)(%d%d%d)", "%1,%2")
+		text = grouped
+		if count == 0 then
+			return text
+		end
+	end
+end
 
 local MONEY_ICON = "💰"
 local NAP_ICON = "😴"
@@ -117,12 +131,25 @@ local PASSES: { PassCard } = {
 		icon = "🏰",
 		effect = "The grand look: +150% money, twice the rich visitors, +1 job slot every tier.",
 	},
+	-- #1822 (Monetization's store doc §3C): the King Cat alone sits just before its bundle under Cats, so the bundle
+	-- reads as the better deal; hidden while KingCatPassId is 0
+	{
+		key = "kingCat",
+		configKey = "KingCatPassId",
+		name = "King Cat",
+		icon = "🤴",
+		effect = "A cat that always earns like a Mythical from your newest area.", -- fits a phone's card
+		note = "Yours to keep. Can't be traded.", -- as the Royal Cat's; a longer note shrank the card's text on a small phone
+		tab = "cats",
+	},
+	-- #1822: the bundle lists what it holds (shared/KingPack.contents, in its order)
 	{
 		key = "kingPack",
 		configKey = "KingPackPassId",
 		name = "King Cat Pack",
 		icon = "🤴",
-		effect = "The King Cat, who always earns like a Mythical from your newest area, plus a crown sign style.",
+		effect = "King Croissant (earns like a Mythical), the Royal Crest sign, the Grand look, the Royal Velvet Booth "
+			.. "and Potion Pack M.",
 		note = "Yours to keep. Can't be traded.",
 		tab = "cats",
 	},
@@ -374,6 +401,75 @@ local function passId(config: any, card: PassCard): number?
 	return if type(value) == "number" and value ~= 0 then value else nil
 end
 
+-- #1822: what the King Cat Pack's worth adds up, as shared/KingPack.worthRefs: the King Cat alone pass and the Potion
+-- Pack M product, both only once made (the looks-only pieces are never priced). nil while either is 0.
+local function kingWorth(config: any): { number }?
+	local cat = config.KingCatPassId
+	local ids = config.ProductIds
+	local potions = if type(ids) == "table" then ids.potion_pack_m else nil
+	if type(cat) == "number" and cat ~= 0 and type(potions) == "number" and potions ~= 0 then
+		return { cat, potions }
+	end
+	return nil
+end
+
+-- #1822/#1823 (store-layout-v2.md §2, §4): what a bundle's parts the player doesn't own yet cost bought apart, the
+-- real sum of Roblox's prices, rounded down to R$5. nil while a part's price hasn't loaded or is off sale (never
+-- guessed), for an owned bundle, or for a row that isn't a bundle. `owned` is the passes the player owns.
+function StoreLogic.worth(
+	row: Row,
+	prices: { [number]: Price },
+	owned: { [number]: boolean }?
+): number?
+	local ids = row.worthIds
+	if ids == nil or #ids == 0 or row.owned then
+		return nil
+	end
+	local sum = 0
+	for _, id in ids do
+		if owned and owned[id] then
+			continue
+		end
+		local price = prices[id]
+		if price == nil or not price.forSale or price.robux == nil then
+			return nil
+		end
+		sum += price.robux :: number
+	end
+	return math.floor(sum / 5) * 5
+end
+
+-- The bundle's "Worth R$X" line (§2: muted, no strike-through, no "% off"); only when the parts left are worth more
+-- than the bundle's own price, so it never reads as a loss.
+function StoreLogic.worthLine(
+	row: Row,
+	prices: { [number]: Price },
+	owned: { [number]: boolean }?
+): string?
+	local worth = StoreLogic.worth(row, prices, owned)
+	local own = prices[row.passId]
+	if worth == nil or own == nil or own.robux == nil or worth <= (own.robux :: number) then
+		return nil
+	end
+	return ("Worth R$%s"):format(commas(worth))
+end
+
+-- §2: one badge at most. "Best Value" only when the parts left are worth at least 1.25 x the bundle's price; nothing
+-- else ("Most Popular" waits for real sales data).
+StoreLogic.BEST_VALUE = 1.25
+function StoreLogic.badge(
+	row: Row,
+	prices: { [number]: Price },
+	owned: { [number]: boolean }?
+): string?
+	local worth = StoreLogic.worth(row, prices, owned)
+	local own = prices[row.passId]
+	if worth == nil or own == nil or own.robux == nil or (own.robux :: number) <= 0 then
+		return nil
+	end
+	return if worth >= StoreLogic.BEST_VALUE * (own.robux :: number) then "Best Value" else nil
+end
+
 -- Every pass id the Config names that is made, money ladder first.
 function StoreLogic.passIds(config: any): { number }
 	local ids: { number } = {}
@@ -419,7 +515,8 @@ end
 -- 3x/4x if bought"): the badge beside the HUD's money. The highest money pass owned (Roblox's answer in `owned`, or
 -- the server's PlayerState.passBoosts.money as `serverMultiplier`) reads "2x", "3x" or "4x"; with none, "Get 2x"
 -- while the 2x pass is on sale (a tap opens the Store), else no badge.
-export type MoneyBadge = { text: string, owned: boolean }
+-- price: #1759, the not-owned badge's line under its pill, "Only R$5" (nil once owned or with no price yet)
+export type MoneyBadge = { text: string, owned: boolean, price: string? }
 function StoreLogic.moneyBadge(
 	config: any,
 	owned: { [number]: boolean },
@@ -442,7 +539,12 @@ function StoreLogic.moneyBadge(
 	local first = ladder[1]
 	local price = if first ~= nil then prices[first.id] else nil
 	if price ~= nil and price.forSale then
-		return { text = ("Get %dx"):format(first.multiplier), owned = false }
+		-- #1759 (Derek2 11-06: "more in your face then that slight 2x"): the HUD's rainbow buy button
+		return {
+			text = ("X%d Cash"):format(first.multiplier),
+			owned = false,
+			price = if price.robux ~= nil then ("Only R$%d"):format(price.robux :: number) else nil,
+		}
 	end
 	return nil
 end
@@ -546,6 +648,7 @@ function StoreLogic.rows(
 				effect = if card.note then card.effect .. "\n" .. card.note else card.effect,
 				owned = owned[id] == true,
 				tab = card.tab or "passes",
+				worthIds = if card.key == "kingPack" then kingWorth(config) else nil,
 			})
 		end
 	end
@@ -579,10 +682,12 @@ export type Featured = { hero: Row?, picks: { Row } }
 StoreLogic.PICKS = 3
 -- The hero, in order of preference (#1425): the Starter Bundle while it can be bought (the best first buy for a new
 -- cafe), then the running season's Cafe Pass until it is bought (#1646), then the King Cat Pack. An owned King Cat Pack gives way to the Royal Cat, then the Grand Cafe Theme.
-local HERO_ORDER = { "starterBundle", "cafePass", "kingPack", "royalCat", "grandTheme" }
+-- #1823 (store-layout-v2.md §1): the Starter Bundle until bought, then the King Cat bundle, then the Cafe Pass
+local HERO_ORDER = { "starterBundle", "kingPack", "cafePass", "royalCat", "grandTheme" }
 -- The top picks, left to right: the money ladder's next rung, Long Nap and the King Cat Pack (the Royal Cat when the
 -- King Cat Pack is the hero).
-local PICK_ORDER = { "money", "longNap", "kingPack", "royalCat" }
+-- #1823 §1: the Cafe Pass first, then the best sellers (2x Money and Long Nap until the growth thread has sales data)
+local PICK_ORDER = { "cafePass", "money", "longNap", "kingPack", "royalCat" }
 
 -- The Featured tab's cards: one hero and up to three picks, never the same row twice. Owned rows give way to ones
 -- that can still be bought, and an empty spot is filled from the rest of the Store in its order.
@@ -630,7 +735,7 @@ end
 -- A card's button: Owned, "..." while the price loads, Soon while off sale, else the price in Robux.
 function StoreLogic.button(row: Row, price: Price?): Button
 	if row.owned then
-		return { text = "Owned", style = "ghost", enabled = false }
+		return { text = "Yours", style = "ghost", enabled = false } -- #1823 §4
 	end
 	if price == nil then
 		return { text = "...", style = "ghost", enabled = false }

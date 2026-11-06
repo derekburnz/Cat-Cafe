@@ -10,7 +10,7 @@ return function()
 
 	local expected: { [string]: any } = {
 		ServerPlayers = 8,
-		StartCoins = 50,
+		StartCoins = 850, -- #1796: was 50
 		FavoriteMultiplier = 1.5,
 		TableBonus = 0.10,
 		EspressoBonus = 0.15,
@@ -260,6 +260,7 @@ return function()
 		PondFishPerStep = 1, -- #1232: was 2
 		PondStepSeconds = 600, -- #1232: was 1800
 		PondHold = 36, -- #1232: was 24
+		LostFoundEverySeconds = 7200, -- #1732: a find every 2 h, was one a UTC day
 		LostFoundHold = 3,
 		CampExtraRangeStuds = 8,
 		RallyStartWeekday = 6, -- F101 (rescue-rally.md section 5); RallyPoints is checked in Rally.spec
@@ -371,6 +372,7 @@ return function()
 			-- LureReserveSeconds: the doc now says a lured stray is reserved until despawn, so the constant is optional.
 			local known = {
 				World = true,
+				OwnerTestUserIds = true, -- #1770: checked in OwnerTest.spec
 				NetWindows = true, -- a table, checked below
 				CharmStarOdds = true, -- a table, checked below
 				RescueBarSpeed = true, -- a table, checked below
@@ -428,6 +430,9 @@ return function()
 				GrandThemePassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				RoyalCatPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				KingPackPassId = true, -- #1197: an off-sale placeholder pass id, checked below
+				KingCatPassId = true, -- #1822: the King Cat alone, 0 until made, checked below
+				SignStylePackPassId = true, -- #1168 row 1: 0 until made, checked below
+				GardenDecorPackPassId = true, -- #1168 row 3: 0 until made, checked below
 				GoldenPondPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				SecondBowlPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				LostFoundTable = true, -- F100 (camp-extras.md section 2): a table, checked in CampExtras.spec
@@ -524,6 +529,15 @@ return function()
 				expect(ids[id]).never.to.be.ok()
 				ids[id] = true
 			end
+			-- #1822: the King Cat alone is 0 until Tools-Agent makes it, then a pass id of its own
+			expect(type(c.KingCatPassId)).to.equal("number")
+			expect(c.KingCatPassId == 0 or ids[c.KingCatPassId] == nil).to.equal(true)
+			-- #1168 row 1: the Sign Style Pack is 0 until made, then a pass id of its own
+			expect(type(c.SignStylePackPassId)).to.equal("number")
+			expect(c.SignStylePackPassId == 0 or ids[c.SignStylePackPassId] == nil).to.equal(true)
+			-- #1168 row 3: the Garden Decor Pack is 0 until made, then a pass id of its own
+			expect(type(c.GardenDecorPackPassId)).to.equal("number")
+			expect(c.GardenDecorPackPassId == 0 or ids[c.GardenDecorPackPassId] == nil).to.equal(true)
 			-- keep up is off: the shop-only cats use areaMultiplier instead, and it can come back by config
 			expect(next(Config.KeepUpRarities)).to.equal(nil)
 		end)

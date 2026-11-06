@@ -1,0 +1,2920 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Decor_HangingFernBasket/0",
+  "PartBuilt": true
+ },
+ "children": [
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.35,
+       2.52,
+       0.35
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.4,
+     1.1,
+     1.1
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       -2.52,
+       0.35,
+       -0.35
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Decor_HangingFernBasket/0"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.85,
+       0.04,
+       0.35
+      ],
+      "orientation": [
+       [
+        0.8192,
+        0.0,
+        0.5736
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.5736,
+        0.0,
+        0.8192
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.2,
+     0.08,
+     0.12
+    ],
+    "Color": [
+     0.2275,
+     0.2157,
+     0.2353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.85,
+       0.04,
+       0.35
+      ],
+      "orientation": [
+       [
+        0.8192,
+        0.0,
+        -0.5736
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.5736,
+        0.0,
+        0.8192
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.2,
+     0.08,
+     0.12
+    ],
+    "Color": [
+     0.2275,
+     0.2157,
+     0.2353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.85,
+       0.09,
+       0.35
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.28,
+     0.28
+    ],
+    "Color": [
+     0.2275,
+     0.2157,
+     0.2353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.85,
+       2.32,
+       0.35
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     4.4,
+     0.12,
+     0.12
+    ],
+    "Color": [
+     0.2275,
+     0.2157,
+     0.2353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.85,
+       4.56,
+       0.35
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.22,
+     0.22,
+     0.22
+    ],
+    "Color": [
+     0.2275,
+     0.2157,
+     0.2353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Ball"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.19,
+       4.4,
+       0.35
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.32,
+     0.1,
+     0.1
+    ],
+    "Color": [
+     0.2275,
+     0.2157,
+     0.2353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.575,
+       4.105,
+       0.35
+      ],
+      "orientation": [
+       [
+        0.6799,
+        0.7333,
+        0.0
+       ],
+       [
+        -0.7333,
+        0.6799,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.07,
+     0.7501,
+     0.07
+    ],
+    "Color": [
+     0.2275,
+     0.2157,
+     0.2353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.35,
+       4.25,
+       0.35
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     0.2,
+     0.06
+    ],
+    "Color": [
+     0.2275,
+     0.2157,
+     0.2353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.35,
+       2.28,
+       0.35
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
+     0.76,
+     0.76
+    ],
+    "Color": [
+     0.7882,
+     0.5412,
+     0.2941
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.35,
+       2.42,
+       0.35
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     1.14,
+     1.14
+    ],
+    "Color": [
+     0.8902,
+     0.7176,
+     0.4784
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.35,
+       2.58,
+       0.35
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.06,
+     1.14,
+     1.14
+    ],
+    "Color": [
+     0.8902,
+     0.7176,
+     0.4784
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.35,
+       2.76,
+       0.35
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.08,
+     1.2,
+     1.2
+    ],
+    "Color": [
+     0.3686,
+     0.2745,
+     0.2039
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.35,
+       2.81,
+       0.35
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.02,
+     0.98,
+     0.98
+    ],
+    "Color": [
+     0.2902,
+     0.1804,
+     0.1216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.35,
+       3.47,
+       0.6
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.9402,
+        0.0,
+        0.3406
+       ],
+       [
+        -0.3406,
+        0.0,
+        0.9402
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.4678,
+     0.05,
+     0.05
+    ],
+    "Color": [
+     0.6627,
+     0.6863,
+     0.7216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1335,
+       3.47,
+       0.225
+      ],
+      "orientation": [
+       [
+        0.295,
+        -0.9551,
+        -0.0259
+       ],
+       [
+        0.9402,
+        0.295,
+        -0.1703
+       ],
+       [
+        0.1703,
+        0.0259,
+        0.985
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.4678,
+     0.05,
+     0.05
+    ],
+    "Color": [
+     0.6627,
+     0.6863,
+     0.7216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.5665,
+       3.47,
+       0.225
+      ],
+      "orientation": [
+       [
+        -0.295,
+        -0.9551,
+        0.0259
+       ],
+       [
+        0.9402,
+        -0.295,
+        -0.1703
+       ],
+       [
+        0.1703,
+        -0.0259,
+        0.985
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.4678,
+     0.05,
+     0.05
+    ],
+    "Color": [
+     0.6627,
+     0.6863,
+     0.7216
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.5062,
+       3.0453,
+       0.328
+      ],
+      "orientation": [
+       [
+        0.568,
+        -0.8112,
+        0.1392
+       ],
+       [
+        0.8192,
+        0.5736,
+        0.0
+       ],
+       [
+        -0.0798,
+        0.114,
+        0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.55,
+     0.04,
+     0.3
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.8778,
+       3.2473,
+       0.2758
+      ],
+      "orientation": [
+       [
+        0.9865,
+        -0.0863,
+        0.1392
+       ],
+       [
+        0.0872,
+        0.9962,
+        0.0
+       ],
+       [
+        -0.1386,
+        0.0121,
+        0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.5,
+     0.04,
+     0.24
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.2326,
+       3.1056,
+       0.226
+      ],
+      "orientation": [
+       [
+        0.7002,
+        0.7002,
+        0.1392
+       ],
+       [
+        -0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        -0.0984,
+        -0.0984,
+        0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.45,
+     0.04,
+     0.18
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.516,
+       2.9968,
+       0.2203
+      ],
+      "orientation": [
+       [
+        0.6037,
+        -0.5065,
+        0.6157
+       ],
+       [
+        0.6428,
+        0.766,
+        0.0
+       ],
+       [
+        -0.4716,
+        0.3957,
+        0.788
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.55,
+     0.04,
+     0.3
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.8391,
+       3.0735,
+       -0.0321
+      ],
+      "orientation": [
+       [
+        0.7612,
+        0.204,
+        0.6157
+       ],
+       [
+        -0.2588,
+        0.9659,
+        0.0
+       ],
+       [
+        -0.5947,
+        -0.1593,
+        0.788
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.5,
+     0.04,
+     0.24
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.0663,
+       2.8178,
+       -0.2096
+      ],
+      "orientation": [
+       [
+        0.333,
+        0.7142,
+        0.6157
+       ],
+       [
+        -0.9063,
+        0.4226,
+        0.0
+       ],
+       [
+        -0.2602,
+        -0.558,
+        0.788
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.45,
+     0.04,
+     0.18
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4091,
+       3.0453,
+       0.2038
+      ],
+      "orientation": [
+       [
+        0.2149,
+        -0.3069,
+        0.9272
+       ],
+       [
+        0.8192,
+        0.5736,
+        0.0
+       ],
+       [
+        -0.5318,
+        0.7595,
+        0.3746
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.55,
+     0.04,
+     0.3
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.5497,
+       3.2473,
+       -0.1442
+      ],
+      "orientation": [
+       [
+        0.3732,
+        -0.0326,
+        0.9272
+       ],
+       [
+        0.0872,
+        0.9962,
+        0.0
+       ],
+       [
+        -0.9237,
+        0.0808,
+        0.3746
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.5,
+     0.04,
+     0.24
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.6839,
+       3.1056,
+       -0.4764
+      ],
+      "orientation": [
+       [
+        0.2649,
+        0.2649,
+        0.9272
+       ],
+       [
+        -0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        -0.6556,
+        -0.6556,
+        0.3746
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.45,
+     0.04,
+     0.18
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3207,
+       2.9968,
+       0.1414
+      ],
+      "orientation": [
+       [
+        -0.1066,
+        0.0895,
+        0.9903
+       ],
+       [
+        0.6428,
+        0.766,
+        0.0
+       ],
+       [
+        -0.7586,
+        0.6365,
+        -0.1392
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.55,
+     0.04,
+     0.3
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2636,
+       3.0735,
+       -0.2646
+      ],
+      "orientation": [
+       [
+        -0.1344,
+        -0.036,
+        0.9903
+       ],
+       [
+        -0.2588,
+        0.9659,
+        0.0
+       ],
+       [
+        -0.9565,
+        -0.2563,
+        -0.1392
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.5,
+     0.04,
+     0.24
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2235,
+       2.8178,
+       -0.5501
+      ],
+      "orientation": [
+       [
+        -0.0588,
+        -0.1261,
+        0.9903
+       ],
+       [
+        -0.9063,
+        0.4226,
+        0.0
+       ],
+       [
+        -0.4185,
+        -0.8975,
+        -0.1392
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.45,
+     0.04,
+     0.18
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2529,
+       3.0453,
+       0.2257
+      ],
+      "orientation": [
+       [
+        -0.3531,
+        0.5043,
+        0.788
+       ],
+       [
+        0.8192,
+        0.5736,
+        0.0
+       ],
+       [
+        -0.452,
+        0.6455,
+        -0.6157
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.55,
+     0.04,
+     0.3
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0219,
+       3.2473,
+       -0.07
+      ],
+      "orientation": [
+       [
+        -0.6133,
+        0.0537,
+        0.788
+       ],
+       [
+        0.0872,
+        0.9962,
+        0.0
+       ],
+       [
+        -0.785,
+        0.0687,
+        -0.6157
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.5,
+     0.04,
+     0.24
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1987,
+       3.1056,
+       -0.3524
+      ],
+      "orientation": [
+       [
+        -0.4353,
+        -0.4353,
+        0.788
+       ],
+       [
+        -0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        -0.5572,
+        -0.5572,
+        -0.6157
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.45,
+     0.04,
+     0.18
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1547,
+       2.9968,
+       0.2711
+      ],
+      "orientation": [
+       [
+        -0.7103,
+        0.596,
+        0.3746
+       ],
+       [
+        0.6428,
+        0.766,
+        0.0
+       ],
+       [
+        -0.287,
+        0.2408,
+        -0.9272
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.55,
+     0.04,
+     0.3
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2255,
+       3.0735,
+       0.1175
+      ],
+      "orientation": [
+       [
+        -0.8956,
+        -0.24,
+        0.3746
+       ],
+       [
+        -0.2588,
+        0.9659,
+        0.0
+       ],
+       [
+        -0.3618,
+        -0.097,
+        -0.9272
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.5,
+     0.04,
+     0.24
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.4928,
+       2.8178,
+       0.0095
+      ],
+      "orientation": [
+       [
+        -0.3918,
+        -0.8403,
+        0.3746
+       ],
+       [
+        -0.9063,
+        0.4226,
+        0.0
+       ],
+       [
+        -0.1583,
+        -0.3395,
+        -0.9272
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.45,
+     0.04,
+     0.18
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1938,
+       3.0453,
+       0.372
+      ],
+      "orientation": [
+       [
+        -0.568,
+        0.8112,
+        -0.1392
+       ],
+       [
+        0.8192,
+        0.5736,
+        0.0
+       ],
+       [
+        0.0798,
+        -0.114,
+        -0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.55,
+     0.04,
+     0.3
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1778,
+       3.2473,
+       0.4242
+      ],
+      "orientation": [
+       [
+        -0.9865,
+        0.0863,
+        -0.1392
+       ],
+       [
+        0.0872,
+        0.9962,
+        0.0
+       ],
+       [
+        0.1386,
+        -0.0121,
+        -0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.5,
+     0.04,
+     0.24
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.5326,
+       3.1056,
+       0.474
+      ],
+      "orientation": [
+       [
+        -0.7002,
+        -0.7002,
+        -0.1392
+       ],
+       [
+        -0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.0984,
+        0.0984,
+        -0.9903
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.45,
+     0.04,
+     0.18
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.184,
+       2.9968,
+       0.4797
+      ],
+      "orientation": [
+       [
+        -0.6037,
+        0.5065,
+        -0.6157
+       ],
+       [
+        0.6428,
+        0.766,
+        0.0
+       ],
+       [
+        0.4716,
+        -0.3957,
+        -0.788
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.55,
+     0.04,
+     0.3
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1391,
+       3.0735,
+       0.7321
+      ],
+      "orientation": [
+       [
+        -0.7612,
+        -0.204,
+        -0.6157
+       ],
+       [
+        -0.2588,
+        0.9659,
+        0.0
+       ],
+       [
+        0.5947,
+        0.1593,
+        -0.788
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.5,
+     0.04,
+     0.24
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3663,
+       2.8178,
+       0.9096
+      ],
+      "orientation": [
+       [
+        -0.333,
+        -0.7142,
+        -0.6157
+       ],
+       [
+        -0.9063,
+        0.4226,
+        0.0
+       ],
+       [
+        0.2602,
+        0.558,
+        -0.788
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.45,
+     0.04,
+     0.18
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2909,
+       3.0453,
+       0.4962
+      ],
+      "orientation": [
+       [
+        -0.2149,
+        0.3069,
+        -0.9272
+       ],
+       [
+        0.8192,
+        0.5736,
+        0.0
+       ],
+       [
+        0.5318,
+        -0.7595,
+        -0.3746
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.55,
+     0.04,
+     0.3
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1503,
+       3.2473,
+       0.8442
+      ],
+      "orientation": [
+       [
+        -0.3732,
+        0.0326,
+        -0.9272
+       ],
+       [
+        0.0872,
+        0.9962,
+        0.0
+       ],
+       [
+        0.9237,
+        -0.0808,
+        -0.3746
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.5,
+     0.04,
+     0.24
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0161,
+       3.1056,
+       1.1764
+      ],
+      "orientation": [
+       [
+        -0.2649,
+        -0.2649,
+        -0.9272
+       ],
+       [
+        -0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.6556,
+        0.6556,
+        -0.3746
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.45,
+     0.04,
+     0.18
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3793,
+       2.9968,
+       0.5586
+      ],
+      "orientation": [
+       [
+        0.1066,
+        -0.0895,
+        -0.9903
+       ],
+       [
+        0.6428,
+        0.766,
+        0.0
+       ],
+       [
+        0.7586,
+        -0.6365,
+        0.1392
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.55,
+     0.04,
+     0.3
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4364,
+       3.0735,
+       0.9646
+      ],
+      "orientation": [
+       [
+        0.1344,
+        0.036,
+        -0.9903
+       ],
+       [
+        -0.2588,
+        0.9659,
+        0.0
+       ],
+       [
+        0.9565,
+        0.2563,
+        0.1392
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.5,
+     0.04,
+     0.24
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4765,
+       2.8178,
+       1.2501
+      ],
+      "orientation": [
+       [
+        0.0588,
+        0.1261,
+        -0.9903
+       ],
+       [
+        -0.9063,
+        0.4226,
+        0.0
+       ],
+       [
+        0.4185,
+        0.8975,
+        0.1392
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.45,
+     0.04,
+     0.18
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4471,
+       3.0453,
+       0.4743
+      ],
+      "orientation": [
+       [
+        0.3531,
+        -0.5043,
+        -0.788
+       ],
+       [
+        0.8192,
+        0.5736,
+        0.0
+       ],
+       [
+        0.452,
+        -0.6455,
+        0.6157
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.55,
+     0.04,
+     0.3
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.6781,
+       3.2473,
+       0.77
+      ],
+      "orientation": [
+       [
+        0.6133,
+        -0.0537,
+        -0.788
+       ],
+       [
+        0.0872,
+        0.9962,
+        0.0
+       ],
+       [
+        0.785,
+        -0.0687,
+        0.6157
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.5,
+     0.04,
+     0.24
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.8987,
+       3.1056,
+       1.0524
+      ],
+      "orientation": [
+       [
+        0.4353,
+        0.4353,
+        -0.788
+       ],
+       [
+        -0.7071,
+        0.7071,
+        0.0
+       ],
+       [
+        0.5572,
+        0.5572,
+        0.6157
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.45,
+     0.04,
+     0.18
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.5453,
+       2.9968,
+       0.4289
+      ],
+      "orientation": [
+       [
+        0.7103,
+        -0.596,
+        -0.3746
+       ],
+       [
+        0.6428,
+        0.766,
+        0.0
+       ],
+       [
+        0.287,
+        -0.2408,
+        0.9272
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.55,
+     0.04,
+     0.3
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.9255,
+       3.0735,
+       0.5825
+      ],
+      "orientation": [
+       [
+        0.8956,
+        0.24,
+        -0.3746
+       ],
+       [
+        -0.2588,
+        0.9659,
+        0.0
+       ],
+       [
+        0.3618,
+        0.097,
+        0.9272
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.5,
+     0.04,
+     0.24
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.1928,
+       2.8178,
+       0.6905
+      ],
+      "orientation": [
+       [
+        0.3918,
+        0.8403,
+        -0.3746
+       ],
+       [
+        -0.9063,
+        0.4226,
+        0.0
+       ],
+       [
+        0.1583,
+        0.3395,
+        0.9272
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.45,
+     0.04,
+     0.18
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4429,
+       3.1243,
+       0.3162
+      ],
+      "orientation": [
+       [
+        0.2904,
+        -0.8937,
+        0.342
+       ],
+       [
+        0.9511,
+        0.309,
+        0.0
+       ],
+       [
+        -0.1057,
+        0.3253,
+        0.9397
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.64,
+     0.04,
+     0.2
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3465,
+       3.1243,
+       0.2512
+      ],
+      "orientation": [
+       [
+        -0.0108,
+        0.0332,
+        0.9994
+       ],
+       [
+        0.9511,
+        0.309,
+        0.0
+       ],
+       [
+        -0.3088,
+        0.9505,
+        -0.0349
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.64,
+     0.04,
+     0.2
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2549,
+       3.1243,
+       0.3227
+      ],
+      "orientation": [
+       [
+        -0.297,
+        0.9142,
+        0.2756
+       ],
+       [
+        0.9511,
+        0.309,
+        0.0
+       ],
+       [
+        -0.0852,
+        0.2621,
+        -0.9613
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.64,
+     0.04,
+     0.2
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2947,
+       3.1243,
+       0.432
+      ],
+      "orientation": [
+       [
+        -0.1728,
+        0.5318,
+        -0.829
+       ],
+       [
+        0.9511,
+        0.309,
+        0.0
+       ],
+       [
+        0.2562,
+        -0.7885,
+        -0.5592
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.64,
+     0.04,
+     0.2
+    ],
+    "Color": [
+     0.2431,
+     0.498,
+     0.3059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_HangingFernBasket",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.4109,
+       3.1243,
+       0.4279
+      ],
+      "orientation": [
+       [
+        0.1902,
+        -0.5855,
+        -0.788
+       ],
+       [
+        0.9511,
+        0.309,
+        0.0
+       ],
+       [
+        0.2435,
+        -0.7494,
+        0.6157
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.64,
+     0.04,
+     0.2
+    ],
+    "Color": [
+     0.3725,
+     0.7216,
+     0.3529
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

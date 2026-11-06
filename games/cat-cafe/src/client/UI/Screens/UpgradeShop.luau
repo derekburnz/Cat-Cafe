@@ -28,6 +28,8 @@ local RankUp = require(script.Parent.RankUp)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local StaffSlots = require(script.Parent.Parent.Components.StaffSlots)
 local Theme = require(script.Parent.Parent.Theme)
+local TutorialGlow = require(script.Parent.Parent.Components.TutorialGlow)
+local TutorialHints = require(script.Parent.Parent.Components.TutorialHints)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
@@ -513,7 +515,16 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 		return
 	end
 
+	-- #1796: the row the tutorial asks for (a table at step 3, the Bait bowl at step 4) glows
+	local asked = TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels)
+	if asked ~= self._asked then
+		self._asked = asked
+		if asked ~= nil and self._rows[asked] then
+			self:_scrollTo(self._rows[asked].frame)
+		end
+	end
 	for upgradeId, row in self._rows do
+		TutorialGlow.set(row.frame, upgradeId == asked)
 		local def: Types.UpgradeDef = row.def
 		local level = state.upgradeLevels[upgradeId] or 0
 		local isMax = level >= def.maxLevel
@@ -571,6 +582,33 @@ end
 
 -- A level bought: the price button pops, the stars from `before` + 1 to `level` pop in mint and settle gold, and
 -- the row flashes mint. Reduce Motion keeps the colours and drops the pops.
+-- #1796: brings the row the tutorial asks for into view (the Bait bowl is the fourth row, below a phone's fold) once
+-- the window's layout has placed it.
+function UpgradeShop._scrollTo(self: any, frame: Frame)
+	task.spawn(function()
+		task.wait()
+		task.wait()
+		local list: ScrollingFrame = self._list
+		if not frame.Parent or not list.Parent then
+			return
+		end
+		local scale = 1
+		local node: Instance? = list
+		while node do
+			local found = node:FindFirstChildOfClass("UIScale")
+			if found then
+				scale *= (found :: UIScale).Scale
+			end
+			node = node.Parent
+		end
+		scale = math.max(scale, 0.01)
+		local offset = (frame.AbsolutePosition.Y - list.AbsolutePosition.Y) / scale
+		local most = math.max(0, (list.AbsoluteCanvasSize.Y - list.AbsoluteWindowSize.Y) / scale)
+		list.CanvasPosition =
+			Vector2.new(0, math.clamp(list.CanvasPosition.Y + offset - 8, 0, most))
+	end)
+end
+
 function UpgradeShop._celebrate(_self: any, row: any, before: number, level: number)
 	local calm = GuiService.ReducedMotionEnabled
 	if not calm then

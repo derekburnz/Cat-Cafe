@@ -24,6 +24,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
 local PassService = require(script.Parent.PassService)
 local Payout = require(script.Parent.Payout)
+local Products = require(ReplicatedStorage.Shared.Products)
 local Spin = require(ReplicatedStorage.Shared.Spin)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -38,14 +39,20 @@ local function season(): (number, number, number?)
 	return CafePass.seasonAt(os.time(), RunService:IsStudio())
 end
 
--- #1626: the chat tags the player may show (ChatTags.choices): VIP if they own the pass, then their season tags.
+-- The items the chat tags read: the Cafe Pass items, plus the supporter tag for a Thank You Badge buyer (#1168 row 4).
+local function tagItems(profile: Types.PlayerProfile): { [string]: boolean }
+	return ChatTags.withSupporter(profile.pass.items, Products.isSupporter(profile))
+end
+
+-- #1626: the chat tags the player may show (ChatTags.choices): VIP if they own the pass, the supporter tag, then
+-- their season tags.
 local function tagChoices(player: Player, profile: Types.PlayerProfile): { string }
-	return ChatTags.choices(PassService.owns(player, Config.VipPassId), profile.pass.items)
+	return ChatTags.choices(PassService.owns(player, Config.VipPassId), tagItems(profile))
 end
 
 -- Shows the player's chat tag from their saved pick and items (PassService.setTagPick).
 local function applyTag(player: Player, profile: Types.PlayerProfile)
-	PassService.setTagPick(player, profile.pass.tag, profile.pass.items)
+	PassService.setTagPick(player, profile.pass.tag, tagItems(profile))
 end
 
 -- Sends the Pass screen its state, with the tag picker's choices and the tag shown now.
@@ -56,7 +63,7 @@ function CafePassService.send(player: Player, profile: Types.PlayerProfile)
 	view.tagShown = ChatTags.shown(
 		profile.pass.tag,
 		PassService.owns(player, Config.VipPassId),
-		profile.pass.items
+		tagItems(profile)
 	)
 	Net.fire(player, "CafePassState", view)
 end
@@ -107,6 +114,7 @@ local function pay(
 		if item.kind == "tag" then
 			applyTag(player, profile) -- a new season tag shows straight away when nothing else is picked
 		end
+		CafePass.grantItem(profile, item.id) -- #1645: a decor piece into the Decor window, the frame a sign style
 	end
 	Telemetry.custom(player, "cafe_pass_claim", 1, { track, tostring(level), tostring(of) })
 	return paid
@@ -257,6 +265,12 @@ function CafePassService.start()
 			end
 		end
 	end)
+end
+
+-- #1168 row 4: shows the player's chat tag and Pass screen again after they become a supporter (ProductService).
+function CafePassService.refreshTag(player: Player, profile: Types.PlayerProfile)
+	applyTag(player, profile)
+	CafePassService.send(player, profile)
 end
 
 return CafePassService

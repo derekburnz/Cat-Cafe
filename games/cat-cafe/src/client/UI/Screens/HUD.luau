@@ -38,6 +38,7 @@
 local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
@@ -63,6 +64,7 @@ local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PalChip = require(script.Parent.PalChip)
 local PalMarker = require(script.Parent.PalMarker)
+local PityLogic = require(script.Parent.Parent.Components.PityLogic)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
 local Scale = require(script.Parent.Parent.Scale)
@@ -73,6 +75,8 @@ local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
+local TutorialGlow = require(script.Parent.Parent.Components.TutorialGlow)
+local TutorialHints = require(script.Parent.Parent.Components.TutorialHints)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
@@ -121,6 +125,7 @@ export type HUD = {
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
 	-- the gold Store tile at the top of the left menu, shown once init's Store block has its window (#1167)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
+	setOwnerTest: (self: HUD, label: string?) -> (), -- #1770 owner test mode
 	-- #1646: the Cafe Pass tile, shown with the function that opens the Pass window while a season runs (nil hides
 	-- it), and its red "!" while `ready` rewards wait
 	setPass: (self: HUD, open: (() -> ())?, ready: number) -> (),
@@ -128,7 +133,7 @@ export type HUD = {
 	glowTutorial: (self: HUD) -> (),
 	pulseTutorial: (self: HUD) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
-	setMoneyBadge: (self: HUD, badge: { text: string, owned: boolean }?) -> (), -- #1606
+	setMoneyBadge: (self: HUD, badge: { text: string, owned: boolean, price: string? }?) -> (), -- #1606, #1759
 	-- F92: the pals on the server (PalsChanged), for the chip and the boosts card
 	setPals: (self: HUD, userIds: { number }) -> (),
 	-- F92: "Sam is in the Park" over the travel button to that area, glowing; nil text takes it away
@@ -148,6 +153,13 @@ local COUNTER_COIN = 36
 local COUNTER_TEXT = 30
 local MONEY_BADGE_H = 30 -- #1606: the money pass badge beside the money
 local MONEY_BADGE_TEXT = 22
+-- #1759 (Derek2 11-06: "more in your face then that slight 2x"): the not-owned badge, a rainbow "X2 Cash" pill with
+-- "Only R$5" under it that pulses gently
+local CASH_H = 30
+local CASH_TEXT = 22
+local CASH_PRICE_H = 14
+local CASH_PULSE = 1.08 -- the badge's scale at the top of each pulse
+local CASH_PULSE_SECONDS = 0.7 -- one way
 local COUNTER_GAP = 14
 -- the row's widest usual reach (the money at MONEY_W and "12.3K" golden fish): the bottom row moves right of it
 local CORNER_W = MONEY_W + COUNTER_GAP + COUNTER_COIN + 8 + 90
@@ -546,8 +558,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- Golden fish (F52): the rare currency's counter beside the money, with the gold fish (F97). Hidden until
 	-- ProfileSync sends goldenFish.
 	-- #1606: the money pass badge beside the money (setMoneyBadge): "2x" to "4x" in gold once a money pass is owned
-	-- (a tap opens the boosts card, as the money does), or a small berry "Get 2x" pill while none is (a tap opens the
-	-- Store). Hidden until the Store knows.
+	-- (a tap opens the boosts card, as the money does), or while none is (a tap opens the Store) a rainbow "X2 Cash"
+	-- pill with "Only R$5" under it, pulsing (#1759). Hidden until the Store knows.
 	-- the tap area is the counters' height and at least as wide (a finger's 44 px on a phone); the pill sits inside it
 	local badge: TextButton = Create("TextButton", {
 		Name = "MoneyBadge",
@@ -564,8 +576,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Create("UIListLayout", {
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
+			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	self._moneyPulse = Create("UIScale", { Parent = badge }) :: UIScale
 	local pill: TextLabel = Create("TextLabel", {
 		Name = "Pill",
 		BackgroundColor3 = Theme.colors.berry,
@@ -576,13 +590,32 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		TextSize = MONEY_BADGE_TEXT,
 		TextColor3 = Theme.colors.gold,
 		Text = "",
+		LayoutOrder = 1,
 		Parent = badge,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
+		-- #1759: the rainbow under the "X2 Cash" words while no money pass is owned
+		Create("UIGradient", { Name = "Rainbow", Color = Theme.rainbow, Enabled = false }),
 	})
 	Outline.text(pill, 2.5)
 	self._moneyPill = pill
+	local price: TextLabel = Create("TextLabel", {
+		Name = "Price",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(0, CASH_PRICE_H),
+		AutomaticSize = Enum.AutomaticSize.X,
+		FontFace = Theme.fonts.display,
+		TextSize = CASH_PRICE_H,
+		TextColor3 = Theme.colors.white,
+		RichText = true,
+		Text = "",
+		LayoutOrder = 2,
+		Visible = false,
+		Parent = badge,
+	})
+	Outline.text(price, 2)
+	self._moneyPrice = price
 	self._moneyBadge = badge
 	self._moneyBadgeOwned = false
 	table.insert(
@@ -993,9 +1026,30 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			PaddingLeft = UDim.new(0, 10),
 			PaddingRight = UDim.new(0, 10),
 		}),
+		Create(
+			"UIListLayout",
+			{ Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }
+		),
+	})
+	-- #1572 (luck-and-rare-moments.md 1h): under the day kinds, the pity sign's lines, ticking while the card is open
+	self._dayPity = Create("TextLabel", {
+		Name = "Pity",
+		LayoutOrder = 2,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.gold,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextWrapped = true,
+		Text = "",
+		ZIndex = DAY_CARD_Z + 1,
+		Parent = self._dayCard,
 	})
 	self._dayCardText = Create("TextLabel", {
 		Name = "Lines",
+		LayoutOrder = 1,
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 0),
 		AutomaticSize = Enum.AutomaticSize.Y,
@@ -1259,6 +1313,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			})
 			self._dots[screen] = dot
 		end
+		if item.name == "Upgrades" then
+			self._upgradesTile = button -- #1796: glows while a tutorial step asks for an upgrade
+		end
 		if item.name == "Store" then
 			button.instance.Visible = false -- until setStore hands it a window to open
 			self._storeTile = button
@@ -1330,6 +1387,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			local passBadge = claimBadge(button.instance, 23)
 			passBadge.AnchorPoint = Vector2.new(1, 0.5) -- inset like the Quests dot (#1176)
 			passBadge.Position = UDim2.new(1, 2, 0, 3)
+			passBadge.Size = UDim2.fromOffset(22, 22) -- the menu dots' size: the 24 px badge poked into the Store's glow
 			self._passBadge = passBadge
 		elseif item.name == "Bowl" then
 			button.instance.Visible = false -- once the Bait bowl upgrade is owned (_renderBowlSlot)
@@ -1338,6 +1396,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			local bowlBadge = claimBadge(button.instance, 23)
 			bowlBadge.AnchorPoint = Vector2.new(1, 0.5) -- inset like the Quests dot (#1176); the F key cap is top left
 			bowlBadge.Position = UDim2.new(1, 2, 0, 3)
+			bowlBadge.Size = UDim2.fromOffset(22, 22) -- as the Pass tile's
 			self._bowlBadge = bowlBadge
 			-- #1161: a small "2" at the bottom right while the cafe has two bowls (the "!" is top right)
 			local count: TextLabel = label({
@@ -2017,6 +2076,11 @@ end
 
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
+	-- #1796: the Upgrades tile glows while the tutorial asks for a table or the Bait bowl
+	TutorialGlow.set(
+		self._upgradesTile.instance,
+		TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
+	)
 	-- F102: the Trade tile from the live minimum tier, with the rest of the full HUD, once TradeService runs (it sets
 	-- the Workspace's TradingOn; while that is false the window says trading is resting)
 	self._tradeTile.instance.Visible = self:_open("invite")
@@ -2391,6 +2455,31 @@ end
 -- #1572: the day line's card, open or shut.
 function HUD._toggleDayCard(self: any)
 	self._dayCard.Visible = not self._dayCard.Visible and self._luckyLine.Visible
+	if not self._dayCard.Visible then
+		return
+	end
+	-- #1572: the pity lines count down each second while the card stays open
+	local token = {}
+	self._pityToken = token
+	self:_paintPity()
+	task.spawn(function()
+		while true do
+			task.wait(1)
+			if
+				self._pityToken ~= token
+				or not self._dayCard.Visible
+				or self._dayCard.Parent == nil
+			then
+				return
+			end
+			self:_paintPity()
+		end
+	end)
+end
+
+function HUD._paintPity(self: any)
+	local t = Workspace:GetServerTimeNow() - Config.ClockEpoch
+	self._dayPity.Text = table.concat(PityLogic.lines(PityLogic.view(t, PityLogic.current())), "\n")
 end
 
 -- F101: the Rescue Rally countdown under the clock (RallyLogic.soon), shown with the clock; nil hides it.
@@ -2818,6 +2907,42 @@ function HUD._closePop(self: any)
 	table.clear(self._popBadges)
 end
 
+-- #1770 owner test mode: a small calm label at the top middle for the owner's account only (the text from
+-- shared/OwnerTest.LABEL), so a screenshot or a playtest never mistakes a free grant for a real purchase; nil hides it.
+function HUD.setOwnerTest(self: any, label: string?)
+	local tag: TextLabel? = self._ownerTag
+	if label == nil then
+		if tag then
+			tag.Visible = false
+		end
+		return
+	end
+	if tag == nil then
+		local made: TextLabel = Create("TextLabel", {
+			Name = "OwnerTest",
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.new(0.5, 0, 0, 4),
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, 22),
+			BackgroundColor3 = Theme.colors.cocoaDeep,
+			BackgroundTransparency = 0.2,
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = Theme.colors.gold,
+			ZIndex = 5,
+			Parent = self._root,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
+		})
+		self._ownerTag = made
+		tag = made
+	end
+	local shown = tag :: TextLabel
+	shown.Text = label
+	shown.Visible = true
+end
+
 -- The gold Store tile at the top of the left menu (Derek 2026-11-02: "store still needs to be added"): shown with
 -- the function that opens the Store window, hidden with nil. init's Store block calls it as soon as the window exists,
 -- passes on sale or not (#1167); hidden, the grid closes up (review N341: moved here).
@@ -2877,7 +3002,7 @@ end
 
 -- #1606: the money pass badge (StoreLogic.moneyBadge): "3x" in gold once owned, a berry "Get 2x" pill while not, or
 -- hidden with nil.
-function HUD.setMoneyBadge(self: any, badge: { text: string, owned: boolean }?)
+function HUD.setMoneyBadge(self: any, badge: { text: string, owned: boolean, price: string? }?)
 	local button: TextButton = self._moneyBadge
 	button.Visible = badge ~= nil
 	if badge == nil then
@@ -2885,10 +3010,52 @@ function HUD.setMoneyBadge(self: any, badge: { text: string, owned: boolean }?)
 	end
 	self._moneyBadgeOwned = badge.owned
 	local pill: TextLabel = self._moneyPill
+	local sell = not badge.owned
 	pill.Text = badge.text
-	pill.TextSize = if badge.owned then MONEY_BADGE_TEXT else MONEY_BADGE_TEXT - 6
-	pill.TextColor3 = if badge.owned then Theme.colors.gold else Theme.colors.white
-	pill.BackgroundTransparency = if badge.owned then 1 else 0
+	pill.Size = UDim2.fromOffset(0, if sell then CASH_H else MONEY_BADGE_H)
+	pill.TextSize = if sell then CASH_TEXT else MONEY_BADGE_TEXT
+	pill.TextColor3 = if sell then Theme.colors.white else Theme.colors.gold
+	-- #1759: a rainbow pill (white under the gradient) while for sale, bare gold words once owned
+	pill.BackgroundColor3 = Theme.colors.white
+	pill.BackgroundTransparency = if sell then 0 else 1
+	local rainbow = pill:FindFirstChild("Rainbow") :: UIGradient?
+	if rainbow then
+		rainbow.Enabled = sell
+	end
+	local price: TextLabel = self._moneyPrice
+	local line = if sell then badge.price else nil
+	price.Visible = line ~= nil
+	if line ~= nil then
+		-- "Only" in green, the price in white, as in Derek2's reference
+		price.Text = (line:gsub("^Only", '<font color="#7CFC6A">Only</font>'))
+	end
+	self:_pulseMoneyBadge(sell)
+end
+
+-- #1759: the for-sale badge grows and shrinks a little, over and over; it holds still once owned or with Reduce
+-- Motion on.
+function HUD._pulseMoneyBadge(self: any, on: boolean)
+	local want = on and not GuiService.ReducedMotionEnabled
+	local tween: Tween? = self._moneyPulseTween
+	if want == (tween ~= nil) then
+		return
+	end
+	if tween then
+		tween:Cancel()
+		self._moneyPulseTween = nil
+		self._moneyPulse.Scale = 1
+		return
+	end
+	local info = TweenInfo.new(
+		CASH_PULSE_SECONDS,
+		Enum.EasingStyle.Sine,
+		Enum.EasingDirection.InOut,
+		-1,
+		true
+	)
+	local made = TweenService:Create(self._moneyPulse, info, { Scale = CASH_PULSE })
+	made:Play()
+	self._moneyPulseTween = made
 end
 
 function HUD.setVisible(self: any, visible: boolean)

@@ -37,6 +37,10 @@ local player = Players.LocalPlayer
 local state: Types.PlayerState? = nil
 local SCREEN_REPORT_SECONDS = 5 -- #1273: the open screen goes to the server at most this often
 local predictedMoney = 0
+-- os.clock() of the last Corner Shop buy. Its food shows up in `lures`, but every row of that shop sounds with the
+-- toast pop, so the bigger purchase ding stays off for it.
+local lastCornerShopBuy = -math.huge
+local CORNER_SHOP_QUIET_SECONDS = 3
 local lastCarrying: string? = nil
 local lastPushedMoney = -1
 local lastTier: number? = nil
@@ -59,6 +63,15 @@ local rescue: RescueRun? = nil
 UIController.state = nil :: Types.PlayerState?
 -- F98: the last LeaderboardSync, for a Top tab or board face that opens between syncs
 UIController.leaderboards = nil :: Types.LeaderboardSync?
+
+-- #1645: the crate pieces, then the Cafe Pass decor (Catalog.passDecor), for the UI's crateDecor list.
+local function passAndCrateDecor(): { Types.DecorDef }
+	local list: { Types.DecorDef } = table.clone(Catalog.crateDecor)
+	for _, def in Catalog.passDecor do
+		table.insert(list, def)
+	end
+	return list
+end
 
 local function ownPlot(): Model?
 	if state == nil or state.plotIndex == 0 then
@@ -285,7 +298,11 @@ end
 
 -- Something bought since the last sync: an upgrade level, a decor item, a lawn piece or style (F91, front-lawn.md
 -- section 3, which also sparkles the Tier 2 and 3 gifts) or a lure count went up.
-local function boughtSomething(old: Types.PlayerState, new: Types.PlayerState): boolean
+local function boughtSomething(
+	old: Types.PlayerState,
+	new: Types.PlayerState,
+	shopBuy: boolean
+): boolean
 	for id, level in new.upgradeLevels do
 		if level > (old.upgradeLevels[id] or 0) then
 			return true
@@ -302,7 +319,7 @@ local function boughtSomething(old: Types.PlayerState, new: Types.PlayerState): 
 		end
 	end
 	for id, count in new.lures do
-		if count > (old.lures[id] or 0) then
+		if not shopBuy and count > (old.lures[id] or 0) then
 			return true
 		end
 	end
@@ -505,7 +522,8 @@ end
 
 local function applyState(s: Types.PlayerState)
 	local previous = state
-	if previous ~= nil and boughtSomething(previous, s) then
+	local shopBuy = os.clock() - lastCornerShopBuy < CORNER_SHOP_QUIET_SECONDS
+	if previous ~= nil and boughtSomething(previous, s, shopBuy) then
 		Moments.Purchase:Fire()
 	end
 	if previous ~= nil then
@@ -700,6 +718,7 @@ local function wireIntents()
 	if looseEvents.buyCornerShop ~= nil then
 		looseEvents.buyCornerShop:Connect(
 			function(itemId: string, window: number, shownPrice: number, catUid: string?)
+				lastCornerShopBuy = os.clock()
 				Net.fire("BuyCornerShop", itemId, window, shownPrice, catUid)
 			end
 		)
@@ -755,6 +774,10 @@ local function wireIntents()
 			Net.fire("SetHideCredit", hide)
 		end)
 	end
+	-- #1770 owner test mode: the server drops it from anyone but the owner's account
+	UI.events.ownerGrant:Connect(function(productId: number)
+		Net.fire("OwnerGrant", productId)
+	end)
 	UI.events.buyUpgrade:Connect(function(upgradeId: string)
 		Net.fire("BuyUpgrade", upgradeId)
 	end)
@@ -892,6 +915,13 @@ local function wireIntents()
 	end)
 	-- #1624: a Style tab button. The sign's "" is the plain sign (nil); the server checks the player owns the style.
 	-- Uniforms and themes only show once the server sends state.looks, which comes with SetLook.
+	-- #1751: the Lawn cards' Use and Remove; LawnService (#1758) checks and toasts any refusal
+	UI.events.setLawnSpot:Connect(function(spotId: string, pieceId: string)
+		Net.fire("SetLawnSpot", spotId, pieceId)
+	end)
+	UI.events.setLawnStyle:Connect(function(kind: string, id: string)
+		Net.fire("SetLawnStyle", kind, id)
+	end)
 	UI.events.pickStyle:Connect(function(kind: string, id: string)
 		if kind == "sign" then
 			Net.fire("SetSignStyle", if id == "" then nil else id)
@@ -1831,7 +1861,9 @@ function UIController.start()
 		indexPrizes = Catalog.indexPrizes,
 		spinWheel = Catalog.spinWheel,
 		crates = Catalog.crates, -- F53: names and models for the crate prizes (review S77)
-		crateDecor = Catalog.crateDecor, -- F53: the 60 crate pieces (the Decor shop keeps reading decor)
+		-- F53: the crate pieces (the Decor shop keeps reading decor); #1645: the Cafe Pass decor rides along, so the Decor
+		-- window lists and places it like the crate furniture (it has no crate, so no crate or Index page counts it)
+		crateDecor = passAndCrateDecor(),
 		fishShop = Catalog.fishShop, -- F53: what the Golden Fish Market sells
 		potions = Catalog.potions, -- F64: the potion bag's rows
 		catFood = Catalog.catFood, -- #1181: the Bag's Cat Food tab rows

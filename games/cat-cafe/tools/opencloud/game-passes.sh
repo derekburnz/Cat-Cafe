@@ -15,7 +15,8 @@
 #   game-passes.sh list [file]                every pass: id, name, price, on or off sale, and the Config line it fills
 #   game-passes.sh create [file]              make each pass in the file that is missing (file: passes.json here)
 #   game-passes.sh set <id or name> change... change one pass. Changes: price=N, forSale=true|false,
-#                                             regional=true|false, icon=<.png or .jpg path from the repo root>
+#                                             regional=true|false, icon=<.png or .jpg path from the repo root>,
+#                                             description=passes.json (the pass's description from passes.json)
 # Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 
@@ -275,6 +276,15 @@ set_pass() {
 			;;
 		forSale=true | forSale=false) args+=(--form-string "isForSale=$value") ;;
 		regional=true | regional=false) args+=(--form-string "isRegionalPricingEnabled=$value") ;;
+		description=passes.json)
+			# the words come from passes.json (a change is one word in the workflow's input, so no spaces)
+			value=$(jq -r --arg t "$target" "$JQ_DEFS"'first(.[] | select(key == ($t | ascii_downcase | gsub("^\\s+|\\s+$"; ""))) | .description) // empty' "$HERE/passes.json")
+			[ -n "$value" ] || {
+				echo "passes.json has no description for $target" >&2
+				exit 2
+			}
+			args+=(--form-string "description=$value")
+			;;
 		icon=*)
 			image_args "$value"
 			args+=("${image[@]}")

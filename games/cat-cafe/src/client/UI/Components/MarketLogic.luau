@@ -132,6 +132,11 @@ function MarketLogic.needText(short: number): string
 	return ("Need %d more fish"):format(math.max(1, math.ceil(short)))
 end
 
+-- #1818: the half-width buy button's short flash, "Need 150 more" (the golden fish mark beside it says of what)
+function MarketLogic.needShort(short: number): string
+	return ("Need %d more"):format(math.max(1, math.ceil(short)))
+end
+
 -- A zone crate opens with its zone, the Classic Crate from Tier 1. An area the catalog does not list stays open.
 function MarketLogic.isOpen(crate: Crate, tier: number, areas: { Area }?): boolean
 	local area = crate.area

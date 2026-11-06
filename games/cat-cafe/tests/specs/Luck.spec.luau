@@ -317,6 +317,16 @@ return function()
 		end)
 	end)
 
+	describe("Luck.boostPercent (#1776)", function()
+		it("is the whole percent Epic, Legendary and Mythical go up by", function()
+			expect(Luck.boostPercent(1)).to.equal(0)
+			expect(Luck.boostPercent(0.5)).to.equal(0)
+			expect(Luck.boostPercent(1.3)).to.equal(30)
+			expect(Luck.boostPercent(2)).to.equal(100)
+			expect(Luck.boostPercent(1.25)).to.equal(25)
+		end)
+	end)
+
 	describe("Luck edges (QA)", function()
 		local TOP = { "Epic", "Legendary", "Mythical" }
 

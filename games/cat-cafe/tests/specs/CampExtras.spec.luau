@@ -102,16 +102,37 @@ return function()
 			expect(Config.PondHold).to.equal(36)
 		end)
 
-		it("keeps one Lost and Found prize a UTC day from midnight, up to 3", function()
+		it("keeps one Lost and Found find every 2 hours, up to 3 (#1732, section 4b)", function()
+			expect(Config.LostFoundEverySeconds).to.equal(2 * HOUR)
+			expect(Config.LostFoundHold).to.equal(3)
 			local save = emptied(5)
-			expect(at(save, 5, T + 22 * HOUR).lostFound.held).to.equal(0)
-			local nextDay = at(save, 5, T + 23 * HOUR)
-			expect(nextDay.lostFound.held).to.equal(1)
-			expect(nextDay.lostFound.nextAt).to.equal((20000 + 2) * DAY)
-			expect(at(save, 5, T + 10 * DAY).lostFound.held).to.equal(Config.LostFoundHold)
-			local prize, count = CampExtras.take(save, "lostFound", 5, T + 10 * DAY, half)
+			expect(at(save, 5, T + 2 * HOUR - 1).lostFound.held).to.equal(0)
+			local first = at(save, 5, T + 2 * HOUR)
+			expect(first.lostFound.held).to.equal(1)
+			expect(first.lostFound.nextAt).to.equal(T + 4 * HOUR)
+			-- section 4b QA: after 7 hours away, 3 are held
+			expect(at(save, 5, T + 7 * HOUR).lostFound.held).to.equal(3)
+			local full = at(save, 5, T + 10 * DAY)
+			expect(full.lostFound.held).to.equal(Config.LostFoundHold)
+			expect(full.lostFound.nextAt).to.equal(nil)
+			local prize, count, lostCats = CampExtras.take(save, "lostFound", 5, T + 10 * DAY, half)
 			expect(count).to.equal(3)
-			expect(prize :: any).to.deepEqual({ potions = { lucky_potion = 3 } }) -- a roll of 0.5 is the Lucky Potion
+			-- a roll of 0.5 is the Lucky Potion and Gold Rush Potion row
+			expect(prize :: any).to.deepEqual({ potions = { lucky_potion = 3, gold_rush_potion = 3 } })
+			expect(#lostCats).to.equal(0)
+			-- a full one's clock waited, so the next find counts from the take
+			expect(at(save, 5, T + 10 * DAY).lostFound.nextAt).to.equal(T + 10 * DAY + 2 * HOUR)
+		end)
+
+		it("brings a lost Epic cat for each lostCat row a take lands on", function()
+			local save = emptied(5)
+			at(save, 5, T + 7 * HOUR)
+			local prize, count, lostCats = CampExtras.take(save, "lostFound", 5, T + 7 * HOUR, function(): number
+				return 0.999 -- the last row, the lost cat
+			end)
+			expect(count).to.equal(3)
+			expect(lostCats :: any).to.deepEqual({ "Epic", "Epic", "Epic" })
+			expect(prize :: any).to.deepEqual({})
 		end)
 
 		it("finds the pond at 36 and the picnic at 1 after 7 hours away, both with a ! (check 2)", function()
@@ -211,27 +232,53 @@ return function()
 	end)
 
 	describe("the Lost and Found's table (section 2)", function()
-		it("adds up to 1 and pays golden fish, potions and crates the game knows", function()
+		it("adds up to 1 and pays golden fish, potions, spins, crates and cats the game knows", function()
 			local total = 0
 			for _, row in Config.LostFoundTable do
 				total += row.chance
-				if row.potion ~= nil then
-					expect(Catalog.getPotion(row.potion)).to.be.ok()
+				for potionId in row.potions or {} do
+					expect(Catalog.getPotion(potionId)).to.be.ok()
 				end
 				if row.crate ~= nil then
 					expect(Catalog.getCrate(row.crate)).to.be.ok()
+				end
+				if row.lostCat ~= nil then
+					expect(Catalog.rarityRank[row.lostCat]).to.be.ok()
 				end
 			end
 			expect(total).to.be.near(1, 1e-9)
 		end)
 
+		it("pays the section 4b finds", function()
+			local function find(roll: number): (any, string?)
+				return CampExtras.lostFoundPrize(roll)
+			end
+			expect(find(0.15) :: any).to.deepEqual({ fish = 40 })
+			expect(find(0.4) :: any).to.deepEqual({ potions = { lucky_potion = 1, gold_rush_potion = 1 } })
+			expect(find(0.6) :: any).to.deepEqual({ spins = 2 })
+			expect(find(0.75) :: any).to.deepEqual({ crates = { sewer_crate = 1 } })
+			expect(find(0.9) :: any).to.deepEqual({ crates = { classic_golden_crate = 1 } })
+			expect(find(0.96) :: any).to.deepEqual({ crates = { sewer_golden_crate = 1 } })
+			local prize, lostCat = find(0.99)
+			expect(prize :: any).to.deepEqual({})
+			expect(lostCat).to.equal("Epic")
+			-- a table row's potions are copied, so merging finds never changes Config
+			local merged = CampExtras.merge(find(0.4), find(0.4))
+			expect(merged.potions :: any).to.deepEqual({ lucky_potion = 2, gold_rush_potion = 2 })
+			expect(Config.LostFoundTable[2].potions :: any).to.deepEqual({ lucky_potion = 1, gold_rush_potion = 1 })
+			expect(CampExtras.merge({ spins = 2 }, { spins = 2 }).spins).to.equal(4)
+		end)
+
 		local function share(rolls: number, roll: (number) -> number): { [string]: number }
 			local counts: { [string]: number } = {}
 			for i = 1, rolls do
-				local prize = CampExtras.lostFoundPrize(roll(i))
-				local key = if prize.fish == 10
-					then "fish"
-					else next(prize.potions or {}) or next(prize.crates or {})
+				local prize, lostCat = CampExtras.lostFoundPrize(roll(i))
+				local key = if lostCat ~= nil
+					then "lostCat"
+					elseif prize.fish ~= nil then "fish"
+					elseif prize.potions ~= nil then "potions"
+					elseif prize.spins ~= nil then "spins"
+					else next(prize.crates or {})
 				counts[key :: string] = (counts[key :: string] or 0) + 1
 			end
 			for key, count in counts do
@@ -241,11 +288,13 @@ return function()
 		end
 
 		local want: { [string]: number } = {
-			fish = 0.40,
-			lucky_potion = 0.30,
-			gold_rush_potion = 0.20,
-			classic_crate = 0.09,
-			classic_golden_crate = 0.01,
+			fish = 0.30,
+			potions = 0.22,
+			spins = 0.15,
+			sewer_crate = 0.18,
+			classic_golden_crate = 0.10,
+			sewer_golden_crate = 0.03,
+			lostCat = 0.02,
 		}
 
 		it("lands exactly on its odds over evenly spread rolls", function()
@@ -294,7 +343,9 @@ return function()
 			expect(name).to.equal("Fish Pond")
 			expect(action).to.equal("Collect 36 fish")
 			expect(select(2, CampExtras.promptText("picnic", view.picnic, now))).to.equal("Collect 1 Money Potion")
-			expect(select(2, CampExtras.promptText("lostFound", view.lostFound, now))).to.equal("Next in 16 h")
+			expect(select(2, CampExtras.promptText("lostFound", view.lostFound, now))).to.equal("Collect 3 finds")
+			local soon = at(emptied(5), 5, T + HOUR)
+			expect(select(2, CampExtras.promptText("lostFound", soon.lostFound, T + HOUR))).to.equal("Next in 1 h")
 			expect(select(2, CampExtras.promptText("yardSale", view.yardSale, now))).to.equal("Take a free crate")
 			local shut = CampExtras.view(CampExtras.fresh(T), 1, T)
 			expect(select(2, CampExtras.promptText("pond", shut.pond, T))).to.equal("Opens at Tier 4")
@@ -302,6 +353,15 @@ return function()
 	end)
 
 	describe("save version 25 (section 4)", function()
+		it("turns a version 39 Lost and Found into { at, held } at the load, keeping what it held (#1732)", function()
+			local save = CampExtras.sanitize({ lostFound = { day = CampExtras.day(T), held = 2 } }, T)
+			expect(save.lostFound :: any).to.deepEqual({ at = T, held = 2 })
+			local damaged = CampExtras.sanitize({ lostFound = { at = T + 999, held = 9 } }, T)
+			expect(damaged.lostFound :: any).to.deepEqual({ at = T, held = Config.LostFoundHold })
+			local kept = CampExtras.sanitize({ lostFound = { at = T - 600, held = 1 } }, T)
+			expect(kept.lostFound :: any).to.deepEqual({ at = T - 600, held = 1 })
+		end)
+
 		it("makes a damaged save whole: no future times, holds capped, only known crates", function()
 			local raw = {
 				picnic = { at = T + 999, held = 9 },
@@ -313,7 +373,7 @@ return function()
 			expect(save.picnic.at).to.equal(T)
 			expect(save.picnic.held).to.equal(Config.PicnicHold)
 			expect(save.pond.at).to.equal(T - Config.PondStepSeconds)
-			expect(save.lostFound.day).to.equal(CampExtras.day(T))
+			expect(save.lostFound.at).to.equal(T) -- an old { day, held } starts its clock at the load
 			expect(save.lostFound.held).to.equal(0)
 			expect(save.yardSale :: any).to.deepEqual({ lastClaimAt = T, claims = 0 })
 			expect(CampExtras.sanitize(save, T) :: any).to.deepEqual(save)

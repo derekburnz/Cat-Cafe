@@ -2351,9 +2351,19 @@ end
 
 -- Sunrise (v0.9, F66): every area gets its wave of WaveSize strays at once, whether or not anyone has it unlocked.
 -- F88: a Lucky Day's waves roll at LuckyDayWaveLuck, and the day is logged as `lucky_day` (value the players in the
--- server; the first area a Mythical came to, or "none").
+-- server; the first area a Mythical came to, or "none"). #1888: any special day logs it, with its kinds ("lucky",
+-- "golden+rainbow").
 function CatService.sunriseWave()
 	local luckyDay = ClockService.luckyDay()
+	local kinds = ClockService.dayKinds()
+	local kindNames: { string } = {}
+	if kinds ~= nil then
+		for _, kind in { "lucky", "golden", "rainbow" } do
+			if (kinds :: any)[kind] == true then
+				table.insert(kindNames, kind)
+			end
+		end
+	end
 	local luck = if luckyDay then Config.LuckyDayWaveLuck else 1
 	local mythicalArea = "none"
 	for _, areaDef in Catalog.areas do
@@ -2361,12 +2371,12 @@ function CatService.sunriseWave()
 			mythicalArea = areaDef.id
 		end
 	end
-	if luckyDay then
+	if #kindNames > 0 then
 		-- a server event with no player of its own: logged under the first player here, none in an empty server
 		local players = DataService.loadedPlayers()
 		local someone: Player? = players[1]
 		if someone ~= nil then
-			Telemetry.custom(someone, "lucky_day", #players, { mythicalArea })
+			Telemetry.custom(someone, "lucky_day", #players, { mythicalArea, table.concat(kindNames, "+") })
 		end
 	end
 end

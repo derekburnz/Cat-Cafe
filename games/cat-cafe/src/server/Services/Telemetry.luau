@@ -11,13 +11,20 @@
 -- values into "Other".
 -- Tips are never an event per second: the cafe's income is counted from lifetimeCoins (CafeService settles it on
 -- every sync) and logged as one Source at least once a minute, before every Sink and when the player leaves.
+-- #1888 (release tests once ads run): each session keeps where the join came from (JoinSource, an ad's launch data),
+-- sent with session_start, the joined step and the Store funnel's first step; the Store is a funnel of its own
+-- (StoreFunnel); every Robux spend logs robux_purchase. A player in owner test mode (OwnerTest) logs nothing, so the
+-- owner's own testing never reaches the funnels.
 
 local AnalyticsService = game:GetService("AnalyticsService")
 local CollectionService = game:GetService("CollectionService")
 local HttpService = game:GetService("HttpService")
+local MarketplaceService = game:GetService("MarketplaceService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
+local CafePass = require(ReplicatedStorage.Shared.CafePass)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -25,10 +32,14 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Intro = require(ReplicatedStorage.Shared.Intro)
+local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
+local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
+local PassService = require(script.Parent.PassService)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 type Profile = Types.PlayerProfile
@@ -151,6 +162,17 @@ export type CustomEvent =
 	| "first_window"
 	-- #1273: the Tutorial tile's red X, value 1, once a session; tutorialStep
 	| "tutorial_closed"
+	-- #1888: each join, value 1; where it came from (JoinSource), "new" or "returning", tier
+	| "session_start"
+	-- #1888: a pass or product bought, value the Robux spent; its sku (StoreFunnel), the days since the first join,
+	-- "first" for the account's first spend here or "repeat"
+	| "robux_purchase"
+	-- #1888: Roblox's purchase prompt closed without buying, value 1; the sku, tier
+	| "store_cancelled"
+	-- #1888: every fifth Cafe Pass level, value the level; the season, the paid track ("paid" or "free"), tier
+	| "cafe_pass_level"
+	-- #1888: a Jukebox track picked (#1875), value 1; the track id or "default"
+	| "jukebox_pick"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.
@@ -186,6 +208,9 @@ local REPORTS = {
 	"intro",
 	"screen",
 	"tutorial_closed",
+	"store_opened", -- #1888: the Store opened, from StoreFunnel.SOURCES
+	"store_tab", -- #1888: a Store tab shown, StoreFunnel.TABS
+	"store_buy", -- #1888: a buy button pressed, the pass or product id
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
 -- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
@@ -205,6 +230,22 @@ local SCREENS: { [string]: string } = {
 	Areas = "areas",
 	Bait = "bait",
 	Dealer = "dealer",
+}
+-- #1888: more screens for ui_opened only (first_window_opened keeps v3's meaning, the windows above)
+local MORE_SCREENS: { [string]: string } = {
+	Cats = "cats",
+	Store = "store",
+	Quests = "quests",
+	Potions = "potions",
+	Spin = "spin",
+	Market = "market",
+	Codes = "codes",
+	DailyTreat = "daily_treat",
+	Trade = "trade",
+	TipJar = "tip_jar",
+	Cannon = "cannon",
+	YardSale = "yard_sale",
+	Settings = "settings",
 }
 -- progressionPathName "tier", levelName by tier (analytics-plan section 7)
 local TIER_NAMES = { "corner", "cozy", "busy", "famous", "grand" }
@@ -231,7 +272,13 @@ type Session = {
 	screen: string, -- #1273: the screen open as last reported (a SCREENS value, "other" or "none")
 	uiOpened: { [string]: boolean }, -- ui_opened logged this session, by screen, so a flood logs each once (review)
 	tutorialClosed: boolean, -- #1273: tutorial_closed logged this session
+	source: string, -- #1888: where the join came from (JoinSource.parse of the launch data)
+	store: StoreVisit?, -- #1888: the Store visit open now, for the Store funnel
+	storeVisits: number, -- #1888: Store funnels started this session (StoreFunnel.VISITS_MAX)
 }
+
+-- #1888: one Store visit, a funnel session of StoreFunnel's: its id, the furthest step logged and the sku pressed
+type StoreVisit = { id: string, step: number, sku: string? }
 
 local sessions: { [Player]: Session } = {}
 local studio = RunService:IsStudio()
@@ -309,7 +356,15 @@ local function remember(
 	end
 end
 
-local function send(kind: string, fn: () -> ())
+-- #1888: a player in owner test mode (OwnerTest.ATTRIBUTE, set by the server) is left out of every event.
+local function excluded(player: Player): boolean
+	return player:GetAttribute(OwnerTest.ATTRIBUTE) == true
+end
+
+local function send(player: Player, kind: string, fn: () -> ())
+	if excluded(player) then
+		return
+	end
 	local ok, err = pcall(function()
 		fn()
 		return nil :: any
@@ -339,7 +394,7 @@ local function logEconomy(
 	local ending = math.max(0, math.floor(balance))
 	local kind = if isSource then "source" else "sink"
 	remember(player, if currency ~= nil then kind .. " " .. currency else kind, sku, amount, values)
-	send("economy " .. sku, function()
+	send(player, "economy " .. sku, function()
 		AnalyticsService:LogEconomyEvent(
 			player,
 			flow,
@@ -392,9 +447,9 @@ end
 
 -- One onboarding step (analytics-plan section 3). Logged at once when it is the next step, along with any later
 -- steps already reached; held in profile.telemetry otherwise (Onboarding.reach). `values` go with this step only.
--- #1273 (easy-start.md section 5): the 37 step funnel v3 goes out as the funnel Onboarding.FUNNEL ("onboarding_v3")
--- with the player's user id as its one funnel session, since LogOnboardingFunnelStepEvent has no name to keep it
--- apart from the earlier funnels. It replaced onboarding_v2 outright (Derek 2026-11-04).
+-- #1273 (easy-start.md section 5): the funnel goes out as Onboarding.FUNNEL with the player's user id as its one funnel
+-- session, since LogOnboardingFunnelStepEvent has no name to keep it apart from the earlier funnels. v3 replaced
+-- onboarding_v2 outright (Derek 2026-11-04), and v4 (#1888, 45 steps) replaces v3.
 function Telemetry.onboarding(
 	player: Player,
 	profile: Profile,
@@ -405,7 +460,7 @@ function Telemetry.onboarding(
 		local step = Onboarding.index(name)
 		local fields = if name == stepName and values ~= nil then values else {}
 		remember(player, "onboarding", name, step, fields)
-		send("onboarding " .. name, function()
+		send(player, "onboarding " .. name, function()
 			AnalyticsService:LogFunnelStepEvent(
 				player,
 				Onboarding.FUNNEL,
@@ -426,7 +481,7 @@ function Telemetry.intro(player: Player, profile: Profile, stepName: Onboarding.
 	end
 	local step = Onboarding.introIndex(stepName)
 	remember(player, "onboarding intro", stepName, step, {})
-	send("onboarding " .. stepName, function()
+	send(player, "onboarding " .. stepName, function()
 		AnalyticsService:LogFunnelStepEvent(
 			player,
 			Onboarding.INTRO_FUNNEL,
@@ -510,7 +565,7 @@ end
 function Telemetry.custom(player: Player, name: CustomEvent, value: number, values: { string }?)
 	local fields = values or {}
 	remember(player, "custom", name, value, fields)
-	send("custom " .. name, function()
+	send(player, "custom " .. name, function()
 		AnalyticsService:LogCustomEvent(player, name, value, customFields(fields))
 	end)
 end
@@ -554,7 +609,7 @@ local function funnelStep(
 	values: { string }
 )
 	remember(player, "funnel", funnel .. " " .. stepName, step, values)
-	send("funnel " .. funnel, function()
+	send(player, "funnel " .. funnel, function()
 		AnalyticsService:LogFunnelStepEvent(
 			player,
 			funnel,
@@ -670,7 +725,7 @@ local function areaIndex(player: Player, profile: Profile, complete: boolean, ar
 		area.tier,
 		values
 	)
-	send("progression area_index", function()
+	send(player, "progression area_index", function()
 		if complete then
 			AnalyticsService:LogProgressionCompleteEvent(
 				player,
@@ -715,7 +770,7 @@ local function progression(player: Player, profile: Profile, complete: boolean, 
 		tier,
 		values
 	)
-	send("progression tier", function()
+	send(player, "progression tier", function()
 		if complete then
 			AnalyticsService:LogProgressionCompleteEvent(
 				player,
@@ -755,6 +810,145 @@ function Telemetry.rankedUp(player: Player, profile: Profile)
 		Telemetry.onboarding(player, profile, "tier_2")
 	elseif tier == 3 then
 		Telemetry.onboarding(player, profile, "tier_3")
+	elseif tier == 4 then
+		Telemetry.onboarding(player, profile, "tier_4") -- #1888
+	end
+end
+
+-- #1888: Cafe Pass XP added (Payout's passXp), the level `before` and `after` it: first_pass_xp, pass_level_5, and
+-- cafe_pass_level at every fifth level crossed.
+function Telemetry.passXp(player: Player, profile: Profile, before: number, after: number)
+	Telemetry.onboarding(player, profile, "first_pass_xp")
+	if after >= 5 then
+		Telemetry.onboarding(player, profile, "pass_level_5")
+	end
+	for level = before + 1, after do
+		if level % 5 == 0 then
+			Telemetry.custom(player, "cafe_pass_level", level, {
+				tostring(profile.pass.season),
+				if profile.pass.paidSeason == profile.pass.season then "paid" else "free",
+				tierText(profile),
+			})
+		end
+	end
+end
+
+-- #1888: the days since the account's first join, "0" on its first day, "30+" past a month, "unknown" when the first
+-- day is not known.
+local function dayText(profile: Profile): string
+	local first = profile.telemetry.firstDay
+	if first <= 0 then
+		return "unknown"
+	end
+	local days = math.max(0, os.time() // DAY_SECONDS - first)
+	return if days >= 30 then "30+" else tostring(days)
+end
+
+-- #1888: one step of the Store funnel for the visit open now, once each and only forward.
+local function storeStep(player: Player, name: string, values: { string })
+	local session = sessions[player]
+	local visit = if session ~= nil then session.store else nil
+	local step = StoreFunnel.index(name)
+	if visit == nil or step <= visit.step then
+		return
+	end
+	visit.step = step
+	funnelStep(player, StoreFunnel.NAME, visit.id, step, name, values)
+end
+
+-- #1888: whether the player has spent Robux here before this purchase: a product receipt on the save (`receipts`
+-- counts this one when it is a product), or a pass of ours other than `passId` owned.
+local function spentBefore(player: Player, profile: Profile, receipts: number, passId: number?): boolean
+	if #profile.receipts > receipts then
+		return true
+	end
+	for _, id in StoreFunnel.passIds() do
+		if id ~= passId and PassService.owns(player, id) then
+			return true
+		end
+	end
+	return false
+end
+
+-- #1888: a pass or product bought, `robux` the price paid (0 when Roblox did not say): robux_purchase, the Store
+-- funnel's completed step and, on the account's first spend, first_robux_purchase.
+function Telemetry.robuxPurchase(
+	player: Player,
+	profile: Profile,
+	sku: string,
+	robux: number,
+	first: boolean
+)
+	Telemetry.custom(
+		player,
+		"robux_purchase",
+		math.max(0, math.floor(robux)),
+		{ sku, dayText(profile), if first then "first" else "repeat" }
+	)
+	storeStep(player, "completed", { sku, tostring(math.floor(robux)) })
+	Telemetry.onboarding(player, profile, "first_robux_purchase")
+end
+
+-- #1888: ProductService's newly granted receipt (already recorded on the save), `robux` its CurrencySpent.
+function Telemetry.productBought(player: Player, profile: Profile, productId: number, robux: unknown)
+	local sku = StoreFunnel.productSku(productId) or "product_other"
+	local paid = if type(robux) == "number" then robux else 0
+	Telemetry.robuxPurchase(player, profile, sku, paid, not spentBefore(player, profile, 1, nil))
+end
+
+-- #1888: Roblox's own prices, looked up once per server (yields; nil when the lookup fails).
+local prices: { [string]: number } = {}
+local function priceOf(kind: "pass" | "product", id: number): number?
+	local key = kind .. tostring(id)
+	if prices[key] ~= nil then
+		return prices[key]
+	end
+	local ok, info = pcall(function(): any
+		return MarketplaceService:GetProductInfo(
+			id,
+			if kind == "pass" then Enum.InfoType.GamePass else Enum.InfoType.Product
+		)
+	end)
+	local price = if ok and type(info) == "table" then info.PriceInRobux else nil
+	if type(price) == "number" then
+		prices[key] = price
+		return price
+	end
+	return nil
+end
+
+-- #1888: a game pass prompt closed (PromptGamePassPurchaseFinished on the server): bought, or store_cancelled.
+local function onPassPrompt(player: Player, passId: unknown, purchased: unknown)
+	local sku = StoreFunnel.passSku(passId)
+	local profile = DataService.get(player)
+	if sku == nil or profile == nil then
+		return
+	end
+	if purchased ~= true then
+		Telemetry.custom(player, "store_cancelled", 1, { sku, tierText(profile) })
+		return
+	end
+	-- before the lookup yields: PassService marks the pass owned on this same event
+	local first = not spentBefore(player, profile, 0, passId :: number)
+	task.spawn(function()
+		local price = priceOf("pass", passId :: number) or 0
+		local current = DataService.get(player)
+		if current ~= nil then
+			Telemetry.robuxPurchase(player, current, sku, price, first)
+		end
+	end)
+end
+
+-- #1888: a product prompt closed without buying (a bought one is ProductService's receipt).
+local function onProductPrompt(userId: unknown, productId: unknown, purchased: unknown)
+	if purchased == true or type(userId) ~= "number" then
+		return
+	end
+	local player = Players:GetPlayerByUserId(userId)
+	local sku = StoreFunnel.productSku(productId)
+	local profile = if player ~= nil then DataService.get(player) else nil
+	if player ~= nil and sku ~= nil and profile ~= nil then
+		Telemetry.custom(player, "store_cancelled", 1, { sku, tierText(profile) })
 	end
 end
 
@@ -786,7 +980,7 @@ local function logJoined(player: Player)
 		return
 	end
 	session.joinLogged = true
-	Telemetry.onboarding(player, profile, "joined")
+	Telemetry.onboarding(player, profile, "joined", { session.source })
 	if session.returnedNextDay then
 		Telemetry.onboarding(player, profile, "returned_next_day")
 	end
@@ -805,6 +999,10 @@ local function logJoined(player: Player)
 		tier = Economy.tier(profile),
 		parkCats = parkCats,
 		starterCat = profile.starterCatClaimed,
+		passXp = profile.pass.xp,
+		passClaims = #profile.pass.claimedFree + #profile.pass.claimedPaid,
+		passLevel = CafePass.levelOf(profile.pass.xp),
+		spent = spentBefore(player, profile, 0, nil),
 	})
 	for _, name in shown do
 		Telemetry.onboarding(player, profile, name :: Onboarding.StepName)
@@ -878,8 +1076,40 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.tutorialClosed = true
 			Telemetry.custom(player, "tutorial_closed", 1, { tostring(profile.tutorialStep) })
 		end
+	elseif name == "store_opened" then
+		-- #1888: a new Store funnel session for each visit, up to StoreFunnel.VISITS_MAX a session
+		local from = Guard.oneOf(rawValue, StoreFunnel.SOURCES)
+		if from ~= nil and session.storeVisits < StoreFunnel.VISITS_MAX then
+			session.storeVisits += 1
+			session.store = { id = HttpService:GenerateGUID(false), step = 0, sku = nil }
+			storeStep(player, "opened", { from, tierText(profile), session.source })
+			Telemetry.onboarding(player, profile, "first_store_open")
+		end
+	elseif name == "store_tab" then
+		local tab = Guard.oneOf(rawValue, StoreFunnel.TABS)
+		if tab ~= nil then
+			storeStep(player, "tab_viewed", { tab })
+		end
+	elseif name == "store_buy" then
+		local passSku = StoreFunnel.passSku(rawValue)
+		local sku = passSku or StoreFunnel.productSku(rawValue)
+		local visit = session.store
+		if sku ~= nil and visit ~= nil and visit.step < StoreFunnel.index("buy_pressed") then
+			visit.sku = sku
+			local kind: "pass" | "product" = if passSku ~= nil then "pass" else "product"
+			task.spawn(function()
+				local price = priceOf(kind, rawValue :: number)
+				storeStep(player, "buy_pressed", { sku, if price ~= nil then tostring(price) else "unknown" })
+			end)
+		end
 	else
-		local screen = if type(rawValue) == "string" then SCREENS[rawValue] else nil
+		local raw = if type(rawValue) == "string" then rawValue else nil
+		local screen = if raw ~= nil then SCREENS[raw] else nil
+		local more = if raw ~= nil then MORE_SCREENS[raw] else nil
+		if screen == nil and more ~= nil and not session.uiOpened[more] then
+			session.uiOpened[more] = true
+			Telemetry.custom(player, "ui_opened", 1, { more }) -- #1888: not a window for first_window_opened
+		end
 		if screen ~= nil and not session.uiOpened[screen] then
 			session.uiOpened[screen] = true
 			Telemetry.custom(player, "ui_opened", 1, { screen })
@@ -935,8 +1165,24 @@ local function onLoaded(player: Player, profile: Profile)
 		screen = "none",
 		uiOpened = {},
 		tutorialClosed = false,
+		source = JoinSource.ORGANIC,
+		store = nil,
+		storeVisits = 0,
 	}
+	-- #1888: the launch data of the link this join came through (an ad's ad_<tag>)
+	local ok, joinData = pcall(function(): any
+		return player:GetJoinData()
+	end)
+	if ok and type(joinData) == "table" then
+		session.source = JoinSource.parse(joinData.LaunchData)
+	end
 	sessions[player] = session
+	Telemetry.custom(
+		player,
+		"session_start",
+		1,
+		{ session.source, if firstSession then "new" else "returning", tierText(profile) }
+	)
 	if firstSession then
 		-- the template's coins never pass through Economy.credit, so they are not in lifetimeCoins
 		logEconomy(
@@ -1124,6 +1370,8 @@ function Telemetry.start()
 	DataService.onLoaded:Connect(onLoaded)
 	DataService.beforeRelease(onRelease)
 	Net.on("TelemetryReport", onReport)
+	MarketplaceService.PromptGamePassPurchaseFinished:Connect(onPassPrompt)
+	MarketplaceService.PromptProductPurchaseFinished:Connect(onProductPrompt)
 	task.spawn(function()
 		while true do
 			task.wait(FLUSH_SECONDS)

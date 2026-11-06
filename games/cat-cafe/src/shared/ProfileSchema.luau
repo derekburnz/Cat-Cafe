@@ -699,8 +699,9 @@ local function sanitizeCodes(value: any): { [string]: number }
 end
 
 -- F87: a state saved before version 19 counts its steps in the 12 step funnel v1, one before #1273 in the 25 step
--- funnel v2; Onboarding.fromOld takes either out of the funnel v3 once it had logged a first catch, else back to its
--- start (#1273: no save version, since `funnel` already tells the funnels apart). A first day in the future is
+-- funnel v2, one before #1888 in the 37 step funnel v3; Onboarding.fromOld takes any of them out of the funnel v4 once
+-- it had logged a first catch, else back to its start (#1273: no save version, since `funnel` already tells the
+-- funnels apart). A first day in the future is
 -- clamped to today.
 local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 	local telemetry: Types.TelemetryState = {

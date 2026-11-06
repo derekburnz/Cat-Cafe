@@ -935,8 +935,8 @@ export type CornerShopStock = {
 export type TelemetryState = {
 	onboardingStep: number,
 	achieved: { [string]: boolean },
-	-- F87 (easy-start.md sections 5 and 6): the onboarding funnel's version (3 since #1273; Onboarding.fromOld moves a
-	-- 1 or 2) and the UTC day number (os.time() // 86400) of the account's first join, 0 when it is not known (an
+	-- F87 (easy-start.md sections 5 and 6): the onboarding funnel's version (4 since #1888; Onboarding.fromOld moves a
+	-- 1, 2 or 3) and the UTC day number (os.time() // 86400) of the account's first join, 0 when it is not known (an
 	-- account from before version 19), for new_player_left and the session time markers
 	funnel: number,
 	firstDay: number,

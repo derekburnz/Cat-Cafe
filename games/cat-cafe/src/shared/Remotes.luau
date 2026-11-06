@@ -61,7 +61,7 @@ Remotes.ClientToServer = {
 	-- carrying, no lock, off TackleCooldownSeconds; lunges and hits the first player in reach who could be shoved
 	"ClaimRichTip", -- ()  own plot has an unexpired rich tip, within RichTipRangeStuds of its RichTipAnchor
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
-	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16)
+	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16), the Store funnel (#1888)
 	"SetSignStyle", -- (styleId: string?)  #1625: an owned shared/SignStyles id, or nil for the plain sign
 	"SetLook", -- (kind: string, id: string?)  #1624: "theme", "uniform" or "accessory"; an owned Looks id or "default"
 	"SetJukeboxTrack", -- (trackId: string?)  #1168 row 2: a shared/Jukebox track (free, #1875), or nil/"default"

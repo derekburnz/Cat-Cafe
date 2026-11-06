@@ -1566,6 +1566,7 @@ local function onEquipBest(player: Player)
 	if profile == nil then
 		return
 	end
+	Telemetry.onboarding(player, profile, "first_equip_best") -- #1888: the button pressed, whatever it moved
 	local plan = EquipBest.plan(profile)
 	if EquipBest.isOptimal(profile, plan) then
 		Net.toast(player, "Your cats are already in their best roles.", "info")
@@ -2057,6 +2058,7 @@ local function onSetJukeboxTrack(player: Player, rawId: unknown)
 		return
 	end
 	profile.jukebox = pick
+	Telemetry.custom(player, "jukebox_pick", 1, { pick or "default" }) -- #1888
 	CafeService.sync(player)
 end
 

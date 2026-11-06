@@ -2340,7 +2340,7 @@ local function canReact(stray: Stray, now: number): boolean
 end
 
 -- A Curious stray walks CuriousWalkStuds toward the first player who comes within CuriousRangeStuds, once.
-local function curious(stray: Stray, player: Player, root: Vector3, now: number)
+local function curious(stray: Stray, _player: Player, root: Vector3, now: number)
 	local at = stray.model:GetPivot().Position
 	if not Moods.noticed(at, root) then
 		return

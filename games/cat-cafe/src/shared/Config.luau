@@ -5,7 +5,9 @@
 
 local Config = {
 	ServerPlayers = 8,
-	StartCoins = 50,
+	-- #1796 (Derek2 11-06: the tutorial asks for a table and then the Bait bowl, and $50 covered neither): the first
+	-- table, the Bait bowl and its Kibble ($150 + $600 + $100), so tutorial steps 3 and 4 never wait on coins
+	StartCoins = 850,
 
 	-- Income (data-model section 11)
 	FavoriteMultiplier = 1.5,
@@ -61,10 +63,11 @@ local Config = {
 	-- Only the server reads it. Derek2's account, named "2573351", is user id 140223517 (user id 2573351 is someone
 	-- else). Nobody else is ever listed.
 	OwnerTestUserIds = { 140223517 } :: { number },
-	-- The Cafe Pass (#1645, cafe-pass.md section 1): each season's first day as a UTC date, oldest first. Season 1
-	-- starts the day the game goes public (Derek sets it); with no date the pass is closed outside Studio, where a
-	-- preview season 1 runs for playtests (shared/CafePass).
-	SeasonStarts = {} :: { string },
+	-- The Cafe Pass (#1645, cafe-pass.md section 1): each season's first day as a UTC date, oldest first. With no date
+	-- the pass is closed outside Studio, where a preview season 1 runs for playtests (shared/CafePass).
+	-- 2026-11-05 is a test start so Derek2 can try the pass live; Derek2 resets it to the launch day. Keep one date:
+	-- moving it later only moves the season's end.
+	SeasonStarts = { "2026-11-05" } :: { string },
 	PassLevels = 30,
 	PassXpPerLevel = 800,
 	AutosaveSeconds = 60,
@@ -204,6 +207,19 @@ local Config = {
 	LuckyDayWaveLuck = 2,
 	LuckyDayPlayerLuck = 0.5,
 	LuckyDayWarnSeconds = 15,
+	-- #1572 (luck-and-rare-moments.md 1h): the global pity cat (shared/Pity). A slot every PityLegendarySeconds from
+	-- ClockEpoch, every PityMythicalEvery-th a Mythical one; its area by PityAreaWeights (by area id), and the first
+	-- catch anywhere claims it in MemoryStore, tried PityClaimRetries times before the catcher keeps it anyway.
+	PityLegendarySeconds = 1800,
+	PityMythicalEvery = 4,
+	PityAreaWeights = {
+		alley = 10,
+		park = 15,
+		neighbourhood = 20,
+		woods = 25,
+		sewer = 30,
+	} :: { [string]: number },
+	PityClaimRetries = 3,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
 	-- F97 (notes-10-28-to-10-30.md section 3): a food's price is its Catalog base times this factor at the buyer's
 	-- tier (Economy.foodPrice), the same growth as the later shop items (economy-ladder.md section 4)
@@ -273,7 +289,8 @@ local Config = {
 	-- the Town Square, open day and night. Every CornerShopWindowSeconds window rolls an amount of each
 	-- Catalog.cornerShop row from its size's chance in percent of 0, 1, 2 and 3, the same on every server and apart
 	-- from the Fresh Catch roll. Bought within CornerShopRange of a CornerShop stall. A UTC day allows at most
-	-- CornerDailyLimits of a family (any size; a family not listed has none). Cat food has no daily XP cap (#1255).
+	-- CornerDailyLimits of a family, counted for each row on its own (#1712; a family not listed has none). Cat
+	-- food has no daily XP cap (#1255).
 	CornerShopWindowSeconds = 390, -- #1437: one game day from ClockEpoch, a restock at every sunrise (was 300)
 	CornerShopRange = 14,
 	-- lawn-nursery.md section 7 (#1537): lawn pieces and styles are sold only at the Yard Sale (the Garden Nursery is
@@ -303,9 +320,10 @@ local Config = {
 	-- #1577 (day-cart.md section 2): the Day Cart's roll, which replaces the size table. Row i of the list by Tier 1
 	-- price (cheapest first) is in stock with max(DayCartFloor, DayCartTopChance - DayCartStep x (i - 1)), and a row
 	-- in stock has 1, 2 or 3 by DayCartQtyOdds.
-	DayCartTopChance = 0.95,
-	DayCartStep = 0.045,
-	DayCartFloor = 0.05,
+	-- #1740 (Derek2, 2026-11-06): more of the cart in stock, about 14 of the 19 rows a day (was about 10)
+	DayCartTopChance = 1,
+	DayCartStep = 0.03,
+	DayCartFloor = 0.25,
 	DayCartQtyOdds = { 50, 30, 20 } :: { number },
 	CornerDailyLimits = { steady = 4, quick_bait = 2, whistle = 4 } :: { [string]: number },
 	CatFoodMax = 999, -- the most of one food the Bag holds
@@ -576,8 +594,9 @@ local Config = {
 	-- PicnicEverySeconds; the Yard Sale (Neighbourhood) gives one zone crate every YardSaleClaimHours from the last
 	-- take, free (crate-prices.md section 5; camp-stations.md section 3, #1154), banked for the Market; the Fish Pond
 	-- (Woods) lands PondFishPerStep golden fish every PondStepSeconds up to PondHold (#1232: 6 an hour, 6 hours' worth);
-	-- the Lost and Found (Sewer) keeps one prize a UTC day from LostFoundTable (chances add
-	-- to 1, shown on its card). Each is collected within CampExtraRangeStuds of its PromptAnchor.
+	-- the Lost and Found (Sewer) keeps one find every LostFoundEverySeconds up to LostFoundHold, each a roll of
+	-- LostFoundTable (#1732, camp-stations.md section 4b; chances add to 1, shown on its card; a lostCat row is an Epic
+	-- from the player's open areas). Each is collected within CampExtraRangeStuds of its PromptAnchor.
 	PicnicEverySeconds = 21600,
 	PicnicHold = 2,
 	PicnicPotion = "tip_potion",
@@ -585,14 +604,26 @@ local Config = {
 	PondFishPerStep = 1,
 	PondStepSeconds = 600,
 	PondHold = 36,
+	LostFoundEverySeconds = 7200,
 	LostFoundHold = 3,
 	LostFoundTable = {
-		{ chance = 0.40, fish = 10 },
-		{ chance = 0.30, potion = "lucky_potion" },
-		{ chance = 0.20, potion = "gold_rush_potion" },
-		{ chance = 0.09, crate = "classic_crate" },
-		{ chance = 0.01, crate = "classic_golden_crate" },
-	} :: { { chance: number, fish: number?, potion: string?, crate: string? } },
+		{ chance = 0.30, fish = 40 },
+		{ chance = 0.22, potions = { lucky_potion = 1, gold_rush_potion = 1 } },
+		{ chance = 0.15, spins = 2 },
+		{ chance = 0.18, crate = "sewer_crate" },
+		{ chance = 0.10, crate = "classic_golden_crate" },
+		{ chance = 0.03, crate = "sewer_golden_crate" },
+		{ chance = 0.02, lostCat = "Epic" },
+	} :: {
+		{
+			chance: number,
+			fish: number?,
+			potions: { [string]: number }?,
+			spins: number?,
+			crate: string?,
+			lostCat: string?,
+		}
+	},
 	CampExtraRangeStuds = 8,
 
 	-- The Rescue Rally weekend (F101, rescue-rally.md; shared/Rally, Catalog.rallySteps). From RallyStartWeekday (0 is
@@ -610,7 +641,7 @@ local Config = {
 	RallyStateSeconds = 0.5, -- RallyState goes out at most this often while points come in (steps go at once)
 
 	-- Codes and the Codes Cat (F65, data-model section 11d). Codes are letters, digits and Codes.SYMBOLS, in any case.
-	CodesCatRange = 12, -- RedeemCode from this close to a CodesCat station's pivot
+	CodesCatRange = 12, -- the Codes Cat's box opens this close to a CodesCat station's pivot (RedeemCode works anywhere, #1747)
 	CodesCircleRadius = 4, -- the code box opens within this flat distance of the CodesCircle, closes past it + 1
 	CodeMaxLength = 20,
 	CodeWrongLimit = 5, -- this many wrong codes within CodeWrongWindowSeconds lock the box

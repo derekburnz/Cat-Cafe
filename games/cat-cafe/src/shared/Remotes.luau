@@ -63,7 +63,7 @@ Remotes.ClientToServer = {
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
 	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16)
 	"SetSignStyle", -- (styleId: string?)  #1625: an owned shared/SignStyles id, or nil for the plain sign
-	"SetLook", -- (kind: string, id: string?)  #1624: "theme" or "uniform", an owned shared/Looks id or "default"
+	"SetLook", -- (kind: string, id: string?)  #1624: "theme", "uniform" or "accessory"; an owned Looks id or "default"
 	"SetSetting", -- (key: string, value: boolean | number)  a key of shared/Settings: a switch takes a boolean, a
 	-- volume a number clamped to 0 to 1; saved in profile.settings, answered by ProfileSync
 	"ClaimTipJar", -- (step: number)  integer 1 to #Catalog.tipJar, unclaimed this session, its minutes reached (F47)
@@ -78,7 +78,7 @@ Remotes.ClientToServer = {
 	-- none (Crates.bundleBlocker); 1 a second, answered with a toast and a ProfileSync
 	"BuyFishItem", -- (itemId: string)  within FishMarketRange of a FishMarket, a lure or perk row of Catalog.fishShop,
 	-- below its max level, its cost in golden fish (F53); answered with a toast and a ProfileSync
-	"RedeemCode", -- (text: string)  within CodesCatRange of a CodesCat, at most 40 bytes, trimmed and lowercased to 1
+	"RedeemCode", -- (text: string)  from anywhere (#1747), at most 40 bytes, trimmed and lowercased to 1
 	-- to CodeMaxLength letters and digits, a known active code not yet redeemed (F65, shared/Codes); 1 per 2 s, locked
 	-- CodeLockSeconds after CodeWrongLimit wrong codes; answered with CodeResult
 	"ClaimStarterCat", -- ()  F96 (starter-cat.md section 4): within StarterCatRangeStuds of a BellhopStand, the
@@ -130,9 +130,11 @@ Remotes.ClientToServer = {
 	"BuyLawn", -- (id: string, spotId: string?)  a Catalog.lawn piece or Catalog.lawnStyles style not owned yet and
 	-- in the Yard Sale's stock today (#1537, shared/YardSale), not bought by the caller today, the caller within reach
 	-- of the Yard Sale (Tier 3), the caller's tier at its tier and its rarity's fixed price in coins (sink "lawn");
-	-- the server lays the best lawn (Lawn.applyBest, spotId is ignored); 2 a second, answered with a toast, a
+	-- #1751: it goes out only onto an empty spot, Grey Slabs or no fence (Lawn.putOut; spotId is ignored); 2 a second,
+	-- answered with a toast, a
 	-- ProfileSync and a CampExtrasState
-	"SetLawnSpot", -- (spotId: string, pieceId: string?)  a Lawn.SPOTS spot open at the caller's tier; an owned piece
+	"SetLawnSpot", -- (spotId: string, pieceId: string?)  #1751 (back from #1283's retirement): a Lawn.SPOTS spot open
+	-- at the caller's tier; an owned piece
 	-- of the spot's size, taken off any other spot (the spot's old piece goes back to the player's pieces), or nil or
 	-- "" to clear it; 4 a second, answered with a ProfileSync
 	"SetLawnStyle", -- (kind: "path" | "fence", id: string)  an owned style of that kind; "" lays Grey Slabs or takes
@@ -205,11 +207,18 @@ Remotes.ServerToClient = {
 	-- prompt open. Since F93 a stray has no prompt: a swing's refusal is a toast and its outcome CatchResult.
 	"NetSwung", -- (userId: number, hit: boolean)  F93: a swing landed, to the swinger and every client within 150 studs,
 	-- for the smack, the bounce on a miss and the whoosh; hit is true when it started a catch or a pick up
+	"PityAnnounce", -- (kind: "Legendary" | "Mythical", areaId: string, state: "out" | "caught" | "gone", winnerName:
+	-- string?)  #1572 (luck-and-rare-moments.md 1h): to everyone as a pity cat spawns, is caught (anywhere) or leaves
+	-- at night. The banner text itself goes out as Announce; ReplicatedStorage.Pity holds the state for late joiners.
 	"CatchSchedule", -- (strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
 	"CatchResult", -- (strayId: string, grades: { Types.CircleGrade }, success: boolean, charmGain: number,
 	-- retryAt: number?)  grades up to and including the first Miss; after a miss the stray sprints off and anyone may
 	-- try again (v0.5). retryAt (server time, miss only) is when this player may try that stray again (F57: 3, 6
 	-- then 10 s after it stops, by their miss streak).
+	"CatchJudged", -- (strayId: string, index: number, grade: Types.CircleGrade)  #1727: the server's grade for each
+	-- circle a press judged, to the catcher alone, as it is judged. A device that called its press a Miss keeps the
+	-- later circles drawn until this (Good or Perfect: the catch goes on) or CatchResult comes. CatchResult stays the
+	-- final word.
 	"RescueChallenge", -- (rescueSpotId: string, challenge: Types.RescueChallenge)  the bar, or a tree's falling cat
 	"RescueResult", -- (rescueSpotId: string, hits: number, pawsLeft: number, done: boolean, success: boolean,
 	-- bar: Types.RescueBar)  after every judged press, when a zone runs out (F93) and when the attempt ends; `bar` is

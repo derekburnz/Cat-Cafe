@@ -5374,7 +5374,7 @@ case(
 case(
 	"codes",
 	Enum.KeyCode.T,
-	"Codes Cat: far, bad texts, the wrong-code lock, a double redeem, used and expired codes",
+	"Codes: bad texts, the wrong-code lock, a double redeem, used and expired codes",
 	function()
 		if state == nil then
 			return "SKIP", "no ProfileSync yet"
@@ -5398,48 +5398,12 @@ case(
 		local verdict: Verdict = "PASS"
 		local reset = string.format('%s("codes")', DEBUG)
 
-		-- 24 studs out (CodesCatRange is 12, flat): the real code is refused and pays nothing. The server measures
-		-- before it reads the text, so this try does not count towards the lock.
-		local far = standFromStation(station, 24)
-		if far < Config.CodesCatRange + 4 then
-			return done(
-				"CHECK",
-				string.format(
-					"could not stand 24 studs from the Codes Cat on any side (settled %.1f studs out); stand there and run again",
-					far
-				)
-			)
-		end
+		-- #1747: codes redeem from anywhere (the Store's Codes tab), so there is no far refusal to try. The wrong-code
+		-- lock and once per player below still hold wherever the player stands.
 		local before = freshWallet()
 		local held = codeHoldings()
-		local farAnswer = redeem("playtest")
 		local coinsStill, coinsText = coinsMovedBy(before, 0)
-		if codeHoldings() ~= held or not coinsStill then
-			return done(
-				"FAIL",
-				string.format(
-					'RedeemCode("playtest") from %.1f studs paid: %s before, %s after, %s',
-					far,
-					held,
-					codeHoldings(),
-					coinsText
-				)
-			)
-		end
-		if farAnswer == Codes.LOCKED then
-			return done(
-				"CHECK",
-				string.format(
-					"the box is locked from an earlier run; wait a minute or run %s on the server, then run again",
-					reset
-				)
-			)
-		end
-		local notes = string.format("%.1f studs refused", far)
-		if farAnswer ~= Codes.FAR then
-			verdict = downgrade(verdict, "CHECK")
-			notes ..= string.format(' with %q, not "%s"', farAnswer, Codes.FAR)
-		end
+		local notes = "no distance check (#1747)"
 
 		-- In the circle (6 studs in front of the station): CodeWrongLimit texts that are not codes, malformed ones
 		-- first, since they must count as wrong too or a guesser could send them for free. All but the last answer
@@ -7100,8 +7064,8 @@ case(
 			return "SKIP", "the lawn's art is not in this build (WorldBuilder.lawnLive)"
 		end
 		local BUY, SPOT, STYLE = 0.6, 0.3, 0.6 -- the limits: 2, 4 and 2 a second
-		-- #1283 (lawn-nursery.md section 6b): placing by hand is retired; LawnService.RETIRED
-		local RETIRED = "The lawn sets itself"
+		-- #1751: placing by hand is back (Use and Remove on the Decor window's Lawn tab), refused with Lawn.placeBlocker's
+		-- and Lawn.styleBlocker's reasons
 		local long = string.rep("a", 5000)
 		local nan = 0 / 0
 
@@ -7234,8 +7198,7 @@ case(
 					owned = id
 				end
 			end
-			local said =
-				lawnCall(SPOT, RETIRED, "SetLawnSpot", closedSpot.id, owned or "")
+			local said = lawnCall(SPOT, "opens at Tier", "SetLawnSpot", closedSpot.id, owned or "")
 			if (state :: Types.PlayerState).lawn[closedSpot.id] ~= nil then
 				return "FAIL", string.format("%s took a piece at Tier %d", closedSpot.id, tier)
 			end
@@ -7243,7 +7206,7 @@ case(
 				verdict = downgrade(verdict, "CHECK")
 				table.insert(
 					notes,
-					string.format('closed %s: no "%s" toast', closedSpot.id, RETIRED)
+					string.format('closed %s: no "opens at Tier" toast', closedSpot.id)
 				)
 			end
 		end
@@ -7355,7 +7318,7 @@ case(
 			local wrong = openSpots(if cheap.spot == "small" then "big" else "small")
 			if #wrong > 0 then
 				local before = (state :: Types.PlayerState).lawn[wrong[1].id]
-				local said = lawnCall(SPOT, RETIRED, "SetLawnSpot", wrong[1].id, cheap.id)
+				local said = lawnCall(SPOT, "spot.", "SetLawnSpot", wrong[1].id, cheap.id)
 				if (state :: Types.PlayerState).lawn[wrong[1].id] ~= before then
 					return "FAIL",
 						string.format("%s (%s) went on %s", cheap.id, cheap.spot, wrong[1].id)
@@ -7365,7 +7328,7 @@ case(
 					table.insert(
 						notes,
 						string.format(
-							'%s on %s: no "The lawn sets itself" toast',
+							'%s on %s: no "needs a ... spot" toast',
 							cheap.id,
 							wrong[1].id
 						)
@@ -7407,7 +7370,7 @@ case(
 		end
 		if unowned ~= nil then
 			local spot = openSpots(unowned.spot)[1]
-			local said = lawnCall(SPOT, RETIRED, "SetLawnSpot", spot.id, unowned.id)
+			local said = lawnCall(SPOT, "first", "SetLawnSpot", spot.id, unowned.id)
 			if (state :: Types.PlayerState).lawn[spot.id] == unowned.id then
 				return "FAIL",
 					string.format("%s went on %s without being bought", unowned.id, spot.id)
@@ -7416,13 +7379,12 @@ case(
 				verdict = downgrade(verdict, "CHECK")
 				table.insert(
 					notes,
-					string.format('%s not owned: no "%s" toast', unowned.id, RETIRED)
+					string.format('%s not owned: no "Buy the ... first" toast', unowned.id)
 				)
 			end
 		end
 		local styleBefore = lawnText()
-		local wrongKind =
-			lawnCall(STYLE, RETIRED, "SetLawnStyle", "fence", "grey_slabs")
+		local wrongKind = lawnCall(STYLE, "not a fence", "SetLawnStyle", "fence", "grey_slabs")
 		local notBought: Types.LawnStyleDef? = nil
 		for _, style in Catalog.lawnStyles do
 			if style.price > 0 and (state :: Types.PlayerState).lawnOwned[style.id] ~= true then
@@ -7432,7 +7394,7 @@ case(
 		end
 		local notBoughtSaid = true
 		if notBought ~= nil then
-			notBoughtSaid = lawnCall(STYLE, RETIRED, "SetLawnStyle", notBought.kind, notBought.id)
+			notBoughtSaid = lawnCall(STYLE, "first", "SetLawnStyle", notBought.kind, notBought.id)
 		end
 		task.wait(0.3)
 		if lawnText() ~= styleBefore then

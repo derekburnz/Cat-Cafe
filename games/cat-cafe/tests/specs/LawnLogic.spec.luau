@@ -224,7 +224,7 @@ return function()
 	end)
 
 	describe("LawnLogic.cards (#1283)", function()
-		it("lists each owned piece, path and fence, out first, then the bigger bonus", function()
+		it("lists each owned piece, path and fence, highest rarity first, then out first (#1751)", function()
 			local state = player(
 				3,
 				0,
@@ -237,15 +237,16 @@ return function()
 			for _, card in cards do
 				table.insert(ids, card.id)
 			end
-			-- out: Red Brick and the Tulip Bed (both Common, by name); stored: the three Uncommons
-			expect(cards[1].out).to.equal(true)
-			expect(cards[2].out).to.equal(true)
-			expect(cards[3].out).to.equal(false)
-			expect(table.concat(ids, ",", 1, 2)).to.equal("red_brick,tulip_bed")
+			-- the three Uncommons (stored) first, then the Commons: Red Brick and the Tulip Bed (both out, by name)
 			expect(#cards).to.equal(5)
-			for index = 4, #cards do
+			for index = 2, #cards do
 				expect(cards[index - 1].bonus >= cards[index].bonus).to.equal(true)
 			end
+			expect(cards[1].out).to.equal(false)
+			expect(cards[3].out).to.equal(false)
+			expect(cards[4].out).to.equal(true)
+			expect(cards[5].out).to.equal(true)
+			expect(table.concat(ids, ",", 4, 5)).to.equal("red_brick,tulip_bed")
 		end)
 
 		it("leaves out what is not owned and the free Grey Slabs", function()

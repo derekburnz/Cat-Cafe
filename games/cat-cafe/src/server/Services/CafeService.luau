@@ -43,6 +43,7 @@ local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Quests = require(ReplicatedStorage.Shared.Quests)
 local SellExtras = require(ReplicatedStorage.Shared.SellExtras)
 local Settings = require(ReplicatedStorage.Shared.Settings)
+local ShortNumber = require(ReplicatedStorage.Shared.ShortNumber)
 local SignStyles = require(ReplicatedStorage.Shared.SignStyles)
 local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
 local Telemetry = require(script.Parent.Telemetry)
@@ -218,9 +219,11 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		stuckHelpShown = table.clone(profile.stuckHelpShown),
 		starterCatClaimed = profile.starterCatClaimed, -- F96
 		starterBought = profile.onceBought.starter_bundle == true, -- #1625: the Store card hides
+		codesRedeemed = table.clone(profile.codesRedeemed), -- #1714: the Store's Codes tab lists the codes used
 		signStyles = SignStyles.owned(profile.signStyles, ownsPassOf(player)), -- #1625
 		signStyle = profile.signStyle,
-		looks = { -- #1624: the Style tab's theme and uniform rows (the shown pick, nil for Classic, and what is owned)
+		looks = { -- #1624: the Style tab's theme, uniform and accessory rows (the shown pick, nil for the default, and
+			-- what is owned)
 			theme = Looks.shown(
 				"theme",
 				profile.looks.theme,
@@ -235,6 +238,13 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 			),
 			themes = Looks.owned("theme", ownsPassOf(player), profile.pass.items),
 			uniforms = Looks.owned("uniform", ownsPassOf(player), profile.pass.items),
+			accessory = Looks.shown(
+				"accessory",
+				profile.looks.accessory,
+				ownsPassOf(player),
+				profile.pass.items
+			),
+			accessories = Looks.owned("accessory", ownsPassOf(player), profile.pass.items),
 		},
 		luck = luck, -- F88
 		luckSources = luckSources,
@@ -292,13 +302,18 @@ local function shownName(player: Player, instance: Types.CatInstance): string
 		or (if def ~= nil then def.name else instance.catId)
 end
 
--- #1624: the Looks uniform `player`'s working cats wear (their owned pick), nil for Classic.
-local function uniformOf(player: Player): string?
+-- #1624: the Looks look of `kind` `player`'s working cats wear (their owned pick), nil for the default.
+local function shownLook(player: Player, kind: Looks.Kind): string?
 	local profile = DataService.get(player)
 	if profile == nil then
 		return nil
 	end
-	return Looks.shown("uniform", profile.looks.uniform, ownsPassOf(player), profile.pass.items)
+	local looks = profile.looks
+	local pick = if kind == "uniform"
+		then looks.uniform
+		elseif kind == "accessory" then looks.accessory
+		else looks.theme
+	return Looks.shown(kind, pick, ownsPassOf(player), profile.pass.items)
 end
 
 -- One cat's model at `at` for its `slot`, not parented yet, its Rate for an owner at `tier`. A working cat stands on
@@ -351,8 +366,9 @@ local function buildCat(
 			model:SetAttribute("Bedtime", true)
 			model:SetAttribute("SleepSpot", sleepSpot)
 		else
-			CatPose.dress(model, spot.spotType) -- F25: a working cat sits at its station in its role's outfit
-			CatPose.wearUniform(model, uniformOf(player)) -- #1624: in the cafe's uniform style
+			-- F25: a working cat sits at its station in its role's outfit, with the cafe's accessory (#1624)
+			CatPose.dress(model, spot.spotType, shownLook(player, "accessory"))
+			CatPose.wearUniform(model, shownLook(player, "uniform")) -- #1624: in the cafe's uniform style
 		end
 	end
 	return model
@@ -679,6 +695,13 @@ local function refreshDecor(plot: WorldBuilder.Plot, profile: Profile)
 		end
 		showDecor(plot, def, spot)
 	end
+	-- #1645: the Cafe Pass decor in use takes the next decor spots (no anchors of its own)
+	for _, def in Catalog.passDecor do
+		showDecor(plot, def, if inUse(def) then plot.decorSpots[nextSpot] else nil)
+		if inUse(def) then
+			nextSpot += 1
+		end
+	end
 	-- The wallpaper, floor and paint in use, by decor id, for the client to colour the cafe's tagged shell parts.
 	for _, slot in Crates.STYLE_SLOTS do
 		plot.model:SetAttribute(slot.attribute, Crates.styleInUse(profile, slot.kind))
@@ -874,9 +897,15 @@ local function refreshLooks(player: Player, plot: WorldBuilder.Plot, profile: Pr
 		folder.Parent = plot.model
 	end
 	local uniform = Looks.shown("uniform", profile.looks.uniform, owns, items)
+	local accessory = Looks.shown("accessory", profile.looks.accessory, owns, items)
 	plot.model:SetAttribute(Looks.UNIFORM_ATTRIBUTE, uniform)
-	for _, cat in plot.cats:GetChildren() do -- a cat built before the pick changed takes the new colours
-		if cat:IsA("Model") and cat:GetAttribute("Role") ~= nil then
+	plot.model:SetAttribute(Looks.ACCESSORY_ATTRIBUTE, accessory)
+	-- a cat built before the pick changed takes the new accessory and colours; one on a bedtime trip or asleep wears
+	-- no outfit, and is dressed when it is built at its station again
+	for _, cat in plot.cats:GetChildren() do
+		local role = cat:GetAttribute("Role")
+		if cat:IsA("Model") and type(role) == "string" and cat:GetAttribute("Bedtime") ~= true then
+			CatPose.setAccessory(cat :: Model, role, accessory)
 			CatPose.wearUniform(cat :: Model, uniform)
 		end
 	end
@@ -1000,9 +1029,9 @@ end
 -- Bench at Tier 2, an Umbrella Table at Tier 3), each placed in an empty big spot when there is one, with a toast.
 -- Rank up and load both call it, so a cafe already past those tiers when the lawn arrives gets them too. Only once the
 -- lawn's art is in, so nothing is given that the player cannot see.
--- #1283 (lawn-nursery.md section 6b): then it lays the best lawn (Lawn.applyBest), which fills the spots a rank up
--- opens and, on a save's first load after #1283, replaces a lawn placed by hand. Pieces out add money, so what was
--- earned so far settles at the old rate first.
+-- #1751: it no longer lays the best lawn (#1283 did, on every load and rank up), so a piece the player took in stays
+-- in; Equip Best fills the spots a rank up opens. Pieces out add money, so what was earned so far settles at the old
+-- rate first.
 local function giveLawnGifts(player: Player, profile: Profile)
 	if not WorldBuilder.lawnLive() then
 		return
@@ -1023,7 +1052,6 @@ local function giveLawnGifts(player: Player, profile: Profile)
 			"good"
 		)
 	end
-	Lawn.applyBest(profile)
 end
 
 -- Bedtime (F79, BedtimeService) ----------------------------------------------------------------------------------
@@ -1120,7 +1148,7 @@ local function refreshShowcase(player: Player, profile: Profile)
 		player,
 		currentRate(profile),
 		ProfileSchema.collectionCount(profile),
-		tierName
+		Economy.tier(profile)
 	)
 end
 
@@ -1719,12 +1747,13 @@ local function onLockDecor(player: Player, rawId: unknown, rawLocked: unknown)
 	CafeService.sync(player)
 end
 
--- #1574: after a trade moved decor or lawn pieces, the best owned pieces go out (as EquipBestDecor, without its toast).
+-- #1574: after a trade moved decor or lawn pieces, the best owned decor goes out (as EquipBestDecor, without its
+-- toast). #1751: the lawn only loses what was traded away; a piece that came in waits for Use or Equip Best.
 function CafeService.autoEquipDecor(_player: Player, profile: Profile)
 	local cap = Crates.spotCap(Economy.tier(profile), profile.fishPerks.extra_decor_spot or 0)
 	profile.decorPlaced = DecorBest.plan(profile, cap).placed
 	if WorldBuilder.lawnLive() then
-		Lawn.applyBest(profile)
+		Lawn.keepOwned(profile)
 	end
 end
 
@@ -1878,7 +1907,8 @@ end
 
 -- Equip Best for decor (Derek 2026-10-28): the best owned pieces out for the most money (shared/DecorBest), the rest
 -- put away, then one toast and a sync. Only owned pieces move. Since #1283 (lawn-nursery.md section 6b) it lays the
--- best lawn too (Lawn.applyBest; the server keeps it best anyway) and the toast counts both.
+-- best lawn too (Lawn.applyBest; since #1751 the only call that does, so a manual pick holds until then) and the toast
+-- counts both.
 local function onEquipBestDecor(player: Player)
 	local profile = profileFor(player)
 	if profile == nil then
@@ -1948,7 +1978,12 @@ local function onClaimOffline(player: Player)
 		else "60+"
 	Telemetry.custom(player, "offline_claim", amount, { away })
 	Telemetry.onboarding(player, profile, "first_offline_claim")
-	Net.toast(player, string.format("Welcome back! +$%d while you were away", amount), "good")
+	-- #1814: short like the HUD's counter ("+$3.42M"), not every digit
+	Net.toast(
+		player,
+		string.format("Welcome back! +$%s while you were away", ShortNumber.format(amount)),
+		"good"
+	)
 	CafeService.sync(player)
 end
 
@@ -1988,8 +2023,8 @@ local function onSetSignStyle(player: Player, rawId: unknown)
 	CafeService.sync(player)
 end
 
--- #1624: picks a look of `rawKind` ("theme" or "uniform"): an owned Looks id, or nil for the default (Classic).
--- Saved in profile.looks, then the plot shows it.
+-- #1624: picks a look of `rawKind` ("theme", "uniform" or "accessory"): an owned Looks id, or nil for the default
+-- (Classic, or no accessory). Saved in profile.looks, then the plot shows it.
 local function onSetLook(player: Player, rawKind: unknown, rawId: unknown)
 	local profile = profileFor(player)
 	if profile == nil then
@@ -2001,15 +2036,20 @@ local function onSetLook(player: Player, rawKind: unknown, rawId: unknown)
 		Net.toast(player, "You don't have that look yet.", "warn")
 		return
 	end
-	local kind = rawKind :: Looks.Kind
 	local looks = profile.looks
-	if (if kind == "theme" then looks.theme else looks.uniform) == pick then
+	local current = if rawKind == "theme"
+		then looks.theme
+		elseif rawKind == "uniform" then looks.uniform
+		else looks.accessory
+	if current == pick then
 		return
 	end
-	if kind == "theme" then
+	if rawKind == "theme" then
 		looks.theme = pick
-	else
+	elseif rawKind == "uniform" then
 		looks.uniform = pick
+	else
+		looks.accessory = pick
 	end
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)

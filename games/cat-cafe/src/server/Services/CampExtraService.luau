@@ -9,6 +9,9 @@
 -- shown as its view's `decor`. CampExtrasState goes to a player on join and whenever their view changes (a fill, a new UTC day, a rank up,
 -- a collect or a buy), checked every CHECK_SECONDS for every loaded player, which also keeps a shut extra fresh so it
 -- opens with one fill waiting. Golden fish here are earned only: nothing is sold for Robux (monetization-policy).
+-- #1732 (camp-stations.md section 4b): a Lost and Found find can be a lost cat, an Epic from the player's open areas
+-- (the bait bowl's pick), with the rescue's gold and rainbow chances and the player's own luck. It joins the cafe as a
+-- rescued cat (CafeService.addCaughtCat, method "rescue"), with the CatCaught card and the shout-out.
 
 local CollectionService = game:GetService("CollectionService")
 local HttpService = game:GetService("HttpService")
@@ -19,13 +22,19 @@ local Workspace = game:GetService("Workspace")
 local CafeService = require(script.Parent.CafeService)
 local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local Catching = require(ReplicatedStorage.Shared.Catching)
+local Clock = require(ReplicatedStorage.Shared.Clock)
+local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
+local Potions = require(ReplicatedStorage.Shared.Potions)
+local RareMomentService = require(script.Parent.RareMomentService)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local YardSale = require(ReplicatedStorage.Shared.YardSale)
@@ -96,11 +105,15 @@ local function refresh(player: Player, profile: Types.PlayerProfile, force: bool
 	end
 end
 
--- The analytics word for what a prize held: "fish", a potion id or a crate id, several joined by "+" in a fixed order.
-local function whatOf(prize: Types.IndexPrize): string
+-- The analytics word for what a prize held: "fish", "spins", a potion id, a crate id or "lost_cat", several joined
+-- by "+" in a fixed order.
+local function whatOf(prize: Types.IndexPrize, lostCats: number): string
 	local parts: { string } = {}
 	if (prize.fish or 0) > 0 then
 		table.insert(parts, "fish")
+	end
+	if (prize.spins or 0) > 0 then
+		table.insert(parts, "spins")
 	end
 	for _, map in { prize.potions, prize.crates } do
 		local ids: { string } = {}
@@ -113,7 +126,52 @@ local function whatOf(prize: Types.IndexPrize): string
 			table.insert(parts, id)
 		end
 	end
+	if lostCats > 0 then
+		table.insert(parts, "lost_cat")
+	end
 	return table.concat(parts, "+")
+end
+
+-- #1732: brings a lost cat of `rarity` to the player's cafe: one of that rarity from the areas their tier opens, its
+-- coat rolled like a rescue's with their own gold and rainbow luck, joining as a rescued cat.
+local function giveLostCat(
+	player: Player,
+	profile: Types.PlayerProfile,
+	rarity: string,
+	tier: number
+)
+	local rank = Catalog.rarityRank[rarity]
+	if rank == nil then
+		return
+	end
+	local def = Catching.pickBaitCat(Catalog.rarityOrder[rank], tier, random:NextNumber())
+	local now = os.time()
+	local kinds = ClockService.dayKinds()
+	local variant = Catching.rollCoat(
+		def,
+		random:NextNumber(),
+		IndexRewards.rainbowChance(
+			Clock.rainbowChance(Config.RainbowChanceRescue, kinds),
+			IndexRewards.rainbowLuck(profile)
+		),
+		IndexRewards.rollChance(
+			Clock.goldChance(Config.GoldChanceRescue, kinds),
+			IndexRewards.totals(profile).goldLuck + Potions.goldLuck(profile, now)
+		)
+	)
+	local instance, isNew = CafeService.addCaughtCat(player, def, true, nil, nil, "rescue", variant)
+	Net.fire(player, "CatCaught", def.id, isNew, instance.variant)
+	RareMomentService.shoutOut(
+		player,
+		def.rarity,
+		Catching.shoutOut(
+			player.DisplayName,
+			"found",
+			def,
+			instance.variant,
+			" at the Lost and Found"
+		)
+	)
 end
 
 local function refuse(player: Player, extraId: string, reason: string)
@@ -153,16 +211,30 @@ local function onCollect(player: Player, rawExtraId: unknown)
 		refresh(player, profile, true)
 		return
 	end
-	local prize, count = CampExtras.take(profile.campExtras, extraId, tier, now, function(): number
-		return random:NextNumber()
-	end)
+	local prize, count, lostCats = CampExtras.take(
+		profile.campExtras,
+		extraId,
+		tier,
+		now,
+		function(): number
+			return random:NextNumber()
+		end
+	)
 	if prize == nil then
 		refuse(player, extraId, "Nothing yet")
 		return
 	end
 	local paid = Payout.pay(player, profile, prize, "camp_extra")
-	Telemetry.custom(player, "camp_extra", count, { extraId, whatOf(prize), tostring(tier) })
+	Telemetry.custom(
+		player,
+		"camp_extra",
+		count,
+		{ extraId, whatOf(prize, #lostCats), tostring(tier) }
+	)
 	Net.fire(player, "CampExtraResult", extraId, true, paid, prize)
+	for _, rarity in lostCats do
+		giveLostCat(player, profile, rarity, tier)
+	end
 	CafeService.sync(player)
 	refresh(player, profile, false)
 end
@@ -237,18 +309,16 @@ function CampExtraService.start()
 end
 
 -- Studio-only test hooks (Debug.campExtras): moves every extra's clock `seconds` into the past, as if the player had
--- been away that long (a UTC day for each 86400 s on the Lost and Found), then settles and sends the state; returns
--- it.
+-- been away that long, then settles and sends the state; returns it.
 function CampExtraService.debugAway(
 	player: Player,
 	profile: Types.PlayerProfile,
 	seconds: number
 ): Types.CampExtrasState
 	local save = profile.campExtras
-	local days = math.floor(seconds / 86400)
 	save.picnic.at -= seconds
 	save.pond.at -= seconds
-	save.lostFound.day -= days
+	save.lostFound.at -= seconds
 	save.yardSale.lastClaimAt = math.max(0, save.yardSale.lastClaimAt - seconds)
 	refresh(player, profile, true)
 	return CampExtras.view(save, Economy.tier(profile), os.time())

@@ -11,9 +11,10 @@ its prompt card and a BangAnchor 2 studs over its sign for the owner's red "!" (
   CatCafe_Camp_Neighbourhood_YardSaleStall (#1154, section 3) a folding table with a gingham cloth under a little
                                       pastel blue and white striped awning on four posts; on it cardboard boxes, the
                                       middle one holding the free zone crate with a FREE tag, a lamp, books, a teapot
-                                      and a cash tin; boxes stacked on the rug; a hand-painted YARD SALE board nailed to
-                                      a stake. Attachments: PromptAnchor (the table's front, 1.5 up), BangAnchor (2
-                                      over the board), GlowAnchor (under the awning).
+                                      and a cash tin; boxes stacked on the rug; a hand-painted YARD SALE board hanging
+                                      on two chains from an arm on a post, the child Model _Sign_Swing pivoted at its
+                                      ring, which Effects/Motion swings (#1800). Attachments: PromptAnchor (the table's
+                                      front, 1.5 up), BangAnchor (2 over the arm), GlowAnchor (under the awning).
   CatCafe_Camp_Woods_FishingHut       (#1232, section 4) a small wooden fishing hut with a pitched roof on a deck on
                                       stilts over the back of a stone-ringed pond, reached by a plank jetty; a FISH POND
                                       sign on the roof's front slope, a lantern by the door, a rod rack, a bucket of
@@ -23,6 +24,14 @@ its prompt card and a BangAnchor 2 studs over its sign for the owner's red "!" (
                                       PromptAnchor (the jetty's foot, 1.5 up), BangAnchor (2 over the sign), GlowAnchor
                                       (in the doorway). `_Gold` is the Golden Pond pass look: gold trim, sign frame,
                                       ridge and gold lily pads, the same parts and attachments.
+  CatCafe_Camp_Sewer_LostFoundBooth   (#1732, section 4b) a little lost-property kiosk built into a bit of brick camp
+                                      wall: a teal counter window under a red and white striped awning, a brass desk
+                                      bell on the counter (`_Bell`, pivot at its base), shelves of odd finds behind (a
+                                      teddy bear, one boot, a lamp, a cat bed, a duck, a mitten, parcels, each tagged)
+                                      and an umbrella in the corner; a LOST & FOUND board on the roof ringed with
+                                      bulbs (`_Bulb`, one `_Blink_Bulb`), and the old dripping pipe up the wall and
+                                      over the roof. Attachments: PromptAnchor (the counter's front, 1.5 up),
+                                      BangAnchor (2 over the sign), Drip (the pipe's mouth).
 
 Every model: pivot at the base centre on the camp's ground, front -Z, no turn of its own, placed where its camp extra
 stands (Layout.campExtras, the area's set space) so Gameplay only swaps the asset name.
@@ -220,7 +229,10 @@ YARD = "CatCafe_Camp_Neighbourhood_YardSaleStall"
 YT_X0, YT_X1, YT_Z0, YT_Z1, YT_H = -2.5, 2.5, -0.8, 0.8, 2.3   # the folding table
 POST_X, POST_ZF, POST_ZB = 2.9, -1.35, 1.15                    # the awning's posts
 AWN_F, AWN_B = 5.0, 5.5                                        # the canopy's front and back edge heights
-YSIGN_X, YSIGN_Z = 4.0, -1.5                                   # the stake
+YSIGN_X, YSIGN_Z = 3.45, -1.5                                  # the post the sign hangs from
+ARM_X1, ARM_Y = 5.4, 4.0                                       # the arm's far end and its underside
+HINGE_X = 4.65                                                 # the sign's swing pivot under the arm (#1800)
+SIGN_ANGLE = 6.0                                               # its swing either way, clear of the post (Motion's Angle)
 
 
 def _cardboard_box(b, x, y, z, w, h, d, open_flaps=True):
@@ -303,29 +315,44 @@ def _yard_awning(b):
         b.fan_z(vz, (x, cy), arc, 0.08, sw)
 
 
-def _yard_sign(b):
-    """A hand-painted YARD SALE board nailed to a stake, its painted face toward -Z. Returns its top (Roblox)."""
+def _yard_sign(b, mat):
+    """A hand-painted YARD SALE board hanging from an arm on a post, its painted face toward -Z. The board and its two
+    chains are the child Model YARD_Sign_Swing, pivoted at the ring under the arm, so Effects/Motion swings it side to
+    side (#1800). Returns the swing object and the arm's top (Roblox)."""
     x, z = YSIGN_X, YSIGN_Z
-    b.span((x - 0.08, 0, z - 0.08), (x + 0.08, 3.4, z + 0.08), DARK)                             # the stake
-    y0, y1 = 2.0, 3.25
-    b.span((x - 0.8, y0, z - 0.14), (x + 0.8, y1, z - 0.08), "cardboard")                       # the board
-    b.span((x - 0.84, y0 - 0.04, z - 0.12), (x + 0.84, y1 + 0.04, z - 0.1), "kibble")           # its torn edge
-    _label_front(b, "YARD", x, y0 + 0.7, z - 0.14, 0.075, 0.02, "bowl_red")
-    _label_front(b, "SALE", x, y0 + 0.2, z - 0.14, 0.075, 0.02, "bowl_red")
+    b.span((x - 0.09, 0, z - 0.09), (x + 0.09, ARM_Y + 0.35, z + 0.09), DARK)                   # the post
+    b.span((x - 0.14, ARM_Y + 0.35, z - 0.14), (x + 0.14, ARM_Y + 0.45, z + 0.14), DARK)       # its cap
+    b.span((x, ARM_Y, z - 0.07), (ARM_X1, ARM_Y + 0.14, z + 0.07), DARK)                        # the arm
+    b.box((x + 0.45, ARM_Y - 0.33, z), (0.09, 0.95, 0.09), DARK, rot=_rz(-45))                 # its brace
+    b.span((HINGE_X - 0.05, ARM_Y - 0.12, z - 0.05), (HINGE_X + 0.05, ARM_Y, z + 0.05), "metal")   # the hook
+    sg = RB()                                                         # built about its pivot, the ring's top
+    hy = 0.0                                                          # local: the pivot at (0, 0, 0)
+    y1 = -0.38                                                        # the board's top
+    y0 = y1 - 1.2
+    for cx in (-0.6, 0.6):                                            # two chains up to the ring
+        L = math.hypot(cx, y1 + 0.08)
+        a = math.degrees(math.atan2(cx, -0.08 - y1))
+        sg.box((cx / 2, (y1 - 0.08) / 2, 0), (0.05, L, 0.05), "metal", rot=_rz(a))
+    sg.span((-0.07, hy - 0.08, -0.07), (0.07, hy, 0.07), "metal")                               # the ring
+    sg.span((-0.8, y0, -0.04), (0.8, y1, 0.04), "cardboard")                                    # the board
+    sg.span((-0.84, y0 - 0.04, -0.02), (0.84, y1 + 0.04, 0.02), "kibble")                       # torn edge
+    _label_front(sg, "YARD", 0.0, y0 + 0.7, -0.04, 0.075, 0.02, "bowl_red")
+    _label_front(sg, "SALE", 0.0, y0 + 0.2, -0.04, 0.075, 0.02, "bowl_red")
     for nx in (-0.6, 0.6):
-        b.span((x + nx - 0.03, y1 - 0.15, z - 0.17), (x + nx + 0.03, y1 - 0.09, z - 0.12), "metal")   # nails
-    return (x, y1 + 0.04, z - 0.11)
+        sg.span((nx - 0.03, y1 - 0.12, -0.07), (nx + 0.03, y1 - 0.06, -0.03), "metal")         # nails
+    swing = sg.finalize(YARD + "_Sign_Swing", mat, location=(HINGE_X, ARM_Y - 0.12, z))
+    return swing, (HINGE_X, ARM_Y + 0.14, z)
 
 
 def build_yardsale_stall(mat):
     b = RB()
     _yard_table(b)
     _yard_awning(b)
-    top = _yard_sign(b)
+    swing, top = _yard_sign(b, mat)
     _anchor(YARD, "PromptAnchor", (0.0, 1.5, YT_Z0 - 1.1))
     _anchor(YARD, "BangAnchor", (top[0], top[1] + 2.0, top[2]))
     _anchor(YARD, "GlowAnchor", (0.0, AWN_F - 0.5, (POST_ZF + POST_ZB) / 2))
-    return [b.finalize(YARD, mat)]
+    return [b.finalize(YARD, mat), swing]
 
 
 # --------------------------------------------------------------------------------------------- fishing hut --
@@ -492,6 +519,212 @@ def build_fishing_hut(mat, gold=False):
             fish.finalize(name + "_Fish", mat, location=(fx, 0.16, fz))]
 
 
+# --------------------------------------------------------------------------------------------- lost and found --
+LOST = "CatCafe_Camp_Sewer_LostFoundBooth"
+KX, KZ0, KZ1 = 2.8, -0.8, 1.0                   # the kiosk: half width, front, back (against the wall)
+CTR_Y, WIN_TOP, ROOF_Y = 2.0, 4.3, 4.8          # the counter's top, the window's top, the roof's underside
+WALL_X, WALL_Z0, WALL_Z1, WALL_Y = 3.6, 1.0, 1.6, 5.6      # the brick wall section it is built into
+LAWN_F, LAWN_B = 4.15, 4.7                      # the awning's front and back edge heights
+AWN_Z = -1.95                                   # the awning's front edge
+SIGN_Y0, SIGN_Y1, SIGN_Z = 5.15, 6.65, -0.85    # the sign board's bottom, top and face
+PIPE_X, PIPE_Z, PIPE_TOP, PIPE_MOUTH = 3.2, 0.72, 7.25, 1.2
+KIOSK, TRIM = "sign_teal", "offwhite"
+
+
+def _label_back(b, s, cx, y, z, px, depth, swatch):
+    """Block letters centred on x = cx, bottom at y, on a face at depth z, read from +Z."""
+    w = text_width(s, px)
+    b.text(s, (cx - w / 2, y, z), px, depth, swatch, right=(1, 0, 0))
+
+
+def _lost_wall(b):
+    """The bit of camp wall the kiosk is built into: brick between two concrete piers under a coping."""
+    b.span((-WALL_X, 0, WALL_Z0), (WALL_X, WALL_Y, WALL_Z1), "brick")
+    b.span((-WALL_X, WALL_Y, WALL_Z0 - 0.05), (WALL_X, WALL_Y + 0.2, WALL_Z1 + 0.05), "concrete")
+    for sx in (-1, 1):
+        x0, x1 = sorted((sx * WALL_X, sx * (WALL_X + 0.5)))
+        b.span((x0, 0, WALL_Z0 - 0.1), (x1, WALL_Y + 0.4, WALL_Z1 + 0.1), "concrete")
+        b.span((x0 - 0.05, WALL_Y + 0.4, WALL_Z0 - 0.15), (x1 + 0.05, WALL_Y + 0.55, WALL_Z1 + 0.15),
+               "concrete_dark")
+    for k in range(1, 9):                                                                       # mortar courses
+        y = k * WALL_Y / 9
+        b.span((-WALL_X, y - 0.03, WALL_Z1), (WALL_X, y + 0.03, WALL_Z1 + 0.015), "concrete")
+    b.span((-1.2, 2.0, WALL_Z1 + 0.015), (0.2, 3.8, WALL_Z1 + 0.03), "offwhite")               # a FOUND! poster
+    _label_back(b, "FOUND!", -0.5, 3.05, WALL_Z1 + 0.03, 0.045, 0.02, "bowl_red")
+    for (px, pz) in ((-1.1, 3.7), (0.1, 3.7)):
+        b.span((px - 0.03, pz - 0.03, WALL_Z1 + 0.03), (px + 0.03, pz + 0.03, WALL_Z1 + 0.045), "metal")
+    b.span((-1.0, 2.3, WALL_Z1 + 0.03), (0.0, 2.85, WALL_Z1 + 0.04), "fur_ginger")             # a cat on it
+
+
+def _lost_kiosk(b):
+    """The kiosk: teal sides and fascia, a panelled counter front, a wooden counter, a flat roof."""
+    for sx in (-1, 1):
+        x0, x1 = sorted((sx * KX, sx * (KX - 0.2)))
+        b.span((x0, 0, KZ0), (x1, ROOF_Y, KZ1), KIOSK)                                         # sides
+        b.span((x0 - 0.02 * sx, 0, KZ0 - 0.04), (x1 + 0.02 * sx, ROOF_Y, KZ0), TRIM)           # corner trim
+    b.span((-KX + 0.2, 0, KZ0), (KX - 0.2, CTR_Y, KZ0 + 0.2), KIOSK)                            # counter front
+    for x0, x1 in ((-2.35, -0.2), (0.2, 2.35)):                                                  # its two panels
+        b.span((x0, 0.35, KZ0 - 0.03), (x1, CTR_Y - 0.3, KZ0), "pastel_butter")
+    b.span((-KX - 0.1, CTR_Y, KZ0 - 0.35), (KX + 0.1, CTR_Y + 0.15, KZ0 + 0.4), "caramel_wood")  # the counter
+    b.span((-KX + 0.2, WIN_TOP, KZ0), (KX - 0.2, ROOF_Y, KZ0 + 0.2), KIOSK)                     # the fascia
+    b.span((-KX - 0.2, ROOF_Y, KZ0 - 0.1), (KX + 0.2, ROOF_Y + 0.2, KZ1), "concrete_dark")       # the roof
+    b.span((-KX + 0.2, 0, KZ1 - 0.1), (KX - 0.2, ROOF_Y, KZ1), "dark_wood")                     # inside back
+    b.span((-KX + 0.2, 0, KZ0 + 0.2), (KX - 0.2, 0.05, KZ1 - 0.1), "dark_wood")                 # inside floor
+    for y in (2.5, 3.25):                                                                        # the shelves
+        b.span((-KX + 0.2, y, 0.4), (KX - 0.2, y + 0.08, KZ1 - 0.1), "caramel_wood")
+
+
+def _lost_finds(b):
+    """The odd finds on the shelves (a teddy bear, one boot, a lamp, a cat bed, a duck, a mitten) and an umbrella
+    standing in the corner, a paper tag on each."""
+    s1, s2 = 2.58, 3.33                                                                          # the shelf tops
+    tx = -1.75                                                                                   # the teddy bear
+    b.ball((tx, s1 + 0.2, 0.7), 0.2, "fur_caramel", scale=(1, 1.05, 0.9))
+    b.ball((tx, s1 + 0.52, 0.66), 0.15, "fur_caramel")
+    for sx in (-1, 1):
+        b.ball((tx + sx * 0.12, s1 + 0.65, 0.66), 0.06, "fur_caramel")                          # ears
+        b.ball((tx + sx * 0.17, s1 + 0.08, 0.53), 0.07, "fur_caramel")                          # feet
+    b.span((tx - 0.04, s1 + 0.5, 0.5), (tx + 0.04, s1 + 0.54, 0.52), "fur_black")               # nose
+    b.span((-0.75, s1, 0.5), (-0.5, s1 + 0.5, 0.75), "choco")                                   # the boot
+    b.span((-0.98, s1, 0.5), (-0.5, s1 + 0.16, 0.75), "choco")
+    b.span((-0.77, s1 + 0.46, 0.48), (-0.48, s1 + 0.54, 0.77), "dark_wood")
+    b.cyl((0.6, s1 + 0.03, 0.7), 0.15, 0.06, "brass", segments=10)                             # the lamp
+    b.span((0.58, s1 + 0.06, 0.68), (0.62, s1 + 0.4, 0.72), "brass")
+    b.cyl((0.6, s1 + 0.5, 0.7), 0.22, 0.24, "pastel_butter", r2=0.14, segments=10)
+    b.cyl((1.75, s1 + 0.08, 0.68), 0.38, 0.16, "bowl_red", segments=14)                         # the cat bed
+    b.cyl((1.75, s1 + 0.165, 0.68), 0.27, 0.01, "cream", segments=12)
+    b.ball((-1.5, s2 + 0.14, 0.7), 0.15, "pastel_butter")                                        # a rubber duck
+    b.ball((-1.4, s2 + 0.32, 0.68), 0.1, "pastel_butter")
+    b.span((-1.31, s2 + 0.3, 0.6), (-1.22, s2 + 0.34, 0.66), "fur_ginger")
+    b.span((0.1, s2, 0.55), (0.45, s2 + 0.35, 0.75), "shirt_red")                              # a mitten
+    b.span((0.4, s2 + 0.12, 0.6), (0.52, s2 + 0.26, 0.72), "shirt_red")
+    b.span((0.12, s2, 0.53), (0.43, s2 + 0.08, 0.55), "offwhite")
+    for k, sw in enumerate(("pastel_lilac", "mint", "cardboard")):                              # parcels
+        b.span((1.0 + 0.55 * k, s2, 0.5), (1.45 + 0.55 * k, s2 + 0.32 - 0.06 * k, 0.85), sw)
+    for (x, y, z) in ((-1.8, s1 + 0.3, 0.52), (-0.7, s1 + 0.3, 0.5), (1.95, s1 + 0.14, 0.34),
+                      (0.25, s2 + 0.2, 0.55)):                                                 # paper tags
+        b.span((x, y - 0.12, z - 0.02), (x + 0.12, y, z), "offwhite")
+    ux, uz = 2.3, 0.15                                                                           # the umbrella
+    b.cyl((ux, 1.6, uz), 0.035, 3.2, "fur_black", segments=6)
+    b.cyl((ux, 2.55, uz), 0.15, 1.1, "shirt_blue", r2=0.05, segments=8)
+    b.span((ux - 0.03, 3.2, uz - 0.03), (ux + 0.03, 3.42, uz + 0.03), "fur_black")
+    b.span((ux - 0.25, 3.36, uz - 0.03), (ux + 0.03, 3.42, uz + 0.03), "fur_black")             # its hook
+    b.span((ux - 0.25, 3.22, uz - 0.03), (ux - 0.19, 3.42, uz + 0.03), "fur_black")
+    b.span((-2.2, CTR_Y + 0.15, KZ0 - 0.2), (-1.6, CTR_Y + 0.23, KZ0 + 0.2), "offwhite")         # the ledger
+    b.span((-2.2, CTR_Y + 0.23, KZ0 - 0.2), (-1.92, CTR_Y + 0.25, KZ0 + 0.2), "pants_navy")
+
+
+def _lost_awning(b):
+    """A red and white striped awning over the window on two struts, with a scalloped valance."""
+    n, w = 8, 2 * KX + 0.4
+    sw_w = w / n
+    depth, rise = (KZ0 - 0.05) - AWN_Z, LAWN_B - LAWN_F
+    tilt = math.degrees(math.atan2(rise, depth))
+    zc = (KZ0 - 0.05 + AWN_Z) / 2
+    for k in range(n):
+        x = -w / 2 + sw_w * (k + 0.5)
+        sw = ("bowl_red", "offwhite")[k % 2]
+        b.box((x, (LAWN_F + LAWN_B) / 2 + 0.05, zc), (sw_w, 0.1, math.hypot(depth, rise)), sw, rot=rot_x(-tilt))
+        vz = AWN_Z - 0.04
+        b.span((x - sw_w / 2, LAWN_F - 0.3, vz - 0.04), (x + sw_w / 2, LAWN_F + 0.03, vz + 0.04), sw)
+        cy = LAWN_F - 0.29
+        arc = [(x + sw_w / 2 * math.cos(math.radians(a)), cy + sw_w / 2 * math.sin(math.radians(a)))
+               for a in (180, 240, 300, 360)]
+        b.fan_z(vz, (x, cy), arc, 0.08, sw)
+    for sx in (-1, 1):                                                                          # the struts
+        p0, p1 = Vector((sx * (KX - 0.1), 3.5, KZ0 - 0.02)), Vector((sx * (KX - 0.1), LAWN_F - 0.05, AWN_Z + 0.25))
+        d = p1 - p0
+        b.box(tuple((p0 + p1) / 2), (0.07, 0.07, d.length), "metal",
+              rot=rot_x(-math.degrees(math.atan2(d.y, -d.z))))
+
+
+def _lost_sign(b, bulb, blink):
+    """LOST & FOUND on a cream board framed in dark wood on the roof, bulbs round its frame. Returns its top."""
+    hw = 2.6
+    for sx in (-1, 1):                                                                          # its legs
+        b.span((sx * 2.0 - 0.06, ROOF_Y + 0.2, SIGN_Z + 0.15), (sx * 2.0 + 0.06, SIGN_Y0 + 0.9, SIGN_Z + 0.27),
+               "metal")
+    b.span((-hw, SIGN_Y0 + 0.1, SIGN_Z + 0.05), (hw, SIGN_Y1 - 0.1, SIGN_Z + 0.15), "cream")
+    for y0, y1 in ((SIGN_Y0, SIGN_Y0 + 0.1), (SIGN_Y1 - 0.1, SIGN_Y1)):                          # the frame
+        b.span((-hw - 0.15, y0, SIGN_Z), (hw + 0.15, y1, SIGN_Z + 0.15), "dark_wood")
+    for sx in (-1, 1):
+        x0, x1 = sorted((sx * hw, sx * (hw + 0.15)))
+        b.span((x0, SIGN_Y0 + 0.1, SIGN_Z), (x1, SIGN_Y1 - 0.1, SIGN_Z + 0.15), "dark_wood")
+    _label_front(b, "LOST &", 0.0, SIGN_Y0 + 0.78, SIGN_Z + 0.05, 0.1, 0.04, "bowl_red")
+    _label_front(b, "FOUND", 0.0, SIGN_Y0 + 0.2, SIGN_Z + 0.05, 0.1, 0.04, "bowl_red")
+    for k in range(9):                                                                          # bulbs, top and bottom
+        x = -2.4 + 0.6 * k
+        for y in (SIGN_Y0 + 0.05, SIGN_Y1 - 0.05):
+            (blink if (k, y) == (4, SIGN_Y1 - 0.05) else bulb).cyl((x, y, SIGN_Z - 0.03), 0.07, 0.06, "lamp_warm",
+                                                                    axis="Z", segments=6)
+    for sx in (-1, 1):
+        for y in (SIGN_Y0 + 0.55, SIGN_Y1 - 0.55):
+            bulb.cyl((sx * (hw + 0.075), y, SIGN_Z - 0.03), 0.07, 0.06, "lamp_warm", axis="Z", segments=6)
+    return (0.0, SIGN_Y1, SIGN_Z + 0.07)
+
+
+def _lost_pipe(b):
+    """The dripping pipe, kept from the old Lost and Found: up the wall beside the kiosk and over its roof, a rusty
+    collar and a red valve wheel, its open mouth over the roof behind the sign. Returns the mouth (Roblox)."""
+    b.span((PIPE_X - 0.3, 0, PIPE_Z - 0.3), (PIPE_X + 0.3, 0.1, PIPE_Z + 0.25), "concrete")
+    b.cyl((PIPE_X, (0.1 + PIPE_TOP) / 2, PIPE_Z), 0.18, PIPE_TOP - 0.1, "metal", segments=10)
+    for y in (0.7, 3.6):
+        b.cyl((PIPE_X, y, PIPE_Z), 0.23, 0.12, "rust", segments=10)
+    b.cyl((PIPE_X, 1.6, PIPE_Z - 0.24), 0.06, 0.1, "metal", axis="Z", segments=6)               # valve stem
+    b.cyl((PIPE_X, 1.6, PIPE_Z - 0.32), 0.24, 0.05, "bowl_red", axis="Z", segments=10)          # valve wheel
+    b.ball((PIPE_X, PIPE_TOP, PIPE_Z), 0.23, "metal")
+    b.cyl(((PIPE_X + PIPE_MOUTH) / 2, PIPE_TOP, PIPE_Z), 0.18, PIPE_X - PIPE_MOUTH, "metal", axis="X", segments=10)
+    b.ball((PIPE_MOUTH, PIPE_TOP, PIPE_Z), 0.23, "metal")
+    low = PIPE_TOP - 0.45
+    b.cyl((PIPE_MOUTH, (PIPE_TOP + low) / 2, PIPE_Z), 0.18, PIPE_TOP - low, "metal", segments=10)
+    b.cyl((PIPE_MOUTH, low + 0.04, PIPE_Z), 0.23, 0.1, "rust", segments=10)                     # flange
+    b.cyl((PIPE_MOUTH, low - 0.015, PIPE_Z), 0.12, 0.01, "fur_black", segments=8)               # the open mouth
+    b.span((PIPE_MOUTH - 0.35, ROOF_Y + 0.2, PIPE_Z - 0.3), (PIPE_MOUTH + 0.35, ROOF_Y + 0.22, PIPE_Z + 0.2),
+           "puddle")                                                                             # the wet patch
+    return (PIPE_MOUTH, low - 0.08, PIPE_Z)
+
+
+def _lost_ground(b):
+    """A crate of unclaimed things by the wall and a puddle at the counter."""
+    cx0, cx1, cz0, cz1 = -3.95, -2.95, -0.1, 0.9
+    b.span((cx0, 0, cz0), (cx1, 0.8, cz1), "kibble")
+    for y in (0.0, 0.64):
+        b.span((cx0 - 0.02, y, cz0 - 0.02), (cx1 + 0.02, y + 0.16, cz0), "dark_wood")
+    b.span((cx0 + 0.2, 0.8, cz0 + 0.2), (cx0 + 0.6, 0.95, cz0 + 0.6), "shirt_red")              # odds poking out
+    b.ball((cx1 - 0.3, 0.92, cz0 + 0.5), 0.15, "pastel_sky")
+    b.span((-0.4, 0, KZ0 - 0.9), (1.2, 0.02, KZ0), "puddle")                                 # a puddle at the counter
+
+
+def _lost_bell(bell):
+    """The brass desk bell on the counter, built about its base (the `_Bell` pivot) for its ring-wobble."""
+    bell.cyl((0, 0.025, 0), 0.17, 0.05, "dark_wood", segments=12)
+    bell.ball((0, 0.06, 0), 0.14, "brass", scale=(1, 0.75, 1))
+    bell.cyl((0, 0.19, 0), 0.03, 0.06, "brass", segments=6)
+    bell.cyl((0, 0.23, 0), 0.05, 0.02, "metal", segments=8)
+
+
+def build_lost_found_booth(mat):
+    b, bulb, blink, bell = RB(), RB(), RB(), RB()
+    _lost_wall(b)
+    _lost_kiosk(b)
+    _lost_finds(b)
+    _lost_awning(b)
+    top = _lost_sign(b, bulb, blink)
+    drip = _lost_pipe(b)
+    _lost_ground(b)
+    _lost_bell(bell)
+    bell_at = (1.7, CTR_Y + 0.15, KZ0 + 0.0)
+    _anchor(LOST, "PromptAnchor", (0.0, 1.5, KZ0 - 1.4))
+    _anchor(LOST, "BangAnchor", (top[0], top[1] + 2.0, top[2]))
+    _anchor(LOST, "Drip", drip)
+    return [b.finalize(LOST, mat), bulb.finalize(LOST + "_Bulb", mat), blink.finalize(LOST + "_Blink_Bulb", mat),
+            bell.finalize(LOST + "_Bell", mat, location=bell_at)]
+
+
+# #1800: the moving child Models' own numbers for Effects/Motion (rbx_export model_attributes), by asset
+MOVING = {YARD: {"model_attributes": {"_Sign_Swing": {"Angle": {"Float64": SIGN_ANGLE}}}}}
+
+
 def rbx_attachments(name):
     seen = {}
     for n, p in ATTACHMENTS.get(name, []):
@@ -504,4 +737,5 @@ ASSETS = {
     YARD: (build_yardsale_stall, 4000),
     HUT: (build_fishing_hut, 5000),
     HUT + "_Gold": (lambda m: build_fishing_hut(m, gold=True), 5000),
+    LOST: (build_lost_found_booth, 5000),
 }

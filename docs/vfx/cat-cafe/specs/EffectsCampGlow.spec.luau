@@ -23,6 +23,16 @@ return function()
 			end
 		end)
 
+		it("blinks the Lost and Found bulb slowly, only while a find waits", function()
+			local b = Presets.campGlow.blink
+			expect(b.extra).to.equal("lostFound")
+			expect(b.part).to.equal("CatCafe_Camp_Sewer_LostFoundBooth_Blink_Bulb")
+			-- under 1 blink a second, far from the 3 a second flash limit
+			expect(b.on >= 0.3 and b.off >= 0.3 and b.on + b.off >= 1).to.equal(true)
+			expect(Logic.campHeld({ lostFound = { held = 1 } }, b.extra) > 0).to.equal(true)
+			expect(Logic.campHeld({ lostFound = { held = 0 } }, b.extra)).to.equal(0)
+		end)
+
 		it("shows the pond only once it is worth a trip", function()
 			local Config = require(game:GetService("ReplicatedStorage").Shared.Config) :: any
 			local atLeast = Presets.campGlow.extras.pond.atLeast

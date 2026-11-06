@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-05 23:04 UTC",
+  "generated": "2026-11-06 01:33 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -178454,22 +178454,23 @@
       "category": "Camp",
       "module": "campstations",
       "objects": [
-        "CatCafe_Camp_Neighbourhood_YardSaleStall"
+        "CatCafe_Camp_Neighbourhood_YardSaleStall",
+        "CatCafe_Camp_Neighbourhood_YardSaleStall_Sign_Swing"
       ],
-      "triangles": 2044,
+      "triangles": 2128,
       "budget": 4000,
       "size_studs": {
-        "x": 7.99,
+        "x": 8.64,
         "y": 3.12,
         "z": 5.61
       },
       "size_roblox": [
-        7.99,
+        8.64,
         5.61,
         3.12
       ],
       "bounds_min": [
-        -4.84,
+        -5.49,
         -1.71,
         0.0
       ],
@@ -178480,9 +178481,23 @@
       ],
       "pivot": "the base centre on the camp's ground, front -Z, no turn; the Yard Sale's spot (Layout.campExtras.neighbourhood, Neighbourhood set space)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "#1154 (camp-stations.md section 3): the Yard Sale stall, replacing CatCafe_Camp_Neighbourhood_YardSale at Layout.campExtras.neighbourhood. Attachments PromptAnchor (table front, 1.5 up), BangAnchor (2 over the YARD SALE board, for ReadyBang) and GlowAnchor (under the awning). Everything collides and can be climbed.",
+      "part_pivots": {
+        "CatCafe_Camp_Neighbourhood_YardSaleStall_Sign_Swing": [
+          -4.65,
+          -1.5,
+          3.88
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Neighbourhood_YardSaleStall_Sign_Swing": [
+          4.65,
+          3.88,
+          -1.5
+        ]
+      },
+      "studio": "#1154 (camp-stations.md section 3): the Yard Sale stall, replacing CatCafe_Camp_Neighbourhood_YardSale at Layout.campExtras.neighbourhood. Attachments PromptAnchor (table front, 1.5 up), BangAnchor (2 over the YARD SALE sign's arm, for ReadyBang) and GlowAnchor (under the awning). _Sign_Swing (#1800) is the hanging board and its chains, pivoted at the ring under the arm; Effects/Motion swings it about its pivot's Z, so leave it where it was modelled. Everything collides and can be climbed.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Neighbourhood_YardSaleStall.model.json",
-      "rbx_parts": 206,
+      "rbx_parts": 213,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood_YardSaleStall.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood_YardSaleStall.glb"
@@ -178494,13 +178509,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "2044/4000 tris",
+          "budget": "2128/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1044 faces on swatch centers",
+          "uv": "1086 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=-0.85 y=-0.15"
+          "centered": "footprint center x=-1.17 y=-0.15"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Neighbourhood_YardSaleStall.png",
@@ -178671,6 +178686,80 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Woods_FishingHut_Gold.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Woods_FishingHut_Gold.png"
+    },
+    {
+      "name": "CatCafe_Camp_Sewer_LostFoundBooth",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_Sewer_LostFoundBooth",
+        "CatCafe_Camp_Sewer_LostFoundBooth_Bulb",
+        "CatCafe_Camp_Sewer_LostFoundBooth_Blink_Bulb",
+        "CatCafe_Camp_Sewer_LostFoundBooth_Bell"
+      ],
+      "triangles": 3732,
+      "budget": 5000,
+      "size_studs": {
+        "x": 8.3,
+        "y": 3.78,
+        "z": 7.48
+      },
+      "size_roblox": [
+        8.3,
+        7.48,
+        3.78
+      ],
+      "bounds_min": [
+        -4.15,
+        -2.03,
+        0.0
+      ],
+      "bounds_max": [
+        4.15,
+        1.75,
+        7.48
+      ],
+      "pivot": "the base centre on the camp's ground, front -Z, no turn; the Lost and Found's spot (Layout.campExtras.sewer, Sewer set space), its back wall toward the gate line",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Camp_Sewer_LostFoundBooth_Bell": [
+          -1.7,
+          -0.8,
+          2.15
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Sewer_LostFoundBooth_Bell": [
+          1.7,
+          2.15,
+          -0.8
+        ]
+      },
+      "studio": "#1732 (camp-stations.md section 4b): the Lost and Found booth, replacing CatCafe_Camp_Sewer_LostFound at Layout.campExtras.sewer. _Bell is the desk bell (pivot at its base, for the ring-wobble), _Bulb the sign's bulbs (night glow), _Blink_Bulb the one that blinks while a find waits. Attachments PromptAnchor (counter front, 1.5 up), BangAnchor (2 over the LOST & FOUND sign, for ReadyBang) and Drip (the pipe's mouth). Everything collides and can be climbed.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Sewer_LostFoundBooth.model.json",
+      "rbx_parts": 305,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Sewer_LostFoundBooth.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Sewer_LostFoundBooth.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot"
+        ],
+        "checks": {
+          "budget": "3732/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1868 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "back plane at y=1.75 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.14"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Sewer_LostFoundBooth.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Sewer_LostFoundBooth.png"
     },
     {
       "name": "CatCafe_Town_DayCart",

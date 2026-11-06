@@ -175,9 +175,11 @@ Design: `docs/design/cat-cafe/camp-stations.md` section 2 (#1319): "when a potio
 | Yard Sale ready glow | While a free crate waits, the same warm light under the stall's awning; it fades out when you claim it and comes back when the next one is ready | `yardSale.held`; `ExtraId` "yardSale", its `GlowAnchor`, else 50% of the way up |
 | Fish Pond ready glow | Once 18 or more fish wait in your pond (half its 36, so it reads as worth a trip), a soft gold light (the golden fish's colour) under the hut's roof; it fades out when you collect them | `pond.held` at least `atLeast` 18; `ExtraId` "pond", its `GlowAnchor`, else 40% of the way up |
 
-All three: PointLight 0.6 over 7 studs, under the street's night lights at 0.5 over 8 plus their Neon, so at most 3 lights per player and only near their own stations (each sits in a different area). Only you see yours. Reduce Motion: they switch instantly. Low performance: off.
+| Lost and Found bulb blink (#1732, section 4b) | While a find waits at the booth, its one `_Blink_Bulb` on the LOST & FOUND sign goes warm Neon for 0.6 s and back for 0.6 s; it gets its own look back when you collect. Still on with Reduce Motion (under 1 blink a second) and Low performance (no light, a material swap). The bell's ring-wobble is Animation-Engineer's | `lostFound.held` above 0; `ExtraId` "lostFound", parts named `CatCafe_Camp_Sewer_LostFoundBooth_Blink_Bulb` |
 
-Two cases are in `docs/vfx/cat-cafe/specs/EffectsCampGlow.spec.luau` for QA. Studio checks: with a potion, a free crate and fish waiting, each station glows (warm, warm, gold), by day and at night; collect each and its glow fades out; a second player whose stations are empty sees no glow at them; Low performance turns them off and back on. No new console errors.
+All three glows: PointLight 0.6 over 7 studs, under the street's night lights at 0.5 over 8 plus their Neon, so at most 3 lights per player and only near their own stations (each sits in a different area). Only you see yours. Reduce Motion: they switch instantly. Low performance: off.
+
+Two cases are in `docs/vfx/cat-cafe/specs/EffectsCampGlow.spec.luau` for QA. Studio checks: with a potion, a free crate and fish waiting, each station glows (warm, warm, gold), by day and at night; with a find waiting the booth's sign bulb blinks, and stops (back to its own colour) once collected; collect each and its glow fades out; a second player whose stations are empty sees no glow at them; Low performance turns them off and back on. No new console errors.
 
 ## Camp extras collect bursts (F100, 2026-11-02)
 
@@ -829,6 +831,24 @@ No effect may make a bump feel like an attack: no impact flash, no knockback on 
 | RankUp | Palette confetti at the cafe door (16 particles), the new expansion floor rises into place with sparkles along its edge, each newly opened role station gets a soft ring | tween, fx | 16 plus 1 per new station | plot `Tier` rising | P1 |
 | AreaUnlock | The area's gate leaves swing open (0.8 s Back Out) with a sparkle arch, for the player who ranked up | tween, fx | 12 particles | the player's tier reaching the gate's tier | P1 |
 
+### Front lawn pieces (#1283)
+
+Derek2, 2026-11-05: lawn decor "should have effects". Already live from the models' names: `_Bulbs` glow at night, the balloons, lanterns, star and paw move (Motion), `_Flowers` draw butterflies, `_Water` splashes. New in `Effects/Lawn.luau`, on the nearest 3 pieces on a phone and 6 on a PC within 40 studs, none in Low performance:
+
+| Piece | Rarity | Effect |
+|---|---|---|
+| Lamp Post | Rare | a few slow fireflies round the lantern at night |
+| Bird Bath | Rare | a milky ripple ring on the water every 3.5 s (none with Reduce Motion) |
+| Garden Gnome Cat | Rare | a small warm light in its lantern at night |
+| Little Fountain | Legendary | drops spilling off the upper bowl, a ring on the basin every 2.5 s, a pale blue glow under it at night |
+| Balloon Bunch | Legendary | a little sparkle in the balloons every 5 s |
+| Fairy Light Arch | Mythical | at night a glint on a random bulb every 0.5 s, and a few fireflies |
+| Flower Cart | Mythical | petals drifting off the blooms (the Blossom Tree's) |
+| Cat Tree Sign | Golden | a gold glint off the spinning star every 4 s; at night bulb twinkles every 0.8 s |
+| Golden Paw Statue | Golden | gold motes drifting off the paw and a gold glint every 6 s |
+
+Reduce Motion keeps the lights and glints and drops the drifting particles and rings. Commons and Uncommons keep their butterflies and the Mailbox flag.
+
 ### Cafe themes (#1624)
 
 From Gameplay-Engineer's #1687 (the plot's `Theme` "garden" or "grand", and ThemeInside holding the chandelier):
@@ -839,6 +859,15 @@ From Gameplay-Engineer's #1687 (the plot's `Theme` "garden" or "grand", and Them
 | Grand Cafe gold trims | Gold Leaf's sweeping glint and night glow on the gold PaintTrim trims (Decor `theme_grand`), without its foil sheen. Off while a Gold Leaf paint is in use, which already does it | the plot's `Theme` "grand" |
 
 The Garden Cafe's flower troughs would get butterflies for free if Model-Agent names them `_Flowers` (Ambient). The VIP plate stays plain (store-pass-looks.md section 1).
+
+### The pity cat (#1572)
+
+From luck-and-rare-moments.md 1h ("it spawns at one of the area's hiding spots with a gold beam") and Gameplay-Engineer's #1744:
+
+| Effect | Look | Hook |
+|---|---|---|
+| Pity cat appears | A gold beam 40 studs tall rises from it for 3 s with a burst of 14 gold sparkles; a Mythical gets three beams (gold, violet, light gold) 48 tall and 20 sparkles. Within 300 studs; none with Reduce Motion | a Stray-tagged model with `PityCat` |
+| Caught elsewhere, or gone at night | Its copy puffs away: 10 smoke puffs, 12 gold sparkles and a gold ring 4 studs across. Not for a catch in this server, which plays the usual catch | `PityAnnounce` state "caught" (winner not in this server) or "gone" |
 
 ## 8. Day, night and the dealer
 

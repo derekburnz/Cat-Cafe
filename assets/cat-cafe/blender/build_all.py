@@ -211,6 +211,8 @@ PIVOT_NOTES = {
                        "(Layout.campExtras.neighbourhood, Neighbourhood set space)",
     **{n: "the base centre on the camp's ground, front -Z, no turn; the Fish Pond's spot (Layout.campExtras.woods, "
           "Woods set space)" for n in (campstations.HUT, campstations.HUT + "_Gold")},
+    campstations.LOST: "the base centre on the camp's ground, front -Z, no turn; the Lost and Found's spot "
+                       "(Layout.campExtras.sewer, Sewer set space), its back wall toward the gate line",
     gardennursery.NAME: "the base centre on the camp's ground, the bench front (-Z) toward the players; Park set space "
                         "(Layout.campExtras' space) at gardennursery.SPOT (34, 0, -166) turned 90, facing the pad",
     "CatCafe_Street_ThanksBoard": "base centre; the Screen's Front (-Z) face looks at the players",
@@ -351,13 +353,21 @@ STUDIO_NOTES = {
                       "and Steam (the thermos). Everything collides and can be climbed.",
     campstations.YARD: "#1154 (camp-stations.md section 3): the Yard Sale stall, replacing "
                        "CatCafe_Camp_Neighbourhood_YardSale at Layout.campExtras.neighbourhood. Attachments PromptAnchor "
-                       "(table front, 1.5 up), BangAnchor (2 over the YARD SALE board, for ReadyBang) and GlowAnchor (under "
-                       "the awning). Everything collides and can be climbed.",
+                       "(table front, 1.5 up), BangAnchor (2 over the YARD SALE sign's arm, for ReadyBang) and GlowAnchor "
+                       "(under the awning). _Sign_Swing (#1800) is the hanging board and its chains, pivoted at the ring "
+                       "under the arm; Effects/Motion swings it about its pivot's Z, so leave it where it was modelled. "
+                       "Everything collides and can be climbed.",
     **{n: "#1232 (camp-stations.md section 4): the Fishing Hut, replacing CatCafe_Camp_Woods_FishPond at "
           "Layout.campExtras.woods (_Gold for a Golden Pond pass owner). _Water is see-through, _Rod pivots at its butt "
           "(the cast turns it), _Fish swims under the water; Attachments FishJump, PromptAnchor (the jetty's foot), "
           "BangAnchor (2 over the FISH POND sign) and GlowAnchor (the doorway). Everything else collides and can be "
           "climbed." for n in (campstations.HUT, campstations.HUT + "_Gold")},
+    campstations.LOST: "#1732 (camp-stations.md section 4b): the Lost and Found booth, replacing "
+                       "CatCafe_Camp_Sewer_LostFound at Layout.campExtras.sewer. _Bell is the desk bell (pivot at its "
+                       "base, for the ring-wobble), _Bulb the sign's bulbs (night glow), _Blink_Bulb the one that "
+                       "blinks while a find waits. Attachments PromptAnchor (counter front, 1.5 up), BangAnchor (2 over "
+                       "the LOST & FOUND sign, for ReadyBang) and Drip (the pipe's mouth). Everything collides and can "
+                       "be climbed.",
     gardennursery.NAME: "#1200 (lawn-nursery.md section 2): the Garden Nursery at the Park camp, at gardennursery.SPOT "
                         "in the Park's set space, tagged LawnStall; the game hangs the Nursery prompt on the "
                         "Attachment PromptAnchor (bench front, 3 up) and the gardener's speech bubble on BubbleAnchor "
@@ -694,7 +704,7 @@ def main():
         if name in menu.ATTACHMENTS:              # F90: the tray's Item spot, the oven's DoorGlow
             extra = {"attachments": menu.rbx_attachments(name)}
         if name in campstations.ASSETS:           # #1319: PromptAnchor, BangAnchor, and GlowAnchor / Steam
-            extra = {"attachments": campstations.rbx_attachments(name)}
+            extra = {"attachments": campstations.rbx_attachments(name), **campstations.MOVING.get(name, {})}
         if name in campextras.ATTACHMENTS:          # F100: PromptAnchor, and Steam, FishJump or Drip
             extra = {"attachments": campextras.rbx_attachments(name)}
         if name in luckycat.ATTACHED:             # F88: PawHinge at the shoulder the _Paw model turns about

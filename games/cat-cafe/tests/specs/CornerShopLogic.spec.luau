@@ -32,10 +32,10 @@ return function()
 				local cheapest = Catalog.cornerShop[order[1]].id
 				local second = Catalog.cornerShop[order[2]].id
 				local dearest = Catalog.cornerShop[order[#order]].id
-				expect(Logic.chance(cheapest)).to.equal("In stock 95% of days")
-				expect(Logic.chance(second)).to.equal("In stock 90.5% of days")
-				-- 95% less 4.5% a place reaches the 5% floor by the 21st place
-				local floor = if #order >= 21 then "In stock 5% of days" else nil
+				expect(Logic.chance(cheapest)).to.equal("In stock 100% of days")
+				expect(Logic.chance(second)).to.equal("In stock 97% of days")
+				-- #1740: 100% less 3% a place reaches the 25% floor by the 26th place
+				local floor = if #order >= 26 then "In stock 25% of days" else nil
 				if floor then
 					expect(Logic.chance(dearest)).to.equal(floor)
 				end

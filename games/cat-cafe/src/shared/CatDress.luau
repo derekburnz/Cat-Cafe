@@ -15,6 +15,7 @@ local Looks = require(script.Parent.Looks)
 local CatDress = {}
 
 local PIECE_ATTRIBUTE = "OutfitPiece" -- on each piece dress puts on: the piece's name ("Apron")
+local ACCESSORY_PIECE_ATTRIBUTE = "AccessoryPiece" -- #1624: on the accessory dress puts on, its piece ("Hat")
 local BUILT_COLOR_ATTRIBUTE = "BuiltColor" -- on a recoloured part: its colour as built
 local UNIFORM_ATTRIBUTE = "UniformStyle" -- on a dressed cat: the Looks uniform it wears, nil for Classic
 
@@ -38,10 +39,15 @@ end
 -- and which of its own props comes off for them (features.md F71, data-model section 5): a piece in a slot either
 -- prop takes stays off, except that an Entertainer with a Head and a Back prop wears the party hat in place of its
 -- head prop at the station, so its "Prop" (or "Prop2") object comes off. Pure, for the specs.
-function CatDress.plan(role: string, propSlot: string?, propSlot2: string?): ({ string }, string?)
+function CatDress.plan(
+	role: string,
+	propSlot: string?,
+	propSlot2: string?,
+	accessorySlot: string?
+): ({ string }, string?, boolean)
 	local pieces = Catalog.roleOutfits[role]
 	if pieces == nil then
-		return {}, nil
+		return {}, nil, false
 	end
 	local taken: { [string]: boolean } = {}
 	if propSlot ~= nil then
@@ -50,10 +56,16 @@ function CatDress.plan(role: string, propSlot: string?, propSlot2: string?): ({ 
 	if propSlot2 ~= nil then
 		taken[propSlot2] = true
 	end
+	-- #1624 section 6: the cafe's accessory goes on unless the cat's own prop fills its slot; a Head one replaces the
+	-- role hat and a Back one the cape, so the role piece in its slot stays off (a Face one clashes with nothing)
+	local accessoryOn = accessorySlot ~= nil and not taken[accessorySlot]
 	local offProp: string? = nil
 	if role == "entertainer" and taken.Head == true and taken.Back == true then
 		taken.Head = false
 		offProp = if propSlot == "Head" then "Prop" else "Prop2"
+	end
+	if accessoryOn then
+		taken[accessorySlot :: string] = true
 	end
 	local wear: { string } = {}
 	for _, piece in pieces do
@@ -62,7 +74,7 @@ function CatDress.plan(role: string, propSlot: string?, propSlot2: string?): ({ 
 			table.insert(wear, piece)
 		end
 	end
-	return wear, offProp
+	return wear, offProp, accessoryOn
 end
 
 -- Whether `model` is a walking body (A) rather than a seated one (B) or a standing worker (S): a seated body carries
@@ -140,10 +152,11 @@ function CatDress.workPose(model: Model, role: string)
 end
 
 -- The assets to try for `piece`, in order: on a walking body its walking cut and then the plain piece (the cut is
--- missing for the pieces whose walking slot sits where the seated one does), on a seated body the plain piece.
+-- missing for the pieces whose walking slot sits where the seated one does), on a seated body or a worker its seated
+-- cut (#1624: the Tiny Lantern hangs on an upright back, CatCafe_Accessory_TinyLantern_Sit) and then the plain piece.
 function CatDress.assetNames(piece: string, walking: boolean): { string }
 	local plain = Catalog.accessoryModelName(piece)
-	return if walking then { plain .. "_Walk", plain } else { plain }
+	return if walking then { plain .. "_Walk", plain } else { plain .. "_Sit", plain }
 end
 
 -- Takes one of the cat's own props off: its object Models (a Head prop's nest in the Head) and their _Glass twins.
@@ -162,63 +175,152 @@ local function takeOff(model: Model, prop: string)
 	end
 end
 
+-- One piece on `model` at its Outfit_<piece> slot, a copy from `clone` (its walking or seated cut first), scaled to
+-- the cat and tagged `attribute` = piece. False while the slot or every asset for it is missing.
+local function putOn(
+	model: Model,
+	piece: string,
+	clone: (assetName: string) -> Model?,
+	attribute: string
+): boolean
+	local slot = model:FindFirstChild("Outfit_" .. piece, true)
+	if slot == nil or not slot:IsA("Attachment") then
+		return false
+	end
+	local worn: Model? = nil
+	for _, name in CatDress.assetNames(piece, CatDress.isWalking(model)) do
+		worn = clone(name)
+		if worn ~= nil then
+			break
+		end
+	end
+	if worn == nil then
+		return false
+	end
+	local scale = CatDress.scaleOf(model)
+	if scale ~= 1 then
+		worn:ScaleTo(scale)
+	end
+	worn:PivotTo((slot :: Attachment).WorldCFrame)
+	local head = objectModel(model, "Head")
+	local follows = if head ~= nil and slot:IsDescendantOf(head) then "Head" else "Body"
+	for _, descendant in worn:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			local part = descendant :: BasePart
+			part.Anchored = true
+			part.CanCollide = false
+			part.CanTouch = false
+			part.CanQuery = false
+			part:SetAttribute("Follows", follows)
+		end
+	end
+	worn:SetAttribute(attribute, piece) -- recolour and accessory swaps find the pieces by it
+	worn.Parent = model
+	return true
+end
+
+-- The model's PropSlot and PropSlot2, and the Looks accessory `accessoryId` while the cat has its Outfit_<piece>
+-- slot (nil for none, an unknown id, or a cat whose body is not exported with the slot yet, which keeps its role hat).
+local function slotsOf(model: Model, accessoryId: string?): (string?, string?, Looks.Accessory?)
+	local propSlot = model:GetAttribute("PropSlot")
+	local propSlot2 = model:GetAttribute("PropSlot2")
+	local accessory = if accessoryId ~= nil then Looks.accessory(accessoryId) else nil
+	if accessory ~= nil then
+		local slot = model:FindFirstChild("Outfit_" .. accessory.piece, true)
+		if slot == nil or not slot:IsA("Attachment") then
+			accessory = nil
+		end
+	end
+	return if type(propSlot) == "string" then propSlot else nil,
+		if type(propSlot2) == "string" then propSlot2 else nil,
+		accessory
+end
+
 -- Puts `role`'s outfit on a cat (CatDress.plan), each piece a copy from `clone(assetName)` (nil while that asset is
 -- missing), its walking cut on a walking body (CatDress.assetNames). A piece is skipped while its assets or the cat's
 -- Outfit_<Piece> slot are missing, so new pieces and new cats can land in either order. A worker (Pose "work") is
--- posed for the role first (workPose). Returns how many pieces went on.
-function CatDress.dress(model: Model, role: string, clone: (assetName: string) -> Model?): number
+-- posed for the role first (workPose). #1624: `accessoryId`, the cafe's Looks accessory, goes on too where the plan
+-- lets it, in place of the role piece in its slot; the cat's Accessory attribute names it. Returns how many pieces
+-- went on.
+function CatDress.dress(
+	model: Model,
+	role: string,
+	clone: (assetName: string) -> Model?,
+	accessoryId: string?
+): number
 	if model:GetAttribute("Pose") == "work" then
 		CatDress.workPose(model, role)
 	end
-	local propSlot = model:GetAttribute("PropSlot")
-	local propSlot2 = model:GetAttribute("PropSlot2")
-	local pieces, offProp = CatDress.plan(
-		role,
-		if type(propSlot) == "string" then propSlot else nil,
-		if type(propSlot2) == "string" then propSlot2 else nil
-	)
+	local propSlot, propSlot2, accessory = slotsOf(model, accessoryId)
+	local pieces, offProp, accessoryOn =
+		CatDress.plan(role, propSlot, propSlot2, if accessory ~= nil then accessory.slot else nil)
 	if offProp ~= nil then
 		takeOff(model, offProp)
 	end
-	local scale = CatDress.scaleOf(model)
-	local head = objectModel(model, "Head")
-	local walking = CatDress.isWalking(model)
 	local worn = 0
 	for _, piece in pieces do
-		local slot = model:FindFirstChild("Outfit_" .. piece, true)
-		if slot == nil or not slot:IsA("Attachment") then
-			continue
+		if putOn(model, piece, clone, PIECE_ATTRIBUTE) then
+			worn += 1
 		end
-		local accessory: Model? = nil
-		for _, name in CatDress.assetNames(piece, walking) do
-			accessory = clone(name)
-			if accessory ~= nil then
-				break
-			end
-		end
-		if accessory == nil then
-			continue
-		end
-		if scale ~= 1 then
-			accessory:ScaleTo(scale)
-		end
-		accessory:PivotTo((slot :: Attachment).WorldCFrame)
-		local follows = if head ~= nil and slot:IsDescendantOf(head) then "Head" else "Body"
-		for _, descendant in accessory:GetDescendants() do
-			if descendant:IsA("BasePart") then
-				local part = descendant :: BasePart
-				part.Anchored = true
-				part.CanCollide = false
-				part.CanTouch = false
-				part.CanQuery = false
-				part:SetAttribute("Follows", follows)
-			end
-		end
-		accessory:SetAttribute(PIECE_ATTRIBUTE, piece) -- #1624: recolour finds the outfit pieces by it
-		accessory.Parent = model
+	end
+	if
+		accessory ~= nil
+		and accessoryOn
+		and putOn(model, accessory.piece, clone, ACCESSORY_PIECE_ATTRIBUTE)
+	then
 		worn += 1
 	end
+	model:SetAttribute(Looks.ACCESSORY_ATTRIBUTE, if accessory ~= nil then accessory.id else nil)
 	return worn
+end
+
+-- #1624: swaps a dressed cat's accessory for `accessoryId` (nil: none) in place, so a pick on the Style tab shows on
+-- the cats already at work. The old accessory comes off, a role piece it replaced goes back on, and one the new one
+-- replaces comes off (CatDress.plan). Nothing happens while the cat already wears it. A newly put on role piece is in
+-- its built colours, so the cat's uniform is cleared for CatDress.wearUniform to paint again.
+function CatDress.setAccessory(
+	model: Model,
+	role: string,
+	accessoryId: string?,
+	clone: (assetName: string) -> Model?
+)
+	local propSlot, propSlot2, accessory = slotsOf(model, accessoryId)
+	local id = if accessory ~= nil then accessory.id else nil
+	if model:GetAttribute(Looks.ACCESSORY_ATTRIBUTE) == id then
+		return
+	end
+	local pieces, _, accessoryOn =
+		CatDress.plan(role, propSlot, propSlot2, if accessory ~= nil then accessory.slot else nil)
+	local wanted: { [string]: boolean } = {}
+	for _, piece in pieces do
+		wanted[piece] = true
+	end
+	local have: { [string]: boolean } = {}
+	for _, child in model:GetChildren() do
+		local piece = child:GetAttribute(PIECE_ATTRIBUTE)
+		if child:GetAttribute(ACCESSORY_PIECE_ATTRIBUTE) ~= nil then
+			child:Destroy()
+		elseif type(piece) == "string" then
+			if wanted[piece] then
+				have[piece] = true
+			else
+				child:Destroy()
+			end
+		end
+	end
+	local added = false
+	for _, piece in pieces do
+		if not have[piece] and putOn(model, piece, clone, PIECE_ATTRIBUTE) then
+			added = true
+		end
+	end
+	if accessory ~= nil and accessoryOn then
+		putOn(model, accessory.piece, clone, ACCESSORY_PIECE_ATTRIBUTE)
+	end
+	model:SetAttribute(Looks.ACCESSORY_ATTRIBUTE, id)
+	if added then
+		model:SetAttribute(UNIFORM_ATTRIBUTE, nil)
+	end
 end
 
 -- #1624 (store-pass-looks.md section 2): a uniform style recolours the role pieces with no new meshes. In each piece

@@ -1330,6 +1330,7 @@ function UI.init(config: Types.InitConfig)
 	gateSigns = GateSigns.new(parent)
 	-- every area's Index Board, including boards that stream in later; its prompt opens that area's Index page
 	require(script.Screens.ThanksBoard).new(parent) -- #1083: the Thank You board's face (no local: init is at Luau's 200)
+	require(script.Screens.PitySign).new(parent) -- #1572: the pity cat sign's countdowns (no local, as above)
 	indexBoards = IndexBoards.new(parent, {
 		open = function(areaId: string)
 			UI.openIndex(areaId)
@@ -2872,7 +2873,14 @@ do
 		end
 		screen:show(circleList, windows, header, function(index: number, grade: Types.CircleGrade?)
 			UI.events.catchPressed:Fire(strayId, index, grade)
-		end)
+		end, strayId)
+	end
+
+	-- #1727: CatchJudged, the server's grade for one of this player's presses, as it is judged
+	function UI.catch.judged(strayId: string, index: number, grade: Types.CircleGrade)
+		if circles then
+			circles:judged(strayId, index, grade)
+		end
 	end
 
 	-- The toast after a miss (data-model section 10 step 5, v0.5): the cat sprints off and can be tried again
@@ -3481,12 +3489,19 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 						and windows:current() == nil
 						and tips.quiet()
 					then
+						-- #1737 (Derek2 11-06): the Night Market's own cart picture, as on its map marker, not the moon
+						-- (required here: this file is at Luau's 200-local limit)
+						local picture: string? =
+							require(script.Components.ShopIcons).hud("NightMarket")
 						banner:banner(
 							"night_market",
-							Theme.icons.moon .. " The Night Market is open!",
+							if picture
+								then "The Night Market is open!"
+								else Theme.icons.moon .. " The Night Market is open!",
 							"Rare foods tonight at the dealer's cart in town.",
 							Theme.colors.berry,
-							6
+							6,
+							picture
 						)
 						return
 					end

@@ -107,6 +107,7 @@ local function pay(
 		if item.kind == "tag" then
 			applyTag(player, profile) -- a new season tag shows straight away when nothing else is picked
 		end
+		CafePass.grantItem(profile, item.id) -- #1645: a decor piece into the Decor window, the frame a sign style
 	end
 	Telemetry.custom(player, "cafe_pass_claim", 1, { track, tostring(level), tostring(of) })
 	return paid

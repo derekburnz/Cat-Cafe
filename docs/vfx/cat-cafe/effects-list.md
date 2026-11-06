@@ -926,3 +926,20 @@ Highlights in that scene: one from the catch and at most two outlines. Trails: o
 1. Upright cats (Gavin, question 15) are settled: working cats stand up. The three-part rig handles it through the Body joint (the asset thread proved the pose in PR #24), so Blender skinned rigs still wait until after the slice. Waving greeters and cup-holding baristas need front paws as their own objects (P3, asset-artist).
 2. Outlines: drawing Legendary and Mythical outlines through walls (`DepthMode = AlwaysOnTop`) would work as a radar in a first-catch-wins race, and shiny strays already sparkle on sight. The draft keeps outlines `Occluded`; the game-designer decides.
 3. Reduce Motion: the draft drops idle loops except breathing when the player has Reduce Motion on, which also stills the entertainer's dance. Derek, say if you would rather keep the dance and the tail wag.
+
+## Testing Reduce Motion and Low performance (2026-11-06)
+
+QA asked after #1019 check 3, because Derek2 couldn't find Reduce Motion in Settings.
+- **Reduce Motion** is Roblox's own accessibility setting, not one of ours. Effects read it as `GuiService.ReducedMotionEnabled` (`Context.reducedMotion()`). On the live client it is in the Roblox menu: Esc, then Settings, then Reduce Motion. If a Studio playtest's Roblox menu doesn't show it, check these lines on the live client.
+- **Low performance** is ours, the switch on the game's Settings screen (`Context.lowPerformance`, through `Effects.applySettings`). It sets the effects budget to its low tier.
+
+Where each check from #1019 is wired (checked in code, 2026-11-06):
+
+| Check | Reduce Motion | Low performance |
+|---|---|---|
+| Oven door stays shut, glow steady | `Orders.luau`: the door doesn't swing; the glow skips its flicker | `Orders.luau`: no oven PointLight |
+| Woods pond fish holds still | `CampWater.luau`: the fish stays home (and goes home at once if turned on mid jump) | `budget.campFish` 0 |
+| Door sign snaps instead of flipping | `DoorSign.luau` | (not gated, it's a single flip) |
+| Rally board chase stops | `RallyBoard.luau` | `budget.rallyBoards` 0 |
+
+Each ring from `Particles.ring` (the dish served blush ring among them) is skipped with Reduce Motion.

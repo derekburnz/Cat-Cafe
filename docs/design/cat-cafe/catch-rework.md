@@ -125,10 +125,10 @@ Derek2, 2026-11-06: "re-work the cat catching mechanic/minigame to be more fun b
 ### 7b. The trust bar (replaces "one Miss ends it")
 - Trust starts at 2 (3 with the Curious bonus) and has to reach the rarity's `trustNeed`: Common 8, Rare 10, Epic 12, Legendary 14, Mythical 16. An all-Perfect run takes the same number of rings as today: 3, 4, 5, 6 or 7.
 - Each ring: **Perfect +2, Good +1, Miss -2.** If trust drops **below 0**, the cat bolts. That's today's sprint and miss streak, unchanged.
-- Rings keep coming on a steady beat, one every `shrinkSeconds + CircleGapMin`, until trust is full or the cat bolts. A run also ends as a bolt after `2 x` the all-Perfect ring count (6 for a Common, 14 for a Mythical), so it can never drag on.
+- Rings keep coming on a steady beat, one every `shrinkSeconds + CircleGapMin`, until trust is full or the cat bolts. A run also ends as a bolt after the all-Perfect ring count + `CatchSpareRings` (2): 5 rings for a Common up to 9 for a Mythical. One early Miss can still be recovered, and a run never drags on.
 - The rings sit on the cat in the world, around its head, not in the middle of the screen. The cat reacts to each grade: ears perk on a hit, a wriggle and a soft hiss on a Miss.
 - A soft purr rises in pitch with trust (Sound).
-- **Re-fit:** Gameplay-Engineer runs the section 2 simulation (50 ms and 70 ms presses) and tunes only the `catchWindow` column, so each cell of the section 2 catch-chance table lands within 5 points of today. If that can't be done, Design re-tunes `trustNeed`. A Basic Net Mythical stays about 1 try in 4.
+- **Re-fit (done 2026-11-06, Gameplay-Engineer's exact DP over the trust chain):** tuning `catchWindow` alone with a `2 x` cap missed the section 2 table by up to 8 points, because the trust bar averages out bad rings. With the spare-ring cap above, `catchWindow` becomes 1.15 / 1.032 / 0.908 / 0.796 / 0.688 (Common to Mythical), and every cell lands within 5 points except a Basic Net Mythical at 50 ms (18%, target 23%). That is accepted: it's still a real challenge. `trustNeed` stays as above.
 
 ### 7c. Rarity twists
 - **Double ring (Epic and above):** each ring after the first has a 25% chance (`DoubleRingChance`) to be a double, with two outlines shrinking 0.18 s apart. Each half is graded as its own press.

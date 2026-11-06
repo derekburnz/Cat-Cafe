@@ -1,7 +1,7 @@
 """Store pictures for the game passes and developer products (#1623, docs/growth/store-skus.md section 1), rendered
 by icons.py as CatCafe_Icon_Pass_<Name> and CatCafe_Icon_Product_<Name> (transparent, outlined, 512 px). Roblox
-crops pass and product icons to a circle, so icons.py frames these with a wide margin (STORE_PAD) that keeps every
-subject inside the middle 80%. One picture serves the Creator Hub icon and the in-game Store card.
+crops pass and product icons to a circle, so icons.py fits each one to that circle (STORE_FIT): the art is as big as
+it can be with every point inside the crop. One picture serves the Creator Hub icon and the in-game Store card.
 
 Passes
   Money2x, Money3x, Money4x  the gold coin stack (icon_art.coins) with a cream tag reading x2, x3 or x4
@@ -401,7 +401,10 @@ def _basket(b, w, d, h, sw="caramel_wood", band="dark_wood"):
 def potion_s(mat):
     b = Builder()
     _basket(b, 2.7, 1.4, 0.42)
-    b.ring((0, 0.0, 0.42), 1.3, 0.08, 0.1, "caramel_wood", segments=20, rot=X)                  # handle
+    for k in range(13):                                                                        # handle, over the top
+        a = math.radians(15 * k)
+        b.box((1.3 * math.cos(a), 0.0, 0.42 + 1.1 * math.sin(a)), (0.36, 0.1, 0.1), "caramel_wood",
+              rot=(-(a + math.pi / 2), "Y"))
     out = _fin(b, "PotionS", mat)
     for (n, x, y, z) in (("BigTip", -0.8, 0.25, 0.2), ("BigTip", 0.0, 0.3, 0.25), ("BigTip", 0.8, 0.25, 0.2),
                          ("Swift", -0.42, -0.3, 0.12), ("Steady", 0.45, -0.3, 0.12)):
@@ -485,5 +488,3 @@ VIEWS = {"Money2x": (-16.0, 30.0), "Money3x": (-16.0, 30.0), "Money4x": (-16.0, 
          "GoldenPond": (-14.0, 30.0), "SecondBaitBowl": (-20.0, 20.0), "StarterBundle": (-20.0, 16.0),
          "PotionXS": (-12.0, 8.0), "PotionS": (-14.0, 22.0), "PotionM": (-16.0, 26.0), "PotionL": (-16.0, 24.0),
          "CafePass": (0.0, 0.0)}
-# a wider margin for the square shop fronts, whose corners would reach the circle crop at STORE_PAD
-PADS = {"CafeStyle": 0.42, "GrandTheme": 0.42}

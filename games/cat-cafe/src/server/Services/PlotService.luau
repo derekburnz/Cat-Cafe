@@ -114,6 +114,7 @@ function PlotService.release(player: Player)
 	-- #1624: no theme, uniform or VIP plate (CafeService's refreshLooks); the shell's own awning shows again
 	plot.model:SetAttribute("Theme", nil)
 	plot.model:SetAttribute("UniformStyle", nil)
+	plot.model:SetAttribute("Accessory", nil)
 	plot.model:SetAttribute("VipPlate", nil)
 	WorldBuilder.setAwningHidden(plot, false)
 	for _, name in

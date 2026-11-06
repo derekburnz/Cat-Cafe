@@ -13,6 +13,7 @@
 --                                            Components/ShopIcons); nil goes back to the glyph
 --   IconArt.setImages(label, images, scale?) the first of several pictures that loads (a failed fetch moves on)
 --   IconArt.setTransparency(label, value)    fade or grey the icon, picture or emoji, whichever shows
+--   IconArt.preload(images)                  fetch pictures ahead of time (the crate reel's tiles, #1728)
 --
 -- Roblox terms: ImageRectOffset and ImageRectSize cut one cell out of a bigger picture; IsLoaded turns true once
 -- the picture has downloaded.
@@ -70,6 +71,41 @@ local function apply(label: TextLabel)
 	end
 end
 
+-- Asks ContentProvider for the picture once; when the fetch ends, every label waiting on it is redrawn (or moves on
+-- to the next picture of its list when it failed).
+local function fetch(id: string)
+	if fetched[id] then
+		return
+	end
+	fetched[id] = true
+	task.spawn(function()
+		pcall(function()
+			ContentProvider:PreloadAsync({ id }, function(_, status: Enum.AssetFetchStatus)
+				if status == Enum.AssetFetchStatus.Success then
+					loaded[id] = true
+				elseif status == Enum.AssetFetchStatus.Failure then
+					failed[id] = true
+				end
+			end)
+		end)
+		local labels = waiting[id]
+		waiting[id] = nil
+		if labels then
+			for each in labels do
+				if each.Parent then
+					local pick = choices[each]
+					local art = each:FindFirstChild(ART) :: ImageLabel?
+					if failed[id] and pick and art and art.Image == id then
+						IconArt.setImages(each, pick.images, pick.scale) -- the next picture in its list
+					else
+						apply(each)
+					end
+				end
+			end
+		end
+	end)
+end
+
 -- The label's picture, made the first time; nil hides it, so the glyph shows.
 local function artFor(label: TextLabel, image: string?, scale: number?): ImageLabel?
 	if label:GetAttribute(BASE) == nil then
@@ -116,35 +152,7 @@ local function artFor(label: TextLabel, image: string?, scale: number?): ImageLa
 		local set = labels :: { [TextLabel]: boolean }
 		set[label] = true
 	end
-	if not fetched[id] then
-		fetched[id] = true
-		task.spawn(function()
-			pcall(function()
-				ContentProvider:PreloadAsync({ id }, function(_, status: Enum.AssetFetchStatus)
-					if status == Enum.AssetFetchStatus.Success then
-						loaded[id] = true
-					elseif status == Enum.AssetFetchStatus.Failure then
-						failed[id] = true
-					end
-				end)
-			end)
-			local labels = waiting[id]
-			waiting[id] = nil
-			if labels then
-				for each in labels do
-					if each.Parent then
-						local pick = choices[each]
-						local art = each:FindFirstChild(ART) :: ImageLabel?
-						if failed[id] and pick and art and art.Image == id then
-							IconArt.setImages(each, pick.images, pick.scale) -- the next picture in its list
-						else
-							apply(each)
-						end
-					end
-				end
-			end
-		end)
-	end
+	fetch(id)
 	return picture
 end
 
@@ -201,6 +209,16 @@ function IconArt._draw(label: TextLabel, image: string?, scale: number?)
 		picture.ImageRectSize = Vector2.zero
 		picture.ImageRectOffset = Vector2.zero
 		apply(label)
+	end
+end
+
+-- #1728 (Derek2 11-06: the crate reel showed blank squares while it spun): fetches pictures before any label shows
+-- them, into the same cache, so a strip built later draws them at once. Empty and repeated ids are skipped.
+function IconArt.preload(images: { string })
+	for _, image in images do
+		if image ~= "" then
+			fetch(image)
+		end
 	end
 end
 

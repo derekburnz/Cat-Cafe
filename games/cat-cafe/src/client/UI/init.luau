@@ -2870,7 +2870,14 @@ do
 		end
 		screen:show(circleList, windows, header, function(index: number, grade: Types.CircleGrade?)
 			UI.events.catchPressed:Fire(strayId, index, grade)
-		end)
+		end, strayId)
+	end
+
+	-- #1727: CatchJudged, the server's grade for one of this player's presses, as it is judged
+	function UI.catch.judged(strayId: string, index: number, grade: Types.CircleGrade)
+		if circles then
+			circles:judged(strayId, index, grade)
+		end
 	end
 
 	-- The toast after a miss (data-model section 10 step 5, v0.5): the cat sprints off and can be tried again
@@ -3479,12 +3486,19 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 						and windows:current() == nil
 						and tips.quiet()
 					then
+						-- #1737 (Derek2 11-06): the Night Market's own cart picture, as on its map marker, not the moon
+						-- (required here: this file is at Luau's 200-local limit)
+						local picture: string? =
+							require(script.Components.ShopIcons).hud("NightMarket")
 						banner:banner(
 							"night_market",
-							Theme.icons.moon .. " The Night Market is open!",
+							if picture
+								then "The Night Market is open!"
+								else Theme.icons.moon .. " The Night Market is open!",
 							"Rare foods tonight at the dealer's cart in town.",
 							Theme.colors.berry,
-							6
+							6,
+							picture
 						)
 						return
 					end

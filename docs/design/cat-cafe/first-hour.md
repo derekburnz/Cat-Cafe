@@ -82,3 +82,31 @@ QA's first-hour sim (`docs/playtests/2026-11-06-first-hour.md`) found buys come 
 - **Decided:** roadmap steps 6 and 7 are re-timed into the gap (table in §1a). Step 6 needs every role slot filled at Tier 2 or above. Step 7 needs 12 different cats, which is also Tier 3's need, so it shows real progress toward the rank-up.
 - After this re-run, no more model tuning. The next look uses the live `grand_opening` funnel (step times by player) and the `onboarding_v4` drop-off.
 - **Re-run in PR #1917, middle of 20 runs (minutes):** step 1 at 1.3, step 2 at 12.3, step 3 at 8.3, step 4 at 12.1, step 5 at 14.9, step 6 at 12.1 (it lands on the Tier 2 rank-up, so the two toasts play together), step 7 at 25.0 (10th to 90th percentile 17.2 to 30.4) and step 8 at 54.3. The quiet stretch from minute 31 to 41 has the Lucky Cat and Espresso buys in it. Live data decides any further change.
+
+## 5. Index: where to find the missing cats (#1919)
+
+The Index already shows silhouettes and "lives in the <Area>" (F97, CatCollection). This section adds a clear "how" and a first-hour nudge. Builder: UI-Engineer. Nothing is sold, and odds don't change.
+
+- **The hint line.** A missing cat's description slot ("Not found yet") becomes one line built from data that already exists:
+  - Its area is open: "Not found yet. Catch one in the <Area>, or it may come to your bait." Bait picks from every open area (data-model §8), so the line is true.
+  - Its area is still locked: "Not found yet. The <Area> opens at Tier n."
+  - Epic and above add: "Shy: walk up slowly." That matches the Skittish mood from Catch v3 (catch-rework.md §7a).
+  - Shop-only cats keep their current line.
+- **Count on the reveal.** The new-cat reveal card (and the Tame card for a bait cat) gets one small line, "Park 4 / 10", in the area's colour. The Index button's dot behaves as it does today.
+- **Goal-card nudge.** While Grand Opening step 7 (twelve cats, §1a) is the next step, the goal card reads "Find N more cats" with an Index icon. Tapping it opens the Index on the page of the newest open area with the most missing cats.
+- **Funnel:** `index_hint_tap` (with area) when that goal card opens the Index.
+- **QA:** a missing Park cat at Tier 2 shows the catch-or-bait line, and a missing Woods cat shows "opens at Tier 4". The reveal shows the right count. The nudge appears only while step 7 is next and opens the right page.
+
+## 6. A session recap card at about 40 minutes (#1920)
+
+The research's end-of-session hook. A Roblox game can't show anything as the player leaves, and the Roblox menu covers our UI. So the card comes once per session, at a calm moment late in the first hour. It also has to help the player stay, so it leads with what's next. Builders: UI-Engineer (the card) and Gameplay-Engineer (the timer and the lines).
+
+- **When:** once per session, after 40 minutes of play in this session (`RecapAfterSeconds` 2400), and after the tutorial. It waits until the player isn't catching, carrying, in a minigame or in a menu, and has been idle for 5 seconds. It never shows twice in a session, and Settings has a "Session recap" toggle that defaults to on.
+- **The card:** a small card that slides up from the bottom, with no dark background, a close button and a 12 second auto-hide. Up to four lines, each shown only when it's true:
+  1. "Today: N new cats, $X earned", for this session.
+  2. What's next: "Grand Opening 6/8: Twelve different cats", or after the Grand Opening, the goal card's next goal.
+  3. "Your bait cat arrives in M min. It waits for you", when bait is cooking.
+  4. "Your cafe earns while you're away: 50% for up to 8 h" (from `OfflineRate` and `OfflineCapSeconds`, or the pass values when owned), then "Tomorrow: Daily Treat day D and new quests".
+- **Rules:** there's no countdown, no "don't leave" or "you'll lose" wording, and no store link. Leaving loses nothing.
+- **Funnel:** `session_recap` with the minutes played and the step the player is on, and `session_recap_close` with how long it was up.
+- **QA:** a fresh account sees the card once, at about 40 minutes and only when idle. It never shows during a catch or carry. Each line appears only when it's true, and the offline line matches Config and the pass. With the toggle off, nothing appears.

@@ -121,10 +121,14 @@ export type HUD = {
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
 	-- the gold Store tile at the top of the left menu, shown once init's Store block has its window (#1167)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
+	-- #1646: the Cafe Pass tile, shown with the function that opens the Pass window while a season runs (nil hides
+	-- it), and its red "!" while `ready` rewards wait
+	setPass: (self: HUD, open: (() -> ())?, ready: number) -> (),
 	setTutorialButton: (self: HUD, shown: boolean) -> (),
 	glowTutorial: (self: HUD) -> (),
 	pulseTutorial: (self: HUD) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
+	setMoneyBadge: (self: HUD, badge: { text: string, owned: boolean }?) -> (), -- #1606
 	-- F92: the pals on the server (PalsChanged), for the chip and the boosts card
 	setPals: (self: HUD, userIds: { number }) -> (),
 	-- F92: "Sam is in the Park" over the travel button to that area, glowing; nil text takes it away
@@ -142,6 +146,8 @@ local MONEY_W = 232
 local MONEY_H = 44
 local COUNTER_COIN = 36
 local COUNTER_TEXT = 30
+local MONEY_BADGE_H = 30 -- #1606: the money pass badge beside the money
+local MONEY_BADGE_TEXT = 22
 local COUNTER_GAP = 14
 -- the row's widest usual reach (the money at MONEY_W and "12.3K" golden fish): the bottom row moves right of it
 local CORNER_W = MONEY_W + COUNTER_GAP + COUNTER_COIN + 8 + 90
@@ -535,7 +541,58 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 
 	-- Golden fish (F52): the rare currency's counter beside the money, with the gold fish (F97). Hidden until
 	-- ProfileSync sends goldenFish.
-	local fish = counter("Fish", 2, "Frame")
+	-- #1606: the money pass badge beside the money (setMoneyBadge): "2x" to "4x" in gold once a money pass is owned
+	-- (a tap opens the boosts card, as the money does), or a small berry "Get 2x" pill while none is (a tap opens the
+	-- Store). Hidden until the Store knows.
+	-- the tap area is the counters' height and at least as wide (a finger's 44 px on a phone); the pill sits inside it
+	local badge: TextButton = Create("TextButton", {
+		Name = "MoneyBadge",
+		AutoButtonColor = false,
+		BackgroundTransparency = 1,
+		Text = "",
+		Size = UDim2.fromOffset(0, counterH),
+		AutomaticSize = Enum.AutomaticSize.X,
+		LayoutOrder = 2,
+		Visible = false,
+		Parent = counters,
+	}, {
+		Create("UISizeConstraint", { MinSize = Vector2.new(counterH, 0) }),
+		Create("UIListLayout", {
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+		}),
+	})
+	local pill: TextLabel = Create("TextLabel", {
+		Name = "Pill",
+		BackgroundColor3 = Theme.colors.berry,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(0, MONEY_BADGE_H),
+		AutomaticSize = Enum.AutomaticSize.X,
+		FontFace = Theme.fonts.display,
+		TextSize = MONEY_BADGE_TEXT,
+		TextColor3 = Theme.colors.gold,
+		Text = "",
+		Parent = badge,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
+	})
+	Outline.text(pill, 2.5)
+	self._moneyPill = pill
+	self._moneyBadge = badge
+	self._moneyBadgeOwned = false
+	table.insert(
+		self._connections,
+		badge.Activated:Connect(function()
+			if self._moneyBadgeOwned then
+				self:_toggleBoosts()
+			else
+				self._callbacks.openScreen("Store")
+			end
+		end)
+	)
+
+	local fish = counter("Fish", 3, "Frame")
 	fish.Visible = false
 	self._fishPanel = fish
 	FishCoin.new({
@@ -1076,6 +1133,18 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				callbacks.openScreen("Quests")
 			end,
 		},
+		-- #1646 (cafe-pass.md): the Cafe Pass, only while a season runs (setPass); hidden, the grid closes up
+		{
+			name = "Pass",
+			icon = "🍁",
+			style = "purple",
+			open = function()
+				local open: (() -> ())? = self._passOpen
+				if open then
+					open()
+				end
+			end,
+		},
 		{
 			name = "Upgrades",
 			icon = Theme.icons.upgrades,
@@ -1251,6 +1320,13 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				Parent = dot,
 			})
 			self._questDot = dot
+		elseif item.name == "Pass" then
+			button.instance.Visible = false -- while a Cafe Pass season runs (setPass)
+			self._passTile = button
+			local passBadge = claimBadge(button.instance, 23)
+			passBadge.AnchorPoint = Vector2.new(1, 0.5) -- inset like the Quests dot (#1176)
+			passBadge.Position = UDim2.new(1, 2, 0, 3)
+			self._passBadge = passBadge
 		elseif item.name == "Bowl" then
 			button.instance.Visible = false -- once the Bait bowl upgrade is owned (_renderBowlSlot)
 			self._bowl = button
@@ -1283,6 +1359,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	end
 	self._menu = menu
 	self._storeOpen = nil :: (() -> ())?
+	self._passOpen = nil :: (() -> ())?
 	self._menuFolded = false
 	-- The arrow tab under the tiles folds them off the left edge and back. Key binds still open every screen while
 	-- they are folded, and the tab carries a red dot whenever a folded pill has one, so news is never hidden.
@@ -2749,6 +2826,21 @@ function HUD.setStore(self: any, open: (() -> ())?)
 	end
 end
 
+-- #1646: the Cafe Pass tile in the left menu, shown with the function that opens the Pass window while a season runs
+-- and hidden with nil (the grid closes up), with a red "!" while rewards are ready to claim. No badge for the season's
+-- end (cafe-pass.md section 1).
+function HUD.setPass(self: any, open: (() -> ())?, ready: number)
+	self._passOpen = open
+	local tile: Button.Button = self._passTile
+	local shown = open ~= nil
+	if tile.instance.Visible ~= shown then
+		tile.instance.Visible = shown
+		self:_layoutMenu()
+	end
+	local badge: Frame = self._passBadge
+	badge.Visible = shown and ready > 0
+end
+
 -- From the modal's changed signal: opening a screen marks what it shows as seen and clears its dot. The Index has
 -- no keys (its dot is the waiting rewards, in _renderDots), so it is left alone here.
 function HUD.screenOpened(self: any, name: string?)
@@ -2776,6 +2868,22 @@ function HUD._stopClock(self: any)
 		connection:Disconnect()
 		self._clockConnection = nil
 	end
+end
+
+-- #1606: the money pass badge (StoreLogic.moneyBadge): "3x" in gold once owned, a berry "Get 2x" pill while not, or
+-- hidden with nil.
+function HUD.setMoneyBadge(self: any, badge: { text: string, owned: boolean }?)
+	local button: TextButton = self._moneyBadge
+	button.Visible = badge ~= nil
+	if badge == nil then
+		return
+	end
+	self._moneyBadgeOwned = badge.owned
+	local pill: TextLabel = self._moneyPill
+	pill.Text = badge.text
+	pill.TextSize = if badge.owned then MONEY_BADGE_TEXT else MONEY_BADGE_TEXT - 6
+	pill.TextColor3 = if badge.owned then Theme.colors.gold else Theme.colors.white
+	pill.BackgroundTransparency = if badge.owned then 1 else 0
 end
 
 function HUD.setVisible(self: any, visible: boolean)

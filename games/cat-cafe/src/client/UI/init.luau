@@ -93,9 +93,9 @@ UI.together = {} -- F92 playing together, filled at the end of the file
 UI.campExtras = {} -- F100 camp extras, filled at the end of the file
 UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
 UI.trade = {} -- F102 trading, filled at the end of the file
-UI.lawn = {} -- F91 the front lawn's edit view, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.store = {} -- the Store window behind the HUD's Store tile, filled at the end of the file
+UI.pass = {} -- #1646 the Cafe Pass window behind the HUD's Pass tile, filled at the end of the file
 
 UI.Types = Types
 UI.Theme = Theme
@@ -106,10 +106,8 @@ UI.events = {
 	buyUpgrade = Signal.new(), -- (upgradeId)
 	buyDecor = Signal.new(), -- (decorId)
 	toggleDecor = Signal.new(), -- (decorId, placed: boolean)
-	-- F91 front lawn (front-lawn.md section 3): forward as BuyLawn, SetLawnSpot and SetLawnStyle
+	-- F91 front lawn (front-lawn.md section 3): forward as BuyLawn (SetLawnSpot and SetLawnStyle retired with #1283)
 	buyLawn = Signal.new(), -- (id, spotId?)  a piece or style; a piece onto spotId, else the first free spot
-	setLawnSpot = Signal.new(), -- (spotId, pieceId)  "" clears the spot
-	setLawnStyle = Signal.new(), -- (kind: "path" | "fence", id)  "" lays Grey Slabs or takes the fence down
 	buyLure = Signal.new(), -- (lureId)
 	placeCat = Signal.new(), -- (uid, spotId)
 	unplaceCat = Signal.new(), -- (uid)
@@ -173,6 +171,10 @@ UI.events = {
 	claimAll = Signal.new(), -- (what)   Claim all: "quests" (all three Quests tabs, #1073; or "daily", "weekly", "achievements"; Config.QuestClaimAll), "index" (the Index window, Config.IndexClaimAll) or "tipjar" (the Tip Jar, Config.TipJarClaimAll): forward as ClaimAll
 	-- F63
 	answerCollector = Signal.new(), -- (accept)   Trade (true) or No thanks (false) on the Cat Collector's card: forward as AnswerCollector
+	-- #1646 (cafe-pass.md section 5)
+	passClaim = Signal.new(), -- (track, level)   Claim on a Cafe Pass reward, track "free" or "paid": forward as PassClaim
+	passClaimAll = Signal.new(), -- ()   Claim all on the Pass window: forward as PassClaimAll
+	passSetTag = Signal.new(), -- (pick)   #1626: the Pass window's chat tag button, a ChatTags id or "off": forward as PassSetTag
 	-- #1624 (store-pass-looks.md)
 	pickStyle = Signal.new(), -- (kind, id)   a Style tab button: kind "sign" forwards as SetSignStyle(id or nil), "uniform" or "theme" as SetLook(kind, id)
 	-- F70
@@ -514,9 +516,9 @@ local function render()
 	UI.campExtras.render(state)
 	UI.cornerShop.render(state)
 	UI.trade.render(state)
-	UI.lawn.render(state)
 	UI.nursery.render(state)
 	UI.store.render()
+	UI.pass.render()
 	if cannonHint() ~= hintShown then
 		applyTutorial()
 	end
@@ -773,18 +775,6 @@ function UI.init(config: Types.InitConfig)
 		close = closeModal,
 		equipBest = function()
 			UI.events.equipBestDecor:Fire()
-		end,
-		buyLawn = function(id: string, spotId: string?)
-			UI.events.buyLawn:Fire(id, spotId)
-		end,
-		setLawnSpot = function(spotId: string, pieceId: string)
-			UI.events.setLawnSpot:Fire(spotId, pieceId)
-		end,
-		setLawnStyle = function(kind: Types.LawnStyleKind, id: string)
-			UI.events.setLawnStyle:Fire(kind, id)
-		end,
-		editLawn = function()
-			UI.lawn.edit()
 		end,
 		-- #1624: the Style tab; the sign goes to SetSignStyle, uniforms and themes to SetLook
 		pickStyle = function(kind: string, id: string)
@@ -1356,9 +1346,9 @@ function UI.init(config: Types.InitConfig)
 	UI.cornerShop.start() -- the Corner Shop window (#1052)
 	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
 	UI.trade.start() -- the Trade window in the modal (F102)
-	UI.lawn.start(parent) -- the front lawn's edit view (F91)
 	UI.nursery.start() -- the Garden Nursery window, opened from its stall's prompt (#1200)
 	UI.store.start() -- the Store window and the HUD's Store tile (shown on sale or not, #1167)
+	UI.pass.start() -- the Cafe Pass window; its HUD tile shows while a season runs (#1646)
 	worldTags = WorldTags.new()
 	UI.bubbles.start(parent) -- the one-line speech bubbles over the town's key cats (#1079)
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
@@ -1469,9 +1459,9 @@ function UI.destroy()
 	UI.campExtras.reset()
 	UI.rally.reset()
 	UI.trade.reset()
-	UI.lawn.reset()
 	UI.nursery.reset()
 	UI.store.reset()
+	UI.pass.reset()
 	UI.bubbles.reset()
 	if hud then
 		hud:destroy()
@@ -2342,12 +2332,10 @@ function UI.richTip.bind(plot: Instance?)
 	if richTipScreen then
 		richTipScreen:bind(plot)
 	end
-	-- F91: the same plot's LawnPath says the Front lawn tab is live, and its LawnSpots carry the edit view's rings
+	-- F91: the same plot's LawnPath says the Lawn chip is live
 	if decor then
 		decor:bindPlot(plot)
 	end
-	-- cast: the old solver reads UI.lawn before its block at the end of the file fills it
-	(UI.lawn :: any).bind(plot)
 	-- F97: tip piles pay the moment they appear (Gameplay-Engineer #714), so the till's Collect pill stays unbound
 	-- until F90's Waiter gives the till a job
 	if collectorScreen then
@@ -3520,6 +3508,7 @@ function UI.clock.set(phase: Types.ClockPhase, phaseEndsAt: number)
 	if tipJarScreen then
 		tipJarScreen:setNight(phase == "night")
 	end
+	UI.pass.setNight(phase == "night")
 	if spinScreen then
 		spinScreen:setNight(phase == "night")
 	end
@@ -5434,108 +5423,6 @@ do
 	end
 end
 
--- Front lawn edit view (F91)
-----------------------------------------------------------------------------------------------------
-
--- The Front lawn tab's Edit lawn (front-lawn.md section 3): the camera swings to the player's cafe front with a ring
--- over each lawn spot, and a ring's tap opens the picker (Screens/LawnEdit). The HUD steps aside while it is up but the
--- toasts stay, so a buy still says so; Done comes back to the Decor window on its Front lawn tab. Its own block, as
--- the module is short of locals.
-do
-	local LawnEdit = require(script.Screens.LawnEdit)
-	local lawn = {
-		edit = nil :: LawnEdit.LawnEdit?,
-		plot = nil :: Instance?, -- the own plot UI.richTip.bind passed, for an edit view built after it
-	}
-
-	-- UI.init: the edit view, bound to the plot if one came first.
-	function UI.lawn.start(parent: Instance)
-		UI.lawn.reset()
-		local edit = LawnEdit.new(parent, {
-			buyLawn = function(id: string, spotId: string?)
-				UI.events.buyLawn:Fire(id, spotId)
-			end,
-			setLawnSpot = function(spotId: string, pieceId: string)
-				UI.events.setLawnSpot:Fire(spotId, pieceId)
-			end,
-			shown = function(editing: boolean)
-				local show = visible and not editing
-				if hud then
-					hud:setVisible(show)
-				end
-				UI.rally.setVisible(show)
-				if locationMarkers then
-					locationMarkers:setVisible(show)
-				end
-			end,
-			done = function()
-				if decor then
-					decor:showLawn()
-				end
-				if modal then
-					modal:open("Decor")
-				end
-			end,
-		})
-		edit:bind(lawn.plot)
-		edit:render(state)
-		lawn.edit = edit
-	end
-
-	function UI.lawn.bind(plot: Instance?)
-		lawn.plot = plot
-		if lawn.edit then
-			lawn.edit:bind(plot)
-		end
-	end
-
-	function UI.lawn.render(playerState: Types.PlayerState)
-		if lawn.edit then
-			lawn.edit:render(playerState)
-		end
-	end
-
-	-- Edit lawn: the Decor window closes and the camera swings to the cafe front, or a toast says why not (no plot or
-	-- lawn yet, or too far from the cafe). Returns whether the view opened.
-	function UI.lawn.edit(): boolean
-		local edit = lawn.edit
-		if edit == nil then
-			return false
-		end
-		local ok, why = edit:canStart()
-		if not ok then
-			UI.toast(why or "Your lawn is not ready yet.", "info")
-			return false
-		end
-		if modal then
-			modal:close()
-		end
-		return edit:start()
-	end
-
-	-- The picker for a lawn spot (a ring's tap), or closed with nil.
-	function UI.lawn.pick(spotId: string?)
-		if lawn.edit then
-			lawn.edit:pick(spotId)
-		end
-	end
-
-	-- Ends the edit view; `reopen` brings the Decor window back on its Front lawn tab, as Done does.
-	function UI.lawn.stop(reopen: boolean?)
-		if lawn.edit then
-			lawn.edit:stop(reopen == true)
-		end
-	end
-
-	-- UI.destroy: the camera back and the view gone.
-	function UI.lawn.reset()
-		if lawn.edit then
-			lawn.edit:destroy()
-		end
-		lawn.edit = nil
-	end
-end
-
 ----------------------------------------------------------------------------------------------------
 -- Store
 ----------------------------------------------------------------------------------------------------
@@ -5579,6 +5466,7 @@ do
 			catNames = catNames,
 			have = state.potions,
 			starterBought = (state :: any).starterBought,
+			cafePass = (UI.pass :: any).offer(), -- #1646: the running season's paid track, nil while closed (defined below)
 		})
 	end
 
@@ -5587,6 +5475,14 @@ do
 		local screen = shop.screen
 		if screen and modal and modal:current() == "Store" then
 			screen:render(rows(), PassShop.prices())
+		end
+		-- #1606: the money pass badge beside the HUD's money ("2x" to "4x", or "Get 2x" while the 2x pass is on sale)
+		if hud then
+			local boosts = (state :: any).passBoosts
+			local multiplier = if type(boosts) == "table" then boosts.money else nil
+			hud:setMoneyBadge(
+				StoreLogic.moneyBadge(Config, PassShop.owned(), PassShop.prices(), multiplier)
+			)
 		end
 		local open = screen ~= nil -- the tile shows whenever there is a window for it to open
 		if open ~= shop.open and hud then
@@ -5639,6 +5535,7 @@ do
 			onOpen = function()
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
 				screen:render(rows(), PassShop.prices())
+				PassShop.refresh() -- a price changed in the Creator Hub shows without a rejoin
 			end,
 			onClose = function()
 				shop.bench = false
@@ -5715,6 +5612,188 @@ do
 		end
 		shop.open = false
 		PassShop.stop()
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Cafe Pass (#1646)
+----------------------------------------------------------------------------------------------------
+
+-- The Cafe Pass window (Screens/CafePass, cafe-pass.md) and the HUD's Pass tile. The tile shows only while a season
+-- runs (live, the pass is closed until Season 1's date is set; Studio runs a preview Season 1), with a red "!" while
+-- rewards are ready. A quest's "+100 pass XP" pill shows on prize chips only while a season runs too
+-- (PrizeChips.passOpen). Its own block, as the module is short of locals.
+do
+	local CafePass = require(script.Screens.CafePass)
+	local PassLogic = require(script.Components.PassLogic)
+	local PassShop = require(script.Components.PassShop)
+	local SharedPass =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("CafePass")) :: any
+	local pass = {
+		screen = nil :: CafePass.CafePass?,
+		view = nil :: Types.CafePassView?,
+		catalog = nil :: Types.Catalog?, -- the catalog the window's chips have
+		shown = false, -- whether the HUD's tile shows
+		prices = nil :: Signal.Connection?, -- PassShop.changed, for the buy button's price
+	}
+
+	-- The paid track's product id (Config.ProductIds.cafe_pass, #1657), or nil while it is not made.
+	local function productId(): number?
+		local ids = (Config :: any).ProductIds
+		local id = if type(ids) == "table" then ids.cafe_pass else nil
+		return if type(id) == "number" and id ~= 0 then id else nil
+	end
+
+	-- The window's buy button: Roblox's price while the season's paid track is not bought and the product is on sale,
+	-- else hidden (bought, loading or off sale).
+	local function buyButton()
+		local screen = pass.screen
+		if screen == nil then
+			return
+		end
+		local view = pass.view
+		local id = productId()
+		local price = if id then PassShop.prices()[id] else nil
+		local sells = view ~= nil and PassLogic.shows(view) and not view.paid
+		if sells and price ~= nil and price.forSale and price.robux ~= nil then
+			screen:setBuy(("Paid track  R$%d"):format(price.robux :: number))
+		else
+			screen:setBuy(nil)
+		end
+	end
+
+	-- The HUD's tile from the last CafePassState.
+	local function tile()
+		local view = pass.view
+		local shown = pass.screen ~= nil and PassLogic.shows(view)
+		if hud == nil then
+			return
+		end
+		pass.shown = shown
+		hud:setPass(
+			if shown
+				then function()
+					if modal then
+						modal:toggle("CafePass")
+					end
+				end
+				else nil,
+			if view then view.claimable else 0
+		)
+	end
+
+	-- UI.init: the window in the modal.
+	function UI.pass.start()
+		UI.pass.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local screen = CafePass.new({
+			claim = function(track: string, level: number)
+				UI.events.passClaim:Fire(track, level)
+			end,
+			claimAll = function()
+				UI.events.passClaimAll:Fire()
+			end,
+			setTag = function(pick: string)
+				UI.events.passSetTag:Fire(pick)
+			end,
+			buy = function()
+				local id = productId()
+				if id then
+					PassShop.prompt(id) -- the server's receipt unlocks the track and sends CafePassState
+				end
+			end,
+			close = function()
+				if modalView:current() == "CafePass" then
+					modalView:close()
+				end
+			end,
+		})
+		pass.screen = screen
+		modalView:register("CafePass", {
+			frame = screen.frame,
+			onOpen = function()
+				UI.pass.render()
+				screen:onOpen()
+			end,
+		})
+		screen:setView(pass.view)
+		pass.prices = PassShop.changed:Connect(buyButton)
+		buyButton()
+		UI.pass.render()
+		tile()
+	end
+
+	-- From CafePassState (Types.CafePassView): at join, after each claim and at a season roll.
+	function UI.pass.set(view: Types.CafePassView?)
+		pass.view = view
+		local screen = pass.screen
+		if screen then
+			screen:setView(view)
+		end
+		buyButton()
+		tile()
+		UI.store.render() -- the Store's Cafe Pass card follows the season and the purchase
+	end
+
+	-- The running season for the Store's Cafe Pass card (StoreLogic.PassOffer), or nil while the pass is closed.
+	function UI.pass.offer(): any
+		local view = pass.view
+		if view == nil or not PassLogic.shows(view) then
+			return nil
+		end
+		local def = SharedPass.seasonDef(view.season)
+		return {
+			season = view.season,
+			name = if def then def.name else ("Season %d"):format(view.season),
+			paid = view.paid,
+			contents = PassLogic.paidContents(def),
+		}
+	end
+
+	-- Every state update: the day rate and spin bank for the prize chips, and the catalog once it arrives.
+	function UI.pass.render()
+		local screen = pass.screen
+		if screen == nil then
+			return
+		end
+		local catalog = currentCatalog
+		if catalog and catalog ~= pass.catalog then
+			pass.catalog = catalog
+			screen:setCatalog(catalog)
+		end
+		screen:render(state)
+	end
+
+	function UI.pass.setNight(night: boolean)
+		if pass.screen then
+			pass.screen:setNight(night)
+		end
+	end
+
+	function UI.pass.open()
+		if modal and pass.shown then
+			modal:open("CafePass")
+		end
+	end
+
+	-- UI.destroy.
+	function UI.pass.reset()
+		if pass.prices then
+			pass.prices:Disconnect()
+			pass.prices = nil
+		end
+		if pass.screen then
+			pass.screen:destroy()
+			pass.screen = nil
+		end
+		pass.catalog = nil
+		if pass.shown and hud then
+			hud:setPass(nil, 0)
+		end
+		pass.shown = false
 	end
 end
 

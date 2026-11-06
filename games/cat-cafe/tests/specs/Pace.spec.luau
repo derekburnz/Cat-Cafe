@@ -467,9 +467,7 @@ return function()
 			local offset = if options.freshServer and session == 1
 				then 0
 				else Config.ServerStartDaySeconds + math.floor(
-					rng()
-						* (Config.DayLengthSeconds + Config.NightLengthSeconds)
-						* RANDOM_DAYS
+					rng() * (Config.DayLengthSeconds + Config.NightLengthSeconds) * RANDOM_DAYS
 				)
 			local joined = base + (session - 1) * DAY
 			epoch = joined - offset
@@ -1089,6 +1087,47 @@ return function()
 			})
 			if quantile(list, tierAt(5), 0.5, 8 * HOUR) <= 2 * HOUR then
 				error("Tier 5 in 2 hours or less with 4x Money and 3 pals: " .. text)
+			end
+		end)
+	end)
+
+	-- The Cafe Pass (#1644, #1667): its levels come from quests only, so a player who finishes a full day of quests
+	-- (one level a day) has reached level `day` by Tier 5's latest day (6, the top of the day 4 to 6 check). The money
+	-- those levels pay, counted as income minutes (a minute of the day rate; a tip potion's minutes times its `tips`,
+	-- all income counted as tips, the worst case), must stay under 5% of the 8 hour floor for Tier 5. Spins and fish
+	-- are not money here (Pace leaves them out as in economy-ladder.md section 3); Monetization-Agent allowed the
+	-- paid potions (2026-11-05), and the shop's own paid bonuses are already in the "every paid bonus" check above.
+	describe("The Cafe Pass money by Tier 5 (#1667)", function()
+		it("pays under 5% of 8 hours of income by level 6, free and paid together", function()
+			local LAST_DAY = 6
+			local limit = 0.05 * 8 * 60
+			for _, season in Catalog.passSeasons do
+				local minutes = 0
+				for _, track in { season.free, season.paid } :: { { [number]: Types.PassReward } } do
+					for level = 1, LAST_DAY do
+						local prize = if track[level] ~= nil then track[level].prize else nil
+						if prize ~= nil then
+							minutes += (prize.coinSeconds or 0) / 60
+							for id, count in prize.potions or {} do
+								local def = Catalog.getPotion(id)
+								if def ~= nil then
+									minutes += count * def.minutes * (def.tips or 0)
+								end
+							end
+						end
+					end
+				end
+				if minutes > limit then
+					error(
+						string.format(
+							"%s pays %.1f income minutes by level %d, over %.0f",
+							season.id,
+							minutes,
+							LAST_DAY,
+							limit
+						)
+					)
+				end
 			end
 		end)
 	end)

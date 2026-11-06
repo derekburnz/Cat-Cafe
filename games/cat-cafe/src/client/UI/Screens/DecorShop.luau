@@ -18,9 +18,10 @@
 -- Equip Best (Derek 2026-10-28, server #828): a pink button right of the chips while Config.DecorEquipBest is true,
 -- like the HUD's. A press fires callbacks.equipBest and holds the button grey until the next sync (at most
 -- PRESS_HOLD seconds); the server puts out the best owned pieces and toasts what changed, or that nothing would.
--- F91 (front-lawn.md section 3): a "Front lawn" chip after All, shown while the lawn is live (the bound plot's
--- LawnPath attribute is set and ProfileSync has sent the lawn, Components/LawnLogic.live). Picking it swaps the strip
--- and grid for the Front lawn tab (Screens/LawnTab) and hides Equip Best, which is for the inside.
+-- F91 (front-lawn.md section 3): a Lawn chip after All, shown while the lawn is live (the bound plot's LawnPath
+-- attribute is set and ProfileSync has sent the lawn, Components/LawnLogic.live). Picking it swaps the strip and grid
+-- for the Lawn cards (Screens/LawnTab). Since #1283 (lawn-nursery.md section 6e) it is a plain category like Plants,
+-- Floor and Walls: no Edit lawn, and Equip Best stays.
 -- #1624 (store-pass-looks.md, the cafe's Style panel): a "Style" chip at the end, shown while the player owns a sign
 -- style, uniform style or theme to pick (Components/StyleLogic.shows). Picking it swaps the strip and grid for the
 -- Style tab (Screens/StyleTab) the same way.
@@ -54,11 +55,6 @@ export type Callbacks = {
 	toggleDecor: (decorId: string, placed: boolean) -> (),
 	close: () -> (),
 	equipBest: (() -> ())?, -- Equip Best on the chips row; no button without it
-	-- F91: the Front lawn tab's requests (Screens/LawnTab)
-	buyLawn: (id: string, spotId: string?) -> (),
-	setLawnSpot: (spotId: string, pieceId: string) -> (),
-	setLawnStyle: (kind: Types.LawnStyleKind, id: string) -> (),
-	editLawn: () -> (),
 	-- #1624: a Style tab button, kind "sign", "uniform" or "theme" and id "" for the default; no Style chip without it
 	pickStyle: ((kind: string, id: string) -> ())?,
 }
@@ -297,13 +293,8 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 	})
 	self._footer = footer
 
-	-- F91: the Front lawn tab, in place of the strip and grid while its chip is picked
-	local lawnTab = LawnTab.new(panel.content, {
-		buyLawn = callbacks.buyLawn,
-		setLawnSpot = callbacks.setLawnSpot,
-		setLawnStyle = callbacks.setLawnStyle,
-		editLawn = callbacks.editLawn,
-	})
+	-- F91: the Lawn cards, in place of the strip and grid while its chip is picked (#1283)
+	local lawnTab = LawnTab.new(panel.content)
 	lawnTab.frame.Position = UDim2.fromOffset(0, chipHeight + Theme.sizes.gap)
 	lawnTab.frame.Size = UDim2.new(1, 0, 1, -(chipHeight + Theme.sizes.gap))
 	self._lawnTab = lawnTab
@@ -350,8 +341,8 @@ function DecorShop._setFilter(self: any, category: string, slot: string?)
 	for _, chip in self._chips do
 		chip.button:setStyle(if chip.category == category then "gold" else "ghost")
 	end
-	-- F91: the Front lawn tab takes the strip's and grid's place, and Equip Best (for the inside) steps aside; the
-	-- Style tab too (#1624)
+	-- F91: the Lawn cards take the strip's and grid's place (Equip Best stays, #1283); the Style tab too (#1624),
+	-- where Equip Best steps aside
 	local lawn = category == LAWN_CHIP
 	local style = category == STYLE_CHIP
 	local tab = lawn or style
@@ -364,7 +355,7 @@ function DecorShop._setFilter(self: any, category: string, slot: string?)
 	self._strip.Visible = not tab and self._hasPieces == true
 	local equipBest: Button.Button? = self._equipBest
 	if equipBest then
-		equipBest.instance.Visible = not tab
+		equipBest.instance.Visible = not style
 	end
 	if lawn and self._state then
 		self._lawnTab:render(self._state)

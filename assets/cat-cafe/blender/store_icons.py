@@ -23,6 +23,8 @@ Passes
                   in front, Paw Chalkboard (green slate, wooden frame, chalk paws)
   GardenDecorPack a little flower bed on a grass mound (#1860): pink, yellow, white and lilac flowers, a tall
                   sunflower and leaves in dark soil, with a tiny white picket fence across the front
+  Jukebox         a little retro jukebox (#1867): a berry body with gold trim, its record in the arched top under
+                  gold, pink and mint light bands, a song strip of buttons, a speaker, and music notes round it
 Products
   StarterBundle   the pink gift box with Sprinkles, a Big Money and a Swift Potion, and a striped little sign
   PotionXS        2 Big Money Potions
@@ -30,6 +32,8 @@ Products
   PotionM         a low wooden crate of 10 big bottles
   PotionL         a wide crate of 18 bottles and 2 bonus ones on top, with a pink bow on it
   CafePass        a season badge: a gold rosette with a berry centre, a paw and a star, two ribbon tails
+  SteadyPawPack   a low wooden crate of 10 Steady Paw jars with a round mint tag and a white paw on its front (#1867)
+  ThankYouBadge   a gold heart badge (the supporter's gold heart) with a cream paw, pink ribbon tails, twinkles (#1867)
 
 Built in Blender axes (x right, -y toward the camera, z up); nothing here is a game model.
 """
@@ -590,12 +594,93 @@ def garden_decor_pack(mat):
     return _fin(b, "GardenDecorPack", mat)
 
 
+
+def _note(b, x, z, s, sw, flag=True, tilt=0.0):
+    """A music note facing the camera: an oval head, a stem and (flag) a little flag."""
+    b.cyl((x, -0.3, z), 0.2 * s, 0.07, sw, segments=16, rot=X, scale=(1.3, 1.0, 1.0))
+    b.box((x + 0.22 * s, -0.3, z + 0.48 * s), (0.07 * s, 0.07, 0.95 * s), sw, bevel=False)
+    if flag:
+        b.box((x + 0.36 * s, -0.3, z + 0.8 * s), (0.28 * s, 0.07, 0.1 * s), sw, bevel=False,
+              rot=(math.radians(-35 + tilt), "Y"))
+
+
+def jukebox(mat):
+    """#1867: the Jukebox Pass, a little retro jukebox with its record in the arched top, music notes round it."""
+    b = Builder()
+    w, d = 1.9, 0.9
+    b.box((0, 0, 0.09), (w + 0.2, d + 0.1, 0.18), "dark_wood")                                 # the plinth
+    b.box((0, 0, 0.88), (w, d, 1.4), "royal_berry")                                            # the body
+    b.cyl((0, 0, 1.58), w / 2, d, "royal_berry", segments=32, rot=X)                           # the arched top
+    for k, (r, sw) in enumerate(((0.9, "gold_mid"), (0.8, "apron_pink"), (0.7, "mint"), (0.6, "gold_light"))):
+        b.cyl((0, -d / 2 - 0.02 - 0.02 * k, 1.58), r, 0.04, sw, segments=32, rot=X)            # the light bands
+    b.cyl((0, -0.56, 1.58), 0.5, 0.04, "night_sky", segments=32, rot=X)                        # the window
+    b.cyl((0, -0.6, 1.62), 0.36, 0.04, "fur_charcoal", segments=28, rot=X)                     # the record
+    b.cyl((0, -0.63, 1.62), 0.12, 0.03, "gold_light", segments=16, rot=X)
+    b.box((0, -0.55, 0.86), (w - 0.1, 0.2, 1.42), "royal_berry", bevel=False)  # the front, over the bands
+    b.box((0, -0.66, 1.38), (1.5, 0.04, 0.3), "cream", bevel=False)                            # the song strip
+    for i in range(4):
+        b.cyl((-0.54 + 0.36 * i, -0.7, 1.38), 0.09, 0.05, ("apron_pink", "mint", "gold_mid", "pastel_sky")[i],
+              segments=12, rot=X)
+    b.box((0, -0.66, 0.72), (1.5, 0.04, 0.95), "gold_mid", bevel=False)                       # the speaker
+    for i in range(5):
+        b.box((-0.6 + 0.3 * i, -0.69, 0.72), (0.12, 0.04, 0.8), "dark_wood", bevel=False)
+    for sx in (-1, 1):                                                                         # gold side trim
+        b.box((sx * (w / 2 + 0.02), -0.3, 0.88), (0.1, 0.4, 1.42), "gold_mid", bevel=False)
+    _note(b, -1.55, 1.85, 0.75, "gold_mid")
+    _note(b, 1.35, 2.05, 0.6, "apron_pink", tilt=10)
+    _note(b, 1.6, 0.95, 0.5, "mint")
+    _twinkle(b, -1.35, -0.4, 0.75, 0.35)
+    return _fin(b, "Jukebox", mat)
+
+
+def steady_paw_pack(mat):
+    """#1867: the Steady Paw Pack, a crate of 10 Steady Paw jars with a mint paw tag on its front."""
+    b = Builder()
+    _crate(b, 3.0, 1.5, 0.45)
+    out = _fin(b, "SteadyPawPack", mat)
+    for r in range(2):
+        for i in range(5):
+            out += _flask("Steady", mat, (-1.16 + 0.58 * i, 0.34 - 0.66 * r, 0.24 + 0.24 * (1 - r)), 0.42)
+    t = Builder()
+    t.cyl((0, -0.86, 0.42), 0.5, 0.1, "gold_mid", segments=28, rot=X)                           # the tag
+    t.cyl((0, -0.92, 0.42), 0.43, 0.08, "mint", segments=28, rot=X)
+    _paw(t, 0, -0.98, 0.4, 0.95, "offwhite")
+    return out + _fin(t, "SteadyPawPackTag", mat)
+
+
+def _heart(r, n=36):
+    """Heart outline points (x, y) around (0, 0), counter-clockwise, about r across its half width."""
+    pts = []
+    for k in range(n):
+        a = -2 * math.pi * k / n
+        x = 16 * math.sin(a) ** 3
+        y = 13 * math.cos(a) - 5 * math.cos(2 * a) - 2 * math.cos(3 * a) - math.cos(4 * a)
+        pts.append((x * r / 16, (y + 2.0) * r / 16))
+    return pts
+
+
+def thank_you_badge(mat):
+    """#1867: the Thank You Badge, a gold heart badge (the supporter's heart) with a cream paw, pink ribbon tails."""
+    b = Builder()
+    for sx in (-1, 1):                                                                         # ribbon tails
+        b.box((sx * 0.4, 0.12, -0.5), (0.42, 0.06, 1.2), "apron_pink", rot=(math.radians(sx * -16), "Y"))
+        b.prism((sx * 0.57, 0.08, -1.08), [(-0.22, 0.0), (0.22, 0.0), (0.0, 0.22)], 0.07, "cream", rot=X)
+    b.prism((0, 0.02, 0.55), _heart(1.35), 0.2, "gold_dark", rot=X)
+    b.prism((0, -0.06, 0.55), _heart(1.2), 0.12, "gold_mid", rot=X)
+    b.prism((0, -0.12, 0.58), _heart(0.9), 0.06, "gold_light", rot=X)
+    _paw(b, 0, -0.17, 0.5, 1.15, "cream")
+    _twinkle(b, 1.35, -0.3, 1.55, 0.45)
+    _twinkle(b, -1.3, -0.3, 1.35, 0.3)
+    return _fin(b, "ThankYouBadge", mat)
+
 PASSES = {"Money2x": money("2"), "Money3x": money("3"), "Money4x": money("4"), "LongNap": long_nap, "VIP": vip,
           "Accessories": accessories_pass, "Uniforms": uniforms, "CafeStyle": cafe_style, "GrandTheme": grand_theme,
           "ExtraSlot": extra_slot, "RoyalCat": royal_cat, "KingPack": king_pack, "GoldenPond": golden_pond,
-          "SecondBaitBowl": second_bait_bowl, "SignStylePack": sign_style_pack, "GardenDecorPack": garden_decor_pack}
+          "SecondBaitBowl": second_bait_bowl, "SignStylePack": sign_style_pack, "GardenDecorPack": garden_decor_pack,
+          "Jukebox": jukebox}
 PRODUCTS = {"StarterBundle": starter_bundle, "PotionXS": potion_xs, "PotionS": potion_s, "PotionM": potion_m,
-            "PotionL": potion_l, "CafePass": cafe_pass}
+            "PotionL": potion_l, "CafePass": cafe_pass, "SteadyPawPack": steady_paw_pack,
+            "ThankYouBadge": thank_you_badge}
 # name -> (yaw, pitch) for icons.py
 VIEWS = {"Money2x": (-16.0, 30.0), "Money3x": (-16.0, 30.0), "Money4x": (-16.0, 30.0), "LongNap": (-20.0, 26.0),
          "VIP": (-10.0, 8.0), "Accessories": (-24.0, 8.0), "Uniforms": (-24.0, 8.0), "CafeStyle": (-24.0, 12.0),
@@ -603,4 +688,5 @@ VIEWS = {"Money2x": (-16.0, 30.0), "Money3x": (-16.0, 30.0), "Money4x": (-16.0, 
          "GoldenPond": (-14.0, 30.0), "SecondBaitBowl": (-20.0, 20.0), "StarterBundle": (-20.0, 16.0),
          "SignStylePack": (-8.0, 6.0), "GardenDecorPack": (-18.0, 24.0),
          "PotionXS": (-12.0, 8.0), "PotionS": (-14.0, 22.0), "PotionM": (-16.0, 26.0), "PotionL": (-16.0, 24.0),
-         "CafePass": (0.0, 0.0)}
+         "CafePass": (0.0, 0.0), "Jukebox": (-18.0, 8.0), "SteadyPawPack": (-16.0, 26.0),
+         "ThankYouBadge": (0.0, 0.0)}

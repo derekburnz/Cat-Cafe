@@ -22,7 +22,7 @@ on:
         required: false
         default: ""
       changes:
-        description: "set: one or more of price=N forSale=true|false regional=true|false icon=<image path from the repo root> description=<text, no spaces trouble: the rest of the line>"
+        description: "set: one or more of price=N forSale=true|false regional=true|false icon=<image path from the repo root> description=passes.json"
         required: false
         default: ""
       batch:

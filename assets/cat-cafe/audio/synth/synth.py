@@ -1631,6 +1631,55 @@ def word_excellent() -> np.ndarray:
     return finish(fade_tail(mix(d, (word_pop(931) * 0.5, 0.0), *notes, *glints), 0.2), -5)
 
 
+# --- Catch v3 (2026-11-06, #1884, catch-rework.md section 7): the cat's soft swat at a paw ring, the net wrapping and
+# wobbling, the pop that ends it and the lighter NICE! word. The purr, ticks, hiss, GREAT, EXCELLENT and the
+# PURRFECT chime are the existing cues. They live in the Catch3 sheet (mono, 3D for the swat, wobble and pop). -----
+
+
+def paw_swat() -> np.ndarray:
+    """A cat bats at the net when a paw ring is tapped (Catch v3): a quick fur swish, a padded tap and a tiny
+    cartoon squeak. Soft, never a hit."""
+    d = 0.4
+    swish_ = swish(0.12, 1800, 3600, 940) * 0.6
+    tap = glide(0.12, 260, 130, 0.04) * envelope(0.12, 0.002, 0.03)
+    squeak = glide(0.1, 900, 1500, 0.04) * envelope(0.1, 0.004, 0.03)
+    return finish(fade_tail(mix(d, (swish_, 0.0), (tap * 0.6, 0.1), (squeak * 0.18, 0.12)), 0.1), -6)
+
+
+def net_wobble() -> np.ndarray:
+    """The net wraps the cat and wobbles twice in 0.6 s (Catch v3): a rustle closing in, then two rubbery boings,
+    the second smaller. Friendly, a little suspense."""
+    d = 0.7
+    rustle = bandpass(bandpass(noise(0.18, 950), sweep(0.18, 2400, 1200), 1.1), 1500, 0.9) * envelope(0.18, 0.02, 0.06)
+    parts = [(rustle / np.max(np.abs(rustle)) * 0.4, 0.0)]
+    for at, base, amp in ((0.18, 300.0, 0.6), (0.4, 340.0, 0.4)):
+        t = seconds(0.22)
+        wobble = 1 + 0.2 * np.exp(-t / 0.07) * np.sin(2 * np.pi * 11 * t)
+        freq = base * (1 + 0.3 * np.clip(t / 0.04, 0, 1)) * wobble
+        phase = np.cumsum(freq) / SR
+        boing = (np.sin(2 * np.pi * phase) + 0.2 * np.sin(4 * np.pi * phase)) * envelope(0.22, 0.004, 0.07)
+        parts.append((boing * amp, at))
+    return finish(fade_tail(mix(d, *parts), 0.1), -6)
+
+
+def net_pop() -> np.ndarray:
+    """The net pops open on the caught cat (Catch v3): a cork pop and a quick confetti shimmer of tiny bells."""
+    d = 0.6
+    pop = glide(0.08, 400, 1300, 0.04) * envelope(0.08, 0.001, 0.02)
+    puff = bandpass(noise(0.15, 951), 3000, 0.8) * envelope(0.15, 0.002, 0.05)
+    glints = [(bell(0.3, f, ((1.0, 1.0, 0.06), (2.76, 0.2, 0.03))) * 0.22, 0.05 + 0.04 * i)
+              for i, f in enumerate((2637.0, 3136.0, 3520.0, 4186.0, 3951.1))]
+    return finish(fade_tail(mix(d, (pop * 0.8, 0.0), (puff / np.max(np.abs(puff)) * 0.2, 0.01), *glints), 0.15), -6)
+
+
+def word_nice() -> np.ndarray:
+    """NICE! (Catch v3, a catch that wasn't GREAT): the word's pop and one warm marimba note, a step lighter than
+    GREAT's two."""
+    d = 0.5
+    note_ = bell(0.4, note("E6"), MARIMBA, attack=0.002) * 0.6
+    return finish(fade_tail(mix(d, (word_pop(932) * 0.5, 0.0), (note_, 0.05)), 0.12), -7)
+
+
 # --- Rescue minigames (sound-list 5.2) and F92 Team Rescue (2026-11-02). The rescue rows were written on 10-26 but
 # never made, so a rescue was silent apart from the rarity sting; they ship together with Team Rescue's chime in the
 # Rescue sheet (mono: the four trap hits and the drop play in 3D on the trap, the rest flat). The rescue tones sit in
@@ -2040,6 +2089,10 @@ SOUNDS = {
     "StrayHop": ("sheet-parts/sfx", "Sfx", stray_hop),
     "WordGreat": ("sheet-parts/sfx", "Sfx", word_great),
     "WordExcellent": ("sheet-parts/sfx", "Sfx", word_excellent),
+    "PawSwat": ("sheet-parts/sfx", "Sfx", paw_swat),
+    "NetWobble": ("sheet-parts/sfx", "Sfx", net_wobble),
+    "NetPop": ("sheet-parts/sfx", "Sfx", net_pop),
+    "WordNice": ("sheet-parts/sfx", "Sfx", word_nice),
     "RescueStart": ("sheet-parts/sfx", "Sfx", rescue_start),
     "RescueHitBin": ("sheet-parts/sfx", "Sfx", rescue_hit_bin),
     "RescueHitBag": ("sheet-parts/sfx", "Sfx", rescue_hit_bag),
@@ -2083,6 +2136,8 @@ SHEETS = {
                   "DecorJukebox", "DecorCatTree")),
     # F93's net swing (2026-11-02), mono: the smack, bounce and hop play in 3D, the two words flat
     "Catch": (1, ("NetSmack", "NetBounce", "StrayHop", "WordGreat", "WordExcellent")),
+    # Catch v3 (2026-11-06, #1884), mono: the swat, wobble and pop play in 3D, the word flat
+    "Catch3": (1, ("PawSwat", "NetWobble", "NetPop", "WordNice")),
     # the rescue minigames and F92's Team Rescue chime (2026-11-02), mono: the trap hits and the drop play in 3D
     "Rescue": (1, ("RescueStart", "RescueHitBin", "RescueHitBag", "RescueHitTree", "RescueHitCan", "RescueHitTone",
                    "RescueMiss", "RescueDrop", "RescueFail", "RescueDone", "TeamRescue")),

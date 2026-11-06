@@ -60,6 +60,22 @@ Free rewards can be random, because nobody pays for them.
 - **Decor** pieces are looks only. They add no `cafeMultiplier` and don't count toward the Decor Index, like exclusive cats, so paying never moves the Index. They can be placed, and they can't be traded.
 - **The chat tag** shows beside the name in chat for as long as the player has it chosen. A player can pick which tag they show (VIP, a season tag or none) on the Pass screen.
 
+### 3a. More rewards in season 1 (#1883, Derek2 2026-11-06: no season 2 for now, make season 1 more enticing)
+
+- **Free track pays every level.** These are the odd levels added by Monetization-Agent's list on #1883: 1 fish 10, 3 coinSeconds 300, 5 tip_potion 1, 7 spins 1, 9 fish 15, 11 coinSeconds 600, 13 swift_potion 1, 15 highest-zone crate 1, 17 fish 20, 19 coinSeconds 900, 21 swift_potion 1, 23 spins 1, 25 highest-zone crate 1, 27 fish 30, 29 coinSeconds 1500. The two crates are `crates = { highest = 1 }` rather than the Classic crate, which would be a dud by then. In total it adds about 2 spins, 2 crates, 75 fish and 55 minutes of income over 6 weeks.
+- **Paid track +1 potion** at levels 2, 4, 6, 8, 11, 13, 17, 19, and 3 Big Money at 25. Allowed potions only.
+- **Levels 31 to 34**, so the pass is 34 levels and 27,200 XP, still 800 a level. A player who does every quest reaches 34 in about 3.8 weeks. The paid rewards are looks only, untradeable and outside the Decor Index:
+
+  | level | paid | free |
+  |---|---|---|
+  | 31 | Accessory: Autumn Leaf Crown (Head) | 20 fish |
+  | 32 | Decor: Maple Leaf Lamp (lamp-like, lit at night) | 1 spin |
+  | 33 | Decor: Harvest Cider Cart | coinSeconds 1200 |
+  | 34 | Sign style: Maple Board (walnut, carved leaves, amber name text) | 1 highest-zone crate |
+
+  Models: `CatCafe_Accessory_LeafCrown`, `Cafe_Decor_MapleLeafLamp`, `Cafe_Decor_CiderCart`, and the Maple Board sign style (Model-Agent). Levels 31 to 34 ship only when their art exists. Until then the pass stays at 30 levels.
+- Claims are kept by level, so nothing is paid twice and new levels just show as unclaimed. CafePass.spec still checks that the paid track has no crates, spins, fish, coins or luck.
+
 ## 4. The season cat: Maple Muffin
 
 - A ginger tabby with cream paws who wears a small knitted beret with a maple leaf pin (Head prop). A few falling leaves drift around it at work (vfx-animator, mild). It's our own design, built from scratch.

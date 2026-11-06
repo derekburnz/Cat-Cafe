@@ -40,11 +40,27 @@
 		"description": "22 potions (20 + 2 bonus): 10 Big Money, 6 Swift and 6 Steady Paw."
 	},
 	{
+		"name": "Steady Paw Pack",
+		"id": 3728717974,
+		"config": "ProductIds.steady_paw_pack",
+		"price": 25,
+		"regionalPricing": false,
+		"description": "10 Steady Paw Potions: wider catch circles while active."
+	},
+	{
 		"name": "Cafe Pass",
 		"id": 3728336202,
 		"config": "ProductIds.cafe_pass",
 		"price": 299,
 		"regionalPricing": false,
 		"description": "The paid track for the current Cafe Pass season. Level up with quests to unlock its prizes."
+	},
+	{
+		"name": "Thank You Badge",
+		"id": 3728719483,
+		"config": "ProductIds.thank_you_badge",
+		"price": 25,
+		"regionalPricing": false,
+		"description": "A thank-you badge for your profile. One per player."
 	}
 ]

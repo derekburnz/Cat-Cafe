@@ -45,24 +45,42 @@ ROLE_OUTFITS = {"barista": ("Apron", "BaristaCap"), "waiter": ("BowTie", "Vest")
                 "entertainer": ("PartyHat", "Cape")}
 
 
+# The looks any cat can wear (#1624, cafe-pass.md section 3): on the head top, before the face, or on the back. Every
+# body carries an Outfit_<Piece> slot for each (build_all.cat_rbx_extras), so the game dresses by name. A standing
+# lantern can't stand on an upright back, so the sitting and working bodies wear TinyLantern_Sit, hung on the back.
+HEAD_LOOKS = ("Hat", "LeafBeret", "AcornHairClip", "MushroomCap")
+FACE_LOOKS = ("Glasses", "ReadingGlasses")
+BACK_LOOKS = ("TinyLantern",)
+LOOKS = HEAD_LOOKS + FACE_LOOKS + BACK_LOOKS
+LANTERN_SIT_AT = (0.0, Y1, 0.78)              # the upper back of B's chest, under the back of the head, unscaled
+
+
+def look_slots(spec, body):
+    """(part, offset, rotation) of each LOOKS slot on one cat's model before its Scale: the head top's middle and
+    just before the face at eye height on that body's head (times SIT_SCALE on B and S, which are drawn smaller),
+    and the back (walk_slots on A, LANTERN_SIT_AT on B and S's shared chest)."""
+    h = cats.dims(spec, body)["head"]
+    k = 1.0 if body == "walk" else K
+    top = tuple(round(v * k, 4) for v in (0.0, h["c"][1], h["top"]))
+    face = tuple(round(v * k, 4) for v in (0.0, h["fy"] - 0.05, h["fz"]))
+    back = walk_slots(spec)["TinyLantern"] if body == "walk" else \
+        ("Body", tuple(round(v * K, 4) for v in LANTERN_SIT_AT), (0, 0, 0))
+    return {**{n: ("Head", top, (0, 0, 0)) for n in HEAD_LOOKS}, **{n: ("Head", face, (0, 0, 0)) for n in FACE_LOOKS},
+            "TinyLantern": back}
+
+
 def slots(spec, body="sit"):
     """(part, offset, rotation) per accessory on one cat's model before its Scale: the role pieces on the sitting
-    body, Glasses and Hat on the walking one (just in front of the face at eye height, and the head top). Body S
-    (working, cats.py) has B's chest, so it wears the sitting pieces at B's slots, and the hats on its own head's top
-    as on A."""
+    body, the walking ones on A (walk_slots), and on every body the LOOKS (look_slots). Body S (working, cats.py)
+    has B's chest, so it wears the sitting pieces at B's slots, and the role hats on its own head's top as on A."""
     if body == "sit":
-        return dict(SIT_SLOTS)
+        return {**SIT_SLOTS, **look_slots(spec, body)}
     if body == "work":
         h = cats.dims(spec, "work")["head"]
         hat = tuple(round(v * K, 4) for v in (0.0, h["c"][1] - 0.06, h["top"] - 0.01))
-        return {**SIT_SLOTS, **{n: ("Head", hat, (0, 0, 0)) for n in ("BaristaCap", "Boater", "PartyHat")}}
-    h = cats.dims(spec, "walk")["head"]
-    return {"Glasses": ("Head", (0.0, round(h["fy"] - 0.05, 4), h["fz"]), (0, 0, 0)),
-            "Hat": ("Head", (0.0, h["c"][1], round(h["top"], 4)), (0, 0, 0)),
-            "LeafBeret": ("Head", (0.0, h["c"][1], round(h["top"], 4)), (0, 0, 0)),
-            "AcornHairClip": ("Head", (0.0, h["c"][1], round(h["top"], 4)), (0, 0, 0)),
-            "MushroomCap": ("Head", (0.0, h["c"][1], round(h["top"], 4)), (0, 0, 0)),
-            "ReadingGlasses": ("Head", (0.0, round(h["fy"] - 0.05, 4), h["fz"]), (0, 0, 0)), **walk_slots(spec)}
+        return {**SIT_SLOTS, **{n: ("Head", hat, (0, 0, 0)) for n in ("BaristaCap", "Boater", "PartyHat")},
+                **look_slots(spec, body)}
+    return {**walk_slots(spec), **look_slots(spec, body)}
 
 
 # Role pieces on the walking body A (Animation-Engineer, 2026-11-02): the three hats, the bow tie and the cape fit A as
@@ -380,6 +398,28 @@ def build_tiny_lantern(mat):
     return [b.finalize("CatCafe_Accessory_TinyLantern", mat)]
 
 
+def build_tiny_lantern_sit(mat):
+    """The Tiny Lantern on a sitting or working cat (B's and S's upright chest): the same lantern hung on a hook plate
+    on the upper back, from a leather strap round the chest. Built about LANTERN_SIT_AT (+Y back from the coat, as on
+    the walking back slot) and drawn at SIT_SCALE like the role pieces."""
+    b = Builder()
+    cy = cats.B_CHEST_C[1] - Y1                                                         # the chest's centre, from here
+    b.box((0, cy, 0), (2 * X1 + 0.09, Y1 - Y0 + 0.09, 0.06), "fur_russet", bevel=False)   # the strap round the chest
+    b.box((0, 0.05, 0.02), (0.16, 0.05, 0.16), "fur_rust_red", bevel=False)             # its pad on the back
+    b.box((0, 0.1375, 0.165), (0.03, 0.125, 0.03), "fur_black", bevel=False)           # the hook through the handle
+    y = 0.19                                                                            # the lantern's middle
+    b.ring((0, y, 0.13), 0.05, 0.015, 0.02, "fur_black", segments=8, bevel=False, rot=_x(90))   # its ring handle
+    b.pyramid((0, y, 0.0), 0.22, 0.1, "gold_mid")                                       # cap
+    for dx in (-0.08, 0.08):                                                            # frame posts
+        for dy in (-0.08, 0.08):
+            b.box((dx, y + dy, -0.11), (0.025, 0.025, 0.22), "fur_black", bevel=False)
+    b.box((0, y, -0.11), (0.14, 0.14, 0.2), "lamp_warm", bevel=False)                   # the glow
+    b.box((0, y, -0.245), (0.2, 0.2, 0.05), "fur_black", bevel=False)                   # its base
+    ob = b.finalize("CatCafe_Accessory_TinyLantern_Sit", mat)
+    scale_mesh(ob, K)
+    return [ob]
+
+
 # The walking versions (WALK_MESHES): built about the slot on the back's middle line just under the back of the head,
 # +Y running back along the spine, each 0.03 into the back so the coat's stripes and specks stay under it.
 def _back_panel(b, y0, y1, swatch, top=BACK_TOP, w=BACK_W):
@@ -443,6 +483,7 @@ ASSETS = {
     "CatCafe_Accessory_MushroomCap": (build_mushroom_cap, 500),
     "CatCafe_Accessory_ReadingGlasses": (build_reading_glasses, 500),
     "CatCafe_Accessory_TinyLantern": (build_tiny_lantern, 500),
+    "CatCafe_Accessory_TinyLantern_Sit": (build_tiny_lantern_sit, 600),
     "CatCafe_Accessory_Sash": (build_sash, 300),
     "CatCafe_Accessory_PartyHat": (build_party_hat, 300),
     "CatCafe_Accessory_BaristaCap": (build_barista_cap, 300),

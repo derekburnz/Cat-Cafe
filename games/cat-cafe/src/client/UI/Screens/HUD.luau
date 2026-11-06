@@ -49,6 +49,7 @@ local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatchTrust = require(script.Parent.Parent.Components.CatchTrust)
 local Create = require(script.Parent.Parent.Components.Create)
+local FirstBait = require(script.Parent.Parent.Components.FirstBait)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local GoalCard = require(script.Parent.GoalCard)
@@ -1786,6 +1787,22 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		self:_toggleBoosts()
 	end)
 	self._palMarker = PalMarker.new()
+	-- #1895: "🐾 A cat is coming! 1m 42s" in the potion timers' row over the money while the account's short first
+	-- bait waits (Components/FirstBait), so the player stays and does something else meanwhile
+	self._coming = Create("TextLabel", {
+		Name = "CatComing",
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 28),
+		FontFace = Theme.fonts.display,
+		TextSize = 18,
+		TextColor3 = Theme.colors.gold,
+		Text = "",
+		LayoutOrder = 80, -- after the Luck chip and the potion timers, before the pals
+		Visible = false,
+		Parent = self._buffs.frame,
+	})
+	Outline.text(self._coming, 2)
 	-- Catch v3 (#1884, catch-rework.md 7d): "🐾 Purrfect x3" in the potion timers' row over the money from the second
 	-- Purrfect in a row (Components/CatchTrust.streakText); this session only, gone on any other result
 	self._streak = Create("TextLabel", {
@@ -1882,6 +1899,18 @@ function HUD._renderBowl(self: any)
 	end
 	if ready and not wasReady and self._bowlSlot.Visible then
 		Tween.popIn(self._bowlSlot, 0.9)
+	end
+	-- #1895: the first bait's cue, moved on with the bowl's once-a-second loop
+	local coming: TextLabel? = self._coming
+	if coming then
+		local line = FirstBait.chip(bait, Workspace:GetServerTimeNow())
+		local shown = line ~= nil
+		if shown and not coming.Visible then
+			Tween.popIn(coming, 0.7)
+		end
+		coming.Text = if line then "🐾 " .. line else ""
+		coming.Visible = shown
+		self._buffs:setLead(shown, "coming")
 	end
 end
 

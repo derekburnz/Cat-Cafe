@@ -222,7 +222,7 @@ return function()
 
 	describe("targets, deadlines and the lock", function()
 		it("target is startsAt + shrinkSeconds; the deadline adds good and the latency cap", function()
-			local circle = { startsAt = 10, shrinkSeconds = 1.4, x = 0.5, y = 0.5 }
+			local circle: any = { startsAt = 10, shrinkSeconds = 1.4, x = 0.5, y = 0.5 }
 			local windows = Circles.windows(0)
 			expect(Circles.target(circle)).to.be.near(11.4, 1e-9)
 			expect(Circles.deadline(circle, windows)).to.be.near(11.4 + 0.11 + 0.15, 1e-9)

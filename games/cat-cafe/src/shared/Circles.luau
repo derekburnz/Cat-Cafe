@@ -94,13 +94,14 @@ function Circles.schedule(
 			startsAt = previous.startsAt + previous.shrinkSeconds + Config.CircleGapMin
 		end
 		local u = (roll() * 2 - 1) * jitter
-		table.insert(circles, {
+		local circle: Types.CatchCircle = {
 			startsAt = startsAt,
 			shrinkSeconds = def.shrinkSeconds * (1 + u),
 			x = SCREEN_MIN_X + roll() * (SCREEN_MAX_X - SCREEN_MIN_X),
 			y = SCREEN_MIN_Y + roll() * (SCREEN_MAX_Y - SCREEN_MIN_Y),
-			kind = "single",
-		})
+			kind = "single" :: Types.CircleKind,
+		}
+		table.insert(circles, circle)
 	end
 	return circles
 end

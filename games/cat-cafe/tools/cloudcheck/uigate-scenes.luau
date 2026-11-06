@@ -634,6 +634,26 @@ local function assertBowlTabs(selected, title)
 	assert(string.find(shown, title, 1, true), ("uigate: bowl %d's card says %q (#1161)"):format(selected, shown))
 end
 
+-- #1161: the status card's button reads `text`
+local function assertBowlAction(text)
+	local status = baitWindow():FindFirstChild("Status", true)
+	local action = status and status:FindFirstChild("Action", true)
+	assert(action and action.Visible, "uigate: the bowl card has no button (#1161)")
+	local shown = action:FindFirstChildWhichIsA("TextLabel", true)
+	local label = if action:IsA("TextButton") then action.Text elseif shown then shown.Text else ""
+	assert(string.find(label, text, 1, true), ("uigate: the bowl card's button says %q (#1161)"):format(label))
+end
+-- #1161: the HUD's bowl tile with its "2", and its "!" while a cat waits at either bowl
+local function assertBowlTile(catWaiting)
+	local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+	local tile = hud and hud:FindFirstChild("Bowl", true)
+	assert(tile and tile.Visible, "uigate: no HUD bowl tile (#1161)")
+	local count = tile:FindFirstChild("Count")
+	assert(count and count.Visible, "uigate: the HUD bowl tile has no 2 with two bowls (#1161)")
+	local mark = tile:FindFirstChild("Claim")
+	assert(mark and mark.Visible == catWaiting, "uigate: the HUD bowl tile's ! is wrong for a waiting cat (#1161)")
+end
+
 local function press(windowName, name)
 	local playerGui = UIShim.playerGui
 	-- windows sit in CatCafeModals.Root.Container; the HUD and the Index have pieces with the same names (Cats)
@@ -878,6 +898,76 @@ local SCENES = {
 		UI.bait.set({ lureId = Catalog.lures[2].id, readyAt = now + 95, placedAt = now - 30, night = true }, 2)
 		UI.bait.openPicker()
 		assertBowlTabs(1, "is in bowl 1")
+	end },
+	-- #1161: bowl 1 filling and a cat at bowl 2: the window opens on bowl 2 with See the cat, and the HUD's bowl tile
+	-- shows the "!" for it and the "2"
+	{ "BaitOneReady", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.setSecond("on")
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 250, placedAt = now - 50 }, 1)
+		UI.bait.set({ lureId = Catalog.lures[2].id, readyAt = now - 5, placedAt = now - 300 }, 2)
+		UI.bait.showReady({ catId = Catalog.cats[2].id, stars = 2 }, 2)
+		local banner = UIShim.playerGui:FindFirstChild("CatCafeBaitCard"):FindFirstChild("Banner", true)
+		assert(banner.Text == "A CAT CAME TO BOWL 2!", "uigate: the cat's card says " .. banner.Text .. " (#1161)")
+		press("CatCafeBaitCard", "Close") -- the X; See the cat brings it back
+		assertBowlTile(true)
+		UI.bait.openPicker()
+		assertBowlTabs(2, "A cat is at bowl 2!")
+		assertBowlAction("See the cat")
+		press("Bait", "Bowls.Bowl1")
+		assertBowlTabs(1, "is in bowl 1")
+	end },
+	-- #1161: the cat's card with two bowls names the bowl, and its banner stays clear of the X on a phone
+	{ "BaitCardBowl2", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.setSecond("on")
+		UI.bait.set({ lureId = Catalog.lures[2].id, readyAt = now - 5, placedAt = now - 300 }, 2)
+		UI.bait.showReady({ catId = Catalog.cats[2].id, stars = 2 }, 2)
+	end },
+	-- #1161: a cat at each bowl: bowl 1 first, and each tab says its own bowl
+	{ "BaitBothReady", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.setSecond("on")
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now - 20, placedAt = now - 300 }, 1)
+		UI.bait.set({ lureId = Catalog.lures[2].id, readyAt = now - 5, placedAt = now - 300 }, 2)
+		UI.bait.showReady({ catId = Catalog.cats[2].id, stars = 2 }, 2)
+		UI.bait.showReady({ catId = Catalog.cats[3].id, stars = 3 }, 1)
+		press("CatCafeBaitCard", "Close")
+		assertBowlTile(true)
+		UI.bait.openPicker()
+		assertBowlTabs(1, "A cat is at bowl 1!")
+		assertBowlAction("See the cat")
+		press("Bait", "Bowls.Bowl2")
+		assertBowlTabs(2, "A cat is at bowl 2!")
+		assertBowlAction("See the cat")
+	end },
+	-- #1161: the pass bought with the window open: ProfileSync's secondBowl goes from "offer" to "on", and the locked
+	-- card gives way to an empty bowl 2 that takes food, with the HUD's "2", no rejoin
+	{ "BaitBoughtMidSession", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local prices = storePrices(true)
+		prices[Config.SecondBowlPassId] = { robux = 149, forSale = true }
+		UI.store.preview(prices, {})
+		UI.bait.setSecond("offer")
+		UI.bait.openPicker()
+		press("Bait", "Bowls.Bowl2")
+		assertBowlTabs(2, "Get a second bowl")
+		UI.bait.setSecond("on")
+		assertBowlTabs(2, "Bowl 2 is empty")
+		-- Use on a food the player has puts it in bowl 2
+		local food = Catalog.lures[1].id
+		UI.update({ lures = { [food] = 3 } })
+		local sent = nil
+		local connection = UI.events.useLure:Connect(function(lureId, bowl)
+			sent = tostring(lureId) .. "@" .. tostring(bowl)
+		end)
+		press("Bait", food .. ".Use")
+		connection:Disconnect()
+		assert(sent == food .. "@2", "uigate: Use after the pass sent " .. tostring(sent) .. " (#1161)")
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local count = hud and hud:FindFirstChild("Bowl", true)
+		count = count and count:FindFirstChild("Count")
+		assert(count and count.Visible, "uigate: the HUD bowl tile has no 2 after the pass (#1161)")
 	end },
 	-- #1161: no pass: bowl 2's tab is locked; tapping it shows the pass card with its price. #1767: under it three
 	-- short lines on what it gives, not the seven-food odds table

@@ -118,5 +118,21 @@
 		"price": 149,
 		"regionalPricing": true,
 		"description": "A second bait bowl in your cafe, so you can run two baits at once. It has the same upgrades as your first bowl. Yours to keep."
+	},
+	{
+		"name": "Sign Style Pack",
+		"id": 0,
+		"config": "SignStylePackPassId",
+		"price": 79,
+		"regionalPricing": true,
+		"description": "Three cafe sign styles: Flower Box, Starry Night and Paw Chalkboard. Pick one for your sign any time. Yours to keep, can't be traded."
+	},
+	{
+		"name": "Garden Decor Pack",
+		"id": 0,
+		"config": "GardenDecorPackPassId",
+		"price": 149,
+		"regionalPricing": true,
+		"description": "Six garden decor pieces for your cafe: Hanging Fern Basket, Sunflower Pot, Watering Can Planter, Potted Lemon Tree, Ivy Trellis and Garden Swing Seat. Yours to keep, can't be traded."
 	}
 ]

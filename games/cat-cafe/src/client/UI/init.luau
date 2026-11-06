@@ -748,6 +748,9 @@ function UI.init(config: Types.InitConfig)
 			end
 			UI.toast("Tutorial and tips hidden. Turn them on in Settings.", "info")
 		end,
+		setSetting = function(key: string, value: boolean)
+			UI.events.setSetting:Fire(key, value) -- #1893: the Grand Opening strip's roadmapOpen
+		end,
 		openFeedback = function()
 			UI.bugReport.open() -- F87: the faces page first
 		end,
@@ -3705,6 +3708,38 @@ function UI.luckyDay(
 		return
 	end
 	-- "start": #1572 the clock read banners every kind of the day at once (LuckLogic.dayBanner), so nothing here
+end
+
+-- #1893 (first-hour.md 1b): UIController's hook for RoadmapStep(n), the server's word that milestone n was done and
+-- paid. The strip's dot pops gold, a small toast slides in ("Grand Opening 4/8: Tier 2! +10 golden fish") with a
+-- short confetti puff off the strip (Effects/StoreBurst), and step 8 plays the Grand Opening banner once. The strip
+-- itself follows the next ProfileSync.
+UI.roadmap = {}
+function UI.roadmap.step(n: number)
+	if type(n) ~= "number" then
+		return
+	end
+	local RoadmapLogic = require(script.Components.RoadmapLogic)
+	if hud then
+		hud:roadmapStep(n)
+		local strip = hud.screenGui:FindFirstChild("GrandOpening", true)
+		if strip and strip:IsA("GuiObject") and strip.Visible then
+			local Burst = require(script.Parent.Effects.StoreBurst) :: any
+			Burst.play(strip, if n >= #RoadmapLogic.STEPS then "bundle" else "pass")
+		end
+	end
+	if toasts then
+		toasts:show(RoadmapLogic.toast(n), "good")
+	end
+	if n >= #RoadmapLogic.STEPS and areaTitle then
+		areaTitle:banner(
+			"grand_opening",
+			RoadmapLogic.BANNER,
+			RoadmapLogic.BANNER_LINE,
+			Theme.colors.gold,
+			5
+		)
+	end
 end
 
 ----------------------------------------------------------------------------------------------------

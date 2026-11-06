@@ -67,6 +67,8 @@ local PalMarker = require(script.Parent.PalMarker)
 local PityLogic = require(script.Parent.Parent.Components.PityLogic)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
+local Roadmap = require(script.Parent.Roadmap)
+local RoadmapLogic = require(script.Parent.Parent.Components.RoadmapLogic)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Signal = require(script.Parent.Parent.Components.Signal)
@@ -90,6 +92,7 @@ export type Callbacks = {
 	replayIntro: () -> (), -- the Tutorial tile (F72)
 	hideTutorialButton: () -> (), -- the Tutorial tile's red ×
 	openFeedback: () -> (), -- the Feedback tile: the Feedback window on its Idea chip
+	setSetting: ((key: string, value: boolean) -> ())?, -- #1893: the Grand Opening strip saves roadmapOpen
 }
 
 export type HUD = {
@@ -115,6 +118,7 @@ export type HUD = {
 	isCarrying: (self: HUD) -> boolean,
 	bottomTop: (self: HUD) -> number,
 	setCatching: (self: HUD, active: boolean) -> (),
+	roadmapStep: (self: HUD, n: number) -> (),
 	-- F101: fires (active) when a catch or rescue starts or ends, so the Rally banner gets out of its way
 	catchingChanged: Signal.Signal,
 	isCatching: (self: HUD) -> boolean,
@@ -1088,6 +1092,16 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._goal = GoalCard.new(root, UDim2.new(1, -MARGIN, 0, GOAL_TOP), function()
 		callbacks.openScreen("RankUp")
 	end)
+	-- #1893 (first-hour.md 1b): the Grand Opening strip just under the goal card; a tap opens or closes its steps,
+	-- saved as the roadmapOpen setting
+	self._roadmap = Roadmap.new(root, UDim2.new(1, -MARGIN, 0, GOAL_TOP), function(open: boolean)
+		self._roadmapOpen = open
+		local save = callbacks.setSetting
+		if save then
+			save("roadmapOpen", open)
+		end
+		self:_layoutRight()
+	end)
 	-- F73: one outlined line under it, the closest unfinished daily quest or what is ready to claim; a tap opens Quests
 	local questLine: TextButton = Create("TextButton", {
 		Name = "QuestLine",
@@ -1944,6 +1958,11 @@ function HUD.setCatching(self: any, active: boolean)
 	end
 end
 
+-- #1893: RoadmapStep(n) from the server: the strip's dot pops gold (the toast is the UI's)
+function HUD.roadmapStep(self: any, n: number)
+	self._roadmap:pop(n)
+end
+
 function HUD.isCatching(self: any): boolean
 	return self._catching == true
 end
@@ -2151,6 +2170,16 @@ function HUD.render(self: any, state: Types.PlayerState)
 		self._chimedTier = tierProgress.tier
 		Sound.play("uiRankReady")
 	end
+	-- #1893: the Grand Opening strip (Components/RoadmapLogic), open as the roadmapOpen setting says
+	local settings: any = state.settings
+	if
+		self._roadmapOpen == nil
+		and type(settings) == "table"
+		and type(settings.roadmapOpen) == "boolean"
+	then
+		self._roadmapOpen = settings.roadmapOpen
+	end
+	self._roadmap:render(RoadmapLogic.view(state :: any), self._roadmapOpen == true)
 	self:_renderQuests(state, catalog)
 	self:_renderFreeSpin()
 	self:_layoutRight()
@@ -2570,6 +2599,22 @@ function HUD._layoutRight(self: any)
 	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top - lift)
 	local goal = self._goal.frame
 	local lineTop = if goal.Visible then top + goal.Size.Y.Offset + Theme.sizes.gap else top
+	-- #1893: the Grand Opening strip under the goal card, the quest line under it
+	local roadmap: TextButton = self._roadmap.frame
+	local stripTop = lineTop - lift
+	if roadmap.Visible and self._roadmapOpen == true then
+		-- open on a short screen (a phone turned sideways): the list rises over the goal card so all eight steps fit
+		local parent = roadmap.Parent
+		local screenH = if parent and parent:IsA("GuiObject")
+			then parent.AbsoluteSize.Y / math.max(Scale.get(), 0.01)
+			else math.huge
+		local room = screenH - MARGIN - roadmap.Size.Y.Offset
+		stripTop = math.max(MARGIN, math.min(stripTop, room))
+	end
+	roadmap.Position = UDim2.new(1, -MARGIN, 0, stripTop)
+	if roadmap.Visible then
+		lineTop += self._roadmap:closedHeight() + Theme.sizes.gap
+	end
 	self._questLine.Position = UDim2.new(1, -MARGIN, 0, lineTop - lift)
 	local spinTop = if self._questLine.Visible then lineTop + QUEST_LINE_H + 2 else lineTop
 	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, spinTop - lift)

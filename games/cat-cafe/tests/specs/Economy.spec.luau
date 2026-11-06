@@ -707,11 +707,11 @@ return function()
 					{ "tables", 1, nil },
 					{ "tables", 2, 2 },
 					{ "tables", 3, 2 },
-					{ "tables", 4, 3 },
+					{ "tables", 4, 2 }, -- #1896: Tables 5 at Tier 2
 					{ "tables", 5, 3 },
 					{ "espresso", 1, nil },
 					{ "espresso", 2, 2 },
-					{ "espresso", 3, 3 },
+					{ "espresso", 3, 2 }, -- #1896: Espresso 4 at Tier 2
 					{ "espresso", 4, 4 },
 					{ "net", 0, nil },
 					{ "net", 1, 2 },
@@ -934,14 +934,17 @@ return function()
 			end
 		)
 
-		it("a new save buys the first table, the Bait bowl and Kibble straight away (#1796)", function()
-			-- tutorial steps 3 and 4 ask for them in a row, so none of them waits on coins
-			local p = freshProfile(0)
-			local spend = Catalog.upgradesById.tables.costs[1]
-				+ Catalog.upgradesById.lure_bowl.costs[1]
-				+ Economy.foodPrice("kibble", Economy.tier(p))
-			expect(p.coins >= spend).to.equal(true)
-		end)
+		it(
+			"a new save buys the first table, the Bait bowl and Kibble straight away (#1796)",
+			function()
+				-- tutorial steps 3 and 4 ask for them in a row, so none of them waits on coins
+				local p = freshProfile(0)
+				local spend = Catalog.upgradesById.tables.costs[1]
+					+ Catalog.upgradesById.lure_bowl.costs[1]
+					+ Economy.foodPrice("kibble", Economy.tier(p))
+				expect(p.coins >= spend).to.equal(true)
+			end
+		)
 
 		it(
 			"step 7: two tables, the bait bowl and Kibble are affordable inside 10 minutes",

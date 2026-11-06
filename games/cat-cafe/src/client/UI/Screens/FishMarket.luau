@@ -46,6 +46,7 @@ local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local FreshCatchLogic = require(script.Parent.Parent.Components.FreshCatchLogic)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
 local MarketLogic = require(script.Parent.Parent.Components.MarketLogic)
@@ -839,7 +840,9 @@ function FishMarket._buildReveal(self: any, body: Frame)
 	-- (review N324), so its ticks end with the window and the toast says what was won at once.
 	self._reelView = CrateReel.new(body)
 	self.frame:GetPropertyChangedSignal("Visible"):Connect(function()
-		if not self.frame.Visible and self._reelView:playing() then
+		if self.frame.Visible then
+			self:_preloadPieces()
+		elseif self._reelView:playing() then
 			self._reelView:skip()
 		end
 	end)
@@ -951,6 +954,21 @@ function FishMarket._playReveal(
 			self:_finishReveal()
 		end
 	end)
+end
+
+-- #1728 (Derek2 11-06: blank squares went by while the reel spun): every crate piece's picture is fetched when the
+-- window opens, so the reel's tiles draw at once instead of loading mid spin. IconArt skips ones already fetched.
+function FishMarket._preloadPieces(self: any)
+	local images: { string } = {}
+	for _, crate in self._crateById do
+		for _, id in (crate :: Types.CrateDef).pieces do
+			local picture = ShopIcons.decor(id)
+			if picture then
+				table.insert(images, picture)
+			end
+		end
+	end
+	IconArt.preload(images)
 end
 
 -- F103: the reel for a crate the server already rolled and paid. The strip is drawn here from the crate's own

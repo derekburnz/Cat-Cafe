@@ -137,11 +137,13 @@ local PRODUCTS: { ProductCard } = {
 	{
 		key = "potionXS",
 		productKey = "potion_pack_xs",
-		effect = "Money Potions: more money while they last.",
+		effect = "More money while they last.", -- #1715: one short line
 	},
-	{ key = "potionS", productKey = "potion_pack_s", effect = "A small potion mix." },
-	{ key = "potionM", productKey = "potion_pack_m", effect = "A potion mix." },
-	{ key = "potionL", productKey = "potion_pack_l", effect = "A big potion mix, with 2 bonus." },
+	-- #1715: the mixes need no line of their own (the name says the size, the rows say what is in it), so a phone card
+	-- keeps its text readable; "with 2 bonus" said nothing
+	{ key = "potionS", productKey = "potion_pack_s", effect = "" },
+	{ key = "potionM", productKey = "potion_pack_m", effect = "" },
+	{ key = "potionL", productKey = "potion_pack_l", effect = "" },
 }
 StoreLogic.PRODUCTS = PRODUCTS
 
@@ -239,7 +241,9 @@ function StoreLogic.extras(prize: ProductPrize, catNames: { [string]: string }?)
 	return if #parts > 0 then table.concat(parts, ", ") else nil
 end
 
--- "3 Money Potion, 1 Swift Potion · You have 4": the exact contents, biggest first, and how many of them are owned.
+-- #1715 (Derek2: "make the potion packs description better organized"): the exact contents, one row per potion,
+-- biggest first, then how many of them are already in the bag on a line of its own:
+--   "3x Money Potion\n1x Swift Potion\nIn your bag: 4"
 function StoreLogic.contents(
 	potions: { [string]: number },
 	names: { [string]: string }?,
@@ -259,11 +263,12 @@ function StoreLogic.contents(
 	local parts: { string } = {}
 	local owned = 0
 	for _, entry in list do
-		table.insert(parts, ("%d %s"):format(entry.count, (names or {})[entry.id] or entry.id))
+		table.insert(parts, ("%dx %s"):format(entry.count, (names or {})[entry.id] or entry.id))
 		local mine: number = (have or {})[entry.id] or 0
 		owned += mine
 	end
-	return table.concat(parts, ", ") .. (" · You have %d"):format(owned)
+	table.insert(parts, ("In your bag: %d"):format(owned))
+	return table.concat(parts, "\n")
 end
 
 local function productRows(config: any, view: ShopView?): { Row }
@@ -285,8 +290,7 @@ local function productRows(config: any, view: ShopView?): { Row }
 				passId = id,
 				name = def.name,
 				icon = "🧪",
-				effect = card.effect
-					.. "\n"
+				effect = (if card.effect ~= "" then card.effect .. "\n" else "")
 					.. StoreLogic.contents(def.prize.potions, view.potionNames, view.have),
 				owned = false,
 				product = true,
@@ -415,7 +419,8 @@ end
 -- 3x/4x if bought"): the badge beside the HUD's money. The highest money pass owned (Roblox's answer in `owned`, or
 -- the server's PlayerState.passBoosts.money as `serverMultiplier`) reads "2x", "3x" or "4x"; with none, "Get 2x"
 -- while the 2x pass is on sale (a tap opens the Store), else no badge.
-export type MoneyBadge = { text: string, owned: boolean }
+-- price: #1759, the not-owned badge's line under its pill, "Only R$5" (nil once owned or with no price yet)
+export type MoneyBadge = { text: string, owned: boolean, price: string? }
 function StoreLogic.moneyBadge(
 	config: any,
 	owned: { [number]: boolean },
@@ -438,7 +443,12 @@ function StoreLogic.moneyBadge(
 	local first = ladder[1]
 	local price = if first ~= nil then prices[first.id] else nil
 	if price ~= nil and price.forSale then
-		return { text = ("Get %dx"):format(first.multiplier), owned = false }
+		-- #1759 (Derek2 11-06: "more in your face then that slight 2x"): the HUD's rainbow buy button
+		return {
+			text = ("X%d Cash"):format(first.multiplier),
+			owned = false,
+			price = if price.robux ~= nil then ("Only R$%d"):format(price.robux :: number) else nil,
+		}
 	end
 	return nil
 end

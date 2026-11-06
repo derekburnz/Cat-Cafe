@@ -91,6 +91,15 @@ function BagLogic.canFeed(level: number): boolean
 	return level < maxLevel()
 end
 
+-- #1773: the feed card's bar, how far the cat is toward its next level (0 to 1); 1 at the top level.
+function BagLogic.xpFraction(level: number, xp: number?): number
+	if level >= maxLevel() then
+		return 1
+	end
+	local need = (Config.CatXpBase or 0) * math.max(1, math.floor(level))
+	return if need > 0 then math.clamp((xp or 0) / need, 0, 1) else 0
+end
+
 -- XP from `level` to the next, as CatStats.xpToNext counts it (Config.CatXpBase per level).
 function BagLogic.catLine(level: number, xp: number?): string
 	if level >= maxLevel() then

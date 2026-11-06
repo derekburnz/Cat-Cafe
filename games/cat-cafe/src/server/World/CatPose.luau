@@ -18,12 +18,20 @@ function CatPose.scaleOf(model: Model): number
 	return CatDress.scaleOf(model)
 end
 
+local function cloneAsset(assetName: string): Model?
+	return if AssetRegistry.has(assetName) then AssetRegistry.clone(assetName) else nil
+end
+
 -- Puts `role`'s outfit on a working cat (CatDress.dress, which poses a worker too), each piece AssetRegistry's model
--- while it has one. Returns how many pieces went on.
-function CatPose.dress(model: Model, role: string): number
-	return CatDress.dress(model, role, function(assetName: string): Model?
-		return if AssetRegistry.has(assetName) then AssetRegistry.clone(assetName) else nil
-	end)
+-- while it has one, and (#1624) the cafe's Looks accessory `accessoryId` where it fits. Returns how many pieces went
+-- on.
+function CatPose.dress(model: Model, role: string, accessoryId: string?): number
+	return CatDress.dress(model, role, cloneAsset, accessoryId)
+end
+
+-- #1624: swaps a dressed working cat's accessory for `accessoryId` (nil: none) in place (CatDress.setAccessory).
+function CatPose.setAccessory(model: Model, role: string, accessoryId: string?)
+	CatDress.setAccessory(model, role, accessoryId, cloneAsset)
 end
 
 -- #1624: recolours a dressed working cat's outfit in the Looks uniform `uniformId` (nil: Classic, as built). The cat

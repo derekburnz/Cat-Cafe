@@ -211,9 +211,16 @@ export type IndexPrize = {
 -- The Cafe Pass (#1645, cafe-pass.md). A paid track's named item, kept forever once claimed: a chat tag, an accessory,
 -- a uniform colour, a looks-only decor piece, a sign frame or the season cat.
 -- #1624 (store-pass-looks.md): the saved theme and uniform picks (shared/Looks ids), nil for Classic.
-export type LookPicks = { theme: string?, uniform: string? }
+export type LookPicks = { theme: string?, uniform: string?, accessory: string? }
 -- What the Style tab reads: the picks (the shown look, nil for Classic) and every owned id of each kind.
-export type LooksView = { theme: string?, uniform: string?, themes: { string }, uniforms: { string } }
+export type LooksView = {
+	theme: string?,
+	uniform: string?,
+	accessory: string?, -- #1624 section 6: the cats' accessory (save version 39)
+	themes: { string },
+	uniforms: { string },
+	accessories: { string },
+}
 
 export type PassItemKind = "tag" | "accessory" | "uniform" | "decor" | "frame" | "cat"
 export type PassItem = { kind: PassItemKind, id: string, name: string }
@@ -870,12 +877,10 @@ export type FreshCatchItem = { itemId: string, fish: number, amount: number, bou
 export type FreshCatchStock = { window: number, restocksAt: number, stock: { FreshCatchItem } }
 
 -- The Corner Shop (corner-shop.md, #1052): sold for coins only.
--- v2 (corner-shop-v2.md section 4, #1180): every row sold for coins at a fixed `price`, in a `family` (its daily limit
--- counts the family, Config.CornerDailyLimits) and a `size` (Big and Mega rows are tier gated). A
--- "potion" row gives `potionId` into the bag, a "food" row `foodId` into the Bag's cat food (its `xp` is that food's)
--- and a "show" row played `showId` over the buyer's cafe (retired with the Bubble Machine and Cafe Fireworks, #1381; the
--- kind and its fields go once Effects/CafeShow and CornerShopLogic stop reading them). `needsTier` hides and refuses
--- the row below that tier. #1281 (section 1b): a "bait" row sells the bowl food `lureId` into `lures` at its
+-- v2 (corner-shop-v2.md section 4, #1180): every row sold for coins at a fixed `price`, in a `family` (its daily limit,
+-- Config.CornerDailyLimits) and a `size` (Big and Mega rows are tier gated). A "potion" row gives `potionId` into the
+-- bag and a "food" row `foodId` into the Bag's cat food (its `xp` is that food's). The "show" rows (Bubble Machine and
+-- Cafe Fireworks) are gone (#1381, #1483). `needsTier` hides and refuses the row below that tier. #1281 (section 1b): a "bait" row sells the bowl food `lureId` into `lures` at its
 -- tier-scaled price (CornerShop.priceOf, so `price` is only its Tier 1 price).
 export type CornerShopSize = "small" | "regular" | "big" | "mega"
 export type CornerShopRow = {
@@ -883,17 +888,15 @@ export type CornerShopRow = {
 	name: string,
 	family: string,
 	size: CornerShopSize,
-	kind: "potion" | "food" | "show" | "bait",
+	kind: "potion" | "food" | "bait",
 	price: number,
 	potionId: string?,
 	foodId: string?,
 	lureId: string?, -- #1281: a "bait" row's bowl food
 	xp: number?,
-	showId: string?,
-	showSeconds: number?,
 	needsTier: number?,
 }
--- Saved (version 32): the window the bought counts belong to, and on UTC day `day` each family's buys (`today`) and
+-- Saved (version 32): the window the bought counts belong to, and on UTC day `day` each row's buys (`today`, #1712) and
 -- the cat food XP bought (`foodXpToday`).
 export type CornerShopState = {
 	window: number,
@@ -910,7 +913,7 @@ export type CornerShopItem = {
 	bought: number,
 	size: CornerShopSize,
 	needsTier: number?,
-	outToday: boolean?, -- #1435: true when the row's family has hit its daily limit today; nil otherwise
+	outToday: boolean?, -- #1435: true when the row has hit its family's daily limit today (#1712: per row); nil otherwise
 }
 -- What CornerShopStock sends: the window, when it restocks, each row in Catalog order, and the cat food XP bought
 -- today (`snackXp`, its v1 name, which the window reads).
@@ -1092,6 +1095,7 @@ export type PlayerState = {
 	stuckHelpShown: { [string]: boolean },
 	starterCatClaimed: boolean, -- F96: the Bellhop Cat's stand card reads "Already home with you"
 	starterBought: boolean, -- #1625: the Starter Bundle is bought, so its Store card hides
+	codesRedeemed: { [string]: number }?, -- #1714: code id -> os.time() redeemed, for the Store's Codes tab
 	signStyles: { string }, -- #1625: every sign style owned (SignStyles.owned), saved or through a pass
 	signStyle: string?, -- #1625: the pick SetSignStyle saved, nil for the plain sign
 	looks: LooksView, -- #1624: the Style tab's theme and uniform rows (shared/Looks), SetLook

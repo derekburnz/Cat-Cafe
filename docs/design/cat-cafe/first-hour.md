@@ -34,6 +34,12 @@ Each milestone is read from the profile, so it needs no new tracking, and each o
 - After milestone 8, the Grand Opening plays a bigger moment once: a banner "Your cafe's Grand Opening!", a confetti burst over the cafe and the tag. Then the strip goes away for good.
 - Accounts already at Tier 3 or above when this ships never see the card and get nothing back-paid, because the first hour is behind them.
 
+### 1d. The ribbon on the cafe (Model-Agent, 2026-11-06)
+- **Before step 8:** a red ribbon with a big bow and a small "Grand Opening soon" pennant hangs across the cafe front at awning height, from the end of the tutorial. It's a plot model at the plot pivot, looks only, with no collision, and it stays clear of the door and the back step.
+- **At step 8:** the ribbon snaps in two and the halves drop and fade, with the Grand Opening banner (VFX adds confetti, Sound adds a snip). The halves are separate parts so they can be tweened.
+- **After:** pastel bunting and two balloon clusters by the door, for 2 hours of play after step 8, then gone. There's no remove button. Save: `grandOpening.finishedAt` (play-time seconds) next to `finished`. On the low setting, the balloons don't wobble.
+- Accounts at Tier 3 or above when this ships never see it (section 1b).
+
 ### 1c. Contracts
 - Save: `grandOpening = { done = { [number]: true } }`, an optional field defaulting to empty, plus `finished` true after step 8. This needs a save version bump, so claim `DataService.luau`.
 - Server checks on the events that already exist (table buy, bait result, check-in, rank-up, Park catch, role assignment). It pays through `Payout`, sends `RoadmapStep(n)` to the client for the toast, and syncs in ProfileSync.

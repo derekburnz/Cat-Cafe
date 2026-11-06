@@ -19,6 +19,7 @@ local Settings = require(script.Parent.Settings)
 local SignStyles = require(script.Parent.SignStyles)
 local Spin = require(script.Parent.Spin)
 local StarterCat = require(script.Parent.StarterCat)
+local StoreTabs = require(script.Parent.StoreTabs)
 local Tips = require(script.Parent.Tips)
 local Trade = require(script.Parent.Trade)
 local Types = require(script.Parent.Types)
@@ -104,6 +105,8 @@ local ProfileSchema = {}
 -- and gotDecor. An older server drops them, which only locks those pieces again and shortens old log entries.
 -- Version 35 (#1625) adds onceBought, signStyles and signStyle, the Starter Bundle's once-per-account mark and the
 -- sign styles: an older server would drop them, losing the Bakery Stripes sign and letting the bundle be bought as new.
+-- #1842 (no new version): storeSeen, the Store tab versions last opened. An older server drops it, which only shows the
+-- tabs' "New" dots again.
 -- Version 36 (#1645, cafe-pass.md section 6) adds pass, the Cafe Pass's XP, claims, paid season and items: an older
 -- server would drop it, losing the XP and letting a reward be claimed twice by hopping servers during a rollout.
 -- Version 37 (#1537, lawn-nursery.md section 7) adds yardDecor, the Yard Sale's lawn rows bought this global game
@@ -285,6 +288,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		onceBought = {},
 		signStyles = {},
 		signStyle = nil,
+		storeSeen = {},
 		pass = CafePass.fresh(0),
 		looks = {},
 	}
@@ -939,6 +943,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.onceBought = Products.sanitizeOnce(raw.onceBought)
 	profile.signStyles = SignStyles.sanitize(raw.signStyles)
 	profile.signStyle = SignStyles.sanitizePick(raw.signStyle)
+	-- #1842 (no new version): the Store tabs opened; none before
+	profile.storeSeen = StoreTabs.sanitize(raw.storeSeen)
 	-- #1645 (version 36): the Cafe Pass; saves before it start at season 0 with nothing (CafePassService rolls it on)
 	profile.pass = CafePass.sanitize(raw.pass)
 	CafePass.grantOwned(profile) -- #1645: pass decor and the frame claimed before they had a place (decor, sign styles)

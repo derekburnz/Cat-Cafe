@@ -46,6 +46,7 @@ local Settings = require(ReplicatedStorage.Shared.Settings)
 local ShortNumber = require(ReplicatedStorage.Shared.ShortNumber)
 local SignStyles = require(ReplicatedStorage.Shared.SignStyles)
 local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
+local StoreTabs = require(ReplicatedStorage.Shared.StoreTabs)
 local Telemetry = require(script.Parent.Telemetry)
 local TipService = require(script.Parent.TipService)
 local Trade = require(ReplicatedStorage.Shared.Trade)
@@ -219,6 +220,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		stuckHelpShown = table.clone(profile.stuckHelpShown),
 		starterCatClaimed = profile.starterCatClaimed, -- F96
 		starterBought = profile.onceBought.starter_bundle == true, -- #1625: the Store card hides
+		storeSeen = table.clone(profile.storeSeen), -- #1842: the Store tabs' "New" dots
 		codesRedeemed = table.clone(profile.codesRedeemed), -- #1714: the Store's Codes tab lists the codes used
 		signStyles = SignStyles.owned(profile.signStyles, ownsPassOf(player)), -- #1625
 		signStyle = profile.signStyle,
@@ -2025,6 +2027,18 @@ end
 
 -- #1624: picks a look of `rawKind` ("theme", "uniform" or "accessory"): an owned Looks id, or nil for the default
 -- (Classic, or no accessory). Saved in profile.looks, then the plot shows it.
+-- #1842: the Store opened on `rawTab`; the whole check is StoreTabs.markSeen (a known tab id only). No toast: the UI
+-- clears the dot as it opens the tab, and the next sync agrees.
+local function onMarkStoreSeen(player: Player, rawTab: unknown)
+	local profile = profileFor(player)
+	if profile == nil then
+		return
+	end
+	if StoreTabs.markSeen(profile.storeSeen, rawTab) then
+		CafeService.sync(player)
+	end
+end
+
 local function onSetLook(player: Player, rawKind: unknown, rawId: unknown)
 	local profile = profileFor(player)
 	if profile == nil then
@@ -2153,6 +2167,7 @@ function CafeService.start()
 	Net.on("SetSetting", onSetSetting)
 	Net.on("SetSignStyle", onSetSignStyle) -- #1625
 	Net.on("SetLook", onSetLook) -- #1624
+	Net.on("MarkStoreSeen", onMarkStoreSeen) -- #1842
 	Net.on("RequestSync", function(player)
 		CafeService.sync(player)
 		local offline, seconds = DataService.peekPendingOffline(player)

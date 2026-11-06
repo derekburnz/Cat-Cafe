@@ -131,9 +131,13 @@ end
 
 -- Saved keys the Settings screen shows outside these rows. F102: Trade requests is a three-way choice ("everyone",
 -- "friends" or "off", default "everyone") in the Trading section (Screens/Settings, TradeLogic.requestsMode), so the
--- server can save its key without a switch row here.
+-- server can save its key without a switch row here. #1893: roadmapOpen is the Grand Opening strip's open or closed
+-- state, set by tapping the strip (Screens/Roadmap), so it has no row either.
 SettingsList.TRADE_REQUESTS_KEY = "tradeRequests"
-SettingsList.OTHER_KEYS = { [SettingsList.TRADE_REQUESTS_KEY] = true } :: { [string]: boolean }
+SettingsList.OTHER_KEYS = {
+	[SettingsList.TRADE_REQUESTS_KEY] = true,
+	roadmapOpen = true,
+} :: { [string]: boolean }
 
 -- Every row in screen order.
 SettingsList.ROWS = {} :: { Row }

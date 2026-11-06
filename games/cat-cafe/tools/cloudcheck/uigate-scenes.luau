@@ -987,6 +987,38 @@ local SCENES = {
 		UI.bait.openPicker()
 		assertBowlTabs(2, "Bowl 2 is empty")
 	end },
+	-- #1893 (first-hour.md 1b): the Grand Opening strip under the goal card at 3/8, tapped open into its eight steps
+	-- (the next one highlighted), then milestone 4's toast and dot
+	{ "GrandOpening", function()
+		UI.update({ tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true, [3] = true } } })
+		local strip = UIShim.playerGui:FindFirstChild("GrandOpening", true)
+		assert(strip and strip.Visible, "uigate: no Grand Opening strip after the tutorial (#1893)")
+		local title = strip:FindFirstChild("Title")
+		assert(title and title.Text == "Grand Opening 3/8", "uigate: the strip reads " .. tostring(title and title.Text))
+		UIShim.fire(UIShim.eventOf(strip, "Activated"))
+		local steps = strip:FindFirstChild("Steps")
+		assert(steps and steps.Visible, "uigate: a tap didn't open the Grand Opening steps (#1893)")
+		UI.roadmap.step(4)
+	end },
+	-- #1893: step 8's Grand Opening banner
+	{ "GrandOpeningDone", function()
+		UI.update({ tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true } } })
+		UI.roadmap.step(8)
+	end },
+	-- #1895: the account's short first bait (2 minutes) in the bowl: "A cat is coming!" on the HUD's row over the money
+	-- and in the Bait bowl window
+	{ "BaitFirstComing", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 102, placedAt = now - 18 }, 1)
+		local chip = UIShim.playerGui:FindFirstChild("CatComing", true)
+		assert(chip and chip.Visible and string.find(chip.Text, "A cat is coming!", 1, true),
+			"uigate: no \"A cat is coming!\" over the money during the first bait (#1895)")
+		UI.bait.openPicker()
+		local status = baitWindow():FindFirstChild("Status", true)
+		local sub = status and status:FindFirstChild("Sub", true)
+		assert(sub and string.find(sub.Text, "A cat is coming!", 1, true),
+			"uigate: the bowl window doesn't say a cat is coming (#1895)")
+	end },
 	-- #1573: a Tuna bait that has come and gone; the empty bowl offers Refill with the same food
 	{ "BaitRefill", function()
 		local now = workspace:GetServerTimeNow()

@@ -1149,6 +1149,19 @@ local SCENES = {
 		UI.update({ cats = player.cats })
 		UI.open("Cats")
 	end },
+	-- #1772: the Gold tab opens with a Gold cats line over the areas, as the Rainbow tab has Rainbow cats
+	{ "IndexGold", function()
+		UI.open("Collection")
+		press("Collection", "GoldTab")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true)
+		local line = window and window:FindFirstChild("all", true)
+		assert(line and line.Visible, "uigate: the Gold tab has no overall line (#1772)")
+		local title = line:FindFirstChild("Area", true)
+		assert(title and title.Text == "Gold cats", "uigate: the Gold tab's line reads " .. tostring(title and title.Text) .. " (#1772)")
+		press("Collection", "IndexTab")
+		assert(title.Text ~= "Gold cats", "uigate: the Cats tab's line still reads Gold cats (#1772)")
+	end },
 	-- F99 section 3: the Index's Rainbow tab, the Rainbow cats line with its strip open on "Reward ready", rainbow
 	-- tiles on turning borders
 	{ "IndexRainbow", function()

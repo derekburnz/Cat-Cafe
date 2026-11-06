@@ -3386,6 +3386,16 @@ Presets.campGlow = {
 		yardSale = { under = 0.5, colour = Presets.palette.lampWarm, atLeast = 1 },
 		pond = { under = 0.4, colour = Presets.palette.golden, atLeast = 18 },
 	},
+	-- The Lost and Found booth's sign bulb (#1732, camp-stations.md section 4b): while a find waits, the `part`
+	-- bulb(s) under the `extra` station go Neon in `colour` for `on` seconds, then back for `off` seconds. Under 1
+	-- blink a second, so it stays on with Reduce Motion and Low performance (a material swap, no light).
+	blink = {
+		extra = "lostFound",
+		part = "CatCafe_Camp_Sewer_LostFoundBooth_Blink_Bulb",
+		colour = Presets.palette.lampWarm,
+		on = 0.6,
+		off = 0.6,
+	},
 }
 
 -- The door sign (#1172, #1140; Effects/DoorSign). Model-Agent's CatCafe_Decor_DoorSign: its OPEN face's parts are

@@ -1006,12 +1006,12 @@ Catalog.tiers = {
 		slots = 4,
 		multiplier = 1.25,
 		area = "park",
-		caps = { tables = 4, espresso = 3, net = 2, lure_bowl = 2, lucky_cat = 2 },
+		caps = { tables = 5, espresso = 4, net = 2, lure_bowl = 2, lucky_cat = 2 }, -- #1896 (first-hour.md 4): Tables 5, Espresso 4
 	},
 	{
 		tier = 3,
 		name = "Busy Cafe",
-		cost = 700000, -- #1452 (economy-ladder 3 v3); F95 v2 500,000 (was 350,000; 80,000 before F95)
+		cost = 900000, -- #1896 (first-hour.md 4): 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
 		distinctCats = 12,
 		needsRarity = "Epic",
 		needsRarityCount = 1,
@@ -1071,7 +1071,8 @@ Catalog.upgrades = {
 		name = "Tables",
 		description = "Each table seats two more customers and brings in more money",
 		maxLevel = 6,
-		costs = { 150, 600, 3000, 10000, 200000, 600000 }, -- F95: levels 5 and 6 four times (section 4)
+		-- F95: levels 5 and 6 four times (section 4); #1896 (first-hour.md 4): level 5 170,000 (was 200,000), now Tier 2
+		costs = { 150, 600, 3000, 10000, 170000, 600000 },
 		startLevel = 0,
 	},
 	{
@@ -1079,7 +1080,8 @@ Catalog.upgrades = {
 		name = "Espresso machine",
 		description = "Better coffee, more money from every cat",
 		maxLevel = 5,
-		costs = { 0, 2000, 15000, 400000, 6000000 }, -- F95: level 4 four times, 5 (Tier 4) 7.5 times
+		-- F95: level 4 four times, 5 (Tier 4) 7.5 times; #1896 (first-hour.md 4): level 4 700,000 (was 400,000), now Tier 2
+		costs = { 0, 2000, 15000, 700000, 6000000 },
 		startLevel = 1,
 	},
 	{
@@ -1669,9 +1671,10 @@ Catalog.questPrizes = {
 } :: { [string]: Types.IndexPrize }
 
 -- The Cafe Pass seasons (#1645, #1626; cafe-pass.md sections 2 and 3), by season number (CafePass.seasonDef wraps
--- round, so a later season can rerun one). The free track rewards every second level and may be random (nobody pays
--- for it); the paid track rewards every level with fixed things only: Big Money, Swift and Steady Paw potions and
--- named items, never crates, spins, golden fish, coins, minutes of income or Lucky Potions (CafePass.spec walks it).
+-- round, so a later season can rerun one). The free track rewards every level (every second one before #1883) and may
+-- be random (nobody pays for it); the paid track rewards every level with fixed things only: Big Money, Swift and
+-- Steady Paw potions and named items, never crates, spins, golden fish, coins, minutes of income or Lucky Potions
+-- (CafePass.spec walks it).
 -- "Minutes of income" is coinSeconds of the day rate.
 local function item(kind: Types.PassItemKind, id: string, name: string): Types.PassReward
 	return { item = { kind = kind, id = id, name = name } }
@@ -1684,48 +1687,64 @@ Catalog.passSeasons = {
 		id = "season_1",
 		name = "Season 1: Maple",
 		free = {
+			[1] = { prize = { fish = 10 } }, -- #1883: odd levels added (free, resources only)
 			[2] = { prize = { spins = 1 } },
+			[3] = { prize = { coinSeconds = 300 } },
 			[4] = { prize = { fish = 15 } },
+			[5] = potions({ tip_potion = 1 }),
 			[6] = potions({ lucky_potion = 1 }),
+			[7] = { prize = { spins = 1 } },
 			[8] = { prize = { coinSeconds = 600 } },
+			[9] = { prize = { fish = 15 } },
 			[10] = { prize = { crates = { classic_crate = 1 } } },
+			[11] = { prize = { coinSeconds = 600 } },
 			[12] = { prize = { spins = 1 } },
+			[13] = potions({ swift_potion = 1 }),
 			[14] = { prize = { fish = 25 } },
+			[15] = { prize = { crates = { highest = 1 } } }, -- the highest open zone's crate (Design-Agent on #1883)
 			[16] = potions({ tip_potion = 1, swift_potion = 1 }),
+			[17] = { prize = { fish = 20 } },
 			[18] = { prize = { coinSeconds = 1200 } },
+			[19] = { prize = { coinSeconds = 900 } },
 			[20] = { prize = { crates = { classic_crate = 1 } } },
+			[21] = potions({ swift_potion = 1 }),
 			[22] = { prize = { spins = 2 } },
+			[23] = { prize = { spins = 1 } },
 			[24] = { prize = { fish = 40 } },
+			[25] = { prize = { crates = { highest = 1 } } },
 			[26] = potions({ lucky_potion = 1, steady_potion = 1 }),
+			[27] = { prize = { fish = 30 } },
 			[28] = { prize = { coinSeconds = 1800 } },
+			[29] = { prize = { coinSeconds = 1500 } },
 			[30] = { prize = { crates = { classic_crate = 1 }, fish = 50 } },
 		},
 		paid = {
 			[1] = item("tag", "tag_maple", "Season 1 chat tag [Maple]"),
-			[2] = potions({ big_tip_potion = 1 }),
+			[2] = potions({ big_tip_potion = 1, swift_potion = 1 }), -- #1883: +1 on the potion levels (a Swift here keeps
+			-- Pace.spec's level 6 money cap; a second Big Money would pay 37.5 income minutes, over 24)
 			[3] = item("uniform", "uniform_pumpkin", "Uniform colour: Pumpkin"),
-			[4] = potions({ swift_potion = 1 }),
+			[4] = potions({ swift_potion = 2 }),
 			[5] = item("accessory", "acc_leaf_beret", "Leaf Beret"),
-			[6] = potions({ steady_potion = 1 }),
+			[6] = potions({ steady_potion = 2 }),
 			[7] = item("decor", "decor_pumpkin_lantern", "Pumpkin Lantern"),
-			[8] = potions({ big_tip_potion = 1 }),
+			[8] = potions({ big_tip_potion = 2 }),
 			[9] = item("uniform", "uniform_acorn_brown", "Uniform colour: Acorn Brown"),
 			[10] = item("accessory", "acc_mushroom_cap", "Mushroom Cap"),
-			[11] = potions({ swift_potion = 1 }),
+			[11] = potions({ swift_potion = 2 }),
 			[12] = item("decor", "decor_fallen_leaf_rug", "Fallen Leaf Rug"),
-			[13] = potions({ big_tip_potion = 1 }),
+			[13] = potions({ big_tip_potion = 2 }),
 			[14] = item("uniform", "uniform_forest_green", "Uniform colour: Forest Green"),
 			[15] = item("decor", "decor_cosy_knit_cushion", "Cosy Knit Cushion"),
 			[16] = item("accessory", "acc_acorn_hair_clip", "Acorn Hair Clip"),
-			[17] = potions({ steady_potion = 1 }),
+			[17] = potions({ steady_potion = 2 }),
 			[18] = item("decor", "decor_hay_bale_seat", "Hay Bale Seat"),
-			[19] = potions({ big_tip_potion = 1 }),
+			[19] = potions({ big_tip_potion = 2 }),
 			[20] = item("uniform", "uniform_cranberry", "Uniform colour: Cranberry"),
 			[21] = potions({ swift_potion = 1, steady_potion = 1 }),
 			[22] = item("accessory", "acc_round_reading_glasses", "Round Reading Glasses"),
 			[23] = potions({ big_tip_potion = 1 }),
 			[24] = item("decor", "decor_apple_crate_shelf", "Apple Crate Shelf"),
-			[25] = potions({ big_tip_potion = 2 }),
+			[25] = potions({ big_tip_potion = 3 }),
 			[26] = item("accessory", "acc_tiny_lantern", "Tiny Lantern"),
 			[27] = potions({ steady_potion = 1, swift_potion = 1 }),
 			[28] = item("decor", "decor_maple_tree_planter", "Maple Tree Planter"),

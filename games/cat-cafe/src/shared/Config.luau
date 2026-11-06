@@ -222,6 +222,8 @@ local Config = {
 	BowlWaitSeconds = { 600, 570, 540, 510, 480 } :: { number },
 	BowlLuck = { 0, 0.04, 0.08, 0.12, 0.16 } :: { number },
 	BigBowlWaitCutSeconds = 120,
+	-- #1895 (Design-Agent, first-hour.md): the account's first bait waits at most this long; later ones as usual
+	FirstBaitWaitSeconds = 120,
 	-- F88 Luck (luck-and-rare-moments.md section 1): one number from x1.0 that multiplies the Epic, Legendary and
 	-- Mythical chances of your bait and crate rolls (shared/Luck), at most LuckMax. The Lucky Cat statue adds
 	-- LuckPerStatueLevel a level, a Lucky Potion LuckyPotionLuck while it runs, a Lucky Day LuckyDayPlayerLuck to

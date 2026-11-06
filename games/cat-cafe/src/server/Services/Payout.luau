@@ -113,9 +113,11 @@ function Payout.pay(
 	if prize.passXp ~= nil and prize.passXp > 0 then
 		-- #1645 (quests.md section 8): Cafe Pass XP for the running season; CafePassService rolls the save onto it
 		local season = CafePass.seasonAt(os.time(), RunService:IsStudio())
+		local before = CafePass.levelOf(profile.pass.xp)
 		local added = CafePass.addXp(profile.pass, season, prize.passXp)
 		if added > 0 then
 			table.insert(paid, string.format("+%d pass XP", added))
+			Telemetry.passXp(player, profile, before, CafePass.levelOf(profile.pass.xp)) -- #1888
 		end
 	end
 	return paid, coins

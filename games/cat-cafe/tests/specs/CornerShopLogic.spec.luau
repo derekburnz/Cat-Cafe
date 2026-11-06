@@ -54,11 +54,9 @@ return function()
 				expect(Logic.chance("nothing")).to.equal("")
 			end
 		)
-		it("shows the Day Cart's name and help line (#1577)", function()
+		it("shows the Day Cart's name (#1577) and no help line (#1688)", function()
 			expect(Logic.TITLE).to.equal("Day Cart")
-			expect(Logic.HELP).to.equal(
-				"Coins only. New stock at sunrise. The same cart for everyone."
-			)
+			expect((Logic :: any).HELP).to.equal(nil)
 		end)
 		it("words the stock line", function()
 			-- #1678: no "None this time" or "You bought 2", the button says None or Sold out

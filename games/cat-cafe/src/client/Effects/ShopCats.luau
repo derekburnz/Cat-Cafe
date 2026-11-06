@@ -4,7 +4,9 @@
 -- With Reduce Motion it is a short soft glow instead. Duchess Marzipan, the Royal cat: a few lilac petals drift
 -- round her (one steady emitter, the nearest budget.shopCatEmitters within `within` studs), a still scatter of
 -- petals on the floor at her spot instead in Low performance or with Reduce Motion, and a soft lilac sparkle as she
--- starts a shift (the chime is Sound-Agent's). King Croissant, the King cat: a soft gold glow round him, one steady
+-- starts a shift (the chime is Sound-Agent's). Maple Muffin, the Season 1 cat (#1668, cafe-pass.md section 4): a few
+-- autumn leaves fall off it while it works, sharing Duchess's emitter budget, still leaves on the floor instead in
+-- Low performance or with Reduce Motion. King Croissant, the King cat: a soft gold glow round him, one steady
 -- emitter of drifting gold motes, a slow gold shine scrolling along his cape's dotted trim, and a gold pop off his
 -- crown when his table pays (at most every `pop.gap` seconds). Reduce Motion keeps only the glow (the trim held
 -- still); Low performance drops the motes. The King Cat Pack's Royal Crest sign style: a slow gold shine sweeps
@@ -16,7 +18,8 @@
 -- pivot; when Sprinkles is the cat that swept, and so is away on its walk, over the pile it swept. Duchess: every
 -- Model with CatId "duchess_marzipan" (Model-Agent, #1249), her Head's `BubbleAnchor` for the petals and the
 -- sparkle; a shift starts when one of her models (by `Uid`) goes from off duty to working (a `Role` without
--- `Bedtime`), so a cafe rebuilding her model or her streaming back in plays nothing. King: every Model with CatId
+-- `Bedtime`), so a cafe rebuilding her model or her streaming back in plays nothing. Maple: every Model with CatId
+-- "maple_muffin" (#1637), its Head's `BubbleAnchor`, `Role` and `Bedtime`. King: every Model with CatId
 -- "king_croissant" (Model-Agent, friend/cat-king), his `Glow` attachment in the Body for the light and the motes,
 -- `CrownTop` (in the crown Prop inside the Head Model) for the pop, and the largest part of the Model ending
 -- `_CapeTrim` (inside Prop2) for the scrolling shine, the same Moments.TipSwept as Sprinkles for the pop. The
@@ -158,14 +161,35 @@ local function swept(sweeper: unknown, position: unknown)
 	end
 end
 
--- Duchess Marzipan ------------------------------------------------------------------------------------------
+-- Drifting cats: Duchess Marzipan's petals and Maple Muffin's leaves ----------------------------------------
 
-type Duchess = {
-	emitter: ParticleEmitter?,
-	still: Part?, -- the floor petals in Low performance or with Reduce Motion
+-- `emitter` drifts off the cat's Head's BubbleAnchor; `name` holds its still floor pieces. A `workOnly` cat drifts
+-- only while working (Maple Muffin's leaves, cafe-pass.md section 4); Duchess's petals drift on or off duty.
+type Still = { size: number, colour: Color3, transparency: number, spots: { { number } } }
+type DriftKind = { emitter: string, name: string, workOnly: boolean, within: number, still: Still }
+
+local DUCHESS: DriftKind = {
+	emitter = "lilacPetal",
+	name = "DuchessPetals",
+	workOnly = false,
+	within = Presets.shopCats.duchess.within,
+	still = Presets.shopCats.duchess.still,
+}
+local MAPLE: DriftKind = {
+	emitter = "mapleLeaf",
+	name = "MapleLeaves",
+	workOnly = true,
+	within = Presets.shopCats.maple.within,
+	still = Presets.shopCats.maple.still,
 }
 
-local duchesses: { [Model]: Duchess } = {}
+type Drift = {
+	kind: DriftKind,
+	emitter: ParticleEmitter?,
+	still: Part?, -- the floor pieces in Low performance or with Reduce Motion
+}
+
+local drifters: { [Model]: Drift } = {}
 local onDuty: { [string]: boolean } = {} -- by Uid: last seen working (true) or off duty (false)
 
 local function working(cat: Model): boolean
@@ -178,17 +202,18 @@ local function bubbleAnchor(cat: Model): Attachment?
 	return if anchor ~= nil and anchor:IsA("Attachment") then anchor :: Attachment else nil
 end
 
-local function stopPetals(d: Duchess)
+local function stopDrift(d: Drift)
 	local emitter = d.emitter
 	if emitter ~= nil then
 		d.emitter = nil
 		emitter.Enabled = false
-		-- the petals already in the air drift on and settle
-		Debris:AddItem(emitter, Presets.emitters.lilacPetal.lifetime[2] + 0.2)
+		-- the pieces already in the air drift on and settle
+		local preset = Presets.emitters[d.kind.emitter]
+		Debris:AddItem(emitter, (if preset then preset.lifetime[2] else 4) + 0.2)
 	end
 end
 
-local function hideStill(d: Duchess)
+local function hideStill(d: Drift)
 	local still = d.still
 	if still ~= nil then
 		d.still = nil
@@ -196,78 +221,83 @@ local function hideStill(d: Duchess)
 	end
 end
 
--- A few flat lilac petals lying on the floor round her feet, never moving.
-local function showStill(d: Duchess, cat: Model)
+-- A few flat petals or leaves lying on the floor round its feet, never moving.
+local function showStill(d: Drift, cat: Model)
 	if d.still ~= nil and (d.still :: Part).Parent ~= nil then
 		return
 	end
-	local p = Presets.shopCats.duchess.still
+	local p = d.kind.still
 	local frame, size = cat:GetBoundingBox()
 	local floor = frame.Position - Vector3.new(0, size.Y / 2 - 0.03, 0)
-	local holder = Context.effectPart("DuchessPetals", Vector3.new(0.05, 0.05, 0.05), p.colour)
+	local holder = Context.effectPart(d.kind.name, Vector3.new(0.05, 0.05, 0.05), p.colour)
 	holder.Transparency = 1
 	holder.Position = floor
 	for i, offset in p.spots do
-		local petalSize = Vector3.new(p.size, 0.02, p.size * 0.6)
-		local petal = Context.effectPart("Petal" .. i, petalSize, p.colour)
-		petal.Transparency = 1
+		local pieceSize = Vector3.new(p.size, 0.02, p.size * 0.6)
+		local piece = Context.effectPart("Piece" .. i, pieceSize, p.colour)
+		piece.Transparency = 1
 		local spot = floor + Vector3.new(offset[1], 0, offset[2])
-		petal.CFrame = CFrame.new(spot) * CFrame.Angles(0, offset[3], 0)
+		piece.CFrame = CFrame.new(spot) * CFrame.Angles(0, offset[3], 0)
 		local decal = Instance.new("Decal")
 		decal.Texture = Presets.textures.smoke
 		decal.Color3 = p.colour
 		decal.Transparency = p.transparency
 		decal.Face = Enum.NormalId.Top
-		decal.Parent = petal
-		petal.Parent = holder
+		decal.Parent = piece
+		piece.Parent = holder
 	end
 	holder.Parent = Context.folder()
 	d.still = holder
 end
 
-local function pickDuchesses()
-	local c = Presets.shopCats.duchess
+-- Every drifting cat shares budget.shopCatEmitters (one on a phone): the nearest win.
+local function pickDrifters()
 	local candidates: { Logic.Candidate<Model> } = {}
-	for cat, d in duchesses do
+	for cat, d in drifters do
 		if cat.Parent == nil then
-			stopPetals(d)
+			stopDrift(d)
 			hideStill(d)
-			duchesses[cat] = nil
-		elseif not CafeWalk.isAway(cat) and cat:GetAttribute("HiddenLocal") ~= true then
+			drifters[cat] = nil
+		elseif
+			not CafeWalk.isAway(cat)
+			and cat:GetAttribute("HiddenLocal") ~= true
+			and (not d.kind.workOnly or working(cat))
+		then
 			local distance = Context.distance(cat:GetPivot().Position)
-			table.insert(candidates, { key = cat, distance = distance })
+			if distance <= d.kind.within then
+				table.insert(candidates, { key = cat, distance = distance })
+			end
 		end
 	end
 	local budget = Context.budget.shopCatEmitters
 	local still = budget <= 0 or Context.lowPerformance or Context.reducedMotion()
 	local chosen: { [Model]: boolean } = {}
-	for _, cat in Logic.nearest(candidates, c.within, math.max(budget, 1)) do
+	for _, cat in Logic.nearest(candidates, math.huge, math.max(budget, 1)) do
 		chosen[cat] = true
-		local d = duchesses[cat]
+		local d = drifters[cat]
 		local anchor = bubbleAnchor(cat)
 		if still or anchor == nil then
-			stopPetals(d)
+			stopDrift(d)
 			showStill(d, cat)
 		else
 			hideStill(d)
 			local emitter = d.emitter
 			if emitter == nil or emitter.Parent ~= anchor then
-				stopPetals(d)
-				emitter = Particles.attach("lilacPetal", anchor :: Attachment)
+				stopDrift(d)
+				emitter = Particles.attach(d.kind.emitter, anchor :: Attachment)
 				d.emitter = emitter
 			else
-				Particles.switchOn(emitter, "lilacPetal") -- a new budget reaches it
+				Particles.switchOn(emitter, d.kind.emitter) -- a new budget reaches it
 			end
 		end
 	end
-	for cat, d in duchesses do
+	for cat, d in drifters do
 		if not chosen[cat] then
-			stopPetals(d)
+			stopDrift(d)
 			hideStill(d)
 		end
 	end
 end
-
 -- Her shift starts: a soft lilac sparkle over her ears.
 local function shiftStart(cat: Model)
 	local c = Presets.shopCats.duchess
@@ -292,8 +322,8 @@ local function followDuchess(cat: Model)
 			shiftStart(cat)
 		end
 	end
-	if duchesses[cat] == nil then
-		duchesses[cat] = { emitter = nil, still = nil }
+	if drifters[cat] == nil then
+		drifters[cat] = { kind = DUCHESS, emitter = nil, still = nil }
 		look()
 		cat:GetAttributeChangedSignal("Bedtime"):Connect(look)
 		cat:GetAttributeChangedSignal("Role"):Connect(look)
@@ -551,6 +581,8 @@ local function consider(instance: Instance)
 	local catId = instance:GetAttribute("CatId")
 	if catId == Presets.shopCats.duchess.catId then
 		followDuchess(instance :: Model)
+	elseif catId == Presets.shopCats.maple.catId and drifters[instance :: Model] == nil then
+		drifters[instance :: Model] = { kind = MAPLE, emitter = nil, still = nil }
 	elseif catId == Presets.shopCats.king.catId and kings[instance :: Model] == nil then
 		kings[instance :: Model] = { light = nil, motes = nil, trim = {}, started = os.clock() }
 	end
@@ -571,7 +603,7 @@ function ShopCats.start()
 	task.spawn(function()
 		while true do
 			task.wait(Presets.shopCats.duchess.pick)
-			pickDuchesses()
+			pickDrifters()
 		end
 	end)
 	task.spawn(function()

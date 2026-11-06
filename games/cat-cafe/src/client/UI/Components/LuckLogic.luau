@@ -16,7 +16,11 @@
 --                                          "Lucky · Golden Day", "Lucky · Golden · Rainbow Day"; nil at night or on a
 --                                          plain day (the days are random now, so no countdown)
 --   dayCard(view) -> { string }            the line's card: each kind today, what it does and how often it comes
---   dayBanner(view) -> (string?, string?)  the sunrise banner naming every kind: "Lucky Day! Golden Day!" and its line
+--   dayBanner(view) -> (string?, string?)  the sunrise banner naming every kind: "Lucky Day! Golden Day!" and its line;
+--                                          all three: "Triple Day!" over "Lucky, Golden and Rainbow Day until night"
+--   warnBanner(kinds) -> (string?, string?) the warning before that sunrise naming tomorrow's kinds: "Lucky Day soon!"
+--                                          over its effect "from sunrise", or "Double Day soon!" over "Lucky and Golden
+--                                          Day at sunrise"
 --   statueLines(level, maxLevel)           the Lucky Cat's shop lines, what it gives now and next, then what Luck does
 --   text(luck) -> string                   shared Luck.text: "Luck x1.3"
 --   oddsRich(odds, hexOf) -> string        the card's odds for a RichText label: only the rarities that can come, a new
@@ -278,6 +282,18 @@ local function kinds(view: DayView): { Kind }
 	return out
 end
 
+-- "Lucky", "Lucky and Golden", "Lucky, Golden and Rainbow"
+local function kindWords(list: { Kind }): string
+	local words: { string } = {}
+	for _, kind in list do
+		table.insert(words, kind.word)
+	end
+	if #words <= 1 then
+		return words[1] or ""
+	end
+	return table.concat(words, ", ", 1, #words - 1) .. " and " .. words[#words]
+end
+
 function LuckLogic.dayLine(view: DayView): string?
 	local today = kinds(view)
 	if #today == 0 then
@@ -311,6 +327,11 @@ function LuckLogic.dayBanner(view: DayView): (string?, string?)
 	if #today == 0 then
 		return nil, nil
 	end
+	if #today >= 3 then
+		-- three names (35 letters) and three effects run off a small phone's screen (the 72 px title), so a
+		-- Triple Day says so and names them on the line
+		return "Triple Day!", kindWords(today) .. " Day until night"
+	end
 	local titles: { string } = {}
 	local effects: { string } = {}
 	for _, kind in today do
@@ -318,6 +339,28 @@ function LuckLogic.dayBanner(view: DayView): (string?, string?)
 		table.insert(effects, kind.effect)
 	end
 	return table.concat(titles, " "), table.concat(effects, ". ") .. " until night"
+end
+
+-- #1572 (luck-and-rare-moments.md 1g): the warning LuckyDayWarnSeconds before a sunrise names every kind it brings,
+-- since every server rolls them ahead. One kind: "Lucky Day soon!" over what it does "from sunrise". Two or three:
+-- "Double Day soon!" or "Triple Day soon!" over "Lucky and Golden Day at sunrise" (the names in the title would run
+-- off a small phone). Nil on a plain day.
+function LuckLogic.warnBanner(
+	next: { lucky: boolean?, golden: boolean?, rainbow: boolean? }
+): (string?, string?)
+	local coming = kinds({
+		phase = "day",
+		luckyDay = next.lucky == true,
+		goldenDay = next.golden == true,
+		rainbowDay = next.rainbow == true,
+	})
+	if #coming == 0 then
+		return nil, nil
+	elseif #coming == 1 then
+		return coming[1].name .. " soon!", coming[1].effect .. " from sunrise"
+	end
+	local title = if #coming == 2 then "Double Day soon!" else "Triple Day soon!"
+	return title, kindWords(coming) .. " Day at sunrise"
 end
 
 -- #1153 (Derek 11-04: the odds blocks were hard to read): whole percents, one decimal below 1% ("42%", "0.6%").

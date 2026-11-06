@@ -1827,15 +1827,15 @@ local function startPrediction()
 end
 
 -- F88 (luck-and-rare-moments.md 1c): a Lucky Day's two moments, read off the server's Clock folder. "warning" comes
--- LuckyDayWarnSeconds before a sunrise that starts a Lucky Day (at night Day is the day that ended, so the sunrise
+-- LuckyDayWarnSeconds before a sunrise that starts a Lucky, Golden or Rainbow Day (#1572, named by the UI) (at night Day is the day that ended, so the sunrise
 -- starts Day + 1), to whoever is still in the server; "start" comes when LuckyDay turns true at that sunrise. Joining
 -- in the middle of one shows neither: the Luck chip and the sky say so then. The UI's own banner, `UI.luckyDay(kind,
 -- line)`, once it has one, else a gold shout-out.
 local function bindLuckyDay(clock: Instance)
-	local function show(kind: string, line: string)
+	local function show(kind: string, line: string, coming: Clock.DayKinds?)
 		local hook: unknown = (UI :: any).luckyDay
 		if type(hook) == "function" then
-			(hook :: (string, string) -> ())(kind, line)
+			(hook :: (string, string, Clock.DayKinds?) -> ())(kind, line, coming)
 		else
 			UI.announce(line, "Legendary")
 		end
@@ -1857,14 +1857,15 @@ local function bindLuckyDay(clock: Instance)
 			then
 				local coming = day + 1
 				local left = endsAt - Workspace:GetServerTimeNow()
+				local brings = Clock.dayKinds(coming) -- #1572: warn of a Golden or Rainbow Day too, naming each
 				if
-					Clock.isLuckyDay(coming)
+					(brings.lucky or brings.golden or brings.rainbow)
 					and warned ~= coming
 					and left > 0
 					and left <= Config.LuckyDayWarnSeconds
 				then
 					warned = coming
-					show("warning", Luck.DAY_WARNING)
+					show("warning", Luck.DAY_WARNING, brings)
 				end
 			end
 			task.wait(1)

@@ -929,7 +929,7 @@ Highlights in that scene: one from the catch and at most two outlines. Trails: o
 
 ## Store thank-you burst (#1823, 2026-11-06)
 
-The store remake (#1823, the v2 layout in #1824). UI-Engineer calls `StoreBurst.play(card, kind)` with the bought card once the server confirms the buy (`PassShop.ownedChanged` or the pack's grant sync), so a cancelled prompt never sparkles. Files: `Effects/StoreBurst.luau`, numbers in `Presets.storeBurst`.
+The store remake (#1823, the v2 layout in #1824). UI-Engineer calls `StoreBurst.play(card, kind)` with the bought card once the server confirms the buy (`PassShop.changed` or the pack's grant sync), so a cancelled prompt never sparkles. Files: `Effects/StoreBurst.luau`, numbers in `Presets.storeBurst`.
 
 | Kind | Look |
 |---|---|

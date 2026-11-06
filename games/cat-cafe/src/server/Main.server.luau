@@ -35,6 +35,7 @@ local MysteryService = require(script.Parent.Services.MysteryService)
 local NameService = require(script.Parent.Services.NameService)
 local Net = require(script.Parent.Services.Net)
 local NightService = require(script.Parent.Services.NightService)
+local OwnerTestService = require(script.Parent.Services.OwnerTestService)
 local PalService = require(script.Parent.Services.PalService)
 local PassService = require(script.Parent.Services.PassService)
 local PityService = require(script.Parent.Services.PityService)
@@ -113,6 +114,7 @@ BugReportService.start(world)
 IdeaCreditsService.start() -- #1083: the Thank You board's credits
 PassService.start() -- F95: purchases in game; DataService checks owned passes at each join
 ProductService.start() -- #1182: developer product receipts (ProcessReceipt)
+OwnerTestService.start() -- #1770: owner test mode (OwnerGrant, the OwnerTest attribute)
 PalService.start() -- F92: pals; before Telemetry so pal_time goes out before its leave work
 LeaderboardService.start() -- F98: before DataService so its onLoaded sees every join
 CampExtraService.start() -- F100: before DataService so its onLoaded sees every join

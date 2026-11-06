@@ -399,8 +399,8 @@ Layout.plot = {
 	-- room. WorldBuilder stands the bed on the point and moves the nap anchor up to the bed's Sleep point.
 	napSpots = {
 		{ x = -13.5, y = 0, z = -15.1, rotY = 180 }, -- under the front left window (swapped with decor spot 1, #917)
-		{ x = 18.9, y = 0, z = -12.9, rotY = 135 },
-		{ x = 19.5, y = 0, z = 5.47, rotY = 90 },
+		{ x = 20.4, y = 0, z = -11.8, rotY = 90 }, -- #1809: on the right wall's line like the F79 beds, was (18.9, -12.9)
+		{ x = 20.4, y = 0, z = 5.95, rotY = 90 }, -- #1809: on the wall line halfway between beds 4 and 6, was (19.5, 5.47)
 		{ x = 12.28, y = 0, z = 12.4, rotY = 0 }, -- 0.6 further out, clear of a big piece on decor spot 5
 	} :: { Point },
 

@@ -353,8 +353,10 @@ STUDIO_NOTES = {
                       "and Steam (the thermos). Everything collides and can be climbed.",
     campstations.YARD: "#1154 (camp-stations.md section 3): the Yard Sale stall, replacing "
                        "CatCafe_Camp_Neighbourhood_YardSale at Layout.campExtras.neighbourhood. Attachments PromptAnchor "
-                       "(table front, 1.5 up), BangAnchor (2 over the YARD SALE board, for ReadyBang) and GlowAnchor (under "
-                       "the awning). Everything collides and can be climbed.",
+                       "(table front, 1.5 up), BangAnchor (2 over the YARD SALE sign's arm, for ReadyBang) and GlowAnchor "
+                       "(under the awning). _Sign_Swing (#1800) is the hanging board and its chains, pivoted at the ring "
+                       "under the arm; Effects/Motion swings it about its pivot's Z, so leave it where it was modelled. "
+                       "Everything collides and can be climbed.",
     **{n: "#1232 (camp-stations.md section 4): the Fishing Hut, replacing CatCafe_Camp_Woods_FishPond at "
           "Layout.campExtras.woods (_Gold for a Golden Pond pass owner). _Water is see-through, _Rod pivots at its butt "
           "(the cast turns it), _Fish swims under the water; Attachments FishJump, PromptAnchor (the jetty's foot), "
@@ -702,7 +704,7 @@ def main():
         if name in menu.ATTACHMENTS:              # F90: the tray's Item spot, the oven's DoorGlow
             extra = {"attachments": menu.rbx_attachments(name)}
         if name in campstations.ASSETS:           # #1319: PromptAnchor, BangAnchor, and GlowAnchor / Steam
-            extra = {"attachments": campstations.rbx_attachments(name)}
+            extra = {"attachments": campstations.rbx_attachments(name), **campstations.MOVING.get(name, {})}
         if name in campextras.ATTACHMENTS:          # F100: PromptAnchor, and Steam, FishJump or Drip
             extra = {"attachments": campextras.rbx_attachments(name)}
         if name in luckycat.ATTACHED:             # F88: PawHinge at the shoulder the _Paw model turns about

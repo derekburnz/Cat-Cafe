@@ -85,7 +85,9 @@ def _hud_decor(mat):
 
 
 # icon -> (builder, outline colour, outline width in pixels at 512, (yaw, pitch) of the view)
-STORE_PAD = 0.34                # the margin each side for the Store icons: the subject stays inside the middle 80%
+# #1761: the Store icons fill Roblox's circle crop: the farthest point of the art sits at STORE_FIT of the circle's
+# radius, which leaves room for the outline (10 px of the 256 px radius) and a little air
+STORE_FIT = 0.88
 MARKET_VIEWS = {"Crates": QUARTER, "Treats": (-14.0, 14.0), "FreshCatch": (-16.0, 24.0)}
 
 ICONS = {
@@ -115,11 +117,15 @@ ICONS = {
     **{f"CatCafe_Icon_Market_{n}": (fn, INK, 10, MARKET_VIEWS[n]) for n, fn in market_icons.BUILDERS.items()},
     # #1674: the Store's sidebar tabs (store_tabs.py)
     **{f"CatCafe_Icon_StoreTab_{n}": (fn, INK, 10, store_tabs.VIEWS[n]) for n, fn in store_tabs.BUILDERS.items()},
-    # #1623: the Store's passes and products, framed wide (STORE_PAD) for Roblox's circle crop (store_icons.py)
-    **{f"CatCafe_Icon_Pass_{n}": (fn, INK, 10, store_icons.VIEWS[n], store_icons.PADS.get(n, STORE_PAD))
+    # #1623: the Store's passes and products, fitted to Roblox's circle crop (STORE_FIT, store_icons.py)
+    **{f"CatCafe_Icon_Pass_{n}": (fn, INK, 10, store_icons.VIEWS[n], None, STORE_FIT)
        for n, fn in store_icons.PASSES.items()},
-    **{f"CatCafe_Icon_Product_{n}": (fn, INK, 10, store_icons.VIEWS[n], store_icons.PADS.get(n, STORE_PAD))
+    **{f"CatCafe_Icon_Product_{n}": (fn, INK, 10, store_icons.VIEWS[n], None, STORE_FIT)
        for n, fn in store_icons.PRODUCTS.items()},
+    # #1823 (store-layout-v2.md section 5): the remade Store's 256 px theme and sign icons (UI_SIZE, square framing)
+    "Ui_Store_Icon_GardenCafe": (store_icons.cafe_style, INK, 5, store_icons.VIEWS["CafeStyle"]),
+    "Ui_Store_Icon_GrandCafe": (store_icons.grand_theme, INK, 5, store_icons.VIEWS["GrandTheme"]),
+    "Ui_Store_Icon_CrownSign": (store_icons.crown_sign, INK, 5, (-14.0, 6.0)),
     # #1191: the shop-only cats' Store card and cat book picture, the sitting cat in its props, three-quarter front
     **{f"CatCafe_Icon_Cat_{n}": ((lambda m, n=n: cats.build_cat(n, m, body="sit")), INK, 10, (-24.0, 8.0))
        for n, spec in cats.ROSTER.items() if spec.get("shop")},
@@ -137,6 +143,7 @@ def _hud_icons():
 
 
 SIZE, PAD = 512, 0.05
+UI_SIZE = 256                   # #1823: the Ui_Store_Icon_ pictures
 
 
 def _lights():
@@ -163,9 +170,10 @@ def _lights():
     bg.inputs["Strength"].default_value = 0.7
 
 
-def _camera(objs, view=(0.0, 0.0), pad=None):
+def _camera(objs, view=(0.0, 0.0), pad=None, fit=None):
     """Orthographic, looking at the model's front (-Y in Blender) turned `yaw` degrees about the up axis and
-    tilted `pitch` degrees down, framing every vertex with PAD around."""
+    tilted `pitch` degrees down, framing every vertex with PAD around. With `fit`, every vertex lands inside the
+    image's inscribed circle instead, the farthest at `fit` of its radius (for icons Roblox crops to a circle)."""
     yaw, pitch = view
     cd = bpy.data.cameras.get("_IconCam") or bpy.data.cameras.new("_IconCam")
     cam = bpy.data.objects.get("_IconCam") or bpy.data.objects.new("_IconCam", cd)
@@ -179,8 +187,12 @@ def _camera(objs, view=(0.0, 0.0), pad=None):
     right, up, fwd = R @ Vector((1, 0, 0)), R @ Vector((0, 1, 0)), R @ Vector((0, 0, -1))
     pts = [ob.matrix_world @ v.co for ob in objs for v in ob.data.vertices]
     us, vs = [p.dot(right) for p in pts], [p.dot(up) for p in pts]
-    cd.ortho_scale = max(max(us) - min(us), max(vs) - min(vs)) * (1 + 2 * (PAD if pad is None else pad))
-    centre = right * (max(us) + min(us)) / 2 + up * (max(vs) + min(vs)) / 2
+    cu, cv = (max(us) + min(us)) / 2, (max(vs) + min(vs)) / 2
+    if fit:
+        cd.ortho_scale = 2 * max(math.hypot(u - cu, v - cv) for u, v in zip(us, vs)) / fit
+    else:
+        cd.ortho_scale = max(max(us) - min(us), max(vs) - min(vs)) * (1 + 2 * (PAD if pad is None else pad))
+    centre = right * cu + up * cv
     depth = min(p.dot(fwd) for p in pts)
     cam.location = centre + fwd * (depth - 10.0)
     bpy.context.scene.camera = cam
@@ -213,6 +225,7 @@ def _outline(path, colour, width):
 def render_icon(name, mat, samples=48):
     build, colour, width, view = ICONS[name][:4]
     pad = ICONS[name][4] if len(ICONS[name]) > 4 else None
+    fit = ICONS[name][5] if len(ICONS[name]) > 5 else None
     objs = build(mat)
     common.hide_all_meshes()
     common.show(objs)
@@ -221,7 +234,7 @@ def render_icon(name, mat, samples=48):
     sc.cycles.device = "CPU"
     sc.cycles.samples = samples
     sc.cycles.use_denoising = True
-    sc.render.resolution_x = sc.render.resolution_y = SIZE
+    sc.render.resolution_x = sc.render.resolution_y = UI_SIZE if name.startswith("Ui_") else SIZE
     sc.render.resolution_percentage = 100
     sc.render.film_transparent = True
     sc.render.image_settings.file_format = "PNG"
@@ -231,7 +244,7 @@ def render_icon(name, mat, samples=48):
     if fl:
         fl.hide_render = True
     _lights()
-    _camera(objs, view, pad)
+    _camera(objs, view, pad, fit)
     os.makedirs(OUT, exist_ok=True)
     path = os.path.join(OUT, name + ".png")
     sc.render.filepath = path

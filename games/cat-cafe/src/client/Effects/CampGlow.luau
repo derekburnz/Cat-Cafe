@@ -11,6 +11,10 @@
 -- `CampExtra`-tagged Model with that ExtraId (Model-Agent's CatCafe_Camp_Park_PicnicStation,
 -- CatCafe_Camp_Neighbourhood_YardSaleStall and CatCafe_Camp_Woods_FishingHut once they land, today's models before
 -- that): the light goes on its `GlowAnchor` attachment if it has one, else `under` of the way up its bounding box.
+-- The Lost and Found booth (#1732, section 4b) blinks instead: while a find waits, its `_Blink_Bulb` goes Neon on and
+-- off (Presets.campGlow.blink), still on with Reduce Motion and Low performance; the bulb gets its own look back when
+-- the finds are collected. The booth's bell wobble is Animation-Engineer's (Effects/CampExtras).
+--
 -- Listening only. Numbers in Presets.campGlow.
 
 local CollectionService = game:GetService("CollectionService")
@@ -38,6 +42,11 @@ type Glow = {
 
 local glows: { [string]: Glow } = {}
 local started = false
+
+-- The blinking bulb's parts while lit, with the look each had before.
+type Lit = { part: BasePart, material: Enum.Material, colour: Color3 }
+local lit: { Lit } = {}
+local blinking = false
 
 local function station(extraId: string): Model?
 	for _, instance in CollectionService:GetTagged(TAG) do
@@ -114,6 +123,43 @@ local function apply(extraId: string, glow: Glow)
 	end
 end
 
+local function bulbs(): { BasePart }
+	local found: { BasePart } = {}
+	local b = Presets.campGlow.blink
+	local model = station(b.extra)
+	if model == nil then
+		return found
+	end
+	for _, instance in model:GetDescendants() do
+		if instance:IsA("BasePart") and instance.Name == b.part then
+			table.insert(found, instance :: BasePart)
+		end
+	end
+	return found
+end
+
+local function bulbsLit(on: boolean)
+	if on then
+		if #lit > 0 then
+			return
+		end
+		local colour = Presets.campGlow.blink.colour
+		for _, part in bulbs() do
+			table.insert(lit, { part = part, material = part.Material, colour = part.Color })
+			part.Material = Enum.Material.Neon
+			part.Color = colour
+		end
+	else
+		for _, l in lit do
+			if l.part.Parent ~= nil then
+				l.part.Material = l.material
+				l.part.Color = l.colour
+			end
+		end
+		table.clear(lit)
+	end
+end
+
 function CampGlow.start()
 	if started then
 		return
@@ -125,6 +171,7 @@ function CampGlow.start()
 	local moments = Moments :: any
 	if moments.CampExtrasState ~= nil then
 		moments.CampExtrasState:Connect(function(state: unknown)
+			blinking = Logic.campHeld(state, Presets.campGlow.blink.extra) > 0
 			for extraId, glow in glows do
 				local now = Logic.campHeld(state, extraId) >= math.max(1, EXTRAS[extraId].atLeast)
 				if now ~= glow.ready then
@@ -134,6 +181,20 @@ function CampGlow.start()
 			end
 		end)
 	end
+	-- the Lost and Found bulb, on and off while a find waits (found again each blink, so it follows streaming)
+	task.spawn(function()
+		local b = Presets.campGlow.blink
+		while true do
+			if blinking then
+				bulbsLit(true)
+				task.wait(b.on)
+				bulbsLit(false)
+				task.wait(b.off)
+			else
+				task.wait(Presets.campGlow.pick)
+			end
+		end
+	end)
 	-- the stations streaming in or out, and the Low performance switch, every `pick` seconds
 	task.spawn(function()
 		local wasLow = Context.lowPerformance

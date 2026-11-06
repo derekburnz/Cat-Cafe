@@ -601,10 +601,8 @@ function Potions._renderCats(self: any, food: BagLogic.Food)
 			then instance.xp
 			else 0
 		local variant = if type(instance) == "table" then instance.variant else nil
-		table.insert(
-			self._catRows,
-			self:_catCard(food.id, cat, byId[cat.catId], variant, xp, order)
-		)
+		local card: CatCard = self:_catCard(food.id, cat, byId[cat.catId], variant, xp, order)
+		table.insert(self._catRows, card)
 	end
 end
 

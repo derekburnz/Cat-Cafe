@@ -1151,6 +1151,23 @@ local SCENES = {
 		UI.update({ cats = player.cats })
 		UI.open("Cats")
 	end },
+	-- #1766: the Decor Index's Rally page says where its pieces come from, and a piece not owned reads "Rally Crate"
+	{ "IndexDecorRally", function()
+		UI.open("Collection")
+		press("Collection", "DecorTab")
+		press("Collection", "rally")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true)
+		local source = window and window:FindFirstChild("Source", true)
+		assert(source and source.Visible, "uigate: the Rally page does not say where its pieces come from (#1766)")
+		local locked = 0
+		for _, child in window:GetDescendants() do
+			if child:IsA("TextLabel") and child.Text == "Rally Crate" and child.Visible then
+				locked += 1
+			end
+		end
+		assert(locked > 0, "uigate: no Rally piece reads Rally Crate (#1766)")
+	end },
 	-- F99 section 3: the Index's Rainbow tab, the Rainbow cats line with its strip open on "Reward ready", rainbow
 	-- tiles on turning borders
 	{ "IndexRainbow", function()

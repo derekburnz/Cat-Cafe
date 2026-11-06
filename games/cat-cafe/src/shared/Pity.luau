@@ -160,4 +160,24 @@ function Pity.countdownText(seconds: number): string
 	return string.format("%d:%02d", minutes, secs)
 end
 
+-- #1753: the Town Square sign's three lines at t (and the day clock card's first two): "Legendary cat in 12:30",
+-- "Mythical cat in 1:42:10", and "Now in the Woods!" while a pity cat is out, "Caught by Sam" after its catch, else "".
+-- `state`, `areaId` and `winner` are ReplicatedStorage[FOLDER]'s State, Area and Winner.
+function Pity.signLines(t: number, state: string?, areaId: string?, winner: string?): { string }
+	local legendaryAt = Pity.nextAt(t, "Legendary")
+	local mythicalAt = Pity.nextAt(t, "Mythical")
+	local status = ""
+	if state == "out" and type(areaId) == "string" and areaId ~= "" then
+		local area = Catalog.getArea(areaId)
+		status = string.format("Now in the %s!", if area ~= nil then area.name else areaId)
+	elseif state == "caught" and type(winner) == "string" and winner ~= "" then
+		status = "Caught by " .. winner
+	end
+	return {
+		"Legendary cat in " .. Pity.countdownText(legendaryAt - t),
+		"Mythical cat in " .. Pity.countdownText(mythicalAt - t),
+		status,
+	}
+end
+
 return Pity

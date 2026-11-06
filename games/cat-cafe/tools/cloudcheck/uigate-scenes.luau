@@ -755,9 +755,18 @@ local SCENES = {
 		bindLawnPlot()
 		UI.open("Decor")
 		press("Decor", "FrontLawn")
-		-- #1729: the big-spot Garden Bench has the small "Big spot" tag, the small-spot Tulip Bed none
+		-- #1751: the Garden Bench is out (Remove), the Lamp Post stored (Use)
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local lawn = modals and modals:FindFirstChild("Lawn", true)
+		local function action(id: string): string
+			local card = lawn and lawn:FindFirstChild(id, true)
+			local button = card and card:FindFirstChild("Action", true)
+			local label = button and (if button:IsA("TextButton") then button else button:FindFirstChildWhichIsA("TextLabel", true))
+			return if label then label.Text else "?"
+		end
+		assert(string.find(action("garden_bench"), "Remove", 1, true), "uigate: the out Garden Bench reads " .. action("garden_bench") .. " (#1751)")
+		assert(string.find(action("lamp_post"), "Use", 1, true), "uigate: the stored Lamp Post reads " .. action("lamp_post") .. " (#1751)")
+		-- #1729: the big-spot Garden Bench has the small "Big spot" tag, the small-spot Tulip Bed none
 		local bench = lawn and lawn:FindFirstChild("garden_bench", true)
 		local tulips = lawn and lawn:FindFirstChild("tulip_bed", true)
 		assert(bench and bench:FindFirstChild("BigSpot"), "uigate: the Garden Bench card has no Big spot tag (#1729)")
@@ -1171,6 +1180,23 @@ local SCENES = {
 		end
 		UI.update({ cats = player.cats })
 		UI.open("Cats")
+	end },
+	-- #1766: the Decor Index's Rally page says where its pieces come from, and a piece not owned reads "Rally Crate"
+	{ "IndexDecorRally", function()
+		UI.open("Collection")
+		press("Collection", "DecorTab")
+		press("Collection", "rally")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true)
+		local source = window and window:FindFirstChild("Source", true)
+		assert(source and source.Visible, "uigate: the Rally page does not say where its pieces come from (#1766)")
+		local locked = 0
+		for _, child in window:GetDescendants() do
+			if child:IsA("TextLabel") and child.Text == "Rally Crate" and child.Visible then
+				locked += 1
+			end
+		end
+		assert(locked > 0, "uigate: no Rally piece reads Rally Crate (#1766)")
 	end },
 	-- #1772: the Gold tab opens with a Gold cats line over the areas, as the Rainbow tab has Rainbow cats
 	{ "IndexGold", function()
@@ -1592,6 +1618,16 @@ local SCENES = {
 		clock:SetAttribute("LuckyDay", true)
 		UI.clock.bind(clock)
 		press("CatCafeHUD", "Luck")
+		-- #1776: one line of what Luck does to each rarity, no next cat or next crate odds
+		local hud = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeHUD")
+		local boost = hud:FindFirstChild("Boost", true)
+		assert(boost and boost.Visible, "uigate: the Luck card shows no rarity pills (#1776)")
+		for _, rarity in { "Epic", "Legendary", "Mythical" } do
+			local pill = boost:FindFirstChild(rarity)
+			local want = rarity .. " +130%"
+			assert(pill and pill.Text == want, "uigate: the Luck card's " .. rarity .. " pill reads " .. tostring(pill and pill.Text) .. " (#1776)")
+		end
+		assert(hud:FindFirstChild("FoodOdds", true) == nil, "uigate: the Luck card still lists the next cat's odds (#1776)")
 	end },
 	-- F88: the night before a Lucky Day, LuckyDayWarnSeconds before sunrise: the warning banner (no countdown line under
 	-- the clock since #1572), the Luck card from the scene before closed
@@ -1651,6 +1687,10 @@ local SCENES = {
 		press("CatCafeHUD", "LuckyDay.Tap")
 		local card = hud:FindFirstChild("DayCard", true) :: Frame
 		assert(card and card.Visible, "uigate: the day card did not open")
+		-- #1572 (1h): the pity sign's two lines on the day card too
+		local pity = card:FindFirstChild("Pity") :: TextLabel
+		assert(pity and string.find(pity.Text, "Legendary cat in", 1, true), "uigate: the day card has no pity lines (#1572)")
+		assert(string.find(pity.Text, "Mythical cat in", 1, true), "uigate: the day card has no Mythical line (#1572)")
 	end },
 	-- F100: the Cannon picker with the Tier 3 player's camp extras: the Picnic Basket ready (red dot), the Yard Sale's
 	-- new crates (no dot)
@@ -1853,6 +1893,15 @@ local SCENES = {
 	{ "HUDMoneyBadgeOwned", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[3]] = true })
+	end },
+	-- #1770 owner test mode: the server's OwnerTest attribute on the owner's account shows a small label up top
+	{ "HUDOwnerTest", function()
+		local player = game:GetService("Players").LocalPlayer
+		player:SetAttribute("OwnerTest", true)
+		UI.store.preview(storePrices(true), {})
+		local tag = player.PlayerGui:FindFirstChild("OwnerTest", true)
+		assert(tag and tag.Visible, "uigate: owner test mode shows no label (#1770)")
+		assert(tag.Text == "Owner test mode", "uigate: the owner label reads " .. tostring(tag.Text) .. " (#1770)")
 	end },
 	-- the Store window for a new player (#1425): it opens on Featured, the King Cat Pack as the hero over 2x Money,
 	-- Long Nap and the Royal Cat, all in view with no scrolling

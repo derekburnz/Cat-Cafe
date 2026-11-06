@@ -34,7 +34,7 @@ local Config = {
 	GrandThemePassId = 2071158673,
 	RoyalCatPassId = 2066438426,
 	KingPackPassId = 2071368679,
-	KingCatPassId = 0, -- #1822: the King Cat alone (R$799); 0 until made, and the Store card stays hidden
+	KingCatPassId = 2074682301, -- #1822: the King Cat alone (R$799); the pass is made off sale and goes on sale after this is live
 	GoldenPondPassId = 2071704337, -- #1232
 	SecondBowlPassId = 2072132265, -- #1161
 	-- #1624 (economy-ladder.md section 6a v2.4): what the five store passes give. VIP, Cafe Style and Grand Cafe add
@@ -59,6 +59,11 @@ local Config = {
 		starter_bundle = 3728336166, -- #1625: once per account (Catalog.products oncePerAccount)
 		cafe_pass = 3728336202, -- #1626: the running season's paid track, once per season (Catalog.products seasonPass)
 	} :: { [string]: number },
+	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
+	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).
+	-- Only the server reads it. Derek2's account, named "2573351", is user id 140223517 (user id 2573351 is someone
+	-- else). Nobody else is ever listed.
+	OwnerTestUserIds = { 140223517 } :: { number },
 	-- The Cafe Pass (#1645, cafe-pass.md section 1): each season's first day as a UTC date, oldest first. With no date
 	-- the pass is closed outside Studio, where a preview season 1 runs for playtests (shared/CafePass).
 	-- 2026-11-05 is a test start so Derek2 can try the pass live; Derek2 resets it to the launch day. Keep one date:

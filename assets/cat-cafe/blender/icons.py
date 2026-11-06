@@ -122,6 +122,10 @@ ICONS = {
        for n, fn in store_icons.PASSES.items()},
     **{f"CatCafe_Icon_Product_{n}": (fn, INK, 10, store_icons.VIEWS[n], None, STORE_FIT)
        for n, fn in store_icons.PRODUCTS.items()},
+    # #1823 (store-layout-v2.md section 5): the remade Store's 256 px theme and sign icons (UI_SIZE, square framing)
+    "Ui_Store_Icon_GardenCafe": (store_icons.cafe_style, INK, 5, store_icons.VIEWS["CafeStyle"]),
+    "Ui_Store_Icon_GrandCafe": (store_icons.grand_theme, INK, 5, store_icons.VIEWS["GrandTheme"]),
+    "Ui_Store_Icon_CrownSign": (store_icons.crown_sign, INK, 5, (-14.0, 6.0)),
     # #1191: the shop-only cats' Store card and cat book picture, the sitting cat in its props, three-quarter front
     **{f"CatCafe_Icon_Cat_{n}": ((lambda m, n=n: cats.build_cat(n, m, body="sit")), INK, 10, (-24.0, 8.0))
        for n, spec in cats.ROSTER.items() if spec.get("shop")},
@@ -139,6 +143,7 @@ def _hud_icons():
 
 
 SIZE, PAD = 512, 0.05
+UI_SIZE = 256                   # #1823: the Ui_Store_Icon_ pictures
 
 
 def _lights():
@@ -229,7 +234,7 @@ def render_icon(name, mat, samples=48):
     sc.cycles.device = "CPU"
     sc.cycles.samples = samples
     sc.cycles.use_denoising = True
-    sc.render.resolution_x = sc.render.resolution_y = SIZE
+    sc.render.resolution_x = sc.render.resolution_y = UI_SIZE if name.startswith("Ui_") else SIZE
     sc.render.resolution_percentage = 100
     sc.render.film_transparent = True
     sc.render.image_settings.file_format = "PNG"

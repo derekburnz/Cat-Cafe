@@ -38,7 +38,7 @@ def oak(mat):
     return [b.finalize(N + "OakRound", mat)]
 
 
-OAK_H, OAK_R0, OAK_R1, OAK_T = 26.0, 5.0, 4.4, 0.9   # the Great Oak's trunk: height, radius foot and top, wall
+OAK_H, OAK_R0, OAK_R1, OAK_T = 26.0, 5.0, 5.0, 0.9   # the Great Oak's trunk: height, radius foot and top, wall
 NOOK_Z = 18.0                                         # the floor of the nook at the top inside it
 NOOK_CEIL = 24.4                                      # the nook's ceiling (6.4 over its floor)
 LADDER_W = 2.6                                        # every Woods ladder: between its rails (2.4 clear)
@@ -64,7 +64,10 @@ def great_oak(mat):
     "make this wider so the tree is actually climbable": the doorway is four wall blocks wide (was two, about 2.5
     clear), the ladder is OAK_LADDER_W wide and stands in the trunk's middle with its truss behind it, and the nook
     floor runs from the truss's back to the back wall, so a climber pressing W at the top steps straight onto it
-    (against the back wall there was no floor ahead, only the hole behind)."""
+    (against the back wall there was no floor ahead, only the hole behind). Derek2 11-06 (#1781), "the top area is
+    still not open enough": the trunk keeps its 5.0 radius all the way up (the top was 4.4), the hole is only where
+    the climber is, from the front wall back to the rungs, and the floor covers the truss's top and the rest of the
+    nook, about 8.2 across, with the rails along the hole's two sides."""
     b, win, bulb, climb = Builder(), Builder(), Builder(), Builder()
     levels, seg = 6, 16
     hz = OAK_H / levels
@@ -118,19 +121,28 @@ def great_oak(mat):
         b.box_base((x, ly, 0), (0.2, 0.2, NOOK_Z + 1.0), "caramel_wood", bevel=False)
     for n in range(18):
         b.box((0, ly, 0.8 + n * 1.0), (OAK_LADDER_W - 0.2, 0.2, 0.2), "caramel_wood", bevel=False)
-    yb = ly + 0.1 + 2.0                                                                 # the truss's back face
     climb.box_base((0, ly + 1.1, 0), (2.0, 2.0, NOOK_Z), "caramel_wood", bevel=False)
-    # the floor: a square inside the trunk's outer face and four strips out to the wall, round a hole that runs
-    # from the front strip back to the truss's back face (H the hole's half width)
-    f0, R, E, F, H = NOOK_Z - 0.4, 3.15, 3.8, 2.3, hw + 0.3
-    for (xa, xb, ya, yb_) in ((-R, -H, -R, R), (H, R, -R, R), (-H, H, yb, R),         # the square, round the hole
-                              (-F, F, -E, -R), (-E, -R, -F, F), (R, E, -F, F), (-F, F, R, E)):   # strips to the wall
-        b.box_base(((xa + xb) / 2, (ya + yb_) / 2, f0), (xb - xa, yb_ - ya, 0.4), "caramel_wood")
+    # the floor: bands across the nook out to the middle of the wall, cut round the hole only in front of the rungs
+    # (H the hole's half width, yh its back edge: the truss's front face, which the climber's front stops at)
+    f0, H, yh = NOOK_Z - 0.4, hw + 0.3, ly + 0.1
+    rw, ro = _oak_r(NOOK_Z) - OAK_T / 2, _oak_r(NOOK_Z) - 0.15                        # the wall's middle, inside its face
+    edges = [-rw + 0.05] + [yh - 0.6 * k for k in range(1, 5) if yh - 0.6 * k > -rw + 0.4][::-1] + [yh]
+    edges += [yh + 0.6 * k for k in range(1, 20) if yh + 0.6 * k < rw - 0.4] + [rw - 0.05]
+    for ya, yb_ in zip(edges, edges[1:]):
+        y_in, y_out = min(abs(ya), abs(yb_)) if ya * yb_ > 0 else 0.0, max(abs(ya), abs(yb_))
+        w = min(math.sqrt(rw * rw - y_in * y_in), math.sqrt(ro * ro - y_out * y_out))  # into the wall, never out
+        if yb_ <= yh + 1e-6:                                                            # beside the hole
+            if w > H + 0.05:
+                for s_ in (-1, 1):
+                    b.box_base((s_ * (H + w) / 2, (ya + yb_) / 2, f0), (w - H, yb_ - ya, 0.4), "caramel_wood")
+        else:
+            b.box_base((0, (ya + yb_) / 2, f0), (2 * w, yb_ - ya, 0.4), "caramel_wood")
+    yw = -math.sqrt(rw * rw - (H + 0.15) ** 2) + 0.35                                  # the rails' front, at the wall
     for s_ in (-1, 1):                                                                  # a rail down each side of it
         x = s_ * (H + 0.15)
-        for y in (-R + 0.25, (yb - R) / 2, yb - 0.15):
+        for y in (yw, (yw + yh) / 2, yh - 0.15):
             b.box_base((x, y, NOOK_Z), (0.2, 0.2, 2.6), "dark_wood", bevel=False)
-        b.box((x, (yb - R) / 2, NOOK_Z + 2.5), (0.16, yb + R, 0.16), "caramel_wood", bevel=False)
+        b.box((x, (yw + yh) / 2 - 0.075, NOOK_Z + 2.5), (0.16, yh - yw + 0.15, 0.16), "caramel_wood", bevel=False)
     b.cyl_base((0, 0, NOOK_CEIL), _oak_r(NOOK_CEIL) - 0.4, 0.4, "dark_wood", segments=12, bevel=False)   # ceiling
     cx, cy, _ = NOOK_SPOTS[2]
     b.cyl_base((cx, cy, NOOK_Z), 0.8, 0.3, "blush", segments=10, bevel=False)          # a cushion in the nook

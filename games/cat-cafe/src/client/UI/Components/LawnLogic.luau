@@ -449,7 +449,63 @@ end
 
 -- Where to buy more, for the grid's last card (lawn-nursery.md section 7: only the Yard Sale sells lawn pieces).
 LawnLogic.SHOP_TITLE = "Find more lawn decor"
-LawnLogic.SHOP_WHERE = "Yard Sale"
+-- #1760: name the camp and the tier, since nothing else in the game says where the Yard Sale is.
+LawnLogic.SHOP_WHERE = "Yard Sale, Neighbourhood camp (Tier 3)"
+
+-- #1751 part 3 (Derek2: "lawn section is missing remove/use it buttons"): a Lawn card's one button. An out piece
+-- reads Remove (SetLawnSpot(spot, "") takes it in), a stored one Use onto the first open spot of its size, or "Spots
+-- full", off; the path or fence in use reads Remove (SetLawnStyle(kind, ""): Grey Slabs, no fence), another owned one
+-- Use. The server (LawnService, #1758) decides and toasts any refusal.
+export type CardAction = {
+	text: string,
+	style: string, -- a Button style
+	enabled: boolean,
+	spotId: string?, -- a piece: the spot it goes on or comes off
+	pieceId: string?, -- a piece: its id for Use, "" for Remove
+	styleKind: string?, -- a path or fence: "path" or "fence"
+	styleId: string?, -- a path or fence: its id for Use, "" for Remove
+}
+
+function LawnLogic.cardAction(state: Types.PlayerState, card: Card): CardAction
+	if card.kind == "piece" then
+		local piece = LawnLogic.getPiece(card.id)
+		local action = if piece then LawnLogic.pieceAction(state, piece) else nil
+		if action ~= nil and action.mode == "away" then
+			return {
+				text = "Remove",
+				style = "ghost",
+				enabled = true,
+				spotId = action.spotId,
+				pieceId = "",
+			}
+		elseif action ~= nil and action.mode == "place" then
+			return {
+				text = "Use",
+				style = "primary",
+				enabled = true,
+				spotId = action.spotId,
+				pieceId = card.id,
+			}
+		end
+		return { text = "Spots full", style = "ghost", enabled = false }
+	end
+	if LawnLogic.inUse(state, card.kind :: any) == card.id then
+		return {
+			text = "Remove",
+			style = "ghost",
+			enabled = true,
+			styleKind = card.kind,
+			styleId = "",
+		}
+	end
+	return {
+		text = "Use",
+		style = "primary",
+		enabled = true,
+		styleKind = card.kind,
+		styleId = card.id,
+	}
+end
 
 -- "Small spot" or "Big spot".
 function LawnLogic.sizeName(size: Types.LawnSize): string

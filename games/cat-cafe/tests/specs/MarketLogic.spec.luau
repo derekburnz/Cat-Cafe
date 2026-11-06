@@ -280,4 +280,11 @@ return function()
 			expect(MarketLogic.needText(0.4)).to.equal("Need 1 more fish")
 		end)
 	end)
+
+	describe("MarketLogic.needShort (#1818)", function()
+		it("fits the half-width buy button, rounding up and never below 1", function()
+			expect(MarketLogic.needShort(150)).to.equal("Need 150 more")
+			expect(MarketLogic.needShort(0.2)).to.equal("Need 1 more")
+		end)
+	end)
 end

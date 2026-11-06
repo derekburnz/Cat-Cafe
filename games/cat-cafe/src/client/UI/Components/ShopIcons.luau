@@ -187,7 +187,7 @@ local IDS: { [string]: string } = {
 	Icon_Store_Money2x = "rbxassetid://72414082780413",
 	Icon_Store_Money3x = "rbxassetid://93298940995735",
 	Icon_Store_Money4x = "rbxassetid://106773934084025",
-	Icon_Store_LongNap = "rbxassetid://110728484969633",
+	Icon_Store_LongNap = "rbxassetid://95823829256556", -- #1738: Model-Agent's redraw (PR #1741), Tools-Agent 11-06
 	Icon_Store_Vip = "rbxassetid://133569273850177",
 	Icon_Store_Accessories = "rbxassetid://91892368233364",
 	Icon_Store_Uniforms = "rbxassetid://116190763390206",
@@ -407,10 +407,26 @@ function ShopIcons.menu(orderId: string?): string?
 	return if type(model) == "string" then IDS["Icon_Menu_" .. model] else nil
 end
 
--- Cat food in the Bag (#1181): the clean star treat for every size until the foods have pictures of their own (they
--- are XP treats, not bait, so they don't borrow the bait foods' bowls).
+-- #1616: each cat food size has its own glyph, the same in the Bag, the Day Cart and prize chips, until the foods
+-- have drawn pictures (they are XP treats, not bait, so they don't borrow the bait foods' bowls)
+local SNACK_GLYPHS: { [string]: string } = {
+	small_cat_snack = "🦐",
+	cat_snack = "🍪",
+	big_cat_snack = "🧁",
+	cat_feast = "🍱",
+}
+ShopIcons.SNACK_GLYPH = "🍪" -- a cat food with no glyph of its own
+
+function ShopIcons.snackGlyph(foodId: string?): string
+	return (if type(foodId) == "string" then SNACK_GLYPHS[foodId] else nil) or ShopIcons.SNACK_GLYPH
+end
+
+-- Cat food's uploaded picture (#1181): the clean star treat, now only for a food without its own glyph (#1616)
 function ShopIcons.catFood(foodId: string?): string?
-	return if type(foodId) == "string" then IDS.Icon_Clean_StarTreat else nil
+	if type(foodId) ~= "string" or SNACK_GLYPHS[foodId] ~= nil then
+		return nil
+	end
+	return IDS.Icon_Clean_StarTreat
 end
 
 function ShopIcons.food(lureId: string?): string?

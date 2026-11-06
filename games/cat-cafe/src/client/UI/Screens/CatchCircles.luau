@@ -10,7 +10,10 @@
 -- section 3), so nothing on screen can contradict the result:
 --   - each circle clears the moment it is judged: its rings pop away, with no word on the spot (Derek 2026-11-03:
 --     the words per circle, and a second one where the server's grade differed, read as random flashing)
---   - on the first Miss every circle still showing goes at once and presses stop, so no grade can flash after it
+--   - on the first Miss every circle still showing goes at once and presses stop, so no grade can flash after it.
+--     #1727 (Derek2 11-06: circle 3's sound played with nothing on screen): a Miss this device called on a press is
+--     only a guess (the server judges on its own clock), so the later circles stay up until the server's CatchJudged
+--     for that press: a Good or Perfect there and the catch goes on, a Miss (or the CatchResult) clears them
 --   - a strip of pips at the top of the screen, one per circle, fills with each grade's colour as it lands
 --   - when the server's result comes, one word slams in over the strip (Components/CatchWords: PURRFECT!,
 --     EXCELLENT!, GREAT! or "So close!"), then the strip and the word fade and the screen is clear by 1.2 s
@@ -63,8 +66,11 @@ export type CatchCircles = {
 		circles: { Types.CatchCircle },
 		windows: Types.CatchWindows,
 		header: Header?,
-		onPress: (index: number, grade: Types.CircleGrade?) -> ()
+		onPress: (index: number, grade: Types.CircleGrade?) -> (),
+		strayId: string?
 	) -> (),
+	-- #1727: the server's grade for one press (CatchJudged), as it is judged
+	judged: (self: CatchCircles, strayId: string, index: number, grade: Types.CircleGrade) -> (),
 	showResult: (self: CatchCircles, outcome: Outcome, onDone: (() -> ())?) -> (),
 	gradeLocal: (self: CatchCircles, index: number) -> Types.CircleGrade?,
 	isActive: (self: CatchCircles) -> boolean,
@@ -451,10 +457,13 @@ function CatchCircles.show(
 	circles: { Types.CatchCircle },
 	windows: Types.CatchWindows,
 	header: Header?,
-	onPress: (index: number, grade: Types.CircleGrade?) -> ()
+	onPress: (index: number, grade: Types.CircleGrade?) -> (),
+	strayId: string?
 )
 	self:hide()
 	self._token += 1
+	self._strayId = strayId
+	self._doubt = nil :: number? -- #1727: the press this device called a Miss, until the server's CatchJudged for it
 	self._windows = { perfect = math.max(0, windows.perfect), good = math.max(0, windows.good) }
 	self._onPress = onPress
 	self._next = 1
@@ -620,6 +629,28 @@ function CatchCircles._press(self: any)
 	if t < view.circle.startsAt then
 		return -- before the circle starts: the server ignores it too
 	end
+	if self._doubt ~= nil and not self._ended then
+		-- #1727: after a press this device called a Miss, before the server's word on it: sent with no grade (no grade
+		-- sound, the server may have ended the catch) and the circle goes; its pip waits for its own CatchJudged
+		local held: Types.CatchWindows = self._windows
+		local off = math.abs(t - view.target)
+		-- this device's guess, kept (not drawn) so a later Miss guess can be the next to wait on
+		view.hint = if off <= held.perfect
+			then "perfect"
+			elseif off <= held.good then "good"
+			else "miss"
+		self._next = index + 1
+		view.pressed = true
+		if not view.judged then
+			view.judged = true
+			clearCircle(view)
+		end
+		local onPress = self._onPress
+		if onPress then
+			onPress(index, nil)
+		end
+		return
+	end
 	if self._ended then
 		-- after this device's first Miss: sent with no grade (so no grade sound) and drawn nowhere
 		self._next = index + 1
@@ -643,8 +674,36 @@ function CatchCircles._press(self: any)
 	if onPress then
 		onPress(index, grade)
 	end
+	if grade == "miss" and self._doubt == nil then
+		-- #1727: only a guess until the server's CatchJudged: the later circles stay up for now
+		self._doubt = index
+	end
+end
+
+-- #1727: the server's grade for one press (CatchJudged, catcher only, one per judged press). Its pip takes that
+-- grade; a Miss ends the catch here as it did there (every circle still showing goes), and a Good or Perfect on the
+-- press this device called a Miss lets the catch go on. An unpressed circle's expiry sends none: _expire and the
+-- CatchResult cover that.
+function CatchCircles.judged(self: any, strayId: string, index: number, grade: Types.CircleGrade)
+	if not self._active or self._ended or (self._strayId ~= nil and self._strayId ~= strayId) then
+		return
+	end
+	if self._views[index] == nil then
+		return
+	end
+	self:_showGrade(index, grade, true)
 	if grade == "miss" then
 		self:_endAfterMiss()
+	elseif self._doubt == index then
+		self._doubt = nil
+		-- a later press sent while in doubt that this device also called a Miss is the next one to wait on
+		for later = index + 1, self._next - 1 do
+			local view: CircleView? = self._views[later]
+			if view and view.pressed and view.hint == "miss" then
+				self._doubt = later
+				break
+			end
+		end
 	end
 end
 
@@ -791,6 +850,8 @@ function CatchCircles.hide(self: any)
 	end
 	table.clear(self._pips)
 	self._ended = false
+	self._doubt = nil
+	self._strayId = nil
 	self._strip.Visible = false
 	self._strip.BackgroundTransparency = self._stripTransparency
 	self._word.Visible = false

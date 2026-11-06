@@ -127,4 +127,59 @@ return function()
 			expect(kept.looks :: any).to.deepEqual({ theme = "garden" })
 		end)
 	end)
+
+	describe("accessories (section 6)", function()
+		local pass = owns({ [Config.CatAccessoriesPassId] = true })
+
+		it(
+			"owns the Tiny Hat and Round Glasses with the pass and a Cafe Pass piece once earned",
+			function()
+				expect(Looks.owned("accessory", none, {}) :: any).to.deepEqual({})
+				expect(Looks.owned("accessory", pass, {}) :: any).to.deepEqual({ "hat", "glasses" })
+				expect(Looks.owned("accessory", none, { acc_tiny_lantern = true }) :: any).to.deepEqual({
+					"acc_tiny_lantern",
+				})
+				-- a pass piece needs the pass
+				expect(Looks.owned("accessory", none, { hat = true }) :: any).to.deepEqual({})
+			end
+		)
+
+		it("lets SetLook save an owned accessory or none, and refuses the rest", function()
+			local ok, pick = Looks.pickFor("accessory", "glasses", pass, {})
+			expect(ok).to.equal(true)
+			expect(pick).to.equal("glasses")
+			ok, pick = Looks.pickFor("accessory", "default", none, {})
+			expect(ok).to.equal(true)
+			expect(pick).to.equal(nil)
+			expect(Looks.pickFor("accessory", "glasses", none, {})).to.equal(false)
+			expect(Looks.pickFor("accessory", "acc_leaf_beret", pass, {})).to.equal(false)
+			expect(Looks.pickFor("accessory", "mint", uniforms, {})).to.equal(false) -- a uniform is not one
+		end)
+
+		it(
+			"puts every piece in a data-model prop slot and knows the Cafe Pass track's accessory ids",
+			function()
+				local slots = { Head = true, Face = true, Back = true }
+				for _, accessory in Looks.ACCESSORIES do
+					expect(slots[accessory.slot]).to.equal(true)
+					expect(Looks.accessory(accessory.id)).to.equal(accessory)
+				end
+				local track = {
+					"acc_leaf_beret",
+					"acc_mushroom_cap",
+					"acc_acorn_hair_clip",
+					"acc_round_reading_glasses",
+					"acc_tiny_lantern",
+				}
+				for _, id in track do
+					expect(Looks.accessory(id)).to.be.ok()
+				end
+			end
+		)
+
+		it("keeps a saved accessory pick", function()
+			expect(Looks.sanitize({ accessory = "hat" }) :: any).to.deepEqual({ accessory = "hat" })
+			expect(Looks.sanitize({ accessory = "nope" }) :: any).to.deepEqual({})
+		end)
+	end)
 end

@@ -878,6 +878,10 @@ local function wireIntents()
 	UI.events.passClaimAll:Connect(function()
 		Net.fire("PassClaimAll")
 	end)
+	-- #1626: the chat tag pick; the server takes one of the player's tags or "off" and answers with CafePassState
+	UI.events.passSetTag:Connect(function(pick: string)
+		Net.fire("PassSetTag", pick)
+	end)
 	-- #1624: a Style tab button. The sign's "" is the plain sign (nil); the server checks the player owns the style.
 	-- Uniforms and themes only show once the server sends state.looks, which comes with SetLook.
 	UI.events.pickStyle:Connect(function(kind: string, id: string)

@@ -279,7 +279,7 @@ function Quests.new(callbacks: Callbacks): Quests
 	local panel = Panel.new({
 		name = "Quests",
 		title = "Quests",
-		subtitle = "Fresh quests every day and week · Tap one to pin it",
+		subtitle = "Fresh quests every day and week",
 		color = Theme.colors.goldDark,
 		icon = Theme.icons.quests,
 		dark = true, -- #1028 pilot

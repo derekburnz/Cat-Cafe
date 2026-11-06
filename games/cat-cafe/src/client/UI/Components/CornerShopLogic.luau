@@ -23,9 +23,8 @@ local SharedTypes = require(Shared:WaitForChild("Types"))
 
 local CornerShopLogic = {}
 
--- #1577 (day-cart.md): the window's shown name and help line; code keeps the CornerShop names
+-- #1577 (day-cart.md): the window's shown name; code keeps the CornerShop names. No help line since #1688.
 CornerShopLogic.TITLE = "Day Cart"
-CornerShopLogic.HELP = "Coins only. New stock at sunrise. The same cart for everyone."
 
 export type Item = SharedTypes.CornerShopItem
 export type Row = SharedTypes.CornerShopRow

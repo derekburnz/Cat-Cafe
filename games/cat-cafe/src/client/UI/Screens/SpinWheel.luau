@@ -218,7 +218,7 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		dark = true, -- #1028
 		name = "SpinWheel",
 		title = "Spin Wheel",
-		subtitle = "A free spin every day · Odds shows every chance",
+		subtitle = "A free spin every day",
 		color = Theme.colors.berry,
 		icon = Theme.icons.spin,
 		size = UDim2.fromScale(1, 1),
@@ -527,15 +527,6 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
 		Text = "Spin odds",
-		Parent = odds,
-	})
-	text({
-		Name = "Sub",
-		Position = UDim2.fromOffset(4, 28),
-		Size = UDim2.new(1, -(BACK_WIDTH + 16), 0, 18),
-		TextSize = Theme.sizes.textSmall,
-		TextColor3 = PAL.subtext,
-		Text = "Every slice of the wheel, likeliest first. Together they make 100%.",
 		Parent = odds,
 	})
 	self._oddsBack = Button.new({

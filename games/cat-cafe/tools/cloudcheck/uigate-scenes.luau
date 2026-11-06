@@ -845,7 +845,11 @@ local SCENES = {
 		local action = status and status:FindFirstChild("Action", true)
 		assert(action and action.Visible, "uigate: no Refill on the empty bowl (#1573)")
 		local sub = status:FindFirstChild("Sub", true)
-		assert(sub and string.find(sub.Text, tuna.name, 1, true), "uigate: Refill does not name the food (#1573)")
+		-- #1693: the line is just the wait now; Refill puts the same food back in
+		assert(
+			sub and string.find(sub.Text, "A cat comes by in", 1, true),
+			"uigate: the empty bowl's line is not the wait (#1693)"
+		)
 	end },
 	-- #1161: both bowls filling, bowl 2 at night: the tabs count down on their own
 	{ "BaitBothRunning", function()
@@ -935,8 +939,21 @@ local SCENES = {
 	-- #1646: the paid track bought at level 7, its reached rewards ready to claim
 	{ "CafePassPaid", function()
 		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 7, xp = 5900, xpPerLevel = 800,
-			levels = 30, paid = true, claimedFree = { 2, 4 }, claimedPaid = { 1 }, claimable = 7, items = {} })
+			levels = 30, paid = true, claimedFree = { 2, 4 }, claimedPaid = { 1 }, claimable = 7, items = {},
+			tags = { "vip", "tag_maple" }, tagShown = "tag_maple" })
 		UI.pass.open()
+	end },
+	-- #1626: the busiest top strip, a VIP owner who has not bought the paid track: Buy, Claim all and the chat tag
+	{ "CafePassTag", function()
+		UI.store.preview({ [3728336202] = { robux = 299, forSale = true } }, {})
+		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,
+			levels = 30, paid = false, claimedFree = {}, claimedPaid = {}, claimable = 2, items = {},
+			tags = { "vip" }, tagShown = "vip" })
+		UI.pass.open()
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("CafePass", true)
+		local tag = window and window:FindFirstChild("ChatTag", true)
+		assert(tag and tag:IsA("GuiObject") and tag.Visible, "uigate: no chat tag button on the Cafe Pass")
 	end },
 	{ "Spin", function()
 		UI.spin.open()
@@ -1683,6 +1700,14 @@ local SCENES = {
 	-- the Store (Derek 2026-11-02 20:01): passes on sale; the HUD's gold Store tile at the top of the left grid
 	{ "HUDStore", function()
 		UI.store.preview(storePrices(true), {})
+	end },
+	-- #1606: the money pass badge beside the money: "Get 2x" with no money pass and the 2x on sale, "3x" once owned
+	{ "HUDMoneyBadge", function()
+		UI.store.preview(storePrices(true), {})
+	end },
+	{ "HUDMoneyBadgeOwned", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[3]] = true })
 	end },
 	-- the Store window for a new player (#1425): it opens on Featured, the King Cat Pack as the hero over 2x Money,
 	-- Long Nap and the Royal Cat, all in view with no scrolling

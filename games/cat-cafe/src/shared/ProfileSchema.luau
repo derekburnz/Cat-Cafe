@@ -110,7 +110,10 @@ local ProfileSchema = {}
 -- day: an older server would drop it, letting the player buy the same row again by hopping servers during a rollout.
 -- Version 38 (#1624, store-pass-looks.md) adds looks, the cafe theme and uniform picks: an older server would drop them,
 -- showing Classic until the player picks again.
-ProfileSchema.VERSION = 38
+-- Version 39 (#1732, camp-stations.md section 4b) turns campExtras.lostFound from { day, held } into { at, held }, one
+-- find every LostFoundEverySeconds: an older server would read it as a day number far in the past and fill it to the
+-- hold at once. An older save's clock starts at the load, keeping what it held (CampExtras.sanitize).
+ProfileSchema.VERSION = 39
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 

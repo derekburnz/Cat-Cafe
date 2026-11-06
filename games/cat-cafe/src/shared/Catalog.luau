@@ -3925,7 +3925,7 @@ Catalog.campExtras = {
 		id = "lostFound",
 		area = "sewer",
 		name = "Lost and Found",
-		model = "CatCafe_Camp_Sewer_LostFound",
+		model = "CatCafe_Camp_Sewer_LostFoundBooth", -- #1732: the lost-property kiosk, was the small crate
 		kind = "collect",
 	},
 } :: { Types.CampExtraDef }

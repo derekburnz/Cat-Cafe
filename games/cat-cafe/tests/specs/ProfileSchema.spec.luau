@@ -108,10 +108,10 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 38 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 39 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(38)
-			expect(profile.version).to.equal(38)
+			expect(ProfileSchema.VERSION).to.equal(39)
+			expect(profile.version).to.equal(39)
 			-- #1625 (version 35): no once-per-account product bought, no sign styles, the plain sign
 			expect(next(profile.onceBought)).never.to.be.ok()
 			expect(next(profile.signStyles)).never.to.be.ok()

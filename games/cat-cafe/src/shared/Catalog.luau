@@ -986,12 +986,12 @@ Catalog.tiers = {
 		slots = 4,
 		multiplier = 1.25,
 		area = "park",
-		caps = { tables = 4, espresso = 3, net = 2, lure_bowl = 2, lucky_cat = 2 },
+		caps = { tables = 5, espresso = 4, net = 2, lure_bowl = 2, lucky_cat = 2 }, -- #1896 (first-hour.md 4): Tables 5, Espresso 4
 	},
 	{
 		tier = 3,
 		name = "Busy Cafe",
-		cost = 700000, -- #1452 (economy-ladder 3 v3); F95 v2 500,000 (was 350,000; 80,000 before F95)
+		cost = 900000, -- #1896 (first-hour.md 4): 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
 		distinctCats = 12,
 		needsRarity = "Epic",
 		needsRarityCount = 1,
@@ -1051,7 +1051,8 @@ Catalog.upgrades = {
 		name = "Tables",
 		description = "Each table seats two more customers and brings in more money",
 		maxLevel = 6,
-		costs = { 150, 600, 3000, 10000, 200000, 600000 }, -- F95: levels 5 and 6 four times (section 4)
+		-- F95: levels 5 and 6 four times (section 4); #1896 (first-hour.md 4): level 5 170,000 (was 200,000), now Tier 2
+		costs = { 150, 600, 3000, 10000, 170000, 600000 },
 		startLevel = 0,
 	},
 	{
@@ -1059,7 +1060,8 @@ Catalog.upgrades = {
 		name = "Espresso machine",
 		description = "Better coffee, more money from every cat",
 		maxLevel = 5,
-		costs = { 0, 2000, 15000, 400000, 6000000 }, -- F95: level 4 four times, 5 (Tier 4) 7.5 times
+		-- F95: level 4 four times, 5 (Tier 4) 7.5 times; #1896 (first-hour.md 4): level 4 700,000 (was 400,000), now Tier 2
+		costs = { 0, 2000, 15000, 700000, 6000000 },
 		startLevel = 1,
 	},
 	{

@@ -16,6 +16,8 @@ export type ShopCat = { catId: string, passKey: string }
 ShopCats.LIST = table.freeze({
 	table.freeze({ catId = "duchess_marzipan", passKey = "RoyalCatPassId" }), -- the Royal Cat, a Legendary
 	table.freeze({ catId = "king_croissant", passKey = "KingPackPassId" }), -- the King Cat Pack's King Cat, a Mythical
+	-- #1822: the King Cat alone; KingCatPassId is 0 until Tools-Agent makes the pass, so it gives nothing until then
+	table.freeze({ catId = "king_croissant", passKey = "KingCatPassId" }),
 }) :: { ShopCat }
 
 -- The pass id that gives `entry`, or 0 when it is not made.
@@ -46,7 +48,8 @@ function ShopCats.has(profile: Types.PlayerProfile, catId: string): boolean
 	return false
 end
 
--- The cat ids, in LIST order, whose pass `owns` says the player has and that `profile` does not hold.
+-- The cat ids, in LIST order, whose pass `owns` says the player has and that `profile` does not hold. A cat two
+-- owned passes give (#1822: the King Cat on the pack and alone) is listed once.
 function ShopCats.toGive(
 	profile: Types.PlayerProfile,
 	owns: (passId: number) -> boolean
@@ -54,7 +57,12 @@ function ShopCats.toGive(
 	local give: { string } = {}
 	for _, entry in ShopCats.LIST do
 		local id = ShopCats.passId(entry)
-		if id ~= 0 and owns(id) and not ShopCats.has(profile, entry.catId) then
+		if
+			id ~= 0
+			and owns(id)
+			and table.find(give, entry.catId) == nil
+			and not ShopCats.has(profile, entry.catId)
+		then
 			table.insert(give, entry.catId)
 		end
 	end

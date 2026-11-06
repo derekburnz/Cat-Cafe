@@ -112,7 +112,10 @@ local ProfileSchema = {}
 -- showing Classic until the player picks again.
 -- Version 39 (#1624, store-pass-looks.md section 6) adds looks.accessory, the cats' accessory pick: an older server's
 -- Looks.sanitize would drop it, showing no accessory until the player picks again.
-ProfileSchema.VERSION = 39
+-- Version 40 (#1732, camp-stations.md section 4b) turns campExtras.lostFound from { day, held } into { at, held }, one
+-- find every LostFoundEverySeconds: an older server would read it as a day number far in the past and fill it to the
+-- hold at once. An older save's clock starts at the load, keeping what it held (CampExtras.sanitize).
+ProfileSchema.VERSION = 40
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -938,6 +941,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.signStyle = SignStyles.sanitizePick(raw.signStyle)
 	-- #1645 (version 36): the Cafe Pass; saves before it start at season 0 with nothing (CafePassService rolls it on)
 	profile.pass = CafePass.sanitize(raw.pass)
+	CafePass.grantOwned(profile) -- #1645: pass decor and the frame claimed before they had a place (decor, sign styles)
 	-- #1624 (version 38): the theme and uniform picks, and (39) the accessory, known ids only; saves before show Classic
 	profile.looks = Looks.sanitize(raw.looks)
 	-- #1181 (version 32): the Bag's cat food, known foods only, whole counts of 1 to CatFoodMax

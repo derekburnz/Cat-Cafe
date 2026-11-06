@@ -20,6 +20,11 @@ the shell's (plot.SIGN_INFO), and the name colour is the UI's (cream on the Roya
                                           frame round it (`_Frame`, its own part like the Royal Crest's) with a gold
                                           maple leaf on each corner, and a cluster of three maple leaves in gold,
                                           rust and orange with two acorns over the top centre
+  CatCafe_Plot_SignMapleBoard            the Cafe Pass season 1 level 34 sign style (#1883, the pass's last reward): a
+                                          walnut board (SignBoard; amber name text, #F2B134) inside a pale toffee
+                                          bead, a dark walnut frame (`_Frame`) with a carved light wood maple leaf
+                                          on each corner, and over the top centre a carved scroll with a big amber
+                                          leaf inlaid in walnut between two carved leaves
   CatCafe_Plot_SignVipPlate              the VIP pass's plate (store-pass-looks.md section 1): a small gold plate with
                                           a cream paw, under the cafe's name on the bottom of the sign and proud of
                                           every style's frame, shown only for an owner of the pass. No glow, no
@@ -179,14 +184,14 @@ def build_king_crest(mat):
     return [b.finalize("CatCafe_Plot_SignKingCrest", mat)]
 
 
-def _maple(b, x, y, z, s, sw, turn=0.0, d=0.08):
+def _maple(b, x, y, z, s, sw, turn=0.0, d=0.08, stem_d=None):
     """A maple leaf standing up on the plane z (its back) and facing -Z, `s` studs tall, turned `turn` degrees in
-    its own plane, with a little stem below it."""
+    its own plane, with a little stem below it (`stem_d` deep, the leaf's depth unless given)."""
     maple_leaf(b.b, RB.p(x, y, z - d / 2), s, d, sw,
                rot=Matrix.Rotation(math.radians(90), 3, "X") @ Matrix.Rotation(math.radians(-turn), 3, "Z"))
     a = math.radians(turn)
     sx, sy = math.sin(a), -math.cos(a)                                                      # down the leaf
-    b.box((x + sx * 0.32 * s, y + sy * 0.32 * s, z - d / 2), (0.05 * s, 0.22 * s, d), sw, rot=_rz(turn))
+    b.box((x + sx * 0.32 * s, y + sy * 0.32 * s, z - d / 2), (0.05 * s, 0.22 * s, stem_d or d), sw, rot=_rz(turn))
 
 
 def _acorn(b, x, y, z, s):
@@ -218,6 +223,46 @@ def build_golden_leaf(mat):
         _acorn(b, x, cy + 0.15, zf - 0.1, 1.4)
     return [b.finalize("CatCafe_Plot_SignGoldenLeaf", mat), board.finalize("CatCafe_Plot_SignGoldenLeaf_SignBoard", mat),
             frame.finalize("CatCafe_Plot_SignGoldenLeaf_Frame", mat)]
+
+
+def _veins(b, x, y, z, s, turn, sw):
+    """Carved veins on a _maple leaf's face (z is its back, 0.08 deep): a midrib from the stem to the tip and one
+    to each side lobe."""
+    k, zf = s / 1.3, z - 0.08 - 0.012
+    for ang, L, off in ((0.0, 1.0 * k, -0.3 * k), (63.0, 0.6 * k, 0.0), (-63.0, 0.6 * k, 0.0)):
+        a = math.radians(turn + ang)
+        cx, cy = x - math.sin(a) * (off + L / 2), y + math.cos(a) * (off + L / 2)
+        b.box((cx, cy, zf), (0.03 * s, L, 0.024), sw, rot=_rz(turn + ang))
+
+
+def build_maple_board(mat):
+    b, board, frame = RB(), RB(), RB()
+    board.span((X0, Y0, FACE), (X1, Y1, FACE + 0.1), "fur_brown")                         # SignBoard, walnut
+    i, e = 0.12, 0.005                                                                      # a pale toffee bead, a
+    for (xa, xb, ya, yb) in ((X0 + e, X1 - e, Y0 + e, Y0 + i), (X0 + e, X1 - e, Y1 - i, Y1 - e),  # hair in from the
+                             (X0 + e, X0 + i, Y0 + i, Y1 - i), (X1 - i, X1 - e, Y0 + i, Y1 - i)):   # board's edges
+        b.span((xa, ya, FACE - 0.03), (xb, yb, FACE + 0.01), "fur_toffee")
+    f, zf, zb = 0.45, FACE - 0.14, FACE + 0.1
+    _frame(frame, f, zf, zb, "fur_seal")                                                    # dark walnut frame
+    for sx in (-1, 1):                                                                      # a carved leaf per corner,
+        for sy in (-1, 1):                                                                  # its tip out of the corner
+            x, y = sx * (X1 + f / 2), (Y1 + f / 2) if sy > 0 else (Y0 - f / 2)
+            turn = math.degrees(math.atan2(-sx, sy))
+            _maple(b, x - sx * 0.12, y - sy * 0.12, zf, 1.5, "caramel_wood", turn=turn, stem_d=0.05)
+            _veins(b, x - sx * 0.12, y - sy * 0.12, zf, 1.5, turn, "fur_toffee")
+    cy = Y1 + f                                                                             # the crest on top
+    b.span((-2.3, cy - 0.02, zf + 0.02), (2.3, cy + 0.2, zb), "fur_seal")                   # a carved scroll
+    for sx in (-1, 1):
+        b.cyl((sx * 2.3, cy + 0.12, zf + 0.06), 0.22, 0.16, "fur_seal", axis="Z", segments=8)   # its curled ends
+        b.cyl((sx * 2.3, cy + 0.12, zf - 0.04), 0.1, 0.06, "fur_toffee", axis="Z", segments=8)
+    for sx in (-1, 1):                                                                      # two carved leaves
+        _maple(b, -sx * 1.45, cy + 0.85, zf, 1.8, "caramel_wood", turn=sx * 40, stem_d=0.05)
+        _veins(b, -sx * 1.45, cy + 0.85, zf, 1.8, sx * 40, "fur_toffee")
+    _maple(b, 0.0, cy + 1.3, zf + 0.02, 2.6, "fur_toffee", stem_d=0.06)                    # the walnut leaf
+    _maple(b, 0.0, cy + 1.47, zf - 0.06, 1.9, "eye_amber", d=0.06, stem_d=0.04)             # its amber inlay
+    _veins(b, 0.0, cy + 1.47, zf - 0.06 + 0.02, 1.9, 0.0, "fur_russet")
+    return [b.finalize("CatCafe_Plot_SignMapleBoard", mat), board.finalize("CatCafe_Plot_SignMapleBoard_SignBoard", mat),
+            frame.finalize("CatCafe_Plot_SignMapleBoard_Frame", mat)]
 
 
 def build_vip_plate(mat):
@@ -451,6 +496,7 @@ ASSETS = {
     "CatCafe_Plot_SignBakeryStripes": (build_bakery_stripes, 3000),
     "CatCafe_Plot_SignKingCrest": (build_king_crest, 1200),
     "CatCafe_Plot_SignGoldenLeaf": (build_golden_leaf, 3000),
+    "CatCafe_Plot_SignMapleBoard": (build_maple_board, 3000),
     "CatCafe_Plot_SignVipPlate": (build_vip_plate, 600),
     "CatCafe_Plot_SignGarden": (build_garden, 3000),
     "CatCafe_Plot_SignGrand": (build_grand, 3000),

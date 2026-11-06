@@ -151,6 +151,9 @@ UI.events = {
 	claimIndexReward = Signal.new(), -- (areaId, milestoneId)   Claim on an Index reward card: forward as ClaimIndexReward (F48)
 	spinWheel = Signal.new(), -- ()   Spin on the Spin Wheel window: forward as SpinWheel (F49)
 	storeSeen = Signal.new(), -- (tab)   a Store tab with a New dot opened: forward as MarkStoreSeen (#1823 §4)
+	-- (kind, value)   #1888 the Store funnel: "store_tab" (a tab id, once a visit) or "store_buy" (the pass or product
+	-- id, once a visit), forward as TelemetryReport(kind, value) after the visit's store_opened
+	storeReport = Signal.new(),
 	spinAll = Signal.new(), -- ()   Use all on the Spin window (#1078): forward as SpinAll
 	openCrate = Signal.new(), -- (crateId)   Open on a Golden Fish Market crate card: forward as OpenCrate (F53)
 	buyCrateBundle = Signal.new(), -- (crateId)   Buy 5 on a Market crate card: forward as BuyCrateBundle (#1051)
@@ -196,6 +199,8 @@ UI.events = {
 	tutorialClosed = Signal.new(), -- ()   #1273: the Tutorial tile's red X, analytics only: forward as TelemetryReport("tutorial_closed")
 	introChoice = Signal.new(), -- (from)   "tile" (the Tutorial tile) or "help" (Show me on Need a hand?): forward as TelemetryReport("intro_choice", from)
 	stuckNudge = Signal.new(), -- (kind)   "pulse", "help_shown" or "show_me": forward as TelemetryReport("stuck_nudge", kind)
+	-- #1919 (first-hour.md section 5), analytics only: the goal card's "Find N more cats" opened the Index on this area
+	indexHintTap = Signal.new(), -- (areaId)   forward as TelemetryReport("index_hint_tap", areaId)
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
 	claimStarterCat = Signal.new(), -- ()   Take me home: forward as ClaimStarterCat
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
@@ -712,11 +717,31 @@ function UI.init(config: Types.InitConfig)
 	hud = HUD.new(parent, {
 		openScreen = function(name: Types.ScreenName)
 			modalInstance:toggle(name)
+			if name == "Store" and modalInstance:current() ~= "Store" then
+				-- #1888: the tap closed the Store, so a noted source tags no open
+				local funnel: any =
+					require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StoreFunnel"))
+				funnel.takeSource()
+			end
 		end,
 		travel = function(destination: string)
 			UI.events.travel:Fire(destination)
 		end,
 		openBait = openBait,
+		-- #1919: the goal card's nudge opens the Index on the newest open area with the most cats to find
+		openIndexAt = function(areaId: string?)
+			if collection then
+				if areaId then
+					collection:showArea(areaId)
+				else
+					collection:showTab("Index")
+				end
+			end
+			if modalInstance:current() ~= "Collection" then
+				modalInstance:open("Collection")
+			end
+			UI.events.indexHintTap:Fire(areaId or "none")
+		end,
 		-- the Index pill opens the Index on its cat pages (not the Decor tab), or closes it
 		openIndex = function()
 			if modalInstance:current() == "Collection" then
@@ -1775,6 +1800,13 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 			line = extra and extra.line,
 			rate = extra and extra.rate,
 		}
+		-- #1919: the area's count, counting this cat while the sync has not caught up; a given cat (its own
+		-- banner) shows none
+		local catalog = currentCatalog
+		if catalog and not (extra and extra.banner) then
+			local IndexHints = require(script.Components.IndexHints)
+			info.areaLine = IndexHints.areaLine(catalog, state, catId, true)
+		end
 		local cats: { [string]: Types.CatInstance } = state.cats or {}
 		local newest: Types.CatInstance? = nil
 		for _, instance in cats do
@@ -2014,14 +2046,36 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 		local lureId = if view then view.lureId else nil
 		-- #1161: with two bowls the banner names the bowl
 		local two = bowls.second == "on" or bowls.views[2] ~= nil
+		local catalog = currentCatalog
+		local IndexHints = require(script.Components.IndexHints)
 		baitCard:show(
 			def :: Types.CatDef,
 			cat,
 			if lureId then foodName(lureId) else nil,
-			if two then index else nil
+			if two then index else nil,
+			-- #1919: the area's count as it stands; taming adds the cat
+			if catalog then IndexHints.areaLine(catalog, state, cat.catId) else nil
 		)
 	end
 	renderBait()
+end
+
+-- #1897: FirstWow(rarity, first) from the server: the first wow cat came to the bowl (UI.bigPull.wow plays it). The
+-- card's portrait is the cat at a bowl with that rarity (BaitReady comes first), unless the server names it.
+function UI.bait.wow(rarity: string, first: boolean?, catId: string?)
+	local id = catId
+	if id == nil then
+		for _, cat in bowls.cats do
+			local catAt: Types.BaitCat? = cat
+			if catAt then
+				local def = lookupCat(catAt.catId)
+				if def and def.rarity == rarity then
+					id = catAt.catId
+				end
+			end
+		end
+	end
+	UI.bigPull.wow(rarity, first, id)
 end
 
 -- The server resolved the cat (tamed or let go): close its card and forget it. `bowl` is 1 or 2 (#1161), nil is 1.
@@ -4473,7 +4527,11 @@ do
 	local pull = {
 		screen = nil :: BigPullScreen.BigPull?,
 		parent = nil :: Instance?, -- the PlayerGui it was built in
+		-- #1897: when a first Epic card or the first wow cat's card last played (os.clock), so one cat never plays both
+		firstEpicAt = nil :: number?,
+		wowAt = nil :: number?,
 	}
+	local ONE_CAT_SECONDS = 10
 
 	local function screenFor(): BigPullScreen.BigPull?
 		local into = parentGui
@@ -4529,6 +4587,13 @@ do
 		if screen == nil then
 			return
 		end
+		if card == "first_epic" then
+			-- #1897: the first wow cat's own card already played for this Epic
+			if pull.wowAt ~= nil and os.clock() - pull.wowAt < ONE_CAT_SECONDS then
+				return
+			end
+			pull.firstEpicAt = os.clock()
+		end
 		screen:show({
 			card = card,
 			rarity = rarity,
@@ -4537,6 +4602,37 @@ do
 			name = def.name, -- the cat's kind, never its nickname
 			cat = def,
 			shiny = gold == true or variant == "gold",
+		})
+	end
+
+	-- #1897 (first-hour.md 2): the account's first wow cat came to the bowl. The first Epic's smaller card in the
+	-- rarity's colours with "YOUR FIRST RARE!" (or "A RARE VISITOR!" when the player already has one) over the cat;
+	-- a toast when the cat isn't known. A first Epic's own card (SecuredRare) within seconds is the same cat, so only
+	-- one of the two plays.
+	function UI.bigPull.wow(rarity: string, first: boolean?, catId: string?)
+		if type(rarity) ~= "string" then
+			return
+		end
+		if pull.firstEpicAt ~= nil and os.clock() - pull.firstEpicAt < ONE_CAT_SECONDS then
+			return
+		end
+		local def = if type(catId) == "string" then lookupCat(catId) else nil
+		local screen = if def ~= nil then screenFor() else nil
+		if def == nil or screen == nil then
+			local view = toasts
+			if view then
+				view:show(BigPullLogic.wowLine(rarity, first), "good")
+			end
+			return
+		end
+		pull.wowAt = os.clock()
+		screen:show({
+			card = "first_epic",
+			rarity = rarity,
+			word = BigPullLogic.wowWord(rarity, first),
+			tone = "rarity",
+			name = def.name,
+			cat = def,
 		})
 	end
 
@@ -5612,6 +5708,8 @@ do
 				ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Products")
 			) :: any).SUPPORTER_ATTRIBUTE :: string,
 		supporter = nil :: RBXScriptConnection?, -- its change hides the badge's card at once
+		funnel = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StoreFunnel")) :: any, -- #1888
+		reported = {} :: { [string]: true }, -- #1888: this visit's tabs and buys already reported
 	}
 
 	-- the potion packs' contents and names from the shared Catalog, the bag from the state (#1182)
@@ -5676,7 +5774,14 @@ do
 			hud:setStore(if open
 				then function()
 					if modal then
+						-- #1888: the tile with its New dot showing, or plain
+						shop.funnel.noteSource(
+							if screen and screen:hasNew() then "new_dot" else "hud_tile"
+						)
 						modal:toggle("Store")
+						if modal:current() ~= "Store" then
+							shop.funnel.takeSource() -- the tap closed it: no open to tag
+						end
 					end
 				end
 				else nil)
@@ -5692,7 +5797,23 @@ do
 		end
 		local screen = Store.new({
 			buy = function(passId: number)
+				-- #1888: the funnel's buy_pressed, the first buy of a visit
+				local key = "buy:" .. tostring(passId)
+				if not shop.reported[key] then
+					shop.reported[key] = true
+					UI.events.storeReport:Fire("store_buy", passId)
+				end
 				PassShop.prompt(passId)
+			end,
+			tabShown = function(tab: string)
+				local key = "tab:" .. tab
+				if not shop.reported[key] then
+					shop.reported[key] = true
+					-- deferred: the open's first tab shows before the modal says the Store opened (store_opened)
+					task.defer(function()
+						UI.events.storeReport:Fire("store_tab", tab)
+					end)
+				end
 			end,
 			close = function()
 				if modalView:current() == "Store" then
@@ -5722,6 +5843,7 @@ do
 		modalView:register("Store", {
 			frame = screen.frame,
 			onOpen = function()
+				shop.reported = {} -- #1888: a new Store visit, a new funnel session
 				screen:showTab("featured") -- #1425: the Store always opens on Featured
 				screen:render(rows(), PassShop.prices())
 				PassShop.refresh() -- a price changed in the Creator Hub shows without a rejoin

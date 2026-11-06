@@ -16,6 +16,9 @@ export type CatchMethod = "net" | "rescue" | "bait" | "starter" | "trade" -- "tr
 export type LureSource = "shop" | "dealer"
 -- How one closing circle was judged (data-model section 10).
 export type CircleGrade = "perfect" | "good" | "miss"
+-- #1884 (catch-rework.md 7c): a net catch's ring grade, which adds "left" for a paw ring nobody tapped (+1 trust; a
+-- tapped one is a "miss"). CatchJudged and CatchResult carry it.
+export type RingGrade = CircleGrade | "left"
 export type RingResult = CircleGrade -- the v0.2 ring's name, kept while the UI still uses it
 export type ClockPhase = "day" | "night" -- ReplicatedStorage.Clock attribute Phase (data-model section 9)
 export type ToastKind = "info" | "good" | "warn"
@@ -25,6 +28,11 @@ export type RarityDef = {
 	circles: number, -- closing circles in a net catch (data-model section 10)
 	shrinkSeconds: number, -- base shrink time of each circle
 	catchWindow: number, -- times the net's Perfect and Good for a cat of this rarity (v0.13.15 F83)
+	trustNeed: number, -- #1884 (catch-rework.md 7b): the trust a net catch must reach (TrustStart, +2 a Perfect)
+	-- #1884 (7a): the weights a stray of this rarity rolls its mood with
+	moods: { Sleepy: number, Curious: number, Skittish: number },
+	doubleRings: boolean, -- #1884 (7c): rings after the first may be doubles (Epic and above)
+	pawRings: boolean, -- #1884 (7c): rings after the second may be paw rings (Legendary and above)
 	fleeStuds: number, -- how far a stray sprints after a missed catch (v0.5, data-model section 10 step 5)
 	rescueHits: number, -- bar hits that free a stuck cat (section 10b)
 	sellValue: number,
@@ -39,6 +47,22 @@ export type CatchCircle = {
 	shrinkSeconds: number,
 	x: number,
 	y: number,
+	-- #1884 (catch-rework.md 7c): what the ring is. "single" until the twists (a double ring is two circles in a row,
+	-- both "double", `half` 1 and 2; a "paw" ring is left alone)
+	kind: CircleKind?,
+	half: number?,
+}
+export type CircleKind = "single" | "double" | "paw"
+
+-- #1884 (catch-rework.md 7a): a stray's mood, rolled at spawn and shown as its Mood attribute
+export type CatMood = "Sleepy" | "Curious" | "Skittish"
+-- #1884 (catch-rework.md 7d): how a net catch ended, and CatchResult's last argument
+export type CatchFinishKind = "purrfect" | "great" | "nice" | "bolt"
+export type CatchFinish = {
+	trust: number,
+	trustNeed: number,
+	finish: CatchFinishKind,
+	streak: number,
 }
 
 -- Timing windows of a net level: half-widths in seconds either side of each target (F93: the shrink time's wobble

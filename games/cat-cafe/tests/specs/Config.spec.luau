@@ -58,6 +58,25 @@ return function()
 		CircleLeadInSeconds = 0.6,
 		CircleGapMin = 0.40,
 		CircleGapMax = 0.75,
+		-- #1884 (catch-rework.md 7b): the trust bar
+		TrustStart = 2,
+		TrustPerfect = 2,
+		TrustGood = 1,
+		TrustMiss = -2,
+		CatchSpareRings = 2,
+		DoubleRingChance = 0.25,
+		DoubleRingGap = 0.18,
+		PawRingChance = 1 / 6,
+		TrustPawLeft = 1,
+		CuriousTrustBonus = 1,
+		CuriousRangeStuds = 12,
+		CuriousWalkStuds = 4,
+		CuriousBonusSeconds = 2,
+		SkittishRangeStuds = 10,
+		SkittishArcDegrees = 90,
+		SkittishHopStuds = 6,
+		SkittishCooldown = 8,
+		MoodIconStuds = 20,
 		CircleScorePerfect = 1.0,
 		CircleScoreGood = 0.5,
 		CatchLatencyCapSeconds = 0.15,
@@ -543,7 +562,9 @@ return function()
 			expect(c.SignStylePackPassId == 0 or ids[c.SignStylePackPassId] == nil).to.equal(true)
 			-- #1168 row 3: the Garden Decor Pack is 0 until made, then a pass id of its own
 			expect(type(c.GardenDecorPackPassId)).to.equal("number")
-			expect(c.GardenDecorPackPassId == 0 or ids[c.GardenDecorPackPassId] == nil).to.equal(true)
+			expect(c.GardenDecorPackPassId == 0 or ids[c.GardenDecorPackPassId] == nil).to.equal(
+				true
+			)
 			-- keep up is off: the shop-only cats use areaMultiplier instead, and it can come back by config
 			expect(next(Config.KeepUpRarities)).to.equal(nil)
 		end)
@@ -833,15 +854,18 @@ return function()
 	end)
 
 	describe("the rainbow coat (F99, rainbow-coat.md section 1)", function()
-		it("is three tenths of gold everywhere (v2, section 4b) and earns twice a gold cat", function()
-			expect(Config.RainbowChanceNet).to.be.near(Config.GoldChanceNet * 0.3, 1e-9)
-			expect(Config.RainbowChanceBait).to.be.near(Config.GoldChanceBait * 0.3, 1e-9)
-			expect(Config.RainbowChanceRescue).to.be.near(Config.GoldChanceRescue * 0.3, 1e-9)
-			expect(Config.RainbowMultiplier).to.equal(2 * Config.GoldMultiplier)
-			expect(Config.CollectorRainbowMultiplier > Config.CollectorGoldMultiplier).to.equal(
-				true
-			)
-		end)
+		it(
+			"is three tenths of gold everywhere (v2, section 4b) and earns twice a gold cat",
+			function()
+				expect(Config.RainbowChanceNet).to.be.near(Config.GoldChanceNet * 0.3, 1e-9)
+				expect(Config.RainbowChanceBait).to.be.near(Config.GoldChanceBait * 0.3, 1e-9)
+				expect(Config.RainbowChanceRescue).to.be.near(Config.GoldChanceRescue * 0.3, 1e-9)
+				expect(Config.RainbowMultiplier).to.equal(2 * Config.GoldMultiplier)
+				expect(Config.CollectorRainbowMultiplier > Config.CollectorGoldMultiplier).to.equal(
+					true
+				)
+			end
+		)
 	end)
 
 	describe("the crate reel (F103, crate-reel.md section 4)", function()

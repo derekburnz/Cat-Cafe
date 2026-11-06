@@ -11,9 +11,10 @@ its prompt card and a BangAnchor 2 studs over its sign for the owner's red "!" (
   CatCafe_Camp_Neighbourhood_YardSaleStall (#1154, section 3) a folding table with a gingham cloth under a little
                                       pastel blue and white striped awning on four posts; on it cardboard boxes, the
                                       middle one holding the free zone crate with a FREE tag, a lamp, books, a teapot
-                                      and a cash tin; boxes stacked on the rug; a hand-painted YARD SALE board nailed to
-                                      a stake. Attachments: PromptAnchor (the table's front, 1.5 up), BangAnchor (2
-                                      over the board), GlowAnchor (under the awning).
+                                      and a cash tin; boxes stacked on the rug; a hand-painted YARD SALE board hanging
+                                      on two chains from an arm on a post, the child Model _Sign_Swing pivoted at its
+                                      ring, which Effects/Motion swings (#1800). Attachments: PromptAnchor (the table's
+                                      front, 1.5 up), BangAnchor (2 over the arm), GlowAnchor (under the awning).
   CatCafe_Camp_Woods_FishingHut       (#1232, section 4) a small wooden fishing hut with a pitched roof on a deck on
                                       stilts over the back of a stone-ringed pond, reached by a plank jetty; a FISH POND
                                       sign on the roof's front slope, a lantern by the door, a rod rack, a bucket of
@@ -228,7 +229,10 @@ YARD = "CatCafe_Camp_Neighbourhood_YardSaleStall"
 YT_X0, YT_X1, YT_Z0, YT_Z1, YT_H = -2.5, 2.5, -0.8, 0.8, 2.3   # the folding table
 POST_X, POST_ZF, POST_ZB = 2.9, -1.35, 1.15                    # the awning's posts
 AWN_F, AWN_B = 5.0, 5.5                                        # the canopy's front and back edge heights
-YSIGN_X, YSIGN_Z = 4.0, -1.5                                   # the stake
+YSIGN_X, YSIGN_Z = 3.45, -1.5                                  # the post the sign hangs from
+ARM_X1, ARM_Y = 5.4, 4.0                                       # the arm's far end and its underside
+HINGE_X = 4.65                                                 # the sign's swing pivot under the arm (#1800)
+SIGN_ANGLE = 6.0                                               # its swing either way, clear of the post (Motion's Angle)
 
 
 def _cardboard_box(b, x, y, z, w, h, d, open_flaps=True):
@@ -311,29 +315,44 @@ def _yard_awning(b):
         b.fan_z(vz, (x, cy), arc, 0.08, sw)
 
 
-def _yard_sign(b):
-    """A hand-painted YARD SALE board nailed to a stake, its painted face toward -Z. Returns its top (Roblox)."""
+def _yard_sign(b, mat):
+    """A hand-painted YARD SALE board hanging from an arm on a post, its painted face toward -Z. The board and its two
+    chains are the child Model YARD_Sign_Swing, pivoted at the ring under the arm, so Effects/Motion swings it side to
+    side (#1800). Returns the swing object and the arm's top (Roblox)."""
     x, z = YSIGN_X, YSIGN_Z
-    b.span((x - 0.08, 0, z - 0.08), (x + 0.08, 3.4, z + 0.08), DARK)                             # the stake
-    y0, y1 = 2.0, 3.25
-    b.span((x - 0.8, y0, z - 0.14), (x + 0.8, y1, z - 0.08), "cardboard")                       # the board
-    b.span((x - 0.84, y0 - 0.04, z - 0.12), (x + 0.84, y1 + 0.04, z - 0.1), "kibble")           # its torn edge
-    _label_front(b, "YARD", x, y0 + 0.7, z - 0.14, 0.075, 0.02, "bowl_red")
-    _label_front(b, "SALE", x, y0 + 0.2, z - 0.14, 0.075, 0.02, "bowl_red")
+    b.span((x - 0.09, 0, z - 0.09), (x + 0.09, ARM_Y + 0.35, z + 0.09), DARK)                   # the post
+    b.span((x - 0.14, ARM_Y + 0.35, z - 0.14), (x + 0.14, ARM_Y + 0.45, z + 0.14), DARK)       # its cap
+    b.span((x, ARM_Y, z - 0.07), (ARM_X1, ARM_Y + 0.14, z + 0.07), DARK)                        # the arm
+    b.box((x + 0.45, ARM_Y - 0.33, z), (0.09, 0.95, 0.09), DARK, rot=_rz(-45))                 # its brace
+    b.span((HINGE_X - 0.05, ARM_Y - 0.12, z - 0.05), (HINGE_X + 0.05, ARM_Y, z + 0.05), "metal")   # the hook
+    sg = RB()                                                         # built about its pivot, the ring's top
+    hy = 0.0                                                          # local: the pivot at (0, 0, 0)
+    y1 = -0.38                                                        # the board's top
+    y0 = y1 - 1.2
+    for cx in (-0.6, 0.6):                                            # two chains up to the ring
+        L = math.hypot(cx, y1 + 0.08)
+        a = math.degrees(math.atan2(cx, -0.08 - y1))
+        sg.box((cx / 2, (y1 - 0.08) / 2, 0), (0.05, L, 0.05), "metal", rot=_rz(a))
+    sg.span((-0.07, hy - 0.08, -0.07), (0.07, hy, 0.07), "metal")                               # the ring
+    sg.span((-0.8, y0, -0.04), (0.8, y1, 0.04), "cardboard")                                    # the board
+    sg.span((-0.84, y0 - 0.04, -0.02), (0.84, y1 + 0.04, 0.02), "kibble")                       # torn edge
+    _label_front(sg, "YARD", 0.0, y0 + 0.7, -0.04, 0.075, 0.02, "bowl_red")
+    _label_front(sg, "SALE", 0.0, y0 + 0.2, -0.04, 0.075, 0.02, "bowl_red")
     for nx in (-0.6, 0.6):
-        b.span((x + nx - 0.03, y1 - 0.15, z - 0.17), (x + nx + 0.03, y1 - 0.09, z - 0.12), "metal")   # nails
-    return (x, y1 + 0.04, z - 0.11)
+        sg.span((nx - 0.03, y1 - 0.12, -0.07), (nx + 0.03, y1 - 0.06, -0.03), "metal")         # nails
+    swing = sg.finalize(YARD + "_Sign_Swing", mat, location=(HINGE_X, ARM_Y - 0.12, z))
+    return swing, (HINGE_X, ARM_Y + 0.14, z)
 
 
 def build_yardsale_stall(mat):
     b = RB()
     _yard_table(b)
     _yard_awning(b)
-    top = _yard_sign(b)
+    swing, top = _yard_sign(b, mat)
     _anchor(YARD, "PromptAnchor", (0.0, 1.5, YT_Z0 - 1.1))
     _anchor(YARD, "BangAnchor", (top[0], top[1] + 2.0, top[2]))
     _anchor(YARD, "GlowAnchor", (0.0, AWN_F - 0.5, (POST_ZF + POST_ZB) / 2))
-    return [b.finalize(YARD, mat)]
+    return [b.finalize(YARD, mat), swing]
 
 
 # --------------------------------------------------------------------------------------------- fishing hut --
@@ -700,6 +719,10 @@ def build_lost_found_booth(mat):
     _anchor(LOST, "Drip", drip)
     return [b.finalize(LOST, mat), bulb.finalize(LOST + "_Bulb", mat), blink.finalize(LOST + "_Blink_Bulb", mat),
             bell.finalize(LOST + "_Bell", mat, location=bell_at)]
+
+
+# #1800: the moving child Models' own numbers for Effects/Motion (rbx_export model_attributes), by asset
+MOVING = {YARD: {"model_attributes": {"_Sign_Swing": {"Angle": {"Float64": SIGN_ANGLE}}}}}
 
 
 def rbx_attachments(name):

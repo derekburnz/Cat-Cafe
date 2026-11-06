@@ -5,7 +5,9 @@
 
 local Config = {
 	ServerPlayers = 8,
-	StartCoins = 50,
+	-- #1796 (Derek2 11-06: the tutorial asks for a table and then the Bait bowl, and $50 covered neither): the first
+	-- table, the Bait bowl and its Kibble ($150 + $600 + $100), so tutorial steps 3 and 4 never wait on coins
+	StartCoins = 850,
 
 	-- Income (data-model section 11)
 	FavoriteMultiplier = 1.5,
@@ -56,6 +58,11 @@ local Config = {
 		starter_bundle = 3728336166, -- #1625: once per account (Catalog.products oncePerAccount)
 		cafe_pass = 3728336202, -- #1626: the running season's paid track, once per season (Catalog.products seasonPass)
 	} :: { [string]: number },
+	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
+	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).
+	-- Only the server reads it. Derek2's account, named "2573351", is user id 140223517 (user id 2573351 is someone
+	-- else). Nobody else is ever listed.
+	OwnerTestUserIds = { 140223517 } :: { number },
 	-- The Cafe Pass (#1645, cafe-pass.md section 1): each season's first day as a UTC date, oldest first. With no date
 	-- the pass is closed outside Studio, where a preview season 1 runs for playtests (shared/CafePass).
 	-- 2026-11-05 is a test start so Derek2 can try the pass live; Derek2 resets it to the launch day. Keep one date:
@@ -587,8 +594,9 @@ local Config = {
 	-- PicnicEverySeconds; the Yard Sale (Neighbourhood) gives one zone crate every YardSaleClaimHours from the last
 	-- take, free (crate-prices.md section 5; camp-stations.md section 3, #1154), banked for the Market; the Fish Pond
 	-- (Woods) lands PondFishPerStep golden fish every PondStepSeconds up to PondHold (#1232: 6 an hour, 6 hours' worth);
-	-- the Lost and Found (Sewer) keeps one prize a UTC day from LostFoundTable (chances add
-	-- to 1, shown on its card). Each is collected within CampExtraRangeStuds of its PromptAnchor.
+	-- the Lost and Found (Sewer) keeps one find every LostFoundEverySeconds up to LostFoundHold, each a roll of
+	-- LostFoundTable (#1732, camp-stations.md section 4b; chances add to 1, shown on its card; a lostCat row is an Epic
+	-- from the player's open areas). Each is collected within CampExtraRangeStuds of its PromptAnchor.
 	PicnicEverySeconds = 21600,
 	PicnicHold = 2,
 	PicnicPotion = "tip_potion",
@@ -596,14 +604,26 @@ local Config = {
 	PondFishPerStep = 1,
 	PondStepSeconds = 600,
 	PondHold = 36,
+	LostFoundEverySeconds = 7200,
 	LostFoundHold = 3,
 	LostFoundTable = {
-		{ chance = 0.40, fish = 10 },
-		{ chance = 0.30, potion = "lucky_potion" },
-		{ chance = 0.20, potion = "gold_rush_potion" },
-		{ chance = 0.09, crate = "classic_crate" },
-		{ chance = 0.01, crate = "classic_golden_crate" },
-	} :: { { chance: number, fish: number?, potion: string?, crate: string? } },
+		{ chance = 0.30, fish = 40 },
+		{ chance = 0.22, potions = { lucky_potion = 1, gold_rush_potion = 1 } },
+		{ chance = 0.15, spins = 2 },
+		{ chance = 0.18, crate = "sewer_crate" },
+		{ chance = 0.10, crate = "classic_golden_crate" },
+		{ chance = 0.03, crate = "sewer_golden_crate" },
+		{ chance = 0.02, lostCat = "Epic" },
+	} :: {
+		{
+			chance: number,
+			fish: number?,
+			potions: { [string]: number }?,
+			spins: number?,
+			crate: string?,
+			lostCat: string?,
+		}
+	},
 	CampExtraRangeStuds = 8,
 
 	-- The Rescue Rally weekend (F101, rescue-rally.md; shared/Rally, Catalog.rallySteps). From RallyStartWeekday (0 is

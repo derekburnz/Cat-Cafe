@@ -5,6 +5,8 @@
 -- strip (Screens/IndexStrip) pays 25 golden fish at 5 pieces (decor5) and +5% tips forever at all of them (decor10,
 -- whose `needs` the catalog sets, 12 since F80), which also puts a gold frame on the page. The
 -- page tabs carry a red badge when a reward is waiting. Counts come from state.decorOwned (Components/DecorPieces).
+-- #1766 (Derek2 couldn't tell whether the Rally set exists): the Rally page, whose crate is never sold, opens with
+-- "From the Rescue Rally, every weekend", and a Rally piece not owned yet reads "Rally Crate" in place of "???".
 
 local Create = require(script.Parent.Parent.Components.Create)
 local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
@@ -13,6 +15,7 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local IndexStrip = require(script.Parent.IndexStrip)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
@@ -58,6 +61,9 @@ local CELL = Vector2.new(112, 134)
 local ICON = 76
 local CHIP_HEIGHT = 46
 local PROGRESS_HEIGHT = 28
+local RALLY_POOL = "rally" -- shared Catalog.RALLY_POOL: the Rescue Rally's own crate, never sold (F101)
+local RALLY_SOURCE = "From the Rescue Rally, every weekend"
+local RALLY_LOCKED = "Rally Crate"
 local FULL_MILESTONE = "decor10" -- the whole page's milestone (all 12 since F80), whose claim puts on the gold frame
 
 local DecorIndex = {}
@@ -100,6 +106,8 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 	self._state = nil :: Types.PlayerState?
 
 	local gap = Theme.sizes.gap
+	-- a finger's 44 px on every touch screen (the UI gate's tap check), the page chips' 46 with a mouse
+	local chipHeight = Scale.tapHeight(CHIP_HEIGHT)
 	self.frame = Create("Frame", {
 		Name = "DecorIndex",
 		BackgroundTransparency = 1,
@@ -109,7 +117,7 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 	self._chipBar = Create("Frame", {
 		Name = "Pages",
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, CHIP_HEIGHT),
+		Size = UDim2.new(1, 0, 0, chipHeight),
 		Parent = self.frame,
 	}, {
 		Create("UIListLayout", {
@@ -120,7 +128,7 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 	})
 
 	-- the open page's completion: name, bar, count and percent
-	local progressTop = CHIP_HEIGHT + gap
+	local progressTop = chipHeight + gap
 	local progress: Frame = Create("Frame", {
 		Name = "Progress",
 		BackgroundTransparency = 1,
@@ -207,6 +215,18 @@ function DecorIndex.new(parent: Instance, callbacks: Callbacks): DecorIndex
 			PaddingTop = UDim.new(0, 4),
 			PaddingBottom = UDim.new(0, 4),
 		}),
+	})
+	-- #1766: where the Rally page's pieces come from, over its reward strip
+	self._source = text({
+		Name = "Source",
+		LayoutOrder = -1,
+		Size = UDim2.new(1, 0, 0, 24),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.gold,
+		Text = RALLY_SOURCE,
+		Visible = false,
+		Parent = self._grid,
 	})
 	self._strip = IndexStrip.new(self._grid, { claim = callbacks.claim })
 	self._cellsFrame = Create("Frame", {
@@ -454,6 +474,8 @@ function DecorIndex.render(self: any, state: Types.PlayerState)
 	end
 
 	self._strip:render(state, if open then DecorPieces.areaOf(open) else nil)
+	local rally = open == RALLY_POOL
+	self._source.Visible = rally
 	local shown = 0
 	for pool, cells in self._cells do
 		local onPage = pool == open
@@ -472,7 +494,7 @@ function DecorIndex.render(self: any, state: Types.PlayerState)
 				if owned then ShopIcons.decor(cell.def.id) else nil
 			)
 			cell.kind.Visible = owned
-			cell.name.Text = if owned then cell.def.name else "???"
+			cell.name.Text = if owned then cell.def.name elseif rally then RALLY_LOCKED else "???"
 			cell.name.TextColor3 = if owned then PAL.text else PAL.subtext
 			local rarity = piece.rarity or ""
 			cell.sub.Text = if owned

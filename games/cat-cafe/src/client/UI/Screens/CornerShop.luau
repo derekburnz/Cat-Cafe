@@ -62,9 +62,11 @@ local SECTION_H = 28
 local PICTURE = 40
 local BUY_W = 124
 local STOCK_W = 110
-local PENDING_SECONDS = 3 -- a buy with no answer lets the button go again after this long (#1384)
+local PENDING_SECONDS = 3 -- a sent buy with no answer stops counting on its row after this long (#1384)
 -- The server takes BuyCornerShop 2 a second and drops the rest with no answer (Net.luau), which left a fast buyer's
--- button on "..." (#1384). Buys are spaced this far apart; a press inside the gap waits its turn instead.
+-- button on "..." (#1384). Buys are spaced this far apart; presses inside the gap queue up and go in order.
+-- #1820 (Derek2: "stuck in ... for like a second"): no "..." any more. A press counts on its row at once, as if the
+-- server said yes ("x1 left" -> "Sold out"), and the next CornerShopStock puts right anything it refused.
 local SEND_GAP = 0.55
 local GAP = Theme.sizes.gap
 
@@ -97,9 +99,10 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 	self._stock = nil :: SharedTypes.CornerShopStock?
 	self._state = nil :: Types.PlayerState?
 	self._rows = {} :: { Row }
-	self._pending = {} :: { [string]: number } -- itemId -> os.clock() of a buy with no answer yet
+	self._queue = {} :: { { itemId: string, catUid: string? } } -- buys pressed and not sent yet, oldest first
+	self._sent = {} :: { { itemId: string, at: number } } -- buys sent with no CornerShopStock answer yet
 	self._lastSent = -math.huge -- os.clock() of the last buy sent
-	self._queued = false -- a press inside SEND_GAP waits to be sent (one at a time)
+	self._pumping = false -- a task sends the queue SEND_GAP apart
 	self._alive = true
 	self._open = false
 	self._tick = 0
@@ -281,76 +284,142 @@ function CornerShop._pickCat(
 	self._picker.Visible = true
 end
 
+-- The stock row for `itemId`, or nil.
+function CornerShop._item(self: any, itemId: string): SharedTypes.CornerShopItem?
+	local stock: SharedTypes.CornerShopStock? = self._stock
+	if stock == nil then
+		return nil
+	end
+	for _, each in stock.stock do
+		if each.itemId == itemId then
+			return each
+		end
+	end
+	return nil
+end
+
+-- How many buys of `itemId` are pressed but not answered yet: queued, or sent within PENDING_SECONDS.
+function CornerShop._extra(self: any, itemId: string): number
+	local count = 0
+	for _, each in self._queue do
+		if each.itemId == itemId then
+			count += 1
+		end
+	end
+	local now = os.clock()
+	for _, sent in self._sent do
+		if sent.itemId == itemId and now - sent.at < PENDING_SECONDS then
+			count += 1
+		end
+	end
+	return count
+end
+
+-- The row as it will be once every unanswered buy goes through (#1820).
+local function withExtra(
+	item: SharedTypes.CornerShopItem,
+	extra: number
+): SharedTypes.CornerShopItem
+	if extra <= 0 then
+		return item
+	end
+	local shown = table.clone(item :: any)
+	shown.bought = (item.bought or 0) + extra
+	return shown :: any
+end
+
 -- Sends one buy now, from the stock as it is now (a new window may have come while it waited).
 function CornerShop._fire(self: any, itemId: string, catUid: string?)
 	local stock: SharedTypes.CornerShopStock? = self._stock
-	local item: SharedTypes.CornerShopItem? = nil
-	if stock ~= nil then
-		for _, each in stock.stock do
-			if each.itemId == itemId then
-				item = each
-			end
-		end
-	end
+	local item = self:_item(itemId)
 	if stock == nil or item == nil then
-		self._pending[itemId] = nil -- gone from the shop while it waited
-		self:_paint()
+		self:_paint() -- gone from the shop while it waited
 		return
 	end
-	local price: number = (item :: SharedTypes.CornerShopItem).price
 	local now = os.clock()
 	self._lastSent = now
-	self._pending[itemId] = now -- the wait runs from the send
-	self._callbacks.buy(itemId, stock.window, price, catUid)
-	-- the "..." always lets go, even with the window's own repaint stopped (#1384)
+	table.insert(self._sent, { itemId = itemId, at = now })
+	self._callbacks.buy(itemId, stock.window, (item :: SharedTypes.CornerShopItem).price, catUid)
+	-- an unanswered buy stops counting on its row after PENDING_SECONDS, even with the window's repaint stopped
 	task.delay(PENDING_SECONDS + 0.1, function()
 		if self._alive then
 			self:_paint()
 		end
 	end)
-	self:_paint()
 end
 
-function CornerShop._send(self: any, item: SharedTypes.CornerShopItem, catUid: string?)
-	if self._stock == nil then
+-- Sends the queue in order, SEND_GAP apart, so the server's 2 a second never drops a press.
+function CornerShop._pump(self: any)
+	if self._pumping then
 		return
 	end
-	local itemId = item.itemId
-	local wait = self._lastSent + SEND_GAP - os.clock()
-	if wait <= 0 then
-		self:_fire(itemId, catUid)
-		return
-	end
-	if self._queued then
-		return -- one buy already waits its turn; this press is too fast to send
-	end
-	self._queued = true
-	self._pending[itemId] = os.clock()
-	self:_paint()
-	task.delay(wait, function()
-		self._queued = false
-		if self._alive then
-			self:_fire(itemId, catUid)
+	self._pumping = true
+	task.spawn(function()
+		while self._alive and #self._queue > 0 do
+			local wait = self._lastSent + SEND_GAP - os.clock()
+			if wait > 0 then
+				task.wait(wait)
+			end
+			if not self._alive then
+				break
+			end
+			local entry = table.remove(self._queue, 1) :: { itemId: string, catUid: string? }?
+			if entry then
+				self:_fire(entry.itemId, entry.catUid)
+			end
 		end
+		self._pumping = false
 	end)
 end
 
 function CornerShop._press(self: any, itemId: string)
+	local item = self:_item(itemId)
+	if item == nil then
+		return
+	end
+	-- the row as it will be after the buys already pressed: a press past the stock or the money does nothing
+	local view = self:_view(item :: SharedTypes.CornerShopItem)
+	if not view.enabled then
+		return
+	end
+	-- Corner Shop v2 (#1181): food goes to the Bag, so no row opens the cat picker on buy
+	self:_send(item :: SharedTypes.CornerShopItem, nil)
+end
+
+-- Queues one buy (for `catUid` when the picker chose a cat); it counts on its row at once.
+function CornerShop._send(self: any, item: SharedTypes.CornerShopItem, catUid: string?)
+	table.insert(self._queue, { itemId = item.itemId, catUid = catUid })
+	self:_paint()
+	self:_pump()
+end
+
+-- What spending the unanswered buys leaves of the player's money, so a press they can no longer afford greys out.
+function CornerShop._coins(self: any): number
+	local state: Types.PlayerState? = self._state
+	local coins = if state then state.money else 0
 	local stock: SharedTypes.CornerShopStock? = self._stock
 	if stock == nil then
-		return
-	end
-	local pressedAt = self._pending[itemId]
-	if pressedAt and os.clock() - pressedAt < PENDING_SECONDS then
-		return
+		return coins
 	end
 	for _, item in stock.stock do
-		if item.itemId == itemId then
-			-- Corner Shop v2 (#1181): food goes to the Bag, so no row opens the cat picker on buy
-			self:_send(item, nil)
-			return
-		end
+		coins -= item.price * self:_extra(item.itemId)
 	end
+	return coins
+end
+
+-- A row's button as it will be once every unanswered buy goes through.
+function CornerShop._view(self: any, item: SharedTypes.CornerShopItem): CornerShopLogic.ButtonView
+	local stock: SharedTypes.CornerShopStock? = self._stock
+	local state: Types.PlayerState? = self._state
+	local room = if stock then CornerShopLogic.snackRoom(stock.snackXp) else math.huge
+	local tier = if state then state.tier else 1
+	return CornerShopLogic.button(
+		withExtra(item, self:_extra(item.itemId)),
+		rowOf(item.itemId),
+		self:_coins(),
+		room,
+		tier
+	)
 end
 
 function CornerShop._clear(self: any)
@@ -502,7 +571,7 @@ function CornerShop._paint(self: any)
 	self._clock.Text = ""
 	self._snack.Text = CornerShopLogic.snackLine(stock.snackXp)
 	local state: Types.PlayerState? = self._state
-	local coins = if state then state.money else 0
+	local coins = self:_coins() -- #1820: less what the unanswered buys will spend
 	local room = CornerShopLogic.snackRoom(stock.snackXp)
 	for index, item in stock.stock do
 		local row: Row? = self._rows[index]
@@ -520,12 +589,11 @@ function CornerShop._paint(self: any)
 		local gate = CornerShopLogic.gate(item, tier)
 		-- the tier gate, else what is left this restock ("x2 left", #1456, the friend 11-05: "show amount in stock");
 		-- still no chances or daily limits in the window (#1190): a family past its limit shows no count, only "Back at sunrise" (#1671)
-		row.line.Text = gate or CornerShopLogic.stockLine(item)
-		local pressedAt = self._pending[item.itemId]
-		local waiting = pressedAt ~= nil and os.clock() - pressedAt < PENDING_SECONDS
-		local view = CornerShopLogic.button(item, def, coins, room, tier)
-		row.buy:setText(if waiting then "..." else view.text)
-		row.buy:setEnabled(view.enabled and not waiting)
+		local shown = withExtra(item, self:_extra(item.itemId))
+		row.line.Text = gate or CornerShopLogic.stockLine(shown)
+		local view = CornerShopLogic.button(shown, def, coins, room, tier)
+		row.buy:setText(view.text)
+		row.buy:setEnabled(view.enabled)
 	end
 end
 
@@ -533,7 +601,9 @@ end
 function CornerShop.setStock(self: any, stock: SharedTypes.CornerShopStock?)
 	local old: SharedTypes.CornerShopStock? = self._stock
 	self._stock = stock
-	table.clear(self._pending)
+	-- this answers the oldest buy sent (bought or refused); a window's own stock may answer none, so old sends
+	-- also stop counting after PENDING_SECONDS (_extra)
+	table.remove(self._sent, 1)
 	local same = old ~= nil and stock ~= nil and #old.stock == #stock.stock
 	if same and old and stock then
 		for index, item in stock.stock do

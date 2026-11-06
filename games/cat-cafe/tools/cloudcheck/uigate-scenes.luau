@@ -755,6 +755,13 @@ local SCENES = {
 		bindLawnPlot()
 		UI.open("Decor")
 		press("Decor", "FrontLawn")
+		-- #1729: the big-spot Garden Bench has the small "Big spot" tag, the small-spot Tulip Bed none
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local lawn = modals and modals:FindFirstChild("Lawn", true)
+		local bench = lawn and lawn:FindFirstChild("garden_bench", true)
+		local tulips = lawn and lawn:FindFirstChild("tulip_bed", true)
+		assert(bench and bench:FindFirstChild("BigSpot"), "uigate: the Garden Bench card has no Big spot tag (#1729)")
+		assert(tulips and tulips:FindFirstChild("BigSpot") == nil, "uigate: the Tulip Bed card has a Big spot tag (#1729)")
 	end },
 	-- #1624: the Style tab, the cafe sign (Royal Crest in use) and the uniforms once the server sends looks
 	{ "DecorStyle", function()
@@ -1164,6 +1171,23 @@ local SCENES = {
 		end
 		UI.update({ cats = player.cats })
 		UI.open("Cats")
+	end },
+	-- #1766: the Decor Index's Rally page says where its pieces come from, and a piece not owned reads "Rally Crate"
+	{ "IndexDecorRally", function()
+		UI.open("Collection")
+		press("Collection", "DecorTab")
+		press("Collection", "rally")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true)
+		local source = window and window:FindFirstChild("Source", true)
+		assert(source and source.Visible, "uigate: the Rally page does not say where its pieces come from (#1766)")
+		local locked = 0
+		for _, child in window:GetDescendants() do
+			if child:IsA("TextLabel") and child.Text == "Rally Crate" and child.Visible then
+				locked += 1
+			end
+		end
+		assert(locked > 0, "uigate: no Rally piece reads Rally Crate (#1766)")
 	end },
 	-- #1772: the Gold tab opens with a Gold cats line over the areas, as the Rainbow tab has Rainbow cats
 	{ "IndexGold", function()
@@ -1585,6 +1609,16 @@ local SCENES = {
 		clock:SetAttribute("LuckyDay", true)
 		UI.clock.bind(clock)
 		press("CatCafeHUD", "Luck")
+		-- #1776: one line of what Luck does to each rarity, no next cat or next crate odds
+		local hud = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeHUD")
+		local boost = hud:FindFirstChild("Boost", true)
+		assert(boost and boost.Visible, "uigate: the Luck card shows no rarity pills (#1776)")
+		for _, rarity in { "Epic", "Legendary", "Mythical" } do
+			local pill = boost:FindFirstChild(rarity)
+			local want = rarity .. " +130%"
+			assert(pill and pill.Text == want, "uigate: the Luck card's " .. rarity .. " pill reads " .. tostring(pill and pill.Text) .. " (#1776)")
+		end
+		assert(hud:FindFirstChild("FoodOdds", true) == nil, "uigate: the Luck card still lists the next cat's odds (#1776)")
 	end },
 	-- F88: the night before a Lucky Day, LuckyDayWarnSeconds before sunrise: the warning banner (no countdown line under
 	-- the clock since #1572), the Luck card from the scene before closed
@@ -1838,7 +1872,8 @@ local SCENES = {
 	{ "HUDStore", function()
 		UI.store.preview(storePrices(true), {})
 	end },
-	-- #1606: the money pass badge beside the money: "Get 2x" with no money pass and the 2x on sale, "3x" once owned
+	-- #1606: the money pass badge beside the money: the rainbow "X2 Cash / Only R$5" (#1759) with no money pass and the
+	-- 2x on sale, "3x" once owned
 	{ "HUDMoneyBadge", function()
 		UI.store.preview(storePrices(true), {})
 	end },

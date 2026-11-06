@@ -112,4 +112,15 @@ return function()
 			expect(SignStyles.sanitizePick(5)).to.equal(nil)
 		end)
 	end)
+
+	describe("name colours", function()
+		it("gives each style's name colour as six hex digits, or none for white (#1883)", function()
+			for _, style in SignStyles.LIST do
+				local hex = style.nameColor
+				if hex ~= nil then
+					expect(string.match(hex, "^%x%x%x%x%x%x$") ~= nil).to.equal(true)
+				end
+			end
+		end)
+	end)
 end

@@ -7,6 +7,15 @@ return function()
 	local Components = Client:WaitForChild("UI"):WaitForChild("Components")
 	local ShortNumber = require(Components:WaitForChild("ShortNumber")) :: any
 
+	describe("Shared/ShortNumber (#1814)", function()
+		it("is the module the client's Components/ShortNumber returns, so the server's toasts read the same", function()
+			local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+			expect(require(Shared:WaitForChild("ShortNumber")) :: any).to.equal(ShortNumber)
+			expect(ShortNumber.format(3420000)).to.equal("3.42M")
+			expect(ShortNumber.format(1250000000)).to.equal("1.25B")
+		end)
+	end)
+
 	describe("ShortNumber.format", function()
 		it("is exact with commas below 100,000", function()
 			expect(ShortNumber.format(0)).to.equal("0")

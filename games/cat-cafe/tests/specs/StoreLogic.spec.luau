@@ -45,13 +45,15 @@ return function()
 			-- the server's PlayerState.passBoosts.money counts too
 			expect(StoreLogic.moneyBadge(CONFIG, {}, {}, 2).text).to.equal("2x")
 			expect(StoreLogic.moneyBadge(CONFIG, { [200] = true }, {}, 4).text).to.equal("4x")
-			expect(StoreLogic.moneyBadge(CONFIG, {}, onSale, 1).text).to.equal("Get 2x")
+			expect(StoreLogic.moneyBadge(CONFIG, {}, onSale, 1).text).to.equal("X2 Cash")
 		end)
 
-		it("offers Get 2x with none owned while the 2x pass is on sale", function()
+		it("offers X2 Cash with its price with none owned while the 2x pass is on sale (#1759)", function()
 			local badge = StoreLogic.moneyBadge(CONFIG, {}, onSale)
-			expect(badge.text).to.equal("Get 2x")
+			expect(badge.text).to.equal("X2 Cash")
+			expect(badge.price).to.equal("Only R$5")
 			expect(badge.owned).to.equal(false)
+			expect(StoreLogic.moneyBadge(CONFIG, { [200] = true }, onSale).price).to.equal(nil)
 		end)
 
 		it(

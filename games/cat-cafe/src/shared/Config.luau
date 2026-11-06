@@ -5,7 +5,9 @@
 
 local Config = {
 	ServerPlayers = 8,
-	StartCoins = 50,
+	-- #1796 (Derek2 11-06: the tutorial asks for a table and then the Bait bowl, and $50 covered neither): the first
+	-- table, the Bait bowl and its Kibble ($150 + $600 + $100), so tutorial steps 3 and 4 never wait on coins
+	StartCoins = 850,
 
 	-- Income (data-model section 11)
 	FavoriteMultiplier = 1.5,

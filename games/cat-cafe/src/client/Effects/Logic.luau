@@ -2450,6 +2450,17 @@ function Logic.lidRattle(t: number): number
 	return math.rad(r.degrees) * math.abs(math.sin(math.pi * r.knocks * k)) * (1 - k)
 end
 
+-- The Lost and Found booth's desk bell ringing `t` seconds in (#1732): its turn about its base in radians, side to side
+-- `wobbles` times over `seconds`, dying away to rest; 0 before and after.
+function Logic.bellWobble(t: number): number
+	local r = Presets.campExtras.bell.ring
+	local k = t / r.seconds
+	if k <= 0 or k >= 1 then
+		return 0
+	end
+	return math.rad(r.degrees) * math.sin(2 * math.pi * r.wobbles * k) * (1 - k)
+end
+
 -- Whether a part of the pond's rod hangs from its tip (the line and the bobber) instead of turning with it: it stands
 -- upright in the rod's pivot space (`offset` is its frame there) and sits more than `beyond` studs out from the butt
 -- across the ground. A hanging part follows the tip and stays upright.

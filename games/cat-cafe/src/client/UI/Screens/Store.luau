@@ -27,6 +27,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
+local StoreBurst = require(script.Parent.Parent.Parent.Effects.StoreBurst)
 local StoreLogic = require(script.Parent.Parent.Components.StoreLogic)
 local Theme = require(script.Parent.Parent.Theme)
 
@@ -136,6 +137,7 @@ function Store.new(callbacks: Callbacks): Store
 	self._railButtons = {} :: { [string]: any }
 	self._tab = "featured"
 	self._rows = {} :: { StoreLogic.Row }
+	self._seen = {} :: StoreLogic.Seen -- #1823: each card's pass and Owned at the last render, for the thank-you burst
 	self._prices = {} :: { [number]: StoreLogic.Price }
 	self._ownedIds = {} :: { [number]: boolean }
 	self._actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
@@ -498,10 +500,12 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 		entry.frame.Visible = false
 		entry.passId = 0
 		entry.key = ""
+		entry.rowKey = ""
 		return
 	end
 	entry.frame.Visible = true
 	entry.passId = row.passId
+	entry.rowKey = row.key -- #1823: the thank-you burst finds a bought row's cards by this
 	entry.name.Text = row.name
 	-- #1822: a bundle adds its "Worth R$X bought apart" line once every part's price is in
 	local worth = StoreLogic.worthLine(row, self._prices, self._ownedIds)
@@ -698,6 +702,24 @@ function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: S
 	end
 	self:_layout()
 	self:showTab(self._tab)
+	self:_thank(rows)
+end
+
+-- #1823: a pass the server has just confirmed (Roblox's ownership answer, never the prompt) gets VFX's thank-you
+-- burst on its card while the window is open; StoreBurst skips a card that is off screen.
+function Store._thank(self: any, rows: { StoreLogic.Row })
+	local bought, seen = StoreLogic.justBought(self._seen, rows)
+	self._seen = seen
+	if #bought == 0 or not self.frame.Visible then
+		return
+	end
+	for _, key in bought do
+		for _, entry in self._cards do
+			if entry.rowKey == key and entry.frame.Visible then
+				StoreBurst.play(entry.frame, "pass")
+			end
+		end
+	end
 end
 
 function Store.destroy(self: any)

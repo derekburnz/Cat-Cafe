@@ -4,6 +4,9 @@
 -- names a letter key. UIController keeps each step's trail target and asks UI.tutorial.hint(state) for the words.
 --   line(view) -> string?                     the step's line, nil from DONE (the first loop is done)
 --   resting(cats, spots, tier) -> boolean     a cat rests while a role slot its tier opens is free (step 2's choice)
+--   upgrade(step, levels) -> string?          #1796: the upgrade the step asks for, "tables" at step 3 and "lure_bowl"
+--                                             at step 4 until it is owned, so the HUD's Upgrades tile and that row in
+--                                             Upgrades glow (Components/TutorialGlow); nil otherwise
 -- The steps (server tutorialStep): below 2 the first catch, 2 the first check-in with no free slot, 3 the first
 -- table, 4 the Bait bowl and food in it, 5 done. Each line keeps to about 50 characters, one line on the strip.
 -- Pure, so the cloud spec runner checks it.
@@ -74,6 +77,19 @@ local function pick(view: View): string?
 			return "bowl"
 		end
 		return if view.baited then "waiting" else "food"
+	end
+	return nil
+end
+
+TutorialHints.TABLE = "tables"
+TutorialHints.BOWL = "lure_bowl"
+
+function TutorialHints.upgrade(step: number?, levels: { [string]: number }?): string?
+	local owned: { [string]: number } = levels or {}
+	if step == 3 then
+		return TutorialHints.TABLE
+	elseif step == 4 and (owned[TutorialHints.BOWL] or 0) < 1 then
+		return TutorialHints.BOWL
 	end
 	return nil
 end

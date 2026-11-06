@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-06 04:34 UTC",
+  "generated": "2026-11-06 05:22 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -222661,6 +222661,330 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_GrandCushion.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_GrandCushion.png"
+    },
+    {
+      "name": "CatCafe_Decor_HangingFernBasket",
+      "category": "Decor",
+      "module": "gardendecor",
+      "objects": [
+        "CatCafe_Decor_HangingFernBasket"
+      ],
+      "triangles": 920,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.79,
+        "y": 2.05,
+        "z": 4.67
+      },
+      "size_roblox": [
+        2.79,
+        4.67,
+        2.05
+      ],
+      "bounds_min": [
+        -1.42,
+        -0.67,
+        0.0
+      ],
+      "bounds_max": [
+        1.38,
+        1.37,
+        4.67
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Garden Decor Pack decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_HangingFernBasket.model.json",
+      "rbx_parts": 58,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_HangingFernBasket.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_HangingFernBasket.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "920/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "416 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.02 y=0.35"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_SunflowerPot",
+      "category": "Decor",
+      "module": "gardendecor",
+      "objects": [
+        "CatCafe_Decor_SunflowerPot"
+      ],
+      "triangles": 1504,
+      "budget": 2000,
+      "size_studs": {
+        "x": 1.84,
+        "y": 1.52,
+        "z": 4.49
+      },
+      "size_roblox": [
+        1.84,
+        4.49,
+        1.52
+      ],
+      "bounds_min": [
+        -0.95,
+        -0.76,
+        0.0
+      ],
+      "bounds_max": [
+        0.9,
+        0.76,
+        4.49
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Garden Decor Pack decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_SunflowerPot.model.json",
+      "rbx_parts": 98,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_SunflowerPot.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_SunflowerPot.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1504/2000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "742 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.02 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_WateringCanPlanter",
+      "category": "Decor",
+      "module": "gardendecor",
+      "objects": [
+        "CatCafe_Decor_WateringCanPlanter"
+      ],
+      "triangles": 1492,
+      "budget": 2000,
+      "size_studs": {
+        "x": 2.6,
+        "y": 1.58,
+        "z": 2.34
+      },
+      "size_roblox": [
+        2.6,
+        2.34,
+        1.58
+      ],
+      "bounds_min": [
+        -1.72,
+        -0.93,
+        0.0
+      ],
+      "bounds_max": [
+        0.88,
+        0.65,
+        2.34
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Garden Decor Pack decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_WateringCanPlanter.model.json",
+      "rbx_parts": 88,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_WateringCanPlanter.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_WateringCanPlanter.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1492/2000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "697 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.42 y=-0.14"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_PottedLemonTree",
+      "category": "Decor",
+      "module": "gardendecor",
+      "objects": [
+        "CatCafe_Decor_PottedLemonTree"
+      ],
+      "triangles": 544,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.27,
+        "y": 1.64,
+        "z": 3.95
+      },
+      "size_roblox": [
+        2.27,
+        3.95,
+        1.64
+      ],
+      "bounds_min": [
+        -1.09,
+        -0.86,
+        0.0
+      ],
+      "bounds_max": [
+        1.19,
+        0.78,
+        3.95
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Garden Decor Pack decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_PottedLemonTree.model.json",
+      "rbx_parts": 22,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_PottedLemonTree.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_PottedLemonTree.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "544/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "382 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.05 y=-0.04"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_IvyTrellis",
+      "category": "Decor",
+      "module": "gardendecor",
+      "objects": [
+        "CatCafe_Decor_IvyTrellis"
+      ],
+      "triangles": 876,
+      "budget": 2000,
+      "size_studs": {
+        "x": 3.36,
+        "y": 1.1,
+        "z": 3.92
+      },
+      "size_roblox": [
+        3.36,
+        3.92,
+        1.1
+      ],
+      "bounds_min": [
+        -1.68,
+        -0.58,
+        0.0
+      ],
+      "bounds_max": [
+        1.68,
+        0.52,
+        3.92
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Garden Decor Pack decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_IvyTrellis.model.json",
+      "rbx_parts": 73,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_IvyTrellis.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_IvyTrellis.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "876/2000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "438 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.03"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Decor_GardenSwingSeat",
+      "category": "Decor",
+      "module": "gardendecor",
+      "objects": [
+        "CatCafe_Decor_GardenSwingSeat"
+      ],
+      "triangles": 1740,
+      "budget": 2000,
+      "size_studs": {
+        "x": 3.9,
+        "y": 2.16,
+        "z": 3.56
+      },
+      "size_roblox": [
+        3.9,
+        3.56,
+        2.16
+      ],
+      "bounds_min": [
+        -1.95,
+        -1.08,
+        0.0
+      ],
+      "bounds_max": [
+        1.95,
+        1.08,
+        3.56
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "Garden Decor Pack decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). Looks only: no cafeMultiplier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_GardenSwingSeat.model.json",
+      "rbx_parts": 101,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_GardenSwingSeat.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_GardenSwingSeat.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1740/2000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "858 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
     },
     {
       "name": "CatCafe_Sign_VipPlate",

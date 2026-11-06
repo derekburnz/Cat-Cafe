@@ -72,6 +72,27 @@ return function()
 			end
 		)
 
+		it("adds the cat accessory row next to the uniform, None first (#1708)", function()
+			local rows = StyleLogic.rows({
+				signStyles = {},
+				looks = {
+					uniform = "striped",
+					uniforms = { "striped" },
+					accessories = { "hat", "acc_tiny_lantern" },
+					themes = { "garden" },
+				},
+			})
+			expect(#rows).to.equal(3)
+			expect(rows[2].kind).to.equal("accessory")
+			expect(rows[2].title).to.equal("Cat accessory")
+			expect(names(rows[2])).to.equal("None*,Tiny Hat,Tiny Lantern")
+			expect(rows[3].kind).to.equal("theme")
+			local picked =
+				StyleLogic.rows({ looks = { accessory = "hat", accessories = { "hat" } } })
+			expect(names(picked[1])).to.equal("None,Tiny Hat*")
+			expect(StyleLogic.shows({ looks = { accessories = {} } })).to.equal(false)
+		end)
+
 		it("names an id it does not know from its words", function()
 			expect(StyleLogic.name("sea_glass")).to.equal("Sea Glass")
 			expect(StyleLogic.name("royal_crest")).to.equal("Royal Crest")

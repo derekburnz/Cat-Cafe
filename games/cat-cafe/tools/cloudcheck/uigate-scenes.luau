@@ -764,6 +764,8 @@ local SCENES = {
 			looks = {
 				uniform = "midnight",
 				uniforms = { "default", "striped", "midnight", "mint", "uniform_pumpkin" },
+				accessory = "hat", -- #1708
+				accessories = { "hat", "glasses", "acc_leaf_beret", "acc_tiny_lantern" },
 				theme = "garden",
 				themes = { "default", "garden", "grand" },
 			},
@@ -861,7 +863,8 @@ local SCENES = {
 		UI.bait.openPicker()
 		assertBowlTabs(1, "is in bowl 1")
 	end },
-	-- #1161: no pass: bowl 2's tab is locked; tapping it shows the pass card with its price and bowl 2's odds
+	-- #1161: no pass: bowl 2's tab is locked; tapping it shows the pass card with its price. #1767: under it three
+	-- short lines on what it gives, not the seven-food odds table
 	{ "BaitSecondOffer", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		local prices = storePrices(true)
@@ -875,14 +878,15 @@ local SCENES = {
 		local title = window:FindFirstChild("Status", true):FindFirstChild("Title")
 		assert(title.Text == "Get a second bowl", "uigate: bowl 2's tab shows " .. title.Text .. " (#1161)")
 		local odds = window:FindFirstChild("SecondOdds", true)
-		assert(odds and odds.Visible, "uigate: the locked bowl 2 shows no odds card (#1161)")
+		assert(odds and odds.Visible, "uigate: the locked bowl 2 shows no card under it (#1161)")
 		local lines = 0
 		for _, child in odds:GetChildren() do
-			if child:IsA("TextLabel") and string.sub(child.Name, 1, 5) == "Odds_" then
+			if child:IsA("TextLabel") then
 				lines += 1
+				assert(string.sub(child.Name, 1, 5) ~= "Odds_", "uigate: bowl 2 lists a food's odds again (#1767)")
 			end
 		end
-		assert(lines == #Catalog.lures, ("uigate: bowl 2's odds list %d of %d foods (#1161)"):format(lines, #Catalog.lures))
+		assert(lines == 4, ("uigate: bowl 2's card has %d lines, wants a heading and 3 (#1767)"):format(lines))
 	end },
 	{ "Dealer", function()
 		UI.dealer.open()
@@ -1329,6 +1333,36 @@ local SCENES = {
 			task.delay(target - t0 + delay, tapCircles)
 		end
 	end },
+	-- #1727: circle 1 hit, circle 2 pressed just past its Good band (a Miss on this device), then the server's
+	-- CatchJudged calls that press Good: circles 3 and 4 never went away, so the catch goes on in view
+	{ "CatchEdgeMiss", function()
+		local list = startCatch("gate_stray", "Common", 4, 0.3, 0.82)
+		local function art(index)
+			local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+			local holder = layer and layer:FindFirstChild("Circle" .. index, true)
+			return holder and holder:FindFirstChild("Art")
+		end
+		local function waitUntil(at)
+			local wait = at - workspace:GetServerTimeNow()
+			if wait > 0 then
+				task.wait(wait)
+			end
+		end
+		local function target(index)
+			return list[index].startsAt + list[index].shrinkSeconds
+		end
+		waitUntil(target(1))
+		tapCircles()
+		waitUntil(target(2) + 0.12)
+		tapCircles()
+		task.wait(0.3)
+		local third = art(3)
+		assert(third and third.Visible, "CatchEdgeMiss: circle 3 went before the server's word on circle 2")
+		UI.catch.judged("gate_stray", 2, "good")
+		waitUntil(target(3) - 0.2)
+		third = art(3)
+		assert(third and third.Visible, "CatchEdgeMiss: circle 3 went after the server called circle 2 Good")
+	end },
 	-- F93: the result word over the strip once the server's grades land (three Perfects of four: EXCELLENT!)
 	{ "CatchResult", function()
 		startCatch("gate_stray", "Rare", 4, 1, 1)
@@ -1503,6 +1537,22 @@ local SCENES = {
 		clock:SetAttribute("LuckyDay", false)
 		UI.clock.bind(clock)
 		UI.luckyDay("warning", "A Lucky Day starts at sunrise!")
+	end },
+	-- #1737: the Night Market banner at nightfall with the market cart's picture left of the title (was a moon emoji)
+	{ "NightMarketBanner", function()
+		local AreaTitle = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.AreaTitle")
+		local ShopIcons = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.ShopIcons")
+		local picture = ShopIcons.hud("NightMarket")
+		assert(picture ~= nil, "NightMarketBanner: no Night Market picture")
+		local card = AreaTitle.new(UIShim.playerGui)
+		card:banner(
+			"night_market",
+			"The Night Market is open!",
+			"Rare foods tonight at the dealer's cart in town.",
+			UI.Theme.colors.berry,
+			6,
+			picture
+		)
 	end },
 	-- #1572: a Lucky, Golden and Rainbow Day at once: "Lucky · Golden · Rainbow Day" under the clock, its card open
 	{ "HUDDayKinds", function()

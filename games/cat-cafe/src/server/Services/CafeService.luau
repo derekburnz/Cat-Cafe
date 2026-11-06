@@ -218,6 +218,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		stuckHelpShown = table.clone(profile.stuckHelpShown),
 		starterCatClaimed = profile.starterCatClaimed, -- F96
 		starterBought = profile.onceBought.starter_bundle == true, -- #1625: the Store card hides
+		codesRedeemed = table.clone(profile.codesRedeemed), -- #1714: the Store's Codes tab lists the codes used
 		signStyles = SignStyles.owned(profile.signStyles, ownsPassOf(player)), -- #1625
 		signStyle = profile.signStyle,
 		looks = { -- #1624: the Style tab's theme, uniform and accessory rows (the shown pick, nil for the default, and
@@ -1146,7 +1147,7 @@ local function refreshShowcase(player: Player, profile: Profile)
 		player,
 		currentRate(profile),
 		ProfileSchema.collectionCount(profile),
-		tierName
+		Economy.tier(profile)
 	)
 end
 

@@ -204,11 +204,18 @@ Remotes.ServerToClient = {
 	-- prompt open. Since F93 a stray has no prompt: a swing's refusal is a toast and its outcome CatchResult.
 	"NetSwung", -- (userId: number, hit: boolean)  F93: a swing landed, to the swinger and every client within 150 studs,
 	-- for the smack, the bounce on a miss and the whoosh; hit is true when it started a catch or a pick up
+	"PityAnnounce", -- (kind: "Legendary" | "Mythical", areaId: string, state: "out" | "caught" | "gone", winnerName:
+	-- string?)  #1572 (luck-and-rare-moments.md 1h): to everyone as a pity cat spawns, is caught (anywhere) or leaves
+	-- at night. The banner text itself goes out as Announce; ReplicatedStorage.Pity holds the state for late joiners.
 	"CatchSchedule", -- (strayId: string, circles: { Types.CatchCircle }, windows: Types.CatchWindows)
 	"CatchResult", -- (strayId: string, grades: { Types.CircleGrade }, success: boolean, charmGain: number,
 	-- retryAt: number?)  grades up to and including the first Miss; after a miss the stray sprints off and anyone may
 	-- try again (v0.5). retryAt (server time, miss only) is when this player may try that stray again (F57: 3, 6
 	-- then 10 s after it stops, by their miss streak).
+	"CatchJudged", -- (strayId: string, index: number, grade: Types.CircleGrade)  #1727: the server's grade for each
+	-- circle a press judged, to the catcher alone, as it is judged. A device that called its press a Miss keeps the
+	-- later circles drawn until this (Good or Perfect: the catch goes on) or CatchResult comes. CatchResult stays the
+	-- final word.
 	"RescueChallenge", -- (rescueSpotId: string, challenge: Types.RescueChallenge)  the bar, or a tree's falling cat
 	"RescueResult", -- (rescueSpotId: string, hits: number, pawsLeft: number, done: boolean, success: boolean,
 	-- bar: Types.RescueBar)  after every judged press, when a zone runs out (F93) and when the attempt ends; `bar` is

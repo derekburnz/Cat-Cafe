@@ -1319,6 +1319,10 @@ Layout.townSquare = {
 	-- The Rescue Rally's board (F101, Model-Agent #759: `CatCafe_Square_RallyBoard`, front -Z), in the north-east
 	-- quarter facing the spawn, off the lane and the cannon's lines; WorldBuilder.setRally shows it while a Rally runs.
 	rallyBoard = { asset = "CatCafe_Square_RallyBoard", x = 15, y = 0.1, z = 12, rotY = 30 } :: Prop,
+	-- The pity cat's sign (#1572, luck-and-rare-moments.md 1h; Model-Agent #1592: `CatCafe_Square_PitySign`, front
+	-- -Z, its Screen 5.6 x 2.8): the manifest's suggested spot across the street from the Day Cart, turned to face the
+	-- player spawn (#1753: it was never placed). WorldBuilder tags it PitySign for the countdown on its Screen.
+	pitySign = { asset = "CatCafe_Square_PitySign", x = 13.5, y = 0.1, z = -23, rotY = 123.69 } :: Prop,
 	-- The Town Square set (Model-Agent #435): the asset manifest's placements_roblox rows for each CatCafe_Square_*
 	-- piece, in world space (x, y, z, turn in degrees): the paving with its own slab, the two sign arches over the
 	-- street, then the edge (Derek 10-28, Model-Agent #726): twelve lamps on the brick border, eight long buntings

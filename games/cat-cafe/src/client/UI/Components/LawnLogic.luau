@@ -6,7 +6,8 @@
 --
 --   live(state, lawnPath)   whether the chip shows: the plot's LawnPath attribute is set (the lawn art is in) and
 --                           ProfileSync has sent the lawn
---   cards(state)                       the Lawn chip's cards (#1283): each owned piece, path and fence, out first
+--   cards(state)                       the Lawn chip's cards (#1283): each owned piece, path and fence, highest
+--                                      rarity first (#1751), then out first
 --   total(state)                       its line on top: "Lawn: 6 out, +18% money", the Money boosts row's number
 --   pieceAction(state, piece)          a piece's button from before #1283 (no screen shows it now)
 --   styleAction(state, style)          a path or fence's button from before #1283 (no screen shows it now)
@@ -406,12 +407,13 @@ function LawnLogic.cards(state: Types.PlayerState): { Card }
 	end
 	addStyles("path")
 	addStyles("fence")
+	-- #1751 (Derek2 11-06): highest rarity first (the bonus follows the rarity), then what is out
 	table.sort(list, function(a: Card, b: Card): boolean
-		if a.out ~= b.out then
-			return a.out
-		end
 		if a.bonus ~= b.bonus then
 			return a.bonus > b.bonus
+		end
+		if a.out ~= b.out then
+			return a.out
 		end
 		if a.name ~= b.name then
 			return a.name < b.name

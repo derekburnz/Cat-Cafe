@@ -431,7 +431,7 @@ return function()
 				RoyalCatPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				KingPackPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				KingCatPassId = true, -- #1822: the King Cat alone, 0 until made, checked below
-				JukeboxPassId = true, -- #1168 row 2: 0 until made, checked below
+				JukeboxPassId = true, -- #1168 row 2: a pass id of its own, checked below
 				SignStylePackPassId = true, -- #1168 row 1: a pass id of its own, checked below
 				GardenDecorPackPassId = true, -- #1168 row 3: a pass id of its own, checked below
 				GoldenPondPassId = true, -- #1197: an off-sale placeholder pass id, checked below

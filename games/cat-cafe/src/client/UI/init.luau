@@ -2000,7 +2000,14 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 	if baitCard then
 		local view = bowls.views[index]
 		local lureId = if view then view.lureId else nil
-		baitCard:show(def :: Types.CatDef, cat, if lureId then foodName(lureId) else nil)
+		-- #1161: with two bowls the banner names the bowl
+		local two = bowls.second == "on" or bowls.views[2] ~= nil
+		baitCard:show(
+			def :: Types.CatDef,
+			cat,
+			if lureId then foodName(lureId) else nil,
+			if two then index else nil
+		)
 	end
 	renderBait()
 end

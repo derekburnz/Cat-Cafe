@@ -517,4 +517,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 - 2026-11-06 (overnight, under Derek2's go-ahead): The King Cat bundle uses the same pass at the same price, R$999. It holds the King Cat, the Grand theme, the Royal Crest sign, one decor piece and one potion set, and Gameplay picks the decor and potions from existing items. The King Cat alone costs R$799 and stays hidden until Derek2 creates its pass. Spec in store-layout-v2.md §7. Why: Monetization-Agent's call on #1822, and it needs no new product tonight.
 
+- 2026-11-06: The Day Cart keeps more in stock: row i is in stock with max(25%, 100% - 3% x (i - 1)), about 14 of the 19 rows a day instead of about 10. Quantities and daily limits are unchanged. day-cart.md §2 matches the build in #1743. Why: Derek2 asked for more Day Cart items in stock (#1740).
+
 - 2026-11-06 (overnight, under Derek2's go-ahead): The Spin window is tidied with no prize changes. It has two columns, and the right one holds only the title, the spin count, Spin, a small "Use all" and a small "Odds". All 8 slices get equal pills with short amounts, crate slices show real crate art, and a win turns the pill gold instead of putting a ring on the picture. Spec in rewards-and-shops.md §2b v3. Why: Derek2's ask on #1816.

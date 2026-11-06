@@ -1025,6 +1025,12 @@ local function wireIntents()
 			end
 		end)
 	end
+	-- #1919: the goal card's "Find N more cats" opened the Index; the server allowlists the area id
+	if events.indexHintTap ~= nil then
+		events.indexHintTap:Connect(function(areaId: string)
+			Net.fire("TelemetryReport", "index_hint_tap", areaId)
+		end)
+	end
 	-- Fast travel (F19): the travel row and the Areas panel; the server answers every request with TravelResult.
 	UI.events.travel:Connect(function(destination: string)
 		Net.fire("Travel", destination)

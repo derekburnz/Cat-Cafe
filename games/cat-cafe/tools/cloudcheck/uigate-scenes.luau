@@ -1948,6 +1948,20 @@ local SCENES = {
 		UI.open("Store")
 		assertStoreCards(true)
 	end },
+	-- #1823 (store-layout-v2.md §4): an owned pass keeps its card, greyed, with "✓ Yours" where the price was
+	{ "StoreYours", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[2]] = true, [Config.LongNapPassId] = true })
+		UI.open("Store")
+		press("Store", "passes")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("grid:longNap", true)
+		assert(card, "uigate: no Long Nap card on the Passes tab (#1823)")
+		local owned = card:FindFirstChild("Owned") :: TextLabel
+		local dim = card:FindFirstChild("Dim") :: Frame
+		assert(owned and owned.Visible and owned.Text == "✓ Yours", "uigate: the owned Long Nap does not say Yours (#1823)")
+		assert(dim and dim.Visible, "uigate: the owned Long Nap is not greyed (#1823)")
+	end },
 	-- the passes off sale (as on live until launch): every card says Soon
 	{ "StoreSoon", function()
 		UI.store.preview(storePrices(false), {})

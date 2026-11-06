@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-06 04:03 UTC",
+  "generated": "2026-11-06 04:34 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -220982,6 +220982,177 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_SignGrand.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_SignGrand.png"
+    },
+    {
+      "name": "CatCafe_Plot_SignFlowerBox",
+      "category": "Plot",
+      "module": "signstyles",
+      "objects": [
+        "CatCafe_Plot_SignFlowerBox",
+        "CatCafe_Plot_SignFlowerBox_SignBoard",
+        "CatCafe_Plot_SignFlowerBox_Frame"
+      ],
+      "triangles": 2648,
+      "budget": 3000,
+      "size_studs": {
+        "x": 17.17,
+        "y": 1.25,
+        "z": 5.5
+      },
+      "size_roblox": [
+        17.17,
+        5.5,
+        1.25
+      ],
+      "bounds_min": [
+        -8.58,
+        -19.25,
+        11.79
+      ],
+      "bounds_max": [
+        8.58,
+        -18.0,
+        17.3
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignFlowerBox.model.json",
+      "rbx_parts": 120,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignFlowerBox.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignFlowerBox.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "2648/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1250 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=11.79 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.62"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_SignStarryNight",
+      "category": "Plot",
+      "module": "signstyles",
+      "objects": [
+        "CatCafe_Plot_SignStarryNight",
+        "CatCafe_Plot_SignStarryNight_SignBoard",
+        "CatCafe_Plot_SignStarryNight_Frame"
+      ],
+      "triangles": 962,
+      "budget": 3000,
+      "size_studs": {
+        "x": 17.34,
+        "y": 0.34,
+        "z": 6.9
+      },
+      "size_roblox": [
+        17.34,
+        6.9,
+        0.34
+      ],
+      "bounds_min": [
+        -8.67,
+        -18.62,
+        12.78
+      ],
+      "bounds_max": [
+        8.67,
+        -18.28,
+        19.68
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignStarryNight.model.json",
+      "rbx_parts": 221,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignStarryNight.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignStarryNight.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "962/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "575 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=12.78 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.45"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Plot_SignPawChalkboard",
+      "category": "Plot",
+      "module": "signstyles",
+      "objects": [
+        "CatCafe_Plot_SignPawChalkboard",
+        "CatCafe_Plot_SignPawChalkboard_SignBoard",
+        "CatCafe_Plot_SignPawChalkboard_Frame"
+      ],
+      "triangles": 1506,
+      "budget": 3000,
+      "size_studs": {
+        "x": 16.8,
+        "y": 0.99,
+        "z": 6.54
+      },
+      "size_roblox": [
+        16.8,
+        6.54,
+        0.99
+      ],
+      "bounds_min": [
+        -8.4,
+        -18.99,
+        12.84
+      ],
+      "bounds_max": [
+        8.4,
+        -18.0,
+        19.38
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_SignPawChalkboard.model.json",
+      "rbx_parts": 57,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_SignPawChalkboard.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_SignPawChalkboard.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "1506/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "547 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=12.84 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.49"
+        }
+      }
     },
     {
       "name": "CatCafe_Camp_Park_GardenNursery",

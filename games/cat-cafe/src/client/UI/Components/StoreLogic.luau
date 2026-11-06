@@ -642,4 +642,29 @@ function StoreLogic.button(row: Row, price: Price?): Button
 	return { text = ("R$%d"):format(price.robux :: number), style = "store", enabled = true }
 end
 
+-- #1823: what each card showed at the last render, by row key: its pass id and whether it was owned.
+export type Seen = { [string]: { passId: number, owned: boolean } }
+
+-- #1823: the row keys whose pass the player has just bought since `seen`, for the store's thank-you burst. A card
+-- that turned Owned counts, and so does the money card moving up a rung (its bought rung is gone from the rows, the
+-- next one shows). Products are never owned, and a key not seen before (the first render) never counts. Returns the
+-- keys and the new Seen.
+function StoreLogic.justBought(seen: Seen, rows: { Row }): ({ string }, Seen)
+	local bought: { string } = {}
+	local now: Seen = {}
+	for _, row in rows do
+		if row.product == true then
+			continue
+		end
+		now[row.key] = { passId = row.passId, owned = row.owned }
+		local before = seen[row.key]
+		if before and not before.owned then
+			if (row.owned and before.passId == row.passId) or before.passId ~= row.passId then
+				table.insert(bought, row.key)
+			end
+		end
+	end
+	return bought, now
+end
+
 return StoreLogic

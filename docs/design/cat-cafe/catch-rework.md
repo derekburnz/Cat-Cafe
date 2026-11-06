@@ -103,3 +103,65 @@ Tries stay unlimited and a miss costs only the chase, so a hard cat costs time, 
 8. A rescue zone not hit within two sweeps costs a paw and moves. The marker gets faster with each hit. A Mythical needs seven hits.
 9. The paw marker, trap shake, hit pips, deadline ring and free burst all show.
 10. A dropped cat is picked up by swinging at it.
+
+## 7. Catch v3: moods, trust, twists and the finish (#1884)
+
+Derek2, 2026-11-06: "re-work the cat catching mechanic/minigame to be more fun but still clean it's one of the core gameplay loops". He picked every recommendation (20:24, "go with all recommended"). The research and the reasons are in the project library, `Design-Agent/catch-v3-proposal-2026-11-06.md`. Sections 1 (the swing) and 2 (bands by net) stay. Section 3's progress strip and result words are replaced by 7b and 7d. Rescues (section 4) don't change.
+
+### 7a. Cat moods on the approach
+- A stray rolls a mood when it spawns and keeps it until it's caught or leaves. It's stored as the `Mood` attribute on the stray model, and the client shows a small icon above its head within 20 studs.
+
+  | rarity | Sleepy (zZ) | Curious (?) | Skittish (!) |
+  |---|---|---|---|
+  | Common, Rare | 55 | 45 | 0 |
+  | Epic | 30 | 35 | 35 |
+  | Legendary, Mythical | 20 | 30 | 50 |
+
+- **Sleepy:** curled up, never wanders, and only wakes when a swing lands on it.
+- **Curious:** the first time a player comes within 12 studs, it walks 4 studs toward them. A swing that lands within 2 s of that walk starting begins with +1 trust (`CuriousTrustBonus`).
+- **Skittish:** it faces one way, and its icon shows a small view arc. A player who comes within 10 studs *inside its 90° front arc* makes it hop 6 studs away, at most once every 8 s (`SkittishHopStuds` 6, `SkittishCooldown` 8). Coming from behind or the side is fine. It's sneaking with no extra button.
+- The tutorial stray is always Sleepy. A player before `tutorialStep` 2 never meets a Skittish cat, because their strays reroll Skittish to Sleepy.
+
+### 7b. The trust bar (replaces "one Miss ends it")
+- Trust starts at 2 (3 with the Curious bonus) and has to reach the rarity's `trustNeed`: Common 8, Rare 10, Epic 12, Legendary 14, Mythical 16. An all-Perfect run takes the same number of rings as today: 3, 4, 5, 6 or 7.
+- Each ring: **Perfect +2, Good +1, Miss -2.** If trust drops **below 0**, the cat bolts. That's today's sprint and miss streak, unchanged.
+- Rings keep coming on a steady beat, one every `shrinkSeconds + CircleGapMin`, until trust is full or the cat bolts. A run also ends as a bolt after `2 x` the all-Perfect ring count (6 for a Common, 14 for a Mythical), so it can never drag on.
+- The rings sit on the cat in the world, around its head, not in the middle of the screen. The cat reacts to each grade: ears perk on a hit, a wriggle and a soft hiss on a Miss.
+- A soft purr rises in pitch with trust (Sound).
+- **Re-fit:** Gameplay-Engineer runs the section 2 simulation (50 ms and 70 ms presses) and tunes only the `catchWindow` column, so each cell of the section 2 catch-chance table lands within 5 points of today. If that can't be done, Design re-tunes `trustNeed`. A Basic Net Mythical stays about 1 try in 4.
+
+### 7c. Rarity twists
+- **Double ring (Epic and above):** each ring after the first has a 25% chance (`DoubleRingChance`) to be a double, with two outlines shrinking 0.18 s apart. Each half is graded as its own press.
+- **Paw ring (Legendary and above):** each ring after the second has a 1 in 6 chance (`PawRingChance`) to be red with a paw print, never twice in a row. *Don't tap it.* Leaving it gives +1 trust. Tapping it is graded as a Miss (-2), and the cat swats at the net.
+- Mythicals can get both. Commons and Rares keep plain rings.
+- The server picks every ring kind into `CatchSchedule`, so the client only draws them.
+
+### 7d. The finish
+- When trust fills, the net wraps the cat and wobbles twice in 0.6 s, then pops with confetti and one banner:
+  - **PURRFECT!** if every tapped ring was Perfect and no paw ring was tapped. Gold, the biggest burst.
+  - **GREAT!** if at most one ring wasn't Perfect. Mint.
+  - **NICE!** otherwise. Cream.
+  - A bolt shows "So close!" as now.
+- **Purrfect bonus:** the caught cat joins with `CatXpBase` (120) XP, which is level 2 at once. A "Purrfect x3" streak counter shows under the coins after the second Purrfect in a row. It resets on any other result and lasts for the session only, so there's no save change.
+- The carry home after the finish is unchanged.
+
+### 7e. Contracts
+- `CatchSchedule` gains `rings = { { at, kind = "single" | "double" | "paw" } }`, `trustStart` and `trustNeed`. `CatchResult` gains `trust`, `finish = "purrfect" | "great" | "nice" | "bolt"` and `streak`. No new remotes, and the server still stamps and grades every press.
+- Config: `TrustPerfect` 2, `TrustGood` 1, `TrustMiss` -2, `TrustStart` 2, `CuriousTrustBonus` 1, `DoubleRingChance` 0.25, `PawRingChance` 1/6, `SkittishHopStuds` 6, `SkittishCooldown` 8, `MoodIconStuds` 20. On `Catalog.rarities`: `trustNeed` and the mood weights.
+- Analytics: `catch_attempt` gains `finish` and `mood`.
+- **Who builds:**
+  - Gameplay-Engineer: the moods, trust, ring kinds, the re-fit, Pace.spec and the XP bonus.
+  - UI-Engineer: the trust bar over the cat, mood icons, the banner and the streak counter.
+  - Animation-Engineer: the ear perk, wriggle, swat, net wrap and wobble, and the mood idles.
+  - VFX-Agent: the ring pops, a 60 ms hit-stop on Perfect (client only), confetti and the Purrfect burst, with lighter versions for Reduce Motion and Low performance.
+  - Sound-Agent: the rising purr, grade ticks, hiss, swat, wobble and pop, and the Purrfect jingle.
+- Two PRs from Gameplay: trust and the finish first, then moods and twists.
+
+### 7f. QA checks
+1. A brand-new player's first three catches all succeed, and none of their strays is Skittish.
+2. A Common caught with three Perfects takes 3 rings, about 4 s from the swing to PURRFECT.
+3. One Miss early on a Rare doesn't end the catch, but two Misses in a row from the start do.
+4. A Skittish cat hops when approached from the front within 10 studs, not from behind.
+5. Tapping a paw ring costs trust and plays the swat. Leaving it adds trust.
+6. A Purrfect cat joins at level 2. The streak counter shows from the second Purrfect in a row.
+7. The section 2 chance table holds within 5 points (spec simulation). A playtest on phone and desktop shows no new console errors.

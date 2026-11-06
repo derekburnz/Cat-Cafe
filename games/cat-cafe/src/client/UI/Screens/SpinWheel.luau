@@ -75,7 +75,8 @@ export type SpinWheel = {
 
 type Tile = {
 	holder: Frame,
-	stroke: UIStroke,
+	stroke: UIStroke?, -- an Odds row's edge
+	pill: Frame?, -- a wheel tile's amount pill: gold while it is the prize just won (#1816, in place of a ring)
 	icon: ItemIcon.ItemIcon,
 	row: Types.SpinRow,
 	crate: string?, -- the crate a crate slice shows now ("highest" resolved for the player's tier)
@@ -647,12 +648,13 @@ function SpinWheel._paintCrate(self: any, tile: Tile)
 	end
 	tile.crate = id
 	local crate: CrateLogic.Crate? = self._crates[id]
-	-- the clean crate symbol (#966: "too small"); the crate's model only if that picture were missing (#1242)
+	-- #1816 (Derek: the "?" box "just looks a little off"): the picture of the crate it pays, as in the Market and the
+	-- Bag; the clean crate symbol only if that crate has no picture, the crate's model if neither (#1242)
 	tile.icon:set(
 		if crate then crate.asset else nil,
 		Theme.icons.crate,
 		if CrateLogic.isGolden(id, crate) then "Legendary" else "Rare",
-		ShopIcons.clean("Crate")
+		ShopIcons.crate(id) or ShopIcons.clean("Crate")
 	)
 end
 
@@ -884,7 +886,7 @@ function SpinWheel._build(self: any)
 			})
 		)
 		-- the prize on its wedge: one fat picture filling the wedge (Derek's 11-04 mockup), the amount in a dark pill over
-		-- its foot; a gold ring when won
+		-- its foot; the pill turns gold when won (#1816: the old gold ring read as "a random yellow circle")
 		local radius = self._radii[index]
 		local fit = math.min(TILE, 2 * radius * math.sin(math.rad(spans[index] / 2)) * TILE_FILL)
 		local narrow = fit < TILE * 0.75
@@ -897,8 +899,6 @@ function SpinWheel._build(self: any)
 			ZIndex = 3,
 			Parent = self._face,
 		})
-		local stroke = Outline.border(holder, 4, Theme.colors.gold)
-		stroke.Enabled = false
 		local icon = ItemIcon.new({
 			parent = holder,
 			size = UDim2.fromScale(0.9, 0.9),
@@ -936,7 +936,7 @@ function SpinWheel._build(self: any)
 		})
 		local tile: Tile = {
 			holder = holder,
-			stroke = stroke,
+			pill = pill,
 			icon = icon,
 			row = row,
 			crate = nil,
@@ -1170,12 +1170,20 @@ function SpinWheel._land(self: any, turn: Turn)
 	end
 end
 
--- Rings the landed tile in gold until the next spin; nil clears it.
+-- Turns the landed tile's amount pill gold until the next spin; nil clears it.
 function SpinWheel._light(self: any, index: number?)
 	self._landed = index
 	for each, tile: Tile in self._tiles do
 		local lit = each == index
-		tile.stroke.Enabled = lit
+		local pill: Frame? = tile.pill
+		if pill then
+			pill.BackgroundColor3 = if lit then Theme.colors.gold else Theme.colors.outline
+			pill.BackgroundTransparency = if lit then 0 else 0.1
+		end
+		local amount: TextLabel? = tile.amount
+		if amount then
+			amount.TextColor3 = if lit then Theme.colors.goldText else Theme.colors.white
+		end
 	end
 end
 

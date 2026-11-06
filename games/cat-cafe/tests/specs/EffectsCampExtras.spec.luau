@@ -146,4 +146,29 @@ return function()
 			expect(Logic.campHeld("full", "lostFound")).to.equal(0)
 		end)
 	end)
+
+	describe("Logic.bellWobble (#1732)", function()
+		it("rings the desk bell side to side, dying away, and rests before and after", function()
+			local r = c.bell.ring
+			expect(Logic.bellWobble(-0.1)).to.equal(0)
+			expect(Logic.bellWobble(0)).to.equal(0)
+			expect(Logic.bellWobble(r.seconds)).to.equal(0)
+			expect(Logic.bellWobble(r.seconds + 1)).to.equal(0)
+			local left, right = false, false
+			local last = 0
+			for t = 0, r.seconds + 0.05, FRAME do
+				local turn = Logic.bellWobble(t)
+				expect(math.abs(turn) <= math.rad(r.degrees) + 1e-9).to.equal(true)
+				expect(math.abs(math.deg(turn - last)) < 4).to.equal(true) -- no jump between frames
+				left = left or turn < -0.01
+				right = right or turn > 0.01
+				last = turn
+			end
+			expect(left and right).to.equal(true)
+			-- the first tip is bigger than one near the end
+			local early = math.abs(Logic.bellWobble(r.seconds / (4 * r.wobbles)))
+			local late = math.abs(Logic.bellWobble(r.seconds * (1 - 1 / (4 * r.wobbles))))
+			expect(early > late).to.equal(true)
+		end)
+	end)
 end

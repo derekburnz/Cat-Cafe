@@ -7,6 +7,7 @@
 -- CampExtras.GOLD_POND_ATTRIBUTE so their client shows the gold Fishing Hut.
 -- The five store passes (#1624, economy-ladder.md section 6a): VIP, Cat Accessories, Uniform Styles, Cafe Style and
 -- Grand Cafe give Economy.Passes flags, and VIP also sets the player's ChatTags attribute for the "[VIP]" chat tag.
+-- #1770 owner test mode: for a Config.OwnerTestUserIds player every made pass counts as owned (shared/OwnerTest).
 -- A Config id of 0 is a pass not made yet and is never looked up, so until Tools-Agent makes them every player has
 -- Economy's no passes.
 
@@ -18,6 +19,7 @@ local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local ChatTags = require(ReplicatedStorage.Shared.ChatTags)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local ShopCats = require(ReplicatedStorage.Shared.ShopCats)
 local Signal = require(ReplicatedStorage.Shared.Signal)
 
@@ -192,6 +194,22 @@ end
 -- failed lookup counts as not owned until `retry` gets an answer.
 function PassService.check(player: Player): Economy.Passes
 	local set: { [number]: boolean } = {}
+	if OwnerTest.isOwner(player.UserId) then
+		-- #1770 owner test mode: every made pass counts as owned, with no lookup and nothing bought
+		for _, id in passIds() do
+			set[id] = true
+		end
+		print(
+			string.format(
+				"[OwnerTest] %d: every made pass counts as owned (%d)",
+				player.UserId,
+				#passIds()
+			)
+		)
+		owned[player] = set
+		markPlayer(player, set)
+		return PassService.fromOwned(set)
+	end
 	local failed: { number } = {}
 	for _, id in passIds() do
 		local result = lookup(player, id)

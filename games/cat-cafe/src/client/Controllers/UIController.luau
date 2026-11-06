@@ -64,6 +64,15 @@ UIController.state = nil :: Types.PlayerState?
 -- F98: the last LeaderboardSync, for a Top tab or board face that opens between syncs
 UIController.leaderboards = nil :: Types.LeaderboardSync?
 
+-- #1645: the crate pieces, then the Cafe Pass decor (Catalog.passDecor), for the UI's crateDecor list.
+local function passAndCrateDecor(): { Types.DecorDef }
+	local list: { Types.DecorDef } = table.clone(Catalog.crateDecor)
+	for _, def in Catalog.passDecor do
+		table.insert(list, def)
+	end
+	return list
+end
+
 local function ownPlot(): Model?
 	if state == nil or state.plotIndex == 0 then
 		return nil
@@ -1841,7 +1850,9 @@ function UIController.start()
 		indexPrizes = Catalog.indexPrizes,
 		spinWheel = Catalog.spinWheel,
 		crates = Catalog.crates, -- F53: names and models for the crate prizes (review S77)
-		crateDecor = Catalog.crateDecor, -- F53: the 60 crate pieces (the Decor shop keeps reading decor)
+		-- F53: the crate pieces (the Decor shop keeps reading decor); #1645: the Cafe Pass decor rides along, so the Decor
+		-- window lists and places it like the crate furniture (it has no crate, so no crate or Index page counts it)
+		crateDecor = passAndCrateDecor(),
 		fishShop = Catalog.fishShop, -- F53: what the Golden Fish Market sells
 		potions = Catalog.potions, -- F64: the potion bag's rows
 		catFood = Catalog.catFood, -- #1181: the Bag's Cat Food tab rows

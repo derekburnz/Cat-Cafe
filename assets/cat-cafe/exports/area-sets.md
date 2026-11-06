@@ -207,8 +207,8 @@ It needs Config.World SewerWidth 120 and SewerDepth 570 (the wild part; the camp
 the Sewer's `openingHalfWidth` 12 as now. The camp model's `camp` entry in the manifest gives its rect (x -59.5 to
 59.5, z -316 to -286 in set space), the gate line z -286 and the opening; its `pad` (0, -298), `cannon`
 (0, -310.5), `basket` (-11, -298) and `index_board` (-19, -287.5) are where the v3.2 camp's are, 195 further out.
-The Lost and Found (`CatCafe_Camp_Sewer_LostFound`, Layout.campExtras.sewer) keeps its place 3.5 inside the gate
-line: (20, -289.5) in set space.
+The Lost and Found booth (`CatCafe_Camp_Sewer_LostFoundBooth`, Layout.campExtras.sewer; it replaced the old crate
+in #1732) keeps its place 3.5 inside the gate line: (20, -289.5) in set space.
 
 The set's walls are the v3.2 Sewer's runs of brick, blind arcade, white tile under a teal band, pipe runs and stone
 between brick piers, just inside WorldBuilder's at x +-60 and z +285: 18 high round the open yard, 24 high under the

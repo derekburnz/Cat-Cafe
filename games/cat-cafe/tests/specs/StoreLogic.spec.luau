@@ -494,4 +494,38 @@ return function()
 			expect(StoreLogic.badge(pack, prices(799, 452), owned)).to.equal(nil)
 		end)
 	end)
+	describe("StoreLogic #1168 cards", function()
+		local view = {
+			products = {
+				{ id = "steady_paw_pack", name = "Steady Paw Pack", prize = { potions = { steady_potion = 10 } } },
+			},
+			potionNames = { steady_potion = "Steady Paw" },
+			have = {},
+		}
+		local function find(rows: { any }, key: string): any
+			for _, row in rows do
+				if row.key == key then
+					return row
+				end
+			end
+			return nil
+		end
+		it("shows the Steady Paw Pack under Potions once its product is made", function()
+			local rows = StoreLogic.rows({ ProductIds = { steady_paw_pack = 77 } }, {}, nil, view)
+			local row = find(rows, "steadyPaw")
+			expect(row).to.be.ok()
+			expect(row.tab).to.equal("potions")
+			expect(find(StoreLogic.rows({ ProductIds = { steady_paw_pack = 0 } }, {}, nil, view), "steadyPaw")).to.equal(
+				nil
+			)
+		end)
+		it("hides the Garden Decor Pack while its pass is 0 and lists its six pieces once made", function()
+			expect(find(StoreLogic.rows({ GardenDecorPackPassId = 0 }, {}, nil, view), "gardenDecor")).to.equal(nil)
+			local row = find(StoreLogic.rows({ GardenDecorPackPassId = 55 }, {}, nil, view), "gardenDecor")
+			expect(row).to.be.ok()
+			expect(row.tab).to.equal("passes")
+			local _, commas = string.gsub(row.effect, ",", "")
+			expect(commas).to.equal(5)
+		end)
+	end)
 end

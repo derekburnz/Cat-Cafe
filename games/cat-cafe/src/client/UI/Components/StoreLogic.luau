@@ -131,6 +131,16 @@ local PASSES: { PassCard } = {
 		icon = "🏰",
 		effect = "The grand look: +150% money, twice the rich visitors, +1 job slot every tier.",
 	},
+	-- #1168 row 3: the six looks-only pieces of Catalog.passDecor with pack "Garden Decor Pack", by name; hidden while
+	-- GardenDecorPackPassId is 0
+	{
+		key = "gardenDecor",
+		configKey = "GardenDecorPackPassId",
+		name = "Garden Decor Pack",
+		icon = "🌻",
+		effect = "Hanging Fern Basket, Sunflower Pot, Watering Can Planter, Potted Lemon Tree, Ivy Trellis, "
+			.. "Garden Swing Seat. Looks only.",
+	},
 	-- #1822 (Monetization's store doc §3C): the King Cat alone sits just before its bundle under Cats, so the bundle
 	-- reads as the better deal; hidden while KingCatPassId is 0
 	{
@@ -171,6 +181,8 @@ local PRODUCTS: { ProductCard } = {
 	{ key = "potionS", productKey = "potion_pack_s", effect = "" },
 	{ key = "potionM", productKey = "potion_pack_m", effect = "" },
 	{ key = "potionL", productKey = "potion_pack_l", effect = "" },
+	-- #1168 row 8: 10 Steady Paw potions, bought each time like the packs above; its rows say what is in it
+	{ key = "steadyPaw", productKey = "steady_paw_pack", effect = "" },
 }
 StoreLogic.PRODUCTS = PRODUCTS
 

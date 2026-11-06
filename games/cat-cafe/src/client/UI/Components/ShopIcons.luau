@@ -387,6 +387,13 @@ function ShopIcons.store(key: string?, multiplier: number?): string?
 	if key == "kingCat" then
 		return IDS.Icon_Store_KingPack
 	end
+	-- #1168: until they have store renders, the Steady Paw Pack shows its potion and the Garden Decor Pack the Decor
+	-- picture
+	if key == "steadyPaw" then
+		return ShopIcons.potion("steady_potion")
+	elseif key == "gardenDecor" then
+		return IDS.Icon_Decor
+	end
 	return IDS["Icon_Store_" .. key:sub(1, 1):upper() .. key:sub(2)]
 end
 

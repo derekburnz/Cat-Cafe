@@ -99,7 +99,7 @@ A daily player earns roughly 5,000 to 6,000 XP of food a day, about 1½ hours of
 
 - **Catalog:**
   - `Catalog.cornerShop` rows become `{ id, family, size = "small" | "regular" | "big" | "mega", kind = "potion" | "food" | "show", potionId?, foodId?, showId?, price, needsTier? }`. The `seconds` and `atLeast` fields go.
-  - The ids: `swift_potion_small`, `swift_potion`, `swift_potion_big`; `steady_potion_small`, `steady_potion`, `steady_potion_big`; `quick_bait_potion_small`, `quick_bait_potion`, `quick_bait_potion_big`; `cat_whistle_small`, `cat_whistle`, `cat_whistle_big`; `small_cat_snack`, `cat_snack`, `big_cat_snack`, `cat_feast`; `bubble_machine`, `cafe_fireworks`.
+  - The ids: `swift_potion_small`, `swift_potion`, `swift_potion_big`; `steady_potion_small`, `steady_potion`, `steady_potion_big`; `quick_bait_potion_small`, `quick_bait_potion`, `quick_bait_potion_big`; `cat_whistle_small`, `cat_whistle`, `cat_whistle_big`; `small_cat_snack`, `cat_snack`, `big_cat_snack`, `cat_feast`.
   - Potions: the new potion ids share their regular potion's buff (a `buff` field on the potion, for example `swift_potion_big.buff = "swift_potion"`) with their own `minutes`. `cat_whistle` is a new potion with the effect "Shows the nearest stray" and its own chip.
   - New `Catalog.catFood` rows `{ id, name, xp }`: `small_cat_snack` 600, `cat_snack` 2000, `big_cat_snack` 6000, `cat_feast` 20000.
   - `Catalog.dailyTreat` days 1, 3 and 5 gain their food, and `Catalog.collectorOffers` gains the "2 Big Snacks" row.

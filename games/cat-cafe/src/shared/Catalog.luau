@@ -986,7 +986,7 @@ Catalog.tiers = {
 		slots = 4,
 		multiplier = 1.25,
 		area = "park",
-		caps = { tables = 5, espresso = 4, net = 2, lure_bowl = 2, lucky_cat = 2 }, -- #1896 (first-hour.md 4): Tables 5, Espresso 4
+		caps = { tables = 5, espresso = 4, net = 2, lure_bowl = 2, lucky_cat = 3 }, -- #1896 (first-hour.md 4): Tables 5, Espresso 4, Lucky Cat 3
 	},
 	{
 		tier = 3,
@@ -1086,8 +1086,9 @@ Catalog.upgrades = {
 		name = "Lucky Cat",
 		description = "A beckoning cat by your front door. Each level adds x0.1 Luck: rarer bait cats and crate finds",
 		maxLevel = 5,
-		-- level n needs Tier n; levels 3 to 5 at economy-ladder.md section 4's prices
-		costs = { 2000, 20000, 600000, 8000000, 80000000 },
+		-- level n needs Tier n, but level 3 comes at Tier 2 (#1896 follow-up, a buy inside the Tier 3 save, fitted to
+		-- minute 32 at 300,000; 600,000 before); levels 4 and 5 at economy-ladder.md section 4's prices
+		costs = { 2000, 20000, 300000, 8000000, 80000000 },
 		startLevel = 0,
 	},
 } :: { Types.UpgradeDef }

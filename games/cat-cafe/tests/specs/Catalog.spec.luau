@@ -757,12 +757,12 @@ return function()
 					startLevel = 0,
 					atLevel = { [2] = 2, [3] = 3, [4] = 4, [5] = 5 },
 				},
-				lucky_cat = { -- F88 (luck-and-rare-moments.md 1a): level n needs Tier n
+				lucky_cat = { -- F88 (luck-and-rare-moments.md 1a): level n needs Tier n, level 3 Tier 2 (#1896)
 					name = "Lucky Cat",
 					maxLevel = 5,
-					costs = { 2000, 20000, 600000, 8000000, 80000000 },
+					costs = { 2000, 20000, 300000, 8000000, 80000000 },
 					startLevel = 0,
-					atLevel = { [2] = 2, [3] = 3, [4] = 4, [5] = 5 },
+					atLevel = { [2] = 2, [3] = 2, [4] = 4, [5] = 5 },
 				},
 			}
 

@@ -50,6 +50,7 @@ return function()
 	local Clock = require(Shared.Clock)
 	local Config = require(Shared.Config)
 	local Economy = require(Shared.Economy)
+	local GrandOpening = require(Shared.GrandOpening)
 	local EquipBest = require(Shared.EquipBest)
 	local IndexRewards = require(Shared.IndexRewards)
 	local Lawn = require(Shared.Lawn)
@@ -114,7 +115,8 @@ return function()
 	-- whole supply to itself, so the other players on a full server are not taking strays: the pace's worst case.
 	type StrayModel = { players: number, wait: number? }
 	-- #1896: what a run bought or unlocked and when (seconds of play): a shop item or lawn piece ("buy"), a rank up
-	-- ("rank") or a cat the Index had not met ("newcat")
+	-- ("rank"), a cat the Index had not met ("newcat") or a Grand Opening step met (#1893, "roadmap", from the end of
+	-- the tutorial as the server marks them; the model pays no step prizes)
 	type Event = { t: number, kind: string, id: string }
 	type Run = {
 		events: { Event },
@@ -218,6 +220,7 @@ return function()
 		local settleEvery = if options.long then LONG_SETTLE else 1
 		local plannedAt = 0 -- seconds of play at the last full Equip best
 		local tutorialDone = false
+		local roadmapMet: { [number]: boolean } = {}
 		local uid = 0
 		local epoch = 0 -- the session's server clock start, for settling across day and night
 		local dirty = true -- the rate changed since the last settle: settle on the next tick
@@ -690,6 +693,7 @@ return function()
 						local rarity = Catching.pickRarity(odds, rng())
 						local def = Catching.pickBaitCat(rarity, Economy.tier(profile), rng())
 						profile.bait = nil
+						profile.stats.baitsTamed += 1 -- the Grand Opening's step 2 reads it
 						addCat(def, coat(def, Config.RainbowChanceBait, Config.GoldChanceBait), now)
 					end
 					if profile.bait == nil and Economy.level(profile, "lure_bowl") >= 1 then
@@ -753,6 +757,17 @@ return function()
 						end
 						table.insert(run.events, { t = t, kind = "buy", id = id })
 						dirty = true
+					end
+				end
+				if tutorialDone then
+					for n = 1, GrandOpening.COUNT do
+						if not roadmapMet[n] and GrandOpening.met(profile, n) then
+							roadmapMet[n] = true
+							table.insert(
+								run.events,
+								{ t = t, kind = "roadmap", id = GrandOpening.STEPS[n].id }
+							)
+						end
 					end
 				end
 				s += step
@@ -1305,23 +1320,34 @@ return function()
 			end
 		)
 
+		it("buys Lucky Cat 3 at about minute 32 (the middle run)", function()
+			-- #1896 follow-up: level 3 opens at Tier 2, a buy inside the Tier 3 save
+			local lucky = quantile(firstHour(), nthBuy("lucky_cat", 3), 0.5, HOUR + 1) / 60
+			if math.abs(lucky - 32) > 3 then
+				error(string.format("Lucky Cat 3 at %.1f min (want about 32)", lucky))
+			end
+		end)
+
 		-- Known miss, recorded for Design (#1896): with Tier 3 moved to 45 to 55 minutes, the middle run's longest gap
-		-- between shop buys and rank ups is about 16 minutes (12 wanted) and 11 with new cats counted (6 wanted; the
-		-- roadmap's other steps are not in the model). The save for Tier 3 is most of it.
+		-- between shop buys and rank ups is about 16 minutes (12 wanted) and 11 with new cats and Grand Opening steps
+		-- counted (6 wanted; the steps land on a new cat, a rank up or in the first minutes, so they close no gap).
+		-- The save for Tier 3 is most of it.
 		xit(
-			"the middle run's longest gap without a buy is 12 minutes or less, 6 with new cats",
+			"the middle run's longest gap without a buy is 12 minutes or less, 6 with new cats and roadmap steps",
 			function()
 				local list = firstHour()
 				local plain = quantile(list, function(run: Run): number?
 					return longestGap(timesOf(run, { buy = true, rank = true }))
 				end, 0.5, HOUR)
 				local cats = quantile(list, function(run: Run): number?
-					return longestGap(timesOf(run, { buy = true, rank = true, newcat = true }))
+					return longestGap(
+						timesOf(run, { buy = true, rank = true, newcat = true, roadmap = true })
+					)
 				end, 0.5, HOUR)
 				if plain > 12 * 60 or cats > 6 * 60 then
 					error(
 						string.format(
-							"longest gap %.1f min, %.1f with new cats",
+							"longest gap %.1f min, %.1f with new cats and roadmap steps",
 							plain / 60,
 							cats / 60
 						)
@@ -1338,12 +1364,14 @@ return function()
 					return longestGap(timesOf(run, { buy = true, rank = true }))
 				end, 0.5, HOUR)
 				local cats = quantile(list, function(run: Run): number?
-					return longestGap(timesOf(run, { buy = true, rank = true, newcat = true }))
+					return longestGap(
+						timesOf(run, { buy = true, rank = true, newcat = true, roadmap = true })
+					)
 				end, 0.5, HOUR)
 				if plain > 18 * 60 or cats > 12 * 60 then
 					error(
 						string.format(
-							"longest gap %.1f min, %.1f with new cats",
+							"longest gap %.1f min, %.1f with new cats and roadmap steps",
 							plain / 60,
 							cats / 60
 						)

@@ -122,6 +122,7 @@ export type HUD = {
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
 	-- the gold Store tile at the top of the left menu, shown once init's Store block has its window (#1167)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
+	setStoreNew: (self: HUD, shown: boolean) -> (),
 	-- #1646: the Cafe Pass tile, shown with the function that opens the Pass window while a season runs (nil hides
 	-- it), and its red "!" while `ready` rewards wait
 	setPass: (self: HUD, open: (() -> ())?, ready: number) -> (),
@@ -1291,6 +1292,18 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		if item.name == "Store" then
 			button.instance.Visible = false -- until setStore hands it a window to open
 			self._storeTile = button
+			-- #1823 §4: a 10 px pink New dot on its top right while a Store tab gained an item; no number, no pulse
+			self._storeNew = Create("Frame", {
+				Name = "NewDot",
+				BackgroundColor3 = Theme.colors.berry,
+				BorderSizePixel = 0,
+				AnchorPoint = Vector2.new(1, 0),
+				Position = UDim2.new(1, -3, 0, 3),
+				Size = UDim2.fromOffset(10, 10),
+				Visible = false,
+				ZIndex = 6,
+				Parent = button.instance,
+			}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 			-- it stands out (Derek 2026-11-03: "make sure the store is good and stands out"): a soft gold glow round
 			-- it and a white shine that sweeps across now and then. Decoration only: no timer, no sale badge.
 			local corner = math.floor((if TOUCH then MENU_TILE else STORE_H) * 0.26) -- Button's corner for its height
@@ -2858,6 +2871,12 @@ function HUD.setStore(self: any, open: (() -> ())?)
 		tile.instance.Visible = shown
 		self:_layoutMenu()
 	end
+end
+
+-- #1823 §4: the Store tile's New dot, while any Store tab has one (init's Store block, Screens/Store.hasNew).
+function HUD.setStoreNew(self: any, shown: boolean)
+	local dot: Frame = self._storeNew
+	dot.Visible = shown
 end
 
 -- #1646: the Cafe Pass tile in the left menu, shown with the function that opens the Pass window while a season runs

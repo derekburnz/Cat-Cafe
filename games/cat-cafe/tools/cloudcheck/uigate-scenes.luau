@@ -1913,6 +1913,45 @@ local SCENES = {
 		assert(owned and owned.Visible and owned.Text == "✓ Yours", "uigate: the owned Long Nap does not say Yours (#1823)")
 		assert(dim and dim.Visible, "uigate: the owned Long Nap is not greyed (#1823)")
 	end },
+	-- #1823 section 4: a New dot on each rail tab not opened since it gained an item and on the HUD's Store tile;
+	-- opening a tab clears its dot and tells the server once, and the tile's dot goes when every tab is seen
+	{ "StoreNewDots", function()
+		UI.store.preview(storePrices(true), {})
+		UI.update({ storeSeen = { featured = 1 } } :: any)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local hudRoot = hud and hud:FindFirstChild("Root")
+		local menu = hudRoot and hudRoot:FindFirstChild("Menu") -- on touch the tile is the grid's first square
+		local tile = hudRoot and (hudRoot:FindFirstChild("Store") or (menu and menu:FindFirstChild("Store")))
+		local tileDot = tile and tile:FindFirstChild("NewDot")
+		assert(tileDot and (tileDot :: GuiObject).Visible, "uigate: the HUD's Store tile has no New dot (#1823)")
+		local sent: { string } = {}
+		local connection = UI.events.storeSeen:Connect(function(tab: string)
+			table.insert(sent, tab)
+		end)
+		UI.open("Store")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local rail = modals and modals:FindFirstChild("Rail", true)
+		local function dot(tab: string): boolean
+			local button = rail and rail:FindFirstChild(tab)
+			local found = button and button:FindFirstChild("NewDot")
+			assert(found, "uigate: the " .. tab .. " rail button has no New dot (#1823)")
+			return (found :: GuiObject).Visible
+		end
+		assert(not dot("featured"), "uigate: Featured was seen but shows a New dot (#1823)")
+		assert(dot("passes") and dot("cats"), "uigate: unseen tabs show no New dot (#1823)")
+		press("Store", "passes")
+		assert(not dot("passes"), "uigate: opening Passes did not clear its New dot (#1823)")
+		assert(table.concat(sent, ",") == "passes", "uigate: MarkStoreSeen sent " .. table.concat(sent, ","))
+		press("Store", "featured")
+		press("Store", "passes")
+		assert(#sent == 1, "uigate: Passes was sent as seen twice (#1823)")
+		connection:Disconnect()
+		UI.update({
+			storeSeen = { featured = 1, passes = 1, cats = 1, potions = 1, cafePass = 1, codes = 1 },
+		} :: any)
+		assert(not (tileDot :: GuiObject).Visible, "uigate: the Store tile's New dot stays with every tab seen (#1823)")
+		press("Store", "cats")
+	end },
 	-- the passes off sale (as on live until launch): every card says Soon
 	{ "StoreSoon", function()
 		UI.store.preview(storePrices(false), {})

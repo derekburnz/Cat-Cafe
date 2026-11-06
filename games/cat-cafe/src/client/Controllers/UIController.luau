@@ -587,6 +587,7 @@ local function applyState(s: Types.PlayerState)
 		-- Derek2 live 11-06 (the Starter Bundle card never showed): these were sent but never copied, so the Store,
 		-- the money card's Boosts list, the Style tab's sign, theme and uniform rows and the Trades page read nil
 		starterBought = s.starterBought, -- #1625: the Starter Bundle card shows while false
+		storeSeen = s.storeSeen, -- #1823 §4: the Store tabs' New dots
 		signStyles = s.signStyles, -- #1625: the Style tab's sign row
 		signStyle = s.signStyle,
 		looks = s.looks, -- #1624: the Style tab's theme and uniform rows
@@ -705,6 +706,10 @@ local function wireIntents()
 	-- Spin on the Spin window (F49); the server answers with SpinResult and a ProfileSync.
 	UI.events.spinWheel:Connect(function()
 		Net.fire("SpinWheel")
+	end)
+	-- #1823 §4: a Store tab with a New dot opened; the server saves its version (rate-limited, known tabs only)
+	UI.events.storeSeen:Connect(function(tab: string)
+		Net.fire("MarkStoreSeen", tab)
 	end)
 	-- Use all on the Spin window (#1078); the server answers with SpinAllResult and a ProfileSync. Loose until
 	-- UI-Engineer's button is on main, as are the Corner Shop's hooks below.

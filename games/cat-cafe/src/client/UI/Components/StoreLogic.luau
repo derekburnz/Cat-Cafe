@@ -139,7 +139,7 @@ local PASSES: { PassCard } = {
 		name = "King Cat",
 		icon = "🤴",
 		effect = "A cat that always earns like a Mythical from your newest area.", -- fits a phone's card
-		note = "Also in the King Cat Pack. Can't be traded.",
+		note = "Yours to keep. Can't be traded.", -- as the Royal Cat's; a longer note shrank the card's text on a small phone
 		tab = "cats",
 	},
 	-- #1822: the bundle lists what it holds (shared/KingPack.contents, in its order)

@@ -699,6 +699,9 @@ export type BaitState = {
 	catId: string,
 	variant: string,
 	charm: number,
+	-- #1897 (first-hour.md section 2): the account's guaranteed Rare-or-better cat, true until it arrives (the bowl
+	-- card's "Your next cat will be Rare or better!" and, on arrival, FirstWow)
+	wow: boolean?,
 }
 
 -- The second bowl for a player (#1161, Bait.secondBowl): "on" with the pass, "offer" without it (the Store shows it).
@@ -712,6 +715,7 @@ export type BaitView = {
 	readyAt: number, -- server os.time()
 	night: boolean?, -- F60: night bait (half the wait); the bowl countdown shows a moon
 	cat: { catId: string, variant: string, charm: number, stars: number }?,
+	wow: boolean?, -- #1897: the guaranteed Rare-or-better cat is coming (BaitState.wow)
 }
 
 -- What the Fresh Catch shelf sold this player (F94, rewards-and-shops.md section 6; the shape the night dealer saved
@@ -966,7 +970,12 @@ export type Settings = {
 	tutorialButton: boolean, -- the HUD's Tutorial tile (F72)
 	shopAlerts: boolean, -- F94: the Fresh Catch's ShopAlert (FreshCatch.alertsOn)
 	tradeRequests: string, -- F102: who may ask to trade, "everyone", "friends" or "off" (Settings.choices)
+	roadmapOpen: boolean, -- #1893: the Grand Opening strip opened into its list
 }
+
+-- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished
+-- after the last (or at once for a save already at Tier 3 when it shipped)
+export type GrandOpeningState = { done: { [number]: boolean }, finished: boolean? }
 
 export type PlayerProfile = {
 	version: number,
@@ -1045,6 +1054,9 @@ export type PlayerProfile = {
 	jukebox: string?, -- #1168 row 2 (no new version): the Jukebox track picked (shared/Jukebox), nil for the rotation
 	pass: PassState, -- #1645 (save version 36): the Cafe Pass
 	looks: LookPicks, -- #1624 (save version 38): the cafe theme and uniform picks (shared/Looks)
+	grandOpening: GrandOpeningState, -- #1893 (save version 41): the Grand Opening roadmap (shared/GrandOpening)
+	-- #1897 (save version 41): the guaranteed Rare-or-better bait was set (Bait.wowDue), once per account
+	firstWow: boolean,
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.
@@ -1084,6 +1096,9 @@ export type PlayerState = {
 	rainbowLuck: number, -- F99: the Index Rainbow track's summed luck, capped at RainbowLuckMax
 	baitSpeed: number, -- F54: the All Cats track's summed bait speed, capped at BaitSpeedMax
 	firstBait: boolean?, -- #1895: no bait set yet on this account, so the next waits at most FirstBaitWaitSeconds
+	-- #1893: the Grand Opening roadmap's milestones done and whether it is over; the strip shows from tutorialStep 5
+	-- while finished is not true (a save already at Tier 3 when it shipped is finished)
+	grandOpening: GrandOpeningState?,
 	plotIndex: number,
 	carrying: string?, -- catId while carrying a caught stray home
 	dataSaves: boolean,

@@ -20,6 +20,7 @@ local TAGS: { [string]: Tag } = {
 	vip = { text = "[VIP]", color = "#F2C14E" },
 	supporter = { text = "[Thank You]", color = "#FFC94D" }, -- #1168 row 4: the Thank You Badge (ChatTags.withSupporter)
 	tag_maple = { text = "[Maple]", color = "#D9822B" }, -- #1626: Season 1's paid track, level 1
+	tag_grand_opener = { text = "[Grand Opener]", color = "#F5A65B" }, -- #1893: the Grand Opening's last milestone
 }
 for _, tag in TAGS do
 	table.freeze(tag)
@@ -28,7 +29,7 @@ table.freeze(TAGS)
 ChatTags.TAGS = TAGS
 
 -- The order tags are offered in and the default falls through: VIP, then the season tags oldest first.
-local ORDER: { string } = { "vip", "supporter", "tag_maple" }
+local ORDER: { string } = { "vip", "supporter", "tag_maple", "tag_grand_opener" }
 table.freeze(ORDER)
 ChatTags.ORDER = ORDER
 

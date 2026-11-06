@@ -1035,6 +1035,7 @@ export type PlayerProfile = {
 	onceBought: { [string]: boolean },
 	signStyles: { [string]: boolean },
 	signStyle: string?,
+	storeSeen: { [string]: number }, -- #1842 (no new version): Store tab id -> the tab version last opened (StoreTabs)
 	pass: PassState, -- #1645 (save version 36): the Cafe Pass
 	looks: LookPicks, -- #1624 (save version 38): the cafe theme and uniform picks (shared/Looks)
 }
@@ -1095,6 +1096,7 @@ export type PlayerState = {
 	stuckHelpShown: { [string]: boolean },
 	starterCatClaimed: boolean, -- F96: the Bellhop Cat's stand card reads "Already home with you"
 	starterBought: boolean, -- #1625: the Starter Bundle is bought, so its Store card hides
+	storeSeen: { [string]: number }, -- #1842: the Store tab versions last opened; a tab shows "New" below StoreTabs.VERSIONS
 	codesRedeemed: { [string]: number }?, -- #1714: code id -> os.time() redeemed, for the Store's Codes tab
 	signStyles: { string }, -- #1625: every sign style owned (SignStyles.owned), saved or through a pass
 	signStyle: string?, -- #1625: the pick SetSignStyle saved, nil for the plain sign

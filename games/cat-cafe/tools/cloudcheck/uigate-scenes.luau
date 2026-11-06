@@ -860,7 +860,8 @@ local SCENES = {
 		UI.bait.openPicker()
 		assertBowlTabs(1, "is in bowl 1")
 	end },
-	-- #1161: no pass: bowl 2's tab is locked; tapping it shows the pass card with its price and bowl 2's odds
+	-- #1161: no pass: bowl 2's tab is locked; tapping it shows the pass card with its price. #1767: under it three
+	-- short lines on what it gives, not the seven-food odds table
 	{ "BaitSecondOffer", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		local prices = storePrices(true)
@@ -874,14 +875,15 @@ local SCENES = {
 		local title = window:FindFirstChild("Status", true):FindFirstChild("Title")
 		assert(title.Text == "Get a second bowl", "uigate: bowl 2's tab shows " .. title.Text .. " (#1161)")
 		local odds = window:FindFirstChild("SecondOdds", true)
-		assert(odds and odds.Visible, "uigate: the locked bowl 2 shows no odds card (#1161)")
+		assert(odds and odds.Visible, "uigate: the locked bowl 2 shows no card under it (#1161)")
 		local lines = 0
 		for _, child in odds:GetChildren() do
-			if child:IsA("TextLabel") and string.sub(child.Name, 1, 5) == "Odds_" then
+			if child:IsA("TextLabel") then
 				lines += 1
+				assert(string.sub(child.Name, 1, 5) ~= "Odds_", "uigate: bowl 2 lists a food's odds again (#1767)")
 			end
 		end
-		assert(lines == #Catalog.lures, ("uigate: bowl 2's odds list %d of %d foods (#1161)"):format(lines, #Catalog.lures))
+		assert(lines == 4, ("uigate: bowl 2's card has %d lines, wants a heading and 3 (#1767)"):format(lines))
 	end },
 	{ "Dealer", function()
 		UI.dealer.open()

@@ -1468,6 +1468,25 @@ Presets.campExtras = {
 	},
 }
 
+-- The store's motion (#1823, StoreMotion.luau): a pressed button dips to `dip` of its size in `down` seconds and
+-- springs back in `up`; a bought card pops to `pop` in `grow`, settles in `settle`, flashes white from `flash`
+-- transparency over `flashSeconds`, and throws `sparks` gold sparks `reach` pixels out over `sparkSeconds`.
+Presets.storeMotion = {
+	press = { dip = 0.94, down = 0.06, up = 0.16 },
+	bought = {
+		pop = 1.08,
+		grow = 0.12,
+		settle = 0.25,
+		flash = 0.45,
+		flashSeconds = 0.35,
+		sparks = 8,
+		reach = 70,
+		sparkSize = 8,
+		sparkSeconds = 0.5,
+		colour = Color3.fromRGB(255, 205, 80),
+	},
+}
+
 Presets.catPoses = {
 	sleep = {
 		body = "walk",
@@ -2382,6 +2401,30 @@ Presets.bunting = {
 -- screen into the HUD's Cats pill, the cat room, one after another `stagger` seconds apart, in an arc that bends up
 -- by `lift` of the way, shrinking to `land` of the pill's height over `seconds`; each lands with `arrive` sparkles and
 -- a ring round the pill. With Reduce Motion nothing flies: the pill gets half the sparkles and no ring.
+-- The store's thank-you burst (#1823; Effects/StoreBurst, called by UI-Engineer's store with the bought card once the
+-- server confirms the buy). Per `kinds`: `sparkles` diamonds of `size` pixels fly out from round the card's edge up to
+-- `reach` of its shorter side (between `reachMin` and `reachMax` pixels) over `seconds`, the n-th waiting up to
+-- `stagger`; then `rings` rings grow from `ringFrom` to `ringTo` times its longer side over `ringSeconds`, `ringGap`
+-- apart. `displayOrder` sits just over the store window (a modal, 20) and under the toasts (30).
+Presets.storeBurst = {
+	displayOrder = 22,
+	size = 12,
+	seconds = 0.5,
+	stagger = 0.12,
+	reach = 0.6,
+	reachMin = 24,
+	reachMax = 90,
+	ringFrom = 0.6,
+	ringTo = 1.4,
+	ringSeconds = 0.5,
+	ringGap = 0.25,
+	kinds = {
+		pass = { colour = Presets.palette.golden, sparkles = 12, rings = 1 },
+		pack = { colour = Color3.fromRGB(255, 244, 176), sparkles = 12, rings = 1 },
+		bundle = { colour = Presets.palette.golden, sparkles = 20, rings = 2 },
+	},
+}
+
 Presets.tradeFly = {
 	displayOrder = 21, -- over the trade window (a modal, 20), under the bait card (35) and toasts (30)
 	seconds = 0.75,

@@ -387,6 +387,10 @@ function ShopIcons.store(key: string?, multiplier: number?): string?
 	if key == "kingCat" then
 		return IDS.Icon_Store_KingPack
 	end
+	-- #1168: the Sign Style Pack shows the cafe look's picture until it has a render of its own
+	if key == "signStylePack" then
+		return IDS.Icon_Store_CafeStyle
+	end
 	return IDS["Icon_Store_" .. key:sub(1, 1):upper() .. key:sub(2)]
 end
 

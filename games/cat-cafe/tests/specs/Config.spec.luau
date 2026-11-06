@@ -432,8 +432,8 @@ return function()
 				KingPackPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				KingCatPassId = true, -- #1822: the King Cat alone, 0 until made, checked below
 				JukeboxPassId = true, -- #1168 row 2: 0 until made, checked below
-				SignStylePackPassId = true, -- #1168 row 1: 0 until made, checked below
-				GardenDecorPackPassId = true, -- #1168 row 3: 0 until made, checked below
+				SignStylePackPassId = true, -- #1168 row 1: a pass id of its own, checked below
+				GardenDecorPackPassId = true, -- #1168 row 3: a pass id of its own, checked below
 				GoldenPondPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				SecondBowlPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				LostFoundTable = true, -- F100 (camp-extras.md section 2): a table, checked in CampExtras.spec

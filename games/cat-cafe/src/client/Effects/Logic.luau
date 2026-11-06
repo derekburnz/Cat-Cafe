@@ -2450,6 +2450,14 @@ function Logic.lidRattle(t: number): number
 	return math.rad(r.degrees) * math.abs(math.sin(math.pi * r.knocks * k)) * (1 - k)
 end
 
+-- Where spark `k` of `count` thrown from a bought store card ends (#1823, StoreMotion), in pixels from the card's
+-- middle: evenly round a circle `reach` across, the first straight up, every other one a little shorter.
+function Logic.sparkOut(k: number, count: number, reach: number): Vector2
+	local angle = 2 * math.pi * (k - 1) / math.max(count, 1)
+	local length = reach * (if k % 2 == 0 then 0.7 else 1)
+	return Vector2.new(math.sin(angle) * length, -math.cos(angle) * length)
+end
+
 -- The Lost and Found booth's desk bell ringing `t` seconds in (#1732): its turn about its base in radians, side to side
 -- `wobbles` times over `seconds`, dying away to rest; 0 before and after.
 function Logic.bellWobble(t: number): number

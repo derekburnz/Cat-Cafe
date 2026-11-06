@@ -54,5 +54,13 @@
 		"price": 299,
 		"regionalPricing": false,
 		"description": "The paid track for the current Cafe Pass season. Level up with quests to unlock its prizes."
+	},
+	{
+		"name": "Thank You Badge",
+		"id": 0,
+		"config": "ProductIds.thank_you_badge",
+		"price": 25,
+		"regionalPricing": false,
+		"description": "A thank-you badge for your profile. One per player."
 	}
 ]

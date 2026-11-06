@@ -38,7 +38,11 @@ function TutorialGlow.set(target: GuiObject?, on: boolean)
 	local frame: Frame = Create("Frame", {
 		Name = TutorialGlow.NAME,
 		BackgroundTransparency = 1,
-		Size = UDim2.fromScale(1, 1),
+		-- inset by the thickest stroke, so the ring stays inside the target's own box: the HUD grid's spacing check
+		-- measured the outline as part of the tile and found it 1 px from its neighbour (CI on #1797)
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.new(1, -2 * THICK, 1, -2 * THICK),
 		ZIndex = 8,
 		Parent = target,
 	}, {

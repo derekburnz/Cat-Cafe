@@ -49,5 +49,13 @@ return function()
 			expect(PityLogic.view(100000, state()).status).to.equal(nil)
 			expect(PityLogic.view(100000, state({ state = "caught" })).status).to.equal(nil)
 		end)
+
+		it("gives the day clock card the same lines, the status last (#1572)", function()
+			local lines = PityLogic.lines({ legendary = "Legendary cat in 12:30", mythical = "Mythical cat in 1:42:10" })
+			expect(#lines).to.equal(2)
+			expect(lines[1]).to.equal("Legendary cat in 12:30")
+			local out = PityLogic.lines({ legendary = "a", mythical = "b", status = "Now in the Woods!" })
+			expect(out[3]).to.equal("Now in the Woods!")
+		end)
 	end)
 end

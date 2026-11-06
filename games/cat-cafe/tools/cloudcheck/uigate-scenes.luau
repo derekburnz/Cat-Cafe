@@ -810,6 +810,44 @@ local SCENES = {
 		UI.open("Decor")
 		press("Decor", "Style")
 	end },
+	-- #1168 row 2: a Jukebox Pass owner's Cafe music row under the looks, Catnap Waltz in use; a tap asks for the song
+	{ "DecorStyleMusic", function()
+		UI.update({
+			signStyles = { "bakery_stripes", "royal_crest" },
+			signStyle = "royal_crest",
+			looks = {
+				uniform = "midnight",
+				uniforms = { "default", "striped", "midnight", "mint", "uniform_pumpkin" },
+				accessory = "hat",
+				accessories = { "hat", "glasses", "acc_leaf_beret", "acc_tiny_lantern" },
+				theme = "garden",
+				themes = { "default", "garden", "grand" },
+			},
+			jukeboxTracks = {
+				"jukebox_rainy_window",
+				"jukebox_catnap_waltz",
+				"jukebox_bakery_bounce",
+				"jukebox_starlight_purr",
+			},
+			jukebox = "jukebox_catnap_waltz",
+		} :: any)
+		UI.open("Decor")
+		press("Decor", "Style")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local row = modals and modals:FindFirstChild("music", true)
+		assert(row, "uigate: no Cafe music row on the Style tab (#1168)")
+		local asked: { string } = {}
+		local connection = UI.events.pickStyle:Connect(function(kind: string, id: string)
+			table.insert(asked, kind .. ":" .. id)
+		end)
+		press("Decor", "music.jukebox_starlight_purr")
+		press("Decor", "music.Default")
+		connection:Disconnect()
+		assert(
+			table.concat(asked, ",") == "music:jukebox_starlight_purr,music:",
+			"uigate: the music row asked " .. table.concat(asked, ",")
+		)
+	end },
 	{ "Index", function()
 		UI.open("Collection")
 	end },
@@ -2074,6 +2112,46 @@ local SCENES = {
 		assert(owned and owned.Visible and owned.Text == "✓ Yours", "uigate: the owned Long Nap does not say Yours (#1823)")
 		assert(dim and dim.Visible, "uigate: the owned Long Nap is not greyed (#1823)")
 	end },
+	-- #1823 section 4: a New dot on each rail tab not opened since it gained an item and on the HUD's Store tile;
+	-- opening a tab clears its dot and tells the server once, and the tile's dot goes when every tab is seen
+	{ "StoreNewDots", function()
+		UI.store.preview(storePrices(true), {})
+		-- every tab seen first, so tabs an earlier scene opened (sent as seen, never saved here) start fresh
+		local allSeen = { featured = 1, passes = 1, cats = 1, potions = 1, cafePass = 1, codes = 1 }
+		UI.update({ storeSeen = allSeen } :: any)
+		UI.update({ storeSeen = { featured = 1 } } :: any)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local hudRoot = hud and hud:FindFirstChild("Root")
+		local menu = hudRoot and hudRoot:FindFirstChild("Menu") -- on touch the tile is the grid's first square
+		local tile = hudRoot and (hudRoot:FindFirstChild("Store") or (menu and menu:FindFirstChild("Store")))
+		local tileDot = tile and tile:FindFirstChild("NewDot")
+		assert(tileDot and (tileDot :: GuiObject).Visible, "uigate: the HUD's Store tile has no New dot (#1823)")
+		local sent: { string } = {}
+		local connection = UI.events.storeSeen:Connect(function(tab: string)
+			table.insert(sent, tab)
+		end)
+		UI.open("Store")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local rail = modals and modals:FindFirstChild("Rail", true)
+		local function dot(tab: string): boolean
+			local button = rail and rail:FindFirstChild(tab)
+			local found = button and button:FindFirstChild("NewDot")
+			assert(found, "uigate: the " .. tab .. " rail button has no New dot (#1823)")
+			return (found :: GuiObject).Visible
+		end
+		assert(not dot("featured"), "uigate: Featured was seen but shows a New dot (#1823)")
+		assert(dot("passes") and dot("cats"), "uigate: unseen tabs show no New dot (#1823)")
+		press("Store", "passes")
+		assert(not dot("passes"), "uigate: opening Passes did not clear its New dot (#1823)")
+		assert(table.concat(sent, ",") == "passes", "uigate: MarkStoreSeen sent " .. table.concat(sent, ","))
+		press("Store", "featured")
+		press("Store", "passes")
+		assert(#sent == 1, "uigate: Passes was sent as seen twice (#1823)")
+		connection:Disconnect()
+		UI.update({ storeSeen = allSeen } :: any)
+		assert(not (tileDot :: GuiObject).Visible, "uigate: the Store tile's New dot stays with every tab seen (#1823)")
+		press("Store", "cats")
+	end },
 	-- #1168 row 8: the Steady Paw Pack on the Potions tab, its card saying what is in it
 	{ "StoreSteadyPaw", function()
 		UI.store.preview(storePrices(true), {})
@@ -2096,6 +2174,22 @@ local SCENES = {
 		assert(card, "uigate: no VIP card on Passes (#1823)")
 		assert(card:FindFirstChildOfClass("UIScale"), "uigate: the bought VIP card did not pop (StoreMotion, #1823)")
 		assertStoreCards(false)
+	end },
+	-- #1168 row 2: the Jukebox Pass on the Passes tab, naming its four songs, with its own picture
+	{ "StoreJukebox", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local was = Config.JukeboxPassId
+		Config.JukeboxPassId = 1168002
+		local prices = storePrices(true)
+		prices[1168002] = { robux = 99, forSale = true }
+		UI.store.preview(prices, {})
+		UI.open("Store")
+		press("Store", "passes")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("grid:jukebox", true)
+		assert(card and card:IsA("GuiObject") and card.Visible, "uigate: no Jukebox Pass card on Passes (#1168)")
+		assertStoreCards(false)
+		Config.JukeboxPassId = was
 	end },
 	-- #1168: the Thank You Badge (a product, hidden for a supporter) and the Sign Style Pack (a pass, hidden at 0)
 	-- on the Passes tab, each saying what it holds

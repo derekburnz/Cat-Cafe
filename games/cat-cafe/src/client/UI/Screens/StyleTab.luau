@@ -17,7 +17,7 @@ local Types = require(script.Parent.Parent.Types)
 local PAL = Theme.dark
 
 export type Callbacks = {
-	-- kind "sign", "uniform", "accessory" or "theme"; id "" for the plain sign, Classic or None
+	-- kind "sign", "uniform", "accessory", "theme" or "music"; id "" for the plain sign, Classic, None or the mix
 	pick: (kind: string, id: string) -> (),
 }
 

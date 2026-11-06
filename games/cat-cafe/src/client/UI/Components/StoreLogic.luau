@@ -150,6 +150,14 @@ local PASSES: { PassCard } = {
 		icon = "🪧",
 		effect = "Three cafe sign looks: Flower Box, Starry Night and Paw Chalkboard. Looks only.",
 	},
+	-- #1168 row 2: the four songs of shared/Jukebox, by name; hidden while JukeboxPassId is 0
+	{
+		key = "jukebox",
+		configKey = "JukeboxPassId",
+		name = "Jukebox Pass",
+		icon = "🎵",
+		effect = "Four more cafe songs to pick: Rainy Window, Catnap Waltz, Bakery Bounce and Starlight Purr.",
+	},
 	-- #1822 (Monetization's store doc §3C): the King Cat alone sits just before its bundle under Cats, so the bundle
 	-- reads as the better deal; hidden while KingCatPassId is 0
 	{
@@ -167,8 +175,8 @@ local PASSES: { PassCard } = {
 		configKey = "KingPackPassId",
 		name = "King Cat Pack",
 		icon = "🤴",
-		effect = "King Croissant (earns like a Mythical), the Royal Crest sign, the Grand look, the Royal Velvet Booth "
-			.. "and Potion Pack M.",
+		-- short enough to stay readable on a phone's small card (the King Cat's own card says how he earns)
+		effect = "King Croissant, Royal Crest sign, Grand look, Royal Velvet Booth, Potion Pack M.",
 		note = "Yours to keep. Can't be traded.",
 		tab = "cats",
 	},
@@ -729,6 +737,18 @@ function StoreLogic.tabs(rows: { Row }): { Tab }
 	for _, tab in StoreLogic.TABS do
 		if tab.always or #StoreLogic.tabRows(rows, tab.id) > 0 then
 			table.insert(out, tab)
+		end
+	end
+	return out
+end
+
+-- #1823 §4 (store-layout-v2.md): the tabs whose New dot shows, from shared/StoreTabs.unseen. Only a tab the rail
+-- shows gets one, so a tab with no cards (the Cafe Pass between seasons) never keeps the HUD's Store dot lit.
+function StoreLogic.newTabs(unseen: { [string]: true }, rows: { Row }): { [string]: true }
+	local out: { [string]: true } = {}
+	for _, tab in StoreLogic.tabs(rows) do
+		if unseen[tab.id] then
+			out[tab.id] = true
 		end
 	end
 	return out

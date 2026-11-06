@@ -273,6 +273,19 @@ return function()
 			expect(table.concat(tabs, ",")).to.equal("featured,passes,cats,potions,codes")
 		end)
 
+		it("lights a New dot only on a tab the rail shows (#1823 section 4)", function()
+			local rows = StoreLogic.rows(config, {}, nil, view)
+			local unseen = { featured = true, cafePass = true, potions = true, codes = true }
+			local new = StoreLogic.newTabs(unseen, rows)
+			-- no Cafe Pass card between seasons, so its dot never keeps the HUD's Store dot lit
+			expect(new.cafePass).to.equal(nil)
+			expect(new.featured).to.equal(true)
+			expect(new.potions).to.equal(true)
+			expect(new.codes).to.equal(true)
+			expect(new.passes).to.equal(nil)
+			expect(next(StoreLogic.newTabs({}, rows))).to.equal(nil)
+		end)
+
 		it("features the Starter Bundle, then the ladder, Long Nap and King Cat Pack", function()
 			local featured = StoreLogic.featured(StoreLogic.rows(config, {}, nil, view))
 			expect(featured.hero.key).to.equal("starterBundle")
@@ -598,6 +611,29 @@ return function()
 					expect(row.effect:find(style.name, 1, true)).to.be.ok()
 				end
 			end
+		end)
+	end)
+	describe("StoreLogic #1168 Jukebox Pass card", function()
+		it("names every Jukebox song and hides while JukeboxPassId is 0", function()
+			local Jukebox = require(
+				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Jukebox")
+			) :: any
+			local function find(rows: { any }): any
+				for _, row in rows do
+					if row.key == "jukebox" then
+						return row
+					end
+				end
+				return nil
+			end
+			local row = find(StoreLogic.rows({ JukeboxPassId = 77 }, {}, nil, nil))
+			expect(row).to.be.ok()
+			expect(row.passId).to.equal(77)
+			expect(row.tab).to.equal("passes")
+			for _, track in Jukebox.TRACKS do
+				expect(row.effect:find(track.name, 1, true)).to.be.ok()
+			end
+			expect(find(StoreLogic.rows({ JukeboxPassId = 0 }, {}, nil, nil))).to.equal(nil)
 		end)
 	end)
 end

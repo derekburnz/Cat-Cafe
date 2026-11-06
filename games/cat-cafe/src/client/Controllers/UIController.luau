@@ -588,9 +588,12 @@ local function applyState(s: Types.PlayerState)
 		-- Derek2 live 11-06 (the Starter Bundle card never showed): these were sent but never copied, so the Store,
 		-- the money card's Boosts list, the Style tab's sign, theme and uniform rows and the Trades page read nil
 		starterBought = s.starterBought, -- #1625: the Starter Bundle card shows while false
+		storeSeen = s.storeSeen, -- #1823 §4: the Store tabs' New dots
 		signStyles = s.signStyles, -- #1625: the Style tab's sign row
 		signStyle = s.signStyle,
 		looks = s.looks, -- #1624: the Style tab's theme and uniform rows
+		jukeboxTracks = s.jukeboxTracks, -- #1168 row 2: the Style tab's music row
+		jukebox = s.jukebox,
 		passBoosts = s.passBoosts, -- #1624: the store passes in the money card's Boosts list
 		tradeLog = s.tradeLog, -- F102: the Trades page
 	})
@@ -708,6 +711,27 @@ local function wireIntents()
 	-- Spin on the Spin window (F49); the server answers with SpinResult and a ProfileSync.
 	UI.events.spinWheel:Connect(function()
 		Net.fire("SpinWheel")
+	end)
+	-- #1823 §4: a Store tab with a New dot opened; the server saves its version (known tabs only). The server takes
+	-- two a second, so tabs tapped faster than that wait their turn here instead of being dropped.
+	local seenQueue: { string } = {}
+	local seenSending = false
+	UI.events.storeSeen:Connect(function(tab: string)
+		if table.find(seenQueue, tab) then
+			return
+		end
+		table.insert(seenQueue, tab)
+		if seenSending then
+			return
+		end
+		seenSending = true
+		task.spawn(function()
+			while #seenQueue > 0 do
+				Net.fire("MarkStoreSeen", table.remove(seenQueue, 1) :: string)
+				task.wait(0.6)
+			end
+			seenSending = false
+		end)
 	end)
 	-- Use all on the Spin window (#1078); the server answers with SpinAllResult and a ProfileSync. Loose until
 	-- UI-Engineer's button is on main, as are the Corner Shop's hooks below.
@@ -930,6 +954,8 @@ local function wireIntents()
 			Net.fire("SetSignStyle", if id == "" then nil else id)
 		elseif kind == "uniform" or kind == "accessory" or kind == "theme" then -- #1708: accessory
 			Net.fire("SetLook", kind, if id == "" then "default" else id)
+		elseif kind == "music" then -- #1168 row 2: the Jukebox Pass song, "default" for the day and night mix
+			Net.fire("SetJukeboxTrack", if id == "" then "default" else id)
 		end
 	end)
 	-- The Daily Treat (F70): the server stamps the card when a stamp is due and answers with a toast and a sync.

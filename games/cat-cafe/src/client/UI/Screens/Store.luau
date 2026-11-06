@@ -37,6 +37,8 @@ export type Callbacks = {
 	close: () -> (),
 	-- #1428: the Codes tab came into view (true) or left it (false), so the code box can start fresh or clear
 	codes: ((shown: boolean) -> ())?,
+	-- #1823 §4: a tab with a New dot came into view, so the server can save it as seen
+	seen: ((tab: string) -> ())?,
 }
 
 -- the dark window palette (#1028), in place of Theme.modal
@@ -50,6 +52,8 @@ export type Store = {
 		prices: { [number]: StoreLogic.Price }
 	) -> (),
 	showTab: (self: Store, tab: string) -> (),
+	setNew: (self: Store, tabs: { [string]: true }) -> (),
+	hasNew: (self: Store) -> boolean,
 	tab: (self: Store) -> string,
 	closed: (self: Store) -> (),
 	codesPage: Frame, -- the Codes tab's page, where Screens/Codes mounts its box (#1428)
@@ -136,6 +140,9 @@ function Store.new(callbacks: Callbacks): Store
 	self._callbacks = callbacks
 	self._cards = {} :: { [string]: any } -- "hero", "pick1" to "pick3", and "grid:<key>" for the tab pages
 	self._railButtons = {} :: { [string]: any }
+	self._newDots = {} :: { [string]: Frame } -- #1823 §4: a pink dot per rail button
+	self._new = {} :: { [string]: true } -- the tabs whose dot shows
+	self._marked = {} :: { [string]: true } -- the tabs sent as seen this session, until the server's word comes back
 	self._tab = "featured"
 	self._rows = {} :: { StoreLogic.Row }
 	self._seen = {} :: StoreLogic.Seen -- #1823: each card's pass and Owned at the last render, for the thank-you burst
@@ -200,6 +207,18 @@ function Store.new(callbacks: Callbacks): Store
 				self:showTab(id)
 			end,
 		})
+		-- #1823 §4: the New dot, 10 px pink on the button's top right; no number, no pulse
+		self._newDots[id] = Create("Frame", {
+			Name = "NewDot",
+			BackgroundColor3 = Theme.colors.berry,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.new(1, -3, 0, 3),
+			Size = UDim2.fromOffset(10, 10),
+			Visible = false,
+			ZIndex = 6,
+			Parent = self._railButtons[id].instance,
+		}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	end
 
 	-- the page beside the rail, from the top (#1690: no note row; cards say "Yours to keep", prices show Robux)
@@ -626,6 +645,16 @@ function Store.showTab(self: any, tab: string)
 	for id, button in self._railButtons do
 		button:setStyle(if id == self._tab then "gold" else "ghost")
 	end
+	-- #1823 §4: opening a tab clears its New dot, and the server saves it once
+	if self._new[self._tab] then
+		self._new[self._tab] = nil
+		self._marked[self._tab] = true
+		self._newDots[self._tab].Visible = false
+		local onSeen: ((string) -> ())? = self._callbacks.seen
+		if onSeen then
+			onSeen(self._tab)
+		end
+	end
 	local featured = self._tab == "featured"
 	local codes = self._tab == "codes"
 	self._featured.Visible = featured
@@ -646,6 +675,31 @@ function Store.showTab(self: any, tab: string)
 	if not featured and not codes and was ~= self._tab then
 		self._list.CanvasPosition = Vector2.zero
 	end
+end
+
+-- #1823 §4: the tabs with a New dot (StoreLogic.newTabs). A tab already sent as seen stays clear while the server's
+-- save is on its way back, and is forgotten once the server's word says it is seen.
+function Store.setNew(self: any, tabs: { [string]: true })
+	for id in self._marked do
+		if not tabs[id] then
+			self._marked[id] = nil
+		end
+	end
+	local new: { [string]: true } = {}
+	for id in tabs do
+		if not self._marked[id] then
+			new[id] = true
+		end
+	end
+	self._new = new
+	for id, dot in self._newDots do
+		dot.Visible = new[id] == true
+	end
+end
+
+-- Whether any tab's New dot shows, for the HUD's Store tile.
+function Store.hasNew(self: any): boolean
+	return next(self._new) ~= nil
 end
 
 function Store.tab(self: any): string

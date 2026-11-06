@@ -353,9 +353,12 @@ export type PartialState = {
 	lawnStyles: LawnStyles?,
 	-- the paid items' state, read loosely as (state :: any) by the Store, the money card and the Style tab
 	starterBought: boolean?, -- #1625
+	storeSeen: { [string]: number }?, -- #1823 §4: Store tab id -> the tab version last opened (shared/StoreTabs)
 	signStyles: { string }?, -- #1625
 	signStyle: string?, -- #1625
 	looks: SharedTypes.LooksView?, -- #1624
+	jukeboxTracks: { string }?, -- #1168 row 2: the Jukebox Pass songs owned (the Style tab's music row)
+	jukebox: string?, -- #1168 row 2: the song picked, nil for the day and night mix
 	passBoosts: SharedTypes.PassBoostsView?, -- #1624
 }
 

@@ -221,7 +221,8 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		codesRedeemed = table.clone(profile.codesRedeemed), -- #1714: the Store's Codes tab lists the codes used
 		signStyles = SignStyles.owned(profile.signStyles, ownsPassOf(player)), -- #1625
 		signStyle = profile.signStyle,
-		looks = { -- #1624: the Style tab's theme and uniform rows (the shown pick, nil for Classic, and what is owned)
+		looks = { -- #1624: the Style tab's theme, uniform and accessory rows (the shown pick, nil for the default, and
+			-- what is owned)
 			theme = Looks.shown(
 				"theme",
 				profile.looks.theme,
@@ -236,6 +237,13 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 			),
 			themes = Looks.owned("theme", ownsPassOf(player), profile.pass.items),
 			uniforms = Looks.owned("uniform", ownsPassOf(player), profile.pass.items),
+			accessory = Looks.shown(
+				"accessory",
+				profile.looks.accessory,
+				ownsPassOf(player),
+				profile.pass.items
+			),
+			accessories = Looks.owned("accessory", ownsPassOf(player), profile.pass.items),
 		},
 		luck = luck, -- F88
 		luckSources = luckSources,
@@ -293,13 +301,18 @@ local function shownName(player: Player, instance: Types.CatInstance): string
 		or (if def ~= nil then def.name else instance.catId)
 end
 
--- #1624: the Looks uniform `player`'s working cats wear (their owned pick), nil for Classic.
-local function uniformOf(player: Player): string?
+-- #1624: the Looks look of `kind` `player`'s working cats wear (their owned pick), nil for the default.
+local function shownLook(player: Player, kind: Looks.Kind): string?
 	local profile = DataService.get(player)
 	if profile == nil then
 		return nil
 	end
-	return Looks.shown("uniform", profile.looks.uniform, ownsPassOf(player), profile.pass.items)
+	local looks = profile.looks
+	local pick = if kind == "uniform"
+		then looks.uniform
+		elseif kind == "accessory" then looks.accessory
+		else looks.theme
+	return Looks.shown(kind, pick, ownsPassOf(player), profile.pass.items)
 end
 
 -- One cat's model at `at` for its `slot`, not parented yet, its Rate for an owner at `tier`. A working cat stands on
@@ -352,8 +365,9 @@ local function buildCat(
 			model:SetAttribute("Bedtime", true)
 			model:SetAttribute("SleepSpot", sleepSpot)
 		else
-			CatPose.dress(model, spot.spotType) -- F25: a working cat sits at its station in its role's outfit
-			CatPose.wearUniform(model, uniformOf(player)) -- #1624: in the cafe's uniform style
+			-- F25: a working cat sits at its station in its role's outfit, with the cafe's accessory (#1624)
+			CatPose.dress(model, spot.spotType, shownLook(player, "accessory"))
+			CatPose.wearUniform(model, shownLook(player, "uniform")) -- #1624: in the cafe's uniform style
 		end
 	end
 	return model
@@ -875,9 +889,15 @@ local function refreshLooks(player: Player, plot: WorldBuilder.Plot, profile: Pr
 		folder.Parent = plot.model
 	end
 	local uniform = Looks.shown("uniform", profile.looks.uniform, owns, items)
+	local accessory = Looks.shown("accessory", profile.looks.accessory, owns, items)
 	plot.model:SetAttribute(Looks.UNIFORM_ATTRIBUTE, uniform)
-	for _, cat in plot.cats:GetChildren() do -- a cat built before the pick changed takes the new colours
-		if cat:IsA("Model") and cat:GetAttribute("Role") ~= nil then
+	plot.model:SetAttribute(Looks.ACCESSORY_ATTRIBUTE, accessory)
+	-- a cat built before the pick changed takes the new accessory and colours; one on a bedtime trip or asleep wears
+	-- no outfit, and is dressed when it is built at its station again
+	for _, cat in plot.cats:GetChildren() do
+		local role = cat:GetAttribute("Role")
+		if cat:IsA("Model") and type(role) == "string" and cat:GetAttribute("Bedtime") ~= true then
+			CatPose.setAccessory(cat :: Model, role, accessory)
 			CatPose.wearUniform(cat :: Model, uniform)
 		end
 	end
@@ -1990,8 +2010,8 @@ local function onSetSignStyle(player: Player, rawId: unknown)
 	CafeService.sync(player)
 end
 
--- #1624: picks a look of `rawKind` ("theme" or "uniform"): an owned Looks id, or nil for the default (Classic).
--- Saved in profile.looks, then the plot shows it.
+-- #1624: picks a look of `rawKind` ("theme", "uniform" or "accessory"): an owned Looks id, or nil for the default
+-- (Classic, or no accessory). Saved in profile.looks, then the plot shows it.
 local function onSetLook(player: Player, rawKind: unknown, rawId: unknown)
 	local profile = profileFor(player)
 	if profile == nil then
@@ -2003,15 +2023,20 @@ local function onSetLook(player: Player, rawKind: unknown, rawId: unknown)
 		Net.toast(player, "You don't have that look yet.", "warn")
 		return
 	end
-	local kind = rawKind :: Looks.Kind
 	local looks = profile.looks
-	if (if kind == "theme" then looks.theme else looks.uniform) == pick then
+	local current = if rawKind == "theme"
+		then looks.theme
+		elseif rawKind == "uniform" then looks.uniform
+		else looks.accessory
+	if current == pick then
 		return
 	end
-	if kind == "theme" then
+	if rawKind == "theme" then
 		looks.theme = pick
-	else
+	elseif rawKind == "uniform" then
 		looks.uniform = pick
+	else
+		looks.accessory = pick
 	end
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)

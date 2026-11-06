@@ -10,7 +10,7 @@ The tier pace is Tier 2 at about 15 minutes and Tier 3 at about 50 (economy-ladd
 
 ### 1a. The milestones
 
-Each milestone is read from the profile, so it needs no new tracking, and each one matches an `onboarding_v3` step.
+Each milestone is read from the profile, so it needs no new tracking, and each one matches an `onboarding_v4` step.
 
 | # | milestone (card text) | done when | reward | about |
 |---|---|---|---|---|
@@ -36,7 +36,7 @@ Each milestone is read from the profile, so it needs no new tracking, and each o
 ### 1c. Contracts
 - Save: `grandOpening = { done = { [number]: true } }`, an optional field defaulting to empty, plus `finished` true after step 8. This needs a save version bump, so claim `DataService.luau`.
 - Server checks on the events that already exist (table buy, bait result, check-in, rank-up, Park catch, role assignment). It pays through `Payout`, sends `RoadmapStep(n)` to the client for the toast, and syncs in ProfileSync.
-- Funnel: custom event `grand_opening` with field step (1 to 8) and minutes played. `onboarding_v3` keeps its numbering.
+- Funnel: custom event `grand_opening` with field step (1 to 8) and minutes played. `onboarding_v4` (#1894) keeps its numbering.
 - Phone, tablet, desktop and console: the strip uses the goal card's width and font. Its list fits on a phone without scrolling (eight 28 px rows).
 
 ## 2. The first "wow" cat (#1897)
@@ -45,7 +45,7 @@ Each milestone is read from the profile, so it needs no new tracking, and each o
 - **The roll:** that one result is Rare or better. Roll the bowl's normal odds; if it gives Common, take Rare instead (85% of the time) or Epic (15%). Everything else about the arrival is normal.
 - **Honest preview:** while that bait is in the bowl, the bowl card says "Your next cat will be Rare or better!". It's true, it builds anticipation, and it isn't a paid random item, because bait is bought with coins only.
 - **The moment:** the arrival plays the F89 rare-moment effects (rarity-coloured burst and banner) with "Your first Rare!" (or Epic). If the player already owns a cat of that rarity, it reads "A Rare visitor!".
-- **Once per account:** save `firstWow = true` (same version bump as section 1c). The funnel step `first_wow_cat` is added as `onboarding_v3` step 38, with field rarity.
+- **Once per account:** save `firstWow = true` (same version bump as section 1c). The funnel step `first_wow_cat` is added as `onboarding_v4` step 46 (v4 from #1894 is v3's 37 steps plus 8), with field rarity.
 - Odds for every other roll and every other player stay the same, and the bowl's odds list is unchanged.
 
 ## 3. QA checks

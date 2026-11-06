@@ -81,6 +81,8 @@ local CARD_INSET = CARD_STROKE + CARD_SIDE
 local CARD_PAD = 10 -- inside a card, round its picture, words and button
 -- a grid card (and a top pick): the picture and name side by side, what it does under them, the button at the foot
 local TILE = 52
+local GLYPH_PAD = 0.18 -- the emoji's inset top and bottom in its tile
+local PICTURE_SCALE = 1.4 -- #1738: a picture over its whole tile, past its clear margin (art about 85% of the tile)
 local EFFECT_MIN = 48 -- three small lines at least
 local EFFECT_MIN_TEXT = 10 -- a card's contents shrink no smaller than this to fit
 local CELL_MAX = 230 -- a grid card no taller than this, however tall the window
@@ -346,8 +348,8 @@ function Store._makeCard(
 		Parent = tile,
 	})
 	Create("UIPadding", {
-		PaddingTop = UDim.new(0.18, 0),
-		PaddingBottom = UDim.new(0.18, 0),
+		PaddingTop = UDim.new(GLYPH_PAD, 0),
+		PaddingBottom = UDim.new(GLYPH_PAD, 0),
 		Parent = glyph,
 	})
 	local name = text({
@@ -487,8 +489,17 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 				elseif row.product then ShopIcons.hud("Potion")
 				else nil
 		)
+		-- #1738 (Derek2 11-06: "increase all the sizes of the pass images inside their bubble"): every store picture
+		-- keeps a clear margin so it survives Roblox's circle crop (icons.STORE_PAD), so a picture drops the emoji's
+		-- padding and draws a little over the tile: about 85% of it is art. The emoji keeps its padding.
+		local padding = entry.glyph:FindFirstChildOfClass("UIPadding")
+		local inset = if #images > 0 then 0 else GLYPH_PAD
+		if padding then
+			padding.PaddingTop = UDim.new(inset, 0)
+			padding.PaddingBottom = UDim.new(inset, 0)
+		end
 		if #images > 0 then
-			IconArt.setImages(entry.glyph, images, 1.3)
+			IconArt.setImages(entry.glyph, images, PICTURE_SCALE)
 		else
 			IconArt.setImage(entry.glyph, nil)
 			IconArt.set(entry.glyph, row.icon)

@@ -61,7 +61,7 @@ Remotes.ClientToServer = {
 	-- carrying, no lock, off TackleCooldownSeconds; lunges and hits the first player in reach who could be shoved
 	"ClaimRichTip", -- ()  own plot has an unexpired rich tip, within RichTipRangeStuds of its RichTipAnchor
 	"RenameCat", -- (uid: string, name: string)  owns uid; CatName.validate; RenameCooldownSeconds; the filter passes
-	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16)
+	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16), the Store funnel (#1888)
 	"SetSignStyle", -- (styleId: string?)  #1625: an owned shared/SignStyles id, or nil for the plain sign
 	"SetLook", -- (kind: string, id: string?)  #1624: "theme", "uniform" or "accessory"; an owned Looks id or "default"
 	"SetJukeboxTrack", -- (trackId: string?)  #1168 row 2: a shared/Jukebox track (free, #1875), or nil/"default"
@@ -290,6 +290,10 @@ Remotes.ServerToClient = {
 	"ThanksBoard", -- (rows: { IdeaCredits.Row }, hasCredit: boolean)  #1083: the Thank You board's rows, newest first
 	-- (idea, version, display name or "a player"), and whether this player has a credit (the Settings row shows only
 	-- then); on join and after every rebuild
+	"RoadmapStep", -- (n: number)  #1893: Grand Opening milestone n was just done and paid (GrandOpening.STEPS), after
+	-- the ProfileSync that shows it; the client plays the toast and confetti, and on the last the Grand Opening
+	"FirstWow", -- (rarity: Types.Rarity, first: boolean)  #1897: the guaranteed Rare-or-better bait cat arrived at
+	-- the bowl; first is true when no cat of that rarity was owned ("Your first Rare!", else "A Rare visitor!")
 }
 
 function Remotes.folder(): Folder

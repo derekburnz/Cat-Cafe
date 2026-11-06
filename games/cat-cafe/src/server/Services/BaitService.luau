@@ -109,6 +109,12 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 		Luck.apply(Bait.oddsFor(lure.odds, Economy.level(profile, "lure_bowl")), luck),
 		rng:NextNumber()
 	)
+	-- #1897: the account's second bait brings a Rare or better, once (saved with the roll, so a rejoin keeps it)
+	local wow = Bait.wowDue(profile.firstWow, profile.stats.luresUsed)
+	if wow then
+		rarity = Bait.wowRarity(rarity, rng:NextNumber())
+		profile.firstWow = true
+	end
 	if luck > 1 then
 		Telemetry.custom(
 			player,
@@ -125,7 +131,9 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	-- F60: food set at night comes in half the time, read from the phase now and fixed in readyAt, so a rejoin, a
 	-- server hop or sunrise never moves it
 	local night = ClockService.phase() == "night"
-	local wait = Economy.baitWaitSeconds(profile, night, now)
+	-- #1895: the account's first bait comes within 2 minutes (luresUsed counts up below)
+	local wait =
+		Bait.firstWait(Economy.baitWaitSeconds(profile, night, now), profile.stats.luresUsed)
 	-- F73: a Gold Rush Potion's luck and a Quick Bait Potion's speed running now are fixed in with the Index's
 	local kinds = ClockService.dayKinds() -- #1572: a Golden or Rainbow Day lifts the chances fixed in now
 	local goldChance = Potions.baitGoldChance(
@@ -154,6 +162,7 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 			goldChance
 		),
 		charm = CatStats.rollCharm(rng:NextNumber(), rng:NextNumber()),
+		wow = if wow then true else nil,
 	}
 	Bait.setState(profile, bowl, bait)
 	profile.stats.luresUsed += 1
@@ -237,6 +246,35 @@ local function onResolveBait(player: Player, rawChoice: unknown, rawBowl: unknow
 	CafeService.sync(player)
 end
 
+-- #1897 (first-hour.md section 2): the guaranteed cat is at the bowl. The client plays the F89 rare-moment look with
+-- "Your first Rare!" (first: no cat of that rarity owned yet) or "A Rare visitor!". The mark goes, so a rejoin never
+-- plays it again.
+local function wowArrived(
+	player: Player,
+	profile: Types.PlayerProfile,
+	bait: Types.BaitState
+): (() -> ())?
+	bait.wow = nil
+	local def = Catalog.getCat(bait.catId)
+	if def == nil then
+		return nil
+	end
+	local first = true
+	for catId in profile.collection do
+		local owned = Catalog.getCat(catId)
+		if owned ~= nil and owned.rarity == def.rarity then
+			first = false
+			break
+		end
+	end
+	local fields: { string } = { def.rarity }
+	Telemetry.onboarding(player, profile, "first_wow_cat", fields)
+	-- sent after the sync that puts the cat at the bowl, so the card can show its portrait
+	return function()
+		Net.fire(player, "FirstWow", def.rarity, first)
+	end
+end
+
 -- Within a second of a cat arriving, put it at the bowl and send the bowl state that names it. A rejoin is
 -- caught on the first pass after load as well.
 local function checkArrivals()
@@ -252,6 +290,7 @@ local function checkArrivals()
 			shownArrival[player] = shown
 		end
 		local changed = false
+		local after: { () -> () } = {}
 		for bowl = 1, Bait.BOWLS do
 			local bait = Bait.stateOf(profile, bowl)
 			if
@@ -262,6 +301,12 @@ local function checkArrivals()
 				shown[bowl] = bait.placedAt
 				changed = true
 				Telemetry.baitStep(player, bait, 2)
+				if bait.wow then
+					local send = wowArrived(player, profile, bait)
+					if send ~= nil then
+						table.insert(after, send)
+					end
+				end
 			end
 		end
 		-- #1161: bowl 2 comes out when the pass is bought or found
@@ -273,6 +318,9 @@ local function checkArrivals()
 		if changed then
 			CafeService.refreshPlot(player)
 			CafeService.sync(player)
+		end
+		for _, send in after do
+			send()
 		end
 	end
 end

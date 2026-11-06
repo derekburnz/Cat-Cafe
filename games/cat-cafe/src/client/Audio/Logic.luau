@@ -610,12 +610,34 @@ end
 
 -- The word's own sound; PURRFECT already has purrfectChime (the Purrfect moment) and "So close!" catchMiss.
 function Logic.wordCue(word: string?): string?
-	if word == "excellent" then
+	if word == "nice" then
+		return "wordNice"
+	elseif word == "excellent" then
 		return "wordExcellent"
 	elseif word == "great" then
 		return "wordGreat"
 	end
 	return nil
+end
+
+-- Catch v3 (#1884): the server's `finish` ("purrfect", "great", "nice" or "bolt") picks the banner sound the same way:
+-- PURRFECT keeps the Purrfect chime and a bolt "So close!" (catchMiss), so only GREAT and NICE return a cue.
+function Logic.finishCue(finish: any): string?
+	if finish == "great" then
+		return "wordGreat"
+	elseif finish == "nice" then
+		return "wordNice"
+	end
+	return nil
+end
+
+-- The catch purr rises in pitch as trust fills: 1.0 at an empty bar up to 1.5 (a fifth) when full. `trust` over
+-- `need`; anything odd is clamped, so a bad number can never make a squeal.
+function Logic.trustPurrSpeed(trust: any, need: any): number
+	if type(trust) ~= "number" or type(need) ~= "number" or need <= 0 or trust ~= trust then
+		return 1
+	end
+	return 1 + 0.5 * math.clamp(trust / need, 0, 1)
 end
 
 return Logic

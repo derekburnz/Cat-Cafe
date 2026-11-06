@@ -1,8 +1,8 @@
 --!strict
--- Onboarding.luau against easy-start.md section 5 (#1273): the funnel v3's 37 steps and the intro funnel's 13, each
+-- Onboarding.luau against easy-start.md section 5 (#1273) and #1888: the funnel v4's 45 steps (v3's 37, then eight) and the intro funnel's 13, each
 -- logged once and only in order. A step reached early is held until every step before it is logged, so a rank up
 -- before bait never fakes the bait steps. A server step reaches the steps it implies first; a client step implies
--- nothing. A save from funnel v1 or v2 past its first catch leaves the funnel. The time markers come at 30 s, 60 s,
+-- nothing. A save from funnel v1, v2 or v3 past its first catch leaves the funnel. The time markers come at 30 s, 60 s,
 -- 2, 5 and 10 minutes for a new player.
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
@@ -10,7 +10,7 @@ return function()
 	local Types = require(Shared.Types)
 
 	local function fresh(): Types.TelemetryState
-		return { onboardingStep = 0, achieved = {}, funnel = 3, firstDay = 0, introStep = 0 }
+		return { onboardingStep = 0, achieved = {}, funnel = 4, firstDay = 0, introStep = 0 }
 	end
 
 	-- every step a list of reach calls logs, in the order they were logged
@@ -25,15 +25,22 @@ return function()
 	end
 
 	describe("steps", function()
-		it("are the 37 of funnel v3, logged as onboarding_v3 (and the intro's 13 as onboarding_v3_intro)", function()
-			expect(Onboarding.VERSION).to.equal(3)
-			expect(Onboarding.FUNNEL).to.equal("onboarding_v3")
-			expect(Onboarding.INTRO_FUNNEL).to.equal("onboarding_v3_intro")
-			expect(Onboarding.COUNT).to.equal(37)
-			expect(Onboarding.INTRO_COUNT).to.equal(13)
-			-- Roblox: at most 100 steps a funnel and 10 funnels
-			expect(Onboarding.COUNT <= 100).to.equal(true)
-		end)
+		it(
+			"are the 46 of funnel v4, logged as onboarding_v4 (and the intro's 13 as onboarding_v4_intro)",
+			function()
+				expect(Onboarding.VERSION).to.equal(4)
+				expect(Onboarding.FUNNEL).to.equal("onboarding_v4")
+				expect(Onboarding.INTRO_FUNNEL).to.equal("onboarding_v4_intro")
+				expect(Onboarding.COUNT).to.equal(46) -- #1897: first_wow_cat is step 46
+				expect(#Onboarding.V3_STEPS).to.equal(37)
+				for i, name in Onboarding.V3_STEPS do
+					expect(Onboarding.STEPS[i]).to.equal(name) -- v3's steps keep their numbers
+				end
+				expect(Onboarding.INTRO_COUNT).to.equal(13)
+				-- Roblox: at most 100 steps a funnel and 10 funnels
+				expect(Onboarding.COUNT <= 100).to.equal(true)
+			end
+		)
 
 		it("keep the shipped names in easy-start.md section 5's order", function()
 			expect(Onboarding.STEPS :: any).to.deepEqual({
@@ -74,6 +81,15 @@ return function()
 				"first_offline_claim",
 				"tier_3",
 				"starter_cat",
+				"first_store_open",
+				"first_pass_xp",
+				"first_pass_claim",
+				"first_camp_collect",
+				"first_equip_best",
+				"pass_level_5",
+				"tier_4",
+				"first_robux_purchase",
+				"first_wow_cat",
 			})
 			expect(Onboarding.INTRO_STEPS[1]).to.equal("intro_choice_made")
 			expect(Onboarding.INTRO_STEPS[2]).to.equal("intro_started")
@@ -167,16 +183,19 @@ return function()
 			expect(Onboarding.reached(state, "catch_started")).to.equal(false)
 		end)
 
-		it("holds a later milestone, so a rank up before bait never fakes the bait steps", function()
-			local state = fresh()
-			play(state, { "joined", "first_checkin" })
-			expect(Onboarding.furthest(state)).to.equal("first_checkin")
-			-- tier_2 brings its card and ready steps, all held behind the cafe loop
-			expect(#Onboarding.reach(state, "tier_2")).to.equal(0)
-			expect(Onboarding.reached(state, "rank_up_card_seen")).to.equal(true)
-			expect(Onboarding.reached(state, "first_bait")).to.equal(false)
-			expect(Onboarding.furthest(state)).to.equal("first_checkin")
-		end)
+		it(
+			"holds a later milestone, so a rank up before bait never fakes the bait steps",
+			function()
+				local state = fresh()
+				play(state, { "joined", "first_checkin" })
+				expect(Onboarding.furthest(state)).to.equal("first_checkin")
+				-- tier_2 brings its card and ready steps, all held behind the cafe loop
+				expect(#Onboarding.reach(state, "tier_2")).to.equal(0)
+				expect(Onboarding.reached(state, "rank_up_card_seen")).to.equal(true)
+				expect(Onboarding.reached(state, "first_bait")).to.equal(false)
+				expect(Onboarding.furthest(state)).to.equal("first_checkin")
+			end
+		)
 
 		it("runs a whole first session in order", function()
 			local state = fresh()
@@ -277,15 +296,21 @@ return function()
 		end)
 	end)
 
-	describe("fromOld (funnels v1 and v2)", function()
-		it("takes a save past its first catch out of the funnel, and starts any other at joined", function()
-			expect(Onboarding.fromOld(2, 7)).to.equal(Onboarding.COUNT) -- v2 step 7 is first_catch
-			expect(Onboarding.fromOld(2, 25)).to.equal(Onboarding.COUNT)
-			expect(Onboarding.fromOld(2, 6)).to.equal(0)
-			expect(Onboarding.fromOld(1, 3)).to.equal(Onboarding.COUNT) -- v1 step 3 is first_catch
-			expect(Onboarding.fromOld(nil, 2)).to.equal(0)
-			expect(Onboarding.fromOld(2, 0)).to.equal(0)
-		end)
+	describe("fromOld (funnels v1, v2 and v3)", function()
+		it(
+			"takes a save past its first catch out of the funnel, and starts any other at joined",
+			function()
+				expect(Onboarding.fromOld(2, 7)).to.equal(Onboarding.COUNT) -- v2 step 7 is first_catch
+				expect(Onboarding.fromOld(2, 25)).to.equal(Onboarding.COUNT)
+				expect(Onboarding.fromOld(2, 6)).to.equal(0)
+				expect(Onboarding.fromOld(1, 3)).to.equal(Onboarding.COUNT) -- v1 step 3 is first_catch
+				expect(Onboarding.fromOld(nil, 2)).to.equal(0)
+				expect(Onboarding.fromOld(2, 0)).to.equal(0)
+				expect(Onboarding.fromOld(3, 13)).to.equal(Onboarding.COUNT) -- v3 step 13 is first_catch
+				expect(Onboarding.fromOld(3, 37)).to.equal(Onboarding.COUNT)
+				expect(Onboarding.fromOld(3, 12)).to.equal(0)
+			end
+		)
 	end)
 
 	describe("fromSave (QA S72)", function()
@@ -304,7 +329,14 @@ return function()
 
 		it("lists what a save shows in step order, all of them steps", function()
 			local shown = Onboarding.fromSave(
-				facts({ catsCaught = 9, distinctCats = 6, tables = 2, bowl = 1, tier = 3, parkCats = 1 })
+				facts({
+					catsCaught = 9,
+					distinctCats = 6,
+					tables = 2,
+					bowl = 1,
+					tier = 3,
+					parkCats = 1,
+				})
 			)
 			local last = 0
 			for _, name in shown do
@@ -312,6 +344,30 @@ return function()
 				last = Onboarding.index(name)
 			end
 			expect(#shown).to.equal(7)
+		end)
+
+		it("shows the Cafe Pass, Tier 4 and a Robux spend (#1888)", function()
+			local shown = Onboarding.fromSave(facts({
+				tier = 4,
+				passXp = 4000,
+				passClaims = 2,
+				passLevel = 5,
+				spent = true,
+			} :: any))
+			for _, name in
+				{
+					"first_pass_xp",
+					"first_pass_claim",
+					"pass_level_5",
+					"tier_4",
+					"first_robux_purchase",
+				}
+			do
+				expect(table.find(shown, name :: any)).to.be.ok()
+			end
+			local none =
+				Onboarding.fromSave(facts({ passXp = 0, passClaims = 0, passLevel = 4 } :: any))
+			expect(#none).to.equal(0)
 		end)
 
 		it("logs nothing twice on the next join", function()
@@ -342,24 +398,37 @@ return function()
 				last = marker.seconds
 				table.insert(names, marker.name)
 			end
-			expect(names :: any).to.deepEqual({ "session_30s", "session_60s", "session_2m", "session_5m", "session_10m" })
+			expect(names :: any).to.deepEqual({
+				"session_30s",
+				"session_60s",
+				"session_2m",
+				"session_5m",
+				"session_10m",
+			})
 		end)
 
 		it("are due by the seconds a session lasted", function()
 			expect(#Onboarding.markersBy(29)).to.equal(0)
 			expect(Onboarding.markersBy(30) :: any).to.deepEqual({ "session_30s" })
-			expect(Onboarding.markersBy(150) :: any).to.deepEqual({ "session_30s", "session_60s", "session_2m" })
+			expect(Onboarding.markersBy(150) :: any).to.deepEqual({
+				"session_30s",
+				"session_60s",
+				"session_2m",
+			})
 			expect(#Onboarding.markersBy(3600)).to.equal(5)
 		end)
 
-		it("go to a new player only: in the first loop or on the day of their first join", function()
-			local day = 20394
-			local now = day * 86400 + 100
-			expect(Onboarding.isNewPlayer(0, 0, now)).to.equal(true)
-			expect(Onboarding.isNewPlayer(4, day - 3, now)).to.equal(true)
-			expect(Onboarding.isNewPlayer(5, day, now)).to.equal(true)
-			expect(Onboarding.isNewPlayer(5, day - 1, now)).to.equal(false)
-			expect(Onboarding.isNewPlayer(5, 0, now)).to.equal(false)
-		end)
+		it(
+			"go to a new player only: in the first loop or on the day of their first join",
+			function()
+				local day = 20394
+				local now = day * 86400 + 100
+				expect(Onboarding.isNewPlayer(0, 0, now)).to.equal(true)
+				expect(Onboarding.isNewPlayer(4, day - 3, now)).to.equal(true)
+				expect(Onboarding.isNewPlayer(5, day, now)).to.equal(true)
+				expect(Onboarding.isNewPlayer(5, day - 1, now)).to.equal(false)
+				expect(Onboarding.isNewPlayer(5, 0, now)).to.equal(false)
+			end
+		)
 	end)
 end

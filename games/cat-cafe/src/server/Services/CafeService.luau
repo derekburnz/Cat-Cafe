@@ -23,6 +23,7 @@ local DecorBest = require(ReplicatedStorage.Shared.DecorBest)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
+local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Jukebox = require(ReplicatedStorage.Shared.Jukebox)
@@ -136,8 +137,13 @@ local function baitView(profile: Profile, now: number, bowl: number): Types.Bait
 		return nil
 	end
 	local readyAt = CafeService.baitReadyAt(profile, bait)
-	local view: Types.BaitView =
-		{ lureId = bait.lureId, placedAt = bait.placedAt, readyAt = readyAt, night = bait.night }
+	local view: Types.BaitView = {
+		lureId = bait.lureId,
+		placedAt = bait.placedAt,
+		readyAt = readyAt,
+		night = bait.night,
+		wow = if bait.wow == true and now < readyAt then true else nil, -- #1897: "Rare or better!" while it waits
+	}
 	if now >= readyAt then
 		view.cat = {
 			catId = bait.catId,
@@ -202,6 +208,8 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		goldLuck = totals.goldLuck,
 		rainbowLuck = IndexRewards.rainbowLuck(profile), -- F99: the food card's "Rainbow 0.5%" line
 		baitSpeed = totals.baitSpeed,
+		firstBait = profile.stats.luresUsed <= 0, -- #1895: the next bait waits at most 2 minutes (Bait.firstWait)
+		grandOpening = GrandOpening.view(profile.grandOpening), -- #1893
 		plotIndex = if plot ~= nil then plot.index else 0,
 		carrying = carrying[player],
 		dataSaves = DataService.saves(),
@@ -1566,6 +1574,7 @@ local function onEquipBest(player: Player)
 	if profile == nil then
 		return
 	end
+	Telemetry.onboarding(player, profile, "first_equip_best") -- #1888: the button pressed, whatever it moved
 	local plan = EquipBest.plan(profile)
 	if EquipBest.isOptimal(profile, plan) then
 		Net.toast(player, "Your cats are already in their best roles.", "info")
@@ -2057,6 +2066,7 @@ local function onSetJukeboxTrack(player: Player, rawId: unknown)
 		return
 	end
 	profile.jukebox = pick
+	Telemetry.custom(player, "jukebox_pick", 1, { pick or "default" }) -- #1888
 	CafeService.sync(player)
 end
 

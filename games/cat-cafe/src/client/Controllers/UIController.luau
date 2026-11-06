@@ -27,6 +27,7 @@ local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local RareMoments = require(Shared:WaitForChild("RareMoments"))
 local Settings = require(Shared:WaitForChild("Settings"))
+local StoreFunnel = require(Shared:WaitForChild("StoreFunnel"))
 local Tips = require(Shared:WaitForChild("Tips"))
 local Types = require(Shared:WaitForChild("Types"))
 local UI = require(script.Parent.Parent.UI)
@@ -1036,6 +1037,10 @@ local function wireIntents()
 		end
 	end
 	UI.events.screenOpened:Connect(function(name: string?)
+		if name == "Store" then
+			-- #1888: every Store visit starts a Store funnel, with where the UI said it was opened from
+			Net.fire("TelemetryReport", "store_opened", StoreFunnel.takeSource())
+		end
 		if name ~= nil and not screensReported[name] then
 			screensReported[name] = true
 			Net.fire("TelemetryReport", "ui_opened", name)
@@ -1727,6 +1732,22 @@ local function wireServerEvents()
 		local judged: ((string, number, Types.CircleGrade) -> ())? = (UI.catch :: any).judged
 		if judged ~= nil then
 			judged(strayId, index, grade)
+		end
+	end)
+	-- #1893: a Grand Opening milestone was just paid; the ProfileSync that shows it came first. UI.roadmap.step plays
+	-- the toast and confetti (and on the last, the Grand Opening) once the UI has it.
+	Net.on("RoadmapStep", function(n: number)
+		local roadmap = (UI :: any).roadmap
+		local step: ((number) -> ())? = if roadmap ~= nil then roadmap.step else nil
+		if step ~= nil and type(n) == "number" then
+			step(n)
+		end
+	end)
+	-- #1897: the guaranteed Rare-or-better bait cat is at the bowl ("Your first Rare!" or "A Rare visitor!")
+	Net.on("FirstWow", function(rarity: string, first: boolean)
+		local wow: ((string, boolean) -> ())? = (UI.bait :: any).wow
+		if wow ~= nil and type(rarity) == "string" then
+			wow(rarity, first == true)
 		end
 	end)
 	-- The rescue bar, or a tree's falling cat after its shakes; then the server's count after every judged press.

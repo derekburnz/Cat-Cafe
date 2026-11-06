@@ -225,6 +225,7 @@ local function onCollect(player: Player, rawExtraId: unknown)
 		return
 	end
 	local paid = Payout.pay(player, profile, prize, "camp_extra")
+	Telemetry.onboarding(player, profile, "first_camp_collect") -- #1888
 	Telemetry.custom(
 		player,
 		"camp_extra",

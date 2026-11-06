@@ -370,15 +370,15 @@ end
 
 -- Starts a looped cue (carryPurr, loopDealerCart, loopFountain) at a target, flat when nil. Returns
 -- a function that fades it out and removes it. Safe to call for a cue with no file yet (returns a no-op).
-function Audio.loop(cueId: string, at: Target?): () -> ()
+local function startLoop(cueId: string, at: Target?): (() -> (), Sound?)
 	local cue = Cues[cueId]
 	if cue == nil then
 		warnOnce(cueId, "no cue named " .. cueId)
-		return function() end
+		return function() end, nil
 	end
 	local id = Logic.pickId(idsOf(cue), rng:NextNumber())
 	if id == nil or not enabled[cue.group] then
-		return function() end
+		return function() end, nil
 	end
 	local voice: Voice = { sound = newSound(cueId, cue), anchor = nil, startedAt = os.clock() }
 	local sound = voice.sound
@@ -402,6 +402,34 @@ function Audio.loop(cueId: string, at: Target?): () -> ()
 		tweenVolume(sound, 0, LOOP_FADE).Completed:Once(function()
 			dropVoice(voice)
 		end)
+	end,
+		sound
+end
+
+function Audio.loop(cueId: string, at: Target?): () -> ()
+	local stop = startLoop(cueId, at)
+	return stop
+end
+
+-- Catch v3 (#1884): a soft purr under the rings that rises in pitch as the cat's trust fills (the `purr` cue, played
+-- flat, sped up to a fifth at full trust). Call it with the trust and the need on every change; `nil` stops it.
+local trustStop: (() -> ())? = nil
+local trustSound: Sound? = nil
+
+function Audio.setCatchTrust(trust: number?, need: number?)
+	if trust == nil then
+		if trustStop ~= nil then
+			trustStop()
+		end
+		trustStop, trustSound = nil, nil
+		return
+	end
+	if trustStop == nil or trustSound == nil or trustSound.Parent == nil then
+		trustStop, trustSound = startLoop("purr", nil)
+	end
+	if trustSound ~= nil then
+		local speed = Logic.trustPurrSpeed(trust, need)
+		TweenService:Create(trustSound, TweenInfo.new(0.2), { PlaybackSpeed = speed }):Play()
 	end
 end
 
@@ -1443,13 +1471,53 @@ end
 
 -- F93: GREAT and EXCELLENT get their word's sound from the server's grades (CatchResult goes only to the catcher),
 -- over the catch sparkle; PURRFECT and "So close!" keep the Purrfect and CatchFail moments' sounds.
+-- Catch v3: CatchResult(strayId, grades, success, charmGain, retryAt, result) where `result` is
+-- { trust, trustNeed, finish = "purrfect" | "great" | "nice" | "bolt", streak } (a bare string works too).
+local function finishOf(result: unknown): string?
+	if type(result) == "string" then
+		return result
+	elseif type(result) == "table" and type((result :: any).finish) == "string" then
+		return (result :: any).finish
+	end
+	return nil
+end
+
+local function wordFor(result: unknown, grades: unknown, success: unknown): string?
+	local finish = finishOf(result)
+	if finish ~= nil then
+		return Logic.finishCue(finish)
+	end
+	return Logic.wordCue(Logic.catchWord(grades, success))
+end
+
+local CATCH_NEED_FALLBACK = 12 -- the Epic need, used until a result or schedule says otherwise
+
 local function followCatchWords()
-	onRemote("CatchResult", function(_strayId: unknown, grades: unknown, success: unknown)
-		local cue = Logic.wordCue(Logic.catchWord(grades, success))
-		if cue ~= nil then
-			Audio.play(cue)
+	-- CatchJudged(strayId, index, grade, trust): the purr follows the trust after every ring.
+	onRemote(
+		"CatchJudged",
+		function(_strayId: unknown, _index: unknown, _grade: unknown, trust: unknown)
+			if type(trust) == "number" then
+				Audio.setCatchTrust(trust, CATCH_NEED_FALLBACK)
+			end
 		end
-	end)
+	)
+	onRemote(
+		"CatchResult",
+		function(
+			_strayId: unknown,
+			grades: unknown,
+			success: unknown,
+			_gain: unknown,
+			_retryAt: unknown,
+			result: unknown
+		)
+			local cue = wordFor(result, grades, success)
+			if cue ~= nil then
+				Audio.play(cue)
+			end
+		end
+	)
 end
 
 -- F102: the trade countdown tocks once a second while TradeState's phase is "countdown"; any other state (a change
@@ -1679,13 +1747,28 @@ local HANDLERS: { [string]: (...any) -> () } = {
 			Audio.play(cueId, nil, num(index))
 		end
 	end,
+	-- Catch v3 (#1884): the trust bar's purr, the cat's swat at a paw ring and the net's wobble and pop.
+	CatchTrust = function(trust: any, need: any)
+		Audio.setCatchTrust(num(trust), num(need))
+	end,
+	PawSwat = function(strayId: any)
+		Audio.play("pawSwat", spot(taggedPart("Stray", "StrayId", strayId)))
+	end,
+	NetWobble = function()
+		Audio.play("netWobble", you())
+	end,
+	NetPop = function()
+		Audio.play("netPop", you())
+	end,
 	CatchSuccess = function(_strayId: any, rarity: any)
 		lastCatchAt = os.clock()
+		Audio.setCatchTrust(nil)
 		duckForCatch(false)
 		Audio.play("catchSparkle")
 		rarityJingle(rarity)
 	end,
 	CatchFail = function()
+		Audio.setCatchTrust(nil)
 		duckForCatch(false)
 		Audio.play("catchMiss") -- the cat's hiss follows its HissAt attribute, for everyone nearby
 	end,

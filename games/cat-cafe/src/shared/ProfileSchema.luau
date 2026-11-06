@@ -10,6 +10,7 @@ local CornerShop = require(script.Parent.CornerShop)
 local DailyTreat = require(script.Parent.DailyTreat)
 local EquipBest = require(script.Parent.EquipBest)
 local FreshCatch = require(script.Parent.FreshCatch)
+local GrandOpening = require(script.Parent.GrandOpening)
 local Jukebox = require(script.Parent.Jukebox)
 local Lawn = require(script.Parent.Lawn)
 local Looks = require(script.Parent.Looks)
@@ -121,7 +122,11 @@ local ProfileSchema = {}
 -- Version 40 (#1732, camp-stations.md section 4b) turns campExtras.lostFound from { day, held } into { at, held }, one
 -- find every LostFoundEverySeconds: an older server would read it as a day number far in the past and fill it to the
 -- hold at once. An older save's clock starts at the load, keeping what it held (CampExtras.sanitize).
-ProfileSchema.VERSION = 40
+-- Version 41 (#1893, #1897; first-hour.md sections 1c and 2) adds grandOpening, the roadmap's milestones paid, and
+-- firstWow, the guaranteed Rare-or-better bait set: an older server would drop them, paying the milestones again and
+-- guaranteeing another Rare by hopping servers during a rollout. A save from before it already at Tier 3 starts with
+-- the roadmap finished (nothing back-paid), and one that has set two baits or more has had its second bait.
+ProfileSchema.VERSION = 41
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -295,6 +300,8 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		jukebox = nil,
 		pass = CafePass.fresh(0),
 		looks = {},
+		grandOpening = GrandOpening.fresh(),
+		firstWow = false,
 	}
 end
 
@@ -537,6 +544,7 @@ local function sanitizeBait(value: any): Types.BaitState?
 		placedAt = placedAt,
 		readyAt = readyAt,
 		night = if value.night == true then true else nil, -- F60: night bait, only ever true
+		wow = if value.wow == true then true else nil, -- #1897: the guaranteed Rare-or-better cat, only ever true
 		catId = value.catId,
 		variant = variantOf(value.variant),
 		charm = math.clamp(
@@ -699,8 +707,9 @@ local function sanitizeCodes(value: any): { [string]: number }
 end
 
 -- F87: a state saved before version 19 counts its steps in the 12 step funnel v1, one before #1273 in the 25 step
--- funnel v2; Onboarding.fromOld takes either out of the funnel v3 once it had logged a first catch, else back to its
--- start (#1273: no save version, since `funnel` already tells the funnels apart). A first day in the future is
+-- funnel v2, one before #1888 in the 37 step funnel v3; Onboarding.fromOld takes any of them out of the funnel v4 once
+-- it had logged a first catch, else back to its start (#1273: no save version, since `funnel` already tells the
+-- funnels apart). A first day in the future is
 -- clamped to today.
 local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 	local telemetry: Types.TelemetryState = {
@@ -965,6 +974,12 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 			end
 		end
 	end
+
+	-- #1893, #1897 (version 41): the Grand Opening roadmap (finished at once for a save already at Tier 3) and the
+	-- guaranteed Rare-or-better bait (had already for a save that set its second bait)
+	profile.grandOpening = GrandOpening.sanitize(raw.grandOpening, fromVersion, profile.tier)
+	profile.firstWow = raw.firstWow == true
+		or (fromVersion < GrandOpening.FROM_VERSION and profile.stats.luresUsed >= 2)
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

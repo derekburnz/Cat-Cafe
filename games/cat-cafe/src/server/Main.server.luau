@@ -26,6 +26,7 @@ local DataService = require(script.Parent.Services.DataService)
 local DealerService = require(script.Parent.Services.DealerService)
 local FeedService = require(script.Parent.Services.FeedService)
 local FishMarketService = require(script.Parent.Services.FishMarketService)
+local GrandOpeningService = require(script.Parent.Services.GrandOpeningService)
 local IdeaCreditsService = require(script.Parent.Services.IdeaCreditsService)
 local IndexRewardService = require(script.Parent.Services.IndexRewardService)
 local IntroService = require(script.Parent.Services.IntroService)
@@ -119,6 +120,7 @@ PalService.start() -- F92: pals; before Telemetry so pal_time goes out before it
 LeaderboardService.start() -- F98: before DataService so its onLoaded sees every join
 CampExtraService.start() -- F100: before DataService so its onLoaded sees every join
 CafePassService.start() -- #1645: the Cafe Pass, before DataService so its onLoaded sees every join
+GrandOpeningService.start() -- #1893: the Grand Opening roadmap's checks and payouts
 RallyService.start() -- F101: before Telemetry (rally_points on leave) and DataService (RallyState on join)
 RestartNoticeService.start() -- the restart countdown's warnings; before DataService so a joiner hears one
 TradeService.start() -- F102: before DataService, whose joins it settles owed trades in (onLoading)

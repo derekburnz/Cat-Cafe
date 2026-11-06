@@ -134,6 +134,31 @@ return function()
 			expect(Bait.waitSeconds(0, false)).to.equal(Config.LureWaitSeconds)
 		end)
 
+		it(
+			"the account's first bait waits at most 2 minutes, later ones as usual (#1895)",
+			function()
+				expect(Config.FirstBaitWaitSeconds).to.equal(120)
+				expect(Bait.firstWait(600, 0)).to.equal(120)
+				expect(Bait.firstWait(90, 0)).to.equal(90) -- a speed-up only ever shortens it
+				expect(Bait.firstWait(600, 1)).to.equal(600)
+				expect(Bait.firstWait(480, 7)).to.equal(480)
+			end
+		)
+
+		it("the account's second bait is Rare or better, once (#1897)", function()
+			expect(Bait.wowDue(false, 0)).to.equal(false) -- the first bait: normal odds
+			expect(Bait.wowDue(false, 1)).to.equal(true) -- the second
+			expect(Bait.wowDue(false, 6)).to.equal(true) -- never had one: the next
+			expect(Bait.wowDue(true, 1)).to.equal(false) -- had it
+			expect(Bait.WOW_EPIC_CHANCE).to.be.near(0.15, 1e-12)
+			expect(Bait.wowRarity("Common", 0.5)).to.equal("Rare")
+			expect(Bait.wowRarity("Common", 0.149)).to.equal("Epic")
+			expect(Bait.wowRarity("Common", 0.15)).to.equal("Rare")
+			for _, rarity in { "Rare", "Epic", "Legendary", "Mythical" } do
+				expect(Bait.wowRarity(rarity :: any, 0)).to.equal(rarity)
+			end
+		end)
+
 		it("names the five bowls", function()
 			local names = {}
 			for level = 1, 5 do

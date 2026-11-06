@@ -20,6 +20,7 @@ local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ChatTags = require(ReplicatedStorage.Shared.ChatTags)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
+local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
 local PassService = require(script.Parent.PassService)
@@ -41,7 +42,11 @@ end
 
 -- The items the chat tags read: the Cafe Pass items, plus the supporter tag for a Thank You Badge buyer (#1168 row 4).
 local function tagItems(profile: Types.PlayerProfile): { [string]: boolean }
-	return ChatTags.withSupporter(profile.pass.items, Products.isSupporter(profile))
+	local items = ChatTags.withSupporter(profile.pass.items, Products.isSupporter(profile))
+	if profile.grandOpening.done[GrandOpening.COUNT] == true then
+		items[GrandOpening.TAG] = true -- #1893: the Grand Opening's tag
+	end
+	return items
 end
 
 -- #1626: the chat tags the player may show (ChatTags.choices): VIP if they own the pass, the supporter tag, then
@@ -152,6 +157,7 @@ local function claim(
 ): { string }
 	local running = season()
 	CafePass.markClaimed(profile.pass, track :: CafePass.Track, level, running)
+	Telemetry.onboarding(player, profile, "first_pass_claim") -- #1888: a claim, not a season's leftovers paid on roll
 	return pay(player, profile, running, track, level)
 end
 
@@ -207,9 +213,15 @@ end
 -- step. True when it was bought now, false when this season's track was already the player's.
 function CafePassService.buyPaid(player: Player, profile: Types.PlayerProfile): boolean
 	roll(player, profile)
-	local bought = CafePass.buyPaid(profile.pass, (season()))
+	local running, startsAt = season()
+	local bought = CafePass.buyPaid(profile.pass, running)
 	if bought then
-		Telemetry.custom(player, "cafe_pass_bought", 1, { tostring(profile.pass.season) })
+		-- #1888: with the day of the season it was bought on (0 the first) and the pass level then
+		Telemetry.custom(player, "cafe_pass_bought", 1, {
+			tostring(profile.pass.season),
+			tostring(math.max(0, (os.time() - startsAt) // 86400)),
+			tostring(CafePass.levelOf(profile.pass.xp)),
+		})
 	end
 	return bought
 end

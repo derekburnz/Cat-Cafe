@@ -47,7 +47,9 @@ local BuffChips = require(script.Parent.BuffChips)
 local Button = require(script.Parent.Parent.Components.Button)
 local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
+local CatchTrust = require(script.Parent.Parent.Components.CatchTrust)
 local Create = require(script.Parent.Parent.Components.Create)
+local FirstBait = require(script.Parent.Parent.Components.FirstBait)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local GoalCard = require(script.Parent.GoalCard)
@@ -115,6 +117,7 @@ export type HUD = {
 	isCarrying: (self: HUD) -> boolean,
 	bottomTop: (self: HUD) -> number,
 	setCatching: (self: HUD, active: boolean) -> (),
+	setCatchStreak: (self: HUD, streak: number) -> (),
 	-- F101: fires (active) when a catch or rescue starts or ends, so the Rally banner gets out of its way
 	catchingChanged: Signal.Signal,
 	isCatching: (self: HUD) -> boolean,
@@ -1781,6 +1784,38 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		self:_toggleBoosts()
 	end)
 	self._palMarker = PalMarker.new()
+	-- #1895: "🐾 A cat is coming! 1m 42s" in the potion timers' row over the money while the account's short first
+	-- bait waits (Components/FirstBait), so the player stays and does something else meanwhile
+	self._coming = Create("TextLabel", {
+		Name = "CatComing",
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 28),
+		FontFace = Theme.fonts.display,
+		TextSize = 18,
+		TextColor3 = Theme.colors.gold,
+		Text = "",
+		LayoutOrder = 80, -- after the Luck chip and the potion timers, before the pals
+		Visible = false,
+		Parent = self._buffs.frame,
+	})
+	Outline.text(self._coming, 2)
+	-- Catch v3 (#1884, catch-rework.md 7d): "🐾 Purrfect x3" in the potion timers' row over the money from the second
+	-- Purrfect in a row (Components/CatchTrust.streakText); this session only, gone on any other result
+	self._streak = Create("TextLabel", {
+		Name = "PurrfectStreak",
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 28),
+		FontFace = Theme.fonts.display,
+		TextSize = 18,
+		TextColor3 = Theme.colors.gold,
+		Text = "",
+		LayoutOrder = 90, -- after the Luck chip and the potion timers, before the pals
+		Visible = false,
+		Parent = self._buffs.frame,
+	})
+	Outline.text(self._streak, 2)
 	self:_layoutMenu()
 	-- the left side follows the screen's size (a phone turned, a window resized)
 	table.insert(
@@ -1862,6 +1897,18 @@ function HUD._renderBowl(self: any)
 	if ready and not wasReady and self._bowlSlot.Visible then
 		Tween.popIn(self._bowlSlot, 0.9)
 	end
+	-- #1895: the first bait's cue, moved on with the bowl's once-a-second loop
+	local coming: TextLabel? = self._coming
+	if coming then
+		local line = FirstBait.chip(bait, Workspace:GetServerTimeNow())
+		local shown = line ~= nil
+		if shown and not coming.Visible then
+			Tween.popIn(coming, 0.7)
+		end
+		coming.Text = if line then "🐾 " .. line else ""
+		coming.Visible = shown
+		self._buffs:setLead(shown, "coming")
+	end
 end
 
 -- Fires the travel callback unless the row is greyed (carrying, or inside the trip cooldown). True when it fired.
@@ -1941,6 +1988,18 @@ function HUD.setCatching(self: any, active: boolean)
 	self:_renderTutorialTile()
 	if changed then
 		self.catchingChanged:Fire(active)
+	end
+end
+
+function HUD.setCatchStreak(self: any, streak: number)
+	local line = CatchTrust.streakText(streak)
+	local label: TextLabel = self._streak
+	local was = label.Text
+	label.Text = if line then "🐾 " .. line else ""
+	label.Visible = line ~= nil
+	self._buffs:setLead(line ~= nil, "streak")
+	if line ~= nil and label.Text ~= was then
+		Tween.popIn(label, 0.6)
 	end
 end
 

@@ -1363,6 +1363,9 @@ function UI.init(config: Types.InitConfig)
 	UI.store.start() -- the Store window and the HUD's Store tile (shown on sale or not, #1167)
 	UI.pass.start() -- the Cafe Pass window; its HUD tile shows while a season runs (#1646)
 	worldTags = WorldTags.new()
+	-- Catch v3 (catch-rework.md 7a): the mood icon over each stray within 20 studs (inline: the module is short of locals)
+	local catchUI: any = UI.catch
+	catchUI.moods = require(script.Screens.MoodIcons).new()
 	UI.bubbles.start(parent) -- the one-line speech bubbles over the town's key cats (#1079)
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
 	catCard = CatCard.new(parent, {
@@ -1603,6 +1606,11 @@ function UI.destroy()
 	end
 	if worldTags then
 		worldTags:destroy()
+	end
+	local catchUI: any = UI.catch
+	if catchUI.moods then
+		catchUI.moods:destroy()
+		catchUI.moods = nil
 	end
 	if catCard then
 		catCard:destroy()
@@ -2859,10 +2867,56 @@ do
 	-- catch shows "Caught!" or "PURRFECT!" with the charm it added; a miss closes the overlay after 1 s and toasts "It
 	-- got away! Chase it!" (v0.5: the cat sprints off and tries are unlimited), and the card comes back while the
 	-- player is in range. Call nothing else for a CatchResult; catch.fail stays for refusals.
+	-- Catch v3 (#1884): UIController's hooks with CatchSchedule's trust (UI.catch.trust) and CatchResult's finish
+	-- (UI.catch.finished), kept by stray in UI.catch.v3 (no locals left here) until the circles or the grades use them
+	UI.catch.v3 = {
+		trust = {} :: { [string]: { start: number, need: number } },
+		finish = {} :: { [string]: CatchCircles.Finish },
+	}
+	function UI.catch.strayModel(strayId: string): Model?
+		for _, instance in CollectionService:GetTagged("Stray") do
+			if instance:GetAttribute("StrayId") == strayId and instance:IsA("Model") then
+				return instance :: Model
+			end
+		end
+		return nil
+	end
+	-- CatchSchedule's trustStart and trustNeed, before or after the circles show: the rings go round the stray's head,
+	-- with the trust bar over it, and a Miss only costs trust (Screens/CatchCircles)
+	function UI.catch.trust(strayId: string, trustStart: number?, trustNeed: number?)
+		if type(trustNeed) ~= "number" or trustNeed <= 0 then
+			return
+		end
+		local start = if type(trustStart) == "number" then trustStart else 0
+		local screen = circles
+		table.clear(UI.catch.v3.trust)
+		if screen and screen:isActive() and screen:strayId() == strayId then
+			screen:setTrust(start, trustNeed, UI.catch.strayModel(strayId))
+		else
+			UI.catch.v3.trust[strayId] = { start = start, need = trustNeed }
+		end
+	end
+	-- CatchResult's finish ({ trust, trustNeed, finish, streak }), just before its grades: the banner word, the bar's
+	-- last trust and the HUD's "Purrfect x3" (from the second in a row)
+	function UI.catch.finished(strayId: string, finish: unknown)
+		if type(finish) ~= "table" then
+			return
+		end
+		local ending: CatchCircles.Finish = finish :: any
+		table.clear(UI.catch.v3.finish)
+		UI.catch.v3.finish[strayId] = ending
+		if hud then
+			hud:setCatchStreak(if type(ending.streak) == "number" then ending.streak else 0)
+		end
+	end
+
+	-- trustStart and trustNeed may come here too (the UI gate's scenes); else from UI.catch.trust
 	function UI.catch.showCircles(
 		strayId: string,
 		circleList: { Types.CatchCircle },
-		windows: Types.CatchWindows
+		windows: Types.CatchWindows,
+		trustStart: number?,
+		trustNeed: number?
 	)
 		local screen = circles
 		if not screen then
@@ -2870,6 +2924,14 @@ do
 		end
 		local info = activeInfo
 		local header: CatchCircles.Header? = nil
+		local early = UI.catch.v3.trust[strayId]
+		UI.catch.v3.trust[strayId] = nil
+		if early ~= nil and trustNeed == nil then
+			trustStart = early.start
+			trustNeed = early.need
+		end
+		local v3 = type(trustNeed) == "number" and trustNeed > 0
+		local model: Model? = if v3 then UI.catch.strayModel(strayId) else nil
 		if info and info.strayId == strayId then
 			local rarity: string? = info.rarity
 			local built: CatchCircles.Header = {
@@ -2879,8 +2941,15 @@ do
 				shiny = info.shiny,
 				rainbow = info.rainbow,
 				title = nil,
+				trustStart = if v3 then trustStart else nil,
+				trustNeed = if v3 then trustNeed else nil,
+				model = model,
 			}
 			header = built
+		elseif v3 then
+			local bare: CatchCircles.Header =
+				{ trustStart = trustStart, trustNeed = trustNeed, model = model }
+			header = bare
 		end
 		if catch then
 			catch:hide() -- activePrompt and activeInfo stay so the card can come back
@@ -2894,9 +2963,14 @@ do
 	end
 
 	-- #1727: CatchJudged, the server's grade for one of this player's presses, as it is judged
-	function UI.catch.judged(strayId: string, index: number, grade: Types.CircleGrade)
+	function UI.catch.judged(
+		strayId: string,
+		index: number,
+		grade: Types.CircleGrade,
+		trust: number?
+	)
 		if circles then
-			circles:judged(strayId, index, grade)
+			circles:judged(strayId, index, grade, if type(trust) == "number" then trust else nil)
 		end
 	end
 
@@ -2954,17 +3028,28 @@ do
 
 	-- CatchResult. grades run up to and including the first Miss; charmGain is 0 on a miss. retryAt (F57, miss only) is
 	-- the server time this player may try the stray again; the card reads "Catch your breath..." until then.
+	-- Catch v3 (#1884): the finish UI.catch.finished kept for this stray (or given here, as the UI gate does) picks
+	-- the banner
 	function UI.catch.showGrades(
 		strayId: string,
 		grades: { Types.CircleGrade },
 		success: boolean,
 		charmGain: number?,
-		retryAt: number?
+		retryAt: number?,
+		finish: CatchCircles.Finish?
 	)
+		local ending: CatchCircles.Finish? = UI.catch.v3.finish[strayId]
+		UI.catch.v3.finish[strayId] = nil
+		if type(finish) == "table" then
+			ending = finish
+			UI.catch.finished(strayId, finish)
+			UI.catch.v3.finish[strayId] = nil
+		end
 		finishCatch(strayId, {
 			grades = grades,
 			success = success,
 			charmGain = charmGain,
+			finish = ending,
 		}, retryAt)
 	end
 

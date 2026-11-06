@@ -14,7 +14,7 @@ Seven cats, one line each. Each line says what the station does in a few words, 
 | The Bellhop Cat at its stand (`BellhopStand`) | Town Square | "A free cat for your cafe!" | only until the player has claimed it |
 | The night dealer (`DealerCart`) | the street, at night | "Rare foods here every night!" | only while the cart is in town |
 | The Cat Collector (`CatCafe_NPC_Collector`) | at the player's cafe, on a visit | "Got a cat I'm looking for?" | only while he is visiting |
-| The Corner Shop's cat (`CornerShop`) | Town Square, once built (#1052) | "Snacks, bubbles and fireworks!" | always |
+| The Corner Shop's cat (`CornerShop`) | Town Square, once built (#1052) | "Snacks and potions!" | always |
 
 - If the Spin Wheel model has no cat yet, Model-Agent adds a small cat sitting on its base (`CatCafe_Street_SpinWheel`, a child model `WheelCat`), because the bubble needs someone to say it.
 - No bubble on customers, strays, the player's own cats or the Mystery Visitor. Keeping the list short keeps the bubbles special and the square calm.

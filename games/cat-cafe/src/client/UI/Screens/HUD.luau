@@ -2901,7 +2901,7 @@ end
 
 -- #1606: the money pass badge (StoreLogic.moneyBadge): "3x" in gold once owned, a berry "Get 2x" pill while not, or
 -- hidden with nil.
-function HUD.setMoneyBadge(self: any, badge: { text: string, owned: boolean }?)
+function HUD.setMoneyBadge(self: any, badge: { text: string, owned: boolean, price: string? }?)
 	local button: TextButton = self._moneyBadge
 	button.Visible = badge ~= nil
 	if badge == nil then

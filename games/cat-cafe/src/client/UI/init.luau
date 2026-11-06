@@ -5478,6 +5478,11 @@ do
 		open = false, -- whether the HUD's tile shows
 		bench = false, -- #1633: the Codes Cat's circle opened the Store, so walking out closes it
 		tabs = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StoreTabs")) :: any, -- #1823 §4
+		-- #1168 row 4: the Player attribute the server sets on a Thank You Badge buyer (Products.SUPPORTER_ATTRIBUTE)
+		supporterKey = (require(
+				ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Products")
+			) :: any).SUPPORTER_ATTRIBUTE :: string,
+		supporter = nil :: RBXScriptConnection?, -- its change hides the badge's card at once
 	}
 
 	-- the potion packs' contents and names from the shared Catalog, the bag from the state (#1182)
@@ -5503,6 +5508,7 @@ do
 			have = state.potions,
 			starterBought = (state :: any).starterBought,
 			cafePass = (UI.pass :: any).offer(), -- #1646: the running season's paid track, nil while closed (defined below)
+			supporter = Players.LocalPlayer:GetAttribute(shop.supporterKey) == true, -- #1168 row 4
 		})
 	end
 
@@ -5597,6 +5603,8 @@ do
 			end,
 		})
 		shop.changed = PassShop.changed:Connect(refresh)
+		shop.supporter =
+			Players.LocalPlayer:GetAttributeChangedSignal(shop.supporterKey):Connect(refresh)
 		shop.grant = PassShop.ownerGrant:Connect(function(productId: number)
 			UI.events.ownerGrant:Fire(productId)
 		end)
@@ -5660,6 +5668,10 @@ do
 		if shop.grant then
 			shop.grant:Disconnect()
 			shop.grant = nil
+		end
+		if shop.supporter then
+			shop.supporter:Disconnect()
+			shop.supporter = nil
 		end
 		if shop.screen then
 			if codesScreen then

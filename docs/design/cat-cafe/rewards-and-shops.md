@@ -90,6 +90,14 @@ A spin is now worth about 1.5 golden fish on average (was 0.4), so fewer spins (
 - **Build.** `Catalog.spinWheel` gets these 8 rows (frozen as before) and `crate = "highest_golden"` resolves to the golden version of the highest unlocked zone's crate. The Spin window's Odds list and slice faces show 8 slices, likeliest first, adding up to 100%. If the world wheel model has a fixed 6 wedges, Model-Agent adds two narrow gold wedges for the jackpots.
 - **QA.** Over 200,000 seeded spins each slice lands within 0.1 point of its chance. A jackpot crate is the golden crate of the player's highest zone, and the Odds list shows 0.5% for each jackpot.
 
+**v3, the Spin window tidy (#1816, Derek2 2026-11-06: "clean up the spin wheel ui in the spin wheel menu").** No odds or prizes change. Layout only:
+- **Two columns.** On the left, the wheel at 60% of the window's width. On the right, top to bottom: the title "Spin Wheel", a big "Spins: 3" count, the Spin button (the window's only big button), "Use all" as a small text button under it (only with 2 or more spins), and "Odds" as a small text button at the bottom. Nothing else: no subtitle, no help line and no status line except a refusal ("Next free spin at sunrise"). On a phone, the right column moves under the wheel, in the same order.
+- **Slices.** Each of the 8 slices shows one 56 px picture near the rim and one amount pill under it. Every pill has the same width and the same FredokaOne size. The size is set by the longest label at that screen size, so no slice's text is smaller than another's. Amounts are short: "+1.2K", "5 fish", "1 Caviar", "1 Crate", "100 fish". Coin slices show the coin amount for the player's current day rate.
+- **Pictures.** Coin slices show the coin stack, small for slice 1, medium for 2 and the money bag for 4. Fish slices show the golden fish, Caviar shows its food icon, and crate slices show the real crate art of the crate they pay (`ShopIcons.crate`, the highest zone's crate, or its golden version for the jackpot). The "?" box is only a fallback for a missing picture. The two jackpot slices get a thin gold edge on the wedge itself, never a ring around the picture.
+- **The win.** The landed slice's pill turns gold with dark text until the next spin, and nothing else stays lit. There's no ring around the picture.
+- **Odds** opens the list as now. Each row has the same picture as its slice, a short name, and the chance, likeliest first.
+- **QA.** The phone, tablet and desktop Spin scenes in the UI gate show 8 equal pills, the real crate art, no ring after a win, and no text under 12 px.
+
 ### 2c. Daily Treat (data-model 11e)
 
 | day | now | was |

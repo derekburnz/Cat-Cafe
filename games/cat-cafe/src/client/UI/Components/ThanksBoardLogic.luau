@@ -14,12 +14,22 @@ ThanksBoardLogic.ANON = "a player" -- IdeaCredits.ANON: the server's name for a 
 ThanksBoardLogic.EMPTY =
 	'Send an idea with 💡 Feedback and tick "Feature my name": if we build it, your name goes here.'
 
-export type Row = { idea: string, version: number?, name: string?, creditId: string? }
+export type Row = {
+	idea: string,
+	version: number?,
+	name: string?,
+	creditId: string?,
+	supporter: boolean?,
+}
 export type Page = { rows: { Row }, page: number, pages: number }
 
 function ThanksBoardLogic.creditLine(row: Row): string
 	local name = row.name
 	local who = if type(name) == "string" and name ~= "" then name else ThanksBoardLogic.ANON
+	-- #1168 row 4: a gold heart by a Thank You Badge buyer's name, never on "a player"
+	if row.supporter == true and who ~= ThanksBoardLogic.ANON then
+		who ..= " 💛"
+	end
 	local version = row.version
 	if type(version) == "number" and version > 0 then
 		return ("v%d · Idea from %s"):format(math.floor(version), who)

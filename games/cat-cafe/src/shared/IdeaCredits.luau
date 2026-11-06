@@ -11,6 +11,7 @@ local IdeaCredits = {}
 IdeaCredits.STORE = "IdeaCredits_v1"
 IdeaCredits.CREDIT_PREFIX = "credit/" -- credit/<report key>: { userId, idea, version, addedAt }
 IdeaCredits.HIDE_PREFIX = "hide/" -- hide/<userId>: true while that player keeps their name off the board
+IdeaCredits.SUPPORTER_PREFIX = "supporter/" -- supporter/<userId>: true once that player bought the Thank You Badge
 IdeaCredits.REFRESH_SECONDS = 1800 -- the board is rebuilt at server start and this often
 IdeaCredits.MAX_ROWS = 60 -- the newest this many credits; the board pages through them 12 at a time
 IdeaCredits.IDEA_BYTES = 48
@@ -24,7 +25,14 @@ export type Credit = {
 	addedAt: number,
 	creditId: string?,
 }
-export type Row = { idea: string, version: number, name: string, creditId: string? }
+-- `supporter` (#1168 row 4): the credited player bought the Thank You Badge, and their name is shown (never on "a player")
+export type Row = {
+	idea: string,
+	version: number,
+	name: string,
+	creditId: string?,
+	supporter: boolean?,
+}
 
 IdeaCredits.CREDIT_ID_BYTES = 12
 
@@ -89,7 +97,8 @@ end
 function IdeaCredits.rows(
 	credits: { Credit },
 	names: { [number]: string },
-	hidden: { [number]: boolean }
+	hidden: { [number]: boolean },
+	supporters: { [number]: boolean }?
 ): { Row }
 	local sorted = table.clone(credits)
 	table.sort(sorted, function(a: Credit, b: Credit): boolean
@@ -109,11 +118,15 @@ function IdeaCredits.rows(
 				or name == ""
 			then IdeaCredits.ANON
 			else name
+		local supporter = shown ~= IdeaCredits.ANON
+			and supporters ~= nil
+			and supporters[credit.userId] == true
 		table.insert(rows, {
 			idea = credit.idea,
 			version = credit.version,
 			name = shown,
 			creditId = credit.creditId,
+			supporter = if supporter then true else nil,
 		})
 	end
 	return rows

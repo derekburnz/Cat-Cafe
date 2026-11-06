@@ -431,6 +431,7 @@ return function()
 				RoyalCatPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				KingPackPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				KingCatPassId = true, -- #1822: the King Cat alone, 0 until made, checked below
+				SignStylePackPassId = true, -- #1168 row 1: 0 until made, checked below
 				GardenDecorPackPassId = true, -- #1168 row 3: 0 until made, checked below
 				GoldenPondPassId = true, -- #1197: an off-sale placeholder pass id, checked below
 				SecondBowlPassId = true, -- #1197: an off-sale placeholder pass id, checked below
@@ -531,6 +532,9 @@ return function()
 			-- #1822: the King Cat alone is 0 until Tools-Agent makes it, then a pass id of its own
 			expect(type(c.KingCatPassId)).to.equal("number")
 			expect(c.KingCatPassId == 0 or ids[c.KingCatPassId] == nil).to.equal(true)
+			-- #1168 row 1: the Sign Style Pack is 0 until made, then a pass id of its own
+			expect(type(c.SignStylePackPassId)).to.equal("number")
+			expect(c.SignStylePackPassId == 0 or ids[c.SignStylePackPassId] == nil).to.equal(true)
 			-- #1168 row 3: the Garden Decor Pack is 0 until made, then a pass id of its own
 			expect(type(c.GardenDecorPackPassId)).to.equal("number")
 			expect(c.GardenDecorPackPassId == 0 or ids[c.GardenDecorPackPassId] == nil).to.equal(true)

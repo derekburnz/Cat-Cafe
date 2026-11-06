@@ -28,7 +28,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { Lua } from '@luau-rs/luau';
 import { buildTree, jsonToLuau } from './rojo-tree.mjs';
@@ -125,9 +125,16 @@ const all = [];
 // 2026-11-03 CI's phone run died with "not enough memory" after desktop and laptop.
 const profiles = args.devices ? DEVICE_PROFILES : args.profile ? [...PROFILES, ...DEVICE_PROFILES] : PROFILES;
 const wanted = profiles.filter((profile) => !args.profile || args.profile === profile.name);
+// The sizes run side by side, one child process each (CI has 4 cores; run in turn they took about 25 minutes of the
+// job's 31, 2026-11-06). Their scenes are read back in order below, so the report and the baseline check are the same.
+const childScenes = new Map();
+if (!args.emit && wanted.length > 1) {
+  await Promise.all(wanted.map(async (profile) => childScenes.set(profile.name, await runChild(profile))));
+  console.log(`${wanted.length} sizes ran side by side in ${((Date.now() - started) / 1000).toFixed(1)} s`);
+}
 for (const profile of wanted) {
   const t0 = Date.now();
-  const scenes = args.emit || wanted.length === 1 ? await runProfile(profile) : runChild(profile);
+  const scenes = args.emit || wanted.length === 1 ? await runProfile(profile) : childScenes.get(profile.name);
   if (args.emit) {
     fs.writeFileSync(args.emit, JSON.stringify(scenes));
     process.exit(0);
@@ -186,13 +193,18 @@ if (fresh.length > 0 && !args.updateBaseline) {
 console.log('UI gate passed');
 
 // One screen size in a child process: the same script with --profile and --emit, its scenes read back from a file.
-function runChild(profile) {
+// Resolves when the child is done, so the sizes can run at once.
+async function runChild(profile) {
   const file = path.join(os.tmpdir(), `cat-cafe-uigate-${process.pid}-${profile.name}.json`);
   const childArgs = [...process.execArgv, fileURLToPath(import.meta.url), '--profile', profile.name, '--emit', file];
   if (args.scene) childArgs.push('--scene', args.scene);
   if (args.verbose) childArgs.push('--verbose');
-  const run = spawnSync(process.execPath, childArgs, { stdio: 'inherit' });
-  if (run.status !== 0) throw new Error(`UI gate: the ${profile.name} run failed (exit ${run.status})`);
+  const status = await new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, childArgs, { stdio: 'inherit' });
+    child.on('error', reject);
+    child.on('exit', (code) => resolve(code));
+  });
+  if (status !== 0) throw new Error(`UI gate: the ${profile.name} run failed (exit ${status})`);
   const scenes = JSON.parse(fs.readFileSync(file, 'utf8'));
   fs.rmSync(file, { force: true });
   return scenes;

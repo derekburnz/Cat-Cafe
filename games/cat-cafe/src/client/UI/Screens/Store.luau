@@ -139,6 +139,9 @@ function Store.new(callbacks: Callbacks): Store
 	self._tab = "featured"
 	self._rows = {} :: { StoreLogic.Row }
 	self._seen = {} :: StoreLogic.Seen -- #1823: each card's pass and Owned at the last render, for the thank-you burst
+	-- #1870: true until the first render after the window opens; that render only notes what is owned, so a pass
+	-- bought while the Store was shut doesn't pop and burst on opening (and the cards are measured at rest)
+	self._fresh = true
 	self._prices = {} :: { [number]: StoreLogic.Price }
 	self._ownedIds = {} :: { [number]: boolean }
 	self._actionHeight = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
@@ -656,6 +659,7 @@ function Store.closed(self: any)
 		onCodes(false)
 	end
 	self._tab = "featured"
+	self._fresh = true
 end
 
 function Store.render(self: any, rows: { StoreLogic.Row }, prices: { [number]: StoreLogic.Price })
@@ -714,7 +718,9 @@ end
 function Store._thank(self: any, rows: { StoreLogic.Row })
 	local bought, seen = StoreLogic.justBought(self._seen, rows)
 	self._seen = seen
-	if #bought == 0 or not self.frame.Visible then
+	local fresh = self._fresh
+	self._fresh = false
+	if fresh or #bought == 0 or not self.frame.Visible then
 		return
 	end
 	for _, key in bought do

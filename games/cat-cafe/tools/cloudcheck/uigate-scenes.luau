@@ -2235,29 +2235,40 @@ local SCENES = {
 		task.wait(0.05)
 		local joined = table.concat(sent, ",")
 		assert(joined == "store_tab=featured,store_tab=passes", "uigate: Store tabs reported " .. joined)
-		-- a priced card on the Passes tab, pressed twice
+		-- a priced card on the Passes tab (the List page, not Featured's hidden cards), its Buy pressed twice
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
-		local cardName = nil
-		local storeWindow = modals:FindFirstChild("Store", true)
-		assert(storeWindow, "uigate: no Store window")
-		for _, card in storeWindow:GetDescendants() do
-			local buy = card:FindFirstChild("Buy")
-			local parent = card.Parent
-			if card:IsA("Frame") and card.Visible and buy and parent and parent:IsA("GuiObject") and parent.Visible then
-				cardName = card.Name
+		local storeWindow = modals and modals:FindFirstChild("Store", true)
+		local list = storeWindow and storeWindow:FindFirstChild("List", true)
+		assert(list and list.Visible, "uigate: the Passes tab's list is not up")
+		local button = nil
+		for _, card in list:GetDescendants() do
+			local buy = card:IsA("Frame") and card.Visible and card:FindFirstChild("Buy")
+			if buy then
+				local candidates = { buy }
+				for _, piece in buy:GetDescendants() do
+					table.insert(candidates, piece)
+				end
+				for _, piece in candidates do
+					if piece:IsA("GuiButton") and piece.Interactable ~= false and piece.Active ~= false then
+						button = piece
+						break
+					end
+				end
+			end
+			if button then
 				break
 			end
 		end
-		assert(cardName, "uigate: no Store card on the Passes tab")
-		press("Store", cardName .. ".Buy")
-		press("Store", cardName .. ".Buy")
+		assert(button, "uigate: no live Buy on the Passes tab")
+		UIShim.fire(UIShim.eventOf(button, "Activated"))
+		UIShim.fire(UIShim.eventOf(button, "Activated"))
 		local buys = 0
 		for _, line in sent do
 			if string.sub(line, 1, 10) == "store_buy=" then
 				buys += 1
 			end
 		end
-		assert(buys == 1, "uigate: a buy should report once a visit, got " .. buys .. " pressing " .. tostring(cardName))
+		assert(buys == 1, "uigate: a buy should report once a visit, got " .. buys)
 		UI.close()
 		UI.open("Store")
 		task.wait(0.05)

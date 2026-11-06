@@ -7,7 +7,7 @@ Owner: growth-analyst (Monetization-Agent). Source: PR #1894 (Gameplay-Engineer)
 | session_start | join source (ad, organic or "unknown"), new or returning, tier | Split every funnel by ad vs organic. |
 | onboarding_v4 | v3's 37 steps, then first_store_open, first_pass_xp, first_pass_claim, first_camp_collect, first_equip_best, pass_level_5, tier_4, first_robux_purchase | Where new players drop; D1/D7 by step reached. |
 | store funnel "store" | steps opened, tab_viewed, buy_pressed, completed; store_cancelled; sku | Store conversion; prompt shown but not completed = store_cancelled. |
-| robux_purchase | value = Robux, sku (pass_&lt;name&gt; or product_&lt;id&gt;), day since first join, first or repeat | Revenue by item and by day; time to first purchase. |
+| robux_purchase | value = Robux, sku (`pass_<name>` or `product_<id>`), day since first join, first or repeat | Revenue by item and by day; time to first purchase. |
 | cafe_pass_level | every 5 levels | Whether the extra free rewards lift engagement. |
 | cafe_pass_bought | day of the season | When in the season players buy. |
 | jukebox_pick | track | Whether free music gets used. |

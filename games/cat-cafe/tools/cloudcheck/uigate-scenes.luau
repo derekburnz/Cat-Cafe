@@ -41,6 +41,7 @@ local function catalogLikeTheGame()
 		achievements = Catalog.achievements,
 		achievementPrizes = Catalog.achievementPrizes,
 		dailyTreat = Catalog.dailyTreat,
+		catFood = Catalog.catFood, -- #1616: the Bag's Cat food tab rows, as UIController
 	}
 end
 
@@ -1199,6 +1200,23 @@ local SCENES = {
 		local count = tuna:FindFirstChild("Count") :: TextLabel
 		assert(count.Text == "x3", "uigate: Tuna count " .. count.Text)
 		assert(list:FindFirstChild("Use", true) == nil, "uigate: the Bait tab has a Use button")
+	end },
+	-- #1616: the Bag's Cat food tab: each snack size shows its own picture, not the same star
+	{ "BagFood", function()
+		UI.update({ catFood = { small_cat_snack = 2, cat_snack = 3, big_cat_snack = 1, cat_feast = 1 } } :: any)
+		UI.open("Potions")
+		press("Potions", "FoodTab")
+		local window = UIShim.playerGui:FindFirstChild("Potions", true)
+		local list = window and window:FindFirstChild("FoodList", true)
+		assert(list and list:IsA("GuiObject") and list.Visible, "uigate: the Bag's Cat food list is not up")
+		local seen: { [string]: boolean } = {}
+		for _, id in { "small_cat_snack", "cat_snack", "big_cat_snack", "cat_feast" } do
+			local row = list:FindFirstChild(id)
+			local glyph = row and row:FindFirstChild("Glyph", true) :: TextLabel?
+			assert(glyph, "uigate: no " .. id .. " row on the Cat food tab")
+			assert(not seen[glyph.Text], "uigate: two snacks share the picture " .. glyph.Text .. " (#1616)")
+			seen[glyph.Text] = true
+		end
 	end },
 	{ "Quests", function()
 		UI.open("Quests")

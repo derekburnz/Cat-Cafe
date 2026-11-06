@@ -185,7 +185,7 @@ function CampExtrasLogic.remoteCollect(line: Line?, owner: boolean): boolean
 	return owner and line ~= nil and line.extraId == CampExtrasLogic.POND and line.ready
 end
 
-CampExtrasLogic.BANG_EXTRAS = { "picnic", "yardSale", "pond" }
+CampExtrasLogic.BANG_EXTRAS = { "picnic", "yardSale", "pond", "lostFound" } -- lostFound: #1733
 CampExtrasLogic.BANG_RANGE = 150 -- studs, camp-stations.md section 5 (ReadyBangRange)
 
 -- #1614 (Derek2 11-05: "when in the area with the stations example fish pond to always have a bubble up for whatever

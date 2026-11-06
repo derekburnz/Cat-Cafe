@@ -90,6 +90,19 @@ return function()
 		end)
 	end)
 
+	describe("DecorPieces.byRarity (#1751)", function()
+		it("puts the highest rarity first, catalog order within a rarity, coin decor last", function()
+			local ids = {}
+			for _, def in DecorPieces.byRarity(DECOR) do
+				table.insert(ids, def.id)
+			end
+			expect(table.concat(ids, ",")).to.equal("sky,jukebox,lights,brick,stools,oak,plant")
+			expect(DecorPieces.rarityRank(DECOR[3])).to.equal(1)
+			expect(DecorPieces.rarityRank(DECOR[1])).to.equal(0)
+			expect(DECOR[1].id).to.equal("plant") -- the list passed in keeps its order
+		end)
+	end)
+
 	describe("DecorPieces pages", function()
 		it("maps pools and Decor Index area ids", function()
 			expect(DecorPieces.areaOf("alley")).to.equal("decor_alley")

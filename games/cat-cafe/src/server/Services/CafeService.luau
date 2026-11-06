@@ -43,6 +43,7 @@ local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Quests = require(ReplicatedStorage.Shared.Quests)
 local SellExtras = require(ReplicatedStorage.Shared.SellExtras)
 local Settings = require(ReplicatedStorage.Shared.Settings)
+local ShortNumber = require(ReplicatedStorage.Shared.ShortNumber)
 local SignStyles = require(ReplicatedStorage.Shared.SignStyles)
 local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
 local Telemetry = require(script.Parent.Telemetry)
@@ -1970,7 +1971,12 @@ local function onClaimOffline(player: Player)
 		else "60+"
 	Telemetry.custom(player, "offline_claim", amount, { away })
 	Telemetry.onboarding(player, profile, "first_offline_claim")
-	Net.toast(player, string.format("Welcome back! +$%d while you were away", amount), "good")
+	-- #1814: short like the HUD's counter ("+$3.42M"), not every digit
+	Net.toast(
+		player,
+		string.format("Welcome back! +$%s while you were away", ShortNumber.format(amount)),
+		"good"
+	)
 	CafeService.sync(player)
 end
 

@@ -21,6 +21,7 @@ local Clock = require(Shared:WaitForChild("Clock"))
 local Config = require(Shared:WaitForChild("Config"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
 local Effects = require(script.Parent.Parent.Effects)
+local Jukebox = require(Shared:WaitForChild("Jukebox"))
 local Luck = require(Shared:WaitForChild("Luck"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
@@ -601,6 +602,8 @@ local function applyState(s: Types.PlayerState)
 	end
 	Audio.setCarrying(s.carrying ~= nil)
 	Audio.setTutorial(s.tutorialStep, setting("tutorialButton") ~= false)
+	local track = if s.jukebox ~= nil then Jukebox.get(s.jukebox) else nil
+	Audio.setJukebox(if track ~= nil then track.cue else nil) -- #1168: the Jukebox Pass pick
 	if lastTier ~= nil and s.tier > (lastTier :: number) then
 		Moments.RankUp:Fire(s.tier)
 	end

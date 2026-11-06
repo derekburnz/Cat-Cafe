@@ -600,8 +600,170 @@ def tutorial(tmp: Path) -> np.ndarray:
                   "kit": (kit, -36, 0.1)}, 501, tmp)
 
 
+# --- the Jukebox Pass songs (#1168 row 2, 2026-11-06) ----------------------------------------------------------
+# Four extra cafe songs a pass owner can pick in place of the day and night rotation. Each is 16 bars (a four bar
+# round, four times: bare, the tune, a second voice, the tune again) and loops on its own. They share one upload,
+# the Jukebox sheet (the month's audio uploads are limited), see JUKEBOX below.
+
+
+def rain(s: Song, stem: np.ndarray, bars: int, gain: float, seed: int) -> None:
+    """Soft rain: a bed of tiny high ticks, random in time and weight, placed with the song's own wrap-around."""
+    rng = np.random.default_rng(seed)
+    for bar in range(bars):
+        for k in range(16):
+            if rng.random() < 0.7:
+                s.put(stem, noise_hit(seed + bar * 16 + k, 0.05, 3500, 10000, 0.001, 0.012), bar, k * s.meter / 16,
+                      pan=float(rng.uniform(-0.8, 0.8)), gain=gain * float(rng.uniform(0.3, 1.0)), loose=0)
+
+
+def jukebox_rainy_window(tmp: Path) -> np.ndarray:
+    """Rainy Window: A minor, 64 BPM. Electric piano and a slow bass under soft rain; a music box tune; a
+    vibraphone answers an octave up; the music box again."""
+    s = Song(64, 4, seed=71, bars=16)
+    bars = [("A1", "E2", "E4 G4 B4 C5"), ("F1", "C2", "A3 C4 E4 G4"), ("C2", "G2", "E4 G4 B4 D5"),
+            ("G1", "D2", "B3 D4 E4 G4")]
+    tune = melody("0 0 2 E5; 0 2 1 D5; 0 3 1 C5; 1 0 3 A4; 1 3 1 C5; 2 0 2 E5; 2 2 1 G5; 2 3 1 E5; 3 0 4 D5")
+    keys, bass, lead, pad, drops = s.stem(), s.stem(), s.stem(), s.stem(), s.stem()
+    for bar in range(16):
+        root, fifth, voicing = bars[bar % 4]
+        section = bar // 4
+        notes = chord(voicing)
+        for i, f in enumerate(notes):
+            s.put(keys, epiano(2.6, f, 0.5), bar, 0.04 * i, pan=-0.3 + 0.2 * i, loose=0.006)
+        s.put(keys, epiano(1.2, notes[2], 0.3), bar, 2.5, pan=0.1, loose=0.006)
+        s.put(bass, upright(2.0, note(root), 0.8), bar, 0.0)
+        s.put(bass, upright(1.2, note(fifth), 0.6), bar, 2.0)
+        s.put(pad, strings(4 * s.beat, [f / 2 for f in notes[:3]], 700 + bar), bar, 0.0, loose=0)
+        if section in (1, 3):
+            for b, beat, length, f in tune:
+                if b == bar % 4:
+                    s.put(lead, music_box(f * 2) * 0.9, bar, beat, pan=0.2)
+        if section == 2:
+            for b, beat, length, f in tune:
+                if b == bar % 4:
+                    s.put(lead, vibraphone(length * s.beat, f * 2), bar, beat, pan=-0.1)
+    rain(s, drops, 16, 0.5, 7100)
+    return blend({"lead": (lead, -21, 0.35), "keys": (keys, -23, 0.3), "bass": (bass, -27, 0.05),
+                  "pad": (pad, -30, 0.4), "drops": (drops, -36, 0.5)}, 701, tmp)
+
+
+def jukebox_catnap_waltz(tmp: Path) -> np.ndarray:
+    """Catnap Waltz: D major, 84 BPM in 3/4. A harp rocks the chord, strings hold it, a celesta sings the tune
+    and a flute takes it over for the third round."""
+    s = Song(84, 3, seed=72, bars=16)
+    bars = [("D2", "A2", "F#4 A4 D5"), ("B1", "F#2", "F#4 B4 D5"), ("G1", "D2", "G4 B4 D5"),
+            ("A1", "E2", "E4 A4 C#5")]
+    tune = melody("0 0 1.5 A5; 0 1.5 0.5 F#5; 0 2 1 D5; 1 0 2 D5; 1 2 1 F#5; 2 0 1.5 G5; 2 1.5 0.5 F#5; 2 2 1 E5;"
+                  "3 0 2 E5; 3 2 1 C#5")
+    harp, bass, lead, pad = s.stem(), s.stem(), s.stem(), s.stem()
+    for bar in range(16):
+        root, fifth, voicing = bars[bar % 4]
+        section = bar // 4
+        notes = chord(voicing)
+        s.put(bass, upright(1.6, note(root), 0.8), bar, 0.0)
+        for beat in (1, 2):  # the waltz: bass on one, the chord on two and three
+            for i, f in enumerate(notes):
+                s.put(harp, pluck(0.9, f, bar * 12 + beat * 3 + i, bright=0.3, ring=1.6), bar, beat + 0.04 * i,
+                      pan=-0.3 + 0.3 * i, gain=0.6)
+        s.put(pad, strings(3 * s.beat, [f / 2 for f in notes], 720 + bar), bar, 0.0, loose=0)
+        for b, beat, length, f in tune:
+            if b == bar % 4:
+                if section in (1, 3):
+                    s.put(lead, music_box(f * 2) * 0.85, bar, beat, pan=0.15)
+                elif section == 2:
+                    s.put(lead, flute(length * s.beat, f, bar * 5 + int(beat * 2)), bar, beat, pan=0.1)
+    return blend({"lead": (lead, -21, 0.35), "harp": (harp, -24, 0.3), "bass": (bass, -27, 0.05),
+                  "pad": (pad, -30, 0.4)}, 702, tmp)
+
+
+def jukebox_bakery_bounce(tmp: Path) -> np.ndarray:
+    """Bakery Bounce: G major, 108 BPM, lightly swung. Piano stabs, a walking bass and brushes; a marimba tune
+    hops over the top, a guitar joins for the third round."""
+    s = Song(108, 4, seed=73, swing=0.07, bars=16)
+    bars = [("G2", "D3", "B2", "B3 D4 G4"), ("E2", "B2", "F#2", "B3 E4 G4"), ("C3", "G2", "A2", "C4 E4 G4"),
+            ("D3", "A2", "F#2", "A3 D4 F#4")]
+    tune = melody("0 0 0.5 G5; 0 0.5 0.5 B5; 0 1 1 D6; 0 2 1 B5; 0 3 1 G5; 1 0 1 E5; 1 1 0.5 G5; 1 1.5 0.5 B5;"
+                  "1 2 2 G5; 2 0 0.5 E5; 2 0.5 0.5 G5; 2 1 1 C6; 2 2 1 B5; 2 3 1 G5; 3 0 1 F#5; 3 1 1 A5; 3 2 2 D5")
+    keys, bass, lead, guitar, kit = s.stem(), s.stem(), s.stem(), s.stem(), s.stem()
+    for bar in range(16):
+        root, fifth, lead_in, voicing = bars[bar % 4]
+        section = bar // 4
+        notes = chord(voicing)
+        for beat in (0.0, 1.5, 2.5):  # short stabs on the off beats
+            for i, f in enumerate(notes):
+                s.put(keys, epiano(0.5, f, 0.6), bar, beat, pan=-0.3 + 0.2 * i, loose=0.004)
+        s.put(bass, upright(0.8, note(root), 1.0), bar, 0.0)
+        s.put(bass, upright(0.6, note(fifth), 0.7), bar, 1.0)
+        s.put(bass, upright(0.8, note(root), 0.9), bar, 2.0)
+        s.put(bass, upright(0.4, note(lead_in), 0.6), bar, 3.0)
+        for beat in range(4):
+            s.put(kit, noise_hit(bar * 8 + beat, 0.3, 2500, 9000, 0.02, 0.07), bar, beat, pan=0.2, gain=0.5)
+            if beat in (1, 3):
+                s.put(kit, rim(bar * 4 + beat), bar, beat, pan=-0.2, gain=0.5)
+        if section > 0:
+            s.put(kit, kick(), bar, 0.0, gain=0.7)
+            s.put(kit, kick(), bar, 2.0, gain=0.5)
+        if section in (1, 3):
+            for b, beat, length, f in tune:
+                if b == bar % 4:
+                    s.put(lead, marimba(f, 0.8), bar, beat, pan=0.12)
+        if section == 2:
+            for k, i in enumerate((0, 1, 2, 1, 0, 1, 2, 1)):
+                s.put(guitar, pluck(0.5, notes[i] * 2, bar * 8 + k, bright=0.4, ring=1.4), bar, k * 0.5,
+                      pan=0.4 - 0.1 * (k % 2))
+        if bar % 4 == 3:
+            for k, name in enumerate(("D6", "G6")):
+                s.put(lead, glock(note(name)) * 0.3, bar, 3.0 + 0.5 * k, pan=0.3)
+    return blend({"lead": (lead, -20, 0.25), "keys": (keys, -24, 0.25), "bass": (bass, -25, 0.05),
+                  "guitar": (guitar, -23, 0.25), "kit": (kit, -33, 0.15)}, 703, tmp)
+
+
+def jukebox_starlight_purr(tmp: Path) -> np.ndarray:
+    """Starlight Purr: F major, 66 BPM. Wide strings, a vibraphone arpeggio, glockenspiel stars and, very low
+    down, a cat's purr; a flute sings the tune in the third round."""
+    s = Song(66, 4, seed=74, bars=16)
+    bars = [("F1", "C2", "A3 C4 E4", "C5 E5 A5 E5"), ("D2", "A2", "C4 F4 A4", "A4 C5 F5 C5"),
+            ("Bb1", "F2", "D4 F4 A4", "F4 A4 D5 A4"), ("C2", "G2", "D4 E4 G4", "G4 C5 E5 C5")]
+    tune = melody("0 0 3 C5; 0 3 1 D5; 1 0 2 A4; 1 2 2 C5; 2 0 3 D5; 2 3 1 F5; 3 0 4 E5")
+    vib, bass, lead, pad, stars, purr = s.stem(), s.stem(), s.stem(), s.stem(), s.stem(), s.stem()
+    rng = np.random.default_rng(7400)
+    scale = ("C6", "D6", "E6", "F6", "G6", "A6")
+    for bar in range(16):
+        root, fifth, voicing, arp = bars[bar % 4]
+        section = bar // 4
+        notes = chord(voicing)
+        s.put(pad, strings(4 * s.beat, [f / 2 for f in notes] + [f for f in notes[:1]], 740 + bar), bar, 0.0,
+              loose=0)
+        s.put(bass, upright(3.0, note(root), 0.7), bar, 0.0)
+        for k, name in enumerate(arp.split()):
+            s.put(vib, vibraphone(0.9 * s.beat, note(name)), bar, k * 1.0, pan=-0.2 + 0.15 * k, gain=0.7)
+        if section in (1, 3):
+            for b, beat, length, f in tune:
+                if b == bar % 4:
+                    s.put(lead, music_box(f * 2) * 0.85, bar, beat, pan=0.2)
+        if section == 2:
+            for b, beat, length, f in tune:
+                if b == bar % 4:
+                    s.put(lead, flute(length * s.beat, f, bar * 5 + int(beat * 2)), bar, beat, pan=0.1)
+        for k in range(2):  # a star or two twinkles each bar
+            if rng.random() < 0.7:
+                s.put(stars, glock(note(scale[int(rng.integers(len(scale)))])) * 0.25, bar,
+                      float(rng.choice([1.5, 2.5, 3.5])) + 0.5 * k * 0, pan=float(rng.uniform(-0.6, 0.6)))
+    length = s.n / SR
+    cycles = round(25 * length)  # a whole number of purr cycles, so the loop has no seam
+    t = np.arange(s.n) / SR
+    rumble = lowpass(np.random.default_rng(7401).standard_normal(s.n), 160)
+    purr_wave = rumble * (0.55 + 0.45 * np.sin(2 * np.pi * cycles / length * t))
+    purr[:, 0] = purr_wave
+    purr[:, 1] = purr_wave
+    return blend({"lead": (lead, -21, 0.4), "vib": (vib, -23, 0.4), "bass": (bass, -27, 0.05),
+                  "pad": (pad, -28, 0.45), "stars": (stars, -32, 0.5), "purr": (purr, -34, 0.0)}, 704, tmp)
+
+
 SONGS = {"DayA": day_a, "DayB": day_b, "NightA": night_a, "DayC": day_c, "DayD": day_d, "NightB": night_b,
-         "Tutorial": tutorial}
+         "Tutorial": tutorial, "JukeboxRainyWindow": jukebox_rainy_window,
+         "JukeboxCatnapWaltz": jukebox_catnap_waltz, "JukeboxBakeryBounce": jukebox_bakery_bounce,
+         "JukeboxStarlightPurr": jukebox_starlight_purr}
 
 # The music sheet (#980, 2026-11-03). Audio uploads were used up (100 a month until an account is ID verified), so the
 # three songs Derek approved on 2026-11-03 share one upload: each renders on its own to sheet-parts/music/ (gated
@@ -609,24 +771,27 @@ SONGS = {"DayA": day_a, "DayB": day_b, "NightA": night_a, "DayC": day_c, "DayD":
 # of silence between. Each song's cue plays its own region of it (`sheet` and `region` in Cues.luau; this script
 # prints the regions whenever a song changes). Roblox's limits for one audio file: under 20 MB and 7 minutes.
 SHEET = ("DayC", "DayD", "NightB")
+# The Jukebox Pass songs (#1168 row 2) share one upload the same way: sheets/CatCafe_Sheet_MusicJukebox.ogg (named Music* so the audio gate treats it as a music sheet).
+JUKEBOX = ("JukeboxRainyWindow", "JukeboxCatnapWaltz", "JukeboxBakeryBounce", "JukeboxStarlightPurr")
 SHEET_GAP = 0.5
 
 
-def write_sheet(rendered: dict[str, np.ndarray], tmp: Path) -> None:
+def write_sheet(rendered: dict[str, np.ndarray], tmp: Path, names: tuple[str, ...] = SHEET,
+                sheet_name: str = "Music", cue: str = "sheetMusic") -> None:
     """Joins the sheet's songs (building any not rendered in this run) and prints each one's region."""
     gap = np.zeros((int(SHEET_GAP * SR), 2))
     pieces: list[np.ndarray] = []
     at = 0
     print("music: regions for Cues.luau:")
-    for name in SHEET:
+    for name in names:
         x = rendered[name] if name in rendered else SONGS[name](tmp)
-        print(f"    music{name} = {{ sheet = \"sheetMusic\", region = {{ {at / SR:.3f}, {(at + len(x)) / SR:.3f} }}, "
+        print(f"    music{name} = {{ sheet = \"{cue}\", region = {{ {at / SR:.3f}, {(at + len(x)) / SR:.3f} }}, "
               f"seconds = {len(x) / SR:.3f} }}")
         pieces += [x, gap]
         at += len(x) + len(gap)
-    wav = tmp / "Sheet_Music.wav"
+    wav = tmp / f"Sheet_{sheet_name}.wav"
     write_wav(wav, np.concatenate(pieces[:-1]))
-    out = ROOT / "sheets" / "CatCafe_Sheet_Music.ogg"
+    out = ROOT / "sheets" / f"CatCafe_Sheet_{sheet_name}.ogg"
     encode(wav, out, ["-c:a", "libvorbis", "-q:a", "5"])
     size = out.stat().st_size / 1e6
     print(f"music: {out.relative_to(ROOT.parents[2]).as_posix()}  {at / SR - SHEET_GAP:.1f} s, {size:.1f} MB")
@@ -672,12 +837,14 @@ def main() -> int:
             rendered[name] = x
             wav = tmp / f"{name}.wav"
             write_wav(wav, x)
-            folder = "sheet-parts/music" if name in SHEET else "music"
+            folder = "sheet-parts/music" if name in SHEET or name in JUKEBOX else "music"
             out = ROOT / folder / f"CatCafe_Music_{name}.ogg"
             encode(wav, out, ["-c:a", "libvorbis", "-q:a", "5"])
             print(f"music: {out.relative_to(ROOT.parents[2]).as_posix()}  {len(x) / SR:.1f} s")
         if any(name in rendered for name in SHEET):
             write_sheet(rendered, tmp)
+        if any(name in rendered for name in JUKEBOX):
+            write_sheet(rendered, tmp, JUKEBOX, "MusicJukebox", "sheetMusicJukebox")
         if args.preview:
             folder = Path(args.preview)
             folder.mkdir(parents=True, exist_ok=True)

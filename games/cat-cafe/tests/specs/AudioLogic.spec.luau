@@ -996,6 +996,24 @@ return function()
 			expect(Cues.shiftChime ~= nil and Cues.shiftChime.volume <= 0.35).to.equal(true)
 		end)
 
+		it("plays a Jukebox Pass pick in place of the rotation once its cue has a file", function()
+			local function has(cueId: string): boolean
+				return cueId == "musicJukeboxRainyWindow"
+			end
+			expect(Logic.jukeboxSong("musicJukeboxRainyWindow", has)).to.equal("musicJukeboxRainyWindow")
+			expect(Logic.jukeboxSong("musicJukeboxCatnapWaltz", has)).to.equal(nil)
+			expect(Logic.jukeboxSong(nil, has)).to.equal(nil)
+			-- the picks stay out of the day and night rotation, and every Jukebox track has a cue
+			local Jukebox = require(game:GetService("ReplicatedStorage").Shared.Jukebox)
+			for _, track in Jukebox.TRACKS do
+				local cue = Cues[track.cue]
+				expect(cue ~= nil and cue.looped == true and cue.group == "Music").to.equal(true)
+				expect(table.find(Logic.songsFor("day", function()
+					return true
+				end), track.cue)).to.equal(nil)
+			end
+		end)
+
 		it("plays the tutorial song through the first steps while the Tutorial tile is on", function()
 			expect(Logic.tutorialSteps(0, 5, true)).to.equal(true)
 			expect(Logic.tutorialSteps(4, 5, true)).to.equal(true)

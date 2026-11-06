@@ -755,6 +755,13 @@ local SCENES = {
 		bindLawnPlot()
 		UI.open("Decor")
 		press("Decor", "FrontLawn")
+		-- #1729: the big-spot Garden Bench has the small "Big spot" tag, the small-spot Tulip Bed none
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local lawn = modals and modals:FindFirstChild("Lawn", true)
+		local bench = lawn and lawn:FindFirstChild("garden_bench", true)
+		local tulips = lawn and lawn:FindFirstChild("tulip_bed", true)
+		assert(bench and bench:FindFirstChild("BigSpot"), "uigate: the Garden Bench card has no Big spot tag (#1729)")
+		assert(tulips and tulips:FindFirstChild("BigSpot") == nil, "uigate: the Tulip Bed card has a Big spot tag (#1729)")
 	end },
 	-- #1624: the Style tab, the cafe sign (Royal Crest in use) and the uniforms once the server sends looks
 	{ "DecorStyle", function()
@@ -1838,7 +1845,8 @@ local SCENES = {
 	{ "HUDStore", function()
 		UI.store.preview(storePrices(true), {})
 	end },
-	-- #1606: the money pass badge beside the money: "Get 2x" with no money pass and the 2x on sale, "3x" once owned
+	-- #1606: the money pass badge beside the money: the rainbow "X2 Cash / Only R$5" (#1759) with no money pass and the
+	-- 2x on sale, "3x" once owned
 	{ "HUDMoneyBadge", function()
 		UI.store.preview(storePrices(true), {})
 	end },

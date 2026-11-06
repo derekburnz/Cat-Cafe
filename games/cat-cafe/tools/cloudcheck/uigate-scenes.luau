@@ -1517,6 +1517,27 @@ local SCENES = {
 		player.tutorialStep = 5
 		UI.update(player)
 	end },
+	-- #1796: tutorial step 3 asks for a table: the HUD's Upgrades tile and the table row in Upgrades glow; step 4 moves
+	-- the glow to the Bait bowl row
+	{ "TutorialUpgradeGlow", function()
+		local levels = { tables = 0, lure_bowl = 0, espresso = 0, net = 0, lucky_cat = 0 }
+		UI.update({ tutorialStep = 3, tier = 1, upgradeLevels = levels } :: any)
+		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local tile = hud and hud:FindFirstChild("Upgrades", true)
+		assert(tile and tile:FindFirstChild("TutorialGlow"), "uigate: the Upgrades tile does not glow at step 3 (#1796)")
+		UI.open("Upgrades")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Upgrades", true)
+		local tables = window and window:FindFirstChild("tables", true)
+		local bowl = window and window:FindFirstChild("lure_bowl", true)
+		assert(tables and tables:FindFirstChild("TutorialGlow"), "uigate: the table row does not glow at step 3 (#1796)")
+		assert(bowl and bowl:FindFirstChild("TutorialGlow") == nil, "uigate: the Bait bowl row glows at step 3 (#1796)")
+		UI.update({ tutorialStep = 4 } :: any)
+		assert(tables:FindFirstChild("TutorialGlow") == nil, "uigate: the table row still glows at step 4 (#1796)")
+		assert(bowl:FindFirstChild("TutorialGlow"), "uigate: the Bait bowl row does not glow at step 4 (#1796)")
+		task.wait(0.1) -- the list scrolls the Bait bowl row into view
+	end },
 	-- F87 section 2g: "Need a hand?" after 90 s on one tutorial step
 	{ "HelpCard", function()
 		UI.tutorial.showHelp()
@@ -1947,6 +1968,20 @@ local SCENES = {
 		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[2]] = true, [Config.LongNapPassId] = true })
 		UI.open("Store")
 		assertStoreCards(true)
+	end },
+	-- #1823 (store-layout-v2.md §4): an owned pass keeps its card, greyed, with "✓ Yours" where the price was
+	{ "StoreYours", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[2]] = true, [Config.LongNapPassId] = true })
+		UI.open("Store")
+		press("Store", "passes")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("grid:longNap", true)
+		assert(card, "uigate: no Long Nap card on the Passes tab (#1823)")
+		local owned = card:FindFirstChild("Owned") :: TextLabel
+		local dim = card:FindFirstChild("Dim") :: Frame
+		assert(owned and owned.Visible and owned.Text == "✓ Yours", "uigate: the owned Long Nap does not say Yours (#1823)")
+		assert(dim and dim.Visible, "uigate: the owned Long Nap is not greyed (#1823)")
 	end },
 	-- the passes off sale (as on live until launch): every card says Soon
 	{ "StoreSoon", function()

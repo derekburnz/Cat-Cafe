@@ -3400,6 +3400,7 @@ local PASS_DECOR: {
 		description: string,
 		asset: string?,
 		pack: string?,
+		passKey: string?,
 	}
 } =
 	{
@@ -3447,6 +3448,57 @@ local PASS_DECOR: {
 			asset = "CatCafe_Decor_VelvetBooth",
 			pack = "King Cat Pack",
 		},
+		-- #1168 row 3 (Monetization-Agent, 2026-11-06): the Garden Decor Pack pass's six pieces, owned while the pass
+		-- is (PassDecor.toGrant, given into decorOwned by ShopCatService). Model-Agent makes the models; the pass id
+		-- stays 0 until they are in.
+		{
+			id = "decor_garden_hanging_fern",
+			name = "Hanging Fern Basket",
+			kind = "decoration",
+			description = "A leafy fern spilling from a woven basket.",
+			pack = "Garden Decor Pack",
+			passKey = "GardenDecorPackPassId",
+		},
+		{
+			id = "decor_garden_sunflower_pot",
+			name = "Sunflower Pot",
+			kind = "decoration",
+			description = "Three tall sunflowers in a sunny pot.",
+			pack = "Garden Decor Pack",
+			passKey = "GardenDecorPackPassId",
+		},
+		{
+			id = "decor_garden_watering_can",
+			name = "Watering Can Planter",
+			kind = "decoration",
+			description = "An old tin can, now full of daisies.",
+			pack = "Garden Decor Pack",
+			passKey = "GardenDecorPackPassId",
+		},
+		{
+			id = "decor_garden_lemon_tree",
+			name = "Potted Lemon Tree",
+			kind = "decoration",
+			description = "A little tree with bright lemons.",
+			pack = "Garden Decor Pack",
+			passKey = "GardenDecorPackPassId",
+		},
+		{
+			id = "decor_garden_ivy_trellis",
+			name = "Ivy Trellis",
+			kind = "furniture",
+			description = "A wooden trellis climbing with ivy.",
+			pack = "Garden Decor Pack",
+			passKey = "GardenDecorPackPassId",
+		},
+		{
+			id = "decor_garden_bench",
+			name = "Garden Swing Seat",
+			kind = "furniture",
+			description = "A cosy swing seat wrapped in flowers.",
+			pack = "Garden Decor Pack",
+			passKey = "GardenDecorPackPassId",
+		},
 	}
 Catalog.passDecor = {} :: { Types.DecorDef }
 for _, row in PASS_DECOR do
@@ -3462,6 +3514,7 @@ for _, row in PASS_DECOR do
 		source = "pass",
 		kind = row.kind,
 		pack = row.pack,
+		passKey = row.passKey,
 	}
 	Catalog.decorById[row.id] = def
 	table.insert(Catalog.passDecor, def)
@@ -3817,6 +3870,12 @@ Catalog.products = {
 		id = "potion_pack_l",
 		name = "Potion Pack L",
 		prize = { potions = { big_tip_potion = 10, swift_potion = 6, steady_potion = 6 } },
+	},
+	-- #1168 row 8 (Monetization-Agent, 2026-11-06): R$25, repeatable, 10 Steady Paw potions (easier catch circles only)
+	{
+		id = "steady_paw_pack",
+		name = "Steady Paw Pack",
+		prize = { potions = { steady_potion = 10 } },
 	},
 	-- #1625 (store-skus.md): R$99, once per account. Sprinkles, 10 Big Money, 5 Swift and the Bakery Stripes sign.
 	{

@@ -106,7 +106,7 @@ local ProfileSchema = {}
 -- and gotDecor. An older server drops them, which only locks those pieces again and shortens old log entries.
 -- Version 35 (#1625) adds onceBought, signStyles and signStyle, the Starter Bundle's once-per-account mark and the
 -- sign styles: an older server would drop them, losing the Bakery Stripes sign and letting the bundle be bought as new.
--- #1168 row 2 (no new version): jukebox, the Jukebox Pass track pick. An older server drops it, which only plays the
+-- #1168 row 2 (no new version): jukebox, the Jukebox track pick (free since #1875). An older server drops it, which only plays the
 -- normal rotation until the player picks again.
 -- #1842 (no new version): storeSeen, the Store tab versions last opened. An older server drops it, which only shows the
 -- tabs' "New" dots again.

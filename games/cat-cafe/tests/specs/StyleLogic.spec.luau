@@ -99,7 +99,7 @@ return function()
 			expect(StyleLogic.name("x", { x = "Named" })).to.equal("Named")
 		end)
 
-		it("adds a Cafe music row for a Jukebox Pass owner, last, the mix first (#1168)", function()
+		it("adds a Cafe music row with the songs the server sends, last, the mix first (#1875)", function()
 			local tracks = { "jukebox_rainy_window", "jukebox_catnap_waltz" }
 			local rows = StyleLogic.rows({ signStyles = { "bakery_stripes" }, jukeboxTracks = tracks })
 			expect(#rows).to.equal(2)

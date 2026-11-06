@@ -207,7 +207,6 @@ local IDS: { [string]: string } = {
 	-- #1168 cards (Tools-Agent 11-06; store-icon-asset-ids-2026-11-06.md)
 	Icon_Store_SteadyPaw = "rbxassetid://80888086047548",
 	Icon_Store_ThankYou = "rbxassetid://132722097256875",
-	Icon_Store_Jukebox = "rbxassetid://84493998133754",
 	Icon_Store_SignStylePack = "rbxassetid://82755598634285",
 	Icon_Store_GardenDecor = "rbxassetid://76257173019480",
 }

@@ -521,4 +521,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 - 2026-11-06 (overnight, under Derek2's go-ahead): The Spin window is tidied with no prize changes. It has two columns, and the right one holds only the title, the spin count, Spin, a small "Use all" and a small "Odds". All 8 slices get equal pills with short amounts, crate slices show real crate art, and a win turns the pill gold instead of putting a ring on the picture. Spec in rewards-and-shops.md §2b v3. Why: Derek2's ask on #1816.
 
+- 2026-11-06: The four Jukebox songs (Rainy Window, Catnap Waltz, Bakery Bounce, Starlight Purr) are free for every player. The Jukebox Pass (2075072428) stays off sale and is never sold; Config.JukeboxPassId stays so earlier buyers see no errors, and their saved picks keep working with no save change. Why: Derek2 chose to make the music free (#1875).
+
 - 2026-11-06: The design docs no longer describe the Bubble Machine or the Cafe Fireworks. corner-shop.md drops their rows, the show remote and their QA check, and the Corner Shop cat's bubble now reads "Snacks and potions!". The code and models were already clean. Why: Derek2's ask in #1483.

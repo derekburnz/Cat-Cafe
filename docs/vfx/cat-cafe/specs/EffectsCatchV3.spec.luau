@@ -15,6 +15,7 @@ return function()
 			expect(Logic.gradeName(0.5)).to.equal("good")
 			expect(Logic.gradeName("miss")).to.equal("miss")
 			expect(Logic.gradeName(0)).to.equal("miss")
+			expect(Logic.gradeName("left")).to.equal("left")
 			expect(Logic.gradeName("odd") == nil).to.equal(true)
 		end)
 
@@ -26,6 +27,15 @@ return function()
 					"purrfect"
 				)
 				expect(Logic.catchFinish(true, 0, { finish = "nice" })).to.equal("nice")
+				-- Gameplay's #1884 PR 1: the sixth argument, after retryAt
+				expect(
+					Logic.catchFinish(
+						true,
+						0,
+						nil,
+						{ trust = 8, trustNeed = 8, finish = "great", streak = 0 }
+					)
+				).to.equal("great")
 				expect(Logic.catchFinish(false, 0, nil, { finish = "bolt" }) == nil).to.equal(true)
 				expect(Logic.catchFinish(true, 0, nil) == nil).to.equal(true)
 			end
@@ -34,7 +44,7 @@ return function()
 		it("keeps the hit-stop short and every grade's pop small", function()
 			local j = Presets.catchJudge
 			expect(j.hitStop > 0 and j.hitStop <= 0.1).to.equal(true)
-			for _, name in { "perfect", "good", "miss" } do
+			for _, name in { "perfect", "good", "miss", "left" } do
 				local g = j.grades[name]
 				expect(g ~= nil and g.colour ~= nil).to.equal(true)
 				expect(g.sparkles + g.puff <= 8).to.equal(true)

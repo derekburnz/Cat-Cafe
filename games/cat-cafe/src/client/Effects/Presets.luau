@@ -2506,6 +2506,7 @@ Presets.catchJudge = {
 		perfect = { colour = Presets.palette.golden, sparkles = 6, ring = 1.8, puff = 0 },
 		good = { colour = Presets.palette.mint, sparkles = 3, ring = 1.4, puff = 0 },
 		miss = { colour = Presets.palette.furGrey, sparkles = 0, ring = 1.2, puff = 2 },
+		left = { colour = Presets.palette.mint, sparkles = 2, ring = 1.2, puff = 0 }, -- a paw ring rightly left alone
 	} :: { [string]: { colour: Color3, sparkles: number, ring: number, puff: number } },
 }
 

@@ -2204,7 +2204,7 @@ end
 
 -- Catch v3 (#1884, catch-rework.md section 7) ------------------------------------------------------------------
 
--- A grade's name: "perfect", "good" or "miss", whether the server sent the word or the old number (1, 0.5, 0).
+-- A grade's name: "perfect", "good", "miss" or v3's "left" (a paw ring left alone), whether the server sent the word or the old number (1, 0.5, 0).
 function Logic.gradeName(grade: unknown): string?
 	if grade == "perfect" or grade == 1 then
 		return "perfect"
@@ -2212,6 +2212,8 @@ function Logic.gradeName(grade: unknown): string?
 		return "good"
 	elseif grade == "miss" or grade == 0 then
 		return "miss"
+	elseif grade == "left" then
+		return "left" -- v3: a paw ring left alone (+1 trust)
 	end
 	return nil
 end

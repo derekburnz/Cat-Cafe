@@ -11,6 +11,7 @@ local DailyTreat = require(script.Parent.DailyTreat)
 local EquipBest = require(script.Parent.EquipBest)
 local FreshCatch = require(script.Parent.FreshCatch)
 local Lawn = require(script.Parent.Lawn)
+local Looks = require(script.Parent.Looks)
 local Onboarding = require(script.Parent.Onboarding)
 local Products = require(script.Parent.Products)
 local Rally = require(script.Parent.Rally)
@@ -107,7 +108,9 @@ local ProfileSchema = {}
 -- server would drop it, losing the XP and letting a reward be claimed twice by hopping servers during a rollout.
 -- Version 37 (#1537, lawn-nursery.md section 7) adds yardDecor, the Yard Sale's lawn rows bought this global game
 -- day: an older server would drop it, letting the player buy the same row again by hopping servers during a rollout.
-ProfileSchema.VERSION = 37
+-- Version 38 (#1624, store-pass-looks.md) adds looks, the cafe theme and uniform picks: an older server would drop them,
+-- showing Classic until the player picks again.
+ProfileSchema.VERSION = 38
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -278,6 +281,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		signStyles = {},
 		signStyle = nil,
 		pass = CafePass.fresh(0),
+		looks = {},
 	}
 end
 
@@ -932,6 +936,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.signStyle = SignStyles.sanitizePick(raw.signStyle)
 	-- #1645 (version 36): the Cafe Pass; saves before it start at season 0 with nothing (CafePassService rolls it on)
 	profile.pass = CafePass.sanitize(raw.pass)
+	-- #1624 (version 38): the theme and uniform picks, known ids only; saves before it show Classic
+	profile.looks = Looks.sanitize(raw.looks)
 	-- #1181 (version 32): the Bag's cat food, known foods only, whole counts of 1 to CatFoodMax
 	if type(raw.catFood) == "table" then
 		for _, food in Catalog.catFood do

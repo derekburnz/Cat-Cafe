@@ -1432,11 +1432,7 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	self._detailEmpty.Visible = instance == nil
 	if not instance then
 		self._detailEmpty.Text = self._notice
-			or (
-				if next(cats) == nil
-					then "Cats you catch rest here. Put them to work in your crew above to earn."
-					else "Tap a cat to see it here, then tap a green + above to put it to work."
-			)
+			or (if next(cats) == nil then "Cats you catch rest here." else "Tap a cat to see it.")
 		return
 	end
 	assert(instance, "instance")

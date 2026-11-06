@@ -35,6 +35,7 @@ export type Callbacks = {
 	claim: (track: string, level: number) -> (),
 	buy: () -> (), -- the paid track's purchase prompt
 	claimAll: () -> (),
+	setTag: (pick: string) -> (), -- #1626: the chat tag button's next pick, a ChatTags id or "off"
 	close: () -> (),
 }
 
@@ -93,6 +94,7 @@ local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
 local MAPLE = Theme.colors.warn
 local CLAIM_W = 150
 local BUY_W = 180
+local TAG_W = 160 -- #1626: the chat tag button
 local BAR_X = 112
 
 local CafePassScreen = {}
@@ -216,6 +218,25 @@ function CafePassScreen.new(callbacks: Callbacks): CafePass
 		end,
 	})
 	self._buy.instance.Visible = false
+	-- #1626: the chat tag the player's name shows; a tap moves to their next tag, then off
+	self._tag = Button.new({
+		name = "ChatTag",
+		text = "Chat tag",
+		style = "slate",
+		size = UDim2.fromOffset(TAG_W, CLAIM_H + 2),
+		anchorPoint = Vector2.new(1, 0.5),
+		position = UDim2.new(1, -6, 0.5, -1),
+		textSize = Theme.sizes.textBody,
+		parent = top,
+		onClick = function()
+			local button = PassLogic.tagButton(self._view)
+			if button then
+				self._callbacks.setTag(button.nextPick)
+			end
+		end,
+	})
+	self._tag.label.RichText = true
+	self._tag.instance.Visible = false
 
 	-- the track: the row words on the left, the levels scrolling sideways
 	local trackY = TOP_H + GAP
@@ -538,6 +559,10 @@ function CafePassScreen._placeTop(self: any)
 	if self._claimAll.instance.Visible then
 		right += CLAIM_W + 8
 	end
+	self._tag.instance.Position = UDim2.new(1, -right, 0.5, -1)
+	if self._tag.instance.Visible then
+		right += TAG_W + 8
+	end
 	self._bar.Size = UDim2.new(1, -(BAR_X + right + 6), 0, 24)
 end
 
@@ -607,6 +632,11 @@ function CafePassScreen._refresh(self: any)
 	self._track.Visible = open
 	self._side.Visible = open
 	self._foot.Visible = open
+	local tag = PassLogic.tagButton(view)
+	self._tag.instance.Visible = tag ~= nil
+	if tag then
+		self._tag:setText(tag.text)
+	end
 	if view == nil or not open then
 		self._levelText.Text = "Level 0"
 		self._xpFill.Size = UDim2.fromScale(0, 1)

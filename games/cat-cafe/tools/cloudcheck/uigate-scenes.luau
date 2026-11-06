@@ -2123,6 +2123,22 @@ local SCENES = {
 		local card = modals and modals:FindFirstChild("grid:steadyPaw", true)
 		assert(card and card.Visible, "uigate: no Steady Paw Pack card on the Potions tab (#1168)")
 	end },
+	-- #1168 row 2: the Jukebox Pass on the Passes tab, naming its four songs, with its own picture
+	{ "StoreJukebox", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local was = Config.JukeboxPassId
+		Config.JukeboxPassId = 1168002
+		local prices = storePrices(true)
+		prices[1168002] = { robux = 99, forSale = true }
+		UI.store.preview(prices, {})
+		UI.open("Store")
+		press("Store", "passes")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("grid:jukebox", true)
+		assert(card and card:IsA("GuiObject") and card.Visible, "uigate: no Jukebox Pass card on Passes (#1168)")
+		assertStoreCards(false)
+		Config.JukeboxPassId = was
+	end },
 	-- #1168: the Thank You Badge (a product, hidden for a supporter) and the Sign Style Pack (a pass, hidden at 0)
 	-- on the Passes tab, each saying what it holds
 	{ "StoreThankYouSign", function()

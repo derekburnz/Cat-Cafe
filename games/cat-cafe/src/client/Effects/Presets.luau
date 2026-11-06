@@ -1468,6 +1468,25 @@ Presets.campExtras = {
 	},
 }
 
+-- The store's motion (#1823, StoreMotion.luau): a pressed button dips to `dip` of its size in `down` seconds and
+-- springs back in `up`; a bought card pops to `pop` in `grow`, settles in `settle`, flashes white from `flash`
+-- transparency over `flashSeconds`, and throws `sparks` gold sparks `reach` pixels out over `sparkSeconds`.
+Presets.storeMotion = {
+	press = { dip = 0.94, down = 0.06, up = 0.16 },
+	bought = {
+		pop = 1.08,
+		grow = 0.12,
+		settle = 0.25,
+		flash = 0.45,
+		flashSeconds = 0.35,
+		sparks = 8,
+		reach = 70,
+		sparkSize = 8,
+		sparkSeconds = 0.5,
+		colour = Color3.fromRGB(255, 205, 80),
+	},
+}
+
 Presets.catPoses = {
 	sleep = {
 		body = "walk",

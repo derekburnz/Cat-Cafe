@@ -2073,6 +2073,37 @@ local SCENES = {
 		assert(owned and owned.Visible and owned.Text == "✓ Yours", "uigate: the owned Long Nap does not say Yours (#1823)")
 		assert(dim and dim.Visible, "uigate: the owned Long Nap is not greyed (#1823)")
 	end },
+	-- #1168: the Thank You Badge (a product, hidden for a supporter) and the Sign Style Pack (a pass, hidden at 0)
+	-- on the Passes tab, each saying what it holds
+	{ "StoreThankYouSign", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local player = game:GetService("Players").LocalPlayer
+		local was = Config.SignStylePackPassId
+		Config.SignStylePackPassId = 1168001
+		player:SetAttribute("Supporter", nil)
+		local prices = storePrices(true)
+		prices[1168001] = { robux = 99, forSale = true }
+		local badgeId = (Config.ProductIds or {}).thank_you_badge
+		if type(badgeId) == "number" and badgeId ~= 0 then
+			prices[badgeId] = { robux = 49, forSale = true }
+		end
+		UI.store.preview(prices, {})
+		UI.open("Store")
+		press("Store", "passes")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local sign = modals and modals:FindFirstChild("grid:signStylePack", true)
+		assert(sign and sign:IsA("GuiObject") and sign.Visible, "uigate: no Sign Style Pack card on Passes (#1168)")
+		if type(badgeId) == "number" and badgeId ~= 0 then
+			local thanks = modals and modals:FindFirstChild("grid:thankYou", true)
+			assert(thanks and thanks:IsA("GuiObject") and thanks.Visible, "uigate: no Thank You Badge card (#1168)")
+			player:SetAttribute("Supporter", true)
+			local gone = modals:FindFirstChild("grid:thankYou", true)
+			assert(gone == nil or not (gone :: GuiObject).Visible, "uigate: a supporter still sees the Thank You Badge (#1168)")
+			player:SetAttribute("Supporter", nil)
+		end
+		assertStoreCards(false)
+		Config.SignStylePackPassId = was
+	end },
 	-- the passes off sale (as on live until launch): every card says Soon
 	{ "StoreSoon", function()
 		UI.store.preview(storePrices(false), {})

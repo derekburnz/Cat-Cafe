@@ -1,6 +1,6 @@
 --!strict
 -- The store's thank-you burst (#1823, the store remake; UI-Engineer calls it). Once the server confirms a Robux buy
--- (PassShop.ownedChanged or the pack's grant sync, never the prompt alone), the UI calls StoreBurst.play with the
+-- (PassShop.changed or the pack's grant sync, never the prompt alone), the UI calls StoreBurst.play with the
 -- bought card: sparkles fly out from round the card's edge and a ring grows from its middle, in the kind's colour. A
 -- bundle (the King Cat bundle's reveal) gets more sparkles and a second, later ring. It draws on its own ScreenGui
 -- just over the store window and never changes a UI object. Reduce Motion: half the sparkles, no rings. Low

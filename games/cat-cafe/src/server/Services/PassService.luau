@@ -42,6 +42,7 @@ local function storePassIds(): { number }
 			Config.UniformStylesPassId,
 			Config.CafeStylePassId,
 			Config.GrandThemePassId,
+			Config.JukeboxPassId, -- #1168 row 2: shared/Jukebox reads it with `owns`
 		}
 	do
 		if id ~= 0 then

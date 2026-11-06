@@ -25,6 +25,7 @@ local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
+local Jukebox = require(ReplicatedStorage.Shared.Jukebox)
 local Lawn = require(ReplicatedStorage.Shared.Lawn)
 local LawnBuilder = require(script.Parent.Parent.World.LawnBuilder)
 local Layout = require(script.Parent.Parent.World.Layout)
@@ -221,6 +222,8 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		starterCatClaimed = profile.starterCatClaimed, -- F96
 		starterBought = profile.onceBought.starter_bundle == true, -- #1625: the Store card hides
 		storeSeen = table.clone(profile.storeSeen), -- #1842: the Store tabs' "New" dots
+		jukeboxTracks = Jukebox.owned(ownsPassOf(player)), -- #1168 row 2
+		jukebox = Jukebox.shown(profile.jukebox, ownsPassOf(player)),
 		codesRedeemed = table.clone(profile.codesRedeemed), -- #1714: the Store's Codes tab lists the codes used
 		signStyles = SignStyles.owned(profile.signStyles, ownsPassOf(player)), -- #1625
 		signStyle = profile.signStyle,
@@ -2039,6 +2042,25 @@ local function onMarkStoreSeen(player: Player, rawTab: unknown)
 	end
 end
 
+-- #1168 row 2: SetJukeboxTrack(trackId?) picks a Jukebox Pass song, or nil/"default" for the normal rotation. The
+-- whole check is Jukebox.pickFor (a known track, and the pass owned).
+local function onSetJukeboxTrack(player: Player, rawId: unknown)
+	local profile = profileFor(player)
+	if profile == nil then
+		return
+	end
+	local ok, pick = Jukebox.pickFor(rawId, ownsPassOf(player))
+	if not ok then
+		Net.toast(player, "That song comes with the Jukebox Pass.", "warn")
+		return
+	end
+	if profile.jukebox == pick then
+		return
+	end
+	profile.jukebox = pick
+	CafeService.sync(player)
+end
+
 local function onSetLook(player: Player, rawKind: unknown, rawId: unknown)
 	local profile = profileFor(player)
 	if profile == nil then
@@ -2167,6 +2189,7 @@ function CafeService.start()
 	Net.on("SetSetting", onSetSetting)
 	Net.on("SetSignStyle", onSetSignStyle) -- #1625
 	Net.on("SetLook", onSetLook) -- #1624
+	Net.on("SetJukeboxTrack", onSetJukeboxTrack) -- #1168 row 2
 	Net.on("MarkStoreSeen", onMarkStoreSeen) -- #1842
 	Net.on("RequestSync", function(player)
 		CafeService.sync(player)

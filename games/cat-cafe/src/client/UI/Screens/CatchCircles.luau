@@ -20,6 +20,16 @@
 -- The result word is the TextLabel Root.ResultWord, Visible only while it shows: Effects/Catch bursts off it in its
 -- colour. The camera shake and the hiss are the vfx-animator's and the sound-designer's.
 --
+-- Catch v3 (#1884, catch-rework.md 7b to 7d), when CatchSchedule sends trustNeed (Header.trustNeed):
+--   - a Miss no longer ends the catch: the rings keep coming until the server's CatchResult, and a trust bar over the
+--     cat (Components/TrustBar) fills with each grade (Components/CatchTrust; CatchJudged carries the server's trust)
+--   - the rings sit round the cat's head in the world (Header.model, projected each frame), not at the schedule's x, y
+--   - ring kinds: a "double" is two entries 0.18 s apart drawn on the same spot; a "paw" ring is red with a paw print
+--     in place of its number, and left alone it is judged "left" (+1 trust), not a Miss
+--   - no progress strip; the finish (CatchResult's 6th value) picks the banner: PURRFECT! (gold), GREAT! (mint),
+--     NICE! (cream) or "So close!" on a bolt. The banner is the TextLabel Root.FinishBanner (the ResultWord renamed, so
+--     Effects' older burst off ResultWord doesn't also fire) and pops FINISH_DELAY after the result, as the net wrap
+--     ends and VFX-Agent's burst (#1900) plays; a bolt shows at once.
 -- Bands: the closing circle moves at a constant speed, so a timing window of w seconds is a band of
 -- w x speed pixels either side of the ring. Good is the wide green band, Perfect the thin gold one.
 
@@ -28,6 +38,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local CatchTrust = require(script.Parent.Parent.Components.CatchTrust)
 local CatchWords = require(script.Parent.Parent.Components.CatchWords)
 local Create = require(script.Parent.Parent.Components.Create)
 local Motion = require(script.Parent.Parent.Components.Motion)
@@ -35,6 +46,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
+local TrustBar = require(script.Parent.Parent.Components.TrustBar)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
@@ -48,6 +60,18 @@ export type Header = {
 	shiny: boolean?,
 	rainbow: boolean?, -- F99: "Epic · Rainbow" and a turning rainbow edge
 	title: string?, -- replaces the hint line, e.g. "Catch it as it falls!" on a tree rescue
+	-- Catch v3 (#1884): CatchSchedule's trust; with trustNeed the catch runs on trust (see the top)
+	trustStart: number?,
+	trustNeed: number?,
+	model: Model?, -- the stray, for the rings round its head and the trust bar over it
+}
+
+-- Catch v3's finish, CatchResult's 6th value (#1884)
+export type Finish = {
+	trust: number?,
+	trustNeed: number?,
+	finish: string?, -- "purrfect" | "great" | "nice" | "bolt"
+	streak: number?,
 }
 
 -- The server's verdict (CatchResult): grades up to and including the first Miss. charmGain is what the Perfects
@@ -57,6 +81,7 @@ export type Outcome = {
 	success: boolean,
 	charmGain: number?,
 	hint: string?, -- the line under the word in place of the usual one (F87: "Try again!" on a tutorial stray)
+	finish: Finish?, -- Catch v3 (#1884)
 }
 
 export type CatchCircles = {
@@ -70,7 +95,15 @@ export type CatchCircles = {
 		strayId: string?
 	) -> (),
 	-- #1727: the server's grade for one press (CatchJudged), as it is judged
-	judged: (self: CatchCircles, strayId: string, index: number, grade: Types.CircleGrade) -> (),
+	judged: (
+		self: CatchCircles,
+		strayId: string,
+		index: number,
+		grade: Types.CircleGrade,
+		trust: number?
+	) -> (),
+	setTrust: (self: CatchCircles, trustStart: number, trustNeed: number, model: Model?) -> (),
+	strayId: (self: CatchCircles) -> string?,
 	showResult: (self: CatchCircles, outcome: Outcome, onDone: (() -> ())?) -> (),
 	gradeLocal: (self: CatchCircles, index: number) -> Types.CircleGrade?,
 	isActive: (self: CatchCircles) -> boolean,
@@ -93,6 +126,7 @@ type CircleView = {
 	hint: Types.CircleGrade?, -- the grade drawn: this device's guess, then the server's
 	judged: boolean,
 	pressed: boolean,
+	paw: boolean, -- Catch v3: a paw ring, left alone for +1
 }
 
 local RING_RADIUS = 46 -- design pixels at 1280 x 720
@@ -117,6 +151,9 @@ local PIP = 18
 local PIP_GAP = 6
 local STRIP_PAD = 9
 local WORD_SIZE = Vector2.new(360, 60)
+local FINISH_DELAY = 0.6 -- Catch v3: the net wrap's wobble before the banner pops (catch-rework.md 7d)
+local HEAD_DROP = 0.6 -- studs under the top of the cat where its rings sit
+local PAW_COLOR = Color3.fromHex("E5484D")
 local NO_RESULT_TIMEOUT = 4 -- hide if the server's result has not come this long after the last target
 local ACTION_NAME = "CatCafeCatchPress"
 -- E is not here: it is the hold-to-start key on the catch prompt, and letting go of it would land as a press
@@ -126,11 +163,13 @@ local GRADE_COLOR: { [string]: Color3 } = {
 	perfect = Theme.colors.gold,
 	good = Theme.colors.mint,
 	miss = Theme.colors.disabled, -- soft grey
+	left = Theme.colors.mint, -- Catch v3: a paw ring left alone
 }
 local RESULT_COLOR: { [string]: Color3 } = {
 	purrfect = Theme.colors.gold,
 	excellent = Theme.colors.gold,
 	great = Theme.colors.mint,
+	nice = Theme.colors.cream, -- #1884 Catch v3
 	close = Theme.colors.disabled,
 }
 local WOBBLE = { 9, -8, 6, -4, 0 } -- design pixels, the MISS word shaking its head
@@ -374,10 +413,42 @@ function CatchCircles.new(parent: Instance): CatchCircles
 		Parent = root,
 	})
 
+	self._trustBar = TrustBar.new(screenGui) -- moved beside the screen (into PlayerGui) on show: see _placeBar
+	self._v3 = false
+	self._trust = 0
+	self._need = 0
+	self._model = nil :: Model?
+
 	if parent then
 		screenGui.Parent = parent
 	end
 	return self :: CatchCircles
+end
+
+-- Catch v3: the trust bar is a BillboardGui, which draws only outside a ScreenGui, so it lives beside this one.
+function CatchCircles._placeBar(self: any)
+	local gui: BillboardGui = self._trustBar.gui
+	local home = self.screenGui.Parent
+	if home ~= nil and gui.Parent ~= home then
+		gui.Parent = home
+	end
+end
+
+-- Catch v3: where the cat's head is on screen, in design pixels, or nil when it is off screen or gone.
+function CatchCircles._headPosition(self: any): UDim2?
+	local model: Model? = self._model
+	local camera = Workspace.CurrentCamera
+	if model == nil or camera == nil or model.Parent == nil then
+		return nil
+	end
+	local box, size = model:GetBoundingBox()
+	local head = box.Position + Vector3.new(0, size.Y / 2 - HEAD_DROP, 0)
+	local point, onScreen = camera:WorldToViewportPoint(head)
+	if not onScreen then
+		return nil
+	end
+	local scale = math.max(Scale.get(), 0.01)
+	return UDim2.fromOffset(point.X / scale, point.Y / scale)
 end
 
 function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCircle): CircleView
@@ -434,6 +505,12 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		Text = tostring(index),
 		Parent = art,
 	})
+	local paw = (circle :: any).kind == "paw"
+	if paw then
+		-- Catch v3: don't tap it. Red, with a paw print where the number was
+		ringStroke.Color = PAW_COLOR
+		number.Text = "🐾"
+	end
 	return {
 		circle = circle,
 		target = circle.startsAt + shrink,
@@ -449,6 +526,7 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		hint = nil,
 		judged = false,
 		pressed = false,
+		paw = paw,
 	}
 end
 
@@ -473,6 +551,7 @@ function CatchCircles.show(
 	self._lastTarget = 0
 
 	local info: Header = header or {}
+	self._v3 = false
 	local rarity = info.rarity or "Common"
 	-- no charm stars after the name (F97 section 5: stars show nowhere now)
 	self._name.Text = info.catName or "Stray cat"
@@ -519,6 +598,7 @@ function CatchCircles.show(
 		PIP + 2 * STRIP_PAD
 	)
 	self._strip.Visible = count > 0
+	self._word.Name = "ResultWord"
 
 	ContextActionService:BindActionAtPriority(
 		ACTION_NAME,
@@ -538,6 +618,9 @@ function CatchCircles.show(
 	if count > 0 then
 		Tween.popIn(self._strip, 0.9)
 	end
+	if type(info.trustNeed) == "number" then
+		self:setTrust(info.trustStart or 0, info.trustNeed, info.model)
+	end
 	self._loop = RunService.RenderStepped:Connect(function()
 		self:_step(now())
 	end)
@@ -548,7 +631,11 @@ end
 -- RenderStepped (not Heartbeat) so the drawn circle matches the frame the player sees when they press.
 function CatchCircles._step(self: any, t: number)
 	local windows: Types.CatchWindows = self._windows
+	local head: UDim2? = if self._v3 then self:_headPosition() else nil
 	for _, view in self._views :: { CircleView } do
+		if head ~= nil then
+			view.holder.Position = head
+		end
 		local circle = view.circle
 		local visible = t >= circle.startsAt - PREVIEW_SECONDS
 		view.holder.Visible = visible
@@ -589,7 +676,14 @@ function CatchCircles._expire(self: any, t: number)
 			return
 		end
 		self._next = index + 1
-		if not self._ended then
+		if self._v3 then
+			-- Catch v3: an unpressed ring is a Miss and a paw ring left alone earns +1; the catch goes on
+			if not view.judged then
+				local grade: any = if view.paw then "left" else "miss"
+				self:_trustBy(grade)
+				self:_showGrade(index, grade, false)
+			end
+		elseif not self._ended then
 			self:_showGrade(index, "miss", false)
 			self:_endAfterMiss()
 		end
@@ -628,6 +722,25 @@ function CatchCircles._press(self: any)
 	end
 	if t < view.circle.startsAt then
 		return -- before the circle starts: the server ignores it too
+	end
+	if self._v3 then
+		-- Catch v3: every press is graded and the catch goes on whatever it was; a tapped paw ring is a Miss
+		local held: Types.CatchWindows = self._windows
+		local off = math.abs(t - view.target)
+		local guess: Types.CircleGrade = if view.paw
+			then "miss"
+			elseif off <= held.perfect then "perfect"
+			elseif off <= held.good then "good"
+			else "miss"
+		view.pressed = true
+		self:_trustBy(guess)
+		self:_showGrade(index, guess, false)
+		self._next = index + 1
+		local onPress = self._onPress
+		if onPress then
+			onPress(index, guess)
+		end
+		return
 	end
 	if self._doubt ~= nil and not self._ended then
 		-- #1727: after a press this device called a Miss, before the server's word on it: sent with no grade (no grade
@@ -684,11 +797,26 @@ end
 -- grade; a Miss ends the catch here as it did there (every circle still showing goes), and a Good or Perfect on the
 -- press this device called a Miss lets the catch go on. An unpressed circle's expiry sends none: _expire and the
 -- CatchResult cover that.
-function CatchCircles.judged(self: any, strayId: string, index: number, grade: Types.CircleGrade)
+function CatchCircles.judged(
+	self: any,
+	strayId: string,
+	index: number,
+	grade: Types.CircleGrade,
+	trust: number?
+)
 	if not self._active or self._ended or (self._strayId ~= nil and self._strayId ~= strayId) then
 		return
 	end
 	if self._views[index] == nil then
+		return
+	end
+	if self._v3 then
+		-- Catch v3: the server's grade and its running trust; nothing ends here, CatchResult does
+		self:_showGrade(index, grade, true)
+		if type(trust) == "number" then
+			self._trust = trust
+			self._trustBar:set(trust, self._need)
+		end
 		return
 	end
 	self:_showGrade(index, grade, true)
@@ -732,6 +860,30 @@ function CatchCircles._showGrade(
 			Tween.popIn(pip, 0.6)
 		end
 	end
+end
+
+-- Catch v3 (#1884): CatchSchedule's trust turns this catch onto trust, from show's header or as UIController's
+-- UI.catch.trust hook hears it: the strip goes, the trust bar shows over `model`, and a Miss no longer ends it.
+function CatchCircles.setTrust(self: any, trustStart: number, trustNeed: number, model: Model?)
+	if not self._active or trustNeed <= 0 then
+		return
+	end
+	self._v3 = true
+	self._need = trustNeed
+	self._trust = trustStart
+	self._model = model
+	self._ended = false
+	self._doubt = nil
+	self._strip.Visible = false -- the trust bar over the cat replaces the strip
+	self._word.Name = "FinishBanner"
+	self:_placeBar()
+	self._trustBar:show(model, trustStart, trustNeed)
+end
+
+-- Catch v3: this device's guess moves the bar at once; the server's CatchJudged trust replaces it.
+function CatchCircles._trustBy(self: any, grade: string)
+	self._trust += CatchTrust.delta(grade)
+	self._trustBar:set(self._trust, self._need)
 end
 
 -- Local hint for a circle, or nil while it is open. Tests and the demo read it.
@@ -786,21 +938,49 @@ function CatchCircles.showResult(self: any, outcome: Outcome, onDone: (() -> ())
 	end
 
 	local success = outcome.success
-	local result = CatchWords.result(grades, success)
+	local finish: Finish? = outcome.finish
+	local v3 = self._v3 or finish ~= nil
+	local result = if v3
+		then CatchWords.finish(if finish then finish.finish else nil, grades, success)
+		else CatchWords.result(grades, success)
 	local word: TextLabel = self._word
+	word.Name = if v3 then "FinishBanner" else "ResultWord"
 	word.Text = CatchWords.TEXT[result]
 	word.TextColor3 = RESULT_COLOR[result]
-	word.TextTransparency = 0
-	self._wordStroke.Transparency = 0
-	word.Visible = true
-	Tween.popIn(word, if result == "close" then 0.8 else 0.45)
-	if result == "close" then
-		wobble(word)
+	-- Catch v3: a catch's banner waits for the net wrap (FINISH_DELAY); a bolt shows at once
+	local delay = if v3 and success then FINISH_DELAY else 0
+	if v3 then
+		local trust = if finish and type(finish.trust) == "number"
+			then finish.trust
+			else self._trust
+		local need = if finish and type(finish.trustNeed) == "number"
+			then finish.trustNeed
+			else self._need
+		self._trust = trust
+		self._trustBar:set(trust, need)
+		self._trustBar:finish(success)
+	end
+	local function slam()
+		if self._token ~= token then
+			return
+		end
+		word.TextTransparency = 0
+		self._wordStroke.Transparency = 0
+		word.Visible = true
+		Tween.popIn(word, if result == "close" then 0.8 else 0.45)
+		if result == "close" then
+			wobble(word)
+		end
+	end
+	if delay > 0 then
+		task.delay(delay, slam)
+	else
+		slam()
 	end
 	self._hint.Text = outcome.hint
 		or (if success then "Carry it home to check in" else "It got away! Chase it!")
 
-	task.delay(RESULT_FADE_AT, function()
+	task.delay(delay + RESULT_FADE_AT, function()
 		if self._token ~= token then
 			return
 		end
@@ -815,7 +995,7 @@ function CatchCircles.showResult(self: any, outcome: Outcome, onDone: (() -> ())
 			end
 		end
 	end)
-	task.delay(RESULT_SECONDS, function()
+	task.delay(delay + RESULT_SECONDS, function()
 		if self._token ~= token then
 			return
 		end
@@ -824,6 +1004,10 @@ function CatchCircles.showResult(self: any, outcome: Outcome, onDone: (() -> ())
 			onDone()
 		end
 	end)
+end
+
+function CatchCircles.strayId(self: any): string?
+	return self._strayId
 end
 
 function CatchCircles.isActive(self: any): boolean
@@ -855,11 +1039,15 @@ function CatchCircles.hide(self: any)
 	self._strip.Visible = false
 	self._strip.BackgroundTransparency = self._stripTransparency
 	self._word.Visible = false
+	self._trustBar:hide()
+	self._v3 = false
+	self._model = nil
 	self.screenGui.Enabled = false
 end
 
 function CatchCircles.destroy(self: any)
 	self:hide()
+	self._trustBar:destroy()
 	self._tapConnection:Disconnect()
 	Scale.unbind(self._uiScale)
 	self.screenGui:Destroy()

@@ -47,4 +47,19 @@ return function()
 			end
 		end)
 	end)
+
+	describe("CatchWords.finish (Catch v3, #1884)", function()
+		it("takes the server's finish when it sends one", function()
+			expect(CatchWords.finish("purrfect", { "perfect" }, true)).to.equal("purrfect")
+			expect(CatchWords.finish("great", { "perfect", "good" }, true)).to.equal("great")
+			expect(CatchWords.finish("nice", { "perfect", "miss", "good" }, true)).to.equal("nice")
+			expect(CatchWords.finish("bolt", { "miss", "miss" }, false)).to.equal("close")
+			expect(CatchWords.TEXT.nice).to.equal("NICE!")
+		end)
+
+		it("falls back to the grades without a finish or with an unknown one", function()
+			expect(CatchWords.finish(nil, { "perfect", "perfect" }, true)).to.equal("purrfect")
+			expect(CatchWords.finish("wow", { "perfect", "miss" }, false)).to.equal("close")
+		end)
+	end)
 end

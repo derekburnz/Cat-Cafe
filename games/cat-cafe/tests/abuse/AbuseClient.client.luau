@@ -5374,7 +5374,7 @@ case(
 case(
 	"codes",
 	Enum.KeyCode.T,
-	"Codes Cat: far, bad texts, the wrong-code lock, a double redeem, used and expired codes",
+	"Codes: bad texts, the wrong-code lock, a double redeem, used and expired codes",
 	function()
 		if state == nil then
 			return "SKIP", "no ProfileSync yet"
@@ -5398,48 +5398,12 @@ case(
 		local verdict: Verdict = "PASS"
 		local reset = string.format('%s("codes")', DEBUG)
 
-		-- 24 studs out (CodesCatRange is 12, flat): the real code is refused and pays nothing. The server measures
-		-- before it reads the text, so this try does not count towards the lock.
-		local far = standFromStation(station, 24)
-		if far < Config.CodesCatRange + 4 then
-			return done(
-				"CHECK",
-				string.format(
-					"could not stand 24 studs from the Codes Cat on any side (settled %.1f studs out); stand there and run again",
-					far
-				)
-			)
-		end
+		-- #1747: codes redeem from anywhere (the Store's Codes tab), so there is no far refusal to try. The wrong-code
+		-- lock and once per player below still hold wherever the player stands.
 		local before = freshWallet()
 		local held = codeHoldings()
-		local farAnswer = redeem("playtest")
 		local coinsStill, coinsText = coinsMovedBy(before, 0)
-		if codeHoldings() ~= held or not coinsStill then
-			return done(
-				"FAIL",
-				string.format(
-					'RedeemCode("playtest") from %.1f studs paid: %s before, %s after, %s',
-					far,
-					held,
-					codeHoldings(),
-					coinsText
-				)
-			)
-		end
-		if farAnswer == Codes.LOCKED then
-			return done(
-				"CHECK",
-				string.format(
-					"the box is locked from an earlier run; wait a minute or run %s on the server, then run again",
-					reset
-				)
-			)
-		end
-		local notes = string.format("%.1f studs refused", far)
-		if farAnswer ~= Codes.FAR then
-			verdict = downgrade(verdict, "CHECK")
-			notes ..= string.format(' with %q, not "%s"', farAnswer, Codes.FAR)
-		end
+		local notes = "no distance check (#1747)"
 
 		-- In the circle (6 studs in front of the station): CodeWrongLimit texts that are not codes, malformed ones
 		-- first, since they must count as wrong too or a guesser could send them for free. All but the last answer

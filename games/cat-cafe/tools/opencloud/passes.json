@@ -134,5 +134,12 @@
 		"price": 149,
 		"regionalPricing": true,
 		"description": "Six garden decor pieces for your cafe: Hanging Fern Basket, Sunflower Pot, Watering Can Planter, Potted Lemon Tree, Ivy Trellis and Garden Swing Seat. Yours to keep, can't be traded."
+	},
+	{
+		"name": "Jukebox Pass",
+		"config": "JukeboxPassId",
+		"price": 99,
+		"regionalPricing": true,
+		"description": "Four extra songs for your cafe jukebox, and your pick is saved. Yours to keep, can't be traded."
 	}
 ]

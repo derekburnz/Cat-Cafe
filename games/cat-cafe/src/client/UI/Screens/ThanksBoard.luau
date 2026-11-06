@@ -60,9 +60,13 @@ local function text(props: { [string]: any }): TextLabel
 	return Create("TextLabel", merged)
 end
 
--- #1216: the What's new panel (Model-Agent's WhatsNewPanel, 7.6 x 4.8 studs, stacked over the credits)
+-- #1216: the What's new panel (Model-Agent's WhatsNewPanel, 7.6 x 4.8 studs, stacked over the credits). #1768: one
+-- compact line per update, the date on its right, so WhatsNew.SHOWN (8) fit under the title; a player's idea adds a
+-- credit line under its update.
 local NEW_TITLE = 40
-local NEW_ROW = 52
+local NEW_ROW = 30
+local NEW_CREDIT = 18
+local NEW_DATE_W = 60
 
 local function partOf(model: Instance, name: string): BasePart?
 	local part = model:FindFirstChild(name, true)
@@ -255,15 +259,15 @@ function ThanksBoard._buildWhatsNew(self: any, parent: Instance)
 		local row: Frame = Create("Frame", {
 			Name = line.id,
 			BackgroundTransparency = 1,
-			Size = UDim2.new(1, 0, 0, NEW_ROW),
+			Size = UDim2.new(1, 0, 0, NEW_ROW + (if line.credit ~= nil then NEW_CREDIT else 0)),
 			LayoutOrder = order,
 			Parent = list,
 		})
 		local icon = text({
 			Name = "Icon",
-			Position = UDim2.fromOffset(0, 6),
-			Size = UDim2.fromOffset(36, 36),
-			TextSize = 28,
+			Position = UDim2.fromOffset(0, 2),
+			Size = UDim2.fromOffset(26, 26),
+			TextSize = 22,
 			TextXAlignment = Enum.TextXAlignment.Center,
 			Text = line.glyph,
 			Parent = row,
@@ -271,18 +275,18 @@ function ThanksBoard._buildWhatsNew(self: any, parent: Instance)
 		IconArt.set(icon, line.glyph)
 		text({
 			Name = "Text",
-			Position = UDim2.fromOffset(44, 4),
-			Size = UDim2.new(1, -44, 0, 28), -- the full width: 28 characters fit at this size
+			Position = UDim2.fromOffset(34, 2),
+			Size = UDim2.new(1, -34 - NEW_DATE_W, 0, 26), -- 28 characters fit beside the date at this size
 			FontFace = Theme.fonts.display,
-			TextSize = 26, -- 0.4 studs at 64 px a stud (section 7a)
+			TextSize = 22, -- 0.34 studs at 64 px a stud, still readable from a few steps
 			Text = line.text,
 			Parent = row,
 		})
 		text({
 			Name = "Date",
 			AnchorPoint = Vector2.new(1, 0),
-			Position = UDim2.new(1, 0, 0, 32), -- under the text, on the right of the credit line
-			Size = UDim2.fromOffset(66, 18),
+			Position = UDim2.new(1, 0, 0, 6), -- on the update's own line, at the right
+			Size = UDim2.fromOffset(NEW_DATE_W, 18),
 			TextSize = 16, -- 0.25 studs
 			TextColor3 = Color3.fromRGB(140, 120, 104),
 			TextXAlignment = Enum.TextXAlignment.Right,
@@ -291,8 +295,8 @@ function ThanksBoard._buildWhatsNew(self: any, parent: Instance)
 		})
 		text({
 			Name = "Credit",
-			Position = UDim2.fromOffset(44, 32),
-			Size = UDim2.new(1, -44 - 70, 0, 18),
+			Position = UDim2.fromOffset(34, NEW_ROW - 2),
+			Size = UDim2.new(1, -34, 0, 16),
 			TextSize = 16,
 			TextColor3 = BERRY,
 			Text = line.credit or "",

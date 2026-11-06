@@ -507,4 +507,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 - 2026-11-06: The Lost and Found is reworked and buffed (Derek2: "needs a re-work and a massive buff"). It becomes a lost-property booth with the shared "!". It gives one find every 2 hours, holding 3, where it used to give one a day. The new free prize table has 40 fish, two potions, 2 spins, a Sewer Crate, Golden crates, and a 2% chance of a lost Epic cat. Spec in camp-stations.md §4b. Why: it was the weakest camp extra, though it is the last one unlocked. Nothing is sold and no odds of luck change.
 
+- 2026-11-06: Lawn cards show a tiny "Big spot" tag on big-spot pieces, and nothing else explains Equip Best. The spot counts and the best-pick rule stay as they are. Spec in lawn-nursery.md §6e. Why: Derek2 picked option 1 on #1729 and then asked to keep the cards light, with no long "Stored: ..." sentence.
+
 - 2026-11-06: The Day Cart keeps more in stock: row i is in stock with max(25%, 100% - 3% x (i - 1)), about 14 of the 19 rows a day instead of about 10. Quantities and daily limits are unchanged. day-cart.md §2 matches the build in #1743. Why: Derek2 asked for more Day Cart items in stock (#1740).

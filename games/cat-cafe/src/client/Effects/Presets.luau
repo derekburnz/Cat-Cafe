@@ -1429,6 +1429,12 @@ Presets.campExtras = {
 		pop = { { 0, 0 }, { 0.18, 28 }, { 0.55, 26 }, { 0.8, 0 }, { 0.9, 4 }, { 1, 0 } },
 		within = 30, -- studs from the collect's position to the lid it plays on
 	},
+	-- the Lost and Found booth's desk bell (#1732, camp-stations.md section 4b): while a prize waits it rings, a
+	-- wobble side to side about its base that dies away, every few seconds; it plays with Reduce Motion too
+	bell = {
+		every = { 3.5, 6.5 }, -- seconds between rings while a prize waits
+		ring = { seconds = 0.7, degrees = 9, wobbles = 3 }, -- tips each way `wobbles` times, each smaller
+	},
 }
 
 Presets.catPoses = {

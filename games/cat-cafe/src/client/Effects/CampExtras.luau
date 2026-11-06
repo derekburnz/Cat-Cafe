@@ -10,7 +10,11 @@
 --   engineer's controller), its lid rattles every few seconds with the lidRattle beat, on lids within
 --   budget.ambientRadius. When you collect it ("lostFound"), the lid lifts to let the prize out and shuts with a bounce;
 --   the collect's own sound plays then, so that has no beat.
--- Nothing moves with Reduce Motion. The server places the sets once under Workspace.World and never moves these parts,
+-- - While your Lost and Found booth holds a prize (#1732, camp-stations.md section 4b), its desk bell (the booth's
+--   `_LostFoundBooth_Bell` child Model, pivoted at its base) rings every few seconds: a side to side wobble that dies
+--   away. It is the only touch here that plays with Reduce Motion, as the spec asks. The booth sign's blinking bulb is
+--   VFX-Agent's (CampGlow).
+-- Nothing else moves with Reduce Motion. The server places the sets once under Workspace.World and never moves these parts,
 -- so each turn is drawn from the parts' frames read as it starts, and the parts go back to those frames when it ends.
 -- VFX-Agent draws the fish jump, the thermos steam, the pipe drips and the Yard Sale sign's sway. Listening only:
 -- nothing here fires a remote or changes game state.
@@ -30,8 +34,9 @@ local CampExtras = {}
 -- ..._FishingHut_Gold_Rod, Model-Agent #1351), pivot at the butt, casting about X
 local ROD = "_Rod"
 local LID = "_LostFound_Lid"
+local BELL = "_LostFoundBooth_Bell"
 
-type Kind = "cast" | "rattle" | "pop"
+type Kind = "cast" | "rattle" | "pop" | "ring"
 
 type Play = {
 	model: Model,
@@ -49,9 +54,11 @@ type Play = {
 
 local rods: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 local lids: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+local bells: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 local playing: { [Model]: Play } = {}
 local held = 0 -- prizes waiting in this player's Lost and Found
 local rattleAt = 0
+local ringAt = 0
 local rng = Random.new()
 local started = false
 
@@ -67,6 +74,8 @@ local function found(instance: Instance)
 		rods[instance :: Model] = true
 	elseif endsWith(instance.Name, LID) then
 		lids[instance :: Model] = true
+	elseif endsWith(instance.Name, BELL) then
+		bells[instance :: Model] = true
 	end
 end
 
@@ -76,6 +85,8 @@ local function length(kind: Kind): number
 		return Logic.keyedSeconds(c.rod.keys)
 	elseif kind == "pop" then
 		return Logic.keyedSeconds(c.lid.pop)
+	elseif kind == "ring" then
+		return c.bell.ring.seconds
 	end
 	return c.lid.rattle.seconds
 end
@@ -86,13 +97,18 @@ local function angleOf(kind: Kind, t: number): number
 		return math.rad(Logic.keyed(c.rod.keys, t))
 	elseif kind == "pop" then
 		return math.rad(Logic.keyed(c.lid.pop, t))
+	elseif kind == "ring" then
+		return Logic.bellWobble(t)
 	end
 	return Logic.lidRattle(t)
 end
 
--- Draws a play turned `angle` about its pivot's X; the hanging parts move with the tip and keep their own turn.
+-- Draws a play turned `angle` about its pivot's X (a bell's ring: about its Z, side to side); the hanging parts move
+-- with the tip and keep their own turn.
 local function draw(play: Play, angle: number)
-	local turn = CFrame.Angles(angle, 0, 0)
+	local turn = if play.kind == "ring"
+		then CFrame.Angles(0, 0, angle)
+		else CFrame.Angles(angle, 0, 0)
 	local shift = CFrame.new(turn * play.tip - play.tip)
 	local parts: { BasePart } = {}
 	local frames: { CFrame } = {}
@@ -210,7 +226,7 @@ local function step()
 	local done: { Play } = {}
 	for model, play in playing do
 		local t = now - play.started
-		if still or model.Parent == nil or t >= length(play.kind) then
+		if (still and play.kind ~= "ring") or model.Parent == nil or t >= length(play.kind) then
 			table.insert(done, play)
 		else
 			local angle = angleOf(play.kind, t)
@@ -227,12 +243,23 @@ local function step()
 		draw(play, 0)
 		playing[play.model] = nil
 	end
+	local radius = Context.budget.ambientRadius
+	-- the booth's bell rings while a prize waits, Reduce Motion or not (camp-stations.md section 4b)
+	if held > 0 and now >= ringAt then
+		local every = Presets.campExtras.bell.every
+		ringAt = now + rng:NextNumber(every[1], every[2])
+		for model in bells do
+			local at = Context.positionOf(model)
+			if at ~= nil and playing[model] == nil and Context.distance(at) <= radius then
+				begin(model, "ring", now)
+			end
+		end
+	end
 	if held <= 0 or still or now < rattleAt then
 		return
 	end
 	local every = Presets.campExtras.lid.every
 	rattleAt = now + rng:NextNumber(every[1], every[2])
-	local radius = Context.budget.ambientRadius
 	for model in lids do
 		local at = Context.positionOf(model)
 		if at ~= nil and playing[model] == nil and Context.distance(at) <= radius then

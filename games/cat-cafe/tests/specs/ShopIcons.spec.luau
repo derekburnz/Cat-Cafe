@@ -216,7 +216,6 @@ return function()
 				-- #1168: the new cards' own pictures (Tools-Agent 11-06), no stand-ins
 				expect(ShopIcons.store(StoreLogic.THANK_YOU.key)).to.equal("rbxassetid://132722097256875")
 				expect(ShopIcons.store("steadyPaw")).to.equal("rbxassetid://80888086047548")
-				expect(ShopIcons.store("jukebox")).to.equal("rbxassetid://84493998133754")
 				expect(ShopIcons.store("signStylePack")).to.equal("rbxassetid://82755598634285")
 				expect(ShopIcons.store("gardenDecor")).to.equal("rbxassetid://76257173019480")
 				expect(ShopIcons.store("longNap")).to.equal("rbxassetid://91856746794190")

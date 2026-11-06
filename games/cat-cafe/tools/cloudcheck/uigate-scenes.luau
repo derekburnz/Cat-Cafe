@@ -810,7 +810,7 @@ local SCENES = {
 		UI.open("Decor")
 		press("Decor", "Style")
 	end },
-	-- #1168 row 2: a Jukebox Pass owner's Cafe music row under the looks, Catnap Waltz in use; a tap asks for the song
+	-- #1875: the Cafe music row (free for everyone) under the looks, Catnap Waltz in use; a tap asks for the song
 	{ "DecorStyleMusic", function()
 		UI.update({
 			signStyles = { "bakery_stripes", "royal_crest" },
@@ -2175,19 +2175,16 @@ local SCENES = {
 		assert(card:FindFirstChildOfClass("UIScale"), "uigate: the bought VIP card did not pop (StoreMotion, #1823)")
 		assertStoreCards(false)
 	end },
-	-- #1168 row 2: the Jukebox Pass on the Passes tab, naming its four songs, with its own picture
-	{ "StoreJukebox", function()
+	-- #1875: the Jukebox is free, so no Jukebox Pass card shows on Passes even with a pass id set
+	{ "StoreNoJukebox", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		local was = Config.JukeboxPassId
 		Config.JukeboxPassId = 1168002
-		local prices = storePrices(true)
-		prices[1168002] = { robux = 99, forSale = true }
-		UI.store.preview(prices, {})
+		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
 		press("Store", "passes")
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
-		local card = modals and modals:FindFirstChild("grid:jukebox", true)
-		assert(card and card:IsA("GuiObject") and card.Visible, "uigate: no Jukebox Pass card on Passes (#1168)")
+		assert(modals and modals:FindFirstChild("grid:jukebox", true) == nil, "uigate: a Jukebox Pass card on Passes (#1875)")
 		assertStoreCards(false)
 		Config.JukeboxPassId = was
 	end },

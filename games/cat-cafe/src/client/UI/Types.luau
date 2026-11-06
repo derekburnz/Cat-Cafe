@@ -357,7 +357,7 @@ export type PartialState = {
 	signStyles: { string }?, -- #1625
 	signStyle: string?, -- #1625
 	looks: SharedTypes.LooksView?, -- #1624
-	jukeboxTracks: { string }?, -- #1168 row 2: the Jukebox Pass songs owned (the Style tab's music row)
+	jukeboxTracks: { string }?, -- #1875: the Jukebox songs, free for everyone (the Style tab's music row)
 	jukebox: string?, -- #1168 row 2: the song picked, nil for the day and night mix
 	passBoosts: SharedTypes.PassBoostsView?, -- #1624
 }

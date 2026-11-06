@@ -88,12 +88,20 @@
 		"description": "Duchess Marzipan joins your cafe and always earns like a Legendary cat from your newest area. Yours to keep, can't be traded."
 	},
 	{
+		"name": "King Cat",
+		"id": 0,
+		"config": "KingCatPassId",
+		"price": 799,
+		"regionalPricing": true,
+		"description": "King Croissant joins your cafe and always earns like a Mythical cat from your newest area. Yours to keep, can't be traded."
+	},
+	{
 		"name": "King Cat Pack",
 		"id": 2071368679,
 		"config": "KingPackPassId",
 		"price": 999,
 		"regionalPricing": true,
-		"description": "King Croissant joins your cafe and always earns like a Mythical cat from your newest area, plus the Royal Crest style for your cafe sign. Yours to keep, can't be traded."
+		"description": "King Croissant, the Royal Crest sign, the Grand look, the Royal Velvet Booth and a potion set (5 Big Tip, 3 Swift, 2 Steady). Yours to keep, can't be traded."
 	},
 	{
 		"name": "Golden Pond",

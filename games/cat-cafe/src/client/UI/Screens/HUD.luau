@@ -38,6 +38,7 @@
 local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
@@ -128,7 +129,7 @@ export type HUD = {
 	glowTutorial: (self: HUD) -> (),
 	pulseTutorial: (self: HUD) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
-	setMoneyBadge: (self: HUD, badge: { text: string, owned: boolean }?) -> (), -- #1606
+	setMoneyBadge: (self: HUD, badge: { text: string, owned: boolean, price: string? }?) -> (), -- #1606, #1759
 	-- F92: the pals on the server (PalsChanged), for the chip and the boosts card
 	setPals: (self: HUD, userIds: { number }) -> (),
 	-- F92: "Sam is in the Park" over the travel button to that area, glowing; nil text takes it away
@@ -148,6 +149,13 @@ local COUNTER_COIN = 36
 local COUNTER_TEXT = 30
 local MONEY_BADGE_H = 30 -- #1606: the money pass badge beside the money
 local MONEY_BADGE_TEXT = 22
+-- #1759 (Derek2 11-06: "more in your face then that slight 2x"): the not-owned badge, a rainbow "X2 Cash" pill with
+-- "Only R$5" under it that pulses gently
+local CASH_H = 30
+local CASH_TEXT = 22
+local CASH_PRICE_H = 14
+local CASH_PULSE = 1.08 -- the badge's scale at the top of each pulse
+local CASH_PULSE_SECONDS = 0.7 -- one way
 local COUNTER_GAP = 14
 -- the row's widest usual reach (the money at MONEY_W and "12.3K" golden fish): the bottom row moves right of it
 local CORNER_W = MONEY_W + COUNTER_GAP + COUNTER_COIN + 8 + 90
@@ -542,8 +550,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- Golden fish (F52): the rare currency's counter beside the money, with the gold fish (F97). Hidden until
 	-- ProfileSync sends goldenFish.
 	-- #1606: the money pass badge beside the money (setMoneyBadge): "2x" to "4x" in gold once a money pass is owned
-	-- (a tap opens the boosts card, as the money does), or a small berry "Get 2x" pill while none is (a tap opens the
-	-- Store). Hidden until the Store knows.
+	-- (a tap opens the boosts card, as the money does), or while none is (a tap opens the Store) a rainbow "X2 Cash"
+	-- pill with "Only R$5" under it, pulsing (#1759). Hidden until the Store knows.
 	-- the tap area is the counters' height and at least as wide (a finger's 44 px on a phone); the pill sits inside it
 	local badge: TextButton = Create("TextButton", {
 		Name = "MoneyBadge",
@@ -560,8 +568,10 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Create("UIListLayout", {
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
+			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	self._moneyPulse = Create("UIScale", { Parent = badge }) :: UIScale
 	local pill: TextLabel = Create("TextLabel", {
 		Name = "Pill",
 		BackgroundColor3 = Theme.colors.berry,
@@ -572,13 +582,32 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		TextSize = MONEY_BADGE_TEXT,
 		TextColor3 = Theme.colors.gold,
 		Text = "",
+		LayoutOrder = 1,
 		Parent = badge,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
+		-- #1759: the rainbow under the "X2 Cash" words while no money pass is owned
+		Create("UIGradient", { Name = "Rainbow", Color = Theme.rainbow, Enabled = false }),
 	})
 	Outline.text(pill, 2.5)
 	self._moneyPill = pill
+	local price: TextLabel = Create("TextLabel", {
+		Name = "Price",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(0, CASH_PRICE_H),
+		AutomaticSize = Enum.AutomaticSize.X,
+		FontFace = Theme.fonts.display,
+		TextSize = CASH_PRICE_H,
+		TextColor3 = Theme.colors.white,
+		RichText = true,
+		Text = "",
+		LayoutOrder = 2,
+		Visible = false,
+		Parent = badge,
+	})
+	Outline.text(price, 2)
+	self._moneyPrice = price
 	self._moneyBadge = badge
 	self._moneyBadgeOwned = false
 	table.insert(
@@ -2880,10 +2909,52 @@ function HUD.setMoneyBadge(self: any, badge: { text: string, owned: boolean }?)
 	end
 	self._moneyBadgeOwned = badge.owned
 	local pill: TextLabel = self._moneyPill
+	local sell = not badge.owned
 	pill.Text = badge.text
-	pill.TextSize = if badge.owned then MONEY_BADGE_TEXT else MONEY_BADGE_TEXT - 6
-	pill.TextColor3 = if badge.owned then Theme.colors.gold else Theme.colors.white
-	pill.BackgroundTransparency = if badge.owned then 1 else 0
+	pill.Size = UDim2.fromOffset(0, if sell then CASH_H else MONEY_BADGE_H)
+	pill.TextSize = if sell then CASH_TEXT else MONEY_BADGE_TEXT
+	pill.TextColor3 = if sell then Theme.colors.white else Theme.colors.gold
+	-- #1759: a rainbow pill (white under the gradient) while for sale, bare gold words once owned
+	pill.BackgroundColor3 = Theme.colors.white
+	pill.BackgroundTransparency = if sell then 0 else 1
+	local rainbow = pill:FindFirstChild("Rainbow") :: UIGradient?
+	if rainbow then
+		rainbow.Enabled = sell
+	end
+	local price: TextLabel = self._moneyPrice
+	local line = if sell then badge.price else nil
+	price.Visible = line ~= nil
+	if line ~= nil then
+		-- "Only" in green, the price in white, as in Derek2's reference
+		price.Text = (line:gsub("^Only", '<font color="#7CFC6A">Only</font>'))
+	end
+	self:_pulseMoneyBadge(sell)
+end
+
+-- #1759: the for-sale badge grows and shrinks a little, over and over; it holds still once owned or with Reduce
+-- Motion on.
+function HUD._pulseMoneyBadge(self: any, on: boolean)
+	local want = on and not GuiService.ReducedMotionEnabled
+	local tween: Tween? = self._moneyPulseTween
+	if want == (tween ~= nil) then
+		return
+	end
+	if tween then
+		tween:Cancel()
+		self._moneyPulseTween = nil
+		self._moneyPulse.Scale = 1
+		return
+	end
+	local info = TweenInfo.new(
+		CASH_PULSE_SECONDS,
+		Enum.EasingStyle.Sine,
+		Enum.EasingDirection.InOut,
+		-1,
+		true
+	)
+	local made = TweenService:Create(self._moneyPulse, info, { Scale = CASH_PULSE })
+	made:Play()
+	self._moneyPulseTween = made
 end
 
 function HUD.setVisible(self: any, visible: boolean)

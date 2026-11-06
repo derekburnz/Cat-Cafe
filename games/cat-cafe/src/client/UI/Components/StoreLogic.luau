@@ -415,7 +415,8 @@ end
 -- 3x/4x if bought"): the badge beside the HUD's money. The highest money pass owned (Roblox's answer in `owned`, or
 -- the server's PlayerState.passBoosts.money as `serverMultiplier`) reads "2x", "3x" or "4x"; with none, "Get 2x"
 -- while the 2x pass is on sale (a tap opens the Store), else no badge.
-export type MoneyBadge = { text: string, owned: boolean }
+-- price: #1759, the not-owned badge's line under its pill, "Only R$5" (nil once owned or with no price yet)
+export type MoneyBadge = { text: string, owned: boolean, price: string? }
 function StoreLogic.moneyBadge(
 	config: any,
 	owned: { [number]: boolean },
@@ -438,7 +439,12 @@ function StoreLogic.moneyBadge(
 	local first = ladder[1]
 	local price = if first ~= nil then prices[first.id] else nil
 	if price ~= nil and price.forSale then
-		return { text = ("Get %dx"):format(first.multiplier), owned = false }
+		-- #1759 (Derek2 11-06: "more in your face then that slight 2x"): the HUD's rainbow buy button
+		return {
+			text = ("X%d Cash"):format(first.multiplier),
+			owned = false,
+			price = if price.robux ~= nil then ("Only R$%d"):format(price.robux :: number) else nil,
+		}
 	end
 	return nil
 end

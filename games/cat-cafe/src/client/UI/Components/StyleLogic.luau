@@ -6,6 +6,8 @@
 --   uniform   every job's uniform: Classic or an owned style (the Uniform Styles pass, Cafe Pass colours)
 --   accessory the working cats' accessory (#1708, Cat Accessories pass and Cafe Pass pieces): None or an owned one
 --   theme     the cafe's theme: Classic, Garden (Cafe Style pass) or Grand (Grand Cafe Theme)
+--   music     the cafe's music (#1168 row 2, Jukebox Pass): the day and night mix or an owned shared/Jukebox song;
+--             PlayerState.jukeboxTracks and jukebox, SetJukeboxTrack(id or "default")
 -- Uniforms, accessories and themes read PlayerState.looks = { theme, uniform, accessory, themes, uniforms,
 -- accessories } once the server sends it (SetLook);
 -- until then those rows stay hidden. A row shows only when the player owns more than the default, so the tab (and its
@@ -15,7 +17,7 @@
 
 local StyleLogic = {}
 
-export type Kind = "sign" | "uniform" | "accessory" | "theme"
+export type Kind = "sign" | "uniform" | "accessory" | "theme" | "music"
 export type Option = {
 	id: string, -- "" is the default (the plain sign, Classic)
 	name: string,
@@ -47,6 +49,11 @@ local NAMES: { [string]: string } = {
 	acc_acorn_hair_clip = "Acorn Hair Clip",
 	acc_round_reading_glasses = "Round Reading Glasses",
 	acc_tiny_lantern = "Tiny Lantern",
+	-- #1168 row 2: shared/Jukebox.TRACKS (the spec keeps these in step)
+	jukebox_rainy_window = "Rainy Window",
+	jukebox_catnap_waltz = "Catnap Waltz",
+	jukebox_bakery_bounce = "Bakery Bounce",
+	jukebox_starlight_purr = "Starlight Purr",
 }
 
 local TITLES: { [Kind]: string } = {
@@ -54,6 +61,7 @@ local TITLES: { [Kind]: string } = {
 	uniform = "Uniforms",
 	accessory = "Cat accessory",
 	theme = "Cafe theme",
+	music = "Cafe music",
 }
 
 local DEFAULT_NAMES: { [Kind]: string } = {
@@ -61,6 +69,7 @@ local DEFAULT_NAMES: { [Kind]: string } = {
 	uniform = "Classic",
 	accessory = "None",
 	theme = "Classic",
+	music = "Day and night mix",
 }
 
 -- "acorn_brown" reads "Acorn Brown" when nothing names it.
@@ -140,6 +149,14 @@ function StyleLogic.rows(state: any, names: { [string]: string }?): { Row }
 		if theme then
 			table.insert(out, theme)
 		end
+	end
+	-- #1168 row 2: last, as it changes what you hear rather than what you see
+	local tracks: { string } = if type(state.jukeboxTracks) == "table"
+		then state.jukeboxTracks
+		else {}
+	local music = row("music", tracks, state.jukebox, names)
+	if music then
+		table.insert(out, music)
 	end
 	return out
 end

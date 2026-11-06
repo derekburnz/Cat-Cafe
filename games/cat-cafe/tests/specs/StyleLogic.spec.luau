@@ -98,5 +98,27 @@ return function()
 			expect(StyleLogic.name("royal_crest")).to.equal("Royal Crest")
 			expect(StyleLogic.name("x", { x = "Named" })).to.equal("Named")
 		end)
+
+		it("adds a Cafe music row for a Jukebox Pass owner, last, the mix first (#1168)", function()
+			local tracks = { "jukebox_rainy_window", "jukebox_catnap_waltz" }
+			local rows = StyleLogic.rows({ signStyles = { "bakery_stripes" }, jukeboxTracks = tracks })
+			expect(#rows).to.equal(2)
+			expect(rows[2].kind).to.equal("music")
+			expect(rows[2].title).to.equal("Cafe music")
+			expect(names(rows[2])).to.equal("Day and night mix*,Rainy Window,Catnap Waltz")
+			local picked = StyleLogic.rows({ jukeboxTracks = tracks, jukebox = "jukebox_catnap_waltz" })
+			expect(names(picked[1])).to.equal("Day and night mix,Rainy Window,Catnap Waltz*")
+			expect(StyleLogic.shows({ jukeboxTracks = {} })).to.equal(false)
+			expect(StyleLogic.shows({ jukeboxTracks = tracks })).to.equal(true)
+		end)
+
+		it("names every shared/Jukebox song as the Jukebox names it", function()
+			local Jukebox = require(
+				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Jukebox")
+			) :: any
+			for _, track in Jukebox.TRACKS do
+				expect(StyleLogic.name(track.id)).to.equal(track.name)
+			end
+		end)
 	end)
 end

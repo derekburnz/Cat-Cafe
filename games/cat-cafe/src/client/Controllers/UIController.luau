@@ -591,6 +591,8 @@ local function applyState(s: Types.PlayerState)
 		signStyles = s.signStyles, -- #1625: the Style tab's sign row
 		signStyle = s.signStyle,
 		looks = s.looks, -- #1624: the Style tab's theme and uniform rows
+		jukeboxTracks = s.jukeboxTracks, -- #1168 row 2: the Style tab's music row
+		jukebox = s.jukebox,
 		passBoosts = s.passBoosts, -- #1624: the store passes in the money card's Boosts list
 		tradeLog = s.tradeLog, -- F102: the Trades page
 	})
@@ -930,6 +932,8 @@ local function wireIntents()
 			Net.fire("SetSignStyle", if id == "" then nil else id)
 		elseif kind == "uniform" or kind == "accessory" or kind == "theme" then -- #1708: accessory
 			Net.fire("SetLook", kind, if id == "" then "default" else id)
+		elseif kind == "music" then -- #1168 row 2: the Jukebox Pass song, "default" for the day and night mix
+			Net.fire("SetJukeboxTrack", if id == "" then "default" else id)
 		end
 	end)
 	-- The Daily Treat (F70): the server stamps the card when a stamp is due and answers with a toast and a sync.

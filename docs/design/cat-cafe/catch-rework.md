@@ -128,11 +128,11 @@ Derek2, 2026-11-06: "re-work the cat catching mechanic/minigame to be more fun b
 - Rings keep coming on a steady beat, one every `shrinkSeconds + CircleGapMin`, until trust is full or the cat bolts. A run also ends as a bolt after the all-Perfect ring count + `CatchSpareRings` (2): 5 rings for a Common up to 9 for a Mythical. One early Miss can still be recovered, and a run never drags on.
 - The rings sit on the cat in the world, around its head, not in the middle of the screen. The cat reacts to each grade: ears perk on a hit, a wriggle and a soft hiss on a Miss.
 - A soft purr rises in pitch with trust (Sound).
-- **Re-fit (done 2026-11-06, Gameplay-Engineer's exact DP over the trust chain):** tuning `catchWindow` alone with a `2 x` cap missed the section 2 table by up to 8 points, because the trust bar averages out bad rings. With the spare-ring cap above, `catchWindow` becomes 1.15 / 1.032 / 0.908 / 0.796 / 0.688 (Common to Mythical), and every cell lands within 5 points except a Basic Net Mythical at 50 ms (18%, target 23%). That is accepted: it's still a real challenge. `trustNeed` stays as above.
+- **Re-fit (done 2026-11-06, Gameplay-Engineer's exact DP over the trust chain):** tuning `catchWindow` alone with a `2 x` cap missed the section 2 table by up to 8 points, because the trust bar averages out bad rings. With the spare-ring cap above, `catchWindow` becomes 1.15 / 1.032 / 0.908 / 0.742 / 0.636 (Common to Mythical; Legendary and Mythical were re-fitted in PR #1910 once paw rings stopped using a ring slot, see 7c). Every cell lands within 5 points of the section 2 table. The worst is a Basic Net Mythical at 50 ms (19%, target 23%), which is accepted: it's still a real challenge. `trustNeed` stays as above.
 
 ### 7c. Rarity twists
 - **Double ring (Epic and above):** each ring after the first has a 25% chance (`DoubleRingChance`) to be a double, with two outlines shrinking 0.18 s apart. Each half is graded as its own press.
-- **Paw ring (Legendary and above):** each ring after the second has a 1 in 6 chance (`PawRingChance`) to be red with a paw print, never twice in a row. *Don't tap it.* Leaving it gives +1 trust. Tapping it is graded as a Miss (-2), and the cat swats at the net.
+- **Paw ring (Legendary and above):** each ring after the second has a 1 in 6 chance (`PawRingChance`) to be red with a paw print, never twice in a row. *Don't tap it.* Leaving it gives +1 trust. Tapping it is graded as a Miss (-2), and the cat swats at the net. A paw ring doesn't count toward the try's ring cap (7b), but a double ring counts as two.
 - Mythicals can get both. Commons and Rares keep plain rings.
 - The server picks every ring kind into `CatchSchedule`, so the client only draws them.
 

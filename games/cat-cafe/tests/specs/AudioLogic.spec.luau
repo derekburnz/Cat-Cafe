@@ -843,6 +843,23 @@ return function()
 				expect(Logic.wordCue(nil)).to.equal(nil)
 			end
 		)
+		it("gives the Catch v3 finish its banner cue and the trust purr a rising speed", function()
+			expect(Logic.finishCue("great")).to.equal("wordGreat")
+			expect(Logic.finishCue("nice")).to.equal("wordNice")
+			expect(Logic.finishCue("purrfect")).to.equal(nil)
+			expect(Logic.finishCue("bolt")).to.equal(nil)
+			expect(Logic.wordCue("nice")).to.equal("wordNice")
+			expect(Logic.trustPurrSpeed(0, 8)).to.equal(1)
+			expect(Logic.trustPurrSpeed(4, 8)).to.equal(1.25)
+			expect(Logic.trustPurrSpeed(8, 8)).to.equal(1.5)
+			expect(Logic.trustPurrSpeed(20, 8)).to.equal(1.5)
+			expect(Logic.trustPurrSpeed(-3, 8)).to.equal(1)
+			expect(Logic.trustPurrSpeed(nil, 8)).to.equal(1)
+			expect(Logic.trustPurrSpeed(3, 0)).to.equal(1)
+			for _, cue in { "pawSwat", "netWobble", "netPop", "wordNice" } do
+				expect(Cues[cue] ~= nil and Cues[cue].sheet == "sheetCatch3").to.equal(true)
+			end
+		end)
 		it("has the smack, bounce and hop in the Catch sheet", function()
 			for _, cue in { "netSmack", "netBounce", "strayHop" } do
 				expect(Cues[cue] ~= nil and Cues[cue].sheet == "sheetCatch").to.equal(true)

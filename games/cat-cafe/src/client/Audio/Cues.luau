@@ -1171,6 +1171,51 @@ local Cues: { [string]: Cue } = {
 		minGap = 1,
 	}, -- EXCELLENT!: the pop and a four note vibes fanfare
 
+	-- Catch v3 (#1884, catch-rework.md 7): the swat, the net's wobble and pop, and the NICE! word. The rising purr is
+	-- the `purr` cue sped up with trust (Audio.setCatchTrust); ticks, hiss, GREAT, EXCELLENT and PURRFECT are the cues above.
+	sheetCatch3 = {
+		ids = {},
+		group = "Sfx",
+		volume = 1,
+		preload = true,
+	}, -- mono, plays in 3D; silent until uploaded
+	pawSwat = {
+		ids = {},
+		sheet = "sheetCatch3",
+		region = { 0.000, 0.400 },
+		group = "Sfx",
+		volume = 0.55,
+		pitch = { 0.96, 1.04 },
+		minGap = 0.2,
+		range = 40,
+	}, -- a paw ring was tapped: the cat bats at the net
+	netWobble = {
+		ids = {},
+		sheet = "sheetCatch3",
+		region = { 0.900, 1.600 },
+		group = "Sfx",
+		volume = 0.5,
+		minGap = 1,
+		range = 40,
+	}, -- trust is full: the net wraps the cat and wobbles twice
+	netPop = {
+		ids = {},
+		sheet = "sheetCatch3",
+		region = { 2.100, 2.700 },
+		group = "Sfx",
+		volume = 0.55,
+		minGap = 1,
+		range = 40,
+	}, -- the net pops open with confetti
+	wordNice = {
+		ids = {},
+		sheet = "sheetCatch3",
+		region = { 3.200, 3.700 },
+		group = "Sfx",
+		volume = 0.45,
+		minGap = 1,
+	}, -- NICE!: the pop and one marimba note
+
 	-- F90 cats make the orders (5.16): the Cafe sheet, all 3D; they repeat with every order, so each is short and soft
 	sheetCafe = {
 		ids = { "rbxassetid://100577291813581" },

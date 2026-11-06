@@ -323,6 +323,12 @@ Derek's net swing replaces hold E: every character carries the net, a click smac
 | `strayHop` | a stray's `HopAt` (a near miss makes free strays within 12 studs hop away) | 3D on the cat, 40 studs | 0.5 s | a fur puff, the take-off scrabble and two soft paws landing; no voice | P1 |
 | `wordGreat` | GREAT! (every circle Good or better), from `CatchResult` grades | 2D | 0.6 s | the word's pop and two warm marimba notes up a fifth, under the catch sparkle in its key | P1 |
 | `wordExcellent` | EXCELLENT! (at least half Perfect), from `CatchResult` grades | 2D | 0.9 s | the pop and a quick four note vibes fanfare up the A major chord, a step below PURRFECT | P1 |
+| `wordNice` | NICE! (Catch v3 `finish` "nice") | 2D | 0.5 s | the word's pop and one warm marimba note, lighter than GREAT | P1 |
+| `pawSwat` | a paw ring was tapped (Catch v3 7c) | 3D | 0.4 s | a quick fur swish, a padded tap and a tiny squeak; the cat bats at the net | P1 |
+| `netWobble` | trust is full, the net wraps the cat (7d) | 3D | 0.7 s | a closing rustle and two rubbery boings, the second smaller | P1 |
+| `netPop` | the net pops open with confetti (7d) | 3D | 0.6 s | a cork pop and a shimmer of tiny bells | P1 |
+
+Catch v3 (#1884) reuses what exists: the trust purr is `purr` played flat and sped from 1.0 to 1.5 as trust fills (`Audio.setCatchTrust`), the ring grades keep `circlePerfect`, `circleGood` and `circleMiss` (one scale step per ring), the Miss hiss is `catHiss`, and PURRFECT keeps `purrfectChime`. The four new cues sit in the `sheetCatch3` sheet (one upload) and are silent until it has an id.
 
 PURRFECT! keeps `purrfectChime` and "So close!" keeps `catchMiss`. A rescue zone that runs out (RescueZonePasses) sends a RescueResult with a paw lost, so it plays `rescueMiss` like a missed press with no change here.
 

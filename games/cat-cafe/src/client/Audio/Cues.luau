@@ -101,6 +101,50 @@ local Cues: { [string]: Cue } = {
 		seconds = 101.053, -- 32 bars at 76 BPM
 		sections = 4,
 	}, -- "Night Owls"
+	-- #1168 row 2 (2026-11-06): the Jukebox Pass's four cafe songs, in one upload like the Music sheet. A pass owner's
+	-- pick plays in place of the day and night rotation (Audio.setJukebox); silent until sheetMusicJukebox has an id.
+	-- Rendered by synth/music.py, which prints the regions. Each name matches its shared/Jukebox track `cue`.
+	sheetMusicJukebox = {
+		ids = {},
+		group = "Music",
+		volume = 0.3,
+	}, -- stereo, 189.5 s: Rainy Window, Catnap Waltz, Bakery Bounce, Starlight Purr with 0.5 s of silence between
+	musicJukeboxRainyWindow = {
+		ids = {},
+		sheet = "sheetMusicJukebox",
+		region = { 0.000, 60.000 },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+		seconds = 60.000, -- 16 bars at 64 BPM
+	}, -- "Rainy Window"
+	musicJukeboxCatnapWaltz = {
+		ids = {},
+		sheet = "sheetMusicJukebox",
+		region = { 60.500, 94.786 },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+		seconds = 34.286, -- 16 bars of 3/4 at 84 BPM
+	}, -- "Catnap Waltz"
+	musicJukeboxBakeryBounce = {
+		ids = {},
+		sheet = "sheetMusicJukebox",
+		region = { 95.286, 130.841 },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+		seconds = 35.556, -- 16 bars at 108 BPM
+	}, -- "Bakery Bounce"
+	musicJukeboxStarlightPurr = {
+		ids = {},
+		sheet = "sheetMusicJukebox",
+		region = { 131.341, 189.523 },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+		seconds = 58.182, -- 16 bars at 66 BPM
+	}, -- "Starlight Purr"
 	-- 2026-11-05 (#1541, Derek): the tutorial plays its own calm song instead of the day and night songs, from the intro
 	-- cutscene and through the first tutorial steps, until it is skipped or done. Uploaded by upload-audio run
 	-- 42068848366.

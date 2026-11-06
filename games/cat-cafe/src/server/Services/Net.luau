@@ -50,6 +50,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	PassSetTag = RateLimiter.new(2, 1), -- #1626: the Pass screen's tag picker
 	SetSignStyle = RateLimiter.new(2, 1), -- #1625: a pick on the Style panel; each one refreshes the plot
 	SetLook = RateLimiter.new(2, 1), -- #1624: a theme or uniform pick on the Style tab; each refreshes the plot
+	SetJukeboxTrack = RateLimiter.new(2, 1), -- #1168 row 2: a song pick on the Jukebox card
 	MarkStoreSeen = RateLimiter.new(2, 1), -- #1842: a Store tab opened (only a change syncs)
 	ClaimTipJar = RateLimiter.new(1, 1), -- data-model section 15: 1 a second
 	ClaimIndexReward = RateLimiter.new(1, 1), -- data-model section 15: 1 a second

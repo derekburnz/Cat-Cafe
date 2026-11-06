@@ -126,8 +126,6 @@ PIVOT_NOTES = {
           "same placements" for n in ("CatCafe_Square_RallyBunting", "CatCafe_Square_RallyBuntingShort")},
     "CatCafe_Town_LeaderboardRow": "the plinth's base centre on the paving (world y 0.1), front -Z toward the Cat "
                                    "Cannon; Layout.leaderboards (40, 0.1, 0) turned 90, at the lane's east end",
-    "CatCafe_Camp_Sewer_LostFound": "the base centre on the camp's ground, front -Z toward the camp, no turn; area "
-                                    "space at campextras.SPOTS (beside the way out, across from the Index Board)",
     "CatCafe_Town_WelcomeArch": "the opening's base centre on the street top (world y 0.1), front -Z toward the "
                                 "Town Square; Layout.townEnds at (0, -123) turned 180 and (0, 123) unturned",
     **{f"CatCafe_Plot_LuckyCat_{n}": "the plinth's base centre on the plot floor, front -Z to the street; plot space "

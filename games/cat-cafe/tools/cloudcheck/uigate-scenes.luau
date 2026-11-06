@@ -429,6 +429,7 @@ local function storePrices(forSale)
 		GrandThemePassId = 799,
 		RoyalCatPassId = 599,
 		KingPackPassId = 999,
+		GardenDecorPackPassId = 149, -- #1168: shows once its id is set
 	}
 	for key, robux in others do
 		local id = Config[key]
@@ -442,7 +443,7 @@ local function storePrices(forSale)
 			prices[id] = { robux = 149, forSale = forSale }
 		end
 	end
-	local packs = { potion_pack_xs = 10, potion_pack_s = 25, potion_pack_m = 49, potion_pack_l = 99 }
+	local packs = { potion_pack_xs = 10, potion_pack_s = 25, potion_pack_m = 49, potion_pack_l = 99, steady_paw_pack = 25 }
 	for key, robux in packs do
 		local id = (Config.ProductIds or {})[key]
 		if type(id) == "number" and id ~= 0 then
@@ -2112,6 +2113,15 @@ local SCENES = {
 		UI.update({ storeSeen = allSeen } :: any)
 		assert(not (tileDot :: GuiObject).Visible, "uigate: the Store tile's New dot stays with every tab seen (#1823)")
 		press("Store", "cats")
+	end },
+	-- #1168 row 8: the Steady Paw Pack on the Potions tab, its card saying what is in it
+	{ "StoreSteadyPaw", function()
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		press("Store", "potions")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local card = modals and modals:FindFirstChild("grid:steadyPaw", true)
+		assert(card and card.Visible, "uigate: no Steady Paw Pack card on the Potions tab (#1168)")
 	end },
 	-- #1168: the Thank You Badge (a product, hidden for a supporter) and the Sign Style Pack (a pass, hidden at 0)
 	-- on the Passes tab, each saying what it holds

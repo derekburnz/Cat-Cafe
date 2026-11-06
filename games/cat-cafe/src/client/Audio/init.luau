@@ -417,6 +417,7 @@ local lastSong: string? = nil
 local introActive = false -- #1541: the intro cutscene is playing
 local stepsActive = false -- #1541: the first tutorial steps are showing
 local lastTutorialStep: number? = nil
+local jukeboxCue: string? = nil -- #1168: the picked Jukebox Pass song's cue, nil for the rotation
 
 local function tutorialMusic(): boolean
 	return (introActive or stepsActive) and has("musicTutorial")
@@ -429,6 +430,12 @@ local function playSong(generation: number, fromTop: boolean)
 	if tutorialMusic() then -- its own loop replaces the normal songs until it ends or is skipped
 		lastSong = nil
 		crossfade(music, "musicTutorial", MUSIC_FADE)
+		return
+	end
+	local picked = Logic.jukeboxSong(jukeboxCue, has)
+	if picked ~= nil then -- the pick loops on its own in place of the day and night rotation
+		lastSong = nil
+		crossfade(music, picked, MUSIC_FADE)
 		return
 	end
 	local cueId = Logic.nextSong(Logic.songsFor(phase, has), lastSong, rng:NextNumber())
@@ -1953,6 +1960,15 @@ function Audio.setTutorial(step: number?, tileOn: boolean)
 	end
 	if active ~= stepsActive then
 		stepsActive = active
+		refreshMusic(false)
+	end
+end
+
+-- #1168 row 2: the Jukebox Pass song picked (shared/Jukebox track cue), or nil for the rotation. Call it on every
+-- ProfileSync; the music only changes when the pick does. The tutorial song still comes first.
+function Audio.setJukebox(cueId: string?)
+	if cueId ~= jukeboxCue then
+		jukeboxCue = cueId
 		refreshMusic(false)
 	end
 end

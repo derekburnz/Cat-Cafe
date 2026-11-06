@@ -18,6 +18,11 @@ Passes
   KingPack        King Croissant on his red velvet cushion throne (shopcats.py)
   GoldenPond      a little stone pond with lily pads and a golden fish leaping out
   SecondBaitBowl  two food bowls heaped with kibble, a +1 tag on the second
+  SignStylePack   three small sign plates fanned out like cards, one per style in the pack (#1860): Flower Box (white
+                  board, mint frame, a box of flowers under it), Starry Night (navy, gold frame, gold stars and a moon)
+                  in front, Paw Chalkboard (green slate, wooden frame, chalk paws)
+  GardenDecorPack a little flower bed on a grass mound (#1860): pink, yellow, white and lilac flowers, a tall
+                  sunflower and leaves in dark soil, with a tiny white picket fence across the front
 Products
   StarterBundle   the pink gift box with Sprinkles, a Big Money and a Swift Potion, and a striped little sign
   PotionXS        2 Big Money Potions
@@ -504,10 +509,91 @@ def crown_sign(mat):
     return [b.finalize("CatCafe_IconArt_Store_CrownSign", mat)]
 
 
+def _plate(b, c, ang, w, h, board, frame, f=0.12):
+    """A small sign plate facing the camera, centred on c and turned `ang` degrees in the picture plane (positive
+    leans it right); returns a function giving world points from the plate's own (x, depth, z) and its rotation."""
+    R = Matrix.Rotation(math.radians(ang), 3, "Y")
+    C = Vector(c)
+
+    def at(x, y, z):
+        return tuple(C + R @ Vector((x, y, z)))
+
+    b.box(at(0, 0, 0), (w, 0.12, h), board, bevel=False, rot=R)
+    for (x, z, sx, sz) in ((0, h / 2 + f / 2, w + 2 * f, f), (0, -h / 2 - f / 2, w + 2 * f, f),
+                           (-w / 2 - f / 2, 0, f, h), (w / 2 + f / 2, 0, f, h)):
+        b.box(at(x, -0.04, z), (sx, 0.2, sz), frame, bevel=False, rot=R)
+    return at, R
+
+
+def sign_style_pack(mat):
+    b = Builder()
+    up = Matrix.Rotation(math.radians(90), 3, "X")                                            # flat shapes face -y
+    W, H = 1.9, 0.95
+    # Flower Box, behind on the left
+    at, R = _plate(b, (-1.45, 0.25, 0.8), -30, W, H, "offwhite", "mint")
+    b.box(at(0, -0.22, -H / 2 - 0.32), (W * 0.85, 0.34, 0.3), "caramel_wood", bevel=False, rot=R)   # its flower box
+    for k, sw in enumerate(("apron_pink", "rarity_legend", "pastel_sky", "offwhite", "blush")):
+        x = -W * 0.36 + k * W * 0.18
+        b.ico(at(x + 0.07, -0.3, -H / 2 - 0.14), 0.14, "leaf_green")
+        b.ico(at(x, -0.42, -H / 2 - 0.08), 0.15, sw)
+    # Paw Chalkboard, behind on the right
+    at, R = _plate(b, (1.45, 0.2, 0.8), 30, W, H, "dumpster_green", "caramel_wood")
+    for (x, z, s) in ((0.05, -0.15, 0.4), (0.4, 0.14, 0.36), (0.72, -0.12, 0.32)):
+        b.cyl(at(x, -0.08, z - 0.05 * s), 0.26 * s, 0.04, "offwhite", segments=12, rot=R @ up)
+        for (dx, dz) in ((-0.27, 0.2), (-0.1, 0.34), (0.1, 0.34), (0.27, 0.2)):
+            b.cyl(at(x + dx * s, -0.08, z + dz * s), 0.09 * s, 0.04, "offwhite", segments=8, rot=R @ up)
+    # Starry Night, in front in the middle, a little bigger
+    at, R = _plate(b, (0, -0.25, 1.35), 0, W, H, "night_sky", "gold_mid", f=0.14)
+    for (x, z, s) in ((-0.62, 0.17, 0.19), (-0.22, -0.16, 0.13), (0.15, 0.2, 0.15), (0.45, -0.14, 0.11),
+                      (0.74, 0.22, 0.12)):
+        b.star(at(x, -0.09, z), s, s * 0.45, 0.04, "sparkle" if s < 0.15 else "rarity_legend", rot=R @ up)
+    cz = H * 0.55 + 0.14 + 0.42
+    b.box(at(0, -0.04, H * 0.55 + 0.17), (1.0, 0.18, 0.08), "gold_mid", bevel=False, rot=R)     # the moon's plinth
+    _moon(b, at(-0.1, -0.04, cz), 0.42, 0.2, 0.14, "gold_mid")
+    for (x, z, s) in ((0.38, cz + 0.22, 0.17), (0.6, cz - 0.08, 0.12)):
+        b.star(at(x, -0.04, z), s, s * 0.45, 0.1, "gold_light", rot=R @ up)
+    return _fin(b, "SignStylePack", mat)
+
+
+def garden_decor_pack(mat):
+    b = Builder()
+    b.cyl((0, 0, 0.1), 1.45, 0.2, "leaf_green", segments=28, scale=(1, 0.72, 1))               # the grass mound
+    b.cyl((0, 0.05, 0.24), 1.15, 0.12, "choco", segments=24, scale=(1, 0.6, 1))                # the bed's soil
+    flowers = ((-0.85, 0.2, 0.55, "apron_pink"), (-0.5, -0.15, 0.62, "rarity_legend"),
+               (-0.15, 0.25, 0.7, "pastel_lilac"),
+               (0.2, -0.1, 0.58, "offwhite"), (0.55, 0.2, 0.66, "apron_pink"), (0.85, -0.05, 0.52, "rarity_legend"),
+               (-0.65, 0.4, 0.75, "offwhite"), (0.35, 0.42, 0.8, "pastel_lilac"))
+    for k, (x, y, h, sw) in enumerate(flowers):
+        b.cyl((x, y, 0.3 + h / 2), 0.035, h, "leaf_dark", segments=5, bevel=False)            # a stem
+        b.ico((x + 0.1, y, 0.3 + h * 0.45), 0.12, ("leaf_green", "leaf_dark")[k % 2], scale=(1.4, 0.8, 0.5))
+        for j in range(5):                                                                     # five round petals
+            a = math.radians(72 * j + 90)
+            b.cyl((x + 0.12 * math.cos(a), y - 0.02, 0.3 + h + 0.12 * math.sin(a)), 0.1, 0.04, sw, segments=8,
+                  bevel=False, rot=X)
+        b.cyl((x, y - 0.05, 0.3 + h), 0.07, 0.04, "fur_orange" if sw == "rarity_legend" else "rarity_legend",
+              segments=8, bevel=False, rot=X)
+    sx, sy, sh = -0.1, 0.5, 1.45                                                               # a tall sunflower
+    b.cyl((sx, sy, 0.3 + sh / 2), 0.05, sh, "leaf_dark", segments=6, bevel=False)
+    for s in (-1, 1):
+        b.ico((sx + s * 0.22, sy, 0.3 + sh * (0.45 if s < 0 else 0.62)), 0.18, "leaf_green", scale=(1.5, 0.8, 0.5))
+    for j in range(12):
+        a = math.radians(30 * j)
+        b.box((sx + 0.36 * math.cos(a), sy - 0.02, 0.3 + sh + 0.36 * math.sin(a)), (0.3, 0.04, 0.13), "rarity_legend",
+              bevel=False, rot=Matrix.Rotation(-a, 3, "Y"))
+    b.cyl((sx, sy - 0.06, 0.3 + sh), 0.22, 0.08, "choco", segments=14, bevel=False, rot=X)
+    for k in range(9):                                                                         # the picket fence
+        x = -1.2 + k * 0.3
+        b.box((x, -0.82, 0.42), (0.14, 0.06, 0.5), "offwhite")
+        b.fan((x, -0.82, 0.67), (0, 0.11), [(-0.07, 0.0), (0.07, 0.0)], 0.06, "offwhite", rot=X)
+    for z in (0.32, 0.55):                                                                     # its rails
+        b.box((0, -0.79, z), (2.55, 0.05, 0.07), "offwhite", bevel=False)
+    return _fin(b, "GardenDecorPack", mat)
+
+
 PASSES = {"Money2x": money("2"), "Money3x": money("3"), "Money4x": money("4"), "LongNap": long_nap, "VIP": vip,
           "Accessories": accessories_pass, "Uniforms": uniforms, "CafeStyle": cafe_style, "GrandTheme": grand_theme,
           "ExtraSlot": extra_slot, "RoyalCat": royal_cat, "KingPack": king_pack, "GoldenPond": golden_pond,
-          "SecondBaitBowl": second_bait_bowl}
+          "SecondBaitBowl": second_bait_bowl, "SignStylePack": sign_style_pack, "GardenDecorPack": garden_decor_pack}
 PRODUCTS = {"StarterBundle": starter_bundle, "PotionXS": potion_xs, "PotionS": potion_s, "PotionM": potion_m,
             "PotionL": potion_l, "CafePass": cafe_pass}
 # name -> (yaw, pitch) for icons.py
@@ -515,5 +601,6 @@ VIEWS = {"Money2x": (-16.0, 30.0), "Money3x": (-16.0, 30.0), "Money4x": (-16.0, 
          "VIP": (-10.0, 8.0), "Accessories": (-24.0, 8.0), "Uniforms": (-24.0, 8.0), "CafeStyle": (-24.0, 12.0),
          "GrandTheme": (-20.0, 10.0), "ExtraSlot": (-20.0, 18.0), "RoyalCat": (-24.0, 8.0), "KingPack": (-24.0, 12.0),
          "GoldenPond": (-14.0, 30.0), "SecondBaitBowl": (-20.0, 20.0), "StarterBundle": (-20.0, 16.0),
+         "SignStylePack": (-8.0, 6.0), "GardenDecorPack": (-18.0, 24.0),
          "PotionXS": (-12.0, 8.0), "PotionS": (-14.0, 22.0), "PotionM": (-16.0, 26.0), "PotionL": (-16.0, 24.0),
          "CafePass": (0.0, 0.0)}

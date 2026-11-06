@@ -35,6 +35,7 @@ local Config = {
 	RoyalCatPassId = 2066438426,
 	KingPackPassId = 2071368679,
 	KingCatPassId = 2074682301, -- #1822: the King Cat alone (R$799); the pass is made off sale and goes on sale after this is live
+	JukeboxPassId = 0, -- #1168 row 2: four extra cafe songs (R$99); 0 until made, after Sound-Agent's songs are in
 	SignStylePackPassId = 2075396351, -- #1168 row 1: three sign styles (R$79); made off sale by Tools-Agent 2026-11-06
 	GardenDecorPackPassId = 2075342357, -- #1168 row 3: six looks-only decor pieces (R$149); made off sale by Tools-Agent 2026-11-06
 	GoldenPondPassId = 2071704337, -- #1232

@@ -17,7 +17,7 @@ export type Row = { id: string, date: string, icon: Icon, text: string, creditId
 
 WhatsNew.ICONS = table.freeze({ "new", "cat", "look", "faster", "fix" })
 WhatsNew.TEXT_MAX = 28
-WhatsNew.SHOWN = 5
+WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
 	{ id = "cat_food_bag", date = "2026-11-05", icon = "new", text = "Bag with cat food to feed" },
@@ -26,6 +26,22 @@ WhatsNew.rows = table.freeze({
 		date = "2026-11-05",
 		icon = "new",
 		text = "Corner Shop sizes and tiers",
+	},
+	-- #1768: what Derek2's 11-05 playtest found live
+	{
+		id = "golden_rainbow_days",
+		date = "2026-11-05",
+		icon = "new",
+		text = "Golden and Rainbow days",
+	},
+	{ id = "mystery_gifts", date = "2026-11-05", icon = "new", text = "Mystery gifts around town" },
+	{ id = "more_strays", date = "2026-11-05", icon = "cat", text = "More strays to catch" },
+	{ id = "night_market", date = "2026-11-05", icon = "new", text = "Night Market cart at night" },
+	{
+		id = "decor_crate_reel",
+		date = "2026-11-05",
+		icon = "look",
+		text = "Decor crates spin to open",
 	},
 	{
 		id = "cannon_aim",

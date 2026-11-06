@@ -1470,21 +1470,43 @@ end
 
 -- F93: GREAT and EXCELLENT get their word's sound from the server's grades (CatchResult goes only to the catcher),
 -- over the catch sparkle; PURRFECT and "So close!" keep the Purrfect and CatchFail moments' sounds.
-local function wordFor(finish: unknown, grades: unknown, success: unknown): string?
-	if type(finish) == "string" then
+-- Catch v3: CatchResult(strayId, grades, success, charmGain, retryAt, result) where `result` is
+-- { trust, trustNeed, finish = "purrfect" | "great" | "nice" | "bolt", streak } (a bare string works too).
+local function finishOf(result: unknown): string?
+	if type(result) == "string" then
+		return result
+	elseif type(result) == "table" and type((result :: any).finish) == "string" then
+		return (result :: any).finish
+	end
+	return nil
+end
+
+local function wordFor(result: unknown, grades: unknown, success: unknown): string?
+	local finish = finishOf(result)
+	if finish ~= nil then
 		return Logic.finishCue(finish)
 	end
 	return Logic.wordCue(Logic.catchWord(grades, success))
 end
 
+local CATCH_NEED_FALLBACK = 12 -- the Epic need, used until a result or schedule says otherwise
+
 local function followCatchWords()
-	onRemote("CatchResult", function(_strayId: unknown, grades: unknown, success: unknown, finish: unknown)
-		-- Catch v3 sends the server's `finish` (purrfect, great, nice or bolt); older results work from the grades.
-		local cue = wordFor(finish, grades, success)
-		if cue ~= nil then
-			Audio.play(cue)
+	-- CatchJudged(strayId, index, grade, trust): the purr follows the trust after every ring.
+	onRemote("CatchJudged", function(_strayId: unknown, _index: unknown, _grade: unknown, trust: unknown)
+		if type(trust) == "number" then
+			Audio.setCatchTrust(trust, CATCH_NEED_FALLBACK)
 		end
 	end)
+	onRemote(
+		"CatchResult",
+		function(_strayId: unknown, grades: unknown, success: unknown, _gain: unknown, _retryAt: unknown, result: unknown)
+			local cue = wordFor(result, grades, success)
+			if cue ~= nil then
+				Audio.play(cue)
+			end
+		end
+	)
 end
 
 -- F102: the trade countdown tocks once a second while TradeState's phase is "countdown"; any other state (a change

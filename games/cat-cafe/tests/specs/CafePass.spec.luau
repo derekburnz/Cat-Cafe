@@ -10,6 +10,7 @@ return function()
 	local Config = require(Shared.Config)
 	local Economy = require(Shared.Economy)
 	local ProfileSchema = require(Shared.ProfileSchema)
+	local Prizes = require(Shared.Prizes)
 	local Trade = require(Shared.Trade)
 
 	local LEVEL = Config.PassXpPerLevel
@@ -96,7 +97,7 @@ return function()
 			)
 			expect(CafePass.claimBlocker(state, 1, "free", 2)).to.equal("Reach that level first")
 			state.xp = 7 * LEVEL
-			expect(CafePass.claimBlocker(state, 1, "free", 3)).to.equal("Nothing at that level")
+			expect(CafePass.claimBlocker(state, 1, "free", 31)).to.equal("Nothing at that level") -- past the last level
 			expect(CafePass.claimBlocker(state, 1, "free", 2)).to.equal(nil)
 			expect(CafePass.claimBlocker(state, 1, "paid", 7)).to.equal(
 				"That one is on the paid track"
@@ -108,12 +109,12 @@ return function()
 		it("unlocks every paid level already reached once bought (QA case 1)", function()
 			local state = CafePass.fresh(1)
 			state.xp = 7 * LEVEL
-			expect(#CafePass.claimable(state, 1)).to.equal(3) -- free 2, 4 and 6
+			expect(#CafePass.claimable(state, 1)).to.equal(7) -- free 1 to 7 (#1883: every level)
 			state.paidSeason = 1
 			local ready = CafePass.claimable(state, 1)
-			expect(#ready).to.equal(10) -- and paid 1 to 7
-			expect(ready[4].track).to.equal("paid")
-			expect(ready[4].level).to.equal(1)
+			expect(#ready).to.equal(14) -- and paid 1 to 7
+			expect(ready[8].track).to.equal("paid")
+			expect(ready[8].level).to.equal(1)
 		end)
 
 		it("keeps a paid item forever once claimed", function()
@@ -164,7 +165,7 @@ return function()
 					expect(claim.season).to.equal(1)
 					table.insert(keys, claim.track .. claim.level)
 				end
-				expect(keys :: any).to.deepEqual({ "free4", "paid2", "paid3", "paid4" })
+				expect(keys :: any).to.deepEqual({ "free1", "free3", "free4", "paid2", "paid3", "paid4" }) -- #1883
 				expect(state.season).to.equal(2)
 				expect(state.xp).to.equal(0)
 				expect(#state.claimedFree + #state.claimedPaid).to.equal(0)
@@ -179,8 +180,10 @@ return function()
 				local state = CafePass.fresh(1)
 				state.xp = 2 * LEVEL
 				local owed = CafePass.roll(state, 2)
-				expect(#owed).to.equal(1)
-				expect(owed[1].track).to.equal("free")
+				expect(#owed).to.equal(2) -- free 1 and 2 (#1883)
+				for _, claim in owed do
+					expect(claim.track).to.equal("free")
+				end
 				expect(#CafePass.roll(CafePass.fresh(0), 1)).to.equal(0)
 			end
 		)
@@ -216,9 +219,9 @@ return function()
 	describe("the reward tables (cafe-pass.md sections 2 and 3)", function()
 		local season = Catalog.passSeasons[1]
 
-		it("has a free reward every second level and a paid one at every level", function()
+		it("has a free and a paid reward at every level (#1883)", function()
 			for level = 1, Config.PassLevels do
-				expect(season.free[level] ~= nil).to.equal(level % 2 == 0)
+				expect(season.free[level]).to.be.ok()
 				expect(season.paid[level]).to.be.ok()
 			end
 			expect((season.paid[30].item :: any).id).to.equal("maple_muffin")
@@ -251,7 +254,8 @@ return function()
 					expect(Catalog.getPotion(potionId)).to.be.ok()
 				end
 				for crateId in prize.crates or {} do
-					expect(Catalog.getCrate(crateId)).to.be.ok()
+					-- "highest" is the highest open zone's crate (Prizes.crateFor, #1883)
+					expect(crateId == Prizes.HIGHEST or Catalog.getCrate(crateId) ~= nil).to.equal(true)
 				end
 			end
 		end)

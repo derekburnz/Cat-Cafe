@@ -2202,6 +2202,38 @@ function Logic.catchWord(grades: { Grade }): string?
 	return "great"
 end
 
+-- Catch v3 (#1884, catch-rework.md section 7) ------------------------------------------------------------------
+
+-- A grade's name: "perfect", "good", "miss" or v3's "left" (a paw ring left alone), whether the server sent the word or the old number (1, 0.5, 0).
+function Logic.gradeName(grade: unknown): string?
+	if grade == "perfect" or grade == 1 then
+		return "perfect"
+	elseif grade == "good" or grade == 0.5 then
+		return "good"
+	elseif grade == "miss" or grade == 0 then
+		return "miss"
+	elseif grade == "left" then
+		return "left" -- v3: a paw ring left alone (+1 trust)
+	end
+	return nil
+end
+
+local FINISHES = { purrfect = true, great = true, nice = true }
+
+-- The v3 finish (7d) from CatchResult's arguments after `success`: the server's `finish` ("purrfect", "great", "nice"
+-- or "bolt"), sent bare or in a table with a `finish` field. nil for a bolt, or when the server sends no finish
+-- (the v2 catch, before Gameplay's trust PR), so the caller keeps the old word.
+function Logic.catchFinish(...: any): string?
+	for i = 1, select("#", ...) do
+		local value = select(i, ...)
+		local finish = if type(value) == "table" then (value :: any).finish else value
+		if type(finish) == "string" and FINISHES[finish] then
+			return finish
+		end
+	end
+	return nil
+end
+
 -- Where a result word's sparkles start: `n` spots spread evenly across `width` pixels through `centre`.
 function Logic.wordSpots(centre: Vector2, width: number, n: number): { Vector2 }
 	local spots: { Vector2 } = {}

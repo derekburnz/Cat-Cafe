@@ -524,6 +524,7 @@ export type BaitView = {
 	readyAt: number,
 	placedAt: number?, -- server os.time() the food went in; with readyAt, the fill bar's length
 	night: boolean?, -- F60: the food went in at night and waits half, so the countdown shows a moon
+	wow: boolean?, -- #1897: the account's first wow cat is on its way (Rare or better), so the bowl says so
 }
 
 -- The cat that came to the bowl, from BaitReady (a CatView or anything with these fields).

@@ -987,6 +987,15 @@ local SCENES = {
 		UI.bait.openPicker()
 		assertBowlTabs(2, "Bowl 2 is empty")
 	end },
+	-- #1897: the account's first wow cat is on its way, and the bowl says so honestly
+	{ "BaitWow", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 250, placedAt = now - 50, wow = true }, 1)
+		UI.bait.openPicker()
+		local window = baitWindow()
+		local title = window:FindFirstChild("Status", true):FindFirstChild("Title").Text
+		assert(title == "Your next cat will be Rare or better!", "uigate: the wow bowl reads " .. title)
+	end },
 	-- #1893 (first-hour.md 1b): the Grand Opening strip under the goal card at 3/8, tapped open into its eight steps
 	-- (the next one highlighted), then milestone 4's toast and dot
 	{ "GrandOpening", function()
@@ -1858,6 +1867,27 @@ local SCENES = {
 	{ "BigPullCat", function()
 		task.delay(0.5, function()
 			UI.securedRare(localUserId(), mythicalCat(), "Mythical", true, "gold")
+		end)
+	end },
+	-- #1897: the first wow cat's card, "YOUR FIRST EPIC!", and the same cat's first Epic card (SecuredRare) right
+	-- after it plays nothing more. The smaller card closes at 2 s, so it starts 0.9 s in to be up when the gate looks
+	{ "BigPullWow", function()
+		local epic = nil
+		for _, def in Catalog.cats do
+			if def.rarity == "Epic" then
+				epic = def.id
+				break
+			end
+		end
+		assert(epic, "uigate: no Epic cat in the catalog")
+		task.delay(0.9, function()
+			-- BaitReady first, then FirstWow(rarity, first): the card takes the bowl cat of that rarity for its portrait
+			UI.bait.showReady({ catId = epic }, 1)
+			UI.bait.wow("Epic", true)
+			UI.securedRare(localUserId(), epic, "Epic", false, nil)
+			local pull = UIShim.playerGui:FindFirstChild("CatCafeBigPull")
+			local word = pull and pull:FindFirstChild("Word", true)
+			assert(word and word.Text == "YOUR FIRST EPIC!", "uigate: the wow card reads " .. tostring(word and word.Text))
 		end)
 	end },
 	-- F89 and F99: the longest rarity word, RAINBOW LEGENDARY!, on a rainbow card

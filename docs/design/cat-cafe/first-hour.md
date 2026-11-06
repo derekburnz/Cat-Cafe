@@ -68,3 +68,10 @@ QA's first-hour sim (`docs/playtests/2026-11-06-first-hour.md`) found buys come 
 - **It fits the roadmap.** Steps 5 to 7 (a Park catch at about 20 minutes, a full cafe at about 30 and ten cats at about 40) already land in the same window as non-coin goals. With the two buys, something new happens about every 5 to 10 minutes from minute 15 to 50.
 - Rank-up screen (RankUp.luau): it lists the next tier's unlocks from `requiresTier`, so Tables 5 and Espresso 4 drop out of Tier 3's list and appear in Tier 2's automatically. UI-Engineer checks that the Tier 2 card still fits.
 - Claim: `shared/Catalog.luau` (tiers, caps and upgrade costs only; no Config change). Gameplay-Engineer opens it.
+
+### 4a. Fitted numbers and the third buy (2026-11-06, Gameplay-Engineer's PR #1912, 20 Pace runs)
+- **Fitted:** Tables 5 costs 170,000 and is bought at a median of 22.4 minutes. Espresso 4 costs 700,000, bought at 42.4. Tier 3 costs 900,000, with a median of 49.8 minutes and the fastest tenth at 37.9. Tier 2 lands at 12.1.
+- **Still short:** the median longest gap is 16.1 minutes, against the target of 12. Counting new cats it is 10.7, against 6. A dearer Tier 3 lengthens the save before it, so the gap sits between minutes 22 and 42.
+- **Decided: a third buy in that gap.** Lucky Cat level 3 moves into Tier 2 (cap `lucky_cat = 3`), priced so the median buy lands at about minute 32. It adds Luck, not income, so Tier 3 hardly moves. Re-check Tier 3 and keep its median at 45 to 55 minutes.
+- **Count the roadmap in the "something new" gap.** Grand Opening steps (section 1) pay a reward and play a toast, so the Pace model counts them along with new cats. Steps 5 to 7 land at about 20, 30 and 40 minutes.
+- The targets stay at 12 and 6. If they're still missed after these two changes, the guard keeps today's 18 and 12, and Design looks again with live data from the `grand_opening` funnel instead of the model.

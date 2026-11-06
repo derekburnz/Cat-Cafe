@@ -536,3 +536,6 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### 2026-11-06 First hour: fill the Tier 2 dead window (#1896, Design-Agent, friend's project)
 - Tier 2 caps go up to Tables 5 and Espresso 4, priced so the median buys land at about minutes 22 and 42, and the Tier 3 cost rises so its median stays at 45 to 55 minutes (10th percentile 35 or later). Why: QA-Planner's audit (PR #1907) found 20 to 30 minutes with nothing to buy between the 25,000 net and the 700,000 rank-up. This moves two existing items into the gap, with no new content. Tier 2 stays at 10 to 20 minutes. Spec: first-hour.md §4.
+
+### 2026-11-06 First hour: fitted Tier 2 numbers and a third buy (#1896, Design-Agent, friend's project)
+- Logged from Gameplay-Engineer's PR #1912 (20 Pace runs): Tables 5 costs 170,000 (bought at minute 22.4), Espresso 4 costs 700,000 (minute 42.4) and Tier 3 costs 900,000 (median 49.8 minutes, fastest tenth 37.9). Tier 2 lands at 12.1 minutes. The median longest gap is still 16.1 minutes, against 12. Decided: Lucky Cat 3 moves into Tier 2, priced for about minute 32. It adds Luck, not income, so Tier 3 hardly moves. The Pace gap also counts Grand Opening steps as something new. Why: one buy between minutes 22 and 42 is the remaining hole, and roadmap rewards are real events the model was leaving out. Spec: first-hour.md §4a.

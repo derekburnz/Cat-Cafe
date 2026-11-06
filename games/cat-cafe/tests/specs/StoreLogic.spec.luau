@@ -400,4 +400,60 @@ return function()
 			expect(#featured.picks).to.equal(0)
 		end)
 	end)
+	describe("StoreLogic King Cat cards (#1822)", function()
+		local config = {
+			KingPackPassId = 100,
+			KingCatPassId = 200,
+			ProductIds = { potion_pack_m = 300 },
+		}
+		local function find(rows: { any }, key: string): any
+			for _, row in rows do
+				if row.key == key then
+					return row
+				end
+			end
+			return nil
+		end
+		it("shows the King Cat alone just before its bundle, under Cats", function()
+			local rows = StoreLogic.rows(config, {}, false, nil)
+			local cat, pack
+			for index, row in rows do
+				if row.key == "kingCat" then
+					cat = index
+				elseif row.key == "kingPack" then
+					pack = index
+				end
+			end
+			expect(cat).to.be.ok()
+			expect(pack).to.equal(cat + 1)
+			expect(rows[cat].tab).to.equal("cats")
+		end)
+		it("hides the King Cat alone while its pass is not made", function()
+			local rows = StoreLogic.rows({ KingPackPassId = 100, KingCatPassId = 0 }, {}, false, nil)
+			expect(find(rows, "kingCat")).to.equal(nil)
+			expect(find(rows, "kingPack").worthIds).to.equal(nil)
+		end)
+		it("adds up the parts for the worth line, only when it beats the bundle's price", function()
+			local pack = find(StoreLogic.rows(config, {}, false, nil), "kingPack")
+			local prices = {
+				[100] = { robux = 999, forSale = true },
+				[200] = { robux = 799, forSale = true },
+				[300] = { robux = 450, forSale = true },
+			}
+			expect(StoreLogic.worthLine(pack, prices)).to.equal("Worth R$1249 bought apart")
+			prices[300] = { robux = 150, forSale = true }
+			expect(StoreLogic.worthLine(pack, prices)).to.equal(nil)
+			prices[300] = nil
+			expect(StoreLogic.worthLine(pack, prices)).to.equal(nil)
+		end)
+		it("drops the worth line once the bundle is owned", function()
+			local pack = find(StoreLogic.rows(config, { [100] = true }, false, nil), "kingPack")
+			local prices = {
+				[100] = { robux = 999, forSale = true },
+				[200] = { robux = 799, forSale = true },
+				[300] = { robux = 450, forSale = true },
+			}
+			expect(StoreLogic.worthLine(pack, prices)).to.equal(nil)
+		end)
+	end)
 end

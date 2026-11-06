@@ -24,6 +24,8 @@ export type Row = {
 	product: boolean?, -- a developer product (bought each time; passId holds its product id, never Owned)
 	tab: string, -- the rail tab it shows under: "passes", "cats", "potions" or "cafePass"
 	multiplier: number?, -- the money card's rung (2, 3, 4), for its picture (ShopIcons.store)
+	-- #1822: the ids of what the bundle holds that is also sold alone (passes and products), for its "Worth" line
+	worthIds: { number }?,
 }
 
 -- The Store's left rail, top to bottom (#1425). Featured and Codes (#1428, the code box) always show; another tab
@@ -117,12 +119,25 @@ local PASSES: { PassCard } = {
 		icon = "🏰",
 		effect = "The grand look: +150% money, twice the rich visitors, +1 job slot every tier.",
 	},
+	-- #1822 (Monetization's store doc §3C): the King Cat alone sits just before its bundle under Cats, so the bundle
+	-- reads as the better deal; hidden while KingCatPassId is 0
+	{
+		key = "kingCat",
+		configKey = "KingCatPassId",
+		name = "King Cat",
+		icon = "🤴",
+		effect = "King Croissant, who always earns like a Mythical from your newest area.",
+		note = "Also in the King Cat Pack. Can't be traded.",
+		tab = "cats",
+	},
+	-- #1822: the bundle lists what it holds (shared/KingPack.contents, in its order)
 	{
 		key = "kingPack",
 		configKey = "KingPackPassId",
 		name = "King Cat Pack",
 		icon = "🤴",
-		effect = "The King Cat, who always earns like a Mythical from your newest area, plus a crown sign style.",
+		effect = "King Croissant (earns like a Mythical), the Royal Crest sign, the Grand look, the Royal Velvet Booth "
+			.. "and Potion Pack M.",
 		note = "Yours to keep. Can't be traded.",
 		tab = "cats",
 	},
@@ -374,6 +389,40 @@ local function passId(config: any, card: PassCard): number?
 	return if type(value) == "number" and value ~= 0 then value else nil
 end
 
+-- #1822: what the King Cat Pack's worth adds up, as shared/KingPack.worthRefs: the King Cat alone pass and the Potion
+-- Pack M product, both only once made (the looks-only pieces are never priced). nil while either is 0.
+local function kingWorth(config: any): { number }?
+	local cat = config.KingCatPassId
+	local ids = config.ProductIds
+	local potions = if type(ids) == "table" then ids.potion_pack_m else nil
+	if type(cat) == "number" and cat ~= 0 and type(potions) == "number" and potions ~= 0 then
+		return { cat, potions }
+	end
+	return nil
+end
+
+-- #1822 (store doc §3B): the bundle's "Worth R$X" line, the real sum of Roblox's prices for its parts sold alone. Only
+-- when every part has a price on sale and the sum is more than the bundle's own price, so it never overstates.
+function StoreLogic.worthLine(row: Row, prices: { [number]: Price }): string?
+	local ids = row.worthIds
+	local own = prices[row.passId]
+	if ids == nil or #ids == 0 or row.owned or own == nil or own.robux == nil then
+		return nil
+	end
+	local sum = 0
+	for _, id in ids do
+		local price = prices[id]
+		if price == nil or not price.forSale or price.robux == nil then
+			return nil
+		end
+		sum += price.robux :: number
+	end
+	if sum <= (own.robux :: number) then
+		return nil
+	end
+	return ("Worth R$%d bought apart"):format(sum)
+end
+
 -- Every pass id the Config names that is made, money ladder first.
 function StoreLogic.passIds(config: any): { number }
 	local ids: { number } = {}
@@ -546,6 +595,7 @@ function StoreLogic.rows(
 				effect = if card.note then card.effect .. "\n" .. card.note else card.effect,
 				owned = owned[id] == true,
 				tab = card.tab or "passes",
+				worthIds = if card.key == "kingPack" then kingWorth(config) else nil,
 			})
 		end
 	end

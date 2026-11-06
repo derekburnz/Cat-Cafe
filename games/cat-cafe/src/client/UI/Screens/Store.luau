@@ -465,7 +465,9 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	entry.frame.Visible = true
 	entry.passId = row.passId
 	entry.name.Text = row.name
-	entry.effect.Text = row.effect
+	-- #1822: a bundle adds its "Worth R$X bought apart" line once every part's price is in
+	local worth = StoreLogic.worthLine(row, self._prices)
+	entry.effect.Text = if worth then row.effect .. "\n" .. worth else row.effect
 	fitText(entry.effect, entry.effectMax)
 	-- the money card's rung is part of its picture (2x, 3x and 4x each have one)
 	local art = row.key .. (if row.multiplier then tostring(row.multiplier) else "")

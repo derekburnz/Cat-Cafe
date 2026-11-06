@@ -25,6 +25,7 @@
 local Catalog = require(script.Parent.Catalog)
 local ChatTags = require(script.Parent.ChatTags)
 local Config = require(script.Parent.Config)
+local SignStyles = require(script.Parent.SignStyles)
 local Types = require(script.Parent.Types)
 
 local CafePass = {}
@@ -309,6 +310,28 @@ end
 
 -- Adds quest pass XP (quests.md section 8) to the running season, up to the last level, and returns how much went
 -- in (0 with no season running, or when the save is not on it yet).
+-- #1645: puts a claimed pass item where the game keeps it besides profile.pass.items: a decor piece (source "pass")
+-- into decorOwned, so the Decor window lists it and it can be placed, and the name plate frame into signStyles, so
+-- the Style tab offers it. Other kinds (the tag, uniforms, accessories, the cat) read pass.items or are paid apart.
+function CafePass.grantItem(profile: Types.PlayerProfile, itemId: string)
+	local decor = Catalog.getDecor(itemId)
+	if decor ~= nil and decor.source == "pass" then
+		profile.decorOwned[itemId] = true
+	end
+	if SignStyles.get(itemId) ~= nil then
+		profile.signStyles[itemId] = true
+	end
+end
+
+-- Every claimed item granted again (grantItem), for a save whose items were claimed before they had a place.
+function CafePass.grantOwned(profile: Types.PlayerProfile)
+	for itemId, owned in profile.pass.items do
+		if owned then
+			CafePass.grantItem(profile, itemId)
+		end
+	end
+end
+
 function CafePass.addXp(state: Types.PassState, season: number, xp: number): number
 	if season == 0 or state.season ~= season or type(xp) ~= "number" or xp <= 0 then
 		return 0

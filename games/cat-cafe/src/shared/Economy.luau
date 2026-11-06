@@ -500,6 +500,9 @@ function Economy.decorBlocker(profile: Types.PlayerProfile, decorId: string): st
 	if def.source == "crate" then
 		return "Found in Cafe Crates, not for sale"
 	end
+	if def.source == "pass" then
+		return "Earned on the Cafe Pass, not for sale"
+	end
 	if profile.decorOwned[decorId] then
 		return "Already owned"
 	end

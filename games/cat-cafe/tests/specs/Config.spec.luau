@@ -10,7 +10,7 @@ return function()
 
 	local expected: { [string]: any } = {
 		ServerPlayers = 8,
-		StartCoins = 50,
+		StartCoins = 850, -- #1796: was 50
 		FavoriteMultiplier = 1.5,
 		TableBonus = 0.10,
 		EspressoBonus = 0.15,
@@ -260,6 +260,7 @@ return function()
 		PondFishPerStep = 1, -- #1232: was 2
 		PondStepSeconds = 600, -- #1232: was 1800
 		PondHold = 36, -- #1232: was 24
+		LostFoundEverySeconds = 7200, -- #1732: a find every 2 h, was one a UTC day
 		LostFoundHold = 3,
 		CampExtraRangeStuds = 8,
 		RallyStartWeekday = 6, -- F101 (rescue-rally.md section 5); RallyPoints is checked in Rally.spec

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-06 00:23 UTC",
+  "generated": "2026-11-06 02:40 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -154894,7 +154894,7 @@
         "CatCafe_Woods_Set_049_Thicket",
         "CatCafe_Woods_Set_050_Stream_Water"
       ],
-      "triangles": 27114,
+      "triangles": 27522,
       "budget": 80000,
       "size_studs": {
         "x": 119.0,
@@ -155068,7 +155068,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_Set.model.json",
-      "rbx_parts": 1205,
+      "rbx_parts": 1216,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_Set.glb"
@@ -155080,17 +155080,15 @@
           "pivot"
         ],
         "checks": {
-          "budget": "27114/80000 tris",
+          "budget": "27522/80000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "15622 faces on swatch centers",
+          "uv": "15870 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.40 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Woods_Set.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Woods_Set.png"
+      }
     },
     {
       "name": "CatCafe_Sewer_Set",
@@ -158234,7 +158232,7 @@
         "CatCafe_Woods_SetV32_208_PineTall",
         "CatCafe_Woods_SetV32_209_PineTall"
       ],
-      "triangles": 115568,
+      "triangles": 115976,
       "budget": 120000,
       "size_studs": {
         "x": 240.0,
@@ -158748,7 +158746,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_SetV32.model.json",
-      "rbx_parts": 5482,
+      "rbx_parts": 5493,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_SetV32.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_SetV32.glb"
@@ -158760,17 +158758,15 @@
           "pivot"
         ],
         "checks": {
-          "budget": "115568/120000 tris",
+          "budget": "115976/120000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "71335 faces on swatch centers",
+          "uv": "71583 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.84 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Woods_SetV32.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Woods_SetV32.png"
+      }
     },
     {
       "name": "CatCafe_Sewer_SetV32",
@@ -161937,7 +161933,7 @@
         "CatCafe_Woods_SetF85_283_OakRound",
         "CatCafe_Woods_SetF85_284_OakRound"
       ],
-      "triangles": 127164,
+      "triangles": 127572,
       "budget": 150000,
       "size_studs": {
         "x": 160.0,
@@ -162493,7 +162489,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_SetF85.model.json",
-      "rbx_parts": 5990,
+      "rbx_parts": 6001,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_SetF85.glb"
@@ -162506,17 +162502,15 @@
           "centered"
         ],
         "checks": {
-          "budget": "127164/150000 tris",
+          "budget": "127572/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "79485 faces on swatch centers",
+          "uv": "79733 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.98 (want 0)",
           "centered": "footprint center x=0.00 y=0.25"
         }
-      },
-      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Woods_SetF85.png",
-      "views": "docs/concepts/cat-cafe/views/CatCafe_Woods_SetF85.png"
+      }
     },
     {
       "name": "CatCafe_Sewer_SetF85",
@@ -178454,22 +178448,23 @@
       "category": "Camp",
       "module": "campstations",
       "objects": [
-        "CatCafe_Camp_Neighbourhood_YardSaleStall"
+        "CatCafe_Camp_Neighbourhood_YardSaleStall",
+        "CatCafe_Camp_Neighbourhood_YardSaleStall_Sign_Swing"
       ],
-      "triangles": 2044,
+      "triangles": 2128,
       "budget": 4000,
       "size_studs": {
-        "x": 7.99,
+        "x": 8.64,
         "y": 3.12,
         "z": 5.61
       },
       "size_roblox": [
-        7.99,
+        8.64,
         5.61,
         3.12
       ],
       "bounds_min": [
-        -4.84,
+        -5.49,
         -1.71,
         0.0
       ],
@@ -178480,9 +178475,23 @@
       ],
       "pivot": "the base centre on the camp's ground, front -Z, no turn; the Yard Sale's spot (Layout.campExtras.neighbourhood, Neighbourhood set space)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
-      "studio": "#1154 (camp-stations.md section 3): the Yard Sale stall, replacing CatCafe_Camp_Neighbourhood_YardSale at Layout.campExtras.neighbourhood. Attachments PromptAnchor (table front, 1.5 up), BangAnchor (2 over the YARD SALE board, for ReadyBang) and GlowAnchor (under the awning). Everything collides and can be climbed.",
+      "part_pivots": {
+        "CatCafe_Camp_Neighbourhood_YardSaleStall_Sign_Swing": [
+          -4.65,
+          -1.5,
+          3.88
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Camp_Neighbourhood_YardSaleStall_Sign_Swing": [
+          4.65,
+          3.88,
+          -1.5
+        ]
+      },
+      "studio": "#1154 (camp-stations.md section 3): the Yard Sale stall, replacing CatCafe_Camp_Neighbourhood_YardSale at Layout.campExtras.neighbourhood. Attachments PromptAnchor (table front, 1.5 up), BangAnchor (2 over the YARD SALE sign's arm, for ReadyBang) and GlowAnchor (under the awning). _Sign_Swing (#1800) is the hanging board and its chains, pivoted at the ring under the arm; Effects/Motion swings it about its pivot's Z, so leave it where it was modelled. Everything collides and can be climbed.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Neighbourhood_YardSaleStall.model.json",
-      "rbx_parts": 206,
+      "rbx_parts": 213,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood_YardSaleStall.fbx",
         "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood_YardSaleStall.glb"
@@ -178494,13 +178503,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "2044/4000 tris",
+          "budget": "2128/4000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1044 faces on swatch centers",
+          "uv": "1086 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=-0.85 y=-0.15"
+          "centered": "footprint center x=-1.17 y=-0.15"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Neighbourhood_YardSaleStall.png",

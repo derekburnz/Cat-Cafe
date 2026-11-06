@@ -64,6 +64,7 @@ Remotes.ClientToServer = {
 	"TelemetryReport", -- (name: string, value: string)  analytics only, allowlisted: device once, ui_opened (F16)
 	"SetSignStyle", -- (styleId: string?)  #1625: an owned shared/SignStyles id, or nil for the plain sign
 	"SetLook", -- (kind: string, id: string?)  #1624: "theme", "uniform" or "accessory"; an owned Looks id or "default"
+	"MarkStoreSeen", -- (tab: string)  #1842: a shared/StoreTabs id; saves that tab's version so its "New" dot clears
 	"SetSetting", -- (key: string, value: boolean | number)  a key of shared/Settings: a switch takes a boolean, a
 	-- volume a number clamped to 0 to 1; saved in profile.settings, answered by ProfileSync
 	"ClaimTipJar", -- (step: number)  integer 1 to #Catalog.tipJar, unclaimed this session, its minutes reached (F47)
@@ -163,6 +164,9 @@ Remotes.ClientToServer = {
 	-- below CatMaxLevel; its XP through CatStats.addXp. 4 a second; answered with FeedResult and a ProfileSync
 	"SetHideCredit", -- (hide: boolean)  #1083: keeps the player's display name off the Thank You board (true) or puts it
 	-- back (false); saves profile.hideCredit and the board shows it from its next build; 1 a second
+	"OwnerGrant", -- (productId: number)  #1770 owner test mode: only a Config.OwnerTestUserIds caller (anyone else is
+	-- dropped and logged); a made product's Roblox id; granted as a receipt would be, with no receipt record and no
+	-- Robux (OwnerTestService); 1 a second, answered with a toast
 }
 
 -- Server -> client.

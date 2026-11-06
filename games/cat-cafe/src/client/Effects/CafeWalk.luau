@@ -167,12 +167,14 @@ local function makeWalker(station: Model, home: CFrame): Model?
 		-- the walking body has slots for the head pieces, the bow tie and the cape (Model-Agent's #778) and for the
 		-- walking cuts of the vest, the sash and the apron (#787; CatDress picks the _Walk cut, #789), none of them on a
 		-- cat with a Back prop
+		-- #1708: and the cafe's accessory, as the working cat wears it (its Accessory attribute, Looks.ACCESSORY_ATTRIBUTE)
+		local accessory = station:GetAttribute("Accessory")
 		CatDress.dress(walker, role, function(name: string): Model?
 			local found = folder:FindFirstChild(name)
 			return if found ~= nil and found:IsA("Model")
 				then (found :: Model):Clone() :: Model
 				else nil
-		end)
+		end, if type(accessory) == "string" then accessory else nil)
 		-- the plot's Uniform Styles pick (#1624): the working cat wears it as its UniformStyle, so the walker matches
 		local uniform = station:GetAttribute("UniformStyle")
 		CatDress.wearUniform(walker, if type(uniform) == "string" then uniform else nil)

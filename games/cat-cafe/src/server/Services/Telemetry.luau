@@ -184,6 +184,10 @@ export type CustomEvent =
 	| "session_recap_close"
 	-- #1919: the goal card's "Find N more cats" nudge opened the Index, value 1; the area id it pointed at or "none"
 	| "index_hint_tap"
+	-- #1936 (release.md section 3): a purchase prompt the client's store guard refused, value 1; where it came from
+	-- (bait, store or cafePass), why (no_tap: no tap in the last 2 seconds; busy: during a catch, rescue or cutscene),
+	-- tier
+	| "store_guard_blocked"
 	-- #1947 (like-prompts.md section 3): a like or favourite card's button, once per card a session, value 1; the gift
 	-- ("like" or "fav") and the button (like, favourite or close). A card paid (Source like_gift or fav_gift) with no
 	-- report is "none"
@@ -232,6 +236,7 @@ local REPORTS = {
 	"session_recap", -- #1920: the recap card is on screen (value true)
 	"session_recap_close", -- #1920: the recap card closed, the whole seconds it was open (0 to 30)
 	"index_hint_tap", -- #1919: the goal card's hint opened the Index, a Catalog area id or "none"
+	"store_guard_blocked", -- #1936: a purchase prompt the guard refused, "<source>:<reason>"
 	"playtime_gift", -- #1947: a gift card's button, "<like|fav>:<like|favourite|close>"
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
@@ -302,6 +307,7 @@ type Session = {
 	recapShown: boolean, -- #1920: session_recap logged this session
 	recapClosed: boolean, -- #1920: session_recap_close logged this session
 	indexHintTaps: number, -- #1919: index_hint_tap events logged this session (INDEX_HINT_TAPS)
+	guardBlocks: number, -- #1936: store_guard_blocked events logged this session (StoreFunnel.GUARD_BLOCKS_MAX)
 	giftButtons: { [string]: boolean }, -- #1947: playtime_gift logged this session, by gift kind
 }
 
@@ -1147,6 +1153,21 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if tab ~= nil then
 			storeStep(player, "tab_viewed", { tab })
 		end
+	elseif name == "store_guard_blocked" then
+		local source, reason = StoreFunnel.guardBlock(rawValue)
+		if
+			source ~= nil
+			and reason ~= nil
+			and session.guardBlocks < StoreFunnel.GUARD_BLOCKS_MAX
+		then
+			session.guardBlocks += 1
+			Telemetry.custom(
+				player,
+				"store_guard_blocked",
+				1,
+				{ source, reason, tierText(profile) }
+			)
+		end
 	elseif name == "store_buy" then
 		local passSku = StoreFunnel.passSku(rawValue)
 		local sku = passSku or StoreFunnel.productSku(rawValue)
@@ -1268,6 +1289,7 @@ local function onLoaded(player: Player, profile: Profile)
 		recapShown = false,
 		recapClosed = false,
 		indexHintTaps = 0,
+		guardBlocks = 0,
 		giftButtons = {},
 	}
 	-- #1888: the launch data of the link this join came through (an ad's ad_<tag>)

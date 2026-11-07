@@ -1275,6 +1275,13 @@ local SCENES = {
 	{ "TipJar", function()
 		UI.tipJar.open()
 	end },
+	-- #1965: the HUD's Pass tile while a season runs, with the Cafe Pass ticket and a reward ready to claim
+	{ "HUDPass", function()
+		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,
+			levels = 30, paid = false, claimedFree = { 2 }, claimedPaid = {}, claimable = 1, items = {} })
+		local tile = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Pass", true)
+		assert(tile and tile.Visible, "uigate: no Pass tile while a season runs (#1965)")
+	end },
 	-- #1646: the Cafe Pass at level 4 with level 2's free spin claimed, the paid track locked
 	{ "CafePass", function()
 		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,

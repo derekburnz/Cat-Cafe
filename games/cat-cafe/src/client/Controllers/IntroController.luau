@@ -689,7 +689,7 @@ local function setCamera(at: Intro.Key)
 	end
 end
 
--- The demo cat into your copy's arms as its HeldCat, welded there in its loaf like the real carry (HeldCat, #1964).
+-- The demo cat into your copy's arms as its HeldCat, welded there asleep like the real carry (HeldCat, #1964).
 local function holdDemo(r: Run, you: You, demo: Model)
 	r.held = true
 	r.demoName, r.demoParent = demo.Name, demo.Parent

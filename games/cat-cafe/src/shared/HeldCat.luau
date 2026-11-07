@@ -1,7 +1,7 @@
 --!strict
 -- The cat in a carrier's arms (#1964), put there once and then left alone: the server's carry (CatService) and the
--- intro's demo carry (IntroController, on its local copy of you) both call HeldCat.attach. The cat takes its loaf
--- (Catching.HELD_TURNS), every part is welded to its body, and a Weld named HoldWeld holds the body on the torso at
+-- intro's demo carry (IntroController, on its local copy of you) both call HeldCat.attach. The cat curls up asleep
+-- (Catching.HELD_TURNS, eyes shut), every part is welded to its body, and a Weld named HoldWeld holds the body on the torso at
 -- Catching.holdPoint. A part welded to a character moves with it on every screen, the arm fold and the walk
 -- included, so no client copies, hides or poses the held cat (until 2026-11-07 Effects/Carry drew a copy of it,
 -- which on live showed only the body block, #1480).
@@ -39,12 +39,31 @@ local function pieceOf(model: Model, name: string): Model?
 	return nil
 end
 
--- Folds the cat into its loaf, once (a cat without hinged pieces keeps its shape).
-function HeldCat.loaf(model: Model)
-	if model:GetAttribute("HeldLoaf") == true then
+-- Shuts an eye: every part of the Eye piece squashed to Catching.HELD_EYES of its height about the piece's pivot.
+local function shut(piece: Model)
+	local pivot = piece:GetPivot()
+	for _, descendant in piece:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			local part = descendant :: BasePart
+			local at = pivot:ToObjectSpace(part.CFrame)
+			part.Size = Vector3.new(part.Size.X, part.Size.Y * Catching.HELD_EYES, part.Size.Z)
+			part.CFrame = pivot * CFrame.new(at.X, at.Y * Catching.HELD_EYES, at.Z) * at.Rotation
+		end
+	end
+end
+
+-- Curls the cat up asleep, once: eyes shut, then the pieces turned (the head carries its eyes with it). A cat without
+-- hinged pieces keeps its shape.
+function HeldCat.sleep(model: Model)
+	if model:GetAttribute("HeldAsleep") == true then
 		return
 	end
-	model:SetAttribute("HeldLoaf", true)
+	model:SetAttribute("HeldAsleep", true)
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("Model") and (descendant.Name:match("Eye%d$") ~= nil) then
+			shut(descendant :: Model)
+		end
+	end
 	for name, angles in Catching.HELD_TURNS do
 		local piece = pieceOf(model, name)
 		if piece ~= nil then
@@ -61,7 +80,7 @@ local function bodyOf(model: Model): BasePart?
 end
 
 -- Where the held cat's body goes, in the frame of the part it is welded to: on the torso at Catching.holdPoint, or
--- on the root at Catching.CARRIED_POSE when the character has no torso yet. The cat must be in its loaf already.
+-- on the root at Catching.CARRIED_POSE when the character has no torso yet. The cat must be asleep already.
 local function holdFrame(model: Model, character: Model, root: BasePart?): (BasePart?, CFrame)
 	local body = bodyOf(model)
 	local torso, rig = HeldCat.torso(character)
@@ -84,7 +103,7 @@ end
 
 --- Where the held cat's pivot would be in the world right now, for a hop into the arms (the intro).
 function HeldCat.target(model: Model, character: Model, root: BasePart): CFrame
-	HeldCat.loaf(model)
+	HeldCat.sleep(model)
 	local body = bodyOf(model)
 	local holder, frame = holdFrame(model, character, root)
 	if body == nil or holder == nil then
@@ -93,11 +112,11 @@ function HeldCat.target(model: Model, character: Model, root: BasePart): CFrame
 	return holder.CFrame * frame * body.CFrame:ToObjectSpace(model:GetPivot())
 end
 
---- Puts `model` in `character`'s arms: the loaf, every part unanchored, massless, not colliding, touching or found by
+--- Puts `model` in `character`'s arms: asleep, every part unanchored, massless, not colliding, touching or found by
 --- raycasts and welded to the body, and the HoldWeld on the torso (or on `root` while there is no torso). The caller
 --- parents it. Returns the HoldWeld, or nil for a model with no parts or no torso and no root.
 function HeldCat.attach(model: Model, character: Model, root: BasePart?): Weld?
-	HeldCat.loaf(model)
+	HeldCat.sleep(model)
 	local body = bodyOf(model)
 	local holder, frame = holdFrame(model, character, root)
 	if body == nil or holder == nil then

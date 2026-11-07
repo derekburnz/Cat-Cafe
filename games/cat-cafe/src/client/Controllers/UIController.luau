@@ -37,6 +37,16 @@ local UIController = {}
 
 local player = Players.LocalPlayer
 local state: Types.PlayerState? = nil
+-- #2077: every Jukebox song's cue for the Shuffle pick, once the server saves Jukebox.SHUFFLE and Audio can shuffle;
+-- nil until both have landed, and the Style tab shows no Shuffle
+local shuffleCues: { string }? = nil
+if (Jukebox :: any).SHUFFLE ~= nil and (Audio :: any).setJukeboxShuffle ~= nil then
+	local cues: { string } = {}
+	for _, track in Jukebox.TRACKS do
+		table.insert(cues, track.cue)
+	end
+	shuffleCues = table.freeze(cues)
+end
 local SCREEN_REPORT_SECONDS = 5 -- #1273: the open screen goes to the server at most this often
 local predictedMoney = 0
 -- os.clock() of the last Corner Shop buy. Its food shows up in `lures`, but every row of that shop sounds with the
@@ -599,6 +609,7 @@ local function applyState(s: Types.PlayerState)
 		looks = s.looks, -- #1624: the Style tab's theme and uniform rows
 		jukeboxTracks = s.jukeboxTracks, -- #1168 row 2: the Style tab's music row
 		jukebox = s.jukebox or "", -- #2007: "" for the mix, as for the sign
+		jukeboxShuffle = if shuffleCues ~= nil then (Jukebox :: any).SHUFFLE else nil, -- #2077
 		passBoosts = s.passBoosts, -- #1624: the store passes in the money card's Boosts list
 		tradeLog = s.tradeLog, -- F102: the Trades page
 	})
@@ -612,6 +623,11 @@ local function applyState(s: Types.PlayerState)
 	Audio.setTutorial(s.tutorialStep, setting("tutorialButton") ~= false)
 	local track = if s.jukebox ~= nil then Jukebox.get(s.jukebox) else nil
 	Audio.setJukebox(if track ~= nil then track.cue else nil) -- #1875: the Jukebox pick (free)
+	if shuffleCues ~= nil then -- #2077: every song in a random order
+		(Audio :: any).setJukeboxShuffle(
+			if s.jukebox == (Jukebox :: any).SHUFFLE then shuffleCues else nil
+		)
+	end
 	if lastTier ~= nil and s.tier > (lastTier :: number) then
 		Moments.RankUp:Fire(s.tier)
 	end

@@ -222,7 +222,7 @@ return function()
 		LuckyDayChance = 0.33, -- #1572 (1g): the day rolls that replace LuckyDayEvery
 		GoldenDayChance = 0.2,
 		RainbowDayChance = 0.1,
-		GoldenDayGoldMultiplier = 2,
+		GoldenDayGoldMultiplier = 3, -- #1954: x3 (was 2)
 		RainbowDayMultiplier = 3,
 		LuckyDayWaveLuck = 2,
 		LuckyDayPlayerLuck = 0.5,

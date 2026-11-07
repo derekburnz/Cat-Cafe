@@ -228,12 +228,12 @@ return function()
 			expect(Clock.dayKinds(0)).to.deepEqual({ lucky = false, golden = false, rainbow = false })
 		end)
 
-		it("doubles gold on a Golden Day and triples rainbow on a Rainbow Day (#1572)", function()
+		it("triples gold on a Golden Day and rainbow on a Rainbow Day (#1572, #1954)", function()
 			local plain = { lucky = true, golden = false, rainbow = false }
 			local both = { lucky = false, golden = true, rainbow = true }
 			expect(Clock.goldChance(0.05, nil)).to.equal(0.05)
 			expect(Clock.goldChance(0.05, plain)).to.equal(0.05)
-			expect(Clock.goldChance(0.05, both)).to.be.near(0.1, 1e-12)
+			expect(Clock.goldChance(0.05, both)).to.be.near(0.15, 1e-12)
 			expect(Clock.rainbowChance(0.015, plain)).to.equal(0.015)
 			expect(Clock.rainbowChance(0.015, both)).to.be.near(0.045, 1e-12)
 		end)

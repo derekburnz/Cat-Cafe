@@ -6,6 +6,9 @@
 -- cat is the only one that loves a free slot, so the Hungarian algorithm is used instead. The matrix is at most
 -- 10 slots by N cats, which is far too small to matter for cost. A tiny bonus for staying on the current spot
 -- means ties never shuffle cats around the cafe for no gain.
+-- #1955 (auto-equip.md): Auto Equip runs the same plan with some cats held where they are (`planKeeping`): a locked cat
+-- already working, a cat the player placed or rested by hand in the last Config.AutoEquipHoldSeconds, and a cat on
+-- offer in a trade (`held`). A held working cat keeps its slot; a held resting cat stays resting.
 
 local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
@@ -125,9 +128,12 @@ local function orderedCats(profile: Types.PlayerProfile): { Types.CatInstance }
 	return cats
 end
 
-function EquipBest.plan(profile: Types.PlayerProfile): Plan
-	local spots = EquipBest.openSpots(profile)
-	local cats = orderedCats(profile)
+-- The best placement of `cats` on `spots` (the cats best first).
+local function planFor(
+	profile: Types.PlayerProfile,
+	spots: { Types.SpotDef },
+	cats: { Types.CatInstance }
+): Plan
 	local n = #spots
 	local placements: { [string]: string } = {}
 	if n == 0 or #cats == 0 then
@@ -168,6 +174,74 @@ function EquipBest.plan(profile: Types.PlayerProfile): Plan
 		end
 	end
 	return { placements = placements, baseRate = baseRate, spotsOpen = n, catsPlaced = placed }
+end
+
+function EquipBest.plan(profile: Types.PlayerProfile): Plan
+	return planFor(profile, EquipBest.openSpots(profile), orderedCats(profile))
+end
+
+-- #1955: the cats Auto Equip leaves where they are at `now` (os.clock()): a locked cat that is working, a cat placed
+-- or rested by hand (`handAt[uid]`, os.clock()) less than AutoEquipHoldSeconds ago, and a cat `offered` in a trade.
+function EquipBest.held(
+	profile: Types.PlayerProfile,
+	now: number,
+	handAt: { [string]: number },
+	offered: (uid: string) -> boolean
+): { [string]: boolean }
+	local held: { [string]: boolean } = {}
+	for uid, instance in profile.cats do
+		local at = handAt[uid]
+		if
+			(instance.locked == true and instance.spotId ~= nil)
+			or (at ~= nil and now - at < Config.AutoEquipHoldSeconds)
+			or offered(uid)
+		then
+			held[uid] = true
+		end
+	end
+	return held
+end
+
+-- #1955: Equip Best's plan with the `held` cats kept where they are: a held working cat keeps its open slot (and its
+-- value counts), the other cats share the rest of the open slots.
+function EquipBest.planKeeping(profile: Types.PlayerProfile, held: { [string]: boolean }): Plan
+	local kept: { [string]: string } = {}
+	local keptRate = 0
+	local taken: { [string]: boolean } = {}
+	for uid, instance in profile.cats do
+		if held[uid] and instance.spotId ~= nil then
+			local spot = Catalog.getSpot(instance.spotId :: string)
+			if spot ~= nil and Economy.spotIsOpen(profile, spot.id) and not taken[spot.id] then
+				kept[uid] = spot.id
+				taken[spot.id] = true
+				keptRate += EquipBest.value(instance, spot, profile.tier)
+			end
+		end
+	end
+	local spots: { Types.SpotDef } = {}
+	for _, spot in EquipBest.openSpots(profile) do
+		if not taken[spot.id] then
+			table.insert(spots, spot)
+		end
+	end
+	local cats: { Types.CatInstance } = {}
+	for _, instance in orderedCats(profile) do
+		if not held[instance.uid] then
+			table.insert(cats, instance)
+		end
+	end
+	local plan = planFor(profile, spots, cats)
+	local placed = plan.catsPlaced
+	for uid, spotId in kept do
+		plan.placements[uid] = spotId
+		placed += 1
+	end
+	return {
+		placements = plan.placements,
+		baseRate = plan.baseRate + keptRate,
+		spotsOpen = #EquipBest.openSpots(profile),
+		catsPlaced = placed,
+	}
 end
 
 -- Writes the plan into the profile. Returns how many cats changed spot (placed, moved or rested).

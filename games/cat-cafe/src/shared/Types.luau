@@ -988,6 +988,10 @@ export type DealerStock = { night: number, stock: { DealerFood } }
 
 -- Saved per player (data-model section 14). JSON-safe values only.
 -- The player's settings (data-model section 14; shared/Settings validates them). Volumes run from 0 to 1.
+-- #1955: one cat an Auto Equip run put to work (the AutoEquipped remote): its name (nickname or catalog name), the
+-- role's name ("Barista") and the coins a second the run gained, sent only when it moved exactly one cat
+export type AutoEquipSwap = { catName: string, role: string, perSecond: number? }
+
 export type Settings = {
 	music: boolean,
 	sfx: boolean,
@@ -1002,6 +1006,7 @@ export type Settings = {
 	tradeRequests: string, -- F102: who may ask to trade, "everyone", "friends" or "off" (Settings.choices)
 	roadmapOpen: boolean, -- #1893: the Grand Opening strip opened into its list
 	sessionRecap: boolean, -- #1920: the session recap card after Config.RecapAfterSeconds of play
+	autoEquip: boolean, -- #1955: Auto Equip, on for new accounts and off for saves from before it
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished

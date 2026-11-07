@@ -23,6 +23,7 @@ return function()
 					tradeRequests = "everyone",
 					roadmapOpen = false,
 					sessionRecap = true,
+					autoEquip = true, -- #1955: on for a new account
 				})
 				for key in pairs(Settings.defaults() :: any) do
 					expect(Settings.kinds[key]).to.be.ok()
@@ -108,6 +109,7 @@ return function()
 				tradeRequests = "everyone",
 				roadmapOpen = false,
 				sessionRecap = true,
+				autoEquip = false, -- #1955: a save from before Auto Equip starts with it off
 			})
 		end)
 

@@ -1092,6 +1092,9 @@ export type PlayerProfile = {
 	grandOpening: GrandOpeningState, -- #1893 (save version 41): the Grand Opening roadmap (shared/GrandOpening)
 	-- #1897 (save version 41): the guaranteed Rare-or-better bait was set (Bait.wowDue), once per account
 	firstWow: boolean,
+	-- #1947 (save version 42, like-prompts.md section 2): the like and favourite gifts were paid (shared/PlaytimeGifts)
+	likeGift: boolean,
+	favGift: boolean,
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.

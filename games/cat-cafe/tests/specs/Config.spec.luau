@@ -196,6 +196,11 @@ return function()
 		BigBowlWaitCutSeconds = 120, -- F95 (economy-ladder.md section 6b): the Big Bowl takes 2 minutes off
 		FirstBaitWaitSeconds = 120, -- #1895: the account's first bait
 		RecapAfterSeconds = 2400, -- #1920: seconds of play before the session recap card
+		LikeGiftMinutes = 10, -- #1947 (like-prompts.md section 3): the like card's play time
+		LikeGiftIncomeMinutes = 15, -- #1947 (Set 10 Q3): minutes of income in the like gift
+		FavGiftMinutes = 30, -- #1947: the favourite card's play time
+		FavGiftIncomeMinutes = 30, -- #1947 (Set 10 Q3): minutes of income in the favourite gift
+		GiftIdleSeconds = 3, -- #1947: the card waits for this long of calm
 		KeepUpStepsBehind = 1, -- section 17 (v0.13.16, F86): an older Legendary or Mythical earns one area behind
 		DecorIndexHalfFish = 25, -- F54: a Decor Index page's decor5 prize
 		GoldLuckMax = 1.5, -- F54 (v0.10): the cap on summed Index gold luck

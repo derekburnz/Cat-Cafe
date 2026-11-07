@@ -304,6 +304,8 @@ Remotes.ServerToClient = {
 	-- the bowl; first is true when no cat of that rarity was owned ("Your first Rare!", else "A Rare visitor!")
 	"SessionRecap", -- (view: Types.SessionRecapView)  #1920: once a session after Config.RecapAfterSeconds of play,
 	-- with the sessionRecap setting on; the client shows the card when the player is idle and out of menus
+	"PlaytimeGift", -- (kind: PlaytimeGifts.Kind, paid: { string })  #1947: the like ("like") or favourite ("fav")
+	-- gift was just paid (ProfileSync first), with Payout's lines; the client shows its card once the player is idle
 }
 
 function Remotes.folder(): Folder

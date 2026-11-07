@@ -40,6 +40,7 @@ local OwnerTestService = require(script.Parent.Services.OwnerTestService)
 local PalService = require(script.Parent.Services.PalService)
 local PassService = require(script.Parent.Services.PassService)
 local PityService = require(script.Parent.Services.PityService)
+local PlaytimeGiftService = require(script.Parent.Services.PlaytimeGiftService)
 local PlotService = require(script.Parent.Services.PlotService)
 local PotionService = require(script.Parent.Services.PotionService)
 local ProductService = require(script.Parent.Services.ProductService)
@@ -123,6 +124,7 @@ CampExtraService.start() -- F100: before DataService so its onLoaded sees every 
 CafePassService.start() -- #1645: the Cafe Pass, before DataService so its onLoaded sees every join
 GrandOpeningService.start() -- #1893: the Grand Opening roadmap's checks and payouts
 SessionRecapService.start() -- #1920: the session recap after about 40 minutes of play
+PlaytimeGiftService.start() -- #1947: the like and favourite gifts at 10 and 30 minutes of play
 RallyService.start() -- F101: before Telemetry (rally_points on leave) and DataService (RallyState on join)
 RestartNoticeService.start() -- the restart countdown's warnings; before DataService so a joiner hears one
 TradeService.start() -- F102: before DataService, whose joins it settles owed trades in (onLoading)

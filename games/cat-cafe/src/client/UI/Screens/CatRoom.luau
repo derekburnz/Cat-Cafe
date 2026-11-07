@@ -366,11 +366,9 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 			CellPadding = UDim2.fromOffset(GAP, GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		Create("UIPadding", {
-			PaddingTop = UDim.new(0, 3),
-			PaddingLeft = UDim.new(0, 3),
-			PaddingRight = UDim.new(0, 10),
-		}),
+		-- #2294: room for the cards' outlines, the last row's bottom one too (8 on the right, not 10, keeps a
+		-- phone's seven columns; the scroll bar overlays)
+		Outline.listPadding(8),
 	})
 	local grid: ScrollingFrame = self._grid
 	table.insert(

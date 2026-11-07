@@ -1136,6 +1136,41 @@ local SCENES = {
 	{ "Cats", function()
 		UI.open("Cats")
 	end },
+	-- #2294 (Derek2: "the border gets cut off at the bottom of cat menu"): scrolled to its end, the grid's last row
+	-- keeps its whole outline (the gate's strokeclip check reads every card; this scene puts the last row in view)
+	{ "CatsGridEnd", function()
+		-- three times the sample player's cats, so the grid scrolls
+		local before = UI.getState() :: any
+		Scenes._crew = { cats = before.cats, tier = before.tier, extraSlots = before.extraSlots or 0 }
+		local cats = {}
+		for uid, cat in before.cats do
+			cats[uid] = cat
+			for copy = 1, 2 do
+				local twin = table.clone(cat)
+				twin.spotId = nil
+				cats[uid .. "_twin" .. copy] = twin
+			end
+		end
+		UI.update({ cats = cats } :: any)
+		UI.open("Cats")
+		task.wait(0.1)
+		local container = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Container", true) :: Instance
+		local window = container and container:FindFirstChild("Cats")
+		local grid = window and window:FindFirstChild("Grid", true) :: ScrollingFrame
+		assert(grid and grid:IsA("ScrollingFrame"), "uigate: no cat grid")
+		-- the canvas's end against the last row's outline, measured before scrolling; then the grid scrolls to its end
+		-- so the gate's strokeclip check reads the last row in view
+		local canvasEnd = grid.AbsolutePosition.Y - grid.CanvasPosition.Y + grid.AbsoluteCanvasSize.Y
+		local last = 0
+		for _, card in grid:GetChildren() do
+			if card:IsA("GuiObject") and card.Visible then
+				local stroke = card:FindFirstChildWhichIsA("UIStroke")
+				last = math.max(last, card.AbsolutePosition.Y + card.AbsoluteSize.Y + (if stroke then stroke.Thickness else 0))
+			end
+		end
+		assert(last > 0 and last <= canvasEnd + 0.5, ("uigate: the last row's outline ends %.1f px past the cat grid's end (#2294)"):format(last - canvasEnd))
+		grid.CanvasPosition = Vector2.new(0, math.max(0, grid.AbsoluteCanvasSize.Y - grid.AbsoluteWindowSize.Y))
+	end },
 	-- #1955 (auto-equip.md): the Auto Equip switch at the crew strip's right end, over Equip Best, gold while on; it
 	-- shows once the server saves settings.autoEquip
 	{ "CatsAutoEquip", function()

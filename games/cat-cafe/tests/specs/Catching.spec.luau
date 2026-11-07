@@ -740,8 +740,10 @@ return function()
 			expect(x).to.equal(0)
 			expect(y <= -UPPER[2] / 5 and y > -UPPER[2] / 2).to.equal(true) -- low on the torso, not at the hips
 			expect(z).to.be.near(-(0.5 + Catching.HELD.r15.gap + 0.5), 1e-9)
-			-- its back touches the chest without sinking into it, so its middle is on the hands about a stud out
-			expect(-z - 1 / 2).to.be.near(UPPER[3] / 2, 1e-9)
+			-- its back rests on the chest (at most a tenth of a stud out, so its head clears the chin) without
+			-- sinking into it, so its middle is on the hands about a stud out
+			local back = -z - 1 / 2 - UPPER[3] / 2
+			expect(back >= 0 and back <= 0.1).to.equal(true)
 		end)
 
 		it("sits a wider cat further out, and scales with the avatar's torso", function()

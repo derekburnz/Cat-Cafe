@@ -24,7 +24,8 @@ Catching.CARRIED_POSE = { 0, -0.4, -1.05, 0, 0, 1, 0, 1, 0, -1, 0, 0 }
 -- Animation-Engineer's lowered hands (#1985: on R15 meeting about 1 stud out, their tops 0.4 below the UpperTorso's
 -- middle; R6 arms per #1991), so its middle is on the hands.
 Catching.HELD = {
-	r15 = { up = -0.3, gap = 0 },
+	-- Desktop-Tester after #2002: the R15 cat's head grazed the carrier's Head 0.03 deep, so it sits 0.05 out
+	r15 = { up = -0.3, gap = 0.05 },
 	-- Derek2 2026-11-07 11:49 (#2001): "they are floating ... okay if the bottom is a little bit inside", so the cat
 	-- sits down into the arms against the chest instead of clear of them (up 0.25, gap 0.2 before)
 	-- Laptop-Tester after #2002: the R6 cat still sat a stud above the folded arms with its head over the chin, so

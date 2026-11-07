@@ -77,10 +77,12 @@ get() {
 }
 
 # Keys end in <os.time()>_<userId> with a ten-digit time, so a day's keys list in time order; keep the newest COUNT.
+# #2082: Open Cloud lists an entry's id as "<scope>/<key>" ("global/r_2026..."), and SetAsync saves under the global
+# scope, so the filter starts with "global/"; a bare prefix matched nothing and every day read 0 reports.
 keys=()
 token=
 while :; do
-	args=(--data-urlencode "filter=id.startsWith(\"$prefix\")" --data-urlencode maxPageSize=256)
+	args=(--data-urlencode "filter=id.startsWith(\"global/$prefix\")" --data-urlencode maxPageSize=256)
 	[ -z "$token" ] || args+=(--data-urlencode "pageToken=$token")
 	get "$entries" "${args[@]}"
 	mapfile -t -O "${#keys[@]}" keys < <(jq -r '.dataStoreEntries[]?.id' <<<"$body")
@@ -88,13 +90,30 @@ while :; do
 	[ -n "$token" ] || break
 done
 total=${#keys[@]}
+if [ "$total" = 0 ]; then
+	# 0 under this day's prefix: say what the store holds at all, so "nothing saved" (nobody's report arrived) can be
+	# told from "saved somewhere this listing does not look" (#2082). Only the first 10 characters of each key are
+	# printed (the day), never a user id, since this log is public.
+	shapes=()
+	token=
+	for _ in 1 2 3 4; do
+		args=(--data-urlencode maxPageSize=256)
+		[ -z "$token" ] || args+=(--data-urlencode "pageToken=$token")
+		get "$entries" "${args[@]}"
+		mapfile -t -O "${#shapes[@]}" shapes < <(jq -r '.dataStoreEntries[]?.id | .[0:10]' <<<"$body")
+		token=$(jq -r '.nextPageToken // empty' <<<"$body")
+		[ -n "$token" ] || break
+	done
+	echo "== the store holds ${#shapes[@]} entries without a filter (first 4 pages); key starts:"
+	[ "${#shapes[@]}" = 0 ] || printf '%s\n' "${shapes[@]}" | sort | uniq -c
+fi
 if [ "$total" -gt "$COUNT" ]; then
 	keys=("${keys[@]:total-COUNT}")
 fi
 
 records=()
 for key in "${keys[@]}"; do
-	get "$entries/$key"
+	get "$entries/${key#global/}" # the listed id is "global/<key>"; the entry path takes the bare key (#2082)
 	# the raw text never leaves this script: filteredText stands in for it, or a placeholder
 	records+=("$(jq -c '.value | .text = (if (.filteredText | type) == "string" then .filteredText
 		elif (.v // 1) < 2 then "(v1 report from before the filter: read it with Debug.bugReports in Studio)"
@@ -106,7 +125,7 @@ echo "== $total reports under $prefix in $STORE; showing the newest ${#records[@
 # The same fields and order as BugReportService's line(), times in UTC.
 who='\(.name) (\(.userId))'
 if [ "${MASK:-}" = 1 ]; then
-	who='\(.name | tostring | .[0:1])*** (...\(.userId | tostring | .[-3:]))'
+	who='\(.name | tostring | .[0:1])*** (...\(.userId | tostring | .[-3:])) at=\(.at)' # at is the key's time: idea-credits add takes r_<day>_<at>
 fi
 line='(if (.at | type) == "number" then .at else 0 end | strftime("%H:%M")) + " \(.kind) '"$who"
 line+=' v\(.placeVersion) \(.area) \(.device): \(.text) | client \(.clientErrors // [] | join(" / "))'

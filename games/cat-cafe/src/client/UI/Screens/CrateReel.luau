@@ -23,6 +23,8 @@ local IconArt = require(script.Parent.Parent.Components.IconArt)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
+local SkipKeys = require(script.Parent.Parent.Components.SkipKeys)
+local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
@@ -147,7 +149,29 @@ function CrateReel.new(parent: GuiObject): CrateReel
 		Parent = box,
 	}) :: Frame
 
+	-- #2246 (Derek2 11-07: "Add the ability to skip spins"): the tap that always skipped now says so under the strip,
+	-- and Space, Enter or a controller's A skips too
+	self._hint = Create("TextLabel", {
+		Name = "SkipHint",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 1, 8),
+		Size = UDim2.fromOffset(140, 26),
+		BackgroundColor3 = Theme.colors.outline,
+		BackgroundTransparency = 0.1,
+		BorderSizePixel = 0,
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.white,
+		Text = SpinLogic.SKIP_HINT,
+		ZIndex = Z + 4,
+		Parent = box,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) }) :: TextLabel
 	cover.Activated:Connect(function()
+		self:skip()
+	end)
+	self._skipKeys = SkipKeys.connect(function()
+		return self._play ~= nil and not self._landed
+	end, function()
 		self:skip()
 	end)
 	self._resize = parent:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
@@ -254,6 +278,7 @@ function CrateReel.play(self: any, play: Play)
 		part.BackgroundColor3 = Theme.colors.gold
 	end
 	self._line.BackgroundColor3 = Theme.colors.gold
+	self._hint.Visible = true
 	self.cover.Visible = true
 	local timing = play.timing
 	local elapsed = 0
@@ -285,6 +310,7 @@ function CrateReel._land(self: any, token: number)
 		return
 	end
 	self._landed = true
+	self._hint.Visible = false
 	if self._loop then
 		self._loop:Disconnect()
 		self._loop = nil
@@ -338,6 +364,7 @@ end
 function CrateReel.destroy(self: any)
 	self:stop()
 	self._resize:Disconnect()
+	self._skipKeys:Disconnect()
 	self:_clear()
 	self.cover:Destroy()
 end

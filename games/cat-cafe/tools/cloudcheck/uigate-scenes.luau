@@ -1912,6 +1912,36 @@ local SCENES = {
 		UI.spin.open()
 		press("SpinWheel", "Odds")
 	end },
+	-- #2246 (Derek2 11-07: "Add the ability to skip spins"): while the wheel turns "Tap to skip" sits on its rim, and a
+	-- tap on the wheel lands it; the shot is mid turn, with the hint up
+	{ "SpinSkipHint", function()
+		UI.spin.open()
+		UI.spin.result(1, 100)
+		UIShim.advance(0.5)
+		local window = UIShim.playerGui:FindFirstChild("SpinWheel", true)
+		local hint = window and window:FindFirstChild("SkipHint", true)
+		assert(hint and hint.Visible, "uigate: no Tap to skip while the wheel turns (#2246)")
+		local tap = window:FindFirstChild("SkipTap", true)
+		assert(tap and tap.Visible, "uigate: the wheel cannot be tapped while it turns (#2246)")
+	end },
+	{ "SpinSkipTap", function()
+		UI.spin.open()
+		UI.spin.result(1, 100)
+		UIShim.advance(0.5)
+		press("SpinWheel", "SkipTap")
+		local window = UIShim.playerGui:FindFirstChild("SpinWheel", true)
+		local hint = window:FindFirstChild("SkipHint", true)
+		assert(not hint.Visible, "uigate: Tap to skip stayed up after the wheel landed (#2246)")
+		assert(not window:FindFirstChild("SkipTap", true).Visible, "uigate: a tap on the wheel did not land it (#2246)")
+		-- Space skips the next one, as the button and the tap do
+		UIShim.advance(10)
+		UI.spin.result(1, 100)
+		UIShim.advance(0.5)
+		assert(hint.Visible, "uigate: no Tap to skip on the second spin (#2246)")
+		local input = { KeyCode = Enum.KeyCode.Space, UserInputType = Enum.UserInputType.Keyboard }
+		UIShim.fire(UIShim.eventOf(game:GetService("UserInputService"), "InputBegan"), input, false)
+		assert(not hint.Visible, "uigate: Space did not skip the spin (#2246)")
+	end },
 	-- #1500: the end of the Odds list, where the two 0.5% jackpots sit in gold
 	{ "SpinOddsJackpots", function()
 		UI.spin.open()
@@ -2876,6 +2906,18 @@ local SCENES = {
 		task.delay(0.3, function()
 			UI.market.result("classic_crate", "classic_latte_brown", false, 0)
 		end)
+	end },
+	-- #2246: "Tap to skip" under the strip while it rolls, and Space skips it as a tap does
+	{ "CrateReelSkipKey", function()
+		reel(true)
+		UI.market.open()
+		UI.market.result("classic_crate", "classic_latte_brown", false, 0)
+		UIShim.advance(0.2)
+		local hint = UIShim.playerGui:FindFirstChild("FishMarket", true):FindFirstChild("SkipHint", true)
+		assert(hint and hint.Visible, "uigate: no Tap to skip on the rolling reel (#2246)")
+		local input = { KeyCode = Enum.KeyCode.Space, UserInputType = Enum.UserInputType.Keyboard }
+		UIShim.fire(UIShim.eventOf(game:GetService("UserInputService"), "InputBegan"), input, false)
+		assert(not hint.Visible, "uigate: Space did not skip the reel (#2246)")
 	end },
 	-- a tap skips it: the landing, then the prize card with its buttons
 	{ "CrateReelSkip", function()

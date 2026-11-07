@@ -6,7 +6,8 @@
 -- HUD's Upgrades tile hands over to the row inside Upgrades once the window opens. It shows for SHOW_SECONDS when a
 -- target starts to glow, then comes back every AGAIN_SECONDS while the step still waits, and goes with the glow.
 -- With Roblox's Reduce Motion on it holds still. It sits in the target's own ScreenGui, over everything there.
---   add(target)      the arrow may point at target (newest first)
+--   add(target, low?)  the arrow may point at target (newest first); a `low` target (#2331, the goal card's ready
+--                      rank up) only while no tutorial target is on screen, so it never takes the tutorial's arrow
 --   remove(target)   not any more
 
 local GuiService = game:GetService("GuiService")
@@ -28,7 +29,7 @@ local BOB = 8 -- px it bobs toward the target
 local BOB_INFO = TweenInfo.new(0.45, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
 local Z = 60 -- over the target's ScreenGui's own pieces (they stay under 30)
 
-type Entry = { target: GuiObject, since: number }
+type Entry = { target: GuiObject, since: number, low: boolean }
 
 local entries: { Entry } = {}
 local arrow: Frame? = nil
@@ -185,7 +186,7 @@ local function update()
 		local entry = entries[index]
 		if entry.target.Parent == nil then
 			table.remove(entries, index)
-		elseif chosen == nil then
+		elseif chosen == nil or (chosen.low and not entry.low) then
 			local shown = shownIn(entry.target)
 			if shown then
 				chosen = entry
@@ -243,13 +244,13 @@ local function watch()
 	update()
 end
 
-function TutorialArrow.add(target: GuiObject)
+function TutorialArrow.add(target: GuiObject, low: boolean?)
 	for _, entry in entries do
 		if entry.target == target then
 			return
 		end
 	end
-	table.insert(entries, { target = target, since = os.clock() })
+	table.insert(entries, { target = target, since = os.clock(), low = low == true })
 	watch()
 end
 

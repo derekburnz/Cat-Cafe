@@ -3419,6 +3419,53 @@ local SCENES = {
 			)
 		end
 	end },
+	-- #2331 (Derek2: "cozy cafe (tier up cafe) is more obviously your main goal to tier up and maybe flash and point
+	-- towards it when tier up is ready"): the goal card's gold "YOUR GOAL" line over the bigger tier name, its edge
+	-- pulsing and the big arrow at it while the rank up is ready; opening the rank up card stops both until the rank
+	-- up is ready again
+	{ "GoalCardReady", function()
+		local before: any = UI.getState()
+		Scenes._goalBefore = { tier = before.tier, money = before.money, tutorialStep = before.tutorialStep }
+		UI.update({ tier = 3, tutorialStep = 9, money = 0 } :: any)
+		task.wait(0.1) -- the HUD draws the not ready state before the next update
+		UI.update({ money = 2e9 } :: any) -- ready again just now, so the arrow's first showing starts here
+		task.wait(0.1)
+		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
+		assert(goal:FindFirstChild("RankReady").Visible, "uigate: the sample cafe's rank up is not ready (#2331)")
+		local line = goal:FindFirstChild("Goal") :: TextLabel
+		assert(line.Visible and line.Text == "🏆 YOUR GOAL", "uigate: the goal card has no YOUR GOAL line (#2331)")
+		local title = goal:FindFirstChild("Title") :: TextLabel
+		assert(title.Visible and title.TextFits, "uigate: the goal card's tier name does not fit (#2331)")
+		assertArrowAt(goal, "the goal card")
+	end },
+	{ "GoalCardSeen", function()
+		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
+		UI.open("RankUp")
+		UI.close()
+		UI.update({ money = 2e9 + 1 } :: any)
+		task.wait(0.1)
+		local function arrowShows(): boolean
+			for _, piece in UIShim.playerGui:GetDescendants() do
+				if piece.Name == "TutorialArrow" and piece:IsA("GuiObject") and piece.Visible then
+					return true
+				end
+			end
+			return false
+		end
+		assert(not arrowShows(), "uigate: the arrow still points at the goal card after the rank up card opened (#2331)")
+		local edge = goal:FindFirstChild("Border") :: UIStroke
+		assert(edge.Thickness < 3, "uigate: the goal card still pulses after the rank up card opened (#2331)")
+		assert(goal:FindFirstChild("RankReady").Visible, "uigate: the Rank up! sticker went with the arrow (#2331)")
+		-- not ready, then ready again: the arrow is back
+		UI.update({ money = 0 } :: any)
+		task.wait(0.1)
+		UI.update({ money = 2e9 } :: any)
+		task.wait(0.1)
+		assertArrowAt(goal, "the goal card, ready again")
+		local was = Scenes._goalBefore
+		Scenes._goalBefore = nil
+		UI.update({ tier = was.tier, money = was.money, tutorialStep = was.tutorialStep } :: any)
+	end },
 	-- #2211 (crispi_255): the tutorial's last step done: the Tutorial tile's red × gets a gold ring and bounces for
 	-- a few seconds, then is plain again; a player who finished it before (no step change) gets no pulse
 	{ "TutorialDoneX", function()

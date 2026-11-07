@@ -943,6 +943,7 @@ function UI.init(config: Types.InitConfig)
 	modalInstance:register("RankUp", {
 		frame = rankUpView.frame,
 		onOpen = function()
+			hudInstance:goalSeen() -- #2331: the goal card stops pointing at the rank up
 			rankUpView:render(state)
 		end,
 	})

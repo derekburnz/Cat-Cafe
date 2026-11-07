@@ -274,8 +274,8 @@ return function()
 			expect(FoodOdds.rainbow(0, 0.005)).to.equal("Rainbow 0.5%")
 			expect(FoodOdds.rainbow(nil, 0.005)).to.equal("Rainbow 0.5%")
 			expect(FoodOdds.rainbow(0.2, 0.005)).to.equal("Rainbow 0.6% (+20% luck)")
-			expect(FoodOdds.rainbow(0.5, 0.005)).to.equal("Rainbow 0.75% (+50% luck)")
-			expect(FoodOdds.rainbow(9, 0.005)).to.equal("Rainbow 1% (+100% luck)")
+			expect(FoodOdds.rainbow(0.5, 0.005)).to.equal("Rainbow 0.7% (+40% luck)") -- #2269: capped at +40%
+			expect(FoodOdds.rainbow(9, 0.005)).to.equal("Rainbow 0.7% (+40% luck)")
 			expect(FoodOdds.rainbow(0.2, 0)).to.equal(nil)
 		end)
 

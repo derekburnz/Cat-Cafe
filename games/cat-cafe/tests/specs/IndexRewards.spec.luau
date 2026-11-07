@@ -727,16 +727,16 @@ return function()
 		end)
 
 		it("writes the rainbow luck pill with the rainbow chance in hundredths", function()
-			expect(IndexRewards.rainbowChance(0.005, 0.5)).to.be.near(0.0075, 1e-12)
-			expect(IndexRewards.rainbowChance(0.005, 9)).to.be.near(0.01, 1e-12)
+			expect(IndexRewards.rainbowChance(0.005, 0.2)).to.be.near(0.006, 1e-12) -- #2269: luck at most +40%
+			expect(IndexRewards.rainbowChance(0.005, 9)).to.be.near(0.007, 1e-12)
+			expect(IndexRewards.perkLabel("rainbowLuck", 0.08)).to.equal(
+				"+8% rainbow luck (rainbow 1.62%)"
+			)
 			expect(IndexRewards.perkLabel("rainbowLuck", 0.2)).to.equal(
 				"+20% rainbow luck (rainbow 1.8%)"
 			)
-			expect(IndexRewards.perkLabel("rainbowLuck", 0.5)).to.equal(
-				"+50% rainbow luck (rainbow 2.25%)"
-			)
-			expect(IndexRewards.perkLabel("rainbowLuck", 1)).to.equal(
-				"+100% rainbow luck (rainbow 3%)"
+			expect(IndexRewards.perkLabel("rainbowLuck", 0.4)).to.equal(
+				"+40% rainbow luck (rainbow 2.1%)"
 			)
 			expect(IndexRewards.perkLabel("rainbowLuck", 0)).to.equal(nil)
 		end)

@@ -2559,17 +2559,17 @@ Catalog.indexPrizes = {
 		decor5 = { fish = Config.DecorIndexHalfFish },
 		decor10 = { bonus = Config.DecorIndexBonus },
 	},
-	-- F99 (rainbow-coat.md section 4): the three luck steps add up to RainbowLuckMax (+100%)
+	-- F99 (rainbow-coat.md section 4): the three luck steps add up to RainbowLuckMax (+40%; #2269: was 0.2, 0.3, 0.5)
 	rainbow = {
 		rainbow1 = { fish = 25, tag = "Rainbow Finder" },
 		rainbow3 = { fish = 50, crates = { classic_golden_crate = 1 } },
-		rainbow5 = { fish = 75, rainbowLuck = 0.2 },
-		rainbow10 = { fish = 100, crates = { classic_golden_crate = 2 }, rainbowLuck = 0.3 },
+		rainbow5 = { fish = 75, rainbowLuck = 0.08 },
+		rainbow10 = { fish = 100, crates = { classic_golden_crate = 2 }, rainbowLuck = 0.12 },
 		rainbow25 = {
 			fish = 150,
 			crates = { classic_golden_crate = 3 },
 			tag = "Rainbow Master",
-			rainbowLuck = 0.5,
+			rainbowLuck = 0.2,
 		},
 	},
 } :: { [string]: { [string]: Types.IndexPrize } }

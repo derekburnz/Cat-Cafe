@@ -77,7 +77,8 @@ local PENDING_SECONDS = 3
 local CONFIRM_SECONDS = 3
 local CHECK_SECONDS = 0.25 -- how often the range check and the timers run while he is here
 local TAG_OFFSET = 4 -- studs over the spot; he sits, and his bowler tops out at 2.7 (Model-Agent #532)
-local TAG_DISTANCE = 120
+-- #2272 (Derek2: "show cat collector through walls like rich tip"): seen from as far as the rich tip's bubble
+local TAG_DISTANCE = 150
 
 local Collector = {}
 Collector.__index = Collector
@@ -264,6 +265,13 @@ function Collector.new(parent: Instance, callbacks: Callbacks): Collector
 		Text = "",
 		Parent = billboard,
 	})
+	-- #2272: a solid cocoa bubble behind the words, as the rich tip has, so the tag reads through a wall or over a
+	-- busy street instead of bare outlined words lost in the scenery
+	tagButton.BackgroundTransparency = 0
+	tagButton.BackgroundColor3 = Theme.colors.cocoa
+	Create("UICorner", { CornerRadius = UDim.new(0, 14), Parent = tagButton })
+	Outline.border(tagButton)
+	Outline.shade(tagButton)
 	self._tagButton = tagButton
 	local tagName = text({
 		Name = "Title",

@@ -88,6 +88,23 @@ while :; do
 	[ -n "$token" ] || break
 done
 total=${#keys[@]}
+if [ "$total" = 0 ]; then
+	# 0 under this day's prefix: say what the store holds at all, so "nothing saved" (nobody's report arrived) can be
+	# told from "saved somewhere this listing does not look" (#2075). Only the first 10 characters of each key are
+	# printed (the day), never a user id, since this log is public.
+	shapes=()
+	token=
+	for _ in 1 2 3 4; do
+		args=(--data-urlencode maxPageSize=256)
+		[ -z "$token" ] || args+=(--data-urlencode "pageToken=$token")
+		get "$entries" "${args[@]}"
+		mapfile -t -O "${#shapes[@]}" shapes < <(jq -r '.dataStoreEntries[]?.id | .[0:10]' <<<"$body")
+		token=$(jq -r '.nextPageToken // empty' <<<"$body")
+		[ -n "$token" ] || break
+	done
+	echo "== the store holds ${#shapes[@]} entries without a filter (first 4 pages); key starts:"
+	[ "${#shapes[@]}" = 0 ] || printf '%s\n' "${shapes[@]}" | sort | uniq -c
+fi
 if [ "$total" -gt "$COUNT" ]; then
 	keys=("${keys[@]:total-COUNT}")
 fi

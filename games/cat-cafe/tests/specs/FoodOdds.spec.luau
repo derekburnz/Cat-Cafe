@@ -37,10 +37,10 @@ return function()
 								sum += tonumber(each) :: number
 								count += 1
 							end
-							-- two decimals: each cat is at most 0.005 off
+							-- two decimals: each cat is at most 0.005 off, and so is the share itself (#2239's odds have three decimals)
 							if
 								math.abs(sum - (tonumber(share) :: number))
-								> count * 0.005 + 1e-6
+								> (count + 1) * 0.005 + 1e-6
 							then
 								table.insert(off, ("%s tier %d: %s"):format(lure.id, tier, line))
 							end
@@ -414,10 +414,10 @@ return function()
 
 		it("shows a food's odds in the player's bowl, the table the server rolls", function()
 			expect(FoodOdds.atBowl(nil, 3)).to.equal(nil)
-			expect(FoodOdds.atBowl(salmon.odds, 0).Legendary).to.be.near(8.5, 1e-9)
-			expect(FoodOdds.atBowl(salmon.odds, 1).Legendary).to.be.near(8.5, 1e-9)
-			expect(FoodOdds.atBowl(salmon.odds, 2).Legendary).to.be.near(9.36, 1e-9)
-			expect(FoodOdds.atBowl(salmon.odds, 5).Legendary).to.be.near(11.94, 1e-9)
+			expect(FoodOdds.atBowl(salmon.odds, 0).Legendary).to.be.near(7.225, 1e-9) -- #2239: was 8.5
+			expect(FoodOdds.atBowl(salmon.odds, 1).Legendary).to.be.near(7.225, 1e-9)
+			expect(FoodOdds.atBowl(salmon.odds, 2).Legendary).to.be.near(7.956, 1e-9)
+			expect(FoodOdds.atBowl(salmon.odds, 5).Legendary).to.be.near(10.149, 1e-9)
 			local off: { string } = {}
 			for level = 0, 5 do
 				for _, lure in Catalog.lures do
@@ -445,12 +445,12 @@ return function()
 			local row = FoodOdds.rich(FoodOdds.atBowl(salmon.odds, 2), function()
 				return "000000"
 			end)
-			expect(row:find("Legendary" .. utf8.char(0xA0) .. "9.36%", 1, true)).to.be.ok()
+			expect(row:find("Legendary" .. utf8.char(0xA0) .. "7.96%", 1, true)).to.be.ok()
 			local plain: string = FoodOdds.split(catalog, salmon, 5)
 			expect(FoodOdds.split(catalog, salmon, 5, 1)).to.equal(plain)
 			expect(plain:find("moves", 1, true)).never.to.be.ok()
 			local comfy: string = FoodOdds.split(catalog, salmon, 5, 2)
-			expect(comfy:find("\nLegendary 9.36%: ", 1, true)).to.be.ok()
+			expect(comfy:find("\nLegendary 7.96%: ", 1, true)).to.be.ok()
 			expect(
 				comfy:find(
 					"Comfy Bowl: rarer visitors. 4% of each rarity's chance moves up one rarity.",
@@ -462,13 +462,13 @@ return function()
 
 		it("shows a food's odds at the player's Luck, the table the server rolls (F88)", function()
 			local Luck = require(Shared:WaitForChild("Luck")) :: any
-			expect(FoodOdds.atBowl(salmon.odds, 2, 1).Legendary).to.be.near(9.36, 1e-9)
-			expect(FoodOdds.atBowl(salmon.odds, 2, nil).Legendary).to.be.near(9.36, 1e-9)
+			expect(FoodOdds.atBowl(salmon.odds, 2, 1).Legendary).to.be.near(7.956, 1e-9)
+			expect(FoodOdds.atBowl(salmon.odds, 2, nil).Legendary).to.be.near(7.956, 1e-9)
 			local kibble = Catalog.luresById.kibble
 			local lucky = FoodOdds.atBowl(kibble.odds, 1, 1.5)
-			expect(lucky.Common).to.be.near(67.5, 1e-9)
-			expect(lucky.Epic).to.be.near(6, 1e-9)
-			expect(lucky.Mythical).to.be.near(0.15, 1e-9)
+			expect(lucky.Common).to.be.near(68.25, 1e-9)
+			expect(lucky.Epic).to.be.near(5.1, 1e-9)
+			expect(lucky.Mythical).to.be.near(0.1275, 1e-9)
 			local off: { string } = {}
 			for level = 0, 5 do
 				for _, lure in Catalog.lures do
@@ -493,7 +493,7 @@ return function()
 			end
 			expect(table.concat(off, "; ")).to.equal("")
 			local split: string = FoodOdds.split(catalog, kibble, 1, 1, 1.5)
-			expect(split:find("\nEpic 6%: ", 1, true)).to.be.ok()
+			expect(split:find("\nEpic 5.1%: ", 1, true)).to.be.ok()
 			expect(
 				split:find(
 					"Your Luck x1.5 is in these odds: Epic and rarer cats are more likely.",
@@ -507,13 +507,13 @@ return function()
 		it("names the next bowl, its wait and the Salmon's rarer cats on the shop row", function()
 			local first, second = FoodOdds.bowlStep(catalog, 1, false)
 			expect(first).to.equal("Next: Comfy Bowl · 9m 30s wait")
-			expect(second).to.equal("Rarer bait cats: Salmon Legendary 8.5% to 9.36%")
+			expect(second).to.equal("Rarer bait cats: Salmon Legendary 7.22% to 7.96%")
 			expect((FoodOdds.bowlStep(catalog, 1, true))).to.equal(
 				"Next: Comfy Bowl · 7m 30s wait"
 			)
 			local royal, rarer = FoodOdds.bowlStep(catalog, 4, false)
 			expect(royal).to.equal("Next: Royal Bowl · 8m wait")
-			expect(rarer).to.equal("Rarer bait cats: Salmon Legendary 11.08% to 11.94%")
+			expect(rarer).to.equal("Rarer bait cats: Salmon Legendary 9.42% to 10.15%")
 		end)
 
 		it(

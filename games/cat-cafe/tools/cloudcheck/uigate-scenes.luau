@@ -2239,6 +2239,34 @@ local SCENES = {
 		assert(seen.rainbowLuck and seen.NextSticker, "uigate: no rainbow luck pill or NEXT sticker to check (#2270)")
 		assert(checked >= 3, "uigate: only " .. checked .. " reward labels checked (#2270)")
 	end },
+	-- #2272 (Derek2: "show cat collector through walls like rich tip"): while he visits, his tag draws over walls out
+	-- to the rich tip's 150 studs, on a solid bubble so it reads against any wall
+	{ "CollectorTagWalls", function()
+		bindLawnPlot()
+		local spot = lawnPlot:FindFirstChild("CollectorSpot")
+		if spot == nil then
+			spot = Instance.new("Part")
+			spot.Name = "CollectorSpot"
+			spot.Anchored = true
+			spot.Position = Vector3.new(0, 3, 0)
+			spot.Parent = lawnPlot
+		end
+		local uid
+		for id in (UI.getState() :: any).cats or {} do
+			uid = id
+			break
+		end
+		assert(uid, "uigate: no owned cat for the Collector to offer on")
+		UI.collector.offer(uid, { value = 1, fish = 5 }, workspace:GetServerTimeNow() + 120)
+		UIShim.advance(0.3)
+		local tag = UIShim.playerGui:FindFirstChild("CatCafeCollectorTag", true)
+		UI.collector.offer("", nil, 0)
+		assert(tag and tag:IsA("BillboardGui"), "uigate: no Collector tag (#2272)")
+		assert(tag.AlwaysOnTop, "uigate: the Collector tag hides behind walls (#2272)")
+		assert(tag.MaxDistance >= 150, "uigate: the Collector tag fades at " .. tag.MaxDistance .. " studs, under the rich tip's 150 (#2272)")
+		local button = tag:FindFirstChild("Tag")
+		assert(button and button.BackgroundTransparency == 0, "uigate: the Collector tag has no bubble behind its words (#2272)")
+	end },
 	-- a found rainbow cat's card: "Rainbow" before its name, a rainbow edge
 	{ "IndexRainbowCat", function()
 		UI.open("Collection")
@@ -2907,6 +2935,25 @@ local SCENES = {
 	end },
 	-- #2182 (intro-cutscene.md 2b): with a hold, Next just left of Skip and the gold read bar under the caption; a
 	-- press in a shot's first second does nothing, then one press moves on once
+	-- #2242 (Derek2 11-07: "add the rare customers chance to the tutorial scene like rich customer tips"): the rich
+	-- visitor shot's caption fits one line, and the grab's gold "+$" pops over the bag and is gone by 1.6 s
+	{ "IntroRichTip", function()
+		UI.intro.start({ skipAfter = 5 })
+		UI.intro.setShot(6, "Rich visitors leave big tips. Grab them fast!", nil, 4.2)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntro") :: ScreenGui
+		local caption = gui:FindFirstChild("Caption", true) :: TextLabel
+		assert(caption.TextFits, "uigate: the rich visitor caption does not fit (#2242)")
+		local camera = workspace.CurrentCamera
+		local bag = camera.CFrame.Position + camera.CFrame.LookVector * 20
+		UI.intro.tipPop(bag, 2400)
+		UIShim.advance(0.3)
+		-- the shim's camera puts every world point behind it, so the pop is made but hidden; its words are checked
+		local pop = gui:FindFirstChild("TipPop", true) :: TextLabel
+		assert(pop ~= nil, "uigate: no tip pop over the bag (#2242)")
+		assert(pop.Text == "+$2,400" and pop.TextFits, "uigate: the tip pop reads " .. pop.Text .. " (#2242)")
+		UIShim.advance(1.5)
+		assert(gui:FindFirstChild("TipPop", true) == nil, "uigate: the tip pop stayed past 1.6 s (#2242)")
+	end },
 	{ "IntroNext", function()
 		local fired: { number } = {}
 		local counting = UI.events.introNext:Connect(function(shot: number)

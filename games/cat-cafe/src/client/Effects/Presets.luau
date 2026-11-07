@@ -3072,6 +3072,20 @@ Presets.rarityMark = {
 	maxDistance = 80,
 	most = 12,
 	checkEvery = 0.25,
+	-- #2258 (Derek2 2026-11-07: "show new tag if it's a cat you don't own yet for people index hunting"): a NEW pill
+	-- over the gem of a cat not in your Index yet, in leaf green (no rarity uses it), `width` by `height` of the
+	-- gem's square, its foot `overlap` down over the gem's top corner (it pokes a little over the billboard's top)
+	newTag = {
+		text = "NEW",
+		width = 0.72,
+		height = 0.26,
+		overlap = 0.05,
+		fill = Presets.palette.leaf,
+		textColour = Presets.palette.milk,
+		textOutline = Color3.fromRGB(36, 92, 40),
+		rim = Presets.palette.offwhite,
+		rimPixels = 2,
+	},
 }
 
 -- Walking through water (Derek 2026-10-28 01:33, Effects/Splash): feet count as in the water from `above` studs
@@ -3140,7 +3154,7 @@ Presets.mystery = {
 		studs = 1.2,
 		pixels = 18,
 		lift = 1.2,
-		within = 120,
+		within = 150, -- as the rich tip's marker and the camp stations' "!" (#2272)
 		bob = 0.5,
 		seconds = 1.6,
 		colour = Color3.fromRGB(240, 82, 79), -- the HUD's and the camp stations' red "!"

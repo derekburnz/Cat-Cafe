@@ -14,6 +14,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Prizes = require(ReplicatedStorage.Shared.Prizes)
+local ShortNumber = require(ReplicatedStorage.Shared.ShortNumber)
 local Spin = require(ReplicatedStorage.Shared.Spin)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -36,7 +37,7 @@ function Payout.pay(
 	if coins > 0 then
 		Economy.credit(profile, coins)
 		Telemetry.source(player, profile, coins, kind, sku)
-		table.insert(paid, string.format("+$%d", coins))
+		table.insert(paid, "+$" .. ShortNumber.format(coins))
 	end
 	if prize.lures ~= nil then
 		for lureId, count in prize.lures do

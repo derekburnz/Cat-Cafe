@@ -98,8 +98,8 @@ local function release()
 	setControls(true)
 end
 
--- True while this player stands inside a catching area their tier opens, out of its camp (F84: the server's
--- `Camp` attribute), and is not flying: the server's rule, checked again there.
+-- True while this player stands inside a catching area their tier opens, camps included since Derek2 2026-11-07 ("no
+-- tackle safe spots"), and is not flying: the server's rule, checked again there.
 local function inOpenArea(): boolean
 	local root = rootPart()
 	local state = UIController.state
@@ -108,8 +108,7 @@ local function inOpenArea(): boolean
 		return false
 	end
 	if
-		character:GetAttribute("Camp") ~= nil
-		or character:GetAttribute("Launching") == true
+		character:GetAttribute("Launching") == true
 		or character:GetAttribute("CloudHopAt") ~= nil
 	then
 		return false

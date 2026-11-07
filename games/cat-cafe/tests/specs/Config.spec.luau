@@ -170,8 +170,8 @@ return function()
 		HopMaxRise = 2.6,
 		BedtimeTimeoutSeconds = 15,
 		-- the Cat Collector (F63, section 12b); CollectorValue is a table, checked in Collector.spec
-		CollectorEveryMin = 360, -- #1135; #2107: 600 s on average (was 600 to 1400, 1000 s)
-		CollectorEveryMax = 840,
+		CollectorEveryMin = 200, -- #1135; #2272: 300 s on average (#2107: 360 to 840, was 600 to 1400)
+		CollectorEveryMax = 400,
 		VisitRetrySeconds = 15,
 		CollectorStaySeconds = 180,
 		CollectorGoldMultiplier = 3,
@@ -261,7 +261,7 @@ return function()
 		RainbowChanceNet = 0.015, -- F99 (rainbow-coat.md section 5); v2 section 4b
 		RainbowChanceBait = 0.015,
 		RainbowChanceRescue = 0.03,
-		RainbowMultiplier = 3,
+		RainbowMultiplier = 2,
 		RainbowLuckMax = 1.0,
 		CollectorRainbowMultiplier = 10,
 		RainbowAnimateMax = 10,
@@ -872,12 +872,13 @@ return function()
 
 	describe("the rainbow coat (F99, rainbow-coat.md section 1)", function()
 		it(
-			"is three tenths of gold everywhere (v2, section 4b) and earns twice a gold cat",
+			"is three tenths of gold everywhere (v2, section 4b) and earns x2 (Derek2 2026-11-07, was x3)",
 			function()
 				expect(Config.RainbowChanceNet).to.be.near(Config.GoldChanceNet * 0.3, 1e-9)
 				expect(Config.RainbowChanceBait).to.be.near(Config.GoldChanceBait * 0.3, 1e-9)
 				expect(Config.RainbowChanceRescue).to.be.near(Config.GoldChanceRescue * 0.3, 1e-9)
-				expect(Config.RainbowMultiplier).to.equal(2 * Config.GoldMultiplier)
+				expect(Config.RainbowMultiplier).to.equal(2)
+				expect(Config.RainbowMultiplier > Config.GoldMultiplier).to.equal(true)
 				expect(Config.CollectorRainbowMultiplier > Config.CollectorGoldMultiplier).to.equal(
 					true
 				)

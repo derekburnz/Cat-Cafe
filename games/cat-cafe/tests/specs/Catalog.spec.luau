@@ -623,9 +623,9 @@ return function()
 			{ "Cozy Cafe", 30000, 5, nil, nil, 4, 1.25, "park", { 5, 4, 2 } }, -- #1896: Tables 5 and Espresso 4
 			-- economy-ladder.md section 3 v3.1 (#1452, more wild cats; #1499 Tier 2 30,000): 30,000, 700,000, 60M and 2B;
 			-- #1896 (first-hour.md 4): Tier 3 900,000
-			{ "Busy Cafe", 800000, 12, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
-			{ "Famous Cafe", 60000000, 20, "Legendary", 1, 8, 1.75, "woods", { 6, 5, 3 } },
-			{ "Grand Cafe", 2000000000, 30, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
+			{ "Busy Cafe", 920000, 13, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
+			{ "Famous Cafe", 90000000, 25, "Legendary", 1, 8, 1.75, "woods", { 6, 5, 3 } },
+			{ "Grand Cafe", 2300000000, 33, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 		}
 
 		it("has five tiers matching the table", function()
@@ -918,7 +918,13 @@ return function()
 					sortOrder = 1,
 					source = "shop",
 					attracts = "Common",
-					odds = { Common = 70, Rare = 25, Epic = 4, Legendary = 0.9, Mythical = 0.1 },
+					odds = {
+						Common = 70.375,
+						Rare = 25.375,
+						Epic = 3.4,
+						Legendary = 0.765,
+						Mythical = 0.085,
+					}, -- #2239
 				},
 				tuna = {
 					name = "Tuna",
@@ -926,7 +932,13 @@ return function()
 					sortOrder = 2,
 					source = "shop",
 					attracts = "Rare",
-					odds = { Common = 40, Rare = 45, Epic = 12, Legendary = 2.6, Mythical = 0.4 },
+					odds = {
+						Common = 41.125,
+						Rare = 46.125,
+						Epic = 10.2,
+						Legendary = 2.21,
+						Mythical = 0.34,
+					}, -- #2239
 				},
 				salmon = {
 					name = "Salmon",
@@ -934,7 +946,13 @@ return function()
 					sortOrder = 4,
 					source = "shop",
 					attracts = "Epic",
-					odds = { Common = 15, Rare = 45, Epic = 30, Legendary = 8.5, Mythical = 1.5 },
+					odds = {
+						Common = 18,
+						Rare = 48,
+						Epic = 25.5,
+						Legendary = 7.225,
+						Mythical = 1.275,
+					}, -- #2239
 				},
 				sardines = {
 					name = "Moonlit Sardines",
@@ -942,7 +960,13 @@ return function()
 					sortOrder = 3,
 					source = "dealer",
 					attracts = "Rare",
-					odds = { Common = 30, Rare = 45, Epic = 20, Legendary = 4.5, Mythical = 0.5 },
+					odds = {
+						Common = 31.875,
+						Rare = 46.875,
+						Epic = 17,
+						Legendary = 3.825,
+						Mythical = 0.425,
+					}, -- #2239
 				},
 				caviar = {
 					name = "Caviar",
@@ -950,7 +974,13 @@ return function()
 					sortOrder = 5,
 					source = "dealer",
 					attracts = "Epic",
-					odds = { Common = 10, Rare = 35, Epic = 38, Legendary = 14, Mythical = 3 },
+					odds = {
+						Common = 16.55,
+						Rare = 34,
+						Epic = 35,
+						Legendary = 11.9,
+						Mythical = 2.55,
+					}, -- #2239
 				},
 				moon_milk = {
 					name = "Moon Milk",
@@ -958,7 +988,13 @@ return function()
 					sortOrder = 6,
 					source = "dealer",
 					attracts = "Epic",
-					odds = { Common = 0, Rare = 20, Epic = 45, Legendary = 28, Mythical = 7 },
+					odds = {
+						Common = 0,
+						Rare = 32,
+						Epic = 38.25,
+						Legendary = 23.8,
+						Mythical = 5.95,
+					}, -- #2239
 				},
 				star_treat = {
 					name = "Star Treat",
@@ -966,7 +1002,7 @@ return function()
 					sortOrder = 7,
 					source = "dealer",
 					attracts = "Legendary",
-					odds = { Common = 0, Rare = 0, Epic = 40, Legendary = 45, Mythical = 15 },
+					odds = { Common = 0, Rare = 0, Epic = 43.25, Legendary = 44, Mythical = 12.75 }, -- #2239
 				},
 			}
 
@@ -1034,9 +1070,9 @@ return function()
 				end
 				return total
 			end
-			-- From the tables: kibble 100 vs 100, tuna 60 vs 46, salmon 40 vs 17 (#1452's wild odds).
+			-- From the tables: kibble 100 vs 100, tuna 58.875 vs 46, salmon 34 vs 17 (#1452's wild odds; #2239's foods).
 			local numbers: { [string]: { number } } =
-				{ kibble = { 100, 100 }, tuna = { 60, 46 }, salmon = { 40, 17 } }
+				{ kibble = { 100, 100 }, tuna = { 58.875, 46 }, salmon = { 34, 17 } }
 			for id, row in pairs(numbers) do
 				local def = Catalog.getLure(id)
 				assert(def)

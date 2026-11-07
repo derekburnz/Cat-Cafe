@@ -170,8 +170,8 @@ return function()
 		HopMaxRise = 2.6,
 		BedtimeTimeoutSeconds = 15,
 		-- the Cat Collector (F63, section 12b); CollectorValue is a table, checked in Collector.spec
-		CollectorEveryMin = 360, -- #1135; #2107: 600 s on average (was 600 to 1400, 1000 s)
-		CollectorEveryMax = 840,
+		CollectorEveryMin = 200, -- #1135; #2272: 300 s on average (#2107: 360 to 840, was 600 to 1400)
+		CollectorEveryMax = 400,
 		VisitRetrySeconds = 15,
 		CollectorStaySeconds = 180,
 		CollectorGoldMultiplier = 3,

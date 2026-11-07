@@ -651,3 +651,6 @@ Tier goals as built in #2236: one-go Tier 5 at 11 h 26 and daily play on day 6, 
 
 ## 2026-11-07: Bait bowl odds down 15% on Epic and up; rainbow earns x2 (Design-Agent, friend's project, #2239, #2261)
 Bowl foods: Epic, Legendary and Mythical are 15% lower relative, and Common and Rare take up the rest (data-model.md §8). Caviar and Star Treat were adjusted so their "Attracts" label stays true. Rainbow cats earn x2, not x3 (Derek2, built in #2261; rainbow-coat.md §1). Reason: Derek2's asks. Pace.spec passes; the run on the #2230 tier goals follows.
+
+## 2026-11-07: Area obstacles are tall, not see-over (Design-Agent, friend's project, #2265)
+hometown-cannon.md §6b said blockers were about 4 studs so players could see over them. Derek2 asked for taller obstacles in every area: solid ones like hedges are now about 9 to 9.6 studs, and railings are see-through iron at about 9.4. The doc now says that. Reason: Derek2's ask; the see-through railings keep a hunter's view of a carrier in places.

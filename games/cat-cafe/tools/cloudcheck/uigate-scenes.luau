@@ -430,6 +430,7 @@ local function storePrices(forSale)
 		RoyalCatPassId = 599,
 		KingPackPassId = 999,
 		GardenDecorPackPassId = 149, -- #1168: shows once its id is set
+		SecondBowlPassId = 149, -- #2010: the Cats tab's Second Bait Bowl card
 	}
 	for key, robux in others do
 		local id = Config[key]
@@ -2511,6 +2512,23 @@ local SCENES = {
 		UI.open("Store")
 		press("CatCafeModals", "passes")
 		assertStoreCards(false)
+	end },
+	-- #2010 (Derek2: "extra food bowl is missing from live game store"): the Cats tab sells the Second Bait Bowl
+	{ "StoreCatsBowl", function()
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		press("CatCafeModals", "cats")
+		assertStoreCards(false)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Store", true)
+		local list = window and window:FindFirstChild("List", true)
+		local found = false
+		for _, label in (list :: Instance):GetDescendants() do
+			if label:IsA("TextLabel") and label.Name == "Name" and label.Text == "Second Bait Bowl" and label.Visible then
+				found = true
+			end
+		end
+		assert(found, "uigate: the Cats tab has no Second Bait Bowl card (#2010)")
 	end },
 	-- #1425: the Potions tab, each pack with its exact contents and the bag count
 	{ "StorePotions", function()

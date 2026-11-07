@@ -61,6 +61,7 @@ type Walk = {
 	home: CFrame, -- the station model's pivot, where it sits
 	walker: Model,
 	rig: Pose.Rig,
+	rest: { CFrame }, -- the walker's pose as bound (Pose.rest), drawn from every frame (#2329)
 	head: BasePart?,
 	carry: Attachment?, -- Model-Agent's Carry attachment over the ears (#778), where a tray's underside goes
 	tall: { BasePart }, -- head props and hats that rise above Carry, hidden while a tray rides on the head
@@ -320,9 +321,25 @@ local function take(walk: Walk, descendant: Instance)
 	end
 end
 
--- Gives the station model back: shown, its tags and sparkles where they were, the walker gone.
-local function finish(walk: Walk)
+-- Gives the station model back: shown, its tags and sparkles where they were, the walker gone. `reason` goes on the
+-- station model as CafeWalkEnd with where the walker was, for a playtest to read (#2329): "home" (sat back down),
+-- "faded" (night, bedtime, Reduce Motion or out of range), "broken" (the model went or was hidden) or "unread".
+local function finish(walk: Walk, reason: string)
 	walks[walk.station] = nil
+	if walk.station.Parent ~= nil then
+		local p = walk.position
+		walk.station:SetAttribute(
+			"CafeWalkEnd",
+			string.format(
+				"%s at=%.1f,%.1f,%.1f idle=%s",
+				reason,
+				p.X,
+				p.Y,
+				p.Z,
+				tostring(walk.idle)
+			)
+		)
+	end
 	local watch = walk.watch
 	walk.watch = nil
 	if watch ~= nil then
@@ -382,12 +399,14 @@ local function begin(cat: Model, idle: boolean): Walk?
 		walker:Destroy()
 		return nil
 	end
+	local rest = Pose.rest(rig)
 	local carry = carryOf(walker)
 	local walk: Walk = {
 		station = cat,
 		home = home,
 		walker = walker,
 		rig = rig,
+		rest = rest,
 		head = headOf(walker),
 		carry = carry,
 		tall = tallProps(walker, carry),
@@ -712,7 +731,7 @@ local function advance(walk: Walk, now: number, dt: number)
 		cover(walk, 1 - k)
 		crouch = r * r * (3 - 2 * r)
 		if r >= 1 then
-			finish(walk)
+			finish(walk, "home")
 			return
 		end
 	elseif walk.state == "vanish" then
@@ -722,7 +741,7 @@ local function advance(walk: Walk, now: number, dt: number)
 		setFade(walk.shown, faded)
 		cover(walk, 1 - k)
 		if k >= 1 then
-			finish(walk)
+			finish(walk, "faded")
 			return
 		end
 	end
@@ -753,11 +772,12 @@ local function advance(walk: Walk, now: number, dt: number)
 	walk.stride += walk.speed * dt / Logic.strideLength(walk.speed)
 	local rig = walk.rig
 	if not Pose.read(rig) then
-		finish(walk)
+		finish(walk, "unread")
 		return
 	end
-	local floor = CFrame.new(walk.position) * CFrame.Angles(0, walk.yaw, 0)
-	Pose.hold(rig, floor)
+	-- its pose from the walker as bound, moved onto where it walks: a part something else moved between frames is
+	-- never read back as where the cat is, so it cannot jump away (#2329)
+	Pose.holdRest(rig, walk.rest, CFrame.new(walk.position) * CFrame.Angles(0, walk.yaw, 0))
 	local o = Logic.idle("stray", now + walk.phase, rig.kind)
 	Logic.gait(o, walk.speed, walk.stride, held)
 	Logic.trayCarry(o, held)
@@ -824,7 +844,7 @@ local function step(dt: number)
 	end
 	for _, walk in walks do
 		if broken(walk) then
-			finish(walk)
+			finish(walk, "broken")
 		else
 			if walk.state ~= "vanish" and ending(walk) then
 				walk.state = "vanish"

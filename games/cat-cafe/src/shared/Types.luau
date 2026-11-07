@@ -1138,6 +1138,9 @@ export type PlayerState = {
 	carrying: string?, -- catId while carrying a caught stray home
 	dataSaves: boolean,
 	tutorialStep: number,
+	-- #1936 (release.md section 3): seconds of play on the account when this state was sent (stats.playtimeSeconds
+	-- plus the session); the client counts on from its arrival for the store guard. nil from an older server
+	playSeconds: number?,
 	introSeen: boolean, -- F72: false plays the intro cutscene once this session's first sync carries a plot
 	potions: { [string]: number }, -- F64: potionId -> count in the bag
 	catFood: { [string]: number }, -- #1181: food id -> count in the Bag

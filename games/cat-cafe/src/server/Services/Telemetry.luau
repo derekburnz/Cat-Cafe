@@ -183,6 +183,10 @@ export type CustomEvent =
 	| "session_recap_close"
 	-- #1919: the goal card's "Find N more cats" nudge opened the Index, value 1; the area id it pointed at or "none"
 	| "index_hint_tap"
+	-- #1936 (release.md section 3): a purchase prompt the client's store guard refused, value 1; where it came from
+	-- (bait, store or cafePass), why (no_tap: no tap in the last 2 seconds; busy: during a catch, rescue or cutscene),
+	-- tier
+	| "store_guard_blocked"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.
@@ -224,6 +228,7 @@ local REPORTS = {
 	"session_recap", -- #1920: the recap card is on screen (value true)
 	"session_recap_close", -- #1920: the recap card closed, the whole seconds it was open (0 to 30)
 	"index_hint_tap", -- #1919: the goal card's hint opened the Index, a Catalog area id or "none"
+	"store_guard_blocked", -- #1936: a purchase prompt the guard refused, "<source>:<reason>"
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
 -- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
@@ -293,6 +298,7 @@ type Session = {
 	recapShown: boolean, -- #1920: session_recap logged this session
 	recapClosed: boolean, -- #1920: session_recap_close logged this session
 	indexHintTaps: number, -- #1919: index_hint_tap events logged this session (INDEX_HINT_TAPS)
+	guardBlocks: number, -- #1936: store_guard_blocked events logged this session (StoreFunnel.GUARD_BLOCKS_MAX)
 }
 
 -- #1888: one Store visit, a funnel session of StoreFunnel's: its id, the furthest step logged and the sku pressed
@@ -1137,6 +1143,21 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if tab ~= nil then
 			storeStep(player, "tab_viewed", { tab })
 		end
+	elseif name == "store_guard_blocked" then
+		local source, reason = StoreFunnel.guardBlock(rawValue)
+		if
+			source ~= nil
+			and reason ~= nil
+			and session.guardBlocks < StoreFunnel.GUARD_BLOCKS_MAX
+		then
+			session.guardBlocks += 1
+			Telemetry.custom(
+				player,
+				"store_guard_blocked",
+				1,
+				{ source, reason, tierText(profile) }
+			)
+		end
 	elseif name == "store_buy" then
 		local passSku = StoreFunnel.passSku(rawValue)
 		local sku = passSku or StoreFunnel.productSku(rawValue)
@@ -1252,6 +1273,7 @@ local function onLoaded(player: Player, profile: Profile)
 		recapShown = false,
 		recapClosed = false,
 		indexHintTaps = 0,
+		guardBlocks = 0,
 	}
 	-- #1888: the launch data of the link this join came through (an ad's ad_<tag>)
 	local ok, joinData = pcall(function(): any

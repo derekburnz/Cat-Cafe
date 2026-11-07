@@ -279,13 +279,43 @@ return function()
 			end
 		)
 
-		it("a miss costs a paw and leaves the zone where it is", function()
+		it("a miss before any hit costs a paw and leaves the zone where it is", function()
 			local attempt = binAttempt("Rare")
 			local zone = attempt.zone
 			expect(Rescue.pressBar(attempt, missTime(attempt))).to.equal("miss")
 			expect(attempt.zone).to.equal(zone)
 			expect(attempt.speed).to.equal(Config.RescueBarSpeed.Rare)
+			expect(attempt.paws).to.equal(Config.RescuePatience - 1)
 		end)
+
+		it(
+			"a miss after hits sends the bar back to the start: no hits, the first zone, the first speed (#2219)",
+			function()
+				local attempt = binAttempt("Epic")
+				local zones = table.clone(attempt.challenge.zones)
+				expect(Rescue.pressBar(attempt, zoneTime(attempt))).to.equal("hit")
+				expect(Rescue.pressBar(attempt, zoneTime(attempt))).to.equal("hit")
+				expect(attempt.hits).to.equal(2)
+				local t = missTime(attempt)
+				local at = Rescue.marker(attempt, t)
+				expect(Rescue.pressBar(attempt, t)).to.equal("miss")
+				expect(attempt.hits).to.equal(0)
+				expect(attempt.zone).to.equal(1)
+				expect(Rescue.currentZone(attempt)).to.equal(zones[1])
+				expect(attempt.speed).to.equal(Config.RescueBarSpeed.Epic)
+				expect(attempt.paws).to.equal(Config.RescuePatience - 1)
+				expect(attempt.stage).to.equal("bar")
+				-- the marker goes on from where the miss saw it, so nothing jumps on screen
+				expect(Rescue.marker(attempt, t)).to.be.near(at, 1e-9)
+				expect(Rescue.barState(attempt).zone).to.equal(1)
+				-- and the same zones again, one by one, still free the cat
+				for _ = 1, Rescue.hitsNeeded("Epic", "bar") do
+					expect(Rescue.pressBar(attempt, zoneTime(attempt))).to.equal("hit")
+				end
+				expect(attempt.stage).to.equal("done")
+				expect(attempt.success).to.equal(true)
+			end
+		)
 
 		it("a press never lands before one already judged", function()
 			local attempt = binAttempt("Common")
@@ -314,18 +344,24 @@ return function()
 		end)
 
 		it(
-			"a steady player's worst case still fits the 15 s deadline: two misses, then every hit a trip late",
+			"a steady player who misses once, even on the last zone, still fits the 15 s deadline (#2219)",
 			function()
-				for _, rarity in Catalog.rarityOrder do
-					local hits = Rescue.hitsNeeded(rarity :: any, "bar")
-					-- every press a whole trip out and back after the last, two of them misses
-					local worst = Config.CircleLeadInSeconds
-					local speed = Config.RescueBarSpeed[rarity]
-					worst += (Config.RescuePatience - 1) * 2 / speed
-					for _ = 1, hits do
-						worst += 2 / speed
+				-- every press a whole trip out and back after the last: all but the last hit, the miss that sends the
+				-- bar back to the start, then every hit again from the first speed
+				local function trips(rarity: string, count: number): number
+					local seconds, speed = 0, Config.RescueBarSpeed[rarity]
+					for _ = 1, count do
+						seconds += 2 / speed
 						speed *= 1 + Config.RescueSpeedUpPerHit
 					end
+					return seconds
+				end
+				for _, rarity in Catalog.rarityOrder do
+					local hits = Rescue.hitsNeeded(rarity :: any, "bar")
+					local worst = Config.CircleLeadInSeconds
+						+ trips(rarity, hits - 1)
+						+ 2 / Config.RescueBarSpeed[rarity]
+						+ trips(rarity, hits)
 					expect(worst < Config.RescueAttemptMaxSeconds).to.equal(true)
 				end
 			end
@@ -414,5 +450,86 @@ return function()
 			expect(attempt.success).to.equal(false)
 			expect(Rescue.pressCircle(attempt, deadline, deadline + 0.02)).never.to.be.ok()
 		end)
+	end)
+
+	describe("when a press was made (#2241)", function()
+		local cap = Config.CatchLatencyCapSeconds
+
+		it(
+			"takes the client's own time of the press when it is within half the ping of arrival",
+			function()
+				expect(Rescue.pressedAt(100, 0.1, 99.97)).to.equal(99.97)
+				-- ping wobble: up to PRESS_SLACK more than half the ping before arrival still counts as sent
+				expect(Rescue.pressedAt(100, 0.1, 100 - 0.05 - Rescue.PRESS_SLACK)).to.be.near(
+					100 - 0.05 - Rescue.PRESS_SLACK,
+					1e-9
+				)
+				expect(Rescue.pressedAt(100, 0.1, 100)).to.equal(100)
+			end
+		)
+
+		it(
+			"never lets a press claim to be later than it arrived or older than the ping allows",
+			function()
+				expect(Rescue.pressedAt(100, 0.1, 100.5)).to.equal(100)
+				expect(Rescue.pressedAt(100, 0.1, math.huge)).to.equal(100)
+				expect(Rescue.pressedAt(100, 0.1, 90)).to.be.near(
+					100 - 0.05 - Rescue.PRESS_SLACK,
+					1e-9
+				)
+				expect(Rescue.pressedAt(100, 0.1, -math.huge)).to.be.near(
+					100 - 0.05 - Rescue.PRESS_SLACK,
+					1e-9
+				)
+				-- a huge ping is capped as before, so the furthest back is CatchLatencyCapSeconds plus PRESS_SLACK
+				expect(Rescue.pressedAt(100, 5, 0)).to.be.near(100 - cap - Rescue.PRESS_SLACK, 1e-9)
+				expect(Rescue.PRESS_SLACK <= 0.1).to.equal(true)
+			end
+		)
+
+		it(
+			"falls back to arrival less half the ping with no time, or a time that is not a number",
+			function()
+				for _, claimed in { nil :: any, "99.9", 0 / 0, {}, true } do
+					expect(Rescue.pressedAt(100, 0.1, claimed)).to.be.near(
+						100 - Circles.latency(0.1),
+						1e-9
+					)
+				end
+				expect(Rescue.pressedAt(100, -1, nil)).to.equal(100)
+			end
+		)
+
+		it(
+			"judges a Legendary's last hit by when it was pressed, whatever the ping wobble did",
+			function()
+				local challenge = Rescue.newChallenge(
+					"Legendary",
+					"trash_bin",
+					100,
+					rolls({ 0.3, 0.7, 0.5, 0.2, 0.9, 0.6 })
+				)
+				local attempt = Rescue.newAttempt(challenge, "Legendary")
+				for _ = 1, Rescue.hitsNeeded("Legendary", "bar") - 1 do
+					expect(Rescue.pressBar(attempt, zoneTime(attempt))).to.equal("hit")
+				end
+				-- pressed dead on the zone, but the message took 60 ms longer than the average ping says
+				local pressed = zoneTime(attempt)
+				local ping = 0.1
+				local arrival = pressed + ping / 2 + 0.06
+				local stamped = arrival - Circles.latency(ping)
+				local half = (challenge.zoneWidth :: number) / 2 + Config.RescueTolerance
+				-- stamped on arrival alone this lands outside the zone at the last hit's speed
+				expect(
+					math.abs(
+						Rescue.marker(attempt, stamped) - Rescue.currentZone(attempt) :: number
+					) > half
+				).to.equal(true)
+				expect(Rescue.pressBar(attempt, Rescue.pressedAt(arrival, ping, pressed))).to.equal(
+					"hit"
+				)
+				expect(attempt.success).to.equal(true)
+			end
+		)
 	end)
 end

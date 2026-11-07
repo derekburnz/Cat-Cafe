@@ -77,6 +77,13 @@ export type RescueBar = {
 }
 
 local BAR = Vector2.new(560, 44) -- design pixels at 1280 x 720
+local WORD = Vector2.new(160, 34) -- NICE!, MISS or Too slow! over the marker
+local WORD_SIZE = 28
+-- #2219 (crispi_255): a rescuer's miss after hits sends the bar back to the start; the flash says so, wider and a
+-- little smaller over the bar's middle
+local RESET_WORDS = "MISS! Back to the start"
+local RESET_WORD = Vector2.new(420, 34)
+local RESET_SIZE = 26
 local NEEDLE = Vector2.new(6, 56) -- the marker's line, a little taller than the bar
 local PAW = 30 -- the paw on top of the needle
 local PIP = 22
@@ -379,8 +386,8 @@ function RescueBar.new(parent: Instance): RescueBar
 		Name = "Word",
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0, 0, 0, -(PAW + 2)),
-		Size = UDim2.fromOffset(160, 34),
-		TextSize = 28,
+		Size = UDim2.fromOffset(WORD.X, WORD.Y),
+		TextSize = WORD_SIZE,
 		Visible = false,
 		ZIndex = 6,
 		Parent = bar,
@@ -606,8 +613,11 @@ function RescueBar._step(self: any, t: number)
 	end
 end
 
-function RescueBar._flash(self: any, text: string, color: Color3, position: number)
+function RescueBar._flash(self: any, text: string, color: Color3, position: number, wide: boolean?)
 	local word: TextLabel = self._word
+	local box = if wide then RESET_WORD else WORD
+	word.Size = UDim2.fromOffset(box.X, box.Y)
+	word.TextSize = if wide then RESET_SIZE else WORD_SIZE
 	word.Text = text
 	word.TextColor3 = color
 	word.Position = UDim2.new(position, 0, 0, -6)
@@ -742,6 +752,10 @@ function RescueBar.update(
 		and pawsLeft < self._paws
 	if tooSlow and not done then
 		self:_flash("Too slow!", Theme.colors.warn, self:_zoneCentre())
+	end
+	-- #2219: the server took this rescuer's filled pips away for a miss; a helper's miss resets nothing
+	if not done and not self._helper and hits == 0 and self._hits > 0 then
+		self:_flash(RESET_WORDS, Theme.colors.red, 0.5, true)
 	end
 	self._hits = hits
 	self:_paintPips()

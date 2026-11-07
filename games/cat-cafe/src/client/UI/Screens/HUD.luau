@@ -282,6 +282,9 @@ local POP_W = 220
 local POP_ROW_H = Scale.tapHeight(44, Theme.sizes.buttonDepth)
 local POP_PAD = 8
 local HIDE_HIT = 30 -- the Tutorial tile's × takes taps this big round its 20 px red dot
+-- #2211 (crispi_255): when the tutorial ends, the × bounces in a gold ring this long, so players see it hides the tile
+local HIDE_PULSE_SECONDS = 3
+local HIDE_BOUNCE = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, 2, true)
 -- F72: the Tutorial tile's two gold pulses the first time it shows after an intro
 local GLOW = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 1, false, 0.15)
 local CARRY_W = 420
@@ -566,11 +569,13 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		-- least MONEY_AMOUNT_W wide, room for the usual widest amounts ("$88,888", "$999Qa"), so the badge and the
 		-- golden fish beside it stay put while the money grows
 		Create("UISizeConstraint", {
+			Name = "Steady",
 			MinSize = Vector2.new(MONEY_AMOUNT_W, 0),
 			MaxSize = Vector2.new(MONEY_W - COUNTER_COIN - 8, MONEY_H),
 		}),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 5) }),
 	})
+	self._moneySteady = line:FindFirstChild("Steady") :: UISizeConstraint
 	self._moneyText = label({
 		Name = "Amount",
 		AutomaticSize = Enum.AutomaticSize.X,
@@ -772,6 +777,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = hide,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Outline.border(hideDot, 2)
+	self._hideDot = hideDot
 	label({
 		Name = "Cross",
 		Size = UDim2.fromScale(1, 1),
@@ -2215,6 +2221,37 @@ function HUD.glowTutorial(self: any)
 	end
 end
 
+-- #2211 (crispi_255: "highlight the x for tutorial/steps for a couple seconds after finishing the tutorial"): the
+-- Tutorial tile's red × gets a gold ring and bounces for HIDE_PULSE_SECONDS (holding still under Reduce Motion), then
+-- goes back to how it was. Once at a time; nothing while the tile is hidden.
+function HUD.pulseHide(self: any)
+	local dot: Frame = self._hideDot
+	if not self._tutorialTile.instance.Visible or dot:FindFirstChild("Pulse") then
+		return
+	end
+	local scale: UIScale = Create("UIScale", { Name = "Pulse", Parent = dot })
+	local ring: Frame = Create("Frame", {
+		Name = "PulseRing",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.new(1, 6, 1, 6),
+		ZIndex = 9,
+		Parent = dot,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIStroke", { Color = Theme.colors.gold, Thickness = 3 }),
+	})
+	if not GuiService.ReducedMotionEnabled then
+		TweenService:Create(scale, HIDE_BOUNCE, { Scale = 1.35 }):Play()
+	end
+	Sound.play("uiHint")
+	task.delay(HIDE_PULSE_SECONDS, function()
+		scale:Destroy()
+		ring:Destroy()
+	end)
+end
+
 -- F87 section 2g: the tutorial strip pops and pulses when its step has not moved for StuckNudgeSeconds.
 function HUD.pulseTutorial(self: any)
 	local strip: GuiObject = self._tutorial
@@ -2233,6 +2270,13 @@ end
 
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
+	-- #2211: the tutorial's last step done just now (not a player who finished it before this join): the × pulses
+	local step = state.tutorialStep or TUTORIAL_DONE
+	local before: number? = self._stepBefore
+	self._stepBefore = step
+	if before ~= nil and before < TUTORIAL_DONE and step >= TUTORIAL_DONE then
+		self:pulseHide()
+	end
 	-- #1796: the Upgrades tile glows while the tutorial asks for a table or the Bait bowl
 	-- on the square alone: round the whole tile it covered the "Upgrades" label under it (device pass 2026-11-07)
 	TutorialGlow.set(
@@ -3237,6 +3281,11 @@ function HUD.setMoneyBadge(
 	end
 	self._buffs:setLead(owned, "cash")
 	button.Visible = badge ~= nil and not owned
+	-- #2254 (Derek2 11-07: "gold fish is hovering wrong now if you did already buy the 2x/3x/4x money"): #2194's
+	-- steady width keeps the for-sale badge from being pushed as the money grows; with no badge beside the money (a
+	-- pass owned) that room was an empty gap before the golden fish, so the fish sits a normal gap after the amount
+	local steady: UISizeConstraint = self._moneySteady
+	steady.MinSize = Vector2.new(if button.Visible then MONEY_AMOUNT_W else 0, 0)
 	if badge == nil or owned then
 		self:_pulseMoneyBadge(false)
 		return

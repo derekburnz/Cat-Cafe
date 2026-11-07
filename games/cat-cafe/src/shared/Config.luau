@@ -439,12 +439,14 @@ local Config = {
 		Legendary = 1.6,
 		Mythical = 1.8,
 	} :: { [string]: number },
+	-- #2219: a miss now sends the bar back to the start, so the Mythical's zone went 0.10 -> 0.14 to keep its rescue
+	-- near the old 11% at 50 ms (Design-Agent). Its faster marker still gives it the shortest time in the zone.
 	RescueZoneWidth = {
 		Common = 0.26,
 		Rare = 0.20,
 		Epic = 0.15,
 		Legendary = 0.12,
-		Mythical = 0.10,
+		Mythical = 0.14,
 	} :: { [string]: number },
 	RescueTolerance = 0.03, -- of the bar, either side of the zone
 	-- F93 (catch-rework.md section 4): the marker gets RescueSpeedUpPerHit faster after every hit. Derek 2026-11-03
@@ -727,6 +729,10 @@ local Config = {
 	-- step pays everyone in the server who scored RallyMinPoints this lap, from at most RallyMaxLaps laps a weekend.
 	RallyStartWeekday = 6,
 	RallyHours = 48,
+	-- #2227 (Derek2 2026-11-07: "extend how long rally lasts", "1 week extend is fine"): a Rally that starts at or after
+	-- RallyExtendFrom runs on until RallyExtendUntil (UTC seconds), joining the next weekend's. Equal values turn it off.
+	RallyExtendFrom = 1794009600, -- Saturday 2026-11-07 00:00 UTC
+	RallyExtendUntil = 1794787200, -- Monday 2026-11-16 00:00 UTC, the end of the 11-14 weekend
 	RallyPointsPerPlayer = 22, -- #2018: was 30, so a lap fills about a third sooner
 	RallyMinPlayers = 3,
 	RallyMinPoints = 3,

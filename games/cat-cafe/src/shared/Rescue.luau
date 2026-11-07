@@ -33,6 +33,21 @@ local Rescue = {}
 
 Rescue.CIRCLE_NET_LEVEL = 2 -- the falling cat's circle uses the Pro Net's windows whatever net the player owns
 Rescue.MIN_ZONE_STEP = 0.25 -- each zone sits at least this far from the one before, so a hit visibly moves it
+-- #2241: how much earlier than half the ping before arrival a press's own time may be, for ping wobble and frames
+Rescue.PRESS_SLACK = 0.08
+
+-- #2241 (Derek2: "even if I hit the green circle it says miss"): when a press was made. The client sends its own
+-- server-clock time of the press (`claimed`); it counts when it is no later than `arrival` and no earlier than half
+-- the ping (capped at CatchLatencyCapSeconds) plus PRESS_SLACK before it, and is moved into that range otherwise.
+-- With no time (an older client) it is `arrival` less half the ping, as before. Stamping on arrival alone let ping
+-- wobble move a press by tens of ms, more than a Legendary's or Mythical's fast marker leaves inside the zone.
+function Rescue.pressedAt(arrival: number, pingSeconds: number, claimed: unknown): number
+	local latency = Circles.latency(pingSeconds)
+	if type(claimed) ~= "number" or claimed ~= claimed then
+		return arrival - latency
+	end
+	return math.clamp(claimed, arrival - latency - Rescue.PRESS_SLACK, arrival)
+end
 
 -- "bar" until the hits are in; "falling" between a tree's last shake and its circle; "circle" while the falling
 -- cat's circle runs; "done" once the attempt is over, with `success` saying how.
@@ -181,8 +196,10 @@ end
 -- Judges a bar press at `pressTime` (latency corrected). Ignored before the marker moves, after the deadline and
 -- outside the bar stage. A hit restarts the marker from where it is RescueSpeedUpPerHit faster and moves to the next
 -- zone; the last hit frees the cat, or with RescueTreeCircle completes a tree's shakes and moves the attempt to
--- "falling": the caller then starts the circle with Rescue.startCircle. A miss costs a paw and leaves the zone where
--- it is, unless the press is a Team Rescue helper's (F92): theirs costs nothing.
+-- "falling": the caller then starts the circle with Rescue.startCircle. A miss costs a paw and, #2219 (crispi_255 via
+-- Derek2, 2026-11-07: "if you miss one reset all progress"), sends the bar back to the start: no hits, the first
+-- zone again and the marker on from where it is at the bar's starting speed. A Team Rescue helper's miss (F92) costs
+-- nothing and resets nothing, so a helper can never set a rescue back.
 function Rescue.pressBar(attempt: Attempt, pressTime: number, helper: boolean?): Press
 	local challenge = attempt.challenge
 	if attempt.stage ~= "bar" or pressTime < challenge.startsAt then
@@ -218,6 +235,14 @@ function Rescue.pressBar(attempt: Attempt, pressTime: number, helper: boolean?):
 	end
 	if helper == true then
 		return "miss"
+	end
+	if attempt.hits > 0 then
+		attempt.markerPhase =
+			RescueMarker.phaseAt(attempt.markerAt, attempt.markerPhase, attempt.speed, at)
+		attempt.markerAt = at
+		attempt.speed = challenge.speed or attempt.speed
+		attempt.hits = 0
+		attempt.zone = 1
 	end
 	attempt.paws = math.max(0, attempt.paws - 1)
 	if attempt.paws == 0 then

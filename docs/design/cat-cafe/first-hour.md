@@ -156,5 +156,6 @@ The D1 return rate is the launch number, and Home recommendations follow it (rel
   - Lucky Cat 3 at whatever the middle run gives, now about 31.
   - The longest gap counting coin buys and rank-ups is **15 minutes or less** (the "10" in §4d is withdrawn).
   - Counting new cats and roadmap steps, the longest gap is **10 minutes or less** as the guard (it is 9.3 now), and 6 stays as the `xit`.
+- **Longer days (#2192, PR #2208):** day 320 s and night 70 s (the 390 s game day and the global clock are unchanged). With less night, bait waits at the slower day rate more often, so fewer bowl cats come in the first hour and Lucky Cat 3 moves to about **37** minutes (was 31). Tier 3 stays inside 45 to 55, and the gaps on each side of Lucky Cat 3 (about 12 and 5 minutes) stay under the 15-minute guard, so the night bait is not compensated. Pace.spec records the new figure.
 - **Next look:** after launch, from the live `grand_opening` funnel, not the model.
 

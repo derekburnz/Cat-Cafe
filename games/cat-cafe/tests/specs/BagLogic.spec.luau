@@ -54,5 +54,28 @@ return function()
 			expect(Bag.canFeed(49)).to.equal(true)
 			expect(Bag.canFeed(50)).to.equal(false)
 		end)
+		it("builds only the feed cards in view, and a few each side (#2196)", function()
+			-- 300 cats, 76 px a card, a 380 px list at the top: cards 1 to 6 show, 4 more after
+			local first, last = Bag.feedWindow(300, 0, 380, 76, 4)
+			expect(first).to.equal(1)
+			expect(last).to.equal(10)
+			-- scrolled 100 cards down
+			first, last = Bag.feedWindow(300, 7600, 380, 76, 4)
+			expect(first).to.equal(97)
+			expect(last).to.equal(110)
+			-- the list's header still in view: the run starts below the top edge
+			first, last = Bag.feedWindow(300, -60, 380, 76, 4)
+			expect(first).to.equal(1)
+			expect(last).to.equal(9)
+			-- past the end, and fewer cats than fit
+			first, last = Bag.feedWindow(300, 1e6, 380, 76, 4)
+			expect(first).to.equal(296)
+			expect(last).to.equal(300)
+			first, last = Bag.feedWindow(3, 0, 380, 76, 4)
+			expect(first).to.equal(1)
+			expect(last).to.equal(3)
+			first, last = Bag.feedWindow(0, 0, 380, 76, 4)
+			expect(last < first).to.equal(true)
+		end)
 	end)
 end

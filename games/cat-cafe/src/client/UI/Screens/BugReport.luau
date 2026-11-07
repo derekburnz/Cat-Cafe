@@ -35,6 +35,7 @@ local BugReportLogic = require(script.Parent.Parent.Components.BugReportLogic)
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local FeedbackLogic = require(script.Parent.Parent.Components.FeedbackLogic)
+local FitText = require(script.Parent.Parent.Components.FitText)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
@@ -523,6 +524,7 @@ function BugReport._layout(self: any, compact: boolean)
 		chip.instance.Position = UDim2.fromOffset((index - 1) * (chipWidth + GAP), chipTop)
 		chip.instance.Size = UDim2.fromOffset(chipWidth, CHIP.Y)
 		chip.label.TextSize = if compact then Theme.sizes.textSmall else Theme.sizes.textBody
+		FitText.shrink(chip.label) -- #2207: a tile's label shrinks to fit from its new size (Components/Button)
 	end
 	local cancel = self._cancel.instance
 	local send = self._send.instance

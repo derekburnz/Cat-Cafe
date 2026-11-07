@@ -15,11 +15,13 @@
 -- - The first catch anywhere wins. CatService asks `claim` on a pity cat's catch: an UpdateAsync on MAP that sets
 --   Pity.claimKey(seq, kind) only if empty (expiry a day). This server's own earlier claim also counts as won. If
 --   MemoryStore fails PityClaimRetries times, the catcher keeps the cat (we never take a cat away on our own error).
--- - The cat's end restarts its timer: the server that won the claim, or each server whose copy was still out at
---   night, writes Pity.restart (due a period from then) with UpdateAsync, and only while the stored timer still holds
---   that cat (Pity.keepStored), so two servers ending the same cat move it once. A write that fails is tried again
---   at the next read. The writer then publishes on Pity.TOPIC; every other server's copy of a caught cat puffs away
---   (CatService.removePity) with "Sam caught the pity cat!", and every server reads the new timer.
+-- - The cat's spawn restarts its timer (#2003, Derek2 2026-11-07: "pity timers should instantly restart after they
+--   spawned"; until then a catch or the night did): each server that starts it writes Pity.restart (due a period
+--   after the spawn) with UpdateAsync, and only while the stored timer still holds that cat (Pity.keepStored), so
+--   every server spawning the same cat moves it once. A write that fails is tried again at the next read. The writer
+--   then publishes on Pity.TOPIC and every server reads the new timer. A server that starts while that cat is out
+--   finds it from the moved timer (Pity.previous). On a catch the winner publishes too, and every other server's
+--   copy puffs away (CatService.removePity) with "Sam caught the pity cat!".
 -- - At night every uncaught copy goes with the other strays (CatService.nightFalls) and its State clears.
 -- No client remote: clients only read the folder, the stray's PityCat attribute and the clock. Analytics `pity_cat`.
 
@@ -229,12 +231,12 @@ local function writePending(kind: Pity.Kind): boolean
 	return true
 end
 
--- Cat `c` has gone (caught here, or left at night): its timer restarts from now. A fixed slot's cat moves nothing.
-local function restartTimer(c: Current)
+-- Cat `c` has spawned at `at`: its timer restarts from then (#2003). A fixed slot's cat moves nothing.
+local function restartTimer(c: Current, at: number)
 	if c.seq <= 0 then
 		return
 	end
-	local timer = Pity.restart(ClockService.now(), c.kind, c.seq)
+	local timer = Pity.restart(at, c.kind, c.seq)
 	local known = timers[c.kind]
 	if known == nil or known.seq <= c.seq then
 		timers[c.kind] = timer
@@ -323,6 +325,7 @@ local function startCat(kind: Pity.Kind, timer: Pity.Timer, now: number, debug: 
 		CatService.removePity(Pity.number(before.seq, kind))
 	end
 	currents[kind] = c
+	restartTimer(c, c.spawnedAt) -- #2003: the next of its kind counts from this spawn, caught or not
 	-- a server that starts while the cat is out joins in quietly; one nobody saw (a night passed) is fresh news
 	local overdue = not debug and now - spawn > LATE_BANNER_SECONDS
 	local late = overdue and Pity.stillOut(spawn, now)
@@ -359,7 +362,8 @@ local function startCat(kind: Pity.Kind, timer: Pity.Timer, now: number, debug: 
 	end
 end
 
--- Night (or a debug jump) ended `kind`'s cat: an uncaught one is gone with the other strays and its timer restarts.
+-- Night (or a debug jump) ended `kind`'s cat: an uncaught one is gone with the other strays (its timer restarted
+-- when it spawned, #2003).
 local function endCat(kind: Pity.Kind)
 	local c = currents[kind]
 	if c == nil then
@@ -369,7 +373,6 @@ local function endCat(kind: Pity.Kind)
 	if c.state == "out" then
 		log(nil, c, "expired")
 		Net.fireAll("PityAnnounce", c.kind, c.areaId, "gone", nil)
-		restartTimer(c)
 	end
 	publishState()
 end
@@ -396,6 +399,17 @@ local function tick()
 			and not handled[Pity.claimKey(timer.seq, kind)]
 		then
 			startCat(kind, timer, now, false)
+		elseif own == nil and tried and fromStore and ClockService.areasOpen() then
+			-- #2003: the timer already moved past a cat that is still out (another server spawned it before this one
+			-- started or read): this server joins in with its copy, or shows it caught
+			local before = Pity.previous(timer, kind)
+			if
+				before ~= nil
+				and Pity.stillOut(Pity.spawnTime(before.at), now)
+				and not handled[Pity.claimKey(before.seq, kind)]
+			then
+				startCat(kind, before, now, false)
+			end
 		end
 	end)
 	publishState() -- the fixed slots' timers move on their own
@@ -485,7 +499,6 @@ local function claim(player: Player, number: number): boolean
 		markCaught(c, player.DisplayName)
 		log(player, c, "secured")
 		publish({ kind = c.kind, seq = c.seq, winner = player.DisplayName })
-		restartTimer(c)
 		return true
 	end
 	local name = if winner ~= nil then winner.winner else "Someone"
@@ -569,7 +582,7 @@ function PityService.debugSpawn(): string
 	local kind: Pity.Kind = if Pity.spawnTime(mythical.at) < Pity.spawnTime(legendary.at)
 		then "Mythical"
 		else "Legendary"
-	endCat(kind) -- a cat of that kind still out goes first, and its timer restarts
+	endCat(kind) -- a cat of that kind still out goes first; this one restarts the timer from now
 	local timer = timerOf(kind, now)
 	startCat(kind, timer, now, true)
 	local c = currents[kind]

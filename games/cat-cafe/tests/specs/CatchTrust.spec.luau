@@ -7,10 +7,10 @@ return function()
 		require(Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("CatchTrust")) :: any
 
 	describe("CatchTrust", function()
-		it("adds Perfect +2, Good +1, Miss -2 and a paw ring left alone +1", function()
-			expect(CatchTrust.after(2, { "perfect", "perfect", "perfect" })).to.equal(8)
-			expect(CatchTrust.after(2, { "good", "miss" })).to.equal(1)
-			expect(CatchTrust.after(3, { "left", "perfect" })).to.equal(6)
+		it("adds Perfect +3, Good +2, Miss -2 and a paw ring left alone +1 (#2005)", function()
+			expect(CatchTrust.after(2, { "perfect", "perfect", "perfect" })).to.equal(11)
+			expect(CatchTrust.after(2, { "good", "miss" })).to.equal(2)
+			expect(CatchTrust.after(3, { "left", "perfect" })).to.equal(7)
 			expect(CatchTrust.after(2, {})).to.equal(2)
 		end)
 

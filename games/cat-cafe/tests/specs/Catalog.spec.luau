@@ -133,14 +133,14 @@ return function()
 		end
 
 		it(
-			"catchWindow scales the net 1.15 / 1.032 / 0.908 / 0.742 / 0.636 by rarity (F83, F93, #1884 re-fit with paw rings)",
+			"catchWindow scales the net 1.15 / 1.032 / 0.908 / 0.742 / 0.68 by rarity (F83, F93, #1884; #2005 eases the Mythical)",
 			function()
 				local windows = {
 					Common = 1.15,
 					Rare = 1.032,
 					Epic = 0.908,
 					Legendary = 0.742,
-					Mythical = 0.636,
+					Mythical = 0.68,
 				}
 				for _, rarity in ipairs(RARITIES) do
 					expect(Catalog.rarities[rarity].catchWindow).to.be.near(windows[rarity], 1e-12)
@@ -149,9 +149,9 @@ return function()
 		)
 
 		it(
-			"trustNeed is 8 / 10 / 12 / 14 / 16: an all-Perfect run takes `circles` rings (#1884, 7b)",
+			"trustNeed is 11 / 14 / 17 / 20 / 23: an all-Perfect run takes `circles` rings (#1884, 7b; #2005)",
 			function()
-				local needs = { Common = 8, Rare = 10, Epic = 12, Legendary = 14, Mythical = 16 }
+				local needs = { Common = 11, Rare = 14, Epic = 17, Legendary = 20, Mythical = 23 }
 				for _, rarity in ipairs(RARITIES) do
 					local def = Catalog.rarities[rarity]
 					expect(def.trustNeed).to.equal(needs[rarity])

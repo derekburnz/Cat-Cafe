@@ -123,16 +123,27 @@ Derek2, 2026-11-06: "re-work the cat catching mechanic/minigame to be more fun b
 - The tutorial stray is always Sleepy. A player before `tutorialStep` 2 never meets a Skittish cat, because their strays reroll Skittish to Sleepy.
 
 ### 7b. The trust bar (replaces "one Miss ends it")
-- Trust starts at 2 (3 with the Curious bonus) and has to reach the rarity's `trustNeed`: Common 8, Rare 10, Epic 12, Legendary 14, Mythical 16. An all-Perfect run takes the same number of rings as today: 3, 4, 5, 6 or 7.
-- Each ring: **Perfect +2, Good +1, Miss -2.** If trust drops **below 0**, the cat bolts. That's today's sprint and miss streak, unchanged.
+- Trust starts at 2 (3 with the Curious bonus) and has to reach the rarity's `trustNeed`: Common 11, Rare 14, Epic 17, Legendary 20, Mythical 23 (`TrustStart` + 3 x the all-Perfect ring count, retuned 2026-11-07 in #2031). An all-Perfect run takes the same number of rings as today: 3, 4, 5, 6 or 7.
+- Each ring: **Perfect +3, Good +2, Miss -2** (was +2 and +1 until #2031, from Derek2's "getting excellents/good increase hp more"), so every grade visibly moves the bar. If trust drops **below 0**, the cat bolts. That's today's sprint and miss streak, unchanged.
 - Rings keep coming on a steady beat, one every `shrinkSeconds + CircleGapMin`, until trust is full or the cat bolts. A run also ends as a bolt after the all-Perfect ring count + `CatchSpareRings` (2): 5 rings for a Common up to 9 for a Mythical. One early Miss can still be recovered, and a run never drags on.
 - The rings sit on the cat in the world, around its head, not in the middle of the screen. The cat reacts to each grade: ears perk on a hit, a wriggle and a soft hiss on a Miss.
 - A soft purr rises in pitch with trust (Sound).
-- **Re-fit (done 2026-11-06, Gameplay-Engineer's exact DP over the trust chain):** tuning `catchWindow` alone with a `2 x` cap missed the section 2 table by up to 8 points, because the trust bar averages out bad rings. With the spare-ring cap above, `catchWindow` becomes 1.15 / 1.032 / 0.908 / 0.742 / 0.636 (Common to Mythical; Legendary and Mythical were re-fitted in PR #1910 once paw rings stopped using a ring slot, see 7c). Every cell lands within 5 points of the section 2 table. The worst is a Basic Net Mythical at 50 ms (19%, target 23%), which is accepted: it's still a real challenge. `trustNeed` stays as above.
+- **Re-fit (done 2026-11-06, Gameplay-Engineer's exact DP over the trust chain):** tuning `catchWindow` alone with a `2 x` cap missed the section 2 table by up to 8 points, because the trust bar averages out bad rings. With the spare-ring cap above, `catchWindow` becomes 1.15 / 1.032 / 0.908 / 0.742 / 0.636 (Common to Mythical; Legendary and Mythical were re-fitted in PR #1910 once paw rings stopped using a ring slot, see 7c). Every cell lands within 5 points of the section 2 table. The worst is a Basic Net Mythical at 50 ms (19%, target 23%), which was accepted then.
+- **Retune (2026-11-07, #2005 section 4, built in #2031):** Derek2 said "mythic feels impossible". With the trust values above and the Mythical `catchWindow` widened from 0.636 to 0.68, `catchWindow` is now 1.15 / 1.032 / 0.908 / 0.742 / 0.68. The rescue tree's Mythical circle reads the same value. Catch chance per try (exact DP over the trust chain with twists, CatchFeel.spec), before and after:
+
+| net | Common | Rare | Epic | Legendary | Mythical |
+|---|---|---|---|---|---|
+| Basic, 50 ms | 96 to 98 | 88 to 94 | 69 to 80 | 43 to 55 | **19 to 36** |
+| Sturdy, 50 ms | 99 to 100 | 97 to 99 | 88 to 93 | 67 to 78 | 39 to 61 |
+| Pro, 50 ms | 100 | 99 to 100 | 97 to 99 | 86 to 92 | 63 to 83 |
+| Master, 50 ms | 100 | 100 | 100 | 96 to 98 | 84 to 95 |
+| Basic, 70 ms | 76 to 84 | 53 to 65 | 28 to 39 | 12 to 18 | 3 to 8 |
+
+  Design-Agent signs this table off as the new target, replacing section 2's for catching: a Basic Net Mythical is about 1 in 3 per try, rarer cats are still harder on every net, and a better net still helps at every rarity.
 
 ### 7c. Rarity twists
-- **Double ring (Epic and above):** each ring after the first has a 25% chance (`DoubleRingChance`) to be a double, with two outlines shrinking 0.18 s apart. Each half is graded as its own press.
-- **Paw ring (Legendary and above):** each ring after the second has a 1 in 6 chance (`PawRingChance`) to be red with a paw print, never twice in a row. *Don't tap it.* Leaving it gives +1 trust. Tapping it is graded as a Miss (-2), and the cat swats at the net. A paw ring doesn't count toward the try's ring cap (7b), but a double ring counts as two.
+- **Double ring (Epic and above):** each ring after the first has a 25% chance (`DoubleRingChance`) to be a double, with two outlines shrinking `DoubleRingGap` 0.35 s apart (was 0.18 s until #2031: "the rapid rings are not clear and too fast right after eachother"). The second outline is drawn clearly apart, in a different colour with an "x2" tag (UI-Engineer). Each half is graded as its own press.
+- **Paw ring (Legendary and above):** each ring after the second has a 1 in 6 chance (`PawRingChance`) to be red with a paw print, never twice in a row. The whole ring is drawn red, not just the Perfect band, with "Don't swing!" on it while it is up (Derek2, 2026-11-07). *Don't tap it.* Leaving it gives +1 trust. Tapping it is graded as a Miss (-2), and the cat swats at the net. A paw ring doesn't count toward the try's ring cap (7b), but a double ring counts as two.
 - Mythicals can get both. Commons and Rares keep plain rings.
 - The server picks every ring kind into `CatchSchedule`, so the client only draws them.
 
@@ -147,7 +158,7 @@ Derek2, 2026-11-06: "re-work the cat catching mechanic/minigame to be more fun b
 
 ### 7e. Contracts
 - `CatchSchedule` gains `rings = { { at, kind = "single" | "double" | "paw" } }`, `trustStart` and `trustNeed`. `CatchResult` gains `trust`, `finish = "purrfect" | "great" | "nice" | "bolt"` and `streak`. No new remotes, and the server still stamps and grades every press.
-- Config: `TrustPerfect` 2, `TrustGood` 1, `TrustMiss` -2, `TrustStart` 2, `CuriousTrustBonus` 1, `DoubleRingChance` 0.25, `PawRingChance` 1/6, `SkittishHopStuds` 6, `SkittishCooldown` 8, `MoodIconStuds` 20. On `Catalog.rarities`: `trustNeed` and the mood weights.
+- Config: `TrustPerfect` 3, `TrustGood` 2, `TrustMiss` -2, `TrustStart` 2, `DoubleRingGap` 0.35, `CuriousTrustBonus` 1, `DoubleRingChance` 0.25, `PawRingChance` 1/6, `SkittishHopStuds` 6, `SkittishCooldown` 8, `MoodIconStuds` 20. On `Catalog.rarities`: `trustNeed` and the mood weights.
 - Analytics: `catch_attempt` gains `finish` and `mood`.
 - **Who builds:**
   - Gameplay-Engineer: the moods, trust, ring kinds, the re-fit, Pace.spec and the XP bonus.
@@ -164,4 +175,5 @@ Derek2, 2026-11-06: "re-work the cat catching mechanic/minigame to be more fun b
 4. A Skittish cat hops when approached from the front within 10 studs, not from behind.
 5. Tapping a paw ring costs trust and plays the swat. Leaving it adds trust.
 6. A Purrfect cat joins at level 2. The streak counter shows from the second Purrfect in a row.
-7. The section 2 chance table holds within 5 points (spec simulation). A playtest on phone and desktop shows no new console errors.
+7. The 7b retune table holds within 5 points (spec simulation). A playtest on phone and desktop shows no new console errors.
+8. A Common caught with all Goods takes all 5 rings. An Epic or better double ring shows its two halves about 0.35 s apart, and a paw ring is red all the way round with "Don't swing!".

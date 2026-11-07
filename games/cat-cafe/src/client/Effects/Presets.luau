@@ -2337,7 +2337,7 @@ Presets.rainbow = {
 -- bar, twice as many in gold for the full bar. Reduce Motion drops the pops and halves the step sparkles.
 Presets.rally = {
 	displayOrder = 11, -- over the HUD (10), under the area title (12) and the modals (20)
-	steps = { 0.25, 0.5, 1 },
+	steps = { 0.25, 0.5, 1 }, -- only if Catalog.rallySteps is missing; Effects/Rally reads the server's milestones
 	seconds = 0.65,
 	popIn = 0.14,
 	land = 0.55,

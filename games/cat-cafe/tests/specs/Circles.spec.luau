@@ -124,11 +124,11 @@ return function()
 		end)
 
 		it(
-			"a Basic Net Mythical's bands are 0.636 of the net's, and the net's own table is untouched (#1884)",
+			"a Basic Net Mythical's bands are 0.68 of the net's, and the net's own table is untouched (#1884, #2005)",
 			function()
 				local mythical = Circles.windowsFor(0, "Mythical")
-				expect(mythical.perfect).to.be.near(0.02862, 1e-12)
-				expect(mythical.good).to.be.near(0.06996, 1e-12)
+				expect(mythical.perfect).to.be.near(0.0306, 1e-12)
+				expect(mythical.good).to.be.near(0.0748, 1e-12)
 				-- the widest Good of all, a Master Net Common, still clears CircleGapMin with the latency cap (S24)
 				expect(Circles.windowsFor(3, "Common").good).to.be.near(0.207, 1e-12)
 				expect(0.207 + Config.CatchLatencyCapSeconds < Config.CircleGapMin).to.equal(true)
@@ -570,7 +570,7 @@ return function()
 				expect(attempt.scores[1]).to.equal(0)
 				expect(attempt.grades[1]).to.equal("miss")
 				expect(attempt.errors[1]).never.to.be.ok()
-				expect(attempt.trust).to.equal(2 - 2 + 2)
+				expect(attempt.trust).to.equal(2 - 2 + 3)
 				expect(Circles.isDone(attempt)).to.equal(false)
 			end
 		)
@@ -633,7 +633,7 @@ return function()
 		)
 
 		it(
-			"a run with a Miss can still fill the bar: Perfect +2, Miss -2, caught at trustNeed (#1884)",
+			"a run with a Miss can still fill the bar: Perfect +3, Miss -2, caught at trustNeed (#1884, #2005)",
 			function()
 				local attempt, circles = plainFor("Mythical", 0)
 				local offsets = { 0, 0, 0.5, 0, 0, 0, 0, 0, 0 }
@@ -641,21 +641,21 @@ return function()
 					local at = Circles.target(circle) + offsets[i]
 					Circles.press(attempt, i, at, at)
 				end
-				-- 2 + 2 + 2 - 2 + 6 x 2 = 16, the Mythical's need, on the ninth and last ring
+				-- 2 + 3 + 3 - 2 + 6 x 3 = 24, past the Mythical's need of 23, on the ninth and last ring
 				expect(attempt.grades[3]).to.equal("miss")
 				expect(#attempt.grades).to.equal(9)
-				expect(attempt.trust).to.equal(16)
+				expect(attempt.trust).to.equal(24)
 				expect(Circles.succeeded(attempt)).to.equal(true)
 				expect(Circles.finish(attempt)).to.equal("great")
 				expect(Circles.perfectCount(attempt)).to.equal(8)
-				-- with a Good as well there are not rings enough: 2 + 2 + 1 - 2 + 6 x 2 = 15 after nine
+				-- with two Misses there are not rings enough: 2 + 3 - 2 - 2 + 6 x 3 = 19 after nine
 				local short, shortCircles = plainFor("Mythical", 0)
-				local shortOffsets = { 0, 0.08, 0.5, 0, 0, 0, 0, 0, 0 }
+				local shortOffsets = { 0, 0.5, 0.5, 0, 0, 0, 0, 0, 0 }
 				for i, circle in ipairs(shortCircles) do
 					local at = Circles.target(circle) + shortOffsets[i]
 					Circles.press(short, i, at, at)
 				end
-				expect(short.trust).to.equal(15)
+				expect(short.trust).to.equal(19)
 				expect(Circles.finish(short)).to.equal("bolt")
 			end
 		)
@@ -700,24 +700,28 @@ return function()
 		)
 
 		it(
-			"one Good is GREAT, two or more NICE; all Good runs out of rings and bolts (#1884, 7d)",
+			"one Good is GREAT, two or more NICE; all Good just catches a Common, an Epic bolts (#1884 7d, #2005)",
 			function()
-				local great = run("Common", { 0.08, 0, 0, 0 }) -- 3, 5, 7, 9
+				local great = run("Common", { 0.08, 0, 0, 0 }) -- 4, 7, 10, 13
 				expect(Circles.finish(great)).to.equal("great")
-				local nice = run("Common", { 0.08, 0.08, 0, 0, 0 }) -- 3, 4, 6, 8
+				local nice = run("Common", { 0.08, 0.08, 0, 0, 0 }) -- 4, 6, 9, 12
 				expect(Circles.finish(nice)).to.equal("nice")
 				expect(#nice.grades).to.equal(4)
-				local slow = run("Common", same(0.08, 5)) -- 3 to 7 over all five rings
-				expect(Circles.isDone(slow)).to.equal(true)
-				expect(Circles.succeeded(slow)).to.equal(false)
-				expect(Circles.finish(slow)).to.equal("bolt")
+				local slow = run("Common", same(0.08, 5)) -- 4 to 12 over all five rings, past 11 on the last
+				expect(Circles.succeeded(slow)).to.equal(true)
+				expect(Circles.finish(slow)).to.equal("nice")
+				expect(#slow.grades).to.equal(5)
+				local epic = run("Epic", same(0.08, 7)) -- 4 to 16 over all seven, short of 17
+				expect(Circles.isDone(epic)).to.equal(true)
+				expect(Circles.succeeded(epic)).to.equal(false)
+				expect(Circles.finish(epic)).to.equal("bolt")
 			end
 		)
 
 		it(
 			"one early Miss on a Rare is won back; two in a row from the start bolt (7f check 3)",
 			function()
-				local back = run("Rare", { -0.3, 0, 0, 0, 0, 0 }) -- 0, then 2 to 10
+				local back = run("Rare", { -0.3, 0, 0, 0, 0, 0 }) -- 0, then 3 to 15
 				expect(Circles.succeeded(back)).to.equal(true)
 				expect(Circles.finish(back)).to.equal("great")
 				local bolted = run("Rare", { -0.3, -0.3 })
@@ -836,9 +840,9 @@ return function()
 		)
 
 		it(
-			"a double is two circles on one spot DoubleRingGap (0.18 s) apart, half 1 then 2, never the first ring",
+			"a double is two circles on one spot DoubleRingGap (0.35 s) apart, half 1 then 2, never the first ring",
 			function()
-				expect(Config.DoubleRingGap).to.be.near(0.18, 1e-12)
+				expect(Config.DoubleRingGap).to.be.near(0.35, 1e-12)
 				expect(Config.DoubleRingChance).to.be.near(0.25, 1e-12)
 				for seed = 1, 100 do
 					local circles = Circles.schedule("Mythical", 0, NOW, lcg(seed))
@@ -848,7 +852,7 @@ return function()
 							local second = circles[i + 1]
 							expect(second.kind).to.equal("double")
 							expect(second.half).to.equal(2)
-							expect(second.startsAt - circle.startsAt).to.be.near(0.18, 1e-9)
+							expect(second.startsAt - circle.startsAt).to.be.near(0.35, 1e-9)
 							expect(second.shrinkSeconds).to.equal(circle.shrinkSeconds)
 							expect(second.x == circle.x and second.y == circle.y).to.equal(true)
 						end

@@ -297,7 +297,9 @@ return function()
 			local profile = fresh()
 			profile.tier = 5
 			profile.tutorialStep = 5
-			expect(#Badges.due(profile, {}, {}, 0)).to.equal(0)
+			withIds({}, function()
+				expect(#Badges.due(profile, {}, {}, 0)).to.equal(0)
+			end)
 		end)
 	end)
 end

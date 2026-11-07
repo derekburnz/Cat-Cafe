@@ -1164,10 +1164,11 @@ function CafeService.endBedtime(player: Player, uid: string)
 	refreshCats(player, plot, profile)
 end
 
--- "$2.6/s", "$12/s": the HUD's rounding (one decimal under 10), so the toast and the income pill agree.
+-- "$2.6/s", "$12/s", "$54K/s": the HUD's rounding (one decimal under 10, ShortNumber from there, #2268), so the
+-- toast and the income pill agree.
 local function rateText(perSecond: number): string
 	local value = if perSecond >= 10
-		then string.format("%.0f", perSecond)
+		then ShortNumber.format(math.floor(perSecond + 0.5))
 		else string.format("%.1f", perSecond)
 	return "$" .. (value:gsub("%.0$", "")) .. "/s"
 end
@@ -1400,9 +1401,9 @@ function CafeService.addCaughtCat(
 			Net.toast(
 				player,
 				string.format(
-					"New cat! %s joins the collection (+$%d, %s)",
+					"New cat! %s joins the collection (+$%s, %s)",
 					def.name,
-					Catalog.rarities[def.rarity].firstCatchReward,
+					ShortNumber.format(Catalog.rarities[def.rarity].firstCatchReward),
 					fishText(fish)
 				),
 				"good"
@@ -1798,7 +1799,7 @@ local function onSellCat(player: Player, rawUid: unknown)
 	Economy.credit(profile, value)
 	Telemetry.source(player, profile, value, "Gameplay", "sell_cat")
 	Telemetry.custom(player, "cat_sold", 1, { instance.catId, instance.variant })
-	Net.toast(player, string.format("Sold %s for $%d", def.name, value), "good")
+	Net.toast(player, string.format("Sold %s for $%s", def.name, ShortNumber.format(value)), "good")
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 end
@@ -1830,10 +1831,10 @@ local function onSellExtraCommons(player: Player)
 	Net.toast(
 		player,
 		string.format(
-			"Sold %d extra Common%s for $%d",
+			"Sold %d extra Common%s for $%s",
 			#plan.uids,
 			if #plan.uids == 1 then "" else "s",
-			#plan.uids * value
+			ShortNumber.format(#plan.uids * value)
 		),
 		"good"
 	)

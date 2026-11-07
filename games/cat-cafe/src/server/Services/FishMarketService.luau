@@ -136,6 +136,10 @@ local function open(
 			profile.decorPlaced[decorId] = true
 			placed = true
 		end
+		if not placed then
+			-- #2068: with Auto Equip on, it takes the weakest piece's place when it earns more
+			placed = CafeService.autoEquipNewDecor(player, profile, decorId)
+		end
 	end
 	-- Analytics keeps three custom fields (review N169): the crate, "<rarity> <kind>" and the outcome, so the odds
 	-- can be checked against results.

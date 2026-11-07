@@ -161,4 +161,68 @@ return function()
 			expect(plan.bonus).to.equal(0)
 		end)
 	end)
+
+	-- #2068 (Auto Equip for decor, Design-Agent 2026-11-07)
+	describe("swapFor", function()
+		local function setUp(): (any, string, string, string)
+			local p = fresh()
+			local common = pieces("furniture", "Common")
+			local rare = pieces("decoration", "Rare")
+			local legendary = pieces("decoration", "Legendary")
+			for _, id in { common[1], rare[1], legendary[1] } do
+				p.decorOwned[id] = true
+			end
+			p.decorPlaced[common[1]] = true
+			p.decorPlaced[rare[1]] = true
+			return p, common[1], rare[1], legendary[1]
+		end
+
+		it("replaces the weakest placed piece with a better new one", function()
+			local p, common, _, legendary = setUp()
+			expect(DecorBest.swapFor(p, legendary, {})).to.equal(common)
+		end)
+
+		it("skips a piece the player put out by hand", function()
+			local p, common, rare, legendary = setUp()
+			expect(DecorBest.swapFor(p, legendary, { [common] = true })).to.equal(rare)
+			expect(DecorBest.swapFor(p, legendary, { [common] = true, [rare] = true })).to.equal(nil)
+		end)
+
+		it("swaps only for a strictly higher bonus", function()
+			local p = fresh()
+			local common = pieces("furniture", "Common")
+			expect(#common >= 2).to.equal(true)
+			p.decorOwned[common[1]] = true
+			p.decorOwned[common[2]] = true
+			p.decorPlaced[common[1]] = true
+			expect(DecorBest.swapFor(p, common[2], {})).to.equal(nil)
+			local q, _, rare, legendary = setUp()
+			q.decorPlaced = { [legendary] = true }
+			expect(DecorBest.swapFor(q, rare, {})).to.equal(nil) -- a weaker piece never goes out over a better one
+		end)
+
+		it("never swaps a style piece in or out, nor a piece already out or not owned", function()
+			local p, _, rare, legendary = setUp()
+			local walls = pieces("wallpaper", "Legendary")
+			if #walls > 0 then
+				p.decorOwned[walls[1]] = true
+				expect(DecorBest.swapFor(p, walls[1], {})).to.equal(nil)
+			end
+			local lowWalls = pieces("wallpaper", "Common")
+			if #lowWalls > 0 then
+				p.decorOwned[lowWalls[1]] = true
+				p.decorPlaced = { [lowWalls[1]] = true }
+				expect(DecorBest.swapFor(p, legendary, {})).to.equal(nil) -- only a spot piece can be the one out
+			end
+			p.decorPlaced[rare] = true
+			expect(DecorBest.swapFor(p, rare, {})).to.equal(nil)
+			p.decorOwned[legendary] = nil
+			expect(DecorBest.swapFor(p, legendary, {})).to.equal(nil)
+			expect(Crates.takesSpot(Catalog.getDecor(rare) :: any)).to.equal(true)
+		end)
+
+		it("holds a hand placement for 10 minutes", function()
+			expect(DecorBest.HAND_HOLD_SECONDS).to.equal(600)
+		end)
+	end)
 end

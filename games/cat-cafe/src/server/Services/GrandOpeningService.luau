@@ -20,15 +20,25 @@ local GrandOpeningService = {}
 
 local CHECK_SECONDS = 1
 
--- Marks and pays every milestone due for the player; true when any was.
+-- Seconds of play on the account: the saved play time plus this session's (DataService adds it on leave).
+local function playedSeconds(player: Player, profile: Types.PlayerProfile): number
+	local joinedAt = DataService.joinedAt(player)
+	local session = if joinedAt ~= nil then math.max(0, os.time() - joinedAt) else 0
+	return profile.stats.playtimeSeconds + session
+end
+
+-- Marks and pays every milestone due for the player; true when any was. The cafe front's ribbon or bunting (#1922) is
+-- set first, from the state before this check's marks.
 function GrandOpeningService.check(player: Player, profile: Types.PlayerProfile): boolean
+	local played = playedSeconds(player, profile)
+	CafeService.showGrandOpening(player, GrandOpening.plotLook(profile, played))
 	local due = GrandOpening.due(profile)
 	if #due == 0 then
 		return false
 	end
 	for _, n in due do
 		-- marked before paying, so a failure inside the payout never pays it twice
-		GrandOpening.mark(profile.grandOpening, n)
+		GrandOpening.mark(profile.grandOpening, n, played)
 		Payout.pay(player, profile, GrandOpening.STEPS[n].prize, "grand_opening")
 		Telemetry.grandOpening(player, profile, n)
 		if n == GrandOpening.COUNT then

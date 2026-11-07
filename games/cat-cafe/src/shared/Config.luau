@@ -74,7 +74,7 @@ local Config = {
 	-- 2026-11-05 is a test start so Derek2 can try the pass live; Derek2 resets it to the launch day. Keep one date:
 	-- moving it later only moves the season's end.
 	SeasonStarts = { "2026-11-05" } :: { string },
-	PassLevels = 30,
+	PassLevels = 34, -- #1883 part C: 30 until the four Maple showpieces (levels 31 to 34)
 	PassXpPerLevel = 800,
 	AutosaveSeconds = 60,
 	SyncIntervalSeconds = 10, -- periodic ProfileSync even when nothing changed (the client predicts in between)

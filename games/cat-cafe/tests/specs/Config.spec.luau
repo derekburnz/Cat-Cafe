@@ -335,7 +335,7 @@ return function()
 		NetMissHopShare = 0.25,
 		RescueSpeedUpPerHit = 0.08,
 		-- #1645 (cafe-pass.md section 1)
-		PassLevels = 30,
+		PassLevels = 34,
 		PassXpPerLevel = 800,
 		-- #1624 (economy-ladder.md section 6a v2.4): the store passes
 		VipCafeBonus = 0.10,

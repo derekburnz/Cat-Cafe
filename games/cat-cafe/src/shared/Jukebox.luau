@@ -5,15 +5,18 @@
 -- profile.jukebox is the pick, nil for the normal rotation. Each track's `cue` is the client Audio cue (Audio/Cues);
 -- the client plays the pick while the cafe music would play.
 --   owned() -> { id }              every track id (all are free)
---   shown(pick) -> id?             the pick if it is a known track, else nil (the rotation)
---   pickFor(raw) -> (ok, id?)      what SetJukeboxTrack may save: nil/""/"default" or a known track
---   sanitizePick(raw) -> id?       a saved pick made whole (a known id or nil)
+--   shown(pick) -> id?             the pick if it is a known track or SHUFFLE, else nil (the rotation)
+--   pickFor(raw) -> (ok, id?)      what SetJukeboxTrack may save: nil/""/"default", SHUFFLE or a known track
+--   sanitizePick(raw) -> id?       a saved pick made whole (a known id, SHUFFLE or nil)
+-- #2077 (Derek2): SHUFFLE is a saved pick of its own, "play the Jukebox songs in a random order"; the client picks
+-- the order. It is not a track: get(SHUFFLE) is nil and owned() doesn't list it.
 
 local Jukebox = {}
 
 export type Track = { id: string, name: string, cue: string }
 
 Jukebox.DEFAULT = "default" -- the normal day and night rotation; "" and nil mean the same
+Jukebox.SHUFFLE = "shuffle" -- #2077: every Jukebox song in a random order
 
 local TRACKS: { Track } = {
 	{ id = "jukebox_rainy_window", name = "Rainy Window", cue = "musicJukeboxRainyWindow" },
@@ -44,8 +47,13 @@ function Jukebox.owned(): { string }
 	return ids
 end
 
+-- A pick that may be saved and shown: a known track or SHUFFLE.
+local function known(pick: unknown): boolean
+	return type(pick) == "string" and (byId[pick] ~= nil or pick == Jukebox.SHUFFLE)
+end
+
 function Jukebox.shown(pick: string?): string?
-	if pick == nil or byId[pick] == nil then
+	if not known(pick) then
 		return nil
 	end
 	return pick
@@ -55,14 +63,14 @@ function Jukebox.pickFor(raw: unknown): (boolean, string?)
 	if raw == nil or raw == "" or raw == Jukebox.DEFAULT then
 		return true, nil
 	end
-	if type(raw) ~= "string" or byId[raw] == nil then
+	if not known(raw) then
 		return false, nil
 	end
-	return true, raw
+	return true, raw :: string
 end
 
 function Jukebox.sanitizePick(raw: unknown): string?
-	return if type(raw) == "string" and byId[raw] ~= nil then raw else nil
+	return if known(raw) then raw :: string else nil
 end
 
 return Jukebox

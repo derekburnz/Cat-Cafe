@@ -5,7 +5,8 @@
 -- sparkles burst from the knot. Then the bunting's two balloon clusters by the door bob gently about their ties, on
 -- every cafe that has them, near you.
 --
--- How: the snap plays on a local copy of your plot's CatCafe_Plot_GrandOpeningRibbon (its `_RibbonL` and `_RibbonR`
+-- How: the snap plays on a local copy of your plot's ribbon (CafeService's `GrandOpening` model whose `Asset` is
+-- CatCafe_Plot_GrandOpeningRibbon, with its `_RibbonL` and `_RibbonR`
 -- child Models, each pivoted on its rosette) and hides the real one on this client, so it doesn't matter when the
 -- server removes it. A half swings the way that drops its cut end, read from where it hangs from its pivot.
 --
@@ -39,6 +40,20 @@ local function ownPlot(): Model?
 			and instance:GetAttribute("OwnerUserId") == Players.LocalPlayer.UserId
 		then
 			return instance :: Model
+		end
+	end
+	return nil
+end
+
+-- The plot's Grand Opening model showing `assetName`: CafeService names it GrandOpening with an `Asset` attribute
+-- (showLookModel); a model that keeps its asset name is found too.
+local function lookIn(plot: Instance, assetName: string): Model?
+	for _, child in plot:GetChildren() do
+		if
+			child:IsA("Model")
+			and (child:GetAttribute("Asset") == assetName or child.Name == assetName)
+		then
+			return child :: Model
 		end
 	end
 	return nil
@@ -164,11 +179,9 @@ local function onStep(n: unknown)
 		return
 	end
 	local plot = ownPlot()
-	local ribbon = if plot ~= nil
-		then plot:FindFirstChild(Presets.grandOpening.ribbon, true)
-		else nil
-	if ribbon ~= nil and ribbon:IsA("Model") then
-		snap(ribbon :: Model)
+	local ribbon = if plot ~= nil then lookIn(plot, Presets.grandOpening.ribbon) else nil
+	if ribbon ~= nil then
+		snap(ribbon)
 	end
 end
 
@@ -179,7 +192,7 @@ local function findClusters()
 	if not Context.lowPerformance and not Context.reducedMotion() then
 		local count = 0
 		for _, plot in CollectionService:GetTagged("Plot") do
-			local bunting = plot:FindFirstChild(g.bunting, true)
+			local bunting = lookIn(plot, g.bunting)
 			if bunting ~= nil and count < g.most then
 				for _, suffix in { "_LeftBalloons", "_RightBalloons" } do
 					local cluster = childEnding(bunting, suffix)

@@ -72,5 +72,4 @@ Findings
 1. Arms pass: the arm ends sit under the cat's middle, 0.35 studs below its underside, and no arm part touches the cat.
 2. New issue from the raise: the cat's head now sits at face height. Its head and left ear overlap the character's
    Head part. The R6 Head part is a 2 by 1 by 1 box, wider than the visible head, so on screen this reads as the cat's
-   head pressed against the side of the face rather than through it. A smaller raise (about 0.15 to 0.2 studs instead of
-   0.2) or moving the cat 0.2 to 0.3 studs further forward on R6 would clear it.
+   head pressed against the side of the face rather than through it. A smaller raise (r6.up about 0.18 instead of 0.28) or moving the cat 0.2 to 0.3 studs further forward on R6 would clear it.

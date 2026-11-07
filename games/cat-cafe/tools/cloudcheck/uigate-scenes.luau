@@ -4043,8 +4043,24 @@ local SCENES = {
 	end },
 	-- #1606: the money pass badge beside the money: the rainbow "X2 Cash / Only R$5" (#1759) with no money pass and the
 	-- 2x on sale; once owned, "💰 Cash x3" on the side over the money (#1962)
+	-- #2334 (Derek2: "the gold fish and money should be side by side in bottom left and the 2x cash ... should be to the
+	-- right of both of those"): left to right the money, the golden fish, then the badge, none touching
 	{ "HUDMoneyBadge", function()
+		local before: any = UI.getState()
+		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
+		UI.update({ passBoosts = false, goldenFish = 1234 } :: any)
 		UI.store.preview(storePrices(true), {})
+		UIShim.advance(1 / 60)
+		local counters = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Counters", true) :: Frame
+		local money = counters:FindFirstChild("Money") :: GuiObject
+		local fish = counters:FindFirstChild("Fish") :: GuiObject
+		local badge = counters:FindFirstChild("MoneyBadge") :: GuiObject
+		assert(fish.Visible and badge.Visible, "uigate: the golden fish or the money badge is hidden (#2334)")
+		local function right(gui: GuiObject): number
+			return gui.AbsolutePosition.X + gui.AbsoluteSize.X
+		end
+		assert(right(money) <= fish.AbsolutePosition.X, "uigate: the golden fish is not right of the money (#2334)")
+		assert(right(fish) <= badge.AbsolutePosition.X, "uigate: the money badge is not right of the golden fish (#2334)")
 	end },
 	-- #2194 (playtester Dread via Derek2: "The cash at the bottom left should probably not push the 2x cash and fish"):
 	-- the money badge and the golden fish stay put while the money grows from $0 to the widest usual amounts
@@ -4070,7 +4086,8 @@ local SCENES = {
 			end
 			assert(math.abs(badge.AbsolutePosition.X - badgeX) < 1, ("uigate: %s moves the money badge %d px (#2194)"):format(amount.Text, badge.AbsolutePosition.X - badgeX))
 			assert(math.abs(fish.AbsolutePosition.X - fishX) < 1, ("uigate: %s moves the golden fish %d px (#2194)"):format(amount.Text, fish.AbsolutePosition.X - fishX))
-			assert(amount.AbsolutePosition.X + amount.TextBounds.X <= badge.AbsolutePosition.X, "uigate: " .. amount.Text .. " runs into the money badge (#2194)")
+			assert(amount.AbsolutePosition.X + amount.TextBounds.X <= fish.AbsolutePosition.X, "uigate: " .. amount.Text .. " runs into the golden fish (#2194, #2334)")
+			assert(fish.AbsolutePosition.X + fish.AbsoluteSize.X <= badge.AbsolutePosition.X, "uigate: the golden fish runs into the money badge (#2334)")
 		end
 	end },
 	-- #2254 (Derek2 11-07: "gold fish is hovering wrong now if you did already buy the 2x/3x/4x money"): with a money

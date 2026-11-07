@@ -568,8 +568,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		-- no clip, so the last letter and its dark outline always show whole ("$1.23B" was cut, Derek 2026-11-02);
 		-- the amount is short (Format.money), and the golden fish keeps clear of the widest one. #2194 (playtester
 		-- Dread via Derek2, 11-07: "The cash at the bottom left should probably not push the 2x cash and fish"): at
-		-- least MONEY_AMOUNT_W wide, room for the usual widest amounts ("$88,888", "$999Qa"), so the badge and the
-		-- golden fish beside it stay put while the money grows
+		-- least MONEY_AMOUNT_W wide, room for the usual widest amounts ("$88,888", "$999Qa"), so the golden fish and
+		-- the badge after it stay put while the money grows
 		Create("UISizeConstraint", {
 			Name = "Steady",
 			MinSize = Vector2.new(MONEY_AMOUNT_W, 0),
@@ -591,7 +591,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 
 	-- Golden fish (F52): the rare currency's counter beside the money, with the gold fish (F97). Hidden until
 	-- ProfileSync sends goldenFish.
-	-- #1606: the money pass badge beside the money (setMoneyBadge): "2x" to "4x" in gold once a money pass is owned
+	-- #2334 (Derek2: "the gold fish and money should be side by side in bottom left and the 2x cash ... should be to
+	-- the right of both of those"): the row is the money, the golden fish, then the money badge.
+	-- #1606: the money pass badge right of the two counters (setMoneyBadge): "2x" to "4x" in gold once a money pass is owned
 	-- (a tap opens the boosts card, as the money does), or while none is (a tap opens the Store) a rainbow "X2 Cash"
 	-- pill with "Only R$5" under it, pulsing (#1759). Hidden until the Store knows.
 	-- the tap area is the counters' height and at least as wide (a finger's 44 px on a phone); the pill sits inside it
@@ -602,7 +604,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Text = "",
 		Size = UDim2.fromOffset(0, counterH),
 		AutomaticSize = Enum.AutomaticSize.X,
-		LayoutOrder = 2,
+		LayoutOrder = 3, -- #2334: after the golden fish
 		Visible = false,
 		Parent = counters,
 	}, {
@@ -671,7 +673,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end)
 	)
 
-	local fish = counter("Fish", 3, "Frame")
+	local fish = counter("Fish", 2, "Frame") -- #2334: right beside the money
 	fish.Visible = false
 	self._fishPanel = fish
 	FishCoin.new({
@@ -703,6 +705,13 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			self:_placePotionTimers()
 		end)
 	table.insert(self._connections, timersResized)
+	-- #2334: the bottom row keeps clear of the counters as they grow (the badge showing, the golden fish arriving)
+	local countersResized: RBXScriptConnection = counters
+		:GetPropertyChangedSignal("AbsoluteSize")
+		:Connect(function()
+			self:_layoutMenu()
+		end)
+	table.insert(self._connections, countersResized)
 
 	-- The boosts card over the counters (built last, so it draws over the menu): a tap on the money opens and closes
 	-- it, a tap on the card closes it, and any window opening closes it.
@@ -3741,10 +3750,16 @@ function HUD._layoutMenu(self: any)
 	self:_placeMenuFold()
 
 	-- the bottom row (and its arrow tab) keeps clear of the counters
+	-- #2334: the money badge sits after the golden fish now, so the counters' measured width counts too (the badge
+	-- ran under My Cafe on a small phone); CORNER_W keeps the row still while the money grows
 	local row: Frame? = self._travelRow
 	if row then
 		local rowW = row.Size.X.Offset
-		self._travelShift = math.max(0, MARGIN + CORNER_W + gap - (width / 2 - rowW / 2))
+		local counters: Frame = self._counters
+		local reach = if scale > 0
+			then math.max(CORNER_W, counters.AbsoluteSize.X / scale)
+			else CORNER_W
+		self._travelShift = math.max(0, MARGIN + reach + gap - (width / 2 - rowW / 2))
 		row.Position = UDim2.new(
 			0.5,
 			self._travelShift,

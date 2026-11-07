@@ -670,3 +670,6 @@ A new shot 6 after the job shot: a rich customer sits at table 1, leaves a gold 
 
 ## 2026-11-07: Music style defaults to Shuffle (Sound-Agent, #2347)
 Derek2: "change the style of music to default to shuffle". A player who never picked a music style now hears Shuffle (the Jukebox songs in random order, #2077) instead of the day and night rotation: `Jukebox.shown` turns a missing or stale pick into `shuffle`. Saved picks (a song or Shuffle) are kept. Picking the rotation now saves `"default"` so that choice sticks; before, it saved nothing, the same as never picking, so a player who had chosen the rotation hears Shuffle once and can pick Default again. No save version or remote change.
+
+## 2026-11-07: Notification ask later; rescue on one press (Design-Agent, friend's project, #2313, #2335)
+The notification ask now shows after 30 minutes of play with Tier 2 reached, or on a later UTC day than the account's first, instead of after the first tamed bait cat (starter-cat.md §3, built in #2328). A rescue starts on one press, not a hold (data-model.md §10b, catch-rework.md, built for #2335). Reason: Gameplay's builds; the docs now match the game.

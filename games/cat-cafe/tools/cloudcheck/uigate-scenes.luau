@@ -1211,7 +1211,34 @@ local SCENES = {
 		assert(tagOf(plain), "uigate: PityCat set later should bring the tag (#2099)")
 		mythical:SetAttribute("PityCat", nil)
 		assert(tagOf(mythical) == nil, "uigate: the tag should go with the PityCat attribute (#2099)")
-		for _, model in { legendary, mythical, plain } do
+		-- Laptop-Tester, Studio 11-07: a pity cat streamed in as its model before its parts (it spawns at a far hiding
+		-- spot) had no tag; the tag now comes with the first part, and again with the new part after a stream out
+		local far = Instance.new("Model")
+		far.Name = "Stray_pity_far"
+		far:SetAttribute("StrayId", "pity_far")
+		far:SetAttribute("PityCat", "Legendary")
+		far.Parent = workspace
+		far:AddTag("Stray")
+		UI.catch.pity:_watch(far)
+		local function arrive(): Part
+			local body = Instance.new("Part")
+			body.Name = "Body"
+			body.Size = Vector3.new(2, 2, 3)
+			body.Position = Vector3.new(8, 3, -12)
+			body.Parent = far
+			far.PrimaryPart = body
+			UIShim.fire(UIShim.eventOf(far, "DescendantAdded"), body)
+			UIShim.advance(1 / 60) -- the deferred refresh
+			return body
+		end
+		local first = arrive()
+		assert(first:FindFirstChild("CatCafePityTag"), "uigate: no Pity cat tag once a streamed pity cat's parts arrive (#2099)")
+		UIShim.fire(UIShim.eventOf(far, "DescendantRemoving"), first)
+		first.Parent = nil
+		UIShim.advance(1 / 60)
+		local again = arrive()
+		assert(again:FindFirstChild("CatCafePityTag"), "uigate: no Pity cat tag after the cat streamed back in (#2099)")
+		for _, model in { legendary, mythical, plain, far } do
 			model:Destroy()
 		end
 	end },

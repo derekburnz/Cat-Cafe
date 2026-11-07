@@ -45,6 +45,17 @@ const worldSource = fs.readFileSync(path.join(here, 'world-shim.luau'), 'utf8');
 const uiSource = fs.readFileSync(path.join(here, 'ui-shim.luau'), 'utf8');
 const scenesSource = fs.readFileSync(path.join(here, 'uigate-scenes.luau'), 'utf8');
 
+// The state runs with its collector off (run-tests.mjs: the wasm collector can fault mid-run), so every scene's
+// garbage stayed until the end; by #1923 (2026-11-06) the desktop run's one state passed the wasm's memory ceiling
+// ("not enough memory" in watch(), about 24 minutes in). A full collection between scenes, when no Luau code is
+// running, frees it; --mem prints the heap after each scene.
+function collect(lua, name) {
+  lua.gcRestart();
+  lua.gcCollect();
+  lua.gcStop();
+  if (args.mem) console.error(`uigate mem ${name}: ${(lua.usedMemory / 1048576).toFixed(1)} MB`);
+}
+
 // One fresh Luau state per screen size, so nothing one size left behind leaks into the next.
 async function runProfile(profile) {
   const lua = await Lua.create({ sandbox: false, libraries: 'all' });
@@ -114,6 +125,7 @@ async function runProfile(profile) {
     results.push({ scene: name, nodes: snapshot(), errors: takeErrors(), jitter, touchControls });
     run(scenes.rawGet('close'), 0.6);
     takeErrors();
+    collect(lua, name);
   }
   return results;
 }
@@ -199,6 +211,7 @@ async function runChild(profile) {
   const childArgs = [...process.execArgv, fileURLToPath(import.meta.url), '--profile', profile.name, '--emit', file];
   if (args.scene) childArgs.push('--scene', args.scene);
   if (args.verbose) childArgs.push('--verbose');
+  if (args.mem) childArgs.push('--mem');
   const status = await new Promise((resolve, reject) => {
     const child = spawn(process.execPath, childArgs, { stdio: 'inherit' });
     child.on('error', reject);
@@ -220,6 +233,7 @@ function parseArgs(argv) {
     else if (arg === '--scene') out.scene = argv[++i];
     else if (arg === '--update-baseline') out.updateBaseline = true;
     else if (arg === '--verbose' || arg === '-v') out.verbose = true;
+    else if (arg === '--mem') out.mem = true; // the Luau heap after each scene, on stderr
     else if (arg === '--emit') out.emit = argv[++i]; // internal: run one --profile and write its scenes as JSON
     else if (arg === '--help' || arg === '-h') {
       console.log('usage: node uigate.mjs [--out dir] [--devices] [--profile desktop|laptop|phone|tablet|smallphone|console] [--scene Name] [--update-baseline] [--verbose]');

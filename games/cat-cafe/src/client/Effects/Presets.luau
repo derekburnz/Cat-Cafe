@@ -2397,6 +2397,38 @@ Presets.bunting = {
 	pick = 1, -- seconds between choosing which pennants move
 }
 
+-- The Grand Opening ribbon set (#1922, first-hour.md 1d; Effects/GrandOpening, Model-Agent's #1928). At roadmap step
+-- `lastStep` your `ribbon` snaps: each half swings `degrees` about its rosette over `swing` seconds (easing out with a
+-- small bounce), then drops `drop` studs as it fades over `fade`; `confetti` of the budget's confetti and `sparkles`
+-- gold sparkles burst from the knot. The `bunting`'s balloon clusters within `within` studs (at most `most`) bob
+-- `wobble` degrees at `hz` a second about their ties, found every `pick` seconds; still in Low performance and with
+-- Reduce Motion.
+Presets.grandOpening = {
+	lastStep = 8,
+	ribbon = "CatCafe_Plot_GrandOpeningRibbon",
+	bunting = "CatCafe_Plot_GrandOpeningBunting",
+	degrees = 60,
+	swing = 0.45,
+	drop = 1.5,
+	fade = 0.7,
+	confetti = 0.6,
+	sparkles = 10,
+	within = 120,
+	most = 4,
+	wobble = 4,
+	hz = 0.45,
+	pick = 1,
+}
+-- The cafe palette, as the bunting's flags
+Presets.grandOpeningColors = {
+	Presets.palette.blush,
+	Presets.palette.mint,
+	Presets.palette.goldLight,
+	Presets.palette.aurora,
+	Presets.palette.pastelSky,
+	Presets.palette.shirtRed, -- a scrap of the ribbon
+}
+
 -- Trade done (F102, trading.md section 3 step 6): the UI's "You get" pictures (tag `TradeGot`) fly off the confirm
 -- screen into the HUD's Cats pill, the cat room, one after another `stagger` seconds apart, in an arc that bends up
 -- by `lift` of the way, shrinking to `land` of the pill's height over `seconds`; each lands with `arrive` sparkles and

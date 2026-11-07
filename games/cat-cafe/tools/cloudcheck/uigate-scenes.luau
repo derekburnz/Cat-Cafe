@@ -772,13 +772,27 @@ local function startCatchV3(strayId, rarity, kinds, trustStart, trustNeed)
 	local list = {}
 	local at = t + 0.3
 	local doubles = 0 -- a double's halves come in pairs, half 1 then half 2, DoubleRingGap apart
+	-- #2060: spots as the server rolls them (0.25 to 0.75 by 0.3 to 0.7); a double's second half keeps the first's
+	local rolls = { { 0.3, 0.35 }, { 0.7, 0.62 }, { 0.42, 0.68 }, { 0.62, 0.32 }, { 0.28, 0.6 }, { 0.55, 0.5 } }
+	local roll = 0
 	for _, kind in kinds do
 		local half = nil
 		if kind == "double" then
 			doubles += 1
 			half = (doubles - 1) % 2 + 1
 		end
-		table.insert(list, { startsAt = at, shrinkSeconds = 0.8, x = 0.5, y = 0.5, kind = kind, half = half })
+		if half ~= 2 then
+			roll = roll % #rolls + 1
+		end
+		local spot = rolls[roll]
+		table.insert(list, {
+			startsAt = at,
+			shrinkSeconds = 0.8,
+			x = spot[1],
+			y = spot[2],
+			kind = kind,
+			half = half,
+		})
 		at += if half == 1 then UIShim.require("ReplicatedStorage.Shared.Config").DoubleRingGap else 0.7
 	end
 	UI.catch.show({ strayId = strayId, catId = Catalog.cats[2].id, catName = "Mochi", rarity = rarity })
@@ -2013,6 +2027,45 @@ local SCENES = {
 	-- #2005 section 4 ("the rapid rings are not clear"): both halves of a double ring closing, the second in blue, x2
 	{ "CatchDoubleRing", function()
 		startCatchV3("gate_double", "Epic", { "single", "single", "single", "double", "double" }, 2, 14)
+	end },
+	-- #2060 (Derek2: "move across the screen so not only do you have to time it but find the next one each time"):
+	-- each ring at its own spot inside the safe box, away from the one before, the next one showing ahead of its turn,
+	-- and a paw ring's Don't swing! on screen
+	{ "CatchRingsMove", function()
+		local list = startCatchV3("gate_move", "Epic", { "single", "single", "paw", "single", "single" }, 2, 14)
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+		local view = layer.AbsoluteSize
+		local root = layer:FindFirstChild("Root")
+		local top, size = root.AbsolutePosition, root.AbsoluteSize
+		local function centre(index)
+			local holder = layer:FindFirstChild("Circle" .. index, true)
+			return holder and holder.AbsolutePosition, holder
+		end
+		local last = nil
+		for index = 1, #list do
+			local at = centre(index)
+			assert(at, "uigate: ring " .. index .. " was not drawn (#2060)")
+			local x, y = (at.X - top.X) / size.X, (at.Y - top.Y) / size.Y
+			assert(
+				x > 0.25 and x < 0.75 and y > 0.35 and y < 0.65 and at.Y > view.Y * 0.2 and at.Y < view.Y * 0.75,
+				"uigate: ring " .. index .. " sits outside the safe box (#2060) at " .. tostring(at)
+			)
+			if last then
+				local moved = math.abs(at.X - last.X) >= size.X * 0.15 or math.abs(at.Y - last.Y) >= size.Y * 0.11
+				assert(moved, "uigate: ring " .. index .. " sits on the last ring's spot (#2060)")
+			end
+			last = at
+		end
+		-- the lead-in: ring 2 shows at its spot while ring 1 is still closing
+		local wait = list[1].startsAt + list[1].shrinkSeconds - 0.15 - workspace:GetServerTimeNow()
+		if wait > 0 then
+			task.wait(wait)
+		end
+		local _, second = centre(2)
+		assert(second and second.Visible, "uigate: the next ring doesn't show ahead of its turn (#2060)")
+		local warning = layer:FindFirstChild("Circle3", true):FindFirstChild("DontSwing", true)
+		local bottom = warning.AbsolutePosition.Y + warning.AbsoluteSize.Y
+		assert(bottom < view.Y - 8, "uigate: the paw ring's Don't swing! runs off the screen (#2060)")
 	end },
 	-- Catch v3 (#1884, 7d): a Purrfect catch's banner (Root.FinishBanner, after the net wrap) and the HUD's streak
 	{ "CatchV3Finish", function()

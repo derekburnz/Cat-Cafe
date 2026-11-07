@@ -606,3 +606,6 @@ These are Derek2's picks from the pre-release list. Design-Agent specced them in
 - **Not picked:** moving rings stay as they are, and nothing is added after the Grand Opening.
 
 Reason: D1 return and first-hour pace are the hardest things to fix after launch. Both changes reuse existing items and screens.
+
+## 2026-11-07: Make the Cat Accessories +15% obvious (Design-Agent, friend's project, #2147)
+Derek2 asked for the +15% to be more obvious. store-pass-looks.md §7: a gold "+15% money" chip on both outfit pass cards, the money card shows each outfit pass by name, a one-time toast and bow sparkle after buying, and a note on the Style panel that the bonus never depends on the pick. Client only. Reason: the bonus applies to every working cat but was only visible as "Outfit passes x1.15".

@@ -30,3 +30,10 @@ A small gold plate with a paw on it, under the cafe name on the sign. It's a sep
 - **The pass gives two pieces:** Tiny Hat (`CatCafe_Accessory_Hat`, Head) and Round Glasses (`CatCafe_Accessory_Glasses`, Face). Cafe Pass pieces (cafe-pass.md §3) join the picker once earned, as looks only.
 - **Slot rule** (data-model.md props): a Head piece replaces the role hat, a Back piece replaces the Cape, and a Face piece clashes with nothing. A cat whose own themed prop already fills that slot keeps its prop and skips the accessory.
 - **Money:** the +15% comes with the pass and applies to every working cat, whatever is picked, even "none" (economy-ladder.md §6a). The picker never changes income.
+
+## 7. Showing the +15% (#2147, Derek2 2026-11-07: "make the +15% earned more obvious")
+The bonus is real on every working cat (Economy.staffMultiplier), but today a player only sees it in the store line and as "Outfit passes x1.15" on the money card. Four client-only cues, no save or server change:
+1. **Store card chip.** The Cat Accessories and Uniform Styles cards lead with a gold "+15% money" chip above the description, the same chip style as the other money passes. The text under it is the one Derek approved: "Dress your cats in bows, glasses and more. A dressed cat earns +15%. Yours to keep."
+2. **Money card rows.** "Outfit passes x1.15" splits into one row a pass, by name: "🎀 Cat Accessories +15%" and "👕 Uniform Styles +15%". Each still multiplies the cats (the total line doesn't change), and the rows still show only once owned.
+3. **Thank-you moment.** Right after the purchase: a toast "Your working cats now earn +15%!" with the bow, and one short bow sparkle over each working cat. Reduce Motion and Low performance keep the toast and skip the sparkle. It plays once per purchase, never again on join.
+4. **Style panel note.** Under the accessory row, one small line: "+15% money on every working cat, whatever you pick", so picking "None" never looks like losing the bonus.

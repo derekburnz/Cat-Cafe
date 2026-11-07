@@ -977,7 +977,7 @@ local function attachHeldCat(player: Player, carry: Carry)
 	if nameTag ~= nil then
 		nameTag:Destroy()
 	end
-	HeldCat.attach(model, character, root) -- on the torso, in its loaf, the same on every screen (#1964)
+	HeldCat.attach(model, character, root) -- on the torso, curled up asleep, the same on every screen (#1964)
 	model.Parent = character
 	carry.model = model
 	if humanoid ~= nil then

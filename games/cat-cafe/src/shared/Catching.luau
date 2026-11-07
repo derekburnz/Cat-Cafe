@@ -26,15 +26,20 @@ Catching.HELD = {
 	turn = 90,
 }
 
--- The held cat's loaf (Derek 14:16 picked the loaf over sitting up): Model-Agent's manifest `cat_poses.loaf` turns
--- for the walking body's hinged pieces, each as piece:PivotTo(piece:GetPivot() * CFrame.Angles(x, y, z)) in degrees,
--- the same numbers as Effects/Presets.catPoses.loaf. Set once on the server, so no client poses the held cat.
+-- The held cat asleep, like a napping cafe cat (Derek2 2026-11-07: "make the carrying look like what a sleeping cat
+-- from the cafe would but fit sideways and in a way that doesn't look weird in the arms"; the loaf before): Model-Agent's
+-- manifest `cat_poses.sleep` turns for the walking body's hinged pieces, legs tucked, head down and tail curled round,
+-- each as piece:PivotTo(piece:GetPivot() * CFrame.Angles(x, y, z)) in degrees, the same numbers as
+-- Effects/Presets.catPoses.sleep. Its eyes are shut: each Eye piece squashed to HELD_EYES of its height, as Effects
+-- blinks them (Presets.motion.blink.squash). Set once on the server, so no client poses the held cat.
+Catching.HELD_EYES = 0.12
 Catching.HELD_TURNS = {
 	LegF1 = { -90, 0, -30 },
 	LegF2 = { -90, 0, 30 },
 	LegB1 = { 90, 0, -26 },
 	LegB2 = { 90, 0, 26 },
-	Tail = { 42.1, 23.2, -19.6 },
+	Head = { -26.8, 25.4, 12.2 },
+	Tail = { 71.7, 49.6, -66.5 },
 } :: { [string]: { number } }
 
 --- Where the bottom middle of a held cat lies in its carrier's torso, in studs on Roblox's axes (x right, y up, z

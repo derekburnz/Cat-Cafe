@@ -758,11 +758,32 @@ return function()
 			expect(math.abs(y) < TORSO[2] / 2).to.equal(true)
 		end)
 
-		it("lies across the arms and folds the four legs and the tail of the loaf", function()
+		it("lies across the arms asleep, like a napping cafe cat: legs tucked, head down, tail round", function()
 			expect(Catching.HELD.turn).to.equal(90)
-			for _, name in { "LegF1", "LegF2", "LegB1", "LegB2", "Tail" } do
+			for _, name in { "LegF1", "LegF2", "LegB1", "LegB2", "Head", "Tail" } do
 				expect(#Catching.HELD_TURNS[name]).to.equal(3)
 			end
+			-- Model-Agent's manifest cat_poses.sleep, as Effects/Presets.catPoses.sleep (Derek2 2026-11-07)
+			local Presets = require(
+				game:GetService("StarterPlayer")
+					:WaitForChild("StarterPlayerScripts")
+					:WaitForChild("Client")
+					:WaitForChild("Effects")
+					:WaitForChild("Presets")
+			) :: any
+			local sleep = Presets.catPoses.sleep.turns
+			local count = 0
+			for name, angles in Catching.HELD_TURNS do
+				count += 1
+				for k = 1, 3 do
+					expect(angles[k]).to.be.near(sleep[name][k], 1e-9)
+				end
+			end
+			for _ in sleep do
+				count -= 1
+			end
+			expect(count).to.equal(0) -- the same pieces, no more and no fewer
+			expect(Catching.HELD_EYES).to.equal(Presets.motion.blink.squash)
 		end)
 	end)
 end

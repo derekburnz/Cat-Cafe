@@ -74,6 +74,8 @@ TIMBER_TOP = 9.5                        # the timber piles' moss and brush (9.1)
 WALL_H, PIER_H = 8.0, 9.4               # the stone wall's stretches (caps 0.45 and moss on them) and end piers
 RIDGE_TOP = 8.8                         # the boulder ridge's moss
 BLOCK_OVER = 1.0
+POOL_LOGS = ((70.0, 38.0, 20), (-64.0, 236.0, -20), (16.0, 108.0, 20), (-70.0, -136.0, -20))   # #2240: x, z, turn
+POOL_BRAMBLES = ((-12.0, 184.0), (6.0, 14.0), (72.0, 96.0), (-18.0, -68.0))
 OAK = (-32.0, 206.0)                    # the Great Oak, in its clearing
 CLEARING_R = 20.0
 CAMPSITE = (54.0, 98.0)                 # the old campsite between the wall and the ridge
@@ -492,6 +494,16 @@ def build_set(mat):
     put(wd.leaves(mat), 66, 236, 0, r=3)
     _spot(s, "leaf_pile", 66, 236)
     put(wd.mushroom(mat), -24, 236, 0, r=2.5)
+
+    # #2240: the rest of the rescue pool, scenery until the day's pick puts a stuck cat in one (Layout.woods.rescuePool):
+    # four more hollow logs and four more bramble bushes, each 25 or more from every other trap, off the trail and
+    # 8 from every cat spot, three of each in the far half
+    for (x, z, t) in POOL_LOGS:
+        s.put(wd.hollow_log(mat), x, z, t)
+        _spot(s, "trap_hollow_log", x, z, turn=t)
+    for (x, z) in POOL_BRAMBLES:
+        s.put(wd.bramble(mat), x, z, 0)
+        _spot(s, "trap_bramble_bush", x, z, turn=0)
 
     # filler: pines and a few round oaks, clear of the trail, the stream, the blockers, the pieces and the spots, a
     # little thinner than v3.2's so a hunter sees along the trail's legs

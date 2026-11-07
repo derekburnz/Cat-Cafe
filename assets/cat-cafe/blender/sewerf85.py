@@ -83,6 +83,8 @@ PIPES_Z, ISLE_P = 185.0, [(-24.0, 24.0)]             # the pipe bank, one island
 RUBBLE_TOP = 8.8                        # the rubble's rebar
 PIPE_TOP = 9.8                          # the pipe rack's valve wheel
 BLOCK_OVER = 1.0
+POOL_PIPES = ((-1, 268.0), (1, 54.0), (1, 126.0), (1, -176.0))      # #2240: wall side (x sign), z
+POOL_GRATES = ((-6.0, 193.0), (2.0, 11.0), (50.0, 183.0), (50.0, -65.0))
 POOL, POOL_R = (0.0, IN_Z - 14.5), 11.0              # the pool under the culvert, as v3.2 has them to the far wall
 DAIS = (34.0, 269.0)                                 # the throne's dais
 PILLAR_X = 28.0
@@ -864,6 +866,16 @@ def build_set(mat):
     for (x, z) in ((10, 230), (-20, 212)):
         _spot(s, "throne_room", x, z)
     _spot(s, "pipes", -42.0, PIPES_Z + 9.0)                           # where the gap was until 11-02, in the open
+    # #2240: the rest of the rescue pool, scenery until the day's pick puts a stuck cat in one (Layout.sewer.rescuePool):
+    # four more drain pipes on clear stretches of the side walls and four more grates, each 25 or more from every
+    # other trap and 8 from every cat spot, three of each in the far half
+    for (sx, z) in POOL_PIPES:
+        x, rot = sx * (IN_X - 2.4), 90 * sx
+        put(sw.drain_pipe(mat), x, z, rot)
+        _spot(s, "trap_drain_pipe", *turned(x, z, rot, -1.0, -2.4), turn=rot)
+    for (x, z) in POOL_GRATES:
+        put(sw.grate(mat), x, z, 0)
+        _spot(s, "trap_grate", x, z, turn=0)
     return s.finish(_ground(), mat), s
 
 

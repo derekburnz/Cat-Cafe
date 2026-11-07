@@ -247,13 +247,16 @@ def _blocks(s, g, mat):
             [(51, "C3", "porch", ("hedge",))]),
            (25.5, 25.5), (24.0, 24.0))       # 25.5: a flower bed reaches 12 from its house, the low hedge
     _block(s, g, mat, ROW2, R2W, R2E,
-           ([(-51, "C", "flowerbed", ("bed", "mail"))],
+           ([(-51, "D4", "flowerbed", ("bed", "mail"))],     # #2240: a bungalow (was a C house)
             [(-3, "A", "porch", ("hedge",)), (21, "C3", "flowerbed", ("bed",)), (45, "D2", "flowerbed", ("bed", "mail"))]),
            ([(-51, "B2", "porch", ("hedge",))],
-            [(-3, "C2", "porch", ("bed", "mail")), (21, "A2", None, ("hedge",)), (45, "B", "flowerbed", ("bed",))]),
+            [(-3, "C2", "porch", ("bed", "mail")), (21, "D3", None, ("hedge",)), (45, "B", "flowerbed", ("bed",))]),
            (24.0, 24.0), (24.0, 24.0))
     zs2 = ROW2[0] + FRONT
     _spot(s, "trap_gutter", *turned(45, zs2, 0, *GUTTER_SPOT), y=GUTTER_Z, turn=0)          # the Mitten Row bungalow
+    # #2240: two more bungalow gutters for the rescue pool (Layout.neighbourhood.rescuePool), scenery until picked
+    _spot(s, "trap_gutter", *turned(-51, zs2, 0, *GUTTER_SPOT), y=GUTTER_Z, turn=0)
+    _spot(s, "trap_gutter", *turned(21, ROW2[1] - FRONT, 180, *GUTTER_SPOT), y=GUTTER_Z, turn=180)
     for (x, z0, z1) in SIDE_PATHS:                     # on the footpaths past the blocks' ends
         for t in (0.3, 0.7):
             _spot(s, "side_path", x, round(z0 + t * (z1 - z0), 1), y=0.05)
@@ -280,6 +283,7 @@ BLOCK_HEDGE = 9.0                        # the hedges' box top behind the green'
 BLOCK_PIER = 9.8                         # the brick piers at those runs' ends
 HOARD_H = 9.4                            # the works' hoarding round each pen
 BLOCK_OVER = 1.0                         # a low piece's barrier over its highest top (#2265, as #2215)
+POOL_SHEDS = ((-82.0, 192.0, -90), (-42.0, 116.0, 0), (-18.0, 206.0, 0), (-82.0, -104.0, -90))   # #2240: x, z, turn
 HEDGE_TOP = BLOCK_HEDGE + 0.4 + 1.1 * 0.4               # the highest hedge box and its rounded top
 
 
@@ -645,6 +649,9 @@ def _gardens(s, g, mat):
     _spot(s, "greenhouse", 72.0, 137.0, y=GREENHOUSE_FLOOR)
     s.put(nb.garden_shed(mat), 80.0, 108.0, 90)
     _spot(s, "trap_shed", *turned(80.0, 108.0, 90, -0.6, -3.3), turn=90)
+    for (x, z, rot) in POOL_SHEDS:                       # #2240: four more for the rescue pool, scenery until picked
+        s.put(nb.garden_shed(mat), x, z, rot)
+        _spot(s, "trap_shed", *turned(x, z, rot, -0.6, -3.3), turn=rot)
     s.put(potting_shed(mat), 46.0, 140.0, 0)
     br = face(-2.0, 128.0, 4.0, 113.0)
     s.put(bench(mat), -2.0, 128.0, br)

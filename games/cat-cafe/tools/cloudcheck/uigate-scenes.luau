@@ -3394,14 +3394,6 @@ local SCENES = {
 		assertArrowAt(tile:FindFirstChild("TutorialGlow", true).Parent :: GuiObject, "the Upgrades tile")
 	end },
 	{ "TutorialArrowRow", function()
-		-- the list from its top: after an earlier scene's scroll to the Bait bowl row, the scroll back lands a few px
-		-- past the table row on a laptop here (UpgradeShop._scrollTo turns px into CanvasPosition by the UIScale, the
-		-- shim scrolls CanvasPosition in scaled px; filed for the tools lane)
-		local before = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Upgrades", true)
-		local list = before and before:FindFirstChild("List", true)
-		if list and list:IsA("ScrollingFrame") then
-			list.CanvasPosition = Vector2.zero
-		end
 		tutorialArrowStep()
 		UI.open("Upgrades")
 		task.wait(0.2) -- the list scrolls the table row into view

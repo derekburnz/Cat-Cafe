@@ -69,15 +69,28 @@ The research rule is that nothing pushes a paid item at a new player. Today noth
 
 ## 4. The first four weeks (#1937)
 
-Every Saturday from launch gets a small finished drop, built from things that already exist, so no week is a scramble. Monetization-Agent writes each What's New entry (under 60 words) and the codes. Each week's pieces get their own issues and owners by the Wednesday before. The calendar copy for growth goes in `docs/growth/` (Monetization-Agent).
+Owner: Design-Agent (calendar), Monetization-Agent (What's New text and growth copy in `docs/growth/`), Gameplay-Engineer (codes, already in `Catalog.codes` from #1943, all inactive until their day). Drafted 2026-11-07. **Working assumption:** small Saturday drops built only from things that already exist (Set 12 Q2, not answered yet) and the research launch days from #1956 (Set 12 Q6, not answered yet). Items marked **[Q2]** or **[Q6]** change if Derek2 picks otherwise; see 4b.
 
-| week | Saturday | the drop | code (coins only, about 10 minutes of income at most) |
-|---|---|---|---|
-| launch | Thu 11-12 | "We're open!": the Grand Opening roadmap and the new catch | `OPENING` |
-| 1 | 11-14 | fixes from the soft launch, plus the first **Rescue Rally weekend** (rescue-rally.md) | `RALLY` |
-| 2 | 11-21 | a **Lucky Day** Saturday (luck-and-rare-moments.md) and 3 new decor pieces from the existing crate list | none |
-| 3 | 11-28 | the Cafe Pass's Autumn Leaf set reminder (cafe-pass.md §3a), a new camp item, and a **Golden Day** Sunday | `COZY` |
-| 4 | 12-05 | a **Rainbow Day** Saturday, 2 more decor pieces and the next fixes from player bug reports | `SNOWY` (kept as the week-4 code name) |
+Each week's pieces get their own issues and owners by the Wednesday before, and are merged by the Friday 18:00 UTC before the drop, so the Saturday is only flipping flags and posting.
+
+| week | date | the drop | turned on | code | owners |
+|---|---|---|---|---|---|
+| soft launch | Wed 11-11 20:00 UTC **[Q6]** | public, no ads, no posts, no What's New | nothing new | none | QA-Planner reads the gate Fri 11-13 14:00 UTC **[Q6]** |
+| launch, week 1 | Sat 11-14 14:00 UTC **[Q6]** | "We're open!" with the soft-launch fixes and the first **Rescue Rally weekend** (rescue-rally.md) | Rally flag Sat and Sun | `OPENING` and `RALLY` | Gameplay (flags), Monetization (one combined What's New) |
+| 2 | Sat 11-21 **[Q2]** | a **Lucky Day** Saturday (luck-and-rare-moments.md) and 3 new decor pieces from the existing crate list | Lucky Day forced on for that in-game day | none | Model-Agent (decor), Gameplay (day flag) |
+| 3 | Sat 11-28 **[Q2]** | the Cafe Pass Autumn Leaf set reminder (cafe-pass.md §3a), a new camp item, and a **Golden Day** Sunday | Golden Day forced on Sun 11-29 | `COZY` | Model-Agent (camp item), Gameplay (day flag) |
+| 4 | Sat 12-05 **[Q2]** | a **Rainbow Day** Saturday, 2 more decor pieces and fixes from player bug reports | Rainbow Day forced on | `SNOWY` (code name kept) | Model-Agent, Gameplay |
+
+- **Codes:** coins only, at most about 10 minutes of income: `OPENING` and `RALLY` 1000 coins + 300 coin-seconds, `COZY` 1500 + 450, `SNOWY` 2000 + 600 (#1943). Each turns on on its drop day and ends 4 weeks later. The code goes in the What's New line only, never a pop-up.
+- **Forced days:** a forced Lucky, Golden or Rainbow Day replaces the random roll for that in-game day on every server (the global day timer, Set 10 Q2), and the normal random chances apply again the next day. Nothing about a forced day is sold or counted down.
+- **Honest wording:** no countdowns, no "hurry", nothing paid named in text a new player sees (section 3).
+- **Every week also ships:** the top bug fixes from the previous week's reports and the funnels, picked by QA-Planner on the Wednesday.
+- **Stale copy:** the growth calendar (`docs/growth/first-four-weeks-2026-11-07.md`) still lists the Winter Cafe on 12-05 and a Thu 11-12 opening. Monetization-Agent updates it to this table (winter dropped in 4a).
 
 ### 4a. No winter event (Set 11 Q6, Derek2 2026-11-07)
 Derek2: "this game probably wont live that long its a learning experience so don't worry about next winter or even next month focus on making it good for launch". The Winter Cafe event is dropped. Effort goes into launch polish, and weeks 1 to 4 stay small drops built from what exists.
+
+### 4b. If Derek2 picks otherwise
+- **Q6, other launch days:** the soft-launch and go-wide rows move, and "We're open!" stays a separate entry if go-wide falls before Saturday 11-14 (then `OPENING` starts on go-wide and `RALLY` on 11-14). If the gate fails, every row moves one week later, and the week 4 drop is dropped rather than running into mid-December.
+- **Q2, no weekly drops:** weeks 2 to 4 become fix-only Saturdays. The forced days, decor and the camp item are cut, and `COZY` and `SNOWY` stay inactive.
+- **Q2, bigger drops:** each new piece needs its own spec from Design-Agent by the Monday before, or it slips a week.

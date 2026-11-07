@@ -727,6 +727,10 @@ local Config = {
 	-- step pays everyone in the server who scored RallyMinPoints this lap, from at most RallyMaxLaps laps a weekend.
 	RallyStartWeekday = 6,
 	RallyHours = 48,
+	-- #2227 (Derek2 2026-11-07: "extend how long rally lasts", "1 week extend is fine"): a Rally that starts at or after
+	-- RallyExtendFrom runs on until RallyExtendUntil (UTC seconds), joining the next weekend's. Equal values turn it off.
+	RallyExtendFrom = 1794009600, -- Saturday 2026-11-07 00:00 UTC
+	RallyExtendUntil = 1794787200, -- Monday 2026-11-16 00:00 UTC, the end of the 11-14 weekend
 	RallyPointsPerPlayer = 22, -- #2018: was 30, so a lap fills about a third sooner
 	RallyMinPlayers = 3,
 	RallyMinPoints = 3,

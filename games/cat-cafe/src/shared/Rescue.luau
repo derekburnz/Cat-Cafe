@@ -107,6 +107,31 @@ function Rescue.currentZone(attempt: Attempt): number?
 	return (attempt.challenge.zones or {})[attempt.zone]
 end
 
+-- The latest server time, no later than `now` and no earlier than the attempt's last press, when its marker stood at
+-- `x` on the bar; the next time after `now` when it has not been there since (Studio's RescueService.debugPress).
+function Rescue.lastTimeAt(attempt: Attempt, x: number, now: number): number
+	local from = math.max(attempt.lastPressAt, attempt.markerAt)
+	local speed = math.max(attempt.speed, 1e-6)
+	local unwrapped = attempt.markerPhase + speed * math.max(0, now - attempt.markerAt)
+	local earliest = attempt.markerPhase + speed * math.max(0, from - attempt.markerAt)
+	local best: number? = nil
+	for _, phase in { x, 2 - x } do
+		local u = phase + 2 * math.floor((unwrapped - phase) / 2) -- the latest at or before now
+		if u >= earliest and (best == nil or u > best) then
+			best = u
+		end
+	end
+	if best == nil then
+		for _, phase in { x, 2 - x } do
+			local u = phase + 2 * math.ceil((unwrapped - phase) / 2) -- the next after now
+			if best == nil or u < best then
+				best = u
+			end
+		end
+	end
+	return attempt.markerAt + ((best :: number) - attempt.markerPhase) / speed
+end
+
 -- The attempt's deadline in server time (later once a helper joins): when its zone's time runs out too.
 function Rescue.endsAt(attempt: Attempt): number
 	return attempt.challenge.endsAt or (attempt.challenge.startsAt + Config.RescueAttemptMaxSeconds)

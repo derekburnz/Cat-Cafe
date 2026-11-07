@@ -30,6 +30,10 @@
 --   D:Invoke("rally", nil, "force", true)    -- a Rescue Rally now (F101; false stops it, nil goes back to Config)
 --   D:Invoke("rally", nil, "points", 20)     -- 20 check-ins' points for you through the steps and prizes (F101)
 --   D:Invoke("rally", nil, "laps", 4)        -- your laps paid this weekend; returns the Rally's line either way
+--   D:Invoke("tutorialStep", nil, 4)     -- sets the tutorial step (0 to 5) and syncs; then 5 for the X's pulse
+--   D:Invoke("tackleLesson")             -- forgets the Tackle tip was seen and sends it now (the tackling lesson)
+--   D:Invoke("rescuePress", nil, "hit")   -- a bar press on your running rescue that hits ("miss" misses), judged
+--                                      -- like a real one; returns "hit hits=2/6 paws=3 stage=bar"
 --   D:Invoke("restartNotice", 300)     -- the restart countdown's 5 minute warning to everyone; returns its text
 --   D:Invoke("rareCatchElsewhere", "Sam caught a Legendary Maine Coon!", "Legendary") -- #2203: a chat line as if
 --                                      -- another server sent it; returns the line, or nil when held back
@@ -463,6 +467,31 @@ end
 function Debug.restartNotice(seconds: unknown): string?
 	guard()
 	return RestartNoticeService.debugNotice(seconds)
+end
+
+-- Sets the tutorial step (0 to 5) and syncs, so the HUD sees a step change as the tutorial would make it (the X's
+-- pulse on the sync from below 5 to 5, #2212). TutorialAdvance takes only the next step, once a second.
+function Debug.tutorialStep(player: (Player | number | string)?, step: number): number
+	guard()
+	local p = resolve(player)
+	local profile = profileOf(p)
+	profile.tutorialStep = math.clamp(math.floor(step), 0, 5)
+	CafeService.sync(p)
+	return profile.tutorialStep
+end
+
+-- Forgets the Tackle tip was seen and sends it now, as the first check-in after the newcomer shield does, so the
+-- client plays the tackling lesson again (#2198, #2201). Returns whether it went out.
+function Debug.tackleLesson(player: (Player | number | string)?): boolean
+	guard()
+	return TipService.debugResend(resolve(player), "tackle")
+end
+
+-- A rescue bar press for `player` that hits or misses on purpose (`kind` "hit" or "miss"), for testers who cannot time
+-- one by hand (RescueService.debugPress).
+function Debug.rescuePress(player: (Player | number | string)?, kind: string?): string
+	guard()
+	return RescueService.debugPress(resolve(player), if kind == "miss" then "miss" else "hit")
 end
 
 -- #2203: a rare-catch line as if another server published it, through the same checks and show gate.

@@ -260,6 +260,22 @@ return function()
 			end
 		end)
 
+		it("moves a started fixed slot on to the next of its kind, never one that is due already", function()
+			for t = 0, 20000, 311 do
+				for _, kind in { legendary, mythical } do
+					local timer = Pity.fixedTimer(t, kind)
+					local after = Pity.fixedNext(timer, kind)
+					expect(-after.seq > -timer.seq).to.equal(true)
+					expect(Pity.kindOf(-after.seq)).to.equal(kind)
+					expect(after.at).to.equal(Pity.dueAt(-after.seq))
+					expect(Pity.spawnTime(after.at) > t).to.equal(true)
+					for slot = -timer.seq + 1, -after.seq - 1 do
+						expect(Pity.kindOf(slot) ~= kind).to.equal(true)
+					end
+				end
+			end
+		end)
+
 		it("gives each cat its own number, claim key and pick across both kinds", function()
 			local seen = {}
 			for seq = -20, 20 do

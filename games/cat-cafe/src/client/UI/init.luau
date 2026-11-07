@@ -6117,7 +6117,7 @@ do
 		local sells = view ~= nil
 			and PassLogic.shows(view)
 			and not view.paid
-			and SharedPass.saleOpen(os.time(), view.endsAt) -- #2129
+			and SharedPass.saleOpen(Workspace:GetServerTimeNow(), view.endsAt) -- #2129
 		if sells and price ~= nil and price.forSale and price.robux ~= nil then
 			screen:setBuy(("Paid track  R$%d"):format(price.robux :: number))
 		else
@@ -6213,7 +6213,7 @@ do
 			name = if def then def.name else ("Season %d"):format(view.season),
 			paid = view.paid,
 			contents = PassLogic.paidContents(def),
-			saleOpen = SharedPass.saleOpen(os.time(), view.endsAt), -- #2129: closed just before the season ends
+			saleOpen = SharedPass.saleOpen(Workspace:GetServerTimeNow(), view.endsAt), -- #2129: closed just before the season ends
 		}
 	end
 

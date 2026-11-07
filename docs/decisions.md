@@ -568,6 +568,9 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 ### 2026-11-06 First hour: re-fit after Catch v3 (#1896, Design-Agent, friend's project)
 - Espresso 4 costs 550,000 (was 700,000) and Tier 3 costs 800,000 (was 900,000). Why: Catch v3 (#1910) moved the first hour, which failed the Tier 3 45 to 55 minute check and the Espresso 4 at about minute 42 check. With Gameplay-Engineer's re-fit in PR #1917, Tier 3 lands at 53.8 minutes, Espresso 4 at 42.6 and Tier 2 at 11.7. Spec: first-hour.md §4c.
 
+### Proposed by Gameplay-Engineer (Derek2's project, 2026-11-07)
+- 2026-11-07 (#2320): easier rescues for Common and Rare. Derek2: "lower the difficulty for rescue missions rare and lower". RescueBarSpeed Common 1.0 -> 0.85 and Rare 1.2 -> 1.05; RescueZoneWidth Common 0.26 -> 0.30 and Rare 0.20 -> 0.23. Epic and up are unchanged. CatchFeel's bar model: Rare at 70 ms goes from 85% to 98% a try (at 50 ms 99% to 100%); Common stays at 100%. Why: Derek2's ask, keeping rarer cats harder in the same order.
+
 ## 2026-11-07: four-week calendar drafted (#1937)
 Design-Agent (friend's project) drafted the first four weeks in `release.md` §4, on Sync-Agent's report that #1937 had no owner. It assumes small Saturday drops (Set 12 Q2) and the research launch days from #1956 (soft launch Wed 11-11 20:00 UTC, go wide Sat 11-14 14:00 UTC, Set 12 Q6), so "We're open!" and the first Rescue Rally weekend ship together. Lucky, Golden and Rainbow Days are forced on for their drop day. Rows that change with Derek2's answers are marked [Q2] or [Q6], with the alternatives in §4b. Reason: a calendar that only flips flags on Saturdays keeps each week small for a first game.
 
@@ -663,6 +666,9 @@ Gameplay reran Pace on main after #2236 and #2271: one go reaches Tier 5 in 11h2
 
 ## 2026-11-07: Intro shows a rich customer's tip (Design-Agent, friend's project, #2242)
 A new shot 6 after the job shot: a rich customer sits at table 1, leaves a gold coin pile and your avatar grabs it for "+$50" (the real first rich tip). The intro has nine shots, `Intro.VERSION` 8, and runs about 37 s with no taps. intro-cutscene.md §2c. Reason: Derek2's ask to show rare customers in the tutorial; built in #2305.
+
+## 2026-11-07: Music style defaults to Shuffle (Sound-Agent, #2347)
+Derek2: "change the style of music to default to shuffle". A player who never picked a music style now hears Shuffle (the Jukebox songs in random order, #2077) instead of the day and night rotation: `Jukebox.shown` turns a missing or stale pick into `shuffle`. Saved picks (a song or Shuffle) are kept. Picking the rotation now saves `"default"` so that choice sticks; before, it saved nothing, the same as never picking, so a player who had chosen the rotation hears Shuffle once and can pick Default again. No save version or remote change.
 
 ## 2026-11-07: Notification ask later; rescue on one press (Design-Agent, friend's project, #2313, #2335)
 The notification ask now shows after 30 minutes of play with Tier 2 reached, or on a later UTC day than the account's first, instead of after the first tamed bait cat (starter-cat.md §3, built in #2328). A rescue starts on one press, not a hold (data-model.md §10b, catch-rework.md, built for #2335). Reason: Gameplay's builds; the docs now match the game.

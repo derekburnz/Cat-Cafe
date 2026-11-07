@@ -2803,6 +2803,31 @@ local SCENES = {
 			task.delay(target - t0 + delay, tapCircles)
 		end
 	end },
+	-- #2332 (Derek2: "it should fully be only failing if the heart bar hits 0"): a catch with 30 rings keeps its strip
+	-- to ten pips, inside the screen, and slides once the play passes the tenth
+	{ "CatchLongStrip", function()
+		local list = startCatch("gate_stray", "Mythical", 30, 0, 0.82)
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+		local strip = layer:FindFirstChild("Strip", true) :: Frame
+		local function shown(): (number, number)
+			local count, first = 0, nil
+			for index = 1, #list do
+				local pip = strip:FindFirstChild("Pip" .. index) :: Frame
+				if pip.Visible then
+					count += 1
+					first = first or index
+				end
+			end
+			return count, first or 0
+		end
+		local count, first = shown()
+		assert(count == 10 and first == 1, ("uigate: a 30 ring catch shows %d pips from %d (#2332)"):format(count, first))
+		assert(strip.AbsoluteSize.X < 300, "uigate: the 30 ring strip is " .. strip.AbsoluteSize.X .. " px wide (#2332)")
+		-- the eleventh ring judged: the strip slides on by two
+		UI.catch.judged("gate_stray", 11, "good")
+		count, first = shown()
+		assert(count == 10 and first == 3, ("uigate: after ring 11 the strip shows %d pips from %d (#2332)"):format(count, first))
+	end },
 	-- #1727: circle 1 hit, circle 2 pressed just past its Good band (a Miss on this device), then the server's
 	-- CatchJudged calls that press Good: circles 3 and 4 never went away, so the catch goes on in view
 	{ "CatchEdgeMiss", function()

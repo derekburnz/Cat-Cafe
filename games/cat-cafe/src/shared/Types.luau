@@ -999,7 +999,13 @@ export type Settings = {
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished
 -- after the last (or at once for a save already at Tier 3 when it shipped)
-export type GrandOpeningState = { done: { [number]: boolean }, finished: boolean? }
+-- finishedAt: the seconds of play (stats.playtimeSeconds plus the session) when the last milestone was done, for the
+-- bunting's two hours (#1922); nil for a roadmap finished before it was kept
+export type GrandOpeningState = {
+	done: { [number]: boolean },
+	finished: boolean?,
+	finishedAt: number?,
+}
 
 export type PlayerProfile = {
 	version: number,

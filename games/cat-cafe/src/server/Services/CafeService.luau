@@ -1038,6 +1038,16 @@ function CafeService.refreshPlot(player: Player)
 	refreshLooks(player, plot, profile) -- #1624: after the sign style, which hides a theme's own sign
 end
 
+-- #1922: the cafe front's Grand Opening model at the plot pivot, named GrandOpening (GrandOpening.plotLook: the ribbon,
+-- the bunting or nil). GrandOpeningService sets it once a second, before it pays, so RoadmapStep(8) reaches the client
+-- while the ribbon still stands (the client's snap copies it) and the bunting follows on the next check.
+function CafeService.showGrandOpening(player: Player, assetName: string?)
+	local plot = PlotService.get(player)
+	if plot ~= nil then
+		showLookModel(plot, "GrandOpening", assetName)
+	end
+end
+
 -- F91 (front-lawn.md section 1b): the front lawn pieces the cafe's tier has earned and it does not own yet (a Garden
 -- Bench at Tier 2, an Umbrella Table at Tier 3), each placed in an empty big spot when there is one, with a toast.
 -- Rank up and load both call it, so a cafe already past those tiers when the lawn arrives gets them too. Only once the

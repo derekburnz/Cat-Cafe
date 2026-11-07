@@ -33,6 +33,12 @@ WhatsNew.rows = table.freeze({
 	-- Derek2 (11-07): the changes merged since the 11-07 rows, as they ship; a playtester's report or suggestion is
 	-- thanked by Roblox username
 	{
+		id = "tackle_lesson",
+		date = "2026-11-07",
+		icon = "new",
+		text = "Learn tackling after a catch",
+	},
+	{
 		id = "feed_list_smooth",
 		date = "2026-11-07",
 		icon = "faster",

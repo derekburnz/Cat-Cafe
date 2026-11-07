@@ -90,6 +90,9 @@ local function noteHand(player: Player, uid: string)
 	end
 	(hand :: { [string]: number })[uid] = os.clock()
 end
+-- #2068: when each player last put a decor piece out by hand (ToggleDecor), by decor id, in os.clock(); Auto Equip's
+-- decor swap leaves those for DecorBest.HAND_HOLD_SECONDS. Equip Best for decor clears it.
+local decorHandAt: { [Player]: { [string]: number } } = {}
 local rng = Random.new() -- charm rolls for caught cats
 -- F102: TradeService says whether a cat is on offer in an open trade (set at its start; nothing is on offer before)
 local offerCheck: (player: Player, uid: string) -> boolean = function(
@@ -2034,11 +2037,68 @@ local function onToggleDecor(player: Player, rawId: unknown, rawPlaced: unknown)
 	end
 	if placed then
 		profile.decorPlaced[decorId] = true
+		local hand = decorHandAt[player] or {}
+		hand[decorId] = os.clock() -- #2068: Auto Equip leaves it out a while
+		decorHandAt[player] = hand
 	else
 		profile.decorPlaced[decorId] = nil
 	end
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
+end
+
+-- #2068 (Auto Equip for decor, Design-Agent 2026-11-07): with settings.autoEquip on, a new furniture or decoration
+-- piece (`decorId`, owned, not out) from a crate or a pass takes a free decor spot, or, with every spot full, the
+-- place of the weakest piece out when it earns strictly more (DecorBest.swapFor; a piece put out by hand in the last
+-- HAND_HOLD_SECONDS stays). The piece put away stays owned. One toast for a swap. Shop buys don't come here (they are
+-- always placed). Returns whether anything moved; the caller refreshes the plot and syncs.
+function CafeService.autoEquipNewDecor(player: Player, profile: Profile, decorId: string): boolean
+	if not profile.settings.autoEquip then
+		return false
+	end
+	local def = Catalog.getDecor(decorId)
+	if
+		def == nil
+		or not Crates.takesSpot(def)
+		or not profile.decorOwned[decorId]
+		or profile.decorPlaced[decorId]
+	then
+		return false
+	end
+	local cap = Crates.spotCap(Economy.tier(profile), profile.fishPerks.extra_decor_spot or 0)
+	if Crates.spotsUsed(profile, Economy.replacedDecor(profile)) < cap then
+		profile.decorPlaced[decorId] = true
+		return true
+	end
+	local held: { [string]: boolean } = {}
+	local now = os.clock()
+	local hand = decorHandAt[player]
+	if hand ~= nil then
+		for id, at in hand do
+			if now - at < DecorBest.HAND_HOLD_SECONDS then
+				held[id] = true
+			end
+		end
+	end
+	local outId = DecorBest.swapFor(profile, decorId, held)
+	local out = if outId ~= nil then Catalog.getDecor(outId) else nil
+	if outId == nil or out == nil then
+		return false
+	end
+	profile.decorPlaced[outId] = nil
+	profile.decorPlaced[decorId] = true
+	local gain = (def.bonus - out.bonus) * 100
+	Net.toast(
+		player,
+		string.format(
+			"Swapped %s for %s (+%s%%)",
+			out.name,
+			def.name,
+			if gain >= 1 then tostring(math.floor(gain + 0.5)) else string.format("%.1f", gain)
+		),
+		"good"
+	)
+	return true
 end
 
 -- Equip Best for decor (Derek 2026-10-28): the best owned pieces out for the most money (shared/DecorBest), the rest
@@ -2070,6 +2130,7 @@ local function onEquipBestDecor(player: Player)
 		return
 	end
 	profile.decorPlaced = plan.placed
+	decorHandAt[player] = nil -- #2068: the button asks for the best decor, so the hand placements' holds end
 	CafeService.refreshPlot(player)
 	Net.toast(
 		player,
@@ -2310,6 +2371,7 @@ function CafeService.start()
 		joinHooks[player] = nil
 		knownLevels[player] = nil
 		handAt[player] = nil
+		decorHandAt[player] = nil
 		autoStates[player] = nil
 	end)
 

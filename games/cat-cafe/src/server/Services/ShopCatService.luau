@@ -58,12 +58,20 @@ local function give(player: Player)
 	end)
 	if #decorIds > 0 then
 		local names: { string } = {}
+		local moved = false
 		for _, decorId in decorIds do
 			profile.decorOwned[decorId] = true
 			local def = Catalog.getDecor(decorId)
 			table.insert(names, if def ~= nil then def.name else decorId)
 		end
 		Net.fire(player, "Toast", "New decor: " .. table.concat(names, ", "), "good")
+		for _, decorId in decorIds do
+			-- #2068: with Auto Equip on, a free spot or the weakest piece's place when it earns more
+			moved = CafeService.autoEquipNewDecor(player, profile, decorId) or moved
+		end
+		if moved then
+			CafeService.refreshPlot(player)
+		end
 		CafeService.sync(player)
 	end
 end

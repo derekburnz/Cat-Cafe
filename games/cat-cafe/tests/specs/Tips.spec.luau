@@ -15,7 +15,7 @@ return function()
 	end
 
 	describe("the tip table (section 3)", function()
-		it("lists the 14 tips in the design's order with their kind", function()
+		it("lists the 15 tips in the design's order with their kind", function()
 			local got: { string } = {}
 			for _, def in Tips.LIST do
 				table.insert(got, def.id .. ":" .. def.kind)
@@ -35,6 +35,7 @@ return function()
 				"codes_cat:card",
 				"luck:card",
 				"offline:card",
+				"perfect:card", -- #2282
 			})
 		end)
 
@@ -45,7 +46,7 @@ return function()
 					table.insert(client, def.id)
 				end
 			end
-			expect(client :: any).to.deepEqual({ "stuck_cat", "codes_cat", "luck", "offline" })
+			expect(client :: any).to.deepEqual({ "stuck_cat", "codes_cat", "luck", "offline", "perfect" })
 		end)
 
 		it("takes the tips and the three asks on TipSeen, nothing else", function()

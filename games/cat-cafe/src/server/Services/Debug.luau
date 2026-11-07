@@ -31,6 +31,8 @@
 --   D:Invoke("rally", nil, "points", 20)     -- 20 check-ins' points for you through the steps and prizes (F101)
 --   D:Invoke("rally", nil, "laps", 4)        -- your laps paid this weekend; returns the Rally's line either way
 --   D:Invoke("restartNotice", 300)     -- the restart countdown's 5 minute warning to everyone; returns its text
+--   D:Invoke("rareCatchElsewhere", "Sam caught a Legendary Maine Coon!", "Legendary") -- #2203: a chat line as if
+--                                      -- another server sent it; returns the line, or nil when held back
 --   D:Invoke("tradeMinTier", 0)        -- trading from Tier 0 in this server (F102; nil goes back to the flag or Config)
 --   D:Invoke("trading", false)         -- the trading kill switch off in this server, as CatCafe_Flags would (F102)
 --   D:Invoke("flag", "codes", false)   -- a live switch (codes or rally) off in this server, as CatCafe_Flags would (#2119)
@@ -79,6 +81,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local FishMarketService = require(script.Parent.FishMarketService)
 local FreshCatch = require(ReplicatedStorage.Shared.FreshCatch)
+local GlobalCatchService = require(script.Parent.GlobalCatchService)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LeaderboardService = require(script.Parent.LeaderboardService)
 local LiveFlagService = require(script.Parent.LiveFlagService)
@@ -460,6 +463,12 @@ end
 function Debug.restartNotice(seconds: unknown): string?
 	guard()
 	return RestartNoticeService.debugNotice(seconds)
+end
+
+-- #2203: a rare-catch line as if another server published it, through the same checks and show gate.
+function Debug.rareCatchElsewhere(text: unknown, rarity: unknown): string?
+	guard()
+	return GlobalCatchService.debugReceive({ t = text, r = rarity, j = "debug" })
 end
 
 -- F102 (trading.md section 2): this server's minimum tier to trade; returns the one now in force.

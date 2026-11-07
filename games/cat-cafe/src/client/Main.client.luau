@@ -20,6 +20,7 @@ local IntroController = require(script.Parent.Controllers.IntroController)
 local Moments = require(script.Parent.Moments)
 local NetSwingController = require(script.Parent.Controllers.NetSwingController)
 local RallyController = require(script.Parent.Controllers.RallyController)
+local RareCatchChatController = require(script.Parent.Controllers.RareCatchChatController)
 local ShoveController = require(script.Parent.Controllers.ShoveController)
 local StarterCatController = require(script.Parent.Controllers.StarterCatController)
 local StyleController = require(script.Parent.Controllers.StyleController)
@@ -43,6 +44,7 @@ RallyController.start() -- F101: the Rescue Rally's state for the UI's banner
 TradeController.start() -- F102: trading, after the UI whose trade window it feeds
 CodesController.start()
 ChatTagController.start() -- #1624: the VIP tag in chat
+RareCatchChatController.start() -- #2203: rare catches here and in other servers, as chat lines
 StarterCatController.start() -- F96: the Bellhop Cat's stand card
 CustomerController.start()
 Effects.start()

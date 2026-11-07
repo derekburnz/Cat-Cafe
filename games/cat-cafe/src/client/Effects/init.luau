@@ -17,6 +17,7 @@
 -- Wiring and file map: README.md next to this file.
 
 local Ambient = require(script.Ambient)
+local BedWalk = require(script.BedWalk)
 local Bellhop = require(script.Bellhop)
 local CafeWalk = require(script.CafeWalk)
 local CampCollect = require(script.CampCollect)
@@ -85,6 +86,7 @@ function Effects.start()
 	Context.init()
 	Cats.start()
 	CafeWalk.start()
+	BedWalk.start()
 	Bellhop.start()
 	LuckyPaw.start()
 	PullHop.start()

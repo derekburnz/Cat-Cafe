@@ -3748,4 +3748,8 @@ Presets.netPin = {
 	lift = { height = 2.2, seconds = 0.35, fadeFrom = 0.3 },
 }
 
+-- The bedtime walk drawn on each client (#2050, BedWalk.luau): when the trip ends the copy fades out over `fade`
+-- seconds as the server's model, landed on the bed or back at its station, fades in.
+Presets.bedWalk = { fade = 0.25 }
+
 return Presets

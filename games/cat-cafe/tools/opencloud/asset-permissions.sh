@@ -20,6 +20,10 @@ set -euo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
 REPO=$(cd "$HERE/../../../.." && pwd)
 UNIVERSE_ID=${ROBLOX_UNIVERSE_ID:-10773193456}
+# Who gets Use permission: the experience by default. A user id (SUBJECT_TYPE=User, SUBJECT_ID=<user id>) lets that
+# account's Studio load the pictures too (#2009): Studio fetches as the signed-in user, not as the experience.
+SUBJECT_TYPE=${SUBJECT_TYPE:-Universe}
+SUBJECT_ID=${SUBJECT_ID:-$UNIVERSE_ID}
 API=https://apis.roblox.com/asset-permissions-api/v1/assets/permissions
 BATCH=25 # ids per request; the API allows 100 requests a minute per key owner
 # What ships: the Luau code and the Rojo model files. Tests and docs are left out.
@@ -74,11 +78,11 @@ grant() {
 	local lines ids granted=0 notours=0 failed=0 i batch data id code file
 	lines=$(ids_with_files)
 	mapfile -t ids < <(echo "$lines" | awk '{ print $1 }')
-	echo "Giving universe $UNIVERSE_ID Use permission on ${#ids[@]} ids, $BATCH per request."
+	echo "Giving $SUBJECT_TYPE $SUBJECT_ID Use permission on ${#ids[@]} ids, $BATCH per request."
 	for ((i = 0; i < ${#ids[@]}; i += BATCH)); do
 		batch=("${ids[@]:i:BATCH}")
-		data=$(printf '%s\n' "${batch[@]}" | jq -Rn --arg u "$UNIVERSE_ID" \
-			'{subjectType: "Universe", subjectId: $u, action: "Use", requests: [inputs | {assetId: tonumber, grantToDependencies: false}]}')
+		data=$(printf '%s\n' "${batch[@]}" | jq -Rn --arg t "$SUBJECT_TYPE" --arg u "$SUBJECT_ID" \
+			'{subjectType: $t, subjectId: $u, action: "Use", requests: [inputs | {assetId: tonumber, grantToDependencies: false}]}')
 		call "$data"
 		case "$status" in
 		200) ;;

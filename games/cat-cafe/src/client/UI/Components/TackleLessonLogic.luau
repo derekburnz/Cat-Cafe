@@ -35,7 +35,7 @@ function TackleLessonLogic.lines(device: Device): { string }
 		"Other players can tackle you while you carry!",
 		"Get tackled and you drop your cat!",
 		(HOW :: any)[device] or HOW.keyboard,
-		"Camps and catches are safe from tackles",
+		"You're safe while catching a cat", -- #2312: since #2284 only the catch minigame is safe, not the camps
 	}
 end
 

@@ -338,10 +338,13 @@ function Catching.spreadPick(points: { Vector3 }, taken: { Vector3 }, roll: numb
 	return last -- roll 1: the last far-enough point
 end
 
--- The zones Epic and rarer strays keep to: the Alleyway's "nook" points (town-layout-v3.md 7e: the exciting cats
--- wait at the back alleys' ends, so no cafe's lane is the lucky one) and a v3.2 side area's "deep" ones (section 8d:
--- the rarer the cat, the longer the walk to it).
-local KEEP_ZONES: { [string]: boolean } = { nook = true, deep = true }
+-- The zones the rarest strays keep to, each with the rarest that it holds them to: the Alleyway's "nook" points, Epic
+-- and up (town-layout-v3.md 7e: the exciting cats wait at the back alleys' ends, so no cafe's lane is the lucky one),
+-- and a side area's "deep" ones, Mythical only (section 8d: the rarer the cat, the longer the walk to it). #2210
+-- (crispi_255 via Derek2, 2026-11-07: the good cats "only spawn at the back"): "deep" held Epic and up as well, so
+-- every Epic and Legendary in the Park, Sewer, Neighbourhood and Woods stood in the far half. They spawn anywhere in
+-- the area now, spread from the others like any stray.
+Catching.KEEP_ZONES = table.freeze({ nook = "Epic", deep = "Mythical" }) :: { [string]: string }
 
 -- A "rare" spawn point is a rare-biased nook (the Great Oak's top in the Woods, Derek 2026-10-28 01:35): only a Rare
 -- or rarer stray takes it, and one takes it first while it is free, so whoever climbs up finds a Rare or better.
@@ -350,9 +353,10 @@ Catching.RARE_ZONE = "rare"
 export type SpawnSlot = { zone: string?, free: boolean }
 
 -- The spawn points, as indexes into `slots`, that a new stray of `rarity` may take: a free "rare" point for a Rare
--- or rarer stray when there is one; else, for Epic and rarer in an area with "nook" or "deep" points, only the free
--- ones of those (none free: none, and the stray waits for the next wave; spawnWave places the rarest first, so this
--- is rare); else every free point but a "rare" one. A nil rarity (a carried cat sent home) is any but a "rare" one.
+-- or rarer stray when there is one; else, in an area with points of a KEEP_ZONES zone that holds this rarity (a
+-- "nook" Epic and up, a "deep" Mythical), only the free ones of those (none free: none, and the stray waits for the
+-- next wave; spawnWave places the rarest first, so this is rare); else every free point but a "rare" one. A nil
+-- rarity (a carried cat sent home) is any but a "rare" one.
 function Catching.spawnPool(slots: { SpawnSlot }, rarity: Types.Rarity?): { number }
 	local rare: { number } = {}
 	local kept: { number } = {}
@@ -360,7 +364,8 @@ function Catching.spawnPool(slots: { SpawnSlot }, rarity: Types.Rarity?): { numb
 	local hasKept = false
 	for i, slot in slots do
 		local zone = slot.zone
-		local keep = zone ~= nil and KEEP_ZONES[zone] == true
+		local floor = if zone ~= nil then Catching.KEEP_ZONES[zone] else nil
+		local keep = rarity ~= nil and floor ~= nil and Catching.rarityAtLeast(rarity, floor)
 		hasKept = hasKept or keep
 		if not slot.free then
 			continue
@@ -377,7 +382,7 @@ function Catching.spawnPool(slots: { SpawnSlot }, rarity: Types.Rarity?): { numb
 	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Rare") and #rare > 0 then
 		return rare
 	end
-	if rarity ~= nil and Catching.rarityAtLeast(rarity, "Epic") and hasKept then
+	if hasKept then
 		return kept
 	end
 	return open

@@ -33,6 +33,7 @@
 --   D:Invoke("restartNotice", 300)     -- the restart countdown's 5 minute warning to everyone; returns its text
 --   D:Invoke("tradeMinTier", 0)        -- trading from Tier 0 in this server (F102; nil goes back to the flag or Config)
 --   D:Invoke("trading", false)         -- the trading kill switch off in this server, as CatCafe_Flags would (F102)
+--   D:Invoke("flag", "codes", false)   -- a live switch (codes or rally) off in this server, as CatCafe_Flags would (#2119)
 --   D:Invoke("freshCatch")             -- forget this window's Fresh Catch buys and heads up; returns the stock (F94)
 --   D:Invoke("cancelMinigames")       -- ends your rescue (Give up), your help on one, and your running catches
 --   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
@@ -72,6 +73,7 @@ local FishMarketService = require(script.Parent.FishMarketService)
 local FreshCatch = require(ReplicatedStorage.Shared.FreshCatch)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LeaderboardService = require(script.Parent.LeaderboardService)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local MysteryService = require(script.Parent.MysteryService)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
@@ -270,6 +272,14 @@ end
 function Debug.trading(on: unknown): boolean
 	guard()
 	return TradeService.debugTrading(if type(on) == "boolean" then on else nil)
+end
+
+-- #2119: live switch `key` ("codes" or "rally") in this server (true on, false off, nil back to CatCafe_Flags);
+-- returns whether it is on.
+function Debug.flag(key: unknown, on: unknown): boolean
+	guard()
+	assert(type(key) == "string", "flag needs a switch name")
+	return LiveFlagService.debugSet(key, if type(on) == "boolean" then on else nil)
 end
 
 function Debug.rally(player: (Player | number | string)?, action: string?, value: any): string

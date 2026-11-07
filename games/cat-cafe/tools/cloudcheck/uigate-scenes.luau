@@ -987,6 +987,35 @@ local SCENES = {
 		UI.open("Decor")
 		press("Decor", "Style")
 	end },
+	-- #2147 (store-pass-looks.md 7.4): with the Cat Accessories pass owned, the accessory row has its small gold line
+	-- under the buttons, "+15% money on every working cat, whatever you pick"
+	{ "DecorStyleOutfitNote", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		UI.store.preview(storePrices(true), { [Config.CatAccessoriesPassId] = true })
+		UI.update({
+			looks = {
+				uniform = "midnight",
+				uniforms = { "default", "striped", "midnight" },
+				accessory = "",
+				accessories = { "hat", "glasses" },
+				theme = "garden",
+				themes = { "default", "garden" },
+			},
+		})
+		UI.open("Decor")
+		press("Decor", "Style")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local tab = modals and modals:FindFirstChild("StyleTab", true)
+		local row = tab and tab:FindFirstChild("accessory")
+		local note = row and row:FindFirstChild("Note") :: TextLabel?
+		assert(note and note.Visible, "uigate: no +15% line under the accessory row (#2147)")
+		assert((note :: TextLabel).TextFits, "uigate: the accessory row's +15% line does not fit (#2147)")
+		local options = (row :: Instance):FindFirstChild("Options") :: GuiObject
+		assert((note :: TextLabel).AbsolutePosition.Y >= options.AbsolutePosition.Y + options.AbsoluteSize.Y - 1, "uigate: the +15% line is not under the buttons (#2147)")
+		local uniform = tab:FindFirstChild("uniform")
+		assert(uniform and uniform:FindFirstChild("Note") == nil, "uigate: the uniform row has a note (#2147)")
+		UI.store.preview({}, {})
+	end },
 	-- #2007 (Derek2: "cafe sign cant change back to plain also put symbols beside each one"): every sign style with
 	-- its symbol, Paw Chalkboard in use, then the sync for Plain ("" now, where nil left the old pick gold)
 	{ "DecorStylePlain", function()
@@ -2596,6 +2625,21 @@ local SCENES = {
 			passBoosts = { cafe = 0.6, staff = 1.3225, rich = 1.25, money = 2 },
 		})
 		press("CatCafeHUD", "Counters.Money")
+		-- #2147: each outfit pass on its own row by name, "+15%", in place of "Outfit passes x1.32"
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local named: { [string]: boolean } = {}
+		for _, label in (hud :: Instance):GetDescendants() do
+			if label:IsA("TextLabel") and label.Visible then
+				for _, name in { "Cat Accessories", "Uniform Styles" } do
+					if string.find(label.Text, name, 1, true) then
+						assert(label.TextFits, "uigate: the " .. name .. " boost row does not fit (#2147)")
+						named[name] = true
+					end
+				end
+				assert(not string.find(label.Text, "Outfit passes", 1, true), "uigate: the money card still says Outfit passes (#2147)")
+			end
+		end
+		assert(named["Cat Accessories"] and named["Uniform Styles"], "uigate: the money card names no outfit pass (#2147)")
 	end },
 	-- F88: a Lucky Day with a Lucky Potion running: the Luck chip with gold text at the start of the potion row, its card
 	-- open over the counters (closing the boosts card), and "Lucky Day now" under the clock
@@ -3074,6 +3118,51 @@ local SCENES = {
 		UI.open("Store")
 		press("CatCafeModals", "passes")
 		assertStoreCards(false)
+	end },
+	-- #2147 (Derek2: "make the +15% earned more obvious"): the Cat Accessories and Uniform Styles cards lead their words
+	-- with a gold "+15% money" chip, under the picture and over the words; no other card has one
+	{ "StorePassesPerk", function()
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		press("CatCafeModals", "passes")
+		assertStoreCards(false)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Store", true)
+		local list = window and window:FindFirstChild("List", true)
+		local chips: { [string]: boolean } = {}
+		for _, label in (list :: Instance):GetDescendants() do
+			if not (label:IsA("TextLabel") and label.Name == "Name" and label.Visible) then
+				continue
+			end
+			local card = label.Parent :: Frame
+			local perk = card:FindFirstChild("Perk") :: TextLabel?
+			local effect = card:FindFirstChild("Effect") :: TextLabel
+			local shown = perk ~= nil and perk.Visible
+			if label.Text == "Cat Accessories" or label.Text == "Uniform Styles" then
+				assert(shown and (perk :: TextLabel).Text == "+15% money", "uigate: the " .. label.Text .. " card has no +15% money chip (#2147)")
+				local chip = perk :: TextLabel
+				assert(chip.TextFits, "uigate: the +15% chip's words do not fit (#2147)")
+				assert(effect.AbsolutePosition.Y >= chip.AbsolutePosition.Y + chip.AbsoluteSize.Y, "uigate: the " .. label.Text .. " words sit on the chip (#2147)")
+				assert(chip.AbsolutePosition.Y >= label.AbsolutePosition.Y + label.AbsoluteSize.Y - 1, "uigate: the chip sits on the name (#2147)")
+				local cardRight = card.AbsolutePosition.X + card.AbsoluteSize.X
+				assert(chip.AbsolutePosition.X + chip.AbsoluteSize.X <= cardRight, "uigate: the chip runs off the card (#2147)")
+				chips[label.Text] = true
+			else
+				assert(not shown, "uigate: the " .. label.Text .. " card has a perk chip (#2147)")
+			end
+		end
+		assert(chips["Cat Accessories"] and chips["Uniform Styles"], "uigate: an outfit pass card is missing (#2147)")
+		-- 7.3: the prompt says Cat Accessories was just bought: the thank-you toast (the sparkle is Animation's)
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local PassShop = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.PassShop")
+		PassShop.purchased:Fire(Config.CatAccessoriesPassId)
+		local toast = nil
+		for _, label in UIShim.playerGui:GetDescendants() do
+			if label:IsA("TextLabel") and string.find(label.Text, "Your working cats now earn +15%!", 1, true) then
+				toast = label
+			end
+		end
+		assert(toast and toast.Text == "🎀 Your working cats now earn +15%!", "uigate: no +15% toast after buying Cat Accessories (#2147)")
 	end },
 	-- #2010 (Derek2: "extra food bowl is missing from live game store"): the Cats tab sells the Second Bait Bowl
 	{ "StoreCatsBowl", function()

@@ -6,12 +6,17 @@
 -- owned style as a button with its symbol (#2007); the one in use is gold, and the row's title names it. A tap is a request: the callback becomes SetSignStyle or SetLook,
 -- which the server checks, and the next ProfileSync moves the gold.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local PassShop = require(script.Parent.Parent.Components.PassShop)
 local Scale = require(script.Parent.Parent.Scale)
 local StyleLogic = require(script.Parent.Parent.Components.StyleLogic)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
+
+local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = Theme.dark
@@ -28,6 +33,7 @@ export type StyleTab = {
 }
 
 local TITLE_H = 26
+local NOTE_H = 18 -- #2147: the accessory row's small line under its buttons
 local OPTION_W = 164
 local ROW_GAP = 14
 
@@ -40,6 +46,7 @@ function StyleTab.new(parent: Instance, callbacks: Callbacks): StyleTab
 	self._buttons = {} :: { Button.Button }
 	self._rows = {} :: { Frame }
 	self._titles = {} :: { TextLabel }
+	self._notes = {} :: { [number]: TextLabel } -- #2147: a row's note line, by row index
 	self._shape = "" -- the kinds and option ids on show; a change rebuilds the rows
 	self._optionH = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
 	self.frame = Create("ScrollingFrame", {
@@ -74,6 +81,7 @@ function StyleTab._clear(self: any)
 	end
 	table.clear(self._rows)
 	table.clear(self._titles)
+	table.clear(self._notes)
 end
 
 -- A row's title and its option buttons, which wrap onto more lines on a narrow window.
@@ -87,6 +95,13 @@ function StyleTab._build(self: any, rows: { StyleLogic.Row })
 			Size = UDim2.new(1, 0, 0, 0),
 			LayoutOrder = index,
 			Parent = self.frame,
+		}, {
+			-- the title, its buttons, then (#2147) a note line when the row has one
+			Create("UIListLayout", {
+				FillDirection = Enum.FillDirection.Vertical,
+				Padding = UDim.new(0, 4),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+			}),
 		})
 		local title: TextLabel = Create("TextLabel", {
 			Name = "Title",
@@ -97,6 +112,7 @@ function StyleTab._build(self: any, rows: { StyleLogic.Row })
 			TextColor3 = PAL.text,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			Text = StyleLogic.inUse(row),
+			LayoutOrder = 1,
 			Parent = frame,
 		})
 		table.insert(self._titles, title)
@@ -104,8 +120,8 @@ function StyleTab._build(self: any, rows: { StyleLogic.Row })
 			Name = "Options",
 			BackgroundTransparency = 1,
 			AutomaticSize = Enum.AutomaticSize.Y,
-			Position = UDim2.fromOffset(0, TITLE_H + 4),
 			Size = UDim2.new(1, 0, 0, 0),
+			LayoutOrder = 2,
 			Parent = frame,
 		}, {
 			Create("UIListLayout", {
@@ -135,6 +151,23 @@ function StyleTab._build(self: any, rows: { StyleLogic.Row })
 			})
 			table.insert(self._buttons, button)
 		end
+		local note = StyleLogic.NOTES[row.kind]
+		if note then
+			self._notes[index] = Create("TextLabel", {
+				Name = "Note",
+				BackgroundTransparency = 1,
+				Size = UDim2.new(1, 0, 0, NOTE_H),
+				FontFace = Theme.fonts.body,
+				TextSize = Theme.sizes.textSmall,
+				TextColor3 = Theme.colors.gold,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				TextTruncate = Enum.TextTruncate.AtEnd,
+				Text = note,
+				Visible = false,
+				LayoutOrder = 3,
+				Parent = frame,
+			})
+		end
 		table.insert(self._rows, frame)
 	end
 end
@@ -153,6 +186,15 @@ function StyleTab.render(self: any, state: Types.PlayerState)
 	if shape ~= self._shape then
 		self._shape = shape
 		self:_build(rows)
+	end
+	-- #2147: the accessory row's "+15% money" line while Roblox says the Cat Accessories pass is owned (a Cafe Pass
+	-- accessory alone earns nothing)
+	local ownsAccessories = PassShop.owned()[Config.CatAccessoriesPassId or 0] == true
+	for rowIndex, row in rows do
+		local note: TextLabel? = self._notes[rowIndex]
+		if note then
+			note.Visible = row.kind == "accessory" and ownsAccessories
+		end
 	end
 	-- the gold and the title follow the pick
 	local index = 0

@@ -2720,6 +2720,14 @@ function UI.intro.jobCard(worldPosition: Vector3, role: string)
 	end
 end
 
+-- #2242: the rich visitor shot's grab, a big gold "+$<amount>" over the tip bag at `worldPosition`, rising and gone
+-- by 1.6 s. `amount` is the tip at Tier 1 rates (the controller's sum); nothing is paid.
+function UI.intro.tipPop(worldPosition: Vector3, amount: number)
+	if introScreen then
+		introScreen:tipPop(worldPosition, amount)
+	end
+end
+
 -- The end, after the last shot or on Skip: the bars slide out over 0.45 s and everything hidden comes back.
 function UI.intro.finish()
 	if introScreen then

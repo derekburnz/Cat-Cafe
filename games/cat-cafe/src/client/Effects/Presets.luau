@@ -3788,6 +3788,21 @@ Presets.netPin = {
 
 -- The bedtime walk drawn on each client (#2050, BedWalk.luau): when the trip ends the copy fades out over `fade`
 -- seconds as the server's model, landed on the bed or back at its station, fades in.
+-- A cafe cat walking to its new spot when it changes spot (#2050, Effects/SlotWalk): only for a model whose Uid left
+-- the same plot's Cats at most `window` seconds before and that lands at least `minStuds` away and no more than
+-- `maxRise` up or down (not onto the counter or a cat tree); it trots at `speed`
+-- (faster when the way is long, so it arrives within `maxSeconds`), turns `turn` degrees a second, and the copy
+-- cross-fades with the new model over `fade` seconds once it is there.
+Presets.slotWalk = {
+	window = 1.5,
+	minStuds = 2,
+	maxRise = 1,
+	speed = 7,
+	maxSeconds = 4,
+	turn = 540,
+	fade = 0.25,
+}
+
 Presets.bedWalk = { fade = 0.25 }
 
 return Presets

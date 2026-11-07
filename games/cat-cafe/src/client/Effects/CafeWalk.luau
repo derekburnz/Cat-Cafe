@@ -359,6 +359,7 @@ local function free(cat: Model): boolean
 		and (cat:GetAttribute("Pose") == "sit" or cat:GetAttribute("Pose") == "work")
 		and cat:GetAttribute("Bedtime") == nil
 		and cat:GetAttribute("HiddenLocal") ~= true
+		and cat:GetAttribute("SlotWalkLocal") ~= true -- still walking over to this spot (SlotWalk, #2050)
 		and not Context.isNight()
 		and Context.distance(cat:GetPivot().Position) <= Presets.cafeWalk.range
 end

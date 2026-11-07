@@ -373,11 +373,13 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 			- PERKS_RIGHT * scaleOf(header)
 			- Theme.sizes.gap * 2
 		local want = if room > 0 and natural > room then room / natural else 1
-		-- #2270: the pills' pixel padding and borders do not shrink with the scale, so `natural` moves a little with
-		-- each new Scale and the fit could flip between two or three values every frame; a smaller scale always
-		-- applies, a larger one only past a 4% step
+		-- #2270, #2301 (Derek2: "the index bar attached is spazzing back and fourth"): the pills' pixel padding,
+		-- borders and whole pixel text sizes do not shrink in step with the scale, so `natural` moves a little with
+		-- each new Scale and the fit flipped between two or three values every frame. The row shrinks only while it
+		-- really overflows at its current scale (measured, not estimated), and grows only past a 4% step.
 		local now = perksScale.Scale
-		if want < now or want - now > 0.04 or want == 1 then
+		local overflows = room > 0 and perksLayout.AbsoluteContentSize.X > room + 1
+		if (overflows and want < now) or want - now > 0.04 then
 			perksScale.Scale = want
 		end
 	end

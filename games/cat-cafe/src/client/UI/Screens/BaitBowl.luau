@@ -295,7 +295,7 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 			Padding = UDim.new(0, Theme.sizes.gap),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		Create("UIPadding", { PaddingRight = UDim.new(0, 10), PaddingBottom = UDim.new(0, 6) }),
+		Outline.listPadding(10, 6), -- #2294: room for the cards' outlines
 	})
 
 	-- #1161, #1767: under the locked bowl 2's card, what the pass gives in three short lines

@@ -17,6 +17,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
+local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PassLogic = require(script.Parent.Parent.Components.PassLogic)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
@@ -283,7 +284,12 @@ function CafePassScreen.new(callbacks: Callbacks): CafePass
 			Padding = UDim.new(0, COL_GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		Create("UIPadding", { PaddingRight = UDim.new(0, 6) }),
+		-- #2294: the first column's cards kept off the left edge, so their outlines aren't cut off (the level row
+		-- above and TRACK_PAD below leave the rest of the room)
+		Create(
+			"UIPadding",
+			{ PaddingLeft = UDim.new(0, Outline.ROOM), PaddingRight = UDim.new(0, 6) }
+		),
 	})
 	self._foot = text({
 		Name = "Later",

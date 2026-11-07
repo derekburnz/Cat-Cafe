@@ -18,6 +18,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local LawnLogic = require(script.Parent.Parent.Components.LawnLogic)
+local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
@@ -120,7 +121,7 @@ function LawnTab.new(parent: Instance, callbacks: Callbacks?): LawnTab
 			Padding = UDim.new(0, Theme.sizes.gap),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		Create("UIPadding", { PaddingRight = UDim.new(0, 10) }),
+		Outline.listPadding(10), -- #2294: room for the cards' outlines
 	})
 	self._sections = {} :: { [string]: any }
 	local more = self:_cells("More", 100000)

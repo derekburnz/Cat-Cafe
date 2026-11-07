@@ -36,6 +36,23 @@ end
 
 -- Lighter at the top, a touch darker at the bottom. UIGradient multiplies the background colour, so this
 -- works on any fill without new colour tokens.
+-- #2294 (Derek2: "the outline of the outside of the boxes sometimes get cut off"): a Border stroke draws outside its
+-- box, and a ScrollingFrame clips what it holds, so a card flush with the list's edge lost that side of its outline.
+-- ROOM is the inset a scrolling list or grid keeps on every side (the thickest card ring is 4 px), and listPadding
+-- builds that UIPadding; `right` makes room for the scroll bar too. The bottom inset also ends the canvas past the
+-- last row's outline.
+Outline.ROOM = 5
+
+-- (typed Instance, so it sits in a Create children list beside the layout)
+function Outline.listPadding(right: number?, bottom: number?): Instance
+	return Create("UIPadding", {
+		PaddingLeft = UDim.new(0, Outline.ROOM),
+		PaddingTop = UDim.new(0, Outline.ROOM),
+		PaddingRight = UDim.new(0, math.max(right or 0, Outline.ROOM)),
+		PaddingBottom = UDim.new(0, math.max(bottom or 0, Outline.ROOM)),
+	})
+end
+
 function Outline.shade(gui: GuiObject, depth: number?): UIGradient
 	local bottom = 1 - (depth or 0.16)
 	return Create("UIGradient", {

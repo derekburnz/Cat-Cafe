@@ -51,6 +51,11 @@ local Config = {
 	CafeStyleRichRate = 0.25,
 	GrandRichRate = 1.0,
 	GrandExtraSlots = 1, -- #1624: Grand Cafe's +1 job slot at every tier, adding to each Extra Slot pass's 1
+	-- #1955 (auto-equip.md): Auto Equip (settings.autoEquip) runs Equip Best by itself at most once every
+	-- AutoEquipEverySeconds a player (runs asked for in between are merged), never moving a cat placed or rested by hand
+	-- in the last AutoEquipHoldSeconds
+	AutoEquipEverySeconds = 3,
+	AutoEquipHoldSeconds = 600,
 	-- Developer product ids (#1182) by Catalog.products id; a 0 is never granted. ProductService's ProcessReceipt reads
 	-- them. Tools-Agent made these with dev-products.yml on 2026-11-04 (tools/opencloud/products.json), off sale until
 	-- launch. The Starter Bundle (3728336166) and Cafe Pass (3728336202) products were made the same way.

@@ -335,4 +335,62 @@ return function()
 			expect(profile.cats.c.spotId ~= nil and profile.cats.a.spotId ~= nil).to.equal(true)
 		end)
 	end)
+
+	describe("Auto Equip's held cats (#1955, auto-equip.md)", function()
+		-- a Tier 1 cafe (barista_1 and waiter_1) and three cats of rising charm; the best take the two slots
+		local function cafe()
+			local profile: any = profileAt(1)
+			local weak = addCat(profile, "weak", "tabby", 10, 1, "barista_1")
+			local mid = addCat(profile, "mid", "tabby", 50, 1, "waiter_1")
+			local best = addCat(profile, "best", "tabby", 100, 30, nil)
+			return profile, weak, mid, best
+		end
+		local function none(_uid: string): boolean
+			return false
+		end
+
+		it("holds a locked working cat, a cat placed by hand within the hold and a cat on offer", function()
+			local profile, weak, mid = cafe()
+			weak.locked = true
+			local resting = addCat(profile, "rest", "tabby", 60, 1, nil)
+			resting.locked = true
+			local held = EquipBest.held(profile, 1000, { mid = 1000 - Config.AutoEquipHoldSeconds + 1 }, none)
+			expect(held.weak).to.equal(true)
+			expect(held.mid).to.equal(true)
+			expect(held.rest).to.equal(nil) -- a locked cat resting may still be put to work
+			expect(held.best).to.equal(nil)
+			local later = EquipBest.held(profile, 1000, { mid = 1000 - Config.AutoEquipHoldSeconds }, function(uid)
+				return uid == "best"
+			end)
+			expect(later.mid).to.equal(nil) -- the hold is over
+			expect(later.best).to.equal(true)
+		end)
+
+		it("never moves a held cat and fills the other slots with the best of the rest", function()
+			local profile, weak = cafe()
+			local plain = EquipBest.plan(profile)
+			expect(plain.placements.best).never.to.equal(nil)
+			expect(plain.placements.weak).to.equal(nil) -- the plain plan rests the weakest
+			local plan = EquipBest.planKeeping(profile, { weak = true })
+			expect(plan.placements.weak).to.equal("barista_1")
+			expect(plan.placements.best).to.equal("waiter_1")
+			expect(plan.placements.mid).to.equal(nil)
+			expect(plan.catsPlaced).to.equal(2)
+			EquipBest.apply(profile, plan)
+			expect(weak.spotId).to.equal("barista_1")
+			expect(EquipBest.isOptimal(profile, EquipBest.planKeeping(profile, { weak = true }))).to.equal(true)
+		end)
+
+		it("leaves a held resting cat resting, and with nothing held plans as Equip Best does", function()
+			local profile = cafe()
+			local plan = EquipBest.planKeeping(profile, { best = true })
+			expect(plan.placements.best).to.equal(nil)
+			local free = EquipBest.planKeeping(profile, {})
+			local plain = EquipBest.plan(profile)
+			expect(free.baseRate).to.be.near(plain.baseRate, 1e-9)
+			for uid, spotId in plain.placements do
+				expect(free.placements[uid]).to.equal(spotId)
+			end
+		end)
+	end)
 end

@@ -28,6 +28,9 @@ Settings.kinds = {
 	tradeRequests = "choice",
 	roadmapOpen = "switch", -- #1893: the Grand Opening strip opened into its list (remembered)
 	sessionRecap = "switch", -- #1920: the session recap card after about 40 minutes of play
+	-- #1955 (auto-equip.md): Equip Best runs by itself after a new or better cat. On for new accounts; a save from
+	-- before it has no value and reads as off until the player turns it on (Settings.sanitize)
+	autoEquip = "switch",
 } :: { [string]: Kind }
 
 -- A choice key -> the strings it takes, the default first.
@@ -50,6 +53,7 @@ function Settings.defaults(): Types.Settings
 		tradeRequests = "everyone",
 		roadmapOpen = false,
 		sessionRecap = true,
+		autoEquip = true,
 	}
 end
 
@@ -84,6 +88,7 @@ end
 function Settings.sanitize(raw: unknown): Types.Settings
 	local settings = Settings.defaults()
 	if type(raw) == "table" then
+		settings.autoEquip = false -- #1955: a save from before Auto Equip starts with it off
 		local out = settings :: any
 		for key in Settings.kinds do
 			local value = Settings.clean(key, (raw :: any)[key])

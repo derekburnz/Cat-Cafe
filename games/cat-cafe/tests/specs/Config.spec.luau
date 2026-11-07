@@ -352,6 +352,8 @@ return function()
 		CafeStyleRichRate = 0.25,
 		GrandRichRate = 1.0,
 		GrandExtraSlots = 1,
+		AutoEquipEverySeconds = 3, -- #1955 (auto-equip.md): one Auto Equip run every 3 s at most
+		AutoEquipHoldSeconds = 600, -- #1955: a cat placed by hand stays 10 minutes
 	}
 
 	-- v0.3 section 17 values not built yet: name -> { value, feature }

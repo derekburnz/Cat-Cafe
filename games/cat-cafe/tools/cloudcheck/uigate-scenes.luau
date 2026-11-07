@@ -2387,6 +2387,28 @@ local SCENES = {
 		-- an ask (the invite nudge) waits for the Welcome back card (Studio run 2026-11-07)
 		assert(not UI.tips.quiet(), "uigate: an ask could slide in under the Welcome back card")
 	end },
+	-- #2157 (Desktop-Tester on #2128): a replay asked for with Settings open and the Welcome back card up closes
+	-- Settings at once and collects the earnings, so the card never comes back after the intro
+	{ "IntroReplayTidy", function()
+		UI.update({ tipsSeen = { stuck_cat = true, codes_cat = true } })
+		local claimed = 0
+		local counting = UI.events.claimOffline:Connect(function()
+			claimed += 1
+		end)
+		UI.showOfflineEarnings(48200, 3 * 3600)
+		UI.open("Settings")
+		assert(UI.isOpen() == "Settings", "uigate: Settings did not open")
+		UI.events.introReplay:Fire()
+		assert(UI.isOpen() == nil, "uigate: Settings stays open on a replay (#2157)")
+		assert(claimed == 1, ("uigate: the replay collected the earnings %d times, not once (#2157)"):format(claimed))
+		UIShim.advance(1)
+		local popups = UIShim.playerGui:FindFirstChild("CatCafePopups")
+		local card = popups and popups:FindFirstChild("Offline", true) :: GuiObject?
+		assert(card == nil or not card.Visible, "uigate: the Welcome back card is still up after a replay (#2157)")
+		UI.events.introReplay:Fire()
+		assert(claimed == 1, "uigate: a second replay collected again (#2157)")
+		counting:Disconnect()
+	end },
 	-- F87 section 2f: a brand new player's small HUD, the money, the hint strip, Home and the Cannon, the Tutorial
 	-- tile and Settings
 	{ "SmallHUD", function()

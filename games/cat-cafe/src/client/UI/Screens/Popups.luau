@@ -52,6 +52,7 @@ export type Popups = {
 		note: string?
 	) -> (),
 	showGift: (self: Popups, title: string, prize: Types.IndexPrize) -> (),
+	dropOffline: (self: Popups) -> boolean,
 	setCatalog: (self: Popups, catalog: Types.Catalog) -> (),
 	dismiss: (self: Popups) -> (),
 	setHeld: (self: Popups, held: boolean) -> (),
@@ -756,9 +757,27 @@ function Popups.showOffline(
 	end
 	self._offlineWaiting = true
 	self:_show(function()
+		if not self._offlineWaiting then
+			self:_next() -- #2157: dropped while it waited (dropOffline)
+			return
+		end
 		self:_open(self._offlineCard)
 		fill()
 	end)
+end
+
+-- #2157: takes the Welcome back card away without a tap, whether it is up or still waiting (an intro replay). True
+-- when there was one, so the caller can collect the earnings in its place.
+function Popups.dropOffline(self: any): boolean
+	if not self._offlineWaiting then
+		return false
+	end
+	self._offlineWaiting = false
+	self._offline = nil
+	if self._current == self._offlineCard then
+		self:dismiss()
+	end
+	return true
 end
 
 -- The food names on the gift card's pictures (PrizeChips)

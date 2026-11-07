@@ -448,7 +448,7 @@ local function refreshBait(s: Types.PlayerState)
 			local key = string.format("%s@%d", cat.catId, bait.readyAt)
 			if key ~= shownBaitKeys[index] then
 				shownBaitKeys[index] = key
-				baitUI.showReady(cat, index)
+				baitUI.arrived(cat, index) -- #2014: waits while a catch or rescue runs
 			end
 		end
 	end

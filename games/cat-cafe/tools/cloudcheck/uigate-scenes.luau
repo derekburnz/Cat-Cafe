@@ -914,6 +914,21 @@ local SCENES = {
 	{ "Cats", function()
 		UI.open("Cats")
 	end },
+	-- #1955 (auto-equip.md): the Auto Equip switch at the crew strip's right end, over Equip Best, gold while on; it
+	-- shows once the server saves settings.autoEquip
+	{ "CatsAutoEquip", function()
+		local before = (UI.getState() :: any).settings
+		local settings = table.clone(before or {})
+		settings.autoEquip = true
+		Scenes._settings = before -- Scenes.close puts the settings back
+		UI.update({ settings = settings } :: any)
+		UI.open("Cats")
+		local SettingsList = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.SettingsList")
+		if SettingsList.isKey(SettingsList.AUTO_EQUIP_KEY) then
+			local switch = UIShim.playerGui:FindFirstChild("AutoEquip", true)
+			assert(switch and switch.Visible, "uigate: no Auto Equip switch in the Cats window (#1955)")
+		end
+	end },
 	{ "CatsPicked", function()
 		UI.open("Cats")
 		-- the cards build on the next frame; the gold cat, level 13, at work: favourite or Likes, Gold and level chips
@@ -1063,6 +1078,37 @@ local SCENES = {
 		assert(card:FindFirstChild("Line4").Visible, "uigate: no offline line on the recap")
 		UI.recap.show({ minutes = 80, newCats = 1, earned = 1 })
 		assert(first.Text == "Today: 3 new cats, $12,500 earned", "uigate: the recap showed twice in a session (#1920)")
+	end },
+	-- #1947 (like-prompts.md section 2): the like and favourite gift cards, paid before they show, with "Gift added!",
+	-- the coins Payout paid and the potions, and the first button and Close the same size
+	{ "GiftCardLike", function()
+		UI.recap.lastInput = os.clock() - 30 -- idle
+		UI.gift.show("like", { "+$12500", "1 Tip Potion" })
+		local card = UIShim.playerGui:FindFirstChild("CatCafeGift"):FindFirstChild("Card", true)
+		assert(card.Visible, "uigate: no like gift card when idle (#1947)")
+		local action = card:FindFirstChild("Action", true)
+		local close = card:FindFirstChild("Close", true)
+		assert(action.Visible and action.Size == close.Size, "uigate: the gift card's Close is not the same size as its ask (#1947)")
+	end },
+	{ "GiftCardFav", function()
+		UI.recap.lastInput = os.clock() - 30
+		UI.gift.show("fav", { "+$25000", "1 Tip Potion", "1 Lucky Potion", "1 Swift Potion" })
+		local card = UIShim.playerGui:FindFirstChild("CatCafeGift"):FindFirstChild("Card", true)
+		assert(card.Visible, "uigate: no favourite gift card when idle (#1947)")
+	end },
+	-- Like the game pressed: the thumbs-up hint and Close alone; the press is reported once
+	{ "GiftCardLiked", function()
+		local reports = {}
+		local watch = UI.events.playtimeGift:Connect(function(what)
+			table.insert(reports, what)
+		end)
+		UI.recap.lastInput = os.clock() - 30
+		UI.gift.show("like", { "+$12500", "1 Tip Potion" })
+		press("CatCafeGift", "Action")
+		watch:Disconnect()
+		assert(#reports == 1 and reports[1] == "like:like", "uigate: Like the game reported " .. table.concat(reports, ", ") .. " (#1947)")
+		local card = UIShim.playerGui:FindFirstChild("CatCafeGift"):FindFirstChild("Card", true)
+		assert(card.Visible and not card:FindFirstChild("Action", true).Visible, "uigate: the like card did not thank after Like (#1947)")
 	end },
 	-- #1919 (first-hour.md 5): while step 7 (twelve cats) is next, the goal card reads "Find N more cats" with the
 	-- Index icon; a tap opens the Index on an open area's page and reports index_hint_tap with it
@@ -1274,6 +1320,13 @@ local SCENES = {
 	end },
 	{ "TipJar", function()
 		UI.tipJar.open()
+	end },
+	-- #1965: the HUD's Pass tile while a season runs, with the Cafe Pass ticket and a reward ready to claim
+	{ "HUDPass", function()
+		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,
+			levels = 30, paid = false, claimedFree = { 2 }, claimedPaid = {}, claimable = 1, items = {} })
+		local tile = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Pass", true)
+		assert(tile and tile.Visible, "uigate: no Pass tile while a season runs (#1965)")
 	end },
 	-- #1646: the Cafe Pass at level 4 with level 2's free spin claimed, the paid track locked
 	{ "CafePass", function()
@@ -2353,7 +2406,7 @@ local SCENES = {
 		UI.store.preview(storePrices(true), {})
 	end },
 	-- #1606: the money pass badge beside the money: the rainbow "X2 Cash / Only R$5" (#1759) with no money pass and the
-	-- 2x on sale, "3x" once owned
+	-- 2x on sale; once owned, "💰 Cash x3" on the side over the money (#1962)
 	{ "HUDMoneyBadge", function()
 		UI.store.preview(storePrices(true), {})
 	end },
@@ -2374,6 +2427,9 @@ local SCENES = {
 	{ "HUDMoneyBadgeOwned", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[3]] = true })
+		-- #1962: the owned multiplier is the bold gold chip on the side, over the money
+		local chip = UIShim.playerGui:FindFirstChild("CashChip", true)
+		assert(chip and chip.Visible and chip.Text == "💰 Cash x3", "uigate: the cash chip reads " .. tostring(chip and chip.Text) .. " (#1962)")
 	end },
 	-- #1770 owner test mode: the server's OwnerTest attribute on the owner's account shows a small label up top
 	{ "HUDOwnerTest", function()
@@ -2732,6 +2788,13 @@ function Scenes.close()
 	reel(false)
 	if UI.recap.card and UI.recap.card:isShowing() then
 		UI.recap.card:hide() -- #1920
+	end
+	if Scenes._settings then
+		UI.update({ settings = Scenes._settings } :: any) -- #1955's Auto Equip scene
+		Scenes._settings = nil
+	end
+	if UI.gift.card and UI.gift.card:isShowing() then
+		UI.gift.card:hide() -- #1947
 	end
 	if Scenes._quiet then
 		local before = Scenes._quiet

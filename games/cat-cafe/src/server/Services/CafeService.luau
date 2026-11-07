@@ -39,6 +39,7 @@ local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
 local PalService = require(script.Parent.PalService)
 local PassService = require(script.Parent.PassService)
+local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
@@ -214,6 +215,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		carrying = carrying[player],
 		dataSaves = DataService.saves(),
 		tutorialStep = profile.tutorialStep,
+		playSeconds = PlayTime.seconds(player, profile), -- #1936: the store guard's first 30 minutes
 		introSeen = profile.introSeen,
 		potions = profile.potions, -- F64
 		catFood = profile.catFood, -- #1181: the Bag's cat food

@@ -37,5 +37,22 @@ return function()
 			end
 			expect(StoreFunnel.productSku(12345)).to.equal(nil)
 		end)
+
+		it("reads a store guard report as a known source and reason, and nothing else (#1936)", function()
+			for _, source in StoreFunnel.GUARD_SOURCES do
+				for _, reason in StoreFunnel.GUARD_REASONS do
+					local from, why = StoreFunnel.guardBlock(source .. ":" .. reason)
+					expect(from).to.equal(source)
+					expect(why).to.equal(reason)
+				end
+			end
+			for _, bad in { "store", "store:", ":no_tap", "shop:no_tap", "store:later", "store:no_tap:x", 7, "" } do
+				local from, why = StoreFunnel.guardBlock(bad)
+				expect(from).to.equal(nil)
+				expect(why).to.equal(nil)
+			end
+			expect(StoreFunnel.guardBlock(string.rep("a", 40) .. ":busy")).to.equal(nil)
+			expect(StoreFunnel.GUARD_BLOCKS_MAX).to.equal(20)
+		end)
 	end)
 end

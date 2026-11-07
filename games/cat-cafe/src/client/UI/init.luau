@@ -204,6 +204,9 @@ UI.events = {
 	sessionRecapClose = Signal.new(), -- (secondsUp)   forward as TelemetryReport("session_recap_close", secondsUp)
 	-- #1919 (first-hour.md section 5), analytics only: the goal card's "Find N more cats" opened the Index on this area
 	indexHintTap = Signal.new(), -- (areaId)   forward as TelemetryReport("index_hint_tap", areaId)
+	-- #1947 (like-prompts.md section 3), analytics only: the button pressed on a like or favourite gift card, once a
+	-- card ("like:like", "fav:favourite", "like:close"); a card left alone sends nothing
+	playtimeGift = Signal.new(), -- (what)   forward as TelemetryReport("playtime_gift", what)
 	-- #1936 (release.md section 3), analytics only: a purchase prompt refused with no tap or during a catch, rescue or
 	-- cutscene, "source:reason" (bait, store or cafePass; no_tap or busy)
 	storeGuardBlocked = Signal.new(), -- (what)   forward as TelemetryReport("store_guard_blocked", what)
@@ -865,6 +868,9 @@ function UI.init(config: Types.InitConfig)
 		unequipAll = function()
 			UI.events.unequipAll:Fire()
 		end,
+		setAutoEquip = function(on: boolean)
+			UI.events.setSetting:Fire("autoEquip", on) -- #1955
+		end,
 		close = closeModal,
 	})
 	rankUpScreen = RankUp.new({
@@ -1341,6 +1347,11 @@ function UI.init(config: Types.InitConfig)
 	popups = Popups.new(parent)
 	tipCard = TipCard.new(parent)
 	UI.recap.card = require(script.Screens.RecapCard).new(parent) -- #1920
+	UI.gift.card = require(script.Screens.GiftCard).new(parent) -- #1947
+	-- #1947: every press counts for the gift card's idle wait, so it never shows on an old reading
+	UI.gift.inputs = UserInputService.InputBegan:Connect(function()
+		UI.recap.lastInput = os.clock()
+	end)
 	askCard = AskCard.new(parent, {
 		lift = function()
 			return hudInstance:bottomTop() - Theme.sizes.gap
@@ -1685,6 +1696,15 @@ function UI.destroy()
 		UI.recap.card = nil
 	end
 	UI.recap.waiting = nil
+	if UI.gift.card then
+		UI.gift.card:destroy()
+		UI.gift.card = nil
+	end
+	if UI.gift.inputs then
+		UI.gift.inputs:Disconnect()
+		UI.gift.inputs = nil
+	end
+	table.clear(UI.gift.queue)
 	if askCard then
 		askCard:destroy()
 	end
@@ -6314,6 +6334,7 @@ local function recapTry(): boolean
 	local busy = (modal ~= nil and modal:current() ~= nil)
 		or (baitCard ~= nil and baitCard:isShowing())
 		or (tipCard ~= nil and tipCard:isShowing())
+		or (UI.gift.card ~= nil and UI.gift.card:isShowing())
 		or not visible
 	if
 		not RecapLogic.canShow({
@@ -6354,6 +6375,114 @@ function UI.recap.show(view: any)
 			UI.recap.watching = false
 		end)
 	end
+end
+
+-- #1947 (like-prompts.md section 2): UIController's hook for PlaytimeGift(kind, paid). The server has already paid the
+-- gift, so the card only thanks: it waits until the player has been idle Config.GiftIdleSeconds, out of the catch
+-- circles, the rescue bar, the intro, any window or card, and not carrying, then shows once. The favourite card comes
+-- a minute or more after the like card, so they queue rather than stack.
+UI.gift = {
+	card = nil :: any,
+	queue = {} :: { { kind: string, paid: { string }? } },
+	watching = false,
+	inputs = nil :: RBXScriptConnection?,
+}
+
+local function giftOpen(kind: string, paid: { string }?)
+	local GiftCardLogic = require(script.Components.GiftCardLogic)
+	local PlaytimeGifts =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("PlaytimeGifts")) :: any
+	local card = UI.gift.card
+	local prize = GiftCardLogic.prize(PlaytimeGifts.prize(kind), paid)
+	card:show(kind, prize, function(button: string?)
+		if button == nil then
+			return -- a card left alone or replaced reports nothing
+		end
+		UI.events.playtimeGift:Fire(GiftCardLogic.report(kind :: any, button))
+		if button == "favourite" then
+			-- Roblox's own favourite window for this place (a place is an asset); the gift is the same either way
+			pcall(function()
+				game:GetService("AvatarEditorService")
+					:PromptSetFavorite(game.PlaceId, Enum.AvatarItemType.Asset, true)
+			end)
+		end
+		if button ~= GiftCardLogic.CLOSE_BUTTON then
+			card:showAfter()
+		end
+	end)
+end
+
+local function giftTry(): boolean
+	local card = UI.gift.card
+	local waiting = UI.gift.queue[1]
+	if waiting == nil or card == nil then
+		return true
+	end
+	local GiftCardLogic = require(script.Components.GiftCardLogic)
+	local busy = (modal ~= nil and modal:current() ~= nil)
+		or (baitCard ~= nil and baitCard:isShowing())
+		or (tipCard ~= nil and tipCard:isShowing())
+		or (UI.recap.card ~= nil and UI.recap.card:isShowing())
+		or card:isShowing()
+		or not visible
+	if
+		not GiftCardLogic.canShow({
+			idleSeconds = recapIdleSeconds(),
+			idleNeeded = (Config :: any).GiftIdleSeconds or GiftCardLogic.IDLE_SECONDS,
+			catching = (hud ~= nil and hud:isCatching())
+				or UI.catch.circlesActive()
+				or UI.rescue.isActive(),
+			carrying = state.carrying ~= nil,
+			intro = UI.intro.playing(),
+			menuOpen = busy,
+		})
+	then
+		return false
+	end
+	table.remove(UI.gift.queue, 1)
+	giftOpen(waiting.kind, waiting.paid)
+	return #UI.gift.queue == 0
+end
+
+function UI.gift.show(kind: any, paid: any)
+	if kind ~= "like" and kind ~= "fav" then
+		return
+	end
+	local name: string = kind
+	local lines: { string }? = if type(paid) == "table" then paid else nil
+	table.insert(UI.gift.queue, { kind = name, paid = lines })
+	if not UI.gift.watching then
+		UI.gift.watching = true
+		task.spawn(function()
+			while not giftTry() do
+				task.wait(1)
+			end
+			UI.gift.watching = false
+		end)
+	end
+end
+
+-- #1955 (auto-equip.md): UIController's hook for AutoEquipped(swaps). The first swap starts a short wait; every swap
+-- in the next AutoEquipToast.MERGE_SECONDS joins it, then one toast names the cat or counts them.
+UI.autoEquip = { pending = {} :: { any }, waiting = false }
+
+function UI.autoEquip.swapped(raw: any)
+	local AutoEquipToast = require(script.Components.AutoEquipToast)
+	for _, swap in AutoEquipToast.clean(raw) do
+		table.insert(UI.autoEquip.pending, swap)
+	end
+	if UI.autoEquip.waiting or #UI.autoEquip.pending == 0 then
+		return
+	end
+	UI.autoEquip.waiting = true
+	task.delay(AutoEquipToast.MERGE_SECONDS, function()
+		UI.autoEquip.waiting = false
+		local text = AutoEquipToast.text(UI.autoEquip.pending, Format.money)
+		table.clear(UI.autoEquip.pending)
+		if text then
+			UI.toast(text, "good")
+		end
+	end)
 end
 
 return UI

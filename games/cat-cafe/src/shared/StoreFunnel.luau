@@ -20,6 +20,12 @@ StoreFunnel.STEPS = { "opened", "tab_viewed", "buy_pressed", "completed" }
 StoreFunnel.SOURCES = { "hud_tile", "new_dot", "nudge", "other" }
 StoreFunnel.TABS = { "featured", "passes", "cats", "potions", "cafePass", "codes" } -- StoreLogic.TABS' ids
 StoreFunnel.VISITS_MAX = 30 -- Store funnels a session; a visit past it logs nothing
+-- #1936 (release.md section 3): a purchase prompt the client's store guard refused, reported as "<source>:<reason>"
+-- (store_guard_blocked): where the prompt came from, and no_tap (no tap in the last 2 seconds) or busy (a catch, a
+-- rescue or a cutscene). GUARD_BLOCKS_MAX are logged a session.
+StoreFunnel.GUARD_SOURCES = { "bait", "store", "cafePass" }
+StoreFunnel.GUARD_REASONS = { "no_tap", "busy" }
+StoreFunnel.GUARD_BLOCKS_MAX = 20
 
 local noted: string? = nil
 
@@ -84,6 +90,23 @@ function StoreFunnel.productSku(productId: unknown): string?
 end
 
 -- The step number of `name`, 0 for none.
+-- A store_guard_blocked report's value read: (source, reason) when both are known, else nil.
+function StoreFunnel.guardBlock(raw: unknown): (string?, string?)
+	if type(raw) ~= "string" or #raw > 32 then
+		return nil, nil
+	end
+	local source, reason = string.match(raw, "^(%a+):([%a_]+)$")
+	if
+		source == nil
+		or reason == nil
+		or table.find(StoreFunnel.GUARD_SOURCES, source) == nil
+		or table.find(StoreFunnel.GUARD_REASONS, reason) == nil
+	then
+		return nil, nil
+	end
+	return source, reason
+end
+
 function StoreFunnel.index(name: string): number
 	return table.find(StoreFunnel.STEPS, name) or 0
 end

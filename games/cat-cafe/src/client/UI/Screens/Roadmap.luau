@@ -10,6 +10,7 @@
 --   roadmap:pop(n)                             step n's dot pops gold as its toast slides in
 
 local Create = require(script.Parent.Parent.Components.Create)
+local FitText = require(script.Parent.Parent.Components.FitText)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local RoadmapLogic = require(script.Parent.Parent.Components.RoadmapLogic)
 local Theme = require(script.Parent.Parent.Theme)
@@ -156,6 +157,7 @@ function Roadmap.new(parent: Instance, position: UDim2, onToggle: (open: boolean
 			Position = UDim2.fromOffset(0, 1),
 			Parent = row,
 		})
+		FitText.shrink(words) -- #2207: "Grand Opening! Rank up to Tier 3" shrinks a little on a phone, never cut
 		local reward = label({
 			Name = "Reward",
 			Size = UDim2.new(1, 0, 0, 11),

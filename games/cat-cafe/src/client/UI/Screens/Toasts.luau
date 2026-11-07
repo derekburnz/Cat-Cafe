@@ -304,21 +304,21 @@ function Toasts._wrap(toast: Frame, message: TextLabel, widest: number)
 		message.TextWrapped = true
 		message.AutomaticSize = Enum.AutomaticSize.Y
 		message.Size = UDim2.fromOffset(widest, 0)
-		local lineCap = message:FindFirstChildOfClass("UISizeConstraint")
+		local lineCap = message:FindFirstChildOfClass("UISizeConstraint") :: UISizeConstraint?
 		if lineCap then
 			lineCap.MaxSize = Vector2.new(widest, math.huge)
 		end
 		toast.AutomaticSize = Enum.AutomaticSize.XY
-		local pillCap = toast:FindFirstChildOfClass("UISizeConstraint")
+		local pillCap = toast:FindFirstChildOfClass("UISizeConstraint") :: UISizeConstraint?
 		if pillCap then
 			pillCap.MaxSize = Vector2.new(pillCap.MaxSize.X, math.huge)
 		end
-		local pad = toast:FindFirstChildOfClass("UIPadding")
+		local pad = toast:FindFirstChildOfClass("UIPadding") :: UIPadding?
 		if pad then
 			pad.PaddingTop = UDim.new(0, WRAP_PAD)
 			pad.PaddingBottom = UDim.new(0, WRAP_PAD)
 		end
-		local corner = toast:FindFirstChildOfClass("UICorner")
+		local corner = toast:FindFirstChildOfClass("UICorner") :: UICorner?
 		if corner then
 			corner.CornerRadius = UDim.new(0, ROW_H / 2)
 		end

@@ -12,6 +12,7 @@
 -- card reads "📖 Find 3 more cats" alone (render's `nudge`), and the HUD opens the Index from it instead.
 
 local Create = require(script.Parent.Parent.Components.Create)
+local FitText = require(script.Parent.Parent.Components.FitText)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local RankUp = require(script.Parent.RankUp)
@@ -203,6 +204,9 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 				Parent = row,
 			}),
 		}
+		-- #2207: "Legendary or better" ran past its half on a phone; a long caption shrinks a little instead
+		FitText.shrink(rows[index].label)
+		FitText.shrink(rows[index].status)
 	end
 	self._rows = rows
 	self._ready = false

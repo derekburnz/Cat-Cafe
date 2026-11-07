@@ -178,8 +178,10 @@ local Config = {
 	-- The net: closing circles judged on the server (data-model section 10)
 	CircleLeadInSeconds = 0.6, -- from GrabBegin to the first circle starting to shrink
 	-- From one circle's target to the next one's start. CircleGapMin must stay above the widest good window plus
-	-- CatchLatencyCapSeconds, so a late press for one circle can never land on the next (reviewer S24).
-	CircleGapMin = 0.40,
+	-- CatchLatencyCapSeconds, so a late press for one circle can never land on the next (reviewer S24). #2060 (Derek2:
+	-- the rings move to a new spot each time): 0.55 (was 0.40), the UI's lead-in, so the next ring's outline shows as
+	-- the last one is tapped and the player has the whole gap to find it before it starts closing.
+	CircleGapMin = 0.55,
 	CircleGapMax = 0.75,
 	-- #1884 (catch-rework.md 7b): the trust bar. A net catch starts at TrustStart and each ring adds TrustPerfect,
 	-- TrustGood or TrustMiss; it is caught at the rarity's trustNeed and bolts below 0. Rings come on a steady beat

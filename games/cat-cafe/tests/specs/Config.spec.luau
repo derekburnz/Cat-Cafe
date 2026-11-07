@@ -56,7 +56,7 @@ return function()
 		AutoPressClearRate = 0.85,
 		-- v0.3 net circles (F26, section 10)
 		CircleLeadInSeconds = 0.6,
-		CircleGapMin = 0.40,
+		CircleGapMin = 0.55, -- #2060
 		CircleGapMax = 0.75,
 		-- #1884 (catch-rework.md 7b): the trust bar
 		TrustStart = 2,

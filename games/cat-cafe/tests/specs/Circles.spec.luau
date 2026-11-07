@@ -231,9 +231,9 @@ return function()
 		end)
 
 		it(
-			"circles are separated by a gap of CircleGapMin to CircleGapMax (0.40 to 0.75 s)",
+			"circles are separated by a gap of CircleGapMin to CircleGapMax (0.55 to 0.75 s; #2060)",
 			function()
-				expect(Config.CircleGapMin).to.be.near(0.40, 1e-9)
+				expect(Config.CircleGapMin).to.be.near(0.55, 1e-9)
 				expect(Config.CircleGapMax).to.be.near(0.75, 1e-9)
 				for seed = 1, 50 do
 					local circles = Circles.schedule("Mythical", 0, NOW, lcg(seed))

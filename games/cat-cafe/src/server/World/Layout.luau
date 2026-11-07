@@ -757,6 +757,76 @@ Layout.alley = {
 		} :: { RescuePoint },
 		laneTrap
 	),
+	-- #2240: the spots the day's traps are picked from (RescuePick), today's three first, then three more bins and two
+	-- more bag piles against the outer walls in front of the buildings (not the Warehouses' fire escapes): 9 from every
+	-- spawn point, 5 from the loose props, 6 off the blocker rows, every spot 25 or more from every other. A prop
+	-- stands at every one; only the picked ones get a stuck cat.
+	rescuePool = laneAll(
+		{
+			{
+				prop = "CatCafe_Alley_TrashBin",
+				trap = "trash_bin",
+				x = -AO + 4.5,
+				y = -0.15,
+				z = -36,
+				rotY = -90,
+			},
+			{
+				prop = "CatCafe_Alley_TrashBin",
+				trap = "trash_bin",
+				x = AO - 4.5,
+				y = -0.15,
+				z = -40,
+				rotY = 90,
+			},
+			{
+				prop = "CatCafe_Alley_GarbageBags",
+				trap = "garbage_bag",
+				x = -AO + 4.5,
+				z = 80,
+				rotY = -90,
+			},
+			{
+				prop = "CatCafe_Alley_TrashBin",
+				trap = "trash_bin",
+				x = AO - 4.5,
+				y = -0.15,
+				z = 27,
+				rotY = 90,
+			},
+			{
+				prop = "CatCafe_Alley_TrashBin",
+				trap = "trash_bin",
+				x = -AO + 4.5,
+				y = -0.15,
+				z = 25,
+				rotY = -90,
+			},
+			{
+				prop = "CatCafe_Alley_TrashBin",
+				trap = "trash_bin",
+				x = AO - 4.5,
+				y = -0.15,
+				z = -7,
+				rotY = 90,
+			},
+			{
+				prop = "CatCafe_Alley_GarbageBags",
+				trap = "garbage_bag",
+				x = AO - 4.5,
+				z = 95,
+				rotY = 90,
+			},
+			{
+				prop = "CatCafe_Alley_GarbageBags",
+				trap = "garbage_bag",
+				x = -AO + 4.5,
+				z = -6,
+				rotY = -90,
+			},
+		} :: { RescuePoint },
+		laneTrap
+	),
 	-- The buildings, crate stacks, lights and laundry from alleyDressing, then the loose props in front of them: clear
 	-- of the buildings' fronts and the Warehouses' fire escapes, and of the lane spawn points.
 	props = laneAll(
@@ -950,6 +1020,28 @@ Layout.park = {
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -8, 0, 64 }, 0),
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -46, 0, 140 }, 90),
 	},
+	-- #2240: the spots the day's traps are picked from (RescuePick), today's five first, then six more trees and four
+	-- more bins (Model-Agent's clearance search on the set: off the paths and blockers, 8 from every cat spot, none
+	-- within 100 studs of the camp, all but one bin in the far half, every spot 25 or more from every other, a bin 14 off
+	-- the footbridge). A prop stands at every one; only the picked ones get a stuck cat. A tree's branch points toward
+	-- the middle.
+	rescuePool = {
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, -24 }, 0),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -46, 0, 30 }, 180),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, 98 }, 0),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -8, 0, 64 }, 0),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -46, 0, 140 }, 90),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 46, 0, 36 }, 0),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 14, 0, 146 }, 0),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 4, 0, 22 }, 0),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -46, 0, 82 }, 180),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { -14, 0, 114 }, 180),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_RescueTree", "tree", { 52, 0, 138 }, 0),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { 34, 0, 6 }, 0),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { 26, 0, 70 }, 0),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { 18, 0, 114 }, 0),
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -28, 0, -10 }, 0),
+	},
 	props = {},
 } :: AreaSpec
 
@@ -1073,6 +1165,21 @@ Layout.neighbourhood = {
 		setTrap(NX, NZ, NTURN, "gutter", { 37.4, 7.05, 28.5 }),
 		setTrap(NX, NZ, NTURN, "gutter", { 62.4, 7.05, 180.5 }),
 	},
+	-- #2240: the spots the day's traps are picked from (RescuePick), today's four first, then four more garden sheds and
+	-- two more bungalow gutters built into the set (neighbourhoodf85.py POOL_SHEDS; the bungalows at -51 and 21 on the
+	-- second block): 8 from every cat spot, every spot 25 or more from every other, eight of the ten in the far half.
+	rescuePool = {
+		setTrap(NX, NZ, NTURN, "shed", { 65.4, 0, -33.3 }),
+		setTrap(NX, NZ, NTURN, "shed", { 76.7, 0, 108.6 }, 90),
+		setTrap(NX, NZ, NTURN, "gutter", { 37.4, 7.05, 28.5 }),
+		setTrap(NX, NZ, NTURN, "gutter", { 62.4, 7.05, 180.5 }),
+		setTrap(NX, NZ, NTURN, "shed", { -78.7, 0, 191.4 }, -90),
+		setTrap(NX, NZ, NTURN, "shed", { -42.6, 0, 112.7 }),
+		setTrap(NX, NZ, NTURN, "shed", { -18.6, 0, 202.7 }),
+		setTrap(NX, NZ, NTURN, "shed", { -78.7, 0, -104.6 }, -90),
+		setTrap(NX, NZ, NTURN, "gutter", { -58.6, 7.05, 28.5 }),
+		setTrap(NX, NZ, NTURN, "gutter", { 28.6, 7.05, 65.5 }, 180),
+	},
 	props = {},
 } :: AreaSpec
 
@@ -1193,6 +1300,25 @@ Layout.woods = {
 		-- the cat lying across the branch (which points along the piece's -X) as on a Park tree
 		setTrap(WX, WZ, WTURN, "tree", { 54.16, 15.45, 215.11 }, 87.21),
 	},
+	-- #2240: the spots the day's traps are picked from (RescuePick), today's five first, then four more hollow logs
+	-- and four more brambles built into the set (woodsf85.py POOL_LOGS, POOL_BRAMBLES): off the trail and the stream,
+	-- 8 from every cat spot, every spot 25 or more from every other, ten of the thirteen in the far half. The tree
+	-- house branch is the one tree, so it is picked every day.
+	rescuePool = {
+		setTrap(WX, WZ, WTURN, "hollow_log", { 62, 0, -128 }, 20),
+		setTrap(WX, WZ, WTURN, "hollow_log", { -62, 0, 122 }, -20),
+		setTrap(WX, WZ, WTURN, "bramble_bush", { -62, 0, 18 }),
+		setTrap(WX, WZ, WTURN, "bramble_bush", { 64, 0, 176 }),
+		setTrap(WX, WZ, WTURN, "tree", { 54.16, 15.45, 215.11 }, 87.21),
+		setTrap(WX, WZ, WTURN, "hollow_log", { 70, 0, 38 }, 20),
+		setTrap(WX, WZ, WTURN, "hollow_log", { -64, 0, 236 }, -20),
+		setTrap(WX, WZ, WTURN, "hollow_log", { 16, 0, 108 }, 20),
+		setTrap(WX, WZ, WTURN, "hollow_log", { -70, 0, -136 }, -20),
+		setTrap(WX, WZ, WTURN, "bramble_bush", { -12, 0, 184 }),
+		setTrap(WX, WZ, WTURN, "bramble_bush", { 6, 0, 14 }),
+		setTrap(WX, WZ, WTURN, "bramble_bush", { 72, 0, 96 }),
+		setTrap(WX, WZ, WTURN, "bramble_bush", { -18, 0, -68 }),
+	},
 	props = {},
 } :: AreaSpec
 
@@ -1294,6 +1420,23 @@ Layout.sewer = {
 		setTrap(SX, SZ, STURN, "grate", { -36, 0.4, 112 }), -- in cat town
 		setTrap(SX, SZ, STURN, "drain_pipe", { -51.7, 0.4, 49 }, -90), -- in the lost and found
 		setTrap(SX, SZ, STURN, "drain_pipe", { 51.7, 0.4, 256 }, 90), -- in the throne room
+	},
+	-- #2240: the spots the day's traps are picked from (RescuePick), today's four first, then four more drain pipes on
+	-- clear stretches of the side walls and four more grates built into the set (sewerf85.py POOL_PIPES, POOL_GRATES):
+	-- 8 from every cat spot, every spot 25 or more from every other, nine of the twelve in the far half.
+	rescuePool = {
+		setTrap(SX, SZ, STURN, "grate", { -34, 0.4, -92 }),
+		setTrap(SX, SZ, STURN, "grate", { -36, 0.4, 112 }),
+		setTrap(SX, SZ, STURN, "drain_pipe", { -51.7, 0.4, 49 }, -90),
+		setTrap(SX, SZ, STURN, "drain_pipe", { 51.7, 0.4, 256 }, 90),
+		setTrap(SX, SZ, STURN, "drain_pipe", { -51.7, 0.4, 267 }, -90),
+		setTrap(SX, SZ, STURN, "drain_pipe", { 51.7, 0.4, 55 }, 90),
+		setTrap(SX, SZ, STURN, "drain_pipe", { 51.7, 0.4, 127 }, 90),
+		setTrap(SX, SZ, STURN, "drain_pipe", { 51.7, 0.4, -175 }, 90),
+		setTrap(SX, SZ, STURN, "grate", { -6, 0.4, 193 }),
+		setTrap(SX, SZ, STURN, "grate", { 2, 0.4, 11 }),
+		setTrap(SX, SZ, STURN, "grate", { 50, 0.4, 183 }),
+		setTrap(SX, SZ, STURN, "grate", { 50, 0.4, -65 }),
 	},
 	props = {},
 } :: AreaSpec

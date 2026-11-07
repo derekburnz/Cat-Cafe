@@ -2490,4 +2490,117 @@ return function()
 			end
 		)
 	end)
+
+	-- #2240 (Derek 11-07: "change rescue spots not always the same"): each area's pool of trap spots, which RescuePick
+	-- draws the day's traps from. The pool holds today's spots first, enough of each trap type for today's mix, and
+	-- keeps the rules today's spots keep, so any day's pick keeps them too.
+	describe("rescue spot pools (#2240)", function()
+		it("every area's pool starts with today's spots and has room for today's mix", function()
+			for id, spec in Layout.areas do
+				local pool = spec.rescuePool
+				if pool == nil then
+					fail("%s has no rescue pool", id)
+					continue
+				end
+				for i, spot in spec.rescueSpots do
+					local same = pool[i]
+					expect(same.trap).to.equal(spot.trap)
+					expect(same.prop).to.equal(spot.prop)
+					expect(same.x).to.be.near(spot.x, 1e-9)
+					expect(same.z).to.be.near(spot.z, 1e-9)
+					expect(same.rotY).to.be.near(spot.rotY, 1e-9)
+				end
+				local need: { [string]: number } = {}
+				for _, spot in spec.rescueSpots do
+					need[spot.trap] = (need[spot.trap] or 0) + 1
+				end
+				local have: { [string]: number } = {}
+				for _, spot in pool do
+					have[spot.trap] = (have[spot.trap] or 0) + 1
+					if need[spot.trap] == nil then
+						fail("%s's pool has a %s spot, a trap it has none of today", id, spot.trap)
+					end
+				end
+				for trap, count in need do
+					expect((have[trap] or 0) >= count).to.equal(true)
+				end
+				expect(#pool >= 2 * #spec.rescueSpots).to.equal(true)
+			end
+		end)
+
+		it("keeps every pool spot 25 studs from every other, on the floor and clear of the spawn points", function()
+			for id, spec in Layout.areas do
+				local pool = spec.rescuePool or {}
+				local floor: Rect = {
+					x1 = spec.center.x - spec.halfWidth,
+					z1 = spec.center.z - spec.halfDepth,
+					x2 = spec.center.x + spec.halfWidth,
+					z2 = spec.center.z + spec.halfDepth,
+				}
+				local clear = if id == "alley" then 9 else 4
+				for i, spot in pool do
+					local onIt = if id == "alley"
+						then onFloor(spot.x, spot.z, alleyRects, 0)
+						else inside(spot.x, spot.z, floor, 0)
+					if not onIt then
+						fail("%s pool spot %d is off the floor", id, i)
+					end
+					for j = i + 1, #pool do
+						local other = pool[j]
+						local apart = math.sqrt((spot.x - other.x) ^ 2 + (spot.z - other.z) ^ 2)
+						if apart < 25 then
+							fail("%s pool spots %d and %d are %.1f apart", id, i, j, apart)
+						end
+					end
+					for k, point in spec.spawnPoints do
+						local gap = math.sqrt((spot.x - point.x) ^ 2 + (spot.z - point.z) ^ 2)
+						if gap < clear then
+							fail("%s pool spot %d is %.1f from spawn point %d", id, i, gap, k)
+						end
+					end
+					local pose = if spot.prop ~= nil
+						then Layout.stuckPoses[spot.prop]
+						else Layout.setStuckPoses[spot.trap]
+					if pose == nil then
+						fail("%s pool spot %d (%s) has no stuck pose", id, i, spot.trap)
+					end
+				end
+			end
+		end)
+
+		it("keeps a long area's pool 100 studs from its camp, three quarters of it in the far half", function()
+			for id, spec in Layout.areas do
+				local set = spec.set
+				if set == nil or string.sub(set, -7) ~= "_SetF85" then
+					continue
+				end
+				local camp = Layout.camps[id]
+				local along = 0
+				for _, sx in { -1, 1 } do
+					for _, sz in { -1, 1 } do
+						local _, z = Layout.campLocal(
+							camp,
+							spec.center.x + sx * spec.halfWidth,
+							spec.center.z + sz * spec.halfDepth
+						)
+						along = math.max(along, z)
+					end
+				end
+				local pool = spec.rescuePool or {}
+				local far = 0
+				for i, spot in pool do
+					local _, z = Layout.campLocal(camp, spot.x, spot.z)
+					if z <= 100 then
+						fail("%s pool spot %d (%s) is %.1f studs from the camp", id, i, spot.trap, z)
+					end
+					if z > along / 2 then
+						far += 1
+					end
+				end
+				if far < 0.75 * #pool then
+					fail("%s has %d of %d pool spots in its far half", id, far, #pool)
+				end
+			end
+		end)
+	end)
 end

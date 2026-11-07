@@ -606,3 +606,12 @@ These are Derek2's picks from the pre-release list. Design-Agent specced them in
 - **Not picked:** moving rings stay as they are, and nothing is added after the Grand Opening.
 
 Reason: D1 return and first-hour pace are the hardest things to fix after launch. Both changes reuse existing items and screens.
+
+## 2026-11-07: visitor rates up, docs synced to pass XP and the ring beat (#2107)
+Derek2 asked for the Cat Collector to come "a decent amount more often" and rich customers "slightly more often" (#2107). Design-Agent set the new ranges:
+- **Cat Collector:** `CollectorEveryMin`/`Max` go from 600/1400 to 360/840 s of open day. That's about one visit every 10 minutes instead of about 17, roughly 1.67 times as often.
+- **Rich customers:** `RichEveryMin`/`Max` go from 300/900 to 240/720 s. That's one every 8 minutes instead of 10, 1.25 times as often, worth about 5% more day income for a player who stays home.
+
+The docs also now match the code: pass XP from #2080 in quests.md §8 and cafe-pass.md, and `CircleGapMin` 0.55 from #2062 in data-model.md.
+
+Reason: these are Derek2's asks. The Collector's offers stay optional, and the income change is small.

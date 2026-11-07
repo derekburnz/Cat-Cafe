@@ -223,11 +223,13 @@ The Cafe Pass (Monetization-Agent's `shop-and-pass-plan-2026-11-01.md` section 3
 
 | claim | pass XP |
 |---|---|
-| a slot 1 to 4 daily | 100 |
-| the Big Request | 200 |
-| the daily set | 200 (800 for a full day) |
-| a weekly quest | 400 |
-| the weekly set | 400 (1,600 for a full week) |
-| an achievement | none, since they count from a player's history and would let veterans skip levels |
+| a slot 1 to 4 daily | 150 |
+| the Big Request | 300 |
+| the daily set | 300 (1,200 for a full day) |
+| a weekly quest | 600 |
+| the weekly set | 600 (2,400 for a full week) |
+| an achievement, once ever | S 50, M 150, L 300, XL 600 |
 
-A season is 6 weeks of 30 levels at 800 XP each (24,000 XP). A player who finishes every quest earns about 7,200 XP a week and reaches level 30 in a little under four weeks; one who does three dailies a day and the weekly quests reaches it near the season's end. Pass XP pays through the same `Payout` call as the prize (`passXp` in the prize shape), counts toward the current season only and shows as a small "+100 pass XP" chip beside the prize chips.
+Updated 2026-11-07 (#2070, built in #2080). Derek2 asked: "make pass xp also come from achievements and weeklys" and "make the xp more from quests". Quest XP is 1.5 times the old values, and achievements now pay pass XP once ever. With every quest done, the 34-level pass (27,200 XP) takes about 18 days instead of about 26.
+
+A season is 6 weeks of 34 levels at 800 XP each (27,200 XP, cafe-pass.md). A player who finishes every quest earns about 10,800 XP a week plus achievement XP, so reaches level 34 in about 18 days. One who does three dailies a day and the weekly quests reaches it well before the season ends. Pass XP pays through the same `Payout` call as the prize (`passXp` in the prize shape), counts toward the current season only and shows as a small "+100 pass XP" chip beside the prize chips.

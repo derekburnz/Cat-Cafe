@@ -101,7 +101,7 @@ type TownCannon = {
 
 type Run = {
 	replay: boolean,
-	started: number, -- os.clock()
+	shotStarted: number, -- os.clock() when the showing shot began (#2182: each shot runs for its hold, or to Next)
 	shots: { Intro.Shot },
 	plot: Intro.Plot,
 	camp: Intro.Camp, -- the Alleyway's
@@ -812,7 +812,8 @@ local function enterShot(r: Run, position: number)
 		WorldController.endPreview(shot.seconds) -- the real sky comes back during the swoop
 	end
 
-	UI.intro.setShot(shot.index, shot.caption)
+	-- #2182: the hold fills the caption's read bar (UI-Engineer's fourth argument; the UI ignores it until then)
+	(UI.intro :: any).setShot(shot.index, shot.caption, nil, shot.hold)
 	Moments.IntroShot:Fire(shot.index)
 	reportIntro(shot.index)
 end
@@ -863,7 +864,7 @@ local function stageLaunch(r: Run, t: number)
 		local boomAt = Workspace:GetServerTimeNow() + Intro.BOOM_LEAD
 		r.boomAt = boomAt
 		local flight = r.shots[r.shot + 1]
-		local stage = if r.alleyStreamed or flight == nil then nil else heldStage(flight.seconds)
+		local stage = if r.alleyStreamed or flight == nil then nil else heldStage(flight.hold)
 		CannonFx.playStaged(
 			you.model,
 			if cannon ~= nil then cannon.model else nil,
@@ -1062,6 +1063,7 @@ local function aheadOfJump(
 	shot: Intro.Shot,
 	cut: number,
 	cutStart: number,
+	camera: number,
 	t: number
 )
 	local id = position * 100 + cut
@@ -1069,8 +1071,9 @@ local function aheadOfJump(
 		return
 	end
 	local last = cut == #r.cuts
-	local boundary = if last then shot.seconds else cutStart + r.cuts[cut].seconds
-	if boundary - t > Intro.CUT_LEAD then
+	-- #2182: the last cut ends with the shot's hold; one before it where the camera's moves say
+	local left = if last then shot.hold - t else cutStart + r.cuts[cut].seconds - camera
+	if left > Intro.CUT_LEAD then
 		return
 	end
 	r.jumpFired = id
@@ -1084,33 +1087,58 @@ local function aheadOfJump(
 		end
 	end
 	if nextCut ~= nil and Intro.jump(r.cuts[cut].to, nextCut.from) then
-		Moments.IntroCut:Fire(r.started + shot.starts + boundary, nextCut.seconds)
+		Moments.IntroCut:Fire(os.clock() + left, nextCut.seconds)
 	end
 end
 
 local finish: (finished: boolean) -> ()
+
+-- The showing shot's action `t` seconds in. #2182: the action keeps its section 2 timings and holds its last frame
+-- through the rest of the hold; shot 1 waits in the barrel instead (Intro.launchTime), so the BOOM starts shot 2.
+local function stage(r: Run, shot: Intro.Shot, t: number)
+	local action = math.min(t, shot.seconds)
+	if shot.launch then
+		stageLaunch(r, Intro.launchTime(shot, t))
+	elseif shot.flight then
+		stageFlight(r, action)
+	elseif shot.catch then
+		stageCatch(r, action)
+	elseif shot.run then
+		stageRun(r, action)
+	elseif shot.job then
+		stageJob(r, action)
+	end
+	beats(r, shot, action)
+end
 
 local function step()
 	local r = run
 	if r == nil or r.ended then
 		return
 	end
-	local elapsed = os.clock() - r.started
-	local position = Intro.shotAt(r.shots, elapsed)
-	if position == 0 then
-		finish(true)
-		return
+	if r.shot == 0 then
+		r.shotStarted = os.clock()
+		enterShot(r, 1)
 	end
-	while r.shot < position do
+	local shot = r.shots[r.shot]
+	local t = os.clock() - r.shotStarted
+	while t >= shot.hold do
+		if r.shot >= #r.shots then
+			finish(true)
+			return
+		end
+		r.shotStarted += shot.hold
 		enterShot(r, r.shot + 1)
+		shot = r.shots[r.shot]
+		t = os.clock() - r.shotStarted
 	end
-	local shot = r.shots[position]
-	local t = elapsed - shot.starts
-	-- the cut showing and how far through it
+	local position = r.shot
+	-- the cut showing and how far through it, on the camera's time (#2182: it eases to a stop, then holds)
+	local camera = Intro.cameraTime(shot, t)
 	local cutStart = 0
 	local cut = #r.cuts
 	for i, c in r.cuts do
-		if t < cutStart + c.seconds or i == #r.cuts then
+		if camera < cutStart + c.seconds or i == #r.cuts then
 			cut = i
 			break
 		end
@@ -1118,23 +1146,42 @@ local function step()
 	end
 	r.cut = cut
 	local c = r.cuts[cut]
-	setCamera(Intro.at(c, shot.ease, (t - cutStart) / c.seconds))
-	aheadOfJump(r, position, shot, cut, cutStart, t)
+	setCamera(Intro.at(c, shot.ease, (camera - cutStart) / c.seconds))
+	aheadOfJump(r, position, shot, cut, cutStart, camera, t)
 	if shot.you then
 		hideCharacter(r, true)
 	end
-	if shot.launch then
-		stageLaunch(r, t)
-	elseif shot.flight then
-		stageFlight(r, t)
-	elseif shot.catch then
-		stageCatch(r, t)
-	elseif shot.run then
-		stageRun(r, t)
-	elseif shot.job then
-		stageJob(r, t)
+	stage(r, shot, t)
+end
+
+-- #2182 (section 2b): Next, from Intro.NEXT_AFTER into a shot (the UI drops earlier presses too). The shot's beats
+-- run to their end first, so nothing it started is left half done (the short night's sunrise), then the next shot
+-- shows at once; on the last shot it ends the intro as a finish. In shot 1 it goes on to the fuse instead, since the
+-- BOOM BOOM_LEAD later starts shot 2.
+local function nextShot()
+	local r = run
+	if r == nil or r.ended or r.shot == 0 then
+		return
 	end
-	beats(r, shot, t)
+	local shot = r.shots[r.shot]
+	local t = os.clock() - r.shotStarted
+	if t < Intro.NEXT_AFTER then
+		return
+	end
+	if shot.launch then
+		local fuse = Intro.fuseAt(shot)
+		if t < fuse then
+			r.shotStarted = os.clock() - fuse
+		end
+		return
+	end
+	stage(r, shot, shot.seconds)
+	if r.shot >= #r.shots then
+		finish(true)
+		return
+	end
+	r.shotStarted = os.clock()
+	enterShot(r, r.shot + 1)
 end
 
 finish = function(finished: boolean)
@@ -1226,7 +1273,7 @@ function IntroController.play(replay: boolean)
 	local camera = Workspace.CurrentCamera
 	local r: Run = {
 		replay = replay,
-		started = os.clock(),
+		shotStarted = os.clock(),
 		shots = Intro.shots(plot, hasCodesCat(), alleyStreamed),
 		plot = plot,
 		camp = camp,
@@ -1319,6 +1366,11 @@ function IntroController.start()
 	UI.events.introSkip:Connect(function()
 		finish(false) -- the UI sends the shot; this side knows it already
 	end)
+	-- #2182: UI-Engineer's Next (the pill, a tap, Space, Enter or gamepad A), once the UI has it
+	local introNext = (UI.events :: any).introNext
+	if introNext ~= nil then
+		introNext:Connect(nextShot)
+	end
 	UI.events.introReplay:Connect(function()
 		local state = UIController.state
 		if state ~= nil and state.carrying == nil then

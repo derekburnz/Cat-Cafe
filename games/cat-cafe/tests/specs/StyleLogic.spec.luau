@@ -121,4 +121,58 @@ return function()
 			end
 		end)
 	end)
+
+	describe("StyleLogic symbols and names (#2007)", function()
+		local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+		local SignStyles = require(Shared:WaitForChild("SignStyles")) :: any
+		local Looks = require(Shared:WaitForChild("Looks")) :: any
+		local Jukebox = require(Shared:WaitForChild("Jukebox")) :: any
+		-- emoji newer than Roblox's font, which it draws blank (#2015)
+		local BLANK = { "🪴", "🪧", "🪄", "🫖" }
+
+		it("puts a symbol beside every option, the plain sign included", function()
+			local rows = StyleLogic.rows({
+				signStyles = { "bakery_stripes", "royal_crest" },
+				looks = { themes = { "garden" }, uniforms = { "striped" }, accessories = { "hat" } },
+				jukeboxTracks = { "jukebox_rainy_window" },
+			})
+			expect(#rows).to.equal(5)
+			for _, row in rows do
+				for _, option in row.options do
+					expect(type(option.icon)).to.equal("string")
+					expect(#option.icon > 0).to.equal(true)
+					for _, blank in BLANK do
+						expect(option.icon).never.to.equal(blank)
+					end
+				end
+			end
+			expect(rows[1].options[1].icon).never.to.equal(rows[1].options[2].icon)
+		end)
+
+		it("gives every sign style its own symbol and its shared name", function()
+			local seen: { [string]: boolean } = { [StyleLogic.icon("sign", "")] = true }
+			for _, style in SignStyles.LIST do
+				expect(StyleLogic.name(style.id)).to.equal(style.name)
+				local icon = StyleLogic.icon("sign", style.id)
+				expect(seen[icon]).to.equal(nil)
+				seen[icon] = true
+			end
+		end)
+
+		it("names every theme, uniform, accessory and song as shared/Looks and Jukebox do", function()
+			for _, list in { Looks.THEMES, Looks.UNIFORMS, Looks.ACCESSORIES, Jukebox.TRACKS } do
+				for _, item in list do
+					expect(StyleLogic.name(item.id)).to.equal(item.name)
+				end
+			end
+		end)
+
+		it("titles a row with the option in use, Plain when the pick is cleared", function()
+			local crest = StyleLogic.rows({ signStyles = { "royal_crest" }, signStyle = "royal_crest" })
+			expect(StyleLogic.inUse(crest[1])).to.equal("Cafe sign: 👑 Royal Crest")
+			local plain = StyleLogic.rows({ signStyles = { "royal_crest" }, signStyle = "" })
+			expect(names(plain[1])).to.equal("Plain*,Royal Crest")
+			expect(StyleLogic.inUse(plain[1])).to.equal("Cafe sign: ⬜ Plain")
+		end)
+	end)
 end

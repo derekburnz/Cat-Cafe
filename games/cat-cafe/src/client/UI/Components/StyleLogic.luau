@@ -14,6 +14,8 @@
 -- chip) shows only for a player with something to pick.
 --   StyleLogic.rows(state, signNames?)   the rows, each with its options and which one is picked
 --   StyleLogic.shows(state)              whether the Style chip shows
+--   StyleLogic.icon(kind, id)            the symbol beside an option (#2007)
+--   StyleLogic.inUse(row)                the row's title with the option in use, "Cafe sign: Royal Crest" (#2007)
 
 local StyleLogic = {}
 
@@ -21,6 +23,7 @@ export type Kind = "sign" | "uniform" | "accessory" | "theme" | "music"
 export type Option = {
 	id: string, -- "" is the default (the plain sign, Classic)
 	name: string,
+	icon: string, -- #2007: a symbol beside the name, so the player sees what each option is
 	picked: boolean,
 }
 export type Row = { kind: Kind, title: string, options: { Option } }
@@ -32,6 +35,12 @@ StyleLogic.DEFAULT = ""
 local NAMES: { [string]: string } = {
 	bakery_stripes = "Bakery Stripes",
 	royal_crest = "Royal Crest",
+	-- #2007: the Sign Style Pack and Cafe Pass signs read "Pack Flower Box" and the like until named here
+	frame_golden_leaf = "Golden Leaf",
+	sign_maple_board = "Maple Board",
+	pack_flower_box = "Flower Box",
+	pack_starry_night = "Starry Night",
+	pack_paw_chalkboard = "Paw Chalkboard",
 	striped = "Striped",
 	midnight = "Midnight",
 	mint = "Mint",
@@ -45,6 +54,7 @@ local NAMES: { [string]: string } = {
 	hat = "Tiny Hat",
 	glasses = "Round Glasses",
 	acc_leaf_beret = "Leaf Beret",
+	acc_leaf_crown = "Autumn Leaf Crown",
 	acc_mushroom_cap = "Mushroom Cap",
 	acc_acorn_hair_clip = "Acorn Hair Clip",
 	acc_round_reading_glasses = "Round Reading Glasses",
@@ -55,6 +65,55 @@ local NAMES: { [string]: string } = {
 	jukebox_bakery_bounce = "Bakery Bounce",
 	jukebox_starlight_purr = "Starlight Purr",
 }
+
+-- #2007 (Derek2: "put symbols beside each one so it knows what player is equipping"): a symbol per option. Only
+-- emoji from before Unicode 12, which Roblox's font draws (🪴 and 🪧 draw blank, #2015).
+local ICONS: { [string]: string } = {
+	bakery_stripes = "🧁",
+	royal_crest = "👑",
+	frame_golden_leaf = "🍂",
+	sign_maple_board = "🍁",
+	pack_flower_box = "🌸",
+	pack_starry_night = "⭐",
+	pack_paw_chalkboard = "🐾",
+	garden = "🌿",
+	grand = "🏛️",
+	hat = "🎩",
+	glasses = "👓",
+	acc_leaf_beret = "🍃",
+	acc_leaf_crown = "🍁",
+	acc_mushroom_cap = "🍄",
+	acc_acorn_hair_clip = "🌰",
+	acc_round_reading_glasses = "👓",
+	acc_tiny_lantern = "🏮",
+	jukebox_rainy_window = "🌧️",
+	jukebox_catnap_waltz = "💤",
+	jukebox_bakery_bounce = "🥐",
+	jukebox_starlight_purr = "🌟",
+}
+
+-- the default option's symbol, and the symbol for an owned id with none of its own
+local DEFAULT_ICONS: { [Kind]: string } = {
+	sign = "⬜",
+	uniform = "👔",
+	accessory = "❌",
+	theme = "☕",
+	music = "🎶",
+}
+local KIND_ICONS: { [Kind]: string } = {
+	sign = "🏷️",
+	uniform = "👕",
+	accessory = "🎀",
+	theme = "🏠",
+	music = "🎵",
+}
+
+function StyleLogic.icon(kind: Kind, id: string): string
+	if id == StyleLogic.DEFAULT or id == "default" then
+		return DEFAULT_ICONS[kind]
+	end
+	return ICONS[id] or KIND_ICONS[kind]
+end
 
 local TITLES: { [Kind]: string } = {
 	sign = "Cafe sign",
@@ -110,11 +169,17 @@ local function row(kind: Kind, owned: { string }, pick: string?, names: { [strin
 		{
 			id = StyleLogic.DEFAULT,
 			name = DEFAULT_NAMES[kind],
+			icon = DEFAULT_ICONS[kind],
 			picked = picked == StyleLogic.DEFAULT,
 		},
 	}
 	for _, id in ids do
-		table.insert(options, { id = id, name = StyleLogic.name(id, names), picked = picked == id })
+		table.insert(options, {
+			id = id,
+			name = StyleLogic.name(id, names),
+			icon = StyleLogic.icon(kind, id),
+			picked = picked == id,
+		})
 	end
 	return { kind = kind, title = TITLES[kind], options = options }
 end
@@ -159,6 +224,15 @@ function StyleLogic.rows(state: any, names: { [string]: string }?): { Row }
 		table.insert(out, music)
 	end
 	return out
+end
+
+function StyleLogic.inUse(row: Row): string
+	for _, option in row.options do
+		if option.picked then
+			return ("%s: %s %s"):format(row.title, option.icon, option.name)
+		end
+	end
+	return row.title
 end
 
 function StyleLogic.shows(state: any): boolean

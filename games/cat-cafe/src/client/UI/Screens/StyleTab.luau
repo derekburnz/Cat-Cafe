@@ -3,7 +3,7 @@
 -- cafe's Style panel"). DecorShop shows it in place of its strip and grid when the "Style" chip is picked, and the
 -- chip only while the player owns something to pick (Components/StyleLogic.shows). One row per kind: the cafe sign,
 -- then uniforms and the cafe theme once the server sends them. Each row lists the default (Plain or Classic) and every
--- owned style as a button; the one in use is gold. A tap is a request: the callback becomes SetSignStyle or SetLook,
+-- owned style as a button with its symbol (#2007); the one in use is gold, and the row's title names it. A tap is a request: the callback becomes SetSignStyle or SetLook,
 -- which the server checks, and the next ProfileSync moves the gold.
 
 local Button = require(script.Parent.Parent.Components.Button)
@@ -39,6 +39,7 @@ function StyleTab.new(parent: Instance, callbacks: Callbacks): StyleTab
 	self._callbacks = callbacks
 	self._buttons = {} :: { Button.Button }
 	self._rows = {} :: { Frame }
+	self._titles = {} :: { TextLabel }
 	self._shape = "" -- the kinds and option ids on show; a change rebuilds the rows
 	self._optionH = Scale.tapHeight(Theme.sizes.touchMin, Theme.sizes.buttonDepth)
 	self.frame = Create("ScrollingFrame", {
@@ -72,6 +73,7 @@ function StyleTab._clear(self: any)
 		frame:Destroy()
 	end
 	table.clear(self._rows)
+	table.clear(self._titles)
 end
 
 -- A row's title and its option buttons, which wrap onto more lines on a narrow window.
@@ -86,7 +88,7 @@ function StyleTab._build(self: any, rows: { StyleLogic.Row })
 			LayoutOrder = index,
 			Parent = self.frame,
 		})
-		Create("TextLabel", {
+		local title: TextLabel = Create("TextLabel", {
 			Name = "Title",
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1, 0, 0, TITLE_H),
@@ -94,9 +96,10 @@ function StyleTab._build(self: any, rows: { StyleLogic.Row })
 			TextSize = Theme.sizes.textBody + 2,
 			TextColor3 = PAL.text,
 			TextXAlignment = Enum.TextXAlignment.Left,
-			Text = row.title,
+			Text = StyleLogic.inUse(row),
 			Parent = frame,
 		})
+		table.insert(self._titles, title)
 		local options: Frame = Create("Frame", {
 			Name = "Options",
 			BackgroundTransparency = 1,
@@ -119,6 +122,7 @@ function StyleTab._build(self: any, rows: { StyleLogic.Row })
 			local button = Button.new({
 				name = if id == "" then "Default" else id,
 				text = option.name,
+				icon = option.icon,
 				style = if option.picked then "gold" else "ghost",
 				size = UDim2.fromOffset(OPTION_W, self._optionH),
 				textSize = Theme.sizes.textBody,
@@ -150,9 +154,13 @@ function StyleTab.render(self: any, state: Types.PlayerState)
 		self._shape = shape
 		self:_build(rows)
 	end
-	-- the gold follows the pick
+	-- the gold and the title follow the pick
 	local index = 0
-	for _, row in rows do
+	for rowIndex, row in rows do
+		local title: TextLabel? = self._titles[rowIndex]
+		if title then
+			title.Text = StyleLogic.inUse(row)
+		end
 		for _, option in row.options do
 			index += 1
 			local button: Button.Button? = self._buttons[index]

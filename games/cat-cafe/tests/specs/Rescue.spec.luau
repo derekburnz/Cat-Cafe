@@ -258,7 +258,7 @@ return function()
 				expect(Rescue.pressBar(attempt, Rescue.lastTimeAt(attempt, far, now))).to.equal(
 					"miss"
 				)
-				expect(attempt.hits).to.equal(0)
+				expect(attempt.hits).to.equal(1) -- #2327: one of the two hits taken away
 				expect(attempt.paws).to.equal(Config.RescuePatience - 1)
 				expect(
 					Rescue.pressBar(
@@ -325,7 +325,7 @@ return function()
 		end)
 
 		it(
-			"a miss after hits sends the bar back to the start: no hits, the first zone, the first speed (#2219)",
+			"a miss after hits takes one away: the zone before, that hit's speed (#2327, was #2219's reset)",
 			function()
 				local attempt = binAttempt("Epic")
 				local zones = table.clone(attempt.challenge.zones)
@@ -335,23 +335,37 @@ return function()
 				local t = missTime(attempt)
 				local at = Rescue.marker(attempt, t)
 				expect(Rescue.pressBar(attempt, t)).to.equal("miss")
-				expect(attempt.hits).to.equal(0)
-				expect(attempt.zone).to.equal(1)
-				expect(Rescue.currentZone(attempt)).to.equal(zones[1])
-				expect(attempt.speed).to.equal(Config.RescueBarSpeed.Epic)
+				expect(attempt.hits).to.equal(1)
+				expect(attempt.zone).to.equal(2)
+				expect(Rescue.currentZone(attempt)).to.equal(zones[2])
+				expect(attempt.speed).to.be.near(
+					Config.RescueBarSpeed.Epic * (1 + Config.RescueSpeedUpPerHit),
+					1e-9
+				)
 				expect(attempt.paws).to.equal(Config.RescuePatience - 1)
 				expect(attempt.stage).to.equal("bar")
 				-- the marker goes on from where the miss saw it, so nothing jumps on screen
 				expect(Rescue.marker(attempt, t)).to.be.near(at, 1e-9)
-				expect(Rescue.barState(attempt).zone).to.equal(1)
-				-- and the same zones again, one by one, still free the cat
-				for _ = 1, Rescue.hitsNeeded("Epic", "bar") do
+				expect(Rescue.barState(attempt).zone).to.equal(2)
+				-- the hits left, one by one, still free the cat
+				for _ = 2, Rescue.hitsNeeded("Epic", "bar") do
 					expect(Rescue.pressBar(attempt, zoneTime(attempt))).to.equal("hit")
 				end
 				expect(attempt.stage).to.equal("done")
 				expect(attempt.success).to.equal(true)
 			end
 		)
+
+		it("a miss with no hits yet only costs the paw (#2327)", function()
+			local attempt = binAttempt("Rare")
+			local zone = Rescue.currentZone(attempt)
+			expect(Rescue.pressBar(attempt, missTime(attempt))).to.equal("miss")
+			expect(attempt.hits).to.equal(0)
+			expect(attempt.zone).to.equal(1)
+			expect(Rescue.currentZone(attempt)).to.equal(zone)
+			expect(attempt.speed).to.equal(Config.RescueBarSpeed.Rare)
+			expect(attempt.paws).to.equal(Config.RescuePatience - 1)
+		end)
 
 		it("a press never lands before one already judged", function()
 			local attempt = binAttempt("Common")
@@ -389,10 +403,10 @@ return function()
 		end)
 
 		it(
-			"a steady player who misses once, even on the last zone, still fits the 15 s deadline (#2219)",
+			"a steady player who misses once, even on the last zone, still fits the 15 s deadline (#2219, #2327)",
 			function()
-				-- every press a whole trip out and back after the last: all but the last hit, the miss that sends the
-				-- bar back to the start, then every hit again from the first speed
+				-- every press a whole trip out and back after the last: all but the last hit, the miss, then every hit
+				-- again from the first speed (#2219's reset: since #2327 a miss takes one hit away, which is quicker)
 				local function trips(rarity: string, count: number): number
 					local seconds, speed = 0, Config.RescueBarSpeed[rarity]
 					for _ = 1, count do

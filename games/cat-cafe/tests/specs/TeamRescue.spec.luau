@@ -66,7 +66,7 @@ return function()
 		end)
 
 		it(
-			"never sends the bar back to the start, where the rescuer's miss does (#2219)",
+			"never takes a hit away, where the rescuer's miss does (#2219, #2327)",
 			function()
 				local attempt = fresh()
 				expect(
@@ -85,8 +85,8 @@ return function()
 				expect(Rescue.pressBar(attempt, timeAt(attempt, clearOfZone(attempt)))).to.equal(
 					"miss"
 				)
-				expect(attempt.hits).to.equal(0)
-				expect(attempt.zone).to.equal(1)
+				expect(attempt.hits).to.equal(1)
+				expect(attempt.zone).to.equal(2)
 			end
 		)
 

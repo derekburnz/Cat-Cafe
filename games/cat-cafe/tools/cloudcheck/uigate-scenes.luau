@@ -3213,7 +3213,11 @@ local SCENES = {
 	-- #2194 (playtester Dread via Derek2: "The cash at the bottom left should probably not push the 2x cash and fish"):
 	-- the money badge and the golden fish stay put while the money grows from $0 to the widest usual amounts
 	{ "HUDCashSteady", function()
-		Scenes._cashMoney = (UI.getState() :: any).money
+		-- an earlier scene's 2x Money pass hides the badge (it shows as the side chip): no pass here, the golden fish
+		-- shown, both put back by Scenes.close
+		local before: any = UI.getState()
+		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
+		UI.update({ passBoosts = false, goldenFish = 1234 } :: any)
 		UI.store.preview(storePrices(true), {})
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
 		local counters = hud:FindFirstChild("Counters", true) :: Frame
@@ -3673,7 +3677,7 @@ end
 function Scenes.close()
 	reel(false)
 	if Scenes._cashMoney ~= nil then
-		UI.update({ money = Scenes._cashMoney } :: any) -- #2194's scene
+		UI.update(Scenes._cashMoney :: any) -- #2194's scene
 		Scenes._cashMoney = nil
 	end
 	if Scenes._potionsFolded then

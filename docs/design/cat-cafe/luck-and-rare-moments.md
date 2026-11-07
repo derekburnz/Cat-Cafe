@@ -97,6 +97,17 @@ Derek, 2026-11-05: a sign on the cat square shows the time until a Legendary (30
 - Contracts: Config `PityLegendarySeconds` 1800, `PityMythicalEvery` 4, `PityAreaWeights`, `PityClaimRetries` 3. `shared/Pity.luau` with `Pity.slot(now)`, `Pity.nextAt(now, kind)` and `Pity.pick(slot)` (area, cat id), all pure with a spec. The server's `PityService` spawns, claims and announces. Remote `PityAnnounce(kind, areaId, state, winnerName?)` to all clients. Analytics `pity_cat` (slot, area, kind, secured or expired, servers that claimed).
 - QA: (1) Two servers show the same countdown to the second and spawn the same cat in the same area. (2) Catching it in server A puffs server B's copy within a few seconds and shows the banner, and only A's player owns the cat. (3) Over 10,000 slots the areas land within 1 point of the weights. (4) A slot at night spawns at sunrise. (5) With MemoryStore blocked in Studio, the catcher keeps the cat and the log says so. (6) No golden fish are paid to anyone who missed it.
 
+### 1i. The pity clock restarts after each pity cat (Set 10 Q2, Derek2 2026-11-07)
+
+Derek2: "right after it happens it's a global timer across all servers". The fixed slots in 1h are replaced by two timers that restart:
+
+- **Two timers.** The Legendary timer is due `PityLegendarySeconds` (1800) after the last Legendary pity cat was caught or left at night. The Mythical timer is due `PityMythicalSeconds` (7200) after the last Mythical pity cat was caught or left. They run on their own, so both kinds can be out at once. A timer that comes due at night spawns at the next sunrise, as before.
+- **Global state.** MemoryStore HashMap `pity` holds `next:Legendary`, `next:Mythical` (server time when due) and `seq` (a counter used for the claim key `pity:<seq>` and for the seeded area and cat pick). The server that wins the catch claim, or the first server to see the cat go at night, writes the new due time with `UpdateAsync`. It writes only if the stored time is older, so two servers can't push the timer twice. It then publishes on MessagingService topic `Pity`.
+- **Every server** reads the state on start and every 15 s, and right away on a `Pity` message. It sets `NextLegendary` and `NextMythical` attributes on ReplicatedStorage's pity folder, so the sign and the day card count down from those, the same in every server.
+- **Fallbacks.** If MemoryStore can't be read on boot, the server keeps the last values it saw, or falls back to 1h's fixed slots until a read works, and logs it. The sign never shows a negative time. A due time with no spawn after 60 s shows "Any moment now!".
+- **First run.** With no state yet, both timers start from the first server's boot: 30 minutes and 2 hours.
+- **QA:** catch a pity Legendary in server A, and both servers show "Legendary cat in 30:00" within 15 s. A cat that leaves at night restarts its timer at that moment. Two servers ending the same cat write one due time.
+
 ## 2. Rare moments (F89)
 
 ### 2a. When a rare cat is secured

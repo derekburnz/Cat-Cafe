@@ -37,7 +37,8 @@ export type Uniform = { id: string, name: string, passKey: string?, main: Rgb, t
 -- A cat accessory (store-pass-looks.md section 6): `piece` is the CatCafe_Accessory_<piece> model, worn at the cat's
 -- Outfit_<piece> Attachment, and `slot` the data-model prop slot it fills. `passKey` names the pass that gives it; a
 -- Cafe Pass piece has none and is owned through profile.pass.items.
-export type Slot = "Head" | "Face" | "Back"
+-- #2109: "Tail" is a slot no cat's own prop uses, so a Tail piece shows on every working cat.
+export type Slot = "Head" | "Face" | "Back" | "Tail"
 export type Accessory = { id: string, name: string, passKey: string?, piece: string, slot: Slot }
 export type Picks = { theme: string?, uniform: string?, accessory: string? }
 
@@ -113,15 +114,18 @@ end
 table.freeze(UNIFORMS)
 Looks.UNIFORMS = UNIFORMS
 
--- Section 6: the Cat Accessories pass gives the Tiny Hat and Round Glasses; the Cafe Pass pieces (cafe-pass.md
+-- Section 6: the Cat Accessories pass gives the Tail Bow and Round Glasses; the Cafe Pass pieces (cafe-pass.md
 -- section 3) are looks only. The pass's +15% is in Economy and never depends on the pick.
+-- #2109 (store-pass-looks.md 6a, Derek2 2026-11-07: "replace the tiny hat with something else"): the Tail Bow took the
+-- Tiny Hat's place, as a cat's own head prop kept the hat off about half the working cats. A saved "hat" reads as
+-- "tail_bow" (RENAMED); the CatCafe_Accessory_Hat model stays in the Assets folder, unused.
 local ACCESSORIES: { Accessory } = {
 	{
-		id = "hat",
-		name = "Tiny Hat",
+		id = "tail_bow",
+		name = "Tail Bow",
 		passKey = "CatAccessoriesPassId",
-		piece = "Hat",
-		slot = "Head",
+		piece = "TailBow", -- CatCafe_Accessory_TailBow at the cat's Outfit_TailBow Attachment
+		slot = "Tail",
 	},
 	{
 		id = "glasses",
@@ -175,8 +179,17 @@ function Looks.uniform(id: string): Uniform?
 	return uniformsById[id]
 end
 
+-- #2109: retired accessory ids and the id that took their place, for saves and old clients.
+local RENAMED: { [string]: string } = { hat = "tail_bow" }
+Looks.RENAMED_ACCESSORIES = table.freeze(RENAMED)
+
+-- The accessory id `id` stands for now: a retired one's replacement, else itself.
+local function current(id: string): string
+	return RENAMED[id] or id
+end
+
 function Looks.accessory(id: string): Accessory?
-	return accessoriesById[id]
+	return accessoriesById[current(id)]
 end
 
 -- The pass id Config holds under `key`, or 0 (not made, or no key).
@@ -279,7 +292,7 @@ function Looks.pickFor(
 		then "theme"
 		elseif kind == "uniform" then "uniform"
 		else "accessory"
-	local id = raw :: string
+	local id = if k == "accessory" then current(raw :: string) else raw :: string -- #2109: an old client's "hat"
 	if not known(k, id) or table.find(Looks.owned(k, ownsPass, items), id) == nil then
 		return false, nil
 	end
@@ -297,8 +310,9 @@ function Looks.sanitize(raw: unknown): Picks
 		uniform = if type(uniform) == "string" and uniformsById[uniform] ~= nil
 			then uniform
 			else nil,
-		accessory = if type(accessory) == "string" and accessoriesById[accessory] ~= nil
-			then accessory
+		accessory = if type(accessory) == "string"
+				and accessoriesById[current(accessory)] ~= nil
+			then current(accessory)
 			else nil,
 	}
 end

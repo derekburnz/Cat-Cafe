@@ -365,4 +365,20 @@ return function()
 			expect(migrated.decorOwned.acc_leaf_beret).to.equal(nil)
 		end)
 	end)
+
+	describe("the paid track's sale window (#2129)", function()
+		it("closes SALE_CLOSE_SECONDS before a season ends and never while no end is set", function()
+			local ends = 1000000
+			expect(CafePass.saleOpen(ends - CafePass.SALE_CLOSE_SECONDS - 1, ends)).to.equal(true)
+			expect(CafePass.saleOpen(ends - CafePass.SALE_CLOSE_SECONDS, ends)).to.equal(false)
+			expect(CafePass.saleOpen(ends - 1, ends)).to.equal(false)
+			expect(CafePass.saleOpen(ends + 5, ends)).to.equal(false)
+			expect(CafePass.saleOpen(ends * 10, nil)).to.equal(true)
+		end)
+
+		it("is a few minutes, not a long window", function()
+			local seconds = CafePass.SALE_CLOSE_SECONDS
+			expect(seconds >= 300 and seconds <= 900).to.equal(true)
+		end)
+	end)
 end

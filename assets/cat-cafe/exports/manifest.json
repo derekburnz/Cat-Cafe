@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-06 23:11 UTC",
+  "generated": "2026-11-07 15:33 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -1206,6 +1206,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -1700,6 +1718,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -2216,6 +2252,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -2724,6 +2778,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -3218,6 +3290,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -3734,6 +3824,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -4242,6 +4350,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -4736,6 +4862,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -5252,6 +5396,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -5760,6 +5922,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -6254,6 +6434,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -6770,6 +6968,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -7274,6 +7490,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -7764,6 +7998,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -8276,6 +8528,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -8785,6 +9055,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -9288,6 +9576,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -9812,6 +10118,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -10325,6 +10649,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -10826,6 +11168,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -11348,6 +11708,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -11865,6 +12243,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -12370,6 +12766,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -12894,6 +13308,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -13410,6 +13842,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -13913,6 +14363,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -14437,6 +14905,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -14949,6 +15435,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.305,
+            0.299
+          ],
+          "offset_roblox": [
+            0.0,
+            0.3,
+            0.3
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -15448,6 +15952,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            -0.02
+          ],
+          "offset_roblox": [
+            -0.48,
+            -0.02,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -15968,6 +16490,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.049,
+            0.671,
+            0.28
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.28,
+            0.67
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -16484,6 +17024,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.323,
+            0.366
+          ],
+          "offset_roblox": [
+            0.0,
+            0.37,
+            0.32
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -16987,6 +17545,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.581,
+            -0.308,
+            0.007
+          ],
+          "offset_roblox": [
+            -0.58,
+            0.01,
+            -0.31
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -17511,6 +18087,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.061,
+            0.772,
+            0.345
+          ],
+          "offset_roblox": [
+            -0.06,
+            0.34,
+            0.77
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -18023,6 +18617,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -18522,6 +19134,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -19040,6 +19670,24 @@
             0.0,
             0.0,
             0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
           ]
         },
         "Carry": {
@@ -19562,6 +20210,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.289,
+            0.372
+          ],
+          "offset_roblox": [
+            0.0,
+            0.37,
+            0.29
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -20069,6 +20735,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.581,
+            -0.308,
+            0.031
+          ],
+          "offset_roblox": [
+            -0.58,
+            0.03,
+            -0.31
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -20597,6 +21281,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.062,
+            0.745,
+            0.352
+          ],
+          "offset_roblox": [
+            -0.06,
+            0.35,
+            0.75
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -21109,6 +21811,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -21608,6 +22328,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -22128,6 +22866,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -22643,6 +23399,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -23137,6 +23911,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -23653,6 +24445,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -24161,6 +24971,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -24655,6 +25483,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -25171,6 +26017,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -25675,6 +26539,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -26165,6 +27047,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -26677,6 +27577,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -27182,6 +28100,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.234,
+            0.311
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.23
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -27683,6 +28619,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.031
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.03,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -28203,6 +29157,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.052,
+            0.616,
+            0.294
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.62
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -28719,6 +29691,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -29222,6 +30212,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -29744,6 +30752,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -30261,6 +31287,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -30768,6 +31812,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -31294,6 +32356,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -31816,6 +32896,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -32331,6 +33429,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -32867,6 +33983,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -33391,6 +34525,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -33902,6 +35054,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -34434,6 +35604,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -34958,6 +36146,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.337,
+            0.381
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            0.34
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -35469,6 +36675,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.605,
+            -0.321,
+            0.007
+          ],
+          "offset_roblox": [
+            -0.61,
+            0.01,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -36001,6 +37225,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.063,
+            0.804,
+            0.359
+          ],
+          "offset_roblox": [
+            -0.06,
+            0.36,
+            0.8
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -36525,6 +37767,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -37036,6 +38296,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -37568,6 +38846,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -38092,6 +39388,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.234,
+            0.311
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.23
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -38603,6 +39917,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.031
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.03,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -39135,6 +40467,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.052,
+            0.616,
+            0.294
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.62
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -39655,6 +41005,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -40162,6 +41530,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -40690,6 +42076,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -41214,6 +42618,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -41725,6 +43147,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -42257,6 +43697,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -42785,6 +44243,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.289,
+            0.372
+          ],
+          "offset_roblox": [
+            0.0,
+            0.37,
+            0.29
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -43300,6 +44776,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.581,
+            -0.308,
+            0.031
+          ],
+          "offset_roblox": [
+            -0.58,
+            0.03,
+            -0.31
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -43836,6 +45330,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.062,
+            0.745,
+            0.352
+          ],
+          "offset_roblox": [
+            -0.06,
+            0.35,
+            0.75
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -44360,6 +45872,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -44873,6 +46403,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -45405,6 +46953,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -45934,6 +47500,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -46451,6 +48035,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -46989,6 +48591,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -47514,6 +49134,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -48025,6 +49663,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -48557,6 +50213,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -49076,6 +50750,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -49575,6 +51267,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -50095,6 +51805,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -50612,6 +52340,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -51123,6 +52869,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -51655,6 +53419,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -52180,6 +53962,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -52695,6 +54495,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -53229,6 +55047,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -53755,6 +55591,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -54270,6 +56124,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -54804,6 +56676,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -55330,6 +57220,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -55845,6 +57753,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -56379,6 +58305,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -56908,6 +58852,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -57423,6 +59385,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -57959,6 +59939,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -58483,6 +60481,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -58994,6 +61010,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -59522,6 +61556,24 @@
             0.0,
             0.0,
             0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
           ]
         },
         "Carry": {
@@ -60054,6 +62106,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -60556,6 +62626,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -61080,6 +63168,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -61588,6 +63694,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -62082,6 +64206,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -62596,6 +64738,24 @@
             0.0,
             0.0,
             0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
           ]
         },
         "Carry": {
@@ -63114,6 +65274,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -63616,6 +65794,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -64140,6 +66336,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -64648,6 +66862,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -65142,6 +67374,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -65658,6 +67908,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -66166,6 +68434,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -66660,6 +68946,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -67176,6 +69480,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -67688,6 +70010,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -68186,6 +70526,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -68706,6 +71064,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -69214,6 +71590,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -69708,6 +72102,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -70224,6 +72636,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -70732,6 +73162,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -71226,6 +73674,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -71742,6 +74208,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -72250,6 +74734,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -72744,6 +75246,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -73260,6 +75780,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -73772,6 +76310,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -74270,6 +76826,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -74790,6 +77364,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -75298,6 +77890,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -75792,6 +78402,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -76308,6 +78936,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -76820,6 +79466,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -77318,6 +79982,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -77838,6 +80520,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -78347,6 +81047,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -78848,6 +81566,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -79370,6 +82106,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -79886,6 +82640,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -80387,6 +83159,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -80909,6 +83699,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -81426,6 +84234,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -81935,6 +84761,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -82465,6 +85309,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -82989,6 +85851,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -83494,6 +86374,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -84018,6 +86916,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -84535,6 +87451,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -85036,6 +87970,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -85558,6 +88510,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -86074,6 +89044,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -86575,6 +89563,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -87097,6 +90103,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -87617,6 +90641,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -88122,6 +91164,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -88648,6 +91708,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -89169,6 +92247,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -89684,6 +92780,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -90218,6 +93332,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -90746,6 +93878,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.241,
+            0.31
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.24
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -91259,6 +94409,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.026
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.03,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -91793,6 +94961,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.052,
+            0.621,
+            0.293
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.62
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -92325,6 +95511,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -92844,6 +96048,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -93380,6 +96602,24 @@
             0.0,
             0.0,
             0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
           ]
         },
         "Carry": {
@@ -93919,6 +97159,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -94454,6 +97712,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -95010,6 +98286,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -95550,6 +98844,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.237,
+            0.268
+          ],
+          "offset_roblox": [
+            0.0,
+            0.27,
+            0.24
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -96058,6 +99370,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.426,
+            -0.226,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.43,
+            0.0,
+            -0.23
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -96587,6 +99917,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.045,
+            0.566,
+            0.253
+          ],
+          "offset_roblox": [
+            -0.04,
+            0.25,
+            0.57
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -97111,6 +100459,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -97627,6 +100993,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -98164,6 +101548,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -98692,6 +102094,24 @@
           ],
           "angles_roblox_deg": [
             0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.304,
+            0.405
+          ],
+          "offset_roblox": [
+            0.0,
+            0.4,
+            0.3
+          ],
+          "angles_roblox_deg": [
+            -80.0,
             0.0,
             0.0
           ]
@@ -99225,6 +102645,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.63,
+            -0.334,
+            0.041
+          ],
+          "offset_roblox": [
+            -0.63,
+            0.04,
+            -0.33
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -99775,6 +103213,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.067,
+            0.8,
+            0.383
+          ],
+          "offset_roblox": [
+            -0.07,
+            0.38,
+            0.8
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -100321,6 +103777,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -100833,6 +104307,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -101366,6 +104858,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -101884,6 +105394,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -102375,6 +105903,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -102887,6 +106433,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -103391,6 +106955,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -103882,6 +107464,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -104394,6 +107994,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -104898,6 +108516,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -105389,6 +109025,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -105901,6 +109555,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -106405,6 +110077,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -106896,6 +110586,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -107408,6 +111116,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -107908,6 +111634,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -108395,6 +112139,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -108903,6 +112665,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -109408,6 +113188,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -109907,6 +113705,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -110427,6 +114243,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -110936,6 +114770,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -111433,6 +115285,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -111951,6 +115821,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -112464,6 +116352,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -112965,6 +116871,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -113485,6 +117409,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -113997,6 +117939,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -114496,6 +118456,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -115016,6 +118994,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -115524,6 +119520,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.305,
+            0.299
+          ],
+          "offset_roblox": [
+            0.0,
+            0.3,
+            0.3
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -116019,6 +120033,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            -0.02
+          ],
+          "offset_roblox": [
+            -0.48,
+            -0.02,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -116535,6 +120567,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.049,
+            0.671,
+            0.28
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.28,
+            0.67
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -117047,6 +121097,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.323,
+            0.366
+          ],
+          "offset_roblox": [
+            0.0,
+            0.37,
+            0.32
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -117546,6 +121614,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.581,
+            -0.308,
+            0.007
+          ],
+          "offset_roblox": [
+            -0.58,
+            0.01,
+            -0.31
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -118066,6 +122152,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.061,
+            0.772,
+            0.345
+          ],
+          "offset_roblox": [
+            -0.06,
+            0.34,
+            0.77
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -118574,6 +122678,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -119069,6 +123191,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -119583,6 +123723,24 @@
             0.0,
             0.0,
             0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
           ]
         },
         "Carry": {
@@ -120101,6 +124259,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.289,
+            0.372
+          ],
+          "offset_roblox": [
+            0.0,
+            0.37,
+            0.29
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -120604,6 +124780,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.581,
+            -0.308,
+            0.031
+          ],
+          "offset_roblox": [
+            -0.58,
+            0.03,
+            -0.31
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -121128,6 +125322,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.062,
+            0.745,
+            0.352
+          ],
+          "offset_roblox": [
+            -0.06,
+            0.35,
+            0.75
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -121636,6 +125848,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -122131,6 +126361,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -122647,6 +126895,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -123158,6 +127424,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -123649,6 +127933,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -124161,6 +128463,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -124665,6 +128985,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -125156,6 +129494,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -125668,6 +130024,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -126168,6 +130542,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -126655,6 +131047,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -127163,6 +131573,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -127664,6 +132092,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.234,
+            0.311
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.23
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -128161,6 +132607,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.031
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.03,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -128677,6 +133141,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.052,
+            0.616,
+            0.294
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.62
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -129189,6 +133671,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -129688,6 +134188,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -130206,6 +134724,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -130719,6 +135255,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -131222,6 +135776,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -131744,6 +136316,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -132262,6 +136852,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -132773,6 +137381,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -133305,6 +137931,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -133825,6 +138469,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -134332,6 +138994,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -134860,6 +139540,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -135380,6 +140078,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.337,
+            0.381
+          ],
+          "offset_roblox": [
+            0.0,
+            0.38,
+            0.34
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -135887,6 +140603,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.605,
+            -0.321,
+            0.007
+          ],
+          "offset_roblox": [
+            -0.61,
+            0.01,
+            -0.32
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -136415,6 +141149,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.063,
+            0.804,
+            0.359
+          ],
+          "offset_roblox": [
+            -0.06,
+            0.36,
+            0.8
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -136935,6 +141687,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -137442,6 +142212,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -137970,6 +142758,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -138490,6 +143296,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.234,
+            0.311
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.23
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -138997,6 +143821,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.031
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.03,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -139525,6 +144367,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.052,
+            0.616,
+            0.294
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.62
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -140041,6 +144901,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -140544,6 +145422,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -141068,6 +145964,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -141588,6 +146502,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -142095,6 +147027,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -142623,6 +147573,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -143147,6 +148115,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.289,
+            0.372
+          ],
+          "offset_roblox": [
+            0.0,
+            0.37,
+            0.29
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -143658,6 +148644,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.581,
+            -0.308,
+            0.031
+          ],
+          "offset_roblox": [
+            -0.58,
+            0.03,
+            -0.31
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -144190,6 +149194,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.062,
+            0.745,
+            0.352
+          ],
+          "offset_roblox": [
+            -0.06,
+            0.35,
+            0.75
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -144710,6 +149732,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -145219,6 +150259,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -145747,6 +150805,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -146272,6 +151348,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -146785,6 +151879,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -147319,6 +152431,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -147840,6 +152970,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -148347,6 +153495,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -148875,6 +154041,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -149390,6 +154574,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -149885,6 +155087,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -150401,6 +155621,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -150914,6 +156152,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -151421,6 +156677,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -151949,6 +157223,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -152470,6 +157762,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -152981,6 +158291,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -153511,6 +158839,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -154033,6 +159379,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -154544,6 +159908,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -155074,6 +160456,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -155596,6 +160996,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -156107,6 +161525,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -156637,6 +162073,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -157162,6 +162616,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -157673,6 +163145,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -158205,6 +163695,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -158725,6 +164233,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -159232,6 +164758,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -159756,6 +165300,24 @@
             0.0,
             0.0,
             0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
           ]
         },
         "Carry": {
@@ -160284,6 +165846,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -160783,6 +166363,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -161303,6 +166901,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -161807,6 +167423,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -162298,6 +167932,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -162808,6 +168460,24 @@
             0.0,
             0.0,
             0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
           ]
         },
         "Carry": {
@@ -163322,6 +168992,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -163821,6 +169509,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -164341,6 +170047,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -164845,6 +170569,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -165336,6 +171078,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -165848,6 +171608,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -166352,6 +172130,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -166843,6 +172639,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -167355,6 +173169,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -167863,6 +173695,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -168358,6 +174208,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -168874,6 +174742,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -169378,6 +175264,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -169869,6 +175773,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -170381,6 +176303,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -170885,6 +176825,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -171376,6 +177334,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -171888,6 +177864,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -172392,6 +178386,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -172883,6 +178895,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -173395,6 +179425,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -173903,6 +179951,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -174398,6 +180464,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -174914,6 +180998,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -175418,6 +181520,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -175909,6 +182029,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -176421,6 +182559,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -176929,6 +183085,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -177424,6 +183598,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -177940,6 +184132,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -178445,6 +184655,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -178942,6 +185170,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -179460,6 +185706,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -179972,6 +186236,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -180469,6 +186751,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -180987,6 +187287,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -181500,6 +187818,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -182005,6 +188341,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -182531,6 +188885,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -183051,6 +189423,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -183552,6 +189942,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -184072,6 +190480,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -184585,6 +191011,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -185082,6 +191526,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -185600,6 +192062,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -186112,6 +192592,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -186609,6 +193107,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -187127,6 +193643,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -187643,6 +194177,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -188144,6 +194696,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -188666,6 +195236,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -189183,6 +195771,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -189694,6 +196300,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -190224,6 +196848,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -190748,6 +197390,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.241,
+            0.31
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.24
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -191257,6 +197917,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.026
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.03,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -191787,6 +198465,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.052,
+            0.621,
+            0.293
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.62
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -192315,6 +199011,24 @@
             0.0
           ]
         },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.0,
+            0.269,
+            0.305
+          ],
+          "offset_roblox": [
+            0.0,
+            0.31,
+            0.27
+          ],
+          "angles_roblox_deg": [
+            -80.0,
+            0.0,
+            0.0
+          ]
+        },
         "Carry": {
           "part": "Head",
           "offset": [
@@ -192830,6 +199544,24 @@
           "angles_roblox_deg": [
             0.0,
             0.0,
+            0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.484,
+            -0.257,
+            0.005
+          ],
+          "offset_roblox": [
+            -0.48,
+            0.01,
+            -0.26
+          ],
+          "angles_roblox_deg": [
+            0.0,
+            155.0,
             0.0
           ]
         },
@@ -193362,6 +200094,24 @@
             0.0,
             0.0,
             0.0
+          ]
+        },
+        "TailBow": {
+          "part": "Tail",
+          "offset": [
+            0.051,
+            0.643,
+            0.287
+          ],
+          "offset_roblox": [
+            -0.05,
+            0.29,
+            0.64
+          ],
+          "angles_roblox_deg": [
+            -74.8,
+            -9.7,
+            2.6
           ]
         },
         "Carry": {
@@ -197044,6 +203794,158 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Prop_TipPile.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Prop_TipPile.png"
+    },
+    {
+      "name": "CatCafe_Accessory_TailBow",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_TailBow"
+      ],
+      "triangles": 232,
+      "budget": 400,
+      "size_studs": {
+        "x": 0.45,
+        "y": 0.28,
+        "z": 0.27
+      },
+      "size_roblox": [
+        0.45,
+        0.27,
+        0.28
+      ],
+      "bounds_min": [
+        -0.23,
+        -0.19,
+        -0.1
+      ],
+      "bounds_max": [
+        0.23,
+        0.09,
+        0.17
+      ],
+      "pivot": "#2109: the middle of the band, on the tail's axis at Outfit_TailBow (in the Tail part, near the tip); the tail runs along the bow's +Y (Roblox -Z), the knot faces +Z (Roblox +Y). Sitting and working cut. Weld or follow the Tail, not the Body",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "slot": {
+        "part": "Tail",
+        "offset": [
+          0.0,
+          0.269,
+          0.305
+        ],
+        "offset_roblox": [
+          0.0,
+          0.31,
+          0.27
+        ],
+        "angles_roblox_deg": [
+          -80.0,
+          0.0,
+          0.0
+        ],
+        "body": "walk"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_TailBow.model.json",
+      "rbx_parts": 66,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_TailBow.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_TailBow.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "232/400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "144 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.10 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.05"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_TailBow.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_TailBow.png"
+    },
+    {
+      "name": "CatCafe_Accessory_TailBow_Walk",
+      "category": "Accessory",
+      "module": "accessories",
+      "objects": [
+        "CatCafe_Accessory_TailBow_Walk"
+      ],
+      "triangles": 232,
+      "budget": 400,
+      "size_studs": {
+        "x": 0.62,
+        "y": 0.36,
+        "z": 0.34
+      },
+      "size_roblox": [
+        0.62,
+        0.34,
+        0.36
+      ],
+      "bounds_min": [
+        -0.31,
+        -0.24,
+        -0.13
+      ],
+      "bounds_max": [
+        0.31,
+        0.12,
+        0.21
+      ],
+      "pivot": "#2109: the middle of the band, on the tail's axis at Outfit_TailBow (in the Tail part, near the tip); the tail runs along the bow's +Y (Roblox -Z), the knot faces +Z (Roblox +Y). Walking cut. Weld or follow the Tail, not the Body",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "slot": {
+        "part": "Tail",
+        "offset": [
+          0.0,
+          0.269,
+          0.305
+        ],
+        "offset_roblox": [
+          0.0,
+          0.31,
+          0.27
+        ],
+        "angles_roblox_deg": [
+          -80.0,
+          0.0,
+          0.0
+        ],
+        "body": "walk"
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Accessory_TailBow_Walk.model.json",
+      "rbx_parts": 66,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Accessory_TailBow_Walk.fbx",
+        "assets/cat-cafe/exports/CatCafe_Accessory_TailBow_Walk.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "232/400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "144 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.13 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.06"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Accessory_TailBow_Walk.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Accessory_TailBow_Walk.png"
     },
     {
       "name": "CatCafe_Accessory_Glasses",

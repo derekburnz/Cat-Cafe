@@ -81,6 +81,7 @@ export type CustomEvent =
 	| "camp_extra" -- F100 (camp-extras.md section 4): value the fills taken or 1; the extra, what was taken, tier
 	| "cafe_pass_claim" -- #1645: value 1; the track, the level and the season
 	| "cafe_pass_bought" -- #1626: value 1; the season whose paid track was bought
+	| "grant_failed" -- #2127: value 1; the product, the step that threw, and "retry" (nothing paid) or "kept"
 	| "shove"
 	| "drop_outcome"
 	| "left_after_shove"

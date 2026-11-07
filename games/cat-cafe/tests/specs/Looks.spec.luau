@@ -132,15 +132,35 @@ return function()
 		local pass = owns({ [Config.CatAccessoriesPassId] = true })
 
 		it(
-			"owns the Tiny Hat and Round Glasses with the pass and a Cafe Pass piece once earned",
+			"owns the Tail Bow and Round Glasses with the pass and a Cafe Pass piece once earned",
 			function()
 				expect(Looks.owned("accessory", none, {}) :: any).to.deepEqual({})
-				expect(Looks.owned("accessory", pass, {}) :: any).to.deepEqual({ "hat", "glasses" })
+				expect(Looks.owned("accessory", pass, {}) :: any).to.deepEqual({
+					"tail_bow",
+					"glasses",
+				})
 				expect(Looks.owned("accessory", none, { acc_tiny_lantern = true }) :: any).to.deepEqual({
 					"acc_tiny_lantern",
 				})
 				-- a pass piece needs the pass
 				expect(Looks.owned("accessory", none, { hat = true }) :: any).to.deepEqual({})
+			end
+		)
+
+		it(
+			"puts the Tail Bow in a Tail slot no cat's own prop uses, and takes an old client's hat as it (#2109)",
+			function()
+				local bow = Looks.accessory("tail_bow")
+				expect(bow ~= nil).to.equal(true)
+				expect((bow :: any).slot).to.equal("Tail")
+				expect((bow :: any).piece).to.equal("TailBow")
+				expect((Looks.accessory("hat") :: any).id).to.equal("tail_bow")
+				local ok, pick = Looks.pickFor("accessory", "hat", pass, {})
+				expect(ok).to.equal(true)
+				expect(pick).to.equal("tail_bow")
+				for _, accessory in Looks.ACCESSORIES do
+					expect(accessory.id ~= "hat").to.equal(true) -- the Tiny Hat is out of the picker
+				end
 			end
 		)
 
@@ -159,7 +179,7 @@ return function()
 		it(
 			"puts every piece in a data-model prop slot and knows the Cafe Pass track's accessory ids",
 			function()
-				local slots = { Head = true, Face = true, Back = true }
+				local slots = { Head = true, Face = true, Back = true, Tail = true } -- Tail: #2109, the Tail Bow
 				for _, accessory in Looks.ACCESSORIES do
 					expect(slots[accessory.slot]).to.equal(true)
 					expect(Looks.accessory(accessory.id)).to.equal(accessory)
@@ -178,7 +198,13 @@ return function()
 		)
 
 		it("keeps a saved accessory pick", function()
-			expect(Looks.sanitize({ accessory = "hat" }) :: any).to.deepEqual({ accessory = "hat" })
+			-- #2109: a saved Tiny Hat reads as the Tail Bow that took its place
+			expect(Looks.sanitize({ accessory = "hat" }) :: any).to.deepEqual({
+				accessory = "tail_bow",
+			})
+			expect(Looks.sanitize({ accessory = "tail_bow" }) :: any).to.deepEqual({
+				accessory = "tail_bow",
+			})
 			expect(Looks.sanitize({ accessory = "nope" }) :: any).to.deepEqual({})
 		end)
 	end)

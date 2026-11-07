@@ -654,3 +654,6 @@ Bowl foods: Epic, Legendary and Mythical are 15% lower relative, and Common and 
 
 ## 2026-11-07: Area obstacles are tall, not see-over (Design-Agent, friend's project, #2265)
 hometown-cannon.md §6b said blockers were about 4 studs so players could see over them. Derek2 asked for taller obstacles in every area: solid ones like hedges are now about 9 to 9.6 studs, and railings are see-through iron at about 9.4. The doc now says that. Reason: Derek2's ask; the see-through railings keep a hunter's view of a carrier in places.
+
+## 2026-11-07: Bowl odds pass Pace on the new tier goals (Design-Agent, friend's project, #2239)
+Gameplay reran Pace on main after #2236 and #2271: one go reaches Tier 5 in 11h26 (inside the 9 to 14 h band), Tier 3 at 53.3 min in the first hour, and daily play reaches Tier 5 on day 6. Every check passes. Logged in data-model.md §8. #2266 and #2287 come later.

@@ -264,6 +264,7 @@ Index decor (F48, section 11b) is never sold: `cost` 0 with `source = "index"`, 
 > **Odds v2026-11-07 (#2239, Derek2: "nerf food bowl high rarity chance slightly").** These replace every food's odds below. Epic, Legendary and Mythical are down 15% relative, and Common and Rare take up the rest. Caviar and Star Treat keep their "Attracts" label, so their likeliest rarity stays first. In % (C / R / E / L / M):
 > Kibble 70.375 / 25.375 / 3.4 / 0.765 / 0.085 · Tuna 41.125 / 46.125 / 10.2 / 2.21 / 0.34 · Salmon 18 / 48 / 25.5 / 7.225 / 1.275 · Sardines 31.875 / 46.875 / 17 / 3.825 / 0.425 · Caviar 16.55 / 34 / 35 / 11.9 / 2.55 · Moon Milk 0 / 32 / 38.25 / 23.8 / 5.95 · Star Treat 0 / 0 / 43.25 / 44 / 12.75.
 > Pace.spec passes on it (run on the tier goals before #2230; the run on the #2230 goals follows once #2236 merges).
+> Rerun on main after #2236 and #2271 (medians of 10 runs, 4 catches a day): one go reaches Tier 2 at 0h13, Tier 3 at 1h02, Tier 4 at 4h25 and Tier 5 at 11h26 (10th to 90th: 9h49 to 12h58); 60 min a day reaches Tier 5 on day 6; the first hour hits Tier 2 at 11.9 min and Tier 3 at 53.3 min. Every Pace check passes, the 9 to 14 h Tier 5 band included. Fewer fish (#2266) and the rainbow luck cut (#2287) are not in this run.
 
 v0.3 change (Gavin, Q7): bait moves from shared lure spots in the areas to one bait bowl at your own cafe, the wait is 10 minutes, and the cat that arrives is offered as Tame or Let go. Lure spots, reservations, the calm bonus and refunds are gone.
 

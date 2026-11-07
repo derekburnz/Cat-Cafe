@@ -225,6 +225,7 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 	-- Equip Best by itself when a better cat comes; it never moves a locked cat or one placed by hand in the last 10
 	-- minutes. The roles scroll in the room left of it.
 	self._autoOn = false
+	self._autoTaps = {} -- #2076: the pressed value, held as Settings holds a tap (SettingsList.shown)
 	local setAuto = callbacks.setAutoEquip
 	if setAuto ~= nil and SettingsList.isKey(SettingsList.AUTO_EQUIP_KEY) then
 		self._crew.Size = UDim2.new(1, -(ACTION_W + 12), 1, 0)
@@ -241,7 +242,16 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 			onClick = function()
 				local on = not self._autoOn
 				self._autoOn = on
+				-- #2076: keep the pressed value until a sync agrees (or SettingsList.HOLD_SECONDS pass), so a sync
+				-- sent before the server applied the press can't flash the old state
+				self._autoTaps[SettingsList.AUTO_EQUIP_KEY] = { value = on, at = os.clock() }
 				self:_paintAuto()
+				task.delay(SettingsList.HOLD_SECONDS + 0.1, function()
+					-- the server never agreed (refused): show the saved value again
+					if not self._gone and self._state then
+						self:render(self._state)
+					end
+				end)
 				setAuto(on)
 			end,
 		})
@@ -1246,9 +1256,14 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 	end
 	self._equipBest:setEnabled(counts.all > 0)
 	self._unequipAll:setEnabled(counts.working > 0)
-	-- #1955: the saved switch (nil before the server sends it reads as off)
+	-- #1955: the saved switch; #2076: a fresh press wins until the server agrees, as on the Settings screen
 	local settings: { [string]: any } = (state :: any).settings or {}
-	self._autoOn = settings[SettingsList.AUTO_EQUIP_KEY] == true
+	local autoKey = SettingsList.AUTO_EQUIP_KEY
+	local tap = self._autoTaps[autoKey]
+	if tap and SettingsList.saved(settings, autoKey) == tap.value then
+		self._autoTaps[autoKey] = nil -- the server agreed: a later change (the Settings screen's) shows at once
+	end
+	self._autoOn = SettingsList.shown(settings, self._autoTaps, autoKey, os.clock()) == true
 	self:_paintAuto()
 
 	-- grid
@@ -1695,6 +1710,7 @@ function CatRoom._loadPortraits(self: any)
 end
 
 function CatRoom.destroy(self: any)
+	self._gone = true
 	self._extrasSell:destroy()
 	self._extrasKeep:destroy()
 	for _, button in self._feedRows do

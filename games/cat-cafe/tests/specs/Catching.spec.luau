@@ -202,7 +202,7 @@ return function()
 	)
 
 	describe(
-		"rescueOdds (section 10b): every non-Common weight doubled, renormalised to 100",
+		"rescueOdds (section 10b): Rare and Epic doubled, Legendary and Mythical x2.4 (#2240), renormalised to 100",
 		function()
 			local function total(odds: any): number
 				local sum = 0
@@ -213,21 +213,24 @@ return function()
 			end
 
 			it(
-				"Alleyway 54 / 29 / 11 / 4.8 / 1.2 (#1452) becomes 54 / 58 / 22 / 9.6 / 2.4 over 146",
+				"Alleyway 54 / 29 / 11 / 4.8 / 1.2 (#1452) becomes 54 / 58 / 22 / 11.52 / 2.88 over 148.4",
 				function()
 					local alley = Catalog.getArea("alley")
 					assert(alley)
 					local rescue: any = Catching.rescueOdds(alley.odds)
-					expect(rescue.Common).to.be.near(54 / 146 * 100, 1e-9)
-					expect(rescue.Rare).to.be.near(58 / 146 * 100, 1e-9)
-					expect(rescue.Epic).to.be.near(22 / 146 * 100, 1e-9)
-					expect(rescue.Legendary).to.be.near(9.6 / 146 * 100, 1e-9)
-					expect(rescue.Mythical).to.be.near(2.4 / 146 * 100, 1e-9)
+					expect(rescue.Common).to.be.near(54 / 148.4 * 100, 1e-9)
+					expect(rescue.Rare).to.be.near(58 / 148.4 * 100, 1e-9)
+					expect(rescue.Epic).to.be.near(22 / 148.4 * 100, 1e-9)
+					expect(rescue.Legendary).to.be.near(11.52 / 148.4 * 100, 1e-9)
+					expect(rescue.Mythical).to.be.near(2.88 / 148.4 * 100, 1e-9)
+					-- #2240's table: Legendary 6.6% to 7.8% and Mythical 1.64% to 1.94%
+					expect(rescue.Legendary).to.be.near(7.76, 0.01)
+					expect(rescue.Mythical).to.be.near(1.94, 0.01)
 				end
 			)
 
 			it(
-				"the old Alleyway 72 / 22 / 5 / 0.9 / 0.1 becomes 56.25 / 34.375 / 7.8125 / 1.40625 / 0.15625",
+				"the old Alleyway 72 / 22 / 5 / 0.9 / 0.1 becomes 72 / 44 / 10 / 2.16 / 0.24 over 128.4",
 				function()
 					local rescue: any = Catching.rescueOdds({
 						Common = 72,
@@ -236,16 +239,16 @@ return function()
 						Legendary = 0.9,
 						Mythical = 0.1,
 					})
-					expect(rescue.Common).to.be.near(56.25, 1e-9)
-					expect(rescue.Rare).to.be.near(34.375, 1e-9)
-					expect(rescue.Epic).to.be.near(7.8125, 1e-9)
-					expect(rescue.Legendary).to.be.near(1.40625, 1e-9)
-					expect(rescue.Mythical).to.be.near(0.15625, 1e-9)
+					expect(rescue.Common).to.be.near(72 / 128.4 * 100, 1e-9)
+					expect(rescue.Rare).to.be.near(44 / 128.4 * 100, 1e-9)
+					expect(rescue.Epic).to.be.near(10 / 128.4 * 100, 1e-9)
+					expect(rescue.Legendary).to.be.near(2.16 / 128.4 * 100, 1e-9)
+					expect(rescue.Mythical).to.be.near(0.24 / 128.4 * 100, 1e-9)
 				end
 			)
 
 			it(
-				"the old Park 60 / 28 / 9 / 2.5 / 0.5 becomes 60 / 56 / 18 / 5 / 1 over 140 (42.9 / 40.0 / 12.9 / 3.6 / 0.7)",
+				"the old Park 60 / 28 / 9 / 2.5 / 0.5 becomes 60 / 56 / 18 / 6 / 1.2 over 141.2",
 				function()
 					local rescue: any = Catching.rescueOdds({
 						Common = 60,
@@ -254,16 +257,16 @@ return function()
 						Legendary = 2.5,
 						Mythical = 0.5,
 					})
-					expect(rescue.Common).to.be.near(60 / 140 * 100, 1e-9)
-					expect(rescue.Rare).to.be.near(40, 1e-9)
-					expect(rescue.Epic).to.be.near(18 / 140 * 100, 1e-9)
-					expect(rescue.Legendary).to.be.near(5 / 140 * 100, 1e-9)
-					expect(rescue.Mythical).to.be.near(1 / 140 * 100, 1e-9)
+					expect(rescue.Common).to.be.near(60 / 141.2 * 100, 1e-9)
+					expect(rescue.Rare).to.be.near(56 / 141.2 * 100, 1e-9)
+					expect(rescue.Epic).to.be.near(18 / 141.2 * 100, 1e-9)
+					expect(rescue.Legendary).to.be.near(6 / 141.2 * 100, 1e-9)
+					expect(rescue.Mythical).to.be.near(1.2 / 141.2 * 100, 1e-9)
 				end
 			)
 
 			it(
-				"always sums to 100, doubles every rarer weight against Common and leaves the input alone",
+				"always sums to 100, boosts every rarer weight against Common and leaves the input alone",
 				function()
 					for _, area in ipairs(Catalog.areas) do
 						local before = table.clone(area.odds :: any)
@@ -271,8 +274,11 @@ return function()
 						expect(total(rescue)).to.be.near(100, 1e-9)
 						for _, rarity in ipairs(Catalog.rarityOrder) do
 							if rarity ~= "Common" then
+								local boost = if rarity == "Legendary" or rarity == "Mythical"
+									then Catching.RESCUE_TOP_BOOST
+									else Catching.RESCUE_BOOST
 								expect(rescue[rarity] / rescue.Common).to.be.near(
-									2 * (area.odds :: any)[rarity] / area.odds.Common,
+									boost * (area.odds :: any)[rarity] / area.odds.Common,
 									1e-9
 								)
 							end
@@ -308,7 +314,7 @@ return function()
 				})
 			end)
 
-			it("a rescue roll over the Alleyway gives a Rare 58 / 146 of the time", function()
+			it("a rescue roll over the Alleyway gives a Rare 58 / 148.4 of the time", function()
 				local alley = Catalog.getArea("alley")
 				assert(alley)
 				local rescue = Catching.rescueOdds(alley.odds)
@@ -318,7 +324,7 @@ return function()
 						rares += 1
 					end
 				end
-				expect(rares / n).to.be.near(58 / 146, 0.001)
+				expect(rares / n).to.be.near(58 / 148.4, 0.001)
 			end)
 		end
 	)

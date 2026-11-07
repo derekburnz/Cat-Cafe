@@ -1,6 +1,7 @@
 --!strict
 -- Rescue traps (data-model section 10b, F27): some days a cat is stuck at a trap, and a short minigame frees it.
--- NightService empties the traps at dusk and fills them at sunrise (v0.9, F66).
+-- NightService empties the traps at dusk and fills them at sunrise (v0.9, F66); since #2240 each sunrise also picks which
+-- of the area's pool of spots hold traps that day (RescuePick).
 -- RescueBegin locks the trap to one player and sends the challenge; RescuePress carries the press's own server-clock
 -- time, which the server keeps within half the player's ping (plus Rescue.PRESS_SLACK) of arrival (#2241; with no
 -- time it stamps the press on arrival and takes off half the ping); enough hits free the cat into the player's arms, out
@@ -41,6 +42,7 @@ local PalService = require(script.Parent.PalService)
 local Payout = require(script.Parent.Payout)
 local RallyService = require(script.Parent.RallyService)
 local Rescue = require(ReplicatedStorage.Shared.Rescue)
+local RescuePick = require(ReplicatedStorage.Shared.RescuePick)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
@@ -72,6 +74,8 @@ type Stuck = {
 local world: WorldBuilder.World
 local strayFolder: Instance
 local stuckCats: { [string]: Stuck } = {} -- rescueSpotId -> stuck cat
+-- #2240: area id -> the spots that hold traps today (RescuePick), so tomorrow's pick avoids them
+local activeSpots: { [string]: { [string]: boolean } } = {}
 local helperTipAt: { [Player]: number } = {} -- F92: os.clock() of each player's last helper's tip this session
 local rng = Random.new()
 
@@ -249,18 +253,53 @@ local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePa
 	return spawnStuck(spotId, areaDef.id, spot, def, charm, variant)
 end
 
--- Sunrise: each trap drops any cat still in it and rolls RescueSpawnChance for a new one, and an area where no trap
--- rolled a cat gets RescueMinStuck anyway, so a new player always meets a rescue on the first day. A trap someone is
--- mid-attempt on keeps its cat (dusk emptied the rest, so that only happens after Studio's setPhase).
+-- #2240: today's traps in `area`, RescuePick's choice of the area's mix from its pool of spots, away from yesterday's.
+local function pickTraps(areaId: string, area: WorldBuilder.AreaInfo): { string }
+	local pool: { RescuePick.Candidate } = {}
+	for spotId, spot in area.rescueSpots do
+		local trap = spot:GetAttribute("TrapType")
+		table.insert(pool, {
+			id = spotId,
+			trap = if type(trap) == "string" then trap else "",
+			position = spot.Position,
+		})
+	end
+	local ids = RescuePick.pick(
+		pool,
+		area.rescueMix,
+		activeSpots[areaId] or {},
+		Config.RescueSpotSpacingStuds,
+		function(n: number): number
+			return rng:NextInteger(1, n)
+		end
+	)
+	local active: { [string]: boolean } = {}
+	for _, spotId in ids do
+		active[spotId] = true
+	end
+	activeSpots[areaId] = active
+	return ids
+end
+
+-- Sunrise: the area's traps for the day are picked from its pool (#2240), each drops any cat still in it and rolls
+-- RescueSpawnChance for a new one, and an area where no trap rolled a cat gets RescueMinStuck anyway, so a new player
+-- always meets a rescue on the first day. A trap someone is mid-attempt on keeps its cat (dusk emptied the rest, so
+-- that only happens after Studio's setPhase), and a cat at a spot not picked today is cleared.
 local function rollRescues(areaDef: Types.AreaDef)
 	local area = world.areas[areaDef.id]
 	local stuck = 0
 	local free: { string } = {}
-	local ids: { string } = {}
-	for spotId in area.rescueSpots do
-		table.insert(ids, spotId)
+	local ids = pickTraps(areaDef.id, area) -- sorted, so a spec or a Studio session can predict the guarantee
+	local today: { [string]: boolean } = {}
+	for _, spotId in ids do
+		today[spotId] = true
 	end
-	table.sort(ids) -- the same order on every server, so a spec or a Studio session can predict the guarantee
+	for spotId in area.rescueSpots do
+		local current = stuckCats[spotId]
+		if not today[spotId] and current ~= nil and current.attempt == nil then
+			clearStuck(current)
+		end
+	end
 	for _, spotId in ids do
 		local spot = area.rescueSpots[spotId]
 		local current = stuckCats[spotId]

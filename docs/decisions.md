@@ -615,3 +615,9 @@ Derek2 asked for the Cat Collector to come "a decent amount more often" and rich
 The docs also now match the code: pass XP from #2080 in quests.md §8 and cafe-pass.md, and `CircleGapMin` 0.55 from #2062 in data-model.md.
 
 Reason: these are Derek2's asks. The Collector's offers stay optional, and the income change is small.
+
+## 2026-11-07: first-hour re-fit with the new visitor rates (#2107, #2121)
+Design-Agent took Gameplay-Engineer's run B: Bait Bowl 3 opens at Tier 2 and costs 150,000. The faster rich tips from #2107 sped up the first hour. Bowl 3 at 70k left Tier 5 on a 4-friend server at 7 h 39, under its 8 to 12 h guard, so the bowl stays at 150k.
+- **Pace targets:** Tables 5 at about 25 minutes. Longest gap of coin buys plus rank-ups: 15 minutes or less. Longest gap counting new cats and roadmap steps: 10 minutes or less (6 stays the goal).
+- **No second cheap buy.** The upgrade levels left are either the Master Net (too strong in the first hour) or large income buys that would need the whole ladder re-priced.
+- **Why:** this keeps the Tier 2, Tier 3 and Tier 5 guards. Live funnel data decides any further change.

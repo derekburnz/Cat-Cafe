@@ -53,6 +53,7 @@ export type Popups = {
 		hook: string?
 	) -> (),
 	showGift: (self: Popups, title: string, prize: Types.IndexPrize) -> (),
+	dropOffline: (self: Popups) -> boolean,
 	setCatalog: (self: Popups, catalog: Types.Catalog) -> (),
 	dismiss: (self: Popups) -> (),
 	setHeld: (self: Popups, held: boolean) -> (),
@@ -122,14 +123,30 @@ function Popups.new(parent: Instance): Popups
 		Enabled = false,
 	})
 	self.screenGui = screenGui
+	-- #2137 (Derek2: "a thin black bar still stops near the top of the screen while a UI is open", on the Welcome back
+	-- card): the dim is its own layer just under the cards that ignores the top bar inset, as the windows' dim
+	-- (Modal, #1236), so it covers the whole screen; it is on exactly while the cards' layer is
+	local dimGui: ScreenGui = Create("ScreenGui", {
+		Name = "CatCafePopupsDim",
+		ResetOnSpawn = false,
+		IgnoreGuiInset = true,
+		ScreenInsets = Enum.ScreenInsets.None,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		DisplayOrder = 39,
+		Enabled = false,
+	})
+	self._dimGui = dimGui
 	self._backdrop = Create("Frame", {
 		Name = "Backdrop",
 		BackgroundColor3 = Theme.modal.backdrop,
 		BackgroundTransparency = 0.5,
 		BorderSizePixel = 0,
 		Size = UDim2.fromScale(1, 1),
-		Parent = screenGui,
+		Parent = dimGui,
 	})
+	self._dimFollow = screenGui:GetPropertyChangedSignal("Enabled"):Connect(function()
+		dimGui.Enabled = screenGui.Enabled
+	end)
 	local root: Frame = Create("Frame", {
 		Name = "Root",
 		BackgroundTransparency = 1,
@@ -541,6 +558,7 @@ function Popups.new(parent: Instance): Popups
 	table.insert(self._buttons, giftOk)
 
 	if parent then
+		dimGui.Parent = parent
 		screenGui.Parent = parent
 	end
 	return self :: Popups
@@ -787,9 +805,27 @@ function Popups.showOffline(
 	end
 	self._offlineWaiting = true
 	self:_show(function()
+		if not self._offlineWaiting then
+			self:_next() -- #2157: dropped while it waited (dropOffline)
+			return
+		end
 		self:_open(self._offlineCard)
 		fill()
 	end)
+end
+
+-- #2157: takes the Welcome back card away without a tap, whether it is up or still waiting (an intro replay). True
+-- when there was one, so the caller can collect the earnings in its place.
+function Popups.dropOffline(self: any): boolean
+	if not self._offlineWaiting then
+		return false
+	end
+	self._offlineWaiting = false
+	self._offline = nil
+	if self._current == self._offlineCard then
+		self:dismiss()
+	end
+	return true
 end
 
 -- The food names on the gift card's pictures (PrizeChips)
@@ -820,6 +856,8 @@ function Popups.destroy(self: any)
 	self._giftChips:destroy()
 	self._portrait:destroy()
 	Scale.unbind(self._uiScale)
+	self._dimFollow:Disconnect()
+	self._dimGui:Destroy()
 	self.screenGui:Destroy()
 end
 

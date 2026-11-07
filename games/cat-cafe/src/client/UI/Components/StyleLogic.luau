@@ -64,6 +64,7 @@ local NAMES: { [string]: string } = {
 	jukebox_catnap_waltz = "Catnap Waltz",
 	jukebox_bakery_bounce = "Bakery Bounce",
 	jukebox_starlight_purr = "Starlight Purr",
+	shuffle = "Shuffle", -- #2077: shared/Jukebox.SHUFFLE
 }
 
 -- #2007 (Derek2: "put symbols beside each one so it knows what player is equipping"): a symbol per option. Only
@@ -90,6 +91,7 @@ local ICONS: { [string]: string } = {
 	jukebox_catnap_waltz = "💤",
 	jukebox_bakery_bounce = "🥐",
 	jukebox_starlight_purr = "🌟",
+	shuffle = "🔀",
 }
 
 -- the default option's symbol, and the symbol for an owned id with none of its own
@@ -219,12 +221,23 @@ function StyleLogic.rows(state: any, names: { [string]: string }?): { Row }
 	local tracks: { string } = if type(state.jukeboxTracks) == "table"
 		then state.jukeboxTracks
 		else {}
+	-- #2077: Shuffle right after the mix, while the client can play it (state.jukeboxShuffle is its id)
+	if type(state.jukeboxShuffle) == "string" and #tracks > 0 then
+		tracks = table.clone(tracks)
+		table.insert(tracks, 1, state.jukeboxShuffle)
+	end
 	local music = row("music", tracks, state.jukebox, names)
 	if music then
 		table.insert(out, music)
 	end
 	return out
 end
+
+-- #2147 (store-pass-looks.md 7.4): a small line under a row, so picking "None" never looks like losing the bonus.
+-- StyleTab shows the accessory one only while the Cat Accessories pass is owned.
+StyleLogic.NOTES = {
+	accessory = "+15% money on every working cat, whatever you pick",
+} :: { [string]: string }
 
 function StyleLogic.inUse(row: Row): string
 	for _, option in row.options do

@@ -40,3 +40,10 @@ Derek2 asked for a piece that shows on every cat. A cat's own themed prop takes 
 - **Store text:** any mention of "Tiny Hat" in the pass's store description becomes "Tail Bow" (Tools-Agent, `passes.json`). The pass's price, the +15% and Round Glasses don't change.
 - **Builders:** Gameplay-Engineer (Looks: the slot, the id and the `hat` to `tail_bow` read, with tests), Model-Agent (the bow and the attachments), Tools-Agent (store text), UI-Engineer (picker label and icon).
 - **QA:** with Tail Bow picked, every working cat in the cafe wears it, including cats with a Head or Back prop. An account that saved the Tiny Hat sees Tail Bow picked after rejoining. "None" removes it.
+
+## 7. Showing the +15% (#2147, Derek2 2026-11-07: "make the +15% earned more obvious")
+The bonus is real on every working cat (Economy.staffMultiplier), but today a player only sees it in the store line and as "Outfit passes x1.15" on the money card. Four client-only cues, no save or server change:
+1. **Store card chip.** The Cat Accessories and Uniform Styles cards lead with a gold "+15% money" chip above the description, the same chip style as the other money passes. The text under it is the one Derek approved: "Dress your cats in bows, glasses and more. A dressed cat earns +15%. Yours to keep."
+2. **Money card rows.** "Outfit passes x1.15" splits into one row a pass, by name: "🎀 Cat Accessories +15%" and "👕 Uniform Styles +15%". Each still multiplies the cats (the total line doesn't change), and the rows still show only once owned.
+3. **Thank-you moment.** Right after the purchase: a toast "Your working cats now earn +15%!" with the bow, and one short bow sparkle over each working cat. Reduce Motion and Low performance keep the toast and skip the sparkle. It plays once per purchase, never again on join.
+4. **Style panel note.** Under the accessory row, one small line: "+15% money on every working cat, whatever you pick", so picking "None" never looks like losing the bonus.

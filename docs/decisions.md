@@ -624,3 +624,9 @@ Design-Agent took Gameplay-Engineer's run B: Bait Bowl 3 opens at Tier 2 and cos
 
 ## 2026-11-07: Tail Bow replaces the Tiny Hat in Cat Accessories (#2109)
 Derek2 wanted a Cat Accessories piece that shows on every cat. The Tiny Hat used the Head slot, which a cat's own prop already fills on 65 of 125 cats. Design-Agent replaced it with a **Tail Bow** (`CatCafe_Accessory_TailBow`) in a new Tail slot that no prop uses. Every cat model gets an `Outfit_Tail` attachment. Saved `hat` picks are read as `tail_bow`. Reason: it shows on every cat without overriding any cat's own prop, which Derek2 turned down, and it isn't a collar.
+
+## 2026-11-07: Make the Cat Accessories +15% obvious (Design-Agent, friend's project, #2147)
+Derek2 asked for the +15% to be more obvious. store-pass-looks.md §7: a gold "+15% money" chip on both outfit pass cards, the money card shows each outfit pass by name, a one-time toast and bow sparkle after buying, and a note on the Style panel that the bonus never depends on the pick. Client only. Reason: the bonus applies to every working cat but was only visible as "Outfit passes x1.15".
+
+## 2026-11-07: Auto Equip for decor (Design-Agent, friend's project, #2068)
+With Auto Equip on, a new furniture or decoration piece from a crate or a pass replaces the weakest placed piece only when its bonus is strictly higher. Never wallpaper, floor or paint, never a piece placed or moved in the last 10 minutes. The old piece goes back to the inventory, and a toast says "Swapped <old> for <new> (+X%)". Shop buys are placed as today, and a pass piece takes a free spot by itself like a crate piece (built in #2161). Reason: keeps the free toggle useful for decor without undoing a player's own layout.

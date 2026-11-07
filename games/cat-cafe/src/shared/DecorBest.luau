@@ -8,12 +8,17 @@
 --   but the one in use stays when nothing beats it, so the cafe's look only changes for more money.
 -- - The old coin pieces (no kind, their own anchors, no spot): every owned one goes out.
 -- Nothing is ever bought or unlocked here; only owned pieces move.
+-- #2068 (Auto Equip, Design-Agent 2026-11-07): `swapFor` picks the placed piece a new crate or pass piece replaces
+-- when every spot is full: only furniture and decorations, only for a strictly higher bonus, never a piece the player
+-- put out by hand in the last HAND_HOLD_SECONDS.
 
 local Catalog = require(script.Parent.Catalog)
 local Crates = require(script.Parent.Crates)
 local Types = require(script.Parent.Types)
 
 local DecorBest = {}
+
+DecorBest.HAND_HOLD_SECONDS = 600 -- #2068: a piece put out by hand stays at least this long under Auto Equip
 
 export type Plan = {
 	placed: { [string]: boolean }, -- the new decorPlaced: every piece to have out
@@ -83,6 +88,44 @@ function DecorBest.plan(profile: Types.PlayerProfile, cap: number): Plan
 		pieces += 1
 	end
 	return { placed = placed, bonus = bonus, pieces = pieces }
+end
+
+-- #2068: the placed furniture or decoration piece that the new owned piece `newId` should replace, or nil: the weakest
+-- placed one (lowest bonus, then rarity, then id) that `held` doesn't name, and only when `newId`'s bonus is strictly
+-- higher. Nil too for a style piece, a piece already out or one not owned. The caller checks the spots are full.
+function DecorBest.swapFor(
+	profile: Types.PlayerProfile,
+	newId: string,
+	held: { [string]: boolean }
+): string?
+	local new = Catalog.getDecor(newId)
+	if
+		new == nil
+		or not profile.decorOwned[newId]
+		or profile.decorPlaced[newId]
+		or not Crates.takesSpot(new)
+	then
+		return nil
+	end
+	local weakest: Types.DecorDef? = nil
+	for decorId, placed in profile.decorPlaced do
+		local def = if placed
+				and profile.decorOwned[decorId]
+				and not held[decorId]
+			then Catalog.getDecor(decorId)
+			else nil
+		if
+			def ~= nil
+			and Crates.takesSpot(def)
+			and (weakest == nil or better(weakest, def, {}))
+		then
+			weakest = def
+		end
+	end
+	if weakest ~= nil and new.bonus > weakest.bonus then
+		return weakest.id
+	end
+	return nil
 end
 
 -- Whether the plan is what the player already has out.

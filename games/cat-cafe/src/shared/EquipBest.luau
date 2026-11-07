@@ -9,6 +9,9 @@
 -- #1955 (auto-equip.md): Auto Equip runs the same plan with some cats held where they are (`planKeeping`): a locked cat
 -- already working, a cat the player placed or rested by hand in the last Config.AutoEquipHoldSeconds, and a cat on
 -- offer in a trade (`held`). A held working cat keeps its slot; a held resting cat stays resting.
+-- #2050 (the greeter "teleport", Animation-Engineer 2026-11-07): Auto Equip's plan is also sticky. A cat already on a
+-- slot counts AUTO_STAY more there, so a level up that makes another cat a hair better doesn't move cats (each move
+-- rebuilds the cat's model). Only a real gain moves anyone; the manual Equip Best button still plans exactly.
 
 local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
@@ -26,6 +29,7 @@ export type Plan = {
 }
 
 local STAY_BONUS = 1e-6 -- below any real difference in value; only breaks exact ties
+EquipBest.AUTO_STAY = 0.05 -- #2050: Auto Equip moves a working cat only for a cat worth over 5% more in that plan
 local INF = math.huge
 
 -- Value of one cat in one slot for an owner at `tier`: rating x favorite role multiplier. 0 for an unknown cat.
@@ -129,11 +133,15 @@ local function orderedCats(profile: Types.PlayerProfile): { Types.CatInstance }
 end
 
 -- The best placement of `cats` on `spots` (the cats best first).
+-- `stay` (default 0) is how much more a cat counts on the slot it already has (#2050); the plan's baseRate is
+-- always the true value.
 local function planFor(
 	profile: Types.PlayerProfile,
 	spots: { Types.SpotDef },
-	cats: { Types.CatInstance }
+	cats: { Types.CatInstance },
+	stay: number?
 ): Plan
+	local keep = 1 + math.max(0, stay or 0)
 	local n = #spots
 	local placements: { [string]: string } = {}
 	if n == 0 or #cats == 0 then
@@ -148,7 +156,7 @@ local function planFor(
 		for j, instance in cats do
 			local value = EquipBest.value(instance, spot, profile.tier)
 			if value > 0 and instance.spotId == spot.id then
-				value += STAY_BONUS
+				value = value * keep + STAY_BONUS
 			end
 			row[j] = -value
 		end
@@ -203,8 +211,12 @@ function EquipBest.held(
 end
 
 -- #1955: Equip Best's plan with the `held` cats kept where they are: a held working cat keeps its open slot (and its
--- value counts), the other cats share the rest of the open slots.
-function EquipBest.planKeeping(profile: Types.PlayerProfile, held: { [string]: boolean }): Plan
+-- value counts), the other cats share the rest of the open slots. `stay` as planFor (Auto Equip passes AUTO_STAY).
+function EquipBest.planKeeping(
+	profile: Types.PlayerProfile,
+	held: { [string]: boolean },
+	stay: number?
+): Plan
 	local kept: { [string]: string } = {}
 	local keptRate = 0
 	local taken: { [string]: boolean } = {}
@@ -230,7 +242,7 @@ function EquipBest.planKeeping(profile: Types.PlayerProfile, held: { [string]: b
 			table.insert(cats, instance)
 		end
 	end
-	local plan = planFor(profile, spots, cats)
+	local plan = planFor(profile, spots, cats, stay)
 	local placed = plan.catsPlaced
 	for uid, spotId in kept do
 		plan.placements[uid] = spotId

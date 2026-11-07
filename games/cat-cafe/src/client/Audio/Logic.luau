@@ -513,6 +513,39 @@ function Logic.jukeboxSong(cueId: string?, has: (string) -> boolean): string?
 	return nil
 end
 
+-- #2077 Jukebox Shuffle: the cues of the list that have a file, each once, in the list's order. Empty for nil or a
+-- list with nothing playable, which sends the music back to the pick or the rotation.
+function Logic.shuffleSongs(cues: any, has: (string) -> boolean): { string }
+	local songs: { string } = {}
+	if type(cues) ~= "table" then
+		return songs
+	end
+	local seen: { [string]: boolean } = {}
+	for _, cueId in cues do
+		if type(cueId) == "string" and not seen[cueId] and has(cueId) then
+			seen[cueId] = true
+			table.insert(songs, cueId)
+		end
+	end
+	return songs
+end
+
+-- Whether two shuffle lists hold the same cues in the same order (a sync that repeats the list changes nothing).
+function Logic.sameList(a: { string }?, b: { string }?): boolean
+	if a == nil or b == nil then
+		return a == b
+	end
+	if #a ~= #b then
+		return false
+	end
+	for i, cueId in a do
+		if b[i] ~= cueId then
+			return false
+		end
+	end
+	return true
+end
+
 -- #1541: the tutorial's own song plays while the intro cutscene runs, or while the first tutorial steps (steps below
 -- `lastStep`) show with the Tutorial tile on. The tile's x (its setting off) or finishing the steps ends it. With no
 -- step known yet nothing plays.

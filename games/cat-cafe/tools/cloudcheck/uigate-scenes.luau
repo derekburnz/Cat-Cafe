@@ -978,6 +978,35 @@ local SCENES = {
 		assert(lawn:FindFirstChild("Heading_big", true), "uigate: the Garden Bench's Big spots heading is missing (#2081)")
 		assert(lawn:FindFirstChild("Heading_styles", true), "uigate: the Paths and fences heading is missing (#2081)")
 	end },
+	-- #2075 (Derek2: "uncommon and common use same color background and golden background looks too plain"): the
+	-- Uncommon Mailbox's tile in mint, apart from the Common Tulip Bed's, and a Golden piece on its gold sheen
+	{ "DecorLawnRarity", function()
+		bindLawnPlot()
+		local owned = table.clone(samplePlayer(os.time()).lawnOwned)
+		Scenes._lawnOwned = table.clone(owned)
+		owned.golden_paw_statue = true
+		UI.update({ lawnOwned = owned } :: any)
+		UI.open("Decor")
+		press("Decor", "FrontLawn")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local lawn = modals and modals:FindFirstChild("Lawn", true)
+		local function tile(id)
+			local card = lawn and lawn:FindFirstChild(id, true)
+			return card and card:FindFirstChild("Icon")
+		end
+		local common, uncommon, golden = tile("tulip_bed"), tile("mailbox"), tile("golden_paw_statue")
+		assert(common and uncommon and golden, "uigate: a lawn card is missing (#2075)")
+		local a, b = common.BackgroundColor3, uncommon.BackgroundColor3
+		assert(math.abs(a.R - b.R) + math.abs(a.G - b.G) + math.abs(a.B - b.B) > 0.1,
+			"uigate: Uncommon's lawn tile is Common's colour (#2075)")
+		assert(b.G > b.R, "uigate: Uncommon's lawn tile isn't mint (#2075)")
+		local sheen = golden:FindFirstChild("GoldenSheen")
+		assert(sheen and sheen.Enabled, "uigate: the Golden lawn piece has no gold sheen (#2075)")
+		assert(common:FindFirstChild("GoldenSheen") == nil or not common.GoldenSheen.Enabled,
+			"uigate: a Common lawn piece shines gold (#2075)")
+		local pill = uncommon.Parent:FindFirstChild("Rarity")
+		assert(pill and pill.BackgroundColor3.G > pill.BackgroundColor3.R, "uigate: the Uncommon pill isn't mint (#2075)")
+	end },
 	-- #1624: the Style tab, the cafe sign (Royal Crest in use) and the uniforms once the server sends looks
 	{ "DecorStyle", function()
 		UI.update({
@@ -994,6 +1023,35 @@ local SCENES = {
 		})
 		UI.open("Decor")
 		press("Decor", "Style")
+	end },
+	-- #2147 (store-pass-looks.md 7.4): with the Cat Accessories pass owned, the accessory row has its small gold line
+	-- under the buttons, "+15% money on every working cat, whatever you pick"
+	{ "DecorStyleOutfitNote", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		UI.store.preview(storePrices(true), { [Config.CatAccessoriesPassId] = true })
+		UI.update({
+			looks = {
+				uniform = "midnight",
+				uniforms = { "default", "striped", "midnight" },
+				accessory = "",
+				accessories = { "hat", "glasses" },
+				theme = "garden",
+				themes = { "default", "garden" },
+			},
+		})
+		UI.open("Decor")
+		press("Decor", "Style")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local tab = modals and modals:FindFirstChild("StyleTab", true)
+		local row = tab and tab:FindFirstChild("accessory")
+		local note = row and row:FindFirstChild("Note") :: TextLabel?
+		assert(note and note.Visible, "uigate: no +15% line under the accessory row (#2147)")
+		assert((note :: TextLabel).TextFits, "uigate: the accessory row's +15% line does not fit (#2147)")
+		local options = (row :: Instance):FindFirstChild("Options") :: GuiObject
+		assert((note :: TextLabel).AbsolutePosition.Y >= options.AbsolutePosition.Y + options.AbsoluteSize.Y - 1, "uigate: the +15% line is not under the buttons (#2147)")
+		local uniform = tab:FindFirstChild("uniform")
+		assert(uniform and uniform:FindFirstChild("Note") == nil, "uigate: the uniform row has a note (#2147)")
+		UI.store.preview({}, {})
 	end },
 	-- #2007 (Derek2: "cafe sign cant change back to plain also put symbols beside each one"): every sign style with
 	-- its symbol, Paw Chalkboard in use, then the sync for Plain ("" now, where nil left the old pick gold)
@@ -1041,6 +1099,7 @@ local SCENES = {
 				"jukebox_starlight_purr",
 			},
 			jukebox = "jukebox_catnap_waltz",
+			jukeboxShuffle = "shuffle", -- #2077
 		} :: any)
 		UI.open("Decor")
 		press("Decor", "Style")
@@ -1052,10 +1111,11 @@ local SCENES = {
 			table.insert(asked, kind .. ":" .. id)
 		end)
 		press("Decor", "music.jukebox_starlight_purr")
+		press("Decor", "music.shuffle")
 		press("Decor", "music.Default")
 		connection:Disconnect()
 		assert(
-			table.concat(asked, ",") == "music:jukebox_starlight_purr,music:",
+			table.concat(asked, ",") == "music:jukebox_starlight_purr,music:shuffle,music:",
 			"uigate: the music row asked " .. table.concat(asked, ",")
 		)
 	end },
@@ -1089,6 +1149,29 @@ local SCENES = {
 		if SettingsList.isKey(SettingsList.AUTO_EQUIP_KEY) then
 			local switch = UIShim.playerGui:FindFirstChild("AutoEquip", true)
 			assert(switch and switch.Visible, "uigate: no Auto Equip switch in the Cats window (#1955)")
+			local function shows(): string
+				for _, inst in (switch :: Instance):GetDescendants() do
+					if (inst:IsA("TextLabel") or inst:IsA("TextButton")) and string.find(inst.Text, "Auto Equip", 1, true) then
+						return inst.Text
+					end
+				end
+				return (switch :: any).Text
+			end
+			assert(shows() == "Auto Equip: On", "uigate: the switch shows " .. shows() .. " with the setting on")
+			-- #2076: a sync sent before the server applied the press keeps the old value; the switch keeps the press
+			local function sync(on: boolean)
+				local next = table.clone(settings)
+				next.autoEquip = on
+				UI.update({ settings = next } :: any)
+			end
+			press("Cats", "AutoEquip")
+			assert(shows() == "Auto Equip: Off", "uigate: the switch shows " .. shows() .. " after pressing Off")
+			sync(true) -- stale
+			assert(shows() == "Auto Equip: Off", "uigate: a stale sync flashed the switch back On (#2076)")
+			sync(false) -- the server caught up
+			assert(shows() == "Auto Equip: Off", "uigate: the switch shows " .. shows() .. " once the server agrees")
+			sync(true) -- a later change from elsewhere (Settings) shows at once
+			assert(shows() == "Auto Equip: On", "uigate: the switch ignored a real change after the press settled")
 		end
 	end },
 	-- #2047 (Derek2: "with the extra slots it doesn't show all the working cats on the top"): a Tier 5 cafe with Grand
@@ -1554,7 +1637,15 @@ local SCENES = {
 		UI.bait.showReady({ catId = Catalog.cats[2].id, stars = 2 }, 2)
 		local banner = UIShim.playerGui:FindFirstChild("CatCafeBaitCard"):FindFirstChild("Banner", true)
 		assert(banner.Text == "A CAT CAME TO BOWL 2!", "uigate: the cat's card says " .. banner.Text .. " (#1161)")
+		-- #2137: the card's dim covers the whole screen, the top bar's strip too
+		local dim = UIShim.playerGui:FindFirstChild("CatCafeBaitCardDim")
+		local backdrop = dim and dim:FindFirstChild("Backdrop") :: GuiObject?
+		assert(dim and (dim :: ScreenGui).Enabled and backdrop, "uigate: no dim behind the bait card (#2137)")
+		local screenY = workspace.CurrentCamera.ViewportSize.Y
+		assert((backdrop :: GuiObject).AbsolutePosition.Y <= 0 and (backdrop :: GuiObject).AbsoluteSize.Y >= screenY - 1, "uigate: the bait card's dim stops short of the top (#2137)")
 		press("CatCafeBaitCard", "Close") -- the X; See the cat brings it back
+		UIShim.advance(1) -- the card pops out first
+		assert(not (dim :: ScreenGui).Enabled, "uigate: the bait card's dim stays after the card closed (#2137)")
 		assertBowlTile(true)
 		UI.bait.openPicker()
 		assertBowlTabs(2, "A cat is at bowl 2!")
@@ -2476,6 +2567,34 @@ local SCENES = {
 		UI.showOfflineEarnings(48200, 3 * 3600)
 		-- an ask (the invite nudge) waits for the Welcome back card (Studio run 2026-11-07)
 		assert(not UI.tips.quiet(), "uigate: an ask could slide in under the Welcome back card")
+		-- #2137: the dim behind the card covers the whole screen, the top bar's strip too
+		local dim = UIShim.playerGui:FindFirstChild("CatCafePopupsDim")
+		local backdrop = dim and dim:FindFirstChild("Backdrop") :: GuiObject?
+		assert(dim and (dim :: ScreenGui).Enabled and backdrop, "uigate: no dim behind the Welcome back card (#2137)")
+		local screen = workspace.CurrentCamera.ViewportSize
+		assert((backdrop :: GuiObject).AbsolutePosition.Y <= 0 and (backdrop :: GuiObject).AbsoluteSize.Y >= screen.Y - 1, ("uigate: the dim starts at y %d, %d tall, not the whole %d (#2137)"):format((backdrop :: GuiObject).AbsolutePosition.Y, (backdrop :: GuiObject).AbsoluteSize.Y, screen.Y))
+	end },
+	-- #2157 (Desktop-Tester on #2128): a replay asked for with Settings open and the Welcome back card up closes
+	-- Settings at once and collects the earnings, so the card never comes back after the intro
+	{ "IntroReplayTidy", function()
+		UI.update({ tipsSeen = { stuck_cat = true, codes_cat = true } })
+		local claimed = 0
+		local counting = UI.events.claimOffline:Connect(function()
+			claimed += 1
+		end)
+		UI.showOfflineEarnings(48200, 3 * 3600)
+		UI.open("Settings")
+		assert(UI.isOpen() == "Settings", "uigate: Settings did not open")
+		UI.events.introReplay:Fire()
+		assert(UI.isOpen() == nil, "uigate: Settings stays open on a replay (#2157)")
+		assert(claimed == 1, ("uigate: the replay collected the earnings %d times, not once (#2157)"):format(claimed))
+		UIShim.advance(1)
+		local popups = UIShim.playerGui:FindFirstChild("CatCafePopups")
+		local card = popups and popups:FindFirstChild("Offline", true) :: GuiObject?
+		assert(card == nil or not card.Visible, "uigate: the Welcome back card is still up after a replay (#2157)")
+		UI.events.introReplay:Fire()
+		assert(claimed == 1, "uigate: a second replay collected again (#2157)")
+		counting:Disconnect()
 	end },
 	-- #2123 (first-hour.md 6a): the welcome back card with the reason to play today under the coins, the card taller
 	-- by the line and Collect still clear of the note
@@ -2637,6 +2756,51 @@ local SCENES = {
 			passBoosts = { cafe = 0.6, staff = 1.3225, rich = 1.25, money = 2 },
 		})
 		press("CatCafeHUD", "Counters.Money")
+		-- #2147: each outfit pass on its own row by name, "+15%", in place of "Outfit passes x1.32"
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local named: { [string]: boolean } = {}
+		for _, label in (hud :: Instance):GetDescendants() do
+			if label:IsA("TextLabel") and label.Visible then
+				for _, name in { "Cat Accessories", "Uniform Styles" } do
+					if string.find(label.Text, name, 1, true) then
+						assert(label.TextFits, "uigate: the " .. name .. " boost row does not fit (#2147)")
+						named[name] = true
+					end
+				end
+				assert(not string.find(label.Text, "Outfit passes", 1, true), "uigate: the money card still says Outfit passes (#2147)")
+			end
+		end
+		assert(named["Cat Accessories"] and named["Uniform Styles"], "uigate: the money card names no outfit pass (#2147)")
+	end },
+	-- #2090 (Derek2: "add an arrow to hide potion effects ... a lot of screen clutter"): four potions running, so the
+	-- row has the arrow tab; a tap folds them into one "x4" chip, a tap on that brings them back; the shot is folded
+	{ "HUDPotionsFold", function()
+		local t = workspace:GetServerTimeNow()
+		UI.update({
+			buffs = { tip_potion = t + 492, swift_potion = t + 130, lucky_potion = t + 492, steady_potion = t + 300 },
+		})
+		local timers = UIShim.playerGui:FindFirstChild("PotionTimers", true)
+		assert(timers and timers.Visible, "uigate: no potion timers row (#2090)")
+		local function chips()
+			local count = 0
+			for _, child in timers:GetChildren() do
+				if child:IsA("TextButton") and child.Name ~= "Fold" and child.Name ~= "Folded" and child.Visible then
+					count += 1
+				end
+			end
+			return count
+		end
+		local running = chips()
+		assert(running >= 2, "uigate: the scene needs two or more potions running (#2090)")
+		assert(timers.Fold.Visible, "uigate: no arrow tab with " .. running .. " potions running (#2090)")
+		press("CatCafeHUD", "PotionTimers.Fold")
+		assert(chips() == 0 and timers.Folded.Visible, "uigate: the arrow did not fold the potions away (#2090)")
+		assert(timers.Folded.Count.Text == "x" .. running, "uigate: the folded chip says " .. timers.Folded.Count.Text .. " (#2090)")
+		assert(not timers.Fold.Visible, "uigate: the arrow tab shows while folded (#2090)")
+		press("CatCafeHUD", "PotionTimers.Folded")
+		assert(chips() == running and not timers.Folded.Visible, "uigate: the folded chip did not bring the potions back (#2090)")
+		press("CatCafeHUD", "PotionTimers.Fold") -- folded for the shot
+		Scenes._potionsFolded = timers
 	end },
 	-- F88: a Lucky Day with a Lucky Potion running: the Luck chip with gold text at the start of the potion row, its card
 	-- open over the counters (closing the boosts card), and "Lucky Day now" under the clock
@@ -3116,6 +3280,51 @@ local SCENES = {
 		press("CatCafeModals", "passes")
 		assertStoreCards(false)
 	end },
+	-- #2147 (Derek2: "make the +15% earned more obvious"): the Cat Accessories and Uniform Styles cards lead their words
+	-- with a gold "+15% money" chip, under the picture and over the words; no other card has one
+	{ "StorePassesPerk", function()
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		press("CatCafeModals", "passes")
+		assertStoreCards(false)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Store", true)
+		local list = window and window:FindFirstChild("List", true)
+		local chips: { [string]: boolean } = {}
+		for _, label in (list :: Instance):GetDescendants() do
+			if not (label:IsA("TextLabel") and label.Name == "Name" and label.Visible) then
+				continue
+			end
+			local card = label.Parent :: Frame
+			local perk = card:FindFirstChild("Perk") :: TextLabel?
+			local effect = card:FindFirstChild("Effect") :: TextLabel
+			local shown = perk ~= nil and perk.Visible
+			if label.Text == "Cat Accessories" or label.Text == "Uniform Styles" then
+				assert(shown and (perk :: TextLabel).Text == "+15% money", "uigate: the " .. label.Text .. " card has no +15% money chip (#2147)")
+				local chip = perk :: TextLabel
+				assert(chip.TextFits, "uigate: the +15% chip's words do not fit (#2147)")
+				assert(effect.AbsolutePosition.Y >= chip.AbsolutePosition.Y + chip.AbsoluteSize.Y, "uigate: the " .. label.Text .. " words sit on the chip (#2147)")
+				assert(chip.AbsolutePosition.Y >= label.AbsolutePosition.Y + label.AbsoluteSize.Y - 1, "uigate: the chip sits on the name (#2147)")
+				local cardRight = card.AbsolutePosition.X + card.AbsoluteSize.X
+				assert(chip.AbsolutePosition.X + chip.AbsoluteSize.X <= cardRight, "uigate: the chip runs off the card (#2147)")
+				chips[label.Text] = true
+			else
+				assert(not shown, "uigate: the " .. label.Text .. " card has a perk chip (#2147)")
+			end
+		end
+		assert(chips["Cat Accessories"] and chips["Uniform Styles"], "uigate: an outfit pass card is missing (#2147)")
+		-- 7.3: the prompt says Cat Accessories was just bought: the thank-you toast (the sparkle is Animation's)
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local PassShop = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.PassShop")
+		PassShop.purchased:Fire(Config.CatAccessoriesPassId)
+		local toast = nil
+		for _, label in UIShim.playerGui:GetDescendants() do
+			if label:IsA("TextLabel") and string.find(label.Text, "Your working cats now earn +15%!", 1, true) then
+				toast = label
+			end
+		end
+		assert(toast and toast.Text == "🎀 Your working cats now earn +15%!", "uigate: no +15% toast after buying Cat Accessories (#2147)")
+	end },
 	-- #2010 (Derek2: "extra food bowl is missing from live game store"): the Cats tab sells the Second Bait Bowl
 	{ "StoreCatsBowl", function()
 		UI.store.preview(storePrices(true), {})
@@ -3410,6 +3619,14 @@ end
 
 function Scenes.close()
 	reel(false)
+	if Scenes._potionsFolded then
+		-- #2090: the potions back out for the other scenes
+		local folded = Scenes._potionsFolded:FindFirstChild("Folded")
+		if folded and folded.Visible then
+			press("CatCafeHUD", "PotionTimers.Folded")
+		end
+		Scenes._potionsFolded = nil
+	end
 	if Scenes._rallyPeek then
 		Scenes._rallyPeek = nil
 		UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = 0 })) -- #2098: the banner put away
@@ -3443,6 +3660,10 @@ function Scenes.close()
 		UI.pass.set(nil)
 		Scenes._achievementPrizes.S.passXp = Scenes._passXp.small
 		Scenes._passXp = nil
+	end
+	if Scenes._lawnOwned then
+		UI.update({ lawnOwned = Scenes._lawnOwned } :: any) -- #2075's lawn rarity scene
+		Scenes._lawnOwned = nil
 	end
 	if Scenes._decorOwned ~= nil then
 		UI.update({ decorOwned = Scenes._decorOwned } :: any) -- #2053's rarity tint scene

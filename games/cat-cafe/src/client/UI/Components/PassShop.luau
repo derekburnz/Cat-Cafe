@@ -30,6 +30,7 @@ local StoreLogic = require(script.Parent.StoreLogic)
 local PassShop = {}
 
 PassShop.changed = Signal.new() -- prices or ownership changed
+PassShop.purchased = Signal.new() -- (passId) #2147: the prompt says a pass was just bought here (never at join)
 PassShop.ownerGrant = Signal.new() -- (productId) #1770: owner test mode's grant in place of a purchase
 PassShop.blocked = Signal.new() -- (source, reason) #1936: a prompt refused, "no_tap" or "busy"
 -- #1936: set by UI.init, true during a catch, a rescue or a cutscene
@@ -187,6 +188,7 @@ function PassShop.start(ids: { number }, productIds: { number }?)
 				if who == player and purchased and not owned[id] then
 					owned[id] = true
 					PassShop.changed:Fire()
+					PassShop.purchased:Fire(id)
 				end
 			end
 		)

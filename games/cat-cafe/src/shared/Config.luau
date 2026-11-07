@@ -283,6 +283,10 @@ local Config = {
 	-- catch anywhere claims it in MemoryStore, tried PityClaimRetries times before the catcher keeps it anyway.
 	PityLegendarySeconds = 1800,
 	PityMythicalEvery = 4,
+	-- #1946 (1i): the restarting timers. The next Legendary is due PityLegendarySeconds after the last Legendary pity
+	-- cat was caught or left at night, the next Mythical this long after the last Mythical (PityMythicalEvery is
+	-- then only the fallback slots' rule).
+	PityMythicalSeconds = 7200,
 	PityAreaWeights = {
 		alley = 10,
 		park = 15,

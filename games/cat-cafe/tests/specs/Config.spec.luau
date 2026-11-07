@@ -23,9 +23,9 @@ return function()
 		AutosaveSeconds = 60,
 		-- the clock and night waves (section 9, v0.3 in F23): no trickle spawns, so SpawnIntervalSeconds and
 		-- MaxStraysPerArea are gone, and the wave size lives per area in Catalog.areas (Catalog.spec)
-		DayLengthSeconds = 300,
-		NightLengthSeconds = 90, -- v0.9 (F66): a short night between hunts
-		ServerStartDaySeconds = 300, -- v0.9: a new server opens at sunrise; #1437: the global clock's first day
+		DayLengthSeconds = 320, -- #2192: was 300
+		NightLengthSeconds = 70, -- v0.9 (F66): a short night between hunts; #2192: was 90
+		ServerStartDaySeconds = 320, -- v0.9: a new server opens at sunrise; #1437: the global clock's first day
 		ClockEpoch = 1793491200, -- #1437
 		DuskWarningSeconds = 15,
 		NightSweepSeconds = 2,
@@ -96,7 +96,7 @@ return function()
 		CustomerStayMin = 20,
 		CustomerStayMax = 40,
 		RemoteRateLimitPerSecond = 10,
-		AnnounceMinRarity = "Epic",
+		AnnounceMinRarity = "Legendary", -- #2205: was Epic
 		GrabCooldownSeconds = 2,
 		TravelCooldownSeconds = 1, -- v0.4 (F19) 3; #1434 1
 		SyncIntervalSeconds = 10,
@@ -293,6 +293,8 @@ return function()
 		CampExtraRangeStuds = 8,
 		RallyStartWeekday = 6, -- F101 (rescue-rally.md section 5); RallyPoints is checked in Rally.spec
 		RallyHours = 48,
+		RallyExtendFrom = 1794009600, -- #2227: Saturday 2026-11-07 00:00 UTC
+		RallyExtendUntil = 1794787200, -- #2227: Monday 2026-11-16 00:00 UTC
 		RallyPointsPerPlayer = 22,
 		RallyMinPlayers = 3,
 		RallyMinPoints = 3,
@@ -805,15 +807,19 @@ return function()
 		)
 
 		it(
-			"the rescue bar matches the section 10b table: rarer is faster and narrower (v0.13.15 F83)",
+			"the rescue bar matches the section 10b table: rarer is faster with less time in the zone (v0.13.15 F83, #2219)",
 			function()
 				local rows = {
 					Common = { 1.0, 0.26 },
 					Rare = { 1.2, 0.20 },
 					Epic = { 1.4, 0.15 },
 					Legendary = { 1.6, 0.12 },
-					Mythical = { 1.8, 0.10 },
+					Mythical = { 1.8, 0.14 },
 				}
+				-- how long the marker stays inside a zone (tolerance included) on its first pass
+				local function inZoneSeconds(row: { number }): number
+					return (row[2] + 2 * Config.RescueTolerance) / row[1]
+				end
 				local previous: { number }? = nil
 				for _, rarity in Catalog.rarityOrder do
 					local row = rows[rarity]
@@ -821,7 +827,7 @@ return function()
 					expect(Config.RescueZoneWidth[rarity]).to.be.near(row[2], 1e-9)
 					if previous ~= nil then
 						expect(row[1] > previous[1]).to.equal(true)
-						expect(row[2] < previous[2]).to.equal(true)
+						expect(inZoneSeconds(row) < inZoneSeconds(previous)).to.equal(true)
 					end
 					previous = row
 				end

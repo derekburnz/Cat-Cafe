@@ -2171,6 +2171,36 @@ local SCENES = {
 		end
 		press("Collection", "Book." .. first)
 	end },
+	-- #2207 (Derek2: "IBowBeforeGod tamed an Epic Gardener Cat at their..."): a toast too long for one row wraps and
+	-- the pill grows taller, every word showing; a short one stays one 40 px row
+	{ "ToastWrap", function()
+		local long = "IBowBeforeGod tamed an Epic Gardener Cat at their bait bowl!"
+		local short = "Saved!"
+		UI.announce(long, "Epic")
+		UI.toast(short, "good")
+		local function find(text: string): TextLabel
+			for _, label in UIShim.playerGui:GetDescendants() do
+				if label:IsA("TextLabel") and label.Text == text and label.Name == "Text" then
+					return label
+				end
+			end
+			error("uigate: no toast reading " .. text)
+		end
+		local line = find(long)
+		local pill = line.Parent :: Frame
+		assert(line.TextWrapped, "uigate: the long toast did not wrap (#2207)")
+		assert(line.TextTruncate == Enum.TextTruncate.None, "uigate: the long toast still ends in ... (#2207)")
+		assert(line.TextFits, "uigate: the long toast's words do not all fit (#2207)")
+		assert(pill.AbsoluteSize.Y > line.TextBounds.Y, "uigate: the long toast's pill is shorter than its rows (#2207)")
+		local lone = find(short)
+		assert(not lone.TextWrapped, "uigate: a short toast wrapped (#2207)")
+		local lonePill = lone.Parent :: Frame
+		assert(lone.TextFits, "uigate: the short toast's word does not fit (#2207)")
+		assert(
+			pill.AbsoluteSize.Y > lonePill.AbsoluteSize.Y + 4,
+			"uigate: the long toast's pill is no taller than a one-row pill (#2207)"
+		)
+	end },
 	-- F99 section 2: a rainbow stray's once-a-minute toast on a turning rainbow edge
 	{ "RainbowSpawn", function()
 		UI.rainbowSpawned(firstArea(), Catalog.cats[10].id)
@@ -2375,6 +2405,31 @@ local SCENES = {
 			speed = 0.97,
 			zoneEndsAt = t + 5,
 		})
+	end },
+	-- #2219 (crispi_255): a rescuer two hits in misses; the server sends the bar back to the start (no hits, zone 1)
+	-- and the flash says "MISS! Back to the start", whole, with every pip empty
+	{ "RescueMissReset", function()
+		UI.rescue.show("gate_rescue", rescueChallenge())
+		local t = workspace:GetServerTimeNow()
+		UI.rescue.update("gate_rescue", 2, 3, false, false, {
+			zone = 3,
+			startsAt = t,
+			phase = 0.4,
+			speed = 1.05,
+			zoneEndsAt = t + 5,
+		})
+		UI.rescue.update("gate_rescue", 0, 2, false, false, {
+			zone = 1,
+			startsAt = t,
+			phase = 0.4,
+			speed = 0.9,
+			zoneEndsAt = t + 5,
+		})
+		local barGui = UIShim.playerGui:FindFirstChild("CatCafeRescueBar")
+		local word = barGui and barGui:FindFirstChild("Word", true)
+		assert(word and word:IsA("TextLabel"), "uigate: no flash word on the rescue bar (#2219)")
+		assert(word.Visible and word.Text == "MISS! Back to the start", "uigate: the reset flash reads " .. word.Text .. " (#2219)")
+		assert(word.TextFits, "uigate: the reset flash is cut off (#2219)")
 	end },
 	-- F92: a Team Rescue helper's copy of the bar, two hits in: "Helping!" and the rescuer's paws
 	{ "RescueHelper", function()
@@ -2608,6 +2663,46 @@ local SCENES = {
 	{ "TipCard", function()
 		UI.tips.show("second_cat")
 	end },
+	-- #2198 (Derek2: "a forced cut scene after first catch"): the server's tackle tip plays as the tackling lesson on
+	-- the intro's screen: four captions with four dots, the read bar and Next, no Skip; it ends by itself and saves
+	-- the tip as seen
+	{ "TackleLesson", function()
+		local seen: { string } = {}
+		local counting = UI.events.tipSeen:Connect(function(id: string)
+			table.insert(seen, id)
+		end)
+		local before: any = (UI.getState() :: any).tipsSeen or {}
+		local tipsSeen = table.clone(before)
+		tipsSeen.tackle = nil
+		UI.update({ tipsSeen = tipsSeen } :: any)
+		UI.tips.show("tackle")
+		UIShim.advance(0.5)
+		assert(UI.intro.playing(), "uigate: the tackle tip did not start the lesson (#2198)")
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntro") :: ScreenGui
+		local caption = gui:FindFirstChild("Caption", true) :: TextLabel
+		local skip = gui:FindFirstChild("Skip", true) :: GuiObject
+		local nextPill = gui:FindFirstChild("Next", true) :: TextButton
+		assert(caption.Text == "Other players can tackle you while you carry!", "uigate: the lesson opens on " .. caption.Text .. " (#2198)")
+		assert(caption.TextFits, "uigate: the lesson's first caption does not fit (#2198)")
+		assert(not skip.Visible, "uigate: the lesson has a Skip (#2198)")
+		assert(nextPill.Visible, "uigate: the lesson has no Next (#2198)")
+		local dots = 0
+		for _, dot in (gui:FindFirstChild("Dots", true) :: Instance):GetChildren() do
+			if dot:IsA("Frame") and dot.Visible then
+				dots += 1
+			end
+		end
+		assert(dots == 4, ("uigate: the lesson shows %d dots, not 4 (#2198)"):format(dots))
+		UIShim.advance(0.6)
+		UIShim.fire(UIShim.eventOf(nextPill, "Activated"))
+		assert(caption.Text == "Get tackled and you drop your cat!", "uigate: Next did not move the lesson on (#2198)")
+		assert(#seen == 0, "uigate: the lesson was saved as seen before it ended (#2198)")
+		UIShim.advance(20)
+		assert(not UI.intro.playing(), "uigate: the lesson did not end by itself (#2198)")
+		assert(#seen == 1 and seen[1] == "tackle", "uigate: the lesson's end did not save the tackle tip as seen (#2198)")
+		counting:Disconnect()
+		UI.update({ tipsSeen = before } :: any)
+	end },
 	-- F87: the first long return, the offline tip's ribbon on the card (the client tips marked seen, so no stuck cat
 	-- or Codes Cat tip pops up in later scenes)
 	{ "OfflineTip", function()
@@ -2737,6 +2832,30 @@ local SCENES = {
 		assert(tables:FindFirstChild("TutorialGlow") == nil, "uigate: the table row still glows at step 4 (#1796)")
 		assert(bowl:FindFirstChild("TutorialGlow"), "uigate: the Bait bowl row does not glow at step 4 (#1796)")
 		task.wait(0.1) -- the list scrolls the Bait bowl row into view
+	end },
+	-- #2211 (crispi_255): the tutorial's last step done: the Tutorial tile's red × gets a gold ring and bounces for
+	-- a few seconds, then is plain again; a player who finished it before (no step change) gets no pulse
+	{ "TutorialDoneX", function()
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local dot: Instance? = nil
+		for _, piece in (hud :: Instance):GetDescendants() do
+			if piece.Name == "Dot" and piece.Parent and piece.Parent.Name == "Hide" then
+				dot = piece
+			end
+		end
+		assert(dot, "uigate: no × on the Tutorial tile (#2211)")
+		UI.update({ tutorialStep = 9 } :: any)
+		UIShim.advance(3.5) -- the scene before may leave the tutorial mid-way, which this update just finished
+		UI.update({ tutorialStep = 9 } :: any)
+		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the × pulses with no tutorial step done (#2211)")
+		UI.update({ tutorialStep = 4 } :: any)
+		UI.update({ tutorialStep = 9 } :: any)
+		assert(dot:FindFirstChild("PulseRing"), "uigate: the × does not pulse when the tutorial ends (#2211)")
+		UIShim.advance(3.5)
+		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the ×'s pulse does not end (#2211)")
+		assert(dot:FindFirstChild("Pulse") == nil, "uigate: the ×'s bounce does not end (#2211)")
+		UI.update({ tutorialStep = 4 } :: any)
+		UI.update({ tutorialStep = 9 } :: any) -- again, for the picture
 	end },
 	-- F87 section 2g: "Need a hand?" after 90 s on one tutorial step
 	{ "HelpCard", function()
@@ -3337,6 +3456,33 @@ local SCENES = {
 	{ "HUDMoneyBadge", function()
 		UI.store.preview(storePrices(true), {})
 	end },
+	-- #2194 (playtester Dread via Derek2: "The cash at the bottom left should probably not push the 2x cash and fish"):
+	-- the money badge and the golden fish stay put while the money grows from $0 to the widest usual amounts
+	{ "HUDCashSteady", function()
+		-- an earlier scene's 2x Money pass hides the badge (it shows as the side chip): no pass here, the golden fish
+		-- shown, both put back by Scenes.close
+		local before: any = UI.getState()
+		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
+		UI.update({ passBoosts = false, goldenFish = 1234 } :: any)
+		UI.store.preview(storePrices(true), {})
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local counters = hud:FindFirstChild("Counters", true) :: Frame
+		local badge = counters:FindFirstChild("MoneyBadge") :: GuiObject
+		local fish = counters:FindFirstChild("Fish") :: GuiObject
+		local amount = (counters:FindFirstChild("Money") :: Instance):FindFirstChild("Amount", true) :: TextLabel
+		assert(badge.Visible and fish.Visible, "uigate: the money badge or the golden fish is hidden (#2194)")
+		local badgeX, fishX
+		for _, money in { 0, 7, 999, 88888, 99999, 1240000, 99900000, 999e15 } do
+			UI.update({ money = money })
+			UIShim.advance(1 / 60)
+			if badgeX == nil then
+				badgeX, fishX = badge.AbsolutePosition.X, fish.AbsolutePosition.X
+			end
+			assert(math.abs(badge.AbsolutePosition.X - badgeX) < 1, ("uigate: %s moves the money badge %d px (#2194)"):format(amount.Text, badge.AbsolutePosition.X - badgeX))
+			assert(math.abs(fish.AbsolutePosition.X - fishX) < 1, ("uigate: %s moves the golden fish %d px (#2194)"):format(amount.Text, fish.AbsolutePosition.X - fishX))
+			assert(amount.AbsolutePosition.X + amount.TextBounds.X <= badge.AbsolutePosition.X, "uigate: " .. amount.Text .. " runs into the money badge (#2194)")
+		end
+	end },
 	-- #1936 (release.md section 3): in the first 30 minutes of play the badge says a plain "x2", with no price and no
 	-- pulse; a tap still opens the Store
 	{ "HUDMoneyBadgeQuiet", function()
@@ -3784,6 +3930,10 @@ function Scenes.close()
 		Scenes._market.stall:Destroy() -- #2214's scene
 		UI.update({ crates = Scenes._market.crates } :: any)
 		Scenes._market = nil
+	end
+	if Scenes._cashMoney ~= nil then
+		UI.update(Scenes._cashMoney :: any) -- #2194's scene
+		Scenes._cashMoney = nil
 	end
 	if UI.intro.playing() then
 		UI.intro.finish() -- #2182's Next scene

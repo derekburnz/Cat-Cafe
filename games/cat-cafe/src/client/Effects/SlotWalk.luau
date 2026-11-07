@@ -36,6 +36,7 @@ type Walk = {
 	model: Model,
 	copy: Model,
 	rig: Pose.Rig,
+	rest: { CFrame }, -- each part's frame at bind, in the copy's own floor space
 	hidden: { BasePart },
 	shown: { BasePart },
 	route: { Vector3 },
@@ -94,6 +95,31 @@ local function walkingTemplate(model: Model): Model?
 		end
 	end
 	return nil
+end
+
+-- Why a walk ended, left on the cat's model on this client only for a tester to read (#2050): the reason, and the
+-- position about to be drawn, the copy's body as read and the two ends of its way, each rounded to 0.1 stud.
+local function note(walk: Walk, reason: string, position: Vector3?, body: Vector3?)
+	if walk.model.Parent == nil then
+		return
+	end
+	local function at(v: Vector3?): string
+		return if v == nil then "-" else string.format("%.1f,%.1f,%.1f", v.X, v.Y, v.Z)
+	end
+	walk.model:SetAttribute(
+		"SlotWalkEnd",
+		string.format(
+			"%s drawn=%s body=%s from=%s to=%s planned=%s speed=%.1f travelled=%.1f",
+			reason,
+			at(position),
+			at(body),
+			at(walk.route[1]),
+			at(walk.route[#walk.route]),
+			tostring(walk.planned),
+			walk.speed,
+			walk.travelled
+		)
+	)
 end
 
 local function finish(walk: Walk)
@@ -215,6 +241,14 @@ local function begin(model: Model, from: CFrame)
 		copy:Destroy()
 		return
 	end
+	-- the copy is this client's alone, so its pose is drawn from its parts as bound, every frame: whatever else moves
+	-- one of them between frames (Desktop-Tester 2026-11-07 read its body hundreds of studs off for a frame, and
+	-- earlier far below the map) is never read back as where the cat is
+	local floor0 = Pose.floor(rig)
+	local rest: { CFrame } = {}
+	for i, frame in rig.base do
+		rest[i] = floor0:ToObjectSpace(frame)
+	end
 	local hidden = partsOf(model)
 	setFade(hidden, 1)
 	model:SetAttribute(SlotWalk.MARK, true)
@@ -222,6 +256,7 @@ local function begin(model: Model, from: CFrame)
 		model = model,
 		copy = copy,
 		rig = rig,
+		rest = rest,
 		hidden = hidden,
 		shown = shown,
 		route = { start, goal },
@@ -262,6 +297,7 @@ local function advance(walk: Walk, now: number, dt: number): boolean
 		or Logic.flatDistanceToSegment(position, route[1], route[#route]) > s.detour
 		or math.abs(position.Y - route[#route].Y) > s.waypointRise
 	then
+		note(walk, "offway", position, walk.rig.body.Position)
 		return false -- never drawn anywhere but on its way: the cat just shows at its new spot
 	end
 	-- the new model stays hidden the whole way, parts that replicate after the walk began included, and whatever
@@ -286,27 +322,27 @@ local function advance(walk: Walk, now: number, dt: number): boolean
 	walk.stride += speed * dt / Logic.strideLength(math.max(speed, 0.1))
 	local rig = walk.rig
 	if not Pose.read(rig) then
+		note(walk, "unread", position, nil)
 		return false
 	end
-	-- and if anything else has put the copy's body far off its way, let the walk go rather than redraw it there
-	local body = rig.body.Position
-	if
-		body ~= body
-		or Logic.flatDistanceToSegment(body, route[1], route[#route]) > 2 * s.detour
-		or math.abs(body.Y - route[#route].Y) > 4 * s.waypointRise
-	then
-		return false
+	-- its pose from the parts as bound, its floor at the origin, which Pose.hold then moves onto the way
+	local base = rig.base
+	for i, frame in walk.rest do
+		base[i] = frame
 	end
 	Pose.hold(rig, CFrame.new(position) * CFrame.Angles(0, walk.yaw, 0))
 	local o = Logic.idle("stray", now + walk.phase, rig.kind)
 	Logic.gait(o, speed, walk.stride, 0)
 	Pose.draw(rig, o, -1)
+	walk.copy:SetAttribute("WalkDrawn", position)
+	walk.copy:SetAttribute("WalkBody", rig.body.Position)
 	local arrivedAt = walk.arrivedAt
 	if arrivedAt ~= nil then
 		local k = math.clamp((now - arrivedAt) / s.fade, 0, 1)
 		setFade(walk.shown, k)
 		setFade(walk.hidden, 1 - k)
 		if k >= 1 then
+			note(walk, "arrived", position, rig.body.Position)
 			return false
 		end
 	end
@@ -316,12 +352,18 @@ end
 function SlotWalk.step(dt: number)
 	local now = os.clock()
 	for model, walk in walks do
-		local gone = model.Parent == nil
-			or walk.copy.Parent == nil
-			or model:GetAttribute("HiddenLocal") == true
-			or model:GetAttribute("Bedtime") ~= nil
-			or model:GetAttribute("BedTripAt") ~= nil
-		if gone or not advance(walk, now, dt) then
+		local gone = if model.Parent == nil
+			then "removed"
+			elseif walk.copy.Parent == nil then "copy removed"
+			elseif model:GetAttribute("HiddenLocal") == true then "hidden"
+			elseif
+				model:GetAttribute("Bedtime") ~= nil or model:GetAttribute("BedTripAt") ~= nil
+			then "bedtime"
+			else nil
+		if gone ~= nil then
+			note(walk, gone, nil, nil)
+			finish(walk)
+		elseif not advance(walk, now, dt) then
 			finish(walk)
 		end
 	end

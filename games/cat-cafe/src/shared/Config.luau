@@ -125,10 +125,13 @@ local Config = {
 	KeepUpStepsBehind = 1,
 
 	-- The clock (data-model section 9): a server-wide loop of day then night. v0.9 (F66, Derek 2026-10-27): night is a
-	-- short reset between hunts; the catching areas close at dusk and a fresh wave spawns at sunrise.
-	DayLengthSeconds = 300,
-	NightLengthSeconds = 90,
-	ServerStartDaySeconds = 300, -- the clock's first day, from ClockEpoch (was each server's start, before #1437)
+	-- short reset between hunts; the catching areas close at dusk and a fresh wave spawns at sunrise. #2192 (Dread via
+	-- Derek2, 2026-11-07: "make the days a bit longer and maybe night a tiny bit shorter"): 320 and 70 (were 300 and
+	-- 90). The day takes the night's 20 s, so a game day is still 390 s: every sunrise, restock window, day number and
+	-- pity timer falls where it did, and only dusk moves 20 s later. ServerStartDaySeconds stays equal to the day.
+	DayLengthSeconds = 320,
+	NightLengthSeconds = 70,
+	ServerStartDaySeconds = 320, -- the clock's first day, from ClockEpoch (was each server's start, before #1437)
 	-- #1437 (Derek 2026-11-05: "restock once per in game day and make it global"): every server reads the clock from
 	-- this os.time() (2026-11-01 00:00 UTC) on Workspace:GetServerTimeNow(), so sunrise and dusk fall at the same
 	-- moment in every server; a new server joins the day already under way. Day 1 starts here.
@@ -357,7 +360,8 @@ local Config = {
 	StrayTopUpMinSeconds = 40, -- #1452: 40 to 80 s (was 60 to 120)
 	StrayTopUpMaxSeconds = 80,
 	StrayWanderSpeed = 3,
-	AnnounceMinRarity = "Epic",
+	-- #2205 (Derek2, 2026-11-07: "just legendary or better or gold/rainbow"): the catch pop-up's floor (was Epic)
+	AnnounceMinRarity = "Legendary",
 	-- The night dealer (data-model section 8b): buy from this close to the cart. F94 (rewards-and-shops.md section 4):
 	-- each server rolls its stock once at dusk and it holds all night.
 	DealerRangeStuds = 12,
@@ -435,12 +439,14 @@ local Config = {
 		Legendary = 1.6,
 		Mythical = 1.8,
 	} :: { [string]: number },
+	-- #2219: a miss now sends the bar back to the start, so the Mythical's zone went 0.10 -> 0.14 to keep its rescue
+	-- near the old 11% at 50 ms (Design-Agent). Its faster marker still gives it the shortest time in the zone.
 	RescueZoneWidth = {
 		Common = 0.26,
 		Rare = 0.20,
 		Epic = 0.15,
 		Legendary = 0.12,
-		Mythical = 0.10,
+		Mythical = 0.14,
 	} :: { [string]: number },
 	RescueTolerance = 0.03, -- of the bar, either side of the zone
 	-- F93 (catch-rework.md section 4): the marker gets RescueSpeedUpPerHit faster after every hit. Derek 2026-11-03
@@ -723,6 +729,10 @@ local Config = {
 	-- step pays everyone in the server who scored RallyMinPoints this lap, from at most RallyMaxLaps laps a weekend.
 	RallyStartWeekday = 6,
 	RallyHours = 48,
+	-- #2227 (Derek2 2026-11-07: "extend how long rally lasts", "1 week extend is fine"): a Rally that starts at or after
+	-- RallyExtendFrom runs on until RallyExtendUntil (UTC seconds), joining the next weekend's. Equal values turn it off.
+	RallyExtendFrom = 1794009600, -- Saturday 2026-11-07 00:00 UTC
+	RallyExtendUntil = 1794787200, -- Monday 2026-11-16 00:00 UTC, the end of the 11-14 weekend
 	RallyPointsPerPlayer = 22, -- #2018: was 30, so a lap fills about a third sooner
 	RallyMinPlayers = 3,
 	RallyMinPoints = 3,

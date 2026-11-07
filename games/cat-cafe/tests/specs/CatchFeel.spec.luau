@@ -153,7 +153,7 @@ return function()
 
 	-- Percent of bar attempts that free the cat (F93): hit k is pressed with the marker at RescueBarSpeed x (1 +
 	-- RescueSpeedUpPerHit)^k. A zone stays until it is hit (Derek 2026-11-03), so each miss costs a paw and the player
-	-- presses again on the same zone. Out of paws ends it.
+	-- presses again on the same zone; #2219: the miss also sends the bar back to the start. Out of paws ends it.
 	local function rescueChance(rarity: Types.Rarity, spread: number): number
 		local hits = Rescue.hitsNeeded(rarity, "bar")
 		local p: { number } = {}
@@ -175,7 +175,8 @@ return function()
 				return known
 			end
 			local q = p[done + 1]
-			local chance = q * from(done + 1, paws) + (1 - q) * from(done, paws - 1)
+			-- #2219: a miss sends the bar back to the start (no hits, the starting speed)
+			local chance = q * from(done + 1, paws) + (1 - q) * from(0, paws - 1)
 			memo[key] = chance
 			return chance
 		end
@@ -259,9 +260,10 @@ return function()
 						at70[i] = rescueChance(rarity, 0.07)
 					end
 					-- Derek 2026-11-03: zones wait to be hit, so a slow press no longer costs a paw (was 100, 98, 78, 36, 9 and
-					-- 100, 88, 44, 11, 2 with F93's run-out)
-					rowMatches("bar 50 ms", at50, { 100, 100, 85, 41, 11 })
-					rowMatches("bar 70 ms", at70, { 100, 93, 51, 13, 2 })
+					-- 100, 88, 44, 11, 2 with F93's run-out). #2219: a miss sends the bar back to the start and the
+					-- Mythical's zone is 0.14 (was 100, 100, 85, 41, 11 and 100, 93, 51, 13, 2)
+					rowMatches("bar 50 ms", at50, { 100, 99, 69, 20, 10 })
+					rowMatches("bar 70 ms", at70, { 100, 85, 29, 4, 2 })
 				end
 			)
 

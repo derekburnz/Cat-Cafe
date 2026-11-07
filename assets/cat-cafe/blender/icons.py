@@ -22,6 +22,7 @@ workflow (Actions) to turn into an rbxassetid for an ImageLabel.
   CatCafe_Icon_Cat_<Name>   the shop-only cats' Store card and cat book picture (#1191): the sitting cat in its props
   CatCafe_Icon_StoreTab_<Tab>  the Store's sidebar tabs (#1674, store_tabs.py): Featured, Passes, Cats, Potions and
                             Codes, in place of the tabs' emoji
+  CatCafe_Icon_Badge_<Name>  the Roblox badges (#1934, badge_icons.py): a round gold-rimmed medal with one picture
   CatCafe_Icon_Menu_<Id>    the F90 order bubble pictures (#950): each of the 12 menu dishes on its plate (menu.py),
                             Coffee, Milk, CakeSlice, PawCookie, Tea, FishBiscuit, KittyCupcake, HotCocoa,
                             PancakeStack, Sundae, StrawberryRoll and RainbowCake, from the front and a little above
@@ -49,6 +50,7 @@ import market_icons  # noqa: E402
 import menu  # noqa: E402
 import potion_icons  # noqa: E402
 import potions  # noqa: E402
+import badge_icons  # noqa: E402
 import store_icons  # noqa: E402
 import store_tabs  # noqa: E402
 from common import RB  # noqa: E402
@@ -122,6 +124,9 @@ ICONS = {
        for n, fn in store_icons.PASSES.items()},
     **{f"CatCafe_Icon_Product_{n}": (fn, INK, 10, store_icons.VIEWS[n], None, STORE_FIT)
        for n, fn in store_icons.PRODUCTS.items()},
+    # #1934: the Roblox badges (release.md section 1, badge_icons.py), one round medal each, fitted to the circle crop
+    **{f"CatCafe_Icon_Badge_{n}": (fn, INK, 10, badge_icons.VIEW, None, STORE_FIT)
+       for n, fn in badge_icons.BADGES.items()},
     # #1823 (store-layout-v2.md section 5): the remade Store's 256 px theme and sign icons (UI_SIZE, square framing)
     "Ui_Store_Icon_GardenCafe": (store_icons.cafe_style, INK, 5, store_icons.VIEWS["CafeStyle"]),
     "Ui_Store_Icon_GrandCafe": (store_icons.grand_theme, INK, 5, store_icons.VIEWS["GrandTheme"]),

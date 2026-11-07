@@ -5,12 +5,14 @@
 --   and spin, the shockwave and stings everyone sees) and to the owner alone for the first Epic's small card.
 --   rare_secured (value 1; rarity, gold yes or no, catch, bait or rescue) is logged for a big pull.
 --   The server-wide toast for a cat is the check-in shout-out (Announce, Catching.shoutOut); `shoutOut` holds a
---   Legendary or Mythical one back within TOAST_SECONDS of the player's last toast. A Mythical crate piece sends
+--   Legendary or Mythical one back within TOAST_SECONDS of the player's last toast. One that goes out is also a chat
+--   line here and in every other server (#2203, GlobalCatchService). A Mythical crate piece sends
 --   FoundRareDecor(userId, decorId) to everyone, on the same once-a-minute rule.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local GlobalCatchService = require(script.Parent.GlobalCatchService)
 local Net = require(script.Parent.Net)
 local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
 local Telemetry = require(script.Parent.Telemetry)
@@ -41,6 +43,7 @@ function RareMomentService.shoutOut(player: Player, rarity: Types.Rarity, text: 
 		return
 	end
 	Net.fireAll("Announce", text, rarity)
+	GlobalCatchService.share(text, rarity) -- #2203: the chat line here and in every other server
 end
 
 -- `player` secured `def` (variant "base", "gold" or later "rainbow") by `method`; `hadEpicOrBetter` is whether their

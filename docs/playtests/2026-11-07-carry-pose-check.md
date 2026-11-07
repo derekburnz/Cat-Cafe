@@ -73,3 +73,25 @@ Findings
 2. New issue from the raise: the cat's head now sits at face height. Its head and left ear overlap the character's
    Head part. The R6 Head part is a 2 by 1 by 1 box, wider than the visible head, so on screen this reads as the cat's
    head pressed against the side of the face rather than through it. A smaller raise (r6.up about 0.18 instead of 0.28) or moving the cat 0.2 to 0.3 studs further forward on R6 would clear it.
+
+## Fifth check, R6 only, after #1996 (main at cc251d73, r6.up 0.18, r6.gap 0.1)
+
+Tabby and the Void. Sheet: `evidence/2026-11-07/carry-r6-final-2026-11-07.png`. Same numbers for both cats unless noted.
+
+| Check | R6 |
+| --- | --- |
+| Cat floor vs torso middle | 0.36 above |
+| Cat spans forward of torso | 0.60 to 1.77, middle 1.18 |
+| Arm ends forward of torso, across | 0.98, 0.18 either side of the middle |
+| Top of the arm-end faces vs cat floor | 0.15 below |
+| Highest point of each arm vs cat floor | 0.66 above |
+| Arm parts overlapping the cat | left arm into the cat's head by about 0.04 studs; right arm into the body and near legs by about 0.10 |
+| Cat vs the character's Head part | Tabby clear (0.02 gap); the Void's prop overlaps the Head box by 0.04 |
+
+Findings
+
+1. Arm ends: under the cat, 0.15 studs below its underside, 0.2 studs short of its middle (the cat moved 0.1 further out).
+2. Face: clear. The Void's prop only touches the Head part's box, which is wider than the visible head; nothing shows on
+   screen.
+3. Arms: a shallow overlap of 0.04 to 0.10 studs is back, too small to see in the shots. A further 0.1 studs of r6.gap,
+   or 0.05 to 0.1 more on r6.up, would clear it.

@@ -3202,7 +3202,7 @@ do
 	end
 
 	-- CatchResult. grades run up to and including the first Miss; charmGain is 0 on a miss. retryAt (F57, miss only) is
-	-- the server time this player may try the stray again; the card reads "Catch your breath..." until then.
+	-- the server time this player may try the stray again; the card reads "Cooling down Ns" until then (#2324).
 	-- Catch v3 (#1884): the finish UI.catch.finished kept for this stray (or given here, as the UI gate does) picks
 	-- the banner
 	function UI.catch.showGrades(

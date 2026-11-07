@@ -2944,6 +2944,23 @@ local SCENES = {
 			holdDuration = 0.5,
 		})
 	end },
+	-- #2324 (Derek2: "make it a brief text message and not long ex: 'cooling down 1 second'"): after a miss the card
+	-- counts the wait down in one short line, rounded up, on one line on every profile
+	{ "CatchPromptCooldown", function()
+		UI.catch.show({
+			strayId = "gate_cooldown",
+			catId = Catalog.cats[2].id,
+			catName = "Mochi",
+			rarity = "Epic",
+			holdDuration = 0.5,
+			retryAt = workspace:GetServerTimeNow() + 3.2,
+		})
+		local action = UIShim.playerGui:FindFirstChild("CatCafeCatch"):FindFirstChild("Action", true) :: TextLabel
+		assert(action.Text == "Cooling down 4s", "uigate: the card after a miss reads " .. action.Text .. " (#2324)")
+		assert(action.TextFits, "uigate: Cooling down 4s does not fit the catch card (#2324)")
+		local hint = UIShim.playerGui:FindFirstChild("CatCafeCatch"):FindFirstChild("Hint", true) :: TextLabel?
+		assert(hint == nil or not hint.Visible, "uigate: the cooldown card still has a hint line (#2324)")
+	end },
 	-- F87: a context tip's card at the top centre, its bar draining
 	{ "TipCard", function()
 		UI.tips.show("second_cat")

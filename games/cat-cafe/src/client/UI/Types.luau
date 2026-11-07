@@ -410,7 +410,7 @@ export type CatchInfo = {
 	-- grab it; the card reads "It's running!".
 	fleeingUntil: number?,
 	-- v0.5.1, F57: server time this player may try again after their own miss (CatchResult's retryAt: 3, 6, then
-	-- 10 s after the cat stops by misses in a row); init.luau fills it, the card reads "Catch your breath..." until
+	-- 10 s after the cat stops by misses in a row); init.luau fills it, the card reads "Cooling down Ns" until
 	-- then.
 	retryAt: number?,
 	-- v0.5 F41: server time until which only the old carrier may catch a cat knocked loose by a shove (the

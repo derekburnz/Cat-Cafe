@@ -17,15 +17,19 @@
 -- 2026-10-27: a stray's prompt (F26) and a stuck cat's (F27) are held for HoldDuration (0.5 s), so a passing
 -- player never starts a catch by accident; the trigger asks the server for the closing circles or the rescue
 -- minigame. The key cap says HOLD under it.
--- On touch devices a big round CATCH button appears; it drives the real prompt through holdBegan / holdEnded.
+-- On touch a big round CATCH button appears; it drives the real prompt through holdBegan / holdEnded. #2315: on any
+-- sign of touch (Components/TouchPrompt), not only a device with no keyboard or mouse, and it swaps live with the key
+-- cap when the player's input changes.
 -- bindProximityPrompts() in init.luau wires all of this to any ProximityPrompt with Style = Custom.
 
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Scale = require(script.Parent.Parent.Scale)
 local Signal = require(script.Parent.Parent.Components.Signal)
 local Theme = require(script.Parent.Parent.Theme)
+local TouchPrompt = require(script.Parent.Parent.Components.TouchPrompt)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
@@ -350,6 +354,15 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 			end
 		end)
 	)
+	-- #2315: a player who puts the keyboard down and touches the screen gets the button at once, and back
+	table.insert(
+		self._connections,
+		UserInputService.LastInputTypeChanged:Connect(function()
+			if screenGui.Enabled then
+				self:_paintInput()
+			end
+		end)
+	)
 
 	if parent then
 		screenGui.Parent = parent
@@ -398,6 +411,18 @@ function CatchPrompt._paintIdle(self: any, actionText: string?)
 	self._grab.BackgroundColor3 = if blocked then Theme.colors.disabled else Theme.colors.good
 end
 
+-- #2315: the big press-and-hold button on any sign of touch (Components/TouchPrompt), else the key cap and HOLD
+function CatchPrompt._paintInput(self: any)
+	local touch = TouchPrompt.wants(
+		self._promptTouch,
+		UserInputService:GetLastInputType().Name,
+		Scale.isTouch()
+	)
+	self._keyFrame.Visible = not touch
+	self._holdTag.Visible = self._holdDuration > 0 and not touch
+	self._grab.Visible = touch
+end
+
 function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self._failToken += 1
 	local kind: Types.PromptKind = info.kind or "swing"
@@ -432,9 +457,8 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self._miniRing.Visible = not rescue and not pickUp
 	local key: Enum.KeyCode = info.keyCode or Enum.KeyCode.E
 	self._keycap.Text = key.Name
-	self._keyFrame.Visible = not Scale.isTouch()
-	self._holdTag.Visible = self._holdDuration > 0 and not Scale.isTouch()
-	self._grab.Visible = Scale.isTouch()
+	self._promptTouch = info.touch
+	self:_paintInput()
 	if not self.screenGui.Enabled then
 		self.screenGui.Enabled = true
 		Tween.popIn(self._card, 0.9)

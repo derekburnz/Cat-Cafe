@@ -2900,6 +2900,27 @@ local SCENES = {
 			holdDuration = 0.5,
 		})
 	end },
+	-- #2315 (Derek2: "make sure mobile players have a way of doing rescue instead of holding e since they cant"): when
+	-- Roblox says the prompt is pressed by touch, the card offers its big RESCUE button even on a device that also
+	-- reports a keyboard (every profile here, the desktop ones included), and no "[E] HOLD" key cap
+	{ "CatchPromptRescueTouch", function()
+		UI.catch.show({
+			strayId = "gate_stuck",
+			catId = Catalog.cats[2].id,
+			catName = "Garbage Bag Cat",
+			rarity = "Rare",
+			kind = "rescue",
+			holdDuration = 0.5,
+			touch = true,
+		} :: any)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeCatch") or UIShim.playerGui
+		local grab = gui:FindFirstChild("Grab", true) :: TextButton
+		assert(grab and grab.Visible, "uigate: no RESCUE button for a touch prompt (#2315)")
+		local label = grab:FindFirstChild("Label", true) :: TextLabel
+		assert(label and label.Text == "RESCUE", "uigate: the touch button reads " .. (if label then label.Text else "nothing"))
+		local key = gui:FindFirstChild("Key", true) :: GuiObject?
+		assert(key == nil or not key.Visible, "uigate: the [E] key cap still shows for a touch prompt (#2315)")
+	end },
 	{ "CatchPromptCatch", function()
 		UI.catch.show({
 			strayId = "gate_stray",

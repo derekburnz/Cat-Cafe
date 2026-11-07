@@ -402,6 +402,7 @@ export type CatchInfo = {
 	stars: number?, -- 1 to 5 from the stray's Stars attribute
 	charm: number?, -- 0 to 100 from the stray's Charm attribute
 	kind: PromptKind?, -- default "swing" (the net); "rescue" is a stuck cat (F21)
+	touch: boolean?, -- #2315: PromptShown's input type was Touch, so the card offers its press-and-hold button
 	rescueSpotId: string?, -- RescueSpotId attribute; what RescueBegin and RescueEnd take
 	press: boolean?, -- v0.3: the prompt has HoldDuration 0, so one press starts the catch or rescue
 	shiny: boolean?, -- v0.3: the stray's Gold attribute (rescued cats hide it until freed)

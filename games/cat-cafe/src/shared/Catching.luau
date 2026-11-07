@@ -22,10 +22,10 @@ Catching.CARRIED_POSE = { 0, -0.4, -1.05, 0, 0, 1, 0, 1, 0, -1, 0, 0 }
 -- torso yet. Tuned in Studio; numbers only, so this module stays free of Roblox types. Derek2 2026-11-07 04:30
 -- ("bring cat closer to chest and lower"): the cat's back rests against the chest (`gap` 0) and its floor sits on
 -- Animation-Engineer's lowered hands (#1985: on R15 meeting about 1 stud out, their tops 0.4 below the UpperTorso's
--- middle; R6 arms at 50 degrees), so its middle is on the hands.
+-- middle; R6 arms per #1991), so its middle is on the hands.
 Catching.HELD = {
 	r15 = { up = -0.25, gap = 0 },
-	r6 = { up = 0.08, gap = 0 },
+	r6 = { up = 0.28, gap = 0 }, -- #1993: on R6's straight arms (#1991), whose tops rise 0.86 above where the floor was
 	turn = 90,
 }
 

@@ -223,3 +223,14 @@ The game's sounds and pictures (139 ids today) were uploaded under your user. Wh
 4. Nothing to try by hand: a thread runs **Actions > asset-permissions > Run workflow** with `grant`, and the log counts the ids shared.
 
 Roblox cannot take a share back through the API, which is fine: the only thing it shares with is our own game. Run `grant` again after new sounds or pictures land.
+
+## 26. Open the latest published game in Studio (any time, about 2 minutes)
+
+Studio can show an old game when it opens a local file (a `.rbxl` or `.rbxlx` built earlier with Rojo): that file is frozen at the commit it was built from, and picture icons, UI and the world fall behind what is live. Open the real place instead.
+
+1. Pull the newest main: `git pull` in the repo.
+2. Open the real place, not a file. In Studio use **File > Open from Roblox** and pick **Catch a Cat Cafe**, or start it from a terminal on Windows: `RobloxStudioBeta.exe -task EditPlace -placeId 119569792798199 -universeId 10773193456`. This gives the last published version with its icons and UI.
+3. Only if you need code newer than the last publish: run `rojo serve` in `games/cat-cafe`, then in Studio click **Plugins > Rojo > Connect** (port 34872). Rojo does not connect by itself; someone has to click Connect.
+4. Playtests from Studio use the `_dev` data store, so they never touch real player saves.
+
+Check: the HUD and Store buttons show pictures (a treasure chest, a cat, a book), not plain emoji. If they show emoji, the file is a local build or Rojo is not connected. Asset sharing is not the cause (`asset-permissions` grants them all).

@@ -125,7 +125,7 @@ echo "== $total reports under $prefix in $STORE; showing the newest ${#records[@
 # The same fields and order as BugReportService's line(), times in UTC.
 who='\(.name) (\(.userId))'
 if [ "${MASK:-}" = 1 ]; then
-	who='\(.name | tostring | .[0:1])*** (...\(.userId | tostring | .[-3:]))'
+	who='\(.name | tostring | .[0:1])*** (...\(.userId | tostring | .[-3:])) at=\(.at)' # at is the key's time: idea-credits add takes r_<day>_<at>
 fi
 line='(if (.at | type) == "number" then .at else 0 end | strftime("%H:%M")) + " \(.kind) '"$who"
 line+=' v\(.placeVersion) \(.area) \(.device): \(.text) | client \(.clientErrors // [] | join(" / "))'

@@ -26,6 +26,11 @@ on:
         type: choice
         options: [Image, Decal]
         default: Image
+      owner:
+        description: "Who owns the new asset: user (Derek's account, default) or group (Creampuff Games 107520049; uses OWNER_KEY, then ROBLOX_GROUP_KEY, then the publish key)"
+        type: choice
+        options: [user, group]
+        default: user
 
 permissions:
   contents: read
@@ -40,8 +45,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+      ROBLOX_PUBLISH_KEY: ${{ inputs.owner == 'group' && (secrets.OWNER_KEY || secrets.ROBLOX_GROUP_KEY || secrets.ROBLOX_PUBLISH_KEY) || secrets.ROBLOX_PUBLISH_KEY }}
       ROBLOX_CREATOR_USER_ID: "40908216" # Derek, who owns the experience
+      ROBLOX_CREATOR_GROUP_ID: ${{ inputs.owner == 'group' && '107520049' || '' }} # Creampuff Games, #2022
       ASSET_TYPE: ${{ inputs.type }}
       IMAGE_PATH: ${{ inputs.path }}
       IMAGE_BRANCH: ${{ inputs.branch }}

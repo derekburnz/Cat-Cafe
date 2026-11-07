@@ -90,7 +90,7 @@ return function()
 	end)
 
 	describe("earnings and the Cat Collector", function()
-		it("a rainbow cat at work earns exactly twice the same cat in gold (check 3)", function()
+		it("a rainbow cat at work earns x2 the same cat, more than in gold (check 3; x2 since 2026-11-07)", function()
 			local spotId = Catalog.spots[1].id
 			local function at(variant: string): number
 				local instance = CatStats.newInstance("u1", common.id, 100, 50)
@@ -99,7 +99,8 @@ return function()
 				return Economy.catRate(instance, 1)
 			end
 			expect(at("gold") > 0).to.equal(true)
-			expect(at("rainbow")).to.be.near(2 * at("gold"), 1e-9)
+			expect(at("rainbow")).to.be.near(2 * at("base"), 1e-9)
+			expect(at("rainbow") > at("gold")).to.equal(true)
 			expect(CatStats.variantMultiplier("rainbow")).to.equal(Config.RainbowMultiplier)
 		end)
 

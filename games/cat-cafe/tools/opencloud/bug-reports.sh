@@ -100,7 +100,7 @@ if [ "$total" = 0 ]; then
 		args=(--data-urlencode maxPageSize=256)
 		[ -z "$token" ] || args+=(--data-urlencode "pageToken=$token")
 		get "$entries" "${args[@]}"
-		mapfile -t -O "${#shapes[@]}" shapes < <(jq -r '.dataStoreEntries[]?.id | .[0:10]' <<<"$body")
+		mapfile -t -O "${#shapes[@]}" shapes < <(jq -r '.dataStoreEntries[]?.id | sub("^global/"; "") | .[0:10]' <<<"$body")
 		token=$(jq -r '.nextPageToken // empty' <<<"$body")
 		[ -n "$token" ] || break
 	done

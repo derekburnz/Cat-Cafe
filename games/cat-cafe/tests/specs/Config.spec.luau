@@ -261,7 +261,7 @@ return function()
 		RainbowChanceNet = 0.015, -- F99 (rainbow-coat.md section 5); v2 section 4b
 		RainbowChanceBait = 0.015,
 		RainbowChanceRescue = 0.03,
-		RainbowMultiplier = 3,
+		RainbowMultiplier = 2,
 		RainbowLuckMax = 0.4, -- #2269: was 1.0
 		CollectorRainbowMultiplier = 10,
 		RainbowAnimateMax = 10,
@@ -872,12 +872,13 @@ return function()
 
 	describe("the rainbow coat (F99, rainbow-coat.md section 1)", function()
 		it(
-			"is three tenths of gold everywhere (v2, section 4b) and earns twice a gold cat",
+			"is three tenths of gold everywhere (v2, section 4b) and earns x2 (Derek2 2026-11-07, was x3)",
 			function()
 				expect(Config.RainbowChanceNet).to.be.near(Config.GoldChanceNet * 0.3, 1e-9)
 				expect(Config.RainbowChanceBait).to.be.near(Config.GoldChanceBait * 0.3, 1e-9)
 				expect(Config.RainbowChanceRescue).to.be.near(Config.GoldChanceRescue * 0.3, 1e-9)
-				expect(Config.RainbowMultiplier).to.equal(2 * Config.GoldMultiplier)
+				expect(Config.RainbowMultiplier).to.equal(2)
+				expect(Config.RainbowMultiplier > Config.GoldMultiplier).to.equal(true)
 				expect(Config.CollectorRainbowMultiplier > Config.CollectorGoldMultiplier).to.equal(
 					true
 				)

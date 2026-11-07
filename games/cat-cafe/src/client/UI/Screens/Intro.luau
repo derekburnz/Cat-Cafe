@@ -7,6 +7,8 @@
 --   shot dots        one per shot on the top bar (IntroLogic.SHOTS, from shared/Intro), the current one gold
 --   demo ring        shot 2's closing catch circle over the stray: PERFECT at 1.3 s, a sparkle to 2.0 s
 --   job card         shot 4's four role buttons in miniature beside the cat; the given role lights with a tap
+--   tip pop          #2242: the rich visitor shot's big gold "+$1,234" over the tip bag your copy grabs, rising and
+--                    fading out
 --   Skip             an outlined "Skip »" pill on the lower bar at the right, on screen from the start and dimmed,
 --                    with a gold bar filling it over skipAfter (Derek 2026-10-28: "show a bar loading it's ability
 --                    to be pressed make it 5 seconds"). Full, it brightens and pops; a tap, a click or gamepad B
@@ -29,6 +31,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
+local Format = require(script.Parent.Parent.Components.Format)
 local IntroLogic = require(script.Parent.Parent.Components.IntroLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
@@ -58,6 +61,7 @@ export type Intro = {
 	) -> (),
 	demoCatch: (self: Intro, worldPosition: Vector3) -> (),
 	jobCard: (self: Intro, worldPosition: Vector3, role: string) -> (),
+	tipPop: (self: Intro, worldPosition: Vector3, amount: number) -> (),
 	finish: (self: Intro) -> (),
 	playing: (self: Intro) -> boolean,
 	destroy: (self: Intro) -> (),
@@ -421,6 +425,7 @@ function Intro.start(self: any, options: Types.IntroOptions?)
 	local token = self._token
 	self:_clearRing()
 	self:_clearJob()
+	self:_clearTip()
 	self:_hideSkip()
 	self:_hideNext()
 	self._playing = true
@@ -803,6 +808,70 @@ function Intro._clearJob(self: any)
 	end
 end
 
+-- #2242 (Derek2 11-07: "add the rare customers chance to the tutorial scene like rich customer tips"): the rich
+-- visitor shot's grab, a big gold "+$1,234" (`amount`, the tip at Tier 1 rates the controller works out) popping in
+-- over the tip bag at `worldPosition`, rising TIP_RISE and fading out by TIP_GONE. It follows the bag's screen point
+-- and hides while it is behind the camera. Only shown: the intro pays nothing.
+function Intro.tipPop(self: any, worldPosition: Vector3, amount: number)
+	self:_clearTip()
+	if not self._playing then
+		return
+	end
+	local pop: TextLabel = Create("TextLabel", {
+		Name = "TipPop",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Size = UDim2.fromOffset(260, 52),
+		FontFace = Theme.fonts.display,
+		TextSize = 44,
+		TextColor3 = Theme.colors.gold,
+		Text = "+" .. Format.money(math.max(0, math.floor(amount))),
+		Visible = false,
+		Parent = self._ringLayer,
+	})
+	Outline.text(pop, 3)
+	self._tip = pop
+	Sound.play("richTip")
+	local started = os.clock()
+	self._tipLoop = RunService.RenderStepped:Connect(function()
+		local t = os.clock() - started
+		if t >= IntroLogic.TIP_GONE then
+			self:_clearTip()
+			return
+		end
+		local camera = Workspace.CurrentCamera
+		if camera then
+			local point = camera:WorldToViewportPoint(worldPosition)
+			local viewport = camera.ViewportSize
+			pop.Visible = point.Z > 0 and viewport.X > 0 and viewport.Y > 0
+			if pop.Visible then
+				local rise = IntroLogic.TIP_RISE * math.min(1, t / IntroLogic.TIP_FADE_FROM)
+				pop.Position = UDim2.new(point.X / viewport.X, 0, point.Y / viewport.Y, -12 - rise)
+			end
+		end
+		local fade = math.clamp(
+			(t - IntroLogic.TIP_FADE_FROM) / (IntroLogic.TIP_GONE - IntroLogic.TIP_FADE_FROM),
+			0,
+			1
+		)
+		pop.TextTransparency = fade
+	end)
+	Tween.popIn(pop, 0.6)
+end
+
+function Intro._clearTip(self: any)
+	local loop: RBXScriptConnection? = self._tipLoop
+	if loop then
+		loop:Disconnect()
+		self._tipLoop = nil
+	end
+	local pop: TextLabel? = self._tip
+	if pop then
+		pop:Destroy()
+		self._tip = nil
+	end
+end
+
 -- Skip on screen from the start, dimmed, its bar filling over `wait` seconds; with no wait it is ready at once.
 -- Gamepad B is bound from the start too, so an early press can shake the pill.
 function Intro._showSkip(self: any, wait: number)
@@ -896,6 +965,7 @@ function Intro.finish(self: any)
 	local token = self._token
 	self:_clearRing()
 	self:_clearJob()
+	self:_clearTip()
 	self:_hideSkip()
 	self:_hideNext()
 	self._root.Visible = false
@@ -918,6 +988,7 @@ function Intro.destroy(self: any)
 	self._playing = false
 	self:_clearRing()
 	self:_clearJob()
+	self:_clearTip()
 	self:_hideSkip()
 	self:_hideNext()
 	for _, connection in self._connections do

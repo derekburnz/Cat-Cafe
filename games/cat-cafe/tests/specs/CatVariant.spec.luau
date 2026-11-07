@@ -44,5 +44,15 @@ return function()
 				"🌈 A Rainbow Tabby is out in the Woods!"
 			)
 		end)
+
+		it("names a cat with its coat: Forest Cat, Gold Forest Cat, Rainbow Forest Cat (#2110)", function()
+			expect(CatVariant.name("Forest Cat", "base")).to.equal("Forest Cat")
+			expect(CatVariant.name("Forest Cat", nil)).to.equal("Forest Cat")
+			expect(CatVariant.name("Forest Cat", "gold")).to.equal("Gold Forest Cat")
+			expect(CatVariant.name("Forest Cat", "rainbow")).to.equal("Rainbow Forest Cat")
+			-- never "Stray": a cat whose name is not known yet reads "Cat"
+			expect(CatVariant.name(nil, "gold")).to.equal("Gold Cat")
+			expect(CatVariant.name("", nil)).to.equal("Cat")
+		end)
 	end)
 end

@@ -10,11 +10,15 @@
 --
 --   CatWhistle.pick(from, candidates, maxStuds)   the nearest candidate within maxStuds, or nil (pure, for the specs)
 --   CatWhistle.new(marker, running)                the marker, picking while running() is true; :destroy()
+--   CatWhistle.label(catName, variant)             #2110: the marker's words, the cat's own name with its coat
+--                                                  ("🐾 Gold Forest Cat"), not "Stray nearby"
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
+
+local CatVariant = require(script.Parent.CatVariant)
 
 -- WorldMarker's shape, not the module (it loads Theme, which the cloud tests can't)
 type Marker = {
@@ -28,6 +32,14 @@ CatWhistle.__index = CatWhistle
 local STEP = 0.25 -- seconds between picks
 local REACH = 1000 -- studs: "the current area" without a zone lookup; an area is smaller than this
 CatWhistle.REACH = REACH
+
+function CatWhistle.label(catName: unknown, variant: unknown): string
+	return "🐾 "
+		.. CatVariant.name(
+			if type(catName) == "string" then catName else nil,
+			if type(variant) == "string" then variant else nil
+		)
+end
 local ATTRIBUTE = "WhistleTarget"
 local PAW = Color3.fromRGB(255, 201, 77)
 
@@ -126,7 +138,11 @@ function CatWhistle._set(self: any, model: Model?)
 		model:SetAttribute(ATTRIBUTE, true)
 		local body = bodyOf(model)
 		if body then
-			self._marker:show(body, "🐾 Stray nearby", PAW)
+			self._marker:show(
+				body,
+				CatWhistle.label(model:GetAttribute("CatName"), model:GetAttribute("Variant")),
+				PAW
+			)
 		end
 	else
 		self._marker:hide()

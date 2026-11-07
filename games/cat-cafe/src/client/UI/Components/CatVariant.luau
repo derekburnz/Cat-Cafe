@@ -6,6 +6,8 @@
 --   isRainbow(variant)           true for "rainbow"
 --   coat(variant)                "rainbow", "gold" or "base"
 --   word(variant)                "Rainbow ", "Gold " or "", before a cat's kind ("Rainbow Epic Tabby")
+--   name(catName, variant)       #2110 (Derek2: show the real name with its coat, not "Stray"): "Forest Cat", "Gold
+--                                Forest Cat" or "Rainbow Forest Cat"; "Cat" when the name is not known
 --   multiplier(variant)          what the coat multiplies a cat's money by: x3 rainbow (RainbowMultiplier), the
 --                                Config's GoldMultiplier gold, 1 else
 --   collection(state)            state.goldCollection, else empty
@@ -46,6 +48,11 @@ function CatVariant.word(variant: string?): string
 		return "Gold "
 	end
 	return ""
+end
+
+function CatVariant.name(catName: string?, variant: string?): string
+	local name = if type(catName) == "string" and catName ~= "" then catName else "Cat"
+	return CatVariant.word(variant) .. name
 end
 
 function CatVariant.multiplier(variant: string?): number

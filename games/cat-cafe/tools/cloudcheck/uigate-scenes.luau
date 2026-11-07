@@ -821,7 +821,7 @@ end
 
 -- Catch v3 (#1884): the same circles with CatchSchedule's trust and ring kinds, over a stray model tagged as the
 -- server tags them (kinds: a list of "single", "double" or "paw", one per ring)
-local function startCatchV3(strayId, rarity, kinds, trustStart, trustNeed)
+local function startCatchV3(strayId, rarity, kinds, trustStart, trustNeed, info)
 	local model = Instance.new("Model")
 	model.Name = "Stray_" .. strayId
 	local body = Instance.new("Part")
@@ -860,7 +860,7 @@ local function startCatchV3(strayId, rarity, kinds, trustStart, trustNeed)
 		})
 		at += if half == 1 then UIShim.require("ReplicatedStorage.Shared.Config").DoubleRingGap else 0.7
 	end
-	UI.catch.show({ strayId = strayId, catId = Catalog.cats[2].id, catName = "Mochi", rarity = rarity })
+	UI.catch.show(info or { strayId = strayId, catId = Catalog.cats[2].id, catName = "Mochi", rarity = rarity })
 	UI.catch.showCircles(strayId, list, { perfect = 0.037, good = 0.09 }, trustStart, trustNeed)
 	return list, model
 end
@@ -1260,6 +1260,22 @@ local SCENES = {
 		for _, model in { sleepy, skittish, plain } do
 			model:Destroy()
 		end
+	end },
+	-- #2110 (Derek2: the real name with its coat, not "Stray"): the longest cat name on its rainbow coat fits the
+	-- catch header on every screen
+	{ "CatchRainbowName", function()
+		startCatchV3("gate_name", "Mythical", { "single", "single", "single" }, 2, 10, {
+			strayId = "gate_name",
+			catId = Catalog.cats[2].id,
+			catName = "Duchess Marzipan",
+			rarity = "Mythical",
+			rainbow = true,
+		})
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+		local name = layer and layer:FindFirstChild("CatName", true)
+		assert(name and name:IsA("TextLabel"), "uigate: no catch header name (#2110)")
+		assert(name.Text == "Rainbow Duchess Marzipan", "uigate: the catch header reads " .. name.Text .. " (#2110)")
+		assert(name.TextFits, "uigate: Rainbow Duchess Marzipan does not fit the catch header (#2110)")
 	end },
 	-- #2099 (luck-and-rare-moments.md 1j): a "Pity cat" tag over each stray with PityCat, gold for a Legendary and
 	-- violet with a rainbow edge for a Mythical, none over a plain stray; hidden in a net, back on a bolt, gone with

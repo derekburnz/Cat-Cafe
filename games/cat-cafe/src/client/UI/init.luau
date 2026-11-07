@@ -250,6 +250,7 @@ local catById: { [string]: Types.CatDef } = {}
 local initialized = false
 local visible = true
 local connections: { RBXScriptConnection } = {}
+local replayTidy: Signal.Connection? = nil -- #2157: UI.events.introReplay, cleared at destroy
 local reachConnection: any = nil -- Moments.NetInReach (F93), once NetSwingController fires it
 
 local hud: HUD.HUD? = nil
@@ -1345,6 +1346,16 @@ function UI.init(config: Types.InitConfig)
 	})
 	toasts = Toasts.new(parent)
 	popups = Popups.new(parent)
+	-- #2157 (Desktop-Tester on #2128): a replay waits up to STREAM_WAIT for the camp to stream in before the intro
+	-- hides the UI, so the window it was asked from stayed up about 1.5 s, and a Welcome back card that was up or
+	-- waiting came back after the replay. At the ask: the window closes, and the earnings are collected (the server
+	-- credits them anyway at the next save), so the card never comes back
+	replayTidy = UI.events.introReplay:Connect(function()
+		UI.close()
+		if popups and popups:dropOffline() then
+			UI.events.claimOffline:Fire()
+		end
+	end)
 	tipCard = TipCard.new(parent)
 	UI.recap.card = require(script.Screens.RecapCard).new(parent) -- #1920
 	UI.gift.card = require(script.Screens.GiftCard).new(parent) -- #1947
@@ -1513,6 +1524,10 @@ function UI.destroy()
 	end
 	for _, connection in connections do
 		connection:Disconnect()
+	end
+	if replayTidy then
+		replayTidy:Disconnect()
+		replayTidy = nil
 	end
 	table.clear(connections)
 	UI.catch.unbindProximityPrompts()

@@ -111,12 +111,22 @@ local function hours(seconds: number): string
 	return if h == math.floor(h) then tostring(h) else ("%.1f"):format(h)
 end
 
+-- #2235 (Derek2 11-07: "make it obvious that cats earn offline also so people come back"): the card shows this line
+-- as a mint callout (RecapCard), so it reads at a glance. It says what is true and no more: no "don't miss out".
+RecapLogic.OFFLINE_START = "Your cats keep earning while you're away"
+
 local function offline(input: Input): string
 	-- a no-break space, so "8 h" never splits over two rows
-	return ("Your cafe earns while you're away: %d%% for up to %s\u{00A0}h"):format(
+	return ("%s: %d%% pay, up to %s\u{00A0}h"):format(
+		RecapLogic.OFFLINE_START,
 		math.floor(input.offlineRate * 100 + 0.5),
 		hours(input.offlineCapSeconds)
 	)
+end
+
+-- Whether `line` is the offline share (alone or with tomorrow after it), for the card's callout.
+function RecapLogic.isOffline(line: string): boolean
+	return string.sub(line, 1, #RecapLogic.OFFLINE_START) == RecapLogic.OFFLINE_START
 end
 
 -- Before #2123's pick reaches the client: the offline share and tomorrow's Daily Treat and quests on one line.

@@ -2,8 +2,10 @@
 -- A stray's rarity from a distance (Derek 2026-10-28 01:25: "have some sort indicator of what rarity the cat is
 -- before going up to it and looking at the name"): a small gem in the rarity colour bobs over every stray, so
 -- players can pick their target from across the area (Common too since Derek 12:15: "common ones should also have a
--- gem"; the nearest Rare and better take the 12 slots first and Commons fill the rest), and a Mythical gem glints
--- now and then. It hides while someone is catching that cat and once you are close enough for its Catch card, which
+-- gem"; the nearest Rare and better take the 12 slots first and Commons fill the rest). Since #2231 (Derek2
+-- 2026-11-07: "make the gems that show raritys glow and be more obvious") the gem is bigger, rimmed in a light shade
+-- of its colour and sits in a soft halo of it, faint for Common and full for Mythical; Epic and up breathe the halo,
+-- quicker the rarer, and Legendary and Mythical gems glint now and then, Mythical the most often. It hides while someone is catching that cat and once you are close enough for its Catch card, which
 -- names it. Gold cats keep their gold sparkle as well. Rescue.luau puts the same gem over a stuck cat's red "!"
 -- (`Rarity.buildGem`).
 --
@@ -25,6 +27,8 @@ type Mark = {
 	gui: BillboardGui,
 	body: BasePart, -- what the gem rides; a cat streamed out and back in gets a new one
 	glint: Frame?,
+	halo: Frame?,
+	rarity: string,
 	tweens: { Tween },
 	height: number, -- studs over the body part
 	shown: boolean,
@@ -41,22 +45,50 @@ local function bodyOf(model: Model): BasePart?
 	return if part ~= nil then part :: BasePart else nil
 end
 
--- Builds a gem in `rarity`'s colour into `parent`, which is square on screen, and returns its glint for a rarity
--- that glints. Builds nothing and returns false for a rarity with no colour.
-function Rarity.buildGem(parent: Instance, rarity: string): (boolean, Frame?)
+-- Builds a gem in `rarity`'s colour into `parent`, which is square on screen, in its halo, and returns its glint for
+-- a rarity that glints and the halo (for Rarity.playPulse). Builds nothing and returns false for a rarity with no
+-- colour.
+function Rarity.buildGem(parent: Instance, rarity: string): (boolean, Frame?, Frame?)
 	local colour: Color3? = Presets.rarity[rarity]
 	if colour == nil then
-		return false, nil
+		return false, nil, nil
 	end
 	local r = Presets.rarityMark
+	local white = Color3.new(1, 1, 1)
+	-- the halo: soft rings of the colour behind the gem, the outer the faintest, scaled together by its holder
+	local halo = Instance.new("Frame")
+	halo.Name = "Halo"
+	halo.AnchorPoint = Vector2.new(0.5, 0.5)
+	halo.Position = UDim2.fromScale(0.5, 0.5)
+	halo.Size = UDim2.fromScale(r.haloRest, r.haloRest)
+	halo.BackgroundTransparency = 1
+	halo.ZIndex = 0
+	local strength = r.halo[rarity] or 0
+	for i, ring in r.haloRings do
+		local disc = Instance.new("Frame")
+		disc.Name = "Ring" .. i
+		disc.AnchorPoint = Vector2.new(0.5, 0.5)
+		disc.Position = UDim2.fromScale(0.5, 0.5)
+		disc.Size = UDim2.fromScale(ring.scale, ring.scale)
+		disc.BackgroundColor3 = colour:Lerp(white, 0.25)
+		disc.BackgroundTransparency = Logic.haloTransparency(ring.transparency, strength)
+		disc.BorderSizePixel = 0
+		disc.ZIndex = 0
+		local round = Instance.new("UICorner")
+		round.CornerRadius = UDim.new(0.5, 0)
+		round.Parent = disc
+		disc.Parent = halo
+	end
+	halo.Parent = parent
 	local gem = Instance.new("Frame")
 	gem.Name = "Gem"
 	gem.AnchorPoint = Vector2.new(0.5, 0.5)
 	gem.Position = UDim2.fromScale(0.5, 0.5)
 	gem.Size = UDim2.fromScale(r.gem, r.gem)
 	gem.Rotation = 45
-	gem.BackgroundColor3 = Color3.new(1, 1, 1)
+	gem.BackgroundColor3 = white
 	gem.BorderSizePixel = 0
+	gem.ZIndex = 1
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(r.corner, 0)
 	corner.Parent = gem
@@ -64,13 +96,13 @@ function Rarity.buildGem(parent: Instance, rarity: string): (boolean, Frame?)
 	local shading = Instance.new("UIGradient")
 	shading.Rotation = 45
 	shading.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, colour:Lerp(Color3.new(1, 1, 1), r.light)),
+		ColorSequenceKeypoint.new(0, colour:Lerp(white, r.light)),
 		ColorSequenceKeypoint.new(0.5, colour),
 		ColorSequenceKeypoint.new(1, colour:Lerp(Color3.new(0, 0, 0), r.dark)),
 	})
 	shading.Parent = gem
 	local stroke = Instance.new("UIStroke")
-	stroke.Color = r.outline
+	stroke.Color = colour:Lerp(white, r.rim)
 	stroke.Thickness = r.outlinePixels
 	stroke.Parent = gem
 	gem.Parent = parent
@@ -79,21 +111,23 @@ function Rarity.buildGem(parent: Instance, rarity: string): (boolean, Frame?)
 		local spark = Instance.new("Frame")
 		spark.Name = "Glint"
 		spark.AnchorPoint = Vector2.new(0.5, 0.5)
-		spark.Position = UDim2.fromScale(0.78, 0.2)
+		spark.Position = UDim2.fromScale(0.5 + r.gem * 0.45, 0.5 - r.gem * 0.45)
 		spark.Size = UDim2.fromScale(0, 0)
 		spark.Rotation = 45
-		spark.BackgroundColor3 = Color3.new(1, 1, 1)
+		spark.BackgroundColor3 = white
 		spark.BorderSizePixel = 0
 		spark.ZIndex = 2
 		spark.Parent = parent
 		glint = spark
 	end
-	return true, glint
+	return true, glint, halo
 end
 
--- Glints `glint` (from buildGem) now and then, for as long as the returned tween runs.
-function Rarity.playGlint(glint: Frame): Tween
+-- Glints `glint` (from buildGem) now and then, as often as `rarity` glints (Mythical's pace when not given), for as
+-- long as the returned tween runs.
+function Rarity.playGlint(glint: Frame, rarity: string?): Tween
 	local r = Presets.rarityMark
+	local every = r.glintEvery[rarity or "Mythical"] or r.glintEvery.Mythical
 	glint.Size = UDim2.fromScale(0, 0)
 	local tween = TweenService:Create(
 		glint,
@@ -103,7 +137,7 @@ function Rarity.playGlint(glint: Frame): Tween
 			Enum.EasingDirection.Out,
 			-1,
 			true,
-			r.glintEvery - 2 * r.glintSeconds
+			math.max(every - 2 * r.glintSeconds, 0)
 		),
 		{ Size = UDim2.fromScale(r.glintSize, r.glintSize) }
 	)
@@ -115,6 +149,25 @@ end
 function Rarity.stillGlint(glint: Frame)
 	local r = Presets.rarityMark
 	glint.Size = UDim2.fromScale(r.glintSize * 0.6, r.glintSize * 0.6)
+end
+
+-- Breathes `halo` (from buildGem) for an Epic or rarer gem, for as long as the returned tween runs; nil for a rarity
+-- whose halo holds still, and with Reduce Motion or Low performance.
+function Rarity.playPulse(halo: Frame, rarity: string): Tween?
+	local r = Presets.rarityMark
+	local pulse = r.pulse[rarity]
+	halo.Size = UDim2.fromScale(r.haloRest, r.haloRest)
+	if pulse == nil or Context.reducedMotion() or Context.lowPerformance then
+		return nil
+	end
+	local grown = r.haloRest * pulse.grow
+	local tween = TweenService:Create(
+		halo,
+		TweenInfo.new(pulse.seconds, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
+		{ Size = UDim2.fromScale(grown, grown) }
+	)
+	tween:Play()
+	return tween
 end
 
 local function makeMark(model: Model, rarity: string): Mark?
@@ -132,7 +185,7 @@ local function makeMark(model: Model, rarity: string): Mark?
 	gui.LightInfluence = 0
 	gui.MaxDistance = r.maxDistance * 1.2 -- the check hides it first; this only stops a stale one drawing
 	gui.Enabled = false
-	local built, glint = Rarity.buildGem(gui, rarity)
+	local built, glint, halo = Rarity.buildGem(gui, rarity)
 	if not built then
 		gui:Destroy()
 		return nil
@@ -142,6 +195,8 @@ local function makeMark(model: Model, rarity: string): Mark?
 		gui = gui,
 		body = body,
 		glint = glint,
+		halo = halo,
+		rarity = rarity,
 		tweens = {},
 		height = top - body.Position.Y + r.above,
 		shown = false,
@@ -172,6 +227,13 @@ local function show(mark: Mark)
 	mark.gui.StudsOffsetWorldSpace = up
 	mark.gui.Enabled = true
 	local glint = mark.glint
+	local halo = mark.halo
+	if halo ~= nil then
+		local pulse = Rarity.playPulse(halo, mark.rarity)
+		if pulse ~= nil then
+			table.insert(mark.tweens, pulse)
+		end
+	end
 	if Context.reducedMotion() then
 		if glint ~= nil then
 			Rarity.stillGlint(glint)
@@ -185,7 +247,7 @@ local function show(mark: Mark)
 		{ StudsOffsetWorldSpace = up + Vector3.new(0, r.bob, 0) }
 	)
 	if glint ~= nil then
-		table.insert(mark.tweens, Rarity.playGlint(glint))
+		table.insert(mark.tweens, Rarity.playGlint(glint, mark.rarity))
 	end
 end
 

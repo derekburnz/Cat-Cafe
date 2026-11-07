@@ -33,6 +33,21 @@ local Rescue = {}
 
 Rescue.CIRCLE_NET_LEVEL = 2 -- the falling cat's circle uses the Pro Net's windows whatever net the player owns
 Rescue.MIN_ZONE_STEP = 0.25 -- each zone sits at least this far from the one before, so a hit visibly moves it
+-- #2241: how much earlier than half the ping before arrival a press's own time may be, for ping wobble and frames
+Rescue.PRESS_SLACK = 0.08
+
+-- #2241 (Derek2: "even if I hit the green circle it says miss"): when a press was made. The client sends its own
+-- server-clock time of the press (`claimed`); it counts when it is no later than `arrival` and no earlier than half
+-- the ping (capped at CatchLatencyCapSeconds) plus PRESS_SLACK before it, and is moved into that range otherwise.
+-- With no time (an older client) it is `arrival` less half the ping, as before. Stamping on arrival alone let ping
+-- wobble move a press by tens of ms, more than a Legendary's or Mythical's fast marker leaves inside the zone.
+function Rescue.pressedAt(arrival: number, pingSeconds: number, claimed: unknown): number
+	local latency = Circles.latency(pingSeconds)
+	if type(claimed) ~= "number" or claimed ~= claimed then
+		return arrival - latency
+	end
+	return math.clamp(claimed, arrival - latency - Rescue.PRESS_SLACK, arrival)
+end
 
 -- "bar" until the hits are in; "falling" between a tree's last shake and its circle; "circle" while the falling
 -- cat's circle runs; "done" once the attempt is over, with `success` saying how.

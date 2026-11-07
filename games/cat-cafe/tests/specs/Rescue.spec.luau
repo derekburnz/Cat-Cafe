@@ -487,4 +487,85 @@ return function()
 			expect(Rescue.pressCircle(attempt, deadline, deadline + 0.02)).never.to.be.ok()
 		end)
 	end)
+
+	describe("when a press was made (#2241)", function()
+		local cap = Config.CatchLatencyCapSeconds
+
+		it(
+			"takes the client's own time of the press when it is within half the ping of arrival",
+			function()
+				expect(Rescue.pressedAt(100, 0.1, 99.97)).to.equal(99.97)
+				-- ping wobble: up to PRESS_SLACK more than half the ping before arrival still counts as sent
+				expect(Rescue.pressedAt(100, 0.1, 100 - 0.05 - Rescue.PRESS_SLACK)).to.be.near(
+					100 - 0.05 - Rescue.PRESS_SLACK,
+					1e-9
+				)
+				expect(Rescue.pressedAt(100, 0.1, 100)).to.equal(100)
+			end
+		)
+
+		it(
+			"never lets a press claim to be later than it arrived or older than the ping allows",
+			function()
+				expect(Rescue.pressedAt(100, 0.1, 100.5)).to.equal(100)
+				expect(Rescue.pressedAt(100, 0.1, math.huge)).to.equal(100)
+				expect(Rescue.pressedAt(100, 0.1, 90)).to.be.near(
+					100 - 0.05 - Rescue.PRESS_SLACK,
+					1e-9
+				)
+				expect(Rescue.pressedAt(100, 0.1, -math.huge)).to.be.near(
+					100 - 0.05 - Rescue.PRESS_SLACK,
+					1e-9
+				)
+				-- a huge ping is capped as before, so the furthest back is CatchLatencyCapSeconds plus PRESS_SLACK
+				expect(Rescue.pressedAt(100, 5, 0)).to.be.near(100 - cap - Rescue.PRESS_SLACK, 1e-9)
+				expect(Rescue.PRESS_SLACK <= 0.1).to.equal(true)
+			end
+		)
+
+		it(
+			"falls back to arrival less half the ping with no time, or a time that is not a number",
+			function()
+				for _, claimed in { nil :: any, "99.9", 0 / 0, {}, true } do
+					expect(Rescue.pressedAt(100, 0.1, claimed)).to.be.near(
+						100 - Circles.latency(0.1),
+						1e-9
+					)
+				end
+				expect(Rescue.pressedAt(100, -1, nil)).to.equal(100)
+			end
+		)
+
+		it(
+			"judges a Legendary's last hit by when it was pressed, whatever the ping wobble did",
+			function()
+				local challenge = Rescue.newChallenge(
+					"Legendary",
+					"trash_bin",
+					100,
+					rolls({ 0.3, 0.7, 0.5, 0.2, 0.9, 0.6 })
+				)
+				local attempt = Rescue.newAttempt(challenge, "Legendary")
+				for _ = 1, Rescue.hitsNeeded("Legendary", "bar") - 1 do
+					expect(Rescue.pressBar(attempt, zoneTime(attempt))).to.equal("hit")
+				end
+				-- pressed dead on the zone, but the message took 60 ms longer than the average ping says
+				local pressed = zoneTime(attempt)
+				local ping = 0.1
+				local arrival = pressed + ping / 2 + 0.06
+				local stamped = arrival - Circles.latency(ping)
+				local half = (challenge.zoneWidth :: number) / 2 + Config.RescueTolerance
+				-- stamped on arrival alone this lands outside the zone at the last hit's speed
+				expect(
+					math.abs(
+						Rescue.marker(attempt, stamped) - Rescue.currentZone(attempt) :: number
+					) > half
+				).to.equal(true)
+				expect(Rescue.pressBar(attempt, Rescue.pressedAt(arrival, ping, pressed))).to.equal(
+					"hit"
+				)
+				expect(attempt.success).to.equal(true)
+			end
+		)
+	end)
 end

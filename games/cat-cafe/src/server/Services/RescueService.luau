@@ -1,8 +1,9 @@
 --!strict
 -- Rescue traps (data-model section 10b, F27): some days a cat is stuck at a trap, and a short minigame frees it.
 -- NightService empties the traps at dusk and fills them at sunrise (v0.9, F66).
--- RescueBegin locks the trap to one player and sends the challenge; RescuePress presses carry no time, the server
--- stamps them on arrival and takes off half the player's ping; enough hits free the cat into the player's arms, out
+-- RescueBegin locks the trap to one player and sends the challenge; RescuePress carries the press's own server-clock
+-- time, which the server keeps within half the player's ping (plus Rescue.PRESS_SLACK) of arrival (#2241; with no
+-- time it stamps the press on arrival and takes off half the ping); enough hits free the cat into the player's arms, out
 -- of paws, out of time, walking away, Give up, dying or leaving ends the attempt and the cat stays stuck. A failed
 -- attempt never loses the cat. The cat's charm and gold roll stay here until it is free (reviewer N30).
 -- F93 (catch-rework.md section 4): every hit makes the marker faster, and each RescueResult carries the bar as it now
@@ -27,7 +28,6 @@ local CatService = require(script.Parent.CatService)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Catching = require(ReplicatedStorage.Shared.Catching)
-local Circles = require(ReplicatedStorage.Shared.Circles)
 local Clock = require(ReplicatedStorage.Shared.Clock)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -665,7 +665,7 @@ end
 
 local judge: (Player, Stuck, Rescue.Attempt, Player, boolean, number, number) -> ()
 
-local function onRescuePress(player: Player, rawSpotId: unknown)
+local function onRescuePress(player: Player, rawSpotId: unknown, rawPressedAt: unknown)
 	local spotId = Guard.id(rawSpotId)
 	if spotId == nil then
 		return
@@ -689,7 +689,7 @@ local function onRescuePress(player: Player, rawSpotId: unknown)
 		return -- the rescuer is leaving; PlayerRemoving ends the attempt
 	end
 	local arrival = serverNow()
-	local pressTime = arrival - Circles.latency(player:GetNetworkPing())
+	local pressTime = Rescue.pressedAt(arrival, player:GetNetworkPing(), rawPressedAt)
 	judge(player, entry, attempt, rescuer, helping, pressTime, arrival)
 end
 

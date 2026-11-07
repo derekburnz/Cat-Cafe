@@ -3702,7 +3702,7 @@ for _, def in Catalog.crates do
 		shopRow({ id = def.id, kind = "crate", cost = def.price })
 	end
 end
-shopRow({ id = "star_treat", kind = "lure", cost = 80 })
+shopRow({ id = "star_treat", kind = "lure", cost = 150 }) -- Derek2 2026-11-07: "more expensive like 150" (was 80)
 shopRow({ id = "golden_espresso", kind = "perk", costs = { 40, 80, 150, 250, 400 }, maxLevel = 5 })
 shopRow({ id = "big_bowl", kind = "perk", costs = { 150 }, maxLevel = 1 })
 shopRow({ id = "extra_decor_spot", kind = "perk", costs = { 100, 250 }, maxLevel = 2 })

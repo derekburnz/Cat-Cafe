@@ -342,7 +342,7 @@ local function watchCats(cats: Instance)
 		local model = child :: Model
 		local uid = model:GetAttribute("Uid")
 		local walk = walks[model]
-		local from = if walk ~= nil
+		local from: CFrame? = if walk ~= nil
 			then CFrame.new((Logic.along(walk.route, walk.travelled))) -- still on its way: from where its copy is
 			else placed[model]
 		placed[model] = nil

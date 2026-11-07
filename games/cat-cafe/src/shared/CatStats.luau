@@ -87,7 +87,7 @@ function CatStats.rescuedMultiplier(rescued: boolean?): number
 	return if rescued == true then Config.RescuedTipsMultiplier else 1
 end
 
--- A gold cat earns GoldMultiplier (data-model section 4), a rainbow cat RainbowMultiplier (F99, twice gold). "base"
+-- A gold cat earns GoldMultiplier (data-model section 4), a rainbow cat RainbowMultiplier (F99, x2 since 2026-11-07). "base"
 -- and anything unknown is 1x.
 function CatStats.variantMultiplier(variant: string?): number
 	return if variant == "rainbow"

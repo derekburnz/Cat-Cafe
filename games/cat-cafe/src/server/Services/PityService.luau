@@ -1,18 +1,26 @@
 --!strict
--- The global pity cat (#1572, luck-and-rare-moments.md 1h; the clock and pick are shared/Pity). Every server runs the
--- same slots on the shared clock (ClockService.now), so each spawns the same cat in the same area at the same time
--- with no shared store:
--- - At a slot's spawn (Pity.spawnAt) the server spawns the cat (CatService.spawnPity), sets ReplicatedStorage.Pity's
---   State "out" with its Slot, Kind and Area, and tells everyone: the banner as Announce (with "(opens at Tier N)"
---   for a player whose tier hasn't opened the area) and PityAnnounce for the sign and effects. A server that starts
---   while a slot's cat is out spawns it too, unless the claim shows it was caught already.
--- - The first catch anywhere wins. CatService asks `claim` on a pity cat's catch: an UpdateAsync on
---   MemoryStore HashMap MAP that sets Pity.claimKey(slot) only if empty (expiry a day). This server's own earlier
---   claim also counts as won. The winner publishes on MessagingService topic Pity.TOPIC, and every other server's
---   copy puffs away (CatService.removePity) with "Sam caught the pity cat!". A catch that loses the claim puffs out of
---   the net with the same banner; there's no consolation prize. If MemoryStore fails PityClaimRetries times, the
---   catcher keeps the cat (we never take a cat away on our own error) and the output says so.
--- - At night every uncaught copy goes with the other strays (CatService.nightFalls) and the State clears.
+-- The global pity cat (#1572, luck-and-rare-moments.md 1h; #1946, 1i: the timers restart; the clock and pick are
+-- shared/Pity).
+-- - Two timers, one per kind, held in MemoryStore HashMap MAP as "next:Legendary" and "next:Mythical" (a Pity.Timer:
+--   when due on the shared clock, ClockService.now, and that kind's cat number `seq`). Every server reads them on
+--   start, every READ_SECONDS and at once on a Pity.TOPIC message, and sets the folder's NextLegendary, NextMythical,
+--   LiveLegendary and LiveMythical for the sign and the day card. With no timers stored yet the first boot starts
+--   both (Pity.first: 30 minutes and 2 hours). Until a read works the server runs 1h's fixed slots and says so in
+--   the output; after one has worked it keeps the last timers it saw.
+-- - When a timer's spawn time comes (Pity.spawnTime: a due time at night waits for sunrise) every server spawns its
+--   cat (CatService.spawnPity, the stray's PitySlot is Pity.number), sets the folder's State "out" with its Slot,
+--   Kind and Area, and tells everyone: the banner as Announce (with "(opens at Tier N)" for a player whose tier
+--   hasn't opened the area) and PityAnnounce for the sign and effects. A server that starts while that cat is out
+--   spawns it too, unless the claim shows it was caught already. Both kinds can be out at once.
+-- - The first catch anywhere wins. CatService asks `claim` on a pity cat's catch: an UpdateAsync on MAP that sets
+--   Pity.claimKey(seq, kind) only if empty (expiry a day). This server's own earlier claim also counts as won. If
+--   MemoryStore fails PityClaimRetries times, the catcher keeps the cat (we never take a cat away on our own error).
+-- - The cat's end restarts its timer: the server that won the claim, or each server whose copy was still out at
+--   night, writes Pity.restart (due a period from then) with UpdateAsync, and only while the stored timer still holds
+--   that cat (Pity.keepStored), so two servers ending the same cat move it once. A write that fails is tried again
+--   at the next read. The writer then publishes on Pity.TOPIC; every other server's copy of a caught cat puffs away
+--   (CatService.removePity) with "Sam caught the pity cat!", and every server reads the new timer.
+-- - At night every uncaught copy goes with the other strays (CatService.nightFalls) and its State clears.
 -- No client remote: clients only read the folder, the stray's PityCat attribute and the clock. Analytics `pity_cat`.
 
 local MemoryStoreService = game:GetService("MemoryStoreService")
@@ -32,38 +40,86 @@ local Telemetry = require(script.Parent.Telemetry)
 
 local PityService = {}
 
-local MAP = "PityClaims"
+local MAP = "pity"
 local CLAIM_EXPIRY_SECONDS = 86400
+local TIMER_EXPIRY_SECONDS = 30 * 86400 -- rewritten after every cat, so this only clears a game nobody plays
 local LATE_BANNER_SECONDS = 10 -- a server that starts later than this after a spawn shows no banner for it
+local READ_SECONDS = 15
 local TICK_SECONDS = 1
 
 type Claim = { job: string, userId: number, winner: string }
 
 type Current = {
-	slot: number,
+	seq: number,
 	kind: Pity.Kind,
 	areaId: string,
 	state: Pity.State,
 	winner: string?,
 	wonHere: boolean,
-	debug: boolean, -- Studio's debugSpawn: out until night, whatever the slot clock says
+	spawnedAt: number,
+	debug: boolean, -- Studio's debugSpawn: out until night, whatever the timer says
 }
 
+-- A restart this server owes the store: the timer to write once cat `ended` of its kind has gone.
+type Pending = { ended: number, timer: Pity.Timer }
+
+-- Runs `fn` for each kind (a loop over a list would widen the kind to a string).
+local function eachKind(fn: (Pity.Kind) -> ())
+	fn("Legendary")
+	fn("Mythical")
+end
+
 local folder: Folder? = nil
-local current: Current? = nil -- the slot being handled, nil when none is out
-local handled = 0 -- the last slot started here, so it never spawns twice
+local currents: { [string]: Current } = {} -- each kind's cat started here, until night or the next of its kind
+local timers: { [string]: Pity.Timer } = {} -- the last stored timers seen (or written) here
+local fromStore = false -- a read has worked: the timers come from the store, never the fixed slots again
+local failing = false -- the last read failed (logged once a run of failures)
+local tried = false -- the first read has finished: until then no cat spawns, so a boot never runs a fixed slot first
+local pending: { [string]: Pending } = {}
+local handled: { [string]: boolean } = {} -- claim keys of cats started here, so none spawns twice
+local readAt = 0 -- os.clock() of the next read
+local reading = false
+
+local function timerOf(kind: Pity.Kind, now: number): Pity.Timer
+	local timer = timers[kind]
+	if fromStore and timer ~= nil then
+		return timer
+	end
+	return Pity.fixedTimer(now, kind)
+end
+
+-- The folder's one status line: the latest cat started here.
+local function latest(): Current?
+	local best: Current? = nil
+	for _, c in currents do
+		if best == nil or c.spawnedAt > best.spawnedAt then
+			best = c
+		end
+	end
+	return best
+end
 
 local function publishState()
 	local f = folder
 	if f == nil then
 		return
 	end
-	local c = current
-	f:SetAttribute("Slot", if c ~= nil then c.slot else 0)
+	local c = latest()
+	f:SetAttribute("Slot", if c ~= nil then c.seq else 0)
 	f:SetAttribute("Kind", if c ~= nil then c.kind else "")
 	f:SetAttribute("Area", if c ~= nil then c.areaId else "")
 	f:SetAttribute("State", if c ~= nil then c.state else "")
 	f:SetAttribute("Winner", if c ~= nil then c.winner or "" else "")
+	local now = ClockService.now()
+	eachKind(function(kind: Pity.Kind)
+		local own = currents[kind]
+		local timer = timerOf(kind, now)
+		f:SetAttribute(Pity.NEXT_ATTRIBUTE[kind], Pity.spawnTime(timer.at))
+		f:SetAttribute(
+			Pity.LIVE_ATTRIBUTE[kind],
+			if own ~= nil and own.state == "out" then own.areaId else ""
+		)
+	end)
 end
 
 -- A player in the server to log a server event under (none in an empty server).
@@ -74,7 +130,7 @@ end
 local function log(player: Player?, c: Current, outcome: string)
 	local subject = player or someone()
 	if subject ~= nil then
-		Telemetry.custom(subject, "pity_cat", c.slot, { c.areaId, c.kind, outcome })
+		Telemetry.custom(subject, "pity_cat", c.seq, { c.areaId, c.kind, outcome })
 	end
 end
 
@@ -93,7 +149,7 @@ local function announceSpawn(c: Current)
 	Net.fireAll("PityAnnounce", c.kind, c.areaId, "out", nil)
 end
 
--- Marks the current slot caught by `winner` and tells everyone, once.
+-- Marks cat `c` caught by `winner` and tells everyone, once.
 local function markCaught(c: Current, winner: string)
 	if c.state == "caught" then
 		return
@@ -109,10 +165,23 @@ local function hashMap(): MemoryStoreHashMap
 	return MemoryStoreService:GetHashMap(MAP)
 end
 
--- The claim stored for `slot`, or nil when none (or the read failed).
-local function readClaim(slot: number): Claim?
+local function timerKey(kind: Pity.Kind): string
+	return "next:" .. kind
+end
+
+local function publish(data: { [string]: any })
+	data.job = game.JobId
+	task.spawn(function()
+		pcall(function()
+			MessagingService:PublishAsync(Pity.TOPIC, data)
+		end)
+	end)
+end
+
+-- The claim stored under `key`, or nil when none (or the read failed).
+local function readClaim(key: string): Claim?
 	local ok, value = pcall(function(): any
-		return hashMap():GetAsync(Pity.claimKey(slot))
+		return hashMap():GetAsync(key)
 	end)
 	if
 		ok
@@ -125,22 +194,143 @@ local function readClaim(slot: number): Claim?
 	return nil
 end
 
--- Starts slot `slot` here: its cat comes out (unless a server already got it), with the banner if it is fresh.
-local function startSlot(slot: number)
-	local pick = Pity.pick(slot)
+-- Writes `kind`'s owed restart (it yields). True once the store holds a timer past the cat that ended.
+local function writePending(kind: Pity.Kind): boolean
+	local owed = pending[kind]
+	if owed == nil then
+		return true
+	end
+	local result: Pity.Timer? = nil
+	local ok, err = pcall(function()
+		hashMap():UpdateAsync(timerKey(kind), function(old: any): any
+			local stored = Pity.readTimer(old)
+			if stored ~= nil and Pity.keepStored(stored, owed.ended) then
+				result = stored
+				return nil -- another server moved it already
+			end
+			result = owed.timer
+			return owed.timer
+		end, TIMER_EXPIRY_SECONDS)
+	end)
+	if not ok or result == nil then
+		warn(`[PityService] {kind} timer restart not saved yet, trying again: {tostring(err)}`)
+		return false
+	end
+	if pending[kind] == owed then
+		pending[kind] = nil
+	end
+	local stored = result :: Pity.Timer
+	local known = timers[kind]
+	if known == nil or stored.seq >= known.seq then
+		timers[kind] = stored
+	end
+	publishState()
+	publish({ kind = kind, at = stored.at, seq = stored.seq })
+	return true
+end
+
+-- Cat `c` has gone (caught here, or left at night): its timer restarts from now. A fixed slot's cat moves nothing.
+local function restartTimer(c: Current)
+	if c.seq <= 0 then
+		return
+	end
+	local timer = Pity.restart(ClockService.now(), c.kind, c.seq)
+	local known = timers[c.kind]
+	if known == nil or known.seq <= c.seq then
+		timers[c.kind] = timer
+	end
+	pending[c.kind] = { ended = c.seq, timer = timer }
+	publishState()
+	task.spawn(writePending, c.kind)
+end
+
+-- One read of both timers (it yields), with the first boot's start when none is stored.
+local function readTimers()
+	local now = ClockService.now()
+	local okAll = true
+	eachKind(function(kind: Pity.Kind)
+		if pending[kind] ~= nil and not writePending(kind) then
+			okAll = false
+			return
+		end
+		local stored: Pity.Timer? = nil
+		local ok, err = pcall(function()
+			local raw = hashMap():GetAsync(timerKey(kind))
+			stored = Pity.readTimer(raw)
+			if stored == nil then
+				hashMap():UpdateAsync(timerKey(kind), function(old: any): any
+					local again = Pity.readTimer(old)
+					if again ~= nil then
+						stored = again
+						return nil
+					end
+					local start = Pity.first(now, kind)
+					stored = start
+					return start
+				end, TIMER_EXPIRY_SECONDS)
+			end
+		end)
+		if not ok or stored == nil then
+			okAll = false
+			if not failing then
+				warn(
+					`[PityService] could not read the {kind} timer ({tostring(err)}): `
+						.. if fromStore
+							then "keeping the last one seen"
+							else "running the fixed slots until a read works"
+				)
+			end
+			return
+		end
+		local read = stored :: Pity.Timer
+		local owed = pending[kind]
+		if owed == nil or read.seq > owed.ended then
+			timers[kind] = read
+		end
+	end)
+	tried = true
+	if okAll then
+		if not fromStore then
+			-- a fixed slot's timer goes for both kinds at once, so the sign never mixes the two
+			fromStore = timers["Legendary"] ~= nil and timers["Mythical"] ~= nil
+		end
+		failing = false
+	else
+		failing = true
+	end
+	publishState()
+end
+
+-- Starts `kind`'s cat for `timer` here: it comes out (unless a server already got it), with the banner if fresh.
+local function startCat(kind: Pity.Kind, timer: Pity.Timer, now: number, debug: boolean)
+	local key = Pity.claimKey(timer.seq, kind)
+	handled[key] = true
+	local pick = Pity.pickTimer(timer, kind)
+	local spawn = Pity.spawnTime(timer.at)
 	local c: Current = {
-		slot = slot,
-		kind = pick.kind,
+		seq = timer.seq,
+		kind = kind,
 		areaId = pick.areaId,
 		state = "out",
 		winner = nil,
 		wonHere = false,
-		debug = false,
+		-- a cat nobody saw go (no server ran that night) comes out now
+		spawnedAt = if debug or not Pity.stillOut(spawn, now) then now else spawn,
+		debug = debug,
 	}
-	current = c
-	local late = ClockService.now() - Pity.spawnAt(slot) > LATE_BANNER_SECONDS
-	if late then
-		local claimed = readClaim(slot)
+	local before = currents[kind]
+	if before ~= nil and before.state == "out" then
+		CatService.removePity(Pity.number(before.seq, kind))
+	end
+	currents[kind] = c
+	-- a server that starts while the cat is out joins in quietly; one nobody saw (a night passed) is fresh news
+	local overdue = not debug and now - spawn > LATE_BANNER_SECONDS
+	local late = overdue and Pity.stillOut(spawn, now)
+	if overdue then
+		local claimed = readClaim(key)
+		if currents[kind] ~= c then
+			return
+		end
 		if claimed ~= nil then
 			c.state = "caught"
 			c.winner = claimed.winner
@@ -148,16 +338,17 @@ local function startSlot(slot: number)
 			return
 		end
 	end
-	if CatService.spawnPity(pick.catId, pick.areaId, pick.kind, slot) == nil then
+	if CatService.spawnPity(pick.catId, pick.areaId, kind, Pity.number(timer.seq, kind)) == nil then
 		warn(
 			string.format(
-				"[PityService] slot %d: could not spawn %s in %s",
-				slot,
+				"[PityService] %s %d: could not spawn %s in %s",
+				kind,
+				timer.seq,
 				pick.catId,
 				pick.areaId
 			)
 		)
-		current = nil
+		currents[kind] = nil
 		publishState()
 		return
 	end
@@ -168,37 +359,75 @@ local function startSlot(slot: number)
 	end
 end
 
--- Night (or a debug jump) ended the slot: an uncaught cat is gone with the other strays.
-local function endSlot()
-	local c = current
+-- Night (or a debug jump) ended `kind`'s cat: an uncaught one is gone with the other strays and its timer restarts.
+local function endCat(kind: Pity.Kind)
+	local c = currents[kind]
 	if c == nil then
 		return
 	end
-	current = nil
+	currents[kind] = nil
 	if c.state == "out" then
 		log(nil, c, "expired")
 		Net.fireAll("PityAnnounce", c.kind, c.areaId, "gone", nil)
+		restartTimer(c)
 	end
 	publishState()
 end
 
 local function tick()
-	local live = Pity.live(ClockService.now())
-	local c = current
-	if c ~= nil and live ~= c.slot and not (c.debug and ClockService.areasOpen()) then
-		endSlot()
-	end
-	if live ~= nil and live > handled and ClockService.areasOpen() then
-		handled = live
-		startSlot(live)
+	local now = ClockService.now()
+	eachKind(function(kind: Pity.Kind)
+		local c = currents[kind]
+		if c ~= nil then
+			local over = if c.debug
+				then not ClockService.areasOpen()
+				else not Pity.stillOut(c.spawnedAt, now)
+			if over then
+				endCat(kind)
+			end
+		end
+		local own = currents[kind]
+		local timer = timerOf(kind, now)
+		if
+			tried
+			and (own == nil or own.state == "caught")
+			and ClockService.areasOpen()
+			and now >= Pity.spawnTime(timer.at)
+			and not handled[Pity.claimKey(timer.seq, kind)]
+		then
+			startCat(kind, timer, now, false)
+		end
+	end)
+	publishState() -- the fixed slots' timers move on their own
+	if not reading and os.clock() >= readAt then
+		reading = true
+		readAt = os.clock() + READ_SECONDS
+		task.spawn(function()
+			local ok, err = pcall(function()
+				readTimers()
+			end)
+			if not ok then
+				warn("[PityService] read: " .. tostring(err))
+			end
+			reading = false
+		end)
 	end
 end
 
+local function currentFor(number: number): Current?
+	for _, c in currents do
+		if Pity.number(c.seq, c.kind) == number then
+			return c
+		end
+	end
+	return nil
+end
+
 -- CatService's claim on a pity cat's catch (it yields): true when this catch keeps the cat.
-local function claim(player: Player, slot: number): boolean
-	local c = current
-	if c == nil or c.slot ~= slot then
-		return true -- not the slot this server is running (a debug spawn): nothing to claim
+local function claim(player: Player, number: number): boolean
+	local c = currentFor(number)
+	if c == nil then
+		return true -- not a cat this server is running: nothing to claim
 	end
 	if c.wonHere then
 		return true -- this server already holds the claim (the cat was knocked loose and caught again)
@@ -212,12 +441,13 @@ local function claim(player: Player, slot: number): boolean
 		log(player, c, "lost")
 		return false
 	end
+	local key = Pity.claimKey(c.seq, c.kind)
 	local mine: Claim = { job = game.JobId, userId = player.UserId, winner = player.DisplayName }
 	local stored: Claim? = nil
 	local failure = ""
 	for _ = 1, Config.PityClaimRetries do
 		local ok, err = pcall(function()
-			hashMap():UpdateAsync(Pity.claimKey(slot), function(old: any): any
+			hashMap():UpdateAsync(key, function(old: any): any
 				if type(old) == "table" and type(old.job) == "string" then
 					stored = old :: Claim
 					return nil -- already claimed: leave it
@@ -233,16 +463,16 @@ local function claim(player: Player, slot: number): boolean
 		failure = tostring(err)
 		stored = nil
 	end
-	if current ~= c then
-		return false -- night came meanwhile
+	if currents[c.kind] ~= c then
+		return false -- night (or the next cat of its kind) came meanwhile
 	end
 	local winner: Claim? = stored
 	if winner == nil then
 		-- MemoryStore failed every time: the catcher keeps the cat, and the log says so
 		warn(
 			string.format(
-				"[PityService] slot %d: claim failed (%s), %s keeps the cat",
-				slot,
+				"[PityService] %s: claim failed (%s), %s keeps the cat",
+				key,
 				failure,
 				player.Name
 			)
@@ -254,14 +484,8 @@ local function claim(player: Player, slot: number): boolean
 		c.wonHere = true
 		markCaught(c, player.DisplayName)
 		log(player, c, "secured")
-		task.spawn(function()
-			pcall(function()
-				MessagingService:PublishAsync(
-					Pity.TOPIC,
-					{ slot = slot, winner = player.DisplayName, job = game.JobId }
-				)
-			end)
-		end)
+		publish({ kind = c.kind, seq = c.seq, winner = player.DisplayName })
+		restartTimer(c)
 		return true
 	end
 	local name = if winner ~= nil then winner.winner else "Someone"
@@ -271,25 +495,39 @@ local function claim(player: Player, slot: number): boolean
 	return false
 end
 
--- Another server's catch got the cat: this server's copy puffs away.
+-- Another server's news: its catch got a cat (this server's copy puffs away), or a timer moved. Either way the
+-- timers are read again at once.
 local function onMessage(message: any)
 	local data = if type(message) == "table" then message.Data else nil
-	if type(data) ~= "table" or type(data.slot) ~= "number" or type(data.winner) ~= "string" then
+	if type(data) ~= "table" or data.job == game.JobId then
 		return
 	end
-	if data.job == game.JobId then
+	local kind: Pity.Kind? = if data.kind == "Legendary"
+		then "Legendary"
+		elseif data.kind == "Mythical" then "Mythical"
+		else nil
+	if kind == nil or type(data.seq) ~= "number" then
 		return
 	end
-	local c = current
-	if c == nil or c.slot ~= data.slot or c.wonHere then
-		return
+	if type(data.winner) == "string" then
+		local c = currents[kind]
+		if c ~= nil and c.seq == data.seq and not c.wonHere then
+			local winner = string.sub(data.winner, 1, 40)
+			local removed = CatService.removePity(Pity.number(c.seq, kind))
+			if c.state == "out" then
+				log(nil, c, if removed > 0 then "gone" else "lost")
+			end
+			markCaught(c, winner)
+		end
+	else
+		local moved = Pity.readTimer({ at = data.at, seq = data.seq })
+		local known = timers[kind]
+		if fromStore and moved ~= nil and (known == nil or moved.seq >= known.seq) then
+			timers[kind] = moved
+			publishState()
+		end
 	end
-	local winner = string.sub(data.winner, 1, 40)
-	local removed = CatService.removePity(c.slot)
-	if c.state == "out" then
-		log(nil, c, if removed > 0 then "gone" else "lost")
-	end
-	markCaught(c, winner)
+	readAt = 0
 end
 
 function PityService.start()
@@ -323,20 +561,19 @@ function PityService.start()
 	end)
 end
 
--- Studio-only test hook: spawns the next slot's cat now (QA), as if its time had come.
+-- Studio-only test hook: spawns the sooner timer's cat now (QA), as if its time had come.
 function PityService.debugSpawn(): string
 	assert(RunService:IsStudio(), "debugSpawn is Studio only")
-	local _, slot = Pity.nextAt(ClockService.now())
-	endSlot()
-	handled = math.max(handled, slot)
-	startSlot(slot)
-	local c = current
-	if c ~= nil then
-		c.debug = true
-	end
-	return if c ~= nil
-		then string.format("slot %d: %s in %s", slot, c.kind, c.areaId)
-		else "no spawn"
+	local now = ClockService.now()
+	local legendary, mythical = timerOf("Legendary", now), timerOf("Mythical", now)
+	local kind: Pity.Kind = if Pity.spawnTime(mythical.at) < Pity.spawnTime(legendary.at)
+		then "Mythical"
+		else "Legendary"
+	endCat(kind) -- a cat of that kind still out goes first, and its timer restarts
+	local timer = timerOf(kind, now)
+	startCat(kind, timer, now, true)
+	local c = currents[kind]
+	return if c ~= nil then string.format("%s %d: in %s", kind, timer.seq, c.areaId) else "no spawn"
 end
 
 return PityService

@@ -59,4 +59,25 @@ return function()
 			expect(ProfileSchema.template(1000).jukebox).to.equal(nil)
 		end)
 	end)
+
+	-- #2077 (Derek2): Shuffle is a saved pick, not a track
+	describe("shuffle", function()
+		it("can be picked, shown and saved", function()
+			expect(Jukebox.SHUFFLE).to.equal("shuffle")
+			local ok, pick = Jukebox.pickFor(Jukebox.SHUFFLE)
+			expect(ok).to.equal(true)
+			expect(pick).to.equal(Jukebox.SHUFFLE)
+			expect(Jukebox.shown(Jukebox.SHUFFLE)).to.equal(Jukebox.SHUFFLE)
+			expect(Jukebox.sanitizePick(Jukebox.SHUFFLE)).to.equal(Jukebox.SHUFFLE)
+			local raw = ProfileSchema.template(1000) :: any
+			raw.jukebox = Jukebox.SHUFFLE
+			expect((ProfileSchema.migrate(raw, 1000) :: any).jukebox).to.equal(Jukebox.SHUFFLE)
+		end)
+
+		it("is not a track", function()
+			expect(Jukebox.get(Jukebox.SHUFFLE)).to.equal(nil)
+			expect(table.find(Jukebox.owned(), Jukebox.SHUFFLE)).to.equal(nil)
+			expect(#Jukebox.owned()).to.equal(#Jukebox.TRACKS)
+		end)
+	end)
 end

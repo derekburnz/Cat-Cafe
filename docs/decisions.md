@@ -636,3 +636,6 @@ Playtesters said the intro captions go by too fast for kids. intro-cutscene.md ย
 
 ## 2026-11-07: Correction to the tutorial pacing entry (#2182)
 `Intro.VERSION` goes to 7, not 6 (6 was already taken by #2113), as Gameplay-Engineer built it in #2187.
+
+## 2026-11-07: Longer days move Lucky Cat 3 to about 37 minutes (Design-Agent, friend's project, #2192)
+Day 320 s / night 70 s (PR #2208) means fewer bowl cats in the first hour, so the middle Pace run buys Lucky Cat 3 at about 37 minutes, not 31. Logged in first-hour.md ยง4e and not compensated: Tier 3 stays in 45 to 55 and every gap stays under the 15-minute guard. Reason: a longer bait-at-night share would undo part of the longer-days change for little gain.

@@ -50,6 +50,8 @@ export type TackleBar = {
 	screenGui: ScreenGui,
 	setEnabled: (self: TackleBar, on: boolean) -> (),
 	result: (self: TackleBar, ok: boolean, outcome: string?) -> (),
+	ready: (self: TackleBar) -> boolean, -- #2302: shown and full, a press would lunge
+	pulse: (self: TackleBar) -> (), -- #2302: one pop, while the "tackle them" tip points at it
 	destroy: (self: TackleBar) -> (),
 }
 
@@ -268,6 +270,18 @@ function TackleBar._drawFill(self: any)
 		else 1
 	self._fill.Size = UDim2.new(share, -2 * INSET * share, 1, -2 * INSET)
 	self._fill.Visible = share > 0.02
+end
+
+-- #2302: true while the bar shows and is full, so a press would lunge now.
+function TackleBar.ready(self: any): boolean
+	return self.screenGui.Enabled and self:_look() == "ready"
+end
+
+-- #2302: one pop so the eye finds the bar the "tackle them" tip talks about.
+function TackleBar.pulse(self: any)
+	if self.screenGui.Enabled then
+		Tween.popIn(self._bar, 0.85)
+	end
 end
 
 function TackleBar.setEnabled(self: any, on: boolean)

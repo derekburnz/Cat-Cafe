@@ -606,6 +606,10 @@ TrussPart (sizes in 2-stud steps, top flush with the deck it reaches) behind a l
 A ladder is 2.6 between its rails (2.4 clear), its opening at the top at least that wide, and nothing over the
 climber's side of it (Derek 2026-10-28: the Great Oak was "just a little too tight to walk around inside and up
 ladders").
+A climb a player should see while making it goes on the outside, not up a closed shaft (Derek2 2026-11-07, #2262):
+the Great Oak is 15 across with a railed ramp 3.4 wide wrapping once round the outside, at most about 19 degrees
+along its middle, up to an open nook above a low parapet. Tree crowns a player climbs under are `_Canopy` objects,
+which never collide, because Roblox's camera only pops in for parts that collide.
 An object ending `_Barrier` exports as invisible parts that always collide, 30 high on every blocker and outer wall
 of a v3.2 area set, so nobody jumps a hedge or a wall (a default jump clears 7.2), and along the water a set's way in
 crosses only on its bridges (8c). A barrier always stands on something a player can see (Derek 2026-10-28: "in park

@@ -620,16 +620,16 @@ def build_set(mat):
     # the far end: the Great Oak's clearing, the tree house and the lookout tower
     ox, oz = OAK
     rot = face(ox, oz, -22, 82)                                    # its doorway toward the trail's end
-    put(wd.great_oak(mat), ox, oz, rot, r=11)
+    put(wd.great_oak(mat), ox, oz, rot, r=wd.RAMP_R1 + 1.5)
     for d in wd.OAK_NOOKS:
         a = math.radians(d)
-        _spot(s, "oak_nook", *turned(ox, oz, rot, -6.8 * math.cos(a), 6.8 * math.sin(a)))
+        _spot(s, "oak_nook", *turned(ox, oz, rot, -wd.OAK_NOOK_R * math.cos(a), wd.OAK_NOOK_R * math.sin(a)))
     for (bx, by, up) in wd.NOOK_SPOTS:
         _spot(s, "nook_great_oak", *turned(ox, oz, rot, -bx, by), y=wd.NOOK_Z + up)
     for (x, z) in ((-20, 100), (-56, 100), (-24, 72)):
         put(wd.log_bench(mat), x, z, face(x, z, ox, oz), r=3.5)
         _spot(s, "log_bench", x, z, y=2.06)
-    put(wd.campfire(mat), -26, 92, 0, r=3)
+    put(wd.campfire(mat), -20, 86, 0, r=3)                        # #2262: clear of the oak's ramp
     tx, tz = -86.0, 74.0
     trot = face(tx, tz, ox, oz)
     put(wd.treehouse(mat), tx, tz, trot, r=9)

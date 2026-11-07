@@ -1166,9 +1166,9 @@ Layout.woods = {
 				{ -50, 2.06, 218 },
 				{ -44, 2.06, 188 },
 				{ 52, 0, 86.5 }, -- the campfire
-				{ -38.74, 0, 206.93 }, -- in the Great Oak's roots
-				{ -34.56, 0, 212.3 },
-				{ -27.64, 0, 211.22 },
+				{ -41.16, 0, 207.27 }, -- in the Great Oak's roots
+				{ -35.48, 0, 214.57 },
+				{ -26.07, 0, 213.1 },
 				{ 51.71, 10.3, 211.89 }, -- the tree house's cushion, up its ladder
 				{ 42.66, 0, 206.64 }, -- at the foot of the tree house
 				{ 12, 0, 230 }, -- the lookout tower

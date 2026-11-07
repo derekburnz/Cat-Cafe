@@ -839,12 +839,12 @@ return function()
 
 	describe("decor (section 7)", function()
 		-- F97 (notes-10-28-to-10-30.md section 2): the coin shop closed; the four pieces are Classic Crate finds at
-		-- their rarity, with the same bonuses and models.
+		-- their rarity, with the same models; #2053: the bonus rises with the rarity, and the four still add up to 30%.
 		local expected: { [string]: { rarity: string, bonus: number, asset: string } } = {
 			plants = { rarity = "Common", bonus = 0.05, asset = "CatCafe_Decor_WindowPlants" },
 			rug = { rarity = "Common", bonus = 0.05, asset = "CatCafe_Decor_Rug" },
-			neon_sign = { rarity = "Rare", bonus = 0.10, asset = "CatCafe_Decor_NeonSign" },
-			fish_tank = { rarity = "Epic", bonus = 0.10, asset = "CatCafe_Decor_FishTank" },
+			neon_sign = { rarity = "Rare", bonus = 0.08, asset = "CatCafe_Decor_NeonSign" },
+			fish_tank = { rarity = "Epic", bonus = 0.12, asset = "CatCafe_Decor_FishTank" },
 		}
 
 		it(
@@ -871,6 +871,24 @@ return function()
 					expect(#def.effect > 0).to.equal(true)
 					expect(inCrate[id]).to.equal(true)
 				end
+			end
+		)
+
+		it(
+			"gives a rarer piece a bigger bonus, and the four still add up to 30% (#2053)",
+			function()
+				local order: { [string]: number } =
+					{ Common = 1, Rare = 2, Epic = 3, Legendary = 4, Mythical = 5 }
+				local total = 0
+				for _, a in ipairs(Catalog.decor) do
+					total += a.bonus
+					for _, b in ipairs(Catalog.decor) do
+						if order[a.rarity :: string] < order[b.rarity :: string] then
+							expect(a.bonus < b.bonus).to.equal(true)
+						end
+					end
+				end
+				expect(total).to.be.near(0.30)
 			end
 		)
 

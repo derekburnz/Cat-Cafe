@@ -446,6 +446,7 @@ local introActive = false -- #1541: the intro cutscene is playing
 local stepsActive = false -- #1541: the first tutorial steps are showing
 local lastTutorialStep: number? = nil
 local jukeboxCue: string? = nil -- #1168: the picked Jukebox Pass song's cue, nil for the rotation
+local shuffleCues: { string }? = nil -- #2077: the Jukebox tracks to shuffle through, nil when the pick is not Shuffle
 
 local function tutorialMusic(): boolean
 	return (introActive or stepsActive) and has("musicTutorial")
@@ -459,6 +460,24 @@ local function playSong(generation: number, fromTop: boolean)
 		lastSong = nil
 		crossfade(music, "musicTutorial", MUSIC_FADE)
 		return
+	end
+	local shuffle = Logic.shuffleSongs(shuffleCues, has)
+	if #shuffle > 0 then -- #2077: random songs one after another, never the same twice in a row
+		local cueId = Logic.nextSong(shuffle, lastSong, rng:NextNumber())
+		if cueId ~= nil then
+			lastSong = cueId
+			local cue = Cues[cueId]
+			local region = cue.region
+			local length = cue.seconds
+				or (if region ~= nil then region[2] - region[1] else MUSIC_FALLBACK)
+			crossfade(music, cueId, MUSIC_FADE)
+			task.delay(math.max(length - MUSIC_FADE, MUSIC_FADE), function()
+				if generation == bedGeneration then
+					playSong(generation, false)
+				end
+			end)
+			return
+		end
 	end
 	local picked = Logic.jukeboxSong(jukeboxCue, has)
 	if picked ~= nil then -- the pick loops on its own in place of the day and night rotation
@@ -2052,6 +2071,18 @@ end
 function Audio.setJukebox(cueId: string?)
 	if cueId ~= jukeboxCue then
 		jukeboxCue = cueId
+		refreshMusic(false)
+	end
+end
+
+-- #2077 Jukebox Shuffle: while given a list of Jukebox track cues, the music plays those that have a file in random
+-- order, the next starting as a song ends and never the same twice in a row. It replaces the rotation like a pick
+-- does; the tutorial song still comes first. nil goes back to setJukebox's pick or the rotation. Call it on every
+-- ProfileSync; the music only changes when the list does.
+function Audio.setJukeboxShuffle(cues: { string }?)
+	if not Logic.sameList(cues, shuffleCues) then
+		shuffleCues = if cues ~= nil then table.clone(cues) else nil
+		lastSong = nil
 		refreshMusic(false)
 	end
 end

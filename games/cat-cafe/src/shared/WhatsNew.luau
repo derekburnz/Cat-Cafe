@@ -20,6 +20,23 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #2177 (Derek2, 11-07): the player-facing changes published 11-07; the Tail Bow, the +15% outfit cues and the
+	-- Cafe Pass window are left off, as rows never name a Robux item
+	{ id = "new_intro", date = "2026-11-07", icon = "new", text = "New intro to start your cafe" },
+	{
+		id = "real_cat_names",
+		date = "2026-11-07",
+		icon = "cat",
+		text = "Cats go by their real names",
+	},
+	{ id = "cats_walk", date = "2026-11-07", icon = "cat", text = "Cats walk to bed and to work" },
+	{ id = "potion_fold", date = "2026-11-07", icon = "look", text = "Fold potion timers away" },
+	{
+		id = "collector_visits",
+		date = "2026-11-07",
+		icon = "new",
+		text = "Collectors visit more often",
+	},
 	{ id = "cat_food_bag", date = "2026-11-05", icon = "new", text = "Bag with cat food to feed" },
 	{
 		id = "corner_shop_sizes",

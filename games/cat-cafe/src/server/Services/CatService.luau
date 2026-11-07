@@ -24,6 +24,7 @@ local Circles = require(ReplicatedStorage.Shared.Circles)
 local Clock = require(ReplicatedStorage.Shared.Clock)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
+local Cooldown = require(ReplicatedStorage.Shared.Cooldown)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -1588,7 +1589,7 @@ function startCatch(
 	end
 	local selfRetryAt = stray.selfRetryAt[player.UserId]
 	if selfRetryAt ~= nil and now < selfRetryAt then
-		return "Catch your breath, then try again"
+		return Cooldown.text(selfRetryAt - now) -- #2324
 	end
 	local last = lastCatchStart[player]
 	if last ~= nil and now - last < Config.GrabCooldownSeconds then

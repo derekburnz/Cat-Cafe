@@ -15,6 +15,7 @@ local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
+local Cooldown = require(ReplicatedStorage.Shared.Cooldown)
 local DataService = require(script.Parent.DataService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Layout = require(script.Parent.Parent.World.Layout)
@@ -124,7 +125,8 @@ local function onTravel(player: Player, rawDestination: unknown)
 	end
 	local last = lastTravel[player]
 	if last ~= nil and os.clock() - last < Config.TravelCooldownSeconds then
-		Net.fire(player, "TravelResult", destination, false, "Catch your breath first")
+		local left = Config.TravelCooldownSeconds - (os.clock() - last)
+		Net.fire(player, "TravelResult", destination, false, Cooldown.text(left)) -- #2324
 		return
 	end
 	local landing, reason = landingFor(player, destination)
@@ -147,8 +149,12 @@ local function onTravel(player: Player, rawDestination: unknown)
 	-- ShovedAt is the server time a tackle last hit this character (ShoveService, server set)
 	-- #1434: with the 1 s cooldown a second trip can come inside a cloud hop home (CloudHopSeconds); its move at
 	-- CloudHopMoveAtSeconds would then pull the player back from wherever the second trip put them
-	if character:GetAttribute("CloudHopAt") ~= nil then
-		Net.fire(player, "TravelResult", destination, false, "Catch your breath first")
+	local hopAt = character:GetAttribute("CloudHopAt")
+	if hopAt ~= nil then
+		local left = if type(hopAt) == "number"
+			then hopAt + Config.CloudHopSeconds - Workspace:GetServerTimeNow()
+			else Config.CloudHopSeconds
+		Net.fire(player, "TravelResult", destination, false, Cooldown.text(left)) -- #2324
 		return
 	end
 	local shovedAt = character:GetAttribute("ShovedAt")

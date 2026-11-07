@@ -3387,6 +3387,76 @@ local SCENES = {
 			assert(window:FindFirstChild("Section_" .. kind, true), "no section " .. kind)
 		end
 	end },
+	-- #2214 (crispi_255): a red "!" over the Fish Market while crates wait to open, "📦 3 crates to open" under it;
+	-- with none it is gone
+	{ "MarketBang", function()
+		local stall = Instance.new("Model")
+		stall.Name = "CatCafe_FishMarket"
+		local counter = Instance.new("Part")
+		counter.Name = "Counter"
+		counter.Size = Vector3.new(8, 6, 4)
+		counter.Position = Vector3.new(0, 3, -20)
+		counter.Parent = stall
+		stall.PrimaryPart = counter
+		stall.Parent = workspace
+		stall:AddTag("FishMarket")
+		Scenes._market = { stall = stall, crates = UI.getState().crates }
+		local function bang(): BillboardGui
+			local gui = UIShim.playerGui:FindFirstChild("CatCafeMarketBang", true)
+			assert(gui and gui:IsA("BillboardGui"), "uigate: no ! billboard over the Fish Market (#2214)")
+			return gui :: BillboardGui
+		end
+		UI.update({ crates = { park = 2, alley = 1 } } :: any)
+		local gui = bang()
+		assert(gui.Enabled and gui.Adornee == counter, "uigate: the Fish Market's ! is not up with crates to open (#2214)")
+		local line = gui:FindFirstChild("Line", true) :: TextLabel
+		assert(line.Text == "📦 3 crates to open", "uigate: the Fish Market bubble reads " .. line.Text .. " (#2214)")
+		UI.update({ crates = {} } :: any)
+		assert(not gui.Enabled, "uigate: the Fish Market's ! stays up with no crates (#2214)")
+		UI.update({ crates = { park = 1 } } :: any)
+		assert(gui.Enabled and line.Text == "📦 1 crate to open", "uigate: one crate reads " .. line.Text .. " (#2214)")
+	end },
+	-- #2214 add-on (Derek2: "show exclamation mark when someone is doing a rescue also"): another player rescuing at a
+	-- spot puts the "!" over it, "🆘 Rescue on! Come help"; a helper joining reads "🐾 Team Rescue on!"; it goes when
+	-- the rescue ends, and the rescuer never sees their own
+	{ "RescueBang", function()
+		local spot = Instance.new("Part")
+		spot.Name = "RescueSpot_gate"
+		spot.Size = Vector3.new(2, 1, 2)
+		spot.Position = Vector3.new(6, 1, -16)
+		spot:SetAttribute("RescueSpotId", "gate_spot")
+		spot:SetAttribute("LockedBy", 0)
+		spot:SetAttribute("HelpedBy", 0)
+		spot.Parent = workspace
+		spot:AddTag("RescueSpot")
+		Scenes._rescueSpot = spot
+		local function bang(): BillboardGui?
+			for _, gui in UIShim.playerGui:GetDescendants() do
+				if gui:IsA("BillboardGui") and gui.Name == "CatCafeRescueBang" and gui.Adornee == spot then
+					return gui
+				end
+			end
+			return nil
+		end
+		UIShim.advance(0.6)
+		local idle = bang()
+		assert(idle == nil or not idle.Enabled, "uigate: a free rescue spot shows a ! (#2214)")
+		spot:SetAttribute("LockedBy", localUserId() + 1)
+		UIShim.advance(0.6)
+		local gui = bang()
+		assert(gui and gui.Enabled, "uigate: no ! over a rescue in progress (#2214)")
+		local line = gui:FindFirstChild("Line", true) :: TextLabel
+		assert(line.Text == "🆘 Rescue on! Come help", "uigate: the rescue bubble reads " .. line.Text .. " (#2214)")
+		spot:SetAttribute("HelpedBy", localUserId() + 2)
+		UIShim.advance(0.6)
+		assert(line.Text == "🐾 Team Rescue on!", "uigate: a Team Rescue reads " .. line.Text .. " (#2214)")
+		spot:SetAttribute("LockedBy", localUserId())
+		spot:SetAttribute("HelpedBy", 0)
+		UIShim.advance(0.6)
+		assert(not gui.Enabled, "uigate: the rescuer sees a ! over their own rescue (#2214)")
+		spot:SetAttribute("LockedBy", localUserId() + 1) -- on again, for the picture
+		UIShim.advance(0.6)
+	end },
 	-- F100: the prize toast after the Lost and Found: the line and two pictures
 	{ "CampPrize", function()
 		UI.campExtras.collected(
@@ -3987,6 +4057,15 @@ end
 
 function Scenes.close()
 	reel(false)
+	if Scenes._rescueSpot ~= nil then
+		Scenes._rescueSpot:Destroy() -- #2214's rescue scene
+		Scenes._rescueSpot = nil
+	end
+	if Scenes._market ~= nil then
+		Scenes._market.stall:Destroy() -- #2214's scene
+		UI.update({ crates = Scenes._market.crates } :: any)
+		Scenes._market = nil
+	end
 	if Scenes._cashMoney ~= nil then
 		UI.update(Scenes._cashMoney :: any) -- #2194's scene
 		Scenes._cashMoney = nil

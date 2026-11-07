@@ -742,6 +742,11 @@ function UI.init(config: Types.InitConfig)
 			UI.events.travel:Fire(destination)
 		end,
 		openBait = openBait,
+		-- #2353: the X2 Cash pill opens Roblox's window for the 2x pass, through the Store's tap guard (#1936)
+		buyPass = function(id: number)
+			local PassShop = require(script.Components.PassShop)
+			PassShop.prompt(id, "store")
+		end,
 		-- #1919: the goal card's nudge opens the Index on the newest open area with the most cats to find
 		openIndexAt = function(areaId: string?)
 			if collection then

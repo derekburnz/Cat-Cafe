@@ -29,6 +29,9 @@ local NAME_BATCH = 100 -- user ids per GetUserInfosByUserIdsAsync call
 local KEY_PAGE = 100
 local SCAN_KEYS = 2000 -- the most key names one rebuild lists under a prefix (20 list requests)
 local MIRROR_SECONDS = 30 -- the most often one player's hide/<userId> key is written
+-- #2132: the most often a hide toggle resends the board to everyone (the toggler gets theirs at once), so one client
+-- flipping it every second never makes the server push the whole board to the server every second
+local BOARD_SECONDS = 5
 
 local credits: { IdeaCredits.Credit } = {}
 local names: { [number]: string } = {}
@@ -105,7 +108,10 @@ local function send(player: Player)
 	Net.fire(player, "ThanksBoard", rows, IdeaCredits.has(credits, player.UserId))
 end
 
+local boardDirty = false -- a hide toggle changed the rows since the board last went to everyone (#2132)
+
 local function sendAll()
+	boardDirty = false
 	for _, player in Players:GetPlayers() do
 		send(player)
 	end
@@ -237,7 +243,8 @@ local function onSetHideCredit(player: Player, rawHide: unknown)
 		flushMirror(userId)
 	end
 	buildRows()
-	sendAll()
+	send(player) -- #2132: the toggler sees it now, everyone else on the next BOARD_SECONDS flush
+	boardDirty = true
 	CafeService.sync(player) -- the Settings row reads hideCredit from ProfileSync
 end
 
@@ -246,6 +253,15 @@ function IdeaCreditsService.start()
 	Players.PlayerRemoving:Connect(function(player: Player)
 		flushMirror(player.UserId)
 		mirroredAt[player.UserId] = nil
+	end)
+	-- #2132: sends a board a hide toggle changed to everyone, at most once every BOARD_SECONDS
+	task.spawn(function()
+		while true do
+			task.wait(BOARD_SECONDS)
+			if boardDirty then
+				sendAll()
+			end
+		end
 	end)
 	-- writes any choice that waited out a player's MIRROR_SECONDS
 	task.spawn(function()

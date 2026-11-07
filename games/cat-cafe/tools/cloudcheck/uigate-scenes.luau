@@ -40,7 +40,15 @@ local function catalogLikeTheGame()
 		quests = Catalog.quests,
 		questPrizes = Catalog.questPrizes,
 		achievements = Catalog.achievements,
-		achievementPrizes = Catalog.achievementPrizes,
+		-- a copy the scenes may change (QuestsPassXp, #2070); shared/Catalog's own tables are frozen
+		achievementPrizes = (function()
+			local copy = {}
+			for size, prize in Catalog.achievementPrizes do
+				copy[size] = table.clone(prize)
+			end
+			Scenes._achievementPrizes = copy
+			return copy
+		end)(),
 		dailyTreat = Catalog.dailyTreat,
 		catFood = Catalog.catFood, -- #1616: the Bag's Cat food tab rows, as UIController
 	}
@@ -2301,6 +2309,39 @@ local SCENES = {
 		press("Quests", "AchievementsTab")
 		press("Quests", "ClaimAll")
 	end },
+	-- #2070 (Derek2: "make pass xp also come from achievements and weeklys"): while a Cafe Pass season runs, a weekly
+	-- quest shows its "+N pass XP" pill, and so does an achievement once its prize carries passXp
+	{ "QuestsPassXp", function()
+		local small = Scenes._achievementPrizes.S
+		Scenes._passXp = { small = small.passXp }
+		-- a season running, as the game sends it (the pass sets PrizeChips.passOpen)
+		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,
+			levels = 30, paid = false, claimedFree = {}, claimedPaid = {}, claimable = 0, items = {} })
+		if small.passXp == nil then
+			small.passXp = 50 -- Gameplay's #2070 amount, until its catalog change is on main
+		end
+		UI.open("Quests")
+		local function pill(tab)
+			press("Quests", tab)
+			task.wait(0.2)
+			-- (no sync: opening the pass alone must show the pills)
+			task.wait(0.2)
+			local page = UIShim.playerGui:FindFirstChild(
+				if tab == "WeeklyTab" then "Weekly" else "Achievements",
+				true
+			)
+			for _, d in (page or UIShim.playerGui):GetDescendants() do
+				if d:IsA("TextLabel") and d.Visible and string.find(d.Text, "pass XP", 1, true) then
+					return d.Text
+				end
+			end
+			return nil
+		end
+		local weekly = pill("WeeklyTab")
+		assert(weekly ~= nil, "uigate: a weekly quest shows no pass XP pill while the pass is open (#2070)")
+		local achievement = pill("AchievementsTab")
+		assert(achievement ~= nil, "uigate: an achievement with passXp shows no pass XP pill (#2070)")
+	end },
 	{ "DailyTreat", function()
 		UI.open("DailyTreat")
 	end },
@@ -3643,6 +3684,12 @@ function Scenes.close()
 		local before = Scenes._quiet
 		Scenes._quiet = nil
 		UI.update({ playSeconds = false, passBoosts = before.passBoosts } :: any) -- #1936's quiet badge scene
+	end
+	if Scenes._passXp then
+		-- #2070's pass XP scene: the pass closed again and the S prize as it was
+		UI.pass.set(nil)
+		Scenes._achievementPrizes.S.passXp = Scenes._passXp.small
+		Scenes._passXp = nil
 	end
 	if Scenes._lawnOwned then
 		UI.update({ lawnOwned = Scenes._lawnOwned } :: any) -- #2075's lawn rarity scene

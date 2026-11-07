@@ -2376,6 +2376,31 @@ local SCENES = {
 			zoneEndsAt = t + 5,
 		})
 	end },
+	-- #2219 (crispi_255): a rescuer two hits in misses; the server sends the bar back to the start (no hits, zone 1)
+	-- and the flash says "MISS! Back to the start", whole, with every pip empty
+	{ "RescueMissReset", function()
+		UI.rescue.show("gate_rescue", rescueChallenge())
+		local t = workspace:GetServerTimeNow()
+		UI.rescue.update("gate_rescue", 2, 3, false, false, {
+			zone = 3,
+			startsAt = t,
+			phase = 0.4,
+			speed = 1.05,
+			zoneEndsAt = t + 5,
+		})
+		UI.rescue.update("gate_rescue", 0, 2, false, false, {
+			zone = 1,
+			startsAt = t,
+			phase = 0.4,
+			speed = 0.9,
+			zoneEndsAt = t + 5,
+		})
+		local barGui = UIShim.playerGui:FindFirstChild("CatCafeRescueBar")
+		local word = barGui and barGui:FindFirstChild("Word", true)
+		assert(word and word:IsA("TextLabel"), "uigate: no flash word on the rescue bar (#2219)")
+		assert(word.Visible and word.Text == "MISS! Back to the start", "uigate: the reset flash reads " .. word.Text .. " (#2219)")
+		assert(word.TextFits, "uigate: the reset flash is cut off (#2219)")
+	end },
 	-- F92: a Team Rescue helper's copy of the bar, two hits in: "Helping!" and the rescuer's paws
 	{ "RescueHelper", function()
 		local challenge = rescueChallenge()

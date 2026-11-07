@@ -30,7 +30,9 @@ export type RallyBanner = {
 }
 
 local WIDTH = 320
-local HEIGHT = 74
+local NUMBER_SIZE = 12 -- the points each step pays at, under its marker (#2078)
+local HEIGHT = 74 + NUMBER_SIZE + 2
+local COUNT_W = 56 -- "120 / 300" past the bar's end
 local PAD = 12
 local TOP = 6 -- under Roblox's top bar
 local CLEAR = 8 -- kept between the banner and anything it moves away from
@@ -149,14 +151,18 @@ function RallyBanner.new(parent: Instance, avoid: (() -> { GuiObject })?): Rally
 	self._bar = RallyBar.new({
 		parent = banner,
 		name = "RallyBar",
-		size = UDim2.new(1, -(PAD * 2 + 10), 0, 16),
+		-- the track, the end marker's half and "120 / 300" past it (#2078)
+		size = UDim2.new(1, -(PAD * 2 + 12 + 4 + COUNT_W), 0, 16),
 		position = UDim2.fromOffset(PAD, 32),
 		marker = 24,
 		textSize = Theme.sizes.textTiny,
+		countWidth = COUNT_W,
+		numberSize = NUMBER_SIZE,
+		textColor = Theme.chalk,
 	})
 	self._mine = text({
 		Name = "Mine",
-		Position = UDim2.fromOffset(PAD, 52),
+		Position = UDim2.fromOffset(PAD, 52 + NUMBER_SIZE + 2),
 		Size = UDim2.new(1, -PAD * 2, 0, 18),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall, -- 10.5 px on a phone (device pass 2026-11-07: textTiny + 1 read as about 8)

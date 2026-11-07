@@ -91,6 +91,15 @@ return function()
 			expect(view.steps[5].reached).to.equal(false)
 		end)
 
+		it("gives each step the points it pays at, for the number under its marker (#2078)", function()
+			local view = RallyLogic.view(rally(), NOW)
+			local at = {}
+			for _, step in view.steps do
+				table.insert(at, step.at)
+			end
+			expect(table.concat(at, " ")).to.equal("14 27 45 68 90")
+		end)
+
 		it("reaches a step at the server's point (Rally.stepAt rounds up)", function()
 			-- 15% of 90 is 13.5, so the first step pays at 14
 			expect(RallyLogic.view(rally({ points = 13 }), NOW).steps[1].reached).to.equal(false)

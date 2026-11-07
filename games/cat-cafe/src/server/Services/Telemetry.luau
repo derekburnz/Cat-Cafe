@@ -980,6 +980,10 @@ local function priceOf(kind: "pass" | "product", id: number): number?
 	return nil
 end
 
+-- #2131: a pass prompt that said bought, by player and pass id: whether it was the account's first spend, kept until
+-- PassService.purchased confirms it with Roblox (a faked flag never logs a purchase).
+local pendingPasses: { [Player]: { [number]: boolean } } = {} -- cleared with the session
+
 -- #1888: a game pass prompt closed (PromptGamePassPurchaseFinished on the server): bought, or store_cancelled.
 local function onPassPrompt(player: Player, passId: unknown, purchased: unknown)
 	local sku = StoreFunnel.passSku(passId)
@@ -991,14 +995,28 @@ local function onPassPrompt(player: Player, passId: unknown, purchased: unknown)
 		Telemetry.custom(player, "store_cancelled", 1, { sku, tierText(profile) })
 		return
 	end
-	-- before the lookup yields: PassService marks the pass owned on this same event
-	local first = not spentBefore(player, profile, 0, passId :: number)
+	-- now, before PassService's check marks the pass owned; robux_purchase waits for that check (#2131)
+	local pending = pendingPasses[player] or {}
+	pendingPasses[player] = pending
+	pending[passId :: number] = not spentBefore(player, profile, 0, passId :: number)
+end
+
+-- #2131: PassService confirmed a bought pass with Roblox: robux_purchase now.
+local function onPassConfirmed(player: Player, passId: number)
+	local pending = pendingPasses[player]
+	local first = if pending ~= nil then pending[passId] else nil
+	if first == nil then
+		return
+	end
+	pending[passId] = nil
+	local sku = StoreFunnel.passSku(passId)
+	local current = DataService.get(player)
+	if sku == nil or current == nil then
+		return
+	end
 	task.spawn(function()
-		local price = priceOf("pass", passId :: number) or 0
-		local current = DataService.get(player)
-		if current ~= nil then
-			Telemetry.robuxPurchase(player, current, sku, price, first)
-		end
+		local price = priceOf("pass", passId) or 0 -- yields (GetProductInfo)
+		Telemetry.robuxPurchase(player, current, sku, price, first)
 	end)
 end
 
@@ -1446,6 +1464,7 @@ local function onRelease(player: Player, profile: Profile)
 		)
 	end
 	sessions[player] = nil
+	pendingPasses[player] = nil
 end
 
 -- F87: the onboarding steps nothing else announces. first_move once the character has gone FIRST_MOVE_STUDS across
@@ -1494,6 +1513,7 @@ function Telemetry.start()
 	DataService.beforeRelease(onRelease)
 	Net.on("TelemetryReport", onReport)
 	MarketplaceService.PromptGamePassPurchaseFinished:Connect(onPassPrompt)
+	PassService.purchased:Connect(onPassConfirmed)
 	MarketplaceService.PromptProductPurchaseFinished:Connect(onProductPrompt)
 	task.spawn(function()
 		while true do

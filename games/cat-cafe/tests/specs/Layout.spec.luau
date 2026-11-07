@@ -716,6 +716,25 @@ return function()
 		)
 	end)
 
+	describe("the cat beds (F79; #2047, a bed for each extra slot)", function()
+		it("stands the tier's beds, one more per extra slot, none on the empty plot", function()
+			expect(Layout.bedsOpen(0, 2)).to.equal(0)
+			expect(Layout.bedsOpen(1, 0)).to.equal(0)
+			expect(Layout.bedsOpen(2, 2)).to.equal(2)
+			expect(Layout.bedsOpen(3, 0)).to.equal(2)
+			expect(Layout.bedsOpen(3, 2)).to.equal(4)
+			expect(Layout.bedsOpen(4, 1)).to.equal(5)
+			expect(Layout.bedsOpen(5, 0)).to.equal(#Layout.plot.beds)
+			expect(Layout.bedsOpen(5, 2)).to.equal(#Layout.plot.beds)
+		end)
+
+		it("keeps the beds in tier order, so the first ones are the tier's", function()
+			for index = 2, #Layout.plot.beds do
+				expect(Layout.plot.beds[index].tier >= Layout.plot.beds[index - 1].tier).to.equal(true)
+			end
+		end)
+	end)
+
 	describe("the bait bowl on the back step (v0.5 F44, data-model section 8)", function()
 		local plot = Layout.plot
 		local halfD = W.PlotDepth / 2

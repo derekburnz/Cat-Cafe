@@ -314,7 +314,9 @@ end
 -- sign and dust sheets, and no cat); an owned cafe adds CatCafe_Plot_Tier1..n cumulatively up to its tier, and the
 -- cat beds of its tier (F79, Layout.plot.beds, named by bed id), where the working cats past the cat trees sleep at
 -- night, and a nap bed under each nap spot. Pieces whose art is not in ReplicatedStorage.Assets are skipped.
-function WorldBuilder.setDressing(plot: Plot, tier: number)
+-- #2047: `extra` extra role slots (Economy.extraSlots) bring the next beds early (Layout.bedsOpen); the plot's `Beds`
+-- attribute says how many stand, for SleepSpots.
+function WorldBuilder.setDressing(plot: Plot, tier: number, extra: number?)
 	local function show(name: string, asset: string, wanted: boolean)
 		local existing = plot.dressing:FindFirstChild(name)
 		if wanted and existing == nil and AssetRegistry.has(asset) then
@@ -333,12 +335,14 @@ function WorldBuilder.setDressing(plot: Plot, tier: number)
 	for n = 1, Catalog.maxTier do
 		show("Tier" .. n, "CatCafe_Plot_Tier" .. n, tier >= n)
 	end
-	for _, bed in Layout.plot.beds do
+	local beds = Layout.bedsOpen(tier, extra or 0)
+	plot.model:SetAttribute("Beds", beds)
+	for index, bed in Layout.plot.beds do
 		local existing = plot.dressing:FindFirstChild(bed.id)
-		if tier >= bed.tier and existing == nil and AssetRegistry.has(CAT_BED) then
+		if index <= beds and existing == nil and AssetRegistry.has(CAT_BED) then
 			local point: Layout.Point = { x = bed.x, y = bed.y, z = bed.z, rotY = bed.rotY }
 			place(CAT_BED, localCFrame(plot.cframe, point), plot.dressing).Name = bed.id
-		elseif tier < bed.tier and existing ~= nil then
+		elseif index > beds and existing ~= nil then
 			existing:Destroy()
 		end
 	end

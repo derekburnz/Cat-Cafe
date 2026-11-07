@@ -127,6 +127,23 @@ local W = Config.World
 -- Layout v3 (F76): the rows pair up either side of the Town Square, a side passage from it, plots 1 and 2 south of
 -- the square and 3 and 4 north of it, then 5 to 8 one row farther out the same way, so a few players all have a
 -- cafe by the square and the beginner's plot 1 is a short walk from the stations.
+-- #2047: how many of plot.beds stand (the first that many, in tier order) in a cafe at `tier` with `extra` extra
+-- role slots (Economy.extraSlots): its tier's beds, and one more for each extra slot, as an extra slot opens the next
+-- tier's role slot early (Catalog.openSlotCount), so the cats working those slots have a bed at night too. None on
+-- the empty plot.
+function Layout.bedsOpen(tier: number, extra: number): number
+	if tier < 1 then
+		return 0
+	end
+	local count = 0
+	for _, bed in Layout.plot.beds do
+		if bed.tier <= tier then
+			count += 1
+		end
+	end
+	return math.min(count + math.max(0, math.floor(extra)), #Layout.plot.beds)
+end
+
 function Layout.plotPlacement(index: number): { x: number, z: number, side: number, index: number }
 	local i = index - 1
 	local side = if i % 2 == 0 then -1 else 1

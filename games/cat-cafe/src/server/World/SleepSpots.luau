@@ -1,7 +1,7 @@
 --!strict
 -- Where a cafe's working cats sleep at night (F79, data-model section 12c), read off the art (Model-Agent #511): the
 -- two cat trees' Sleep_Top and Sleep_Shelf, every placed decor piece's Sleep_<k> (the Cat Tree Tower's two) and the
--- cat beds of the owner's tier (WorldBuilder.setDressing). Each spot has the way up it from the floor: its piece's
+-- cat beds standing (WorldBuilder.setDressing: the owner's tier's, and one more per extra slot, #2047). Each spot has the way up it from the floor: its piece's
 -- Foot, projected onto the floor, then the hop chain (Bedtime.hopChain) through the piece's Hop_ and Sleep points.
 -- Pure rules in shared/Bedtime; BedtimeService walks the cats.
 
@@ -149,11 +149,12 @@ function SleepSpots.list(plot: WorldBuilder.Plot): { Spot }
 			k += 1
 		end
 	end
-	local tier = plot.model:GetAttribute("Tier")
-	for _, bed in Layout.plot.beds do
+	-- #2047: the beds standing (WorldBuilder.setDressing's Beds, the tier's and one per extra slot)
+	local beds = plot.model:GetAttribute("Beds")
+	for index, bed in Layout.plot.beds do
 		local model = plot.dressing:FindFirstChild(bed.id)
 		local spot = if model ~= nil then spotOn(bed.id, points(model), "Sleep", floorY) else nil
-		if spot == nil and type(tier) == "number" and tier >= bed.tier then
+		if spot == nil and type(beds) == "number" and index <= beds then
 			local at = plot.cframe
 				* CFrame.new(bed.x, bed.y, bed.z)
 				* CFrame.Angles(0, math.rad(bed.rotY), 0)

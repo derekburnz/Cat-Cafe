@@ -381,12 +381,12 @@ return function()
 		end)
 
 		it(
-			"a Mythical's falling circle has the Pro Net's windows times 0.636 (F83, F93, #1884)",
+			"a Mythical's falling circle has the Pro Net's windows times 0.68 (F83, F93, #1884, #2005)",
 			function()
 				local attempt = fallen("Mythical")
 				local challenge = Rescue.startCircle(attempt, 10, rolls({ 0.5 }))
-				expect((challenge.windows :: any).good).to.be.near(0.09858, 1e-9)
-				expect((challenge.windows :: any).perfect).to.be.near(0.04134, 1e-9)
+				expect((challenge.windows :: any).good).to.be.near(0.1054, 1e-9)
+				expect((challenge.windows :: any).perfect).to.be.near(0.0442, 1e-9)
 				local circle = challenge.circle :: any
 				local target = Circles.target(circle)
 				-- Good on a Common's circle, a Miss on a Mythical's

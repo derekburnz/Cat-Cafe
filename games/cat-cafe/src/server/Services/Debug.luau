@@ -32,6 +32,8 @@
 --   D:Invoke("rally", nil, "laps", 4)        -- your laps paid this weekend; returns the Rally's line either way
 --   D:Invoke("tutorialStep", nil, 4)     -- sets the tutorial step (0 to 5) and syncs; then 5 for the X's pulse
 --   D:Invoke("tackleLesson")             -- forgets the Tackle tip was seen and sends it now (the tackling lesson)
+--   D:Invoke("giveFood", nil, "small_cat_snack", 5) -- cat food for the Bag's feed menu
+--   D:Invoke("recapNow")                -- the "Your cafe so far" recap card now
 --   D:Invoke("rescuePress", nil, "hit")   -- a bar press on your running rescue that hits ("miss" misses), judged
 --                                      -- like a real one; returns "hit hits=2/6 paws=3 stage=bar"
 --   D:Invoke("restartNotice", 300)     -- the restart countdown's 5 minute warning to everyone; returns its text
@@ -100,6 +102,7 @@ local RallyService = require(script.Parent.RallyService)
 local RescueService = require(script.Parent.RescueService)
 local RestartNoticeService = require(script.Parent.RestartNoticeService)
 local RichTipService = require(script.Parent.RichTipService)
+local SessionRecapService = require(script.Parent.SessionRecapService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local ShoveService = require(script.Parent.ShoveService)
 local Spin = require(ReplicatedStorage.Shared.Spin)
@@ -407,6 +410,24 @@ function Debug.giveLure(player: (Player | number | string)?, lureId: string, cou
 	assert(Catalog.getLure(lureId) ~= nil, "unknown lure " .. lureId)
 	profile.lures[lureId] = (profile.lures[lureId] or 0) + math.max(1, math.floor(count or 1))
 	CafeService.sync(p)
+end
+
+-- Adds `count` (default 1) of a cat food (Catalog.catFood: small_cat_snack, cat_snack, big_cat_snack) to the Bag,
+-- for the feed menu (#2234). Returns how many the player now holds.
+function Debug.giveFood(player: (Player | number | string)?, foodId: string, count: number?): number
+	guard()
+	local p = resolve(player)
+	local profile = profileOf(p)
+	assert(Catalog.getCatFood(foodId) ~= nil, "unknown cat food " .. tostring(foodId))
+	profile.catFood[foodId] = (profile.catFood[foodId] or 0) + math.max(1, math.floor(count or 1))
+	CafeService.sync(p)
+	return profile.catFood[foodId]
+end
+
+-- Sends the "Your cafe so far" session recap card now (#1920, #2243). Returns whether it went out.
+function Debug.recapNow(player: (Player | number | string)?): boolean
+	guard()
+	return SessionRecapService.debugSendNow(resolve(player))
 end
 
 -- Ages this session's Tip Jar by `minutes` so its steps unlock now (F47). Returns the session minutes played.

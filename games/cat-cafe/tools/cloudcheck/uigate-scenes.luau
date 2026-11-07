@@ -1542,9 +1542,15 @@ local SCENES = {
 		assert(bottom <= card.AbsolutePosition.Y + card.AbsoluteSize.Y + 1, "uigate: the Tomorrow line hangs off the recap card (#2123)")
 		-- #2235 (Derek2: "the text from cafe so far is hard to read", "make it obvious that cats earn offline"): the
 		-- offline line is a mint callout in bold, and no blank row sits between it and the next line
-		assert(three.BackgroundTransparency == 0 and four.BackgroundTransparency == 1, "uigate: the offline line is not the recap's callout (#2235)")
+		assert((three.Parent :: Frame).BackgroundTransparency == 0 and (four.Parent :: Frame).BackgroundTransparency == 1, "uigate: the offline line is not the recap's callout (#2235)")
 		assert(three.TextSize >= 17 and four.TextSize >= 17, "uigate: the recap's lines are " .. four.TextSize .. " px (#2235)")
-		local space = four.AbsolutePosition.Y - (three.AbsolutePosition.Y + three.AbsoluteSize.Y)
+		-- #2295 (desktop test of #2243: "...100% pay, up to" with "16 h" cut off): the callout's words sit inside its padded
+		-- row, and the row is as tall as all of their wrapped rows
+		local row = three.Parent :: Frame
+		local rowBottom = row.AbsolutePosition.Y + row.AbsoluteSize.Y
+		assert(row.Name == "Row3" and three.AbsolutePosition.Y > row.AbsolutePosition.Y, "uigate: the offline callout's words are not inside its padded row")
+		assert(three.AbsolutePosition.Y + three.TextBounds.Y < rowBottom, "uigate: the offline callout is shorter than its words")
+		local space = (four.Parent :: Frame).AbsolutePosition.Y - rowBottom
 		assert(space <= 10, "uigate: a gap of " .. space .. " px under the offline line (#2235)")
 		local cardBottom = card.AbsolutePosition.Y + card.AbsoluteSize.Y
 		assert(cardBottom - bottom <= 24, "uigate: " .. (cardBottom - bottom) .. " px of empty card under the last line (#2235)")

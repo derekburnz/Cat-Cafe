@@ -1659,17 +1659,19 @@ Catalog.quests = {
 -- What finishing a quest pays, in the Index prize shape: coins are `coinSeconds` of the day rate when claimed, at
 -- least `coins`. F94 (rewards-and-shops.md section 2d): no shop food and no spins, two pictures a quest and three on
 -- the sets.
--- #1645 (quests.md section 8): each also pays Cafe Pass XP (passXp), 800 for a full day and 1,600 for a full week.
+-- #1645 (quests.md section 8): each also pays Cafe Pass XP (passXp). #2070 (Derek2: "make the xp more from quests"):
+-- 1.5x, so 1,200 for a full day and 2,400 for a full week (were 800 and 1,600), about 18 days of full play for the
+-- 34 levels' 27,200 XP (was about 26).
 Catalog.questPrizes = {
-	daily = { coins = 200, coinSeconds = 90, fish = 2, passXp = 100 },
-	dailyBig = { coins = 400, coinSeconds = 150, fish = 5, passXp = 200 },
-	dailySet = { potions = { big_tip_potion = 1, gold_rush_potion = 1 }, fish = 10, passXp = 200 },
-	weekly = { coins = 2000, coinSeconds = 600, fish = 15, passXp = 400 },
+	daily = { coins = 200, coinSeconds = 90, fish = 2, passXp = 150 },
+	dailyBig = { coins = 400, coinSeconds = 150, fish = 5, passXp = 300 },
+	dailySet = { potions = { big_tip_potion = 1, gold_rush_potion = 1 }, fish = 10, passXp = 300 },
+	weekly = { coins = 2000, coinSeconds = 600, fish = 15, passXp = 600 },
 	weeklySet = {
 		potions = { big_tip_potion = 3 },
 		crates = { classic_golden_crate = 1 },
 		fish = 40,
-		passXp = 400,
+		passXp = 600,
 	},
 } :: { [string]: Types.IndexPrize }
 
@@ -2124,16 +2126,18 @@ Catalog.achievements = {
 } :: { Types.AchievementDef }
 
 -- An achievement's prize by its size; coins scale with the day rate when claimed. F94 (rewards-and-shops.md section
--- 2d): two pictures, three on XL.
+-- 2d): two pictures, three on XL. #2070 (Derek2: "make pass xp also come from achievements"): each also pays Cafe Pass
+-- XP for the running season through Payout, like a quest: 50, 150, 300 and 600 by size.
 Catalog.achievementPrizes = {
-	S = { coins = 300, coinSeconds = 150, spins = 1 },
-	M = { coins = 1000, coinSeconds = 450, potions = { tip_potion = 1 } },
-	L = { coins = 2500, coinSeconds = 900, crates = { classic_crate = 1 } },
+	S = { coins = 300, coinSeconds = 150, spins = 1, passXp = 50 },
+	M = { coins = 1000, coinSeconds = 450, potions = { tip_potion = 1 }, passXp = 150 },
+	L = { coins = 2500, coinSeconds = 900, crates = { classic_crate = 1 }, passXp = 300 },
 	XL = {
 		coins = 5000,
 		coinSeconds = 1800,
 		crates = { classic_golden_crate = 1 },
 		potions = { big_tip_potion = 1 },
+		passXp = 600,
 	},
 } :: { [string]: Types.IndexPrize }
 

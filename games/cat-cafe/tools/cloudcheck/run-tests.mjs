@@ -16,7 +16,9 @@
 // one WebAssembly memory that a state never gives back (each runs with its collector off, and closing one trips the
 // same collector fault), so by 2026-11-05 the whole suite in one process ran out of it ("memory error: not enough
 // memory", "failed to allocate Luau state"). A child is the same script with --batch k/n.
-import { spawnSync } from 'node:child_process';
+// The batches run side by side, up to one per core (CLOUDCHECK_JOBS overrides; #2304: in turn they took about 8 of the
+// check job's 23 minutes, most of it one long spec). Each child's output is held and printed whole, in batch order.
+import { spawn } from 'node:child_process';
 import os from 'node:os';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -116,19 +118,42 @@ if (args.batch) {
   selected = matching.slice((k - 1) * BATCH_SIZE, k * BATCH_SIZE);
 }
 
-// Runs batch k of n in a child process and returns its totals (null when it crashed).
+// Runs batch k of n in a child process and returns its totals (null when it crashed) and what it printed.
 function runBatch(k) {
   const out = path.join(os.tmpdir(), `catcafe-tests-${process.pid}-${k}.json`);
   const forwarded = ['--project', projectFile, '--batch', `${k}/${batchCount}`, '--batch-out', out];
   if (args.filter != null) forwarded.push('--filter', args.filter);
   if (verbose) forwarded.push('--verbose');
-  const child = spawnSync(process.execPath, [fileURLToPath(import.meta.url), ...forwarded], {
-    stdio: ['ignore', 'inherit', 'inherit'],
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [fileURLToPath(import.meta.url), ...forwarded], {
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    const output = [];
+    child.stdout.on('data', (chunk) => output.push(chunk));
+    child.stderr.on('data', (chunk) => output.push(chunk));
+    child.on('error', reject);
+    child.on('close', (status) => {
+      const printed = Buffer.concat(output).toString('utf8');
+      if (!fs.existsSync(out)) return resolve({ result: null, printed });
+      const result = JSON.parse(fs.readFileSync(out, 'utf8'));
+      fs.rmSync(out, { force: true });
+      resolve({ result: status === 2 ? null : result, printed });
+    });
   });
-  if (!fs.existsSync(out)) return null;
-  const result = JSON.parse(fs.readFileSync(out, 'utf8'));
-  fs.rmSync(out, { force: true });
-  return child.status === 2 ? null : result;
+}
+
+// Runs every batch, `jobs` at a time, and returns them in batch order.
+async function runBatches(count, jobs) {
+  const done = new Array(count);
+  let next = 1;
+  async function worker() {
+    while (next <= count) {
+      const k = next++;
+      done[k - 1] = await runBatch(k);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(jobs, count) }, worker));
+  return done;
 }
 
 // Runs StudioRunner in a fresh state. `only` names one spec file exactly; nil runs every spec matching the filter.
@@ -169,8 +194,11 @@ try {
     if (!args.batch) {
       console.log(`TestKit: running ${selected.length} spec file(s), one Luau state each`);
     }
+    const jobs = Math.max(1, Number(process.env.CLOUDCHECK_JOBS) || (os.availableParallelism?.() ?? os.cpus().length));
+    const batches = batched ? await runBatches(batchCount, jobs) : [];
     for (let k = 1; batched && k <= batchCount; k++) {
-      const result = runBatch(k);
+      const { result, printed } = batches[k - 1];
+      process.stdout.write(printed);
       if (result == null) throw new Error(`batch ${k} of ${batchCount} crashed`);
       total.passed += result.passed;
       total.failed += result.failed;

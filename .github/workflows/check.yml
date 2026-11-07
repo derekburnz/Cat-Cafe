@@ -61,15 +61,15 @@ jobs:
         working-directory: games/cat-cafe
         run: bash ./check.sh
 
-  cloudcheck:
-    name: Luau unit tests and strict type check (WebAssembly Luau)
+  # The unit tests and the UI gate used to run one after the other in the cloudcheck job (23 minutes on
+  # 2026-11-07: about 8 of tests, most of it Pace.spec, and 14 of UI gate). Now the tests run in one job, their spec
+  # batches side by side, while the UI gate's scenes are split over UI_SHARDS runners, and cloudcheck only merges
+  # the shards and checks them as one full run (#2304). cloudcheck keeps its name, so main's ruleset and auto-merge
+  # see the same required check, and it fails when any part failed or was skipped.
+  units:
+    name: Unit tests and strict type check
     runs-on: ubuntu-latest
-    # 8 to 10 minutes on main by 11-02 (2402 tests plus the UI gate's 82 scenes on desktop, laptop and phone), so 10
-    # cut the phone pass off (#830). By 11-04 it is about 4 minutes of tests plus about 5.7 per device size, near 21,
-    # so 20 timed PRs out (#1186, #1102); 35 leaves room while the UI gate grows. By 11-06 the job took 31 minutes
-    # (about 5 of tests, 3 x 8.5 of UI gate in turn) and 35 cut PRs off, so the UI gate now runs its sizes side by
-    # side (uigate.mjs) and the limit is 60 as a backstop
-    timeout-minutes: 60
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: games/cat-cafe/tools/cloudcheck
@@ -94,10 +94,114 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run check
+      - name: Strict type check
+        run: node analyze.mjs --tests
+
+      - name: Unit tests (spec batches side by side)
+        run: node run-tests.mjs
+
+  uigate:
+    name: UI gate scenes ${{ matrix.shard }}/4
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: true
+      matrix:
+        shard: [1, 2, 3, 4] # UI_SHARDS: change the 4 in the name and the --shard below with it
+    defaults:
+      run:
+        working-directory: games/cat-cafe/tools/cloudcheck
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          filter: blob:none
+
+      - name: Merge main in (not pushed)
+        id: main
+        working-directory: .
+        run: bash .github/scripts/merge-main.sh "${{ inputs.main }}"
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: games/cat-cafe/tools/cloudcheck/package-lock.json
+
+      - run: npm ci
+
+      - name: Build this shard's scenes at every size (checked in cloudcheck)
+        run: |
+          node uigate.mjs --shard ${{ matrix.shard }}/4 --save "$RUNNER_TEMP/uigate-shard"
+          echo "${{ steps.main.outputs.main }}" > "$RUNNER_TEMP/uigate-shard/main-${{ matrix.shard }}.txt"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: uigate-shard-${{ matrix.shard }}
+          path: ${{ runner.temp }}/uigate-shard
+          retention-days: 1
+          if-no-files-found: error
+
+  cloudcheck:
+    name: Luau unit tests and strict type check (WebAssembly Luau)
+    needs: [units, uigate]
+    # always(): a required check that is skipped counts as passed, so this job always runs and fails itself when
+    # the tests or any UI gate shard did not pass.
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: games/cat-cafe/tools/cloudcheck
+    outputs:
+      main: ${{ steps.main.outputs.main }}
+    steps:
+      - name: Tests and every UI gate shard passed
+        working-directory: .
+        run: |
+          echo "unit tests: ${{ needs.units.result }}, UI gate shards: ${{ needs.uigate.result }}"
+          [ "${{ needs.units.result }}" = success ] && [ "${{ needs.uigate.result }}" = success ]
+
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          filter: blob:none
+
+      # The same main the unit tests checked against, so every part saw one tree.
+      - name: Merge main in (not pushed)
+        id: main
+        working-directory: .
+        run: bash .github/scripts/merge-main.sh "${{ needs.units.outputs.main }}"
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: games/cat-cafe/tools/cloudcheck/package-lock.json
+
+      - run: npm ci
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: uigate-shard-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/uigate-shards
+
+      - name: UI gate (every shard checked as one run)
+        env:
+          MAIN: ${{ steps.main.outputs.main }}
+        run: |
+          dir="$RUNNER_TEMP/uigate-shards"
+          for f in "$dir"/main-*.txt; do
+            if [ "$(cat "$f")" != "$MAIN" ]; then
+              echo "::error::UI gate shard $(basename "$f") checked main $(cat "$f"), not $MAIN. Re-run the check."
+              exit 1
+            fi
+          done
+          node uigate.mjs --merge "$dir"
 
   automerge:
-    # Starts only when both jobs above passed in this run, which is what the script relies on: it merges on this
+    # Starts only when gate and cloudcheck passed in this run, which is what the script relies on: it merges on this
     # run's result and never reads the checks API (that lagged finished jobs by minutes on 2026-10-27). It also
     # needs the main commit both jobs checked against.
     name: Merge if labeled automerge

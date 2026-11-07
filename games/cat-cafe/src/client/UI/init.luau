@@ -4121,6 +4121,11 @@ do
 	end
 
 	ticks.tips = function(dt: number)
+		-- an ask already up steps aside while a popup (Welcome back, a cat found) shows over the screen
+		local ask = askCard
+		if ask ~= nil and popups ~= nil then
+			ask.screenGui.Enabled = not popups:isShowing()
+		end
 		clocks.pump += dt
 		clocks.look += dt
 		if clocks.look >= TIP.LOOK_EVERY then

@@ -14,9 +14,11 @@
 -- Numbers in Presets.rally, Presets.bunting and the budget's rallyPops and pennants. Listening only.
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
 local Presets = require(script.Parent.Presets)
@@ -234,6 +236,24 @@ local function stepped(step: number)
 	})
 end
 
+-- The bar's steps as shares of the goal: Catalog.rallySteps (the server's milestones, #2018), else Presets.rally.steps.
+local function stepShares(): { number }
+	local shares: { number } = {}
+	local defs: { any }? = (Catalog :: any).rallySteps
+	if type(defs) == "table" then
+		for _, def in defs do
+			if type(def) == "table" and type(def.share) == "number" then
+				table.insert(shares, def.share)
+			end
+		end
+	end
+	if #shares == 0 then
+		return Presets.rally.steps
+	end
+	table.sort(shares)
+	return shares
+end
+
 local function onState(payload: unknown)
 	if type(payload) ~= "table" then
 		return
@@ -245,7 +265,7 @@ local function onState(payload: unknown)
 	local points = if type(p.points) == "number" then p.points else 0
 	local fill = Logic.rallyFill(points, goal)
 	if served.known and served.active and active then
-		for i, step in Logic.rallySteps(served.fill, served.lap, fill, lap, Presets.rally.steps) do
+		for i, step in Logic.rallySteps(served.fill, served.lap, fill, lap, stepShares()) do
 			task.delay((i - 1) * 0.35, stepped, step)
 			task.delay((i - 1) * 0.35, RallyBoard.flash, step)
 		end

@@ -34,6 +34,7 @@
 --   D:Invoke("tradeMinTier", 0)        -- trading from Tier 0 in this server (F102; nil goes back to the flag or Config)
 --   D:Invoke("trading", false)         -- the trading kill switch off in this server, as CatCafe_Flags would (F102)
 --   D:Invoke("freshCatch")             -- forget this window's Fresh Catch buys and heads up; returns the stock (F94)
+--   D:Invoke("cancelMinigames")       -- ends your rescue (Give up), your help on one, and your running catches
 --   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
 --   D:Invoke("givePotion", nil, "tip_potion", 3)    -- 3 Tip Potions in the bag (F64; nil id gives each potion)
 --   D:Invoke("potionLeft", nil, "tip_potion", 30)   -- the running Tip Potion has 30 s left (0 ends it)
@@ -663,6 +664,17 @@ function Debug.spawnStuckCat(
 ): string
 	guard()
 	return RescueService.debugSpawnStuck(catId, rescueSpotId, coat)
+end
+
+-- Laptop-Tester (2026-11-07): ends the player's rescue (as Give up) or their help on someone's, and any catch they
+-- have running (a Miss), so a tester stuck in a minigame can carry on. Returns what the server had, such as
+-- "rescue: none, catches ended: 0": with both empty, a rescue or catch screen still up is the client's alone.
+function Debug.cancelMinigames(player: (Player | number | string)?): string
+	guard()
+	local p = resolve(player)
+	local rescue = RescueService.debugCancel(p)
+	local catches = CatService.debugEndCatch(p)
+	return string.format("rescue: %s, catches ended: %d", rescue, catches)
 end
 
 -- Number of strays in an area and of stuck cats across all rescue traps.

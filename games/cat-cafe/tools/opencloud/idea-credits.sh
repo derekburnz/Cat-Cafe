@@ -99,14 +99,15 @@ fail() {
 keys() {
 	local store=$1 prefix=$2 token=
 	while :; do
-		local args=(--get --data-urlencode "filter=id.startsWith(\"$prefix\")" --data-urlencode maxPageSize=256)
+		# #2082: Open Cloud lists an id as "global/<key>", so the filter starts with "global/" and the scope is cut off
+		local args=(--get --data-urlencode "filter=id.startsWith(\"global/$prefix\")" --data-urlencode maxPageSize=256)
 		[ -z "$token" ] || args+=(--data-urlencode "pageToken=$token")
 		call GET "$base/$store/entries" "${args[@]}"
 		if [ "$status" = 404 ] && [[ $body == *"not found"* ]]; then
 			return 0
 		fi
 		[ "$status" = 200 ] || fail
-		jq -r '.dataStoreEntries[]?.id' <<<"$body"
+		jq -r '.dataStoreEntries[]?.id | sub("^global/"; "")' <<<"$body"
 		token=$(jq -r '.nextPageToken // empty' <<<"$body")
 		[ -n "$token" ] || break
 	done

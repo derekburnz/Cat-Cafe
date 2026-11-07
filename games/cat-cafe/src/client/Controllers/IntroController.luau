@@ -523,7 +523,7 @@ local function restoreTurret(r: Run)
 end
 
 -- Covers or uncovers the town cannon's barrel on this screen only (section 2a: lifted for shots 1 and 2, dropped
--- for shot 7's night), remembering each part's replicated Transparency for coverBack.
+-- for shot 6's night, #2113), remembering each part's replicated Transparency for coverBack.
 local function cover(r: Run, covered: boolean)
 	local cannon = r.cannon
 	if cannon == nil then

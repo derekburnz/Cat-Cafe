@@ -304,6 +304,45 @@ return function()
 		end)
 	end)
 
+	describe("LawnLogic.groups (#2081)", function()
+		it("puts the cards under Big spots, Small spots, then Paths and fences, with counts", function()
+			local state = player(
+				3,
+				0,
+				{ "tulip_bed", "mailbox", "garden_bench", "red_brick", "white_picket" },
+				{ small1 = "tulip_bed", big1 = "garden_bench" },
+				{ path = "red_brick" }
+			)
+			local groups = LawnLogic.groups(state)
+			local keys = {}
+			local total = 0
+			for _, group in groups do
+				table.insert(keys, group.key)
+				total += #group.cards
+				for _, card in group.cards do
+					expect(card.group).to.equal(group.key)
+					if group.key == "styles" then
+						expect(card.kind == "path" or card.kind == "fence").to.equal(true)
+					else
+						expect(piece(card.id).spot).to.equal(group.key)
+					end
+				end
+			end
+			expect(table.concat(keys, ",")).to.equal("big,small,styles")
+			expect(total).to.equal(#LawnLogic.cards(state))
+			expect(groups[1].title).to.equal("Big spots · " .. #groups[1].cards)
+			expect(groups[3].title).to.equal("Paths and fences · 2")
+		end)
+
+		it("leaves out a heading with no cards", function()
+			local groups = LawnLogic.groups(player(3, 0, { "tulip_bed" }))
+			expect(#groups).to.equal(1)
+			expect(groups[1].key).to.equal("small")
+			expect(groups[1].title).to.equal("Small spots · 1")
+			expect(#LawnLogic.groups(player(1, 0, nil))).to.equal(0)
+		end)
+	end)
+
 	describe("LawnLogic.total (#1283)", function()
 		it("counts what is out and sums its bonus, as the Money boosts row does", function()
 			local state = player(

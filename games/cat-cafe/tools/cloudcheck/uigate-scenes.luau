@@ -842,6 +842,32 @@ local SCENES = {
 	{ "Decor", function()
 		UI.open("Decor")
 	end },
+	-- #2053 (Derek2: "fish tank background shows blue but its an epic"): a crate piece's picture sits on its rarity's
+	-- tint (the Epic Fish tank purple, the Rare Neon cat sign blue), as its pill
+	{ "DecorRarityTint", function()
+		local before = UI.getState() :: any
+		local owned = table.clone(before.decorOwned or {})
+		owned.fish_tank = true
+		owned.neon_sign = true
+		Scenes._decorOwned = before.decorOwned or {}
+		UI.update({ decorOwned = owned } :: any)
+		UI.open("Decor")
+		task.wait(0.05)
+		local Theme = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Theme")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		-- a lightened tint keeps the hue: the strongest channel of the rarity stays the strongest
+		local function top(c: Color3): string
+			return if c.R >= c.G and c.R >= c.B then "R" elseif c.G >= c.B then "G" else "B"
+		end
+		for id, rarity in { fish_tank = "Epic", neon_sign = "Rare" } do
+			local card = modals:FindFirstChild(id, true)
+			local art = card and card:FindFirstChild("Art")
+			assert(art, "uigate: no " .. id .. " card in the Decor window")
+			local want = Theme.rarityColor(rarity)
+			local got = (art :: Frame).BackgroundColor3
+			assert(top(got) == top(want), ("uigate: %s's picture sits on %s, not its %s tint (#2053)"):format(id, tostring(got), rarity))
+		end
+	end },
 	-- F91, #1283: the Lawn chip, the total over the owned pieces, path and fence cards (out first)
 	{ "DecorLawn", function()
 		bindLawnPlot()
@@ -3042,6 +3068,10 @@ function Scenes.close()
 		local before = Scenes._quiet
 		Scenes._quiet = nil
 		UI.update({ playSeconds = false, passBoosts = before.passBoosts } :: any) -- #1936's quiet badge scene
+	end
+	if Scenes._decorOwned ~= nil then
+		UI.update({ decorOwned = Scenes._decorOwned } :: any) -- #2053's rarity tint scene
+		Scenes._decorOwned = nil
 	end
 	if Scenes._crew then
 		UI.update(Scenes._crew :: any) -- #2047's extra slots scene: the sample cats, tier and no extra slots back

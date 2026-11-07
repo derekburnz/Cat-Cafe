@@ -45,6 +45,7 @@ type Mark = {
 	gem: boolean, -- the cat's rarity gem sits above the "!"
 	glint: Frame?,
 	halo: Frame?, -- the gem's halo (#2231), breathed for Epic and up
+	tag: Frame?, -- NEW over the gem while the cat is not in your Index (#2258)
 	rarity: string?,
 	tweens: { Tween },
 	shown: boolean,
@@ -112,11 +113,13 @@ local function makeMark(model: Model): Mark?
 	gui.AlwaysOnTop = false -- walls and buildings in front hide it, as they hide the trap
 	gui.MaxDistance = m.maxDistance * 1.2 -- the check hides it first; this only stops a stale one drawing
 	gui.Enabled = false
+	gui.ClipsDescendants = false -- the NEW pill pokes a little over the top (#2258)
 	local label = Instance.new("TextLabel")
 	label.BackgroundTransparency = 1
 	label.Size = UDim2.fromScale(1, 1)
 	local glint: Frame? = nil
 	local halo: Frame? = nil
+	local tag: Frame? = nil
 	if gem then
 		-- the "!" along the bottom, the gem in a square over it; the billboard is raised by the gem's share so the
 		-- "!" stays where it stands without one
@@ -136,6 +139,9 @@ local function makeMark(model: Model): Mark?
 		gem = built
 		glint = spark
 		halo = ring
+		if built then
+			tag = Rarity.buildNewTag(holder)
+		end
 	end
 	label.FontFace = Font.fromEnum(Enum.Font.FredokaOne)
 	label.Text = "!"
@@ -153,6 +159,7 @@ local function makeMark(model: Model): Mark?
 		gem = gem,
 		glint = glint,
 		halo = halo,
+		tag = tag,
 		rarity = if type(rarity) == "string" then rarity else nil,
 		tweens = {},
 		shown = false,
@@ -327,6 +334,10 @@ local function check()
 		local mark = marks[model] or makeMark(model)
 		if mark ~= nil then
 			marks[model] = mark
+			local tag = mark.tag
+			if tag ~= nil then
+				tag.Visible = Rarity.isNew(model)
+			end
 			show(mark)
 		end
 	end

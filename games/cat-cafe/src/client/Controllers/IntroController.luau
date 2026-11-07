@@ -37,6 +37,7 @@ local Intro = require(Shared:WaitForChild("Intro"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Presets = require(script.Parent.Parent.Effects.Presets)
+local TackleStage = require(Shared:WaitForChild("TackleStage"))
 local Types = require(Shared:WaitForChild("Types"))
 local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
@@ -1407,6 +1408,243 @@ finish = function(finished: boolean)
 	Moments.IntroEnd:Fire()
 end
 
+-- The tackling lesson's stage (#2312, Derek2: "the cut scene for explaining tackling doesn't actually take control of
+-- your camera like tutorial so it doesn't show you it properly"): UI's lesson (Screens/TackleLesson) calls
+-- stageTackle(shot) as each caption shows and stageTackle(0) at its end. In front of the player (shared/TackleStage) a
+-- copy of you carries a cat across, another copy (StagedTackle, so Effects/Tackle dives it) lunges and knocks it back,
+-- the cat drops, then the camera looks over the tackler's shoulder and pulls up. The camera is this screen's while it
+-- plays and the controls and prompts are off; everything is local and goes at the end, the camera back as it was.
+type Lesson = {
+	r: any, -- staged, hidden and tweens, like a Run's, for stageYou
+	scene: TackleStage.Scene,
+	carrier: You?,
+	tackler: You?,
+	cat: Model?,
+	held: boolean,
+	shot: number,
+	shotAt: number, -- os.clock() the showing shot began
+	cameraFrom: CFrame, -- where the camera was when the shot began, for the glide
+	knocked: boolean,
+	cameraWas: CFrame,
+	cameraTypeWas: Enum.CameraType,
+	controls: any?,
+	promptsWere: boolean,
+	character: Model?,
+}
+
+local LESSON_STEP = "CatCafeTackleLesson"
+local LESSON_GLIDE = 0.6 -- seconds the camera glides to each shot's view
+local KNOCK_SECONDS = 0.25
+local lesson: Lesson? = nil
+
+local function lessonHold(l: Lesson)
+	local carrier, cat = l.carrier, l.cat
+	if carrier == nil or cat == nil or l.held then
+		return
+	end
+	l.held = true
+	HeldCat.attach(cat, carrier.model, carrier.root)
+	cat.Parent = carrier.model
+	carrier.model:SetAttribute("CarryingCatId", Intro.DEMO_CAT)
+end
+
+local function lessonDrop(l: Lesson, at: Vector3)
+	local carrier, cat = l.carrier, l.cat
+	if cat == nil or not l.held then
+		return
+	end
+	l.held = false
+	if carrier ~= nil then
+		carrier.model:SetAttribute("CarryingCatId", nil)
+	end
+	HeldCat.release(cat)
+	cat.Parent = Workspace
+	cat:PivotTo(CFrame.lookAt(at, at + l.scene.forward))
+end
+
+local function lessonStep()
+	local l = lesson
+	if l == nil then
+		return
+	end
+	local t = os.clock() - l.shotAt
+	local scene = l.scene
+	local carrier, tackler = l.carrier, l.tackler
+	local landed = TackleStage.LUNGE_AT + TackleStage.LUNGE_SECONDS
+	local walking = l.shot ~= 4 and not l.knocked
+	local carrierAt =
+		TackleStage.walkAt(scene.walkFrom, scene.walkTo, if l.shot == 4 then 99 else t)
+	if l.shot == 2 and t >= landed then
+		local hit = TackleStage.hitPoint(scene.walkFrom, scene.walkTo)
+		if not l.knocked then
+			l.knocked = true
+			lessonDrop(l, hit - scene.forward * TackleStage.DROP_SIDE)
+			Moments.Shove:Fire("bystander", hit)
+			Moments.BumpLoose:Fire("bystander", hit)
+		end
+		local away = toward(scene.tackler, hit)
+		carrierAt = hit
+			+ away * TackleStage.KNOCK_STUDS * math.clamp((t - landed) / KNOCK_SECONDS, 0, 1)
+		walking = false
+	elseif l.shot == 4 and l.knocked then
+		local hit = TackleStage.hitPoint(scene.walkFrom, scene.walkTo)
+		carrierAt = hit + toward(scene.tackler, hit) * TackleStage.KNOCK_STUDS
+	end
+	if carrier ~= nil then
+		local moving = walking and (carrierAt - scene.walkTo).Magnitude > 0.05
+		placeYou(carrier, carrierAt, scene.right)
+		playYou(carrier, if moving then "run" else "idle")
+	end
+	if tackler ~= nil then
+		local at = if l.shot == 2 or (l.shot == 4 and l.knocked)
+			then TackleStage.lungeAt(scene, t + if l.shot == 4 then 99 else 0)
+			else scene.tackler
+		placeYou(tackler, at, toward(at, carrierAt))
+		playYou(tackler, "idle")
+	end
+	local camera = Workspace.CurrentCamera
+	local key = scene.cameras[l.shot]
+	if camera ~= nil and key ~= nil then
+		local target = CFrame.lookAt(key.position, key.look)
+		local k = math.clamp(t / LESSON_GLIDE, 0, 1)
+		k = k * k * (3 - 2 * k)
+		camera.CameraType = Enum.CameraType.Scriptable
+		camera.CFrame = l.cameraFrom:Lerp(target, k)
+	end
+end
+
+local function lessonEnd()
+	local l = lesson
+	if l == nil then
+		return
+	end
+	lesson = nil
+	RunService:UnbindFromRenderStep(LESSON_STEP)
+	for _, tween in l.r.tweens do
+		tween:Cancel()
+	end
+	for item in l.r.hidden do
+		(item :: any).LocalTransparencyModifier = 0
+	end
+	for _, model in l.r.staged do
+		model:Destroy()
+	end
+	if l.cat ~= nil then
+		l.cat:Destroy()
+	end
+	local camera = Workspace.CurrentCamera
+	if camera ~= nil then
+		camera.CameraType = l.cameraTypeWas
+		camera.CFrame = l.cameraWas
+	end
+	if l.controls ~= nil then
+		pcall(function()
+			l.controls:Enable()
+		end)
+	end
+	ProximityPromptService.Enabled = l.promptsWere
+end
+
+local function lessonBegin(): Lesson?
+	local character = player.Character
+	local root = rootOf(character)
+	local camera = Workspace.CurrentCamera
+	local humanoid = if character ~= nil then character:FindFirstChildOfClass("Humanoid") else nil
+	if root == nil or camera == nil or humanoid == nil or run ~= nil then
+		return nil
+	end
+	local r: any = { staged = {}, hidden = {}, tweens = {} }
+	local feet = (root :: BasePart).Position
+		- Vector3.new(0, (humanoid :: Humanoid).HipHeight + (root :: BasePart).Size.Y / 2, 0)
+	local scene = TackleStage.scene(feet, (root :: BasePart).CFrame.LookVector)
+	local l: Lesson = {
+		r = r,
+		scene = scene,
+		carrier = stageYou(r),
+		tackler = stageYou(r),
+		cat = stageCat(r, Intro.DEMO_CAT, CFrame.new(scene.walkFrom)),
+		held = false,
+		shot = 0,
+		shotAt = os.clock(),
+		cameraFrom = camera.CFrame,
+		knocked = false,
+		cameraWas = camera.CFrame,
+		cameraTypeWas = camera.CameraType,
+		controls = controls(),
+		promptsWere = ProximityPromptService.Enabled,
+		character = character,
+	}
+	if l.cat ~= nil then
+		-- held, it is the carrier's, not the stage's: lessonEnd destroys it on its own
+		local index = table.find(r.staged, l.cat)
+		if index ~= nil then
+			table.remove(r.staged, index)
+		end
+		(l.cat :: Model).Name = "HeldCat"
+	end
+	local tackler = l.tackler
+	if tackler ~= nil then
+		tackler.model.Name = "LessonTackler"
+		tackler.model:SetAttribute("StagedTackle", true)
+	end
+	if l.carrier ~= nil then
+		(l.carrier :: You).model.Name = "LessonCarrier"
+	end
+	if l.controls ~= nil then
+		pcall(function()
+			l.controls:Disable()
+		end)
+	end
+	ProximityPromptService.Enabled = false
+	lesson = l
+	RunService:BindToRenderStep(LESSON_STEP, Enum.RenderPriority.Camera.Value + 2, lessonStep)
+	return l
+end
+
+-- Stages shot `shot` (1 to TackleStage.SHOTS) of the tackling lesson, starting it on the first call; 0 or nil ends
+-- it and puts everything back. Does nothing while the intro plays.
+function IntroController.stageTackle(shot: number?)
+	if shot == nil or shot <= 0 or shot > TackleStage.SHOTS then
+		lessonEnd()
+		return
+	end
+	local l = lesson or lessonBegin()
+	if l == nil then
+		return
+	end
+	local camera = Workspace.CurrentCamera
+	l.shot = shot
+	l.shotAt = os.clock()
+	l.cameraFrom = if camera ~= nil then camera.CFrame else l.cameraFrom
+	if shot == 1 or shot == 3 then
+		-- the walk again, the cat back in the carrier's arms and the tackler back on its spot
+		l.knocked = false
+		lessonHold(l)
+		local tackler = l.tackler
+		if tackler ~= nil then
+			tackler.model:SetAttribute("TackleAt", nil)
+			tackler.model:SetAttribute("TackleMissAt", nil)
+		end
+	elseif shot == 2 then
+		l.knocked = false
+		lessonHold(l)
+		local tackler = l.tackler
+		if tackler ~= nil then
+			local model = tackler.model
+			task.delay(TackleStage.LUNGE_AT, function()
+				if lesson == l and l.shot == 2 and model.Parent ~= nil then
+					model:SetAttribute("TackleAt", Workspace:GetServerTimeNow())
+				end
+			end)
+		end
+	end
+end
+
+-- Whether the tackling lesson's stage is up.
+function IntroController.stagingTackle(): boolean
+	return lesson ~= nil
+end
+
 -- Plays the intro from the first shot. `replay` is a replay from the Tutorial tile or Settings: Skip shows at once
 -- and the server saves nothing. Does nothing while one is playing or without a plot. Yields up to STREAM_WAIT while
 -- the Alleyway's camp streams in.
@@ -1538,7 +1776,15 @@ function IntroController.start()
 			IntroController.play(true)
 		end
 	end)
+	-- #2312: UI's tackling lesson stages its shots here, once UI-Engineer's hook is in (UI can't require controllers)
+	local setStager: any = (UI.intro :: any).setTackleStager
+	if type(setStager) == "function" then
+		(setStager :: any)(IntroController.stageTackle)
+	end
 	player.CharacterAdded:Connect(function(character)
+		if lesson ~= nil and lesson.character ~= character then
+			lessonEnd() -- a respawn ends the lesson's stage
+		end
 		local r = run
 		if r == nil then
 			return

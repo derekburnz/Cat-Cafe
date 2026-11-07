@@ -10,7 +10,8 @@ local Lawn = require(ReplicatedStorage.Shared.Lawn)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 -- zone tags a spawn point "lane" (behind a cafe) or "nook" (an end of a back alley, v3.1), or in a v3.2 side area
--- "near" (the gate half) or "deep" (the far half); Epic and rarer strays take only "nook" or "deep" points.
+-- "near" (the gate half) or "deep" (the far half); Epic and rarer strays take only "nook" points and Mythicals only
+-- "deep" ones (Catching.KEEP_ZONES; #2210: Epic and Legendary spawn anywhere in a side area).
 export type Point = { x: number, y: number, z: number, rotY: number?, zone: string? }
 -- A cafe table: its point, and `lane`, the plot-local z of the walkway beside its row that customers walk along to
 -- reach its chairs (Layout.plot.tables).

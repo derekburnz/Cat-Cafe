@@ -665,7 +665,8 @@ end
 
 -- A free spawn point in the area, spread from the strays already there (Catching.spreadPick), or nil. Which points a
 -- stray of `rarity` may take is Catching.spawnPool's rule: the Woods' oak top for a Rare or better first, Epic and
--- rarer only in a nook or deep, never in a back alley lane or by a gate (F35, v3.1, F81). The Alleyway's `near`
+-- rarer only in a nook, never in a back alley lane (F35, v3.1), Mythicals only deep (F81; #2210: Epic and Legendary
+-- anywhere in a side area). The Alleyway's `near`
 -- points by its camp are the tutorial stray's alone (v4, F84, data-model section 9 v0.13.18), never free here.
 local TUTORIAL_AREA, TUTORIAL_ZONE = "alley", "near"
 local NEAR_STRAY_STUDS = 12 -- F87: funnel step near_stray, this close to the own tutorial stray

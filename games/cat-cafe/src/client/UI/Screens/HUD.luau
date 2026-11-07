@@ -164,6 +164,8 @@ local MARGIN = 16
 -- the money and golden fish counters, one row in the bottom left corner with no box behind them (the lighter HUD);
 -- each is as wide as its amount, the money at most MONEY_W, and MONEY_H tall
 local MONEY_W = 232
+-- #2194: the money amount's line never narrower than this (padding in), so the row beside it never moves
+local MONEY_AMOUNT_W = 140
 local MONEY_H = 44
 local COUNTER_COIN = 36
 local COUNTER_TEXT = 30
@@ -559,8 +561,14 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 		-- no clip, so the last letter and its dark outline always show whole ("$1.23B" was cut, Derek 2026-11-02);
-		-- the amount is short (Format.money), and the golden fish keeps clear of the widest one
-		Create("UISizeConstraint", { MaxSize = Vector2.new(MONEY_W - COUNTER_COIN - 8, MONEY_H) }),
+		-- the amount is short (Format.money), and the golden fish keeps clear of the widest one. #2194 (playtester
+		-- Dread via Derek2, 11-07: "The cash at the bottom left should probably not push the 2x cash and fish"): at
+		-- least MONEY_AMOUNT_W wide, room for the usual widest amounts ("$88,888", "$999Qa"), so the badge and the
+		-- golden fish beside it stay put while the money grows
+		Create("UISizeConstraint", {
+			MinSize = Vector2.new(MONEY_AMOUNT_W, 0),
+			MaxSize = Vector2.new(MONEY_W - COUNTER_COIN - 8, MONEY_H),
+		}),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 5) }),
 	})
 	self._moneyText = label({

@@ -255,11 +255,20 @@ function ThanksBoard._buildWhatsNew(self: any, parent: Instance)
 			{ Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder }
 		),
 	})
+	-- Derek2 11-07: a credit line ("Thanks to ...") makes its row taller, so the rows stop where WhatsNew.SHOWN plain
+	-- rows would end and the oldest give way, never running off the panel
+	local budget = WhatsNew.SHOWN * (NEW_ROW + 2)
+	local used = 0
 	for order, line in ThanksBoardLogic.whatsNew(WhatsNew.latest(), {}) do
+		local height = NEW_ROW + (if line.credit ~= nil then NEW_CREDIT else 0)
+		if used + height + 2 > budget then
+			break
+		end
+		used += height + 2
 		local row: Frame = Create("Frame", {
 			Name = line.id,
 			BackgroundTransparency = 1,
-			Size = UDim2.new(1, 0, 0, NEW_ROW + (if line.credit ~= nil then NEW_CREDIT else 0)),
+			Size = UDim2.new(1, 0, 0, height),
 			LayoutOrder = order,
 			Parent = list,
 		})

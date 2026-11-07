@@ -637,5 +637,11 @@ Playtesters said the intro captions go by too fast for kids. intro-cutscene.md �
 ## 2026-11-07: Correction to the tutorial pacing entry (#2182)
 `Intro.VERSION` goes to 7, not 6 (6 was already taken by #2113), as Gameplay-Engineer built it in #2187.
 
+## 2026-11-07: Playtesters thanked by Roblox username on the What's New board (UI-Engineer, friend's project)
+Derek2: "update whats new board with mention of peoples fixes/suggestions when added and changes", then "it can use their roblox names you can find them in the group tyrell is cooltyrell dread is bgdevila". shared/WhatsNew rows take an optional `thanks` (a Roblox username), and the board shows "💡 Thanks to <name>" under that update. This narrows idea-credits.md section 7's "never a name in the repo" for the playtesters Derek2 names himself. Players who send ideas in game still go through `creditId` and IdeaCredits_v1 with their own opt-in. Rows go in as each change merges. A credited row is taller, so the board drops its oldest row to fit instead of running off the panel.
+
+## 2026-11-07: Epic and Legendary spawn anywhere; rescue misses reset the bar (Design-Agent, friend's project, #2210, #2219)
+Logged two builder changes from crispi_255's asks. Epic and Legendary strays spawn anywhere in a side area, and only Mythicals keep to the far half (town-layout-v3.md §8d; the Alleyway nook still holds Epic and up). A rescuer's miss after hits resets the rescue bar to the first zone at starting speed and costs a paw, with the 15 s deadline unchanged (catch-rework.md §4). Reason: more rare cats seen near the gate, and rescues reward a clean run.
+
 ## 2026-11-07: Longer days move Lucky Cat 3 to about 37 minutes (Design-Agent, friend's project, #2192)
 Day 320 s / night 70 s (PR #2208) means fewer bowl cats in the first hour, so the middle Pace run buys Lucky Cat 3 at about 37 minutes, not 31. Logged in first-hour.md §4e and not compensated: Tier 3 stays in 45 to 55 and every gap stays under the 15-minute guard. Reason: a longer bait-at-night share would undo part of the longer-days change for little gain.

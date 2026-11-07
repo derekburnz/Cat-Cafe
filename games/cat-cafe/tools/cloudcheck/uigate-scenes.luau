@@ -2782,6 +2782,27 @@ local SCENES = {
 		assert(word.Visible and word.Text == "MISS! Back to the start", "uigate: the reset flash reads " .. word.Text .. " (#2219)")
 		assert(word.TextFits, "uigate: the reset flash is cut off (#2219)")
 	end },
+	-- #2318 (Derek2: "sometimes rescue's say miss even if you hit it properly"): a tap 0.02 of the bar past the zone's
+	-- edge, where the marker sat 0.03 s ago, is a hit on the server (RescueMarker.SEEN_LAG), so the bar flashes NICE!
+	{ "RescueSeenLag", function()
+		local t = workspace:GetServerTimeNow()
+		local challenge = rescueChallenge()
+		-- zone 0.5 wide 0.1, tolerance 0.03: its right edge is 0.58; the marker at 0.60 now, moving right at 1 bar a second
+		challenge.zones = { 0.5, 0.3, 0.7 }
+		challenge.zoneWidth = 0.1
+		challenge.startsAt = t - 0.5
+		challenge.phase = 0.1
+		challenge.speed = 1
+		challenge.zone = 1
+		UI.rescue.show("gate_rescue", challenge)
+		local barGui = UIShim.playerGui:FindFirstChild("CatCafeRescueBar")
+		UIShim.fire(UIShim.eventOf(barGui:FindFirstChild("Tap"), "InputBegan"), {
+			UserInputType = Enum.UserInputType.Touch,
+			Position = Vector3.new(400, 300, 0),
+		})
+		local word = barGui:FindFirstChild("Word", true) :: TextLabel
+		assert(word.Visible and word.Text == "NICE!", "uigate: a tap just after the zone flashes " .. word.Text .. " (#2318)")
+	end },
 	-- F92: a Team Rescue helper's copy of the bar, two hits in: "Helping!" and the rescuer's paws
 	{ "RescueHelper", function()
 		local challenge = rescueChallenge()
@@ -3073,6 +3094,21 @@ local SCENES = {
 		local hint = UIShim.playerGui:FindFirstChild("CatCafeCatch"):FindFirstChild("Hint", true) :: TextLabel?
 		assert(hint == nil or not hint.Visible, "uigate: the cooldown card still has a hint line (#2324)")
 	end },
+	-- #2340 (Derek2: "make pretty much all buttons in the game a one click confirm instead of hold"): a prompt with no
+	-- hold (a rescue since #2344, the Index boards since this) shows no HOLD tag on its card
+	{ "CatchPromptNoHold", function()
+		UI.catch.show({
+			strayId = "gate_stuck",
+			catId = Catalog.cats[2].id,
+			catName = "Garbage Bag Cat",
+			rarity = "Rare",
+			kind = "rescue",
+			holdDuration = 0,
+		})
+		local card = UIShim.playerGui:FindFirstChild("CatCafeCatch")
+		local hold = card:FindFirstChild("Hold", true) :: GuiObject?
+		assert(hold == nil or not hold.Visible, "uigate: a one press prompt still says HOLD (#2340)")
+	end },
 	-- F87: a context tip's card at the top centre, its bar draining
 	{ "TipCard", function()
 		UI.tips.show("second_cat")
@@ -3116,6 +3152,42 @@ local SCENES = {
 		counting:Disconnect()
 		UI.update({ tipsSeen = before } :: any)
 	end },
+	-- #2302 (Derek2: "add tackling somewhere in tutorial or something if it's not already"): the "tackle them" card,
+	-- with the key or button for this device, on one card that fits, saved as seen
+	{ "TackleTryTip", function()
+		local before: any = (UI.getState() :: any).tipsSeen or {}
+		local tipsSeen = table.clone(before)
+		for _, def in UIShim.require("ReplicatedStorage.Shared.Tips").LIST do
+			tipsSeen[def.id] = true
+		end
+		tipsSeen.tackle_try = nil
+		UI.update({ tipsSeen = tipsSeen } :: any)
+		local seen: { string } = {}
+		local counting = UI.events.tipSeen:Connect(function(id: string)
+			table.insert(seen, id)
+		end)
+		UIShim.advance(61) -- past TipGapSeconds after an earlier scene's tip
+		UI.tips.show("tackle_try")
+		UIShim.advance(1)
+		local line: TextLabel? = nil
+		for _, label in UIShim.playerGui:GetDescendants() do
+			if label:IsA("TextLabel") and label.Text:find("tackle them and grab their cat", 1, true) then
+				line = label
+			end
+		end
+		assert(line and line.Visible, "uigate: the tackle_try tip did not show (#2302)")
+		local text = (line :: TextLabel).Text
+		assert(
+			text == "Press Q to tackle them and grab their cat!"
+				or text == "Tap Tackle to tackle them and grab their cat!"
+				or text == "Press Y to tackle them and grab their cat!",
+			"uigate: the tackle_try tip reads " .. text .. " (#2302)"
+		)
+		assert((line :: TextLabel).TextFits, "uigate: the tackle_try tip's line does not fit its card (#2302)")
+		assert(table.find(seen, "tackle_try"), "uigate: the tackle_try tip was not saved as seen (#2302)")
+		counting:Disconnect()
+		UI.update({ tipsSeen = before } :: any)
+	end },
 	-- #2198 (Derek2: "a forced cut scene after first catch"): the server's tackle tip plays as the tackling lesson on
 	-- the intro's screen: four captions with four dots, the read bar and Next, no Skip; it ends by itself and saves
 	-- the tip as seen
@@ -3128,6 +3200,11 @@ local SCENES = {
 		local tipsSeen = table.clone(before)
 		tipsSeen.tackle = nil
 		UI.update({ tipsSeen = tipsSeen } :: any)
+		-- #2312: IntroController's stager, as it hands it over, takes the camera for each caption and gives it back
+		local staged: { number } = {}
+		UI.intro.setTackleStager(function(shot: number)
+			table.insert(staged, shot)
+		end)
 		UI.tips.show("tackle")
 		UIShim.advance(0.5)
 		assert(UI.intro.playing(), "uigate: the tackle tip did not start the lesson (#2198)")
@@ -3153,6 +3230,9 @@ local SCENES = {
 		UIShim.advance(20)
 		assert(not UI.intro.playing(), "uigate: the lesson did not end by itself (#2198)")
 		assert(#seen == 1 and seen[1] == "tackle", "uigate: the lesson's end did not save the tackle tip as seen (#2198)")
+		local shots = table.concat(staged, ",")
+		assert(shots == "1,2,3,4,0", "uigate: the lesson staged the camera as " .. shots .. ", not 1,2,3,4,0 (#2312)")
+		UI.intro.setTackleStager(nil)
 		counting:Disconnect()
 		UI.update({ tipsSeen = before } :: any)
 	end },

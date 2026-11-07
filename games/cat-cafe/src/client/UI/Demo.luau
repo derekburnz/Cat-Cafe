@@ -1281,6 +1281,7 @@ function Demo.run(UI: any): () -> ()
 	-- Rescue minigame (F27): the pretend server judges each press with the same marker maths as the real one
 	local demoRescue: Types.RescueChallenge? = nil
 	local rescueHits, rescuePaws = 0, 0
+	local rescueLastPress: number? = nil -- #2318: the server time of the last press, the judge's `since`
 	local function startDemoRescue()
 		local challenge: Types.RescueChallenge = {
 			kind = "bar",
@@ -1294,6 +1295,7 @@ function Demo.run(UI: any): () -> ()
 		}
 		demoRescue = challenge
 		rescueHits, rescuePaws = 0, 3
+		rescueLastPress = nil
 		UI.rescue.show("demo_rescue_1", challenge)
 	end
 	connections[#connections + 1] = UI.events.rescuePressed:Connect(function(spotId: string)
@@ -1301,12 +1303,24 @@ function Demo.run(UI: any): () -> ()
 		if not challenge then
 			return
 		end
-		local t = Workspace:GetServerTimeNow()
-		local position =
-			RescueMarker.position(challenge.startsAt, challenge.phase or 0, challenge.speed or 1, t)
+		local since = rescueLastPress
+		local t = math.max(Workspace:GetServerTimeNow(), since or 0)
+		rescueLastPress = t
 		local zones: { number } = challenge.zones or {}
 		local centre = zones[rescueHits + 1] or 0.5
-		if RescueMarker.inZone(position, centre, challenge.zoneWidth or 0.3, 0.03) then
+		-- #2318: judged as shared/Rescue.pressBar does, with the seen lag and the last press as `since`
+		if
+			RescueMarker.hitAt(
+				challenge.startsAt,
+				challenge.phase or 0,
+				challenge.speed or 1,
+				t,
+				centre,
+				challenge.zoneWidth or 0.3,
+				0.03,
+				since
+			)
+		then
 			rescueHits += 1
 		else
 			rescuePaws -= 1

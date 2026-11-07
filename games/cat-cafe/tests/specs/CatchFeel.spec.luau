@@ -153,7 +153,8 @@ return function()
 
 	-- Percent of bar attempts that free the cat (F93): hit k is pressed with the marker at RescueBarSpeed x (1 +
 	-- RescueSpeedUpPerHit)^k. A zone stays until it is hit (Derek 2026-11-03), so each miss costs a paw and the player
-	-- presses again on the same zone; #2219: the miss also sends the bar back to the start. Out of paws ends it.
+	-- presses again on the same zone; #2327: the miss also takes one hit away (#2219 sent it back to the start). Out of
+	-- paws ends it.
 	local function rescueChance(rarity: Types.Rarity, spread: number): number
 		local hits = Rescue.hitsNeeded(rarity, "bar")
 		local p: { number } = {}
@@ -175,8 +176,8 @@ return function()
 				return known
 			end
 			local q = p[done + 1]
-			-- #2219: a miss sends the bar back to the start (no hits, the starting speed)
-			local chance = q * from(done + 1, paws) + (1 - q) * from(0, paws - 1)
+			-- #2327: a miss takes one hit away (the zone and speed before); with none yet it only costs the paw
+			local chance = q * from(done + 1, paws) + (1 - q) * from(math.max(0, done - 1), paws - 1)
 			memo[key] = chance
 			return chance
 		end
@@ -281,8 +282,10 @@ return function()
 					-- Mythical's zone is 0.14 (was 100, 100, 85, 41, 11 and 100, 93, 51, 13, 2)
 					-- #2320 (Derek2: "lower the difficulty for rescue missions rare and lower"): a slower marker and a wider
 					-- zone for Common and Rare (was 100, 99 and 100, 85)
-					rowMatches("bar 50 ms", at50, { 100, 100, 69, 20, 10 })
-					rowMatches("bar 70 ms", at70, { 100, 98, 29, 4, 2 })
+					-- #2327 (Derek2: "instead of resetting a rescue make it go down 1 progress bar on miss"): a miss takes
+					-- one hit away (was 100, 100, 69, 20, 10 and 100, 98, 29, 4, 2)
+					rowMatches("bar 50 ms", at50, { 100, 100, 77, 29, 17 })
+					rowMatches("bar 70 ms", at70, { 100, 98, 38, 7, 3 })
 				end
 			)
 

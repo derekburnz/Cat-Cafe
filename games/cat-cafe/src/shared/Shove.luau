@@ -18,6 +18,7 @@
 
 local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
+local Cooldown = require(script.Parent.Cooldown)
 
 local Shove = {}
 
@@ -99,7 +100,7 @@ function Shove.tackleRefusal(check: TackleCheck): string?
 		return Clock.CLOSED_TEXT
 	end
 	if check.sinceTackle ~= nil and check.sinceTackle < Config.TackleCooldownSeconds then
-		return "Catch your breath before the next tackle"
+		return Cooldown.text(Config.TackleCooldownSeconds - check.sinceTackle) -- #2324
 	end
 	return nil
 end

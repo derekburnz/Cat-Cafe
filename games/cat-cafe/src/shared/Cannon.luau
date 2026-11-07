@@ -6,6 +6,7 @@
 
 local Clock = require(script.Parent.Clock)
 local Config = require(script.Parent.Config)
+local Cooldown = require(script.Parent.Cooldown)
 
 local Cannon = {}
 
@@ -85,7 +86,7 @@ function Cannon.launchRefusal(check: LaunchCheck): string?
 		end
 	end
 	if check.sinceLanded ~= nil and check.sinceLanded < Config.CannonCooldownSeconds then
-		return "Catch your breath first"
+		return Cooldown.text(Config.CannonCooldownSeconds - check.sinceLanded) -- #2324
 	end
 	return nil
 end

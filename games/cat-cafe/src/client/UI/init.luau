@@ -742,6 +742,11 @@ function UI.init(config: Types.InitConfig)
 			UI.events.travel:Fire(destination)
 		end,
 		openBait = openBait,
+		-- #2353: the X2 Cash pill opens Roblox's window for the 2x pass, through the Store's tap guard (#1936)
+		buyPass = function(id: number)
+			local PassShop = require(script.Components.PassShop)
+			PassShop.prompt(id, "store")
+		end,
 		-- #1919: the goal card's nudge opens the Index on the newest open area with the most cats to find
 		openIndexAt = function(areaId: string?)
 			if collection then
@@ -2740,6 +2745,14 @@ function UI.intro.playing(): boolean
 	return screen ~= nil and screen:playing()
 end
 
+-- #2312: IntroController's stageTackle(shot), which takes the camera for the tackling lesson: 1 to 4 stage that
+-- shot, 0 ends it and gives the camera, controls and prompts back. The controller hands it over at start; the lesson
+-- (Screens/TackleLesson) calls it through `stage`.
+UI.intro.tackleStager = nil :: ((shot: number) -> ())?
+function UI.intro.setTackleStager(stager: ((shot: number) -> ())?)
+	UI.intro.tackleStager = stager
+end
+
 ----------------------------------------------------------------------------------------------------
 -- The Cat Cannon (F84, docs/design/cat-cafe/hometown-cannon.md)
 ----------------------------------------------------------------------------------------------------
@@ -3024,8 +3037,11 @@ do
 	-- retry = true keeps the prompt open (Commons, lured strays, a rescue turned down for now). Otherwise it
 	-- flashes and hides (the cat fled).
 	function UI.catch.fail(reason: string?, retry: boolean?)
-		if catch then
+		if catch and catch.screenGui.Enabled then
 			catch:fail(reason, retry)
+		elseif type(reason) == "string" and reason ~= "" then
+			-- #2341/#2351: a net swing at a stuck cat starts its rescue with no card up, so a refusal says why here
+			UI.toast(reason, "warn")
 		end
 	end
 
@@ -4041,6 +4057,7 @@ UI.asks = {}
 do
 	local Tips = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Tips")) :: any
 	local TackleLessonLogic = require(script.Components.TackleLessonLogic) -- #2198
+	local TackleTry = require(script.Components.TackleTry) -- #2302
 
 	local cutSeconds: number = math.min(3, (Config :: any).TipCutMaxSeconds or 4)
 	-- one table, as the module is short of locals
@@ -4132,6 +4149,12 @@ do
 					setShot = UI.intro.setShot,
 					finish = UI.intro.finish,
 					playing = UI.intro.playing,
+					stage = function(shot: number)
+						local stager = UI.intro.tackleStager
+						if stager then
+							stager(shot)
+						end
+					end,
 				},
 				tipDevice(),
 				function()
@@ -4200,6 +4223,9 @@ do
 		card:show(text, TipQueue.icon(id), TipQueue.CARD_SECONDS, function()
 			tipBusy = false
 		end)
+		if id == TackleTry.TIP and tackleBar ~= nil then
+			tackleBar:pulse() -- #2302: the bar the card talks about
+		end
 	end
 
 	local function characterPosition(): Vector3?
@@ -4243,6 +4269,21 @@ do
 		end
 		if not tipKnown("codes_cat") and taggedNear(TIP.CODES_TAG, from, TIP.CODES_RANGE) then
 			UI.tips.show("codes_cat")
+		end
+		-- #2302: after the tackling lesson, the first time a tackle could land on someone carrying a cat
+		local bar = tackleBar
+		if
+			bar ~= nil
+			and TackleTry.due({
+				lessonSeen = tipKnown("tackle"),
+				tried = tipKnown(TackleTry.TIP),
+				ready = bar:ready(),
+				from = from,
+				reach = (Config :: any).TackleLungeStuds or 12,
+				others = TackleTry.carriers(Players:GetPlayers(), Players.LocalPlayer),
+			})
+		then
+			UI.tips.show(TackleTry.TIP)
 		end
 	end
 

@@ -47,6 +47,9 @@ Tips.LIST = table.freeze({
 	-- #2282 (Derek2: "on the persons first perfect catch have a quick side tip that explains it boosts their charm
 	-- giving more money"): after the first catch whose Perfects added Charm (CatchResult charmGain > 0)
 	tip("perfect", "card", "client"),
+	-- #2302 (Derek2: "add tackling somewhere in tutorial or something if it's not already"): after the tackling
+	-- lesson, the first time this player's tackle is ready with someone carrying a cat within a lunge
+	tip("tackle_try", "card", "client"),
 } :: { TipDef })
 
 -- The offline card gets its line ("Your cats earned while you were away!") after this long away (section 3).

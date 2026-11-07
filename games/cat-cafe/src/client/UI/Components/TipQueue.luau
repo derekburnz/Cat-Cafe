@@ -58,6 +58,11 @@ local CARD: { [string]: Line } = {
 	luck = "Luck makes rare cats more likely. Tap the chip to see why",
 	offline = "Your cats earned while you were away!",
 	perfect = "Perfects boost a cat's Charm, and more Charm earns more money!", -- #2282
+	tackle_try = { -- #2302: someone carrying a cat is within a lunge
+		keyboard = "Press Q to tackle them and grab their cat!",
+		touch = "Tap Tackle to tackle them and grab their cat!",
+		gamepad = "Press Y to tackle them and grab their cat!",
+	},
 	like_ask = "Having fun? A thumbs up helps other players find Catch a Cat Cafe.",
 	favorite_ask = "Favorite Catch a Cat Cafe to find it fast next time", -- F96, starter-cat.md section 3
 }
@@ -87,6 +92,7 @@ local ICONS: { [string]: string } = {
 	luck = "🍀",
 	offline = "💤",
 	perfect = "✨", -- #2282
+	tackle_try = "💨", -- #2302: the Tackle bar's own icon
 	like_ask = "👍",
 	favorite_ask = "⭐",
 }

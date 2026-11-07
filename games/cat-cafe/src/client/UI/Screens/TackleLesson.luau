@@ -6,6 +6,9 @@
 --   the letterbox bars, one caption a shot with its dot and the gold read bar filling over its hold, Next (a tap,
 --   Space, Enter or gamepad A) from 1 s into each, and no Skip. After the last caption it ends by itself.
 --   play(api, device, done)   `api` is UI.intro's start, setShot, finish and playing; `done` runs once at the end
+-- #2312 (Derek2: "the cut scene for explaining tackling doesn't actually take control of your camera like tutorial"):
+-- api.stage(index) has IntroController stage each caption's shot (you carrying, a tackle knocking you, the cat
+-- dropping, then a pull-up over the scene), and stage(0) at the end gives the camera back.
 
 local TackleLessonLogic = require(script.Parent.Parent.Components.TackleLessonLogic)
 local Types = require(script.Parent.Parent.Types)
@@ -15,6 +18,8 @@ export type Api = {
 	setShot: (index: number, caption: string, titleCard: string?, hold: number?) -> (),
 	finish: () -> (),
 	playing: () -> boolean,
+	-- #2312: the controller's camera for each caption (1 to 4), and 0 to give the camera back; nil leaves it alone
+	stage: ((shot: number) -> ())?,
 }
 
 local TackleLesson = {}
@@ -28,6 +33,10 @@ function TackleLesson.play(api: Api, device: TackleLessonLogic.Device, done: () 
 			return
 		end
 		ended = true
+		local stage = api.stage
+		if stage then
+			stage(0)
+		end
 		if api.playing() then
 			api.finish()
 		end
@@ -45,6 +54,10 @@ function TackleLesson.play(api: Api, device: TackleLessonLogic.Device, done: () 
 		shown = index
 		local caption = lines[index]
 		local hold = TackleLessonLogic.hold(caption)
+		local stage = api.stage
+		if stage then
+			stage(index)
+		end
 		api.setShot(index, caption, nil, hold)
 		task.delay(hold, function()
 			if shown == index then

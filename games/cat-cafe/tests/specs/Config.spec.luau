@@ -224,6 +224,7 @@ return function()
 		LuckyDayWarnSeconds = 15,
 		PityLegendarySeconds = 1800, -- #1572 (1h): the global pity cat (shared/Pity)
 		PityMythicalEvery = 4,
+		PityMythicalSeconds = 7200, -- #1946 (1i): the restarting Mythical timer
 		PityClaimRetries = 3,
 		-- Pals (F92, playing-together.md 6)
 		PalTipBonus = 0.10,

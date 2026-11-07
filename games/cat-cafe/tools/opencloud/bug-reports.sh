@@ -113,7 +113,7 @@ fi
 
 records=()
 for key in "${keys[@]}"; do
-	get "$entries/${key//\//%2F}" # the id is "global/<key>"; the slash goes in the path as %2F (#2082)
+	get "$entries/${key#global/}" # the listed id is "global/<key>"; the entry path takes the bare key (#2082)
 	# the raw text never leaves this script: filteredText stands in for it, or a placeholder
 	records+=("$(jq -c '.value | .text = (if (.filteredText | type) == "string" then .filteredText
 		elif (.v // 1) < 2 then "(v1 report from before the filter: read it with Debug.bugReports in Studio)"

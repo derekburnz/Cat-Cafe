@@ -1021,6 +1021,37 @@ local SCENES = {
 			model:Destroy()
 		end
 	end },
+	-- #2005 section 1 (Derek2: "with an exclamation mark to show its being caught"): a gold ! over a stray while its
+	-- NetDown is set, just above the catcher's trust bar; another stray without it has none, and it goes with NetDown
+	{ "CatchMark", function()
+		local _, model = startCatchV3("gate_mark", "Rare", { "single", "single", "single", "single" }, 4, 14)
+		model:SetAttribute("NetDown", true)
+		local other = Instance.new("Model")
+		other.Name = "Stray_gate_mark_free"
+		local body = Instance.new("Part")
+		body.Name = "Body"
+		body.Size = Vector3.new(2, 2, 3)
+		body.Position = Vector3.new(5, 3, -12)
+		body.Parent = other
+		other.PrimaryPart = body
+		other.Parent = workspace
+		other:AddTag("Stray")
+		-- the shim's tag signals never fire, so start the marks again to pick the strays up
+		UI.catch.mark:destroy()
+		UI.catch.mark = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.CatchMark").new()
+		local function markOf(stray: Model): BillboardGui?
+			return (stray.PrimaryPart :: BasePart):FindFirstChild("CatCafeCatchMark") :: BillboardGui?
+		end
+		local mark = markOf(model)
+		assert(mark, "uigate: no ! over a stray being caught (#2005)")
+		assert((mark :: any).Badge.Glyph.Text == "!", "uigate: the catch mark should read !")
+		assert(markOf(other) == nil, "uigate: a ! over a stray nobody is catching (#2005)")
+		other:SetAttribute("NetDown", true)
+		assert(markOf(other), "uigate: a NetDown set later should show its ! (#2005)")
+		other:SetAttribute("NetDown", nil)
+		assert(markOf(other) == nil, "uigate: the ! should go when the catch ends (#2005)")
+		other:Destroy()
+	end },
 	-- #2015: no glyph in the Theme's icon tables is an emoji from Unicode 12 on, which Roblox's font draws blank (the
 	-- Decor tile showed nothing when its pictures failed); tests/specs/GlyphFont checks the Store and Style glyphs
 	{ "GlyphsDrawable", function()

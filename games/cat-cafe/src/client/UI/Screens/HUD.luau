@@ -1161,16 +1161,39 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = root,
 	})
 	self._questLine = questLine
-	self._spinLine = label({
+	-- #2358 (Derek2: "show an exclamation mark near spin when you have one"): the red "!" at the line's left, the
+	-- words right-aligned after it
+	local spinLine: Frame = Create("Frame", {
 		Name = "FreeSpin",
+		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
 		Size = UDim2.fromOffset(QUEST_LINE_W, QUEST_LINE_H),
+		Visible = false,
+		Parent = root,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Right,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 6),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._spinLine = spinLine
+	local spinBang = claimBadge(spinLine, 2)
+	spinBang.Size = UDim2.fromOffset(QUEST_LINE_H - 2, QUEST_LINE_H - 2)
+	spinBang.LayoutOrder = 1
+	spinBang.Visible = true
+	self._spinText = label({
+		Name = "Text",
+		Size = UDim2.fromOffset(0, QUEST_LINE_H),
+		AutomaticSize = Enum.AutomaticSize.X,
 		TextSize = Theme.sizes.textBody,
 		TextColor3 = Theme.colors.gold,
 		TextXAlignment = Enum.TextXAlignment.Right,
 		Text = SPIN_TEXT,
-		Visible = false,
-		Parent = root,
+		LayoutOrder = 2,
+		Parent = spinLine,
 	})
 	self._spinTimer = nil :: thread?
 	self._questText = label({
@@ -2882,6 +2905,7 @@ end
 
 -- F49: the free spin line shows while today's free spin waits (SpinLogic.freeDue), once ProfileSync has the spin
 -- state and the tutorial is done. Spinning sends a new state, which hides it; a timer shows it again at 00:00 UTC.
+-- #2358: and while banked spins wait ("🎡 3 spins at the Town Square", SpinLogic.line), with the red "!" in front.
 function HUD._renderFreeSpin(self: any)
 	local timer: thread? = self._spinTimer
 	if timer then
@@ -2895,12 +2919,16 @@ function HUD._renderFreeSpin(self: any)
 		return
 	end
 	local now = Workspace:GetServerTimeNow()
-	local due = SpinLogic.freeDue(spin, now)
+	local line = SpinLogic.line(spin, now)
+	local due = line ~= nil
+	if line ~= nil then
+		self._spinText.Text = Theme.icons.spin .. " " .. line
+	end
 	if due and not self._spinLine.Visible then
 		Tween.popIn(self._spinLine, 0.8)
 	end
 	self._spinLine.Visible = due
-	if not due then
+	if not SpinLogic.freeDue(spin, now) then
 		self._spinTimer = task.delay(SpinLogic.nextFreeIn(spin, now) + 1, function()
 			self._spinTimer = nil
 			self:_renderFreeSpin()
@@ -2918,7 +2946,8 @@ function HUD._liftRight(self: any)
 end
 
 -- Red dots: a screen's dot shows while it has a key the player has not seen on that screen. Keys seen while
--- the screen is open count as seen, so buying the next level in the shop does not light the dot again.
+-- the screen is open count as seen, so buying the next level in the shop does not light the dot again. Since #2345
+-- the Upgrades dot is simpler: it shows while any upgrade's next level can be bought (Components/UpgradeReady).
 function HUD._renderDots(self: any, catalog: Types.Catalog, state: Types.PlayerState)
 	local candidates = Notices.candidates(catalog, state)
 	self._candidates = candidates
@@ -2932,8 +2961,11 @@ function HUD._renderDots(self: any, catalog: Types.Catalog, state: Types.PlayerS
 	local lit = false
 	for screen, dot in self._dots do
 		local keys: { string } = (candidates :: any)[screen] or {}
+		-- #2345 (Derek2: "add an exclamation mark to the upgrades if something is available to buy that you can
+		-- afford"): the Upgrades "!" stays while any next level is affordable, opened or not
 		local show = if screen == "Collection"
 			then indexReady > 0
+			elseif screen == "Upgrades" then #keys > 0
 			else Notices.hasNew(keys, self._seen[screen] or {})
 		if show and not dot.Visible then
 			Tween.popIn(dot, 0.5)
@@ -3258,7 +3290,7 @@ function HUD.screenOpened(self: any, name: string?)
 	if name and candidates and (candidates :: any)[name] then
 		Notices.markSeen((candidates :: any)[name], self._seen[name])
 		local dot: Frame? = self._dots[name]
-		if dot then
+		if dot and name ~= "Upgrades" then -- #2345: Upgrades' "!" goes when nothing is affordable, not when opened
 			dot.Visible = false
 		end
 		self:_renderFoldDot()

@@ -32,6 +32,7 @@ local TutorialGlow = require(script.Parent.Parent.Components.TutorialGlow)
 local TutorialHints = require(script.Parent.Parent.Components.TutorialHints)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
+local UpgradeReady = require(script.Parent.Parent.Components.UpgradeReady)
 
 -- the dark window palette (#1028), in place of Theme.modal
 local PAL = Theme.dark
@@ -527,15 +528,13 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 		TutorialGlow.set(row.frame, upgradeId == asked)
 		local def: Types.UpgradeDef = row.def
 		local level = state.upgradeLevels[upgradeId] or 0
-		local isMax = level >= def.maxLevel
-		local nextCost = if isMax then nil else def.costs[level + 1]
-		-- tier gates (data-model section 5b): level 1 needs requiresTier, higher levels the tier caps
-		local needsTier: number? = def.requiresTier
-		local perLevel = def.requiresTierAtLevel
-		if perLevel and perLevel[level + 1] then
-			needsTier = math.max(needsTier or 0, perLevel[level + 1])
-		end
-		local locked = needsTier ~= nil and tier < (needsTier :: number)
+		-- #2345: the tier gates and the price as the HUD tile's "!" reads them (Components/UpgradeReady)
+		local status = UpgradeReady.status(
+			def,
+			UpgradeReady.level(def, state.upgradeLevels),
+			tier,
+			state.money
+		)
 
 		local before: number? = row.level
 		row.level = level
@@ -564,18 +563,18 @@ function UpgradeShop.render(self: any, state: Types.PlayerState)
 			end
 		end
 
-		if isMax then
+		if status.kind == "max" then
 			row.buy:setText("MAX")
 			row.buy:setEnabled(false)
-		elseif locked then
-			row.buy:setText(Format.tier(needsTier :: number))
+		elseif status.kind == "locked" then
+			row.buy:setText(Format.tier(status.needsTier :: number))
 			row.buy:setEnabled(false)
-		elseif nextCost == nil then
+		elseif status.kind == "none" then
 			row.buy:setText("—")
 			row.buy:setEnabled(false)
 		else
-			row.buy:setText(Format.money(nextCost))
-			row.buy:setEnabled(state.money >= nextCost)
+			row.buy:setText(Format.money(status.cost :: number))
+			row.buy:setEnabled(status.kind == "buy")
 		end
 	end
 end

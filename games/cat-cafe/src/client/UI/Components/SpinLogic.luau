@@ -36,6 +36,32 @@ function SpinLogic.spins(spin: Spin?, now: number): number
 	return math.max(0, math.floor(state.banked)) + (if SpinLogic.freeDue(state, now) then 1 else 0)
 end
 
+-- #2358 (Derek2: "show an exclamation mark near spin when you have one"): while the player has a spin (today's free
+-- one or banked ones), the HUD's line under the quests ("Free spin at the Town Square", "3 spins at the Town Square";
+-- the HUD puts the wheel icon and a red "!" in front) and the bubble under the "!" over the wheel in the world. nil
+-- with none, so neither shows.
+function SpinLogic.line(spin: Spin?, now: number): string?
+	local count = SpinLogic.spins(spin, now)
+	if count <= 0 then
+		return nil
+	end
+	if count == 1 and SpinLogic.freeDue(spin, now) then
+		return "Free spin at the Town Square"
+	end
+	return ("%d %s at the Town Square"):format(count, if count == 1 then "spin" else "spins")
+end
+
+function SpinLogic.bubble(spin: Spin?, now: number): string?
+	local count = SpinLogic.spins(spin, now)
+	if count <= 0 then
+		return nil
+	end
+	if count == 1 and SpinLogic.freeDue(spin, now) then
+		return "🎡 Free spin!"
+	end
+	return ("🎡 %d %s to use"):format(count, if count == 1 then "spin" else "spins")
+end
+
 -- Seconds until the next free spin: 0 while one is waiting, else until 00:00 UTC.
 function SpinLogic.nextFreeIn(spin: Spin?, now: number): number
 	if SpinLogic.freeDue(spin, now) then

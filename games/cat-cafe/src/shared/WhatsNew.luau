@@ -33,6 +33,19 @@ WhatsNew.rows = table.freeze({
 	-- Derek2 (11-07): the changes merged since the 11-07 rows, as they ship; a playtester's report or suggestion is
 	-- thanked by Roblox username
 	{
+		id = "tutorial_x_glow",
+		date = "2026-11-07",
+		icon = "look",
+		text = "Tutorial X glows when done",
+		thanks = "crispi_255",
+	},
+	{
+		id = "popups_fit",
+		date = "2026-11-07",
+		icon = "fix",
+		text = "Pop-ups no longer cut off",
+	},
+	{
 		id = "rescue_miss_reset",
 		date = "2026-11-07",
 		icon = "fix",

@@ -37,7 +37,7 @@ MarketBang.BOB_STUDS = 1
 MarketBang.BOB_SECONDS = 2 -- one full bob, up and back down
 MarketBang.LOOK_SECONDS = 1 -- a stall not streamed in yet is looked for again
 
-type Bang = { gui: BillboardGui, line: TextLabel, bob: Tween? }
+export type Bang = { gui: BillboardGui, line: TextLabel, bob: Tween? }
 
 -- The stall's main part and how far over it the top of the stall is, or nil while it is streamed out.
 local function anchorOf(model: Instance): (BasePart?, Vector3)
@@ -55,7 +55,8 @@ local function anchorOf(model: Instance): (BasePart?, Vector3)
 	return part, Vector3.new(0, top - (part :: BasePart).Position.Y + MarketBang.LIFT, 0)
 end
 
-local function build(parent: Instance): Bang
+-- The red "!" over a dark bubble with one line; also the rescue spots' (Components/RescueBang).
+function MarketBang.build(parent: Instance): Bang
 	local gui: BillboardGui = Create("BillboardGui", {
 		Name = "CatCafeMarketBang",
 		-- studs up close, never smaller than 130 x 64 px far away, so it reads across the plaza
@@ -191,7 +192,7 @@ function MarketBang._apply(self: any)
 	for _, model in CollectionService:GetTagged(MarketBang.TAG) do
 		local bang: Bang? = self._bangs[model]
 		if bang == nil and words ~= nil then
-			bang = build(self._parent)
+			bang = MarketBang.build(self._parent)
 			self._bangs[model] = bang
 		end
 		if bang ~= nil then

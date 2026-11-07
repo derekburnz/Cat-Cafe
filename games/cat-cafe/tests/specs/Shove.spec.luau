@@ -38,7 +38,6 @@ return function()
 		self = false,
 		sameArea = true,
 		targetBusy = false,
-		targetSafe = false,
 		sinceShoveTarget = nil,
 		sinceTargetShoved = nil,
 	}
@@ -109,8 +108,10 @@ return function()
 			expect(Shove.targetRefusal(target({ targetBusy = true }))).to.be.ok()
 		end)
 
-		it("passes through a player near their own cafe", function()
-			expect(Shove.targetRefusal(target({ targetSafe = true }))).to.be.ok()
+		it("hits a player by their own cafe or in a camp: no safe spots but a minigame (Derek2 2026-11-07)", function()
+			expect(Shove.targetRefusal(target({ targetSafe = true }))).never.to.be.ok()
+			expect(Shove.targetRefusal(target({ targetInCamp = true }))).never.to.be.ok()
+			expect(Shove.tackleRefusal(press({ inCamp = true }))).never.to.be.ok()
 		end)
 
 		it(
@@ -383,7 +384,6 @@ return function()
 			{ busy = true },
 			{ newcomer = true }, -- F87
 			{ area = NONE },
-			{ inCamp = true }, -- F84
 			{ areaUnlocked = false },
 			{ areasClosed = true },
 			{ sinceTackle = 0 },
@@ -392,8 +392,6 @@ return function()
 			{ self = true },
 			{ sameArea = false },
 			{ targetBusy = true },
-			{ targetSafe = true },
-			{ targetInCamp = true }, -- F84
 			{ targetFlying = true }, -- F84
 			{ targetNewcomer = true }, -- F87
 			-- sinceShoveTarget and sinceTargetShoved break nothing since #2193 (both waits are 0); the tuned-up test

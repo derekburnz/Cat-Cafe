@@ -1,25 +1,31 @@
 --!strict
--- shared/Cooldown.luau (#2324): every cooldown refusal is "Cooling down Ns", the seconds left rounded up.
+-- UI/Components/Cooldown.luau: the short "Cooling down Ns" line (#2324).
 return function()
-	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
-	local Cooldown = require(Shared.Cooldown)
+	local Client =
+		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
+	local Cooldown = require(
+		Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("Cooldown")
+	) :: any
 
 	describe("Cooldown.text", function()
-		it("reads the seconds left, rounded up and never 0", function()
-			expect(Cooldown.text(4.2)).to.equal("Cooling down 5s")
-			expect(Cooldown.text(1)).to.equal("Cooling down 1s")
-			expect(Cooldown.text(0.01)).to.equal("Cooling down 1s")
-			expect(Cooldown.text(0)).to.equal("Cooling down 1s")
-			expect(Cooldown.text(-3)).to.equal("Cooling down 1s")
-			expect(Cooldown.text(0 / 0)).to.equal("Cooling down 1s")
+		it("rounds the seconds left up, so the last second reads 1s", function()
+			expect(Cooldown.text(3.2)).to.equal("Cooling down 4s")
+			expect(Cooldown.text(3)).to.equal("Cooling down 3s")
+			expect(Cooldown.text(0.05)).to.equal("Cooling down 1s")
 		end)
 
-		it("is recognised by isText and nothing else is", function()
-			expect(Cooldown.isText(Cooldown.text(12))).to.equal(true)
-			for _, other in { "Catch your breath first", "Cooling down", "Give it a moment", "" } do
-				expect(Cooldown.isText(other)).to.equal(false)
-			end
-			expect(Cooldown.isText(nil)).to.equal(false)
+		it("says nothing once the wait is over", function()
+			expect(Cooldown.text(0)).to.equal(nil)
+			expect(Cooldown.text(-1)).to.equal(nil)
+			expect(Cooldown.text(0 / 0)).to.equal(nil)
+		end)
+	end)
+
+	describe("Cooldown.nextTick", function()
+		it("waits until the number goes down by one", function()
+			expect(math.abs(Cooldown.nextTick(3.25) - 0.25) < 1e-6).to.equal(true)
+			expect(math.abs(Cooldown.nextTick(3) - 1) < 1e-6).to.equal(true)
+			expect(Cooldown.nextTick(0)).to.equal(0)
 		end)
 	end)
 end

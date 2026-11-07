@@ -194,6 +194,7 @@ function Store.new(callbacks: Callbacks): Store
 			Padding = UDim.new(0, if touch then 4 else GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
+		Outline.listPadding(7), -- #2294: room for the tabs' outlines, and the scroll bar on the right
 	})
 	for order, tab in StoreLogic.TABS do
 		local id = tab.id
@@ -203,7 +204,7 @@ function Store.new(callbacks: Callbacks): Store
 			icon = tab.icon,
 			image = ShopIcons.storeTab(id), -- #1674: the tab's picture; the emoji shows until it loads
 			style = if id == self._tab then "gold" else "ghost",
-			size = UDim2.new(1, -6, 0, railButtonH),
+			size = UDim2.new(1, 0, 0, railButtonH),
 			textSize = Theme.sizes.textBody,
 			layoutOrder = order,
 			parent = self._rail,

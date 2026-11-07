@@ -51,6 +51,7 @@ local CatchWords = require(script.Parent.Parent.Components.CatchWords)
 local Create = require(script.Parent.Parent.Components.Create)
 local Motion = require(script.Parent.Parent.Components.Motion)
 local Outline = require(script.Parent.Parent.Components.Outline)
+local PipWindow = require(script.Parent.Parent.Components.PipWindow)
 local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
@@ -623,10 +624,8 @@ function CatchCircles.show(
 		)
 	end
 	local count = #circles
-	self._strip.Size = UDim2.fromOffset(
-		count * PIP + math.max(0, count - 1) * PIP_GAP + 2 * STRIP_PAD,
-		PIP + 2 * STRIP_PAD
-	)
+	self._pipUpTo = 1
+	self:_fitPips() -- #2332: at most PipWindow.MAX pips, sliding with the play
 	self._strip.Visible = count > 0
 	self._word.Name = "ResultWord"
 
@@ -871,6 +870,19 @@ function CatchCircles.judged(
 	end
 end
 
+-- #2332: the strip's pips from PipWindow (the ring after the last judged one rightmost), and the strip sized to them.
+function CatchCircles._fitPips(self: any)
+	local first, last = PipWindow.range(#self._pips, self._pipUpTo or 1)
+	for index, pip in self._pips :: { Frame } do
+		pip.Visible = index >= first and index <= last
+	end
+	local shown = math.max(0, last - first + 1)
+	self._strip.Size = UDim2.fromOffset(
+		shown * PIP + math.max(0, shown - 1) * PIP_GAP + 2 * STRIP_PAD,
+		PIP + 2 * STRIP_PAD
+	)
+end
+
 -- The circle clears and its pip in the strip takes the grade's colour; the pip pops again only if the server's grade
 -- differs from this device's guess. No word shows on the circle: the one result word comes at the end.
 function CatchCircles._showGrade(
@@ -888,6 +900,10 @@ function CatchCircles._showGrade(
 	if not view.judged then
 		view.judged = true
 		clearCircle(view)
+	end
+	if index + 1 > (self._pipUpTo or 1) then
+		self._pipUpTo = index + 1
+		self:_fitPips()
 	end
 	local pip: Frame? = self._pips[index]
 	if pip then

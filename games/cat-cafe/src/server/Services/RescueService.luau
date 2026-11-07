@@ -39,6 +39,7 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
+local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 local PalService = require(script.Parent.PalService)
 local Payout = require(script.Parent.Payout)
 local RallyService = require(script.Parent.RallyService)
@@ -49,6 +50,8 @@ local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local RescueService = {}
+-- #2335: the trap prompt's HoldDuration: 0, one press starts a rescue
+RescueService.PROMPT_HOLD_SECONDS = 0
 
 -- A player more than this far from the trap ends their attempt (data-model section 10b).
 local LEAVE_RANGE_STUDS = 14
@@ -184,12 +187,13 @@ local function spawnStuck(
 	model:SetAttribute("HelpedBy", 0) -- F92
 	CollectionService:AddTag(model, "StuckCat")
 
-	-- Holding E starts the minigame, as on a stray (Config.CatchHoldSeconds); the UI's card reads "Rescue".
+	-- #2335 (Derek2: "make rescue a one click thing instead of hold"): one press of E or one tap of the card's RESCUE
+	-- button starts the minigame (HoldDuration 0; was Config.CatchHoldSeconds); the UI's card reads "Rescue".
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "RescuePrompt"
 	prompt.ActionText = "Rescue"
 	prompt.ObjectText = def.name
-	prompt.HoldDuration = Config.CatchHoldSeconds
+	prompt.HoldDuration = RescueService.PROMPT_HOLD_SECONDS
 	prompt.MaxActivationDistance = Config.GrabRangeStuds
 	prompt.RequiresLineOfSight = false
 	prompt.Style = Enum.ProximityPromptStyle.Custom
@@ -805,11 +809,36 @@ end
 
 -- Lifecycle ---------------------------------------------------------------------------------------------------
 
+-- #2341 (Derek2: "make the rescue also start if you swing your net at them instead of holding button"): a net swing
+-- that landed on no stray (CatService's landSwing) takes the nearest stuck cat in the swing's reach, as NetSwing.pick
+-- judges a stray, and does what its prompt would: Help on someone else's running bar, else RescueBegin with all its
+-- checks (a refusal shows as for the prompt). False when no stuck cat is in reach.
+local function swingAt(player: Player, origin: Vector3, look: Vector3): boolean
+	local targets: { NetSwing.Target } = {}
+	for spotId, entry in stuckCats do
+		if entry.alive and entry.model.Parent ~= nil then
+			table.insert(targets, { id = spotId, position = entry.model:GetPivot().Position })
+		end
+	end
+	local picked = NetSwing.pick(origin, look, targets)
+	if picked == nil then
+		return false
+	end
+	local entry = stuckCats[picked.id]
+	if entry.lockedBy ~= 0 and entry.lockedBy ~= player.UserId then
+		onRescueHelp(player, picked.id)
+	else
+		onRescueBegin(player, picked.id)
+	end
+	return true
+end
+
 function RescueService.start(builtWorld: WorldBuilder.World)
 	world = builtWorld
 	strayFolder = CatService.strayFolder()
 
 	Net.on("RescueBegin", onRescueBegin)
+	CatService.setSwingRescue(swingAt) -- #2341
 	Net.on("RescuePress", onRescuePress)
 	Net.on("RescueCancel", onRescueCancel)
 	Net.on("RescueHelp", onRescueHelp)

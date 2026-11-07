@@ -1827,6 +1827,17 @@ local function swingCheck(player: Player): NetSwing.SwingCheck
 end
 
 -- Tells the swinger and every client near them how the swing went, for the smack, the bounce and the whoosh.
+-- #2341 (Derek2: "make the rescue also start if you swing your net at them"): RescueService's, set at its start
+-- (it requires this module, so it registers instead): a swing that lands on no stray tries the stuck cats in reach,
+-- true when it took one.
+local swingRescue: ((Player, Vector3, Vector3) -> boolean)? = nil
+
+function CatService.setSwingRescue(
+	handler: (player: Player, origin: Vector3, look: Vector3) -> boolean
+)
+	swingRescue = handler
+end
+
 local function announceSwing(player: Player, at: Vector3, hit: boolean)
 	for _, other in Players:GetPlayers() do
 		local position = if other ~= player then rootPosition(other) else at
@@ -1837,7 +1848,8 @@ local function announceSwing(player: Player, at: Vector3, hit: boolean)
 end
 
 -- The net lands, NetSmackDelay after SwingNet arrived: the nearest swingable stray in reach is the hit. A hit starts
--- its catch (a Dropped one is picked up at once); a miss makes the free strays near the swinger hop away, unless the
+-- its catch (a Dropped one is picked up at once); with no stray in reach, a stuck cat in reach starts its rescue
+-- (#2341, swingRescue); a miss makes the free strays near the swinger hop away, unless the
 -- player has not caught a cat yet. At night in an area there is nothing to land on and nothing hops.
 local function landSwing(player: Player)
 	local profile = DataService.get(player)
@@ -1894,6 +1906,12 @@ local function landSwing(player: Player)
 		if reason ~= nil then
 			Net.toast(player, reason :: string, "warn") -- the checker loses the narrowing over the two calls
 		end
+	elseif
+		open
+		and swingRescue ~= nil
+		and (swingRescue :: (Player, Vector3, Vector3) -> boolean)(player, origin, look)
+	then
+		started = true -- #2341: it landed on a stuck cat; RescueService answers as for its prompt
 	elseif near > 0 and NetSwing.missHops(profile.tutorialStep) then
 		for _, other in strays do
 			if hoppable(other, player, now) and NetSwing.nearMiss(origin, other.body.Position) then

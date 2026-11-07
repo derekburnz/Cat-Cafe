@@ -22,7 +22,11 @@ ground past its ends, and the low ones are split into short runs:
   z 149 to 152     the garden wall, brick under a hedge about 4 high, x -62 to 18 and x 42 to 64; the Paw Parade arch
                    between them at x 18 to 42, and open at both walls
 
-Each low piece has a 30 high `_Barrier` on its own runs only, and each house block one from the house fronts back. The
+Since #2265 (Derek2 11-07: "increase the height of obstacles like you did in alleyway but for all areas") the low
+pieces are taller than a jump: the green's and the garden wall's hedges BLOCK_HEDGE to 0.4 more over their picket and
+brick, the works' pens site hoarding HOARD_H high; their end piers rise with them. Each has a `_Barrier` on its own
+runs only, BLOCK_OVER over its piece's top (as the Alleyway's, #2215), and each house block one 30 high from the house
+fronts back. The
 far end is Paw Parade: the corner shop against the far wall with the playground beside it and two houses across, the
 best of the Neighbourhood's landmarks.
 
@@ -243,13 +247,16 @@ def _blocks(s, g, mat):
             [(51, "C3", "porch", ("hedge",))]),
            (25.5, 25.5), (24.0, 24.0))       # 25.5: a flower bed reaches 12 from its house, the low hedge
     _block(s, g, mat, ROW2, R2W, R2E,
-           ([(-51, "C", "flowerbed", ("bed", "mail"))],
+           ([(-51, "D4", "flowerbed", ("bed", "mail"))],     # #2240: a bungalow (was a C house)
             [(-3, "A", "porch", ("hedge",)), (21, "C3", "flowerbed", ("bed",)), (45, "D2", "flowerbed", ("bed", "mail"))]),
            ([(-51, "B2", "porch", ("hedge",))],
-            [(-3, "C2", "porch", ("bed", "mail")), (21, "A2", None, ("hedge",)), (45, "B", "flowerbed", ("bed",))]),
+            [(-3, "C2", "porch", ("bed", "mail")), (21, "D3", None, ("hedge",)), (45, "B", "flowerbed", ("bed",))]),
            (24.0, 24.0), (24.0, 24.0))
     zs2 = ROW2[0] + FRONT
     _spot(s, "trap_gutter", *turned(45, zs2, 0, *GUTTER_SPOT), y=GUTTER_Z, turn=0)          # the Mitten Row bungalow
+    # #2240: two more bungalow gutters for the rescue pool (Layout.neighbourhood.rescuePool), scenery until picked
+    _spot(s, "trap_gutter", *turned(-51, zs2, 0, *GUTTER_SPOT), y=GUTTER_Z, turn=0)
+    _spot(s, "trap_gutter", *turned(21, ROW2[1] - FRONT, 180, *GUTTER_SPOT), y=GUTTER_Z, turn=180)
     for (x, z0, z1) in SIDE_PATHS:                     # on the footpaths past the blocks' ends
         for t in (0.3, 0.7):
             _spot(s, "side_path", x, round(z0 + t * (z1 - z0), 1), y=0.05)
@@ -272,10 +279,18 @@ def _gap_pier(b, x, z0, z1, h, ball=True):
         b.ico(bl(x, (z0 + z1) / 2, h + 0.8), 0.6, "concrete", subdivisions=1)
 
 
+BLOCK_HEDGE = 9.0                        # the hedges' box top behind the green's fence and the garden wall (#2265)
+BLOCK_PIER = 9.8                         # the brick piers at those runs' ends
+HOARD_H = 9.4                            # the works' hoarding round each pen
+BLOCK_OVER = 1.0                         # a low piece's barrier over its highest top (#2265, as #2215)
+POOL_SHEDS = ((-82.0, 192.0, -90), (-42.0, 116.0, 0), (-18.0, 206.0, 0), (-82.0, -104.0, -90))   # #2240: x, z, turn
+HEDGE_TOP = BLOCK_HEDGE + 0.4 + 1.1 * 0.4               # the highest hedge box and its rounded top
+
+
 def _green_fence(s, mat, z, runs):
     """The village green's edge in runs (x0, x1): a white picket fence 2.6 high (its face at z, toward the camp) and a
-    clipped box hedge 3.6 to 4 high behind it, so a hunter sees over both; a brick pier at each run's end. The
-    `_Barrier` stands on the fence and hedge."""
+    clipped box hedge BLOCK_HEDGE to 0.4 more behind it (#2265, was 3.6 to 4); a brick pier BLOCK_PIER high at each
+    run's end. The `_Barrier` stands on the fence and hedge, BLOCK_OVER over the hedge."""
     b, bar = Builder(), Builder()
     for (a0, a1) in runs:
         L = a1 - a0
@@ -287,26 +302,26 @@ def _green_fence(s, mat, z, runs):
         m = max(1, round(L / 6.0))
         step = L / m
         for i in range(m):
-            c, h = a0 + (i + 0.5) * step, 3.6 + 0.2 * (i % 3)
+            c, h = a0 + (i + 0.5) * step, BLOCK_HEDGE + 0.2 * (i % 3)
             sw_ = ("leaf_dark", "leaf_green")[i % 2]
             x, y, _ = bl(c, z + 1.8)
             b.box_base((x, y, 0), (step + 0.02 * (i % 2), 1.8 + 0.02 * (i % 2), h), sw_, bevel=False)
             b.ico((x, y, h), 1.1, sw_, subdivisions=1, scale=(step / 2.2, 0.8, 0.4))
-        span(bar, a0, a1, z, z + 2.7, 0, BARRIER_H, "offwhite")
+        span(bar, a0, a1, z, z + 2.7, 0, max(HEDGE_TOP, BLOCK_PIER + 1.4) + BLOCK_OVER, "offwhite")
     for x in [e for (a0, a1) in runs for e in (a0 + 0.5, a1 - 0.5)]:
-        _gap_pier(b, x, z - 0.2, z + 2.9, 4.6)
+        _gap_pier(b, x, z - 0.2, z + 2.9, BLOCK_PIER)
     s.put([b.finalize(N + "GreenFence", mat), bar.finalize(N + "GreenFence_Barrier", mat)], 0, 0, 0)
-    s.put(fingerpost(mat, "ALLOTMENTS"), runs[1][0] + 3.0, z - 2.0, 0)
+    s.put(fingerpost(mat, "ALLOTMENTS"), runs[1][0] + 3.0, z - 4.5, 0)   # #2265: off the barrier, no step over it
 
 
 def _garden_wall(s, mat, z, runs):
-    """The garden wall in two runs (x0, x1), open by the side walls: brick 2.2 high under a coping, a hedge 3.6 to 4
-    high behind it, a short pier at each outer end, and the Paw Parade arch over the way between the runs: two tall
+    """The garden wall in two runs (x0, x1), open by the side walls: brick 2.2 high under a coping, a hedge
+    BLOCK_HEDGE to 0.4 more behind it (#2265, was 3.6 to 4), a pier BLOCK_PIER high at each outer end, and the Paw Parade arch over the way between the runs: two tall
     piers, an iron band and the name board, lanterns on top. Barrier on the wall."""
     b, bar, lamps = Builder(), Builder(), Builder()
     gap = (runs[0][1], runs[1][0])
     for x in (runs[0][0] + 0.6, runs[1][1] - 0.6):
-        _gap_pier(b, x, z - 0.3, z + 3.1, 4.6)
+        _gap_pier(b, x, z - 0.3, z + 3.1, BLOCK_PIER)
     for (a0, a1) in runs:
         L = a1 - a0
         b.box_base(bl((a0 + a1) / 2, z + 0.5), (L, 1.0, 2.2), "brick", bevel=False)
@@ -314,12 +329,12 @@ def _garden_wall(s, mat, z, runs):
         m = max(1, round(L / 6.0))
         step = L / m
         for i in range(m):
-            c, h = a0 + (i + 0.5) * step, 3.6 + 0.2 * ((i + 1) % 3)
+            c, h = a0 + (i + 0.5) * step, BLOCK_HEDGE + 0.2 * ((i + 1) % 3)
             sw_ = ("leaf_green", "leaf_dark")[i % 2]
             x, y, _ = bl(c, z + 2.2)
             b.box_base((x, y, 0), (step + 0.02 * (i % 2), 1.6 + 0.02 * (i % 2), h), sw_, bevel=False)
             b.ico((x, y, h), 1.0, sw_, subdivisions=1, scale=(step / 2.2, 0.8, 0.4))
-        span(bar, a0, a1, z, z + 3.0, 0, BARRIER_H, "offwhite")
+        span(bar, a0, a1, z, z + 3.0, 0, max(HEDGE_TOP, BLOCK_PIER + 1.4) + BLOCK_OVER, "offwhite")
     for x in (gap[0] + 0.6, gap[1] - 0.6):
         _gap_pier(b, x, z - 0.3, z + 3.1, 8.6, ball=False)
         lamps.box_base(bl(x, z + 1.4, 8.9), (0.9, 0.9, 1.0), "lamp_warm", bevel=False)
@@ -338,9 +353,10 @@ def _garden_wall(s, mat, z, runs):
 
 # --------------------------------------------------------------------------------------------- road works --
 def _works_line(b, lamps, a0, a1, c, along_x, out, k0=0):
-    """Road-works barriers from a0 to a1 on the line c (z for a line along x, x for one along z): posts on rubber feet
-    every 3.8 or so, two boards between each pair (red over white, then white over red) on the side `out` (+1 or -1
-    along the other axis), an amber lamp on every other post."""
+    """Site hoarding from a0 to a1 on the line c (z for a line along x, x for one along z): posts on rubber feet every
+    3.8 or so, HOARD_H high (#2265, the barriers were 3.7), a teal hoarding board between each pair with two stripes
+    (red over white, then white over red) on the side `out` (+1 or -1 along the other axis), an amber lamp on every
+    other post."""
     L = a1 - a0
     n = max(1, round(L / 3.8))
     step = (L - 0.3) / n
@@ -355,14 +371,15 @@ def _works_line(b, lamps, a0, a1, c, along_x, out, k0=0):
     for i in range(n + 1):
         t = a0 + 0.15 + i * step
         b.box_base(P(t, y0), sz(0.5, 1.4, 0.3), "fur_black", bevel=False)
-        b.box_base(P(t, y0 + 0.3), sz(0.18, 0.18, 3.4), "offwhite", bevel=False)
+        b.box_base(P(t, y0 + 0.3), sz(0.24, 0.24, HOARD_H - 0.3), "offwhite", bevel=False)
         if (i + k0) % 2 == 0:
-            lamps.box_base(P(t, y0 + 3.65), sz(0.36, 0.36, 0.4), "lamp_warm", bevel=False)
+            lamps.box_base(P(t, y0 + HOARD_H), sz(0.36, 0.36, 0.4), "lamp_warm", bevel=False)
     for i in range(n):
         t = a0 + 0.15 + (i + 0.5) * step
         top, low = ("bowl_red", "offwhite") if (i + k0) % 2 == 0 else ("offwhite", "bowl_red")
-        b.box_base(P(t, y0 + 2.9, out * 0.12), sz(step - 0.02, 0.1, 0.55), top, bevel=False)
-        b.box_base(P(t, y0 + 1.5, out * 0.12), sz(step - 0.02, 0.1, 0.45), low, bevel=False)
+        b.box_base(P(t, y0 + 0.5, out * 0.06), sz(step - 0.26, 0.1, HOARD_H - 0.9), "sign_teal", bevel=False)
+        b.box_base(P(t, y0 + 2.9, out * 0.14), sz(step - 0.26, 0.06, 0.55), top, bevel=False)
+        b.box_base(P(t, y0 + 1.5, out * 0.14), sz(step - 0.26, 0.06, 0.45), low, bevel=False)
 
 
 def digger(mat):
@@ -473,7 +490,7 @@ def _works(s, mat):
             r, hz = 1.4 + 0.25 * (i % 3), 2.6 + 0.6 * (i % 3)
             sw_ = ("choco", "concrete", "dark_wood")[i % 3]
             b.ico(bl(x, S3_Z + 1.3, ROAD_Y + hz / 2 - 0.1), r, sw_, subdivisions=1, scale=(1.5, 0.95, hz / 2 / r))
-        span(bar, a0 - 0.25, a1 + 0.25, z0 - 0.3, z1 + 0.3, 0, BARRIER_H, "offwhite")
+        span(bar, a0 - 0.25, a1 + 0.25, z0 - 0.3, z1 + 0.3, 0, ROAD_Y + HOARD_H + 0.4 + BLOCK_OVER, "offwhite")
     # the crossing: steel plates over the trench between the pens, with stud bolts
     for i in range(3):
         x = CROSS[0] + 0.4 + (i + 0.5) * (CROSS[1] - CROSS[0] - 0.8) / 3
@@ -632,6 +649,9 @@ def _gardens(s, g, mat):
     _spot(s, "greenhouse", 72.0, 137.0, y=GREENHOUSE_FLOOR)
     s.put(nb.garden_shed(mat), 80.0, 108.0, 90)
     _spot(s, "trap_shed", *turned(80.0, 108.0, 90, -0.6, -3.3), turn=90)
+    for (x, z, rot) in POOL_SHEDS:                       # #2240: four more for the rescue pool, scenery until picked
+        s.put(nb.garden_shed(mat), x, z, rot)
+        _spot(s, "trap_shed", *turned(x, z, rot, -0.6, -3.3), turn=rot)
     s.put(potting_shed(mat), 46.0, 140.0, 0)
     br = face(-2.0, 128.0, 4.0, 113.0)
     s.put(bench(mat), -2.0, 128.0, br)

@@ -262,8 +262,10 @@ return function()
 					-- Derek 2026-11-03: zones wait to be hit, so a slow press no longer costs a paw (was 100, 98, 78, 36, 9 and
 					-- 100, 88, 44, 11, 2 with F93's run-out). #2219: a miss sends the bar back to the start and the
 					-- Mythical's zone is 0.14 (was 100, 100, 85, 41, 11 and 100, 93, 51, 13, 2)
-					rowMatches("bar 50 ms", at50, { 100, 99, 69, 20, 10 })
-					rowMatches("bar 70 ms", at70, { 100, 85, 29, 4, 2 })
+					-- #2320 (Derek2: "lower the difficulty for rescue missions rare and lower"): a slower marker and a wider
+					-- zone for Common and Rare (was 100, 99 and 100, 85)
+					rowMatches("bar 50 ms", at50, { 100, 100, 69, 20, 10 })
+					rowMatches("bar 70 ms", at70, { 100, 98, 29, 4, 2 })
 				end
 			)
 

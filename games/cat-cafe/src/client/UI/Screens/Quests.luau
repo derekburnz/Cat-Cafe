@@ -221,11 +221,7 @@ local function scroll(name: string, parent: Instance, top: number): ScrollingFra
 		Visible = false,
 		Parent = parent,
 	}, {
-		Create("UIPadding", {
-			PaddingTop = UDim.new(0, 2),
-			PaddingBottom = UDim.new(0, 8),
-			PaddingRight = UDim.new(0, 10),
-		}),
+		Outline.listPadding(10, 8), -- #2294: room for the cards' outlines
 	})
 end
 

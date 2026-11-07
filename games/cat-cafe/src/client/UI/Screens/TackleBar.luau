@@ -21,6 +21,7 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
+local Cooldown = require(script.Parent.Parent.Components.Cooldown)
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
@@ -253,7 +254,10 @@ function TackleBar._tick(self: any)
 		then Theme.colors.warn
 		elseif look == "cooling" then Theme.colors.warnDark
 		else Theme.colors.disabledDark
-	self._word.Text = if look == "cooling" then "Recharging" else ICON .. " TACKLE"
+	-- #2324: the seconds left while it recharges, "Cooling down 3s" (each TICK, so it counts down)
+	self._word.Text = if look == "cooling"
+		then Cooldown.text(self._coolUntil - os.clock()) or "Recharging"
+		else ICON .. " TACKLE"
 	self:_drawFill()
 end
 

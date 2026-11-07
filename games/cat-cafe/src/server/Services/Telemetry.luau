@@ -187,6 +187,9 @@ export type CustomEvent =
 	-- (bait, store or cafePass), why (no_tap: no tap in the last 2 seconds; busy: during a catch, rescue or cutscene),
 	-- tier
 	| "store_guard_blocked"
+	-- #1934 (release.md section 1): a Roblox badge awarded, value the account's minutes played; the badge key, "live"
+	-- (earned this session) or "catchup" (earned before, awarded on join)
+	| "badge_awarded"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.

@@ -13,6 +13,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
+local Badges = require(ReplicatedStorage.Shared.Badges)
 local CafeService = require(script.Parent.CafeService)
 local Cannon = require(ReplicatedStorage.Shared.Cannon)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
@@ -1415,6 +1416,10 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 	local perfect = Circles.perfectCount(attempt)
 	local rarity: string = stray.def.rarity
 	local finishKind: Types.CatchFinishKind = if succeeded then Circles.finish(attempt) else "bolt"
+	if forfeit == nil then
+		-- #1934: the PURRFECT badges' counts (a forfeit is no judged catch, so it leaves the run as it is)
+		Badges.noteFinish(profile.stats, finishKind == "purrfect" and not profile.flags.autoPress)
+	end
 	local result: string = if not succeeded
 		then (if forfeit ~= nil then "forfeit" else "missed")
 		elseif finishKind == "purrfect" then "purrfect"

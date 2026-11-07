@@ -4019,6 +4019,7 @@ UI.tips = {}
 UI.asks = {}
 do
 	local Tips = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Tips")) :: any
+	local TackleLessonLogic = require(script.Components.TackleLessonLogic) -- #2198
 
 	local cutSeconds: number = math.min(3, (Config :: any).TipCutMaxSeconds or 4)
 	-- one table, as the module is short of locals
@@ -4031,6 +4032,9 @@ do
 		CODES_TAG = "CodesCat", -- shared/Codes.TAG, the Codes Cat's station
 		PUMP_EVERY = 0.25,
 		LOOK_EVERY = 1,
+		-- #2198: the server's `tackle` tip came and plays as the tackling lesson (Screens/TackleLesson) at the next free
+		-- moment, not as a card
+		lessonDue = false,
 	}
 
 	local tipQueue = TipQueue.new(TIP.GAP)
@@ -4087,6 +4091,35 @@ do
 
 	-- Shows the next waiting tip when the moment is free and the gap has run.
 	local function pumpTips()
+		-- #2198 (Derek2: "a forced cut scene after first catch ... people will turn tips off with the X pretty fast"):
+		-- the tackling lesson waits only for a free moment, not for the gap or the Tutorial tile's ×; it is saved as
+		-- seen when it ends, so leaving mid-way plays it again next time
+		if
+			TIP.lessonDue
+			and not tipBusy
+			and initialized
+			and introScreen ~= nil
+			and TipQueue.free(tipMoment())
+		then
+			TIP.lessonDue = false
+			tipBusy = true
+			tipQueue:shown(os.clock())
+			local lessonTip: string = TackleLessonLogic.TIP
+			require(script.Screens.TackleLesson).play(
+				{
+					start = UI.intro.start,
+					setShot = UI.intro.setShot,
+					finish = UI.intro.finish,
+					playing = UI.intro.playing,
+				},
+				tipDevice(),
+				function()
+					tipBusy = false
+					answerTip(lessonTip, false)
+				end
+			)
+			return
+		end
 		local card = tipCard
 		-- the Tutorial tile's × (its setting off) holds the tip cards back too (Derek 2026-11-03)
 		if
@@ -4226,7 +4259,11 @@ do
 		if tipKnown(id) or tipQueue:has(id) then
 			return
 		end
-		tipQueue:push(id)
+		if id == TackleLessonLogic.TIP then
+			TIP.lessonDue = true -- #2198: the lesson, not a card
+		else
+			tipQueue:push(id)
+		end
 		pumpTips()
 	end
 

@@ -1335,12 +1335,14 @@ return function()
 			end
 		)
 
-		it("buys Lucky Cat 3 at about minute 31 (the middle run)", function()
+		it("buys Lucky Cat 3 at about minute 37 (the middle run)", function()
 			-- #1896 follow-up: level 3 opens at Tier 2, a buy inside the Tier 3 save; about 31 since #2107 and #2121
-			-- (first-hour.md 4e: the middle run's figure, no longer a fitted target)
+			-- (first-hour.md 4e: the middle run's figure, no longer a fitted target). #2192: about 37 with the 320 s day
+			-- and 70 s night (were 300 and 90): less of each game day is night, when bait waits half as long, so fewer
+			-- bowl cats come in the first hour. Tier 3 stays inside 45 to 55 minutes.
 			local lucky = quantile(firstHour(), nthBuy("lucky_cat", 3), 0.5, HOUR + 1) / 60
-			if math.abs(lucky - 31) > 3 then
-				error(string.format("Lucky Cat 3 at %.1f min (want about 31)", lucky))
+			if math.abs(lucky - 37) > 3 then
+				error(string.format("Lucky Cat 3 at %.1f min (want about 37)", lucky))
 			end
 		end)
 

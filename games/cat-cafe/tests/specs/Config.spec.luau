@@ -23,9 +23,9 @@ return function()
 		AutosaveSeconds = 60,
 		-- the clock and night waves (section 9, v0.3 in F23): no trickle spawns, so SpawnIntervalSeconds and
 		-- MaxStraysPerArea are gone, and the wave size lives per area in Catalog.areas (Catalog.spec)
-		DayLengthSeconds = 300,
-		NightLengthSeconds = 90, -- v0.9 (F66): a short night between hunts
-		ServerStartDaySeconds = 300, -- v0.9: a new server opens at sunrise; #1437: the global clock's first day
+		DayLengthSeconds = 320, -- #2192: was 300
+		NightLengthSeconds = 70, -- v0.9 (F66): a short night between hunts; #2192: was 90
+		ServerStartDaySeconds = 320, -- v0.9: a new server opens at sunrise; #1437: the global clock's first day
 		ClockEpoch = 1793491200, -- #1437
 		DuskWarningSeconds = 15,
 		NightSweepSeconds = 2,
@@ -96,7 +96,7 @@ return function()
 		CustomerStayMin = 20,
 		CustomerStayMax = 40,
 		RemoteRateLimitPerSecond = 10,
-		AnnounceMinRarity = "Epic",
+		AnnounceMinRarity = "Legendary", -- #2205: was Epic
 		GrabCooldownSeconds = 2,
 		TravelCooldownSeconds = 1, -- v0.4 (F19) 3; #1434 1
 		SyncIntervalSeconds = 10,
@@ -301,11 +301,11 @@ return function()
 		-- Shove (F29 and v0.5 F41, section 10c; v0.5 same target cooldown 20, v0.5.1 target immunity S45; v0.8 F56)
 		BumpEnabled = true,
 		BumpChance = 1.0, -- v0.8 F56: a shove always drops the cat
-		BumpGraceSeconds = 3,
+		BumpGraceSeconds = 0, -- #2193 (was 3): a landed tackle always drops the cat
 		BumpSafeRadiusStuds = 15,
-		BumpSameTargetSeconds = 20,
+		BumpSameTargetSeconds = 0,
 		ShoveKnockbackStuds = 10,
-		ShoveTargetImmuneSeconds = 4,
+		ShoveTargetImmuneSeconds = 0,
 		-- a dropped cat walks home (v0.10 F67, section 10c)
 		DropReturnWalkSpeed = 8,
 		DropHomeRadiusStuds = 2,

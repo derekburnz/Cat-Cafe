@@ -2608,6 +2608,46 @@ local SCENES = {
 	{ "TipCard", function()
 		UI.tips.show("second_cat")
 	end },
+	-- #2198 (Derek2: "a forced cut scene after first catch"): the server's tackle tip plays as the tackling lesson on
+	-- the intro's screen: four captions with four dots, the read bar and Next, no Skip; it ends by itself and saves
+	-- the tip as seen
+	{ "TackleLesson", function()
+		local seen: { string } = {}
+		local counting = UI.events.tipSeen:Connect(function(id: string)
+			table.insert(seen, id)
+		end)
+		local before: any = (UI.getState() :: any).tipsSeen or {}
+		local tipsSeen = table.clone(before)
+		tipsSeen.tackle = nil
+		UI.update({ tipsSeen = tipsSeen } :: any)
+		UI.tips.show("tackle")
+		UIShim.advance(0.5)
+		assert(UI.intro.playing(), "uigate: the tackle tip did not start the lesson (#2198)")
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntro") :: ScreenGui
+		local caption = gui:FindFirstChild("Caption", true) :: TextLabel
+		local skip = gui:FindFirstChild("Skip", true) :: GuiObject
+		local nextPill = gui:FindFirstChild("Next", true) :: TextButton
+		assert(caption.Text == "Other players can tackle you while you carry!", "uigate: the lesson opens on " .. caption.Text .. " (#2198)")
+		assert(caption.TextFits, "uigate: the lesson's first caption does not fit (#2198)")
+		assert(not skip.Visible, "uigate: the lesson has a Skip (#2198)")
+		assert(nextPill.Visible, "uigate: the lesson has no Next (#2198)")
+		local dots = 0
+		for _, dot in (gui:FindFirstChild("Dots", true) :: Instance):GetChildren() do
+			if dot:IsA("Frame") and dot.Visible then
+				dots += 1
+			end
+		end
+		assert(dots == 4, ("uigate: the lesson shows %d dots, not 4 (#2198)"):format(dots))
+		UIShim.advance(0.6)
+		UIShim.fire(UIShim.eventOf(nextPill, "Activated"))
+		assert(caption.Text == "Get tackled and you drop your cat!", "uigate: Next did not move the lesson on (#2198)")
+		assert(#seen == 0, "uigate: the lesson was saved as seen before it ended (#2198)")
+		UIShim.advance(20)
+		assert(not UI.intro.playing(), "uigate: the lesson did not end by itself (#2198)")
+		assert(#seen == 1 and seen[1] == "tackle", "uigate: the lesson's end did not save the tackle tip as seen (#2198)")
+		counting:Disconnect()
+		UI.update({ tipsSeen = before } :: any)
+	end },
 	-- F87: the first long return, the offline tip's ribbon on the card (the client tips marked seen, so no stuck cat
 	-- or Codes Cat tip pops up in later scenes)
 	{ "OfflineTip", function()
@@ -3267,6 +3307,33 @@ local SCENES = {
 	{ "HUDMoneyBadge", function()
 		UI.store.preview(storePrices(true), {})
 	end },
+	-- #2194 (playtester Dread via Derek2: "The cash at the bottom left should probably not push the 2x cash and fish"):
+	-- the money badge and the golden fish stay put while the money grows from $0 to the widest usual amounts
+	{ "HUDCashSteady", function()
+		-- an earlier scene's 2x Money pass hides the badge (it shows as the side chip): no pass here, the golden fish
+		-- shown, both put back by Scenes.close
+		local before: any = UI.getState()
+		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
+		UI.update({ passBoosts = false, goldenFish = 1234 } :: any)
+		UI.store.preview(storePrices(true), {})
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local counters = hud:FindFirstChild("Counters", true) :: Frame
+		local badge = counters:FindFirstChild("MoneyBadge") :: GuiObject
+		local fish = counters:FindFirstChild("Fish") :: GuiObject
+		local amount = (counters:FindFirstChild("Money") :: Instance):FindFirstChild("Amount", true) :: TextLabel
+		assert(badge.Visible and fish.Visible, "uigate: the money badge or the golden fish is hidden (#2194)")
+		local badgeX, fishX
+		for _, money in { 0, 7, 999, 88888, 99999, 1240000, 99900000, 999e15 } do
+			UI.update({ money = money })
+			UIShim.advance(1 / 60)
+			if badgeX == nil then
+				badgeX, fishX = badge.AbsolutePosition.X, fish.AbsolutePosition.X
+			end
+			assert(math.abs(badge.AbsolutePosition.X - badgeX) < 1, ("uigate: %s moves the money badge %d px (#2194)"):format(amount.Text, badge.AbsolutePosition.X - badgeX))
+			assert(math.abs(fish.AbsolutePosition.X - fishX) < 1, ("uigate: %s moves the golden fish %d px (#2194)"):format(amount.Text, fish.AbsolutePosition.X - fishX))
+			assert(amount.AbsolutePosition.X + amount.TextBounds.X <= badge.AbsolutePosition.X, "uigate: " .. amount.Text .. " runs into the money badge (#2194)")
+		end
+	end },
 	-- #1936 (release.md section 3): in the first 30 minutes of play the badge says a plain "x2", with no price and no
 	-- pulse; a tap still opens the Store
 	{ "HUDMoneyBadgeQuiet", function()
@@ -3706,6 +3773,10 @@ end
 
 function Scenes.close()
 	reel(false)
+	if Scenes._cashMoney ~= nil then
+		UI.update(Scenes._cashMoney :: any) -- #2194's scene
+		Scenes._cashMoney = nil
+	end
 	if UI.intro.playing() then
 		UI.intro.finish() -- #2182's Next scene
 	end

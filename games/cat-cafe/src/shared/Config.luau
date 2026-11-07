@@ -125,10 +125,13 @@ local Config = {
 	KeepUpStepsBehind = 1,
 
 	-- The clock (data-model section 9): a server-wide loop of day then night. v0.9 (F66, Derek 2026-10-27): night is a
-	-- short reset between hunts; the catching areas close at dusk and a fresh wave spawns at sunrise.
-	DayLengthSeconds = 300,
-	NightLengthSeconds = 90,
-	ServerStartDaySeconds = 300, -- the clock's first day, from ClockEpoch (was each server's start, before #1437)
+	-- short reset between hunts; the catching areas close at dusk and a fresh wave spawns at sunrise. #2192 (Dread via
+	-- Derek2, 2026-11-07: "make the days a bit longer and maybe night a tiny bit shorter"): 320 and 70 (were 300 and
+	-- 90). The day takes the night's 20 s, so a game day is still 390 s: every sunrise, restock window, day number and
+	-- pity timer falls where it did, and only dusk moves 20 s later. ServerStartDaySeconds stays equal to the day.
+	DayLengthSeconds = 320,
+	NightLengthSeconds = 70,
+	ServerStartDaySeconds = 320, -- the clock's first day, from ClockEpoch (was each server's start, before #1437)
 	-- #1437 (Derek 2026-11-05: "restock once per in game day and make it global"): every server reads the clock from
 	-- this os.time() (2026-11-01 00:00 UTC) on Workspace:GetServerTimeNow(), so sunrise and dusk fall at the same
 	-- moment in every server; a new server joins the day already under way. Day 1 starts here.
@@ -357,7 +360,8 @@ local Config = {
 	StrayTopUpMinSeconds = 40, -- #1452: 40 to 80 s (was 60 to 120)
 	StrayTopUpMaxSeconds = 80,
 	StrayWanderSpeed = 3,
-	AnnounceMinRarity = "Epic",
+	-- #2205 (Derek2, 2026-11-07: "just legendary or better or gold/rainbow"): the catch pop-up's floor (was Epic)
+	AnnounceMinRarity = "Legendary",
 	-- The night dealer (data-model section 8b): buy from this close to the cart. F94 (rewards-and-shops.md section 4):
 	-- each server rolls its stock once at dusk and it holds all night.
 	DealerRangeStuds = 12,
@@ -754,11 +758,16 @@ local Config = {
 	-- Bump and Shove names. Pure rules in Shove.
 	BumpEnabled = true, -- false turns the Tackle remote off and hides the button
 	BumpChance = 1.0, -- a shove on a carrier knocks the cat loose this often (v0.8 F56: always; kept to tune)
-	BumpGraceSeconds = 3, -- a fresh carry cannot be knocked loose for this long
+	-- a fresh carry cannot be knocked loose for this long. #2193 (Derek2, 2026-11-07: "make it guaranteed"): 0, so a
+	-- tackle that lands always drops the cat (was 3)
+	BumpGraceSeconds = 0,
 	BumpSafeRadiusStuds = 15, -- round both doors of the target's own cafe, as well as its plot
-	BumpSameTargetSeconds = 20, -- per tackler and target
+	-- #2193 (Derek2, 2026-11-07: "everyone should always be able to be tackled unless they are mid minigame"): no
+	-- timed immunity. The same tackler on the same target (was 20 s) and anyone on a player just hit (was 4 s, S45)
+	-- are both 0; each tackler still waits their own TackleCooldownSeconds.
+	BumpSameTargetSeconds = 0, -- per tackler and target
 	ShoveKnockbackStuds = 10, -- the target's client pushes its own character this far
-	ShoveTargetImmuneSeconds = 4, -- after a hit lands, nobody can hit that player again for this long (S45)
+	ShoveTargetImmuneSeconds = 0, -- after a hit lands, nobody can hit that player again for this long (S45)
 	-- A dropped cat walks home (v0.10 F67, round 4 Q4): let go with the Drop button (or a carrier's death), it walks
 	-- back to where it was caught at this speed, anyone can pick it up on the way, and within DropHomeRadiusStuds of
 	-- the spot it is a normal stray again. A blocked walk ends with it appearing there after DropReturnMaxSeconds.

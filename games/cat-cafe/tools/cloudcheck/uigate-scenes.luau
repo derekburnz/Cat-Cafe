@@ -2608,6 +2608,46 @@ local SCENES = {
 	{ "TipCard", function()
 		UI.tips.show("second_cat")
 	end },
+	-- #2198 (Derek2: "a forced cut scene after first catch"): the server's tackle tip plays as the tackling lesson on
+	-- the intro's screen: four captions with four dots, the read bar and Next, no Skip; it ends by itself and saves
+	-- the tip as seen
+	{ "TackleLesson", function()
+		local seen: { string } = {}
+		local counting = UI.events.tipSeen:Connect(function(id: string)
+			table.insert(seen, id)
+		end)
+		local before: any = (UI.getState() :: any).tipsSeen or {}
+		local tipsSeen = table.clone(before)
+		tipsSeen.tackle = nil
+		UI.update({ tipsSeen = tipsSeen } :: any)
+		UI.tips.show("tackle")
+		UIShim.advance(0.5)
+		assert(UI.intro.playing(), "uigate: the tackle tip did not start the lesson (#2198)")
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntro") :: ScreenGui
+		local caption = gui:FindFirstChild("Caption", true) :: TextLabel
+		local skip = gui:FindFirstChild("Skip", true) :: GuiObject
+		local nextPill = gui:FindFirstChild("Next", true) :: TextButton
+		assert(caption.Text == "Other players can tackle you while you carry!", "uigate: the lesson opens on " .. caption.Text .. " (#2198)")
+		assert(caption.TextFits, "uigate: the lesson's first caption does not fit (#2198)")
+		assert(not skip.Visible, "uigate: the lesson has a Skip (#2198)")
+		assert(nextPill.Visible, "uigate: the lesson has no Next (#2198)")
+		local dots = 0
+		for _, dot in (gui:FindFirstChild("Dots", true) :: Instance):GetChildren() do
+			if dot:IsA("Frame") and dot.Visible then
+				dots += 1
+			end
+		end
+		assert(dots == 4, ("uigate: the lesson shows %d dots, not 4 (#2198)"):format(dots))
+		UIShim.advance(0.6)
+		UIShim.fire(UIShim.eventOf(nextPill, "Activated"))
+		assert(caption.Text == "Get tackled and you drop your cat!", "uigate: Next did not move the lesson on (#2198)")
+		assert(#seen == 0, "uigate: the lesson was saved as seen before it ended (#2198)")
+		UIShim.advance(20)
+		assert(not UI.intro.playing(), "uigate: the lesson did not end by itself (#2198)")
+		assert(#seen == 1 and seen[1] == "tackle", "uigate: the lesson's end did not save the tackle tip as seen (#2198)")
+		counting:Disconnect()
+		UI.update({ tipsSeen = before } :: any)
+	end },
 	-- F87: the first long return, the offline tip's ribbon on the card (the client tips marked seen, so no stuck cat
 	-- or Codes Cat tip pops up in later scenes)
 	{ "OfflineTip", function()

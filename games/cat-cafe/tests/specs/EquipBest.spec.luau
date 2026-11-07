@@ -392,5 +392,34 @@ return function()
 				expect(free.placements[uid]).to.equal(spotId)
 			end
 		end)
+
+		-- #2050: a level up that makes a resting cat a hair better must not move cats around (each move rebuilds one)
+		it("keeps a working cat over one only slightly better, and still moves for a real gain", function()
+			local profile = profileAt(1)
+			local working = addCat(profile, "working", "tabby", 50, 5, "barista_1")
+			addCat(profile, "waiter", "tabby", 50, 5, "waiter_1")
+			local rival = addCat(profile, "rival", "tabby", 52, 5, nil) -- a little more charm
+			local exact = EquipBest.planKeeping(profile, {})
+			local sticky = EquipBest.planKeeping(profile, {}, EquipBest.AUTO_STAY)
+			local ratio = EquipBest.value(rival, Catalog.getSpot("barista_1") :: any, 1)
+				/ EquipBest.value(working, Catalog.getSpot("barista_1") :: any, 1)
+			expect(ratio > 1 and ratio < 1 + EquipBest.AUTO_STAY).to.equal(true)
+			expect(exact.placements.rival).never.to.equal(nil) -- the exact plan swaps
+			expect(sticky.placements.rival).to.equal(nil) -- the sticky one doesn't
+			expect(sticky.placements.working).to.equal("barista_1")
+			expect(EquipBest.isOptimal(profile, sticky)).to.equal(true) -- so Auto Equip does nothing
+			rival.level = 20 -- now far better
+			local later = EquipBest.planKeeping(profile, {}, EquipBest.AUTO_STAY)
+			expect(later.placements.rival).never.to.equal(nil)
+		end)
+
+		it("fills an empty open slot whatever the stay bonus", function()
+			local profile = profileAt(1)
+			addCat(profile, "working", "tabby", 50, 5, "barista_1")
+			addCat(profile, "rest", "tabby", 50, 1, nil)
+			local sticky = EquipBest.planKeeping(profile, {}, EquipBest.AUTO_STAY)
+			expect(sticky.placements.rest).never.to.equal(nil)
+			expect(sticky.placements.working).to.equal("barista_1")
+		end)
 	end)
 end

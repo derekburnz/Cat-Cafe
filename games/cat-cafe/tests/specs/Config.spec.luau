@@ -292,7 +292,7 @@ return function()
 		CampExtraRangeStuds = 8,
 		RallyStartWeekday = 6, -- F101 (rescue-rally.md section 5); RallyPoints is checked in Rally.spec
 		RallyHours = 48,
-		RallyPointsPerPlayer = 30,
+		RallyPointsPerPlayer = 22,
 		RallyMinPlayers = 3,
 		RallyMinPoints = 3,
 		RallyMaxLaps = 4,

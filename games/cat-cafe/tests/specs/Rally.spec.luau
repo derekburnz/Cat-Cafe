@@ -49,12 +49,12 @@ return function()
 	end)
 
 	describe("the bar (section 2)", function()
-		it("sets the goal at 30 a player, never under three players' worth (QA check 1)", function()
-			expect(Rally.goal(0)).to.equal(90)
-			expect(Rally.goal(1)).to.equal(90)
-			expect(Rally.goal(2)).to.equal(90)
-			expect(Rally.goal(3)).to.equal(90)
-			expect(Rally.goal(8)).to.equal(240)
+		it("sets the goal at 22 a player, never under three players' worth (QA check 1, #2018)", function()
+			expect(Rally.goal(0)).to.equal(66)
+			expect(Rally.goal(1)).to.equal(66)
+			expect(Rally.goal(2)).to.equal(66)
+			expect(Rally.goal(3)).to.equal(66)
+			expect(Rally.goal(8)).to.equal(176)
 		end)
 
 		it("scores 1 for a check-in or a tame and 3 for a rescue or a Team Rescue helper", function()
@@ -71,16 +71,18 @@ return function()
 		end)
 
 		it("names each step a score passes, once, rounding a share up", function()
-			expect(Rally.stepAt(1, 90)).to.equal(23)
-			expect(Rally.stepAt(2, 90)).to.equal(45)
-			expect(Rally.stepAt(3, 90)).to.equal(90)
-			expect(Rally.stepAt(1, 240)).to.equal(60)
-			expect(Rally.stepsCrossed(0, 22, 90) :: any).to.deepEqual({})
-			expect(Rally.stepsCrossed(22, 23, 90) :: any).to.deepEqual({ 1 })
-			expect(Rally.stepsCrossed(20, 50, 90) :: any).to.deepEqual({ 1, 2 })
+			expect(Rally.stepAt(1, 90)).to.equal(14)
+			expect(Rally.stepAt(2, 90)).to.equal(27)
+			expect(Rally.stepAt(3, 90)).to.equal(45)
+			expect(Rally.stepAt(4, 90)).to.equal(68)
+			expect(Rally.stepAt(5, 90)).to.equal(90)
+			expect(Rally.stepAt(1, 240)).to.equal(36)
+			expect(Rally.stepsCrossed(0, 13, 90) :: any).to.deepEqual({})
+			expect(Rally.stepsCrossed(13, 14, 90) :: any).to.deepEqual({ 1 })
+			expect(Rally.stepsCrossed(20, 50, 90) :: any).to.deepEqual({ 2, 3 })
 			expect(Rally.stepsCrossed(45, 46, 90) :: any).to.deepEqual({})
-			expect(Rally.stepsCrossed(88, 91, 90) :: any).to.deepEqual({ 3 })
-			expect(Rally.stepsCrossed(0, 90, 90) :: any).to.deepEqual({ 1, 2, 3 })
+			expect(Rally.stepsCrossed(88, 91, 90) :: any).to.deepEqual({ 5 })
+			expect(Rally.stepsCrossed(0, 90, 90) :: any).to.deepEqual({ 1, 2, 3, 4, 5 })
 			expect(Rally.stepsCrossed(0, 10, 0) :: any).to.deepEqual({})
 		end)
 
@@ -91,28 +93,33 @@ return function()
 					table.insert(seen, index)
 				end
 			end
-			expect(seen :: any).to.deepEqual({ 1, 2, 3 })
+			expect(seen :: any).to.deepEqual({ 1, 2, 3, 4, 5 })
 		end)
 	end)
 
 	describe("the prizes (section 3)", function()
-		it("pays 5 fish, then 10 and a Money Potion, then a Rally Crate and 15", function()
-			expect(#Catalog.rallySteps).to.equal(3)
-			expect(Catalog.rallySteps[1] :: any).to.deepEqual({ share = 0.25, prize = { fish = 5 } })
-			expect(Catalog.rallySteps[2] :: any).to.deepEqual({
-				share = 0.5,
-				prize = { fish = 10, potions = { tip_potion = 1 } },
-			})
-			expect(Catalog.rallySteps[3] :: any).to.deepEqual({
-				share = 1,
-				prize = { fish = 15, crates = { rally_crate = 1 } },
-			})
-			expect(Catalog.getCrate("rally_crate")).to.be.ok()
-			local potionKnown = false
-			for _, potion in Catalog.potions do
-				potionKnown = potionKnown or potion.id == "tip_potion"
+		it("pays five steps, about 100 fish and two Rally Crates a lap, every prize known (#2018)", function()
+			expect(#Catalog.rallySteps).to.equal(5)
+			local shares = { 0.15, 0.3, 0.5, 0.75, 1 }
+			local fish, crates = 0, 0
+			for index, step in Catalog.rallySteps do
+				expect(step.share).to.equal(shares[index])
+				fish += step.prize.fish or 0
+				for id, count in step.prize.crates or {} do
+					expect(Catalog.getCrate(id)).to.be.ok()
+					crates += count
+				end
+				for id in step.prize.potions or {} do
+					local known = false
+					for _, potion in Catalog.potions do
+						known = known or potion.id == id
+					end
+					expect(known).to.equal(true)
+				end
 			end
-			expect(potionKnown).to.equal(true)
+			expect(fish).to.equal(103)
+			expect(crates).to.equal(2)
+			expect(Catalog.rallySteps[1] :: any).to.deepEqual({ share = 0.15, prize = { fish = 8 } })
 		end)
 
 		it("pays nobody under 3 points this lap, so a late joiner with 1 point gets nothing (QA check 3)", function()

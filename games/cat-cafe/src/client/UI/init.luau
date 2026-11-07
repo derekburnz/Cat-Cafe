@@ -1412,6 +1412,7 @@ function UI.init(config: Types.InitConfig)
 	-- Catch v3 (catch-rework.md 7a): the mood icon over each stray within 20 studs (inline: the module is short of locals)
 	local catchUI: any = UI.catch
 	catchUI.moods = require(script.Screens.MoodIcons).new()
+	catchUI.pity = require(script.Screens.PityTags).new() -- #2099: the "Pity cat" tag over a pity stray
 	catchUI.mark = require(script.Screens.CatchMark).new() -- #2005: the "!" over a stray being caught (NetDown)
 	UI.bubbles.start(parent) -- the one-line speech bubbles over the town's key cats (#1079)
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
@@ -1659,6 +1660,10 @@ function UI.destroy()
 		catchUI.moods:destroy()
 		catchUI.moods = nil
 	end
+	if catchUI.pity then
+		catchUI.pity:destroy()
+		catchUI.pity = nil
+	end
 	if catchUI.mark then
 		catchUI.mark:destroy()
 		catchUI.mark = nil
@@ -1882,15 +1887,19 @@ end
 function UI.catLevelUp(_uid: string, _level: number) end
 
 -- F87: the first return after Tips.OFFLINE_SECONDS or more away puts the `offline` tip's line on the card's top.
--- F95: the welcome back card says what time away pays, the Long Nap pass's line when state.longNap.
+-- F95: the welcome back card says what time away pays, the Long Nap pass's line when state.longNap. #2123: and one
+-- line on what is waiting today (WelcomeBack.hookLine of state.returnHook).
 -- Collect plays Sound-Agent's offlineClaim cue once per claim (the card hands its callback out once).
 function UI.showOfflineEarnings(amount: number, seconds: number)
 	if popups then
-		local note = require(script.Components.WelcomeBack).note(state.longNap)
+		local WelcomeBack = require(script.Components.WelcomeBack)
+		local note = WelcomeBack.note(state.longNap)
+		-- #2123: the reason to play today, from Gameplay's ReturnHook pick (nil: no line)
+		local hook = WelcomeBack.hookLine((state :: any).returnHook)
 		popups:showOffline(amount, seconds, function()
 			Sound.play("offlineClaim")
 			UI.events.claimOffline:Fire()
-		end, UI.tips.offlineLine(seconds), note)
+		end, UI.tips.offlineLine(seconds), note, hook)
 	end
 end
 
@@ -6109,7 +6118,10 @@ do
 		local view = pass.view
 		local id = productId()
 		local price = if id then PassShop.prices()[id] else nil
-		local sells = view ~= nil and PassLogic.shows(view) and not view.paid
+		local sells = view ~= nil
+			and PassLogic.shows(view)
+			and not view.paid
+			and SharedPass.saleOpen(Workspace:GetServerTimeNow(), view.endsAt) -- #2129
 		if sells and price ~= nil and price.forSale and price.robux ~= nil then
 			screen:setBuy(("Paid track  R$%d"):format(price.robux :: number))
 		else
@@ -6205,6 +6217,7 @@ do
 			name = if def then def.name else ("Season %d"):format(view.season),
 			paid = view.paid,
 			contents = PassLogic.paidContents(def),
+			saleOpen = SharedPass.saleOpen(Workspace:GetServerTimeNow(), view.endsAt), -- #2129: closed just before the season ends
 		}
 	end
 

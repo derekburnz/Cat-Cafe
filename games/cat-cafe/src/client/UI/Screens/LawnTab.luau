@@ -6,9 +6,9 @@
 -- Like Plants, Floor and Walls: one line on top with the total ("Lawn: 6 out, +18% money", the Money boosts row's
 -- number), then a grid of the same cards, one per owned piece, path and fence (Components/LawnLogic.cards): the model
 -- on a tile in its rarity colour, the rarity, the name, its bonus ("+3% money", paths and fences tagged "Path" or
--- "Fence"), and a Use or Remove button (below). #1729 (Derek2: keep it light, lawn-nursery.md section 6e): a big-spot
--- piece has a tiny "Big spot" tag in the art's top right corner, and nothing else explains the spots. The grid ends
--- with where to buy more.
+-- "Fence"), and a Use or Remove button (below). #2081 (Derek2: "lawn has big spots and normal spots have a sub
+-- category"): the cards sit under headings, Big spots, Small spots, then Paths and fences (LawnLogic.groups), in place
+-- of #1729's tiny "Big spot" tag on each card. The list ends with where to buy more.
 
 -- #1751 part 3 (Derek2: "lawn section is missing remove/use it buttons"): each card ends in one button,
 -- LawnLogic.cardAction's Remove (green edge: it is out) or Use, forwarded as SetLawnSpot or SetLawnStyle; Equip Best
@@ -40,6 +40,7 @@ export type LawnTab = {
 local CARD_WIDTH = 164 -- the inside decor's cards
 local CARD_TOP = 152
 local TOTAL_HEIGHT = 28 -- "Lawn: 6 out, +18% money"
+local HEADING_HEIGHT = 26 -- #2081: "Big spots · 2"
 local FOOTER_GLYPH = 56
 
 local GLYPH = "🌷" -- a lawn piece with no model in Assets yet
@@ -100,6 +101,7 @@ function LawnTab.new(parent: Instance, callbacks: Callbacks?): LawnTab
 		Parent = frame,
 	})
 	local gridTop = TOTAL_HEIGHT + Theme.sizes.gap
+	-- #2081: one scrolling list of sections, each a heading over its own grid of cards (LawnTab._section)
 	self._grid = Create("ScrollingFrame", {
 		Name = "Grid",
 		BackgroundTransparency = 1,
@@ -113,22 +115,22 @@ function LawnTab.new(parent: Instance, callbacks: Callbacks?): LawnTab
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = frame,
 	}, {
-		Create("UIGridLayout", {
-			CellSize = UDim2.fromOffset(CARD_WIDTH, CARD_TOP + self._statusHeight),
-			CellPadding = UDim2.fromOffset(Theme.sizes.gap, Theme.sizes.gap),
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Vertical,
+			Padding = UDim.new(0, Theme.sizes.gap),
 			SortOrder = Enum.SortOrder.LayoutOrder,
-			HorizontalAlignment = Enum.HorizontalAlignment.Left,
 		}),
 		Create("UIPadding", { PaddingRight = UDim.new(0, 10) }),
 	})
+	self._sections = {} :: { [string]: any }
+	local more = self:_cells("More", 100000)
 
 	-- the last cell: where lawn pieces are sold, like the decor grid's "Find more in crates"
 	local footer: Frame = Create("Frame", {
 		Name = "FindMore",
-		LayoutOrder = 100000,
 		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
-		Parent = self._grid,
+		Parent = more,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
@@ -169,14 +171,56 @@ function LawnTab.new(parent: Instance, callbacks: Callbacks?): LawnTab
 	return self :: LawnTab
 end
 
+-- A grid of cards, as tall as its rows, in the scrolling list at `order`.
+function LawnTab._cells(self: any, name: string, order: number): Frame
+	return Create("Frame", {
+		Name = name,
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Size = UDim2.fromScale(1, 0),
+		LayoutOrder = order,
+		Parent = self._grid,
+	}, {
+		Create("UIGridLayout", {
+			CellSize = UDim2.fromOffset(CARD_WIDTH, CARD_TOP + self._statusHeight),
+			CellPadding = UDim2.fromOffset(Theme.sizes.gap, Theme.sizes.gap),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			HorizontalAlignment = Enum.HorizontalAlignment.Left,
+		}),
+	})
+end
+
+-- #2081: a heading ("Big spots · 2") and the grid under it, made the first time its group has a card and kept.
+function LawnTab._section(self: any, key: string, order: number): any
+	local section = self._sections[key]
+	if section == nil then
+		section = {
+			heading = text({
+				Name = "Heading_" .. key,
+				Size = UDim2.new(1, 0, 0, HEADING_HEIGHT),
+				FontFace = Theme.fonts.display,
+				TextSize = Theme.sizes.textBody,
+				TextColor3 = PAL.subtext,
+				TextYAlignment = Enum.TextYAlignment.Bottom,
+				Parent = self._grid,
+			}),
+			cells = self:_cells("Cards_" .. key, 0),
+		}
+		self._sections[key] = section
+	end
+	section.heading.LayoutOrder = order * 2 - 1
+	section.cells.LayoutOrder = order * 2
+	return section
+end
+
 -- One card, made the first time its piece or style is owned and kept: the model on a tile in its rarity colour, the
 -- rarity, the name, the bonus line and the Out / Stored pill.
-function LawnTab._card(self: any, card: LawnLogic.Card): any
+function LawnTab._card(self: any, card: LawnLogic.Card, parent: Instance): any
 	local frame: Frame = Create("Frame", {
 		Name = card.id,
 		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
-		Parent = self._grid,
+		Parent = parent,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
 	})
@@ -215,24 +259,6 @@ function LawnTab._card(self: any, card: LawnLogic.Card): any
 		ZIndex = 3,
 		Parent = frame,
 	}))
-	if card.big then
-		pill(text({
-			Name = "BigSpot",
-			BackgroundTransparency = 0,
-			BackgroundColor3 = PAL.cardStroke,
-			AnchorPoint = Vector2.new(1, 0),
-			Position = UDim2.new(1, -10, 0, 16),
-			AutomaticSize = Enum.AutomaticSize.X,
-			Size = UDim2.fromOffset(0, 18),
-			TextSize = Theme.sizes.textTiny, -- as small as the rarity pill, still 9 px on a phone
-			TextColor3 = PAL.text,
-			TextXAlignment = Enum.TextXAlignment.Center,
-			TextTruncate = Enum.TextTruncate.None,
-			Text = LawnLogic.sizeName("big"),
-			ZIndex = 3,
-			Parent = frame,
-		}))
-	end
 	text({
 		Name = "Name",
 		Position = UDim2.fromOffset(10, 92),
@@ -282,28 +308,54 @@ end
 function LawnTab.render(self: any, state: Types.PlayerState)
 	self._total.Text = LawnLogic.total(state)
 	local shown: { [string]: boolean } = {}
-	for order, card in LawnLogic.cards(state) do
-		local entry = self._cards[card.id] or self:_card(card)
-		entry.frame.LayoutOrder = order
-		entry.frame.Visible = true
-		local action = LawnLogic.cardAction(state, card)
-		entry.action = action
-		entry.button:setText(action.text)
-		if entry.style ~= action.style then
-			entry.style = action.style
-			entry.button:setStyle(action.style :: any)
+	local sectionsShown: { [string]: boolean } = {}
+	for index, group in LawnLogic.groups(state) do
+		local section = self:_section(group.key, index)
+		section.heading.Text = group.title
+		section.heading.Visible = true
+		section.cells.Visible = true
+		sectionsShown[group.key] = true
+		for order, card in group.cards do
+			self:_renderCard(state, card, order, section.cells)
+			shown[card.id] = true
 		end
-		entry.button:setEnabled(action.enabled)
-		-- an out piece, path or fence wears a green edge (the Out pill's place before #1751)
-		entry.edge.Color = if card.out then Theme.colors.good else PAL.cardStroke
-		entry.edge.Thickness = if card.out then Theme.sizes.stroke + 1 else Theme.sizes.stroke
-		shown[card.id] = true
+	end
+	for key, section in self._sections do
+		if not sectionsShown[key] then
+			section.heading.Visible = false
+			section.cells.Visible = false
+		end
 	end
 	for id, entry in self._cards do
 		if not shown[id] then
 			entry.frame.Visible = false
 		end
 	end
+end
+
+-- One card's place, button and edge at a render.
+function LawnTab._renderCard(
+	self: any,
+	state: Types.PlayerState,
+	card: LawnLogic.Card,
+	order: number,
+	parent: Instance
+)
+	local entry = self._cards[card.id] or self:_card(card, parent)
+	entry.frame.Parent = parent
+	entry.frame.LayoutOrder = order
+	entry.frame.Visible = true
+	local action = LawnLogic.cardAction(state, card)
+	entry.action = action
+	entry.button:setText(action.text)
+	if entry.style ~= action.style then
+		entry.style = action.style
+		entry.button:setStyle(action.style :: any)
+	end
+	entry.button:setEnabled(action.enabled)
+	-- an out piece, path or fence wears a green edge (the Out pill's place before #1751)
+	entry.edge.Color = if card.out then Theme.colors.good else PAL.cardStroke
+	entry.edge.Thickness = if card.out then Theme.sizes.stroke + 1 else Theme.sizes.stroke
 end
 
 function LawnTab.destroy(self: any)

@@ -773,9 +773,9 @@ return function()
 				lure_bowl = {
 					name = "Bait bowl",
 					maxLevel = 5,
-					costs = { 600, 6000, 240000, 4000000, 50000000 }, -- F82, v0.13.15; F95 prices
+					costs = { 600, 6000, 150000, 4000000, 50000000 }, -- F82, v0.13.15; F95 prices; #2121 level 3
 					startLevel = 0,
-					atLevel = { [2] = 2, [3] = 3, [4] = 4, [5] = 5 },
+					atLevel = { [2] = 2, [3] = 2, [4] = 4, [5] = 5 }, -- #2121: level 3 at Tier 2
 				},
 				lucky_cat = { -- F88 (luck-and-rare-moments.md 1a): level n needs Tier n, level 3 Tier 2 (#1896)
 					name = "Lucky Cat",

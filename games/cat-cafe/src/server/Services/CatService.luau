@@ -2681,6 +2681,21 @@ end
 -- Studio-only test hook: knocks the player's carried cat loose where they stand, as a shove from nobody would,
 -- whatever the grace or immunity: a Dropped stray anyone picks up. Errors outside a catching area. Returns the new
 -- StrayId.
+-- Studio-only test hook (Laptop-Tester, 2026-11-07): ends every catch `player` has running, judged as walking off (a
+-- Miss), as a respawn does (#2052). Returns how many ended.
+function CatService.debugEndCatch(player: Player): number
+	assert(RunService:IsStudio(), "debugEndCatch is Studio only")
+	local ended = 0
+	for _, stray in strays do
+		local attempt = stray.attempt
+		if stray.lockedBy == player.UserId and attempt ~= nil then
+			finishCatch(player, stray, attempt)
+			ended += 1
+		end
+	end
+	return ended
+end
+
 function CatService.debugKnockLoose(player: Player): string
 	assert(RunService:IsStudio(), "debugKnockLoose is Studio only")
 	assert(carrying[player] ~= nil, "not carrying a cat")

@@ -1316,16 +1316,17 @@ return function()
 		)
 
 		it(
-			"buys Tables 5 at about minute 22 and Espresso 4 at about minute 42 (the middle run)",
+			-- #2121 (first-hour.md 4e): Tables 5 moved from about 22 to about 25 with Bait Bowl 3 bought before it
+			"buys Tables 5 at about minute 25 and Espresso 4 at about minute 42 (the middle run)",
 			function()
 				local list = firstHour()
 				-- Tables starts at level 0 and Espresso at 1, so these are the fifth and third buys
 				local tables = quantile(list, nthBuy("tables", 5), 0.5, HOUR + 1) / 60
 				local espresso = quantile(list, nthBuy("espresso", 3), 0.5, HOUR + 1) / 60
-				if math.abs(tables - 22) > 3 or math.abs(espresso - 42) > 4 then
+				if math.abs(tables - 25) > 3 or math.abs(espresso - 42) > 4 then
 					error(
 						string.format(
-							"Tables 5 at %.1f min, Espresso 4 at %.1f min (want about 22 and 42)",
+							"Tables 5 at %.1f min, Espresso 4 at %.1f min (want about 25 and 42)",
 							tables,
 							espresso
 						)
@@ -1334,11 +1335,12 @@ return function()
 			end
 		)
 
-		it("buys Lucky Cat 3 at about minute 32 (the middle run)", function()
-			-- #1896 follow-up: level 3 opens at Tier 2, a buy inside the Tier 3 save
+		it("buys Lucky Cat 3 at about minute 31 (the middle run)", function()
+			-- #1896 follow-up: level 3 opens at Tier 2, a buy inside the Tier 3 save; about 31 since #2107 and #2121
+			-- (first-hour.md 4e: the middle run's figure, no longer a fitted target)
 			local lucky = quantile(firstHour(), nthBuy("lucky_cat", 3), 0.5, HOUR + 1) / 60
-			if math.abs(lucky - 32) > 3 then
-				error(string.format("Lucky Cat 3 at %.1f min (want about 32)", lucky))
+			if math.abs(lucky - 31) > 3 then
+				error(string.format("Lucky Cat 3 at %.1f min (want about 31)", lucky))
 			end
 		end)
 
@@ -1370,8 +1372,10 @@ return function()
 			end
 		)
 
+		-- #2121 (first-hour.md 4e): the guard is 15 minutes between coin buys and rank ups (was 18) and 10 with new cats
+		-- and roadmap steps counted (was 12); the 6 above stays the stretch goal
 		it(
-			"the middle run never waits longer than it did before the re-fit (18 and 12 minutes)",
+			"the middle run's longest wait is 15 minutes or less, 10 with new cats and roadmap steps",
 			function()
 				local list = firstHour()
 				local plain = quantile(list, function(run: Run): number?
@@ -1382,7 +1386,7 @@ return function()
 						timesOf(run, { buy = true, rank = true, newcat = true, roadmap = true })
 					)
 				end, 0.5, HOUR)
-				if plain > 18 * 60 or cats > 12 * 60 then
+				if plain > 15 * 60 or cats > 10 * 60 then
 					error(
 						string.format(
 							"longest gap %.1f min, %.1f with new cats and roadmap steps",

@@ -348,6 +348,32 @@ return function()
 			expect(StoreLogic.extras({ potions = { swift_potion = 1 } })).to.equal(nil)
 		end)
 
+		it("closes the Cafe Pass card for the next season in the last minutes of one (#2129)", function()
+			local passConfig: any = table.clone(config)
+			passConfig.ProductIds = { potion_pack_xs = 31, starter_bundle = 40, cafe_pass = 50 }
+			local function card(saleOpen: boolean?, paid: boolean): any
+				local running: any = table.clone(view)
+				running.starterBought = true
+				running.cafePass = {
+					season = 1,
+					name = "Season 1: Maple",
+					paid = paid,
+					contents = "x",
+					saleOpen = saleOpen,
+				}
+				local rows = StoreLogic.rows(passConfig, {}, nil, running)
+				return StoreLogic.tabRows(rows, "cafePass")[1]
+			end
+			local price = { robux = 299, forSale = true }
+			expect(StoreLogic.button(card(true, false), price).enabled).to.equal(true)
+			expect(StoreLogic.button(card(nil, false), price).enabled).to.equal(true) -- no word: on sale
+			local closed = StoreLogic.button(card(false, false), price)
+			expect(closed.enabled).to.equal(false)
+			expect(closed.text).to.equal("Next season")
+			-- a buyer still reads Yours, never "Next season"
+			expect(StoreLogic.button(card(false, true), price).text).to.equal("Yours")
+		end)
+
 		it(
 			"shows the Cafe Pass card only while a season runs, Yours once bought (#1646)",
 			function()
@@ -420,6 +446,19 @@ return function()
 				expect(keys(featured.picks)).to.equal("money,royalCat,vip")
 			end
 		)
+
+		it("still shows a hero, marked Yours, when every hero card is owned (#2072)", function()
+			local function owned(key: string): any
+				return { key = key, passId = 1, owned = true, name = key, icon = "", effect = "", tab = "cats" }
+			end
+			local featured = StoreLogic.featured({
+				owned("royalCat"),
+				owned("cafePass"),
+				owned("kingPack"),
+			})
+			expect(featured.hero).to.be.ok()
+			expect(featured.hero.key).to.equal("kingPack")
+		end)
 
 		it("has no hero and no picks in an empty Store", function()
 			local featured = StoreLogic.featured({})
@@ -615,7 +654,12 @@ return function()
 			expect(row.tab).to.equal("passes")
 			expect(row.effect:find("chat tag", 1, true)).to.be.ok()
 			expect(row.effect:find("gold heart", 1, true)).to.be.ok()
-			expect(find(StoreLogic.rows(config, {}, nil, { supporter = true }), "thankYou")).to.equal(nil)
+			-- #2073: a supporter still sees the card, marked Yours, so it is not bought twice and does not vanish
+			local owned = find(StoreLogic.rows(config, {}, nil, { supporter = true }), "thankYou")
+			expect(owned).to.be.ok()
+			expect(owned.owned).to.equal(true)
+			expect(StoreLogic.button(owned, { robux = 5, forSale = true }).text).to.equal("Yours")
+			expect(row.owned).to.equal(false)
 			expect(table.find(StoreLogic.productIds(config), 55)).to.be.ok()
 		end)
 		it("hides the Thank You Badge while its product id is 0", function()

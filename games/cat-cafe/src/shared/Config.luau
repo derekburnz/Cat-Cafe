@@ -259,6 +259,8 @@ local Config = {
 	FirstBaitWaitSeconds = 120,
 	-- #1920 (Design-Agent, first-hour.md 6): seconds of play in one session before the recap card (SessionRecap)
 	RecapAfterSeconds = 2400,
+	-- #2123 (first-hour.md 6a): the account's first session shows it sooner, as most first sessions end before 40 minutes
+	RecapFirstSessionSeconds = 900,
 	-- #1947 (like-prompts.md section 3, Set 10 Q3): the like card's gift at LikeGiftMinutes of play on the account, of
 	-- LikeGiftIncomeMinutes of income and a Tip Potion; the favourite card's at FavGiftMinutes, of FavGiftIncomeMinutes
 	-- of income and a small potion pack (shared/PlaytimeGifts). The card waits for GiftIdleSeconds of calm (client).
@@ -483,9 +485,9 @@ local Config = {
 	-- cafe still closed with its cats asleep (v0.5 to v0.8 paid 0.6)
 	NightIncomeMultiplier = 1,
 	-- #1135: a rich customer comes when the cafe's timer, drawn from RichEveryMin to RichEveryMax seconds of open day,
-	-- runs out (shared/VisitTimer); 600 on average, as the old 60 s check at 10% gave
-	RichEveryMin = 300,
-	RichEveryMax = 900,
+	-- runs out (shared/VisitTimer); 480 on average since #2107 (Derek2: "slightly more often"; was 300 to 900, 600)
+	RichEveryMin = 240,
+	RichEveryMax = 720,
 	RichTipSeconds = 120, -- a rich tip is this many seconds of the day rate (at least $50; F61: was 45)
 	RichTipStaySeconds = 90, -- unclaimed, it is gone after this (Derek 2026-10-28: "if you miss it you miss it")
 	RichTipRangeStuds = 12, -- ClaimRichTip from this close to the plot's RichTipAnchor
@@ -508,11 +510,11 @@ local Config = {
 	MysteryRangeStuds = 12, -- OpenMysteryGift from this close to the gift
 	-- The Cat Collector (F63, data-model section 12b, round 3 Q6): by day, each earning cafe with a table and a
 	-- resting, unlocked cat has him when its timer runs out (#1135: CollectorEveryMin to CollectorEveryMax seconds of
-	-- open day, 1000 on average as the old 120 s check at 12% gave); he waits at the counter for CollectorStaySeconds. He values the cat he asks for at CollectorValue by its rarity, times
+	-- open day, 600 on average since #2107, Derek2: "a decent amount more often"; was 600 to 1400, 1000); he waits at the counter for CollectorStaySeconds. He values the cat he asks for at CollectorValue by its rarity, times
 	-- CollectorGoldMultiplier for a gold cat, times a roll from CollectorRollMin to CollectorRollMax, and offers the
 	-- best Catalog.collectorOffers row that value reaches.
-	CollectorEveryMin = 600,
-	CollectorEveryMax = 1400,
+	CollectorEveryMin = 360,
+	CollectorEveryMax = 840,
 	CollectorStaySeconds = 180,
 	VisitRetrySeconds = 15, -- #1135: a visitor whose timer ran out while the cafe was not ready tries again this often
 	CollectorValue = { Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 50 } :: { [string]: number },

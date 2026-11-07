@@ -20,11 +20,21 @@ local Intro = {}
 Intro.SHOTS = 8
 -- The intro_cutscene event's version, so old and new drop-offs never mix (section 3): 3 for the hometown and the
 -- cannon (F84), 4 since #1542 took out the camp cuts, 5 since #1782 took out the Index Board shot, 6 since #2113
--- put the night (now shot 6) before the free spin and codes (now shot 7).
-Intro.VERSION = 6
+-- put the night (now shot 6) before the free spin and codes (now shot 7), 7 since #2182 gave each shot a reading hold
+-- and Next.
+Intro.VERSION = 7
 Intro.SKIP_AFTER = 5.0 -- seconds into the first play before Skip can be pressed (its bar fills until then; Derek 00:57); a replay allows it at once
 Intro.MAX_CAPTION = 46 -- characters, so a caption fits one line on a phone ("about 45")
 Intro.STREAM_WAIT = 5 -- seconds the intro waits for the Alleyway's camp to stream in before it starts (section 3)
+
+-- #2182 (section 2b, two playtesters: the captions go by too fast to read): each shot shows for its hold, its section
+-- 2 length or CAPTION_BASE plus CAPTION_PER_WORD a word of its caption, whichever is longer. The action runs on its
+-- section 2 timings, then the camera eases to a stop over SETTLE_SECONDS and the scene idles until the hold ends.
+-- From NEXT_AFTER into a shot, Next moves on at once.
+Intro.CAPTION_BASE = 1.0
+Intro.CAPTION_PER_WORD = 0.4
+Intro.NEXT_AFTER = 1.0
+Intro.SETTLE_SECONDS = 0.3
 
 Intro.AREA = "alley" -- the camp shots 2 to 4 film, where a new player's first flight goes
 -- Smoother cuts between places (#958, Derek 2026-11-03: "make the locations cuts smoother"): a cut or shot boundary
@@ -120,8 +130,9 @@ export type Key = { position: Vector3, look: Vector3 }
 export type Cut = { from: Key, to: Key, via: Key?, seconds: number }
 export type Shot = {
 	index: number, -- its number in section 2, which Skip reports, also when the fallback leaves shots out
-	starts: number,
-	seconds: number,
+	starts: number, -- on the section 2 timings (the shots' `seconds` back to back)
+	seconds: number, -- its section 2 length: when its action and camera move end
+	hold: number, -- #2182: how long it shows when nobody presses Next (Intro.hold)
 	caption: string,
 	ease: Ease,
 	cuts: { Cut },
@@ -379,6 +390,48 @@ function Intro.demoName(): string
 	return if def ~= nil then def.name else "Tuxedo"
 end
 
+-- #2182: the words in a caption, runs of non-space characters.
+function Intro.words(caption: string): number
+	local count = 0
+	for _ in string.gmatch(caption, "%S+") do
+		count += 1
+	end
+	return count
+end
+
+-- #2182: how long a shot of section 2 length `seconds` showing `caption` holds: long enough to read the caption.
+function Intro.hold(seconds: number, caption: string): number
+	return math.max(seconds, Intro.CAPTION_BASE + Intro.CAPTION_PER_WORD * Intro.words(caption))
+end
+
+-- #2182: the time on the shot's camera moves `t` seconds into a shot. Up to SETTLE_SECONDS before its moves end it is
+-- `t`; from there it slows evenly to a stop at the moves' end, SETTLE_SECONDS after it, and stays there through the
+-- rest of the hold. A shot with no time to spare keeps its moves as they were.
+function Intro.cameraTime(shot: Shot, t: number): number
+	local settle = math.min(Intro.SETTLE_SECONDS, shot.hold - shot.seconds, shot.seconds)
+	local from = shot.seconds - settle
+	if settle <= 0 or t <= from then
+		return math.min(t, shot.seconds)
+	end
+	local u = math.min(t - from, 2 * settle)
+	return from + u - u * u / (4 * settle)
+end
+
+-- #2182: shot 1's time `t` seconds in. Once your copy is in the barrel it waits there through the extra hold, so the
+-- turn, the wiggle and the fuse come at the end and the BOOM still starts shot 2.
+function Intro.launchTime(shot: Shot, t: number): number
+	local inBarrel = Intro.CLIMB_AT + Intro.CLIMB_SECONDS
+	if t <= inBarrel then
+		return t
+	end
+	return math.min(shot.seconds, math.max(inBarrel, t - (shot.hold - shot.seconds)))
+end
+
+-- #2182: the time into shot 1 at which its fuse fizzes (Intro.launchTime), where Next takes it.
+function Intro.fuseAt(shot: Shot): number
+	return Intro.FUSE_AT + (shot.hold - shot.seconds)
+end
+
 -- The eight shots for this plot. `codesCat` is false until a Codes Cat station stands in the Workspace (F65);
 -- `alleyStreamed` false leaves out the shots at the Alleyway's camp (3 and 4) and holds shot 2 in the clouds.
 function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { Shot }
@@ -416,6 +469,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 		{
 			index = 1,
 			starts = 0,
+			hold = 0,
 			seconds = 2.5,
 			caption = "Fly the Cat Cannon to catch stray cats!",
 			ease = "InOut",
@@ -438,6 +492,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 		{
 			index = 2,
 			starts = 0,
+			hold = 0,
 			seconds = 2.5,
 			caption = "Boom! Every area starts at a safe camp",
 			ease = "Out",
@@ -461,6 +516,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 		{
 			index = 3,
 			starts = 0,
+			hold = 0,
 			seconds = 2.5,
 			caption = "Tap as each circle closes!",
 			ease = "Linear",
@@ -478,6 +534,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 		{
 			index = 4,
 			starts = 0,
+			hold = 0,
 			seconds = 2,
 			caption = "Carry it into the camp to keep it!",
 			ease = "Linear",
@@ -495,6 +552,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 		{
 			index = 5,
 			starts = 0,
+			hold = 0,
 			seconds = 2.8,
 			caption = "Give it a job. Working cats earn money!",
 			ease = "InOut",
@@ -511,6 +569,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 		{
 			index = 6,
 			starts = 0,
+			hold = 0,
 			seconds = 3,
 			-- #2113 (Derek2): night and its fresh cats before the free spin and the codes
 			caption = "Night closes the areas. Fresh cats at sunrise!",
@@ -528,6 +587,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 		{
 			index = 7,
 			starts = 0,
+			hold = 0,
 			seconds = 2.7,
 			caption = if codesCat then Intro.CODES_CAPTION else Intro.SPIN_CAPTION,
 			ease = "InOut",
@@ -544,6 +604,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 		{
 			index = 8,
 			starts = 0,
+			hold = 0,
 			seconds = 2,
 			caption = "Your first cat is waiting in the Alleyway!",
 			ease = "InOut",
@@ -564,6 +625,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 	for _, shot in all do
 		if streamed or not shot.camp then
 			shot.starts = at
+			shot.hold = Intro.hold(shot.seconds, shot.caption)
 			at += shot.seconds
 			table.insert(shots, shot)
 		end

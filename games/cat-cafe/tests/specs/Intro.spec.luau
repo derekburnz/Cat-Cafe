@@ -35,7 +35,7 @@ return function()
 				local shots = Intro.shots(EAST, true)
 				expect(#shots).to.equal(Intro.SHOTS)
 				expect(Intro.SHOTS).to.equal(8)
-				expect(Intro.VERSION).to.equal(6)
+				expect(Intro.VERSION).to.equal(7)
 				local at = 0
 				for i, shot in shots do
 					expect(shot.index).to.equal(i)
@@ -114,7 +114,7 @@ return function()
 			local shots = Intro.shots(EAST, true)
 			expect(shots[6].night).to.equal(true)
 			expect(shots[7].spinWheel).to.equal(true)
-			expect(Intro.VERSION).to.equal(6)
+			expect(Intro.VERSION).to.equal(7)
 		end)
 
 		it(
@@ -539,7 +539,7 @@ return function()
 		it(
 			"carries version 6 since #2113 put the night before the spin (5 since #1782, 4 since #1542's camp cuts)",
 			function()
-				expect(Intro.VERSION).to.equal(6)
+				expect(Intro.VERSION).to.equal(7)
 			end
 		)
 
@@ -577,5 +577,64 @@ return function()
 				end
 			end
 		)
+	end)
+	describe("reading holds and Next (#2182, section 2b)", function()
+		local EAST = { x = 40, z = 0, side = 1, index = 1 }
+		it("holds each shot for 1.0 s plus 0.4 s a word, at least its section 2 length", function()
+			expect(Intro.words("Tap as each circle closes!")).to.equal(5)
+			expect(Intro.words("  two   words ")).to.equal(2)
+			expect(Intro.hold(2.5, "Tap as each circle closes!")).to.be.near(3.0, 1e-9)
+			expect(Intro.hold(5, "Short")).to.equal(5)
+			local holds = {}
+			for _, shot in Intro.shots(EAST, true, true) do
+				expect(shot.hold).to.be.near(Intro.hold(shot.seconds, shot.caption), 1e-9)
+				expect(shot.hold >= shot.seconds).to.equal(true)
+				table.insert(holds, math.floor(shot.hold * 10 + 0.5) / 10)
+			end
+			expect(holds :: any).to.deepEqual({ 4.2, 4.2, 3.0, 4.2, 4.2, 4.2, 4.6, 4.2 })
+		end)
+
+		it("eases the camera to a stop at the end of its moves and holds it there", function()
+			local shot = Intro.shots(EAST, true, true)[1] -- 2.5 s of moves, a 4.2 s hold
+			local settle = Intro.SETTLE_SECONDS
+			expect(Intro.cameraTime(shot, 1)).to.equal(1)
+			expect(Intro.cameraTime(shot, shot.seconds - settle)).to.be.near(
+				shot.seconds - settle,
+				1e-9
+			)
+			expect(Intro.cameraTime(shot, shot.seconds + settle)).to.be.near(shot.seconds, 1e-9)
+			expect(Intro.cameraTime(shot, shot.hold)).to.be.near(shot.seconds, 1e-9)
+			local last = -1
+			for t = 0, shot.hold, 0.05 do
+				local camera = Intro.cameraTime(shot, t)
+				expect(camera >= last - 1e-9).to.equal(true)
+				expect(camera <= shot.seconds + 1e-9).to.equal(true)
+				last = camera
+			end
+		end)
+
+		it("keeps a shot with no spare time as it was", function()
+			local shot = table.clone(Intro.shots(EAST, true, true)[1])
+			shot.hold = shot.seconds
+			expect(Intro.cameraTime(shot, 2.4)).to.equal(2.4)
+			expect(Intro.launchTime(shot, 2.4)).to.equal(2.4)
+		end)
+
+		it("waits in the barrel through shot 1's extra hold, so the BOOM ends the hold", function()
+			local shot = Intro.shots(EAST, true, true)[1]
+			local inBarrel = Intro.CLIMB_AT + Intro.CLIMB_SECONDS
+			expect(Intro.launchTime(shot, Intro.CLIMB_AT)).to.equal(Intro.CLIMB_AT)
+			expect(Intro.launchTime(shot, inBarrel + 1)).to.equal(inBarrel)
+			expect(Intro.launchTime(shot, Intro.fuseAt(shot))).to.be.near(Intro.FUSE_AT, 1e-9)
+			expect(Intro.fuseAt(shot) + Intro.BOOM_LEAD).to.be.near(shot.hold, 1e-9)
+			expect(Intro.launchTime(shot, shot.hold)).to.be.near(shot.seconds, 1e-9)
+		end)
+
+		it("lets Next in from 1.0 s, before any shot's hold ends", function()
+			expect(Intro.NEXT_AFTER).to.equal(1.0)
+			for _, shot in Intro.shots(EAST, true, true) do
+				expect(Intro.NEXT_AFTER < shot.hold).to.equal(true)
+			end
+		end)
 	end)
 end

@@ -27,7 +27,9 @@ Catching.HELD = {
 	r15 = { up = -0.3, gap = 0 },
 	-- Derek2 2026-11-07 11:49 (#2001): "they are floating ... okay if the bottom is a little bit inside", so the cat
 	-- sits down into the arms against the chest instead of clear of them (up 0.25, gap 0.2 before)
-	r6 = { up = 0.1, gap = 0 },
+	-- Laptop-Tester after #2002: the R6 cat still sat a stud above the folded arms with its head over the chin, so
+	-- it comes down a stud (0.5 of a 2-stud Torso) onto the hands
+	r6 = { up = -0.4, gap = 0 },
 	turn = 90,
 }
 

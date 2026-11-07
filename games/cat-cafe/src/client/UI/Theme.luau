@@ -332,7 +332,7 @@ Theme.luck = {
 -- the asset thread draws real icons.
 Theme.icons = {
 	upgrades = "⬆️",
-	decor = "🪴",
+	decor = "🌿", -- #2015: not 🪴 (Unicode 13), which Roblox's font draws blank
 	cats = "🐱",
 	collection = "📖",
 	travel = "🧭",
@@ -387,7 +387,7 @@ Theme.glyphImages = {
 
 -- A glyph per upgrade and per role for the Upgrades rows until the asset thread renders icons
 Theme.upgradeIcons = {
-	tables = "🪑",
+	tables = "💺", -- #2015: not 🪑 (Unicode 12), drawn blank
 	espresso = "☕",
 	net = "🥅",
 	lure_bowl = "🥣",
@@ -422,7 +422,7 @@ Theme.foodIcons = {
 	tuna = "🥫",
 	salmon = "🍣",
 	sardines = "🐠", -- not 🐟, which draws the golden fish
-	caviar = "🦪",
+	caviar = "🐚", -- #2015: not 🦪 (Unicode 12), drawn blank
 	moon_milk = "🥛",
 	star_treat = "⭐",
 } :: { [string]: string }

@@ -28,12 +28,12 @@ DecorPieces.EXTRA_SPOT_PERK = "extra_decor_spot"
 
 local KIND_INFO: { [string]: { name: string, icon: string } } = {
 	wallpaper = { name = "Wallpaper", icon = "🖼️" },
-	floor = { name = "Floor", icon = "🟫" },
+	floor = { name = "Floor", icon = "🔲" }, -- #2015: not 🟫 (Unicode 12), drawn blank
 	paint = { name = "Paint", icon = "🎨" },
 	door = { name = "Door", icon = "🚪" }, -- a door set: the front and back door together (F80)
 	catflap = { name = "Cat flap", icon = "🐾" }, -- low in the back door (F80)
-	furniture = { name = "Furniture", icon = "🪑" },
-	decoration = { name = "Decoration", icon = "🪴" },
+	furniture = { name = "Furniture", icon = "💺" }, -- #2015: 💺 and 🌿, as 🪑 and 🪴 draw blank
+	decoration = { name = "Decoration", icon = "🌿" },
 }
 
 local RARITY_RANK: { [string]: number } =

@@ -989,6 +989,25 @@ local SCENES = {
 			model:Destroy()
 		end
 	end },
+	-- #2015: no glyph in the Theme's icon tables is an emoji from Unicode 12 on, which Roblox's font draws blank (the
+	-- Decor tile showed nothing when its pictures failed); tests/specs/GlyphFont checks the Store and Style glyphs
+	{ "GlyphsDrawable", function()
+		local Theme = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Theme")
+		local NEW = { { 0x1FA00, 0x1FAFF }, { 0x1F7E0, 0x1F7EB }, { 0x1F6D5, 0x1F6DF }, { 0x1F6FA, 0x1F6FF }, { 0x1F90C, 0x1F90F }, { 0x1F93F, 0x1F93F }, { 0x1F971, 0x1F979 }, { 0x1F97B, 0x1F97B }, { 0x1F9A3, 0x1F9AF }, { 0x1F9BA, 0x1F9BF }, { 0x1F9C3, 0x1F9CF } }
+		for _, name in { "icons", "upgradeIcons", "roleIcons", "foodIcons" } do
+			for key, glyph in Theme[name] do
+				if type(glyph) == "string" then
+					for _, code in utf8.codes(glyph) do
+						for _, range in NEW do
+							assert(code < range[1] or code > range[2], ("uigate: Theme.%s.%s is %s, drawn blank (#2015)"):format(name, tostring(key), glyph))
+						end
+					end
+				end
+			end
+		end
+		assert(Theme.icons.decor == "🌿", "uigate: the Decor tile's fallback should be 🌿 (#2015)")
+		UI.open("Decor")
+	end },
 	{ "Cannon", function()
 		UI.cannon.open()
 	end },

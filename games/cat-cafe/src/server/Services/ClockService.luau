@@ -9,6 +9,8 @@
 -- F88 (luck-and-rare-moments.md 1c): Day (the server's day number, Clock.dayAt), NextLuckyDay (the next Lucky Day's
 -- number) and LuckyDay (true from a Lucky Day's sunrise to its dusk) go on the same folder, set before `changed`
 -- fires, so the sunrise wave and traps read `luckyDay()` already set.
+-- #2184: a new server opens by day (Clock.firstDayUntil): booted at night, or with under two minutes of day left, it
+-- stays day through that one night and meets the global clock at its next sunrise, without a second sunrise there.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -32,25 +34,35 @@ local currentEndsAt = 0
 local currentDay = 1
 local published = false
 local generation = 0 -- bumps on every reschedule, so a timer from before a debug jump never fires
+local dayUntil = 0 -- #2184: the clock time until which this server shows day whatever the global phase
+
+-- The day number and its kinds on the folder; at the sunrise that ends a skipped first night (#2184) this is all that
+-- changes, so `changed` doesn't fire a second sunrise.
+local function publishDay()
+	currentDay = Clock.dayAt(os.clock() - startedAt)
+	local folder = clockFolder
+	if folder ~= nil then
+		folder:SetAttribute("Day", currentDay)
+		folder:SetAttribute("NextLuckyDay", Clock.nextLuckyDay(currentDay))
+		-- #1572: the day's kinds, each true from its sunrise to night
+		local kinds = Clock.dayKinds(currentDay)
+		folder:SetAttribute("LuckyDay", currentPhase == "day" and kinds.lucky)
+		folder:SetAttribute("GoldenDay", currentPhase == "day" and kinds.golden)
+		folder:SetAttribute("RainbowDay", currentPhase == "day" and kinds.rainbow)
+	end
+end
 
 local function publish(phase: Types.ClockPhase, secondsLeft: number)
 	published = true
 	currentPhase = phase
 	currentEndsAt = Workspace:GetServerTimeNow() + secondsLeft
-	currentDay = Clock.dayAt(os.clock() - startedAt)
 	local folder = clockFolder
 	if folder ~= nil then
 		folder:SetAttribute("Phase", phase)
 		folder:SetAttribute("PhaseEndsAt", currentEndsAt)
 		folder:SetAttribute("AreasOpen", phase == "day")
-		folder:SetAttribute("Day", currentDay)
-		folder:SetAttribute("NextLuckyDay", Clock.nextLuckyDay(currentDay))
-		-- #1572: the day's kinds, each true from its sunrise to night
-		local kinds = Clock.dayKinds(currentDay)
-		folder:SetAttribute("LuckyDay", phase == "day" and kinds.lucky)
-		folder:SetAttribute("GoldenDay", phase == "day" and kinds.golden)
-		folder:SetAttribute("RainbowDay", phase == "day" and kinds.rainbow)
 	end
+	publishDay()
 	ClockService.changed:Fire(phase, currentEndsAt)
 end
 
@@ -58,11 +70,20 @@ end
 local function tick()
 	generation += 1
 	local myGeneration = generation
-	local phase: Types.ClockPhase, secondsLeft: number = Clock.phaseAt(os.clock() - startedAt)
+	local t = os.clock() - startedAt
+	local phase: Types.ClockPhase, secondsLeft: number = Clock.phaseAt(t)
+	local wake = secondsLeft
+	if t < dayUntil then
+		-- #2184: the skipped first night; the day runs on to the end of the global day after it
+		local _, after = Clock.phaseAt(dayUntil)
+		phase, secondsLeft, wake = "day", dayUntil - t + after, dayUntil - t
+	end
 	if not published or phase ~= currentPhase then
 		publish(phase, secondsLeft)
+	elseif Clock.dayAt(t) ~= currentDay then
+		publishDay()
 	end
-	task.delay(secondsLeft, function()
+	task.delay(wake, function()
 		if generation == myGeneration then
 			tick()
 		end
@@ -82,6 +103,7 @@ function ClockService.start()
 	-- #1437: the global clock. GetServerTimeNow is the time every server and client shares, so each server lands on
 	-- the same phase whatever moment it started
 	startedAt = os.clock() - math.max(0, Workspace:GetServerTimeNow() - Config.ClockEpoch)
+	dayUntil = Clock.firstDayUntil(os.clock() - startedAt) -- #2184: a new server opens by day
 	tick()
 end
 
@@ -136,6 +158,7 @@ end
 function ClockService.debugSetPhase(phase: Types.ClockPhase)
 	assert(RunService:IsStudio(), "debugSetPhase is Studio only")
 	startedAt = os.clock() - Clock.startOf(phase)
+	dayUntil = 0
 	published = false
 	tick()
 end
@@ -144,6 +167,7 @@ end
 function ClockService.debugSetTime(seconds: number)
 	assert(RunService:IsStudio(), "debugSetTime is Studio only")
 	startedAt = os.clock() - math.max(0, seconds)
+	dayUntil = 0
 	published = false
 	tick()
 end

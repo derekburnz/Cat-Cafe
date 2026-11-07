@@ -12,7 +12,9 @@ return function()
 
 	describe("night closing texts (v0.9, F66)", function()
 		it("say what data-model section 9 says", function()
-			expect(Clock.CLOSED_TEXT).to.equal("The areas are closed at night. They open at sunrise.")
+			expect(Clock.CLOSED_TEXT).to.equal(
+				"The areas are closed at night. They open at sunrise."
+			)
 			expect(Clock.SENT_HOME_TEXT).to.equal("Night fell, so you headed home.")
 		end)
 	end)
@@ -110,6 +112,36 @@ return function()
 				end
 			end
 			expect(Clock.nightSecondsBetween(0, start + 2 * (night + day) + 1)).to.equal(counted)
+		end)
+	end)
+	describe("firstDayUntil (#2184: a new server opens by day)", function()
+		local cycle = night + day
+		it("leaves a server booted with plenty of day on the global clock", function()
+			expect(Clock.firstDayUntil(10)).to.equal(10)
+			expect(Clock.firstDayUntil(firstDay + night + 5)).to.equal(firstDay + night + 5)
+		end)
+
+		it("skips the night under way: day until the next global sunrise", function()
+			expect(Clock.firstDayUntil(firstDay + 30)).to.equal(firstDay + night)
+			expect(Clock.firstDayUntil(firstDay + cycle + 1)).to.equal(firstDay + cycle + night)
+		end)
+
+		it("skips the coming night when under FIRST_DAY_MIN_SECONDS of day are left", function()
+			local t = firstDay - (Clock.FIRST_DAY_MIN_SECONDS - 1)
+			expect(Clock.firstDayUntil(t)).to.equal(firstDay + night)
+			local enough = firstDay - Clock.FIRST_DAY_MIN_SECONDS
+			expect(Clock.firstDayUntil(enough)).to.equal(enough)
+		end)
+
+		it("always ends on a global sunrise, where the global clock is day", function()
+			for t = 0, 3 * cycle, 7 do
+				local untilT = Clock.firstDayUntil(t)
+				local phase = Clock.phaseAt(untilT)
+				expect(phase).to.equal("day")
+				if untilT ~= t then
+					expect(Clock.dayAt(untilT)).to.equal(Clock.dayAt(untilT - 0.5) + 1)
+				end
+			end
 		end)
 	end)
 end

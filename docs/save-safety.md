@@ -119,9 +119,11 @@ back card shows their offline earnings from the restored `lastSeen`. Then delete
 
 - Don't restore while the player is in a server: their server overwrites it within a minute.
 - Don't edit `Data` by hand to "fix" one value. Restore a whole revision, or ask Gameplay-Engineer for a migration.
-- Don't touch any other key, or the `_dev` store, or other DataStores (`IdeaCredits_v1`, `BugReports_v1` and so on).
+- Don't touch any other live key, or other DataStores (`IdeaCredits_v1`, `BugReports_v1` and so on).
 - Don't paste the API key, the UserId together with the save contents, or the JSON into chat or an issue. The repo is
   public.
 
-Not yet done: these commands were written against Roblox's Open Cloud v2 data store API and have not been run on the
-live store. QA-Planner, please try steps 1 and 2 on a test account first and correct anything that differs.
+Not yet done: these commands were written against Roblox's Open Cloud v2 data store API and have not been run yet.
+Before anyone uses them on a real player: run steps 1 and 2 read-only against the live store (Tools-Agent, with the
+real key), and prove steps 3 and 4 on a throwaway test account's key in `CatCafeProfiles_dev`. Correct this page with
+whatever differs, then remove this paragraph.

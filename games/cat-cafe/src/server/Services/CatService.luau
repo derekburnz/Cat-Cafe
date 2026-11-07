@@ -10,6 +10,7 @@ local PathfindingService = game:GetService("PathfindingService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local StarterPlayer = game:GetService("StarterPlayer")
 local Workspace = game:GetService("Workspace")
 
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
@@ -315,12 +316,28 @@ local function serverNow(): number
 	return Workspace:GetServerTimeNow()
 end
 
+-- True while the player's catch circles are running (below).
+local holdsCatch: (Player) -> boolean
+
 -- Sets a character's walk speed: `base` (normal, carry or Catch Rush) plus a running Swift Potion's
--- SwiftPotionSpeed (F64).
+-- SwiftPotionSpeed (F64). #2052 (Derek2: walking off mid catch left the net on the ground): while the player's catch
+-- circles run they stand still, with no walk and no jump, until the catch ends, fails or is dropped.
 local function setSpeed(player: Player, humanoid: Humanoid, base: number)
 	local profile = DataService.get(player)
-	humanoid.WalkSpeed = base
-		+ (if profile ~= nil then Potions.speedBonus(profile, os.time()) else 0)
+	local still = holdsCatch(player)
+	humanoid.WalkSpeed = if still
+		then 0
+		else base + (if profile ~= nil then Potions.speedBonus(profile, os.time()) else 0)
+	humanoid.JumpPower = if still then 0 else StarterPlayer.CharacterJumpPower
+	humanoid.JumpHeight = if still then 0 else StarterPlayer.CharacterJumpHeight
+end
+
+-- #2052: sets the walk speed again for the player `userId` (0 for nobody), as a catch starts or ends.
+local function refreshSpeedOf(userId: number)
+	local player = if userId ~= 0 then Players:GetPlayerByUserId(userId) else nil
+	if player ~= nil then
+		CatService.refreshSpeed(player)
+	end
 end
 
 -- Locks a stray to a player until `untilTime` (server time), or unlocks it (userId 0), dropping any attempt.
@@ -328,6 +345,7 @@ end
 -- stands still under it (its walk stops at once, set down off its bob by Mover), other swings pass it by and its
 -- catcher can't be tackled (inMinigame) until the catch ends, fails or is dropped.
 local function setLock(stray: Stray, userId: number, untilTime: number?)
+	local before = stray.lockedBy
 	stray.lockedBy = userId
 	stray.lockUntil = if userId ~= 0 then untilTime or 0 else 0
 	if userId == 0 then
@@ -337,6 +355,9 @@ local function setLock(stray: Stray, userId: number, untilTime: number?)
 	stray.model:SetAttribute("NetDown", if userId ~= 0 then true else nil)
 	if userId ~= 0 and stray.model:GetAttribute("Napping") == true then
 		stray.model:SetAttribute("Napping", false) -- a catch wakes a napping stray at once
+	end
+	if before ~= userId then
+		refreshSpeedOf(before) -- #2052: the catcher can walk again
 	end
 end
 
@@ -421,6 +442,7 @@ local function despawn(stray: Stray, catcher: Player?)
 		end
 	end
 	strays[stray.id] = nil
+	refreshSpeedOf(stray.lockedBy) -- #2052: a cat gone mid catch (night, another server's pity claim) frees its catcher
 	if stray.pointIndex ~= nil then
 		local points = occupiedPoints[stray.area]
 		if points ~= nil and points[stray.pointIndex :: number] == stray.id then
@@ -1353,6 +1375,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		return -- already finished, or the lock was dropped
 	end
 	stray.attempt = nil
+	CatService.refreshSpeed(player) -- #2052: the circles are over, so the catcher walks again
 	local profile = DataService.get(player)
 	if profile == nil or player.Parent ~= Players then
 		setLock(stray, 0)
@@ -1509,7 +1532,7 @@ end
 -- Remote handlers -----------------------------------------------------------------------------------------
 
 -- True while the player's catch circles are running (CatService.inCatch).
-local function holdsCatch(player: Player): boolean
+function holdsCatch(player: Player): boolean
 	for _, stray in strays do
 		if stray.lockedBy == player.UserId and stray.attempt ~= nil and not lockExpired(stray) then
 			return true
@@ -1599,6 +1622,7 @@ function startCatch(
 	local attempt = Circles.newAttempt(circles, windows, trust)
 	setLock(stray, player.UserId, Circles.lockUntil(circles, windows))
 	stray.attempt = attempt
+	CatService.refreshSpeed(player) -- #2052: the catcher stands still until the circles end
 	profile.stats.grabsAttempted += 1
 	Net.fire(
 		player,
@@ -2454,6 +2478,14 @@ function CatService.start(builtWorld: WorldBuilder.World)
 				end)
 			end
 			task.wait(0.2)
+			-- #2052: a catch still running from before a respawn ends now, judged like walking off (out of range, a
+			-- Miss), so the new character is not held still and dying never dodges the cost
+			for _, stray in strays do
+				local attempt = stray.attempt
+				if stray.lockedBy == player.UserId and attempt ~= nil then
+					finishCatch(player, stray, attempt)
+				end
+			end
 			local carry = carrying[player]
 			if carry ~= nil then
 				attachHeldCat(player, carry)

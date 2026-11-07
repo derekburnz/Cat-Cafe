@@ -50,6 +50,9 @@ local function anchorOf(model: Instance): (BasePart?, number)
 	local part: BasePart? = nil
 	if model:IsA("Model") then
 		part = (model :: Model).PrimaryPart
+		if part ~= nil and not part:IsDescendantOf(model) then
+			part = nil -- streamed out: the model's old part
+		end
 	end
 	if not part then
 		local found = model:FindFirstChildWhichIsA("BasePart", true)
@@ -131,9 +134,25 @@ function MoodIcons._watch(self: any, stray: Instance)
 		return
 	end
 	local refresh = function()
-		self:_refresh(stray)
+		if self._watched[stray] ~= nil then -- a deferred refresh after the stray went does nothing
+			self:_refresh(stray)
+		end
 	end
 	self._watched[stray] = {
+		-- with streaming the model can come before its parts, and a cat streamed out and back in gets new parts, so
+		-- the icon is made when a part arrives and made again when its part goes (as PityTags, #2099)
+		stray.DescendantAdded:Connect(function(child: Instance)
+			if self._entries[stray] == nil and child:IsA("BasePart") then
+				task.defer(refresh)
+			end
+		end),
+		stray.DescendantRemoving:Connect(function(child: Instance)
+			local entry = self._entries[stray]
+			if entry ~= nil and child == entry.part then
+				self:_drop(stray)
+				task.defer(refresh)
+			end
+		end),
 		stray:GetAttributeChangedSignal("Mood"):Connect(refresh),
 		stray:GetAttributeChangedSignal("LockedBy"):Connect(refresh),
 		stray:GetAttributeChangedSignal("FleeingUntil"):Connect(refresh),

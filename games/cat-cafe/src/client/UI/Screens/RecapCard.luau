@@ -137,8 +137,9 @@ function RecapCard._layout(self: any)
 	local y = PAD + TITLE_H + 4
 	for _, label: TextLabel in self._labels do
 		if label.Visible then
-			-- about 6 px a character at this size
-			local rows = math.clamp(math.ceil(#label.Text * 6.2 / (width - PAD * 2)), 1, 3)
+			-- about 6 px a character at this size; #2123 counts 7 so a line just short of the width (the offline share
+			-- on its own) gets its second row
+			local rows = math.clamp(math.ceil(#label.Text * 7 / (width - PAD * 2)), 1, 3)
 			local height = LINE_H * rows - (rows - 1) * 4
 			label.Position = UDim2.fromOffset(PAD, y)
 			label.Size = UDim2.new(1, -PAD * 2, 0, height)

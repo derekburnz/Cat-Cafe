@@ -30,4 +30,19 @@ return function()
 			expect(WelcomeBack.span(5400)).to.equal("90 minutes")
 		end)
 	end)
+
+	describe("WelcomeBack.hookLine (#2123)", function()
+		it("says what is waiting today, in the present tense", function()
+			expect(WelcomeBack.hookLine({ kind = "bait" })).to.equal("Your bait cat is ready!")
+			expect(WelcomeBack.hookLine({ kind = "treat", day = 2 })).to.equal(
+				"Daily Treat day 2 is ready"
+			)
+			expect(WelcomeBack.hookLine({ kind = "quests" })).to.equal("New daily quests are here")
+		end)
+
+		it("leaves the line out with no pick or a bad one", function()
+			expect(WelcomeBack.hookLine(nil)).to.equal(nil)
+			expect(WelcomeBack.hookLine({ kind = "store" })).to.equal(nil)
+		end)
+	end)
 end

@@ -2196,6 +2196,34 @@ local SCENES = {
 		press("Collection", "rainbow.Header.Rewards")
 		press("Collection", "rainbow.Expand")
 	end },
+	-- #2272 (Derek2: "show cat collector through walls like rich tip"): while he visits, his tag draws over walls out
+	-- to the rich tip's 150 studs, on a solid bubble so it reads against any wall
+	{ "CollectorTagWalls", function()
+		bindLawnPlot()
+		local spot = lawnPlot:FindFirstChild("CollectorSpot")
+		if spot == nil then
+			spot = Instance.new("Part")
+			spot.Name = "CollectorSpot"
+			spot.Anchored = true
+			spot.Position = Vector3.new(0, 3, 0)
+			spot.Parent = lawnPlot
+		end
+		local uid
+		for id in (UI.getState() :: any).cats or {} do
+			uid = id
+			break
+		end
+		assert(uid, "uigate: no owned cat for the Collector to offer on")
+		UI.collector.offer(uid, { value = 1, fish = 5 }, workspace:GetServerTimeNow() + 120)
+		UIShim.advance(0.3)
+		local tag = UIShim.playerGui:FindFirstChild("CatCafeCollectorTag", true)
+		UI.collector.offer("", nil, 0)
+		assert(tag and tag:IsA("BillboardGui"), "uigate: no Collector tag (#2272)")
+		assert(tag.AlwaysOnTop, "uigate: the Collector tag hides behind walls (#2272)")
+		assert(tag.MaxDistance >= 150, "uigate: the Collector tag fades at " .. tag.MaxDistance .. " studs, under the rich tip's 150 (#2272)")
+		local button = tag:FindFirstChild("Tag")
+		assert(button and button.BackgroundTransparency == 0, "uigate: the Collector tag has no bubble behind its words (#2272)")
+	end },
 	-- a found rainbow cat's card: "Rainbow" before its name, a rainbow edge
 	{ "IndexRainbowCat", function()
 		UI.open("Collection")

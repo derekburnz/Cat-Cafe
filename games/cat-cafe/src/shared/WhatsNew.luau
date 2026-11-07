@@ -30,6 +30,51 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- Derek2 (11-07): the next changes merged that day (#2244, #2216, #2225, #2252, #2257, #2233, #2260); crispi_255
+	-- suggested the Fish Market's "!" (#2214), the rest were Derek's own asks
+	{
+		id = "legendary_rescue_hits",
+		date = "2026-11-07",
+		icon = "fix",
+		text = "Legendary rescue hits count",
+	},
+	{
+		id = "fish_market_bang",
+		date = "2026-11-07",
+		icon = "look",
+		text = "Fish Market shows a ! alert",
+		thanks = "crispi_255",
+	},
+	{
+		id = "rescue_bang",
+		date = "2026-11-07",
+		icon = "new",
+		text = "Red ! on rescues to help",
+	},
+	{
+		id = "skip_spins",
+		date = "2026-11-07",
+		icon = "faster",
+		text = "Skip spins with a tap",
+	},
+	{
+		id = "golden_fish_hover",
+		date = "2026-11-07",
+		icon = "fix",
+		text = "Golden fish no longer hovers",
+	},
+	{
+		id = "rarity_gems_glow",
+		date = "2026-11-07",
+		icon = "look",
+		text = "Rarity gems glow brighter",
+	},
+	{
+		id = "new_cat_tag",
+		date = "2026-11-07",
+		icon = "look",
+		text = "NEW tag on cats not in Index",
+	},
 	-- Derek2 (11-07): the changes merged since the 11-07 rows, as they ship; a playtester's report or suggestion is
 	-- thanked by Roblox username
 	{

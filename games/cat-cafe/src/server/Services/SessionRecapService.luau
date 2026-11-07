@@ -5,6 +5,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local DataService = require(script.Parent.DataService)
 local Net = require(script.Parent.Net)
@@ -34,6 +35,23 @@ local function check(player: Player): boolean
 		return true
 	end
 	return false
+end
+
+-- Studio-only test hook (Desktop-Tester, #2243): sends this session's recap now, as if RecapAfterSeconds had passed,
+-- whatever the setting says. The once-a-session send is marked, so the timed one does not come again. False when the
+-- profile is not loaded.
+function SessionRecapService.debugSendNow(player: Player): boolean
+	assert(RunService:IsStudio(), "debugSendNow is Studio only")
+	local profile = DataService.get(player)
+	if profile == nil then
+		return false
+	end
+	local now = os.time()
+	local start = starts[player] or SessionRecap.start(profile, now - 60)
+	starts[player] = start
+	start.sent = true
+	Net.fire(player, "SessionRecap", SessionRecap.view(start, profile, now))
+	return true
 end
 
 function SessionRecapService.start()

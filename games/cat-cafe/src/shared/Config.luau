@@ -516,11 +516,11 @@ local Config = {
 	MysteryRangeStuds = 12, -- OpenMysteryGift from this close to the gift
 	-- The Cat Collector (F63, data-model section 12b, round 3 Q6): by day, each earning cafe with a table and a
 	-- resting, unlocked cat has him when its timer runs out (#1135: CollectorEveryMin to CollectorEveryMax seconds of
-	-- open day, 600 on average since #2107, Derek2: "a decent amount more often"; was 600 to 1400, 1000); he waits at the counter for CollectorStaySeconds. He values the cat he asks for at CollectorValue by its rarity, times
+	-- open day, 300 on average since #2272, Derek2: "make it more common"; 360 to 840 since #2107, was 600 to 1400); he waits at the counter for CollectorStaySeconds. He values the cat he asks for at CollectorValue by its rarity, times
 	-- CollectorGoldMultiplier for a gold cat, times a roll from CollectorRollMin to CollectorRollMax, and offers the
 	-- best Catalog.collectorOffers row that value reaches.
-	CollectorEveryMin = 360,
-	CollectorEveryMax = 840,
+	CollectorEveryMin = 200, -- #2272: was 360 (stays past CollectorStaySeconds)
+	CollectorEveryMax = 400, -- #2272: was 840
 	CollectorStaySeconds = 180,
 	VisitRetrySeconds = 15, -- #1135: a visitor whose timer ran out while the cafe was not ready tries again this often
 	CollectorValue = { Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 50 } :: { [string]: number },

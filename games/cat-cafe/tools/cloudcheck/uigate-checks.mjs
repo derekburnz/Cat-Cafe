@@ -31,7 +31,7 @@ export const LIMITS = {
 };
 
 // gate: fails the run when new; warn: in the report only
-const GATED = new Set(['tap', 'text', 'offscreen', 'topbar', 'fonts', 'jitter', 'error', 'tiles', 'strokeclip']);
+const GATED = new Set(['tap', 'text', 'offscreen', 'topbar', 'fonts', 'jitter', 'error', 'tiles', 'strokeclip', 'darkstroke']);
 
 // The HUD's buttons (#1210, Derek 2026-11-04: the gold Store tile sat on the Cats and Index tiles and the C key badge
 // was half under it): a Components/Button is a holder with a Depth frame (the outlined shape) and a Face. What a
@@ -118,6 +118,20 @@ const px = (n) => `${Math.round(n * 10) / 10}`;
 const label = (node) => (node.text ? ` "${node.text.slice(0, 40)}"` : '');
 
 // Every finding for one scene at one screen size.
+// #2325 (Derek2: "the bolding I have seen there and a couple places is really hard to read"): dark letters inside a
+// dark text outline run together into a blob. Relative luminance (WCAG) of a hex colour, and the contrast of two.
+function luminance(hex) {
+  const [r, g, b] = [0, 2, 4].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+const contrast = (a, b) => {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+};
+
 export function checkScene(profile, scene) {
   const W = profile.width;
   const H = profile.height;
@@ -207,6 +221,12 @@ export function checkScene(profile, scene) {
       const inside = node.x >= c1 - 0.5 && node.y >= c2 - 0.5 && node.x + node.w <= c3 + 0.5 && node.y + node.h <= c4 + 0.5;
       if (cut.length > 0 && inside) {
         add('strokeclip', node, `its ${px(t)} px outline is cut off on the ${cut.map(([side]) => side).join(' and ')} by the list's edge`);
+      }
+    }
+    // #2325: a dark text with a dark outline (less than 3:1 between the letters and their stroke) reads as a blob
+    if (node.text !== undefined && node.tc && node.ts2 && node.ts2[1] >= 0.5 && node.ts2[2] > 0.3 && /[\p{L}\p{N}]/u.test(node.text)) {
+      if (luminance(node.tc) < 0.2 && contrast(node.tc, node.ts2[0]) < 3) {
+        add('darkstroke', node, `dark text #${node.tc} inside a dark #${node.ts2[0]} outline${label(node)}`);
       }
     }
     const matters = node.press || node.text !== undefined || node.scroller;

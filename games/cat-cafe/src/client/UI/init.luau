@@ -1887,15 +1887,19 @@ end
 function UI.catLevelUp(_uid: string, _level: number) end
 
 -- F87: the first return after Tips.OFFLINE_SECONDS or more away puts the `offline` tip's line on the card's top.
--- F95: the welcome back card says what time away pays, the Long Nap pass's line when state.longNap.
+-- F95: the welcome back card says what time away pays, the Long Nap pass's line when state.longNap. #2123: and one
+-- line on what is waiting today (WelcomeBack.hookLine of state.returnHook).
 -- Collect plays Sound-Agent's offlineClaim cue once per claim (the card hands its callback out once).
 function UI.showOfflineEarnings(amount: number, seconds: number)
 	if popups then
-		local note = require(script.Components.WelcomeBack).note(state.longNap)
+		local WelcomeBack = require(script.Components.WelcomeBack)
+		local note = WelcomeBack.note(state.longNap)
+		-- #2123: the reason to play today, from Gameplay's ReturnHook pick (nil: no line)
+		local hook = WelcomeBack.hookLine((state :: any).returnHook)
 		popups:showOffline(amount, seconds, function()
 			Sound.play("offlineClaim")
 			UI.events.claimOffline:Fire()
-		end, UI.tips.offlineLine(seconds), note)
+		end, UI.tips.offlineLine(seconds), note, hook)
 	end
 end
 

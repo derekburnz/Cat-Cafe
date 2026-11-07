@@ -1398,6 +1398,28 @@ local SCENES = {
 		UI.recap.show({ minutes = 80, newCats = 1, earned = 1 })
 		assert(first.Text == "Today: 3 new cats, $12,500 earned", "uigate: the recap showed twice in a session (#1920)")
 	end },
+	-- #2123 (first-hour.md 6a): with Gameplay's ReturnHook pick the offline share has its own line and one Tomorrow
+	-- line closes the card (a treat with its prize, the longest), in place of the cooking bait line
+	{ "SessionRecapTomorrow", function()
+		local now = workspace:GetServerTimeNow()
+		UI.update({ tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true, [3] = true } } })
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 170, placedAt = now - 50 }, 1)
+		UI.recap.shown = false
+		UI.recap.lastInput = os.clock() - 30 -- idle
+		UI.recap.show({ minutes = 16, newCats = 3, earned = 12500, tomorrow = { kind = "treat", day = 7 } } :: any)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeRecap")
+		local card = gui and gui:FindFirstChild("Card", true) :: Frame?
+		assert(card and card.Visible, "uigate: no session recap card when idle (#2123)")
+		local three = card:FindFirstChild("Line3") :: TextLabel
+		local four = card:FindFirstChild("Line4") :: TextLabel
+		assert(three.Text == "Your cafe earns while you're away: 50% for up to 8\u{00A0}h", "uigate: the recap's offline line reads " .. three.Text .. " (#2123)")
+		local RecapLogic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RecapLogic")
+		local want = "Tomorrow: Daily Treat day 7, " .. RecapLogic.treatWords(7)
+		assert(four.Visible and four.Text == want, "uigate: the recap's Tomorrow line reads " .. four.Text .. " (#2123)")
+		assert(four.TextFits and three.TextFits, "uigate: the offline or Tomorrow line does not fit (#2123)")
+		local bottom = four.AbsolutePosition.Y + four.AbsoluteSize.Y
+		assert(bottom <= card.AbsolutePosition.Y + card.AbsoluteSize.Y + 1, "uigate: the Tomorrow line hangs off the recap card (#2123)")
+	end },
 	-- #1947 (like-prompts.md section 2): the like and favourite gift cards, paid before they show, with "Gift added!",
 	-- the coins Payout paid and the potions, and the first button and Close the same size
 	{ "GiftCardLike", function()
@@ -2414,6 +2436,26 @@ local SCENES = {
 		-- an ask (the invite nudge) waits for the Welcome back card (Studio run 2026-11-07)
 		assert(not UI.tips.quiet(), "uigate: an ask could slide in under the Welcome back card")
 	end },
+	-- #2123 (first-hour.md 6a): the welcome back card with the reason to play today under the coins, the card taller
+	-- by the line and Collect still clear of the note
+	{ "WelcomeBackHook", function()
+		Scenes._returnHook = true
+		UI.update({ tipsSeen = { stuck_cat = true, codes_cat = true }, returnHook = { kind = "treat", day = 2 } } :: any)
+		UI.showOfflineEarnings(48200, 3 * 3600)
+		local popups = UIShim.playerGui:FindFirstChild("CatCafePopups")
+		local card = popups and popups:FindFirstChild("Offline", true) :: Frame?
+		assert(card and card.Visible, "uigate: no welcome back card (#2123)")
+		local hook = card:FindFirstChild("Hook") :: TextLabel
+		local amount = card:FindFirstChild("Amount") :: TextLabel
+		local note = card:FindFirstChild("Note") :: TextLabel
+		local claim = card:FindFirstChild("Claim", true) :: GuiObject
+		assert(hook and hook.Visible and hook.Text == "Daily Treat day 2 is ready", "uigate: the welcome back hook line reads " .. tostring(hook and hook.Text) .. " (#2123)")
+		assert(hook.TextFits, "uigate: the welcome back hook line does not fit (#2123)")
+		assert(hook.AbsolutePosition.Y >= amount.AbsolutePosition.Y + amount.AbsoluteSize.Y - 1, "uigate: the hook line is not under the coins (#2123)")
+		assert(note.AbsolutePosition.Y >= hook.AbsolutePosition.Y + hook.AbsoluteSize.Y - 1, "uigate: the note sits on the hook line (#2123)")
+		local claimTop = claim.AbsolutePosition.Y
+		assert(note.AbsolutePosition.Y + note.TextBounds.Y <= claimTop + 1, "uigate: the note runs into Collect (#2123)")
+	end },
 	-- F87 section 2f: a brand new player's small HUD, the money, the hint strip, Home and the Cannon, the Tutorial
 	-- tile and Settings
 	{ "SmallHUD", function()
@@ -3344,6 +3386,11 @@ function Scenes.close()
 	end
 	if UI.gift.card and UI.gift.card:isShowing() then
 		UI.gift.card:hide() -- #1947
+	end
+	if Scenes._returnHook then
+		Scenes._returnHook = nil
+		local current: any = UI.getState()
+		current.returnHook = nil -- #2123's welcome back scene
 	end
 	if Scenes._quiet then
 		local before = Scenes._quiet

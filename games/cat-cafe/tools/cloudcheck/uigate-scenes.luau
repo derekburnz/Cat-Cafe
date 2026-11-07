@@ -1530,6 +1530,12 @@ local SCENES = {
 		local level4 = window:FindFirstChild("Level4", true)
 		local claim = level4 and level4:FindFirstChild("Free") and level4.Free:FindFirstChild("Claim")
 		assert(claim and claim:IsA("GuiObject") and claim.Visible, "uigate: level 4's free reward has no Claim")
+		-- #2089: the "?" mystery box picture is retired: no crate reward (nor anything else) draws it
+		for _, d in game:GetService("Players").LocalPlayer.PlayerGui:GetDescendants() do
+			if (d:IsA("ImageLabel") or d:IsA("ImageButton")) and string.find(d.Image, "76162414943592", 1, true) then
+				error("uigate: " .. d:GetFullName() .. " still draws the ? mystery box (#2089)")
+			end
+		end
 	end },
 	-- #1646: the paid track not bought yet, with Roblox's price on the buy button, and the Store's Cafe Pass card
 	{ "CafePassBuy", function()
@@ -1948,6 +1954,17 @@ local SCENES = {
 	{ "QuestsAchievements", function()
 		UI.open("Quests")
 		press("Quests", "AchievementsTab")
+		-- #2089: an achievement's crate draws its own crate's picture, never the retired "?" mystery box
+		local crates = 0
+		for _, d in UIShim.playerGui:GetDescendants() do
+			if d:IsA("ImageLabel") or d:IsA("ImageButton") then
+				assert(not string.find(d.Image, "76162414943592", 1, true), "uigate: " .. d:GetFullName() .. " draws the ? mystery box (#2089)")
+				if string.find(d.Image, "81784091360384", 1, true) then
+					crates += 1
+				end
+			end
+		end
+		assert(crates > 0, "uigate: no achievement shows the Classic Crate's picture (#2089)")
 	end },
 	-- a claim shows at once: the row reads Claimed and drops to the bottom (Derek 2026-10-29)
 	{ "QuestsClaimed", function()

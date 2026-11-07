@@ -207,6 +207,9 @@ UI.events = {
 	-- #1947 (like-prompts.md section 3), analytics only: the button pressed on a like or favourite gift card, once a
 	-- card ("like:like", "fav:favourite", "like:close"); a card left alone sends nothing
 	playtimeGift = Signal.new(), -- (what)   forward as TelemetryReport("playtime_gift", what)
+	-- #1936 (release.md section 3), analytics only: a purchase prompt refused with no tap or during a catch, rescue or
+	-- cutscene, "source:reason" (bait, store or cafePass; no_tap or busy)
+	storeGuardBlocked = Signal.new(), -- (what)   forward as TelemetryReport("store_guard_blocked", what)
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
 	claimStarterCat = Signal.new(), -- ()   Take me home: forward as ClaimStarterCat
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
@@ -2041,7 +2044,7 @@ do
 	function UI.bait.buySecond()
 		local id: number = Config.SecondBowlPassId
 		if id ~= 0 then
-			PassShop.prompt(id)
+			PassShop.prompt(id, "bait")
 		end
 	end
 end
@@ -5736,7 +5739,38 @@ do
 		supporter = nil :: RBXScriptConnection?, -- its change hides the badge's card at once
 		funnel = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StoreFunnel")) :: any, -- #1888
 		reported = {} :: { [string]: true }, -- #1888: this visit's tabs and buys already reported
+		-- #1936: the server's PlayerState.playSeconds (total play at send time), when it came, and the timer that
+		-- redraws the money badge once the first 30 minutes are up
+		guard = require(script.Components.StoreGuard),
+		played = nil :: number?,
+		playedAt = 0,
+		quietUntil = nil :: number?,
+		blocked = nil :: Signal.Connection?,
 	}
+
+	-- #1936 (release.md section 3): under 30 minutes of total play the money badge has no price and does not pulse
+	local function quiet(): boolean
+		local sent = (state :: any).playSeconds
+		if sent ~= shop.played then
+			shop.played = if type(sent) == "number" then sent else nil
+			shop.playedAt = os.clock()
+		end
+		local seconds = shop.guard.playSeconds(shop.played, shop.playedAt, os.clock())
+		local calm = shop.guard.quiet(seconds)
+		if calm and seconds ~= nil then
+			local untilAt = os.clock() + shop.guard.QUIET_SECONDS - seconds
+			if shop.quietUntil == nil or math.abs(shop.quietUntil - untilAt) > 1 then
+				shop.quietUntil = untilAt
+				task.delay(shop.guard.QUIET_SECONDS - seconds + 0.5, function()
+					if shop.quietUntil == untilAt then
+						shop.quietUntil = nil
+						UI.store.render()
+					end
+				end)
+			end
+		end
+		return calm
+	end
 
 	-- the potion packs' contents and names from the shared Catalog, the bag from the state (#1182)
 	local SharedCatalog =
@@ -5788,7 +5822,13 @@ do
 			local boosts = (state :: any).passBoosts
 			local multiplier = if type(boosts) == "table" then boosts.money else nil
 			hud:setMoneyBadge(
-				StoreLogic.moneyBadge(Config, PassShop.owned(), PassShop.prices(), multiplier)
+				StoreLogic.moneyBadge(
+					Config,
+					PassShop.owned(),
+					PassShop.prices(),
+					multiplier,
+					quiet()
+				)
 			)
 		end
 		if hud then
@@ -5829,7 +5869,7 @@ do
 					shop.reported[key] = true
 					UI.events.storeReport:Fire("store_buy", passId)
 				end
-				PassShop.prompt(passId)
+				PassShop.prompt(passId, "store")
 			end,
 			tabShown = function(tab: string)
 				local key = "tab:" .. tab
@@ -5884,6 +5924,13 @@ do
 			Players.LocalPlayer:GetAttributeChangedSignal(shop.supporterKey):Connect(refresh)
 		shop.grant = PassShop.ownerGrant:Connect(function(productId: number)
 			UI.events.ownerGrant:Fire(productId)
+		end)
+		-- #1936: no purchase window over a catch, a rescue or a cutscene, and each refusal reported
+		PassShop.busy = function(): boolean
+			return UI.catch.circlesActive() or UI.rescue.isActive() or UI.intro.playing()
+		end
+		shop.blocked = PassShop.blocked:Connect(function(source: string, reason: string)
+			UI.events.storeGuardBlocked:Fire(source .. ":" .. reason)
 		end)
 		PassShop.start(StoreLogic.passIds(Config), StoreLogic.productIds(Config))
 		refresh()
@@ -5946,6 +5993,11 @@ do
 			shop.grant:Disconnect()
 			shop.grant = nil
 		end
+		if shop.blocked then
+			shop.blocked:Disconnect()
+			shop.blocked = nil
+		end
+		shop.quietUntil = nil
 		if shop.supporter then
 			shop.supporter:Disconnect()
 			shop.supporter = nil
@@ -6052,7 +6104,7 @@ do
 			buy = function()
 				local id = productId()
 				if id then
-					PassShop.prompt(id) -- the server's receipt unlocks the track and sends CafePassState
+					PassShop.prompt(id, "cafePass") -- the server's receipt unlocks the track and sends CafePassState
 				end
 			end,
 			close = function()

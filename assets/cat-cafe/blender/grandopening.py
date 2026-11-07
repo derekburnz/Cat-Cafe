@@ -23,6 +23,7 @@ import math
 
 from mathutils import Matrix, Vector
 
+import common
 from common import RB, text_width
 from plot import DOOR, FRONT, HWI, rot_z
 
@@ -34,9 +35,13 @@ PASTELS = ("blush", "mint", "pastel_butter", "pastel_lilac", "pastel_sky", "apro
 
 
 def _pivoted(ob, at):
-    """Move an object's origin to Roblox point `at` without moving its geometry (a child Model's pivot)."""
+    """Move an object's origin to Roblox point `at` without moving its geometry (a child Model's pivot). The
+    primitive log moves with the mesh: rbx_export builds the Parts from it, and without that every Part landed a
+    second `at` away (#2218: the balloons and ribbon halves floated out over the street)."""
     p = Vector(RB.p(*at))
-    ob.data.transform(Matrix.Translation(-p))
+    T = Matrix.Translation(-p)
+    ob.data.transform(T)
+    common.PRIMS[ob.data.name] = [(k, T @ m, sw, ex) for k, m, sw, ex in common.PRIMS.get(ob.data.name, [])]
     ob.location = p
     return ob
 

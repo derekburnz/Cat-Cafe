@@ -1,0 +1,39 @@
+# One-off read-only probe of the Open Cloud v2 data store paths in docs/save-safety.md, on the Studio-only _dev store.
+# Prints status codes and field names only. Temporary.
+name: save-drill-probe
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      K: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+    steps:
+      - name: Probe
+        run: |
+          U=10773193456
+          S=CatCafeProfiles_dev
+          echo "::add-mask::$K"
+          code() { curl -sS -o /tmp/o.json -w '%{http_code}' -H "x-api-key: $K" "$1"; }
+          sh() { jq -c 'if type=="object" then {keys:keys, err:(.code // null), msg:(.message // null)} else type end' /tmp/o.json 2>/dev/null || true; }
+          b=https://apis.roblox.com/cloud/v2/universes/$U/data-stores/$S/entries
+          echo "list entries (no scope): $(code "$b?maxPageSize=1")"; sh
+          path=$(jq -r '.dataStoreEntries[0].path // empty' /tmp/o.json 2>/dev/null)
+          if [ -z "$path" ]; then
+            b2=https://apis.roblox.com/cloud/v2/universes/$U/data-stores/$S/scopes/global/entries
+            echo "list entries (scope global): $(code "$b2?maxPageSize=1")"; sh
+            path=$(jq -r '.dataStoreEntries[0].path // empty' /tmp/o.json 2>/dev/null)
+          fi
+          [ -n "$path" ] || { echo "no entry found"; exit 0; }
+          echo "path shape: $(echo "$path" | sed -E 's#/entries/.*#/entries/<key>#;s#universes/[0-9]+#universes/U#')"
+          echo "get entry: $(code "https://apis.roblox.com/cloud/v2/$path")"; jq -c '{keys:keys, valuekeys:(.value|keys?)}' /tmp/o.json
+          echo "listRevisions: $(code "https://apis.roblox.com/cloud/v2/$path:listRevisions?maxPageSize=50")"
+          jq -c 'if type=="object" then {keys:keys, revisions:((.dataStoreEntries // [])|length), first:((.dataStoreEntries // [])[0]|keys?), err:(.code // null), msg:(.message // null)} else type end' /tmp/o.json
+          rev=$(jq -r '.dataStoreEntries[0].revisionId // empty' /tmp/o.json)
+          if [ -n "$rev" ]; then
+            echo "get @rev: $(code "https://apis.roblox.com/cloud/v2/$path@$rev")"
+            jq -c '{keys:keys, valuekeys:(.value|keys?), datafields:(.value.Data|keys?|length), version:(.value.Data.version?|type)}' /tmp/o.json
+          fi

@@ -25,7 +25,7 @@ Catching.CARRIED_POSE = { 0, -0.4, -1.05, 0, 0, 1, 0, 1, 0, -1, 0, 0 }
 -- middle; R6 arms per #1991), so its middle is on the hands.
 Catching.HELD = {
 	r15 = { up = -0.25, gap = 0 },
-	r6 = { up = 0.18, gap = 0.2 }, -- #1995, #1997: on the straight arms (#1991), off the cheek and the arms
+	r6 = { up = 0.25, gap = 0.2 }, -- Desktop-Tester's Studio sweep: clear of both arms and the Head on Tabby, Void, Calico
 	turn = 90,
 }
 

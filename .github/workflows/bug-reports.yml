@@ -55,6 +55,8 @@ jobs:
 
       - name: Read the reports
         if: github.event_name != 'schedule'
+        env:
+          MASK: "1" # TEMP
         run: bash games/cat-cafe/tools/opencloud/bug-reports.sh "$DAY" "$COUNT" $STUDIO
 
       - name: Read yesterday's reports (daily run)

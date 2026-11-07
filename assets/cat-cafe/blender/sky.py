@@ -48,9 +48,9 @@ SOFTEN = 3.0        # degrees of blur over the stops, so no band shows where two
 
 # image -> (uploaded rbxassetid number, first 12 hex of the PNG's SHA-256); uploaded 2026-10-27 with upload-image
 IDS = {
-    "Side": (98842166555680, "0d52c9ae6244"),
-    "Up": (99681663581667, "3ada2a17bd9c"),
-    "Dn": (128781484125436, "2691e05747a5"),
+    "Side": (102634444486063, "0d52c9ae6244"),
+    "Up": (73297855543515, "3ada2a17bd9c"),
+    "Dn": (102268696589031, "2691e05747a5"),
 }
 
 

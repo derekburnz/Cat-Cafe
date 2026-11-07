@@ -1,12 +1,12 @@
 {
  "className": "Sky",
  "properties": {
-  "SkyboxBk": "rbxassetid://98842166555680",
-  "SkyboxDn": "rbxassetid://128781484125436",
-  "SkyboxFt": "rbxassetid://98842166555680",
-  "SkyboxLf": "rbxassetid://98842166555680",
-  "SkyboxRt": "rbxassetid://98842166555680",
-  "SkyboxUp": "rbxassetid://99681663581667",
+  "SkyboxBk": "rbxassetid://102634444486063",
+  "SkyboxDn": "rbxassetid://102268696589031",
+  "SkyboxFt": "rbxassetid://102634444486063",
+  "SkyboxLf": "rbxassetid://102634444486063",
+  "SkyboxRt": "rbxassetid://102634444486063",
+  "SkyboxUp": "rbxassetid://73297855543515",
   "CelestialBodiesShown": true
  }
 }

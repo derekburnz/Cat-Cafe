@@ -10,50 +10,50 @@ Derek OK'd the look on 2026-11-03 ("Build it as shown"; the crate was redrawn af
 
 | Icon | rbxassetid |
 |---|---|
-| Icon_Clean_Areas | 88534680940711 |
+| Icon_Clean_Areas | 126370922327019 |
 | Icon_Clean_Bag | 81699518945581 |
-| Icon_Clean_Bowl | 103532889738881 |
-| Icon_Clean_Cannon | 136623310503178 (redrawn 11-03 with a banded barrel and wooden carriage for #1024; first upload 112726655919470 replaced) |
-| Icon_Clean_Cats | 98525501130510 (redrawn 01:44; first upload 73281357166646 unused) |
-| Icon_Clean_Caviar | 75650997072096 |
+| Icon_Clean_Bowl | 80050724855728 |
+| Icon_Clean_Cannon | 134222859642759 (redrawn 11-03 with a banded barrel and wooden carriage for #1024; first upload 112726655919470 replaced) |
+| Icon_Clean_Cats | 111022016391627 (redrawn 01:44; first upload 73281357166646 unused) |
+| Icon_Clean_Caviar | 94374227160258 |
 | Icon_Clean_Coin | 112195289471900 |
-| Icon_Clean_Crate | 76162414943592 |
-| Icon_Clean_Decor | 91027671376875 (redrawn 01:44; first upload 73990946688611 unused) |
-| Icon_Clean_Feedback | 86899710660019 |
+| Icon_Clean_Crate | 85523439563968 |
+| Icon_Clean_Decor | 130851033023889 (redrawn 01:44; first upload 73990946688611 unused) |
+| Icon_Clean_Feedback | 101390180819645 |
 | Icon_Clean_Fish | 111395416488950 |
-| Icon_Clean_Home | 72142107975309 (redrawn 11-03 as a cafe front for #1024; first upload 102266682155402 replaced) |
-| Icon_Clean_Index | 138454303453433 |
-| Icon_Clean_Menu | 139128379842736 |
-| Icon_Clean_Potion | 78951217322160 (redrawn 11-03 with glass, bubbles, cork and a sparkle for #1024; first upload 74312502748629 replaced) |
-| Icon_Clean_Quests | 117962329343232 |
-| Icon_Clean_Rewards | 105337391774119 |
-| Icon_Clean_Store | 111734554524173 (redrawn 01:44; first upload 133073738193868 unused) |
-| Icon_Clean_Tutorial | 83538572417569 |
-| Icon_Clean_Upgrades | 138549739967320 |
-| Icon_Clean_Wallpaper | 82127824623670 (#964, 11-03 22:13, run 41728803377) |
-| Icon_Clean_Floor | 100618134290369 (#964, 11-03 22:13, run 41728803377) |
-| Icon_Clean_Paint | 92775201804283 (#964, 11-03 22:13, run 41728803377) |
-| Icon_Clean_Spots | 85929419709001 (#964, 11-03 22:13, run 41728803377) |
-| Icon_Clean_Door | 113159676338557 (#964, 11-03 22:13, run 41728803377) |
-| Icon_Clean_Catflap | 119017572601877 (#964, 11-03 22:13, run 41728803377) |
-| Icon_Clean_Trade | 83738164568639 (new 11-03 for #1024: two swap arrows, the HUD's Trade tile) |
-| Icon_Clean_PotionTip | 95886862906328 (#1070, 11-04, run 41840327151) |
-| Icon_Clean_PotionLucky | 110403070747780 (#1070, 11-04, run 41840327151) |
-| Icon_Clean_PotionSwift | 89283276917014 (#1070, 11-04, run 41840327151) |
-| Icon_Clean_PotionSteady | 98428729313169 (#1070, 11-04, run 41840327151) |
-| Icon_Clean_PotionBigTip | 111286476050307 (#1070, 11-04, run 41840327151) |
-| Icon_Clean_PotionGoldRush | 134577238271535 (#1070, 11-04, run 41840327151) |
-| Icon_Clean_PotionQuickBait | 117064600223329 (#1070, 11-04, run 41840327151) |
-| Icon_Clean_Tuna | 82422020475314 (#1070, 11-04, run 41840327151) |
-| Icon_Clean_Salmon | 118506839858835 (#1070, 11-04, run 41840327151) |
-| Icon_Clean_Sardines | 77462554026769 (#1070, 11-04, run 41840327151) |
-| Icon_Clean_MoonMilk | 109614940712323 (#1070, 11-04, run 41840327151) |
-| Icon_Clean_StarTreat | 109199304319470 (#1070, 11-04, run 41840327151) |
-| Icon_Clean_Spin | 92256242473029 (#1070, 11-04, run 41840327151) |
-| Icon_Clean_EquipBest | 83467145782605 (#1136, 11-04, run 41889328270) |
-| Icon_Clean_Invite | 95257960737705 (#1136, 11-04, run 41889328270) |
-| Icon_Clean_Lock | 126676730576646 (#1136, 11-04, run 41889328270) |
-| Icon_Clean_Clover | 106109471292317 (#1258, 11-04, run 41904365295) |
+| Icon_Clean_Home | 128704819455880 (redrawn 11-03 as a cafe front for #1024; first upload 102266682155402 replaced) |
+| Icon_Clean_Index | 72904412280830 |
+| Icon_Clean_Menu | 76526281703913 |
+| Icon_Clean_Potion | 92456971844930 (redrawn 11-03 with glass, bubbles, cork and a sparkle for #1024; first upload 74312502748629 replaced) |
+| Icon_Clean_Quests | 120388931985566 |
+| Icon_Clean_Rewards | 100352240603614 |
+| Icon_Clean_Store | 125596282319075 (redrawn 01:44; first upload 133073738193868 unused) |
+| Icon_Clean_Tutorial | 109885867788208 |
+| Icon_Clean_Upgrades | 90691118878000 |
+| Icon_Clean_Wallpaper | 102259047705880 (#964, 11-03 22:13, run 41728803377) |
+| Icon_Clean_Floor | 100560850589029 (#964, 11-03 22:13, run 41728803377) |
+| Icon_Clean_Paint | 88844625138910 (#964, 11-03 22:13, run 41728803377) |
+| Icon_Clean_Spots | 74579562921955 (#964, 11-03 22:13, run 41728803377) |
+| Icon_Clean_Door | 82896268186640 (#964, 11-03 22:13, run 41728803377) |
+| Icon_Clean_Catflap | 99900172207666 (#964, 11-03 22:13, run 41728803377) |
+| Icon_Clean_Trade | 86243209880722 (new 11-03 for #1024: two swap arrows, the HUD's Trade tile) |
+| Icon_Clean_PotionTip | 86488148454995 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_PotionLucky | 105359839986454 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_PotionSwift | 123223898814902 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_PotionSteady | 121053101784702 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_PotionBigTip | 89235368935178 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_PotionGoldRush | 117084495995856 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_PotionQuickBait | 103272653422076 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_Tuna | 128749627858421 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_Salmon | 78789450804337 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_Sardines | 133035243124941 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_MoonMilk | 107176560784324 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_StarTreat | 127060767808144 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_Spin | 126057350997233 (#1070, 11-04, run 41840327151) |
+| Icon_Clean_EquipBest | 89501318892947 (#1136, 11-04, run 41889328270) |
+| Icon_Clean_Invite | 136442901295833 (#1136, 11-04, run 41889328270) |
+| Icon_Clean_Lock | 133489571923895 (#1136, 11-04, run 41889328270) |
+| Icon_Clean_Clover | 70755641486261 (#1258, 11-04, run 41904365295) |
 
 Tile colours used in the mockup (top to bottom gradient): Cats #6fc0ff to #2f86ef, Index #7ae86f to #2fb043, Quests #ffe46b to #f5ac12, Upgrades #ffb15a to #f06a1d, Decor #62ecd2 to #18ab95, Store (a wide tile, first in the left column) #fff07a to #ffc61f to #ff8f1f with a white shine, Tutorial and Potions #cf96ff to #8a47ea, Rewards and Cannon #ff8a7a to #e4402f, Feedback and Areas #8fe3ff to #2bb3e6, Menu #c9d4e3 to #7f8fa6, My Cafe orange like Upgrades, Bait blue like Cats. Outline 4 px #2a1a12, corner 20 px on a 78 px tile, label 18 px Fredoka bold, white with a 5 px dark outline.
 

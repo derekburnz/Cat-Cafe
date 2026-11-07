@@ -4,14 +4,22 @@
 -- night, its copy here puffs away in a cloud of gold sparkles and smoke. A catch in this server plays the usual catch
 -- effects instead. Reduce Motion skips the beam and keeps the puff.
 --
+-- While a pity stray is out it also keeps a mark (#2099, luck-and-rare-moments.md 1j; UI-Engineer's "Pity cat" tag
+-- goes over its head): a soft gold ring (violet for a Mythical) on the floor under it that breathes from 90 to 100%
+-- of its size over 2 s, and one small sparkle puff every 1.5 s. Reduce Motion holds the ring still and drops the
+-- sparkles; Low performance does the same (a flat ring, nothing moving but the cat). The mark goes the moment the
+-- stray does (caught and carried off, or gone at night), when its PityCat clears, or at nightfall. Presets.pity.mark.
+--
 -- Source: Gameplay-Engineer's #1744: the `PityCat` attribute ("Legendary" or "Mythical") on the Stray-tagged model,
 -- and `PityAnnounce(kind, areaId, state, winnerName?)` with state "out", "caught" or "gone". Listening only. Numbers
 -- in Presets.pity.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
 local Context = require(script.Parent.Context)
+local Logic = require(script.Parent.Logic)
 local Particles = require(script.Parent.Particles)
 local Presets = require(script.Parent.Presets)
 
@@ -21,6 +29,17 @@ local strays: { [Model]: Vector3 } = {} -- each pity stray here and its last kno
 local gone: { at: Vector3, when: number }? = nil -- the last pity stray to leave, for a puff just after it went
 local beamed: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 local started = false
+
+type Mark = {
+	stray: Model,
+	ring: Part, -- invisible; the ring's SurfaceGui is on its top
+	diameter: number,
+	sparkAt: number,
+	colour: Color3,
+}
+
+local marks: { [Model]: Mark } = {}
+local stepping: RBXScriptConnection? = nil
 
 local function kindOf(model: Model): string?
 	local kind = model:GetAttribute("PityCat")
@@ -57,6 +76,128 @@ local function beam(model: Model, kind: string)
 	Particles.burst("dingSparkle", at + Vector3.new(0, p.lift, 0), b.sparkles, b.colours[1])
 end
 
+-- The ring: a flat SurfaceGui on the top of an invisible part, a circle with a `stroke` wide edge and a fainter
+-- `halo` inside it, drawn without light or bloom so it reads soft on any floor.
+local function drawRing(part: Part, diameter: number, colour: Color3)
+	local m = Presets.pity.mark
+	local gui = Instance.new("SurfaceGui")
+	gui.Name = "PityRing"
+	gui.Face = Enum.NormalId.Top
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	gui.PixelsPerStud = m.pixelsPerStud
+	gui.LightInfluence = 0
+	gui.ResetOnSpawn = false
+	for _, band in
+		{
+			{ 1, m.stroke, m.transparency },
+			{ 1 - 2 * m.stroke / diameter, m.halo, m.haloTransparency },
+		}
+	do
+		local frame = Instance.new("Frame")
+		frame.AnchorPoint = Vector2.new(0.5, 0.5)
+		frame.Position = UDim2.fromScale(0.5, 0.5)
+		frame.Size = UDim2.fromScale(band[1], band[1])
+		frame.BackgroundTransparency = 1
+		frame.BorderSizePixel = 0
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(0.5, 0)
+		corner.Parent = frame
+		local stroke = Instance.new("UIStroke")
+		stroke.Color = colour
+		stroke.Thickness = band[2] * m.pixelsPerStud
+		stroke.Transparency = band[3]
+		stroke.BorderStrokePosition = Enum.BorderStrokePosition.Inner
+		stroke.Parent = frame
+		frame.Parent = gui
+	end
+	gui.Parent = part
+end
+
+local function unmark(stray: Model)
+	local mark = marks[stray]
+	if mark ~= nil then
+		marks[stray] = nil
+		mark.ring:Destroy()
+	end
+end
+
+-- The floor under the stray's pivot: the bottom of its box.
+local function floorUnder(stray: Model): Vector3
+	local frame, size = stray:GetBoundingBox()
+	local pivot = stray:GetPivot().Position
+	return Vector3.new(pivot.X, frame.Position.Y - size.Y / 2, pivot.Z)
+end
+
+local function stepMarks()
+	local m = Presets.pity.mark
+	local now = os.clock()
+	local still = Context.reducedMotion() or Context.lowPerformance
+	for stray, mark in marks do
+		if stray.Parent == nil or kindOf(stray) == nil or Context.isNight() then
+			unmark(stray)
+			continue
+		end
+		local at = floorUnder(stray)
+		local far = Context.distance(at) > m.within
+		local gui = mark.ring:FindFirstChild("PityRing")
+		if gui ~= nil and gui:IsA("SurfaceGui") then
+			(gui :: SurfaceGui).Enabled = not far
+		end
+		if far then
+			continue
+		end
+		local scale = if still then m.breath[2] else Logic.pityBreath(now)
+		local across = mark.diameter * scale
+		mark.ring.Size = Vector3.new(across, 0.05, across)
+		mark.ring.CFrame = CFrame.new(at + Vector3.new(0, m.lift, 0))
+		if not still and now >= mark.sparkAt then
+			mark.sparkAt = now + m.sparkleEvery
+			Particles.burst(
+				"dingSparkle",
+				at + Vector3.new(0, m.sparkleLift, 0),
+				m.sparkles,
+				mark.colour
+			)
+		end
+	end
+	if next(marks) == nil and stepping ~= nil then
+		stepping:Disconnect()
+		stepping = nil
+	end
+end
+
+-- Puts the lasting mark under a pity stray, or takes it off when it is no longer one (or it is night).
+local function updateMark(model: Model)
+	local kind = kindOf(model)
+	if kind == nil or model.Parent == nil or Context.isNight() then
+		unmark(model)
+		return
+	end
+	if marks[model] ~= nil then
+		return
+	end
+	local m = Presets.pity.mark
+	local colour = if kind == "Mythical" then m.mythical else m.legendary
+	local _, size = model:GetBoundingBox()
+	local diameter = math.max(m.minDiameter, math.max(size.X, size.Z) * m.ring)
+	local ring = Context.effectPart("PityMark", Vector3.new(diameter, 0.05, diameter), colour)
+	ring.Transparency = 1
+	ring.CastShadow = false
+	ring.CFrame = CFrame.new(floorUnder(model) + Vector3.new(0, m.lift, 0))
+	drawRing(ring, diameter, colour)
+	ring.Parent = Context.folder()
+	marks[model] = {
+		stray = model,
+		ring = ring,
+		diameter = diameter,
+		sparkAt = os.clock(),
+		colour = colour,
+	}
+	if stepping == nil then
+		stepping = RunService.PreRender:Connect(stepMarks)
+	end
+end
+
 local function follow(model: Model)
 	local known: Vector3? = strays[model]
 	if known then
@@ -76,8 +217,10 @@ local function consider(instance: Instance)
 	end
 	local model = instance :: Model
 	follow(model)
+	updateMark(model)
 	model:GetAttributeChangedSignal("PityCat"):Connect(function()
 		follow(model)
+		updateMark(model)
 	end)
 end
 
@@ -143,6 +286,7 @@ function Pity.start()
 				gone = { at = at, when = os.clock() }
 				strays[instance :: Model] = nil
 			end
+			unmark(instance :: Model)
 		end
 	end)
 	Context.whenRemote("PityAnnounce", function(remote: RemoteEvent)
@@ -155,6 +299,7 @@ function Pity.start()
 			for model in strays do
 				if model.Parent ~= nil then
 					strays[model] = model:GetPivot().Position
+					updateMark(model) -- back after the night, or streamed in again
 				end
 			end
 		end

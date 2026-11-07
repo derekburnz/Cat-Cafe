@@ -2883,6 +2883,15 @@ function Logic.netWrap(alpha: number): (number, number)
 	return scale, math.rad(w.roll) * rock
 end
 
+-- The pity mark's ring breathing (#2099, Presets.pity.mark), `t` seconds on: its size from breath[1] up to
+-- breath[2] over breathSeconds and back down, eased at both ends.
+function Logic.pityBreath(t: number): number
+	local m = Presets.pity.mark
+	local low, high = m.breath[1], m.breath[2]
+	local k = 0.5 - 0.5 * math.cos(math.pi * t / m.breathSeconds)
+	return low + (high - low) * k
+end
+
 -- The pinning net dropping onto a caught stray (#2005, Presets.netPin.drop), `t` seconds after its NetDown: studs
 -- above its resting place, falling as if dropped (`height` down to 0 over `seconds`), then 0.
 function Logic.netDrop(t: number): number

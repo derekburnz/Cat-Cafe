@@ -32,6 +32,7 @@ local Catching = require(ReplicatedStorage.Shared.Catching)
 local Clock = require(ReplicatedStorage.Shared.Clock)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
+local Cooldown = require(ReplicatedStorage.Shared.Cooldown)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -584,7 +585,7 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 	local now = serverNow()
 	local selfRetry = entry.selfRetryAt[player.UserId]
 	if selfRetry ~= nil and now < selfRetry then
-		refuse(player, spotId, "Catch your breath, then try again")
+		refuse(player, spotId, Cooldown.text(selfRetry - now)) -- #2324
 		return
 	end
 	if now < entry.retryAt then

@@ -84,6 +84,9 @@ return function()
 			expect(cooldown).to.equal(5)
 			expect(Shove.tackleRefusal(press({ sinceTackle = cooldown - 0.01 }))).to.be.ok()
 			expect(Shove.tackleRefusal(press({ sinceTackle = cooldown }))).never.to.be.ok()
+			-- #2324: the refusal is the seconds left, rounded up
+			expect(Shove.tackleRefusal(press({ sinceTackle = 0.5 }))).to.equal("Cooling down 5s")
+			expect(Shove.tackleRefusal(press({ sinceTackle = cooldown - 0.01 }))).to.equal("Cooling down 1s")
 		end)
 
 		it("the hit window is the lunge plus the grace for lag", function()

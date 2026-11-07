@@ -1135,7 +1135,7 @@ case(
 		end
 		-- v0.5 (F40, S44): after a miss the stray runs and rests until FleeingUntil, and the player who missed waits
 		-- StraySelfRetrySeconds more. F93: a swing at a running stray lands on nothing (NetSwung hit=false, no toast);
-		-- one in my extra second lands and is refused with "Catch your breath". Catch starts are 2 s apart, too few
+		-- one in my extra second lands and is refused with "Cooling down Ns". Catch starts are 2 s apart, too few
 		-- for both checks after one miss, so the running check follows miss 1 and the extra-second check miss 2.
 		local notes = {}
 		local verdict: Verdict = "PASS"
@@ -1183,7 +1183,7 @@ case(
 				local probeAt = os.clock()
 				fire("SwingNet")
 				local answer = swingAnswer(probeAt, 1.5)
-				local expected = if round == 1 then "hit=false" else "Catch your breath"
+				local expected = if round == 1 then "hit=false" else "Cooling down" -- #2324: Cooldown.text
 				if answer ~= nil and answer.name == "CatchSchedule" and answer.id ~= stray.id then
 					outcomeOf(probeAt, tostring(answer.id), answer.data)
 					verdict = downgrade(verdict, "CHECK")
@@ -2912,7 +2912,7 @@ case(
 		task.wait(0.3)
 		local pressed = tackleAnswers(pressAt)
 		if (pressed.refused or 0) > 0 then
-			if toasted(pressAt, "Catch your breath") then
+			if toasted(pressAt, "Cooling down") then
 				return done(
 					"FAIL",
 					table.concat(notes, "; ")
@@ -2946,7 +2946,7 @@ case(
 		end
 
 		-- 3. Ten presses in one frame inside the cooldown: the limiter lets 2 through and both are refused with
-		-- "Catch your breath before the next tackle"; nothing lunges.
+		-- "Cooling down Ns" (#2324); nothing lunges.
 		task.wait(1.05)
 		local floodAt = os.clock()
 		local lungedAt = tackleAt()
@@ -2973,11 +2973,11 @@ case(
 					flood.refused
 				)
 			)
-		elseif not toasted(floodAt, "Catch your breath before the next tackle") then
+		elseif not toasted(floodAt, "Cooling down") then
 			verdict = downgrade(verdict, "CHECK")
 			table.insert(
 				notes,
-				'presses inside the cooldown refused without "Catch your breath before the next tackle"'
+				'presses inside the cooldown refused without "Cooling down Ns" (#2324)'
 			)
 		else
 			table.insert(

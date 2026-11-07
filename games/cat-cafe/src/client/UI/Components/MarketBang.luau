@@ -45,13 +45,14 @@ local function anchorOf(model: Instance): (BasePart?, Vector3)
 		return nil, Vector3.zero
 	end
 	local stall = model :: Model
-	local part = stall.PrimaryPart or stall:FindFirstChildWhichIsA("BasePart", true)
+	local part: BasePart? = stall.PrimaryPart
+		or stall:FindFirstChildWhichIsA("BasePart", true) :: BasePart?
 	if part == nil then
 		return nil, Vector3.zero
 	end
 	local box, size = stall:GetBoundingBox()
 	local top = box.Position.Y + size.Y / 2
-	return part, Vector3.new(0, top - part.Position.Y + MarketBang.LIFT, 0)
+	return part, Vector3.new(0, top - (part :: BasePart).Position.Y + MarketBang.LIFT, 0)
 end
 
 local function build(parent: Instance): Bang

@@ -10,6 +10,15 @@
 -- At the top tier only the tier line shows. A tap anywhere on it opens the rank up card.
 -- #1919 (first-hour.md section 5): while the Grand Opening's twelve cats step is next and no rank up is ready, the
 -- card reads "📖 Find 3 more cats" alone (render's `nudge`), and the HUD opens the Index from it instead.
+-- #2331 (Derek2: "cozy cafe (tier up cafe) is more obviously your main goal to tier up and maybe flash and point
+-- towards it when tier up is ready"): a gold "🏆 YOUR GOAL" line over a bigger tier name, and a gold edge, so the card
+-- reads as the goal. Once every requirement is met its edge pulses gold and white and the tutorial's big arrow
+-- (Components/TutorialArrow, as a low target so a tutorial step keeps the arrow) points at it, until the player opens
+-- the rank up card (seen()). Once per ready state: it comes back only after the rank up stops being ready and is
+-- ready again, or for the next tier.
+
+local GuiService = game:GetService("GuiService")
+local TweenService = game:GetService("TweenService")
 
 local Create = require(script.Parent.Parent.Components.Create)
 local FitText = require(script.Parent.Parent.Components.FitText)
@@ -18,12 +27,15 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local RankUp = require(script.Parent.RankUp)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
+local TutorialArrow = require(script.Parent.Parent.Components.TutorialArrow)
 local Tween = require(script.Parent.Parent.Components.Tween)
 
 export type GoalCard = {
 	frame: TextButton,
 	render: (self: GoalCard, progress: RankUp.Progress?, tierText: string, nudge: string?) -> (),
 	nudging: (self: GoalCard) -> boolean, -- the card shows the nudge, so a tap should open the Index
+	seen: (self: GoalCard) -> (), -- #2331: the rank up card opened, so the ready pulse and arrow stop
+	alerting: (self: GoalCard) -> boolean, -- #2331: the ready pulse and arrow are on
 	destroy: (self: GoalCard) -> (),
 }
 
@@ -34,8 +46,13 @@ export type GoalCard = {
 local WIDTH = 250
 local PAD = 10
 local TIER_H = 18
-local TITLE_H = 26
-local TOP = TITLE_H + 6 -- the first bar
+local GOAL_H = 16 -- #2331: the "YOUR GOAL" line over the title
+local GOAL_TEXT = "🏆 YOUR GOAL"
+local TITLE_H = 30
+local TOP = GOAL_H + TITLE_H + 4 -- the first bar
+local EDGE = 2.5 -- #2331: the gold edge, pulsing up to EDGE_READY while a rank up waits
+local EDGE_READY = 5
+local PULSE = TweenInfo.new(0.6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
 local CAPTION_H = 17
 local BAR_H = 7
 local ROW = CAPTION_H + 2 + BAR_H
@@ -95,7 +112,10 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 			PaddingBottom = UDim.new(0, PAD),
 		}),
 	})
-	Outline.border(frame, 2)
+	self._edge = Outline.border(frame, EDGE, Theme.colors.gold)
+	self._pulse = nil :: Tween?
+	self._alerting = false
+	self._seenKey = nil :: string?
 	self.frame = frame
 
 	self._tier = text({
@@ -105,20 +125,31 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Parent = frame,
 	})
+	self._goalLine = text({
+		Name = "Goal",
+		Size = UDim2.new(1, 0, 0, GOAL_H),
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = Theme.colors.gold,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = GOAL_TEXT,
+		Visible = false,
+		Parent = frame,
+	})
 	self._title = text({
 		Name = "Title",
 		Size = UDim2.new(1, -96, 0, TITLE_H),
-		TextSize = Theme.sizes.textBody + 2,
+		TextSize = Theme.sizes.textBody + 6,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Parent = frame,
 	})
+	FitText.shrink(self._title) -- #2331: a long tier name or the nudge shrinks to fit the bigger title
 	-- the simulator "something to claim" sticker, tilted at the left of the title while a rank up is ready
 	self._badge = Create("TextLabel", {
 		Name = "RankReady",
 		BackgroundColor3 = PILL_COLOR,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, 0, 0, TITLE_H / 2),
+		Position = UDim2.new(1, 0, 0, GOAL_H + TITLE_H / 2),
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, 22),
 		FontFace = Theme.fonts.display,
@@ -239,13 +270,16 @@ function GoalCard.render(self: any, progress: RankUp.Progress?, tierText: string
 		self.frame.Size = UDim2.fromOffset(WIDTH, TITLE_H + 2 + CAPTION_H + PAD * 2)
 		self._badge.Visible = false
 		self._ready = false
+		self._goalLine.Visible = false
+		self:_alert(nil)
 		return
 	end
-	self._title.Position = UDim2.fromOffset(0, 0)
+	self._title.Position = UDim2.fromOffset(0, GOAL_H)
 	self._title.Size = UDim2.new(1, -96, 0, TITLE_H)
 	local nextTier = if progress then progress.nextTier else nil
 	self._tier.Visible = nextTier == nil -- the top tier: its line alone
 	self._title.Visible = nextTier ~= nil
+	self._goalLine.Visible = nextTier ~= nil
 	local count = 0
 	for index, row in self._rows do
 		local item = if progress and nextTier then progress.requirements[index] else nil
@@ -272,6 +306,57 @@ function GoalCard.render(self: any, progress: RankUp.Progress?, tierText: string
 		Tween.popIn(self._badge, 0.7)
 	end
 	self._ready = ready
+	-- #2331: the pulse and the arrow, once for each tier's ready state
+	local key = if ready and nextTier then tostring(nextTier.name) else nil
+	if key == nil then
+		self._seenKey = nil
+	end
+	self:_alert(if key ~= nil and key ~= self._seenKey then key else nil)
+end
+
+-- #2331: the ready pulse and arrow on (key, the tier the rank up is for) or off (nil)
+function GoalCard._alert(self: any, key: string?)
+	local on = key ~= nil
+	self._alertKey = key
+	if on == self._alerting then
+		return
+	end
+	self._alerting = on
+	local pulse = self._pulse
+	if pulse then
+		pulse:Cancel()
+		self._pulse = nil
+	end
+	local edge: UIStroke = self._edge
+	edge.Thickness = EDGE
+	edge.Color = Theme.colors.gold
+	if on then
+		if GuiService.ReducedMotionEnabled then
+			edge.Thickness = EDGE_READY
+		else
+			local tween = TweenService:Create(
+				edge,
+				PULSE,
+				{ Thickness = EDGE_READY, Color = Theme.colors.white }
+			)
+			tween:Play()
+			self._pulse = tween
+		end
+		TutorialArrow.add(self.frame, true)
+	else
+		TutorialArrow.remove(self.frame)
+	end
+end
+
+function GoalCard.seen(self: any)
+	if self._alerting then
+		self._seenKey = self._alertKey
+		self:_alert(nil)
+	end
+end
+
+function GoalCard.alerting(self: any): boolean
+	return self._alerting == true
 end
 
 function GoalCard.nudging(self: any): boolean
@@ -279,6 +364,7 @@ function GoalCard.nudging(self: any): boolean
 end
 
 function GoalCard.destroy(self: any)
+	self:_alert(nil)
 	self._connection:Disconnect()
 	self.frame:Destroy()
 end

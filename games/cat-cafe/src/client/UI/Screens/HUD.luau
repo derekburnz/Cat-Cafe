@@ -108,6 +108,7 @@ export type HUD = {
 	setCatalog: (self: HUD, catalog: Types.Catalog) -> (),
 	render: (self: HUD, state: Types.PlayerState) -> (),
 	setPinnedQuest: (self: HUD, key: string?) -> (), -- #1573: the quest pinned in the Quests window, or nil
+	goalSeen: (self: HUD) -> (), -- #2331: the rank up card opened, so the goal card's ready pulse and arrow stop
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
 	setClock: (self: HUD, clock: Types.ClockState?) -> (),
@@ -2067,6 +2068,11 @@ function HUD.travelResult(self: any, destination: string, ok: boolean)
 end
 
 -- Carrying comes from two places: the carry banner (UI.setCarrying) and state.carrying.
+-- #2331: the rank up card opened (from the goal card or anywhere else)
+function HUD.goalSeen(self: any)
+	self._goal:seen()
+end
+
 function HUD.isCarrying(self: any): boolean
 	return self._carryBanner or self._carryState
 end

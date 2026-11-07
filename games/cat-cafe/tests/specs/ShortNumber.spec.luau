@@ -1,6 +1,6 @@
 --!strict
 -- UI/Components/ShortNumber.luau: the HUD counters' short numbers (golden-fish.md section 1, F52): exact below
--- 100,000, then K to Qi, always cut down so a counter never shows more than the player has.
+-- 10,000, then whole K, then M to Qi, always cut down so a counter never shows more than the player has.
 return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
@@ -17,12 +17,20 @@ return function()
 	end)
 
 	describe("ShortNumber.format", function()
-		it("is exact with commas below 100,000", function()
+		it("is exact with commas below 10,000", function()
 			expect(ShortNumber.format(0)).to.equal("0")
 			expect(ShortNumber.format(7)).to.equal("7")
 			expect(ShortNumber.format(8420)).to.equal("8,420")
-			expect(ShortNumber.format(99999)).to.equal("99,999")
-			expect(ShortNumber.format(99999.9)).to.equal("99,999")
+			expect(ShortNumber.format(9999)).to.equal("9,999")
+			expect(ShortNumber.format(9999.9)).to.equal("9,999")
+		end)
+
+		it("shows whole thousands as K from 10,000 (#2268: 54045/s reads 54K/s)", function()
+			expect(ShortNumber.format(10000)).to.equal("10K")
+			expect(ShortNumber.format(54045)).to.equal("54K")
+			expect(ShortNumber.format(54999)).to.equal("54K")
+			expect(ShortNumber.format(99999)).to.equal("99K")
+			expect(ShortNumber.format(250500)).to.equal("250K")
 		end)
 
 		it("cuts down instead of rounding up (Derek's 1.99M, not 2M)", function()
@@ -86,7 +94,7 @@ return function()
 				return sign .. "∞"
 			end
 			local digits = string.format("%.0f", whole)
-			if whole < 100000 then
+			if whole < 10000 then
 				return sign .. grouped(digits)
 			end
 			local index = math.min(#SUFFIXES, math.floor((#digits - 1) / 3))
@@ -95,7 +103,9 @@ return function()
 			if headLength >= 4 then
 				return sign .. grouped(head) .. SUFFIXES[index]
 			end
-			local fraction = (digits:sub(headLength + 1, 3):gsub("0+$", ""))
+			local fraction = if index == 1
+				then ""
+				else (digits:sub(headLength + 1, 3):gsub("0+$", ""))
 			return sign
 				.. head
 				.. (if fraction ~= "" then "." .. fraction else "")

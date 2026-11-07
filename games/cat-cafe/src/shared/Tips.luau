@@ -44,6 +44,9 @@ Tips.LIST = table.freeze({
 	tip("codes_cat", "card", "client"),
 	tip("luck", "card", "client"),
 	tip("offline", "card", "client"),
+	-- #2282 (Derek2: "on the persons first perfect catch have a quick side tip that explains it boosts their charm
+	-- giving more money"): after the first catch whose Perfects added Charm (CatchResult charmGain > 0)
+	tip("perfect", "card", "client"),
 } :: { TipDef })
 
 -- The offline card gets its line ("Your cats earned while you were away!") after this long away (section 3).

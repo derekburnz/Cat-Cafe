@@ -1,7 +1,7 @@
 --!strict
 -- Big numbers made short for the HUD counters and every price (golden-fish.md section 1, Derek 2026-10-27: "changing
--- to K/M/B/T or whatever currency so it doesn't flow off screen"). Exact with commas below 100,000, then K, M, B,
--- T, Qa and Qi with up to three digits. The number is cut down, never rounded up (1,999,999 shows 1.99M, not 2M),
+-- to K/M/B/T or whatever currency so it doesn't flow off screen"). Exact with commas below 10,000, then whole
+-- thousands as K (#2268, Derek2: "54045/s shows 54k"), then M, B, T, Qa and Qi with up to three digits. The number is cut down, never rounded up (1,999,999 shows 1.99M, not 2M),
 -- so a counter never shows more than the player has. Pure: no Theme, so the cloud spec runner can load it.
 -- #1814: in Shared since the server's toasts use it too ("Welcome back! +$3.42M while you were away"); the client's
 -- UI/Components/ShortNumber returns this module.
@@ -9,7 +9,7 @@
 local ShortNumber = {}
 
 local SUFFIXES = { "K", "M", "B", "T", "Qa", "Qi" }
-local EXACT_BELOW = 100000
+local EXACT_BELOW = 10000
 
 -- 1234567 -> "1,234,567". Whole numbers only: a fraction is cut off.
 function ShortNumber.commas(n: number): string
@@ -21,7 +21,7 @@ function ShortNumber.commas(n: number): string
 	return if n <= -1 then "-" .. out else out
 end
 
--- 8420 -> "8,420", 1240000 -> "1.24M", 1999999 -> "1.99M", 12345678 -> "12.3M", 123456789 -> "123M".
+-- 8420 -> "8,420", 54045 -> "54K", 1240000 -> "1.24M", 1999999 -> "1.99M", 12345678 -> "12.3M", 123456789 -> "123M".
 function ShortNumber.format(n: number): string
 	if n ~= n then
 		return "0" -- NaN never reaches a counter as "nan"
@@ -40,7 +40,8 @@ function ShortNumber.format(n: number): string
 	if head >= 1000 then
 		return sign .. ShortNumber.commas(head) .. SUFFIXES[index] -- past Qi the digits keep their commas
 	end
-	local decimals = if head < 10 then 2 elseif head < 100 then 1 else 0
+	-- K is always whole thousands ("54K", not "54.0K"); M and up keep three digits
+	local decimals = if index == 1 or head >= 100 then 0 elseif head < 10 then 2 else 1
 	local step = unit / 10 ^ decimals
 	-- whole - whole % step is exact, so the cut never rounds up through floating point
 	local scaled = (whole - whole % step) / step

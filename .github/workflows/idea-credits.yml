@@ -15,10 +15,14 @@ on:
       action:
         description: "list | add | remove"
         type: choice
-        options: [list, add, remove]
+        options: [list, add, remove, add-player]
         default: list
       report:
         description: "add and remove: the bug report, best as r_<YYYYMMDD>_<time> without the user id"
+        required: false
+        default: ""
+      username:
+        description: "add-player only: the player's Roblox username, for an idea they gave outside the Idea button (on Derek's OK)"
         required: false
         default: ""
       version:
@@ -51,6 +55,7 @@ jobs:
       ACTION: ${{ inputs.action }}
       VERSION: ${{ inputs.version }}
       IDEA: ${{ inputs.idea }}
+      USERNAME: ${{ inputs.username }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -79,4 +84,5 @@ jobs:
           list) bash "$script" list ;;
           add) bash "$script" add "$REPORT" "$VERSION" "$IDEA" ;;
           remove) bash "$script" remove "$REPORT" ;;
+          add-player) bash "$script" add-player "$USERNAME" "$VERSION" "$IDEA" ;;
           esac

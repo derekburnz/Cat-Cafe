@@ -28,9 +28,10 @@ function Format.money(n: number): string
 	return Theme.currencySymbol .. Format.short(n)
 end
 
+-- 2.5 -> "+$2.5/s", 840 -> "+$840/s", 54045 -> "+$54K/s" (#2268: big rates go short like every other number)
 function Format.rate(perSecond: number): string
 	local value = if perSecond >= 10
-		then string.format("%.0f", perSecond)
+		then ShortNumber.format(perSecond)
 		else string.format("%.1f", perSecond)
 	value = value:gsub("%.0$", "")
 	return "+" .. Theme.currencySymbol .. value .. "/s"

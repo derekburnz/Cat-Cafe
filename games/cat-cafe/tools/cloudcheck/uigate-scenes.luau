@@ -1511,13 +1511,13 @@ local SCENES = {
 		local card = gui and gui:FindFirstChild("Card", true)
 		assert(card and card.Visible, "uigate: no session recap card when idle (#1920)")
 		local first = card:FindFirstChild("Line1", true)
-		assert(first and first.Text == "Today: 3 new cats, $12,500 earned", "uigate: the recap's first line reads " .. tostring(first and first.Text))
+		assert(first and first.Text == "Today: 3 new cats, $12K earned", "uigate: the recap's first line reads " .. tostring(first and first.Text))
 		local second = card:FindFirstChild("Line2", true)
 		assert(second and string.find(second.Text, "Grand Opening 3/8", 1, true), "uigate: the recap's next line reads " .. tostring(second and second.Text))
 		assert(card:FindFirstChild("Line3", true).Text == "Your bait cat arrives in 3 min. It waits for you", "uigate: the recap's bait line reads " .. card:FindFirstChild("Line3", true).Text)
 		assert(card:FindFirstChild("Line4", true).Visible, "uigate: no offline line on the recap")
 		UI.recap.show({ minutes = 80, newCats = 1, earned = 1 })
-		assert(first.Text == "Today: 3 new cats, $12,500 earned", "uigate: the recap showed twice in a session (#1920)")
+		assert(first.Text == "Today: 3 new cats, $12K earned", "uigate: the recap showed twice in a session (#1920)")
 	end },
 	-- #2123 (first-hour.md 6a): with Gameplay's ReturnHook pick the offline share has its own line and one Tomorrow
 	-- line closes the card (a treat with its prize, the longest), in place of the cooking bait line
@@ -2859,6 +2859,45 @@ local SCENES = {
 	-- F87: a context tip's card at the top centre, its bar draining
 	{ "TipCard", function()
 		UI.tips.show("second_cat")
+	end },
+	-- #2282 (Derek2: "on the persons first perfect catch have a quick side tip that explains it boosts their charm"):
+	-- a catch whose Perfects added Charm brings the tip card with the Charm line, once; a Perfect-less catch does not
+	{ "PerfectCharmTip", function()
+		local before: any = (UI.getState() :: any).tipsSeen or {}
+		-- every other tip seen, so no client-found tip (the luck chip's, the Codes Cat's) takes the card or restarts
+		-- the gap while the scene waits
+		local tipsSeen = table.clone(before)
+		for _, def in UIShim.require("ReplicatedStorage.Shared.Tips").LIST do
+			tipsSeen[def.id] = true
+		end
+		tipsSeen.perfect = nil
+		UI.update({ tipsSeen = tipsSeen } :: any)
+		local seen: { string } = {}
+		local counting = UI.events.tipSeen:Connect(function(id: string)
+			table.insert(seen, id)
+		end)
+		local function charmLine(): TextLabel?
+			for _, label in UIShim.playerGui:GetDescendants() do
+				if label:IsA("TextLabel") and label.Text:find("Charm", 1, true) and label.Text:find("Perfects", 1, true) then
+					return label
+				end
+			end
+			return nil
+		end
+		UIShim.advance(61) -- past TipGapSeconds after the TipCard scene's tip, so the queue may show the next one
+		UI.catch.showGrades("uigate_stray", { "good", "good" }, true, 0)
+		UIShim.advance(1)
+		assert(charmLine() == nil, "uigate: a catch with no Perfect showed the Charm tip (#2282)")
+		UI.catch.showGrades("uigate_stray", { "perfect", "good" }, true, 2)
+		UIShim.advance(4)
+		local line = charmLine()
+		assert(line and line.Visible, "uigate: the first Perfect catch did not show the Charm tip (#2282)")
+		assert(line.Text == "Perfects boost a cat's Charm, and more Charm earns more money!", "uigate: the Charm tip reads " .. line.Text)
+		assert(line.TextFits, "uigate: the Charm tip's line does not fit its card (#2282)")
+		UIShim.advance(12)
+		assert(table.find(seen, "perfect"), "uigate: the Charm tip was not saved as seen (#2282)")
+		counting:Disconnect()
+		UI.update({ tipsSeen = before } :: any)
 	end },
 	-- #2198 (Derek2: "a forced cut scene after first catch"): the server's tackle tip plays as the tackling lesson on
 	-- the intro's screen: four captions with four dots, the read bar and Next, no Skip; it ends by itself and saves

@@ -41,6 +41,14 @@ SignStyles.LIST = table.freeze({
 		name = "Golden Leaf",
 		model = "CatCafe_Plot_SignGoldenLeaf",
 	}),
+	-- #1883 part C (level 34, Model-Agent's #1921): the Cafe Pass's last reward, saved once claimed like the frame;
+	-- the cafe name in amber on the walnut board
+	table.freeze({
+		id = "sign_maple_board",
+		name = "Maple Board",
+		model = "CatCafe_Plot_SignMapleBoard",
+		nameColor = "F2B134",
+	}),
 	-- #1168 row 1 (Monetization-Agent, 2026-11-06): the Sign Style Pack pass's three styles, looks only. Model-Agent
 	-- makes the models (signstyles.py); SignStylePackPassId stays 0 until they are in.
 	table.freeze({

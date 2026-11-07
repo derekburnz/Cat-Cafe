@@ -1717,6 +1717,11 @@ Catalog.passSeasons = {
 			[28] = { prize = { coinSeconds = 1800 } },
 			[29] = { prize = { coinSeconds = 1500 } },
 			[30] = { prize = { crates = { classic_crate = 1 }, fish = 50 } },
+			-- #1883 part C: the four levels added with the Maple showpieces (free, resources only)
+			[31] = { prize = { fish = 30 } },
+			[32] = potions({ swift_potion = 1 }),
+			[33] = { prize = { coinSeconds = 1800 } },
+			[34] = { prize = { crates = { highest = 1 } } },
 		},
 		paid = {
 			[1] = item("tag", "tag_maple", "Season 1 chat tag [Maple]"),
@@ -1750,6 +1755,11 @@ Catalog.passSeasons = {
 			[28] = item("decor", "decor_maple_tree_planter", "Maple Tree Planter"),
 			[29] = item("frame", "frame_golden_leaf", "Name plate frame: Golden Leaf"),
 			[30] = item("cat", "maple_muffin", "Season cat: Maple Muffin"),
+			-- #1883 part C (Model-Agent's art, #1921): the paid track ends on four Maple showpieces, looks only
+			[31] = item("accessory", "acc_leaf_crown", "Autumn Leaf Crown"),
+			[32] = item("decor", "decor_maple_leaf_lamp", "Maple Leaf Lamp"),
+			[33] = item("decor", "decor_harvest_cider_cart", "Harvest Cider Cart"),
+			[34] = item("frame", "sign_maple_board", "Cafe sign: Maple Board"),
 		},
 	},
 } :: { Types.PassSeasonDef }
@@ -3478,6 +3488,19 @@ local PASS_DECOR: {
 			name = "Maple Tree Planter",
 			kind = "decoration",
 			description = "A little maple in red and orange.",
+		},
+		-- #1883 part C (levels 32 and 33, Model-Agent's #1921)
+		{
+			id = "decor_maple_leaf_lamp",
+			name = "Maple Leaf Lamp",
+			kind = "decoration",
+			description = "A paper maple leaf, glowing amber day and night.",
+		},
+		{
+			id = "decor_harvest_cider_cart",
+			name = "Harvest Cider Cart",
+			kind = "furniture",
+			description = "A barrel of cider, three mugs and a basket of apples.",
 		},
 		{
 			id = "decor_royal_velvet_booth",

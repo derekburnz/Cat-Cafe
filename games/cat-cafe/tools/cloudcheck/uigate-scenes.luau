@@ -948,11 +948,27 @@ local SCENES = {
 		end
 		assert(string.find(action("garden_bench"), "Remove", 1, true), "uigate: the out Garden Bench reads " .. action("garden_bench") .. " (#1751)")
 		assert(string.find(action("lamp_post"), "Use", 1, true), "uigate: the stored Lamp Post reads " .. action("lamp_post") .. " (#1751)")
-		-- #1729: the big-spot Garden Bench has the small "Big spot" tag, the small-spot Tulip Bed none
-		local bench = lawn and lawn:FindFirstChild("garden_bench", true)
-		local tulips = lawn and lawn:FindFirstChild("tulip_bed", true)
-		assert(bench and bench:FindFirstChild("BigSpot"), "uigate: the Garden Bench card has no Big spot tag (#1729)")
-		assert(tulips and tulips:FindFirstChild("BigSpot") == nil, "uigate: the Tulip Bed card has a Big spot tag (#1729)")
+		-- #2081: Big spots, Small spots, then Paths and fences, top to bottom, each card under its own heading, and no
+		-- per-card "Big spot" tag (#1729's, which the headings replace)
+		local Lawn = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.LawnLogic")
+		local lastY = -math.huge
+		for _, group in Lawn.groups(UI.getState()) do
+			local heading = lawn and lawn:FindFirstChild("Heading_" .. group.key, true)
+			local cells = lawn and lawn:FindFirstChild("Cards_" .. group.key, true)
+			assert(heading and heading:IsA("TextLabel") and heading.Visible, "uigate: no " .. group.key .. " heading on the Lawn chip (#2081)")
+			assert(cells and cells:IsA("GuiObject"), "uigate: no " .. group.key .. " grid on the Lawn chip (#2081)")
+			assert(heading.Text == group.title, ("uigate: the %s heading reads %q, not %q (#2081)"):format(group.key, heading.Text, group.title))
+			assert(heading.AbsolutePosition.Y > lastY, "uigate: the " .. group.key .. " heading is above the one before it (#2081)")
+			assert(cells.AbsolutePosition.Y >= heading.AbsolutePosition.Y + heading.AbsoluteSize.Y - 1, "uigate: the " .. group.key .. " cards start above their heading (#2081)")
+			for _, card in group.cards do
+				local frame = cells:FindFirstChild(card.id)
+				assert(frame and (frame :: GuiObject).Visible, ("uigate: %s is not under the %s heading (#2081)"):format(card.id, group.key))
+				assert(frame:FindFirstChild("BigSpot") == nil, "uigate: " .. card.id .. " still has a Big spot tag (#2081)")
+			end
+			lastY = cells.AbsolutePosition.Y
+		end
+		assert(lawn:FindFirstChild("Heading_big", true), "uigate: the Garden Bench's Big spots heading is missing (#2081)")
+		assert(lawn:FindFirstChild("Heading_styles", true), "uigate: the Paths and fences heading is missing (#2081)")
 	end },
 	-- #1624: the Style tab, the cafe sign (Royal Crest in use) and the uniforms once the server sends looks
 	{ "DecorStyle", function()

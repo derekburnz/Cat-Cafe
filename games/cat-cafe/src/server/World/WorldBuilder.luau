@@ -1746,7 +1746,8 @@ local function buildCampExtras(parent: Instance)
 		prompt.Name = CampExtras.PROMPT
 		prompt.ObjectText = def.name
 		prompt.ActionText = if def.kind == "shop" then "See the crates" else "Collect"
-		prompt.HoldDuration = 0.3
+		-- #2326 (Derek2: "make a lot of the buttons to access menu's a one click"): a shop opens on one press
+		prompt.HoldDuration = if def.kind == "shop" then 0 else 0.3
 		prompt.MaxActivationDistance = Config.CampExtraRangeStuds
 		prompt.RequiresLineOfSight = false
 		prompt.Style = Enum.ProximityPromptStyle.Custom
@@ -1778,7 +1779,7 @@ local function buildSpinWheel(parent: Instance): Model
 	prompt.Name = "SpinPrompt"
 	prompt.ActionText = "Spin"
 	prompt.ObjectText = "Spin Wheel"
-	prompt.HoldDuration = 0.5
+	prompt.HoldDuration = 0 -- #2326: one press opens it
 	-- measured from the anchor, a few studs in front of the pivot that SpinStationRange is measured from
 	prompt.MaxActivationDistance = Config.SpinStationRange - 4
 	prompt.RequiresLineOfSight = false
@@ -1815,7 +1816,7 @@ local function buildFishMarket(parent: Instance): Model
 	prompt.Name = "MarketPrompt"
 	prompt.ActionText = "Shop"
 	prompt.ObjectText = "Golden Fish Market"
-	prompt.HoldDuration = 0.3
+	prompt.HoldDuration = 0 -- #2326: one press opens it
 	prompt.MaxActivationDistance = Config.FishMarketRange - 4 -- from the counter's front, a few studs off the pivot
 	prompt.RequiresLineOfSight = false
 	prompt.Style = Enum.ProximityPromptStyle.Custom
@@ -1921,7 +1922,7 @@ local function buildCornerShop(parent: Instance): Model?
 	prompt.Name = "CornerShopPrompt"
 	prompt.ActionText = "Shop"
 	prompt.ObjectText = if onCart then "Day Cart" else "Corner Shop"
-	prompt.HoldDuration = 0.3
+	prompt.HoldDuration = 0 -- #2326: one press opens it
 	prompt.MaxActivationDistance = Config.CornerShopRange - 4
 	prompt.RequiresLineOfSight = false
 	prompt.Style = Enum.ProximityPromptStyle.Custom
@@ -2296,7 +2297,7 @@ local function buildCannon(id: string, parent: Instance): Model
 	prompt.Name = "CannonPrompt"
 	prompt.ActionText = "Hop in"
 	prompt.ObjectText = "Cat Cannon"
-	prompt.HoldDuration = Config.CatchHoldSeconds
+	prompt.HoldDuration = 0 -- #2326: one press opens it
 	prompt.MaxActivationDistance = W.CannonRangeStuds
 	prompt.RequiresLineOfSight = false
 	prompt.Style = Enum.ProximityPromptStyle.Custom

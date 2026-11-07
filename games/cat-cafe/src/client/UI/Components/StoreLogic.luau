@@ -599,7 +599,13 @@ end
 -- a tap still opens the Store
 -- id: #2353 (Derek2 11-07: "just prompt them to buy it for robux not open shop"), the 2x pass a tap on the X2 Cash
 -- pill buys straight away; nil while owned or quiet, so those taps work as before
-export type MoneyBadge = { text: string, owned: boolean, price: string?, quiet: boolean?, id: number? }
+export type MoneyBadge = {
+	text: string,
+	owned: boolean,
+	price: string?,
+	quiet: boolean?,
+	id: number?,
+}
 function StoreLogic.moneyBadge(
 	config: any,
 	owned: { [number]: boolean },

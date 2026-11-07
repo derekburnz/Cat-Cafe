@@ -3277,7 +3277,13 @@ end
 -- hidden with nil. #1936: a quiet badge (the first 30 minutes of play) has no price line and does not pulse.
 function HUD.setMoneyBadge(
 	self: any,
-	badge: { text: string, owned: boolean, price: string?, quiet: boolean?, id: number? }?
+	badge: {
+		text: string,
+		owned: boolean,
+		price: string?,
+		quiet: boolean?,
+		id: number?,
+	}?
 )
 	local button: TextButton = self._moneyBadge
 	self._moneyBadgeId = if badge ~= nil and not badge.owned then badge.id else nil

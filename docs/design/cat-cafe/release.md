@@ -2,7 +2,12 @@
 
 Status: specced 2026-11-07 by Design-Agent (friend's project), from Derek2's asks the same day: "continue researching and thinking of any changes and additions that might benefit the game to have on release and start implementing them however you suggest", then "go ahead with all and release planning for about 3-5 days from now". Research: Research-Agent's `release-ideas-2026-11-07.md` in the library.
 
-**Release window:** go wide (public, What's New "We're open!") targeted for **Thursday 2026-11-12**, after a short soft launch that needs at least 24 hours of players for the gate in section 2. Set 11 Q4 (Derek2, 2026-11-07): "maybe not tuesday because will do some research on good release days and time but yeah good idea overall". So the soft-launch day and the go-wide day and hour come from Research-Agent's release-timing research (#1956), and the freeze stays Monday 2026-11-09 18:00 UTC. Derek2 decides on the day.
+**Release window: not set yet.** Set 12 Q6 (Derek2, 2026-11-07): "we figure out days and tiles later depending on some fixes". Research-Agent's suggestion (#1956) is kept as the default when he picks: public on a Wednesday at 20:00 UTC, ads from the next day. The plan below counts in days from **day 1, the first public day**. The freeze is 24 hours before day 1: from then on only fixes merge.
+
+**Launch shape (Set 12 Q4, Derek2):** "first day public I will get friends to test then start ads day 2 ideally 10-15$ a day for 7 days and we decide if its worth continuing after that". So:
+- **Day 1, public:** the game goes public, and Derek2's friends play and test it. There are no ads and no outside posts yet. The What's New "We're open!" entry and `OPENING` go live.
+- **Day 2 to day 8, ads:** a Roblox sponsored ad runs at **US$10 to $15 a day for 7 days** (about $70 to $105 in all), if the day 1 quick check in section 2 passes.
+- **Day 9, the decision:** Derek2 decides whether ads continue, using the day 2 to 8 numbers in section 2. Updates after launch wait on the same read (section 4).
 
 ## 1. Roblox badges (#1934)
 
@@ -41,16 +46,16 @@ Badges show on the game page and in a player's inventory. Each one is free to cr
 
 Owners: QA-Planner (runs the gate and writes `docs/playtests/2026-11-10-release-gate.md`), Tools-Agent (device and performance captures), Monetization-Agent (reads the funnels). Derek2 makes the go-wide call.
 
-- **Stage 1, private check (2026-11-08 to 11-09):** the full playtest on the device matrix below, on the dev place and then on the live place. Nothing new merges after Monday 2026-11-09 at 18:00 UTC except fixes ("freeze").
-- **Stage 2, soft launch (from Tuesday 2026-11-10):** the game goes public with no ads and no outside posts. Only Roblox's own discovery, friends and the group bring players. Read the funnels after 24 to 48 hours.
-- **Stage 3, go wide (target Thursday 2026-11-12):** the What's New "We're open!" entry, the launch code, the group post and any outside posts.
-- **Pass criteria for going wide** (all from the funnels that already exist):
+- **Stage 1, private check (before the freeze):** the full playtest on the device matrix below, on the dev place and then on the live place. The phone checks run in Studio's device emulator (Set 12 Q5, Derek2: "do it on an emulator in studio and track mobile users leave times so we can see if they have issues day 2"). Nothing new merges in the 24 hours before day 1 except fixes ("freeze").
+- **Stage 2, day 1 quick check (24 hours after going public, before ads start):** marks 1, 4 and 5 below must pass. Friends' play is a small sample, so the percents are a hint. A failed mark gets a `release-blocker` issue, and ads wait until it is fixed.
+- **Stage 3, the ad week (day 2 to day 8):** marks 2 and 3 are read from the ad players, together with **phone leave times**: `session_end` and `new_player_left` already carry the device and the seconds played, so Monetization-Agent compares the median session and the bounce windows for phone against PC each day from day 2. A phone median under half the PC median, or a jump in phone leaves in one onboarding step, gets a `release-blocker` issue for that step.
+- **Pass criteria** (all from the funnels that already exist):
   1. Tutorial completion (`onboarding_v4` step 5) is **80% or more** of players who load in.
   2. D1 return is **12% or more** on the soft launch's first day of players, the analytics plan's number. Under 8% means hold and fix first. Between 8% and 12%, Derek2 decides. Derek2, 2026-11-07: "go for the original plan numbers as those are realistic but don't expect it to go that well it is my first game".
   3. The median first session is **10 minutes or more**, and 25% or more of players reach 30 minutes.
   4. Client error rate: no new ClientErrors signature hits more than 1% of sessions, and no server error repeats in more than 1% of servers.
-  5. Purchases work: every live pass and product passes its owner test on 2026-11-09.
-- **Device matrix** (each passes the first 15 minutes with no new console errors): a low-end Android phone (the lighter phone setting on), an iPhone, an iPad or tablet, a Windows desktop, and console if Derek2 can borrow one (otherwise the console layout in Studio's emulator).
+  5. Purchases work: every live pass and product passes its owner test before the freeze.
+- **Device matrix** (each passes the first 15 minutes with no new console errors): a low-end Android phone (the lighter phone setting on), an iPhone, an iPad or tablet, a Windows desktop, and console. The phones, tablet and console run in Studio's device emulator (Set 12 Q5), and the live phone numbers come from the leave-time read in stage 3.
 - **Performance marks:** time from load to first move is 20 s or less at the median on phone. Client memory stays under 1.2 GB on the low-end phone over 15 minutes. The server heartbeat stays at 55 Hz or more with 8 players. Tools-Agent records these from Studio and the live developer console.
 - If any mark fails, the fix gets an issue labelled `release-blocker`, and the gate re-runs on just that item.
 
@@ -67,30 +72,23 @@ The research rule is that nothing pushes a paid item at a new player. Today noth
 - **Free players** can reach every tier, area and cat that isn't shop-only. That's already true, and the guard test lists it as a check, so a future change can't break it quietly.
 - **QA:** on a fresh account nothing paid is advertised before 30 minutes, and the money pill gains its price at 30:00. A scripted call to `PassShop.prompt` with no tap is blocked and logged. Every buy button still works.
 
-## 4. The first four weeks (#1937)
+## 4. After launch: on hold (#1937)
 
-Owner: Design-Agent (calendar), Monetization-Agent (What's New text and growth copy in `docs/growth/`), Gameplay-Engineer (codes, already in `Catalog.codes` from #1943, all inactive until their day). Drafted 2026-11-07. **Working assumption:** small Saturday drops built only from things that already exist (Set 12 Q2, not answered yet) and the research launch days from #1956 (Set 12 Q6, not answered yet). Items marked **[Q2]** or **[Q6]** change if Derek2 picks otherwise; see 4b.
+Set 12 Q2 (Derek2, 2026-11-07): "don't worry about updates post release until we see game is doing well". So only the launch itself is planned:
+- **Day 1:** What's New "We're open!" (the Grand Opening roadmap and the new catch) and the code `OPENING` (1000 coins + 300 coin-seconds, #1943). Everything else is fixes.
+- **Days 2 to 8:** fixes only, from QA-Planner's bug list and the phone leave-time read (section 2, stage 3).
+- **On hold until Derek2 says the game is doing well (the day 9 read at the earliest):** the Rescue Rally weekend, the forced Lucky, Golden and Rainbow Days, the decor and camp drops, and the codes `RALLY`, `COZY` and `SNOWY`. They are all built or easy to build: the codes are in `Catalog.codes` and inactive (#1943), and `Config.ForcedDays` stays empty (#1974). Turning one on is a one-row PR.
+- The calendar that was drafted for this (#1973) is kept below as the menu to pick from when updates restart. Its dates are no longer the plan.
 
-Each week's pieces get their own issues and owners by the Wednesday before, and are merged by the Friday 18:00 UTC before the drop, so the Saturday is only flipping flags and posting.
+| drop (when updates restart) | turned on | code | owners |
+|---|---|---|---|
+| a **Rescue Rally weekend** (rescue-rally.md) | the Rally flag for Saturday and Sunday | `RALLY` | Gameplay |
+| a **Lucky Day** and 3 new decor pieces from the existing crate list | a `lucky` row in `Config.ForcedDays` | none | Model-Agent, Gameplay |
+| the Autumn Leaf set reminder (cafe-pass.md §3a), a new camp item and a **Golden Day** | a `golden` row | `COZY` | Model-Agent, Gameplay |
+| a **Rainbow Day**, 2 more decor pieces and fixes | a `rainbow` row | `SNOWY` | Model-Agent, Gameplay |
 
-| week | date | the drop | turned on | code | owners |
-|---|---|---|---|---|---|
-| soft launch | Wed 11-11 20:00 UTC **[Q6]** | public, no ads, no posts, no What's New | nothing new | none | QA-Planner reads the gate Fri 11-13 14:00 UTC **[Q6]** |
-| launch, week 1 | Sat 11-14 14:00 UTC **[Q6]** | "We're open!" with the soft-launch fixes and the first **Rescue Rally weekend** (rescue-rally.md) | Rally flag Sat and Sun | `OPENING` and `RALLY` | Gameplay (flags), Monetization (one combined What's New) |
-| 2 | Sat 11-21 **[Q2]** | a **Lucky Day** Saturday (luck-and-rare-moments.md) and 3 new decor pieces from the existing crate list | Lucky Day forced on for that in-game day | none | Model-Agent (decor), Gameplay (day flag) |
-| 3 | Sat 11-28 **[Q2]** | the Cafe Pass Autumn Leaf set reminder (cafe-pass.md §3a), a new camp item, and a **Golden Day** Sunday | Golden Day forced on Sun 11-29 | `COZY` | Model-Agent (camp item), Gameplay (day flag) |
-| 4 | Sat 12-05 **[Q2]** | a **Rainbow Day** Saturday, 2 more decor pieces and fixes from player bug reports | Rainbow Day forced on | `SNOWY` (code name kept) | Model-Agent, Gameplay |
-
-- **Codes:** coins only, at most about 10 minutes of income: `OPENING` and `RALLY` 1000 coins + 300 coin-seconds, `COZY` 1500 + 450, `SNOWY` 2000 + 600 (#1943). Each turns on on its drop day and ends 4 weeks later. The code goes in the What's New line only, never a pop-up.
-- **Forced days:** set with `Config.ForcedDays` (#1974, built in #1975). Each row is `{ kind = "lucky" | "golden" | "rainbow", from, to }` in UTC unix seconds, and any in-game day whose sunrise falls inside a window gets that kind on every server (the global day timer, Set 10 Q2). The list starts empty. Each weekly drop PR adds its row before the Friday 18:00 UTC cutoff: week 2 `lucky` for Sat 11-21, week 3 `golden` for Sun 11-29, week 4 `rainbow` for Sat 12-05, each window running 00:00 to 24:00 UTC that day. Outside the windows, the normal random chances apply. Nothing about a forced day is sold or counted down.
-- **Honest wording:** no countdowns, no "hurry", nothing paid named in text a new player sees (section 3).
-- **Every week also ships:** the top bug fixes from the previous week's reports and the funnels, picked by QA-Planner on the Wednesday.
-- **Stale copy:** the growth calendar (`docs/growth/first-four-weeks-2026-11-07.md`) still lists the Winter Cafe on 12-05 and a Thu 11-12 opening. Monetization-Agent updates it to this table (winter dropped in 4a).
+- **Forced days:** `Config.ForcedDays` rows are `{ kind = "lucky" | "golden" | "rainbow", from, to }` in UTC unix seconds (#1974, #1975). Any in-game day whose sunrise falls inside a window gets that kind on every server. Outside the windows the normal random chances apply.
+- **Honest wording:** no countdowns, no "hurry", and nothing paid named in text a new player sees (section 3). A code goes in the What's New line only.
 
 ### 4a. No winter event (Set 11 Q6, Derek2 2026-11-07)
-Derek2: "this game probably wont live that long its a learning experience so don't worry about next winter or even next month focus on making it good for launch". The Winter Cafe event is dropped. Effort goes into launch polish, and weeks 1 to 4 stay small drops built from what exists.
-
-### 4b. If Derek2 picks otherwise
-- **Q6, other launch days:** the soft-launch and go-wide rows move, and "We're open!" stays a separate entry if go-wide falls before Saturday 11-14 (then `OPENING` starts on go-wide and `RALLY` on 11-14). If the gate fails, every row moves one week later, and the week 4 drop is dropped rather than running into mid-December.
-- **Q2, no weekly drops:** weeks 2 to 4 become fix-only Saturdays. The forced days, decor and the camp item are cut, and `COZY` and `SNOWY` stay inactive.
-- **Q2, bigger drops:** each new piece needs its own spec from Design-Agent by the Monday before, or it slips a week.
+Derek2: "this game probably wont live that long its a learning experience so don't worry about next winter or even next month focus on making it good for launch". The Winter Cafe event is dropped.

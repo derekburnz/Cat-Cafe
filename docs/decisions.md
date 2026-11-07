@@ -573,3 +573,13 @@ Design-Agent (friend's project) drafted the first four weeks in `release.md` §4
 
 ## 2026-11-07: catch retune signed off (#2005, #2031)
 Design-Agent (friend's project) updated catch-rework.md 7b, 7c and 7e to Gameplay-Engineer's retune in #2031: Perfect +3, Good +2, `trustNeed` 11/14/17/20/23, `DoubleRingGap` 0.35 s, and a Mythical `catchWindow` of 0.68. A Basic Net Mythical goes from 19% to 36% per try. Derek2 said "mythic feels impossible", "getting excellents/good increase hp more" and "the rapid rings are not clear and too fast right after eachother". The paw ring stays, drawn red all round with "Don't swing!". Reason: about 1 in 3 per try keeps Mythicals special without feeling impossible, and the order of rarities and nets is kept.
+
+## 2026-11-07: Set 12 answers, launch shape and updates on hold
+Derek2 answered Set 12 in the questions doc. The full list is in `docs/design/cat-cafe/feedback/answers-2026-11-07-set-12.md`.
+- **Release days:** not set yet; Derek2 picks them once fixes land (Q6). release.md now counts from day 1, with the freeze 24 h before.
+- **Launch shape (Q4):** day 1 public with friends testing, then sponsored ads from day 2 at US$10 to $15 a day for 7 days, and a continue-or-stop call on day 9.
+- **Updates after launch (Q2):** on hold until the game is doing well. The calendar from #1973 becomes a menu, with its codes inactive and `Config.ForcedDays` empty.
+- **Phone checks (Q5):** run in Studio's emulator, plus a phone-versus-PC leave-time read from day 2.
+- **Trailer (#977, Q3):** goes ahead.
+
+Reason: these are Derek2's own answers. Set 13 was written to the doc.

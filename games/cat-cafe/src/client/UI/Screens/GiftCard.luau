@@ -1,7 +1,7 @@
 --!strict
 -- The like and favourite gift cards (#1947, like-prompts.md section 2): a small card in the middle of the screen with
 -- a thank-you line, "Gift added!" over the gift's pictures (coins and potions, at most two pictures, F94) and two
--- buttons of the same size, "Like the game" or "Favorite" and Close. The gift was paid before the card came, so Close
+-- buttons of the same size, "How to like" or "Favorite" and Close. The gift was paid before the card came, so Close
 -- keeps it. There is no backdrop, countdown or guilt line, and the card never comes back. The words are
 -- Components/GiftCardLogic's.
 --   show(kind, prize, onButton)   onButton(button) once: the first button's name ("like" or "favourite"), "close",
@@ -39,8 +39,9 @@ export type GiftCard = {
 
 local CARD_W = 400
 local PAD = 16
-local TITLE_H = 32
-local LINE_H = 22
+local TITLE_H = 34
+local BODY_TEXT = Theme.sizes.textBody + 1 -- #1981: 15 px regular body text was hard to read on the beige panel
+local LINE_H = BODY_TEXT + 7
 local GIFT_H = 70 -- "Gift added!" and the pictures under it
 local TILE = 34
 local GAP = 10
@@ -94,20 +95,20 @@ function GiftCard.new(parent: Instance): GiftCard
 		Position = UDim2.fromOffset(PAD, PAD - 4),
 		Size = UDim2.new(1, -PAD * 2, 0, TITLE_H),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody + 4,
+		TextSize = Theme.sizes.textBody + 6,
+		-- #1981: plain dark ink on the light panel; a black outline round dark words made them muddy
 		TextColor3 = Theme.modal.text,
 		Text = "",
 		Parent = card,
 	})
-	Outline.text(title, 1.5)
 	self._title = title
 	self._body = Create("TextLabel", {
 		Name = "Body",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(PAD, PAD + TITLE_H),
 		Size = UDim2.new(1, -PAD * 2, 0, LINE_H * 2),
-		FontFace = Theme.fonts.body,
-		TextSize = Theme.sizes.textSmall + 1,
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = BODY_TEXT,
 		TextColor3 = Theme.modal.text,
 		TextWrapped = true,
 		TextYAlignment = Enum.TextYAlignment.Top,
@@ -117,7 +118,8 @@ function GiftCard.new(parent: Instance): GiftCard
 
 	local gift: Frame = Create("Frame", {
 		Name = "Gift",
-		BackgroundColor3 = Theme.colors.caramel,
+		-- #1981: dark cocoa, so the white outlined words and amounts stand out (on caramel they were faint)
+		BackgroundColor3 = Theme.colors.cocoaDeep,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, -PAD * 2, 0, GIFT_H),
 		Parent = card,
@@ -136,8 +138,8 @@ function GiftCard.new(parent: Instance): GiftCard
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, 0, 0, 20),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textSmall + 1,
-		TextColor3 = Theme.colors.white,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.gold,
 		Text = "🎁 " .. GiftCardLogic.GIFT_LINE,
 		LayoutOrder = 1,
 		Parent = gift,
@@ -210,8 +212,8 @@ function GiftCard._layout(self: any)
 	local scale = math.max(self._uiScale.Scale, 0.01)
 	local width = math.min(CARD_W, math.max(280, self._root.AbsoluteSize.X / scale - 32))
 	local body: TextLabel = self._body
-	-- about 6.5 px a character at this size
-	local rows = math.clamp(math.ceil(#body.Text * 6.5 / (width - PAD * 2)), 1, 4)
+	-- about 0.5 em a character in the bold body font
+	local rows = math.clamp(math.ceil(#body.Text * BODY_TEXT * 0.5 / (width - PAD * 2)), 1, 4)
 	local bodyH = LINE_H * rows
 	local y = PAD + TITLE_H
 	body.Size = UDim2.new(1, -PAD * 2, 0, bodyH)

@@ -38,10 +38,12 @@ GiftCardLogic.TEXT = table.freeze({
 	like = table.freeze({
 		title = "Thanks for playing!",
 		body = "Here's a gift. If you're enjoying the cafe, a thumbs-up helps other players find it.",
-		action = "Like the game",
+		-- #1981: Roblox gives a game no like prompt (Favorite has one), so the button says what it does: it shows
+		-- where the thumbs-up is, and nothing opens (Derek2 pressed "Like the game" and expected a prompt)
+		action = "How to like",
 		button = "like",
 		icon = "👍",
-		after = "Tap the thumbs-up on the game's page. Thank you!",
+		after = "When you leave, tap 👍 on the game's page. Thank you!",
 	}),
 	fav = table.freeze({
 		title = "You've played 30 minutes!",

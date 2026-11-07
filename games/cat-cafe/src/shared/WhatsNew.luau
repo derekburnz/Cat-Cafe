@@ -33,6 +33,13 @@ WhatsNew.rows = table.freeze({
 	-- Derek2 (11-07): the changes merged since the 11-07 rows, as they ship; a playtester's report or suggestion is
 	-- thanked by Roblox username
 	{
+		id = "feed_list_smooth",
+		date = "2026-11-07",
+		icon = "faster",
+		text = "Bag feed list no longer lags",
+		thanks = "cooltyrell",
+	},
+	{
 		id = "tutorial_pace",
 		date = "2026-11-07",
 		icon = "look",

@@ -33,6 +33,27 @@ WhatsNew.rows = table.freeze({
 	-- Derek2 (11-07): the changes merged since the 11-07 rows, as they ship; a playtester's report or suggestion is
 	-- thanked by Roblox username
 	{
+		id = "rescue_miss_reset",
+		date = "2026-11-07",
+		icon = "fix",
+		text = "Rescue misses reset the bar",
+		thanks = "crispi_255",
+	},
+	{
+		id = "good_cats_spread",
+		date = "2026-11-07",
+		icon = "cat",
+		text = "Rare cats spread out more",
+		thanks = "crispi_255",
+	},
+	{
+		id = "rare_chat",
+		date = "2026-11-07",
+		icon = "new",
+		text = "Rare catches show in chat",
+		thanks = "bgdevila",
+	},
+	{
 		id = "cash_steady",
 		date = "2026-11-07",
 		icon = "fix",

@@ -57,6 +57,9 @@ local function anchorOf(model: Instance): (BasePart?, number)
 	local part: BasePart? = nil
 	if model:IsA("Model") then
 		part = (model :: Model).PrimaryPart
+		if part ~= nil and not part:IsDescendantOf(model) then
+			part = nil -- streamed out: the model's old part
+		end
 	end
 	if not part then
 		local found = model:FindFirstChildWhichIsA("BasePart", true)
@@ -99,17 +102,35 @@ function PityTags.new(): PityTags
 	return self :: PityTags
 end
 
--- PityCat can arrive after the tag, so every stray is watched and its tag made or dropped to match.
+-- PityCat can arrive after the tag, and the parts after the model, so every stray is watched and its tag made or
+-- dropped to match.
 function PityTags._watch(self: any, stray: Instance)
 	if self._watched[stray] then
 		return
 	end
 	local refresh = function()
-		self:_refresh(stray)
+		if self._watched[stray] ~= nil then -- a deferred refresh after the stray went does nothing
+			self:_refresh(stray)
+		end
 	end
 	self._watched[stray] = {
 		stray:GetAttributeChangedSignal(ATTRIBUTE):Connect(refresh),
 		stray:GetAttributeChangedSignal("LockedBy"):Connect(refresh),
+		-- #2099 fix (Laptop-Tester, Studio 11-07: a debug-spawned pity cat had the ring but no tag): with streaming the
+		-- model can come before its parts (a pity cat spawns at a far hiding spot), and a cat streamed out and back
+		-- in gets new parts, so the tag is made when a part arrives and made again when its part goes
+		stray.DescendantAdded:Connect(function(child: Instance)
+			if self._entries[stray] == nil and child:IsA("BasePart") then
+				task.defer(refresh)
+			end
+		end),
+		stray.DescendantRemoving:Connect(function(child: Instance)
+			local entry: Entry? = self._entries[stray]
+			if entry ~= nil and child == (entry.part :: Instance) then
+				self:_drop(stray)
+				task.defer(refresh)
+			end
+		end),
 		stray.AncestryChanged:Connect(function()
 			if not stray:IsDescendantOf(Workspace) then
 				self:_unwatch(stray)

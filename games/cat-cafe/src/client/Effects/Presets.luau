@@ -3675,6 +3675,21 @@ Presets.themes = {
 -- `lift` studs over it; only within `within` studs. When it is caught in another server or goes: a `puff` of smoke,
 -- gold sparkles and a ring. A removal up to `lateSeconds` before the announcement still puffs where the cat stood;
 -- positions are tracked every `track` seconds.
+-- The outfit passes' thank-you (#2147, store-pass-looks.md 7.3, Effects/PassThanks): one short bow-pink sparkle of
+-- `sparkles` (twice, in `colours`) and a small `ring` over each of your working cats within `within` studs (the
+-- nearest `most`), `gap` seconds apart, at the Head's BubbleAnchor or `over` studs over the pivot.
+Presets.passThanks = {
+	within = 120,
+	most = 16,
+	gap = 0.08,
+	over = 3,
+	sparkles = 6,
+	colours = { Presets.palette.neonPink, Presets.palette.furRose },
+	ring = 2.4,
+	ringSeconds = 0.4,
+	ringBelow = 0.4,
+}
+
 Presets.pity = {
 	within = 300,
 	seconds = 3,

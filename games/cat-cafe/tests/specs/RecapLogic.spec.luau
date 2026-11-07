@@ -35,7 +35,7 @@ return function()
 			expect(lines[1]).to.equal("Today: 3 new cats, $1200 earned")
 			expect(lines[2]).to.equal("Next: rank up to Cozy Cafe")
 			expect(lines[3]).to.equal(
-				"Your cafe earns while you're away: 50% for up to 8 h. Tomorrow: new quests"
+				"Your cafe earns while you're away: 50% for up to 8\u{00A0}h. Tomorrow: new quests"
 			)
 		end)
 
@@ -70,8 +70,72 @@ return function()
 				state = { tutorialStep = 9, dailyTreat = { due = false, nextDay = 4 } },
 			}))
 			expect(lines[#lines]).to.equal(
-				"Your cafe earns while you're away: 100% for up to 16 h. Tomorrow: Daily Treat day 4 and new quests"
+				"Your cafe earns while you're away: 100% for up to 16\u{00A0}h. Tomorrow: Daily Treat day 4 and new quests"
 			)
+		end)
+	end)
+
+	describe("RecapLogic Tomorrow line (#2123)", function()
+		it("names the one pick under the offline share, and drops the cooking line", function()
+			local lines = RecapLogic.lines(input({
+				view = { newCats = 3, earned = 1200, tomorrow = { kind = "bait" } },
+				baitReadyAt = { 1500 },
+			}))
+			expect(#lines).to.equal(4)
+			expect(lines[3]).to.equal("Your cafe earns while you're away: 50% for up to 8\u{00A0}h")
+			expect(lines[4]).to.equal("Your bait cat will be waiting for you")
+		end)
+
+		it("words each kind, with the treat's day and its prize from the catalog", function()
+			expect(RecapLogic.tomorrow({ kind = "bait" })).to.equal("Your bait cat will be waiting for you")
+			expect(RecapLogic.tomorrow({ kind = "treat", day = 2 })).to.equal(
+				"Tomorrow: Daily Treat day 2, " .. RecapLogic.treatWords(2)
+			)
+			expect(RecapLogic.tomorrow({ kind = "treat", day = 99 })).to.equal("Tomorrow: Daily Treat day 99")
+			expect(RecapLogic.tomorrow({ kind = "treat" })).to.equal("Tomorrow: your Daily Treat")
+			expect(RecapLogic.tomorrow({ kind = "quests" })).to.equal("Tomorrow: new daily quests")
+		end)
+
+		it("names a Daily Treat day's prize after its coins, two things at most", function()
+			expect(RecapLogic.treatWords(1)).to.equal("2 Small Snacks")
+			expect(RecapLogic.treatWords(2)).to.equal("15 Golden Fish and 1 spin")
+			-- day 7 leads with its golden crate, then the Star Treat (the fish drop off)
+			local seven = string.split(RecapLogic.treatWords(7) :: string, " and ")
+			expect(#seven).to.equal(2)
+			expect(string.find(seven[1], "Crate", 1, true) ~= nil).to.equal(true)
+			expect(string.find(seven[2], "Fish", 1, true)).to.equal(nil)
+			for day = 1, 7 do
+				local words = RecapLogic.treatWords(day)
+				expect(words ~= nil and #words <= 40).to.equal(true)
+			end
+			expect(RecapLogic.treatWords(0)).to.equal(nil)
+			expect(RecapLogic.treatWords(nil)).to.equal(nil)
+		end)
+
+		it("falls back to state.returnHook, and ignores a bad pick", function()
+			local lines = RecapLogic.lines(input({
+				state = { tutorialStep = 9, returnHook = { kind = "quests" } },
+			}))
+			expect(lines[#lines]).to.equal("Tomorrow: new daily quests")
+			expect(RecapLogic.hook({ kind = "store" })).to.equal(nil)
+			expect(RecapLogic.hook("bait")).to.equal(nil)
+			local odd = RecapLogic.hook({ kind = "treat", day = -1, prize = string.rep("x", 80) })
+			expect(odd.day).to.equal(nil)
+			expect(odd.prize).to.equal(nil)
+			-- no pick: the line from before #2123
+			local before = RecapLogic.lines(input({}))
+			expect(before[#before]).to.equal(
+				"Your cafe earns while you're away: 50% for up to 8\u{00A0}h. Tomorrow: new quests"
+			)
+		end)
+
+		it("never names a timer or the store", function()
+			for _, hook in { { kind = "bait" }, { kind = "treat", day = 3, prize = "Gold" }, { kind = "quests" } } do
+				local line = string.lower(RecapLogic.tomorrow(hook))
+				expect(string.find(line, "%d+ ?min")).to.equal(nil)
+				expect(string.find(line, "store", 1, true)).to.equal(nil)
+				expect(string.find(line, "lose", 1, true)).to.equal(nil)
+			end
 		end)
 	end)
 

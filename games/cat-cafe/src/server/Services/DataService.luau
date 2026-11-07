@@ -82,7 +82,13 @@ local function load(player: Player)
 		end,
 	})
 	if profileStore == nil then
-		player:Kick("Your data is still saving from another server. Please rejoin in a minute.")
+		-- #2116: ProfileStore gives up after its START_SESSION_TIMEOUT (120 s) of retries: another server still holds
+		-- the save, or Roblox's DataStores are down. Nothing was read or written, so nothing is lost.
+		if player.Parent == Players then
+			player:Kick(
+				"Your save couldn't load just now. Nothing is lost. Please rejoin in a minute."
+			)
+		end
 		return
 	end
 	profileStore:AddUserId(player.UserId)
@@ -216,6 +222,24 @@ function DataService.start()
 		end
 	end)
 
+	-- #2116: a save that could not be read as a profile and was replaced, and DataStores failing over and over (saves
+	-- are queued and retried while it lasts); both go to the server log for the restore runbook (docs/save-safety.md)
+	ProfileStore.OnOverwrite:Connect(function(erroredStore, profileKey)
+		warn(
+			string.format(
+				"[DataService] a damaged save was replaced (%s / %s): restore it from version history",
+				erroredStore,
+				profileKey
+			)
+		)
+	end)
+	ProfileStore.OnCriticalToggle:Connect(function(isCritical)
+		warn(
+			if isCritical
+				then "[DataService] DataStores are failing: saves are queued and retried"
+				else "[DataService] DataStores are back"
+		)
+	end)
 	ProfileStore.OnError:Connect(function(message, erroredStore, profileKey)
 		warn(
 			string.format(

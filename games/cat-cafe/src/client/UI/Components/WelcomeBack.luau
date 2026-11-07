@@ -6,10 +6,15 @@
 --                              Nap pass
 -- `longNap` is PlayerState.longNap once ProfileSync carries it; nil is the free line. The pass is offered elsewhere
 -- (Monetization-Agent's plan), never on this card. Pure, so the cloud spec runner checks it.
+--   hookLine(raw) -> string?   #2123 (first-hour.md 6a): one line under the coins from Gameplay's ReturnHook pick
+--                              (state.returnHook), in the present tense: "Your bait cat is ready!", "Daily Treat day 2
+--                              is ready" or "New daily quests are here"; nil (no line) when there is no pick
 
 local Config = require(
 	game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
 ) :: any
+
+local RecapLogic = require(script.Parent.RecapLogic)
 
 local WelcomeBack = {}
 
@@ -48,6 +53,20 @@ function WelcomeBack.note(longNap: boolean?): string
 		WelcomeBack.payWord(Config.OfflineRate or 0.5),
 		WelcomeBack.span(Config.OfflineCapSeconds or 28800)
 	)
+end
+
+function WelcomeBack.hookLine(raw: any): string?
+	local hook = RecapLogic.hook(raw)
+	if hook == nil then
+		return nil
+	elseif hook.kind == "bait" then
+		return "Your bait cat is ready!"
+	elseif hook.kind == "treat" then
+		return if hook.day
+			then ("Daily Treat day %d is ready"):format(hook.day)
+			else "Your Daily Treat is ready"
+	end
+	return "New daily quests are here"
 end
 
 return WelcomeBack

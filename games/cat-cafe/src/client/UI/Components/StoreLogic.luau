@@ -27,6 +27,7 @@ export type Row = {
 	-- #1822: the ids of what the bundle holds that is also sold alone (passes and products), for its "Worth" line
 	worthIds: { number }?,
 	perk: string?, -- #2147: a gold chip over the words, "+15% money" (the two outfit passes)
+	closed: boolean?, -- #2129: not offered right now (the Cafe Pass in the last minutes of a season)
 }
 
 -- The Store's left rail, top to bottom (#1425). Featured and Codes (#1428, the code box) always show; another tab
@@ -253,7 +254,14 @@ export type ProductPrize = {
 }
 -- The running Cafe Pass season for its card: its number, its name, whether its paid track is bought, and the paid
 -- track's contents in words (PassLogic.paidContents).
-export type PassOffer = { season: number, name: string, paid: boolean, contents: string }
+-- #2129: `saleOpen` false in the last minutes of a season (CafePass.saleOpen); the card then waits for the next one.
+export type PassOffer = {
+	season: number,
+	name: string,
+	paid: boolean,
+	contents: string,
+	saleOpen: boolean?,
+}
 export type ShopView = {
 	products: { { id: string, name: string, prize: ProductPrize } }?,
 	potionNames: { [string]: string }?,
@@ -440,6 +448,7 @@ local function cafePassRow(config: any, view: ShopView?): Row?
 		owned = offer.paid,
 		product = true,
 		tab = "cafePass",
+		closed = offer.saleOpen == false,
 	}
 end
 
@@ -838,6 +847,9 @@ end
 function StoreLogic.button(row: Row, price: Price?): Button
 	if row.owned then
 		return { text = "Yours", style = "ghost", enabled = false } -- #1823 §4
+	end
+	if row.closed == true then
+		return { text = "Next season", style = "ghost", enabled = false } -- #2129
 	end
 	if price == nil then
 		return { text = "...", style = "ghost", enabled = false }

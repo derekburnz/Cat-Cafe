@@ -6,6 +6,7 @@ local CollectionService = game:GetService("CollectionService")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
@@ -44,6 +45,7 @@ local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Quests = require(ReplicatedStorage.Shared.Quests)
+local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local SellExtras = require(ReplicatedStorage.Shared.SellExtras)
 local Settings = require(ReplicatedStorage.Shared.Settings)
 local ShortNumber = require(ReplicatedStorage.Shared.ShortNumber)
@@ -70,6 +72,8 @@ end
 local PLAIN_FLAP = "CatCafe_CatFlap_Plain" -- the cafe's own cat flap alone, for a door set with none picked (F80)
 
 local carrying: { [Player]: string? } = {} -- catId while walking a caught stray home
+-- #2123: the welcome back card's line, picked once at the join from the save as it was left (ReturnHook "join")
+local joinHooks: { [Player]: Types.ReturnHookView } = {}
 -- Each player's cat levels at their last sync (v0.12 F75), so a level gained in any settle sends one CatLevelUp
 local knownLevels: { [Player]: { [string]: number } } = {}
 -- #1955 (auto-equip.md): when each cat was placed or rested by hand (os.clock()), so Auto Equip leaves it there for
@@ -230,6 +234,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		dataSaves = DataService.saves(),
 		tutorialStep = profile.tutorialStep,
 		playSeconds = PlayTime.seconds(player, profile), -- #1936: the store guard's first 30 minutes
+		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		introSeen = profile.introSeen,
 		potions = profile.potions, -- F64
 		catFood = profile.catFood, -- #1181: the Bag's cat food
@@ -2235,6 +2240,15 @@ end
 
 local function onLoaded(player: Player, profile: Profile)
 	Economy.setPals(profile, PalService.count(player)) -- F92: pals who were here before the save loaded
+	-- #2123: before anything this join changes the save (lastSeen is still the last session's), and only for a
+	-- returning player: a first join has nothing waiting from before
+	if profile.stats.sessions > 1 then
+		local hook = ReturnHook.pick(profile, os.time(), "join")
+		if hook ~= nil then
+			joinHooks[player] = hook
+			Telemetry.custom(player, "welcome_back_hook", 1, { hook.kind })
+		end
+	end
 	local plot = PlotService.assign(player)
 	if plot == nil then
 		Net.toast(player, "The street is full. Try another server.", "warn")
@@ -2293,6 +2307,7 @@ function CafeService.start()
 	TipService.changed:Connect(CafeService.sync) -- F87: "Show tips again" sends the cleared tipsSeen
 	Players.PlayerRemoving:Connect(function(player)
 		carrying[player] = nil
+		joinHooks[player] = nil
 		knownLevels[player] = nil
 		handAt[player] = nil
 		autoStates[player] = nil
@@ -2346,6 +2361,18 @@ function CafeService.start()
 			end
 		end
 	end)
+end
+
+-- Studio-only test hooks (Debug.seedCafe, Debug.placeCat, Debug.unplaceCat; #2050's greeter repro): PlaceCat and
+-- UnplaceCat through the remote handlers' own steps, Auto Equip's hand note included.
+function CafeService.debugPlace(player: Player, uid: string, spotId: string)
+	assert(RunService:IsStudio(), "debugPlace is Studio only")
+	onPlaceCat(player, uid, spotId)
+end
+
+function CafeService.debugUnplace(player: Player, uid: string)
+	assert(RunService:IsStudio(), "debugUnplace is Studio only")
+	onUnplaceCat(player, uid)
 end
 
 return CafeService

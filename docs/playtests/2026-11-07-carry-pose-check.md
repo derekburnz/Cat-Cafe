@@ -52,3 +52,25 @@ Findings
 2. The arms clip the cat: each arm rises 0.86 studs past the cat's floor on its way in, so its upper part runs
    through the cat's body (and the head on the left, the legs on the right). Raising the R6 hold by about 0.3 to 0.4
    studs, or tilting the arms flatter, should keep the cradle and clear the clipping.
+
+## Fourth check, R6 only, after #1994 (main at 75a811ca, R6 hold raised)
+
+Tabby and the Void. Sheet: `evidence/2026-11-07/carry-r6-recheck-2026-11-07.png`. Same numbers for both cats.
+
+| Check | R6 |
+| --- | --- |
+| Cat floor vs torso middle | 0.56 above (was 0.16) |
+| Arm ends forward of torso | 0.98 (cat middle 1.08) |
+| Arm ends across | 0.18 either side of the middle |
+| Top of the arm-end faces vs cat floor | 0.35 below |
+| Highest point of each arm vs cat floor | 0.46 above (beside the cat, not in it) |
+| Arm parts overlapping the cat | none |
+| Cat vs character head | the cat's head and left ear (the Void's prop too) overlap the R6 Head part's box |
+
+Findings
+
+1. Arms pass: the arm ends sit under the cat's middle, 0.35 studs below its underside, and no arm part touches the cat.
+2. New issue from the raise: the cat's head now sits at face height. Its head and left ear overlap the character's
+   Head part. The R6 Head part is a 2 by 1 by 1 box, wider than the visible head, so on screen this reads as the cat's
+   head pressed against the side of the face rather than through it. A smaller raise (about 0.15 to 0.2 studs instead of
+   0.2) or moving the cat 0.2 to 0.3 studs further forward on R6 would clear it.

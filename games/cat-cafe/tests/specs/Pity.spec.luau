@@ -179,7 +179,7 @@ return function()
 			expect(m.seq).to.equal(1)
 		end)
 
-		it("restarts a kind's timer a period after its cat was caught or left, with the next number", function()
+		it("restarts a kind's timer a period after its cat spawned, with the next number", function()
 			local l = Pity.restart(9000, legendary, 4)
 			expect(l.at).to.equal(9000 + Config.PityLegendarySeconds)
 			expect(l.seq).to.equal(5)
@@ -188,7 +188,20 @@ return function()
 			expect(m.seq).to.equal(3)
 		end)
 
-		it("moves the stored timer once when two servers end the same cat", function()
+		it("finds the cat before a moved timer, for a server that starts while it is out (#2003)", function()
+			local spawned = 9000
+			local moved = Pity.restart(spawned, legendary, 4)
+			local before = Pity.previous(moved, legendary) :: Pity.Timer
+			expect(before.seq).to.equal(4)
+			expect(before.at).to.equal(spawned)
+			local m = Pity.previous(Pity.restart(spawned, mythical, 2), mythical) :: Pity.Timer
+			expect(m.seq).to.equal(2)
+			expect(m.at).to.equal(spawned)
+			expect(Pity.previous(Pity.first(spawned, legendary), legendary)).to.equal(nil)
+			expect(Pity.previous({ at = 100, seq = -3 }, legendary)).to.equal(nil)
+		end)
+
+		it("moves the stored timer once when two servers spawn the same cat", function()
 			local stored = { at = 100, seq = 4 }
 			expect(Pity.keepStored(stored, 4)).to.equal(false) -- the first server writes
 			local moved = Pity.restart(200, legendary, 4)

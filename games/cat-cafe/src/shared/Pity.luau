@@ -10,14 +10,15 @@
 --   the other servers on MessagingService topic TOPIC, whose copies puff away. The stray carries ATTRIBUTE (its kind,
 --   for the gold beam) and SLOT_ATTRIBUTE. ReplicatedStorage[FOLDER] carries the state for the Town Square sign and
 --   the day clock's card: Slot, Kind, Area and State ("out", "caught" or "" when none is out), and Winner.
--- #1946 (1i): the fixed slots above are now only the fallback. Two timers restart after each pity cat: the next
--- Legendary is due PityLegendarySeconds after the last one was caught or left at night, the next Mythical
--- PityMythicalSeconds after the last Mythical. Each is a Timer (when due, and that kind's cat number `seq`) kept in
+-- #1946 (1i): the fixed slots above are now only the fallback. Two timers restart with each pity cat: the next
+-- Legendary is due PityLegendarySeconds after the last one spawned (#2003; it was after its catch or night), the next
+-- Mythical PityMythicalSeconds after the last Mythical spawned. Each is a Timer (when due, and that kind's cat number `seq`) kept in
 -- MemoryStore by PityService, which sets the folder's NextLegendary and NextMythical (when the next one spawns) and
 -- LiveLegendary and LiveMythical (the area of the cat out now, or ""). The sign and the day card read those, and the
 -- fixed slots only while the folder has none.
 --   spawnTime(due)                when a timer due then spawns: then, or the next sunrise if that is at night
---   first(t, kind) / restart(t, kind, endedSeq)   the timer a first boot starts, and the one after a cat ends at t
+--   first(t, kind) / restart(t, kind, seq)   the timer a first boot starts, and the one after cat `seq` spawns at t
+--   previous(timer, kind)         the timer of the cat before it (#2003), for a server that starts while it is out
 --   keepStored(stored, endedSeq)  true when the stored timer has already moved past the cat that ended
 --   fixedTimer(t, kind)           the 1h slot as a Timer (seq negative), while no stored timer is known
 --   number(seq, kind)             the stray's SLOT_ATTRIBUTE: one number per cat across both kinds
@@ -138,9 +139,19 @@ function Pity.first(t: number, kind: Kind): Timer
 	return { at = t + Pity.period(kind), seq = 1 }
 end
 
--- The timer after `kind`'s cat number `endedSeq` was caught or left at night at t.
+-- The timer after `kind`'s cat number `endedSeq` spawned at t (#2003, Derek2 2026-11-07: "pity timers should
+-- instantly restart after they spawned"; before, a catch or the night restarted it).
 function Pity.restart(t: number, kind: Kind, endedSeq: number): Timer
 	return { at = t + Pity.period(kind), seq = math.max(0, math.floor(endedSeq)) + 1 }
+end
+
+-- #2003: the timer of the cat before `timer` (it spawned at `timer.at` less a period), so a server that starts while
+-- that cat is out still spawns its copy; nil for a first timer or a fixed slot.
+function Pity.previous(timer: Timer, kind: Kind): Timer?
+	if timer.seq <= 1 then
+		return nil
+	end
+	return { at = timer.at - Pity.period(kind), seq = timer.seq - 1 }
 end
 
 -- A stored value read as a Timer, or nil.

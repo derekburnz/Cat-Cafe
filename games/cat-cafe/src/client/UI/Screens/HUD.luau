@@ -657,7 +657,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		self._connections,
 		badge.Activated:Connect(function()
 			local passId: number? = self._moneyBadgeId
-			local buy = self._callbacks.buyPass
+			local buy: ((id: number) -> ())? = self._callbacks.buyPass
 			if self._moneyBadgeOwned then
 				self:_toggleBoosts()
 			elseif passId ~= nil and buy ~= nil then

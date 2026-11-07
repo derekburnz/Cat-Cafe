@@ -173,6 +173,11 @@ local function show(door: Door)
 	end
 end
 
+-- Where a front leaf stands at `angle` (0 shut).
+local function frontAt(leaf: FrontLeaf, angle: number): CFrame
+	return leaf.shut * CFrame.Angles(0, math.rad(leaf.turn * angle), 0)
+end
+
 -- Puts the door set's front leaves where frontAngle says.
 local function showFront(door: Door)
 	if door.frontAngle == door.shownFront then
@@ -180,7 +185,30 @@ local function showFront(door: Door)
 	end
 	door.shownFront = door.frontAngle
 	for _, leaf in door.frontLeaves do
-		leaf.model:PivotTo(leaf.shut * CFrame.Angles(0, math.rad(leaf.turn * door.frontAngle), 0))
+		leaf.model:PivotTo(frontAt(leaf, door.frontAngle))
+	end
+end
+
+-- #2251: the server's pose of a leaf (built shut) can replicate over the one this client gave it, so a leaf that is
+-- no longer where it was put is put back on the next frame, instead of showing shut while this client thinks open.
+local function checkDrift(door: Door)
+	local leaf = door.leaf
+	if leaf ~= nil and door.shownAngle ~= math.huge and leaf.model.Parent ~= nil then
+		local want = leaf.shut * CFrame.Angles(0, math.rad(door.shownAngle), 0)
+		if not leaf.model:GetPivot():FuzzyEq(want, 1e-3) then
+			door.shownAngle = math.huge
+		end
+	end
+	if door.shownFront ~= math.huge then
+		for _, front in door.frontLeaves do
+			if
+				front.model.Parent ~= nil
+				and not front.model:GetPivot():FuzzyEq(frontAt(front, door.shownFront), 1e-3)
+			then
+				door.shownFront = math.huge
+				break
+			end
+		end
 	end
 end
 
@@ -223,27 +251,54 @@ local function bindLeaf(door: Door, from: Model?)
 	door.shownAngle = math.huge
 end
 
--- The door set's front leaves (`front`, its DoorFront), standing as the clock says when they come in.
+-- The door set's front leaves (`front`, its DoorFront), standing as the clock says when they come in. #2251: read
+-- again whenever its leaves change (a leaf still on its way when the model came in, or swapped by a decor change),
+-- not only when the model does, or this client never moved the late ones and showed them shut.
 local function bindFront(door: Door, front: Model?, open: boolean)
-	if door.front == front then
-		return
-	end
-	door.front = front
-	local leaves: { FrontLeaf } = {}
+	local found: { [Model]: number } = {}
+	local count = 0
 	if front ~= nil then
 		for _, child in front:GetChildren() do
 			local turn = BackDoor.frontTurn(child.Name)
 			if turn ~= nil and child:IsA("Model") then
-				local model = child :: Model
-				table.insert(leaves, { model = model, shut = model:GetPivot(), turn = turn })
+				found[child :: Model] = turn
+				count += 1
 			end
 		end
 	end
+	local same = door.front == front and count == #door.frontLeaves
+	if same then
+		for _, leaf in door.frontLeaves do
+			if found[leaf.model] == nil then
+				same = false
+				break
+			end
+		end
+	end
+	if same then
+		return
+	end
+	local known: { [Model]: CFrame } = {}
+	if door.front == front then
+		for _, leaf in door.frontLeaves do
+			known[leaf.model] = leaf.shut -- this client may have turned it: keep the shut pose read when it came
+		end
+	end
+	local leaves: { FrontLeaf } = {}
+	for model, turn in found do
+		table.insert(
+			leaves,
+			{ model = model, shut = known[model] or model:GetPivot(), turn = turn }
+		)
+	end
 	door.frontLeaves = leaves
-	door.shownFront = 0 -- built shut
-	door.frontWants = open
-	door.frontAngle = if open then BackDoor.FRONT_OPEN_DEGREES else 0
 	door.frontSolid = nil
+	if door.front ~= front then
+		door.front = front
+		door.frontWants = open
+		door.frontAngle = if open then BackDoor.FRONT_OPEN_DEGREES else 0
+	end
+	door.shownFront = math.huge -- pose every leaf on the next show
 	showFront(door)
 end
 
@@ -278,6 +333,7 @@ local function readState(door: Door, open: boolean)
 	local decor = door.plot:FindFirstChild("Decor")
 	bindLeaf(door, if replaced then childModel(decor, "DoorBack") else door.art)
 	bindFront(door, if replaced then childModel(decor, "DoorFront") else nil, open)
+	checkDrift(door)
 	-- the server put the flap at the shut leaf's attachment (CafeService.refreshDoors)
 	local leaf = door.leaf
 	local decorFlap = if leaf ~= nil and leaf.catFlapRest ~= nil
@@ -393,6 +449,10 @@ local function sense(door: Door, open: boolean, camera: Vector3?)
 	end
 	local doorway = panel.Position
 	door.active = camera == nil or (doorway - camera).Magnitude <= ACTIVE_RANGE
+	local front = door.front
+	door.frontWants = if open or front == nil
+		then open
+		else BackDoor.frontOpen(open, ownerDistance(door, front:GetPivot().Position))
 	if not door.active then
 		door.wantsOpen = false
 		door.push = nil
@@ -406,16 +466,22 @@ local function sense(door: Door, open: boolean, camera: Vector3?)
 		if open then nil else ownerDistance(door, doorway)
 	)
 	setPanelSolid(door, open)
-	local front = door.front
-	door.frontWants = if open or front == nil
-		then open
-		else BackDoor.frontOpen(open, ownerDistance(door, front:GetPivot().Position))
 	local hinge = if math.abs(door.angle) < FLAP_SHUT_DEGREES then flapHinge(door) else nil
 	door.push = if hinge ~= nil then catPush(door, panel, hinge) else nil
 end
 
 local function step(door: Door, dt: number)
 	if not door.active then
+		-- #2251: a door far from the camera stands where it should, not frozen mid-swing (a half-open door seen from
+		-- across the street); it only swings while near enough to watch
+		if door.leaf ~= nil and (door.angle ~= 0 or door.flapAngle ~= 0) then
+			door.angle, door.flapAngle, door.flapSpeed = 0, 0, 0
+			show(door)
+		end
+		if #door.frontLeaves > 0 then
+			door.frontAngle = if door.frontWants then BackDoor.FRONT_OPEN_DEGREES else 0
+			showFront(door)
+		end
 		return
 	end
 	if door.leaf ~= nil then

@@ -735,12 +735,13 @@ return function()
 		local UPPER = { 2, 1.6, 1 } -- a classic R15 UpperTorso
 		local TORSO = { 2, 2, 1 } -- R6
 
-		it("puts a cat's back just in front of the chest, centred, a little below the chest's middle", function()
+		it("rests a cat's back against the chest, centred, low on the chest (Derek2: closer and lower)", function()
 			local x, y, z = Catching.holdPoint("R15", UPPER, 1)
 			expect(x).to.equal(0)
-			expect(y < 0 and y > -UPPER[2] / 2).to.equal(true) -- on the torso's lower half, not at the hips
+			expect(y <= -UPPER[2] / 5 and y > -UPPER[2] / 2).to.equal(true) -- low on the torso, not at the hips
 			expect(z).to.be.near(-(0.5 + Catching.HELD.r15.gap + 0.5), 1e-9)
-			expect(-z - 1 / 2 >= UPPER[3] / 2).to.equal(true) -- never inside the chest
+			-- its back touches the chest without sinking into it, so its middle is on the hands about a stud out
+			expect(-z - 1 / 2).to.be.near(UPPER[3] / 2, 1e-9)
 		end)
 
 		it("sits a wider cat further out, and scales with the avatar's torso", function()
@@ -775,10 +776,17 @@ return function()
 			local count = 0
 			for name, angles in Catching.HELD_TURNS do
 				count += 1
-				for k = 1, 3 do
-					expect(angles[k]).to.be.near(sleep[name][k], 1e-9)
+				if name ~= "Head" then
+					for k = 1, 3 do
+						expect(angles[k]).to.be.near(sleep[name][k], 1e-9)
+					end
 				end
 			end
+			-- the head only tucks down, further than the sleep's, and never turns toward the carrier's chin (#1984)
+			local head = Catching.HELD_TURNS.Head
+			expect(head[1] <= sleep.Head[1]).to.equal(true)
+			expect(head[2]).to.equal(0)
+			expect(head[3]).to.equal(0)
 			for _ in sleep do
 				count -= 1
 			end

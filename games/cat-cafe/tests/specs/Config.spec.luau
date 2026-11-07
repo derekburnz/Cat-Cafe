@@ -64,7 +64,7 @@ return function()
 		TrustPerfect = 3,
 		TrustGood = 2,
 		TrustMiss = -2,
-		CatchSpareRings = 2,
+		CatchSpareRings = 16, -- #2332
 		DoubleRingChance = 0.25,
 		DoubleRingGap = 0.35,
 		PawRingChance = 1 / 6,

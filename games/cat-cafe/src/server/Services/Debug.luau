@@ -199,7 +199,7 @@ local function cafeLine(profile: Types.PlayerProfile): string
 	for _ in profile.cats do
 		count += 1
 	end
-	for _, spot in Catalog.spots do
+	for _, spot in Catalog.allSpots do -- the pass-only waiter_4 and waiter_5 too
 		local cat = Economy.catOnSpot(profile, spot.id)
 		if cat ~= nil then
 			table.insert(
@@ -244,7 +244,7 @@ function Debug.seedCafe(
 		local def = Catalog.cats[(index - 1) % #Catalog.cats + 1]
 		CafeService.addCaughtCat(p, def, false)
 	end
-	for _, spot in Catalog.spots do
+	for _, spot in Catalog.allSpots do -- the pass-only waiter_4 and waiter_5 too
 		if Economy.spotIsOpen(profile, spot.id) and Economy.catOnSpot(profile, spot.id) == nil then
 			local resting: { string } = {}
 			for uid, cat in profile.cats do
@@ -265,7 +265,8 @@ function Debug.seedCafe(
 end
 
 -- #2050: cat `uid` up `levels` levels (default 1) as its XP would take it; the sync sends CatLevelUp and asks Auto
--- Equip to re-plan, as in play. Returns cafeLine.
+-- Equip to re-plan, as in play. Earnings settle first, so working cats can also level from the XP they earned since
+-- the last settle, as they would at any sync. Returns "<uid> L<before> -> L<after>; " then cafeLine.
 function Debug.levelCat(player: (Player | number | string)?, uid: string, levels: number?): string
 	guard()
 	local p = resolve(player)
@@ -273,20 +274,40 @@ function Debug.levelCat(player: (Player | number | string)?, uid: string, levels
 	local cat = profile.cats[uid]
 	assert(cat ~= nil, "no cat with that uid")
 	Economy.settle(profile, os.time(), ClockService.epoch())
+	local before = CatStats.level(cat)
 	for _ = 1, math.clamp(math.floor(tonumber(levels) or 1), 1, Config.CatMaxLevel) do
-		CatStats.addXp(cat, CatStats.xpToNext(CatStats.level(cat)) - CatStats.xp(cat))
+		CatStats.addXp(cat, math.max(1, CatStats.xpToNext(CatStats.level(cat)) - CatStats.xp(cat)))
 	end
+	local after = CatStats.level(cat)
 	CafeService.refreshPlot(p)
 	CafeService.sync(p)
-	return cafeLine(profile)
+	return string.format("%s L%d -> L%d; %s", uid, before, after, cafeLine(profile))
 end
 
--- #2050: PlaceCat(uid, spotId) as the client sends it, every check included. Returns cafeLine.
+-- #2050: PlaceCat(uid, spotId) as the client sends it, every check included. Returns cafeLine, after
+-- "refused: <why>; " when PlaceCat would refuse (the player sees the same as a toast).
 function Debug.placeCat(player: (Player | number | string)?, uid: string, spotId: string): string
 	guard()
 	local p = resolve(player)
+	local profile = profileOf(p)
+	local cat = profile.cats[uid]
+	local spot = Catalog.getSpot(spotId)
+	local holder = if spot ~= nil then Economy.catOnSpot(profile, spotId) else nil
+	local why = if cat == nil
+		then "no cat with that uid"
+		elseif spot == nil then "no slot " .. tostring(spotId)
+		elseif not Economy.spotIsOpen(profile, spotId) then spotId
+			.. " is not open at this tier and these passes"
+		elseif holder ~= nil then spotId .. " already has " .. holder.uid
+		elseif cat.spotId ~= nil then "the cat is on "
+			.. tostring(cat.spotId)
+			.. "; unplaceCat it first"
+		else nil
+	if why ~= nil then
+		return "refused: " .. why .. "; " .. cafeLine(profile)
+	end
 	CafeService.debugPlace(p, uid, spotId)
-	return cafeLine(profileOf(p))
+	return cafeLine(profile)
 end
 
 -- #2050: UnplaceCat(uid) as the client sends it. Returns cafeLine.

@@ -73,7 +73,8 @@ local CAT_CARD_H = 68 -- #1773: a cat card in Feed's list
 local CAT_HEAD = 56 -- its head picture on the rarity's colour
 local CAT_FEED_W = 92
 
-type CatCard = { frame: Frame, portrait: CatPortrait.CatPortrait, feed: Button.Button }
+-- #2196: `key` is what the card shows (food, cat, variant, level, XP), so an unchanged card is kept, not rebuilt
+type CatCard = { frame: Frame, portrait: CatPortrait.CatPortrait, feed: Button.Button, key: string }
 
 type Row = {
 	frame: Frame,
@@ -131,7 +132,7 @@ function Potions.new(callbacks: Callbacks): Potions
 
 	self._tab = "Potions" :: Tab
 	self._foodRows = {} :: { [string]: { frame: Frame, count: TextLabel, feed: Button.Button } }
-	self._catRows = {} :: { CatCard }
+	self._catRows = {} :: { [string]: CatCard } -- by cat uid
 	self._baitRows = {} :: { [string]: { frame: Frame, icon: ItemIcon.ItemIcon, count: TextLabel } }
 	self._feeding = nil :: string? -- the food whose cat list shows
 	local tabs: Frame = Create("Frame", {
@@ -570,14 +571,17 @@ function Potions._foodRow(self: any, entry: BagLogic.Food)
 	return { frame = frame, count = count, feed = feed }
 end
 
--- The cats to feed `food` to, highest level first; a tap feeds that cat one.
+local function dropCard(card: CatCard)
+	card.feed:destroy()
+	card.portrait:destroy()
+	card.frame:Destroy()
+end
+
+-- The cats to feed `food` to, highest level first; a tap feeds that cat one. #2196 (playtester Tyrell via Derek2:
+-- "going into the feed menu lags his game"): this runs on every state update and once a second, so a card is made
+-- again only when what it shows changed; the rest only take their new place. Each card holds a 3D head (a cloned
+-- model in a ViewportFrame), so rebuilding them all every time cloned dozens of models a second.
 function Potions._renderCats(self: any, food: BagLogic.Food)
-	for _, card in self._catRows do
-		card.feed:destroy()
-		card.portrait:destroy()
-		card.frame:Destroy()
-	end
-	table.clear(self._catRows)
 	local state: any = self._state
 	self._catTitle.Text = ("Feed a %s (x%d) · %s"):format(
 		food.name,
@@ -595,14 +599,40 @@ function Potions._renderCats(self: any, food: BagLogic.Food)
 		end
 	end
 	local cats = CornerShopLogic.catsByLevel(state.cats, names)
+	local shown: { [string]: boolean } = {}
 	for order, cat in cats do
 		local instance = (state.cats or {})[cat.uid]
 		local xp = if type(instance) == "table" and type(instance.xp) == "number"
 			then instance.xp
 			else 0
 		local variant = if type(instance) == "table" then instance.variant else nil
-		local card: CatCard = self:_catCard(food.id, cat, byId[cat.catId], variant, xp, order)
-		table.insert(self._catRows, card)
+		local key = table.concat({
+			food.id,
+			cat.catId,
+			tostring(variant),
+			tostring(cat.name),
+			tostring(cat.level),
+			tostring(xp),
+			if byId[cat.catId] then "def" else "",
+		}, "|")
+		shown[cat.uid] = true
+		local card: CatCard? = self._catRows[cat.uid]
+		if card and card.key == key then
+			card.frame.LayoutOrder = order
+		else
+			if card then
+				dropCard(card)
+			end
+			local made: CatCard = self:_catCard(food.id, cat, byId[cat.catId], variant, xp, order)
+			made.key = key
+			self._catRows[cat.uid] = made
+		end
+	end
+	for uid, card in self._catRows do
+		if not shown[uid] then
+			dropCard(card)
+			self._catRows[uid] = nil
+		end
 	end
 end
 
@@ -716,7 +746,7 @@ function Potions._catCard(
 		end,
 	})
 	feed:setEnabled(open)
-	return { frame = frame, portrait = portrait, feed = feed }
+	return { frame = frame, portrait = portrait, feed = feed, key = "" }
 end
 
 function Potions._row(self: any, potionId: string): Row

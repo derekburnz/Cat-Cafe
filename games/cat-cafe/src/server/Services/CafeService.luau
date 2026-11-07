@@ -957,6 +957,9 @@ end
 -- models are tiny, so they are scaled up to read from the path. BaitReadyAt is for display only.
 local BOWL_SCALE = 2
 local FOOD_SCALE = 1.2 -- the food item sits in the bowl
+-- #2255: the food's base rests on the bowl's inner floor (CatCafe_Item_FoodBowl's tan disc, top 0.18 at scale 1), a
+-- hair above it; at 0.1 the bottom of every food sat inside the floor and Tuna, Sardines, Caviar and Star Treat sank.
+local FOOD_LIFT = 0.18 * BOWL_SCALE + 0.01
 
 -- One bowl's models in its folder (#1161: bowl 1 in Bait/, bowl 2 in Bait2/). `shown` is whether the bowl stands.
 local function refreshBowl(
@@ -995,7 +998,7 @@ local function refreshBowl(
 		model.Name = "Food"
 		model:SetAttribute("LureId", lure.id)
 		model:ScaleTo(FOOD_SCALE)
-		model:PivotTo(bowlAnchor.CFrame * CFrame.new(0, 0.1, 0))
+		model:PivotTo(bowlAnchor.CFrame * CFrame.new(0, FOOD_LIFT, 0))
 		model.Parent = folder
 	end
 

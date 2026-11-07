@@ -1741,7 +1741,7 @@ Presets.palWave = {
 -- lower ... the bottom of cat starts below hands", then "bring cat closer to chest and lower": Catching.HELD puts
 -- the cat's floor on the hands with its back against the chest (#1964); the wrists are held straight, so the hands keep still over the character's
 -- walk (16:51: "hands shake too much"). R6 has no elbows, so `arms6` reaches both arms forward and in to meet under
--- the cat, their tops just under its floor over its middle (Catching.HELD.r6). The cat's floor sits `gap` studs over the higher forearm (below it: it sinks into the arms a little),
+-- the cat, angled down and in so their ends pass under its floor rather than up either side of it (Desktop-Tester 2026-11-07; Catching.HELD.r6). The cat's floor sits `gap` studs over the higher forearm (below it: it sinks into the arms a little),
 -- `loafSide` or `sitSide` studs to the right of halfway between the forearms (negative: left) and `loafForward` or
 -- `forward` studs further out than them. Lying on the arms it turns `loafTurn` degrees: straight across the middle
 -- of the arms, head to the character's left (Derek 2026-11-02 12:01: "it should be straight across middle of arms";
@@ -1764,7 +1764,7 @@ Presets.carryPose = {
 		neck = -12,
 		waist = -4,
 	} :: { [string]: number },
-	arms6 = { sh = 50, sp = -30, neck = -12 } :: { [string]: number },
+	arms6 = { sh = 40, tw = -10, sp = -50, neck = -12 } :: { [string]: number },
 	gap = -0.15,
 	forward = -0.6,
 	loafForward = -1.15,

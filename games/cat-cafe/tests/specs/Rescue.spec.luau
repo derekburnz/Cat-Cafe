@@ -232,6 +232,42 @@ return function()
 			expect(attempt.stage).to.equal("done")
 			expect(attempt.success).to.equal(false)
 		end)
+
+		it(
+			"finds the last time the marker sat on a spot since the last press, for Studio's forced presses",
+			function()
+				local attempt = binAttempt("Legendary")
+				for _ = 1, 2 do
+					expect(Rescue.pressBar(attempt, zoneTime(attempt))).to.equal("hit")
+				end
+				local centre = Rescue.currentZone(attempt) :: number
+				for _, now in
+					{ attempt.lastPressAt, attempt.lastPressAt + 0.37, attempt.lastPressAt + 4.1 }
+				do
+					for _, x in { centre, 0, 1, 0.5 } do
+						local t = Rescue.lastTimeAt(attempt, x, now)
+						expect(math.abs(Rescue.marker(attempt, t) - x) < 1e-6).to.equal(true)
+						expect(t >= attempt.lastPressAt - 1e-9).to.equal(true)
+						-- at or before now when it has been there since the last press; the next time otherwise
+						local trip = 2 / attempt.speed
+						expect(t <= now + trip + 1e-9 and t >= now - trip - 1e-9).to.equal(true)
+					end
+				end
+				local far = if centre > 0.5 then 0 else 1
+				local now = attempt.lastPressAt + 3
+				expect(Rescue.pressBar(attempt, Rescue.lastTimeAt(attempt, far, now))).to.equal(
+					"miss"
+				)
+				expect(attempt.hits).to.equal(0)
+				expect(attempt.paws).to.equal(Config.RescuePatience - 1)
+				expect(
+					Rescue.pressBar(
+						attempt,
+						Rescue.lastTimeAt(attempt, Rescue.currentZone(attempt) :: number, now + 2)
+					)
+				).to.equal("hit")
+			end
+		)
 	end)
 
 	describe("the zone waits to be hit (Derek 2026-11-03; F93's speed up)", function()

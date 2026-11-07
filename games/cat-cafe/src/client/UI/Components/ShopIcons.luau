@@ -259,7 +259,7 @@ end
 -- clean symbols are (Home is My Cafe, Potion the Potions tile, Bowl the Bait tile).
 local HUD_FOR: { [string]: string } =
 	{ Home = "MyCafe", Potion = "Potions", Bowl = "Bait", Bag = "Potions" }
--- #1965: HUD tiles drawn with another picture of ours; the Pass tile wears the Cafe Pass ticket from its Store card.
+-- #1965: HUD tiles drawn with another picture of ours; the Pass tile wears the Cafe Pass medal from its Store card.
 local HUD_PICTURE: { [string]: string } = { Pass = "Icon_Store_CafePass" }
 function ShopIcons.hud(name: string): string?
 	local picture = HUD_PICTURE[name]
@@ -407,7 +407,7 @@ function ShopIcons.market(tab: string): string?
 end
 
 -- A Store sidebar tab's picture by its StoreLogic.TABS id (#1674): "featured", "passes", "cats", "potions" and "codes"
--- have their own; the Cafe Pass tab uses its Store card's ticket. Nil for any other tab (its emoji stays).
+-- have their own; the Cafe Pass tab uses its Store card's medal. Nil for any other tab (its emoji stays).
 function ShopIcons.storeTab(id: string): string?
 	if id == "cafePass" then
 		return IDS.Icon_Store_CafePass

@@ -109,9 +109,23 @@ local function begin(model: Model)
 	end
 	local copy = model:Clone() :: Model
 	copy.Name = "BedWalker"
+	-- a clone keeps its tags and attributes: without its WorkingCat tag and trip it is never taken for a cafe cat
+	-- (this watcher would copy the copy, CafeWalk could stroll it, Audio purr from it)
+	for _, tag in CollectionService:GetTags(copy) do
+		CollectionService:RemoveTag(copy, tag)
+	end
+	for name in copy:GetAttributes() do
+		if string.sub(name, 1, 7) == "BedTrip" or name == "OwnerUserId" or name == "Role" then
+			copy:SetAttribute(name, nil)
+		end
+	end
 	for _, descendant in copy:GetDescendants() do
 		if descendant:IsA("BillboardGui") or descendant:IsA("ParticleEmitter") then
 			descendant:Destroy() -- the rate tag and sparkles stay on the hidden model
+		else
+			for _, tag in CollectionService:GetTags(descendant) do
+				CollectionService:RemoveTag(descendant, tag)
+			end
 		end
 	end
 	local shown = partsOf(copy)

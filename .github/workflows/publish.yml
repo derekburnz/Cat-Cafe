@@ -4,7 +4,7 @@
 # AUTO_PUBLISH set to true, the tip of main goes live once a check run on it has passed (a gate job publishes the
 # tip at most once, whichever run gets there; a label merge's own dispatch publishes it at once). An automatic publish first
 # shares every picture and sound with the experience (asset-permissions.yml grant), and afterwards restarts running
-# servers at once, with no countdown, only when ProfileSchema.VERSION differs from the last published build's. A run
+# servers, after the 5, 3 and 1 minute in-game warnings (Derek 2026-11-07), only when ProfileSchema.VERSION differs from the last published build's. A run
 # that leaves every server on its build (an automatic publish, or a manual Published with restart_servers on, the
 # restart included) records its save version in a `published-build` artifact for the next automatic publish.
 name: publish
@@ -293,8 +293,14 @@ jobs:
         if: needs.gate.outputs.auto != 'true' && inputs.version_type == 'Published' && inputs.restart_servers
         run: bash tools/opencloud/restart-servers.sh
 
-      # Automatic publish only, and only when the save version changed (or no record said what it was): restart at
-      # once with no countdown, so no player saved by a new server lands on an old one.
+      # Automatic publish only, and only when the save version changed (or no record said what it was): the same
+      # 5, 3 and 1 minute warnings as a manual restart (Derek 2026-11-07, playtesters are on), then the restart,
+      # so no player saved by a new server lands on an old one and nobody is cut off mid-catch. Skips itself
+      # quickly if the key cannot send in-game messages.
+      - name: Warn players in game before the automatic restart (5, 3 and 1 minutes, then now)
+        if: needs.gate.outputs.auto == 'true' && steps.live.outcome == 'success' && steps.last.outputs.restart == 'true'
+        run: bash tools/opencloud/restart-countdown.sh
+
       - name: Restart running servers (automatic publish, save version changed)
         if: needs.gate.outputs.auto == 'true' && steps.live.outcome == 'success' && steps.last.outputs.restart == 'true'
         run: bash tools/opencloud/restart-servers.sh

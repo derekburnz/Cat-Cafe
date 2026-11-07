@@ -2171,6 +2171,36 @@ local SCENES = {
 		end
 		press("Collection", "Book." .. first)
 	end },
+	-- #2207 (Derek2: "IBowBeforeGod tamed an Epic Gardener Cat at their..."): a toast too long for one row wraps and
+	-- the pill grows taller, every word showing; a short one stays one 40 px row
+	{ "ToastWrap", function()
+		local long = "IBowBeforeGod tamed an Epic Gardener Cat at their bait bowl!"
+		local short = "Saved!"
+		UI.announce(long, "Epic")
+		UI.toast(short, "good")
+		local function find(text: string): TextLabel
+			for _, label in UIShim.playerGui:GetDescendants() do
+				if label:IsA("TextLabel") and label.Text == text and label.Name == "Text" then
+					return label
+				end
+			end
+			error("uigate: no toast reading " .. text)
+		end
+		local line = find(long)
+		local pill = line.Parent :: Frame
+		assert(line.TextWrapped, "uigate: the long toast did not wrap (#2207)")
+		assert(line.TextTruncate == Enum.TextTruncate.None, "uigate: the long toast still ends in ... (#2207)")
+		assert(line.TextFits, "uigate: the long toast's words do not all fit (#2207)")
+		assert(pill.AbsoluteSize.Y > line.TextBounds.Y, "uigate: the long toast's pill is shorter than its rows (#2207)")
+		local lone = find(short)
+		assert(not lone.TextWrapped, "uigate: a short toast wrapped (#2207)")
+		local lonePill = lone.Parent :: Frame
+		assert(lone.TextFits, "uigate: the short toast's word does not fit (#2207)")
+		assert(
+			pill.AbsoluteSize.Y > lonePill.AbsoluteSize.Y + 4,
+			"uigate: the long toast's pill is no taller than a one-row pill (#2207)"
+		)
+	end },
 	-- F99 section 2: a rainbow stray's once-a-minute toast on a turning rainbow edge
 	{ "RainbowSpawn", function()
 		UI.rainbowSpawned(firstArea(), Catalog.cats[10].id)

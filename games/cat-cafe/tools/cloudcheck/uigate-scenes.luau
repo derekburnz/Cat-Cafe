@@ -2360,8 +2360,9 @@ local SCENES = {
 	-- #1936 (release.md section 3): in the first 30 minutes of play the badge says a plain "x2", with no price and no
 	-- pulse; a tap still opens the Store
 	{ "HUDMoneyBadgeQuiet", function()
-		Scenes._quiet = true -- Scenes.close puts the play time back
-		UI.update({ playSeconds = 600 } :: any)
+		-- Scenes.close puts the play time and an earlier scene's 2x Money pass back
+		Scenes._quiet = { passBoosts = (UI.getState() :: any).passBoosts or false }
+		UI.update({ playSeconds = 600, passBoosts = false } :: any)
 		UI.store.preview(storePrices(true), {})
 		local badge = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("MoneyBadge", true)
 		assert(badge and badge.Visible, "uigate: the quiet money badge is hidden (#1936)")
@@ -2733,8 +2734,9 @@ function Scenes.close()
 		UI.recap.card:hide() -- #1920
 	end
 	if Scenes._quiet then
+		local before = Scenes._quiet
 		Scenes._quiet = nil
-		UI.update({ playSeconds = false } :: any) -- #1936's quiet badge scene
+		UI.update({ playSeconds = false, passBoosts = before.passBoosts } :: any) -- #1936's quiet badge scene
 	end
 	if Scenes._fewCats then
 		Scenes._fewCats = nil

@@ -122,7 +122,7 @@ QA (#2099, from Derek2's live run): "couldn't tell which was pity because there 
 - **When it ends:** the tag, ring and sparkles go the moment the cat is caught, when the catcher carries it off, or when it leaves at night (the puff in 1h still plays). In the cafe it's a normal cat with no mark.
 - **Wording:** "Pity cat" only. No timer, no "hurry", and no mention of other servers on the tag.
 - **How it works:** client only. It reads the `PityCat` attribute ("Legendary" or "Mythical") that the server already sets on the stray model, and clears when the attribute or the model goes. No new remote and no server change.
-- **Builders:** UI-Engineer builds the tag with the `WorldMarker` component and the distance shrink. VFX builds the ground ring and the sparkles in `Effects/Pity.luau`, which already tracks pity strays.
+- **Builders:** UI-Engineer builds the tag as `PityTags`, one billboard per pity stray in the same way as `MoodIcons`, with the distance shrink (#2105). `WorldMarker` is a single distance-and-arrow marker, so it does not fit here. VFX builds the ground ring and the sparkles in `Effects/Pity.luau`, which already tracks pity strays.
 - **QA:** with three Legendary strays in one area, the pity cat is picked out at a glance from 100 studs on phone and desktop. The mark hides during a net catch and comes back on a bolt. It goes on catch and at night. Reduce Motion keeps the ring still and drops the sparkles. No new console errors.
 
 ## 2. Rare moments (F89)

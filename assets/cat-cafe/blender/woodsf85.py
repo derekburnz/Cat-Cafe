@@ -11,18 +11,19 @@ Five pieces cross the width. Since Derek 11-02 ("it should be easily navigatable
 continue forward") none of them runs wall to wall: they are short islands with open ground between and round them,
 so the way on is a short walk round an end, and no straight line runs to the far end:
 
-  z -172 to -168   the fallen timber: two piles of big trunks, about 4 high, x -58 to -18 and x 18 to 54; the trail
-                   goes up the middle between two lanterns
+  z -175 to -165   the fallen timber: two stacked piles of big trunks, about 9 high (#2265), x -58 to -18 and
+                   x 18 to 54; the trail goes up the middle between two lanterns
   z -98 to -82     the stream from the waterfall at the east wall, log rails on its rock edges, ending at x -26 in a
                    rock lip with boulders and ferns; walk round its west end or cross the log bridge at x -1, its
                    deck 10 wide
   z -14 to -6      the tree line, two copses 9 to 10 high with pines in them (tall), x -56 to -22 and x 12 to 50;
                    open between them and at both walls
-  z 70 to 72       a dry stone wall about 4 high in two stretches with end piers, x -52 to -12 and x 24 to 56
-  z 147 to 153     a mossy boulder ridge about 4.5 high, one island x -24 to 20; the trail goes round its east end
-                   under the GREAT OAK arch at x 46
+  z 70 to 72       a dry stone wall 8.5 high in two stretches with end piers 9.8 (#2265), x -52 to -12 and x 24 to 56
+  z 146 to 154     a mossy boulder ridge about 8.8 high (#2265), one island x -24 to 20; the trail goes round its
+                   east end under the GREAT OAK arch at x 46
 
-Each piece has a 30 high `_Barrier` on its own run only (on the stream's rails and across its end), and one stands in
+Each piece has a `_Barrier` on its own run only: 30 high on the tree line and on the stream's rails and across its
+end, BLOCK_OVER over the tallest piece on the timber, the stone wall and the ridge (#2265), and one 30 high stands in
 the wall band all round but the way in. The tree line is the tall piece that hides the far half from the near. The far
 end is the Great Oak's clearing with the tree house and the lookout tower, the Woods' best landmark.
 
@@ -68,6 +69,11 @@ RIDGE_Z, ISLE_E = 150.0, [(-24.0, 20.0)]                    # the boulder ridge,
 ARCH_X, ARCH_W = 46.0, 24.0             # the GREAT OAK arch over the trail east of the ridge
 WATERFALL_X = IN_X - 7.5                # as in v3.2: the pond's back against the east wall
 RAIL_END_E = IN_X - 13.5                # the rails stop short of the pond's rocks
+# #2265: the low blockers stand taller than a jump (about 7.2), their barriers BLOCK_OVER over the tallest piece
+TIMBER_TOP = 9.5                        # the timber piles' moss and brush (9.1), and over a jump from the log pile
+WALL_H, PIER_H = 8.0, 9.4               # the stone wall's stretches (caps 0.45 and moss on them) and end piers
+RIDGE_TOP = 8.8                         # the boulder ridge's moss
+BLOCK_OVER = 1.0
 OAK = (-32.0, 206.0)                    # the Great Oak, in its clearing
 CLEARING_R = 20.0
 CAMPSITE = (54.0, 98.0)                 # the old campsite between the wall and the ridge
@@ -143,127 +149,140 @@ def _walls(s, mat):
 
 # -------------------------------------------------------------------------------------------- low blockers --
 def _log_line(s, mat, z, runs):
-    """The fallen timber in piles (runs, x0 to x1): big trunks (radius 1.3 to 1.6) end to end along the line, each a
-    hair off straight, a thinner log lying on every other one so the line stands about 4 high, a brush mound over
-    every join, moss on the trunks, ferny bushes at their feet and a snapped branch here and there. Cut ends show
-    only at the runs' ends. A barrier 30 high on each pile."""
+    """The fallen timber in stacked piles (runs, x0 to x1), taller than a jump (#2265, was about 4): big trunks
+    (radius R, 1.45 to 1.61) three across on the ground, two in the grooves on them and one on top, so a pile stands
+    about 8 to 9 high and 6R deep, each segment a hair off straight, a brush mound over every join up to about 9,
+    moss on top, ferny bushes at their feet and a snapped branch here and there. Cut ends show only at the runs'
+    ends. A barrier BLOCK_OVER over the brush on each pile."""
     b, bar = Builder(), Builder()
+    rows = ((-2, 0, 0), (-1, 1, 3 ** 0.5), (0, 2 * 3 ** 0.5))   # across offsets in R, then the row's rise in R
     for k, (a0, a1) in enumerate(runs):
         L = a1 - a0
         n = max(1, round(L / 10.0))
         step = L / n
         for i in range(n):
             j = i + 7 * k
-            r = 1.3 + 0.15 * (j % 3)
+            R = 1.45 + 0.08 * (j % 3)
             c = a0 + (i + 0.5) * step
             ln = step - 0.8
             yaw = 0.05 * math.sin(j * 2.1)
             x, y, _ = bl(c, z + 0.4 * math.sin(j * 1.3))
-            R = Matrix.Rotation(yaw, 3, "Z") @ Matrix.Rotation(PI / 2, 3, "Y")
             ax, ay = math.cos(yaw), math.sin(yaw)                        # the trunk's axis (Builder)
-            b.cyl((x, y, r), r, ln, ("fur_brown", "fur_hazel")[j % 2], segments=10, rot=R)
-            for e, cut in ((-1, i == n - 1), (1, i == 0)):              # Builder -x is Roblox +x
-                if cut:
-                    d = ln / 2 + 0.02
-                    b.cyl((x + e * d * ax, y + e * d * ay, r), r * 0.86, 0.06, "treat_tan", segments=10, rot=R,
-                          bevel=False)
-            b.ico((x - 0.15 * ln * ax, y - 0.15 * ln * ay, 1.86 * r), r * 0.6, "leaf_green", subdivisions=1,
+            nx, ny = -ay, ax                                             # across it
+            m = 0
+            for row in rows:
+                rise = row[-1]
+                for off in row[:-1]:
+                    m += 1
+                    dl = 0.25 * math.sin(j * 1.7 + m)                    # the logs' ends don't line up
+                    px, py = x + off * R * nx + dl * ax, y + off * R * ny + dl * ay
+                    yw = yaw + 0.03 * math.sin(m * 2.3 + j)
+                    R1 = Matrix.Rotation(yw, 3, "Z") @ Matrix.Rotation(PI / 2, 3, "Y")
+                    b.cyl((px, py, R * (1 + rise)), R * 0.98, ln - 0.3 * (m % 2),
+                          ("fur_brown", "fur_hazel")[(j + m) % 2], segments=10, rot=R1)
+                    for e, cut in ((-1, i == n - 1), (1, i == 0)):      # Builder -x is Roblox +x
+                        if cut:
+                            d = (ln - 0.3 * (m % 2)) / 2 + 0.02
+                            b.cyl((px + e * d * ax, py + e * d * ay, R * (1 + rise)), R * 0.84, 0.06, "treat_tan",
+                                  segments=10, rot=R1, bevel=False)
+            top = R * (2 + 2 * 3 ** 0.5)
+            b.ico((x - 0.15 * ln * ax, y - 0.15 * ln * ay, top - 0.1), R * 0.6, "leaf_green", subdivisions=1,
                   scale=(1.6, 1.0, 0.35), rot=(yaw, "Z"))                # moss along the top
-            if j % 2 == 0:                                               # a thinner log on top
-                R2 = Matrix.Rotation(-yaw * 2.0 + 0.06, 3, "Z") @ Matrix.Rotation(PI / 2, 3, "Y")
-                r2 = 0.75 + 0.05 * (j % 3)
-                b.cyl((x + 0.6, y + 0.2, 2 * r + r2 - 0.3), r2, ln * 0.6, "fur_hazel" if j % 4 else "fur_brown",
-                      segments=8, rot=R2)
             if j % 3 == 1:                                               # a snapped branch
-                b.box((x + 0.25 * ln * ax, y + 0.9, 1.75 * r), (0.3, 1.4, 0.3), "fur_brown",
+                b.box((x + 0.25 * ln * ax, y + 0.9, top - 0.6), (0.3, 1.4, 0.3), "fur_brown",
                       rot=Matrix.Rotation(0.7, 3, "X"))
             for side in (-1, 1):                                         # ferny bushes at the feet
                 if (j + (side > 0)) % 2 == 0:
-                    b.ico((x + 0.28 * ln * side, y + side * (r + 0.5), 0.8), 1.1, ("leaf_green", "shirt_green")[j % 2],
-                          subdivisions=1, scale=(1.5, 0.8, 0.85))
+                    b.ico((x + 0.28 * ln * side, y + side * (3 * R + 0.5), 0.8), 1.1,
+                          ("leaf_green", "shirt_green")[j % 2], subdivisions=1, scale=(1.5, 0.8, 0.85))
         for i in range(1, n):                                            # brush over each join
             j = i + 7 * k
             x, y, _ = bl(a0 + i * step, z + 0.2 * math.sin(j))
-            b.ico((x, y, 1.6), 1.7, ("leaf_dark", "paw_woods")[j % 2], subdivisions=1, scale=(1.0, 1.3, 1.15))
+            b.ico((x, y, 4.2), 2.4, ("leaf_dark", "paw_woods")[j % 2], subdivisions=1, scale=(1.15, 1.9, 1.95))
         x, y, _ = bl((a0 + a1) / 2, z)
-        bar.box_base((x, y, 0), (L, 3.6, BARRIER_H), "offwhite", bevel=False)
+        bar.box_base((x, y, 0), (L, 10.6, TIMBER_TOP + BLOCK_OVER), "offwhite", bevel=False)  # over the bottom logs
     s.put([b.finalize(N + "FallenTimber", mat), bar.finalize(N + "FallenTimber_Barrier", mat)], 0, 0, 0)
     for (x, rot) in ((runs[0][1] - 1.5, 180), (runs[1][0] + 1.5, 0)):   # lanterns either side of the trail's way
-        s.put(wd.lantern(mat), x, z - 3.5, rot)
+        s.put(wd.lantern(mat), x, z - 9.0, rot)                         # #2265: out of a jump of its barrier
 
 
 def _stone_wall(s, mat, z, runs):
-    """Stretches of dry stone field wall (runs, x0 to x1): 1.8 thick and 3.4 high, cap stones on edge to about 3.9,
-    coursing on both faces, moss on the caps and ferns at its foot, a tall stone pier at each end and lanterns either
-    side of the trail's way. A barrier 30 high on each stretch."""
+    """Stretches of dry stone field wall (runs, x0 to x1), taller than a jump (#2265, was 3.4): 2.2 thick and
+    WALL_H high, cap stones on edge 0.45 more, coursing on both faces, moss on the caps and ferns at its foot, a tall
+    stone pier PIER_H high at each end and lanterns either side of the trail's way. A barrier BLOCK_OVER over the
+    moss on each stretch and pier."""
     b, bar = Builder(), Builder()
-    H = 3.4
+    H, T = WALL_H, 2.2
     for k, (a0, a1) in enumerate(runs):
         L = a1 - a0
-        x, y, _ = bl((a0 + a1) / 2, z + 0.9)
-        b.box_base((x, y, 0), (L, 1.8, H), "concrete")
+        x, y, _ = bl((a0 + a1) / 2, z + T / 2)
+        b.box_base((x, y, 0), (L, T, H), "concrete")
         n = max(2, round(L / 1.6))
         for i in range(n):
             cx = a0 + (i + 0.5) * L / n
-            x, y, _ = bl(cx, z + 0.9)
-            b.box_base((x, y, H), (L / n - 0.08, 2.0, 0.45 + 0.006 * (i % 2)), ("concrete_dark", "fur_grey")[i % 2],
+            x, y, _ = bl(cx, z + T / 2)
+            b.box_base((x, y, H), (L / n - 0.08, T + 0.2, 0.45 + 0.006 * (i % 2)), ("concrete_dark", "fur_grey")[i % 2],
                        bevel=False)
             if (i + k) % 5 == 2:
                 b.ico((x, y, H + 0.5), 0.9, "fur_moss", subdivisions=1, scale=(1.4, 1.1, 0.35))
-        for zz in (1.1, 2.3):                                                                 # coursing
-            for f in (-0.03, 1.83):
+        for zz in (1.1, 2.3, 3.5, 4.7, 5.9, 7.1):                                             # coursing
+            for f in (-0.03, T + 0.03):
                 x, y, _ = bl((a0 + a1) / 2, z + f)
                 b.box((x, y, zz), (L, 0.06, 0.1), "concrete_dark", bevel=False)
         m = max(1, round(L / 7.0))
         for i in range(m):
             cx = a0 + (i + 0.5) * L / m
             side = -1 if (i + k) % 2 == 0 else 1
-            x, y, _ = bl(cx, z + 0.9 + side * 1.4)
+            x, y, _ = bl(cx, z + T / 2 + side * (T / 2 + 0.5))
             b.ico((x, y, 0.7), 1.1, ("leaf_green", "leaf_dark")[i % 2], subdivisions=1, scale=(1.5, 0.6, 0.75))
-        x, y, _ = bl((a0 + a1) / 2, z + 0.9)
-        bar.box_base((x, y, 0), (L, 2.0, BARRIER_H), "offwhite", bevel=False)
+        x, y, _ = bl((a0 + a1) / 2, z + T / 2)
+        bar.box_base((x, y, 0), (L, T + 0.2, H + 0.85 + BLOCK_OVER), "offwhite", bevel=False)
     for gx in [e for (a0, a1) in runs for e in (a0 + 0.6, a1 - 0.6)]:      # end piers, 0.2 past the stretch's end
-        x, y, _ = bl(gx, z + 0.9)
-        b.box_base((x, y, 0), (1.6, 2.2, 5.0), "fur_grey")
-        b.box_base((x, y, 5.0), (2.0, 2.6, 0.4), "concrete_dark", bevel=False)
-        b.ico((x, y, 5.5), 0.55, "fur_moss", subdivisions=1, scale=(1.3, 1.2, 0.5))
-        bar.box_base((x, y, 0), (1.6, 2.2, BARRIER_H), "offwhite", bevel=False)
+        x, y, _ = bl(gx, z + T / 2)
+        b.box_base((x, y, 0), (1.6, T + 0.4, PIER_H), "fur_grey")
+        b.box_base((x, y, PIER_H), (2.0, T + 0.8, 0.4), "concrete_dark", bevel=False)
+        b.ico((x, y, PIER_H + 0.5), 0.55, "fur_moss", subdivisions=1, scale=(1.3, 1.2, 0.5))
+        bar.box_base((x, y, 0), (1.6, T + 0.4, PIER_H + 0.8 + BLOCK_OVER), "offwhite", bevel=False)
     s.put([b.finalize(N + "StoneWall", mat), bar.finalize(N + "StoneWall_Barrier", mat)], 0, 0, 0)
     for (x, rot) in ((runs[0][1] - 0.6, 180), (runs[1][0] + 0.6, 0)):    # either side of the trail's way
-        s.put(wd.lantern(mat), x, z - 2.2, rot)
+        s.put(wd.lantern(mat), x, z - 4.5, rot)                         # #2265: out of a jump of its barrier
 
 
 def _boulder_ridge(s, mat, z, runs):
-    """A low mossy boulder ridge (runs, x0 to x1): two staggered rows of boulders round a low core, about 3.6
-    high with smaller stones and moss on top to about 4.8, ferns at the foot. A barrier 30 high on it."""
+    """A mossy boulder ridge (runs, x0 to x1), taller than a jump (#2265, was about 4.8): two staggered rows of big
+    boulders round a core, a row of smaller ones on them to about 7, stones and moss on top to about 8.8, ferns at the
+    foot. A barrier BLOCK_OVER over the moss on it."""
     b, bar = Builder(), Builder()
     rocks = ("concrete", "fur_grey", "concrete", "fur_smoke_light", "concrete_dark")
     for k, (a0, a1) in enumerate(runs):
-        n = max(1, round((a1 - a0) / 4.5))
+        n = max(1, round((a1 - a0) / 5.5))
         step = (a1 - a0) / n
         x, y, _ = bl((a0 + a1) / 2, z)
-        b.box_base((x, y, 0), (a1 - a0, 2.0, 2.2), "concrete_dark", bevel=False)              # the core
+        b.box_base((x, y, 0), (a1 - a0, 3.0, 5.0), "concrete_dark", bevel=False)              # the core
         for i in range(n):
             j = i + 5 * k
             for row in (-1, 1):
                 c = a0 + (i + 0.5 + 0.25 * row) * step
-                r = 2.3 + 0.25 * ((j * 3 + row) % 3)
+                r = 3.3 + 0.25 * ((j * 3 + row) % 3)
                 sx = min(1.4, step / (1.3 * r))
                 c = min(max(c, a0 + r * sx), a1 - r * sx)                # the boulders stop at the run's ends
-                x, y, _ = bl(c, z + row * 0.9 + 0.3 * math.sin(j * 2.3))
+                x, y, _ = bl(c, z + row * 1.0 + 0.3 * math.sin(j * 2.3))
                 b.ico((x, y, r * 0.55), r, rocks[(j * 2 + (row > 0)) % 5], subdivisions=1, scale=(sx, 0.75, 0.9))
             c = a0 + (i + 0.5) * step
             x, y, _ = bl(c, z)
+            r2 = 2.2 + 0.2 * (j % 2)
+            b.ico((x, y + 0.3 * math.sin(j), 4.9), r2, rocks[(j + 3) % 5], subdivisions=1,
+                  scale=(min(1.3, step / (1.6 * r2)), 0.95, 0.85))              # the upper row
             if j % 2 == 0:
-                b.ico((x, y, 3.6), 1.3, rocks[(j + 1) % 5], subdivisions=1, scale=(1.2, 1.0, 0.7))
-                b.ico((x + 0.3, y - 0.2, 4.4), 0.95, "fur_moss", subdivisions=1, scale=(1.3, 1.1, 0.4))
+                b.ico((x, y, 7.4), 1.3, rocks[(j + 1) % 5], subdivisions=1, scale=(1.2, 1.0, 0.7))
+                b.ico((x + 0.3, y - 0.2, 8.3), 0.95, "fur_moss", subdivisions=1, scale=(1.3, 1.1, 0.4))
             else:
-                b.ico((x, y - 0.4, 3.5), 1.5, "fur_moss", subdivisions=1, scale=(1.4, 1.2, 0.45))
+                b.ico((x, y - 0.4, 7.5), 1.5, "fur_moss", subdivisions=1, scale=(1.4, 1.2, 0.45))
             if j % 3 == 2:
                 side = 1 if j % 2 else -1
-                b.ico((x, y + side * 2.4, 0.6), 1.0, "leaf_green", subdivisions=1, scale=(1.4, 0.7, 0.7))
+                b.ico((x, y + side * 3.6, 0.6), 1.0, "leaf_green", subdivisions=1, scale=(1.4, 0.7, 0.7))
         x, y, _ = bl((a0 + a1) / 2, z)
-        bar.box_base((x, y, 0), (a1 - a0, 4.6, BARRIER_H), "offwhite", bevel=False)
+        bar.box_base((x, y, 0), (a1 - a0, 6.0, RIDGE_TOP + BLOCK_OVER), "offwhite", bevel=False)
     s.put([b.finalize(N + "BoulderRidge", mat), bar.finalize(N + "BoulderRidge_Barrier", mat)], 0, 0, 0)
 
 
@@ -487,8 +506,8 @@ def build_set(mat):
                 continue
             if near_trail(x, z) < 10.0 or abs(z - stream_z(x)) < 13.0:
                 continue
-            if (abs(z - LOGS_Z) < 8.0 or abs(z - TREES_Z) < 10.0 or abs(z - WALL_Z - 0.9) < 8.0
-                    or abs(z - RIDGE_Z) < 9.0):
+            if (abs(z - LOGS_Z) < 11.0 or abs(z - TREES_Z) < 10.0 or abs(z - WALL_Z - 1.1) < 12.0
+                    or abs(z - RIDGE_Z) < 12.0):                                  # #2265: no canopy over a blocker
                 continue
             if any(math.hypot(x - px, z - pz) < 12.0 for (px, pz) in trees):    # canopies apart
                 continue

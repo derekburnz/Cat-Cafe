@@ -35,6 +35,15 @@ IntroLogic.NEXT_GAP = 10 -- design pixels between Next and Skip on the lower bar
 IntroLogic.READ_WIDTH = 220 -- the read bar under the caption, in design pixels
 IntroLogic.READ_HEIGHT = 4
 
+-- #2198: how many shots (and dots) a play has: start's `shots` for a short lesson, 1 to SHOTS, else SHOTS.
+function IntroLogic.shotCount(options: { shots: number? }?): number
+	local given = if options then options.shots else nil
+	if type(given) ~= "number" or given ~= given then
+		return IntroLogic.SHOTS
+	end
+	return math.clamp(math.floor(given), 1, IntroLogic.SHOTS)
+end
+
 -- How long Skip's bar takes to fill: the controller's skipAfter, else at once on a replay and FIRST_SKIP on a first
 -- play.
 function IntroLogic.skipAfter(options: { skipAfter: number?, replay: boolean? }?): number

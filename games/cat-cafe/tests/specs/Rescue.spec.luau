@@ -279,13 +279,43 @@ return function()
 			end
 		)
 
-		it("a miss costs a paw and leaves the zone where it is", function()
+		it("a miss before any hit costs a paw and leaves the zone where it is", function()
 			local attempt = binAttempt("Rare")
 			local zone = attempt.zone
 			expect(Rescue.pressBar(attempt, missTime(attempt))).to.equal("miss")
 			expect(attempt.zone).to.equal(zone)
 			expect(attempt.speed).to.equal(Config.RescueBarSpeed.Rare)
+			expect(attempt.paws).to.equal(Config.RescuePatience - 1)
 		end)
+
+		it(
+			"a miss after hits sends the bar back to the start: no hits, the first zone, the first speed (#2219)",
+			function()
+				local attempt = binAttempt("Epic")
+				local zones = table.clone(attempt.challenge.zones)
+				expect(Rescue.pressBar(attempt, zoneTime(attempt))).to.equal("hit")
+				expect(Rescue.pressBar(attempt, zoneTime(attempt))).to.equal("hit")
+				expect(attempt.hits).to.equal(2)
+				local t = missTime(attempt)
+				local at = Rescue.marker(attempt, t)
+				expect(Rescue.pressBar(attempt, t)).to.equal("miss")
+				expect(attempt.hits).to.equal(0)
+				expect(attempt.zone).to.equal(1)
+				expect(Rescue.currentZone(attempt)).to.equal(zones[1])
+				expect(attempt.speed).to.equal(Config.RescueBarSpeed.Epic)
+				expect(attempt.paws).to.equal(Config.RescuePatience - 1)
+				expect(attempt.stage).to.equal("bar")
+				-- the marker goes on from where the miss saw it, so nothing jumps on screen
+				expect(Rescue.marker(attempt, t)).to.be.near(at, 1e-9)
+				expect(Rescue.barState(attempt).zone).to.equal(1)
+				-- and the same zones again, one by one, still free the cat
+				for _ = 1, Rescue.hitsNeeded("Epic", "bar") do
+					expect(Rescue.pressBar(attempt, zoneTime(attempt))).to.equal("hit")
+				end
+				expect(attempt.stage).to.equal("done")
+				expect(attempt.success).to.equal(true)
+			end
+		)
 
 		it("a press never lands before one already judged", function()
 			local attempt = binAttempt("Common")
@@ -314,18 +344,24 @@ return function()
 		end)
 
 		it(
-			"a steady player's worst case still fits the 15 s deadline: two misses, then every hit a trip late",
+			"a steady player who misses once, even on the last zone, still fits the 15 s deadline (#2219)",
 			function()
-				for _, rarity in Catalog.rarityOrder do
-					local hits = Rescue.hitsNeeded(rarity :: any, "bar")
-					-- every press a whole trip out and back after the last, two of them misses
-					local worst = Config.CircleLeadInSeconds
-					local speed = Config.RescueBarSpeed[rarity]
-					worst += (Config.RescuePatience - 1) * 2 / speed
-					for _ = 1, hits do
-						worst += 2 / speed
+				-- every press a whole trip out and back after the last: all but the last hit, the miss that sends the
+				-- bar back to the start, then every hit again from the first speed
+				local function trips(rarity: string, count: number): number
+					local seconds, speed = 0, Config.RescueBarSpeed[rarity]
+					for _ = 1, count do
+						seconds += 2 / speed
 						speed *= 1 + Config.RescueSpeedUpPerHit
 					end
+					return seconds
+				end
+				for _, rarity in Catalog.rarityOrder do
+					local hits = Rescue.hitsNeeded(rarity :: any, "bar")
+					local worst = Config.CircleLeadInSeconds
+						+ trips(rarity, hits - 1)
+						+ 2 / Config.RescueBarSpeed[rarity]
+						+ trips(rarity, hits)
 					expect(worst < Config.RescueAttemptMaxSeconds).to.equal(true)
 				end
 			end

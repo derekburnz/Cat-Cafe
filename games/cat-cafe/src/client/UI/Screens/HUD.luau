@@ -164,6 +164,8 @@ local MARGIN = 16
 -- the money and golden fish counters, one row in the bottom left corner with no box behind them (the lighter HUD);
 -- each is as wide as its amount, the money at most MONEY_W, and MONEY_H tall
 local MONEY_W = 232
+-- #2194: the money amount's line never narrower than this (padding in), so the row beside it never moves
+local MONEY_AMOUNT_W = 140
 local MONEY_H = 44
 local COUNTER_COIN = 36
 local COUNTER_TEXT = 30
@@ -280,6 +282,9 @@ local POP_W = 220
 local POP_ROW_H = Scale.tapHeight(44, Theme.sizes.buttonDepth)
 local POP_PAD = 8
 local HIDE_HIT = 30 -- the Tutorial tile's × takes taps this big round its 20 px red dot
+-- #2211 (crispi_255): when the tutorial ends, the × bounces in a gold ring this long, so players see it hides the tile
+local HIDE_PULSE_SECONDS = 3
+local HIDE_BOUNCE = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, 2, true)
 -- F72: the Tutorial tile's two gold pulses the first time it shows after an intro
 local GLOW = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 1, false, 0.15)
 local CARRY_W = 420
@@ -559,8 +564,14 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 		-- no clip, so the last letter and its dark outline always show whole ("$1.23B" was cut, Derek 2026-11-02);
-		-- the amount is short (Format.money), and the golden fish keeps clear of the widest one
-		Create("UISizeConstraint", { MaxSize = Vector2.new(MONEY_W - COUNTER_COIN - 8, MONEY_H) }),
+		-- the amount is short (Format.money), and the golden fish keeps clear of the widest one. #2194 (playtester
+		-- Dread via Derek2, 11-07: "The cash at the bottom left should probably not push the 2x cash and fish"): at
+		-- least MONEY_AMOUNT_W wide, room for the usual widest amounts ("$88,888", "$999Qa"), so the badge and the
+		-- golden fish beside it stay put while the money grows
+		Create("UISizeConstraint", {
+			MinSize = Vector2.new(MONEY_AMOUNT_W, 0),
+			MaxSize = Vector2.new(MONEY_W - COUNTER_COIN - 8, MONEY_H),
+		}),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 5) }),
 	})
 	self._moneyText = label({
@@ -764,6 +775,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = hide,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Outline.border(hideDot, 2)
+	self._hideDot = hideDot
 	label({
 		Name = "Cross",
 		Size = UDim2.fromScale(1, 1),
@@ -2207,6 +2219,37 @@ function HUD.glowTutorial(self: any)
 	end
 end
 
+-- #2211 (crispi_255: "highlight the x for tutorial/steps for a couple seconds after finishing the tutorial"): the
+-- Tutorial tile's red × gets a gold ring and bounces for HIDE_PULSE_SECONDS (holding still under Reduce Motion), then
+-- goes back to how it was. Once at a time; nothing while the tile is hidden.
+function HUD.pulseHide(self: any)
+	local dot: Frame = self._hideDot
+	if not self._tutorialTile.instance.Visible or dot:FindFirstChild("Pulse") then
+		return
+	end
+	local scale: UIScale = Create("UIScale", { Name = "Pulse", Parent = dot })
+	local ring: Frame = Create("Frame", {
+		Name = "PulseRing",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.new(1, 6, 1, 6),
+		ZIndex = 9,
+		Parent = dot,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIStroke", { Color = Theme.colors.gold, Thickness = 3 }),
+	})
+	if not GuiService.ReducedMotionEnabled then
+		TweenService:Create(scale, HIDE_BOUNCE, { Scale = 1.35 }):Play()
+	end
+	Sound.play("uiHint")
+	task.delay(HIDE_PULSE_SECONDS, function()
+		scale:Destroy()
+		ring:Destroy()
+	end)
+end
+
 -- F87 section 2g: the tutorial strip pops and pulses when its step has not moved for StuckNudgeSeconds.
 function HUD.pulseTutorial(self: any)
 	local strip: GuiObject = self._tutorial
@@ -2225,6 +2268,13 @@ end
 
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
+	-- #2211: the tutorial's last step done just now (not a player who finished it before this join): the × pulses
+	local step = state.tutorialStep or TUTORIAL_DONE
+	local before: number? = self._stepBefore
+	self._stepBefore = step
+	if before ~= nil and before < TUTORIAL_DONE and step >= TUTORIAL_DONE then
+		self:pulseHide()
+	end
 	-- #1796: the Upgrades tile glows while the tutorial asks for a table or the Bait bowl
 	-- on the square alone: round the whole tile it covered the "Upgrades" label under it (device pass 2026-11-07)
 	TutorialGlow.set(

@@ -32,6 +32,7 @@ local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local Create = require(script.Parent.Parent.Components.Create)
 local DecorIndex = require(script.Parent.DecorIndex)
 local DecorPieces = require(script.Parent.Parent.Components.DecorPieces)
+local FitText = require(script.Parent.Parent.Components.FitText)
 local Format = require(script.Parent.Parent.Components.Format)
 local IndexBook = require(script.Parent.Parent.Components.IndexBook)
 local IndexHints = require(script.Parent.Parent.Components.IndexHints)
@@ -490,6 +491,8 @@ function CatCollection._buildDetail(self: any, parent: Instance)
 		ZIndex = 42,
 		Parent = card,
 	})
+	-- #2207: "+$216/s  ·  🍰 Loves Waiter  ·  lives in the Woods" shrinks a little rather than lose its end
+	FitText.shrink(self._detailMeta)
 	self._detailDesc = text({
 		Name = "Description",
 		Position = UDim2.fromOffset(left, 100),

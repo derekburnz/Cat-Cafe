@@ -32,6 +32,7 @@ local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local CornerShopLogic = require(script.Parent.Parent.Components.CornerShopLogic)
 local Create = require(script.Parent.Parent.Components.Create)
+local FitText = require(script.Parent.Parent.Components.FitText)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -826,6 +827,7 @@ function Potions._row(self: any, potionId: string): Row
 		TextColor3 = PAL.subtext,
 		Parent = frame,
 	})
+	FitText.shrink(effect) -- #2207: "Luck +50% and double gold on bait  ·  10 min" whole on a phone
 	-- "8:12 left" over the Use button while it runs
 	local left = text({
 		Name = "Left",

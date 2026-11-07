@@ -51,6 +51,7 @@ local RescueService = require(script.Parent.Services.RescueService)
 local ResetSaveService = require(script.Parent.Services.ResetSaveService)
 local RestartNoticeService = require(script.Parent.Services.RestartNoticeService)
 local RichTipService = require(script.Parent.Services.RichTipService)
+local SessionRecapService = require(script.Parent.Services.SessionRecapService)
 local ShopCatService = require(script.Parent.Services.ShopCatService)
 local ShoveService = require(script.Parent.Services.ShoveService)
 local SpinService = require(script.Parent.Services.SpinService)
@@ -122,6 +123,7 @@ LeaderboardService.start() -- F98: before DataService so its onLoaded sees every
 CampExtraService.start() -- F100: before DataService so its onLoaded sees every join
 CafePassService.start() -- #1645: the Cafe Pass, before DataService so its onLoaded sees every join
 GrandOpeningService.start() -- #1893: the Grand Opening roadmap's checks and payouts
+SessionRecapService.start() -- #1920: the session recap after about 40 minutes of play
 BadgeAwardService.start() -- #1934: Roblox badges, awarded from the profile with retries and a catch-up on join
 RallyService.start() -- F101: before Telemetry (rally_points on leave) and DataService (RallyState on join)
 RestartNoticeService.start() -- the restart countdown's warnings; before DataService so a joiner hears one

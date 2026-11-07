@@ -1001,6 +1001,7 @@ export type Settings = {
 	shopAlerts: boolean, -- F94: the Fresh Catch's ShopAlert (FreshCatch.alertsOn)
 	tradeRequests: string, -- F102: who may ask to trade, "everyone", "friends" or "off" (Settings.choices)
 	roadmapOpen: boolean, -- #1893: the Grand Opening strip opened into its list
+	sessionRecap: boolean, -- #1920: the session recap card after Config.RecapAfterSeconds of play
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished
@@ -1012,6 +1013,10 @@ export type GrandOpeningState = {
 	finished: boolean?,
 	finishedAt: number?,
 }
+
+-- #1920 (first-hour.md 6): SessionRecap's numbers for this session: whole minutes played, cats new to the Index and
+-- coins earned since the join
+export type SessionRecapView = { minutes: number, newCats: number, earned: number }
 
 export type PlayerProfile = {
 	version: number,

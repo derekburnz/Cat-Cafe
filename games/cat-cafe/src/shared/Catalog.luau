@@ -1106,7 +1106,7 @@ Catalog.upgrades = {
 	{
 		id = "lucky_cat", -- F88 (luck-and-rare-moments.md 1a): the statue by the front door, shared/Luck
 		name = "Lucky Cat",
-		description = "A beckoning cat by your front door. Each level adds x0.1 Luck: rarer bait cats and crate finds",
+		description = "A beckoning cat by your front door. Each level adds +10% Luck: rarer bait cats and crate finds",
 		maxLevel = 5,
 		-- level n needs Tier n, but level 3 comes at Tier 2 (#1896 follow-up, a buy inside the Tier 3 save, fitted to
 		-- minute 32 at 300,000; 600,000 before); levels 4 and 5 at economy-ladder.md section 4's prices
@@ -1391,7 +1391,7 @@ Catalog.potions = {
 		id = "lucky_potion",
 		name = "Lucky Potion",
 		minutes = 10,
-		effect = "Luck +0.5 and double gold chance on bait", -- F88: Config.LuckyPotionLuck
+		effect = "+50% Luck and double gold chance on bait", -- F88: Config.LuckyPotionLuck
 	},
 	-- corner-shop-v2.md section 1: the regular Swift Potion runs 10 minutes (was 5)
 	{ id = "swift_potion", name = "Swift Potion", minutes = 10, effect = "+4 walk speed" },

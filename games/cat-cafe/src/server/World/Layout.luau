@@ -77,6 +77,9 @@ export type AreaSpec = {
 	arrival: Point?, -- where fast travel lands; a box area lands on its camp's landing pad
 	spawnPoints: { Point },
 	rescueSpots: { RescuePoint },
+	-- #2240: every spot a trap can stand on, today's rescueSpots included, each built as scenery; each sunrise
+	-- RescueService picks rescueSpots' mix of trap types from it (RescuePick). Nil: rescueSpots are the traps every day.
+	rescuePool: { RescuePoint }?,
 	props: { Prop },
 }
 
@@ -1163,9 +1166,9 @@ Layout.woods = {
 				{ -50, 2.06, 218 },
 				{ -44, 2.06, 188 },
 				{ 52, 0, 86.5 }, -- the campfire
-				{ -38.74, 0, 206.93 }, -- in the Great Oak's roots
-				{ -34.56, 0, 212.3 },
-				{ -27.64, 0, 211.22 },
+				{ -41.16, 0, 207.27 }, -- in the Great Oak's roots
+				{ -35.48, 0, 214.57 },
+				{ -26.07, 0, 213.1 },
 				{ 51.71, 10.3, 211.89 }, -- the tree house's cushion, up its ladder
 				{ 42.66, 0, 206.64 }, -- at the foot of the tree house
 				{ 12, 0, 230 }, -- the lookout tower

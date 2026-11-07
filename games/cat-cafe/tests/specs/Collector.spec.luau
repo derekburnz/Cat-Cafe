@@ -34,16 +34,16 @@ return function()
 	describe("Catalog.collectorOffers (section 12b)", function()
 		it("is the design's ten rows, lowest value first", function()
 			expect(Catalog.collectorOffers :: any).to.deepEqual({
-				{ value = 1, fish = 5 },
-				{ value = 2, fish = 10 }, -- F94 (was 3 Tuna and a spin)
-				{ value = 4, fish = 15 },
+				{ value = 1, fish = 3 }, -- #2237: fish 5, 10, 15, 20, 50, 100 before
+				{ value = 2, fish = 6 }, -- F94 (was 3 Tuna and a spin)
+				{ value = 4, fish = 10 },
 				{ value = 6, crates = { zone = 1 } },
 				{ value = 8, catFood = { big_cat_snack = 2 } }, -- #1181 (corner-shop-v2.md section 3): "2 Big Snacks"
-				{ value = 11, crates = { zone = 1 }, fish = 20 },
+				{ value = 11, crates = { zone = 1 }, fish = 12 },
 				{ value = 20, crates = { zone = 2 } },
 				{ value = 35, crates = { golden = 1 } },
-				{ value = 60, crates = { golden = 1 }, fish = 50 },
-				{ value = 120, crates = { golden = 2 }, fish = 100 },
+				{ value = 60, crates = { golden = 1 }, fish = 30 },
+				{ value = 120, crates = { golden = 2 }, fish = 60 },
 			})
 		end)
 
@@ -179,7 +179,7 @@ return function()
 			expect(Catalog.getCrate("sewer_golden_crate")).to.be.ok()
 			local food = Collector.prize({ value = 2, lures = { caviar = 1 }, spins = 1 }, "alley")
 			expect(food :: any).to.deepEqual({ lures = { caviar = 1 }, spins = 1 })
-			expect(Collector.prize(Catalog.collectorOffers[2], "alley") :: any).to.deepEqual({ fish = 10 })
+			expect(Collector.prize(Catalog.collectorOffers[2], "alley") :: any).to.deepEqual({ fish = 6 })
 		end)
 
 		it("names a real crate for every area and every crate row", function()

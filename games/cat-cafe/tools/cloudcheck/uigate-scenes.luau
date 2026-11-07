@@ -1546,13 +1546,13 @@ local SCENES = {
 		local card = gui and gui:FindFirstChild("Card", true)
 		assert(card and card.Visible, "uigate: no session recap card when idle (#1920)")
 		local first = card:FindFirstChild("Line1", true)
-		assert(first and first.Text == "Today: 3 new cats, $12,500 earned", "uigate: the recap's first line reads " .. tostring(first and first.Text))
+		assert(first and first.Text == "Today: 3 new cats, $12K earned", "uigate: the recap's first line reads " .. tostring(first and first.Text))
 		local second = card:FindFirstChild("Line2", true)
 		assert(second and string.find(second.Text, "Grand Opening 3/8", 1, true), "uigate: the recap's next line reads " .. tostring(second and second.Text))
 		assert(card:FindFirstChild("Line3", true).Text == "Your bait cat arrives in 3 min. It waits for you", "uigate: the recap's bait line reads " .. card:FindFirstChild("Line3", true).Text)
 		assert(card:FindFirstChild("Line4", true).Visible, "uigate: no offline line on the recap")
 		UI.recap.show({ minutes = 80, newCats = 1, earned = 1 })
-		assert(first.Text == "Today: 3 new cats, $12,500 earned", "uigate: the recap showed twice in a session (#1920)")
+		assert(first.Text == "Today: 3 new cats, $12K earned", "uigate: the recap showed twice in a session (#1920)")
 	end },
 	-- #2123 (first-hour.md 6a): with Gameplay's ReturnHook pick the offline share has its own line and one Tomorrow
 	-- line closes the card (a treat with its prize, the longest), in place of the cooking bait line
@@ -1577,9 +1577,15 @@ local SCENES = {
 		assert(bottom <= card.AbsolutePosition.Y + card.AbsoluteSize.Y + 1, "uigate: the Tomorrow line hangs off the recap card (#2123)")
 		-- #2235 (Derek2: "the text from cafe so far is hard to read", "make it obvious that cats earn offline"): the
 		-- offline line is a mint callout in bold, and no blank row sits between it and the next line
-		assert(three.BackgroundTransparency == 0 and four.BackgroundTransparency == 1, "uigate: the offline line is not the recap's callout (#2235)")
+		assert((three.Parent :: Frame).BackgroundTransparency == 0 and (four.Parent :: Frame).BackgroundTransparency == 1, "uigate: the offline line is not the recap's callout (#2235)")
 		assert(three.TextSize >= 17 and four.TextSize >= 17, "uigate: the recap's lines are " .. four.TextSize .. " px (#2235)")
-		local space = four.AbsolutePosition.Y - (three.AbsolutePosition.Y + three.AbsoluteSize.Y)
+		-- #2295 (desktop test of #2243: "...100% pay, up to" with "16 h" cut off): the callout's words sit inside its padded
+		-- row, and the row is as tall as all of their wrapped rows
+		local row = three.Parent :: Frame
+		local rowBottom = row.AbsolutePosition.Y + row.AbsoluteSize.Y
+		assert(row.Name == "Row3" and three.AbsolutePosition.Y > row.AbsolutePosition.Y, "uigate: the offline callout's words are not inside its padded row")
+		assert(three.AbsolutePosition.Y + three.TextBounds.Y < rowBottom, "uigate: the offline callout is shorter than its words")
+		local space = (four.Parent :: Frame).AbsolutePosition.Y - rowBottom
 		assert(space <= 10, "uigate: a gap of " .. space .. " px under the offline line (#2235)")
 		local cardBottom = card.AbsolutePosition.Y + card.AbsoluteSize.Y
 		assert(cardBottom - bottom <= 24, "uigate: " .. (cardBottom - bottom) .. " px of empty card under the last line (#2235)")
@@ -2002,7 +2008,8 @@ local SCENES = {
 		end
 		assert(count == #Catalog.spinWheel, ("uigate: %d odds rows for %d slices"):format(count, #Catalog.spinWheel))
 		local prize = list:FindFirstChild("Slice8") and list.Slice8:FindFirstChild("Prize")
-		assert(prize and string.find(prize.Text, "^Jackpot: 100 golden fish"), "uigate: slice 8 is not the fish jackpot")
+		local fishJackpot = Catalog.spinWheel[8].count -- #2237: 60 since the fish cut
+		assert(prize and string.find(prize.Text, "^Jackpot: " .. fishJackpot .. " golden fish"), "uigate: slice 8 is not the fish jackpot")
 	end },
 	{ "Market", function()
 		UI.market.open()
@@ -2276,6 +2283,52 @@ local SCENES = {
 		press("Collection", "RainbowTab")
 		press("Collection", "rainbow.Header.Rewards")
 		press("Collection", "rainbow.Expand")
+	end },
+	-- #2270 (Derek2: "the bold text on index rewards is hard to read"): every forever pill, the NEXT sticker and the
+	-- reward band read at 4.5:1 or better against their own fill, and no turning bands sit under their words
+	{ "IndexRewardContrast", function()
+		local before: any = UI.getState()
+		local restore = { goldLuck = before.goldLuck or 0, baitSpeed = before.baitSpeed or 0 }
+		UI.update({
+			indexRewards = { rainbow = { rainbow1 = true, rainbow3 = true, rainbow5 = true } },
+			rainbowLuck = 0.2,
+			goldLuck = 0.1,
+			baitSpeed = 0.2,
+		})
+		UI.open("Collection")
+		press("Collection", "RainbowTab")
+		press("Collection", "rainbow.Header.Rewards")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true)
+		assert(window, "uigate: no Index window (#2270)")
+		local function lum(c: Color3): number
+			local function ch(x: number): number
+				return if x <= 0.03928 then x / 12.92 else ((x + 0.055) / 1.055) ^ 2.4
+			end
+			return 0.2126 * ch(c.R) + 0.7152 * ch(c.G) + 0.0722 * ch(c.B)
+		end
+		local names = { bonus = true, goldLuck = true, rainbowLuck = true, baitSpeed = true, NextSticker = true, Bonus = true }
+		local checked, seen = 0, {}
+		for _, label in window:GetDescendants() do
+			if label:IsA("TextLabel") and names[label.Name] and label.Visible and label.Text ~= "" then
+				local a, b = lum(label.TextColor3), lum(label.BackgroundColor3)
+				local ratio = (math.max(a, b) + 0.05) / (math.min(a, b) + 0.05)
+				assert(
+					ratio >= 4.5,
+					("uigate: %s %q reads at %.2f:1 (#2270)"):format(label.Name, label.Text, ratio)
+				)
+				local bands = label:FindFirstChild("Rainbow")
+				assert(
+					not (bands and bands:IsA("UIGradient") and bands.Enabled),
+					"uigate: rainbow bands tint the words of " .. label.Name .. " (#2270)"
+				)
+				checked += 1
+				seen[label.Name] = true
+			end
+		end
+		assert(seen.rainbowLuck and seen.NextSticker, "uigate: no rainbow luck pill or NEXT sticker to check (#2270)")
+		assert(checked >= 3, "uigate: only " .. checked .. " reward labels checked (#2270)")
+		UI.update(restore :: any) -- later Index scenes keep their own header pills
 	end },
 	-- #2272 (Derek2: "show cat collector through walls like rich tip"): while he visits, his tag draws over walls out
 	-- to the rich tip's 150 studs, on a solid bubble so it reads against any wall
@@ -2894,6 +2947,45 @@ local SCENES = {
 	-- F87: a context tip's card at the top centre, its bar draining
 	{ "TipCard", function()
 		UI.tips.show("second_cat")
+	end },
+	-- #2282 (Derek2: "on the persons first perfect catch have a quick side tip that explains it boosts their charm"):
+	-- a catch whose Perfects added Charm brings the tip card with the Charm line, once; a Perfect-less catch does not
+	{ "PerfectCharmTip", function()
+		local before: any = (UI.getState() :: any).tipsSeen or {}
+		-- every other tip seen, so no client-found tip (the luck chip's, the Codes Cat's) takes the card or restarts
+		-- the gap while the scene waits
+		local tipsSeen = table.clone(before)
+		for _, def in UIShim.require("ReplicatedStorage.Shared.Tips").LIST do
+			tipsSeen[def.id] = true
+		end
+		tipsSeen.perfect = nil
+		UI.update({ tipsSeen = tipsSeen } :: any)
+		local seen: { string } = {}
+		local counting = UI.events.tipSeen:Connect(function(id: string)
+			table.insert(seen, id)
+		end)
+		local function charmLine(): TextLabel?
+			for _, label in UIShim.playerGui:GetDescendants() do
+				if label:IsA("TextLabel") and label.Text:find("Charm", 1, true) and label.Text:find("Perfects", 1, true) then
+					return label
+				end
+			end
+			return nil
+		end
+		UIShim.advance(61) -- past TipGapSeconds after the TipCard scene's tip, so the queue may show the next one
+		UI.catch.showGrades("uigate_stray", { "good", "good" }, true, 0)
+		UIShim.advance(1)
+		assert(charmLine() == nil, "uigate: a catch with no Perfect showed the Charm tip (#2282)")
+		UI.catch.showGrades("uigate_stray", { "perfect", "good" }, true, 2)
+		UIShim.advance(4)
+		local line = charmLine()
+		assert(line and line.Visible, "uigate: the first Perfect catch did not show the Charm tip (#2282)")
+		assert(line.Text == "Perfects boost a cat's Charm, and more Charm earns more money!", "uigate: the Charm tip reads " .. line.Text)
+		assert(line.TextFits, "uigate: the Charm tip's line does not fit its card (#2282)")
+		UIShim.advance(12)
+		assert(table.find(seen, "perfect"), "uigate: the Charm tip was not saved as seen (#2282)")
+		counting:Disconnect()
+		UI.update({ tipsSeen = before } :: any)
 	end },
 	-- #2198 (Derek2: "a forced cut scene after first catch"): the server's tackle tip plays as the tackling lesson on
 	-- the intro's screen: four captions with four dots, the read bar and Next, no Skip; it ends by itself and saves

@@ -3,6 +3,8 @@
 // small text and off-screen windows").
 //
 //   node uigate.mjs [--out dir] [--devices] [--profile phone] [--scene Quests] [--update-baseline] [--verbose]
+//   node uigate.mjs --shard 2/4 --save dir     (CI: build one quarter of the scenes, write them to dir, check nothing)
+//   node uigate.mjs --merge dir                (CI: read every shard back in order and check them as one full run)
 //
 // Builds the real UI (src/client/UI) in the cloud at three screen sizes, the ones the ui-review skill names:
 // desktop 1280 x 720, laptop 1366 x 768 and a phone at 844 x 390 with touch; --devices runs a tablet, a small phone
@@ -112,8 +114,16 @@ async function runProfile(profile) {
   run(scenes.rawGet('setup'), 3);
   run(scenes.rawGet('close'), 0.6); // a window the login opens by itself (a Daily Treat that is due)
   const hudJitter = watch();
-  results.push({ scene: 'HUD', nodes: snapshot(), errors: takeErrors(), jitter: hudJitter });
-  const names = scenes.rawGet('names').toArray().map(String);
+  const hud = { scene: 'HUD', nodes: snapshot(), errors: takeErrors(), jitter: hudJitter };
+  // --shard k/n: a contiguous slice of the sorted scene list, in its own fresh state after the same setup. Only the
+  // first shard keeps the HUD scene, so the merged run reads exactly like one full run (#2304).
+  const shard = parseShard(args.shard);
+  if (!shard || shard.k === 1) results.push(hud);
+  let names = scenes.rawGet('names').toArray().map(String);
+  if (shard) {
+    const size = Math.ceil(names.length / shard.n);
+    names = names.slice((shard.k - 1) * size, shard.k * size);
+  }
   for (const name of names) {
     if (args.scene && args.scene !== name) continue;
     // a Lua closure, not a host function: a pcall under a JS callback fails in luau-rs ("invalid async callback
@@ -140,13 +150,40 @@ const wanted = profiles.filter((profile) => !args.profile || args.profile === pr
 // The sizes run side by side, one child process each (CI has 4 cores; run in turn they took about 25 minutes of the
 // job's 31, 2026-11-06). Their scenes are read back in order below, so the report and the baseline check are the same.
 const childScenes = new Map();
-if (!args.emit && wanted.length > 1) {
+if (args.save && !args.emit) {
+  // CI shard: every size side by side over this shard's scenes, saved for the --merge job; nothing is checked here.
+  const shard = parseShard(args.shard);
+  if (!shard) throw new Error('--save needs --shard k/n');
+  fs.mkdirSync(args.save, { recursive: true });
+  await Promise.all(
+    wanted.map((profile) => runChild(profile, path.join(args.save, `${profile.name}-${shard.k}-of-${shard.n}.json`), true)),
+  );
+  console.log(`Shard ${shard.k}/${shard.n}: ${wanted.length} sizes ran side by side in ${((Date.now() - started) / 1000).toFixed(1)} s`);
+  process.exit(0);
+}
+if (args.merge) {
+  // CI: the shards' scenes in shard order are the full run, so the dedupe, the report and the baseline check below
+  // are the same as one run's. A missing shard fails, so a lost artifact can never pass the gate.
+  for (const profile of wanted) {
+    const parts = fs.readdirSync(args.merge).flatMap((file) => {
+      const m = file.match(new RegExp(`^${profile.name}-(\\d+)-of-(\\d+)\\.json$`));
+      return m ? [{ file, k: Number(m[1]), n: Number(m[2]) }] : [];
+    });
+    parts.sort((a, b) => a.k - b.k);
+    const n = parts[0]?.n;
+    if (!n || parts.length !== n || parts.some((p, i) => p.k !== i + 1 || p.n !== n)) {
+      throw new Error(`UI gate --merge: ${profile.name} has shards ${parts.map((p) => `${p.k}/${p.n}`).join(', ') || 'none'} in ${args.merge}`);
+    }
+    childScenes.set(profile.name, parts.flatMap((p) => JSON.parse(fs.readFileSync(path.join(args.merge, p.file), 'utf8'))));
+  }
+} else if (!args.emit && wanted.length > 1) {
   await Promise.all(wanted.map(async (profile) => childScenes.set(profile.name, await runChild(profile))));
   console.log(`${wanted.length} sizes ran side by side in ${((Date.now() - started) / 1000).toFixed(1)} s`);
 }
 for (const profile of wanted) {
   const t0 = Date.now();
-  const scenes = args.emit || wanted.length === 1 ? await runProfile(profile) : childScenes.get(profile.name);
+  const scenes =
+    !args.merge && (args.emit || wanted.length === 1) ? await runProfile(profile) : childScenes.get(profile.name);
   if (args.emit) {
     fs.writeFileSync(args.emit, JSON.stringify(scenes));
     process.exit(0);
@@ -206,10 +243,10 @@ console.log('UI gate passed');
 
 // One screen size in a child process: the same script with --profile and --emit, its scenes read back from a file.
 // Resolves when the child is done, so the sizes can run at once.
-async function runChild(profile) {
-  const file = path.join(os.tmpdir(), `cat-cafe-uigate-${process.pid}-${profile.name}.json`);
+async function runChild(profile, file = path.join(os.tmpdir(), `cat-cafe-uigate-${process.pid}-${profile.name}.json`), keep = false) {
   const childArgs = [...process.execArgv, fileURLToPath(import.meta.url), '--profile', profile.name, '--emit', file];
   if (args.scene) childArgs.push('--scene', args.scene);
+  if (args.shard) childArgs.push('--shard', args.shard);
   if (args.verbose) childArgs.push('--verbose');
   if (args.mem) childArgs.push('--mem');
   const status = await new Promise((resolve, reject) => {
@@ -218,9 +255,20 @@ async function runChild(profile) {
     child.on('exit', (code) => resolve(code));
   });
   if (status !== 0) throw new Error(`UI gate: the ${profile.name} run failed (exit ${status})`);
+  if (keep) return null;
   const scenes = JSON.parse(fs.readFileSync(file, 'utf8'));
   fs.rmSync(file, { force: true });
   return scenes;
+}
+
+// '2/4' -> { k: 2, n: 4 }; nothing -> null.
+function parseShard(text) {
+  if (!text) return null;
+  const m = /^(\d+)\/(\d+)$/.exec(text);
+  const k = m && Number(m[1]);
+  const n = m && Number(m[2]);
+  if (!m || n < 1 || k < 1 || k > n) throw new Error(`--shard wants k/n with 1 <= k <= n, got ${text}`);
+  return { k, n };
 }
 
 function parseArgs(argv) {
@@ -235,6 +283,9 @@ function parseArgs(argv) {
     else if (arg === '--verbose' || arg === '-v') out.verbose = true;
     else if (arg === '--mem') out.mem = true; // the Luau heap after each scene, on stderr
     else if (arg === '--emit') out.emit = argv[++i]; // internal: run one --profile and write its scenes as JSON
+    else if (arg === '--shard') out.shard = argv[++i]; // k/n: only the k-th of n slices of the scenes
+    else if (arg === '--save') out.save = argv[++i]; // with --shard: write each size's scenes to this folder
+    else if (arg === '--merge') out.merge = argv[++i]; // check the scenes every --save shard wrote to this folder
     else if (arg === '--help' || arg === '-h') {
       console.log('usage: node uigate.mjs [--out dir] [--devices] [--profile desktop|laptop|phone|tablet|smallphone|console] [--scene Name] [--update-baseline] [--verbose]');
       process.exit(0);

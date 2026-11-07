@@ -10,19 +10,19 @@ return function()
 		local expected: { { any } } = {
 			-- v2 (#1414, rewards-and-shops.md section 2a): coins 2x, golden fish 5x, spins 5x, the crate 2x
 			{ 2, { coins = 100, coinSeconds = 30 } },
-			{ 5, { fish = 10 } },
+			{ 5, { fish = 5 } }, -- #2237: the fish about 60%
 			{ 10, { coins = 200, coinSeconds = 60 } },
-			{ 15, { fish = 10 } },
+			{ 15, { fish = 5 } },
 			{ 20, { coins = 300, coinSeconds = 90 } },
 			{ 30, { spins = 5 } },
 			{ 40, { coins = 500, coinSeconds = 120 } },
-			{ 50, { fish = 15 } },
+			{ 50, { fish = 10 } },
 			-- the pretty good gift at an hour (round 4 Q10)
-			{ 60, { coins = 2000, coinSeconds = 600, fish = 50 } },
-			{ 75, { fish = 25 } },
+			{ 60, { coins = 2000, coinSeconds = 600, fish = 30 } },
+			{ 75, { fish = 15 } },
 			{ 90, { coins = 1200, coinSeconds = 300, spins = 5 } },
 			-- and the really good one at two hours
-			{ 120, { crates = { classic_crate = 2 }, fish = 150 } },
+			{ 120, { crates = { classic_crate = 2 }, fish = 90 } },
 		}
 
 		it(

@@ -32,7 +32,7 @@ return function()
 			})
 			-- F94 (rewards-and-shops.md section 2c): no shop food, day 7 without its spins
 			expect(DailyTreat.prize(2) :: any).to.deepEqual({
-				fish = 15,
+				fish = 10, -- #2237: was 15
 				spins = 1,
 			})
 			expect(DailyTreat.prize(3) :: any).to.deepEqual({
@@ -51,12 +51,12 @@ return function()
 			})
 			expect(DailyTreat.prize(6) :: any).to.deepEqual({
 				potions = { lucky_potion = 1 },
-				fish = 10,
+				fish = 5, -- #2237: was 10
 			})
 			expect(DailyTreat.prize(7) :: any).to.deepEqual({
 				crates = { classic_golden_crate = 1 },
 				lures = { star_treat = 1 },
-				fish = 50,
+				fish = 30, -- #2237: was 50
 			})
 		end)
 

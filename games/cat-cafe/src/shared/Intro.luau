@@ -3,8 +3,8 @@
 -- Cat Cannon, F84): when each starts, its caption, and where the camera flies. Studs, y up. Shot 1 follows the
 -- player's own plot (`x`, `z` and `side`, -1 for the west row and +1 for the east row, the street toward -side) up
 -- to the Town Square's cannon, where your copy climbs in. Shots 2 to 4 are at the Alleyway's camp: the flight, the catch
--- just past its way out and the carry into the camp. Shot 5 is in your cafe and shots 6 to 8 in the Town Square
--- (#1542, Derek 2026-11-05, took out the old shot 6's cuts over the other camps; #1782, Derek2 2026-11-06, took out the
+-- just past its way out and the carry into the camp. Shots 5 and 6 (the rich visitor, #2242) are in your cafe and
+-- shots 7 to 9 in the Town Square (#1542, Derek 2026-11-05, took out the old shot 6's cuts over the other camps; #1782, Derek2 2026-11-06, took out the
 -- cut back to the Alleyway camp's Index Board after the cafe). The camps are
 -- worked out from Config as the server's Layout.camps does (a test checks they match), so the client needs neither
 -- the server module nor the camps to have streamed in. The positions are starting points to tune in Studio. Pure apart from Vector3.
@@ -17,12 +17,12 @@ local Types = require(script.Parent.Types)
 
 local Intro = {}
 
-Intro.SHOTS = 8
+Intro.SHOTS = 9
 -- The intro_cutscene event's version, so old and new drop-offs never mix (section 3): 3 for the hometown and the
 -- cannon (F84), 4 since #1542 took out the camp cuts, 5 since #1782 took out the Index Board shot, 6 since #2113
--- put the night (now shot 6) before the free spin and codes (now shot 7), 7 since #2182 gave each shot a reading hold
--- and Next.
-Intro.VERSION = 7
+-- put the night (now shot 7) before the free spin and codes (now shot 8), 7 since #2182 gave each shot a reading hold
+-- and Next, 8 since #2242 put the rich visitor in as shot 6.
+Intro.VERSION = 8
 Intro.SKIP_AFTER = 5.0 -- seconds into the first play before Skip can be pressed (its bar fills until then; Derek 00:57); a replay allows it at once
 Intro.MAX_CAPTION = 46 -- characters, so a caption fits one line on a phone ("about 45")
 Intro.STREAM_WAIT = 5 -- seconds the intro waits for the Alleyway's camp to stream in before it starts (section 3)
@@ -106,21 +106,36 @@ Intro.JOB_SPOT = "waiter_1"
 Intro.FLOOR_Y = 0.2
 Intro.cafe = {
 	waiterSpot = { x = -5.5, z = -3.04 }, -- the bigger cafes' (#917)
+	richTip = { x = -12.22, y = 2.7, z = -10.32 }, -- #2242: Layout.plot.richTip, the RichTipAnchor on table 1
 }
 
--- Shot 6 (#2113; it was 7), in seconds into the shot: dusk, a short night and sunrise on this screen only.
+-- Shot 6 (#2242, Derek2 2026-11-07: "add the rare customers chance to the tutorial scene like rich customer tips"), in
+-- seconds into the shot, in your cafe: a rich visitor walks in from the door to table 1's chair from RICH_WALK_AT, sits
+-- at RICH_SIT_AT, and leaves the gold coin pile on the RichTipAnchor at RICH_TIP_AT. Your copy walks in from the door
+-- from RICH_GRAB_FROM and grabs it at RICH_GRAB_AT, where the "+$" pop shows Intro.richTip(). Local only.
+Intro.RICH_WALK_AT = 0.1
+Intro.RICH_SIT_AT = 1.0
+Intro.RICH_TIP_AT = 1.15
+Intro.RICH_GRAB_FROM = 1.3
+Intro.RICH_GRAB_AT = 2.3
+Intro.RICH_ASSET = "CatCafe_NPC_Customer_Rich" -- CustomerController's rich customer, with its `_Sit` twin
+Intro.RICH_REACH = 2.6 -- your copy stops this far short of the coin pile, on the door's side
+
+-- Shot 7 (#2113; it was 7, then 6 until #2242), in seconds into the shot: dusk, a short night and sunrise on this
+-- screen only.
 Intro.NIGHT_FROM = 0.35
 Intro.NIGHT_TO = 0.95
 Intro.SUNRISE_FROM = 1.8
 Intro.SUNRISE_TO = 2.3
 
--- Shot 8 lands this far behind and above the character, looking at its head.
+-- Shot 9 lands this far behind and above the character, looking at its head.
 Intro.FOLLOW_BACK = 12
 Intro.FOLLOW_UP = 6
 Intro.HEAD_UP = 1.5
 
 Intro.CODES_CAPTION = "Free spin every day. Codes at the Codes Cat!"
-Intro.SPIN_CAPTION = "Spin the wheel for a free prize every day!" -- shot 7 before a Codes Cat stands in the world
+Intro.SPIN_CAPTION = "Spin the wheel for a free prize every day!" -- shot 8 before a Codes Cat stands in the world
+Intro.RICH_CAPTION = "Rich visitors leave big tips. Grab them fast!"
 
 export type Ease = "InOut" | "Out" | "Linear"
 export type Plot = { x: number, z: number, side: number, index: number }
@@ -144,9 +159,10 @@ export type Shot = {
 	catch: boolean?, -- shot 3: the demo ring, then the cat hops into your arms
 	run: boolean?, -- shot 4: you run it into the camp, where it checks in
 	job: boolean?, -- shot 5: the cat takes the waiter spot in its outfit
-	spinWheel: boolean?, -- shot 7 (#2113): the world wheel turns two spins on this screen
-	night: boolean?, -- shot 6 (#2113): night falls and the sun rises on this screen
-	follow: boolean?, -- shot 8: the last cut ends behind the character (Intro.follow), not at `to`
+	rich: boolean?, -- shot 6 (#2242): a rich visitor leaves a big tip and your copy grabs it
+	spinWheel: boolean?, -- shot 8 (#2113): the world wheel turns two spins on this screen
+	night: boolean?, -- shot 7 (#2113): night falls and the sun rises on this screen
+	follow: boolean?, -- shot 9: the last cut ends behind the character (Intro.follow), not at `to`
 }
 
 -- A camp the intro films (Layout.camps, hometown-cannon.md section 4), in the world. `origin` is the middle of the
@@ -364,6 +380,31 @@ function Intro.waiterPoint(plot: Plot): Vector3
 	return Intro.plotPoint(plot, Intro.cafe.waiterSpot.x, 0, Intro.cafe.waiterSpot.z)
 end
 
+-- #2242: shot 6's coin pile in the world (where the plot's RichTipAnchor stands), and the door your copy and the rich
+-- visitor walk in by, on the cafe floor.
+function Intro.richTipPoint(plot: Plot): Vector3
+	local tip = Intro.cafe.richTip
+	return Intro.plotPoint(plot, tip.x, tip.y, tip.z)
+end
+
+function Intro.doorPoint(plot: Plot): Vector3
+	return Intro.plotPoint(plot, 0, 0, -Config.World.PlotDepth / 2 + 1.5)
+end
+
+-- #2242: where your copy stops to grab the tip at `tip` coming in from `door`: RICH_REACH short of it, on the floor.
+function Intro.grabSpot(door: Vector3, tip: Vector3): Vector3
+	local flat = Vector3.new(door.X - tip.X, 0, door.Z - tip.Z)
+	local back = if flat.Magnitude > 1e-6 then flat.Unit else Vector3.new(0, 0, -1)
+	local at = tip + back * Intro.RICH_REACH
+	return Vector3.new(at.X, door.Y, at.Z)
+end
+
+-- #2242: the "+$" shot 6 shows: a rich tip (Economy.richTipAmount, at least $50) on the day rate of a new cafe whose
+-- one cat is the demo waiter, at Tier 1. Nothing is paid.
+function Intro.richTip(): number
+	return Economy.richTipAmount(Intro.demoRate())
+end
+
 -- What the seated Tuxedo's rate tag reads: a Common waiter in its own favourite role, level 1 with even charm, in a
 -- new cafe at Tier 1, worked out as the server does for a real working cat (Economy.catRate times the cafe and tier
 -- multipliers).
@@ -432,7 +473,7 @@ function Intro.fuseAt(shot: Shot): number
 	return Intro.FUSE_AT + (shot.hold - shot.seconds)
 end
 
--- The eight shots for this plot. `codesCat` is false until a Codes Cat station stands in the Workspace (F65);
+-- The nine shots for this plot. `codesCat` is false until a Codes Cat station stands in the Workspace (F65);
 -- `alleyStreamed` false leaves out the shots at the Alleyway's camp (3 and 4) and holds shot 2 in the clouds.
 function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { Shot }
 	local px, pz, s = plot.x, plot.z, plot.side
@@ -461,7 +502,9 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 	local aisle = local3(-7.3, 2, 7.3)
 	local cannonEnd = key(v(10, 8, -18), v(0, 6, 0)) -- shot 1's last frame, from the square's south east side
 	local launchTilt = key(v(10, 7, -18), v(-6, 14, -6))
-	local town = v(0, 0, -20) -- shot 6 looks up the whole town from the south
+	local town = v(0, 0, -20) -- shot 7 looks up the whole town from the south
+	-- shot 6 (#2242): from inside the front wall right of the door, across the door to table 1's coin pile
+	local richLook = local3(-6, 2.5, -halfD + 4)
 	local stations = v(-28, 4, 0) -- between the Spin Wheel and the Codes Cat
 	local shotFrom = key(v(px - (halfD + 16) * s, 9, pz - 6), v(px - (halfD + 0.3) * s, 7, pz))
 	local streamed = alleyStreamed ~= false
@@ -571,6 +614,22 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 			starts = 0,
 			hold = 0,
 			seconds = 3,
+			caption = Intro.RICH_CAPTION,
+			ease = "InOut",
+			rich = true,
+			cuts = {
+				{
+					from = key(local3(7, 7, -halfD + 2.5), richLook),
+					to = key(local3(5.5, 6.5, -halfD + 3.5), richLook),
+					seconds = 3,
+				},
+			},
+		},
+		{
+			index = 7,
+			starts = 0,
+			hold = 0,
+			seconds = 3,
 			-- #2113 (Derek2): night and its fresh cats before the free spin and the codes
 			caption = "Night closes the areas. Fresh cats at sunrise!",
 			ease = "Linear",
@@ -585,7 +644,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 			},
 		},
 		{
-			index = 7,
+			index = 8,
 			starts = 0,
 			hold = 0,
 			seconds = 2.7,
@@ -602,7 +661,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 			},
 		},
 		{
-			index = 8,
+			index = 9,
 			starts = 0,
 			hold = 0,
 			seconds = 2,
@@ -612,7 +671,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 			cuts = {
 				{
 					-- `to` becomes the follow point at play time (Intro.follow): every player ends at the spawn; it starts
-					-- where shot 7 ends, over the Spin Wheel and the Codes Cat (#2113)
+					-- where shot 8 ends, over the Spin Wheel and the Codes Cat (#2113)
 					from = key(v(-8, 10, 0), stations),
 					to = key(v(0, 76, -144), town),
 					seconds = 2,
@@ -691,7 +750,7 @@ function Intro.at(cut: Cut, ease: Ease, t: number): Key
 	}
 end
 
--- Shot 8's end: FOLLOW_BACK behind and FOLLOW_UP above a character standing at `root`, looking at its head.
+-- Shot 9's end: FOLLOW_BACK behind and FOLLOW_UP above a character standing at `root`, looking at its head.
 function Intro.follow(rootPosition: Vector3, facing: Vector3): Key
 	local flat = Vector3.new(facing.X, 0, facing.Z)
 	local back = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, -1)

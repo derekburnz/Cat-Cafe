@@ -123,25 +123,25 @@ return function()
 			})
 			expect(alley.cats10 :: any).to.deepEqual({
 				crates = { alley_crate = 2, alley_golden_crate = 1 },
-				fish = 25,
+				fish = 15, -- #2237: every page's fish halved to the nearest 5, at least 5
 				bonus = 0.05,
 			})
 			expect(alley.gold1 :: any).to.deepEqual({
-				fish = 10,
+				fish = 5,
 				crates = { alley_crate = 1 },
 				goldLuck = 0.02,
 			})
 			expect(alley.gold6 :: any).to.deepEqual({
 				coins = 2000,
 				coinSeconds = 900,
-				fish = 50,
+				fish = 25,
 				goldLuck = 0.05,
 			})
 			expect(alley.gold10 :: any).to.deepEqual({
 				coins = 5000,
 				coinSeconds = 1800,
 				crates = { alley_golden_crate = 2 },
-				fish = 100,
+				fish = 50,
 				tag = "Alleyway Gold Master",
 				goldLuck = 0.10,
 			})
@@ -162,7 +162,7 @@ return function()
 			expect(sum(all, "baitSpeed")).to.be.near(0.38, 1e-9)
 			expect(all.total30.crates :: any).to.deepEqual({ highest = 1 })
 			expect(all.total50 :: any).to.deepEqual({
-				fish = 150,
+				fish = 75, -- #2237: was 150
 				crates = { classic_golden_crate = 2 },
 				spins = 10,
 				tag = "Cat Master",
@@ -186,7 +186,7 @@ return function()
 				expect(n).to.equal(10)
 				expect(luck).to.equal(0) -- the area gold tracks already reach GoldLuckMax
 				expect(all.goldtotal50 :: any).to.deepEqual({
-					fish = 250,
+					fish = 125, -- #2237: was 250
 					crates = { classic_golden_crate = 4 },
 					spins = 10,
 					tag = "Golden Paw",
@@ -195,7 +195,7 @@ return function()
 		)
 
 		it(
-			"gives each Decor Index page 25 fish at five pieces and +5% tips forever at all twelve",
+			"gives each Decor Index page 15 fish at five pieces (#2237) and +5% tips forever at all twelve",
 			function()
 				for _, pool in POOLS do
 					local page = Catalog.indexPrizes["decor_" .. pool]

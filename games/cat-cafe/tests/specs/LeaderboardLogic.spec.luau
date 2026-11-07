@@ -35,7 +35,7 @@ return function()
 			expect(LeaderboardLogic.value("playtime", 2472)).to.equal("41 h 12 m")
 			expect(LeaderboardLogic.value("playtime", 45)).to.equal("45 m")
 			expect(LeaderboardLogic.value("playtime", 0)).to.equal("0 m")
-			expect(LeaderboardLogic.value("money", 12400)).to.equal("$12,400/s") -- the HUD's numbers
+			expect(LeaderboardLogic.value("money", 12400)).to.equal("$12K/s") -- the HUD's numbers
 			expect(LeaderboardLogic.value("money", 1240000)).to.equal("$1.24M/s")
 			expect(LeaderboardLogic.value("money", nil)).to.equal("$0/s")
 		end)

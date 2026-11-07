@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-07 18:50 UTC",
+  "generated": "2026-11-07 21:36 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -211383,9 +211383,8 @@
       "objects": [
         "CatCafe_Woods_Set",
         "CatCafe_Woods_Set_000_GreatOak",
-        "CatCafe_Woods_Set_000_GreatOak_Pane",
         "CatCafe_Woods_Set_000_GreatOak_Bulb",
-        "CatCafe_Woods_Set_000_GreatOak_Climb",
+        "CatCafe_Woods_Set_000_GreatOak_Canopy",
         "CatCafe_Woods_Set_001_WoodBridge",
         "CatCafe_Woods_Set_002_SteppingStones",
         "CatCafe_Woods_Set_003_Campfire",
@@ -211445,46 +211444,46 @@
         "CatCafe_Woods_Set_049_Thicket",
         "CatCafe_Woods_Set_050_Stream_Water"
       ],
-      "triangles": 27522,
+      "triangles": 29924,
       "budget": 80000,
       "size_studs": {
         "x": 119.0,
         "y": 119.0,
-        "z": 43.9
+        "z": 50.63
       },
       "size_roblox": [
         119.0,
-        43.9,
+        50.63,
         119.0
       ],
       "bounds_min": [
         -59.5,
         -59.5,
-        -0.4
+        -0.63
       ],
       "bounds_max": [
         59.5,
         59.5,
-        43.5
+        50.0
       ],
       "pivot": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "points_roblox": {
         "oak_nook": [
           [
-            -3.4,
+            -4.63,
             0.0,
-            11.89
+            14.01
           ],
           [
-            3.4,
+            4.62,
             0.0,
-            11.89
+            14.01
           ],
           [
-            6.8,
+            9.24,
             0.0,
-            5.76
+            5.68
           ]
         ],
         "nook_great_oak": [
@@ -211619,7 +211618,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_Set.model.json",
-      "rbx_parts": 1216,
+      "rbx_parts": 1342,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_Set.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_Set.glb"
@@ -211631,12 +211630,12 @@
           "pivot"
         ],
         "checks": {
-          "budget": "27522/80000 tris",
+          "budget": "29924/80000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "15870 faces on swatch centers",
+          "uv": "17139 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=-0.40 (want 0)",
+          "pivot": "floor at z=-0.63 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
       }
@@ -213881,20 +213880,20 @@
         "CatCafe_Park_SetF85_074_Urn_Flowers",
         "CatCafe_Park_SetF85_075_Pillar",
         "CatCafe_Park_SetF85_075_Pillar_Bulb",
-        "CatCafe_Park_SetF85_076_WallLow",
-        "CatCafe_Park_SetF85_076_WallLow_Flowers",
+        "CatCafe_Park_SetF85_076_WallTall",
+        "CatCafe_Park_SetF85_076_WallTall_Flowers",
         "CatCafe_Park_SetF85_077_Pillar",
-        "CatCafe_Park_SetF85_078_WallLow",
-        "CatCafe_Park_SetF85_078_WallLow_Flowers",
+        "CatCafe_Park_SetF85_078_WallTall",
+        "CatCafe_Park_SetF85_078_WallTall_Flowers",
         "CatCafe_Park_SetF85_079_Pillar",
         "CatCafe_Park_SetF85_079_Pillar_Bulb",
         "CatCafe_Park_SetF85_080_Pillar",
         "CatCafe_Park_SetF85_080_Pillar_Bulb",
-        "CatCafe_Park_SetF85_081_WallLow",
-        "CatCafe_Park_SetF85_081_WallLow_Flowers",
+        "CatCafe_Park_SetF85_081_WallTall",
+        "CatCafe_Park_SetF85_081_WallTall_Flowers",
         "CatCafe_Park_SetF85_082_Pillar",
-        "CatCafe_Park_SetF85_083_WallLow",
-        "CatCafe_Park_SetF85_083_WallLow_Flowers",
+        "CatCafe_Park_SetF85_083_WallTall",
+        "CatCafe_Park_SetF85_083_WallTall_Flowers",
         "CatCafe_Park_SetF85_084_Pillar",
         "CatCafe_Park_SetF85_084_Pillar_Bulb",
         "CatCafe_Park_SetF85_085_Railing_Barrier",
@@ -214104,7 +214103,7 @@
         "CatCafe_Park_SetF85_217_Poplar",
         "CatCafe_Park_SetF85_218_Poplar"
       ],
-      "triangles": 95504,
+      "triangles": 98660,
       "budget": 150000,
       "size_studs": {
         "x": 119.5,
@@ -214514,7 +214513,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_SetF85.model.json",
-      "rbx_parts": 5296,
+      "rbx_parts": 6154,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_SetF85.glb"
@@ -214527,10 +214526,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "95504/150000 tris",
+          "budget": "98660/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "60742 faces on swatch centers",
+          "uv": "62796 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.05 (want 0)",
           "centered": "footprint center x=0.00 y=-0.12"
@@ -214675,9 +214674,8 @@
         "CatCafe_Woods_SetV32_111_HollowLog",
         "CatCafe_Woods_SetV32_112_BrambleBush",
         "CatCafe_Woods_SetV32_113_GreatOak",
-        "CatCafe_Woods_SetV32_113_GreatOak_Pane",
         "CatCafe_Woods_SetV32_113_GreatOak_Bulb",
-        "CatCafe_Woods_SetV32_113_GreatOak_Climb",
+        "CatCafe_Woods_SetV32_113_GreatOak_Canopy",
         "CatCafe_Woods_SetV32_114_LogBench",
         "CatCafe_Woods_SetV32_115_LogBench",
         "CatCafe_Woods_SetV32_116_LogBench",
@@ -214783,16 +214781,16 @@
         "CatCafe_Woods_SetV32_208_PineTall",
         "CatCafe_Woods_SetV32_209_PineTall"
       ],
-      "triangles": 115976,
+      "triangles": 118378,
       "budget": 120000,
       "size_studs": {
         "x": 240.0,
         "y": 240.0,
-        "z": 45.34
+        "z": 51.84
       },
       "size_roblox": [
         240.0,
-        45.34,
+        51.84,
         240.0
       ],
       "bounds_min": [
@@ -214803,7 +214801,7 @@
       "bounds_max": [
         120.0,
         120.0,
-        43.5
+        50.0
       ],
       "pivot": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -215202,21 +215200,21 @@
         ],
         "oak_nook": [
           [
-            -44.71,
+            -47.12,
             0.0,
-            86.88,
+            86.48,
             "deep"
           ],
           [
-            -42.32,
+            -43.88,
             0.0,
-            93.25,
+            95.14,
             "deep"
           ],
           [
-            -35.39,
+            -34.45,
             0.0,
-            94.28,
+            96.54,
             "deep"
           ]
         ],
@@ -215297,7 +215295,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_SetV32.model.json",
-      "rbx_parts": 5493,
+      "rbx_parts": 5619,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_SetV32.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_SetV32.glb"
@@ -215309,10 +215307,10 @@
           "pivot"
         ],
         "checks": {
-          "budget": "115976/120000 tris",
+          "budget": "118378/120000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "71583 faces on swatch centers",
+          "uv": "72852 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-1.84 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
@@ -218346,9 +218344,8 @@
         "CatCafe_Woods_SetF85_156_Lantern",
         "CatCafe_Woods_SetF85_156_Lantern_Bulb",
         "CatCafe_Woods_SetF85_157_GreatOak",
-        "CatCafe_Woods_SetF85_157_GreatOak_Pane",
         "CatCafe_Woods_SetF85_157_GreatOak_Bulb",
-        "CatCafe_Woods_SetF85_157_GreatOak_Climb",
+        "CatCafe_Woods_SetF85_157_GreatOak_Canopy",
         "CatCafe_Woods_SetF85_158_LogBench",
         "CatCafe_Woods_SetF85_159_LogBench",
         "CatCafe_Woods_SetF85_160_LogBench",
@@ -218484,16 +218481,16 @@
         "CatCafe_Woods_SetF85_283_OakRound",
         "CatCafe_Woods_SetF85_284_OakRound"
       ],
-      "triangles": 127572,
+      "triangles": 129974,
       "budget": 150000,
       "size_studs": {
         "x": 160.0,
         "y": 489.5,
-        "z": 44.48
+        "z": 50.98
       },
       "size_roblox": [
         160.0,
-        44.48,
+        50.98,
         489.5
       ],
       "bounds_min": [
@@ -218504,7 +218501,7 @@
       "bounds_max": [
         80.0,
         245.0,
-        43.5
+        50.0
       ],
       "pivot": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -218953,21 +218950,21 @@
         ],
         "oak_nook": [
           [
-            -38.74,
+            -41.16,
             0.0,
-            206.93,
+            207.27,
             "deep"
           ],
           [
-            -34.56,
+            -35.48,
             0.0,
-            212.3,
+            214.57,
             "deep"
           ],
           [
-            -27.64,
+            -26.07,
             0.0,
-            211.22,
+            213.1,
             "deep"
           ]
         ],
@@ -219040,7 +219037,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Woods_SetF85.model.json",
-      "rbx_parts": 6001,
+      "rbx_parts": 6127,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Woods_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Woods_SetF85.glb"
@@ -219053,10 +219050,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "127572/150000 tris",
+          "budget": "129974/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "79733 faces on swatch centers",
+          "uv": "81002 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.98 (want 0)",
           "centered": "footprint center x=0.00 y=0.25"

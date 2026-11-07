@@ -324,6 +324,9 @@ local function setSpeed(player: Player, humanoid: Humanoid, base: number)
 end
 
 -- Locks a stray to a player until `untilTime` (server time), or unlocks it (userId 0), dropping any attempt.
+-- #2005: `NetDown` is true on the stray while it is locked, the net over it on every screen (with the "!"): the cat
+-- stands still under it (its walk stops at once, set down off its bob by Mover), other swings pass it by and its
+-- catcher can't be tackled (inMinigame) until the catch ends, fails or is dropped.
 local function setLock(stray: Stray, userId: number, untilTime: number?)
 	stray.lockedBy = userId
 	stray.lockUntil = if userId ~= 0 then untilTime or 0 else 0
@@ -331,6 +334,7 @@ local function setLock(stray: Stray, userId: number, untilTime: number?)
 		stray.attempt = nil
 	end
 	stray.model:SetAttribute("LockedBy", userId)
+	stray.model:SetAttribute("NetDown", if userId ~= 0 then true else nil)
 	if userId ~= 0 and stray.model:GetAttribute("Napping") == true then
 		stray.model:SetAttribute("Napping", false) -- a catch wakes a napping stray at once
 	end

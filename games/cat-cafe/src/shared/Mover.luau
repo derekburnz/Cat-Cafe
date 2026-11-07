@@ -20,7 +20,9 @@ function Mover.face(model: Model, target: Vector3)
 	model:PivotTo(CFrame.lookAt(pivot.Position, pivot.Position + direction.Unit))
 end
 
--- Walks at `speed` studs per second with a small bob. Returns true on arrival, false when cancelled.
+-- Walks at `speed` studs per second with a small bob. Returns true on arrival, false when cancelled. A cancelled walk
+-- (a catch's lock stops a stray where it stands, #2005) sets the model down on the ground, off the bob, unless
+-- something else has moved it since the last step.
 -- The walk is tracked on the ground at the target's height and the bob is drawn on top each frame; stepping
 -- from the bobbed pivot instead would add the bob up frame after frame and float the model away. `draw`, when
 -- given, draws each step instead (the client's customers, Effects/CustomerWalk, #1143): the model, its feet's
@@ -35,6 +37,7 @@ function Mover.walkTo(
 	local elapsed = 0
 	local start = model:GetPivot().Position
 	local ground = Vector3.new(start.X, target.Y, start.Z)
+	local placed: CFrame? = nil -- where the last plain step put the model, bob and all
 	while alive() and model.Parent ~= nil do
 		local dt = RunService.Heartbeat:Wait()
 		elapsed += dt
@@ -63,11 +66,19 @@ function Mover.walkTo(
 			end
 		end
 		local shown = ground + Vector3.new(0, math.abs(math.sin(elapsed * 9)) * 0.12, 0)
-		if facing.Magnitude < 0.05 then
-			model:PivotTo(CFrame.new(shown))
-		else
-			model:PivotTo(CFrame.lookAt(shown, shown + facing.Unit))
-		end
+		local frame = if facing.Magnitude < 0.05
+			then CFrame.new(shown)
+			else CFrame.lookAt(shown, shown + facing.Unit)
+		model:PivotTo(frame)
+		placed = frame
+	end
+	local last = placed
+	if
+		last ~= nil
+		and model.Parent ~= nil
+		and model:GetPivot().Position:FuzzyEq(last.Position, 1e-3)
+	then
+		model:PivotTo(last - last.Position + ground)
 	end
 	return false
 end

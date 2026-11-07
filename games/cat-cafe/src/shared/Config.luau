@@ -188,15 +188,18 @@ local Config = {
 	CircleGapMax = 0.75,
 	-- #1884 (catch-rework.md 7b): the trust bar. A net catch starts at TrustStart and each ring adds TrustPerfect,
 	-- TrustGood or TrustMiss; it is caught at the rarity's trustNeed and bolts below 0. Rings come on a steady beat
-	-- (CircleGapMin apart), up to the all-Perfect count plus CatchSpareRings (one early Miss can still be won back).
-	-- The spare rings, not 2x the count, keep catch-rework.md section 2's table within about 5 points.
+	-- (CircleGapMin apart), up to the all-Good count plus CatchSpareRings (#2332, below).
 	-- #2005 (Derek2 2026-11-07: "getting excellents/good increase hp more"): Perfect +3 and Good +2 (were +2 and +1),
 	-- with each rarity's trustNeed at TrustStart + 3 x its circles so an all-Perfect run is the same length.
 	TrustStart = 2,
 	TrustPerfect = 3,
 	TrustGood = 2,
 	TrustMiss = -2,
-	CatchSpareRings = 2,
+	-- #2317 and #2332 (Derek2: "it should fully be only failing if the heart bar hits 0"): the rings past the all-Good
+	-- count (Circles.ringCap), was 2 past the all-Perfect count. Each Miss takes one more Good to win back, so 16
+	-- spare rings run out only after eight Misses the bar survived: in play the bar emptying ends a catch, not the
+	-- rings.
+	CatchSpareRings = 16,
 	-- #1884 (catch-rework.md 7c): the rarity twists. A double ring is two halves DoubleRingGap apart, each graded as
 	-- its own press and each using one of the rings above; a paw ring (red, don't tap) adds TrustPawLeft when left
 	-- alone and is a Miss when tapped, and uses none of them, so it never shortens a run.

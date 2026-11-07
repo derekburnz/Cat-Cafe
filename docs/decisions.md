@@ -568,6 +568,9 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 ### 2026-11-06 First hour: re-fit after Catch v3 (#1896, Design-Agent, friend's project)
 - Espresso 4 costs 550,000 (was 700,000) and Tier 3 costs 800,000 (was 900,000). Why: Catch v3 (#1910) moved the first hour, which failed the Tier 3 45 to 55 minute check and the Espresso 4 at about minute 42 check. With Gameplay-Engineer's re-fit in PR #1917, Tier 3 lands at 53.8 minutes, Espresso 4 at 42.6 and Tier 2 at 11.7. Spec: first-hour.md §4c.
 
+### Proposed by Gameplay-Engineer (Derek2's project, 2026-11-07)
+- 2026-11-07 (#2317, #2332): a net catch fails only when the trust (heart) bar empties. Derek2: "it should fully be only failing if the heart bar hits 0". Circles.ringCap is the all-Good count plus CatchSpareRings, which is 16 (it was the all-Perfect count plus 2, so on Epic and up an all-Good run ran out of rings and bolted). CatchFeel's model per try, Basic Net 50 ms: 98/94/80/55/36 -> 100/100/100/99/98; Basic Net 70 ms: 84/65/39/18/8 -> 99/99/97/90/83. Why: Derek2's direction; a retune of trustNeed, TrustMiss or the bands can bring rarity back into the odds if wanted.
+
 ## 2026-11-07: four-week calendar drafted (#1937)
 Design-Agent (friend's project) drafted the first four weeks in `release.md` §4, on Sync-Agent's report that #1937 had no owner. It assumes small Saturday drops (Set 12 Q2) and the research launch days from #1956 (soft launch Wed 11-11 20:00 UTC, go wide Sat 11-14 14:00 UTC, Set 12 Q6), so "We're open!" and the first Rescue Rally weekend ship together. Lucky, Golden and Rainbow Days are forced on for their drop day. Rows that change with Derek2's answers are marked [Q2] or [Q6], with the alternatives in §4b. Reason: a calendar that only flips flags on Saturdays keeps each week small for a first game.
 

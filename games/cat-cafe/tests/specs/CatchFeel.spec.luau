@@ -202,19 +202,22 @@ return function()
 			it(
 				"nets a stray as often as the design's table, every net at 50 ms and Basic and Master at 70 ms",
 				function()
+					-- #2317 and #2332 (Derek2: "it should fully be only failing if the heart bar hits 0"): the rings no longer
+					-- run out first, so only the bar emptying ends a try (was Basic 50 ms 98, 94, 80, 55, 36 and Basic 70 ms
+					-- 84, 65, 39, 18, 8)
 					local rows = {
-						{ "Basic 50 ms", 0, 0.05, { 98, 94, 80, 55, 36 }, { 98, 94, 80, 55, 35 } },
-						{ "Sturdy 50 ms", 1, 0.05, { 100, 99, 93, 78, 61 }, { 100, 99, 93, 78, 60 } },
-						{ "Pro 50 ms", 2, 0.05, { 100, 100, 99, 92, 83 }, { 100, 100, 99, 92, 82 } },
+						{ "Basic 50 ms", 0, 0.05, { 100, 100, 100, 99, 98 }, { 100, 100, 100, 99, 98 } },
+						{ "Sturdy 50 ms", 1, 0.05, { 100, 100, 100, 100, 99 }, { 100, 100, 100, 100, 99 } },
+						{ "Pro 50 ms", 2, 0.05, { 100, 100, 100, 100, 100 }, { 100, 100, 100, 100, 100 } },
 						{
 							"Master 50 ms",
 							3,
 							0.05,
-							{ 100, 100, 100, 98, 95 },
-							{ 100, 100, 100, 98, 94 },
+							{ 100, 100, 100, 100, 100 },
+							{ 100, 100, 100, 100, 100 },
 						},
-						{ "Basic 70 ms", 0, 0.07, { 84, 65, 39, 18, 8 }, { 84, 65, 39, 18, 8 } },
-						{ "Master 70 ms", 3, 0.07, { 100, 99, 93, 78, 61 }, { 100, 99, 93, 78, 60 } },
+						{ "Basic 70 ms", 0, 0.07, { 99, 99, 97, 90, 83 }, { 99, 99, 97, 90, 83 } },
+						{ "Master 70 ms", 3, 0.07, { 100, 100, 100, 100, 99 }, { 100, 100, 100, 100, 99 } },
 					}
 					for _, row in rows do
 						local got = {}
@@ -281,13 +284,14 @@ return function()
 			)
 
 			it(
-				"judges the tree's falling cat (RescueTreeCircle) on the Pro Net times its catchWindow, easier than a net catch",
+				"judges the tree's falling cat (RescueTreeCircle) on the Pro Net times its catchWindow, one easy circle",
 				function()
+					-- #2332: a net catch now ends only when the bar empties, so it can beat one circle; the falling cat's
+					-- circle (off since 2026-11-03) only has to stay easy
 					for _, rarity in RARITIES do
 						local windows = Circles.windowsFor(Rescue.CIRCLE_NET_LEVEL, rarity)
 						local falling = 100 * within(windows.good, 0.05)
 						expect(falling > 85).to.equal(true) -- one circle: the shakes are the hard part
-						expect(falling >= catchChance(0, rarity, 0.05)).to.equal(true)
 					end
 				end
 			)

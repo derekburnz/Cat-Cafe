@@ -2790,7 +2790,12 @@ local SCENES = {
 	-- a catch whose Perfects added Charm brings the tip card with the Charm line, once; a Perfect-less catch does not
 	{ "PerfectCharmTip", function()
 		local before: any = (UI.getState() :: any).tipsSeen or {}
+		-- every other tip seen, so no client-found tip (the luck chip's, the Codes Cat's) takes the card or restarts
+		-- the gap while the scene waits
 		local tipsSeen = table.clone(before)
+		for _, def in UIShim.require("ReplicatedStorage.Shared.Tips").LIST do
+			tipsSeen[def.id] = true
+		end
 		tipsSeen.perfect = nil
 		UI.update({ tipsSeen = tipsSeen } :: any)
 		local seen: { string } = {}
@@ -2805,6 +2810,7 @@ local SCENES = {
 			end
 			return nil
 		end
+		UIShim.advance(61) -- past TipGapSeconds after the TipCard scene's tip, so the queue may show the next one
 		UI.catch.showGrades("uigate_stray", { "good", "good" }, true, 0)
 		UIShim.advance(1)
 		assert(charmLine() == nil, "uigate: a catch with no Perfect showed the Charm tip (#2282)")

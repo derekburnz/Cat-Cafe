@@ -16,21 +16,23 @@ short walk round an end, and the ends swap sides so the far end is never in a st
                    x -26, 12 wide
   z -150 to -147   the tunnel front, brick 24 high (tall), where the roof begins: three open arches, the walk-in
                    arches at x -49.5 to -26.5 and 26.5 to 49.5 (23 wide) and a small one in the middle (x -5 to 5)
-  z -78 to -72     the rubble where the roof came down, about 4 high, daylight through the hole above it: an island
-                   from x -34 to 10, walk round either end; the timber props at x 26 to 50 hold up the cracked beam
+  z -78 to -72     the rubble where the roof came down, about 8.8 high (#2265), daylight through the hole above it: an
+                   island from x -34 to 10, walk round either end; the timber props at x 26 to 50 hold up the cracked
+                   beam
   z -5 to 5        the channel, sunken between railed kerbs, in through a grate in the east wall and ending in a drain
                    grate at x -8; walk round its west end (47 wide) or cross the steel catwalk at x 24, 9 wide
   z 90 to 96       the vault wall, brick to the roof (tall): two deep vaulted arches, x -46 to -22 and x 28 to 52,
                    CAT TOWN over the east one
-  z 181 to 189     the pipe bank, three big pipes on concrete saddles, about 4.5 high: an island from x -24 to 24
-                   with flanged pipe ends, walk round either end
+  z 181 to 189     the pipe bank, five big pipes on saddles and a rack, about 9.8 high (#2265): an island from x -24
+                   to 24 with flanged pipe ends, walk round either end
 
-The canal, the channel, the rubble and the pipe bank each have a 30 high `_Barrier` on their own line only (on the
-guard rails' line and across the end for the water), and one stands in the wall band all round but the way in. The
-tunnel front and the vault wall hide the halls behind them. The yard is open to the sky (walls 18 high); from the
-tunnel front on the sewer is roofed at 24 (Derek 2026-10-28 01:39), lit through grated skylights and the hole, cage
-lamps hanging from brick beams on pillars at x +-28. The far end is the throne room, the Sewer's best landmark: the
-junk throne on its dais in front of the pipe organ, and the culvert pouring out of the far wall into the pool.
+The canal and the channel each have a 30 high `_Barrier` on their own line only (on the guard rails' line and across
+the end for the water), the rubble and the pipe bank one BLOCK_OVER over their tallest piece (#2265), and one stands
+in the wall band all round but the way in. The tunnel front and the vault wall hide the halls behind them. The yard is
+open to the sky (walls 18 high); from the tunnel front on the sewer is roofed at 24 (Derek 2026-10-28 01:39), lit
+through grated skylights and the hole, cage lamps hanging from brick beams on pillars at x +-28. The far end is the
+throne room, the Sewer's best landmark: the junk throne on its dais in front of the pipe organ, and the culvert
+pouring out of the far wall into the pool.
 
 The way, camp to far end: round the canal's east end, through the middle arch of the tunnel front, round the
 rubble, round the channel's west end, through the vault's west arch, round the pipe bank and across the throne room
@@ -77,6 +79,12 @@ CH_END = (-8.0, -1)                                  # from a drain at x -8 to t
 VAULT_Z, VAULT_T, VAULT_GAP = 90.0, 6.0, (28.0, 52.0)   # the vault wall, its arch east (spring 3.5: CAT TOWN fits under the cornice)
 VAULT_GAP2 = (-46.0, -22.0)                              # and a second arch west
 PIPES_Z, ISLE_P = 185.0, [(-24.0, 24.0)]             # the pipe bank, one island in the middle
+# #2265: the low blockers stand taller than a jump (about 7.2), their barriers BLOCK_OVER over the tallest piece
+RUBBLE_TOP = 8.8                        # the rubble's rebar
+PIPE_TOP = 9.8                          # the pipe rack's valve wheel
+BLOCK_OVER = 1.0
+POOL_PIPES = ((-1, 268.0), (1, 54.0), (1, 126.0), (1, -176.0))      # #2240: wall side (x sign), z
+POOL_GRATES = ((-6.0, 193.0), (2.0, 11.0), (50.0, 183.0), (50.0, -65.0))
 POOL, POOL_R = (0.0, IN_Z - 14.5), 11.0              # the pool under the culvert, as v3.2 has them to the far wall
 DAIS = (34.0, 269.0)                                 # the throne's dais
 PILLAR_X = 28.0
@@ -366,15 +374,20 @@ def _walls(s, mat):
 
 # -------------------------------------------------------------------------------------------- low blockers --
 def rubble(mat, z, runs):
-    """Where the roof came down: a heap under the hole (runs, x0 to x1), about 4 high: a low core of broken stuff,
-    slabs of the roof tipped up on it, lumps of brick and broken beam ends, rebar poking out, dust at its feet, and
-    one long beam leaning from the heap up to the cracked beam's broken end. A barrier 30 high on it. Built on the
-    slab (put it at FLOOR)."""
+    """Where the roof came down: a heap under the hole (runs, x0 to x1), taller than a jump (#2265, was about 4):
+    a core of broken stuff sloping both sides, slabs of the roof tipped up on its sides, lumps of brick and broken
+    beam ends on top, rebar poking out to about 8.7, dust at its feet, and one long beam leaning from the heap up
+    to the cracked beam's broken end. A barrier BLOCK_OVER over RUBBLE_TOP on it. Built on the slab (put it at
+    FLOOR)."""
     b, bar = Builder(), Builder()
     for k, (a0, a1) in enumerate(runs):
         L = a1 - a0
         x, y, _ = bl((a0 + a1) / 2, z)
-        b.box_base((x, y, 0), (L, 3.2, 1.6), "concrete_dark", bevel=False)                     # the heap's core
+        b.box_base((x, y, 0), (L, 1.2, 6.2), "concrete_dark", bevel=False)                     # the heap's core
+        for sd in (-1, 1):                                                       # its sides, sloping to the slab
+            xw, yw, _ = bl((a0 + a1) / 2, z + sd * 1.6)
+            b.wedge((xw, yw, 3.1), (L, 2.0, 6.2), ("concrete_dark", "fur_grey")[sd > 0], bevel=False,
+                    rot=Matrix.Rotation(PI, 3, "Z") if sd > 0 else Matrix.Identity(3))
         n = max(1, round(L / 3.6))
         step = L / n
         for i in range(n):
@@ -385,28 +398,34 @@ def rubble(mat, z, runs):
             tilt = side * (22.0 + 8.0 * (j % 3)) * (1.8 if j % 5 == 4 else 1.0)
             R = Matrix.Rotation(math.radians(25.0 * math.sin(j * 2.3)), 3, "Z") @ Matrix.Rotation(
                 math.radians(tilt), 3, "X")
-            b.box((x, y, 1.9 + 0.3 * (j % 5 == 4)), (min(step * 0.95, 3.6), 2.8, 0.7),
-                  ("concrete", "concrete_dark", "fur_grey")[j % 3], bevel=False, rot=R)          # a slab of roof
+            for tier, (h, w) in enumerate(((2.2, 1.9), (4.4, 1.3))):            # slabs of roof on its sides
+                xs, ys, _ = bl(c + 0.4 * math.sin(j * 1.7 + tier), z + side * w * (1 if tier == 0 else -1))
+                b.box((xs, ys, h + 0.3 * (j % 5 == 4)), (min(step * 0.95, 3.6), 2.8, 0.7),
+                      ("concrete", "concrete_dark", "fur_grey")[(j + tier) % 3], bevel=False,
+                      rot=R if tier == 0 else R.transposed())
             if j % 2 == 0:                                                       # lumps of brick
                 x2, y2, _ = bl(c - 0.6, z - side * 0.3)
-                b.box((x2, y2, 1.95), (1.6, 1.1, 0.9), ("brick", "fur_russet")[(j // 2) % 2], bevel=False,
+                b.box((x2, y2, 6.55), (1.6, 1.1, 0.9), ("brick", "fur_russet")[(j // 2) % 2], bevel=False,
                       rot=Matrix.Rotation(math.radians(30 + 17 * j), 3, "Z") @ Matrix.Rotation(0.3, 3, "Y"))
-                b.box((x2 - 0.3, y2 + 0.1, 2.65), (1.0, 0.8, 0.7), "concrete", bevel=False,
+                b.box((x2 - 0.3, y2 + 0.1, 7.25), (1.0, 0.8, 0.7), "concrete", bevel=False,
                       rot=Matrix.Rotation(math.radians(70 * j), 3, "Z") @ Matrix.Rotation(0.4, 3, "X"))
             if j % 3 == 1:                                                       # a broken beam end
                 x3, y3, _ = bl(c + 0.8, z - side * 0.2)
-                b.box((x3, y3, 2.4), (4.2, 1.4, 1.4), "brick", bevel=False,
+                b.box((x3, y3, 6.8), (4.2, 1.4, 1.4), "brick", bevel=False,
                       rot=Matrix.Rotation(math.radians(15 * side + 10), 3, "Z") @ Matrix.Rotation(
                           math.radians(14), 3, "Y"))
             if j % 4 == 3:                                                       # rebar
                 x4, y4, _ = bl(c, z + side * 0.2)
-                b.box((x4, y4, 2.6), (0.12, 0.12, 2.4), "metal", bevel=False,
+                b.box((x4, y4, 7.4), (0.12, 0.12, 2.4), "metal", bevel=False,
                       rot=Matrix.Rotation(math.radians(40 * j), 3, "Z") @ Matrix.Rotation(0.5, 3, "X"))
+            x6, y6, _ = bl(c - 0.5 * step * 0.5, z - side * 2.5)                # a chunk at its foot
+            b.box((x6, y6, 0.55), (1.5, 1.2, 1.1), ("concrete", "fur_grey", "brick")[j % 3], bevel=False,
+                  rot=Matrix.Rotation(math.radians(35 * j), 3, "Z") @ Matrix.Rotation(0.25, 3, "Y"))
             if j % 2 == 1:                                                       # dust at its feet
-                x5, y5, _ = bl(c, z + side * 2.3)
+                x5, y5, _ = bl(c, z + side * 2.9)
                 b.ico((x5, y5, 0.15), 1.2, "fur_smoke_light", subdivisions=1, scale=(1.6, 0.9, 0.25))
         x, y, _ = bl((a0 + a1) / 2, z)
-        bar.box_base((x, y, 0), (L, 5.4, BARRIER_H), "offwhite", bevel=False)
+        bar.box_base((x, y, 0), (L, 6.4, RUBBLE_TOP + BLOCK_OVER), "offwhite", bevel=False)
     # the long beam leaning from the heap up to the cracked beam's east end (Roblox x 4 at the foot, 14.5 at the top)
     (fx, fh), (tx, th) = (4.0, 0.6), (14.5, WALL_H - 1.6 - FLOOR)
     L = math.hypot(tx - fx, th - fh)
@@ -435,11 +454,13 @@ def timber_props(mat, z, gap):
 
 
 def pipe_bank(mat, z, runs):
-    """Three big pipes in runs (x0, x1), about 4.5 high: two side by side on concrete saddles and a thinner one on
-    top, flanged every 6, into the side wall where a run meets it and open and dark at a free end, a valve on top by
-    the east end. A barrier 30 high on it. Built on the slab (put it at FLOOR)."""
+    """A pipe rack in runs (x0, x1), taller than a jump (#2265, was about 4.5): two big pipes side by side on concrete
+    saddles, a steel rack over them at each saddle carrying two more on its middle beam and a thinner one on its top
+    beam, flanged every 6, into the side wall where a run meets it and open and dark at a free end, a valve on top by
+    the east end to about PIPE_TOP. A barrier BLOCK_OVER over that on it. Built on the slab (put it at FLOOR)."""
     b, bar = Builder(), Builder()
-    pipes = ((-1.6, 2.0, 1.4, "dumpster_green"), (1.6, 2.0, 1.4, "rust"), (0.0, 3.56, 0.85, "metal"))
+    pipes = ((-1.6, 2.0, 1.4, "dumpster_green"), (1.6, 2.0, 1.4, "rust"), (-1.4, 6.05, 1.2, "rust"),
+             (1.4, 6.05, 1.2, "dumpster_green"), (0.0, 8.0, 0.75, "metal"))
     for k, (a0, a1) in enumerate(runs):
         p0 = a0 - 0.5 if a0 <= -IN_X + 0.1 else a0                  # into the wall's face, or a free end
         p1 = a1 + 0.5 if a1 >= IN_X - 0.1 else a1
@@ -449,6 +470,11 @@ def pipe_bank(mat, z, runs):
         for i in range(n):                                          # saddles
             x, y, _ = bl(a0 + (i + 0.5) * (a1 - a0) / n, z)
             b.box_base((x, y, 0), (1.2, 6.6, 1.4), "concrete", bevel=False)
+            for dz in (-3.3, 3.3):                                  # the rack's posts
+                _, py, _ = bl(0, z + dz)
+                b.box_base((x, py, 1.4), (0.4, 0.4, 6.0), IRON, bevel=False)
+            b.box_base((x, y, 4.45), (0.45, 7.0, 0.4), IRON, bevel=False)          # the middle beam, under the pair
+            b.box_base((x, y, 7.25), (0.45, 7.0, 0.3), IRON, bevel=False)          # the top beam, under the thin one
         for (dz, h, r, col) in pipes:
             x, y, _ = bl((p0 + p1) / 2, z + dz)
             b.cyl((x, y, h), r, L, col, segments=12, bevel=False, rot=ry(90))
@@ -464,12 +490,12 @@ def pipe_bank(mat, z, runs):
         end, d = opens[-1]
         d = -d                                                      # from the end back along the pipes
         vx, vy, _ = bl(end + d * 2.5, z)                            # a valve on the top pipe by the east end
-        b.cyl_base((vx, vy, 4.3), 0.2, 0.9, "metal", segments=8, bevel=False)
-        b.ring((vx, vy, 5.1), 0.9, 0.18, 0.18, "bowl_red", segments=14, bevel=False)
+        b.cyl_base((vx, vy, 8.7), 0.2, 0.9, "metal", segments=8, bevel=False)
+        b.ring((vx, vy, 9.5), 0.9, 0.18, 0.18, "bowl_red", segments=14, bevel=False)
         for a in (0, 90):
-            b.box((vx, vy, 5.19), (1.7, 0.14, 0.14), "bowl_red", bevel=False, rot=(math.radians(a), "Z"))
+            b.box((vx, vy, 9.59), (1.7, 0.14, 0.14), "bowl_red", bevel=False, rot=(math.radians(a), "Z"))
         x, y, _ = bl((a0 + a1) / 2, z)
-        bar.box_base((x, y, 0), (a1 - a0, 7.0, BARRIER_H), "offwhite", bevel=False)
+        bar.box_base((x, y, 0), (a1 - a0, 7.4, PIPE_TOP + BLOCK_OVER), "offwhite", bevel=False)
     return [b.finalize(N + "PipeBank", mat), bar.finalize(N + "PipeBank_Barrier", mat)]
 
 
@@ -840,6 +866,16 @@ def build_set(mat):
     for (x, z) in ((10, 230), (-20, 212)):
         _spot(s, "throne_room", x, z)
     _spot(s, "pipes", -42.0, PIPES_Z + 9.0)                           # where the gap was until 11-02, in the open
+    # #2240: the rest of the rescue pool, scenery until the day's pick puts a stuck cat in one (Layout.sewer.rescuePool):
+    # four more drain pipes on clear stretches of the side walls and four more grates, each 25 or more from every
+    # other trap and 8 from every cat spot, three of each in the far half
+    for (sx, z) in POOL_PIPES:
+        x, rot = sx * (IN_X - 2.4), 90 * sx
+        put(sw.drain_pipe(mat), x, z, rot)
+        _spot(s, "trap_drain_pipe", *turned(x, z, rot, -1.0, -2.4), turn=rot)
+    for (x, z) in POOL_GRATES:
+        put(sw.grate(mat), x, z, 0)
+        _spot(s, "trap_grate", x, z, turn=0)
     return s.finish(_ground(), mat), s
 
 

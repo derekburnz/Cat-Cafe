@@ -31,7 +31,7 @@ export const LIMITS = {
 };
 
 // gate: fails the run when new; warn: in the report only
-const GATED = new Set(['tap', 'text', 'offscreen', 'topbar', 'fonts', 'jitter', 'error', 'tiles']);
+const GATED = new Set(['tap', 'text', 'offscreen', 'topbar', 'fonts', 'jitter', 'error', 'tiles', 'strokeclip']);
 
 // The HUD's buttons (#1210, Derek 2026-11-04: the gold Store tile sat on the Cats and Index tiles and the C key badge
 // was half under it): a Components/Button is a holder with a Depth frame (the outlined shape) and a Face. What a
@@ -134,6 +134,37 @@ export function checkScene(profile, scene) {
     });
 
   const screen = { x1: 0, y1: 0, x2: W, y2: H };
+  // the row of the nearest scrolling list a piece sits in (the list's own child): null while that row is scrolled
+  // part way out, else the sides on which the list's content ends (nothing more to scroll to), so a row that only
+  // happens to sit flush with the window mid-scroll is not counted
+  const byPath = new Map(scene.nodes.map((n) => [n.path, n]));
+  const rowsOf = new Map();
+  for (const n of scene.nodes) {
+    const cut = n.path.lastIndexOf('/');
+    const parent = byPath.get(n.path.slice(0, cut));
+    if (!parent || !parent.scroller) continue;
+    if (!rowsOf.has(parent.path)) rowsOf.set(parent.path, []);
+    rowsOf.get(parent.path).push(n);
+  }
+  const listEnds = (node) => {
+    const parts = node.path.split('/');
+    for (let i = parts.length - 1; i > 0; i--) {
+      const list = byPath.get(parts.slice(0, i).join('/'));
+      if (!list || !list.scroller) continue;
+      const row = byPath.get(parts.slice(0, i + 1).join('/'));
+      if (!row || !row.clip) break;
+      const [c1, c2, c3, c4] = row.clip;
+      if (row.x < c1 - 0.5 || row.y < c2 - 0.5 || row.x + row.w > c3 + 0.5 || row.y + row.h > c4 + 0.5) return null;
+      const rows = rowsOf.get(list.path) || [row];
+      return {
+        left: rows.every((r) => r.x >= c1 - 0.5),
+        top: rows.every((r) => r.y >= c2 - 0.5),
+        right: rows.every((r) => r.x + r.w <= c3 + 0.5),
+        bottom: rows.every((r) => r.y + r.h <= c4 + 0.5),
+      };
+    }
+    return { left: true, top: true, right: true, bottom: true };
+  };
   const shown = [];
   for (const node of scene.nodes) {
     const rect = visibleRect(node);
@@ -157,6 +188,25 @@ export function checkScene(profile, scene) {
         add('fit', node, `text about ${px(node.tw)} px wide in a ${px(inner)} px box${label(node)}`);
       } else if (node.wrap && node.th > node.h + 4 && node.th > node.h * 1.15) {
         add('fit', node, `wrapped text about ${px(node.th)} px tall in a ${px(node.h)} px box${label(node)}`);
+      }
+    }
+    // #2294 (Derek2: "the outline of the outside of the boxes sometimes get cut off"): a Border stroke draws outside
+    // its box, so a card flush with the edge of the list or grid that clips it loses that side of its outline. Only
+    // an edge whose box is inside the clip counts, and only while the list's row it sits in is all in view; a row
+    // scrolled part way out is cut on purpose.
+    const ends = node.bs && node.clip && node.bs[2] > 0.3 ? listEnds(node) : null;
+    if (ends) {
+      const t = node.bs[1];
+      const [c1, c2, c3, c4] = node.clip;
+      const cut = [
+        ['left', node.x - c1],
+        ['top', node.y - c2],
+        ['right', c3 - (node.x + node.w)],
+        ['bottom', c4 - (node.y + node.h)],
+      ].filter(([side, room]) => ends[side] && room > -0.5 && room < t - 0.75);
+      const inside = node.x >= c1 - 0.5 && node.y >= c2 - 0.5 && node.x + node.w <= c3 + 0.5 && node.y + node.h <= c4 + 0.5;
+      if (cut.length > 0 && inside) {
+        add('strokeclip', node, `its ${px(t)} px outline is cut off on the ${cut.map(([side]) => side).join(' and ')} by the list's edge`);
       }
     }
     const matters = node.press || node.text !== undefined || node.scroller;

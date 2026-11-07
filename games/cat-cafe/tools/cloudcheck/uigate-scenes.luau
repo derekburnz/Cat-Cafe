@@ -694,6 +694,35 @@ end
 
 -- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
 -- "Daily.Quest2.Claim" walks down one name at a time
+-- #2314: tutorial step 3 (a table to buy), with its strip, so the Upgrades tile glows and the big arrow comes
+local function tutorialArrowStep()
+	local levels = { tables = 0, lure_bowl = 0, espresso = 0, net = 0, lucky_cat = 0 }
+	UI.update({ tutorialStep = 3, tier = 1, upgradeLevels = levels } :: any)
+	UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))
+	task.wait(0.1)
+end
+-- #2314: the big arrow shows, whole on the screen, off `target` and within 24 px of it
+local function assertArrowAt(target: GuiObject, where: string)
+	local found: GuiObject? = nil
+	for _, piece in UIShim.playerGui:GetDescendants() do
+		if piece.Name == "TutorialArrow" and piece:IsA("GuiObject") and piece.Visible then
+			found = piece
+		end
+	end
+	assert(found, "uigate: no tutorial arrow at " .. where .. " (#2314)")
+	local arrow = found :: GuiObject
+	local a0, a1 = arrow.AbsolutePosition, arrow.AbsolutePosition + arrow.AbsoluteSize
+	local t0, t1 = target.AbsolutePosition, target.AbsolutePosition + target.AbsoluteSize
+	local screen = (arrow:FindFirstAncestorWhichIsA("ScreenGui") :: ScreenGui).AbsoluteSize
+	assert(
+		a0.X >= -1 and a0.Y >= -1 and a1.X <= screen.X + 1 and a1.Y <= screen.Y + 1,
+		("uigate: the arrow at %s runs off the screen (%d,%d to %d,%d) (#2314)"):format(where, a0.X, a0.Y, a1.X, a1.Y)
+	)
+	local overlaps = a0.X < t1.X - 1 and t0.X < a1.X - 1 and a0.Y < t1.Y - 1 and t0.Y < a1.Y - 1
+	assert(not overlaps, "uigate: the arrow covers " .. where .. " (#2314)")
+	local gap = math.max(t0.X - a1.X, a0.X - t1.X, t0.Y - a1.Y, a0.Y - t1.Y)
+	assert(gap < 24, ("uigate: the arrow sits %d px from %s (#2314)"):format(gap, where))
+end
 -- #1161: the Bait bowl window, and its bowl tabs shown with `selected` chosen and the status title holding `title`.
 local function baitWindow()
 	local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
@@ -1136,6 +1165,41 @@ local SCENES = {
 	{ "Cats", function()
 		UI.open("Cats")
 	end },
+	-- #2294 (Derek2: "the border gets cut off at the bottom of cat menu"): scrolled to its end, the grid's last row
+	-- keeps its whole outline (the gate's strokeclip check reads every card; this scene puts the last row in view)
+	{ "CatsGridEnd", function()
+		-- three times the sample player's cats, so the grid scrolls
+		local before = UI.getState() :: any
+		Scenes._crew = { cats = before.cats, tier = before.tier, extraSlots = before.extraSlots or 0 }
+		local cats = {}
+		for uid, cat in before.cats do
+			cats[uid] = cat
+			for copy = 1, 2 do
+				local twin = table.clone(cat)
+				twin.spotId = nil
+				cats[uid .. "_twin" .. copy] = twin
+			end
+		end
+		UI.update({ cats = cats } :: any)
+		UI.open("Cats")
+		task.wait(0.1)
+		local container = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Container", true) :: Instance
+		local window = container and container:FindFirstChild("Cats")
+		local grid = window and window:FindFirstChild("Grid", true) :: ScrollingFrame
+		assert(grid and grid:IsA("ScrollingFrame"), "uigate: no cat grid")
+		-- the canvas's end against the last row's outline, measured before scrolling; then the grid scrolls to its end
+		-- so the gate's strokeclip check reads the last row in view
+		local canvasEnd = grid.AbsolutePosition.Y - grid.CanvasPosition.Y + grid.AbsoluteCanvasSize.Y
+		local last = 0
+		for _, card in grid:GetChildren() do
+			if card:IsA("GuiObject") and card.Visible then
+				local stroke = card:FindFirstChildWhichIsA("UIStroke")
+				last = math.max(last, card.AbsolutePosition.Y + card.AbsoluteSize.Y + (if stroke then stroke.Thickness else 0))
+			end
+		end
+		assert(last > 0 and last <= canvasEnd + 0.5, ("uigate: the last row's outline ends %.1f px past the cat grid's end (#2294)"):format(last - canvasEnd))
+		grid.CanvasPosition = Vector2.new(0, math.max(0, grid.AbsoluteCanvasSize.Y - grid.AbsoluteWindowSize.Y))
+	end },
 	-- #1955 (auto-equip.md): the Auto Equip switch at the crew strip's right end, over Equip Best, gold while on; it
 	-- shows once the server saves settings.autoEquip
 	{ "CatsAutoEquip", function()
@@ -1459,13 +1523,50 @@ local SCENES = {
 		assert(window:FindFirstChild("Attracts", true) == nil, "uigate: an Attracts chip is back on a food row (#1612)")
 		assert(window:FindFirstChild("Odds", true) == nil, "uigate: an odds line is back on a food row (#1612)")
 		local star = window:FindFirstChild("star_treat", true)
-		local kibble = window:FindFirstChild("kibble", true)
-		assert(star and kibble, "uigate: no Star Treat or Kibble row")
-		assert(star.LayoutOrder < kibble.LayoutOrder, "uigate: the bowl lists Kibble before the Star Treat (#1609)")
+		local moon = window:FindFirstChild("moon_milk", true)
+		assert(star and moon, "uigate: no Star Treat or Moon Milk row")
+		-- neither is in the bag here, so they keep the rarest first order behind the foods the player has (#2323)
+		assert(star.LayoutOrder < moon.LayoutOrder, "uigate: the bowl lists Moon Milk before the Star Treat (#1609)")
 		press("Bait", "star_treat.Details")
 		local detail = star:FindFirstChild("Detail", true) :: TextLabel
 		assert(detail and detail.Visible, "uigate: Details did not open")
 		assert(string.find(detail.Text, "Mythical", 1, true), "uigate: the Details text has no odds: " .. detail.Text)
+	end },
+	-- #2323: a tutorial player with Kibble alone sees it at the top, not under six foods they don't have; once Salmon
+	-- is in the bag it leads, then Kibble, then the rest rarest first
+	{ "BaitOwnedFirst", function()
+		local before: any = UI.getState()
+		UI.update({ lures = { kibble = 3 } })
+		UI.bait.openPicker()
+		local window = baitWindow()
+		local function order(): string
+			local rows = {}
+			for _, lure in Catalog.lures do
+				local row = window:FindFirstChild(lure.id, true)
+				assert(row and row:IsA("GuiObject"), "uigate: no row for " .. lure.id)
+				table.insert(rows, row)
+			end
+			table.sort(rows, function(a, b)
+				return a.LayoutOrder < b.LayoutOrder
+			end)
+			local names = {}
+			for _, row in rows do
+				table.insert(names, row.Name)
+			end
+			return table.concat(names, ",")
+		end
+		local shown = order()
+		assert(
+			shown == "kibble,star_treat,moon_milk,caviar,salmon,sardines,tuna",
+			"uigate: the bowl with only Kibble lists " .. shown .. " (#2323)"
+		)
+		UI.update({ lures = { kibble = 3, salmon = 1 } })
+		shown = order()
+		assert(
+			shown == "salmon,kibble,star_treat,moon_milk,caviar,sardines,tuna",
+			"uigate: the bowl with Kibble and Salmon lists " .. shown .. " (#2323)"
+		)
+		UI.update({ lures = before.lures }) -- later Bait scenes keep their own bag (BaitRefill needs its Tuna)
 	end },
 	-- #1161: the Second Bait Bowl pass owned, bowl 1 filling and bowl 2 empty: two tabs, and the screen opens on
 	-- bowl 2 (the empty one that takes food) with its Use buttons live
@@ -2731,6 +2832,31 @@ local SCENES = {
 			task.delay(target - t0 + delay, tapCircles)
 		end
 	end },
+	-- #2332 (Derek2: "it should fully be only failing if the heart bar hits 0"): a catch with 30 rings keeps its strip
+	-- to ten pips, inside the screen, and slides once the play passes the tenth
+	{ "CatchLongStrip", function()
+		local list = startCatch("gate_stray", "Mythical", 30, 0, 0.82)
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+		local strip = layer:FindFirstChild("Strip", true) :: Frame
+		local function shown(): (number, number)
+			local count, first = 0, nil
+			for index = 1, #list do
+				local pip = strip:FindFirstChild("Pip" .. index) :: Frame
+				if pip.Visible then
+					count += 1
+					first = first or index
+				end
+			end
+			return count, first or 0
+		end
+		local count, first = shown()
+		assert(count == 10 and first == 1, ("uigate: a 30 ring catch shows %d pips from %d (#2332)"):format(count, first))
+		assert(strip.AbsoluteSize.X < 300, "uigate: the 30 ring strip is " .. strip.AbsoluteSize.X .. " px wide (#2332)")
+		-- the eleventh ring judged: the strip slides on by two
+		UI.catch.judged("gate_stray", 11, "good")
+		count, first = shown()
+		assert(count == 10 and first == 3, ("uigate: after ring 11 the strip shows %d pips from %d (#2332)"):format(count, first))
+	end },
 	-- #1727: circle 1 hit, circle 2 pressed just past its Good band (a Miss on this device), then the server's
 	-- CatchJudged calls that press Good: circles 3 and 4 never went away, so the catch goes on in view
 	{ "CatchEdgeMiss", function()
@@ -2900,6 +3026,27 @@ local SCENES = {
 			holdDuration = 0.5,
 		})
 	end },
+	-- #2315 (Derek2: "make sure mobile players have a way of doing rescue instead of holding e since they cant"): when
+	-- Roblox says the prompt is pressed by touch, the card offers its big RESCUE button even on a device that also
+	-- reports a keyboard (every profile here, the desktop ones included), and no "[E] HOLD" key cap
+	{ "CatchPromptRescueTouch", function()
+		UI.catch.show({
+			strayId = "gate_stuck",
+			catId = Catalog.cats[2].id,
+			catName = "Garbage Bag Cat",
+			rarity = "Rare",
+			kind = "rescue",
+			holdDuration = 0.5,
+			touch = true,
+		} :: any)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeCatch") or UIShim.playerGui
+		local grab = gui:FindFirstChild("Grab", true) :: TextButton
+		assert(grab and grab.Visible, "uigate: no RESCUE button for a touch prompt (#2315)")
+		local label = grab:FindFirstChild("Label", true) :: TextLabel
+		assert(label and label.Text == "RESCUE", "uigate: the touch button reads " .. (if label then label.Text else "nothing"))
+		local key = gui:FindFirstChild("Key", true) :: GuiObject?
+		assert(key == nil or not key.Visible, "uigate: the [E] key cap still shows for a touch prompt (#2315)")
+	end },
 	{ "CatchPromptCatch", function()
 		UI.catch.show({
 			strayId = "gate_stray",
@@ -2908,6 +3055,23 @@ local SCENES = {
 			rarity = "Epic",
 			holdDuration = 0.5,
 		})
+	end },
+	-- #2324 (Derek2: "make it a brief text message and not long ex: 'cooling down 1 second'"): after a miss the card
+	-- counts the wait down in one short line, rounded up, on one line on every profile
+	{ "CatchPromptCooldown", function()
+		UI.catch.show({
+			strayId = "gate_cooldown",
+			catId = Catalog.cats[2].id,
+			catName = "Mochi",
+			rarity = "Epic",
+			holdDuration = 0.5,
+			retryAt = workspace:GetServerTimeNow() + 3.2,
+		})
+		local action = UIShim.playerGui:FindFirstChild("CatCafeCatch"):FindFirstChild("Action", true) :: TextLabel
+		assert(action.Text == "Cooling down 4s", "uigate: the card after a miss reads " .. action.Text .. " (#2324)")
+		assert(action.TextFits, "uigate: Cooling down 4s does not fit the catch card (#2324)")
+		local hint = UIShim.playerGui:FindFirstChild("CatCafeCatch"):FindFirstChild("Hint", true) :: TextLabel?
+		assert(hint == nil or not hint.Visible, "uigate: the cooldown card still has a hint line (#2324)")
 	end },
 	-- F87: a context tip's card at the top centre, its bar draining
 	{ "TipCard", function()
@@ -3140,6 +3304,40 @@ local SCENES = {
 		assert(tables:FindFirstChild("TutorialGlow") == nil, "uigate: the table row still glows at step 4 (#1796)")
 		assert(bowl:FindFirstChild("TutorialGlow"), "uigate: the Bait bowl row does not glow at step 4 (#1796)")
 		task.wait(0.1) -- the list scrolls the Bait bowl row into view
+	end },
+	-- #2314 (Derek2: "also show big arrow on screen temporarily pointing toward what to click next"): step 3's big
+	-- arrow points at the HUD's Upgrades tile, whole on screen and off the tile; with Upgrades open it moves to the
+	-- table row; the step done, it is gone
+	{ "TutorialArrow", function()
+		tutorialArrowStep()
+		local tile = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Upgrades", true)
+		assertArrowAt(tile:FindFirstChild("TutorialGlow", true).Parent :: GuiObject, "the Upgrades tile")
+	end },
+	{ "TutorialArrowRow", function()
+		-- the list from its top: after an earlier scene's scroll to the Bait bowl row, the scroll back lands a few px
+		-- past the table row on a laptop here (UpgradeShop._scrollTo turns px into CanvasPosition by the UIScale, the
+		-- shim scrolls CanvasPosition in scaled px; filed for the tools lane)
+		local before = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Upgrades", true)
+		local list = before and before:FindFirstChild("List", true)
+		if list and list:IsA("ScrollingFrame") then
+			list.CanvasPosition = Vector2.zero
+		end
+		tutorialArrowStep()
+		UI.open("Upgrades")
+		task.wait(0.2) -- the list scrolls the table row into view
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Upgrades", true)
+		assertArrowAt(window:FindFirstChild("tables", true) :: GuiObject, "the table row")
+	end },
+	{ "TutorialArrowGone", function()
+		tutorialArrowStep()
+		UI.update({ tutorialStep = 5 } :: any)
+		task.wait(0.1)
+		for _, piece in UIShim.playerGui:GetDescendants() do
+			assert(
+				not (piece.Name == "TutorialArrow" and piece:IsA("GuiObject") and piece.Visible),
+				"uigate: the tutorial arrow stays after its step (#2314)"
+			)
+		end
 	end },
 	-- #2211 (crispi_255): the tutorial's last step done: the Tutorial tile's red × gets a gold ring and bounces for
 	-- a few seconds, then is plain again; a player who finished it before (no step change) gets no pulse

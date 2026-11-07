@@ -169,10 +169,10 @@ return function()
 
 	describe("schedule (section 10 flow step 1)", function()
 		it(
-			"has the rarity's ring cap: 3 to 7 all-Perfect rings plus CatchSpareRings 2, on every net (#1884)",
+			"has the rarity's ring cap: 5 to 11 all-Good rings plus CatchSpareRings 16, on every net (#1884, #2332)",
 			function()
-				local want = { Common = 5, Rare = 6, Epic = 7, Legendary = 8, Mythical = 9 }
-				expect(Config.CatchSpareRings).to.equal(2)
+				local want = { Common = 21, Rare = 22, Epic = 24, Legendary = 25, Mythical = 27 }
+				expect(Config.CatchSpareRings).to.equal(16)
 				for _, rarity in ipairs(Catalog.rarityOrder) do
 					expect(Circles.ringCap(rarity)).to.equal(want[rarity])
 					for level = 0, 3 do
@@ -657,25 +657,26 @@ return function()
 				local attempt, circles = plainFor("Mythical", 0)
 				local offsets = { 0, 0, 0.5, 0, 0, 0, 0, 0, 0 }
 				for i, circle in ipairs(circles) do
-					local at = Circles.target(circle) + offsets[i]
+					local at = Circles.target(circle) + (offsets[i] or 0)
 					Circles.press(attempt, i, at, at)
 				end
-				-- 2 + 3 + 3 - 2 + 6 x 3 = 24, past the Mythical's need of 23, on the ninth and last ring
+				-- 2 + 3 + 3 - 2 + 6 x 3 = 24, past the Mythical's need of 23, on the ninth ring
 				expect(attempt.grades[3]).to.equal("miss")
 				expect(#attempt.grades).to.equal(9)
 				expect(attempt.trust).to.equal(24)
 				expect(Circles.succeeded(attempt)).to.equal(true)
 				expect(Circles.finish(attempt)).to.equal("great")
 				expect(Circles.perfectCount(attempt)).to.equal(8)
-				-- with two Misses there are not rings enough: 2 + 3 - 2 - 2 + 6 x 3 = 19 after nine
-				local short, shortCircles = plainFor("Mythical", 0)
-				local shortOffsets = { 0, 0.5, 0.5, 0, 0, 0, 0, 0, 0 }
-				for i, circle in ipairs(shortCircles) do
-					local at = Circles.target(circle) + shortOffsets[i]
-					Circles.press(short, i, at, at)
+				-- #2332: two Misses no longer run out of rings: 2 + 3 - 2 - 2 + 6 x 3 = 19 after nine, 25 on the eleventh
+				local long, longCircles = plainFor("Mythical", 0)
+				local longOffsets = { 0, 0.5, 0.5 }
+				for i, circle in ipairs(longCircles) do
+					local at = Circles.target(circle) + (longOffsets[i] or 0)
+					Circles.press(long, i, at, at)
 				end
-				expect(short.trust).to.equal(19)
-				expect(Circles.finish(short)).to.equal("bolt")
+				expect(#long.grades).to.equal(11)
+				expect(long.trust).to.equal(25)
+				expect(Circles.succeeded(long)).to.equal(true)
 			end
 		)
 
@@ -719,7 +720,7 @@ return function()
 		)
 
 		it(
-			"one Good is GREAT, two or more NICE; all Good just catches a Common, an Epic bolts (#1884 7d, #2005)",
+			"one Good is GREAT, two or more NICE; all Good catches every rarity (#1884 7d, #2005, #2317)",
 			function()
 				local great = run("Common", { 0.08, 0, 0, 0 }) -- 4, 7, 10, 13
 				expect(Circles.finish(great)).to.equal("great")
@@ -730,10 +731,17 @@ return function()
 				expect(Circles.succeeded(slow)).to.equal(true)
 				expect(Circles.finish(slow)).to.equal("nice")
 				expect(#slow.grades).to.equal(5)
-				local epic = run("Epic", same(0.08, 7)) -- 4 to 16 over all seven, short of 17
-				expect(Circles.isDone(epic)).to.equal(true)
-				expect(Circles.succeeded(epic)).to.equal(false)
-				expect(Circles.finish(epic)).to.equal("bolt")
+				-- #2317: an Epic all Good was 4 to 16 over its seven rings and bolted short of 17; now the eighth fills it
+				local epic = run("Epic", same(0.08, 8))
+				expect(#epic.grades).to.equal(8)
+				expect(Circles.succeeded(epic)).to.equal(true)
+				expect(Circles.finish(epic)).to.equal("nice")
+				for _, rarity in Catalog.rarityOrder do
+					local need = Catalog.rarities[rarity :: any].trustNeed
+					local goods = math.ceil((need - Config.TrustStart) / Config.TrustGood)
+					local all = run(rarity, same(0.08, goods))
+					expect(Circles.succeeded(all)).to.equal(true)
+				end
 			end
 		)
 

@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local Outline = require(script.Parent.Parent.Components.Outline)
 local PassShop = require(script.Parent.Parent.Components.PassShop)
 local Scale = require(script.Parent.Parent.Scale)
 local StyleLogic = require(script.Parent.Parent.Components.StyleLogic)
@@ -66,7 +67,7 @@ function StyleTab.new(parent: Instance, callbacks: Callbacks): StyleTab
 			Padding = UDim.new(0, ROW_GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		Create("UIPadding", { PaddingTop = UDim.new(0, 4), PaddingRight = UDim.new(0, 10) }),
+		Outline.listPadding(10), -- #2294: room for the cards' outlines
 	})
 	return self :: StyleTab
 end

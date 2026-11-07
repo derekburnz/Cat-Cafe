@@ -2,7 +2,7 @@
 -- Catch prompt card for strays and stuck cats.
 --   show(info)          "[E] Catch" card at the bottom centre with the cat's name and rarity (no stars, F97). v0.5: tries
 --                       are unlimited; while the cat sprints off after a miss (info.fleeingUntil) it reads "It's
---                       running!", then "Catch your breath..." for the player who missed until info.retryAt, and
+--                       running!", then "Cooling down 3s" (counting down) for the player who missed until info.retryAt, and
 --                       turns back to Catch when it can be tried. A cat knocked loose by a shove reads "Owner's
 --                       turn" for everyone else until info.ownerTurnUntil (reviewer N90). A dropped cat anyone can
 --                       pick up (kind "pickup", v0.8 F56) reads "Pick up" with no circles, and "It's walking home"
@@ -17,15 +17,20 @@
 -- 2026-10-27: a stray's prompt (F26) and a stuck cat's (F27) are held for HoldDuration (0.5 s), so a passing
 -- player never starts a catch by accident; the trigger asks the server for the closing circles or the rescue
 -- minigame. The key cap says HOLD under it.
--- On touch devices a big round CATCH button appears; it drives the real prompt through holdBegan / holdEnded.
+-- On touch a big round CATCH button appears; it drives the real prompt through holdBegan / holdEnded. #2315: on any
+-- sign of touch (Components/TouchPrompt), not only a device with no keyboard or mouse, and it swaps live with the key
+-- cap when the player's input changes.
 -- bindProximityPrompts() in init.luau wires all of this to any ProximityPrompt with Style = Custom.
 
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
+local Cooldown = require(script.Parent.Parent.Components.Cooldown)
 local Create = require(script.Parent.Parent.Components.Create)
 local Scale = require(script.Parent.Parent.Scale)
 local Signal = require(script.Parent.Parent.Components.Signal)
 local Theme = require(script.Parent.Parent.Theme)
+local TouchPrompt = require(script.Parent.Parent.Components.TouchPrompt)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
@@ -350,6 +355,15 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 			end
 		end)
 	)
+	-- #2315: a player who puts the keyboard down and touches the screen gets the button at once, and back
+	table.insert(
+		self._connections,
+		UserInputService.LastInputTypeChanged:Connect(function()
+			if screenGui.Enabled then
+				self:_paintInput()
+			end
+		end)
+	)
 
 	if parent then
 		screenGui.Parent = parent
@@ -358,7 +372,7 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 end
 
 -- v0.5: why the cat cannot be grabbed yet, or nil when it can. "It's running!" while it sprints off after a miss
--- (FleeingUntil still ahead); "Catch your breath..." for the player who missed, until the retryAt the server sent
+-- (FleeingUntil still ahead); "Cooling down Ns" (#2324) for the player who missed, until the retryAt the server sent
 -- with CatchResult (F57: 3, 6, then 10 s after the stop by misses in a row; the server's own refusal for that wait is
 -- "Catch your breath, then try again").
 function CatchPrompt.blockedText(self: any): string?
@@ -373,7 +387,7 @@ function CatchPrompt.blockedText(self: any): string?
 	end
 	local retryAt: number? = self._retryAt
 	if retryAt ~= nil and now < retryAt then
-		return "Catch your breath..."
+		return Cooldown.text(retryAt - now) -- #2324: "Cooling down 3s", ticking down (_countDown)
 	end
 	return nil
 end
@@ -396,6 +410,18 @@ function CatchPrompt._paintIdle(self: any, actionText: string?)
 		elseif blocked then Theme.hud.subtext
 		else Theme.hud.text
 	self._grab.BackgroundColor3 = if blocked then Theme.colors.disabled else Theme.colors.good
+end
+
+-- #2315: the big press-and-hold button on any sign of touch (Components/TouchPrompt), else the key cap and HOLD
+function CatchPrompt._paintInput(self: any)
+	local touch = TouchPrompt.wants(
+		self._promptTouch,
+		UserInputService:GetLastInputType().Name,
+		Scale.isTouch()
+	)
+	self._keyFrame.Visible = not touch
+	self._holdTag.Visible = self._holdDuration > 0 and not touch
+	self._grab.Visible = touch
 end
 
 function CatchPrompt.show(self: any, info: Types.CatchInfo)
@@ -423,7 +449,7 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 		elseif pickUp and info.returning then "It's walking home. Grab it!"
 		elseif pickUp then ""
 		elseif blocked == OWNER_TURN then "Its owner gets the first try"
-		elseif blocked then "Wait till it stops"
+		elseif blocked == "It's running!" then "Wait till it stops"
 		else ""
 	self._hint.Text = hint
 	self._hint.Visible = hint ~= ""
@@ -432,14 +458,14 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self._miniRing.Visible = not rescue and not pickUp
 	local key: Enum.KeyCode = info.keyCode or Enum.KeyCode.E
 	self._keycap.Text = key.Name
-	self._keyFrame.Visible = not Scale.isTouch()
-	self._holdTag.Visible = self._holdDuration > 0 and not Scale.isTouch()
-	self._grab.Visible = Scale.isTouch()
+	self._promptTouch = info.touch
+	self:_paintInput()
 	if not self.screenGui.Enabled then
 		self.screenGui.Enabled = true
 		Tween.popIn(self._card, 0.9)
 	end
 	if blocked then
+		self:_countDown(self._failToken)
 		-- turn back to Catch the moment it may be tried, unless anything else changed the card first
 		local token = self._failToken
 		local ready =
@@ -450,6 +476,22 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 			end
 		end)
 	end
+end
+
+-- #2324: while the miss cooldown runs, repaint the action line each time its seconds go down by one ("Cooling down
+-- 3s", "2s", "1s"); show() puts Catch back when it ends. Stops when anything else changes the card (the token).
+function CatchPrompt._countDown(self: any, token: number)
+	local retryAt: number? = self._retryAt
+	local left = if retryAt ~= nil then retryAt - Workspace:GetServerTimeNow() else 0
+	if left <= 0 then
+		return
+	end
+	task.delay(Cooldown.nextTick(left) + 0.02, function()
+		if self._failToken == token and self.screenGui.Enabled then
+			self:_paintIdle(nil)
+			self:_countDown(token)
+		end
+	end)
 end
 
 -- retry = true keeps the prompt open: Commons and lured strays, or a rescue the server turned down for
@@ -467,6 +509,7 @@ function CatchPrompt.fail(self: any, reason: string?, retry: boolean?)
 		end
 		if retry then
 			self:_paintIdle(nil)
+			self:_countDown(token)
 		else
 			self:hide()
 		end

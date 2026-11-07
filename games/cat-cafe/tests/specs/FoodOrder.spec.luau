@@ -31,6 +31,19 @@ return function()
 			)
 		end)
 
+		it("puts the foods the player has first in the bowl, rarest at the top (#2323)", function()
+			local rarest = FoodOrder.defs(Catalog.lures, true)
+			-- a new player in the tutorial: Kibble alone, so it leads instead of trailing the list
+			expect(ids(FoodOrder.ownedFirst(rarest, { kibble = 3 }))).to.equal(
+				"kibble,star_treat,moon_milk,caviar,salmon,sardines,tuna"
+			)
+			expect(ids(FoodOrder.ownedFirst(rarest, { kibble = 3, salmon = 1, tuna = 0 }))).to.equal(
+				"salmon,kibble,star_treat,moon_milk,caviar,sardines,tuna"
+			)
+			-- an empty bag keeps the rarest first order
+			expect(ids(FoodOrder.ownedFirst(rarest, {}))).to.equal(ids(rarest))
+		end)
+
 		it("leaves the catalog's own list alone", function()
 			local before = ids(Catalog.lures)
 			FoodOrder.defs(Catalog.lures)

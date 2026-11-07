@@ -202504,13 +202504,91 @@
    "children": [
     {
      "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -12.0,
+         3.5,
+         -73.4
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       44.0,
+       6.2,
+       2.0
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -12.0,
+         -3.5,
+         -73.4
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Sewer_SetF85/71"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
      "className": "Part",
      "properties": {
       "CFrame": {
        "CFrame": {
         "position": [
          -12.0,
-         1.2,
+         3.5,
          -75.0
         ],
         "orientation": [
@@ -202534,8 +202612,8 @@
       },
       "Size": [
        44.0,
-       1.6,
-       3.2
+       6.2,
+       1.2
       ],
       "Color": [
        0.3569,
@@ -202548,13 +202626,19 @@
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "PivotOffset": {
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "WedgePart",
+     "properties": {
+      "CFrame": {
        "CFrame": {
         "position": [
-         12.0,
-         -1.2,
-         75.0
+         -12.0,
+         3.5,
+         -76.6
         ],
         "orientation": [
          [
@@ -202574,10 +202658,24 @@
          ]
         ]
        }
-      }
-     },
-     "attributes": {
-      "Rojo_Id": "CatCafe_Sewer_SetF85/71"
+      },
+      "Size": [
+       44.0,
+       6.2,
+       2.0
+      ],
+      "Color": [
+       0.3569,
+       0.3725,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
      }
     },
     {
@@ -202588,8 +202686,8 @@
        "CFrame": {
         "position": [
          -32.1667,
-         2.3,
-         -75.5
+         2.6,
+         -76.9
         ],
         "orientation": [
          [
@@ -202636,8 +202734,57 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -31.8301,
+         4.8,
+         -73.7
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.9272,
+          0.3746
+         ],
+         [
+          0.0,
+          -0.3746,
+          0.9272
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.4833,
+       0.7,
+       2.8
+      ],
+      "Color": [
+       0.3569,
+       0.3725,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -32.7667,
-         2.35,
+         6.95,
          -74.7
         ],
         "orientation": [
@@ -202686,7 +202833,7 @@
        "CFrame": {
         "position": [
          -32.4667,
-         3.05,
+         7.65,
          -74.6
         ],
         "orientation": [
@@ -202734,9 +202881,58 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -33.0833,
+         0.95,
+         -72.5
+        ],
+        "orientation": [
+         [
+          0.9689,
+          -0.2474,
+          0.0
+         ],
+         [
+          0.2474,
+          0.9689,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.5,
+       1.1,
+       1.2
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -28.1033,
-         2.3,
-         -74.5
+         2.6,
+         -73.1
         ],
         "orientation": [
          [
@@ -202783,8 +202979,57 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -28.329,
+         4.8,
+         -76.3
+        ],
+        "orientation": [
+         [
+          0.9475,
+          0.0,
+          -0.3197
+         ],
+         [
+          -0.1598,
+          0.866,
+          -0.4738
+         ],
+         [
+          0.2768,
+          0.5,
+          0.8206
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.4833,
+       0.7,
+       2.8
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -27.7,
-         2.8,
+         7.2,
          -75.2
         ],
         "orientation": [
@@ -202832,9 +203077,58 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -29.4167,
+         0.95,
+         -77.5
+        ],
+        "orientation": [
+         [
+          0.7937,
+          -0.2027,
+          0.5736
+         ],
+         [
+          0.2474,
+          0.9689,
+          0.0
+         ],
+         [
+          -0.5557,
+          0.1419,
+          0.8192
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.5,
+       1.1,
+       1.2
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -28.5,
          0.55,
-         -72.7
+         -72.1
         ],
         "orientation": [
          [
@@ -202896,8 +203190,8 @@
        "CFrame": {
         "position": [
          -24.9356,
-         2.3,
-         -75.5
+         2.6,
+         -76.9
         ],
         "orientation": [
          [
@@ -202944,8 +203238,57 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -25.214,
+         4.8,
+         -73.7
+        ],
+        "orientation": [
+         [
+          0.9075,
+          0.0,
+          0.4201
+         ],
+         [
+          -0.2587,
+          0.788,
+          0.5587
+         ],
+         [
+          -0.3311,
+          -0.6157,
+          0.7151
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.4833,
+       0.7,
+       2.8
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -25.4333,
-         2.35,
+         6.95,
          -74.7
         ],
         "orientation": [
@@ -202994,7 +203337,7 @@
        "CFrame": {
         "position": [
          -25.1333,
-         3.05,
+         7.65,
          -74.6
         ],
         "orientation": [
@@ -203042,9 +203385,58 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -25.75,
+         0.95,
+         -72.5
+        ],
+        "orientation": [
+         [
+          0.3314,
+          -0.0846,
+          0.9397
+         ],
+         [
+          0.2474,
+          0.9689,
+          0.0
+         ],
+         [
+          -0.9105,
+          0.2325,
+          0.342
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.5,
+       1.1,
+       1.2
+      ],
+      "Color": [
+       0.6118,
+       0.3725,
+       0.3098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -21.537,
-         2.3,
-         -74.5
+         2.6,
+         -73.1
         ],
         "orientation": [
          [
@@ -203091,8 +203483,57 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -21.2395,
+         4.8,
+         -76.3
+        ],
+        "orientation": [
+         [
+          0.9683,
+          0.0,
+          -0.2497
+         ],
+         [
+          -0.0935,
+          0.9272,
+          -0.3627
+         ],
+         [
+          0.2315,
+          0.3746,
+          0.8978
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.4833,
+       0.7,
+       2.8
+      ],
+      "Color": [
+       0.3569,
+       0.3725,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -21.1667,
-         3.0,
+         7.8,
          -74.8
         ],
         "orientation": [
@@ -203140,9 +203581,58 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -22.0833,
+         0.95,
+         -77.5
+        ],
+        "orientation": [
+         [
+          -0.2508,
+          0.064,
+          0.9659
+         ],
+         [
+          0.2474,
+          0.9689,
+          0.0
+         ],
+         [
+          -0.9359,
+          0.239,
+          -0.2588
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.5,
+       1.1,
+       1.2
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -21.1667,
          0.55,
-         -72.7
+         -72.1
         ],
         "orientation": [
          [
@@ -203204,8 +203694,8 @@
        "CFrame": {
         "position": [
          -17.3024,
-         2.6,
-         -75.5
+         2.9,
+         -76.9
         ],
         "orientation": [
          [
@@ -203252,8 +203742,57 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -17.1006,
+         5.1,
+         -73.7
+        ],
+        "orientation": [
+         [
+          0.9953,
+          0.0,
+          -0.0971
+         ],
+         [
+          0.0786,
+          0.5878,
+          0.8052
+         ],
+         [
+          0.0571,
+          -0.809,
+          0.585
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.4833,
+       0.7,
+       2.8
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -18.1,
-         2.35,
+         6.95,
          -74.7
         ],
         "orientation": [
@@ -203302,7 +203841,7 @@
        "CFrame": {
         "position": [
          -17.8,
-         3.05,
+         7.65,
          -74.6
         ],
         "orientation": [
@@ -203351,7 +203890,7 @@
        "CFrame": {
         "position": [
          -16.7,
-         2.8,
+         7.2,
          -74.8
         ],
         "orientation": [
@@ -203399,9 +203938,58 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -18.4167,
+         0.95,
+         -72.5
+        ],
+        "orientation": [
+         [
+          -0.7422,
+          0.1895,
+          0.6428
+         ],
+         [
+          0.2474,
+          0.9689,
+          0.0
+         ],
+         [
+          -0.6228,
+          0.159,
+          -0.766
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.5,
+       1.1,
+       1.2
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -13.5139,
-         2.3,
-         -74.5
+         2.6,
+         -73.1
         ],
         "orientation": [
          [
@@ -203448,9 +204036,107 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -13.8634,
+         4.8,
+         -76.3
+        ],
+        "orientation": [
+         [
+          0.9279,
+          0.0,
+          0.3728
+         ],
+         [
+          0.2295,
+          0.788,
+          -0.5713
+         ],
+         [
+          -0.2937,
+          0.6157,
+          0.7312
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.4833,
+       0.7,
+       2.8
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -14.75,
+         0.95,
+         -77.5
+        ],
+        "orientation": [
+         [
+          -0.9652,
+          0.2465,
+          0.0872
+         ],
+         [
+          0.2474,
+          0.9689,
+          0.0
+         ],
+         [
+          -0.0844,
+          0.0216,
+          -0.9962
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.5,
+       1.1,
+       1.2
+      ],
+      "Color": [
+       0.6118,
+       0.3725,
+       0.3098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -13.8333,
          0.55,
-         -72.7
+         -72.1
         ],
         "orientation": [
          [
@@ -203512,8 +204198,8 @@
        "CFrame": {
         "position": [
          -10.4466,
-         2.3,
-         -75.5
+         2.6,
+         -76.9
         ],
         "orientation": [
          [
@@ -203560,8 +204246,57 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -10.5583,
+         4.8,
+         -73.7
+        ],
+        "orientation": [
+         [
+          0.9164,
+          0.0,
+          -0.4002
+         ],
+         [
+          0.1499,
+          0.9272,
+          0.3433
+         ],
+         [
+          0.3711,
+          -0.3746,
+          0.8497
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.4833,
+       0.7,
+       2.8
+      ],
+      "Color": [
+       0.3569,
+       0.3725,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -10.7667,
-         2.35,
+         6.95,
          -74.7
         ],
         "orientation": [
@@ -203610,7 +204345,7 @@
        "CFrame": {
         "position": [
          -10.4667,
-         3.05,
+         7.65,
          -74.6
         ],
         "orientation": [
@@ -203658,9 +204393,58 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -11.0833,
+         0.95,
+         -72.5
+        ],
+        "orientation": [
+         [
+          -0.8391,
+          0.2143,
+          -0.5
+         ],
+         [
+          0.2474,
+          0.9689,
+          0.0
+         ],
+         [
+          0.4845,
+          -0.1237,
+          -0.866
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.5,
+       1.1,
+       1.2
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -6.7473,
-         2.3,
-         -74.5
+         2.6,
+         -73.1
         ],
         "orientation": [
          [
@@ -203707,8 +204491,57 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -6.369,
+         4.8,
+         -76.3
+        ],
+        "orientation": [
+         [
+          0.9861,
+          0.0,
+          0.1659
+         ],
+         [
+          0.083,
+          0.866,
+          -0.4931
+         ],
+         [
+          -0.1437,
+          0.5,
+          0.854
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.4833,
+       0.7,
+       2.8
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -5.7,
-         2.8,
+         7.2,
          -75.2
         ],
         "orientation": [
@@ -203757,7 +204590,7 @@
        "CFrame": {
         "position": [
          -6.5,
-         3.0,
+         7.8,
          -74.8
         ],
         "orientation": [
@@ -203805,9 +204638,58 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -7.4167,
+         0.95,
+         -77.5
+        ],
+        "orientation": [
+         [
+          -0.4095,
+          0.1046,
+          -0.9063
+         ],
+         [
+          0.2474,
+          0.9689,
+          0.0
+         ],
+         [
+          0.8781,
+          -0.2242,
+          -0.4226
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.5,
+       1.1,
+       1.2
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -6.5,
          0.55,
-         -72.7
+         -72.1
         ],
         "orientation": [
          [
@@ -203869,8 +204751,8 @@
        "CFrame": {
         "position": [
          -2.4897,
-         2.3,
-         -75.5
+         2.6,
+         -76.9
         ],
         "orientation": [
          [
@@ -203917,8 +204799,57 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -2.4754,
+         4.8,
+         -73.7
+        ],
+        "orientation": [
+         [
+          0.9821,
+          0.0,
+          0.1885
+         ],
+         [
+          -0.116,
+          0.788,
+          0.6046
+         ],
+         [
+          -0.1485,
+          -0.6157,
+          0.7739
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.4833,
+       0.7,
+       2.8
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -3.4333,
-         2.35,
+         6.95,
          -74.7
         ],
         "orientation": [
@@ -203967,7 +204898,7 @@
        "CFrame": {
         "position": [
          -3.1333,
-         3.05,
+         7.65,
          -74.6
         ],
         "orientation": [
@@ -204015,9 +204946,58 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -3.75,
+         0.95,
+         -72.5
+        ],
+        "orientation": [
+         [
+          0.1682,
+          -0.043,
+          -0.9848
+         ],
+         [
+          0.2474,
+          0.9689,
+          0.0
+         ],
+         [
+          0.9542,
+          -0.2436,
+          0.1736
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.5,
+       1.1,
+       1.2
+      ],
+      "Color": [
+       0.6118,
+       0.3725,
+       0.3098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          0.992,
-         2.6,
-         -74.5
+         2.9,
+         -73.1
         ],
         "orientation": [
          [
@@ -204064,9 +205044,107 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         0.6101,
+         5.1,
+         -76.3
+        ],
+        "orientation": [
+         [
+          0.9133,
+          0.0,
+          -0.4072
+         ],
+         [
+          -0.2596,
+          0.7705,
+          -0.5822
+         ],
+         [
+          0.3138,
+          0.6374,
+          0.7037
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.4833,
+       0.7,
+       2.8
+      ],
+      "Color": [
+       0.3569,
+       0.3725,
+       0.4196
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0833,
+         0.95,
+         -77.5
+        ],
+        "orientation": [
+         [
+          0.6851,
+          -0.1749,
+          -0.7071
+         ],
+         [
+          0.2474,
+          0.9689,
+          0.0
+         ],
+         [
+          0.6851,
+          -0.1749,
+          0.7071
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.5,
+       1.1,
+       1.2
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          0.8333,
          0.55,
-         -72.7
+         -72.1
         ],
         "orientation": [
          [
@@ -204128,8 +205206,8 @@
        "CFrame": {
         "position": [
          4.1154,
-         2.3,
-         -75.5
+         2.6,
+         -76.9
         ],
         "orientation": [
          [
@@ -204176,8 +205254,57 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         4.1996,
+         4.8,
+         -73.7
+        ],
+        "orientation": [
+         [
+          0.9326,
+          0.0,
+          0.3609
+         ],
+         [
+          -0.1805,
+          0.866,
+          0.4663
+         ],
+         [
+          -0.3125,
+          -0.5,
+          0.8077
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.4833,
+       0.7,
+       2.8
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          3.9,
-         2.35,
+         6.95,
          -74.7
         ],
         "orientation": [
@@ -204226,7 +205353,7 @@
        "CFrame": {
         "position": [
          4.2,
-         3.05,
+         7.65,
          -74.6
         ],
         "orientation": [
@@ -204275,7 +205402,7 @@
        "CFrame": {
         "position": [
          5.3,
-         2.8,
+         7.2,
          -74.8
         ],
         "orientation": [
@@ -204323,9 +205450,58 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         3.5833,
+         0.95,
+         -72.5
+        ],
+        "orientation": [
+         [
+          0.9542,
+          -0.2436,
+          -0.1736
+         ],
+         [
+          0.2474,
+          0.9689,
+          0.0
+         ],
+         [
+          0.1683,
+          -0.043,
+          0.9848
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.5,
+       1.1,
+       1.2
+      ],
+      "Color": [
+       0.5569,
+       0.5882,
+       0.6392
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          8.1071,
-         2.3,
-         -74.5
+         2.6,
+         -73.1
         ],
         "orientation": [
          [
@@ -204372,8 +205548,57 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         8.4673,
+         4.8,
+         -76.3
+        ],
+        "orientation": [
+         [
+          0.9974,
+          0.0,
+          -0.0726
+         ],
+         [
+          -0.0447,
+          0.788,
+          -0.614
+         ],
+         [
+          0.0572,
+          0.6157,
+          0.7859
+         ]
+        ]
+       }
+      },
+      "Size": [
+       3.4833,
+       0.7,
+       2.8
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          8.1667,
-         3.0,
+         7.8,
          -74.8
         ],
         "orientation": [
@@ -204421,9 +205646,58 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         7.25,
+         0.95,
+         -77.5
+        ],
+        "orientation": [
+         [
+          0.8781,
+          -0.2242,
+          0.4226
+         ],
+         [
+          0.2474,
+          0.9689,
+          0.0
+         ],
+         [
+          -0.4095,
+          0.1046,
+          0.9063
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.5,
+       1.1,
+       1.2
+      ],
+      "Color": [
+       0.6118,
+       0.3725,
+       0.3098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_041_Rubble",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          8.1667,
          0.55,
-         -72.7
+         -72.1
         ],
         "orientation": [
          [
@@ -204571,7 +205845,7 @@
        "CFrame": {
         "position": [
          -12.0,
-         15.4,
+         5.3,
          -75.0
         ],
         "orientation": [
@@ -204595,8 +205869,8 @@
       },
       "Size": [
        44.0,
-       30.0,
-       5.4
+       9.8,
+       6.4
       ],
       "Color": [
        1.0,
@@ -204615,7 +205889,7 @@
        "CFrame": {
         "position": [
          12.0,
-         -15.4,
+         -5.3,
          75.0
         ],
         "orientation": [
@@ -205664,6 +206938,202 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -20.0,
+         4.8,
+         181.7
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       6.0,
+       0.4
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -20.0,
+         4.8,
+         188.3
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       6.0,
+       0.4
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -20.0,
+         5.05,
+         185.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.45,
+       0.4,
+       7.0
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -20.0,
+         7.8,
+         185.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.45,
+       0.3,
+       7.0
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          -12.0,
          1.1,
          185.0
@@ -205696,6 +207166,202 @@
        0.5451,
        0.5608,
        0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -12.0,
+         4.8,
+         181.7
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.46,
+       6.0,
+       0.4
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -12.0,
+         4.8,
+         188.3
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.46,
+       6.0,
+       0.4
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -12.0,
+         5.05,
+         185.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.45,
+       0.4,
+       7.0
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -12.0,
+         7.8,
+         185.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.45,
+       0.3,
+       7.0
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -205762,6 +207428,202 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         -4.0,
+         4.8,
+         181.7
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       6.0,
+       0.4
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -4.0,
+         4.8,
+         188.3
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       6.0,
+       0.4
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -4.0,
+         5.05,
+         185.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.45,
+       0.4,
+       7.0
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -4.0,
+         7.8,
+         185.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.45,
+       0.3,
+       7.0
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          4.0,
          1.1,
          185.0
@@ -205794,6 +207656,202 @@
        0.5451,
        0.5608,
        0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         4.0,
+         4.8,
+         181.7
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       6.0,
+       0.4
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         4.0,
+         4.8,
+         188.3
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       6.0,
+       0.4
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         4.0,
+         5.05,
+         185.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.45,
+       0.4,
+       7.0
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         4.0,
+         7.8,
+         185.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.45,
+       0.3,
+       7.0
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -205860,6 +207918,202 @@
       "CFrame": {
        "CFrame": {
         "position": [
+         12.0,
+         4.8,
+         181.7
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.46,
+       6.0,
+       0.4
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         12.0,
+         4.8,
+         188.3
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.46,
+       6.0,
+       0.4
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         12.0,
+         5.05,
+         185.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.45,
+       0.4,
+       7.0
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         12.0,
+         7.8,
+         185.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.45,
+       0.3,
+       7.0
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
          20.0,
          1.1,
          185.0
@@ -205892,6 +208146,202 @@
        0.5451,
        0.5608,
        0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         20.0,
+         4.8,
+         181.7
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       6.0,
+       0.4
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         20.0,
+         4.8,
+         188.3
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       6.0,
+       0.4
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         20.0,
+         5.05,
+         185.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.45,
+       0.4,
+       7.0
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         20.0,
+         7.8,
+         185.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.45,
+       0.3,
+       7.0
+      ],
+      "Color": [
+       0.2902,
+       0.3098,
+       0.3451
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -207060,8 +209510,8 @@
        "CFrame": {
         "position": [
          0.0,
-         3.96,
-         185.0
+         6.45,
+         183.6
         ],
         "orientation": [
          [
@@ -207084,13 +209534,13 @@
       },
       "Size": [
        48.0,
-       1.7,
-       1.7
+       2.4,
+       2.4
       ],
       "Color": [
-       0.6627,
-       0.6863,
-       0.7216
+       0.4784,
+       0.2902,
+       0.1647
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
@@ -207110,8 +209560,8 @@
        "CFrame": {
         "position": [
          -18.0,
-         3.96,
-         185.0
+         6.45,
+         183.6
         ],
         "orientation": [
          [
@@ -207134,8 +209584,8 @@
       },
       "Size": [
        0.4,
-       2.1,
-       2.1
+       2.8,
+       2.8
       ],
       "Color": [
        0.6627,
@@ -207160,8 +209610,8 @@
        "CFrame": {
         "position": [
          -12.0,
-         3.96,
-         185.0
+         6.45,
+         183.6
         ],
         "orientation": [
          [
@@ -207184,8 +209634,8 @@
       },
       "Size": [
        0.4,
-       2.1,
-       2.1
+       2.8,
+       2.8
       ],
       "Color": [
        0.6627,
@@ -207210,8 +209660,8 @@
        "CFrame": {
         "position": [
          -6.0,
-         3.96,
-         185.0
+         6.45,
+         183.6
         ],
         "orientation": [
          [
@@ -207234,8 +209684,8 @@
       },
       "Size": [
        0.4,
-       2.1,
-       2.1
+       2.8,
+       2.8
       ],
       "Color": [
        0.6627,
@@ -207260,8 +209710,8 @@
        "CFrame": {
         "position": [
          0.0,
-         3.96,
-         185.0
+         6.45,
+         183.6
         ],
         "orientation": [
          [
@@ -207284,8 +209734,8 @@
       },
       "Size": [
        0.4,
-       2.1,
-       2.1
+       2.8,
+       2.8
       ],
       "Color": [
        0.6627,
@@ -207310,8 +209760,8 @@
        "CFrame": {
         "position": [
          6.0,
-         3.96,
-         185.0
+         6.45,
+         183.6
         ],
         "orientation": [
          [
@@ -207334,8 +209784,8 @@
       },
       "Size": [
        0.4,
-       2.1,
-       2.1
+       2.8,
+       2.8
       ],
       "Color": [
        0.6627,
@@ -207360,8 +209810,8 @@
        "CFrame": {
         "position": [
          12.0,
-         3.96,
-         185.0
+         6.45,
+         183.6
         ],
         "orientation": [
          [
@@ -207384,8 +209834,8 @@
       },
       "Size": [
        0.4,
-       2.1,
-       2.1
+       2.8,
+       2.8
       ],
       "Color": [
        0.6627,
@@ -207410,8 +209860,8 @@
        "CFrame": {
         "position": [
          18.0,
-         3.96,
-         185.0
+         6.45,
+         183.6
         ],
         "orientation": [
          [
@@ -207434,8 +209884,8 @@
       },
       "Size": [
        0.4,
-       2.1,
-       2.1
+       2.8,
+       2.8
       ],
       "Color": [
        0.6627,
@@ -207460,8 +209910,8 @@
        "CFrame": {
         "position": [
          -23.7,
-         3.96,
-         185.0
+         6.45,
+         183.6
         ],
         "orientation": [
          [
@@ -207484,8 +209934,8 @@
       },
       "Size": [
        0.5,
-       2.2,
-       2.2
+       2.9,
+       2.9
       ],
       "Color": [
        0.6627,
@@ -207510,8 +209960,8 @@
        "CFrame": {
         "position": [
          -24.05,
-         3.96,
-         185.0
+         6.45,
+         183.6
         ],
         "orientation": [
          [
@@ -207534,8 +209984,8 @@
       },
       "Size": [
        0.1,
-       1.1,
-       1.1
+       1.8,
+       1.8
       ],
       "Color": [
        0.2118,
@@ -207560,8 +210010,8 @@
        "CFrame": {
         "position": [
          23.7,
-         3.96,
-         185.0
+         6.45,
+         183.6
         ],
         "orientation": [
          [
@@ -207584,8 +210034,8 @@
       },
       "Size": [
        0.5,
-       2.2,
-       2.2
+       2.9,
+       2.9
       ],
       "Color": [
        0.6627,
@@ -207610,7 +210060,1107 @@
        "CFrame": {
         "position": [
          24.05,
-         3.96,
+         6.45,
+         183.6
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       1.8,
+       1.8
+      ],
+      "Color": [
+       0.2118,
+       0.2353,
+       0.298
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         6.45,
+         186.4
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       48.0,
+       2.4,
+       2.4
+      ],
+      "Color": [
+       0.2471,
+       0.4353,
+       0.3686
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -18.0,
+         6.45,
+         186.4
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       2.8,
+       2.8
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -12.0,
+         6.45,
+         186.4
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       2.8,
+       2.8
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -6.0,
+         6.45,
+         186.4
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       2.8,
+       2.8
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         6.45,
+         186.4
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       2.8,
+       2.8
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         6.0,
+         6.45,
+         186.4
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       2.8,
+       2.8
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         12.0,
+         6.45,
+         186.4
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       2.8,
+       2.8
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         18.0,
+         6.45,
+         186.4
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       2.8,
+       2.8
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -23.7,
+         6.45,
+         186.4
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.5,
+       2.9,
+       2.9
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -24.05,
+         6.45,
+         186.4
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       1.8,
+       1.8
+      ],
+      "Color": [
+       0.2118,
+       0.2353,
+       0.298
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         23.7,
+         6.45,
+         186.4
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.5,
+       2.9,
+       2.9
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         24.05,
+         6.45,
+         186.4
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       1.8,
+       1.8
+      ],
+      "Color": [
+       0.2118,
+       0.2353,
+       0.298
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         8.4,
+         185.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       48.0,
+       1.5,
+       1.5
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -18.0,
+         8.4,
+         185.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.9,
+       1.9
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -12.0,
+         8.4,
+         185.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.9,
+       1.9
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -6.0,
+         8.4,
+         185.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.9,
+       1.9
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         8.4,
+         185.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.9,
+       1.9
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         6.0,
+         8.4,
+         185.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.9,
+       1.9
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         12.0,
+         8.4,
+         185.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.9,
+       1.9
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         18.0,
+         8.4,
+         185.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.4,
+       1.9,
+       1.9
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -23.7,
+         8.4,
+         185.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.5,
+       2.0,
+       2.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -24.05,
+         8.4,
          185.0
         ],
         "orientation": [
@@ -207634,8 +211184,108 @@
       },
       "Size": [
        0.1,
-       1.1,
-       1.1
+       0.9,
+       0.9
+      ],
+      "Color": [
+       0.2118,
+       0.2353,
+       0.298
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         23.7,
+         8.4,
+         185.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.5,
+       2.0,
+       2.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_043_PipeBank",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         24.05,
+         8.4,
+         185.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       0.9,
+       0.9
       ],
       "Color": [
        0.2118,
@@ -207660,7 +211310,7 @@
        "CFrame": {
         "position": [
          21.5,
-         5.15,
+         9.55,
          185.0
         ],
         "orientation": [
@@ -207710,7 +211360,7 @@
        "CFrame": {
         "position": [
          20.7103,
-         5.5,
+         9.9,
          185.1802
         ],
         "orientation": [
@@ -207759,7 +211409,7 @@
        "CFrame": {
         "position": [
          20.8667,
-         5.5,
+         9.9,
          185.505
         ],
         "orientation": [
@@ -207808,7 +211458,7 @@
        "CFrame": {
         "position": [
          21.1486,
-         5.5,
+         9.9,
          185.7298
         ],
         "orientation": [
@@ -207857,7 +211507,7 @@
        "CFrame": {
         "position": [
          21.5,
-         5.5,
+         9.9,
          185.81
         ],
         "orientation": [
@@ -207906,7 +211556,7 @@
        "CFrame": {
         "position": [
          21.8514,
-         5.5,
+         9.9,
          185.7298
         ],
         "orientation": [
@@ -207955,7 +211605,7 @@
        "CFrame": {
         "position": [
          22.1333,
-         5.5,
+         9.9,
          185.505
         ],
         "orientation": [
@@ -208004,7 +211654,7 @@
        "CFrame": {
         "position": [
          22.2897,
-         5.5,
+         9.9,
          185.1802
         ],
         "orientation": [
@@ -208053,7 +211703,7 @@
        "CFrame": {
         "position": [
          22.2897,
-         5.5,
+         9.9,
          184.8198
         ],
         "orientation": [
@@ -208102,7 +211752,7 @@
        "CFrame": {
         "position": [
          22.1333,
-         5.5,
+         9.9,
          184.495
         ],
         "orientation": [
@@ -208151,7 +211801,7 @@
        "CFrame": {
         "position": [
          21.8514,
-         5.5,
+         9.9,
          184.2702
         ],
         "orientation": [
@@ -208200,7 +211850,7 @@
        "CFrame": {
         "position": [
          21.5,
-         5.5,
+         9.9,
          184.19
         ],
         "orientation": [
@@ -208249,7 +211899,7 @@
        "CFrame": {
         "position": [
          21.1486,
-         5.5,
+         9.9,
          184.2702
         ],
         "orientation": [
@@ -208298,7 +211948,7 @@
        "CFrame": {
         "position": [
          20.8667,
-         5.5,
+         9.9,
          184.495
         ],
         "orientation": [
@@ -208347,7 +211997,7 @@
        "CFrame": {
         "position": [
          20.7103,
-         5.5,
+         9.9,
          184.8198
         ],
         "orientation": [
@@ -208396,7 +212046,7 @@
        "CFrame": {
         "position": [
          21.5,
-         5.59,
+         9.99,
          185.0
         ],
         "orientation": [
@@ -208445,7 +212095,7 @@
        "CFrame": {
         "position": [
          21.5,
-         5.59,
+         9.99,
          185.0
         ],
         "orientation": [
@@ -208531,7 +212181,7 @@
        "CFrame": {
         "position": [
          0.0,
-         15.4,
+         5.8,
          185.0
         ],
         "orientation": [
@@ -208555,8 +212205,8 @@
       },
       "Size": [
        48.0,
-       30.0,
-       7.0
+       10.8,
+       7.4
       ],
       "Color": [
        1.0,
@@ -208575,7 +212225,7 @@
        "CFrame": {
         "position": [
          0.0,
-         -15.4,
+         -5.8,
          -185.0
         ],
         "orientation": [
@@ -366159,6 +369809,4182 @@
     }
    },
    "name": "CatCafe_Sewer_SetF85_162_DripPuddle_Water"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Sewer_SetF85/242"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Sewer_SetF85_163_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -55.1,
+         3.4,
+         268.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       6.0,
+       6.0,
+       2.0
+      ],
+      "Color": [
+       0.6118,
+       0.3725,
+       0.3098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -268.0,
+         -3.4,
+         -55.1
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Sewer_SetF85/242"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_163_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -53.7,
+         2.3,
+         267.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8,
+       3.2,
+       3.2
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_163_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -52.3,
+         2.3,
+         267.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3,
+       3.7,
+       3.7
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_163_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -52.15,
+         2.3,
+         267.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          -1.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       2.7,
+       2.7
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_163_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -52.5,
+         0.45,
+         267.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.4,
+       0.08,
+       1.2
+      ],
+      "Color": [
+       0.4314,
+       0.5608,
+       0.702
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Sewer_SetF85_163_DrainPipe"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Sewer_SetF85/243"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Sewer_SetF85_163_DrainPipe_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -54.0,
+         4.9,
+         269.6
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       1.0,
+       0.5
+      ],
+      "Color": [
+       0.5608,
+       0.8275,
+       0.7569
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -269.6,
+         -4.9,
+         -54.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Sewer_SetF85/243"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Sewer_SetF85_163_DrainPipe_Glow"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Sewer_SetF85/244"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Sewer_SetF85_164_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         55.1,
+         3.4,
+         54.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       6.0,
+       6.0,
+       2.0
+      ],
+      "Color": [
+       0.6118,
+       0.3725,
+       0.3098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         54.0,
+         -3.4,
+         -55.1
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Sewer_SetF85/244"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_164_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.7,
+         2.3,
+         55.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8,
+       3.2,
+       3.2
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_164_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         52.3,
+         2.3,
+         55.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3,
+       3.7,
+       3.7
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_164_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         52.15,
+         2.3,
+         55.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       2.7,
+       2.7
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_164_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         52.5,
+         0.45,
+         55.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.4,
+       0.08,
+       1.2
+      ],
+      "Color": [
+       0.4314,
+       0.5608,
+       0.702
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Sewer_SetF85_164_DrainPipe"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Sewer_SetF85/245"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Sewer_SetF85_164_DrainPipe_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         54.0,
+         4.9,
+         52.4
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       1.0,
+       0.5
+      ],
+      "Color": [
+       0.5608,
+       0.8275,
+       0.7569
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         52.4,
+         -4.9,
+         -54.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Sewer_SetF85/245"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Sewer_SetF85_164_DrainPipe_Glow"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Sewer_SetF85/246"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Sewer_SetF85_165_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         55.1,
+         3.4,
+         126.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       6.0,
+       6.0,
+       2.0
+      ],
+      "Color": [
+       0.6118,
+       0.3725,
+       0.3098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         126.0,
+         -3.4,
+         -55.1
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Sewer_SetF85/246"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_165_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.7,
+         2.3,
+         127.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8,
+       3.2,
+       3.2
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_165_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         52.3,
+         2.3,
+         127.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3,
+       3.7,
+       3.7
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_165_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         52.15,
+         2.3,
+         127.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       2.7,
+       2.7
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_165_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         52.5,
+         0.45,
+         127.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.4,
+       0.08,
+       1.2
+      ],
+      "Color": [
+       0.4314,
+       0.5608,
+       0.702
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Sewer_SetF85_165_DrainPipe"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Sewer_SetF85/247"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Sewer_SetF85_165_DrainPipe_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         54.0,
+         4.9,
+         124.4
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       1.0,
+       0.5
+      ],
+      "Color": [
+       0.5608,
+       0.8275,
+       0.7569
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         124.4,
+         -4.9,
+         -54.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Sewer_SetF85/247"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Sewer_SetF85_165_DrainPipe_Glow"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Sewer_SetF85/248"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Sewer_SetF85_166_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         55.1,
+         3.4,
+         -176.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       6.0,
+       6.0,
+       2.0
+      ],
+      "Color": [
+       0.6118,
+       0.3725,
+       0.3098
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -176.0,
+         -3.4,
+         -55.1
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Sewer_SetF85/248"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_166_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         53.7,
+         2.3,
+         -175.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.8,
+       3.2,
+       3.2
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_166_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         52.3,
+         2.3,
+         -175.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3,
+       3.7,
+       3.7
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_166_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         52.15,
+         2.3,
+         -175.0
+        ],
+        "orientation": [
+         [
+          -1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1,
+       2.7,
+       2.7
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_166_DrainPipe",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         52.5,
+         0.45,
+         -175.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       2.4,
+       0.08,
+       1.2
+      ],
+      "Color": [
+       0.4314,
+       0.5608,
+       0.702
+      ],
+      "Material": "Glass",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": false,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Transparency": 0.3
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Sewer_SetF85_166_DrainPipe"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Sewer_SetF85/249"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Sewer_SetF85_166_DrainPipe_Glow",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         54.0,
+         4.9,
+         -177.6
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.0,
+       1.0,
+       0.5
+      ],
+      "Color": [
+       0.5608,
+       0.8275,
+       0.7569
+      ],
+      "Material": "Neon",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -177.6,
+         -4.9,
+         -54.0
+        ],
+        "orientation": [
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Sewer_SetF85/249"
+     },
+     "children": [
+      {
+       "name": "Mesh",
+       "className": "SpecialMesh",
+       "properties": {
+        "MeshType": "Sphere"
+       }
+      }
+     ]
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Sewer_SetF85_166_DrainPipe_Glow"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Sewer_SetF85/250"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Sewer_SetF85_167_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -6.0,
+         0.55,
+         193.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       5.0,
+       0.3,
+       5.0
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         6.0,
+         -0.55,
+         -193.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Sewer_SetF85/250"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_167_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -6.0,
+         0.55,
+         193.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       4.0,
+       0.2,
+       4.0
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_167_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -4.2,
+         0.76,
+         193.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_167_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -4.8,
+         0.76,
+         193.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_167_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -5.4,
+         0.76,
+         193.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_167_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -6.0,
+         0.76,
+         193.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_167_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -6.6,
+         0.76,
+         193.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_167_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -7.2,
+         0.76,
+         193.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_167_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -7.8,
+         0.76,
+         193.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_167_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -6.0,
+         0.8,
+         193.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       4.2,
+       0.12,
+       0.25
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_167_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -8.3,
+         0.84,
+         193.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3,
+       0.3,
+       1.2
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Sewer_SetF85_167_Grate"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Sewer_SetF85/251"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Sewer_SetF85_168_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         2.0,
+         0.55,
+         11.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       5.0,
+       0.3,
+       5.0
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -2.0,
+         -0.55,
+         -11.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Sewer_SetF85/251"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_168_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         2.0,
+         0.55,
+         11.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       4.0,
+       0.2,
+       4.0
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_168_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         3.8,
+         0.76,
+         11.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_168_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         3.2,
+         0.76,
+         11.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_168_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         2.6,
+         0.76,
+         11.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_168_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         2.0,
+         0.76,
+         11.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_168_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         1.4,
+         0.76,
+         11.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_168_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.8,
+         0.76,
+         11.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_168_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.2,
+         0.76,
+         11.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_168_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         2.0,
+         0.8,
+         11.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       4.2,
+       0.12,
+       0.25
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_168_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3,
+         0.84,
+         11.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3,
+       0.3,
+       1.2
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Sewer_SetF85_168_Grate"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Sewer_SetF85/252"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Sewer_SetF85_169_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         50.0,
+         0.55,
+         183.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       5.0,
+       0.3,
+       5.0
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -50.0,
+         -0.55,
+         -183.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Sewer_SetF85/252"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_169_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         50.0,
+         0.55,
+         183.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       4.0,
+       0.2,
+       4.0
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_169_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         51.8,
+         0.76,
+         183.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_169_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         51.2,
+         0.76,
+         183.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_169_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         50.6,
+         0.76,
+         183.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_169_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         50.0,
+         0.76,
+         183.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_169_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         49.4,
+         0.76,
+         183.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_169_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         48.8,
+         0.76,
+         183.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_169_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         48.2,
+         0.76,
+         183.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_169_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         50.0,
+         0.8,
+         183.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       4.2,
+       0.12,
+       0.25
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_169_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         47.7,
+         0.84,
+         183.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3,
+       0.3,
+       1.2
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Sewer_SetF85_169_Grate"
+  },
+  {
+   "className": "Model",
+   "attributes": {
+    "Rojo_Target_PrimaryPart": "CatCafe_Sewer_SetF85/253"
+   },
+   "children": [
+    {
+     "name": "CatCafe_Sewer_SetF85_170_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         50.0,
+         0.55,
+         -65.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       5.0,
+       0.3,
+       5.0
+      ],
+      "Color": [
+       0.5451,
+       0.5608,
+       0.6
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "PivotOffset": {
+       "CFrame": {
+        "position": [
+         -50.0,
+         -0.55,
+         65.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "attributes": {
+      "Rojo_Id": "CatCafe_Sewer_SetF85/253"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_170_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         50.0,
+         0.55,
+         -65.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       4.0,
+       0.2,
+       4.0
+      ],
+      "Color": [
+       0.1686,
+       0.1686,
+       0.2078
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_170_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         51.8,
+         0.76,
+         -65.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_170_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         51.2,
+         0.76,
+         -65.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_170_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         50.6,
+         0.76,
+         -65.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_170_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         50.0,
+         0.76,
+         -65.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_170_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         49.4,
+         0.76,
+         -65.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_170_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         48.8,
+         0.76,
+         -65.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_170_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         48.2,
+         0.76,
+         -65.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2,
+       0.15,
+       4.0
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_170_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         50.0,
+         0.8,
+         -65.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       4.2,
+       0.12,
+       0.25
+      ],
+      "Color": [
+       0.6627,
+       0.6863,
+       0.7216
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Sewer_SetF85_170_Grate",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         47.7,
+         0.84,
+         -65.0
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3,
+       0.3,
+       1.2
+      ],
+      "Color": [
+       0.4784,
+       0.2902,
+       0.1647
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": true,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    }
+   ],
+   "properties": {
+    "WorldPivotData": {
+     "OptionalCFrame": {
+      "position": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "name": "CatCafe_Sewer_SetF85_170_Grate"
   }
  ],
  "properties": {

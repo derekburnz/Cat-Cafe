@@ -31,7 +31,8 @@ return function()
 			for _, plain in { nil :: any, "", Jukebox.DEFAULT } do
 				local ok, pick = Jukebox.pickFor(plain)
 				expect(ok).to.equal(true)
-				expect(pick).to.equal(nil)
+				expect(pick).to.equal(Jukebox.DEFAULT) -- saved, so the choice is kept
+				expect(Jukebox.shown(pick)).to.equal(nil) -- and shows as the rotation
 			end
 			for _, track in Jukebox.TRACKS do
 				local ok, pick = Jukebox.pickFor(track.id)
@@ -42,8 +43,9 @@ return function()
 			expect(Jukebox.pickFor("nope")).to.equal(false)
 			expect(Jukebox.pickFor(5)).to.equal(false)
 			expect(Jukebox.pickFor({})).to.equal(false)
-			expect(Jukebox.shown("nope")).to.equal(nil)
-			expect(Jukebox.shown(nil)).to.equal(nil)
+			-- never picked, or a stale id: Shuffle by default (Derek2, 2026-11-07)
+			expect(Jukebox.shown("nope")).to.equal(Jukebox.SHUFFLE)
+			expect(Jukebox.shown(nil)).to.equal(Jukebox.SHUFFLE)
 		end)
 
 		it("keeps the pass id in Config so earlier buyers see no errors", function()
@@ -57,6 +59,8 @@ return function()
 			raw.jukebox = "nope"
 			expect((ProfileSchema.migrate(raw, 1000) :: any).jukebox).to.equal(nil)
 			expect(ProfileSchema.template(1000).jukebox).to.equal(nil)
+			raw.jukebox = Jukebox.DEFAULT
+			expect((ProfileSchema.migrate(raw, 1000) :: any).jukebox).to.equal(Jukebox.DEFAULT)
 		end)
 	end)
 

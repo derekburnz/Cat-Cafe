@@ -1224,6 +1224,12 @@ local function placeChildren(self, x, y, aw, ah, kk, clip, inScroll, gui)
 		local windowW, windowH = aw, ah
 		if ch > ah + 0.5 and direction ~= "X" then
 			windowW = aw - bar
+			-- #2294: the rows are laid out in the window left beside the bar, so the canvas is measured at that width
+			-- too (a grid one column narrower there is a row taller)
+			if autoY and not autoX then
+				local _, eh = contentExtent(self, windowW, 0, kk)
+				ch = math.max(ch, eh)
+			end
 		end
 		if cw > aw + 0.5 and direction ~= "Y" then
 			windowH = ah - bar

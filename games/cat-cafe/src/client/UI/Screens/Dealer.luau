@@ -192,7 +192,7 @@ function Dealer.new(callbacks: Callbacks): Dealer
 			Padding = UDim.new(0, Theme.sizes.gap),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		Create("UIPadding", { PaddingRight = UDim.new(0, 10), PaddingBottom = UDim.new(0, 6) }),
+		Outline.listPadding(10, 6), -- #2294: room for the cards' outlines
 	})
 	-- before the first DealerStock arrives, or when every food in it is unknown
 	self._empty = text({

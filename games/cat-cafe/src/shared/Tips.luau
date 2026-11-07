@@ -56,6 +56,8 @@ Tips.LIKE_ASK = "like_ask"
 Tips.FAVORITE_ASK = "favorite_ask" -- F96
 Tips.NOTIFY_ASK = "notify_ask" -- F96
 Tips.INVITE_ASK = "invite_ask" -- F92: the one invite nudge, after the first rank up
+-- #2313: the notification ask waits for this much play (with the first rank up) or a second day
+Tips.NOTIFY_PLAY_SECONDS = 30 * 60
 -- The asks in the order `dueAsk` offers them (starter-cat.md section 3's table, then F92's invite nudge).
 Tips.ASKS = table.freeze({ Tips.NOTIFY_ASK, Tips.FAVORITE_ASK, Tips.LIKE_ASK, Tips.INVITE_ASK })
 Tips.FEEDBACK_ASK = "feedback_ask"
@@ -137,19 +139,28 @@ local function securedLegendary(profile: Types.PlayerProfile): boolean
 end
 
 -- The ask whose moment has come, or nil (F96, starter-cat.md section 3), in ASKS order: none before the first loop
--- (tutorialStep 5); the notification ask after the first bait cat is tamed, once, then again at most once
--- NOTIFY_RETRY_SECONDS after `notifyAskAt` (os.time() when it first showed, 0 before); the favorite ask from Tier 2;
+-- (tutorialStep 5); the notification ask (#2313, Derek2: "move the notification turn on prompt for much later in
+-- gameplay") once `playSeconds` (PlayTime.seconds: saved play plus this session) reaches NOTIFY_PLAY_SECONDS with the
+-- first rank up done, or on a later UTC day than the account's first, whichever comes first; once, then again at most
+-- once NOTIFY_RETRY_SECONDS after `notifyAskAt` (os.time() when it first showed, 0 before); the favorite ask from Tier 2;
 -- the like ask once a Legendary or Mythical is in the collection or on a later UTC day (`day`, os.time() // 86400)
 -- than the account's first; F92's invite nudge from Tier 2, after the others. The caller sends at most one a session;
 -- the client waits for a quiet moment.
-function Tips.dueAsk(profile: Types.PlayerProfile, now: number, day: number): string?
+function Tips.dueAsk(
+	profile: Types.PlayerProfile,
+	now: number,
+	day: number,
+	playSeconds: number?
+): string?
 	if profile.tutorialStep < 5 then
 		return nil
 	end
 	local seen = profile.tipsSeen
 	if
 		seen[Tips.NOTIFY_ASK] ~= true
-		and profile.stats.baitsTamed >= 1
+		and (((playSeconds or profile.stats.playtimeSeconds) >= Tips.NOTIFY_PLAY_SECONDS and Economy.tier(
+			profile
+		) >= 2) or day > profile.telemetry.firstDay)
 		and (profile.notifyAskAt <= 0 or now - profile.notifyAskAt >= Tips.NOTIFY_RETRY_SECONDS)
 	then
 		return Tips.NOTIFY_ASK

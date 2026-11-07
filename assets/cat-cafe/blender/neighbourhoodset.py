@@ -76,6 +76,7 @@ COLOURS = {                          # wall, roof, trim for each house variant (
     "C": ("pastel_butter", "terracotta", "offwhite"), "C2": ("blush", "dark_wood", "offwhite"),
     "C3": ("mint", "terracotta", "offwhite"),
     "D": ("pastel_sky", "terracotta", "offwhite"), "D2": ("pastel_butter", "pants_navy", "offwhite"),
+    "D3": ("pastel_lilac", "dark_wood", "offwhite"), "D4": ("mint", "pants_navy", "offwhite"),     # #2240
 }
 
 

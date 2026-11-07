@@ -42,7 +42,7 @@ return function()
 		GoldChanceRescue = 0.12,
 		RescuedTipsMultiplier = 1.0, -- v0.3 (F22): a rescue pays no more; its reward is the gold chance
 		GrabRangeStuds = 10,
-		CatchHoldSeconds = 0.5, -- Derek 2026-10-27: hold E to start a catch or a rescue
+		CatchHoldSeconds = 0.5, -- Derek 2026-10-27: hold E to start a catch (a rescue is one press since #2335)
 		GrabRetrySeconds = 2,
 		-- v0.4 catching stakes (F34, section 10 step 5); v0.5 the chase after a miss (F40)
 		StrayFleeSpeed = 26,
@@ -64,7 +64,7 @@ return function()
 		TrustPerfect = 3,
 		TrustGood = 2,
 		TrustMiss = -2,
-		CatchSpareRings = 2,
+		CatchSpareRings = 16, -- #2332
 		DoubleRingChance = 0.25,
 		DoubleRingGap = 0.35,
 		PawRingChance = 1 / 6,
@@ -808,11 +808,11 @@ return function()
 		)
 
 		it(
-			"the rescue bar matches the section 10b table: rarer is faster with less time in the zone (v0.13.15 F83, #2219)",
+			"the rescue bar matches the section 10b table: rarer is faster with less time in the zone (v0.13.15 F83, #2219, #2320)",
 			function()
 				local rows = {
-					Common = { 1.0, 0.26 },
-					Rare = { 1.2, 0.20 },
+					Common = { 0.85, 0.30 }, -- #2320
+					Rare = { 1.05, 0.23 }, -- #2320
 					Epic = { 1.4, 0.15 },
 					Legendary = { 1.6, 0.12 },
 					Mythical = { 1.8, 0.14 },

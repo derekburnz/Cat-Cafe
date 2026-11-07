@@ -569,12 +569,15 @@ function Trade._buildConfirm(self: any, content: Frame)
 			Text = title,
 			Parent = confirm,
 		})
+		-- #2294: the strip reaches Outline.ROOM past the cards at the left and top and pads them back, so the cards
+		-- sit where they did with their rings whole
+		local room = Outline.ROOM
 		local scroll: ScrollingFrame = Create("ScrollingFrame", {
 			Name = name,
 			BackgroundTransparency = 1,
 			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(CONFIRM_TITLE_W, y),
-			Size = UDim2.new(1, -CONFIRM_TITLE_W, 0, cardH + 8),
+			Position = UDim2.fromOffset(CONFIRM_TITLE_W - room, y - room),
+			Size = UDim2.new(1, -CONFIRM_TITLE_W + room, 0, cardH + 8 + room),
 			CanvasSize = UDim2.new(),
 			AutomaticCanvasSize = Enum.AutomaticSize.X,
 			ScrollingDirection = Enum.ScrollingDirection.X,
@@ -587,6 +590,10 @@ function Trade._buildConfirm(self: any, content: Frame)
 				Padding = UDim.new(0, GAP),
 				SortOrder = Enum.SortOrder.LayoutOrder,
 			}),
+			Create(
+				"UIPadding",
+				{ PaddingLeft = UDim.new(0, room), PaddingTop = UDim.new(0, room) }
+			),
 		})
 		local nothing = text({
 			Name = "Nothing",

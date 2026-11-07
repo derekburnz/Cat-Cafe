@@ -2963,6 +2963,9 @@ end
 -- limit for one function's locals; the module was at 196). Its tables are made out here, so every use of them
 -- type checks.
 UI.catch = {}
+-- #2315: PromptShown said the active cat prompt is pressed by touch (a field: bindProximityPrompts's scope is at
+-- Luau's 200 local limit)
+UI.catch.promptTouch = false
 UI.rescue = {}
 do
 	----------------------------------------------------------------------------------------------------
@@ -3006,6 +3009,7 @@ do
 			kind = info.kind,
 			rescueSpotId = info.rescueSpotId,
 			press = info.press,
+			touch = info.touch,
 			shiny = info.shiny,
 			rainbow = info.rainbow,
 			fleeingUntil = info.fleeingUntil,
@@ -3202,7 +3206,7 @@ do
 	end
 
 	-- CatchResult. grades run up to and including the first Miss; charmGain is 0 on a miss. retryAt (F57, miss only) is
-	-- the server time this player may try the stray again; the card reads "Catch your breath..." until then.
+	-- the server time this player may try the stray again; the card reads "Cooling down Ns" until then (#2324).
 	-- Catch v3 (#1884): the finish UI.catch.finished kept for this stray (or given here, as the UI gate does) picks
 	-- the banner
 	function UI.catch.showGrades(
@@ -3493,6 +3497,7 @@ do
 				then dropOwnerUntil
 				else nil,
 			press = prompt.HoldDuration <= 0,
+			touch = prompt == activePrompt and UI.catch.promptTouch == true,
 			shiny = gold == true,
 			rainbow = variant == "rainbow",
 			kind = kind,
@@ -3591,6 +3596,7 @@ do
 				return
 			end
 			activePrompt = prompt
+			UI.catch.promptTouch = inputType == Enum.ProximityPromptInputType.Touch
 			watchStray(prompt)
 			UI.catch.show(infoFromPrompt(prompt))
 		end

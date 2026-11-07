@@ -9,6 +9,7 @@
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
@@ -101,12 +102,7 @@ function TradeLog.new(callbacks: Callbacks): TradeLog
 			"UIListLayout",
 			{ Padding = UDim.new(0, GAP), SortOrder = Enum.SortOrder.LayoutOrder }
 		),
-		Create("UIPadding", {
-			PaddingTop = UDim.new(0, 2),
-			PaddingBottom = UDim.new(0, 4),
-			PaddingLeft = UDim.new(0, 2),
-			PaddingRight = UDim.new(0, 8),
-		}),
+		Outline.listPadding(8), -- #2294: room for the cards' outlines
 	}) :: ScrollingFrame
 	self._empty = text({
 		Name = "Empty",
@@ -151,12 +147,15 @@ function TradeLog._line(_self: any, card: Frame, name: string, title: string, y:
 		Text = title,
 		Parent = card,
 	})
+	-- #2294: the strip reaches Outline.ROOM past the tiles on every side and pads them back, so the tiles sit where
+	-- they did with their rings whole
+	local room = Outline.ROOM
 	local scroll: ScrollingFrame = Create("ScrollingFrame", {
 		Name = name,
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(LEFT_W + LABEL_W, y),
-		Size = UDim2.new(1, -(LEFT_W + LABEL_W + PAD), 0, TILE),
+		Position = UDim2.fromOffset(LEFT_W + LABEL_W - room, y - room),
+		Size = UDim2.new(1, -(LEFT_W + LABEL_W + PAD) + room * 2, 0, TILE + room * 2),
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.X,
 		ScrollingDirection = Enum.ScrollingDirection.X,
@@ -168,6 +167,7 @@ function TradeLog._line(_self: any, card: Frame, name: string, title: string, y:
 			Padding = UDim.new(0, 4),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
+		Outline.listPadding(),
 	})
 	local nothing = text({
 		Name = name .. "Nothing",

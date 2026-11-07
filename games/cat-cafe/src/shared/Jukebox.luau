@@ -2,12 +2,15 @@
 -- The cafe Jukebox (#1168 row 2, made free on #1875 by Derek2 2026-11-06), pure: four extra cafe songs any player
 -- may pick to play in place of the day and night rotation. Cosmetic only, and free: there is no pass check.
 -- Config.JukeboxPassId stays (the pass is off sale) so earlier buyers see no errors; their saved picks keep working.
--- profile.jukebox is the pick, nil for the normal rotation. Each track's `cue` is the client Audio cue (Audio/Cues);
+-- profile.jukebox is the pick: a track, SHUFFLE, DEFAULT for the normal rotation, or nil for never picked.
+-- #2077 follow-up (Derek2, 2026-11-07): a player who never picked hears Shuffle, so nil shows as SHUFFLE; picking the
+-- rotation now saves DEFAULT so that choice is kept. Each track's `cue` is the client Audio cue (Audio/Cues);
 -- the client plays the pick while the cafe music would play.
 --   owned() -> { id }              every track id (all are free)
---   shown(pick) -> id?             the pick if it is a known track or SHUFFLE, else nil (the rotation)
---   pickFor(raw) -> (ok, id?)      what SetJukeboxTrack may save: nil/""/"default", SHUFFLE or a known track
---   sanitizePick(raw) -> id?       a saved pick made whole (a known id, SHUFFLE or nil)
+--   shown(pick) -> id?             a known track or SHUFFLE as itself, DEFAULT as nil (the rotation), anything else
+--                                  (never picked) as SHUFFLE
+--   pickFor(raw) -> (ok, id?)      what SetJukeboxTrack may save: DEFAULT (for nil/""/"default"), SHUFFLE or a track
+--   sanitizePick(raw) -> id?       a saved pick made whole (a known id, SHUFFLE, DEFAULT or nil)
 -- #2077 (Derek2): SHUFFLE is a saved pick of its own, "play the Jukebox songs in a random order"; the client picks
 -- the order. It is not a track: get(SHUFFLE) is nil and owned() doesn't list it.
 
@@ -15,7 +18,7 @@ local Jukebox = {}
 
 export type Track = { id: string, name: string, cue: string }
 
-Jukebox.DEFAULT = "default" -- the normal day and night rotation; "" and nil mean the same
+Jukebox.DEFAULT = "default" -- the normal day and night rotation, saved as itself; "" asks for it too
 Jukebox.SHUFFLE = "shuffle" -- #2077: every Jukebox song in a random order
 
 local TRACKS: { Track } = {
@@ -53,15 +56,17 @@ local function known(pick: unknown): boolean
 end
 
 function Jukebox.shown(pick: string?): string?
-	if not known(pick) then
+	if pick == Jukebox.DEFAULT then
 		return nil
+	elseif not known(pick) then
+		return Jukebox.SHUFFLE -- never picked (or a stale id): Shuffle by default
 	end
 	return pick
 end
 
 function Jukebox.pickFor(raw: unknown): (boolean, string?)
 	if raw == nil or raw == "" or raw == Jukebox.DEFAULT then
-		return true, nil
+		return true, Jukebox.DEFAULT
 	end
 	if not known(raw) then
 		return false, nil
@@ -70,7 +75,7 @@ function Jukebox.pickFor(raw: unknown): (boolean, string?)
 end
 
 function Jukebox.sanitizePick(raw: unknown): string?
-	return if known(raw) then raw :: string else nil
+	return if known(raw) or raw == Jukebox.DEFAULT then raw :: string else nil
 end
 
 return Jukebox

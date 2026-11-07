@@ -126,6 +126,7 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 	local self = setmetatable({}, BaitBowl) :: any
 	self._callbacks = callbacks
 	self._rows = {} :: { [string]: any }
+	self._foods = {} :: { Types.LureDef } -- the catalog's foods, rarest first (_buildRows)
 	self._catalog = nil :: Types.Catalog?
 	self._state = nil :: Types.PlayerState?
 	self._baits = {} :: { [number]: Types.BaitView? } -- #1161: bowl 1's and bowl 2's
@@ -295,7 +296,7 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 			Padding = UDim.new(0, Theme.sizes.gap),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		Create("UIPadding", { PaddingRight = UDim.new(0, 10), PaddingBottom = UDim.new(0, 6) }),
+		Outline.listPadding(10, 6), -- #2294: room for the cards' outlines
 	})
 
 	-- #1161, #1767: under the locked bowl 2's card, what the pass gives in three short lines
@@ -400,6 +401,8 @@ function BaitBowl._buildRows(self: any)
 	-- every food in rarity order, the night dealer's among the shop's (F97 section 3); rarest first since #1609
 	-- (Derek2 11-05), as the Bag's Bait tab
 	local foods: { Types.LureDef } = FoodOrder.defs(catalog.lures, true)
+	self._foods = foods
+	self._ownedSignature = nil -- render puts the foods the player has first (#2323)
 	-- on a phone Use and Details grow to a 44 px face and the card's top with them, as in the dealer's list
 	local buttonH = Scale.tapHeight(BUTTON.Y, Theme.sizes.buttonDepth)
 	local detailsH = Scale.tapHeight(DETAILS_H, Theme.sizes.buttonDepth)
@@ -704,6 +707,23 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 	self._oddsCard.Visible = locked
 	if locked then
 		self:_renderPerks(luck)
+	end
+	-- #2323: the foods the player has first, rarest at the top, then the rest; rows move only when that set changes
+	local mine: { string } = {}
+	for _, lure in self._foods do
+		if (state.lures[lure.id] or 0) > 0 then
+			table.insert(mine, lure.id)
+		end
+	end
+	local signature = table.concat(mine, ",")
+	if signature ~= self._ownedSignature then
+		self._ownedSignature = signature
+		for index, lure in FoodOrder.ownedFirst(self._foods, state.lures) do
+			local row = self._rows[lure.id]
+			if row then
+				row.frame.LayoutOrder = index
+			end
+		end
 	end
 	for lureId, row in self._rows do
 		row.frame.Visible = not locked -- the locked tab shows what bowl 2 gives in place of the foods

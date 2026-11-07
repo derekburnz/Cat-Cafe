@@ -266,6 +266,7 @@ return function()
 		local function ready(): any
 			local profile = settled()
 			profile.stats.baitsTamed = 1
+			profile.stats.playtimeSeconds = Tips.NOTIFY_PLAY_SECONDS
 			profile.tier = 2
 			profile.collection[legendaryId()] = NOW
 			return profile
@@ -303,11 +304,27 @@ return function()
 			expect(Tips.dueAsk(profile, NOW, TODAY + 9)).to.equal(nil)
 		end)
 
-		it("asks for notifications after the first bait cat is tamed, and once more 30 days after", function()
+		it("asks for notifications after 30 minutes and the first rank up, or on a second day (#2313)", function()
+			local HALF_HOUR = Tips.NOTIFY_PLAY_SECONDS
+			expect(HALF_HOUR).to.equal(30 * 60)
 			local profile = settled()
-			expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(nil)
-			profile.stats.baitsTamed = 1
+			profile.stats.baitsTamed = 3 -- no longer the trigger
+			expect(Tips.dueAsk(profile, NOW, TODAY, 99 * 60)).to.equal(nil) -- Tier 1, however long
+			profile.tier = 2
+			profile.tipsSeen[Tips.FAVORITE_ASK] = true -- so the favorite ask (also Tier 2) does not answer first
+			profile.tipsSeen[Tips.INVITE_ASK] = true
+			expect(Tips.dueAsk(profile, NOW, TODAY, HALF_HOUR - 1)).to.equal(nil)
+			expect(Tips.dueAsk(profile, NOW, TODAY, HALF_HOUR)).to.equal(Tips.NOTIFY_ASK)
+			-- without the session's seconds it reads the saved play
+			profile.stats.playtimeSeconds = HALF_HOUR
 			expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(Tips.NOTIFY_ASK)
+			-- a second day is enough on its own, still past the first loop
+			local back = settled()
+			expect(Tips.dueAsk(back, NOW, TODAY, 60)).to.equal(nil)
+			back.tipsSeen[Tips.LIKE_ASK] = true -- the like ask also opens on a later day
+			expect(Tips.dueAsk(back, NOW, TODAY + 1, 60)).to.equal(Tips.NOTIFY_ASK)
+			back.tutorialStep = 4
+			expect(Tips.dueAsk(back, NOW, TODAY + 1, 60)).to.equal(nil)
 			-- shown once and dismissed: it waits the 30 days
 			profile.notifyAskAt = NOW
 			expect(Tips.NOTIFY_RETRY_SECONDS).to.equal(30 * 86400)
@@ -329,6 +346,9 @@ return function()
 		it("asks for a like after a first Legendary or better, or on a later day than the first", function()
 			local profile = settled()
 			expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(nil)
+			-- a later day opens the notification ask first (#2313), then the like ask
+			expect(Tips.dueAsk(profile, NOW + 86400, TODAY + 1)).to.equal(Tips.NOTIFY_ASK)
+			profile.tipsSeen[Tips.NOTIFY_ASK] = true
 			expect(Tips.dueAsk(profile, NOW + 86400, TODAY + 1)).to.equal(Tips.LIKE_ASK)
 			profile.collection[legendaryId()] = NOW
 			expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(Tips.LIKE_ASK)

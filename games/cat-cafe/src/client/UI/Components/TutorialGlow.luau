@@ -6,12 +6,14 @@
 -- its edge), so the target's own UIStroke stays as it is (a GuiObject draws only one UIStroke) and the HUD grid's
 -- spacing check still measures the tile alone.
 --   set(target, on)   puts the outline on the target, or takes it off; calling it again with the same answer is free
+-- #2314: each glowing target also gets Components/TutorialArrow, the big arrow pointing at it for a while.
 
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 
 local Create = require(script.Parent.Create)
 local Theme = require(script.Parent.Parent.Theme)
+local TutorialArrow = require(script.Parent.TutorialArrow)
 
 local TutorialGlow = {}
 
@@ -28,12 +30,14 @@ function TutorialGlow.set(target: GuiObject?, on: boolean)
 	if not on then
 		if existing then
 			existing:Destroy()
+			TutorialArrow.remove(target) -- #2314: the arrow goes with the glow
 		end
 		return
 	end
 	if existing then
 		return
 	end
+	TutorialArrow.add(target) -- #2314: and a big arrow points at it for a while
 	local still = GuiService.ReducedMotionEnabled
 	local frame: Frame = Create("Frame", {
 		Name = TutorialGlow.NAME,

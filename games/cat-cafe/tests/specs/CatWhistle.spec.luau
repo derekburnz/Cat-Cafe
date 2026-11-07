@@ -25,4 +25,12 @@ return function()
 			expect(CatWhistle.pick(Vector3.zero, list, CatWhistle.REACH)).to.equal(stray)
 		end)
 	end)
+
+	describe("CatWhistle.label (#2110)", function()
+		it("names the marked cat with its coat instead of Stray nearby", function()
+			expect(CatWhistle.label("Forest Cat", "rainbow")).to.equal("🐾 Rainbow Forest Cat")
+			expect(CatWhistle.label("Forest Cat", "base")).to.equal("🐾 Forest Cat")
+			expect(CatWhistle.label(nil, nil)).to.equal("🐾 Cat")
+		end)
+	end)
 end

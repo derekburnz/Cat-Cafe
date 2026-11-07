@@ -3087,6 +3087,42 @@ local SCENES = {
 		counting:Disconnect()
 		UI.update({ tipsSeen = before } :: any)
 	end },
+	-- #2302 (Derek2: "add tackling somewhere in tutorial or something if it's not already"): the "tackle them" card,
+	-- with the key or button for this device, on one card that fits, saved as seen
+	{ "TackleTryTip", function()
+		local before: any = (UI.getState() :: any).tipsSeen or {}
+		local tipsSeen = table.clone(before)
+		for _, def in UIShim.require("ReplicatedStorage.Shared.Tips").LIST do
+			tipsSeen[def.id] = true
+		end
+		tipsSeen.tackle_try = nil
+		UI.update({ tipsSeen = tipsSeen } :: any)
+		local seen: { string } = {}
+		local counting = UI.events.tipSeen:Connect(function(id: string)
+			table.insert(seen, id)
+		end)
+		UIShim.advance(61) -- past TipGapSeconds after an earlier scene's tip
+		UI.tips.show("tackle_try")
+		UIShim.advance(1)
+		local line: TextLabel? = nil
+		for _, label in UIShim.playerGui:GetDescendants() do
+			if label:IsA("TextLabel") and label.Text:find("tackle them and grab their cat", 1, true) then
+				line = label
+			end
+		end
+		assert(line and line.Visible, "uigate: the tackle_try tip did not show (#2302)")
+		local text = (line :: TextLabel).Text
+		assert(
+			text == "Press Q to tackle them and grab their cat!"
+				or text == "Tap Tackle to tackle them and grab their cat!"
+				or text == "Press Y to tackle them and grab their cat!",
+			"uigate: the tackle_try tip reads " .. text .. " (#2302)"
+		)
+		assert((line :: TextLabel).TextFits, "uigate: the tackle_try tip's line does not fit its card (#2302)")
+		assert(table.find(seen, "tackle_try"), "uigate: the tackle_try tip was not saved as seen (#2302)")
+		counting:Disconnect()
+		UI.update({ tipsSeen = before } :: any)
+	end },
 	-- #2198 (Derek2: "a forced cut scene after first catch"): the server's tackle tip plays as the tackling lesson on
 	-- the intro's screen: four captions with four dots, the read bar and Next, no Skip; it ends by itself and saves
 	-- the tip as seen

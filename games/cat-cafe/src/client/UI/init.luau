@@ -4041,6 +4041,7 @@ UI.asks = {}
 do
 	local Tips = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Tips")) :: any
 	local TackleLessonLogic = require(script.Components.TackleLessonLogic) -- #2198
+	local TackleTry = require(script.Components.TackleTry) -- #2302
 
 	local cutSeconds: number = math.min(3, (Config :: any).TipCutMaxSeconds or 4)
 	-- one table, as the module is short of locals
@@ -4200,6 +4201,9 @@ do
 		card:show(text, TipQueue.icon(id), TipQueue.CARD_SECONDS, function()
 			tipBusy = false
 		end)
+		if id == TackleTry.TIP and tackleBar ~= nil then
+			tackleBar:pulse() -- #2302: the bar the card talks about
+		end
 	end
 
 	local function characterPosition(): Vector3?
@@ -4243,6 +4247,21 @@ do
 		end
 		if not tipKnown("codes_cat") and taggedNear(TIP.CODES_TAG, from, TIP.CODES_RANGE) then
 			UI.tips.show("codes_cat")
+		end
+		-- #2302: after the tackling lesson, the first time a tackle could land on someone carrying a cat
+		local bar = tackleBar
+		if
+			bar ~= nil
+			and TackleTry.due({
+				lessonSeen = tipKnown("tackle"),
+				tried = tipKnown(TackleTry.TIP),
+				ready = bar:ready(),
+				from = from,
+				reach = (Config :: any).TackleLungeStuds or 12,
+				others = TackleTry.carriers(Players:GetPlayers(), Players.LocalPlayer),
+			})
+		then
+			UI.tips.show(TackleTry.TIP)
 		end
 	end
 

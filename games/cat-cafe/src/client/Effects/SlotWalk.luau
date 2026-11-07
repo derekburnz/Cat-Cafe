@@ -36,6 +36,7 @@ type Walk = {
 	model: Model,
 	copy: Model,
 	rig: Pose.Rig,
+	rest: { CFrame }, -- each part's frame at bind, in the copy's own floor space
 	hidden: { BasePart },
 	shown: { BasePart },
 	route: { Vector3 },
@@ -240,6 +241,14 @@ local function begin(model: Model, from: CFrame)
 		copy:Destroy()
 		return
 	end
+	-- the copy is this client's alone, so its pose is drawn from its parts as bound, every frame: whatever else moves
+	-- one of them between frames (Desktop-Tester 2026-11-07 read its body hundreds of studs off for a frame, and
+	-- earlier far below the map) is never read back as where the cat is
+	local floor0 = Pose.floor(rig)
+	local rest: { CFrame } = {}
+	for i, frame in rig.base do
+		rest[i] = floor0:ToObjectSpace(frame)
+	end
 	local hidden = partsOf(model)
 	setFade(hidden, 1)
 	model:SetAttribute(SlotWalk.MARK, true)
@@ -247,6 +256,7 @@ local function begin(model: Model, from: CFrame)
 		model = model,
 		copy = copy,
 		rig = rig,
+		rest = rest,
 		hidden = hidden,
 		shown = shown,
 		route = { start, goal },
@@ -315,23 +325,17 @@ local function advance(walk: Walk, now: number, dt: number): boolean
 		note(walk, "unread", position, nil)
 		return false
 	end
-	-- and if anything has put the copy's body far off its way (the -1e6 Desktop-Tester read), let the walk go rather
-	-- than redraw it from there; only a body truly lost trips this, not one a stud or two off its floor
-	local body = rig.body.Position
-	walk.copy:SetAttribute("WalkDrawn", position)
-	walk.copy:SetAttribute("WalkBody", body)
-	if
-		body ~= body
-		or Logic.flatDistanceToSegment(body, route[1], route[#route]) > s.lostStuds
-		or math.abs(body.Y - route[#route].Y) > s.lostStuds
-	then
-		note(walk, "lost", position, body)
-		return false
+	-- its pose from the parts as bound, its floor at the origin, which Pose.hold then moves onto the way
+	local base = rig.base
+	for i, frame in walk.rest do
+		base[i] = frame
 	end
 	Pose.hold(rig, CFrame.new(position) * CFrame.Angles(0, walk.yaw, 0))
 	local o = Logic.idle("stray", now + walk.phase, rig.kind)
 	Logic.gait(o, speed, walk.stride, 0)
 	Pose.draw(rig, o, -1)
+	walk.copy:SetAttribute("WalkDrawn", position)
+	walk.copy:SetAttribute("WalkBody", rig.body.Position)
 	local arrivedAt = walk.arrivedAt
 	if arrivedAt ~= nil then
 		local k = math.clamp((now - arrivedAt) / s.fade, 0, 1)

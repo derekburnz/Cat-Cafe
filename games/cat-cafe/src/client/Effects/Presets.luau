@@ -2262,7 +2262,7 @@ Presets.stuckMark = {
 	hideWithin = 10,
 	showAfter = 1, -- a hidden mark comes back only this far past hideWithin
 	lostAfter = 0.5, -- seconds out of view before it hides
-	gem = 0.8, -- studs: the cat's rarity gem over the "!", as big as a stray's (rarityMark.size)
+	gem = 1.4, -- studs: the cat's rarity gem and its halo over the "!" (#2231), as wide as the "!" mark
 	gemGap = 0.15,
 	seeThrough = 3, -- see-through parts a sight line passes before it gives up
 	most = 6,
@@ -3033,26 +3033,59 @@ Presets.decorFx = {
 -- maxDistance for the `most` nearest. A hidden gem comes back past hideWithin + showAfter (both 0, so at once).
 Presets.rarityMark = {
 	shows = { Common = true, Rare = true, Epic = true, Legendary = true, Mythical = true } :: { [string]: boolean },
-	glints = { Mythical = true } :: { [string]: boolean },
+	glints = { Legendary = true, Mythical = true } :: { [string]: boolean },
 	above = 0.9,
-	size = 0.8,
-	pixels = 16,
-	gem = 0.62,
+	-- #2231 (Derek2 2026-11-07: "make the gems that show raritys glow and be more obvious"): the billboard is twice
+	-- the old one, the gem a bit under half of it (about 1.5 times the old gem) and a halo in the rarity colour fills
+	-- the rest; the rim is the rarity colour lightened `rim` towards white, so it reads like neon at night
+	size = 1.6,
+	pixels = 30,
+	gem = 0.46,
 	corner = 0.18,
 	light = 0.45,
 	dark = 0.2,
-	outline = Presets.palette.milk,
-	outlinePixels = 2,
+	rim = 0.6,
+	outlinePixels = 2.5,
+	-- the halo: three soft rings, the outer the faintest, each `transparency` at full strength; how strong it is per
+	-- rarity (Common faint, Mythical full)
+	haloRings = {
+		{ scale = 1, transparency = 0.8 },
+		{ scale = 0.78, transparency = 0.66 },
+		{ scale = 0.6, transparency = 0.5 },
+	} :: { { scale: number, transparency: number } },
+	halo = { Common = 0.3, Rare = 0.5, Epic = 0.7, Legendary = 0.85, Mythical = 1 } :: { [string]: number },
+	haloRest = 0.92, -- of the billboard, while still
+	-- Epic and up breathe their halo out to `grow` times its rest size over `seconds` (one way), faster and further the
+	-- rarer; held still with Reduce Motion or Low performance
+	pulse = {
+		Epic = { seconds = 1.4, grow = 1.08 },
+		Legendary = { seconds = 1.1, grow = 1.14 },
+		Mythical = { seconds = 0.8, grow = 1.2 },
+	} :: { [string]: { seconds: number, grow: number } },
 	bob = 0.15,
 	bobSeconds = 0.9, -- one way
-	glintSize = 0.34,
+	glintSize = 0.3,
 	glintSeconds = 0.3, -- one way
-	glintEvery = 2.2,
+	glintEvery = { Legendary = 2.6, Mythical = 1.6 } :: { [string]: number }, -- seconds between glints
 	hideWithin = 0,
 	showAfter = 0,
 	maxDistance = 80,
 	most = 12,
 	checkEvery = 0.25,
+	-- #2258 (Derek2 2026-11-07: "show new tag if it's a cat you don't own yet for people index hunting"): a NEW pill
+	-- over the gem of a cat not in your Index yet, in leaf green (no rarity uses it), `width` by `height` of the
+	-- gem's square, its foot `overlap` down over the gem's top corner (it pokes a little over the billboard's top)
+	newTag = {
+		text = "NEW",
+		width = 0.72,
+		height = 0.26,
+		overlap = 0.05,
+		fill = Presets.palette.leaf,
+		textColour = Presets.palette.milk,
+		textOutline = Color3.fromRGB(36, 92, 40),
+		rim = Presets.palette.offwhite,
+		rimPixels = 2,
+	},
 }
 
 -- Walking through water (Derek 2026-10-28 01:33, Effects/Splash): feet count as in the water from `above` studs
@@ -3808,7 +3841,6 @@ Presets.slotWalk = {
 	detour = 24,
 	waypointRise = 8,
 	planWait = 0.4,
-	lostStuds = 200, -- a copy's body read this far off its way is lost (far below the map), and the walk lets go
 }
 
 Presets.bedWalk = { fade = 0.25 }

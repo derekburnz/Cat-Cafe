@@ -110,4 +110,23 @@ function BagLogic.catLine(level: number, xp: number?): string
 	return ("Level %d · %s XP to %d"):format(level, commas(left), level + 1)
 end
 
+-- #2196 (Derek2 11-07: "The food menu where you go to feed cats Lags the game so bad ... it should only render as
+-- you scroll"): which of `n` cat cards Feed's list builds. `above` is how far (in px) the run of cards starts above
+-- the list's top edge (negative while it starts below it), `view` the list's height and `pitch` one card plus the gap
+-- after it. The cards in view, and `buffer` more each side so a quick flick finds them made; (1, 0) for none.
+function BagLogic.feedWindow(
+	n: number,
+	above: number,
+	view: number,
+	pitch: number,
+	buffer: number
+): (number, number)
+	if n <= 0 or pitch <= 0 then
+		return 1, 0
+	end
+	local first = math.min(n, math.floor(math.max(0, above) / pitch) + 1)
+	local last = math.min(n, math.floor(math.max(0, above + math.max(view, 0)) / pitch) + 1)
+	return math.clamp(first - buffer, 1, n), math.clamp(last + buffer, 1, n)
+end
+
 return BagLogic

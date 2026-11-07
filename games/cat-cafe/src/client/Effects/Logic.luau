@@ -1609,6 +1609,35 @@ function Logic.rarityMarkShows(
 	return not locked and distance > near and distance <= r.maxDistance
 end
 
+-- This player's Index from ProfileSync (#2258): `collection` (every cat caught at least once), `gold` and `rainbow`
+-- (each cat's first gold or rainbow coat), each a cat id to the time it went in. Nil before the first sync.
+export type IndexSeen = {
+	collection: { [string]: unknown }?,
+	gold: { [string]: unknown }?,
+	rainbow: { [string]: unknown }?,
+}
+
+-- Whether a cat would be new to this player's Index if caught (#2258, Derek2 2026-11-07: "show new tag if it's a cat
+-- you don't own yet for people index hunting"): its cat id is not on the All Cats page, or it wears a gold or rainbow
+-- coat that page has not got yet. False while the Index is not known, so nothing flashes NEW before the first sync.
+function Logic.newToIndex(seen: IndexSeen?, catId: unknown, variant: unknown): boolean
+	if seen == nil or type(catId) ~= "string" then
+		return false
+	end
+	local all = seen.collection
+	if all == nil then
+		return false
+	end
+	if all[catId] == nil then
+		return true
+	end
+	local page = if variant == "gold"
+		then seen.gold
+		elseif variant == "rainbow" then seen.rainbow
+		else nil
+	return page ~= nil and page[catId] == nil
+end
+
 -- Whether a part is water players can walk through (Effects/Splash): its name ends in "Water" or "Puddle", as the
 -- placeholders' Water, every model's ..._Water and the Alley's puddles do; a WaterfallPond's rocks do not.
 function Logic.isWaterName(name: string): boolean
@@ -2018,6 +2047,13 @@ function Logic.along(points: { Vector3 }, travelled: number): (Vector3, Vector3,
 		end
 	end
 	return points[#points], heading, true
+end
+
+-- A rarity gem's halo ring (#2231): its BackgroundTransparency, `transparency` at full strength, fading to fully
+-- clear at strength 0 (strength 0 to 1, from Presets.rarityMark.halo).
+function Logic.haloTransparency(transparency: number, strength: number): number
+	local k = math.clamp(strength, 0, 1)
+	return 1 - (1 - transparency) * k
 end
 
 -- How far `point` lies from the segment `a` to `b`, across the floor (Y left out).

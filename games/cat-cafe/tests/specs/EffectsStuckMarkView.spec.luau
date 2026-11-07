@@ -35,7 +35,7 @@ return function()
 			local m = Presets.stuckMark
 			expect(m.gem > 0 and m.gem <= m.size).to.equal(true)
 			expect(m.gemGap > 0 and m.gemGap < m.gem).to.equal(true)
-			expect(m.gem).to.equal(Presets.rarityMark.size)
+			expect(m.gem <= Presets.rarityMark.size).to.equal(true) -- #2231: the gem and its halo, no wider than a stray's
 		end)
 
 		it("gives Common strays a gem in the Common colour", function()
@@ -70,7 +70,7 @@ return function()
 			expect(m.most).to.equal(6)
 			expect(m.lostAfter).to.equal(0.5)
 			expect(m.seeThrough).to.equal(3)
-			expect(m.gem).to.equal(0.8)
+			expect(m.gem).to.equal(1.4) -- #2231: the gem in its halo
 			expect(m.gemGap).to.equal(0.15)
 			expect(m.hideWithin).to.equal(10)
 			expect(m.hideWithin + m.showAfter).to.equal(11)

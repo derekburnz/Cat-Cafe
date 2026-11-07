@@ -44,6 +44,9 @@ type Mark = {
 	anchor: Attachment,
 	gem: boolean, -- the cat's rarity gem sits above the "!"
 	glint: Frame?,
+	halo: Frame?, -- the gem's halo (#2231), breathed for Epic and up
+	tag: Frame?, -- NEW over the gem while the cat is not in your Index (#2258)
+	rarity: string?,
 	tweens: { Tween },
 	shown: boolean,
 }
@@ -110,10 +113,13 @@ local function makeMark(model: Model): Mark?
 	gui.AlwaysOnTop = false -- walls and buildings in front hide it, as they hide the trap
 	gui.MaxDistance = m.maxDistance * 1.2 -- the check hides it first; this only stops a stale one drawing
 	gui.Enabled = false
+	gui.ClipsDescendants = false -- the NEW pill pokes a little over the top (#2258)
 	local label = Instance.new("TextLabel")
 	label.BackgroundTransparency = 1
 	label.Size = UDim2.fromScale(1, 1)
 	local glint: Frame? = nil
+	local halo: Frame? = nil
+	local tag: Frame? = nil
 	if gem then
 		-- the "!" along the bottom, the gem in a square over it; the billboard is raised by the gem's share so the
 		-- "!" stays where it stands without one
@@ -129,9 +135,13 @@ local function makeMark(model: Model): Mark?
 		holder.Position = UDim2.fromScale(0.5, 0)
 		holder.Size = UDim2.fromScale(m.gem / wide, m.gem / tall)
 		holder.Parent = gui
-		local built, spark = Rarity.buildGem(holder, rarity :: string)
+		local built, spark, ring = Rarity.buildGem(holder, rarity :: string)
 		gem = built
 		glint = spark
+		halo = ring
+		if built then
+			tag = Rarity.buildNewTag(holder)
+		end
 	end
 	label.FontFace = Font.fromEnum(Enum.Font.FredokaOne)
 	label.Text = "!"
@@ -143,7 +153,17 @@ local function makeMark(model: Model): Mark?
 	stroke.Parent = label
 	label.Parent = gui
 	gui.Parent = Context.folder()
-	return { gui = gui, anchor = anchor, gem = gem, glint = glint, tweens = {}, shown = false }
+	return {
+		gui = gui,
+		anchor = anchor,
+		gem = gem,
+		glint = glint,
+		halo = halo,
+		tag = tag,
+		rarity = if type(rarity) == "string" then rarity else nil,
+		tweens = {},
+		shown = false,
+	}
 end
 
 local function stopTweens(mark: Mark)
@@ -165,6 +185,14 @@ local function show(mark: Mark)
 	gui.Enabled = true
 	local up = Vector3.new(0, m.rise, 0)
 	local glint = mark.glint
+	local halo = mark.halo
+	local rarity = mark.rarity
+	if halo ~= nil and rarity ~= nil then
+		local pulse = Rarity.playPulse(halo, rarity)
+		if pulse ~= nil then
+			table.insert(mark.tweens, pulse)
+		end
+	end
 	if Context.reducedMotion() then
 		gui.Size = markSize(1, mark.gem)
 		gui.StudsOffsetWorldSpace = up
@@ -174,7 +202,7 @@ local function show(mark: Mark)
 		return
 	end
 	if glint ~= nil then
-		table.insert(mark.tweens, Rarity.playGlint(glint))
+		table.insert(mark.tweens, Rarity.playGlint(glint, mark.rarity))
 	end
 	gui.Size = markSize(0.2, mark.gem)
 	gui.StudsOffsetWorldSpace = Vector3.zero
@@ -306,6 +334,10 @@ local function check()
 		local mark = marks[model] or makeMark(model)
 		if mark ~= nil then
 			marks[model] = mark
+			local tag = mark.tag
+			if tag ~= nil then
+				tag.Visible = Rarity.isNew(model)
+			end
 			show(mark)
 		end
 	end

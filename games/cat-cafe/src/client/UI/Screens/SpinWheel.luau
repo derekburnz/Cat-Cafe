@@ -39,6 +39,7 @@ local Panel = require(script.Parent.Parent.Components.Panel)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
+local SkipKeys = require(script.Parent.Parent.Components.SkipKeys)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
 local Theme = require(script.Parent.Parent.Theme)
@@ -283,6 +284,46 @@ function SpinWheel.new(callbacks: Callbacks): SpinWheel
 	})
 	Outline.border(face, Theme.sizes.outline, Theme.colors.outline)
 	self._face = face
+	-- #2246 (Derek2 11-07: "Add the ability to skip spins"): while it turns a tap on the wheel skips it, as Skip, Space
+	-- and Enter do, and "Tap to skip" sits on the rim's foot
+	local skipTap: TextButton = Create("TextButton", {
+		Name = "SkipTap",
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 20,
+		Visible = false,
+		Parent = rim,
+	})
+	skipTap.Activated:Connect(function()
+		self:_press()
+	end)
+	self._skipTap = skipTap
+	local skipHint: TextLabel = Create("TextLabel", {
+		Name = "SkipHint",
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -2), -- on the rim's foot, inside the window's edge
+		Size = UDim2.fromOffset(120, 24),
+		BackgroundColor3 = Theme.colors.outline,
+		BackgroundTransparency = 0.1,
+		BorderSizePixel = 0,
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.white,
+		Text = SpinLogic.SKIP_HINT,
+		ZIndex = 21,
+		Visible = false,
+		Parent = rim,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	self._skipHint = skipHint
+	self._skipKeys = SkipKeys.connect(function()
+		local turn: Turn? = self._turn
+		local open: boolean = self.frame.Visible
+		return open and turn ~= nil and turn.skippable
+	end, function()
+		self:_press()
+	end)
 	-- the wedges turn with the wheel: one frame holds them all and takes the wheel's angle (_setAngle)
 	self._bars = {} :: { { frame: Frame, base: number, side: number, width: number } }
 	self._spans = {} :: { number } -- each slot's degrees (SpinLogic.spans)
@@ -1255,6 +1296,8 @@ function SpinWheel._refresh(self: any)
 	self._spinsLabel.Text = ("Spins: %d"):format(spins)
 
 	local turn: Turn? = self._turn
+	self._skipTap.Visible = turn ~= nil
+	self._skipHint.Visible = turn ~= nil and turn.skippable
 	local button = SpinLogic.button({
 		turning = turn ~= nil,
 		skippable = turn ~= nil and turn.skippable,
@@ -1277,6 +1320,7 @@ end
 
 function SpinWheel.destroy(self: any)
 	self._tick:Disconnect()
+	self._skipKeys:Disconnect()
 	for _, tile in self._tiles do
 		tile.icon:destroy()
 	end

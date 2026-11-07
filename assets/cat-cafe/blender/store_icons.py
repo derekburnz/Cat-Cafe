@@ -15,6 +15,8 @@ Passes
                   a gold awning over cakes in the windows
   ExtraSlot       a tuxedo cat in an apron on a cafe stool with a big mint +1 tag (one more cat at work)
   RoyalCat        Duchess Marzipan (the Royal Cat) in a big pearl-and-gold tiara, gold stars
+  KingCat         King Croissant on his own, drawn big like the Royal Cat, a big Mythical pink star and a gold one
+                  (#2180)
   KingPack        King Croissant on his red velvet cushion throne (shopcats.py)
   GoldenPond      a little stone pond with lily pads and a golden fish leaping out
   SecondBaitBowl  two food bowls heaped with kibble, a +1 tag on the second
@@ -356,6 +358,18 @@ def king_pack(mat):
     return cushion + cat + _fin(b, "KingPack", mat)
 
 
+def king_cat(mat):
+    """#2180: the King Cat pass, King Croissant on his own and drawn big like the Royal Cat (the King Cat Pack shows him
+    on his throne), with a big Mythical pink star, a gold one and twinkles."""
+    cat = place(_cat("KingCroissant", mat), yaw=-8)
+    b = Builder()
+    _star(b, 1.0, -0.3, 1.95, 0.3, sw="rarity_mythic")
+    _star(b, -0.9, -0.3, 1.45, 0.18)
+    _twinkle(b, -0.65, -0.4, 2.15, 0.26)
+    _twinkle(b, 1.35, -0.4, 1.25, 0.2)
+    return cat + _fin(b, "KingCat", mat)
+
+
 def golden_pond(mat):
     b = Builder()
     b.cyl((0, 0, 0.1), 1.25, 0.12, "pastel_sky", segments=28, scale=(1, 0.75, 1))              # the water
@@ -675,7 +689,8 @@ def thank_you_badge(mat):
 
 PASSES = {"Money2x": money("2"), "Money3x": money("3"), "Money4x": money("4"), "LongNap": long_nap, "VIP": vip,
           "Accessories": accessories_pass, "Uniforms": uniforms, "CafeStyle": cafe_style, "GrandTheme": grand_theme,
-          "ExtraSlot": extra_slot, "RoyalCat": royal_cat, "KingPack": king_pack, "GoldenPond": golden_pond,
+          "ExtraSlot": extra_slot, "RoyalCat": royal_cat, "KingCat": king_cat, "KingPack": king_pack,
+          "GoldenPond": golden_pond,
           "SecondBaitBowl": second_bait_bowl, "SignStylePack": sign_style_pack, "GardenDecorPack": garden_decor_pack,
           "Jukebox": jukebox}
 PRODUCTS = {"StarterBundle": starter_bundle, "PotionXS": potion_xs, "PotionS": potion_s, "PotionM": potion_m,
@@ -684,7 +699,8 @@ PRODUCTS = {"StarterBundle": starter_bundle, "PotionXS": potion_xs, "PotionS": p
 # name -> (yaw, pitch) for icons.py
 VIEWS = {"Money2x": (-16.0, 30.0), "Money3x": (-16.0, 30.0), "Money4x": (-16.0, 30.0), "LongNap": (-20.0, 26.0),
          "VIP": (-10.0, 8.0), "Accessories": (-24.0, 8.0), "Uniforms": (-24.0, 8.0), "CafeStyle": (-24.0, 12.0),
-         "GrandTheme": (-20.0, 10.0), "ExtraSlot": (-20.0, 18.0), "RoyalCat": (-24.0, 8.0), "KingPack": (-24.0, 12.0),
+         "GrandTheme": (-20.0, 10.0), "ExtraSlot": (-20.0, 18.0), "RoyalCat": (-24.0, 8.0), "KingCat": (-24.0, 8.0),
+         "KingPack": (-24.0, 12.0),
          "GoldenPond": (-14.0, 30.0), "SecondBaitBowl": (-20.0, 20.0), "StarterBundle": (-20.0, 16.0),
          "SignStylePack": (-8.0, 6.0), "GardenDecorPack": (-18.0, 24.0),
          "PotionXS": (-12.0, 8.0), "PotionS": (-14.0, 22.0), "PotionM": (-16.0, 26.0), "PotionL": (-16.0, 24.0),

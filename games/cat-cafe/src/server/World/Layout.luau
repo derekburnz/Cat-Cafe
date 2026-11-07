@@ -423,7 +423,10 @@ Layout.plot = {
 
 	-- The cat beds (F79, data-model 12c v0.13.13, Model-Agent's fit in #511): a CatCafe_Furniture_CatBed at each from
 	-- its tier, out by day as furniture, turned rotY degrees so its front (-Z) faces into the room. Two at Tier 3,
-	-- four at Tier 4 and six at Tier 5, exactly where the working slots outrun the cat trees' four pedestals.
+	-- four at Tier 4 and six at Tier 5, exactly where the working slots outrun the cat trees' four pedestals. #2047:
+	-- bed_7 and bed_8 (tier 6, which no tier reaches) stand only for the extra slots' cats (Layout.bedsOpen), so a
+	-- Tier 5 cafe with both pass-only waiters sleeps all 12; Laptop-Tester's fit (2026-11-07), each with a clear
+	-- 2.6 x 3 x 2.6 box on the floor and over 3.2 studs from every other bed.
 	beds = {
 		{ id = "bed_1", x = -20.3, y = 0, z = -15.4, rotY = -135, tier = 3 },
 		{ id = "bed_2", x = 20.3, y = 0, z = -15.4, rotY = 135, tier = 3 },
@@ -431,6 +434,8 @@ Layout.plot = {
 		{ id = "bed_4", x = 20.4, y = 0, z = 1.57, rotY = 90, tier = 4 }, -- past the Park bench's end
 		{ id = "bed_5", x = -20.4, y = 0, z = 10.32, rotY = -90, tier = 5 },
 		{ id = "bed_6", x = 20.4, y = 0, z = 10.32, rotY = 90, tier = 5 },
+		{ id = "bed_7", x = -20, y = 0, z = -3.5, rotY = -90, tier = 6 }, -- the left wall, past the fish tank
+		{ id = "bed_8", x = 20, y = 0, z = -5.5, rotY = 90, tier = 6 }, -- the right wall
 	} :: { BedSpot },
 }
 

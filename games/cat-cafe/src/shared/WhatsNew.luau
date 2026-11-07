@@ -33,6 +33,27 @@ WhatsNew.rows = table.freeze({
 	-- Derek2 (11-07): the changes merged since the 11-07 rows, as they ship; a playtester's report or suggestion is
 	-- thanked by Roblox username
 	{
+		id = "tackle_drops_cat",
+		date = "2026-11-07",
+		icon = "fix",
+		text = "Tackles always drop the cat",
+		thanks = "bgdevila",
+	},
+	{
+		id = "longer_days",
+		date = "2026-11-07",
+		icon = "look",
+		text = "Longer days in town",
+		thanks = "bgdevila",
+	},
+	{
+		id = "legendary_cards",
+		date = "2026-11-07",
+		icon = "look",
+		text = "Big cards only for Legendary",
+		thanks = "bgdevila",
+	},
+	{
 		id = "tackle_lesson",
 		date = "2026-11-07",
 		icon = "new",

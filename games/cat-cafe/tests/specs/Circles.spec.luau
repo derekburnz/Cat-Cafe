@@ -136,6 +136,25 @@ return function()
 			end
 		)
 
+		it("the first area's bands are 1.2 times as wide, and no other area's change (#2322)", function()
+			expect((Catalog.getArea("alley") :: any).catchWindowScale).to.equal(1.2)
+			for _, area in Catalog.areas do
+				for level = 0, 3 do
+					for _, rarity in Catalog.rarityOrder do
+						local plain = Circles.windowsFor(level, rarity)
+						local here = Circles.windowsFor(level, rarity, area.id)
+						local scale = if area.id == "alley" then 1.2 else 1
+						expect(here.perfect).to.be.near(plain.perfect * scale, 1e-12)
+						expect(here.good).to.be.near(plain.good * scale, 1e-12)
+					end
+				end
+			end
+			-- the widest Good, a Master Net Common in the Alleyway, still clears CircleGapMin with the latency cap (S24)
+			local widest = Circles.windowsFor(3, "Common", "alley").good
+			expect(widest + Config.CatchLatencyCapSeconds < Config.CircleGapMin).to.equal(true)
+			expect(Circles.windowsFor(0, "Common", "nowhere").good).to.equal(Circles.windowsFor(0, "Common").good)
+		end)
+
 		it("rarer is never wider, at every net", function()
 			for level = 0, 3 do
 				for i = 2, #Catalog.rarityOrder do

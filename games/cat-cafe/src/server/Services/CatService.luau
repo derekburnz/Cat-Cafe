@@ -1612,7 +1612,7 @@ function startCatch(
 	-- F83: the rarer the cat, the narrower its bands; CatchSchedule sends these, so the client draws the real ones
 	local windows = if tutorial
 		then Circles.tutorialWindows(netLevel)
-		else Circles.windowsFor(netLevel, stray.def.rarity)
+		else Circles.windowsFor(netLevel, stray.def.rarity, stray.area) -- #2322: wider in the first area
 	local circles = if tutorial
 		then Circles.tutorialSchedule(now, roll)
 		else Circles.schedule(stray.def.rarity, netLevel, now, roll)

@@ -2259,6 +2259,9 @@ Catalog.areas = {
 		rescueSpots = 3,
 		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.alley,
+		-- #2322 (Derek2: "lower the difficulty of catching cats from first zone a little bit so people get used to it
+		-- first"): bands 1.2 times as wide here, every rarity and net
+		catchWindowScale = 1.2,
 	},
 	{
 		id = "park",

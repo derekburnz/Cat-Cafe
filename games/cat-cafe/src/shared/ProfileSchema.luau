@@ -126,6 +126,9 @@ local ProfileSchema = {}
 -- firstWow, the guaranteed Rare-or-better bait set: an older server would drop them, paying the milestones again and
 -- guaranteeing another Rare by hopping servers during a rollout. A save from before it already at Tier 3 starts with
 -- the roadmap finished (nothing back-paid), and one that has set two baits or more has had its second bait.
+-- #1934 (no new version): stats.purrfectCatches, purrfectStreak, bestPurrfectStreak and teamRescuesHelped, for the
+-- Roblox badges (shared/Badges). An older server drops them, which only loses those counts: a badge already awarded
+-- stays on the player's Roblox account.
 -- Version 42 (#1947, like-prompts.md section 2) adds likeGift and favGift, the two once-per-account gifts for play
 -- time: an older server would drop them and pay each gift again. A save from before it gets them by its play time:
 -- one past 10 or 30 minutes already is paid on its next join.
@@ -198,6 +201,10 @@ local function newStats(): Types.Stats
 		weekBestRate = { week = 0, rate = 0 },
 		trades = 0, -- F102
 		tradesToday = { day = 0, count = 0 },
+		purrfectCatches = 0, -- #1934
+		purrfectStreak = 0,
+		bestPurrfectStreak = 0,
+		teamRescuesHelped = 0,
 	}
 end
 

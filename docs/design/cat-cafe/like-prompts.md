@@ -10,8 +10,8 @@ Roblox can't tell a game whether a player liked or favourited it, and the commun
 
 | when (time played, all sessions) | card | buttons | gift |
 |---|---|---|---|
-| 10 minutes, never in the first 5 | "Thanks for playing! Here's a gift. If you're enjoying the cafe, a thumbs-up helps other players find it." | **Like the game** (shows Roblox's own rating screen where the client can open it, otherwise "Tap the thumbs-up on the game page"), **Close** | 10 minutes of the player's current cafe income (the HUD rate, no potions) and 10 golden fish |
-| 30 minutes | "You've played 30 minutes! Here's another gift. Favourite the game to find it quickly next time." | **Favourite** (`AvatarEditorService:PromptSetFavorite` on the place), **Close** | 1 banked spin and 25 golden fish |
+| 10 minutes, never in the first 5 | "Thanks for playing! Here's a gift. If you're enjoying the cafe, a thumbs-up helps other players find it." | **Like the game** (shows Roblox's own rating screen where the client can open it, otherwise "Tap the thumbs-up on the game page"), **Close** | 15 minutes of the player's current cafe income (the HUD rate, no potions) and 1 Tip Potion (Set 10 Q3, Derek2 2026-11-07) |
+| 30 minutes | "You've played 30 minutes! Here's another gift. Favourite the game to find it quickly next time." | **Favourite** (`AvatarEditorService:PromptSetFavorite` on the place), **Close** | 30 minutes of the player's current cafe income and a small potion pack: 1 Tip, 1 Lucky and 1 Swift Potion (Set 10 Q3) |
 
 - **The gift is paid when the card shows**, before any button, so pressing Close or leaving still keeps it. The card says "Gift added!" with its pictures (at most two, F94).
 - **Once per account.** `likeGift` and `favGift` save flags (booleans) are set when each gift pays. Each card shows once and never comes back.

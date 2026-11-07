@@ -2616,6 +2616,33 @@ Catalog.codes = {
 		active = false,
 		prize = { coins = 1000, coinSeconds = 300, fish = 25 }, -- F94 (was also 2 spins and 3 Tuna)
 	},
+	-- #1937 (release.md section 4): the first four weeks' codes, coins only (about 10 minutes of income at most, no
+	-- fish, spins, potions or crates). Each ships off; that week's small PR turns it on, on its day. Each ends 60 days
+	-- after that day (launch-ops.md section 1), at 00:00 UTC. The old `launch` row above stays off and unused.
+	opening = {
+		id = "opening",
+		active = false, -- go wide, Thursday 2026-11-12
+		endsAt = 1799625600, -- 2027-01-11
+		prize = { coins = 1000, coinSeconds = 300 },
+	},
+	rally = {
+		id = "rally",
+		active = false, -- week 1, Saturday 2026-11-14
+		endsAt = 1799798400, -- 2027-01-13
+		prize = { coins = 1000, coinSeconds = 300 },
+	},
+	cozy = {
+		id = "cozy",
+		active = false, -- week 3, Saturday 2026-11-28
+		endsAt = 1801008000, -- 2027-01-27
+		prize = { coins = 1500, coinSeconds = 450 },
+	},
+	snowy = {
+		id = "snowy",
+		active = false, -- week 4, Saturday 2026-12-05, the Winter Cafe's start
+		endsAt = 1801612800, -- 2027-02-03
+		prize = { coins = 2000, coinSeconds = 600 },
+	},
 	group = {
 		id = "group",
 		active = true, -- #1118: on since the game's group (Config.GroupId) is set

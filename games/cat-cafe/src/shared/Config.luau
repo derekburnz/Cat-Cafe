@@ -64,6 +64,30 @@ local Config = {
 		starter_bundle = 3728336166, -- #1625: once per account (Catalog.products oncePerAccount)
 		cafe_pass = 3728336202, -- #1626: the running season's paid track, once per season (Catalog.products seasonPass)
 	} :: { [string]: number },
+	-- #1934 (release.md section 1): the Roblox badge id of each badge in shared/Badges, by key; a 0 is not made yet
+	-- and is never awarded. Made 5 a day in Creator Hub, in Badges.LIST order, by Tools-Agent or Derek.
+	Badges = {
+		welcome = 0,
+		firstCatch = 0,
+		cozyCafe = 0,
+		grandOpening = 0,
+		purrfect = 0,
+		baitCat = 0,
+		rareFind = 0,
+		legendaryFind = 0,
+		mythicalFind = 0,
+		busyCafe = 0,
+		famousCafe = 0,
+		grandCafe = 0,
+		catCollector = 0,
+		catExpert = 0,
+		goldenCoat = 0,
+		rainbowCoat = 0,
+		pageComplete = 0,
+		helpingPaw = 0,
+		firstTrade = 0,
+		purrfectStreak = 0,
+	} :: { [string]: number },
 	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
 	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).
 	-- Only the server reads it. Derek2's account, named "2573351", is user id 140223517 (user id 2573351 is someone

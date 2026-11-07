@@ -30,6 +30,7 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Intro = require(ReplicatedStorage.Shared.Intro)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
@@ -38,6 +39,7 @@ local Net = require(script.Parent.Net)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local PassService = require(script.Parent.PassService)
+local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -175,6 +177,20 @@ export type CustomEvent =
 	| "cafe_pass_level"
 	-- #1888: a Jukebox track picked (#1875), value 1; the track id or "default"
 	| "jukebox_pick"
+	-- #1920: the session recap card shown, once a session, value the minutes played this session; the Grand Opening
+	-- milestones done (0 to 8) and tier
+	| "session_recap"
+	-- #1920: the session recap card closed, once a session, value the whole seconds it was open (0 to 30)
+	| "session_recap_close"
+	-- #1919: the goal card's "Find N more cats" nudge opened the Index, value 1; the area id it pointed at or "none"
+	| "index_hint_tap"
+	-- #1947 (like-prompts.md section 3): a like or favourite card's button, once per card a session, value 1; the gift
+	-- ("like" or "fav") and the button (like, favourite or close). A card paid (Source like_gift or fav_gift) with no
+	-- report is "none"
+	| "playtime_gift"
+	-- #1934 (release.md section 1): a Roblox badge awarded, value the account's minutes played; the badge key, "live"
+	-- (earned this session) or "catchup" (earned before, awarded on join)
+	| "badge_awarded"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.
@@ -213,6 +229,10 @@ local REPORTS = {
 	"store_opened", -- #1888: the Store opened, from StoreFunnel.SOURCES
 	"store_tab", -- #1888: a Store tab shown, StoreFunnel.TABS
 	"store_buy", -- #1888: a buy button pressed, the pass or product id
+	"session_recap", -- #1920: the recap card is on screen (value true)
+	"session_recap_close", -- #1920: the recap card closed, the whole seconds it was open (0 to 30)
+	"index_hint_tap", -- #1919: the goal card's hint opened the Index, a Catalog area id or "none"
+	"playtime_gift", -- #1947: a gift card's button, "<like|fav>:<like|favourite|close>"
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
 -- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
@@ -220,6 +240,8 @@ local DEVICES = { "phone", "tablet", "pc", "console" }
 local INTRO_FROM = { "tile", "help" }
 local NUDGE_KINDS = { "pulse", "help_shown", "show_me" }
 local INTRO_CHOICES = 5
+local RECAP_CLOSE_MAX = 30 -- #1920: session_recap_close's seconds, 0 to this
+local INDEX_HINT_TAPS = 10 -- #1919: index_hint_tap events logged at most this many times a session
 local FIRST_MOVE_STUDS = 8 -- first_move: this far across the ground from where the character was first seen
 local WATCH_SECONDS = 1 -- how often first_move and rank_up_ready are looked for
 local SCREEN_NAME_MAX = 32 -- a screen report longer than this is dropped; one not in SCREENS reads "other"
@@ -277,6 +299,10 @@ type Session = {
 	source: string, -- #1888: where the join came from (JoinSource.parse of the launch data)
 	store: StoreVisit?, -- #1888: the Store visit open now, for the Store funnel
 	storeVisits: number, -- #1888: Store funnels started this session (StoreFunnel.VISITS_MAX)
+	recapShown: boolean, -- #1920: session_recap logged this session
+	recapClosed: boolean, -- #1920: session_recap_close logged this session
+	indexHintTaps: number, -- #1919: index_hint_tap events logged this session (INDEX_HINT_TAPS)
+	giftButtons: { [string]: boolean }, -- #1947: playtime_gift logged this session, by gift kind
 }
 
 -- #1888: one Store visit, a funnel session of StoreFunnel's: its id, the furthest step logged and the sku pressed
@@ -651,6 +677,25 @@ function Telemetry.catchEngaged(
 end
 
 -- Step 3: the cat is in the player's arms.
+-- #1893: the Grand Opening funnel (first-hour.md 1c), one step per milestone as it is paid, field the tier. Steps
+-- can come out of order (two at once, or a later one first); each is logged once, as it is marked done.
+Telemetry.GRAND_OPENING_FUNNEL = "grand_opening"
+
+function Telemetry.grandOpening(player: Player, profile: Profile, n: number)
+	local step = GrandOpening.STEPS[n]
+	if step == nil then
+		return
+	end
+	funnelStep(
+		player,
+		Telemetry.GRAND_OPENING_FUNNEL,
+		tostring(player.UserId),
+		n,
+		step.id,
+		{ tostring(Economy.tier(profile)) }
+	)
+end
+
 function Telemetry.catchCaught(player: Player, funnel: CatchFunnel)
 	funnelStep(player, "catch_attempt", funnel.id, 3, "caught", funnel.values)
 end
@@ -1118,6 +1163,42 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				)
 			end)
 		end
+	elseif name == "session_recap" then
+		-- #1920: once a session; the minutes come from the server's own join time, not the client
+		if rawValue == true and not session.recapShown then
+			session.recapShown = true
+			local minutes = math.floor(math.max(0, os.time() - session.joinedAt) / 60)
+			Telemetry.custom(player, "session_recap", minutes, {
+				tostring(GrandOpening.doneCount(profile.grandOpening)),
+				tierText(profile),
+			})
+		end
+	elseif name == "session_recap_close" then
+		-- whole seconds; the client may send a fraction, and a long stay counts as RECAP_CLOSE_MAX
+		local raw = if type(rawValue) == "number" and rawValue == rawValue
+			then rawValue :: number
+			else nil
+		local seconds = if raw ~= nil then math.clamp(math.floor(raw), 0, RECAP_CLOSE_MAX) else nil
+		if seconds ~= nil and session.recapShown and not session.recapClosed then
+			session.recapClosed = true
+			Telemetry.custom(player, "session_recap_close", seconds)
+		end
+	elseif name == "index_hint_tap" then
+		-- #1919: a Catalog area id or "none" (no open area has cats left to find)
+		local area = if rawValue == "none"
+			then "none"
+			elseif type(rawValue) == "string" and Catalog.getArea(rawValue) ~= nil then rawValue
+			else nil
+		if area ~= nil and session.indexHintTaps < INDEX_HINT_TAPS then
+			session.indexHintTaps += 1
+			Telemetry.custom(player, "index_hint_tap", 1, { area })
+		end
+	elseif name == "playtime_gift" then
+		local kind, button = PlaytimeGifts.report(rawValue)
+		if kind ~= nil and button ~= nil and not session.giftButtons[kind] then
+			session.giftButtons[kind] = true
+			Telemetry.custom(player, "playtime_gift", 1, { kind, button })
+		end
 	else
 		local raw = if type(rawValue) == "string" then rawValue else nil
 		local screen = if raw ~= nil then SCREENS[raw] else nil
@@ -1184,6 +1265,10 @@ local function onLoaded(player: Player, profile: Profile)
 		source = JoinSource.ORGANIC,
 		store = nil,
 		storeVisits = 0,
+		recapShown = false,
+		recapClosed = false,
+		indexHintTaps = 0,
+		giftButtons = {},
 	}
 	-- #1888: the launch data of the link this join came through (an ad's ad_<tag>)
 	local ok, joinData = pcall(function(): any

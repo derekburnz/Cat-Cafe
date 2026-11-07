@@ -21,6 +21,8 @@ return function()
 					tutorialButton = true,
 					shopAlerts = true,
 					tradeRequests = "everyone",
+					roadmapOpen = false,
+					sessionRecap = true,
 				})
 				for key in pairs(Settings.defaults() :: any) do
 					expect(Settings.kinds[key]).to.be.ok()
@@ -66,8 +68,12 @@ return function()
 			expect(Settings.clean("tradeRequests", "Friends")).never.to.be.ok()
 			expect(Settings.clean("tradeRequests", true)).never.to.be.ok()
 			expect(Settings.clean("music", "on")).never.to.be.ok()
-			expect(Settings.sanitize({ tradeRequests = "friends" }).tradeRequests).to.equal("friends")
-			expect(Settings.sanitize({ tradeRequests = "nobody" }).tradeRequests).to.equal("everyone")
+			expect(Settings.sanitize({ tradeRequests = "friends" }).tradeRequests).to.equal(
+				"friends"
+			)
+			expect(Settings.sanitize({ tradeRequests = "nobody" }).tradeRequests).to.equal(
+				"everyone"
+			)
 		end)
 
 		it("refuses keys the profile does not save", function()
@@ -100,6 +106,8 @@ return function()
 				tutorialButton = true,
 				shopAlerts = true,
 				tradeRequests = "everyone",
+				roadmapOpen = false,
+				sessionRecap = true,
 			})
 		end)
 

@@ -26,6 +26,8 @@ Settings.kinds = {
 	shopAlerts = "switch",
 	-- F102 (trading.md section 2): who may ask to trade (TradeService reads it on each request)
 	tradeRequests = "choice",
+	roadmapOpen = "switch", -- #1893: the Grand Opening strip opened into its list (remembered)
+	sessionRecap = "switch", -- #1920: the session recap card after about 40 minutes of play
 } :: { [string]: Kind }
 
 -- A choice key -> the strings it takes, the default first.
@@ -46,6 +48,8 @@ function Settings.defaults(): Types.Settings
 		tutorialButton = true,
 		shopAlerts = true,
 		tradeRequests = "everyone",
+		roadmapOpen = false,
+		sessionRecap = true,
 	}
 end
 

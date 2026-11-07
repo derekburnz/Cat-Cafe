@@ -199,8 +199,14 @@ UI.events = {
 	tutorialClosed = Signal.new(), -- ()   #1273: the Tutorial tile's red X, analytics only: forward as TelemetryReport("tutorial_closed")
 	introChoice = Signal.new(), -- (from)   "tile" (the Tutorial tile) or "help" (Show me on Need a hand?): forward as TelemetryReport("intro_choice", from)
 	stuckNudge = Signal.new(), -- (kind)   "pulse", "help_shown" or "show_me": forward as TelemetryReport("stuck_nudge", kind)
+	-- #1920 (first-hour.md section 6), analytics only: the session recap card showed, then went after this many seconds
+	sessionRecap = Signal.new(), -- ()   forward as TelemetryReport("session_recap"); the server adds the minutes and step
+	sessionRecapClose = Signal.new(), -- (secondsUp)   forward as TelemetryReport("session_recap_close", secondsUp)
 	-- #1919 (first-hour.md section 5), analytics only: the goal card's "Find N more cats" opened the Index on this area
 	indexHintTap = Signal.new(), -- (areaId)   forward as TelemetryReport("index_hint_tap", areaId)
+	-- #1936 (release.md section 3), analytics only: a purchase prompt refused with no tap or during a catch, rescue or
+	-- cutscene, "source:reason" (bait, store or cafePass; no_tap or busy)
+	storeGuardBlocked = Signal.new(), -- (what)   forward as TelemetryReport("store_guard_blocked", what)
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
 	claimStarterCat = Signal.new(), -- ()   Take me home: forward as ClaimStarterCat
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
@@ -1334,6 +1340,7 @@ function UI.init(config: Types.InitConfig)
 	toasts = Toasts.new(parent)
 	popups = Popups.new(parent)
 	tipCard = TipCard.new(parent)
+	UI.recap.card = require(script.Screens.RecapCard).new(parent) -- #1920
 	askCard = AskCard.new(parent, {
 		lift = function()
 			return hudInstance:bottomTop() - Theme.sizes.gap
@@ -1673,6 +1680,11 @@ function UI.destroy()
 		tipCard:destroy()
 	end
 	tipCard = nil
+	if UI.recap.card then
+		UI.recap.card:destroy()
+		UI.recap.card = nil
+	end
+	UI.recap.waiting = nil
 	if askCard then
 		askCard:destroy()
 	end
@@ -2015,7 +2027,7 @@ do
 	function UI.bait.buySecond()
 		local id: number = Config.SecondBowlPassId
 		if id ~= 0 then
-			PassShop.prompt(id)
+			PassShop.prompt(id, "bait")
 		end
 	end
 end
@@ -5710,7 +5722,38 @@ do
 		supporter = nil :: RBXScriptConnection?, -- its change hides the badge's card at once
 		funnel = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StoreFunnel")) :: any, -- #1888
 		reported = {} :: { [string]: true }, -- #1888: this visit's tabs and buys already reported
+		-- #1936: the server's PlayerState.playSeconds (total play at send time), when it came, and the timer that
+		-- redraws the money badge once the first 30 minutes are up
+		guard = require(script.Components.StoreGuard),
+		played = nil :: number?,
+		playedAt = 0,
+		quietUntil = nil :: number?,
+		blocked = nil :: Signal.Connection?,
 	}
+
+	-- #1936 (release.md section 3): under 30 minutes of total play the money badge has no price and does not pulse
+	local function quiet(): boolean
+		local sent = (state :: any).playSeconds
+		if sent ~= shop.played then
+			shop.played = if type(sent) == "number" then sent else nil
+			shop.playedAt = os.clock()
+		end
+		local seconds = shop.guard.playSeconds(shop.played, shop.playedAt, os.clock())
+		local calm = shop.guard.quiet(seconds)
+		if calm and seconds ~= nil then
+			local untilAt = os.clock() + shop.guard.QUIET_SECONDS - seconds
+			if shop.quietUntil == nil or math.abs(shop.quietUntil - untilAt) > 1 then
+				shop.quietUntil = untilAt
+				task.delay(shop.guard.QUIET_SECONDS - seconds + 0.5, function()
+					if shop.quietUntil == untilAt then
+						shop.quietUntil = nil
+						UI.store.render()
+					end
+				end)
+			end
+		end
+		return calm
+	end
 
 	-- the potion packs' contents and names from the shared Catalog, the bag from the state (#1182)
 	local SharedCatalog =
@@ -5762,7 +5805,13 @@ do
 			local boosts = (state :: any).passBoosts
 			local multiplier = if type(boosts) == "table" then boosts.money else nil
 			hud:setMoneyBadge(
-				StoreLogic.moneyBadge(Config, PassShop.owned(), PassShop.prices(), multiplier)
+				StoreLogic.moneyBadge(
+					Config,
+					PassShop.owned(),
+					PassShop.prices(),
+					multiplier,
+					quiet()
+				)
 			)
 		end
 		if hud then
@@ -5803,7 +5852,7 @@ do
 					shop.reported[key] = true
 					UI.events.storeReport:Fire("store_buy", passId)
 				end
-				PassShop.prompt(passId)
+				PassShop.prompt(passId, "store")
 			end,
 			tabShown = function(tab: string)
 				local key = "tab:" .. tab
@@ -5858,6 +5907,13 @@ do
 			Players.LocalPlayer:GetAttributeChangedSignal(shop.supporterKey):Connect(refresh)
 		shop.grant = PassShop.ownerGrant:Connect(function(productId: number)
 			UI.events.ownerGrant:Fire(productId)
+		end)
+		-- #1936: no purchase window over a catch, a rescue or a cutscene, and each refusal reported
+		PassShop.busy = function(): boolean
+			return UI.catch.circlesActive() or UI.rescue.isActive() or UI.intro.playing()
+		end
+		shop.blocked = PassShop.blocked:Connect(function(source: string, reason: string)
+			UI.events.storeGuardBlocked:Fire(source .. ":" .. reason)
 		end)
 		PassShop.start(StoreLogic.passIds(Config), StoreLogic.productIds(Config))
 		refresh()
@@ -5920,6 +5976,11 @@ do
 			shop.grant:Disconnect()
 			shop.grant = nil
 		end
+		if shop.blocked then
+			shop.blocked:Disconnect()
+			shop.blocked = nil
+		end
+		shop.quietUntil = nil
 		if shop.supporter then
 			shop.supporter:Disconnect()
 			shop.supporter = nil
@@ -6026,7 +6087,7 @@ do
 			buy = function()
 				local id = productId()
 				if id then
-					PassShop.prompt(id) -- the server's receipt unlocks the track and sends CafePassState
+					PassShop.prompt(id, "cafePass") -- the server's receipt unlocks the track and sends CafePassState
 				end
 			end,
 			close = function()
@@ -6178,6 +6239,121 @@ end
 function UI.demo(): () -> ()
 	local Demo = require(script.Demo) :: any
 	return Demo.run(UI)
+end
+
+----------------------------------------------------------------------------------------------------
+-- Session recap (#1920, first-hour.md section 6)
+----------------------------------------------------------------------------------------------------
+
+-- UIController's hook for SessionRecap(view): Gameplay sends it once a session after RecapAfterSeconds of play with
+-- view = { minutes, newCats, earned } for this session. The card waits for a calm moment (after the tutorial, not
+-- catching, carrying or in a menu or card, idle RecapLogic.IDLE_SECONDS) and shows once; with the sessionRecap
+-- setting off it never shows. The other lines come from what the client holds (Components/RecapLogic).
+UI.recap = {
+	card = nil :: any,
+	waiting = nil :: { [string]: any }?,
+	shown = false,
+	lastInput = os.clock(),
+	watching = false,
+}
+
+local function recapIdleSeconds(): number
+	local player = game:GetService("Players").LocalPlayer
+	local character = player and player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if humanoid and humanoid.MoveDirection.Magnitude > 0.05 then
+		UI.recap.lastInput = os.clock() -- walking with a held key or the thumbstick
+	end
+	return os.clock() - UI.recap.lastInput
+end
+
+local function recapLines(view: { [string]: any }): { string }
+	local RecapLogic = require(script.Components.RecapLogic)
+	local catalog = currentCatalog
+	local nextTier: string? = nil
+	if catalog and catalog.tiers and state.tier then
+		for _, tier in catalog.tiers :: { any } do
+			if tier.tier == state.tier + 1 and type(tier.name) == "string" then
+				nextTier = tier.name
+			end
+		end
+	end
+	local readyAt: { number } = {}
+	for _, bowl in bowls.views do
+		if bowl and type(bowl.readyAt) == "number" then
+			table.insert(readyAt, bowl.readyAt)
+		end
+	end
+	local longNap = state.longNap == true
+	return RecapLogic.lines({
+		view = view,
+		state = state :: any,
+		nextTier = nextTier,
+		baitReadyAt = readyAt,
+		now = Workspace:GetServerTimeNow(),
+		offlineRate = if longNap then Config.OfflineRatePass else Config.OfflineRate,
+		offlineCapSeconds = if longNap
+			then Config.OfflineCapPassSeconds
+			else Config.OfflineCapSeconds,
+		money = Format.money,
+	})
+end
+
+local function recapTry(): boolean
+	local view = UI.recap.waiting
+	local card = UI.recap.card
+	if view == nil or card == nil or UI.recap.shown then
+		return true
+	end
+	local RecapLogic = require(script.Components.RecapLogic)
+	local settings: { [string]: any } = state.settings or {}
+	if settings[RecapLogic.SETTING] == false then
+		UI.recap.waiting = nil -- off: this session's card is dropped
+		return true
+	end
+	local busy = (modal ~= nil and modal:current() ~= nil)
+		or (baitCard ~= nil and baitCard:isShowing())
+		or (tipCard ~= nil and tipCard:isShowing())
+		or not visible
+	if
+		not RecapLogic.canShow({
+			enabled = true,
+			tutorialStep = state.tutorialStep,
+			catching = hud ~= nil and hud:isCatching(),
+			carrying = state.carrying ~= nil,
+			menuOpen = busy,
+			idleSeconds = recapIdleSeconds(),
+		})
+	then
+		return false
+	end
+	UI.recap.shown = true
+	UI.recap.waiting = nil
+	card:show(recapLines(view), function(secondsUp: number)
+		UI.events.sessionRecapClose:Fire(secondsUp)
+	end)
+	UI.events.sessionRecap:Fire()
+	return true
+end
+
+function UI.recap.show(view: any)
+	if type(view) ~= "table" or UI.recap.shown or UI.recap.waiting ~= nil then
+		return
+	end
+	UI.recap.waiting = view
+	if not UI.recap.watching then
+		UI.recap.watching = true
+		local inputs = UserInputService.InputBegan:Connect(function()
+			UI.recap.lastInput = os.clock()
+		end)
+		task.spawn(function()
+			while not recapTry() do
+				task.wait(1)
+			end
+			inputs:Disconnect()
+			UI.recap.watching = false
+		end)
+	end
 end
 
 return UI

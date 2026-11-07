@@ -1025,10 +1025,27 @@ local function wireIntents()
 			end
 		end)
 	end
+	-- #1920: the session recap card showed, and how long it stayed up; the server allowlists both
+	if events.sessionRecap ~= nil then
+		events.sessionRecap:Connect(function()
+			Net.fire("TelemetryReport", "session_recap", true)
+		end)
+	end
+	if events.sessionRecapClose ~= nil then
+		events.sessionRecapClose:Connect(function(secondsUp: number)
+			Net.fire("TelemetryReport", "session_recap_close", secondsUp)
+		end)
+	end
 	-- #1919: the goal card's "Find N more cats" opened the Index; the server allowlists the area id
 	if events.indexHintTap ~= nil then
 		events.indexHintTap:Connect(function(areaId: string)
 			Net.fire("TelemetryReport", "index_hint_tap", areaId)
+		end)
+	end
+	-- #1936: a purchase prompt the store guard refused, "source:reason"; the server allowlists and caps it
+	if events.storeGuardBlocked ~= nil then
+		events.storeGuardBlocked:Connect(function(what: string)
+			Net.fire("TelemetryReport", "store_guard_blocked", what)
 		end)
 	end
 	-- Fast travel (F19): the travel row and the Areas panel; the server answers every request with TravelResult.
@@ -1769,6 +1786,30 @@ local function wireServerEvents()
 			end
 		end
 	)
+	-- #1893: a Grand Opening milestone was just paid; the ProfileSync that shows it came first. UI.roadmap.step plays
+	-- the toast and confetti (and on the last, the Grand Opening) once the UI has it.
+	Net.on("RoadmapStep", function(n: number)
+		local roadmap = (UI :: any).roadmap
+		local step: ((number) -> ())? = if roadmap ~= nil then roadmap.step else nil
+		if step ~= nil and type(n) == "number" then
+			step(n)
+		end
+	end)
+	-- #1897: the guaranteed Rare-or-better bait cat is at the bowl ("Your first Rare!" or "A Rare visitor!")
+	Net.on("FirstWow", function(rarity: string, first: boolean)
+		local wow: ((string, boolean) -> ())? = (UI.bait :: any).wow
+		if wow ~= nil and type(rarity) == "string" then
+			wow(rarity, first == true)
+		end
+	end)
+	-- #1920: this session's recap; UI.recap.show waits for the player to be idle and out of menus before the card
+	Net.on("SessionRecap", function(view: Types.SessionRecapView)
+		local recap = (UI :: any).recap
+		local show: ((Types.SessionRecapView) -> ())? = if recap ~= nil then recap.show else nil
+		if show ~= nil and type(view) == "table" then
+			show(view)
+		end
+	end)
 	-- The rescue bar, or a tree's falling cat after its shakes; then the server's count after every judged press.
 	Net.on("RescueChallenge", function(rescueSpotId: string, challenge: Types.RescueChallenge)
 		UI.rescue.show(rescueSpotId, challenge)

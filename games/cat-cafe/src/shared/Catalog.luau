@@ -1006,12 +1006,12 @@ Catalog.tiers = {
 		slots = 4,
 		multiplier = 1.25,
 		area = "park",
-		caps = { tables = 5, espresso = 4, net = 2, lure_bowl = 2, lucky_cat = 2 }, -- #1896 (first-hour.md 4): Tables 5, Espresso 4
+		caps = { tables = 5, espresso = 4, net = 2, lure_bowl = 2, lucky_cat = 3 }, -- #1896 (first-hour.md 4): Tables 5, Espresso 4, Lucky Cat 3
 	},
 	{
 		tier = 3,
 		name = "Busy Cafe",
-		cost = 900000, -- #1896 (first-hour.md 4): 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
+		cost = 800000, -- #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
 		distinctCats = 12,
 		needsRarity = "Epic",
 		needsRarityCount = 1,
@@ -1081,7 +1081,7 @@ Catalog.upgrades = {
 		description = "Better coffee, more money from every cat",
 		maxLevel = 5,
 		-- F95: level 4 four times, 5 (Tier 4) 7.5 times; #1896 (first-hour.md 4): level 4 700,000 (was 400,000), now Tier 2
-		costs = { 0, 2000, 15000, 700000, 6000000 },
+		costs = { 0, 2000, 15000, 550000, 6000000 }, -- #1896 re-fit with Catch v3: Espresso 4 700,000 before
 		startLevel = 1,
 	},
 	{
@@ -1106,8 +1106,9 @@ Catalog.upgrades = {
 		name = "Lucky Cat",
 		description = "A beckoning cat by your front door. Each level adds x0.1 Luck: rarer bait cats and crate finds",
 		maxLevel = 5,
-		-- level n needs Tier n; levels 3 to 5 at economy-ladder.md section 4's prices
-		costs = { 2000, 20000, 600000, 8000000, 80000000 },
+		-- level n needs Tier n, but level 3 comes at Tier 2 (#1896 follow-up, a buy inside the Tier 3 save, fitted to
+		-- minute 32 at 300,000; 600,000 before); levels 4 and 5 at economy-ladder.md section 4's prices
+		costs = { 2000, 20000, 300000, 8000000, 80000000 },
 		startLevel = 0,
 	},
 } :: { Types.UpgradeDef }
@@ -1717,6 +1718,11 @@ Catalog.passSeasons = {
 			[28] = { prize = { coinSeconds = 1800 } },
 			[29] = { prize = { coinSeconds = 1500 } },
 			[30] = { prize = { crates = { classic_crate = 1 }, fish = 50 } },
+			-- #1883 part C: the four levels added with the Maple showpieces (free, resources only)
+			[31] = { prize = { fish = 30 } },
+			[32] = potions({ swift_potion = 1 }),
+			[33] = { prize = { coinSeconds = 1800 } },
+			[34] = { prize = { crates = { highest = 1 } } },
 		},
 		paid = {
 			[1] = item("tag", "tag_maple", "Season 1 chat tag [Maple]"),
@@ -1750,6 +1756,11 @@ Catalog.passSeasons = {
 			[28] = item("decor", "decor_maple_tree_planter", "Maple Tree Planter"),
 			[29] = item("frame", "frame_golden_leaf", "Name plate frame: Golden Leaf"),
 			[30] = item("cat", "maple_muffin", "Season cat: Maple Muffin"),
+			-- #1883 part C (Model-Agent's art, #1921): the paid track ends on four Maple showpieces, looks only
+			[31] = item("accessory", "acc_leaf_crown", "Autumn Leaf Crown"),
+			[32] = item("decor", "decor_maple_leaf_lamp", "Maple Leaf Lamp"),
+			[33] = item("decor", "decor_harvest_cider_cart", "Harvest Cider Cart"),
+			[34] = item("frame", "sign_maple_board", "Cafe sign: Maple Board"),
 		},
 	},
 } :: { Types.PassSeasonDef }
@@ -2604,6 +2615,33 @@ Catalog.codes = {
 		id = "launch",
 		active = false,
 		prize = { coins = 1000, coinSeconds = 300, fish = 25 }, -- F94 (was also 2 spins and 3 Tuna)
+	},
+	-- #1937 (release.md section 4): the first four weeks' codes, coins only (about 10 minutes of income at most, no
+	-- fish, spins, potions or crates). Each ships off; that week's small PR turns it on, on its day. Each ends 60 days
+	-- after that day (launch-ops.md section 1), at 00:00 UTC. The old `launch` row above stays off and unused.
+	opening = {
+		id = "opening",
+		active = false, -- go wide, Thursday 2026-11-12
+		endsAt = 1799625600, -- 2027-01-11
+		prize = { coins = 1000, coinSeconds = 300 },
+	},
+	rally = {
+		id = "rally",
+		active = false, -- week 1, Saturday 2026-11-14
+		endsAt = 1799798400, -- 2027-01-13
+		prize = { coins = 1000, coinSeconds = 300 },
+	},
+	cozy = {
+		id = "cozy",
+		active = false, -- week 3, Saturday 2026-11-28
+		endsAt = 1801008000, -- 2027-01-27
+		prize = { coins = 1500, coinSeconds = 450 },
+	},
+	snowy = {
+		id = "snowy",
+		active = false, -- week 4, Saturday 2026-12-05, the Winter Cafe's start
+		endsAt = 1801612800, -- 2027-02-03
+		prize = { coins = 2000, coinSeconds = 600 },
 	},
 	group = {
 		id = "group",
@@ -3478,6 +3516,19 @@ local PASS_DECOR: {
 			name = "Maple Tree Planter",
 			kind = "decoration",
 			description = "A little maple in red and orange.",
+		},
+		-- #1883 part C (levels 32 and 33, Model-Agent's #1921)
+		{
+			id = "decor_maple_leaf_lamp",
+			name = "Maple Leaf Lamp",
+			kind = "decoration",
+			description = "A paper maple leaf, glowing amber day and night.",
+		},
+		{
+			id = "decor_harvest_cider_cart",
+			name = "Harvest Cider Cart",
+			kind = "furniture",
+			description = "A barrel of cider, three mugs and a basket of apples.",
 		},
 		{
 			id = "decor_royal_velvet_booth",

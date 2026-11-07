@@ -8,6 +8,7 @@ local ServerStorage = game:GetService("ServerStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
 
 local AssetRegistry = require(script.Parent.World.AssetRegistry)
+local BadgeAwardService = require(script.Parent.Services.BadgeAwardService)
 local BaitService = require(script.Parent.Services.BaitService)
 local BedtimeService = require(script.Parent.Services.BedtimeService)
 local BugReportService = require(script.Parent.Services.BugReportService)
@@ -26,6 +27,7 @@ local DataService = require(script.Parent.Services.DataService)
 local DealerService = require(script.Parent.Services.DealerService)
 local FeedService = require(script.Parent.Services.FeedService)
 local FishMarketService = require(script.Parent.Services.FishMarketService)
+local GrandOpeningService = require(script.Parent.Services.GrandOpeningService)
 local IdeaCreditsService = require(script.Parent.Services.IdeaCreditsService)
 local IndexRewardService = require(script.Parent.Services.IndexRewardService)
 local IntroService = require(script.Parent.Services.IntroService)
@@ -39,6 +41,7 @@ local OwnerTestService = require(script.Parent.Services.OwnerTestService)
 local PalService = require(script.Parent.Services.PalService)
 local PassService = require(script.Parent.Services.PassService)
 local PityService = require(script.Parent.Services.PityService)
+local PlaytimeGiftService = require(script.Parent.Services.PlaytimeGiftService)
 local PlotService = require(script.Parent.Services.PlotService)
 local PotionService = require(script.Parent.Services.PotionService)
 local ProductService = require(script.Parent.Services.ProductService)
@@ -49,6 +52,7 @@ local RescueService = require(script.Parent.Services.RescueService)
 local ResetSaveService = require(script.Parent.Services.ResetSaveService)
 local RestartNoticeService = require(script.Parent.Services.RestartNoticeService)
 local RichTipService = require(script.Parent.Services.RichTipService)
+local SessionRecapService = require(script.Parent.Services.SessionRecapService)
 local ShopCatService = require(script.Parent.Services.ShopCatService)
 local ShoveService = require(script.Parent.Services.ShoveService)
 local SpinService = require(script.Parent.Services.SpinService)
@@ -119,6 +123,10 @@ PalService.start() -- F92: pals; before Telemetry so pal_time goes out before it
 LeaderboardService.start() -- F98: before DataService so its onLoaded sees every join
 CampExtraService.start() -- F100: before DataService so its onLoaded sees every join
 CafePassService.start() -- #1645: the Cafe Pass, before DataService so its onLoaded sees every join
+GrandOpeningService.start() -- #1893: the Grand Opening roadmap's checks and payouts
+SessionRecapService.start() -- #1920: the session recap after about 40 minutes of play
+BadgeAwardService.start() -- #1934: Roblox badges, awarded from the profile with retries and a catch-up on join
+PlaytimeGiftService.start() -- #1947: the like and favourite gifts at 10 and 30 minutes of play
 RallyService.start() -- F101: before Telemetry (rally_points on leave) and DataService (RallyState on join)
 RestartNoticeService.start() -- the restart countdown's warnings; before DataService so a joiner hears one
 TradeService.start() -- F102: before DataService, whose joins it settles owed trades in (onLoading)

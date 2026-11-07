@@ -623,7 +623,7 @@ return function()
 			{ "Cozy Cafe", 30000, 5, nil, nil, 4, 1.25, "park", { 5, 4, 2 } }, -- #1896: Tables 5 and Espresso 4
 			-- economy-ladder.md section 3 v3.1 (#1452, more wild cats; #1499 Tier 2 30,000): 30,000, 700,000, 60M and 2B;
 			-- #1896 (first-hour.md 4): Tier 3 900,000
-			{ "Busy Cafe", 900000, 12, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
+			{ "Busy Cafe", 800000, 12, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
 			{ "Famous Cafe", 60000000, 20, "Legendary", 1, 8, 1.75, "woods", { 6, 5, 3 } },
 			{ "Grand Cafe", 2000000000, 30, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 		}
@@ -759,7 +759,7 @@ return function()
 				espresso = {
 					name = "Espresso machine",
 					maxLevel = 5,
-					costs = { 0, 2000, 15000, 700000, 6000000 }, -- F95; #1896
+					costs = { 0, 2000, 15000, 550000, 6000000 }, -- F95; #1896
 					startLevel = 1,
 					atLevel = { [3] = 2, [4] = 2, [5] = 4 }, -- #1896: Espresso 4 at Tier 2
 				},
@@ -777,12 +777,12 @@ return function()
 					startLevel = 0,
 					atLevel = { [2] = 2, [3] = 3, [4] = 4, [5] = 5 },
 				},
-				lucky_cat = { -- F88 (luck-and-rare-moments.md 1a): level n needs Tier n
+				lucky_cat = { -- F88 (luck-and-rare-moments.md 1a): level n needs Tier n, level 3 Tier 2 (#1896)
 					name = "Lucky Cat",
 					maxLevel = 5,
-					costs = { 2000, 20000, 600000, 8000000, 80000000 },
+					costs = { 2000, 20000, 300000, 8000000, 80000000 },
 					startLevel = 0,
-					atLevel = { [2] = 2, [3] = 3, [4] = 4, [5] = 5 },
+					atLevel = { [2] = 2, [3] = 2, [4] = 4, [5] = 5 },
 				},
 			}
 

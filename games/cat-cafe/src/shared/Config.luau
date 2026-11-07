@@ -64,6 +64,30 @@ local Config = {
 		starter_bundle = 3728336166, -- #1625: once per account (Catalog.products oncePerAccount)
 		cafe_pass = 3728336202, -- #1626: the running season's paid track, once per season (Catalog.products seasonPass)
 	} :: { [string]: number },
+	-- #1934 (release.md section 1): the Roblox badge id of each badge in shared/Badges, by key; a 0 is not made yet
+	-- and is never awarded. Made 5 a day in Creator Hub, in Badges.LIST order, by Tools-Agent or Derek.
+	Badges = {
+		welcome = 0,
+		firstCatch = 0,
+		cozyCafe = 0,
+		grandOpening = 0,
+		purrfect = 0,
+		baitCat = 0,
+		rareFind = 0,
+		legendaryFind = 0,
+		mythicalFind = 0,
+		busyCafe = 0,
+		famousCafe = 0,
+		grandCafe = 0,
+		catCollector = 0,
+		catExpert = 0,
+		goldenCoat = 0,
+		rainbowCoat = 0,
+		pageComplete = 0,
+		helpingPaw = 0,
+		firstTrade = 0,
+		purrfectStreak = 0,
+	} :: { [string]: number },
 	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
 	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).
 	-- Only the server reads it. Derek2's account, named "2573351", is user id 140223517 (user id 2573351 is someone
@@ -74,7 +98,7 @@ local Config = {
 	-- 2026-11-05 is a test start so Derek2 can try the pass live; Derek2 resets it to the launch day. Keep one date:
 	-- moving it later only moves the season's end.
 	SeasonStarts = { "2026-11-05" } :: { string },
-	PassLevels = 30,
+	PassLevels = 34, -- #1883 part C: 30 until the four Maple showpieces (levels 31 to 34)
 	PassXpPerLevel = 800,
 	AutosaveSeconds = 60,
 	SyncIntervalSeconds = 10, -- periodic ProfileSync even when nothing changed (the client predicts in between)
@@ -224,6 +248,16 @@ local Config = {
 	BigBowlWaitCutSeconds = 120,
 	-- #1895 (Design-Agent, first-hour.md): the account's first bait waits at most this long; later ones as usual
 	FirstBaitWaitSeconds = 120,
+	-- #1920 (Design-Agent, first-hour.md 6): seconds of play in one session before the recap card (SessionRecap)
+	RecapAfterSeconds = 2400,
+	-- #1947 (like-prompts.md section 3, Set 10 Q3): the like card's gift at LikeGiftMinutes of play on the account, of
+	-- LikeGiftIncomeMinutes of income and a Tip Potion; the favourite card's at FavGiftMinutes, of FavGiftIncomeMinutes
+	-- of income and a small potion pack (shared/PlaytimeGifts). The card waits for GiftIdleSeconds of calm (client).
+	LikeGiftMinutes = 10,
+	LikeGiftIncomeMinutes = 15,
+	FavGiftMinutes = 30,
+	FavGiftIncomeMinutes = 30,
+	GiftIdleSeconds = 3,
 	-- F88 Luck (luck-and-rare-moments.md section 1): one number from x1.0 that multiplies the Epic, Legendary and
 	-- Mythical chances of your bait and crate rolls (shared/Luck), at most LuckMax. The Lucky Cat statue adds
 	-- LuckPerStatueLevel a level, a Lucky Potion LuckyPotionLuck while it runs, a Lucky Day LuckyDayPlayerLuck to

@@ -357,6 +357,7 @@ local function teamRescued(rescuer: Player, helper: Player, entry: Stuck, pals: 
 	end
 	if profile ~= nil then
 		RallyService.score(helper, "teamRescue") -- F101: the helper's points; the rescuer scores at check-in
+		profile.stats.teamRescuesHelped += 1 -- #1934: the Helping Paw badge
 	end
 	local position = entry.spot.Position
 	Net.fire(rescuer, "TeamRescue", entry.spotId, rescuer.UserId, helper.UserId, position, 0)

@@ -17,8 +17,10 @@ local SignStyles = {}
 
 SignStyles.SIGN_STYLE_ATTRIBUTE = "SignStyle"
 
--- passKey: the Config field holding the pass that gives the style (0 while not made); nil for a saved style
-export type Style = { id: string, name: string, model: string, passKey: string? }
+-- passKey: the Config field holding the pass that gives the style (0 while not made); nil for a saved style.
+-- nameColor: the cafe name's colour on this style's board as hex with no # (#1883: the Maple Board's amber "F2B134");
+-- nil draws it in white, as on every other sign (UI/Screens/CafeSigns)
+export type Style = { id: string, name: string, model: string, passKey: string?, nameColor: string? }
 
 SignStyles.LIST = table.freeze({
 	table.freeze({
@@ -38,6 +40,14 @@ SignStyles.LIST = table.freeze({
 		id = "frame_golden_leaf",
 		name = "Golden Leaf",
 		model = "CatCafe_Plot_SignGoldenLeaf",
+	}),
+	-- #1883 part C (level 34, Model-Agent's #1921): the Cafe Pass's last reward, saved once claimed like the frame;
+	-- the cafe name in amber on the walnut board
+	table.freeze({
+		id = "sign_maple_board",
+		name = "Maple Board",
+		model = "CatCafe_Plot_SignMapleBoard",
+		nameColor = "F2B134",
 	}),
 	-- #1168 row 1 (Monetization-Agent, 2026-11-06): the Sign Style Pack pass's three styles, looks only. Model-Agent
 	-- makes the models (signstyles.py); SignStylePackPassId stays 0 until they are in.

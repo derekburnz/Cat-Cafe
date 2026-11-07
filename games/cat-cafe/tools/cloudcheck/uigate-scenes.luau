@@ -1043,6 +1043,27 @@ local SCENES = {
 		assert(steps and steps.Visible, "uigate: a tap didn't open the Grand Opening steps (#1893)")
 		UI.roadmap.step(4)
 	end },
+	-- #1920 (first-hour.md 6): the session recap card at a calm moment: today, the Grand Opening's next step, a cooking
+	-- bait cat and the offline share with tomorrow, and an X; no countdown and no store link
+	{ "SessionRecap", function()
+		local now = workspace:GetServerTimeNow()
+		UI.update({ tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true, [3] = true } } })
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 170, placedAt = now - 50 }, 1)
+		UI.recap.shown = false
+		UI.recap.lastInput = os.clock() - 30 -- idle
+		UI.recap.show({ minutes = 41, newCats = 3, earned = 12500 })
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeRecap")
+		local card = gui and gui:FindFirstChild("Card", true)
+		assert(card and card.Visible, "uigate: no session recap card when idle (#1920)")
+		local first = card:FindFirstChild("Line1")
+		assert(first and first.Text == "Today: 3 new cats, $12,500 earned", "uigate: the recap's first line reads " .. tostring(first and first.Text))
+		local second = card:FindFirstChild("Line2")
+		assert(second and string.find(second.Text, "Grand Opening 3/8", 1, true), "uigate: the recap's next line reads " .. tostring(second and second.Text))
+		assert(card:FindFirstChild("Line3").Text == "Your bait cat arrives in 3 min. It waits for you", "uigate: the recap's bait line reads " .. card:FindFirstChild("Line3").Text)
+		assert(card:FindFirstChild("Line4").Visible, "uigate: no offline line on the recap")
+		UI.recap.show({ minutes = 80, newCats = 1, earned = 1 })
+		assert(first.Text == "Today: 3 new cats, $12,500 earned", "uigate: the recap showed twice in a session (#1920)")
+	end },
 	-- #1919 (first-hour.md 5): while step 7 (twelve cats) is next, the goal card reads "Find N more cats" with the
 	-- Index icon; a tap opens the Index on an open area's page and reports index_hint_tap with it
 	{ "IndexNudge", function()
@@ -2336,6 +2357,20 @@ local SCENES = {
 	{ "HUDMoneyBadge", function()
 		UI.store.preview(storePrices(true), {})
 	end },
+	-- #1936 (release.md section 3): in the first 30 minutes of play the badge says a plain "x2", with no price and no
+	-- pulse; a tap still opens the Store
+	{ "HUDMoneyBadgeQuiet", function()
+		-- Scenes.close puts the play time and an earlier scene's 2x Money pass back
+		Scenes._quiet = { passBoosts = (UI.getState() :: any).passBoosts or false }
+		UI.update({ playSeconds = 600, passBoosts = false } :: any)
+		UI.store.preview(storePrices(true), {})
+		local badge = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("MoneyBadge", true)
+		assert(badge and badge.Visible, "uigate: the quiet money badge is hidden (#1936)")
+		local pill = badge:FindFirstChild("Pill") :: TextLabel
+		local price = badge:FindFirstChild("Price") :: TextLabel
+		assert(pill.Text == "x2", "uigate: the quiet money badge reads " .. tostring(pill.Text) .. " (#1936)")
+		assert(not price.Visible, "uigate: the quiet money badge shows a price (#1936)")
+	end },
 	{ "HUDMoneyBadgeOwned", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[3]] = true })
@@ -2695,6 +2730,14 @@ end
 
 function Scenes.close()
 	reel(false)
+	if UI.recap.card and UI.recap.card:isShowing() then
+		UI.recap.card:hide() -- #1920
+	end
+	if Scenes._quiet then
+		local before = Scenes._quiet
+		Scenes._quiet = nil
+		UI.update({ playSeconds = false, passBoosts = before.passBoosts } :: any) -- #1936's quiet badge scene
+	end
 	if Scenes._fewCats then
 		Scenes._fewCats = nil
 		UI.update({ collection = samplePlayer(os.time()).collection }) -- #1919's nudge scenes

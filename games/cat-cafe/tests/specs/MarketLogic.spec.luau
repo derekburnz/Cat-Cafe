@@ -287,4 +287,24 @@ return function()
 			expect(MarketLogic.needShort(0.2)).to.equal("Need 1 more")
 		end)
 	end)
+
+	describe("MarketLogic.sendAt (#2290)", function()
+		it("sends at once when the last send is a gap or more back, else a gap after it", function()
+			expect(MarketLogic.sendAt(nil, 10, 0.55)).to.equal(10)
+			expect(MarketLogic.sendAt(9, 10, 0.55)).to.equal(10)
+			expect(MarketLogic.sendAt(9.8, 10, 0.55)).to.be.near(10.35, 1e-9)
+			-- three fast presses go 0.55 s apart, so the server's 2 a second never drops one
+			local last = MarketLogic.sendAt(nil, 0, 0.55)
+			local second = MarketLogic.sendAt(last, 0.1, 0.55)
+			local third = MarketLogic.sendAt(second, 0.2, 0.55)
+			expect(second).to.be.near(0.55, 1e-9)
+			expect(third).to.be.near(1.1, 1e-9)
+		end)
+
+		it("keeps each remote under the server's limit", function()
+			expect(MarketLogic.SEND_GAP.item >= 0.5).to.equal(true) -- BuyFishItem 2 a second
+			expect(MarketLogic.SEND_GAP.fresh >= 0.5).to.equal(true) -- BuyFreshCatch 2 a second
+			expect(MarketLogic.SEND_GAP.bundle >= 1).to.equal(true) -- BuyCrateBundle 1 a second
+		end)
+	end)
 end

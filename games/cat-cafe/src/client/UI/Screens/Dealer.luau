@@ -27,6 +27,7 @@ local Format = require(script.Parent.Parent.Components.Format)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
+local MarketLogic = require(script.Parent.Parent.Components.MarketLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
@@ -62,8 +63,11 @@ local BUTTON = Vector2.new(128, Theme.sizes.touchMin + 4)
 local DETAILS_H = 42 -- a 37 px face with a mouse; Scale.tapHeight makes Buy and Details 44 px faces on a phone
 local TEXT_LEFT = ICON + 28
 local TEXT_RIGHT = BUTTON.X + 28
--- a Buy waits this long for the next DealerStock before the button comes back
-local PENDING_SECONDS = 5
+-- a Buy waits this long after it is sent for the next DealerStock before the button comes back (#2290: was 5 s)
+local PENDING_SECONDS = 2
+-- #2290 (Derek2: "buying items fast from shop sometimes stays too long on the ... waiting button"): the server takes
+-- BuyDealerFood 2 a second and drops the rest with no DealerStock, so buys go at least this far apart
+local SEND_GAP = 0.55
 
 local Dealer = {}
 Dealer.__index = Dealer
@@ -105,6 +109,7 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	self._night = nil :: boolean?
 	self._near = nil :: boolean?
 	self._pending = {} :: { [string]: number } -- lureId -> os.clock() when the wait for DealerStock ends
+	self._lastSent = nil :: number? -- #2290: os.clock() of the last BuyDealerFood sent (or set to go)
 	self._tier = 0
 	self._bowlLevel = 0 -- lure_bowl (F82): the odds rows are this level's
 	self._luck = 1 -- F88: the player's Luck, in the odds rows and the split
@@ -403,8 +408,20 @@ function Dealer._buy(self: any, lureId: string)
 	for index, row in self._rows do
 		local group: DealerRows.Row = row.group
 		if group.lureId == lureId and self:_canBuy(group) then
-			self._pending[lureId] = os.clock() + PENDING_SECONDS
-			self._callbacks.buy(index, lureId, if stock then stock.window else nil)
+			-- #2290: a press inside SEND_GAP of the last buy goes a moment later instead of being dropped
+			local now = os.clock()
+			local at = MarketLogic.sendAt(self._lastSent, now, SEND_GAP)
+			self._lastSent = at
+			self._pending[lureId] = at + PENDING_SECONDS
+			local window = if stock then stock.window else nil
+			local function send()
+				self._callbacks.buy(index, lureId, window)
+			end
+			if at <= now then
+				send()
+			else
+				task.delay(at - now, send)
+			end
 			self:_renderAll()
 			return
 		end

@@ -1973,6 +1973,52 @@ local SCENES = {
 		UI.market.open()
 		press("FishMarket", "CratesTab")
 	end },
+	-- #2290 (Derek2: "buying items fast from shop sometimes stays too long on the ... waiting button"): three Treats
+	-- bought fast go to the server 0.55 s apart (its 2 a second never drops one), each shows "..." from its press, and
+	-- a buy the server never answers frees its button 2 s after it was sent, not 5
+	{ "MarketFastBuys", function()
+		local before = (UI.getState() :: any).goldenFish
+		UI.update({ goldenFish = 100000 } :: any)
+		local sent: { string } = {}
+		local counting = UI.events.buyFishItem:Connect(function(id: string)
+			table.insert(sent, id)
+		end)
+		UI.market.open()
+		press("FishMarket", "TreatsTab")
+		local ids = { "star_treat", "golden_espresso", "big_bowl" }
+		for _, id in ids do
+			press("FishMarket", id .. ".Buy")
+		end
+		local window = UIShim.playerGui:FindFirstChild("FishMarket", true)
+		local function label(id: string): string
+			local row = window:FindFirstChild(id, true)
+			local buy = row and row:FindFirstChild("Buy", true)
+			local face = buy and (if buy:IsA("TextButton") then buy else buy:FindFirstChildWhichIsA("TextLabel", true))
+			for _, piece in (buy :: Instance):GetDescendants() do
+				if (piece:IsA("TextLabel") or piece:IsA("TextButton")) and piece.Text ~= "" then
+					return piece.Text
+				end
+			end
+			return if face then face.Text else ""
+		end
+		assert(#sent == 1, ("uigate: %d buys went at once, not 1 (#2290)"):format(#sent))
+		for _, id in ids do
+			assert(label(id) == "...", "uigate: " .. id .. " reads " .. label(id) .. " right after its press (#2290)")
+		end
+		UIShim.advance(0.6)
+		assert(#sent == 2, ("uigate: %d buys sent after 0.6 s, not 2 (#2290)"):format(#sent))
+		UIShim.advance(0.6)
+		assert(#sent == 3, ("uigate: %d buys sent after 1.2 s, not 3 (#2290)"):format(#sent))
+		assert(sent[1] == ids[1] and sent[2] == ids[2] and sent[3] == ids[3], "uigate: the buys went out of order (#2290)")
+		UIShim.advance(1.2) -- the first buy was sent 2.4 s ago with no answer
+		assert(label(ids[1]) ~= "...", "uigate: an unanswered buy still reads ... 2.4 s after it was sent (#2290)")
+		UIShim.advance(1.5)
+		for _, id in ids do
+			assert(label(id) ~= "...", "uigate: " .. id .. " still reads ... (#2290)")
+		end
+		counting:Disconnect()
+		UI.update({ goldenFish = before } :: any)
+	end },
 	{ "MarketFresh", function()
 		-- F94: a window mid-way, one row sold out to this player, one not stocked, a crate row
 		UI.freshCatch.setStock({

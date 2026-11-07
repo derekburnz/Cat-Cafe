@@ -136,7 +136,10 @@ local FRESH_HEAD = 58
 local RANGE: number = Config.FishMarketRange or 14
 local CLOSE_SLACK = 2 -- studs past the server's range before the window closes
 local LUCKY_EVERY: number = Config.CrateLuckyEvery or 20
-local PENDING_SECONDS = 5 -- a pressed Open or Buy waits this long for the server before it can be pressed again
+local PENDING_SECONDS = 5 -- a pressed Open waits this long for its CrateResult before it can be pressed again
+-- #2290: a Buy waits this long after it is sent; its answer (a sync, FreshCatchStock) ends the wait sooner, and a
+-- refusal (a toast, no sync) frees the button after this instead of the Open's 5 s
+local BUY_PENDING_SECONDS = 2
 local GATE_SLACK = 0.2 -- #1146: seconds the Open buttons wait past the server's crate spam limit, for network jitter
 local REVEAL_SECONDS = 2
 -- #1818 (Derek2: "put those buttons side by side instead so they don't take much space"): Open and Buy 5 share one
@@ -255,7 +258,8 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 	self._goldenOdds = {} :: { [string]: { [string]: number } } -- pool -> its golden crate's odds
 	self._crateCards = {} :: { CrateCard }
 	self._itemRows = {} :: { ItemRow }
-	self._pending = {} :: { [string]: number } -- crate or item id -> os.clock() of the press
+	self._pending = {} :: { [string]: number } -- crate or item id -> os.clock() when its wait for the server ends
+	self._lastSent = {} :: { [string]: number } -- #2290: "item", "fresh" or "bundle" -> os.clock() of its last send
 	self._potionById = {} :: { [string]: PotionLogic.Potion }
 	self._crateById = {} :: { [string]: Types.CrateDef }
 	self._fresh = nil :: FreshCatchLogic.Stock?
@@ -466,6 +470,9 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 		if rangeClock >= 0.25 then
 			rangeClock = 0
 			self:_checkRange()
+			if self:_expirePending() then
+				self:_refresh() -- #2290: a wait that ran out frees its button within a quarter second
+			end
 		end
 		clock += dt
 		if clock >= 1 then
@@ -1340,8 +1347,39 @@ function FishMarket._build(self: any)
 end
 
 function FishMarket._pendingFor(self: any, id: string): boolean
-	local pressedAt: number? = self._pending[id]
-	return pressedAt ~= nil and os.clock() - pressedAt < PENDING_SECONDS
+	local untilAt: number? = self._pending[id]
+	return untilAt ~= nil and os.clock() < untilAt
+end
+
+-- #2290: drops the waits that have run out and says whether any did, so the button comes back on time.
+function FishMarket._expirePending(self: any): boolean
+	local now, any = os.clock(), false
+	for id, untilAt in self._pending do
+		if now >= untilAt then
+			self._pending[id] = nil
+			any = true
+		end
+	end
+	return any
+end
+
+-- #2290: sends a buy on `lane` (MarketLogic.SEND_GAP) at once, or a moment later if the last one on it went inside the
+-- server's rate limit, so no press is dropped unanswered; the button shows "..." from the press. Returns the wait.
+function FishMarket._sendSpaced(self: any, lane: string, send: () -> ()): number
+	local now = os.clock()
+	local at = MarketLogic.sendAt(self._lastSent[lane], now, MarketLogic.SEND_GAP[lane])
+	self._lastSent[lane] = at
+	local wait = at - now
+	if wait <= 0 then
+		send()
+	else
+		task.delay(wait, function()
+			if not self._destroyed then
+				send()
+			end
+		end)
+	end
+	return wait
 end
 
 -- #1146: the server's OpenCrate rule (Crates.openRefusal) from here: "busy" while any crate's open is waiting for
@@ -1399,7 +1437,7 @@ function FishMarket._open(self: any, crate: Types.CrateDef)
 		self:_refresh()
 		return
 	end
-	self._pending[crate.id] = os.clock()
+	self._pending[crate.id] = os.clock() + PENDING_SECONDS
 	self._lastOpenAt = os.clock()
 	self._callbacks.openCrate(crate.id)
 	self:_refresh()
@@ -1447,8 +1485,10 @@ function FishMarket._buyBundle(self: any, crate: Types.CrateDef)
 	if buy == nil or self:_pendingFor(key) then
 		return
 	end
-	self._pending[key] = os.clock()
-	buy(crate.id)
+	local wait = self:_sendSpaced("bundle", function()
+		buy(crate.id)
+	end)
+	self._pending[key] = os.clock() + wait + BUY_PENDING_SECONDS
 	self:_refresh()
 end
 
@@ -1456,8 +1496,10 @@ function FishMarket._buy(self: any, row: Types.FishShopRow)
 	if self:_pendingFor(row.id) then
 		return
 	end
-	self._pending[row.id] = os.clock()
-	self._callbacks.buyItem(row.id)
+	local wait = self:_sendSpaced("item", function()
+		self._callbacks.buyItem(row.id)
+	end)
+	self._pending[row.id] = os.clock() + wait + BUY_PENDING_SECONDS
 	self:_refresh()
 end
 
@@ -1739,8 +1781,11 @@ function FishMarket._buyFresh(self: any, itemId: string)
 	end
 	local buy: ((itemId: string, window: number?) -> ())? = self._callbacks.buyFresh
 	if buy then
-		self._pending[key] = os.clock()
-		buy(itemId, stock.window)
+		local window = stock.window
+		local wait = self:_sendSpaced("fresh", function()
+			buy(itemId, window)
+		end)
+		self._pending[key] = os.clock() + wait + BUY_PENDING_SECONDS
 		self:_renderFresh()
 	end
 end

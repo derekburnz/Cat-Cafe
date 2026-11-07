@@ -165,6 +165,9 @@ UI.events = {
 	-- F72 intro: (shot)   Skip or gamepad B, once per play, with the shot showing (1 to Intro.SHOTS); end the intro, call
 	-- UI.intro.finish and fire IntroDone(shot, replay)
 	introSkip = Signal.new(),
+	-- #2182 (intro-cutscene.md 2b): (shot)   Next, a tap outside Skip, Space, Enter or gamepad A, once a shot and from
+	-- Intro.NEXT_AFTER into it; cut to the next shot, or on the last one end the intro as a finish (IntroDone(0, replay))
+	introNext = Signal.new(),
 	-- ()   the HUD's Tutorial tile or Settings' Replay tutorial: play the intro again with UI.intro.start({ replay = true })
 	introReplay = Signal.new(),
 	-- F64
@@ -1380,6 +1383,9 @@ function UI.init(config: Types.InitConfig)
 			UI.events.introSkip:Fire(shot)
 		end,
 		ended = introEnded,
+		nextShot = function(shot: number)
+			UI.events.introNext:Fire(shot)
+		end,
 	})
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
 	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker")
@@ -2690,9 +2696,11 @@ end
 
 -- A shot begins: index 1 to Intro.SHOTS lights its dot, the caption pops. #1542 (Derek): the camp shot and its area
 -- title cards are gone; a third argument is still taken and ignored, so the controller's calls stand until it drops it.
-function UI.intro.setShot(index: number, caption: string, _titleCard: string?)
+-- #2182: `hold` is the shot's seconds on screen (Intro's caption reading time): the gold read bar under the caption
+-- fills over it and Next shows (events.introNext); nil shows neither.
+function UI.intro.setShot(index: number, caption: string, _titleCard: string?, hold: number?)
 	if introScreen then
-		introScreen:setShot(index, caption)
+		introScreen:setShot(index, caption, nil, hold)
 	end
 end
 

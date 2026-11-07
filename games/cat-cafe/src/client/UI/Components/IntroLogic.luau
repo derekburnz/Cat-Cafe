@@ -27,6 +27,13 @@ IntroLogic.START_RADIUS = 138
 IntroLogic.CLOSE = 1.3
 IntroLogic.FADE_FROM = 1.8
 IntroLogic.END = 2.0
+-- #2182 (intro-cutscene.md 2b; playtesters via Derek2 2026-11-07: "a next button or just slowing it down would
+-- help"): Next, a tap outside Skip, Space, Enter or gamepad A moves on once a shot has shown this long, so a double tap
+-- never skips two shots (shared/Intro's NEXT_AFTER, else 1.0)
+IntroLogic.NEXT_AFTER = if type(Intro.NEXT_AFTER) == "number" then Intro.NEXT_AFTER else 1.0
+IntroLogic.NEXT_GAP = 10 -- design pixels between Next and Skip on the lower bar
+IntroLogic.READ_WIDTH = 220 -- the read bar under the caption, in design pixels
+IntroLogic.READ_HEIGHT = 4
 
 -- How long Skip's bar takes to fill: the controller's skipAfter, else at once on a replay and FIRST_SKIP on a first
 -- play.
@@ -80,6 +87,20 @@ function IntroLogic.skipFill(elapsed: number, wait: number): number
 		return 0
 	end
 	return math.clamp(elapsed / wait, 0, 1)
+end
+
+-- #2182: a shot's hold as the controller passed it, or nil for none (no read bar and no Next): a number above 0 and
+-- not NaN or infinite.
+function IntroLogic.hold(seconds: unknown): number?
+	if type(seconds) ~= "number" or seconds ~= seconds or seconds <= 0 or seconds == math.huge then
+		return nil
+	end
+	return seconds
+end
+
+-- #2182: whether a press `elapsed` seconds into a shot moves on (NEXT_AFTER or later; never for a broken clock).
+function IntroLogic.canNext(elapsed: number): boolean
+	return elapsed == elapsed and elapsed >= IntroLogic.NEXT_AFTER
 end
 
 -- Shot 4's job card: the four roles in the cat room's order. It shows 0.35 s into the shot, the given role lights

@@ -630,3 +630,6 @@ Derek2 asked for the +15% to be more obvious. store-pass-looks.md §7: a gold "+
 
 ## 2026-11-07: Auto Equip for decor (Design-Agent, friend's project, #2068)
 With Auto Equip on, a new furniture or decoration piece from a crate or a pass replaces the weakest placed piece only when its bonus is strictly higher. Never wallpaper, floor or paint, never a piece placed or moved in the last 10 minutes. The old piece goes back to the inventory, and a toast says "Swapped <old> for <new> (+X%)". Shop buys are placed as today, and a pass piece takes a free spot by itself like a crate piece (built in #2161). Reason: keeps the free toggle useful for decor without undoing a player's own layout.
+
+## 2026-11-07: Tutorial captions wait for reading time, plus Next (Design-Agent, friend's project, #2182)
+Playtesters said the intro captions go by too fast for kids. intro-cutscene.md §2b: each shot holds at least 1.0 s + 0.4 s a word of its caption (about 33 s with no taps, was 20 s), the camera idles after each shot's action, a "Next ›" pill or a tap anywhere moves on from 1.0 s into a shot, and a read bar shows when it moves on by itself. Skip is unchanged, and `Intro.VERSION` goes to 6. Reason: both fixes the playtesters named, with fast readers able to go as fast as before.

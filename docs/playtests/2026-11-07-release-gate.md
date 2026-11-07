@@ -26,7 +26,7 @@ Read only after about 100 new players; below that, a number is noise and the sta
 | Errors | `ClientErrors`, BugReportService, DataStore failures | no error seen in more than 2% of sessions; zero save-loss reports | any save loss |
 | Store timing | `first_store_open`, purchases | no pass or Store prompt before about 30 minutes of play | a prompt in the first 10 minutes |
 
-Note for Derek: the outside launch guide's "D1 30% or more" is far above the 2026 GameAnalytics Roblox figures in `analytics-plan.md` (median D1 10.3%, 90th percentile about 15.9%). A 30% gate would hold the game back almost no matter what, so this page uses 12%. Design-Agent's 25% is also well above the median; Derek decides which bar the go uses. The 25% is the stricter option, so a pass on it is a clear go, and a result between 12% and 25% is Derek's call.
+Note: D1 is set to 12% (Derek, 2026-11-07), close to the 2026 GameAnalytics Roblox figures in `analytics-plan.md` (median D1 10.3%, 90th percentile about 15.9%). Design-Agent had proposed 25%, which is well above the median.
 
 ## 3. Device matrix
 Run on the live build with a fresh account, 10 minutes each: load to first move, intro, catch a cat, open the Store, visit the busiest cafe area. Record load time, frame rate, memory (F9 / MicroProfiler or the Developer Console memory tab), and console errors. Report to `docs/playtests/2026-11-xx-devices.md`; every problem becomes an issue.

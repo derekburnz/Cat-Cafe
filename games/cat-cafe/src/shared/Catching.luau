@@ -25,7 +25,7 @@ Catching.CARRIED_POSE = { 0, -0.4, -1.05, 0, 0, 1, 0, 1, 0, -1, 0, 0 }
 -- middle; R6 arms per #1991), so its middle is on the hands.
 Catching.HELD = {
 	r15 = { up = -0.25, gap = 0 },
-	r6 = { up = 0.28, gap = 0 }, -- #1993: on R6's straight arms (#1991), whose tops rise 0.86 above where the floor was
+	r6 = { up = 0.18, gap = 0.1 }, -- #1995: on the straight arms (#1991), its head off the character's cheek
 	turn = 90,
 }
 

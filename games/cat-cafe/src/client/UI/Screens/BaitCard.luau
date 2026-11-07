@@ -83,14 +83,29 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 		Enabled = false,
 	})
 	self.screenGui = screenGui
+	-- #2137: the dim on its own layer that ignores the top bar inset (as Modal's and Popups'), so it covers the whole
+	-- screen; on exactly while the card's layer is
+	local dimGui: ScreenGui = Create("ScreenGui", {
+		Name = "CatCafeBaitCardDim",
+		ResetOnSpawn = false,
+		IgnoreGuiInset = true,
+		ScreenInsets = Enum.ScreenInsets.None,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		DisplayOrder = 34,
+		Enabled = false,
+	})
+	self._dimGui = dimGui
 	self._backdrop = Create("Frame", {
 		Name = "Backdrop",
 		BackgroundColor3 = Theme.modal.backdrop,
 		BackgroundTransparency = 0.5,
 		BorderSizePixel = 0,
 		Size = UDim2.fromScale(1, 1),
-		Parent = screenGui,
+		Parent = dimGui,
 	})
+	self._dimFollow = screenGui:GetPropertyChangedSignal("Enabled"):Connect(function()
+		dimGui.Enabled = screenGui.Enabled
+	end)
 	local root: Frame = Create("Frame", {
 		Name = "Root",
 		BackgroundTransparency = 1,
@@ -296,6 +311,7 @@ function BaitCard.new(parent: Instance, callbacks: Callbacks): BaitCard
 	})
 
 	if parent then
+		dimGui.Parent = parent
 		screenGui.Parent = parent
 	end
 	return self :: BaitCard
@@ -442,6 +458,8 @@ function BaitCard.destroy(self: any)
 	self._close:destroy()
 	self._portrait:destroy()
 	Scale.unbind(self._uiScale)
+	self._dimFollow:Disconnect()
+	self._dimGui:Destroy()
 	self.screenGui:Destroy()
 end
 

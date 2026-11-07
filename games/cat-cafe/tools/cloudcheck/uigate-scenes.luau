@@ -1497,7 +1497,15 @@ local SCENES = {
 		UI.bait.showReady({ catId = Catalog.cats[2].id, stars = 2 }, 2)
 		local banner = UIShim.playerGui:FindFirstChild("CatCafeBaitCard"):FindFirstChild("Banner", true)
 		assert(banner.Text == "A CAT CAME TO BOWL 2!", "uigate: the cat's card says " .. banner.Text .. " (#1161)")
+		-- #2137: the card's dim covers the whole screen, the top bar's strip too
+		local dim = UIShim.playerGui:FindFirstChild("CatCafeBaitCardDim")
+		local backdrop = dim and dim:FindFirstChild("Backdrop") :: GuiObject?
+		assert(dim and (dim :: ScreenGui).Enabled and backdrop, "uigate: no dim behind the bait card (#2137)")
+		local screenY = workspace.CurrentCamera.ViewportSize.Y
+		assert((backdrop :: GuiObject).AbsolutePosition.Y <= 0 and (backdrop :: GuiObject).AbsoluteSize.Y >= screenY - 1, "uigate: the bait card's dim stops short of the top (#2137)")
 		press("CatCafeBaitCard", "Close") -- the X; See the cat brings it back
+		UIShim.advance(1) -- the card pops out first
+		assert(not (dim :: ScreenGui).Enabled, "uigate: the bait card's dim stays after the card closed (#2137)")
 		assertBowlTile(true)
 		UI.bait.openPicker()
 		assertBowlTabs(2, "A cat is at bowl 2!")
@@ -2386,6 +2394,12 @@ local SCENES = {
 		UI.showOfflineEarnings(48200, 3 * 3600)
 		-- an ask (the invite nudge) waits for the Welcome back card (Studio run 2026-11-07)
 		assert(not UI.tips.quiet(), "uigate: an ask could slide in under the Welcome back card")
+		-- #2137: the dim behind the card covers the whole screen, the top bar's strip too
+		local dim = UIShim.playerGui:FindFirstChild("CatCafePopupsDim")
+		local backdrop = dim and dim:FindFirstChild("Backdrop") :: GuiObject?
+		assert(dim and (dim :: ScreenGui).Enabled and backdrop, "uigate: no dim behind the Welcome back card (#2137)")
+		local screen = workspace.CurrentCamera.ViewportSize
+		assert((backdrop :: GuiObject).AbsolutePosition.Y <= 0 and (backdrop :: GuiObject).AbsoluteSize.Y >= screen.Y - 1, ("uigate: the dim starts at y %d, %d tall, not the whole %d (#2137)"):format((backdrop :: GuiObject).AbsolutePosition.Y, (backdrop :: GuiObject).AbsoluteSize.Y, screen.Y))
 	end },
 	-- F87 section 2f: a brand new player's small HUD, the money, the hint strip, Home and the Cannon, the Tutorial
 	-- tile and Settings

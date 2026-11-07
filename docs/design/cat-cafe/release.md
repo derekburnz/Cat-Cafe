@@ -59,7 +59,7 @@ Owners: QA-Planner (runs the gate and writes `docs/playtests/2026-11-10-release-
 The research rule is that nothing pushes a paid item at a new player. Today nothing opens the Store or a purchase prompt by itself, and every prompt comes from a tap. This section makes that a tested rule and calms the first 30 minutes. Builders: UI-Engineer (client), Gameplay-Engineer (the play-time value).
 
 - **The rule:** a purchase prompt (`PassShop.prompt` or a product prompt) opens only from a tap on a buy button the player is looking at. A guard in `PassShop.prompt` refuses any call without a tap in the last 2 seconds, and logs `store_guard_blocked` with where the call came from. A unit test covers it.
-- **The first 30 minutes of total play** (`stats.playSeconds` under 1800):
+- **The first 30 minutes of total play** (`stats.playtimeSeconds` plus the session, under 1800):
   - The HUD money pill shows its "x2" icon without a price, and tapping it still opens the Store.
   - No toast, banner, What's New line or goal card mentions a paid item.
   - The Store tile is always there, and the Store itself shows everything as normal when a player opens it.

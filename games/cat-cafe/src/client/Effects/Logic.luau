@@ -2020,6 +2020,42 @@ function Logic.along(points: { Vector3 }, travelled: number): (Vector3, Vector3,
 	return points[#points], heading, true
 end
 
+-- How far `point` lies from the segment `a` to `b`, across the floor (Y left out).
+function Logic.flatDistanceToSegment(point: Vector3, a: Vector3, b: Vector3): number
+	local p = Vector3.new(point.X, 0, point.Z)
+	local s = Vector3.new(a.X, 0, a.Z)
+	local e = Vector3.new(b.X, 0, b.Z)
+	local leg = e - s
+	local lengthSquared = leg:Dot(leg)
+	local t = if lengthSquared > 1e-9 then math.clamp((p - s):Dot(leg) / lengthSquared, 0, 1) else 0
+	return (p - (s + leg * t)).Magnitude
+end
+
+-- Whether a way PathfindingService found from `from` to `to` can be walked by a cafe cat's copy (SlotWalk, #2050):
+-- every point a number, none more than `detour` studs off the straight line across the floor, nor `rise` studs above
+-- or below the floor at `to`. Anything else (a waypoint at the world origin or far below the map) is thrown away and
+-- the copy walks straight.
+function Logic.walkableWay(
+	points: { Vector3 },
+	from: Vector3,
+	to: Vector3,
+	detour: number,
+	rise: number
+): boolean
+	if #points < 1 then
+		return false
+	end
+	for _, p in points do
+		if p.X ~= p.X or p.Y ~= p.Y or p.Z ~= p.Z then
+			return false
+		end
+		if math.abs(p.Y - to.Y) > rise or Logic.flatDistanceToSegment(p, from, to) > detour then
+			return false
+		end
+	end
+	return true
+end
+
 -- The turn about Y (radians) that faces a model, which looks along -Z, along the flat direction `way`.
 function Logic.yawOf(way: Vector3): number
 	return math.atan2(-way.X, -way.Z)

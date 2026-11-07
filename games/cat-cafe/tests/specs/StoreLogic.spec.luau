@@ -572,8 +572,11 @@ return function()
 			local row = find(StoreLogic.rows({ GardenDecorPackPassId = 55 }, {}, nil, view), "gardenDecor")
 			expect(row).to.be.ok()
 			expect(row.tab).to.equal("passes")
-			local _, commas = string.gsub(row.effect, ",", "")
-			expect(commas).to.equal(5)
+			for _, name in { "Hanging Fern Basket", "Sunflower Pot", "Watering Can Planter", "Potted Lemon Tree", "Ivy Trellis", "Garden Swing Seat" } do
+				expect(string.find(row.effect, name, 1, true)).to.be.ok()
+			end
+			-- #2006: every piece adds money now, nothing reads "Looks only"
+			expect(string.find(row.effect, "Looks only", 1, true)).to.equal(nil)
 		end)
 	end)
 	describe("StoreLogic #1168 Thank You Badge and Sign Style Pack cards", function()

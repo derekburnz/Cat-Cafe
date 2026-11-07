@@ -131,15 +131,15 @@ local PASSES: { PassCard } = {
 		icon = "🏰",
 		effect = "The grand look: +150% money, twice the rich visitors, +1 job slot every tier.",
 	},
-	-- #1168 row 3: the six looks-only pieces of Catalog.passDecor with pack "Garden Decor Pack", by name; hidden while
-	-- GardenDecorPackPassId is 0
+	-- #1168 row 3: the six pieces of Catalog.passDecor with pack "Garden Decor Pack", by name and rarity (#2006: each
+	-- adds money while in use, Rare +4% and Epic +8%); hidden while GardenDecorPackPassId is 0
 	{
 		key = "gardenDecor",
 		configKey = "GardenDecorPackPassId",
 		name = "Garden Decor Pack",
 		icon = "🌻",
-		effect = "Hanging Fern Basket, Sunflower Pot, Watering Can Planter, Potted Lemon Tree, Ivy Trellis, "
-			.. "Garden Swing Seat. Looks only.",
+		effect = "More money while in use. Rare +4%: Hanging Fern Basket, Sunflower Pot, Watering Can Planter. "
+			.. "Epic +8%: Potted Lemon Tree, Ivy Trellis, Garden Swing Seat.",
 	},
 	-- #1168 row 1: the three sign styles of shared/SignStyles with passKey SignStylePackPassId, by name; hidden while
 	-- the id is 0. Owned, they show on the Style tab with the rest.

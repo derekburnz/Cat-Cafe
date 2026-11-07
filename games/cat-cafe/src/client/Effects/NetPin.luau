@@ -282,10 +282,14 @@ local function update(stray: Model)
 end
 
 local function watch(instance: Instance)
-	if not instance:IsA("Model") or watched[instance :: Model] ~= nil then
+	if not instance:IsA("Model") then
 		return
 	end
 	local stray = instance :: Model
+	local had: RBXScriptConnection? = watched[stray]
+	if had then
+		return
+	end
 	watched[stray] = stray:GetAttributeChangedSignal("NetDown"):Connect(function()
 		update(stray)
 	end)
@@ -297,8 +301,8 @@ local function unwatch(instance: Instance)
 		return
 	end
 	local stray = instance :: Model
-	local connection = watched[stray]
-	if connection ~= nil then
+	local connection: RBXScriptConnection? = watched[stray]
+	if connection then
 		connection:Disconnect()
 		watched[stray] = nil
 	end

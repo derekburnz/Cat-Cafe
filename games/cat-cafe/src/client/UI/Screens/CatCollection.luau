@@ -406,7 +406,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 			Padding = UDim.new(0, Theme.sizes.gap * 2),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		Create("UIPadding", { PaddingRight = UDim.new(0, 10), PaddingBottom = UDim.new(0, 8) }),
+		Outline.listPadding(10, 8), -- #2294: room for the cards' outlines
 	})
 
 	-- Decor Index: a page per crate (Screens/DecorIndex)

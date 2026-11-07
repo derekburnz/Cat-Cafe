@@ -790,9 +790,25 @@ local HERO_ORDER = { "starterBundle", "kingPack", "cafePass", "royalCat", "grand
 -- King Cat Pack is the hero).
 -- #1823 §1: the Cafe Pass first, then the best sellers (2x Money and Long Nap until the growth thread has sales data)
 local PICK_ORDER = { "cafePass", "money", "longNap", "kingPack", "royalCat" }
+-- #2303 (Derek2: "remove the 3 potion bundles and add things like the +1 bowl or more popular passes"): once those
+-- are owned, the next picks are passes the player keeps, ordered by what they do for play first (more cats, more
+-- slots, more pay), then looks (Monetization-Agent's order). Any other pass comes next; the potion packs and the
+-- other products bought each time only fill a pick once every pass is owned.
+local PASS_PICKS = {
+	"secondBowl",
+	"extraSlot",
+	"vip",
+	"accessories",
+	"cafeStyle",
+	"signStylePack",
+	"gardenDecor",
+	"grandTheme",
+	"kingCat",
+}
 
 -- The Featured tab's cards: one hero and up to three picks, never the same row twice. Owned rows give way to ones
--- that can still be bought, and an empty spot is filled from the rest of the Store in its order.
+-- that can still be bought, and an empty spot is filled from PASS_PICKS, then the rest of the Store's passes, then
+-- its products, each in order.
 function StoreLogic.featured(rows: { Row }): Featured
 	local byKey: { [string]: Row } = {}
 	for _, row in rows do
@@ -829,6 +845,17 @@ function StoreLogic.featured(rows: { Row }): Featured
 	for _, key in PICK_ORDER do
 		local row = byKey[key]
 		if row and not row.owned then
+			take(row)
+		end
+	end
+	for _, key in PASS_PICKS do
+		local row = byKey[key]
+		if row and not row.owned then
+			take(row)
+		end
+	end
+	for _, row in rows do
+		if not row.owned and not row.product then
 			take(row)
 		end
 	end

@@ -28,6 +28,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
+local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local Signal = require(ReplicatedStorage.Shared.Signal)
 local Telemetry = require(script.Parent.Telemetry)
 local Tips = require(ReplicatedStorage.Shared.Tips)
@@ -91,7 +92,7 @@ local function watch()
 			end
 			-- F96: at most one ask a session, when its moment has come
 			if not session.asked then
-				local ask = Tips.dueAsk(profile, clock, day)
+				local ask = Tips.dueAsk(profile, clock, day, PlayTime.seconds(player, profile))
 				if ask ~= nil and TipService.show(player, ask) then
 					session.asked = true
 				end

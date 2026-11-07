@@ -36,6 +36,7 @@ local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local LawnLogic = require(script.Parent.Parent.Components.LawnLogic)
 local LawnTab = require(script.Parent.LawnTab)
+local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
@@ -223,7 +224,7 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 			SortOrder = Enum.SortOrder.LayoutOrder,
 			HorizontalAlignment = Enum.HorizontalAlignment.Left,
 		}),
-		Create("UIPadding", { PaddingRight = UDim.new(0, 10) }),
+		Outline.listPadding(10), -- #2294: room for the cards' outlines
 	})
 	-- F97: no shop; the last cell says where decor comes from now. A grid cell, so it sits after the last card.
 	local footer: Frame = Create("Frame", {

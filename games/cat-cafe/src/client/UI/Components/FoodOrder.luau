@@ -10,6 +10,8 @@
 --                                     turns it round (#2057: the Night Dealer's rows, Star Treat first)
 --   defs(lures, rarestFirst?)         a sorted copy of a catalog's foods; rarestFirst turns it round, Star Treat
 --                                     first (#1609: the bowl's list and the Bag's Bait tab)
+--   ownedFirst(foods, have)           #2323: a copy of a sorted food list with the foods the player has (have[id] > 0)
+--                                     first, each part keeping its order (the Bait bowl's list)
 -- Pure, so the cloud spec runner checks it.
 
 local FoodGrade = require(script.Parent.FoodGrade)
@@ -93,6 +95,26 @@ function FoodOrder.defs(lures: { Types.LureDef }, rarestFirst: boolean?): { Type
 		end
 	end
 	return list
+end
+
+-- #2323 (Derek2: "the kibble you have to scroll ... shows the highest rarity one that you have in inventory at top"):
+-- the foods the player has lead, so a new player's Kibble is the first row, not the last under foods they can't use.
+function FoodOrder.ownedFirst(
+	foods: { Types.LureDef },
+	have: { [string]: number }
+): { Types.LureDef }
+	local out: { Types.LureDef } = {}
+	for _, lure in foods do
+		if (have[lure.id] or 0) > 0 then
+			table.insert(out, lure)
+		end
+	end
+	for _, lure in foods do
+		if (have[lure.id] or 0) <= 0 then
+			table.insert(out, lure)
+		end
+	end
+	return out
 end
 
 return FoodOrder

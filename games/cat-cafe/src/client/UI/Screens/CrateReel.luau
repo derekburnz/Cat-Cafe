@@ -105,7 +105,8 @@ function CrateReel.new(parent: GuiObject): CrateReel
 		Name = "Window",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(VIEW_W, TILE),
+		-- #2294: Outline.ROOM taller on each side than the tiles, so their rings aren't cut off top and bottom
+		Size = UDim2.fromOffset(VIEW_W, TILE + Outline.ROOM * 2),
 		BackgroundTransparency = 1,
 		ClipsDescendants = true,
 		ZIndex = Z + 2,
@@ -263,7 +264,7 @@ end
 -- Puts the tile `at` (a number, 1 = the first tile's centre) under the marker.
 function CrateReel._place(self: any, at: number)
 	self._strip.Position =
-		UDim2.fromOffset(math.floor(VIEW_W / 2 - ((at - 1) * STEP + TILE / 2) + 0.5), 0)
+		UDim2.fromOffset(math.floor(VIEW_W / 2 - ((at - 1) * STEP + TILE / 2) + 0.5), Outline.ROOM)
 end
 
 function CrateReel.play(self: any, play: Play)

@@ -143,7 +143,7 @@ local function scrollList(name: string, parent: Instance): ScrollingFrame
 			Padding = UDim.new(0, Theme.sizes.gap),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		Create("UIPadding", { PaddingRight = UDim.new(0, 10) }),
+		Outline.listPadding(10), -- #2294: room for the rows' outlines
 	})
 end
 

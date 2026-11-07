@@ -48,6 +48,8 @@ local Types = require(ReplicatedStorage.Shared.Types)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local RescueService = {}
+-- #2335: the trap prompt's HoldDuration: 0, one press starts a rescue
+RescueService.PROMPT_HOLD_SECONDS = 0
 
 -- A player more than this far from the trap ends their attempt (data-model section 10b).
 local LEAVE_RANGE_STUDS = 14
@@ -183,12 +185,13 @@ local function spawnStuck(
 	model:SetAttribute("HelpedBy", 0) -- F92
 	CollectionService:AddTag(model, "StuckCat")
 
-	-- Holding E starts the minigame, as on a stray (Config.CatchHoldSeconds); the UI's card reads "Rescue".
+	-- #2335 (Derek2: "make rescue a one click thing instead of hold"): one press of E or one tap of the card's RESCUE
+	-- button starts the minigame (HoldDuration 0; was Config.CatchHoldSeconds); the UI's card reads "Rescue".
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "RescuePrompt"
 	prompt.ActionText = "Rescue"
 	prompt.ObjectText = def.name
-	prompt.HoldDuration = Config.CatchHoldSeconds
+	prompt.HoldDuration = RescueService.PROMPT_HOLD_SECONDS
 	prompt.MaxActivationDistance = Config.GrabRangeStuds
 	prompt.RequiresLineOfSight = false
 	prompt.Style = Enum.ProximityPromptStyle.Custom

@@ -26,6 +26,7 @@
 local ContextActionService = game:GetService("ContextActionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
@@ -35,6 +36,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local PawRow = require(script.Parent.Parent.Components.PawRow)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
+local TouchPrompt = require(script.Parent.Parent.Components.TouchPrompt)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
@@ -535,7 +537,9 @@ function RescueBar.show(
 		then "Helping! Your misses cost no paws"
 		elseif shake then "Hit the green to shake the branch!"
 		elseif rules(challenge).zone ~= nil then "Hit the green!"
-		elseif Scale.isTouch() then "Tap when the bar is in the green!"
+		elseif
+			TouchPrompt.wants(nil, UserInputService:GetLastInputType().Name, Scale.isTouch())
+		then "Tap when the bar is in the green!" -- #2315: on any sign of touch
 		else "Press Space or click when the bar is in the green!"
 	self._pawRow:set(challenge.paws, challenge.paws)
 	self._hint.Size = UDim2.new(1, if challenge.paws ~= nil then -110 else -28, 0, 22)

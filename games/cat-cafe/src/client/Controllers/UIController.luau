@@ -1770,7 +1770,7 @@ local function wireServerEvents()
 	)
 	-- Data-model section 10 step 5: grades up to and including the first Miss and the Purrfect charm bonus. The HUD
 	-- shows the grades and, on a miss, that the cat got away (v0.5: it sprints off and tries are unlimited). A miss
-	-- also brings this player's retryAt (F57, review S87), when the card's "Catch your breath..." ends.
+	-- also brings this player's retryAt (F57, review S87), when the card's "Cooling down Ns" ends.
 	Net.on(
 		"CatchResult",
 		function(

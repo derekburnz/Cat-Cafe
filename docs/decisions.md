@@ -570,6 +570,7 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ### Proposed by Gameplay-Engineer (Derek2's project, 2026-11-07)
 - 2026-11-07 (#2317, #2332): a net catch fails only when the trust (heart) bar empties. Derek2: "it should fully be only failing if the heart bar hits 0". Circles.ringCap is the all-Good count plus CatchSpareRings, which is 16 (it was the all-Perfect count plus 2, so on Epic and up an all-Good run ran out of rings and bolted). CatchFeel's model per try, Basic Net 50 ms: 98/94/80/55/36 -> 100/100/100/99/98; Basic Net 70 ms: 84/65/39/18/8 -> 99/99/97/90/83. Why: Derek2's direction; a retune of trustNeed, TrustMiss or the bands can bring rarity back into the odds if wanted.
+- 2026-11-07 (#2320): easier rescues for Common and Rare. Derek2: "lower the difficulty for rescue missions rare and lower". RescueBarSpeed Common 1.0 -> 0.85 and Rare 1.2 -> 1.05; RescueZoneWidth Common 0.26 -> 0.30 and Rare 0.20 -> 0.23. Epic and up are unchanged. CatchFeel's bar model: Rare at 70 ms goes from 85% to 98% a try (at 50 ms 99% to 100%); Common stays at 100%. Why: Derek2's ask, keeping rarer cats harder in the same order.
 
 ## 2026-11-07: four-week calendar drafted (#1937)
 Design-Agent (friend's project) drafted the first four weeks in `release.md` §4, on Sync-Agent's report that #1937 had no owner. It assumes small Saturday drops (Set 12 Q2) and the research launch days from #1956 (soft launch Wed 11-11 20:00 UTC, go wide Sat 11-14 14:00 UTC, Set 12 Q6), so "We're open!" and the first Rescue Rally weekend ship together. Lucky, Golden and Rainbow Days are forced on for their drop day. Rows that change with Derek2's answers are marked [Q2] or [Q6], with the alternatives in §4b. Reason: a calendar that only flips flags on Saturdays keeps each week small for a first game.
@@ -663,3 +664,9 @@ Derek2: "the updates that I said bgdevila/crispi_255 and tyrell said add those t
 
 ## 2026-11-07: Bowl odds pass Pace on the new tier goals (Design-Agent, friend's project, #2239)
 Gameplay reran Pace on main after #2236 and #2271: one go reaches Tier 5 in 11h26 (inside the 9 to 14 h band), Tier 3 at 53.3 min in the first hour, and daily play reaches Tier 5 on day 6. Every check passes. Logged in data-model.md §8. #2266 and #2287 come later.
+
+## 2026-11-07: Intro shows a rich customer's tip (Design-Agent, friend's project, #2242)
+A new shot 6 after the job shot: a rich customer sits at table 1, leaves a gold coin pile and your avatar grabs it for "+$50" (the real first rich tip). The intro has nine shots, `Intro.VERSION` 8, and runs about 37 s with no taps. intro-cutscene.md §2c. Reason: Derek2's ask to show rare customers in the tutorial; built in #2305.
+
+## 2026-11-07: Music style defaults to Shuffle (Sound-Agent, #2347)
+Derek2: "change the style of music to default to shuffle". A player who never picked a music style now hears Shuffle (the Jukebox songs in random order, #2077) instead of the day and night rotation: `Jukebox.shown` turns a missing or stale pick into `shuffle`. Saved picks (a song or Shuffle) are kept. Picking the rotation now saves `"default"` so that choice sticks; before, it saved nothing, the same as never picking, so a player who had chosen the rotation hears Shuffle once and can pick Default again. No save version or remote change.

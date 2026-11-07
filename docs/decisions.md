@@ -642,3 +642,6 @@ Derek2: "update whats new board with mention of peoples fixes/suggestions when a
 
 ## 2026-11-07: Epic and Legendary spawn anywhere; rescue misses reset the bar (Design-Agent, friend's project, #2210, #2219)
 Logged two builder changes from crispi_255's asks. Epic and Legendary strays spawn anywhere in a side area, and only Mythicals keep to the far half (town-layout-v3.md §8d; the Alleyway nook still holds Epic and up). A rescuer's miss after hits resets the rescue bar to the first zone at starting speed and costs a paw, with the 15 s deadline unchanged (catch-rework.md §4). Reason: more rare cats seen near the gate, and rescues reward a clean run.
+
+## 2026-11-07: Harder tier goals measured; Mythical rescue zone 0.14 (Design-Agent, friend's project, #2230, #2219)
+Tier goals as built in #2236: one-go Tier 5 at 11 h 26 and daily play on day 6, so the 2.3B stays (economy-ladder.md §3 v4). Rescue reset (#2220) with the Mythical zone at 0.14 brings Mythical bar rescues back to about 10% at 50 ms, where they were before the reset (catch-rework.md §4). Reason: the reset alone dropped Mythical to about 5%, and Derek2 had already said Mythical felt impossible.

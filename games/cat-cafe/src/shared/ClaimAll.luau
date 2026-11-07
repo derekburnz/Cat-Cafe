@@ -9,6 +9,7 @@
 local Catalog = require(script.Parent.Catalog)
 local IndexRewards = require(script.Parent.IndexRewards)
 local Quests = require(script.Parent.Quests)
+local ShortNumber = require(script.Parent.ShortNumber)
 local TipJar = require(script.Parent.TipJar)
 local Types = require(script.Parent.Types)
 
@@ -163,7 +164,7 @@ function ClaimAll.merge(lines: { string }): { string }
 	for _, entry in order do
 		local total = entry.total or 0
 		if entry.format == "coins" then
-			table.insert(out, string.format("+$%d", total))
+			table.insert(out, "+$" .. ShortNumber.format(total)) -- #2268: "+$54K", not "+$54045"
 		elseif entry.format == "fish" then
 			table.insert(out, string.format("+%d golden fish", total))
 		elseif entry.format == "forever" then

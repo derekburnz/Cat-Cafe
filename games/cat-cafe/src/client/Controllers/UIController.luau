@@ -27,6 +27,7 @@ local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local RareMoments = require(Shared:WaitForChild("RareMoments"))
 local Settings = require(Shared:WaitForChild("Settings"))
+local ShortNumber = require(Shared:WaitForChild("ShortNumber"))
 local StoreFunnel = require(Shared:WaitForChild("StoreFunnel"))
 local Tips = require(Shared:WaitForChild("Tips"))
 local Types = require(Shared:WaitForChild("Types"))
@@ -1556,7 +1557,7 @@ local function wireServerEvents()
 				return
 			end
 			UI.toast(
-				if coins > 0 then string.format("Team Rescue! +$%d", coins) else "Team Rescue!",
+				if coins > 0 then "Team Rescue! +$" .. ShortNumber.format(coins) else "Team Rescue!",
 				"good"
 			)
 		end

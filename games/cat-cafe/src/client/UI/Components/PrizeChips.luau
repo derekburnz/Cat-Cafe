@@ -234,10 +234,10 @@ end
 
 -- The uploaded picture for a part (Components/ShopIcons), drawn in place of its model.
 local function partImage(part: IndexRewards.PrizePart): string?
-	-- #1071, #1208: crates draw the clean symbol, with the older picture until its id is in ShopIcons
+	-- #2089: a crate draws its own crate's picture (Classic, Park, golden...), the crate symbol only for an unknown id
 	local kind = part.kind
 	if kind == "crate" then
-		return ShopIcons.clean("Crate") or ShopIcons.crate(part.id)
+		return ShopIcons.crate(part.id) or ShopIcons.clean("Crate")
 	elseif kind == "potion" then
 		return ShopIcons.potion(part.id)
 	elseif kind == "catFood" then

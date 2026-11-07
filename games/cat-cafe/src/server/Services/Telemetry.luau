@@ -41,6 +41,7 @@ local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local PassService = require(script.Parent.PassService)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -80,6 +81,7 @@ export type CustomEvent =
 	| "camp_extra" -- F100 (camp-extras.md section 4): value the fills taken or 1; the extra, what was taken, tier
 	| "cafe_pass_claim" -- #1645: value 1; the track, the level and the season
 	| "cafe_pass_bought" -- #1626: value 1; the season whose paid track was bought
+	| "grant_failed" -- #2127: value 1; the product, the step that threw, and "retry" (nothing paid) or "kept"
 	| "shove"
 	| "drop_outcome"
 	| "left_after_shove"
@@ -178,10 +180,13 @@ export type CustomEvent =
 	-- #1888: a Jukebox track picked (#1875), value 1; the track id or "default"
 	| "jukebox_pick"
 	-- #1920: the session recap card shown, once a session, value the minutes played this session; the Grand Opening
-	-- milestones done (0 to 8) and tier
+	-- milestones done (0 to 8), tier and (#2123) the Tomorrow line's kind (bait, treat or quests; shared/ReturnHook)
 	| "session_recap"
 	-- #1920: the session recap card closed, once a session, value the whole seconds it was open (0 to 30)
 	| "session_recap_close"
+	-- #2123 (first-hour.md 6a): a returning player's welcome back card named a reason to be back, value 1; the kind
+	-- (bait, treat or quests; shared/ReturnHook)
+	| "welcome_back_hook"
 	-- #1919: the goal card's "Find N more cats" nudge opened the Index, value 1; the area id it pointed at or "none"
 	| "index_hint_tap"
 	-- #1936 (release.md section 3): a purchase prompt the client's store guard refused, value 1; where it came from
@@ -980,6 +985,10 @@ local function priceOf(kind: "pass" | "product", id: number): number?
 	return nil
 end
 
+-- #2131: a pass prompt that said bought, by player and pass id: whether it was the account's first spend, kept until
+-- PassService.purchased confirms it with Roblox (a faked flag never logs a purchase).
+local pendingPasses: { [Player]: { [number]: boolean } } = {} -- cleared with the session
+
 -- #1888: a game pass prompt closed (PromptGamePassPurchaseFinished on the server): bought, or store_cancelled.
 local function onPassPrompt(player: Player, passId: unknown, purchased: unknown)
 	local sku = StoreFunnel.passSku(passId)
@@ -991,14 +1000,28 @@ local function onPassPrompt(player: Player, passId: unknown, purchased: unknown)
 		Telemetry.custom(player, "store_cancelled", 1, { sku, tierText(profile) })
 		return
 	end
-	-- before the lookup yields: PassService marks the pass owned on this same event
-	local first = not spentBefore(player, profile, 0, passId :: number)
+	-- now, before PassService's check marks the pass owned; robux_purchase waits for that check (#2131)
+	local pending = pendingPasses[player] or {}
+	pendingPasses[player] = pending
+	pending[passId :: number] = not spentBefore(player, profile, 0, passId :: number)
+end
+
+-- #2131: PassService confirmed a bought pass with Roblox: robux_purchase now.
+local function onPassConfirmed(player: Player, passId: number)
+	local pending = pendingPasses[player]
+	local first = if pending ~= nil then pending[passId] else nil
+	if first == nil then
+		return
+	end
+	pending[passId] = nil
+	local sku = StoreFunnel.passSku(passId)
+	local current = DataService.get(player)
+	if sku == nil or current == nil then
+		return
+	end
 	task.spawn(function()
-		local price = priceOf("pass", passId :: number) or 0
-		local current = DataService.get(player)
-		if current ~= nil then
-			Telemetry.robuxPurchase(player, current, sku, price, first)
-		end
+		local price = priceOf("pass", passId) or 0 -- yields (GetProductInfo)
+		Telemetry.robuxPurchase(player, current, sku, price, first)
 	end)
 end
 
@@ -1189,9 +1212,11 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if rawValue == true and not session.recapShown then
 			session.recapShown = true
 			local minutes = math.floor(math.max(0, os.time() - session.joinedAt) / 60)
+			local tomorrow = ReturnHook.pick(profile, os.time(), "recap")
 			Telemetry.custom(player, "session_recap", minutes, {
 				tostring(GrandOpening.doneCount(profile.grandOpening)),
 				tierText(profile),
+				if tomorrow ~= nil then tomorrow.kind else "none",
 			})
 		end
 	elseif name == "session_recap_close" then
@@ -1446,6 +1471,7 @@ local function onRelease(player: Player, profile: Profile)
 		)
 	end
 	sessions[player] = nil
+	pendingPasses[player] = nil
 end
 
 -- F87: the onboarding steps nothing else announces. first_move once the character has gone FIRST_MOVE_STUDS across
@@ -1494,6 +1520,7 @@ function Telemetry.start()
 	DataService.beforeRelease(onRelease)
 	Net.on("TelemetryReport", onReport)
 	MarketplaceService.PromptGamePassPurchaseFinished:Connect(onPassPrompt)
+	PassService.purchased:Connect(onPassConfirmed)
 	MarketplaceService.PromptProductPurchaseFinished:Connect(onProductPrompt)
 	task.spawn(function()
 		while true do

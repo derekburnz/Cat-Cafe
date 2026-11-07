@@ -8,6 +8,9 @@
 -- level with the menu's top; when it grows long enough to reach the banner (Luck, three potions, pals), the banner
 -- moves down just under it (`avoid`, checked with each redraw). While a catch or rescue runs the banner steps aside
 -- (setBusy), so the circles' and the rescue bar's headers under it are never covered (review S113).
+-- #2098 (Derek2 11-07: "hidden and only pops up briefly when you catch a cat to progress the bar"): the banner stays
+-- hidden. When this player's own points go up it pops in (once the catch or rescue screen has gone), the bar fills
+-- from where it was to the new points, and it goes again PEEK_SECONDS later; more points meanwhile keep it up.
 
 local Workspace = game:GetService("Workspace")
 
@@ -30,10 +33,13 @@ export type RallyBanner = {
 }
 
 local WIDTH = 320
-local HEIGHT = 74
+local NUMBER_SIZE = 12 -- the points each step pays at, under its marker (#2078)
+local HEIGHT = 74 + NUMBER_SIZE + 2
+local COUNT_W = 56 -- "120 / 300" past the bar's end
 local PAD = 12
 local TOP = 6 -- under Roblox's top bar
 local CLEAR = 8 -- kept between the banner and anything it moves away from
+local PEEK_SECONDS = 4 -- #2098: how long the banner stays up after this player scores
 local TICK_SECONDS = 1 -- the time left moves on, and the banner goes when the weekend ends
 
 local RallyBanner = {}
@@ -63,8 +69,11 @@ function RallyBanner.new(parent: Instance, avoid: (() -> { GuiObject })?): Rally
 	self._state = nil :: Types.RallyState?
 	self._visible = true
 	self._busy = false
-	self._shown = false
 	self._alive = true
+	self._mineSeen = nil :: number? -- this player's points as last seen, so a rise shows the banner (#2098)
+	self._pending = false -- points went up; the banner pops up as soon as nothing covers its spot
+	self._peekUntil = 0 -- os.clock() until which the banner is up
+	self._primed = false -- the bar has been drawn once (else the first pop fills it from where it was)
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeRally",
 		ResetOnSpawn = false,
@@ -149,14 +158,18 @@ function RallyBanner.new(parent: Instance, avoid: (() -> { GuiObject })?): Rally
 	self._bar = RallyBar.new({
 		parent = banner,
 		name = "RallyBar",
-		size = UDim2.new(1, -(PAD * 2 + 10), 0, 16),
+		-- the track, the end marker's half and "120 / 300" past it (#2078)
+		size = UDim2.new(1, -(PAD * 2 + 12 + 4 + COUNT_W), 0, 16),
 		position = UDim2.fromOffset(PAD, 32),
 		marker = 24,
 		textSize = Theme.sizes.textTiny,
+		countWidth = COUNT_W,
+		numberSize = NUMBER_SIZE,
+		textColor = Theme.chalk,
 	})
 	self._mine = text({
 		Name = "Mine",
-		Position = UDim2.fromOffset(PAD, 52),
+		Position = UDim2.fromOffset(PAD, 52 + NUMBER_SIZE + 2),
 		Size = UDim2.new(1, -PAD * 2, 0, 18),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = Theme.sizes.textSmall, -- 10.5 px on a phone (device pass 2026-11-07: textTiny + 1 read as about 8)
@@ -206,31 +219,73 @@ end
 
 function RallyBanner._render(self: any)
 	local view = RallyLogic.view(self._state, Workspace:GetServerTimeNow())
-	local shown = view ~= nil
 	if view ~= nil then
 		self._lap.Text = view.lap or ""
 		self._lap.Visible = view.lap ~= nil
 		self._left.Text = view.left
 		self._mine.Text = view.mine
 		self._mine.TextColor3 = if view.done then Theme.colors.gold else Theme.chalk
-		self._bar:set(view)
 		local top = self:_clearTop()
 		if top ~= self._top then
 			self._top = top
 			self._banner.Position = UDim2.new(0.5, 0, 0, top)
 		end
 	end
-	if shown ~= self._shown then
-		self._shown = shown
-		if shown then
+	local now = os.clock()
+	if view == nil then
+		-- no Rally running: nothing to show, and nothing waiting to pop up when the next one starts
+		self._peekUntil = 0
+		self._pending = false
+	end
+	local open = view ~= nil and self._visible and not self._busy
+	if view ~= nil and open and self._pending then
+		-- #2098: this player scored: pop up and fill the bar slowly to the new points
+		self._pending = false
+		if now >= self._peekUntil then
 			Tween.popIn(self._banner, 0.85)
 		end
+		self._peekUntil = now + PEEK_SECONDS
+		self._bar:set(view, true)
+		self._primed = true
+		local ends = self._peekUntil
+		task.delay(PEEK_SECONDS, function()
+			if self._alive and self._peekUntil == ends then
+				Tween.popOut(self._banner, function()
+					if self._alive and self._peekUntil == ends then
+						self:_render()
+					end
+				end)
+			end
+		end)
+	elseif view ~= nil and open and now < self._peekUntil then
+		self._bar:set(view) -- other players' points while it is up
+	elseif view ~= nil and not open and now < self._peekUntil then
+		-- a catch, a rescue or a cutscene cut it short: it comes back once they end
+		self._peekUntil = 0
+		self._pending = true
 	end
-	self.screenGui.Enabled = shown and self._visible and not self._busy
+	self.screenGui.Enabled = open and now < self._peekUntil
 end
 
--- RallyState from the server (through UI.rally.update), or nil.
+-- RallyState from the server (through UI.rally.update), or nil. A rise in this player's points (myPoints) pops the
+-- banner up (#2098); the first state only notes them.
 function RallyBanner.set(self: any, state: Types.RallyState?)
+	local mine = if state ~= nil then state.myPoints else nil
+	local seen = self._mineSeen
+	if type(mine) == "number" and type(seen) == "number" and mine > seen then
+		self._pending = true
+		if not self._primed then
+			-- drawn hidden at the old points first, so the pop shows the bar moving on from there
+			local before = RallyLogic.view(self._state, Workspace:GetServerTimeNow())
+			if before ~= nil then
+				self._bar:set(before)
+				self._primed = true
+			end
+		end
+	end
+	if type(mine) == "number" then
+		self._mineSeen = mine
+	end
 	self._state = state
 	self:_render()
 end
@@ -238,12 +293,12 @@ end
 -- UI.setVisible: the banner hides with the HUD (the intro, cutscenes).
 function RallyBanner.setVisible(self: any, visible: boolean)
 	self._visible = visible
-	self.screenGui.Enabled = self._shown and visible and not self._busy
+	self:_render()
 end
 
 function RallyBanner.setBusy(self: any, busy: boolean)
 	self._busy = busy
-	self.screenGui.Enabled = self._shown and self._visible and not busy
+	self:_render()
 end
 
 function RallyBanner.destroy(self: any)

@@ -30,12 +30,30 @@ return function()
 		expect(Settings.kinds.sessionRecap).to.equal("switch")
 		expect(Settings.defaults().sessionRecap).to.equal(true)
 		local profile: any = ProfileSchema.template(NOW)
+		profile.stats.sessions = 2 -- #2123: a returning player (the first session's comes sooner, below)
 		local start = SessionRecap.start(profile, NOW)
 		expect(SessionRecap.due(start, NOW + 2399, true)).to.equal(false)
 		expect(SessionRecap.due(start, NOW + 2400, true)).to.equal(true)
 		expect(SessionRecap.due(start, NOW + 2400, false)).to.equal(false) -- switched off in Settings
 		start.sent = true
 		expect(SessionRecap.due(start, NOW + 9000, true)).to.equal(false) -- once a session
+	end)
+
+	it("comes after 15 minutes in the account's first session (#2123)", function()
+		expect(Config.RecapFirstSessionSeconds).to.equal(900)
+		local profile: any = ProfileSchema.template(NOW)
+		profile.stats.sessions = 1 -- DataService counts this join before the recap starts
+		local start = SessionRecap.start(profile, NOW)
+		expect(SessionRecap.due(start, NOW + 899, true)).to.equal(false)
+		expect(SessionRecap.due(start, NOW + 900, true)).to.equal(true)
+		expect(SessionRecap.due(start, NOW + 900, false)).to.equal(false)
+	end)
+
+	it("carries the Tomorrow line (#2123)", function()
+		local profile: any = ProfileSchema.template(NOW)
+		local start = SessionRecap.start(profile, NOW)
+		local view = SessionRecap.view(start, profile, NOW + 60)
+		expect(view.tomorrow ~= nil).to.equal(true)
 	end)
 
 	it("counts this session's minutes, new Index cats and coins only", function()

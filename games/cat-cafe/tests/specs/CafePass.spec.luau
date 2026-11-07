@@ -81,12 +81,24 @@ return function()
 			expect(state.xp).to.equal(CafePass.maxXp())
 		end)
 
-		it("pays pass XP on every quest prize as quests.md section 8 says", function()
-			expect(Catalog.questPrizes.daily.passXp).to.equal(100)
-			expect(Catalog.questPrizes.dailyBig.passXp).to.equal(200)
-			expect(Catalog.questPrizes.dailySet.passXp).to.equal(200)
-			expect(Catalog.questPrizes.weekly.passXp).to.equal(400)
-			expect(Catalog.questPrizes.weeklySet.passXp).to.equal(400)
+		it("pays pass XP on every quest prize as quests.md section 8 says, 1.5x since #2070", function()
+			expect(Catalog.questPrizes.daily.passXp).to.equal(150)
+			expect(Catalog.questPrizes.dailyBig.passXp).to.equal(300)
+			expect(Catalog.questPrizes.dailySet.passXp).to.equal(300)
+			expect(Catalog.questPrizes.weekly.passXp).to.equal(600)
+			expect(Catalog.questPrizes.weeklySet.passXp).to.equal(600)
+			-- a full day (four dailies, the big one and the set) and a full week (three weeklies and the set)
+			local q = Catalog.questPrizes :: any
+			expect(4 * q.daily.passXp + q.dailyBig.passXp + q.dailySet.passXp).to.equal(1200)
+			expect(3 * q.weekly.passXp + q.weeklySet.passXp).to.equal(2400)
+		end)
+
+		it("pays pass XP on every achievement by its size (#2070)", function()
+			local a = Catalog.achievementPrizes :: any
+			expect(a.S.passXp).to.equal(50)
+			expect(a.M.passXp).to.equal(150)
+			expect(a.L.passXp).to.equal(300)
+			expect(a.XL.passXp).to.equal(600)
 		end)
 	end)
 
@@ -351,6 +363,22 @@ return function()
 			expect(migrated.signStyles.frame_golden_leaf).to.equal(true)
 			expect(migrated.decorOwned.decor_hay_bale_seat).to.equal(true)
 			expect(migrated.decorOwned.acc_leaf_beret).to.equal(nil)
+		end)
+	end)
+
+	describe("the paid track's sale window (#2129)", function()
+		it("closes SALE_CLOSE_SECONDS before a season ends and never while no end is set", function()
+			local ends = 1000000
+			expect(CafePass.saleOpen(ends - CafePass.SALE_CLOSE_SECONDS - 1, ends)).to.equal(true)
+			expect(CafePass.saleOpen(ends - CafePass.SALE_CLOSE_SECONDS, ends)).to.equal(false)
+			expect(CafePass.saleOpen(ends - 1, ends)).to.equal(false)
+			expect(CafePass.saleOpen(ends + 5, ends)).to.equal(false)
+			expect(CafePass.saleOpen(ends * 10, nil)).to.equal(true)
+		end)
+
+		it("is a few minutes, not a long window", function()
+			local seconds = CafePass.SALE_CLOSE_SECONDS
+			expect(seconds >= 300 and seconds <= 900).to.equal(true)
 		end)
 	end)
 end

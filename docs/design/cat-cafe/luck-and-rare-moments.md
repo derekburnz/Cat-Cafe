@@ -108,6 +108,23 @@ Derek2: "right after it happens it's a global timer across all servers". The fix
 - **First run.** With no state yet, both timers start from the first server's boot: 30 minutes and 2 hours.
 - **QA:** catch a pity Legendary in server A, and both servers show "Legendary cat in 30:00" within 15 s. A cat that leaves at night restarts its timer at that moment. Two servers ending the same cat write one due time.
 
+### 1j. The pity cat's marker (#2099)
+QA (#2099, from Derek2's live run): "couldn't tell which was pity because there was a couple legendaries". The gold beam (1h) only plays for a few seconds at spawn, so after that the pity cat looks like any other Legendary. While a pity cat is out and not caught, it now has a mark that lasts:
+
+- **Tag over the cat:** a small rounded tag above its head reads **"Pity cat"**, with a paw-star icon on the left.
+  - A Legendary tag is gold: fill `Theme` gold, dark brown text.
+  - A Mythical tag is violet with a thin rainbow edge, and white text.
+  - The tag uses the game font at the size of the mood icons (catch-rework.md), and it never covers the cat's face.
+- **Seen from afar:** the tag shows within 150 studs and stays on top of walls and bushes, so a pity cat in a hiding spot can still be found. Past 60 studs it shrinks to just the paw-star icon, so it doesn't clutter the screen.
+- **A ring on the ground:** a soft gold (or violet for Mythical) ring sits on the floor under the cat. It breathes slowly, from 90% to 100% size over 2 s. With Reduce Motion on, the ring is still. With the Low performance setting on, the ring is a flat decal with no animation.
+- **A few sparkles:** one small sparkle puff every 1.5 s. Reduce Motion and Low performance turn them off.
+- **During a catch:** while any player has it in a net, the tag hides and the catch "!" (catch-rework.md §1) shows instead. The tag comes back if the cat bolts.
+- **When it ends:** the tag, ring and sparkles go the moment the cat is caught, when the catcher carries it off, or when it leaves at night (the puff in 1h still plays). In the cafe it's a normal cat with no mark.
+- **Wording:** "Pity cat" only. No timer, no "hurry", and no mention of other servers on the tag.
+- **How it works:** client only. It reads the `PityCat` attribute ("Legendary" or "Mythical") that the server already sets on the stray model, and clears when the attribute or the model goes. No new remote and no server change.
+- **Builders:** UI-Engineer builds the tag as `PityTags`, one billboard per pity stray in the same way as `MoodIcons`, with the distance shrink (#2105). `WorldMarker` is a single distance-and-arrow marker, so it does not fit here. VFX builds the ground ring and the sparkles in `Effects/Pity.luau`, which already tracks pity strays.
+- **QA:** with three Legendary strays in one area, the pity cat is picked out at a glance from 100 studs on phone and desktop. The mark hides during a net catch and comes back on a bolt. It goes on catch and at night. Reduce Motion keeps the ring still and drops the sparkles. No new console errors.
+
 ## 2. Rare moments (F89)
 
 ### 2a. When a rare cat is secured

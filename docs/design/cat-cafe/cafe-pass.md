@@ -4,7 +4,7 @@ Status: specced by the game-designer thread (Design-Agent, friend's project), 20
 
 ## 1. Season
 
-- **6 weeks, 30 levels, 800 pass XP a level** (24,000 for the full pass). XP comes from quests only (quests.md §8). Achievements pay none. Free and paid players earn it the same way, and levels can never be bought.
+- **6 weeks, 30 levels, 800 pass XP a level** (24,000 for the full pass). XP comes from quests and, since #2080, from achievements once each (quests.md §8). Free and paid players earn it the same way, and levels can never be bought.
 - **Season 1 starts on the day the game goes public**, and the paid tier is half price that first week (R$149, then R$299). Season start and end come from `Config.SeasonStarts` (a list of UTC dates). The server compares `os.time()` with them, and a season with no next date yet stays open until one is added.
 - **The Pass screen shows the end as a plain date** ("Season 1 ends 3 January"). There is no ticking countdown, no "last chance" text and no red badge as the end nears.
 
@@ -64,7 +64,7 @@ Free rewards can be random, because nobody pays for them.
 
 - **Free track pays every level.** These are the odd levels added by Monetization-Agent's list on #1883: 1 fish 10, 3 coinSeconds 300, 5 tip_potion 1, 7 spins 1, 9 fish 15, 11 coinSeconds 600, 13 swift_potion 1, 15 highest-zone crate 1, 17 fish 20, 19 coinSeconds 900, 21 swift_potion 1, 23 spins 1, 25 highest-zone crate 1, 27 fish 30, 29 coinSeconds 1500. The two crates are `crates = { highest = 1 }` rather than the Classic crate, which would be a dud by then. In total it adds about 2 spins, 2 crates, 75 fish and 55 minutes of income over 6 weeks.
 - **Paid track +1 potion** at levels 2, 4, 6, 8, 11, 13, 17, 19, and 3 Big Money at 25. Allowed potions only.
-- **Levels 31 to 34**, so the pass is 34 levels and 27,200 XP, still 800 a level. A player who does every quest reaches 34 in about 3.8 weeks. The paid rewards are looks only, untradeable and outside the Decor Index:
+- **Levels 31 to 34**, so the pass is 34 levels and 27,200 XP, still 800 a level. A player who does every quest reaches 34 in about 18 days (#2080; it was about 3.8 weeks). The paid rewards are looks only, untradeable and outside the Decor Index:
 
   | level | paid | free |
   |---|---|---|

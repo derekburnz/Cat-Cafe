@@ -6,8 +6,8 @@
 --                                          drops off before the next sync and every card shows the odds the roll uses
 --   shown(state, now) -> boolean           the chip shows from the first source (spec 1d: hidden before that)
 --   lucky(state, now) -> boolean           a Lucky Day runs: the chip's text turns gold
---   rows(state, now) -> { Row }            the card's sources, statue first: "Lucky Cat statue, level 3" "+0.3", "Lucky
---                                          Potion" "+0.5" "8:12", "Lucky Day" "+0.5" "3:10"
+--   rows(state, now) -> { Row }            the card's sources, statue first: "Lucky Cat statue, level 3" "+30%", "Lucky
+--                                          Potion" "+50%" "8:12", "Lucky Day" "+50%" "3:10" (#2079: percents)
 --   food(catalog, state) -> LureDef?       the food the card shows on your bowl: the rarest one in your bag, else the
 --                                          first shop food (Kibble)
 --   crate(catalog, state) -> CrateDef?     the crate the card shows: the first plain crate you own, else the Classic
@@ -134,11 +134,13 @@ function LuckLogic.lucky(state: Types.PlayerState, now: number): boolean
 	return false
 end
 
--- 0.3 -> "+0.3", 0.25 -> "+0.25", 0.5 -> "+0.5"
+-- #2079 (Derek2: "change lucky day +0.5x luck to +50% luck"): 0.3 -> "+30%", 0.25 -> "+25%", 0.5 -> "+50%",
+-- 0.125 -> "+12.5%" (it read "+0.5" beside the chip's "Luck x1.3", so it looked like "+0.5x")
 local function plus(value: number): string
-	local text = string.format("%.2f", round(value)):gsub("0+$", ""):gsub("%.$", "")
-	return "+" .. text
+	local text = string.format("%.1f", round(value) * 100):gsub("%.0$", "")
+	return "+" .. text .. "%"
 end
+LuckLogic.plus = plus
 
 -- 492 -> "8:12", rounded up so the last second still shows "0:01"
 local function clock(seconds: number): string
@@ -251,8 +253,8 @@ local function kinds(view: DayView): { Kind }
 			on = view.luckyDay == true,
 			name = "Lucky Day",
 			word = "Lucky",
-			effect = ("+%s Luck: rarer cats more likely"):format(
-				tostring(cfg.LuckyDayPlayerLuck or 0.5)
+			effect = ("%s Luck: rarer cats more likely"):format(
+				plus(cfg.LuckyDayPlayerLuck or 0.5)
 			),
 			chance = cfg.LuckyDayChance or 0.33,
 		},
@@ -433,8 +435,8 @@ function LuckLogic.boostPills(luck: number): { BoostPill }
 	return out
 end
 
--- Level 0: "A beckoning cat by your front door" then "Each level: Luck +0.1, rarer bait cats and crate finds".
--- Level 2 of 5: "Luck +0.2 now, +0.3 next level". At the top: "Luck +0.5, the most it gives".
+-- Level 0: "A beckoning cat by your front door" then "Each level: Luck +10%, rarer bait cats and crate finds".
+-- Level 2 of 5: "Luck +20% now, +30% next level". At the top: "Luck +50%, the most it gives".
 function LuckLogic.statueLines(level: number, maxLevel: number): (string, string)
 	local what = "Rarer bait cats and crate finds"
 	if level < 1 then

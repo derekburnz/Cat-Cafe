@@ -19,8 +19,9 @@ local Intro = {}
 
 Intro.SHOTS = 8
 -- The intro_cutscene event's version, so old and new drop-offs never mix (section 3): 3 for the hometown and the
--- cannon (F84), 4 since #1542 took out the camp cuts, 5 since #1782 took out the Index Board shot.
-Intro.VERSION = 5
+-- cannon (F84), 4 since #1542 took out the camp cuts, 5 since #1782 took out the Index Board shot, 6 since #2113
+-- put the night (now shot 6) before the free spin and codes (now shot 7).
+Intro.VERSION = 6
 Intro.SKIP_AFTER = 5.0 -- seconds into the first play before Skip can be pressed (its bar fills until then; Derek 00:57); a replay allows it at once
 Intro.MAX_CAPTION = 46 -- characters, so a caption fits one line on a phone ("about 45")
 Intro.STREAM_WAIT = 5 -- seconds the intro waits for the Alleyway's camp to stream in before it starts (section 3)
@@ -97,7 +98,7 @@ Intro.cafe = {
 	waiterSpot = { x = -5.5, z = -3.04 }, -- the bigger cafes' (#917)
 }
 
--- Shot 7, in seconds into the shot: dusk, a short night and sunrise on this screen only.
+-- Shot 6 (#2113; it was 7), in seconds into the shot: dusk, a short night and sunrise on this screen only.
 Intro.NIGHT_FROM = 0.35
 Intro.NIGHT_TO = 0.95
 Intro.SUNRISE_FROM = 1.8
@@ -109,7 +110,7 @@ Intro.FOLLOW_UP = 6
 Intro.HEAD_UP = 1.5
 
 Intro.CODES_CAPTION = "Free spin every day. Codes at the Codes Cat!"
-Intro.SPIN_CAPTION = "Spin the wheel for a free prize every day!" -- shot 6 before a Codes Cat stands in the world
+Intro.SPIN_CAPTION = "Spin the wheel for a free prize every day!" -- shot 7 before a Codes Cat stands in the world
 
 export type Ease = "InOut" | "Out" | "Linear"
 export type Plot = { x: number, z: number, side: number, index: number }
@@ -132,8 +133,8 @@ export type Shot = {
 	catch: boolean?, -- shot 3: the demo ring, then the cat hops into your arms
 	run: boolean?, -- shot 4: you run it into the camp, where it checks in
 	job: boolean?, -- shot 5: the cat takes the waiter spot in its outfit
-	spinWheel: boolean?, -- shot 6: the world wheel turns two spins on this screen
-	night: boolean?, -- shot 7: night falls and the sun rises on this screen
+	spinWheel: boolean?, -- shot 7 (#2113): the world wheel turns two spins on this screen
+	night: boolean?, -- shot 6 (#2113): night falls and the sun rises on this screen
 	follow: boolean?, -- shot 8: the last cut ends behind the character (Intro.follow), not at `to`
 }
 
@@ -407,7 +408,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 	local aisle = local3(-7.3, 2, 7.3)
 	local cannonEnd = key(v(10, 8, -18), v(0, 6, 0)) -- shot 1's last frame, from the square's south east side
 	local launchTilt = key(v(10, 7, -18), v(-6, 14, -6))
-	local town = v(0, 0, -20) -- shot 7 looks up the whole town from the south
+	local town = v(0, 0, -20) -- shot 6 looks up the whole town from the south
 	local stations = v(-28, 4, 0) -- between the Spin Wheel and the Codes Cat
 	local shotFrom = key(v(px - (halfD + 16) * s, 9, pz - 6), v(px - (halfD + 0.3) * s, 7, pz))
 	local streamed = alleyStreamed ~= false
@@ -510,6 +511,23 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 		{
 			index = 6,
 			starts = 0,
+			seconds = 3,
+			-- #2113 (Derek2): night and its fresh cats before the free spin and the codes
+			caption = "Night closes the areas. Fresh cats at sunrise!",
+			ease = "Linear",
+			night = true,
+			cuts = {
+				{
+					-- high over the welcome arch at the street's south end, the cannon in the middle
+					from = key(v(0, 80, -150), town),
+					to = key(v(0, 76, -144), town),
+					seconds = 3,
+				},
+			},
+		},
+		{
+			index = 7,
+			starts = 0,
 			seconds = 2.7,
 			caption = if codesCat then Intro.CODES_CAPTION else Intro.SPIN_CAPTION,
 			ease = "InOut",
@@ -524,22 +542,6 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 			},
 		},
 		{
-			index = 7,
-			starts = 0,
-			seconds = 3,
-			caption = "Night closes the areas. Fresh cats at sunrise!",
-			ease = "Linear",
-			night = true,
-			cuts = {
-				{
-					-- high over the welcome arch at the street's south end, the cannon in the middle
-					from = key(v(0, 80, -150), town),
-					to = key(v(0, 76, -144), town),
-					seconds = 3,
-				},
-			},
-		},
-		{
 			index = 8,
 			starts = 0,
 			seconds = 2,
@@ -548,8 +550,9 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 			follow = true,
 			cuts = {
 				{
-					-- `to` becomes the follow point at play time (Intro.follow): every player ends at the spawn
-					from = key(v(0, 76, -144), town),
+					-- `to` becomes the follow point at play time (Intro.follow): every player ends at the spawn; it starts
+					-- where shot 7 ends, over the Spin Wheel and the Codes Cat (#2113)
+					from = key(v(-8, 10, 0), stations),
 					to = key(v(0, 76, -144), town),
 					seconds = 2,
 				},

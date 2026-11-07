@@ -1,0 +1,3300 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Accessory_TailBow/0",
+  "PartBuilt": true
+ },
+ "children": [
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.134,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.075,
+     0.064,
+     0.085
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.134,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Accessory_TailBow/0"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.091,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.204,
+     0.022,
+     0.065
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       -0.091,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.204,
+     0.022,
+     0.065
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.091,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.022,
+     0.16,
+     0.065
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.091,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.022,
+     0.16,
+     0.065
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0686,
+       0.1169,
+       0.015
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.4566,
+        0.8561
+       ],
+       [
+        -0.9703,
+        0.1138,
+        0.2135
+       ],
+       [
+        0.0,
+        -0.8824,
+        0.4706
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.0618,
+     0.0521
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.105,
+       0.126,
+       0.035
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.4566,
+        -0.8561
+       ],
+       [
+        0.9703,
+        0.1138,
+        -0.2135
+       ],
+       [
+        0.0,
+        -0.8824,
+        -0.4706
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.0618,
+     0.0329
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.105,
+       0.126,
+       0.035
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        -0.6061,
+        0.7577
+       ],
+       [
+        0.9703,
+        -0.1511,
+        0.1889
+       ],
+       [
+        0.0,
+        0.7809,
+        0.6247
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.0547,
+     0.0437
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1414,
+       0.1351,
+       0.065
+      ],
+      "orientation": [
+       [
+        0.2419,
+        -0.6061,
+        -0.7577
+       ],
+       [
+        -0.9703,
+        -0.1511,
+        -0.1889
+       ],
+       [
+        0.0,
+        0.7809,
+        -0.6247
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.0547,
+     0.0523
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1456,
+       0.1183,
+       0.03
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.0,
+        0.9703
+       ],
+       [
+        0.9703,
+        0.0,
+        0.2419
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0707,
+     0.06,
+     0.075
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1899,
+       0.1472,
+       0.03
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.0,
+        -0.9703
+       ],
+       [
+        -0.9703,
+        0.0,
+        -0.2419
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.06,
+     0.025
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1899,
+       0.1472,
+       -0.03
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.0,
+        -0.9703
+       ],
+       [
+        0.9703,
+        0.0,
+        -0.2419
+       ],
+       [
+        0.0,
+        -1.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.06,
+     0.025
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1456,
+       0.1183,
+       -0.03
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.0,
+        0.9703
+       ],
+       [
+        -0.9703,
+        0.0,
+        0.2419
+       ],
+       [
+        0.0,
+        -1.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0707,
+     0.06,
+     0.075
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1414,
+       0.1351,
+       -0.065
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        -0.6061,
+        -0.7577
+       ],
+       [
+        0.9703,
+        -0.1511,
+        -0.1889
+       ],
+       [
+        0.0,
+        -0.7809,
+        0.6247
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.0547,
+     0.0523
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.105,
+       0.126,
+       -0.035
+      ],
+      "orientation": [
+       [
+        0.2419,
+        -0.6061,
+        0.7577
+       ],
+       [
+        -0.9703,
+        -0.1511,
+        0.1889
+       ],
+       [
+        0.0,
+        -0.7809,
+        -0.6247
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.0547,
+     0.0437
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.105,
+       0.126,
+       -0.035
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.4566,
+        -0.8561
+       ],
+       [
+        -0.9703,
+        0.1138,
+        -0.2135
+       ],
+       [
+        0.0,
+        0.8824,
+        0.4706
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.0618,
+     0.0329
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0686,
+       0.1169,
+       -0.015
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.4566,
+        0.8561
+       ],
+       [
+        0.9703,
+        0.1138,
+        0.2135
+       ],
+       [
+        0.0,
+        0.8824,
+        -0.4706
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.0618,
+     0.0521
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0686,
+       0.1169,
+       -0.015
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.9703,
+        0.0
+       ],
+       [
+        -0.9703,
+        0.2419,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.075,
+     0.03
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0686,
+       0.1169,
+       0.015
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.9703,
+        0.0
+       ],
+       [
+        0.9703,
+        0.2419,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.075,
+     0.03
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0661,
+       0.1053,
+       0.0183
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.4685,
+        0.8497
+       ],
+       [
+        -0.9703,
+        0.1168,
+        0.2118
+       ],
+       [
+        0.0,
+        -0.8757,
+        0.4829
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0748,
+     0.0598
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.109,
+       0.116,
+       0.0427
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.4685,
+        -0.8497
+       ],
+       [
+        0.9703,
+        0.1168,
+        -0.2118
+       ],
+       [
+        0.0,
+        -0.8757,
+        -0.4829
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0748,
+     0.0412
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.109,
+       0.116,
+       0.0427
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        -0.6184,
+        0.7477
+       ],
+       [
+        0.9703,
+        -0.1542,
+        0.1864
+       ],
+       [
+        0.0,
+        0.7706,
+        0.6374
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0658,
+     0.0544
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1519,
+       0.1267,
+       0.0793
+      ],
+      "orientation": [
+       [
+        0.2419,
+        -0.6184,
+        -0.7477
+       ],
+       [
+        -0.9703,
+        -0.1542,
+        -0.1864
+       ],
+       [
+        0.0,
+        0.7706,
+        -0.6374
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0658,
+     0.0604
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1519,
+       0.1267,
+       0.0366
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.0,
+        0.9703
+       ],
+       [
+        0.9703,
+        0.0,
+        0.2419
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0732,
+     0.0885
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2092,
+       0.141,
+       0.0366
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.0,
+        -0.9703
+       ],
+       [
+        -0.9703,
+        0.0,
+        -0.2419
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0732,
+     0.0295
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2092,
+       0.141,
+       -0.0366
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.0,
+        -0.9703
+       ],
+       [
+        0.9703,
+        0.0,
+        -0.2419
+       ],
+       [
+        0.0,
+        -1.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0732,
+     0.0295
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1519,
+       0.1267,
+       -0.0366
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.0,
+        0.9703
+       ],
+       [
+        -0.9703,
+        0.0,
+        0.2419
+       ],
+       [
+        0.0,
+        -1.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0732,
+     0.0885
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.1519,
+       0.1267,
+       -0.0793
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        -0.6184,
+        -0.7477
+       ],
+       [
+        0.9703,
+        -0.1542,
+        -0.1864
+       ],
+       [
+        0.0,
+        -0.7706,
+        0.6374
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0658,
+     0.0604
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.109,
+       0.116,
+       -0.0427
+      ],
+      "orientation": [
+       [
+        0.2419,
+        -0.6184,
+        0.7477
+       ],
+       [
+        -0.9703,
+        -0.1542,
+        0.1864
+       ],
+       [
+        0.0,
+        -0.7706,
+        -0.6374
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0658,
+     0.0544
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.109,
+       0.116,
+       -0.0427
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.4685,
+        -0.8497
+       ],
+       [
+        -0.9703,
+        0.1168,
+        -0.2118
+       ],
+       [
+        0.0,
+        0.8757,
+        0.4829
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0748,
+     0.0412
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0661,
+       0.1053,
+       -0.0183
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.4685,
+        0.8497
+       ],
+       [
+        0.9703,
+        0.1168,
+        0.2118
+       ],
+       [
+        0.0,
+        0.8757,
+        -0.4829
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0748,
+     0.0598
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0661,
+       0.1053,
+       -0.0183
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.9703,
+        0.0
+       ],
+       [
+        -0.9703,
+        0.2419,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0885,
+     0.0366
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0661,
+       0.1053,
+       0.0183
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.9703,
+        0.0
+       ],
+       [
+        0.9703,
+        0.2419,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0885,
+     0.0366
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0686,
+       0.1169,
+       -0.015
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        -0.4566,
+        -0.8561
+       ],
+       [
+        -0.9703,
+        0.1138,
+        0.2135
+       ],
+       [
+        0.0,
+        0.8824,
+        -0.4706
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.0618,
+     0.0521
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.105,
+       0.126,
+       -0.035
+      ],
+      "orientation": [
+       [
+        0.2419,
+        -0.4566,
+        0.8561
+       ],
+       [
+        0.9703,
+        0.1138,
+        -0.2135
+       ],
+       [
+        0.0,
+        0.8824,
+        0.4706
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.0618,
+     0.0329
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.105,
+       0.126,
+       -0.035
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.6061,
+        -0.7577
+       ],
+       [
+        0.9703,
+        -0.1511,
+        0.1889
+       ],
+       [
+        0.0,
+        -0.7809,
+        -0.6247
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.0547,
+     0.0437
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1414,
+       0.1351,
+       -0.065
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.6061,
+        0.7577
+       ],
+       [
+        -0.9703,
+        -0.1511,
+        -0.1889
+       ],
+       [
+        0.0,
+        -0.7809,
+        0.6247
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.0547,
+     0.0523
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1456,
+       0.1183,
+       -0.03
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.0,
+        -0.9703
+       ],
+       [
+        0.9703,
+        0.0,
+        0.2419
+       ],
+       [
+        0.0,
+        -1.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0707,
+     0.06,
+     0.075
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1899,
+       0.1472,
+       -0.03
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.0,
+        0.9703
+       ],
+       [
+        -0.9703,
+        0.0,
+        -0.2419
+       ],
+       [
+        0.0,
+        -1.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.06,
+     0.025
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1899,
+       0.1472,
+       0.03
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.0,
+        0.9703
+       ],
+       [
+        0.9703,
+        0.0,
+        -0.2419
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.06,
+     0.025
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1456,
+       0.1183,
+       0.03
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.0,
+        -0.9703
+       ],
+       [
+        -0.9703,
+        0.0,
+        0.2419
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.0707,
+     0.06,
+     0.075
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1414,
+       0.1351,
+       0.065
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.6061,
+        0.7577
+       ],
+       [
+        0.9703,
+        -0.1511,
+        -0.1889
+       ],
+       [
+        0.0,
+        0.7809,
+        -0.6247
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.0547,
+     0.0523
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.105,
+       0.126,
+       0.035
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.6061,
+        -0.7577
+       ],
+       [
+        -0.9703,
+        -0.1511,
+        0.1889
+       ],
+       [
+        0.0,
+        0.7809,
+        0.6247
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.0547,
+     0.0437
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.105,
+       0.126,
+       0.035
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        -0.4566,
+        0.8561
+       ],
+       [
+        -0.9703,
+        0.1138,
+        -0.2135
+       ],
+       [
+        0.0,
+        -0.8824,
+        -0.4706
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.0618,
+     0.0329
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0686,
+       0.1169,
+       0.015
+      ],
+      "orientation": [
+       [
+        0.2419,
+        -0.4566,
+        -0.8561
+       ],
+       [
+        0.9703,
+        0.1138,
+        0.2135
+       ],
+       [
+        0.0,
+        -0.8824,
+        0.4706
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.0618,
+     0.0521
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0686,
+       0.1169,
+       0.015
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        -0.9703,
+        0.0
+       ],
+       [
+        -0.9703,
+        0.2419,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.075,
+     0.03
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0686,
+       0.1169,
+       -0.015
+      ],
+      "orientation": [
+       [
+        0.2419,
+        -0.9703,
+        0.0
+       ],
+       [
+        0.9703,
+        0.2419,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.036,
+     0.075,
+     0.03
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0661,
+       0.1053,
+       -0.0183
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        -0.4685,
+        -0.8497
+       ],
+       [
+        -0.9703,
+        0.1168,
+        0.2118
+       ],
+       [
+        0.0,
+        0.8757,
+        -0.4829
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0748,
+     0.0598
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.109,
+       0.116,
+       -0.0427
+      ],
+      "orientation": [
+       [
+        0.2419,
+        -0.4685,
+        0.8497
+       ],
+       [
+        0.9703,
+        0.1168,
+        -0.2118
+       ],
+       [
+        0.0,
+        0.8757,
+        0.4829
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0748,
+     0.0412
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.109,
+       0.116,
+       -0.0427
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.6184,
+        -0.7477
+       ],
+       [
+        0.9703,
+        -0.1542,
+        0.1864
+       ],
+       [
+        0.0,
+        -0.7706,
+        -0.6374
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0658,
+     0.0544
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1519,
+       0.1267,
+       -0.0793
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.6184,
+        0.7477
+       ],
+       [
+        -0.9703,
+        -0.1542,
+        -0.1864
+       ],
+       [
+        0.0,
+        -0.7706,
+        0.6374
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0658,
+     0.0604
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1519,
+       0.1267,
+       -0.0366
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.0,
+        -0.9703
+       ],
+       [
+        0.9703,
+        0.0,
+        0.2419
+       ],
+       [
+        0.0,
+        -1.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0732,
+     0.0885
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2092,
+       0.141,
+       -0.0366
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.0,
+        0.9703
+       ],
+       [
+        -0.9703,
+        0.0,
+        -0.2419
+       ],
+       [
+        0.0,
+        -1.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0732,
+     0.0295
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2092,
+       0.141,
+       0.0366
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.0,
+        0.9703
+       ],
+       [
+        0.9703,
+        0.0,
+        -0.2419
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0732,
+     0.0295
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1519,
+       0.1267,
+       0.0366
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.0,
+        -0.9703
+       ],
+       [
+        -0.9703,
+        0.0,
+        0.2419
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0732,
+     0.0885
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.1519,
+       0.1267,
+       0.0793
+      ],
+      "orientation": [
+       [
+        0.2419,
+        0.6184,
+        0.7477
+       ],
+       [
+        0.9703,
+        -0.1542,
+        -0.1864
+       ],
+       [
+        0.0,
+        0.7706,
+        -0.6374
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0658,
+     0.0604
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.109,
+       0.116,
+       0.0427
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        0.6184,
+        -0.7477
+       ],
+       [
+        -0.9703,
+        -0.1542,
+        0.1864
+       ],
+       [
+        0.0,
+        0.7706,
+        0.6374
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0658,
+     0.0544
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.109,
+       0.116,
+       0.0427
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        -0.4685,
+        0.8497
+       ],
+       [
+        -0.9703,
+        0.1168,
+        -0.2118
+       ],
+       [
+        0.0,
+        -0.8757,
+        -0.4829
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0748,
+     0.0412
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0661,
+       0.1053,
+       0.0183
+      ],
+      "orientation": [
+       [
+        0.2419,
+        -0.4685,
+        -0.8497
+       ],
+       [
+        0.9703,
+        0.1168,
+        0.2118
+       ],
+       [
+        0.0,
+        -0.8757,
+        0.4829
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0748,
+     0.0598
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0661,
+       0.1053,
+       0.0183
+      ],
+      "orientation": [
+       [
+        -0.2419,
+        -0.9703,
+        0.0
+       ],
+       [
+        -0.9703,
+        0.2419,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        -1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0885,
+     0.0366
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "WedgePart",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0661,
+       0.1053,
+       -0.0183
+      ],
+      "orientation": [
+       [
+        0.2419,
+        -0.9703,
+        0.0
+       ],
+       [
+        0.9703,
+        0.2419,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.024,
+     0.0885,
+     0.0366
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0416,
+       0.0959,
+       -0.0865
+      ],
+      "orientation": [
+       [
+        0.9135,
+        0.0984,
+        -0.3947
+       ],
+       [
+        0.0,
+        0.9703,
+        0.2419
+       ],
+       [
+        0.4067,
+        -0.221,
+        0.8864
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.018,
+     0.15
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0759,
+       0.0748,
+       -0.1636
+      ],
+      "orientation": [
+       [
+        0.9135,
+        0.0984,
+        -0.3947
+       ],
+       [
+        0.0,
+        0.9703,
+        0.2419
+       ],
+       [
+        0.4067,
+        -0.221,
+        0.8864
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.055,
+     0.022,
+     0.03
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0416,
+       0.0959,
+       -0.0865
+      ],
+      "orientation": [
+       [
+        0.9135,
+        -0.0984,
+        0.3947
+       ],
+       [
+        0.0,
+        0.9703,
+        0.2419
+       ],
+       [
+        -0.4067,
+        -0.221,
+        0.8864
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.018,
+     0.15
+    ],
+    "Color": [
+     0.9098,
+     0.6275,
+     0.6275
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.0759,
+       0.0748,
+       -0.1636
+      ],
+      "orientation": [
+       [
+        0.9135,
+        -0.0984,
+        0.3947
+       ],
+       [
+        0.0,
+        0.9703,
+        0.2419
+       ],
+       [
+        -0.4067,
+        -0.221,
+        0.8864
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.055,
+     0.022,
+     0.03
+    ],
+    "Color": [
+     0.9647,
+     0.9216,
+     0.8667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Accessory_TailBow",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.1795,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.033,
+     0.06
+    ],
+    "Color": [
+     0.8784,
+     0.4784,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

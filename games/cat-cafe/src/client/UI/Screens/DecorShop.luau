@@ -93,6 +93,8 @@ local CATEGORY_COLORS: { [string]: Color3 } = {
 	Toys = Color3.fromHex("FFC94D"),
 }
 
+local ART_TINT = 0.45 -- #2053: how far a rarity's colour is lightened behind a piece's picture
+
 local DecorShop = {}
 DecorShop.__index = DecorShop
 
@@ -515,7 +517,11 @@ function DecorShop._build(self: any)
 		-- art
 		local art: Frame = Create("Frame", {
 			Name = "Art",
-			BackgroundColor3 = CATEGORY_COLORS[decor.category] or Theme.colors.mint,
+			-- #2053 (Derek2: "fish tank background shows blue but its an epic"): a piece with a rarity sits on a soft
+			-- tint of its rarity's colour, so the card reads as its pill does; one without keeps its category's colour
+			BackgroundColor3 = if piece.rarity
+				then Theme.rarityColor(piece.rarity):Lerp(Theme.colors.white, ART_TINT)
+				else CATEGORY_COLORS[decor.category] or Theme.colors.mint,
 			BackgroundTransparency = if piece.kind then 1 else 0,
 			BorderSizePixel = 0,
 			Position = UDim2.fromOffset(10, 10),

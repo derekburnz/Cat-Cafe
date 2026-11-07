@@ -56,7 +56,7 @@ type Bang = {
 -- The station's BangAnchor attachment, or nil while the station (or that part of it) is streamed out. #1733
 -- (Derek2 11-06: no bubble over the Sewer's Lost and Found): a station model with no BangAnchor (the Lost and Found's
 -- old box) hangs it from its main part instead, FALLBACK_STUDS over the top of the model; the second value is that
--- lift, zero for an anchor.
+-- lift. #2096: a bubble on its anchor is lifted too, when needed, so it clears the top of its own station.
 local function anchorFor(extraId: string): (Instance?, Vector3)
 	for _, instance in CollectionService:GetTagged(ReadyBang.TAG) do
 		if
@@ -64,11 +64,15 @@ local function anchorFor(extraId: string): (Instance?, Vector3)
 			and instance:GetAttribute("ExtraId") == extraId
 			and instance:IsDescendantOf(Workspace)
 		then
+			local model = instance :: Model
 			local anchor = instance:FindFirstChild(ReadyBang.ANCHOR, true)
 			if anchor ~= nil and anchor:IsA("Attachment") then
-				return anchor :: Attachment, Vector3.zero
+				-- #2096: lifted clear of the station's top, so its own parts (the Picnic's parasol) can't cover it
+				local box, size = model:GetBoundingBox()
+				local top = box.Position.Y + size.Y / 2
+				local lift = CampExtrasLogic.bubbleLift((anchor :: Attachment).WorldPosition.Y, top)
+				return anchor :: Attachment, Vector3.new(0, lift, 0)
 			end
-			local model = instance :: Model
 			local part = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
 			if part ~= nil then
 				local box, size = model:GetBoundingBox()

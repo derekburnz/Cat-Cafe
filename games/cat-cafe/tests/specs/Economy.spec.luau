@@ -787,7 +787,7 @@ return function()
 			local base = Economy.cafeMultiplier(p)
 			p.decorOwned.fish_tank = true
 			p.decorPlaced.fish_tank = true
-			expect(Economy.cafeMultiplier(p)).to.be.near(base + 0.10, 1e-9)
+			expect(Economy.cafeMultiplier(p)).to.be.near(base + 0.12, 1e-9) -- #2053: the Epic tank is +12%
 		end)
 	end)
 

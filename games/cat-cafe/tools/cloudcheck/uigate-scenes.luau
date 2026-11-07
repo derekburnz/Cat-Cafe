@@ -272,6 +272,60 @@ local function campExtras(picnic, bought, open)
 	}
 end
 
+-- #2078: a Rescue Rally bar's count ("45 / 90") clear of every step marker, each marker's number (the points it
+-- pays at) under it, numbers and markers clear of each other, and all of it above `belowY` (the next row's top).
+local function assertRallyBar(track, expected, belowY)
+	assert(track and track:IsA("GuiObject") and track.Visible, "uigate: no Rescue Rally bar on screen (#2078)")
+	local function box(object)
+		local at, size = object.AbsolutePosition, object.AbsoluteSize
+		return at.X, at.Y, at.X + size.X, at.Y + size.Y
+	end
+	local function textBox(label)
+		local x1, y1, x2, y2 = box(label)
+		local bounds = label.TextBounds
+		local mid = (x1 + x2) / 2
+		if label.TextXAlignment == Enum.TextXAlignment.Left then
+			return x1, (y1 + y2 - bounds.Y) / 2, x1 + bounds.X, (y1 + y2 + bounds.Y) / 2
+		end
+		return mid - bounds.X / 2, (y1 + y2 - bounds.Y) / 2, mid + bounds.X / 2, (y1 + y2 + bounds.Y) / 2
+	end
+	local function clear(a, b)
+		local ax1, ay1, ax2, ay2 = table.unpack(a)
+		local bx1, by1, bx2, by2 = table.unpack(b)
+		return ax2 <= bx1 + 0.5 or bx2 <= ax1 + 0.5 or ay2 <= by1 + 0.5 or by2 <= ay1 + 0.5
+	end
+	local points = track:FindFirstChild("Points")
+	assert(points and points:IsA("TextLabel") and points.Text ~= "", "uigate: the Rally bar has no count (#2078)")
+	local count = { textBox(points) }
+	assert(points.TextFits, "uigate: the Rally count " .. points.Text .. " does not fit its label (#2078)")
+	local numbers = {}
+	for index, at in expected do
+		local marker = track:FindFirstChild("Step" .. index)
+		assert(marker and marker.Visible, "uigate: the Rally bar has no step " .. index .. " (#2078)")
+		local markerBox = { box(marker) }
+		assert(
+			clear(count, markerBox),
+			string.format("uigate: step %d's picture covers the Rally count %s (#2078)", index, points.Text)
+		)
+		local number = marker:FindFirstChild("At")
+		assert(
+			number and number.Visible and number.Text == tostring(at),
+			string.format("uigate: step %d shows %q under it, not %d (#2078)", index, number and number.Text or "", at)
+		)
+		local numberBox = { textBox(number) }
+		assert(clear(count, numberBox), "uigate: step " .. index .. "'s number runs into the Rally count (#2078)")
+		assert(numberBox[4] <= belowY + 0.5, "uigate: step " .. index .. "'s number runs into the row under the bar (#2078)")
+		for other, otherBox in numbers do
+			assert(clear(numberBox, otherBox), string.format("uigate: steps %d and %d's numbers overlap (#2078)", other, index))
+		end
+		numbers[index] = numberBox
+		local previous = track:FindFirstChild("Step" .. (index - 1))
+		if previous then
+			assert(clear(markerBox, { box(previous) }), string.format("uigate: steps %d and %d overlap (#2078)", index - 1, index))
+		end
+	end
+end
+
 -- F101: a RallyState, running for another day and 4 hours unless `fields` says otherwise.
 -- F102: other players in the server for the Trade window's list (removed again by Scenes.close)
 local tradePlayers = {}
@@ -407,6 +461,16 @@ local function rallyState(fields)
 		state[key] = value
 	end
 	return state
+end
+
+-- #2098: the Rally banner only pops up when this player scores: a state one point down, then `fields`, so the scene
+-- shows the banner up just after a catch (Scenes.close ends the Rally again, which puts it away).
+local function rallyScore(fields)
+	local before = table.clone(fields)
+	before.myPoints = (fields.myPoints or 1) - 1
+	UI.rally.update(rallyState(before))
+	UI.rally.update(rallyState(fields))
+	Scenes._rallyPeek = true
 end
 
 local function firstArea()
@@ -781,13 +845,27 @@ local function startCatchV3(strayId, rarity, kinds, trustStart, trustNeed)
 	local list = {}
 	local at = t + 0.3
 	local doubles = 0 -- a double's halves come in pairs, half 1 then half 2, DoubleRingGap apart
+	-- #2060: spots as the server rolls them (0.25 to 0.75 by 0.3 to 0.7); a double's second half keeps the first's
+	local rolls = { { 0.3, 0.35 }, { 0.7, 0.62 }, { 0.42, 0.68 }, { 0.62, 0.32 }, { 0.28, 0.6 }, { 0.55, 0.5 } }
+	local roll = 0
 	for _, kind in kinds do
 		local half = nil
 		if kind == "double" then
 			doubles += 1
 			half = (doubles - 1) % 2 + 1
 		end
-		table.insert(list, { startsAt = at, shrinkSeconds = 0.8, x = 0.5, y = 0.5, kind = kind, half = half })
+		if half ~= 2 then
+			roll = roll % #rolls + 1
+		end
+		local spot = rolls[roll]
+		table.insert(list, {
+			startsAt = at,
+			shrinkSeconds = 0.8,
+			x = spot[1],
+			y = spot[2],
+			kind = kind,
+			half = half,
+		})
 		at += if half == 1 then UIShim.require("ReplicatedStorage.Shared.Config").DoubleRingGap else 0.7
 	end
 	UI.catch.show({ strayId = strayId, catId = Catalog.cats[2].id, catName = "Mochi", rarity = rarity })
@@ -836,6 +914,32 @@ local SCENES = {
 	{ "Decor", function()
 		UI.open("Decor")
 	end },
+	-- #2053 (Derek2: "fish tank background shows blue but its an epic"): a crate piece's picture sits on its rarity's
+	-- tint (the Epic Fish tank purple, the Rare Neon cat sign blue), as its pill
+	{ "DecorRarityTint", function()
+		local before = UI.getState() :: any
+		local owned = table.clone(before.decorOwned or {})
+		owned.fish_tank = true
+		owned.neon_sign = true
+		Scenes._decorOwned = before.decorOwned or {}
+		UI.update({ decorOwned = owned } :: any)
+		UI.open("Decor")
+		task.wait(0.05)
+		local Theme = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Theme")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		-- a lightened tint keeps the hue: the strongest channel of the rarity stays the strongest
+		local function top(c: Color3): string
+			return if c.R >= c.G and c.R >= c.B then "R" elseif c.G >= c.B then "G" else "B"
+		end
+		for id, rarity in { fish_tank = "Epic", neon_sign = "Rare" } do
+			local card = modals:FindFirstChild(id, true)
+			local art = card and card:FindFirstChild("Art")
+			assert(art, "uigate: no " .. id .. " card in the Decor window")
+			local want = Theme.rarityColor(rarity)
+			local got = (art :: Frame).BackgroundColor3
+			assert(top(got) == top(want), ("uigate: %s's picture sits on %s, not its %s tint (#2053)"):format(id, tostring(got), rarity))
+		end
+	end },
 	-- F91, #1283: the Lawn chip, the total over the owned pieces, path and fence cards (out first)
 	{ "DecorLawn", function()
 		bindLawnPlot()
@@ -852,11 +956,27 @@ local SCENES = {
 		end
 		assert(string.find(action("garden_bench"), "Remove", 1, true), "uigate: the out Garden Bench reads " .. action("garden_bench") .. " (#1751)")
 		assert(string.find(action("lamp_post"), "Use", 1, true), "uigate: the stored Lamp Post reads " .. action("lamp_post") .. " (#1751)")
-		-- #1729: the big-spot Garden Bench has the small "Big spot" tag, the small-spot Tulip Bed none
-		local bench = lawn and lawn:FindFirstChild("garden_bench", true)
-		local tulips = lawn and lawn:FindFirstChild("tulip_bed", true)
-		assert(bench and bench:FindFirstChild("BigSpot"), "uigate: the Garden Bench card has no Big spot tag (#1729)")
-		assert(tulips and tulips:FindFirstChild("BigSpot") == nil, "uigate: the Tulip Bed card has a Big spot tag (#1729)")
+		-- #2081: Big spots, Small spots, then Paths and fences, top to bottom, each card under its own heading, and no
+		-- per-card "Big spot" tag (#1729's, which the headings replace)
+		local Lawn = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.LawnLogic")
+		local lastY = -math.huge
+		for _, group in Lawn.groups(UI.getState()) do
+			local heading = lawn and lawn:FindFirstChild("Heading_" .. group.key, true)
+			local cells = lawn and lawn:FindFirstChild("Cards_" .. group.key, true)
+			assert(heading and heading:IsA("TextLabel") and heading.Visible, "uigate: no " .. group.key .. " heading on the Lawn chip (#2081)")
+			assert(cells and cells:IsA("GuiObject"), "uigate: no " .. group.key .. " grid on the Lawn chip (#2081)")
+			assert(heading.Text == group.title, ("uigate: the %s heading reads %q, not %q (#2081)"):format(group.key, heading.Text, group.title))
+			assert(heading.AbsolutePosition.Y > lastY, "uigate: the " .. group.key .. " heading is above the one before it (#2081)")
+			assert(cells.AbsolutePosition.Y >= heading.AbsolutePosition.Y + heading.AbsoluteSize.Y - 1, "uigate: the " .. group.key .. " cards start above their heading (#2081)")
+			for _, card in group.cards do
+				local frame = cells:FindFirstChild(card.id)
+				assert(frame and (frame :: GuiObject).Visible, ("uigate: %s is not under the %s heading (#2081)"):format(card.id, group.key))
+				assert(frame:FindFirstChild("BigSpot") == nil, "uigate: " .. card.id .. " still has a Big spot tag (#2081)")
+			end
+			lastY = cells.AbsolutePosition.Y
+		end
+		assert(lawn:FindFirstChild("Heading_big", true), "uigate: the Garden Bench's Big spots heading is missing (#2081)")
+		assert(lawn:FindFirstChild("Heading_styles", true), "uigate: the Paths and fences heading is missing (#2081)")
 	end },
 	-- #1624: the Style tab, the cafe sign (Royal Crest in use) and the uniforms once the server sends looks
 	{ "DecorStyle", function()
@@ -1066,6 +1186,86 @@ local SCENES = {
 			model:Destroy()
 		end
 	end },
+	-- #2099 (luck-and-rare-moments.md 1j): a "Pity cat" tag over each stray with PityCat, gold for a Legendary and
+	-- violet with a rainbow edge for a Mythical, none over a plain stray; hidden in a net, back on a bolt, gone with
+	-- the attribute
+	{ "PityTags", function()
+		local function stray(id: string, pity: string?, x: number): Model
+			local model = Instance.new("Model")
+			model.Name = "Stray_" .. id
+			local body = Instance.new("Part")
+			body.Name = "Body"
+			body.Size = Vector3.new(2, 2, 3)
+			body.Position = Vector3.new(x, 3, -12)
+			body.Parent = model
+			model.PrimaryPart = body
+			model:SetAttribute("StrayId", id)
+			if pity then
+				model:SetAttribute("PityCat", pity)
+			end
+			model.Parent = workspace
+			model:AddTag("Stray")
+			return model
+		end
+		local legendary = stray("pity_1", "Legendary", -4)
+		local mythical = stray("pity_2", "Mythical", 0)
+		local plain = stray("pity_3", nil, 4)
+		-- the shim's tag signals never fire, so start the tags again to pick the three up
+		UI.catch.pity:destroy()
+		UI.catch.pity = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.PityTags").new()
+		local function tagOf(model: Model): BillboardGui?
+			return (model.PrimaryPart :: BasePart):FindFirstChild("CatCafePityTag") :: BillboardGui?
+		end
+		local a, b = tagOf(legendary), tagOf(mythical)
+		assert(a and b, "uigate: no Pity cat tag over a pity stray (#2099)")
+		assert(tagOf(plain) == nil, "uigate: a Pity cat tag over a plain stray (#2099)")
+		local tagA, tagB = (a :: any).Tag, (b :: any).Tag
+		assert(tagA.Label.Text == "Pity cat" and tagB.Label.Text == "Pity cat", "uigate: the tag reads Pity cat (#2099)")
+		assert((a :: BillboardGui).Enabled and (b :: BillboardGui).Enabled, "uigate: the Pity cat tags are up (#2099)")
+		assert((a :: BillboardGui).AlwaysOnTop and (a :: BillboardGui).MaxDistance == 150, "uigate: seen over walls within 150 studs (#2099)")
+		local edgeA = tagA:FindFirstChildOfClass("UIStroke"):FindFirstChildOfClass("UIGradient")
+		local edgeB = tagB:FindFirstChildOfClass("UIStroke"):FindFirstChildOfClass("UIGradient")
+		assert(not edgeA.Enabled and edgeB.Enabled, "uigate: only the Mythical tag has the rainbow edge (#2099)")
+		assert(tagA.BackgroundColor3 ~= tagB.BackgroundColor3, "uigate: Legendary gold and Mythical violet differ (#2099)")
+		legendary:SetAttribute("LockedBy", 1)
+		assert(not (a :: BillboardGui).Enabled, "uigate: the tag should hide while a net holds the cat (#2099)")
+		legendary:SetAttribute("LockedBy", 0)
+		assert((a :: BillboardGui).Enabled, "uigate: the tag should come back when the cat bolts (#2099)")
+		plain:SetAttribute("PityCat", "Legendary")
+		assert(tagOf(plain), "uigate: PityCat set later should bring the tag (#2099)")
+		mythical:SetAttribute("PityCat", nil)
+		assert(tagOf(mythical) == nil, "uigate: the tag should go with the PityCat attribute (#2099)")
+		-- Laptop-Tester, Studio 11-07: a pity cat streamed in as its model before its parts (it spawns at a far hiding
+		-- spot) had no tag; the tag now comes with the first part, and again with the new part after a stream out
+		local far = Instance.new("Model")
+		far.Name = "Stray_pity_far"
+		far:SetAttribute("StrayId", "pity_far")
+		far:SetAttribute("PityCat", "Legendary")
+		far.Parent = workspace
+		far:AddTag("Stray")
+		UI.catch.pity:_watch(far)
+		local function arrive(): Part
+			local body = Instance.new("Part")
+			body.Name = "Body"
+			body.Size = Vector3.new(2, 2, 3)
+			body.Position = Vector3.new(8, 3, -12)
+			body.Parent = far
+			far.PrimaryPart = body
+			UIShim.fire(UIShim.eventOf(far, "DescendantAdded"), body)
+			UIShim.advance(1 / 60) -- the deferred refresh
+			return body
+		end
+		local first = arrive()
+		assert(first:FindFirstChild("CatCafePityTag"), "uigate: no Pity cat tag once a streamed pity cat's parts arrive (#2099)")
+		UIShim.fire(UIShim.eventOf(far, "DescendantRemoving"), first)
+		first.Parent = nil
+		UIShim.advance(1 / 60)
+		local again = arrive()
+		assert(again:FindFirstChild("CatCafePityTag"), "uigate: no Pity cat tag after the cat streamed back in (#2099)")
+		for _, model in { legendary, mythical, plain, far } do
+			model:Destroy()
+		end
+	end },
 	-- #2005 section 1 (Derek2: "with an exclamation mark to show its being caught"): a gold ! over a stray while its
 	-- NetDown is set, just above the catcher's trust bar; another stray without it has none, and it goes with NetDown
 	{ "CatchMark", function()
@@ -1205,6 +1405,28 @@ local SCENES = {
 		assert(card:FindFirstChild("Line4").Visible, "uigate: no offline line on the recap")
 		UI.recap.show({ minutes = 80, newCats = 1, earned = 1 })
 		assert(first.Text == "Today: 3 new cats, $12,500 earned", "uigate: the recap showed twice in a session (#1920)")
+	end },
+	-- #2123 (first-hour.md 6a): with Gameplay's ReturnHook pick the offline share has its own line and one Tomorrow
+	-- line closes the card (a treat with its prize, the longest), in place of the cooking bait line
+	{ "SessionRecapTomorrow", function()
+		local now = workspace:GetServerTimeNow()
+		UI.update({ tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true, [3] = true } } })
+		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 170, placedAt = now - 50 }, 1)
+		UI.recap.shown = false
+		UI.recap.lastInput = os.clock() - 30 -- idle
+		UI.recap.show({ minutes = 16, newCats = 3, earned = 12500, tomorrow = { kind = "treat", day = 7 } } :: any)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeRecap")
+		local card = gui and gui:FindFirstChild("Card", true) :: Frame?
+		assert(card and card.Visible, "uigate: no session recap card when idle (#2123)")
+		local three = card:FindFirstChild("Line3") :: TextLabel
+		local four = card:FindFirstChild("Line4") :: TextLabel
+		assert(three.Text == "Your cafe earns while you're away: 50% for up to 8\u{00A0}h", "uigate: the recap's offline line reads " .. three.Text .. " (#2123)")
+		local RecapLogic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RecapLogic")
+		local want = "Tomorrow: Daily Treat day 7, " .. RecapLogic.treatWords(7)
+		assert(four.Visible and four.Text == want, "uigate: the recap's Tomorrow line reads " .. four.Text .. " (#2123)")
+		assert(four.TextFits and three.TextFits, "uigate: the offline or Tomorrow line does not fit (#2123)")
+		local bottom = four.AbsolutePosition.Y + four.AbsoluteSize.Y
+		assert(bottom <= card.AbsolutePosition.Y + card.AbsoluteSize.Y + 1, "uigate: the Tomorrow line hangs off the recap card (#2123)")
 	end },
 	-- #1947 (like-prompts.md section 2): the like and favourite gift cards, paid before they show, with "Gift added!",
 	-- the coins Payout paid and the potions, and the first button and Close the same size
@@ -1498,6 +1720,12 @@ local SCENES = {
 		local level4 = window:FindFirstChild("Level4", true)
 		local claim = level4 and level4:FindFirstChild("Free") and level4.Free:FindFirstChild("Claim")
 		assert(claim and claim:IsA("GuiObject") and claim.Visible, "uigate: level 4's free reward has no Claim")
+		-- #2089: the "?" mystery box picture is retired: no crate reward (nor anything else) draws it
+		for _, d in game:GetService("Players").LocalPlayer.PlayerGui:GetDescendants() do
+			if (d:IsA("ImageLabel") or d:IsA("ImageButton")) and string.find(d.Image, "76162414943592", 1, true) then
+				error("uigate: " .. d:GetFullName() .. " still draws the ? mystery box (#2089)")
+			end
+		end
 	end },
 	-- #1646: the paid track not bought yet, with Roblox's price on the buy button, and the Store's Cafe Pass card
 	{ "CafePassBuy", function()
@@ -1523,6 +1751,26 @@ local SCENES = {
 			levels = 30, paid = true, claimedFree = { 2, 4 }, claimedPaid = { 1 }, claimable = 7, items = {},
 			tags = { "vip", "tag_maple" }, tagShown = "tag_maple" })
 		UI.pass.open()
+		-- #2087: a paid item's picture and name sit centred in the room over Claim (they hugged the top), and the
+		-- uniform's square is the uniform's own colour
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("CafePass", true)
+		for _, level in { 3, 5 } do
+			local column = window and window:FindFirstChild("Level" .. level, true)
+			local card = column and column:FindFirstChild("Paid")
+			local group = card and card:FindFirstChild("ItemGroup")
+			local claim = card and card:FindFirstChild("Claim")
+			assert(group and claim and claim.Visible, "uigate: level " .. level .. "'s paid item has no picture or Claim (#2087)")
+			local roomTop, roomBottom = card.AbsolutePosition.Y, claim.AbsolutePosition.Y
+			local middle = group.AbsolutePosition.Y + group.AbsoluteSize.Y / 2
+			local third = (roomBottom - roomTop) / 3
+			assert(
+				middle >= roomTop + third and middle <= roomBottom - third,
+				string.format("uigate: level %d's paid item is not centred over Claim (%.0f in %.0f..%.0f, #2087)", level, middle, roomTop, roomBottom)
+			)
+		end
+		local uniform = window:FindFirstChild("Level3", true).Paid.ItemGroup.Item
+		assert(uniform.BackgroundColor3 == Color3.fromRGB(217, 102, 46), "uigate: the Pumpkin uniform's square is not pumpkin (#2087)")
 	end },
 	-- #1626: the busiest top strip, a VIP owner who has not bought the paid track: Buy, Claim all and the chat tag
 	{ "CafePassTag", function()
@@ -1916,6 +2164,17 @@ local SCENES = {
 	{ "QuestsAchievements", function()
 		UI.open("Quests")
 		press("Quests", "AchievementsTab")
+		-- #2089: an achievement's crate draws its own crate's picture, never the retired "?" mystery box
+		local crates = 0
+		for _, d in UIShim.playerGui:GetDescendants() do
+			if d:IsA("ImageLabel") or d:IsA("ImageButton") then
+				assert(not string.find(d.Image, "76162414943592", 1, true), "uigate: " .. d:GetFullName() .. " draws the ? mystery box (#2089)")
+				if string.find(d.Image, "81784091360384", 1, true) then
+					crates += 1
+				end
+			end
+		end
+		assert(crates > 0, "uigate: no achievement shows the Classic Crate's picture (#2089)")
 	end },
 	-- a claim shows at once: the row reads Claimed and drops to the bottom (Derek 2026-10-29)
 	{ "QuestsClaimed", function()
@@ -2101,6 +2360,45 @@ local SCENES = {
 	{ "CatchDoubleRing", function()
 		startCatchV3("gate_double", "Epic", { "single", "single", "single", "double", "double" }, 2, 14)
 	end },
+	-- #2060 (Derek2: "move across the screen so not only do you have to time it but find the next one each time"):
+	-- each ring at its own spot inside the safe box, away from the one before, the next one showing ahead of its turn,
+	-- and a paw ring's Don't swing! on screen
+	{ "CatchRingsMove", function()
+		local list = startCatchV3("gate_move", "Epic", { "single", "single", "paw", "single", "single" }, 2, 14)
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+		local view = layer.AbsoluteSize
+		local root = layer:FindFirstChild("Root")
+		local top, size = root.AbsolutePosition, root.AbsoluteSize
+		local function centre(index)
+			local holder = layer:FindFirstChild("Circle" .. index, true)
+			return holder and holder.AbsolutePosition, holder
+		end
+		local last = nil
+		for index = 1, #list do
+			local at = centre(index)
+			assert(at, "uigate: ring " .. index .. " was not drawn (#2060)")
+			local x, y = (at.X - top.X) / size.X, (at.Y - top.Y) / size.Y
+			assert(
+				x > 0.25 and x < 0.75 and y > 0.35 and y < 0.65 and at.Y > view.Y * 0.2 and at.Y < view.Y * 0.75,
+				"uigate: ring " .. index .. " sits outside the safe box (#2060) at " .. tostring(at)
+			)
+			if last then
+				local moved = math.abs(at.X - last.X) >= size.X * 0.15 or math.abs(at.Y - last.Y) >= size.Y * 0.11
+				assert(moved, "uigate: ring " .. index .. " sits on the last ring's spot (#2060)")
+			end
+			last = at
+		end
+		-- the lead-in: ring 2 shows at its spot while ring 1 is still closing
+		local wait = list[1].startsAt + list[1].shrinkSeconds - 0.15 - workspace:GetServerTimeNow()
+		if wait > 0 then
+			task.wait(wait)
+		end
+		local _, second = centre(2)
+		assert(second and second.Visible, "uigate: the next ring doesn't show ahead of its turn (#2060)")
+		local warning = layer:FindFirstChild("Circle3", true):FindFirstChild("DontSwing", true)
+		local bottom = warning.AbsolutePosition.Y + warning.AbsoluteSize.Y
+		assert(bottom < view.Y - 8, "uigate: the paw ring's Don't swing! runs off the screen (#2060)")
+	end },
 	-- Catch v3 (#1884, 7d): a Purrfect catch's banner (Root.FinishBanner, after the net wrap) and the HUD's streak
 	{ "CatchV3Finish", function()
 		startCatchV3("gate_v3f", "Common", { "single", "single", "single" }, 2, 8)
@@ -2178,6 +2476,26 @@ local SCENES = {
 		UI.showOfflineEarnings(48200, 3 * 3600)
 		-- an ask (the invite nudge) waits for the Welcome back card (Studio run 2026-11-07)
 		assert(not UI.tips.quiet(), "uigate: an ask could slide in under the Welcome back card")
+	end },
+	-- #2123 (first-hour.md 6a): the welcome back card with the reason to play today under the coins, the card taller
+	-- by the line and Collect still clear of the note
+	{ "WelcomeBackHook", function()
+		Scenes._returnHook = true
+		UI.update({ tipsSeen = { stuck_cat = true, codes_cat = true }, returnHook = { kind = "treat", day = 2 } } :: any)
+		UI.showOfflineEarnings(48200, 3 * 3600)
+		local popups = UIShim.playerGui:FindFirstChild("CatCafePopups")
+		local card = popups and popups:FindFirstChild("Offline", true) :: Frame?
+		assert(card and card.Visible, "uigate: no welcome back card (#2123)")
+		local hook = card:FindFirstChild("Hook") :: TextLabel
+		local amount = card:FindFirstChild("Amount") :: TextLabel
+		local note = card:FindFirstChild("Note") :: TextLabel
+		local claim = card:FindFirstChild("Claim", true) :: GuiObject
+		assert(hook and hook.Visible and hook.Text == "Daily Treat day 2 is ready", "uigate: the welcome back hook line reads " .. tostring(hook and hook.Text) .. " (#2123)")
+		assert(hook.TextFits, "uigate: the welcome back hook line does not fit (#2123)")
+		assert(hook.AbsolutePosition.Y >= amount.AbsolutePosition.Y + amount.AbsoluteSize.Y - 1, "uigate: the hook line is not under the coins (#2123)")
+		assert(note.AbsolutePosition.Y >= hook.AbsolutePosition.Y + hook.AbsoluteSize.Y - 1, "uigate: the note sits on the hook line (#2123)")
+		local claimTop = claim.AbsolutePosition.Y
+		assert(note.AbsolutePosition.Y + note.TextBounds.Y <= claimTop + 1, "uigate: the note runs into Collect (#2123)")
 	end },
 	-- F87 section 2f: a brand new player's small HUD, the money, the hint strip, Home and the Cannon, the Tutorial
 	-- tile and Settings
@@ -2353,6 +2671,21 @@ local SCENES = {
 			assert(pill and pill.Text == want, "uigate: the Luck card's " .. rarity .. " pill reads " .. tostring(pill and pill.Text) .. " (#1776)")
 		end
 		assert(hud:FindFirstChild("FoodOdds", true) == nil, "uigate: the Luck card still lists the next cat's odds (#1776)")
+		-- #2079: the card's rows read "+50%", not "+0.5"
+		local rowText = {}
+		for _, d in hud:GetDescendants() do
+			if d:IsA("TextLabel") and d.Visible and d.Text == "+50%" then
+				table.insert(rowText, d.Text)
+			end
+		end
+		assert(#rowText > 0, "uigate: the Luck card's Lucky Day row doesn't read +50% (#2079)")
+		-- #2084: the clover sits left of the day line's first letter, never over it
+		local line = hud:FindFirstChild("LuckyDay", true)
+		local clover = line and line:FindFirstChild("Clover")
+		assert(line and line.Visible and clover and clover.Visible, "uigate: no Lucky Day line with its clover (#2084)")
+		local cloverRight = clover.AbsolutePosition.X + clover.AbsoluteSize.X
+		local textLeft = line.AbsolutePosition.X + line.AbsoluteSize.X - line.TextBounds.X
+		assert(cloverRight <= textLeft + 1, ("uigate: the clover ends at %d, over the day line's words from %d (#2084)"):format(cloverRight, textLeft))
 	end },
 	-- F88: the night before a Lucky, Golden and Rainbow Day, LuckyDayWarnSeconds before sunrise: "Triple Day soon!"
 	-- over the three names, on a small phone too (#1572; no countdown line under the clock since #1572), the Luck card from the scene before closed
@@ -2559,11 +2892,71 @@ local SCENES = {
 	end },
 	-- F101: a Rescue Rally on its second lap, the bar past its first step, this player on 7 points
 	{ "RallyBanner", function()
-		UI.rally.update(rallyState({ lap = 2, points = 50, myPoints = 7 }))
+		rallyScore({ lap = 2, points = 50, myPoints = 7 })
+		local rallyGui = UIShim.playerGui:FindFirstChild("CatCafeRally")
+		assert(rallyGui and rallyGui.Enabled, "uigate: the Rally banner did not pop up when this player scored (#2098)")
+		-- #2078: "50 / 90" clear of the pictures, and 14, 27, 45, 68 and 90 under the steps, above "You: 7 points"
+		local track = UIShim.playerGui:FindFirstChild("RallyBar", true)
+		local mine = track and track.Parent and track.Parent:FindFirstChild("Mine")
+		assert(mine and mine:IsA("TextLabel"), "uigate: the Rally banner has no Mine line (#2078)")
+		local mineTop = mine.AbsolutePosition.Y + (mine.AbsoluteSize.Y - mine.TextBounds.Y) / 2
+		assertRallyBar(track, { 14, 27, 45, 68, 90 }, mineTop)
+	end },
+	-- #2078: the Town Square board's face (500 x 200, the board's own layout) on a big goal: "135 / 300" past the
+	-- bar's end, clear of the pictures, and each step's points under it, above the time left
+	{ "RallyBoardFace", function()
+		local RallyBar = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RallyBar")
+		local RallyLogic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RallyLogic")
+		local RallyBoards = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.RallyBoards")
+		local Theme = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Theme")
+		local gui = Instance.new("ScreenGui")
+		gui.Name = "RallyBoardFaceGate"
+		gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+		gui.DisplayOrder = 100 -- over the HUD, so the shot shows the face
+		gui.Parent = UIShim.playerGui
+		Scenes._rallyFace = gui
+		local face = Instance.new("Frame")
+		face.Name = "Face"
+		face.BackgroundColor3 = Color3.fromHex("2B2F3A") -- the board's dark face
+		face.AnchorPoint = Vector2.new(0.5, 0.5)
+		face.Position = UDim2.fromScale(0.5, 0.5)
+		face.Size = UDim2.fromOffset(RallyBoards.FACE.X, RallyBoards.FACE.Y)
+		face.Parent = gui
+		local layout = RallyBoards.BAR
+		local bar = RallyBar.new({
+			parent = face,
+			name = "RallyBoardBar",
+			size = layout.size,
+			position = layout.position,
+			marker = layout.marker,
+			textSize = layout.textSize,
+			countWidth = layout.countWidth,
+			numberSize = layout.numberSize,
+			textColor = Theme.chalk,
+		})
+		bar:set(RallyLogic.view(rallyState({ goal = 300, points = 135 }), workspace:GetServerTimeNow()))
+		local faceRight = face.AbsolutePosition.X + face.AbsoluteSize.X
+		local points = bar.frame:FindFirstChild("Points")
+		assert(
+			points.AbsolutePosition.X + points.AbsoluteSize.X <= faceRight + 0.5,
+			"uigate: the board's Rally count runs off its face (#2078)"
+		)
+		assertRallyBar(bar.frame, { 45, 90, 150, 225, 300 }, face.AbsolutePosition.Y + RallyBoards.LEFT_Y)
 	end },
 	-- F101: this player's laps used up this weekend, the bar nearly full
 	{ "RallyBannerDone", function()
-		UI.rally.update(rallyState({ lap = 5, points = 85, myPoints = 12, lapsPaid = 4, lapsDone = true }))
+		rallyScore({ lap = 5, points = 85, myPoints = 12, lapsPaid = 4, lapsDone = true })
+	end },
+	-- #2098: a Rally running and nobody scoring here: the banner stays hidden
+	{ "RallyBannerHidden", function()
+		-- the Rally off first, so nothing from an earlier scene is waiting to pop up
+		UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = 0, myPoints = 7 }))
+		UI.rally.update(rallyState({ lap = 2, points = 50, myPoints = 7 }))
+		UI.rally.update(rallyState({ lap = 2, points = 52, myPoints = 7 })) -- someone else's points
+		Scenes._rallyPeek = true
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeRally")
+		assert(gui and gui:IsA("ScreenGui"), "uigate: no Rally banner built (#2098)")
+		assert(not gui.Enabled, "uigate: the Rally banner shows though this player has not scored (#2098)")
 	end },
 	-- F101: the Cat Cannon at night during a Rally: every card's "Rally: rescues x3" tag over its night cover
 	{ "RallyCannonNight", function()
@@ -2585,11 +2978,11 @@ local SCENES = {
 	{ "RallyBannerPotions", function()
 		local t = workspace:GetServerTimeNow()
 		UI.update({ buffs = { tip_potion = t + 492, swift_potion = t + 130, lucky_potion = t + 492 } })
-		UI.rally.update(rallyState({ points = 30, myPoints = 2 }))
+		rallyScore({ points = 30, myPoints = 2 })
 	end },
 	-- F101 (review S113): a rescue during a Rally: the banner steps aside, so the rescue bar's header is clear
 	{ "RallyRescue", function()
-		UI.rally.update(rallyState({ lap = 2, points = 50, myPoints = 7 }))
+		rallyScore({ lap = 2, points = 50, myPoints = 7 })
 		UI.rescue.show("gate_rescue", rescueChallenge())
 	end },
 	-- F101: Friday, 5 h 20 m before the Rally: the countdown under the clock and no banner
@@ -2861,7 +3254,7 @@ local SCENES = {
 		assertStoreCards(false)
 		Config.JukeboxPassId = was
 	end },
-	-- #1168: the Thank You Badge (a product, hidden for a supporter) and the Sign Style Pack (a pass, hidden at 0)
+	-- #1168: the Thank You Badge (a product, reads Yours for a supporter, #2073) and the Sign Style Pack (a pass, hidden at 0)
 	-- on the Passes tab, each saying what it holds
 	{ "StoreThankYouSign", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
@@ -2885,8 +3278,9 @@ local SCENES = {
 			local thanks = modals and modals:FindFirstChild("grid:thankYou", true)
 			assert(thanks and thanks:IsA("GuiObject") and thanks.Visible, "uigate: no Thank You Badge card (#1168)")
 			player:SetAttribute("Supporter", true)
-			local gone = modals:FindFirstChild("grid:thankYou", true)
-			assert(gone == nil or not (gone :: GuiObject).Visible, "uigate: a supporter still sees the Thank You Badge (#1168)")
+			-- #2073: a supporter keeps the card, now reading Yours, instead of it vanishing
+			local kept = modals:FindFirstChild("grid:thankYou", true)
+			assert(kept and kept:IsA("GuiObject") and kept.Visible, "uigate: a supporter's Thank You Badge card vanished (#2073)")
 			player:SetAttribute("Supporter", nil)
 		end
 		assertStoreCards(false)
@@ -3016,6 +3410,14 @@ end
 
 function Scenes.close()
 	reel(false)
+	if Scenes._rallyPeek then
+		Scenes._rallyPeek = nil
+		UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = 0 })) -- #2098: the banner put away
+	end
+	if Scenes._rallyFace then
+		Scenes._rallyFace:Destroy() -- #2078's board face
+		Scenes._rallyFace = nil
+	end
 	if UI.recap.card and UI.recap.card:isShowing() then
 		UI.recap.card:hide() -- #1920
 	end
@@ -3025,6 +3427,11 @@ function Scenes.close()
 	end
 	if UI.gift.card and UI.gift.card:isShowing() then
 		UI.gift.card:hide() -- #1947
+	end
+	if Scenes._returnHook then
+		Scenes._returnHook = nil
+		local current: any = UI.getState()
+		current.returnHook = nil -- #2123's welcome back scene
 	end
 	if Scenes._quiet then
 		local before = Scenes._quiet
@@ -3036,6 +3443,10 @@ function Scenes.close()
 		UI.pass.set(nil)
 		Scenes._achievementPrizes.S.passXp = Scenes._passXp.small
 		Scenes._passXp = nil
+	end
+	if Scenes._decorOwned ~= nil then
+		UI.update({ decorOwned = Scenes._decorOwned } :: any) -- #2053's rarity tint scene
+		Scenes._decorOwned = nil
 	end
 	if Scenes._crew then
 		UI.update(Scenes._crew :: any) -- #2047's extra slots scene: the sample cats, tier and no extra slots back

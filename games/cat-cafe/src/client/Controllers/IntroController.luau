@@ -90,6 +90,16 @@ type You = {
 	shown: boolean,
 }
 
+-- Shot 6 (#2242): where it plays in your cafe and what it has staged.
+type Rich = {
+	door: Vector3, -- where the visitor and your copy come in (the plot's Door waypoint), at the visitor's pivot height
+	tip: Vector3, -- the coin pile's anchor (the plot's RichTipAnchor)
+	seat: CFrame?, -- table 1's chair, where the visitor sits
+	visitor: Model?, -- walking, then its seated twin
+	coins: Model?,
+	you: You?,
+}
+
 -- The Town Square's cannon on this screen (section 2a): its turret turned and its moon cover lifted locally.
 type TownCannon = {
 	model: Model,
@@ -131,6 +141,7 @@ type Run = {
 	nearDemo: { Model }, -- real strays hidden round the catch and the run for shots 3 and 4
 	seated: Model?, -- shot 5's seated waiter
 	waiters: { Model }, -- real cats on the waiter spot, hidden for shot 5
+	rich: Rich?, -- shot 6's rich visitor, coin pile and your copy (#2242)
 	wheel: { model: Model, base: CFrame }?,
 	done: { [string]: boolean }, -- the timed beats inside a shot that have happened
 	controls: any?, -- the PlayerModule's controls, disabled for the run
@@ -711,6 +722,74 @@ local function releaseDemo(r: Run, you: You?, demo: Model)
 end
 
 -- Everything a shot starts with. Called once per shot, in order; a shot the frame rate skipped still starts.
+-- #2242: shot 6's places in your cafe: its Door waypoint (where customers walk in), the RichTipAnchor and table 1's
+-- first chair, else where shared/Intro works them out.
+local function richPlace(r: Run): Rich
+	local plot = UIController.ownPlot()
+	local waypoints = if plot ~= nil then plot:FindFirstChild("CustomerWaypoints") else nil
+	local doorPart = if waypoints ~= nil then waypoints:FindFirstChild("Door") else nil
+	local anchor = if plot ~= nil then plot:FindFirstChild("RichTipAnchor") else nil
+	local door = if doorPart ~= nil and doorPart:IsA("BasePart")
+		then (doorPart :: BasePart).Position
+		else Intro.doorPoint(r.plot)
+	local tip = if anchor ~= nil and anchor:IsA("BasePart")
+		then (anchor :: BasePart).Position
+		else Intro.richTipPoint(r.plot)
+	local seat: CFrame? = nil
+	local tables = if plot ~= nil then plot:FindFirstChild("Tables") else nil
+	local group = if tables ~= nil then tables:FindFirstChild("table_1") else nil
+	if group ~= nil then
+		for _, child in group:GetChildren() do
+			if child:IsA("Model") and child.Name:match("^Chair_") then
+				seat = (child :: Model):GetPivot()
+				break
+			end
+		end
+	end
+	return { door = door, tip = tip, seat = seat, visitor = nil, coins = nil, you = nil }
+end
+
+local function clearRich(r: Run)
+	local rich = r.rich
+	r.rich = nil
+	if rich == nil then
+		return
+	end
+	for _, model in { rich.visitor, rich.coins, if rich.you ~= nil then rich.you.model else nil } do
+		if model ~= nil then
+			model:Destroy()
+		end
+	end
+end
+
+-- The rich tip's gold coins on `tip` (CustomerController's pile: two stacks, 4 and 2), local, staged.
+local function stageCoins(r: Run, tip: Vector3): Model
+	local pile = Instance.new("Model")
+	pile.Name = "IntroRichTipCoins"
+	local top = tip.Y - 0.6 -- the table top under the anchor, as CustomerController reads it
+	for _, stack in { { x = -0.35, z = 0.1, coins = 4 }, { x = 0.4, z = -0.15, coins = 2 } } do
+		for n = 1, stack.coins do
+			local coin = Instance.new("Part")
+			coin.Name = "Coin"
+			coin.Shape = Enum.PartType.Cylinder
+			coin.Size = Vector3.new(0.14, 0.7, 0.7)
+			coin.Color = Color3.fromRGB(255, 196, 56)
+			coin.Material = Enum.Material.Metal
+			coin.Anchored = true
+			coin.CanCollide = false
+			coin.CanQuery = false
+			coin.CanTouch = false
+			coin.CastShadow = false
+			coin.CFrame = CFrame.new(tip.X + stack.x, top + 0.07 + (n - 1) * 0.14, tip.Z + stack.z)
+				* CFrame.Angles(0, 0, math.rad(90))
+			coin.Parent = pile
+		end
+	end
+	pile.Parent = Workspace
+	table.insert(r.staged, pile)
+	return pile
+end
+
 local function enterShot(r: Run, position: number)
 	local shot = r.shots[position]
 	r.shot = position
@@ -797,6 +876,11 @@ local function enterShot(r: Run, position: number)
 			show(r, waiter)
 		end
 		table.clear(r.waiters)
+	end
+	if shot.rich and r.rich == nil then
+		r.rich = richPlace(r)
+	elseif not shot.rich and r.rich ~= nil then
+		clearRich(r) -- the visitor, the coins and your copy go at the cut to the night
 	end
 	if shot.spinWheel and r.wheel == nil then
 		local wheel = findWheel()
@@ -1025,7 +1109,81 @@ local function stageJob(r: Run, t: number)
 	end
 end
 
--- The timed beats of shots 6 and 7, `t` seconds into the showing shot.
+-- Shot 6 (#2242), `t` seconds in: the rich visitor walks from the door to table 1's chair and sits, its gold coins
+-- show on the RichTipAnchor, your copy walks in from the door and grabs them with the UI's "+$" pop. Nothing is paid.
+local function stageRich(r: Run, t: number)
+	local rich = r.rich
+	if rich == nil then
+		return
+	end
+	local function once(name: string, at: number): boolean
+		if t >= at and not r.done[name] then
+			r.done[name] = true
+			return true
+		end
+		return false
+	end
+	local seatAt = if rich.seat ~= nil
+		then Vector3.new((rich.seat :: CFrame).X, rich.door.Y, (rich.seat :: CFrame).Z)
+		else Intro.grabSpot(rich.door, rich.tip) + Vector3.new(0, rich.door.Y - rich.tip.Y, 0)
+	if once("richIn", Intro.RICH_WALK_AT) then
+		rich.visitor = stageAsset(
+			r,
+			Intro.RICH_ASSET,
+			CFrame.lookAt(rich.door, rich.door + toward(rich.door, seatAt))
+		)
+	end
+	if rich.visitor ~= nil and t < Intro.RICH_SIT_AT then
+		local k =
+			math.clamp((t - Intro.RICH_WALK_AT) / (Intro.RICH_SIT_AT - Intro.RICH_WALK_AT), 0, 1)
+		local at = rich.door:Lerp(seatAt, Intro.ease("InOut", k))
+		local visitor = rich.visitor :: Model
+		visitor:PivotTo(CFrame.lookAt(at, at + toward(rich.door, seatAt)))
+	end
+	if once("richSit", Intro.RICH_SIT_AT) and rich.visitor ~= nil and rich.seat ~= nil then
+		local seated = stageAsset(r, Intro.RICH_ASSET .. "_Sit", rich.seat :: CFrame)
+		if seated ~= nil then
+			(rich.visitor :: Model):Destroy()
+			rich.visitor = seated
+		end
+	end
+	if once("richTip", Intro.RICH_TIP_AT) then
+		rich.coins = stageCoins(r, rich.tip)
+	end
+	local floor = Vector3.new(rich.door.X, Intro.FLOOR_Y, rich.door.Z)
+	local grab = Intro.grabSpot(floor, rich.tip)
+	if once("richYou", Intro.RICH_GRAB_FROM) then
+		rich.you = stageYou(r)
+		if rich.you ~= nil then
+			playYou(rich.you :: You, "run")
+		end
+	end
+	local you = rich.you
+	if you ~= nil and t >= Intro.RICH_GRAB_FROM then
+		local k = math.clamp(
+			(t - Intro.RICH_GRAB_FROM) / (Intro.RICH_GRAB_AT - Intro.RICH_GRAB_FROM),
+			0,
+			1
+		)
+		placeYou(
+			you,
+			floor:Lerp(grab, k),
+			if k < 1 then toward(floor, grab) else toward(grab, rich.tip)
+		)
+	end
+	if once("richGrab", Intro.RICH_GRAB_AT) then
+		if you ~= nil then
+			playYou(you, "idle")
+		end
+		if rich.coins ~= nil then
+			(rich.coins :: Model):Destroy()
+			rich.coins = nil
+		end
+		(UI.intro :: any).tipPop(rich.tip + Vector3.new(0, 1, 0), Intro.richTip())
+	end
+end
+
+-- The timed beats of shots 7 and 8, `t` seconds into the showing shot.
 local function beats(r: Run, shot: Intro.Shot, t: number)
 	local function once(name: string, at: number): boolean
 		if t >= at and not r.done[name] then
@@ -1107,6 +1265,8 @@ local function stage(r: Run, shot: Intro.Shot, t: number)
 		stageRun(r, action)
 	elseif shot.job then
 		stageJob(r, action)
+	elseif shot.rich then
+		stageRich(r, action)
 	end
 	beats(r, shot, action)
 end
@@ -1303,6 +1463,7 @@ function IntroController.play(replay: boolean)
 		nearDemo = {},
 		seated = nil,
 		waiters = {},
+		rich = nil,
 		wheel = nil,
 		done = {},
 		controls = controls(),

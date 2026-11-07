@@ -30,12 +30,12 @@ return function()
 
 	describe("the shots (section 2)", function()
 		it(
-			"are eight shots of 20 s, each starting where the one before ends (#1542, #1782)",
+			"are nine shots of 23 s, each starting where the one before ends (#1542, #1782, #2242)",
 			function()
 				local shots = Intro.shots(EAST, true)
 				expect(#shots).to.equal(Intro.SHOTS)
-				expect(Intro.SHOTS).to.equal(8)
-				expect(Intro.VERSION).to.equal(7)
+				expect(Intro.SHOTS).to.equal(9)
+				expect(Intro.VERSION).to.equal(8)
 				local at = 0
 				for i, shot in shots do
 					expect(shot.index).to.equal(i)
@@ -47,14 +47,15 @@ return function()
 					expect(cuts).to.be.near(shot.seconds, 1e-9)
 					at += shot.seconds
 				end
-				-- 30.5 with the camp cuts, until #1542; 22.5 with the Index Board shot, until #1782
-				expect(Intro.length(shots)).to.be.near(20, 1e-9)
+				-- 30.5 with the camp cuts, until #1542; 22.5 with the Index Board shot, until #1782; 20 until #2242's
+				-- 3 s rich visitor
+				expect(Intro.length(shots)).to.be.near(23, 1e-9)
 				local starts = {}
 				for _, shot in shots do
 					table.insert(starts, math.floor(shot.starts * 10 + 0.5) / 10)
 				end
-				-- #2113: the 3 s night before the 2.7 s spin
-				expect(starts :: any).to.deepEqual({ 0, 2.5, 5, 7.5, 9.5, 12.3, 15.3, 18 })
+				-- #2242: the 3 s rich visitor after the cafe job; #2113: the 3 s night before the 2.7 s spin
+				expect(starts :: any).to.deepEqual({ 0, 2.5, 5, 7.5, 9.5, 12.3, 15.3, 18.3, 21 })
 			end
 		)
 
@@ -79,12 +80,14 @@ return function()
 				expect(which("run") :: any).to.deepEqual({ 4 })
 				expect(which("job") :: any).to.deepEqual({ 5 })
 				expect(which("camp") :: any).to.deepEqual({ 3, 4 })
-				expect(which("spinWheel") :: any).to.deepEqual({ 7 }) -- #2113: after the night
-				expect(which("night") :: any).to.deepEqual({ 6 })
-				expect(which("follow") :: any).to.deepEqual({ 8 })
+				expect(which("rich") :: any).to.deepEqual({ 6 }) -- #2242: straight after the cafe job
+				expect(which("spinWheel") :: any).to.deepEqual({ 8 }) -- #2113: after the night
+				expect(which("night") :: any).to.deepEqual({ 7 })
+				expect(which("follow") :: any).to.deepEqual({ 9 })
 				expect(shots[1].caption).to.equal("Fly the Cat Cannon to catch stray cats!")
 				expect(shots[4].caption).to.equal("Carry it into the camp to keep it!")
-				expect(shots[8].caption).to.equal("Your first cat is waiting in the Alleyway!")
+				expect(shots[6].caption).to.equal("Rich visitors leave big tips. Grab them fast!")
+				expect(shots[9].caption).to.equal("Your first cat is waiting in the Alleyway!")
 				-- #1542: no shot shows the other camps any more; #1782: nor the Alleyway's Index Board after the cafe
 				for _, shot in shots do
 					expect(shot.caption ~= "Rank up to fly to new areas!").to.equal(true)
@@ -105,20 +108,20 @@ return function()
 			end
 		end)
 
-		it("names the Codes Cat in shot 7 only once one stands in the world", function()
-			expect(Intro.shots(EAST, true)[7].caption).to.equal(Intro.CODES_CAPTION)
-			expect(Intro.shots(EAST, false)[7].caption).to.equal(Intro.SPIN_CAPTION)
+		it("names the Codes Cat in shot 8 only once one stands in the world", function()
+			expect(Intro.shots(EAST, true)[8].caption).to.equal(Intro.CODES_CAPTION)
+			expect(Intro.shots(EAST, false)[8].caption).to.equal(Intro.SPIN_CAPTION)
 		end)
 
 		it("shows night and its fresh cats before the free spin and the codes (#2113)", function()
 			local shots = Intro.shots(EAST, true)
-			expect(shots[6].night).to.equal(true)
-			expect(shots[7].spinWheel).to.equal(true)
-			expect(Intro.VERSION).to.equal(7)
+			expect(shots[7].night).to.equal(true)
+			expect(shots[8].spinWheel).to.equal(true)
+			expect(Intro.VERSION).to.equal(8)
 		end)
 
 		it(
-			"leaves out shots 3 and 4 when the Alleyway's camp has not streamed in, 4.5 s shorter: 15.5 s",
+			"leaves out shots 3 and 4 when the Alleyway's camp has not streamed in, 4.5 s shorter: 18.5 s",
 			function()
 				local shots = Intro.shots(EAST, true, false)
 				local indexes = {}
@@ -128,8 +131,8 @@ return function()
 					expect(shot.starts).to.be.near(at, 1e-9)
 					at += shot.seconds
 				end
-				expect(indexes :: any).to.deepEqual({ 1, 2, 5, 6, 7, 8 })
-				expect(Intro.length(shots)).to.be.near(15.5, 1e-9)
+				expect(indexes :: any).to.deepEqual({ 1, 2, 5, 6, 7, 8, 9 })
+				expect(Intro.length(shots)).to.be.near(18.5, 1e-9)
 				-- shot 2 holds the clouds to its end instead of cutting to the camp
 				local cuts = shots[2].cuts
 				expect(near(cuts[#cuts].from.position, cuts[1].to.position)).to.equal(true)
@@ -154,9 +157,9 @@ return function()
 					-- shot 2 starts where shot 1 ends
 					expect(near(shots[2].cuts[1].from.position, cut.to.position)).to.equal(true)
 				end
-				-- everything after shot 1 is the same for every plot but the job inside your own cafe
+				-- everything after shot 1 is the same for every plot but the job and the rich visitor in your own cafe
 				for i = 2, Intro.SHOTS do
-					if i ~= 5 then
+					if i ~= 5 and i ~= 6 then
 						expect(near(east[i].cuts[1].from.position, west[i].cuts[1].from.position)).to.equal(
 							true
 						)
@@ -226,6 +229,65 @@ return function()
 				end
 			end
 		)
+	end)
+
+	describe("the rich visitor (#2242)", function()
+		it("films your cafe's door and table 1's coin pile from inside, under its ceiling", function()
+			for _, plot in { EAST, WEST } do
+				local shot = Intro.shots(plot, true)[6]
+				local tip, door = Intro.richTipPoint(plot), Intro.doorPoint(plot)
+				for _, key in { shot.cuts[1].from, shot.cuts[1].to } do
+					expect(key.position.Y - Intro.FLOOR_Y < 9).to.equal(true)
+					expect(
+						flat(key.position, Vector3.new(plot.x, 0, plot.z)) < Config.World.PlotDepth / 2
+					).to.equal(true)
+					-- the coin pile and the door both in front of the camera
+					local ahead = (key.look - key.position).Unit
+					expect((tip - key.position).Unit:Dot(ahead) > 0.5).to.equal(true)
+					expect((door - key.position).Unit:Dot(ahead) > 0.3).to.equal(true)
+				end
+			end
+		end)
+
+		it("uses Layout.plot's rich tip anchor and the front door", function()
+			local tip = Layout.plot.richTip
+			expect(Intro.cafe.richTip.x).to.equal(tip.x)
+			expect(Intro.cafe.richTip.y).to.equal(tip.y)
+			expect(Intro.cafe.richTip.z).to.equal(tip.z)
+			local door = Intro.doorPoint(WEST)
+			expect(near(door, Intro.plotPoint(WEST, 0, 0, -Config.World.PlotDepth / 2 + 1.5))).to.equal(true)
+		end)
+
+		it("stops your copy RICH_REACH short of the coins, on the door's side, on the floor", function()
+			local door = Vector3.new(0, 0.2, 0)
+			local tip = Vector3.new(10, 2.9, 0)
+			local at = Intro.grabSpot(door, tip)
+			expect(near(at, Vector3.new(10 - Intro.RICH_REACH, 0.2, 0))).to.equal(true)
+			-- standing on the tip falls back to a fixed side
+			expect(Intro.grabSpot(tip, tip).Y).to.equal(tip.Y)
+		end)
+
+		it("times the walk in, the sit, the coins and the grab inside the shot", function()
+			local shot = Intro.shots(EAST, true)[6]
+			local beats = {
+				Intro.RICH_WALK_AT,
+				Intro.RICH_SIT_AT,
+				Intro.RICH_TIP_AT,
+				Intro.RICH_GRAB_FROM,
+				Intro.RICH_GRAB_AT,
+			}
+			for i = 2, #beats do
+				expect(beats[i - 1] < beats[i]).to.equal(true)
+			end
+			expect(Intro.RICH_GRAB_AT < shot.seconds).to.equal(true)
+			-- 8 words: a 4.2 s reading hold (section 2b)
+			expect(shot.hold).to.be.near(4.2, 1e-9)
+		end)
+
+		it("pops a rich tip on a new cafe's day rate at Tier 1, at least $50", function()
+			expect(Intro.richTip()).to.equal(Economy.richTipAmount(Intro.demoRate()))
+			expect(Intro.richTip() >= 50).to.equal(true)
+		end)
 	end)
 
 	describe("the Alleyway camp, the catch and the carry (section 2a)", function()
@@ -446,9 +508,10 @@ return function()
 			expect(Intro.shotAt(shots, 8)).to.equal(4)
 			expect(Intro.shotAt(shots, 10)).to.equal(5)
 			expect(Intro.shotAt(shots, 12.29)).to.equal(5)
-			expect(Intro.shotAt(shots, 12.31)).to.equal(6) -- the square, straight after the cafe since #1782
-			expect(Intro.shotAt(shots, 19.99)).to.equal(8)
-			expect(Intro.shotAt(shots, 20.01)).to.equal(0)
+			expect(Intro.shotAt(shots, 12.31)).to.equal(6) -- the rich visitor, straight after the job (#2242)
+			expect(Intro.shotAt(shots, 15.31)).to.equal(7) -- the square
+			expect(Intro.shotAt(shots, 22.99)).to.equal(9)
+			expect(Intro.shotAt(shots, 23.01)).to.equal(0)
 			expect(Intro.shotAt(shots, 100)).to.equal(0)
 		end)
 	end)
@@ -517,16 +580,17 @@ return function()
 							table.insert(jumps, string.format("%d.%d", change.shot, change.cut))
 						end
 					end
-					-- the cafe to the square (6.1) dips only from a plot far enough from the square
+					-- the cafe to the night (7.1) dips only from a plot far enough from the square; the rich visitor
+					-- (6.1, #2242) stays in the cafe
 					local seen = table.concat(jumps, " ")
-					expect(seen == "5.1 7.1" or seen == "5.1 6.1 7.1").to.equal(true)
+					expect(seen == "5.1 8.1" or seen == "5.1 7.1 8.1").to.equal(true)
 				end
 			end
 		)
 
 		it("keeps the Alleyway's catch and run and the end behind you as plain cuts", function()
 			for _, change in changes(EAST) do
-				if change.shot == 3 or change.shot == 4 or change.shot == 8 then
+				if change.shot == 3 or change.shot == 4 or change.shot == 6 or change.shot == 9 then
 					expect(change.jump).to.equal(false)
 				end
 			end
@@ -537,9 +601,9 @@ return function()
 
 	describe("the intro_cutscene event", function()
 		it(
-			"carries version 6 since #2113 put the night before the spin (5 since #1782, 4 since #1542's camp cuts)",
+			"carries version 8 since #2242's rich visitor (7 since #2182, 6 since #2113, 5 since #1782, 4 since #1542)",
 			function()
-				expect(Intro.VERSION).to.equal(7)
+				expect(Intro.VERSION).to.equal(8)
 			end
 		)
 
@@ -591,7 +655,7 @@ return function()
 				expect(shot.hold >= shot.seconds).to.equal(true)
 				table.insert(holds, math.floor(shot.hold * 10 + 0.5) / 10)
 			end
-			expect(holds :: any).to.deepEqual({ 4.2, 4.2, 3.0, 4.2, 4.2, 4.2, 4.6, 4.2 })
+			expect(holds :: any).to.deepEqual({ 4.2, 4.2, 3.0, 4.2, 4.2, 4.2, 4.2, 4.6, 4.2 })
 		end)
 
 		it("eases the camera to a stop at the end of its moves and holds it there", function()

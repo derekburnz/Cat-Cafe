@@ -2020,6 +2020,13 @@ function Logic.along(points: { Vector3 }, travelled: number): (Vector3, Vector3,
 	return points[#points], heading, true
 end
 
+-- A rarity gem's halo ring (#2231): its BackgroundTransparency, `transparency` at full strength, fading to fully
+-- clear at strength 0 (strength 0 to 1, from Presets.rarityMark.halo).
+function Logic.haloTransparency(transparency: number, strength: number): number
+	local k = math.clamp(strength, 0, 1)
+	return 1 - (1 - transparency) * k
+end
+
 -- How far `point` lies from the segment `a` to `b`, across the floor (Y left out).
 function Logic.flatDistanceToSegment(point: Vector3, a: Vector3, b: Vector3): number
 	local p = Vector3.new(point.X, 0, point.Z)

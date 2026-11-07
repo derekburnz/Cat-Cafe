@@ -8,7 +8,8 @@
 -- more than `minStuds` away, this client hides the new model and walks a copy of the cat (its walking body, gold if
 -- it is) from where it was to it, round the tables (PathfindingService, else straight), then fades the copy out as
 -- the new model fades in. It hurries to arrive within `maxSeconds`. A spot up off the floor (the counter top, a cat
--- tree's cushion) more than `maxRise` above or below the last one gets no walk.
+-- tree's cushion) more than `maxRise` above or below the last one gets no walk; a nap bed's cushion is within it, so
+-- a cat sent back to rest walks to its bed too.
 -- Skipped (the cat just appears, as before) with Reduce Motion, at night, for a cat built asleep or on a bedtime
 -- trip, a hidden cat, or one out of animRadius. The copy never collides or blocks a click; nothing here fires a
 -- remote or moves the server's model. Cats.luau and CafeWalk leave a model with SlotWalk.MARK alone.
@@ -166,7 +167,11 @@ local function begin(model: Model, from: CFrame)
 	for _, key in { "Uid", "CatId", "Gold", "Rarity", "Variant" } do
 		copy:SetAttribute(key, model:GetAttribute(key))
 	end
-	local start, goal = from.Position, to.Position
+	-- along the floor: a nap bed's Sleep point sits up on its cushion, so the walk keeps to the lower of the two
+	-- heights and the cross-fade at the end lifts it onto the bed
+	local floorY = math.min(from.Position.Y, to.Position.Y)
+	local start = Vector3.new(from.Position.X, floorY, from.Position.Z)
+	local goal = Vector3.new(to.Position.X, floorY, to.Position.Z)
 	local look = Vector3.new(goal.X - start.X, 0, goal.Z - start.Z)
 	copy:PivotTo(
 		CFrame.lookAt(

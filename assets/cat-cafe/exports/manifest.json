@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-06 22:30 UTC",
+  "generated": "2026-11-06 23:11 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -229908,6 +229908,172 @@
           "centered": "footprint center x=0.00 y=0.00"
         }
       }
+    },
+    {
+      "name": "CatCafe_Plot_GrandOpeningRibbon",
+      "category": "Plot",
+      "module": "grandopening",
+      "objects": [
+        "CatCafe_Plot_GrandOpeningRibbon",
+        "CatCafe_Plot_GrandOpeningRibbon_RibbonR",
+        "CatCafe_Plot_GrandOpeningRibbon_RibbonL"
+      ],
+      "triangles": 2030,
+      "budget": 3000,
+      "size_studs": {
+        "x": 17.28,
+        "y": 0.85,
+        "z": 2.71
+      },
+      "size_roblox": [
+        17.28,
+        2.71,
+        0.85
+      ],
+      "bounds_min": [
+        -8.25,
+        -18.85,
+        7.85
+      ],
+      "bounds_max": [
+        9.03,
+        -18.0,
+        10.56
+      ],
+      "pivot": "the Plot pivot like a sign style (floor top centre, -Z the street); children _RibbonL (x > 0) and _RibbonR (x < 0, with the pennant) pivot on their rosettes (x -+8, y 10.3): swing each about its Z axis to drop it",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Plot_GrandOpeningRibbon_RibbonR": [
+          8.0,
+          -18.62,
+          10.3
+        ],
+        "CatCafe_Plot_GrandOpeningRibbon_RibbonL": [
+          -8.0,
+          -18.62,
+          10.3
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Plot_GrandOpeningRibbon_RibbonR": [
+          -8.0,
+          10.3,
+          -18.62
+        ],
+        "CatCafe_Plot_GrandOpeningRibbon_RibbonL": [
+          8.0,
+          10.3,
+          -18.62
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_GrandOpeningRibbon.model.json",
+      "rbx_parts": 176,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_GrandOpeningRibbon.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_GrandOpeningRibbon.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "2030/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1001 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=7.85 (want 0)",
+          "centered": "footprint center x=0.39 y=-18.42"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_GrandOpeningRibbon.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_GrandOpeningRibbon.png"
+    },
+    {
+      "name": "CatCafe_Plot_GrandOpeningBunting",
+      "category": "Plot",
+      "module": "grandopening",
+      "objects": [
+        "CatCafe_Plot_GrandOpeningBunting",
+        "CatCafe_Plot_GrandOpeningBunting_LeftBalloons",
+        "CatCafe_Plot_GrandOpeningBunting_RightBalloons"
+      ],
+      "triangles": 1412,
+      "budget": 3000,
+      "size_studs": {
+        "x": 44.14,
+        "y": 1.46,
+        "z": 6.32
+      },
+      "size_roblox": [
+        44.14,
+        6.32,
+        1.46
+      ],
+      "bounds_min": [
+        -22.07,
+        -19.48,
+        6.3
+      ],
+      "bounds_max": [
+        22.07,
+        -18.02,
+        12.62
+      ],
+      "pivot": "the Plot pivot like a sign style; children _LeftBalloons and _RightBalloons pivot on their ties beside the door (x +-4.8, y 6.4): wobble them there",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Plot_GrandOpeningBunting_LeftBalloons": [
+          4.8,
+          -18.08,
+          6.4
+        ],
+        "CatCafe_Plot_GrandOpeningBunting_RightBalloons": [
+          -4.8,
+          -18.08,
+          6.4
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Plot_GrandOpeningBunting_LeftBalloons": [
+          -4.8,
+          6.4,
+          -18.08
+        ],
+        "CatCafe_Plot_GrandOpeningBunting_RightBalloons": [
+          4.8,
+          6.4,
+          -18.08
+        ]
+      },
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Plot_GrandOpeningBunting.model.json",
+      "rbx_parts": 159,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Plot_GrandOpeningBunting.fbx",
+        "assets/cat-cafe/exports/CatCafe_Plot_GrandOpeningBunting.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "1412/3000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "800 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=6.30 (want 0)",
+          "centered": "footprint center x=0.00 y=-18.75"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_GrandOpeningBunting.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_GrandOpeningBunting.png"
     },
     {
       "name": "CatCafe_Sign_VipPlate",

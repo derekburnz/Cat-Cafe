@@ -1,7 +1,7 @@
 --!strict
 -- A food picture for shop rows, as in the Grow a Garden seed shop: the item's own model from
 -- ReplicatedStorage.Assets (the LureDef's `asset` name) held still at a three-quarter view on a round tile in the
--- rarity colour. Until the asset thread's model is there, the food's glyph from Theme.foodIcons stands in.
+-- rarity colour (#2075: the lawn's Uncommon in mint, a Golden piece on a gold sheen). Until the asset thread's model is there, the food's glyph from Theme.foodIcons stands in.
 -- A still ViewportFrame only redraws when its contents change, so a list of these costs no frames.
 -- setFood (F69) colours the tile by the food's grade (Components/FoodGrade) and adds the grade badge: a word pill
 -- across the bottom edge, or a lettered gem in the top right corner of a picture too small for the word. Since F97
@@ -202,9 +202,34 @@ function ItemIcon.set(
 	if badge then
 		badge.Visible = false -- setFood shows it again; anything else has no grade
 	end
-	local color = Theme.rarityColor(rarity)
-	self.frame.BackgroundColor3 = tint or color:Lerp(Theme.colors.cream, TILE_SHADE)
-	self._border.Color = color:Lerp(Theme.colors.outline, 0.35)
+	-- #2075: the lawn's Uncommon and Golden have their own colours (Theme.lawnRarityColors), not Common's
+	local color = Theme.lawnRarityColors(rarity)
+	local golden = rarity == "Golden" and tint == nil
+	self.frame.BackgroundColor3 = if golden
+		then Theme.colors.white -- the sheen below paints it
+		else tint or color:Lerp(Theme.colors.cream, TILE_SHADE)
+	self._border.Color = if golden
+		then Theme.colors.goldDark
+		else color:Lerp(Theme.colors.outline, 0.35)
+	local sheen: UIGradient? = self._sheen
+	if golden and sheen == nil then
+		-- a Golden piece shines: deep gold to bright gold to a pale highlight, corner to corner
+		sheen = Create("UIGradient", {
+			Name = "GoldenSheen",
+			Rotation = 35,
+			Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0, Theme.colors.goldDark),
+				ColorSequenceKeypoint.new(0.45, Theme.colors.gold),
+				ColorSequenceKeypoint.new(0.62, Color3.fromHex("FFF6C8")),
+				ColorSequenceKeypoint.new(1, Theme.colors.gold),
+			}),
+			Parent = self.frame,
+		})
+		self._sheen = sheen
+	end
+	if sheen then
+		sheen.Enabled = golden
+	end
 	-- the model only for an item with no picture (#1242, Derek live 11-04: the bowl's rows, time rewards and spin
 	-- prizes still showed the old 3D food renders). A picture still loading shows the glyph under it (IconArt).
 	local wanted = if image then nil else model

@@ -273,6 +273,7 @@ local function sheet(
 	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
 	gui.PixelsPerStud = pixels
 	gui.LightInfluence = light
+	gui.ClipsDescendants = true -- bands and stars slide past the sheet's edges; keep them on it (#2299)
 	gui.Parent = part
 	return gui
 end

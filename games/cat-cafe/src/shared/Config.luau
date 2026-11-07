@@ -430,6 +430,8 @@ local Config = {
 	-- Rescue minigames (data-model section 10b)
 	RescueSpawnChance = 0.6, -- per trap at each night start
 	RescueMinStuck = 1, -- stuck cats every area gets at night start even when no trap rolled one
+	-- #2240: the least distance between two of a day's traps picked from an area's rescue pool (RescuePick)
+	RescueSpotSpacingStuds = 25,
 	-- The bar per rarity: the marker's speed in bar lengths per second, the zone's width as a fraction of the bar.
 	-- v0.13.15 F83 (harder rescues): 0.2 a second faster and narrower zones for every rarity.
 	RescueBarSpeed = {
@@ -458,7 +460,7 @@ local Config = {
 	RescueRetrySeconds = 3, -- after a failed attempt, before anyone else can try that trap
 	RescueSelfRetrySeconds = 6, -- and before the player who failed can try it again
 	RescueAttemptMaxSeconds = 15,
-	GoldChanceRescue = 0.10, -- rolled at night start, hidden until the rescue succeeds
+	GoldChanceRescue = 0.12, -- rolled at night start, hidden until the rescue succeeds (#2240: was 0.10)
 	RescuedTipsMultiplier = 1.0, -- v0.3: a rescue pays no more; its reward is the higher gold chance
 
 	TutorialGuaranteedStrayStep = 2, -- players below this tutorialStep always find a Common stray at alley point 1
@@ -654,7 +656,7 @@ local Config = {
 	-- gold's chance; no paint.
 	RainbowChanceNet = 0.015,
 	RainbowChanceBait = 0.015,
-	RainbowChanceRescue = 0.03,
+	RainbowChanceRescue = 0.036, -- #2240 (Derek2 2026-11-07: rescues get better coat odds): was 0.03
 	RainbowMultiplier = 2, -- Derek2 2026-11-07: "turn rainbow down to 2x" (was 3)
 	RainbowLuckMax = 0.4, -- #2269 (Derek2 2026-11-07: nerf the Index's rainbow luck): was 1.0
 	CollectorRainbowMultiplier = 10,

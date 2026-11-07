@@ -122,14 +122,30 @@ function RecapCard.new(parent: Instance): RecapCard
 	})
 	self._lines = lines
 	for index = 1, RecapLogic.MAX_LINES do
-		local label: TextLabel = Create("TextLabel", {
-			Name = "Line" .. index,
+		-- #2295 (desktop test of #2243: the callout read "...100% pay, up to" with "16 h" cut off): Roblox's
+		-- AutomaticSize measured a label's wrapped text at its full width, not inside its own UIPadding, so the padded
+		-- callout came out one row tall. Each line is now a Row frame that carries the fill and the padding, with the
+		-- words' label inside it at the padded width, so the label's measured height is the real one.
+		local row: Frame = Create("Frame", {
+			Name = "Row" .. index,
 			BackgroundTransparency = 1,
 			BackgroundColor3 = Theme.colors.mint,
 			BorderSizePixel = 0,
 			Size = UDim2.fromScale(1, 0),
 			AutomaticSize = Enum.AutomaticSize.Y,
 			LayoutOrder = index,
+			Visible = false,
+			Parent = lines,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+			Create("UIPadding", { Name = "Callout" }),
+		})
+		local label: TextLabel = Create("TextLabel", {
+			Name = "Line" .. index,
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Size = UDim2.fromScale(1, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
 			FontFace = Theme.fonts.bodyBold,
 			TextSize = LINE_SIZE,
 			TextColor3 = Theme.modal.text,
@@ -138,10 +154,7 @@ function RecapCard.new(parent: Instance): RecapCard
 			TextWrapped = true,
 			Text = "",
 			Visible = false,
-			Parent = lines,
-		}, {
-			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-			Create("UIPadding", { Name = "Callout" }),
+			Parent = row,
 		})
 		self._labels[index] = label
 	end
@@ -178,9 +191,10 @@ end
 -- #2235 (Derek2: "make it obvious that cats earn offline also so people come back"): the offline line on a mint
 -- callout, the rest plain.
 local function callout(label: TextLabel, on: boolean)
-	label.BackgroundTransparency = if on then 0 else 1
+	local row = label.Parent :: Frame
+	row.BackgroundTransparency = if on then 0 else 1
 	label.TextColor3 = if on then Theme.colors.goodText else Theme.modal.text
-	local pad = label:FindFirstChild("Callout") :: UIPadding?
+	local pad = row:FindFirstChild("Callout") :: UIPadding?
 	if pad then
 		local inset = UDim.new(0, if on then CALLOUT_PAD else 0)
 		pad.PaddingLeft = inset
@@ -201,6 +215,7 @@ function RecapCard.show(self: any, lines: { string }, onClosed: (secondsUp: numb
 	for index, label in self._labels do
 		local line = lines[index]
 		label.Visible = line ~= nil
+		(label.Parent :: Frame).Visible = line ~= nil
 		label.Text = line or ""
 		callout(label, line ~= nil and RecapLogic.isOffline(line))
 	end

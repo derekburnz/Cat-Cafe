@@ -657,5 +657,9 @@ hometown-cannon.md §6b said blockers were about 4 studs so players could see ov
 ## 2026-11-07: Thank You board credits for ideas given outside the Idea button (Review-Agent, #1149)
 Derek2: "the updates that I said bgdevila/crispi_255 and tyrell said add those to the feature my name board". idea-credits gains `add-player <username> <version> <idea>`, which looks the public username up on users.roblox.com and writes the same credit a report would (key `m_` for manual, with `manual: true`), on Derek's word that the player is happy to be named. Players can still hide their name in Settings. Ideas given through the Idea button keep the report path and its "Feature my name" check.
 
+
+## 2026-11-07: Bowl odds pass Pace on the new tier goals (Design-Agent, friend's project, #2239)
+Gameplay reran Pace on main after #2236 and #2271: one go reaches Tier 5 in 11h26 (inside the 9 to 14 h band), Tier 3 at 53.3 min in the first hour, and daily play reaches Tier 5 on day 6. Every check passes. Logged in data-model.md §8. #2266 and #2287 come later.
+
 ## 2026-11-07: Intro shows a rich customer's tip (Design-Agent, friend's project, #2242)
 A new shot 6 after the job shot: a rich customer sits at table 1, leaves a gold coin pile and your avatar grabs it for "+$50" (the real first rich tip). The intro has nine shots, `Intro.VERSION` 8, and runs about 37 s with no taps. intro-cutscene.md §2c. Reason: Derek2's ask to show rare customers in the tutorial; built in #2305.

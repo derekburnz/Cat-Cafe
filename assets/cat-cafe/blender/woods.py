@@ -38,41 +38,52 @@ def oak(mat):
     return [b.finalize(N + "OakRound", mat)]
 
 
-OAK_H, OAK_R0, OAK_R1, OAK_T = 26.0, 5.0, 5.0, 0.9   # the Great Oak's trunk: height, radius foot and top, wall
+OAK_H, OAK_R0, OAK_R1, OAK_T = 26.0, 7.5, 7.5, 0.9   # the Great Oak's trunk: height, radius foot and top, wall
 NOOK_Z = 18.0                                         # the floor of the nook at the top inside it
 NOOK_CEIL = 24.4                                      # the nook's ceiling (6.4 over its floor)
 LADDER_W = 2.6                                        # every Woods ladder: between its rails (2.4 clear)
-OAK_LADDER_W = 3.4                                    # the Great Oak's own, wider (#1461)
-OAK_LADDER_Y = -1.6                                   # its rungs' line (Blender y), in the trunk's middle (#1461)
-OAK_ROOTS = (-35, 30, 90, 150, -145)                  # degrees from +x (Blender), none in front of the doorway
-OAK_NOOKS = (60, 120, 182)                            # root nooks between them, where strays sit
+OAK_SEG = 24                                          # wall blocks round the trunk
+OAK_DOOR = (16, 17, 18, 19)                           # the four blocks straight ahead (-Y): the doorway
+RAMP_R0, RAMP_R1 = OAK_R0 + 0.05, 11.0                # the ramp round the outside (#2262): inner and outer radius
+RAMP_A0, RAMP_SWEEP = 330.0, 330.0                    # it starts at the ground front right, climbs 330 degrees
+RAMP_T = 0.6                                          # its deck's thickness
+OAK_RAIL = 2.6                                        # the ramp's outer rail and the nook's parapet over their floor
+NOOK_SILL = NOOK_Z + 1.2                              # the nook's parapet top: low, so the camera sees in
+NOOK_LINTEL = 23.6                                    # the openings' top
+OAK_ROOTS = (90, 150, 215)                            # degrees from +x (Blender), under the ramp's high part
+OAK_NOOKS = (60, 120, 182)                            # root nooks between them, under the ramp, where strays sit
+OAK_NOOK_R = 9.25                                     # their radius: the ramp's middle line, out from the trunk
 NOOK_SPOTS = ((-2.4, 1.6, 0.0), (2.4, 1.6, 0.0), (0.0, 2.0, 0.3))      # Blender x, y on the nook floor, height
-# (on the floor behind the ladder since #1461; Layout uses only the third, on the cushion)
+# (Layout uses only the third, on the cushion)
 
 
 def _oak_r(z):
     return OAK_R0 + (OAK_R1 - OAK_R0) * z / OAK_H
 
 
+def ramp_h(deg):
+    """The ramp deck's top at `deg` round the trunk (Blender, from +x): 0 at RAMP_A0 rising to NOOK_Z over
+    RAMP_SWEEP, then the landing at NOOK_Z for the rest of the turn."""
+    t = (deg - RAMP_A0) % 360.0
+    return NOOK_Z * min(t / RAMP_SWEEP, 1.0)
+
+
 def great_oak(mat):
-    """The clearing's landmark (Derek 2026-10-28: "have the main big tree entrance actually work"): a hollow trunk
-    of six rings of wall blocks with a doorway at the front, a ladder up the inside (an invisible truss behind its
-    rungs, so it climbs) to a nook at the top with two lit windows, where the rarer strays turn up. Derek 10-28
-    17:51, "just a little too tight to walk around inside and up ladders": the top is wider (4.4, was 3.4), so the
-    nook is about 7.3 across under a ceiling 6.4 up; the ladder is LADDER_W wide; and its hole runs 0.8 in front
-    of the rungs, so a climber's head never meets the floor, with a rail down each side of it. Derek2 11-05 (#1461),
-    "make this wider so the tree is actually climbable": the doorway is four wall blocks wide (was two, about 2.5
-    clear), the ladder is OAK_LADDER_W wide and stands in the trunk's middle with its truss behind it, and the nook
-    floor runs from the truss's back to the back wall, so a climber pressing W at the top steps straight onto it
-    (against the back wall there was no floor ahead, only the hole behind). Derek2 11-06 (#1781), "the top area is
-    still not open enough": the trunk keeps its 5.0 radius all the way up (the top was 4.4), the hole is only where
-    the climber is, from the front wall back to the rungs, and the floor covers the truss's top and the rest of the
-    nook, about 8.2 across, with the rails along the hole's two sides."""
-    b, win, bulb, climb = Builder(), Builder(), Builder(), Builder()
-    levels, seg = 6, 16
+    """The clearing's landmark (Derek 2026-10-28: "have the main big tree entrance actually work"; #1461 and #1781
+    made the inside wider). Derek2 11-07 (#2262), "make the tree much wider and easier to climb while still being
+    able to see": the climb moved outside. The trunk is 15 across (was 10), a hollow ring of wall blocks with the
+    doorway at the front (-Y) into a room with a lamp. A railed ramp 3.4 wide wraps round the outside, from the
+    ground at the front right up 330 degrees (about 19 degrees steep along its middle, a walk, no jumps) to a landing
+    at the nook's floor, where a gap in the parapet lets you in. The nook is open all round above a low parapet
+    (posts every 60 degrees up to the lintel), so the camera sees in from any side. The crown sits higher and is
+    _Canopy, which never collides, so Roblox's camera passes through the leaves instead of popping in. The root
+    nooks moved under the ramp's high side, where the roots are."""
+    b, bulb, crown = Builder(), Builder(), Builder()
+    levels, seg = 6, OAK_SEG
     hz = OAK_H / levels
-    door = (10, 11, 12, 13)                                          # the four blocks round straight ahead (#1461)
-    window = (11, 12)                                                # the two either side of it: the front window
+    step = 360.0 / seg
+    landing = [k for k in range(seg) if ramp_h((k + 0.5) * step) >= NOOK_Z - 1e-6]
+    posts = (0, 4, 8, 12, 16)
     for i in range(levels):
         z0 = i * hz
         r_out = _oak_r(z0 + hz / 2)
@@ -81,26 +92,25 @@ def great_oak(mat):
         for k in range(seg):
             a = 2 * PI * (k + 0.5) / seg
             e = 0.006 * (k % 2)                                      # neighbours never share a top or bottom face
-            spans = [(z0 - e, z0 + hz + e)]
-            if k in door and i == 0:
+            top = z0 + hz + e
+            spans = [(z0 - e, top)]
+            if k in OAK_DOOR and i == 0:
                 spans = []
-            elif k in door and i == 1:
-                spans = [(6.2, z0 + hz + e)]                         # the lintel over the doorway
-            elif k in window and i == 4:
-                spans = [(z0 - e, 19.3), (21.3, z0 + hz + e)]       # the front window
-            elif k == 8 and i == 4:
-                spans = [(z0 - e, 19.3), (21.3, z0 + hz + e)]       # the side window
+            elif k in OAK_DOOR and i == 1:
+                spans = [(6.2, top)]                                 # the lintel over the doorway
+            elif i == 4 and k not in posts:                          # the nook's openings over a low parapet
+                spans = [(z0 - e, NOOK_Z if k in landing else NOOK_SILL)]
+            elif i == 5 and k not in posts:
+                spans = [(NOOK_LINTEL, top)]
             for (za, zb) in spans:
                 b.box((rm * math.cos(a), rm * math.sin(a), (za + zb) / 2), (OAK_T, chord, zb - za), "fur_brown",
                       rot=(a, "Z"))
-            if i == 4 and (k in window or k == 8):                     # the pane fills the gap, inside the wall
-                win.box((rm * math.cos(a), rm * math.sin(a), 20.3), (OAK_T * 0.5, chord, 2.0), "lamp_warm",
-                        bevel=False, rot=(a, "Z"))
-                b.box(((r_out + 0.31) * math.cos(a), (r_out + 0.31) * math.sin(a), 19.2), (0.6, chord, 0.2),
-                      "caramel_wood", bevel=False, rot=(a, "Z"))           # sill, against the wall face
+            if i == 4 and k not in posts and k not in landing:       # a sill along the parapet's top
+                b.box((rm * math.cos(a), rm * math.sin(a), NOOK_SILL + 0.1), (OAK_T + 0.3, chord, 0.2),
+                      "caramel_wood", bevel=False, rot=(a, "Z"))
     # the doorway's frame: dark wood jambs against the wall ends either side, a head under each lintel block
-    jambs = ((0, door[0] - 1, 1), (0, door[-1] + 1, -1))             # s_: the side facing the doorway
-    heads = tuple((1, k, 0) for k in door)
+    jambs = ((0, OAK_DOOR[0] - 1, 1), (0, OAK_DOOR[-1] + 1, -1))     # s_: the side facing the doorway
+    heads = tuple((1, k, 0) for k in OAK_DOOR)
     for i, k, s_ in jambs + heads:
         r_out = _oak_r(i * hz + hz / 2)
         half = r_out * math.sin(PI / seg) * 1.04                     # half a wall block, along the wall
@@ -108,61 +118,88 @@ def great_oak(mat):
         if i == 0:                                                   # a jamb past the block's end, 6.2 tall
             ta, tb, z, h = s_ * (half + 0.01), s_ * (half + 0.51), 0.0, 6.2
         else:                                                        # a head under the lintel, clear of the jambs
-            lo = -half / 1.04 + (0.6 if k == door[0] else 0.0)
-            hi = half / 1.04 - (0.6 if k == door[-1] else 0.0)
+            lo = -half / 1.04 + (0.6 if k == OAK_DOOR[0] else 0.0)
+            hi = half / 1.04 - (0.6 if k == OAK_DOOR[-1] else 0.0)
             ta, tb, z, h = lo, hi, 5.7, 0.5
         tc, rm = (ta + tb) / 2, r_out - OAK_T / 2
         cx, cy = rm * math.cos(a) - tc * math.sin(a), rm * math.sin(a) + tc * math.cos(a)
         b.box_base((cx, cy, z), (OAK_T + 0.2, abs(tb - ta), h), "dark_wood", bevel=False, rot=(a, "Z"))
-    # the ladder up the middle (#1461), its rungs facing the doorway and the truss right behind them, and the nook
-    # floor round its top: a climber pressing W at the top steps over the truss onto the floor behind it
-    hw, ly = OAK_LADDER_W / 2, OAK_LADDER_Y
-    for x in (-hw, hw):
-        b.box_base((x, ly, 0), (0.2, 0.2, NOOK_Z + 1.0), "caramel_wood", bevel=False)
-    for n in range(18):
-        b.box((0, ly, 0.8 + n * 1.0), (OAK_LADDER_W - 0.2, 0.2, 0.2), "caramel_wood", bevel=False)
-    climb.box_base((0, ly + 1.1, 0), (2.0, 2.0, NOOK_Z), "caramel_wood", bevel=False)
-    # the floor: bands across the nook out to the middle of the wall, cut round the hole only in front of the rungs
-    # (H the hole's half width, yh its back edge: the truss's front face, which the climber's front stops at)
-    f0, H, yh = NOOK_Z - 0.4, hw + 0.3, ly + 0.1
-    rw, ro = _oak_r(NOOK_Z) - OAK_T / 2, _oak_r(NOOK_Z) - 0.15                        # the wall's middle, inside its face
-    edges = [-rw + 0.05] + [yh - 0.6 * k for k in range(1, 5) if yh - 0.6 * k > -rw + 0.4][::-1] + [yh]
-    edges += [yh + 0.6 * k for k in range(1, 20) if yh + 0.6 * k < rw - 0.4] + [rw - 0.05]
-    for ya, yb_ in zip(edges, edges[1:]):
-        y_in, y_out = min(abs(ya), abs(yb_)) if ya * yb_ > 0 else 0.0, max(abs(ya), abs(yb_))
-        w = min(math.sqrt(rw * rw - y_in * y_in), math.sqrt(ro * ro - y_out * y_out))  # into the wall, never out
-        if yb_ <= yh + 1e-6:                                                            # beside the hole
-            if w > H + 0.05:
-                for s_ in (-1, 1):
-                    b.box_base((s_ * (H + w) / 2, (ya + yb_) / 2, f0), (w - H, yb_ - ya, 0.4), "caramel_wood")
-        else:
-            b.box_base((0, (ya + yb_) / 2, f0), (2 * w, yb_ - ya, 0.4), "caramel_wood")
-    yw = -math.sqrt(rw * rw - (H + 0.15) ** 2) + 0.35                                  # the rails' front, at the wall
-    for s_ in (-1, 1):                                                                  # a rail down each side of it
-        x = s_ * (H + 0.15)
-        for y in (yw, (yw + yh) / 2, yh - 0.15):
-            b.box_base((x, y, NOOK_Z), (0.2, 0.2, 2.6), "dark_wood", bevel=False)
-        b.box((x, (yw + yh) / 2 - 0.075, NOOK_Z + 2.5), (0.16, yh - yw + 0.15, 0.16), "caramel_wood", bevel=False)
-    b.cyl_base((0, 0, NOOK_CEIL), _oak_r(NOOK_CEIL) - 0.4, 0.4, "dark_wood", segments=12, bevel=False)   # ceiling
+    # the ramp: deck pieces every 7.5 degrees, each pitched to the slope along the ramp's middle line, the low end
+    # of the first one into the ground; the landing flat. Outer rail posts every 15 degrees with a top rail.
+    rmid, width = (RAMP_R0 + RAMP_R1) / 2, RAMP_R1 - RAMP_R0
+    dstep = 7.5
+    n = int(round(360.0 / dstep))
+    for j in range(n):
+        d0, d1 = RAMP_A0 + j * dstep, RAMP_A0 + (j + 1) * dstep
+        h0, h1 = ramp_h(d0) if j else 0.0, ramp_h(d1 - 1e-6) if j < n - 1 else NOOK_Z
+        if j == n - 1 or ramp_h(d0 + 1e-6) >= NOOK_Z - 1e-6:
+            h0 = h1 = NOOK_Z
+        am = math.radians((d0 + d1) / 2)
+        arc = math.radians(dstep) * rmid
+        pitch = math.atan2(h1 - h0, arc)
+        L = math.hypot(arc, h1 - h0) * 1.06 + 0.1
+        zc = (h0 + h1) / 2 - RAMP_T / 2 / math.cos(pitch)
+        R = Matrix.Rotation(am, 3, "Z") @ Matrix.Rotation(pitch, 3, "X")
+        # along +Y locally is the direction of travel (counter-clockwise), x out from the trunk
+        b.box((rmid * math.cos(am), rmid * math.sin(am), zc + 0.003 * (j % 2)), (width, L, RAMP_T), "caramel_wood",
+              bevel=False, rot=R)
+    for j in range(int(360 / 15)):
+        d = RAMP_A0 + j * 15.0 + 0.01
+        if j == 0:
+            continue                                                 # the way on, at the ground
+        a = math.radians(d)
+        h = ramp_h(d)
+        rr = RAMP_R1 - 0.15
+        b.box_base((rr * math.cos(a), rr * math.sin(a), h - 0.2), (0.25, 0.25, OAK_RAIL + 0.2), "dark_wood",
+                   bevel=False)
+        in_front = 235.0 <= d % 360.0 <= 305.0                       # none in front of the doorway
+        if h > 2.0 and not in_front:                                 # a leg under the deck's outer edge
+            b.box_base(((RAMP_R1 - 0.4) * math.cos(a), (RAMP_R1 - 0.4) * math.sin(a), 0), (0.45, 0.45, h - RAMP_T),
+                       "fur_brown", bevel=False)
+        a1 = math.radians(d + 15.0)
+        h1 = ramp_h(d + 15.0) if j < 23 else NOOK_Z
+        p0 = Vector((rr * math.cos(a), rr * math.sin(a), h + OAK_RAIL - 0.1))
+        p1 = Vector((rr * math.cos(a1), rr * math.sin(a1), h1 + OAK_RAIL - 0.1))
+        v = p1 - p0
+        yaw = math.atan2(v.y, v.x)
+        tilt = math.atan2(v.z, v.xy.length)
+        Rr = Matrix.Rotation(yaw, 3, "Z") @ Matrix.Rotation(-tilt, 3, "Y")
+        b.box((p0 + p1) / 2, (v.length + 0.15, 0.18, 0.18), "caramel_wood", bevel=False, rot=Rr)
+    a = math.radians(RAMP_A0 - 0.6)                                # the landing's end, over the ramp's foot: a gate
+    for t in (0.0, 0.5, 1.0):
+        rr = RAMP_R0 + 0.25 + t * (width - 0.4)
+        b.box_base((rr * math.cos(a), rr * math.sin(a), NOOK_Z - 0.2), (0.25, 0.25, OAK_RAIL + 0.2), "dark_wood",
+                   bevel=False)
+    for zz in (NOOK_Z + 1.2, NOOK_Z + OAK_RAIL - 0.1):
+        b.box((rmid * math.cos(a), rmid * math.sin(a), zz), (width - 0.3, 0.18, 0.18), "caramel_wood", bevel=False,
+              rot=(a, "Z"))
+    # the nook: a round floor, a ceiling under the trunk's top, a cushion and a lantern
+    rw = _oak_r(NOOK_Z) - OAK_T / 2
+    b.cyl_base((0, 0, NOOK_Z - 0.4), rw + 0.05, 0.4, "caramel_wood", segments=seg, bevel=False)
+    b.cyl_base((0, 0, NOOK_CEIL), rw + 0.05, 0.4, "dark_wood", segments=seg, bevel=False)
     cx, cy, _ = NOOK_SPOTS[2]
     b.cyl_base((cx, cy, NOOK_Z), 0.8, 0.3, "blush", segments=10, bevel=False)          # a cushion in the nook
+    b.box_base((0, 0, NOOK_CEIL - 1.0), (0.12, 0.12, 1.0), "fur_black", bevel=False)  # a lantern from the ceiling
+    bulb.box((0, 0, NOOK_CEIL - 1.4), (0.5, 0.5, 0.6), "lamp_warm", bevel=False)
     bulb.box((-_oak_r(4.0) + OAK_T + 0.25, 0, 4.0), (0.4, 0.5, 0.6), "lamp_warm", bevel=False)   # a lamp inside
     b.box((-_oak_r(4.0) + OAK_T + 0.1, 0, 4.4), (0.2, 0.2, 0.2), "fur_black", bevel=False)
-    for d in OAK_ROOTS:                                                                  # roots
+    for d in OAK_ROOTS:                                                                  # roots, under the ramp
         a = math.radians(d)
-        b.box((6.0 * math.cos(a), 6.0 * math.sin(a), 1.0), (5.0, 1.8, 2.4), "fur_brown", rot=(a, "Z"))
-    for (x, y, z, r, sw) in ((0, 0, 34, 9.5, "leaf_green"), (9.5, 2, 29, 6.0, "leaf_dark"),
-                             (-9.5, -1, 30, 6.5, "leaf_green"), (2, 9, 29, 6.0, "leaf_dark"),
-                             (-2, -9, 28, 5.5, "leaf_dark")):                            # the crown, clear of the nook
-        b.ico((x, y, z), r, sw, subdivisions=1)
-    for (x, z) in ((-6.2, 15.5), (6.2, 20)):                                           # big branches
-        b.box((x, 0, z), (6, 1.6, 1.6), "fur_brown", rot=ry(25 if x > 0 else -25))
-    for d in (-15, -2, 11):                                                              # mushrooms at the foot
+        b.box((9.0 * math.cos(a), 9.0 * math.sin(a), 1.0), (5.0, 1.8, 2.4), "fur_brown", rot=(a, "Z"))
+    # the crown: higher than before and walk-through (_Canopy), clear of the nook, big branches up into it
+    for (x, y, z, r, sw) in ((0, 0, 38, 12.0, "leaf_green"), (12, 2, 33, 7.5, "leaf_dark"),
+                             (-12, -1, 34, 8.0, "leaf_green"), (2, 12, 33, 7.5, "leaf_dark"),
+                             (-2, -12, 32.5, 7.0, "leaf_dark")):
+        crown.ico((x, y, z), r, sw, subdivisions=1)
+    for (x, z) in ((-9.5, 28.0), (9.5, 29.5)):
+        crown.box((x, 0, z), (7, 2.0, 2.0), "fur_brown", rot=ry(25 if x > 0 else -25))
+    for d in (228, 236, 312):                                                            # mushrooms at the foot
         a = math.radians(d)
-        b.cyl_base((5.4 * math.cos(a), 5.4 * math.sin(a), 0), 0.25, 0.6, "offwhite", segments=6)
-        b.cyl_base((5.4 * math.cos(a), 5.4 * math.sin(a), 0.6), 0.6, 0.35, "bowl_red", segments=8, radius2=0.1)
-    return [b.finalize(N + "GreatOak", mat), win.finalize(N + "GreatOak_Pane", mat),
-            bulb.finalize(N + "GreatOak_Bulb", mat), climb.finalize(N + "GreatOak_Climb", mat)]
+        rr = 8.3 if d < 300 else 12.0
+        b.cyl_base((rr * math.cos(a), rr * math.sin(a), 0), 0.25, 0.6, "offwhite", segments=6)
+        b.cyl_base((rr * math.cos(a), rr * math.sin(a), 0.6), 0.6, 0.35, "bowl_red", segments=8, radius2=0.1)
+    return [b.finalize(N + "GreatOak", mat), bulb.finalize(N + "GreatOak_Bulb", mat),
+            crown.finalize(N + "GreatOak_Canopy", mat)]
 
 
 def stump(mat):
@@ -565,7 +602,7 @@ def build_set(mat):
     s.put(great_oak(mat), 0, 6, 0)
     for d in OAK_NOOKS:                                          # root nooks, between roots and clear of the mushrooms
         a = math.radians(d)
-        s.mark("oak_nook", -6.8 * math.cos(a), 6 + 6.8 * math.sin(a))
+        s.mark("oak_nook", -OAK_NOOK_R * math.cos(a), 6 + OAK_NOOK_R * math.sin(a))
     for (bx, by, up) in NOOK_SPOTS:                              # up in the nook: Gameplay weights rarer strays here
         s.mark("nook_great_oak", -bx, 6 + by, y=NOOK_Z + up)
     s.put(bridge(mat), -4.5, -36.5, 5)
@@ -594,7 +631,7 @@ def build_set(mat):
     s.put(lantern(mat), -9, -14, 180)
     for (x, z, fn, label, y) in ((10, -26, fern, "fern", 0.0), (-12, -28, fern, "fern", 0.0),
                                  (17, 14, berry, "berry_bush", 0.0), (-20, 4, rock, "rock", 2.0), (6, 18, stump, "stump", 1.66),
-                                 (-12, -3, leaves, "leaf_pile", 0.0), (12, 8, mushroom, None, 0.0),
+                                 (-12, -3, leaves, "leaf_pile", 0.0), (15, 9, mushroom, None, 0.0),
                                  (-24, -32, rock, "rock", 2.0), (20, -28, fallen_log, "log", 0.0)):
         s.put(fn(mat), x, z, (-x * 7) % 90)
         if label == "log":

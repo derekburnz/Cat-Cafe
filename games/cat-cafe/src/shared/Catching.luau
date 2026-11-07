@@ -138,12 +138,16 @@ function Catching.pickRarity(odds: Types.LureOdds, roll: number): Types.Rarity
 	return "Common"
 end
 
--- Rescue odds (data-model section 10b): the area's odds with every non-Common weight doubled, scaled back to
--- 100. The Alleyway's 72 / 22 / 5 / 0.9 / 0.1 becomes 56.25 / 34.375 / 7.8125 / 1.40625 / 0.15625.
+-- Rescue odds (data-model section 10b): the area's odds with Rare and Epic doubled and Legendary and Mythical
+-- times RESCUE_TOP_BOOST (#2240, Derek2 2026-11-07: "leg/mythic chance slightly" higher; was 2), scaled back to
+-- 100. The Park's 54 / 29 / 11 / 4.8 / 1.2 becomes about 36.4 / 39.1 / 14.8 / 7.8 / 1.94.
+Catching.RESCUE_BOOST = 2
+Catching.RESCUE_TOP_BOOST = 2.4
 function Catching.rescueOdds(odds: Types.LureOdds): Types.LureOdds
 	local common = odds.Common
-	local rare, epic = odds.Rare * 2, odds.Epic * 2
-	local legendary, mythical = odds.Legendary * 2, odds.Mythical * 2
+	local rare, epic = odds.Rare * Catching.RESCUE_BOOST, odds.Epic * Catching.RESCUE_BOOST
+	local legendary, mythical =
+		odds.Legendary * Catching.RESCUE_TOP_BOOST, odds.Mythical * Catching.RESCUE_TOP_BOOST
 	local total = common + rare + epic + legendary + mythical
 	if total <= 0 then
 		return { Common = 100, Rare = 0, Epic = 0, Legendary = 0, Mythical = 0 }

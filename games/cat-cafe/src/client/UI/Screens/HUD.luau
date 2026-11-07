@@ -569,11 +569,13 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		-- least MONEY_AMOUNT_W wide, room for the usual widest amounts ("$88,888", "$999Qa"), so the badge and the
 		-- golden fish beside it stay put while the money grows
 		Create("UISizeConstraint", {
+			Name = "Steady",
 			MinSize = Vector2.new(MONEY_AMOUNT_W, 0),
 			MaxSize = Vector2.new(MONEY_W - COUNTER_COIN - 8, MONEY_H),
 		}),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 5) }),
 	})
+	self._moneySteady = line:FindFirstChild("Steady") :: UISizeConstraint
 	self._moneyText = label({
 		Name = "Amount",
 		AutomaticSize = Enum.AutomaticSize.X,
@@ -3279,6 +3281,11 @@ function HUD.setMoneyBadge(
 	end
 	self._buffs:setLead(owned, "cash")
 	button.Visible = badge ~= nil and not owned
+	-- #2254 (Derek2 11-07: "gold fish is hovering wrong now if you did already buy the 2x/3x/4x money"): #2194's
+	-- steady width keeps the for-sale badge from being pushed as the money grows; with no badge beside the money (a
+	-- pass owned) that room was an empty gap before the golden fish, so the fish sits a normal gap after the amount
+	local steady: UISizeConstraint = self._moneySteady
+	steady.MinSize = Vector2.new(if button.Visible then MONEY_AMOUNT_W else 0, 0)
 	if badge == nil or owned then
 		self:_pulseMoneyBadge(false)
 		return

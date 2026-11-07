@@ -850,6 +850,35 @@ local SCENES = {
 		assert(bench and bench:FindFirstChild("BigSpot"), "uigate: the Garden Bench card has no Big spot tag (#1729)")
 		assert(tulips and tulips:FindFirstChild("BigSpot") == nil, "uigate: the Tulip Bed card has a Big spot tag (#1729)")
 	end },
+	-- #2075 (Derek2: "uncommon and common use same color background and golden background looks too plain"): the
+	-- Uncommon Mailbox's tile in mint, apart from the Common Tulip Bed's, and a Golden piece on its gold sheen
+	{ "DecorLawnRarity", function()
+		bindLawnPlot()
+		local owned = table.clone(samplePlayer(os.time()).lawnOwned)
+		Scenes._lawnOwned = table.clone(owned)
+		owned.golden_paw_statue = true
+		UI.update({ lawnOwned = owned } :: any)
+		UI.open("Decor")
+		press("Decor", "FrontLawn")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local lawn = modals and modals:FindFirstChild("Lawn", true)
+		local function tile(id)
+			local card = lawn and lawn:FindFirstChild(id, true)
+			return card and card:FindFirstChild("Icon")
+		end
+		local common, uncommon, golden = tile("tulip_bed"), tile("mailbox"), tile("golden_paw_statue")
+		assert(common and uncommon and golden, "uigate: a lawn card is missing (#2075)")
+		local a, b = common.BackgroundColor3, uncommon.BackgroundColor3
+		assert(math.abs(a.R - b.R) + math.abs(a.G - b.G) + math.abs(a.B - b.B) > 0.1,
+			"uigate: Uncommon's lawn tile is Common's colour (#2075)")
+		assert(b.G > b.R, "uigate: Uncommon's lawn tile isn't mint (#2075)")
+		local sheen = golden:FindFirstChild("GoldenSheen")
+		assert(sheen and sheen.Enabled, "uigate: the Golden lawn piece has no gold sheen (#2075)")
+		assert(common:FindFirstChild("GoldenSheen") == nil or not common.GoldenSheen.Enabled,
+			"uigate: a Common lawn piece shines gold (#2075)")
+		local pill = uncommon.Parent:FindFirstChild("Rarity")
+		assert(pill and pill.BackgroundColor3.G > pill.BackgroundColor3.R, "uigate: the Uncommon pill isn't mint (#2075)")
+	end },
 	-- #1624: the Style tab, the cafe sign (Royal Crest in use) and the uniforms once the server sends looks
 	{ "DecorStyle", function()
 		UI.update({
@@ -2989,6 +3018,10 @@ function Scenes.close()
 		local before = Scenes._quiet
 		Scenes._quiet = nil
 		UI.update({ playSeconds = false, passBoosts = before.passBoosts } :: any) -- #1936's quiet badge scene
+	end
+	if Scenes._lawnOwned then
+		UI.update({ lawnOwned = Scenes._lawnOwned } :: any) -- #2075's lawn rarity scene
+		Scenes._lawnOwned = nil
 	end
 	if Scenes._crew then
 		UI.update(Scenes._crew :: any) -- #2047's extra slots scene: the sample cats, tier and no extra slots back

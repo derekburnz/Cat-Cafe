@@ -199,16 +199,17 @@ function LawnTab._card(self: any, card: LawnLogic.Card): any
 			else GLYPH,
 		card.rarity
 	)
+	local pillColor, pillText = Theme.lawnRarityColors(card.rarity) -- #2075: Uncommon and Golden as their own
 	pill(text({
 		Name = "Rarity",
 		BackgroundTransparency = 0,
-		BackgroundColor3 = Theme.rarityColor(card.rarity),
+		BackgroundColor3 = pillColor,
 		Position = UDim2.fromOffset(16, 16),
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, 20),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textTiny,
-		TextColor3 = Theme.rarityTextColor(card.rarity),
+		TextColor3 = pillText,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextTruncate = Enum.TextTruncate.None,
 		Text = card.rarity or "",

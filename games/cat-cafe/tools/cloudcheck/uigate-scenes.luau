@@ -1129,6 +1129,19 @@ local SCENES = {
 	{ "RankUp", function()
 		UI.open("RankUp")
 	end },
+	{ "RankUpTier2", function()
+		-- #2121: the Tier 1 card lists all five upgrade caps now Bait Bowl 3 opens at Tier 2; the line still fits
+		UI.update({ tier = 1 } :: any)
+		UI.open("RankUp")
+		local found = false
+		for _, inst in UIShim.playerGui:GetDescendants() do
+			if inst:IsA("TextLabel") and string.find(inst.Text, "bait bowl to 3", 1, true) then
+				found = true
+				assert(inst.TextFits ~= false, "uigate: the Tier 2 upgrade line does not fit (#2121)")
+			end
+		end
+		assert(found, "uigate: the Tier 2 card does not say bait bowl to 3 (#2121)")
+	end },
 	{ "MoodIcons", function()
 		-- Catch v3 (catch-rework.md 7a): a mood icon over each stray with a Mood, Skittish with its arc; hidden
 		-- while caught (LockedBy), gone with the Mood

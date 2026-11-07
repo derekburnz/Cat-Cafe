@@ -645,3 +645,6 @@ Logged two builder changes from crispi_255's asks. Epic and Legendary strays spa
 
 ## 2026-11-07: Longer days move Lucky Cat 3 to about 37 minutes (Design-Agent, friend's project, #2192)
 Day 320 s / night 70 s (PR #2208) means fewer bowl cats in the first hour, so the middle Pace run buys Lucky Cat 3 at about 37 minutes, not 31. Logged in first-hour.md §4e and not compensated: Tier 3 stays in 45 to 55 and every gap stays under the 15-minute guard. Reason: a longer bait-at-night share would undo part of the longer-days change for little gain.
+
+## 2026-11-07: Bait bowl odds down 15% on Epic and up; rainbow earns x2 (Design-Agent, friend's project, #2239, #2261)
+Bowl foods: Epic, Legendary and Mythical are 15% lower relative, and Common and Rare take up the rest (data-model.md §8). Caviar and Star Treat were adjusted so their "Attracts" label stays true. Rainbow cats earn x2, not x3 (Derek2, built in #2261; rainbow-coat.md §1). Reason: Derek2's asks; Pace.spec still passes.

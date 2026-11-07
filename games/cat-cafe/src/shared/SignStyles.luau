@@ -17,8 +17,10 @@ local SignStyles = {}
 
 SignStyles.SIGN_STYLE_ATTRIBUTE = "SignStyle"
 
--- passKey: the Config field holding the pass that gives the style (0 while not made); nil for a saved style
-export type Style = { id: string, name: string, model: string, passKey: string? }
+-- passKey: the Config field holding the pass that gives the style (0 while not made); nil for a saved style.
+-- nameColor: the cafe name's colour on this style's board as hex with no # (#1883: the Maple Board's amber "F2B134");
+-- nil draws it in white, as on every other sign (UI/Screens/CafeSigns)
+export type Style = { id: string, name: string, model: string, passKey: string?, nameColor: string? }
 
 SignStyles.LIST = table.freeze({
 	table.freeze({

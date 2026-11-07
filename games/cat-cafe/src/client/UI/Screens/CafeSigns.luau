@@ -25,6 +25,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local Theme = require(script.Parent.Parent.Theme)
 
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
+local SignStyles = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("SignStyles"))
 
 export type CafeSigns = {
 	destroy: (self: CafeSigns) -> (),
@@ -97,6 +98,20 @@ local function label(props: { [string]: any }, outline: number): TextLabel
 	local created: TextLabel = Create("TextLabel", merged)
 	Outline.text(created, outline)
 	return created
+end
+
+-- #1883: the picked style's name colour (SignStyles nameColor, the Maple Board's amber), else white
+local function nameColor(plot: Instance): Color3
+	local id = plot:GetAttribute(SignStyles.SIGN_STYLE_ATTRIBUTE)
+	local style = if type(id) == "string" then SignStyles.get(id) else nil
+	local hex = if style then style.nameColor else nil
+	if hex then
+		local ok, color = pcall(Color3.fromHex, hex)
+		if ok then
+			return color
+		end
+	end
+	return Theme.colors.white
 end
 
 -- Puts the sign on the board (the shell's SignBoard wins over the code-built Sign) and hides the server's text.
@@ -287,6 +302,7 @@ function CafeSigns._attach(self: any, plot: Instance)
 		task.defer(function()
 			if self._signs[plot] == sign then
 				hang(sign)
+				self:_render(sign) -- #1883: a style can colour the name
 			end
 		end)
 	end
@@ -321,6 +337,7 @@ function CafeSigns._render(self: any, sign: Sign)
 		sign.name.TextXAlignment = Enum.TextXAlignment.Center
 		sign.info.TextXAlignment = Enum.TextXAlignment.Center
 		sign.name.Text = "FOR RENT"
+		sign.name.TextColor3 = Theme.colors.white
 		sign.info.Text = "A cozy spot for a new cafe"
 		sign.info.TextColor3 = Theme.colors.cream
 		sign.border.Color = Theme.colors.caramel
@@ -348,6 +365,7 @@ function CafeSigns._render(self: any, sign: Sign)
 		or (owner ~= nil and owner:GetAttribute("Crown") == true)
 	sign.name.Text = (if crowned then CROWN .. " " else "")
 		.. ("%s's Cafe"):format(ownerName :: string)
+	sign.name.TextColor3 = nameColor(plot)
 
 	local tierName = plot:GetAttribute("TierName")
 	local rate = plot:GetAttribute("Rate")

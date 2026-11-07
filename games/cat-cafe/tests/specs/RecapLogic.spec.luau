@@ -35,7 +35,7 @@ return function()
 			expect(lines[1]).to.equal("Today: 3 new cats, $1200 earned")
 			expect(lines[2]).to.equal("Next: rank up to Cozy Cafe")
 			expect(lines[3]).to.equal(
-				"Your cafe earns while you're away: 50% for up to 8\u{00A0}h. Tomorrow: new quests"
+				"Your cats keep earning while you're away: 50% pay, up to 8\u{00A0}h. Tomorrow: new quests"
 			)
 		end)
 
@@ -56,6 +56,18 @@ return function()
 			)
 		end)
 
+		it("knows the offline line for the card's callout (#2235)", function()
+			local lines = RecapLogic.lines(input({}))
+			local found = 0
+			for _, line in lines do
+				if RecapLogic.isOffline(line) then
+					found += 1
+				end
+			end
+			expect(found).to.equal(1)
+			expect(RecapLogic.isOffline("Today: 3 new cats, $12,500 earned")).to.equal(false)
+		end)
+
 		it("counts a cooking bait cat in whole minutes, never under one", function()
 			local lines = RecapLogic.lines(input({ baitReadyAt = { 900, 1150, 1500 } }))
 			expect(lines[3]).to.equal("Your bait cat arrives in 3 min. It waits for you")
@@ -70,7 +82,7 @@ return function()
 				state = { tutorialStep = 9, dailyTreat = { due = false, nextDay = 4 } },
 			}))
 			expect(lines[#lines]).to.equal(
-				"Your cafe earns while you're away: 100% for up to 16\u{00A0}h. Tomorrow: Daily Treat day 4 and new quests"
+				"Your cats keep earning while you're away: 100% pay, up to 16\u{00A0}h. Tomorrow: Daily Treat day 4 and new quests"
 			)
 		end)
 	end)
@@ -82,7 +94,7 @@ return function()
 				baitReadyAt = { 1500 },
 			}))
 			expect(#lines).to.equal(4)
-			expect(lines[3]).to.equal("Your cafe earns while you're away: 50% for up to 8\u{00A0}h")
+			expect(lines[3]).to.equal("Your cats keep earning while you're away: 50% pay, up to 8\u{00A0}h")
 			expect(lines[4]).to.equal("Your bait cat will be waiting for you")
 		end)
 
@@ -125,7 +137,7 @@ return function()
 			-- no pick: the line from before #2123
 			local before = RecapLogic.lines(input({}))
 			expect(before[#before]).to.equal(
-				"Your cafe earns while you're away: 50% for up to 8\u{00A0}h. Tomorrow: new quests"
+				"Your cats keep earning while you're away: 50% pay, up to 8\u{00A0}h. Tomorrow: new quests"
 			)
 		end)
 

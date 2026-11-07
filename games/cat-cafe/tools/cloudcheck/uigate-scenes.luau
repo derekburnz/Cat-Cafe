@@ -1510,12 +1510,12 @@ local SCENES = {
 		local gui = UIShim.playerGui:FindFirstChild("CatCafeRecap")
 		local card = gui and gui:FindFirstChild("Card", true)
 		assert(card and card.Visible, "uigate: no session recap card when idle (#1920)")
-		local first = card:FindFirstChild("Line1")
+		local first = card:FindFirstChild("Line1", true)
 		assert(first and first.Text == "Today: 3 new cats, $12,500 earned", "uigate: the recap's first line reads " .. tostring(first and first.Text))
-		local second = card:FindFirstChild("Line2")
+		local second = card:FindFirstChild("Line2", true)
 		assert(second and string.find(second.Text, "Grand Opening 3/8", 1, true), "uigate: the recap's next line reads " .. tostring(second and second.Text))
-		assert(card:FindFirstChild("Line3").Text == "Your bait cat arrives in 3 min. It waits for you", "uigate: the recap's bait line reads " .. card:FindFirstChild("Line3").Text)
-		assert(card:FindFirstChild("Line4").Visible, "uigate: no offline line on the recap")
+		assert(card:FindFirstChild("Line3", true).Text == "Your bait cat arrives in 3 min. It waits for you", "uigate: the recap's bait line reads " .. card:FindFirstChild("Line3", true).Text)
+		assert(card:FindFirstChild("Line4", true).Visible, "uigate: no offline line on the recap")
 		UI.recap.show({ minutes = 80, newCats = 1, earned = 1 })
 		assert(first.Text == "Today: 3 new cats, $12,500 earned", "uigate: the recap showed twice in a session (#1920)")
 	end },
@@ -1531,15 +1531,23 @@ local SCENES = {
 		local gui = UIShim.playerGui:FindFirstChild("CatCafeRecap")
 		local card = gui and gui:FindFirstChild("Card", true) :: Frame?
 		assert(card and card.Visible, "uigate: no session recap card when idle (#2123)")
-		local three = card:FindFirstChild("Line3") :: TextLabel
-		local four = card:FindFirstChild("Line4") :: TextLabel
-		assert(three.Text == "Your cafe earns while you're away: 50% for up to 8\u{00A0}h", "uigate: the recap's offline line reads " .. three.Text .. " (#2123)")
+		local three = card:FindFirstChild("Line3", true) :: TextLabel
+		local four = card:FindFirstChild("Line4", true) :: TextLabel
+		assert(three.Text == "Your cats keep earning while you're away: 50% pay, up to 8\u{00A0}h", "uigate: the recap's offline line reads " .. three.Text .. " (#2123)")
 		local RecapLogic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RecapLogic")
 		local want = "Tomorrow: Daily Treat day 7, " .. RecapLogic.treatWords(7)
 		assert(four.Visible and four.Text == want, "uigate: the recap's Tomorrow line reads " .. four.Text .. " (#2123)")
 		assert(four.TextFits and three.TextFits, "uigate: the offline or Tomorrow line does not fit (#2123)")
 		local bottom = four.AbsolutePosition.Y + four.AbsoluteSize.Y
 		assert(bottom <= card.AbsolutePosition.Y + card.AbsoluteSize.Y + 1, "uigate: the Tomorrow line hangs off the recap card (#2123)")
+		-- #2235 (Derek2: "the text from cafe so far is hard to read", "make it obvious that cats earn offline"): the
+		-- offline line is a mint callout in bold, and no blank row sits between it and the next line
+		assert(three.BackgroundTransparency == 0 and four.BackgroundTransparency == 1, "uigate: the offline line is not the recap's callout (#2235)")
+		assert(three.TextSize >= 17 and four.TextSize >= 17, "uigate: the recap's lines are " .. four.TextSize .. " px (#2235)")
+		local space = four.AbsolutePosition.Y - (three.AbsolutePosition.Y + three.AbsoluteSize.Y)
+		assert(space <= 10, "uigate: a gap of " .. space .. " px under the offline line (#2235)")
+		local cardBottom = card.AbsolutePosition.Y + card.AbsoluteSize.Y
+		assert(cardBottom - bottom <= 24, "uigate: " .. (cardBottom - bottom) .. " px of empty card under the last line (#2235)")
 	end },
 	-- #1947 (like-prompts.md section 2): the like and favourite gift cards, paid before they show, with "Gift added!",
 	-- the coins Payout paid and the potions, and the first button and Close the same size

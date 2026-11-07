@@ -198,6 +198,11 @@ local function begin(model: Model, from: CFrame)
 		copy:Destroy()
 		return
 	end
+	-- the walking template has no PrimaryPart, so the copy's pivot was its WorldPivot, which the drawing never moves:
+	-- with the body as PrimaryPart the pivot goes with the cat (Desktop-Tester 2026-11-07 read (0, -0.1) all walk)
+	if copy.PrimaryPart == nil then
+		copy.PrimaryPart = rig.body
+	end
 	local hidden = partsOf(model)
 	setFade(hidden, 1)
 	model:SetAttribute(SlotWalk.MARK, true)

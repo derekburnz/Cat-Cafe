@@ -2,7 +2,7 @@
 
 Status: specced 2026-11-07 by Design-Agent (friend's project), from Derek2's asks the same day: "continue researching and thinking of any changes and additions that might benefit the game to have on release and start implementing them however you suggest", then "go ahead with all and release planning for about 3-5 days from now". Research: Research-Agent's `release-ideas-2026-11-07.md` in the library.
 
-**Release window:** soft launch **Tuesday 2026-11-10**, go wide (public, What's New "We're open!") **Thursday 2026-11-12** if the gate in section 2 passes. If it fails, go wide moves to Saturday 2026-11-14, the first update day. Derek2 decides on the day.
+**Release window:** go wide (public, What's New "We're open!") targeted for **Thursday 2026-11-12**, after a short soft launch that needs at least 24 hours of players for the gate in section 2. Set 11 Q4 (Derek2, 2026-11-07): "maybe not tuesday because will do some research on good release days and time but yeah good idea overall". So the soft-launch day and the go-wide day and hour come from Research-Agent's release-timing research (#1956), and the freeze stays Monday 2026-11-09 18:00 UTC. Derek2 decides on the day.
 
 ## 1. Roblox badges (#1934)
 
@@ -46,7 +46,7 @@ Owners: QA-Planner (runs the gate and writes `docs/playtests/2026-11-10-release-
 - **Stage 3, go wide (target Thursday 2026-11-12):** the What's New "We're open!" entry, the launch code, the group post and any outside posts.
 - **Pass criteria for going wide** (all from the funnels that already exist):
   1. Tutorial completion (`onboarding_v4` step 5) is **80% or more** of players who load in.
-  2. D1 return is **25% or more** on the soft launch's first day of players. The research suggests 30% as a good mark; under 25% means fix first.
+  2. D1 return is **12% or more** on the soft launch's first day of players, the analytics plan's number. Under 8% means hold and fix first. Between 8% and 12%, Derek2 decides. Derek2, 2026-11-07: "go for the original plan numbers as those are realistic but don't expect it to go that well it is my first game".
   3. The median first session is **10 minutes or more**, and 25% or more of players reach 30 minutes.
   4. Client error rate: no new ClientErrors signature hits more than 1% of sessions, and no server error repeats in more than 1% of servers.
   5. Purchases work: every live pass and product passes its owner test on 2026-11-09.
@@ -67,7 +67,7 @@ The research rule is that nothing pushes a paid item at a new player. Today noth
 - **Free players** can reach every tier, area and cat that isn't shop-only. That's already true, and the guard test lists it as a check, so a future change can't break it quietly.
 - **QA:** on a fresh account nothing paid is advertised before 30 minutes, and the money pill gains its price at 30:00. A scripted call to `PassShop.prompt` with no tap is blocked and logged. Every buy button still works.
 
-## 4. The first four weeks and a winter event (#1937)
+## 4. The first four weeks (#1937)
 
 Every Saturday from launch gets a small finished drop, built from things that already exist, so no week is a scramble. Monetization-Agent writes each What's New entry (under 60 words) and the codes. Each week's pieces get their own issues and owners by the Wednesday before. The calendar copy for growth goes in `docs/growth/` (Monetization-Agent).
 
@@ -77,11 +77,7 @@ Every Saturday from launch gets a small finished drop, built from things that al
 | 1 | 11-14 | fixes from the soft launch, plus the first **Rescue Rally weekend** (rescue-rally.md) | `RALLY` |
 | 2 | 11-21 | a **Lucky Day** Saturday (luck-and-rare-moments.md) and 3 new decor pieces from the existing crate list | none |
 | 3 | 11-28 | the Cafe Pass's Autumn Leaf set reminder (cafe-pass.md §3a), a new camp item, and a **Golden Day** Sunday | `COZY` |
-| 4 | 12-05 | **the Winter Cafe event begins** (below) | `SNOWY` |
+| 4 | 12-05 | a **Rainbow Day** Saturday, 2 more decor pieces and the next fixes from player bug reports | `SNOWY` (kept as the week-4 code name) |
 
-### 4a. Winter Cafe event (Saturday 2026-12-05 to Saturday 2027-01-02)
-- **The look:** snow on the hometown and the cafe roof, frosted windows, warm lights at night, and a winter music variant (Sound-Agent). Area visuals stay the same, because the catching areas don't change.
-- **Snowflake cats:** wild and bait strays have a 3% chance to wear a winter scarf look. That's a look only, with no income change, and it stays on the cat for good. It's a free reward, never sold, and the odds are shown.
-- **Winter quests:** one extra daily quest during the event pays Snowflakes, an event currency. The Snowflake stall in the Town Square swaps Snowflakes for a winter decor set (a snowy cat tree, a cocoa stand, a snow cat statue and a garland), a winter sign style and a winter title tag. Everything can be earned free in about 2 weeks of daily play, and nothing is sold for Robux.
-- **Honest wording:** the event shows "Winter Cafe: until 2 January" only, with no countdown timer. Items keep working forever. The event returns next winter, so missing it isn't permanent.
-- **Builders:** Model-Agent (the snow kit, decor and scarf), Gameplay-Engineer (event flag, quest, stall), UI-Engineer (stall screen, event banner), VFX-Agent (snowfall, lighter on phones), Sound-Agent (music variant). Its issues get filed after launch week, with the build done by 2026-12-01.
+### 4a. No winter event (Set 11 Q6, Derek2 2026-11-07)
+Derek2: "this game probably wont live that long its a learning experience so don't worry about next winter or even next month focus on making it good for launch". The Winter Cafe event is dropped. Effort goes into launch polish, and weeks 1 to 4 stay small drops built from what exists.

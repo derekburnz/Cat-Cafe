@@ -235,3 +235,20 @@ Studio can show an old game when it opens a local file (a `.rbxl` or `.rbxlx` bu
 5. **Rojo drifts.** It drops its connection every time you press Play or Stop, so click **Plugins > Rojo > Connect** again after each playtest. It also never deletes a script that main removed (for example an old controller), so a Studio session that has run for a while keeps stale scripts. When the HUD or world looks different from live, close Studio and reopen the place from Roblox (step 2) rather than trusting the old session, or delete the leftover scripts by hand.
 
 Check: the HUD and Store buttons show pictures (a treasure chest, a cat, a book), not plain emoji. If they show emoji, the file is a local build or Rojo is not connected. Asset sharing is not the cause (`asset-permissions` grants them all).
+
+## 27. Emergency off switches: what to do when something goes wrong after launch (#2119)
+Times are measured on 2026-11-07 from real runs. Pick the fastest row that covers the problem.
+
+| Problem | Fastest fix | Time to effect | Needs a publish? |
+|---|---|---|---|
+| A pass or product prompt is wrong or sells the wrong thing | Actions > **game-passes** > `set`, pass name, `forSale=false` (products: **dev-products**). Back on with `forSale=true`. | about 30 s (game-passes run 26: 28 s) | No |
+| Trading misbehaves | Actions > **flags** > `trading=false` (step 24). Every server reads it within a minute. | about 1 minute | No |
+| A bad build went live | Roll back: create a branch at the last good commit (the `sha` of the previous `published-build` run), then Actions > **publish** > Run workflow on that branch with Published and `restart_servers` on. | about 1 minute for the run (runs 1352 and 1361: 45 s to 50 s), plus the servers restarting on the old build | It is the publish |
+| A code, the Rally or another feature gives too much or breaks (a one-row `Config` change) | PR with the one-line Config change, auto-merge, then publish by hand with `restart_servers` on (the automatic publish also follows the merge). | merge checks take about 25 minutes, then the publish runs about 1 minute: about 25 to 30 minutes in all | Yes |
+| A server is stuck on an old build | Actions > **restart-servers**. | about 1 minute | No |
+
+Notes
+- Only **trading** has a remote flag today. Codes, the Rally and pass prompts need the Config-change row (25 to 30 minutes). If that is too slow, a Gameplay-Engineer task is to read two more switches (`codes`, `rally`) from the same `CatCafe_Flags` store, using the pattern of `TradeVault`'s flags and the `flags` workflow, so they go off within a minute. That is a code and test change, so it is not part of this step.
+- A published build never touches saves; rolling back is safe as long as `ProfileSchema.VERSION` of the old build is not lower than what players have saved. If the bad build raised the save version, do not roll back past it; ship a forward fix instead.
+- The automatic publish gate publishes the newest checked commit on main (since PR #2056). A hand-started publish skips the gate.
+- Try-out: the game-passes row, the publish row and the restart row were all run end to end on 2026-11-07 (Garden Decor Pack description, manual publishes 1352 and 1361).

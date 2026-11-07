@@ -164,9 +164,18 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--dry-run", action="store_true", help="list what would be uploaded, upload nothing")
     parser.add_argument("--only", help="comma list of file names without .ogg")
+    parser.add_argument(
+        "--record",
+        default=RECORD.name,
+        help="the id record to read and write, in this folder (default uploaded.json). For moving every sound to a "
+        "Group (#2022): ROBLOX_CREATOR_GROUP_ID=<group> with --record uploaded-group.json uploads all of them again "
+        "under the group and swaps their ids in Cues.luau and the sources log; when it is complete, "
+        "git mv uploaded-group.json uploaded.json.",
+    )
     args = parser.parse_args()
+    record = AUDIO / Path(args.record).name
 
-    uploaded: dict[str, str] = json.loads(RECORD.read_text()) if RECORD.exists() else {}
+    uploaded: dict[str, str] = json.loads(record.read_text()) if record.exists() else {}
     todo = [p for p in files() if p.relative_to(AUDIO).as_posix() not in uploaded]
     if args.only:
         wanted = {n.strip() for n in args.only.split(",")}
@@ -196,12 +205,12 @@ def main() -> int:
             failed = f"{name}: {error}"
             break  # usually the monthly limit or a key permission; a rerun continues from here
         uploaded[name] = asset_id
-        RECORD.write_text(json.dumps(uploaded, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        record.write_text(json.dumps(uploaded, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         print(f"uploaded  {name:45}  rbxassetid://{asset_id}  ({moderation})")
 
     changed = write_cues(uploaded)
     write_log(uploaded)
-    print(f"upload: {len(changed)} cues have ids in Cues.luau; record in {RECORD.relative_to(REPO).as_posix()}")
+    print(f"upload: {len(changed)} cues have ids in Cues.luau; record in {record.relative_to(REPO).as_posix()}")
     if failed:
         print(f"upload: stopped at {failed}", file=sys.stderr)
         if "unauthorized to create" in failed:

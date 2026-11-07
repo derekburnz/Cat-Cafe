@@ -2883,6 +2883,27 @@ function Logic.netWrap(alpha: number): (number, number)
 	return scale, math.rad(w.roll) * rock
 end
 
+-- The pinning net dropping onto a caught stray (#2005, Presets.netPin.drop), `t` seconds after its NetDown: studs
+-- above its resting place, falling as if dropped (`height` down to 0 over `seconds`), then 0.
+function Logic.netDrop(t: number): number
+	local d = Presets.netPin.drop
+	if t <= 0 then
+		return d.height
+	end
+	local a = math.min(1, t / d.seconds)
+	return d.height * (1 - a * a)
+end
+
+-- The pinning net lifting off when NetDown clears (Presets.netPin.lift), `t` seconds after: studs risen (eased
+-- out), how faded 0 to 1 (from `fadeFrom` of the way), and true once it is gone.
+function Logic.netLift(t: number): (number, number, boolean)
+	local l = Presets.netPin.lift
+	local a = math.clamp(t / l.seconds, 0, 1)
+	local eased = 1 - (1 - a) * (1 - a)
+	local gone = math.clamp((a - l.fadeFrom) / (1 - l.fadeFrom), 0, 1)
+	return l.height * eased, gone, t >= l.seconds
+end
+
 -- A stray's mood (catch-rework.md 7a, the server's Mood attribute) shown in how it stands. Sleepy curls up in a nap
 -- until a catch of it starts (`catching`); Curious and Skittish keep the stray's idle with moodLayer on top.
 function Logic.moodStyle(mood: unknown, catching: boolean): Style?

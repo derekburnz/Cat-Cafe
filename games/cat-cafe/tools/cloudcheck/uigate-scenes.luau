@@ -1213,6 +1213,28 @@ local SCENES = {
 		press("Bait", "Bowls.Bowl1")
 		assertBowlTabs(1, "is in bowl 1")
 	end },
+	-- #2014 (Derek2: "food bowl cats wait until not mid catch to pop up on screen"): a cat comes to bowl 2 during a
+	-- catch; the card holds (the bowl tile shows the !) until the circles end, then shows a moment after
+	{ "BaitWaitsForCatch", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.setSecond("on")
+		UI.bait.set({ lureId = Catalog.lures[2].id, readyAt = now - 1, placedAt = now - 300 }, 2)
+		startCatch("gate_bait_wait", "Common", 4, 0.3, 1.5)
+		assert(UI.catch.circlesActive(), "uigate: the catch circles should be running")
+		UI.bait.arrived({ catId = Catalog.cats[2].id, stars = 2 }, 2)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeBaitCard")
+		task.wait(0.5)
+		assert(gui and not gui.Enabled, "uigate: the bait card popped up mid catch (#2014)")
+		assertBowlTile(true)
+		UI.catch.hideCircles()
+		UI.catch.hide()
+		task.wait(0.3)
+		assert(not gui.Enabled, "uigate: the bait card should wait a moment after the catch (#2014)")
+		task.wait(UI.bait.SETTLE + 0.5)
+		assert(gui.Enabled, "uigate: the bait card never showed after the catch (#2014)")
+		local banner = gui:FindFirstChild("Banner", true)
+		assert(banner.Text == "A CAT CAME TO BOWL 2!", "uigate: the cat's card says " .. banner.Text)
+	end },
 	-- #1161: the cat's card with two bowls names the bowl, and its banner stays clear of the X on a phone
 	{ "BaitCardBowl2", function()
 		local now = workspace:GetServerTimeNow()

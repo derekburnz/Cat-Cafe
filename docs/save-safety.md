@@ -94,20 +94,26 @@ A revision saved while the player was in a game still names that game's server i
 Clear it, so the next join doesn't wait for a server that is long gone:
 
 ```bash
-jq '.value.MetaData.ActiveSession = null | .value.MetaData.ForceLoadSession = null' restore.json > restore-clean.json
+jq 'del(.value.MetaData.ActiveSession, .value.MetaData.ForceLoadSession)' restore.json > restore-clean.json
 ```
+
+Delete the two fields, don't set them to `null`: Open Cloud refuses any `null` inside the value with
+`400 "Value cannot be null"`.
 
 Don't change anything else in the file: not `Data`, not `version`, not `GlobalUpdates`.
 
 ### Step 4: write it back as the newest revision
 
 ```bash
-jq '{value: .value, users: .users}' restore-clean.json \
+jq '{value: .value}' restore-clean.json \
   | curl -sS -X PATCH -H "x-api-key: $ROBLOX_PUBLISH_KEY" -H "Content-Type: application/json" \
       --data-binary @- "$base/$KEY" | jq '{revisionId, revisionCreateTime}'
 ```
 
-The write itself becomes a new revision, so a restore can also be undone with the same steps.
+Send only `value`: these entries have no `users` list, and a body with `"users": null` is refused with
+`400 "Object reference not set"`. The write itself becomes a new revision, so a restore can also be undone with the
+same steps. Two writes a few seconds apart merge into one revision, so wait a minute between a test write and the
+real one.
 
 ### Step 5: check it in game
 
@@ -123,7 +129,8 @@ back card shows their offline earnings from the restored `lastSeen`. Then delete
 - Don't paste the API key, the UserId together with the save contents, or the JSON into chat or an issue. The repo is
   public.
 
-Not yet done: these commands were written against Roblox's Open Cloud v2 data store API and have not been run yet.
-Before anyone uses them on a real player: run steps 1 and 2 read-only against the live store (Tools-Agent, with the
-real key), and prove steps 3 and 4 on a throwaway test account's key in `CatCafeProfiles_dev`. Correct this page with
-whatever differs, then remove this paragraph.
+Tested so far (Tools-Agent, 2026-11-07, on a throwaway key `p_0` in `CatCafeProfiles_dev`, deleted afterwards; the
+live store untouched): the key can list, read, create, update and delete; the path needs no scope segment; step 1's
+list returns `dataStoreEntries` with `revisionId` and `revisionCreateTime` (and no value), and step 2's `@<revisionId>`
+fetch returns `value.Data` and `value.MetaData`. Not yet done: step 4's write with the `{value}` body is still being
+confirmed. Until it is, don't use this on a real player.

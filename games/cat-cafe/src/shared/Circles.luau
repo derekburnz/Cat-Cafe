@@ -12,7 +12,7 @@
 -- with every circle Good or Perfect is a sure catch. No roll.
 -- #1884 (catch-rework.md 7b): a net catch keeps a trust bar instead. It starts at Config.TrustStart and each ring
 -- adds TrustPerfect, TrustGood or TrustMiss: the cat is caught once trust reaches the rarity's trustNeed and bolts
--- below 0, or when the rings run out (the all-Perfect count plus CatchSpareRings). Rings come on a steady beat,
+-- below 0, or when the rings run out (the all-Good count plus CatchSpareRings, #2332). Rings come on a steady beat,
 -- CircleGapMin apart. An attempt with no trust (a rescue's tree circle) keeps the v0.4 rule.
 
 local Catalog = require(script.Parent.Catalog)
@@ -150,18 +150,24 @@ function Circles.ringKind(
 	return "single"
 end
 
--- #1884: the most rings a try at `rarity` can use: its all-Perfect count (`circles`) plus CatchSpareRings. A double
--- uses two and a paw ring none.
+-- #1884: the most rings a try at `rarity` can use, plus CatchSpareRings. A double uses two and a paw ring none.
+-- #2317 (Derek2: "it randomly says cat gets away ... even if you didnt fully miss any circles if you take a lot of
+-- circles") and #2332 ("it should fully be only failing if the heart bar hits 0"): the base is the all-Good count
+-- (enough Goods to fill the bar from TrustStart), not the all-Perfect one, and CatchSpareRings is 16, so a run with
+-- no Miss always fills the bar and the rings run out only after eight Misses the bar lived through. It used to be
+-- the all-Perfect count plus 2, which on Epic and up ran out before an all-Good run filled the bar.
 function Circles.ringCap(rarity: Types.Rarity): number
-	return Catalog.rarities[rarity].circles + Config.CatchSpareRings
+	local def = Catalog.rarities[rarity]
+	local allGood = math.ceil((def.trustNeed - Config.TrustStart) / Config.TrustGood)
+	return math.max(def.circles, allGood) + Config.CatchSpareRings
 end
 
 -- #1884: the most circles any schedule holds (a paw ring between every two used rings, at most): bounds the
 -- CatchPress index.
 function Circles.maxCircles(): number
 	local most = 1
-	for _, def in Catalog.rarities do
-		most = math.max(most, 2 * (def.circles + Config.CatchSpareRings))
+	for _, rarity in Catalog.rarityOrder do
+		most = math.max(most, 2 * Circles.ringCap(rarity :: Types.Rarity))
 	end
 	return most
 end

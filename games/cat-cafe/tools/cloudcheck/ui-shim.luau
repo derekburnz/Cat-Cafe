@@ -1238,8 +1238,11 @@ local function placeChildren(self, x, y, aw, ah, kk, clip, inScroll, gui)
 		cw, ch = math.max(cw, windowW), math.max(ch, windowH)
 		local canvasPos = rawProp(self, "CanvasPosition") or Vector2.zero
 		local maxX, maxY = math.max(0, cw - windowW), math.max(0, ch - windowH)
-		local sx = math.clamp(canvasPos.X, 0, maxX)
-		local sy = math.clamp(canvasPos.Y, 0, maxY)
+		-- CanvasPosition is in the frame's own unscaled pixels, like CanvasSize's offset: Roblox applies the ancestors'
+		-- UIScale to it, so the UI divides AbsoluteCanvasSize by that scale before it sets one (UpgradeShop._scrollTo).
+		-- Subtracting it unscaled put a long scroll a few px off on the laptop size (#2360).
+		local sx = math.clamp(canvasPos.X * kk, 0, maxX)
+		local sy = math.clamp(canvasPos.Y * kk, 0, maxY)
 		local entry = cache[self]
 		entry.canvasW, entry.canvasH, entry.windowW, entry.windowH = cw, ch, windowW, windowH
 		originX, originY, boxW, boxH = x - sx, y - sy, cw, ch

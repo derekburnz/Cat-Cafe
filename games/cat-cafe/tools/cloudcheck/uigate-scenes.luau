@@ -694,6 +694,35 @@ end
 
 -- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
 -- "Daily.Quest2.Claim" walks down one name at a time
+-- #2314: tutorial step 3 (a table to buy), with its strip, so the Upgrades tile glows and the big arrow comes
+local function tutorialArrowStep()
+	local levels = { tables = 0, lure_bowl = 0, espresso = 0, net = 0, lucky_cat = 0 }
+	UI.update({ tutorialStep = 3, tier = 1, upgradeLevels = levels } :: any)
+	UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))
+	task.wait(0.1)
+end
+-- #2314: the big arrow shows, whole on the screen, off `target` and within 24 px of it
+local function assertArrowAt(target: GuiObject, where: string)
+	local found: GuiObject? = nil
+	for _, piece in UIShim.playerGui:GetDescendants() do
+		if piece.Name == "TutorialArrow" and piece:IsA("GuiObject") and piece.Visible then
+			found = piece
+		end
+	end
+	assert(found, "uigate: no tutorial arrow at " .. where .. " (#2314)")
+	local arrow = found :: GuiObject
+	local a0, a1 = arrow.AbsolutePosition, arrow.AbsolutePosition + arrow.AbsoluteSize
+	local t0, t1 = target.AbsolutePosition, target.AbsolutePosition + target.AbsoluteSize
+	local screen = (arrow:FindFirstAncestorWhichIsA("ScreenGui") :: ScreenGui).AbsoluteSize
+	assert(
+		a0.X >= -1 and a0.Y >= -1 and a1.X <= screen.X + 1 and a1.Y <= screen.Y + 1,
+		("uigate: the arrow at %s runs off the screen (%d,%d to %d,%d) (#2314)"):format(where, a0.X, a0.Y, a1.X, a1.Y)
+	)
+	local overlaps = a0.X < t1.X - 1 and t0.X < a1.X - 1 and a0.Y < t1.Y - 1 and t0.Y < a1.Y - 1
+	assert(not overlaps, "uigate: the arrow covers " .. where .. " (#2314)")
+	local gap = math.max(t0.X - a1.X, a0.X - t1.X, t0.Y - a1.Y, a0.Y - t1.Y)
+	assert(gap < 24, ("uigate: the arrow sits %d px from %s (#2314)"):format(gap, where))
+end
 -- #1161: the Bait bowl window, and its bowl tabs shown with `selected` chosen and the status title holding `title`.
 local function baitWindow()
 	local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
@@ -2753,6 +2782,27 @@ local SCENES = {
 		assert(word.Visible and word.Text == "MISS! Back to the start", "uigate: the reset flash reads " .. word.Text .. " (#2219)")
 		assert(word.TextFits, "uigate: the reset flash is cut off (#2219)")
 	end },
+	-- #2318 (Derek2: "sometimes rescue's say miss even if you hit it properly"): a tap 0.02 of the bar past the zone's
+	-- edge, where the marker sat 0.03 s ago, is a hit on the server (RescueMarker.SEEN_LAG), so the bar flashes NICE!
+	{ "RescueSeenLag", function()
+		local t = workspace:GetServerTimeNow()
+		local challenge = rescueChallenge()
+		-- zone 0.5 wide 0.1, tolerance 0.03: its right edge is 0.58; the marker at 0.60 now, moving right at 1 bar a second
+		challenge.zones = { 0.5, 0.3, 0.7 }
+		challenge.zoneWidth = 0.1
+		challenge.startsAt = t - 0.5
+		challenge.phase = 0.1
+		challenge.speed = 1
+		challenge.zone = 1
+		UI.rescue.show("gate_rescue", challenge)
+		local barGui = UIShim.playerGui:FindFirstChild("CatCafeRescueBar")
+		UIShim.fire(UIShim.eventOf(barGui:FindFirstChild("Tap"), "InputBegan"), {
+			UserInputType = Enum.UserInputType.Touch,
+			Position = Vector3.new(400, 300, 0),
+		})
+		local word = barGui:FindFirstChild("Word", true) :: TextLabel
+		assert(word.Visible and word.Text == "NICE!", "uigate: a tap just after the zone flashes " .. word.Text .. " (#2318)")
+	end },
 	-- F92: a Team Rescue helper's copy of the bar, two hits in: "Helping!" and the rescuer's paws
 	{ "RescueHelper", function()
 		local challenge = rescueChallenge()
@@ -3044,6 +3094,21 @@ local SCENES = {
 		local hint = UIShim.playerGui:FindFirstChild("CatCafeCatch"):FindFirstChild("Hint", true) :: TextLabel?
 		assert(hint == nil or not hint.Visible, "uigate: the cooldown card still has a hint line (#2324)")
 	end },
+	-- #2340 (Derek2: "make pretty much all buttons in the game a one click confirm instead of hold"): a prompt with no
+	-- hold (a rescue since #2344, the Index boards since this) shows no HOLD tag on its card
+	{ "CatchPromptNoHold", function()
+		UI.catch.show({
+			strayId = "gate_stuck",
+			catId = Catalog.cats[2].id,
+			catName = "Garbage Bag Cat",
+			rarity = "Rare",
+			kind = "rescue",
+			holdDuration = 0,
+		})
+		local card = UIShim.playerGui:FindFirstChild("CatCafeCatch")
+		local hold = card:FindFirstChild("Hold", true) :: GuiObject?
+		assert(hold == nil or not hold.Visible, "uigate: a one press prompt still says HOLD (#2340)")
+	end },
 	-- F87: a context tip's card at the top centre, its bar draining
 	{ "TipCard", function()
 		UI.tips.show("second_cat")
@@ -3275,6 +3340,40 @@ local SCENES = {
 		assert(tables:FindFirstChild("TutorialGlow") == nil, "uigate: the table row still glows at step 4 (#1796)")
 		assert(bowl:FindFirstChild("TutorialGlow"), "uigate: the Bait bowl row does not glow at step 4 (#1796)")
 		task.wait(0.1) -- the list scrolls the Bait bowl row into view
+	end },
+	-- #2314 (Derek2: "also show big arrow on screen temporarily pointing toward what to click next"): step 3's big
+	-- arrow points at the HUD's Upgrades tile, whole on screen and off the tile; with Upgrades open it moves to the
+	-- table row; the step done, it is gone
+	{ "TutorialArrow", function()
+		tutorialArrowStep()
+		local tile = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Upgrades", true)
+		assertArrowAt(tile:FindFirstChild("TutorialGlow", true).Parent :: GuiObject, "the Upgrades tile")
+	end },
+	{ "TutorialArrowRow", function()
+		-- the list from its top: after an earlier scene's scroll to the Bait bowl row, the scroll back lands a few px
+		-- past the table row on a laptop here (UpgradeShop._scrollTo turns px into CanvasPosition by the UIScale, the
+		-- shim scrolls CanvasPosition in scaled px; filed for the tools lane)
+		local before = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Upgrades", true)
+		local list = before and before:FindFirstChild("List", true)
+		if list and list:IsA("ScrollingFrame") then
+			list.CanvasPosition = Vector2.zero
+		end
+		tutorialArrowStep()
+		UI.open("Upgrades")
+		task.wait(0.2) -- the list scrolls the table row into view
+		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Upgrades", true)
+		assertArrowAt(window:FindFirstChild("tables", true) :: GuiObject, "the table row")
+	end },
+	{ "TutorialArrowGone", function()
+		tutorialArrowStep()
+		UI.update({ tutorialStep = 5 } :: any)
+		task.wait(0.1)
+		for _, piece in UIShim.playerGui:GetDescendants() do
+			assert(
+				not (piece.Name == "TutorialArrow" and piece:IsA("GuiObject") and piece.Visible),
+				"uigate: the tutorial arrow stays after its step (#2314)"
+			)
+		end
 	end },
 	-- #2211 (crispi_255): the tutorial's last step done: the Tutorial tile's red × gets a gold ring and bounces for
 	-- a few seconds, then is plain again; a player who finished it before (no step change) gets no pulse

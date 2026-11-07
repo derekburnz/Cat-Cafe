@@ -145,9 +145,10 @@ jobs:
   cloudcheck:
     name: Luau unit tests and strict type check (WebAssembly Luau)
     needs: [units, uigate]
-    # always(): a required check that is skipped counts as passed, so this job always runs and fails itself when
-    # the tests or any UI gate shard did not pass.
-    if: always()
+    # A required check that is skipped counts as passed, so this job runs even when a need failed and fails itself
+    # then. Not when the run was cancelled (a newer push or auto-merge run replaced it): it ends cancelled, which
+    # never counts as passed, instead of posting a failure for a run nobody needs.
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:

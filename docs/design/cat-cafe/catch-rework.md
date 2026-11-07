@@ -12,7 +12,7 @@ His Set 5 answers:
 - Q3: "Re-work what the net upgrades do maybe make it so the bands of the circles are bigger with each upgrade but the timing or amount of circles doesn't change, also currently you can get a miss, then an excellent and the old circles all flash good I think maybe add a bar or text at the top while catching showing how well you did like EXCELLENT pops up with an animation and some vfx at the end of the catch and the old circles should disappear after each one has been hit or missed and at the end of a catch"
 - Q4: "If they are perfect it should always catch, just give less time for the going left and right so people don't just sit there for perfect timing as for the rest do whatever you recommend."
 
-This replaces the stray's hold E prompt and the net levels' timing in data-model sections 2 and 10. Rescues (10b) keep their hold prompt.
+This replaces the stray's hold E prompt and the net levels' timing in data-model sections 2 and 10. Rescues (10b) keep their hold prompt. (Since #2335, 2026-11-07, a rescue starts on one press instead of a hold.)
 
 ## 1. The net swing
 

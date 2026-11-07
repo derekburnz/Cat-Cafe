@@ -45,7 +45,7 @@ Derek asked for these to be placed wisely and never crowd the start. Rules for a
 | ask | when | how |
 |---|---|---|
 | Join the group | only at the Bellhop Cat's stand and the Regulars Board (launch-ops.md section 2), when the player walks up | the player presses it; there is no pop-up |
-| Notifications | after the first bait cat is tamed, players 13 and up only | Roblox's opt-in prompt (`ExperienceNotificationService:PromptOptIn`), once, and again at most once in 30 days if dismissed |
+| Notifications | (#2313, built in #2328) after 30 minutes of play with Tier 2 reached (`Tips.NOTIFY_PLAY_SECONDS`), or on a later UTC day than the account's first, whichever comes first; players 13 and up only. It used to follow the first tamed bait cat, which came too early | Roblox's opt-in prompt (`ExperienceNotificationService:PromptOptIn`), once, and again at most once in 30 days if dismissed |
 | Favourite | after the first rank up to Tier 2 | Roblox's favourite dialog if Tools-Agent's test in the published place shows it accepts the experience, else a toast: "Favorite Cat Cafe to find it fast next time" |
 | Like | after the first Legendary is secured, or the first session on a second day, whichever comes first | the easy-start.md section 4 toast, words only: "Having fun? A thumbs up helps other players find Cat Cafe." |
 

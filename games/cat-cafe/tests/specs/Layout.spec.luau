@@ -1698,15 +1698,14 @@ return function()
 		end)
 
 		it(
-			"stands a Rally board either side of the street's path at its north end, facing the spawn, off the cross and the stations (F101, #2224)",
+			"stands one Rally board left of the street's path at its north end, facing the spawn, off the cross and the stations (F101, #2224, #2367)",
 			function()
 				local boards = square.rallyBoards
-				expect(#boards).to.equal(2)
-				local sides: { [number]: boolean } = {}
+				expect(#boards).to.equal(1)
 				for _, board in boards do
 					expect(board.asset).to.equal("CatCafe_Square_RallyBoard")
 					expect(board.z > 0).to.equal(true)
-					sides[if board.x < 0 then -1 else 1] = true
+					expect(board.x < 0).to.equal(true) -- the left side, off the Fish Market's (#2367)
 					-- its face is about 11 by 1.5 (Model-Agent #759); every corner of that, turned, stays off the cross
 					local yaw = math.rad(board.rotY or 0)
 					local cos, sin = math.cos(yaw), math.sin(yaw)
@@ -1739,7 +1738,6 @@ return function()
 						end
 					end
 				end
-				expect(sides[-1] and sides[1]).to.equal(true)
 			end
 		)
 

@@ -1226,7 +1226,7 @@ Catalog.lures = {
 		rarity = "Common",
 		source = "shop",
 		description = "Cheap and crunchy. Brings the regulars.",
-		odds = { Common = 70, Rare = 25, Epic = 4, Legendary = 0.9, Mythical = 0.1 },
+		odds = { Common = 70.375, Rare = 25.375, Epic = 3.4, Legendary = 0.765, Mythical = 0.085 }, -- #2239: was 70/25/4/0.9/0.1
 		asset = "CatCafe_Item_Kibble",
 	},
 	{
@@ -1238,7 +1238,7 @@ Catalog.lures = {
 		rarity = "Rare",
 		source = "shop",
 		description = "The good stuff. Rare cats come running.",
-		odds = { Common = 40, Rare = 45, Epic = 12, Legendary = 2.6, Mythical = 0.4 },
+		odds = { Common = 41.125, Rare = 46.125, Epic = 10.2, Legendary = 2.21, Mythical = 0.34 }, -- #2239: was 40/45/12/2.6/0.4
 		asset = "CatCafe_Item_TunaCan",
 	},
 	{
@@ -1250,7 +1250,7 @@ Catalog.lures = {
 		rarity = "Epic",
 		source = "shop",
 		description = "Nobody can resist it, not even the Ninja Cat.",
-		odds = { Common = 15, Rare = 45, Epic = 30, Legendary = 8.5, Mythical = 1.5 },
+		odds = { Common = 18, Rare = 48, Epic = 25.5, Legendary = 7.225, Mythical = 1.275 }, -- #2239: was 15/45/30/8.5/1.5
 		asset = "CatCafe_Item_Salmon",
 	},
 	{
@@ -1262,7 +1262,7 @@ Catalog.lures = {
 		rarity = "Rare",
 		source = "dealer",
 		description = "Silvery and still glowing a little.",
-		odds = { Common = 30, Rare = 45, Epic = 20, Legendary = 4.5, Mythical = 0.5 },
+		odds = { Common = 31.875, Rare = 46.875, Epic = 17, Legendary = 3.825, Mythical = 0.425 }, -- #2239: was 30/45/20/4.5/0.5
 		asset = "CatCafe_Item_Sardines",
 	},
 	{
@@ -1274,7 +1274,7 @@ Catalog.lures = {
 		rarity = "Epic",
 		source = "dealer",
 		description = "Tiny, glossy and very fancy.",
-		odds = { Common = 10, Rare = 35, Epic = 38, Legendary = 14, Mythical = 3 },
+		odds = { Common = 16.55, Rare = 34, Epic = 35, Legendary = 11.9, Mythical = 2.55 }, -- #2239: was 10/35/38/14/3 (Epic stays the likeliest)
 		asset = "CatCafe_Item_Caviar",
 	},
 	{
@@ -1286,7 +1286,7 @@ Catalog.lures = {
 		rarity = "Legendary",
 		source = "dealer",
 		description = "Nobody knows where he gets it.",
-		odds = { Common = 0, Rare = 20, Epic = 45, Legendary = 28, Mythical = 7 },
+		odds = { Common = 0, Rare = 32, Epic = 38.25, Legendary = 23.8, Mythical = 5.95 }, -- #2239: was 0/20/45/28/7
 		asset = "CatCafe_Item_MoonMilk",
 	},
 	{
@@ -1298,7 +1298,7 @@ Catalog.lures = {
 		rarity = "Mythical",
 		source = "dealer",
 		description = "It twinkles. Mythical cats can smell it from the next area.",
-		odds = { Common = 0, Rare = 0, Epic = 40, Legendary = 45, Mythical = 15 },
+		odds = { Common = 0, Rare = 0, Epic = 43.25, Legendary = 44, Mythical = 12.75 }, -- #2239: was 0/0/40/45/15 (Legendary stays the likeliest)
 		asset = "CatCafe_Item_StarTreat",
 	},
 } :: { Types.LureDef }

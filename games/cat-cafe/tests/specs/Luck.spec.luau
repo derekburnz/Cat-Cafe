@@ -32,14 +32,14 @@ return function()
 	end
 
 	describe("apply", function()
-		it("turns Kibble on a level 1 bowl into the section's example at x1.5", function()
+		it("turns Kibble on a level 1 bowl into the section's example at x1.5 (#2239's Kibble)", function()
 			local kibble = (Catalog.getLure("kibble") :: Types.LureDef).odds
 			local odds = Luck.apply(Bait.oddsFor(kibble, 1), 1.5)
-			expect(odds.Common).to.be.near(67.5, 1e-9)
-			expect(odds.Rare).to.be.near(25, 1e-9)
-			expect(odds.Epic).to.be.near(6, 1e-9)
-			expect(odds.Legendary).to.be.near(1.35, 1e-9)
-			expect(odds.Mythical).to.be.near(0.15, 1e-9)
+			expect(odds.Common).to.be.near(68.25, 1e-9)
+			expect(odds.Rare).to.be.near(25.375, 1e-9)
+			expect(odds.Epic).to.be.near(5.1, 1e-9)
+			expect(odds.Legendary).to.be.near(1.1475, 1e-9)
+			expect(odds.Mythical).to.be.near(0.1275, 1e-9)
 		end)
 
 		it("leaves the odds as they are at x1 or less, in a new table", function()

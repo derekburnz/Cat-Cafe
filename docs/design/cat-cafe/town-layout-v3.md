@@ -206,6 +206,8 @@ Walking speeds do not change. Each area's way in, as a brief for its set:
 
 ### 8d. Spawn points, zones and traps
 
+> **Changed 2026-11-07 (#2210):** Epic and Legendary strays now spawn anywhere in a side area. Only Mythicals keep to `deep` points, and the Alleyway's `nook` still holds Epic and up. Odds are unchanged. The "rarer cat, longer walk" rule below now applies to Mythicals only.
+
 Each set brings its cat spots as now, more of them for the bigger floor, split into two zones: `near`, the half of the area by the gate, and `deep`, the far half. Epic, Legendary and Mythical strays take only free `deep` points, the rule the Alleyway's `nook` points already follow. As built (#467) there is no fallback to other points, so a wave never puts an Epic or rarer stray by the gate. So the rarer the cat, the longer the walk to it. Commons and Rares take any point. StraySpawnSpacingStuds 12 still applies.
 
 | area | spawn points, v3.1 | v3.2 | of them `deep` | rescue traps, v3.2 |

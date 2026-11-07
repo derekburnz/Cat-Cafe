@@ -33,3 +33,22 @@ Suggested follow-ups for Animation-Engineer and Gameplay-Engineer: bring the cat
 ends pass under the floor; tuck the sleeping head down and in so it clears the face.
 
 Limits: static edit-mode rigs with default blocky bodies; real avatars, the walk and the blend-in were not checked here.
+## Third check, R6 only, after #1991 (main at a49f7107)
+
+Tabby and the Void. Sheet: `evidence/2026-11-07/carry-r6-check-2026-11-07.png`. Same numbers for both cats.
+
+| Check | R6 |
+| --- | --- |
+| Arm ends forward of torso | 0.98 (cat spans 0.50 to 1.67, middle 1.08) |
+| Arm ends across | 0.18 either side of the middle (cat spans 1.04 either side) |
+| Top of the arm-end faces vs cat floor | 0.05 above (level with it) |
+| Highest point of each arm vs cat floor | 0.86 above |
+| Cat surface straight above the arm ends | 0.96 (left), 0.65 (right) |
+| Arm parts overlapping the cat | yes: left arm into the body, head and an eye; right arm into the body and both near legs |
+
+Findings
+
+1. The arm ends now meet under the cat's middle, and from the front the arms read as a cradle under it.
+2. The arms clip the cat: each arm rises 0.86 studs past the cat's floor on its way in, so its upper part runs
+   through the cat's body (and the head on the left, the legs on the right). Raising the R6 hold by about 0.3 to 0.4
+   studs, or tilting the arms flatter, should keep the cradle and clear the clipping.

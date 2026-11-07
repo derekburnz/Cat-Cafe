@@ -183,6 +183,9 @@ export type CustomEvent =
 	| "session_recap_close"
 	-- #1919: the goal card's "Find N more cats" nudge opened the Index, value 1; the area id it pointed at or "none"
 	| "index_hint_tap"
+	-- #1934 (release.md section 1): a Roblox badge awarded, value the account's minutes played; the badge key, "live"
+	-- (earned this session) or "catchup" (earned before, awarded on join)
+	| "badge_awarded"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.

@@ -565,6 +565,12 @@ export type Stats = {
 	-- F102 (trading.md section 6): trades done, and today's count for TradesPerDay (the day is a global game day since #1629)
 	trades: number,
 	tradesToday: TradesToday,
+	-- #1934 (release.md section 1): PURRFECT net catches, the run of them in a row now and the best run (Badges), and
+	-- team rescues this player helped with
+	purrfectCatches: number,
+	purrfectStreak: number,
+	bestPurrfectStreak: number,
+	teamRescuesHelped: number,
 }
 
 export type WeekPlay = { week: number, seconds: number }

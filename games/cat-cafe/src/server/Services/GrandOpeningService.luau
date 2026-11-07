@@ -13,6 +13,7 @@ local DataService = require(script.Parent.DataService)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
+local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -20,17 +21,10 @@ local GrandOpeningService = {}
 
 local CHECK_SECONDS = 1
 
--- Seconds of play on the account: the saved play time plus this session's (DataService adds it on leave).
-local function playedSeconds(player: Player, profile: Types.PlayerProfile): number
-	local joinedAt = DataService.joinedAt(player)
-	local session = if joinedAt ~= nil then math.max(0, os.time() - joinedAt) else 0
-	return profile.stats.playtimeSeconds + session
-end
-
 -- Marks and pays every milestone due for the player; true when any was. The cafe front's ribbon or bunting (#1922) is
 -- set first, from the state before this check's marks.
 function GrandOpeningService.check(player: Player, profile: Types.PlayerProfile): boolean
-	local played = playedSeconds(player, profile)
+	local played = PlayTime.seconds(player, profile)
 	CafeService.showGrandOpening(player, GrandOpening.plotLook(profile, played))
 	local due = GrandOpening.due(profile)
 	if #due == 0 then

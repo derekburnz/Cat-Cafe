@@ -139,8 +139,8 @@ return function()
 		CatchSnackChance = 0.10, -- corner-shop-v2.md section 3: a Small Snack 1 catch in 10
 		-- night income and rich customers (F31, sections 11 and 12)
 		NightIncomeMultiplier = 1, -- F60: full pay at night (0.6 until v0.8)
-		RichEveryMin = 300, -- #1135: a random timer, 600 s on average like the old 60 s check at 10%
-		RichEveryMax = 900,
+		RichEveryMin = 240, -- #1135: a random timer; #2107: 480 s on average (was 300 to 900, 600 s)
+		RichEveryMax = 720,
 		RichTipSeconds = 120, -- F61: was 45
 		TipPileSeconds = 30, -- F61: tip piles (section 12)
 		TipPileRateSeconds = 6,
@@ -170,8 +170,8 @@ return function()
 		HopMaxRise = 2.6,
 		BedtimeTimeoutSeconds = 15,
 		-- the Cat Collector (F63, section 12b); CollectorValue is a table, checked in Collector.spec
-		CollectorEveryMin = 600, -- #1135: 1000 s on average like the old 120 s check at 12%
-		CollectorEveryMax = 1400,
+		CollectorEveryMin = 360, -- #1135; #2107: 600 s on average (was 600 to 1400, 1000 s)
+		CollectorEveryMax = 840,
 		VisitRetrySeconds = 15,
 		CollectorStaySeconds = 180,
 		CollectorGoldMultiplier = 3,

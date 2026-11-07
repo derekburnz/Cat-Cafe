@@ -1555,7 +1555,7 @@ local function followTrade()
 	end)
 end
 
--- F101: the Rescue Rally's bar reaching a step (Catalog.rallySteps, a quarter, a half and the whole goal) cheers
+-- F101: the Rescue Rally's bar reaching a step (Catalog.rallySteps, 5 of them since #2018, from 15 % to the whole goal) cheers
 -- once on every client in the server, from the RallyState the server sends at each step.
 local function followRally()
 	local last: { lap: number, points: number }? = nil

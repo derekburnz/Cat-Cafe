@@ -1162,6 +1162,59 @@ local SCENES = {
 			model:Destroy()
 		end
 	end },
+	-- #2099 (luck-and-rare-moments.md 1j): a "Pity cat" tag over each stray with PityCat, gold for a Legendary and
+	-- violet with a rainbow edge for a Mythical, none over a plain stray; hidden in a net, back on a bolt, gone with
+	-- the attribute
+	{ "PityTags", function()
+		local function stray(id: string, pity: string?, x: number): Model
+			local model = Instance.new("Model")
+			model.Name = "Stray_" .. id
+			local body = Instance.new("Part")
+			body.Name = "Body"
+			body.Size = Vector3.new(2, 2, 3)
+			body.Position = Vector3.new(x, 3, -12)
+			body.Parent = model
+			model.PrimaryPart = body
+			model:SetAttribute("StrayId", id)
+			if pity then
+				model:SetAttribute("PityCat", pity)
+			end
+			model.Parent = workspace
+			model:AddTag("Stray")
+			return model
+		end
+		local legendary = stray("pity_1", "Legendary", -4)
+		local mythical = stray("pity_2", "Mythical", 0)
+		local plain = stray("pity_3", nil, 4)
+		-- the shim's tag signals never fire, so start the tags again to pick the three up
+		UI.catch.pity:destroy()
+		UI.catch.pity = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.PityTags").new()
+		local function tagOf(model: Model): BillboardGui?
+			return (model.PrimaryPart :: BasePart):FindFirstChild("CatCafePityTag") :: BillboardGui?
+		end
+		local a, b = tagOf(legendary), tagOf(mythical)
+		assert(a and b, "uigate: no Pity cat tag over a pity stray (#2099)")
+		assert(tagOf(plain) == nil, "uigate: a Pity cat tag over a plain stray (#2099)")
+		local tagA, tagB = (a :: any).Tag, (b :: any).Tag
+		assert(tagA.Label.Text == "Pity cat" and tagB.Label.Text == "Pity cat", "uigate: the tag reads Pity cat (#2099)")
+		assert((a :: BillboardGui).Enabled and (b :: BillboardGui).Enabled, "uigate: the Pity cat tags are up (#2099)")
+		assert((a :: BillboardGui).AlwaysOnTop and (a :: BillboardGui).MaxDistance == 150, "uigate: seen over walls within 150 studs (#2099)")
+		local edgeA = tagA:FindFirstChildOfClass("UIStroke"):FindFirstChildOfClass("UIGradient")
+		local edgeB = tagB:FindFirstChildOfClass("UIStroke"):FindFirstChildOfClass("UIGradient")
+		assert(not edgeA.Enabled and edgeB.Enabled, "uigate: only the Mythical tag has the rainbow edge (#2099)")
+		assert(tagA.BackgroundColor3 ~= tagB.BackgroundColor3, "uigate: Legendary gold and Mythical violet differ (#2099)")
+		legendary:SetAttribute("LockedBy", 1)
+		assert(not (a :: BillboardGui).Enabled, "uigate: the tag should hide while a net holds the cat (#2099)")
+		legendary:SetAttribute("LockedBy", 0)
+		assert((a :: BillboardGui).Enabled, "uigate: the tag should come back when the cat bolts (#2099)")
+		plain:SetAttribute("PityCat", "Legendary")
+		assert(tagOf(plain), "uigate: PityCat set later should bring the tag (#2099)")
+		mythical:SetAttribute("PityCat", nil)
+		assert(tagOf(mythical) == nil, "uigate: the tag should go with the PityCat attribute (#2099)")
+		for _, model in { legendary, mythical, plain } do
+			model:Destroy()
+		end
+	end },
 	-- #2005 section 1 (Derek2: "with an exclamation mark to show its being caught"): a gold ! over a stray while its
 	-- NetDown is set, just above the catcher's trust bar; another stray without it has none, and it goes with NetDown
 	{ "CatchMark", function()

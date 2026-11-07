@@ -1455,6 +1455,16 @@ local SCENES = {
 			},
 		})
 		UI.dealer.open()
+		-- #2057: rarest first, Star Treat's row on top
+		local tops: { [string]: number } = {}
+		for _, d in game:GetService("Players").LocalPlayer.PlayerGui:GetDescendants() do
+			if d:IsA("Frame") and (d.Name == "star_treat" or d.Name == "sardines") and d.AbsoluteSize.Y > 40 then
+				tops[d.Name] = d.AbsolutePosition.Y
+			end
+		end
+		local star, sardines = tops.star_treat, tops.sardines
+		assert(star and sardines, "uigate: the dealer drew no Star Treat or Sardines row (#2057)")
+		assert(star < sardines, "uigate: the dealer lists Sardines above Star Treat, wants rarest first (#2057)")
 	end },
 	{ "Settings", function()
 		UI.open("Settings")

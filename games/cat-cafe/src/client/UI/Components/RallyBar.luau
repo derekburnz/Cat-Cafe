@@ -6,7 +6,8 @@
 --   RallyBar.new(props)   props.name names the track ("RallyBar" on the banner, where VFX's Effects/Rally sends
 --                         its "+1" pops); size is the track's (leave countWidth px past its end for the count),
 --                         marker each step's circle, numberSize the text under it
---   bar:set(view)         a RallyLogic view: the fill eases to it and the reached steps turn gold
+--   bar:set(view, slow?)  a RallyLogic view: the fill eases to it (slowly with `slow`, as the banner pops up to show
+--                         this player's new points, #2098) and the reached steps turn gold
 
 local Create = require(script.Parent.Create)
 local Outline = require(script.Parent.Outline)
@@ -31,7 +32,7 @@ export type Props = {
 
 export type RallyBar = {
 	frame: Frame,
-	set: (self: RallyBar, view: RallyLogic.View) -> (),
+	set: (self: RallyBar, view: RallyLogic.View, slow: boolean?) -> (),
 	destroy: (self: RallyBar) -> (),
 }
 
@@ -186,7 +187,7 @@ function RallyBar._marker(self: any, index: number, share: number): Marker
 	return marker
 end
 
-function RallyBar.set(self: any, view: RallyLogic.View)
+function RallyBar.set(self: any, view: RallyLogic.View, slow: boolean?)
 	local fill = math.clamp(view.fill, 0, 1)
 	if fill ~= self._fillTo then
 		-- a new lap empties the bar at once; points ease in
@@ -194,7 +195,11 @@ function RallyBar.set(self: any, view: RallyLogic.View)
 		if fill < self._fillTo then
 			fillFrame.Size = UDim2.fromScale(fill, 1)
 		else
-			Tween.to(fillFrame, Tween.FAST, { Size = UDim2.fromScale(fill, 1) })
+			Tween.to(
+				fillFrame,
+				if slow then Tween.RISE else Tween.FAST,
+				{ Size = UDim2.fromScale(fill, 1) }
+			)
 		end
 		self._fillTo = fill
 	end

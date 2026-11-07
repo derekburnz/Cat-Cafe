@@ -455,6 +455,16 @@ local function rallyState(fields)
 	return state
 end
 
+-- #2098: the Rally banner only pops up when this player scores: a state one point down, then `fields`, so the scene
+-- shows the banner up just after a catch (Scenes.close ends the Rally again, which puts it away).
+local function rallyScore(fields)
+	local before = table.clone(fields)
+	before.myPoints = (fields.myPoints or 1) - 1
+	UI.rally.update(rallyState(before))
+	UI.rally.update(rallyState(fields))
+	Scenes._rallyPeek = true
+end
+
 local function firstArea()
 	for _, area in Catalog.areas do
 		if area.tier <= 1 then
@@ -2572,7 +2582,9 @@ local SCENES = {
 	end },
 	-- F101: a Rescue Rally on its second lap, the bar past its first step, this player on 7 points
 	{ "RallyBanner", function()
-		UI.rally.update(rallyState({ lap = 2, points = 50, myPoints = 7 }))
+		rallyScore({ lap = 2, points = 50, myPoints = 7 })
+		local rallyGui = UIShim.playerGui:FindFirstChild("CatCafeRally")
+		assert(rallyGui and rallyGui.Enabled, "uigate: the Rally banner did not pop up when this player scored (#2098)")
 		-- #2078: "50 / 90" clear of the pictures, and 14, 27, 45, 68 and 90 under the steps, above "You: 7 points"
 		local track = UIShim.playerGui:FindFirstChild("RallyBar", true)
 		local mine = track and track.Parent and track.Parent:FindFirstChild("Mine")
@@ -2623,7 +2635,18 @@ local SCENES = {
 	end },
 	-- F101: this player's laps used up this weekend, the bar nearly full
 	{ "RallyBannerDone", function()
-		UI.rally.update(rallyState({ lap = 5, points = 85, myPoints = 12, lapsPaid = 4, lapsDone = true }))
+		rallyScore({ lap = 5, points = 85, myPoints = 12, lapsPaid = 4, lapsDone = true })
+	end },
+	-- #2098: a Rally running and nobody scoring here: the banner stays hidden
+	{ "RallyBannerHidden", function()
+		-- the Rally off first, so nothing from an earlier scene is waiting to pop up
+		UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = 0, myPoints = 7 }))
+		UI.rally.update(rallyState({ lap = 2, points = 50, myPoints = 7 }))
+		UI.rally.update(rallyState({ lap = 2, points = 52, myPoints = 7 })) -- someone else's points
+		Scenes._rallyPeek = true
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeRally")
+		assert(gui and gui:IsA("ScreenGui"), "uigate: no Rally banner built (#2098)")
+		assert(not gui.Enabled, "uigate: the Rally banner shows though this player has not scored (#2098)")
 	end },
 	-- F101: the Cat Cannon at night during a Rally: every card's "Rally: rescues x3" tag over its night cover
 	{ "RallyCannonNight", function()
@@ -2645,11 +2668,11 @@ local SCENES = {
 	{ "RallyBannerPotions", function()
 		local t = workspace:GetServerTimeNow()
 		UI.update({ buffs = { tip_potion = t + 492, swift_potion = t + 130, lucky_potion = t + 492 } })
-		UI.rally.update(rallyState({ points = 30, myPoints = 2 }))
+		rallyScore({ points = 30, myPoints = 2 })
 	end },
 	-- F101 (review S113): a rescue during a Rally: the banner steps aside, so the rescue bar's header is clear
 	{ "RallyRescue", function()
-		UI.rally.update(rallyState({ lap = 2, points = 50, myPoints = 7 }))
+		rallyScore({ lap = 2, points = 50, myPoints = 7 })
 		UI.rescue.show("gate_rescue", rescueChallenge())
 	end },
 	-- F101: Friday, 5 h 20 m before the Rally: the countdown under the clock and no banner
@@ -3076,6 +3099,10 @@ end
 
 function Scenes.close()
 	reel(false)
+	if Scenes._rallyPeek then
+		Scenes._rallyPeek = nil
+		UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = 0 })) -- #2098: the banner put away
+	end
 	if Scenes._rallyFace then
 		Scenes._rallyFace:Destroy() -- #2078's board face
 		Scenes._rallyFace = nil

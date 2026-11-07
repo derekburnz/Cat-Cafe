@@ -1,0 +1,40 @@
+# Temporary (Derek OK'd 2026-11-07): restore steps 1-4 from docs/save-safety.md on a throwaway key p_0 in the Studio-only
+# CatCafeProfiles_dev store, then delete it. Prints statuses, field names and counts only.
+name: save-drill-probe2
+on:
+  push:
+    branches: [tools/save-drill-probe2]
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      K: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+    steps:
+      - name: Drill
+        run: |
+          echo "::add-mask::$K"
+          U=10773193456; S=CatCafeProfiles_dev; KEY=p_0
+          base=https://apis.roblox.com/cloud/v2/universes/$U/data-stores/$S/entries
+          req() { m=$1; u=$2; d=${3:-}; if [ -n "$d" ]; then curl -sS -o /tmp/o.json -w '%{http_code}' -X "$m" -H "x-api-key: $K" -H "Content-Type: application/json" --data "$d" "$u"; else curl -sS -o /tmp/o.json -w '%{http_code}' -X "$m" -H "x-api-key: $K" "$u"; fi; }
+          shape() { jq -c 'if type=="object" then {keys:keys, err:(.code // null), msg:(.message // null)} else type end' /tmp/o.json 2>/dev/null || true; }
+          echo "create: $(req POST "$base?id=$KEY" '{"value":{"Data":{"version":1,"coins":5},"MetaData":{"ActiveSession":["x","y"],"ForceLoadSession":null}}}')"; shape
+          echo "update: $(req PATCH "$base/$KEY" '{"value":{"Data":{"version":1,"coins":9},"MetaData":{"ActiveSession":["x","y"],"ForceLoadSession":null}}}')"; shape
+          echo "step1 listRevisions: $(req GET "$base/$KEY:listRevisions?maxPageSize=50")"
+          jq -c '{keys:keys, revisions:((.dataStoreEntries // [])|length), first:((.dataStoreEntries // [])[0]|keys?)}' /tmp/o.json
+          rev=$(jq -r '.dataStoreEntries[-1].revisionId // empty' /tmp/o.json)
+          echo "oldest revisionId present: $([ -n "$rev" ] && echo yes || echo no)"
+          if [ -n "$rev" ]; then
+            echo "step2 get @rev: $(req GET "$base/$KEY@$rev")"; shape
+            jq -c '{valuekeys:(.value|keys?), coins:.value.Data.coins}' /tmp/o.json
+            cp /tmp/o.json /tmp/restore.json
+            jq '.value.MetaData.ActiveSession = null | .value.MetaData.ForceLoadSession = null' /tmp/restore.json > /tmp/clean.json
+            body=$(jq -c '{value: .value, users: .users}' /tmp/clean.json)
+            echo "step4 patch back: $(req PATCH "$base/$KEY" "$body")"; shape
+            jq -c '{revisionId_present:(.revisionId!=null), revisionCreateTime_present:(.revisionCreateTime!=null)}' /tmp/o.json
+            echo "get latest: $(req GET "$base/$KEY")"; jq -c '{coins:.value.Data.coins, session:.value.MetaData.ActiveSession}' /tmp/o.json
+          fi
+          echo "delete: $(req DELETE "$base/$KEY")"
+          echo "get after delete: $(req GET "$base/$KEY")"

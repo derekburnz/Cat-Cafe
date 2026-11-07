@@ -4,6 +4,9 @@
 # (src/server/Services/TradeVault.luau) reads both keys every Config.TradeFlagCheckSeconds (60 s):
 #   trading       false turns trading off everywhere; anything else (or no entry) leaves it on
 #   tradeMinTier  a number 0 to 99 is the live minimum cafe tier; anything else (or no entry) means Config.TradeMinTier
+# and LiveFlagService (src/shared/LiveFlags.luau) reads two more the same way, true or false, only false turns off:
+#   codes         false pauses code redeeming
+#   rally         false stops the Rescue Rally
 # Run by .github/workflows/flags.yml; also works from Git Bash on a PC with the same variables set.
 #
 #   ROBLOX_PUBLISH_KEY   Open Cloud API key that also has universe-datastores.objects:read, :create and :update on
@@ -13,9 +16,10 @@
 # Usage:  tools/opencloud/flags.sh show
 #         tools/opencloud/flags.sh set trading true|false
 #         tools/opencloud/flags.sh set tradeMinTier <0-99>
-#         tools/opencloud/flags.sh clear trading|tradeMinTier
-# clear writes the text "config", which TradeVault reads as unset (trading on, Config's minimum tier), so the key
-# needs no delete permission. Every change reads both keys back. Needs curl and jq (both on GitHub's ubuntu runners).
+#         tools/opencloud/flags.sh set codes|rally true|false
+#         tools/opencloud/flags.sh clear trading|tradeMinTier|codes|rally
+# clear writes the text "config" for trading and tradeMinTier, which TradeVault reads as unset (trading on, Config's
+# minimum tier), and true for codes and rally, so no key needs delete permission. Every change reads both keys back. Needs curl and jq (both on GitHub's ubuntu runners).
 set -euo pipefail
 
 UNIVERSE_ID=${UNIVERSE_ID:-10773193456}
@@ -24,7 +28,7 @@ STORE=CatCafe_Flags # TradeVault.FLAGS
 entries=https://apis.roblox.com/cloud/v2/universes/$UNIVERSE_ID/data-stores/$STORE/entries
 
 usage() {
-	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | clear trading|tradeMinTier" >&2
+	echo "usage: flags.sh show | set trading true|false | set tradeMinTier <0-99> | set codes|rally true|false | clear trading|tradeMinTier|codes|rally" >&2
 	exit 2
 }
 
@@ -72,6 +76,8 @@ show_key() {
 	trading)
 		if [ "$raw" = false ]; then meaning="trading OFF in every server"; else meaning="trading on"; fi
 		;;
+	codes) if [ "$raw" = false ]; then meaning="code redeeming PAUSED in every server"; else meaning="codes on"; fi ;;
+	rally) if [ "$raw" = false ]; then meaning="Rescue Rally OFF in every server"; else meaning="rally on"; fi ;;
 	tradeMinTier)
 		if [[ $raw =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
 			meaning="live minimum tier $(jq -n "[[$raw | floor, 0] | max, 99] | min")"
@@ -89,6 +95,8 @@ show() {
 	[ -z "${GITHUB_STEP_SUMMARY:-}" ] || echo "### $STORE" >>"$GITHUB_STEP_SUMMARY"
 	show_key trading
 	show_key tradeMinTier
+	show_key codes
+	show_key rally
 }
 
 # write key json-value
@@ -108,7 +116,7 @@ show)
 set)
 	[ $# -eq 3 ] || usage
 	case "$2" in
-	trading) [[ $3 == true || $3 == false ]] || usage ;;
+	trading | codes | rally) [[ $3 == true || $3 == false ]] || usage ;;
 	tradeMinTier) [[ $3 =~ ^[0-9]{1,2}$ ]] || usage ;;
 	*) usage ;;
 	esac
@@ -118,6 +126,7 @@ clear)
 	[ $# -eq 2 ] || usage
 	case "$2" in
 	trading | tradeMinTier) write "$2" '"config"' ;;
+	codes | rally) write "$2" true ;;
 	*) usage ;;
 	esac
 	;;

@@ -39,6 +39,7 @@
 --   D:Invoke("levelCat", nil, "<uid>", 1)    -- that cat one level up, as play would (Auto Equip may re-plan) (#2050)
 --   D:Invoke("placeCat", nil, "<uid>", "greeter_1")   -- PlaceCat as the client sends it; unplaceCat too (#2050)
 --   D:Invoke("autoEquipNow", nil, true)  -- Auto Equip runs now, the hand holds ended first (true); returns its state
+--   D:Invoke("equipValues", nil, "<uid>")  -- that cat's value on each open slot against the cat working there (#2050)
 --   D:Invoke("pitySpawn")              -- the sooner pity timer's cat spawns now; returns "<kind> <seq>: in <area>" (#2099)
 --   D:Invoke("cancelMinigames")       -- ends your rescue (Give up), your help on one, and your running catches
 --   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
@@ -75,6 +76,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DailyTreat = require(ReplicatedStorage.Shared.DailyTreat)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local FishMarketService = require(script.Parent.FishMarketService)
 local FreshCatch = require(ReplicatedStorage.Shared.FreshCatch)
 local Layout = require(script.Parent.Parent.World.Layout)
@@ -327,6 +329,50 @@ function Debug.autoEquipNow(player: (Player | number | string)?, clearHolds: boo
 		moved,
 		cafeLine(profileOf(p))
 	)
+end
+
+-- #2050: why Auto Equip does or doesn't put cat `uid` to work. For each open slot: the cat working there and its
+-- value (EquipBest.value: rating x 1.5 on its favorite role), then this cat's value there and the gain in percent.
+-- Auto Equip takes a swap only when the whole plan gains (EquipBest.AUTO_STAY, 5%), and never moves a locked
+-- working cat ("locked") or one placed by hand in the last AutoEquipHoldSeconds.
+function Debug.equipValues(player: (Player | number | string)?, uid: string): string
+	guard()
+	local profile = profileOf(resolve(player))
+	local cat = profile.cats[uid]
+	assert(cat ~= nil, "no cat with that uid")
+	local lines = {
+		string.format(
+			"%s %s L%d rating %.2f %s",
+			uid,
+			cat.catId,
+			CatStats.level(cat),
+			CatStats.rating(cat, profile.tier),
+			if cat.spotId ~= nil then "on " .. tostring(cat.spotId) else "resting"
+		),
+	}
+	for _, spot in EquipBest.openSpots(profile) do
+		local mine = EquipBest.value(cat, spot, profile.tier)
+		local holder = Economy.catOnSpot(profile, spot.id)
+		if holder == nil then
+			table.insert(lines, string.format("%s: empty vs %.2f", spot.id, mine))
+		else
+			local theirs = EquipBest.value(holder, spot, profile.tier)
+			table.insert(
+				lines,
+				string.format(
+					"%s: %s%s L%d %.2f vs %.2f (%+d%%)",
+					spot.id,
+					holder.uid,
+					if holder.locked == true then " locked" else "",
+					CatStats.level(holder),
+					theirs,
+					mine,
+					if theirs > 0 then math.floor((mine / theirs - 1) * 100 + 0.5) else 0
+				)
+			)
+		end
+	end
+	return table.concat(lines, "; ")
 end
 
 -- #2050: UnplaceCat(uid) as the client sends it. Returns cafeLine.

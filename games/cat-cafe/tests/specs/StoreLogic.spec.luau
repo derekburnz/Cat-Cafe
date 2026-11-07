@@ -575,6 +575,24 @@ return function()
 			local _, commas = string.gsub(row.effect, ",", "")
 			expect(commas).to.equal(5)
 		end)
+		it("shows the Second Bait Bowl on the Cats tab once its pass is made, priced once, and Owned when bought (#2010)", function()
+			expect(find(StoreLogic.rows({ SecondBowlPassId = 0 }, {}, nil, view), "secondBowl")).to.equal(nil)
+			local row = find(StoreLogic.rows({ SecondBowlPassId = 77 }, {}, nil, view), "secondBowl")
+			expect(row).to.be.ok()
+			expect(row.tab).to.equal("cats")
+			expect(row.passId).to.equal(77)
+			expect(row.owned).to.equal(false)
+			expect(string.find(row.effect, "two baits", 1, true)).to.be.ok()
+			local bought = find(StoreLogic.rows({ SecondBowlPassId = 77 }, { [77] = true }, nil, view), "secondBowl")
+			expect(bought.owned).to.equal(true)
+			local count = 0
+			for _, id in StoreLogic.passIds({ SecondBowlPassId = 77 }) do
+				if id == 77 then
+					count += 1
+				end
+			end
+			expect(count).to.equal(1)
+		end)
 	end)
 	describe("StoreLogic #1168 Thank You Badge and Sign Style Pack cards", function()
 		local function find(rows: { any }, key: string): any

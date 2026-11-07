@@ -33,3 +33,25 @@ Suggested follow-ups for Animation-Engineer and Gameplay-Engineer: bring the cat
 ends pass under the floor; tuck the sleeping head down and in so it clears the face.
 
 Limits: static edit-mode rigs with default blocky bodies; real avatars, the walk and the blend-in were not checked here.
+## Second check, after #1985 and #1986 (main at 9b998570)
+
+Same method. Cats: Tabby (Common), Calico (Rare), the Void; King Croissant left out (Derek 2026-11-07: too big as the
+carry placeholder). Sheet: `evidence/2026-11-07/carry-pose-sheet-v2-2026-11-07.png`. Same numbers for all three cats.
+
+| Check | R15 | R6 |
+| --- | --- | --- |
+| Arm parts overlapping the cat | none | none |
+| Cat floor vs torso middle | 0.39 below (was 0.19) | 0.16 above (was 0.40) |
+| Cat spans forward of torso | 0.50 to 1.67, middle 1.09 (was 1.34) | same |
+| Hands (R6: arm ends) forward of torso | 0.95 to 1.01 | 1.19 |
+| Cat surface straight above the hand centre | 0.32 (right), 0.59 (left) | 0.98 above the left arm end; nothing above the right |
+| Cat touches the head | no; about 0.8 studs clear | no; about 0.5 studs clear |
+
+Findings
+
+1. R15 passes: the hands now sit under the cat's middle (0.95 to 1.01 forward against a middle of 1.09), with a small gap
+   to its underside, and nothing clips.
+2. The tucked head clears the face on both rigs and the cats read as asleep, curled in the crook of the arms.
+3. R6 is better but not there: the arms rise on either side of the cat rather than under it, their tops a full stud
+   above its floor, and only the left arm's end has the cat above it. Lowering the R6 arms (`arms6`) or raising the hold
+   on R6 would put the arm ends under the cat.

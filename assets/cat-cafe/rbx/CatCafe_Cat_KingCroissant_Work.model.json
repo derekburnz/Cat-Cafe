@@ -4462,7 +4462,41 @@
      },
      "attributes": {
       "Rojo_Id": "CatCafe_Cat_KingCroissant_Work/6"
-     }
+     },
+     "children": [
+      {
+       "name": "Outfit_TailBow",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.5827,
+           0.5243
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Cat_KingCroissant_Work_Tail",

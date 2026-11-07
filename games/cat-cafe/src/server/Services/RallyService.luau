@@ -10,7 +10,8 @@
 -- While the Rally runs the Town Square shows its bunting and board (WorldBuilder.setRally). Analytics: rally_step
 -- (value the players in the server; the step's share, the lap, the players paid) and rally_points (value the
 -- player's points this Rally on this server; their laps paid), when the Rally ends or they leave.
--- Nothing here is sold for Robux, and nothing skips or speeds the bar.
+-- Nothing here is sold for Robux, and nothing skips or speeds the bar. #2119: the live switch `rally` (shared/LiveFlags)
+-- set false ends the Rally within a second of the server reading it; prizes already paid stay paid.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -19,6 +20,7 @@ local CafeService = require(script.Parent.CafeService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local Rally = require(ReplicatedStorage.Shared.Rally)
@@ -134,7 +136,8 @@ end
 
 -- Starts or ends the Rally as the clock (or RallyForce) says, and keeps its times; true when anything changed.
 local function update(now: number): boolean
-	local active = Rally.isActive(now, force())
+	-- #2119: the live switch `rally` set false ends a running Rally and keeps the next from starting
+	local active = Rally.isActive(now, force()) and LiveFlagService.on("rally")
 	local endsAt, startsAt = Rally.endsAt(now, force()), Rally.startsAt(now)
 	local moved = endsAt ~= bar.endsAt or startsAt ~= bar.startsAt
 	bar.endsAt, bar.startsAt = endsAt, startsAt

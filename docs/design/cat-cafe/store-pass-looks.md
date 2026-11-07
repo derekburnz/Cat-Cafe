@@ -27,6 +27,16 @@ A small gold plate with a paw on it, under the cafe name on the sign. It's a sep
 
 ## 6. Cat Accessories (#1624, agreed with Gameplay-Engineer 2026-11-05)
 - **One pick for the whole cafe**, like the uniform style, on the Style panel. Every working cat wears it. There are no per-cat picks; they'd be a chore with 12 slots.
-- **The pass gives two pieces:** Tiny Hat (`CatCafe_Accessory_Hat`, Head) and Round Glasses (`CatCafe_Accessory_Glasses`, Face). Cafe Pass pieces (cafe-pass.md §3) join the picker once earned, as looks only.
+- **The pass gives two pieces:** Tail Bow (`CatCafe_Accessory_TailBow`, Tail) and Round Glasses (`CatCafe_Accessory_Glasses`, Face). The Tail Bow replaced the Tiny Hat on 2026-11-07 (#2109, see 6a). Cafe Pass pieces (cafe-pass.md §3) join the picker once earned, as looks only.
 - **Slot rule** (data-model.md props): a Head piece replaces the role hat, a Back piece replaces the Cape, and a Face piece clashes with nothing. A cat whose own themed prop already fills that slot keeps its prop and skips the accessory.
 - **Money:** the +15% comes with the pass and applies to every working cat, whatever is picked, even "none" (economy-ladder.md §6a). The picker never changes income.
+
+### 6a. Tail Bow replaces the Tiny Hat (#2109, 2026-11-07)
+Derek2 asked for a piece that shows on every cat. A cat's own themed prop takes the Head slot on 65 of the 125 working cat models, so the Tiny Hat was skipped on about half the cafe. No existing slot is free on every cat. Derek2 also turned down letting accessories win over a cat's own prop.
+- **The piece:** a **Tail Bow**, a small satin ribbon tied near the tip of the tail. It's cafe rose pink with a cream edge (style guide palette), and it's sized so it reads at cafe camera distance without hiding the tail. Id `CatCafe_Accessory_TailBow`, slot **Tail**, a new slot that no themed prop uses, so it shows on every working cat. It isn't a collar, so it fits Derek's no-collars rule.
+- **Model-Agent:** builds the bow and adds an `Outfit_TailBow` attachment near the tail tip on every cat model, matching the game's `Outfit_<piece>` lookup. The bow follows the tail's pose, so it has no animation of its own and no Reduce Motion case.
+- **Slot rule:** the Tail slot clashes with nothing, like Face. If a future themed prop ever uses the Tail slot, the usual rule applies and the cat keeps its prop.
+- **Saved picks:** a saved pick of `hat` (the Tiny Hat) is read as `tail_bow` on load, so nobody is left with an empty or broken pick, and nothing is refunded or removed. The Tiny Hat leaves the picker. `CatCafe_Accessory_Hat` can stay in the asset folder unused.
+- **Store text:** any mention of "Tiny Hat" in the pass's store description becomes "Tail Bow" (Tools-Agent, `passes.json`). The pass's price, the +15% and Round Glasses don't change.
+- **Builders:** Gameplay-Engineer (Looks: the slot, the id and the `hat` to `tail_bow` read, with tests), Model-Agent (the bow and the attachments), Tools-Agent (store text), UI-Engineer (picker label and icon).
+- **QA:** with Tail Bow picked, every working cat in the cafe wears it, including cats with a Head or Back prop. An account that saved the Tiny Hat sees Tail Bow picked after rejoining. "None" removes it.

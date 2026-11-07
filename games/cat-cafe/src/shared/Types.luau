@@ -1021,7 +1021,15 @@ export type GrandOpeningState = {
 
 -- #1920 (first-hour.md 6): SessionRecap's numbers for this session: whole minutes played, cats new to the Index and
 -- coins earned since the join
-export type SessionRecapView = { minutes: number, newCats: number, earned: number }
+-- #2123 (first-hour.md 6a): shared/ReturnHook's pick, "bait", "treat" (with the Daily Treat `day`) or "quests"
+export type ReturnHookView = { kind: string, day: number? }
+-- #2123: `tomorrow` is the recap card's "Tomorrow" line (shared/ReturnHook, "recap")
+export type SessionRecapView = {
+	minutes: number,
+	newCats: number,
+	earned: number,
+	tomorrow: ReturnHookView?,
+}
 
 export type PlayerProfile = {
 	version: number,
@@ -1155,6 +1163,9 @@ export type PlayerState = {
 	-- #1936 (release.md section 3): seconds of play on the account when this state was sent (stats.playtimeSeconds
 	-- plus the session); the client counts on from its arrival for the store guard. nil from an older server
 	playSeconds: number?,
+	-- #2123 (first-hour.md 6a): the welcome back card's line, picked at this join from the save as it was left
+	-- (shared/ReturnHook, "join"); nil for none, and from an older server
+	returnHook: ReturnHookView?,
 	introSeen: boolean, -- F72: false plays the intro cutscene once this session's first sync carries a plot
 	potions: { [string]: number }, -- F64: potionId -> count in the bag
 	catFood: { [string]: number }, -- #1181: food id -> count in the Bag

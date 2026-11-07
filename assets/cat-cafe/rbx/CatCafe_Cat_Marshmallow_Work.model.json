@@ -3223,7 +3223,41 @@
      },
      "attributes": {
       "Rojo_Id": "CatCafe_Cat_Marshmallow_Work/6"
-     }
+     },
+     "children": [
+      {
+       "name": "Outfit_TailBow",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.4482,
+           0.4033
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ],
+           [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Cat_Marshmallow_Work_Tail",

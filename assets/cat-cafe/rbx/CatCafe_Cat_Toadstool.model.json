@@ -3378,7 +3378,41 @@
      },
      "attributes": {
       "Rojo_Id": "CatCafe_Cat_Toadstool/6"
-     }
+     },
+     "children": [
+      {
+       "name": "Outfit_TailBow",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0954,
+           0.2455
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.7071,
+            0.7071
+           ],
+           [
+            0.0,
+            -0.7071,
+            0.7071
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Cat_Toadstool_Tail",

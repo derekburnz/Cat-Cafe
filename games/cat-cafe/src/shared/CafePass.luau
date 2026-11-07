@@ -13,6 +13,7 @@
 -- its xp and claims belong to; `paidSeason` the season whose paid track was bought; `items` the paid track's named
 -- items owned forever (accessories, uniform colours, decor, the tag, the frame, the season cat), never reset.
 --   seasonAt(now, preview) -> (season, startsAt, endsAt?)
+--   saleOpen(now, endsAt?) -> boolean   (#2129: the paid track closes SALE_CLOSE_SECONDS before a season ends)
 --   levelOf(xp) -> level 0 to PassLevels
 --   roll(state, season) -> { Claim }          moves a save to `season`, returning the old season's reached, unclaimed
 --                                             rewards for the caller to pay (free always, paid if it was bought)
@@ -97,6 +98,16 @@ function CafePass.seasonAt(now: number, preview: boolean?): (number, number, num
 		return 0, 0, starts[1]
 	end
 	return season, starts[season], starts[season + 1]
+end
+
+-- #2129: the paid track stops being offered this long before a season ends, so a Robux prompt opened near the end
+-- cannot be paid after the season changed and land on the next season's track. A receipt that still arrives later is
+-- granted as before (ProductService); this only closes the buy buttons. Never closes while no later season is set.
+CafePass.SALE_CLOSE_SECONDS = 600
+
+-- Whether the paid track may be offered at `now` (os.time()) in a season that ends at `endsAt` (nil: no end set).
+function CafePass.saleOpen(now: number, endsAt: number?): boolean
+	return endsAt == nil or now < endsAt - CafePass.SALE_CLOSE_SECONDS
 end
 
 -- The reward tables of season `season` (wrapping round Catalog.passSeasons), or nil for season 0.

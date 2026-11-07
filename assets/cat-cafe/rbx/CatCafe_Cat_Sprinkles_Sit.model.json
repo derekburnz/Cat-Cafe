@@ -3885,7 +3885,41 @@
      },
      "attributes": {
       "Rojo_Id": "CatCafe_Cat_Sprinkles_Sit/6"
-     }
+     },
+     "children": [
+      {
+       "name": "Outfit_TailBow",
+       "className": "Attachment",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0048,
+           -0.0146
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       }
+      }
+     ]
     },
     {
      "name": "CatCafe_Cat_Sprinkles_Sit_Tail",

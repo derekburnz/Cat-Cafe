@@ -9,7 +9,8 @@
 --   establish  a high wide shot down the Alleyway that sinks toward Rocker Cat
 --   approach   the player runs down the lane to the cat (Humanoid:MoveTo; the player's own controls are off)
 --   swing      the real net smack (Moments.NetSmackPress and SwingNet, as the Net button sends), then each catch
---              circle pressed at its exact time (CatchPress), so the catch succeeds; the edit cuts the circles out
+--              circle pressed at its exact time (CatchPress) and each paw ring left alone, so the catch succeeds;
+--              the edit cuts the circles out
 --   caught     the player shows the cat in the carry, then turns for home
 --   run1..3    the run home at the catch's getaway speed, with one shover diving at it each time and missing as it
 --              cuts away: local copies of the server's catalog-outfit characters, tagged StagedCharacter with
@@ -521,6 +522,10 @@ Net.on("CatchSchedule", function(strayId: unknown, circles: unknown)
 	end
 	schedule = strayId
 	for index, circle in circles :: { any } do
+		-- catch v3 (#1884): a paw ring is left alone (tapping it is a Miss); each half of a double is its own circle
+		if circle.kind == "paw" then
+			continue
+		end
 		local target = (circle.startsAt :: number) + (circle.shrinkSeconds :: number)
 		task.delay(math.max(0, target - Workspace:GetServerTimeNow()), function()
 			Net.fire("CatchPress", strayId, index)

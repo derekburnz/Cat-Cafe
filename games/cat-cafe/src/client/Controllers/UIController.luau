@@ -1326,7 +1326,10 @@ local function quiet(): boolean
 		return false
 	end
 	local tips: any = (UI :: any).tips
-	return tips == nil or type(tips.quiet) ~= "function" or tips.quiet() == true
+	if tips == nil or type(tips.quiet) ~= "function" then
+		return true
+	end
+	return (tips.quiet :: () -> unknown)() == true
 end
 
 local function trackBusy()

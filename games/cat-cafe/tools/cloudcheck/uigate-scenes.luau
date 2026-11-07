@@ -2252,6 +2252,24 @@ local SCENES = {
 		end
 		local gold = list:FindFirstChild("gate_feed_3"):FindFirstChild("CatName")
 		assert(string.sub(gold.Text, 1, 5) == "Gold ", "uigate: the gold cat's card reads " .. gold.Text .. " (#1773)")
+		-- #2196 (playtester Tyrell: "going into the feed menu lags his game"): a state update and the once a second
+		-- refresh keep every card (and its 3D head); a cat that gained XP gets a new card, the others stay
+		local before: { [string]: Instance } = {}
+		for index = 1, 4 do
+			before[index] = list:FindFirstChild("gate_feed_" .. index)
+		end
+		UI.update({ money = 123456 })
+		UIShim.advance(1.1)
+		for index = 1, 4 do
+			assert(list:FindFirstChild("gate_feed_" .. index) == before[index], "uigate: cat card " .. index .. " was made again on a refresh with nothing new (#2196)")
+		end
+		local fed = table.clone(cats)
+		fed.gate_feed_2 = table.clone(cats.gate_feed_2)
+		fed.gate_feed_2.xp = 32
+		UI.update({ cats = fed } :: any)
+		local card2 = list:FindFirstChild("gate_feed_2")
+		assert(card2 and card2 ~= before[2], "uigate: the fed cat's card kept its old XP (#2196)")
+		assert(list:FindFirstChild("gate_feed_1") == before[1], "uigate: feeding one cat made another's card again (#2196)")
 	end },
 	{ "Quests", function()
 		UI.open("Quests")

@@ -59,6 +59,38 @@ function Crates.styleLook(decorId: string?, kind: Types.DecorKind): (Color3?, En
 	return def.color, def.material
 end
 
+export type PartLook = { color: Color3, material: Enum.Material }
+
+-- #2106: what a styled part shows for the slot's `decorId`: the style's colour (and its material, else the part's
+-- own) while one is in use, and the part's `own` look as soon as none is (a removed paint puts the default back).
+-- `styled` says which, so StyleController keeps or drops the part's own look.
+function Crates.partLook(
+	decorId: string?,
+	kind: Types.DecorKind,
+	own: PartLook
+): { color: Color3, material: Enum.Material, styled: boolean }
+	local color, material = Crates.styleLook(decorId, kind)
+	if color == nil then
+		return { color = own.color, material = own.material, styled = false }
+	end
+	return { color = color, material = material or own.material, styled = true }
+end
+
+-- The Enum.Material named `name` (a part's kept StyleOwnMaterial attribute), or nil.
+function Crates.materialNamed(name: unknown): Enum.Material?
+	if type(name) ~= "string" then
+		return nil
+	end
+	local enums: any = Enum
+	local ok, item = pcall(function(): unknown
+		return enums.Material[name]
+	end)
+	if ok and item ~= nil and (item :: any).EnumType == enums.Material then
+		return item :: any
+	end
+	return nil
+end
+
 -- Furniture and decorations: each in use takes a decor spot.
 function Crates.takesSpot(def: Types.DecorDef): boolean
 	return def.kind == "furniture" or def.kind == "decoration"

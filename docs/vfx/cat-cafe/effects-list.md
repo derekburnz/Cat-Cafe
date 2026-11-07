@@ -969,3 +969,14 @@ Design: `docs/design/cat-cafe/catch-rework.md` section 7 (#1890). Derek2 picked 
 | Finish | 0.6 s after the result (the net wraps and wobbles twice, Animation-Engineer's), the catch pops. PURRFECT! is the gold Purrfect burst with its ring, confetti and beam. GREAT! and NICE! get the rarity pop plus confetti in mint, or in cream. The banner gets its screen burst (gold, mint or cream) | `CatchResult`'s sixth argument `{ trust, trustNeed, finish, streak }`: `finish` ("purrfect", "great", "nice"; "bolt" plays the hiss as now) and UI-Engineer's `FinishBanner` |
 
 Until the server sends `finish`, the v2 catch plays exactly as before (`Logic.catchWord`). Reduce Motion: no rings, no hit-stop, the screen sparkles halved and confetti at 40%. Low performance: the budget's smaller bursts and confetti. The cases are in `docs/vfx/cat-cafe/specs/EffectsCatchV3.spec.luau`. Studio checks, once Gameplay's trust PR is in: catch a Common with three Perfects, and each ring pops gold with a tiny hold, then PURRFECT! bursts gold after the wobble. One Good and two Perfects give GREAT! in mint. A Miss that doesn't bolt shows a grey puff. With Reduce Motion there are no rings and no hold. No new console errors.
+
+## Grand Opening ribbon cut (#1922, 2026-11-06)
+
+Design: first-hour.md section 1d (#1893). Model-Agent's ribbon set is #1928; Gameplay-Engineer's roadmap is #1915, with the `RoadmapStep(n)` remote. Files: `Effects/GrandOpening.luau`, `Logic.easeOutBack`, numbers in `Presets.grandOpening`.
+
+| Effect | Look | Hook |
+|---|---|---|
+| Ribbon snap | The red ribbon across your cafe front snaps at step 8. Each half swings 60° down about its brass rosette with a small bounce (0.45 s), then drops 1.5 studs as it fades (0.7 s). Confetti in the bunting's pastels with a scrap of ribbon red, and 10 gold sparkles, burst from the knot. Only the owner sees the snap; it plays on a local copy, so it doesn't matter when the server swaps the ribbon for the bunting | `RoadmapStep(8)`; your plot's `CatCafe_Plot_GrandOpeningRibbon` with `_RibbonL` and `_RibbonR` |
+| Balloon bob | The two balloon clusters by the door rock a few degrees about their ties, the left and right out of step. On every cafe that has the bunting, the nearest 4 clusters within 120 studs | `CatCafe_Plot_GrandOpeningBunting`'s `_LeftBalloons` and `_RightBalloons` |
+
+Reduce Motion: the halves only fade (no swing or drop), the confetti is 40%, and the balloons hold still. Low performance: the halves only fade, the budget's smaller confetti, and the balloons hold still (first-hour.md: the wobble is skipped on low settings). The cases are in `docs/vfx/cat-cafe/specs/EffectsGrandOpening.spec.luau`. Studio checks, once #1915 and #1928 are in: finish step 8 and the ribbon snaps and fades with confetti as the banner shows, then the bunting's balloons bob. With Low performance on, the ribbon just fades and the balloons are still. No new console errors.

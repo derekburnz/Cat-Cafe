@@ -92,3 +92,5 @@ Hooks 1, 2 and 4 are wired (PR #66) and the moments too (PR #91). Every effect a
 - The server never plays sounds, and this module never fires remotes or changes game state.
 
 Catch v3 (#1884): the remote `CatchJudged`'s trust and the moment `CatchTrust(trust, need)` (a purr that rises in pitch with trust, stopped by CatchSuccess/CatchFail), `PawSwat(strayId)`, `NetWobble` and `NetPop` play `pawSwat`, `netWobble` and `netPop` from the `sheetCatch3` sheet. `CatchResult`'s sixth argument (`{ trust, trustNeed, finish, streak }`, or the finish string) with `finish` "great" or "nice" picks `wordGreat` or `wordNice`; PURRFECT keeps `purrfectChime` and a bolt `catchMiss`. Ticks and hiss are the existing `circle*` and `catHiss` cues.
+
+Jukebox Shuffle (#2077): `Audio.setJukeboxShuffle(cues)` plays the given Jukebox track cues that have a file in random order (never the same twice in a row, the next starting as a song ends), in place of the pick and the rotation; the tutorial song still comes first. `nil` goes back to `setJukebox`'s pick or the rotation.

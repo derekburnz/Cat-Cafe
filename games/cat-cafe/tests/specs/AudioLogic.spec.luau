@@ -1013,6 +1013,19 @@ return function()
 			expect(Cues.shiftChime ~= nil and Cues.shiftChime.volume <= 0.35).to.equal(true)
 		end)
 
+		it("shuffles only the Jukebox songs that have a file, and spots an unchanged list", function()
+			local has = function(cueId: string)
+				return cueId == "a" or cueId == "b"
+			end
+			expect(Logic.shuffleSongs({ "a", "x", "b", "a" }, has) :: any).to.deepEqual({ "a", "b" })
+			expect(#Logic.shuffleSongs({ "x" }, has)).to.equal(0)
+			expect(#Logic.shuffleSongs(nil, has)).to.equal(0)
+			expect(Logic.nextSong({ "a", "b" }, "a", 0.1)).to.equal("b")
+			expect(Logic.sameList({ "a", "b" }, { "a", "b" })).to.equal(true)
+			expect(Logic.sameList({ "a", "b" }, { "b", "a" })).to.equal(false)
+			expect(Logic.sameList(nil, nil)).to.equal(true)
+			expect(Logic.sameList({ "a" }, nil)).to.equal(false)
+		end)
 		it("plays a Jukebox Pass pick in place of the rotation once its cue has a file", function()
 			local function has(cueId: string): boolean
 				return cueId == "musicJukeboxRainyWindow"

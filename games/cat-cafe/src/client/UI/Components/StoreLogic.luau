@@ -597,7 +597,9 @@ end
 -- price: #1759, the not-owned badge's line under its pill, "Only R$5" (nil once owned or with no price yet)
 -- quiet: #1936 (release.md section 3), the first 30 minutes of play: a plain "x2" with no price that holds still, and
 -- a tap still opens the Store
-export type MoneyBadge = { text: string, owned: boolean, price: string?, quiet: boolean? }
+-- id: #2353 (Derek2 11-07: "just prompt them to buy it for robux not open shop"), the 2x pass a tap on the X2 Cash
+-- pill buys straight away; nil while owned or quiet, so those taps work as before
+export type MoneyBadge = { text: string, owned: boolean, price: string?, quiet: boolean?, id: number? }
 function StoreLogic.moneyBadge(
 	config: any,
 	owned: { [number]: boolean },
@@ -629,6 +631,7 @@ function StoreLogic.moneyBadge(
 			text = ("X%d Cash"):format(first.multiplier),
 			owned = false,
 			price = if price.robux ~= nil then ("Only R$%d"):format(price.robux :: number) else nil,
+			id = first.id,
 		}
 	end
 	return nil

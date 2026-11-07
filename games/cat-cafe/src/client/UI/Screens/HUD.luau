@@ -90,6 +90,8 @@ export type Callbacks = {
 	openScreen: (name: Types.ScreenName) -> (),
 	travel: (destination: string) -> (), -- "home" or an AreaId
 	openBait: () -> (), -- the left menu's bowl tile opens the bait bowl screen, or the cat waiting at the bowl
+	-- #2353: the X2 Cash pill's tap opens Roblox's purchase window for this pass (nil: it opens the Store instead)
+	buyPass: ((id: number) -> ())?,
 	openIndex: () -> (), -- the Index on its cat pages, or closes it
 	equipBest: () -> (),
 	dropCat: () -> (), -- the carry banner's Drop button
@@ -147,8 +149,8 @@ export type HUD = {
 	setVisible: (self: HUD, visible: boolean) -> (),
 	setMoneyBadge: (
 		self: HUD,
-		badge: { text: string, owned: boolean, price: string?, quiet: boolean? }?
-	) -> (), -- #1606, #1759, #1936
+		badge: { text: string, owned: boolean, price: string?, quiet: boolean?, id: number? }?
+	) -> (), -- #1606, #1759, #1936, #2353
 	-- F92: the pals on the server (PalsChanged), for the chip and the boosts card
 	setPals: (self: HUD, userIds: { number }) -> (),
 	-- F92: "Sam is in the Park" over the travel button to that area, glowing; nil text takes it away
@@ -650,13 +652,19 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._moneyPrice = price
 	self._moneyBadge = badge
 	self._moneyBadgeOwned = false
+	self._moneyBadgeId = nil :: number?
 	table.insert(
 		self._connections,
 		badge.Activated:Connect(function()
+			local passId: number? = self._moneyBadgeId
+			local buy = self._callbacks.buyPass
 			if self._moneyBadgeOwned then
 				self:_toggleBoosts()
+			elseif passId ~= nil and buy ~= nil then
+				-- #2353: the X2 Cash pill buys the pass right here; the Store's own card stays for players who browse
+				buy(passId)
 			else
-				-- #1888: the money badge's "Get 2x" is a nudge into the Store
+				-- #1888: the money badge's "Get 2x" is a nudge into the Store (the quiet first 30 minutes, #1936)
 				StoreFunnel.noteSource("nudge")
 				self._callbacks.openScreen("Store")
 			end
@@ -3269,9 +3277,10 @@ end
 -- hidden with nil. #1936: a quiet badge (the first 30 minutes of play) has no price line and does not pulse.
 function HUD.setMoneyBadge(
 	self: any,
-	badge: { text: string, owned: boolean, price: string?, quiet: boolean? }?
+	badge: { text: string, owned: boolean, price: string?, quiet: boolean?, id: number? }?
 )
 	local button: TextButton = self._moneyBadge
+	self._moneyBadgeId = if badge ~= nil and not badge.owned then badge.id else nil
 	-- #1962: an owned multiplier shows as the side chip, not beside the money
 	local chip: TextButton = self._cashChip
 	local owned = badge ~= nil and badge.owned

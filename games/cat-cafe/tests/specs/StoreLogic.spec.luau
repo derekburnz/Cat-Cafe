@@ -56,6 +56,13 @@ return function()
 			expect(StoreLogic.moneyBadge(CONFIG, { [200] = true }, onSale).price).to.equal(nil)
 		end)
 
+		it("gives the X2 Cash pill the 2x pass id to buy, never while owned or quiet (#2353)", function()
+			expect(StoreLogic.moneyBadge(CONFIG, {}, onSale).id).to.equal(200)
+			expect(StoreLogic.moneyBadge(CONFIG, { [200] = true }, onSale).id).to.equal(nil)
+			expect(StoreLogic.moneyBadge(CONFIG, {}, onSale, 2).id).to.equal(nil)
+			expect(StoreLogic.moneyBadge(CONFIG, {}, onSale, nil, true).id).to.equal(nil)
+		end)
+
 		it("says a plain x2 with no price in the first 30 minutes, and owned stays owned (#1936)", function()
 			local badge = StoreLogic.moneyBadge(CONFIG, {}, onSale, nil, true)
 			expect(badge.text).to.equal("x2")

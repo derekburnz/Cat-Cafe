@@ -914,6 +914,21 @@ local SCENES = {
 	{ "Cats", function()
 		UI.open("Cats")
 	end },
+	-- #1955 (auto-equip.md): the Auto Equip switch at the crew strip's right end, over Equip Best, gold while on; it
+	-- shows once the server saves settings.autoEquip
+	{ "CatsAutoEquip", function()
+		local before = (UI.getState() :: any).settings
+		local settings = table.clone(before or {})
+		settings.autoEquip = true
+		Scenes._settings = before -- Scenes.close puts the settings back
+		UI.update({ settings = settings } :: any)
+		UI.open("Cats")
+		local SettingsList = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.SettingsList")
+		if SettingsList.isKey(SettingsList.AUTO_EQUIP_KEY) then
+			local switch = UIShim.playerGui:FindFirstChild("AutoEquip", true)
+			assert(switch and switch.Visible, "uigate: no Auto Equip switch in the Cats window (#1955)")
+		end
+	end },
 	{ "CatsPicked", function()
 		UI.open("Cats")
 		-- the cards build on the next frame; the gold cat, level 13, at work: favourite or Likes, Gold and level chips
@@ -2773,6 +2788,10 @@ function Scenes.close()
 	reel(false)
 	if UI.recap.card and UI.recap.card:isShowing() then
 		UI.recap.card:hide() -- #1920
+	end
+	if Scenes._settings then
+		UI.update({ settings = Scenes._settings } :: any) -- #1955's Auto Equip scene
+		Scenes._settings = nil
 	end
 	if UI.gift.card and UI.gift.card:isShowing() then
 		UI.gift.card:hide() -- #1947

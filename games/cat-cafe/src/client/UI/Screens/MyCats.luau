@@ -19,6 +19,7 @@ export type Callbacks = {
 	feedCat: ((foodId: string, uid: string) -> ())?, -- #1181: the Feed button on the cat's detail
 	equipBest: () -> (),
 	unequipAll: () -> (),
+	setAutoEquip: ((on: boolean) -> ())?, -- #1955: the Auto Equip switch over Equip Best
 	close: () -> (),
 }
 
@@ -58,6 +59,7 @@ function MyCats.new(callbacks: Callbacks): MyCats
 		feedCat = callbacks.feedCat,
 		equipBest = callbacks.equipBest,
 		unequipAll = callbacks.unequipAll,
+		setAutoEquip = callbacks.setAutoEquip,
 	})
 
 	return self :: MyCats

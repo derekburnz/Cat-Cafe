@@ -868,6 +868,9 @@ function UI.init(config: Types.InitConfig)
 		unequipAll = function()
 			UI.events.unequipAll:Fire()
 		end,
+		setAutoEquip = function(on: boolean)
+			UI.events.setSetting:Fire("autoEquip", on) -- #1955
+		end,
 		close = closeModal,
 	})
 	rankUpScreen = RankUp.new({
@@ -6457,6 +6460,29 @@ function UI.gift.show(kind: any, paid: any)
 			UI.gift.watching = false
 		end)
 	end
+end
+
+-- #1955 (auto-equip.md): UIController's hook for AutoEquipped(swaps). The first swap starts a short wait; every swap
+-- in the next AutoEquipToast.MERGE_SECONDS joins it, then one toast names the cat or counts them.
+UI.autoEquip = { pending = {} :: { any }, waiting = false }
+
+function UI.autoEquip.swapped(raw: any)
+	local AutoEquipToast = require(script.Components.AutoEquipToast)
+	for _, swap in AutoEquipToast.clean(raw) do
+		table.insert(UI.autoEquip.pending, swap)
+	end
+	if UI.autoEquip.waiting or #UI.autoEquip.pending == 0 then
+		return
+	end
+	UI.autoEquip.waiting = true
+	task.delay(AutoEquipToast.MERGE_SECONDS, function()
+		UI.autoEquip.waiting = false
+		local text = AutoEquipToast.text(UI.autoEquip.pending, Format.money)
+		table.clear(UI.autoEquip.pending)
+		if text then
+			UI.toast(text, "good")
+		end
+	end)
 end
 
 return UI

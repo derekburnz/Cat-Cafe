@@ -1131,6 +1131,7 @@ local SCENES = {
 	end },
 	{ "RankUpTier2", function()
 		-- #2121: the Tier 1 card lists all five upgrade caps now Bait Bowl 3 opens at Tier 2; the line still fits
+		Scenes._rankTier = (UI.getState() :: any).tier -- Scenes.close puts the sample tier back
 		UI.update({ tier = 1 } :: any)
 		UI.open("RankUp")
 		local found = false
@@ -3413,6 +3414,10 @@ function Scenes.close()
 	if Scenes._decorOwned ~= nil then
 		UI.update({ decorOwned = Scenes._decorOwned } :: any) -- #2053's rarity tint scene
 		Scenes._decorOwned = nil
+	end
+	if Scenes._rankTier ~= nil then
+		UI.update({ tier = Scenes._rankTier } :: any) -- #2121's Tier 2 rank-up scene
+		Scenes._rankTier = nil
 	end
 	if Scenes._crew then
 		UI.update(Scenes._crew :: any) -- #2047's extra slots scene: the sample cats, tier and no extra slots back

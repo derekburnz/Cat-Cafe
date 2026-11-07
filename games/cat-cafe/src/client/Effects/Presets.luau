@@ -3704,6 +3704,29 @@ Presets.pity = {
 		ring = 4,
 		ringSeconds = 0.5,
 	},
+	-- The lasting mark under a pity stray while it is out (#2099, luck-and-rare-moments.md 1j): a soft ring on the
+	-- floor `ring` times the cat's width across (at least `minDiameter`), its stroke `stroke` studs wide, breathing
+	-- from `breath[1]` to `breath[2]` of its size over `breathSeconds` and back; still with Reduce Motion or Low
+	-- performance. One small sparkle puff of `sparkles` every `sparkleEvery` s, `sparkleLift` up (none with either).
+	-- Drawn within `within` studs.
+	mark = {
+		within = 150,
+		ring = 1.6,
+		minDiameter = 3.5,
+		stroke = 0.3,
+		halo = 0.5,
+		transparency = 0.15,
+		haloTransparency = 0.7,
+		pixelsPerStud = 32,
+		lift = 0.06,
+		breath = { 0.9, 1 },
+		breathSeconds = 2,
+		sparkleEvery = 1.5,
+		sparkles = 1,
+		sparkleLift = 1.2,
+		legendary = Presets.palette.golden,
+		mythical = Presets.palette.aurora,
+	},
 }
 
 -- Catch v3 (catch-rework.md section 7, #1892; Logic.catchReact, Logic.netWrap, Logic.moodLayer, Effects/CatchReact):

@@ -4,6 +4,7 @@
 return function()
 	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 	local Catalog = require(Shared.Catalog)
+	local Economy = require(Shared.Economy)
 	local ChatTags = require(Shared.ChatTags)
 	local GrandOpening = require(Shared.GrandOpening)
 	local Potions = require(Shared.Potions)
@@ -64,34 +65,44 @@ return function()
 			expect(GrandOpening.met(profile, 5)).to.equal(false)
 			collect(profile, 1, "park")
 			expect(GrandOpening.met(profile, 5)).to.equal(true)
-			collect(profile, 10)
+			collect(profile, 11 - Economy.distinctCats(profile)) -- 11 different cats, the starter's id among them
+			expect(Economy.distinctCats(profile)).to.equal(11)
+			expect(GrandOpening.met(profile, 7)).to.equal(false)
+			collect(profile, 1) -- 12, Tier 3's need
 			expect(GrandOpening.met(profile, 7)).to.equal(true)
 			profile.tier = 3
 			expect(GrandOpening.met(profile, 8)).to.equal(true)
 		end)
 
-		it("a full cafe is every open role slot with a cat on it", function()
+		it("a full cafe is every open role slot with a cat on it, at Tier 2 or above", function()
 			local profile = fresh()
-			local open = Catalog.openSlotCount(1, 0)
-			expect(open >= 1).to.equal(true)
-			-- the starter is on barista_1; fill the rest of Tier 1's slots with copies of it
-			local filled = 0
-			for index, spot in Catalog.allSpots do
-				if index > open then
-					break
-				end
-				local cat: any = table.clone(profile.cats[next(profile.cats)])
-				cat.uid = "c" .. index
-				cat.spotId = spot.id
-				profile.cats[cat.uid] = cat
-				filled += 1
-				if filled < open then
-					expect(GrandOpening.met(profile, 6)).to.equal(false)
+			-- fill the first `open` slots with copies of the starter (it is on barista_1)
+			local function fill(open: number, check: boolean)
+				local filled = 0
+				for index, spot in Catalog.allSpots do
+					if index > open then
+						break
+					end
+					local cat: any = table.clone(profile.cats[next(profile.cats)])
+					cat.uid = "c" .. index
+					cat.spotId = spot.id
+					profile.cats[cat.uid] = cat
+					filled += 1
+					if check and filled < open then
+						expect(GrandOpening.met(profile, 6)).to.equal(false)
+					end
 				end
 			end
-			expect(GrandOpening.met(profile, 6)).to.equal(true)
-			profile.tier = 2 -- Tier 2 opens more slots, so the cafe is no longer full
+			fill(Catalog.openSlotCount(1, 0), false)
+			expect(GrandOpening.met(profile, 6)).to.equal(false) -- a full Tier 1 cafe does not count
+			profile.tier = 2
+			local open = Catalog.openSlotCount(2, 0)
+			expect(open > Catalog.openSlotCount(1, 0)).to.equal(true)
 			expect(GrandOpening.met(profile, 6)).to.equal(false)
+			fill(open, true)
+			expect(GrandOpening.met(profile, 6)).to.equal(true)
+			profile.tier = 3 -- Tier 3 opens more slots, so the cafe is no longer full
+			expect(GrandOpening.met(profile, 6)).to.equal(open == Catalog.openSlotCount(3, 0))
 		end)
 	end)
 

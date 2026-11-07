@@ -35,8 +35,8 @@ GrandOpening.STEPS = {
 		name = "Catch a cat in the Park",
 		prize = { potions = { [Potions.SWIFT] = 1 } },
 	},
-	{ id = "full_cafe", name = "A full cafe", prize = { spins = 1 } },
-	{ id = "ten_cats", name = "Ten different cats", prize = { fish = 10 } },
+	{ id = "full_cafe", name = "A full Tier 2 cafe", prize = { spins = 1 } },
+	{ id = "twelve_cats", name = "Twelve different cats", prize = { fish = 10 } },
 	{
 		id = "grand_opening",
 		name = "Grand Opening! Rank up to Tier 3",
@@ -107,8 +107,12 @@ local function ownsParkCat(profile: Types.PlayerProfile): boolean
 	return false
 end
 
--- Every role slot the tier (and any extra slot) opens has a cat on it.
+-- Every role slot the tier (and any extra slot) opens has a cat on it, at Tier 2 or above (Design on #1896: Tier 1's
+-- few slots fill right after the tutorial, so the step waited for nothing).
 local function fullCafe(profile: Types.PlayerProfile): boolean
+	if Economy.tier(profile) < 2 then
+		return false
+	end
 	local open = Catalog.openSlotCount(Economy.tier(profile), Economy.extraSlots(profile))
 	if open <= 0 then
 		return false
@@ -138,7 +142,7 @@ function GrandOpening.met(profile: Types.PlayerProfile, n: number): boolean
 	elseif n == 6 then
 		return fullCafe(profile)
 	elseif n == 7 then
-		return Economy.distinctCats(profile) >= 10
+		return Economy.distinctCats(profile) >= 12 -- Tier 3's own need (Catalog's distinctCats)
 	elseif n == 8 then
 		return Economy.tier(profile) >= 3
 	end

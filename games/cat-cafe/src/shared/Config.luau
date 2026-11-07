@@ -51,6 +51,11 @@ local Config = {
 	CafeStyleRichRate = 0.25,
 	GrandRichRate = 1.0,
 	GrandExtraSlots = 1, -- #1624: Grand Cafe's +1 job slot at every tier, adding to each Extra Slot pass's 1
+	-- #1955 (auto-equip.md): Auto Equip (settings.autoEquip) runs Equip Best by itself at most once every
+	-- AutoEquipEverySeconds a player (runs asked for in between are merged), never moving a cat placed or rested by hand
+	-- in the last AutoEquipHoldSeconds
+	AutoEquipEverySeconds = 3,
+	AutoEquipHoldSeconds = 600,
 	-- Developer product ids (#1182) by Catalog.products id; a 0 is never granted. ProductService's ProcessReceipt reads
 	-- them. Tools-Agent made these with dev-products.yml on 2026-11-04 (tools/opencloud/products.json), off sale until
 	-- launch. The Starter Bundle (3728336166) and Cafe Pass (3728336202) products were made the same way.
@@ -278,6 +283,11 @@ local Config = {
 	LuckyDayWaveLuck = 2,
 	LuckyDayPlayerLuck = 0.5,
 	LuckyDayWarnSeconds = 15,
+	-- #1974 (release.md section 4, the Saturday drops): a Lucky, Golden or Rainbow Day forced on for every global day
+	-- whose sunrise falls in [from, to), UTC unix seconds, on every server; the random roll still runs for the other
+	-- kinds, and the day after rolls as usual. Empty until a drop: each week's PR adds its row, e.g.
+	-- { kind = "lucky", from = 1795219200, to = 1795305600 } for Sat 2026-11-21 UTC.
+	ForcedDays = {} :: { { kind: string, from: number, to: number } },
 	-- #1572 (luck-and-rare-moments.md 1h): the global pity cat (shared/Pity). A slot every PityLegendarySeconds from
 	-- ClockEpoch, every PityMythicalEvery-th a Mythical one; its area by PityAreaWeights (by area id), and the first
 	-- catch anywhere claims it in MemoryStore, tried PityClaimRetries times before the catcher keeps it anyway.

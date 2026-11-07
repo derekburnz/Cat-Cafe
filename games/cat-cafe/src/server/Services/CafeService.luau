@@ -72,6 +72,20 @@ local PLAIN_FLAP = "CatCafe_CatFlap_Plain" -- the cafe's own cat flap alone, for
 local carrying: { [Player]: string? } = {} -- catId while walking a caught stray home
 -- Each player's cat levels at their last sync (v0.12 F75), so a level gained in any settle sends one CatLevelUp
 local knownLevels: { [Player]: { [string]: number } } = {}
+-- #1955 (auto-equip.md): when each cat was placed or rested by hand (os.clock()), so Auto Equip leaves it there for
+-- Config.AutoEquipHoldSeconds, and each player's last Auto Equip run and whether one waits for the rate limit
+local handAt: { [Player]: { [string]: number } } = {}
+type AutoState = { lastRun: number, queued: boolean }
+local autoStates: { [Player]: AutoState } = {}
+-- #1955: a cat placed or rested by hand stays as the player set it for AutoEquipHoldSeconds.
+local function noteHand(player: Player, uid: string)
+	local hand = handAt[player]
+	if hand == nil then
+		hand = {}
+		handAt[player] = hand
+	end
+	(hand :: { [string]: number })[uid] = os.clock()
+end
 local rng = Random.new() -- charm rolls for caught cats
 -- F102: TradeService says whether a cat is on offer in an open trade (set at its start; nothing is on offer before)
 local offerCheck: (player: Player, uid: string) -> boolean = function(
@@ -1187,15 +1201,20 @@ local function announceLevelUps(player: Player, profile: Profile)
 	end
 	local known = knownLevels[player]
 	local levels: { [string]: number } = {}
+	local rose = false
 	for uid, instance in profile.cats do
 		local level = CatStats.level(instance)
 		levels[uid] = level
 		local before = if known ~= nil then known[uid] else nil
 		if before ~= nil and level > before then
 			Net.fire(player, "CatLevelUp", uid, level)
+			rose = true
 		end
 	end
 	knownLevels[player] = levels
+	if rose then
+		CafeService.requestAutoEquip(player) -- #1955: a level up can change the best lineup
+	end
 end
 
 function CafeService.sync(player: Player)
@@ -1521,6 +1540,7 @@ local function onPlaceCat(player: Player, rawUid: unknown, rawSpot: unknown)
 		return
 	end
 	instance.spotId = spotId
+	noteHand(player, uid) -- #1955: Auto Equip leaves it there a while
 	CafeService.advanceTutorial(player, profile, 3)
 	Telemetry.onboarding(player, profile, "first_role_assigned")
 	Telemetry.catWorking(player, uid)
@@ -1545,6 +1565,7 @@ local function onUnplaceCat(player: Player, rawUid: unknown)
 		return
 	end
 	instance.spotId = nil
+	noteHand(player, uid) -- #1955: and resting
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 end
@@ -1554,28 +1575,106 @@ end
 -- cat and trade. A better cat takes the place of a weaker one; the cats left over rest (CafeService's nap spots,
 -- then the sleep spots by day). Earnings so far settle at the old rate first. Returns how many cats changed spot;
 -- the caller refreshes the plot and syncs.
-function CafeService.autoEquip(player: Player, profile: Profile): number
-	local plan = EquipBest.plan(profile)
+--
+-- #1955 (auto-equip.md): only with settings.autoEquip on (or before the first cat has a job, so the tutorial's first
+-- cat still takes it, F87 section 2d). The cats EquipBest.held names stay where they are: a locked working cat, a cat
+-- placed or rested by hand in the last AutoEquipHoldSeconds and a cat on offer in a trade. At most one run every
+-- AutoEquipEverySeconds: a run asked for sooner waits for then and is merged with any others (that run refreshes the
+-- plot and syncs itself; this call returns 0). A run that moves cats sends AutoEquipped for the toast.
+local function runAutoEquip(player: Player, profile: Profile): number
+	local hand = handAt[player] or {}
+	local held = EquipBest.held(profile, os.clock(), hand, function(uid: string): boolean
+		return offerCheck(player, uid)
+	end)
+	local plan = EquipBest.planKeeping(profile, held)
 	if EquipBest.isOptimal(profile, plan) then
 		return 0
 	end
 	Economy.settle(profile, os.time(), ClockService.epoch())
+	local rateBefore = currentRate(profile)
 	local before: { [string]: string? } = {}
 	for uid, instance in profile.cats do
 		before[uid] = instance.spotId
 	end
 	local changed = EquipBest.apply(profile, plan)
+	local swaps: { Types.AutoEquipSwap } = {}
 	for uid, instance in profile.cats do
 		-- only the cats that took a new spot, so a join or rank up doesn't log the whole cafe again
 		if instance.spotId ~= nil and instance.spotId ~= before[uid] then
 			Telemetry.catWorking(player, uid)
+			local def = Catalog.getCat(instance.catId)
+			local spot = Catalog.getSpot(instance.spotId :: string)
+			if spot ~= nil then
+				table.insert(swaps, {
+					catName = if instance.name ~= nil and instance.name ~= ""
+						then instance.name :: string
+						elseif def ~= nil then def.name
+						else instance.catId,
+					role = roleName(spot),
+				})
+			end
 		end
 	end
 	if plan.catsPlaced > 0 then
 		CafeService.advanceTutorial(player, profile, 3)
 		Telemetry.onboarding(player, profile, "first_role_assigned")
 	end
+	if #swaps > 0 then
+		if #swaps == 1 then
+			local gain = currentRate(profile) - rateBefore
+			swaps[1].perSecond = if gain >= 0.05 then math.floor(gain * 10 + 0.5) / 10 else nil
+		end
+		Net.fire(player, "AutoEquipped", swaps)
+	end
 	return changed
+end
+
+function CafeService.autoEquip(player: Player, profile: Profile): number
+	if not (profile.settings.autoEquip or profile.tutorialStep < 3) then
+		return 0
+	end
+	local state = autoStates[player]
+	if state == nil then
+		state = { lastRun = -math.huge, queued = false }
+		autoStates[player] = state
+	end
+	local known = state :: AutoState
+	local now = os.clock()
+	if now - known.lastRun >= Config.AutoEquipEverySeconds then
+		known.lastRun = now
+		return runAutoEquip(player, profile)
+	end
+	if not known.queued then
+		known.queued = true
+		task.delay(known.lastRun + Config.AutoEquipEverySeconds - now, function()
+			known.queued = false
+			if autoStates[player] ~= known then
+				return -- left meanwhile
+			end
+			local current = profileFor(player)
+			if current == nil or not (current.settings.autoEquip or current.tutorialStep < 3) then
+				return
+			end
+			known.lastRun = os.clock()
+			if runAutoEquip(player, current) > 0 then
+				CafeService.refreshPlot(player)
+				CafeService.sync(player)
+			end
+		end)
+	end
+	return 0
+end
+
+-- #1955: an Auto Equip run from outside a handler (a level up seen in a sync, a cat that came by another service):
+-- deferred, then it refreshes the plot and syncs when it moved anything.
+function CafeService.requestAutoEquip(player: Player)
+	task.defer(function()
+		local profile = profileFor(player)
+		if profile ~= nil and CafeService.autoEquip(player, profile) > 0 then
+			CafeService.refreshPlot(player)
+			CafeService.sync(player)
+		end
+	end)
 end
 
 -- Equip best: one tap gives the owned cats the open role slots for the highest rate (shared/EquipBest).
@@ -1587,6 +1686,7 @@ local function onEquipBest(player: Player)
 		return
 	end
 	Telemetry.onboarding(player, profile, "first_equip_best") -- #1888: the button pressed, whatever it moved
+	handAt[player] = nil -- #1955: the button asks for the best lineup, so the hand placements' holds end
 	local plan = EquipBest.plan(profile)
 	if EquipBest.isOptimal(profile, plan) then
 		Net.toast(player, "Your cats are already in their best roles.", "info")
@@ -1624,6 +1724,11 @@ local function onUnequipAll(player: Player)
 	local profile = profileFor(player)
 	if profile == nil then
 		return
+	end
+	for uid, instance in profile.cats do
+		if instance.spotId ~= nil then
+			noteHand(player, uid) -- #1955: Auto Equip leaves them resting a while
+		end
 	end
 	local rested = EquipBest.restAll(profile)
 	if rested == 0 then
@@ -2189,6 +2294,8 @@ function CafeService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		carrying[player] = nil
 		knownLevels[player] = nil
+		handAt[player] = nil
+		autoStates[player] = nil
 	end)
 
 	Net.on("PlaceCat", onPlaceCat)

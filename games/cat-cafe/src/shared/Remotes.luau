@@ -306,6 +306,8 @@ Remotes.ServerToClient = {
 	-- with the sessionRecap setting on; the client shows the card when the player is idle and out of menus
 	"PlaytimeGift", -- (kind: PlaytimeGifts.Kind, paid: { string })  #1947: the like ("like") or favourite ("fav")
 	-- gift was just paid (ProfileSync first), with Payout's lines; the client shows its card once the player is idle
+	"AutoEquipped", -- (swaps: { Types.AutoEquipSwap })  #1955: an Auto Equip run moved cats into roles (ProfileSync
+	-- first): each cat's name and role, and the coins a second gained when exactly one moved; the client toasts it
 }
 
 function Remotes.folder(): Folder

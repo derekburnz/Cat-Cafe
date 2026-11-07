@@ -174,6 +174,7 @@ return function()
 				tradeRequests = "everyone",
 				roadmapOpen = false,
 				sessionRecap = true,
+				autoEquip = true, -- #1955: on for a new account
 			})
 		end)
 
@@ -591,6 +592,7 @@ return function()
 					tradeRequests = "everyone",
 					roadmapOpen = false,
 					sessionRecap = true,
+					autoEquip = false, -- #1955: a save from before Auto Equip
 				})
 				-- Decor bought in v2 is kept even where v0.3 gates it behind Tier 2; only known and owned decor counts.
 				expect(profile.decorOwned :: any).to.deepEqual({ plants = true, rug = true })

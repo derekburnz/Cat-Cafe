@@ -249,6 +249,48 @@ return function()
 			end
 		end)
 
+		it("forces a drop's day kind on for every day whose sunrise is in its window, and no other (#1974)", function()
+			expect(#Config.ForcedDays).to.equal(0) -- nothing forced until a drop adds its row
+			local SAT = 1795219200 -- Sat 2026-11-21 00:00 UTC
+			local forced = { { kind = "lucky", from = SAT, to = SAT + 86400 } }
+			local inside, outside = 0, 0
+			for day = 1, 6000 do
+				local at = Config.ClockEpoch + Clock.sunriseOf(day)
+				local kinds = Clock.dayKinds(day, forced)
+				local plain = Clock.dayKinds(day)
+				expect(Clock.isLuckyDay(day, forced)).to.equal(kinds.lucky)
+				-- the other kinds still roll as on any day
+				expect(kinds.golden).to.equal(plain.golden)
+				expect(kinds.rainbow).to.equal(plain.rainbow)
+				if at >= SAT and at < SAT + 86400 then
+					inside += 1
+					expect(kinds.lucky).to.equal(true)
+				else
+					outside += 1
+					expect(kinds.lucky).to.equal(plain.lucky) -- outside the window, the usual roll
+				end
+			end
+			-- a 24-hour window holds every global day starting in it: 86400 / 390 seconds a day
+			expect(inside).to.equal(222)
+			expect(outside > 0).to.equal(true)
+			expect(Clock.isForced(0, "lucky", forced)).to.equal(false)
+		end)
+
+		it("forces Golden and Rainbow Days the same way, each only its own kind", function()
+			local from = Config.ClockEpoch + Clock.sunriseOf(100)
+			local forced = {
+				{ kind = "golden", from = from, to = from + 1 },
+				{ kind = "rainbow", from = from, to = from + 1 },
+			}
+			local kinds = Clock.dayKinds(100, forced)
+			expect(kinds.golden).to.equal(true)
+			expect(kinds.rainbow).to.equal(true)
+			expect(kinds.lucky).to.equal(Clock.dayKinds(100).lucky)
+			expect(Clock.isForced(99, "golden", forced)).to.equal(false)
+			expect(Clock.isForced(101, "golden", forced)).to.equal(false)
+			expect(Clock.goldChance(0.05, kinds)).to.be.near(0.05 * Config.GoldenDayGoldMultiplier, 1e-12)
+		end)
+
 		it("names the next Lucky Day after this one", function()
 			for day = 0, 60 do
 				local next = Clock.nextLuckyDay(day)

@@ -41,7 +41,7 @@ local Cues: { [string]: Cue } = {
 	-- Music (sound list section 3) -------------------------------------------------------------------------
 	-- Songs play half their length from one of their four 8 bar sections, then rest (Audio refreshMusic).
 	musicDayA = {
-		ids = { "rbxassetid://92150429408895" },
+		ids = { "rbxassetid://83352686708210" },
 		group = "Music",
 		volume = 0.3,
 		looped = true,
@@ -49,7 +49,7 @@ local Cues: { [string]: Cue } = {
 		sections = 4,
 	}, -- "Open for Business"
 	musicDayB = {
-		ids = { "rbxassetid://73896733157878" },
+		ids = { "rbxassetid://105502030061552" },
 		group = "Music",
 		volume = 0.3,
 		looped = true,
@@ -57,7 +57,7 @@ local Cues: { [string]: Cue } = {
 		sections = 4,
 	}, -- "Second Cup"
 	musicNightA = {
-		ids = { "rbxassetid://131746689332910" },
+		ids = { "rbxassetid://104937902594770" },
 		group = "Music",
 		volume = 0.3,
 		looped = true,
@@ -67,7 +67,7 @@ local Cues: { [string]: Cue } = {
 	-- #980 (Derek OK'd them 2026-11-03): three more songs in one upload, the Music sheet. Each plays its own region of
 	-- it; silent (not in the rotation) until sheetMusic has an id. Rendered by synth/music.py, which prints the regions.
 	sheetMusic = {
-		ids = { "rbxassetid://90426389837188" },
+		ids = { "rbxassetid://101914371530807" },
 		group = "Music",
 		volume = 0.3,
 	}, -- stereo, 244.5 s: Paw Prints, Market Morning, Night Owls with 0.5 s of silence between
@@ -105,7 +105,7 @@ local Cues: { [string]: Cue } = {
 	-- pick plays in place of the day and night rotation (Audio.setJukebox); silent until sheetMusicJukebox has an id.
 	-- Rendered by synth/music.py, which prints the regions. Each name matches its shared/Jukebox track `cue`.
 	sheetMusicJukebox = {
-		ids = { "rbxassetid://121751896614087" },
+		ids = { "rbxassetid://119723228198008" },
 		group = "Music",
 		volume = 0.3,
 	}, -- stereo, 189.5 s: Rainy Window, Catnap Waltz, Bakery Bounce, Starlight Purr with 0.5 s of silence between
@@ -149,26 +149,26 @@ local Cues: { [string]: Cue } = {
 	-- cutscene and through the first tutorial steps, until it is skipped or done. Uploaded by upload-audio run
 	-- 42068848366.
 	musicTutorial = {
-		ids = { "rbxassetid://84620952630489" },
+		ids = { "rbxassetid://112232482675173" },
 		group = "Music",
 		volume = 0.18, -- Derek 2026-11-06 (#1793): a little loud under the tutorial text, so lower than the day songs (0.3)
 		looped = true,
 		seconds = 40, -- 16 bars at 96 BPM
 	}, -- "Step by Step"
 	stingDusk = {
-		ids = { "rbxassetid://72211264391144" },
+		ids = { "rbxassetid://110881711300369" },
 		group = "Music",
 		volume = 0.6,
 		duck = true,
 	}, -- "Night Shift"
 	stingDawn = {
-		ids = { "rbxassetid://78519815757270" },
+		ids = { "rbxassetid://105006150455225" },
 		group = "Music",
 		volume = 0.6,
 		duck = true,
 	}, -- "Fresh Pot"
 	jingleCatFound = {
-		ids = { "rbxassetid://102912195564834" },
+		ids = { "rbxassetid://118123593035931" },
 		group = "Music",
 		volume = 0.7,
 		minGap = 1,
@@ -222,14 +222,14 @@ local Cues: { [string]: Cue } = {
 		duck = true,
 	}, -- F88: a Lucky Day starts, after the sunrise sting
 	jingleRankUp = {
-		ids = { "rbxassetid://77815750894397" },
+		ids = { "rbxassetid://85819178163551" },
 		group = "Music",
 		volume = 0.7,
 		minGap = 1,
 		duck = true,
 	},
 	jingleDailyCard = {
-		ids = { "rbxassetid://99160708780154" },
+		ids = { "rbxassetid://138202971136133" },
 		group = "Music",
 		volume = 0.7,
 		minGap = 1,
@@ -257,22 +257,22 @@ local Cues: { [string]: Cue } = {
 
 	-- Net: closing circles (5.1) ----------------------------------------------------------------------------
 	holdFill = {
-		ids = { "rbxassetid://126544733880801" },
+		ids = { "rbxassetid://102979949179030" },
 		group = "Sfx",
 		volume = 0.5,
 		minGap = 0.1,
 		voices = 1,
 	}, -- F45: hold E; one voice (Audio's fade relies on it)
-	catchStart = { ids = { "rbxassetid://92586398019542" }, group = "Sfx", volume = 0.6 },
+	catchStart = { ids = { "rbxassetid://96760734642727" }, group = "Sfx", volume = 0.6 },
 	circleAppear = {
-		ids = { "rbxassetid://135049952895026" },
+		ids = { "rbxassetid://103026194958680" },
 		group = "Sfx",
 		volume = 0.5,
 		voices = 2,
 	}, -- played one scale step per circle
 	circleClose = { ids = {}, group = "Sfx", volume = 0.3, voices = 2 },
 	netSwing = {
-		ids = { "rbxassetid://89396147858929" },
+		ids = { "rbxassetid://70879520668287" },
 		group = "Sfx",
 		volume = 0.8,
 		pitch = { 0.96, 1.04 },
@@ -281,21 +281,21 @@ local Cues: { [string]: Cue } = {
 		preload = true,
 	},
 	circlePerfect = {
-		ids = { "rbxassetid://80668948664944" },
+		ids = { "rbxassetid://126376086540474" },
 		group = "Sfx",
 		volume = 0.8,
 		voices = 2,
 		preload = true,
 	}, -- one scale step per circle
 	circleGood = {
-		ids = { "rbxassetid://104110576862212" },
+		ids = { "rbxassetid://93601709619890" },
 		group = "Sfx",
 		volume = 0.7,
 		voices = 2,
 		preload = true,
 	}, -- one scale step per circle
 	circleMiss = {
-		ids = { "rbxassetid://82265210012821" },
+		ids = { "rbxassetid://109577366461065" },
 		group = "Sfx",
 		volume = 0.6,
 		pitch = { 0.97, 1.03 },
@@ -303,41 +303,41 @@ local Cues: { [string]: Cue } = {
 		preload = true,
 	},
 	catchSparkle = {
-		ids = { "rbxassetid://96610512551224" },
+		ids = { "rbxassetid://91641836065515" },
 		group = "Sfx",
 		volume = 0.8,
 		preload = true,
 	},
 	catchMiss = {
-		ids = { "rbxassetid://72335633309097" },
+		ids = { "rbxassetid://119698339547500" },
 		group = "Sfx",
 		volume = 0.7,
 		preload = true,
 	},
 	catHiss = {
-		ids = { "rbxassetid://133059376390215" },
+		ids = { "rbxassetid://112692442470029" },
 		group = "Sfx",
 		volume = 0.7,
 		pitch = { 0.95, 1.05 },
 		range = 40,
 	}, -- v0.4: a Miss ends the catch
-	pawLost = { ids = { "rbxassetid://120814540941175" }, group = "Sfx", volume = 0.6 }, -- v0.4; retired by F40 (no paws), kept for its upload record
+	pawLost = { ids = { "rbxassetid://115646034851877" }, group = "Sfx", volume = 0.6 }, -- v0.4; retired by F40 (no paws), kept for its upload record
 	purrfectChime = {
-		ids = { "rbxassetid://115362387345274" },
+		ids = { "rbxassetid://101827371438540" },
 		group = "Sfx",
 		volume = 0.8,
 		minGap = 1,
 		preload = true,
 	},
 	strayFlee = {
-		ids = { "rbxassetid://115429958262894" },
+		ids = { "rbxassetid://114582331349747" },
 		group = "Sfx",
 		volume = 0.8,
 		pitch = { 0.95, 1.05 },
 		range = 40,
 	},
 	straySprint = {
-		ids = { "rbxassetid://77220581372843" },
+		ids = { "rbxassetid://90925740178919" },
 		group = "Sfx",
 		volume = 0.7,
 		pitch = { 0.95, 1.08 },
@@ -346,7 +346,7 @@ local Cues: { [string]: Cue } = {
 
 	-- Rescue minigames (5.2) and F92 Team Rescue: all in the Rescue sheet (2026-11-02; silent until then) -----------
 	sheetRescue = {
-		ids = { "rbxassetid://105628750022355" },
+		ids = { "rbxassetid://112281216042656" },
 		group = "Sfx",
 		volume = 1,
 		preload = true,
@@ -446,13 +446,13 @@ local Cues: { [string]: Cue } = {
 
 	-- Carry, shoves and check-in (5.3; v0.5 Shove keeps the Bump names in code) ------------------------------
 	carryPurr = {
-		ids = { "rbxassetid://104398552389386" },
+		ids = { "rbxassetid://122312250965460" },
 		group = "Sfx",
 		volume = 0.33,
 		looped = true,
 	}, -- Derek 2026-10-28: purring a little louder (both purrs about 2.5 dB up)
 	shove = {
-		ids = { "rbxassetid://135377461302918" },
+		ids = { "rbxassetid://108455272441129" },
 		group = "Sfx",
 		volume = 0.7,
 		pitch = { 0.95, 1.05 },
@@ -460,28 +460,28 @@ local Cues: { [string]: Cue } = {
 		range = 40,
 	},
 	bumpLoose = { -- the StrayFlee file: a startled mrrp and paws scurrying off
-		ids = { "rbxassetid://115429958262894" },
+		ids = { "rbxassetid://114582331349747" },
 		group = "Sfx",
 		volume = 0.8,
 		pitch = { 1.0, 1.1 },
 		range = 40,
 	},
-	bumpHeld = { ids = { "rbxassetid://83302918660784" }, group = "Sfx", volume = 0.7, range = 40 },
+	bumpHeld = { ids = { "rbxassetid://74229186579543" }, group = "Sfx", volume = 0.7, range = 40 },
 	tackleLunge = {
-		ids = { "rbxassetid://119010397581874" },
+		ids = { "rbxassetid://131297265053036" },
 		group = "Sfx",
 		volume = 0.6,
 		pitch = { 0.95, 1.05 },
 		range = 40,
 	}, -- F74: the dive's whoosh on the press; a hit adds the shove sound, a miss tackleMiss
 	tackleMiss = {
-		ids = { "rbxassetid://85126153307905" },
+		ids = { "rbxassetid://90894734407033" },
 		group = "Sfx",
 		volume = 0.7,
 		range = 40,
 	}, -- F74: belly flop, skid, "bonk bonk"
 	checkInBell = {
-		ids = { "rbxassetid://75991488445164" },
+		ids = { "rbxassetid://124730012199621" },
 		group = "Sfx",
 		volume = 0.7,
 		minGap = 0.5,
@@ -489,47 +489,47 @@ local Cues: { [string]: Cue } = {
 		preload = true,
 	},
 	catDrop = {
-		ids = { "rbxassetid://104205348504396" },
+		ids = { "rbxassetid://82672663045710" },
 		group = "Sfx",
 		volume = 0.6,
 		minGap = 0.5,
 		range = 40,
 	}, -- F45: Drop or G
 	catPickUp = {
-		ids = { "rbxassetid://117560666331463" },
+		ids = { "rbxassetid://109834386589176" },
 		group = "Sfx",
 		volume = 0.6,
 		minGap = 0.3,
 		range = 40,
 	}, -- F56: a carry starts (pick up)
 	getaway = {
-		ids = { "rbxassetid://128887999985652" },
+		ids = { "rbxassetid://138475700063366" },
 		group = "Sfx",
 		volume = 0.7,
 		minGap = 1,
 		range = 40,
 	}, -- F55: a catch pushes the crowd back
 	shiftChime = {
-		ids = { "rbxassetid://83420169775937" },
+		ids = { "rbxassetid://93382811999608" },
 		group = "Sfx",
 		volume = 0.3,
 		minGap = 2,
 		range = 40,
 	}, -- #1191: a shop-only cat starts its shift, a soft three-note celesta lift (under VFX's sparkle, #1259)
 	stationReady = {
-		ids = { "rbxassetid://87937080610110" },
+		ids = { "rbxassetid://122405628888661" },
 		group = "Sfx",
 		volume = 0.3,
 		minGap = 3,
 	}, -- #1133/#1154/#1232: a camp station has something to collect, a soft two-note glockenspiel (2D, no id until uploaded)
 	catPlaced = {
-		ids = { "rbxassetid://101433267853089" },
+		ids = { "rbxassetid://112209746211990" },
 		group = "Sfx",
 		volume = 0.6,
 		minGap = 0.15,
 	}, -- a cat starts a role (Staff tab)
 	catRest = {
-		ids = { "rbxassetid://116178484251299" },
+		ids = { "rbxassetid://100485229755444" },
 		group = "Sfx",
 		volume = 0.55,
 		minGap = 0.3,
@@ -543,7 +543,7 @@ local Cues: { [string]: Cue } = {
 	-- #983: each food's own sound in the Bait sheet (synth.py SHEETS); until sheetBait has an id they fall back to
 	-- foodDealer (Logic.foodCue). Soft on purpose: the bowl fills often.
 	sheetBait = {
-		ids = { "rbxassetid://91146885655744" },
+		ids = { "rbxassetid://100201013800031" },
 		group = "Sfx",
 		volume = 1,
 	}, -- mono, 8.85 s: the seven foods and the claim
@@ -620,14 +620,14 @@ local Cues: { [string]: Cue } = {
 		range = 30,
 	}, -- the trayClink part: a soft tap and two china clinks as the food goes in the bowl
 	baitArrive = {
-		ids = { "rbxassetid://101433267853089" },
+		ids = { "rbxassetid://112209746211990" },
 		group = "Sfx",
 		volume = 0.3,
 		minGap = 1,
 	}, -- the catPlaced file: a hop, a happy mrrp and sparkles
 	baitTame = { ids = {}, group = "Sfx", volume = 0.7 }, -- unused: a tame sounds with its check-in (bell, jingle, sting)
 	baitLetGo = {
-		ids = { "rbxassetid://104205348504396" },
+		ids = { "rbxassetid://82672663045710" },
 		group = "Sfx",
 		volume = 0.3,
 		minGap = 1,
@@ -644,21 +644,21 @@ local Cues: { [string]: Cue } = {
 		range = 40,
 	},
 	purr = {
-		ids = { "rbxassetid://110254245469370" },
+		ids = { "rbxassetid://98395715075799" },
 		group = "Sfx",
 		volume = 0.27,
 		looped = true,
 		range = 8,
 	},
 	rareNear = {
-		ids = { "rbxassetid://110130897728206" },
+		ids = { "rbxassetid://134220486232962" },
 		group = "Sfx",
 		volume = 0.35,
 		minGap = 3,
 		range = 40,
 	}, -- once as you come near a Mythical stray (was the shimmerRare loop, retired 2026-10-28)
 	goldReveal = {
-		ids = { "rbxassetid://124772067869145" },
+		ids = { "rbxassetid://134771896552643" },
 		group = "Sfx",
 		volume = 0.8,
 		minGap = 1,
@@ -666,16 +666,16 @@ local Cues: { [string]: Cue } = {
 	}, -- F42: was shinyReveal
 
 	-- Zones and travel (5.9) --------------------------------------------------------------------------------
-	zoneSafe = { ids = { "rbxassetid://106879168380819" }, group = "Sfx", volume = 0.45 }, -- back on the safe street; silent since 2026-11-02 (UI PR #669), kept for its upload record
-	zoneArea = { ids = { "rbxassetid://103566569518372" }, group = "Sfx", volume = 0.45 }, -- into a catching area; silent since 2026-11-02 (UI PR #669), kept for its upload record
+	zoneSafe = { ids = { "rbxassetid://102307932367391" }, group = "Sfx", volume = 0.45 }, -- back on the safe street; silent since 2026-11-02 (UI PR #669), kept for its upload record
+	zoneArea = { ids = { "rbxassetid://122475758992868" }, group = "Sfx", volume = 0.45 }, -- into a catching area; silent since 2026-11-02 (UI PR #669), kept for its upload record
 	travelPoof = {
-		ids = { "rbxassetid://99298919905979" },
+		ids = { "rbxassetid://136895580073047" },
 		group = "Sfx",
 		volume = 0.6,
 		minGap = 0.5,
 	}, -- fast travel and My Cafe
 	waterStep = {
-		ids = { "rbxassetid://74478489900689" },
+		ids = { "rbxassetid://71465595506771" },
 		group = "Sfx",
 		volume = 0.3,
 		pitch = { 0.9, 1.12 },
@@ -687,7 +687,7 @@ local Cues: { [string]: Cue } = {
 	-- The Cat Cannon (F84, hometown-cannon.md 3b; Derek's yes 2026-10-28): the 3 s flight in three parts, so each
 	-- plays where it happens: the launch at the barrel, the clouds for the one flying, the whistle and landing at the pad
 	cannonLaunch = {
-		ids = { "rbxassetid://102475819257335" },
+		ids = { "rbxassetid://102075028148467" },
 		group = "Sfx",
 		volume = 0.8,
 		minGap = 0.3,
@@ -695,13 +695,13 @@ local Cues: { [string]: Cue } = {
 		voices = 2,
 	},
 	cannonClouds = {
-		ids = { "rbxassetid://111789214666060" },
+		ids = { "rbxassetid://108064008516131" },
 		group = "Sfx",
 		volume = 0.5,
 		minGap = 1,
 	},
 	cannonLand = {
-		ids = { "rbxassetid://110709007201936" },
+		ids = { "rbxassetid://103029343434588" },
 		group = "Sfx",
 		volume = 0.7,
 		minGap = 0.3,
@@ -709,13 +709,13 @@ local Cues: { [string]: Cue } = {
 		voices = 2,
 	},
 	cloudHop = {
-		ids = { "rbxassetid://115354802839165" },
+		ids = { "rbxassetid://76704372473776" },
 		group = "Sfx",
 		volume = 0.55,
 		minGap = 1,
 	}, -- Home from a wild area, the night sweep
 	campCheckIn = {
-		ids = { "rbxassetid://123523380344527" },
+		ids = { "rbxassetid://79340353325458" },
 		group = "Sfx",
 		volume = 0.5,
 		minGap = 1,
@@ -725,13 +725,13 @@ local Cues: { [string]: Cue } = {
 	-- Derek 2026-10-28: the dings on claiming were a little loud, so every claim sound (these two, offlineClaim,
 	-- richTip, uiCodeRedeem and uiDailyStamp) is about 4 dB down, still well above the music.
 	giftClaim = {
-		ids = { "rbxassetid://80009297129343" },
+		ids = { "rbxassetid://74934447836735" },
 		group = "Sfx",
 		volume = 0.45,
 		minGap = 0.2,
 	}, -- F47 Tip Jar
 	indexReward = {
-		ids = { "rbxassetid://103563370361429" },
+		ids = { "rbxassetid://127241224294798" },
 		group = "Sfx",
 		volume = 0.5,
 		minGap = 0.5,
@@ -740,7 +740,7 @@ local Cues: { [string]: Cue } = {
 
 	-- Coins, tiers and the night economy (5.6) --------------------------------------------------------------
 	coinPop = {
-		ids = { "rbxassetid://80305681313349" },
+		ids = { "rbxassetid://84089684524419" },
 		group = "Sfx",
 		volume = 0.2,
 		pitch = { 0.94, 1.06 },
@@ -750,7 +750,7 @@ local Cues: { [string]: Cue } = {
 		preload = true,
 	}, -- Derek 2026-11-03 (#981): "ding's are too loud and too often I think its the money pop up dings": half as loud, one every 4 s at most (each seated customer floats one every 3 s)
 	purchase = {
-		ids = { "rbxassetid://135044364239461" },
+		ids = { "rbxassetid://116389589868688" },
 		group = "Sfx",
 		volume = 0.7,
 		minGap = 0.2,
@@ -765,17 +765,17 @@ local Cues: { [string]: Cue } = {
 		minGap = 1,
 	}, -- #983 (2026-11-04): its own jingle, coins out of a cloth pouch and a soft two-note "welcome back" (the UI plays it on Claim)
 	placeFurniture = { ids = {}, group = "Sfx", volume = 0.6, range = 30 },
-	gateOpen = { ids = { "rbxassetid://89970899972584" }, group = "Sfx", volume = 0.7, range = 60 }, -- v0.4: the barrier dissolves
+	gateOpen = { ids = { "rbxassetid://129683906883492" }, group = "Sfx", volume = 0.7, range = 60 }, -- v0.4: the barrier dissolves
 	shuttersUp = {
-		ids = { "rbxassetid://137368825957454" },
+		ids = { "rbxassetid://88936101264758" },
 		group = "Sfx",
 		volume = 0.7,
 		range = 60,
 	}, -- a For Rent plot becomes a cafe
-	richArrive = { ids = { "rbxassetid://132811455211745" }, group = "Sfx", volume = 0.7 },
-	richTip = { ids = { "rbxassetid://89094982389204" }, group = "Sfx", volume = 0.5 },
+	richArrive = { ids = { "rbxassetid://72229334389341" }, group = "Sfx", volume = 0.7 },
+	richTip = { ids = { "rbxassetid://134978111441854" }, group = "Sfx", volume = 0.5 },
 	tipPile = {
-		ids = { "rbxassetid://131031584416450" },
+		ids = { "rbxassetid://131455934857825" },
 		group = "Sfx",
 		volume = 0.6,
 		minGap = 0.3,
@@ -785,7 +785,7 @@ local Cues: { [string]: Cue } = {
 	dealerLeave = { ids = {}, group = "Sfx", volume = 0.6, range = 60 },
 
 	-- Clock (5.7) -------------------------------------------------------------------------------------------
-	signFlip = { ids = { "rbxassetid://108862500995197" }, group = "Sfx", volume = 0.5, range = 30 },
+	signFlip = { ids = { "rbxassetid://97178553934391" }, group = "Sfx", volume = 0.5, range = 30 },
 	lampOn = {
 		ids = {},
 		group = "Sfx",
@@ -797,31 +797,31 @@ local Cues: { [string]: Cue } = {
 
 	-- Visitors, codes and potions (5.11) -------------------------------------------------------------------
 	visitorCollector = {
-		ids = { "rbxassetid://89641081512860" },
+		ids = { "rbxassetid://79131004801316" },
 		group = "Sfx",
 		volume = 0.6,
 		minGap = 2,
 	}, -- F63: the Cat Collector comes by
 	visitorMystery = {
-		ids = { "rbxassetid://76865491597271" },
+		ids = { "rbxassetid://109251583263849" },
 		group = "Sfx",
 		volume = 0.6,
 		minGap = 2,
 	}, -- F64: the Mystery Visitor's gift appears
 	giftOpen = {
-		ids = { "rbxassetid://116810371894969" },
+		ids = { "rbxassetid://114143832834959" },
 		group = "Sfx",
 		volume = 0.7,
 		minGap = 0.5,
 	}, -- F64: the gift is opened
 	potionDrink = {
-		ids = { "rbxassetid://135212660589235" },
+		ids = { "rbxassetid://89037651167310" },
 		group = "Sfx",
 		volume = 0.7,
 		minGap = 0.3,
 	}, -- F64: the UI plays it on UsePotion
 	catLevelUp = {
-		ids = { "rbxassetid://122201546356974" },
+		ids = { "rbxassetid://75904013038713" },
 		group = "Sfx",
 		volume = 0.4,
 		minGap = 1.5,
@@ -829,7 +829,7 @@ local Cues: { [string]: Cue } = {
 
 	-- UI (5.8) ----------------------------------------------------------------------------------------------
 	uiClick = {
-		ids = { "rbxassetid://100998799358810" },
+		ids = { "rbxassetid://123281023369868" },
 		group = "Ui",
 		volume = 0.6,
 		pitch = { 0.97, 1.03 },
@@ -839,63 +839,63 @@ local Cues: { [string]: Cue } = {
 	},
 	-- Derek 2026-11-03 (#981): "The noise of hittin a button you can't click is also a little loud and change it to
 	-- something less annoying". The uiTab tick played lower, a dull "tuk", in place of the Error file's two falling
-	-- notes (rbxassetid://80135751380842). The comment after the brace keeps upload.py from writing that id back.
+	-- notes (rbxassetid://100658806415053). The comment after the brace keeps upload.py from writing that id back.
 	uiError = { -- the uiTab file, lower and softer
-		ids = { "rbxassetid://122895842124214" },
+		ids = { "rbxassetid://132990737294484" },
 		group = "Ui",
 		volume = 0.45,
 		pitch = { 0.78, 0.82 },
 		minGap = 0.3,
 		preload = true,
 	},
-	uiOpen = { ids = { "rbxassetid://114730761775875" }, group = "Ui", volume = 0.5, minGap = 0.1 },
-	uiClose = { ids = { "rbxassetid://129207225359334" }, group = "Ui", volume = 0.5, minGap = 0.1 },
-	uiDealerOpen = { ids = { "rbxassetid://109906464637138" }, group = "Ui", volume = 0.6 },
+	uiOpen = { ids = { "rbxassetid://137136098721051" }, group = "Ui", volume = 0.5, minGap = 0.1 },
+	uiClose = { ids = { "rbxassetid://136390381178341" }, group = "Ui", volume = 0.5, minGap = 0.1 },
+	uiDealerOpen = { ids = { "rbxassetid://76779738636330" }, group = "Ui", volume = 0.6 },
 	uiRankReady = {
-		ids = { "rbxassetid://98501439978038" },
+		ids = { "rbxassetid://125474672370745" },
 		group = "Ui",
 		volume = 0.6,
 		minGap = 1,
 	},
 	-- #1541: a tutorial step done; the Rank Ready chime's file, so it needs no upload of its own.
 	tutorialStepDone = {
-		ids = { "rbxassetid://98501439978038" },
+		ids = { "rbxassetid://125474672370745" },
 		group = "Ui",
 		volume = 0.45,
 		minGap = 1,
 	},
-	uiToast = { ids = { "rbxassetid://97064648437698" }, group = "Ui", volume = 0.5, minGap = 0.2 },
-	uiHint = { ids = { "rbxassetid://110637750950745" }, group = "Ui", volume = 0.5, minGap = 0.5 },
-	uiTab = { ids = { "rbxassetid://122895842124214" }, group = "Ui", volume = 0.4, minGap = 0.05 },
+	uiToast = { ids = { "rbxassetid://101668755145423" }, group = "Ui", volume = 0.5, minGap = 0.2 },
+	uiHint = { ids = { "rbxassetid://84709734267357" }, group = "Ui", volume = 0.5, minGap = 0.5 },
+	uiTab = { ids = { "rbxassetid://132990737294484" }, group = "Ui", volume = 0.4, minGap = 0.05 },
 	uiToggle = {
-		ids = { "rbxassetid://75685910002998" },
+		ids = { "rbxassetid://87744600545017" },
 		group = "Ui",
 		volume = 0.5,
 		minGap = 0.05,
 	},
-	uiRename = { ids = { "rbxassetid://109980626119711" }, group = "Ui", volume = 0.5 },
+	uiRename = { ids = { "rbxassetid://126356996133307" }, group = "Ui", volume = 0.5 },
 	uiSlider = {
-		ids = { "rbxassetid://110732370632116" },
+		ids = { "rbxassetid://87070259611294" },
 		group = "Ui",
 		volume = 0.5,
 		minGap = 0.03,
 	}, -- a volume slider's 5 % step
 	uiGiftReady = {
-		ids = { "rbxassetid://109161742998311" },
+		ids = { "rbxassetid://107614584511698" },
 		group = "Ui",
 		volume = 0.6,
 		minGap = 1,
 	}, -- a Tip Jar gift is ready
-	uiBadge = { ids = { "rbxassetid://132178490173046" }, group = "Ui", volume = 0.4, minGap = 0.5 }, -- a red dot turns on
+	uiBadge = { ids = { "rbxassetid://127086916799354" }, group = "Ui", volume = 0.4, minGap = 0.5 }, -- a red dot turns on
 	-- The Spin Wheel window (F49): it starts, a slice passes the pointer (can fire every frame early on), it lands
 	uiSpinStart = {
-		ids = { "rbxassetid://89767919141598" },
+		ids = { "rbxassetid://101675886953192" },
 		group = "Ui",
 		volume = 0.6,
 		minGap = 0.5,
 	},
 	uiSpinTick = {
-		ids = { "rbxassetid://109150468833128" },
+		ids = { "rbxassetid://133333553770736" },
 		group = "Ui",
 		volume = 0.45,
 		pitch = { 0.97, 1.03 },
@@ -903,34 +903,34 @@ local Cues: { [string]: Cue } = {
 		voices = 2,
 	},
 	uiSpinWin = {
-		ids = { "rbxassetid://137789027351769" },
+		ids = { "rbxassetid://79008493792613" },
 		group = "Ui",
 		volume = 0.7,
 		minGap = 1,
 		duck = true,
 	},
 	uiSpinBusy = {
-		ids = { "rbxassetid://75782326640051" },
+		ids = { "rbxassetid://133956483226854" },
 		group = "Ui",
 		volume = 0.55,
 		minGap = 0.3,
 	}, -- the wheel can't spin yet: its own wooden "tok-tok", not uiError (Derek 2026-10-28: sounded like a disconnect)
 	uiCodeRedeem = {
-		ids = { "rbxassetid://128875832136345" },
+		ids = { "rbxassetid://139056960178897" },
 		group = "Ui",
 		volume = 0.45,
 		minGap = 1,
 	}, -- F65: a code worked (a wrong one is uiError)
 	uiDailyStamp = {
-		ids = { "rbxassetid://89023008668503" },
+		ids = { "rbxassetid://123343224842944" },
 		group = "Ui",
 		volume = 0.45,
 		minGap = 1,
 	}, -- F70: a Daily Treat stamp claimed, days 1 to 6 (the UI plays it)
-	uiTrade = { ids = { "rbxassetid://96571316013787" }, group = "Ui", volume = 0.7, minGap = 1 }, -- F63: a trade with the Cat Collector
-	announce = { ids = { "rbxassetid://140320161816899" }, group = "Ui", volume = 0.6, minGap = 1 },
+	uiTrade = { ids = { "rbxassetid://87866050266126" }, group = "Ui", volume = 0.7, minGap = 1 }, -- F63: a trade with the Cat Collector
+	announce = { ids = { "rbxassetid://132783050282387" }, group = "Ui", volume = 0.6, minGap = 1 },
 	announceMythical = {
-		ids = { "rbxassetid://93649795285321" },
+		ids = { "rbxassetid://95418238847080" },
 		group = "Ui",
 		volume = 0.7,
 		minGap = 1,
@@ -942,13 +942,13 @@ local Cues: { [string]: Cue } = {
 	-- sheet's row holds the file and is never played itself; its parts are the cues that name it. Preloaded, so
 	-- the first part to play is not late.
 	sheetWorld = {
-		ids = { "rbxassetid://117195695201052" },
+		ids = { "rbxassetid://73129093144324" },
 		group = "Sfx",
 		volume = 1,
 		preload = true,
 	}, -- mono, plays in 3D
 	sheetMoments = {
-		ids = { "rbxassetid://137051883099106" },
+		ids = { "rbxassetid://79195889382293" },
 		group = "Music",
 		volume = 1,
 		preload = true,
@@ -1045,7 +1045,7 @@ local Cues: { [string]: Cue } = {
 
 	-- F89 rare decor (5.14): each Legendary and Mythical piece's small sound, once as you walk up to it
 	sheetDecor = {
-		ids = { "rbxassetid://120455178308557" },
+		ids = { "rbxassetid://108434963257406" },
 		group = "Sfx",
 		volume = 1,
 		preload = true,
@@ -1117,7 +1117,7 @@ local Cues: { [string]: Cue } = {
 	-- F93 net swing (5.15): the whoosh is netSwing; the smack lands NetSmackDelay later, a miss bounces, a near miss
 	-- makes a stray hop, and GREAT and EXCELLENT get their word (PURRFECT keeps purrfectChime, "So close!" catchMiss)
 	sheetCatch = {
-		ids = { "rbxassetid://104211245998996" },
+		ids = { "rbxassetid://110336837728633" },
 		group = "Sfx",
 		volume = 1,
 		preload = true,
@@ -1174,7 +1174,7 @@ local Cues: { [string]: Cue } = {
 	-- Catch v3 (#1884, catch-rework.md 7): the swat, the net's wobble and pop, and the NICE! word. The rising purr is
 	-- the `purr` cue sped up with trust (Audio.setCatchTrust); ticks, hiss, GREAT, EXCELLENT and PURRFECT are the cues above.
 	sheetCatch3 = {
-		ids = { "rbxassetid://75387392100021" },
+		ids = { "rbxassetid://119641670692404" },
 		group = "Sfx",
 		volume = 1,
 		preload = true,
@@ -1218,7 +1218,7 @@ local Cues: { [string]: Cue } = {
 
 	-- F90 cats make the orders (5.16): the Cafe sheet, all 3D; they repeat with every order, so each is short and soft
 	sheetCafe = {
-		ids = { "rbxassetid://100577291813581" },
+		ids = { "rbxassetid://94516523486015" },
 		group = "Sfx",
 		volume = 1,
 		preload = true,
@@ -1266,7 +1266,7 @@ local Cues: { [string]: Cue } = {
 		range = 30,
 	}, -- the coin bag dropped in the till: a cloth thump and a muffled jingle
 	tipSweep = { -- the tipPile file: coins scooped off a table into the Waiter's bag (your own cafe)
-		ids = { "rbxassetid://131031584416450" },
+		ids = { "rbxassetid://131455934857825" },
 		group = "Sfx",
 		volume = 0.35,
 		pitch = { 0.95, 1.05 },

@@ -64,7 +64,7 @@ function Clock.sunriseOf(day: number): number
 	return Config.ServerStartDaySeconds + Config.NightLengthSeconds + (math.floor(day) - 2) * cycle
 end
 
--- #1572 (luck-and-rare-moments.md 1g): a day's kinds, each rolled on its own from the global day number with its
+-- #1572 (luck-and-rare-moments.md 1g): a day's kinds, each rolled on its own (or forced on by a drop, #1974) from the global day number with its
 -- own salt (the Park-Miller fold of CornerShop.seed), so every server has the same day and the kinds don't move
 -- together. Day 0 and before (the clock before ClockEpoch) is a plain day.
 export type DayKinds = { lucky: boolean, golden: boolean, rainbow: boolean }
@@ -84,20 +84,42 @@ local function dayRoll(day: number, salt: number): number
 	return hash / MODULUS
 end
 
-function Clock.dayKinds(day: number): DayKinds
+export type ForcedDay = { kind: string, from: number, to: number }
+
+-- Whether a Saturday drop forces `kind` on for `day` (#1974): its sunrise, in UTC unix seconds, inside a window of
+-- `forced` (Config.ForcedDays unless a test passes its own).
+function Clock.isForced(day: number, kind: string, forced: { ForcedDay }?): boolean
+	if day < 1 then
+		return false
+	end
+	local at = Config.ClockEpoch + Clock.sunriseOf(day)
+	for _, window in forced or Config.ForcedDays do
+		if window.kind == kind and at >= window.from and at < window.to then
+			return true
+		end
+	end
+	return false
+end
+
+function Clock.dayKinds(day: number, forced: { ForcedDay }?): DayKinds
 	if day < 1 then
 		return { lucky = false, golden = false, rainbow = false }
 	end
 	return {
-		lucky = dayRoll(day, SALTS.lucky) < Config.LuckyDayChance,
-		golden = dayRoll(day, SALTS.golden) < Config.GoldenDayChance,
-		rainbow = dayRoll(day, SALTS.rainbow) < Config.RainbowDayChance,
+		lucky = Clock.isLuckyDay(day, forced),
+		golden = dayRoll(day, SALTS.golden) < Config.GoldenDayChance
+			or Clock.isForced(day, "golden", forced),
+		rainbow = dayRoll(day, SALTS.rainbow) < Config.RainbowDayChance
+			or Clock.isForced(day, "rainbow", forced),
 	}
 end
 
--- Whether `day` rolls lucky: Clock.dayKinds(day).lucky without the table (Pace and the HUD ask often).
-function Clock.isLuckyDay(day: number): boolean
-	return day >= 1 and dayRoll(day, SALTS.lucky) < Config.LuckyDayChance
+-- Whether `day` is lucky: Clock.dayKinds(day).lucky without the table (Pace and the HUD ask often).
+function Clock.isLuckyDay(day: number, forced: { ForcedDay }?): boolean
+	if day < 1 then
+		return false
+	end
+	return dayRoll(day, SALTS.lucky) < Config.LuckyDayChance or Clock.isForced(day, "lucky", forced)
 end
 
 -- The next Lucky Day after `day`. #1572 drops the countdown (the days are random now); the Clock folder still carries

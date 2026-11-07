@@ -1780,6 +1780,22 @@ local function wireServerEvents()
 			end
 		end
 	)
+	-- #1893: a Grand Opening milestone was just paid; the ProfileSync that shows it came first. UI.roadmap.step plays
+	-- the toast and confetti (and on the last, the Grand Opening) once the UI has it.
+	Net.on("RoadmapStep", function(n: number)
+		local roadmap = (UI :: any).roadmap
+		local step: ((number) -> ())? = if roadmap ~= nil then roadmap.step else nil
+		if step ~= nil and type(n) == "number" then
+			step(n)
+		end
+	end)
+	-- #1897: the guaranteed Rare-or-better bait cat is at the bowl ("Your first Rare!" or "A Rare visitor!")
+	Net.on("FirstWow", function(rarity: string, first: boolean)
+		local wow: ((string, boolean) -> ())? = (UI.bait :: any).wow
+		if wow ~= nil and type(rarity) == "string" then
+			wow(rarity, first == true)
+		end
+	end)
 	-- The rescue bar, or a tree's falling cat after its shakes; then the server's count after every judged press.
 	Net.on("RescueChallenge", function(rescueSpotId: string, challenge: Types.RescueChallenge)
 		UI.rescue.show(rescueSpotId, challenge)

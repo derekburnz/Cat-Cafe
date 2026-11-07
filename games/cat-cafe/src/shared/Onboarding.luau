@@ -78,6 +78,7 @@ export type StepName =
 	| "pass_level_5"
 	| "tier_4"
 	| "first_robux_purchase"
+	| "first_wow_cat" -- #1897: the guaranteed Rare-or-better bait cat arrived (field rarity)
 
 export type IntroStepName =
 	"intro_choice_made"
@@ -141,6 +142,7 @@ Onboarding.STEPS = {
 	"pass_level_5", -- Cafe Pass level 5
 	"tier_4",
 	"first_robux_purchase", -- the account's first pass or product bought (robux_purchase tells it apart in time)
+	"first_wow_cat", -- #1897 (first-hour.md 2): the guaranteed Rare-or-better bait cat arrived, field rarity
 } :: { StepName }
 
 Onboarding.COUNT = #Onboarding.STEPS
@@ -220,6 +222,7 @@ Onboarding.IMPLIES = {
 	first_pass_claim = { "first_pass_xp" }, -- a reward needs a level, and a level needs XP
 	pass_level_5 = { "first_pass_xp" },
 	tier_4 = { "tier_3" },
+	first_wow_cat = { "first_bait" }, -- the second bait or a later one
 } :: { [string]: { string } }
 
 -- The v2 funnel's 25 steps (F87 to #1273), for a save from it (fromOld) and the report's labels for onboarding_v2.

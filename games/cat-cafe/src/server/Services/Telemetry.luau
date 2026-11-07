@@ -30,6 +30,7 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Intro = require(ReplicatedStorage.Shared.Intro)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
@@ -651,6 +652,25 @@ function Telemetry.catchEngaged(
 end
 
 -- Step 3: the cat is in the player's arms.
+-- #1893: the Grand Opening funnel (first-hour.md 1c), one step per milestone as it is paid, field the tier. Steps
+-- can come out of order (two at once, or a later one first); each is logged once, as it is marked done.
+Telemetry.GRAND_OPENING_FUNNEL = "grand_opening"
+
+function Telemetry.grandOpening(player: Player, profile: Profile, n: number)
+	local step = GrandOpening.STEPS[n]
+	if step == nil then
+		return
+	end
+	funnelStep(
+		player,
+		Telemetry.GRAND_OPENING_FUNNEL,
+		tostring(player.UserId),
+		n,
+		step.id,
+		{ tostring(Economy.tier(profile)) }
+	)
+end
+
 function Telemetry.catchCaught(player: Player, funnel: CatchFunnel)
 	funnelStep(player, "catch_attempt", funnel.id, 3, "caught", funnel.values)
 end

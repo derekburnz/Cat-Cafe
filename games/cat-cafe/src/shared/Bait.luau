@@ -84,6 +84,26 @@ function Bait.firstWait(wait: number, luresUsed: number): number
 	return wait
 end
 
+-- #1897 (first-hour.md section 2, Derek2 2026-11-06): each account's second bait (or, if it never had one, its next)
+-- brings a Rare-or-better cat once. A one-time first-session guarantee, logged in decisions.md as the exception to
+-- "the same odds for everyone": the bowl's odds list is unchanged, every other roll is as it was, and bait is bought
+-- with coins only, so this is not a paid random item.
+Bait.WOW_EPIC_CHANCE = 0.15 -- a Common the guarantee lifts becomes Epic this often, else Rare
+
+-- Whether the food going in now gets the guarantee: the account has set a bait before and has not had it.
+function Bait.wowDue(firstWow: boolean, luresUsed: number): boolean
+	return not firstWow and luresUsed >= 1
+end
+
+-- The guaranteed roll's rarity: the bowl's normal roll, with a Common lifted to Rare (85%) or Epic (15%, `u` below
+-- WOW_EPIC_CHANCE). Rare and better stay as rolled.
+function Bait.wowRarity(rarity: Types.Rarity, u: number): Types.Rarity
+	if rarity ~= "Common" then
+		return rarity
+	end
+	return if u < Bait.WOW_EPIC_CHANCE then "Epic" else "Rare"
+end
+
 function Bait.bowlName(bowlLevel: number): string
 	return NAMES[clampLevel(bowlLevel)] or NAMES[1]
 end

@@ -23,6 +23,7 @@ local DecorBest = require(ReplicatedStorage.Shared.DecorBest)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
+local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Jukebox = require(ReplicatedStorage.Shared.Jukebox)
@@ -136,8 +137,13 @@ local function baitView(profile: Profile, now: number, bowl: number): Types.Bait
 		return nil
 	end
 	local readyAt = CafeService.baitReadyAt(profile, bait)
-	local view: Types.BaitView =
-		{ lureId = bait.lureId, placedAt = bait.placedAt, readyAt = readyAt, night = bait.night }
+	local view: Types.BaitView = {
+		lureId = bait.lureId,
+		placedAt = bait.placedAt,
+		readyAt = readyAt,
+		night = bait.night,
+		wow = if bait.wow == true and now < readyAt then true else nil, -- #1897: "Rare or better!" while it waits
+	}
 	if now >= readyAt then
 		view.cat = {
 			catId = bait.catId,
@@ -203,6 +209,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		rainbowLuck = IndexRewards.rainbowLuck(profile), -- F99: the food card's "Rainbow 0.5%" line
 		baitSpeed = totals.baitSpeed,
 		firstBait = profile.stats.luresUsed <= 0, -- #1895: the next bait waits at most 2 minutes (Bait.firstWait)
+		grandOpening = GrandOpening.view(profile.grandOpening), -- #1893
 		plotIndex = if plot ~= nil then plot.index else 0,
 		carrying = carrying[player],
 		dataSaves = DataService.saves(),
@@ -1029,6 +1036,16 @@ function CafeService.refreshPlot(player: Player)
 	LawnBuilder.refresh(plot, profile) -- F91: the front lawn's pieces, path and fence
 	refreshSignStyle(player, plot, profile) -- #1625
 	refreshLooks(player, plot, profile) -- #1624: after the sign style, which hides a theme's own sign
+end
+
+-- #1922: the cafe front's Grand Opening model at the plot pivot, named GrandOpening (GrandOpening.plotLook: the ribbon,
+-- the bunting or nil). GrandOpeningService sets it once a second, before it pays, so RoadmapStep(8) reaches the client
+-- while the ribbon still stands (the client's snap copies it) and the bunting follows on the next check.
+function CafeService.showGrandOpening(player: Player, assetName: string?)
+	local plot = PlotService.get(player)
+	if plot ~= nil then
+		showLookModel(plot, "GrandOpening", assetName)
+	end
 end
 
 -- F91 (front-lawn.md section 1b): the front lawn pieces the cafe's tier has earned and it does not own yet (a Garden

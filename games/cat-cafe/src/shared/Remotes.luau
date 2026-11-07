@@ -298,6 +298,10 @@ Remotes.ServerToClient = {
 	"ThanksBoard", -- (rows: { IdeaCredits.Row }, hasCredit: boolean)  #1083: the Thank You board's rows, newest first
 	-- (idea, version, display name or "a player"), and whether this player has a credit (the Settings row shows only
 	-- then); on join and after every rebuild
+	"RoadmapStep", -- (n: number)  #1893: Grand Opening milestone n was just done and paid (GrandOpening.STEPS), after
+	-- the ProfileSync that shows it; the client plays the toast and confetti, and on the last the Grand Opening
+	"FirstWow", -- (rarity: Types.Rarity, first: boolean)  #1897: the guaranteed Rare-or-better bait cat arrived at
+	-- the bowl; first is true when no cat of that rarity was owned ("Your first Rare!", else "A Rare visitor!")
 }
 
 function Remotes.folder(): Folder

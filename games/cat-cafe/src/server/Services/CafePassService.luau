@@ -20,6 +20,7 @@ local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ChatTags = require(ReplicatedStorage.Shared.ChatTags)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
+local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
 local PassService = require(script.Parent.PassService)
@@ -41,7 +42,11 @@ end
 
 -- The items the chat tags read: the Cafe Pass items, plus the supporter tag for a Thank You Badge buyer (#1168 row 4).
 local function tagItems(profile: Types.PlayerProfile): { [string]: boolean }
-	return ChatTags.withSupporter(profile.pass.items, Products.isSupporter(profile))
+	local items = ChatTags.withSupporter(profile.pass.items, Products.isSupporter(profile))
+	if profile.grandOpening.done[GrandOpening.COUNT] == true then
+		items[GrandOpening.TAG] = true -- #1893: the Grand Opening's tag
+	end
+	return items
 end
 
 -- #1626: the chat tags the player may show (ChatTags.choices): VIP if they own the pass, the supporter tag, then

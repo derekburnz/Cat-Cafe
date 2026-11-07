@@ -77,10 +77,12 @@ get() {
 }
 
 # Keys end in <os.time()>_<userId> with a ten-digit time, so a day's keys list in time order; keep the newest COUNT.
+# #2082: Open Cloud lists an entry's id as "<scope>/<key>" ("global/r_2026..."), and SetAsync saves under the global
+# scope, so the filter starts with "global/"; a bare prefix matched nothing and every day read 0 reports.
 keys=()
 token=
 while :; do
-	args=(--data-urlencode "filter=id.startsWith(\"$prefix\")" --data-urlencode maxPageSize=256)
+	args=(--data-urlencode "filter=id.startsWith(\"global/$prefix\")" --data-urlencode maxPageSize=256)
 	[ -z "$token" ] || args+=(--data-urlencode "pageToken=$token")
 	get "$entries" "${args[@]}"
 	mapfile -t -O "${#keys[@]}" keys < <(jq -r '.dataStoreEntries[]?.id' <<<"$body")

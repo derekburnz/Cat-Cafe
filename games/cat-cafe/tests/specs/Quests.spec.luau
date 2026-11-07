@@ -185,47 +185,50 @@ return function()
 				coins = 200,
 				coinSeconds = 90,
 				fish = 2,
-				passXp = 100, -- #1645 (quests.md section 8)
+				passXp = 150, -- #1645 (quests.md section 8); #2070: 1.5x
 			})
 			-- F94 (rewards-and-shops.md section 2d): no shop food and no spins
 			expect(Catalog.questPrizes.dailyBig :: any).to.deepEqual({
 				coins = 400,
 				coinSeconds = 150,
 				fish = 5,
-				passXp = 200,
+				passXp = 300,
 			})
 			expect(Catalog.questPrizes.dailySet :: any).to.deepEqual({
 				potions = { big_tip_potion = 1, gold_rush_potion = 1 },
 				fish = 10,
-				passXp = 200,
+				passXp = 300,
 			})
 			expect(Catalog.questPrizes.weekly :: any).to.deepEqual({
 				coins = 2000,
 				coinSeconds = 600,
 				fish = 15,
-				passXp = 400,
+				passXp = 600,
 			})
 			expect(Catalog.questPrizes.weeklySet :: any).to.deepEqual({
 				potions = { big_tip_potion = 3 },
 				crates = { classic_golden_crate = 1 },
 				fish = 40,
-				passXp = 400,
+				passXp = 600,
 			})
 			expect(Catalog.achievementPrizes.M :: any).to.deepEqual({
 				coins = 1000,
 				coinSeconds = 450,
 				potions = { tip_potion = 1 },
+				passXp = 150, -- #2070
 			})
 			expect(Catalog.achievementPrizes.L :: any).to.deepEqual({
 				coins = 2500,
 				coinSeconds = 900,
 				crates = { classic_crate = 1 },
+				passXp = 300,
 			})
 			expect(Catalog.achievementPrizes.XL :: any).to.deepEqual({
 				coins = 5000,
 				coinSeconds = 1800,
 				crates = { classic_golden_crate = 1 },
 				potions = { big_tip_potion = 1 },
+				passXp = 600,
 			})
 			expect(Quests.prize("daily", 1)).to.equal(Catalog.questPrizes.daily)
 			expect(Quests.prize("daily", 4)).to.equal(Catalog.questPrizes.daily)

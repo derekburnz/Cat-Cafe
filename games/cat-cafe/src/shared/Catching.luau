@@ -19,10 +19,13 @@ Catching.CARRIED_POSE = { 0, -0.4, -1.05, 0, 0, 1, 0, 1, 0, -1, 0, 0 }
 -- same on every screen, with no copy on any client. Its bottom middle sits `up` of the torso's height above the
 -- torso's middle, and its back `gap` studs in front of the chest; it lies `turn` degrees about the torso's up, across
 -- the arms with its head to the carrier's left. CARRIED_POSE above is only the fallback for a character with no
--- torso yet. Tuned in Studio; numbers only, so this module stays free of Roblox types.
+-- torso yet. Tuned in Studio; numbers only, so this module stays free of Roblox types. Derek2 2026-11-07 04:30
+-- ("bring cat closer to chest and lower"): the cat's back rests against the chest (`gap` 0) and its floor sits on
+-- Animation-Engineer's lowered hands (#1985: on R15 meeting about 1 stud out, their tops 0.4 below the UpperTorso's
+-- middle; R6 arms at 50 degrees), so its middle is on the hands.
 Catching.HELD = {
-	r15 = { up = -0.15, gap = 0.1 },
-	r6 = { up = 0.2, gap = 0.1 },
+	r15 = { up = -0.25, gap = 0 },
+	r6 = { up = 0.08, gap = 0 },
 	turn = 90,
 }
 
@@ -30,7 +33,9 @@ Catching.HELD = {
 -- from the cafe would but fit sideways and in a way that doesn't look weird in the arms"; the loaf before): Model-Agent's
 -- manifest `cat_poses.sleep` turns for the walking body's hinged pieces, legs tucked, head down and tail curled round,
 -- each as piece:PivotTo(piece:GetPivot() * CFrame.Angles(x, y, z)) in degrees, the same numbers as
--- Effects/Presets.catPoses.sleep. Its eyes are shut: each Eye piece squashed to HELD_EYES of its height, as Effects
+-- Effects/Presets.catPoses.sleep except the head: lying across the arms, the sleep's head turn faced up into the
+-- carrier's chin (pose sheet, #1984), so the held head only tucks its nose down, `x` negative, with no turn or tilt.
+-- Its eyes are shut: each Eye piece squashed to HELD_EYES of its height, as Effects
 -- blinks them (Presets.motion.blink.squash). Set once on the server, so no client poses the held cat.
 Catching.HELD_EYES = 0.12
 Catching.HELD_TURNS = {
@@ -38,7 +43,7 @@ Catching.HELD_TURNS = {
 	LegF2 = { -90, 0, 30 },
 	LegB1 = { 90, 0, -26 },
 	LegB2 = { 90, 0, 26 },
-	Head = { -26.8, 25.4, 12.2 },
+	Head = { -40, 0, 0 },
 	Tail = { 71.7, 49.6, -66.5 },
 } :: { [string]: { number } }
 

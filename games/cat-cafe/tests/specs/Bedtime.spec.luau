@@ -173,6 +173,67 @@ return function()
 		end)
 	end)
 
+	describe("the trip the clients walk (#2050)", function()
+		-- down one hop from a counter, a walk of 6 then 8 studs (an L), and up one hop onto a bed
+		local POINTS: { any } = {
+			{ at = Vector3.new(0, 3, 0), hop = false },
+			{ at = Vector3.new(0, 0, -1), hop = true },
+			{ at = Vector3.new(6, 0, -1), hop = false },
+			{ at = Vector3.new(6, 0, -9), hop = false },
+			{ at = Vector3.new(6, 0.5, -10), hop = true },
+		}
+		local SPEED, HOP = 2, 0.5
+
+		it("takes each walk's length over the speed and each hop's seconds", function()
+			expect(Bedtime.tripSeconds(POINTS, SPEED, HOP)).to.be.near(0.5 + 3 + 4 + 0.5, 1e-9)
+			expect(Bedtime.tripSeconds({ POINTS[1] }, SPEED, HOP)).to.equal(0)
+		end)
+
+		it("starts at the first point, walks its legs in order and ends on the last", function()
+			local at = Bedtime.tripAt(POINTS, SPEED, HOP, -1)
+			expect(at).to.equal(POINTS[1].at)
+			-- halfway down the hop: on the arc, over the straight line
+			at = Bedtime.tripAt(POINTS, SPEED, HOP, 0.25)
+			expect(at.Y > 1.5).to.equal(true)
+			-- 1 s into the first walk: 2 studs along +X, facing +X
+			local facing
+			at, facing = Bedtime.tripAt(POINTS, SPEED, HOP, 1.5)
+			expect(at.X).to.be.near(2, 1e-9)
+			expect(at.Z).to.be.near(-1, 1e-9)
+			expect(facing.X).to.be.near(1, 1e-9)
+			-- 1 s into the second walk: 2 studs along -Z, facing -Z
+			at, facing = Bedtime.tripAt(POINTS, SPEED, HOP, 4.5)
+			expect(at.X).to.be.near(6, 1e-9)
+			expect(at.Z).to.be.near(-3, 1e-9)
+			expect(facing.Z).to.be.near(-1, 1e-9)
+			at = Bedtime.tripAt(POINTS, SPEED, HOP, 100)
+			expect(at).to.equal(POINTS[5].at)
+		end)
+
+		it("faces the first leg's way before it starts, and -Z on a trip that never turns", function()
+			local _, facing = Bedtime.tripAt(POINTS, SPEED, HOP, 0)
+			expect(facing.Z).to.be.near(-1, 1e-9) -- the first leg hops toward -Z
+			local _, still = Bedtime.tripAt({ POINTS[1] }, SPEED, HOP, 1)
+			expect(still).to.equal(Vector3.new(0, 0, -1))
+		end)
+
+		it("sends the trip as text and reads it back, and refuses anything else", function()
+			local text = Bedtime.encodeTrip(POINTS)
+			expect(text).to.equal("0.00,3.00,0.00,0;0.00,0.00,-1.00,1;6.00,0.00,-1.00,0;6.00,0.00,-9.00,0;6.00,0.50,-10.00,1")
+			local back = Bedtime.decodeTrip(text) :: { any }
+			expect(#back).to.equal(#POINTS)
+			for i, point in POINTS do
+				expect((back[i].at - point.at).Magnitude < 0.01).to.equal(true)
+				expect(back[i].hop).to.equal(point.hop)
+			end
+			expect(Bedtime.decodeTrip(nil)).never.to.be.ok()
+			expect(Bedtime.decodeTrip("")).never.to.be.ok()
+			expect(Bedtime.decodeTrip("1,2,3")).never.to.be.ok()
+			expect(Bedtime.decodeTrip("1,2,3,2")).never.to.be.ok()
+			expect(Bedtime.decodeTrip("a,b,c,0")).never.to.be.ok()
+		end)
+	end)
+
 	describe("the timings (Config)", function()
 		it("hops quickly, staggers the cats and gives up on a stuck walk", function()
 			expect(Config.HopSeconds > 0 and Config.HopSeconds < 1).to.equal(true)

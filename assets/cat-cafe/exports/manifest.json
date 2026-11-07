@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-07 15:33 UTC",
+  "generated": "2026-11-07 18:50 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -207534,33 +207534,33 @@
         "CatCafe_Alley_Blocker_Bins_Bulb",
         "CatCafe_Alley_Blocker_Bins_Barrier"
       ],
-      "triangles": 1176,
+      "triangles": 3836,
       "budget": 6000,
       "size_studs": {
         "x": 17.6,
-        "y": 2.52,
-        "z": 30.0
+        "y": 3.6,
+        "z": 11.9
       },
       "size_roblox": [
         17.6,
-        30.0,
-        2.52
+        11.9,
+        3.6
       ],
       "bounds_min": [
         -2.6,
-        -1.26,
+        -1.8,
         0.0
       ],
       "bounds_max": [
         15.0,
-        1.26,
-        30.0
+        1.8,
+        11.9
       ],
       "pivot": "the floor on the back alley lane's middle line (lane x +-78). A long pile: it spans local x -15 to 1 and leaves a 14 stud walk-past gap at +X (x 1 to 15). RotY 180 puts the gap at -X.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 16 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_Bins.model.json",
-      "rbx_parts": 86,
+      "rbx_parts": 297,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Bins.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Bins.glb"
@@ -207572,15 +207572,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "1176/6000 tris",
+          "budget": "3836/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "604 faces on swatch centers",
+          "uv": "1926 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=6.20 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_Bins.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Blocker_Bins.png"
     },
     {
       "name": "CatCafe_Alley_Blocker_BinsShort",
@@ -207591,33 +207593,33 @@
         "CatCafe_Alley_Blocker_BinsShort_Bulb",
         "CatCafe_Alley_Blocker_BinsShort_Barrier"
       ],
-      "triangles": 644,
+      "triangles": 2712,
       "budget": 6000,
       "size_studs": {
         "x": 10.1,
-        "y": 2.52,
-        "z": 30.0
+        "y": 3.6,
+        "z": 11.9
       },
       "size_roblox": [
         10.1,
-        30.0,
-        2.52
+        11.9,
+        3.6
       ],
       "bounds_min": [
         4.9,
-        -1.26,
+        -1.8,
         0.0
       ],
       "bounds_max": [
         15.0,
-        1.26,
-        30.0
+        1.8,
+        11.9
       ],
       "pivot": "the floor on the back alley lane's middle line (lane x +-78). A short pile: it spans local x -15 to -6.5; place two on one spot at rotY 0 and 180 (any pair) to leave a 13 stud walk-through gap in the middle of the lane.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 8.5 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_BinsShort.model.json",
-      "rbx_parts": 45,
+      "rbx_parts": 219,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_BinsShort.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_BinsShort.glb"
@@ -207629,15 +207631,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "644/6000 tris",
+          "budget": "2712/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "322 faces on swatch centers",
+          "uv": "1372 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=9.95 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_BinsShort.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Blocker_BinsShort.png"
     },
     {
       "name": "CatCafe_Alley_Blocker_Pallets",
@@ -207648,16 +207652,16 @@
         "CatCafe_Alley_Blocker_Pallets_Bulb",
         "CatCafe_Alley_Blocker_Pallets_Barrier"
       ],
-      "triangles": 3392,
+      "triangles": 2910,
       "budget": 8000,
       "size_studs": {
         "x": 17.6,
         "y": 2.92,
-        "z": 30.0
+        "z": 12.93
       },
       "size_roblox": [
         17.6,
-        30.0,
+        12.93,
         2.92
       ],
       "bounds_min": [
@@ -207668,13 +207672,13 @@
       "bounds_max": [
         15.0,
         1.46,
-        30.0
+        12.93
       ],
       "pivot": "the floor on the back alley lane's middle line (lane x +-78). A long pile: it spans local x -15 to 1 and leaves a 14 stud walk-past gap at +X (x 1 to 15). RotY 180 puts the gap at -X.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 16 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_Pallets.model.json",
-      "rbx_parts": 295,
+      "rbx_parts": 238,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Pallets.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Pallets.glb"
@@ -207686,15 +207690,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "3392/8000 tris",
+          "budget": "2910/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1680 faces on swatch centers",
+          "uv": "1559 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=6.20 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_Pallets.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Blocker_Pallets.png"
     },
     {
       "name": "CatCafe_Alley_Blocker_PalletsShort",
@@ -207705,16 +207711,16 @@
         "CatCafe_Alley_Blocker_PalletsShort_Bulb",
         "CatCafe_Alley_Blocker_PalletsShort_Barrier"
       ],
-      "triangles": 1590,
+      "triangles": 1600,
       "budget": 6000,
       "size_studs": {
         "x": 10.1,
         "y": 2.92,
-        "z": 30.0
+        "z": 13.23
       },
       "size_roblox": [
         10.1,
-        30.0,
+        13.23,
         2.92
       ],
       "bounds_min": [
@@ -207725,13 +207731,13 @@
       "bounds_max": [
         15.0,
         1.46,
-        30.0
+        13.23
       ],
       "pivot": "the floor on the back alley lane's middle line (lane x +-78). A short pile: it spans local x -15 to -6.5; place two on one spot at rotY 0 and 180 (any pair) to leave a 13 stud walk-through gap in the middle of the lane.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 8.5 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_PalletsShort.model.json",
-      "rbx_parts": 132,
+      "rbx_parts": 129,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_PalletsShort.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_PalletsShort.glb"
@@ -207743,15 +207749,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "1590/6000 tris",
+          "budget": "1600/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "779 faces on swatch centers",
+          "uv": "824 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=9.95 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_PalletsShort.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Blocker_PalletsShort.png"
     },
     {
       "name": "CatCafe_Alley_Blocker_Skip",
@@ -207762,33 +207770,33 @@
         "CatCafe_Alley_Blocker_Skip_Bulb",
         "CatCafe_Alley_Blocker_Skip_Barrier"
       ],
-      "triangles": 2670,
+      "triangles": 3446,
       "budget": 8000,
       "size_studs": {
         "x": 17.6,
-        "y": 5.4,
-        "z": 30.0
+        "y": 5.64,
+        "z": 14.6
       },
       "size_roblox": [
         17.6,
-        30.0,
-        5.4
+        14.6,
+        5.64
       ],
       "bounds_min": [
         -2.6,
-        -2.7,
+        -2.82,
         0.0
       ],
       "bounds_max": [
         15.0,
-        2.7,
-        30.0
+        2.82,
+        14.6
       ],
       "pivot": "the floor on the back alley lane's middle line (lane x +-78). A long pile: it spans local x -15 to 1 and leaves a 14 stud walk-past gap at +X (x 1 to 15). RotY 180 puts the gap at -X.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 16 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_Skip.model.json",
-      "rbx_parts": 226,
+      "rbx_parts": 279,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Skip.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Skip.glb"
@@ -207800,15 +207808,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "2670/8000 tris",
+          "budget": "3446/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1353 faces on swatch centers",
+          "uv": "1699 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=6.20 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_Skip.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Blocker_Skip.png"
     },
     {
       "name": "CatCafe_Alley_Blocker_Van",
@@ -207819,16 +207829,16 @@
         "CatCafe_Alley_Blocker_Van_Bulb",
         "CatCafe_Alley_Blocker_Van_Barrier"
       ],
-      "triangles": 2564,
+      "triangles": 2576,
       "budget": 8000,
       "size_studs": {
         "x": 17.6,
         "y": 11.4,
-        "z": 30.01
+        "z": 11.56
       },
       "size_roblox": [
         17.6,
-        30.01,
+        11.56,
         11.4
       ],
       "bounds_min": [
@@ -207839,13 +207849,13 @@
       "bounds_max": [
         15.0,
         5.7,
-        30.0
+        11.55
       ],
       "pivot": "the floor on the back alley lane's middle line (lane x +-78). A long pile: it spans local x -15 to 1 and leaves a 14 stud walk-past gap at +X (x 1 to 15). RotY 180 puts the gap at -X.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 16 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_Van.model.json",
-      "rbx_parts": 189,
+      "rbx_parts": 190,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Van.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Van.glb"
@@ -207857,15 +207867,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "2564/8000 tris",
+          "budget": "2576/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1242 faces on swatch centers",
+          "uv": "1248 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.01 (want 0)",
           "centered": "footprint center x=6.20 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_Van.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Blocker_Van.png"
     },
     {
       "name": "CatCafe_Alley_Blocker_RowCamp",
@@ -207883,34 +207895,34 @@
         "CatCafe_Alley_Blocker_RowCamp_003_Blocker_Bins",
         "CatCafe_Alley_Blocker_RowCamp_003_Blocker_Bins_Barrier"
       ],
-      "triangles": 8888,
+      "triangles": 13244,
       "budget": 20000,
       "size_studs": {
         "x": 90.0,
-        "y": 2.92,
-        "z": 30.0
+        "y": 3.6,
+        "z": 12.93
       },
       "size_roblox": [
         90.0,
-        30.0,
-        2.92
+        12.93,
+        3.6
       ],
       "bounds_min": [
         -45.0,
-        -1.46,
+        -1.8,
         0.0
       ],
       "bounds_max": [
         45.0,
-        1.46,
-        30.0
+        1.8,
+        12.93
       ],
       "pivot": "the floor on the one lane's middle line (set x 0), on the row's line; place it at rotY 0",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "points_roblox": {},
       "studio": "Alleyway blocker row across the whole one lane (90 wide, walls at x +-45): the pieces end to end from the walls with one way through 25 to 29 wide and the row's own lamp post at it. Each piece's _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (30 high on the row's line, from the wall to the way through); piles collide; _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_RowCamp.model.json",
-      "rbx_parts": 752,
+      "rbx_parts": 1060,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowCamp.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowCamp.glb"
@@ -207920,15 +207932,17 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "8888/20000 tris",
+          "budget": "13244/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "4476 faces on swatch centers",
+          "uv": "6878 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_RowCamp.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Blocker_RowCamp.png"
     },
     {
       "name": "CatCafe_Alley_Blocker_RowVan",
@@ -207946,16 +207960,16 @@
         "CatCafe_Alley_Blocker_RowVan_003_Blocker_Bins",
         "CatCafe_Alley_Blocker_RowVan_003_Blocker_Bins_Barrier"
       ],
-      "triangles": 9430,
+      "triangles": 12396,
       "budget": 24000,
       "size_studs": {
         "x": 65.6,
         "y": 11.4,
-        "z": 30.01
+        "z": 14.61
       },
       "size_roblox": [
         65.6,
-        30.01,
+        14.61,
         11.4
       ],
       "bounds_min": [
@@ -207966,14 +207980,14 @@
       "bounds_max": [
         20.6,
         5.7,
-        30.0
+        14.6
       ],
       "pivot": "the floor on the one lane's middle line (set x 0), on the row's line; place it at rotY 0",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "points_roblox": {},
       "studio": "Alleyway blocker row across the whole one lane (90 wide, walls at x +-45): the pieces end to end from the walls with one way through 25 to 29 wide and the row's own lamp post at it. Each piece's _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (30 high on the row's line, from the wall to the way through); piles collide; _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_RowVan.model.json",
-      "rbx_parts": 781,
+      "rbx_parts": 989,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowVan.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowVan.glb"
@@ -207985,15 +207999,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "9430/24000 tris",
+          "budget": "12396/24000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "4741 faces on swatch centers",
+          "uv": "6294 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.01 (want 0)",
           "centered": "footprint center x=-12.20 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_RowVan.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Blocker_RowVan.png"
     },
     {
       "name": "CatCafe_Alley_Blocker_RowSkip",
@@ -208013,34 +208029,34 @@
         "CatCafe_Alley_Blocker_RowSkip_004_Blocker_PalletsShort",
         "CatCafe_Alley_Blocker_RowSkip_004_Blocker_PalletsShort_Barrier"
       ],
-      "triangles": 8976,
+      "triangles": 14008,
       "budget": 24000,
       "size_studs": {
         "x": 66.6,
-        "y": 5.4,
-        "z": 30.0
+        "y": 5.64,
+        "z": 14.6
       },
       "size_roblox": [
         66.6,
-        30.0,
-        5.4
+        14.6,
+        5.64
       ],
       "bounds_min": [
         -21.6,
-        -2.7,
+        -2.82,
         0.0
       ],
       "bounds_max": [
         45.0,
-        2.7,
-        30.0
+        2.82,
+        14.6
       ],
       "pivot": "the floor on the one lane's middle line (set x 0), on the row's line; place it at rotY 0",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "points_roblox": {},
       "studio": "Alleyway blocker row across the whole one lane (90 wide, walls at x +-45): the pieces end to end from the walls with one way through 25 to 29 wide and the row's own lamp post at it. Each piece's _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (30 high on the row's line, from the wall to the way through); piles collide; _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_RowSkip.model.json",
-      "rbx_parts": 764,
+      "rbx_parts": 1142,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowSkip.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowSkip.glb"
@@ -208052,15 +208068,17 @@
           "centered"
         ],
         "checks": {
-          "budget": "8976/24000 tris",
+          "budget": "14008/24000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "4554 faces on swatch centers",
+          "uv": "7196 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=11.70 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_RowSkip.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Blocker_RowSkip.png"
     },
     {
       "name": "CatCafe_Alley_Blocker_RowFar",
@@ -208079,26 +208097,26 @@
         "CatCafe_Alley_Blocker_RowFar_003_Blocker_Skip_Barrier",
         "CatCafe_Alley_Blocker_RowFar_Barrier"
       ],
-      "triangles": 7646,
+      "triangles": 12668,
       "budget": 24000,
       "size_studs": {
         "x": 90.0,
-        "y": 5.4,
+        "y": 5.64,
         "z": 30.0
       },
       "size_roblox": [
         90.0,
         30.0,
-        5.4
+        5.64
       ],
       "bounds_min": [
         -45.0,
-        -2.7,
+        -2.82,
         0.0
       ],
       "bounds_max": [
         45.0,
-        2.7,
+        2.82,
         30.0
       ],
       "pivot": "the floor on the one lane's middle line (set x 0), on the row's line; place it at rotY 0",
@@ -208106,7 +208124,7 @@
       "points_roblox": {},
       "studio": "Alleyway blocker row across the whole one lane (90 wide, walls at x +-45): the pieces end to end from the walls with one way through 25 to 29 wide and the row's own lamp post at it. Each piece's _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (30 high on the row's line, from the wall to the way through); piles collide; _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_RowFar.model.json",
-      "rbx_parts": 643,
+      "rbx_parts": 1024,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowFar.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowFar.glb"
@@ -208116,15 +208134,17 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "7646/24000 tris",
+          "budget": "12668/24000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "3873 faces on swatch centers",
+          "uv": "6470 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_RowFar.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Alley_Blocker_RowFar.png"
     },
     {
       "name": "CatCafe_Alley_IndexBoard",

@@ -1810,6 +1810,19 @@ local function wireServerEvents()
 			show(view)
 		end
 	end)
+	-- #1955: Auto Equip moved cats; UI.autoEquip merges swaps within 2 s into one toast. Wired only once the server
+	-- declares the remote, so this never waits on one that is not there.
+	local serverEvents: { string } = (require(
+		ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes")
+	) :: any).ServerToClient
+	if table.find(serverEvents, "AutoEquipped") then
+		Net.on("AutoEquipped", function(swaps: any)
+			local auto = (UI :: any).autoEquip
+			if auto ~= nil then
+				auto.swapped(swaps)
+			end
+		end)
+	end
 	-- The rescue bar, or a tree's falling cat after its shakes; then the server's count after every judged press.
 	Net.on("RescueChallenge", function(rescueSpotId: string, challenge: Types.RescueChallenge)
 		UI.rescue.show(rescueSpotId, challenge)

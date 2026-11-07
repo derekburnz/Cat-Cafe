@@ -40,6 +40,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local RenameDialog = require(script.Parent.RenameDialog)
 local Scale = require(script.Parent.Parent.Scale)
+local SettingsList = require(script.Parent.Parent.Components.SettingsList)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local StaffSlots = require(script.Parent.Parent.Components.StaffSlots)
@@ -58,6 +59,9 @@ export type Callbacks = {
 	feedCat: ((foodId: string, uid: string) -> ())?, -- #1181: one food from the Bag to this cat (FeedCat)
 	equipBest: () -> (),
 	unequipAll: () -> (),
+	-- #1955 (auto-equip.md): the Auto Equip switch over Equip Best, saved as settings.autoEquip; no switch without it
+	-- or while the server does not save the key
+	setAutoEquip: ((on: boolean) -> ())?,
 }
 
 export type CatRoom = {
@@ -216,6 +220,32 @@ function CatRoom.new(parent: Frame, callbacks: Callbacks): CatRoom
 			PaddingTop = UDim.new(0, 4),
 		}),
 	})
+
+	-- #1955 (auto-equip.md): the Auto Equip switch at the crew strip's right end, over Equip Best. On, the server runs
+	-- Equip Best by itself when a better cat comes; it never moves a locked cat or one placed by hand in the last 10
+	-- minutes. The roles scroll in the room left of it.
+	self._autoOn = false
+	local setAuto = callbacks.setAutoEquip
+	if setAuto ~= nil and SettingsList.isKey(SettingsList.AUTO_EQUIP_KEY) then
+		self._crew.Size = UDim2.new(1, -(ACTION_W + 12), 1, 0)
+		self._auto = Button.new({
+			name = "AutoEquip",
+			text = "Auto Equip: Off",
+			style = "ghost",
+			size = UDim2.fromOffset(ACTION_W, TOOL_H),
+			anchorPoint = Vector2.new(1, 0.5),
+			position = UDim2.new(1, -6, 0.5, 0),
+			textSize = Theme.sizes.textSmall,
+			parent = crew,
+			sound = "uiToggle",
+			onClick = function()
+				local on = not self._autoOn
+				self._autoOn = on
+				self:_paintAuto()
+				setAuto(on)
+			end,
+		})
+	end
 
 	-- toolbar: search, filters, then Unequip All and Equip Best on the right
 	local toolTop = CREW_H + GAP
@@ -1177,6 +1207,16 @@ function CatRoom._refresh(self: any)
 	end
 end
 
+-- #1955: "Auto Equip: On" in gold, or "Auto Equip: Off" plain.
+function CatRoom._paintAuto(self: any)
+	local auto = self._auto
+	if auto == nil then
+		return
+	end
+	auto:setText(if self._autoOn then "Auto Equip: On" else "Auto Equip: Off")
+	auto:setStyle(if self._autoOn then "gold" else "ghost")
+end
+
 function CatRoom.render(self: any, state: Types.PlayerState)
 	if state ~= self._state then
 		self._extrasSent = false -- the server answered a Sell extras (a sale syncs, a refusal toasts)
@@ -1206,6 +1246,10 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 	end
 	self._equipBest:setEnabled(counts.all > 0)
 	self._unequipAll:setEnabled(counts.working > 0)
+	-- #1955: the saved switch (nil before the server sends it reads as off)
+	local settings: { [string]: any } = (state :: any).settings or {}
+	self._autoOn = settings[SettingsList.AUTO_EQUIP_KEY] == true
+	self:_paintAuto()
 
 	-- grid
 	local shown = CatRoomList.list(cats, self._catById, rarityRank, self._filter, self._query)
@@ -1675,6 +1719,9 @@ function CatRoom.destroy(self: any)
 		button:destroy()
 	end
 	self._equipBest:destroy()
+	if self._auto then
+		self._auto:destroy()
+	end
 	self._unequipAll:destroy()
 	self._assign:destroy()
 	self._rest:destroy()

@@ -1511,13 +1511,13 @@ local SCENES = {
 		local card = gui and gui:FindFirstChild("Card", true)
 		assert(card and card.Visible, "uigate: no session recap card when idle (#1920)")
 		local first = card:FindFirstChild("Line1", true)
-		assert(first and first.Text == "Today: 3 new cats, $12,500 earned", "uigate: the recap's first line reads " .. tostring(first and first.Text))
+		assert(first and first.Text == "Today: 3 new cats, $12K earned", "uigate: the recap's first line reads " .. tostring(first and first.Text))
 		local second = card:FindFirstChild("Line2", true)
 		assert(second and string.find(second.Text, "Grand Opening 3/8", 1, true), "uigate: the recap's next line reads " .. tostring(second and second.Text))
 		assert(card:FindFirstChild("Line3", true).Text == "Your bait cat arrives in 3 min. It waits for you", "uigate: the recap's bait line reads " .. card:FindFirstChild("Line3", true).Text)
 		assert(card:FindFirstChild("Line4", true).Visible, "uigate: no offline line on the recap")
 		UI.recap.show({ minutes = 80, newCats = 1, earned = 1 })
-		assert(first.Text == "Today: 3 new cats, $12,500 earned", "uigate: the recap showed twice in a session (#1920)")
+		assert(first.Text == "Today: 3 new cats, $12K earned", "uigate: the recap showed twice in a session (#1920)")
 	end },
 	-- #2123 (first-hour.md 6a): with Gameplay's ReturnHook pick the offline share has its own line and one Tomorrow
 	-- line closes the card (a treat with its prize, the longest), in place of the cooking bait line

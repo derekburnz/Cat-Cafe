@@ -959,6 +959,32 @@ function Pose.hold(rig: Rig, floor: CFrame)
 	rig.speed = 0
 end
 
+-- The rig's parts as bound, each in the space of the floor under it then (Pose.floor), for Pose.holdRest. Take it
+-- right after Pose.bind.
+function Pose.rest(rig: Rig): { CFrame }
+	local floor = Pose.floor(rig)
+	local rest: { CFrame } = {}
+	for i, frame in rig.base do
+		rest[i] = floor:ToObjectSpace(frame)
+	end
+	return rest
+end
+
+-- Pose.hold from the pose kept by Pose.rest rather than from what Pose.read just took off the parts (#2050, #2329):
+-- for a walking copy that is this client's alone, so a part something else moved for a frame (Desktop-Tester read a
+-- copy's body hundreds of studs off, and earlier far below the map) is never taken as where the cat is. Call it
+-- between Pose.read and Pose.draw.
+function Pose.holdRest(rig: Rig, rest: { CFrame }, floor: CFrame)
+	if rig.usesMotors or rig.bodyIndex == 0 then
+		return
+	end
+	local base = rig.base
+	for i, frame in rest do
+		base[i] = frame
+	end
+	Pose.hold(rig, floor)
+end
+
 -- The floor under the cat with the model's axes (-Z is the way it faces), for props that play with it.
 function Pose.floor(rig: Rig): CFrame
 	if rig.usesMotors or rig.bodyIndex == 0 then

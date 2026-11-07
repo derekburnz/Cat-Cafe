@@ -154,7 +154,7 @@ function Codes.new(callbacks: Callbacks): Codes
 			Padding = UDim.new(0, GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		Create("UIPadding", { PaddingRight = UDim.new(0, 8), PaddingBottom = UDim.new(0, 6) }),
+		Outline.listPadding(8, 6), -- #2294: room for the cards' outlines
 	})
 	self._body = content
 	self._mounted = false

@@ -247,11 +247,7 @@ function Potions.new(callbacks: Callbacks): Potions
 			Padding = UDim.new(0, Theme.sizes.gap),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		Create("UIPadding", {
-			PaddingTop = UDim.new(0, 4),
-			PaddingBottom = UDim.new(0, 8),
-			PaddingRight = UDim.new(0, 8),
-		}),
+		Outline.listPadding(8, 8), -- #2294: room for the cards' outlines
 	})
 	-- with an empty bag, one line on where potions come from, under the rows
 	self._hint = text({

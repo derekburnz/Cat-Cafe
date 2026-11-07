@@ -402,6 +402,7 @@ export type CatchInfo = {
 	stars: number?, -- 1 to 5 from the stray's Stars attribute
 	charm: number?, -- 0 to 100 from the stray's Charm attribute
 	kind: PromptKind?, -- default "swing" (the net); "rescue" is a stuck cat (F21)
+	touch: boolean?, -- #2315: PromptShown's input type was Touch, so the card offers its press-and-hold button
 	rescueSpotId: string?, -- RescueSpotId attribute; what RescueBegin and RescueEnd take
 	press: boolean?, -- v0.3: the prompt has HoldDuration 0, so one press starts the catch or rescue
 	shiny: boolean?, -- v0.3: the stray's Gold attribute (rescued cats hide it until freed)
@@ -410,7 +411,7 @@ export type CatchInfo = {
 	-- grab it; the card reads "It's running!".
 	fleeingUntil: number?,
 	-- v0.5.1, F57: server time this player may try again after their own miss (CatchResult's retryAt: 3, 6, then
-	-- 10 s after the cat stops by misses in a row); init.luau fills it, the card reads "Catch your breath..." until
+	-- 10 s after the cat stops by misses in a row); init.luau fills it, the card reads "Cooling down Ns" until
 	-- then.
 	retryAt: number?,
 	-- v0.5 F41: server time until which only the old carrier may catch a cat knocked loose by a shove (the

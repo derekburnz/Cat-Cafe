@@ -42,7 +42,7 @@ return function()
 		GoldChanceRescue = 0.12,
 		RescuedTipsMultiplier = 1.0, -- v0.3 (F22): a rescue pays no more; its reward is the gold chance
 		GrabRangeStuds = 10,
-		CatchHoldSeconds = 0.5, -- Derek 2026-10-27: hold E to start a catch or a rescue
+		CatchHoldSeconds = 0.5, -- Derek 2026-10-27: hold E to start a catch (a rescue is one press since #2335)
 		GrabRetrySeconds = 2,
 		-- v0.4 catching stakes (F34, section 10 step 5); v0.5 the chase after a miss (F40)
 		StrayFleeSpeed = 26,

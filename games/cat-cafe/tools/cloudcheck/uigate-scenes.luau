@@ -1136,6 +1136,41 @@ local SCENES = {
 	{ "Cats", function()
 		UI.open("Cats")
 	end },
+	-- #2294 (Derek2: "the border gets cut off at the bottom of cat menu"): scrolled to its end, the grid's last row
+	-- keeps its whole outline (the gate's strokeclip check reads every card; this scene puts the last row in view)
+	{ "CatsGridEnd", function()
+		-- three times the sample player's cats, so the grid scrolls
+		local before = UI.getState() :: any
+		Scenes._crew = { cats = before.cats, tier = before.tier, extraSlots = before.extraSlots or 0 }
+		local cats = {}
+		for uid, cat in before.cats do
+			cats[uid] = cat
+			for copy = 1, 2 do
+				local twin = table.clone(cat)
+				twin.spotId = nil
+				cats[uid .. "_twin" .. copy] = twin
+			end
+		end
+		UI.update({ cats = cats } :: any)
+		UI.open("Cats")
+		task.wait(0.1)
+		local container = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Container", true) :: Instance
+		local window = container and container:FindFirstChild("Cats")
+		local grid = window and window:FindFirstChild("Grid", true) :: ScrollingFrame
+		assert(grid and grid:IsA("ScrollingFrame"), "uigate: no cat grid")
+		-- the canvas's end against the last row's outline, measured before scrolling; then the grid scrolls to its end
+		-- so the gate's strokeclip check reads the last row in view
+		local canvasEnd = grid.AbsolutePosition.Y - grid.CanvasPosition.Y + grid.AbsoluteCanvasSize.Y
+		local last = 0
+		for _, card in grid:GetChildren() do
+			if card:IsA("GuiObject") and card.Visible then
+				local stroke = card:FindFirstChildWhichIsA("UIStroke")
+				last = math.max(last, card.AbsolutePosition.Y + card.AbsoluteSize.Y + (if stroke then stroke.Thickness else 0))
+			end
+		end
+		assert(last > 0 and last <= canvasEnd + 0.5, ("uigate: the last row's outline ends %.1f px past the cat grid's end (#2294)"):format(last - canvasEnd))
+		grid.CanvasPosition = Vector2.new(0, math.max(0, grid.AbsoluteCanvasSize.Y - grid.AbsoluteWindowSize.Y))
+	end },
 	-- #1955 (auto-equip.md): the Auto Equip switch at the crew strip's right end, over Equip Best, gold while on; it
 	-- shows once the server saves settings.autoEquip
 	{ "CatsAutoEquip", function()
@@ -1459,13 +1494,50 @@ local SCENES = {
 		assert(window:FindFirstChild("Attracts", true) == nil, "uigate: an Attracts chip is back on a food row (#1612)")
 		assert(window:FindFirstChild("Odds", true) == nil, "uigate: an odds line is back on a food row (#1612)")
 		local star = window:FindFirstChild("star_treat", true)
-		local kibble = window:FindFirstChild("kibble", true)
-		assert(star and kibble, "uigate: no Star Treat or Kibble row")
-		assert(star.LayoutOrder < kibble.LayoutOrder, "uigate: the bowl lists Kibble before the Star Treat (#1609)")
+		local moon = window:FindFirstChild("moon_milk", true)
+		assert(star and moon, "uigate: no Star Treat or Moon Milk row")
+		-- neither is in the bag here, so they keep the rarest first order behind the foods the player has (#2323)
+		assert(star.LayoutOrder < moon.LayoutOrder, "uigate: the bowl lists Moon Milk before the Star Treat (#1609)")
 		press("Bait", "star_treat.Details")
 		local detail = star:FindFirstChild("Detail", true) :: TextLabel
 		assert(detail and detail.Visible, "uigate: Details did not open")
 		assert(string.find(detail.Text, "Mythical", 1, true), "uigate: the Details text has no odds: " .. detail.Text)
+	end },
+	-- #2323: a tutorial player with Kibble alone sees it at the top, not under six foods they don't have; once Salmon
+	-- is in the bag it leads, then Kibble, then the rest rarest first
+	{ "BaitOwnedFirst", function()
+		local before: any = UI.getState()
+		UI.update({ lures = { kibble = 3 } })
+		UI.bait.openPicker()
+		local window = baitWindow()
+		local function order(): string
+			local rows = {}
+			for _, lure in Catalog.lures do
+				local row = window:FindFirstChild(lure.id, true)
+				assert(row and row:IsA("GuiObject"), "uigate: no row for " .. lure.id)
+				table.insert(rows, row)
+			end
+			table.sort(rows, function(a, b)
+				return a.LayoutOrder < b.LayoutOrder
+			end)
+			local names = {}
+			for _, row in rows do
+				table.insert(names, row.Name)
+			end
+			return table.concat(names, ",")
+		end
+		local shown = order()
+		assert(
+			shown == "kibble,star_treat,moon_milk,caviar,salmon,sardines,tuna",
+			"uigate: the bowl with only Kibble lists " .. shown .. " (#2323)"
+		)
+		UI.update({ lures = { kibble = 3, salmon = 1 } })
+		shown = order()
+		assert(
+			shown == "salmon,kibble,star_treat,moon_milk,caviar,sardines,tuna",
+			"uigate: the bowl with Kibble and Salmon lists " .. shown .. " (#2323)"
+		)
+		UI.update({ lures = before.lures }) -- later Bait scenes keep their own bag (BaitRefill needs its Tuna)
 	end },
 	-- #1161: the Second Bait Bowl pass owned, bowl 1 filling and bowl 2 empty: two tabs, and the screen opens on
 	-- bowl 2 (the empty one that takes food) with its Use buttons live
@@ -2731,6 +2803,31 @@ local SCENES = {
 			task.delay(target - t0 + delay, tapCircles)
 		end
 	end },
+	-- #2332 (Derek2: "it should fully be only failing if the heart bar hits 0"): a catch with 30 rings keeps its strip
+	-- to ten pips, inside the screen, and slides once the play passes the tenth
+	{ "CatchLongStrip", function()
+		local list = startCatch("gate_stray", "Mythical", 30, 0, 0.82)
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+		local strip = layer:FindFirstChild("Strip", true) :: Frame
+		local function shown(): (number, number)
+			local count, first = 0, nil
+			for index = 1, #list do
+				local pip = strip:FindFirstChild("Pip" .. index) :: Frame
+				if pip.Visible then
+					count += 1
+					first = first or index
+				end
+			end
+			return count, first or 0
+		end
+		local count, first = shown()
+		assert(count == 10 and first == 1, ("uigate: a 30 ring catch shows %d pips from %d (#2332)"):format(count, first))
+		assert(strip.AbsoluteSize.X < 300, "uigate: the 30 ring strip is " .. strip.AbsoluteSize.X .. " px wide (#2332)")
+		-- the eleventh ring judged: the strip slides on by two
+		UI.catch.judged("gate_stray", 11, "good")
+		count, first = shown()
+		assert(count == 10 and first == 3, ("uigate: after ring 11 the strip shows %d pips from %d (#2332)"):format(count, first))
+	end },
 	-- #1727: circle 1 hit, circle 2 pressed just past its Good band (a Miss on this device), then the server's
 	-- CatchJudged calls that press Good: circles 3 and 4 never went away, so the catch goes on in view
 	{ "CatchEdgeMiss", function()
@@ -2900,6 +2997,27 @@ local SCENES = {
 			holdDuration = 0.5,
 		})
 	end },
+	-- #2315 (Derek2: "make sure mobile players have a way of doing rescue instead of holding e since they cant"): when
+	-- Roblox says the prompt is pressed by touch, the card offers its big RESCUE button even on a device that also
+	-- reports a keyboard (every profile here, the desktop ones included), and no "[E] HOLD" key cap
+	{ "CatchPromptRescueTouch", function()
+		UI.catch.show({
+			strayId = "gate_stuck",
+			catId = Catalog.cats[2].id,
+			catName = "Garbage Bag Cat",
+			rarity = "Rare",
+			kind = "rescue",
+			holdDuration = 0.5,
+			touch = true,
+		} :: any)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeCatch") or UIShim.playerGui
+		local grab = gui:FindFirstChild("Grab", true) :: TextButton
+		assert(grab and grab.Visible, "uigate: no RESCUE button for a touch prompt (#2315)")
+		local label = grab:FindFirstChild("Label", true) :: TextLabel
+		assert(label and label.Text == "RESCUE", "uigate: the touch button reads " .. (if label then label.Text else "nothing"))
+		local key = gui:FindFirstChild("Key", true) :: GuiObject?
+		assert(key == nil or not key.Visible, "uigate: the [E] key cap still shows for a touch prompt (#2315)")
+	end },
 	{ "CatchPromptCatch", function()
 		UI.catch.show({
 			strayId = "gate_stray",
@@ -2908,6 +3026,23 @@ local SCENES = {
 			rarity = "Epic",
 			holdDuration = 0.5,
 		})
+	end },
+	-- #2324 (Derek2: "make it a brief text message and not long ex: 'cooling down 1 second'"): after a miss the card
+	-- counts the wait down in one short line, rounded up, on one line on every profile
+	{ "CatchPromptCooldown", function()
+		UI.catch.show({
+			strayId = "gate_cooldown",
+			catId = Catalog.cats[2].id,
+			catName = "Mochi",
+			rarity = "Epic",
+			holdDuration = 0.5,
+			retryAt = workspace:GetServerTimeNow() + 3.2,
+		})
+		local action = UIShim.playerGui:FindFirstChild("CatCafeCatch"):FindFirstChild("Action", true) :: TextLabel
+		assert(action.Text == "Cooling down 4s", "uigate: the card after a miss reads " .. action.Text .. " (#2324)")
+		assert(action.TextFits, "uigate: Cooling down 4s does not fit the catch card (#2324)")
+		local hint = UIShim.playerGui:FindFirstChild("CatCafeCatch"):FindFirstChild("Hint", true) :: TextLabel?
+		assert(hint == nil or not hint.Visible, "uigate: the cooldown card still has a hint line (#2324)")
 	end },
 	-- F87: a context tip's card at the top centre, its bar draining
 	{ "TipCard", function()

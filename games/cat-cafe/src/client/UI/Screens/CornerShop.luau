@@ -164,10 +164,7 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 			Padding = UDim.new(0, ROW_GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		Create("UIPadding", {
-			PaddingRight = UDim.new(0, 10),
-			PaddingBottom = UDim.new(0, Theme.sizes.buttonDepth + 2),
-		}),
+		Outline.listPadding(10, Theme.sizes.buttonDepth + 2), -- #2294: room for the rows' outlines
 	})
 	self._empty = text({
 		Name = "Empty",
@@ -235,10 +232,7 @@ function CornerShop._buildPicker(self: any, content: Frame)
 			CellPadding = UDim2.fromOffset(8, 8),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		Create("UIPadding", {
-			PaddingRight = UDim.new(0, 10),
-			PaddingBottom = UDim.new(0, Theme.sizes.buttonDepth + 2),
-		}),
+		Outline.listPadding(10, Theme.sizes.buttonDepth + 2), -- #2294: room for the rows' outlines
 	})
 	self._pickerButtons = {} :: { Button.Button }
 end

@@ -31,4 +31,61 @@ function RescueMarker.inZone(
 	return math.abs(position - centre) <= half
 end
 
+-- #2318 (Derek2: "sometimes rescue's say miss even if you hit it properly"): how long before a press's time the
+-- marker may have been in the zone and still count. The player taps on the frame they saw, which is a frame or two
+-- (drawing, the screen, the touch) older than the moment the tap is stamped, so a fast marker leaving the zone had
+-- already left it when the press was timed.
+RescueMarker.SEEN_LAG = 0.05
+
+-- True when a press at server time t is a hit: the marker (from `startsAt` at `phase`, `speed` bar lengths a second)
+-- is inside the zone at t, or was at any time in the SEEN_LAG before it, though never before `since` (the last
+-- judged press, so a press right after a hit is not judged on where the marker stood for the one before it). The
+-- marker moves in a straight line inside that short a lag unless it turns at an end, so both ends and a turn are
+-- checked.
+function RescueMarker.hitAt(
+	startsAt: number,
+	phase: number,
+	speed: number,
+	t: number,
+	centre: number,
+	width: number,
+	tolerance: number?,
+	since: number?
+): boolean
+	local function inside(at: number): boolean
+		return RescueMarker.inZone(
+			RescueMarker.position(startsAt, phase, speed, at),
+			centre,
+			width,
+			tolerance
+		)
+	end
+	if inside(t) then
+		return true
+	end
+	local from = math.max(t - RescueMarker.SEEN_LAG, since or -math.huge)
+	if from >= t then
+		return false
+	end
+	if inside(from) then
+		return true
+	end
+	-- the segment from..t, a straight line unless it passes an end of the bar: the zone is an interval, so a line
+	-- between two points outside it on the same side misses it, and on opposite sides crosses it
+	local a = RescueMarker.position(startsAt, phase, speed, from)
+	local b = RescueMarker.position(startsAt, phase, speed, t)
+	local half = width / 2 + (tolerance or 0)
+	local low, high = centre - half, centre + half
+	local u0 = RescueMarker.phaseAt(startsAt, phase, speed, from)
+	local u1 = u0 + speed * (t - math.max(from, startsAt))
+	local turns = math.floor(u1) > math.floor(u0) -- passes 1 (the right end) or 2 (back at the left)
+	if turns then
+		-- it reached an end in between: the right end if it was heading out, the left end otherwise
+		local endAt = if u0 % 2 < 1 then 1 else 0
+		return (endAt >= low and endAt <= high)
+			or (math.min(a, endAt) <= high and math.max(a, endAt) >= low)
+	end
+	return math.min(a, b) <= high and math.max(a, b) >= low
+end
+
 return RescueMarker

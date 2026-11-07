@@ -447,6 +447,55 @@ return function()
 			end
 		)
 
+		describe("a player who owns the top picks (#2303)", function()
+			local function row(key: string, owned: boolean, product: boolean?): any
+				return {
+					key = key,
+					passId = 1,
+					owned = owned,
+					product = product,
+					name = key,
+					icon = "",
+					effect = "",
+					tab = if product then "potions" else "passes",
+				}
+			end
+			-- the Store's own order: the ladder, Long Nap, VIP, the potion packs, then the rest
+			local function store(passOwned: boolean): { any }
+				return {
+					row("money", true),
+					row("longNap", true),
+					row("vip", passOwned),
+					row("potionXS", false, true),
+					row("potionS", false, true),
+					row("steadyPaw", false, true),
+					row("uniforms", passOwned),
+					row("extraSlot", passOwned),
+					row("royalCat", true),
+					row("secondBowl", passOwned),
+					row("kingPack", true),
+					row("cafePass", true, true),
+				}
+			end
+
+			it("sees the Second Bait Bowl and the next two passes, and no potion pack", function()
+				expect(keys(StoreLogic.featured(store(false)).picks)).to.equal("secondBowl,extraSlot,vip")
+			end)
+
+			it("gets a pass outside the pass order before any potion pack", function()
+				local rows = store(true)
+				rows[7] = row("uniforms", false)
+				expect(keys(StoreLogic.featured(rows).picks)).to.equal("uniforms,potionXS,potionS")
+			end)
+
+			it("still gets three picks with every pass owned: potions, then Owned", function()
+				local rows = store(true)
+				table.remove(rows, 6) -- no Steady Paw card
+				table.remove(rows, 5) -- nor the S pack
+				expect(keys(StoreLogic.featured(rows).picks)).to.equal("potionXS,cafePass,money")
+			end)
+		end)
+
 		it("still shows a hero, marked Yours, when every hero card is owned (#2072)", function()
 			local function owned(key: string): any
 				return { key = key, passId = 1, owned = true, name = key, icon = "", effect = "", tab = "cats" }

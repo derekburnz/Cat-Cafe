@@ -10,6 +10,7 @@ local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local LawnLogic = require(script.Parent.Parent.Components.LawnLogic)
+local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
@@ -152,7 +153,7 @@ function LawnStall.new(callbacks: Callbacks): LawnStall
 			Padding = UDim.new(0, GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
-		Create("UIPadding", { PaddingRight = UDim.new(0, 10) }),
+		Outline.listPadding(10), -- #2294: room for the rows' outlines
 	})
 
 	for _, def in TABS do

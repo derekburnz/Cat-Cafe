@@ -30,6 +30,7 @@ type Walk = {
 	model: Model,
 	copy: Model,
 	rig: Pose.Rig,
+	rest: { CFrame }, -- the copy's pose as bound (Pose.rest)
 	hidden: { BasePart },
 	shown: { BasePart },
 	points: { Bedtime.TripPoint },
@@ -142,6 +143,7 @@ local function begin(model: Model)
 		copy:Destroy()
 		return
 	end
+	local rest = Pose.rest(rig)
 	local hidden = partsOf(model)
 	setFade(hidden, 1)
 	model:SetAttribute(BedWalk.MARK, true)
@@ -149,6 +151,7 @@ local function begin(model: Model)
 		model = model,
 		copy = copy,
 		rig = rig,
+		rest = rest,
 		hidden = hidden,
 		shown = shown,
 		points = points,
@@ -184,7 +187,8 @@ local function advance(walk: Walk, now: number, serverNow: number, dt: number): 
 	if not Pose.read(rig) then
 		return false
 	end
-	Pose.hold(rig, CFrame.new(position) * CFrame.Angles(0, yaw, 0))
+	-- from the copy's pose as bound, so a part moved for a frame elsewhere never throws it off its way (#2329)
+	Pose.holdRest(rig, walk.rest, CFrame.new(position) * CFrame.Angles(0, yaw, 0))
 	local o = Logic.idle("stray", now + walk.phase, rig.kind)
 	Logic.gait(o, speed, walk.stride, 0)
 	Pose.draw(rig, o, -1)

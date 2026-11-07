@@ -376,6 +376,15 @@ return function()
 			expect(attempt.lastPressAt).to.equal(t)
 		end)
 
+		it("a press just after the marker left the zone is still a hit (#2318)", function()
+			local attempt = binAttempt("Mythical")
+			local centre = Rescue.currentZone(attempt) :: number
+			local half = attempt.challenge.zoneWidth / 2 + Config.RescueTolerance
+			-- the marker on its way out passes the zone's right edge, then the press comes 30 ms later
+			local leaves = timeAt(attempt, math.min(centre + half, 1))
+			expect(Rescue.pressBar(attempt, leaves + 0.03)).to.equal("hit")
+		end)
+
 		it("RescueResult's bar is the marker and zone as they run now", function()
 			local attempt = binAttempt("Rare")
 			Rescue.pressBar(attempt, zoneTime(attempt))

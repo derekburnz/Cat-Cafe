@@ -2249,6 +2249,52 @@ local SCENES = {
 		press("Collection", "rainbow.Header.Rewards")
 		press("Collection", "rainbow.Expand")
 	end },
+	-- #2270 (Derek2: "the bold text on index rewards is hard to read"): every forever pill, the NEXT sticker and the
+	-- reward band read at 4.5:1 or better against their own fill, and no turning bands sit under their words
+	{ "IndexRewardContrast", function()
+		local before: any = UI.getState()
+		local restore = { goldLuck = before.goldLuck or 0, baitSpeed = before.baitSpeed or 0 }
+		UI.update({
+			indexRewards = { rainbow = { rainbow1 = true, rainbow3 = true, rainbow5 = true } },
+			rainbowLuck = 0.2,
+			goldLuck = 0.1,
+			baitSpeed = 0.2,
+		})
+		UI.open("Collection")
+		press("Collection", "RainbowTab")
+		press("Collection", "rainbow.Header.Rewards")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Collection", true)
+		assert(window, "uigate: no Index window (#2270)")
+		local function lum(c: Color3): number
+			local function ch(x: number): number
+				return if x <= 0.03928 then x / 12.92 else ((x + 0.055) / 1.055) ^ 2.4
+			end
+			return 0.2126 * ch(c.R) + 0.7152 * ch(c.G) + 0.0722 * ch(c.B)
+		end
+		local names = { bonus = true, goldLuck = true, rainbowLuck = true, baitSpeed = true, NextSticker = true, Bonus = true }
+		local checked, seen = 0, {}
+		for _, label in window:GetDescendants() do
+			if label:IsA("TextLabel") and names[label.Name] and label.Visible and label.Text ~= "" then
+				local a, b = lum(label.TextColor3), lum(label.BackgroundColor3)
+				local ratio = (math.max(a, b) + 0.05) / (math.min(a, b) + 0.05)
+				assert(
+					ratio >= 4.5,
+					("uigate: %s %q reads at %.2f:1 (#2270)"):format(label.Name, label.Text, ratio)
+				)
+				local bands = label:FindFirstChild("Rainbow")
+				assert(
+					not (bands and bands:IsA("UIGradient") and bands.Enabled),
+					"uigate: rainbow bands tint the words of " .. label.Name .. " (#2270)"
+				)
+				checked += 1
+				seen[label.Name] = true
+			end
+		end
+		assert(seen.rainbowLuck and seen.NextSticker, "uigate: no rainbow luck pill or NEXT sticker to check (#2270)")
+		assert(checked >= 3, "uigate: only " .. checked .. " reward labels checked (#2270)")
+		UI.update(restore :: any) -- later Index scenes keep their own header pills
+	end },
 	-- #2272 (Derek2: "show cat collector through walls like rich tip"): while he visits, his tag draws over walls out
 	-- to the rich tip's 150 studs, on a solid bubble so it reads against any wall
 	{ "CollectorTagWalls", function()

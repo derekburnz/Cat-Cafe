@@ -46,6 +46,7 @@ Theme.colors = {
 	redDark = Color3.fromHex("BE3330"),
 	berry = Color3.fromHex("F2679E"),
 	berryDark = Color3.fromHex("C2477A"),
+	rainbowChip = Color3.fromHex("7A3FC4"), -- #2270: a rainbow chip's solid violet fill, white words at 6.3:1
 }
 
 -- Button fills (Derek 2026-10-27: "copy the ui button background from the popular games"; the clean look since

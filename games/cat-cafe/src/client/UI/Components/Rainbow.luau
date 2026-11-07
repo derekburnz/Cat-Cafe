@@ -6,6 +6,8 @@
 --   Rainbow.stroke(stroke)    paints a UIStroke's edge in the bands (its Color goes white so they show true)
 --   Rainbow.text(label)       the same on a label's text (for a label with no fill of its own)
 --   Rainbow.fill(frame)       the same on a frame's fill; give its text a dark colour, which the bands barely tint
+--   Rainbow.chip(label, on)   a chip with words (#2270): a solid violet fill and white words, the bands on its edge
+--                             only, so they never tint the words; off puts the plain dark edge back
 -- Each returns its UIGradient, so a reused card can switch it with `Enabled`.
 --
 -- Roblox terms: a UIGradient under a GuiObject (or a UIStroke) tints it from one side to the other with a colour
@@ -70,6 +72,44 @@ end
 function Rainbow.fill(frame: GuiObject): UIGradient
 	frame.BackgroundColor3 = Theme.colors.white
 	return add(frame)
+end
+
+-- #2270 (Derek2: "the bold text on index rewards is hard to read"): bands on a chip's fill tint its words too, so a
+-- chip that carries words keeps a solid violet fill with white outlined words and turns the bands on its edge. The
+-- edge is the chip's "Border" stroke (made here when it has none, and then shown only while the bands are on).
+function Rainbow.chip(label: GuiObject, on: boolean)
+	local border: Instance? = label:FindFirstChild("Border")
+	if border == nil and on then
+		local made: UIStroke = Create("UIStroke", {
+			Name = "Border",
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			LineJoinMode = Enum.LineJoinMode.Round,
+			Thickness = 2,
+			Parent = label,
+		})
+		made:SetAttribute("RainbowOnly", true)
+		border = made
+	end
+	if border ~= nil and border:IsA("UIStroke") then
+		local edge = border :: UIStroke
+		local bands: Instance? = edge:FindFirstChild("Rainbow")
+		if on and bands == nil then
+			bands = add(edge)
+		end
+		if bands ~= nil and bands:IsA("UIGradient") then
+			(bands :: UIGradient).Enabled = on
+		end
+		edge.Color = if on then Theme.colors.white else Theme.colors.outline
+		if edge:GetAttribute("RainbowOnly") == true then
+			edge.Enabled = on
+		end
+	end
+	if on then
+		label.BackgroundColor3 = Theme.colors.rainbowChip
+		if label:IsA("TextLabel") or label:IsA("TextButton") then
+			(label :: any).TextColor3 = Theme.colors.white
+		end
+	end
 end
 
 return Rainbow

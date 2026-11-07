@@ -159,7 +159,7 @@ function RallyBanner.new(parent: Instance, avoid: (() -> { GuiObject })?): Rally
 		Position = UDim2.fromOffset(PAD, 52),
 		Size = UDim2.new(1, -PAD * 2, 0, 18),
 		FontFace = Theme.fonts.bodyBold,
-		TextSize = Theme.sizes.textTiny + 1,
+		TextSize = Theme.sizes.textSmall, -- 10.5 px on a phone (device pass 2026-11-07: textTiny + 1 read as about 8)
 		TextColor3 = Theme.chalk,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Parent = banner,

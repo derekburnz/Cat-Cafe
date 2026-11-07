@@ -282,6 +282,7 @@ local HIDE_HIT = 30 -- the Tutorial tile's × takes taps this big round its 20 p
 local GLOW = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 1, false, 0.15)
 local CARRY_W = 420
 local CARRY_H = 56
+local TUTORIAL_W = 520 -- the tutorial strip's widest box (design px), padding included
 local DROP_W = 104
 -- the arrow tabs that fold the left menu and the bottom row out of the way (Derek 2026-10-27: less clutter)
 local FOLD_W = 44
@@ -1756,7 +1757,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 
 	-- Tutorial strip (bottom centre, above the carry banner when both show). It grows to 520 px wide, then wraps
 	-- onto a second line (reviewer N94: the step hints run to about 100 characters), growing upwards from the
-	-- bottom anchor so the carry banner stacking is unchanged.
+	-- bottom anchor so the carry banner stacking is unchanged. It wraps only when setTutorial measures a line too
+	-- long for one row: wrapped from the start, Roblox's AutomaticSize broke a 46 character hint over the player on
+	-- a phone well short of 520 (device pass 2026-11-07).
 	self._tutorial = label({
 		Name = "Tutorial",
 		BackgroundColor3 = Theme.colors.gold,
@@ -1770,7 +1773,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		TextSize = Theme.sizes.textBody + 1,
 		TextColor3 = Theme.colors.white,
 		TextXAlignment = Enum.TextXAlignment.Center,
-		TextWrapped = true,
+		TextWrapped = false,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		Text = "",
 		Visible = false,
@@ -1786,10 +1789,11 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = self._tutorial,
 	})
 	-- one line is 40 px tall; two lines stop at 64, and a longer hint truncates there
-	Create(
-		"UISizeConstraint",
-		{ MinSize = Vector2.new(0, 40), MaxSize = Vector2.new(520, 64), Parent = self._tutorial }
-	)
+	Create("UISizeConstraint", {
+		MinSize = Vector2.new(0, 40),
+		MaxSize = Vector2.new(TUTORIAL_W, 64),
+		Parent = self._tutorial,
+	})
 
 	self:_layoutBottom()
 	self:_buildBoosts(root)
@@ -2214,8 +2218,9 @@ end
 function HUD.render(self: any, state: Types.PlayerState)
 	local catalog: Types.Catalog? = self._catalog
 	-- #1796: the Upgrades tile glows while the tutorial asks for a table or the Bait bowl
+	-- on the square alone: round the whole tile it covered the "Upgrades" label under it (device pass 2026-11-07)
 	TutorialGlow.set(
-		self._upgradesTile.instance,
+		self._upgradesTile.face,
 		TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
 	)
 	-- F102: the Trade tile from the live minimum tier, with the rest of the full HUD, once TradeService runs (it sets
@@ -2483,12 +2488,36 @@ function HUD.setTutorial(self: any, text: string?)
 			Sound.play("uiHint")
 			Tween.popIn(self._tutorial, 0.92)
 		end
-		self._tutorial.Text = text
+		if self._tutorial.Text ~= text then
+			self._tutorial.TextWrapped = false
+			self._tutorial.Text = text
+			self:_wrapTutorial(text)
+		end
 		self._tutorial.Visible = true
 	else
 		self._tutorial.Visible = false
 	end
 	self:_layoutBottom()
+end
+
+-- One row while the line fits the strip's widest box, two when it is longer. GetTextBoundsAsync yields, so the
+-- answer lands a moment later and only while the strip still shows this line.
+function HUD._wrapTutorial(self: any, text: string)
+	local strip: TextLabel = self._tutorial
+	task.spawn(function()
+		local ok, bounds = pcall(function()
+			local params = Instance.new("GetTextBoundsParams")
+			params.Text = text
+			params.Font = strip.FontFace
+			params.Size = strip.TextSize
+			params.Width = 100000 -- no wrap
+			return game:GetService("TextService"):GetTextBoundsAsync(params)
+		end)
+		if ok and bounds and strip.Text == text then
+			strip.TextWrapped = bounds.X > TUTORIAL_W - 2 * 18
+			self:_layoutBottom()
+		end
+	end)
 end
 
 -- Bottom up: the bottom row, the carry banner, then the tutorial strip, each above the ones showing below it.

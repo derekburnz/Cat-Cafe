@@ -36,7 +36,7 @@ StoreLogic.TABS = {
 	{ id = "passes", name = "Passes", icon = "🎟️" },
 	{ id = "cats", name = "Cats", icon = "🐱" },
 	{ id = "potions", name = "Potions", icon = "🧪" },
-	{ id = "cafePass", name = "Cafe Pass", icon = "🎫" },
+	{ id = "cafePass", name = "Cafe Pass", icon = "🏅" }, -- the medal, as its picture (#1982)
 	{ id = "codes", name = "Codes", icon = "🔑", always = true },
 } :: { Tab }
 

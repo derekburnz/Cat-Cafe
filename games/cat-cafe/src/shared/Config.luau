@@ -434,18 +434,21 @@ local Config = {
 	RescueSpotSpacingStuds = 25,
 	-- The bar per rarity: the marker's speed in bar lengths per second, the zone's width as a fraction of the bar.
 	-- v0.13.15 F83 (harder rescues): 0.2 a second faster and narrower zones for every rarity.
+	-- #2320 (Derek2: "lower the difficulty for rescue missions rare and lower"): Common 1.0 -> 0.85 and Rare 1.2 -> 1.05;
+	-- Epic and up as they were.
 	RescueBarSpeed = {
-		Common = 1.0,
-		Rare = 1.2,
+		Common = 0.85,
+		Rare = 1.05,
 		Epic = 1.4,
 		Legendary = 1.6,
 		Mythical = 1.8,
 	} :: { [string]: number },
 	-- #2219: a miss now sends the bar back to the start, so the Mythical's zone went 0.10 -> 0.14 to keep its rescue
 	-- near the old 11% at 50 ms (Design-Agent). Its faster marker still gives it the shortest time in the zone.
+	-- #2320: Common 0.26 -> 0.30 and Rare 0.20 -> 0.23.
 	RescueZoneWidth = {
-		Common = 0.26,
-		Rare = 0.20,
+		Common = 0.30,
+		Rare = 0.23,
 		Epic = 0.15,
 		Legendary = 0.12,
 		Mythical = 0.14,

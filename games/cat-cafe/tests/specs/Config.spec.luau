@@ -808,11 +808,11 @@ return function()
 		)
 
 		it(
-			"the rescue bar matches the section 10b table: rarer is faster with less time in the zone (v0.13.15 F83, #2219)",
+			"the rescue bar matches the section 10b table: rarer is faster with less time in the zone (v0.13.15 F83, #2219, #2320)",
 			function()
 				local rows = {
-					Common = { 1.0, 0.26 },
-					Rare = { 1.2, 0.20 },
+					Common = { 0.85, 0.30 }, -- #2320
+					Rare = { 1.05, 0.23 }, -- #2320
 					Epic = { 1.4, 0.15 },
 					Legendary = { 1.6, 0.12 },
 					Mythical = { 1.8, 0.14 },

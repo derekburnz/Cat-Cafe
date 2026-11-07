@@ -1,7 +1,7 @@
 --!strict
 -- The Rescue Rally weekend's rules (F101, rescue-rally.md), pure; RallyService runs the server's bar.
 -- The Rally runs from Config.RallyStartWeekday 00:00 UTC for RallyHours each week (`isActive`), or at any time with
--- RallyForce. `weekend(now)` numbers the weeks from that start, so a save's laps start again at the next one. A lap's
+-- RallyForce, and through Config.RallyExtendFrom to RallyExtendUntil (#2227). `weekend(now)` numbers the weeks from that start, so a save's laps start again at the next one. A lap's
 -- `goal` is RallyPointsPerPlayer times the players, never fewer than RallyMinPlayers'; `stepsCrossed` names the steps
 -- (Catalog.rallySteps) a score passed. `pays` decides whether a player gets a step's prize: they scored
 -- RallyMinPoints this lap, and the lap is one they were already paid from or they have laps left this weekend.
@@ -34,9 +34,14 @@ function Rally.weekStart(now: number): number
 	return base() + Rally.weekend(now) * WEEK
 end
 
--- Whether `now` is inside a Rally weekend.
+-- Whether `now` falls in the one-off extension (#2227): from RallyExtendFrom until RallyExtendUntil.
+local function extended(now: number): boolean
+	return now >= Config.RallyExtendFrom and now < Config.RallyExtendUntil
+end
+
+-- Whether `now` is inside a Rally weekend (or the extension that runs one on).
 function Rally.inWindow(now: number): boolean
-	return now - Rally.weekStart(now) < Config.RallyHours * 3600
+	return now - Rally.weekStart(now) < Config.RallyHours * 3600 or extended(now)
 end
 
 -- Whether a Rally runs at `now`: inside the weekend, or at any time when `force` is on.
@@ -48,7 +53,8 @@ end
 -- (where the real one takes over). 0 when none runs.
 function Rally.endsAt(now: number, force: boolean): number
 	if Rally.inWindow(now) then
-		return Rally.weekStart(now) + Config.RallyHours * 3600
+		local ends = Rally.weekStart(now) + Config.RallyHours * 3600
+		return if extended(now) then math.max(ends, Config.RallyExtendUntil) else ends
 	end
 	return if force then Rally.weekStart(now) + WEEK else 0
 end

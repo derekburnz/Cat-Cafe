@@ -2171,6 +2171,36 @@ local SCENES = {
 		end
 		press("Collection", "Book." .. first)
 	end },
+	-- #2207 (Derek2: "IBowBeforeGod tamed an Epic Gardener Cat at their..."): a toast too long for one row wraps and
+	-- the pill grows taller, every word showing; a short one stays one 40 px row
+	{ "ToastWrap", function()
+		local long = "IBowBeforeGod tamed an Epic Gardener Cat at their bait bowl!"
+		local short = "Saved!"
+		UI.announce(long, "Epic")
+		UI.toast(short, "good")
+		local function find(text: string): TextLabel
+			for _, label in UIShim.playerGui:GetDescendants() do
+				if label:IsA("TextLabel") and label.Text == text and label.Name == "Text" then
+					return label
+				end
+			end
+			error("uigate: no toast reading " .. text)
+		end
+		local line = find(long)
+		local pill = line.Parent :: Frame
+		assert(line.TextWrapped, "uigate: the long toast did not wrap (#2207)")
+		assert(line.TextTruncate == Enum.TextTruncate.None, "uigate: the long toast still ends in ... (#2207)")
+		assert(line.TextFits, "uigate: the long toast's words do not all fit (#2207)")
+		assert(pill.AbsoluteSize.Y > line.TextBounds.Y, "uigate: the long toast's pill is shorter than its rows (#2207)")
+		local lone = find(short)
+		assert(not lone.TextWrapped, "uigate: a short toast wrapped (#2207)")
+		local lonePill = lone.Parent :: Frame
+		assert(lone.TextFits, "uigate: the short toast's word does not fit (#2207)")
+		assert(
+			pill.AbsoluteSize.Y > lonePill.AbsoluteSize.Y + 4,
+			"uigate: the long toast's pill is no taller than a one-row pill (#2207)"
+		)
+	end },
 	-- F99 section 2: a rainbow stray's once-a-minute toast on a turning rainbow edge
 	{ "RainbowSpawn", function()
 		UI.rainbowSpawned(firstArea(), Catalog.cats[10].id)
@@ -2802,6 +2832,30 @@ local SCENES = {
 		assert(tables:FindFirstChild("TutorialGlow") == nil, "uigate: the table row still glows at step 4 (#1796)")
 		assert(bowl:FindFirstChild("TutorialGlow"), "uigate: the Bait bowl row does not glow at step 4 (#1796)")
 		task.wait(0.1) -- the list scrolls the Bait bowl row into view
+	end },
+	-- #2211 (crispi_255): the tutorial's last step done: the Tutorial tile's red × gets a gold ring and bounces for
+	-- a few seconds, then is plain again; a player who finished it before (no step change) gets no pulse
+	{ "TutorialDoneX", function()
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local dot: Instance? = nil
+		for _, piece in (hud :: Instance):GetDescendants() do
+			if piece.Name == "Dot" and piece.Parent and piece.Parent.Name == "Hide" then
+				dot = piece
+			end
+		end
+		assert(dot, "uigate: no × on the Tutorial tile (#2211)")
+		UI.update({ tutorialStep = 9 } :: any)
+		UIShim.advance(3.5) -- the scene before may leave the tutorial mid-way, which this update just finished
+		UI.update({ tutorialStep = 9 } :: any)
+		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the × pulses with no tutorial step done (#2211)")
+		UI.update({ tutorialStep = 4 } :: any)
+		UI.update({ tutorialStep = 9 } :: any)
+		assert(dot:FindFirstChild("PulseRing"), "uigate: the × does not pulse when the tutorial ends (#2211)")
+		UIShim.advance(3.5)
+		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the ×'s pulse does not end (#2211)")
+		assert(dot:FindFirstChild("Pulse") == nil, "uigate: the ×'s bounce does not end (#2211)")
+		UI.update({ tutorialStep = 4 } :: any)
+		UI.update({ tutorialStep = 9 } :: any) -- again, for the picture
 	end },
 	-- F87 section 2g: "Need a hand?" after 90 s on one tutorial step
 	{ "HelpCard", function()

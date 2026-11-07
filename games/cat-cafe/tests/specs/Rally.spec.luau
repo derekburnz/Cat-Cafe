@@ -46,6 +46,32 @@ return function()
 			expect(Rally.isActive(SAT + HOUR, false)).to.equal(true)
 			expect(Config.RallyForce).to.equal(false)
 		end)
+
+		it("runs the 11-07 Rally on without a break until Monday 11-16 (#2227)", function()
+			local from, untilAt = Config.RallyExtendFrom, Config.RallyExtendUntil
+			expect(from).to.equal(SAT + WEEK) -- Saturday 2026-11-07 00:00 UTC
+			expect(untilAt).to.equal(SAT + 2 * WEEK + 48 * HOUR) -- the 11-14 weekend's end
+			local nov7 = from
+			-- the moment Derek2 asked (11-07 19:09), and every hour after it, is inside with the same end
+			for t = nov7 + 19 * HOUR, untilAt - 1, HOUR do
+				expect(Rally.inWindow(t)).to.equal(true)
+				expect(Rally.isActive(t, false)).to.equal(true)
+				expect(Rally.endsAt(t, false)).to.equal(untilAt)
+			end
+			expect(Rally.inWindow(untilAt - 1)).to.equal(true)
+			expect(Rally.inWindow(untilAt)).to.equal(false)
+			expect(Rally.endsAt(untilAt, false)).to.equal(0)
+			-- at least a week from the ask
+			expect(untilAt - (nov7 + 19 * HOUR + 9 * 60) >= WEEK).to.equal(true)
+			-- the week still turns over on 11-14, so laps start again there as usual
+			expect(Rally.weekend(nov7 + 6 * DAY)).to.equal(Rally.weekend(nov7))
+			expect(Rally.weekend(nov7 + WEEK)).to.equal(Rally.weekend(nov7) + 1)
+			expect(Rally.startsAt(nov7 + 4 * DAY)).to.equal(nov7)
+			-- earlier and later weekends keep their 48 hours
+			expect(Rally.inWindow(TUESDAY)).to.equal(false)
+			expect(Rally.inWindow(untilAt + 5 * DAY + HOUR)).to.equal(true) -- Saturday 11-21
+			expect(Rally.endsAt(untilAt + 5 * DAY + HOUR, false)).to.equal(untilAt + 7 * DAY)
+		end)
 	end)
 
 	describe("the bar (section 2)", function()

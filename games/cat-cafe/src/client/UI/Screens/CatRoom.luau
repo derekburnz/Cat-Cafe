@@ -32,6 +32,7 @@ local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatRoomList = require(script.Parent.Parent.Components.CatRoomList)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
+local FitText = require(script.Parent.Parent.Components.FitText)
 local Format = require(script.Parent.Parent.Components.Format)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexRewards = require(script.Parent.Parent.Components.IndexRewards)
@@ -474,6 +475,7 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		TextSize = Theme.sizes.textBody + 2,
 		Parent = body,
 	})
+	FitText.shrink(self._detailName) -- #2207: the picked cat's whole name, its breed and its rate line
 	self._detailBreed = text({
 		Name = "Breed",
 		Position = UDim2.fromOffset(textLeft, 32),
@@ -481,6 +483,7 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		TextSize = Theme.sizes.textSmall,
 		Parent = body,
 	})
+	FitText.shrink(self._detailBreed)
 	self._detailStats = text({
 		Name = "Stats",
 		Position = UDim2.fromOffset(textLeft, 50),
@@ -554,6 +557,7 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		TextColor3 = PAL.good,
 		Parent = body,
 	})
+	FitText.shrink(self._detailRate)
 	local keep: TextButton = Create("TextButton", {
 		Name = "KeepsUp",
 		AutoButtonColor = false,
@@ -937,6 +941,7 @@ function CatRoom._makeCard(self: any, instance: Types.CatInstance)
 		ZIndex = 2,
 		Parent = button,
 	})
+	FitText.shrink(name) -- #2207: a long name ("Garbage Bag Cat") shrinks a little before it is cut
 	-- "Lv 24  +$12.5/s": levels run to 50 (F75), so the line shrinks a little rather than cut the rate off
 	local rate = text({
 		Name = "Rate",

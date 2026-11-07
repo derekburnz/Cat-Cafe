@@ -3808,7 +3808,6 @@ Presets.slotWalk = {
 	detour = 24,
 	waypointRise = 8,
 	planWait = 0.4,
-	lostStuds = 200, -- a copy's body read this far off its way is lost (far below the map), and the walk lets go
 }
 
 Presets.bedWalk = { fade = 0.25 }

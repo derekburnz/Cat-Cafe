@@ -13,6 +13,7 @@
 local UserInputService = game:GetService("UserInputService")
 
 local Create = require(script.Parent.Create)
+local FitText = require(script.Parent.FitText)
 local IconArt = require(script.Parent.IconArt)
 local Outline = require(script.Parent.Outline)
 local Scale = require(script.Parent.Parent.Scale)
@@ -263,7 +264,7 @@ function Button.new(props: Props): Button
 			elseif layout == "clean" then Vector2.new(0.5, 1)
 			else Vector2.new(),
 		Size = if isTile
-			then UDim2.new(1, -8, 0, textSize + 6)
+			then UDim2.new(1, -2, 0, textSize + 6)
 			elseif
 				layout == "clean"
 			then UDim2.new(1, 28, 0, band) -- a long word may pass the square's sides
@@ -273,7 +274,7 @@ function Button.new(props: Props): Button
 		AutomaticSize = if pictureRow then Enum.AutomaticSize.X else Enum.AutomaticSize.None,
 		LayoutOrder = 2,
 		Position = if isTile
-			then UDim2.new(0, 4, 1, -4)
+			then UDim2.new(0, 1, 1, -4)
 			elseif layout == "clean" then UDim2.fromScale(0.5, 1)
 			elseif layout == "wide" then UDim2.fromOffset(symbol + 12, 0)
 			elseif pictureRow then UDim2.new()
@@ -297,6 +298,11 @@ function Button.new(props: Props): Button
 		-- a clean square's label sits under it on the button itself, so it stays put while the face presses down
 		Parent = if layout == "clean" then root else pictureRow or face,
 	})
+	if (isTile or layout == "wide") and not iconSize then
+		-- #2207: a tile's word ("Upgrades" on a phone, the wide Store tile's "Store" on PC) runs nearly edge to edge
+		-- and shrinks a little before any "..."
+		FitText.shrink(label)
+	end
 	if iconSize then
 		Create("UITextSizeConstraint", { MaxTextSize = textSize, MinTextSize = 10, Parent = label })
 	elseif pictureRow then

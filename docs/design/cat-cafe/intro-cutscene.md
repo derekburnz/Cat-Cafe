@@ -42,12 +42,13 @@ Earlier numbers: the town v3.1 cut (version 2, with the catch behind your cafe a
 
 ### 2b. Reading time and Next (#2182, 2026-11-07)
 Playtesters said the captions go by too fast for kids to read ("a next button or just slowing it down would help"). Each shot now waits for its caption to be read, and the player can move on sooner with Next.
-- **Hold.** A shot lasts `max(its length in section 2, 1.0 + 0.4 s a word of its caption)`, `Intro.CAPTION_BASE = 1.0`, `Intro.CAPTION_PER_WORD = 0.4`, worked out from the caption that actually shows (the shot 6 fallback too). Today's captions give 4.2, 4.2, 3.0, 4.2, 4.2, 4.6, 4.2 and 4.2 s, about 33 s in all if nobody taps (20 s before).
+- **Hold.** A shot lasts `max(its length in section 2, 1.0 + 0.4 s a word of its caption)`, `Intro.CAPTION_BASE = 1.0`, `Intro.CAPTION_PER_WORD = 0.4`, worked out from the caption that actually shows (the codes caption's fallback too). Today's captions give 4.2, 4.2, 3.0, 4.2, 4.2, 4.2, 4.6 and 4.2 s, about 33 s in all if nobody taps (20 s before).
 - **What plays in the extra time.** The shot's action and camera move run on their section 2 timings. When they end, the camera eases to a stop over 0.3 s and the scene idles (cats idle, you stand, customers keep walking) until the hold ends. No action is stretched or repeated. Shot 2 holds on you standing on the pad (on the clouds in its fallback), shot 7 on the sunrise.
 - **Next.** A "Next ›" pill on the lower bar just left of Skip, the same size and at least 44 px tall on touch. From 1.0 s into each shot (`Intro.NEXT_AFTER`, so a double tap can't skip two shots) a press cuts to the next shot at once. A tap anywhere on the screen except Skip, Space, Enter and gamepad ButtonA do the same. On shot 8, Next ends the intro the way the last shot does, sending `IntroDone(0, replay)` as a finish, not a skip.
+- **Next in shot 1.** It jumps to the fuse, so the cut comes with the BOOM 0.5 s later and shot 2 starts on the BOOM, never mid-flight.
 - **Read bar.** A thin gold bar under the caption fills over the shot's hold, so players can see when it moves on by itself. It restarts on each shot.
 - **Unchanged.** Skip and its 5 s bar, the dots, the fallbacks, and what a replay does. A replay uses the same holds.
-- `Intro.VERSION` goes to 6, so drop-offs from the new pacing don't mix with version 5.
+- `Intro.VERSION` goes to 7 (6 was #2113), so drop-offs from the new pacing don't mix with older ones.
 
 ### 2a. You, the cat and its job (shots 1 to 5)
 
@@ -89,4 +90,4 @@ Playtesters said the captions go by too fast for kids to read ("a next button or
 6. Skipping in shot 8 sends `IntroDone(8, ...)`, the server accepts it and the event reads "5:8". No area title cards or cuts over the Park, Neighbourhood, Woods or Sewer camps show (#1542), and no cut back to the Alleyway camp's Index Board follows the cafe shot (#1782).
 7. On a phone-sized screen the captions fit on one line and Skip is easy to tap once its bar is full.
 8. On a slow connection (Studio's network emulation, or a phone on mobile data) the loading cover waits at most 5 s for the Alleyway camp; if it is still not there the intro plays without shots 3 and 4, and no shot ever shows empty ground or the sky where a camp should be.
-9. (#2182) With no taps, every caption stays up for its full hold (about 33 s in all), and after each shot's action the camera stops and the scene idles instead of cutting. From 1.0 s into a shot, Next, a tap anywhere but Skip, Space, Enter or gamepad A moves on at once; a tap in the first second does nothing. Next on shot 8 ends the intro as a finish and the event reads "6:0". The read bar fills over each hold. On a phone, Next and Skip are both easy to tap and never overlap.
+9. (#2182) With no taps, every caption stays up for its full hold (about 33 s in all), and after each shot's action the camera stops and the scene idles instead of cutting. From 1.0 s into a shot, Next, a tap anywhere but Skip, Space, Enter or gamepad A moves on at once; a tap in the first second does nothing. Next on shot 8 ends the intro as a finish and the event reads "7:0". The read bar fills over each hold. On a phone, Next and Skip are both easy to tap and never overlap.

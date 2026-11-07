@@ -633,3 +633,6 @@ With Auto Equip on, a new furniture or decoration piece from a crate or a pass r
 
 ## 2026-11-07: Tutorial captions wait for reading time, plus Next (Design-Agent, friend's project, #2182)
 Playtesters said the intro captions go by too fast for kids. intro-cutscene.md §2b: each shot holds at least 1.0 s + 0.4 s a word of its caption (about 33 s with no taps, was 20 s), the camera idles after each shot's action, a "Next ›" pill or a tap anywhere moves on from 1.0 s into a shot, and a read bar shows when it moves on by itself. Skip is unchanged, and `Intro.VERSION` goes to 6. Reason: both fixes the playtesters named, with fast readers able to go as fast as before.
+
+## 2026-11-07: Correction to the tutorial pacing entry (#2182)
+`Intro.VERSION` goes to 7, not 6 (6 was already taken by #2113), as Gameplay-Engineer built it in #2187.

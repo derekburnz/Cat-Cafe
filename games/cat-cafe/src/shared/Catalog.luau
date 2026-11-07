@@ -20,7 +20,7 @@ Catalog.rarities = {
 		circles = 3,
 		shrinkSeconds = 1.20,
 		catchWindow = 1.15, -- #1884 re-fit for the trust bar (catch-rework.md 7b)
-		trustNeed = 8,
+		trustNeed = 11, -- #2005: TrustStart + TrustPerfect x circles
 		moods = { Sleepy = 55, Curious = 45, Skittish = 0 }, -- #1884 (catch-rework.md 7a)
 		doubleRings = false, -- #1884 (7c)
 		pawRings = false,
@@ -35,7 +35,7 @@ Catalog.rarities = {
 		circles = 4,
 		shrinkSeconds = 1.00,
 		catchWindow = 1.032, -- #1884 re-fit for the trust bar (catch-rework.md 7b)
-		trustNeed = 10,
+		trustNeed = 14, -- #2005
 		moods = { Sleepy = 55, Curious = 45, Skittish = 0 }, -- #1884 (catch-rework.md 7a)
 		doubleRings = false, -- #1884 (7c)
 		pawRings = false,
@@ -50,7 +50,7 @@ Catalog.rarities = {
 		circles = 5,
 		shrinkSeconds = 0.82,
 		catchWindow = 0.908, -- #1884 re-fit for the trust bar (catch-rework.md 7b)
-		trustNeed = 12,
+		trustNeed = 17, -- #2005
 		moods = { Sleepy = 30, Curious = 35, Skittish = 35 }, -- #1884 (catch-rework.md 7a)
 		doubleRings = true, -- #1884 (7c)
 		pawRings = false,
@@ -65,7 +65,7 @@ Catalog.rarities = {
 		circles = 6,
 		shrinkSeconds = 0.68,
 		catchWindow = 0.742, -- #1884 re-fit for the trust bar and paw rings (catch-rework.md 7b, 7c)
-		trustNeed = 14,
+		trustNeed = 20, -- #2005
 		moods = { Sleepy = 20, Curious = 30, Skittish = 50 }, -- #1884 (catch-rework.md 7a)
 		doubleRings = true, -- #1884 (7c)
 		pawRings = true,
@@ -79,8 +79,10 @@ Catalog.rarities = {
 		incomePerSecond = 75,
 		circles = 7,
 		shrinkSeconds = 0.56,
-		catchWindow = 0.636, -- #1884 re-fit for the trust bar and paw rings (catch-rework.md 7b, 7c)
-		trustNeed = 16,
+		-- #2005 (Derek2: "mythic feels impossible"): 0.636 to 0.68 with the bigger Perfect and Good, a Basic Net
+		-- Mythical at 50 ms from 19% to about 36% a try (the other rarities keep their windows and gain a little)
+		catchWindow = 0.68,
+		trustNeed = 23, -- #2005
 		moods = { Sleepy = 20, Curious = 30, Skittish = 50 }, -- #1884 (catch-rework.md 7a)
 		doubleRings = true, -- #1884 (7c)
 		pawRings = true,

@@ -6,6 +6,7 @@ local CollectionService = game:GetService("CollectionService")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local AssetRegistry = require(script.Parent.Parent.World.AssetRegistry)
@@ -2346,6 +2347,18 @@ function CafeService.start()
 			end
 		end
 	end)
+end
+
+-- Studio-only test hooks (Debug.seedCafe, Debug.placeCat, Debug.unplaceCat; #2050's greeter repro): PlaceCat and
+-- UnplaceCat through the remote handlers' own steps, Auto Equip's hand note included.
+function CafeService.debugPlace(player: Player, uid: string, spotId: string)
+	assert(RunService:IsStudio(), "debugPlace is Studio only")
+	onPlaceCat(player, uid, spotId)
+end
+
+function CafeService.debugUnplace(player: Player, uid: string)
+	assert(RunService:IsStudio(), "debugUnplace is Studio only")
+	onUnplaceCat(player, uid)
 end
 
 return CafeService

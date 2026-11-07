@@ -3,8 +3,8 @@
 -- server's working cats (World/CatPose) and the intro's seated waiter (IntroController, F72) dress the same way.
 --
 -- Outfit pieces go on the seated cat's Outfit_<Piece> Attachments (manifest sit_slots), which ride the Body or the
--- Head, so the asset thread can move a slot without a code change. Each piece's parts get Follows = "Body" or
--- "Head", which the client's idles (Effects/Pose) read. A walking body (F90's walking staff, Effects/CafeWalk) wears
+-- Head, so the asset thread can move a slot without a code change. Each piece's parts get Follows = "Body", "Head"
+-- or "Tail" (a slot inside the Tail object Model, #2109's Tail Bow), which the client's idles (Effects/Pose) read. A walking body (F90's walking staff, Effects/CafeWalk) wears
 -- a piece's walking cut, CatCafe_Accessory_<Piece>_Walk (Model-Agent #787), where one exists.
 --
 -- Roblox terms: an Attachment is a named point and rotation inside a part; its WorldCFrame follows the part.
@@ -202,8 +202,13 @@ local function putOn(
 		worn:ScaleTo(scale)
 	end
 	worn:PivotTo((slot :: Attachment).WorldCFrame)
-	local head = objectModel(model, "Head")
-	local follows = if head ~= nil and slot:IsDescendantOf(head) then "Head" else "Body"
+	local head, tail = objectModel(model, "Head"), objectModel(model, "Tail")
+	local follows = if head ~= nil and slot:IsDescendantOf(head)
+		then "Head"
+		elseif
+			tail ~= nil and slot:IsDescendantOf(tail)
+		then "Tail" -- #2109: the Tail Bow sways with the tail
+		else "Body"
 	for _, descendant in worn:GetDescendants() do
 		if descendant:IsA("BasePart") then
 			local part = descendant :: BasePart

@@ -128,9 +128,13 @@ def upload(path: Path, key: str, creator: dict) -> tuple[str, str]:
     raise RuntimeError(f"no asset id after waiting ({path_id})")
 
 
-def write_cues(uploaded: dict[str, str]) -> list[str]:
+def write_cues(uploaded: dict[str, str], renames: dict[str, str] | None = None) -> list[str]:
     text = CUES.read_text(encoding="utf-8")
     changed = []
+    # A group run (--record): six cues reuse another cue's sound by id (strayFlee, catDrop, catPlaced, tipPile,
+    # uiTab, uiRankReady each have a twin), and the twin is not named after any file, so swap every old id by value.
+    for old, new in (renames or {}).items():
+        text = text.replace(f"rbxassetid://{old}", f"rbxassetid://{new}")
     for file, asset_id in uploaded.items():
         cue = cue_for(Path(file).stem)
         pattern = re.compile(rf"(^\t{re.escape(cue)} = \{{\s*ids = )\{{[^}}]*\}}", re.M)
@@ -208,7 +212,11 @@ def main() -> int:
         record.write_text(json.dumps(uploaded, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         print(f"uploaded  {name:45}  rbxassetid://{asset_id}  ({moderation})")
 
-    changed = write_cues(uploaded)
+    renames: dict[str, str] = {}
+    if record != RECORD and RECORD.exists():
+        before = json.loads(RECORD.read_text())
+        renames = {before[name]: new for name, new in uploaded.items() if name in before and before[name] != new}
+    changed = write_cues(uploaded, renames)
     write_log(uploaded)
     print(f"upload: {len(changed)} cues have ids in Cues.luau; record in {record.relative_to(REPO).as_posix()}")
     if failed:

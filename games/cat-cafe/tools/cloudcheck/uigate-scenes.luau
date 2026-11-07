@@ -1967,7 +1967,8 @@ local SCENES = {
 		end
 		assert(count == #Catalog.spinWheel, ("uigate: %d odds rows for %d slices"):format(count, #Catalog.spinWheel))
 		local prize = list:FindFirstChild("Slice8") and list.Slice8:FindFirstChild("Prize")
-		assert(prize and string.find(prize.Text, "^Jackpot: 100 golden fish"), "uigate: slice 8 is not the fish jackpot")
+		local fishJackpot = Catalog.spinWheel[8].count -- #2237: 60 since the fish cut
+		assert(prize and string.find(prize.Text, "^Jackpot: " .. fishJackpot .. " golden fish"), "uigate: slice 8 is not the fish jackpot")
 	end },
 	{ "Market", function()
 		UI.market.open()

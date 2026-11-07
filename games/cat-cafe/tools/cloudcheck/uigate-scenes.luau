@@ -3044,6 +3044,21 @@ local SCENES = {
 		local hint = UIShim.playerGui:FindFirstChild("CatCafeCatch"):FindFirstChild("Hint", true) :: TextLabel?
 		assert(hint == nil or not hint.Visible, "uigate: the cooldown card still has a hint line (#2324)")
 	end },
+	-- #2340 (Derek2: "make pretty much all buttons in the game a one click confirm instead of hold"): a prompt with no
+	-- hold (a rescue since #2344, the Index boards since this) shows no HOLD tag on its card
+	{ "CatchPromptNoHold", function()
+		UI.catch.show({
+			strayId = "gate_stuck",
+			catId = Catalog.cats[2].id,
+			catName = "Garbage Bag Cat",
+			rarity = "Rare",
+			kind = "rescue",
+			holdDuration = 0,
+		})
+		local card = UIShim.playerGui:FindFirstChild("CatCafeCatch")
+		local hold = card:FindFirstChild("Hold", true) :: GuiObject?
+		assert(hold == nil or not hold.Visible, "uigate: a one press prompt still says HOLD (#2340)")
+	end },
 	-- F87: a context tip's card at the top centre, its bar draining
 	{ "TipCard", function()
 		UI.tips.show("second_cat")

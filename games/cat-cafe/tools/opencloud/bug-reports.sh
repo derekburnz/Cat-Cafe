@@ -90,7 +90,7 @@ done
 total=${#keys[@]}
 if [ "$total" = 0 ]; then
 	# 0 under this day's prefix: say what the store holds at all, so "nothing saved" (nobody's report arrived) can be
-	# told from "saved somewhere this listing does not look" (#2075). Only the first 10 characters of each key are
+	# told from "saved somewhere this listing does not look" (#2082). Only the first 10 characters of each key are
 	# printed (the day), never a user id, since this log is public.
 	shapes=()
 	token=

@@ -11,6 +11,10 @@
 --
 --   MarketBang.new(parent)       the billboards; :update(crates) with the player's crates, :destroy()
 -- The words (and whether it shows at all) are MarketBangLogic's, pure, so the cloud specs check them.
+-- #2358 (Derek2: "show an exclamation mark near spin when you have one"): MarketBang.new(parent, options) hangs the
+-- same "!" and bubble over other tagged models, options.tag (the Spin Wheel's "SpinWheel"), with options.line(value)
+-- for the words or nil for none; :update(value) hands it the value. The words are read again every LOOK_SECONDS too,
+-- so a line that depends on the time (the free spin at 00:00 UTC) changes by itself.
 
 local CollectionService = game:GetService("CollectionService")
 local GuiService = game:GetService("GuiService")
@@ -23,8 +27,13 @@ local Outline = require(script.Parent.Outline)
 local Theme = require(script.Parent.Parent.Theme)
 
 export type MarketBang = {
-	update: (self: MarketBang, crates: { [string]: number }?) -> (),
+	update: (self: MarketBang, value: any) -> (), -- the crates for the Fish Market's, or options.line's value
 	destroy: (self: MarketBang) -> (),
+}
+
+export type Options = {
+	tag: string, -- CollectionService tag of the models to hang a "!" over
+	line: (value: any) -> string?, -- the bubble's words for the value, nil for no "!"
 }
 
 local MarketBang = {}
@@ -128,9 +137,11 @@ function MarketBang.build(parent: Instance): Bang
 	return { gui = gui, line = line, bob = nil }
 end
 
-function MarketBang.new(parent: Instance): MarketBang
+function MarketBang.new(parent: Instance, options: Options?): MarketBang
 	local self = setmetatable({}, MarketBang) :: any
 	self._parent = parent
+	self._tag = if options then options.tag else MarketBang.TAG
+	self._line = if options then options.line else MarketBangLogic.line
 	self._bangs = {} :: { [Instance]: Bang }
 	self._crates = nil :: { [string]: number }?
 	self._connections = {} :: { RBXScriptConnection }
@@ -139,11 +150,11 @@ function MarketBang.new(parent: Instance): MarketBang
 	end
 	table.insert(
 		self._connections,
-		CollectionService:GetInstanceAddedSignal(MarketBang.TAG):Connect(refresh)
+		CollectionService:GetInstanceAddedSignal(self._tag):Connect(refresh)
 	)
 	table.insert(
 		self._connections,
-		CollectionService:GetInstanceRemovedSignal(MarketBang.TAG):Connect(function(model: Instance)
+		CollectionService:GetInstanceRemovedSignal(self._tag):Connect(function(model: Instance)
 			local bang = self._bangs[model]
 			if bang then
 				bang.gui:Destroy()
@@ -173,8 +184,8 @@ function MarketBang.new(parent: Instance): MarketBang
 	return self :: MarketBang
 end
 
-function MarketBang.update(self: any, crates: { [string]: number }?)
-	self._crates = crates
+function MarketBang.update(self: any, value: any)
+	self._crates = value
 	self:_apply()
 end
 
@@ -188,8 +199,8 @@ function MarketBang._still(_self: any, bang: Bang)
 end
 
 function MarketBang._apply(self: any)
-	local words = MarketBangLogic.line(self._crates)
-	for _, model in CollectionService:GetTagged(MarketBang.TAG) do
+	local words = self._line(self._crates)
+	for _, model in CollectionService:GetTagged(self._tag) do
 		local bang: Bang? = self._bangs[model]
 		if bang == nil and words ~= nil then
 			bang = MarketBang.build(self._parent)

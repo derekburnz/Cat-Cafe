@@ -264,6 +264,60 @@ local function campExtras(picnic, bought, open)
 	}
 end
 
+-- #2078: a Rescue Rally bar's count ("45 / 90") clear of every step marker, each marker's number (the points it
+-- pays at) under it, numbers and markers clear of each other, and all of it above `belowY` (the next row's top).
+local function assertRallyBar(track, expected, belowY)
+	assert(track and track:IsA("GuiObject") and track.Visible, "uigate: no Rescue Rally bar on screen (#2078)")
+	local function box(object)
+		local at, size = object.AbsolutePosition, object.AbsoluteSize
+		return at.X, at.Y, at.X + size.X, at.Y + size.Y
+	end
+	local function textBox(label)
+		local x1, y1, x2, y2 = box(label)
+		local bounds = label.TextBounds
+		local mid = (x1 + x2) / 2
+		if label.TextXAlignment == Enum.TextXAlignment.Left then
+			return x1, (y1 + y2 - bounds.Y) / 2, x1 + bounds.X, (y1 + y2 + bounds.Y) / 2
+		end
+		return mid - bounds.X / 2, (y1 + y2 - bounds.Y) / 2, mid + bounds.X / 2, (y1 + y2 + bounds.Y) / 2
+	end
+	local function clear(a, b)
+		local ax1, ay1, ax2, ay2 = table.unpack(a)
+		local bx1, by1, bx2, by2 = table.unpack(b)
+		return ax2 <= bx1 + 0.5 or bx2 <= ax1 + 0.5 or ay2 <= by1 + 0.5 or by2 <= ay1 + 0.5
+	end
+	local points = track:FindFirstChild("Points")
+	assert(points and points:IsA("TextLabel") and points.Text ~= "", "uigate: the Rally bar has no count (#2078)")
+	local count = { textBox(points) }
+	assert(points.TextFits, "uigate: the Rally count " .. points.Text .. " does not fit its label (#2078)")
+	local numbers = {}
+	for index, at in expected do
+		local marker = track:FindFirstChild("Step" .. index)
+		assert(marker and marker.Visible, "uigate: the Rally bar has no step " .. index .. " (#2078)")
+		local markerBox = { box(marker) }
+		assert(
+			clear(count, markerBox),
+			string.format("uigate: step %d's picture covers the Rally count %s (#2078)", index, points.Text)
+		)
+		local number = marker:FindFirstChild("At")
+		assert(
+			number and number.Visible and number.Text == tostring(at),
+			string.format("uigate: step %d shows %q under it, not %d (#2078)", index, number and number.Text or "", at)
+		)
+		local numberBox = { textBox(number) }
+		assert(clear(count, numberBox), "uigate: step " .. index .. "'s number runs into the Rally count (#2078)")
+		assert(numberBox[4] <= belowY + 0.5, "uigate: step " .. index .. "'s number runs into the row under the bar (#2078)")
+		for other, otherBox in numbers do
+			assert(clear(numberBox, otherBox), string.format("uigate: steps %d and %d's numbers overlap (#2078)", other, index))
+		end
+		numbers[index] = numberBox
+		local previous = track:FindFirstChild("Step" .. (index - 1))
+		if previous then
+			assert(clear(markerBox, { box(previous) }), string.format("uigate: steps %d and %d overlap (#2078)", index - 1, index))
+		end
+	end
+end
+
 -- F101: a RallyState, running for another day and 4 hours unless `fields` says otherwise.
 -- F102: other players in the server for the Trade window's list (removed again by Scenes.close)
 local tradePlayers = {}
@@ -2519,6 +2573,53 @@ local SCENES = {
 	-- F101: a Rescue Rally on its second lap, the bar past its first step, this player on 7 points
 	{ "RallyBanner", function()
 		UI.rally.update(rallyState({ lap = 2, points = 50, myPoints = 7 }))
+		-- #2078: "50 / 90" clear of the pictures, and 14, 27, 45, 68 and 90 under the steps, above "You: 7 points"
+		local track = UIShim.playerGui:FindFirstChild("RallyBar", true)
+		local mine = track and track.Parent and track.Parent:FindFirstChild("Mine")
+		assert(mine and mine:IsA("TextLabel"), "uigate: the Rally banner has no Mine line (#2078)")
+		local mineTop = mine.AbsolutePosition.Y + (mine.AbsoluteSize.Y - mine.TextBounds.Y) / 2
+		assertRallyBar(track, { 14, 27, 45, 68, 90 }, mineTop)
+	end },
+	-- #2078: the Town Square board's face (500 x 200, the board's own layout) on a big goal: "135 / 300" past the
+	-- bar's end, clear of the pictures, and each step's points under it, above the time left
+	{ "RallyBoardFace", function()
+		local RallyBar = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RallyBar")
+		local RallyLogic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.RallyLogic")
+		local RallyBoards = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.RallyBoards")
+		local Theme = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Theme")
+		local gui = Instance.new("ScreenGui")
+		gui.Name = "RallyBoardFaceGate"
+		gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+		gui.DisplayOrder = 100 -- over the HUD, so the shot shows the face
+		gui.Parent = UIShim.playerGui
+		Scenes._rallyFace = gui
+		local face = Instance.new("Frame")
+		face.Name = "Face"
+		face.BackgroundColor3 = Color3.fromHex("2B2F3A") -- the board's dark face
+		face.AnchorPoint = Vector2.new(0.5, 0.5)
+		face.Position = UDim2.fromScale(0.5, 0.5)
+		face.Size = UDim2.fromOffset(RallyBoards.FACE.X, RallyBoards.FACE.Y)
+		face.Parent = gui
+		local layout = RallyBoards.BAR
+		local bar = RallyBar.new({
+			parent = face,
+			name = "RallyBoardBar",
+			size = layout.size,
+			position = layout.position,
+			marker = layout.marker,
+			textSize = layout.textSize,
+			countWidth = layout.countWidth,
+			numberSize = layout.numberSize,
+			textColor = Theme.chalk,
+		})
+		bar:set(RallyLogic.view(rallyState({ goal = 300, points = 135 }), workspace:GetServerTimeNow()))
+		local faceRight = face.AbsolutePosition.X + face.AbsoluteSize.X
+		local points = bar.frame:FindFirstChild("Points")
+		assert(
+			points.AbsolutePosition.X + points.AbsoluteSize.X <= faceRight + 0.5,
+			"uigate: the board's Rally count runs off its face (#2078)"
+		)
+		assertRallyBar(bar.frame, { 45, 90, 150, 225, 300 }, face.AbsolutePosition.Y + RallyBoards.LEFT_Y)
 	end },
 	-- F101: this player's laps used up this weekend, the bar nearly full
 	{ "RallyBannerDone", function()
@@ -2975,6 +3076,10 @@ end
 
 function Scenes.close()
 	reel(false)
+	if Scenes._rallyFace then
+		Scenes._rallyFace:Destroy() -- #2078's board face
+		Scenes._rallyFace = nil
+	end
 	if UI.recap.card and UI.recap.card:isShowing() then
 		UI.recap.card:hide() -- #1920
 	end

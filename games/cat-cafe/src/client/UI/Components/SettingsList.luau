@@ -143,6 +143,20 @@ if Settings.kinds[SettingsList.SESSION_RECAP_KEY] then
 	table.insert(SettingsList.SECTIONS[2].rows, row)
 end
 
+-- #1955 (auto-equip.md): Auto Equip, once shared/Settings saves its key. The same switch sits over Equip Best in the
+-- Cats window (Screens/CatRoom). On by default for new accounts and off for older ones; the server sends which.
+SettingsList.AUTO_EQUIP_KEY = "autoEquip"
+if Settings.kinds[SettingsList.AUTO_EQUIP_KEY] then
+	local row: Row = {
+		key = SettingsList.AUTO_EQUIP_KEY,
+		kind = "switch",
+		icon = "✨",
+		name = "Auto Equip",
+		detail = "Puts a better cat to work by itself",
+	}
+	table.insert(SettingsList.SECTIONS[2].rows, row)
+end
+
 -- Saved keys the Settings screen shows outside these rows. F102: Trade requests is a three-way choice ("everyone",
 -- "friends" or "off", default "everyone") in the Trading section (Screens/Settings, TradeLogic.requestsMode), so the
 -- server can save its key without a switch row here. #1893: roadmapOpen is the Grand Opening strip's open or closed

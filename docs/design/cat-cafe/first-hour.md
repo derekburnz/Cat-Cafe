@@ -116,3 +116,6 @@ The research's end-of-session hook. A Roblox game can't show anything as the pla
 - **Rules:** there's no countdown, no "don't leave" or "you'll lose" wording, and no store link. Leaving loses nothing.
 - **Funnel:** `session_recap` with the minutes played and the step the player is on, and `session_recap_close` with how long it was up.
 - **QA:** a fresh account sees the card once, at about 40 minutes and only when idle. It never shows during a catch or carry. Each line appears only when it's true, and the offline line matches Config and the pass. With the toggle off, nothing appears.
+
+### 4c. Re-fit after Catch v3 (PR #1917, 2026-11-06)
+Catch v3 (#1910) made catching easier to recover, which sped up the first hour: Tier 3 at 56.2 minutes and Espresso 4 at 46.6. Gameplay-Engineer re-fitted two prices (a forced re-fit, not new tuning): **Espresso 4 costs 550,000** (was 700,000) and **Tier 3 costs 800,000** (was 900,000). Middle run: Tables 5 at 22.6 minutes, Lucky Cat 3 (still 300,000) at 30.9, Espresso 4 at 42.6, Tier 2 at 11.7 and Tier 3 at 53.8 (fastest tenth 36.0). Pace.spec passes. These numbers replace the ones in §4a and §4b.

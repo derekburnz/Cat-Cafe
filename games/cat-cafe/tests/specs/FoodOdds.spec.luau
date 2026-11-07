@@ -289,13 +289,13 @@ return function()
 	end)
 
 	describe("FoodOdds.extras", function()
-		it("doubles the base gold chance on a Golden Day (#1572, Clock.goldChance)", function()
+		it("triples the base gold chance on a Golden Day (#1572, #1954, Clock.goldChance)", function()
 			local Config = require(
 				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
 			) :: any
 			local golden = FoodOdds.extras(0, 0, 1, true)
-			local gold = golden:match("^Gold ([%d%.]+)%% %(Golden Day x2%)$")
-			expect(tonumber(gold or "") :: number).to.be.near(Config.GoldChanceBait * 200, 0.005)
+			local gold = golden:match("^Gold ([%d%.]+)%% %(Golden Day x3%)$")
+			expect(tonumber(gold or "") :: number).to.be.near(Config.GoldChanceBait * 300, 0.005)
 			expect(FoodOdds.extras(0, 0, 1, false)).to.equal(FoodOdds.extras())
 		end)
 		it(

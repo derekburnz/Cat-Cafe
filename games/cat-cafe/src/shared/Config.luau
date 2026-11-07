@@ -72,11 +72,11 @@ local Config = {
 	-- #1934 (release.md section 1): the Roblox badge id of each badge in shared/Badges, by key; a 0 is not made yet
 	-- and is never awarded. Made 5 a day in Creator Hub, in Badges.LIST order, by Tools-Agent or Derek.
 	Badges = {
-		welcome = 0,
-		firstCatch = 0,
-		cozyCafe = 0,
-		grandOpening = 0,
-		purrfect = 0,
+		welcome = 3335628834714920,
+		firstCatch = 965821038770402,
+		cozyCafe = 3159884753679593,
+		grandOpening = 1259873901887390,
+		purrfect = 1317002089922327,
 		baitCat = 0,
 		rareFind = 0,
 		legendaryFind = 0,
@@ -278,7 +278,7 @@ local Config = {
 	LuckyDayChance = 0.33,
 	GoldenDayChance = 0.2,
 	RainbowDayChance = 0.1,
-	GoldenDayGoldMultiplier = 2,
+	GoldenDayGoldMultiplier = 3, -- #1954 (Set 11 Q1): x3, to match Rainbow Day (was 2)
 	RainbowDayMultiplier = 3,
 	LuckyDayWaveLuck = 2,
 	LuckyDayPlayerLuck = 0.5,

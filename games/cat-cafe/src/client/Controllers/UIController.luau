@@ -1036,6 +1036,12 @@ local function wireIntents()
 			Net.fire("TelemetryReport", "session_recap_close", secondsUp)
 		end)
 	end
+	-- #1947: the button pressed on a like or favourite gift card, "kind:button"; the server allowlists and caps it
+	if events.playtimeGift ~= nil then
+		events.playtimeGift:Connect(function(what: string)
+			Net.fire("TelemetryReport", "playtime_gift", what)
+		end)
+	end
 	-- #1919: the goal card's "Find N more cats" opened the Index; the server allowlists the area id
 	if events.indexHintTap ~= nil then
 		events.indexHintTap:Connect(function(areaId: string)
@@ -1808,6 +1814,27 @@ local function wireServerEvents()
 		local show: ((Types.SessionRecapView) -> ())? = if recap ~= nil then recap.show else nil
 		if show ~= nil and type(view) == "table" then
 			show(view)
+		end
+	end)
+	-- #1955: Auto Equip moved cats; UI.autoEquip merges swaps within 2 s into one toast. Wired only once the server
+	-- declares the remote, so this never waits on one that is not there.
+	local serverEvents: { string } = (require(
+		ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes")
+	) :: any).ServerToClient
+	if table.find(serverEvents, "AutoEquipped") then
+		Net.on("AutoEquipped", function(swaps: any)
+			local auto = (UI :: any).autoEquip
+			if auto ~= nil then
+				auto.swapped(swaps)
+			end
+		end)
+	end
+	-- #1947: the like or favourite gift, already paid; UI.gift.show waits for the player to be idle before the card
+	Net.on("PlaytimeGift", function(kind: string, paid: { string }?)
+		local gift = (UI :: any).gift
+		local show: ((string, { string }?) -> ())? = if gift ~= nil then gift.show else nil
+		if show ~= nil then
+			show(kind, paid)
 		end
 	end)
 	-- The rescue bar, or a tree's falling cat after its shakes; then the server's count after every judged press.

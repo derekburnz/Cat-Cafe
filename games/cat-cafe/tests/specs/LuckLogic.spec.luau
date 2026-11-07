@@ -172,14 +172,14 @@ return function()
 			expect(lines[1]).to.equal(
 				"Lucky Day: +0.5 Luck: rarer cats more likely until night (1 day in 3)"
 			)
-			expect(lines[2]).to.equal("Golden Day: Gold cats x2 as likely until night (1 day in 5)")
+			expect(lines[2]).to.equal("Golden Day: Gold cats x3 as likely until night (1 day in 5)")
 			expect(LuckLogic.dayCard({ rainbowDay = true })[1]).to.equal(
 				"Rainbow Day: Rainbow cats x3 as likely until night (1 day in 10)"
 			)
 			local title, line = LuckLogic.dayBanner(view)
 			expect(title).to.equal("Lucky Day! Golden Day!")
 			expect(line).to.equal(
-				"+0.5 Luck: rarer cats more likely. Gold cats x2 as likely until night"
+				"+0.5 Luck: rarer cats more likely. Gold cats x3 as likely until night"
 			)
 			expect(LuckLogic.dayBanner({ phase = "day" })).to.equal(nil)
 		end)
@@ -190,7 +190,7 @@ return function()
 			expect(line).to.equal("+0.5 Luck: rarer cats more likely from sunrise")
 			title, line = LuckLogic.warnBanner({ lucky = false, golden = true, rainbow = false })
 			expect(title).to.equal("Golden Day soon!")
-			expect(line).to.equal("Gold cats x2 as likely from sunrise")
+			expect(line).to.equal("Gold cats x3 as likely from sunrise")
 			title, line = LuckLogic.warnBanner({ lucky = true, golden = true, rainbow = false })
 			expect(title).to.equal("Double Day soon!")
 			expect(line).to.equal("Lucky and Golden Day at sunrise")

@@ -259,7 +259,13 @@ end
 -- clean symbols are (Home is My Cafe, Potion the Potions tile, Bowl the Bait tile).
 local HUD_FOR: { [string]: string } =
 	{ Home = "MyCafe", Potion = "Potions", Bowl = "Bait", Bag = "Potions" }
+-- #1965: HUD tiles drawn with another picture of ours; the Pass tile wears the Cafe Pass ticket from its Store card.
+local HUD_PICTURE: { [string]: string } = { Pass = "Icon_Store_CafePass" }
 function ShopIcons.hud(name: string): string?
+	local picture = HUD_PICTURE[name]
+	if picture then
+		return IDS[picture]
+	end
 	return IDS["Icon_Hud_" .. (HUD_FOR[name] or name)] or IDS["Icon_Clean_" .. name]
 end
 

@@ -1014,8 +1014,8 @@ Catalog.tiers = {
 	{
 		tier = 3,
 		name = "Busy Cafe",
-		cost = 800000, -- #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
-		distinctCats = 12,
+		cost = 920000, -- #2230 (Derek2 2026-11-07: "slightly" harder): 800,000 before; #1896 re-fit with Catch v3 (#1884): 900,000 before; 700,000 for #1452 (economy-ladder 3 v3); F95 v2 500,000 (350,000; 80,000)
+		distinctCats = 13, -- #2230: 12 before
 		needsRarity = "Epic",
 		needsRarityCount = 1,
 		slots = 6,
@@ -1026,8 +1026,8 @@ Catalog.tiers = {
 	{
 		tier = 4,
 		name = "Famous Cafe",
-		cost = 60000000, -- #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
-		distinctCats = 20,
+		cost = 90000000, -- #2230 ("a lot" harder): 60,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
+		distinctCats = 25, -- #2230: 20 before
 		needsRarity = "Legendary",
 		needsRarityCount = 1,
 		slots = 8,
@@ -1038,8 +1038,8 @@ Catalog.tiers = {
 	{
 		tier = 5,
 		name = "Grand Cafe",
-		cost = 2000000000, -- #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
-		distinctCats = 30,
+		cost = 2300000000, -- #2230 ("slightly" harder): 2,000,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 1,200,000,000 (was 800,000,000; 5,000,000 before F95)
+		distinctCats = 33, -- #2230: 30 before
 		needsRarity = "Legendary",
 		needsRarityCount = 2,
 		slots = 10,

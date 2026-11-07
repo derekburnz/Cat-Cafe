@@ -1802,6 +1802,14 @@ local function wireServerEvents()
 			wow(rarity, first == true)
 		end
 	end)
+	-- #1920: this session's recap; UI.recap.show waits for the player to be idle and out of menus before the card
+	Net.on("SessionRecap", function(view: Types.SessionRecapView)
+		local recap = (UI :: any).recap
+		local show: ((Types.SessionRecapView) -> ())? = if recap ~= nil then recap.show else nil
+		if show ~= nil and type(view) == "table" then
+			show(view)
+		end
+	end)
 	-- The rescue bar, or a tree's falling cat after its shakes; then the server's count after every judged press.
 	Net.on("RescueChallenge", function(rescueSpotId: string, challenge: Types.RescueChallenge)
 		UI.rescue.show(rescueSpotId, challenge)

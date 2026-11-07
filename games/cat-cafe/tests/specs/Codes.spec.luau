@@ -246,6 +246,28 @@ return function()
 			}) -- F94: no spins, Caviar or potion
 		end)
 
+		it("the four launch-week codes ship off, coins only, ending 60 days on (#1937)", function()
+			local DAY = 86400
+			-- live: each code's day at 00:00 UTC
+			local rows = {
+				{ id = "opening", live = 1794441600, coins = 1000, coinSeconds = 300 }, -- 2026-11-12
+				{ id = "rally", live = 1794614400, coins = 1000, coinSeconds = 300 }, -- 2026-11-14
+				{ id = "cozy", live = 1795824000, coins = 1500, coinSeconds = 450 }, -- 2026-11-28
+				{ id = "snowy", live = 1796428800, coins = 2000, coinSeconds = 600 }, -- 2026-12-05
+			}
+			for _, row in rows do
+				local def = Catalog.codes[row.id]
+				expect(def).to.be.ok()
+				expect(def.id).to.equal(row.id)
+				expect(def.active).to.equal(false)
+				expect(def.requiresGroup).never.to.be.ok()
+				expect(def.prize :: any).to.deepEqual({ coins = row.coins, coinSeconds = row.coinSeconds })
+				expect(row.coinSeconds <= 600).to.equal(true) -- 10 minutes of income at most
+				expect(def.endsAt).to.equal(row.live + 60 * DAY)
+			end
+			expect(Catalog.codes.launch.active).to.equal(false) -- left as it is, unused
+		end)
+
 		it("every prize names real crates and foods", function()
 			for _, def in Catalog.codes do
 				for crateId in def.prize.crates or {} do

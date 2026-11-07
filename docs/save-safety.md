@@ -72,10 +72,11 @@ base=https://apis.roblox.com/cloud/v2/universes/$UNIVERSE_ID/data-stores/$STORE/
 
 ```bash
 curl -sS -H "x-api-key: $ROBLOX_PUBLISH_KEY" "$base/$KEY:listRevisions?maxPageSize=50" \
-  | jq -r '.dataStoreEntries[] | "\(.revisionCreateTime)  \(.revisionId)"'
+  | jq -r '.dataStoreEntries | sort_by(.revisionCreateTime) | reverse | .[] | "\(.revisionCreateTime)  \(.revisionId)"'
 ```
 
-The newest is at the top. Pick the last revision **before** the problem (the player's report says roughly when).
+This prints the newest first. Sort by `revisionCreateTime` as above, and don't rely on the API's own order, which
+came back oldest first in the dev-store drill. Pick the last revision **before** the problem (the player's report says roughly when).
 
 ### Step 2: download that revision and check it
 
@@ -129,8 +130,6 @@ back card shows their offline earnings from the restored `lastSeen`. Then delete
 - Don't paste the API key, the UserId together with the save contents, or the JSON into chat or an issue. The repo is
   public.
 
-Tested so far (Tools-Agent, 2026-11-07, on a throwaway key `p_0` in `CatCafeProfiles_dev`, deleted afterwards; the
-live store untouched): the key can list, read, create, update and delete; the path needs no scope segment; step 1's
-list returns `dataStoreEntries` with `revisionId` and `revisionCreateTime` (and no value), and step 2's `@<revisionId>`
-fetch returns `value.Data` and `value.MetaData`. Not yet done: step 4's write with the `{value}` body is still being
-confirmed. Until it is, don't use this on a real player.
+Drilled end to end by Tools-Agent on 2026-11-07, steps 1 to 4, on a throwaway key `p_0` in `CatCafeProfiles_dev`
+(deleted afterwards). It has not yet been used on a live player, so take extra care the first time, and check every
+`jq` summary before step 4.

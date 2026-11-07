@@ -8,7 +8,9 @@
 --   active(profile) -> whether the roadmap shows and pays: from tutorialStep 5 until finished
 --   met(profile, n) -> whether milestone n's condition holds now
 --   due(profile) -> the milestones met and not yet done, lowest first (none while inactive)
---   mark(state, n) -> records milestone n done; the last one finishes the roadmap
+--   mark(state, n, played?) -> records milestone n done; the last one finishes the roadmap at `played` seconds
+--   plotLook(profile, played) -> the cafe front's Grand Opening model (#1922): the ribbon while the roadmap shows,
+--     the bunting for BUNTING_SECONDS of play after it finished, else nil
 --   current(state) -> the lowest milestone not done, or nil
 --   view(state) -> a copy for ProfileSync
 
@@ -46,6 +48,10 @@ GrandOpening.COUNT = #GrandOpening.STEPS
 GrandOpening.SHOW_FROM_STEP = 5 -- tutorialStep: the strip appears as the tutorial ends
 GrandOpening.FROM_VERSION = 41 -- the save version that brought it
 GrandOpening.TAG = "tag_grand_opener" -- the chat tag milestone 8 gives (ChatTags.TAGS)
+-- #1922: the cafe front's models (Model-Agent's #1928), placed at the plot pivot
+GrandOpening.RIBBON = "CatCafe_Plot_GrandOpeningRibbon"
+GrandOpening.BUNTING = "CatCafe_Plot_GrandOpeningBunting"
+GrandOpening.BUNTING_SECONDS = 7200 -- seconds of play the bunting stays after the last milestone
 
 function GrandOpening.fresh(): Types.GrandOpeningState
 	return { done = {} }
@@ -76,6 +82,10 @@ function GrandOpening.sanitize(
 	end
 	if (raw :: any).finished == true then
 		state.finished = true
+		local at = (raw :: any).finishedAt
+		if type(at) == "number" and at == at and at >= 0 and at < math.huge then
+			state.finishedAt = at
+		end
 	end
 	return state
 end
@@ -152,11 +162,24 @@ function GrandOpening.due(profile: Types.PlayerProfile): { number }
 	return out
 end
 
-function GrandOpening.mark(state: Types.GrandOpeningState, n: number)
+function GrandOpening.mark(state: Types.GrandOpeningState, n: number, played: number?)
 	state.done[n] = true
 	if n == GrandOpening.COUNT then
 		state.finished = true
+		state.finishedAt = played
 	end
+end
+
+function GrandOpening.plotLook(profile: Types.PlayerProfile, played: number): string?
+	if GrandOpening.active(profile) then
+		return GrandOpening.RIBBON
+	end
+	local state = profile.grandOpening
+	local at = state.finishedAt
+	if state.finished == true and at ~= nil and played - at < GrandOpening.BUNTING_SECONDS then
+		return GrandOpening.BUNTING
+	end
+	return nil
 end
 
 function GrandOpening.current(state: Types.GrandOpeningState): number?

@@ -131,6 +131,8 @@ local ACCESSORIES: { Accessory } = {
 		slot = "Face",
 	},
 	{ id = "acc_leaf_beret", name = "Leaf Beret", piece = "LeafBeret", slot = "Head" },
+	-- #1883 part C: the Cafe Pass's level 31 (Model-Agent's #1921, the Outfit_LeafCrown slot)
+	{ id = "acc_leaf_crown", name = "Autumn Leaf Crown", piece = "LeafCrown", slot = "Head" },
 	{ id = "acc_mushroom_cap", name = "Mushroom Cap", piece = "MushroomCap", slot = "Head" },
 	{
 		id = "acc_acorn_hair_clip",

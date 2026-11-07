@@ -114,6 +114,26 @@ return function()
 			expect(Clock.nightSecondsBetween(0, start + 2 * (night + day) + 1)).to.equal(counted)
 		end)
 	end)
+	describe("#2192: longer days, shorter nights, the same game day", function()
+		it(
+			"a game day is still 390 s, so every sunrise stays on a whole game day from the epoch",
+			function()
+				expect(night + day).to.equal(390)
+				expect(firstDay).to.equal(day)
+				for k = 1, 5 do
+					expect(Clock.phaseAt(k * 390 - 0.5)).to.equal("night")
+					expect(Clock.phaseAt(k * 390 + 0.5)).to.equal("day")
+					expect(Clock.dayAt(k * 390 + 0.5)).to.equal(Clock.dayAt(k * 390 - 0.5) + 1)
+				end
+			end
+		)
+
+		it("the restock windows still turn at sunrise", function()
+			expect(Config.FreshCatchWindowSeconds).to.equal(night + day)
+			expect(Config.CornerShopWindowSeconds).to.equal(night + day)
+		end)
+	end)
+
 	describe("firstDayUntil (#2184: a new server opens by day)", function()
 		local cycle = night + day
 		it("leaves a server booted with plenty of day on the global clock", function()
@@ -132,6 +152,30 @@ return function()
 			local enough = firstDay - Clock.FIRST_DAY_MIN_SECONDS
 			expect(Clock.firstDayUntil(enough)).to.equal(enough)
 		end)
+
+		-- Desktop-Tester's #2185 check: a boot with 85 s of day left showed PhaseEndsAt 475 s away. That is the skipped
+		-- night (85 + 90 + 300 then): the first dusk is the global dusk after the next sunrise, never an off-cycle one.
+		it(
+			"a new server's first dusk is a global dusk, at least FIRST_DAY_MIN_SECONDS away",
+			function()
+				for t = 0, 3 * cycle, 0.5 do
+					local untilT = Clock.firstDayUntil(t)
+					local dusk: number
+					if t < untilT then
+						local _, after = Clock.phaseAt(untilT)
+						dusk = untilT + after -- ClockService.tick's secondsLeft while t < dayUntil
+					else
+						local phase, left = Clock.phaseAt(t)
+						expect(phase).to.equal("day")
+						dusk = t + left
+					end
+					expect(Clock.phaseAt(dusk - 0.25)).to.equal("day")
+					expect(Clock.phaseAt(dusk + 0.25)).to.equal("night")
+					expect(dusk - t >= Clock.FIRST_DAY_MIN_SECONDS).to.equal(true)
+					expect(dusk - t <= Clock.FIRST_DAY_MIN_SECONDS + night + day).to.equal(true)
+				end
+			end
+		)
 
 		it("always ends on a global sunrise, where the global clock is day", function()
 			for t = 0, 3 * cycle, 7 do

@@ -125,10 +125,13 @@ local Config = {
 	KeepUpStepsBehind = 1,
 
 	-- The clock (data-model section 9): a server-wide loop of day then night. v0.9 (F66, Derek 2026-10-27): night is a
-	-- short reset between hunts; the catching areas close at dusk and a fresh wave spawns at sunrise.
-	DayLengthSeconds = 300,
-	NightLengthSeconds = 90,
-	ServerStartDaySeconds = 300, -- the clock's first day, from ClockEpoch (was each server's start, before #1437)
+	-- short reset between hunts; the catching areas close at dusk and a fresh wave spawns at sunrise. #2192 (Dread via
+	-- Derek2, 2026-11-07: "make the days a bit longer and maybe night a tiny bit shorter"): 320 and 70 (were 300 and
+	-- 90). The day takes the night's 20 s, so a game day is still 390 s: every sunrise, restock window, day number and
+	-- pity timer falls where it did, and only dusk moves 20 s later. ServerStartDaySeconds stays equal to the day.
+	DayLengthSeconds = 320,
+	NightLengthSeconds = 70,
+	ServerStartDaySeconds = 320, -- the clock's first day, from ClockEpoch (was each server's start, before #1437)
 	-- #1437 (Derek 2026-11-05: "restock once per in game day and make it global"): every server reads the clock from
 	-- this os.time() (2026-11-01 00:00 UTC) on Workspace:GetServerTimeNow(), so sunrise and dusk fall at the same
 	-- moment in every server; a new server joins the day already under way. Day 1 starts here.

@@ -21,6 +21,7 @@ local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 local ServerStorage = game:GetService("ServerStorage")
 local StarterPlayer = game:GetService("StarterPlayer")
+local Workspace = game:GetService("Workspace")
 
 local TrailerConfig = require(ReplicatedStorage.TrailerConfig)
 
@@ -261,6 +262,42 @@ local function strayModel(strayId: string): Model?
 	return nil
 end
 
+-- Whether nothing solid stands within `radius` studs of `at` above the floor (the Alleyway's blockers, bins and
+-- skips moved since the scene was laid out: Desktop-Tester 2026-11-07 found the runner wedged on the Whisker Skips
+-- bin with Rocker Cat behind it).
+local function clear(at: Vector3, radius: number): boolean
+	local params = OverlapParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	local ignore: { Instance } = { CatService.strayFolder() }
+	for _, player in Players:GetPlayers() do
+		if player.Character ~= nil then
+			table.insert(ignore, player.Character)
+		end
+	end
+	params.FilterDescendantsInstances = ignore
+	local box = CFrame.new(at + Vector3.new(0, 2.5, 0))
+	for _, part in Workspace:GetPartBoundsInBox(box, Vector3.new(radius * 2, 4, radius * 2), params) do
+		if part.CanCollide then
+			return false
+		end
+	end
+	return true
+end
+
+-- The star's mark: TrailerConfig.starDepth down the lane, or the nearest clear patch of floor toward the player
+-- (then across the lane) when something stands there.
+local function starMark(): Vector3
+	for back = 0, 60, 5 do
+		for _, across in { 0, 4, -4, 8, -8 } do
+			local at = lanePoint(TrailerConfig.starDepth - back, TrailerConfig.starAcross + across)
+			if clear(at, TrailerConfig.starClear) then
+				return at
+			end
+		end
+	end
+	return lanePoint(TrailerConfig.starDepth, TrailerConfig.starAcross)
+end
+
 -- Rocker Cat as a real stray, moved to its mark; one still waiting from a take that never caught it is used again.
 local function placeStar(): string
 	local strayId = folder:GetAttribute("StrayId")
@@ -270,7 +307,7 @@ local function placeStar(): string
 		model = strayModel(strayId :: string)
 	end
 	if model ~= nil then
-		local at = lanePoint(TrailerConfig.starDepth, TrailerConfig.starAcross)
+		local at = starMark()
 		local pivot = model:GetPivot()
 		local mark = Vector3.new(at.X, pivot.Position.Y, at.Z)
 		-- facing up the lane, toward the player coming down it

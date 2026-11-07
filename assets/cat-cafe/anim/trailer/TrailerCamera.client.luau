@@ -22,6 +22,7 @@
 -- but the toasts is hidden, and the Roblox menus and the mouse pointer too.
 
 local CollectionService = game:GetService("CollectionService")
+local PathfindingService = game:GetService("PathfindingService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -134,6 +135,8 @@ end
 
 -- Screens --------------------------------------------------------------------------------------------------------
 
+local pinned: { [ScreenGui]: boolean } = {}
+
 local function hideScreens()
 	pcall(function()
 		StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
@@ -148,7 +151,18 @@ local function hideScreens()
 	end
 	for _, child in gui:GetChildren() do
 		if child:IsA("ScreenGui") and not TrailerConfig.keepGuis[child.Name] then
-			child.Enabled = false
+			local screen = child :: ScreenGui
+			screen.Enabled = false
+			if not pinned[screen] then
+				-- a screen whose controller turns it on every frame (the Tackle bar, the Rally panel) goes straight
+				-- back off, before the frame draws
+				pinned[screen] = true
+				screen:GetPropertyChangedSignal("Enabled"):Connect(function()
+					if screen.Enabled then
+						screen.Enabled = false
+					end
+				end)
+			end
 		end
 	end
 end
@@ -538,9 +552,16 @@ Net.on("CatchResult", function(strayId: unknown, _grades: unknown, succeeded: un
 	end
 end)
 
--- Walks the player to within TrailerConfig.swingStuds of the cat, re-aiming as it wanders; false on a timeout.
+-- Walks the player to within TrailerConfig.swingStuds of the cat, re-aiming as it wanders; false on a timeout. Round
+-- the Alleyway's blockers by a PathfindingService route (Desktop-Tester 2026-11-07: walking straight at the cat
+-- wedged the runner on the Whisker Skips bin), worked out again whenever the cat has moved a couple of studs.
 local function approach(token: number, h: Hero): boolean
-	local ends = os.clock() + 12
+	local ends = os.clock() + 20
+	local path =
+		PathfindingService:CreatePath({ AgentRadius = 2, AgentHeight = 5, AgentCanJump = false })
+	local waypoints: { PathWaypoint } = {}
+	local nextPoint = 1
+	local aimedAt: Vector3? = nil
 	while os.clock() < ends do
 		if not alive(token) then
 			return false
@@ -555,7 +576,25 @@ local function approach(token: number, h: Hero): boolean
 			h.humanoid:MoveTo(h.root.Position)
 			return true
 		end
-		h.humanoid:MoveTo(at - offset.Unit * TrailerConfig.swingStuds)
+		local goal = at - offset.Unit * TrailerConfig.swingStuds
+		if aimedAt == nil or flat(goal - (aimedAt :: Vector3)).Magnitude > 2 then
+			aimedAt = goal
+			waypoints = {}
+			nextPoint = 1
+			local ok = pcall(function()
+				path:ComputeAsync(h.root.Position, goal)
+			end)
+			if ok and path.Status == Enum.PathStatus.Success then
+				waypoints = path:GetWaypoints()
+				nextPoint = 2
+			end
+		end
+		local point = waypoints[nextPoint]
+		if point ~= nil and flat(point.Position - h.root.Position).Magnitude < 2 then
+			nextPoint += 1
+			point = waypoints[nextPoint]
+		end
+		h.humanoid:MoveTo(if point ~= nil then point.Position else goal)
 		task.wait(0.1)
 	end
 	return false
@@ -892,12 +931,8 @@ end)
 
 controlsOff()
 player.CharacterAdded:Connect(controlsOff) -- a reset's new character gets the controls back otherwise
-task.spawn(function()
-	while true do
-		hideScreens()
-		task.wait(0.5)
-	end
-end)
+-- every frame, last before drawing, so nothing a controller shows in between reaches the recording
+RunService:BindToRenderStep("TrailerHideScreens", Enum.RenderPriority.Last.Value, hideScreens)
 if folder:GetAttribute("Ready") == true then
 	task.delay(TrailerConfig.timing.autoStart, startTake)
 end

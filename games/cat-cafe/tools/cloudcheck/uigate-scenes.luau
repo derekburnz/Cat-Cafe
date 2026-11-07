@@ -1081,6 +1081,29 @@ local SCENES = {
 		if SettingsList.isKey(SettingsList.AUTO_EQUIP_KEY) then
 			local switch = UIShim.playerGui:FindFirstChild("AutoEquip", true)
 			assert(switch and switch.Visible, "uigate: no Auto Equip switch in the Cats window (#1955)")
+			local function shows(): string
+				for _, inst in (switch :: Instance):GetDescendants() do
+					if (inst:IsA("TextLabel") or inst:IsA("TextButton")) and string.find(inst.Text, "Auto Equip", 1, true) then
+						return inst.Text
+					end
+				end
+				return (switch :: any).Text
+			end
+			assert(shows() == "Auto Equip: On", "uigate: the switch shows " .. shows() .. " with the setting on")
+			-- #2076: a sync sent before the server applied the press keeps the old value; the switch keeps the press
+			local function sync(on: boolean)
+				local next = table.clone(settings)
+				next.autoEquip = on
+				UI.update({ settings = next } :: any)
+			end
+			press("Cats", "AutoEquip")
+			assert(shows() == "Auto Equip: Off", "uigate: the switch shows " .. shows() .. " after pressing Off")
+			sync(true) -- stale
+			assert(shows() == "Auto Equip: Off", "uigate: a stale sync flashed the switch back On (#2076)")
+			sync(false) -- the server caught up
+			assert(shows() == "Auto Equip: Off", "uigate: the switch shows " .. shows() .. " once the server agrees")
+			sync(true) -- a later change from elsewhere (Settings) shows at once
+			assert(shows() == "Auto Equip: On", "uigate: the switch ignored a real change after the press settled")
 		end
 	end },
 	-- #2047 (Derek2: "with the extra slots it doesn't show all the working cats on the top"): a Tier 5 cafe with Grand

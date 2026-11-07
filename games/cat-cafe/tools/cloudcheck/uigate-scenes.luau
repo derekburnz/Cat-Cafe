@@ -1561,6 +1561,26 @@ local SCENES = {
 			levels = 30, paid = true, claimedFree = { 2, 4 }, claimedPaid = { 1 }, claimable = 7, items = {},
 			tags = { "vip", "tag_maple" }, tagShown = "tag_maple" })
 		UI.pass.open()
+		-- #2087: a paid item's picture and name sit centred in the room over Claim (they hugged the top), and the
+		-- uniform's square is the uniform's own colour
+		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("CafePass", true)
+		for _, level in { 3, 5 } do
+			local column = window and window:FindFirstChild("Level" .. level, true)
+			local card = column and column:FindFirstChild("Paid")
+			local group = card and card:FindFirstChild("ItemGroup")
+			local claim = card and card:FindFirstChild("Claim")
+			assert(group and claim and claim.Visible, "uigate: level " .. level .. "'s paid item has no picture or Claim (#2087)")
+			local roomTop, roomBottom = card.AbsolutePosition.Y, claim.AbsolutePosition.Y
+			local middle = group.AbsolutePosition.Y + group.AbsoluteSize.Y / 2
+			local third = (roomBottom - roomTop) / 3
+			assert(
+				middle >= roomTop + third and middle <= roomBottom - third,
+				string.format("uigate: level %d's paid item is not centred over Claim (%.0f in %.0f..%.0f, #2087)", level, middle, roomTop, roomBottom)
+			)
+		end
+		local uniform = window:FindFirstChild("Level3", true).Paid.ItemGroup.Item
+		assert(uniform.BackgroundColor3 == Color3.fromRGB(217, 102, 46), "uigate: the Pumpkin uniform's square is not pumpkin (#2087)")
 	end },
 	-- #1626: the busiest top strip, a VIP owner who has not bought the paid track: Buy, Claim all and the chat tag
 	{ "CafePassTag", function()

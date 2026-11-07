@@ -1591,7 +1591,7 @@ local function runAutoEquip(player: Player, profile: Profile): number
 	local held = EquipBest.held(profile, os.clock(), hand, function(uid: string): boolean
 		return offerCheck(player, uid)
 	end)
-	local plan = EquipBest.planKeeping(profile, held)
+	local plan = EquipBest.planKeeping(profile, held, EquipBest.AUTO_STAY) -- #2050: sticky, so small gains move nobody
 	if EquipBest.isOptimal(profile, plan) then
 		return 0
 	end

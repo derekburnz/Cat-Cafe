@@ -78,7 +78,7 @@ function RecapCard.new(parent: Instance): RecapCard
 	Outline.border(card, Theme.sizes.outline + 1)
 	self._card = card
 
-	local title: TextLabel = Create("TextLabel", {
+	Create("TextLabel", {
 		Name = "Title",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(PAD, PAD - 4),
@@ -90,7 +90,8 @@ function RecapCard.new(parent: Instance): RecapCard
 		Text = RecapLogic.TITLE,
 		Parent = card,
 	})
-	Outline.text(title, 1.5)
+	-- #2325 (Derek2: "the bolding I have seen there ... is really hard to read"): no dark text outline round dark
+	-- letters on the light card, so they keep their shape (the uigate darkstroke check guards it)
 	self._closeButton = Button.new({
 		name = "Close",
 		text = "X",

@@ -25,12 +25,15 @@ Catching.CARRIED_POSE = { 0, -0.4, -1.05, 0, 0, 1, 0, 1, 0, -1, 0, 0 }
 -- middle; R6 arms per #1991), so its middle is on the hands.
 Catching.HELD = {
 	-- Desktop-Tester after #2002: the R15 cat's head grazed the carrier's Head 0.03 deep, so it sits 0.05 out
-	r15 = { up = -0.3, gap = 0.05 },
+	-- Derek2 2026-11-07 12:35 on the R15 sheet: "move it a little to the right so the body is centred across both
+	-- arms hands" (right in the front view, the carrier's left, toward the cat's head): `side` studs along the
+	-- torso's x, since the box's middle counts the head and the body sat toward the carrier's right
+	r15 = { up = -0.3, gap = 0.05, side = -0.25 },
 	-- Derek2 2026-11-07 11:49 (#2001): "they are floating ... okay if the bottom is a little bit inside", so the cat
 	-- sits down into the arms against the chest instead of clear of them (up 0.25, gap 0.2 before)
 	-- Laptop-Tester after #2002: the R6 cat still sat a stud above the folded arms with its head over the chin, so
 	-- it comes down a stud (0.5 of a 2-stud Torso) onto the hands
-	r6 = { up = -0.4, gap = 0 },
+	r6 = { up = -0.4, gap = 0, side = 0 },
 	turn = 90,
 }
 
@@ -61,7 +64,7 @@ function Catching.holdPoint(
 	catWidth: number
 ): (number, number, number)
 	local hold = if rig == "R6" then Catching.HELD.r6 else Catching.HELD.r15
-	return 0, torso[2] * hold.up, -(torso[3] / 2 + hold.gap + catWidth / 2)
+	return hold.side, torso[2] * hold.up, -(torso[3] / 2 + hold.gap + catWidth / 2)
 end
 
 -- roll is in [0, 1).

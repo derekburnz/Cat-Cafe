@@ -737,7 +737,8 @@ return function()
 
 		it("rests a cat's back against the chest, centred, low on the chest (Derek2: closer and lower)", function()
 			local x, y, z = Catching.holdPoint("R15", UPPER, 1)
-			expect(x).to.equal(0)
+			expect(x).to.equal(Catching.HELD.r15.side) -- nudged toward the cat's head so its body is centred
+			expect(x <= 0 and x > -UPPER[1] / 4).to.equal(true)
 			expect(y <= -UPPER[2] / 5 and y > -UPPER[2] / 2).to.equal(true) -- low on the torso, not at the hips
 			expect(z).to.be.near(-(0.5 + Catching.HELD.r15.gap + 0.5), 1e-9)
 			-- its back rests on the chest (at most a tenth of a stud out, so its head clears the chin) without

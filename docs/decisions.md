@@ -583,3 +583,14 @@ Derek2 answered Set 12 in the questions doc. The full list is in `docs/design/ca
 - **Trailer (#977, Q3):** goes ahead.
 
 Reason: these are Derek2's own answers. Set 13 was written to the doc.
+
+## 2026-11-07: Set 13 answers, launch waits on finishing open work
+Derek2 answered Set 13; the answers are in `docs/design/cat-cafe/feedback/answers-2026-11-07-set-13.md`.
+- **Launch:** there's no separate release-blocker list. Launch waits until all open PRs and issues are finished, then Derek2 picks the day.
+- **Ads:** the ad account and ad targeting are parked until the game is finished.
+- **Day 9 decision:** the main signal is Home recommendation impressions. If there are few, ads and updates stop and the game stays a learning project.
+- **Day 1:** 3 to 5 friends test, with no form.
+- **Maturity questionnaire:** already done.
+- **Carry check (#1139):** confirmed fine.
+
+No new question set: the remaining launch questions wait until the game is finished.

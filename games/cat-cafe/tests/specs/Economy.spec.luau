@@ -1104,23 +1104,23 @@ return function()
 		it(
 			"Tier 2 to 3 needs one Epic or better; 3 to 4 one Legendary or better; 4 to 5 two of them",
 			function()
-				expect(Economy.rankUpBlocker(profileWith(2, 12))).to.equal(
+				expect(Economy.rankUpBlocker(profileWith(2, 13))).to.equal(
 					"Needs one cat, Epic or better"
 				)
-				expect(Economy.rankUpBlocker(profileWith(2, 12, "Epic", 1))).never.to.be.ok()
-				expect(Economy.rankUpBlocker(profileWith(3, 20, "Epic", 3))).to.equal(
+				expect(Economy.rankUpBlocker(profileWith(2, 13, "Epic", 1))).never.to.be.ok()
+				expect(Economy.rankUpBlocker(profileWith(3, 25, "Epic", 3))).to.equal(
 					"Needs one cat, Legendary or better"
 				)
-				expect(Economy.rankUpBlocker(profileWith(3, 20, "Legendary", 1))).never.to.be.ok()
-				expect(Economy.rankUpBlocker(profileWith(4, 30, "Legendary", 1))).to.equal(
+				expect(Economy.rankUpBlocker(profileWith(3, 25, "Legendary", 1))).never.to.be.ok()
+				expect(Economy.rankUpBlocker(profileWith(4, 33, "Legendary", 1))).to.equal(
 					"Needs 2 different cats, Legendary or better"
 				)
-				expect(Economy.rankUpBlocker(profileWith(4, 30, "Legendary", 2))).never.to.be.ok()
+				expect(Economy.rankUpBlocker(profileWith(4, 33, "Legendary", 2))).never.to.be.ok()
 			end
 		)
 
 		it("a gold copy of the one Legendary does not count as a second Legendary", function()
-			local p = profileWith(4, 30, "Legendary", 1)
+			local p = profileWith(4, 33, "Legendary", 1)
 			local legendary = idsOf("Legendary")[1]
 			p.goldCollection[legendary] = 1000
 			p.cats.goldLegend = cat("goldLegend", legendary, nil, "gold")
@@ -1130,10 +1130,10 @@ return function()
 		it(
 			"a rarer cat counts for the rarity asked (section 5b: or better, reviewer N44)",
 			function()
-				expect(Economy.rankUpBlocker(profileWith(2, 12, "Mythical", 1))).never.to.be.ok()
-				expect(Economy.rankUpBlocker(profileWith(3, 20, "Mythical", 1))).never.to.be.ok()
+				expect(Economy.rankUpBlocker(profileWith(2, 13, "Mythical", 1))).never.to.be.ok()
+				expect(Economy.rankUpBlocker(profileWith(3, 25, "Mythical", 1))).never.to.be.ok()
 				-- Tier 5: a Legendary plus a Mythical are two different cats, Legendary or better.
-				local p = profileWith(4, 30, "Legendary", 1)
+				local p = profileWith(4, 33, "Legendary", 1)
 				p.collection[idsOf("Mythical")[1]] = 1000
 				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
 			end
@@ -1142,13 +1142,13 @@ return function()
 		it(
 			"reasons come in the order a player works through them: cats, then the rarity, then coins",
 			function()
-				expect(Economy.rankUpBlocker(profileWith(2, 11, nil, nil, 0))).to.equal(
-					"Needs 12 different cats (you have 11)"
-				)
 				expect(Economy.rankUpBlocker(profileWith(2, 12, nil, nil, 0))).to.equal(
+					"Needs 13 different cats (you have 12)"
+				)
+				expect(Economy.rankUpBlocker(profileWith(2, 13, nil, nil, 0))).to.equal(
 					"Needs one cat, Epic or better"
 				)
-				expect(Economy.rankUpBlocker(profileWith(2, 12, "Epic", 1, 0))).to.equal(
+				expect(Economy.rankUpBlocker(profileWith(2, 13, "Epic", 1, 0))).to.equal(
 					"Not enough coins"
 				)
 			end
@@ -1201,7 +1201,7 @@ return function()
 		end)
 
 		it("only reads the profile: coins, tier and collection are unchanged", function()
-			local p = profileWith(2, 12, "Epic", 1, 8000)
+			local p = profileWith(2, 13, "Epic", 1, 8000)
 			local before = Economy.distinctCats(p)
 			Economy.rankUpBlocker(p)
 			expect(p.coins).to.equal(8000)

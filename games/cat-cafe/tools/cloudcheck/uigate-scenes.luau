@@ -2353,7 +2353,7 @@ local SCENES = {
 		UI.store.preview(storePrices(true), {})
 	end },
 	-- #1606: the money pass badge beside the money: the rainbow "X2 Cash / Only R$5" (#1759) with no money pass and the
-	-- 2x on sale, "3x" once owned
+	-- 2x on sale; once owned, "💰 Cash x3" on the side over the money (#1962)
 	{ "HUDMoneyBadge", function()
 		UI.store.preview(storePrices(true), {})
 	end },
@@ -2374,6 +2374,9 @@ local SCENES = {
 	{ "HUDMoneyBadgeOwned", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[3]] = true })
+		-- #1962: the owned multiplier is the bold gold chip on the side, over the money
+		local chip = UIShim.playerGui:FindFirstChild("CashChip", true)
+		assert(chip and chip.Visible and chip.Text == "💰 Cash x3", "uigate: the cash chip reads " .. tostring(chip and chip.Text) .. " (#1962)")
 	end },
 	-- #1770 owner test mode: the server's OwnerTest attribute on the owner's account shows a small label up top
 	{ "HUDOwnerTest", function()

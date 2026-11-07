@@ -1224,10 +1224,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 				callbacks.openScreen("Quests")
 			end,
 		},
-		-- #1646 (cafe-pass.md): the Cafe Pass, only while a season runs (setPass); hidden, the grid closes up
+		-- #1646 (cafe-pass.md): the Cafe Pass, only while a season runs (setPass); hidden, the grid closes up. #1965
+		-- (Derek2: "make a better ui button for pass"): the Cafe Pass ticket picture from its Store card, in place of
+		-- the maple leaf emoji; the red badge says a reward waits
 		{
 			name = "Pass",
-			icon = "🍁",
+			icon = "🎫",
 			style = "purple",
 			open = function()
 				local open: (() -> ())? = self._passOpen

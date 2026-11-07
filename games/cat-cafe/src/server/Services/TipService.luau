@@ -236,4 +236,19 @@ function TipService.start()
 	end)
 end
 
+-- Studio-only test hook (UI-Engineer for Desktop-Tester, 2026-11-07): forgets tip `id` was seen or sent this session
+-- and sends it again now, the way its own moment would. False when the id is unknown or the player is not loaded.
+function TipService.debugResend(player: Player, id: string): boolean
+	assert(game:GetService("RunService"):IsStudio(), "debugResend is Studio only")
+	local session = sessionOf(player)
+	local profile = DataService.get(player)
+	if session == nil or profile == nil or not Tips.seenId(id) then
+		return false
+	end
+	profile.tipsSeen[id] = nil
+	session.sent[id] = nil
+	TipService.changed:Fire(player)
+	return TipService.show(player, id)
+end
+
 return TipService

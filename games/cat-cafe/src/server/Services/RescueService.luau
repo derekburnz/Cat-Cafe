@@ -663,6 +663,8 @@ local function logPress(player: Player, entry: Stuck, result: string, marker: nu
 	)
 end
 
+local judge: (Player, Stuck, Rescue.Attempt, Player, boolean, number, number) -> ()
+
 local function onRescuePress(player: Player, rawSpotId: unknown, rawPressedAt: unknown)
 	local spotId = Guard.id(rawSpotId)
 	if spotId == nil then
@@ -688,6 +690,20 @@ local function onRescuePress(player: Player, rawSpotId: unknown, rawPressedAt: u
 	end
 	local arrival = serverNow()
 	local pressTime = Rescue.pressedAt(arrival, player:GetNetworkPing(), rawPressedAt)
+	judge(player, entry, attempt, rescuer, helping, pressTime, arrival)
+end
+
+-- One press judged at `pressTime` (arrived at `arrival`) and everything it ends or sends.
+function judge(
+	player: Player,
+	entry: Stuck,
+	attempt: Rescue.Attempt,
+	rescuer: Player,
+	helping: boolean,
+	pressTime: number,
+	arrival: number
+)
+	local spotId = entry.spotId
 	local stage = stageOf(attempt)
 	if stage == "bar" then
 		local result = Rescue.pressBar(attempt, pressTime, helping)
@@ -812,6 +828,46 @@ function RescueService.stuckCount(): number
 		n += 1
 	end
 	return n
+end
+
+-- Studio-only test hook (Desktop-Tester, 2026-11-07: presses over MCP arrive 2 to 4 s late, too late to time): a
+-- bar press for `player`'s running rescue (or the one they help) that `kind` "hit" or "miss" says, judged as a real
+-- press through the same path, at the last moment since their last press when the marker sat on the live zone's
+-- centre (a hit) or at the bar's end furthest from it (a miss). Returns "hit hits=2/6 paws=3", or why it did nothing.
+function RescueService.debugPress(player: Player, kind: string): string
+	assert(RunService:IsStudio(), "debugPress is Studio only")
+	local entry = attemptOf(player)
+	local helping = false
+	if entry == nil or entry.attempt == nil then
+		entry = helpingOf(player)
+		helping = true
+	end
+	if entry == nil or entry.attempt == nil then
+		return "no rescue running"
+	end
+	local attempt = entry.attempt :: Rescue.Attempt
+	if stageOf(attempt) ~= "bar" then
+		return "not on the bar: " .. tostring(stageOf(attempt))
+	end
+	local centre = Rescue.currentZone(attempt)
+	if centre == nil then
+		return "no zone left"
+	end
+	local rescuer = if helping then Players:GetPlayerByUserId(entry.lockedBy) else player
+	if rescuer == nil then
+		return "the rescuer is leaving"
+	end
+	local now = serverNow()
+	local x = if kind == "hit" then centre elseif centre > 0.5 then 0 else 1
+	judge(player, entry, attempt, rescuer, helping, Rescue.lastTimeAt(attempt, x, now), now)
+	return string.format(
+		"%s hits=%d/%d paws=%d stage=%s",
+		kind,
+		attempt.hits,
+		attempt.challenge.hitsNeeded or 0,
+		attempt.paws,
+		tostring(stageOf(attempt))
+	)
 end
 
 -- Studio-only test hook (Laptop-Tester, 2026-11-07): ends `player`'s rescue as Give up does, or drops them as a

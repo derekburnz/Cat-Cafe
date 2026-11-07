@@ -6,8 +6,9 @@
 -- A press lunges TackleLungeStuds straight ahead. It is refused (spending nothing) unless the tackler stands inside a
 -- catching area their tier opens, the areas are open, they carry no cat, hold no catch or rescue lock (N85) and are
 -- off TackleCooldownSeconds, which starts at the press, hit or miss. For the lunge plus TackleHitGraceSeconds the
--- server hits the first player in reach (inReach) who could be shoved (targetRefusal): in the same area, outside
--- their safe zone (their plot and BumpSafeRadiusStuds round both of their doors), in no minigame, not shoved by
+-- server hits the first player in reach (inReach) who could be shoved (targetRefusal): in the same area, in no
+-- minigame (Derek2 2026-11-07: "no tackle safe spots unless currently in catching minigame", so no plot, door or
+-- camp safe zone since), not shoved by
 -- anyone for ShoveTargetImmuneSeconds (S45) and not by this tackler for BumpSameTargetSeconds (both 0 since #2193:
 -- no timed immunity, so a tackler who picks up the dropped cat can be tackled straight back). A hit pushes the
 -- target ShoveKnockbackStuds. If the target carries a cat and is BumpGraceSeconds into the carry, BumpChance (1.0
@@ -31,7 +32,6 @@ export type TackleCheck = {
 	carrying: boolean,
 	busy: boolean, -- the tackler holds a catch or rescue lock (N85)
 	area: string?, -- the catching area the tackler stands in, nil outside every area
-	inCamp: boolean?, -- F84: the tackler stands in a camp, a safe zone
 	areaUnlocked: boolean, -- the tackler's tier opens `area`
 	areasClosed: boolean, -- night: the catching areas are closed (v0.9, F66)
 	sinceTackle: number?, -- since this tackler's last press that was not refused
@@ -43,8 +43,6 @@ export type TargetCheck = {
 	self: boolean, -- the tackler
 	sameArea: boolean, -- standing in the tackler's catching area
 	targetBusy: boolean, -- holds a catch or rescue lock
-	targetSafe: boolean, -- on its own plot or near one of its doors
-	targetInCamp: boolean?, -- F84: standing in a camp, a safe zone up to its gate line
 	targetFlying: boolean?, -- F84: mid Cat Cannon flight or cloud hop: the lunge passes through
 	targetNewcomer: boolean?, -- F87: has not checked in a cat yet (easy-start.md section 2c): nobody tackles them
 	sinceShoveTarget: number?, -- since this tackler last hit this player
@@ -94,9 +92,6 @@ function Shove.tackleRefusal(check: TackleCheck): string?
 	if check.area == nil then
 		return "You can only tackle inside a catching area"
 	end
-	if check.inCamp == true then
-		return "The camp is a safe zone"
-	end
 	if not check.areaUnlocked then
 		return "This area opens at a higher tier"
 	end
@@ -119,12 +114,6 @@ function Shove.targetRefusal(check: TargetCheck): string?
 	end
 	if check.targetBusy then
 		return "They're busy catching a cat"
-	end
-	if check.targetSafe then
-		return "They're safe by their own cafe"
-	end
-	if check.targetInCamp == true then
-		return "They're safe in the camp"
 	end
 	if check.targetFlying == true then
 		return "They're flying"

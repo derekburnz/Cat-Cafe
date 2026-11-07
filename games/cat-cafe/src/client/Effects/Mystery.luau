@@ -99,7 +99,7 @@ local function removeBang(gift: Instance)
 end
 
 -- The red "!" over a waiting gift, seen by everyone: a BillboardGui `bang.lift` studs over the gift's top, drawn
--- within `bang.within` studs and hidden by walls, bobbing `bang.bob` studs every `bang.seconds` (still with Reduce
+-- within `bang.within` studs and drawn over walls like the rich tip's marker (#2272, Derek2 2026-11-07), bobbing `bang.bob` studs every `bang.seconds` (still with Reduce
 -- Motion). Roblox terms: a BillboardGui is 2D UI drawn at a point in the world, always facing the camera.
 local function addBang(gift: Model, spot: Spot)
 	removeBang(gift)
@@ -109,7 +109,7 @@ local function addBang(gift: Model, spot: Spot)
 	gui.Name = "GiftBang"
 	gui.Size = UDim2.new(b.studs, b.pixels, b.studs, b.pixels)
 	gui.LightInfluence = 0
-	gui.AlwaysOnTop = false
+	gui.AlwaysOnTop = true -- seen through the cafe walls from the street (#2272)
 	gui.MaxDistance = b.within
 	gui.Adornee = anchor
 	gui.Parent = anchor

@@ -36,11 +36,11 @@ return function()
 			expect(chips[1].text).to.equal("Likes: Waiter")
 		end)
 
-		it("gives a rainbow cat its x3 chip in place of gold (F99)", function()
+		it("gives a rainbow cat its x2 chip in place of gold (F99)", function()
 			local chips = CatBuffs.chips({ favourite = false, gold = false, rainbow = true, level = 1 })
 			expect(#chips).to.equal(1)
 			expect(chips[1].kind).to.equal("rainbow")
-			expect(chips[1].text).to.equal("Rainbow x3")
+			expect(chips[1].text).to.equal("Rainbow x2")
 		end)
 
 		it("shows nothing for a plain level 1 cat without a favourite role", function()

@@ -90,7 +90,7 @@ return function()
 	end)
 
 	describe("earnings and the Cat Collector", function()
-		it("a rainbow cat at work earns exactly twice the same cat in gold (check 3)", function()
+		it("a rainbow cat at work earns x2 the same cat, more than in gold (check 3; x2 since 2026-11-07)", function()
 			local spotId = Catalog.spots[1].id
 			local function at(variant: string): number
 				local instance = CatStats.newInstance("u1", common.id, 100, 50)
@@ -99,7 +99,8 @@ return function()
 				return Economy.catRate(instance, 1)
 			end
 			expect(at("gold") > 0).to.equal(true)
-			expect(at("rainbow")).to.be.near(2 * at("gold"), 1e-9)
+			expect(at("rainbow")).to.be.near(2 * at("base"), 1e-9)
+			expect(at("rainbow") > at("gold")).to.equal(true)
 			expect(CatStats.variantMultiplier("rainbow")).to.equal(Config.RainbowMultiplier)
 		end)
 
@@ -156,10 +157,10 @@ return function()
 			)
 		end)
 
-		it("lifts the food card's rainbow line to 1.8%, 2.25% and 3% as rainbow5, 10 and 25 are claimed (check 7)", function()
+		it("lifts the food card's rainbow line to 1.62%, 1.8% and 2.1% as rainbow5, 10 and 25 are claimed (check 7; #2269)", function()
 			expect(IndexRewards.rainbowLuck(profileWith({}))).to.equal(0)
 			local claims: { [string]: boolean } = {}
-			local chances: { [string]: number } = { rainbow5 = 0.018, rainbow10 = 0.0225, rainbow25 = 0.03 }
+			local chances: { [string]: number } = { rainbow5 = 0.0162, rainbow10 = 0.018, rainbow25 = 0.021 }
 			for _, id in { "rainbow5", "rainbow10", "rainbow25" } do
 				claims[id] = true
 				local luck = IndexRewards.rainbowLuck(profileWith({}, table.clone(claims)))
@@ -175,7 +176,7 @@ return function()
 			local function tierOf(profile: any): number
 				return if profile == lucky then 1 else 5
 			end
-			expect(IndexRewards.bestRainbowLuck({ plain, lucky }, 1, tierOf)).to.be.near(0.5, 1e-9)
+			expect(IndexRewards.bestRainbowLuck({ plain, lucky }, 1, tierOf)).to.be.near(0.2, 1e-9) -- #2269: was 0.5
 			expect(IndexRewards.bestRainbowLuck({ plain, lucky }, 3, tierOf)).to.equal(0)
 		end)
 

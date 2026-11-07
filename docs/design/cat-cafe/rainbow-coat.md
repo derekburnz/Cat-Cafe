@@ -18,7 +18,7 @@ We picked **Rainbow**: every child knows it, and it reads as "more than gold" fr
 - So rainbow is one tenth of gold. A player who secures about 300 cats on the way to Tier 5 meets one or two. It is the late game hunt Derek asked for, and with trading (F102) rainbow cats become the thing people trade for.
 - **Rainbow luck.** The new Rainbow track in the Index (section 4) multiplies every rainbow roll by `1 + rainbowLuck`, capped at RainbowLuckMax (1.0). Gold luck, Gold Rush and Lucky Potions do not touch rainbow, so each boost does one clear thing. Whose luck counts follows the gold rule (golden-fish.md section 5): bait uses the player who sets the food; strays and rescue cats use the highest `rainbowLuck` among players in the server with that area open.
 - Every food card and the Fish Market's odds card shows "Rainbow 0.5%" (with the player's rainbow luck in it) under the gold line.
-- **Earnings.** A rainbow cat earns RainbowMultiplier 3, twice a gold cat's 1.5. A rainbow Alleyway Common earns 3 a second, the same as a Park Common.
+- **Earnings.** A rainbow cat earns RainbowMultiplier 2 (#2261, Derek2 2026-11-07; it was 3, twice gold), a little more than a gold cat's 1.5. A rainbow Alleyway Common earns 2 a second.
 - **The Cat Collector** values a rainbow cat at CollectorRainbowMultiplier 10 (gold is 3).
 - **Golden fish.** The first rainbow coat of each cat pays FishFirstRainbowMultiplier (5) times that rarity's first catch fish (Common 5, Rare 15, Epic 40, Legendary 100, Mythical 200), any way it was found, on top of the first catch fish when the cat is also new. A first gold coat stays at twice. A rainbow coat never counts as a first gold. The Rainbow track (section 4) pays on top. Added 2026-11-02 after the #795 review: without it a first rainbow paid less than a first gold although it is ten times rarer.
 
@@ -30,7 +30,7 @@ It has to outshine gold at a glance. Gold sparkles; rainbow moves, glows and lea
 - **A soft glow.** A small white light on the cat (range 6, brightness 0.6, no shadows) and a thin outline whose colour follows the bands.
 - **A sparkle trail.** While the cat walks or is carried, small star sparkles in the current band colours drop behind it and fade in 0.8 s.
 - **When a rainbow stray spawns,** a short rainbow beam rises from it for 3 seconds and the server sees a toast: "A Rainbow Tabby is out in the Woods!" (at most one such toast a minute per server). That gives every player a reason to take the cannon.
-- **Cards and the Index.** A rainbow cat's card and Index tile have a slowly turning rainbow border and the word RAINBOW in rainbow letters where gold cards say GOLD. The hover card's buff chips (F97) show a rainbow "x3" chip.
+- **Cards and the Index.** A rainbow cat's card and Index tile have a slowly turning rainbow border and the word RAINBOW in rainbow letters where gold cards say GOLD. The hover card's buff chips (F97) show a rainbow "x2" chip.
 - **Securing one** always plays the big pull (luck-and-rare-moments.md section 3), whatever the rarity: "RAINBOW COMMON!" up to "RAINBOW MYTHICAL!", with rainbow confetti, a rainbow edge and the Mythical sting. The server toast follows F89's rules.
 - **Reduce Motion:** the bands stand still, with no trail and no beam; the glow and borders stay.
 - **Phones and crowds:** colours animate on at most RainbowAnimateMax (10) rainbow cats within 120 studs of the camera; the rest show still bands.
@@ -40,7 +40,7 @@ It has to outshine gold at a glance. Gold sparkles; rainbow moves, glows and lea
 
 - **Index:** a third tab, Rainbow, after Normal and Gold, with the same silhouettes until found (F97 section 6). Each found rainbow coat counts toward the Index leaderboard (F98).
 - **Tiers:** "different cats" for rank ups counts a cat kind once, whatever its coat, as now.
-- **Locking, selling and trading** work like any cat. Selling asks twice for a rainbow cat ("Sell your Rainbow Tabby? It earns x3").
+- **Locking, selling and trading** work like any cat. Selling asks twice for a rainbow cat ("Sell your Rainbow Tabby? It earns x2").
 
 ## 4. The Rainbow track
 
@@ -62,7 +62,7 @@ Derek, 2026-11-05: rainbows are far too rare (he had 10 gold and no rainbow), so
 
 - **Rates.** `RainbowChanceNet` and `RainbowChanceBait` go from 0.005 to 0.015 (x3), and `RainbowChanceRescue` from 0.01 to 0.03 (rescues stay at 2x). Gold stays 5% and 10%, so gold is still about 3 times as common. Why: a steady player secures about 30 cats an hour (section 1: about 300 on the way to Tier 5 in about 10 h). With Rainbow Days (luck-and-rare-moments.md section 1g, 1 day in 10 at x3, so x1.2 on average) a roll is about 1.8%, so the first rainbow comes after about 56 cats, about 1.9 h. About 4 players in 5 have one by 3 h. The food and Fish Market odds cards show "Rainbow 1.5%".
 - **No crate item.** Crates stay decor only. There is no Rainbow Paint (it was dropped on #1581).
-- **Money passes.** A rainbow cat's x3 is part of its rate, and the money pass multiplies the whole cafe last (economy-ladder.md section 6a). So a rainbow cat with the 4x pass earns x12, with no highest-wins rule. That's already how it's built; the build only adds a spec check for it.
+- **Money passes.** A rainbow cat's x2 (x3 before #2261) is part of its rate, and the money pass multiplies the whole cafe last (economy-ladder.md section 6a). So a rainbow cat with the 4x pass earns x8, with no highest-wins rule. That's already how it's built; the build only adds a spec check for it.
 - Contracts: Config `RainbowChanceNet` 0.015, `RainbowChanceBait` 0.015, `RainbowChanceRescue` 0.03. No save, remote or Pace.spec change (rainbow isn't in the pace sim). QA: over 100,000 seeded stray rolls, rainbow lands within 0.1 points of 1.5%, and 4.5% on a Rainbow Day.
 
 ## 5. Contracts

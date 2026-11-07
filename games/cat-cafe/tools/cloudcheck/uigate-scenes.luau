@@ -2826,6 +2826,25 @@ local SCENES = {
 	end },
 	-- #2182 (intro-cutscene.md 2b): with a hold, Next just left of Skip and the gold read bar under the caption; a
 	-- press in a shot's first second does nothing, then one press moves on once
+	-- #2242 (Derek2 11-07: "add the rare customers chance to the tutorial scene like rich customer tips"): the rich
+	-- visitor shot's caption fits one line, and the grab's gold "+$" pops over the bag and is gone by 1.6 s
+	{ "IntroRichTip", function()
+		UI.intro.start({ skipAfter = 5 })
+		UI.intro.setShot(6, "Rich visitors leave big tips. Grab them fast!", nil, 4.2)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntro") :: ScreenGui
+		local caption = gui:FindFirstChild("Caption", true) :: TextLabel
+		assert(caption.TextFits, "uigate: the rich visitor caption does not fit (#2242)")
+		local camera = workspace.CurrentCamera
+		local bag = camera.CFrame.Position + camera.CFrame.LookVector * 20
+		UI.intro.tipPop(bag, 2400)
+		UIShim.advance(0.3)
+		-- the shim's camera puts every world point behind it, so the pop is made but hidden; its words are checked
+		local pop = gui:FindFirstChild("TipPop", true) :: TextLabel
+		assert(pop ~= nil, "uigate: no tip pop over the bag (#2242)")
+		assert(pop.Text == "+$2,400" and pop.TextFits, "uigate: the tip pop reads " .. pop.Text .. " (#2242)")
+		UIShim.advance(1.5)
+		assert(gui:FindFirstChild("TipPop", true) == nil, "uigate: the tip pop stayed past 1.6 s (#2242)")
+	end },
 	{ "IntroNext", function()
 		local fired: { number } = {}
 		local counting = UI.events.introNext:Connect(function(shot: number)

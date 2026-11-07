@@ -117,5 +117,10 @@ end
 IntroLogic.ROLES = { "barista", "waiter", "greeter", "entertainer" }
 IntroLogic.JOB_TAP = 0.25
 IntroLogic.JOB_GONE = 0.55
+-- #2242 (Derek2 11-07: "add the rare customers chance to the tutorial scene like rich customer tips"): the rich
+-- visitor shot's "+$" pop over the grabbed tip bag rises TIP_RISE design pixels and is gone TIP_GONE after it showed
+IntroLogic.TIP_RISE = 46
+IntroLogic.TIP_FADE_FROM = 1.2
+IntroLogic.TIP_GONE = 1.6
 
 return IntroLogic

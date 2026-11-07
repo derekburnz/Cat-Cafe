@@ -513,6 +513,7 @@ local function render()
 	if hud then
 		hud:render(state)
 	end
+	UI.campExtras.crates(state.crates) -- #2214: the "!" over the Fish Market
 	if upgrades then
 		upgrades:render(state)
 	end
@@ -2716,6 +2717,14 @@ end
 function UI.intro.jobCard(worldPosition: Vector3, role: string)
 	if introScreen then
 		introScreen:jobCard(worldPosition, role)
+	end
+end
+
+-- #2242: the rich visitor shot's grab, a big gold "+$<amount>" over the tip bag at `worldPosition`, rising and gone
+-- by 1.6 s. `amount` is the tip at Tier 1 rates (the controller's sum); nothing is paid.
+function UI.intro.tipPop(worldPosition: Vector3, amount: number)
+	if introScreen then
+		introScreen:tipPop(worldPosition, amount)
 	end
 end
 
@@ -5195,6 +5204,8 @@ do
 	local CampExtrasLogic = require(script.Components.CampExtrasLogic)
 	local YardSale = require(script.Screens.YardSale)
 	local ReadyBang = require(script.Components.ReadyBang)
+	local MarketBang = require(script.Components.MarketBang)
+	local RescueBang = require(script.Components.RescueBang)
 	local SharedConfig =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 	local CAMP_TAG = "CampExtra" -- shared/CampExtras.TAG: the placed models, with their ExtraId attribute
@@ -5204,6 +5215,8 @@ do
 		state = nil :: Types.CampExtrasState?,
 		yard = nil :: YardSale.YardSale?,
 		bang = nil :: ReadyBang.ReadyBang?, -- the red "!" over each ready station (camp-stations.md section 1)
+		market = nil :: MarketBang.MarketBang?, -- #2214: the "!" over the Fish Market while crates wait to open
+		rescue = nil :: RescueBang.RescueBang?, -- #2214: the "!" over a rescue spot while someone else rescues there
 	}
 
 	local function yardView(): Types.CampExtraView?
@@ -5236,6 +5249,10 @@ do
 		local bang = ReadyBang.new(into)
 		bang:update(camp.state)
 		camp.bang = bang
+		local market = MarketBang.new(into)
+		market:update(state.crates)
+		camp.market = market
+		camp.rescue = RescueBang.new(into)
 		local modalView = modal
 		if modalView == nil then
 			return
@@ -5350,6 +5367,24 @@ do
 			bang:destroy()
 		end
 		camp.bang = nil
+		local market = camp.market
+		if market then
+			market:destroy()
+		end
+		camp.market = nil
+		local rescue = camp.rescue
+		if rescue then
+			rescue:destroy()
+		end
+		camp.rescue = nil
+	end
+
+	-- #2214: every render, the Fish Market's "!" with the crates waiting to open
+	function UI.campExtras.crates(crates: { [string]: number }?)
+		local market = camp.market
+		if market then
+			market:update(crates)
+		end
 	end
 end
 

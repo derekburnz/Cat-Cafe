@@ -1920,6 +1920,36 @@ local SCENES = {
 		UI.spin.open()
 		press("SpinWheel", "Odds")
 	end },
+	-- #2246 (Derek2 11-07: "Add the ability to skip spins"): while the wheel turns "Tap to skip" sits on its rim, and a
+	-- tap on the wheel lands it; the shot is mid turn, with the hint up
+	{ "SpinSkipHint", function()
+		UI.spin.open()
+		UI.spin.result(1, 100)
+		UIShim.advance(0.5)
+		local window = UIShim.playerGui:FindFirstChild("SpinWheel", true)
+		local hint = window and window:FindFirstChild("SkipHint", true)
+		assert(hint and hint.Visible, "uigate: no Tap to skip while the wheel turns (#2246)")
+		local tap = window:FindFirstChild("SkipTap", true)
+		assert(tap and tap.Visible, "uigate: the wheel cannot be tapped while it turns (#2246)")
+	end },
+	{ "SpinSkipTap", function()
+		UI.spin.open()
+		UI.spin.result(1, 100)
+		UIShim.advance(0.5)
+		press("SpinWheel", "SkipTap")
+		local window = UIShim.playerGui:FindFirstChild("SpinWheel", true)
+		local hint = window:FindFirstChild("SkipHint", true)
+		assert(not hint.Visible, "uigate: Tap to skip stayed up after the wheel landed (#2246)")
+		assert(not window:FindFirstChild("SkipTap", true).Visible, "uigate: a tap on the wheel did not land it (#2246)")
+		-- Space skips the next one, as the button and the tap do
+		UIShim.advance(10)
+		UI.spin.result(1, 100)
+		UIShim.advance(0.5)
+		assert(hint.Visible, "uigate: no Tap to skip on the second spin (#2246)")
+		local input = { KeyCode = Enum.KeyCode.Space, UserInputType = Enum.UserInputType.Keyboard }
+		UIShim.fire(UIShim.eventOf(game:GetService("UserInputService"), "InputBegan"), input, false)
+		assert(not hint.Visible, "uigate: Space did not skip the spin (#2246)")
+	end },
 	-- #1500: the end of the Odds list, where the two 0.5% jackpots sit in gold
 	{ "SpinOddsJackpots", function()
 		UI.spin.open()
@@ -2834,6 +2864,25 @@ local SCENES = {
 	end },
 	-- #2182 (intro-cutscene.md 2b): with a hold, Next just left of Skip and the gold read bar under the caption; a
 	-- press in a shot's first second does nothing, then one press moves on once
+	-- #2242 (Derek2 11-07: "add the rare customers chance to the tutorial scene like rich customer tips"): the rich
+	-- visitor shot's caption fits one line, and the grab's gold "+$" pops over the bag and is gone by 1.6 s
+	{ "IntroRichTip", function()
+		UI.intro.start({ skipAfter = 5 })
+		UI.intro.setShot(6, "Rich visitors leave big tips. Grab them fast!", nil, 4.2)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntro") :: ScreenGui
+		local caption = gui:FindFirstChild("Caption", true) :: TextLabel
+		assert(caption.TextFits, "uigate: the rich visitor caption does not fit (#2242)")
+		local camera = workspace.CurrentCamera
+		local bag = camera.CFrame.Position + camera.CFrame.LookVector * 20
+		UI.intro.tipPop(bag, 2400)
+		UIShim.advance(0.3)
+		-- the shim's camera puts every world point behind it, so the pop is made but hidden; its words are checked
+		local pop = gui:FindFirstChild("TipPop", true) :: TextLabel
+		assert(pop ~= nil, "uigate: no tip pop over the bag (#2242)")
+		assert(pop.Text == "+$2,400" and pop.TextFits, "uigate: the tip pop reads " .. pop.Text .. " (#2242)")
+		UIShim.advance(1.5)
+		assert(gui:FindFirstChild("TipPop", true) == nil, "uigate: the tip pop stayed past 1.6 s (#2242)")
+	end },
 	{ "IntroNext", function()
 		local fired: { number } = {}
 		local counting = UI.events.introNext:Connect(function(shot: number)
@@ -3023,6 +3072,18 @@ local SCENES = {
 		task.delay(0.3, function()
 			UI.market.result("classic_crate", "classic_latte_brown", false, 0)
 		end)
+	end },
+	-- #2246: "Tap to skip" under the strip while it rolls, and Space skips it as a tap does
+	{ "CrateReelSkipKey", function()
+		reel(true)
+		UI.market.open()
+		UI.market.result("classic_crate", "classic_latte_brown", false, 0)
+		UIShim.advance(0.2)
+		local hint = UIShim.playerGui:FindFirstChild("FishMarket", true):FindFirstChild("SkipHint", true)
+		assert(hint and hint.Visible, "uigate: no Tap to skip on the rolling reel (#2246)")
+		local input = { KeyCode = Enum.KeyCode.Space, UserInputType = Enum.UserInputType.Keyboard }
+		UIShim.fire(UIShim.eventOf(game:GetService("UserInputService"), "InputBegan"), input, false)
+		assert(not hint.Visible, "uigate: Space did not skip the reel (#2246)")
 	end },
 	-- a tap skips it: the landing, then the prize card with its buttons
 	{ "CrateReelSkip", function()
@@ -3345,6 +3406,76 @@ local SCENES = {
 			assert(window:FindFirstChild("Section_" .. kind, true), "no section " .. kind)
 		end
 	end },
+	-- #2214 (crispi_255): a red "!" over the Fish Market while crates wait to open, "📦 3 crates to open" under it;
+	-- with none it is gone
+	{ "MarketBang", function()
+		local stall = Instance.new("Model")
+		stall.Name = "CatCafe_FishMarket"
+		local counter = Instance.new("Part")
+		counter.Name = "Counter"
+		counter.Size = Vector3.new(8, 6, 4)
+		counter.Position = Vector3.new(0, 3, -20)
+		counter.Parent = stall
+		stall.PrimaryPart = counter
+		stall.Parent = workspace
+		stall:AddTag("FishMarket")
+		Scenes._market = { stall = stall, crates = UI.getState().crates }
+		local function bang(): BillboardGui
+			local gui = UIShim.playerGui:FindFirstChild("CatCafeMarketBang", true)
+			assert(gui and gui:IsA("BillboardGui"), "uigate: no ! billboard over the Fish Market (#2214)")
+			return gui :: BillboardGui
+		end
+		UI.update({ crates = { park = 2, alley = 1 } } :: any)
+		local gui = bang()
+		assert(gui.Enabled and gui.Adornee == counter, "uigate: the Fish Market's ! is not up with crates to open (#2214)")
+		local line = gui:FindFirstChild("Line", true) :: TextLabel
+		assert(line.Text == "📦 3 crates to open", "uigate: the Fish Market bubble reads " .. line.Text .. " (#2214)")
+		UI.update({ crates = {} } :: any)
+		assert(not gui.Enabled, "uigate: the Fish Market's ! stays up with no crates (#2214)")
+		UI.update({ crates = { park = 1 } } :: any)
+		assert(gui.Enabled and line.Text == "📦 1 crate to open", "uigate: one crate reads " .. line.Text .. " (#2214)")
+	end },
+	-- #2214 add-on (Derek2: "show exclamation mark when someone is doing a rescue also"): another player rescuing at a
+	-- spot puts the "!" over it, "🆘 Rescue on! Come help"; a helper joining reads "🐾 Team Rescue on!"; it goes when
+	-- the rescue ends, and the rescuer never sees their own
+	{ "RescueBang", function()
+		local spot = Instance.new("Part")
+		spot.Name = "RescueSpot_gate"
+		spot.Size = Vector3.new(2, 1, 2)
+		spot.Position = Vector3.new(6, 1, -16)
+		spot:SetAttribute("RescueSpotId", "gate_spot")
+		spot:SetAttribute("LockedBy", 0)
+		spot:SetAttribute("HelpedBy", 0)
+		spot.Parent = workspace
+		spot:AddTag("RescueSpot")
+		Scenes._rescueSpot = spot
+		local function bang(): BillboardGui?
+			for _, gui in UIShim.playerGui:GetDescendants() do
+				if gui:IsA("BillboardGui") and gui.Name == "CatCafeRescueBang" and gui.Adornee == spot then
+					return gui
+				end
+			end
+			return nil
+		end
+		UIShim.advance(0.6)
+		local idle = bang()
+		assert(idle == nil or not idle.Enabled, "uigate: a free rescue spot shows a ! (#2214)")
+		spot:SetAttribute("LockedBy", localUserId() + 1)
+		UIShim.advance(0.6)
+		local gui = bang()
+		assert(gui and gui.Enabled, "uigate: no ! over a rescue in progress (#2214)")
+		local line = gui:FindFirstChild("Line", true) :: TextLabel
+		assert(line.Text == "🆘 Rescue on! Come help", "uigate: the rescue bubble reads " .. line.Text .. " (#2214)")
+		spot:SetAttribute("HelpedBy", localUserId() + 2)
+		UIShim.advance(0.6)
+		assert(line.Text == "🐾 Team Rescue on!", "uigate: a Team Rescue reads " .. line.Text .. " (#2214)")
+		spot:SetAttribute("LockedBy", localUserId())
+		spot:SetAttribute("HelpedBy", 0)
+		UIShim.advance(0.6)
+		assert(not gui.Enabled, "uigate: the rescuer sees a ! over their own rescue (#2214)")
+		spot:SetAttribute("LockedBy", localUserId() + 1) -- on again, for the picture
+		UIShim.advance(0.6)
+	end },
 	-- F100: the prize toast after the Lost and Found: the line and two pictures
 	{ "CampPrize", function()
 		UI.campExtras.collected(
@@ -3505,6 +3636,30 @@ local SCENES = {
 			assert(math.abs(fish.AbsolutePosition.X - fishX) < 1, ("uigate: %s moves the golden fish %d px (#2194)"):format(amount.Text, fish.AbsolutePosition.X - fishX))
 			assert(amount.AbsolutePosition.X + amount.TextBounds.X <= badge.AbsolutePosition.X, "uigate: " .. amount.Text .. " runs into the money badge (#2194)")
 		end
+	end },
+	-- #2254 (Derek2 11-07: "gold fish is hovering wrong now if you did already buy the 2x/3x/4x money"): with a money
+	-- pass owned the badge beside the money is hidden (the "Cash x4" chip shows on the side), and the golden fish sits
+	-- a normal gap after the money, at every pass and from short to long amounts; with none it keeps #2194's place
+	{ "HUDFishWithPass", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local before: any = UI.getState()
+		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
+		UI.update({ goldenFish = 878 } :: any)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local counters = hud:FindFirstChild("Counters", true) :: Frame
+		local fish = counters:FindFirstChild("Fish") :: GuiObject
+		local amount = (counters:FindFirstChild("Money") :: Instance):FindFirstChild("Amount", true) :: TextLabel
+		local scale = amount.AbsoluteSize.Y / 36
+		for pass = 2, 4 do
+			UI.store.preview(storePrices(true), { [Config.MoneyPassIds[pass]] = true })
+			for _, money in { 1234, 373e9, 88888, 999e15 } do
+				UI.update({ money = money })
+				UIShim.advance(1 / 60)
+				local gap = (fish.AbsolutePosition.X - (amount.AbsolutePosition.X + amount.TextBounds.X)) / scale
+				assert(gap >= 4 and gap <= 40, ("uigate: with the %dx pass the golden fish sits %d px after %s (#2254)"):format(pass, gap, amount.Text))
+			end
+		end
+		UI.update({ money = 373e9 })
 	end },
 	-- #1936 (release.md section 3): in the first 30 minutes of play the badge says a plain "x2", with no price and no
 	-- pulse; a tap still opens the Store
@@ -3945,6 +4100,15 @@ end
 
 function Scenes.close()
 	reel(false)
+	if Scenes._rescueSpot ~= nil then
+		Scenes._rescueSpot:Destroy() -- #2214's rescue scene
+		Scenes._rescueSpot = nil
+	end
+	if Scenes._market ~= nil then
+		Scenes._market.stall:Destroy() -- #2214's scene
+		UI.update({ crates = Scenes._market.crates } :: any)
+		Scenes._market = nil
+	end
 	if Scenes._cashMoney ~= nil then
 		UI.update(Scenes._cashMoney :: any) -- #2194's scene
 		Scenes._cashMoney = nil

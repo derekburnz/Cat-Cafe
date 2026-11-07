@@ -188,6 +188,18 @@ export type ButtonState = { text: string, enabled: boolean, skip: boolean }
 
 SpinLogic.SKIP_AFTER = 0.4
 
+-- #2246 (Derek2 11-07: "Add the ability to skip spins"): the keys that skip a turning wheel or a rolling crate reel,
+-- by KeyCode name: Space, Enter and a controller's A. Never while the player types in a text box, and never a key a
+-- window already took (gameProcessed).
+local SKIP_KEYS: { [string]: boolean } =
+	{ Space = true, Return = true, KeypadEnter = true, ButtonA = true }
+SpinLogic.SKIP_KEYS = SKIP_KEYS
+SpinLogic.SKIP_HINT = "Tap to skip"
+
+function SpinLogic.skipKey(keyName: string, processed: boolean, typing: boolean): boolean
+	return not processed and not typing and SKIP_KEYS[keyName] == true
+end
+
 function SpinLogic.button(view: ButtonView): ButtonState
 	if view.turning then
 		return if view.skippable

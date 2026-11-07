@@ -2,7 +2,7 @@
 -- Pass decor given by a game pass (#1168 row 3, the Garden Decor Pack), pure: Catalog.passDecor pieces with a
 -- `passKey` are owned while the player owns that pass. ShopCatService gives each missing one into
 -- profile.decorOwned at join and when PassService learns of a purchase; owning a piece twice is the same as once, so
--- nothing else is saved. They follow every pass decor rule: looks only, not for sale, trade or quests.
+-- nothing else is saved. They follow every pass decor rule: a rarity and its money bonus (#2006), not for sale, trade or quests.
 --   passId(def) -> number                       the pass id that gives `def`, 0 for none or not made
 --   toGrant(profile, ownsPass) -> { decorId }   the pieces owed now, in Catalog order
 

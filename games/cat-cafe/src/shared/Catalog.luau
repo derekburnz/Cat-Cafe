@@ -1756,7 +1756,7 @@ Catalog.passSeasons = {
 			[28] = item("decor", "decor_maple_tree_planter", "Maple Tree Planter"),
 			[29] = item("frame", "frame_golden_leaf", "Name plate frame: Golden Leaf"),
 			[30] = item("cat", "maple_muffin", "Season cat: Maple Muffin"),
-			-- #1883 part C (Model-Agent's art, #1921): the paid track ends on four Maple showpieces, looks only
+			-- #1883 part C (Model-Agent's art, #1921): the paid track ends on four Maple showpieces
 			[31] = item("accessory", "acc_leaf_crown", "Autumn Leaf Crown"),
 			[32] = item("decor", "decor_maple_leaf_lamp", "Maple Leaf Lamp"),
 			[33] = item("decor", "decor_harvest_cider_cart", "Harvest Cider Cart"),
@@ -3461,17 +3461,20 @@ for _, def in Catalog.decor do
 	end
 end
 
--- #1645 (cafe-pass.md section 3): the Cafe Pass's season decor, earned on its track and owned forever. Looks only: no
--- money bonus and no crate, so it is in no Decor Index page and never moves the Index, and it can't be traded
+-- #1645 (cafe-pass.md section 3): the Cafe Pass's season decor, earned on its track and owned forever. #2006 (Derek2,
+-- 2026-11-07: "make it do something" and "a rarity attached"): each piece has a rarity, Common to Epic (paid pieces
+-- stop below the crates' Legendary and Mythical), and the crate pieces' money bonus for it (Config.CratePieceBonus).
+-- It has no crate, so it is in no crate pool or Decor Index page and never moves the Index, and it can't be traded
 -- (Trade.piece takes crate pieces only) or bought (Economy.decorBlocker). Each piece takes a decor spot like the crate
 -- furniture and decorations; they are kept apart in Catalog.passDecor (Catalog.crateDecor is the 84 crate pieces), and
 -- the server places them after the crate pieces.
 -- #1822: a row with `pack` comes with that game pass instead (the King Cat Pack's booth, granted once by
--- ShopCatService through shared/KingPack), with the same looks-only rules; `asset` names a model other than the one
+-- ShopCatService through shared/KingPack), with the same rules; `asset` names a model other than the one
 -- its name gives.
 local PASS_DECOR: {
 	{
 		id: string,
+		rarity: Types.Rarity,
 		name: string,
 		kind: Types.DecorKind,
 		description: string,
@@ -3483,36 +3486,42 @@ local PASS_DECOR: {
 	{
 		{
 			id = "decor_pumpkin_lantern",
+			rarity = "Common",
 			name = "Pumpkin Lantern",
 			kind = "decoration",
 			description = "A friendly cat face, glowing warm.",
 		},
 		{
 			id = "decor_fallen_leaf_rug",
+			rarity = "Common",
 			name = "Fallen Leaf Rug",
 			kind = "decoration",
 			description = "A big maple leaf to curl up on.",
 		},
 		{
 			id = "decor_cosy_knit_cushion",
+			rarity = "Common",
 			name = "Cosy Knit Cushion",
 			kind = "furniture",
 			description = "A soft knitted pouf in pumpkin bands.",
 		},
 		{
 			id = "decor_hay_bale_seat",
+			rarity = "Rare",
 			name = "Hay Bale Seat",
 			kind = "furniture",
 			description = "Harvest time, sit a while.",
 		},
 		{
 			id = "decor_apple_crate_shelf",
+			rarity = "Rare",
 			name = "Apple Crate Shelf",
 			kind = "furniture",
 			description = "Crates of red apples, stacked as shelves.",
 		},
 		{
 			id = "decor_maple_tree_planter",
+			rarity = "Rare",
 			name = "Maple Tree Planter",
 			kind = "decoration",
 			description = "A little maple in red and orange.",
@@ -3520,18 +3529,21 @@ local PASS_DECOR: {
 		-- #1883 part C (levels 32 and 33, Model-Agent's #1921)
 		{
 			id = "decor_maple_leaf_lamp",
+			rarity = "Epic",
 			name = "Maple Leaf Lamp",
 			kind = "decoration",
 			description = "A paper maple leaf, glowing amber day and night.",
 		},
 		{
 			id = "decor_harvest_cider_cart",
+			rarity = "Epic",
 			name = "Harvest Cider Cart",
 			kind = "furniture",
 			description = "A barrel of cider, three mugs and a basket of apples.",
 		},
 		{
 			id = "decor_royal_velvet_booth",
+			rarity = "Epic",
 			name = "Royal Velvet Booth",
 			kind = "furniture",
 			description = "A deep red booth fit for a king.",
@@ -3543,6 +3555,7 @@ local PASS_DECOR: {
 		-- stays 0 until they are in.
 		{
 			id = "decor_garden_hanging_fern",
+			rarity = "Rare",
 			name = "Hanging Fern Basket",
 			kind = "decoration",
 			description = "A leafy fern spilling from a woven basket.",
@@ -3551,6 +3564,7 @@ local PASS_DECOR: {
 		},
 		{
 			id = "decor_garden_sunflower_pot",
+			rarity = "Rare",
 			name = "Sunflower Pot",
 			kind = "decoration",
 			description = "Three tall sunflowers in a sunny pot.",
@@ -3559,6 +3573,7 @@ local PASS_DECOR: {
 		},
 		{
 			id = "decor_garden_watering_can",
+			rarity = "Rare",
 			name = "Watering Can Planter",
 			kind = "decoration",
 			description = "An old tin can, now full of daisies.",
@@ -3567,6 +3582,7 @@ local PASS_DECOR: {
 		},
 		{
 			id = "decor_garden_lemon_tree",
+			rarity = "Epic",
 			name = "Potted Lemon Tree",
 			kind = "decoration",
 			description = "A little tree with bright lemons.",
@@ -3575,6 +3591,7 @@ local PASS_DECOR: {
 		},
 		{
 			id = "decor_garden_ivy_trellis",
+			rarity = "Epic",
 			name = "Ivy Trellis",
 			kind = "furniture",
 			description = "A wooden trellis climbing with ivy.",
@@ -3583,6 +3600,7 @@ local PASS_DECOR: {
 		},
 		{
 			id = "decor_garden_bench",
+			rarity = "Epic",
 			name = "Garden Swing Seat",
 			kind = "furniture",
 			description = "A cosy swing seat wrapped in flowers.",
@@ -3592,14 +3610,16 @@ local PASS_DECOR: {
 	}
 Catalog.passDecor = {} :: { Types.DecorDef }
 for _, row in PASS_DECOR do
+	local bonus = Config.CratePieceBonus[row.rarity]
 	local def: Types.DecorDef = {
 		id = row.id,
 		name = row.name,
 		cost = 0,
 		category = KIND_CATEGORY[row.kind],
-		effect = "Looks only",
+		effect = string.format("+%d%% money while in use", math.floor(bonus * 100 + 0.5)),
 		description = row.description,
-		bonus = 0,
+		bonus = bonus,
+		rarity = row.rarity,
 		asset = row.asset or "CatCafe_Decor_" .. (row.name:gsub("[^%w]", "")),
 		source = "pass",
 		kind = row.kind,

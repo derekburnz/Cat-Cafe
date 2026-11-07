@@ -23,9 +23,9 @@ return function()
 		AutosaveSeconds = 60,
 		-- the clock and night waves (section 9, v0.3 in F23): no trickle spawns, so SpawnIntervalSeconds and
 		-- MaxStraysPerArea are gone, and the wave size lives per area in Catalog.areas (Catalog.spec)
-		DayLengthSeconds = 300,
-		NightLengthSeconds = 90, -- v0.9 (F66): a short night between hunts
-		ServerStartDaySeconds = 300, -- v0.9: a new server opens at sunrise; #1437: the global clock's first day
+		DayLengthSeconds = 320, -- #2192: was 300
+		NightLengthSeconds = 70, -- v0.9 (F66): a short night between hunts; #2192: was 90
+		ServerStartDaySeconds = 320, -- v0.9: a new server opens at sunrise; #1437: the global clock's first day
 		ClockEpoch = 1793491200, -- #1437
 		DuskWarningSeconds = 15,
 		NightSweepSeconds = 2,
@@ -96,7 +96,7 @@ return function()
 		CustomerStayMin = 20,
 		CustomerStayMax = 40,
 		RemoteRateLimitPerSecond = 10,
-		AnnounceMinRarity = "Epic",
+		AnnounceMinRarity = "Legendary", -- #2205: was Epic
 		GrabCooldownSeconds = 2,
 		TravelCooldownSeconds = 1, -- v0.4 (F19) 3; #1434 1
 		SyncIntervalSeconds = 10,

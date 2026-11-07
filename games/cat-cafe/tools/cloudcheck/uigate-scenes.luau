@@ -3307,6 +3307,33 @@ local SCENES = {
 	{ "HUDMoneyBadge", function()
 		UI.store.preview(storePrices(true), {})
 	end },
+	-- #2194 (playtester Dread via Derek2: "The cash at the bottom left should probably not push the 2x cash and fish"):
+	-- the money badge and the golden fish stay put while the money grows from $0 to the widest usual amounts
+	{ "HUDCashSteady", function()
+		-- an earlier scene's 2x Money pass hides the badge (it shows as the side chip): no pass here, the golden fish
+		-- shown, both put back by Scenes.close
+		local before: any = UI.getState()
+		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
+		UI.update({ passBoosts = false, goldenFish = 1234 } :: any)
+		UI.store.preview(storePrices(true), {})
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local counters = hud:FindFirstChild("Counters", true) :: Frame
+		local badge = counters:FindFirstChild("MoneyBadge") :: GuiObject
+		local fish = counters:FindFirstChild("Fish") :: GuiObject
+		local amount = (counters:FindFirstChild("Money") :: Instance):FindFirstChild("Amount", true) :: TextLabel
+		assert(badge.Visible and fish.Visible, "uigate: the money badge or the golden fish is hidden (#2194)")
+		local badgeX, fishX
+		for _, money in { 0, 7, 999, 88888, 99999, 1240000, 99900000, 999e15 } do
+			UI.update({ money = money })
+			UIShim.advance(1 / 60)
+			if badgeX == nil then
+				badgeX, fishX = badge.AbsolutePosition.X, fish.AbsolutePosition.X
+			end
+			assert(math.abs(badge.AbsolutePosition.X - badgeX) < 1, ("uigate: %s moves the money badge %d px (#2194)"):format(amount.Text, badge.AbsolutePosition.X - badgeX))
+			assert(math.abs(fish.AbsolutePosition.X - fishX) < 1, ("uigate: %s moves the golden fish %d px (#2194)"):format(amount.Text, fish.AbsolutePosition.X - fishX))
+			assert(amount.AbsolutePosition.X + amount.TextBounds.X <= badge.AbsolutePosition.X, "uigate: " .. amount.Text .. " runs into the money badge (#2194)")
+		end
+	end },
 	-- #1936 (release.md section 3): in the first 30 minutes of play the badge says a plain "x2", with no price and no
 	-- pulse; a tap still opens the Store
 	{ "HUDMoneyBadgeQuiet", function()
@@ -3746,6 +3773,10 @@ end
 
 function Scenes.close()
 	reel(false)
+	if Scenes._cashMoney ~= nil then
+		UI.update(Scenes._cashMoney :: any) -- #2194's scene
+		Scenes._cashMoney = nil
+	end
 	if UI.intro.playing() then
 		UI.intro.finish() -- #2182's Next scene
 	end

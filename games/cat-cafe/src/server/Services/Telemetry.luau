@@ -41,6 +41,7 @@ local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local PassService = require(script.Parent.PassService)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
+local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -178,10 +179,13 @@ export type CustomEvent =
 	-- #1888: a Jukebox track picked (#1875), value 1; the track id or "default"
 	| "jukebox_pick"
 	-- #1920: the session recap card shown, once a session, value the minutes played this session; the Grand Opening
-	-- milestones done (0 to 8) and tier
+	-- milestones done (0 to 8), tier and (#2123) the Tomorrow line's kind (bait, treat or quests; shared/ReturnHook)
 	| "session_recap"
 	-- #1920: the session recap card closed, once a session, value the whole seconds it was open (0 to 30)
 	| "session_recap_close"
+	-- #2123 (first-hour.md 6a): a returning player's welcome back card named a reason to be back, value 1; the kind
+	-- (bait, treat or quests; shared/ReturnHook)
+	| "welcome_back_hook"
 	-- #1919: the goal card's "Find N more cats" nudge opened the Index, value 1; the area id it pointed at or "none"
 	| "index_hint_tap"
 	-- #1936 (release.md section 3): a purchase prompt the client's store guard refused, value 1; where it came from
@@ -1189,9 +1193,11 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if rawValue == true and not session.recapShown then
 			session.recapShown = true
 			local minutes = math.floor(math.max(0, os.time() - session.joinedAt) / 60)
+			local tomorrow = ReturnHook.pick(profile, os.time(), "recap")
 			Telemetry.custom(player, "session_recap", minutes, {
 				tostring(GrandOpening.doneCount(profile.grandOpening)),
 				tierText(profile),
+				if tomorrow ~= nil then tomorrow.kind else "none",
 			})
 		end
 	elseif name == "session_recap_close" then

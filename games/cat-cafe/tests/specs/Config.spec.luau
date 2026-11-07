@@ -196,6 +196,7 @@ return function()
 		BigBowlWaitCutSeconds = 120, -- F95 (economy-ladder.md section 6b): the Big Bowl takes 2 minutes off
 		FirstBaitWaitSeconds = 120, -- #1895: the account's first bait
 		RecapAfterSeconds = 2400, -- #1920: seconds of play before the session recap card
+		RecapFirstSessionSeconds = 900, -- #2123: sooner in the account's first session
 		LikeGiftMinutes = 10, -- #1947 (like-prompts.md section 3): the like card's play time
 		LikeGiftIncomeMinutes = 15, -- #1947 (Set 10 Q3): minutes of income in the like gift
 		FavGiftMinutes = 30, -- #1947: the favourite card's play time

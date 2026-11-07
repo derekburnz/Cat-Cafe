@@ -307,6 +307,7 @@ local GOAL_TOP = CLOCK_TOP + CLOCK_H + 6
 local NIGHT_LINE = 20
 local LUCKY_LINE_W = 260 -- F88: the Lucky Day line under the clock
 local LUCKY_CLOVER = 18 -- #1258: the luck chip's circle in front of that line
+local LUCKY_GAP = 5 -- #2084: between that circle and the first letter
 local DAY_CARD_W = 300 -- #1572: the day line's card
 local DAY_CARD_Z = 20
 -- The top right column (icon row, clock, tips line, tier and goal) is this wide at most. The HUD keeps clear of
@@ -986,30 +987,31 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Name = "LuckyDay",
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H),
-		Size = UDim2.fromOffset(LUCKY_LINE_W, NIGHT_LINE),
+		-- #2084 (Derek2: "lucky day has overlap with the symbols"): as wide as its words (AutomaticSize), so the clover
+		-- hangs off its left edge with no measuring; the old TextBounds sum came out short at some UI scales and the
+		-- clover covered the "L"
+		Size = UDim2.fromOffset(0, NIGHT_LINE),
+		AutomaticSize = Enum.AutomaticSize.X,
 		TextSize = Theme.sizes.textBody,
 		TextColor3 = Theme.colors.gold,
 		TextXAlignment = Enum.TextXAlignment.Right,
+		TextTruncate = Enum.TextTruncate.None,
 		Visible = false,
 		Parent = root,
 	})
-	-- #1258: the luck chip's circle and clean clover in front of the right-aligned words, kept beside them as they change.
-	-- TextBounds is in screen px, after the root's UIScale, so it is divided back into design px (Scale.get, as
-	-- LuckChip._place does); a scale change changes TextBounds too, so this runs again.
+	Create(
+		"UISizeConstraint",
+		{ MaxSize = Vector2.new(LUCKY_LINE_W, math.huge), Parent = self._luckyLine }
+	)
+	-- #1258: the luck chip's circle and clean clover in front of the right-aligned words, LUCKY_GAP left of the first
+	-- letter whatever the words are
 	local luckyClover = LuckChip.circle(LUCKY_CLOVER, {
 		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, 0, 0.5, 0),
+		Position = UDim2.new(0, -LUCKY_GAP, 0.5, 0),
 		ZIndex = self._luckyLine.ZIndex,
 		Parent = self._luckyLine,
 	})
 	local luckyLine: TextLabel = self._luckyLine
-	table.insert(
-		self._connections,
-		luckyLine:GetPropertyChangedSignal("TextBounds"):Connect(function()
-			local width = luckyLine.TextBounds.X / math.max(Scale.get(), 0.01)
-			luckyClover.Position = UDim2.new(1, -(width + 4), 0.5, 0)
-		end)
-	)
 	self._luckyClover = luckyClover
 	self._luckyDay = nil :: LuckLogic.DayView?
 	-- #1572: a tap on the day line opens its card (each kind today, what it does and how often it comes); another tap
@@ -1019,8 +1021,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Text = "",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.fromScale(0, 0.5),
-		Size = UDim2.new(1, 0, 0, Scale.tapHeight(Theme.sizes.touchMin)),
+		-- the words and the clover in front of them (#2084: the line is only as wide as its words now)
+		Position = UDim2.new(0, -(LUCKY_CLOVER + LUCKY_GAP), 0.5, 0),
+		Size = UDim2.new(1, LUCKY_CLOVER + LUCKY_GAP, 0, Scale.tapHeight(Theme.sizes.touchMin)),
 		ZIndex = luckyLine.ZIndex + 1,
 		Parent = luckyLine,
 	})

@@ -40,6 +40,21 @@ local TICK_SECONDS = 1
 local RallyBoards = {}
 RallyBoards.__index = RallyBoards
 
+-- The board face's bar (#2078): 30 px in, then the track, the end marker's half and "120 / 300" past it, 16 px from
+-- the right; the step numbers under the markers end above the time left at LEFT_Y. The UI gate's RallyBoardFace
+-- scene draws these on a 500 x 200 face and checks nothing covers the count.
+local BAR = {
+	size = UDim2.new(1, -(30 + 22 + 4 + 104 + 16), 0, 30),
+	position = UDim2.fromOffset(30, 80),
+	marker = 44,
+	textSize = 26,
+	countWidth = 104,
+	numberSize = 20,
+}
+RallyBoards.BAR = BAR
+RallyBoards.LEFT_Y = 154
+RallyBoards.FACE = Vector2.new(10 * PIXELS_PER_STUD, 4 * PIXELS_PER_STUD)
+
 local function screenOf(model: Instance): BasePart?
 	local screen = model:FindFirstChild("Screen", true)
 	if screen ~= nil and screen:IsA("BasePart") then
@@ -166,14 +181,17 @@ function RallyBoards._attach(self: any, model: Instance)
 	local bar = RallyBar.new({
 		parent = gui,
 		name = "RallyBoardBar", -- not RallyBar: VFX's pops look for the banner's
-		size = UDim2.new(1, -96, 0, 40),
-		position = UDim2.fromOffset(40, 82),
-		marker = 62,
-		textSize = 24,
+		size = BAR.size,
+		position = BAR.position,
+		marker = BAR.marker,
+		textSize = BAR.textSize,
+		countWidth = BAR.countWidth,
+		numberSize = BAR.numberSize,
+		textColor = Theme.chalk,
 	})
 	local left = text({
 		Name = "Left",
-		Position = UDim2.fromOffset(24, 148),
+		Position = UDim2.fromOffset(24, RallyBoards.LEFT_Y),
 		Size = UDim2.new(1, -48, 0, 34),
 		FontFace = Theme.fonts.bodyBold,
 		TextSize = 24,

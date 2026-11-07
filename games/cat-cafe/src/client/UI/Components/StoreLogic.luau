@@ -26,6 +26,7 @@ export type Row = {
 	multiplier: number?, -- the money card's rung (2, 3, 4), for its picture (ShopIcons.store)
 	-- #1822: the ids of what the bundle holds that is also sold alone (passes and products), for its "Worth" line
 	worthIds: { number }?,
+	closed: boolean?, -- #2129: not offered right now (the Cafe Pass in the last minutes of a season)
 }
 
 -- The Store's left rail, top to bottom (#1425). Featured and Codes (#1428, the code box) always show; another tab
@@ -243,7 +244,14 @@ export type ProductPrize = {
 }
 -- The running Cafe Pass season for its card: its number, its name, whether its paid track is bought, and the paid
 -- track's contents in words (PassLogic.paidContents).
-export type PassOffer = { season: number, name: string, paid: boolean, contents: string }
+-- #2129: `saleOpen` false in the last minutes of a season (CafePass.saleOpen); the card then waits for the next one.
+export type PassOffer = {
+	season: number,
+	name: string,
+	paid: boolean,
+	contents: string,
+	saleOpen: boolean?,
+}
 export type ShopView = {
 	products: { { id: string, name: string, prize: ProductPrize } }?,
 	potionNames: { [string]: string }?,
@@ -430,13 +438,15 @@ local function cafePassRow(config: any, view: ShopView?): Row?
 		owned = offer.paid,
 		product = true,
 		tab = "cafePass",
+		closed = offer.saleOpen == false,
 	}
 end
 
--- #1168: the Thank You Badge's row while the player is not a supporter, else nil.
+-- #1168: the Thank You Badge's row. Once the player is a supporter it stays and reads "Yours" (#2073), so it is not
+-- bought twice and the card does not just vanish.
 local function thankYouRow(config: any, view: ShopView?): Row?
 	local id = productId(config, THANK_YOU)
-	if id == nil or view == nil or view.supporter == true then
+	if id == nil or view == nil then
 		return nil
 	end
 	return {
@@ -445,7 +455,7 @@ local function thankYouRow(config: any, view: ShopView?): Row?
 		name = "Thank You Badge",
 		icon = "💛",
 		effect = THANK_YOU.effect,
-		owned = false,
+		owned = view.supporter == true,
 		product = true,
 		tab = "passes",
 	}
@@ -785,6 +795,15 @@ function StoreLogic.featured(rows: { Row }): Featured
 			break
 		end
 	end
+	if hero == nil then
+		-- #2072: everything is bought, so the hero still shows the first card of the order, marked Yours
+		for _, key in HERO_ORDER do
+			if byKey[key] then
+				hero = byKey[key]
+				break
+			end
+		end
+	end
 	local used: { [string]: boolean } = {}
 	if hero then
 		used[hero.key] = true
@@ -817,6 +836,9 @@ end
 function StoreLogic.button(row: Row, price: Price?): Button
 	if row.owned then
 		return { text = "Yours", style = "ghost", enabled = false } -- #1823 §4
+	end
+	if row.closed == true then
+		return { text = "Next season", style = "ghost", enabled = false } -- #2129
 	end
 	if price == nil then
 		return { text = "...", style = "ghost", enabled = false }

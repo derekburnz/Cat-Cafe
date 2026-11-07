@@ -1,11 +1,13 @@
 --!strict
 -- The Rescue Rally's bar (F101, rescue-rally.md section 4), drawn on the HUD banner and on the Town Square board: a
--- dark rounded track filling in the Rally red, a round marker at each step (25%, 50% and the end) with the step's
--- picture (the golden fish, the Money Potion, the Rally Crate), gold once the step is reached, and "45 / 90" in the
--- widest gap between the markers so no picture covers it.
+-- dark rounded track filling in the Rally red, a round marker at each step (15%, 30%, 50%, 75% and the end) with the
+-- step's picture (the golden fish, a potion, the Rally Crate), gold once the step is reached, the points the step
+-- pays at under it, and "45 / 90" just past the track's end, where no picture can cover it (#2078).
 --   RallyBar.new(props)   props.name names the track ("RallyBar" on the banner, where VFX's Effects/Rally sends
---                         its "+1" pops); height is the track's, marker each step's circle
---   bar:set(view)         a RallyLogic view: the fill eases to it and the reached steps turn gold
+--                         its "+1" pops); size is the track's (leave countWidth px past its end for the count),
+--                         marker each step's circle, numberSize the text under it
+--   bar:set(view, slow?)  a RallyLogic view: the fill eases to it (slowly with `slow`, as the banner pops up to show
+--                         this player's new points, #2098) and the reached steps turn gold
 
 local Create = require(script.Parent.Create)
 local Outline = require(script.Parent.Outline)
@@ -21,17 +23,27 @@ export type Props = {
 	position: UDim2?,
 	anchorPoint: Vector2?,
 	marker: number, -- px, each step's circle
-	textSize: number,
+	textSize: number, -- the count's largest size; it shrinks to fit countWidth
+	countWidth: number, -- px past the track's end marker for "45 / 90"
+	numberSize: number, -- the step numbers under the markers
+	textColor: Color3?, -- the step numbers not reached yet (white unless given)
 	zIndex: number?,
 }
 
 export type RallyBar = {
 	frame: Frame,
-	set: (self: RallyBar, view: RallyLogic.View) -> (),
+	set: (self: RallyBar, view: RallyLogic.View, slow: boolean?) -> (),
 	destroy: (self: RallyBar) -> (),
 }
 
-type Marker = { frame: Frame, stroke: UIStroke, picture: ImageLabel, glyph: TextLabel, key: string }
+type Marker = {
+	frame: Frame,
+	stroke: UIStroke,
+	picture: ImageLabel,
+	glyph: TextLabel,
+	number: TextLabel,
+	key: string,
+}
 
 local RallyBar = {}
 RallyBar.__index = RallyBar
@@ -40,6 +52,7 @@ RallyBar.RED = Color3.fromHex("D9483B") -- Model-Agent's Rally colours (#759)
 RallyBar.BLUE = Color3.fromHex("3C7DD9")
 RallyBar.NAVY = Color3.fromHex("2F3E5C")
 RallyBar.TRACK = Color3.fromHex("1C2539")
+RallyBar.COUNT_GAP = 4 -- px between the end marker and the count
 
 local function pictureOf(picture: RallyLogic.Picture): string?
 	if picture.kind == "crate" then
@@ -82,17 +95,21 @@ function RallyBar.new(props: Props): RallyBar
 		ZIndex = z + 1,
 		Parent = track,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) }) :: Frame
+	-- the count sits past the end marker, outside the track, so no step picture can cover it (#2078)
 	self._points = Create("TextLabel", {
 		Name = "Points",
 		BackgroundTransparency = 1,
-		Size = UDim2.fromScale(1, 1),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(1, props.marker / 2 + RallyBar.COUNT_GAP, 0.5, 0),
+		Size = UDim2.new(0, props.countWidth, 0, math.max(props.marker, props.textSize + 4)),
 		FontFace = Theme.fonts.display,
-		TextSize = props.textSize,
+		TextScaled = true,
 		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Left,
 		Text = "",
 		ZIndex = z + 2,
 		Parent = track,
-	}) :: TextLabel
+	}, { Create("UITextSizeConstraint", { MaxTextSize = props.textSize }) }) :: TextLabel
 	Outline.text(self._points, 2)
 	self.frame = track
 	return self :: RallyBar
@@ -143,13 +160,34 @@ function RallyBar._marker(self: any, index: number, share: number): Marker
 		ZIndex = z + 2,
 		Parent = frame,
 	})
-	local marker: Marker =
-		{ frame = frame, stroke = stroke, picture = picture, glyph = glyph, key = "" }
+	-- the points this step pays at, just under its circle (#2078)
+	local number: TextLabel = Create("TextLabel", {
+		Name = "At",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 1, 1),
+		Size = UDim2.fromOffset(math.max(size, props.numberSize * 3), props.numberSize + 2),
+		FontFace = Theme.fonts.display,
+		TextSize = props.numberSize,
+		TextColor3 = props.textColor or Theme.colors.white,
+		Text = "",
+		ZIndex = z + 2,
+		Parent = frame,
+	})
+	Outline.text(number, 1)
+	local marker: Marker = {
+		frame = frame,
+		stroke = stroke,
+		picture = picture,
+		glyph = glyph,
+		number = number,
+		key = "",
+	}
 	self._markers[index] = marker
 	return marker
 end
 
-function RallyBar.set(self: any, view: RallyLogic.View)
+function RallyBar.set(self: any, view: RallyLogic.View, slow: boolean?)
 	local fill = math.clamp(view.fill, 0, 1)
 	if fill ~= self._fillTo then
 		-- a new lap empties the bar at once; points ease in
@@ -157,28 +195,15 @@ function RallyBar.set(self: any, view: RallyLogic.View)
 		if fill < self._fillTo then
 			fillFrame.Size = UDim2.fromScale(fill, 1)
 		else
-			Tween.to(fillFrame, Tween.FAST, { Size = UDim2.fromScale(fill, 1) })
+			Tween.to(
+				fillFrame,
+				if slow then Tween.RISE else Tween.FAST,
+				{ Size = UDim2.fromScale(fill, 1) }
+			)
 		end
 		self._fillTo = fill
 	end
 	self._points.Text = view.points
-	-- the points sit in the widest gap between the step circles (between 50% and the end), clear of the pictures
-	local lo, hi, from = 0, 1, 0
-	local widest = -1
-	for _, step in view.steps do
-		if step.share - from > widest then
-			widest, lo, hi = step.share - from, from, step.share
-		end
-		from = step.share
-	end
-	if 1 - from > widest then
-		lo, hi = from, 1
-	end
-	local half = self._props.marker / 2
-	local padLeft = if lo > 0 then half else 0
-	local padRight = if hi < 1 or from >= 1 then half else 0
-	self._points.Position = UDim2.new(lo, padLeft, 0, 0)
-	self._points.Size = UDim2.new(hi - lo, -(padLeft + padRight), 1, 0)
 	for index, step in view.steps do
 		local marker = self:_marker(index, step.share)
 		local key = step.picture.kind .. ":" .. (step.picture.id or "")
@@ -189,6 +214,10 @@ function RallyBar.set(self: any, view: RallyLogic.View)
 			marker.picture.Visible = image ~= nil
 			marker.glyph.Text = if image == nil then glyphOf(step.picture) else ""
 		end
+		marker.number.Text = tostring(step.at)
+		marker.number.TextColor3 = if step.reached
+			then Theme.colors.gold
+			else self._props.textColor or Theme.colors.white
 		marker.frame.BackgroundColor3 = if step.reached then Theme.colors.gold else RallyBar.NAVY
 		marker.stroke.Color = if step.reached then Theme.colors.goldDark else Theme.colors.outline
 	end

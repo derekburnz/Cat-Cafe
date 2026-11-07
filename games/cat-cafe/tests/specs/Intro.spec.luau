@@ -35,7 +35,7 @@ return function()
 				local shots = Intro.shots(EAST, true)
 				expect(#shots).to.equal(Intro.SHOTS)
 				expect(Intro.SHOTS).to.equal(8)
-				expect(Intro.VERSION).to.equal(5)
+				expect(Intro.VERSION).to.equal(6)
 				local at = 0
 				for i, shot in shots do
 					expect(shot.index).to.equal(i)
@@ -53,7 +53,8 @@ return function()
 				for _, shot in shots do
 					table.insert(starts, math.floor(shot.starts * 10 + 0.5) / 10)
 				end
-				expect(starts :: any).to.deepEqual({ 0, 2.5, 5, 7.5, 9.5, 12.3, 15, 18 })
+				-- #2113: the 3 s night before the 2.7 s spin
+				expect(starts :: any).to.deepEqual({ 0, 2.5, 5, 7.5, 9.5, 12.3, 15.3, 18 })
 			end
 		)
 
@@ -78,8 +79,8 @@ return function()
 				expect(which("run") :: any).to.deepEqual({ 4 })
 				expect(which("job") :: any).to.deepEqual({ 5 })
 				expect(which("camp") :: any).to.deepEqual({ 3, 4 })
-				expect(which("spinWheel") :: any).to.deepEqual({ 6 })
-				expect(which("night") :: any).to.deepEqual({ 7 })
+				expect(which("spinWheel") :: any).to.deepEqual({ 7 }) -- #2113: after the night
+				expect(which("night") :: any).to.deepEqual({ 6 })
 				expect(which("follow") :: any).to.deepEqual({ 8 })
 				expect(shots[1].caption).to.equal("Fly the Cat Cannon to catch stray cats!")
 				expect(shots[4].caption).to.equal("Carry it into the camp to keep it!")
@@ -104,9 +105,16 @@ return function()
 			end
 		end)
 
-		it("names the Codes Cat in shot 6 only once one stands in the world", function()
-			expect(Intro.shots(EAST, true)[6].caption).to.equal(Intro.CODES_CAPTION)
-			expect(Intro.shots(EAST, false)[6].caption).to.equal(Intro.SPIN_CAPTION)
+		it("names the Codes Cat in shot 7 only once one stands in the world", function()
+			expect(Intro.shots(EAST, true)[7].caption).to.equal(Intro.CODES_CAPTION)
+			expect(Intro.shots(EAST, false)[7].caption).to.equal(Intro.SPIN_CAPTION)
+		end)
+
+		it("shows night and its fresh cats before the free spin and the codes (#2113)", function()
+			local shots = Intro.shots(EAST, true)
+			expect(shots[6].night).to.equal(true)
+			expect(shots[7].spinWheel).to.equal(true)
+			expect(Intro.VERSION).to.equal(6)
 		end)
 
 		it(
@@ -529,9 +537,9 @@ return function()
 
 	describe("the intro_cutscene event", function()
 		it(
-			"carries version 5 since #1782 took out the Index Board shot (4 since #1542's camp cuts)",
+			"carries version 6 since #2113 put the night before the spin (5 since #1782, 4 since #1542's camp cuts)",
 			function()
-				expect(Intro.VERSION).to.equal(5)
+				expect(Intro.VERSION).to.equal(6)
 			end
 		)
 

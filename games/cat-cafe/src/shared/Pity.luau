@@ -183,6 +183,16 @@ function Pity.fixedTimer(t: number, kind: Kind): Timer
 	return { at = Pity.dueAt(slot), seq = -slot }
 end
 
+-- The fixed slot of `kind` after fixed timer `timer`'s slot, as a Timer: what the sign counts down to once that
+-- slot's cat has spawned here, so it never sits at 0:00 for the rest of the day.
+function Pity.fixedNext(timer: Timer, kind: Kind): Timer
+	local slot = math.max(1, -math.floor(timer.seq) + 1)
+	while Pity.kindOf(slot) ~= kind do
+		slot += 1
+	end
+	return { at = Pity.dueAt(slot), seq = -slot }
+end
+
 -- True while a cat that spawned at `spawnedAt` is still out at t: it is day and no night has come since.
 function Pity.stillOut(spawnedAt: number, t: number): boolean
 	return t >= spawnedAt

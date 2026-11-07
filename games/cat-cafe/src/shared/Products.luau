@@ -56,6 +56,14 @@ function Products.record(receipts: { string }, purchaseId: string)
 	end
 end
 
+-- #2127: takes `purchaseId` out again, for a grant that was undone before anything was paid (shared/Grant).
+function Products.forget(receipts: { string }, purchaseId: string)
+	local at = table.find(receipts, purchaseId)
+	if at ~= nil then
+		table.remove(receipts, at)
+	end
+end
+
 -- #1625: what a receipt for `product` gives `profile`: the whole prize the first time, and for a once-per-account
 -- product already bought only its potions (a second purchase can only come from a prompt the Store never shows, and
 -- the Robux are not taken for nothing). `first` says which. Pure; ProductService pays it and calls markBought.

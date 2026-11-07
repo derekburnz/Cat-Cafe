@@ -109,12 +109,13 @@ end
 -- A cat this player has hidden with the Show other cats switch off: the engineer marks it HiddenLocal on this
 -- client only and hides its parts, so it gets no motion, sparkle, burst or hiss until the mark clears.
 local function hidden(model: Model): boolean
-	return model:GetAttribute("HiddenLocal") == true
+	-- hidden by Show other cats, or on a bedtime trip that BedWalk draws with a copy (#2050)
+	return model:GetAttribute("HiddenLocal") == true or model:GetAttribute("BedWalkLocal") == true
 end
 
 -- Hidden: let go of it at once rather than at the next pick, so no z's, yarn or sparkle linger for a moment.
 local function watchHidden(model: Model)
-	model:GetAttributeChangedSignal("HiddenLocal"):Connect(function()
+	local function onChange()
 		if not hidden(model) then
 			return -- picked again at the next pick
 		end
@@ -126,7 +127,9 @@ local function watchHidden(model: Model)
 		if emitter ~= nil then
 			emitter.Enabled = false
 		end
-	end)
+	end
+	model:GetAttributeChangedSignal("HiddenLocal"):Connect(onChange)
+	model:GetAttributeChangedSignal("BedWalkLocal"):Connect(onChange)
 end
 
 -- A gold coat seen for the first time: a burst of gold sparkles and a golden ring (F42). A stuck cat is never

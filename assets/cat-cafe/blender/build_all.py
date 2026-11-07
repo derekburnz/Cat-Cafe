@@ -167,6 +167,10 @@ PIVOT_NOTES = {
     "CatCafe_Accessory_LeafCrown": "attachment point: the head top's middle (Outfit_LeafCrown, the Hat slot's spot); "
                                    "the ring sits 0.03 back of it with gaps at the sides for the ears",
     "CatCafe_Accessory_ReadingGlasses": "attachment point: the walking head's Glasses slot (see attach)",
+    **{f"CatCafe_Accessory_TailBow{c}": f"#2109: the middle of the band, on the tail's axis at Outfit_TailBow (in the Tail "
+                                        f"part, near the tip); the tail runs along the bow's +Y (Roblox -Z), the knot "
+                                        f"faces +Z (Roblox +Y). {w} cut. Weld or follow the Tail, not the Body"
+       for c, w in (("", "Sitting and working"), ("_Walk", "Walking"))},
     "CatCafe_Accessory_TinyLantern": "the walking cat's back slot (TinyLantern in accessories.walk_slots); "
                                      "+Z runs back along the spine",
     "CatCafe_Accessory_TinyLantern_Sit": "the sitting and working cats' Outfit_TinyLantern on the upper back "

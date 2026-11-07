@@ -56,7 +56,7 @@ return function()
 		AutoPressClearRate = 0.85,
 		-- v0.3 net circles (F26, section 10)
 		CircleLeadInSeconds = 0.6,
-		CircleGapMin = 0.40,
+		CircleGapMin = 0.55, -- #2060
 		CircleGapMax = 0.75,
 		-- #1884 (catch-rework.md 7b): the trust bar
 		TrustStart = 2,
@@ -139,8 +139,8 @@ return function()
 		CatchSnackChance = 0.10, -- corner-shop-v2.md section 3: a Small Snack 1 catch in 10
 		-- night income and rich customers (F31, sections 11 and 12)
 		NightIncomeMultiplier = 1, -- F60: full pay at night (0.6 until v0.8)
-		RichEveryMin = 300, -- #1135: a random timer, 600 s on average like the old 60 s check at 10%
-		RichEveryMax = 900,
+		RichEveryMin = 240, -- #1135: a random timer; #2107: 480 s on average (was 300 to 900, 600 s)
+		RichEveryMax = 720,
 		RichTipSeconds = 120, -- F61: was 45
 		TipPileSeconds = 30, -- F61: tip piles (section 12)
 		TipPileRateSeconds = 6,
@@ -170,8 +170,8 @@ return function()
 		HopMaxRise = 2.6,
 		BedtimeTimeoutSeconds = 15,
 		-- the Cat Collector (F63, section 12b); CollectorValue is a table, checked in Collector.spec
-		CollectorEveryMin = 600, -- #1135: 1000 s on average like the old 120 s check at 12%
-		CollectorEveryMax = 1400,
+		CollectorEveryMin = 360, -- #1135; #2107: 600 s on average (was 600 to 1400, 1000 s)
+		CollectorEveryMax = 840,
 		VisitRetrySeconds = 15,
 		CollectorStaySeconds = 180,
 		CollectorGoldMultiplier = 3,
@@ -196,6 +196,7 @@ return function()
 		BigBowlWaitCutSeconds = 120, -- F95 (economy-ladder.md section 6b): the Big Bowl takes 2 minutes off
 		FirstBaitWaitSeconds = 120, -- #1895: the account's first bait
 		RecapAfterSeconds = 2400, -- #1920: seconds of play before the session recap card
+		RecapFirstSessionSeconds = 900, -- #2123: sooner in the account's first session
 		LikeGiftMinutes = 10, -- #1947 (like-prompts.md section 3): the like card's play time
 		LikeGiftIncomeMinutes = 15, -- #1947 (Set 10 Q3): minutes of income in the like gift
 		FavGiftMinutes = 30, -- #1947: the favourite card's play time

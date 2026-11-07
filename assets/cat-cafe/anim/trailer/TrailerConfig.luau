@@ -104,6 +104,7 @@ TrailerConfig.shovers = {
 
 TrailerConfig.starDepth = 205 -- where Rocker Cat waits, near the far end (the nooks are at about 245)
 TrailerConfig.starAcross = -3
+TrailerConfig.starClear = 5 -- studs round the star's mark that must be free of blockers, else it moves up the lane
 TrailerConfig.heroDepth = 140 -- where the player stands at the start, facing down the lane toward the cat
 TrailerConfig.heroAcross = 2
 TrailerConfig.swingStuds = 4 -- how close the player walks before the swing (the net reaches 8.5)
@@ -167,6 +168,8 @@ TrailerConfig.camera = {
 
 -- Screens left showing (every other ScreenGui of the game is hidden for the takes): the toasts, so the check-in's
 -- "New cat!" line shows.
+-- Every ScreenGui is kept hidden for the whole take, including ones a controller turns back on or makes later
+-- (Derek2 2026-11-07: the Rescue Rally panel, CatCafeRally, and the Tackle bar, CatCafeTackle, showed).
 TrailerConfig.keepGuis = { CatCafeToasts = true } :: { [string]: boolean }
 -- The game's markers in the world hidden too: the "run home" and tutorial markers over their targets (BillboardGuis in
 -- the PlayerGui) and the tutorial's guide trail of dots on the ground (a folder of parts in the Workspace; QA-Planner

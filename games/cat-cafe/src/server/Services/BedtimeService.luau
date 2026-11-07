@@ -6,11 +6,14 @@
 -- whose station is its cat tree's top keeps that spot and only lies down. Cats built after dark are built asleep by
 -- CafeService and walk back at sunrise like the rest. The walk is cosmetic: income never depends on it.
 -- Roblox terms: PathfindingService works out a walkable route round the tables and furniture as waypoints on the
--- floor; the cats are anchored models moved by setting their pivot each frame, like the strays.
+-- floor. #2050 (Derek2 on live: cats "teleport part by part really quick away"): the server no longer steps the
+-- anchored cat along its trip every frame, whose many parts reached clients one by one. It works the trip out once
+-- (Bedtime.TripPoint, the hops and the path's waypoints), sets it on the cat (BedTripRoute, BedTripAt, BedTripSpeed,
+-- BedTripHop, BedTripTo), leaves the model where it is and pivots it once onto BedTripTo when the trip's time is up;
+-- each client walks it meanwhile (Animation's Effects). Without that, the cat appears at the end of its trip.
 
 local PathfindingService = game:GetService("PathfindingService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Bedtime = require(ReplicatedStorage.Shared.Bedtime)
@@ -19,7 +22,6 @@ local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
-local Mover = require(ReplicatedStorage.Shared.Mover)
 local PlotService = require(script.Parent.PlotService)
 local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -45,93 +47,70 @@ local function endTrip(uid: string, trip: number)
 	end
 end
 
-local function flat(v: Vector3): Vector3
-	return Vector3.new(v.X, 0, v.Z)
-end
-
--- One hop over HopSeconds from where the cat is to `to`, along Bedtime.arc, facing the way it jumps; it lands
--- facing `to`'s way when `settle`. False when `going` stopped it.
-local function hop(model: Model, to: CFrame, settle: boolean, going: () -> boolean): boolean
-	local from = model:GetPivot()
-	local start = from.Position
-	local look = flat(to.Position - start)
-	if look.Magnitude < 0.05 then
-		look = flat(from.LookVector)
+-- The trip from `start` (where the cat is, on the top of `from`) down `from`'s hops to its foot, across the floor
+-- to `to`'s foot along a PathfindingService path when there is one (its waypoints held to the floor's height, else
+-- straight there) and up `to`'s hops.
+local function plan(
+	start: Vector3,
+	from: SleepSpots.Route,
+	to: SleepSpots.Route
+): { Bedtime.TripPoint }
+	local points: { Bedtime.TripPoint } = { { at = start, hop = false } }
+	for i = #from.hops - 1, 1, -1 do
+		table.insert(points, { at = from.hops[i].Position, hop = true })
 	end
-	look = if look.Magnitude < 0.05 then Vector3.new(0, 0, -1) else look.Unit
-	local elapsed = 0
-	while elapsed < Config.HopSeconds do
-		if not going() then
-			return false
-		end
-		elapsed += RunService.Heartbeat:Wait()
-		local at = Bedtime.arc(start, to.Position, elapsed / Config.HopSeconds)
-		model:PivotTo(CFrame.lookAt(at, at + look))
+	if #from.hops > 0 then
+		table.insert(points, { at = from.foot.Position, hop = true })
 	end
-	model:PivotTo(if settle then to else CFrame.lookAt(to.Position, to.Position + look))
-	return true
-end
-
--- Across the floor to `goal` at CafeCatWalkSpeed, along a PathfindingService path when there is one (its waypoints
--- held to the floor's height), else straight there. False when `going` stopped it.
-local function walk(model: Model, goal: Vector3, going: () -> boolean): boolean
+	local goal = to.foot.Position
 	local path = PathfindingService:CreatePath(AGENT)
 	local computed = pcall(function()
-		path:ComputeAsync(model:GetPivot().Position, goal)
+		path:ComputeAsync(points[#points].at, goal)
 	end)
-	if not going() then
-		return false
-	end
 	if computed and path.Status == Enum.PathStatus.Success then
 		for i, waypoint in path:GetWaypoints() do
-			local p = waypoint.Position
-			if
-				i > 1
-				and not Mover.walkTo(
-					model,
-					Vector3.new(p.X, goal.Y, p.Z),
-					Config.CafeCatWalkSpeed,
-					going
-				)
-			then
-				return false
+			if i > 1 then
+				local p = waypoint.Position
+				table.insert(points, { at = Vector3.new(p.X, goal.Y, p.Z), hop = false })
 			end
 		end
 	end
-	return Mover.walkTo(model, goal, Config.CafeCatWalkSpeed, going)
+	table.insert(points, { at = goal, hop = false })
+	for _, point in to.hops do
+		table.insert(points, { at = point.Position, hop = true })
+	end
+	return points
 end
 
--- From the top of `from` (where the cat is) down its hops to its foot, across the floor to `to`'s foot and up `to`'s
--- hops, landing on the last facing its way. False when `going` stopped it on the way.
-local function travel(
+-- Sets the trip on `model` for the clients to walk, from `startsAt` (server time), ending on `ends`. Returns its
+-- seconds, at most BedtimeTimeoutSeconds.
+local function setTrip(
 	model: Model,
-	from: SleepSpots.Route,
-	to: SleepSpots.Route,
-	going: () -> boolean
-): boolean
-	for i = #from.hops - 1, 1, -1 do
-		if not hop(model, from.hops[i], false, going) then
-			return false
-		end
-	end
-	if #from.hops > 0 and not hop(model, from.foot, false, going) then
-		return false
-	end
-	if not walk(model, to.foot.Position, going) then
-		return false
-	end
-	for i, point in to.hops do
-		if not hop(model, point, i == #to.hops, going) then
-			return false
-		end
-	end
-	return true
+	points: { Bedtime.TripPoint },
+	startsAt: number,
+	ends: CFrame
+): number
+	model:SetAttribute("BedTripRoute", Bedtime.encodeTrip(points))
+	model:SetAttribute("BedTripSpeed", Config.CafeCatWalkSpeed)
+	model:SetAttribute("BedTripHop", Config.HopSeconds)
+	model:SetAttribute("BedTripTo", ends)
+	model:SetAttribute("BedTripAt", startsAt)
+	return math.min(
+		Bedtime.tripSeconds(points, Config.CafeCatWalkSpeed, Config.HopSeconds),
+		Config.BedtimeTimeoutSeconds
+	)
+end
+
+local function clearTrip(model: Model)
+	model:SetAttribute("BedTripAt", nil)
+	model:SetAttribute("BedTripRoute", nil)
+	model:SetAttribute("BedTripTo", nil)
 end
 
 -- The working cat `uid` gets up from its station `station` and goes to sleep on `spot`, or just lies down there when
--- it is already on it; a sunrise before its turn keeps it at its station. A trip still going after
--- BedtimeTimeoutSeconds puts it straight on the spot; a newer trip, or the model going (the cat moved or sold, the
--- owner gone), stops it where it is.
+-- it is already on it; a sunrise before its turn keeps it at its station. The trip takes its walking time (at most
+-- BedtimeTimeoutSeconds), then the cat is on the spot; a newer trip, or the model going (the cat moved or sold, the
+-- owner gone), ends it where the model is.
 local function toBed(
 	player: Player,
 	uid: string,
@@ -164,30 +143,34 @@ local function toBed(
 		endTrip(uid, trip)
 		return
 	end
-	local deadline = os.clock() + Config.BedtimeTimeoutSeconds
 	local current = function(): boolean
 		return trips[uid] == trip and (model.Parent :: Instance?) ~= nil
 	end
-	local going = function(): boolean
-		return current() and os.clock() < deadline
-	end
 	if not here then
-		task.wait(Config.BedtimeStretchSeconds)
-		if going() then
-			local trees = SleepSpots.trees(plot)
-			travel(model, SleepSpots.stationRoute(plot, station, trees), spot, going)
+		local points = plan(
+			station.Position,
+			SleepSpots.stationRoute(plot, station, SleepSpots.trees(plot)),
+			spot
+		)
+		if not current() then
+			endTrip(uid, trip)
+			return
 		end
+		local startsAt = Workspace:GetServerTimeNow() + Config.BedtimeStretchSeconds
+		local seconds = setTrip(model, points, startsAt, spot.at)
+		task.wait(math.max(0, startsAt - Workspace:GetServerTimeNow()) + seconds)
 	end
 	if current() then
 		model:PivotTo(spot.at)
+		clearTrip(model)
 		model:SetAttribute("Asleep", true)
 	end
 	endTrip(uid, trip)
 end
 
--- The working cat `uid` on `model` wakes on its sleep spot (or wherever its trip stopped), stretches and goes back to
--- its station, where CafeService sits it down in its outfit again. A trip still going after BedtimeTimeoutSeconds
--- ends at the station at once.
+-- The working cat `uid` on `model` wakes on its sleep spot (or wherever its trip left it), stretches and goes back to
+-- its station, where CafeService sits it down in its outfit again, after the trip's walking time (at most
+-- BedtimeTimeoutSeconds).
 local function toStation(player: Player, uid: string, model: Model, trip: number)
 	if trips[uid] ~= trip or model.Parent == nil then
 		return
@@ -200,31 +183,35 @@ local function toStation(player: Player, uid: string, model: Model, trip: number
 		endTrip(uid, trip)
 		return
 	end
-	local deadline = os.clock() + Config.BedtimeTimeoutSeconds
 	local current = function(): boolean
 		return trips[uid] == trip and (model.Parent :: Instance?) ~= nil
 	end
-	local going = function(): boolean
-		return current() and os.clock() < deadline
-	end
+	clearTrip(model) -- a bedtime trip still showing ends where the model is
 	model:SetAttribute("Asleep", false)
-	model:SetAttribute("StretchAt", Workspace:GetServerTimeNow())
-	task.wait(Config.BedtimeStretchSeconds)
+	local now = Workspace:GetServerTimeNow()
+	model:SetAttribute("StretchAt", now)
 	local sleepSpot = model:GetAttribute("SleepSpot")
 	local spot = if type(sleepSpot) == "string"
 		then SleepSpots.find(SleepSpots.list(plot), sleepSpot)
 		else nil
 	local station = anchor.CFrame
-	local onSpot = spot ~= nil
-		and (model:GetPivot().Position - spot.at.Position).Magnitude <= SleepSpots.SAME
+	local at = model:GetPivot()
+	local onSpot = spot ~= nil and (at.Position - spot.at.Position).Magnitude <= SleepSpots.SAME
 	local from: SleepSpots.Route = if spot ~= nil and onSpot
 		then spot
-		else {
-			foot = model:GetPivot() - Vector3.new(0, model:GetPivot().Y - plot.cframe.Y, 0),
-			hops = {},
-		}
-	if going() and (model:GetPivot().Position - station.Position).Magnitude > SleepSpots.SAME then
-		travel(model, from, SleepSpots.stationRoute(plot, station, SleepSpots.trees(plot)), going)
+		else { foot = at - Vector3.new(0, at.Y - plot.cframe.Y, 0), hops = {} }
+	if (at.Position - station.Position).Magnitude > SleepSpots.SAME then
+		local points =
+			plan(at.Position, from, SleepSpots.stationRoute(plot, station, SleepSpots.trees(plot)))
+		if not current() then
+			endTrip(uid, trip)
+			return
+		end
+		local startsAt = now + Config.BedtimeStretchSeconds
+		local seconds = setTrip(model, points, startsAt, station)
+		task.wait(math.max(0, startsAt - Workspace:GetServerTimeNow()) + seconds)
+	else
+		task.wait(Config.BedtimeStretchSeconds)
 	end
 	if current() then
 		CafeService.endBedtime(player, uid)

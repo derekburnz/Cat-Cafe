@@ -8,6 +8,7 @@
 --                           ProfileSync has sent the lawn
 --   cards(state)                       the Lawn chip's cards (#1283): each owned piece, path and fence, highest
 --                                      rarity first (#1751), then out first
+--   groups(state)                      #2081: the cards under Big spots, Small spots, then Paths and fences
 --   total(state)                       its line on top: "Lawn: 6 out, +18% money", the Money boosts row's number
 --   pieceAction(state, piece)          a piece's button from before #1283 (no screen shows it now)
 --   styleAction(state, style)          a path or fence's button from before #1283 (no screen shows it now)
@@ -370,7 +371,7 @@ export type Card = {
 	rarity: string?, -- "Common" to "Golden"; nil for none
 	bonus: number, -- the fraction it adds while out (0.03 for "+3% money")
 	out: boolean, -- on a lawn spot, or the path or fence in use
-	big: boolean?, -- #1729: a piece for a big spot (the card's small "Big spot" tag); nil for the rest
+	group: string, -- #2081: the heading it sits under, "big", "small" or "styles" (paths and fences)
 }
 
 -- Each owned piece, path and fence (not the free Grey Slabs, which adds nothing): the ones out first, then the bigger
@@ -388,7 +389,7 @@ function LawnLogic.cards(state: Types.PlayerState): { Card }
 				rarity = piece.rarity :: string?,
 				bonus = Lawn.rarityBonus(piece.rarity),
 				out = LawnLogic.spotOf(state, piece.id) ~= nil,
-				big = if piece.spot == "big" then true else nil,
+				group = if piece.spot == "big" then "big" else "small",
 			})
 		end
 	end
@@ -404,6 +405,7 @@ function LawnLogic.cards(state: Types.PlayerState): { Card }
 					rarity = style.rarity :: string?,
 					bonus = Lawn.rarityBonus(style.rarity),
 					out = using == style.id,
+					group = "styles",
 				})
 			end
 		end
@@ -424,6 +426,45 @@ function LawnLogic.cards(state: Types.PlayerState): { Card }
 		return a.id < b.id
 	end)
 	return list
+end
+
+-- #2081 (Derek2: "lawn has big spots and normal spots have a sub category while inside lawn section"): the Lawn
+-- chip's cards under three headings, Big spots, Small spots, then Paths and fences, each in LawnLogic.cards' order.
+-- A heading with no cards is left out.
+export type Group = {
+	key: string, -- "big", "small" or "styles"
+	title: string, -- "Big spots · 2"
+	cards: { Card },
+}
+
+LawnLogic.GROUPS = {
+	{ key = "big", name = "Big spots" },
+	{ key = "small", name = "Small spots" },
+	{ key = "styles", name = "Paths and fences" },
+}
+
+function LawnLogic.groups(state: Types.PlayerState): { Group }
+	local byKey: { [string]: { Card } } = {}
+	for _, card in LawnLogic.cards(state) do
+		local list = byKey[card.group]
+		if list == nil then
+			list = {}
+			byKey[card.group] = list
+		end
+		table.insert(list, card)
+	end
+	local out: { Group } = {}
+	for _, group in LawnLogic.GROUPS do
+		local list = byKey[group.key]
+		if list ~= nil and #list > 0 then
+			table.insert(out, {
+				key = group.key,
+				title = ("%s · %d"):format(group.name, #list),
+				cards = list,
+			})
+		end
+	end
+	return out
 end
 
 -- The line under a card's name: "+3% money", "Path · +2% money" or "Fence · +2% money".

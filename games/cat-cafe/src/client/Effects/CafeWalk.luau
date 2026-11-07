@@ -24,8 +24,9 @@
 -- By itself it sends an idle waiter in your own cafe on a stroll now and then (Presets.cafeWalk): onto the nearest
 -- lane, along it to a chair's Approach point, a look over the table, and back. F90's orders (cats-make-orders.md,
 -- Gameplay-Engineer's Controllers/CafeOrders) call go() and home() with real routes and a tray; a go() takes over an
--- idle stroll. A walk ends at once, the station model shown again, if that model goes, the cafe closes for the
--- night, the cat is sent to bed (Bedtime), it is hidden, or the camera goes out of range.
+-- idle stroll. A walk ends at once, the station model shown again, if that model goes or it is hidden; when the cafe
+-- closes for the night, the cat is sent to bed (Bedtime) or the camera goes out of range, the walker fades out where
+-- it is while the station model fades back in (#2050). It sits back down wherever the station model is by then.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -50,7 +51,7 @@ export type Options = {
 	arrived: (() -> ())?, -- runs once when it gets to the end of the route
 }
 
-type State = "up" | "walk" | "stand" | "settle" | "down"
+type State = "up" | "walk" | "stand" | "settle" | "down" | "vanish"
 
 -- A tip sweep at the pile or a drop at the till (F90), from `at` (os.clock()), facing `toward`; the walk waits for it.
 type Action = { kind: "sweep" | "bank", at: number, toward: Vector3 }
@@ -102,6 +103,7 @@ local scanAt = 0
 local WORKING = "WorkingCat"
 local SCAN_SECONDS = 0.5
 local EASE = 8 -- how fast the legs catch up with the walking speed, per second
+local MOVED = 0.5 -- studs the station model must have moved for a walk to sit back down at its new place
 
 local function between(range: { number }): number
 	return rng:NextNumber(range[1], range[2])
@@ -447,6 +449,10 @@ function CafeWalk.go(cat: Model, route: { Vector3 }, options: Options?): boolean
 	if #route == 0 then
 		return false
 	end
+	local fading = walks[cat]
+	if fading ~= nil and fading.state == "vanish" then
+		return false -- ending where it stands (night, bedtime, out of range): nowhere to go
+	end
 	local walk = begin(cat, false)
 	if walk == nil then
 		return false
@@ -481,8 +487,11 @@ function CafeWalk.home(cat: Model, done: (() -> ())?)
 			done()
 		end
 		else done or before
-	if walk.goingHome and (walk.state == "settle" or walk.state == "down") then
-		return -- already back and sitting down
+	if
+		walk.state == "vanish"
+		or walk.goingHome and (walk.state == "settle" or walk.state == "down")
+	then
+		return -- already back and sitting down, or fading out where it is: `done` runs as it ends
 	end
 	local back: { Vector3 } = {}
 	for i = #walk.passed, 1, -1 do
@@ -587,13 +596,17 @@ local function scan(now: number)
 	end
 end
 
--- Whether a walk must stop at once.
+-- Whether a walk must stop at once: its station model or walker is gone, or the cat is hidden.
 local function broken(walk: Walk): boolean
 	local cat = walk.station
-	return cat.Parent == nil
-		or walk.walker.Parent == nil
-		or cat:GetAttribute("Bedtime") ~= nil
-		or cat:GetAttribute("HiddenLocal") == true
+	return cat.Parent == nil or walk.walker.Parent == nil or cat:GetAttribute("HiddenLocal") == true
+end
+
+-- Whether a walk must end now but can fade out where it is (#2050, Derek2: cats "randomly teleport around"): the
+-- walker fades out on the spot as the station model fades back in, over `fade`, instead of vanishing in one frame.
+local function ending(walk: Walk): boolean
+	local cat = walk.station
+	return cat:GetAttribute("Bedtime") ~= nil
 		or Context.isNight()
 		or (walk.idle and Context.reducedMotion())
 		or Context.distance(walk.home.Position) > Presets.cafeWalk.range * 1.25
@@ -676,6 +689,11 @@ local function advance(walk: Walk, now: number, dt: number)
 			CafeWalk.home(walk.station)
 		end
 	elseif walk.state == "settle" then
+		-- sit back down where the station model is now, should the server have placed it again since it got up
+		local station = walk.station:GetPivot()
+		if (station.Position - walk.home.Position).Magnitude > MOVED then
+			walk.home = station
+		end
 		local yaw = Logic.yawOf(walk.home.LookVector)
 		walk.yaw = Logic.turnToward(walk.yaw, yaw, turn)
 		walk.position = walk.home.Position
@@ -693,6 +711,16 @@ local function advance(walk: Walk, now: number, dt: number)
 		cover(walk, 1 - k)
 		crouch = r * r * (3 - 2 * r)
 		if r >= 1 then
+			finish(walk)
+			return
+		end
+	elseif walk.state == "vanish" then
+		-- fading out where it stands as the station model fades back in, then gone
+		local k = math.clamp((now - walk.stateAt) / c.fade, 0, 1)
+		faded = k
+		setFade(walk.shown, faded)
+		cover(walk, 1 - k)
+		if k >= 1 then
 			finish(walk)
 			return
 		end
@@ -797,6 +825,10 @@ local function step(dt: number)
 		if broken(walk) then
 			finish(walk)
 		else
+			if walk.state ~= "vanish" and ending(walk) then
+				walk.state = "vanish"
+				walk.stateAt = now
+			end
 			advance(walk, now, dt)
 		end
 	end

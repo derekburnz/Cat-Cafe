@@ -1008,7 +1008,8 @@ Catalog.tiers = {
 		slots = 4,
 		multiplier = 1.25,
 		area = "park",
-		caps = { tables = 5, espresso = 4, net = 2, lure_bowl = 2, lucky_cat = 3 }, -- #1896 (first-hour.md 4): Tables 5, Espresso 4, Lucky Cat 3
+		-- #1896 (first-hour.md 4): Tables 5, Espresso 4, Lucky Cat 3; #2121 (4d): Bait Bowl 3 too
+		caps = { tables = 5, espresso = 4, net = 2, lure_bowl = 3, lucky_cat = 3 },
 	},
 	{
 		tier = 3,
@@ -1100,13 +1101,15 @@ Catalog.upgrades = {
 		-- F82 (v0.13.15): five levels, each tier opening one, the names in Bait.bowlName
 		description = "A bowl on your back step. Each level brings bait cats sooner and rarer",
 		maxLevel = 5,
-		costs = { 600, 6000, 240000, 4000000, 50000000 }, -- F95: Fancy, Deluxe and Royal Bowls
+		-- F95: Fancy, Deluxe and Royal Bowls; #2121 (first-hour.md 4d): level 3 opens at Tier 2, fitted into
+		-- the 31 to 42 minute gap at 150,000 (240,000 at Tier 3 before; 70,000 landed at minute 18, inside a busy stretch)
+		costs = { 600, 6000, 150000, 4000000, 50000000 },
 		startLevel = 0,
 	},
 	{
 		id = "lucky_cat", -- F88 (luck-and-rare-moments.md 1a): the statue by the front door, shared/Luck
 		name = "Lucky Cat",
-		description = "A beckoning cat by your front door. Each level adds x0.1 Luck: rarer bait cats and crate finds",
+		description = "A beckoning cat by your front door. Each level adds +10% Luck: rarer bait cats and crate finds",
 		maxLevel = 5,
 		-- level n needs Tier n, but level 3 comes at Tier 2 (#1896 follow-up, a buy inside the Tier 3 save, fitted to
 		-- minute 32 at 300,000; 600,000 before); levels 4 and 5 at economy-ladder.md section 4's prices
@@ -1143,8 +1146,9 @@ end
 Catalog.renamedUpgrades = { gloves = "net" } :: { [string]: string }
 
 -- Section 7: the four pieces of the old coin Decor shop. Since F97 (notes-10-28-to-10-30.md section 2) they are
--- found only in the Classic Crate, at their rarity, and keep their bonuses and their own anchors (no decor spot);
--- players who bought them keep them. The crate pieces (F53), the F48 Index pieces among them, are in
+-- found only in the Classic Crate, at their rarity, and keep their own anchors (no decor spot); players who bought them
+-- keep them. #2053 (Derek2: the boost "doesn't match rarity"): the bonus rises with the rarity, Common 5%, Rare 8% and
+-- Epic 12% (the Rare and the Epic were both 10%), so the set of four still adds up to +30%. The crate pieces (F53), the F48 Index pieces among them, are in
 -- Catalog.crateDecor below.
 Catalog.decor = {
 	{
@@ -1178,9 +1182,9 @@ Catalog.decor = {
 		name = "Neon cat sign",
 		cost = 0, -- F97: never sold
 		category = "Wall",
-		effect = "+10% money",
+		effect = "+8% money",
 		description = "Seen from the far end of the street.",
-		bonus = 0.10,
+		bonus = 0.08,
 		asset = "CatCafe_Decor_NeonSign",
 		source = "crate",
 		crate = "classic",
@@ -1191,9 +1195,9 @@ Catalog.decor = {
 		name = "Fish tank",
 		cost = 0, -- F97: never sold
 		category = "Furniture",
-		effect = "+10% money, cats stare at it",
+		effect = "+12% money, cats stare at it",
 		description = "The fish are fine. Probably.",
-		bonus = 0.10,
+		bonus = 0.12,
 		asset = "CatCafe_Decor_FishTank",
 		source = "crate",
 		crate = "classic",
@@ -1390,7 +1394,7 @@ Catalog.potions = {
 		id = "lucky_potion",
 		name = "Lucky Potion",
 		minutes = 10,
-		effect = "Luck +0.5 and double gold chance on bait", -- F88: Config.LuckyPotionLuck
+		effect = "+50% Luck and double gold chance on bait", -- F88: Config.LuckyPotionLuck
 	},
 	-- corner-shop-v2.md section 1: the regular Swift Potion runs 10 minutes (was 5)
 	{ id = "swift_potion", name = "Swift Potion", minutes = 10, effect = "+4 walk speed" },
@@ -1659,17 +1663,19 @@ Catalog.quests = {
 -- What finishing a quest pays, in the Index prize shape: coins are `coinSeconds` of the day rate when claimed, at
 -- least `coins`. F94 (rewards-and-shops.md section 2d): no shop food and no spins, two pictures a quest and three on
 -- the sets.
--- #1645 (quests.md section 8): each also pays Cafe Pass XP (passXp), 800 for a full day and 1,600 for a full week.
+-- #1645 (quests.md section 8): each also pays Cafe Pass XP (passXp). #2070 (Derek2: "make the xp more from quests"):
+-- 1.5x, so 1,200 for a full day and 2,400 for a full week (were 800 and 1,600), about 18 days of full play for the
+-- 34 levels' 27,200 XP (was about 26).
 Catalog.questPrizes = {
-	daily = { coins = 200, coinSeconds = 90, fish = 2, passXp = 100 },
-	dailyBig = { coins = 400, coinSeconds = 150, fish = 5, passXp = 200 },
-	dailySet = { potions = { big_tip_potion = 1, gold_rush_potion = 1 }, fish = 10, passXp = 200 },
-	weekly = { coins = 2000, coinSeconds = 600, fish = 15, passXp = 400 },
+	daily = { coins = 200, coinSeconds = 90, fish = 2, passXp = 150 },
+	dailyBig = { coins = 400, coinSeconds = 150, fish = 5, passXp = 300 },
+	dailySet = { potions = { big_tip_potion = 1, gold_rush_potion = 1 }, fish = 10, passXp = 300 },
+	weekly = { coins = 2000, coinSeconds = 600, fish = 15, passXp = 600 },
 	weeklySet = {
 		potions = { big_tip_potion = 3 },
 		crates = { classic_golden_crate = 1 },
 		fish = 40,
-		passXp = 400,
+		passXp = 600,
 	},
 } :: { [string]: Types.IndexPrize }
 
@@ -2124,16 +2130,18 @@ Catalog.achievements = {
 } :: { Types.AchievementDef }
 
 -- An achievement's prize by its size; coins scale with the day rate when claimed. F94 (rewards-and-shops.md section
--- 2d): two pictures, three on XL.
+-- 2d): two pictures, three on XL. #2070 (Derek2: "make pass xp also come from achievements"): each also pays Cafe Pass
+-- XP for the running season through Payout, like a quest: 50, 150, 300 and 600 by size.
 Catalog.achievementPrizes = {
-	S = { coins = 300, coinSeconds = 150, spins = 1 },
-	M = { coins = 1000, coinSeconds = 450, potions = { tip_potion = 1 } },
-	L = { coins = 2500, coinSeconds = 900, crates = { classic_crate = 1 } },
+	S = { coins = 300, coinSeconds = 150, spins = 1, passXp = 50 },
+	M = { coins = 1000, coinSeconds = 450, potions = { tip_potion = 1 }, passXp = 150 },
+	L = { coins = 2500, coinSeconds = 900, crates = { classic_crate = 1 }, passXp = 300 },
 	XL = {
 		coins = 5000,
 		coinSeconds = 1800,
 		crates = { classic_golden_crate = 1 },
 		potions = { big_tip_potion = 1 },
+		passXp = 600,
 	},
 } :: { [string]: Types.IndexPrize }
 

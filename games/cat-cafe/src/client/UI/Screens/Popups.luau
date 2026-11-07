@@ -49,7 +49,8 @@ export type Popups = {
 		seconds: number,
 		onClaim: () -> (),
 		headline: string?,
-		note: string?
+		note: string?,
+		hook: string?
 	) -> (),
 	showGift: (self: Popups, title: string, prize: Types.IndexPrize) -> (),
 	setCatalog: (self: Popups, catalog: Types.Catalog) -> (),
@@ -61,6 +62,9 @@ export type Popups = {
 
 local CAT_AUTO_CLOSE = 5
 local GIFT_AUTO_CLOSE = 4
+local OFFLINE_W = 380 -- the welcome back card
+local OFFLINE_H = 260
+local HOOK_H = 24 -- #2123: its hook line
 local GIFT_TILE = 76
 local SPARKLES = 10
 local RAY_BARS = 6 -- each bar crosses the centre, so 12 rays
@@ -364,7 +368,7 @@ function Popups.new(parent: Instance): Popups
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(380, 260),
+		Size = UDim2.fromOffset(OFFLINE_W, OFFLINE_H),
 		Visible = false,
 		Parent = root,
 	}, {
@@ -432,6 +436,19 @@ function Popups.new(parent: Instance): Popups
 		Parent = offlineCard,
 	})
 	Outline.text(self._offlineAmount, Theme.sizes.textOutline + 1)
+	-- #2123 (first-hour.md 6a): one line under the coins on the reason to play today, from Gameplay's ReturnHook pick
+	-- ("Your bait cat is ready!"); the card grows by HOOK_H while it shows, and it is gone with no pick
+	self._offlineHook = text({
+		Name = "Hook",
+		Position = UDim2.fromOffset(16, 142),
+		Size = UDim2.new(1, -32, 0, HOOK_H),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = PAL.text,
+		Text = "",
+		Visible = false,
+		Parent = offlineCard,
+	})
 	self._offlineNote = text({
 		Name = "Note",
 		Position = UDim2.fromOffset(16, 142),
@@ -727,13 +744,20 @@ function Popups.showOffline(
 	seconds: number,
 	onClaim: () -> (),
 	headline: string?,
-	note: string?
+	note: string?,
+	hook: string?
 )
 	-- a ribbon line once given stays for this card, though the second send of the same earnings has none
 	local before = self._offline
 	local ribbon = headline or (if self._offlineWaiting and before then before.headline else nil)
-	self._offline =
-		{ amount = amount, seconds = seconds, onClaim = onClaim, headline = ribbon, note = note }
+	self._offline = {
+		amount = amount,
+		seconds = seconds,
+		onClaim = onClaim,
+		headline = ribbon,
+		note = note,
+		hook = hook,
+	}
 	local function fill()
 		local latest = self._offline
 		if latest then
@@ -742,6 +766,13 @@ function Popups.showOffline(
 				Format.duration(latest.seconds)
 			)
 			self._offlineNote.Text = latest.note or WelcomeBack.note(nil)
+			-- #2123: the hook line under the coins pushes the note down and the card taller
+			local hookLine: string? = latest.hook
+			self._offlineHook.Text = hookLine or ""
+			self._offlineHook.Visible = hookLine ~= nil
+			local lift = if hookLine ~= nil then HOOK_H else 0
+			self._offlineNote.Position = UDim2.fromOffset(16, 142 + lift)
+			self._offlineCard.Size = UDim2.fromOffset(OFFLINE_W, OFFLINE_H + lift)
 			self._offlineAmount.Text = "+" .. Format.money(latest.amount)
 			self._ribbonText.Text = latest.headline or ""
 			self._ribbon.Visible = latest.headline ~= nil

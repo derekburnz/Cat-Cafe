@@ -11,15 +11,25 @@
 --   PassLogic.focus(columns, level)  the column to scroll to: the first ready one, else the next to reach
 --   PassLogic.shows(view)          whether the HUD's Pass tile shows (a season is running)
 --   PassLogic.itemGlyph(kind)      a named item's symbol until its picture is drawn
+--   PassLogic.itemArt(item)        #2087: what a named item's square shows: its own 3D model (the season cat, the decor
+--                                  piece, the accessory, the sign) with its own symbol while that loads, a uniform's
+--                                  colour as the tile, a chat tag's colour as the tile
 --   PassLogic.paidContents(def)    the paid track's exact contents in words, for the Store card (monetization policy)
 --   PassLogic.tagButton(view)      the chat tag button (#1626): its words and the pick its next tap asks for
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
 local ChatTags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("ChatTags"))
+local Looks = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Looks"))
+local SignStyles = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("SignStyles"))
+local StyleLogic = require(script.Parent.StyleLogic)
 local Types = require(script.Parent.Parent.Types)
 
 export type Track = "free" | "paid"
+-- #2087: a named reward's square: `asset` a model in ReplicatedStorage.Assets, `glyph` its symbol (shown while the
+-- model loads, or alone), `tint` the tile's colour in place of the rarity's
+export type ItemArt = { asset: string?, glyph: string, tint: Color3? }
 export type CellState = "ready" | "claimed" | "ahead" | "locked"
 export type Cell = {
 	track: Track,
@@ -201,6 +211,39 @@ end
 
 function PassLogic.itemGlyph(kind: string): string
 	return ITEM_GLYPHS[kind] or "🎁"
+end
+
+function PassLogic.itemArt(item: Types.PassItem): ItemArt
+	local kind, id = item.kind, item.id
+	local glyph = PassLogic.itemGlyph(kind)
+	if kind == "cat" then
+		return { asset = Catalog.catModelName(id), glyph = glyph }
+	elseif kind == "decor" then
+		local def = Catalog.decorById[id]
+		return { asset = if def then def.asset else nil, glyph = glyph }
+	elseif kind == "accessory" then
+		local accessory = Looks.accessory(id)
+		return {
+			asset = if accessory then Catalog.accessoryModelName(accessory.piece) else nil,
+			glyph = StyleLogic.icon("accessory", id),
+		}
+	elseif kind == "frame" then
+		local style = SignStyles.get(id)
+		return { asset = if style then style.model else nil, glyph = StyleLogic.icon("sign", id) }
+	elseif kind == "uniform" then
+		local uniform = Looks.uniform(id)
+		if uniform then
+			local main = uniform.main
+			return { glyph = glyph, tint = Color3.fromRGB(main[1], main[2], main[3]) }
+		end
+	elseif kind == "tag" then
+		local tag = ChatTags.TAGS[id]
+		if tag then
+			-- the tag's own colour as the tile (its words are under it; in the square they'd be too small to read)
+			return { glyph = glyph, tint = Color3.fromHex(tag.color) }
+		end
+	end
+	return { glyph = glyph }
 end
 
 -- The words under a named item: its name without the kind the picture already shows ("Uniform colour: Pumpkin" reads

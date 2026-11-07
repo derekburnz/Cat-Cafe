@@ -724,8 +724,11 @@ return function()
 			expect(Layout.bedsOpen(3, 0)).to.equal(2)
 			expect(Layout.bedsOpen(3, 2)).to.equal(4)
 			expect(Layout.bedsOpen(4, 1)).to.equal(5)
-			expect(Layout.bedsOpen(5, 0)).to.equal(#Layout.plot.beds)
-			expect(Layout.bedsOpen(5, 2)).to.equal(#Layout.plot.beds)
+			expect(Layout.bedsOpen(4, 2)).to.equal(6)
+			expect(Layout.bedsOpen(5, 0)).to.equal(6)
+			expect(Layout.bedsOpen(5, 1)).to.equal(7)
+			expect(Layout.bedsOpen(5, 2)).to.equal(8) -- the 12 cats of Tier 5 with both pass-only waiters
+			expect(Layout.bedsOpen(5, 3)).to.equal(#Layout.plot.beds)
 		end)
 
 		it("keeps the beds in tier order, so the first ones are the tier's", function()
@@ -2136,9 +2139,9 @@ return function()
 		end
 
 		it(
-			"adds two beds a tier from Tier 3, so the trees' four places and the beds sleep every working slot",
+			"adds two beds a tier from Tier 3 and two for the extra slots (#2047), so every working slot sleeps",
 			function()
-				expect(#plot.beds).to.equal(6)
+				expect(#plot.beds).to.equal(8)
 				for n, bed in plot.beds do
 					expect(bed.id).to.equal("bed_" .. n)
 					expect(bed.tier).to.equal(2 + math.ceil(n / 2))

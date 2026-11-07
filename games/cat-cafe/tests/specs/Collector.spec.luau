@@ -297,7 +297,8 @@ return function()
 			expect(asked > 200).to.equal(true)
 		end)
 
-		it("about one visit every 25 minutes of play by the clock (a 600 to 1400 s timer of open day, #1135)", function()
+		it("about one visit every 17 minutes of play by the clock (a 360 to 840 s timer of open day, #2107)", function()
+			-- #2107 (Derek2: "a decent amount more often"): was a 600 to 1400 s timer, about 25 minutes
 			-- data-model 12b says about 35, from before the short night (F66); by the build's numbers a check lands in
 			-- the open part of the day (a 300 s day of a 390 s loop, less the last DuskWarningSeconds) 285 / 390 of
 			-- the time, and a visit then holds the plot for CollectorStaySeconds
@@ -305,7 +306,7 @@ return function()
 				/ (Config.DayLengthSeconds + Config.NightLengthSeconds)
 			local waiting = (Config.CollectorEveryMin + Config.CollectorEveryMax) / 2 / open
 			local minutes = (waiting + Config.CollectorStaySeconds) / 60
-			expect(minutes > 20 and minutes < 30).to.equal(true)
+			expect(minutes > 14 and minutes < 20).to.equal(true)
 		end)
 	end)
 end

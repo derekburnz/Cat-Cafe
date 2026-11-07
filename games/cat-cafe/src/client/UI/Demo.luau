@@ -386,7 +386,7 @@ local DEMO_CIRCLES: { [string]: { count: number, shrink: number } } = {
 local DEMO_WINDOWS: Types.CatchWindows = { perfect = 0.045, good = 0.11 }
 
 local DECOR_BONUS: { [string]: number } =
-	{ plants = 0.05, rug = 0.05, neon_sign = 0.10, fish_tank = 0.10 }
+	{ plants = 0.05, rug = 0.05, neon_sign = 0.08, fish_tank = 0.12 } -- #2053: Gameplay PR #2061
 -- the bait bowl's wait, short so the demo shows the cat arriving (the design's LureWaitSeconds is 600)
 local DEMO_BAIT_SECONDS = 20
 -- the night dealer's stock window, short so one restock shows each night (the server restocks once a night since F94)

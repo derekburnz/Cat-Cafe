@@ -87,7 +87,12 @@ local function timerOf(kind: Pity.Kind, now: number): Pity.Timer
 	if fromStore and timer ~= nil then
 		return timer
 	end
-	return Pity.fixedTimer(now, kind)
+	local fixed = Pity.fixedTimer(now, kind)
+	if handled[Pity.claimKey(fixed.seq, kind)] then
+		-- that slot's cat has started here: the next one counts down from now (the stored path restarts at spawn)
+		return Pity.fixedNext(fixed, kind)
+	end
+	return fixed
 end
 
 -- The folder's one status line: the latest cat started here.

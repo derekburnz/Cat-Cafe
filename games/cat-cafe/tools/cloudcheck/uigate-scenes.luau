@@ -1033,6 +1033,7 @@ local SCENES = {
 				"jukebox_starlight_purr",
 			},
 			jukebox = "jukebox_catnap_waltz",
+			jukeboxShuffle = "shuffle", -- #2077
 		} :: any)
 		UI.open("Decor")
 		press("Decor", "Style")
@@ -1044,10 +1045,11 @@ local SCENES = {
 			table.insert(asked, kind .. ":" .. id)
 		end)
 		press("Decor", "music.jukebox_starlight_purr")
+		press("Decor", "music.shuffle")
 		press("Decor", "music.Default")
 		connection:Disconnect()
 		assert(
-			table.concat(asked, ",") == "music:jukebox_starlight_purr,music:",
+			table.concat(asked, ",") == "music:jukebox_starlight_purr,music:shuffle,music:",
 			"uigate: the music row asked " .. table.concat(asked, ",")
 		)
 	end },

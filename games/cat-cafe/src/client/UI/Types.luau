@@ -360,6 +360,8 @@ export type PartialState = {
 	looks: SharedTypes.LooksView?, -- #1624
 	jukeboxTracks: { string }?, -- #1875: the Jukebox songs, free for everyone (the Style tab's music row)
 	jukebox: string?, -- #1168 row 2: the song picked, nil for the day and night mix
+	-- #2077: shared/Jukebox.SHUFFLE once the server saves it and Audio plays it; the music row's Shuffle option
+	jukeboxShuffle: string?,
 	passBoosts: SharedTypes.PassBoostsView?, -- #1624
 }
 

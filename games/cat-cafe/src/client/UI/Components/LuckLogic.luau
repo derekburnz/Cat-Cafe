@@ -435,8 +435,8 @@ function LuckLogic.boostPills(luck: number): { BoostPill }
 	return out
 end
 
--- Level 0: "A beckoning cat by your front door" then "Each level: Luck +0.1, rarer bait cats and crate finds".
--- Level 2 of 5: "Luck +0.2 now, +0.3 next level". At the top: "Luck +0.5, the most it gives".
+-- Level 0: "A beckoning cat by your front door" then "Each level: Luck +10%, rarer bait cats and crate finds".
+-- Level 2 of 5: "Luck +20% now, +30% next level". At the top: "Luck +50%, the most it gives".
 function LuckLogic.statueLines(level: number, maxLevel: number): (string, string)
 	local what = "Rarer bait cats and crate finds"
 	if level < 1 then

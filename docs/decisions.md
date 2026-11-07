@@ -666,3 +666,6 @@ Gameplay reran Pace on main after #2236 and #2271: one go reaches Tier 5 in 11h2
 
 ## 2026-11-07: Intro shows a rich customer's tip (Design-Agent, friend's project, #2242)
 A new shot 6 after the job shot: a rich customer sits at table 1, leaves a gold coin pile and your avatar grabs it for "+$50" (the real first rich tip). The intro has nine shots, `Intro.VERSION` 8, and runs about 37 s with no taps. intro-cutscene.md §2c. Reason: Derek2's ask to show rare customers in the tutorial; built in #2305.
+
+## 2026-11-07: Music style defaults to Shuffle (Sound-Agent, #2347)
+Derek2: "change the style of music to default to shuffle". A player who never picked a music style now hears Shuffle (the Jukebox songs in random order, #2077) instead of the day and night rotation: `Jukebox.shown` turns a missing or stale pick into `shuffle`. Saved picks (a song or Shuffle) are kept. Picking the rotation now saves `"default"` so that choice sticks; before, it saved nothing, the same as never picking, so a player who had chosen the rotation hears Shuffle once and can pick Default again. No save version or remote change.

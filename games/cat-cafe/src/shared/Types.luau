@@ -1105,7 +1105,7 @@ export type PlayerProfile = {
 	signStyles: { [string]: boolean },
 	signStyle: string?,
 	storeSeen: { [string]: number }, -- #1842 (no new version): Store tab id -> the tab version last opened (StoreTabs)
-	jukebox: string?, -- #1168 row 2 (no new version): the Jukebox track picked (shared/Jukebox), nil for the rotation
+	jukebox: string?, -- #1168 row 2: the Jukebox pick: a track, "shuffle", "default" (rotation) or nil (never picked: Shuffle)
 	pass: PassState, -- #1645 (save version 36): the Cafe Pass
 	looks: LookPicks, -- #1624 (save version 38): the cafe theme and uniform picks (shared/Looks)
 	grandOpening: GrandOpeningState, -- #1893 (save version 41): the Grand Opening roadmap (shared/GrandOpening)
@@ -1184,7 +1184,7 @@ export type PlayerState = {
 	starterBought: boolean, -- #1625: the Starter Bundle is bought, so its Store card hides
 	storeSeen: { [string]: number }, -- #1842: the Store tab versions last opened; a tab shows "New" below StoreTabs.VERSIONS
 	jukeboxTracks: { string }, -- #1168 row 2: the Jukebox tracks owned (all four with the pass, else none)
-	jukebox: string?, -- #1168 row 2: the track that plays in place of the rotation (Jukebox.shown), nil for the rotation
+	jukebox: string?, -- #1168 row 2: the pick (Jukebox.shown): a track or "shuffle"; nil for the rotation
 	codesRedeemed: { [string]: number }?, -- #1714: code id -> os.time() redeemed, for the Store's Codes tab
 	signStyles: { string }, -- #1625: every sign style owned (SignStyles.owned), saved or through a pass
 	signStyle: string?, -- #1625: the pick SetSignStyle saved, nil for the plain sign

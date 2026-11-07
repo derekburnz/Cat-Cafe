@@ -1494,13 +1494,50 @@ local SCENES = {
 		assert(window:FindFirstChild("Attracts", true) == nil, "uigate: an Attracts chip is back on a food row (#1612)")
 		assert(window:FindFirstChild("Odds", true) == nil, "uigate: an odds line is back on a food row (#1612)")
 		local star = window:FindFirstChild("star_treat", true)
-		local kibble = window:FindFirstChild("kibble", true)
-		assert(star and kibble, "uigate: no Star Treat or Kibble row")
-		assert(star.LayoutOrder < kibble.LayoutOrder, "uigate: the bowl lists Kibble before the Star Treat (#1609)")
+		local moon = window:FindFirstChild("moon_milk", true)
+		assert(star and moon, "uigate: no Star Treat or Moon Milk row")
+		-- neither is in the bag here, so they keep the rarest first order behind the foods the player has (#2323)
+		assert(star.LayoutOrder < moon.LayoutOrder, "uigate: the bowl lists Moon Milk before the Star Treat (#1609)")
 		press("Bait", "star_treat.Details")
 		local detail = star:FindFirstChild("Detail", true) :: TextLabel
 		assert(detail and detail.Visible, "uigate: Details did not open")
 		assert(string.find(detail.Text, "Mythical", 1, true), "uigate: the Details text has no odds: " .. detail.Text)
+	end },
+	-- #2323: a tutorial player with Kibble alone sees it at the top, not under six foods they don't have; once Salmon
+	-- is in the bag it leads, then Kibble, then the rest rarest first
+	{ "BaitOwnedFirst", function()
+		local before: any = UI.getState()
+		UI.update({ lures = { kibble = 3 } })
+		UI.bait.openPicker()
+		local window = baitWindow()
+		local function order(): string
+			local rows = {}
+			for _, lure in Catalog.lures do
+				local row = window:FindFirstChild(lure.id, true)
+				assert(row and row:IsA("GuiObject"), "uigate: no row for " .. lure.id)
+				table.insert(rows, row)
+			end
+			table.sort(rows, function(a, b)
+				return a.LayoutOrder < b.LayoutOrder
+			end)
+			local names = {}
+			for _, row in rows do
+				table.insert(names, row.Name)
+			end
+			return table.concat(names, ",")
+		end
+		local shown = order()
+		assert(
+			shown == "kibble,star_treat,moon_milk,caviar,salmon,sardines,tuna",
+			"uigate: the bowl with only Kibble lists " .. shown .. " (#2323)"
+		)
+		UI.update({ lures = { kibble = 3, salmon = 1 } })
+		shown = order()
+		assert(
+			shown == "salmon,kibble,star_treat,moon_milk,caviar,sardines,tuna",
+			"uigate: the bowl with Kibble and Salmon lists " .. shown .. " (#2323)"
+		)
+		UI.update({ lures = before.lures }) -- later Bait scenes keep their own bag (BaitRefill needs its Tuna)
 	end },
 	-- #1161: the Second Bait Bowl pass owned, bowl 1 filling and bowl 2 empty: two tabs, and the screen opens on
 	-- bowl 2 (the empty one that takes food) with its Use buttons live

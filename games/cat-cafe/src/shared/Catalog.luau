@@ -1143,8 +1143,9 @@ end
 Catalog.renamedUpgrades = { gloves = "net" } :: { [string]: string }
 
 -- Section 7: the four pieces of the old coin Decor shop. Since F97 (notes-10-28-to-10-30.md section 2) they are
--- found only in the Classic Crate, at their rarity, and keep their bonuses and their own anchors (no decor spot);
--- players who bought them keep them. The crate pieces (F53), the F48 Index pieces among them, are in
+-- found only in the Classic Crate, at their rarity, and keep their own anchors (no decor spot); players who bought them
+-- keep them. #2053 (Derek2: the boost "doesn't match rarity"): the bonus rises with the rarity, Common 5%, Rare 8% and
+-- Epic 12% (the Rare and the Epic were both 10%), so the set of four still adds up to +30%. The crate pieces (F53), the F48 Index pieces among them, are in
 -- Catalog.crateDecor below.
 Catalog.decor = {
 	{
@@ -1178,9 +1179,9 @@ Catalog.decor = {
 		name = "Neon cat sign",
 		cost = 0, -- F97: never sold
 		category = "Wall",
-		effect = "+10% money",
+		effect = "+8% money",
 		description = "Seen from the far end of the street.",
-		bonus = 0.10,
+		bonus = 0.08,
 		asset = "CatCafe_Decor_NeonSign",
 		source = "crate",
 		crate = "classic",
@@ -1191,9 +1192,9 @@ Catalog.decor = {
 		name = "Fish tank",
 		cost = 0, -- F97: never sold
 		category = "Furniture",
-		effect = "+10% money, cats stare at it",
+		effect = "+12% money, cats stare at it",
 		description = "The fish are fine. Probably.",
-		bonus = 0.10,
+		bonus = 0.12,
 		asset = "CatCafe_Decor_FishTank",
 		source = "crate",
 		crate = "classic",

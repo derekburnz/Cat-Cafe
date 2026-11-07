@@ -10,6 +10,21 @@ The order is the spec's creation order (5 badges a day from 2026-11-07):
    3 CozyCafe       Cozy Cafe (Tier 2): a big cream mug of cocoa with a paw in the foam and curls of steam, on blush
    4 GrandOpening   Grand Opening: the red ribbon with its big bow, and gold scissors about to snip it, on butter
    5 Purrfect       Purrfect!: a pink and cream target with a gold paw print in the bullseye and twinkles, on lilac
+   6 BaitCat        a tabby sitting by a red bowl heaped with kibble, a heart over her head, on butter
+   7 RareFind       a Persian (Epic) sitting in front of a big purple star, on lilac
+   8 LegendaryFind  Marshmallow (Legendary) in front of a big gold star, on butter
+   9 MythicalFind   Comet (Mythical) in front of a big pink star, on night blue
+  10 BusyCafe       Busy Cafe (Tier 3): a brass service bell ringing, on mint
+  11 FamousCafe     Famous Cafe (Tier 4): five gold stars over a pink heart with a paw, on sky blue
+  12 GrandCafe      Grand Cafe (Tier 5): a gold crown with berry and mint gems, on velvet lilac
+  13 CatCollector   the open cat Index, both pages full of paw stamps, on mint
+  14 CatExpert      a tuxedo cat in a scholar's cap with a gold tassel, on sky blue
+  15 GoldenCoat     a gold tabby (gold.py) with twinkles, on lilac
+  16 RainbowCoat    a white cat under a rainbow with clouds, on sky blue
+  17 PageComplete   an Index page with every stamp filled and a big green tick, on blush
+  18 HelpingPaw     two paws meeting in a high five over a pink heart, on mint
+  19 FirstTrade     two gift boxes with arrows there and back, on butter
+  20 PurrfectStreak five gold footprints walking up to a star, on lilac
 
 Built in Blender axes (x right, -y toward the camera, z up), the medal's face in the XZ plane; nothing here is a game
 model.
@@ -21,7 +36,8 @@ from mathutils import Vector
 
 from common import Builder
 from icon_compose import place
-from store_icons import _cat, _paw, _twinkle
+import gold
+from store_icons import _cat, _heart, _paw, _star, _twinkle
 
 X = (math.radians(90), "X")
 R = 2.0                      # the medal's outer radius; every picture stays inside R - 0.25
@@ -171,6 +187,264 @@ def purrfect(mat):
     return _fin(b, "Purrfect", mat)
 
 
+def _sitter(mat, name, at=(0.0, -0.5, -0.85), scale=1.05, yaw=-14, gilded=False):
+    """A roster cat sitting (body B) in front of the medal; `gilded` for its gold coat (gold.py)."""
+    objs = gold.build_gold(name, mat, body="sit") if gilded else _cat(name, mat)
+    return place(objs, at=at, scale=scale, yaw=yaw)
+
+
+def _arc(b, cx, cz, r, a0, a1, w, d, y, sw, n=16, k0=0):
+    """A band of boxes along a circle in the medal's plane, from angle a0 to a1 (degrees)."""
+    for k in range(n):
+        t0, t1 = math.radians(a0 + (a1 - a0) * k / n), math.radians(a0 + (a1 - a0) * (k + 1) / n)
+        tm = (t0 + t1) / 2
+        L = 2 * r * math.sin(abs(t1 - t0) / 2) + 0.03
+        b.box((cx + r * math.cos(tm), y - 0.003 * ((k + k0) % 2), cz + r * math.sin(tm)), (L, d, w), sw, bevel=False,
+              rot=(-(tm + math.pi / 2), "Y"))
+
+
+def bait_cat(mat):
+    """A tabby sitting beside a red food bowl heaped with kibble, a little heart over her head."""
+    b = Builder()
+    _medal(b, "pastel_butter")
+    bx, by, bz = 0.68, -0.75, -0.95
+    b.cyl((bx, by, bz + 0.18), 0.5, 0.36, "bowl_red", segments=28, radius2=0.62)              # the bowl
+    b.cyl((bx, by, bz + 0.37), 0.6, 0.04, "shirt_red", segments=28)                           # its rim
+    for k in range(9):                                                                        # the kibble heap
+        a = 2 * math.pi * k / 9
+        r = 0.3 if k % 2 else 0.18
+        b.ico((bx + r * math.cos(a), by + 0.15 * math.sin(a), bz + 0.43 + 0.05 * (k % 3)), 0.11, "kibble")
+    b.ico((bx, by, bz + 0.55), 0.12, "kibble")
+    b.prism((-0.4, -0.45, 1.15), _heart(0.32), 0.08, "apron_pink", rot=X)
+    return _fin(b, "BaitCat", mat) + _sitter(mat, "Tabby", at=(-0.4, -0.45, -0.9), scale=1.0, yaw=-24)
+
+
+def _find(mat, key, field, star, cat, scale=1.0):
+    """The rarity finds: a roster cat of that rarity sitting in front of a big star of the rarity's colour."""
+    b = Builder()
+    _medal(b, field)
+    b.star((0, -0.08, 0.05), 1.55, 0.78, 0.08, star, rot=X)
+    b.star((0, -0.12, 0.05), 1.3, 0.62, 0.04, "offwhite" if field != "night_sky" else "gold_light", rot=X)
+    b.star((0, -0.15, 0.05), 1.18, 0.56, 0.04, star, rot=X)
+    _twinkle(b, 1.1, -0.4, 1.05, 0.4, "offwhite")
+    _twinkle(b, -1.15, -0.4, -0.55, 0.3, "offwhite")
+    return _fin(b, key, mat) + _sitter(mat, cat, at=(0.0, -0.6, -0.95), scale=scale, yaw=-12)
+
+
+def rare_find(mat):
+    return _find(mat, "RareFind", "pastel_lilac", "rarity_epic", "Persian")
+
+
+def legendary_find(mat):
+    return _find(mat, "LegendaryFind", "pastel_butter", "rarity_legend", "Marshmallow")
+
+
+def mythical_find(mat):
+    return _find(mat, "MythicalFind", "night_sky", "rarity_mythic", "Comet")
+
+
+def busy_cafe(mat):
+    """A brass service bell on a little wooden block, ringing: ding lines either side."""
+    b = Builder()
+    _medal(b, "mint")
+    y, z0 = -0.5, -0.95
+    b.box((0, y, z0 + 0.14), (1.9, 0.9, 0.28), "caramel_wood")                                 # the block
+    b.cyl((0, y, z0 + 0.34), 0.95, 0.12, "dark_wood", segments=32)                            # the bell's base
+    n, R = 8, 0.82                                                                            # the dome
+    for i in range(n):
+        za, zb = R * i / n, R * (i + 1) / n
+        b.cyl((0, y, z0 + 0.4 + (za + zb) / 2), R * math.sqrt(1 - (za / R) ** 2), zb - za + 0.004,
+              "gold_mid", segments=28, radius2=R * math.sqrt(max(1 - (zb / R) ** 2, 0.04)))
+    b.cyl((0, y, z0 + 1.3), 0.06, 0.24, "gold_dark", segments=10)                              # the plunger
+    b.sphere((0, y, z0 + 1.43), 0.14, "gold_light", segments=12, rings=6)
+    b.sphere((-0.3, y - 0.55, z0 + 0.85), 0.11, "gold_light", segments=10, rings=6, scale=(1, 0.4, 1.4))  # a shine
+    for sx in (-1, 1):                                                                        # ding lines
+        for k, (dz, L, a) in enumerate(((0.95, 0.5, 30), (0.55, 0.45, 0), (0.15, 0.4, -30))):
+            r = 1.15
+            t = math.radians(a)
+            b.box((sx * (r + 0.2) * math.cos(t) * 1.0, y, z0 + 0.6 + (r * math.sin(t))), (L, 0.06, 0.11), "offwhite",
+                  bevel=False, rot=(-sx * t, "Y"))
+    return _fin(b, "BusyCafe", mat)
+
+
+def famous_cafe(mat):
+    """Five gold stars in an arc over a big pink heart: everyone loves the cafe."""
+    b = Builder()
+    _medal(b, "pastel_sky")
+    b.prism((0, -0.2, -0.45), _heart(1.0), 0.18, "apron_pink", rot=X)
+    b.prism((0, -0.3, -0.42), _heart(0.78), 0.06, "blush", rot=X)
+    _paw(b, 0, -0.36, -0.5, 1.0, "cream")
+    for k in range(5):
+        a = math.radians(150 - 30 * k)
+        _star(b, 1.15 * math.cos(a), -0.35, 0.05 + 1.0 * math.sin(a), 0.36 if k == 2 else 0.3, "gold_mid")
+    return _fin(b, "FamousCafe", mat)
+
+
+def grand_cafe(mat):
+    """A gold crown with berry and mint gems, on velvet."""
+    b = Builder()
+    _medal(b, "velvet_lilac")
+    y = -0.4
+    b.box((0, y, -0.58), (2.3, 0.5, 0.6), "gold_mid")                                          # the band
+    b.box((0, y - 0.27, -0.55), (2.1, 0.06, 0.12), "gold_dark", bevel=False)
+    for x, h, w in ((-0.95, 0.75, 0.3), (-0.48, 0.95, 0.34), (0.0, 1.2, 0.4), (0.48, 0.95, 0.34),
+                    (0.95, 0.75, 0.3)):                                                       # the points
+        b.prism((x, y + 0.02, -0.3), [(-w, 0.0), (w, 0.0), (0.0, h)], 0.36, "gold_mid", rot=X)
+        b.ico((x, y - 0.05, -0.3 + h + 0.08), 0.12 if x else 0.15, "gold_light" if x else "royal_berry")
+    for k, x in enumerate((-0.7, 0.0, 0.7)):                                                  # gems on the band
+        b.ico((x, y - 0.3, -0.55), 0.17 if k == 1 else 0.13, "royal_berry" if k == 1 else "mint",
+              scale=(1, 0.6, 1))
+    _twinkle(b, 1.1, -0.5, 0.95, 0.4)
+    _twinkle(b, -1.15, -0.5, -1.05, 0.3)
+    return _fin(b, "GrandCafe", mat)
+
+
+def cat_collector(mat):
+    """The open cat Index: two pages of little cat stamps, a paw ribbon down the middle."""
+    b = Builder()
+    _medal(b, "mint")
+    y = -0.35
+    for sx in (-1, 1):
+        b.box((sx * 0.68, y, -0.1), (1.3, 0.12, 1.6), "cream", bevel=False,
+              rot=(math.radians(sx * 6), "Z"))                                                 # a page
+        b.box((sx * 0.72, y + 0.08, -0.12), (1.38, 0.08, 1.7), "royal_berry", bevel=False,
+              rot=(math.radians(sx * 6), "Z"))                                                 # the cover
+        for r in range(3):
+            for c in range(2):
+                x, z = sx * (0.38 + 0.6 * c), 0.42 - 0.52 * r
+                b.cyl((x, y - 0.14 + sx * 0.06 * (0.38 + 0.6 * c) * 0.1, z), 0.2, 0.04,
+                      ("blush", "pastel_sky", "pastel_butter")[(r + c) % 3], segments=16, rot=X)
+                _paw(b, x, y - 0.18, z, 0.45, "fur_charcoal")
+    b.box((0.05, y - 0.15, -0.4), (0.16, 0.04, 1.6), "apron_pink", bevel=False)                # the ribbon
+    b.prism((0.05, y - 0.15, -1.25), [(-0.08, 0.08), (0.08, 0.08), (0.0, -0.06)], 0.04, "apron_pink", rot=X)
+    return _fin(b, "CatCollector", mat)
+
+
+def cat_expert(mat):
+    """A tuxedo cat in a scholar's cap with a gold tassel."""
+    b = Builder()
+    _medal(b, "pastel_sky")
+    cat = _sitter(mat, "Tuxedo", at=(0.0, -0.5, -0.95), scale=1.0, yaw=-12)
+    from store_icons import _top
+    x, yy, z = _top(cat)
+    b.cyl((x, yy, z + 0.02), 0.32, 0.22, "fur_charcoal", segments=16)                          # the cap
+    b.box((x, yy, z + 0.16), (0.95, 0.95, 0.07), "fur_charcoal", bevel=False, rot=(math.radians(45), "Z"))
+    b.cyl((x, yy, z + 0.21), 0.06, 0.04, "gold_mid", segments=8)
+    b.box((x + 0.3, yy - 0.3, z + 0.18), (0.04, 0.5, 0.04), "gold_mid", bevel=False,
+          rot=(math.radians(45), "Z"))
+    b.box((x + 0.47, yy - 0.47, z - 0.05), (0.07, 0.07, 0.42), "gold_mid", bevel=False)        # the tassel
+    b.cyl((x + 0.47, yy - 0.47, z - 0.3), 0.08, 0.12, "gold_light", segments=8)
+    _star(b, 1.15, -0.4, 0.95, 0.35, "gold_mid")
+    _star(b, -1.2, -0.4, 0.55, 0.25, "gold_mid")
+    return _fin(b, "CatExpert", mat) + cat
+
+
+def golden_coat(mat):
+    """A gold tabby sitting, with twinkles all round."""
+    b = Builder()
+    _medal(b, "pastel_lilac")
+    _twinkle(b, 1.0, -0.4, 0.95, 0.5, "gold_light")
+    _twinkle(b, -1.1, -0.4, 0.45, 0.4, "offwhite")
+    _twinkle(b, 1.15, -0.4, -0.45, 0.3, "offwhite")
+    return _fin(b, "GoldenCoat", mat) + _sitter(mat, "Tabby", at=(0.0, -0.45, -1.0), scale=1.1, yaw=-14,
+                                                gilded=True)
+
+
+RAINBOW = ("bowl_red", "fur_orange", "pastel_butter", "leaf_green", "pastel_sky", "aurora_violet")
+
+
+def rainbow_coat(mat):
+    """A white cat sitting under a rainbow, little clouds at its feet."""
+    b = Builder()
+    _medal(b, "pastel_sky")
+    for k, sw in enumerate(RAINBOW):
+        _arc(b, 0, -0.55, 1.45 - 0.17 * k, 0, 180, 0.17, 0.08, -0.12 - 0.01 * k, sw, n=18, k0=k)
+    for sx in (-1, 1):                                                                        # clouds
+        for dx, dz, r in ((0.0, 0.0, 0.26), (0.24, 0.05, 0.2), (-0.22, 0.04, 0.19), (0.1, 0.2, 0.18)):
+            b.sphere((sx * 1.28 + dx, -0.3, -0.62 + dz), r, "offwhite", segments=12, rings=8)
+    return _fin(b, "RainbowCoat", mat) + _sitter(mat, "Snow", at=(0.0, -0.5, -1.0), scale=0.95, yaw=-12)
+
+
+def page_complete(mat):
+    """An Index page with every stamp filled in and a big green tick."""
+    b = Builder()
+    _medal(b, "blush")
+    y = -0.3
+    b.box((0, y, 0.0), (1.9, 0.1, 2.3), "cream", bevel=False, rot=(math.radians(-5), "Y"))       # the page
+    b.box((0.05, y + 0.06, -0.04), (1.9, 0.06, 2.3), "treat_tan", bevel=False, rot=(math.radians(-5), "Y"))
+    for r in range(3):
+        for c in range(3):
+            x, z = -0.56 + 0.56 * c, 0.6 - 0.56 * r
+            b.cyl((x, y - 0.07, z), 0.21, 0.04, ("pastel_sky", "mint", "pastel_butter")[(r + c) % 3], segments=16,
+                  rot=X)
+            _paw(b, x, y - 0.1, z, 0.45, "fur_charcoal")
+    tk = [(-0.85, -0.45), (-0.45, -0.85), (0.6, 0.25)]                                         # the tick
+    for k, ((x0, z0), (x1, z1)) in enumerate(zip(tk, tk[1:])):
+        L = math.hypot(x1 - x0, z1 - z0)
+        b.box(((x0 + x1) / 2 + 0.1, y - 0.25 - 0.03 * k, (z0 + z1) / 2 - 0.35), (L + 0.22, 0.12, 0.28), "leaf_green",
+              bevel=False,
+              rot=(-math.atan2(z1 - z0, x1 - x0), "Y"))
+    return _fin(b, "PageComplete", mat)
+
+
+def helping_paw(mat):
+    """Two paws meeting in a high five over a pink heart."""
+    b = Builder()
+    _medal(b, "mint")
+    b.prism((0, -0.15, -0.35), _heart(0.95), 0.12, "apron_pink", rot=X)
+    for sx, sw, a in ((-1, "cream", -18), (1, "fur_orange", 18)):
+        x, z = sx * 0.55, 0.35
+        lx, lz = sx * 1.05, -1.2
+        L = math.hypot(x - lx, z - lz) - 0.15
+        ux, uz = (x - lx) / (L + 0.15), (z - lz) / (L + 0.15)
+        b.box((lx + ux * L / 2, -0.27, lz + uz * L / 2), (0.46, 0.22, L), sw,
+              rot=(math.atan2(x - lx, z - lz), "Y"))                                         # a foreleg
+        b.cyl((x, -0.35, z), 0.36, 0.3, sw, segments=20, rot=X)                                    # the paw
+        b.cyl((x, -0.52, z - 0.06), 0.17, 0.04, "nose_pink", segments=12, rot=X)                   # its pad
+        for dx, dz in ((-0.17, 0.15), (-0.06, 0.24), (0.06, 0.24), (0.17, 0.15)):
+            b.cyl((x + dx, -0.52, z + dz), 0.06, 0.04, "nose_pink", segments=8, rot=X)
+    _twinkle(b, 0, -0.6, 1.05, 0.45)
+    return _fin(b, "HelpingPaw", mat)
+
+
+def _box_gift(b, x, z, s, body, ribbon):
+    b.box((x, -0.4, z), (0.9 * s, 0.7 * s, 0.8 * s), body)
+    b.box((x, -0.4, z + 0.45 * s), (1.0 * s, 0.8 * s, 0.18 * s), body)
+    b.box((x, -0.4, z + 0.05 * s), (0.16 * s, 0.74 * s, 1.0 * s), ribbon, bevel=False)
+    for sx in (-1, 1):
+        b.box((x + sx * 0.18 * s, -0.4, z + 0.66 * s), (0.34 * s, 0.14 * s, 0.22 * s), ribbon, bevel=False,
+              rot=(math.radians(sx * -30), "Y"))
+
+
+def first_trade(mat):
+    """Two gift boxes swapping places: a pink one and a mint one with curved arrows between."""
+    b = Builder()
+    _medal(b, "pastel_butter")
+    _box_gift(b, -0.75, -0.75, 0.95, "apron_pink", "cream")
+    _box_gift(b, 0.75, -0.75, 0.95, "mint", "cream")
+    for r, a0, a1, sw in ((0.95, 160, 20, "royal_berry"), (0.55, 20, 160, "sign_teal")):  # there and back
+        _arc(b, 0, 0.0, r, a0, a1, 0.16, 0.08, -0.55, sw, n=10)
+        end = (r * math.cos(math.radians(a1)), r * math.sin(math.radians(a1)))
+        b.prism((end[0], -0.55, end[1] - 0.05), [(-0.22, 0.12), (0.22, 0.12), (0.0, -0.2)], 0.08, sw, rot=X)
+    return _fin(b, "FirstTrade", mat)
+
+
+def purrfect_streak(mat):
+    """Five gold paw prints climbing an arc to a big star."""
+    b = Builder()
+    _medal(b, "pastel_lilac")
+    for k in range(5):                                                                        # footprints
+        side = 0.13 if k % 2 else -0.13
+        _paw(b, -1.05 + 0.4 * k - side, -0.3 - 0.01 * k, -0.95 + 0.3 * k + side, 0.78 + 0.07 * k, "gold_mid")
+    _star(b, 0.88, -0.35, 0.85, 0.45, "gold_mid")
+    _twinkle(b, -1.05, -0.45, 0.95, 0.4)
+    return _fin(b, "PurrfectStreak", mat)
+
+
 # name -> builder, in the spec's creation order (release.md section 1)
 BADGES = {"Welcome": welcome, "FirstCatch": first_catch, "CozyCafe": cozy_cafe, "GrandOpening": grand_opening,
-          "Purrfect": purrfect}
+          "Purrfect": purrfect, "BaitCat": bait_cat, "RareFind": rare_find, "LegendaryFind": legendary_find,
+          "MythicalFind": mythical_find, "BusyCafe": busy_cafe, "FamousCafe": famous_cafe, "GrandCafe": grand_cafe,
+          "CatCollector": cat_collector, "CatExpert": cat_expert, "GoldenCoat": golden_coat,
+          "RainbowCoat": rainbow_coat, "PageComplete": page_complete, "HelpingPaw": helping_paw,
+          "FirstTrade": first_trade, "PurrfectStreak": purrfect_streak}

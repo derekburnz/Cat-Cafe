@@ -77,6 +77,9 @@ export type AreaSpec = {
 	arrival: Point?, -- where fast travel lands; a box area lands on its camp's landing pad
 	spawnPoints: { Point },
 	rescueSpots: { RescuePoint },
+	-- #2240: every spot a trap can stand on, today's rescueSpots included, each built as scenery; each sunrise
+	-- RescueService picks rescueSpots' mix of trap types from it (RescuePick). Nil: rescueSpots are the traps every day.
+	rescuePool: { RescuePoint }?,
 	props: { Prop },
 }
 

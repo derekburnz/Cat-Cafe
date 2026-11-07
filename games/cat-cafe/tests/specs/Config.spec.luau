@@ -33,12 +33,13 @@ return function()
 		-- rescue minigames (F27, section 10b); RescueBarSpeed and RescueZoneWidth are tables, checked below
 		RescueSpawnChance = 0.6,
 		RescueMinStuck = 1,
+		RescueSpotSpacingStuds = 25,
 		RescueTolerance = 0.03,
 		RescuePatience = 3,
 		RescueRetrySeconds = 3,
 		RescueSelfRetrySeconds = 6,
 		RescueAttemptMaxSeconds = 15,
-		GoldChanceRescue = 0.10,
+		GoldChanceRescue = 0.12,
 		RescuedTipsMultiplier = 1.0, -- v0.3 (F22): a rescue pays no more; its reward is the gold chance
 		GrabRangeStuds = 10,
 		CatchHoldSeconds = 0.5, -- Derek 2026-10-27: hold E to start a catch or a rescue
@@ -260,7 +261,7 @@ return function()
 		CrateReelHoldSeconds = 0.25,
 		RainbowChanceNet = 0.015, -- F99 (rainbow-coat.md section 5); v2 section 4b
 		RainbowChanceBait = 0.015,
-		RainbowChanceRescue = 0.03,
+		RainbowChanceRescue = 0.036,
 		RainbowMultiplier = 2,
 		RainbowLuckMax = 0.4, -- #2269: was 1.0
 		CollectorRainbowMultiplier = 10,

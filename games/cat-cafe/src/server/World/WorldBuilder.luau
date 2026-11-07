@@ -66,7 +66,8 @@ export type AreaInfo = {
 	model: Model,
 	floorY: number,
 	spawnPoints: { BasePart },
-	rescueSpots: { [string]: BasePart }, -- rescueSpotId -> anchor where a stuck cat sits
+	rescueSpots: { [string]: BasePart }, -- rescueSpotId -> anchor where a stuck cat sits, the whole pool (#2240)
+	rescueMix: { [string]: number }, -- #2240: TrapType -> how many of the pool hold a trap each day
 	bounds: { minX: number, maxX: number, minZ: number, maxZ: number }, -- the bounding box, 2 studs in
 	rects: { Layout.Rect }, -- the floor pieces (one zone box each)
 	roam: { Layout.Rect }, -- where strays stay (WorldBuilder.clampToArea): the floors, less any dressed wall strip
@@ -1587,7 +1588,12 @@ local function buildArea(
 	-- The trap model sits next to its anchor as "<rescueSpotId>_Trap", so a client can find a tree's branch.
 	local rescueFolder = folder("RescueSpots", model)
 	local rescueSpots: { [string]: BasePart } = {}
-	for i, point in spec.rescueSpots do
+	-- #2240: the whole pool is built (every spot is scenery); RescueService picks which hold today's traps
+	local rescueMix: { [string]: number } = {}
+	for _, point in spec.rescueSpots do
+		rescueMix[point.trap] = (rescueMix[point.trap] or 0) + 1
+	end
+	for i, point in spec.rescuePool or spec.rescueSpots do
 		local name = "rescue_" .. id .. "_" .. i
 		local base = CFrame.new(point.x, spec.floorY + (point.y or 0), point.z)
 			* CFrame.Angles(0, math.rad(point.rotY or 0), 0)
@@ -1629,6 +1635,7 @@ local function buildArea(
 		floorY = spec.floorY + (if hasSet then spec.setLift or 0 else 0), -- where strays walk
 		spawnPoints = spawnPoints,
 		rescueSpots = rescueSpots,
+		rescueMix = rescueMix,
 		bounds = { minX = cx - hw + 2, maxX = cx + hw - 2, minZ = cz - hd + 2, maxZ = cz + hd - 2 },
 		rects = rects,
 		-- strays keep to the wild part: a camp is outside their roam (section 4)

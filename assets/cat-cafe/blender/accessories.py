@@ -52,7 +52,11 @@ ROLE_OUTFITS = {"barista": ("Apron", "BaristaCap"), "waiter": ("BowTie", "Vest")
 HEAD_LOOKS = ("Hat", "LeafBeret", "AcornHairClip", "MushroomCap", "LeafCrown")
 FACE_LOOKS = ("Glasses", "ReadingGlasses")
 BACK_LOOKS = ("TinyLantern",)
-LOOKS = HEAD_LOOKS + FACE_LOOKS + BACK_LOOKS
+TAIL_LOOKS = ("TailBow",)                     # #2109: the Tail slot, near the tail's tip; no themed prop uses it
+LOOKS = HEAD_LOOKS + FACE_LOOKS + BACK_LOOKS + TAIL_LOOKS
+# The Tail Bow's two cuts (CatDress.assetNames): CatCafe_Accessory_TailBow_Walk round A's tail, and the plain one round
+# B's and S's (B's last segment and S's fourth are within 0.012 of each other), so the band's inside half width:
+BOW_HALF = {"walk": 0.11, "sit": 0.08, "work": 0.08}
 LANTERN_SIT_AT = (0.0, Y1, 0.78)              # the upper back of B's chest, under the back of the head, unscaled
 
 
@@ -67,7 +71,35 @@ def look_slots(spec, body):
     back = walk_slots(spec)["TinyLantern"] if body == "walk" else \
         ("Body", tuple(round(v * K, 4) for v in LANTERN_SIT_AT), (0, 0, 0))
     return {**{n: ("Head", top, (0, 0, 0)) for n in HEAD_LOOKS}, **{n: ("Head", face, (0, 0, 0)) for n in FACE_LOOKS},
-            "TinyLantern": back}
+            "TinyLantern": back, "TailBow": tail_bow_slot(spec, body)}
+
+
+def tail_bow_slot(spec, body):
+    """#2109: (part, offset, rotation) of the Tail Bow on the Tail part, before the cat's Scale. The bow's own frame:
+    the tail runs along +Y through its band, the knot faces +Z, the loops spread along X. It sits on the tail's last
+    segment on A and B (under halfway along, clear of the tip's colour) and on S's fourth, under the hooked tip, turned
+    with that segment; on A and S the knot faces the cat's front, on B (the tail on the floor) up. Pushed along the
+    knot's side so the knot sits on this cat's fur, whatever its tail's thickness against the cut's band
+    (BOW_HALF)."""
+    t = cats.dims(spec, body)["tail_chain"]
+    kb = 1.0 if body == "walk" else K
+    i, f = (3, 0.6) if body == "work" else (len(t["angles"]) - 1, 0.45)
+    lean = Matrix.Rotation(math.radians(t.get("lean", 0)), 3, "Y")
+    pos = Vector()
+    for j, deg in enumerate(t["angles"][:i + 1]):
+        a = math.radians(deg)
+        if t["plane"] == "X":
+            R = lean @ Matrix.Rotation(a, 3, "X")
+        else:
+            R = Matrix.Rotation(a - math.pi / 2, 3, "Z")
+        d = R @ Vector((0.0, 1.0, 0.0))
+        if j < i:
+            pos += d * t["seg"]
+    pos += d * t["seg"] * f
+    half = (t["thick"] - i * t["taper"]) / 2 * kb
+    at = pos * kb + (R @ Vector((0.0, 0.0, 1.0))) * (half - BOW_HALF[body])
+    rot = tuple(round(math.degrees(v), 3) for v in R.to_euler("XYZ"))
+    return ("Tail", tuple(round(v, 4) for v in at), rot)
 
 
 def slots(spec, body="sit"):
@@ -519,7 +551,52 @@ def build_apron_walk(mat):
     return [b.finalize("CatCafe_Accessory_Apron_Walk", mat)]
 
 
+def _tail_bow(name, h, mat):
+    """#2109 (store-pass-looks.md section 6a): a small satin bow tied round the tail. A rose (blush) band hugs a tail
+    2h thick, a knot on it faces +Z, two loops with a cream edge spread along X and two short ribbon ends with cream
+    tips trail back along -Y, down onto the fur. The tail runs along +Y through the band (tail_bow_slot)."""
+    b = Builder()
+    s = h / 0.08                                                                      # the walking cut a little bigger
+    w, t = 0.065 * s, 0.022                                                           # the band's width and thickness
+    b.box((0, 0, h + t / 2), (2 * h + 2 * t, w, t), "blush", bevel=False)              # the band, round all four sides
+    b.box((0, 0, -h - t / 2), (2 * h + 2 * t, w, t), "blush", bevel=False)
+    for sx in (-1, 1):
+        b.box((sx * (h + t / 2), 0, 0), (t, w, 2 * h), "blush", bevel=False)
+    z = h + t                                                                         # the band's top, under the knot
+    for sx in (-1, 1):                                                                # the loops, tips raised a little
+        loop = [(x * s, y * s) for x, y in ((-0.075, -0.03), (0.0, -0.07), (0.075, -0.06), (0.1, 0.0), (0.075, 0.06),
+                                            (0.0, 0.07), (-0.075, 0.03))]
+        if sx < 0:
+            loop = [(-x, y) for x, y in reversed(loop)]
+        R = (math.radians(-sx * 14), "Y")
+        c = (sx * 0.105 * s, 0.0, z + 0.024)
+        b.prism(c, loop, 0.036, "blush", rot=R)
+        rim = [(x * 1.18, y * 1.22) for x, y in loop]
+        b.prism((c[0] + sx * 0.004, 0.0, z + 0.014), rim, 0.024, "cream", rot=R)          # its cream edge, just under
+    for sx in (-1, 1):                                                                # the ribbon ends
+        L, a = 0.15 * s, math.radians(sx * 24)
+        R = Matrix.Rotation(a, 3, "Z") @ Matrix.Rotation(math.radians(14), 3, "X")
+        top = Vector((sx * 0.012, -0.02, z + 0.012))
+        b.box(tuple(top + R @ Vector((0, -L / 2, 0))), (0.05 * s, L, 0.018), "blush", bevel=False, rot=R)
+        b.box(tuple(top + R @ Vector((0, -L - 0.012, 0.0))), (0.055 * s, 0.03, 0.022), "cream", bevel=False, rot=R)
+    b.box((0, 0, z + 0.032), (0.075 * s, 0.085 * s, 0.064), "blush", bevel=False)    # the knot, over the loops' roots
+    b.box((0, 0, z + 0.066), (0.05 * s, 0.06 * s, 0.006), "nose_pink", bevel=False)   # its fold
+    return b.finalize(name, mat)
+
+
+def build_tail_bow(mat):
+    """The Tail Bow round B's and S's tail (sitting and working cats)."""
+    return [_tail_bow("CatCafe_Accessory_TailBow", BOW_HALF["sit"], mat)]
+
+
+def build_tail_bow_walk(mat):
+    """The Tail Bow round A's thicker tail (walking cats)."""
+    return [_tail_bow("CatCafe_Accessory_TailBow_Walk", BOW_HALF["walk"], mat)]
+
+
 ASSETS = {
+    "CatCafe_Accessory_TailBow": (build_tail_bow, 400),
+    "CatCafe_Accessory_TailBow_Walk": (build_tail_bow_walk, 400),
     "CatCafe_Accessory_Glasses": (build_glasses, 200),
     "CatCafe_Accessory_BowTie": (build_bow_tie, 200),
     "CatCafe_Accessory_Apron": (build_apron, 200),

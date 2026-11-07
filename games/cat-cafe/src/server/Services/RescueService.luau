@@ -814,6 +814,24 @@ function RescueService.stuckCount(): number
 	return n
 end
 
+-- Studio-only test hook (Laptop-Tester, 2026-11-07): ends `player`'s rescue as Give up does, or drops them as a
+-- helper. Returns what the server had: "rescuing <spotId>", "helping <spotId>" or "none" (then any rescue screen on
+-- that client is the client's alone).
+function RescueService.debugCancel(player: Player): string
+	assert(RunService:IsStudio(), "debugCancel is Studio only")
+	local own = attemptOf(player)
+	if own ~= nil and own.attempt ~= nil then
+		finish(player, own, own.attempt, nil, true)
+		return "rescuing " .. own.spotId
+	end
+	local helped = helpingOf(player)
+	if helped ~= nil and helped.attempt ~= nil then
+		dropHelper(helped, helped.attempt, nil)
+		return "helping " .. helped.spotId
+	end
+	return "none"
+end
+
 -- Studio-only test hook: puts a stuck cat at a trap (the first trap of the alley when none is given), replacing
 -- any cat already there. `coat` forces the hidden roll: "gold" (or true) or "rainbow" (F99). Returns the
 -- rescueSpotId.

@@ -3675,6 +3675,21 @@ Presets.themes = {
 -- `lift` studs over it; only within `within` studs. When it is caught in another server or goes: a `puff` of smoke,
 -- gold sparkles and a ring. A removal up to `lateSeconds` before the announcement still puffs where the cat stood;
 -- positions are tracked every `track` seconds.
+-- The outfit passes' thank-you (#2147, store-pass-looks.md 7.3, Effects/PassThanks): one short bow-pink sparkle of
+-- `sparkles` (twice, in `colours`) and a small `ring` over each of your working cats within `within` studs (the
+-- nearest `most`), `gap` seconds apart, at the Head's BubbleAnchor or `over` studs over the pivot.
+Presets.passThanks = {
+	within = 120,
+	most = 16,
+	gap = 0.08,
+	over = 3,
+	sparkles = 6,
+	colours = { Presets.palette.neonPink, Presets.palette.furRose },
+	ring = 2.4,
+	ringSeconds = 0.4,
+	ringBelow = 0.4,
+}
+
 Presets.pity = {
 	within = 300,
 	seconds = 3,
@@ -3703,6 +3718,29 @@ Presets.pity = {
 		colour = Presets.palette.golden,
 		ring = 4,
 		ringSeconds = 0.5,
+	},
+	-- The lasting mark under a pity stray while it is out (#2099, luck-and-rare-moments.md 1j): a soft ring on the
+	-- floor `ring` times the cat's width across (at least `minDiameter`), its stroke `stroke` studs wide, breathing
+	-- from `breath[1]` to `breath[2]` of its size over `breathSeconds` and back; still with Reduce Motion or Low
+	-- performance. One small sparkle puff of `sparkles` every `sparkleEvery` s, `sparkleLift` up (none with either).
+	-- Drawn within `within` studs.
+	mark = {
+		within = 150,
+		ring = 1.6,
+		minDiameter = 3.5,
+		stroke = 0.3,
+		halo = 0.5,
+		transparency = 0.15,
+		haloTransparency = 0.7,
+		pixelsPerStud = 32,
+		lift = 0.06,
+		breath = { 0.9, 1 },
+		breathSeconds = 2,
+		sparkleEvery = 1.5,
+		sparkles = 1,
+		sparkleLift = 1.2,
+		legendary = Presets.palette.golden,
+		mythical = Presets.palette.aurora,
 	},
 }
 
@@ -3747,5 +3785,9 @@ Presets.netPin = {
 	drop = { height = 1.6, seconds = 0.18 },
 	lift = { height = 2.2, seconds = 0.35, fadeFrom = 0.3 },
 }
+
+-- The bedtime walk drawn on each client (#2050, BedWalk.luau): when the trip ends the copy fades out over `fade`
+-- seconds as the server's model, landed on the bed or back at its station, fades in.
+Presets.bedWalk = { fade = 0.25 }
 
 return Presets

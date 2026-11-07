@@ -33,7 +33,13 @@
 --   D:Invoke("restartNotice", 300)     -- the restart countdown's 5 minute warning to everyone; returns its text
 --   D:Invoke("tradeMinTier", 0)        -- trading from Tier 0 in this server (F102; nil goes back to the flag or Config)
 --   D:Invoke("trading", false)         -- the trading kill switch off in this server, as CatCafe_Flags would (F102)
+--   D:Invoke("flag", "codes", false)   -- a live switch (codes or rally) off in this server, as CatCafe_Flags would (#2119)
 --   D:Invoke("freshCatch")             -- forget this window's Fresh Catch buys and heads up; returns the stock (F94)
+--   D:Invoke("seedCafe", nil, 5, 12, { extraSlot = true, grandCafe = true })  -- Tier 5, 12 cats, slots filled (#2050)
+--   D:Invoke("levelCat", nil, "<uid>", 1)    -- that cat one level up, as play would (Auto Equip may re-plan) (#2050)
+--   D:Invoke("placeCat", nil, "<uid>", "greeter_1")   -- PlaceCat as the client sends it; unplaceCat too (#2050)
+--   D:Invoke("pitySpawn")              -- the sooner pity timer's cat spawns now; returns "<kind> <seq>: in <area>" (#2099)
+--   D:Invoke("cancelMinigames")       -- ends your rescue (Give up), your help on one, and your running catches
 --   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
 --   D:Invoke("givePotion", nil, "tip_potion", 3)    -- 3 Tip Potions in the bag (F64; nil id gives each potion)
 --   D:Invoke("potionLeft", nil, "tip_potion", 30)   -- the running Tip Potion has 30 s left (0 ends it)
@@ -58,6 +64,7 @@ local BugReportService = require(script.Parent.BugReportService)
 local CafeService = require(script.Parent.CafeService)
 local CampExtraService = require(script.Parent.CampExtraService)
 local CatService = require(script.Parent.CatService)
+local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Clock = require(ReplicatedStorage.Shared.Clock)
 local ClockService = require(script.Parent.ClockService)
@@ -71,9 +78,11 @@ local FishMarketService = require(script.Parent.FishMarketService)
 local FreshCatch = require(ReplicatedStorage.Shared.FreshCatch)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LeaderboardService = require(script.Parent.LeaderboardService)
+local LiveFlagService = require(script.Parent.LiveFlagService)
 local MysteryService = require(script.Parent.MysteryService)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
+local PityService = require(script.Parent.PityService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local QuestService = require(script.Parent.QuestService)
@@ -178,6 +187,116 @@ function Debug.resetProfile(player: (Player | number | string)?)
 	CafeService.sync(p)
 end
 
+-- #2099 (QA): the sooner pity timer's cat now, as if its time had come (PityService.debugSpawn).
+function Debug.pitySpawn(): string
+	guard()
+	return PityService.debugSpawn()
+end
+
+-- One line for the cafe: "tier T, N cats, working: uid=spot uid=spot ..." in slot order (#2050).
+local function cafeLine(profile: Types.PlayerProfile): string
+	local count, working = 0, {}
+	for _ in profile.cats do
+		count += 1
+	end
+	for _, spot in Catalog.spots do
+		local cat = Economy.catOnSpot(profile, spot.id)
+		if cat ~= nil then
+			table.insert(
+				working,
+				string.format("%s=%s(L%d)", cat.uid, spot.id, CatStats.level(cat))
+			)
+		end
+	end
+	return string.format(
+		"tier %d, %d cats, working: %s",
+		profile.tier,
+		count,
+		table.concat(working, " ")
+	)
+end
+
+-- #2050 (Desktop-Tester's greeter repro on a test save): the tier (1 to 5, as setTier), Extra Slot and Grand Cafe for
+-- this session when `options` says so (as secondBowl does, no purchase), `catCount` new cats (0 to 60, in catalogue
+-- order) given as a check-in would (Auto Equip runs as in play), and then every open slot still empty takes a
+-- resting cat through PlaceCat's own steps. Returns cafeLine, whose uids levelCat and unplaceCat take.
+function Debug.seedCafe(
+	player: (Player | number | string)?,
+	tier: number,
+	catCount: number?,
+	options: unknown
+): string
+	guard()
+	local p = resolve(player)
+	local profile = profileOf(p)
+	Economy.settle(profile, os.time(), ClockService.epoch())
+	profile.tier = math.clamp(math.floor(tonumber(tier) or 1), 1, Catalog.maxTier)
+	local opts: { [string]: any } = if type(options) == "table" then options :: any else {}
+	local passes = table.clone(Economy.passes(profile))
+	if opts.extraSlot == true then
+		passes.slots = math.max(passes.slots, 1)
+	end
+	if opts.grandCafe == true then
+		passes.grand = true
+	end
+	Economy.setPasses(profile, passes)
+	for index = 1, math.clamp(math.floor(tonumber(catCount) or 0), 0, 60) do
+		local def = Catalog.cats[(index - 1) % #Catalog.cats + 1]
+		CafeService.addCaughtCat(p, def, false)
+	end
+	for _, spot in Catalog.spots do
+		if Economy.spotIsOpen(profile, spot.id) and Economy.catOnSpot(profile, spot.id) == nil then
+			local resting: { string } = {}
+			for uid, cat in profile.cats do
+				if cat.spotId == nil then
+					table.insert(resting, uid)
+				end
+			end
+			table.sort(resting)
+			if resting[1] == nil then
+				break
+			end
+			CafeService.debugPlace(p, resting[1], spot.id)
+		end
+	end
+	CafeService.refreshPlot(p)
+	CafeService.sync(p)
+	return cafeLine(profile)
+end
+
+-- #2050: cat `uid` up `levels` levels (default 1) as its XP would take it; the sync sends CatLevelUp and asks Auto
+-- Equip to re-plan, as in play. Returns cafeLine.
+function Debug.levelCat(player: (Player | number | string)?, uid: string, levels: number?): string
+	guard()
+	local p = resolve(player)
+	local profile = profileOf(p)
+	local cat = profile.cats[uid]
+	assert(cat ~= nil, "no cat with that uid")
+	Economy.settle(profile, os.time(), ClockService.epoch())
+	for _ = 1, math.clamp(math.floor(tonumber(levels) or 1), 1, Config.CatMaxLevel) do
+		CatStats.addXp(cat, CatStats.xpToNext(CatStats.level(cat)) - CatStats.xp(cat))
+	end
+	CafeService.refreshPlot(p)
+	CafeService.sync(p)
+	return cafeLine(profile)
+end
+
+-- #2050: PlaceCat(uid, spotId) as the client sends it, every check included. Returns cafeLine.
+function Debug.placeCat(player: (Player | number | string)?, uid: string, spotId: string): string
+	guard()
+	local p = resolve(player)
+	CafeService.debugPlace(p, uid, spotId)
+	return cafeLine(profileOf(p))
+end
+
+-- #2050: UnplaceCat(uid) as the client sends it. Returns cafeLine.
+function Debug.unplaceCat(player: (Player | number | string)?, uid: string): string
+	guard()
+	local p = resolve(player)
+	CafeService.debugUnplace(p, uid)
+	return cafeLine(profileOf(p))
+end
+
 -- Sets the cafe tier (1 to 5) without RankUp's checks or cost, for testing areas, slots, caps and expansions.
 function Debug.setTier(player: (Player | number | string)?, tier: number)
 	local p = resolve(player)
@@ -269,6 +388,14 @@ end
 function Debug.trading(on: unknown): boolean
 	guard()
 	return TradeService.debugTrading(if type(on) == "boolean" then on else nil)
+end
+
+-- #2119: live switch `key` ("codes" or "rally") in this server (true on, false off, nil back to CatCafe_Flags);
+-- returns whether it is on.
+function Debug.flag(key: unknown, on: unknown): boolean
+	guard()
+	assert(type(key) == "string", "flag needs a switch name")
+	return LiveFlagService.debugSet(key, if type(on) == "boolean" then on else nil)
 end
 
 function Debug.rally(player: (Player | number | string)?, action: string?, value: any): string
@@ -663,6 +790,17 @@ function Debug.spawnStuckCat(
 ): string
 	guard()
 	return RescueService.debugSpawnStuck(catId, rescueSpotId, coat)
+end
+
+-- Laptop-Tester (2026-11-07): ends the player's rescue (as Give up) or their help on someone's, and any catch they
+-- have running (a Miss), so a tester stuck in a minigame can carry on. Returns what the server had, such as
+-- "rescue: none, catches ended: 0": with both empty, a rescue or catch screen still up is the client's alone.
+function Debug.cancelMinigames(player: (Player | number | string)?): string
+	guard()
+	local p = resolve(player)
+	local rescue = RescueService.debugCancel(p)
+	local catches = CatService.debugEndCatch(p)
+	return string.format("rescue: %s, catches ended: %d", rescue, catches)
 end
 
 -- Number of strays in an area and of stuck cats across all rescue traps.

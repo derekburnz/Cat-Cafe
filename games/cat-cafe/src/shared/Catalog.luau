@@ -1008,7 +1008,8 @@ Catalog.tiers = {
 		slots = 4,
 		multiplier = 1.25,
 		area = "park",
-		caps = { tables = 5, espresso = 4, net = 2, lure_bowl = 2, lucky_cat = 3 }, -- #1896 (first-hour.md 4): Tables 5, Espresso 4, Lucky Cat 3
+		-- #1896 (first-hour.md 4): Tables 5, Espresso 4, Lucky Cat 3; #2121 (4d): Bait Bowl 3 too
+		caps = { tables = 5, espresso = 4, net = 2, lure_bowl = 3, lucky_cat = 3 },
 	},
 	{
 		tier = 3,
@@ -1100,7 +1101,9 @@ Catalog.upgrades = {
 		-- F82 (v0.13.15): five levels, each tier opening one, the names in Bait.bowlName
 		description = "A bowl on your back step. Each level brings bait cats sooner and rarer",
 		maxLevel = 5,
-		costs = { 600, 6000, 240000, 4000000, 50000000 }, -- F95: Fancy, Deluxe and Royal Bowls
+		-- F95: Fancy, Deluxe and Royal Bowls; #2121 (first-hour.md 4d): level 3 opens at Tier 2, fitted into
+		-- the 31 to 42 minute gap at 150,000 (240,000 at Tier 3 before; 70,000 landed at minute 18, inside a busy stretch)
+		costs = { 600, 6000, 150000, 4000000, 50000000 },
 		startLevel = 0,
 	},
 	{

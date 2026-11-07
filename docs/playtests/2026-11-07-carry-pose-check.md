@@ -95,3 +95,21 @@ Findings
    screen.
 3. Arms: a shallow overlap of 0.04 to 0.10 studs is back, too small to see in the shots. A further 0.1 studs of r6.gap,
    or 0.05 to 0.1 more on r6.up, would clear it.
+
+## Sixth check, R6 only, after #1998 and #1999 (main at 57dafa1e, r6 up 0.25, gap 0.2)
+
+After #1998 (up 0.18, gap 0.2) the arms still overlapped the cat by 0.03 and 0.06 studs, so I swept up and gap in
+Studio with the game's own HeldCat and Avatar code; up 0.25 with gap 0.2 was the smallest change that cleared both
+arms and the Head part on all three cats, and #1999 set it. Tabby, Calico and the Void, same numbers for all three
+unless noted. Sheet: `evidence/2026-11-07/carry-r6-done-2026-11-07.png`.
+
+| Check | R6 |
+| --- | --- |
+| Cat floor vs torso middle | 0.50 above |
+| Cat spans forward of torso | 0.70 to 1.87, middle 1.28 |
+| Arm ends forward of torso, across | 0.98, 0.18 either side of the middle |
+| Top of the arm-end faces vs cat floor | 0.29 below |
+| Arm parts overlapping the cat | none (clearance 0.07 left, 0.04 right) |
+| Cat vs the character's Head part | none (clearance 0.08; the Void 0.05) |
+
+Result: passes. The arm ends cradle the cat from below with no overlap, and the cat is clear of the face.

@@ -135,4 +135,105 @@ function Bedtime.arc(from: Vector3, to: Vector3, t: number): Vector3
 	return from + (to - from) * u + Vector3.new(0, Bedtime.HOP_HEIGHT * 4 * u * (1 - u), 0)
 end
 
+-- #2050 (Derek2 on live: cats "teleport part by part really quick away" from their stations): the server no longer
+-- steps a cat along its bedtime trip every frame, which reached clients part by part. It works out the trip once as
+-- points, sets them on the cat (BedTripRoute, BedTripAt, BedTripSpeed, BedTripHop, BedTripTo), pivots the cat once
+-- onto BedTripTo when the trip's time is up, and each client walks it (Effects). A point walks to `at` at the trip's
+-- speed, or hops to it over the hop seconds along Bedtime.arc; the first point is where the trip starts.
+export type TripPoint = { at: Vector3, hop: boolean }
+
+-- One leg's seconds: a hop takes `hopSeconds`, a walk its length over `speed`.
+local function legSeconds(from: Vector3, to: TripPoint, speed: number, hopSeconds: number): number
+	if to.hop then
+		return hopSeconds
+	end
+	return if speed > 0 then (to.at - from).Magnitude / speed else 0
+end
+
+-- How long the trip takes, from its first point to its last.
+function Bedtime.tripSeconds(points: { TripPoint }, speed: number, hopSeconds: number): number
+	local total = 0
+	for i = 2, #points do
+		total += legSeconds(points[i - 1].at, points[i], speed, hopSeconds)
+	end
+	return total
+end
+
+local function flatUnit(v: Vector3): Vector3?
+	local flat = Vector3.new(v.X, 0, v.Z)
+	return if flat.Magnitude > 0.05 then flat.Unit else nil
+end
+
+-- Where the trip is `t` seconds after it starts, and the flat way the cat faces: along its leg (a hop faces where it
+-- jumps), the first leg's way before it starts and the last leg's way once it is there. -Z for a trip that never
+-- turns.
+function Bedtime.tripAt(
+	points: { TripPoint },
+	speed: number,
+	hopSeconds: number,
+	t: number
+): (Vector3, Vector3)
+	local facing = Vector3.new(0, 0, -1)
+	for i = 2, #points do
+		local way = flatUnit(points[i].at - points[i - 1].at)
+		if way ~= nil then
+			facing = way
+			break
+		end
+	end
+	if #points == 0 then
+		return Vector3.zero, facing
+	end
+	local left = math.max(0, t)
+	for i = 2, #points do
+		local from, to = points[i - 1].at, points[i]
+		facing = flatUnit(to.at - from) or facing
+		local seconds = legSeconds(from, to, speed, hopSeconds)
+		if left < seconds then
+			local u = left / seconds
+			if to.hop then
+				return Bedtime.arc(from, to.at, u), facing
+			end
+			return from + (to.at - from) * u, facing
+		end
+		left -= seconds
+	end
+	return points[#points].at, facing
+end
+
+-- The points as BedTripRoute's text: "x,y,z,k;..." with k 1 for a hop and 0 for a walk, to 2 decimals.
+function Bedtime.encodeTrip(points: { TripPoint }): string
+	local parts: { string } = {}
+	for _, point in points do
+		table.insert(
+			parts,
+			string.format(
+				"%.2f,%.2f,%.2f,%d",
+				point.at.X,
+				point.at.Y,
+				point.at.Z,
+				if point.hop then 1 else 0
+			)
+		)
+	end
+	return table.concat(parts, ";")
+end
+
+-- BedTripRoute's text back as points, or nil when any of it is not "x,y,z,k".
+function Bedtime.decodeTrip(text: unknown): { TripPoint }?
+	if type(text) ~= "string" or text == "" then
+		return nil
+	end
+	local points: { TripPoint } = {}
+	for chunk in string.gmatch(text, "[^;]+") do
+		local x, y, z, k = chunk:match("^(%-?[%d%.]+),(%-?[%d%.]+),(%-?[%d%.]+),([01])$")
+		local nx, ny, nz = tonumber(x), tonumber(y), tonumber(z)
+		if nx == nil or ny == nil or nz == nil then
+			return nil
+		end
+		table.insert(points, { at = Vector3.new(nx, ny, nz), hop = k == "1" })
+	end
+	return if #points > 0 then points else nil
+end
+
 return Bedtime

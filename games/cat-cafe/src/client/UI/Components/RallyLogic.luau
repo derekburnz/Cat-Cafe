@@ -3,7 +3,7 @@
 -- server's RallyState comes through UI.rally.update; the steps are Catalog.rallySteps and the rules shared/Rally's.
 --   view(state, now) -> View?        the banner and the Town Square board while a Rally runs, else nil: the lap
 --                                    ("Lap 2" from the second), the fill (0 to 1), "45 / 90", the time left ("1d 4h
---                                    left"), each step's share, whether it is reached and its picture, and this
+--                                    left"), each step's share, the points it pays at, whether it is reached and its picture, and this
 --                                    player's line ("You: 7 points", "Score 3 points to share the prizes", "1 more
 --                                    point to share the prizes", "You've done your laps this weekend")
 --   soon(state, now) -> string?      the line under the clock in the last SOON_SECONDS before a Rally starts:
@@ -25,6 +25,7 @@ export type Picture = { kind: "crate" | "potion" | "fish", id: string? }
 
 export type Step = {
 	share: number,
+	at: number, -- the points it pays at, shown under its marker (#2078)
 	reached: boolean,
 	picture: Picture,
 }
@@ -113,6 +114,7 @@ function RallyLogic.view(state: SharedTypes.RallyState?, now: number): View?
 		local at: number = Rally.stepAt(index, goal)
 		table.insert(steps, {
 			share = step.share,
+			at = at,
 			reached = points >= at,
 			picture = RallyLogic.stepPicture(step.prize),
 		})

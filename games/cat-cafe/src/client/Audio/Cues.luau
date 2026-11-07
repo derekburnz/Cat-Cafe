@@ -1174,7 +1174,7 @@ local Cues: { [string]: Cue } = {
 	-- Catch v3 (#1884, catch-rework.md 7): the swat, the net's wobble and pop, and the NICE! word. The rising purr is
 	-- the `purr` cue sped up with trust (Audio.setCatchTrust); ticks, hiss, GREAT, EXCELLENT and PURRFECT are the cues above.
 	sheetCatch3 = {
-		ids = {},
+		ids = { "rbxassetid://75387392100021" },
 		group = "Sfx",
 		volume = 1,
 		preload = true,

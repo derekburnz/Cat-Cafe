@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-07 22:07 UTC",
+  "generated": "2026-11-07 22:18 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -219300,16 +219300,16 @@
         "CatCafe_Sewer_SetF85_162_DripPuddle",
         "CatCafe_Sewer_SetF85_162_DripPuddle_Water"
       ],
-      "triangles": 130696,
+      "triangles": 132340,
       "budget": 150000,
       "size_studs": {
         "x": 119.2,
         "y": 569.15,
-        "z": 30.4
+        "z": 30.0
       },
       "size_roblox": [
         119.2,
-        30.4,
+        30.0,
         569.15
       ],
       "bounds_min": [
@@ -219320,7 +219320,7 @@
       "bounds_max": [
         59.6,
         284.5,
-        30.4
+        30.0
       ],
       "pivot": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -219787,7 +219787,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Sewer_SetF85.model.json",
-      "rbx_parts": 7120,
+      "rbx_parts": 7194,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Sewer_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Sewer_SetF85.glb"
@@ -219799,10 +219799,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "130696/150000 tris",
+          "budget": "132340/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "67457 faces on swatch centers",
+          "uv": "68089 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.07"

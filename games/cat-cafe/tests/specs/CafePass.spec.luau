@@ -294,7 +294,7 @@ return function()
 			end
 		end)
 
-		it("makes every decor item a placeable, looks-only piece outside the Decor Index (#1645)", function()
+		it("makes every decor item a placeable pass piece with a rarity bonus, outside the Decor Index (#1645, #2006)", function()
 			local Crates = require(Shared.Crates)
 			local Quests = require(Shared.Quests)
 			local inPools: { [string]: boolean } = {}
@@ -316,7 +316,9 @@ return function()
 								return
 							end
 							expect(decor.source).to.equal("pass")
-							expect(decor.bonus).to.equal(0) -- no cafeMultiplier
+							-- #2006: a rarity up to Epic and the crate pieces' money bonus for it
+							expect(decor.rarity ~= nil).to.equal(true)
+							expect(decor.bonus).to.equal(Config.CratePieceBonus[decor.rarity :: string])
 							expect(Crates.takesSpot(decor)).to.equal(true) -- placed in a decor spot
 							expect(table.find(Catalog.passDecor, decor)).to.be.ok() -- placed after the crate pieces
 							expect(table.find(Catalog.crateDecor, decor)).to.equal(nil)

@@ -63,12 +63,13 @@ return function()
 	end)
 
 	describe("the Royal Velvet Booth", function()
-		it("is looks-only pass decor that comes with the pack", function()
+		it("is Epic pass decor, +8% money in use, that comes with the pack", function()
 			local profile = ProfileSchema.template(1000)
 			local def = Catalog.getDecor(KingPack.DECOR) :: any
 			expect(def.source).to.equal("pass")
 			expect(def.pack).to.equal("King Cat Pack")
-			expect(def.bonus).to.equal(0)
+			expect(def.rarity).to.equal("Epic") -- #2006
+			expect(def.bonus).to.equal(Config.CratePieceBonus.Epic)
 			expect(def.asset).to.equal("CatCafe_Decor_VelvetBooth")
 			expect(Crates.takesSpot(def)).to.equal(true)
 			expect(table.find(Catalog.passDecor, def)).to.be.ok()

@@ -5,14 +5,14 @@
 --   the Royal Crest sign                 SignStyles (passKey), looked up each session
 --   the Grand look                       Looks (the Grand theme's alsoKey), a look only: the Grand Cafe pass's money
 --                                        and job slot stay on GrandThemePassId (Economy)
---   the Royal Velvet Booth               Catalog.passDecor (pack "King Cat Pack"): looks only, can't be bought,
---                                        traded or sold, counts for no quest or Index page
+--   the Royal Velvet Booth               Catalog.passDecor (pack "King Cat Pack"): Epic, +8% money in use (#2006),
+--                                        can't be bought, traded or sold, counts for no quest or Index page
 --   Potion Pack M's set                  5 Big Tip, 3 Swift, 2 Steady, given once (gift)
 -- Everything is fixed (nothing random) and untradeable. The booth and potions are given once per account by
 -- ShopCatService, at join and when PassService learns of the pass, so players who bought the pack before it held
 -- them get them on their next join; profile.onceBought[MARK] records it (kept by Products.sanitizeOnce).
 -- The worth line counts only what is also sold alone: the King Cat alone pass and Potion Pack M, with their prices
--- read at runtime (MarketplaceService), so it never claims a value for the looks-only pieces.
+-- read at runtime (MarketplaceService), so it never claims a value for the pass-only pieces.
 --   contents() -> { Item }           the card's list, in order
 --   worthRefs() -> ({ Ref }, ready)  what to price for the worth line; ready is false while one is not made (0)
 --   due(profile, ownsPack) -> bool   whether the gift is still owed

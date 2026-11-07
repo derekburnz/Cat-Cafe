@@ -1735,13 +1735,13 @@ Presets.palWave = {
 
 -- The carry (Derek 2026-10-28: "hold it in your arms crossed arms", the cat "awake loafing or sitting in your
 -- arms"), drawn by Tackle.luau on the carrier and by Carry.luau on the HeldCat. `arms` is the upper body's pose in
--- Avatar.Pose degrees (the legs stay the character's own): elbows at the sides and the forearms level, reaching out
--- and in under the cat like a tray so it rests on them, the right a touch higher than the left, head tipped down to
--- the cat (Derek2 2026-11-07: "make the hands in the holding sit lower ... the bottom of cat starts below hands";
--- the forearms' tops are about 0.2 studs over the UpperTorso's middle, and Catching.HELD puts the cat's floor
--- there, #1964); the wrists are held straight, so the hands keep still over the character's
+-- Avatar.Pose degrees (the legs stay the character's own): elbows at the sides and the forearms down and in, the hands
+-- meeting under the middle of the cat with their tops about 0.4 studs under the UpperTorso's middle, the right a
+-- touch higher than the left, head tipped down to the cat. Derek2 2026-11-07: "make the hands in the holding sit
+-- lower ... the bottom of cat starts below hands", then "bring cat closer to chest and lower": Catching.HELD puts
+-- the cat's floor on the hands with its back against the chest (#1964); the wrists are held straight, so the hands keep still over the character's
 -- walk (16:51: "hands shake too much"). R6 has no elbows, so `arms6` reaches both arms forward and in to meet under
--- the cat, nearly level so their tops run just under its floor (Catching.HELD.r6). The cat's floor sits `gap` studs over the higher forearm (below it: it sinks into the arms a little),
+-- the cat, their tops just under its floor over its middle (Catching.HELD.r6). The cat's floor sits `gap` studs over the higher forearm (below it: it sinks into the arms a little),
 -- `loafSide` or `sitSide` studs to the right of halfway between the forearms (negative: left) and `loafForward` or
 -- `forward` studs further out than them. Lying on the arms it turns `loafTurn` degrees: straight across the middle
 -- of the arms, head to the character's left (Derek 2026-11-02 12:01: "it should be straight across middle of arms";
@@ -1753,18 +1753,18 @@ Presets.palWave = {
 -- `retry` seconds.
 Presets.carryPose = {
 	arms = {
-		shL = 20,
+		shL = 25,
 		twL = 25,
 		spL = -35,
-		elL = 70,
-		shR = 20,
+		elL = 30,
+		shR = 25,
 		twR = 25,
 		spR = -35,
-		elR = 72,
+		elR = 35,
 		neck = -12,
 		waist = -4,
 	} :: { [string]: number },
-	arms6 = { sh = 75, sp = -30, neck = -12 } :: { [string]: number },
+	arms6 = { sh = 50, sp = -30, neck = -12 } :: { [string]: number },
 	gap = -0.15,
 	forward = -0.6,
 	loafForward = -1.15,

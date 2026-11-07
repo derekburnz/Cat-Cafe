@@ -144,6 +144,24 @@ function Clock.rainbowChance(chance: number, kinds: DayKinds?): number
 	return if kinds ~= nil and kinds.rainbow then chance * Config.RainbowDayMultiplier else chance
 end
 
+-- #2184 (Derek2, 2026-11-07: a friend joined a fresh server at night; "make it start at day"): a new server opens by
+-- day. Booted at `t` (the global clock), it shows day until the returned time, then follows the global clock again:
+-- through the night under way, or through the coming night when less than FIRST_DAY_MIN_SECONDS of day is left. The
+-- global day (its number, kinds, shops and pity timers) doesn't move; only this server skips that one night. Returns
+-- `t` when the server can open on the global phase as it is.
+Clock.FIRST_DAY_MIN_SECONDS = 120
+
+function Clock.firstDayUntil(t: number): number
+	local phase, left = Clock.phaseAt(t)
+	if phase == "night" then
+		return math.max(0, t) + left
+	end
+	if left < Clock.FIRST_DAY_MIN_SECONDS then
+		return math.max(0, t) + left + Config.NightLengthSeconds
+	end
+	return t
+end
+
 -- Seconds since the server started at which a phase begins its first full run (used to jump the clock).
 function Clock.startOf(phase: Types.ClockPhase): number
 	if phase == "night" then

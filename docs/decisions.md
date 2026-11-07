@@ -594,3 +594,6 @@ Derek2 answered Set 13; the answers are in `docs/design/cat-cafe/feedback/answer
 - **Carry check (#1139):** confirmed fine.
 
 No new question set: the remaining launch questions wait until the game is finished.
+
+## 2026-11-07: a lasting marker for the pity cat (#2099)
+Design-Agent (friend's project) specced luck-and-rare-moments.md 1j. While the pity cat is out and uncaught, it shows a "Pity cat" tag (gold for Legendary, violet with a rainbow edge for Mythical) that can be seen from 150 studs and through cover. It also gets a softly breathing ground ring and a few sparkles. Reduce Motion and Low performance quiet the ring and drop the sparkles. The tag hides during a net catch, and everything clears on catch or at night. This is client only, read from the existing `PityCat` attribute. Reason: Derek2 couldn't tell the pity cat from other Legendaries once the spawn beam faded.

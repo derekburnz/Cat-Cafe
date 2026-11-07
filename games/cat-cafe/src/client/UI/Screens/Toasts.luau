@@ -7,6 +7,8 @@
 -- (setCatalog) for the crates' and potions' pictures. Silent: the moment that pays brings its own sound.
 -- #1435 (the friend 11-05: four "That's all the Cat Whistles for today" toasts stacked over the Corner Shop): a line
 -- that is already on screen is not stacked again; that toast moves to the newest spot, pops and starts its time over.
+-- #2207 (Derek2 11-07: "IBowBeforeGod tamed an Epic Gardener Cat at their..."): a line too long for one row wraps
+-- onto more rows and the pill grows taller, so every word shows (Toasts._wrap).
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -34,6 +36,9 @@ local MAX_VISIBLE = 4
 local PRIZE_LIFETIME = 3.2 -- a prize toast stays long enough to read its pictures
 local PRIZE_TILE = 30
 local PRIZE_TEXT_MAX = 300 -- the line's widest on a prize toast, leaving room for the pictures
+local TEXT_MAX = 424 -- the line's widest on any other toast
+local ROW_H = 40 -- a one-row pill
+local WRAP_PAD = 9 -- above and below the rows of a line that wraps
 
 -- Every kind is white outlined text on a coloured pill with a dark border (simulator notifications).
 local KIND_COLORS: { [string]: Color3 } = {
@@ -181,7 +186,7 @@ function Toasts._push(
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 18), PaddingRight = UDim.new(0, 18) }),
 		Create(
 			"UISizeConstraint",
-			{ MaxSize = Vector2.new(if prize ~= nil then 540 else 460, 40) }
+			{ MaxSize = Vector2.new(if prize ~= nil then 540 else 460, ROW_H) }
 		),
 	})
 	local border = Outline.border(toast)
@@ -204,9 +209,10 @@ function Toasts._push(
 		Parent = toast,
 	}, {
 		Create("UISizeConstraint", {
-			MaxSize = Vector2.new(if prize ~= nil then PRIZE_TEXT_MAX else 424, 40),
+			MaxSize = Vector2.new(if prize ~= nil then PRIZE_TEXT_MAX else TEXT_MAX, ROW_H),
 		}),
 	})
+	Toasts._wrap(toast, message, if prize ~= nil then PRIZE_TEXT_MAX else TEXT_MAX)
 	local textOutline = Outline.text(message)
 	textOutline.Transparency = 1
 	local chips: PrizeChips.PrizeChips? = nil
@@ -275,6 +281,48 @@ function Toasts._push(
 		end)
 	end
 	expire(generation)
+end
+
+-- A line wider than its row (in the label's own font and size) wraps: the label takes the row's full width and
+-- grows down, and the pill grows with it, keeping its rounded ends at the one-row radius. GetTextBoundsAsync
+-- yields, so a long line shows cut for a moment first and then opens up; a short line never changes.
+function Toasts._wrap(toast: Frame, message: TextLabel, widest: number)
+	local text = message.Text
+	task.spawn(function()
+		local ok, bounds = pcall(function()
+			local params = Instance.new("GetTextBoundsParams")
+			params.Text = text
+			params.Font = message.FontFace
+			params.Size = message.TextSize
+			params.Width = 100000 -- one row
+			return game:GetService("TextService"):GetTextBoundsAsync(params)
+		end)
+		if not ok or not bounds or bounds.X <= widest or not message.Parent then
+			return
+		end
+		message.TextTruncate = Enum.TextTruncate.None
+		message.TextWrapped = true
+		message.AutomaticSize = Enum.AutomaticSize.Y
+		message.Size = UDim2.fromOffset(widest, 0)
+		local lineCap = message:FindFirstChildOfClass("UISizeConstraint")
+		if lineCap then
+			lineCap.MaxSize = Vector2.new(widest, math.huge)
+		end
+		toast.AutomaticSize = Enum.AutomaticSize.XY
+		local pillCap = toast:FindFirstChildOfClass("UISizeConstraint")
+		if pillCap then
+			pillCap.MaxSize = Vector2.new(pillCap.MaxSize.X, math.huge)
+		end
+		local pad = toast:FindFirstChildOfClass("UIPadding")
+		if pad then
+			pad.PaddingTop = UDim.new(0, WRAP_PAD)
+			pad.PaddingBottom = UDim.new(0, WRAP_PAD)
+		end
+		local corner = toast:FindFirstChildOfClass("UICorner")
+		if corner then
+			corner.CornerRadius = UDim.new(0, ROW_H / 2)
+		end
+	end)
 end
 
 -- A toast's time is up: it fades and goes (or just goes, when it was pushed off the top already).

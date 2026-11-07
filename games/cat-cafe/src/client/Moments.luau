@@ -108,6 +108,10 @@ local Moments = {
 	-- Your own cafe only (F90 section 2.5): (cat, position) a Waiter or Greeter swept a tip pile into its coin bag at
 	-- position; (cat, position) it dropped the bag in the till at position. Cosmetic: the pile was paid as it appeared.
 	TipSwept = Signal.new() :: Signal.Signal<Model, Vector3>,
+	-- #2147 (store-pass-looks.md 7.3): the UI fires it once when the purchase prompt says Cat Accessories
+	-- ("accessories") or Uniform Styles ("uniforms") was just bought, never on a join; Effects/PassThanks sparkles
+	-- over your working cats
+	OutfitPassBought = Signal.new() :: Signal.Signal<string>,
 	TipBanked = Signal.new() :: Signal.Signal<Model, Vector3>,
 	-- F99 (rainbow-coat.md section 2): a rainbow stray spawned, on every client: (areaId, catId, strayId) for the beam
 	-- over it (the stray is the model named strayId in the Strays folder, Variant "rainbow") and a nearby shimmer

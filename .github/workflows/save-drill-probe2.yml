@@ -26,6 +26,7 @@ jobs:
             c=$(req POST "$u" "$d"); echo "create variant $n: $c"; shape
             [ "$c" = 200 ] && break
           done
+          sleep 70
           echo "update: $(req PATCH "$base/$KEY" '{"value":{"Data":{"version":1,"coins":9},"MetaData":{"ActiveSession":["x","y"]}}}')"; shape
           echo "step1 listRevisions: $(req GET "$base/$KEY:listRevisions?maxPageSize=50")"
           jq -c '{keys:keys, revisions:((.dataStoreEntries // [])|length), first:((.dataStoreEntries // [])[0]|keys?)}' /tmp/o.json
@@ -38,7 +39,7 @@ jobs:
             jq '.value.MetaData.ActiveSession = null | .value.MetaData.ForceLoadSession = null' /tmp/restore.json > /tmp/clean_null.json
             echo "step4 with nulls (doc as written): $(req PATCH "$base/$KEY" "$(jq -c '{value: .value, users: .users}' /tmp/clean_null.json)")"; shape
             jq 'del(.value.MetaData.ActiveSession, .value.MetaData.ForceLoadSession)' /tmp/restore.json > /tmp/clean.json
-            body=$(jq -c '{value: .value, users: .users}' /tmp/clean.json)
+            body=$(jq -c '{value: .value}' /tmp/clean.json)
             echo "step4 patch back: $(req PATCH "$base/$KEY" "$body")"; shape
             jq -c '{revisionId_present:(.revisionId!=null), revisionCreateTime_present:(.revisionCreateTime!=null)}' /tmp/o.json
             echo "get latest: $(req GET "$base/$KEY")"; jq -c '{coins:.value.Data.coins, session:.value.MetaData.ActiveSession}' /tmp/o.json

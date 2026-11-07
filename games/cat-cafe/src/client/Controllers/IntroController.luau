@@ -31,8 +31,8 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local CannonFx = require(script.Parent.Parent.Effects.Cannon)
 local CatDress = require(Shared:WaitForChild("CatDress"))
 local Catalog = require(Shared:WaitForChild("Catalog"))
-local Catching = require(Shared:WaitForChild("Catching"))
 local Config = require(Shared:WaitForChild("Config"))
+local HeldCat = require(Shared:WaitForChild("HeldCat"))
 local Intro = require(Shared:WaitForChild("Intro"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
@@ -79,12 +79,6 @@ local COPY_CLEARS = {
 }
 -- The avatar's own animations your copy plays: the Animate script's StringValue for each and its Animation's name.
 local ANIMATIONS: { [string]: string } = { run = "RunAnim", idle = "Animation1" }
-
--- Where a carried cat rides on the carrier's root (Catching.CARRIED_POSE, the real carry's number).
-local CARRIED = (function(): CFrame
-	local p = Catching.CARRIED_POSE
-	return CFrame.new(p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11], p[12])
-end)()
 
 -- Your local copy for shots 1 to 4: moved by its anchored root, playing the avatar's own animations.
 type You = {
@@ -695,11 +689,11 @@ local function setCamera(at: Intro.Key)
 	end
 end
 
--- The demo cat into your copy's arms as its HeldCat, which Effects/Carry holds in the carry pose (#631).
+-- The demo cat into your copy's arms as its HeldCat, welded there in its loaf like the real carry (HeldCat, #1964).
 local function holdDemo(r: Run, you: You, demo: Model)
 	r.held = true
 	r.demoName, r.demoParent = demo.Name, demo.Parent
-	demo:PivotTo(you.root.CFrame * CARRIED)
+	HeldCat.attach(demo, you.model, you.root)
 	demo.Name = "HeldCat"
 	demo.Parent = you.model
 	you.model:SetAttribute("CarryingCatId", Intro.DEMO_CAT)
@@ -711,6 +705,7 @@ local function releaseDemo(r: Run, you: You?, demo: Model)
 	if you ~= nil then
 		you.model:SetAttribute("CarryingCatId", nil)
 	end
+	HeldCat.release(demo)
 	demo.Name = r.demoName
 	demo.Parent = r.demoParent or Workspace
 end
@@ -946,7 +941,7 @@ local function stageCatch(r: Run, t: number)
 	end
 	local arc = Intro.HOP_HEIGHT * math.sin(math.pi * u)
 	demo:PivotTo(
-		(r.hopFrom :: CFrame):Lerp(you.root.CFrame * CARRIED, Intro.ease("Out", u))
+		(r.hopFrom :: CFrame):Lerp(HeldCat.target(demo, you.model, you.root), Intro.ease("Out", u))
 			+ Vector3.new(0, arc, 0)
 	)
 end

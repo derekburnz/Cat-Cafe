@@ -717,7 +717,7 @@ local Config = {
 	-- step pays everyone in the server who scored RallyMinPoints this lap, from at most RallyMaxLaps laps a weekend.
 	RallyStartWeekday = 6,
 	RallyHours = 48,
-	RallyPointsPerPlayer = 30,
+	RallyPointsPerPlayer = 22, -- #2018: was 30, so a lap fills about a third sooner
 	RallyMinPlayers = 3,
 	RallyMinPoints = 3,
 	RallyMaxLaps = 4,

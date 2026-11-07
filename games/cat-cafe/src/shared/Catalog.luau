@@ -3666,13 +3666,18 @@ function Catalog.getCrate(id: string): Types.CrateDef?
 	return Catalog.cratesById[id]
 end
 
--- The Rescue Rally's steps (F101, rescue-rally.md section 3), in order: at a quarter of the goal 5 golden fish, at half
--- 10 and a Money Potion for the bag, at the full bar a Rally Crate for the Market and 15. The bar then empties for the
--- next lap.
+-- The Rescue Rally's steps (F101, rescue-rally.md section 3), in order. #2018 (Derek2 2026-11-07: "increase amount
+-- and how good of rewards from rally and how often you hit milestones"): five steps, not three, about 100 golden fish
+-- and two Rally Crates a lap (was 30 and one). The bar then empties for the next lap.
 Catalog.rallySteps = {
-	{ share = 0.25, prize = { fish = 5 } },
-	{ share = 0.5, prize = { fish = 10, potions = { tip_potion = 1 } } },
-	{ share = 1, prize = { fish = 15, crates = { rally_crate = 1 } } },
+	{ share = 0.15, prize = { fish = 8 } },
+	{ share = 0.3, prize = { fish = 12, potions = { tip_potion = 1 } } },
+	{ share = 0.5, prize = { fish = 18, potions = { swift_potion = 1, steady_potion = 1 } } },
+	{ share = 0.75, prize = { fish = 25, crates = { rally_crate = 1 } } },
+	{
+		share = 1,
+		prize = { fish = 40, crates = { rally_crate = 1 }, potions = { big_tip_potion = 1 } },
+	},
 } :: { Types.RallyStep }
 
 -- The Golden Fish Market (F53, golden-fish.md section 3): what golden fish buy. Crates open at once; a perk is

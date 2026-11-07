@@ -46,7 +46,7 @@ Owners: QA-Planner (runs the gate and writes `docs/playtests/2026-11-10-release-
 - **Stage 3, go wide (target Thursday 2026-11-12):** the What's New "We're open!" entry, the launch code, the group post and any outside posts.
 - **Pass criteria for going wide** (all from the funnels that already exist):
   1. Tutorial completion (`onboarding_v4` step 5) is **80% or more** of players who load in.
-  2. D1 return is **25% or more** on the soft launch's first day of players. The research suggests 30% as a good mark; under 25% means fix first.
+  2. D1 return is **12% or more** on the soft launch's first day of players, the analytics plan's number. Under 8% means hold and fix first. Between 8% and 12%, Derek2 decides. Derek2, 2026-11-07: "go for the original plan numbers as those are realistic but don't expect it to go that well it is my first game".
   3. The median first session is **10 minutes or more**, and 25% or more of players reach 30 minutes.
   4. Client error rate: no new ClientErrors signature hits more than 1% of sessions, and no server error repeats in more than 1% of servers.
   5. Purchases work: every live pass and product passes its owner test on 2026-11-09.

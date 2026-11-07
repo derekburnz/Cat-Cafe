@@ -26,21 +26,21 @@ export type Step = { id: string, name: string, prize: Types.IndexPrize }
 
 -- first-hour.md 1a, in order. The last one's tag is ChatTags' tag_grand_opener (GrandOpening.TAG).
 GrandOpening.STEPS = {
-	{ id = "first_table", name = "Open your first table", prize = { fish = 5 } },
-	{ id = "first_bait_cat", name = "Your first bait cat", prize = { fish = 5 } },
+	{ id = "first_table", name = "Open your first table", prize = { fish = 3 } }, -- #2237 fish: was 5, 5, 10, 10, 50
+	{ id = "first_bait_cat", name = "Your first bait cat", prize = { fish = 3 } },
 	{ id = "five_cats", name = "Five different cats", prize = { spins = 1 } },
-	{ id = "tier_2", name = "Rank up to Tier 2", prize = { fish = 10 } },
+	{ id = "tier_2", name = "Rank up to Tier 2", prize = { fish = 5 } },
 	{
 		id = "park_catch",
 		name = "Catch a cat in the Park",
 		prize = { potions = { [Potions.SWIFT] = 1 } },
 	},
 	{ id = "full_cafe", name = "A full Tier 2 cafe", prize = { spins = 1 } },
-	{ id = "twelve_cats", name = "Twelve different cats", prize = { fish = 10 } },
+	{ id = "twelve_cats", name = "Twelve different cats", prize = { fish = 5 } },
 	{
 		id = "grand_opening",
 		name = "Grand Opening! Rank up to Tier 3",
-		prize = { fish = 50, crates = { [Prizes.HIGHEST] = 1 }, tag = "Grand Opener" },
+		prize = { fish = 30, crates = { [Prizes.HIGHEST] = 1 }, tag = "Grand Opener" },
 	},
 } :: { Step }
 GrandOpening.COUNT = #GrandOpening.STEPS

@@ -27,7 +27,7 @@ function GoldenFish.forCatch(
 		fish += first
 	end
 	if firstGold then
-		fish += 2 * first
+		fish += first -- #2237: once the first catch fish (was twice)
 	end
 	if firstRainbow then
 		fish += Config.FishFirstRainbowMultiplier * first

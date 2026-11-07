@@ -11,7 +11,7 @@ return function()
 	describe("GoldenFish.forCatch", function()
 		it("pays a cat new to the Index by its rarity, whichever way it was found", function()
 			local paid: { [string]: number } =
-				{ Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 40 }
+				{ Common = 1, Rare = 2, Epic = 5, Legendary = 12, Mythical = 25 }
 			for rarity, fish in paid do
 				expect(GoldenFish.forCatch(rarity, true, false, "net")).to.equal(fish)
 				expect(GoldenFish.forCatch(rarity, true, false, "rescue")).to.equal(fish)
@@ -19,18 +19,18 @@ return function()
 			end
 		end)
 
-		it("pays twice that for a first gold, and both when the first catch is gold", function()
-			expect(GoldenFish.forCatch("Rare", false, true, "net")).to.equal(6)
-			expect(GoldenFish.forCatch("Mythical", false, true, "bait")).to.equal(80)
-			expect(GoldenFish.forCatch("Epic", true, true, "net")).to.equal(24)
+		it("pays that again for a first gold (#2237: was twice), and both when the first catch is gold", function()
+			expect(GoldenFish.forCatch("Rare", false, true, "net")).to.equal(2)
+			expect(GoldenFish.forCatch("Mythical", false, true, "bait")).to.equal(25)
+			expect(GoldenFish.forCatch("Epic", true, true, "net")).to.equal(10)
 		end)
 
 		it("pays a repeat only for Epic and better by net or rescue", function()
 			expect(GoldenFish.forCatch("Common", false, false, "net")).to.equal(0)
 			expect(GoldenFish.forCatch("Rare", false, false, "rescue")).to.equal(0)
 			expect(GoldenFish.forCatch("Epic", false, false, "net")).to.equal(1)
-			expect(GoldenFish.forCatch("Legendary", false, false, "rescue")).to.equal(3)
-			expect(GoldenFish.forCatch("Mythical", false, false, "net")).to.equal(8)
+			expect(GoldenFish.forCatch("Legendary", false, false, "rescue")).to.equal(2)
+			expect(GoldenFish.forCatch("Mythical", false, false, "net")).to.equal(5)
 		end)
 
 		it(
@@ -47,12 +47,12 @@ return function()
 			expect(GoldenFish.forCatch("Shiny", true, true, "net")).to.equal(0)
 		end)
 
-		-- F99 (rainbow-coat.md section 1 and test 9): five first catches for a cat's first rainbow coat
+		-- F99 (rainbow-coat.md section 1 and test 9; #2237: was five): three first catches for a cat's first rainbow coat
 		it(
-			"pays five first catches for a first rainbow, on top of a new cat, any way it was found",
+			"pays three first catches for a first rainbow, on top of a new cat, any way it was found",
 			function()
 				local paid: { [string]: number } =
-					{ Common = 5, Rare = 15, Epic = 40, Legendary = 100, Mythical = 200 }
+					{ Common = 3, Rare = 6, Epic = 15, Legendary = 36, Mythical = 75 }
 				for rarity, fish in paid do
 					for _, method in { "net", "rescue", "bait" } do
 						expect(GoldenFish.forCatch(rarity, false, false, method :: any, true)).to.equal(
@@ -60,7 +60,7 @@ return function()
 						)
 					end
 				end
-				expect(GoldenFish.forCatch("Common", true, false, "net", true)).to.equal(6)
+				expect(GoldenFish.forCatch("Common", true, false, "net", true)).to.equal(4)
 			end
 		)
 
@@ -71,12 +71,12 @@ return function()
 	end)
 
 	describe("GoldenFish.forRankUp", function()
-		it("pays 10, 25, 50 and 100 for Tiers 2 to 5 and nothing else", function()
+		it("pays 5, 15, 30 and 60 for Tiers 2 to 5 and nothing else (#2237)", function()
 			expect(GoldenFish.forRankUp(1)).to.equal(0)
-			expect(GoldenFish.forRankUp(2)).to.equal(10)
-			expect(GoldenFish.forRankUp(3)).to.equal(25)
-			expect(GoldenFish.forRankUp(4)).to.equal(50)
-			expect(GoldenFish.forRankUp(5)).to.equal(100)
+			expect(GoldenFish.forRankUp(2)).to.equal(5)
+			expect(GoldenFish.forRankUp(3)).to.equal(15)
+			expect(GoldenFish.forRankUp(4)).to.equal(30)
+			expect(GoldenFish.forRankUp(5)).to.equal(60)
 			expect(GoldenFish.forRankUp(6)).to.equal(0)
 		end)
 	end)
@@ -113,9 +113,9 @@ return function()
 
 	describe("Tip Jar golden fish (v0.10 F68)", function()
 		it(
-			"gives the #1414 golden fish: 10, 10, 15, 50, 25 and 150 at steps 2, 4, 8, 9, 10 and 12",
+			"gives the golden fish (#2237): 5, 5, 10, 30, 15 and 90 at steps 2, 4, 8, 9, 10 and 12",
 			function()
-				local fish = { [2] = 10, [4] = 10, [8] = 15, [9] = 50, [10] = 25, [12] = 150 }
+				local fish = { [2] = 5, [4] = 5, [8] = 10, [9] = 30, [10] = 15, [12] = 90 }
 				for _, def in Catalog.tipJar do
 					expect(def.prize.fish).to.equal(fish[def.step])
 				end
@@ -192,8 +192,8 @@ return function()
 	-- drifts from the design fails here and the designer decides which one is right.
 	describe("GoldenFish edges (QA)", function()
 		local FIRST: { [string]: number } =
-			{ Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 40 }
-		local REPEAT: { [string]: number } = { Epic = 1, Legendary = 3, Mythical = 8 }
+			{ Common = 1, Rare = 2, Epic = 5, Legendary = 12, Mythical = 25 }
+		local REPEAT: { [string]: number } = { Epic = 1, Legendary = 2, Mythical = 5 }
 		local seed = 20261027
 		local function roll(n: number): number
 			seed = (seed * 1103515245 + 12345) % 2147483648
@@ -226,7 +226,7 @@ return function()
 						for _, firstGold in { true, false } do
 							for _, method in methods do
 								local want = (if isNew then first else 0)
-									+ (if firstGold then 2 * first else 0)
+									+ (if firstGold then first else 0)
 								if want == 0 and (method == "net" or method == "rescue") then
 									want = REPEAT[rarity] or 0
 								end
@@ -270,20 +270,20 @@ return function()
 							goldSeen = goldSeen or gold
 						end
 						expect(total).to.equal(
-							FIRST[rarity] + (if sawGold then 2 * FIRST[rarity] else 0)
+							FIRST[rarity] + (if sawGold then FIRST[rarity] else 0)
 						)
 					end
 				end
 			end
 		)
 
-		it("pays rank ups only on whole Tiers 2 to 5, 185 fish in all", function()
+		it("pays rank ups only on whole Tiers 2 to 5, 110 fish in all (#2237)", function()
 			local total = 0
 			for tier = 2, 5 do
 				total += GoldenFish.forRankUp(tier)
 			end
-			expect(total).to.equal(185)
-			expect(GoldenFish.forRankUp(2.0)).to.equal(10)
+			expect(total).to.equal(110)
+			expect(GoldenFish.forRankUp(2.0)).to.equal(5)
 			for _, odd in { 0, -1, 1.5, 2.5, 5.0001, 0 / 0, math.huge, -math.huge, 1e9 } do
 				expect(GoldenFish.forRankUp(odd)).to.equal(0)
 			end

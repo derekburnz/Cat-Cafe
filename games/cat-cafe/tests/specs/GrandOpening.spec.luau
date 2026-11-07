@@ -41,7 +41,7 @@ return function()
 				fish += step.prize.fish or 0
 				spins += step.prize.spins or 0
 			end
-			expect(fish).to.equal(80) -- "80 golden fish, 2 spins, 1 potion and 1 crate"
+			expect(fish).to.equal(46) -- #2237: 46 golden fish (was 80), 2 spins, 1 potion and 1 crate
 			expect(spins).to.equal(2)
 			expect((GrandOpening.STEPS[5].prize.potions :: any)[Potions.SWIFT]).to.equal(1)
 			expect((GrandOpening.STEPS[8].prize.crates :: any).highest).to.equal(1)

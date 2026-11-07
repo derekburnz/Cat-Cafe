@@ -397,7 +397,7 @@ return function()
 			local offer = Collector.offerFor(8)
 			expect(offer.catFood :: any).to.deepEqual({ big_cat_snack = 2 })
 			expect(Collector.prize(offer, "alley").catFood :: any).to.deepEqual({ big_cat_snack = 2 })
-			expect(Collector.offerFor(11).fish).to.equal(20)
+			expect(Collector.offerFor(11).fish).to.equal(12) -- #2237: was 20
 		end)
 
 		it("drops a Small Snack 1 time in 10 on a catch and gives one per rescue", function()

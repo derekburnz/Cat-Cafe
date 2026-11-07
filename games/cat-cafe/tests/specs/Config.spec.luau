@@ -203,7 +203,7 @@ return function()
 		FavGiftIncomeMinutes = 30, -- #1947 (Set 10 Q3): minutes of income in the favourite gift
 		GiftIdleSeconds = 3, -- #1947: the card waits for this long of calm
 		KeepUpStepsBehind = 1, -- section 17 (v0.13.16, F86): an older Legendary or Mythical earns one area behind
-		DecorIndexHalfFish = 25, -- F54: a Decor Index page's decor5 prize
+		DecorIndexHalfFish = 15, -- F54: a Decor Index page's decor5 prize (#2237: was 25)
 		GoldLuckMax = 1.5, -- F54 (v0.10): the cap on summed Index gold luck
 		BaitSpeedMax = 0.5, -- F54 (v0.10): the cap on summed Index bait speed
 		-- codes (F65, section 11d, v0.10 circle and group codes)
@@ -266,7 +266,7 @@ return function()
 		CollectorRainbowMultiplier = 10,
 		RainbowAnimateMax = 10,
 		RainbowSpawnToastSeconds = 60,
-		FishFirstRainbowMultiplier = 5, -- F99 section 1: a first rainbow pays five first catches
+		FishFirstRainbowMultiplier = 3, -- F99 section 1: three first catches (#2237: was 5)
 		-- F102 (trading.md section 6)
 		TradeMinTier = 3,
 		TradeMaxCats = 9,
@@ -286,8 +286,8 @@ return function()
 		PicnicPotion = "tip_potion", -- Design-Agent 11-02: one 10 minute Money Potion a fill, not a 15 minute one
 		YardSaleClaimHours = 4, -- #1154
 		PondFishPerStep = 1, -- #1232: was 2
-		PondStepSeconds = 600, -- #1232: was 1800
-		PondHold = 36, -- #1232: was 24
+		PondStepSeconds = 900, -- #2237: was 600 (#1232: was 1800)
+		PondHold = 24, -- #2237: was 36
 		LostFoundEverySeconds = 7200, -- #1732: a find every 2 h, was one a UTC day
 		LostFoundHold = 3,
 		CampExtraRangeStuds = 8,
@@ -498,17 +498,17 @@ return function()
 		it("golden fish by rarity and rank (F52, golden-fish.md section 2)", function()
 			expect(Config.FishFirstCatch :: any).to.deepEqual({
 				Common = 1,
-				Rare = 3,
-				Epic = 8,
-				Legendary = 20,
-				Mythical = 40,
-			})
+				Rare = 2,
+				Epic = 5,
+				Legendary = 12,
+				Mythical = 25,
+			}) -- #2237
 			expect(Config.FishRepeatCatch :: any).to.deepEqual({
 				Epic = 1,
-				Legendary = 3,
-				Mythical = 8,
+				Legendary = 2,
+				Mythical = 5,
 			})
-			expect(Config.FishRankUp :: any).to.deepEqual({ 10, 25, 50, 100 })
+			expect(Config.FishRankUp :: any).to.deepEqual({ 5, 15, 30, 60 })
 		end)
 
 		it(

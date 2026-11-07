@@ -594,10 +594,11 @@ local Config = {
 	-- Golden fish (F52, golden-fish.md sections 1 and 2): the rare currency, earned only, never sold or given for
 	-- Robux. Pure rules in GoldenFish.
 	-- a cat new to the Index, any way it was found; its first gold pays twice this
-	FishFirstCatch = { Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 40 } :: { [string]: number },
+	-- #2237 (Derek2 2026-11-07: "decrease the amount of gold fish received"): every free source about 60%, the Index half
+	FishFirstCatch = { Common = 1, Rare = 2, Epic = 5, Legendary = 12, Mythical = 25 } :: { [string]: number }, -- was 1/3/8/20/40
 	-- a cat already in the Index, by net or rescue (never bait, so food bought with coins never turns into fish)
-	FishRepeatCatch = { Epic = 1, Legendary = 3, Mythical = 8 } :: { [string]: number },
-	FishRankUp = { 10, 25, 50, 100 } :: { number }, -- reaching Tier 2, 3, 4 and 5
+	FishRepeatCatch = { Epic = 1, Legendary = 2, Mythical = 5 } :: { [string]: number }, -- #2237: was 1/3/8
+	FishRankUp = { 5, 15, 30, 60 } :: { number }, -- reaching Tier 2, 3, 4 and 5 (#2237: was 10/25/50/100)
 	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds
 
 	-- Cafe Crates and the Golden Fish Market (F53, golden-fish.md sections 3 and 4). Pure rules in Crates.
@@ -635,7 +636,7 @@ local Config = {
 	-- Reset my save for testers (ResetSaveService): once the game is group-owned, this group rank and up may use it
 	ResetSaveGroupRank = 254,
 	DecorIndexBonus = 0.05, -- every tip forever: a Decor Index page's decor10 prize (all twelve pieces since F80, F54)
-	DecorIndexHalfFish = 25, -- golden fish: a Decor Index page's decor5 prize (five of ten, F54)
+	DecorIndexHalfFish = 15, -- #2237: was 25; golden fish: a Decor Index page's decor5 prize (five of ten, F54)
 	GoldenEspressoBonus = 0.05, -- every tip, per Golden Espresso level
 
 	-- Index rewards (F54, golden-fish.md sections 5 and 5b): the permanent bonuses the gold and All Cats tracks add
@@ -659,9 +660,9 @@ local Config = {
 	CollectorRainbowMultiplier = 10,
 	RainbowAnimateMax = 10,
 	RainbowSpawnToastSeconds = 60,
-	-- golden fish for each cat's first rainbow coat: this times the rarity's FishFirstCatch (Common 5 to Mythical
-	-- 200), any way it was found, on top of a new cat's fish (section 1, added after the #795 review)
-	FishFirstRainbowMultiplier = 5,
+	-- golden fish for each cat's first rainbow coat: this times the rarity's FishFirstCatch (Common 3 to Mythical
+	-- 75 since #2237), any way it was found, on top of a new cat's fish (section 1, added after the #795 review)
+	FishFirstRainbowMultiplier = 3, -- #2237: was 5
 
 	-- Trading (F102, trading.md section 6; Derek 2026-10-30: from Tier 3, secure, nothing to scam). Up to TradeMaxCats
 	-- cats (and since #1574 TradeMaxDecor pieces) a side, both players at TradeMinTier or higher (CatCafeDebug
@@ -699,12 +700,12 @@ local Config = {
 	PicnicPotion = "tip_potion",
 	YardSaleClaimHours = 4,
 	PondFishPerStep = 1,
-	PondStepSeconds = 600,
-	PondHold = 36,
+	PondStepSeconds = 900, -- #2237: 4 an hour, was 600
+	PondHold = 24, -- #2237: still 6 hours' worth, was 36
 	LostFoundEverySeconds = 7200,
 	LostFoundHold = 3,
 	LostFoundTable = {
-		{ chance = 0.30, fish = 40 },
+		{ chance = 0.30, fish = 25 }, -- #2237: was 40
 		{ chance = 0.22, potions = { lucky_potion = 1, gold_rush_potion = 1 } },
 		{ chance = 0.15, spins = 2 },
 		{ chance = 0.18, crate = "sewer_crate" },

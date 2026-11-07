@@ -176,10 +176,32 @@ return function()
 					)
 				)
 				expect(owned.passes.value).to.equal("+60%")
-				expect(owned.outfits.value).to.equal("x1.32")
+				-- #2147: each outfit pass by name, "+15%", in place of "Outfit passes x1.32"
+				expect(owned.outfits).to.equal(nil)
+				expect(owned.outfit_accessories.name).to.equal("Cat Accessories")
+				expect(owned.outfit_accessories.value).to.equal("+15%")
+				expect(owned.outfit_uniforms.name).to.equal("Uniform Styles")
+				expect(owned.outfit_uniforms.value).to.equal("+15%")
 				expect(owned.moneyPass.value).to.equal("x2")
 				expect(owned.total.amount).to.be.near(1.6 * 1.3225 * 2, 1e-9)
 			end
 		)
+
+		it("names the one outfit pass owned, and keeps one row when it can't tell which (#2147)", function()
+			local boosts = { passBoosts = { cafe = 0, staff = 1.15, rich = 1, money = 1 } }
+			local uniforms = byKey(BoostList.rows(Catalog, state(boosts), NOW, nil, { uniforms = true }))
+			expect(uniforms.outfit_uniforms.value).to.equal("+15%")
+			expect(uniforms.outfit_accessories).to.equal(nil)
+			expect(uniforms.total.amount).to.be.near(1.15, 1e-9)
+			-- ownership not in yet: the combined row, so the total never counts a pass twice
+			local unknown = byKey(BoostList.rows(Catalog, state(boosts), NOW))
+			expect(unknown.outfits.value).to.equal("x1.15")
+			expect(unknown.outfit_uniforms).to.equal(nil)
+			-- Roblox's answer and the server's disagree (both said owned, staff 1.15): the combined row
+			local odd = byKey(
+				BoostList.rows(Catalog, state(boosts), NOW, nil, { accessories = true, uniforms = true })
+			)
+			expect(odd.outfits.value).to.equal("x1.15")
+		end)
 	end)
 end

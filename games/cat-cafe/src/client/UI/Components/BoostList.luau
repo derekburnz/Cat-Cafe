@@ -10,7 +10,10 @@
 --   Index rewards         +6%     the claimed milestones' money forever (IndexRewards.totals)
 --   VIP and cafe passes   +60%    #1624: what VIP, Cafe Style and Grand Cafe add (PlayerState.passBoosts.cafe)
 --   Cafe tier 3           x1.5    the tier's multiplier
---   Outfit passes         x1.15   #1624: Cat Accessories and Uniform Styles on every working cat (passBoosts.staff)
+--   Cat Accessories       +15%    #2147: each outfit pass by name (store-pass-looks.md 7), times every working cat,
+--   Uniform Styles        +15%    with its 🎀 / 👕 (HUD's BOOST_GLYPH); from passBoosts.staff and `outfits` (which
+--                                 of the two Roblox says are owned).
+--                                 "Outfit passes x1.15" (#1624) when the split can't be told
 --   Money pass            x2      the Money pass (passBoosts.money)
 --   Money Potion          +25%    each running potion with `tips`, all together at most Config.TimedTipsMax
 --   Pals (2)              +15%    F92: shared Pals.bonus while pals are on the server (only then, so a solo player
@@ -19,7 +22,8 @@
 --                                 the server's Economy.incomePerSecond multiplies them
 -- A source at 0 stays on the list in grey ("+0%"), so a player sees what else could lift it. The passes are the
 -- exception: their rows show only once owned, so the money card never advertises a Robux purchase.
---   rows(catalog, state, now, pals?) -> { Row }   `pals`: how many pals PalsChanged last named
+--   rows(catalog, state, now, pals?, outfits?) -> { Row }   `pals`: how many pals PalsChanged last named;
+--                                 `outfits`: { accessories, uniforms } owned, from PassShop (#2147)
 --   percent(0.25) -> "+25%", times(1.5) -> "x1.5"
 -- Pure, so the cloud spec runner checks it.
 
@@ -127,11 +131,52 @@ local function add(rows: { Row }, key: string, name: string, fraction: number)
 	})
 end
 
+-- #2147: the two outfit passes, each its own row, in the store's order.
+export type Outfits = { accessories: boolean?, uniforms: boolean? }
+local OUTFITS = {
+	{
+		key = "accessories",
+		name = "Cat Accessories",
+		multiplier = Config.AccessoriesStaffMultiplier or 1.15,
+	},
+	{
+		key = "uniforms",
+		name = "Uniform Styles",
+		multiplier = Config.UniformsStaffMultiplier or 1.15,
+	},
+}
+
+-- The outfit passes behind `staff`: the owned ones when `outfits` says and they multiply to it, else both when
+-- staff is the two together; nil when the split can't be told (the one combined row then).
+local function outfitSplit(staff: number, outfits: Outfits?): { typeof(OUTFITS[1]) }?
+	local function matches(list: { typeof(OUTFITS[1]) }): boolean
+		local product = 1
+		for _, each in list do
+			product *= each.multiplier
+		end
+		return #list > 0 and math.abs(product - staff) < 1e-3
+	end
+	if outfits ~= nil then
+		local owned = {}
+		for _, each in OUTFITS do
+			if (outfits :: any)[each.key] == true then
+				table.insert(owned, each)
+			end
+		end
+		if matches(owned) then
+			return owned
+		end
+	end
+	local both = { OUTFITS[1], OUTFITS[2] }
+	return if matches(both) then both else nil
+end
+
 function BoostList.rows(
 	catalog: Types.Catalog?,
 	state: Types.PlayerState,
 	now: number,
-	pals: number?
+	pals: number?,
+	outfits: Outfits?
 ): { Row }
 	local rows: { Row } = {}
 	local tables = level(catalog, state, "tables")
@@ -190,7 +235,22 @@ function BoostList.rows(
 		then boosts.staff
 		else 1
 	if staff > 1 then
-		times("outfits", "Outfit passes", staff)
+		local split = outfitSplit(staff, outfits)
+		if split then
+			-- #2147 (Derek2: "make the +15% earned more obvious"): one row a pass, read as "+15%"
+			for _, each in split do
+				table.insert(rows, {
+					key = "outfit_" .. each.key,
+					name = each.name,
+					value = BoostList.percent(each.multiplier - 1),
+					amount = each.multiplier,
+					kind = "times" :: Kind,
+					active = true,
+				})
+			end
+		else
+			times("outfits", "Outfit passes", staff)
+		end
 	end
 	local moneyPass: number = if type(boosts) == "table" and type(boosts.money) == "number"
 		then boosts.money

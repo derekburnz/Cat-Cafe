@@ -26,6 +26,7 @@ export type Row = {
 	multiplier: number?, -- the money card's rung (2, 3, 4), for its picture (ShopIcons.store)
 	-- #1822: the ids of what the bundle holds that is also sold alone (passes and products), for its "Worth" line
 	worthIds: { number }?,
+	perk: string?, -- #2147: a gold chip over the words, "+15% money" (the two outfit passes)
 	closed: boolean?, -- #2129: not offered right now (the Cafe Pass in the last minutes of a season)
 }
 
@@ -79,6 +80,7 @@ export type PassCard = {
 	effect: string,
 	note: string?,
 	tab: string?, -- default "passes"
+	perk: string?, -- #2147 (store-pass-looks.md 7): the card's gold chip
 }
 local PASSES: { PassCard } = {
 	{
@@ -93,7 +95,9 @@ local PASSES: { PassCard } = {
 		configKey = "CatAccessoriesPassId",
 		name = "Cat Accessories",
 		icon = "🎀",
-		effect = "Dress your cats: a dressed cat earns +15%.",
+		-- #2147: the words Derek2 approved 2026-11-07 (store-pass-looks.md 7)
+		effect = "Dress your cats in bows, glasses and more. A dressed cat earns +15%. Yours to keep.",
+		perk = "+15% money",
 	},
 	{
 		key = "uniforms",
@@ -101,6 +105,7 @@ local PASSES: { PassCard } = {
 		name = "Uniform Styles",
 		icon = "👕",
 		effect = "New uniform styles for every job: +15% money.",
+		perk = "+15% money",
 	},
 	{
 		key = "extraSlot",
@@ -186,6 +191,11 @@ local PASSES: { PassCard } = {
 	},
 }
 StoreLogic.PASSES = PASSES
+-- #2147 (store-pass-looks.md 7.3): the toast right after an outfit pass is bought, with its pass's symbol
+StoreLogic.OUTFIT_THANKS = "Your working cats now earn +15%!"
+function StoreLogic.outfitThanks(which: string): string
+	return (if which == "uniforms" then "👕 " else "🎀 ") .. StoreLogic.OUTFIT_THANKS
+end
 
 -- The potion packs (#1182, store-skus.md section 1; Gameplay-Engineer's #1207): developer products, bought each time.
 -- Each reads its id from Config.ProductIds[productKey] (0 while not made: hidden) and its exact contents from
@@ -727,6 +737,7 @@ function StoreLogic.rows(
 				effect = if card.note then card.effect .. "\n" .. card.note else card.effect,
 				owned = owned[id] == true,
 				tab = card.tab or "passes",
+				perk = card.perk,
 				worthIds = if card.key == "kingPack" then kingWorth(config) else nil,
 			})
 		end

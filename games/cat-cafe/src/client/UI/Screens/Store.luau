@@ -92,6 +92,8 @@ local TILE = 52
 local GLYPH_PAD = 0.18 -- the emoji's inset top and bottom in its tile
 local PICTURE_SCALE = 1.4 -- #1738: a picture over its whole tile, past its clear margin (art about 85% of the tile)
 local EFFECT_MIN = 48 -- three small lines at least
+local PERK_H = 20 -- #2147: the gold "+15% money" chip over a card's words
+local PERK_BROWN = Color3.fromHex("4A2E12") -- dark words on gold, as the Pity cat tag
 local EFFECT_MIN_TEXT = 12 -- a card's contents shrink no smaller than this (9 px on a phone) to fit
 local CELL_MAX = 230 -- a grid card no taller than this, however tall the window
 local GRID_COLUMNS = 3
@@ -453,9 +455,36 @@ function Store._makeCard(
 		"UIPadding",
 		{ PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8), Parent = badge }
 	)
+	-- #2147 (store-pass-looks.md 7): a gold chip leading the words, "+15% money" on the two outfit passes
+	local perk = text({
+		Name = "Perk",
+		Size = UDim2.fromOffset(0, PERK_H),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundTransparency = 0,
+		BackgroundColor3 = Theme.colors.gold,
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PERK_BROWN,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextTruncate = Enum.TextTruncate.None,
+		Visible = false,
+		Parent = card,
+	})
+	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = perk })
+	Create("UIStroke", {
+		Color = Theme.colors.goldDark,
+		Thickness = 1.5,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Parent = perk,
+	})
+	Create(
+		"UIPadding",
+		{ PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8), Parent = perk }
+	)
 	local entry: any = {
 		frame = card,
 		look = look,
+		perk = perk,
 		tile = tile,
 		glyph = glyph,
 		name = name,
@@ -510,15 +539,19 @@ function Store._place(self: any, entry: any)
 		local top = math.floor((height - wordsH) / 2)
 		entry.name.Position = UDim2.fromOffset(left, top)
 		entry.name.Size = UDim2.new(1, -(left + right), 0, nameH)
-		entry.effect.Position = UDim2.fromOffset(left, top + nameH + 6)
-		entry.effect.Size = UDim2.new(1, -(left + right), 0, math.max(wordsH - nameH - 6, 0))
+		entry.perk.Position = UDim2.fromOffset(left, top + nameH + 6)
+		local lift = if entry.perk.Visible then PERK_H + 4 else 0 -- #2147: the chip leads the words
+		entry.effect.Position = UDim2.fromOffset(left, top + nameH + 6 + lift)
+		entry.effect.Size = UDim2.new(1, -(left + right), 0, math.max(wordsH - nameH - 6 - lift, 0))
 	else
 		local left = CARD_PAD + TILE + 8
 		entry.name.Position = UDim2.fromOffset(left, CARD_PAD)
 		entry.name.Size = UDim2.new(1, -(left + CARD_PAD), 0, TILE)
 		local top = CARD_PAD + TILE + 6
-		entry.effect.Position = UDim2.fromOffset(CARD_PAD, top)
-		entry.effect.Size = UDim2.new(1, -2 * CARD_PAD, 1, -(top + 6 + action + CARD_PAD))
+		entry.perk.Position = UDim2.fromOffset(CARD_PAD, top)
+		local lift = if entry.perk.Visible then PERK_H + 4 else 0 -- #2147: the chip leads the words
+		entry.effect.Position = UDim2.fromOffset(CARD_PAD, top + lift)
+		entry.effect.Size = UDim2.new(1, -2 * CARD_PAD, 1, -(top + lift + 6 + action + CARD_PAD))
 	end
 end
 
@@ -538,6 +571,14 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 	-- #1822: a bundle adds its "Worth R$X bought apart" line once every part's price is in
 	local worth = StoreLogic.worthLine(row, self._prices, self._ownedIds)
 	entry.effect.Text = if worth then row.effect .. "\n" .. worth else row.effect
+	-- #2147: the gold chip, placed before the words are fitted under it
+	local perkText = row.perk or ""
+	local perkShown = perkText ~= "" and not entry.compact
+	if entry.perk.Text ~= perkText or entry.perk.Visible ~= perkShown then
+		entry.perk.Text = perkText
+		entry.perk.Visible = perkShown
+		self:_place(entry)
+	end
 	fitText(entry.effect, entry.effectMax)
 	-- the money card's rung is part of its picture (2x, 3x and 4x each have one)
 	local art = row.key .. (if row.multiplier then tostring(row.multiplier) else "")
@@ -613,6 +654,9 @@ function Store._layout(self: any)
 		if entry then
 			entry.frame.Size = UDim2.new(0, pickW, 1, 0)
 			entry.effect.Visible = not compact
+			entry.compact = compact -- #2147: no room for the perk chip either
+			entry.perk.Visible = not compact and entry.perk.Text ~= ""
+			self:_place(entry)
 		end
 	end
 	local hero = self._cards.hero

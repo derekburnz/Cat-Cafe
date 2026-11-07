@@ -10,7 +10,8 @@
     { "name": "tools", "color": "c2e0c6", "description": "CI, publishing, Open Cloud, Roblox settings, the repo itself (.github, tools/opencloud)" },
     { "name": "qa", "color": "d4c5f9", "description": "Test plans and playtest walk-throughs (docs/playtests)" },
     { "name": "design", "color": "0052cc", "description": "Specs and the GDD (docs/design)" },
-    { "name": "needs-derek", "color": "d93f0b", "description": "Waits on Derek: an OK, his PC or a Roblox account step" }
+    { "name": "needs-derek", "color": "d93f0b", "description": "Waits on Derek: an OK, his PC or a Roblox account step" },
+    { "name": "on-hold", "color": "bfbfbf", "description": "Parked by Derek; not being worked" }
   ],
   "milestones": [
     { "title": "playtest 2026-11-03", "description": "Every request open at the 2026-11-03 handover, filed as an issue so either project can pick it up" }

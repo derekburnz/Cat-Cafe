@@ -17,8 +17,8 @@
 --   PrizeChips.perkColor(perk)   the pill's colour
 --   PrizeChips.passOpen   #1646: true while a Cafe Pass season runs (UI.pass); a quest's passXp shows as a
 --                         "+100 pass XP" pill only then, since the server adds none while the pass is closed
---   PrizeChips.paintPerk(label, perk)   colours a reused bonus label for its perk: the rainbow bands with dark words
---                                       for rainbow luck, else perkColor with white outlined words
+--   PrizeChips.paintPerk(label, perk)   colours a reused bonus label for its perk: perkColor with readable words
+--                                       (perkTextColor), rainbow luck a violet chip with the bands on its edge (#2270)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -328,24 +328,38 @@ function PrizeChips.perkColor(perk: string?): Color3
 	return Theme.colors.gold
 end
 
--- A bonus label in its perk's look. Rainbow luck gets the bands on its fill and dark words (the bands tint the words
--- too, so white ones would vanish), with the words' outline off; any other perk its colour and white outlined words.
--- A label can switch back and forth, as the reward strip's band does.
+-- The words' colour on a perk's fill (#2270, Derek2: "the bold text on index rewards is hard to read"): dark words
+-- without an outline on the light gold, gold luck and sky fills (9.1, 5.7 and 6.7 to 1), white outlined words on
+-- the darker ones (rainbow luck's violet 6.3, the pass's orange 4.6).
+function PrizeChips.perkTextColor(perk: string?): Color3?
+	if perk == "goldLuck" or perk == nil or perk == "bonus" then
+		return Theme.colors.goldText
+	elseif perk == "baitSpeed" then
+		return Theme.colors.skyText
+	end
+	return nil -- white with its outline
+end
+
+-- A bonus label in its perk's look: its colour and readable words (perkTextColor), and for rainbow luck a violet
+-- chip with the turning bands on its edge only (Rainbow.chip; bands on the fill tinted the words, #2270). A label
+-- can switch back and forth, as the reward strip's band does.
 function PrizeChips.paintPerk(label: TextLabel, perk: string?)
 	local rainbow = perk == "rainbowLuck"
-	local gradient = label:FindFirstChild("Rainbow")
-	if rainbow and gradient == nil then
-		Rainbow.fill(label)
-	elseif gradient and gradient:IsA("UIGradient") then
-		(gradient :: UIGradient).Enabled = rainbow
+	local fill = label:FindFirstChild("Rainbow")
+	if fill and fill:IsA("UIGradient") then
+		(fill :: UIGradient).Enabled = false -- an older label's bands on its fill
 	end
-	label.BackgroundColor3 = if rainbow then Theme.colors.white else PrizeChips.perkColor(perk)
-	label.TextColor3 = if rainbow then Theme.colors.ink else Theme.colors.white
+	Rainbow.chip(label, rainbow)
+	local dark = if rainbow then nil else PrizeChips.perkTextColor(perk)
+	if not rainbow then
+		label.BackgroundColor3 = PrizeChips.perkColor(perk)
+	end
+	label.TextColor3 = dark or Theme.colors.white
 	for _, child in label:GetChildren() do
 		if child:IsA("UIStroke") then
 			local stroke = child :: UIStroke
 			if stroke.ApplyStrokeMode == Enum.ApplyStrokeMode.Contextual then
-				stroke.Enabled = not rainbow
+				stroke.Enabled = dark == nil
 			end
 		end
 	end

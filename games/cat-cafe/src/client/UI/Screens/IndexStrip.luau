@@ -77,15 +77,15 @@ end
 
 -- A card's bar and NEXT sticker in its track's colours: mint and green, gold on the gold track, the turning rainbow
 -- bands on the Rainbow track (made the first time a card shows a rainbow milestone, then switched with Enabled).
+-- #2270 (Derek2: the bold text is hard to read): the sticker's words stay white and outlined on deep green, or dark
+-- on gold, and on the Rainbow track the bands go on its edge only (Rainbow.chip), never under the words.
 local function paintTrack(card: any, track: IndexRewards.Track)
 	local rainbow = track == "rainbow"
 	if rainbow and card.fillBands == nil then
 		card.fillBands = Rainbow.fill(card.fill)
-		card.stickerBands = Rainbow.fill(card.sticker)
 	end
 	if card.fillBands then
 		card.fillBands.Enabled = rainbow
-		card.stickerBands.Enabled = rainbow
 	end
 	card.gold = track == "gold"
 	card.rainbow = rainbow
@@ -93,11 +93,14 @@ local function paintTrack(card: any, track: IndexRewards.Track)
 		then Theme.colors.white
 		elseif card.gold then Theme.colors.gold
 		else Theme.colors.mint
-	card.sticker.BackgroundColor3 = if rainbow
-		then Theme.colors.white
-		elseif card.gold then Theme.colors.gold
-		else Theme.colors.good
-	card.sticker.TextColor3 = if rainbow then Theme.colors.ink else Theme.colors.white
+	Rainbow.chip(card.sticker, rainbow)
+	if not rainbow then
+		card.sticker.BackgroundColor3 = if card.gold
+			then Theme.colors.gold
+			else Theme.colors.goodDark
+		card.sticker.TextColor3 = if card.gold then Theme.colors.goldText else Theme.colors.white
+	end
+	card.stickerOutline.Enabled = not card.gold
 end
 
 function IndexStrip.new(parent: Instance, callbacks: Callbacks): IndexStrip
@@ -370,7 +373,7 @@ function IndexStrip._buildCard(self: any, parent: Instance, big: boolean, order:
 	-- the card to work toward next: a sticker over its top edge, gold on the gold track
 	local sticker: TextLabel = Create("TextLabel", {
 		Name = "NextSticker",
-		BackgroundColor3 = Theme.colors.good,
+		BackgroundColor3 = Theme.colors.goodDark, -- #2270: white words at 4.95:1 (good was 3:1)
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, -10, 0, 0),
@@ -385,7 +388,7 @@ function IndexStrip._buildCard(self: any, parent: Instance, big: boolean, order:
 		Parent = frame,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
 	Outline.border(sticker, 2)
-	Outline.text(sticker, 1.5)
+	local stickerOutline = Outline.text(sticker, 1.5)
 	local card: any = {
 		frame = frame,
 		stroke = stroke,
@@ -394,13 +397,13 @@ function IndexStrip._buildCard(self: any, parent: Instance, big: boolean, order:
 		count = count,
 		band = band,
 		sticker = sticker,
+		stickerOutline = stickerOutline,
 		track = track,
 		fill = fill,
 		done = done,
 		gold = false,
 		rainbow = false,
 		fillBands = nil :: UIGradient?,
-		stickerBands = nil :: UIGradient?,
 		big = big,
 		milestoneId = nil :: string?,
 	}

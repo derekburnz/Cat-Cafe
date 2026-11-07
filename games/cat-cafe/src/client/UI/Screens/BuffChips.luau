@@ -9,6 +9,10 @@
 -- `frame` is the row over the money and golden fish counters in the bottom left (beside the menu's arrow tab on a
 -- phone) that holds the HUD's Luck chip (F88, Screens/LuckChip) and pal chip (F92, Screens/PalChip); setLead keeps it
 -- up while either shows, under its own key.
+-- #2090 (Derek2 11-07: "add an arrow to hide potion effects as if you drink a lot it's a lot of screen clutter"):
+-- with two or more potions running, an arrow tab sits at the row's left end. A tap folds the chips away into one
+-- compact chip (the bottle and how many run, "x5"), and a tap on that brings them back. The choice holds until it is
+-- tapped again (also across a rebuilt HUD); BuffChips.fold(count, folded) says what shows.
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -29,6 +33,7 @@ export type BuffChips = {
 	render: (self: BuffChips, state: Types.PlayerState) -> (),
 	place: (self: BuffChips, position: UDim2, anchor: Vector2) -> (),
 	setLead: (self: BuffChips, shown: boolean, key: string?) -> (), -- key "luck" (the default) or "pals"
+	setFolded: (self: BuffChips, folded: boolean) -> (), -- #2090
 	destroy: (self: BuffChips) -> (),
 }
 
@@ -40,10 +45,32 @@ local CHIP_BOTTLE = 36
 local CHIP_TEXT = 16
 local CHIP_GAP = 8
 
+local TAB_W = 36 -- #2090: the arrow tab at the row's left end (full chip height; wider on touch, Scale.tapHeight)
+local FOLDED_W = 58 -- the folded chip: the bottle over "x5"
+local FOLD_FROM = 2 -- running potions before the arrow shows
+
 type Chip = { frame: TextButton, time: TextLabel }
 
 local BuffChips = {}
 BuffChips.__index = BuffChips
+
+-- the fold holds across a rebuilt HUD (a respawn rebuilds nothing, but a reset of the UI does)
+local foldedNow = false
+
+-- #2090: what the potion row shows for `count` running potions: the chips, the arrow tab (two or more, or folded
+-- with any), and the folded chip in place of the chips.
+function BuffChips.fold(
+	count: number,
+	folded: boolean
+): { chips: boolean, tab: boolean, folded: boolean }
+	if count <= 0 then
+		return { chips = false, tab = false, folded = false }
+	end
+	if folded then
+		return { chips = false, tab = false, folded = true }
+	end
+	return { chips = true, tab = count >= FOLD_FROM, folded = false }
+end
 
 -- How tall the Luck and pal row is, so the HUD keeps that much free over the counters.
 function BuffChips.rowHeight(): number
@@ -64,6 +91,7 @@ function BuffChips.new(parent: Instance, x: number, onOpen: () -> ()): BuffChips
 	self._clock = 0
 	self._onOpen = onOpen
 	self._leads = {} :: { [string]: boolean } -- F88: the Luck chip at the row's start; F92: the pal chip at its end
+	self._folded = foldedNow
 
 	self.frame = Create("Frame", {
 		Name = "Potions",
@@ -98,7 +126,88 @@ function BuffChips.new(parent: Instance, x: number, onOpen: () -> ()): BuffChips
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	-- #2090: the arrow tab (LayoutOrder 0, the row's left end) and the folded chip (in the chips' place)
+	local tab: TextButton = Create("TextButton", {
+		Name = "Fold",
+		Text = "▶",
+		FontFace = Theme.fonts.display,
+		TextSize = 18,
+		TextColor3 = Theme.colors.white,
+		AutoButtonColor = false,
+		BackgroundColor3 = Theme.colors.outline,
+		BackgroundTransparency = 0.18,
+		BorderSizePixel = 0,
+		Size = UDim2.fromOffset(Scale.tapHeight(TAB_W), CHIP_H),
+		LayoutOrder = 0,
+		Visible = false,
+		Parent = self.potions,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, 12) }) })
+	Outline.border(tab, 3)
+	tab.Activated:Connect(function()
+		self:setFolded(true)
+	end)
+	self._tab = tab
+	local folded: TextButton = Create("TextButton", {
+		Name = "Folded",
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundColor3 = Theme.colors.outline,
+		BackgroundTransparency = 0.18,
+		BorderSizePixel = 0,
+		Size = UDim2.fromOffset(FOLDED_W, CHIP_H),
+		LayoutOrder = 1000,
+		Visible = false,
+		Parent = self.potions,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, 14) }) })
+	Outline.border(folded, 3)
+	Create("TextLabel", {
+		Name = "Arrow",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(4, 2),
+		Size = UDim2.fromOffset(14, 16),
+		FontFace = Theme.fonts.display,
+		TextSize = 12,
+		TextColor3 = Theme.colors.white,
+		Text = "◀",
+		Parent = folded,
+	})
+	Create("TextLabel", {
+		Name = "Bottle",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 3),
+		Size = UDim2.fromOffset(CHIP_BOTTLE, CHIP_BOTTLE),
+		FontFace = Theme.fonts.body,
+		TextSize = 24,
+		Text = Theme.icons.potion,
+		Parent = folded,
+	})
+	local count: TextLabel = Create("TextLabel", {
+		Name = "Count",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -3),
+		Size = UDim2.new(1, -4, 0, CHIP_TEXT + 4),
+		FontFace = Theme.fonts.display,
+		TextSize = CHIP_TEXT,
+		TextColor3 = Theme.colors.white,
+		Text = "",
+		Parent = folded,
+	})
+	Outline.text(count, 2)
+	folded.Activated:Connect(function()
+		self:setFolded(false)
+	end)
+	self._foldedChip = folded
+	self._count = count
 	return self :: BuffChips
+end
+
+-- #2090: fold the running potions into one chip, or bring them back.
+function BuffChips.setFolded(self: any, folded: boolean)
+	self._folded = folded
+	foldedNow = folded
+	self:_draw()
 end
 
 function BuffChips.setCatalog(self: any, catalog: Types.Catalog)
@@ -184,6 +293,18 @@ function BuffChips._draw(self: any)
 		chip.frame.LayoutOrder = order
 		chip.time.Text = PotionLogic.clock(row.secondsLeft)
 	end
+	local look = BuffChips.fold(#running, self._folded)
+	if #running == 0 and self._folded then
+		-- nothing left running: the next potion shows its chip again
+		self._folded = false
+		foldedNow = false
+	end
+	for _, chip in self._chips do
+		chip.frame.Visible = look.chips
+	end
+	self._tab.Visible = look.tab
+	self._foldedChip.Visible = look.folded
+	self._count.Text = "x" .. #running
 	for id, chip in self._chips do
 		if not shown[id] then
 			chip.frame:Destroy()

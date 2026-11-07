@@ -2375,6 +2375,36 @@ local SCENES = {
 		})
 		press("CatCafeHUD", "Counters.Money")
 	end },
+	-- #2090 (Derek2: "add an arrow to hide potion effects ... a lot of screen clutter"): four potions running, so the
+	-- row has the arrow tab; a tap folds them into one "x4" chip, a tap on that brings them back; the shot is folded
+	{ "HUDPotionsFold", function()
+		local t = workspace:GetServerTimeNow()
+		UI.update({
+			buffs = { tip_potion = t + 492, swift_potion = t + 130, lucky_potion = t + 492, steady_potion = t + 300 },
+		})
+		local timers = UIShim.playerGui:FindFirstChild("PotionTimers", true)
+		assert(timers and timers.Visible, "uigate: no potion timers row (#2090)")
+		local function chips()
+			local count = 0
+			for _, child in timers:GetChildren() do
+				if child:IsA("TextButton") and child.Name ~= "Fold" and child.Name ~= "Folded" and child.Visible then
+					count += 1
+				end
+			end
+			return count
+		end
+		local running = chips()
+		assert(running >= 2, "uigate: the scene needs two or more potions running (#2090)")
+		assert(timers.Fold.Visible, "uigate: no arrow tab with " .. running .. " potions running (#2090)")
+		press("CatCafeHUD", "PotionTimers.Fold")
+		assert(chips() == 0 and timers.Folded.Visible, "uigate: the arrow did not fold the potions away (#2090)")
+		assert(timers.Folded.Count.Text == "x" .. running, "uigate: the folded chip says " .. timers.Folded.Count.Text .. " (#2090)")
+		assert(not timers.Fold.Visible, "uigate: the arrow tab shows while folded (#2090)")
+		press("CatCafeHUD", "PotionTimers.Folded")
+		assert(chips() == running and not timers.Folded.Visible, "uigate: the folded chip did not bring the potions back (#2090)")
+		press("CatCafeHUD", "PotionTimers.Fold") -- folded for the shot
+		Scenes._potionsFolded = timers
+	end },
 	-- F88: a Lucky Day with a Lucky Potion running: the Luck chip with gold text at the start of the potion row, its card
 	-- open over the counters (closing the boosts card), and "Lucky Day now" under the clock
 	{ "HUDLuck", function()
@@ -3086,6 +3116,14 @@ end
 
 function Scenes.close()
 	reel(false)
+	if Scenes._potionsFolded then
+		-- #2090: the potions back out for the other scenes
+		local folded = Scenes._potionsFolded:FindFirstChild("Folded")
+		if folded and folded.Visible then
+			press("CatCafeHUD", "PotionTimers.Folded")
+		end
+		Scenes._potionsFolded = nil
+	end
 	if UI.recap.card and UI.recap.card:isShowing() then
 		UI.recap.card:hide() -- #1920
 	end

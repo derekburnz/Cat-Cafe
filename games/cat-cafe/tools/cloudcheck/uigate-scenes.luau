@@ -2357,6 +2357,19 @@ local SCENES = {
 	{ "HUDMoneyBadge", function()
 		UI.store.preview(storePrices(true), {})
 	end },
+	-- #1936 (release.md section 3): in the first 30 minutes of play the badge says a plain "x2", with no price and no
+	-- pulse; a tap still opens the Store
+	{ "HUDMoneyBadgeQuiet", function()
+		Scenes._quiet = true -- Scenes.close puts the play time back
+		UI.update({ playSeconds = 600 } :: any)
+		UI.store.preview(storePrices(true), {})
+		local badge = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("MoneyBadge", true)
+		assert(badge and badge.Visible, "uigate: the quiet money badge is hidden (#1936)")
+		local pill = badge:FindFirstChild("Pill") :: TextLabel
+		local price = badge:FindFirstChild("Price") :: TextLabel
+		assert(pill.Text == "x2", "uigate: the quiet money badge reads " .. tostring(pill.Text) .. " (#1936)")
+		assert(not price.Visible, "uigate: the quiet money badge shows a price (#1936)")
+	end },
 	{ "HUDMoneyBadgeOwned", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
 		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[3]] = true })
@@ -2718,6 +2731,10 @@ function Scenes.close()
 	reel(false)
 	if UI.recap.card and UI.recap.card:isShowing() then
 		UI.recap.card:hide() -- #1920
+	end
+	if Scenes._quiet then
+		Scenes._quiet = nil
+		UI.update({ playSeconds = false } :: any) -- #1936's quiet badge scene
 	end
 	if Scenes._fewCats then
 		Scenes._fewCats = nil

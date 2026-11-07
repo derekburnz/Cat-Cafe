@@ -12,21 +12,30 @@
 --   start(ids)       look up each pass; `changed` fires as answers arrive
 --   refresh()        look the prices up again (the Store opening, at most once a REFRESH_SECONDS), so a price or
 --                    on-sale change made in the Creator Hub shows without a rejoin
---   prompt(id)       Roblox's purchase window for a pass
+--   prompt(id, source?)   Roblox's purchase window for a pass, only right after a tap and never during a catch, a
+--                    rescue or a cutscene (#1936, Components/StoreGuard); a refused call fires `blocked`
+--   noteTap()        counts as a tap now (the UI gate's presses; real taps are heard from UserInputService)
 --   preview(prices, owned)   the UI gate's and a Studio preview's answers, in place of Roblox's
 --
 -- Roblox terms: a game pass is a one-time purchase Roblox keeps track of, so no saved receipt is needed.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 
 local Signal = require(script.Parent.Signal)
+local StoreGuard = require(script.Parent.StoreGuard)
 local StoreLogic = require(script.Parent.StoreLogic)
 
 local PassShop = {}
 
 PassShop.changed = Signal.new() -- prices or ownership changed
 PassShop.ownerGrant = Signal.new() -- (productId) #1770: owner test mode's grant in place of a purchase
+PassShop.blocked = Signal.new() -- (source, reason) #1936: a prompt refused, "no_tap" or "busy"
+-- #1936: set by UI.init, true during a catch, a rescue or a cutscene
+PassShop.busy = function(): boolean
+	return false
+end
 
 local prices: { [number]: StoreLogic.Price } = {}
 local products: { [number]: boolean } = {} -- developer product ids (#1182): priced as products, bought each time
@@ -38,6 +47,19 @@ local passIds: { number } = {}
 local productIdList: { number } = {}
 local lastLook = -math.huge -- os.clock() of the last price look-up
 local previewing = false -- preview() set the answers, so Roblox's own do not replace them
+local lastTap: number? = nil -- os.clock() of the last tap, click or gamepad press (#1936)
+local tapWatch: RBXScriptConnection? = nil
+
+-- What counts as a tap: a touch, a left click, the gamepad's A (which presses the selected button) or Enter.
+local TAP_INPUTS: { [Enum.UserInputType]: boolean } = {
+	[Enum.UserInputType.Touch] = true,
+	[Enum.UserInputType.MouseButton1] = true,
+}
+local TAP_KEYS: { [Enum.KeyCode]: boolean } = {
+	[Enum.KeyCode.ButtonA] = true,
+	[Enum.KeyCode.Return] = true,
+	[Enum.KeyCode.KeypadEnter] = true,
+}
 
 PassShop.REFRESH_SECONDS = 60
 
@@ -120,6 +142,12 @@ function PassShop.start(ids: { number }, productIds: { number }?)
 		return
 	end
 	started = true
+	-- #1936: GUI presses count too, so gameProcessed is not checked
+	tapWatch = UserInputService.InputBegan:Connect(function(input: InputObject)
+		if TAP_INPUTS[input.UserInputType] or TAP_KEYS[input.KeyCode] then
+			lastTap = os.clock()
+		end
+	end)
 	local service = market()
 	local player = Players.LocalPlayer
 	if service == nil or player == nil then
@@ -184,7 +212,23 @@ function PassShop.refresh()
 	end
 end
 
-function PassShop.prompt(id: number)
+function PassShop.noteTap()
+	lastTap = os.clock()
+end
+
+function PassShop.prompt(id: number, source: string?)
+	-- #1936: only a tap the player just made opens Roblox's window, and never over a catch, a rescue or a cutscene
+	local okBusy, busy = pcall(PassShop.busy)
+	local allowed, reason = StoreGuard.allow({
+		now = os.clock(),
+		lastTap = lastTap,
+		busy = okBusy and busy == true,
+	})
+	lastTap = nil -- one tap is one try
+	if not allowed then
+		PassShop.blocked:Fire(source or "store", reason or "no_tap")
+		return
+	end
 	local service = market()
 	local player = Players.LocalPlayer
 	if PassShop.ownerTest() then
@@ -245,6 +289,11 @@ function PassShop.stop()
 		ownerWatch:Disconnect()
 		ownerWatch = nil
 	end
+	if tapWatch then
+		tapWatch:Disconnect()
+		tapWatch = nil
+	end
+	lastTap = nil
 	table.clear(prices)
 	table.clear(owned)
 	table.clear(products)

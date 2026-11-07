@@ -56,6 +56,16 @@ return function()
 			expect(StoreLogic.moneyBadge(CONFIG, { [200] = true }, onSale).price).to.equal(nil)
 		end)
 
+		it("says a plain x2 with no price in the first 30 minutes, and owned stays owned (#1936)", function()
+			local badge = StoreLogic.moneyBadge(CONFIG, {}, onSale, nil, true)
+			expect(badge.text).to.equal("x2")
+			expect(badge.price).to.equal(nil)
+			expect(badge.quiet).to.equal(true)
+			expect(badge.owned).to.equal(false)
+			expect(StoreLogic.moneyBadge(CONFIG, { [300] = true }, onSale, nil, true).text).to.equal("3x")
+			expect(StoreLogic.moneyBadge(CONFIG, {}, {}, nil, true)).to.equal(nil)
+		end)
+
 		it(
 			"hides while the 2x pass is off sale or not priced yet, or with no money passes",
 			function()

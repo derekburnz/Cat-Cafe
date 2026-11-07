@@ -144,7 +144,10 @@ export type HUD = {
 	glowTutorial: (self: HUD) -> (),
 	pulseTutorial: (self: HUD) -> (),
 	setVisible: (self: HUD, visible: boolean) -> (),
-	setMoneyBadge: (self: HUD, badge: { text: string, owned: boolean, price: string? }?) -> (), -- #1606, #1759
+	setMoneyBadge: (
+		self: HUD,
+		badge: { text: string, owned: boolean, price: string?, quiet: boolean? }?
+	) -> (), -- #1606, #1759, #1936
 	-- F92: the pals on the server (PalsChanged), for the chip and the boosts card
 	setPals: (self: HUD, userIds: { number }) -> (),
 	-- F92: "Sam is in the Park" over the travel button to that area, glowing; nil text takes it away
@@ -3143,8 +3146,11 @@ function HUD._stopClock(self: any)
 end
 
 -- #1606: the money pass badge (StoreLogic.moneyBadge): "3x" in gold once owned, a berry "Get 2x" pill while not, or
--- hidden with nil.
-function HUD.setMoneyBadge(self: any, badge: { text: string, owned: boolean, price: string? }?)
+-- hidden with nil. #1936: a quiet badge (the first 30 minutes of play) has no price line and does not pulse.
+function HUD.setMoneyBadge(
+	self: any,
+	badge: { text: string, owned: boolean, price: string?, quiet: boolean? }?
+)
 	local button: TextButton = self._moneyBadge
 	button.Visible = badge ~= nil
 	if badge == nil then
@@ -3165,13 +3171,13 @@ function HUD.setMoneyBadge(self: any, badge: { text: string, owned: boolean, pri
 		rainbow.Enabled = sell
 	end
 	local price: TextLabel = self._moneyPrice
-	local line = if sell then badge.price else nil
+	local line = if sell and not badge.quiet then badge.price else nil
 	price.Visible = line ~= nil
 	if line ~= nil then
 		-- "Only" in green, the price in white, as in Derek2's reference
 		price.Text = (line:gsub("^Only", '<font color="#7CFC6A">Only</font>'))
 	end
-	self:_pulseMoneyBadge(sell)
+	self:_pulseMoneyBadge(sell and not badge.quiet)
 end
 
 -- #1759: the for-sale badge grows and shrinks a little, over and over; it holds still once owned or with Reduce

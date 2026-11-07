@@ -40,9 +40,15 @@ Run on the live build with a fresh account, 10 minutes each: load to first move,
 Who: Laptop-Tester and Device-Tester run what they have. What only Derek or a friend can do: the real low-end phone, an iPhone or iPad, a console. If those are missing, the Studio device emulator is the fallback, and the report must say it was emulated.
 
 ## 4. Load and memory check for a busy server
-Possible without real players:
-- A cloud-runner stress spec: spawn a full server's worth of profiles (players at the cafe cap, each with a full cafe and many cats) and time the server tick and the memory of the Luau state. Report the numbers; flag any growth over a 30-minute simulated hour. QA-Planner can write this spec in `tests/specs/` once Gameplay-Engineer confirms the player cap and the cat cap.
-- In Studio, with 8 to 12 test clients (Test tab, Local Server, N players): everyone catches and decorates for 10 minutes; read server memory and heartbeat in the Developer Console.
+Caps (Gameplay-Engineer, 2026-11-07): 8 players a server, one per cafe plot (`Config.World.PlotCount`; Creator Hub's max players should match). No hard cap on owned cats in a save; the check uses 500 cats a save plus every Index cat (65) in all three coats and all 103 decor pieces, at Tier 5 with every job slot filled. Live strays: at most `Config.StrayLiveMax` (16) in each of 5 areas, so 80 a server.
+
+Cloud-runner stress spec (PR #1953, runs in the normal test gate), results:
+- Heaviest save is about 99 KB as JSON, against DataStore's 4 MB a key.
+- One second of server work for 8 such players takes about 8 ms on average and 17 ms at worst.
+- No save grows over a simulated half hour.
+- The heap change is reported but not asserted, because Roblox's Luau cannot force a garbage collect.
+
+Still to do in Studio (needs a Studio session, not the cloud runner): 8 test clients (Test tab, Local Server) catching and decorating for 10 minutes, reading server memory and heartbeat in the Developer Console. Tools-Agent captures the performance marks.
 Not possible without real players: network lag, real DataStore throttling, and mixed devices. Soft launch is where those get seen, so watch `ClientErrors` and DataStore failures through stage 1.
 
 ## 5. What Derek has to do himself
@@ -52,6 +58,6 @@ Not possible without real players: network lag, real DataStore throttling, and m
 4. Check in Creator Hub whether limited access is available for stage 1, and switch on ads only after the go.
 
 ## 6. Open items
-- Gameplay-Engineer: player cap and cat cap (for the stress spec).
+- Stress spec merged or pending in #1953; paste the final numbers if they change.
 - Monetization-Agent: confirm the thresholds in section 2.
 - The soft-launch minimum (100 new players) may take longer than two days without ads; if so, Derek decides whether to run a small ad test.

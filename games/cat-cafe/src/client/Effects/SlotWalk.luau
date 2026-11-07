@@ -53,6 +53,9 @@ local AGENT = { AgentRadius = 0.8, AgentHeight = 2, AgentCanJump = false }
 local left: { [Instance]: { [string]: Left } } = {} -- per Cats folder: each Uid that just left it, and from where
 local walks: { [Model]: Walk } = {}
 local stepping: RBXScriptConnection? = nil
+-- where each cafe cat stands, read once its parts are here: by the time a removed model's ChildRemoved fires its
+-- parts may be gone, and an empty model's pivot is the world origin (Desktop-Tester 2026-11-07: a one-frame flash)
+local placed: { [Model]: CFrame } = setmetatable({}, { __mode = "k" }) :: any
 local started = false
 
 local function partsOf(model: Model): { BasePart }
@@ -135,7 +138,12 @@ end
 
 local function begin(model: Model, from: CFrame)
 	local s = Presets.slotWalk
-	if walks[model] ~= nil or Context.reducedMotion() or Context.isNight() then
+	if
+		walks[model] ~= nil
+		or model.Parent == nil
+		or Context.reducedMotion()
+		or Context.isNight()
+	then
 		return
 	end
 	if
@@ -174,10 +182,7 @@ local function begin(model: Model, from: CFrame)
 	local goal = Vector3.new(to.Position.X, floorY, to.Position.Z)
 	local look = Vector3.new(goal.X - start.X, 0, goal.Z - start.Z)
 	copy:PivotTo(
-		CFrame.lookAt(
-			from.Position,
-			from.Position + (if look.Magnitude > 1e-3 then look else from.LookVector)
-		)
+		CFrame.lookAt(start, start + (if look.Magnitude > 1e-3 then look else from.LookVector))
 	)
 	local shown = partsOf(copy)
 	for _, part in shown do
@@ -234,6 +239,18 @@ local function advance(walk: Walk, now: number, dt: number): boolean
 	else
 		position, heading = Logic.along(walk.route, walk.travelled)
 	end
+	if position ~= position then
+		return false -- not a number: never draw the copy anywhere but on its way
+	end
+	-- the new model stays hidden the whole way, parts that replicate after the walk began included, and whatever
+	-- else wrote its LocalTransparencyModifier (Desktop-Tester 2026-11-07: the cat at nap_4 showed beside its copy)
+	walk.hidden = partsOf(walk.model)
+	if walk.model:GetAttribute(SlotWalk.MARK) ~= true then
+		walk.model:SetAttribute(SlotWalk.MARK, true)
+	end
+	if walk.arrivedAt == nil then
+		setFade(walk.hidden, 1)
+	end
 	local flat = Vector3.new(heading.X, 0, heading.Z)
 	if flat.Magnitude > 1e-3 then
 		walk.yaw = Logic.turnToward(walk.yaw, Logic.yawOf(flat), math.rad(s.turn) * dt)
@@ -288,6 +305,30 @@ function SlotWalk.isWalking(model: Model): boolean
 	return walks[model] ~= nil
 end
 
+-- `go` once `model` has its parts here: a model can arrive before its descendants have replicated, and then it has
+-- nothing to hide and no place of its own to walk to yet (its pivot reads the world origin). Gives up after a second.
+local function whenBuilt(model: Model, go: () -> ())
+	if model:FindFirstChildWhichIsA("BasePart", true) ~= nil then
+		go()
+		return
+	end
+	local done = false
+	local added: RBXScriptConnection
+	added = model.DescendantAdded:Connect(function(descendant: Instance)
+		if not done and descendant:IsA("BasePart") then
+			done = true
+			added:Disconnect()
+			task.defer(go) -- the rest of the model lands in the same batch
+		end
+	end)
+	task.delay(1, function()
+		if not done then
+			done = true
+			added:Disconnect()
+		end
+	end)
+end
+
 local function watchCats(cats: Instance)
 	if left[cats] ~= nil then
 		return
@@ -303,11 +344,12 @@ local function watchCats(cats: Instance)
 		local walk = walks[model]
 		local from = if walk ~= nil
 			then CFrame.new((Logic.along(walk.route, walk.travelled))) -- still on its way: from where its copy is
-			else model:GetPivot()
+			else placed[model]
+		placed[model] = nil
 		if walk ~= nil then
 			finish(walk)
 		end
-		if type(uid) == "string" then
+		if type(uid) == "string" and from ~= nil then
 			recent[uid] = { from = from, at = os.clock() }
 		end
 	end)
@@ -318,14 +360,29 @@ local function watchCats(cats: Instance)
 		local model = child :: Model
 		local uid = model:GetAttribute("Uid")
 		local was = if type(uid) == "string" then recent[uid] else nil
-		if was == nil then
-			return
+		if was ~= nil then
+			recent[uid :: string] = nil
 		end
-		recent[uid :: string] = nil
-		if os.clock() - was.at <= Presets.slotWalk.window then
-			begin(model, was.from)
-		end
+		whenBuilt(model, function()
+			if model.Parent == nil then
+				return
+			end
+			placed[model] = model:GetPivot()
+			if was ~= nil and os.clock() - was.at <= Presets.slotWalk.window then
+				begin(model, was.from)
+			end
+		end)
 	end)
+	for _, child in cats:GetChildren() do
+		if child:IsA("Model") then
+			local model = child :: Model
+			whenBuilt(model, function()
+				if model.Parent ~= nil then
+					placed[model] = model:GetPivot()
+				end
+			end)
+		end
+	end
 	-- forget anything that left and never came back
 	task.spawn(function()
 		while cats.Parent ~= nil do

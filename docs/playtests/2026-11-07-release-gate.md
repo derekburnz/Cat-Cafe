@@ -1,22 +1,26 @@
-# Release gate: soft launch, device matrix, load check (#1935)
+# Release gate: launch stages, device matrix, load check (#1935)
 
-Author: QA-Planner, 2026-11-07. Release is planned for about 2026-11-10 to 2026-11-12 (Derek2, 2026-11-07). Derek decides the date and the final go or no-go. Nothing here changes game code or Config.
+Author: QA-Planner, 2026-11-07. Release days are not set yet (Derek2, Set 12 Q6); the plan counts from day 1. Derek decides the date and the final go or no-go. Nothing here changes game code or Config.
 
-## 0. Schedule (Design-Agent, release.md section 2, PR #1939)
-Freeze Mon 2026-11-09 18:00 UTC. Private check on 11-08 and 11-09 across the device matrix. Soft launch Tue 11-10. Go wide Thu 11-12 if the gate passes, otherwise Sat 11-14. The run report goes in `docs/playtests/2026-11-10-release-gate.md`.
-Design-Agent's performance marks (Tools-Agent captures them): phone load to first move 20 s or less, client memory under 1.2 GB, server 55 Hz or more with 8 players. Also from Design: median first session 10 minutes or more with 25% reaching 30 minutes, no error signature in more than 1% of sessions, owner tests on every pass passing.
+## 0. Schedule (release.md section 2 and the launch shape, Derek2 Set 12, 2026-11-07)
+Release days are not set yet (Derek2 picks them once the fixes he names land). Everything counts from **day 1, the first public day**. The freeze is 24 hours before day 1: only fixes merge. Any mark that fails gets an issue labelled `release-blocker`; the gate re-runs on just that item.
+- **Day 1, public:** friends test, no ads. The day 1 quick check below (tutorial completion, errors, purchases) must pass before ads start.
+- **Day 2 to day 8:** sponsored ads at US$10 to $15 a day. Read D1, session length, and phone against PC leave times (`session_end`, `new_player_left`, which log the device).
+- **Day 9:** Derek2 decides whether ads continue.
+The phone, tablet and console checks run in Studio's device emulator (Derek2's choice). Design-Agent's performance marks (Tools-Agent captures them): phone load to first move 20 s or less, client memory under 1.2 GB, server 55 Hz or more with 8 players. The run report goes in `docs/playtests/` on the freeze day.
 
 ## 1. Stages
 | Stage | Who sees it | How long | Moves on when |
 |---|---|---|---|
 | 0. Build gate | nobody | until green | `./check.sh` passes, CI green on main, a fresh-account run on the live build with no new console errors (checklist in `docs/playtests/`), device matrix (section 2) has no open blocker |
-| 1. Soft launch | friends, group members, a small ad test | 48 hours, or until 100 new players, whichever is later | the numbers in section 3 are read and meet the "go" column |
-| 2. Wide | public, ads on | after Derek's go | weekly ritual in `docs/growth/analytics-plan.md` |
+| 1. Day 1 public (friends) | friends and the group, no ads | 24 hours | the day 1 quick check passes: tutorial completion, errors, purchases |
+| 1b. Ad week | public plus sponsored ads, days 2 to 8 | 7 days | D1, session and phone leave times read; day 9 decision |
+| 2. After day 9 | public | on Derek's call | weekly ritual in `docs/growth/analytics-plan.md`; updates wait until the game is doing well |
 
-Soft launch means the experience is public but quiet: no ads, no store push, the group and friends only. If the Roblox limited-access setting is available for the experience, use it for stage 1 (Derek checks in Creator Hub).
+Day 1 is public but quiet: no ads, no store push, friends and the group only.
 
 ## 2. Numbers to read (stage 1)
-Read only after about 100 new players; below that, a number is noise and the stage just continues.
+Friends' play on day 1 is a small sample, so percents are a hint then; D1 and session are read properly from the ad players (days 2 to 8). Below about 100 new players a number is noise.
 | Number | Where | Go | Hold (fix first) |
 |---|---|---|---|
 | Tutorial completion (`onboarding_v4` reached the last intro step) | analytics funnel `onboarding_v4` | 80% or more | below 65% |
@@ -49,7 +53,7 @@ Cloud-runner stress spec (PR #1953, runs in the normal test gate), results:
 - The heap change is reported but not asserted, because Roblox's Luau cannot force a garbage collect.
 
 Still to do in Studio (needs a Studio session, not the cloud runner): 8 test clients (Test tab, Local Server) catching and decorating for 10 minutes, reading server memory and heartbeat in the Developer Console. Tools-Agent captures the performance marks.
-Not possible without real players: network lag, real DataStore throttling, and mixed devices. Soft launch is where those get seen, so watch `ClientErrors` and DataStore failures through stage 1.
+Not possible without real players: network lag, real DataStore throttling, and mixed devices. Day 1 and the ad week are where those get seen, so watch `ClientErrors` and DataStore failures then.
 
 ## 5. What Derek has to do himself
 1. Pick the date and make the final go or no-go call after stage 1 (and approve this page, or change the numbers in section 2).

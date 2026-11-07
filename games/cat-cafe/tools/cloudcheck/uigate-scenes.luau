@@ -2266,10 +2266,95 @@ local SCENES = {
 		local fed = table.clone(cats)
 		fed.gate_feed_2 = table.clone(cats.gate_feed_2)
 		fed.gate_feed_2.xp = 32
+		local line2 = before[2]:FindFirstChild("Level").Text
 		UI.update({ cats = fed } :: any)
 		local card2 = list:FindFirstChild("gate_feed_2")
-		assert(card2 and card2 ~= before[2], "uigate: the fed cat's card kept its old XP (#2196)")
+		assert(card2 and card2:FindFirstChild("Level").Text ~= line2, "uigate: the fed cat's card kept its old XP (#2196)")
 		assert(list:FindFirstChild("gate_feed_1") == before[1], "uigate: feeding one cat made another's card again (#2196)")
+	end },
+	-- #2196 (Derek2 11-07: "The food menu where you go to feed cats Lags the game so bad ... it should only render as
+	-- you scroll"): with 300 cats only the cards in view (and a few each side) are made, each with one 3D head;
+	-- scrolled half way the cats there have cards and the count stays small, and the canvas is as tall as every card
+	{ "BagFeedMany", function()
+		local defs = {}
+		for _, def in Catalog.cats do
+			if def.area ~= "spare" and #defs < 6 then
+				table.insert(defs, def)
+			end
+		end
+		local cats = {}
+		for index = 1, 300 do
+			local def = defs[(index % #defs) + 1]
+			local uid = ("gate_many_%03d"):format(index)
+			cats[uid] = {
+				uid = uid,
+				catId = def.id,
+				variant = if index % 25 == 0 then "gold" elseif index % 40 == 0 then "rainbow" else "base",
+				caughtAt = os.time() - index,
+				level = 1 + (index % 45),
+				xp = index,
+				xpToNext = 40,
+				charm = 50,
+				stars = 3,
+				rating = 12,
+			}
+		end
+		UI.update({ cats = cats, catFood = { cat_snack = 3 } } :: any)
+		UI.open("Potions")
+		press("Potions", "FoodTab")
+		press("Potions", "cat_snack.Feed")
+		local window = UIShim.playerGui:FindFirstChild("Potions", true)
+		local list = window and window:FindFirstChild("CatList", true)
+		assert(list and list.Visible, "uigate: Feed's cat list is not up (#2196)")
+		local function made(): (number, number)
+			local cards, views = 0, 0
+			for _, child in list:GetChildren() do
+				if child:IsA("Frame") and child.Visible and child:FindFirstChild("XpBar") then
+					cards += 1
+				end
+			end
+			for _, view in list:GetDescendants() do
+				if view:IsA("ViewportFrame") then
+					views += 1
+				end
+			end
+			return cards, views
+		end
+		local cards, views = made()
+		print(("uigate: BagFeedMany at the top: %d cards, %d 3D heads for 300 cats"):format(cards, views))
+		assert(cards > 0 and cards <= 20, "uigate: Feed made " .. cards .. " cards for 300 cats (#2196)")
+		assert(views <= 24, "uigate: Feed holds " .. views .. " 3D heads for 300 cats (#2196)")
+		local canvas = list.AbsoluteCanvasSize.Y
+		local window2 = list.AbsoluteWindowSize.Y
+		local scale = list:FindFirstChild("Title").AbsoluteSize.Y / 36
+		assert(canvas >= 300 * 68 * scale, "uigate: the canvas (" .. canvas .. ") is not as tall as 300 cards (#2196)")
+		list.CanvasPosition = Vector2.new(0, (canvas - window2) / 2)
+		UIShim.advance(0.1)
+		local seen = 0
+		for _, child in list:GetChildren() do
+			if child:IsA("Frame") and child.Visible and child:FindFirstChild("XpBar") then
+				local top = child.AbsolutePosition.Y - list.AbsolutePosition.Y
+				if top > -10 and top < window2 then
+					seen += 1
+				end
+			end
+		end
+		assert(seen >= 3, "uigate: scrolled half way, only " .. seen .. " cards are in view (#2196)")
+		cards, views = made()
+		print(("uigate: BagFeedMany half way: %d cards, %d 3D heads, %d in view"):format(cards, views, seen))
+		assert(cards <= 20 and views <= 24, "uigate: scrolling made " .. cards .. " cards (#2196)")
+		list.CanvasPosition = Vector2.new(0, 0)
+		UIShim.advance(0.1)
+		local top = nil
+		for _, child in list:GetChildren() do
+			if child:IsA("Frame") and child.Visible and child:FindFirstChild("XpBar") then
+				if top == nil or child.LayoutOrder < top.LayoutOrder then
+					top = child
+				end
+			end
+		end
+		local line = top and top:FindFirstChild("Level").Text or ""
+		assert(string.find(line, "Level 45", 1, true), "uigate: back at the top, the first card reads " .. line .. " (#2196)")
 	end },
 	{ "Quests", function()
 		UI.open("Quests")

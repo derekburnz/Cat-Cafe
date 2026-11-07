@@ -72,9 +72,40 @@ local PENDING_SECONDS = 1 -- a pressed Use waits this long for the server before
 local CAT_CARD_H = 68 -- #1773: a cat card in Feed's list
 local CAT_HEAD = 56 -- its head picture on the rarity's colour
 local CAT_FEED_W = 92
+local CAT_TITLE_H = 36 -- the cat list's heading; its drawn height over this is the window's UI scale
+local CAT_BUFFER = 4 -- #2196: cards made past each edge of the list, so a flick finds them ready
+local CAT_VIEW = 520 -- the list's height while it has none yet (the window's MaxSize)
 
--- #2196: `key` is what the card shows (food, cat, variant, level, XP), so an unchanged card is kept, not rebuilt
-type CatCard = { frame: Frame, portrait: CatPortrait.CatPortrait, feed: Button.Button, key: string }
+-- #2196: one card of Feed's cat list. Only the cards in view are made (Derek2 11-07: "it should only render as you
+-- scroll"), and a card scrolled out is kept to show the next cat scrolled in: `key` is what it shows now (food, cat,
+-- variant, level, XP), so an unchanged card is left alone, and `look` the head in its portrait (cat and coat), so a
+-- card passed to another cat of the same kind keeps its 3D head.
+type CatCard = {
+	frame: Frame,
+	portrait: CatPortrait.CatPortrait,
+	feed: Button.Button,
+	edge: UIStroke,
+	edgeBands: UIGradient?,
+	head: Frame,
+	name: TextLabel,
+	nameBands: UIGradient?,
+	level: TextLabel,
+	fill: Frame,
+	key: string,
+	look: string?,
+	uid: string,
+	foodId: string,
+	open: boolean,
+}
+
+-- one cat in Feed's list, in order, whether its card is made or not
+type CatEntry = {
+	cat: { uid: string, catId: string, name: string?, level: number },
+	def: Types.CatDef?,
+	variant: string?,
+	xp: number,
+	key: string,
+}
 
 type Row = {
 	frame: Frame,
@@ -132,7 +163,10 @@ function Potions.new(callbacks: Callbacks): Potions
 
 	self._tab = "Potions" :: Tab
 	self._foodRows = {} :: { [string]: { frame: Frame, count: TextLabel, feed: Button.Button } }
-	self._catRows = {} :: { [string]: CatCard } -- by cat uid
+	self._catRows = {} :: { [string]: CatCard } -- the cards made, by cat uid
+	self._catSpare = {} :: { CatCard } -- #2196: cards scrolled out, hidden, for the next cats scrolled in
+	self._catOrder = {} :: { CatEntry } -- every cat in the list, highest level first
+	self._catFood = "" -- the food the list feeds
 	self._baitRows = {} :: { [string]: { frame: Frame, icon: ItemIcon.ItemIcon, count: TextLabel } }
 	self._feeding = nil :: string? -- the food whose cat list shows
 	local tabs: Frame = Create("Frame", {
@@ -305,6 +339,31 @@ function Potions.new(callbacks: Callbacks): Potions
 			self:_pickFood(nil)
 		end,
 	})
+	-- #2196: the cats above and below the made cards hold their room as two plain spacers, so the scroll bar and
+	-- the canvas are as tall as every card would make them
+	self._catAbove = Create("Frame", {
+		Name = "CardsAbove",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 0),
+		LayoutOrder = 1,
+		Parent = self._catList,
+	})
+	self._catBelow = Create("Frame", {
+		Name = "CardsBelow",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, 0),
+		LayoutOrder = 2,
+		Parent = self._catList,
+	})
+	local function scrolled()
+		if self._catList.Visible then
+			self:_windowCats()
+		end
+	end
+	self._catScroll = {
+		self._catList:GetPropertyChangedSignal("CanvasPosition"):Connect(scrolled),
+		self._catList:GetPropertyChangedSignal("AbsoluteWindowSize"):Connect(scrolled),
+	}
 
 	-- once a second while open, so the times left count down
 	local clock = 0
@@ -571,16 +630,12 @@ function Potions._foodRow(self: any, entry: BagLogic.Food)
 	return { frame = frame, count = count, feed = feed }
 end
 
-local function dropCard(card: CatCard)
-	card.feed:destroy()
-	card.portrait:destroy()
-	card.frame:Destroy()
-end
-
 -- The cats to feed `food` to, highest level first; a tap feeds that cat one. #2196 (playtester Tyrell via Derek2:
--- "going into the feed menu lags his game"): this runs on every state update and once a second, so a card is made
--- again only when what it shows changed; the rest only take their new place. Each card holds a 3D head (a cloned
--- model in a ViewportFrame), so rebuilding them all every time cloned dozens of models a second.
+-- "going into the feed menu lags his game", then Derek2 11-07: "Lags the game so bad I am wondering if it renders all
+-- your cats it should only render as you scroll"): this runs on every state update and once a second, and a card
+-- holds a 3D head (a cloned model in a ViewportFrame), so a card per cat cost hundreds of models on a big save. Now
+-- only the cards in view (and CAT_BUFFER each side) are made, a card scrolled out shows the next cat scrolled in, and
+-- a card is filled again only when what it shows changed.
 function Potions._renderCats(self: any, food: BagLogic.Food)
 	local state: any = self._state
 	self._catTitle.Text = ("Feed a %s (x%d) · %s"):format(
@@ -598,9 +653,8 @@ function Potions._renderCats(self: any, food: BagLogic.Food)
 			byId[def.id] = def
 		end
 	end
-	local cats = CornerShopLogic.catsByLevel(state.cats, names)
-	local shown: { [string]: boolean } = {}
-	for order, cat in cats do
+	local order: { CatEntry } = {}
+	for _, cat in CornerShopLogic.catsByLevel(state.cats, names) do
 		local instance = (state.cats or {})[cat.uid]
 		local xp = if type(instance) == "table" and type(instance.xp) == "number"
 			then instance.xp
@@ -615,63 +669,104 @@ function Potions._renderCats(self: any, food: BagLogic.Food)
 			tostring(xp),
 			if byId[cat.catId] then "def" else "",
 		}, "|")
-		shown[cat.uid] = true
-		local card: CatCard? = self._catRows[cat.uid]
-		if card and card.key == key then
-			card.frame.LayoutOrder = order
-		else
-			if card then
-				dropCard(card)
-			end
-			local made: CatCard = self:_catCard(food.id, cat, byId[cat.catId], variant, xp, order)
-			made.key = key
-			self._catRows[cat.uid] = made
-		end
+		table.insert(
+			order,
+			{ cat = cat, def = byId[cat.catId], variant = variant, xp = xp, key = key }
+		)
 	end
+	self._catOrder = order
+	self._catFood = food.id
+	self:_windowCats()
+end
+
+-- #2196: makes the cards for the cats in view and frees the rest, from where the list is scrolled to.
+function Potions._windowCats(self: any)
+	local order: { CatEntry } = self._catOrder
+	local list: ScrollingFrame = self._catList
+	local pitch = CAT_CARD_H + Theme.sizes.gap
+	-- Absolute sizes are drawn pixels, after the window's UI scale; the heading's height gives that scale.
+	local scale = self._catTitle.AbsoluteSize.Y / CAT_TITLE_H
+	if scale <= 0 then
+		scale = 1
+	end
+	local above = (list.AbsolutePosition.Y - self._catAbove.AbsolutePosition.Y) / scale
+	local view = list.AbsoluteWindowSize.Y / scale
+	if view <= 0 then
+		view = CAT_VIEW
+	end
+	local first, last = BagLogic.feedWindow(#order, above, view, pitch, CAT_BUFFER)
+	local wanted: { [string]: CatEntry } = {}
+	for index = first, last do
+		wanted[order[index].cat.uid] = order[index]
+	end
+	-- cards whose cat scrolled out (or left) are hidden for the next ones, or kept where they still show their cat
 	for uid, card in self._catRows do
-		if not shown[uid] then
-			dropCard(card)
+		local entry = wanted[uid]
+		if entry == nil or entry.key ~= card.key then
+			card.frame.Visible = false
+			card.frame.Name = "Spare"
+			card.key = ""
+			table.insert(self._catSpare, card)
 			self._catRows[uid] = nil
 		end
 	end
+	for index = first, last do
+		local entry = order[index]
+		local card: CatCard? = self._catRows[entry.cat.uid]
+		if card == nil then
+			local made = self:_spareCard(entry) or self:_catCard()
+			self:_fillCard(made, entry)
+			self._catRows[entry.cat.uid] = made
+			card = made
+		end
+		(card :: CatCard).frame.LayoutOrder = 2 + index
+	end
+	self._catAbove.Size = UDim2.new(1, 0, 0, math.max(0, first - 1) * pitch)
+	self._catBelow.Size = UDim2.new(1, 0, 0, math.max(0, #order - last) * pitch)
+	self._catBelow.LayoutOrder = 3 + #order
 end
 
--- #1773: one cat's card in Feed's list: its head on its rarity's colour, the name ("Gold Comet" in gold, a rainbow
--- one in the turning bands, as its edge), "Epic · Level 24 · 2,303 XP to 25" over a bar toward the next level, and
--- Feed, which feeds this cat one (Max at the top level, off).
-function Potions._catCard(
-	self: any,
-	foodId: string,
-	cat: { uid: string, catId: string, name: string?, level: number },
-	def: Types.CatDef?,
-	variant: string?,
-	xp: number,
-	order: number
-): CatCard
-	local open = BagLogic.canFeed(cat.level)
-	local rarity: string = if def then def.rarity else "Common"
-	local gold = CatVariant.isGold(variant)
-	local rainbow = CatVariant.isRainbow(variant)
+-- A hidden card for `entry`, the one already holding that cat's head if there is one (so no model is cloned).
+function Potions._spareCard(self: any, entry: CatEntry): CatCard?
+	local spare: { CatCard } = self._catSpare
+	if #spare == 0 then
+		return nil
+	end
+	local look = Potions._look(entry)
+	local pick = #spare
+	for index, card in spare do
+		if card.look == look then
+			pick = index
+			break
+		end
+	end
+	return table.remove(spare, pick)
+end
+
+function Potions._look(entry: CatEntry): string
+	return (if entry.def then entry.def.id else "?")
+		.. "|"
+		.. tostring(CatVariant.isGold(entry.variant))
+end
+
+-- #1773: one card in Feed's list, empty until _fillCard: the cat's head on its rarity's colour, the name ("Gold
+-- Comet" in gold, a rainbow one in the turning bands, as its edge), "Epic · Level 24 · 2,303 XP to 25" over a bar
+-- toward the next level, and Feed, which feeds this cat one (Max at the top level, off).
+function Potions._catCard(self: any): CatCard
 	local frame: Frame = Create("Frame", {
-		Name = cat.uid,
+		Name = "Spare",
 		BackgroundColor3 = PAL.card,
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, CAT_CARD_H),
-		LayoutOrder = order,
 		Parent = self._catList,
 	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
 	local edge: UIStroke = Create("UIStroke", {
-		Color = if gold then Theme.colors.gold else Theme.rarityColor(rarity),
-		Thickness = if gold or rainbow then 3 else 2,
+		Thickness = 2,
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		Parent = frame,
 	})
-	if rainbow then
-		Rainbow.stroke(edge)
-	end
 	local head: Frame = Create("Frame", {
 		Name = "Head",
-		BackgroundColor3 = Theme.rarityColor(rarity),
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.new(0, 6, 0.5, 0),
@@ -684,7 +779,6 @@ function Potions._catCard(
 		still = true,
 		head = true,
 	})
-	portrait:set(def, gold)
 	local left = CAT_HEAD + 16
 	local right = CAT_FEED_W + 16
 	local name = text({
@@ -693,25 +787,15 @@ function Potions._catCard(
 		Size = UDim2.new(1, -(left + right), 0, 24),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 2,
-		TextColor3 = if gold then Theme.colors.gold else PAL.text,
-		Text = CatVariant.word(variant) .. (cat.name or cat.catId),
 		Parent = frame,
 	})
-	if rainbow then
-		Rainbow.text(name)
-	end
-	text({
+	local level = text({
 		Name = "Level",
 		Position = UDim2.fromOffset(left, 30),
 		Size = UDim2.new(1, -(left + right), 0, 18),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.subtext,
 		RichText = true,
-		Text = ('<font color="#%s">%s</font> · %s'):format(
-			Theme.rarityLight(rarity):ToHex(),
-			rarity,
-			BagLogic.catLine(cat.level, xp)
-		),
 		Parent = frame,
 	})
 	local track: Frame = Create("Frame", {
@@ -722,16 +806,16 @@ function Potions._catCard(
 		Size = UDim2.new(1, -(left + right), 0, 8),
 		Parent = frame,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-	Create("Frame", {
+	local fill: Frame = Create("Frame", {
 		Name = "Fill",
-		BackgroundColor3 = if open then PAL.good else Theme.colors.gold,
 		BorderSizePixel = 0,
-		Size = UDim2.fromScale(BagLogic.xpFraction(cat.level, xp), 1),
+		Size = UDim2.fromScale(0, 1),
 		Parent = track,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	local card: CatCard
 	local feed = Button.new({
 		name = "Feed",
-		text = if open then "Feed" else "Max",
+		text = "Feed",
 		style = "primary",
 		size = UDim2.fromOffset(CAT_FEED_W, 40),
 		anchorPoint = Vector2.new(1, 0.5),
@@ -740,13 +824,81 @@ function Potions._catCard(
 		parent = frame,
 		onClick = function()
 			local feedCat: ((string, string) -> ())? = self._callbacks.feed
-			if open and feedCat then
-				feedCat(foodId, cat.uid)
+			if card.open and feedCat then
+				feedCat(card.foodId, card.uid)
 			end
 		end,
 	})
-	feed:setEnabled(open)
-	return { frame = frame, portrait = portrait, feed = feed, key = "" }
+	card = {
+		frame = frame,
+		portrait = portrait,
+		feed = feed,
+		edge = edge,
+		edgeBands = nil :: UIGradient?,
+		head = head,
+		name = name,
+		nameBands = nil :: UIGradient?,
+		level = level,
+		fill = fill,
+		key = "",
+		look = nil :: string?,
+		uid = "",
+		foodId = "",
+		open = false,
+	}
+	return card
+end
+
+-- Shows `entry`'s cat on `card`; its 3D head is set again only when the cat or coat changed.
+function Potions._fillCard(self: any, card: CatCard, entry: CatEntry)
+	local cat, def, variant, xp = entry.cat, entry.def, entry.variant, entry.xp
+	local open = BagLogic.canFeed(cat.level)
+	local rarity: string = if def then def.rarity else "Common"
+	local gold = CatVariant.isGold(variant)
+	local rainbow = CatVariant.isRainbow(variant)
+	card.key = entry.key
+	card.uid = cat.uid
+	card.foodId = self._catFood
+	card.open = open
+	card.frame.Name = cat.uid
+	card.frame.Visible = true
+	if rainbow and card.edgeBands == nil then
+		card.edgeBands = Rainbow.stroke(card.edge)
+	end
+	if card.edgeBands then
+		card.edgeBands.Enabled = rainbow
+	end
+	card.edge.Color = if rainbow
+		then Theme.colors.white
+		elseif gold then Theme.colors.gold
+		else Theme.rarityColor(rarity)
+	card.edge.Thickness = if gold or rainbow then 3 else 2
+	card.head.BackgroundColor3 = Theme.rarityColor(rarity)
+	local look = Potions._look(entry)
+	if card.look ~= look then
+		card.portrait:set(def, gold)
+		card.look = look
+	end
+	if rainbow and card.nameBands == nil then
+		card.nameBands = Rainbow.text(card.name)
+	end
+	if card.nameBands then
+		card.nameBands.Enabled = rainbow
+	end
+	card.name.TextColor3 = if rainbow
+		then Theme.colors.white
+		elseif gold then Theme.colors.gold
+		else PAL.text
+	card.name.Text = CatVariant.word(variant) .. (cat.name or cat.catId)
+	card.level.Text = ('<font color="#%s">%s</font> · %s'):format(
+		Theme.rarityLight(rarity):ToHex(),
+		rarity,
+		BagLogic.catLine(cat.level, xp)
+	)
+	card.fill.BackgroundColor3 = if open then PAL.good else Theme.colors.gold
+	card.fill.Size = UDim2.fromScale(BagLogic.xpFraction(cat.level, xp), 1)
+	card.feed:setText(if open then "Feed" else "Max")
+	card.feed:setEnabled(open)
 end
 
 function Potions._row(self: any, potionId: string): Row
@@ -962,9 +1114,14 @@ function Potions.destroy(self: any)
 	for _, row in self._foodRows do
 		row.feed:destroy()
 	end
-	for _, card in self._catRows do
-		card.feed:destroy()
-		card.portrait:destroy()
+	for _, connection in self._catScroll do
+		connection:Disconnect()
+	end
+	for _, cards in { self._catRows, self._catSpare } do
+		for _, card: CatCard in cards do
+			card.feed:destroy()
+			card.portrait:destroy()
+		end
 	end
 	for _, button in self._tabButtons do
 		button:destroy()

@@ -372,7 +372,14 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 			- left
 			- PERKS_RIGHT * scaleOf(header)
 			- Theme.sizes.gap * 2
-		perksScale.Scale = if room > 0 and natural > room then room / natural else 1
+		local want = if room > 0 and natural > room then room / natural else 1
+		-- #2270: the pills' pixel padding and borders do not shrink with the scale, so `natural` moves a little with
+		-- each new Scale and the fit could flip between two or three values every frame; a smaller scale always
+		-- applies, a larger one only past a 4% step
+		local now = perksScale.Scale
+		if want < now or want - now > 0.04 or want == 1 then
+			perksScale.Scale = want
+		end
 	end
 	perksLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(fitPerks)
 	header:GetPropertyChangedSignal("AbsoluteSize"):Connect(fitPerks)

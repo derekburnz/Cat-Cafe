@@ -48,16 +48,21 @@ return function()
 		end)
 
 		-- F99 (rainbow-coat.md section 1 and test 9): five first catches for a cat's first rainbow coat
-		it("pays five first catches for a first rainbow, on top of a new cat, any way it was found", function()
-			local paid: { [string]: number } =
-				{ Common = 5, Rare = 15, Epic = 40, Legendary = 100, Mythical = 200 }
-			for rarity, fish in paid do
-				for _, method in { "net", "rescue", "bait" } do
-					expect(GoldenFish.forCatch(rarity, false, false, method :: any, true)).to.equal(fish)
+		it(
+			"pays five first catches for a first rainbow, on top of a new cat, any way it was found",
+			function()
+				local paid: { [string]: number } =
+					{ Common = 5, Rare = 15, Epic = 40, Legendary = 100, Mythical = 200 }
+				for rarity, fish in paid do
+					for _, method in { "net", "rescue", "bait" } do
+						expect(GoldenFish.forCatch(rarity, false, false, method :: any, true)).to.equal(
+							fish
+						)
+					end
 				end
+				expect(GoldenFish.forCatch("Common", true, false, "net", true)).to.equal(6)
 			end
-			expect(GoldenFish.forCatch("Common", true, false, "net", true)).to.equal(6)
-		end)
+		)
 
 		it("pays a repeat rainbow like any repeat", function()
 			expect(GoldenFish.forCatch("Common", false, false, "net", false)).to.equal(0)
@@ -107,13 +112,16 @@ return function()
 	end)
 
 	describe("Tip Jar golden fish (v0.10 F68)", function()
-		it("gives the #1414 golden fish: 10, 10, 15, 50, 25 and 150 at steps 2, 4, 8, 9, 10 and 12", function()
-			local fish = { [2] = 10, [4] = 10, [8] = 15, [9] = 50, [10] = 25, [12] = 150 }
-			for _, def in Catalog.tipJar do
-				expect(def.prize.fish).to.equal(fish[def.step])
+		it(
+			"gives the #1414 golden fish: 10, 10, 15, 50, 25 and 150 at steps 2, 4, 8, 9, 10 and 12",
+			function()
+				local fish = { [2] = 10, [4] = 10, [8] = 15, [9] = 50, [10] = 25, [12] = 150 }
+				for _, def in Catalog.tipJar do
+					expect(def.prize.fish).to.equal(fish[def.step])
+				end
+				expect((Config :: any).TipJarStep12Fish).never.to.be.ok() -- the rows carry their own fish
 			end
-			expect((Config :: any).TipJarStep12Fish).never.to.be.ok() -- the rows carry their own fish
-		end)
+		)
 	end)
 
 	describe("Catalog crates and the Golden Fish Market (F53 rows in save version 7)", function()
@@ -165,7 +173,7 @@ return function()
 				local treat = Catalog.getFishShopRow("star_treat")
 				assert(treat)
 				expect(treat.kind).to.equal("lure")
-				expect(treat.cost).to.equal(80)
+				expect(treat.cost).to.equal(150) -- Derek2 2026-11-07, was 80
 				expect(Catalog.getLure("star_treat")).to.be.ok()
 				local perks: { [string]: number } =
 					{ golden_espresso = 5, big_bowl = 1, extra_decor_spot = 2 }
@@ -332,7 +340,7 @@ return function()
 
 		it("prices the Market as section 3 lists, each perk level dearer than the last", function()
 			local want: { [string]: { number } } = {
-				star_treat = { 80 },
+				star_treat = { 150 }, -- Derek2 2026-11-07, was 80
 				golden_espresso = { 40, 80, 150, 250, 400 },
 				big_bowl = { 150 },
 				extra_decor_spot = { 100, 250 },

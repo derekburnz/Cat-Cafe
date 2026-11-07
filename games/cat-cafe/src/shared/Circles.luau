@@ -63,10 +63,19 @@ function Circles.windows(netLevel: number): Types.NetWindows
 end
 
 -- The windows a cat of `rarity` is judged with (v0.13.15 F83): the net level's Perfect and Good times the rarity's
--- catchWindow, so the bands narrow the rarer the cat.
-function Circles.windowsFor(netLevel: number, rarity: Types.Rarity): Types.NetWindows
+-- catchWindow, so the bands narrow the rarer the cat. #2322: times the catchWindowScale of `areaId` (the stray's
+-- area) when it has one, so the first area is a little easier.
+function Circles.windowsFor(
+	netLevel: number,
+	rarity: Types.Rarity,
+	areaId: string?
+): Types.NetWindows
 	local net = Circles.windows(netLevel)
 	local scale = Catalog.rarities[rarity].catchWindow
+	local area = if areaId ~= nil then Catalog.getArea(areaId) else nil
+	if area ~= nil and area.catchWindowScale ~= nil then
+		scale *= area.catchWindowScale
+	end
 	return { perfect = net.perfect * scale, good = net.good * scale }
 end
 

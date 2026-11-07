@@ -458,6 +458,8 @@ export type AreaDef = {
 	rescueSpots: number,
 	odds: LureOdds,
 	incomeMultiplier: number, -- a cat from here earns its rarity's income times this (data-model v0.13.7)
+	-- #2322: a net catch here has its Perfect and Good bands this many times as wide (nil is 1)
+	catchWindowScale: number?,
 }
 
 export type SpotDef = {

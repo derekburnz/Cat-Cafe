@@ -45,8 +45,8 @@ return function()
 	-- Circles.ringCap rings are used. With the rarity's twists, each ring after the first is a double (two presses,
 	-- two rings, while two are left) at DoubleRingChance and each after the second a paw ring (left alone: +1, no
 	-- ring used; never two in a row) at PawRingChance, as Circles.ringKind rolls them.
-	local function catchChance(netLevel: number, rarity: Types.Rarity, spread: number): number
-		local windows = Circles.windowsFor(netLevel, rarity)
+	local function catchChance(netLevel: number, rarity: Types.Rarity, spread: number, areaId: string?): number
+		local windows = Circles.windowsFor(netLevel, rarity, areaId)
 		local perfect = within(windows.perfect, spread)
 		local good = within(windows.good, spread) - perfect
 		local outcomes = {
@@ -226,6 +226,20 @@ return function()
 					end
 				end
 			)
+
+			-- #2322 (Derek2: "lower the difficulty of catching cats from first zone a little bit so people get used to it
+			-- first"): the Alleyway's bands are 1.2 times as wide, so a shaky new player (Basic Net, 70 ms) nets more
+			it("makes the first area's catches a little easier than the same cat elsewhere", function()
+				local alley = {}
+				for i, rarity in RARITIES do
+					local here = catchChance(0, rarity, 0.07, "alley")
+					local elsewhere = catchChance(0, rarity, 0.07)
+					alley[i] = here
+					expect(here >= elsewhere).to.equal(true)
+				end
+				-- elsewhere 84, 65, 39, 18, 8 (the Basic 70 ms row above)
+				rowMatches("Alleyway Basic 70 ms", alley, { 94, 83, 62, 35, 20 })
+			end)
 
 			it(
 				"keeps a new player's Common easy and makes every better net help at every rarity",

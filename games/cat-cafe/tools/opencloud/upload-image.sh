@@ -6,6 +6,7 @@
 #
 #   ROBLOX_PUBLISH_KEY      Open Cloud API key that also has assets Read and Write (docs/setup-guide.md step 17)
 #   ROBLOX_CREATOR_USER_ID  the account that owns the image: default 40908216, Derek, who owns the experience
+#   ROBLOX_CREATOR_GROUP_ID when set, the group that owns the image instead of the user (2026-11-07, #2022: group 107520049)
 #   ASSET_TYPE              Image (default; the id goes straight into ImageLabel.Image, Texture and the like) or
 #                           Decal (an asset to put on a part from the Toolbox)
 #
@@ -75,8 +76,13 @@ call() {
 	fi
 }
 
-request=$(jq -cn --arg type "$TYPE" --arg name "$NAME" --arg creator "$CREATOR" \
-	'{assetType: $type, displayName: $name, description: $name, creationContext: {creator: {userId: $creator}}}')
+if [ -n "${ROBLOX_CREATOR_GROUP_ID:-}" ]; then
+	request=$(jq -cn --arg type "$TYPE" --arg name "$NAME" --arg group "$ROBLOX_CREATOR_GROUP_ID" \
+		'{assetType: $type, displayName: $name, description: $name, creationContext: {creator: {groupId: $group}}}')
+else
+	request=$(jq -cn --arg type "$TYPE" --arg name "$NAME" --arg creator "$CREATOR" \
+		'{assetType: $type, displayName: $name, description: $name, creationContext: {creator: {userId: $creator}}}')
+fi
 call "$API/assets" -X POST --form-string "request=$request" -F "fileContent=@\"$FILE\";type=$ctype"
 operation=$(jq -r '.operationId // (.path // "" | sub("^operations/"; ""))' <<<"$body")
 [ -n "$operation" ] || {

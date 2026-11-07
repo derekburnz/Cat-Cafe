@@ -2337,7 +2337,7 @@ Presets.rainbow = {
 -- bar, twice as many in gold for the full bar. Reduce Motion drops the pops and halves the step sparkles.
 Presets.rally = {
 	displayOrder = 11, -- over the HUD (10), under the area title (12) and the modals (20)
-	steps = { 0.25, 0.5, 1 },
+	steps = { 0.25, 0.5, 1 }, -- only if Catalog.rallySteps is missing; Effects/Rally reads the server's milestones
 	seconds = 0.65,
 	popIn = 0.14,
 	land = 0.55,
@@ -3731,6 +3731,18 @@ Presets.catchReact = {
 		curious = { tilt = 14, seconds = 2.4, tailUp = 25, ears = 10 },
 		skittish = { crouch = 0.35, headDown = 10, tailDown = 15, ears = 25 },
 	},
+}
+
+-- The net pinning a caught stray (#2005 section 1, NetPin.luau), the catcher's net upside down over the cat while it
+-- has NetDown. `ring`: the hoop's radius over the cat's half diagonal across the floor; `cover`: the bag's depth over
+-- the cat's height; `maxScale` caps it for a big cat. Drop: from `height` studs up over `seconds`, falling. Lift: up
+-- `height` studs over `seconds`, fading out from `fadeFrom` of the way.
+Presets.netPin = {
+	ring = 1.1,
+	cover = 1.05,
+	maxScale = 4,
+	drop = { height = 1.6, seconds = 0.18 },
+	lift = { height = 2.2, seconds = 0.35, fadeFrom = 0.3 },
 }
 
 return Presets

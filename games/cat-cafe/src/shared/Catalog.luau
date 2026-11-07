@@ -20,7 +20,7 @@ Catalog.rarities = {
 		circles = 3,
 		shrinkSeconds = 1.20,
 		catchWindow = 1.15, -- #1884 re-fit for the trust bar (catch-rework.md 7b)
-		trustNeed = 8,
+		trustNeed = 11, -- #2005: TrustStart + TrustPerfect x circles
 		moods = { Sleepy = 55, Curious = 45, Skittish = 0 }, -- #1884 (catch-rework.md 7a)
 		doubleRings = false, -- #1884 (7c)
 		pawRings = false,
@@ -35,7 +35,7 @@ Catalog.rarities = {
 		circles = 4,
 		shrinkSeconds = 1.00,
 		catchWindow = 1.032, -- #1884 re-fit for the trust bar (catch-rework.md 7b)
-		trustNeed = 10,
+		trustNeed = 14, -- #2005
 		moods = { Sleepy = 55, Curious = 45, Skittish = 0 }, -- #1884 (catch-rework.md 7a)
 		doubleRings = false, -- #1884 (7c)
 		pawRings = false,
@@ -50,7 +50,7 @@ Catalog.rarities = {
 		circles = 5,
 		shrinkSeconds = 0.82,
 		catchWindow = 0.908, -- #1884 re-fit for the trust bar (catch-rework.md 7b)
-		trustNeed = 12,
+		trustNeed = 17, -- #2005
 		moods = { Sleepy = 30, Curious = 35, Skittish = 35 }, -- #1884 (catch-rework.md 7a)
 		doubleRings = true, -- #1884 (7c)
 		pawRings = false,
@@ -65,7 +65,7 @@ Catalog.rarities = {
 		circles = 6,
 		shrinkSeconds = 0.68,
 		catchWindow = 0.742, -- #1884 re-fit for the trust bar and paw rings (catch-rework.md 7b, 7c)
-		trustNeed = 14,
+		trustNeed = 20, -- #2005
 		moods = { Sleepy = 20, Curious = 30, Skittish = 50 }, -- #1884 (catch-rework.md 7a)
 		doubleRings = true, -- #1884 (7c)
 		pawRings = true,
@@ -79,8 +79,10 @@ Catalog.rarities = {
 		incomePerSecond = 75,
 		circles = 7,
 		shrinkSeconds = 0.56,
-		catchWindow = 0.636, -- #1884 re-fit for the trust bar and paw rings (catch-rework.md 7b, 7c)
-		trustNeed = 16,
+		-- #2005 (Derek2: "mythic feels impossible"): 0.636 to 0.68 with the bigger Perfect and Good, a Basic Net
+		-- Mythical at 50 ms from 19% to about 36% a try (the other rarities keep their windows and gain a little)
+		catchWindow = 0.68,
+		trustNeed = 23, -- #2005
 		moods = { Sleepy = 20, Curious = 30, Skittish = 50 }, -- #1884 (catch-rework.md 7a)
 		doubleRings = true, -- #1884 (7c)
 		pawRings = true,
@@ -1756,7 +1758,7 @@ Catalog.passSeasons = {
 			[28] = item("decor", "decor_maple_tree_planter", "Maple Tree Planter"),
 			[29] = item("frame", "frame_golden_leaf", "Name plate frame: Golden Leaf"),
 			[30] = item("cat", "maple_muffin", "Season cat: Maple Muffin"),
-			-- #1883 part C (Model-Agent's art, #1921): the paid track ends on four Maple showpieces, looks only
+			-- #1883 part C (Model-Agent's art, #1921): the paid track ends on four Maple showpieces
 			[31] = item("accessory", "acc_leaf_crown", "Autumn Leaf Crown"),
 			[32] = item("decor", "decor_maple_leaf_lamp", "Maple Leaf Lamp"),
 			[33] = item("decor", "decor_harvest_cider_cart", "Harvest Cider Cart"),
@@ -3461,17 +3463,20 @@ for _, def in Catalog.decor do
 	end
 end
 
--- #1645 (cafe-pass.md section 3): the Cafe Pass's season decor, earned on its track and owned forever. Looks only: no
--- money bonus and no crate, so it is in no Decor Index page and never moves the Index, and it can't be traded
+-- #1645 (cafe-pass.md section 3): the Cafe Pass's season decor, earned on its track and owned forever. #2006 (Derek2,
+-- 2026-11-07: "make it do something" and "a rarity attached"): each piece has a rarity, Common to Epic (paid pieces
+-- stop below the crates' Legendary and Mythical), and the crate pieces' money bonus for it (Config.CratePieceBonus).
+-- It has no crate, so it is in no crate pool or Decor Index page and never moves the Index, and it can't be traded
 -- (Trade.piece takes crate pieces only) or bought (Economy.decorBlocker). Each piece takes a decor spot like the crate
 -- furniture and decorations; they are kept apart in Catalog.passDecor (Catalog.crateDecor is the 84 crate pieces), and
 -- the server places them after the crate pieces.
 -- #1822: a row with `pack` comes with that game pass instead (the King Cat Pack's booth, granted once by
--- ShopCatService through shared/KingPack), with the same looks-only rules; `asset` names a model other than the one
+-- ShopCatService through shared/KingPack), with the same rules; `asset` names a model other than the one
 -- its name gives.
 local PASS_DECOR: {
 	{
 		id: string,
+		rarity: Types.Rarity,
 		name: string,
 		kind: Types.DecorKind,
 		description: string,
@@ -3483,36 +3488,42 @@ local PASS_DECOR: {
 	{
 		{
 			id = "decor_pumpkin_lantern",
+			rarity = "Common",
 			name = "Pumpkin Lantern",
 			kind = "decoration",
 			description = "A friendly cat face, glowing warm.",
 		},
 		{
 			id = "decor_fallen_leaf_rug",
+			rarity = "Common",
 			name = "Fallen Leaf Rug",
 			kind = "decoration",
 			description = "A big maple leaf to curl up on.",
 		},
 		{
 			id = "decor_cosy_knit_cushion",
+			rarity = "Common",
 			name = "Cosy Knit Cushion",
 			kind = "furniture",
 			description = "A soft knitted pouf in pumpkin bands.",
 		},
 		{
 			id = "decor_hay_bale_seat",
+			rarity = "Rare",
 			name = "Hay Bale Seat",
 			kind = "furniture",
 			description = "Harvest time, sit a while.",
 		},
 		{
 			id = "decor_apple_crate_shelf",
+			rarity = "Rare",
 			name = "Apple Crate Shelf",
 			kind = "furniture",
 			description = "Crates of red apples, stacked as shelves.",
 		},
 		{
 			id = "decor_maple_tree_planter",
+			rarity = "Rare",
 			name = "Maple Tree Planter",
 			kind = "decoration",
 			description = "A little maple in red and orange.",
@@ -3520,18 +3531,21 @@ local PASS_DECOR: {
 		-- #1883 part C (levels 32 and 33, Model-Agent's #1921)
 		{
 			id = "decor_maple_leaf_lamp",
+			rarity = "Epic",
 			name = "Maple Leaf Lamp",
 			kind = "decoration",
 			description = "A paper maple leaf, glowing amber day and night.",
 		},
 		{
 			id = "decor_harvest_cider_cart",
+			rarity = "Epic",
 			name = "Harvest Cider Cart",
 			kind = "furniture",
 			description = "A barrel of cider, three mugs and a basket of apples.",
 		},
 		{
 			id = "decor_royal_velvet_booth",
+			rarity = "Epic",
 			name = "Royal Velvet Booth",
 			kind = "furniture",
 			description = "A deep red booth fit for a king.",
@@ -3543,6 +3557,7 @@ local PASS_DECOR: {
 		-- stays 0 until they are in.
 		{
 			id = "decor_garden_hanging_fern",
+			rarity = "Rare",
 			name = "Hanging Fern Basket",
 			kind = "decoration",
 			description = "A leafy fern spilling from a woven basket.",
@@ -3551,6 +3566,7 @@ local PASS_DECOR: {
 		},
 		{
 			id = "decor_garden_sunflower_pot",
+			rarity = "Rare",
 			name = "Sunflower Pot",
 			kind = "decoration",
 			description = "Three tall sunflowers in a sunny pot.",
@@ -3559,6 +3575,7 @@ local PASS_DECOR: {
 		},
 		{
 			id = "decor_garden_watering_can",
+			rarity = "Rare",
 			name = "Watering Can Planter",
 			kind = "decoration",
 			description = "An old tin can, now full of daisies.",
@@ -3567,6 +3584,7 @@ local PASS_DECOR: {
 		},
 		{
 			id = "decor_garden_lemon_tree",
+			rarity = "Epic",
 			name = "Potted Lemon Tree",
 			kind = "decoration",
 			description = "A little tree with bright lemons.",
@@ -3575,6 +3593,7 @@ local PASS_DECOR: {
 		},
 		{
 			id = "decor_garden_ivy_trellis",
+			rarity = "Epic",
 			name = "Ivy Trellis",
 			kind = "furniture",
 			description = "A wooden trellis climbing with ivy.",
@@ -3583,6 +3602,7 @@ local PASS_DECOR: {
 		},
 		{
 			id = "decor_garden_bench",
+			rarity = "Epic",
 			name = "Garden Swing Seat",
 			kind = "furniture",
 			description = "A cosy swing seat wrapped in flowers.",
@@ -3592,14 +3612,16 @@ local PASS_DECOR: {
 	}
 Catalog.passDecor = {} :: { Types.DecorDef }
 for _, row in PASS_DECOR do
+	local bonus = Config.CratePieceBonus[row.rarity]
 	local def: Types.DecorDef = {
 		id = row.id,
 		name = row.name,
 		cost = 0,
 		category = KIND_CATEGORY[row.kind],
-		effect = "Looks only",
+		effect = string.format("+%d%% money while in use", math.floor(bonus * 100 + 0.5)),
 		description = row.description,
-		bonus = 0,
+		bonus = bonus,
+		rarity = row.rarity,
 		asset = row.asset or "CatCafe_Decor_" .. (row.name:gsub("[^%w]", "")),
 		source = "pass",
 		kind = row.kind,
@@ -3646,13 +3668,18 @@ function Catalog.getCrate(id: string): Types.CrateDef?
 	return Catalog.cratesById[id]
 end
 
--- The Rescue Rally's steps (F101, rescue-rally.md section 3), in order: at a quarter of the goal 5 golden fish, at half
--- 10 and a Money Potion for the bag, at the full bar a Rally Crate for the Market and 15. The bar then empties for the
--- next lap.
+-- The Rescue Rally's steps (F101, rescue-rally.md section 3), in order. #2018 (Derek2 2026-11-07: "increase amount
+-- and how good of rewards from rally and how often you hit milestones"): five steps, not three, about 100 golden fish
+-- and two Rally Crates a lap (was 30 and one). The bar then empties for the next lap.
 Catalog.rallySteps = {
-	{ share = 0.25, prize = { fish = 5 } },
-	{ share = 0.5, prize = { fish = 10, potions = { tip_potion = 1 } } },
-	{ share = 1, prize = { fish = 15, crates = { rally_crate = 1 } } },
+	{ share = 0.15, prize = { fish = 8 } },
+	{ share = 0.3, prize = { fish = 12, potions = { tip_potion = 1 } } },
+	{ share = 0.5, prize = { fish = 18, potions = { swift_potion = 1, steady_potion = 1 } } },
+	{ share = 0.75, prize = { fish = 25, crates = { rally_crate = 1 } } },
+	{
+		share = 1,
+		prize = { fish = 40, crates = { rally_crate = 1 }, potions = { big_tip_potion = 1 } },
+	},
 } :: { Types.RallyStep }
 
 -- The Golden Fish Market (F53, golden-fish.md section 3): what golden fish buy. Crates open at once; a perk is

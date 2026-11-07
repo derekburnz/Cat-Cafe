@@ -143,7 +143,7 @@ export type UpgradeDef = {
 
 -- "shop" decor is bought with BuyDecor; "crate" decor (F53) only comes out of a Cafe Crate. The F48 Index pieces
 -- became their zones' Epic crate pieces in F54, and the gold Index pieces were retired before anyone earned one.
-export type DecorSource = "shop" | "crate" | "pass" -- #1645: "pass", a Cafe Pass piece (looks only)
+export type DecorSource = "shop" | "crate" | "pass" -- #1645: "pass", a pass piece (a rarity and bonus since #2006)
 
 -- What a crate piece is (F53, golden-fish.md section 4). The cafe has one wallpaper, one floor and one paint in use
 -- at a time, and since F80 (section 4b) one door set (front and back door together) and one cat flap; furniture and
@@ -239,7 +239,7 @@ export type IndexPrize = {
 }
 
 -- The Cafe Pass (#1645, cafe-pass.md). A paid track's named item, kept forever once claimed: a chat tag, an accessory,
--- a uniform colour, a looks-only decor piece, a sign frame or the season cat.
+-- a uniform colour, a decor piece, a sign frame or the season cat.
 -- #1624 (store-pass-looks.md): the saved theme and uniform picks (shared/Looks ids), nil for Classic.
 export type LookPicks = { theme: string?, uniform: string?, accessory: string? }
 -- What the Style tab reads: the picks (the shown look, nil for Classic) and every owned id of each kind.

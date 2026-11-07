@@ -2,8 +2,8 @@
 -- Catch v3's trust (#1884, catch-rework.md 7b and 7d), the numbers the catch screen draws. The server keeps the real
 -- trust and sends it with CatchResult; between presses the bar shows this device's sum of the grades so far, from
 -- the schedule's trustStart, and each CatchJudged grade moves it on. Pure, so the cloud specs check it.
---   after(start, grades) -> number      trust after `grades` from `start`: Perfect +2, Good +1, Miss -2 (Config's
---                                      TrustPerfect, TrustGood, TrustMiss), a paw ring left alone +1 ("left")
+--   after(start, grades) -> number      trust after `grades` from `start`, by Config's TrustPerfect,
+--                                      TrustGood and TrustMiss (#2005: +3, +2, -2), a paw ring left alone +1 ("left")
 --   fill(trust, need) -> number         how full the bar is, 0 to 1
 --   streakText(streak) -> string?       "Purrfect x3" from the second Purrfect in a row (7d), else nil
 

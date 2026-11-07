@@ -22,6 +22,7 @@ local Workspace = game:GetService("Workspace")
 local Avatar = require(script.Parent.Avatar)
 local Context = require(script.Parent.Context)
 local Moments = require(script.Parent.Parent.Moments)
+local NetPin = require(script.Parent.NetPin)
 local Presets = require(script.Parent.Presets)
 
 local NetHold = {}
@@ -117,7 +118,10 @@ function NetHold.weight(character: Model, rig: Avatar.Rig, dt: number, near: boo
 	local player = Players:GetPlayerFromCharacter(character)
 	local holding = Avatar.holdsNet(
 		character:GetAttribute("CarryingCatId"),
-		character:GetAttribute("NetHidden"),
+		-- or put away while this player's net is down over a stray they are catching (#2005, NetPin)
+		if player ~= nil and NetPin.pinning(player.UserId)
+			then true
+			else character:GetAttribute("NetHidden"),
 		alive(character),
 		character:GetAttribute("Launching"),
 		-- a staged copy's own flag (the intro's copy of you shows no net, #1252); a player's character ignores it

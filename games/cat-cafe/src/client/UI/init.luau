@@ -2097,6 +2097,46 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 	renderBait()
 end
 
+-- #2014 (Derek2: "food bowl cats wait until not mid catch to pop up on screen"): a cat the server says came to a bowl
+-- (BaitReady). Its card shows at once unless a catch or rescue is running; then the cat waits at its bowl (the chip
+-- shows it) and the card comes a moment after the catch or rescue ends. A cat resolved or replaced in the meantime,
+-- or a card already up, drops it. A tap on the bowl chip or prompt (showReady) still shows the card at once.
+UI.bait.SETTLE = 0.8 -- seconds of calm after a catch or rescue before the card shows
+
+function UI.bait.busy(): boolean
+	local catch: any, rescue: any = UI.catch, UI.rescue
+	local circles, rescuing = catch.circlesActive, rescue.isActive
+	return (type(circles) == "function" and (circles :: () -> unknown)() == true)
+		or (type(rescuing) == "function" and (rescuing :: () -> unknown)() == true)
+end
+
+function UI.bait.arrived(cat: Types.BaitCat, bowl: number?)
+	local index = if bowl == 2 then 2 else 1
+	if not UI.bait.busy() then
+		UI.bait.showReady(cat, index)
+		return
+	end
+	bowls.cats[index] = cat
+	renderBait()
+	task.spawn(function()
+		local calm: number? = nil
+		while bowls.cats[index] == cat do
+			if UI.bait.busy() then
+				calm = nil
+			elseif calm == nil then
+				calm = os.clock()
+			elseif os.clock() - (calm :: number) >= UI.bait.SETTLE then
+				break
+			end
+			task.wait(0.2)
+		end
+		if bowls.cats[index] ~= cat or (baitCard ~= nil and baitCard:isShowing()) then
+			return
+		end
+		UI.bait.showReady(cat, index)
+	end)
+end
+
 -- #1897: FirstWow(rarity, first) from the server: the first wow cat came to the bowl (UI.bigPull.wow plays it). The
 -- card's portrait is the cat at a bowl with that rarity (BaitReady comes first), unless the server names it.
 function UI.bait.wow(rarity: string, first: boolean?, catId: string?)

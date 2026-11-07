@@ -185,16 +185,18 @@ local Config = {
 	-- TrustGood or TrustMiss; it is caught at the rarity's trustNeed and bolts below 0. Rings come on a steady beat
 	-- (CircleGapMin apart), up to the all-Perfect count plus CatchSpareRings (one early Miss can still be won back).
 	-- The spare rings, not 2x the count, keep catch-rework.md section 2's table within about 5 points.
+	-- #2005 (Derek2 2026-11-07: "getting excellents/good increase hp more"): Perfect +3 and Good +2 (were +2 and +1),
+	-- with each rarity's trustNeed at TrustStart + 3 x its circles so an all-Perfect run is the same length.
 	TrustStart = 2,
-	TrustPerfect = 2,
-	TrustGood = 1,
+	TrustPerfect = 3,
+	TrustGood = 2,
 	TrustMiss = -2,
 	CatchSpareRings = 2,
 	-- #1884 (catch-rework.md 7c): the rarity twists. A double ring is two halves DoubleRingGap apart, each graded as
 	-- its own press and each using one of the rings above; a paw ring (red, don't tap) adds TrustPawLeft when left
 	-- alone and is a Miss when tapped, and uses none of them, so it never shortens a run.
 	DoubleRingChance = 0.25,
-	DoubleRingGap = 0.18,
+	DoubleRingGap = 0.35, -- #2005 (Derek2: "too fast right after eachother"), was 0.18
 	PawRingChance = 1 / 6,
 	TrustPawLeft = 1,
 	-- #1884 (7a): moods. A Curious stray walks CuriousWalkStuds toward the first player within CuriousRangeStuds, and
@@ -717,7 +719,7 @@ local Config = {
 	-- step pays everyone in the server who scored RallyMinPoints this lap, from at most RallyMaxLaps laps a weekend.
 	RallyStartWeekday = 6,
 	RallyHours = 48,
-	RallyPointsPerPlayer = 30,
+	RallyPointsPerPlayer = 22, -- #2018: was 30, so a lap fills about a third sooner
 	RallyMinPlayers = 3,
 	RallyMinPoints = 3,
 	RallyMaxLaps = 4,

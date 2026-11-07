@@ -14,6 +14,15 @@ on:
         type: choice
         options: [list, grant]
         default: list
+      subject_type:
+        description: "grant only: who gets Use permission. Universe (default, the experience) or User (a Studio account)"
+        type: choice
+        options: [Universe, User]
+        default: Universe
+      subject_id:
+        description: "grant only: the user id when subject_type is User (leave empty for the experience)"
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -30,6 +39,8 @@ jobs:
     env:
       ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
       ACTION: ${{ inputs.action }}
+      SUBJECT_TYPE: ${{ inputs.subject_type }}
+      SUBJECT_ID: ${{ inputs.subject_id }}
     steps:
       - uses: actions/checkout@v5
         with:

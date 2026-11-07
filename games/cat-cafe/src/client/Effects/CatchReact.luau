@@ -19,6 +19,7 @@ local Cats = require(script.Parent.Cats)
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
 local Net = require(script.Parent.Parent.Net)
+local NetPin = require(script.Parent.NetPin)
 local Presets = require(script.Parent.Presets)
 
 local CatchReact = {}
@@ -155,7 +156,10 @@ function CatchReact.start()
 			if success ~= true or type(result) ~= "table" or model == nil then
 				return
 			end
-			wrapNet(model)
+			-- the net already down over the cat (#2005) wobbles; an older server's catch closes the ball round it
+			if not NetPin.wobble(model) then
+				wrapNet(model)
+			end
 			if not Context.reducedMotion() then
 				Cats.react(model, "wrap")
 			end

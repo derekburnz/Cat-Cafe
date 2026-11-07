@@ -195,25 +195,25 @@ return function()
 	describe(
 		"F83 and F93 catch and rescue feel (QA, data-model 10 and 10b, catch-rework.md)",
 		function()
-			-- #1884: the trust bar's figures with the twists (catch-rework.md 7b, 7c; Legendary and Mythical re-fit to 0.742
-			-- and 0.636 for the paw rings, 2026-11-06), each within 5 points of section 2's table (the v2 rule's, kept
-			-- below), the Basic 50 ms Mythical the furthest at 19%.
+			-- #1884: the trust bar's figures with the twists (catch-rework.md 7b, 7c). #2005 (Derek2 2026-11-07): Perfect
+			-- +3 and Good +2, and the Mythical's window 0.68, so every catch fills faster and a Basic Net Mythical at 50 ms
+			-- goes from 19% to 36% a try. The second table is the target these must stay within 5 points of.
 			it(
 				"nets a stray as often as the design's table, every net at 50 ms and Basic and Master at 70 ms",
 				function()
 					local rows = {
-						{ "Basic 50 ms", 0, 0.05, { 96, 88, 69, 43, 19 }, { 95, 86, 69, 46, 23 } },
-						{ "Sturdy 50 ms", 1, 0.05, { 99, 97, 88, 67, 39 }, { 99, 95, 84, 65, 41 } },
-						{ "Pro 50 ms", 2, 0.05, { 100, 99, 97, 86, 63 }, { 100, 99, 94, 83, 63 } },
+						{ "Basic 50 ms", 0, 0.05, { 98, 94, 80, 55, 36 }, { 98, 94, 80, 55, 35 } },
+						{ "Sturdy 50 ms", 1, 0.05, { 100, 99, 93, 78, 61 }, { 100, 99, 93, 78, 60 } },
+						{ "Pro 50 ms", 2, 0.05, { 100, 100, 99, 92, 83 }, { 100, 100, 99, 92, 82 } },
 						{
 							"Master 50 ms",
 							3,
 							0.05,
-							{ 100, 100, 100, 96, 84 },
-							{ 100, 100, 98, 93, 80 },
+							{ 100, 100, 100, 98, 95 },
+							{ 100, 100, 100, 98, 94 },
 						},
-						{ "Basic 70 ms", 0, 0.07, { 76, 53, 28, 12, 3 }, { 77, 56, 33, 15, 5 } },
-						{ "Master 70 ms", 3, 0.07, { 99, 97, 88, 67, 39 }, { 99, 94, 83, 64, 40 } },
+						{ "Basic 70 ms", 0, 0.07, { 84, 65, 39, 18, 8 }, { 84, 65, 39, 18, 8 } },
+						{ "Master 70 ms", 3, 0.07, { 100, 99, 93, 78, 61 }, { 100, 99, 93, 78, 60 } },
 					}
 					for _, row in rows do
 						local got = {}

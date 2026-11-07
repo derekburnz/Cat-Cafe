@@ -124,6 +124,17 @@ local PASSES: { PassCard } = {
 		note = "Yours to keep. Can't be traded.",
 		tab = "cats",
 	},
+	-- #2010 (Derek2: "extra food bowl is missing from live game store"): the Second Bait Bowl (#1161) under Cats, as
+	-- baiting brings cats; the Bait bowl window's locked tab sells it too. Hidden while SecondBowlPassId is 0
+	{
+		key = "secondBowl",
+		configKey = "SecondBowlPassId",
+		name = "Second Bait Bowl",
+		icon = "🥣",
+		effect = "A second bait bowl, so two baits run at once. Same upgrades as the first.",
+		note = "Yours to keep.",
+		tab = "cats",
+	},
 	{
 		key = "grandTheme",
 		configKey = "GrandThemePassId",
@@ -147,7 +158,7 @@ local PASSES: { PassCard } = {
 		key = "signStylePack",
 		configKey = "SignStylePackPassId",
 		name = "Sign Style Pack",
-		icon = "🪧",
+		icon = "🏷️", -- #2015: not 🪧 (Unicode 13), drawn blank
 		effect = "Three cafe sign looks: Flower Box, Starry Night and Paw Chalkboard. Looks only.",
 	},
 	-- #1822 (Monetization's store doc §3C): the King Cat alone sits just before its bundle under Cats, so the bundle
@@ -542,11 +553,6 @@ function StoreLogic.passIds(config: any): { number }
 		if id then
 			table.insert(ids, id)
 		end
-	end
-	-- #1161: the Second Bait Bowl, priced for the Bait bowl window's locked tab (no Store card yet)
-	local second = config.SecondBowlPassId
-	if type(second) == "number" and second ~= 0 then
-		table.insert(ids, second)
 	end
 	return ids
 end

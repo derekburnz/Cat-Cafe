@@ -430,6 +430,7 @@ local function storePrices(forSale)
 		RoyalCatPassId = 599,
 		KingPackPassId = 999,
 		GardenDecorPackPassId = 149, -- #1168: shows once its id is set
+		SecondBowlPassId = 149, -- #2010: the Cats tab's Second Bait Bowl card
 	}
 	for key, robux in others do
 		local id = Config[key]
@@ -770,9 +771,15 @@ local function startCatchV3(strayId, rarity, kinds, trustStart, trustNeed)
 	local t = workspace:GetServerTimeNow()
 	local list = {}
 	local at = t + 0.3
-	for index, kind in kinds do
-		table.insert(list, { startsAt = at, shrinkSeconds = 0.8, x = 0.5, y = 0.5, kind = kind, half = if kind == "double" then (index % 2 == 0 and 2 or 1) else nil })
-		at += if kind == "double" and index % 2 == 1 then 0.18 else 0.7
+	local doubles = 0 -- a double's halves come in pairs, half 1 then half 2, DoubleRingGap apart
+	for _, kind in kinds do
+		local half = nil
+		if kind == "double" then
+			doubles += 1
+			half = (doubles - 1) % 2 + 1
+		end
+		table.insert(list, { startsAt = at, shrinkSeconds = 0.8, x = 0.5, y = 0.5, kind = kind, half = half })
+		at += if half == 1 then UIShim.require("ReplicatedStorage.Shared.Config").DoubleRingGap else 0.7
 	end
 	UI.catch.show({ strayId = strayId, catId = Catalog.cats[2].id, catName = "Mochi", rarity = rarity })
 	UI.catch.showCircles(strayId, list, { perfect = 0.037, good = 0.09 }, trustStart, trustNeed)
@@ -858,6 +865,32 @@ local SCENES = {
 		})
 		UI.open("Decor")
 		press("Decor", "Style")
+	end },
+	-- #2007 (Derek2: "cafe sign cant change back to plain also put symbols beside each one"): every sign style with
+	-- its symbol, Paw Chalkboard in use, then the sync for Plain ("" now, where nil left the old pick gold)
+	{ "DecorStylePlain", function()
+		UI.update({
+			signStyles = {
+				"bakery_stripes",
+				"royal_crest",
+				"frame_golden_leaf",
+				"sign_maple_board",
+				"pack_flower_box",
+				"pack_starry_night",
+				"pack_paw_chalkboard",
+			},
+			signStyle = "pack_paw_chalkboard",
+		})
+		UI.open("Decor")
+		press("Decor", "Style")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local row = modals and modals:FindFirstChild("sign", true)
+		local title = row and row:FindFirstChild("Title")
+		assert(title and title:IsA("TextLabel"), "uigate: no Cafe sign row on the Style tab")
+		assert(title.Text == "Cafe sign: 🐾 Paw Chalkboard", "uigate: the sign row's title reads " .. title.Text)
+		UI.update({ signStyle = "" })
+		task.wait(0.05)
+		assert(title.Text == "Cafe sign: ⬜ Plain", "uigate: Plain should be in use after the sync, title " .. title.Text)
 	end },
 	-- #1875: the Cafe music row (free for everyone) under the looks, Catnap Waltz in use; a tap asks for the song
 	{ "DecorStyleMusic", function()
@@ -1018,6 +1051,25 @@ local SCENES = {
 		other:SetAttribute("NetDown", nil)
 		assert(markOf(other) == nil, "uigate: the ! should go when the catch ends (#2005)")
 		other:Destroy()
+	end },
+	-- #2015: no glyph in the Theme's icon tables is an emoji from Unicode 12 on, which Roblox's font draws blank (the
+	-- Decor tile showed nothing when its pictures failed); tests/specs/GlyphFont checks the Store and Style glyphs
+	{ "GlyphsDrawable", function()
+		local Theme = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Theme")
+		local NEW = { { 0x1FA00, 0x1FAFF }, { 0x1F7E0, 0x1F7EB }, { 0x1F6D5, 0x1F6DF }, { 0x1F6FA, 0x1F6FF }, { 0x1F90C, 0x1F90F }, { 0x1F93F, 0x1F93F }, { 0x1F971, 0x1F979 }, { 0x1F97B, 0x1F97B }, { 0x1F9A3, 0x1F9AF }, { 0x1F9BA, 0x1F9BF }, { 0x1F9C3, 0x1F9CF } }
+		for _, name in { "icons", "upgradeIcons", "roleIcons", "foodIcons" } do
+			for key, glyph in Theme[name] do
+				if type(glyph) == "string" then
+					for _, code in utf8.codes(glyph) do
+						for _, range in NEW do
+							assert(code < range[1] or code > range[2], ("uigate: Theme.%s.%s is %s, drawn blank (#2015)"):format(name, tostring(key), glyph))
+						end
+					end
+				end
+			end
+		end
+		assert(Theme.icons.decor == "🌿", "uigate: the Decor tile's fallback should be 🌿 (#2015)")
+		UI.open("Decor")
 	end },
 	{ "Cannon", function()
 		UI.cannon.open()
@@ -1243,6 +1295,28 @@ local SCENES = {
 		assertBowlAction("See the cat")
 		press("Bait", "Bowls.Bowl1")
 		assertBowlTabs(1, "is in bowl 1")
+	end },
+	-- #2014 (Derek2: "food bowl cats wait until not mid catch to pop up on screen"): a cat comes to bowl 2 during a
+	-- catch; the card holds (the bowl tile shows the !) until the circles end, then shows a moment after
+	{ "BaitWaitsForCatch", function()
+		local now = workspace:GetServerTimeNow()
+		UI.bait.setSecond("on")
+		UI.bait.set({ lureId = Catalog.lures[2].id, readyAt = now - 1, placedAt = now - 300 }, 2)
+		startCatch("gate_bait_wait", "Common", 4, 0.3, 1.5)
+		assert(UI.catch.circlesActive(), "uigate: the catch circles should be running")
+		UI.bait.arrived({ catId = Catalog.cats[2].id, stars = 2 }, 2)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeBaitCard")
+		task.wait(0.5)
+		assert(gui and not gui.Enabled, "uigate: the bait card popped up mid catch (#2014)")
+		assertBowlTile(true)
+		UI.catch.hideCircles()
+		UI.catch.hide()
+		task.wait(0.3)
+		assert(not gui.Enabled, "uigate: the bait card should wait a moment after the catch (#2014)")
+		task.wait(UI.bait.SETTLE + 0.5)
+		assert(gui.Enabled, "uigate: the bait card never showed after the catch (#2014)")
+		local banner = gui:FindFirstChild("Banner", true)
+		assert(banner.Text == "A CAT CAME TO BOWL 2!", "uigate: the cat's card says " .. banner.Text)
 	end },
 	-- #1161: the cat's card with two bowls names the bowl, and its banner stays clear of the X on a phone
 	{ "BaitCardBowl2", function()
@@ -1916,10 +1990,29 @@ local SCENES = {
 		local paw = layer:FindFirstChild("Circle2", true)
 		local number = paw and paw:FindFirstChild("Number", true)
 		assert(number and number.Text == "🐾", "uigate: the paw ring has no paw print (#1884)")
+		-- #2005: the whole paw ring red with "Don't swing!", and a double ring's second half in blue with "x2"
+		local warning = paw:FindFirstChild("DontSwing", true)
+		assert(warning and warning.Text == "Don't swing!", "uigate: the paw ring has no Don't swing! (#2005)")
+		local good = paw:FindFirstChild("GoodBand", true)
+		local goodStroke = good and good:FindFirstChildOfClass("UIStroke")
+		assert(goodStroke and goodStroke.Color.R > 0.8 and goodStroke.Color.G < 0.4, "uigate: the paw ring's band isn't red (#2005)")
+		local first, second = layer:FindFirstChild("Circle3", true), layer:FindFirstChild("Circle4", true)
+		assert(first and first:FindFirstChild("Double", true) == nil, "uigate: the first half of a double has an x2 (#2005)")
+		local tag = second and second:FindFirstChild("Double", true)
+		assert(tag and tag.Text == "x2", "uigate: a double ring's second half has no x2 tag (#2005)")
 		UI.catch.judged("gate_v3", 1, "perfect", 4)
 		task.wait(0.4)
 		local fill = bar:FindFirstChild("Fill", true)
 		assert(fill and math.abs(fill.Size.X.Scale - 4 / 14) < 0.02, "uigate: the trust bar isn't at the server's trust (#1884)")
+	end },
+	-- #2005 section 4 (Derek2: "make it the entire circle not just the perfect line and have a don't swing! text"): a
+	-- paw ring mid close, red all over with Don't swing! under it
+	{ "CatchPawRing", function()
+		startCatchV3("gate_paw", "Epic", { "single", "single", "single", "paw" }, 2, 14)
+	end },
+	-- #2005 section 4 ("the rapid rings are not clear"): both halves of a double ring closing, the second in blue, x2
+	{ "CatchDoubleRing", function()
+		startCatchV3("gate_double", "Epic", { "single", "single", "single", "double", "double" }, 2, 14)
 	end },
 	-- Catch v3 (#1884, 7d): a Purrfect catch's banner (Root.FinishBanner, after the net wrap) and the HUD's streak
 	{ "CatchV3Finish", function()
@@ -2542,6 +2635,23 @@ local SCENES = {
 		UI.open("Store")
 		press("CatCafeModals", "passes")
 		assertStoreCards(false)
+	end },
+	-- #2010 (Derek2: "extra food bowl is missing from live game store"): the Cats tab sells the Second Bait Bowl
+	{ "StoreCatsBowl", function()
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		press("CatCafeModals", "cats")
+		assertStoreCards(false)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("Store", true)
+		local list = window and window:FindFirstChild("List", true)
+		local found = false
+		for _, label in (list :: Instance):GetDescendants() do
+			if label:IsA("TextLabel") and label.Name == "Name" and label.Text == "Second Bait Bowl" and label.Visible then
+				found = true
+			end
+		end
+		assert(found, "uigate: the Cats tab has no Second Bait Bowl card (#2010)")
 	end },
 	-- #1425: the Potions tab, each pack with its exact contents and the bag count
 	{ "StorePotions", function()

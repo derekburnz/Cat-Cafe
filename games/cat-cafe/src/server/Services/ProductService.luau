@@ -28,6 +28,7 @@ local CafeService = require(script.Parent.CafeService)
 local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local DataService = require(script.Parent.DataService)
+local Grant = require(ReplicatedStorage.Shared.Grant)
 local IdeaCreditsService = require(script.Parent.IdeaCreditsService)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
@@ -73,45 +74,109 @@ local function saveHolding(player: Player, purchaseId: string): boolean
 	return saved
 end
 
--- Pays what `product` (not the Cafe Pass) holds: the once-per-account mark, the sign styles, the potions (Payout, as
--- `sku`) and the cats, with no yield, then a toast that starts with `thanks` and a sync. A receipt records its id
--- first; owner test mode (#1770, OwnerTestService) records none and passes an owner_test_ sku.
+local function catCount(profile: Types.PlayerProfile): number
+	local count = 0
+	for _ in profile.cats do
+		count += 1
+	end
+	return count
+end
+
+-- Pays what `product` (not the Cafe Pass) holds, with no yield: the cats first, then the once-per-account mark and
+-- the sign styles, the potions (Payout, as `sku`), the supporter badge, a toast that starts with `thanks` and a sync.
+-- #2127: each step runs on its own (shared/Grant), so one that throws loses only itself; if the cats throw before one
+-- is added, nothing is paid and the result is undone. A receipt records its id first; owner test mode (#1770,
+-- OwnerTestService) records none and passes an owner_test_ sku.
 function ProductService.give(
 	player: Player,
 	profile: Types.PlayerProfile,
 	product: Types.ProductDef,
 	sku: string,
 	thanks: string
-)
+): Grant.Result
 	local give, first = Products.prizeFor(profile, product)
-	Products.markBought(profile, product, give.signStyles)
-	local prize: Types.IndexPrize = { potions = give.potions }
-	local paid = Payout.pay(player, profile, prize, sku, "Shop")
-	for _, styleId in give.signStyles do
-		if profile.signStyle == nil then
-			profile.signStyle = styleId -- a new sign shows straight away; the Style panel can change it
-		end
-		local style = SignStyles.get(styleId)
-		table.insert(paid, "the " .. (if style ~= nil then style.name else styleId) .. " sign")
-	end
-	if first and product.supporter == true then
-		-- #1168 row 4: the mark is profile.onceBought (markBought, above); the board, chat tag and attribute follow
-		IdeaCreditsService.markSupporter(player, profile)
-		CafePassService.refreshTag(player, profile)
-		table.insert(paid, "your gold Thank You badge")
-	end
-	Net.fire(player, "Toast", thanks .. table.concat(paid, ", "), "good")
-	for _, catId in give.cats do
-		local def = Catalog.getCat(catId)
-		if def ~= nil then
-			CafeService.addGiftCat(player, profile, def, CatStats.DEFAULT_CHARM)
-		end
+	local paid: { string } = {}
+	local catsBefore = catCount(profile)
+	local result = Grant.run({
+		name = "cats",
+		run = function()
+			for _, catId in give.cats do
+				local def = Catalog.getCat(catId)
+				if def ~= nil then
+					CafeService.addGiftCat(player, profile, def, CatStats.DEFAULT_CHARM)
+				end
+			end
+		end,
+	}, function(): boolean
+		return catCount(profile) ~= catsBefore
+	end, {
+		{
+			name = "mark",
+			run = function()
+				Products.markBought(profile, product, give.signStyles)
+				for _, styleId in give.signStyles do
+					if profile.signStyle == nil then
+						profile.signStyle = styleId -- a new sign shows straight away; the Style panel can change it
+					end
+				end
+			end,
+		},
+		{
+			name = "potions",
+			run = function()
+				local prize: Types.IndexPrize = { potions = give.potions }
+				for _, line in Payout.pay(player, profile, prize, sku, "Shop") do
+					table.insert(paid, line)
+				end
+			end,
+		},
+		{
+			name = "supporter",
+			run = function()
+				for _, styleId in give.signStyles do
+					local style = SignStyles.get(styleId)
+					table.insert(
+						paid,
+						"the " .. (if style ~= nil then style.name else styleId) .. " sign"
+					)
+				end
+				if first and product.supporter == true then
+					-- #1168 row 4: the mark is profile.onceBought (markBought); the board, chat tag and attribute follow
+					IdeaCreditsService.markSupporter(player, profile)
+					CafePassService.refreshTag(player, profile)
+					table.insert(paid, "your gold Thank You badge")
+				end
+			end,
+		},
+		{
+			name = "toast",
+			run = function()
+				Net.fire(player, "Toast", thanks .. table.concat(paid, ", "), "good")
+			end,
+		},
+		{
+			name = "sync",
+			run = function()
+				CafeService.refreshPlot(player)
+				CafeService.sync(player)
+			end,
+		},
+	})
+	for index, name in result.failed do
+		warn(
+			string.format(
+				"[ProductService] %s: the %s step failed%s: %s",
+				product.id,
+				name,
+				if result.undone then " before anything was paid, so it is not granted yet" else "",
+				result.errors[index]
+			)
+		)
 	end
 	if not first then
 		warn("[ProductService] a second", product.id, "for", player.UserId, "paid only its potions")
 	end
-	CafeService.refreshPlot(player)
-	CafeService.sync(player)
+	return result
 end
 
 -- The ProcessReceipt answer for one receipt (see the header).
@@ -159,8 +224,22 @@ function ProductService.processReceipt(receipt: { [string]: any }): Enum.Product
 	elseif not Products.granted(profile.receipts, purchaseId) then
 		-- #1625: the id, the once-per-account mark, the sign styles and the cats all land in this one step, no yield
 		Products.record(profile.receipts, purchaseId)
+		local result =
+			ProductService.give(player, profile, product, "product_" .. product.id, "Thank you! ")
+		for _, step in result.failed do
+			Telemetry.custom(
+				player,
+				"grant_failed",
+				1,
+				{ product.id, step, if result.undone then "retry" else "kept" }
+			)
+		end
+		if result.undone then
+			-- #2127: nothing was paid, so the id goes again and Roblox's next delivery pays the whole prize
+			Products.forget(profile.receipts, purchaseId)
+			return Enum.ProductPurchaseDecision.NotProcessedYet
+		end
 		Telemetry.productBought(player, profile, receipt.ProductId, receipt.CurrencySpent) -- #1888
-		ProductService.give(player, profile, product, "product_" .. product.id, "Thank you! ")
 	end
 	if saveHolding(player, purchaseId) then
 		return Enum.ProductPurchaseDecision.PurchaseGranted

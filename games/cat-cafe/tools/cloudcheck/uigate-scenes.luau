@@ -649,7 +649,7 @@ local function assertBowlTile(catWaiting)
 	local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
 	local tile = hud and hud:FindFirstChild("Bowl", true)
 	assert(tile and tile.Visible, "uigate: no HUD bowl tile (#1161)")
-	local count = tile:FindFirstChild("Count")
+	local count = tile:FindFirstChild("Count", true)
 	assert(count and count.Visible, "uigate: the HUD bowl tile has no 2 with two bowls (#1161)")
 	local mark = tile:FindFirstChild("Claim")
 	assert(mark and mark.Visible == catWaiting, "uigate: the HUD bowl tile's ! is wrong for a waiting cat (#1161)")
@@ -1270,7 +1270,7 @@ local SCENES = {
 		assert(sent == food .. "@2", "uigate: Use after the pass sent " .. tostring(sent) .. " (#1161)")
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
 		local count = hud and hud:FindFirstChild("Bowl", true)
-		count = count and count:FindFirstChild("Count")
+		count = count and count:FindFirstChild("Count", true)
 		assert(count and count.Visible, "uigate: the HUD bowl tile has no 2 after the pass (#1161)")
 	end },
 	-- #1161: no pass: bowl 2's tab is locked; tapping it shows the pass card with its price. #1767: under it three
@@ -1965,6 +1965,8 @@ local SCENES = {
 	{ "OfflineTip", function()
 		UI.update({ tipsSeen = { stuck_cat = true, codes_cat = true } })
 		UI.showOfflineEarnings(48200, 3 * 3600)
+		-- an ask (the invite nudge) waits for the Welcome back card (Studio run 2026-11-07)
+		assert(not UI.tips.quiet(), "uigate: an ask could slide in under the Welcome back card")
 	end },
 	-- F87 section 2f: a brand new player's small HUD, the money, the hint strip, Home and the Cannon, the Tutorial
 	-- tile and Settings

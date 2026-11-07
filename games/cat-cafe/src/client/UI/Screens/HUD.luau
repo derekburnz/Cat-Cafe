@@ -1446,20 +1446,22 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			bowlBadge.Position = UDim2.new(1, 2, 0, 3)
 			bowlBadge.Size = UDim2.fromOffset(22, 22) -- as the Pass tile's
 			self._bowlBadge = bowlBadge
-			-- #1161: a small "2" at the bottom right while the cafe has two bowls (the "!" is top right)
+			-- #1161: a small "2" at the bottom right while the cafe has two bowls (the "!" is top right). It sits on the
+			-- square's own corner: on the tile's corner it covered the end of the "Bowl" label under it (Studio run
+			-- 2026-11-07)
 			local count: TextLabel = label({
 				Name = "Count",
 				BackgroundColor3 = Theme.colors.cocoaDeep,
 				BackgroundTransparency = 0,
 				AnchorPoint = Vector2.new(1, 1),
-				Position = UDim2.new(1, 2, 1, 2),
+				Position = UDim2.new(1, 2, 1, -2),
 				Size = UDim2.fromOffset(20, 20),
 				TextSize = Theme.sizes.textTiny,
 				TextXAlignment = Enum.TextXAlignment.Center,
 				Text = "2",
 				Visible = false,
 				ZIndex = 23,
-				Parent = button.instance,
+				Parent = button.face,
 			})
 			Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = count })
 			Outline.border(count, 2)

@@ -1319,8 +1319,14 @@ local inIntro = false
 local ASK_WAIT_SECONDS = 300 -- an ask with no quiet moment this long waits for another session
 local ASK_SETTLE_SECONDS = 3 -- after a catch or rescue ends, before an ask
 
+-- The UI's own moment too: no window, popup (Welcome back), tip card or other ask up. The invite ask slid in under the
+-- Welcome back card at join (Studio run 2026-11-07).
 local function quiet(): boolean
-	return not inIntro and os.clock() >= busyUntil and (state == nil or state.carrying == nil)
+	if inIntro or os.clock() < busyUntil or (state ~= nil and state.carrying ~= nil) then
+		return false
+	end
+	local tips: any = (UI :: any).tips
+	return tips == nil or type(tips.quiet) ~= "function" or tips.quiet() == true
 end
 
 local function trackBusy()

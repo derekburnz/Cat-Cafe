@@ -3164,6 +3164,11 @@ local SCENES = {
 		local tipsSeen = table.clone(before)
 		tipsSeen.tackle = nil
 		UI.update({ tipsSeen = tipsSeen } :: any)
+		-- #2312: IntroController's stager, as it hands it over, takes the camera for each caption and gives it back
+		local staged: { number } = {}
+		UI.intro.setTackleStager(function(shot: number)
+			table.insert(staged, shot)
+		end)
 		UI.tips.show("tackle")
 		UIShim.advance(0.5)
 		assert(UI.intro.playing(), "uigate: the tackle tip did not start the lesson (#2198)")
@@ -3189,6 +3194,9 @@ local SCENES = {
 		UIShim.advance(20)
 		assert(not UI.intro.playing(), "uigate: the lesson did not end by itself (#2198)")
 		assert(#seen == 1 and seen[1] == "tackle", "uigate: the lesson's end did not save the tackle tip as seen (#2198)")
+		local shots = table.concat(staged, ",")
+		assert(shots == "1,2,3,4,0", "uigate: the lesson staged the camera as " .. shots .. ", not 1,2,3,4,0 (#2312)")
+		UI.intro.setTackleStager(nil)
 		counting:Disconnect()
 		UI.update({ tipsSeen = before } :: any)
 	end },

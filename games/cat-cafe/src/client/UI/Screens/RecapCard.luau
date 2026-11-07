@@ -26,12 +26,13 @@ export type RecapCard = {
 	destroy: (self: RecapCard) -> (),
 }
 
-local CARD_W = 380
+local CARD_W = 420 -- #2235: room for the bigger lines on one row each where it can
 local BOTTOM = 92 -- over the bottom row of HUD buttons
 local PAD = 14
 local TITLE_H = 30
-local LINE_H = 24
-local GAP = 4
+local GAP = 6
+local LINE_SIZE = Theme.sizes.textBody + 1 -- #2235 (Derek2: "the text from cafe so far is hard to read"), was 15
+local CALLOUT_PAD = 6 -- round the offline line's mint callout
 local SLIDE = TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 local SLIDE_OUT = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 
@@ -104,22 +105,45 @@ function RecapCard.new(parent: Instance): RecapCard
 			self:hide()
 		end,
 	})
+	-- #2235: the lines stack in a list and each is as tall as its wrapped text (AutomaticSize), so a line that fits
+	-- on one row leaves no blank row under it (the old guess counted characters and gave the offline line two)
+	local lines: Frame = Create("Frame", {
+		Name = "Lines",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(PAD, PAD + TITLE_H + 4),
+		Size = UDim2.new(1, -PAD * 2, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Parent = card,
+	}, {
+		Create("UIListLayout", {
+			Padding = UDim.new(0, GAP),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._lines = lines
 	for index = 1, RecapLogic.MAX_LINES do
-		self._labels[index] = Create("TextLabel", {
+		local label: TextLabel = Create("TextLabel", {
 			Name = "Line" .. index,
 			BackgroundTransparency = 1,
-			Position = UDim2.fromOffset(PAD, PAD + TITLE_H + 4),
-			Size = UDim2.new(1, -PAD * 2, 0, LINE_H),
-			FontFace = Theme.fonts.body,
-			TextSize = Theme.sizes.textSmall + 1,
+			BackgroundColor3 = Theme.colors.mint,
+			BorderSizePixel = 0,
+			Size = UDim2.fromScale(1, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			LayoutOrder = index,
+			FontFace = Theme.fonts.bodyBold,
+			TextSize = LINE_SIZE,
 			TextColor3 = Theme.modal.text,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextYAlignment = Enum.TextYAlignment.Top,
 			TextWrapped = true,
 			Text = "",
 			Visible = false,
-			Parent = card,
+			Parent = lines,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+			Create("UIPadding", { Name = "Callout" }),
 		})
+		self._labels[index] = label
 	end
 
 	self._resize = root:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
@@ -127,26 +151,43 @@ function RecapCard.new(parent: Instance): RecapCard
 			self:_layout()
 		end
 	end)
+	-- the lines' height settles once their text is laid out; the card follows it
+	self._grow = lines:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		self:_fitHeight()
+	end)
 	return self :: RecapCard
 end
 
--- The card is CARD_W wide, or the screen less 16 px a side; a line that wraps takes up to three rows.
+-- The card is CARD_W wide, or the screen less 16 px a side, and as tall as its lines.
 function RecapCard._layout(self: any)
 	local scale = math.max(self._uiScale.Scale, 0.01)
 	local width = math.min(CARD_W, math.max(260, self._card.Parent.AbsoluteSize.X / scale - 32))
-	local y = PAD + TITLE_H + 4
-	for _, label: TextLabel in self._labels do
-		if label.Visible then
-			-- about 6 px a character at this size; #2123 counts 7 so a line just short of the width (the offline share
-			-- on its own) gets its second row
-			local rows = math.clamp(math.ceil(#label.Text * 7 / (width - PAD * 2)), 1, 3)
-			local height = LINE_H * rows - (rows - 1) * 4
-			label.Position = UDim2.fromOffset(PAD, y)
-			label.Size = UDim2.new(1, -PAD * 2, 0, height)
-			y += height + GAP
-		end
+	self._card.Size = UDim2.fromOffset(width, self._card.Size.Y.Offset)
+	self:_fitHeight()
+end
+
+function RecapCard._fitHeight(self: any)
+	local scale = math.max(self._uiScale.Scale, 0.01)
+	local height = PAD + TITLE_H + 4 + self._lines.AbsoluteSize.Y / scale + PAD
+	local card: Frame = self._card
+	if math.abs(card.Size.Y.Offset - height) > 0.5 then
+		card.Size = UDim2.fromOffset(card.Size.X.Offset, height)
 	end
-	self._card.Size = UDim2.fromOffset(width, y - GAP + PAD)
+end
+
+-- #2235 (Derek2: "make it obvious that cats earn offline also so people come back"): the offline line on a mint
+-- callout, the rest plain.
+local function callout(label: TextLabel, on: boolean)
+	label.BackgroundTransparency = if on then 0 else 1
+	label.TextColor3 = if on then Theme.colors.goodText else Theme.modal.text
+	local pad = label:FindFirstChild("Callout") :: UIPadding?
+	if pad then
+		local inset = UDim.new(0, if on then CALLOUT_PAD else 0)
+		pad.PaddingLeft = inset
+		pad.PaddingRight = inset
+		pad.PaddingTop = UDim.new(0, if on then CALLOUT_PAD - 2 else 0)
+		pad.PaddingBottom = UDim.new(0, if on then CALLOUT_PAD else 0)
+	end
 end
 
 function RecapCard.show(self: any, lines: { string }, onClosed: (secondsUp: number) -> ())
@@ -161,6 +202,7 @@ function RecapCard.show(self: any, lines: { string }, onClosed: (secondsUp: numb
 		local line = lines[index]
 		label.Visible = line ~= nil
 		label.Text = line or ""
+		callout(label, line ~= nil and RecapLogic.isOffline(line))
 	end
 	self:_layout()
 	local card: Frame = self._card
@@ -219,6 +261,7 @@ function RecapCard.destroy(self: any)
 	self._token += 1
 	self._onClosed = nil
 	self._resize:Disconnect()
+	self._grow:Disconnect()
 	self._closeButton:destroy()
 	Scale.unbind(self._uiScale)
 	self.screenGui:Destroy()

@@ -646,5 +646,8 @@ Logged two builder changes from crispi_255's asks. Epic and Legendary strays spa
 ## 2026-11-07: Longer days move Lucky Cat 3 to about 37 minutes (Design-Agent, friend's project, #2192)
 Day 320 s / night 70 s (PR #2208) means fewer bowl cats in the first hour, so the middle Pace run buys Lucky Cat 3 at about 37 minutes, not 31. Logged in first-hour.md §4e and not compensated: Tier 3 stays in 45 to 55 and every gap stays under the 15-minute guard. Reason: a longer bait-at-night share would undo part of the longer-days change for little gain.
 
+## 2026-11-07: Harder tier goals measured; Mythical rescue zone 0.14 (Design-Agent, friend's project, #2230, #2219)
+Tier goals as built in #2236: one-go Tier 5 at 11 h 26 and daily play on day 6, so the 2.3B stays (economy-ladder.md §3 v4). Rescue reset (#2220) with the Mythical zone at 0.14 brings Mythical bar rescues back to about 10% at 50 ms, where they were before the reset (catch-rework.md §4). Reason: the reset alone dropped Mythical to about 5%, and Derek2 had already said Mythical felt impossible.
+
 ## 2026-11-07: Bait bowl odds down 15% on Epic and up; rainbow earns x2 (Design-Agent, friend's project, #2239, #2261)
 Bowl foods: Epic, Legendary and Mythical are 15% lower relative, and Common and Rare take up the rest (data-model.md §8). Caviar and Star Treat were adjusted so their "Attracts" label stays true. Rainbow cats earn x2, not x3 (Derek2, built in #2261; rainbow-coat.md §1). Reason: Derek2's asks. Pace.spec passes; the run on the #2230 tier goals follows.

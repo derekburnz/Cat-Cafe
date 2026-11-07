@@ -2626,6 +2626,45 @@ local SCENES = {
 		assert(claimed == 1, "uigate: a second replay collected again (#2157)")
 		counting:Disconnect()
 	end },
+	-- #2182 (intro-cutscene.md 2b): with a hold, Next just left of Skip and the gold read bar under the caption; a
+	-- press in a shot's first second does nothing, then one press moves on once
+	{ "IntroNext", function()
+		local fired: { number } = {}
+		local counting = UI.events.introNext:Connect(function(shot: number)
+			table.insert(fired, shot)
+		end)
+		UI.intro.start({ skipAfter = 5 })
+		UI.intro.setShot(1, "Fly the Cat Cannon to catch stray cats!", nil, 4.2)
+		UIShim.advance(1)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeIntro") :: ScreenGui
+		assert(gui and gui.Enabled, "uigate: no intro screen (#2182)")
+		local nextPill = gui:FindFirstChild("Next", true) :: TextButton
+		local skip = gui:FindFirstChild("Skip", true) :: TextButton
+		local tap = gui:FindFirstChild("Tap", true) :: TextButton
+		local read = gui:FindFirstChild("ReadBar", true) :: Frame
+		local caption = gui:FindFirstChild("Caption", true) :: TextLabel
+		local bottom = gui:FindFirstChild("BottomBar") :: Frame
+		assert(nextPill and nextPill.Visible and tap and tap.Visible, "uigate: no Next on a shot with a hold (#2182)")
+		local label = nextPill:FindFirstChild("Label") :: TextLabel
+		assert(label.Text == "Next ›" and label.TextFits, "uigate: Next reads " .. label.Text .. " or does not fit (#2182)")
+		assert(math.abs(nextPill.AbsoluteSize.Y - skip.AbsoluteSize.Y) < 1, "uigate: Next is not Skip's height (#2182)")
+		assert(math.abs(nextPill.AbsolutePosition.Y - skip.AbsolutePosition.Y) < 1, "uigate: Next is not level with Skip (#2182)")
+		assert(nextPill.AbsolutePosition.X + nextPill.AbsoluteSize.X < skip.AbsolutePosition.X, "uigate: Next runs into Skip (#2182)")
+		assert(nextPill.AbsolutePosition.X >= 0, "uigate: Next runs off the screen (#2182)")
+		assert(read.Visible, "uigate: no read bar on a shot with a hold (#2182)")
+		assert(read.AbsolutePosition.Y >= caption.AbsolutePosition.Y + caption.AbsoluteSize.Y - 1, "uigate: the read bar is not under the caption (#2182)")
+		assert(read.AbsolutePosition.Y + read.AbsoluteSize.Y <= bottom.AbsolutePosition.Y + 1, "uigate: the read bar sits on the lower bar (#2182)")
+		-- a press in the first second of a shot does nothing (the shim's os.clock runs with UIShim.advance; its tweens end at once,
+		-- so the bar's fill is not checked here)
+		UI.intro.setShot(2, "Boom! Every area starts at a safe camp", nil, 4.2)
+		UIShim.fire(UIShim.eventOf(nextPill, "Activated"))
+		assert(#fired == 0, "uigate: Next moved on in a shot's first second (#2182)")
+		UIShim.advance(1.05)
+		UIShim.fire(UIShim.eventOf(tap, "Activated"))
+		UIShim.fire(UIShim.eventOf(nextPill, "Activated"))
+		assert(#fired == 1 and fired[1] == 2, ("uigate: a tap after a second fired introNext %d times (#2182)"):format(#fired))
+		counting:Disconnect()
+	end },
 	-- #2123 (first-hour.md 6a): the welcome back card with the reason to play today under the coins, the card taller
 	-- by the line and Collect still clear of the note
 	{ "WelcomeBackHook", function()
@@ -3679,6 +3718,9 @@ function Scenes.close()
 	if Scenes._cashMoney ~= nil then
 		UI.update(Scenes._cashMoney :: any) -- #2194's scene
 		Scenes._cashMoney = nil
+	end
+	if UI.intro.playing() then
+		UI.intro.finish() -- #2182's Next scene
 	end
 	if Scenes._potionsFolded then
 		-- #2090: the potions back out for the other scenes

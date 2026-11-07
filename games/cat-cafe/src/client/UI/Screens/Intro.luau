@@ -12,6 +12,11 @@
 --                    to be pressed make it 5 seconds"). Full, it brightens and pops; a tap, a click or gamepad B
 --                    then fires callbacks.skip(shot) once, and the controller ends the intro and calls finish. An
 --                    early press only shakes it. A replay starts full.
+--   Next             #2182 (intro-cutscene.md 2b): a "Next ›" pill of the same size just left of Skip, shown from the
+--                    first shot the controller gives a hold. From IntroLogic.NEXT_AFTER into a shot a press, a tap
+--                    anywhere but Skip, Space, Enter or gamepad A fires callbacks.nextShot(shot) once for that shot.
+--   read bar         #2182: a thin gold bar under the caption filling over the shot's hold, so a player sees when it
+--                    moves on by itself
 -- Numbers live in Components/IntroLogic.
 --
 -- Roblox terms: Camera:WorldToViewportPoint turns a world position into a screen pixel for the current camera,
@@ -34,13 +39,21 @@ local Types = require(script.Parent.Parent.Types)
 export type Callbacks = {
 	skip: (shot: number) -> (), -- Skip or gamepad B, once per play
 	ended: (replay: boolean) -> (), -- the end began (finish, or the Skip fallback): bring the HUD back
+	nextShot: ((shot: number) -> ())?, -- #2182: Next, a tap, Space, Enter or gamepad A, once a shot
 }
 
 export type Intro = {
 	screenGui: ScreenGui,
 	start: (self: Intro, options: Types.IntroOptions?) -> (),
 	-- #1542: the third argument was the camp shot's title card; it is ignored (the shot and its cards are gone)
-	setShot: (self: Intro, index: number, caption: string, _titleCard: string?) -> (),
+	-- #2182: `hold` is the shot's seconds on screen; the read bar fills over it and Next shows (nil: neither)
+	setShot: (
+		self: Intro,
+		index: number,
+		caption: string,
+		_titleCard: string?,
+		hold: number?
+	) -> (),
 	demoCatch: (self: Intro, worldPosition: Vector3) -> (),
 	jobCard: (self: Intro, worldPosition: Vector3, role: string) -> (),
 	finish: (self: Intro) -> (),
@@ -63,6 +76,7 @@ local DOT_NOW = 14
 local DOT_GAP = 8
 local SKIP_WIDTH = 116
 local SKIP_ACTION = "CatCafeIntroSkip"
+local NEXT_ACTION = "CatCafeIntroNext" -- #2182: Space, Enter and gamepad A
 local SKIP_DIM = 0.5 -- Skip's label and outline while its bar fills
 local SKIP_POP = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, true) -- to 1.1 and back
 local SKIP_SHAKE = TweenInfo.new(0.05, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, 2, true)
@@ -155,6 +169,9 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 	self._job = nil :: Frame?
 	self._jobLoop = nil :: RBXScriptConnection?
 	self._connections = {} :: { RBXScriptConnection }
+	self._shotAt = 0 -- #2182: os.clock() when the shot showing began
+	self._nextShown = false
+	self._nexted = 0 -- the shot a Next already moved on from, so one shot takes one press
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeIntro",
@@ -188,6 +205,25 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 	})
 	self._root = root
 	self._uiScale = Scale.bind(root)
+
+	-- #2182: a tap anywhere under Next and Skip moves on, as Next does (only once Next shows)
+	local tap: TextButton = Create("TextButton", {
+		Name = "Tap",
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		Visible = false,
+		Parent = root,
+	})
+	self._tap = tap
+	table.insert(
+		self._connections,
+		tap.Activated:Connect(function()
+			self:_next()
+		end)
+	)
 
 	self._ringLayer = Create("Frame", {
 		Name = "Ring",
@@ -242,6 +278,28 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 	self._captionLabel = caption
 	self._captionScale = Create("UIScale", { Parent = caption })
 
+	-- #2182: the read bar under the caption, filling over the shot's hold
+	local read: Frame = Create("Frame", {
+		Name = "ReadBar",
+		BackgroundColor3 = Theme.colors.paper,
+		BackgroundTransparency = 0.7,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1 - BAR, -4),
+		Size = UDim2.fromOffset(IntroLogic.READ_WIDTH, IntroLogic.READ_HEIGHT),
+		Visible = false,
+		Parent = root,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	self._read = read
+	self._readFill = Create("Frame", {
+		Name = "Fill",
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(0, 1),
+		Parent = read,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	self._readTween = nil :: Tween?
+
 	-- Skip: a dark pill with a light outline on the lower bar at the right, and a gold bar filling it
 	local skip: TextButton = Create("TextButton", {
 		Name = "Skip",
@@ -287,6 +345,40 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 		end)
 	)
 
+	-- #2182: Next, the same pill as Skip with no bar, just left of it
+	local nextButton: TextButton = Create("TextButton", {
+		Name = "Next",
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundColor3 = Theme.colors.ink,
+		BackgroundTransparency = 0.35,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 1),
+		Size = UDim2.fromOffset(SKIP_WIDTH, IntroLogic.SKIP_HEIGHT),
+		Visible = false,
+		Parent = root,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(nextButton, 2, Theme.colors.paper)
+	local nextLabel: TextLabel = Create("TextLabel", {
+		Name = "Label",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		FontFace = Theme.fonts.display,
+		TextSize = 20,
+		TextColor3 = Theme.colors.white,
+		Text = "Next ›",
+		Parent = nextButton,
+	})
+	Outline.text(nextLabel, 2)
+	self._nextButton = nextButton
+	self._nextScale = Create("UIScale", { Parent = nextButton })
+	table.insert(
+		self._connections,
+		nextButton.Activated:Connect(function()
+			self:_next()
+		end)
+	)
+
 	self._scaleConnection = Scale.changed:Connect(function()
 		self:_layout()
 	end) :: Signal.Connection
@@ -300,8 +392,12 @@ function Intro._layout(self: any)
 	local camera = Workspace.CurrentCamera
 	local viewport = if camera then camera.ViewportSize else Scale.DESIGN
 	local height, below = IntroLogic.skipPlace(viewport.Y, Scale.get(), Scale.isTouch())
-	self._skipButton.Size = UDim2.fromOffset(SKIP_WIDTH + height - IntroLogic.SKIP_HEIGHT, height)
+	local width = SKIP_WIDTH + height - IntroLogic.SKIP_HEIGHT
+	self._skipButton.Size = UDim2.fromOffset(width, height)
 	self._skipButton.Position = UDim2.new(1, -SIDE, 1, -below)
+	-- #2182: Next the same size, just left of Skip
+	self._nextButton.Size = UDim2.fromOffset(width, height)
+	self._nextButton.Position = UDim2.new(1, -(SIDE + width + IntroLogic.NEXT_GAP), 1, -below)
 end
 
 function Intro._renderDots(self: any)
@@ -321,6 +417,7 @@ function Intro.start(self: any, options: Types.IntroOptions?)
 	self:_clearRing()
 	self:_clearJob()
 	self:_hideSkip()
+	self:_hideNext()
 	self._playing = true
 	self._replay = options ~= nil and options.replay == true
 	self._skipped = false
@@ -347,20 +444,128 @@ function Intro.start(self: any, options: Types.IntroOptions?)
 end
 
 -- A new shot: its dot turns gold and its caption pops; the same shot and caption again changes nothing. #1542 (Derek):
--- the camp shot and its area title cards are gone, so a third argument is ignored.
-function Intro.setShot(self: any, index: number, caption: string, _titleCard: string?)
+-- the camp shot and its area title cards are gone, so a third argument is ignored. #2182: with a `hold` the read bar
+-- fills over it from the shot's start and Next shows.
+function Intro.setShot(
+	self: any,
+	index: number,
+	caption: string,
+	_titleCard: string?,
+	hold: number?
+)
 	if not self._playing then
 		return
 	end
 	local shot = math.clamp(math.floor(index), 1, IntroLogic.SHOTS)
-	if shot ~= self._shot or caption ~= self._caption then
+	local newShot = shot ~= self._shot
+	if newShot or caption ~= self._caption then
 		self._captionLabel.Text = caption
 		self._captionScale.Scale = 0.9
 		Tween.to(self._captionScale, CAPTION_POP, { Scale = 1 })
 	end
+	if newShot then
+		self._shotAt = os.clock()
+	end
 	self._shot = shot
 	self._caption = caption
 	self:_renderDots()
+	local seconds = IntroLogic.hold(hold)
+	if seconds == nil then
+		self:_stopRead()
+		self._read.Visible = false
+		return
+	end
+	self:_showNext()
+	if newShot or not self._read.Visible then
+		self:_stopRead()
+		self._read.Visible = true
+		local fill: Frame = self._readFill
+		fill.Size = UDim2.fromScale(IntroLogic.skipFill(os.clock() - self._shotAt, seconds), 1)
+		self._readTween = Tween.to(
+			fill,
+			TweenInfo.new(seconds, Enum.EasingStyle.Linear),
+			{ Size = UDim2.fromScale(1, 1) }
+		)
+	end
+end
+
+function Intro._stopRead(self: any)
+	local running: Tween? = self._readTween
+	if running then
+		running:Cancel()
+		self._readTween = nil
+	end
+end
+
+-- #2182: Next, the tap layer and Space, Enter and gamepad A, from the first shot with a hold to the end.
+function Intro._showNext(self: any)
+	if self._nextShown then
+		return
+	end
+	self._nextShown = true
+	self._nextButton.Visible = true
+	self._tap.Visible = true
+	ContextActionService:BindActionAtPriority(
+		NEXT_ACTION,
+		function(_name: string, inputState: Enum.UserInputState): Enum.ContextActionResult
+			if inputState == Enum.UserInputState.Begin then
+				self:_next()
+			end
+			return Enum.ContextActionResult.Sink
+		end,
+		false,
+		Enum.ContextActionPriority.High.Value,
+		Enum.KeyCode.Space,
+		Enum.KeyCode.Return,
+		Enum.KeyCode.KeypadEnter,
+		Enum.KeyCode.ButtonA
+	)
+end
+
+function Intro._hideNext(self: any)
+	if self._nextShown then
+		ContextActionService:UnbindAction(NEXT_ACTION)
+	end
+	self._nextShown = false
+	self._nexted = 0
+	self._nextButton.Visible = false
+	self._tap.Visible = false
+	self:_stopRead()
+	self._read.Visible = false
+end
+
+-- #2182: fires callbacks.nextShot once for the shot showing, from IntroLogic.NEXT_AFTER into it; earlier presses do
+-- nothing. After Next on the last shot the screen ends itself if the controller has not, as after a Skip.
+function Intro._next(self: any)
+	local shot = self._shot
+	if
+		not self._playing
+		or self._skipped
+		or not self._nextShown
+		or shot < 1
+		or self._nexted == shot
+	then
+		return
+	end
+	if not IntroLogic.canNext(os.clock() - self._shotAt) then
+		return
+	end
+	self._nexted = shot
+	Sound.play("uiClick")
+	self._nextScale.Scale = 0.92
+	Tween.to(self._nextScale, Tween.POP, { Scale = 1 })
+	local callback = self._callbacks.nextShot
+	if callback then
+		callback(shot)
+	end
+	if shot >= IntroLogic.SHOTS then
+		local token = self._token
+		task.delay(IntroLogic.SKIP_FALLBACK, function()
+			if self._alive and self._playing and token == self._token then
+				self:finish()
+			end
+		end)
+	end
 end
 
 -- Shot 2's demo catch over the stray: the circle closes onto its ring in 1.3 s, PERFECT pops with the catch
@@ -682,6 +887,7 @@ function Intro.finish(self: any)
 	self:_clearRing()
 	self:_clearJob()
 	self:_hideSkip()
+	self:_hideNext()
 	self._root.Visible = false
 	Tween.to(self._top, BARS_OUT, { Position = UDim2.fromScale(0, -BAR) })
 	Tween.to(self._bottom, BARS_OUT, { Position = UDim2.fromScale(0, 1) })
@@ -703,6 +909,7 @@ function Intro.destroy(self: any)
 	self:_clearRing()
 	self:_clearJob()
 	self:_hideSkip()
+	self:_hideNext()
 	for _, connection in self._connections do
 		connection:Disconnect()
 	end

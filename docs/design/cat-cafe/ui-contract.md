@@ -363,6 +363,8 @@ While it plays the UI hides the HUD, toasts, place icons, the tutorial marker an
 | `UI.intro.finish()` | After the last shot (10) or on Skip: the end above. Safe to call twice. |
 | `UI.intro.playing()` | True from `start` until `finish`. |
 | `events.introSkip(shot)` | Skip or gamepad B, once per play, only once the bar is full; `shot` is the one showing (1 to 10). End the intro, call `UI.intro.finish()` and fire `IntroDone(shot, replay)`. |
+| `UI.intro.setShot(index, caption, nil, hold)` | #2182 (intro-cutscene.md 2b): the fourth argument is the shot's hold in seconds (`max(length, Intro.CAPTION_BASE + Intro.CAPTION_PER_WORD × words)`). A thin gold read bar under the caption fills over it from the shot's start, and from the first shot with a hold a "Next ›" pill the size of Skip shows just left of it. With no hold neither shows. |
+| `events.introNext(shot)` | #2182: Next, a tap anywhere but Skip, Space, Enter or gamepad A, once a shot and only from `Intro.NEXT_AFTER` (1.0 s) into it; earlier presses do nothing. Cut to the next shot, or on the last one end the intro as a finish (`IntroDone(0, replay)`) and call `UI.intro.finish()`; the screen ends itself 1.5 s after a last-shot Next if `finish` has not come. |
 | `events.introReplay()` | The Tutorial tile or Settings' Replay tutorial: play it with `UI.intro.start({ replay = true })`. |
 
 **Engineer (F72):** pass `introSeen = s.introSeen` and `settings` (with `tutorialButton`) in UIController's `UI.update`. For the ten shot cut: `UI.intro.start({ skipAfter = Intro.SKIP_AFTER })` on a first play and `UI.intro.jobCard(waiterPoint, "waiter")` 0.35 s into shot 4. The demo plays the intro over whatever is on screen with T (no camera moves); its Skip and end set `introSeen` as the server would.

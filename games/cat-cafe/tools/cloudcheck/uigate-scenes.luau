@@ -3108,7 +3108,7 @@ local SCENES = {
 		assertStoreCards(false)
 		Config.JukeboxPassId = was
 	end },
-	-- #1168: the Thank You Badge (a product, hidden for a supporter) and the Sign Style Pack (a pass, hidden at 0)
+	-- #1168: the Thank You Badge (a product, reads Yours for a supporter, #2073) and the Sign Style Pack (a pass, hidden at 0)
 	-- on the Passes tab, each saying what it holds
 	{ "StoreThankYouSign", function()
 		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
@@ -3132,8 +3132,9 @@ local SCENES = {
 			local thanks = modals and modals:FindFirstChild("grid:thankYou", true)
 			assert(thanks and thanks:IsA("GuiObject") and thanks.Visible, "uigate: no Thank You Badge card (#1168)")
 			player:SetAttribute("Supporter", true)
-			local gone = modals:FindFirstChild("grid:thankYou", true)
-			assert(gone == nil or not (gone :: GuiObject).Visible, "uigate: a supporter still sees the Thank You Badge (#1168)")
+			-- #2073: a supporter keeps the card, now reading Yours, instead of it vanishing
+			local kept = modals:FindFirstChild("grid:thankYou", true)
+			assert(kept and kept:IsA("GuiObject") and kept.Visible, "uigate: a supporter's Thank You Badge card vanished (#2073)")
 			player:SetAttribute("Supporter", nil)
 		end
 		assertStoreCards(false)

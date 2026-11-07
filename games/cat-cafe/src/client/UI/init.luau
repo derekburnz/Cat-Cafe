@@ -5787,6 +5787,7 @@ do
 		screen = nil :: Store.Store?,
 		changed = nil :: Signal.Connection?,
 		grant = nil :: Signal.Connection?, -- PassShop.ownerGrant to UI.events.ownerGrant (#1770)
+		thanks = nil :: Signal.Connection?, -- #2147: PassShop.purchased to the outfit passes' toast and sparkle
 		open = false, -- whether the HUD's tile shows
 		bench = false, -- #1633: the Codes Cat's circle opened the Store, so walking out closes it
 		tabs = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StoreTabs")) :: any, -- #1823 §4
@@ -5987,6 +5988,23 @@ do
 		PassShop.busy = function(): boolean
 			return UI.catch.circlesActive() or UI.rescue.isActive() or UI.intro.playing()
 		end
+		-- #2147 (store-pass-looks.md 7.3): right after an outfit pass is bought here (never at join or a sync), the
+		-- toast, and Moments.OutfitPassBought for Animation's bow sparkle over each working cat (Effects/PassThanks,
+		-- which skips it on Reduce Motion or Low)
+		shop.thanks = PassShop.purchased:Connect(function(passId: number)
+			local which = if passId == Config.CatAccessoriesPassId
+				then "accessories"
+				elseif passId == Config.UniformStylesPassId then "uniforms"
+				else nil
+			if which == nil then
+				return
+			end
+			UI.toast(StoreLogic.outfitThanks(which), "good")
+			local outfitBought = (Moments :: any).OutfitPassBought -- on main with #2154
+			if outfitBought ~= nil then
+				outfitBought:Fire(which)
+			end
+		end)
 		shop.blocked = PassShop.blocked:Connect(function(source: string, reason: string)
 			UI.events.storeGuardBlocked:Fire(source .. ":" .. reason)
 		end)
@@ -6046,6 +6064,10 @@ do
 		if shop.changed then
 			shop.changed:Disconnect()
 			shop.changed = nil
+		end
+		if shop.thanks then
+			shop.thanks:Disconnect()
+			shop.thanks = nil
 		end
 		if shop.grant then
 			shop.grant:Disconnect()

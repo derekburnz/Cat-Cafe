@@ -67,6 +67,7 @@ local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PalChip = require(script.Parent.PalChip)
 local PalMarker = require(script.Parent.PalMarker)
+local PassShop = require(script.Parent.Parent.Components.PassShop)
 local PityLogic = require(script.Parent.Parent.Components.PityLogic)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
@@ -182,6 +183,7 @@ local BUFFS_GAP = 8 -- the potion timers sit this far over the counters (F64)
 local BOOSTS_W = 300 -- the money's boosts card
 local BOOST_ROW_H = 24
 local BOOST_ROWS_TIGHT = 10 -- more rows than this draw each row shorter (#1624)
+local BOOST_ROWS_SNUG = 11 -- #2147: and more than this shorter again
 -- F66: in the last DUSK_SECONDS of a day the clock turns orange and counts to night; CLOSED_TEXT is the Alley
 -- button while the areas are shut for the night
 local DUSK_SECONDS: number = (Config :: any).DuskWarningSeconds or 15
@@ -3422,6 +3424,8 @@ local BOOST_GLYPH: { [string]: string } = {
 	pals = "👋",
 	passes = "⭐", -- #1624: VIP and the cafe theme passes
 	outfits = "🎀", -- #1624: Cat Accessories and Uniform Styles
+	outfit_accessories = "🎀", -- #2147: each outfit pass by name
+	outfit_uniforms = "👕",
 	moneyPass = "💰",
 }
 local function boostPicture(key: string): string?
@@ -3452,7 +3456,14 @@ function HUD._renderBoosts(self: any)
 	self._boostsRate.Text = Format.rate(state.incomePerSecond)
 	-- the money ticks five times a second while income flows (UIController's prediction), and each tick renders the
 	-- HUD; the rows are made again only when what they say changed
-	local rows = BoostList.rows(self._catalog, state, Workspace:GetServerTimeNow(), #self._palIds)
+	-- #2147: which outfit passes Roblox says are owned, so the money card names each one
+	local ownedPasses = PassShop.owned()
+	local outfits: BoostList.Outfits = {
+		accessories = ownedPasses[Config.CatAccessoriesPassId or 0] == true,
+		uniforms = ownedPasses[Config.UniformStylesPassId or 0] == true,
+	}
+	local rows =
+		BoostList.rows(self._catalog, state, Workspace:GetServerTimeNow(), #self._palIds, outfits)
 	local said: { string } = {}
 	for _, row in rows do
 		table.insert(
@@ -3483,7 +3494,12 @@ function HUD._renderBoosts(self: any)
 		end
 		rows = kept
 	end
-	local rowH = if tight then BOOST_ROW_H - 5 else BOOST_ROW_H
+	-- #2147: each outfit pass has its own row now, so the longest list (every pass, potions and pals) is one row
+	-- longer; past BOOST_ROWS_SNUG rows each row gives up two more pixels so the card still clears Roblox's buttons
+	local rowH = if #rows > BOOST_ROWS_SNUG
+		then BOOST_ROW_H - 7
+		elseif tight then BOOST_ROW_H - 5
+		else BOOST_ROW_H
 	for order, row in rows do
 		local total = row.kind == "total"
 		local frame: Frame = Create("Frame", {

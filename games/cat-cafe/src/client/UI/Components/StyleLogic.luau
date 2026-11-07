@@ -226,6 +226,12 @@ function StyleLogic.rows(state: any, names: { [string]: string }?): { Row }
 	return out
 end
 
+-- #2147 (store-pass-looks.md 7.4): a small line under a row, so picking "None" never looks like losing the bonus.
+-- StyleTab shows the accessory one only while the Cat Accessories pass is owned.
+StyleLogic.NOTES = {
+	accessory = "+15% money on every working cat, whatever you pick",
+} :: { [string]: string }
+
 function StyleLogic.inUse(row: Row): string
 	for _, option in row.options do
 		if option.picked then

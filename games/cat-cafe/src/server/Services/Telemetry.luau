@@ -176,6 +176,9 @@ export type CustomEvent =
 	| "cafe_pass_level"
 	-- #1888: a Jukebox track picked (#1875), value 1; the track id or "default"
 	| "jukebox_pick"
+	-- #1934 (release.md section 1): a Roblox badge awarded, value the account's minutes played; the badge key, "live"
+	-- (earned this session) or "catchup" (earned before, awarded on join)
+	| "badge_awarded"
 
 -- One catch_attempt funnel (analytics-plan 4.1): a GUID per attempt and its fields rarity, method, area. The caller
 -- keeps it with the stray, the rescue attempt and then the carry.

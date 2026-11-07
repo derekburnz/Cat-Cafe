@@ -17,6 +17,8 @@
 --                    anywhere but Skip, Space, Enter or gamepad A fires callbacks.nextShot(shot) once for that shot.
 --   read bar         #2182: a thin gold bar under the caption filling over the shot's hold, so a player sees when it
 --                    moves on by itself
+-- #2198: a short lesson (the tackling one, Screens/TackleLesson) plays on the same screen with start's `shots` (its
+-- dots), `skip = false` (no Skip: it is meant to be watched) and `onNext` (its own Next in place of callbacks.nextShot).
 -- Numbers live in Components/IntroLogic.
 --
 -- Roblox terms: Camera:WorldToViewportPoint turns a world position into a screen pixel for the current camera,
@@ -172,6 +174,8 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 	self._shotAt = 0 -- #2182: os.clock() when the shot showing began
 	self._nextShown = false
 	self._nexted = 0 -- the shot a Next already moved on from, so one shot takes one press
+	self._shots = IntroLogic.SHOTS -- #2198: this play's shot count (a lesson has fewer)
+	self._onNext = nil :: ((shot: number) -> ())? -- #2198: this play's Next, in place of callbacks.nextShot
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeIntro",
@@ -402,6 +406,7 @@ end
 
 function Intro._renderDots(self: any)
 	for index, dot: Frame in self._dots do
+		dot.Visible = index <= self._shots -- #2198: a lesson's fewer dots, still centred
 		local look = IntroLogic.dot(index, self._shot)
 		local size = if look == "now" then DOT_NOW else DOT
 		dot.Size = UDim2.fromOffset(size, size)
@@ -422,6 +427,8 @@ function Intro.start(self: any, options: Types.IntroOptions?)
 	self._replay = options ~= nil and options.replay == true
 	self._skipped = false
 	self._shot = 0
+	self._shots = IntroLogic.shotCount(options)
+	self._onNext = if options then options.onNext else nil
 	self._caption = nil
 	self._captionLabel.Text = ""
 	self._root.Visible = true
@@ -432,6 +439,9 @@ function Intro.start(self: any, options: Types.IntroOptions?)
 	Tween.to(self._top, BARS_IN, { Position = UDim2.fromScale(0, 0) })
 	Tween.to(self._bottom, BARS_IN, { Position = UDim2.fromScale(0, 1 - BAR) })
 	self.screenGui.Enabled = true
+	if options ~= nil and options.skip == false then
+		return -- #2198: a lesson has no Skip
+	end
 	local wait = IntroLogic.skipAfter(options)
 	self:_showSkip(wait)
 	if wait > 0 then
@@ -456,7 +466,7 @@ function Intro.setShot(
 	if not self._playing then
 		return
 	end
-	local shot = math.clamp(math.floor(index), 1, IntroLogic.SHOTS)
+	local shot = math.clamp(math.floor(index), 1, self._shots)
 	local newShot = shot ~= self._shot
 	if newShot or caption ~= self._caption then
 		self._captionLabel.Text = caption
@@ -554,11 +564,11 @@ function Intro._next(self: any)
 	Sound.play("uiClick")
 	self._nextScale.Scale = 0.92
 	Tween.to(self._nextScale, Tween.POP, { Scale = 1 })
-	local callback = self._callbacks.nextShot
+	local callback = self._onNext or self._callbacks.nextShot
 	if callback then
 		callback(shot)
 	end
-	if shot >= IntroLogic.SHOTS then
+	if shot >= self._shots then
 		local token = self._token
 		task.delay(IntroLogic.SKIP_FALLBACK, function()
 			if self._alive and self._playing and token == self._token then

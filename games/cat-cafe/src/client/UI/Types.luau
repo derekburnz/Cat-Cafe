@@ -481,6 +481,10 @@ export type RescueBar = {
 export type IntroOptions = {
 	skipAfter: number?,
 	replay: boolean?,
+	-- #2198: a short lesson on the intro's screen (Screens/TackleLesson): its shot count (dots), no Skip, its own Next
+	shots: number?,
+	skip: boolean?,
+	onNext: ((shot: number) -> ())?,
 }
 
 -- Day and night clock (data-model section 9). phaseEndsAt is server os.time() seconds, as the Clock

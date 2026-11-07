@@ -129,6 +129,20 @@ if Settings.kinds[SettingsList.SHOP_ALERTS_KEY] then
 	table.insert(SettingsList.SECTIONS[2].rows, row)
 end
 
+-- #1920 (first-hour.md section 6): the session recap card's switch, once shared/Settings saves its key (default on).
+-- Off, the card never shows (UI.recap).
+SettingsList.SESSION_RECAP_KEY = "sessionRecap"
+if Settings.kinds[SettingsList.SESSION_RECAP_KEY] then
+	local row: Row = {
+		key = SettingsList.SESSION_RECAP_KEY,
+		kind = "switch",
+		icon = "📋",
+		name = "Session recap",
+		detail = "A short card on your cafe after a long play",
+	}
+	table.insert(SettingsList.SECTIONS[2].rows, row)
+end
+
 -- Saved keys the Settings screen shows outside these rows. F102: Trade requests is a three-way choice ("everyone",
 -- "friends" or "off", default "everyone") in the Trading section (Screens/Settings, TradeLogic.requestsMode), so the
 -- server can save its key without a switch row here. #1893: roadmapOpen is the Grand Opening strip's open or closed

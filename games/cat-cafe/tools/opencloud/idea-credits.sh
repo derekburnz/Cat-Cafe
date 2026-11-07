@@ -16,11 +16,17 @@
 # Usage:  tools/opencloud/idea-credits.sh list
 #         tools/opencloud/idea-credits.sh add <report> <version> <idea>
 #         tools/opencloud/idea-credits.sh remove <report>
+#         tools/opencloud/idea-credits.sh add-player <username> <version> <idea>
 #   report   the bug report's key in BugReports_v1 (r_<YYYYMMDD>_<time>_<userId>), or better just its start
 #            r_<YYYYMMDD>_<time>: the script finds the one key under it, so the player's id is never typed into
 #            the run's inputs, which are public like its log
 #   version  the place version the idea shipped in (publish prints it)
 #   idea     our words for the idea, 1 to 48 bytes, shown on the board as is (never the player's own text)
+# add-player (#1149, Derek2 2026-11-07) credits an idea a player gave us outside the Idea button (in chat or a
+# playtest), on Derek's word that they are happy to be named: the Roblox username (public, as the What's New thanks
+# rows show it) is looked up on users.roblox.com, and the credit's key is credit/<inverted time>-m_<YYYYMMDD>_<time>_<id>
+# (m for manual), so it lists, masks and removes like a report's. It refuses a second live credit with the same player
+# and idea. remove takes that m_ key's start (r_ and s_ keys come from reports).
 # add refuses unless the report is an idea whose player ticked "Feature my name" (kind "idea", featureName true),
 # and takes the player's user id from the report itself. The log is public, so it prints counts, keys without the
 # user id (r_<day>_<time>_..., which is still unique), ideas and versions, never a user id or a name. add and remove end with a
@@ -39,7 +45,7 @@ IDEA_BYTES=48               # IdeaCredits.IDEA_BYTES
 base=https://apis.roblox.com/cloud/v2/universes/$UNIVERSE_ID/data-stores
 
 usage() {
-	echo "usage: idea-credits.sh list | add <report> <version> <idea> | remove <report>" >&2
+	echo "usage: idea-credits.sh list | add <report> <version> <idea> | remove <report> | add-player <username> <version> <idea>" >&2
 	exit 2
 }
 
@@ -49,7 +55,7 @@ summary() { [ -z "${GITHUB_STEP_SUMMARY:-}" ] || echo "$*" >>"$GITHUB_STEP_SUMMA
 # The whole id goes: old accounts have 3 to 5 digit ids, so keeping the last three would show them in full. A key of
 # any other shape prints as a placeholder rather than raw.
 mask() {
-	if [[ $1 =~ ^(([a-z]+/)?([0-9]{10}-)?[rs]_[0-9]{8}_[0-9]+)_[0-9]+$ ]]; then
+	if [[ $1 =~ ^(([a-z]+/)?([0-9]{10}-)?[rsm]_[0-9]{8}_[0-9]+)_[0-9]+$ ]]; then
 		echo "${BASH_REMATCH[1]}_..."
 	else
 		echo "(unexpected key)"
@@ -116,10 +122,22 @@ keys() {
 # report_key report -> the one BugReports_v1 key that is report or starts with report_
 report_key() {
 	local report=$1 found
-	[[ $report =~ ^[rs]_[0-9]{8}_[0-9]+(_[0-9]+)?$ ]] || {
+	[[ $report =~ ^[rsm]_[0-9]{8}_[0-9]+(_[0-9]+)?$ ]] || {
 		echo "report must look like r_<YYYYMMDD>_<time> or r_<YYYYMMDD>_<time>_<userId>" >&2
 		exit 2
 	}
+	if [[ $report == m_* ]]; then
+		# an add-player credit: its key lives in this store, not BugReports_v1
+		local out
+		out=$(keys "$STORE" "$CREDIT") || exit 1
+		mapfile -t found < <(grep -oE -- "-${report}(_[0-9]+)?\$" <<<"$out" | sed 's/^-//' | sort -u || true)
+		[ "${#found[@]}" = 1 ] && [ -n "${found[0]}" ] || {
+			echo "${#found[@]} credits match $report; give the full key." >&2
+			exit 1
+		}
+		echo "${found[0]}"
+		return
+	fi
 	if [[ $report =~ ^[rs]_[0-9]{8}_[0-9]+_[0-9]+$ ]]; then
 		echo "$report"
 		return
@@ -225,6 +243,67 @@ add() {
 	[ -z "${GITHUB_OUTPUT:-}" ] || echo "creditId=$creditId" >>"$GITHUB_OUTPUT"
 }
 
+# idea_ok idea -> the trimmed idea, or exits: plain UTF-8, no control characters, 1 to IDEA_BYTES bytes
+idea_ok() {
+	local idea=$1 bytes
+	if ! iconv -f UTF-8 -t UTF-8 <<<"$idea" >/dev/null 2>&1 || LC_ALL=C grep -q '[[:cntrl:]]' <<<"$idea"; then
+		echo "idea must be plain UTF-8 text with no control characters" >&2
+		exit 2
+	fi
+	idea=$(sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' <<<"$idea")
+	bytes=$(printf '%s' "$idea" | LC_ALL=C wc -c)
+	if [ "$bytes" -lt 1 ] || [ "$bytes" -gt "$IDEA_BYTES" ]; then
+		echo "idea must be 1 to $IDEA_BYTES bytes, got $bytes" >&2
+		exit 2
+	fi
+	printf '%s' "$idea"
+}
+
+add_player() {
+	local username=$1 version=$2 idea userId key value now
+	[[ $username =~ ^[A-Za-z0-9_]{3,20}$ ]] || {
+		echo "username must be a Roblox username (3 to 20 letters, digits or _)" >&2
+		exit 2
+	}
+	[[ $version =~ ^[0-9]{1,9}$ ]] || {
+		echo "version must be a place version number, got: $version" >&2
+		exit 2
+	}
+	idea=$(idea_ok "$3") || exit 2
+	# the public username lookup needs no key; banned accounts are left out
+	userId=$(curl -sS -X POST https://users.roblox.com/v1/usernames/users -H "Content-Type: application/json" \
+		--data "$(jq -cn --arg u "$username" '{usernames: [$u], excludeBannedUsers: true}')" |
+		jq -r --arg u "$username" '[.data[]? | select((.requestedUsername | ascii_downcase) == ($u | ascii_downcase)) | .id][0] // empty')
+	[[ $userId =~ ^[1-9][0-9]{0,15}$ ]] || {
+		echo "No Roblox account named $username (or it is banned)." >&2
+		exit 1
+	}
+	hide_key "$userId"
+	local out k
+	out=$(keys "$STORE" "$CREDIT") || exit 1
+	for k in $out; do
+		call GET "$base/$STORE/entries/$(uri "$k")"
+		[ "$status" = 200 ] || fail
+		if [ "$(jq -r --argjson u "$userId" --arg i "$idea" '(.value.removed // false) == false and .value.userId == $u and .value.idea == $i' <<<"$body")" = true ]; then
+			echo "Refused: $username already has a credit for \"$idea\" ($(mask "$k"))." >&2
+			exit 1
+		fi
+	done
+	local creditId
+	creditId=$(next_credit_id) || exit 1
+	now=$(date -u +%s)
+	key=$CREDIT$(printf '%010d' $((9999999999 - now)))-m_$(date -u +%Y%m%d)_${now}_$userId
+	hide_key "$key"
+	value=$(jq -cn --argjson u "$userId" --arg i "$idea" --argjson v "$version" --argjson t "$now" --arg c "$creditId" \
+		'{userId: $u, idea: $i, version: $v, addedAt: $t, creditId: $c, manual: true}')
+	call PATCH "$base/$STORE/entries/$(uri "$key")?allowMissing=true" -H "Content-Type: application/json" \
+		--data "$(jq -cn --argjson v "$value" --arg u "users/$userId" '{value: $v, users: [$u]}')"
+	[ "$status" = 200 ] || fail
+	echo "Wrote $(mask "$key") for $username: v$version \"$idea\", creditId $creditId"
+	summary "Wrote \`$(mask "$key")\` for $username: v$version \"$idea\", **creditId \`$creditId\`**"
+	[ -z "${GITHUB_OUTPUT:-}" ] || echo "creditId=$creditId" >>"$GITHUB_OUTPUT"
+}
+
 # next_credit_id -> the next short id (c1, c2, ...) for WhatsNew's creditId (idea-credits.md 7d). The counter lives
 # in meta/creditSeq, which the game never reads (it lists only credit/ and hide/), so an id is never handed out twice,
 # even after its credit is deleted. With no counter yet it starts above the highest creditId on a credit.
@@ -310,6 +389,10 @@ add)
 remove)
 	[ $# -eq 2 ] || usage
 	remove "$2"
+	;;
+add-player)
+	[ $# -eq 4 ] || usage
+	add_player "$2" "$3" "$4"
 	;;
 *) usage ;;
 esac

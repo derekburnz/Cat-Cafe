@@ -1079,6 +1079,37 @@ local SCENES = {
 		UI.recap.show({ minutes = 80, newCats = 1, earned = 1 })
 		assert(first.Text == "Today: 3 new cats, $12,500 earned", "uigate: the recap showed twice in a session (#1920)")
 	end },
+	-- #1947 (like-prompts.md section 2): the like and favourite gift cards, paid before they show, with "Gift added!",
+	-- the coins Payout paid and the potions, and the first button and Close the same size
+	{ "GiftCardLike", function()
+		UI.recap.lastInput = os.clock() - 30 -- idle
+		UI.gift.show("like", { "+$12500", "1 Tip Potion" })
+		local card = UIShim.playerGui:FindFirstChild("CatCafeGift"):FindFirstChild("Card", true)
+		assert(card.Visible, "uigate: no like gift card when idle (#1947)")
+		local action = card:FindFirstChild("Action", true)
+		local close = card:FindFirstChild("Close", true)
+		assert(action.Visible and action.Size == close.Size, "uigate: the gift card's Close is not the same size as its ask (#1947)")
+	end },
+	{ "GiftCardFav", function()
+		UI.recap.lastInput = os.clock() - 30
+		UI.gift.show("fav", { "+$25000", "1 Tip Potion", "1 Lucky Potion", "1 Swift Potion" })
+		local card = UIShim.playerGui:FindFirstChild("CatCafeGift"):FindFirstChild("Card", true)
+		assert(card.Visible, "uigate: no favourite gift card when idle (#1947)")
+	end },
+	-- Like the game pressed: the thumbs-up hint and Close alone; the press is reported once
+	{ "GiftCardLiked", function()
+		local reports = {}
+		local watch = UI.events.playtimeGift:Connect(function(what)
+			table.insert(reports, what)
+		end)
+		UI.recap.lastInput = os.clock() - 30
+		UI.gift.show("like", { "+$12500", "1 Tip Potion" })
+		press("CatCafeGift", "Action")
+		watch:Disconnect()
+		assert(#reports == 1 and reports[1] == "like:like", "uigate: Like the game reported " .. table.concat(reports, ", ") .. " (#1947)")
+		local card = UIShim.playerGui:FindFirstChild("CatCafeGift"):FindFirstChild("Card", true)
+		assert(card.Visible and not card:FindFirstChild("Action", true).Visible, "uigate: the like card did not thank after Like (#1947)")
+	end },
 	-- #1919 (first-hour.md 5): while step 7 (twelve cats) is next, the goal card reads "Find N more cats" with the
 	-- Index icon; a tap opens the Index on an open area's page and reports index_hint_tap with it
 	{ "IndexNudge", function()
@@ -2751,6 +2782,9 @@ function Scenes.close()
 	if Scenes._settings then
 		UI.update({ settings = Scenes._settings } :: any) -- #1955's Auto Equip scene
 		Scenes._settings = nil
+	end
+	if UI.gift.card and UI.gift.card:isShowing() then
+		UI.gift.card:hide() -- #1947
 	end
 	if Scenes._quiet then
 		local before = Scenes._quiet

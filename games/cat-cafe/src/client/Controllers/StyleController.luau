@@ -4,8 +4,6 @@
 -- colour and material: the inside walls (Wallpaper), the floor (Floor) and the outside facade (Paint), so every
 -- player sees a cafe's paint from the street. A part's own look is kept and comes back when the style is put away.
 -- Parts that stream in later are styled as they arrive. Only this client's copy changes.
--- #2106: a part's own look is kept in attributes on the part (StyleOwnColor, StyleOwnMaterial), not in a weak table:
--- Roblox can drop a weak table's Instance key while the part still stands, and then a removed paint stayed on.
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -15,8 +13,9 @@ local Types = require(ReplicatedStorage.Shared.Types)
 
 local StyleController = {}
 
-local OWN_COLOR = "StyleOwnColor"
-local OWN_MATERIAL = "StyleOwnMaterial"
+type Look = { color: Color3, material: Enum.Material }
+
+local originals: { [BasePart]: Look } = setmetatable({}, { __mode = "k" }) :: any
 
 -- The Plot-tagged model the part belongs to, or nil.
 local function plotOf(instance: Instance): Model?
@@ -37,33 +36,22 @@ local function apply(
 	slot: { kind: Types.DecorKind, attribute: string }
 )
 	local decorId = plot:GetAttribute(slot.attribute)
-	local ownColor = part:GetAttribute(OWN_COLOR)
-	local ownMaterial = part:GetAttribute(OWN_MATERIAL)
-	local own: Crates.PartLook? = if typeof(ownColor) == "Color3"
-		then {
-			color = ownColor,
-			material = Crates.materialNamed(ownMaterial) or part.Material,
-		}
-		else nil
-	if own == nil then
-		own = { color = part.Color, material = part.Material }
-	end
-	local look = Crates.partLook(
-		if type(decorId) == "string" then decorId else nil,
-		slot.kind,
-		own :: Crates.PartLook
-	)
-	if look.styled then
-		if typeof(ownColor) ~= "Color3" then
-			part:SetAttribute(OWN_COLOR, part.Color)
-			part:SetAttribute(OWN_MATERIAL, part.Material.Name)
+	local color, material =
+		Crates.styleLook(if type(decorId) == "string" then decorId else nil, slot.kind)
+	local original = originals[part]
+	if color ~= nil then
+		if original == nil then
+			originals[part] = { color = part.Color, material = part.Material }
 		end
-	else
-		part:SetAttribute(OWN_COLOR, nil)
-		part:SetAttribute(OWN_MATERIAL, nil)
+		part.Color = color
+		if material ~= nil then
+			part.Material = material
+		end
+	elseif original ~= nil then
+		part.Color = original.color
+		part.Material = original.material
+		originals[part] = nil
 	end
-	part.Color = look.color
-	part.Material = look.material
 end
 
 local function applyTagged(instance: Instance, slot: { kind: Types.DecorKind, attribute: string })

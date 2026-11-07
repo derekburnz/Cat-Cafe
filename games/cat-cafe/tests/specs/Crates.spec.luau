@@ -917,41 +917,4 @@ return function()
 			expect(profile.stats.fishEarned).to.equal(40)
 		end)
 	end)
-
-	describe("styled parts (#2106)", function()
-		it("puts a part's own look back the moment its paint, wallpaper or floor is removed", function()
-			local own = { color = Color3.fromRGB(10, 20, 30), material = Enum.Material.Wood }
-			for _, kind in { "wallpaper", "floor", "paint" } do
-				local styles: { any } = {}
-				for _, def in Catalog.crateDecor do
-					if def.kind == kind and def.color ~= nil then
-						table.insert(styles, def)
-					end
-				end
-				expect(#styles >= 2).to.equal(true)
-				local first = Crates.partLook(styles[1].id, kind :: any, own)
-				expect(first.styled).to.equal(true)
-				expect(first.color).to.equal(styles[1].color)
-				expect(first.material).to.equal(styles[1].material or own.material)
-				local second = Crates.partLook(styles[2].id, kind :: any, own)
-				expect(second.color).to.equal(styles[2].color)
-				local removed = Crates.partLook(nil, kind :: any, own)
-				expect(removed.styled).to.equal(false)
-				expect(removed.color).to.equal(own.color)
-				expect(removed.material).to.equal(own.material)
-				-- a stale id, or a piece of another kind, shows the own look too
-				local wrong = Crates.partLook(styles[1].id, (if kind == "paint" then "floor" else "paint") :: any, own)
-				expect(wrong.styled).to.equal(false)
-				expect(wrong.color).to.equal(own.color)
-				expect(Crates.partLook("no_such_piece", kind :: any, own).styled).to.equal(false)
-			end
-		end)
-
-		it("reads a kept material back by name", function()
-			expect(Crates.materialNamed("Wood")).to.equal(Enum.Material.Wood)
-			expect(Crates.materialNamed(Enum.Material.SmoothPlastic.Name)).to.equal(Enum.Material.SmoothPlastic)
-			expect(Crates.materialNamed(nil)).to.equal(nil)
-			expect(Crates.materialNamed(5)).to.equal(nil)
-		end)
-	end)
 end

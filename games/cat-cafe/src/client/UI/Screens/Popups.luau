@@ -17,6 +17,7 @@
 -- this in 7h 40m", the amount, what time away pays ("Half pay while away, up to 8 hours", showOffline's note from
 -- Components/WelcomeBack) and Collect.
 
+local AreaPill = require(script.Parent.Parent.Components.AreaPill)
 local Button = require(script.Parent.Parent.Components.Button)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local Create = require(script.Parent.Parent.Components.Create)
@@ -227,6 +228,8 @@ function Popups.new(parent: Instance): Popups
 		zIndex = 3,
 	})
 	self._portraitScale = Create("UIScale", { Parent = self._portrait.frame })
+	-- #1919: "Park 4 / 10" in the area's colour at the top left, clear of the NEW sticker on the right
+	self._catArea = AreaPill.new(catCard, UDim2.fromOffset(14, 56), 3)
 	-- the tilted red sticker the simulator hatch shows on a first find
 	self._newSticker = text({
 		Name = "New",
@@ -639,6 +642,7 @@ function Popups.showCatFound(
 		self._raySpin = Tween.to(self._rays, RAY_SPIN, { Rotation = 360 })
 		self._catArt.BackgroundColor3 = rarityColor
 		self._newSticker.Visible = isNew == true
+		AreaPill.set(self._catArea, info.areaLine)
 		if isNew then
 			Tween.popIn(self._newSticker, 0.4)
 		end

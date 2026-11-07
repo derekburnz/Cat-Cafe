@@ -199,6 +199,8 @@ UI.events = {
 	tutorialClosed = Signal.new(), -- ()   #1273: the Tutorial tile's red X, analytics only: forward as TelemetryReport("tutorial_closed")
 	introChoice = Signal.new(), -- (from)   "tile" (the Tutorial tile) or "help" (Show me on Need a hand?): forward as TelemetryReport("intro_choice", from)
 	stuckNudge = Signal.new(), -- (kind)   "pulse", "help_shown" or "show_me": forward as TelemetryReport("stuck_nudge", kind)
+	-- #1919 (first-hour.md section 5), analytics only: the goal card's "Find N more cats" opened the Index on this area
+	indexHintTap = Signal.new(), -- (areaId)   forward as TelemetryReport("index_hint_tap", areaId)
 	-- F96 (starter-cat.md section 2): the Bellhop Cat's stand card
 	claimStarterCat = Signal.new(), -- ()   Take me home: forward as ClaimStarterCat
 	joinGroup = Signal.new(), -- ()   Join the group (only once the game has a group): GroupService:PromptJoinAsync(Config.GroupId)
@@ -726,6 +728,20 @@ function UI.init(config: Types.InitConfig)
 			UI.events.travel:Fire(destination)
 		end,
 		openBait = openBait,
+		-- #1919: the goal card's nudge opens the Index on the newest open area with the most cats to find
+		openIndexAt = function(areaId: string?)
+			if collection then
+				if areaId then
+					collection:showArea(areaId)
+				else
+					collection:showTab("Index")
+				end
+			end
+			if modalInstance:current() ~= "Collection" then
+				modalInstance:open("Collection")
+			end
+			UI.events.indexHintTap:Fire(areaId or "none")
+		end,
 		-- the Index pill opens the Index on its cat pages (not the Decor tab), or closes it
 		openIndex = function()
 			if modalInstance:current() == "Collection" then
@@ -1784,6 +1800,13 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 			line = extra and extra.line,
 			rate = extra and extra.rate,
 		}
+		-- #1919: the area's count, counting this cat while the sync has not caught up; a given cat (its own
+		-- banner) shows none
+		local catalog = currentCatalog
+		if catalog and not (extra and extra.banner) then
+			local IndexHints = require(script.Components.IndexHints)
+			info.areaLine = IndexHints.areaLine(catalog, state, catId, true)
+		end
 		local cats: { [string]: Types.CatInstance } = state.cats or {}
 		local newest: Types.CatInstance? = nil
 		for _, instance in cats do
@@ -2023,11 +2046,15 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 		local lureId = if view then view.lureId else nil
 		-- #1161: with two bowls the banner names the bowl
 		local two = bowls.second == "on" or bowls.views[2] ~= nil
+		local catalog = currentCatalog
+		local IndexHints = require(script.Components.IndexHints)
 		baitCard:show(
 			def :: Types.CatDef,
 			cat,
 			if lureId then foodName(lureId) else nil,
-			if two then index else nil
+			if two then index else nil,
+			-- #1919: the area's count as it stands; taming adds the cat
+			if catalog then IndexHints.areaLine(catalog, state, cat.catId) else nil
 		)
 	end
 	renderBait()

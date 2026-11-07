@@ -357,7 +357,8 @@ local Config = {
 	StrayTopUpMinSeconds = 40, -- #1452: 40 to 80 s (was 60 to 120)
 	StrayTopUpMaxSeconds = 80,
 	StrayWanderSpeed = 3,
-	AnnounceMinRarity = "Epic",
+	-- #2205 (Derek2, 2026-11-07: "just legendary or better or gold/rainbow"): the catch pop-up's floor (was Epic)
+	AnnounceMinRarity = "Legendary",
 	-- The night dealer (data-model section 8b): buy from this close to the cart. F94 (rewards-and-shops.md section 4):
 	-- each server rolls its stock once at dusk and it holds all night.
 	DealerRangeStuds = 12,

@@ -42,11 +42,13 @@ return function()
 
 		it("is small but readable far away", function()
 			local r = Presets.rarityMark
-			expect(r.size > 0 and r.size <= 1.5).to.equal(true)
+			expect(r.size > 0 and r.size <= 2).to.equal(true) -- #2231: the gem in its halo
 			expect(r.pixels >= 12).to.equal(true)
 			expect(r.gem > 0 and r.gem * math.sqrt(2) <= 1).to.equal(true) -- the turned square fits its gui
 			expect(r.bob > 0 and r.bob < r.above).to.equal(true)
-			expect(r.glintEvery > 2 * r.glintSeconds).to.equal(true)
+			for _, every in r.glintEvery do
+				expect(every > 2 * r.glintSeconds).to.equal(true)
+			end
 			expect(r.most >= 1 and r.most <= 16).to.equal(true)
 		end)
 	end)
@@ -77,17 +79,18 @@ return function()
 			expect(r.above).to.equal(0.9)
 			expect(r.bob).to.equal(0.15)
 			expect(r.bobSeconds * 2).to.equal(1.8)
-			expect(r.glintEvery).to.equal(2.2)
+			expect(r.glintEvery.Mythical).to.equal(1.6) -- #2231: Legendary glints too, Mythical the most often
+			expect(r.glintEvery.Legendary).to.equal(2.6)
 			expect(r.checkEvery).to.equal(0.25)
 		end)
 
-		it("never shows for a broken distance and only Mythical glints", function()
+		it("never shows for a broken distance and only Legendary and Mythical glint", function()
 			for _, shown in { true, false } do
 				expect(Logic.rarityMarkShows("Mythical", 0, 0 / 0, shown)).to.equal(false)
 				expect(Logic.rarityMarkShows("Mythical", 0, math.huge, shown)).to.equal(false)
 				expect(Logic.rarityMarkShows("Mythical", 0, -5, shown)).to.equal(false)
 			end
-			for _, rarity in { "Common", "Rare", "Epic", "Legendary" } do
+			for _, rarity in { "Common", "Rare", "Epic" } do
 				expect(Presets.rarityMark.glints[rarity] == true).to.equal(false)
 			end
 		end)

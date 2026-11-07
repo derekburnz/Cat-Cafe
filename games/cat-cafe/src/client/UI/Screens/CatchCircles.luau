@@ -24,8 +24,10 @@
 --   - a Miss no longer ends the catch: the rings keep coming until the server's CatchResult, and a trust bar over the
 --     cat (Components/TrustBar) fills with each grade (Components/CatchTrust; CatchJudged carries the server's trust)
 --   - the rings sit round the cat's head in the world (Header.model, projected each frame), not at the schedule's x, y
---   - ring kinds: a "double" is two entries 0.18 s apart drawn on the same spot; a "paw" ring is red with a paw print
---     in place of its number, and left alone it is judged "left" (+1 trust), not a Miss
+--   - ring kinds: a "double" is two entries Config.DoubleRingGap apart drawn on the same spot, the second half in sky
+--     blue with an "x2" tag (#2005 section 4: "the rapid rings are not clear"); a "paw" ring is red all over (its
+--     bands and closing circle too) with a paw print in place of its number and "Don't swing!" under it (#2005), and
+--     left alone it is judged "left" (+1 trust), not a Miss
 --   - no progress strip; the finish (CatchResult's 6th value) picks the banner: PURRFECT! (gold), GREAT! (mint),
 --     NICE! (cream) or "So close!" on a bolt. The banner is the TextLabel Root.FinishBanner (the ResultWord renamed, so
 --     Effects' older burst off ResultWord doesn't also fire) and pops FINISH_DELAY after the result, as the net wrap
@@ -154,6 +156,7 @@ local WORD_SIZE = Vector2.new(360, 60)
 local FINISH_DELAY = 0.6 -- Catch v3: the net wrap's wobble before the banner pops (catch-rework.md 7d)
 local HEAD_DROP = 0.6 -- studs under the top of the cat where its rings sit
 local PAW_COLOR = Color3.fromHex("E5484D")
+local DOUBLE_COLOR = Theme.colors.sky -- #2005: a double ring's second half, so the two taps read apart
 local NO_RESULT_TIMEOUT = 4 -- hide if the server's result has not come this long after the last target
 local ACTION_NAME = "CatCafeCatchPress"
 -- E is not here: it is the hold-to-start key on the catch prompt, and letting go of it would land as a press
@@ -478,16 +481,21 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		Parent = holder,
 	})
 	local scale: UIScale = Create("UIScale", { Parent = art })
-	band("GoodBand", RING_RADIUS - good, RING_RADIUS + good, Theme.colors.good, 0.45, art)
-	band("PerfectBand", RING_RADIUS - perfect, RING_RADIUS + perfect, Theme.colors.gold, 0.1, art)
+	local kind = (circle :: any).kind
+	local paw = kind == "paw"
+	-- #2005 (Derek2: "make it the entire circle not just the perfect line"): a paw ring is red all over
+	local second = kind == "double" and (circle :: any).half == 2
+	local edge = if paw then PAW_COLOR elseif second then DOUBLE_COLOR else Theme.colors.paper
+	local goodColor = if paw then PAW_COLOR else Theme.colors.good
+	local perfectColor = if paw then PAW_COLOR else Theme.colors.gold
+	band("GoodBand", RING_RADIUS - good, RING_RADIUS + good, goodColor, 0.45, art)
+	band("PerfectBand", RING_RADIUS - perfect, RING_RADIUS + perfect, perfectColor, 0.1, art)
 	local ring = circleFrame("Ring", RING_RADIUS - RING_THICKNESS / 2, art)
-	local ringStroke: UIStroke = Create(
-		"UIStroke",
-		{ Color = Theme.colors.paper, Thickness = RING_THICKNESS, Parent = ring }
-	)
+	local ringStroke: UIStroke =
+		Create("UIStroke", { Color = edge, Thickness = RING_THICKNESS, Parent = ring })
 	local closer = circleFrame("Closer", START_RADIUS, art)
 	local closerStroke: UIStroke = Create("UIStroke", {
-		Color = Theme.colors.paper,
+		Color = edge,
 		Thickness = CLOSER_THICKNESS,
 		Parent = closer,
 	})
@@ -505,11 +513,40 @@ function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCi
 		Text = tostring(index),
 		Parent = art,
 	})
-	local paw = (circle :: any).kind == "paw"
 	if paw then
-		-- Catch v3: don't tap it. Red, with a paw print where the number was
-		ringStroke.Color = PAW_COLOR
+		-- Catch v3: don't tap it. A paw print where the number was, and #2005's "Don't swing!" under it
 		number.Text = "🐾"
+		local warning: TextLabel = Create("TextLabel", {
+			Name = "DontSwing",
+			BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.new(0.5, 0, 0.5, RING_RADIUS + 10),
+			Size = UDim2.fromOffset(170, 30),
+			FontFace = Theme.fonts.display,
+			TextSize = 24,
+			TextColor3 = Theme.colors.paper,
+			Text = "Don't swing!",
+			Parent = art,
+		})
+		Outline.text(warning, 3, Color3.fromHex("7A1F22"))
+	elseif second then
+		-- #2005: the second half of a double ring, in sky blue with an "x2" tag at its top right in place of a number
+		-- (on the same spot as the first half's, the two numbers would print over each other)
+		number.Text = ""
+		local tag: TextLabel = Create("TextLabel", {
+			Name = "Double",
+			BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(0, 1),
+			Position = UDim2.new(0.5, RING_RADIUS * 0.62, 0.5, -RING_RADIUS * 0.62),
+			Size = UDim2.fromOffset(44, 30),
+			FontFace = Theme.fonts.display,
+			TextSize = 26,
+			TextColor3 = DOUBLE_COLOR,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Text = "x2",
+			Parent = art,
+		})
+		Outline.text(tag, 3)
 	end
 	return {
 		circle = circle,

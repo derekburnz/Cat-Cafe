@@ -44,6 +44,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local CatchSpots = require(script.Parent.Parent.Components.CatchSpots)
 local CatchTrust = require(script.Parent.Parent.Components.CatchTrust)
 local CatchWords = require(script.Parent.Parent.Components.CatchWords)
@@ -580,11 +581,13 @@ function CatchCircles.show(
 	self._v3 = false
 	local rarity = info.rarity or "Common"
 	-- no charm stars after the name (F97 section 5: stars show nowhere now)
-	self._name.Text = info.catName or "Stray cat"
-	self._rarity.Text = if info.rainbow
-		then rarity .. "  ·  Rainbow"
-		elseif info.shiny then rarity .. "  ·  Gold"
-		else rarity
+	-- #2110: the cat's own name with its coat ("Gold Forest Cat"), never just "Stray"; the coat's word is in the name,
+	-- so the rarity pill says only the rarity
+	self._name.Text = CatVariant.name(
+		info.catName,
+		if info.rainbow then "rainbow" elseif info.shiny then "gold" else "base"
+	)
+	self._rarity.Text = rarity
 	self._rarity.BackgroundColor3 = Theme.rarityColor(rarity)
 	self._rarity.TextColor3 = Theme.rarityTextColor(rarity)
 	self._hint.Text = info.title

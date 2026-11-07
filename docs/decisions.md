@@ -651,3 +651,6 @@ Tier goals as built in #2236: one-go Tier 5 at 11 h 26 and daily play on day 6, 
 
 ## 2026-11-07: Bait bowl odds down 15% on Epic and up; rainbow earns x2 (Design-Agent, friend's project, #2239, #2261)
 Bowl foods: Epic, Legendary and Mythical are 15% lower relative, and Common and Rare take up the rest (data-model.md §8). Caviar and Star Treat were adjusted so their "Attracts" label stays true. Rainbow cats earn x2, not x3 (Derek2, built in #2261; rainbow-coat.md §1). Reason: Derek2's asks. Pace.spec passes; the run on the #2230 tier goals follows.
+
+## 2026-11-07: Thank You board credits for ideas given outside the Idea button (Review-Agent, #1149)
+Derek2: "the updates that I said bgdevila/crispi_255 and tyrell said add those to the feature my name board". idea-credits gains `add-player <username> <version> <idea>`, which looks the public username up on users.roblox.com and writes the same credit a report would (key `m_` for manual, with `manual: true`), on Derek's word that the player is happy to be named. Players can still hide their name in Settings. Ideas given through the Idea button keep the report path and its "Feature my name" check.

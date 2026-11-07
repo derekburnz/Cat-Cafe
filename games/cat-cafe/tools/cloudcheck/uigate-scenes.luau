@@ -2312,6 +2312,21 @@ local SCENES = {
 			assert(pill and pill.Text == want, "uigate: the Luck card's " .. rarity .. " pill reads " .. tostring(pill and pill.Text) .. " (#1776)")
 		end
 		assert(hud:FindFirstChild("FoodOdds", true) == nil, "uigate: the Luck card still lists the next cat's odds (#1776)")
+		-- #2079: the card's rows read "+50%", not "+0.5"
+		local rowText = {}
+		for _, d in hud:GetDescendants() do
+			if d:IsA("TextLabel") and d.Visible and d.Text == "+50%" then
+				table.insert(rowText, d.Text)
+			end
+		end
+		assert(#rowText > 0, "uigate: the Luck card's Lucky Day row doesn't read +50% (#2079)")
+		-- #2084: the clover sits left of the day line's first letter, never over it
+		local line = hud:FindFirstChild("LuckyDay", true)
+		local clover = line and line:FindFirstChild("Clover")
+		assert(line and line.Visible and clover and clover.Visible, "uigate: no Lucky Day line with its clover (#2084)")
+		local cloverRight = clover.AbsolutePosition.X + clover.AbsoluteSize.X
+		local textLeft = line.AbsolutePosition.X + line.AbsoluteSize.X - line.TextBounds.X
+		assert(cloverRight <= textLeft + 1, ("uigate: the clover ends at %d, over the day line's words from %d (#2084)"):format(cloverRight, textLeft))
 	end },
 	-- F88: the night before a Lucky, Golden and Rainbow Day, LuckyDayWarnSeconds before sunrise: "Triple Day soon!"
 	-- over the three names, on a small phone too (#1572; no countdown line under the clock since #1572), the Luck card from the scene before closed

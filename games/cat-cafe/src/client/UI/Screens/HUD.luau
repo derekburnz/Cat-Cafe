@@ -1815,6 +1815,35 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		self:_toggleBoosts()
 	end)
 	self._palMarker = PalMarker.new()
+	-- #1962 (Derek2 11-07: "not in your face enough it should be on the side"): once a money pass is owned, a bold gold
+	-- "💰 Cash x2" chip leads the row over the money in place of the small "2x" beside it; a tap opens the boosts card
+	local cash: TextButton = Create("TextButton", {
+		Name = "CashChip",
+		AutoButtonColor = false,
+		BackgroundColor3 = Theme.colors.gold,
+		BorderSizePixel = 0,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, Scale.tapHeight(36)),
+		FontFace = Theme.fonts.display,
+		TextSize = 22,
+		TextColor3 = Theme.colors.white,
+		Text = "",
+		LayoutOrder = -1, -- before the Luck chip
+		Visible = false,
+		Parent = self._buffs.frame,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12) }),
+	})
+	Outline.text(cash, 2.5)
+	Outline.border(cash, 3)
+	self._cashChip = cash
+	table.insert(
+		self._connections,
+		cash.Activated:Connect(function()
+			self:_toggleBoosts()
+		end)
+	)
 	-- #1895: "🐾 A cat is coming! 1m 42s" in the potion timers' row over the money while the account's short first
 	-- bait waits (Components/FirstBait), so the player stays and does something else meanwhile
 	self._coming = Create("TextLabel", {
@@ -3154,8 +3183,17 @@ function HUD.setMoneyBadge(
 	badge: { text: string, owned: boolean, price: string?, quiet: boolean? }?
 )
 	local button: TextButton = self._moneyBadge
-	button.Visible = badge ~= nil
-	if badge == nil then
+	-- #1962: an owned multiplier shows as the side chip, not beside the money
+	local chip: TextButton = self._cashChip
+	local owned = badge ~= nil and badge.owned
+	chip.Visible = owned
+	if badge ~= nil and owned then
+		chip.Text = "💰 Cash " .. (badge.text:gsub("^(%d+)x$", "x%1"))
+	end
+	self._buffs:setLead(owned, "cash")
+	button.Visible = badge ~= nil and not owned
+	if badge == nil or owned then
+		self:_pulseMoneyBadge(false)
 		return
 	end
 	self._moneyBadgeOwned = badge.owned

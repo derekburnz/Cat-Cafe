@@ -3024,8 +3024,11 @@ do
 	-- retry = true keeps the prompt open (Commons, lured strays, a rescue turned down for now). Otherwise it
 	-- flashes and hides (the cat fled).
 	function UI.catch.fail(reason: string?, retry: boolean?)
-		if catch then
+		if catch and catch.screenGui.Enabled then
 			catch:fail(reason, retry)
+		elseif type(reason) == "string" and reason ~= "" then
+			-- #2341/#2351: a net swing at a stuck cat starts its rescue with no card up, so a refusal says why here
+			UI.toast(reason, "warn")
 		end
 	end
 

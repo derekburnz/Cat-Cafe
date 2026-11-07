@@ -105,34 +105,51 @@ local function finish(walk: Walk)
 	walk.copy:Destroy()
 end
 
--- Round the tables from `from` to `to` when PathfindingService finds a way, else straight.
+-- The walk's speed for its route: Presets.slotWalk.speed, quicker when the way is long, so it arrives within maxSeconds.
+local function settle(walk: Walk)
+	local length = 0
+	for i = 2, #walk.route do
+		length += (walk.route[i] - walk.route[i - 1]).Magnitude
+	end
+	local s = Presets.slotWalk
+	walk.speed = math.max(s.speed, length / s.maxSeconds)
+	walk.planned = true
+end
+
+-- Round the tables from `from` to `to` when PathfindingService finds a way that stays near the straight line and the
+-- floor (Logic.walkableWay), else straight. A way found after planWait comes too late: the copy is walking straight.
 local function plan(walk: Walk, from: Vector3, to: Vector3)
+	local s = Presets.slotWalk
+	task.delay(s.planWait, function()
+		if walks[walk.model] == walk and not walk.planned then
+			settle(walk)
+		end
+	end)
 	task.spawn(function()
 		local path = PathfindingService:CreatePath(AGENT)
 		local ok = pcall(function()
 			path:ComputeAsync(from, to)
 		end)
-		if walks[walk.model] ~= walk then
+		if walks[walk.model] ~= walk or walk.planned then
 			return
 		end
 		if ok and path.Status == Enum.PathStatus.Success then
-			local route = { from }
+			local found: { Vector3 } = {}
 			for i, waypoint in path:GetWaypoints() do
 				if i > 1 then
-					local p = waypoint.Position
-					table.insert(route, Vector3.new(p.X, to.Y, p.Z))
+					table.insert(found, waypoint.Position)
 				end
 			end
-			route[#route] = to
-			walk.route = route
+			if Logic.walkableWay(found, from, to, s.detour, s.waypointRise) then
+				local route = { from }
+				for _, p in found do
+					table.insert(route, Vector3.new(p.X, to.Y, p.Z))
+				end
+				route[#route] = to
+				walk.route = route
+			end
 		end
-		local length = 0
-		for i = 2, #walk.route do
-			length += (walk.route[i] - walk.route[i - 1]).Magnitude
-		end
-		local s = Presets.slotWalk
-		walk.speed = math.max(s.speed, length / s.maxSeconds)
-		walk.planned = true
+		settle(walk)
 	end)
 end
 
@@ -239,8 +256,13 @@ local function advance(walk: Walk, now: number, dt: number): boolean
 	else
 		position, heading = Logic.along(walk.route, walk.travelled)
 	end
-	if position ~= position then
-		return false -- not a number: never draw the copy anywhere but on its way
+	local route = walk.route
+	if
+		position ~= position
+		or Logic.flatDistanceToSegment(position, route[1], route[#route]) > s.detour
+		or math.abs(position.Y - route[#route].Y) > s.waypointRise
+	then
+		return false -- never drawn anywhere but on its way: the cat just shows at its new spot
 	end
 	-- the new model stays hidden the whole way, parts that replicate after the walk began included, and whatever
 	-- else wrote its LocalTransparencyModifier (Desktop-Tester 2026-11-07: the cat at nap_4 showed beside its copy)
@@ -264,6 +286,15 @@ local function advance(walk: Walk, now: number, dt: number): boolean
 	walk.stride += speed * dt / Logic.strideLength(math.max(speed, 0.1))
 	local rig = walk.rig
 	if not Pose.read(rig) then
+		return false
+	end
+	-- and if anything else has put the copy's body far off its way, let the walk go rather than redraw it there
+	local body = rig.body.Position
+	if
+		body ~= body
+		or Logic.flatDistanceToSegment(body, route[1], route[#route]) > 2 * s.detour
+		or math.abs(body.Y - route[#route].Y) > 4 * s.waypointRise
+	then
 		return false
 	end
 	Pose.hold(rig, CFrame.new(position) * CFrame.Angles(0, walk.yaw, 0))

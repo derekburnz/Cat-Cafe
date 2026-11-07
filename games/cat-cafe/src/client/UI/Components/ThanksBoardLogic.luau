@@ -46,7 +46,14 @@ ThanksBoardLogic.ICONS = table.freeze({
 	fix = "🔧",
 } :: { [string]: string })
 
-export type Update = { id: string, date: string, icon: string, text: string, creditId: string? }
+export type Update = {
+	id: string,
+	date: string,
+	icon: string,
+	text: string,
+	creditId: string?,
+	thanks: string?,
+}
 export type Line = { id: string, glyph: string, text: string, date: string, credit: string? }
 
 local MONTHS =
@@ -62,7 +69,8 @@ local function shortDate(date: string): string
 end
 
 -- Section 7a: "💡 Idea from MochiPie" under an update from a player's idea, "💡 A player's idea" when the name is
--- hidden, unknown or the credit is not on the board.
+-- hidden, unknown or the credit is not on the board. Derek2 11-07: "💡 Thanks to bgdevila" under an update a named
+-- playtester's report or suggestion led to (WhatsNew's `thanks`).
 function ThanksBoardLogic.whatsNew(updates: { Update }, rows: { Row }?): { Line }
 	local names: { [string]: string } = {}
 	local board: { Row } = rows or {}
@@ -83,6 +91,8 @@ function ThanksBoardLogic.whatsNew(updates: { Update }, rows: { Row }?): { Line 
 					and name ~= ThanksBoardLogic.ANON
 				then "💡 Idea from " .. name
 				else "💡 A player's idea"
+		elseif type(update.thanks) == "string" and update.thanks ~= "" then
+			credit = "💡 Thanks to " .. update.thanks
 		end
 		table.insert(out, {
 			id = update.id,

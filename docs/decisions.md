@@ -636,3 +636,6 @@ Playtesters said the intro captions go by too fast for kids. intro-cutscene.md Â
 
 ## 2026-11-07: Correction to the tutorial pacing entry (#2182)
 `Intro.VERSION` goes to 7, not 6 (6 was already taken by #2113), as Gameplay-Engineer built it in #2187.
+
+## 2026-11-07: Playtesters thanked by Roblox username on the What's New board (UI-Engineer, friend's project)
+Derek2: "update whats new board with mention of peoples fixes/suggestions when added and changes", then "it can use their roblox names you can find them in the group tyrell is cooltyrell dread is bgdevila". shared/WhatsNew rows take an optional `thanks` (a Roblox username), and the board shows "ðŸ’¡ Thanks to <name>" under that update. This narrows idea-credits.md section 7's "never a name in the repo" for the playtesters Derek2 names himself. Players who send ideas in game still go through `creditId` and IdeaCredits_v1 with their own opt-in. Rows go in as each change merges. A credited row is taller, so the board drops its oldest row to fit instead of running off the panel.

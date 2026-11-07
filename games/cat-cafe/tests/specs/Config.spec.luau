@@ -262,7 +262,7 @@ return function()
 		RainbowChanceBait = 0.015,
 		RainbowChanceRescue = 0.03,
 		RainbowMultiplier = 3,
-		RainbowLuckMax = 1.0,
+		RainbowLuckMax = 0.4, -- #2269: was 1.0
 		CollectorRainbowMultiplier = 10,
 		RainbowAnimateMax = 10,
 		RainbowSpawnToastSeconds = 60,

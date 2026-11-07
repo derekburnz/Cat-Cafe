@@ -11,8 +11,43 @@ local Catching = {}
 -- Where a carried cat rides, relative to the carrier's HumanoidRootPart: the asset manifest's
 -- poses.carried.body_cframe_roblox, cradled across the chest and facing the carrier's left so the camera behind the
 -- player sees it side on. 12 numbers for CFrame.new(table.unpack(...)), so this module stays free of Roblox types;
--- the server's carry (CatService) and the intro's demo carry (IntroController, F72) both use it.
+-- since #1964 it is only where HeldCat puts a cat on a character that has no torso yet.
 Catching.CARRIED_POSE = { 0, -0.4, -1.05, 0, 0, 1, 0, 1, 0, -1, 0, 0 }
+
+-- #1964 (Derek2 2026-11-07: "re-work the entire thing and positions hes being carried"): a carried cat lies on the
+-- carrier's folded arms, welded to the torso (R15 UpperTorso, R6 Torso) so it rides the walk and the arm fold the
+-- same on every screen, with no copy on any client. Its bottom middle sits `up` of the torso's height above the
+-- torso's middle, and its back `gap` studs in front of the chest; it lies `turn` degrees about the torso's up, across
+-- the arms with its head to the carrier's left. CARRIED_POSE above is only the fallback for a character with no
+-- torso yet. Tuned in Studio; numbers only, so this module stays free of Roblox types.
+Catching.HELD = {
+	r15 = { up = -0.15, gap = 0.1 },
+	r6 = { up = 0.2, gap = 0.1 },
+	turn = 90,
+}
+
+-- The held cat's loaf (Derek 14:16 picked the loaf over sitting up): Model-Agent's manifest `cat_poses.loaf` turns
+-- for the walking body's hinged pieces, each as piece:PivotTo(piece:GetPivot() * CFrame.Angles(x, y, z)) in degrees,
+-- the same numbers as Effects/Presets.catPoses.loaf. Set once on the server, so no client poses the held cat.
+Catching.HELD_TURNS = {
+	LegF1 = { -90, 0, -30 },
+	LegF2 = { -90, 0, 30 },
+	LegB1 = { 90, 0, -26 },
+	LegB2 = { 90, 0, 26 },
+	Tail = { 42.1, 23.2, -19.6 },
+} :: { [string]: { number } }
+
+--- Where the bottom middle of a held cat lies in its carrier's torso, in studs on Roblox's axes (x right, y up, z
+--- back): `torso` is the torso's size {x, y, z} and `catWidth` the cat's width across its body. Lying across the
+--- arms its width is how far it reaches out from the chest, so a big cat sits further out instead of in the chest.
+function Catching.holdPoint(
+	rig: string,
+	torso: { number },
+	catWidth: number
+): (number, number, number)
+	local hold = if rig == "R6" then Catching.HELD.r6 else Catching.HELD.r15
+	return 0, torso[2] * hold.up, -(torso[3] / 2 + hold.gap + catWidth / 2)
+end
 
 -- roll is in [0, 1).
 function Catching.succeeds(chance: number, roll: number): boolean

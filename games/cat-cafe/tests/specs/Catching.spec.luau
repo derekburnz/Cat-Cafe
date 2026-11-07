@@ -731,4 +731,38 @@ return function()
 			end
 		end)
 	end)
+	describe("holdPoint (#1964): a held cat lies on the folded arms, in front of the chest", function()
+		local UPPER = { 2, 1.6, 1 } -- a classic R15 UpperTorso
+		local TORSO = { 2, 2, 1 } -- R6
+
+		it("puts a cat's back just in front of the chest, centred, a little below the chest's middle", function()
+			local x, y, z = Catching.holdPoint("R15", UPPER, 1)
+			expect(x).to.equal(0)
+			expect(y < 0 and y > -UPPER[2] / 2).to.equal(true) -- on the torso's lower half, not at the hips
+			expect(z).to.be.near(-(0.5 + Catching.HELD.r15.gap + 0.5), 1e-9)
+			expect(-z - 1 / 2 >= UPPER[3] / 2).to.equal(true) -- never inside the chest
+		end)
+
+		it("sits a wider cat further out, and scales with the avatar's torso", function()
+			local _, _, small = Catching.holdPoint("R15", UPPER, 0.8)
+			local _, _, big = Catching.holdPoint("R15", UPPER, 1.4)
+			expect(big < small).to.equal(true)
+			local _, low = Catching.holdPoint("R15", UPPER, 1)
+			local _, tall = Catching.holdPoint("R15", { 2.4, 2.4, 1.2 }, 1)
+			expect(tall < low).to.equal(true)
+		end)
+
+		it("uses R6's own height on its one-piece torso, inside it", function()
+			local _, y = Catching.holdPoint("R6", TORSO, 1)
+			expect(y).to.be.near(TORSO[2] * Catching.HELD.r6.up, 1e-9)
+			expect(math.abs(y) < TORSO[2] / 2).to.equal(true)
+		end)
+
+		it("lies across the arms and folds the four legs and the tail of the loaf", function()
+			expect(Catching.HELD.turn).to.equal(90)
+			for _, name in { "LegF1", "LegF2", "LegB1", "LegB2", "Tail" } do
+				expect(#Catching.HELD_TURNS[name]).to.equal(3)
+			end
+		end)
+	end)
 end

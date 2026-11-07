@@ -26,6 +26,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local HeldCat = require(ReplicatedStorage.Shared.HeldCat)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Luck = require(ReplicatedStorage.Shared.Luck)
@@ -935,12 +936,6 @@ end
 
 -- Carrying ------------------------------------------------------------------------------------------------
 
--- The carried pose (Catching.CARRIED_POSE), relative to the HumanoidRootPart.
-local CARRIED_POSE = (function(): CFrame
-	local p = Catching.CARRIED_POSE
-	return CFrame.new(p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11], p[12])
-end)()
-
 -- The carrier's character attributes (section 13): CarryingCatId, CarryStartedAt (server time), BumpImmune (the
 -- held window) and NetHidden (F93: the net is away while a cat is in the arms, on every client; also anywhere but a
 -- catching area outside its camp, #1080, which markCamps keeps up to date). Display only; the shove checks read the carry record. nil clears them.
@@ -982,27 +977,7 @@ local function attachHeldCat(player: Player, carry: Carry)
 	if nameTag ~= nil then
 		nameTag:Destroy()
 	end
-	model:PivotTo(root.CFrame * CARRIED_POSE)
-	for _, descendant in model:GetDescendants() do
-		if descendant:IsA("BasePart") then
-			local part = descendant :: BasePart
-			part.Anchored = false
-			part.CanCollide = false
-			part.CanQuery = false
-			part.Massless = true
-			if part ~= body then
-				local weld = Instance.new("WeldConstraint")
-				weld.Part0 = body
-				weld.Part1 = part
-				weld.Parent = part
-			end
-		end
-	end
-	local hold = Instance.new("WeldConstraint")
-	hold.Name = "HoldWeld"
-	hold.Part0 = root
-	hold.Part1 = body
-	hold.Parent = body
+	HeldCat.attach(model, character, root) -- on the torso, in its loaf, the same on every screen (#1964)
 	model.Parent = character
 	carry.model = model
 	if humanoid ~= nil then

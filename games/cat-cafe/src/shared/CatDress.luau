@@ -4,8 +4,9 @@
 --
 -- Outfit pieces go on the seated cat's Outfit_<Piece> Attachments (manifest sit_slots), which ride the Body or the
 -- Head, so the asset thread can move a slot without a code change. Each piece's parts get Follows = "Body", "Head"
--- or "Tail" (a slot inside the Tail object Model, #2109's Tail Bow), which the client's idles (Effects/Pose) read. A walking body (F90's walking staff, Effects/CafeWalk) wears
--- a piece's walking cut, CatCafe_Accessory_<Piece>_Walk (Model-Agent #787), where one exists.
+-- or "Tail" (a slot inside the Tail object Model, #2109's Tail Bow), which the client's idles (Effects/Pose) read.
+-- A walking body (F90's walking staff, Effects/CafeWalk) wears a piece's walking cut,
+-- CatCafe_Accessory_<Piece>_Walk (Model-Agent #787), where one exists.
 --
 -- Roblox terms: an Attachment is a named point and rotation inside a part; its WorldCFrame follows the part.
 

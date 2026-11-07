@@ -123,20 +123,31 @@ return function()
 			end
 		)
 
-		it("BumpSameTargetSeconds before this tackler hits the same player again", function()
-			local wait = Config.BumpSameTargetSeconds
-			expect(Shove.targetRefusal(target({ sinceShoveTarget = wait - 0.01 }))).to.be.ok()
-			expect(Shove.targetRefusal(target({ sinceShoveTarget = wait }))).never.to.be.ok()
-		end)
-
 		it(
-			"nobody hits a player for ShoveTargetImmuneSeconds after any hit lands on them (S45)",
+			"no timed immunity: a player hit a moment ago, by this tackler or anyone, is hit again (#2193)",
 			function()
-				local immune = Config.ShoveTargetImmuneSeconds
-				expect(Shove.targetRefusal(target({ sinceTargetShoved = immune - 0.01 }))).to.be.ok()
-				expect(Shove.targetRefusal(target({ sinceTargetShoved = immune }))).never.to.be.ok()
+				expect(Config.BumpSameTargetSeconds).to.equal(0)
+				expect(Config.ShoveTargetImmuneSeconds).to.equal(0)
+				expect(Shove.targetRefusal(target({ sinceShoveTarget = 0 }))).never.to.be.ok()
+				expect(Shove.targetRefusal(target({ sinceTargetShoved = 0 }))).never.to.be.ok()
+				expect(Shove.targetRefusal(target({ sinceShoveTarget = 0, sinceTargetShoved = 0 }))).never.to.be.ok()
 			end
 		)
+
+		it("the timed rules still read their settings when they are tuned up again", function()
+			local config = Config :: any
+			local same, immune = config.BumpSameTargetSeconds, config.ShoveTargetImmuneSeconds
+			config.BumpSameTargetSeconds, config.ShoveTargetImmuneSeconds = 20, 4
+			local sameWait = Shove.targetRefusal(target({ sinceShoveTarget = 19.99 }))
+			local sameDone = Shove.targetRefusal(target({ sinceShoveTarget = 20 }))
+			local immuneWait = Shove.targetRefusal(target({ sinceTargetShoved = 3.99 }))
+			local immuneDone = Shove.targetRefusal(target({ sinceTargetShoved = 4 }))
+			config.BumpSameTargetSeconds, config.ShoveTargetImmuneSeconds = same, immune
+			expect(sameWait).to.equal("Give them a break")
+			expect(sameDone).never.to.be.ok()
+			expect(immuneWait).to.equal("They were just tackled")
+			expect(immuneDone).never.to.be.ok()
+		end)
 	end)
 
 	describe("the lunge's reach (inReach)", function()
@@ -337,29 +348,31 @@ return function()
 			expect((Shove :: any).sprintsAfterMiss).never.to.be.ok()
 		end)
 
-		it("the F56 acceptance tug of war ends on the same-target wait", function()
-			-- t = 0: A shoves carrier B and the cat drops; A picks it up at 0.6.
-			local pickedUp = 0.6
-			-- B shoves A straight back (#2193: no grace): B never shoved before, nobody shoved A.
-			local backAt = pickedUp + 0.1
-			local carryA: Shove.CarryState = { startedAt = pickedUp, immuneUntil = 0 }
-			expect(Shove.tackleRefusal(press())).never.to.be.ok()
-			expect(Shove.targetRefusal(target())).never.to.be.ok()
-			expect(Shove.canKnockLoose(carryA, backAt)).to.equal(true)
-			-- B picks it back up. At 12 s A is off TackleCooldownSeconds (5) but hit B at 0, so the lunge passes
-			-- through B until 20 s.
-			expect(Shove.tackleRefusal(press({ sinceTackle = 12 }))).never.to.be.ok()
-			local again = target({ sinceShoveTarget = 12, sinceTargetShoved = 12 })
-			expect(Shove.targetRefusal(again)).to.equal("Give them a break")
-			local wait = Config.BumpSameTargetSeconds
-			expect(
-				Shove.targetRefusal(target({ sinceShoveTarget = wait, sinceTargetShoved = wait }))
-			).never.to.be.ok()
-		end)
-
-		it("the same-target wait is longer than the tackler's cooldown", function()
-			expect(Config.BumpSameTargetSeconds > Config.TackleCooldownSeconds).to.equal(true)
-		end)
+		it(
+			"the F56 acceptance tug of war goes on, each tackler on their own cooldown (#2193)",
+			function()
+				-- t = 0: A shoves carrier B and the cat drops; A picks it up at 0.6.
+				local pickedUp = 0.6
+				-- B shoves A straight back (#2193: no grace): B never shoved before, nobody shoved A.
+				local backAt = pickedUp + 0.1
+				local carryA: Shove.CarryState = { startedAt = pickedUp, immuneUntil = 0 }
+				expect(Shove.tackleRefusal(press())).never.to.be.ok()
+				expect(Shove.targetRefusal(target())).never.to.be.ok()
+				expect(Shove.canKnockLoose(carryA, backAt)).to.equal(true)
+				-- B picks it back up at 1.3. A hit B at 0, so A waits only TackleCooldownSeconds (5) from that press, and
+				-- then the lunge hits B, who carries, though A hit them 5 s ago and B was hit 0.7 s before that pick up.
+				local cooldown = Config.TackleCooldownSeconds
+				expect(Shove.tackleRefusal(press({ sinceTackle = cooldown - 0.01 }))).to.be.ok()
+				expect(Shove.tackleRefusal(press({ sinceTackle = cooldown }))).never.to.be.ok()
+				expect(
+					Shove.targetRefusal(
+						target({ sinceShoveTarget = cooldown, sinceTargetShoved = cooldown })
+					)
+				).never.to.be.ok()
+				local carryB: Shove.CarryState = { startedAt = 1.3, immuneUntil = 0 }
+				expect(Shove.canKnockLoose(carryB, cooldown)).to.equal(true)
+			end
+		)
 	end)
 
 	describe("edges (QA)", function()
@@ -383,8 +396,8 @@ return function()
 			{ targetInCamp = true }, -- F84
 			{ targetFlying = true }, -- F84
 			{ targetNewcomer = true }, -- F87
-			{ sinceShoveTarget = 0 },
-			{ sinceTargetShoved = 0 },
+			-- sinceShoveTarget and sinceTargetShoved break nothing since #2193 (both waits are 0); the tuned-up test
+			-- in "who the lunge hits" keeps their words apart
 		}
 
 		local function merged(

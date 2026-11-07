@@ -194,7 +194,7 @@ local function land(
 	Telemetry.custom(player, "shove", 1, { knock or "shove", rarity, areaId })
 	if knock == "loose" then
 		Telemetry.knockedLoose(target, rarity)
-		-- v0.8 F56: anyone picks the cat up, and the old carrier can tackle back once that carry is 3 s old
+		-- v0.8 F56: anyone picks the cat up, and the old carrier can tackle straight back (#2193: no grace or immunity)
 		Net.toast(player, "It dropped! Pick it up quick!", "good")
 		Net.toast(target, "You got tackled and dropped your cat! Grab it back!", "warn")
 		TipService.show(target, "dropped") -- F87 section 3: the first knock loose

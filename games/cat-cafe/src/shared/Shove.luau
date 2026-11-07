@@ -8,7 +8,8 @@
 -- off TackleCooldownSeconds, which starts at the press, hit or miss. For the lunge plus TackleHitGraceSeconds the
 -- server hits the first player in reach (inReach) who could be shoved (targetRefusal): in the same area, outside
 -- their safe zone (their plot and BumpSafeRadiusStuds round both of their doors), in no minigame, not shoved by
--- anyone for ShoveTargetImmuneSeconds (S45) and not by this tackler for BumpSameTargetSeconds. A hit pushes the
+-- anyone for ShoveTargetImmuneSeconds (S45) and not by this tackler for BumpSameTargetSeconds (both 0 since #2193:
+-- no timed immunity, so a tackler who picks up the dropped cat can be tackled straight back). A hit pushes the
 -- target ShoveKnockbackStuds. If the target carries a cat and is BumpGraceSeconds into the carry, BumpChance (1.0
 -- since v0.8 F56) knocks it loose: the cat lands where they stood as a Dropped stray with no circles that anyone
 -- picks up with PickUpCat, the tackler and the old carrier included, and at dusk it is checked in for that carrier

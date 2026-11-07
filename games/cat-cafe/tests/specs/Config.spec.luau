@@ -303,9 +303,9 @@ return function()
 		BumpChance = 1.0, -- v0.8 F56: a shove always drops the cat
 		BumpGraceSeconds = 0, -- #2193 (was 3): a landed tackle always drops the cat
 		BumpSafeRadiusStuds = 15,
-		BumpSameTargetSeconds = 20,
+		BumpSameTargetSeconds = 0,
 		ShoveKnockbackStuds = 10,
-		ShoveTargetImmuneSeconds = 4,
+		ShoveTargetImmuneSeconds = 0,
 		-- a dropped cat walks home (v0.10 F67, section 10c)
 		DropReturnWalkSpeed = 8,
 		DropHomeRadiusStuds = 2,

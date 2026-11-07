@@ -648,3 +648,6 @@ Day 320 s / night 70 s (PR #2208) means fewer bowl cats in the first hour, so th
 
 ## 2026-11-07: Harder tier goals measured; Mythical rescue zone 0.14 (Design-Agent, friend's project, #2230, #2219)
 Tier goals as built in #2236: one-go Tier 5 at 11 h 26 and daily play on day 6, so the 2.3B stays (economy-ladder.md §3 v4). Rescue reset (#2220) with the Mythical zone at 0.14 brings Mythical bar rescues back to about 10% at 50 ms, where they were before the reset (catch-rework.md §4). Reason: the reset alone dropped Mythical to about 5%, and Derek2 had already said Mythical felt impossible.
+
+## 2026-11-07: Area obstacles are tall, not see-over (Design-Agent, friend's project, #2265)
+hometown-cannon.md §6b said blockers were about 4 studs so players could see over them. Derek2 asked for taller obstacles in every area: solid ones like hedges are now about 9 to 9.6 studs, and railings are see-through iron at about 9.4. The doc now says that. Reason: Derek2's ask; the see-through railings keep a hunter's view of a carrier in places.

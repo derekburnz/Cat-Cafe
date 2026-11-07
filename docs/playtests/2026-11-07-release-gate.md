@@ -2,6 +2,10 @@
 
 Author: QA-Planner, 2026-11-07. Release is planned for about 2026-11-10 to 2026-11-12 (Derek2, 2026-11-07). Derek decides the date and the final go or no-go. Nothing here changes game code or Config.
 
+## 0. Schedule (Design-Agent, release.md section 2, PR #1939)
+Freeze Mon 2026-11-09 18:00 UTC. Private check on 11-08 and 11-09 across the device matrix. Soft launch Tue 11-10. Go wide Thu 11-12 if the gate passes, otherwise Sat 11-14. The run report goes in `docs/playtests/2026-11-10-release-gate.md`.
+Design-Agent's performance marks (Tools-Agent captures them): phone load to first move 20 s or less, client memory under 1.2 GB, server 55 Hz or more with 8 players. Also from Design: median first session 10 minutes or more with 25% reaching 30 minutes, no error signature in more than 1% of sessions, owner tests on every pass passing.
+
 ## 1. Stages
 | Stage | Who sees it | How long | Moves on when |
 |---|---|---|---|
@@ -16,13 +20,13 @@ Read only after about 100 new players; below that, a number is noise and the sta
 | Number | Where | Go | Hold (fix first) |
 |---|---|---|---|
 | Tutorial completion (`onboarding_v4` reached the last intro step) | analytics funnel `onboarding_v4` | 80% or more | below 65% |
-| D1 retention | Creator Hub Retention page | 12% or more (the project's own bar, analytics-plan section 6) | below 8% |
+| D1 retention | Creator Hub Retention page | Design-Agent proposes 25% or more; our own bar in analytics-plan section 6 is 12%. Derek picks (see note below) | below 8% |
 | `session_10m` share of new players | custom events `session_*` | 50% or more | below 35% |
 | Average session | Creator Hub | 10 minutes or more | below 7 |
 | Errors | `ClientErrors`, BugReportService, DataStore failures | no error seen in more than 2% of sessions; zero save-loss reports | any save loss |
 | Store timing | `first_store_open`, purchases | no pass or Store prompt before about 30 minutes of play | a prompt in the first 10 minutes |
 
-Note for Derek: the outside launch guide's "D1 30% or more" is far above the 2026 GameAnalytics Roblox figures in `analytics-plan.md` (median D1 10.3%, 90th percentile about 15.9%). A 30% gate would hold the game back almost no matter what, so this page uses 12%. Say if you want a different bar.
+Note for Derek: the outside launch guide's "D1 30% or more" is far above the 2026 GameAnalytics Roblox figures in `analytics-plan.md` (median D1 10.3%, 90th percentile about 15.9%). A 30% gate would hold the game back almost no matter what, so this page uses 12%. Design-Agent's 25% is also well above the median; Derek decides which bar the go uses. The 25% is the stricter option, so a pass on it is a clear go, and a result between 12% and 25% is Derek's call.
 
 ## 3. Device matrix
 Run on the live build with a fresh account, 10 minutes each: load to first move, intro, catch a cat, open the Store, visit the busiest cafe area. Record load time, frame rate, memory (F9 / MicroProfiler or the Developer Console memory tab), and console errors. Report to `docs/playtests/2026-11-xx-devices.md`; every problem becomes an issue.

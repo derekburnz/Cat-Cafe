@@ -2750,6 +2750,8 @@ local SCENES = {
 		end
 		assert(dot, "uigate: no × on the Tutorial tile (#2211)")
 		UI.update({ tutorialStep = 9 } :: any)
+		UIShim.advance(3.5) -- the scene before may leave the tutorial mid-way, which this update just finished
+		UI.update({ tutorialStep = 9 } :: any)
 		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the × pulses with no tutorial step done (#2211)")
 		UI.update({ tutorialStep = 4 } :: any)
 		UI.update({ tutorialStep = 9 } :: any)

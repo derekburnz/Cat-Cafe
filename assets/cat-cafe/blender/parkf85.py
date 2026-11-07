@@ -11,8 +11,10 @@ navigatable just little areas to walk around to continue forward"), so the far e
 nothing walls you off: a box hedge island (z -112, x -30 to 6), two short railings on a plinth with flower boxes
 (z -50, x +-18 to +-40, open in the middle and by both walls), a stream out of the west wall that ends in a drain at
 x 10 (z 9 to 15; cross on the footbridge at x -24, deck 10 wide, or walk round its end) and a second hedge island
-(z 74, x -14 to 24). They are about 4 high, so a hunter sees a carrier coming over them; a `_Barrier` 30 high on each
-stops anyone jumping one.
+(z 74, x -14 to 24). Since #2265 (Derek2 11-07: "increase the height of obstacles like you did in alleyway but for
+all areas") each is taller than a jump: the hedges 9 to 9.6, the railings and the stream's rails 9.4 of see-through
+iron, so a hunter still sees a carrier behind those; each `_Barrier` stands BLOCK_OVER above its piece's top, as in the
+Alleyway (#2215), instead of 30.
 The tall pieces that break the view now and then are the willow and the kiosk by the duck pond, the glasshouse past
 the railing, the oaks and the bandstand, the far landmark.
 
@@ -34,7 +36,7 @@ from mathutils import Matrix
 import neighbourhood as nb
 from areakit import PI, Set, flowers, turned
 from common import Builder
-from parkset import (BARRIER_H, GRAVEL, KERB, LINK_W, PATH_W, ROUNDABOUT_TOP, WALL_D, _path, _ring_path, _run, _spot,
+from parkset import (BARRIER_H, GRAVEL, KERB, LINK_W, PATH_W, ROUNDABOUT_TOP, TALL_RAIL, WALL_D, _path, _ring_path, _run, _spot,
                      _strip, bandstand, bench, bin_, bistro, bl, blanket, face, flower_bed, garden_fountain, kiosk, lamp,
                      map_board, oak, picnic_table, pillar, planter, pond, poplar, ring_point, rose_arch, rose_bed,
                      roundabout, seesaw, spring_rider, sundial, topiary_cat, urn, wall_segment, willow)
@@ -121,26 +123,31 @@ def _walls(s, mat):
 
 
 # ------------------------------------------------------------------------------------------------ blockers --
+HEDGE_H = 9.0                        # the hedge islands' box top (#2265), 9 to 9.6 along a run
+BLOCK_OVER = 1.0                     # each blocker's barrier over its piece's highest top (#2265, as #2215)
+
+
 def _low_hedge(s, mat, z, runs):
-    """Clipped box hedge islands on the line z, 3.4 to 4 high, so a hunter sees over them, each run (x0, x1) with
-    rounded ends and an urn just past each end, open ground all round. Its `_Barrier` 30 high on each run's footprint
-    stops anyone jumping it."""
+    """Clipped box hedge islands on the line z, HEDGE_H to 0.6 more (#2265, were 3.4 to 4), each run (x0, x1) with
+    rounded ends and an urn past each end, open ground all round. Its `_Barrier` on each run's footprint stands
+    BLOCK_OVER over the hedge's top."""
     b, bar = Builder(), Builder()
     for (a0, a1) in runs:
         n = max(1, round((a1 - a0) / 6.0))
         step = (a1 - a0) / n
         for i in range(n):
-            c, h = a0 + (i + 0.5) * step, 3.4 + 0.3 * (i % 3)
+            c, h = a0 + (i + 0.5) * step, HEDGE_H + 0.3 * (i % 3)
             sw = ("leaf_dark", "leaf_green")[i % 2]
             x, y, _ = bl(c, z)
             b.box_base((x, y, 0), (step + 0.02 * (i % 2), 2.0 + 0.02 * (i % 2), h), sw, bevel=False)
             b.ico((x, y, h), 1.2, sw, subdivisions=1, scale=(step / 2.4, 0.85, 0.4))
         for (xe, sx) in ((a0, -1), (a1, 1)):                                    # rounded ends
             x, y, _ = bl(xe, z)
-            b.cyl_base((x, y, 0), 1.0, 3.4, "leaf_dark", segments=10, bevel=False)
-            b.ico((x, y, 3.4), 1.05, "leaf_dark", subdivisions=1, scale=(1, 1, 0.45))
+            b.cyl_base((x, y, 0), 1.0, HEDGE_H, "leaf_dark", segments=10, bevel=False)
+            b.ico((x, y, HEDGE_H), 1.05, "leaf_dark", subdivisions=1, scale=(1, 1, 0.45))
         x, y, _ = bl((a0 + a1) / 2, z)
-        bar.box_base((x, y, 0), (a1 - a0 + 2.0, 2.0, BARRIER_H), "offwhite", bevel=False)
+        top = HEDGE_H + 0.6 + 1.2 * 0.4                                         # the highest box and its rounded top
+        bar.box_base((x, y, 0), (a1 - a0 + 2.0, 2.0, top + BLOCK_OVER), "offwhite", bevel=False)
     s.put([b.finalize(N + "LowHedge", mat), bar.finalize(N + "LowHedge_Barrier", mat)], 0, 0, 0)
     for (a0, a1) in runs:
         for x in (a0 - 2.1, a1 + 2.1):
@@ -149,29 +156,34 @@ def _low_hedge(s, mat, z, runs):
 
 
 def _railing(s, mat, z, runs):
-    """Short low railings on the line z (the camp side's own look: a plinth, railings 4.6 high and flower boxes facing
-    the camp), each run (x0, x1) between 1.8 pillars with a lantern pillar at each end, open ground all round. Its face
-    is at z, its back at z + 2.4."""
+    """Short railings on the line z (the camp side's own look: a plinth, flower boxes facing the camp and, since
+    #2265, an iron railing TALL_RAIL high, was 4.6), each run (x0, x1) between 1.8 pillars with a lantern pillar at
+    each end, open ground all round. Its face is at z, its back at z + 2.4."""
     bar = Builder()
     for (a0, a1) in runs:
         n = max(1, round((a1 - a0 - 1.8) / 9.0))
         L = (a1 - a0 - (n + 1) * 1.8) / n
-        s.put(pillar(mat, top="lantern", h=6.0), a0 + 0.9, z, 0)
+        s.put(pillar(mat, top="lantern", h=TALL_RAIL + 1.0), a0 + 0.9, z, 0)
         for i in range(n):
             c = a0 + 1.8 + i * (L + 1.8) + L / 2
-            s.put(wall_segment(mat, "low", L, i), c, z, 0)
+            s.put(wall_segment(mat, "tall", L, i), c, z, 0)
             p = c + L / 2 + 0.9
-            s.put(pillar(mat, top="lantern", h=6.0) if i == n - 1 else pillar(mat, h=5.2), p, z, 0)
+            s.put(pillar(mat, top="lantern", h=TALL_RAIL + 1.0) if i == n - 1 else pillar(mat, h=TALL_RAIL + 0.2), p,
+                  z, 0)
         x, y, _ = bl((a0 + a1) / 2, z + WALL_D / 2)
-        bar.box_base((x, y, 0), (a1 - a0, WALL_D, BARRIER_H), "offwhite", bevel=False)
+        bar.box_base((x, y, 0), (a1 - a0, WALL_D, TALL_RAIL + 1.0 + 0.35 + BLOCK_OVER), "offwhite", bevel=False)
     s.put([bar.finalize(N + "Railing_Barrier", mat)], 0, 0, 0)
+
+
+RAIL_BARS = ((1.6, 0.14), (TALL_RAIL - 0.5, 0.2))     # the stream rails' cross bars: height, thickness
 
 
 def _stream(s, mat):
     """A stream 6 wide between stone kerbs 0.7 high, out of a culvert in the west wall and into a drain at
     STREAM_END, where a kerb closes it and an iron grate takes the water; east of it is open lawn, so a player walks
-    round its end or crosses on the footbridge. An iron rail 3 high on each kerb and round the end, its `_Barrier` a
-    0.5 thick wall on the rail's line (style guide: a barrier always stands on something a player can see)."""
+    round its end or crosses on the footbridge. An iron rail on each kerb and round the end, TALL_RAIL high (#2265,
+    was 3) with gilded tips, its `_Barrier` a 0.5 thick wall on the rail's line BLOCK_OVER over the tips (style guide:
+    a barrier always stands on something a player can see)."""
     b, water, decor, bar = Builder(), Builder(), Builder(), Builder()
     z0, z1 = STREAM_Z - 3.0, STREAM_Z + 3.0
     E = STREAM_END
@@ -217,20 +229,23 @@ def _stream(s, mat):
     for i, zc in enumerate((z0 - 0.4, z1 + 0.4)):      # an iron rail on each kerb, its barrier a wall on the rail's line
         kt = 0.7 + 0.006 * i
         for (a0, a1) in ((-IN_X + 0.45, BRIDGE_X - BRIDGE_HX), (BRIDGE_X + BRIDGE_HX, E + 0.4)):    # clear of the culvert
-            n = max(1, round((a1 - a0 - 0.6) / 2.0))
+            n = max(1, round((a1 - a0 - 0.6) / 0.6))                # park railings: bars 0.6 apart
             for k in range(n + 1):
-                b.box_base(bl(a0 + 0.3 + (a1 - a0 - 0.6) * k / n, zc, kt), (0.16, 0.16, 3.0 - kt), "fur_black",
-                           bevel=False)
-            for (h, t) in ((1.6, 0.14), (2.85, 0.2)):
+                px = a0 + 0.3 + (a1 - a0 - 0.6) * k / n
+                b.box_base(bl(px, zc, kt), (0.16, 0.16, TALL_RAIL - kt), "fur_black", bevel=False)
+                b.pyramid(bl(px, zc, TALL_RAIL), 0.26, 0.4, "gold_mid")
+            for (h, t) in RAIL_BARS:
                 b.box(bl((a0 + a1) / 2, zc, h), (a1 - a0 - 0.4, 0.12, t), "fur_black", bevel=False)
         for (a0, a1) in ((-IN_X, BRIDGE_X - BRIDGE_HX), (BRIDGE_X + BRIDGE_HX, E + 0.65)):
-            bar.box_base(bl((a0 + a1) / 2, zc), (a1 - a0, 0.5, BARRIER_H), "offwhite", bevel=False)
+            bar.box_base(bl((a0 + a1) / 2, zc), (a1 - a0, 0.5, TALL_RAIL + 0.4 + BLOCK_OVER), "offwhite", bevel=False)
     xe = E + 0.4                                                          # the rail round the end
-    for k in range(4):
-        b.box_base(bl(xe, z0 - 0.4 + (z1 - z0 + 0.8) * k / 3, 0.7), (0.16, 0.16, 2.3), "fur_black", bevel=False)
-    for (h, t) in ((1.6, 0.14), (2.85, 0.2)):
+    for k in range(12):
+        b.box_base(bl(xe, z0 - 0.4 + (z1 - z0 + 0.8) * k / 11, 0.7), (0.16, 0.16, TALL_RAIL - 0.7), "fur_black",
+                   bevel=False)
+        b.pyramid(bl(xe, z0 - 0.4 + (z1 - z0 + 0.8) * k / 11, TALL_RAIL), 0.26, 0.4, "gold_mid")
+    for (h, t) in RAIL_BARS:
         b.box(bl(xe, STREAM_Z, h), (0.12, z1 - z0 + 0.8, t), "fur_black", bevel=False)
-    bar.box_base(bl(xe, STREAM_Z), (0.5, z1 - z0 + 1.3, BARRIER_H), "offwhite", bevel=False)
+    bar.box_base(bl(xe, STREAM_Z), (0.5, z1 - z0 + 1.3, TALL_RAIL + 0.4 + BLOCK_OVER), "offwhite", bevel=False)
     s.put([b.finalize(N + "Stream", mat), water.finalize(N + "Stream_Water", mat),
            decor.finalize(N + "Stream_Decor", mat), bar.finalize(N + "Stream_Barrier", mat)], 0, 0, 0)
 

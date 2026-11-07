@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-07 20:01 UTC",
+  "generated": "2026-11-07 21:36 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -213880,20 +213880,20 @@
         "CatCafe_Park_SetF85_074_Urn_Flowers",
         "CatCafe_Park_SetF85_075_Pillar",
         "CatCafe_Park_SetF85_075_Pillar_Bulb",
-        "CatCafe_Park_SetF85_076_WallLow",
-        "CatCafe_Park_SetF85_076_WallLow_Flowers",
+        "CatCafe_Park_SetF85_076_WallTall",
+        "CatCafe_Park_SetF85_076_WallTall_Flowers",
         "CatCafe_Park_SetF85_077_Pillar",
-        "CatCafe_Park_SetF85_078_WallLow",
-        "CatCafe_Park_SetF85_078_WallLow_Flowers",
+        "CatCafe_Park_SetF85_078_WallTall",
+        "CatCafe_Park_SetF85_078_WallTall_Flowers",
         "CatCafe_Park_SetF85_079_Pillar",
         "CatCafe_Park_SetF85_079_Pillar_Bulb",
         "CatCafe_Park_SetF85_080_Pillar",
         "CatCafe_Park_SetF85_080_Pillar_Bulb",
-        "CatCafe_Park_SetF85_081_WallLow",
-        "CatCafe_Park_SetF85_081_WallLow_Flowers",
+        "CatCafe_Park_SetF85_081_WallTall",
+        "CatCafe_Park_SetF85_081_WallTall_Flowers",
         "CatCafe_Park_SetF85_082_Pillar",
-        "CatCafe_Park_SetF85_083_WallLow",
-        "CatCafe_Park_SetF85_083_WallLow_Flowers",
+        "CatCafe_Park_SetF85_083_WallTall",
+        "CatCafe_Park_SetF85_083_WallTall_Flowers",
         "CatCafe_Park_SetF85_084_Pillar",
         "CatCafe_Park_SetF85_084_Pillar_Bulb",
         "CatCafe_Park_SetF85_085_Railing_Barrier",
@@ -214103,7 +214103,7 @@
         "CatCafe_Park_SetF85_217_Poplar",
         "CatCafe_Park_SetF85_218_Poplar"
       ],
-      "triangles": 95504,
+      "triangles": 98660,
       "budget": 150000,
       "size_studs": {
         "x": 119.5,
@@ -214513,7 +214513,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_SetF85.model.json",
-      "rbx_parts": 5296,
+      "rbx_parts": 6154,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_SetF85.glb"
@@ -214526,10 +214526,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "95504/150000 tris",
+          "budget": "98660/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "60742 faces on swatch centers",
+          "uv": "62796 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.05 (want 0)",
           "centered": "footprint center x=0.00 y=-0.12"

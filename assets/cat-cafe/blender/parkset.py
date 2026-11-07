@@ -191,6 +191,31 @@ def _seg_low(b, L, shade, flowers_b):
                                bevel=False)
 
 
+def _seg_tall(b, L, shade, flowers_b):
+    """The F85 railings across the way (#2265): _seg_low's plinth and flower boxes under an iron railing 9.4 high
+    with gilded tips, taller than a jump but still see-through, so a hunter sees a carrier behind it."""
+    b.box_base((0, WALL_D / 2, 0), (L, WALL_D, 1.2), "concrete")
+    b.box_base((0, WALL_D / 2, 1.2), (L + 0.1, WALL_D + 0.2, 0.15), "concrete_dark", bevel=False)
+    n = max(2, round(L / 1.0))
+    for i in range(n + 1):
+        x = -L / 2 + 0.3 + i * (L - 0.6) / n
+        b.box_base((x, 1.6, 1.35), (0.16, 0.16, TALL_RAIL - 1.35), "fur_black", bevel=False)
+        b.pyramid((x, 1.6, TALL_RAIL), 0.26, 0.4, "gold_mid")                                  # gilded tips
+    for z in (1.9, 5.2, TALL_RAIL - 0.5):
+        b.box((0, 1.6, z), (L - 0.4, 0.12, 0.18), "fur_black", bevel=False)
+    k = max(1, round(L / 7.0))
+    for i in range(k):
+        x = -L / 2 + (i + 0.5) * L / k
+        b.box_base((x, 0.55, 1.35), (2.6, 0.8, 0.55), "terracotta", bevel=False)
+        for j in range(5):
+            flowers_b.box_base((x - 1.0 + 0.5 * j, 0.5 + 0.12 * (j % 2), 1.9), (0.32, 0.32, 0.32),
+                               ("blush", "pastel_butter", "offwhite", "pastel_lilac", "shirt_red")[(j + shade) % 5],
+                               bevel=False)
+
+
+TALL_RAIL = 9.4                      # the tall railing's top (#2265): over a jump (7.2) from the ground
+
+
 SEGMENTS = {"hedge": _seg_hedge, "brick": _seg_brick, "rail": _seg_rail, "stone": _seg_stone}
 
 
@@ -198,9 +223,9 @@ def wall_segment(mat, kind, L, shade=0):
     """One wall run L long along local x, its face at y 0 (facing -Y, into the area) and its back at WALL_D."""
     b = Builder()
     name = N + "Wall" + kind.capitalize()
-    if kind == "low":
+    if kind in ("low", "tall"):
         fl = Builder()
-        _seg_low(b, L, shade, fl)
+        (_seg_low if kind == "low" else _seg_tall)(b, L, shade, fl)
         return [b.finalize(name, mat), fl.finalize(name + "_Flowers", mat)]
     SEGMENTS[kind](b, L, shade)
     return [b.finalize(name, mat)]

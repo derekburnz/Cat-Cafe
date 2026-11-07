@@ -1412,6 +1412,7 @@ function UI.init(config: Types.InitConfig)
 	-- Catch v3 (catch-rework.md 7a): the mood icon over each stray within 20 studs (inline: the module is short of locals)
 	local catchUI: any = UI.catch
 	catchUI.moods = require(script.Screens.MoodIcons).new()
+	catchUI.mark = require(script.Screens.CatchMark).new() -- #2005: the "!" over a stray being caught (NetDown)
 	UI.bubbles.start(parent) -- the one-line speech bubbles over the town's key cats (#1079)
 	-- the hover card over cats: mouse hover, a tap, or the nearest own cat on gamepad (F75)
 	catCard = CatCard.new(parent, {
@@ -1657,6 +1658,10 @@ function UI.destroy()
 	if catchUI.moods then
 		catchUI.moods:destroy()
 		catchUI.moods = nil
+	end
+	if catchUI.mark then
+		catchUI.mark:destroy()
+		catchUI.mark = nil
 	end
 	if catCard then
 		catCard:destroy()

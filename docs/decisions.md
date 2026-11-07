@@ -570,3 +570,13 @@ Derek approved building these on 2026-10-26 ("most of the feedback done lets sta
 
 ## 2026-11-07: four-week calendar drafted (#1937)
 Design-Agent (friend's project) drafted the first four weeks in `release.md` §4, on Sync-Agent's report that #1937 had no owner. It assumes small Saturday drops (Set 12 Q2) and the research launch days from #1956 (soft launch Wed 11-11 20:00 UTC, go wide Sat 11-14 14:00 UTC, Set 12 Q6), so "We're open!" and the first Rescue Rally weekend ship together. Lucky, Golden and Rainbow Days are forced on for their drop day. Rows that change with Derek2's answers are marked [Q2] or [Q6], with the alternatives in §4b. Reason: a calendar that only flips flags on Saturdays keeps each week small for a first game.
+
+## 2026-11-07: Set 12 answers, launch shape and updates on hold
+Derek2 answered Set 12 in the questions doc. The full list is in `docs/design/cat-cafe/feedback/answers-2026-11-07-set-12.md`.
+- **Release days:** not set yet; Derek2 picks them once fixes land (Q6). release.md now counts from day 1, with the freeze 24 h before.
+- **Launch shape (Q4):** day 1 public with friends testing, then sponsored ads from day 2 at US$10 to $15 a day for 7 days, and a continue-or-stop call on day 9.
+- **Updates after launch (Q2):** on hold until the game is doing well. The calendar from #1973 becomes a menu, with its codes inactive and `Config.ForcedDays` empty.
+- **Phone checks (Q5):** run in Studio's emulator, plus a phone-versus-PC leave-time read from day 2.
+- **Trailer (#977, Q3):** goes ahead.
+
+Reason: these are Derek2's own answers. Set 13 was written to the doc.

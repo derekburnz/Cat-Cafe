@@ -68,6 +68,13 @@ return function()
 			expect(lines[2].credit).to.equal("💡 A player's idea")
 			expect(lines[3].credit).to.equal(nil)
 			expect(Logic.whatsNew(updates, nil)[1].credit).to.equal("💡 A player's idea")
+			-- Derek2 11-07: a named playtester's report or suggestion
+			local thanked = Logic.whatsNew({
+				{ id = "cash", date = "2026-11-07", icon = "fix", text = "Cash stays put", thanks = "bgdevila" },
+				{ id = "plain", date = "2026-11-07", icon = "new", text = "Something new" },
+			}, nil)
+			expect(thanked[1].credit).to.equal("💡 Thanks to bgdevila")
+			expect(thanked[2].credit).to.equal(nil)
 		end)
 	end)
 end

@@ -39,6 +39,15 @@ return function()
 				if row.creditId ~= nil then
 					expect(string.match(row.creditId :: string, "^c%d+$") ~= nil).to.equal(true)
 				end
+				-- Derek2 11-07: a playtester's Roblox username (3 to 20 letters, digits or one underscore), never with a
+				-- creditId
+				local thanks = (row :: any).thanks
+				if thanks ~= nil then
+					expect(type(thanks)).to.equal("string")
+					expect(string.match(thanks, "^[%w_]+$") ~= nil).to.equal(true)
+					expect(#thanks >= 3 and #thanks <= 20).to.equal(true)
+					expect(row.creditId).to.equal(nil)
+				end
 				expect(table.isfrozen(row)).to.equal(true)
 			end
 			expect(table.isfrozen(WhatsNew.rows)).to.equal(true)

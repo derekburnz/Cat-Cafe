@@ -1764,7 +1764,10 @@ Presets.carryPose = {
 		neck = -12,
 		waist = -4,
 	} :: { [string]: number },
-	arms6 = { sh = 40, tw = -10, sp = -50, neck = -12 } :: { [string]: number },
+	-- Derek2 2026-11-07 13:12 (R6 row "bad": forearms stacked in front of the belly, hands up through the cat): a
+	-- plain cradle like R15's, both arms raised forward 65 degrees and swung 35 in, so they reach out level-ish at
+	-- chest height and their ends meet under the cat (FK: ends 0.14 down from the Torso's middle, 1.37 out)
+	arms6 = { sh = 65, tw = 0, sp = -35, neck = -12 } :: { [string]: number },
 	gap = -0.15,
 	forward = -0.6,
 	loafForward = -1.15,

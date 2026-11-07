@@ -72,10 +72,11 @@ base=https://apis.roblox.com/cloud/v2/universes/$UNIVERSE_ID/data-stores/$STORE/
 
 ```bash
 curl -sS -H "x-api-key: $ROBLOX_PUBLISH_KEY" "$base/$KEY:listRevisions?maxPageSize=50" \
-  | jq -r '.dataStoreEntries[] | "\(.revisionCreateTime)  \(.revisionId)"'
+  | jq -r '.dataStoreEntries | sort_by(.revisionCreateTime) | reverse | .[] | "\(.revisionCreateTime)  \(.revisionId)"'
 ```
 
-The newest is at the top. Pick the last revision **before** the problem (the player's report says roughly when).
+This prints the newest first. Sort by `revisionCreateTime` as above, and don't rely on the API's own order, which
+came back oldest first in the dev-store drill. Pick the last revision **before** the problem (the player's report says roughly when).
 
 ### Step 2: download that revision and check it
 
@@ -94,20 +95,26 @@ A revision saved while the player was in a game still names that game's server i
 Clear it, so the next join doesn't wait for a server that is long gone:
 
 ```bash
-jq '.value.MetaData.ActiveSession = null | .value.MetaData.ForceLoadSession = null' restore.json > restore-clean.json
+jq 'del(.value.MetaData.ActiveSession, .value.MetaData.ForceLoadSession)' restore.json > restore-clean.json
 ```
+
+Delete the two fields, don't set them to `null`: Open Cloud refuses any `null` inside the value with
+`400 "Value cannot be null"`.
 
 Don't change anything else in the file: not `Data`, not `version`, not `GlobalUpdates`.
 
 ### Step 4: write it back as the newest revision
 
 ```bash
-jq '{value: .value, users: .users}' restore-clean.json \
+jq '{value: .value}' restore-clean.json \
   | curl -sS -X PATCH -H "x-api-key: $ROBLOX_PUBLISH_KEY" -H "Content-Type: application/json" \
       --data-binary @- "$base/$KEY" | jq '{revisionId, revisionCreateTime}'
 ```
 
-The write itself becomes a new revision, so a restore can also be undone with the same steps.
+Send only `value`: these entries have no `users` list, and a body with `"users": null` is refused with
+`400 "Object reference not set"`. The write itself becomes a new revision, so a restore can also be undone with the
+same steps. Two writes a few seconds apart merge into one revision, so wait a minute between a test write and the
+real one.
 
 ### Step 5: check it in game
 
@@ -123,7 +130,6 @@ back card shows their offline earnings from the restored `lastSeen`. Then delete
 - Don't paste the API key, the UserId together with the save contents, or the JSON into chat or an issue. The repo is
   public.
 
-Not yet done: these commands were written against Roblox's Open Cloud v2 data store API and have not been run yet.
-Before anyone uses them on a real player: run steps 1 and 2 read-only against the live store (Tools-Agent, with the
-real key), and prove steps 3 and 4 on a throwaway test account's key in `CatCafeProfiles_dev`. Correct this page with
-whatever differs, then remove this paragraph.
+Drilled end to end by Tools-Agent on 2026-11-07, steps 1 to 4, on a throwaway key `p_0` in `CatCafeProfiles_dev`
+(deleted afterwards). It has not yet been used on a live player, so take extra care the first time, and check every
+`jq` summary before step 4.

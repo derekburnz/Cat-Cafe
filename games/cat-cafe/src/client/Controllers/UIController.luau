@@ -1159,7 +1159,8 @@ local function wireIntents()
 		end
 	end)
 	UI.events.rescuePressed:Connect(function(rescueSpotId: string)
-		Net.fire("RescuePress", rescueSpotId)
+		-- #2241: the press's own time, so ping wobble cannot move a fast Legendary or Mythical marker out of the zone
+		Net.fire("RescuePress", rescueSpotId, Workspace:GetServerTimeNow())
 	end)
 	UI.events.rescueCancelled:Connect(function(rescueSpotId: string)
 		Net.fire("RescueCancel", rescueSpotId)

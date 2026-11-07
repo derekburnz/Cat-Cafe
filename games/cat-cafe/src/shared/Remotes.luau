@@ -15,7 +15,7 @@ Remotes.ClientToServer = {
 	-- stray in reach starts its catch (CatchSchedule) or, Dropped, is picked up; a miss makes nearby strays hop
 	"CatchPress", -- (strayId: string, index: number)  no time is sent: the server stamps the press on arrival
 	"RescueBegin", -- (rescueSpotId: string)  trap holds a stuck cat, unlocked, past its retry waits, in range, not carrying
-	"RescuePress", -- (rescueSpotId: string)  no time is sent: the server stamps the press and judges the marker
+	"RescuePress", -- (rescueSpotId: string, pressedAt: number?)  the press's GetServerTimeNow; the server keeps it within half the ping of arrival (#2241) and judges the marker
 	"RescueCancel", -- (rescueSpotId: string)  Give up: ends the attempt as a fail; a helper's only ends their help
 	"RescueHelp", -- (rescueSpotId: string)  F92 Team Rescue: join someone else's running bar as its one helper; within
 	-- TeamRescueRangeStuds, not carrying, the trap locked to another player with no helper yet. Answered with

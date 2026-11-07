@@ -2075,6 +2075,13 @@ function Logic.rallySteps(
 	return crossed
 end
 
+-- 0 to 1 with a small overshoot past 1 before settling (a swing that lands with a bounce).
+function Logic.easeOutBack(u: number): number
+	local t = math.clamp(u, 0, 1) - 1
+	local k = 1.70158
+	return 1 + (k + 1) * t * t * t + k * t * t
+end
+
 -- Smooth in and out, 0 to 1.
 function Logic.easeInOut(u: number): number
 	local k = math.clamp(u, 0, 1)

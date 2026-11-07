@@ -859,6 +859,32 @@ local SCENES = {
 		UI.open("Decor")
 		press("Decor", "Style")
 	end },
+	-- #2007 (Derek2: "cafe sign cant change back to plain also put symbols beside each one"): every sign style with
+	-- its symbol, Paw Chalkboard in use, then the sync for Plain ("" now, where nil left the old pick gold)
+	{ "DecorStylePlain", function()
+		UI.update({
+			signStyles = {
+				"bakery_stripes",
+				"royal_crest",
+				"frame_golden_leaf",
+				"sign_maple_board",
+				"pack_flower_box",
+				"pack_starry_night",
+				"pack_paw_chalkboard",
+			},
+			signStyle = "pack_paw_chalkboard",
+		})
+		UI.open("Decor")
+		press("Decor", "Style")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local row = modals and modals:FindFirstChild("sign", true)
+		local title = row and row:FindFirstChild("Title")
+		assert(title and title:IsA("TextLabel"), "uigate: no Cafe sign row on the Style tab")
+		assert(title.Text == "Cafe sign: 🐾 Paw Chalkboard", "uigate: the sign row's title reads " .. title.Text)
+		UI.update({ signStyle = "" })
+		task.wait(0.05)
+		assert(title.Text == "Cafe sign: ⬜ Plain", "uigate: Plain should be in use after the sync, title " .. title.Text)
+	end },
 	-- #1875: the Cafe music row (free for everyone) under the looks, Catnap Waltz in use; a tap asks for the song
 	{ "DecorStyleMusic", function()
 		UI.update({

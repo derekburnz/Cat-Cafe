@@ -591,10 +591,11 @@ local function applyState(s: Types.PlayerState)
 		starterBought = s.starterBought, -- #1625: the Starter Bundle card shows while false
 		storeSeen = s.storeSeen, -- #1823 §4: the Store tabs' New dots
 		signStyles = s.signStyles, -- #1625: the Style tab's sign row
-		signStyle = s.signStyle,
+		-- #2007: "" for the plain sign, as UI.update skips a nil and the old pick stayed gold
+		signStyle = s.signStyle or "",
 		looks = s.looks, -- #1624: the Style tab's theme and uniform rows
 		jukeboxTracks = s.jukeboxTracks, -- #1168 row 2: the Style tab's music row
-		jukebox = s.jukebox,
+		jukebox = s.jukebox or "", -- #2007: "" for the mix, as for the sign
 		passBoosts = s.passBoosts, -- #1624: the store passes in the money card's Boosts list
 		tradeLog = s.tradeLog, -- F102: the Trades page
 	})

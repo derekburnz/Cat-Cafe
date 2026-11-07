@@ -137,7 +137,7 @@ Theme.textures = {
 	-- the clean yellow fish (Icon_Clean_Fish) since #1208 (the friend 11-04: "the golden fish icons are still the old
 	-- pictures"); the shiny CatCafe_Icon_GoldenFish was 75310291409772
 	-- Icon_Clean_FishGold since #1253 (Derek 11-04: the fish "somehow got worse"; was 111395416488950)
-	fishCoin = "rbxassetid://105273249926486",
+	fishCoin = "rbxassetid://101061912700342",
 }
 
 -- HUD panels float over the 3D world, so they are dark and solid for contrast, with a thick dark outline
@@ -274,12 +274,12 @@ Theme.areaColors = {
 -- Model-Agent's renders (assets/cat-cafe/ui/area-pictures). The area's colour and emoji show until one loads; a
 -- place with no picture keeps them.
 Theme.areaPictures = {
-	town = "rbxassetid://140284083259569", -- Town Square from above
-	alley = "rbxassetid://113608977532602", -- the back alley lane at dusk, washed pink like its cloud tunnel
-	park = "rbxassetid://132809833693971", -- the bandstand
-	neighbourhood = "rbxassetid://78164844504840", -- the Corner Shop
-	woods = "rbxassetid://85739310653150", -- the Great Oak
-	sewer = "rbxassetid://114790084150559", -- the THE SEWER sign
+	town = "rbxassetid://95556560149882", -- Town Square from above
+	alley = "rbxassetid://92557770194473", -- the back alley lane at dusk, washed pink like its cloud tunnel
+	park = "rbxassetid://134617053465968", -- the bandstand
+	neighbourhood = "rbxassetid://74723731083885", -- the Corner Shop
+	woods = "rbxassetid://134431645475819", -- the Great Oak
+	sewer = "rbxassetid://139316344682802", -- the THE SEWER sign
 } :: { [string]: string }
 
 -- Fonts. Fredoka One for numbers and titles, Nunito for everything else (both ship with Roblox).

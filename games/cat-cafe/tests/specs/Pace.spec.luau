@@ -231,7 +231,9 @@ return function()
 
 		-- A press's error: normal, by Box and Muller from two of the press rolls (never 0, so the log is safe).
 		local function pressError(): number
-			return spread * math.sqrt(-2 * math.log(pressRng())) * math.cos(2 * math.pi * pressRng())
+			return spread
+				* math.sqrt(-2 * math.log(pressRng()))
+				* math.cos(2 * math.pi * pressRng())
 		end
 
 		-- Seconds from the first try on a stray to the try that nets it, or nil after MAX_TRIES.
@@ -968,12 +970,12 @@ return function()
 	describe(
 		"Tier 5 on the money ladder (F95, economy-ladder.md section 8 checks 3 and 7)",
 		function()
-			it("takes 8 to 12 hours of play in one go", function()
+			it("takes 9 to 14 hours of play in one go (#2230: was 8 to 12)", function()
 				local list, text =
 					toTier5({ catches = 4, target = 5, limit = 16 * HOUR, long = true })
 				local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
-				if median < 8 * HOUR or median > 12 * HOUR then
-					error("Tier 5 outside 8 to 12 hours of play: " .. text)
+				if median < 9 * HOUR or median > 14 * HOUR then
+					error("Tier 5 outside 9 to 14 hours of play: " .. text)
 				end
 			end)
 
@@ -1076,7 +1078,7 @@ return function()
 
 	describe("Tier 5 with stray top-ups (#1159) and a 4-friend server (#1165)", function()
 		it(
-			"takes 8 to 12 hours in one go for a player who buys the best affordable lawn (#1283)",
+			"takes 9 to 14 hours in one go for a player who buys the best affordable lawn (#1283)",
 			function()
 				local list, text = toTier5({
 					catches = 4,
@@ -1086,14 +1088,14 @@ return function()
 					lawn = "greedy",
 				})
 				local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
-				if median < 8 * HOUR or median > 12 * HOUR then
-					error("Tier 5 outside 8 to 12 hours of play: " .. text)
+				if median < 9 * HOUR or median > 14 * HOUR then
+					error("Tier 5 outside 9 to 14 hours of play: " .. text)
 				end
 			end
 		)
 
 		it(
-			"takes 8 to 12 hours in one go on a server of 4 friends, the non-stop catcher",
+			"takes 9 to 14 hours in one go on a server of 4 friends, the non-stop catcher",
 			function()
 				local list, text = toTier5({
 					catches = NON_STOP,
@@ -1104,8 +1106,8 @@ return function()
 					strays = { players = 4, wait = 60 },
 				})
 				local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
-				if median < 8 * HOUR or median > 12 * HOUR then
-					error("Tier 5 outside 8 to 12 hours of play: " .. text)
+				if median < 9 * HOUR or median > 14 * HOUR then
+					error("Tier 5 outside 9 to 14 hours of play: " .. text)
 				end
 			end
 		)
@@ -1187,7 +1189,7 @@ return function()
 	-- The Day Cart (#1716): each row has its own daily stock, so a day's buys are up to 2 Quick Bait Potions of each
 	-- size. Pace leaves potions out; this runs the worst case, one running the whole time, through Tier 5.
 	describe("Tier 5 with a Quick Bait Potion always running (#1716)", function()
-		it("takes 8 to 12 hours of play in one go", function()
+		it("takes 9 to 14 hours of play in one go (#2230: was 8 to 12)", function()
 			local list, text = toTier5({
 				catches = 4,
 				target = 5,
@@ -1196,8 +1198,8 @@ return function()
 				quickBait = true,
 			})
 			local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
-			if median < 8 * HOUR or median > 12 * HOUR then
-				error("Tier 5 outside 8 to 12 hours of play: " .. text)
+			if median < 9 * HOUR or median > 14 * HOUR then
+				error("Tier 5 outside 9 to 14 hours of play: " .. text)
 			end
 		end)
 
@@ -1229,7 +1231,8 @@ return function()
 
 		local function firstHour(): { Run }
 			if hourRuns == nil then
-				hourRuns = runs({ catches = 4, target = 9, limit = HOUR }, HOUR_RUNS)
+				-- #2230: on past the hour, so a Tier 3 up to 62 minutes is measured; the hour's checks stop at HOUR
+				hourRuns = runs({ catches = 4, target = 9, limit = HOUR + 15 * 60 }, HOUR_RUNS)
 			end
 			return assert(hourRuns)
 		end
@@ -1278,6 +1281,9 @@ return function()
 		local function longestGap(times: { number }): number
 			local worst, last = 0, 0
 			for _, at in times do
+				if at > HOUR then
+					break -- the first hour only (#2230 runs on past it)
+				end
 				worst = math.max(worst, at - last)
 				last = at
 			end
@@ -1294,15 +1300,15 @@ return function()
 		end)
 
 		it(
-			"reaches Tier 3 at 45 to 55 minutes (the middle run), the fastest tenth at 35 or later",
+			"reaches Tier 3 at 50 to 62 minutes (the middle run, #2230: was 45 to 55), the fastest tenth at 35 or later",
 			function()
 				local list = firstHour()
-				local median = quantile(list, tierAt(3), 0.5, HOUR + 1) / 60
-				local fast = quantile(list, tierAt(3), 0.1, HOUR + 1) / 60
-				if median < 45 or median > 55 or fast < 35 then
+				local median = quantile(list, tierAt(3), 0.5, HOUR + 15 * 60 + 1) / 60
+				local fast = quantile(list, tierAt(3), 0.1, HOUR + 15 * 60 + 1) / 60
+				if median < 50 or median > 62 or fast < 35 then
 					error(
 						string.format(
-							"Tier 3 at %.1f min (tenth %.1f), outside 45 to 55 or before 35",
+							"Tier 3 at %.1f min (tenth %.1f), outside 50 to 62 or before 35",
 							median,
 							fast
 						)

@@ -1698,40 +1698,74 @@ return function()
 		end)
 
 		it(
-			"stands the Rally board in the north-east quarter facing the spawn, off the cross and the stations (F101)",
+			"stands a Rally board either side of the street's path at its north end, facing the spawn, off the cross and the stations (F101, #2224)",
 			function()
-				local board = square.rallyBoard
-				expect(board.asset).to.equal("CatCafe_Square_RallyBoard")
-				expect(board.x > 0 and board.z > 0).to.equal(true)
-				-- its face is about 11 by 1.5 (Model-Agent #759); every corner of that, turned, stays off the cross
-				local yaw = math.rad(board.rotY or 0)
-				local cos, sin = math.cos(yaw), math.sin(yaw)
-				for _, corner in { { -5.5, -0.75 }, { 5.5, -0.75 }, { -5.5, 0.75 }, { 5.5, 0.75 } } do
-					local x = board.x + corner[1] * cos + corner[2] * sin
-					local z = board.z - corner[1] * sin + corner[2] * cos
-					expect(inside(x, z, square.floor, 4)).to.equal(true)
-					for _, lane in lanes do
-						expect(inside(x, z, lane, -0.5)).to.equal(false)
+				local boards = square.rallyBoards
+				expect(#boards).to.equal(2)
+				local sides: { [number]: boolean } = {}
+				for _, board in boards do
+					expect(board.asset).to.equal("CatCafe_Square_RallyBoard")
+					expect(board.z > 0).to.equal(true)
+					sides[if board.x < 0 then -1 else 1] = true
+					-- its face is about 11 by 1.5 (Model-Agent #759); every corner of that, turned, stays off the cross
+					local yaw = math.rad(board.rotY or 0)
+					local cos, sin = math.cos(yaw), math.sin(yaw)
+					for _, corner in { { -5.5, -0.75 }, { 5.5, -0.75 }, { -5.5, 0.75 }, { 5.5, 0.75 } } do
+						local x = board.x + corner[1] * cos + corner[2] * sin
+						local z = board.z - corner[1] * sin + corner[2] * cos
+						expect(inside(x, z, square.floor, 4)).to.equal(true)
+						for _, lane in lanes do
+							expect(inside(x, z, lane, -0.5)).to.equal(false)
+						end
+						expect(math.sqrt(x ^ 2 + z ^ 2) > square.fountainRadius + 3).to.equal(true)
 					end
-					expect(math.sqrt(x ^ 2 + z ^ 2) > square.fountainRadius + 3).to.equal(true)
+					-- front -Z turned toward the spawn on the street's line
+					local spawn = Layout.playerSpawn
+					local toX, toZ = spawn.x - board.x, spawn.z - board.z
+					local length = math.sqrt(toX ^ 2 + toZ ^ 2)
+					expect((-sin * toX - cos * toZ) / length > 0.95).to.equal(true)
+					for name, point in
+						{
+							spinWheel = Layout.spinWheel,
+							fishMarket = Layout.fishMarket,
+							codesCat = Layout.codesCat,
+							dealerCart = Layout.dealerCart,
+							bellhopStand = Layout.bellhopStand,
+							leaderboards = Layout.leaderboards,
+						} :: { [string]: Point }
+					do
+						if math.sqrt((point.x - board.x) ^ 2 + (point.z - board.z) ^ 2) < 13 then
+							fail("a Rally board stands on the %s", name)
+						end
+					end
 				end
-				-- front -Z turned toward the spawn on the street's line
-				local spawn = Layout.playerSpawn
-				local toX, toZ = spawn.x - board.x, spawn.z - board.z
-				local length = math.sqrt(toX ^ 2 + toZ ^ 2)
-				expect((-sin * toX - cos * toZ) / length > 0.95).to.equal(true)
-				for name, point in
-					{
-						spinWheel = Layout.spinWheel,
-						fishMarket = Layout.fishMarket,
-						codesCat = Layout.codesCat,
-						dealerCart = Layout.dealerCart,
-						bellhopStand = Layout.bellhopStand,
-						leaderboards = Layout.leaderboards,
-					} :: { [string]: Point }
-				do
-					if math.sqrt((point.x - board.x) ^ 2 + (point.z - board.z) ^ 2) < 9 then
-						fail("the Rally board stands on the %s", name)
+				expect(sides[-1] and sides[1]).to.equal(true)
+			end
+		)
+
+		it(
+			"keeps the Rally boards out of the line from the spawn and the cannon to the Fish Market (#2224)",
+			function()
+				-- seen from each spot, a board (12.2 wide) and the market (about 12 wide) take up an arc each; they must
+				-- not overlap, so nothing hides the market from where players stand
+				local market = Layout.fishMarket
+				for _, eye in { Layout.playerSpawn, { x = 0, y = 0, z = 0 } :: Point } do
+					local function arc(x: number, z: number, half: number): (number, number)
+						local dx, dz = x - eye.x, z - eye.z
+						return math.atan2(dx, dz), math.atan(half / math.sqrt(dx * dx + dz * dz))
+					end
+					local m, mHalf = arc(market.x, market.z, 6.4)
+					for _, board in square.rallyBoards do
+						local a, aHalf = arc(board.x, board.z, 6.1)
+						if math.abs(a - m) <= aHalf + mHalf then
+							fail(
+								"the Rally board at (%g, %g) hides the Fish Market from (%g, %g)",
+								board.x,
+								board.z,
+								eye.x,
+								eye.z
+							)
+						end
 					end
 				end
 			end

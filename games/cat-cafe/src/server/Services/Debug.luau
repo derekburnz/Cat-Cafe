@@ -38,6 +38,7 @@
 --   D:Invoke("seedCafe", nil, 5, 12, { extraSlot = true, grandCafe = true })  -- Tier 5, 12 cats, slots filled (#2050)
 --   D:Invoke("levelCat", nil, "<uid>", 1)    -- that cat one level up, as play would (Auto Equip may re-plan) (#2050)
 --   D:Invoke("placeCat", nil, "<uid>", "greeter_1")   -- PlaceCat as the client sends it; unplaceCat too (#2050)
+--   D:Invoke("autoEquipNow", nil, true)  -- Auto Equip runs now, the hand holds ended first (true); returns its state
 --   D:Invoke("pitySpawn")              -- the sooner pity timer's cat spawns now; returns "<kind> <seq>: in <area>" (#2099)
 --   D:Invoke("cancelMinigames")       -- ends your rescue (Give up), your help on one, and your running catches
 --   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
@@ -219,7 +220,8 @@ end
 -- #2050 (Desktop-Tester's greeter repro on a test save): the tier (1 to 5, as setTier), Extra Slot and Grand Cafe for
 -- this session when `options` says so (as secondBowl does, no purchase), `catCount` new cats (0 to 60, in catalogue
 -- order) given as a check-in would (Auto Equip runs as in play), and then every open slot still empty takes a
--- resting cat through PlaceCat's own steps. Returns cafeLine, whose uids levelCat and unplaceCat take.
+-- resting cat through PlaceCat's own steps. Those fills are the seed's, not the player's, so their hand holds end and
+-- Auto Equip runs once (when on), as after a join. Returns cafeLine, whose uids levelCat and unplaceCat take.
 function Debug.seedCafe(
 	player: (Player | number | string)?,
 	tier: number,
@@ -259,6 +261,7 @@ function Debug.seedCafe(
 			CafeService.debugPlace(p, resting[1], spot.id)
 		end
 	end
+	CafeService.debugAutoEquip(p, true, true)
 	CafeService.refreshPlot(p)
 	CafeService.sync(p)
 	return cafeLine(profile)
@@ -308,6 +311,22 @@ function Debug.placeCat(player: (Player | number | string)?, uid: string, spotId
 	end
 	CafeService.debugPlace(p, uid, spotId)
 	return cafeLine(profile)
+end
+
+-- #2050: Auto Equip's state and a run now. With `clearHolds` the hand placements' holds (AutoEquipHoldSeconds) end
+-- first; the run skips the rate limit and does nothing with settings.autoEquip off. Returns "autoEquip on|off, <n>
+-- held, <m> moved; " then cafeLine. An emptied slot waits for the next run: resting a cat by hand is not a trigger.
+function Debug.autoEquipNow(player: (Player | number | string)?, clearHolds: boolean?): string
+	guard()
+	local p = resolve(player)
+	local on, held, moved = CafeService.debugAutoEquip(p, clearHolds == true, true)
+	return string.format(
+		"autoEquip %s, %d held, %d moved; %s",
+		if on then "on" else "off",
+		held,
+		moved,
+		cafeLine(profileOf(p))
+	)
 end
 
 -- #2050: UnplaceCat(uid) as the client sends it. Returns cafeLine.

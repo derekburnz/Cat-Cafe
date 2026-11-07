@@ -239,9 +239,21 @@ function Rescue.pressBar(attempt: Attempt, pressTime: number, helper: boolean?):
 	if centre == nil then
 		return "ignored"
 	end
+	local since = attempt.lastPressAt
 	attempt.lastPressAt = at
-	local position = Rescue.marker(attempt, at)
-	if RescueMarker.inZone(position, centre, challenge.zoneWidth or 0, Config.RescueTolerance) then
+	-- #2318: a marker that was in the zone up to RescueMarker.SEEN_LAG before the press still counts
+	if
+		RescueMarker.hitAt(
+			attempt.markerAt,
+			attempt.markerPhase,
+			attempt.speed,
+			at,
+			centre,
+			challenge.zoneWidth or 0,
+			Config.RescueTolerance,
+			since
+		)
+	then
 		attempt.hits += 1
 		attempt.markerPhase =
 			RescueMarker.phaseAt(attempt.markerAt, attempt.markerPhase, attempt.speed, at)

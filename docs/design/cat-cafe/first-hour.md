@@ -146,3 +146,15 @@ The D1 return rate is the launch number, and Home recommendations follow it (rel
 - **Builders:** UI-Engineer (the card line and the welcome back line). Gameplay-Engineer adds the 900 s Config value and the pick, as a pure function `ReturnHook.pick(profile, now)` with a spec.
 - **QA:** a fresh account sees the recap at about 15 minutes in its first session and at 40 minutes in later sessions. The Tomorrow line follows the order above. Rejoining the next day shows the matching welcome back line. Nothing shows a timer or the store.
 
+### 4e. Combined re-run with the new visitor rates (#2107 + #2121, 2026-11-07, Gameplay-Engineer, middle of 20 Pace runs)
+- **Run A, Bowl 3 at 70k:** Tier 5 on a 4-friend server came in at 7 h 39, under its 8 to 12 h guard, because the faster rich tips speed things up. Not taken.
+- **Run B, Bowl 3 at 150,000 (taken):** Tier 2 at 12.0 minutes, Bait Bowl 3 at 20.0, Tables 5 at 25.1, Lucky Cat 3 at 30.7, Espresso 4 at 42.0, and Tier 3 at 54.0 (fastest tenth 37.7). Tier 5 passes, and so do the Tier 2 and Tier 3 guards.
+- **What the sim showed:** the sim buys the bowl as soon as it can afford it, so §4d's "put it in the 31 to 42 gap" can't be placed by price. The gaps left are Lucky Cat 3 to Espresso 4 (about 11 min) and Espresso 4 to Tier 3 (about 12 min).
+- **No second item.** The upgrade levels left are either big jumps in catching power (Net 3, the Master Net, at Tier 2 would make Mythicals easy in the first hour) or big income buys (Espresso 5, the Bait Bowl 4) that would need the whole ladder re-priced. Neither is worth doing before launch.
+- **Pace.spec targets from here:**
+  - Tables 5 at about **25** minutes (±3; it was 22).
+  - Lucky Cat 3 at whatever the middle run gives, now about 31.
+  - The longest gap counting coin buys and rank-ups is **15 minutes or less** (the "10" in §4d is withdrawn).
+  - Counting new cats and roadmap steps, the longest gap is **10 minutes or less** as the guard (it is 9.3 now), and 6 stays as the `xit`.
+- **Next look:** after launch, from the live `grand_opening` funnel, not the model.
+

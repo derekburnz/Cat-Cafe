@@ -606,3 +606,9 @@ These are Derek2's picks from the pre-release list. Design-Agent specced them in
 - **Not picked:** moving rings stay as they are, and nothing is added after the Grand Opening.
 
 Reason: D1 return and first-hour pace are the hardest things to fix after launch. Both changes reuse existing items and screens.
+
+## 2026-11-07: first-hour re-fit with the new visitor rates (#2107, #2121)
+Design-Agent took Gameplay-Engineer's run B: Bait Bowl 3 opens at Tier 2 and costs 150,000. The faster rich tips from #2107 sped up the first hour. Bowl 3 at 70k left Tier 5 on a 4-friend server at 7 h 39, under its 8 to 12 h guard, so the bowl stays at 150k.
+- **Pace targets:** Tables 5 at about 25 minutes. Longest gap of coin buys plus rank-ups: 15 minutes or less. Longest gap counting new cats and roadmap steps: 10 minutes or less (6 stays the goal).
+- **No second cheap buy.** The upgrade levels left are either the Master Net (too strong in the first hour) or large income buys that would need the whole ladder re-priced.
+- **Why:** this keeps the Tier 2, Tier 3 and Tier 5 guards. Live funnel data decides any further change.

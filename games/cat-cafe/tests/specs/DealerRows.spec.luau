@@ -83,11 +83,31 @@ return function()
 				},
 			}, lureById)
 			expect(#rows).to.equal(3)
-			expect(rows[1].left).to.equal(2)
+			-- rarest first (#2057): Moon Milk, Caviar, Sardines
+			expect(rows[1].lureId).to.equal("moon_milk")
+			expect(rows[1].left).to.equal(0)
 			expect(rows[2].amount).to.equal(0)
 			expect(rows[2].left).to.equal(0)
 			expect(rows[2].cost).to.equal(2500)
-			expect(rows[3].left).to.equal(0)
+			expect(rows[3].lureId).to.equal("sardines")
+			expect(rows[3].left).to.equal(2)
+		end)
+
+		it("lists the rarest food first, whatever order the server sends (#2057)", function()
+			local rows = DealerRows.group({
+				restocksAt = 0,
+				stock = {
+					{ lureId = "sardines", cost = 1000, amount = 1, bought = 0 },
+					{ lureId = "star_treat", cost = 40000, amount = 1, bought = 0 },
+					{ lureId = "caviar", cost = 2500, amount = 1, bought = 0 },
+					{ lureId = "moon_milk", cost = 10000, amount = 1, bought = 0 },
+				},
+			}, lureById)
+			local ids = {}
+			for _, row in rows do
+				table.insert(ids, row.lureId)
+			end
+			expect(table.concat(ids, ",")).to.equal("star_treat,moon_milk,caviar,sardines")
 		end)
 
 		it("skips foods the catalog does not know and never goes below 0 left", function()

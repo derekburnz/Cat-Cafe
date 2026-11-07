@@ -308,7 +308,7 @@ end
 local function refreshSpots(plot: WorldBuilder.Plot, profile: Profile)
 	local tier = Economy.tier(profile)
 	plot.model:SetAttribute("Tier", tier)
-	WorldBuilder.setDressing(plot, tier)
+	WorldBuilder.setDressing(plot, tier, Economy.extraSlots(profile)) -- #2047: a bed for each extra slot's cat
 	-- No floating "opens at Tier N" text over locked slots (Derek 2026-10-27: placeholder text is ugly); the
 	-- Upgrades screen's Roles section lists which slots each tier opens.
 end

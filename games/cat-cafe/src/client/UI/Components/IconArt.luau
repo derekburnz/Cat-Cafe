@@ -79,8 +79,13 @@ local function fetch(id: string)
 	end
 	fetched[id] = true
 	task.spawn(function()
+		-- #2009: preload an ImageLabel that holds the picture, not the bare id string. In Studio a string id came back
+		-- Failure for group-owned pictures that an ImageLabel (and the live game) loads fine, so the HUD fell back
+		-- to the plain icons. A Failure also is not final when the probe label reports IsLoaded afterwards.
+		local probe = Instance.new("ImageLabel")
+		probe.Image = id
 		pcall(function()
-			ContentProvider:PreloadAsync({ id }, function(_, status: Enum.AssetFetchStatus)
+			ContentProvider:PreloadAsync({ probe }, function(_, status: Enum.AssetFetchStatus)
 				if status == Enum.AssetFetchStatus.Success then
 					loaded[id] = true
 				elseif status == Enum.AssetFetchStatus.Failure then
@@ -88,6 +93,11 @@ local function fetch(id: string)
 				end
 			end)
 		end)
+		if probe.IsLoaded then
+			loaded[id] = true
+			failed[id] = nil
+		end
+		probe:Destroy()
 		local labels = waiting[id]
 		waiting[id] = nil
 		if labels then

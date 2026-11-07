@@ -6,7 +6,8 @@
 -- names foods by id alone, with no price), then the id.
 --   less(a, aId, b, bId) -> boolean   whether food a comes before food b; a def may be nil (a prize names an id the
 --                                     catalog does not have), and the design's grade for the id stands in
---   sort(list, read)                  sorts any list in place; read(item) gives the item's id and def
+--   sort(list, read, rarestFirst?)    sorts any list in place; read(item) gives the item's id and def; rarestFirst
+--                                     turns it round (#2057: the Night Dealer's rows, Star Treat first)
 --   defs(lures, rarestFirst?)         a sorted copy of a catalog's foods; rarestFirst turns it round, Star Treat
 --                                     first (#1609: the bowl's list and the Bag's Bait tab)
 -- Pure, so the cloud spec runner checks it.
@@ -65,10 +66,17 @@ function FoodOrder.less(a: Types.LureDef?, aId: string, b: Types.LureDef?, bId: 
 	return aId < bId
 end
 
-function FoodOrder.sort<T>(list: { T }, read: (item: T) -> (string, Types.LureDef?))
+function FoodOrder.sort<T>(
+	list: { T },
+	read: (item: T) -> (string, Types.LureDef?),
+	rarestFirst: boolean?
+)
 	table.sort(list, function(x: T, y: T): boolean
 		local xId, xDef = read(x)
 		local yId, yDef = read(y)
+		if rarestFirst then
+			return FoodOrder.less(yDef, yId, xDef, xId)
+		end
 		return FoodOrder.less(xDef, xId, yDef, yId)
 	end)
 end

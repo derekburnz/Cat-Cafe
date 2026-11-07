@@ -99,11 +99,21 @@ jobs:
             passed=$(api "actions/workflows/check.yml/runs?branch=main&head_sha=$tip&status=success&per_page=1" |
               jq -r '.total_count // 0')
             if [ "${passed:-0}" = 0 ]; then
-              echo "go=false" >> "$GITHUB_OUTPUT"
-              echo "Skipped: $HEAD_SHA is no longer the tip of main, and the tip $tip has no passed check run yet; its own check run will publish it."
-              exit 0
+              # Merges can land faster than a check run takes (about 25 minutes), so the tip may never have a passed
+              # check when a run reaches this gate (every automatic publish skipped between 12:24 and 13:22 on
+              # 2026-11-07). Publish the newest main commit that did pass its check instead of skipping; the commit's
+              # own check run publishes a newer one later. Step 2 skips it when it is not newer than the live build.
+              cand=$(api "actions/workflows/check.yml/runs?branch=main&status=success&per_page=1" |
+                jq -r '.workflow_runs[0].head_sha // ""')
+              if [ -z "$cand" ]; then
+                echo "go=false" >> "$GITHUB_OUTPUT"
+                echo "Skipped: $HEAD_SHA is no longer the tip of main, and no commit on main has a passed check run."
+                exit 0
+              fi
+              echo "The tip $tip has no passed check run yet; this run publishes $cand, the newest main commit that passed its check."
+              tip="$cand"
             fi
-            echo "$HEAD_SHA is no longer the tip of main; the tip $tip has passed its check, so this run publishes the tip."
+            echo "$HEAD_SHA is no longer the tip of main; this run publishes $tip, a passed-check commit."
           fi
           # 2. Not twice: skip when the tip is already the last live build (a re-run, or another run got there first).
           # The newest published-build artifact from a successful publish.yml run on main says which build that is.
@@ -124,6 +134,15 @@ jobs:
             echo "go=false" >> "$GITHUB_OUTPUT"
             echo "Skipped: $tip is already the last published build."
             exit 0
+          fi
+          # Never publish an older commit over a newer live build (a checked commit can trail the live one).
+          if [ -n "$last" ]; then
+            rel=$(api "compare/$last...$tip" | jq -r '.status // ""' || true)
+            if [ "$rel" = behind ] || [ "$rel" = identical ]; then
+              echo "go=false" >> "$GITHUB_OUTPUT"
+              echo "Skipped: $tip is not newer than the last published build $last ($rel)."
+              exit 0
+            fi
           fi
           echo "go=true" >> "$GITHUB_OUTPUT"
           echo "sha=$tip" >> "$GITHUB_OUTPUT"

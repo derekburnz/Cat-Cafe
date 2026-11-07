@@ -3,8 +3,8 @@
 Author: QA-Planner, 2026-11-07. Release days are not set yet (Derek2, Set 12 Q6); the plan counts from day 1. Derek decides the date and the final go or no-go. Nothing here changes game code or Config.
 
 ## 0. Schedule (release.md section 2 and the launch shape, Derek2 Set 12, 2026-11-07)
-Release days are not set yet (Derek2 picks them once the fixes he names land). Everything counts from **day 1, the first public day**. The freeze is 24 hours before day 1: only fixes merge. Any mark that fails gets an issue labelled `release-blocker`; the gate re-runs on just that item.
-- **Day 1, public:** friends test, no ads. The day 1 quick check below (tutorial completion, errors, purchases) must pass before ads start.
+Release days are not set yet (Derek2 picks them once the fixes he names land). Everything counts from **day 1, the first public day**. The freeze is 24 hours before day 1: only fixes merge. Derek2 (Set 13 Q1): "Leave for now I am going to finish all prs and issues before launch", so launch waits until every open PR and issue is done and there is no separate `release-blocker` label. A failed mark still gets a normal issue, and the gate re-runs on just that item.
+- **Day 1, public:** 3 to 5 friends play, no ads and no feedback form. Derek2 passes on what they say and QA-Planner turns it into issues. The day 1 quick check below (tutorial completion, errors, purchases) must pass before ads start.
 - **Day 2 to day 8:** sponsored ads at US$10 to $15 a day. Read D1, session length, and phone against PC leave times (`session_end`, `new_player_left`, which log the device).
 - **Day 9:** Derek2 decides whether ads continue.
 The phone, tablet and console checks run in Studio's device emulator (Derek2's choice). Design-Agent's performance marks (Tools-Agent captures them): phone load to first move 20 s or less, client memory under 1.2 GB, server 55 Hz or more with 8 players. The run report goes in `docs/playtests/` on the freeze day.

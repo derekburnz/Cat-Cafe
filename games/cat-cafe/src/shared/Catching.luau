@@ -33,7 +33,10 @@ Catching.HELD = {
 	-- sits down into the arms against the chest instead of clear of them (up 0.25, gap 0.2 before)
 	-- Laptop-Tester after #2002: the R6 cat still sat a stud above the folded arms with its head over the chin, so
 	-- it comes down a stud (0.5 of a 2-stud Torso) onto the hands
-	r6 = { up = -0.4, gap = 0, side = 0 },
+	-- Derek2 13:12 on the sheet after #2021: R6 "bad" (cat low inside crossed arms). With Animation-Engineer's new R6
+	-- cradle (arms forward and in at chest height) its floor sits on the arm tops, 0.3 over the Torso's middle,
+	-- with its back 0.15 out so the head clears the chin
+	r6 = { up = 0.15, gap = 0.15, side = 0 },
 	turn = 90,
 }
 

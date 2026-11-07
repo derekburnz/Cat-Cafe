@@ -250,6 +250,7 @@ export type PlayerState = {
 	money: number,
 	incomePerSecond: number,
 	tier: number, -- v0.3: 1 to 5, replaces cafeLevel (data-model section 5b)
+	extraSlots: number?, -- #1624: role slots past the tier's own, from Grand Cafe and Extra Slot (#2047: now synced)
 	cafeProgress: number?, -- 0..1 toward the next level, nil hides the bar
 	cafeProgressText: string?, -- "3 / 6 upgrades", nil hides the caption
 	tables: number?,

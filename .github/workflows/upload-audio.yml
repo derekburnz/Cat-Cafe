@@ -23,6 +23,15 @@ on:
         description: "List what would be uploaded and upload nothing"
         type: boolean
         default: false
+      owner:
+        description: "user: owned by Derek's account (default). group: owned by the Creampuff Games group, with the group's key when the repo has one (#2022)"
+        type: choice
+        options: [user, group]
+        default: user
+      record:
+        description: "The id record in assets/cat-cafe/audio to read and write. For moving every sound to the group use uploaded-group.json with owner=group"
+        required: false
+        default: "uploaded.json"
 
 permissions:
   contents: read
@@ -36,10 +45,13 @@ jobs:
   upload:
     name: Upload the sounds
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 90
     env:
-      ROBLOX_API_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
-      ROBLOX_CREATOR_USER_ID: "40908216" # Derek, who owns the experience and the earlier sounds
+      # owner=group uses the group's key if the repo has one (OWNER_KEY, then ROBLOX_GROUP_KEY), else the normal key
+      ROBLOX_API_KEY: ${{ inputs.owner == 'group' && (secrets.OWNER_KEY || secrets.ROBLOX_GROUP_KEY || secrets.ROBLOX_PUBLISH_KEY) || secrets.ROBLOX_PUBLISH_KEY }}
+      ROBLOX_CREATOR_USER_ID: ${{ inputs.owner == 'group' && '' || '40908216' }} # Derek, who owns the experience and the earlier sounds
+      ROBLOX_CREATOR_GROUP_ID: ${{ inputs.owner == 'group' && '107520049' || '' }} # Creampuff Games
+      RECORD: ${{ inputs.record }}
       AUDIO_BRANCH: ${{ inputs.branch }}
       ONLY: ${{ inputs.only }}
       DRY_RUN: ${{ inputs.dry_run && 'yes' || '' }}
@@ -71,13 +83,15 @@ jobs:
           args=()
           [ -z "$ONLY" ] || args+=(--only "$ONLY")
           [ -z "$DRY_RUN" ] || args+=(--dry-run)
+          [ -z "$RECORD" ] || args+=(--record "$RECORD")
           python3 assets/cat-cafe/audio/upload.py "${args[@]}" 2>&1 | tee "$RUNNER_TEMP/upload.log"
 
       # Runs after a failed upload too: a run that stops at the monthly limit still has ids for the files before it.
       - name: Show the ids to commit
         if: ${{ !cancelled() }}
         run: |
-          changed=(assets/cat-cafe/audio/uploaded.json assets/cat-cafe/audio/README.md games/cat-cafe/src/client/Audio/Cues.luau)
+          changed=(assets/cat-cafe/audio/uploaded.json assets/cat-cafe/audio/uploaded-group.json assets/cat-cafe/audio/README.md games/cat-cafe/src/client/Audio/Cues.luau)
+          git add -N assets/cat-cafe/audio/uploaded-group.json 2>/dev/null || true # a new record shows in the diff
           echo "== Commit this on ${AUDIO_BRANCH:-$GITHUB_REF_NAME} (git apply), then run stylua on Cues.luau:"
           git --no-pager diff -- "${changed[@]}"
           {

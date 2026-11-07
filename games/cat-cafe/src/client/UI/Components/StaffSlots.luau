@@ -8,7 +8,8 @@
 --     PlayerState.extraSlots (Grand Cafe and the Extra Slot pass). As the server's Catalog.slotIsOpen counts, the
 --     first (slots of this tier or below) + extra spots are open, so an extra slot opens the next tier's spot early.
 --     A pass-only slot that is still locked is `hidden` (Slot.hidden), never "opens at Tier 6", and stays out of
---     the counts and the summary; the screens hide its square.
+--     the counts and the summary; the screens hide its square. A slot with a cat on it is "working" even if the
+--     count says locked (#2047), so a working cat always shows.
 --   Row.summary   "2 working · 1 free", then "· next at Tier 3" while a slot is still locked; "Opens at Tier 3"
 --                 for a role with no slot open yet; "All 3 working" when nothing is free or locked.
 --   initial(name)  the first letter of a cat's name for its slot square, a whole code point (reviewer S55: names
@@ -103,9 +104,11 @@ function StaffSlots.rows(
 			row = created
 		end
 		local catUid = workers[spot.id]
-		local kind: SlotKind = if not opened[spot.id]
-			then "locked"
-			elseif catUid ~= nil then "working"
+		-- #2047: a cat on a slot means the server opened it (it lets a cat work only an open slot), whatever this
+		-- count says, so the cat always shows
+		local kind: SlotKind = if catUid ~= nil
+			then "working"
+			elseif not opened[spot.id] then "locked"
 			else "open"
 		local passOnly = (spot :: any).passOnly == true
 		table.insert(row.slots, {

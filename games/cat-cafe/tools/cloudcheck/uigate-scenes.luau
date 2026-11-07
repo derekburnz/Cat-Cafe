@@ -23,6 +23,7 @@ local function catalogLikeTheGame()
 		decor = Catalog.decor,
 		lures = Catalog.lures,
 		spots = Catalog.spots,
+		allSpots = Catalog.allSpots, -- #2047: as UIController sends it, with the pass-only slots (hidden while locked)
 		tiers = Catalog.tiers,
 		areas = Catalog.areas,
 		rarities = Catalog.rarities,
@@ -988,6 +989,42 @@ local SCENES = {
 			assert(switch and switch.Visible, "uigate: no Auto Equip switch in the Cats window (#1955)")
 		end
 	end },
+	-- #2047 (Derek2: "with the extra slots it doesn't show all the working cats on the top"): a Tier 5 cafe with Grand
+	-- Cafe and the Extra Slot pass works all 12 slots, the two pass-only waiter slots too, and the crew strip shows 12
+	{ "CatsExtraSlots", function()
+		local Shared = UIShim.require("ReplicatedStorage.Shared.Catalog")
+		local before = UI.getState() :: any
+		Scenes._crew = { cats = before.cats, tier = before.tier, extraSlots = before.extraSlots or 0 }
+		local cats = {}
+		local index = 0
+		for uid, cat in before.cats do
+			index += 1
+			local copy = table.clone(cat)
+			local spot = Shared.allSpots[index]
+			copy.spotId = if spot then spot.id else nil
+			cats[uid] = copy
+		end
+		assert(index >= #Shared.allSpots, "uigate: the sample player has too few cats to fill every slot")
+		UI.update({ cats = cats, tier = 5, extraSlots = 2 } :: any)
+		UI.open("Cats")
+		task.wait(0.1)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local shown = 0
+		for _, spot in Shared.allSpots do
+			for _, square in modals:GetDescendants() do
+				if square.Name == spot.id and square:IsA("GuiButton") and square.Visible then
+					shown += 1
+					break
+				end
+			end
+		end
+		assert(shown == #Shared.allSpots, ("uigate: the crew strip shows %d of %d working cats (#2047)"):format(shown, #Shared.allSpots))
+		-- checked; put the sample player back and close, so the scene adds no findings of its own (the crew squares'
+		-- tap size is the Cats scene's baseline, and the Tier 5 HUD has its own)
+		UI.update(Scenes._crew :: any)
+		Scenes._crew = nil
+		UI.close()
+	end },
 	{ "CatsPicked", function()
 		UI.open("Cats")
 		-- the cards build on the next frame; the gold cat, level 13, at work: favourite or Likes, Gold and level chips
@@ -1095,7 +1132,6 @@ local SCENES = {
 			end
 		end
 		assert(Theme.icons.decor == "🌿", "uigate: the Decor tile's fallback should be 🌿 (#2015)")
-		UI.open("Decor")
 	end },
 	{ "Cannon", function()
 		UI.cannon.open()
@@ -1445,6 +1481,16 @@ local SCENES = {
 			},
 		})
 		UI.dealer.open()
+		-- #2057: rarest first, Star Treat's row on top
+		local tops: { [string]: number } = {}
+		for _, d in game:GetService("Players").LocalPlayer.PlayerGui:GetDescendants() do
+			if d:IsA("Frame") and (d.Name == "star_treat" or d.Name == "sardines") and d.AbsoluteSize.Y > 40 then
+				tops[d.Name] = d.AbsolutePosition.Y
+			end
+		end
+		local star, sardines = tops.star_treat, tops.sardines
+		assert(star and sardines, "uigate: the dealer drew no Star Treat or Sardines row (#2057)")
+		assert(star < sardines, "uigate: the dealer lists Sardines above Star Treat, wants rarest first (#2057)")
 	end },
 	{ "Settings", function()
 		UI.open("Settings")
@@ -2973,6 +3019,10 @@ function Scenes.close()
 	if Scenes._decorOwned ~= nil then
 		UI.update({ decorOwned = Scenes._decorOwned } :: any) -- #2053's rarity tint scene
 		Scenes._decorOwned = nil
+	end
+	if Scenes._crew then
+		UI.update(Scenes._crew :: any) -- #2047's extra slots scene: the sample cats, tier and no extra slots back
+		Scenes._crew = nil
 	end
 	if Scenes._fewCats then
 		Scenes._fewCats = nil

@@ -4,10 +4,12 @@ Status: specced 2026-11-07 by Design-Agent (friend's project), from Derek2's ask
 
 **Release window: not set yet.** Set 12 Q6 (Derek2, 2026-11-07): "we figure out days and tiles later depending on some fixes". Research-Agent's suggestion (#1956) is kept as the default when he picks: public on a Wednesday at 20:00 UTC, ads from the next day. The plan below counts in days from **day 1, the first public day**. The freeze is 24 hours before day 1: from then on only fixes merge.
 
+**What launch waits on (Set 13 Q1, Derek2):** "Leave for now I am going to finish all prs and issues before launch". There's no separate `release-blocker` list before launch. The game goes public once the open PRs and issues are finished, and Derek2 picks the day then. The ad account and ad targeting also wait until the game is finished (Set 13 Q2 and Q3). The Maturity & Compliance questionnaire is already done (Q6).
+
 **Launch shape (Set 12 Q4, Derek2):** "first day public I will get friends to test then start ads day 2 ideally 10-15$ a day for 7 days and we decide if its worth continuing after that". So:
-- **Day 1, public:** the game goes public, and Derek2's friends play and test it. There are no ads and no outside posts yet. The What's New "We're open!" entry and `OPENING` go live.
+- **Day 1, public:** the game goes public, and 3 to 5 of Derek2's friends play and test it (Set 13 Q5). There's no feedback form: Derek2 passes on what they say, and QA-Planner turns it into issues. There are no ads and no outside posts yet. The What's New "We're open!" entry and `OPENING` go live.
 - **Day 2 to day 8, ads:** a Roblox sponsored ad runs at **US$10 to $15 a day for 7 days** (about $70 to $105 in all), if the day 1 quick check in section 2 passes.
-- **Day 9, the decision:** Derek2 decides whether ads continue, using the day 2 to 8 numbers in section 2. Updates after launch wait on the same read (section 4).
+- **Day 9, the decision:** Derek2 decides whether ads and updates continue. Set 13 Q4 (Derek2): "most of the doing well actually means some home recommendations or a lot of home recommendations if there are not a lot of home rec's the game will probably be left as a learning experience and stop ads/updates." So the main signal is **Home recommendation impressions** in the Creator Hub analytics, which show whether Roblox is suggesting the game on players' Home pages. The section 2 marks (D1, session length) are compared with similar games' benchmarks as background. If Home recommendations are few, ads and updates stop and the game stays as a learning project.
 
 ## 1. Roblox badges (#1934)
 
@@ -47,7 +49,7 @@ Badges show on the game page and in a player's inventory. Each one is free to cr
 Owners: QA-Planner (runs the gate and writes `docs/playtests/2026-11-10-release-gate.md`), Tools-Agent (device and performance captures), Monetization-Agent (reads the funnels). Derek2 makes the go-wide call.
 
 - **Stage 1, private check (before the freeze):** the full playtest on the device matrix below, on the dev place and then on the live place. The phone checks run in Studio's device emulator (Set 12 Q5, Derek2: "do it on an emulator in studio and track mobile users leave times so we can see if they have issues day 2"). Nothing new merges in the 24 hours before day 1 except fixes ("freeze").
-- **Stage 2, day 1 quick check (24 hours after going public, before ads start):** marks 1, 4 and 5 below must pass. Friends' play is a small sample, so the percents are a hint. A failed mark gets a `release-blocker` issue, and ads wait until it is fixed.
+- **Stage 2, day 1 quick check (24 hours after going public, before ads start):** marks 1, 4 and 5 below must pass. With 3 to 5 friends the percents mean little, so this check is mostly no errors and working purchases. A failed mark gets a `release-blocker` issue, and ads wait until it is fixed.
 - **Stage 3, the ad week (day 2 to day 8):** marks 2 and 3 are read from the ad players, together with **phone leave times**: `session_end` and `new_player_left` already carry the device and the seconds played, so Monetization-Agent compares the median session and the bounce windows for phone against PC each day from day 2. A phone median under half the PC median, or a jump in phone leaves in one onboarding step, gets a `release-blocker` issue for that step.
 - **Pass criteria** (all from the funnels that already exist):
   1. Tutorial completion (`onboarding_v4` step 5) is **80% or more** of players who load in.

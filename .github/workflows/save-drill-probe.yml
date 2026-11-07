@@ -2,7 +2,8 @@
 # Prints status codes and field names only. Temporary.
 name: save-drill-probe
 on:
-  workflow_dispatch:
+  push:
+    branches: [tools/save-drill-probe]
 permissions:
   contents: read
 jobs:

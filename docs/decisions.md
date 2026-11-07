@@ -616,6 +616,12 @@ The docs also now match the code: pass XP from #2080 in quests.md §8 and cafe-p
 
 Reason: these are Derek2's asks. The Collector's offers stay optional, and the income change is small.
 
+## 2026-11-07: first-hour re-fit with the new visitor rates (#2107, #2121)
+Design-Agent took Gameplay-Engineer's run B: Bait Bowl 3 opens at Tier 2 and costs 150,000. The faster rich tips from #2107 sped up the first hour. Bowl 3 at 70k left Tier 5 on a 4-friend server at 7 h 39, under its 8 to 12 h guard, so the bowl stays at 150k.
+- **Pace targets:** Tables 5 at about 25 minutes. Longest gap of coin buys plus rank-ups: 15 minutes or less. Longest gap counting new cats and roadmap steps: 10 minutes or less (6 stays the goal).
+- **No second cheap buy.** The upgrade levels left are either the Master Net (too strong in the first hour) or large income buys that would need the whole ladder re-priced.
+- **Why:** this keeps the Tier 2, Tier 3 and Tier 5 guards. Live funnel data decides any further change.
+
 ## 2026-11-07: Make the Cat Accessories +15% obvious (Design-Agent, friend's project, #2147)
 Derek2 asked for the +15% to be more obvious. store-pass-looks.md §7: a gold "+15% money" chip on both outfit pass cards, the money card shows each outfit pass by name, a one-time toast and bow sparkle after buying, and a note on the Style panel that the bonus never depends on the pick. Client only. Reason: the bonus applies to every working cat but was only visible as "Outfit passes x1.15".
 

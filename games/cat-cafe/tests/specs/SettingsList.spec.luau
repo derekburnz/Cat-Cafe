@@ -110,8 +110,13 @@ return function()
 			expect(SettingsList.isKey(key)).to.equal(saves)
 			if saves then
 				expect(SettingsList.kind(key)).to.equal("switch")
+				-- in the Screen section (the Session recap switch, #1920, follows it once its key is saved too)
 				local screen = SettingsList.SECTIONS[2]
-				expect(screen.rows[#screen.rows].key).to.equal(key)
+				local found = false
+				for _, row in screen.rows do
+					found = found or row.key == key
+				end
+				expect(found).to.equal(true)
 				expect(SettingsList.default(key)).to.equal(true)
 			end
 		end)

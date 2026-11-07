@@ -302,6 +302,8 @@ Remotes.ServerToClient = {
 	-- the ProfileSync that shows it; the client plays the toast and confetti, and on the last the Grand Opening
 	"FirstWow", -- (rarity: Types.Rarity, first: boolean)  #1897: the guaranteed Rare-or-better bait cat arrived at
 	-- the bowl; first is true when no cat of that rarity was owned ("Your first Rare!", else "A Rare visitor!")
+	"SessionRecap", -- (view: Types.SessionRecapView)  #1920: once a session after Config.RecapAfterSeconds of play,
+	-- with the sessionRecap setting on; the client shows the card when the player is idle and out of menus
 }
 
 function Remotes.folder(): Folder

@@ -37,6 +37,7 @@
 --   D:Invoke("seedCafe", nil, 5, 12, { extraSlot = true, grandCafe = true })  -- Tier 5, 12 cats, slots filled (#2050)
 --   D:Invoke("levelCat", nil, "<uid>", 1)    -- that cat one level up, as play would (Auto Equip may re-plan) (#2050)
 --   D:Invoke("placeCat", nil, "<uid>", "greeter_1")   -- PlaceCat as the client sends it; unplaceCat too (#2050)
+--   D:Invoke("pitySpawn")              -- the sooner pity timer's cat spawns now; returns "<kind> <seq>: in <area>" (#2099)
 --   D:Invoke("cancelMinigames")       -- ends your rescue (Give up), your help on one, and your running catches
 --   D:Invoke("codes")                  -- forget your redeemed codes and the wrong-code lock (F65)
 --   D:Invoke("givePotion", nil, "tip_potion", 3)    -- 3 Tip Potions in the bag (F64; nil id gives each potion)
@@ -79,6 +80,7 @@ local LeaderboardService = require(script.Parent.LeaderboardService)
 local MysteryService = require(script.Parent.MysteryService)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
+local PityService = require(script.Parent.PityService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local QuestService = require(script.Parent.QuestService)
@@ -181,6 +183,12 @@ function Debug.resetProfile(player: (Player | number | string)?)
 	end
 	CafeService.refreshPlot(p)
 	CafeService.sync(p)
+end
+
+-- #2099 (QA): the sooner pity timer's cat now, as if its time had come (PityService.debugSpawn).
+function Debug.pitySpawn(): string
+	guard()
+	return PityService.debugSpawn()
 end
 
 -- One line for the cafe: "tier T, N cats, working: uid=spot uid=spot ..." in slot order (#2050).

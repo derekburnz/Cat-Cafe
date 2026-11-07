@@ -57,6 +57,7 @@ type Slot = {
 	chips: PrizeChips.PrizeChips?,
 	icon: ItemIcon.ItemIcon?,
 	name: TextLabel?,
+	group: Frame?, -- #2087: a named item's picture over its name, centred in the room over Claim
 	status: TextLabel,
 	claim: Button.Button,
 }
@@ -86,9 +87,10 @@ local SLOT_MAX = 134 -- a card's height when the track has room
 local SLOT_MIN = 92 -- and its least, on a short phone
 local CLAIM_H = 36 -- the least a tap needs (the UI gate)
 local TILE = 36
-local ITEM_MAX = 46
-local ITEM_MIN = 24
+local ITEM_MAX = 56 -- #2087: the items' own pictures, bigger
+local ITEM_MIN = 28
 local NAME_H = 30 -- two lines of the item's name
+local NAME_ONE = 15 -- one line, on a short card
 local PENDING_SECONDS = 2
 local NIGHT_SHARE: number = Config.NightIncomeMultiplier or 0.6
 local MAPLE = Theme.colors.warn
@@ -346,12 +348,27 @@ function CafePassScreen._place(self: any, slot: Slot, y: number)
 	local above = slotH - CLAIM_H - 6 -- the room over the Claim button
 	local icon = slot.icon
 	local name = slot.name
-	if icon and name then
-		local size = math.clamp(above - NAME_H - 6, ITEM_MIN, ITEM_MAX)
+	local group = slot.group
+	if icon and name and group then
+		-- #2087 (Derek2: "centre them lower they are too high"): the picture and its name centred together over Claim;
+		-- a short card gives the name one line so the picture stays big
+		local short = above < ITEM_MIN + NAME_H + 14
+		local nameH = if short then NAME_ONE else NAME_H
+		local size = math.clamp(above - nameH - 8, ITEM_MIN, ITEM_MAX)
 		icon.frame.Size = UDim2.fromOffset(size, size)
-		icon.frame.Position = UDim2.new(0.5, 0, 0, 4)
-		name.Position = UDim2.fromOffset(4, 4 + size + 1)
-		name.TextSize = if size < ITEM_MAX then Theme.sizes.textTiny + 1 else Theme.sizes.textSmall
+		group.Position = UDim2.new(0.5, 0, 0, math.floor(above / 2) + 2)
+		name.TextSize = if short or size < ITEM_MAX
+			then Theme.sizes.textTiny + 1
+			else Theme.sizes.textSmall
+		name.TextWrapped = not short
+		name.TextTruncate = if short then Enum.TextTruncate.AtEnd else Enum.TextTruncate.None
+		if short then
+			name.AutomaticSize = Enum.AutomaticSize.None
+			name.Size = UDim2.new(1, 0, 0, nameH)
+		else
+			name.AutomaticSize = Enum.AutomaticSize.Y
+			name.Size = UDim2.new(1, 0, 0, 0)
+		end
 	end
 	local chips = slot.chips
 	if chips then
@@ -407,6 +424,7 @@ function CafePassScreen._slot(self: any, parent: Frame, track: string, level: nu
 		chips = nil,
 		icon = nil,
 		name = nil,
+		group = nil,
 		status = status,
 		claim = claim,
 	}
@@ -416,28 +434,51 @@ end
 function CafePassScreen._fill(self: any, slot: Slot, reward: Types.PassReward)
 	local item = reward.item
 	if item then
+		-- #2087: the item's own picture (its 3D model, a uniform's or a chat tag's colour), over its name, the two
+		-- centred together in the room over Claim (_place)
+		local group: Frame = Create("Frame", {
+			Name = "ItemGroup",
+			BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Size = UDim2.new(1, -8, 0, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			Parent = slot.frame,
+		}, {
+			Create("UIListLayout", {
+				FillDirection = Enum.FillDirection.Vertical,
+				HorizontalAlignment = Enum.HorizontalAlignment.Center,
+				Padding = UDim.new(0, 2),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+			}),
+		})
 		local icon = ItemIcon.new({
-			parent = slot.frame,
+			parent = group,
 			size = UDim2.fromOffset(ITEM_MAX, ITEM_MAX),
-			anchorPoint = Vector2.new(0.5, 0),
 			name = "Item",
 		})
+		icon.frame.LayoutOrder = 1
+		local art = PassLogic.itemArt(item)
 		icon:set(
+			art.asset,
+			art.glyph,
+			if item.kind == "cat" then "Legendary" else "Epic",
 			nil,
-			PassLogic.itemGlyph(item.kind),
-			if item.kind == "cat" then "Legendary" else "Epic"
+			art.tint
 		)
 		slot.icon = icon
+		slot.group = group
 		slot.name = text({
 			Name = "ItemName",
-			Size = UDim2.new(1, -8, 0, NAME_H),
+			Size = UDim2.new(1, 0, 0, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
 			TextSize = Theme.sizes.textSmall,
 			TextWrapped = true,
 			TextTruncate = Enum.TextTruncate.None,
-			TextYAlignment = Enum.TextYAlignment.Top,
 			Text = PassLogic.itemText(item),
-			Parent = slot.frame,
+			LayoutOrder = 2,
+			Parent = group,
 		})
+		Create("UISizeConstraint", { MaxSize = Vector2.new(math.huge, NAME_H), Parent = slot.name })
 		return
 	end
 	local chips = PrizeChips.new({

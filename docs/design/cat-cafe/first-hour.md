@@ -119,3 +119,30 @@ The research's end-of-session hook. A Roblox game can't show anything as the pla
 
 ### 4c. Re-fit after Catch v3 (PR #1917, 2026-11-06)
 Catch v3 (#1910) made catching easier to recover, which sped up the first hour: Tier 3 at 56.2 minutes and Espresso 4 at 46.6. Gameplay-Engineer re-fitted two prices (a forced re-fit, not new tuning): **Espresso 4 costs 550,000** (was 700,000) and **Tier 3 costs 800,000** (was 900,000). Middle run: Tables 5 at 22.6 minutes, Lucky Cat 3 (still 300,000) at 30.9, Espresso 4 at 42.6, Tier 2 at 11.7 and Tier 3 at 53.8 (fastest tenth 36.0). Pace.spec passes. These numbers replace the ones in §4a and §4b.
+
+### 4d. One more cheap buy for the quiet windows (2026-11-07, QA-Planner's pre-release list, item 6)
+After the §4c re-fit, the coin buys land at about 11.7 (Tier 2), 22.6 (Tables 5), 30.9 (Lucky Cat 3), 42.6 (Espresso 4) and 53.8 (Tier 3) minutes. The longest gaps are about 11 minutes, from 11.7 to 22.6 and from 30.9 to 42.6. Coin decor is never sold (F97), so the only cheap buys are upgrade levels.
+
+- **Bait Bowl level 3 moves into Tier 2.** The Tier 2 cap changes from `lure_bowl = 2` to `lure_bowl = 3` (Catalog.tiers). Its price drops from 240,000 to a fitted price of about 70,000, so the median buy lands at about minute 17. That splits the first gap in two. The Bait Bowl makes bait faster and luckier and adds no income, so Tier 3 barely moves. No new items, art or remotes.
+- **Second buy, only if the model still shows a long gap:** if the median gap from Lucky Cat 3 to Espresso 4 is still over 10 minutes after the change above, Gameplay-Engineer moves the Bait Bowl 3 buy into that window instead, at about 150,000 and about minute 36. In that case the gap from Tier 2 to Tables 5 is left as it is. Use one placement or the other, never both.
+- **Guards stay:** Tier 2 at 10 to 20 minutes, and Tier 3's median at 45 to 55 with the fastest tenth at 35 or later. If Tier 3 slips past 55, lower its cost a little instead of moving the bowl again.
+- **New Pace.spec target:** the median longest gap between coin buys is **10 minutes or less** (it was 12). Counting new cats and roadmap steps, the 6-minute target stays.
+- **Rank-up screen:** Bait Bowl 3 moves from Tier 3's unlock list to Tier 2's on its own (`requiresTier`). UI-Engineer checks that the Tier 2 card still fits.
+- **Claim:** `shared/Catalog.luau` (tier caps and the `lure_bowl` cost only). Builder: Gameplay-Engineer.
+- **QA:** a fresh account can buy Bait Bowl 3 at Tier 2 and can't before it. A player who already bought it at Tier 3 keeps it, with no refund or change. Pace.spec passes the new target.
+
+### 6a. One reason to come back tomorrow (2026-11-07, Derek2's pick of item 11)
+The D1 return rate is the launch number, and Home recommendations follow it (release.md). Two small changes, using lines and screens that already exist, with no new systems:
+
+- **A first-session recap at 15 minutes.** Most first sessions end before 40 minutes, so a player's first session shows the recap card after 15 minutes (`RecapFirstSessionSeconds` 900). Later sessions keep `RecapAfterSeconds` 2400. The calm-moment rules, once per session, the toggle and the 12 s auto-hide are unchanged.
+- **One "Tomorrow" line, picked in this order:** line 4 of the card names the single best thing waiting:
+  1. "Your bait cat will be waiting for you", if bait is cooking and will be ready after the player leaves.
+  2. "Tomorrow: Daily Treat day D, PRIZE", naming the next day's prize from the Daily Treat table (for example "2 Cat Snacks"), if tomorrow's treat isn't claimed yet.
+  3. "Tomorrow: new daily quests", otherwise.
+
+  The offline income line ("Your cafe earns while you're away: 50% for up to 8 h") stays as its own line above it. The card still has no countdown, no "you'll lose" wording and no store link.
+- **The welcome back card shows the same thing.** On rejoin, the existing welcome back card (offline earnings, F95) gets one line under the coins, picked in the same order but in the present tense: "Your bait cat is ready!", "Daily Treat day D is ready", or "New daily quests are here". It's worked out on join from the save (bait ready time, `dailyTreat` day and claim, quest reset), so nothing new is saved. If none of these is true, the line is left out.
+- **Funnel:** `session_recap` gains `tomorrow` (`bait`, `treat` or `quests`). A new `welcome_back_hook` event has the same value, so Monetization-Agent can check whether players with a named hook return more.
+- **Builders:** UI-Engineer (the card line and the welcome back line). Gameplay-Engineer adds the 900 s Config value and the pick, as a pure function `ReturnHook.pick(profile, now)` with a spec.
+- **QA:** a fresh account sees the recap at about 15 minutes in its first session and at 40 minutes in later sessions. The Tomorrow line follows the order above. Rejoining the next day shows the matching welcome back line. Nothing shows a timer or the store.
+

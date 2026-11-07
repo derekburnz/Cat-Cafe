@@ -433,10 +433,11 @@ local function cafePassRow(config: any, view: ShopView?): Row?
 	}
 end
 
--- #1168: the Thank You Badge's row while the player is not a supporter, else nil.
+-- #1168: the Thank You Badge's row. Once the player is a supporter it stays and reads "Yours" (#2073), so it is not
+-- bought twice and the card does not just vanish.
 local function thankYouRow(config: any, view: ShopView?): Row?
 	local id = productId(config, THANK_YOU)
-	if id == nil or view == nil or view.supporter == true then
+	if id == nil or view == nil then
 		return nil
 	end
 	return {
@@ -445,7 +446,7 @@ local function thankYouRow(config: any, view: ShopView?): Row?
 		name = "Thank You Badge",
 		icon = "💛",
 		effect = THANK_YOU.effect,
-		owned = false,
+		owned = view.supporter == true,
 		product = true,
 		tab = "passes",
 	}
@@ -783,6 +784,15 @@ function StoreLogic.featured(rows: { Row }): Featured
 		if row and not row.owned then
 			hero = row
 			break
+		end
+	end
+	if hero == nil then
+		-- #2072: everything is bought, so the hero still shows the first card of the order, marked Yours
+		for _, key in HERO_ORDER do
+			if byKey[key] then
+				hero = byKey[key]
+				break
+			end
 		end
 	end
 	local used: { [string]: boolean } = {}

@@ -2450,6 +2450,28 @@ local SCENES = {
 		local screen = workspace.CurrentCamera.ViewportSize
 		assert((backdrop :: GuiObject).AbsolutePosition.Y <= 0 and (backdrop :: GuiObject).AbsoluteSize.Y >= screen.Y - 1, ("uigate: the dim starts at y %d, %d tall, not the whole %d (#2137)"):format((backdrop :: GuiObject).AbsolutePosition.Y, (backdrop :: GuiObject).AbsoluteSize.Y, screen.Y))
 	end },
+	-- #2157 (Desktop-Tester on #2128): a replay asked for with Settings open and the Welcome back card up closes
+	-- Settings at once and collects the earnings, so the card never comes back after the intro
+	{ "IntroReplayTidy", function()
+		UI.update({ tipsSeen = { stuck_cat = true, codes_cat = true } })
+		local claimed = 0
+		local counting = UI.events.claimOffline:Connect(function()
+			claimed += 1
+		end)
+		UI.showOfflineEarnings(48200, 3 * 3600)
+		UI.open("Settings")
+		assert(UI.isOpen() == "Settings", "uigate: Settings did not open")
+		UI.events.introReplay:Fire()
+		assert(UI.isOpen() == nil, "uigate: Settings stays open on a replay (#2157)")
+		assert(claimed == 1, ("uigate: the replay collected the earnings %d times, not once (#2157)"):format(claimed))
+		UIShim.advance(1)
+		local popups = UIShim.playerGui:FindFirstChild("CatCafePopups")
+		local card = popups and popups:FindFirstChild("Offline", true) :: GuiObject?
+		assert(card == nil or not card.Visible, "uigate: the Welcome back card is still up after a replay (#2157)")
+		UI.events.introReplay:Fire()
+		assert(claimed == 1, "uigate: a second replay collected again (#2157)")
+		counting:Disconnect()
+	end },
 	-- #2123 (first-hour.md 6a): the welcome back card with the reason to play today under the coins, the card taller
 	-- by the line and Collect still clear of the note
 	{ "WelcomeBackHook", function()

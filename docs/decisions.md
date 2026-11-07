@@ -663,3 +663,6 @@ Gameplay reran Pace on main after #2236 and #2271: one go reaches Tier 5 in 11h2
 
 ## 2026-11-07: Intro shows a rich customer's tip (Design-Agent, friend's project, #2242)
 A new shot 6 after the job shot: a rich customer sits at table 1, leaves a gold coin pile and your avatar grabs it for "+$50" (the real first rich tip). The intro has nine shots, `Intro.VERSION` 8, and runs about 37 s with no taps. intro-cutscene.md §2c. Reason: Derek2's ask to show rare customers in the tutorial; built in #2305.
+
+## 2026-11-07: Notification ask later; rescue on one press (Design-Agent, friend's project, #2313, #2335)
+The notification ask now shows after 30 minutes of play with Tier 2 reached, or on a later UTC day than the account's first, instead of after the first tamed bait cat (starter-cat.md §3, built in #2328). A rescue starts on one press, not a hold (data-model.md §10b, catch-rework.md, built for #2335). Reason: Gameplay's builds; the docs now match the game.

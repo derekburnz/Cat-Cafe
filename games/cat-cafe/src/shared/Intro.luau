@@ -4,7 +4,7 @@
 -- player's own plot (`x`, `z` and `side`, -1 for the west row and +1 for the east row, the street toward -side) up
 -- to the Town Square's cannon, where your copy climbs in. Shots 2 to 4 are at the Alleyway's camp: the flight, the catch
 -- just past its way out and the carry into the camp. Shots 5 and 6 (the rich visitor, #2242) are in your cafe and
--- shots 7 to 9 in the Town Square (#1542, Derek 2026-11-05, took out the old shot 6's cuts over the other camps; #1782, Derek2 2026-11-06, took out the
+-- shots 7 and 8 in the Town Square (#1542, Derek 2026-11-05, took out the old shot 6's cuts over the other camps; #1782, Derek2 2026-11-06, took out the
 -- cut back to the Alleyway camp's Index Board after the cafe). The camps are
 -- worked out from Config as the server's Layout.camps does (a test checks they match), so the client needs neither
 -- the server module nor the camps to have streamed in. The positions are starting points to tune in Studio. Pure apart from Vector3.
@@ -17,12 +17,13 @@ local Types = require(script.Parent.Types)
 
 local Intro = {}
 
-Intro.SHOTS = 9
+Intro.SHOTS = 8
 -- The intro_cutscene event's version, so old and new drop-offs never mix (section 3): 3 for the hometown and the
 -- cannon (F84), 4 since #1542 took out the camp cuts, 5 since #1782 took out the Index Board shot, 6 since #2113
 -- put the night (now shot 7) before the free spin and codes (now shot 8), 7 since #2182 gave each shot a reading hold
--- and Next, 8 since #2242 put the rich visitor in as shot 6.
-Intro.VERSION = 8
+-- and Next, 8 since #2242 put the rich visitor in as shot 6, 9 since #2357 (Derek2: "showing the cat waiting in
+-- alleyway at the end scene is not needed") took out the last shot, "Your first cat is waiting in the Alleyway!".
+Intro.VERSION = 9
 Intro.SKIP_AFTER = 5.0 -- seconds into the first play before Skip can be pressed (its bar fills until then; Derek 00:57); a replay allows it at once
 Intro.MAX_CAPTION = 46 -- characters, so a caption fits one line on a phone ("about 45")
 Intro.STREAM_WAIT = 5 -- seconds the intro waits for the Alleyway's camp to stream in before it starts (section 3)
@@ -162,7 +163,7 @@ export type Shot = {
 	rich: boolean?, -- shot 6 (#2242): a rich visitor leaves a big tip and your copy grabs it
 	spinWheel: boolean?, -- shot 8 (#2113): the world wheel turns two spins on this screen
 	night: boolean?, -- shot 7 (#2113): night falls and the sun rises on this screen
-	follow: boolean?, -- shot 9: the last cut ends behind the character (Intro.follow), not at `to`
+	follow: boolean?, -- the last cut ends behind the character (Intro.follow), not at `to` (no shot since #2357)
 }
 
 -- A camp the intro films (Layout.camps, hometown-cannon.md section 4), in the world. `origin` is the middle of the
@@ -657,24 +658,6 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 					from = key(v(0, 24, -36), v(0, 5, 0)),
 					to = key(v(-8, 10, 0), stations),
 					seconds = 2.7,
-				},
-			},
-		},
-		{
-			index = 9,
-			starts = 0,
-			hold = 0,
-			seconds = 2,
-			caption = "Your first cat is waiting in the Alleyway!",
-			ease = "InOut",
-			follow = true,
-			cuts = {
-				{
-					-- `to` becomes the follow point at play time (Intro.follow): every player ends at the spawn; it starts
-					-- where shot 8 ends, over the Spin Wheel and the Codes Cat (#2113)
-					from = key(v(-8, 10, 0), stations),
-					to = key(v(0, 76, -144), town),
-					seconds = 2,
 				},
 			},
 		},

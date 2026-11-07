@@ -30,12 +30,12 @@ return function()
 
 	describe("the shots (section 2)", function()
 		it(
-			"are nine shots of 23 s, each starting where the one before ends (#1542, #1782, #2242)",
+			"are eight shots of 21 s, each starting where the one before ends (#1542, #1782, #2242, #2357)",
 			function()
 				local shots = Intro.shots(EAST, true)
 				expect(#shots).to.equal(Intro.SHOTS)
-				expect(Intro.SHOTS).to.equal(9)
-				expect(Intro.VERSION).to.equal(8)
+				expect(Intro.SHOTS).to.equal(8)
+				expect(Intro.VERSION).to.equal(9)
 				local at = 0
 				for i, shot in shots do
 					expect(shot.index).to.equal(i)
@@ -48,14 +48,14 @@ return function()
 					at += shot.seconds
 				end
 				-- 30.5 with the camp cuts, until #1542; 22.5 with the Index Board shot, until #1782; 20 until #2242's
-				-- 3 s rich visitor
-				expect(Intro.length(shots)).to.be.near(23, 1e-9)
+				-- 3 s rich visitor; 23 until #2357 took out the 2 s "first cat is waiting" shot
+				expect(Intro.length(shots)).to.be.near(21, 1e-9)
 				local starts = {}
 				for _, shot in shots do
 					table.insert(starts, math.floor(shot.starts * 10 + 0.5) / 10)
 				end
 				-- #2242: the 3 s rich visitor after the cafe job; #2113: the 3 s night before the 2.7 s spin
-				expect(starts :: any).to.deepEqual({ 0, 2.5, 5, 7.5, 9.5, 12.3, 15.3, 18.3, 21 })
+				expect(starts :: any).to.deepEqual({ 0, 2.5, 5, 7.5, 9.5, 12.3, 15.3, 18.3 })
 			end
 		)
 
@@ -83,11 +83,11 @@ return function()
 				expect(which("rich") :: any).to.deepEqual({ 6 }) -- #2242: straight after the cafe job
 				expect(which("spinWheel") :: any).to.deepEqual({ 8 }) -- #2113: after the night
 				expect(which("night") :: any).to.deepEqual({ 7 })
-				expect(which("follow") :: any).to.deepEqual({ 9 })
+				expect(which("follow") :: any).to.deepEqual({}) -- #2357: the last shot is gone
 				expect(shots[1].caption).to.equal("Fly the Cat Cannon to catch stray cats!")
 				expect(shots[4].caption).to.equal("Carry it into the camp to keep it!")
 				expect(shots[6].caption).to.equal("Rich visitors leave big tips. Grab them fast!")
-				expect(shots[9].caption).to.equal("Your first cat is waiting in the Alleyway!")
+				expect(shots[9]).never.to.be.ok() -- #2357
 				-- #1542: no shot shows the other camps any more; #1782: nor the Alleyway's Index Board after the cafe
 				for _, shot in shots do
 					expect(shot.caption ~= "Rank up to fly to new areas!").to.equal(true)
@@ -117,11 +117,11 @@ return function()
 			local shots = Intro.shots(EAST, true)
 			expect(shots[7].night).to.equal(true)
 			expect(shots[8].spinWheel).to.equal(true)
-			expect(Intro.VERSION).to.equal(8)
+			expect(Intro.VERSION).to.equal(9)
 		end)
 
 		it(
-			"leaves out shots 3 and 4 when the Alleyway's camp has not streamed in, 4.5 s shorter: 18.5 s",
+			"leaves out shots 3 and 4 when the Alleyway's camp has not streamed in, 4.5 s shorter: 16.5 s",
 			function()
 				local shots = Intro.shots(EAST, true, false)
 				local indexes = {}
@@ -131,8 +131,8 @@ return function()
 					expect(shot.starts).to.be.near(at, 1e-9)
 					at += shot.seconds
 				end
-				expect(indexes :: any).to.deepEqual({ 1, 2, 5, 6, 7, 8, 9 })
-				expect(Intro.length(shots)).to.be.near(18.5, 1e-9)
+				expect(indexes :: any).to.deepEqual({ 1, 2, 5, 6, 7, 8 })
+				expect(Intro.length(shots)).to.be.near(16.5, 1e-9)
 				-- shot 2 holds the clouds to its end instead of cutting to the camp
 				local cuts = shots[2].cuts
 				expect(near(cuts[#cuts].from.position, cuts[1].to.position)).to.equal(true)
@@ -510,8 +510,8 @@ return function()
 			expect(Intro.shotAt(shots, 12.29)).to.equal(5)
 			expect(Intro.shotAt(shots, 12.31)).to.equal(6) -- the rich visitor, straight after the job (#2242)
 			expect(Intro.shotAt(shots, 15.31)).to.equal(7) -- the square
-			expect(Intro.shotAt(shots, 22.99)).to.equal(9)
-			expect(Intro.shotAt(shots, 23.01)).to.equal(0)
+			expect(Intro.shotAt(shots, 20.99)).to.equal(8) -- the last since #2357
+			expect(Intro.shotAt(shots, 21.01)).to.equal(0)
 			expect(Intro.shotAt(shots, 100)).to.equal(0)
 		end)
 	end)
@@ -601,9 +601,9 @@ return function()
 
 	describe("the intro_cutscene event", function()
 		it(
-			"carries version 8 since #2242's rich visitor (7 since #2182, 6 since #2113, 5 since #1782, 4 since #1542)",
+			"carries version 9 since #2357 took out the last shot (8 since #2242, 7 since #2182, 6 since #2113, 5 since #1782, 4 since #1542)",
 			function()
-				expect(Intro.VERSION).to.equal(8)
+				expect(Intro.VERSION).to.equal(9)
 			end
 		)
 
@@ -655,7 +655,7 @@ return function()
 				expect(shot.hold >= shot.seconds).to.equal(true)
 				table.insert(holds, math.floor(shot.hold * 10 + 0.5) / 10)
 			end
-			expect(holds :: any).to.deepEqual({ 4.2, 4.2, 3.0, 4.2, 4.2, 4.2, 4.2, 4.6, 4.2 })
+			expect(holds :: any).to.deepEqual({ 4.2, 4.2, 3.0, 4.2, 4.2, 4.2, 4.2, 4.6 })
 		end)
 
 		it("eases the camera to a stop at the end of its moves and holds it there", function()

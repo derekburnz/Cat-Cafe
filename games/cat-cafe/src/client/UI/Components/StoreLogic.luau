@@ -158,7 +158,7 @@ local PASSES: { PassCard } = {
 		key = "signStylePack",
 		configKey = "SignStylePackPassId",
 		name = "Sign Style Pack",
-		icon = "🪧",
+		icon = "🏷️", -- #2015: not 🪧 (Unicode 13), drawn blank
 		effect = "Three cafe sign looks: Flower Box, Starry Night and Paw Chalkboard. Looks only.",
 	},
 	-- #1822 (Monetization's store doc §3C): the King Cat alone sits just before its bundle under Cats, so the bundle

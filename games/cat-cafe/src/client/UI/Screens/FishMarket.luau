@@ -175,7 +175,7 @@ local ITEMS: { [string]: { name: string, icon: string, blurb: string } } = {
 	},
 	extra_decor_spot = {
 		name = "Extra Decor Spot",
-		icon = "🪴",
+		icon = "🌿", -- #2015: not 🪴, drawn blank
 		blurb = "One more spot for furniture or decorations a level.",
 	},
 }

@@ -62,7 +62,7 @@ local ITEM_GLYPHS: { [string]: string } = {
 	tag = "🏷️",
 	accessory = "🎀",
 	uniform = "👕",
-	decor = "🪴",
+	decor = "🌿", -- #2015: not 🪴, drawn blank
 	frame = "🖼️",
 	cat = "🐱",
 }

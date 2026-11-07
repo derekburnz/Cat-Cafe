@@ -3410,10 +3410,10 @@ end
 -- #1151 (Derek 11-04: "a very small symbol beside each boost"): each row's picture from the clean set, so the big
 -- boosts are easy to spot; no new uploads. A row with no picture (the total) has none.
 local BOOST_GLYPH: { [string]: string } = {
-	tables = "🪑",
+	tables = "💺", -- #2015: 💺 and 🌿, as 🪑 and 🪴 draw blank
 	espresso = "☕",
 	golden_espresso = "☕",
-	decor = "🪴",
+	decor = "🌿",
 	index = "📖",
 	tier = "⭐",
 	pals = "👋",

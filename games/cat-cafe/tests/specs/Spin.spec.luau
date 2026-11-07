@@ -26,7 +26,7 @@ return function()
 			local rows = Catalog.spinWheel :: any
 			expect(rows[1]).to.deepEqual({ slice = 1, kind = "coins", seconds = 120, minCoins = 200, weight = 70 })
 			expect(rows[2]).to.deepEqual({ slice = 2, kind = "coins", seconds = 600, minCoins = 1000, weight = 44 })
-			expect(rows[3]).to.deepEqual({ slice = 3, kind = "fish", count = 5, weight = 30 })
+			expect(rows[3]).to.deepEqual({ slice = 3, kind = "fish", count = 3, weight = 30 })
 			expect(rows[4]).to.deepEqual({ slice = 4, kind = "coins", seconds = 1800, minCoins = 3000, weight = 24 })
 			expect(rows[5]).to.deepEqual({ slice = 5, kind = "lure", lureId = "caviar", count = 1, weight = 18 })
 			expect(rows[6]).to.deepEqual({ slice = 6, kind = "crate", crate = "highest", count = 1, weight = 12 })
@@ -39,7 +39,7 @@ return function()
 				weight = 1,
 				jackpot = true,
 			})
-			expect(rows[8]).to.deepEqual({ slice = 8, kind = "fish", count = 100, weight = 1, jackpot = true })
+			expect(rows[8]).to.deepEqual({ slice = 8, kind = "fish", count = 60, weight = 1, jackpot = true })
 			-- coins land on 69% of spins
 			local coins = 0
 			for _, row in rows do
@@ -48,8 +48,8 @@ return function()
 				end
 			end
 			expect(coins / 200).to.be.near(0.69, 1e-9)
-			expect(Spin.amount(rows[3], 100)).to.equal(5)
-			expect(Spin.amount(rows[8], 100)).to.equal(100)
+			expect(Spin.amount(rows[3], 100)).to.equal(3) -- #2237: 3 and 60 (was 5 and 100)
+			expect(Spin.amount(rows[8], 100)).to.equal(60)
 			expect(Spin.amount(rows[7], 100)).to.equal(1)
 		end)
 

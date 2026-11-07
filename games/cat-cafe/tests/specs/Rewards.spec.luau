@@ -114,17 +114,17 @@ return function()
 	end)
 
 	describe("the new rows (section 2, QA check 3)", function()
-		it("the Tip Jar's two hour gift is 2 Classic Crates and 150 golden fish (#1414)", function()
+		it("the Tip Jar's two hour gift is 2 Classic Crates and 90 golden fish (#2237)", function()
 			expect(Catalog.tipJar[12].minutes).to.equal(120)
 			expect(Catalog.tipJar[12].prize :: any).to.deepEqual({
 				crates = { classic_crate = 2 },
-				fish = 150,
+				fish = 90,
 			})
 		end)
 
-		it("the wheel's slice 3 pays 5 golden fish and slice 5 a Caviar (Spin Wheel v2, #1500)", function()
+		it("the wheel's slice 3 pays 3 golden fish and slice 5 a Caviar (#1500, #2237)", function()
 			expect(Catalog.spinWheel[3].kind).to.equal("fish")
-			expect(Catalog.spinWheel[3].count).to.equal(5)
+			expect(Catalog.spinWheel[3].count).to.equal(3)
 			expect(Catalog.spinWheel[5].lureId).to.equal("caviar")
 			expect(Catalog.spinWheel[5].count).to.equal(1)
 		end)
@@ -132,7 +132,7 @@ return function()
 		it("cats6 pays each area's crate with fish or two of its dealer food", function()
 			local want: { [string]: any } = {
 				alley = { fish = 5 },
-				park = { fish = 10 },
+				park = { fish = 5 }, -- #2237: was 10
 				neighbourhood = { lures = { caviar = 2 } },
 				woods = { lures = { moon_milk = 2 } },
 				sewer = { lures = { star_treat = 2 } },
@@ -146,8 +146,8 @@ return function()
 			end
 		end)
 
-		it("gold6 pays 10 more golden fish than before and no food or spins", function()
-			local fish: { [string]: number } = { alley = 50, park = 60, neighbourhood = 70, woods = 90, sewer = 110 }
+		it("gold6 pays its golden fish (#2237: halved to the nearest 5) and no food or spins", function()
+			local fish: { [string]: number } = { alley = 25, park = 30, neighbourhood = 35, woods = 45, sewer = 55 }
 			for area, count in fish do
 				local prize = Catalog.indexPrizes[area].gold6
 				expect(prize.fish).to.equal(count)

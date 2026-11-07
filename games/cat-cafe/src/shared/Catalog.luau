@@ -1312,19 +1312,19 @@ Catalog.lures = {
 Catalog.tipJar = {
 	-- v2 (#1414, rewards-and-shops.md section 2a): coins 2x, golden fish 5x, spins 5x and the crate 2x
 	{ step = 1, minutes = 2, prize = { coins = 100, coinSeconds = 30 } },
-	{ step = 2, minutes = 5, prize = { fish = 10 } },
+	{ step = 2, minutes = 5, prize = { fish = 5 } }, -- #2237: fish about 60% (10, 10, 15, 50, 25, 150)
 	{ step = 3, minutes = 10, prize = { coins = 200, coinSeconds = 60 } },
-	{ step = 4, minutes = 15, prize = { fish = 10 } },
+	{ step = 4, minutes = 15, prize = { fish = 5 } },
 	{ step = 5, minutes = 20, prize = { coins = 300, coinSeconds = 90 } },
 	{ step = 6, minutes = 30, prize = { spins = 5 } },
 	{ step = 7, minutes = 40, prize = { coins = 500, coinSeconds = 120 } },
-	{ step = 8, minutes = 50, prize = { fish = 15 } },
+	{ step = 8, minutes = 50, prize = { fish = 10 } },
 	-- v0.10 (F68, round 4 Q10): a pretty good gift at one hour
-	{ step = 9, minutes = 60, prize = { coins = 2000, coinSeconds = 600, fish = 50 } },
-	{ step = 10, minutes = 75, prize = { fish = 25 } },
+	{ step = 9, minutes = 60, prize = { coins = 2000, coinSeconds = 600, fish = 30 } },
+	{ step = 10, minutes = 75, prize = { fish = 15 } },
 	{ step = 11, minutes = 90, prize = { coins = 1200, coinSeconds = 300, spins = 5 } },
 	-- and a really good one at two hours
-	{ step = 12, minutes = 120, prize = { crates = { classic_crate = 2 }, fish = 150 } },
+	{ step = 12, minutes = 120, prize = { crates = { classic_crate = 2 }, fish = 90 } },
 } :: { Types.TipJarStep }
 
 -- Section 11e (F70, round 4 Q9): the Daily Treat card, one stamp per UTC day played and never reset. Days 2 and 4
@@ -1334,17 +1334,17 @@ Catalog.tipJar = {
 Catalog.dailyTreat = {
 	-- #1181 (corner-shop-v2.md section 3): days 1, 3 and 5 give cat food beside their coins
 	{ day = 1, prize = { coins = 300, coinSeconds = 150, catFood = { small_cat_snack = 2 } } },
-	{ day = 2, prize = { fish = 15, spins = 1 } },
+	{ day = 2, prize = { fish = 10, spins = 1 } }, -- #2237: was 15
 	{ day = 3, prize = { coins = 600, coinSeconds = 300, catFood = { cat_snack = 1 } } },
 	{ day = 4, prize = { crates = { classic_crate = 1 }, spins = 1 } },
 	{ day = 5, prize = { coins = 1000, coinSeconds = 450, catFood = { cat_snack = 1 } } },
-	{ day = 6, prize = { potions = { lucky_potion = 1 }, fish = 10 } },
+	{ day = 6, prize = { potions = { lucky_potion = 1 }, fish = 5 } }, -- #2237: was 10
 	{
 		day = 7,
 		prize = {
 			crates = { classic_golden_crate = 1 },
 			lures = { star_treat = 1 },
-			fish = 50,
+			fish = 30, -- #2237: was 50
 		},
 	},
 } :: { Types.DailyTreatDay }
@@ -1357,12 +1357,12 @@ Catalog.dailyTreat = {
 Catalog.spinWheel = {
 	{ slice = 1, kind = "coins", seconds = 120, minCoins = 200, weight = 70 }, -- 35%
 	{ slice = 2, kind = "coins", seconds = 600, minCoins = 1000, weight = 44 }, -- 22%
-	{ slice = 3, kind = "fish", count = 5, weight = 30 }, -- 15%
+	{ slice = 3, kind = "fish", count = 3, weight = 30 }, -- 15%; #2237: was 5
 	{ slice = 4, kind = "coins", seconds = 1800, minCoins = 3000, weight = 24 }, -- 12%, new in v2
 	{ slice = 5, kind = "lure", lureId = "caviar", count = 1, weight = 18 }, -- 9%
 	{ slice = 6, kind = "crate", crate = "highest", count = 1, weight = 12 }, -- 6%
 	{ slice = 7, kind = "crate", crate = "highest_golden", count = 1, weight = 1, jackpot = true }, -- 0.5%
-	{ slice = 8, kind = "fish", count = 100, weight = 1, jackpot = true }, -- 0.5%
+	{ slice = 8, kind = "fish", count = 60, weight = 1, jackpot = true }, -- 0.5%; #2237: was 100
 } :: { Types.SpinSlice }
 for _, row in Catalog.spinWheel do
 	table.freeze(row)
@@ -1667,14 +1667,14 @@ Catalog.quests = {
 -- 1.5x, so 1,200 for a full day and 2,400 for a full week (were 800 and 1,600), about 18 days of full play for the
 -- 34 levels' 27,200 XP (was about 26).
 Catalog.questPrizes = {
-	daily = { coins = 200, coinSeconds = 90, fish = 2, passXp = 150 },
-	dailyBig = { coins = 400, coinSeconds = 150, fish = 5, passXp = 300 },
-	dailySet = { potions = { big_tip_potion = 1, gold_rush_potion = 1 }, fish = 10, passXp = 300 },
-	weekly = { coins = 2000, coinSeconds = 600, fish = 15, passXp = 600 },
+	daily = { coins = 200, coinSeconds = 90, fish = 1, passXp = 150 }, -- #2237 fish: was 2, 5, 10, 15, 40
+	dailyBig = { coins = 400, coinSeconds = 150, fish = 3, passXp = 300 },
+	dailySet = { potions = { big_tip_potion = 1, gold_rush_potion = 1 }, fish = 6, passXp = 300 },
+	weekly = { coins = 2000, coinSeconds = 600, fish = 10, passXp = 600 },
 	weeklySet = {
 		potions = { big_tip_potion = 3 },
 		crates = { classic_golden_crate = 1 },
-		fish = 40,
+		fish = 25,
 		passXp = 600,
 	},
 } :: { [string]: Types.IndexPrize }
@@ -1696,38 +1696,38 @@ Catalog.passSeasons = {
 		id = "season_1",
 		name = "Season 1: Maple",
 		free = {
-			[1] = { prize = { fish = 10 } }, -- #1883: odd levels added (free, resources only)
+			[1] = { prize = { fish = 5 } }, -- #2237: free track fish about 60%; #1883: odd levels added (free, resources only)
 			[2] = { prize = { spins = 1 } },
 			[3] = { prize = { coinSeconds = 300 } },
-			[4] = { prize = { fish = 15 } },
+			[4] = { prize = { fish = 10 } },
 			[5] = potions({ tip_potion = 1 }),
 			[6] = potions({ lucky_potion = 1 }),
 			[7] = { prize = { spins = 1 } },
 			[8] = { prize = { coinSeconds = 600 } },
-			[9] = { prize = { fish = 15 } },
+			[9] = { prize = { fish = 10 } },
 			[10] = { prize = { crates = { classic_crate = 1 } } },
 			[11] = { prize = { coinSeconds = 600 } },
 			[12] = { prize = { spins = 1 } },
 			[13] = potions({ swift_potion = 1 }),
-			[14] = { prize = { fish = 25 } },
+			[14] = { prize = { fish = 15 } },
 			[15] = { prize = { crates = { highest = 1 } } }, -- the highest open zone's crate (Design-Agent on #1883)
 			[16] = potions({ tip_potion = 1, swift_potion = 1 }),
-			[17] = { prize = { fish = 20 } },
+			[17] = { prize = { fish = 10 } },
 			[18] = { prize = { coinSeconds = 1200 } },
 			[19] = { prize = { coinSeconds = 900 } },
 			[20] = { prize = { crates = { classic_crate = 1 } } },
 			[21] = potions({ swift_potion = 1 }),
 			[22] = { prize = { spins = 2 } },
 			[23] = { prize = { spins = 1 } },
-			[24] = { prize = { fish = 40 } },
+			[24] = { prize = { fish = 25 } },
 			[25] = { prize = { crates = { highest = 1 } } },
 			[26] = potions({ lucky_potion = 1, steady_potion = 1 }),
-			[27] = { prize = { fish = 30 } },
+			[27] = { prize = { fish = 20 } },
 			[28] = { prize = { coinSeconds = 1800 } },
 			[29] = { prize = { coinSeconds = 1500 } },
-			[30] = { prize = { crates = { classic_crate = 1 }, fish = 50 } },
+			[30] = { prize = { crates = { classic_crate = 1 }, fish = 30 } },
 			-- #1883 part C: the four levels added with the Maple showpieces (free, resources only)
-			[31] = { prize = { fish = 30 } },
+			[31] = { prize = { fish = 20 } },
 			[32] = potions({ swift_potion = 1 }),
 			[33] = { prize = { coinSeconds = 1800 } },
 			[34] = { prize = { crates = { highest = 1 } } },
@@ -2202,21 +2202,21 @@ end
 table.freeze(Catalog.mysteryGift)
 
 -- Section 12b (F63): the Cat Collector's offers by the value he puts on the cat, lowest first. He offers the best row
--- his value reaches, and the first below that, so a Common always gets 5 golden fish. The crate rows start at 6 and 11
--- (Design #500), so every Epic gets a crate and its best rolls 20 fish with it. A zone crate is the crate of
+-- his value reaches, and the first below that, so a Common always gets 3 golden fish (#2237, was 5). The crate rows start at 6 and 11
+-- (Design #500), so every Epic gets a crate and its best rolls 12 fish with it. A zone crate is the crate of
 -- the cat's own area and a golden crate its golden version (golden-fish.md section 4). F94 (rewards-and-shops.md
 -- section 2f): value 2 pays 10 golden fish (was 3 Tuna and a spin).
 Catalog.collectorOffers = {
-	{ value = 1, fish = 5 },
-	{ value = 2, fish = 10 },
-	{ value = 4, fish = 15 },
+	{ value = 1, fish = 3 }, -- #2237 fish: was 5, 10, 15, 20, 50, 100
+	{ value = 2, fish = 6 },
+	{ value = 4, fish = 10 },
 	{ value = 6, crates = { zone = 1 } },
 	{ value = 8, catFood = { big_cat_snack = 2 } }, -- #1181 (corner-shop-v2.md section 3): "2 Big Snacks"
-	{ value = 11, crates = { zone = 1 }, fish = 20 },
+	{ value = 11, crates = { zone = 1 }, fish = 12 },
 	{ value = 20, crates = { zone = 2 } },
 	{ value = 35, crates = { golden = 1 } },
-	{ value = 60, crates = { golden = 1 }, fish = 50 },
-	{ value = 120, crates = { golden = 2 }, fish = 100 },
+	{ value = 60, crates = { golden = 1 }, fish = 30 },
+	{ value = 120, crates = { golden = 2 }, fish = 60 },
 } :: { Types.CollectorOffer }
 for _, row in Catalog.collectorOffers do
 	table.freeze(row)
@@ -2360,154 +2360,155 @@ Catalog.indexMilestones = {
 -- bait (`baitSpeed`). Named apart from profile.indexRewards (the claims) and frozen, so a write meant for a profile
 -- errors instead of changing the prize for everyone on the server (reviewer S61). F94 (rewards-and-shops.md section
 -- 2e): no shop food or spins beside a crate, so a prize shows two pictures and a track's last milestone three.
+-- #2237 (Derek2 2026-11-07): every page's golden fish halved, rounded to 5 and at least 5
 Catalog.indexPrizes = {
 	alley = {
 		cats3 = { coins = 300, coinSeconds = 300, fish = 5 },
 		cats6 = { crates = { alley_crate = 1 }, fish = 5, bonus = 0.02 },
 		cats10 = {
 			crates = { alley_crate = 2, alley_golden_crate = 1 },
-			fish = 25,
+			fish = 15,
 			bonus = 0.05,
 		},
-		gold1 = { fish = 10, crates = { alley_crate = 1 }, goldLuck = 0.02 },
-		gold2 = { coins = 1000, coinSeconds = 450, fish = 15, goldLuck = 0.03 },
-		gold4 = { crates = { alley_golden_crate = 1 }, fish = 25, goldLuck = 0.05 },
+		gold1 = { fish = 5, crates = { alley_crate = 1 }, goldLuck = 0.02 },
+		gold2 = { coins = 1000, coinSeconds = 450, fish = 10, goldLuck = 0.03 },
+		gold4 = { crates = { alley_golden_crate = 1 }, fish = 15, goldLuck = 0.05 },
 		gold6 = {
 			coins = 2000,
 			coinSeconds = 900,
-			fish = 50,
+			fish = 25,
 			goldLuck = 0.05,
 		},
-		gold8 = { crates = { alley_golden_crate = 1 }, fish = 60, goldLuck = 0.05 },
+		gold8 = { crates = { alley_golden_crate = 1 }, fish = 30, goldLuck = 0.05 },
 		gold10 = {
 			coins = 5000,
 			coinSeconds = 1800,
 			crates = { alley_golden_crate = 2 },
-			fish = 100,
+			fish = 50,
 			tag = "Alleyway Gold Master",
 			goldLuck = 0.10,
 		},
 	},
 	park = {
-		cats3 = { coins = 1000, coinSeconds = 300, fish = 10 },
-		cats6 = { crates = { park_crate = 1 }, fish = 10, bonus = 0.02 },
+		cats3 = { coins = 1000, coinSeconds = 300, fish = 5 },
+		cats6 = { crates = { park_crate = 1 }, fish = 5, bonus = 0.02 },
 		cats10 = {
 			crates = { park_crate = 2, park_golden_crate = 1 },
-			fish = 35,
+			fish = 20,
 			bonus = 0.05,
 		},
-		gold1 = { fish = 15, crates = { park_crate = 1 }, goldLuck = 0.02 },
-		gold2 = { coins = 3000, coinSeconds = 450, fish = 20, goldLuck = 0.03 },
-		gold4 = { crates = { park_golden_crate = 1 }, fish = 35, goldLuck = 0.05 },
+		gold1 = { fish = 10, crates = { park_crate = 1 }, goldLuck = 0.02 },
+		gold2 = { coins = 3000, coinSeconds = 450, fish = 10, goldLuck = 0.03 },
+		gold4 = { crates = { park_golden_crate = 1 }, fish = 20, goldLuck = 0.05 },
 		gold6 = {
 			coins = 6000,
 			coinSeconds = 900,
-			fish = 60,
+			fish = 30,
 			goldLuck = 0.05,
 		},
-		gold8 = { crates = { park_golden_crate = 1 }, fish = 75, goldLuck = 0.05 },
+		gold8 = { crates = { park_golden_crate = 1 }, fish = 40, goldLuck = 0.05 },
 		gold10 = {
 			coins = 15000,
 			coinSeconds = 1800,
 			crates = { park_golden_crate = 2 },
-			fish = 125,
+			fish = 65,
 			tag = "Park Gold Master",
 			goldLuck = 0.10,
 		},
 	},
 	neighbourhood = {
-		cats3 = { coins = 3000, coinSeconds = 300, fish = 15 },
+		cats3 = { coins = 3000, coinSeconds = 300, fish = 10 },
 		cats6 = { crates = { neighbourhood_crate = 1 }, lures = { caviar = 2 }, bonus = 0.02 },
 		cats10 = {
 			crates = { neighbourhood_crate = 2, neighbourhood_golden_crate = 1 },
-			fish = 50,
+			fish = 25,
 			bonus = 0.05,
 		},
-		gold1 = { fish = 20, crates = { neighbourhood_crate = 1 }, goldLuck = 0.02 },
-		gold2 = { coins = 10000, coinSeconds = 450, fish = 30, goldLuck = 0.03 },
-		gold4 = { crates = { neighbourhood_golden_crate = 1 }, fish = 45, goldLuck = 0.05 },
+		gold1 = { fish = 10, crates = { neighbourhood_crate = 1 }, goldLuck = 0.02 },
+		gold2 = { coins = 10000, coinSeconds = 450, fish = 15, goldLuck = 0.03 },
+		gold4 = { crates = { neighbourhood_golden_crate = 1 }, fish = 25, goldLuck = 0.05 },
 		gold6 = {
 			coins = 20000,
 			coinSeconds = 900,
-			fish = 70,
+			fish = 35,
 			goldLuck = 0.05,
 		},
-		gold8 = { crates = { neighbourhood_golden_crate = 1 }, fish = 90, goldLuck = 0.05 },
+		gold8 = { crates = { neighbourhood_golden_crate = 1 }, fish = 45, goldLuck = 0.05 },
 		gold10 = {
 			coins = 50000,
 			coinSeconds = 1800,
 			crates = { neighbourhood_golden_crate = 2 },
-			fish = 150,
+			fish = 75,
 			tag = "Neighbourhood Gold Master",
 			goldLuck = 0.10,
 		},
 	},
 	woods = {
-		cats3 = { coins = 10000, coinSeconds = 300, fish = 20 },
+		cats3 = { coins = 10000, coinSeconds = 300, fish = 10 },
 		cats6 = { crates = { woods_crate = 1 }, lures = { moon_milk = 2 }, bonus = 0.02 },
 		cats10 = {
 			crates = { woods_crate = 2, woods_golden_crate = 1 },
-			fish = 75,
+			fish = 40,
 			bonus = 0.05,
 		},
-		gold1 = { fish = 25, crates = { woods_crate = 1 }, goldLuck = 0.02 },
-		gold2 = { coins = 30000, coinSeconds = 450, fish = 40, goldLuck = 0.03 },
-		gold4 = { crates = { woods_golden_crate = 1 }, fish = 60, goldLuck = 0.05 },
+		gold1 = { fish = 15, crates = { woods_crate = 1 }, goldLuck = 0.02 },
+		gold2 = { coins = 30000, coinSeconds = 450, fish = 20, goldLuck = 0.03 },
+		gold4 = { crates = { woods_golden_crate = 1 }, fish = 30, goldLuck = 0.05 },
 		gold6 = {
 			coins = 60000,
 			coinSeconds = 900,
-			fish = 90,
+			fish = 45,
 			goldLuck = 0.05,
 		},
-		gold8 = { crates = { woods_golden_crate = 1 }, fish = 120, goldLuck = 0.05 },
+		gold8 = { crates = { woods_golden_crate = 1 }, fish = 60, goldLuck = 0.05 },
 		gold10 = {
 			coins = 150000,
 			coinSeconds = 1800,
 			crates = { woods_golden_crate = 2 },
-			fish = 200,
+			fish = 100,
 			tag = "Woods Gold Master",
 			goldLuck = 0.10,
 		},
 	},
 	sewer = {
-		cats3 = { coins = 30000, coinSeconds = 300, fish = 25 },
+		cats3 = { coins = 30000, coinSeconds = 300, fish = 15 },
 		cats6 = { crates = { sewer_crate = 1 }, lures = { star_treat = 2 }, bonus = 0.02 },
 		cats10 = {
 			crates = { sewer_crate = 2, sewer_golden_crate = 1 },
-			fish = 100,
+			fish = 50,
 			bonus = 0.05,
 		},
-		gold1 = { fish = 30, crates = { sewer_crate = 1 }, goldLuck = 0.02 },
-		gold2 = { coins = 100000, coinSeconds = 450, fish = 50, goldLuck = 0.03 },
-		gold4 = { crates = { sewer_golden_crate = 1 }, fish = 75, goldLuck = 0.05 },
+		gold1 = { fish = 15, crates = { sewer_crate = 1 }, goldLuck = 0.02 },
+		gold2 = { coins = 100000, coinSeconds = 450, fish = 25, goldLuck = 0.03 },
+		gold4 = { crates = { sewer_golden_crate = 1 }, fish = 40, goldLuck = 0.05 },
 		gold6 = {
 			coins = 200000,
 			coinSeconds = 900,
-			fish = 110,
+			fish = 55,
 			goldLuck = 0.05,
 		},
-		gold8 = { crates = { sewer_golden_crate = 1 }, fish = 150, goldLuck = 0.05 },
+		gold8 = { crates = { sewer_golden_crate = 1 }, fish = 75, goldLuck = 0.05 },
 		gold10 = {
 			coins = 500000,
 			coinSeconds = 1800,
 			crates = { sewer_golden_crate = 2 },
-			fish = 250,
+			fish = 125,
 			tag = "Sewer Gold Master",
 			goldLuck = 0.10,
 		},
 	},
 	all = {
-		total5 = { fish = 10, spins = 1, baitSpeed = 0.02 },
-		total10 = { fish = 15, crates = { classic_crate = 1 }, baitSpeed = 0.02 },
-		total15 = { fish = 20, spins = 2, baitSpeed = 0.02 },
-		total20 = { fish = 25, crates = { classic_crate = 1 }, baitSpeed = 0.03 },
-		total25 = { fish = 30, crates = { classic_golden_crate = 1 }, baitSpeed = 0.03 },
-		total30 = { fish = 40, crates = { highest = 1 }, baitSpeed = 0.03 },
-		total35 = { fish = 50, spins = 3, baitSpeed = 0.04 },
-		total40 = { fish = 60, crates = { classic_golden_crate = 1 }, baitSpeed = 0.04 },
-		total45 = { fish = 75, spins = 3, baitSpeed = 0.05 },
+		total5 = { fish = 5, spins = 1, baitSpeed = 0.02 },
+		total10 = { fish = 10, crates = { classic_crate = 1 }, baitSpeed = 0.02 },
+		total15 = { fish = 10, spins = 2, baitSpeed = 0.02 },
+		total20 = { fish = 15, crates = { classic_crate = 1 }, baitSpeed = 0.03 },
+		total25 = { fish = 15, crates = { classic_golden_crate = 1 }, baitSpeed = 0.03 },
+		total30 = { fish = 20, crates = { highest = 1 }, baitSpeed = 0.03 },
+		total35 = { fish = 25, spins = 3, baitSpeed = 0.04 },
+		total40 = { fish = 30, crates = { classic_golden_crate = 1 }, baitSpeed = 0.04 },
+		total45 = { fish = 40, spins = 3, baitSpeed = 0.05 },
 		total50 = {
-			fish = 150,
+			fish = 75,
 			crates = { classic_golden_crate = 2 },
 			spins = 10,
 			tag = "Cat Master",
@@ -2515,17 +2516,17 @@ Catalog.indexPrizes = {
 		},
 		-- #1772 (Design-Agent's table on the issue): the gold cats track, a little richer than the totals as gold is
 		-- rarer. No gold luck: the five area gold tracks already reach GoldLuckMax, which would eat it
-		goldtotal5 = { fish = 15, spins = 1 },
-		goldtotal10 = { fish = 25, crates = { classic_golden_crate = 1 } },
-		goldtotal15 = { fish = 30, spins = 2 },
-		goldtotal20 = { fish = 40, crates = { highest = 1 } },
-		goldtotal25 = { fish = 50, crates = { classic_golden_crate = 2 } },
-		goldtotal30 = { fish = 60, spins = 3 },
-		goldtotal35 = { fish = 75, crates = { highest = 1 } },
-		goldtotal40 = { fish = 90, crates = { classic_golden_crate = 2 } },
-		goldtotal45 = { fish = 110, spins = 5 },
+		goldtotal5 = { fish = 10, spins = 1 },
+		goldtotal10 = { fish = 15, crates = { classic_golden_crate = 1 } },
+		goldtotal15 = { fish = 15, spins = 2 },
+		goldtotal20 = { fish = 20, crates = { highest = 1 } },
+		goldtotal25 = { fish = 25, crates = { classic_golden_crate = 2 } },
+		goldtotal30 = { fish = 30, spins = 3 },
+		goldtotal35 = { fish = 40, crates = { highest = 1 } },
+		goldtotal40 = { fish = 45, crates = { classic_golden_crate = 2 } },
+		goldtotal45 = { fish = 55, spins = 5 },
 		goldtotal50 = {
-			fish = 250,
+			fish = 125,
 			crates = { classic_golden_crate = 4 },
 			spins = 10,
 			tag = "Golden Paw",
@@ -2561,12 +2562,12 @@ Catalog.indexPrizes = {
 	},
 	-- F99 (rainbow-coat.md section 4): the three luck steps add up to RainbowLuckMax (+100%)
 	rainbow = {
-		rainbow1 = { fish = 25, tag = "Rainbow Finder" },
-		rainbow3 = { fish = 50, crates = { classic_golden_crate = 1 } },
-		rainbow5 = { fish = 75, rainbowLuck = 0.2 },
-		rainbow10 = { fish = 100, crates = { classic_golden_crate = 2 }, rainbowLuck = 0.3 },
+		rainbow1 = { fish = 15, tag = "Rainbow Finder" },
+		rainbow3 = { fish = 25, crates = { classic_golden_crate = 1 } },
+		rainbow5 = { fish = 40, rainbowLuck = 0.2 },
+		rainbow10 = { fish = 50, crates = { classic_golden_crate = 2 }, rainbowLuck = 0.3 },
 		rainbow25 = {
-			fish = 150,
+			fish = 75,
 			crates = { classic_golden_crate = 3 },
 			tag = "Rainbow Master",
 			rainbowLuck = 0.5,
@@ -3680,13 +3681,13 @@ end
 -- and how good of rewards from rally and how often you hit milestones"): five steps, not three, about 100 golden fish
 -- and two Rally Crates a lap (was 30 and one). The bar then empties for the next lap.
 Catalog.rallySteps = {
-	{ share = 0.15, prize = { fish = 8 } },
-	{ share = 0.3, prize = { fish = 12, potions = { tip_potion = 1 } } },
-	{ share = 0.5, prize = { fish = 18, potions = { swift_potion = 1, steady_potion = 1 } } },
-	{ share = 0.75, prize = { fish = 25, crates = { rally_crate = 1 } } },
+	{ share = 0.15, prize = { fish = 5 } }, -- #2237 fish: was 8, 12, 18, 25, 40
+	{ share = 0.3, prize = { fish = 7, potions = { tip_potion = 1 } } },
+	{ share = 0.5, prize = { fish = 10, potions = { swift_potion = 1, steady_potion = 1 } } },
+	{ share = 0.75, prize = { fish = 15, crates = { rally_crate = 1 } } },
 	{
 		share = 1,
-		prize = { fish = 40, crates = { rally_crate = 1 }, potions = { big_tip_potion = 1 } },
+		prize = { fish = 25, crates = { rally_crate = 1 }, potions = { big_tip_potion = 1 } },
 	},
 } :: { Types.RallyStep }
 

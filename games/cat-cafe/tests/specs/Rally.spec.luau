@@ -124,7 +124,7 @@ return function()
 	end)
 
 	describe("the prizes (section 3)", function()
-		it("pays five steps, about 100 fish and two Rally Crates a lap, every prize known (#2018)", function()
+		it("pays five steps, about 60 fish and two Rally Crates a lap, every prize known (#2237)", function()
 			expect(#Catalog.rallySteps).to.equal(5)
 			local shares = { 0.15, 0.3, 0.5, 0.75, 1 }
 			local fish, crates = 0, 0
@@ -143,9 +143,9 @@ return function()
 					expect(known).to.equal(true)
 				end
 			end
-			expect(fish).to.equal(103)
+			expect(fish).to.equal(62) -- #2237: was 103
 			expect(crates).to.equal(2)
-			expect(Catalog.rallySteps[1] :: any).to.deepEqual({ share = 0.15, prize = { fish = 8 } })
+			expect(Catalog.rallySteps[1] :: any).to.deepEqual({ share = 0.15, prize = { fish = 5 } })
 		end)
 
 		it("pays nobody under 3 points this lap, so a late joiner with 1 point gets nothing (QA check 3)", function()

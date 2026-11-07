@@ -98,7 +98,7 @@ return function()
 
 		it("names a Daily Treat day's prize after its coins, two things at most", function()
 			expect(RecapLogic.treatWords(1)).to.equal("2 Small Snacks")
-			expect(RecapLogic.treatWords(2)).to.equal("15 Golden Fish and 1 spin")
+			expect(RecapLogic.treatWords(2)).to.equal("10 Golden Fish and 1 spin")
 			-- day 7 leads with its golden crate, then the Star Treat (the fish drop off)
 			local seven = string.split(RecapLogic.treatWords(7) :: string, " and ")
 			expect(#seven).to.equal(2)

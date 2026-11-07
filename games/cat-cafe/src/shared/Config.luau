@@ -754,7 +754,9 @@ local Config = {
 	-- Bump and Shove names. Pure rules in Shove.
 	BumpEnabled = true, -- false turns the Tackle remote off and hides the button
 	BumpChance = 1.0, -- a shove on a carrier knocks the cat loose this often (v0.8 F56: always; kept to tune)
-	BumpGraceSeconds = 3, -- a fresh carry cannot be knocked loose for this long
+	-- a fresh carry cannot be knocked loose for this long. #2193 (Derek2, 2026-11-07: "make it guaranteed"): 0, so a
+	-- tackle that lands always drops the cat (was 3); the same-target wait still ends a tug of war after one hit back
+	BumpGraceSeconds = 0,
 	BumpSafeRadiusStuds = 15, -- round both doors of the target's own cafe, as well as its plot
 	BumpSameTargetSeconds = 20, -- per tackler and target
 	ShoveKnockbackStuds = 10, -- the target's client pushes its own character this far

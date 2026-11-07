@@ -59,9 +59,14 @@ return function()
 			expect(Shove.tackleRefusal(press({ busy = true }))).to.be.ok()
 		end)
 
-		it("a newcomer cannot tackle either: the shield works both ways (F87, review N300)", function()
-			expect(Shove.tackleRefusal(press({ newcomer = true }))).to.equal("Check in your first cat before you tackle")
-		end)
+		it(
+			"a newcomer cannot tackle either: the shield works both ways (F87, review N300)",
+			function()
+				expect(Shove.tackleRefusal(press({ newcomer = true }))).to.equal(
+					"Check in your first cat before you tackle"
+				)
+			end
+		)
 
 		it("only inside a catching area", function()
 			expect(Shove.tackleRefusal(press({ area = NONE }))).to.be.ok()
@@ -108,10 +113,15 @@ return function()
 			expect(Shove.targetRefusal(target({ targetSafe = true }))).to.be.ok()
 		end)
 
-		it("passes through a player who has not checked in a cat yet, carrying or not (F87 newcomer)", function()
-			expect(Shove.targetRefusal(target({ targetNewcomer = true }))).to.equal("They're new here")
-			expect(Shove.targetRefusal(target({ targetNewcomer = false }))).never.to.be.ok()
-		end)
+		it(
+			"passes through a player who has not checked in a cat yet, carrying or not (F87 newcomer)",
+			function()
+				expect(Shove.targetRefusal(target({ targetNewcomer = true }))).to.equal(
+					"They're new here"
+				)
+				expect(Shove.targetRefusal(target({ targetNewcomer = false }))).never.to.be.ok()
+			end
+		)
 
 		it("BumpSameTargetSeconds before this tackler hits the same player again", function()
 			local wait = Config.BumpSameTargetSeconds
@@ -119,11 +129,14 @@ return function()
 			expect(Shove.targetRefusal(target({ sinceShoveTarget = wait }))).never.to.be.ok()
 		end)
 
-		it("nobody hits a player for ShoveTargetImmuneSeconds after any hit lands on them (S45)", function()
-			local immune = Config.ShoveTargetImmuneSeconds
-			expect(Shove.targetRefusal(target({ sinceTargetShoved = immune - 0.01 }))).to.be.ok()
-			expect(Shove.targetRefusal(target({ sinceTargetShoved = immune }))).never.to.be.ok()
-		end)
+		it(
+			"nobody hits a player for ShoveTargetImmuneSeconds after any hit lands on them (S45)",
+			function()
+				local immune = Config.ShoveTargetImmuneSeconds
+				expect(Shove.targetRefusal(target({ sinceTargetShoved = immune - 0.01 }))).to.be.ok()
+				expect(Shove.targetRefusal(target({ sinceTargetShoved = immune }))).never.to.be.ok()
+			end
+		)
 	end)
 
 	describe("the lunge's reach (inReach)", function()
@@ -131,25 +144,33 @@ return function()
 		local AHEAD = Vector3.new(0, 0, -1)
 		local reach = Config.TackleHitRadiusStuds + Config.TackleHitSlackStuds
 
-		it("hits a player within the radius plus the slack of the tackler, wherever it is on the lunge", function()
-			local at = START + AHEAD * 8
-			expect(Shove.inReach(START, AHEAD, at, at + AHEAD * reach)).to.equal(true)
-			expect(Shove.inReach(START, AHEAD, at, at + AHEAD * (reach + 0.01))).to.equal(false)
-			expect(Shove.inReach(START, AHEAD, at, at + Vector3.new(reach, 0, 0))).to.equal(true)
-		end)
+		it(
+			"hits a player within the radius plus the slack of the tackler, wherever it is on the lunge",
+			function()
+				local at = START + AHEAD * 8
+				expect(Shove.inReach(START, AHEAD, at, at + AHEAD * reach)).to.equal(true)
+				expect(Shove.inReach(START, AHEAD, at, at + AHEAD * (reach + 0.01))).to.equal(false)
+				expect(Shove.inReach(START, AHEAD, at, at + Vector3.new(reach, 0, 0))).to.equal(
+					true
+				)
+			end
+		)
 
 		it("never someone behind where the lunge started", function()
 			expect(Shove.inReach(START, AHEAD, START, START - AHEAD * 1)).to.equal(false)
 			expect(Shove.inReach(START, AHEAD, START, START + Vector3.new(2, 0, 0))).to.equal(true)
 		end)
 
-		it("a tackler seen farther than the lunge plus the slack from the start reaches nobody (teleports)", function()
-			local edge = Config.TackleLungeStuds + Config.TackleHitSlackStuds
-			local far = START + AHEAD * edge
-			expect(Shove.inReach(START, AHEAD, far, far)).to.equal(true)
-			local beyond = START + AHEAD * (edge + 0.01)
-			expect(Shove.inReach(START, AHEAD, beyond, beyond)).to.equal(false)
-		end)
+		it(
+			"a tackler seen farther than the lunge plus the slack from the start reaches nobody (teleports)",
+			function()
+				local edge = Config.TackleLungeStuds + Config.TackleHitSlackStuds
+				local far = START + AHEAD * edge
+				expect(Shove.inReach(START, AHEAD, far, far)).to.equal(true)
+				local beyond = START + AHEAD * (edge + 0.01)
+				expect(Shove.inReach(START, AHEAD, beyond, beyond)).to.equal(false)
+			end
+		)
 
 		it("a lunge of 12 studs in 0.35 s, never on E or Space (the button's key is Q)", function()
 			expect(Config.TackleLungeStuds).to.equal(12)
@@ -166,16 +187,17 @@ return function()
 			expect(Shove.canKnockLoose(nil, 100)).to.equal(false)
 		end)
 
-		it("never in the first BumpGraceSeconds of a carry", function()
-			local grace = Config.BumpGraceSeconds
-			expect(Shove.canKnockLoose(carry(100), 100 + grace - 0.01)).to.equal(false)
-			expect(Shove.canKnockLoose(carry(100), 100 + grace)).to.equal(true)
-		end)
+		it(
+			"from the first moment of a carry: a landed tackle always drops the cat (#2193, no grace)",
+			function()
+				expect(Config.BumpGraceSeconds).to.equal(0)
+				expect(Shove.canKnockLoose(carry(100), 100)).to.equal(true)
+				expect(Shove.canKnockLoose(carry(100), 100.01)).to.equal(true)
+			end
+		)
 
-		it("a picked-up cat's carry is like any other: no BumpImmune once the grace passes (v0.8 F56)", function()
-			local grace = Config.BumpGraceSeconds
-			expect(Shove.canKnockLoose(carry(1000), 1000 + grace - 0.01)).to.equal(false)
-			expect(Shove.canKnockLoose(carry(1000), 1000 + grace)).to.equal(true)
+		it("a picked-up cat's carry is like any other: no BumpImmune (v0.8 F56)", function()
+			expect(Shove.canKnockLoose(carry(1000), 1000)).to.equal(true)
 		end)
 
 		it("never while the held immunity lasts (BumpChance below 1 only)", function()
@@ -213,15 +235,18 @@ return function()
 	end)
 
 	describe("the getaway burst (v0.8 F55)", function()
-		it("reaches players within CatchBurstRadiusStuds of the catcher, root to root, and no farther", function()
-			local at = Vector3.new(10, 3, 10)
-			local r = Config.CatchBurstRadiusStuds
-			expect(Shove.inBurst(at, at + Vector3.new(r - 0.1, 0, 0))).to.equal(true)
-			expect(Shove.inBurst(at, at + Vector3.new(0, 0, r))).to.equal(true)
-			expect(Shove.inBurst(at, at + Vector3.new(r + 0.1, 0, 0))).to.equal(false)
-			expect(Shove.inBurst(at, at + Vector3.new(6, 9, 0))).to.equal(false) -- a roof above is out of reach
-			expect(Shove.inBurst(at, at)).to.equal(true)
-		end)
+		it(
+			"reaches players within CatchBurstRadiusStuds of the catcher, root to root, and no farther",
+			function()
+				local at = Vector3.new(10, 3, 10)
+				local r = Config.CatchBurstRadiusStuds
+				expect(Shove.inBurst(at, at + Vector3.new(r - 0.1, 0, 0))).to.equal(true)
+				expect(Shove.inBurst(at, at + Vector3.new(0, 0, r))).to.equal(true)
+				expect(Shove.inBurst(at, at + Vector3.new(r + 0.1, 0, 0))).to.equal(false)
+				expect(Shove.inBurst(at, at + Vector3.new(6, 9, 0))).to.equal(false) -- a roof above is out of reach
+				expect(Shove.inBurst(at, at)).to.equal(true)
+			end
+		)
 	end)
 
 	-- A pick up that starts the carry: a Dropped stray next to an idle player in an open, unlocked area.
@@ -298,10 +323,13 @@ return function()
 	end)
 
 	describe("section 10c numbers", function()
-		it("DroppedMinStaySeconds is gone: dusk checks a dropped cat in for its carrier (v0.9, F66)", function()
-			expect((Config :: any).DroppedMinStaySeconds).never.to.be.ok()
-			expect((Shove :: any).leavesWithWave).never.to.be.ok()
-		end)
+		it(
+			"DroppedMinStaySeconds is gone: dusk checks a dropped cat in for its carrier (v0.9, F66)",
+			function()
+				expect((Config :: any).DroppedMinStaySeconds).never.to.be.ok()
+				expect((Shove :: any).leavesWithWave).never.to.be.ok()
+			end
+		)
 
 		it("the owner window and the shover bar are gone (v0.8 F56)", function()
 			expect((Config :: any).DropOwnerPrioritySeconds).never.to.be.ok()
@@ -312,12 +340,11 @@ return function()
 		it("the F56 acceptance tug of war ends on the same-target wait", function()
 			-- t = 0: A shoves carrier B and the cat drops; A picks it up at 0.6.
 			local pickedUp = 0.6
-			-- B shoves A once A's carry is BumpGraceSeconds (3) old: B never shoved before, nobody shoved A.
-			local backAt = pickedUp + Config.BumpGraceSeconds
+			-- B shoves A straight back (#2193: no grace): B never shoved before, nobody shoved A.
+			local backAt = pickedUp + 0.1
 			local carryA: Shove.CarryState = { startedAt = pickedUp, immuneUntil = 0 }
 			expect(Shove.tackleRefusal(press())).never.to.be.ok()
 			expect(Shove.targetRefusal(target())).never.to.be.ok()
-			expect(Shove.canKnockLoose(carryA, backAt - 0.01)).to.equal(false)
 			expect(Shove.canKnockLoose(carryA, backAt)).to.equal(true)
 			-- B picks it back up. At 12 s A is off TackleCooldownSeconds (5) but hit B at 0, so the lunge passes
 			-- through B until 20 s.
@@ -325,7 +352,9 @@ return function()
 			local again = target({ sinceShoveTarget = 12, sinceTargetShoved = 12 })
 			expect(Shove.targetRefusal(again)).to.equal("Give them a break")
 			local wait = Config.BumpSameTargetSeconds
-			expect(Shove.targetRefusal(target({ sinceShoveTarget = wait, sinceTargetShoved = wait }))).never.to.be.ok()
+			expect(
+				Shove.targetRefusal(target({ sinceShoveTarget = wait, sinceTargetShoved = wait }))
+			).never.to.be.ok()
 		end)
 
 		it("the same-target wait is longer than the tackler's cooldown", function()
@@ -358,7 +387,10 @@ return function()
 			{ sinceTargetShoved = 0 },
 		}
 
-		local function merged(first: { [string]: any }, second: { [string]: any }): { [string]: any }
+		local function merged(
+			first: { [string]: any },
+			second: { [string]: any }
+		): { [string]: any }
 			local both: { [string]: any } = {}
 			for key, value in second do
 				both[key] = value
@@ -389,7 +421,9 @@ return function()
 			for first = 1, #pressBroken do
 				for second = first + 1, #pressBroken do
 					local both = merged(pressBroken[first], pressBroken[second])
-					expect(Shove.tackleRefusal(press(both))).to.equal(Shove.tackleRefusal(press(pressBroken[first])))
+					expect(Shove.tackleRefusal(press(both))).to.equal(
+						Shove.tackleRefusal(press(pressBroken[first]))
+					)
 				end
 			end
 			for first = 1, #targetBroken do
@@ -455,29 +489,85 @@ return function()
 		-- 2,000 seeded lunges in every direction and at any height against the reach rule said another way (v0.11
 		-- F74): never a player behind the start, never one past the lunge plus the hit radius and both slacks, and
 		-- a tackler the server sees past the lunge plus the slack reaches nobody.
-		it("a lunge never reaches behind its start or past 18 studs from it, whatever the facing", function()
-			local rng = Random.new(74)
-			local slack = Config.TackleHitSlackStuds
-			local radius = Config.TackleHitRadiusStuds + slack
-			local cap = Config.TackleLungeStuds + slack
-			local hits = 0
-			for _ = 1, 2000 do
-				local start = Vector3.new(rng:NextNumber(-500, 500), rng:NextNumber(0, 40), rng:NextNumber(-500, 500))
-				local angle = rng:NextNumber(0, 2 * math.pi)
-				local facing = Vector3.new(math.sin(angle), 0, math.cos(angle))
-				local at = start + Vector3.new(rng:NextNumber(-16, 16), rng:NextNumber(-3, 3), rng:NextNumber(-16, 16))
-				local victim = at + Vector3.new(rng:NextNumber(-6, 6), rng:NextNumber(-3, 3), rng:NextNumber(-6, 6))
-				local ahead = Vector3.new(victim.X - start.X, 0, victim.Z - start.Z):Dot(facing)
-				local want = (at - start).Magnitude <= cap and (victim - at).Magnitude <= radius and ahead >= 0
-				local hit = Shove.inReach(start, facing, at, victim)
-				expect(hit).to.equal(want)
-				if hit then
-					hits += 1
-					expect((victim - start).Magnitude <= cap + radius).to.equal(true)
+		it(
+			"a lunge never reaches behind its start or past 18 studs from it, whatever the facing",
+			function()
+				local rng = Random.new(74)
+				local slack = Config.TackleHitSlackStuds
+				local radius = Config.TackleHitRadiusStuds + slack
+				local cap = Config.TackleLungeStuds + slack
+				local hits = 0
+				for _ = 1, 2000 do
+					local start = Vector3.new(
+						rng:NextNumber(-500, 500),
+						rng:NextNumber(0, 40),
+						rng:NextNumber(-500, 500)
+					)
+					local angle = rng:NextNumber(0, 2 * math.pi)
+					local facing = Vector3.new(math.sin(angle), 0, math.cos(angle))
+					local at = start
+						+ Vector3.new(
+							rng:NextNumber(-16, 16),
+							rng:NextNumber(-3, 3),
+							rng:NextNumber(-16, 16)
+						)
+					local victim = at
+						+ Vector3.new(
+							rng:NextNumber(-6, 6),
+							rng:NextNumber(-3, 3),
+							rng:NextNumber(-6, 6)
+						)
+					local ahead = Vector3.new(victim.X - start.X, 0, victim.Z - start.Z):Dot(facing)
+					local want = (at - start).Magnitude <= cap
+						and (victim - at).Magnitude <= radius
+						and ahead >= 0
+					local hit = Shove.inReach(start, facing, at, victim)
+					expect(hit).to.equal(want)
+					if hit then
+						hits += 1
+						expect((victim - start).Magnitude <= cap + radius).to.equal(true)
+					end
 				end
+				expect(cap + radius).to.equal(18)
+				expect(hits > 100 and hits < 1900).to.equal(true)
 			end
-			expect(cap + radius).to.equal(18)
-			expect(hits > 100 and hits < 1900).to.equal(true)
+		)
+	end)
+	describe("lag-tolerant reach (#2193)", function()
+		local start = Vector3.new(0, 3, 0)
+		local facing = Vector3.new(0, 0, -1)
+		it(
+			"hits a target the server saw in reach a moment ago, though it has run on since",
+			function()
+				local at = Vector3.new(0, 3, -10)
+				local now = Vector3.new(6, 3, -10) -- ran out of the radius
+				local before = Vector3.new(2, 3, -10) -- where the server had them a tick or two back
+				expect(Shove.inReach(start, facing, at, now)).to.equal(false)
+				expect(Shove.inReachAny(start, facing, at, { now, before })).to.equal(before)
+			end
+		)
+
+		it(
+			"misses when none of the recent positions is in reach, or all are behind the start",
+			function()
+				local at = Vector3.new(0, 3, -10)
+				expect(
+					Shove.inReachAny(
+						start,
+						facing,
+						at,
+						{ Vector3.new(9, 3, -10), Vector3.new(8, 3, -10) }
+					)
+				).to.equal(nil)
+				expect(Shove.inReachAny(start, facing, start, { Vector3.new(0, 3, 2) })).to.equal(
+					nil
+				)
+				expect(Shove.inReachAny(start, facing, at, {})).to.equal(nil)
+			end
+		)
+
+		it("looks back a short time only", function()
+			expect(Shove.LAG_SECONDS > 0 and Shove.LAG_SECONDS <= 0.5).to.equal(true)
 		end)
 	end)
 end

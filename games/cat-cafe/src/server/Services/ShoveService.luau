@@ -34,6 +34,10 @@ local ShoveService = {}
 local lastTackleAt: { [Player]: number } = {} -- server time of each tackler's last press that was not refused
 local lastShoveOf: { [Player]: { [number]: number } } = {} -- tackler -> target UserId -> server time of the hit
 local lastShovedAt: { [number]: number } = {} -- target UserId -> server time anyone last hit them (S45)
+-- #2193: where the server saw each player's root over the last Shove.LAG_SECONDS, oldest first, so a hit on a target
+-- whose position reaches the server late still counts
+type Seen = { at: number, position: Vector3 }
+local trails: { [Player]: { Seen } } = {}
 
 local function serverNow(): number
 	return Workspace:GetServerTimeNow()
@@ -86,7 +90,39 @@ local function targetRefusal(
 	})
 end
 
--- The nearest player the lunge hits with the tackler at `at`, and where they stand, or nil.
+local function noteTrails()
+	local now = serverNow()
+	for _, other in Players:GetPlayers() do
+		local root = rootOf(other)
+		if root ~= nil then
+			local trail = trails[other]
+			if trail == nil then
+				trail = {}
+				trails[other] = trail
+			end
+			local seen = trail :: { Seen }
+			table.insert(seen, { at = now, position = root.Position })
+			while seen[1] ~= nil and now - seen[1].at > Shove.LAG_SECONDS do
+				table.remove(seen, 1)
+			end
+		end
+	end
+end
+
+-- Where `other` stands now, then where the server saw them over the last LAG_SECONDS, newest first (#2193).
+local function recentPositions(other: Player, now: Vector3): { Vector3 }
+	local positions = { now }
+	local trail = trails[other]
+	if trail ~= nil then
+		for i = #trail, 1, -1 do
+			table.insert(positions, trail[i].position)
+		end
+	end
+	return positions
+end
+
+-- The nearest player the lunge hits with the tackler at `at`, and where they stand, or nil. With no hit, why the
+-- lunge passed through a player in its reach (a protection, #2193), so the tackler can be told.
 local function firstHit(
 	player: Player,
 	areaId: string,
@@ -94,26 +130,31 @@ local function firstHit(
 	facing: Vector3,
 	at: Vector3,
 	now: number
-): (Player?, Vector3?)
+): (Player?, Vector3?, string?)
 	local best: Player? = nil
 	local bestAt: Vector3? = nil
 	local bestDistance = math.huge
+	local passed: string? = nil
 	for _, other in Players:GetPlayers() do
 		local root = if other ~= player then rootOf(other) else nil
 		if root == nil then
 			continue
 		end
 		local position = root.Position
-		local distance = (position - at).Magnitude
-		if
-			distance < bestDistance
-			and Shove.inReach(start, facing, at, position)
-			and targetRefusal(player, other, areaId, position, now) == nil
-		then
+		local reached = Shove.inReachAny(start, facing, at, recentPositions(other, position))
+		if reached == nil then
+			continue
+		end
+		-- the protections read where the target stands now (a safe zone they just reached keeps them safe)
+		local why = targetRefusal(player, other, areaId, position, now)
+		local distance = (reached - at).Magnitude
+		if why ~= nil then
+			passed = passed or why
+		elseif distance < bestDistance then
 			best, bestAt, bestDistance = other, position, distance
 		end
 	end
-	return best, bestAt
+	return best, bestAt, if best == nil then passed else nil
 end
 
 -- A landed tackle: everything a landed shove did (v0.11 changes none of it).
@@ -208,6 +249,7 @@ local function tackle(player: Player, forced: Shove.KnockResult?)
 
 	task.spawn(function()
 		local at = start
+		local passed: string? = nil
 		while player.Parent == Players do
 			local current = rootOf(player)
 			if current == nil then
@@ -215,11 +257,12 @@ local function tackle(player: Player, forced: Shove.KnockResult?)
 			end
 			at = current.Position
 			local hitNow = serverNow()
-			local target, position = firstHit(player, tackleArea, start, facing, at, hitNow)
+			local target, position, why = firstHit(player, tackleArea, start, facing, at, hitNow)
 			if target ~= nil and position ~= nil then
 				land(player, target, tackleArea, at, position, facing, forced)
 				return
 			end
+			passed = passed or why
 			if hitNow >= endsAt then
 				break
 			end
@@ -235,6 +278,11 @@ local function tackle(player: Player, forced: Shove.KnockResult?)
 		end
 		Telemetry.custom(player, "shove", 1, { "miss", "none", tackleArea })
 		Net.fire(player, "ShoveResult", "miss", player.UserId, 0, at, facing)
+		local why: string = passed or ""
+		if why ~= "" then
+			-- #2193: the lunge reached someone a protection keeps safe; say so instead of a silent miss
+			Net.toast(player, why, "info")
+		end
 	end)
 end
 
@@ -244,9 +292,11 @@ end
 
 function ShoveService.start()
 	Net.on("Tackle", onTackle)
+	RunService.Heartbeat:Connect(noteTrails) -- #2193
 	Players.PlayerRemoving:Connect(function(player)
 		lastTackleAt[player] = nil
 		lastShoveOf[player] = nil
+		trails[player] = nil
 		-- lastShovedAt stays by UserId: a rejoin does not lift the few seconds of immunity early or late
 	end)
 end

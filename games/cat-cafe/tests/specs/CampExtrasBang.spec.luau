@@ -108,4 +108,16 @@ return function()
 			end
 		)
 	end)
+
+	describe("CampExtrasLogic.bubbleLift (#2096)", function()
+		it("lifts the Picnic's bubble over its parasol", function()
+			-- the BangAnchor at 4.33 studs, the parasol's top at 7.48
+			local lift = CampExtrasLogic.bubbleLift(4.33, 7.48)
+			expect(math.abs(4.33 + lift - (7.48 + CampExtrasLogic.BUBBLE_CLEAR)) < 1e-9).to.equal(true)
+		end)
+
+		it("leaves a bubble that already clears its station where it is", function()
+			expect(CampExtrasLogic.bubbleLift(9, 6)).to.equal(0)
+		end)
+	end)
 end

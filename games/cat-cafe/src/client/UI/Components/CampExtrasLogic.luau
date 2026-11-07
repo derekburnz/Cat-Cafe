@@ -15,6 +15,7 @@
 --   prizeTitle(extraId, paid)        the prize toast's line: "Fish Pond: +14 golden fish"
 --   bangShows(state, extraId)        whether a station's red "!" (ReadyBang, camp-stations.md section 1) shows: the
 --                                    extra is open and holds something to claim; BANG_EXTRAS lists the stations
+--   bubbleLift(anchorY, modelTop)   #2096: studs to lift a bubble from its anchor so it clears its station's top
 --   bubble(state, extraId, now)      #1614: the bubble always over an open station (ReadyBang): the picker's line for
 --                                    that station's area, so it reads "14 fish" or "Next in 2 h 10 m"; nil while shut
 
@@ -187,6 +188,15 @@ end
 
 CampExtrasLogic.BANG_EXTRAS = { "picnic", "yardSale", "pond", "lostFound" } -- lostFound: #1733
 CampExtrasLogic.BANG_RANGE = 150 -- studs, camp-stations.md section 5 (ReadyBangRange)
+-- #2096: studs from a station bubble's middle to just under it (half its 1.8 studs, plus its 18 px at a typical
+-- distance and a little air), so a bubble lifted by bubbleLift sits clear over its station
+CampExtrasLogic.BUBBLE_CLEAR = 1.8
+
+-- #2096 (the Picnic Basket's "!" hid behind its parasol): how many studs to lift a station's bubble from its
+-- BangAnchor (at `anchorY`) so it clears the top of the station model (`modelTop`); 0 when it already does.
+function CampExtrasLogic.bubbleLift(anchorY: number, modelTop: number): number
+	return math.max(0, modelTop + CampExtrasLogic.BUBBLE_CLEAR - anchorY)
+end
 
 -- #1614 (Derek2 11-05: "when in the area with the stations example fish pond to always have a bubble up for whatever
 -- station is in that area"): the bubble over station `extraId`, the Cat Cannon picker's line for its area (icon,

@@ -770,9 +770,15 @@ local function startCatchV3(strayId, rarity, kinds, trustStart, trustNeed)
 	local t = workspace:GetServerTimeNow()
 	local list = {}
 	local at = t + 0.3
-	for index, kind in kinds do
-		table.insert(list, { startsAt = at, shrinkSeconds = 0.8, x = 0.5, y = 0.5, kind = kind, half = if kind == "double" then (index % 2 == 0 and 2 or 1) else nil })
-		at += if kind == "double" and index % 2 == 1 then 0.18 else 0.7
+	local doubles = 0 -- a double's halves come in pairs, half 1 then half 2, DoubleRingGap apart
+	for _, kind in kinds do
+		local half = nil
+		if kind == "double" then
+			doubles += 1
+			half = (doubles - 1) % 2 + 1
+		end
+		table.insert(list, { startsAt = at, shrinkSeconds = 0.8, x = 0.5, y = 0.5, kind = kind, half = half })
+		at += if half == 1 then UIShim.require("ReplicatedStorage.Shared.Config").DoubleRingGap else 0.7
 	end
 	UI.catch.show({ strayId = strayId, catId = Catalog.cats[2].id, catName = "Mochi", rarity = rarity })
 	UI.catch.showCircles(strayId, list, { perfect = 0.037, good = 0.09 }, trustStart, trustNeed)
@@ -1885,10 +1891,29 @@ local SCENES = {
 		local paw = layer:FindFirstChild("Circle2", true)
 		local number = paw and paw:FindFirstChild("Number", true)
 		assert(number and number.Text == "🐾", "uigate: the paw ring has no paw print (#1884)")
+		-- #2005: the whole paw ring red with "Don't swing!", and a double ring's second half in blue with "x2"
+		local warning = paw:FindFirstChild("DontSwing", true)
+		assert(warning and warning.Text == "Don't swing!", "uigate: the paw ring has no Don't swing! (#2005)")
+		local good = paw:FindFirstChild("GoodBand", true)
+		local goodStroke = good and good:FindFirstChildOfClass("UIStroke")
+		assert(goodStroke and goodStroke.Color.R > 0.8 and goodStroke.Color.G < 0.4, "uigate: the paw ring's band isn't red (#2005)")
+		local first, second = layer:FindFirstChild("Circle3", true), layer:FindFirstChild("Circle4", true)
+		assert(first and first:FindFirstChild("Double", true) == nil, "uigate: the first half of a double has an x2 (#2005)")
+		local tag = second and second:FindFirstChild("Double", true)
+		assert(tag and tag.Text == "x2", "uigate: a double ring's second half has no x2 tag (#2005)")
 		UI.catch.judged("gate_v3", 1, "perfect", 4)
 		task.wait(0.4)
 		local fill = bar:FindFirstChild("Fill", true)
 		assert(fill and math.abs(fill.Size.X.Scale - 4 / 14) < 0.02, "uigate: the trust bar isn't at the server's trust (#1884)")
+	end },
+	-- #2005 section 4 (Derek2: "make it the entire circle not just the perfect line and have a don't swing! text"): a
+	-- paw ring mid close, red all over with Don't swing! under it
+	{ "CatchPawRing", function()
+		startCatchV3("gate_paw", "Epic", { "single", "single", "single", "paw" }, 2, 14)
+	end },
+	-- #2005 section 4 ("the rapid rings are not clear"): both halves of a double ring closing, the second in blue, x2
+	{ "CatchDoubleRing", function()
+		startCatchV3("gate_double", "Epic", { "single", "single", "single", "double", "double" }, 2, 14)
 	end },
 	-- Catch v3 (#1884, 7d): a Purrfect catch's banner (Root.FinishBanner, after the net wrap) and the HUD's streak
 	{ "CatchV3Finish", function()

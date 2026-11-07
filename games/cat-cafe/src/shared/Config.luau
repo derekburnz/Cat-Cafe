@@ -754,11 +754,16 @@ local Config = {
 	-- Bump and Shove names. Pure rules in Shove.
 	BumpEnabled = true, -- false turns the Tackle remote off and hides the button
 	BumpChance = 1.0, -- a shove on a carrier knocks the cat loose this often (v0.8 F56: always; kept to tune)
-	BumpGraceSeconds = 3, -- a fresh carry cannot be knocked loose for this long
+	-- a fresh carry cannot be knocked loose for this long. #2193 (Derek2, 2026-11-07: "make it guaranteed"): 0, so a
+	-- tackle that lands always drops the cat (was 3)
+	BumpGraceSeconds = 0,
 	BumpSafeRadiusStuds = 15, -- round both doors of the target's own cafe, as well as its plot
-	BumpSameTargetSeconds = 20, -- per tackler and target
+	-- #2193 (Derek2, 2026-11-07: "everyone should always be able to be tackled unless they are mid minigame"): no
+	-- timed immunity. The same tackler on the same target (was 20 s) and anyone on a player just hit (was 4 s, S45)
+	-- are both 0; each tackler still waits their own TackleCooldownSeconds.
+	BumpSameTargetSeconds = 0, -- per tackler and target
 	ShoveKnockbackStuds = 10, -- the target's client pushes its own character this far
-	ShoveTargetImmuneSeconds = 4, -- after a hit lands, nobody can hit that player again for this long (S45)
+	ShoveTargetImmuneSeconds = 0, -- after a hit lands, nobody can hit that player again for this long (S45)
 	-- A dropped cat walks home (v0.10 F67, round 4 Q4): let go with the Drop button (or a carrier's death), it walks
 	-- back to where it was caught at this speed, anyone can pick it up on the way, and within DropHomeRadiusStuds of
 	-- the spot it is a normal stray again. A blocked walk ends with it appearing there after DropReturnMaxSeconds.

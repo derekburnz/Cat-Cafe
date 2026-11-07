@@ -106,7 +106,9 @@ local ACTION_NAME = "CatCafeRescuePress"
 local PRESS_KEYS = { Enum.KeyCode.Space, Enum.KeyCode.ButtonA, Enum.KeyCode.ButtonR2 }
 local WOBBLE = { 10, -9, 7, -5, 0 }
 local WOBBLE_STEP = TweenInfo.new(0.045, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-local ZONE_MOVE = TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+-- #2318: short, so the drawn zone is where the press after a hit is judged (it was 0.18 s, and a fast tap on the new
+-- zone met a zone still sliding there)
+local ZONE_MOVE = TweenInfo.new(0.06, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
 type Run = { startsAt: number, phase: number, speed: number }
 
@@ -516,6 +518,7 @@ function RescueBar.show(
 	self._helper = challenge.helper == true -- F92: on someone else's bar
 	self._hits = if self._helper then math.max(0, math.floor(challenge.hits or 0)) else 0
 	self._lastPress = 0
+	self._lastPressAt = nil :: number? -- #2318: the server time of the last press, the judge's `since`
 	self._paws = challenge.paws
 	self._run = {
 		startsAt = challenge.startsAt,
@@ -651,17 +654,33 @@ function RescueBar._press(self: any)
 	end
 	self._lastPress = clock
 	local position = self:_markerAt(t)
-	-- this device's guess; the server judges the press with the same numbers and RescueTolerance
-	if RescueMarker.inZone(position, self:_zoneCentre(), current.zoneWidth or 0.3, TOLERANCE) then
+	-- this device's guess, judged as the server does (shared/Rescue.pressBar): the marker in the zone at the press or
+	-- up to RescueMarker.SEEN_LAG before it, never before the last press (#2318: a fast marker just past the zone's
+	-- edge flashed MISS while the server called it a hit)
+	local since: number? = self._lastPressAt
+	local at = math.max(t, since or t) -- as the server, a press never lands before the one before it
+	self._lastPressAt = at
+	local run: Run = self._run
+	if
+		RescueMarker.hitAt(
+			run.startsAt,
+			run.phase,
+			run.speed,
+			at,
+			self:_zoneCentre(),
+			current.zoneWidth or 0.3,
+			TOLERANCE,
+			since
+		)
+	then
 		self._hits += 1
 		self:_flash("NICE!", Theme.colors.good, position)
 		self:_paintPips()
 		local f93 = rules(current)
 		if f93.zone ~= nil then
 			-- F93: the next zone, and a faster marker from the same spot; RescueResult's bar corrects both
-			local run: Run = self._run
 			local speed = run.speed * (1 + (f93.speedUpPerHit or 0))
-			self._run = { startsAt = t, phase = phaseAt(run, t), speed = speed }
+			self._run = { startsAt = at, phase = phaseAt(run, at), speed = speed }
 			self._zoneIndex += 1
 			-- an older server's zone lives zonePasses sweeps; now the time to hit it is the attempt's, kept as it was
 			local passes = f93.zonePasses

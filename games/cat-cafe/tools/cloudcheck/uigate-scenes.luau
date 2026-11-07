@@ -2782,6 +2782,27 @@ local SCENES = {
 		assert(word.Visible and word.Text == "MISS! Back to the start", "uigate: the reset flash reads " .. word.Text .. " (#2219)")
 		assert(word.TextFits, "uigate: the reset flash is cut off (#2219)")
 	end },
+	-- #2318 (Derek2: "sometimes rescue's say miss even if you hit it properly"): a tap 0.02 of the bar past the zone's
+	-- edge, where the marker sat 0.03 s ago, is a hit on the server (RescueMarker.SEEN_LAG), so the bar flashes NICE!
+	{ "RescueSeenLag", function()
+		local t = workspace:GetServerTimeNow()
+		local challenge = rescueChallenge()
+		-- zone 0.5 wide 0.1, tolerance 0.03: its right edge is 0.58; the marker at 0.60 now, moving right at 1 bar a second
+		challenge.zones = { 0.5, 0.3, 0.7 }
+		challenge.zoneWidth = 0.1
+		challenge.startsAt = t - 0.5
+		challenge.phase = 0.1
+		challenge.speed = 1
+		challenge.zone = 1
+		UI.rescue.show("gate_rescue", challenge)
+		local barGui = UIShim.playerGui:FindFirstChild("CatCafeRescueBar")
+		UIShim.fire(UIShim.eventOf(barGui:FindFirstChild("Tap"), "InputBegan"), {
+			UserInputType = Enum.UserInputType.Touch,
+			Position = Vector3.new(400, 300, 0),
+		})
+		local word = barGui:FindFirstChild("Word", true) :: TextLabel
+		assert(word.Visible and word.Text == "NICE!", "uigate: a tap just after the zone flashes " .. word.Text .. " (#2318)")
+	end },
 	-- F92: a Team Rescue helper's copy of the bar, two hits in: "Helping!" and the rescuer's paws
 	{ "RescueHelper", function()
 		local challenge = rescueChallenge()

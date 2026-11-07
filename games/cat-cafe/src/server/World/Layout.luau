@@ -1339,9 +1339,14 @@ Layout.townSquare = {
 	} :: { Rect },
 	-- the round plinth in the middle: the fountain's until v4, the Cat Cannon's since (Layout.cannons.town)
 	fountainRadius = 6,
-	-- The Rescue Rally's board (F101, Model-Agent #759: `CatCafe_Square_RallyBoard`, front -Z), in the north-east
-	-- quarter facing the spawn, off the lane and the cannon's lines; WorldBuilder.setRally shows it while a Rally runs.
-	rallyBoard = { asset = "CatCafe_Square_RallyBoard", x = 15, y = 0.1, z = 12, rotY = 30 } :: Prop,
+	-- The Rescue Rally's boards (F101, Model-Agent #759: `CatCafe_Square_RallyBoard`, front -Z, 12.2 wide): #2224
+	-- (Derek 11-07, "the fish market should be easy to find") moved the one board that stood at (15, 12), between the
+	-- spawn and the Golden Fish Market, to a pair either side of the street's path at its north end, just inside the
+	-- north sign arch, each turned to face the spawn. WorldBuilder.setRally shows them while a Rally runs.
+	rallyBoards = {
+		{ asset = "CatCafe_Square_RallyBoard", x = -15, y = 0.1, z = 25, rotY = -21.04 },
+		{ asset = "CatCafe_Square_RallyBoard", x = 15, y = 0.1, z = 25, rotY = 21.04 },
+	} :: { Prop },
 	-- The pity cat's sign (#1572, luck-and-rare-moments.md 1h; Model-Agent #1592: `CatCafe_Square_PitySign`, front
 	-- -Z, its Screen 5.6 x 2.8): the manifest's suggested spot across the street from the Day Cart, turned to face the
 	-- player spawn (#1753: it was never placed). WorldBuilder tags it PitySign for the countdown on its Screen.

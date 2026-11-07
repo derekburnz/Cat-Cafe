@@ -1984,7 +1984,7 @@ local SQUARE_PAVING = "CatCafe_Square_Paving"
 -- safe (no catching area covers it).
 -- F101 (rescue-rally.md section 4): the Town Square's Rally dressing, swapped in by WorldBuilder.setRally while a
 -- Rescue Rally runs: the Rally colours' bunting at each edge bunting's spot (Model-Agent #759, the same pivots, spans
--- and `_Pennant` models) and the Rally board (Layout.townSquare.rallyBoard), tagged RallyBoard for the UI's screen
+-- and `_Pennant` models) and the Rally boards (Layout.townSquare.rallyBoards), tagged RallyBoard for the UI's screen
 -- and VFX's marquee. Off, they wait in ServerStorage.RallyDressing.
 local RALLY_TWINS: { [string]: string } = {
 	CatCafe_Square_Bunting = "CatCafe_Square_RallyBunting",
@@ -2024,21 +2024,22 @@ local function placeRallyTwin(asset: string, at: CFrame, plain: Instance, home: 
 	table.insert(rallySwaps, swap)
 end
 
-local function placeRallyBoard(home: Instance)
-	local board = Layout.townSquare.rallyBoard
-	if not AssetRegistry.known(board.asset) then
-		return
+local function placeRallyBoards(home: Instance)
+	for _, board in Layout.townSquare.rallyBoards do
+		if not AssetRegistry.known(board.asset) then
+			continue
+		end
+		local model = place(
+			board.asset,
+			CFrame.new(board.x, board.y or 0.1, board.z)
+				* CFrame.Angles(0, math.rad(board.rotY or 0), 0),
+			rallyHolder()
+		)
+		model.Name = board.asset
+		CollectionService:AddTag(model, RALLY_BOARD_TAG)
+		local swap: RallySwap = { plain = nil, rally = model, home = home }
+		table.insert(rallySwaps, swap)
 	end
-	local model = place(
-		board.asset,
-		CFrame.new(board.x, board.y or 0.1, board.z)
-			* CFrame.Angles(0, math.rad(board.rotY or 0), 0),
-		rallyHolder()
-	)
-	model.Name = board.asset
-	CollectionService:AddTag(model, RALLY_BOARD_TAG)
-	local swap: RallySwap = { plain = nil, rally = model, home = home }
-	table.insert(rallySwaps, swap)
 end
 
 -- Shows the Rally's bunting and board in place of the plain bunting (`on`), or puts them away again.
@@ -2118,7 +2119,7 @@ local function buildTownSquare(parent: Instance)
 			placeRallyTwin(prop.asset, at, model, square)
 		end
 	end
-	placeRallyBoard(square)
+	placeRallyBoards(square)
 	local sign = spec.pitySign
 	if AssetRegistry.known(sign.asset) then
 		local model = place(

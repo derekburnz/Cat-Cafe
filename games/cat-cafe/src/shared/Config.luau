@@ -250,6 +250,14 @@ local Config = {
 	FirstBaitWaitSeconds = 120,
 	-- #1920 (Design-Agent, first-hour.md 6): seconds of play in one session before the recap card (SessionRecap)
 	RecapAfterSeconds = 2400,
+	-- #1947 (like-prompts.md section 3, Set 10 Q3): the like card's gift at LikeGiftMinutes of play on the account, of
+	-- LikeGiftIncomeMinutes of income and a Tip Potion; the favourite card's at FavGiftMinutes, of FavGiftIncomeMinutes
+	-- of income and a small potion pack (shared/PlaytimeGifts). The card waits for GiftIdleSeconds of calm (client).
+	LikeGiftMinutes = 10,
+	LikeGiftIncomeMinutes = 15,
+	FavGiftMinutes = 30,
+	FavGiftIncomeMinutes = 30,
+	GiftIdleSeconds = 3,
 	-- F88 Luck (luck-and-rare-moments.md section 1): one number from x1.0 that multiplies the Epic, Legendary and
 	-- Mythical chances of your bait and crate rolls (shared/Luck), at most LuckMax. The Lucky Cat statue adds
 	-- LuckPerStatueLevel a level, a Lucky Potion LuckyPotionLuck while it runs, a Lucky Day LuckyDayPlayerLuck to

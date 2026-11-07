@@ -41,6 +41,7 @@ local OwnerTestService = require(script.Parent.Services.OwnerTestService)
 local PalService = require(script.Parent.Services.PalService)
 local PassService = require(script.Parent.Services.PassService)
 local PityService = require(script.Parent.Services.PityService)
+local PlaytimeGiftService = require(script.Parent.Services.PlaytimeGiftService)
 local PlotService = require(script.Parent.Services.PlotService)
 local PotionService = require(script.Parent.Services.PotionService)
 local ProductService = require(script.Parent.Services.ProductService)
@@ -125,6 +126,7 @@ CafePassService.start() -- #1645: the Cafe Pass, before DataService so its onLoa
 GrandOpeningService.start() -- #1893: the Grand Opening roadmap's checks and payouts
 SessionRecapService.start() -- #1920: the session recap after about 40 minutes of play
 BadgeAwardService.start() -- #1934: Roblox badges, awarded from the profile with retries and a catch-up on join
+PlaytimeGiftService.start() -- #1947: the like and favourite gifts at 10 and 30 minutes of play
 RallyService.start() -- F101: before Telemetry (rally_points on leave) and DataService (RallyState on join)
 RestartNoticeService.start() -- the restart countdown's warnings; before DataService so a joiner hears one
 TradeService.start() -- F102: before DataService, whose joins it settles owed trades in (onLoading)

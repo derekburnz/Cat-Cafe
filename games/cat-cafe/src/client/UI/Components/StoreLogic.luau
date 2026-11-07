@@ -569,12 +569,15 @@ end
 -- the server's PlayerState.passBoosts.money as `serverMultiplier`) reads "2x", "3x" or "4x"; with none, "Get 2x"
 -- while the 2x pass is on sale (a tap opens the Store), else no badge.
 -- price: #1759, the not-owned badge's line under its pill, "Only R$5" (nil once owned or with no price yet)
-export type MoneyBadge = { text: string, owned: boolean, price: string? }
+-- quiet: #1936 (release.md section 3), the first 30 minutes of play: a plain "x2" with no price that holds still, and
+-- a tap still opens the Store
+export type MoneyBadge = { text: string, owned: boolean, price: string?, quiet: boolean? }
 function StoreLogic.moneyBadge(
 	config: any,
 	owned: { [number]: boolean },
 	prices: { [number]: Price },
-	serverMultiplier: number?
+	serverMultiplier: number?,
+	quiet: boolean?
 ): MoneyBadge?
 	local ladder = rungs(config)
 	local top = if type(serverMultiplier) == "number"
@@ -591,6 +594,9 @@ function StoreLogic.moneyBadge(
 	end
 	local first = ladder[1]
 	local price = if first ~= nil then prices[first.id] else nil
+	if price ~= nil and price.forSale and quiet then
+		return { text = ("x%d"):format(first.multiplier), owned = false, quiet = true }
+	end
 	if price ~= nil and price.forSale then
 		-- #1759 (Derek2 11-06: "more in your face then that slight 2x"): the HUD's rainbow buy button
 		return {

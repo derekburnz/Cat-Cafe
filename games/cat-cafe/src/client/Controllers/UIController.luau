@@ -1042,6 +1042,12 @@ local function wireIntents()
 			Net.fire("TelemetryReport", "index_hint_tap", areaId)
 		end)
 	end
+	-- #1936: a purchase prompt the store guard refused, "source:reason"; the server allowlists and caps it
+	if events.storeGuardBlocked ~= nil then
+		events.storeGuardBlocked:Connect(function(what: string)
+			Net.fire("TelemetryReport", "store_guard_blocked", what)
+		end)
+	end
 	-- Fast travel (F19): the travel row and the Areas panel; the server answers every request with TravelResult.
 	UI.events.travel:Connect(function(destination: string)
 		Net.fire("Travel", destination)

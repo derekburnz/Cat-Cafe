@@ -39,6 +39,7 @@ local Net = require(script.Parent.Net)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local PassService = require(script.Parent.PassService)
+local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -187,6 +188,10 @@ export type CustomEvent =
 	-- (bait, store or cafePass), why (no_tap: no tap in the last 2 seconds; busy: during a catch, rescue or cutscene),
 	-- tier
 	| "store_guard_blocked"
+	-- #1947 (like-prompts.md section 3): a like or favourite card's button, once per card a session, value 1; the gift
+	-- ("like" or "fav") and the button (like, favourite or close). A card paid (Source like_gift or fav_gift) with no
+	-- report is "none"
+	| "playtime_gift"
 	-- #1934 (release.md section 1): a Roblox badge awarded, value the account's minutes played; the badge key, "live"
 	-- (earned this session) or "catchup" (earned before, awarded on join)
 	| "badge_awarded"
@@ -232,6 +237,7 @@ local REPORTS = {
 	"session_recap_close", -- #1920: the recap card closed, the whole seconds it was open (0 to 30)
 	"index_hint_tap", -- #1919: the goal card's hint opened the Index, a Catalog area id or "none"
 	"store_guard_blocked", -- #1936: a purchase prompt the guard refused, "<source>:<reason>"
+	"playtime_gift", -- #1947: a gift card's button, "<like|fav>:<like|favourite|close>"
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
 -- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
@@ -302,6 +308,7 @@ type Session = {
 	recapClosed: boolean, -- #1920: session_recap_close logged this session
 	indexHintTaps: number, -- #1919: index_hint_tap events logged this session (INDEX_HINT_TAPS)
 	guardBlocks: number, -- #1936: store_guard_blocked events logged this session (StoreFunnel.GUARD_BLOCKS_MAX)
+	giftButtons: { [string]: boolean }, -- #1947: playtime_gift logged this session, by gift kind
 }
 
 -- #1888: one Store visit, a funnel session of StoreFunnel's: its id, the furthest step logged and the sku pressed
@@ -1207,6 +1214,12 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.indexHintTaps += 1
 			Telemetry.custom(player, "index_hint_tap", 1, { area })
 		end
+	elseif name == "playtime_gift" then
+		local kind, button = PlaytimeGifts.report(rawValue)
+		if kind ~= nil and button ~= nil and not session.giftButtons[kind] then
+			session.giftButtons[kind] = true
+			Telemetry.custom(player, "playtime_gift", 1, { kind, button })
+		end
 	else
 		local raw = if type(rawValue) == "string" then rawValue else nil
 		local screen = if raw ~= nil then SCREENS[raw] else nil
@@ -1277,6 +1290,7 @@ local function onLoaded(player: Player, profile: Profile)
 		recapClosed = false,
 		indexHintTaps = 0,
 		guardBlocks = 0,
+		giftButtons = {},
 	}
 	-- #1888: the launch data of the link this join came through (an ad's ad_<tag>)
 	local ok, joinData = pcall(function(): any

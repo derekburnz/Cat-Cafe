@@ -129,7 +129,10 @@ local ProfileSchema = {}
 -- #1934 (no new version): stats.purrfectCatches, purrfectStreak, bestPurrfectStreak and teamRescuesHelped, for the
 -- Roblox badges (shared/Badges). An older server drops them, which only loses those counts: a badge already awarded
 -- stays on the player's Roblox account.
-ProfileSchema.VERSION = 41
+-- Version 42 (#1947, like-prompts.md section 2) adds likeGift and favGift, the two once-per-account gifts for play
+-- time: an older server would drop them and pay each gift again. A save from before it gets them by its play time:
+-- one past 10 or 30 minutes already is paid on its next join.
+ProfileSchema.VERSION = 42
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -309,6 +312,8 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		looks = {},
 		grandOpening = GrandOpening.fresh(),
 		firstWow = false,
+		likeGift = false,
+		favGift = false,
 	}
 end
 
@@ -987,6 +992,9 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.grandOpening = GrandOpening.sanitize(raw.grandOpening, fromVersion, profile.tier)
 	profile.firstWow = raw.firstWow == true
 		or (fromVersion < GrandOpening.FROM_VERSION and profile.stats.luresUsed >= 2)
+	-- #1947 (version 42): the like and favourite gifts
+	profile.likeGift = raw.likeGift == true
+	profile.favGift = raw.favGift == true
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

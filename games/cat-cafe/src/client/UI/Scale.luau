@@ -1,6 +1,8 @@
 --!strict
 -- Viewport-driven scaling. Every ScreenGui root gets one UIScale from Scale.bind, so screens are laid out
 -- in design pixels (1280x720) and shrink or grow together. Touch devices get a floor so buttons stay tappable.
+-- MIN is the same 0.75 as that floor (device pass 2026-11-07): at 0.6 a small laptop window drew textTiny at 7 px and
+-- the Store's card words at about 8, so a small window now draws the UI at a phone's size.
 
 local UserInputService = game:GetService("UserInputService")
 
@@ -9,7 +11,7 @@ local Signal = require(script.Parent.Components.Signal)
 local Scale = {}
 
 Scale.DESIGN = Vector2.new(1280, 720)
-Scale.MIN = 0.6
+Scale.MIN = 0.75
 Scale.MAX = 1.3
 Scale.TOUCH_FLOOR = 0.75
 

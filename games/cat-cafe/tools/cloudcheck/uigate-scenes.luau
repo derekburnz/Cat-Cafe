@@ -1988,7 +1988,7 @@ local SCENES = {
 		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
 		local tile = hud and hud:FindFirstChild("Upgrades", true)
-		assert(tile and tile:FindFirstChild("TutorialGlow"), "uigate: the Upgrades tile does not glow at step 3 (#1796)")
+		assert(tile and tile:FindFirstChild("TutorialGlow", true), "uigate: the Upgrades tile does not glow at step 3 (#1796)")
 		UI.open("Upgrades")
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local window = modals and modals:FindFirstChild("Upgrades", true)

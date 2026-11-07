@@ -50,6 +50,19 @@ Playtesters said the captions go by too fast for kids to read ("a next button or
 - **Unchanged.** Skip and its 5 s bar, the dots, the fallbacks, and what a replay does. A replay uses the same holds.
 - `Intro.VERSION` goes to 7 (6 was #2113), so drop-offs from the new pacing don't mix with older ones.
 
+### 2c. The rich tip shot (#2242, 2026-11-07)
+
+Derek2: "add the rare customers chance to the tutorial scene like rich customer tips". A new shot 6 follows the job shot, so the intro has nine shots (`Intro.SHOTS = 9`). The old shots 6 to 8 (spin and codes, night, the swoop to you) are now shots 7 to 9, and every "shot 6", "shot 7" and "shot 8" above means the shot one later. Built in #2305.
+
+| # | Starts | Length | Caption | Camera | Move |
+|---|---|---|---|---|---|
+| 6 | 12.3 | 3.0 | Rich visitors leave big tips. Grab them fast! | Inside your cafe with its roof on, as shot 5 ends, framing table 1 and its `RichTipAnchor` | The rich customer walks in to table 1's chair and sits. The gold coin pile appears on the `RichTipAnchor`, then your copy walks in and grabs it, and "+$50" pops: `Economy.richTipAmount` at a new cafe's Tier 1 rate, so it matches what a real first rich tip pays. |
+
+- The shot is staged on this client only, like shot 5: the customer, the coin pile and your copy are local and removed at the end, and no real tip is paid. The real character still shows at the spawn from shot 5 on, so your copy comes back only for this shot.
+- Its hold is 4.2 s (8 words, section 2b). With no taps the intro is about 37 s; on the shots' own lengths it is 23 s.
+- The end now comes after shot 9, and Next on shot 9 ends the intro as a finish.
+- `Intro.VERSION` goes to 8 (7 was #2188), so the extra shot's drop-offs don't mix with the eight-shot ones.
+
 ### 2a. You, the cat and its job (shots 1 to 5)
 
 - **You.** A local copy of the player's own character: set `Archivable` on the character, `Clone()` it, set `Archivable` back; remove its scripts, anchor its root and move it by CFrame, hide its name. It stands on the cannon's south steps at the ladder from the start, facing the barrel, climbs in at 1.4 s into shot 1 with Animation-Engineer's hop in (until that lands, a 0.4 s hop up to the cannon's `Seat`) and waits hidden at the seat until the BOOM. In shot 2 it flies the arc in the curled ball pose, glides in the clouds and lands on the pad in the crouch landing (`Effects/CannonGlide`), then stands. Between shots 2 and 3 it moves to the catch spot. It plays the avatar's own run animation while it runs and the carry pose while it holds the cat. The real character stands at the spawn the whole time and is hidden on this screen from the start until shot 4 ends, through LocalTransparencyModifier set again every frame, since the default camera scripts also write that property on the player's own character. At the cut to shot 5 the copy goes and the real character shows at the spawn, so shots 6 to 8 see it there and shot 8 lands on it.
@@ -91,3 +104,4 @@ Playtesters said the captions go by too fast for kids to read ("a next button or
 7. On a phone-sized screen the captions fit on one line and Skip is easy to tap once its bar is full.
 8. On a slow connection (Studio's network emulation, or a phone on mobile data) the loading cover waits at most 5 s for the Alleyway camp; if it is still not there the intro plays without shots 3 and 4, and no shot ever shows empty ground or the sky where a camp should be.
 9. (#2182) With no taps, every caption stays up for its full hold (about 33 s in all), and after each shot's action the camera stops and the scene idles instead of cutting. From 1.0 s into a shot, Next, a tap anywhere but Skip, Space, Enter or gamepad A moves on at once; a tap in the first second does nothing. Next on shot 8 ends the intro as a finish and the event reads "7:0". The read bar fills over each hold. On a phone, Next and Skip are both easy to tap and never overlap.
+10. (#2242) After the job shot, shot 6 shows the rich customer sitting at table 1, the coin pile on its anchor and your avatar grabbing it with "+$50", and the caption "Rich visitors leave big tips. Grab them fast!". The dots show nine shots, the coins and the customer are gone after the intro and no coins were really paid. Skipping in shot 9 reads "8:9", and Next on shot 9 ends it as a finish ("8:0").

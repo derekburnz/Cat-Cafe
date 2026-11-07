@@ -20,7 +20,7 @@ Read only after about 100 new players; below that, a number is noise and the sta
 | Number | Where | Go | Hold (fix first) |
 |---|---|---|---|
 | Tutorial completion (`onboarding_v4` reached the last intro step) | analytics funnel `onboarding_v4` | 80% or more | below 65% |
-| D1 retention | Creator Hub Retention page | Design-Agent proposes 25% or more; our own bar in analytics-plan section 6 is 12%. Derek picks (see note below) | below 8% |
+| D1 retention | Creator Hub Retention page | 12% or more (Derek chose this bar on 2026-11-07; Design-Agent had proposed 25%) | below 8% |
 | `session_10m` share of new players | custom events `session_*` | 50% or more | below 35% |
 | Average session | Creator Hub | 10 minutes or more | below 7 |
 | Errors | `ClientErrors`, BugReportService, DataStore failures | no error seen in more than 2% of sessions; zero save-loss reports | any save loss |

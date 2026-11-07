@@ -74,6 +74,7 @@ import doorsets  # noqa: E402
 import market  # noqa: E402
 import daycart  # noqa: E402
 import gardendecor  # noqa: E402
+import grandopening  # noqa: E402
 import gardennursery  # noqa: E402
 import thanksboard  # noqa: E402
 import npc  # noqa: E402
@@ -109,7 +110,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, sewerf85, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
-           gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor]
+           gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening]
 
 PIVOT_NOTES = {
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
@@ -163,6 +164,8 @@ PIVOT_NOTES = {
     "CatCafe_Accessory_LeafBeret": "attachment point: the walking head's Hat slot (see attach)",
     "CatCafe_Accessory_AcornHairClip": "attachment point: the walking head's Hat slot; the clip sits by the right ear",
     "CatCafe_Accessory_MushroomCap": "attachment point: the walking head's Hat slot (see attach)",
+    "CatCafe_Accessory_LeafCrown": "attachment point: the head top's middle (Outfit_LeafCrown, the Hat slot's spot); "
+                                   "the ring sits 0.03 back of it with gaps at the sides for the ears",
     "CatCafe_Accessory_ReadingGlasses": "attachment point: the walking head's Glasses slot (see attach)",
     "CatCafe_Accessory_TinyLantern": "the walking cat's back slot (TinyLantern in accessories.walk_slots); "
                                      "+Z runs back along the spine",
@@ -218,6 +221,11 @@ PIVOT_NOTES = {
                         "(Layout.campExtras' space) at gardennursery.SPOT (34, 0, -166) turned 90, facing the pad",
     "CatCafe_Street_ThanksBoard": "base centre; the Screen's Front (-Z) face looks at the players",
     "CatCafe_Prop_FishCoin": "base centre: the coin stands on its rim, the cat face toward -Z; spin it about Y",
+    "CatCafe_Plot_GrandOpeningRibbon": "the Plot pivot like a sign style (floor top centre, -Z the street); children "
+                                       "_RibbonL (x > 0) and _RibbonR (x < 0, with the pennant) pivot on their "
+                                       "rosettes (x -+8, y 10.3): swing each about its Z axis to drop it",
+    "CatCafe_Plot_GrandOpeningBunting": "the Plot pivot like a sign style; children _LeftBalloons and _RightBalloons "
+                                        "pivot on their ties beside the door (x +-4.8, y 6.4): wobble them there",
 }
 STUDIO_NOTES = {
     "CatCafe_Decor_NeonSign": "Tube: Material Neon, add PointLight (neon_pink). Board stays SmoothPlastic.",

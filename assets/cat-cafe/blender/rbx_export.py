@@ -51,7 +51,7 @@ COLLIDE_PREFIXES = ("CatCafe_Furniture_", "CatCafe_Alley_", "CatCafe_Park_", "Ca
                     "CatCafe_Neighbourhood_", "CatCafe_Woods_", "CatCafe_Sewer_", "CatCafe_Square_", "CatCafe_Camp_",
                     "CatCafe_Town_", "CatCafe_Lawn_", "CatCafe_Cafe_")
 NO_COLLIDE_OBJECTS = ("_Bulb", "_Bulbs", "_Tube", "_Water", "_Decor", "_Lights", "_Fireflies", "_Glow", "_CodesCircle",
-                      "_Wheel", "_Pointer", "_RimLight", "_Flowers", "_Pennant")
+                      "_Wheel", "_Pointer", "_RimLight", "_Flowers", "_Pennant", "Balloons")
 INVISIBLE_OBJECTS = ("_Fireflies", "_Climb", "_Barrier")   # volumes never drawn: where fireflies drift, ladders'
 # climbing trusses, the walls round a pond that keep players and cats out of the water
 BARRIER_OBJECTS = ("_Barrier",)       # invisible and always solid

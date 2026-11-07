@@ -23,7 +23,11 @@
 -- Catch v3 (#1884, catch-rework.md 7b to 7d), when CatchSchedule sends trustNeed (Header.trustNeed):
 --   - a Miss no longer ends the catch: the rings keep coming until the server's CatchResult, and a trust bar over the
 --     cat (Components/TrustBar) fills with each grade (Components/CatchTrust; CatchJudged carries the server's trust)
---   - the rings sit round the cat's head in the world (Header.model, projected each frame), not at the schedule's x, y
+--   - #2060 (Derek2: "move across the screen so not only do you have to time it but find the next one each time"):
+--     each ring sits at its own spot on screen (Components/CatchSpots, from the schedule's x, y), away from the one
+--     before, so the player finds each ring as well as times it; the trust bar stays over the cat. The next ring's
+--     faint outline shows LEAD_IN before it starts closing (PREVIEW_SECONDS elsewhere) and pops in, so the eye can
+--     get there first. (Until #2060 the rings sat round the cat's head.)
 --   - ring kinds: a "double" is two entries Config.DoubleRingGap apart drawn on the same spot, the second half in sky
 --     blue with an "x2" tag (#2005 section 4: "the rapid rings are not clear"); a "paw" ring is red all over (its
 --     bands and closing circle too) with a paw print in place of its number and "Don't swing!" under it (#2005), and
@@ -40,6 +44,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local CatchSpots = require(script.Parent.Parent.Components.CatchSpots)
 local CatchTrust = require(script.Parent.Parent.Components.CatchTrust)
 local CatchWords = require(script.Parent.Parent.Components.CatchWords)
 local Create = require(script.Parent.Parent.Components.Create)
@@ -134,6 +139,7 @@ type CircleView = {
 local RING_RADIUS = 46 -- design pixels at 1280 x 720
 local START_RADIUS = RING_RADIUS * 3
 local PREVIEW_SECONDS = 0.35 -- the ring fades in this long before its circle starts
+local LEAD_IN = 0.55 -- Catch v3 (#2060): the next ring shows this long ahead, at its new spot, to be found in time
 local CLOSER_THICKNESS = 4
 local RING_THICKNESS = 4
 -- data-model CatchLatencyCapSeconds (0.15): the server stops waiting for a circle's press this long
@@ -154,7 +160,6 @@ local PIP_GAP = 6
 local STRIP_PAD = 9
 local WORD_SIZE = Vector2.new(360, 60)
 local FINISH_DELAY = 0.6 -- Catch v3: the net wrap's wobble before the banner pops (catch-rework.md 7d)
-local HEAD_DROP = 0.6 -- studs under the top of the cat where its rings sit
 local PAW_COLOR = Color3.fromHex("E5484D")
 local DOUBLE_COLOR = Theme.colors.sky -- #2005: a double ring's second half, so the two taps read apart
 local NO_RESULT_TIMEOUT = 4 -- hide if the server's result has not come this long after the last target
@@ -421,6 +426,7 @@ function CatchCircles.new(parent: Instance): CatchCircles
 	self._trust = 0
 	self._need = 0
 	self._model = nil :: Model?
+	self._circles = {} :: { Types.CatchCircle }
 
 	if parent then
 		screenGui.Parent = parent
@@ -435,23 +441,6 @@ function CatchCircles._placeBar(self: any)
 	if home ~= nil and gui.Parent ~= home then
 		gui.Parent = home
 	end
-end
-
--- Catch v3: where the cat's head is on screen, in design pixels, or nil when it is off screen or gone.
-function CatchCircles._headPosition(self: any): UDim2?
-	local model: Model? = self._model
-	local camera = Workspace.CurrentCamera
-	if model == nil or camera == nil or model.Parent == nil then
-		return nil
-	end
-	local box, size = model:GetBoundingBox()
-	local head = box.Position + Vector3.new(0, size.Y / 2 - HEAD_DROP, 0)
-	local point, onScreen = camera:WorldToViewportPoint(head)
-	if not onScreen then
-		return nil
-	end
-	local scale = math.max(Scale.get(), 0.01)
-	return UDim2.fromOffset(point.X / scale, point.Y / scale)
 end
 
 function CatchCircles._buildView(self: any, index: number, circle: Types.CatchCircle): CircleView
@@ -610,6 +599,7 @@ function CatchCircles.show(
 		else Theme.hud.stroke
 	self._headerRainbow.Enabled = info.rainbow == true
 
+	self._circles = circles
 	for index, circle in circles do
 		local view = self:_buildView(index, circle)
 		table.insert(self._views, view)
@@ -668,13 +658,19 @@ end
 -- RenderStepped (not Heartbeat) so the drawn circle matches the frame the player sees when they press.
 function CatchCircles._step(self: any, t: number)
 	local windows: Types.CatchWindows = self._windows
-	local head: UDim2? = if self._v3 then self:_headPosition() else nil
+	local lead = if self._v3 then LEAD_IN else PREVIEW_SECONDS
 	for _, view in self._views :: { CircleView } do
-		if head ~= nil then
-			view.holder.Position = head
-		end
 		local circle = view.circle
-		local visible = t >= circle.startsAt - PREVIEW_SECONDS
+		local visible = t >= circle.startsAt - lead
+		if
+			visible
+			and not view.holder.Visible
+			and self._v3
+			and not view.judged
+			and not Motion.reduced()
+		then
+			Tween.popIn(view.art, 0.6) -- #2060: the next ring pops in at its new spot (it just appears with reduced motion)
+		end
 		view.holder.Visible = visible
 		if not visible then
 			continue
@@ -912,6 +908,14 @@ function CatchCircles.setTrust(self: any, trustStart: number, trustNeed: number,
 	self._ended = false
 	self._doubt = nil
 	self._strip.Visible = false -- the trust bar over the cat replaces the strip
+	-- #2060: every ring at its own spot, away from the one before
+	local spots = CatchSpots.spots(self._circles)
+	for index, view in self._views :: { CircleView } do
+		local spot: Vector2? = spots[index]
+		if spot then
+			view.holder.Position = UDim2.fromScale(spot.X, spot.Y)
+		end
+	end
 	self._word.Name = "FinishBanner"
 	self:_placeBar()
 	self._trustBar:show(model, trustStart, trustNeed)
@@ -1079,6 +1083,7 @@ function CatchCircles.hide(self: any)
 	self._trustBar:hide()
 	self._v3 = false
 	self._model = nil
+	self._circles = {}
 	self.screenGui.Enabled = false
 end
 

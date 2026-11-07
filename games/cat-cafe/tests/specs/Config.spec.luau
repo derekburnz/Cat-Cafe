@@ -403,6 +403,7 @@ return function()
 				World = true,
 				OwnerTestUserIds = true, -- #1770: checked in OwnerTest.spec
 				Badges = true, -- #1934: a table, checked in Badges.spec
+				ForcedDays = true, -- #1974: a table of drop windows, checked in Luck.spec
 				NetWindows = true, -- a table, checked below
 				CharmStarOdds = true, -- a table, checked below
 				RescueBarSpeed = true, -- a table, checked below

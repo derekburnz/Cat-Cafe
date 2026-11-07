@@ -283,6 +283,11 @@ local Config = {
 	LuckyDayWaveLuck = 2,
 	LuckyDayPlayerLuck = 0.5,
 	LuckyDayWarnSeconds = 15,
+	-- #1974 (release.md section 4, the Saturday drops): a Lucky, Golden or Rainbow Day forced on for every global day
+	-- whose sunrise falls in [from, to), UTC unix seconds, on every server; the random roll still runs for the other
+	-- kinds, and the day after rolls as usual. Empty until a drop: each week's PR adds its row, e.g.
+	-- { kind = "lucky", from = 1795219200, to = 1795305600 } for Sat 2026-11-21 UTC.
+	ForcedDays = {} :: { { kind: string, from: number, to: number } },
 	-- #1572 (luck-and-rare-moments.md 1h): the global pity cat (shared/Pity). A slot every PityLegendarySeconds from
 	-- ClockEpoch, every PityMythicalEvery-th a Mythical one; its area by PityAreaWeights (by area id), and the first
 	-- catch anywhere claims it in MemoryStore, tried PityClaimRetries times before the catcher keeps it anyway.

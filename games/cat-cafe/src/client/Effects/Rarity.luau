@@ -7,9 +7,12 @@
 -- of its colour and sits in a soft halo of it, faint for Common and full for Mythical; Epic and up breathe the halo,
 -- quicker the rarer, and Legendary and Mythical gems glint now and then, Mythical the most often. It hides while someone is catching that cat and once you are close enough for its Catch card, which
 -- names it. Gold cats keep their gold sparkle as well. Rescue.luau puts the same gem over a stuck cat's red "!"
--- (`Rarity.buildGem`).
+-- (`Rarity.buildGem`). Since #2258 (Derek2 2026-11-07: "show new tag if it's a cat you don't own yet for people
+-- index hunting") a green NEW pill sits on top of the gem of a cat that would be new to your Index (Logic.newToIndex),
+-- in the gem's own billboard, so it costs nothing more and bobs, hides and stays still with it.
 --
--- Source: the Stray tag CatService puts on each stray model, and its `Rarity` and `LockedBy`. The gem rides the
+-- Source: the Stray tag CatService puts on each stray model, and its `Rarity`, `LockedBy`, `CatId` and `Variant`;
+-- this player's own ProfileSync `collection`, `goldCollection` and `rainbowCollection` for NEW. The gem rides the
 -- cat's body part, so it follows a walking or fleeing cat with nothing to move each frame. Listening only. Numbers
 -- in Presets.rarityMark.
 
@@ -19,6 +22,7 @@ local Workspace = game:GetService("Workspace")
 
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
+local Net = require(script.Parent.Parent.Net)
 local Presets = require(script.Parent.Presets)
 
 local Rarity = {}
@@ -28,6 +32,7 @@ type Mark = {
 	body: BasePart, -- what the gem rides; a cat streamed out and back in gets a new one
 	glint: Frame?,
 	halo: Frame?,
+	tag: Frame, -- NEW, shown while the cat is not in your Index
 	rarity: string,
 	tweens: { Tween },
 	height: number, -- studs over the body part
@@ -35,6 +40,7 @@ type Mark = {
 }
 
 local marks: { [Model]: Mark } = {}
+local index: Logic.IndexSeen? = nil -- this player's Index, from ProfileSync
 local started = false
 
 local function bodyOf(model: Model): BasePart?
@@ -123,6 +129,54 @@ function Rarity.buildGem(parent: Instance, rarity: string): (boolean, Frame?, Fr
 	return true, glint, halo
 end
 
+-- Builds the NEW pill on top of a gem built into `parent` (square on screen), hidden; show it with `.Visible`.
+function Rarity.buildNewTag(parent: Instance): Frame
+	local t = Presets.rarityMark.newTag
+	local gem = Presets.rarityMark.gem
+	local pill = Instance.new("Frame")
+	pill.Name = "NewTag"
+	pill.AnchorPoint = Vector2.new(0.5, 1)
+	-- the gem is a turned square, so its top corner is half its diagonal over the middle
+	pill.Position = UDim2.fromScale(0.5, 0.5 - gem * math.sqrt(0.5) + t.overlap)
+	pill.Size = UDim2.fromScale(t.width, t.height)
+	pill.BackgroundColor3 = t.fill
+	pill.BorderSizePixel = 0
+	pill.ZIndex = 3
+	pill.Visible = false
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0.5, 0)
+	corner.Parent = pill
+	local rim = Instance.new("UIStroke")
+	rim.Color = t.rim
+	rim.Thickness = t.rimPixels
+	rim.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	rim.Parent = pill
+	local label = Instance.new("TextLabel")
+	label.Name = "Text"
+	label.AnchorPoint = Vector2.new(0.5, 0.5)
+	label.Position = UDim2.fromScale(0.5, 0.5)
+	label.Size = UDim2.fromScale(0.86, 0.86)
+	label.BackgroundTransparency = 1
+	label.FontFace = Font.fromEnum(Enum.Font.FredokaOne)
+	label.Text = t.text
+	label.TextScaled = true
+	label.TextColor3 = t.textColour
+	label.ZIndex = 4
+	local outline = Instance.new("UIStroke")
+	outline.Color = t.textOutline
+	outline.Thickness = 1
+	outline.Parent = label
+	label.Parent = pill
+	pill.Parent = parent
+	return pill
+end
+
+-- Whether `model` (a stray or a stuck cat) would be new to this player's Index if caught: its `CatId` is not in it
+-- yet, or its gold or rainbow `Variant` is not on that page yet. False until the first ProfileSync.
+function Rarity.isNew(model: Model): boolean
+	return Logic.newToIndex(index, model:GetAttribute("CatId"), model:GetAttribute("Variant"))
+end
+
 -- Glints `glint` (from buildGem) now and then, as often as `rarity` glints (Mythical's pace when not given), for as
 -- long as the returned tween runs.
 function Rarity.playGlint(glint: Frame, rarity: string?): Tween
@@ -185,17 +239,20 @@ local function makeMark(model: Model, rarity: string): Mark?
 	gui.LightInfluence = 0
 	gui.MaxDistance = r.maxDistance * 1.2 -- the check hides it first; this only stops a stale one drawing
 	gui.Enabled = false
+	gui.ClipsDescendants = false -- the NEW pill stands a little over the top
 	local built, glint, halo = Rarity.buildGem(gui, rarity)
 	if not built then
 		gui:Destroy()
 		return nil
 	end
+	local tag = Rarity.buildNewTag(gui)
 	gui.Parent = Context.folder()
 	return {
 		gui = gui,
 		body = body,
 		glint = glint,
 		halo = halo,
+		tag = tag,
 		rarity = rarity,
 		tweens = {},
 		height = top - body.Position.Y + r.above,
@@ -318,6 +375,7 @@ local function check()
 		local mark = marks[model] or makeMark(model, model:GetAttribute("Rarity") :: string)
 		if mark ~= nil then
 			marks[model] = mark
+			mark.tag.Visible = Rarity.isNew(model)
 			show(mark)
 		end
 	end
@@ -328,6 +386,22 @@ function Rarity.start()
 		return
 	end
 	started = true
+	-- the Index pages as of the last sync that had them (a sync without one keeps the last)
+	Net.on("ProfileSync", function(state: unknown)
+		if type(state) ~= "table" then
+			return
+		end
+		local s = state :: { [string]: unknown }
+		local function page(value: unknown, last: { [string]: unknown }?): { [string]: unknown }?
+			return if type(value) == "table" then value :: { [string]: unknown } else last
+		end
+		local was: Logic.IndexSeen = index or {}
+		index = {
+			collection = page(s.collection, was.collection),
+			gold = page(s.goldCollection, was.gold),
+			rainbow = page(s.rainbowCollection, was.rainbow),
+		}
+	end)
 	CollectionService:GetInstanceRemovedSignal("Stray"):Connect(remove) -- caught or gone: at once
 	task.spawn(function()
 		while true do

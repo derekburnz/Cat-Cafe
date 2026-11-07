@@ -2437,4 +2437,45 @@ function CafeService.debugUnplace(player: Player, uid: string)
 	onUnplaceCat(player, uid)
 end
 
+-- #2050 (Debug.autoEquipNow, Debug.seedCafe): Auto Equip as the server sees it. With `clearHolds` the hand placements'
+-- holds end first (as Equip Best ends them); with `run` it runs now, past its rate limit, when settings.autoEquip is
+-- on. Returns whether Auto Equip is on, how many cats it holds and how many cats the run moved.
+function CafeService.debugAutoEquip(
+	player: Player,
+	clearHolds: boolean,
+	run: boolean
+): (boolean, number, number)
+	assert(RunService:IsStudio(), "debugAutoEquip is Studio only")
+	local profile = profileFor(player)
+	assert(profile ~= nil, "profile not loaded")
+	if clearHolds then
+		handAt[player] = nil
+	end
+	local held = EquipBest.held(
+		profile,
+		os.clock(),
+		handAt[player] or {},
+		function(uid: string): boolean
+			return offerCheck(player, uid)
+		end
+	)
+	local heldCount = 0
+	for _ in held do
+		heldCount += 1
+	end
+	local moved = 0
+	if run then
+		local state = autoStates[player]
+		if state ~= nil then
+			state.lastRun = -math.huge
+		end
+		moved = CafeService.autoEquip(player, profile)
+		if moved > 0 then
+			CafeService.refreshPlot(player)
+			CafeService.sync(player)
+		end
+	end
+	return profile.settings.autoEquip == true, heldCount, moved
+end
+
 return CafeService

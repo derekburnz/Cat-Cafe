@@ -1096,7 +1096,7 @@ local SCENES = {
 		local card = UIShim.playerGui:FindFirstChild("CatCafeGift"):FindFirstChild("Card", true)
 		assert(card.Visible, "uigate: no favourite gift card when idle (#1947)")
 	end },
-	-- Like the game pressed: the thumbs-up hint and Close alone; the press is reported once
+	-- How to like pressed: the thumbs-up hint and Close alone; the press is reported once
 	{ "GiftCardLiked", function()
 		local reports = {}
 		local watch = UI.events.playtimeGift:Connect(function(what)

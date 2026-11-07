@@ -3801,6 +3801,14 @@ Presets.slotWalk = {
 	maxSeconds = 4,
 	turn = 540,
 	fade = 0.25,
+	-- #2050 (Desktop-Tester 2026-11-07: walkers drawn at the world origin and far below the floor): a found way is
+	-- only taken when every waypoint lies within `detour` studs of the straight line and `waypointRise` of the floor;
+	-- the copy walks straight once `planWait` seconds pass without one, and is let go (the cat just shows at its new
+	-- spot) if it is ever drawn further than `detour` from that line
+	detour = 24,
+	waypointRise = 8,
+	planWait = 0.4,
+	lostStuds = 200, -- a copy's body read this far off its way is lost (far below the map), and the walk lets go
 }
 
 Presets.bedWalk = { fade = 0.25 }

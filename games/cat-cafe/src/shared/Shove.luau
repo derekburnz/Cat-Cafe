@@ -8,7 +8,8 @@
 -- off TackleCooldownSeconds, which starts at the press, hit or miss. For the lunge plus TackleHitGraceSeconds the
 -- server hits the first player in reach (inReach) who could be shoved (targetRefusal): in the same area, outside
 -- their safe zone (their plot and BumpSafeRadiusStuds round both of their doors), in no minigame, not shoved by
--- anyone for ShoveTargetImmuneSeconds (S45) and not by this tackler for BumpSameTargetSeconds. A hit pushes the
+-- anyone for ShoveTargetImmuneSeconds (S45) and not by this tackler for BumpSameTargetSeconds (both 0 since #2193:
+-- no timed immunity, so a tackler who picks up the dropped cat can be tackled straight back). A hit pushes the
 -- target ShoveKnockbackStuds. If the target carries a cat and is BumpGraceSeconds into the carry, BumpChance (1.0
 -- since v0.8 F56) knocks it loose: the cat lands where they stood as a Dropped stray with no circles that anyone
 -- picks up with PickUpCat, the tackler and the old carrier included, and at dusk it is checked in for that carrier
@@ -21,6 +22,9 @@ local Shove = {}
 
 Shove.RANGE_SLACK = 2 -- studs on top of GrabRangeStuds for a pick up, as for every check on client-owned positions
 Shove.HELD_IMMUNE_SECONDS = 3 -- after "It held on tight!" (only when BumpChance is tuned below 1) no knock loose
+-- #2193 (Derek2: direct hits that don't count): a target's position reaches the server late (their ping and the
+-- replication's interpolation), so the server also checks where it saw each player this long ago.
+Shove.LAG_SECONDS = 0.3
 
 -- What the server knows when a Tackle press arrives. Times since are nil when it never happened.
 export type TackleCheck = {
@@ -159,6 +163,22 @@ function Shove.inReach(start: Vector3, facing: Vector3, at: Vector3, target: Vec
 	end
 	local ahead = Vector3.new(target.X - start.X, 0, target.Z - start.Z)
 	return ahead:Dot(Vector3.new(facing.X, 0, facing.Z)) >= 0
+end
+
+-- #2193: whether any of `positions` (where the server saw one player over the last LAG_SECONDS, newest first) is in
+-- the lunge's reach (inReach), and the first one that is.
+function Shove.inReachAny(
+	start: Vector3,
+	facing: Vector3,
+	at: Vector3,
+	positions: { Vector3 }
+): Vector3?
+	for _, position in positions do
+		if Shove.inReach(start, facing, at, position) then
+			return position
+		end
+	end
+	return nil
 end
 
 -- True when a shove on this carrier rolls BumpChance: carrying, past the grace and any held immunity.

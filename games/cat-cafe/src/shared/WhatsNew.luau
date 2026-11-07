@@ -8,18 +8,43 @@
 --   text      at most TEXT_MAX characters, sentence case, no full stop, no hype, no prices, never a Robux item
 --   creditId  optional: the credit's short id in IdeaCredits_v1 (c1, c2 ...) when the update came from a player's
 --             idea; never a user id or a name, since the repo is public
+--   thanks    optional (Derek2 2026-11-07: "mention of peoples fixes/suggestions ... it can use their roblox names"):
+--             the Roblox username of a playtester whose report or suggestion this update came from, only for the
+--             playtesters Derek2 has named; the board shows "💡 Thanks to <name>" under it. Never with a creditId.
 -- WhatsNew.spec checks every rule, so a bad row fails the gate.
 
 local WhatsNew = {}
 
 export type Icon = "new" | "cat" | "look" | "faster" | "fix"
-export type Row = { id: string, date: string, icon: Icon, text: string, creditId: string? }
+export type Row = {
+	id: string,
+	date: string,
+	icon: Icon,
+	text: string,
+	creditId: string?,
+	thanks: string?,
+}
 
 WhatsNew.ICONS = table.freeze({ "new", "cat", "look", "faster", "fix" })
 WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- Derek2 (11-07): the changes merged since the 11-07 rows, as they ship; a playtester's report or suggestion is
+	-- thanked by Roblox username
+	{
+		id = "tutorial_pace",
+		date = "2026-11-07",
+		icon = "look",
+		text = "Tutorial at your own pace",
+	},
+	{ id = "day_start", date = "2026-11-07", icon = "fix", text = "New servers start in daytime" },
+	{
+		id = "jukebox_shuffle",
+		date = "2026-11-07",
+		icon = "new",
+		text = "Shuffle songs on the jukebox",
+	},
 	-- #2177 (Derek2, 11-07): the player-facing changes published 11-07; the Tail Bow, the +15% outfit cues and the
 	-- Cafe Pass window are left off, as rows never name a Robux item
 	{ id = "new_intro", date = "2026-11-07", icon = "new", text = "New intro to start your cafe" },

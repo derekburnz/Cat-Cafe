@@ -207,9 +207,10 @@ function Catching.rarityAtLeast(rarity: Types.Rarity, minimum: string): boolean
 	return (Catalog.rarityRank[rarity] or 0) >= (Catalog.rarityRank[minimum] or 99)
 end
 
--- The server-wide shout-out for a new cat, or nil when it is not worth one: AnnounceMinRarity (Epic) and up, and
--- every gold and rainbow (data-model section 15, F99). "Sam caught a gold Rare Tabby!", "Sam rescued an Epic Maine
--- Coon!", "Sam caught a rainbow Common Tabby!"; `where` adds a place before the "!" (" at their bait bowl").
+-- The server-wide shout-out for a new cat, or nil when it is not worth one: AnnounceMinRarity (Legendary since #2205,
+-- was Epic) and up, and every gold and rainbow (data-model section 15, F99). "Sam caught a gold Rare Tabby!", "Sam
+-- rescued a Legendary Maine Coon!", "Sam caught a rainbow Common Tabby!"; `where` adds a place before the "!" (" at
+-- their bait bowl").
 function Catching.shoutOut(
 	playerName: string,
 	verb: string,

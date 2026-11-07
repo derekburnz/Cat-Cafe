@@ -3413,6 +3413,30 @@ local SCENES = {
 			assert(amount.AbsolutePosition.X + amount.TextBounds.X <= badge.AbsolutePosition.X, "uigate: " .. amount.Text .. " runs into the money badge (#2194)")
 		end
 	end },
+	-- #2254 (Derek2 11-07: "gold fish is hovering wrong now if you did already buy the 2x/3x/4x money"): with a money
+	-- pass owned the badge beside the money is hidden (the "Cash x4" chip shows on the side), and the golden fish sits
+	-- a normal gap after the money, at every pass and from short to long amounts; with none it keeps #2194's place
+	{ "HUDFishWithPass", function()
+		local Config = UIShim.require("ReplicatedStorage.Shared.Config")
+		local before: any = UI.getState()
+		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
+		UI.update({ goldenFish = 878 } :: any)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local counters = hud:FindFirstChild("Counters", true) :: Frame
+		local fish = counters:FindFirstChild("Fish") :: GuiObject
+		local amount = (counters:FindFirstChild("Money") :: Instance):FindFirstChild("Amount", true) :: TextLabel
+		local scale = amount.AbsoluteSize.Y / 36
+		for pass = 2, 4 do
+			UI.store.preview(storePrices(true), { [Config.MoneyPassIds[pass]] = true })
+			for _, money in { 1234, 373e9, 88888, 999e15 } do
+				UI.update({ money = money })
+				UIShim.advance(1 / 60)
+				local gap = (fish.AbsolutePosition.X - (amount.AbsolutePosition.X + amount.TextBounds.X)) / scale
+				assert(gap >= 4 and gap <= 40, ("uigate: with the %dx pass the golden fish sits %d px after %s (#2254)"):format(pass, gap, amount.Text))
+			end
+		end
+		UI.update({ money = 373e9 })
+	end },
 	-- #1936 (release.md section 3): in the first 30 minutes of play the badge says a plain "x2", with no price and no
 	-- pulse; a tap still opens the Store
 	{ "HUDMoneyBadgeQuiet", function()

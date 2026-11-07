@@ -20,6 +20,7 @@ local ChatTags = require(ReplicatedStorage.Shared.ChatTags)
 local Config = require(ReplicatedStorage.Shared.Config)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
+local PassCheck = require(ReplicatedStorage.Shared.PassCheck)
 local ShopCats = require(ReplicatedStorage.Shared.ShopCats)
 local Signal = require(ReplicatedStorage.Shared.Signal)
 
@@ -27,6 +28,9 @@ local PassService = {}
 
 -- A player's passes changed in game (a purchase); CafeService settles at the old rate, sets them and syncs.
 PassService.changed = Signal.new() :: Signal.Signal<Player, Economy.Passes>
+
+-- #2131: a pass bought in game that UserOwnsGamePassAsync confirmed (Telemetry logs the purchase on it).
+PassService.purchased = Signal.new() :: Signal.Signal<Player, number>
 
 -- pass id -> owned, per player, from join; a purchase sets its id true. Weak keys: a player who leaves during the
 -- join lookup is never seen by PlayerRemoving afterwards.
@@ -147,8 +151,8 @@ function PassService.fromOwned(set: { [number]: boolean }): Economy.Passes
 end
 
 -- Seconds between the tries again for a lookup that failed at join (review S97): a passing Marketplace outage
--- should not keep a paid pass off for the whole session.
-local RETRY_SECONDS = { 5, 15, 45 }
+-- should not keep a paid pass off for the whole session (PassCheck.retryAfter: 5, 15 and 45 s, then every 5 minutes,
+-- #2130).
 
 -- Whether `player` owns pass `id`, or nil when the lookup failed (warned).
 local function lookup(player: Player, id: number): boolean?
@@ -161,13 +165,15 @@ local function lookup(player: Player, id: number): boolean?
 	return nil
 end
 
--- Tries the failed ids again on RETRY_SECONDS while the player stays and this join's set is still theirs, and
--- fires `changed` when one turns out owned. Offline pay was already worked out at join, so a Long Nap found here
--- counts from the next join.
+-- Tries the failed ids again on PassCheck.retryAfter's schedule while the player stays and this join's set is still
+-- theirs, until every one has answered, and fires `changed` when one turns out owned. Offline pay was already worked
+-- out at join, so a Long Nap found here counts from the next join.
 local function retry(player: Player, set: { [number]: boolean }, failed: { number })
 	local left = failed
-	for _, seconds in RETRY_SECONDS do
-		task.wait(seconds)
+	local attempt = 0
+	while #left > 0 do
+		attempt += 1
+		task.wait(PassCheck.retryAfter(attempt))
 		if owned[player] ~= set or player.Parent ~= Players then
 			return
 		end
@@ -187,9 +193,6 @@ local function retry(player: Player, set: { [number]: boolean }, failed: { numbe
 			PassService.changed:Fire(player, PassService.fromOwned(set))
 		end
 		left = still
-		if #left == 0 then
-			return
-		end
 	end
 end
 
@@ -251,9 +254,29 @@ local function onPurchaseFinished(player: Player, passId: number, purchased: boo
 	if not isOurs or set == nil or set[passId] then
 		return
 	end
+	-- #2131: the purchased flag is the prompt's hint; Roblox's own answer decides
+	local confirmed = PassCheck.confirm(function(): boolean?
+		return lookup(player, passId)
+	end, function(seconds: number)
+		task.wait(seconds)
+	end)
+	if not confirmed then
+		warn(
+			"[PassService] purchase of",
+			passId,
+			"by",
+			player.UserId,
+			"not confirmed; the next join looks again"
+		)
+		return
+	end
+	if owned[player] ~= set or player.Parent ~= Players or set[passId] then
+		return
+	end
 	set[passId] = true
 	markPlayer(player, set)
 	PassService.changed:Fire(player, PassService.fromOwned(set))
+	PassService.purchased:Fire(player, passId)
 end
 
 function PassService.start()

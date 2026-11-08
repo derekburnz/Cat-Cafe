@@ -4188,6 +4188,9 @@ do
 				or (askCard ~= nil and askCard:isShowing()),
 			hidden = not visible,
 			duskLeft = duskLeft,
+			toastAgo = if toasts ~= nil and toasts:lastShown() ~= nil
+				then os.clock() - (toasts:lastShown() :: number)
+				else nil,
 		}
 	end
 

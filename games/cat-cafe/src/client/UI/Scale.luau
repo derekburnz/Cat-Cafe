@@ -63,6 +63,14 @@ function Scale.get(): number
 	return current
 end
 
+-- #2339 (Laptop-Tester, iPhone SE: "windows show only about 1.5 rows"): a screen under SHORT design pixels tall is
+-- short, a phone held sideways (an iPhone SE is 500, an 844 x 390 phone 520; a PC's window never is, as MIN keeps
+-- its design height at 720 down to a 540 px tall window). Windows then take more of the height and a slimmer header.
+Scale.SHORT = 560
+function Scale.isShort(): boolean
+	return viewportSize().Y / current < Scale.SHORT
+end
+
 function Scale.refresh()
 	current = Scale.compute(viewportSize())
 	for _, entry in bound do

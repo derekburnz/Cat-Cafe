@@ -939,6 +939,15 @@ end
 local SCENES = {
 	{ "Upgrades", function()
 		UI.open("Upgrades")
+		-- #2339 (Laptop-Tester, iPhone SE: "windows show only about 1.5 rows"): on a short screen the list shows at
+		-- least two and a half of its 104 px rows
+		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
+		if Scale.isShort() then
+			local modal = UIShim.playerGui:FindFirstChild("CatCafeModals") :: ScreenGui
+			local list = modal:FindFirstChild("List", true) :: ScrollingFrame
+			local rows = list.AbsoluteSize.Y / (104 * Scale.get())
+			assert(rows >= 2.5, ("uigate: the Upgrades list shows %.1f rows on a short screen (#2339)"):format(rows))
+		end
 	end },
 	{ "Decor", function()
 		UI.open("Decor")

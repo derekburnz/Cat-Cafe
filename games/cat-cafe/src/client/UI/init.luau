@@ -407,7 +407,11 @@ function applyTutorial()
 	if hint ~= nil then
 		text, target, label = hint, cannonPart, "Cannon"
 	end
-	if not tutorialButtonOn then
+	-- #2411: the × hides the strip only once the first walk-through is done; before that it still guides
+	if
+		not tutorialButtonOn
+		and (state.tutorialStep or math.huge) >= CannonLogic.WALKTHROUGH_STEP
+	then
 		text, target = nil, nil
 	end
 	if hud then
@@ -790,7 +794,12 @@ function UI.init(config: Types.InitConfig)
 			if settingsScreen then
 				settingsScreen:set(SettingsList.TUTORIAL_KEY, false)
 			end
-			UI.toast("Tutorial and tips hidden. Turn them on in Settings.", "info")
+			UI.toast(
+				if (state.tutorialStep or math.huge) < CannonLogic.WALKTHROUGH_STEP
+					then "Tips hidden. Your first walk-through still shows. Turn tips on in Settings."
+					else "Tutorial and tips hidden. Turn them on in Settings.",
+				"info"
+			)
 		end,
 		setSetting = function(key: string, value: boolean)
 			UI.events.setSetting:Fire(key, value) -- #1893: the Grand Opening strip's roadmapOpen

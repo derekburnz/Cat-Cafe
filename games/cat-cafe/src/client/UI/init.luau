@@ -5423,6 +5423,7 @@ do
 		bang = nil :: ReadyBang.ReadyBang?, -- the red "!" over each ready station (camp-stations.md section 1)
 		market = nil :: MarketBang.MarketBang?, -- #2214: the "!" over the Fish Market while crates wait to open
 		spin = nil :: MarketBang.MarketBang?, -- #2358: the "!" over the Spin Wheel while the player has a spin
+		starter = nil :: MarketBang.MarketBang?, -- #2501: the "!" over the free Bellhop Cat's stand until it is taken
 		rescue = nil :: RescueBang.RescueBang?, -- #2214: the "!" over a rescue spot while someone else rescues there
 	}
 
@@ -5473,6 +5474,22 @@ do
 		})
 		spinBang:update(state.spin)
 		camp.spin = spinBang
+		-- #2501 (Derek2: "put an exclamation mark above the free group cat station to help entice people to go join
+		-- group to take the cat"): the stand's "!" until the cat is taken; only once the sync says it isn't
+		local starterBang = MarketBang.new(into, {
+			tag = "BellhopStand", -- shared/StarterCat.TAG
+			name = "CatCafeStarterBang",
+			line = function(claimed: any): string?
+				if claimed ~= false then
+					return nil
+				end
+				return if (SharedConfig.GroupId or 0) ~= 0
+					then "🐱 Free cat: join the group!"
+					else "🐱 A free cat waits here!"
+			end,
+		})
+		starterBang:update((state :: any).starterCatClaimed)
+		camp.starter = starterBang
 		local modalView = modal
 		if modalView == nil then
 			return
@@ -5602,6 +5619,11 @@ do
 			spinBang:destroy()
 		end
 		camp.spin = nil
+		local starterBang = camp.starter
+		if starterBang then
+			starterBang:destroy()
+		end
+		camp.starter = nil
 	end
 
 	-- #2214: every render, the Fish Market's "!" with the crates waiting to open
@@ -5614,6 +5636,11 @@ do
 		local spinBang = camp.spin
 		if spinBang then
 			spinBang:update(state.spin)
+		end
+		-- #2501: the free cat's stand with the same render
+		local starterBang = camp.starter
+		if starterBang then
+			starterBang:update((state :: any).starterCatClaimed)
 		end
 	end
 end

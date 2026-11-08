@@ -2966,6 +2966,28 @@ local SCENES = {
 			zoneEndsAt = t + 5,
 		})
 	end },
+	-- #2460: once the server says the rescue is done, the full-screen tap catcher goes so a phone can move again under
+	-- the "Rescued!" banner; the next rescue has it back
+	{ "RescueResultTapThrough", function()
+		UI.rescue.show("gate_rescue", rescueChallenge())
+		local barGui = UIShim.playerGui:FindFirstChild("CatCafeRescueBar")
+		local tap = barGui and barGui:FindFirstChild("Tap")
+		assert(tap and tap.Visible, "uigate: no tap catcher during the rescue (#2460)")
+		local t = workspace:GetServerTimeNow()
+		UI.rescue.update("gate_rescue", 3, 3, true, true, {
+			zone = 3,
+			startsAt = t,
+			phase = 0.4,
+			speed = 1,
+			zoneEndsAt = t + 5,
+		})
+		local outcome = barGui:FindFirstChild("Outcome", true) :: TextLabel?
+		assert(outcome and outcome.Text == "Rescued!", "uigate: no Rescued! banner (#2460)")
+		assert(not tap.Visible, "uigate: the tap catcher still covers the screen after the rescue (#2460)")
+		UIShim.advance(5)
+		UI.rescue.show("gate_rescue", rescueChallenge())
+		assert(tap.Visible, "uigate: the next rescue has no tap catcher (#2460)")
+	end },
 	-- #2219 (crispi_255): a rescuer two hits in misses; the server sends the bar back to the start (no hits, zone 1)
 	-- and the flash says "MISS! Back to the start", whole, with every pip empty
 	{ "RescueMissReset", function()

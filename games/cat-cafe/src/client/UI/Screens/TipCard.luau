@@ -39,12 +39,16 @@ local BAR_H = 5
 local SLIDE = TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 local SLIDE_OUT = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 local HIDDEN_Y = -(CARD_H + 20)
+local CLEAR = 8 -- the gap kept under anything in `avoid` (#2393)
 
 local TipCard = {}
 TipCard.__index = TipCard
 
-function TipCard.new(parent: Instance): TipCard
+-- `avoid` gives the HUD pieces the card must not cover at the top centre (the counters and Luck row on a phone,
+-- #2393); nil keeps it at TOP.
+function TipCard.new(parent: Instance, avoid: (() -> { GuiObject })?): TipCard
 	local self = setmetatable({}, TipCard) :: any
+	self._avoid = avoid
 	self._token = 0
 	self._onDone = nil :: ((tapped: boolean) -> ())?
 	self._drain = nil :: Tween?
@@ -160,6 +164,34 @@ function TipCard._fit(self: any)
 	self._card.Size = UDim2.fromOffset(math.min(CARD_W, math.max(240, width - 32)), CARD_H)
 end
 
+-- How far down the card comes (design px): TOP, or just under anything in `avoid` it would cover there.
+function TipCard._clearTop(self: any): number
+	local avoid: (() -> { GuiObject })? = self._avoid
+	local root: Frame = self._card.Parent
+	local scale = self._uiScale.Scale
+	if avoid == nil or scale <= 0 or root.AbsoluteSize.X <= 0 then
+		return TOP
+	end
+	local width = self._card.Size.X.Offset * scale
+	local left = root.AbsolutePosition.X + (root.AbsoluteSize.X - width) / 2 - CLEAR * scale
+	local right = left + width + 2 * CLEAR * scale
+	local rootTop = root.AbsolutePosition.Y
+	local top = TOP
+	for _, object in avoid() do
+		local size, at = object.AbsoluteSize, object.AbsolutePosition
+		if
+			object.Visible
+			and size.X > 0
+			and at.X < right
+			and at.X + size.X > left
+			and at.Y < rootTop + (TOP + CARD_H + CLEAR) * scale
+		then
+			top = math.max(top, math.ceil((at.Y + size.Y - rootTop) / scale) + CLEAR)
+		end
+	end
+	return top
+end
+
 function TipCard.show(
 	self: any,
 	text: string,
@@ -184,11 +216,12 @@ function TipCard.show(
 	card.Visible = true
 	local bar: Frame = self._bar
 	bar.Size = UDim2.fromScale(1, 1)
+	local top = self:_clearTop()
 	if GuiService.ReducedMotionEnabled then
-		card.Position = UDim2.new(0.5, 0, 0, TOP)
+		card.Position = UDim2.new(0.5, 0, 0, top)
 	else
 		card.Position = UDim2.new(0.5, 0, 0, HIDDEN_Y)
-		TweenService:Create(card, SLIDE, { Position = UDim2.new(0.5, 0, 0, TOP) }):Play()
+		TweenService:Create(card, SLIDE, { Position = UDim2.new(0.5, 0, 0, top) }):Play()
 	end
 	Sound.play("uiHint")
 	local drain = TweenService:Create(

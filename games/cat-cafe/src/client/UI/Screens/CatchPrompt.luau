@@ -22,11 +22,13 @@
 -- cap when the player's input changes.
 -- bindProximityPrompts() in init.luau wires all of this to any ProximityPrompt with Style = Custom.
 
+local GuiService = game:GetService("GuiService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Cooldown = require(script.Parent.Parent.Components.Cooldown)
 local Create = require(script.Parent.Parent.Components.Create)
+local NetButtonPlace = require(script.Parent.Parent.Components.NetButtonPlace)
 local Scale = require(script.Parent.Parent.Scale)
 local Signal = require(script.Parent.Parent.Components.Signal)
 local Theme = require(script.Parent.Parent.Theme)
@@ -52,6 +54,7 @@ export type CatchPrompt = {
 	waiting: (self: CatchPrompt) -> (),
 	hide: (self: CatchPrompt) -> (),
 	isVisible: (self: CatchPrompt) -> boolean,
+	grabShowing: (self: CatchPrompt) -> boolean, -- #2409
 	blockedText: (self: CatchPrompt) -> string?,
 	holdStart: (self: CatchPrompt) -> (),
 	holdStop: (self: CatchPrompt) -> (),
@@ -89,6 +92,7 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		Parent = screenGui,
 	})
 	self._uiScale = Scale.bind(root)
+	self._root = root
 
 	-- Card
 	local card: Frame = Create("Frame", {
@@ -284,6 +288,8 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 	self._miniRing = ring
 
 	-- Mobile CATCH button (bottom right, right of the Shove button); reads RESCUE on a stuck cat
+	-- #2409 (Derek2: "rescue button is overlapping net button on mobile"): it takes the Net button's own spot, up and
+	-- left of the jump button (_placeGrab), and the Net button steps away while it shows (UI's blocked())
 	local grab: TextButton = Create("TextButton", {
 		Name = "Grab",
 		Text = "",
@@ -300,6 +306,14 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		Create("UIStroke", { Color = Theme.colors.goodDark, Thickness = 4 }),
 	})
 	self._grab = grab
+	table.insert(
+		self._connections,
+		root:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+			if grab.Visible then
+				self:_placeGrab() -- a phone turned
+			end
+		end)
+	)
 	-- a gold disc that grows from the centre over the hold, under the word
 	self._grabFill = Create("Frame", {
 		Name = "Fill",
@@ -317,10 +331,13 @@ function CatchPrompt.new(parent: Instance): CatchPrompt
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 3,
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge,
+		TextScaled = true, -- "PICK UP" and "RESCUE" fit the Net button's size on a small phone
 		TextColor3 = Theme.colors.goodText,
 		Text = "CATCH",
 		Parent = grab,
+	}, {
+		Create("UITextSizeConstraint", { MaxTextSize = Theme.sizes.textLarge }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }),
 	})
 	local holding = false
 	table.insert(
@@ -422,6 +439,32 @@ function CatchPrompt._paintInput(self: any)
 	self._keyFrame.Visible = not touch
 	self._holdTag.Visible = self._holdDuration > 0 and not touch
 	self._grab.Visible = touch
+	if touch then
+		self:_placeGrab()
+	end
+end
+
+-- #2409: the touch button on the Net button's spot (Components/NetButtonPlace, in screen pixels), the same size, so
+-- it never lands on the Net or jump buttons or the HUD's corner beside them
+function CatchPrompt._placeGrab(self: any)
+	local camera = Workspace.CurrentCamera
+	local root: Frame = self._root
+	local scale = self._uiScale.Scale
+	if camera == nil or scale <= 0 or root.AbsoluteSize.Y <= 0 then
+		return
+	end
+	local at, size = NetButtonPlace.place(camera.ViewportSize)
+	local inset = GuiService:GetGuiInset()
+	local origin = root.AbsolutePosition + inset
+	local grab: TextButton = self._grab
+	grab.AnchorPoint = Vector2.zero
+	grab.Position = UDim2.fromOffset((at.X - origin.X) / scale, (at.Y - origin.Y) / scale)
+	grab.Size = UDim2.fromOffset(size / scale, size / scale)
+end
+
+-- #2409: the big touch button shows (the Net button stays away meanwhile)
+function CatchPrompt.grabShowing(self: any): boolean
+	return self.screenGui.Enabled and self._grab.Visible
 end
 
 function CatchPrompt.show(self: any, info: Types.CatchInfo)

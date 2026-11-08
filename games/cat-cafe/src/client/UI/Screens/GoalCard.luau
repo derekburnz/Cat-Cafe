@@ -25,6 +25,7 @@ local FitText = require(script.Parent.Parent.Components.FitText)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local RankUp = require(script.Parent.RankUp)
+local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local TutorialArrow = require(script.Parent.Parent.Components.TutorialArrow)
@@ -43,20 +44,30 @@ export type GoalCard = {
 -- "Rank up!" pill at its right once ready and a thin bar per requirement under its caption and numbers ("Coins
 -- $879 / $1.5K", "Different cats ✓"; the friend 11-04: "put the labels back"). At the top tier the card holds the
 -- tier's line alone.
-local WIDTH = 250
-local PAD = 10
-local TIER_H = 18
-local GOAL_H = 16 -- #2331: the "YOUR GOAL" line over the title
+-- #2397 (Derek2 11-08: "shrink the your goal box by at least 25% to free up more screen space", then "net overlaps
+-- your goal bubble so make sure your goal is much smaller", #2415): on touch the card is about 30% narrower and 30%
+-- shorter (half the screen), with tight rows, smaller captions, title and sticker
+local TOUCH = Scale.isTouch()
+local WIDTH = if TOUCH then 180 else 250
+local PAD = if TOUCH then 6 else 10
+local TIER_H = if TOUCH then 15 else 18
+local GOAL_H = if TOUCH then 12 else 16 -- #2331: the "YOUR GOAL" line over the title
 local GOAL_TEXT = "🏆 YOUR GOAL"
-local TITLE_H = 30
+local TITLE_H = if TOUCH then 20 else 30
+local TITLE_TEXT = if TOUCH then Theme.sizes.textBody else Theme.sizes.textBody + 6
+local BADGE_ROOM = if TOUCH then 66 else 96 -- the title's room left of the "Rank up!" sticker
+local BADGE_H = if TOUCH then 18 else 22
+local BADGE_TEXT = if TOUCH then Theme.sizes.textTiny else Theme.sizes.textSmall
+local BADGE_PAD = if TOUCH then 6 else 10
+local CAPTION_TEXT = if TOUCH then Theme.sizes.textTiny + 1 else Theme.sizes.textSmall
 local TOP = GOAL_H + TITLE_H + 4 -- the first bar
 local EDGE = 2.5 -- #2331: the gold edge, pulsing up to EDGE_READY while a rank up waits
 local EDGE_READY = 5
 local PULSE = TweenInfo.new(0.6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
-local CAPTION_H = 17
-local BAR_H = 7
+local CAPTION_H = if TOUCH then 14 else 17
+local BAR_H = if TOUCH then 4 else 7
 local ROW = CAPTION_H + 2 + BAR_H
-local ROW_GAP = 6
+local ROW_GAP = if TOUCH then 2 else 6
 local CARD_TRANSPARENCY = 0.12
 local PILL_COLOR = Color3.fromHex("FF6B81")
 local ROWS = 3
@@ -137,8 +148,8 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 	})
 	self._title = text({
 		Name = "Title",
-		Size = UDim2.new(1, -96, 0, TITLE_H),
-		TextSize = Theme.sizes.textBody + 6,
+		Size = UDim2.new(1, -BADGE_ROOM, 0, TITLE_H),
+		TextSize = TITLE_TEXT,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Parent = frame,
 	})
@@ -151,9 +162,9 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, 0, 0, GOAL_H + TITLE_H / 2),
 		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 22),
+		Size = UDim2.fromOffset(0, BADGE_H),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textSmall,
+		TextSize = BADGE_TEXT,
 		TextColor3 = Theme.colors.white,
 		Text = "Rank up!",
 		Visible = false,
@@ -161,7 +172,10 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 		Parent = frame,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
+		Create(
+			"UIPadding",
+			{ PaddingLeft = UDim.new(0, BADGE_PAD), PaddingRight = UDim.new(0, BADGE_PAD) }
+		),
 	})
 	Outline.text(self._badge)
 	Outline.border(self._badge, 2)
@@ -224,6 +238,7 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 			label = text({
 				Name = "Label",
 				Size = UDim2.new(0.55, 0, 0, CAPTION_H),
+				TextSize = CAPTION_TEXT,
 				TextXAlignment = Enum.TextXAlignment.Left,
 				Parent = row,
 			}),
@@ -232,6 +247,7 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 				AnchorPoint = Vector2.new(1, 0),
 				Position = UDim2.fromScale(1, 0),
 				Size = UDim2.new(0.45, 0, 0, CAPTION_H),
+				TextSize = CAPTION_TEXT,
 				Parent = row,
 			}),
 		}
@@ -267,7 +283,9 @@ function GoalCard.render(self: any, progress: RankUp.Progress?, tierText: string
 		for _, row in self._rows do
 			row.frame.Visible = false
 		end
-		self.frame.Size = UDim2.fromOffset(WIDTH, TITLE_H + 2 + CAPTION_H + PAD * 2)
+		-- (a finger tall on touch: the card is the nudge's button)
+		self.frame.Size =
+			UDim2.fromOffset(WIDTH, Scale.tapHeight(TITLE_H + 2 + CAPTION_H + PAD * 2))
 		self._badge.Visible = false
 		self._ready = false
 		self._goalLine.Visible = false
@@ -275,7 +293,7 @@ function GoalCard.render(self: any, progress: RankUp.Progress?, tierText: string
 		return
 	end
 	self._title.Position = UDim2.fromOffset(0, GOAL_H)
-	self._title.Size = UDim2.new(1, -96, 0, TITLE_H)
+	self._title.Size = UDim2.new(1, -BADGE_ROOM, 0, TITLE_H)
 	local nextTier = if progress then progress.nextTier else nil
 	self._tier.Visible = nextTier == nil -- the top tier: its line alone
 	self._title.Visible = nextTier ~= nil

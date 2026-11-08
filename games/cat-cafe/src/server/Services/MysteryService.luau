@@ -5,7 +5,7 @@
 -- now (shared/Potions.rollGift). The plot attributes MysteryVisitorUntil and MysteryGiftAt are display only: each
 -- client builds the visitor and the gift from them (CustomerController) and the effects follow their tags;
 -- MysteryTable names the gift's table.
--- The gift's anchor, MysteryGiftAnchor on the table top, carries the hold E GiftPrompt (Custom style: the UI draws
+-- The gift's anchor, MysteryGiftAnchor on the table top, carries the one-press GiftPrompt (Custom style: the UI draws
 -- the pill with the gift's chances and turns it off for anyone but the owner). The owner opens it with the prompt or
 -- OpenMysteryGift() within MysteryRangeStuds. Only an opening pays (Derek 2026-10-28 01:32: "if you miss it you miss
 -- it"): an unopened gift is gone after MysteryGiftKeepSeconds or when its owner leaves, never opened for them.
@@ -183,7 +183,7 @@ local function arrive(
 	prompt.Style = Enum.ProximityPromptStyle.Custom
 	prompt.ActionText = "Open"
 	prompt.ObjectText = "Mystery gift"
-	prompt.HoldDuration = 0.5
+	prompt.HoldDuration = 0 -- one press (#2340, Derek2: "a one click confirm instead of hold")
 	prompt.MaxActivationDistance = Config.MysteryRangeStuds
 	prompt.RequiresLineOfSight = false
 	prompt.Triggered:Connect(onOpen) -- onOpen checks the owner and the range itself

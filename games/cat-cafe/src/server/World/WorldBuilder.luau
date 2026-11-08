@@ -1746,8 +1746,9 @@ local function buildCampExtras(parent: Instance)
 		prompt.Name = CampExtras.PROMPT
 		prompt.ObjectText = def.name
 		prompt.ActionText = if def.kind == "shop" then "See the crates" else "Collect"
-		-- #2326 (Derek2: "make a lot of the buttons to access menu's a one click"): a shop opens on one press
-		prompt.HoldDuration = if def.kind == "shop" then 0 else 0.3
+		-- #2326 (Derek2: "make a lot of the buttons to access menu's a one click"): a shop opens on one press, and
+		-- #2340 (Derek2: "make pretty much all buttons in the game a one click confirm instead of hold"): so does Collect
+		prompt.HoldDuration = 0
 		prompt.MaxActivationDistance = Config.CampExtraRangeStuds
 		prompt.RequiresLineOfSight = false
 		prompt.Style = Enum.ProximityPromptStyle.Custom

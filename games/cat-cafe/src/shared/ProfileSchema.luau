@@ -285,6 +285,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 			funnel = Onboarding.VERSION,
 			firstDay = now // DAY_SECONDS,
 			introStep = 0,
+			firstHourStep = 0,
 		},
 		tipsSeen = {},
 		feedbackAsked = false,
@@ -719,7 +720,8 @@ local function sanitizeCodes(value: any): { [string]: number }
 end
 
 -- F87: a state saved before version 19 counts its steps in the 12 step funnel v1, one before #1273 in the 25 step
--- funnel v2, one before #1888 in the 37 step funnel v3; Onboarding.fromOld takes any of them out of the funnel v4 once
+-- funnel v2, one before #1888 in the 37 step funnel v3, one before #2391 in the 46 step v4; Onboarding.fromOld takes
+-- any of them out of the funnel v5 once
 -- it had logged a first catch, else back to its start (#1273: no save version, since `funnel` already tells the
 -- funnels apart). A first day in the future is
 -- clamped to today.
@@ -730,6 +732,7 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		funnel = Onboarding.VERSION,
 		firstDay = 0,
 		introStep = 0,
+		firstHourStep = 0,
 	}
 	if type(value) ~= "table" then
 		return telemetry
@@ -737,6 +740,7 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 	local step = math.max(0, asInt(value.onboardingStep, 0))
 	local achieved: { [string]: boolean } = {}
 	local introStep = math.max(0, asInt(value.introStep, 0))
+	local firstHourStep = math.max(0, asInt(value.firstHourStep, 0))
 	if value.funnel == Onboarding.VERSION then
 		if type(value.achieved) == "table" then
 			for key, held in value.achieved do
@@ -748,8 +752,13 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 	else
 		local old = if type(value.funnel) == "number" then value.funnel else nil
 		step = Onboarding.fromOld(old, step)
-		-- a player out of the funnel is out of the intro one too
-		introStep = if step >= Onboarding.COUNT then Onboarding.INTRO_COUNT else 0
+		-- a player out of the funnel is out of the intro one too; #2391: v5 keeps v4's intro funnel, so a v4 save keeps
+		-- its intro step
+		if old ~= 4 then
+			introStep = if step >= Onboarding.COUNT then Onboarding.INTRO_COUNT else 0
+		end
+		-- #2391: first_hour came with v5, so a player out of the funnel is out of it too
+		firstHourStep = if step >= Onboarding.COUNT then Onboarding.FIRST_HOUR_COUNT else 0
 	end
 	telemetry.onboardingStep = math.clamp(step, 0, Onboarding.COUNT)
 	for later = telemetry.onboardingStep + 1, Onboarding.COUNT do
@@ -759,6 +768,7 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		end
 	end
 	telemetry.introStep = math.clamp(introStep, 0, Onboarding.INTRO_COUNT)
+	telemetry.firstHourStep = math.clamp(firstHourStep, 0, Onboarding.FIRST_HOUR_COUNT)
 	telemetry.firstDay = math.clamp(asInt(value.firstDay, 0), 0, now // DAY_SECONDS)
 	return telemetry
 end

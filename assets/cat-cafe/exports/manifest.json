@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-08 17:38 UTC",
+  "generated": "2026-11-08 19:39 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -237444,6 +237444,144 @@
           "centered": "footprint center x=0.00 y=-0.03"
         }
       }
+    },
+    {
+      "name": "CatCafe_Decor_PartyBunting",
+      "category": "Decor",
+      "module": "eventdecor",
+      "objects": [
+        "CatCafe_Decor_PartyBunting",
+        "CatCafe_Decor_PartyBunting_Flag01_Pennant",
+        "CatCafe_Decor_PartyBunting_Flag02_Pennant",
+        "CatCafe_Decor_PartyBunting_Flag03_Pennant",
+        "CatCafe_Decor_PartyBunting_Flag04_Pennant",
+        "CatCafe_Decor_PartyBunting_Flag05_Pennant",
+        "CatCafe_Decor_PartyBunting_Flag06_Pennant",
+        "CatCafe_Decor_PartyBunting_Flag07_Pennant"
+      ],
+      "triangles": 1144,
+      "budget": 2400,
+      "size_studs": {
+        "x": 4.28,
+        "y": 1.07,
+        "z": 4.28
+      },
+      "size_roblox": [
+        4.28,
+        4.28,
+        1.07
+      ],
+      "bounds_min": [
+        -2.07,
+        -0.72,
+        0.0
+      ],
+      "bounds_max": [
+        2.21,
+        0.35,
+        4.28
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Decor_PartyBunting_Flag01_Pennant": [
+          1.25,
+          0.0,
+          2.85
+        ],
+        "CatCafe_Decor_PartyBunting_Flag02_Pennant": [
+          0.83,
+          0.0,
+          2.71
+        ],
+        "CatCafe_Decor_PartyBunting_Flag03_Pennant": [
+          0.42,
+          0.0,
+          2.63
+        ],
+        "CatCafe_Decor_PartyBunting_Flag04_Pennant": [
+          -0.0,
+          0.0,
+          2.6
+        ],
+        "CatCafe_Decor_PartyBunting_Flag05_Pennant": [
+          -0.42,
+          0.0,
+          2.63
+        ],
+        "CatCafe_Decor_PartyBunting_Flag06_Pennant": [
+          -0.83,
+          0.0,
+          2.71
+        ],
+        "CatCafe_Decor_PartyBunting_Flag07_Pennant": [
+          -1.25,
+          0.0,
+          2.85
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Decor_PartyBunting_Flag01_Pennant": [
+          -1.25,
+          2.85,
+          0.0
+        ],
+        "CatCafe_Decor_PartyBunting_Flag02_Pennant": [
+          -0.83,
+          2.71,
+          0.0
+        ],
+        "CatCafe_Decor_PartyBunting_Flag03_Pennant": [
+          -0.42,
+          2.63,
+          0.0
+        ],
+        "CatCafe_Decor_PartyBunting_Flag04_Pennant": [
+          0.0,
+          2.6,
+          0.0
+        ],
+        "CatCafe_Decor_PartyBunting_Flag05_Pennant": [
+          0.42,
+          2.63,
+          0.0
+        ],
+        "CatCafe_Decor_PartyBunting_Flag06_Pennant": [
+          0.83,
+          2.71,
+          0.0
+        ],
+        "CatCafe_Decor_PartyBunting_Flag07_Pennant": [
+          1.25,
+          2.85,
+          0.0
+        ]
+      },
+      "studio": "F53 crate piece: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, no collision (CatCafe_Decor_). _Glow parts are Neon all day, _Water is Glass 0.3, _Glass Glass 0.45. The server sets DecorId, so a Mythical's effect finds it.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Decor_PartyBunting.model.json",
+      "rbx_parts": 82,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Decor_PartyBunting.fbx",
+        "assets/cat-cafe/exports/CatCafe_Decor_PartyBunting.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1144/2400 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "565 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.07 y=-0.18"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_PartyBunting.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_PartyBunting.png"
     },
     {
       "name": "CatCafe_Sign_VipPlate",

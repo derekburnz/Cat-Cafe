@@ -1,4 +1,10 @@
 {
+  "Decor_PartyBunting": {
+    "name": "Party Bunting",
+    "kind": "decoration",
+    "model": "CatCafe_Decor_PartyBunting",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_Decor_PartyBunting.png"
+  },
   "alley_brick_wall": {
     "name": "Brick Wall",
     "kind": "wallpaper",

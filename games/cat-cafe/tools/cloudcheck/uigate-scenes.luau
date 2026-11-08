@@ -3729,17 +3729,43 @@ local SCENES = {
 		end
 		assert(dot, "uigate: no × on the Tutorial tile (#2211)")
 		UI.update({ tutorialStep = 9 } :: any)
-		UIShim.advance(3.5) -- the scene before may leave the tutorial mid-way, which this update just finished
+		UIShim.advance(6.5) -- the scene before may leave the tutorial mid-way, which this update just finished
 		UI.update({ tutorialStep = 9 } :: any)
 		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the × pulses with no tutorial step done (#2211)")
 		UI.update({ tutorialStep = 4 } :: any)
 		UI.update({ tutorialStep = 9 } :: any)
 		assert(dot:FindFirstChild("PulseRing"), "uigate: the × does not pulse when the tutorial ends (#2211)")
-		UIShim.advance(3.5)
-		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the ×'s pulse does not end (#2211)")
+		-- #2411 (Derek2: "the highlight to remove the tutorial/tips after finishing tutorial is missing and the X isn't
+		-- obvious"): a gold "Hide tips with ×" tag beside the tile while it pulses, whole on the screen, and the × at
+		-- least 21 px across
+		local function hint(): TextLabel?
+			return (hud :: Instance):FindFirstChild("HideHint", true) :: TextLabel?
+		end
+		UIShim.advance(1) -- the icon row settles
+		local tag = hint()
+		assert(tag and tag.Visible and tag.TextFits, "uigate: no Hide tips tag by the Tutorial tile's × (#2411)")
+		local screen = ((hud :: Instance) :: ScreenGui).AbsoluteSize
+		local t0, t1 = tag.AbsolutePosition, tag.AbsolutePosition + tag.AbsoluteSize
+		assert(t0.X >= 0 and t1.X <= screen.X, "uigate: the Hide tips tag runs off the screen (#2411)")
+		local across = (dot :: GuiObject).AbsoluteSize.X
+		assert(across >= 21 - 0.5, ("uigate: the Tutorial tile's × is %.1f px across (#2411)"):format(across))
+		UIShim.advance(6.5)
+		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the ×'s pulse does not end (#2411)")
 		assert(dot:FindFirstChild("Pulse") == nil, "uigate: the ×'s bounce does not end (#2211)")
+		assert(hint() == nil, "uigate: the Hide tips tag does not go (#2411)")
+		-- #2411: a tutorial that ends with the HUD off the screen (a cut, a cutscene) pulses once it is back
+		UI.setVisible(false)
+		UI.update({ tutorialStep = 4 } :: any)
+		UI.update({ tutorialStep = 9 } :: any)
+		UIShim.advance(1)
+		assert(dot:FindFirstChild("PulseRing") == nil, "uigate: the × pulsed with the HUD hidden (#2411)")
+		UI.setVisible(true)
+		UIShim.advance(0.5)
+		assert(dot:FindFirstChild("PulseRing"), "uigate: the × did not pulse once the HUD came back (#2411)")
+		UIShim.advance(6.5)
 		UI.update({ tutorialStep = 4 } :: any)
 		UI.update({ tutorialStep = 9 } :: any) -- again, for the picture
+		UIShim.advance(1)
 	end },
 	-- F87 section 2g: "Need a hand?" after 90 s on one tutorial step
 	{ "HelpCard", function()

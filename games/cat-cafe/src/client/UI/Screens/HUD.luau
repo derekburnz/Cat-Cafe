@@ -299,9 +299,14 @@ local ICON_ROW_W = 5 * ICON + 4 * Theme.sizes.gap -- Tutorial, Rewards, Trade, F
 local POP_W = 220
 local POP_ROW_H = Scale.tapHeight(44, Theme.sizes.buttonDepth)
 local POP_PAD = 8
-local HIDE_HIT = 30 -- the Tutorial tile's × takes taps this big round its 20 px red dot
--- #2211 (crispi_255): when the tutorial ends, the × bounces in a gold ring this long, so players see it hides the tile
-local HIDE_PULSE_SECONDS = 3
+-- #2411 (Derek2: "the X isn't obvious"): a bigger red × (it was a 20 px dot) taking bigger taps
+local HIDE_DOT = if Scale.isTouch() then 28 else 24
+local HIDE_HIT = if Scale.isTouch() then 42 else 36 -- the Tutorial tile's × takes taps this big round its red dot
+-- #2211 (crispi_255): when the tutorial ends, the × bounces in a gold ring this long, so players see it hides the tile;
+-- #2411: twice as long, with a "Hide tips" tag beside the tile
+local HIDE_PULSE_SECONDS = 6
+local HIDE_HINT_H = 24
+local HIDE_WAIT_SECONDS = 120 -- #2411: how long the pulse waits for the HUD to be on screen and free
 local HIDE_BOUNCE = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, 2, true)
 -- F72: the Tutorial tile's two gold pulses the first time it shows after an intro
 local GLOW = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 1, false, 0.15)
@@ -842,7 +847,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(20, 20),
+		Size = UDim2.fromOffset(HIDE_DOT, HIDE_DOT),
 		ZIndex = 8,
 		Parent = hide,
 	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
@@ -851,7 +856,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	label({
 		Name = "Cross",
 		Size = UDim2.fromScale(1, 1),
-		TextSize = Theme.sizes.textSmall,
+		TextSize = Theme.sizes.textBody, -- #2411: was textSmall
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "×",
 		ZIndex = 9,
@@ -2349,10 +2354,33 @@ end
 
 -- #2211 (crispi_255: "highlight the x for tutorial/steps for a couple seconds after finishing the tutorial"): the
 -- Tutorial tile's red × gets a gold ring and bounces for HIDE_PULSE_SECONDS (holding still under Reduce Motion), then
--- goes back to how it was. Once at a time; nothing while the tile is hidden.
+-- goes back to how it was. Once at a time.
+-- #2411 (Derek2: "the highlight to remove the tutorial/tips after finishing tutorial is missing"): the tutorial often
+-- ends mid-moment (a catch, a cut, a window), when the pulse played unseen or not at all; it now waits up to
+-- HIDE_WAIT_SECONDS for the tile to be on screen with no catch, and a gold "Hide tips" tag beside the tile points at it.
+function HUD._hideFree(self: any): boolean
+	return self._tutorialTile.instance.Visible == true
+		and self.screenGui.Enabled == true
+		and self._catching ~= true
+end
+
 function HUD.pulseHide(self: any)
 	local dot: Frame = self._hideDot
-	if not self._tutorialTile.instance.Visible or dot:FindFirstChild("Pulse") then
+	if dot:FindFirstChild("Pulse") or self._hideWaiting then
+		return
+	end
+	if not self:_hideFree() then
+		self._hideWaiting = true
+		task.spawn(function()
+			local waitUntil = os.clock() + HIDE_WAIT_SECONDS
+			while os.clock() < waitUntil and dot.Parent ~= nil and not self:_hideFree() do
+				task.wait(0.25)
+			end
+			self._hideWaiting = false
+			if dot.Parent ~= nil and self:_hideFree() then
+				self:pulseHide()
+			end
+		end)
 		return
 	end
 	local scale: UIScale = Create("UIScale", { Name = "Pulse", Parent = dot })
@@ -2372,9 +2400,32 @@ function HUD.pulseHide(self: any)
 		TweenService:Create(scale, HIDE_BOUNCE, { Scale = 1.35 }):Play()
 	end
 	Sound.play("uiHint")
+	-- #2411: a gold "Hide tips ×" tag beside the tile, pointing at the × while it pulses
+	local hint: TextLabel = label({
+		Name = "HideHint",
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(0, -2, 0.5, 0),
+		Size = UDim2.fromOffset(0, HIDE_HINT_H),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundColor3 = Theme.colors.gold,
+		BackgroundTransparency = 0,
+		TextColor3 = Theme.colors.ink,
+		TextSize = Theme.sizes.textSmall,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "Hide tips with ×",
+		ZIndex = 9,
+		Parent = dot.Parent, -- the × button: left of the ×, on its line
+	})
+	Create("UICorner", { CornerRadius = UDim.new(0.5, 0), Parent = hint })
+	Create(
+		"UIPadding",
+		{ PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8), Parent = hint }
+	)
+	Outline.border(hint, 2)
 	task.delay(HIDE_PULSE_SECONDS, function()
 		scale:Destroy()
 		ring:Destroy()
+		hint:Destroy()
 	end)
 end
 

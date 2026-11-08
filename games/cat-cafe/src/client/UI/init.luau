@@ -4265,11 +4265,15 @@ do
 				end
 				finished = true
 				tipBusy = false
+				UI.tips.clearStage(false)
 				answerTip(id, skipped == true)
 			end
 			tipBusy = true
 			local ok, played = pcall(play, id, caption, TIP.CUT_SECONDS, done)
 			if ok and played == true then
+				if not finished then
+					UI.tips.clearStage(true)
+				end
 				task.delay(TIP.CUT_TIMEOUT, function()
 					done(false)
 				end)
@@ -4427,6 +4431,25 @@ do
 			tipBusy = false
 		end)
 		return true
+	end
+
+	-- #2408 (Derek2: "because of so many pop ups on cafe tier up its hard to see the cutscene showing next place
+	-- unlocked"): while a camera cut plays (the rank up's look at the next area, and the other context cuts) the HUD
+	-- steps aside as for the intro, and new toasts and popups wait; they show when the cut ends. A cut only starts at a
+	-- free moment (TipQueue.free: the HUD showing, no window), so its end puts the HUD back.
+	UI.tips.staged = false
+	function UI.tips.clearStage(on: boolean)
+		if UI.tips.staged == on then
+			return
+		end
+		UI.tips.staged = on
+		if toasts then
+			toasts:setHeld(on)
+		end
+		if popups then
+			popups:setHeld(on)
+		end
+		UI.setVisible(not on)
 	end
 
 	-- The effects code's camera cut player (see above), or nil to show cut tips as cards.

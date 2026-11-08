@@ -169,14 +169,20 @@ return function()
 			expect(ShopIcons.image("Net_L4")).to.be.ok()
 		end)
 
-		it("has a clean picture for every decor piece in the catalog (#1072)", function()
+		it("has a clean picture for every decor piece in the catalog and every event piece (#1072, #2486)", function()
 			local missing: { string } = {}
 			for _, decor in Catalog.decor do
 				if ShopIcons.decor(decor.id) == nil then
 					table.insert(missing, decor.id)
 				end
 			end
+			for _, decor in Catalog.eventDecor do
+				if ShopIcons.decor(decor.id) == nil then
+					table.insert(missing, decor.id)
+				end
+			end
 			expect(table.concat(missing, ",")).to.equal("")
+			expect(ShopIcons.decor("Decor_PartyBunting")).to.equal("rbxassetid://126747238801401")
 			expect(ShopIcons.decor("alley_brick_wall")).to.equal("rbxassetid://98250313136423")
 			expect(ShopIcons.decor("not_a_piece")).to.equal(nil)
 			expect(ShopIcons.decor(nil)).to.equal(nil)

@@ -4,6 +4,8 @@
 -- catalog decor id. ShopIcons.decor(id) reads it; the 3D model or the letter stands in until a picture has loaded.
 
 return {
+	-- #2486's Cafe Event reward (Model-Agent #2488), uploaded by Tools-Agent on 11-08
+	Decor_PartyBunting = "rbxassetid://126747238801401",
 	alley_brick_wall = "rbxassetid://98250313136423",
 	alley_fire_escape_door = "rbxassetid://105911075684284",
 	alley_fire_escape_red = "rbxassetid://83079646684637",

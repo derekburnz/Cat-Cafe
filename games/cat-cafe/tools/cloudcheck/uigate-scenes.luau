@@ -2974,6 +2974,20 @@ local SCENES = {
 			UI.catch.showGrades("gate_stray", { "perfect", "good", "perfect", "perfect" }, true, 0)
 		end)
 	end },
+	-- #2405 (Derek2: "for mobile people who need to click screen to move cant move for a second due to their screen
+	-- being covered"): the full-screen tap catcher goes with the result, so the result word shows over a screen that
+	-- moves again; the next catch brings it back
+	{ "CatchResultTapThrough", function()
+		startCatch("gate_tap", "Rare", 2, 1, 1)
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+		local tap = layer and layer:FindFirstChild("Tap")
+		assert(tap and tap.Visible, "uigate: no tap catcher during the catch (#2405)")
+		UI.catch.showGrades("gate_tap", { "perfect", "good" }, true, 0)
+		assert(not tap.Visible, "uigate: the tap catcher still covers the screen after the catch (#2405)")
+		UIShim.advance(3)
+		startCatch("gate_tap2", "Rare", 2, 1, 1)
+		assert(tap.Visible, "uigate: the next catch has no tap catcher (#2405)")
+	end },
 	-- Catch v3 (#1884, catch-rework.md 7b, 7c): the trust bar over the stray, no progress strip, a red paw ring with a
 	-- paw print, and the bar moving to the server's trust from CatchJudged
 	{ "CatchV3Trust", function()

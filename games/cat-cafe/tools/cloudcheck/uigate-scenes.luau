@@ -3713,12 +3713,9 @@ local SCENES = {
 			end
 			return count
 		end
-		local touch = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch()
-		if touch then
-			-- #2396 (Derek2: "make it just default to shrunk down"): on touch the row starts folded
-			assert(timers.Folded.Visible and chips() == 0, "uigate: the potion row does not start folded on touch (#2396)")
-			press("CatCafeHUD", "PotionTimers.Folded")
-		end
+		-- #2396 (Derek2: "make sure potion list defaults to closed down on every join"): the row starts folded
+		assert(timers.Folded.Visible and chips() == 0, "uigate: the potion row does not start folded (#2396)")
+		press("CatCafeHUD", "PotionTimers.Folded")
 		local running = chips()
 		assert(running >= 2, "uigate: the scene needs two or more potions running (#2090)")
 		assert(timers.Fold.Visible, "uigate: no arrow tab with " .. running .. " potions running (#2090)")

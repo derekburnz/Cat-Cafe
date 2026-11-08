@@ -10,7 +10,7 @@
 -- phone) that holds the HUD's Luck chip (F88, Screens/LuckChip) and pal chip (F92, Screens/PalChip); setLead keeps it
 -- up while either shows, under its own key.
 -- #2090 (Derek2 11-07: "add an arrow to hide potion effects as if you drink a lot it's a lot of screen clutter"):
--- with two or more potions running, an arrow tab sits at the row's left end. A tap folds the chips away into one
+-- with potions running (two or more until #2396), an arrow tab sits at the row's left end. A tap folds the chips away into one
 -- compact chip (the bottle and how many run, "x5"), and a tap on that brings them back. The choice holds until it is
 -- tapped again (also across a rebuilt HUD); BuffChips.fold(count, folded) says what shows.
 
@@ -49,10 +49,10 @@ local CHIP_GAP = 8
 local TAB_W = 36 -- #2090: the arrow tab at the row's left end (full chip height; wider on touch, Scale.tapHeight)
 local FOLDED_W = 58 -- the folded chip: the bottle over "x5"
 -- #2396 (Derek2 11-08: "the potion menu shrink button is hard to see on mobile so make it just default to shrunk
--- down"): on touch the row starts folded, and the arrow shows with one potion too, so it always folds back
-local TOUCH = Scale.isTouch()
-local FOLD_FROM = if TOUCH then 1 else 2 -- running potions before the arrow shows
-local FOLD_DEFAULT = TOUCH
+-- down", then "make sure potion list defaults to closed down on every join"): the row starts folded on every join,
+-- on every device (the choice is never saved), and the arrow shows with one potion too, so it always folds back
+local FOLD_FROM = 1 -- running potions before the arrow shows
+local FOLD_DEFAULT = true
 
 type Chip = { frame: TextButton, time: TextLabel }
 
@@ -310,7 +310,7 @@ function BuffChips._draw(self: any)
 	end
 	local look = BuffChips.fold(#running, self._folded)
 	if #running == 0 and self._folded ~= FOLD_DEFAULT then
-		-- nothing left running: the next potion starts as the row starts (open on PC, folded on touch, #2396)
+		-- nothing left running: the next potion starts folded, as the row does (#2396)
 		self._folded = FOLD_DEFAULT
 		foldedNow = FOLD_DEFAULT
 	end

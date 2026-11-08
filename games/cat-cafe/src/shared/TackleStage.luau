@@ -1,8 +1,9 @@
 --!strict
 -- The tackling lesson's staged scene (#2312, Derek2: "the cut scene for explaining tackling doesn't actually take
 -- control of your camera like tutorial so it doesn't show you it properly"). Pure: where the two stand-ins walk and
--- lunge and where the camera looks in each of the lesson's four shots, worked out from the ground point under the
--- player and the flat way they face, so IntroController.stageTackle can play it in front of them wherever they are.
+-- lunge and where the camera looks in each of the lesson's four shots, worked out from a viewpoint on the ground and
+-- the flat way it faces. IntroController.stageTackle plays it in the Alleyway, just past its way in (#2446), not at
+-- the player's feet.
 --   shot 1  a carrier (a copy of you with a cat in its arms) walks across; another copy waits off to one side
 --   shot 2  the other copy lunges (from LUNGE_AT for LUNGE_SECONDS) and knocks the carrier back; the cat drops
 --   shot 3  over the shoulder of the tackler, the carrier walking by with its cat again: "this is you tackling"

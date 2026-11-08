@@ -50,7 +50,7 @@ A Cafe Event is a short, scheduled window when every server gets the same free b
 
 The reward pops up on the secure, as other prizes do. The cosmetic is free and can't be sold or traded for Robux. It may be traded between players like other decor, unless decor trading rules say otherwise.
 
-**Rotation: parked for Derek.** Do free event rewards come back at a later event, or is each one a one-time only? The recommendation is that they rotate back, no sooner than 4 weeks later. That keeps "no truly limited items" true for free rewards too. Until Derek answers, the build stores each reward by `cosmeticId`, so either answer works without a schema change.
+**Rewards come back (Derek2, 2026-11-08: "free event rewards can come back later but no need to really give limited items").** No event reward is limited. Each event's cosmetic returns at a later event, no sooner than 4 weeks after it was last given, so a player who missed it can still get it. A player who already has it gets the badge only, plus a small coin gift (`EventRepeatGiftIncomeMinutes`, 10 minutes of income). The build stores each reward by `cosmeticId`.
 
 ## 3. What players see
 
@@ -79,6 +79,7 @@ The icon swaps ("3 HOURS", "NOW", "NEW UPDATE!"), the Creator Hub Experience Eve
 | `EventShowerDefaults` | count 8, gap 900, firstAfter 600 | the 2-hour preset |
 | `EventShowerAreaWeights` | 20 each | the five areas, equal |
 | `EventCountdownSeconds` | 10800 | the countdown shows from T-3h |
+| `EventRepeatGiftIncomeMinutes` | 10 | the coin gift for a player who already owns the event's cosmetic |
 | `EventBigMinGapSeconds` | 518400 | 6 days: the workflow refuses a second `big` event inside this |
 
 Server safety: shower cats are one per slot, at most one new shower every 5 minutes, and each one goes at dusk, so a server never holds more than two at once. The shared strays, traps and waves are unchanged apart from the stacked days. The DataStore read is one call a minute per server.
@@ -94,7 +95,7 @@ Server safety: shower cats are one per slot, at most one new shower every 5 minu
 - **Free for everyone.** Nothing is sold in the event: no event-only products, no paid skips, no "buy now" pop-ups during the window, and no store prompts tied to the banner or the board. The store and Robux prices are unchanged (Derek's rule that nothing tied to the store or Robux changes without his OK).
 - **Countdowns only for real events.** The chip and board show a countdown only for a stored, scheduled event. Nothing counts down to a fake deadline, and no "last chance" wording is used.
 - **The end time always shows**, and an event that has started is never extended (section 3).
-- **No limited paid items.** Free rewards follow Derek's answer in 2e.
+- **No limited items.** Free rewards come back at later events (2e), and nothing paid is limited.
 - **Monetization-Agent's policy check** goes on #2485 before the build merges. It covers the money boost multiplying with the paid passes (an existing pass benefit, so not a new paid edge), and event Luck on bait rolls when food can be bought with Robux (`monetization-policy`: the odds cards show the boosted odds, as they do for any Luck).
 - Players under 13 get no notification prompts from the event. The Experience Event RSVP is Roblox's own and follows Roblox's rules.
 

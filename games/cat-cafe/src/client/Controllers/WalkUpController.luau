@@ -4,6 +4,8 @@
 -- walking away closes it, as the Codes Cat's circle does (CodesController). The stations' prompts stay, so a window
 -- closed by hand opens again with a press. Nothing opens during a catch or a rescue, while carrying a cat or flying,
 -- during the intro or while another window is open. Every window still checks its range on the server.
+-- Each station's glowing floor ring (World/WalkUpCircles, WalkUp.CIRCLE) is where its window opens: stepping inside the
+-- ring opens it. A station without a ring falls back to its prompt's reach (WalkUp.RADIUS_SHARE).
 --
 -- Roblox terms: each station is the server's model, tagged (CollectionService) and Persistent, with a
 -- ProximityPrompt floating on an Attachment or a part; the prompt's MaxActivationDistance is how close its pill shows.
@@ -110,6 +112,23 @@ local function promptPosition(prompt: ProximityPrompt): Vector3?
 	return nil
 end
 
+-- The station's ring: its centre and radius, or nil when it has none. `has` is false without a ring at all (the
+-- prompt's reach is used then), true with one, even while the ring itself is streamed out.
+local function ringOf(model: Instance): (boolean, Vector3?, number)
+	local link = model:FindFirstChild(WalkUp.CIRCLE)
+	if link == nil or not link:IsA("ObjectValue") then
+		return false, nil, 0
+	end
+	local ring = (link :: ObjectValue).Value
+	if ring == nil or not ring:IsA("BasePart") then
+		return true, nil, 0
+	end
+	local radius = ring:GetAttribute("Radius")
+	return true,
+		(ring :: BasePart).Position,
+		if type(radius) == "number" then radius else (ring :: BasePart).Size.X / 2
+end
+
 local function rootPosition(): Vector3?
 	local character = player.Character
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
@@ -158,9 +177,12 @@ function WalkUpController.start()
 						continue -- the templates in ReplicatedStorage.Assets carry the tags too
 					end
 					local prompt = promptOf(model, kind.prompt)
-					local position = if prompt ~= nil and prompt.Enabled
-						then promptPosition(prompt :: ProximityPrompt)
-						else nil
+					local live = prompt ~= nil and prompt.Enabled
+					local hasRing, centre, ringRadius = ringOf(model)
+					local position = if not live
+						then nil
+						elseif hasRing then centre
+						else promptPosition(prompt :: ProximityPrompt)
 					local distance = if at ~= nil and position ~= nil
 						then Vector2.new(at.X - position.X, at.Z - position.Z).Magnitude
 						else nil
@@ -172,8 +194,12 @@ function WalkUpController.start()
 						key = key,
 						window = kind.window,
 						distance = distance,
-						radius = if prompt ~= nil
-							then (prompt :: ProximityPrompt).MaxActivationDistance * WalkUp.RADIUS_SHARE
+						radius = if hasRing
+							then ringRadius
+							elseif
+								prompt ~= nil
+							then (prompt :: ProximityPrompt).MaxActivationDistance
+								* WalkUp.RADIUS_SHARE
 							else 0,
 					})
 				end

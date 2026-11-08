@@ -75,6 +75,9 @@ Remotes.ClientToServer = {
 	-- same odds; 1 a second; answered with SpinAllResult
 	"OpenCrate", -- (crateId: string)  within FishMarketRange of a FishMarket, the crate's zone unlocked, a banked
 	-- crate (used first) or its price in golden fish, CrateOpenCooldownSeconds between opens (F53, shared/Crates)
+	"OpenAllCrates", -- (crateId: string)  #2402: as OpenCrate, but opens every banked crate of that kind, up to
+	-- Crates.OPEN_ALL_MAX, each rolled with the same odds; banked only, never golden fish; 1 every 2 seconds and the
+	-- crate spam limit; answered with CrateAllResult
 	"BuyCrateBundle", -- (crateId: string)  #1051 (crate-prices.md section 3): within FishMarketRange of a FishMarket, a
 	-- crate sold for golden fish whose zone is open, CrateBundlePrice golden fish; banks CrateBundleCount of it, opens
 	-- none (Crates.bundleBlocker); 1 a second, answered with a toast and a ProfileSync
@@ -263,6 +266,8 @@ Remotes.ServerToClient = {
 	-- order, and the prizes added up for the one results card; both empty when nothing was spent
 	"SpinResult", -- (slice: number, amount: number)  the slice a SpinWheel landed on and its coins or foods; 0, 0
 	-- when refused (F49)
+	"CrateAllResult", -- (crateId: string, opened: { Crates.Opened })  #2402: every piece an OpenAllCrates gave, in
+	-- order; empty when refused
 	"CrateResult", -- (crateId: string, decorId: string, duplicate: boolean, refund: number)  the piece an OpenCrate
 	-- gave (its rarity and kind are on its DecorDef) and the golden fish a duplicate paid back; decorId "" when refused
 	"StarterCatResult", -- (ok: boolean, reason: string?)  F96: the answer to ClaimStarterCat; ok plays the happy hop,

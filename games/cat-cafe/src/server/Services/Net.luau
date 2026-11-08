@@ -60,6 +60,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	-- CrateOpenCooldownSeconds (0.3 s) of the last, so Quick open and Buy 5's crates one by one go through
 	OpenCrate = RateLimiter.new(3, 1),
 	BuyCrateBundle = RateLimiter.new(1, 1), -- #1051: 1 a second
+	OpenAllCrates = RateLimiter.new(1, 2), -- #2402: 1 every 2 seconds (and the crate spam limit)
 	BuyFishItem = RateLimiter.new(2, 1), -- golden-fish.md section 8: 2 a second
 	BuyFreshCatch = RateLimiter.new(2, 1), -- F94 (rewards-and-shops.md section 6): answers with FreshCatchStock every time
 	RedeemCode = RateLimiter.new(1, 2), -- data-model section 11d: 1 per 2 s; CodeService locks after wrong codes

@@ -3,7 +3,8 @@
 -- Every catch shout-out (Catching.shoutOut: Legendary and up, or a gold or rainbow coat, #2205) also goes in the chat
 -- of its own server, and on MessagingService topic TOPIC to every other server, where it shows as a chat line only
 -- ("From another cafe: Sam caught a Legendary Maine Coon!"), no toast. server/Services/GlobalCatchService sends and
--- reads it; client/Controllers/RareCatchChatController writes the line.
+-- reads it; client/Controllers/RareCatchChatController writes the line. #2429: Legendary and Mythical crate pieces
+-- too (crateLine).
 --
 -- Rate limits (a gate each): a server publishes at most one line every PUBLISH_GAP_SECONDS and shows at most one
 -- line from other servers every SHOW_GAP_SECONDS; a Mythical always goes through both. MessagingService allows a
@@ -69,6 +70,19 @@ function GlobalCatch.parse(data: unknown, ownJobId: string): (string?, string?)
 		return nil, nil
 	end
 	return text, rarity
+end
+
+-- #2429 (Derek2 2026-11-08: "make rare pulls show up in global chat ... inside the actual chat"): a crate piece of
+-- CRATE_FROM or rarer is a chat line too, as a rare catch is. The player's display name, the piece's rarity and name.
+GlobalCatch.CRATE_FROM = "Legendary"
+
+-- The chat text for `who` pulling a `rarity` piece called `piece` from a crate, or nil below CRATE_FROM.
+function GlobalCatch.crateLine(who: string, rarity: string, piece: string): string?
+	local rank, from = Catalog.rarityRank[rarity], Catalog.rarityRank[GlobalCatch.CRATE_FROM]
+	if rank == nil or from == nil or rank < from then
+		return nil
+	end
+	return string.format("%s pulled a %s %s from a crate!", who, rarity, piece)
 end
 
 -- `text` safe inside a rich text chat line: the five characters rich text reads are escaped.

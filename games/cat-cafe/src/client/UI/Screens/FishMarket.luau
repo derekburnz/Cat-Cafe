@@ -78,6 +78,8 @@ export type Callbacks = {
 	buyFresh: ((itemId: string, window: number?) -> ())?, -- Buy on a Fresh Catch row (F94)
 	-- a Legendary or Mythical piece's big pull card (F89), with onUse for "Use it" on a new style piece
 	bigPull: ((decorId: string, onUse: (() -> ())?) -> ())?,
+	-- Open all on a crate card with two or more banked (#2402): opens every banked one, answered by allResult
+	openAllCrates: ((crateId: string) -> ())?,
 }
 
 export type FishMarket = {
@@ -92,6 +94,7 @@ export type FishMarket = {
 		duplicate: boolean,
 		refund: number
 	) -> (),
+	allResult: (self: FishMarket, crateId: string, opened: { any }) -> (),
 	destroy: (self: FishMarket) -> (),
 }
 
@@ -106,6 +109,7 @@ type CrateCard = {
 	odds: Button.Button,
 	open: Button.Button,
 	bundle: Button.Button, -- Buy 5 (#1051)
+	openAll: Button.Button, -- Open all beside Odds (#2402)
 	seen: number?, -- the crate count at the last render, to end a Buy 5 wait
 	flash: { [string]: number }, -- #1818: "open" or "bundle" -> os.clock() its "Need N more" flash ends
 }
@@ -154,6 +158,7 @@ local SHORT_FLASH_SECONDS = 1.2
 local BUNDLE_COUNT: number? = Config.CrateBundleCount
 local BUNDLE_PRICE: number? = Config.CrateBundlePrice
 local BUNDLE_KEY = "bundle:" -- the pending key of a crate's Buy 5, apart from its Open
+local ODDS_H = 28 -- the Odds button, and Open all beside it (#2402)
 local ROW_HEIGHT = 76
 local TOP_HEIGHT = 44
 local TAB_H = 42 -- a tab or Buy face of 37 px with a mouse; Scale.tapHeight makes it 44 on a phone
@@ -462,6 +467,7 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 
 	self:_buildOdds(panel.body)
 	self:_buildReveal(panel.body)
+	self:_buildSummary(panel.body)
 
 	-- four times a second the range check; once a second the pending presses
 	local rangeClock, clock = 0, 0
@@ -1053,6 +1059,163 @@ function FishMarket._bigPull(self: any, decorId: string, rarity: string?, offerU
 	end)
 end
 
+-- #2402: the Open all summary card over the window: how many opened, each rarity's count rarest first in its
+-- colour, the new pieces, the duplicates and their golden fish back, and the rarest new piece. OK closes it.
+local SUMMARY_LINES = 5 -- one per rarity (Catalog.rarityOrder)
+local SUMMARY_LINE_H = 24
+
+function FishMarket._buildSummary(self: any, body: Frame)
+	local buttonH: number = self._revealButtonH
+	local cover: TextButton = Create("TextButton", {
+		Name = "OpenAllCover",
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundColor3 = Theme.modal.backdrop,
+		BackgroundTransparency = 0.3,
+		Size = UDim2.fromScale(1, 1),
+		ZIndex = 40,
+		Visible = false,
+		Parent = body,
+	})
+	local sheet = card({
+		Name = "OpenAllSummary",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(300, 262 + buttonH),
+		ZIndex = 41,
+		Parent = cover,
+	})
+	local band: Frame = Create("Frame", {
+		Name = "Band",
+		BorderSizePixel = 0,
+		BackgroundColor3 = Theme.colors.goldDark,
+		Size = UDim2.new(1, 0, 0, 40),
+		ZIndex = 42,
+		Parent = sheet,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }) })
+	local title = text({
+		Name = "Title",
+		Size = UDim2.fromScale(1, 1),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		TextColor3 = Theme.colors.white,
+		ZIndex = 43,
+		Parent = band,
+	})
+	Outline.text(title, 2)
+	local lines: { TextLabel } = {}
+	for index = 1, SUMMARY_LINES do
+		local line = text({
+			Name = "Rarity" .. index,
+			Position = UDim2.fromOffset(10, 48 + (index - 1) * SUMMARY_LINE_H),
+			Size = UDim2.new(1, -20, 0, SUMMARY_LINE_H),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textBody + 1,
+			Visible = false,
+			ZIndex = 42,
+			Parent = sheet,
+		})
+		Outline.text(line, 1.5)
+		table.insert(lines, line)
+	end
+	local fresh = text({
+		Name = "Fresh",
+		Position = UDim2.fromOffset(10, 172),
+		Size = UDim2.new(1, -20, 0, 22),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = PAL.good,
+		ZIndex = 42,
+		Parent = sheet,
+	})
+	local duplicates = text({
+		Name = "Duplicates",
+		Position = UDim2.fromOffset(10, 194),
+		Size = UDim2.new(1, -20, 0, 22),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = PAL.gold,
+		ZIndex = 42,
+		Parent = sheet,
+	})
+	local best = text({
+		Name = "Best",
+		Position = UDim2.fromOffset(10, 216),
+		Size = UDim2.new(1, -20, 0, 36),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.subtext,
+		TextWrapped = true,
+		TextTruncate = Enum.TextTruncate.None,
+		ZIndex = 42,
+		Parent = sheet,
+	})
+	local done = Button.new({
+		name = "Done",
+		text = "Nice!",
+		style = "primary",
+		size = UDim2.fromOffset(150, buttonH),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.new(0.5, 0, 1, -10),
+		textSize = Theme.sizes.textBody + 1,
+		zIndex = 42,
+		parent = sheet,
+		onClick = function()
+			cover.Visible = false
+		end,
+	})
+	self._summary = {
+		cover = cover,
+		title = title,
+		lines = lines,
+		fresh = fresh,
+		duplicates = duplicates,
+		best = best,
+		done = done,
+	}
+end
+
+-- Fills and shows the summary card for `opened` (the server's list), and plays the big pull for a Legendary or
+-- Mythical new piece as a single open does.
+function FishMarket._showSummary(self: any, opened: { Crates.Opened })
+	local view = self._summary
+	local summary = Crates.summary(opened)
+	view.title.Text = if #opened == 1
+		then "Opened 1 crate"
+		else ("Opened %d crates"):format(#opened)
+	for index, line: TextLabel in view.lines do
+		local row = summary.rarities[index]
+		line.Visible = row ~= nil
+		if row ~= nil then
+			line.Text = ("%s × %d"):format(row.rarity, row.count)
+			line.TextColor3 = Theme.rarityColor(row.rarity)
+		end
+	end
+	view.fresh.Text = if summary.fresh == 1
+		then "1 new piece! Find it in Decor."
+		elseif summary.fresh > 1 then ("%d new pieces! Find them in Decor."):format(
+			summary.fresh
+		)
+		else "No new pieces this time"
+	view.fresh.TextColor3 = if summary.fresh > 0 then PAL.good else PAL.subtext
+	view.duplicates.Visible = summary.duplicates > 0
+	view.duplicates.Text = ("%d you had: +%s golden fish back"):format(
+		summary.duplicates,
+		Format.short(summary.refund)
+	)
+	local bestDecor: Types.DecorDef? = if summary.best then self._decorById[summary.best] else nil
+	local bestPiece = DecorPieces.info(bestDecor)
+	view.best.Visible = bestDecor ~= nil
+	view.best.Text = if bestDecor
+		then ("Best new piece: %s (%s)"):format(bestDecor.name, bestPiece.rarity or "New")
+		else ""
+	self._oddsCover.Visible = false
+	view.cover.Visible = true
+	if summary.best ~= nil then
+		self:_bigPull(summary.best, bestPiece.rarity, false)
+	end
+end
+
 function FishMarket.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
 	table.clear(self._decorById)
@@ -1091,6 +1254,8 @@ function FishMarket._build(self: any)
 		entry.icon:destroy()
 		entry.odds:destroy()
 		entry.open:destroy()
+		entry.bundle:destroy()
+		entry.openAll:destroy()
 		entry.frame:Destroy()
 	end
 	table.clear(self._crateCards)
@@ -1196,7 +1361,7 @@ function FishMarket._build(self: any)
 			name = "Odds",
 			text = "Odds",
 			style = "ghost",
-			size = UDim2.new(1, -16, 0, 28),
+			size = UDim2.new(1, -16, 0, ODDS_H),
 			position = UDim2.fromOffset(8, 166),
 			textSize = Theme.sizes.textSmall,
 			parent = frame,
@@ -1241,6 +1406,21 @@ function FishMarket._build(self: any)
 				end
 			end,
 		})
+		-- #2402: Open all beside a half-width Odds once two or more are banked; the summary card says what came out
+		local openAll = Button.new({
+			name = "OpenAll",
+			text = "Open all",
+			style = "primary",
+			size = UDim2.new(0.5, -(8 + CRATE_BUTTON_GAP / 2), 0, ODDS_H),
+			anchorPoint = Vector2.new(1, 0),
+			position = UDim2.new(1, -8, 0, 166),
+			textSize = Theme.sizes.textSmall,
+			parent = frame,
+			onClick = function()
+				self:_openAll(crate)
+			end,
+		})
+		openAll.instance.Visible = false
 		table.insert(self._crateCards, {
 			crate = crate,
 			frame = frame,
@@ -1252,6 +1432,7 @@ function FishMarket._build(self: any)
 			odds = odds,
 			open = open,
 			bundle = bundle,
+			openAll = openAll,
 			seen = nil,
 			flash = flash,
 		})
@@ -1444,6 +1625,20 @@ function FishMarket._open(self: any, crate: Types.CrateDef)
 	self:_refreshAfterGate()
 end
 
+-- #2402: Open all. Every banked crate of this kind in one go, under the same busy and spam rule as Open; the
+-- server rolls each exactly as a single Open does and answers once with every piece (allResult).
+function FishMarket._openAll(self: any, crate: Types.CrateDef)
+	local send: ((string) -> ())? = self._callbacks.openAllCrates
+	if send == nil or self._revealing or self._reelView:playing() or self:_crateGate() ~= nil then
+		return
+	end
+	self._pending[crate.id] = os.clock() + PENDING_SECONDS
+	self._lastOpenAt = os.clock()
+	send(crate.id)
+	self:_refresh()
+	self:_refreshAfterGate()
+end
+
 -- #1818: whether a buy of `price` golden fish is more than the player has; a crate already owned opens free.
 function FishMarket._short(self: any, crate: Types.CrateDef?, price: number?): boolean
 	local state: Types.PlayerState? = self._state
@@ -1615,6 +1810,21 @@ function FishMarket._refresh(self: any)
 			then "Epic or better every time"
 			else MarketLogic.luckText(left)
 		entry.luck.TextColor3 = if crate.golden or left <= 1 then PAL.gold else PAL.subtext
+		-- #2402: Open all beside a half-width Odds from OPEN_ALL_FROM banked; "..." while any open is waiting
+		local canAll = self._callbacks.openAllCrates ~= nil
+			and count >= Crates.OPEN_ALL_FROM
+			and open
+		entry.openAll.instance.Visible = canAll
+		entry.odds.instance.Size = if canAll
+			then UDim2.new(0.5, -(8 + CRATE_BUTTON_GAP / 2), 0, ODDS_H)
+			else UDim2.new(1, -16, 0, ODDS_H)
+		if canAll then
+			local all = math.min(count, Crates.OPEN_ALL_MAX)
+			entry.openAll:setText(
+				if pending then "..." else ("Open all (%s)"):format(Format.short(all))
+			)
+			entry.openAll:setEnabled(not pending)
+		end
 	end
 	self._emptyCrates.Visible = shown == 0
 
@@ -1879,6 +2089,43 @@ function FishMarket.result(
 	self:_refresh()
 end
 
+-- #2402: from CrateAllResult. Every piece is already the player's (the server banked them before answering); this
+-- only shows them. Empty when refused (the server's toast says why); a result while closed becomes a toast.
+function FishMarket.allResult(self: any, crateId: string, opened: { any })
+	self._pending[crateId] = nil
+	self:_refreshAfterGate()
+	local list: { Crates.Opened } = {}
+	for _, piece in opened do
+		if type(piece) == "table" and type(piece.decorId) == "string" then
+			table.insert(list, {
+				decorId = piece.decorId,
+				duplicate = piece.duplicate == true,
+				refund = if type(piece.refund) == "number" then piece.refund else 0,
+			})
+		end
+	end
+	if #list == 0 then
+		Sound.play("uiError")
+		self:_refresh()
+		return
+	end
+	if not self.frame.Visible then
+		local summary = Crates.summary(list)
+		self._callbacks.toast(
+			("Opened %d crates: %d new, +%s golden fish back"):format(
+				#list,
+				summary.fresh,
+				Format.short(summary.refund)
+			)
+		)
+		return
+	end
+	self._reelView:stop()
+	self:_hideReveal()
+	self:_showSummary(list)
+	self:_refresh()
+end
+
 -- N132: walking away from the stall closes the window, so a press out of range cannot happen.
 function FishMarket._checkRange(self: any)
 	if not self.frame.Visible then
@@ -1902,6 +2149,8 @@ function FishMarket.destroy(self: any)
 		entry.icon:destroy()
 		entry.odds:destroy()
 		entry.open:destroy()
+		entry.bundle:destroy()
+		entry.openAll:destroy()
 	end
 	for _, entry in self._itemRows do
 		entry.icon:destroy()
@@ -1911,6 +2160,7 @@ function FishMarket.destroy(self: any)
 	self._reveal.icon:destroy()
 	self._reveal.done:destroy()
 	self._reveal.use:destroy()
+	self._summary.done:destroy()
 	self._oddsDone:destroy()
 	self._cratesTab:destroy()
 	self._treatsTab:destroy()

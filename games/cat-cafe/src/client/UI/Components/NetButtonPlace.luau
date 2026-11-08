@@ -13,6 +13,10 @@ local NetButtonPlace = {}
 
 NetButtonPlace.SMALL_SCREEN = 500 -- TouchJump's cut-off on the short side
 NetButtonPlace.GAP = 8 -- between the Net button's bottom and the jump button's top
+-- #2525 (Derek2: "make the net and tackle buttons a little smaller take up a lot of the screen"): 54 px beside the
+-- 70 px jump button (was 64), 80 px beside the 120 px one (was 96); still over the 44 px a thumb needs
+NetButtonPlace.SMALL = 54
+NetButtonPlace.BIG = 80
 NetButtonPlace.TUCK = 0.3 -- of the Net button's size, how far its right edge reaches past the jump button's left
 
 function NetButtonPlace.jump(viewport: Vector2): (Vector2, number)
@@ -24,7 +28,7 @@ end
 
 function NetButtonPlace.place(viewport: Vector2): (Vector2, number)
 	local jumpAt, jumpSize = NetButtonPlace.jump(viewport)
-	local size = if jumpSize <= 70 then 64 else 96
+	local size = if jumpSize <= 70 then NetButtonPlace.SMALL else NetButtonPlace.BIG
 	local right = jumpAt.X + math.floor(size * NetButtonPlace.TUCK)
 	local bottom = jumpAt.Y - NetButtonPlace.GAP
 	return Vector2.new(right - size, bottom - size), size

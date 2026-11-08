@@ -202,6 +202,7 @@ function RescueBar.new(parent: Instance): RescueBar
 		Size = UDim2.fromScale(1, 1),
 		Parent = screenGui,
 	})
+	self._tap = tap
 	self._tapConnection = tap.InputBegan:Connect(function(input: InputObject)
 		if
 			input.UserInputType == Enum.UserInputType.Touch
@@ -569,6 +570,7 @@ function RescueBar.show(
 		table.unpack(PRESS_KEYS)
 	)
 
+	self._tap.Visible = true
 	self.screenGui.Enabled = true
 	Tween.popIn(self._header, 0.9)
 	Tween.popIn(self._group, 0.9)
@@ -823,6 +825,11 @@ function RescueBar.update(
 	local token = self._token
 	ContextActionService:UnbindAction(ACTION_NAME)
 	self._cancel:setEnabled(false)
+	-- #2460 (Derek2 11-08: "the "rescued" on mobile has the same issue that catching used to ... it doesn't let you
+	-- move for a little while after a rescue"): as on the catch circles (#2405), the full-screen tap catcher goes the
+	-- moment the attempt is over, so the result banner shows over a screen that moves again (a thumbstick or a tap
+	-- to move) instead of eating every touch until it closes
+	self._tap.Visible = false
 	if success then
 		self._outcome.Text = "Rescued!"
 		self._outcome.TextColor3 = Theme.colors.good

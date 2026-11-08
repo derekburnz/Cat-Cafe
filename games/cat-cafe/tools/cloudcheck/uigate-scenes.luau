@@ -700,6 +700,28 @@ end
 -- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
 -- "Daily.Quest2.Claim" walks down one name at a time
 -- #2314: tutorial step 3 (a table to buy), with its strip, so the Upgrades tile glows and the big arrow comes
+-- #2403 (Derek2: "the equip best for decor top of banner is too big and sticking out and also equip best disappears
+-- while in style menu"): the Decor window's Equip Best shows, within its header's top and bottom edges
+local function assertEquipBestInHeader(where: string)
+	local modal = UIShim.playerGui:FindFirstChild("CatCafeModals") :: ScreenGui
+	local best = modal:FindFirstChild("EquipBest", true) :: GuiObject
+	assert(best and best.Visible, "uigate: no Equip Best on " .. where .. " (#2403)")
+	local header = (best.Parent :: Instance):FindFirstChild("Header", true) :: GuiObject
+	assert(header, "uigate: the Decor window has no header (#2403)")
+	local top, bottom = best.AbsolutePosition.Y, best.AbsolutePosition.Y + best.AbsoluteSize.Y
+	local headTop, headBottom = header.AbsolutePosition.Y, header.AbsolutePosition.Y + header.AbsoluteSize.Y
+	assert(
+		top >= headTop - 1 and bottom <= headBottom + 1,
+		("uigate: Equip Best (%d to %d) sticks out of the header (%d to %d) on %s (#2403)"):format(
+			top,
+			bottom,
+			headTop,
+			headBottom,
+			where
+		)
+	)
+end
+
 local function tutorialArrowStep()
 	local levels = { tables = 0, lure_bowl = 0, espresso = 0, net = 0, lucky_cat = 0 }
 	UI.update({ tutorialStep = 3, tier = 1, upgradeLevels = levels } :: any)
@@ -956,6 +978,7 @@ local SCENES = {
 	end },
 	{ "Decor", function()
 		UI.open("Decor")
+		assertEquipBestInHeader("the All tab")
 	end },
 	-- #2053 (Derek2: "fish tank background shows blue but its an epic"): a crate piece's picture sits on its rarity's
 	-- tint (the Epic Fish tank purple, the Rare Neon cat sign blue), as its pill
@@ -1066,6 +1089,7 @@ local SCENES = {
 		})
 		UI.open("Decor")
 		press("Decor", "Style")
+		assertEquipBestInHeader("the Style tab")
 	end },
 	-- #2147 (store-pass-looks.md 7.4): with the Cat Accessories pass owned, the accessory row has its small gold line
 	-- under the buttons, "+15% money on every working cat, whatever you pick"

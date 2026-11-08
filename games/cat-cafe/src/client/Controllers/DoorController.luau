@@ -14,6 +14,11 @@
 -- (the F80 cat flap in use, or the plain one a door set brings) rides the leaf in use from its CatFlap attachment,
 -- hides the art's own flap (and its _FlapFrame) and swings its _Flap for cats in that flap's place. Only this
 -- client's copy moves.
+-- #2386 (Derek2 2026-11-08: doors "bugged and floating and old model staying there even when not there", on a lot of
+-- doors): a leaf is posed part by part from where each part hangs in it, not by Model:PivotTo, which only moves the
+-- parts this client has. A part that streams in late, comes back after streaming out or has the server's shut pose
+-- replicated over it joins its leaf instead of standing shut in the doorway (half a door floating), and the hidden
+-- art stays hidden as its parts arrive (the old door showing through a door set).
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -36,6 +41,8 @@ type Leaf = {
 	model: Model,
 	shut: CFrame, -- its pivot as built: shut
 	catFlapRest: CFrame?, -- its CatFlap attachment in its own space, where the server puts Decor.CatFlap
+	parts: { [BasePart]: CFrame }, -- each part in the space of `shut` (placeLeaf)
+	skip: Instance?, -- the art's own flap, posed on its own, not with the leaf
 }
 
 type Swing = {
@@ -48,6 +55,7 @@ type FrontLeaf = {
 	model: Model,
 	shut: CFrame,
 	turn: number, -- BackDoor.frontTurn
+	parts: { [BasePart]: CFrame }, -- as Leaf.parts
 }
 
 type Door = {
@@ -131,7 +139,81 @@ local function leafOf(model: Model): Leaf
 		catFlapRest = if attachment ~= nil and attachment:IsA("Attachment")
 			then shut:Inverse() * (attachment :: Attachment).WorldCFrame
 			else nil,
+		parts = {},
+		skip = nil,
 	}
+end
+
+-- The parts of a leaf, each with its frame in the space of the shut leaf. A part seen for the first time is taken as
+-- the server has it, shut, since only this client ever turns a leaf: one that streams in late or comes back after
+-- streaming out joins the leaf where it hangs now (#2386).
+local function leafParts(
+	model: Model,
+	shut: CFrame,
+	parts: { [BasePart]: CFrame },
+	skip: Instance?
+): ({ BasePart }, { CFrame }, boolean)
+	for part in parts do
+		if part.Parent == nil or not part:IsDescendantOf(model) then
+			parts[part] = nil
+		end
+	end
+	local list: { BasePart } = {}
+	local offsets: { CFrame } = {}
+	local fresh = false
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") and (skip == nil or not descendant:IsDescendantOf(skip)) then
+			local part = descendant :: BasePart
+			local offset = parts[part]
+			if offset == nil then
+				offset = shut:ToObjectSpace(part.CFrame)
+				parts[part] = offset
+				fresh = true
+			end
+			table.insert(list, part)
+			table.insert(offsets, offset)
+		end
+	end
+	return list, offsets, fresh
+end
+
+-- Puts every part of a leaf where it hangs with the leaf at `at` (#2386: part by part, so none is left behind).
+local function placeLeaf(
+	model: Model,
+	shut: CFrame,
+	parts: { [BasePart]: CFrame },
+	skip: Instance?,
+	at: CFrame
+)
+	local list, offsets = leafParts(model, shut, parts, skip)
+	local frames: { CFrame } = {}
+	for i, offset in offsets do
+		frames[i] = at * offset
+	end
+	Workspace:BulkMoveTo(list, frames, Enum.BulkMoveMode.FireCFrameChanged)
+	if model.PrimaryPart == nil then
+		model.WorldPivot = at -- BulkMoveTo leaves a model's own pivot behind
+	end
+end
+
+-- Whether any part of a leaf is not where it hangs with the leaf at `at`, or one has just come in.
+local function leafDrifted(
+	model: Model,
+	shut: CFrame,
+	parts: { [BasePart]: CFrame },
+	skip: Instance?,
+	at: CFrame
+): boolean
+	local list, offsets, fresh = leafParts(model, shut, parts, skip)
+	if fresh then
+		return true
+	end
+	for i, part in list do
+		if not part.CFrame:FuzzyEq(at * offsets[i], 1e-3) then
+			return true
+		end
+	end
+	return false
 end
 
 -- A flap at rest, carried by a model now at `carrier`, swinging into the cafe about the world direction `intoCafe`.
@@ -141,9 +223,13 @@ local function swingOf(model: Model, carrier: CFrame, intoCafe: Vector3): Swing
 end
 
 local function setHidden(model: Instance, hidden: boolean)
+	local k = if hidden then 1 else 0
 	for _, descendant in model:GetDescendants() do
-		if descendant:IsA("BasePart") then
-			(descendant :: BasePart).LocalTransparencyModifier = if hidden then 1 else 0
+		if
+			descendant:IsA("BasePart")
+			and (descendant :: BasePart).LocalTransparencyModifier ~= k
+		then
+			(descendant :: BasePart).LocalTransparencyModifier = k
 		end
 	end
 end
@@ -157,7 +243,7 @@ local function show(door: Door)
 	door.shownAngle = door.angle
 	door.shownFlap = door.flapAngle
 	local leafAt = leaf.shut * CFrame.Angles(0, math.rad(door.angle), 0)
-	leaf.model:PivotTo(leafAt)
+	placeLeaf(leaf.model, leaf.shut, leaf.parts, leaf.skip, leafAt)
 	local turn = math.rad(door.flapAngle)
 	local own = door.ownFlap
 	if own ~= nil and leaf == door.own and not door.ownFlapHidden then
@@ -185,17 +271,18 @@ local function showFront(door: Door)
 	end
 	door.shownFront = door.frontAngle
 	for _, leaf in door.frontLeaves do
-		leaf.model:PivotTo(frontAt(leaf, door.frontAngle))
+		placeLeaf(leaf.model, leaf.shut, leaf.parts, nil, frontAt(leaf, door.frontAngle))
 	end
 end
 
 -- #2251: the server's pose of a leaf (built shut) can replicate over the one this client gave it, so a leaf that is
 -- no longer where it was put is put back on the next frame, instead of showing shut while this client thinks open.
 local function checkDrift(door: Door)
+	-- #2386: every part, not just the pivot, so a part the server or streaming put back shut is found too
 	local leaf = door.leaf
 	if leaf ~= nil and door.shownAngle ~= math.huge and leaf.model.Parent ~= nil then
 		local want = leaf.shut * CFrame.Angles(0, math.rad(door.shownAngle), 0)
-		if not leaf.model:GetPivot():FuzzyEq(want, 1e-3) then
+		if leafDrifted(leaf.model, leaf.shut, leaf.parts, leaf.skip, want) then
 			door.shownAngle = math.huge
 		end
 	end
@@ -203,7 +290,13 @@ local function checkDrift(door: Door)
 		for _, front in door.frontLeaves do
 			if
 				front.model.Parent ~= nil
-				and not front.model:GetPivot():FuzzyEq(frontAt(front, door.shownFront), 1e-3)
+				and leafDrifted(
+					front.model,
+					front.shut,
+					front.parts,
+					nil,
+					frontAt(front, door.shownFront)
+				)
 			then
 				door.shownFront = math.huge
 				break
@@ -235,7 +328,7 @@ local function bindLeaf(door: Door, from: Model?)
 	end
 	local old = door.leaf
 	if old ~= nil and old.model.Parent ~= nil then
-		old.model:PivotTo(old.shut) -- the art's leaf waits shut behind a door set
+		placeLeaf(old.model, old.shut, old.parts, old.skip, old.shut) -- the art's leaf waits shut behind a door set
 	end
 	door.leafFrom = from
 	local leaf: Leaf? = nil
@@ -278,18 +371,23 @@ local function bindFront(door: Door, front: Model?, open: boolean)
 	if same then
 		return
 	end
-	local known: { [Model]: CFrame } = {}
+	local known: { [Model]: FrontLeaf } = {}
 	if door.front == front then
 		for _, leaf in door.frontLeaves do
-			known[leaf.model] = leaf.shut -- this client may have turned it: keep the shut pose read when it came
+			known[leaf.model] = leaf -- this client may have turned it: keep the shut pose read when it came
 		end
 	end
 	local leaves: { FrontLeaf } = {}
 	for model, turn in found do
-		table.insert(
-			leaves,
-			{ model = model, shut = known[model] or model:GetPivot(), turn = turn }
-		)
+		local kept = known[model]
+		local parts: { [BasePart]: CFrame } = if kept ~= nil then kept.parts else {}
+		local leaf: FrontLeaf = {
+			model = model,
+			shut = if kept ~= nil then kept.shut else model:GetPivot(),
+			turn = turn,
+			parts = parts,
+		}
+		table.insert(leaves, leaf)
 	end
 	door.frontLeaves = leaves
 	door.frontSolid = nil
@@ -329,6 +427,8 @@ local function readState(door: Door, open: boolean)
 		door.hidden = replaced
 		setHidden(door.art, replaced)
 		door.ownFlapHidden = replaced
+	elseif replaced then
+		setHidden(door.art, true) -- #2386: and the art's parts that have come in since
 	end
 	local decor = door.plot:FindFirstChild("Decor")
 	bindLeaf(door, if replaced then childModel(decor, "DoorBack") else door.art)
@@ -362,6 +462,13 @@ local function readState(door: Door, open: boolean)
 			setHidden(frame, ownFlapHidden)
 		end
 		door.shownAngle = math.huge
+	elseif flap ~= nil and ownFlapHidden and not replaced then
+		-- the art's flap and its frame stay hidden behind Decor.CatFlap as their parts come in (#2386)
+		setHidden(flap.model, true)
+		local frame = door.flapFrame
+		if frame ~= nil then
+			setHidden(frame, true)
+		end
 	end
 	door.flapSwings = flapHinge(door) ~= nil
 	-- at night an owned cafe's shut doors block everyone but its owner (the closed back door art used to block the
@@ -525,6 +632,7 @@ local function register(instance: Instance)
 	end
 	local own = leafOf(leaf :: Model)
 	local flap = childModel(own.model, ART .. "_Flap")
+	own.skip = flap -- posed on its own, swinging in the leaf
 	local door: Door = {
 		art = art,
 		plot = plot,

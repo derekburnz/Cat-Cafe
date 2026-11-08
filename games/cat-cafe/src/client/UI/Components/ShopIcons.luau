@@ -460,8 +460,12 @@ end
 local PRIZE_FOR: { [string]: string } = { coins = "Bag", fish = "Fish", spins = "Spin" }
 function ShopIcons.prize(kind: string?): string?
 	local name = if type(kind) == "string" then PRIZE_FOR[kind] else nil
-	-- the 8-slice wheel for spins once it is uploaded (#1665), else the clean picture
-	return if name then IDS["Icon_Hud_" .. name] or IDS["Icon_Clean_" .. name] else nil
+	-- the 8-slice wheel for spins once it is uploaded (#1665), else the clean picture. Only HUD_FIRST names take their
+	-- 3D render: the coins' "Bag" is the gold money bag, not the HUD Bag tile's backpack (#2453)
+	if name == nil then
+		return nil
+	end
+	return (if HUD_FIRST[name] then IDS["Icon_Hud_" .. name] else nil) or IDS["Icon_Clean_" .. name]
 end
 
 -- A decor piece's clean picture by its catalog id (#1072, Components/DecorPictures), or nil for an unknown id.

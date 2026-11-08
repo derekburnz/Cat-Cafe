@@ -92,6 +92,20 @@ local BUFF_H = 22
 local BUFF_GAP = 6
 local KEEP_W = 74 -- the detail's "Keeps up" tag at the end of the rate line
 local COMPACT_H = 420 -- design px of room under which a touch screen gets the phone layout
+-- #2418: the food tiles under the buff chips (Bag-style squares, a finger tall on a phone through Button's Hit pad)
+local FEED_TILE = 40
+local FEED_H = 54 -- the square and its "+40" strip
+local FEED_GAP = 8
+local FEED_HOLD = 0.4 -- seconds a finger stays down before a held tile starts feeding again
+local FEED_REPEAT = 0.3 -- seconds between feeds while held (FeedCat allows 4 a second)
+
+type FeedTile = {
+	button: Button.Button,
+	count: TextLabel,
+	held: boolean,
+	repeated: boolean,
+	name: string,
+}
 -- cards this far above or below the visible part of the grid already get their cat model (reviewer N71)
 local PORTRAIT_MARGIN = 240
 local NOTICE_SECONDS = 3
@@ -485,7 +499,7 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 	self._detailStats = text({
 		Name = "Stats",
 		Position = UDim2.fromOffset(textLeft, 50),
-		Size = UDim2.new(1, -(textLeft + RENAME_W + 10), 0, 18), -- clear of the Feed button
+		Size = UDim2.new(1, -(textLeft + RENAME_W + 10), 0, 18), -- clear of the Rename button
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = PAL.caramel,
 		Parent = body,
@@ -504,48 +518,6 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 		end,
 	})
 	table.insert(self._buttons, self._renameButton)
-	-- #1181 (corner-shop-v2.md section 3, "from the cat's card too"): Feed under Rename while the Bag holds food and
-	-- the cat can still level; it opens a short list of the foods, and a tap feeds this cat one
-	self._feedButton = Button.new({
-		name = "Feed",
-		text = "🍪",
-		style = "primary",
-		size = UDim2.fromOffset(renameW, renameW),
-		anchorPoint = Vector2.new(1, 0),
-		position = UDim2.new(1, -8, 0, 6 + renameW + 4),
-		textSize = Theme.sizes.textSmall,
-		parent = body,
-		onClick = function()
-			self._feedMenu.Visible = not self._feedMenu.Visible
-			self:_renderFeed()
-		end,
-	})
-	self._feedButton.instance.Visible = false
-	table.insert(self._buttons, self._feedButton)
-	self._feedMenu = Create("Frame", {
-		Name = "FeedMenu",
-		BackgroundColor3 = PAL.card,
-		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(8, 6 + (renameW + 4) * 2),
-		Size = UDim2.new(1, -16, 0, 0),
-		AutomaticSize = Enum.AutomaticSize.Y,
-		ZIndex = 10, -- over the stats, chips and story it opens on
-		Visible = false,
-	}, {
-		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
-		Create("UIStroke", { Color = PAL.cardStroke, Thickness = Theme.sizes.stroke }),
-		Create(
-			"UIListLayout",
-			{ Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }
-		),
-		Create("UIPadding", {
-			PaddingTop = UDim.new(0, 6),
-			PaddingBottom = UDim.new(0, 6),
-			PaddingLeft = UDim.new(0, 6),
-			PaddingRight = UDim.new(0, 6),
-		}),
-	})
-	self._feedRows = {} :: { Button.Button }
 	self._detailRate = text({
 		Name = "Rate",
 		Position = UDim2.fromOffset(10, DETAIL_ART + 14),
@@ -638,6 +610,47 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 	self._lockH = lockH
 	local descTop = favTop + BUFFS_H + 6
 	self._descBottom = descTop + actionsH + 18 -- grows by the Lock row while it shows
+	-- #2418 (Derek2: "make the feeding cats from cat menu much easier and more clean looking then long blue bubbles
+	-- and text"): the Feed button and its list of long rows are gone; a row of square food tiles sits under the buff
+	-- chips while the Bag holds cat food and the cat can still level. A tap feeds one (FeedCat); holding keeps feeding,
+	-- one every FEED_REPEAT seconds. A cat at the top level shows "Max level" there, and with no food a short line
+	-- says where to get some. The description moves down under the row.
+	self._descTop = descTop
+	self._feedRow = Create("Frame", {
+		Name = "FeedRow",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(10, descTop),
+		Size = UDim2.new(1, -20, 0, FEED_H),
+		Visible = false,
+		Parent = body,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, FEED_GAP),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._feedNote = text({
+		Name = "FeedNote",
+		Size = UDim2.new(1, 0, 0, FEED_H),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.subtext,
+		TextWrapped = true,
+		LayoutOrder = 0,
+		Parent = self._feedRow,
+	})
+	self._feedTiles = {} :: { [string]: FeedTile }
+	-- the row sits right under the chips as they wrap (one line or two), so a phone's short sheet has room for it
+	self._favTop = favTop
+	local buffsLayout = self._detailBuffs:FindFirstChildOfClass("UIListLayout") :: UIListLayout
+	self._buffsLayout = buffsLayout
+	local wrapped: RBXScriptConnection = buffsLayout
+		:GetPropertyChangedSignal("AbsoluteContentSize")
+		:Connect(function()
+			self:_placeFeed()
+		end)
+	table.insert(self._connections, wrapped)
 	self._detailDesc = text({
 		Name = "Description",
 		Position = UDim2.fromOffset(10, descTop),
@@ -716,8 +729,6 @@ function CatRoom._buildDetail(self: any, parent: Frame, top: number)
 			self:_pressSell()
 		end,
 	})
-	-- the Feed list goes in last, so it draws over the rest of the detail on every renderer
-	self._feedMenu.Parent = body
 end
 
 function CatRoom.setCatalog(self: any, catalog: Types.Catalog)
@@ -1033,15 +1044,7 @@ function CatRoom._layout(self: any)
 		rename.instance.Position =
 			UDim2.new(1, if compact then -(8 + self._backW + 6) else -8, 0, 6)
 	end
-	-- #1181: Feed under the pencil, or on a phone beside it in the sheet's top row; its food list hangs below
-	local feedX = if compact then -(8 + self._backW + 6 + renameW + 6) else -8
-	local feedY = if compact then 6 else 6 + renameW + 4
-	self._feedButton.instance.Position = UDim2.new(1, feedX, 0, feedY)
-	self._feedMenu.Position = UDim2.fromOffset(8, feedY + renameW + 4)
-	local textRight = self._textLeft
-		+ renameW
-		+ 10
-		+ (if compact then self._backW + 6 + renameW + 6 else 0)
+	local textRight = self._textLeft + renameW + 10 + (if compact then self._backW + 6 else 0)
 	self._detailName.Size = UDim2.new(1, -textRight, 0, 24)
 	self._detailBreed.Size = UDim2.new(1, -textRight, 0, 18)
 	self:_refresh()
@@ -1428,12 +1431,10 @@ function CatRoom._renderCrew(
 	end
 end
 
--- The Feed button and its food list for the picked cat (#1181): shown while the Bag has food and the cat can level.
-function CatRoom._renderFeed(self: any)
-	for _, button in self._feedRows do
-		button:destroy()
-	end
-	table.clear(self._feedRows)
+-- #2418: the picked cat's food tiles (#1181's Feed, redrawn): one square per food the Bag holds, its glyph or
+-- picture, "x3" in a corner and "+40" under it. Tiles are kept by food between syncs, so a finger holding one keeps
+-- holding it while the counts change. Returns whether the row shows, for the description under it.
+function CatRoom._renderFeed(self: any): boolean
 	local state: any = self._state
 	local uid: string? = self._selected
 	local instance = if state and uid and state.cats then state.cats[uid] else nil
@@ -1443,46 +1444,144 @@ function CatRoom._renderFeed(self: any)
 		if state then state.catFood else nil
 	)
 	local level = if instance and type(instance.level) == "number" then instance.level else 1
-	local can = instance ~= nil
-		and #foods > 0
-		and BagLogic.canFeed(level)
-		and self._callbacks.feedCat ~= nil
-	self._feedButton.instance.Visible = can
-	if not can then
-		self._feedMenu.Visible = false
-		return
-	end
-	if not self._feedMenu.Visible then
-		return
-	end
-	for order, food in foods do
-		local button = Button.new({
-			name = food.id,
-			text = ("%s x%d · %s"):format(food.name, food.count, BagLogic.xpLine(food.xp)),
-			style = "secondary",
-			size = UDim2.new(1, 0, 0, 36),
-			textSize = Theme.sizes.textSmall,
-			layoutOrder = order,
-			parent = self._feedMenu,
-			onClick = function()
-				local feed: ((string, string) -> ())? = self._callbacks.feedCat
-				local picked: string? = self._selected
-				if feed and picked then
-					feed(food.id, picked)
-				end
-				self._feedMenu.Visible = false
-				self:_renderFeed()
-			end,
-		})
-		-- over the detail's chips however the window layers (every part of the row, not only its frame)
-		button.instance.ZIndex = 11
-		for _, part in button.instance:GetDescendants() do
-			if part:IsA("GuiObject") then
-				(part :: GuiObject).ZIndex = 12
+	local feeds = self._callbacks.feedCat ~= nil and instance ~= nil
+	local can = feeds and #foods > 0 and BagLogic.canFeed(level)
+	local note: string? = if not feeds
+		then nil
+		elseif not BagLogic.canFeed(level) then "⭐ Max level: no more food needed"
+		elseif #foods == 0 then "🍪 Get cat food at the Corner Shop to level cats up"
+		else nil
+	local row: Frame = self._feedRow
+	row.Visible = can or note ~= nil
+	self._feedNote.Visible = note ~= nil
+	self._feedNote.Text = note or ""
+	local keep: { [string]: boolean } = {}
+	if can then
+		for order, food in foods do
+			keep[food.id] = true
+			local tile: FeedTile? = self._feedTiles[food.id]
+			if tile == nil then
+				tile = self:_feedTile(food.id, food.name)
+				self._feedTiles[food.id] = tile
 			end
+			local made = tile :: FeedTile
+			made.button.instance.LayoutOrder = order
+			made.count.Text = "x" .. food.count
+			made.button:setText("+" .. food.xp)
 		end
-		table.insert(self._feedRows, button)
 	end
+	for id, tile in self._feedTiles do
+		if not keep[id] then
+			tile.held = false
+			tile.button:destroy()
+			self._feedTiles[id] = nil
+		end
+	end
+	return row.Visible
+end
+
+-- #2418: the food row right under the buff chips as they wrap (or under the Info line, BUFFS_H tall), and the
+-- description under the row, down to the Lock row or the actions.
+function CatRoom._placeFeed(self: any)
+	local scale = Scale.get()
+	local layout: UIListLayout = self._buffsLayout
+	local used = if self._detailBuffs.Visible and layout.AbsoluteContentSize.Y > 0
+		then math.min(
+			BUFFS_H,
+			math.ceil(layout.AbsoluteContentSize.Y / (if scale > 0 then scale else 1))
+		)
+		else BUFFS_H
+	local top: number = self._favTop + used + 6
+	self._feedRow.Position = UDim2.fromOffset(10, top)
+	local descTop = top + (if self._feedRow.Visible then FEED_H + 6 else 0)
+	self._detailDesc.Position = UDim2.fromOffset(10, descTop)
+	local descBottom = self._descBottom + (self._lockExtra or 0) + (descTop - self._descTop)
+	self._detailDesc.Size = UDim2.new(1, -20, 1, -descBottom)
+end
+
+-- One food's tile: a tap feeds one; held, it feeds again every FEED_REPEAT seconds while the food and the cat's
+-- levels last (the server's FeedCat allows 4 a second).
+function CatRoom._feedTile(self: any, foodId: string, name: string): FeedTile
+	local function feedOne(): boolean
+		local feed: ((string, string) -> ())? = self._callbacks.feedCat
+		local picked: string? = self._selected
+		local state: any = self._state
+		local have = if state and state.catFood then state.catFood[foodId] else nil
+		if feed == nil or picked == nil or type(have) ~= "number" or have < 1 then
+			return false
+		end
+		feed(foodId, picked)
+		return true
+	end
+	local tile: FeedTile
+	local button = Button.new({
+		name = foodId,
+		text = "",
+		icon = ShopIcons.snackGlyph(foodId),
+		image = ShopIcons.catFood(foodId),
+		layout = "clean",
+		style = "secondary",
+		size = UDim2.fromOffset(FEED_TILE, FEED_H),
+		textSize = Theme.sizes.textTiny,
+		parent = self._feedRow,
+		sound = "uiClick",
+		onClick = function()
+			if not tile.repeated then
+				feedOne()
+			end
+			tile.repeated = false
+		end,
+	})
+	local count = text({
+		Name = "Count",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, 4, 0, -4),
+		Size = UDim2.fromOffset(26, 16),
+		BackgroundColor3 = PAL.card,
+		BackgroundTransparency = 0,
+		TextSize = Theme.sizes.textTiny,
+		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		ZIndex = 8,
+		Parent = button.instance,
+	})
+	Create("UICorner", { CornerRadius = UDim.new(0.5, 0), Parent = count })
+	tile = { button = button, count = count, held = false, repeated = false, name = name }
+	-- holding: the press starts a timer; still down after FEED_HOLD, it feeds every FEED_REPEAT until let go
+	local pressable = button.instance:FindFirstChild("Hit")
+		or button.instance:FindFirstChild("Face", true)
+	if pressable and pressable:IsA("GuiButton") then
+		table.insert(
+			self._connections,
+			(pressable :: GuiButton).MouseButton1Down:Connect(function()
+				tile.held = true
+				tile.repeated = false
+				task.delay(FEED_HOLD, function()
+					while tile.held and self._feedTiles[foodId] == tile and not self._gone do
+						if not feedOne() then
+							break
+						end
+						tile.repeated = true
+						Sound.play("uiClick")
+						task.wait(FEED_REPEAT)
+					end
+				end)
+			end)
+		)
+		table.insert(
+			self._connections,
+			(pressable :: GuiButton).MouseButton1Up:Connect(function()
+				tile.held = false
+			end)
+		)
+		table.insert(
+			self._connections,
+			(pressable :: GuiButton).MouseLeave:Connect(function()
+				tile.held = false
+			end)
+		)
+	end
+	return tile
 end
 
 function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
@@ -1519,10 +1618,6 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 	-- F97: charm as a plain percentage, no stars
 	local charm: number? = instance.charm
 	self._detailStats.Text = if charm then CatBuffs.charmText(charm) else ""
-	if self._feedFor ~= instance.uid then
-		self._feedFor = instance.uid
-		self._feedMenu.Visible = false -- a new cat picked: its menu starts closed
-	end
 	self:_renderFeed()
 
 	local rate, favorite = self:_rateOf(instance)
@@ -1589,8 +1684,8 @@ function CatRoom._renderDetail(self: any, cats: { [string]: Types.CatInstance })
 			else Theme.icons.unlock .. " Lock so it can't be sold"
 	)
 	self._lock:setStyle(if locked then "gold" else "ghost")
-	local descBottom = self._descBottom + (if live then self._lockH + 6 else 0)
-	self._detailDesc.Size = UDim2.new(1, -20, 1, -descBottom)
+	self._lockExtra = if live then self._lockH + 6 else 0
+	self:_placeFeed()
 
 	-- actions: Assign (Move), Rest, Sell; a sell to confirm becomes Cancel and a wide "Sell $150"
 	if self._confirmSell then
@@ -1716,8 +1811,9 @@ function CatRoom.destroy(self: any)
 	self._gone = true
 	self._extrasSell:destroy()
 	self._extrasKeep:destroy()
-	for _, button in self._feedRows do
-		button:destroy()
+	for _, tile in self._feedTiles do
+		tile.held = false
+		tile.button:destroy()
 	end
 	for _, connection in self._connections do
 		connection:Disconnect()

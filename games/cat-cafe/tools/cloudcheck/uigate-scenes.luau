@@ -1326,6 +1326,49 @@ local SCENES = {
 			press("Cats", "gate_3")
 		end)
 	end },
+	-- #2418 (Derek2: "make the feeding cats from cat menu much easier and more clean looking then long blue bubbles and
+	-- text"): the picked cat's food tiles under its chips, one per food, inside the card; a tap feeds that food to
+	-- this cat; a cat at the top level and a Bag with no food each say so in the row instead
+	{ "CatsFeed", function()
+		local before: any = UI.getState()
+		Scenes._feedBefore = { catFood = before.catFood, cats = before.cats }
+		UI.update({ catFood = { small_cat_snack = 2, cat_snack = 3, big_cat_snack = 1 } } :: any)
+		UI.open("Cats")
+		task.wait(0.2)
+		press("Cats", "gate_3")
+		task.wait(0.1)
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local row = modals:FindFirstChild("FeedRow", true) :: Frame
+		assert(row and row.Visible, "uigate: no food tiles on the picked cat's card (#2418)")
+		local card = (row.Parent :: GuiObject)
+		local c0, c1 = card.AbsolutePosition, card.AbsolutePosition + card.AbsoluteSize
+		local tiles = 0
+		for _, id in { "small_cat_snack", "cat_snack", "big_cat_snack" } do
+			local tile = row:FindFirstChild(id) :: GuiObject
+			assert(tile and tile.Visible, "uigate: no " .. id .. " tile (#2418)")
+			local t0, t1 = tile.AbsolutePosition, tile.AbsolutePosition + tile.AbsoluteSize
+			assert(t0.X >= c0.X and t1.X <= c1.X and t0.Y >= c0.Y and t1.Y <= c1.Y, "uigate: the " .. id .. " tile leaves the card (#2418)")
+			tiles += 1
+		end
+		assert(tiles == 3, "uigate: food tiles " .. tiles)
+		local count = row:FindFirstChild("cat_snack"):FindFirstChild("Count") :: TextLabel
+		assert(count.Text == "x3", "uigate: the cat_snack tile counts " .. count.Text .. " (#2418)")
+		local fed: { string } = {}
+		local listening = UI.events.feedCat:Connect(function(foodId: string, uid: string)
+			table.insert(fed, foodId .. "@" .. uid)
+		end)
+		press("Cats", "FeedRow.cat_snack")
+		listening:Disconnect()
+		assert(table.concat(fed, ",") == "cat_snack@gate_3", "uigate: the tile fed " .. table.concat(fed, ",") .. " (#2418)")
+		-- no food in the Bag: one line where to get it
+		UI.update({ catFood = {} } :: any)
+		task.wait(0.1)
+		local note = row:FindFirstChild("FeedNote") :: TextLabel
+		assert(row.Visible and note.Visible and note.Text:find("Corner Shop", 1, true), "uigate: no food line with an empty Bag (#2418)")
+		assert(row:FindFirstChild("cat_snack") == nil, "uigate: a food tile stays with an empty Bag (#2418)")
+		UI.update({ catFood = { small_cat_snack = 2, cat_snack = 3, big_cat_snack = 1 } } :: any)
+		task.wait(0.1)
+	end },
 	{ "RankUp", function()
 		UI.open("RankUp")
 	end },
@@ -5074,6 +5117,10 @@ function Scenes.close()
 	if Scenes._rankTier ~= nil then
 		UI.update({ tier = Scenes._rankTier } :: any) -- #2121's Tier 2 rank-up scene
 		Scenes._rankTier = nil
+	end
+	if Scenes._feedBefore then
+		UI.update({ catFood = Scenes._feedBefore.catFood or {} } :: any) -- #2418's CatsFeed: the Bag's food back
+		Scenes._feedBefore = nil
 	end
 	if Scenes._crew then
 		UI.update(Scenes._crew :: any) -- #2047's extra slots scene: the sample cats, tier and no extra slots back

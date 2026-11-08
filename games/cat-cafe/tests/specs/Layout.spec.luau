@@ -733,7 +733,9 @@ return function()
 
 		it("keeps the beds in tier order, so the first ones are the tier's", function()
 			for index = 2, #Layout.plot.beds do
-				expect(Layout.plot.beds[index].tier >= Layout.plot.beds[index - 1].tier).to.equal(true)
+				expect(Layout.plot.beds[index].tier >= Layout.plot.beds[index - 1].tier).to.equal(
+					true
+				)
 			end
 		end)
 	end)
@@ -1709,7 +1711,9 @@ return function()
 					-- its face is about 11 by 1.5 (Model-Agent #759); every corner of that, turned, stays off the cross
 					local yaw = math.rad(board.rotY or 0)
 					local cos, sin = math.cos(yaw), math.sin(yaw)
-					for _, corner in { { -5.5, -0.75 }, { 5.5, -0.75 }, { -5.5, 0.75 }, { 5.5, 0.75 } } do
+					for _, corner in
+						{ { -5.5, -0.75 }, { 5.5, -0.75 }, { -5.5, 0.75 }, { 5.5, 0.75 } }
+					do
 						local x = board.x + corner[1] * cos + corner[2] * sin
 						local z = board.z - corner[1] * sin + corner[2] * cos
 						expect(inside(x, z, square.floor, 4)).to.equal(true)
@@ -2288,16 +2292,19 @@ return function()
 			end
 		)
 
-		it("stands the right side's nap beds on the wall line with the F79 beds, square to the wall (#1809)", function()
-			-- Derek2 11-06: one of the two beds by the display case stood out toward the middle of the cafe
-			local wall = plot.beds[4].x -- bed_4 and bed_6 sit on the right wall's line
-			expect(plot.beds[6].x).to.equal(wall)
-			for _, n in { 2, 3 } do
-				local spot = plot.napSpots[n]
-				expect(spot.x).to.equal(wall)
-				expect(spot.rotY).to.equal(90)
+		it(
+			"stands the right side's nap beds on the wall line with the F79 beds, square to the wall (#1809)",
+			function()
+				-- Derek2 11-06: one of the two beds by the display case stood out toward the middle of the cafe
+				local wall = plot.beds[4].x -- bed_4 and bed_6 sit on the right wall's line
+				expect(plot.beds[6].x).to.equal(wall)
+				for _, n in { 2, 3 } do
+					local spot = plot.napSpots[n]
+					expect(spot.x).to.equal(wall)
+					expect(spot.rotY).to.equal(90)
+				end
 			end
-		end)
+		)
 	end)
 
 	describe("cats make the orders (F90, cats-make-orders.md section 3)", function()
@@ -2526,79 +2533,91 @@ return function()
 			end
 		end)
 
-		it("keeps every pool spot 25 studs from every other, on the floor and clear of the spawn points", function()
-			for id, spec in Layout.areas do
-				local pool = spec.rescuePool or {}
-				local floor: Rect = {
-					x1 = spec.center.x - spec.halfWidth,
-					z1 = spec.center.z - spec.halfDepth,
-					x2 = spec.center.x + spec.halfWidth,
-					z2 = spec.center.z + spec.halfDepth,
-				}
-				local clear = if id == "alley" then 9 else 4
-				for i, spot in pool do
-					local onIt = if id == "alley"
-						then onFloor(spot.x, spot.z, alleyRects, 0)
-						else inside(spot.x, spot.z, floor, 0)
-					if not onIt then
-						fail("%s pool spot %d is off the floor", id, i)
-					end
-					for j = i + 1, #pool do
-						local other = pool[j]
-						local apart = math.sqrt((spot.x - other.x) ^ 2 + (spot.z - other.z) ^ 2)
-						if apart < 25 then
-							fail("%s pool spots %d and %d are %.1f apart", id, i, j, apart)
+		it(
+			"keeps every pool spot 25 studs from every other, on the floor and clear of the spawn points",
+			function()
+				for id, spec in Layout.areas do
+					local pool = spec.rescuePool or {}
+					local floor: Rect = {
+						x1 = spec.center.x - spec.halfWidth,
+						z1 = spec.center.z - spec.halfDepth,
+						x2 = spec.center.x + spec.halfWidth,
+						z2 = spec.center.z + spec.halfDepth,
+					}
+					local clear = if id == "alley" then 9 else 4
+					for i, spot in pool do
+						local onIt = if id == "alley"
+							then onFloor(spot.x, spot.z, alleyRects, 0)
+							else inside(spot.x, spot.z, floor, 0)
+						if not onIt then
+							fail("%s pool spot %d is off the floor", id, i)
 						end
-					end
-					for k, point in spec.spawnPoints do
-						local gap = math.sqrt((spot.x - point.x) ^ 2 + (spot.z - point.z) ^ 2)
-						if gap < clear then
-							fail("%s pool spot %d is %.1f from spawn point %d", id, i, gap, k)
+						for j = i + 1, #pool do
+							local other = pool[j]
+							local apart = math.sqrt((spot.x - other.x) ^ 2 + (spot.z - other.z) ^ 2)
+							if apart < 25 then
+								fail("%s pool spots %d and %d are %.1f apart", id, i, j, apart)
+							end
 						end
-					end
-					local pose = if spot.prop ~= nil
-						then Layout.stuckPoses[spot.prop]
-						else Layout.setStuckPoses[spot.trap]
-					if pose == nil then
-						fail("%s pool spot %d (%s) has no stuck pose", id, i, spot.trap)
+						for k, point in spec.spawnPoints do
+							local gap = math.sqrt((spot.x - point.x) ^ 2 + (spot.z - point.z) ^ 2)
+							if gap < clear then
+								fail("%s pool spot %d is %.1f from spawn point %d", id, i, gap, k)
+							end
+						end
+						local pose = if spot.prop ~= nil
+							then Layout.stuckPoses[spot.prop]
+							else Layout.setStuckPoses[spot.trap]
+						if pose == nil then
+							fail("%s pool spot %d (%s) has no stuck pose", id, i, spot.trap)
+						end
 					end
 				end
 			end
-		end)
+		)
 
-		it("keeps a long area's pool 100 studs from its camp, three quarters of it in the far half", function()
-			for id, spec in Layout.areas do
-				local set = spec.set
-				if set == nil or string.sub(set, -7) ~= "_SetF85" then
-					continue
-				end
-				local camp = Layout.camps[id]
-				local along = 0
-				for _, sx in { -1, 1 } do
-					for _, sz in { -1, 1 } do
-						local _, z = Layout.campLocal(
-							camp,
-							spec.center.x + sx * spec.halfWidth,
-							spec.center.z + sz * spec.halfDepth
-						)
-						along = math.max(along, z)
+		it(
+			"keeps a long area's pool 100 studs from its camp, three quarters of it in the far half",
+			function()
+				for id, spec in Layout.areas do
+					local set = spec.set
+					if set == nil or string.sub(set, -7) ~= "_SetF85" then
+						continue
 					end
-				end
-				local pool = spec.rescuePool or {}
-				local far = 0
-				for i, spot in pool do
-					local _, z = Layout.campLocal(camp, spot.x, spot.z)
-					if z <= 100 then
-						fail("%s pool spot %d (%s) is %.1f studs from the camp", id, i, spot.trap, z)
+					local camp = Layout.camps[id]
+					local along = 0
+					for _, sx in { -1, 1 } do
+						for _, sz in { -1, 1 } do
+							local _, z = Layout.campLocal(
+								camp,
+								spec.center.x + sx * spec.halfWidth,
+								spec.center.z + sz * spec.halfDepth
+							)
+							along = math.max(along, z)
+						end
 					end
-					if z > along / 2 then
-						far += 1
+					local pool = spec.rescuePool or {}
+					local far = 0
+					for i, spot in pool do
+						local _, z = Layout.campLocal(camp, spot.x, spot.z)
+						if z <= 100 then
+							fail(
+								"%s pool spot %d (%s) is %.1f studs from the camp",
+								id,
+								i,
+								spot.trap,
+								z
+							)
+						end
+						if z > along / 2 then
+							far += 1
+						end
 					end
-				end
-				if far < 0.75 * #pool then
-					fail("%s has %d of %d pool spots in its far half", id, far, #pool)
+					if far < 0.75 * #pool then
+						fail("%s has %d of %d pool spots in its far half", id, far, #pool)
+					end
 				end
 			end
-		end)
+		)
 	end)
 end

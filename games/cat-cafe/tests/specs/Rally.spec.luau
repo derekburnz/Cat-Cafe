@@ -34,18 +34,21 @@ return function()
 			expect(Rally.weekStart(TUESDAY)).to.equal(SAT)
 		end)
 
-		it("says when it ends and when the next starts, and runs at any time when forced", function()
-			expect(Rally.endsAt(SAT + HOUR, false)).to.equal(SAT + 48 * HOUR)
-			expect(Rally.endsAt(TUESDAY, false)).to.equal(0)
-			expect(Rally.endsAt(TUESDAY, true)).to.equal(SAT + WEEK) -- the real one takes over
-			expect(Rally.startsAt(SAT - HOUR)).to.equal(SAT)
-			expect(Rally.startsAt(SAT + HOUR)).to.equal(SAT)
-			expect(Rally.startsAt(TUESDAY)).to.equal(SAT + WEEK)
-			expect(Rally.isActive(TUESDAY, false)).to.equal(false)
-			expect(Rally.isActive(TUESDAY, true)).to.equal(true)
-			expect(Rally.isActive(SAT + HOUR, false)).to.equal(true)
-			expect(Config.RallyForce).to.equal(false)
-		end)
+		it(
+			"says when it ends and when the next starts, and runs at any time when forced",
+			function()
+				expect(Rally.endsAt(SAT + HOUR, false)).to.equal(SAT + 48 * HOUR)
+				expect(Rally.endsAt(TUESDAY, false)).to.equal(0)
+				expect(Rally.endsAt(TUESDAY, true)).to.equal(SAT + WEEK) -- the real one takes over
+				expect(Rally.startsAt(SAT - HOUR)).to.equal(SAT)
+				expect(Rally.startsAt(SAT + HOUR)).to.equal(SAT)
+				expect(Rally.startsAt(TUESDAY)).to.equal(SAT + WEEK)
+				expect(Rally.isActive(TUESDAY, false)).to.equal(false)
+				expect(Rally.isActive(TUESDAY, true)).to.equal(true)
+				expect(Rally.isActive(SAT + HOUR, false)).to.equal(true)
+				expect(Config.RallyForce).to.equal(false)
+			end
+		)
 
 		it("runs the 11-07 Rally on without a break until Monday 11-16 (#2227)", function()
 			local from, untilAt = Config.RallyExtendFrom, Config.RallyExtendUntil
@@ -75,26 +78,37 @@ return function()
 	end)
 
 	describe("the bar (section 2)", function()
-		it("sets the goal at 22 a player, never under three players' worth (QA check 1, #2018)", function()
-			expect(Rally.goal(0)).to.equal(66)
-			expect(Rally.goal(1)).to.equal(66)
-			expect(Rally.goal(2)).to.equal(66)
-			expect(Rally.goal(3)).to.equal(66)
-			expect(Rally.goal(8)).to.equal(176)
-		end)
-
-		it("scores 1 for a check-in or a tame and 3 for a rescue or a Team Rescue helper", function()
-			expect(Config.RallyPoints :: any).to.deepEqual({ checkIn = 1, tame = 1, rescue = 3, teamRescue = 3 })
-			for _, kind in Rally.KINDS do
-				expect(Rally.pointsFor(kind) > 0).to.equal(true)
+		it(
+			"sets the goal at 22 a player, never under three players' worth (QA check 1, #2018)",
+			function()
+				expect(Rally.goal(0)).to.equal(66)
+				expect(Rally.goal(1)).to.equal(66)
+				expect(Rally.goal(2)).to.equal(66)
+				expect(Rally.goal(3)).to.equal(66)
+				expect(Rally.goal(8)).to.equal(176)
 			end
-			expect(Rally.pointsFor("rescue")).to.equal(3)
-			expect(Rally.pointsFor("teamRescue")).to.equal(3)
-			expect(Rally.pointsFor("checkIn")).to.equal(1)
-			expect(Rally.pointsFor("tame")).to.equal(1)
-			expect(Rally.pointsFor("crate")).to.equal(0)
-			expect(Rally.pointsFor("")).to.equal(0)
-		end)
+		)
+
+		it(
+			"scores 1 for a check-in or a tame and 3 for a rescue or a Team Rescue helper",
+			function()
+				expect(Config.RallyPoints :: any).to.deepEqual({
+					checkIn = 1,
+					tame = 1,
+					rescue = 3,
+					teamRescue = 3,
+				})
+				for _, kind in Rally.KINDS do
+					expect(Rally.pointsFor(kind) > 0).to.equal(true)
+				end
+				expect(Rally.pointsFor("rescue")).to.equal(3)
+				expect(Rally.pointsFor("teamRescue")).to.equal(3)
+				expect(Rally.pointsFor("checkIn")).to.equal(1)
+				expect(Rally.pointsFor("tame")).to.equal(1)
+				expect(Rally.pointsFor("crate")).to.equal(0)
+				expect(Rally.pointsFor("")).to.equal(0)
+			end
+		)
 
 		it("names each step a score passes, once, rounding a share up", function()
 			expect(Rally.stepAt(1, 90)).to.equal(14)
@@ -124,63 +138,75 @@ return function()
 	end)
 
 	describe("the prizes (section 3)", function()
-		it("pays five steps, about 60 fish and two Rally Crates a lap, every prize known (#2237)", function()
-			expect(#Catalog.rallySteps).to.equal(5)
-			local shares = { 0.15, 0.3, 0.5, 0.75, 1 }
-			local fish, crates = 0, 0
-			for index, step in Catalog.rallySteps do
-				expect(step.share).to.equal(shares[index])
-				fish += step.prize.fish or 0
-				for id, count in step.prize.crates or {} do
-					expect(Catalog.getCrate(id)).to.be.ok()
-					crates += count
-				end
-				for id in step.prize.potions or {} do
-					local known = false
-					for _, potion in Catalog.potions do
-						known = known or potion.id == id
+		it(
+			"pays five steps, about 60 fish and two Rally Crates a lap, every prize known (#2237)",
+			function()
+				expect(#Catalog.rallySteps).to.equal(5)
+				local shares = { 0.15, 0.3, 0.5, 0.75, 1 }
+				local fish, crates = 0, 0
+				for index, step in Catalog.rallySteps do
+					expect(step.share).to.equal(shares[index])
+					fish += step.prize.fish or 0
+					for id, count in step.prize.crates or {} do
+						expect(Catalog.getCrate(id)).to.be.ok()
+						crates += count
 					end
-					expect(known).to.equal(true)
+					for id in step.prize.potions or {} do
+						local known = false
+						for _, potion in Catalog.potions do
+							known = known or potion.id == id
+						end
+						expect(known).to.equal(true)
+					end
 				end
+				expect(fish).to.equal(62) -- #2237: was 103
+				expect(crates).to.equal(2)
+				expect(Catalog.rallySteps[1] :: any).to.deepEqual({
+					share = 0.15,
+					prize = { fish = 5 },
+				})
 			end
-			expect(fish).to.equal(62) -- #2237: was 103
-			expect(crates).to.equal(2)
-			expect(Catalog.rallySteps[1] :: any).to.deepEqual({ share = 0.15, prize = { fish = 5 } })
-		end)
+		)
 
-		it("pays nobody under 3 points this lap, so a late joiner with 1 point gets nothing (QA check 3)", function()
-			local save = Rally.fresh(SAT + HOUR)
-			expect(Rally.pays(save, SAT + HOUR, 0, false)).to.equal(false)
-			expect(Rally.pays(save, SAT + HOUR, 1, false)).to.equal(false)
-			expect(Rally.pays(save, SAT + HOUR, 2, true)).to.equal(false)
-			expect(save.laps).to.equal(0)
-			expect(Rally.pays(save, SAT + HOUR, 3, false)).to.equal(true)
-			expect(save.laps).to.equal(1)
-			-- the same lap's later steps pay without counting it again
-			expect(Rally.pays(save, SAT + HOUR, 5, true)).to.equal(true)
-			expect(save.laps).to.equal(1)
-		end)
-
-		it("pays from four laps a weekend, then says so, and starts again the next weekend (QA checks 4 and 6)", function()
-			local now = SAT + 5 * HOUR
-			local save = Rally.fresh(now)
-			for lap = 1, Config.RallyMaxLaps do
-				expect(Rally.lapsDone(save, now, false)).to.equal(false)
-				expect(Rally.pays(save, now, 10, false)).to.equal(true)
-				expect(save.laps).to.equal(lap)
+		it(
+			"pays nobody under 3 points this lap, so a late joiner with 1 point gets nothing (QA check 3)",
+			function()
+				local save = Rally.fresh(SAT + HOUR)
+				expect(Rally.pays(save, SAT + HOUR, 0, false)).to.equal(false)
+				expect(Rally.pays(save, SAT + HOUR, 1, false)).to.equal(false)
+				expect(Rally.pays(save, SAT + HOUR, 2, true)).to.equal(false)
+				expect(save.laps).to.equal(0)
+				expect(Rally.pays(save, SAT + HOUR, 3, false)).to.equal(true)
+				expect(save.laps).to.equal(1)
+				-- the same lap's later steps pay without counting it again
+				expect(Rally.pays(save, SAT + HOUR, 5, true)).to.equal(true)
+				expect(save.laps).to.equal(1)
 			end
-			expect(Rally.pays(save, now, 10, false)).to.equal(false) -- a fifth lap pays nothing
-			expect(save.laps).to.equal(Config.RallyMaxLaps)
-			expect(Rally.lapsDone(save, now, false)).to.equal(true)
-			expect(Rally.lapsDone(save, now, true)).to.equal(false) -- the fourth lap's later steps still pay
-			expect(Rally.pays(save, now, 10, true)).to.equal(true)
-			local following = SAT + WEEK + HOUR
-			expect(Rally.lapsDone(save, following, false)).to.equal(false)
-			expect(save.laps).to.equal(0)
-			expect(save.weekend).to.equal(Rally.weekend(following))
-			expect(Rally.pays(save, following, 3, false)).to.equal(true)
-			expect(save.laps).to.equal(1)
-		end)
+		)
+
+		it(
+			"pays from four laps a weekend, then says so, and starts again the next weekend (QA checks 4 and 6)",
+			function()
+				local now = SAT + 5 * HOUR
+				local save = Rally.fresh(now)
+				for lap = 1, Config.RallyMaxLaps do
+					expect(Rally.lapsDone(save, now, false)).to.equal(false)
+					expect(Rally.pays(save, now, 10, false)).to.equal(true)
+					expect(save.laps).to.equal(lap)
+				end
+				expect(Rally.pays(save, now, 10, false)).to.equal(false) -- a fifth lap pays nothing
+				expect(save.laps).to.equal(Config.RallyMaxLaps)
+				expect(Rally.lapsDone(save, now, false)).to.equal(true)
+				expect(Rally.lapsDone(save, now, true)).to.equal(false) -- the fourth lap's later steps still pay
+				expect(Rally.pays(save, now, 10, true)).to.equal(true)
+				local following = SAT + WEEK + HOUR
+				expect(Rally.lapsDone(save, following, false)).to.equal(false)
+				expect(save.laps).to.equal(0)
+				expect(save.weekend).to.equal(Rally.weekend(following))
+				expect(Rally.pays(save, following, 3, false)).to.equal(true)
+				expect(save.laps).to.equal(1)
+			end
+		)
 	end)
 
 	describe("the save (section 5, version 26)", function()
@@ -193,7 +219,9 @@ return function()
 				weekend = this,
 				laps = 2,
 			})
-			expect(Rally.sanitize({ weekend = this, laps = 9 }, now).laps).to.equal(Config.RallyMaxLaps)
+			expect(Rally.sanitize({ weekend = this, laps = 9 }, now).laps).to.equal(
+				Config.RallyMaxLaps
+			)
 			expect(Rally.sanitize({ weekend = this, laps = -1 }, now).laps).to.equal(0)
 			expect(Rally.sanitize({ weekend = this - 3, laps = 4 }, now) :: any).to.deepEqual({
 				weekend = this - 3,
@@ -213,22 +241,25 @@ return function()
 			})
 		end)
 
-		it("starts a new save and an older one at no laps this weekend, and keeps a saved one", function()
-			local now = SAT + 2 * HOUR
-			local fresh = ProfileSchema.template(now)
-			expect(fresh.rally :: any).to.deepEqual({ weekend = Rally.weekend(now), laps = 0 })
-			local raw: any = ProfileSchema.template(now)
-			raw.version = 25
-			raw.rally = nil
-			local profile = ProfileSchema.migrate(raw, now)
-			expect(profile.version).to.equal(ProfileSchema.VERSION)
-			expect(profile.rally :: any).to.deepEqual({ weekend = Rally.weekend(now), laps = 0 })
-			local kept: any = ProfileSchema.template(now)
-			kept.rally = { weekend = Rally.weekend(now), laps = 3 }
-			expect(ProfileSchema.migrate(kept, now).rally.laps).to.equal(3)
-			-- migrating twice changes nothing
-			local again = ProfileSchema.migrate(ProfileSchema.migrate(kept, now), now)
-			expect(again.rally :: any).to.deepEqual({ weekend = Rally.weekend(now), laps = 3 })
-		end)
+		it(
+			"starts a new save and an older one at no laps this weekend, and keeps a saved one",
+			function()
+				local now = SAT + 2 * HOUR
+				local fresh = ProfileSchema.template(now)
+				expect(fresh.rally :: any).to.deepEqual({ weekend = Rally.weekend(now), laps = 0 })
+				local raw: any = ProfileSchema.template(now)
+				raw.version = 25
+				raw.rally = nil
+				local profile = ProfileSchema.migrate(raw, now)
+				expect(profile.version).to.equal(ProfileSchema.VERSION)
+				expect(profile.rally :: any).to.deepEqual({ weekend = Rally.weekend(now), laps = 0 })
+				local kept: any = ProfileSchema.template(now)
+				kept.rally = { weekend = Rally.weekend(now), laps = 3 }
+				expect(ProfileSchema.migrate(kept, now).rally.laps).to.equal(3)
+				-- migrating twice changes nothing
+				local again = ProfileSchema.migrate(ProfileSchema.migrate(kept, now), now)
+				expect(again.rally :: any).to.deepEqual({ weekend = Rally.weekend(now), laps = 3 })
+			end
+		)
 	end)
 end

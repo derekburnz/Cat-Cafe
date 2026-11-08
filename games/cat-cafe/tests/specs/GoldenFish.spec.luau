@@ -19,11 +19,14 @@ return function()
 			end
 		end)
 
-		it("pays that again for a first gold (#2237: was twice), and both when the first catch is gold", function()
-			expect(GoldenFish.forCatch("Rare", false, true, "net")).to.equal(2)
-			expect(GoldenFish.forCatch("Mythical", false, true, "bait")).to.equal(25)
-			expect(GoldenFish.forCatch("Epic", true, true, "net")).to.equal(10)
-		end)
+		it(
+			"pays that again for a first gold (#2237: was twice), and both when the first catch is gold",
+			function()
+				expect(GoldenFish.forCatch("Rare", false, true, "net")).to.equal(2)
+				expect(GoldenFish.forCatch("Mythical", false, true, "bait")).to.equal(25)
+				expect(GoldenFish.forCatch("Epic", true, true, "net")).to.equal(10)
+			end
+		)
 
 		it("pays a repeat only for Epic and better by net or rescue", function()
 			expect(GoldenFish.forCatch("Common", false, false, "net")).to.equal(0)

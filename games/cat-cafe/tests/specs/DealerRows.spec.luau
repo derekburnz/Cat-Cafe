@@ -129,8 +129,12 @@ return function()
 			expect(DealerRows.amountOdds({ 15, 25, 30, 20, 10 })).to.equal(
 				"Stock odds: 0 (15%) · 1 (25%) · 2 (30%) · 3 (20%) · 4 (10%)"
 			)
-			expect(DealerRows.amountOdds({ 90, 10, 0, 0, 0 })).to.equal("Stock odds: 0 (90%) · 1 (10%)")
-			expect(DealerRows.amountOdds({ 60, 32.5, 7.5 })).to.equal("Stock odds: 0 (60%) · 1 (32.5%) · 2 (7.5%)")
+			expect(DealerRows.amountOdds({ 90, 10, 0, 0, 0 })).to.equal(
+				"Stock odds: 0 (90%) · 1 (10%)"
+			)
+			expect(DealerRows.amountOdds({ 60, 32.5, 7.5 })).to.equal(
+				"Stock odds: 0 (60%) · 1 (32.5%) · 2 (7.5%)"
+			)
 			expect(DealerRows.amountOdds(nil)).to.equal(nil)
 			expect(DealerRows.amountOdds({})).to.equal(nil)
 		end)

@@ -232,22 +232,26 @@ return function()
 	end)
 
 	describe("the rich visitor (#2242)", function()
-		it("films your cafe's door and table 1's coin pile from inside, under its ceiling", function()
-			for _, plot in { EAST, WEST } do
-				local shot = Intro.shots(plot, true)[6]
-				local tip, door = Intro.richTipPoint(plot), Intro.doorPoint(plot)
-				for _, key in { shot.cuts[1].from, shot.cuts[1].to } do
-					expect(key.position.Y - Intro.FLOOR_Y < 9).to.equal(true)
-					expect(
-						flat(key.position, Vector3.new(plot.x, 0, plot.z)) < Config.World.PlotDepth / 2
-					).to.equal(true)
-					-- the coin pile and the door both in front of the camera
-					local ahead = (key.look - key.position).Unit
-					expect((tip - key.position).Unit:Dot(ahead) > 0.5).to.equal(true)
-					expect((door - key.position).Unit:Dot(ahead) > 0.3).to.equal(true)
+		it(
+			"films your cafe's door and table 1's coin pile from inside, under its ceiling",
+			function()
+				for _, plot in { EAST, WEST } do
+					local shot = Intro.shots(plot, true)[6]
+					local tip, door = Intro.richTipPoint(plot), Intro.doorPoint(plot)
+					for _, key in { shot.cuts[1].from, shot.cuts[1].to } do
+						expect(key.position.Y - Intro.FLOOR_Y < 9).to.equal(true)
+						expect(
+							flat(key.position, Vector3.new(plot.x, 0, plot.z))
+								< Config.World.PlotDepth / 2
+						).to.equal(true)
+						-- the coin pile and the door both in front of the camera
+						local ahead = (key.look - key.position).Unit
+						expect((tip - key.position).Unit:Dot(ahead) > 0.5).to.equal(true)
+						expect((door - key.position).Unit:Dot(ahead) > 0.3).to.equal(true)
+					end
 				end
 			end
-		end)
+		)
 
 		it("uses Layout.plot's rich tip anchor and the front door", function()
 			local tip = Layout.plot.richTip
@@ -255,17 +259,22 @@ return function()
 			expect(Intro.cafe.richTip.y).to.equal(tip.y)
 			expect(Intro.cafe.richTip.z).to.equal(tip.z)
 			local door = Intro.doorPoint(WEST)
-			expect(near(door, Intro.plotPoint(WEST, 0, 0, -Config.World.PlotDepth / 2 + 1.5))).to.equal(true)
+			expect(near(door, Intro.plotPoint(WEST, 0, 0, -Config.World.PlotDepth / 2 + 1.5))).to.equal(
+				true
+			)
 		end)
 
-		it("stops your copy RICH_REACH short of the coins, on the door's side, on the floor", function()
-			local door = Vector3.new(0, 0.2, 0)
-			local tip = Vector3.new(10, 2.9, 0)
-			local at = Intro.grabSpot(door, tip)
-			expect(near(at, Vector3.new(10 - Intro.RICH_REACH, 0.2, 0))).to.equal(true)
-			-- standing on the tip falls back to a fixed side
-			expect(Intro.grabSpot(tip, tip).Y).to.equal(tip.Y)
-		end)
+		it(
+			"stops your copy RICH_REACH short of the coins, on the door's side, on the floor",
+			function()
+				local door = Vector3.new(0, 0.2, 0)
+				local tip = Vector3.new(10, 2.9, 0)
+				local at = Intro.grabSpot(door, tip)
+				expect(near(at, Vector3.new(10 - Intro.RICH_REACH, 0.2, 0))).to.equal(true)
+				-- standing on the tip falls back to a fixed side
+				expect(Intro.grabSpot(tip, tip).Y).to.equal(tip.Y)
+			end
+		)
 
 		it("times the walk in, the sit, the coins and the grab inside the shot", function()
 			local shot = Intro.shots(EAST, true)[6]

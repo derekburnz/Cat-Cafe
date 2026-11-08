@@ -202,30 +202,33 @@ return function()
 			end
 		)
 
-		it("release, playtest and playtest2 are on for everyone, case-insensitive, once each (#1118)", function()
-			for _, id in { "release", "playtest", "playtest2" } do
-				local def = Catalog.codes[id]
-				expect(def).to.be.ok()
-				expect(def.active).to.equal(true)
-				expect(def.requiresGroup).never.to.be.ok()
-				expect(def.endsAt).never.to.be.ok()
-				expect(Codes.refusal(fresh(), id, NOW, false)).to.equal(nil)
+		it(
+			"release, playtest and playtest2 are on for everyone, case-insensitive, once each (#1118)",
+			function()
+				for _, id in { "release", "playtest", "playtest2" } do
+					local def = Catalog.codes[id]
+					expect(def).to.be.ok()
+					expect(def.active).to.equal(true)
+					expect(def.requiresGroup).never.to.be.ok()
+					expect(def.endsAt).never.to.be.ok()
+					expect(Codes.refusal(fresh(), id, NOW, false)).to.equal(nil)
+				end
+				expect(Codes.normalize("Release")).to.equal("release")
+				expect(Codes.normalize("RELEASE")).to.equal("release")
+				local used = fresh()
+				used.codesRedeemed.release = NOW
+				expect(Codes.refusal(used, "release", NOW, false)).to.equal(Codes.USED)
+				expect(Catalog.codes.release.prize :: any).to.deepEqual({
+					coins = 2000,
+					coinSeconds = 600,
+					fish = 60,
+					potions = { tip_potion = 2 },
+				})
+				-- nothing random in it: no crates or spins (monetization-policy)
+				expect(Catalog.codes.release.prize.crates).never.to.be.ok()
+				expect(Catalog.codes.release.prize.spins).never.to.be.ok()
 			end
-			expect(Codes.normalize("Release")).to.equal("release")
-			expect(Codes.normalize("RELEASE")).to.equal("release")
-			local used = fresh()
-			used.codesRedeemed.release = NOW
-			expect(Codes.refusal(used, "release", NOW, false)).to.equal(Codes.USED)
-			expect(Catalog.codes.release.prize :: any).to.deepEqual({
-				coins = 2000,
-				coinSeconds = 600,
-				fish = 60,
-				potions = { tip_potion = 2 },
-			})
-			-- nothing random in it: no crates or spins (monetization-policy)
-			expect(Catalog.codes.release.prize.crates).never.to.be.ok()
-			expect(Catalog.codes.release.prize.spins).never.to.be.ok()
-		end)
+		)
 
 		it("launch waits to be switched on, and group is on but needs the group", function()
 			expect(Catalog.codes.launch.active).to.equal(false)
@@ -261,7 +264,10 @@ return function()
 				expect(def.id).to.equal(row.id)
 				expect(def.active).to.equal(false)
 				expect(def.requiresGroup).never.to.be.ok()
-				expect(def.prize :: any).to.deepEqual({ coins = row.coins, coinSeconds = row.coinSeconds })
+				expect(def.prize :: any).to.deepEqual({
+					coins = row.coins,
+					coinSeconds = row.coinSeconds,
+				})
 				expect(row.coinSeconds <= 600).to.equal(true) -- 10 minutes of income at most
 				expect(def.endsAt).to.equal(row.live + 60 * DAY)
 			end

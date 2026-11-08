@@ -1013,24 +1013,32 @@ return function()
 			expect(Cues.shiftChime ~= nil and Cues.shiftChime.volume <= 0.35).to.equal(true)
 		end)
 
-		it("shuffles only the Jukebox songs that have a file, and spots an unchanged list", function()
-			local has = function(cueId: string)
-				return cueId == "a" or cueId == "b"
+		it(
+			"shuffles only the Jukebox songs that have a file, and spots an unchanged list",
+			function()
+				local has = function(cueId: string)
+					return cueId == "a" or cueId == "b"
+				end
+				expect(Logic.shuffleSongs({ "a", "x", "b", "a" }, has) :: any).to.deepEqual({
+					"a",
+					"b",
+				})
+				expect(#Logic.shuffleSongs({ "x" }, has)).to.equal(0)
+				expect(#Logic.shuffleSongs(nil, has)).to.equal(0)
+				expect(Logic.nextSong({ "a", "b" }, "a", 0.1)).to.equal("b")
+				expect(Logic.sameList({ "a", "b" }, { "a", "b" })).to.equal(true)
+				expect(Logic.sameList({ "a", "b" }, { "b", "a" })).to.equal(false)
+				expect(Logic.sameList(nil, nil)).to.equal(true)
+				expect(Logic.sameList({ "a" }, nil)).to.equal(false)
 			end
-			expect(Logic.shuffleSongs({ "a", "x", "b", "a" }, has) :: any).to.deepEqual({ "a", "b" })
-			expect(#Logic.shuffleSongs({ "x" }, has)).to.equal(0)
-			expect(#Logic.shuffleSongs(nil, has)).to.equal(0)
-			expect(Logic.nextSong({ "a", "b" }, "a", 0.1)).to.equal("b")
-			expect(Logic.sameList({ "a", "b" }, { "a", "b" })).to.equal(true)
-			expect(Logic.sameList({ "a", "b" }, { "b", "a" })).to.equal(false)
-			expect(Logic.sameList(nil, nil)).to.equal(true)
-			expect(Logic.sameList({ "a" }, nil)).to.equal(false)
-		end)
+		)
 		it("plays a Jukebox Pass pick in place of the rotation once its cue has a file", function()
 			local function has(cueId: string): boolean
 				return cueId == "musicJukeboxRainyWindow"
 			end
-			expect(Logic.jukeboxSong("musicJukeboxRainyWindow", has)).to.equal("musicJukeboxRainyWindow")
+			expect(Logic.jukeboxSong("musicJukeboxRainyWindow", has)).to.equal(
+				"musicJukeboxRainyWindow"
+			)
 			expect(Logic.jukeboxSong("musicJukeboxCatnapWaltz", has)).to.equal(nil)
 			expect(Logic.jukeboxSong(nil, has)).to.equal(nil)
 			-- the picks stay out of the day and night rotation, and every Jukebox track has a cue
@@ -1038,24 +1046,34 @@ return function()
 			for _, track in Jukebox.TRACKS do
 				local cue = Cues[track.cue]
 				expect(cue ~= nil and cue.looped == true and cue.group == "Music").to.equal(true)
-				expect(table.find(Logic.songsFor("day", function()
-					return true
-				end), track.cue)).to.equal(nil)
+				expect(table.find(
+					Logic.songsFor("day", function()
+						return true
+					end),
+					track.cue
+				)).to.equal(nil)
 			end
 		end)
 
-		it("plays the tutorial song through the first steps while the Tutorial tile is on", function()
-			expect(Logic.tutorialSteps(0, 5, true)).to.equal(true)
-			expect(Logic.tutorialSteps(4, 5, true)).to.equal(true)
-			expect(Logic.tutorialSteps(5, 5, true)).to.equal(false)
-			expect(Logic.tutorialSteps(2, 5, false)).to.equal(false)
-			expect(Logic.tutorialSteps(nil, 5, true)).to.equal(false)
-			expect(Logic.tutorialStepDone(1, 2)).to.equal(true)
-			expect(Logic.tutorialStepDone(nil, 2)).to.equal(false)
-			expect(Logic.tutorialStepDone(2, 2)).to.equal(false)
-			expect(Cues.musicTutorial ~= nil and Cues.musicTutorial.looped == true).to.equal(true)
-			expect(Cues.tutorialStepDone ~= nil and Cues.tutorialStepDone.volume <= 0.5).to.equal(true)
-		end)
+		it(
+			"plays the tutorial song through the first steps while the Tutorial tile is on",
+			function()
+				expect(Logic.tutorialSteps(0, 5, true)).to.equal(true)
+				expect(Logic.tutorialSteps(4, 5, true)).to.equal(true)
+				expect(Logic.tutorialSteps(5, 5, true)).to.equal(false)
+				expect(Logic.tutorialSteps(2, 5, false)).to.equal(false)
+				expect(Logic.tutorialSteps(nil, 5, true)).to.equal(false)
+				expect(Logic.tutorialStepDone(1, 2)).to.equal(true)
+				expect(Logic.tutorialStepDone(nil, 2)).to.equal(false)
+				expect(Logic.tutorialStepDone(2, 2)).to.equal(false)
+				expect(Cues.musicTutorial ~= nil and Cues.musicTutorial.looped == true).to.equal(
+					true
+				)
+				expect(Cues.tutorialStepDone ~= nil and Cues.tutorialStepDone.volume <= 0.5).to.equal(
+					true
+				)
+			end
+		)
 
 		it("chimes when a camp station starts holding something", function()
 			expect(Logic.stationReady(0, 1, true)).to.equal(true)

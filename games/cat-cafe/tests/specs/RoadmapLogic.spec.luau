@@ -12,12 +12,10 @@ return function()
 			expect(RoadmapLogic.view({ tutorialStep = 3, grandOpening = { done = {} } })).to.equal(
 				nil
 			)
-			expect(
-				RoadmapLogic.view({
-					tutorialStep = 5,
-					grandOpening = { done = {}, finished = true },
-				})
-			).to.equal(nil)
+			expect(RoadmapLogic.view({
+				tutorialStep = 5,
+				grandOpening = { done = {}, finished = true },
+			})).to.equal(nil)
 			expect(RoadmapLogic.view({ tutorialStep = 9 })).to.equal(nil)
 		end)
 

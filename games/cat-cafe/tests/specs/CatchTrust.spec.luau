@@ -3,8 +3,9 @@
 return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
-	local CatchTrust =
-		require(Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("CatchTrust")) :: any
+	local CatchTrust = require(
+		Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("CatchTrust")
+	) :: any
 
 	describe("CatchTrust", function()
 		it("adds Perfect +3, Good +2, Miss -2 and a paw ring left alone +1 (#2005)", function()

@@ -3,8 +3,9 @@
 return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
-	local FirstBait =
-		require(Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("FirstBait")) :: any
+	local FirstBait = require(
+		Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("FirstBait")
+	) :: any
 
 	describe("FirstBait", function()
 		it("caps the empty bowl's wait only before the first bait", function()
@@ -19,7 +20,9 @@ return function()
 			local first = FirstBait.wait()
 			expect(FirstBait.coming({ placedAt = 1000, readyAt = 1000 + first })).to.equal(true)
 			expect(FirstBait.coming({ placedAt = 1000, readyAt = 1600 })).to.equal(false)
-			expect(FirstBait.coming({ placedAt = 1000, readyAt = 1000 + first, night = true })).to.equal(false)
+			expect(FirstBait.coming({ placedAt = 1000, readyAt = 1000 + first, night = true })).to.equal(
+				false
+			)
 			expect(FirstBait.coming({ readyAt = 1100 })).to.equal(false)
 			expect(FirstBait.coming(nil)).to.equal(false)
 		end)

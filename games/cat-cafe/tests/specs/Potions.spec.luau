@@ -17,54 +17,57 @@ return function()
 	end
 
 	describe("Catalog.potions and Catalog.mysteryGift (section 12b)", function()
-		it("has the potions in bag order with the design's minutes (Corner Shop v2 adds its own)", function()
-			local minutes: { [string]: number } = {}
-			local order: { string } = {}
-			for _, def in Catalog.potions do
-				minutes[def.id] = def.minutes
-				table.insert(order, def.id)
-				expect(Catalog.getPotion(def.id)).to.equal(def)
-				expect(#def.name > 0 and #def.effect > 0).to.equal(true)
+		it(
+			"has the potions in bag order with the design's minutes (Corner Shop v2 adds its own)",
+			function()
+				local minutes: { [string]: number } = {}
+				local order: { string } = {}
+				for _, def in Catalog.potions do
+					minutes[def.id] = def.minutes
+					table.insert(order, def.id)
+					expect(Catalog.getPotion(def.id)).to.equal(def)
+					expect(#def.name > 0 and #def.effect > 0).to.equal(true)
+				end
+				expect(order).to.deepEqual({
+					"tip_potion",
+					"lucky_potion",
+					"swift_potion",
+					"steady_potion",
+					"big_tip_potion",
+					"gold_rush_potion",
+					"quick_bait_potion",
+					-- corner-shop-v2.md section 1: the Cat Whistle and the Corner Shop's sizes
+					"cat_whistle",
+					"swift_potion_small",
+					"swift_potion_big",
+					"steady_potion_small",
+					"steady_potion_big",
+					"quick_bait_potion_small",
+					"quick_bait_potion_big",
+					"cat_whistle_small",
+					"cat_whistle_big",
+				})
+				expect(minutes).to.deepEqual({
+					tip_potion = 10,
+					lucky_potion = 10,
+					swift_potion = 10, -- corner-shop-v2.md section 1 (was 5)
+					cat_whistle = 10,
+					swift_potion_small = 3,
+					swift_potion_big = 30,
+					steady_potion_small = 5,
+					steady_potion_big = 30,
+					quick_bait_potion_small = 10,
+					quick_bait_potion_big = 60,
+					cat_whistle_small = 5,
+					cat_whistle_big = 30,
+					steady_potion = 10,
+					big_tip_potion = 30,
+					gold_rush_potion = 30,
+					quick_bait_potion = 30,
+				})
+				expect(Catalog.getPotion("nope")).never.to.be.ok()
 			end
-			expect(order).to.deepEqual({
-				"tip_potion",
-				"lucky_potion",
-				"swift_potion",
-				"steady_potion",
-				"big_tip_potion",
-				"gold_rush_potion",
-				"quick_bait_potion",
-				-- corner-shop-v2.md section 1: the Cat Whistle and the Corner Shop's sizes
-				"cat_whistle",
-				"swift_potion_small",
-				"swift_potion_big",
-				"steady_potion_small",
-				"steady_potion_big",
-				"quick_bait_potion_small",
-				"quick_bait_potion_big",
-				"cat_whistle_small",
-				"cat_whistle_big",
-			})
-			expect(minutes).to.deepEqual({
-				tip_potion = 10,
-				lucky_potion = 10,
-				swift_potion = 10, -- corner-shop-v2.md section 1 (was 5)
-				cat_whistle = 10,
-				swift_potion_small = 3,
-				swift_potion_big = 30,
-				steady_potion_small = 5,
-				steady_potion_big = 30,
-				quick_bait_potion_small = 10,
-				quick_bait_potion_big = 60,
-				cat_whistle_small = 5,
-				cat_whistle_big = 30,
-				steady_potion = 10,
-				big_tip_potion = 30,
-				gold_rush_potion = 30,
-				quick_bait_potion = 30,
-			})
-			expect(Catalog.getPotion("nope")).never.to.be.ok()
-		end)
+		)
 
 		it(
 			"shows the gift's chances summing to 100: a potion 60, 10 fish 30, a spin 10 (F94: no Salmon)",
@@ -497,7 +500,9 @@ return function()
 				-- F73: the quest potions come only from quest sets and achievements, never from his gift, and the
 				-- Corner Shop's own (corner-shop-v2.md) only from the shop
 				for _, def in Catalog.potions do
-					expect(seen["potion:" .. def.id] == true).to.equal(def.quest ~= true and def.shopOnly ~= true)
+					expect(seen["potion:" .. def.id] == true).to.equal(
+						def.quest ~= true and def.shopOnly ~= true
+					)
 				end
 				expect(seen["fish:nil"] and seen["spin:nil"]).to.equal(true)
 				for key in seen do

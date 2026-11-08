@@ -86,7 +86,9 @@ return function()
 			expect(Shove.tackleRefusal(press({ sinceTackle = cooldown }))).never.to.be.ok()
 			-- #2324: the refusal is the seconds left, rounded up
 			expect(Shove.tackleRefusal(press({ sinceTackle = 0.5 }))).to.equal("Cooling down 5s")
-			expect(Shove.tackleRefusal(press({ sinceTackle = cooldown - 0.01 }))).to.equal("Cooling down 1s")
+			expect(Shove.tackleRefusal(press({ sinceTackle = cooldown - 0.01 }))).to.equal(
+				"Cooling down 1s"
+			)
 		end)
 
 		it("the hit window is the lunge plus the grace for lag", function()
@@ -111,11 +113,14 @@ return function()
 			expect(Shove.targetRefusal(target({ targetBusy = true }))).to.be.ok()
 		end)
 
-		it("hits a player by their own cafe or in a camp: no safe spots but a minigame (Derek2 2026-11-07)", function()
-			expect(Shove.targetRefusal(target({ targetSafe = true }))).never.to.be.ok()
-			expect(Shove.targetRefusal(target({ targetInCamp = true }))).never.to.be.ok()
-			expect(Shove.tackleRefusal(press({ inCamp = true }))).never.to.be.ok()
-		end)
+		it(
+			"hits a player by their own cafe or in a camp: no safe spots but a minigame (Derek2 2026-11-07)",
+			function()
+				expect(Shove.targetRefusal(target({ targetSafe = true }))).never.to.be.ok()
+				expect(Shove.targetRefusal(target({ targetInCamp = true }))).never.to.be.ok()
+				expect(Shove.tackleRefusal(press({ inCamp = true }))).never.to.be.ok()
+			end
+		)
 
 		it(
 			"passes through a player who has not checked in a cat yet, carrying or not (F87 newcomer)",

@@ -68,21 +68,28 @@ return function()
 	end
 
 	describe("no shop food in prizes (section 1 rule 1, QA check 1)", function()
-		it("no table, wheel slice, gift or code but the tester codes pays Kibble, Tuna or Salmon", function()
-			for _, entry in everyPrize() do
-				for lureId: string in entry.prize.lures or {} do
-					if SHOP_FOOD[lureId] then
-						error(string.format("%s pays %s", entry.name, lureId))
+		it(
+			"no table, wheel slice, gift or code but the tester codes pays Kibble, Tuna or Salmon",
+			function()
+				for _, entry in everyPrize() do
+					for lureId: string in entry.prize.lures or {} do
+						if SHOP_FOOD[lureId] then
+							error(string.format("%s pays %s", entry.name, lureId))
+						end
 					end
 				end
+				for _, row in Catalog.spinWheel do
+					expect(row.kind == "lure" and SHOP_FOOD[row.lureId :: string] == true).to.equal(
+						false
+					)
+				end
+				for _, row in Catalog.mysteryGift do
+					expect(row.kind == "lure" and SHOP_FOOD[row.id :: string] == true).to.equal(
+						false
+					)
+				end
 			end
-			for _, row in Catalog.spinWheel do
-				expect(row.kind == "lure" and SHOP_FOOD[row.lureId :: string] == true).to.equal(false)
-			end
-			for _, row in Catalog.mysteryGift do
-				expect(row.kind == "lure" and SHOP_FOOD[row.id :: string] == true).to.equal(false)
-			end
-		end)
+		)
 
 		it("pays food only as a dealer food, one or two at a time", function()
 			for _, entry in everyPrize() do
@@ -96,22 +103,27 @@ return function()
 		end)
 	end)
 
-	describe("two pictures a prize, three for the big ones (section 1 rule 3, QA check 2)", function()
-		it("never shows more", function()
-			for _, entry in everyPrize() do
-				local most = if entry.big then 3 else 2
-				if pictures(entry.prize) > most then
-					error(string.format("%s shows %d pictures", entry.name, pictures(entry.prize)))
+	describe(
+		"two pictures a prize, three for the big ones (section 1 rule 3, QA check 2)",
+		function()
+			it("never shows more", function()
+				for _, entry in everyPrize() do
+					local most = if entry.big then 3 else 2
+					if pictures(entry.prize) > most then
+						error(
+							string.format("%s shows %d pictures", entry.name, pictures(entry.prize))
+						)
+					end
 				end
-			end
-		end)
+			end)
 
-		it("does not count a forever bonus or a name tag", function()
-			expect(pictures(Catalog.indexPrizes.alley.gold10)).to.equal(3)
-			expect(pictures(Catalog.indexPrizes.all.total50)).to.equal(3)
-			expect(pictures(Catalog.indexPrizes.alley.cats6)).to.equal(2)
-		end)
-	end)
+			it("does not count a forever bonus or a name tag", function()
+				expect(pictures(Catalog.indexPrizes.alley.gold10)).to.equal(3)
+				expect(pictures(Catalog.indexPrizes.all.total50)).to.equal(3)
+				expect(pictures(Catalog.indexPrizes.alley.cats6)).to.equal(2)
+			end)
+		end
+	)
 
 	describe("the new rows (section 2, QA check 3)", function()
 		it("the Tip Jar's two hour gift is 2 Classic Crates and 90 golden fish (#2237)", function()
@@ -146,15 +158,19 @@ return function()
 			end
 		end)
 
-		it("gold6 pays its golden fish (#2237: halved to the nearest 5) and no food or spins", function()
-			local fish: { [string]: number } = { alley = 25, park = 30, neighbourhood = 35, woods = 45, sewer = 55 }
-			for area, count in fish do
-				local prize = Catalog.indexPrizes[area].gold6
-				expect(prize.fish).to.equal(count)
-				expect(prize.lures).never.to.be.ok()
-				expect(prize.spins).never.to.be.ok()
+		it(
+			"gold6 pays its golden fish (#2237: halved to the nearest 5) and no food or spins",
+			function()
+				local fish: { [string]: number } =
+					{ alley = 25, park = 30, neighbourhood = 35, woods = 45, sewer = 55 }
+				for area, count in fish do
+					local prize = Catalog.indexPrizes[area].gold6
+					expect(prize.fish).to.equal(count)
+					expect(prize.lures).never.to.be.ok()
+					expect(prize.spins).never.to.be.ok()
+				end
 			end
-		end)
+		)
 
 		it("a Mystery gift is a potion 60%, 10 golden fish 30% or a spin 10%", function()
 			local chances: { [string]: number } = {}

@@ -10,7 +10,11 @@ return function()
 
 	local function firstOf(rarity: string, area: string?): string
 		for _, def in Catalog.cats do
-			if def.rarity == rarity and (area == nil or def.area == area) and Catalog.getArea(def.area) ~= nil then
+			if
+				def.rarity == rarity
+				and (area == nil or def.area == area)
+				and Catalog.getArea(def.area) ~= nil
+			then
 				return def.id
 			end
 		end
@@ -48,7 +52,13 @@ return function()
 		end)
 
 		it("values cats by rarity and gold with a roll from 0.8 to 1.5", function()
-			expect(Config.CollectorValue :: any).to.deepEqual({ Common = 1, Rare = 3, Epic = 8, Legendary = 20, Mythical = 50 })
+			expect(Config.CollectorValue :: any).to.deepEqual({
+				Common = 1,
+				Rare = 3,
+				Epic = 8,
+				Legendary = 20,
+				Mythical = 50,
+			})
 			expect(Config.CollectorGoldMultiplier).to.equal(3)
 			expect(Config.CollectorRollMin).to.equal(0.8)
 			expect(Config.CollectorRollMax).to.equal(1.5)
@@ -78,26 +88,53 @@ return function()
 
 		-- the design's table of what each kind of cat gets (Design #500: the crate rows at 6 and 11, so every Epic
 		-- gets a crate and its rolls from 11 to 12 20 fish with it)
-		it("gives a Common 5 fish, a Rare tuna and a spin or 15 fish, an Epic a crate or more", function()
-			local function offers(catId: string, variant: string): { [number]: boolean }
-				local seen: { [number]: boolean } = {}
-				for step = 0, 100 do
-					local instance = cat("c", catId, { variant = variant })
-					seen[Collector.offerFor(Collector.value(instance, step / 100)).value] = true
+		it(
+			"gives a Common 5 fish, a Rare tuna and a spin or 15 fish, an Epic a crate or more",
+			function()
+				local function offers(catId: string, variant: string): { [number]: boolean }
+					local seen: { [number]: boolean } = {}
+					for step = 0, 100 do
+						local instance = cat("c", catId, { variant = variant })
+						seen[Collector.offerFor(Collector.value(instance, step / 100)).value] = true
+					end
+					return seen
 				end
-				return seen
+				expect(offers(firstOf("Common"), "base") :: any).to.deepEqual({ [1] = true })
+				expect(offers(firstOf("Rare"), "base") :: any).to.deepEqual({
+					[2] = true,
+					[4] = true,
+				})
+				expect(offers(firstOf("Epic"), "base") :: any).to.deepEqual({
+					[6] = true,
+					[8] = true,
+					[11] = true,
+				})
+				expect(offers(firstOf("Legendary"), "base") :: any).to.deepEqual({
+					[11] = true,
+					[20] = true,
+				})
+				expect(offers(firstOf("Mythical"), "base") :: any).to.deepEqual({
+					[35] = true,
+					[60] = true,
+				})
+				-- features.md F63 done when: a gold Epic offers a crate and 20 fish, two crates or a golden crate
+				expect(offers(firstOf("Epic"), "gold") :: any).to.deepEqual({
+					[11] = true,
+					[20] = true,
+					[35] = true,
+				})
+				expect(offers(firstOf("Rare"), "gold") :: any).to.deepEqual({
+					[6] = true,
+					[8] = true,
+					[11] = true,
+				})
+				expect(offers(firstOf("Legendary"), "gold") :: any).to.deepEqual({
+					[35] = true,
+					[60] = true,
+				})
+				expect(offers(firstOf("Mythical"), "gold") :: any).to.deepEqual({ [120] = true })
 			end
-			expect(offers(firstOf("Common"), "base") :: any).to.deepEqual({ [1] = true })
-			expect(offers(firstOf("Rare"), "base") :: any).to.deepEqual({ [2] = true, [4] = true })
-			expect(offers(firstOf("Epic"), "base") :: any).to.deepEqual({ [6] = true, [8] = true, [11] = true })
-			expect(offers(firstOf("Legendary"), "base") :: any).to.deepEqual({ [11] = true, [20] = true })
-			expect(offers(firstOf("Mythical"), "base") :: any).to.deepEqual({ [35] = true, [60] = true })
-			-- features.md F63 done when: a gold Epic offers a crate and 20 fish, two crates or a golden crate
-			expect(offers(firstOf("Epic"), "gold") :: any).to.deepEqual({ [11] = true, [20] = true, [35] = true })
-			expect(offers(firstOf("Rare"), "gold") :: any).to.deepEqual({ [6] = true, [8] = true, [11] = true })
-			expect(offers(firstOf("Legendary"), "gold") :: any).to.deepEqual({ [35] = true, [60] = true })
-			expect(offers(firstOf("Mythical"), "gold") :: any).to.deepEqual({ [120] = true })
-		end)
+		)
 	end)
 
 	describe("pickCat", function()
@@ -128,33 +165,41 @@ return function()
 			expect((Collector.pickCat(cats, fixed(0.99)) :: any).catId).to.equal(ids[2])
 		end)
 
-		it("asks for a rarer catId as often as CollectorAskWeight says, never a cat in use (#1144)", function()
-			local commons: { string } = {}
-			for _, def in Catalog.cats do
-				if def.rarity == "Common" and Catalog.getArea(def.area) ~= nil and #commons < 6 then
-					table.insert(commons, def.id)
+		it(
+			"asks for a rarer catId as often as CollectorAskWeight says, never a cat in use (#1144)",
+			function()
+				local commons: { string } = {}
+				for _, def in Catalog.cats do
+					if
+						def.rarity == "Common"
+						and Catalog.getArea(def.area) ~= nil
+						and #commons < 6
+					then
+						table.insert(commons, def.id)
+					end
 				end
-			end
-			local epic = firstOf("Epic")
-			local cats: { [string]: any } = { e1 = cat("e1", epic), busy = cat("busy", epic, { spotId = "waiter_1" }) }
-			for n, id in commons do
-				cats["c" .. n] = cat("c" .. n, id)
-			end
-			local steps, epics = 1000, 0
-			for i = 0, steps - 1 do
-				local picked = Collector.pickCat(cats, fixed((i + 0.5) / steps)) :: any
-				expect(picked.uid ~= "busy").to.equal(true)
-				if picked.catId == epic then
-					epics += 1
+				local epic = firstOf("Epic")
+				local cats: { [string]: any } =
+					{ e1 = cat("e1", epic), busy = cat("busy", epic, { spotId = "waiter_1" }) }
+				for n, id in commons do
+					cats["c" .. n] = cat("c" .. n, id)
 				end
+				local steps, epics = 1000, 0
+				for i = 0, steps - 1 do
+					local picked = Collector.pickCat(cats, fixed((i + 0.5) / steps)) :: any
+					expect(picked.uid ~= "busy").to.equal(true)
+					if picked.catId == epic then
+						epics += 1
+					end
+				end
+				local weights = Config.CollectorAskWeight
+				local want = weights.Epic / (weights.Epic + #commons * weights.Common)
+				expect(epics / steps).to.be.near(want, 0.01)
+				-- only commons still works
+				cats.e1 = nil
+				expect((Collector.pickCat(cats, fixed(0.5)) :: any).catId ~= epic).to.equal(true)
 			end
-			local weights = Config.CollectorAskWeight
-			local want = weights.Epic / (weights.Epic + #commons * weights.Common)
-			expect(epics / steps).to.be.near(want, 0.01)
-			-- only commons still works
-			cats.e1 = nil
-			expect((Collector.pickCat(cats, fixed(0.5)) :: any).catId ~= epic).to.equal(true)
-		end)
+		)
 
 		it("takes that catId's lowest rated cat, the lowest uid on a tie", function()
 			local common = firstOf("Common")
@@ -174,12 +219,15 @@ return function()
 			local zone = Collector.prize({ value = 11, crates = { zone = 1 }, fish = 20 }, "park")
 			expect(zone :: any).to.deepEqual({ fish = 20, crates = { park_crate = 1 } })
 			expect(Catalog.getCrate("park_crate")).to.be.ok()
-			local golden = Collector.prize({ value = 120, crates = { golden = 2 }, fish = 100 }, "sewer")
+			local golden =
+				Collector.prize({ value = 120, crates = { golden = 2 }, fish = 100 }, "sewer")
 			expect(golden :: any).to.deepEqual({ fish = 100, crates = { sewer_golden_crate = 2 } })
 			expect(Catalog.getCrate("sewer_golden_crate")).to.be.ok()
 			local food = Collector.prize({ value = 2, lures = { caviar = 1 }, spins = 1 }, "alley")
 			expect(food :: any).to.deepEqual({ lures = { caviar = 1 }, spins = 1 })
-			expect(Collector.prize(Catalog.collectorOffers[2], "alley") :: any).to.deepEqual({ fish = 6 })
+			expect(Collector.prize(Catalog.collectorOffers[2], "alley") :: any).to.deepEqual({
+				fish = 6,
+			})
 		end)
 
 		it("names a real crate for every area and every crate row", function()
@@ -202,23 +250,29 @@ return function()
 			local hits, steps = 0, 10000
 			for step = 0, steps - 1 do
 				local instance = cat("c", catId, { variant = variant })
-				if Collector.offerFor(Collector.value(instance, (step + 0.5) / steps)).value == value then
+				if
+					Collector.offerFor(Collector.value(instance, (step + 0.5) / steps)).value
+					== value
+				then
 					hits += 1
 				end
 			end
 			return hits / steps
 		end
 
-		it("matches the design's words on how often the better rows come up (section 12b)", function()
-			-- "an Epic a crate and about one time in six 20 fish with it": 8 x 0.8 to 1.5 reaches 11 above roll 0.82
-			expect(share(firstOf("Epic"), "base", 11)).to.be.near(1 / 6, 0.02)
-			-- "a gold Rare (7.2 to 13.5) gets the 20 fish 40% of the time"
-			expect(share(firstOf("Rare"), "gold", 11)).to.be.near(0.40, 0.01)
-			-- "a Mythical a golden crate and often 50 fish with it": 40 to 75 reaches 60 for 15 of its 35
-			expect(share(firstOf("Mythical"), "base", 60)).to.be.near(15 / 35, 0.01)
-			-- "a Legendary a crate and fish or two crates": 16 to 30, two crates from 20
-			expect(share(firstOf("Legendary"), "base", 20)).to.be.near(10 / 14, 0.01)
-		end)
+		it(
+			"matches the design's words on how often the better rows come up (section 12b)",
+			function()
+				-- "an Epic a crate and about one time in six 20 fish with it": 8 x 0.8 to 1.5 reaches 11 above roll 0.82
+				expect(share(firstOf("Epic"), "base", 11)).to.be.near(1 / 6, 0.02)
+				-- "a gold Rare (7.2 to 13.5) gets the 20 fish 40% of the time"
+				expect(share(firstOf("Rare"), "gold", 11)).to.be.near(0.40, 0.01)
+				-- "a Mythical a golden crate and often 50 fish with it": 40 to 75 reaches 60 for 15 of its 35
+				expect(share(firstOf("Mythical"), "base", 60)).to.be.near(15 / 35, 0.01)
+				-- "a Legendary a crate and fish or two crates": 16 to 30, two crates from 20
+				expect(share(firstOf("Legendary"), "base", 20)).to.be.near(10 / 14, 0.01)
+			end
+		)
 
 		it("never offers less for a better roll, or for the gold cat of the same kind", function()
 			for _, def in Catalog.cats do
@@ -229,84 +283,109 @@ return function()
 				for step = 0, 200 do
 					local roll = step / 200
 					local plain = Collector.offerFor(Collector.value(cat("p", def.id), roll)).value
-					local gold = Collector.offerFor(Collector.value(cat("g", def.id, { variant = "gold" }), roll)).value
+					local gold = Collector.offerFor(
+						Collector.value(cat("g", def.id, { variant = "gold" }), roll)
+					).value
 					if plain < before or gold < beforeGold or gold < plain then
-						error(string.format("%s at roll %.3f: plain %d, gold %d", def.id, roll, plain, gold))
+						error(
+							string.format(
+								"%s at roll %.3f: plain %d, gold %d",
+								def.id,
+								roll,
+								plain,
+								gold
+							)
+						)
 					end
 					before, beforeGold = plain, gold
 				end
 			end
 		end)
 
-		it("500 seeded cafes: asks only for a resting, unlocked area cat, the lowest rated of its kind", function()
-			local rng = Random.new(6301)
-			local ids: { string } = {}
-			for _, def in Catalog.cats do
-				table.insert(ids, def.id)
-			end
-			table.insert(ids, "no_such_cat")
-			local asked = 0
-			for run = 1, 500 do
-				local cats: { [string]: any } = {}
-				for n = 1, rng:NextInteger(0, 9) do
-					local uid = string.format("u%d_%d", run, n)
-					cats[uid] = cat(uid, ids[rng:NextInteger(1, #ids)], {
-						spotId = if rng:NextNumber() < 0.4 then "waiter_1" else nil,
-						locked = if rng:NextNumber() < 0.3 then true else nil,
-						variant = if rng:NextNumber() < 0.2 then "gold" else "base",
-						level = rng:NextInteger(1, 50),
-						charm = rng:NextInteger(0, 100),
-					})
+		it(
+			"500 seeded cafes: asks only for a resting, unlocked area cat, the lowest rated of its kind",
+			function()
+				local rng = Random.new(6301)
+				local ids: { string } = {}
+				for _, def in Catalog.cats do
+					table.insert(ids, def.id)
 				end
-				local askable = 0
-				for _, instance in cats do
-					if Collector.askable(instance) then
-						askable += 1
+				table.insert(ids, "no_such_cat")
+				local asked = 0
+				for run = 1, 500 do
+					local cats: { [string]: any } = {}
+					for n = 1, rng:NextInteger(0, 9) do
+						local uid = string.format("u%d_%d", run, n)
+						cats[uid] = cat(uid, ids[rng:NextInteger(1, #ids)], {
+							spotId = if rng:NextNumber() < 0.4 then "waiter_1" else nil,
+							locked = if rng:NextNumber() < 0.3 then true else nil,
+							variant = if rng:NextNumber() < 0.2 then "gold" else "base",
+							level = rng:NextInteger(1, 50),
+							charm = rng:NextInteger(0, 100),
+						})
 					end
-				end
-				local roll = rng:NextNumber()
-				local picked = Collector.pickCat(cats, function()
-					return roll
-				end)
-				if askable == 0 then
-					expect(picked).never.to.be.ok()
-					continue
-				end
-				expect(picked).to.be.ok()
-				local chosen = picked :: any
-				local def = Catalog.getCat(chosen.catId)
-				if
-					def == nil
-					or Catalog.getArea(def.area) == nil
-					or chosen.spotId ~= nil
-					or chosen.locked == true
-				then
-					error(string.format("run %d asked for %s (%s)", run, chosen.uid, chosen.catId))
-				end
-				for _, instance in cats do
+					local askable = 0
+					for _, instance in cats do
+						if Collector.askable(instance) then
+							askable += 1
+						end
+					end
+					local roll = rng:NextNumber()
+					local picked = Collector.pickCat(cats, function()
+						return roll
+					end)
+					if askable == 0 then
+						expect(picked).never.to.be.ok()
+						continue
+					end
+					expect(picked).to.be.ok()
+					local chosen = picked :: any
+					local def = Catalog.getCat(chosen.catId)
 					if
-						instance.catId == chosen.catId
-						and Collector.askable(instance)
-						and CatStats.rating(instance) < CatStats.rating(chosen)
+						def == nil
+						or Catalog.getArea(def.area) == nil
+						or chosen.spotId ~= nil
+						or chosen.locked == true
 					then
-						error(string.format("run %d asked for %s over the lower rated %s", run, tostring(chosen.uid), tostring(instance.uid)))
+						error(
+							string.format("run %d asked for %s (%s)", run, chosen.uid, chosen.catId)
+						)
 					end
+					for _, instance in cats do
+						if
+							instance.catId == chosen.catId
+							and Collector.askable(instance)
+							and CatStats.rating(instance) < CatStats.rating(chosen)
+						then
+							error(
+								string.format(
+									"run %d asked for %s over the lower rated %s",
+									run,
+									tostring(chosen.uid),
+									tostring(instance.uid)
+								)
+							)
+						end
+					end
+					asked += 1
 				end
-				asked += 1
+				expect(asked > 200).to.equal(true)
 			end
-			expect(asked > 200).to.equal(true)
-		end)
+		)
 
-		it("about one visit every 10 minutes of play by the clock (a 200 to 400 s timer of open day, #2272)", function()
-			-- #2272 (Derek2: "make it more common"): was 360 to 840 s, about 17 minutes (#2107: 600 to 1400 s, about 25)
-			-- data-model 12b says about 35, from before the short night (F66); by the build's numbers a check lands in
-			-- the open part of the day (a 300 s day of a 390 s loop, less the last DuskWarningSeconds) 285 / 390 of
-			-- the time, and a visit then holds the plot for CollectorStaySeconds
-			local open = (Config.DayLengthSeconds - Config.DuskWarningSeconds)
-				/ (Config.DayLengthSeconds + Config.NightLengthSeconds)
-			local waiting = (Config.CollectorEveryMin + Config.CollectorEveryMax) / 2 / open
-			local minutes = (waiting + Config.CollectorStaySeconds) / 60
-			expect(minutes > 8 and minutes < 12).to.equal(true)
-		end)
+		it(
+			"about one visit every 10 minutes of play by the clock (a 200 to 400 s timer of open day, #2272)",
+			function()
+				-- #2272 (Derek2: "make it more common"): was 360 to 840 s, about 17 minutes (#2107: 600 to 1400 s, about 25)
+				-- data-model 12b says about 35, from before the short night (F66); by the build's numbers a check lands in
+				-- the open part of the day (a 300 s day of a 390 s loop, less the last DuskWarningSeconds) 285 / 390 of
+				-- the time, and a visit then holds the plot for CollectorStaySeconds
+				local open = (Config.DayLengthSeconds - Config.DuskWarningSeconds)
+					/ (Config.DayLengthSeconds + Config.NightLengthSeconds)
+				local waiting = (Config.CollectorEveryMin + Config.CollectorEveryMax) / 2 / open
+				local minutes = (waiting + Config.CollectorStaySeconds) / 60
+				expect(minutes > 8 and minutes < 12).to.equal(true)
+			end
+		)
 	end)
 end

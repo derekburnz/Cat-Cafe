@@ -65,30 +65,25 @@ return function()
 			expect(alone.paws).to.equal(paws - 1)
 		end)
 
-		it(
-			"never takes a hit away, where the rescuer's miss does (#2219, #2327)",
-			function()
-				local attempt = fresh()
-				expect(
-					Rescue.pressBar(attempt, timeAt(attempt, Rescue.currentZone(attempt) :: number))
-				).to.equal("hit")
-				expect(
-					Rescue.pressBar(attempt, timeAt(attempt, Rescue.currentZone(attempt) :: number))
-				).to.equal("hit")
-				local speed = attempt.speed
-				expect(Rescue.pressBar(attempt, timeAt(attempt, clearOfZone(attempt)), true)).to.equal(
-					"miss"
-				)
-				expect(attempt.hits).to.equal(2)
-				expect(attempt.zone).to.equal(3)
-				expect(attempt.speed).to.equal(speed)
-				expect(Rescue.pressBar(attempt, timeAt(attempt, clearOfZone(attempt)))).to.equal(
-					"miss"
-				)
-				expect(attempt.hits).to.equal(1)
-				expect(attempt.zone).to.equal(2)
-			end
-		)
+		it("never takes a hit away, where the rescuer's miss does (#2219, #2327)", function()
+			local attempt = fresh()
+			expect(Rescue.pressBar(attempt, timeAt(attempt, Rescue.currentZone(attempt) :: number))).to.equal(
+				"hit"
+			)
+			expect(Rescue.pressBar(attempt, timeAt(attempt, Rescue.currentZone(attempt) :: number))).to.equal(
+				"hit"
+			)
+			local speed = attempt.speed
+			expect(Rescue.pressBar(attempt, timeAt(attempt, clearOfZone(attempt)), true)).to.equal(
+				"miss"
+			)
+			expect(attempt.hits).to.equal(2)
+			expect(attempt.zone).to.equal(3)
+			expect(attempt.speed).to.equal(speed)
+			expect(Rescue.pressBar(attempt, timeAt(attempt, clearOfZone(attempt)))).to.equal("miss")
+			expect(attempt.hits).to.equal(1)
+			expect(attempt.zone).to.equal(2)
+		end)
 
 		it("can never end the attempt, however many it misses", function()
 			local attempt = fresh()

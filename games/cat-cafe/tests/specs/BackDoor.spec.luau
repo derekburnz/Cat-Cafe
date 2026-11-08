@@ -34,12 +34,15 @@ return function()
 	end)
 
 	describe("at night (Derek 2026-10-28)", function()
-		it("keeps a door set's front leaves open by day, and at night only while the owner is near", function()
-			expect(BackDoor.frontOpen(true, nil)).to.equal(true)
-			expect(BackDoor.frontOpen(false, nil)).to.equal(false)
-			expect(BackDoor.frontOpen(false, BackDoor.OPEN_RANGE)).to.equal(true)
-			expect(BackDoor.frontOpen(false, BackDoor.OPEN_RANGE + 0.1)).to.equal(false)
-		end)
+		it(
+			"keeps a door set's front leaves open by day, and at night only while the owner is near",
+			function()
+				expect(BackDoor.frontOpen(true, nil)).to.equal(true)
+				expect(BackDoor.frontOpen(false, nil)).to.equal(false)
+				expect(BackDoor.frontOpen(false, BackDoor.OPEN_RANGE)).to.equal(true)
+				expect(BackDoor.frontOpen(false, BackDoor.OPEN_RANGE + 0.1)).to.equal(false)
+			end
+		)
 
 		it("makes an owned cafe's shut doors solid at night for everyone but the owner", function()
 			expect(BackDoor.solid(false, true, false)).to.equal(true)

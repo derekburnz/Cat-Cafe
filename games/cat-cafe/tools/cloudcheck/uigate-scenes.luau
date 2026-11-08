@@ -218,6 +218,11 @@ local function samplePlayer(now)
 	}
 end
 
+-- Config.TipGapSeconds (150 since #2407): the tip queue's gap, read where a scene waits it out
+local function tipGap(): number
+	return UIShim.require("ReplicatedStorage.Shared.Config").TipGapSeconds :: number
+end
+
 function Scenes.setup()
 	Catalog = UIShim.require("ReplicatedStorage.Shared.Catalog")
 	UI = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI")
@@ -3217,7 +3222,7 @@ local SCENES = {
 			end
 			return nil
 		end
-		UIShim.advance(61) -- past TipGapSeconds after the TipCard scene's tip, so the queue may show the next one
+		UIShim.advance(tipGap() + 1) -- past TipGapSeconds after the TipCard scene's tip, so the queue may show the next one
 		UI.catch.showGrades("uigate_stray", { "good", "good" }, true, 0)
 		UIShim.advance(1)
 		assert(charmLine() == nil, "uigate: a catch with no Perfect showed the Charm tip (#2282)")
@@ -3246,7 +3251,7 @@ local SCENES = {
 		local counting = UI.events.tipSeen:Connect(function(id: string)
 			table.insert(seen, id)
 		end)
-		UIShim.advance(61) -- past TipGapSeconds after an earlier scene's tip
+		UIShim.advance(tipGap() + 1) -- past TipGapSeconds after an earlier scene's tip
 		UI.tips.show("tackle_try")
 		UIShim.advance(1)
 		local line: TextLabel? = nil

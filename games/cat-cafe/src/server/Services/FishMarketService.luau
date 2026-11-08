@@ -6,7 +6,8 @@
 -- twentieth on golden odds), adds the piece or pays its duplicate refund, puts a new furniture or decoration piece on
 -- a free decor spot and answers CrateResult(crateId, decorId, duplicate, refund), so leaving mid-reveal keeps the
 -- piece. BuyCrateBundle(crateId) (#1051) banks CrateBundleCount crates of one kind for CrateBundlePrice golden fish
--- and opens none. BuyFishItem(itemId) buys a food or a perk level. Every cost comes from Catalog.fishShop and Config, never
+-- and opens none. OpenAllCrates(crateId) (#2402) opens every banked crate of one kind at once, banked only.
+-- BuyFishItem(itemId) buys a food or a perk level. Every cost comes from Catalog.fishShop and Config, never
 -- from the client. Golden fish are earned only: nothing here is sold for Robux (monetization-policy).
 -- F94 (rewards-and-shops.md section 3): the Fresh Catch shelf. By day shared/FreshCatch rolls a stock every
 -- FreshCatchWindowSeconds, the same on every server, and each player may buy up to its amount of each row in the
@@ -210,6 +211,72 @@ local function onOpenCrate(player: Player, rawCrateId: unknown)
 	inFlight[player] = nil
 	RareMomentService.foundDecor(player, def) -- F89: a Mythical piece toasts the server
 	if placed then
+		CafeService.refreshPlot(player)
+	end
+	CafeService.sync(player)
+end
+
+-- #2402: Open all. Every banked crate of `crateId`, up to Crates.OPEN_ALL_MAX, opened one after the other as OpenCrate
+-- opens one (same roll, same crate luck between them), under the same range, in-flight and spam rules. Banked only:
+-- it never spends golden fish. Answers CrateAllResult(crateId, opened), empty when refused, then one sync.
+local function onOpenAllCrates(player: Player, rawCrateId: unknown)
+	local crateId = Guard.id(rawCrateId)
+	local profile = DataService.get(player)
+	if crateId == nil or profile == nil then
+		return
+	end
+	local function refuse(reason: string?)
+		if reason ~= nil then
+			Net.toast(player, reason, "warn")
+		end
+		Net.fire(player, "CrateAllResult", crateId, {})
+		CafeService.sync(player)
+	end
+	if not nearMarket(player) then
+		refuse("Walk to the Golden Fish Market first")
+		return
+	end
+	local now = os.clock()
+	local started = inFlight[player]
+	local gate = Crates.openRefusal(
+		started ~= nil and now - started < IN_FLIGHT_SECONDS,
+		lastOpenAt[player],
+		now
+	)
+	if gate == "busy" then
+		refuse("One crate at a time")
+		return
+	elseif gate == "spam" then
+		refuse(nil)
+		return
+	end
+	local crate = Catalog.getCrate(crateId)
+	local count = Crates.openAllCount(profile, crateId)
+	if crate == nil or count < 1 then
+		refuse("No crates of this kind to open")
+		return
+	end
+	local blocker = Crates.openBlocker(profile, Economy.tier(profile), crateId)
+	if blocker ~= nil then
+		refuse(blocker)
+		return
+	end
+	lastOpenAt[player] = now
+	inFlight[player] = now
+	local opened: { Crates.Opened } = {}
+	local placedAny = false
+	for _ = 1, count do
+		if (profile.crates[crateId] or 0) < 1 then
+			break -- banked only: open() would buy one with golden fish
+		end
+		local def, duplicate, refund, placed = open(player, profile, crate :: Types.CrateDef)
+		table.insert(opened, { decorId = def.id, duplicate = duplicate, refund = refund })
+		placedAny = placedAny or placed
+		RareMomentService.foundDecor(player, def) -- F89: a Mythical piece toasts the server
+	end
+	Net.fire(player, "CrateAllResult", crateId, opened)
+	inFlight[player] = nil
+	if placedAny then
 		CafeService.refreshPlot(player)
 	end
 	CafeService.sync(player)
@@ -457,6 +524,7 @@ function FishMarketService.start()
 		luckLogs[player] = nil
 	end)
 	Net.on("OpenCrate", onOpenCrate)
+	Net.on("OpenAllCrates", onOpenAllCrates) -- #2402
 	Net.on("BuyCrateBundle", onBuyCrateBundle)
 	Net.on("BuyFishItem", onBuyFishItem)
 	Net.on("BuyFreshCatch", onBuyFreshCatch)

@@ -810,6 +810,12 @@ local function wireIntents()
 			Net.fire("BuyCrateBundle", crateId)
 		end)
 	end
+	-- #2402: Open all on a Market crate card; the server answers with CrateAllResult and a ProfileSync.
+	if uiEvents.openAllCrates ~= nil then
+		uiEvents.openAllCrates:Connect(function(crateId: string)
+			Net.fire("OpenAllCrates", crateId)
+		end)
+	end
 	-- Send on Report a bug; the server answers with a toast, which the window reads to close or keep the text.
 	-- featureName (#1083): the idea chip's "Feature my name" tick, once UI-Engineer's window sends it (nil until then).
 	UI.events.reportBug:Connect(
@@ -1632,6 +1638,13 @@ local function wireServerEvents()
 			end
 		end
 	)
+	-- #2402: every piece an Open all gave, for the Market's summary card; empty when refused.
+	Net.on("CrateAllResult", function(crateId: string, opened: { any })
+		local market = marketUI()
+		if market ~= nil then
+			market.allResult(crateId, opened)
+		end
+	end)
 	-- The fed cat's new level and XP (#1181), for the Bag's feed effect; loose until UI.bag is on main.
 	Net.on("FeedResult", function(catUid: string, level: number, xp: number)
 		local bag: any = (UI :: any).bag

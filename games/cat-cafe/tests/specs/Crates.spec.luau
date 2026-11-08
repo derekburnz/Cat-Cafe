@@ -1105,4 +1105,53 @@ return function()
 			expect(Crates.materialNamed(5)).to.equal(nil)
 		end)
 	end)
+
+	describe("Crates Open all (#2402)", function()
+		it("opens the banked crates only, at most OPEN_ALL_MAX", function()
+			local profile = fresh()
+			expect(Crates.openAllCount(profile, "alley_crate")).to.equal(0)
+			profile.crates.alley_crate = 7
+			expect(Crates.openAllCount(profile, "alley_crate")).to.equal(7)
+			profile.crates.alley_crate = Crates.OPEN_ALL_MAX + 30
+			expect(Crates.openAllCount(profile, "alley_crate")).to.equal(Crates.OPEN_ALL_MAX)
+			profile.crates.alley_crate = -3
+			expect(Crates.openAllCount(profile, "alley_crate")).to.equal(0)
+			expect(Crates.OPEN_ALL_FROM).to.equal(2)
+		end)
+
+		it("sums the pieces rarest first, with the duplicates' refund and the rarest new piece", function()
+			local common = pieceOf("alley", "Common")
+			local epic = pieceOf("alley", "Epic")
+			local legendary = pieceOf("alley", "Legendary")
+			local mythical = pieceOf("park", "Mythical")
+			local summary = Crates.summary({
+				{ decorId = common.id, duplicate = false, refund = 0 },
+				{ decorId = common.id, duplicate = true, refund = 4 },
+				{ decorId = epic.id, duplicate = false, refund = 0 },
+				{ decorId = legendary.id, duplicate = false, refund = 0 },
+				{ decorId = mythical.id, duplicate = true, refund = 60 },
+				{ decorId = "not_a_piece", duplicate = false, refund = 99 },
+			})
+			local rows = {}
+			for _, row in summary.rarities do
+				table.insert(rows, row.rarity .. "=" .. row.count)
+			end
+			expect(table.concat(rows, ",")).to.equal("Mythical=1,Legendary=1,Epic=1,Common=2")
+			expect(summary.fresh).to.equal(3)
+			expect(summary.duplicates).to.equal(2)
+			expect(summary.refund).to.equal(64)
+			-- the Mythical was a duplicate, so the best new piece is the Legendary
+			expect(summary.best).to.equal(legendary.id)
+		end)
+
+		it("has no best piece when every one was a duplicate, and is empty for nothing", function()
+			local common = pieceOf("alley", "Common")
+			local summary = Crates.summary({ { decorId = common.id, duplicate = true, refund = 4 } })
+			expect(summary.best).to.equal(nil)
+			expect(summary.fresh).to.equal(0)
+			local empty = Crates.summary({})
+			expect(#empty.rarities).to.equal(0)
+			expect(empty.refund).to.equal(0)
+		end)
+	end)
 end

@@ -353,6 +353,70 @@ function Crates.buyCost(profile: Types.PlayerProfile, row: Types.FishShopRow): (
 	return cost, nil
 end
 
+-- #2402 (Derek2: "there should be a button to open all for crates so people don't have to click through everything"):
+-- OpenAllCrates(crateId) opens every banked crate of one kind at once, up to OPEN_ALL_MAX, each rolled one after the
+-- other exactly as a single Open rolls it (the same odds, the crate luck counting up between them). Banked crates
+-- only: it never spends golden fish. The Market shows Open all from OPEN_ALL_FROM banked.
+Crates.OPEN_ALL_MAX = 50
+Crates.OPEN_ALL_FROM = 2
+
+-- One crate of an Open all as CrateAllResult sends it: the piece, whether it was a duplicate and its refund.
+export type Opened = { decorId: string, duplicate: boolean, refund: number }
+
+-- How many crates an Open all of `crateId` opens now: the banked ones, at most OPEN_ALL_MAX.
+function Crates.openAllCount(profile: Types.PlayerProfile, crateId: string): number
+	return math.clamp(math.floor(profile.crates[crateId] or 0), 0, Crates.OPEN_ALL_MAX)
+end
+
+-- What an Open all's summary card shows: each rarity's count rarest first (Catalog.rarityOrder, none left out that
+-- came up), the new pieces and the duplicates, the golden fish paid back, and the rarest new piece (the first one of
+-- it), or nil when every piece was a duplicate. Unknown pieces are left out.
+export type Summary = {
+	rarities: { { rarity: Types.Rarity, count: number } },
+	fresh: number,
+	duplicates: number,
+	refund: number,
+	best: string?,
+}
+
+function Crates.summary(opened: { Opened }): Summary
+	local counts: { [string]: number } = {}
+	local rank: { [string]: number } = {}
+	for index, rarity in Catalog.rarityOrder do
+		rank[rarity] = index
+	end
+	local out: Summary = { rarities = {}, fresh = 0, duplicates = 0, refund = 0, best = nil }
+	local bestRank = 0
+	for _, piece in opened do
+		local def = Catalog.getDecor(piece.decorId)
+		if def == nil then
+			continue
+		end
+		local rarity: Types.Rarity = def.rarity or "Common"
+		counts[rarity] = (counts[rarity] or 0) + 1
+		if piece.duplicate then
+			out.duplicates += 1
+			out.refund += math.max(0, piece.refund)
+		else
+			out.fresh += 1
+			local r = rank[rarity] or 0
+			if r > bestRank then
+				bestRank = r
+				out.best = piece.decorId
+			end
+		end
+	end
+	for index = #Catalog.rarityOrder, 1, -1 do
+		local rarity: Types.Rarity = Catalog.rarityOrder[index]
+		local count: number? = counts[rarity]
+		if count ~= nil then
+			local row: { rarity: Types.Rarity, count: number } = { rarity = rarity, count = count }
+			table.insert(out.rarities, row)
+		end
+	end
+	return out
+end
+
 -- #1146: whether an OpenCrate may start now, the same rule on the server (FishMarketService) and on the Market
 -- window's Open buttons. "busy" while another open of this player's is still in flight (pressed, no CrateResult
 -- yet); "spam" within CrateOpenCooldownSeconds (a short spam limit, not the reveal's length) of the last open that

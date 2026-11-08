@@ -463,7 +463,7 @@ return function()
 		it("matches the design's timings", function()
 			expect(Config.StuckNudgeSeconds).to.equal(40)
 			expect(Config.StuckHelpSeconds).to.equal(90)
-			expect(Config.TipGapSeconds).to.equal(60)
+			expect(Config.TipGapSeconds).to.equal(150) -- #2407: was 60
 			expect(Config.TipCutMaxSeconds).to.equal(4)
 			expect(Config.FeedbackAskMinutes).to.equal(12)
 			expect(Config.FeedbackSessionLimit).to.equal(5)

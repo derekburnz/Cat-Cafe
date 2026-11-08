@@ -1449,8 +1449,12 @@ local function wireServerEvents()
 		UI.toast(text, kind)
 	end)
 	Net.on("Announce", function(text: string, rarity: string?)
-		UI.announce(text, rarity)
-		Moments.Announce:Fire(text, rarity)
+		-- #2399: the sting plays only with a shout-out that shows; UI.announce says false when it drops one (it said
+		-- nothing before #2426, which counts as shown)
+		local shown: any = (UI :: any).announce(text, rarity)
+		if shown ~= false then
+			Moments.Announce:Fire(text, rarity)
+		end
 	end)
 	-- Rare moments (F89, luck-and-rare-moments.md 2a): a big pull anywhere in the server, or this player's first Epic.
 	-- The UI's card (`UI.securedRare(userId, catId, rarity, gold, variant)`, which plays the owner's card and leaves

@@ -1436,14 +1436,9 @@ function CafeService.addCaughtCat(
 				),
 				"good"
 			)
-		elseif spot ~= nil then
-			-- F97 section 5: no charm stars on any cat text now
-			Net.toast(
-				player,
-				string.format("%s is working as %s", def.name, roleName(spot)),
-				"info"
-			)
-		else
+		elseif spot == nil then
+			-- #2399 (Derek2: "way too many bubble pop ups"): no "X is working as Y" toast for a cat that took a role (the
+			-- Cats window shows it); one with no role free is still told where it went
 			Net.toast(
 				player,
 				string.format(
@@ -1477,17 +1472,15 @@ function CafeService.addGiftCat(
 		profile.collection[def.id] = now
 	end
 	CafeService.autoEquip(player, profile) -- #1534: the best cats take the slots, this one too when it is among them
-	local spot = if instance.spotId ~= nil then Catalog.getSpot(instance.spotId :: string) else nil
-	Net.toast(
-		player,
-		if spot ~= nil
-			then string.format("The %s joined your cafe as your %s!", def.name, roleName(spot))
-			else string.format(
-				"The %s joined your cafe! It is resting in the cat room.",
-				def.name
-			),
-		"good"
-	)
+	-- #2399: no "joined your cafe as your Y" toast when it took a role (the Cats window shows it); one resting in the
+	-- cat room is still said, so the player knows where it went
+	if instance.spotId == nil then
+		Net.toast(
+			player,
+			string.format("The %s joined your cafe! It is resting in the cat room.", def.name),
+			"good"
+		)
+	end
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 	return instance
@@ -1803,7 +1796,7 @@ local function onSellCat(player: Player, rawUid: unknown)
 	Economy.credit(profile, value)
 	Telemetry.source(player, profile, value, "Gameplay", "sell_cat")
 	Telemetry.custom(player, "cat_sold", 1, { instance.catId, instance.variant })
-	Net.toast(player, string.format("Sold %s for $%s", def.name, ShortNumber.format(value)), "good")
+	-- #2399: no "Sold X for $Y" toast; the money counter ticks up and flashes
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 end
@@ -1823,7 +1816,6 @@ local function onSellExtraCommons(player: Player)
 		CafeService.sync(player)
 		return
 	end
-	local value = Catalog.rarities[SellExtras.RARITY].sellValue
 	for _, uid in plan.uids do
 		local instance = profile.cats[uid]
 		profile.cats[uid] = nil
@@ -1832,16 +1824,7 @@ local function onSellExtraCommons(player: Player)
 	end
 	Economy.credit(profile, plan.coins)
 	Telemetry.source(player, profile, plan.coins, "Gameplay", "sell_cat")
-	Net.toast(
-		player,
-		string.format(
-			"Sold %d extra Common%s for $%s",
-			#plan.uids,
-			if #plan.uids == 1 then "" else "s",
-			ShortNumber.format(#plan.uids * value)
-		),
-		"good"
-	)
+	-- #2399: no "Sold N extra Commons" toast; the money counter ticks up and flashes
 	CafeService.refreshPlot(player)
 	CafeService.sync(player)
 end

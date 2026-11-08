@@ -36,6 +36,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local Effects = require(script.Parent.Parent.Effects)
 local Moments = require(script.Parent.Parent.Moments)
 local Mover = require(Shared:WaitForChild("Mover"))
+local PayBatch = require(Shared:WaitForChild("PayBatch"))
 -- a customer's walk: a step and a sway instead of the plain hop (Effects/CustomerWalk, #1143)
 local walkStep = require(script.Parent.Parent.Effects.CustomerWalk).draw
 local UI = require(script.Parent.Parent.UI)
@@ -96,6 +97,41 @@ local function isOwnPlot(plot: Model): boolean
 end
 
 -- Cafes that take customers now: owned, earning, and near the camera.
+-- #2413 (Derek2: "make the money popups from customers in cafe much less often and also round it to the K/M/B"):
+-- every payment and tip in a cafe goes into one batch (shared/PayBatch), floated at most once every PayBatch.GAP
+-- seconds as "+$16K" over the newest spot, with the coin pop.
+local payBatches: { [Model]: PayBatch.Batch } = setmetatable({}, { __mode = "k" }) :: any
+local payAbove: { [Model]: Vector3 } = setmetatable({}, { __mode = "k" }) :: any
+
+local function showPay(plot: Model, amount: number?)
+	local above: Vector3? = payAbove[plot]
+	if amount == nil or above == nil then
+		return
+	end
+	UI.floatText(above, PayBatch.text(amount))
+	Moments.CoinPop:Fire(above)
+end
+
+local function payFloat(plot: Model, above: Vector3, amount: number)
+	local batch = payBatches[plot]
+	if batch == nil then
+		batch = PayBatch.new()
+		payBatches[plot] = batch
+	end
+	local open: PayBatch.Batch = batch
+	payAbove[plot] = above
+	local now, wait = PayBatch.add(open, amount, os.clock())
+	if now ~= nil then
+		showPay(plot, now)
+	elseif wait ~= nil then
+		task.delay(wait, function()
+			if plot.Parent ~= nil then
+				showPay(plot, PayBatch.flush(open, os.clock()))
+			end
+		end)
+	end
+end
+
 local function runningPlots(): { Model }
 	local found: { Model } = {}
 	local world = Workspace:FindFirstChild("World")
@@ -371,9 +407,7 @@ local function runCustomer(plot: Model, seat: BasePart, tableTop: BasePart?, vis
 						rate * Config.CustomerCoinPopSeconds / math.max(1, activeByPlot[plot] or 1)
 					)
 				)
-				local above = (seated or model):GetPivot().Position + Vector3.new(0, 5.5, 0)
-				UI.floatText(above, "+$" .. tip)
-				Moments.CoinPop:Fire(above)
+				payFloat(plot, (seated or model):GetPivot().Position + Vector3.new(0, 5.5, 0), tip)
 			end
 		end
 	end
@@ -914,9 +948,11 @@ local function updatePiles()
 			-- can hide one, which only skips its float)
 			local paid = if known ~= nil then amount - known else 0
 			if count > before and paid > 0 and #list > 0 and isOwnPlot(plot) then
-				local above = list[#list].model:GetPivot().Position + Vector3.new(0, 2.5, 0)
-				UI.floatText(above, "+$" .. math.floor(paid))
-				Moments.CoinPop:Fire(above)
+				payFloat(
+					plot,
+					list[#list].model:GetPivot().Position + Vector3.new(0, 2.5, 0),
+					math.floor(paid)
+				)
 			end
 		end
 	end

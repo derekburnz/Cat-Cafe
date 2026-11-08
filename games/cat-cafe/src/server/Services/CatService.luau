@@ -1015,10 +1015,6 @@ local function attachHeldCat(player: Player, carry: Carry)
 end
 
 -- "an Epic Maine Coon", "a Tabby": the article for the word that follows it.
-local function withArticle(phrase: string): string
-	return (if phrase:match("^[AEIOUaeiou]") then "an " else "a ") .. phrase
-end
-
 -- The getaway after a net catch or a rescue (v0.8 F55, data-model section 10c). Every other player within
 -- CatchBurstRadiusStuds is pushed CatchBurstStuds straight away from the catcher by their own client (CatchBurst, the
 -- shove's push without its hold), unless they are in a catch or rescue, so nobody is pushed into a miss. It is not a
@@ -1132,18 +1128,8 @@ local function startCarry(
 	if funnel ~= nil then
 		Telemetry.catchCaught(player, funnel)
 	end
-	local verb = if pickedUp == true
-		then "picked up"
-		elseif method == "rescue" then "rescued"
-		else "caught"
-	local name = if variant == "gold" or variant == "rainbow"
-		then variant .. " " .. def.name
-		else def.name
-	Net.toast(
-		player,
-		string.format("You %s %s! Bring it to the camp to check in.", verb, withArticle(name)),
-		"good"
-	)
+	-- #2399 (Derek2: "way too many bubble pop ups ... you caught this cat"): no "You caught X! Bring it to the camp"
+	-- toast; the catch's result word, the found card and the carry portrait already say it
 	return true
 end
 

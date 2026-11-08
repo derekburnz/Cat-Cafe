@@ -488,7 +488,7 @@ local Config = {
 	-- session.
 	StuckNudgeSeconds = 40,
 	StuckHelpSeconds = 90,
-	TipGapSeconds = 60,
+	TipGapSeconds = 150, -- #2407 (Derek2: "tips pop up a little to often"): was 60
 	TipCutMaxSeconds = 4,
 	FeedbackAskMinutes = 12,
 	TipStartSeconds = 10,

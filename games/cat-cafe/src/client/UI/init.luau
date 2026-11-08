@@ -92,6 +92,7 @@ local UI = {}
 UI.together = {} -- F92 playing together, filled at the end of the file
 UI.campExtras = {} -- F100 camp extras, filled at the end of the file
 UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
+UI.cafeEvent = {} -- #2487 Cafe Events' chip, banner and board, filled at the end of the file
 UI.trade = {} -- F102 trading, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.store = {} -- the Store window behind the HUD's Store tile, filled at the end of the file
@@ -1468,6 +1469,7 @@ function UI.init(config: Types.InitConfig)
 	UI.campExtras.start(parent) -- the Yard Sale card, the Cannon picker's strips and the stations' "!" (F100)
 	UI.cornerShop.start() -- the Corner Shop window (#1052)
 	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
+	UI.cafeEvent.start(parent) -- the Cafe Event chip, its start banner and the square's board face (#2487)
 	UI.trade.start() -- the Trade window in the modal (F102)
 	UI.nursery.start() -- the Garden Nursery window, opened from its stall's prompt (#1200)
 	UI.store.start() -- the Store window and the HUD's Store tile (shown on sale or not, #1167)
@@ -1607,6 +1609,7 @@ function UI.destroy()
 	UI.together.reset()
 	UI.campExtras.reset()
 	UI.rally.reset()
+	UI.cafeEvent.reset()
 	UI.trade.reset()
 	UI.nursery.reset()
 	UI.store.reset()
@@ -6904,5 +6907,82 @@ end
 UI.autoEquip = {}
 
 function UI.autoEquip.swapped(_raw: any) end
+
+----------------------------------------------------------------------------------------------------
+-- Cafe Events (#2487, live-events.md section 3)
+----------------------------------------------------------------------------------------------------
+
+-- EventService (#2486) keeps the running event, or the next one, on ReplicatedStorage's attributes; this reads them
+-- every second: the HUD chip under the day clock from T-3h, a banner the first time this client sees one running,
+-- and the Town Square board's face. Its own block, as the module is short of locals.
+do
+	local HttpService = game:GetService("HttpService")
+	local EventBoards = require(script.Screens.EventBoards)
+	local EventLogic = require(script.Components.EventLogic)
+	local TICK_SECONDS = 1
+	local events = {
+		boards = nil :: EventBoards.EventBoards?,
+		seen = nil :: EventLogic.Seen?, -- kept across rebuilds, so a respawn neither repeats the banner nor forgets the end
+		token = 0,
+	}
+
+	-- EventEffects' JSON; the UI gate's shim has no HttpService, so its scenes put their own decoder here
+	function UI.cafeEvent.decode(json: string): any
+		local ok, data = pcall(HttpService.JSONDecode, HttpService, json)
+		return if ok then data else nil
+	end
+
+	local function get(name: string): any
+		return ReplicatedStorage:GetAttribute(name)
+	end
+
+	-- one pass: read, follow, paint; the banner shows once per event this session
+	function UI.cafeEvent.tick()
+		local now = Workspace:GetServerTimeNow()
+		local view = EventLogic.read(get, UI.cafeEvent.decode)
+		local seen, started = EventLogic.follow(events.seen, view, now)
+		events.seen = seen
+		if started and view ~= nil and toasts then
+			toasts:announce(
+				EventLogic.banner(view, os.date("%H:%M", math.floor(view.endsAt)) :: string)
+			)
+		end
+		local current = hud
+		if current then
+			current:setEvent(EventLogic.chip(view, seen, now))
+		end
+		local boards = events.boards
+		if boards then
+			boards:set(view, seen)
+		end
+	end
+
+	function UI.cafeEvent.start(parent: Instance)
+		UI.cafeEvent.reset()
+		events.boards = EventBoards.new(parent)
+		events.token += 1
+		local token = events.token
+		task.spawn(function()
+			while events.token == token do
+				UI.cafeEvent.tick()
+				task.wait(TICK_SECONDS)
+			end
+		end)
+	end
+
+	-- the UI gate's scenes: forget the watched event, so a put-away test party is not "ended early"
+	function UI.cafeEvent.forget()
+		events.seen = nil
+	end
+
+	function UI.cafeEvent.reset()
+		events.token += 1
+		local boards = events.boards
+		if boards then
+			boards:destroy()
+		end
+		events.boards = nil
+	end
+end
 
 return UI

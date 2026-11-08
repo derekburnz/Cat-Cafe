@@ -75,8 +75,19 @@ return function()
 			expect(IntroLogic.shotCount({})).to.equal(IntroLogic.SHOTS)
 			expect(IntroLogic.shotCount({ shots = 4 })).to.equal(4)
 			expect(IntroLogic.shotCount({ shots = 0 })).to.equal(1)
-			expect(IntroLogic.shotCount({ shots = 99 })).to.equal(IntroLogic.SHOTS)
+			expect(IntroLogic.shotCount({ shots = 99 })).to.equal(IntroLogic.MAX_SHOTS)
 			expect(IntroLogic.shotCount({ shots = 0 / 0 })).to.equal(IntroLogic.SHOTS)
 		end)
+
+		it(
+			"makes room for the lesson's four captions after the intro's last shot (#2495)",
+			function()
+				expect(IntroLogic.MAX_SHOTS).to.equal(IntroLogic.SHOTS + 4)
+				expect(IntroLogic.LESSON_SHOTS).to.equal(#TackleLessonLogic.lines("keyboard"))
+				local tail = IntroLogic.SHOTS + 4
+				expect(IntroLogic.shotCount({ shots = tail })).to.equal(tail)
+				expect(IntroLogic.shotCount({ shots = tail + 1 })).to.equal(IntroLogic.MAX_SHOTS)
+			end
+		)
 	end)
 end

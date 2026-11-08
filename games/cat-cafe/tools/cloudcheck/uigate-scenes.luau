@@ -4068,7 +4068,9 @@ local SCENES = {
 	{ "HUDBagBackpack", function()
 		local ShopIcons = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.ShopIcons")
 		local bag = ShopIcons.hud("Bag")
-		assert(bag == nil or bag ~= ShopIcons.hud("Potion"), "uigate: the Bag tile shows the Potions bottle (#2453)")
+		assert(bag == "rbxassetid://88244676943674", "uigate: the Bag tile is not Model-Agent's backpack (#2453)")
+		assert(bag ~= ShopIcons.hud("Potion"), "uigate: the Bag tile shows the Potions bottle (#2453)")
+		assert(ShopIcons.backup(bag) == nil, "uigate: the Bag's backpack falls back to another picture (#2453)")
 		assert(bag ~= ShopIcons.clean("Bag"), "uigate: the Bag tile shows the gold money bag (#2453)")
 	end },
 	-- #1737: the Night Market banner at nightfall with the market cart's picture left of the title (was a moon emoji)

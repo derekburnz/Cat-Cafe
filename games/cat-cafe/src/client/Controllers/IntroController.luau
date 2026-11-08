@@ -1603,7 +1603,7 @@ local function lessonEnd()
 		-- at the lesson's start can still be Fixed, which left the view down the Alleyway, far from the player)
 		local character = player.Character
 		local humanoid = if character ~= nil
-			then character:FindFirstChildOfClass("Humanoid")
+			then character:FindFirstChildOfClass("Humanoid") :: Humanoid?
 			else nil
 		camera.CameraType = Enum.CameraType.Custom
 		if humanoid ~= nil then

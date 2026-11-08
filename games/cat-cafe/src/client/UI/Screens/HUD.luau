@@ -60,7 +60,6 @@ local Invite = require(script.Parent.Parent.Components.Invite)
 local LuckChip = require(script.Parent.LuckChip)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
 local MoneyFlash = require(script.Parent.Parent.Components.MoneyFlash)
-local NetButtonPlace = require(script.Parent.Parent.Components.NetButtonPlace)
 local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Notices = require(script.Parent.Parent.Notices)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -280,8 +279,8 @@ local TRAVEL_ICON = 28 -- the pictures on the Rewards and Menu lists' rows
 local TRAVEL_W = if TOUCH then 80 else 82
 local TRAVEL_TEXT = if TOUCH then Theme.sizes.textTiny + 1 else 17
 local TRAVEL_GAP = 14
--- the Potions symbol, bottom right (moved clear of Roblox's jump button on a phone: _placeCorner)
-local SYMBOL = if TOUCH then 64 else 74 -- a little smaller on touch, where the pair may move (_placeCorner)
+-- the Potions symbol, bottom right (left of the bottom row on touch: _placeCorner)
+local SYMBOL = if TOUCH then 64 else 74 -- a little smaller on touch, level with the bottom row's tiles
 local SYMBOL_TEXT = if TOUCH then Theme.sizes.textTiny else 16
 local SYMBOL_H = if TOUCH then SYMBOL else SYMBOL + SYMBOL_TEXT + 4 -- the square, and its label under it
 local CORNER_GAP = 14
@@ -751,8 +750,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end)
 	table.insert(self._connections, timersResized)
 	if TOUCH then
-		-- #2393: the money badge sits over the potion chips while they run over the Potions tile, and drops back after;
-		-- it keeps clear of the quest line's words as they change (_placePotionTimers)
+		-- #2529: the potion chips sit over the Potions tile left of the bottom row, so the carry banner and the tutorial
+		-- strip rise over them while they run (_placePotionTimers, _layoutBottom)
 		for _, signal in
 			{
 				timers:GetPropertyChangedSignal("Visible"),
@@ -2811,11 +2810,31 @@ function HUD._wrapTutorial(self: any, text: string)
 end
 
 -- Bottom up: the bottom row, the carry banner, then the tutorial strip, each above the ones showing below it.
+-- #2529: on touch the running potions' chips stand over the Potions tile, left of the bottom row; where they reach under
+-- the carry banner (a phone), what the bottom centre stacks rises over them.
+function HUD._chipsLift(self: any): number
+	local buffs = self._buffs
+	if not TOUCH or buffs == nil or self._corner == nil or not buffs.potions.Visible then
+		return 0
+	end
+	local scale = Scale.get()
+	local width = if scale > 0 and self._root.AbsoluteSize.X > 0
+		then self._root.AbsoluteSize.X / scale
+		else Scale.DESIGN.X
+	local at = self._corner.Position
+	local chipsRight = at.X.Scale * width + at.X.Offset
+	if chipsRight + Theme.sizes.gap <= width / 2 - CARRY_W / 2 then
+		return 0
+	end
+	return BuffChips.potionsHeight() + Theme.sizes.gap
+end
+
 function HUD._layoutBottom(self: any)
 	local y = -MARGIN
 	if self._travelRow.Visible and not self._travelFolded then
 		y -= TRAVEL_H + Theme.sizes.gap
 	end
+	y -= self:_chipsLift()
 	if self._carry.Visible then
 		self._carry.Position = UDim2.new(0.5, 0, 1, y)
 		y -= CARRY_H + Theme.sizes.gap
@@ -2830,6 +2849,7 @@ function HUD.bottomTop(self: any): number
 	if self._travelRow.Visible and not self._travelFolded then
 		y -= TRAVEL_H + Theme.sizes.gap
 	end
+	y -= self:_chipsLift()
 	if self._carry.Visible then
 		y -= CARRY_H + Theme.sizes.gap
 	end
@@ -2885,10 +2905,10 @@ function HUD.toastAvoid(self: any): { Types.Box }
 	end
 	if TOUCH then
 		box({ self._counters }) -- #2393: the top middle
-		box({ self._moneyBadge }) -- over the Potions tile
+		box({ self._moneyBadge }) -- under the money (#2533)
 	end
 	box({ self._goal.frame })
-	box({ self._corner }) -- the Potions and side tiles over the bottom right
+	box({ self._corner }) -- the Potions tile, bottom right (left of the bottom row on touch, #2529)
 	-- a line's words: each label's text, from its right edge when right-aligned
 	for _, line in { self._spinLine } :: { GuiObject } do
 		if line.Visible then
@@ -3072,47 +3092,6 @@ end
 -- pals) can reach the top centre; the Rally banner moves down under it then.
 function HUD.buffRow(self: any): GuiObject
 	return self._buffs.frame
-end
-
--- #2415: the top of the touch Net button (Components/NetButtonPlace, screen pixels) in design px from the root's top,
--- or nil before the screen has a size.
--- #2499: the top of the money badge's spot right under the right column (the goal card, the Grand Opening strip and
--- the free spin line, whichever show), in design px from the root's top; nil when the badge would
--- reach the Net button (over the jump button) there.
-function HUD._underColumn(self: any, badge: GuiObject): number?
-	local scale = Scale.get()
-	if scale <= 0 then
-		return nil
-	end
-	local foot: number? = nil
-	for _, part in { self._goal.frame, self._roadmap.frame, self._spinLine } :: { GuiObject } do
-		if part.Visible and part.AnchorPoint.Y == 0 then
-			local bottom = part.Position.Y.Offset + part.AbsoluteSize.Y / scale
-			foot = if foot == nil then bottom else math.max(foot, bottom)
-		end
-	end
-	if foot == nil then
-		return nil
-	end
-	local gap = Theme.sizes.gap
-	local top = foot + gap
-	local netTop = self:_netTop()
-	if netTop ~= nil and top + badge.AbsoluteSize.Y / scale + gap > netTop then
-		return nil
-	end
-	return top
-end
-
-function HUD._netTop(self: any): number?
-	local camera = Workspace.CurrentCamera
-	local root: Frame = self._root
-	local scale = Scale.get()
-	if camera == nil or scale <= 0 or root.AbsoluteSize.Y <= 0 then
-		return nil
-	end
-	local at = NetButtonPlace.place(camera.ViewportSize)
-	local top = root.AbsolutePosition.Y + GuiService:GetGuiInset().Y
-	return (at.Y - top) / scale
 end
 
 function HUD.counterRow(self: any): GuiObject
@@ -3338,6 +3317,37 @@ function HUD._liftTop(self: any)
 	if boosts then
 		boosts.Position = UDim2.new(0.5, 0, 0, under)
 	end
+	self:_placeMoneyBadge()
+end
+
+-- #2533 (Derek2: "move the 2x cash below the money on mobile/ipad even if its slightly towards middle of your screen
+-- where it currently is is too close to net/takcle button"): on touch the money badge hangs right under the money, left
+-- edges level, under the Luck row too when that sits under the counters (_liftTop). It was under the goal card (#2499)
+-- or over the Potions tile (#2393), both near the Net and Tackle buttons.
+function HUD._placeMoneyBadge(self: any)
+	local badge: GuiObject? = self._moneyBadge
+	local counters: GuiObject? = self._counters
+	local scale = Scale.get()
+	if not TOUCH or badge == nil or counters == nil or scale <= 0 then
+		return
+	end
+	local root: Frame = self._root
+	local left = (counters.AbsolutePosition.X - root.AbsolutePosition.X) / scale
+	if counters.AnchorPoint.X > 0 then
+		-- centred at the top middle: work it out from the position just set, in case the frame has not moved yet
+		left = root.AbsoluteSize.X / scale / 2 - counters.AbsoluteSize.X / scale / 2
+	elseif counters.Position.X.Scale == 0 then
+		left = counters.Position.X.Offset
+	end
+	local top = self:_counterTop() + self._counterH + BUFFS_GAP
+	local buffs = self._buffs
+	local row: GuiObject? = if buffs ~= nil then buffs.frame else nil
+	if row ~= nil and row.Visible and row.AnchorPoint.X > 0 then
+		-- the Luck row under the counters (they did not fit in Roblox's top bar)
+		top += row.AbsoluteSize.Y / scale + BUFFS_GAP
+	end
+	badge.AnchorPoint = Vector2.new(0, 0)
+	badge.Position = UDim2.fromOffset(math.floor(left), math.floor(top))
 end
 
 -- Red dots: a screen's dot shows while it has a key the player has not seen on that screen. Keys seen while
@@ -4228,6 +4238,10 @@ function HUD._layoutMenu(self: any)
 		local reach = if scale > 0
 			then math.max(CORNER_W, counters.AbsoluteSize.X / scale)
 			else CORNER_W
+		if TOUCH then
+			-- #2529: on touch the counters are at the top; the Potions tile and the arrow tab sit left of the row
+			reach = SYMBOL + TRAVEL_GAP + FOLD_W
+		end
 		self._travelShift = math.max(0, MARGIN + reach + gap - (width / 2 - rowW / 2))
 		row.Position = UDim2.new(
 			0.5,
@@ -4235,16 +4249,17 @@ function HUD._layoutMenu(self: any)
 			1,
 			if self._travelFolded then TRAVEL_H + 24 else -MARGIN
 		)
-		self._travelFold.instance.Position =
-			UDim2.new(0.5, self._travelShift + rowW / 2 + TRAVEL_GAP, 1, -MARGIN)
+		self._travelFold.instance.Position = if TOUCH
+			then UDim2.new(0.5, self._travelShift - rowW / 2 - TRAVEL_GAP - FOLD_W, 1, -MARGIN)
+			else UDim2.new(0.5, self._travelShift + rowW / 2 + TRAVEL_GAP, 1, -MARGIN)
 	end
 	self:_placeCorner()
 end
 
--- The Potions symbol sits in the bottom right corner (the bowl moved to the left menu, #1210), except where Roblox's
--- touch jump button would cover it (a phone: the jump button is drawn in screen pixels, Components/NetButtonPlace).
--- There it moves up and left, its right edge left of where the Net button shows and its foot over the bottom row, so
--- a thumb on jump or Net never lands on it. A tablet's bigger jump button sits higher, over the corner, so the corner stays.
+-- The Potions symbol sits in the bottom right corner on a PC (the bowl moved to the left menu, #1210).
+-- #2529 (Derek2: "move potions and the dropdown menu to the left of the my cafe button on mobile so more space for
+-- moving screen around on right side"): on touch it sits on the bottom edge left of the bottom row's arrow tab, which
+-- sits left of My Cafe, so the bottom right is left to the thumb that turns the camera (and to jump, Net and Tackle).
 function HUD._placeCorner(self: any)
 	self:_placeCornerPair()
 	self:_placePotionTimers()
@@ -4260,47 +4275,14 @@ function HUD._placeCornerPair(self: any)
 	end
 	local rowW = shown * SYMBOL + math.max(0, shown - 1) * CORNER_GAP
 	holder.Size = UDim2.fromOffset(math.max(rowW, SYMBOL), SYMBOL_H)
-	local corner = UDim2.new(1, -MARGIN, 1, -MARGIN)
-	local camera = Workspace.CurrentCamera
-	local root: Frame = self._root
-	local scale = Scale.get()
-	-- (with nothing shown it still moves on touch, so the money badge over it stays clear of jump, #2393)
-	rowW = math.max(rowW, SYMBOL)
-	if not TOUCH or camera == nil or scale <= 0 or root.AbsoluteSize.Y <= 0 then
-		holder.Position = corner
-		return
-	end
-	-- the root's corner in screen pixels (GUI space starts under the top bar inset)
-	local inset = GuiService:GetGuiInset()
-	local left = root.AbsolutePosition.X + inset.X
-	local top = root.AbsolutePosition.Y + inset.Y
-	local width = root.AbsoluteSize.X / scale
-	local height = root.AbsoluteSize.Y / scale
-	local viewport = camera.ViewportSize
-	local jumpAt, jumpSize = NetButtonPlace.jump(viewport)
-	local rowX = left + (width - MARGIN - rowW) * scale
-	local rowY = top + (height - MARGIN - SYMBOL_H) * scale
-	local covered = rowX < jumpAt.X + jumpSize
-		and rowX + rowW * scale > jumpAt.X
-		and rowY < jumpAt.Y + jumpSize
-		and rowY + SYMBOL_H * scale > jumpAt.Y
-	if not covered then
-		holder.Position = corner
-		return
-	end
-	local netAt = NetButtonPlace.place(viewport)
-	local right = (netAt.X - NetButtonPlace.GAP - left) / scale -- design px from the root's left edge
-	-- down on the bottom edge when the bottom row and its arrow tab end left of the pair, so the pair stays clear of
-	-- the right column's lines; else over the bottom row
-	local foot = height - MARGIN - TRAVEL_H - Theme.sizes.gap
 	local row: Frame? = self._travelRow
-	if row then
-		local rowRight = width / 2 + self._travelShift + row.Size.X.Offset / 2 + TRAVEL_GAP + FOLD_W
-		if not row.Visible or rowRight + Theme.sizes.gap <= right - rowW then
-			foot = height - MARGIN
-		end
+	if not TOUCH or row == nil then
+		holder.Position = UDim2.new(1, -MARGIN, 1, -MARGIN)
+		return
 	end
-	holder.Position = UDim2.fromOffset(math.floor(right), math.floor(foot))
+	-- the arrow tab's left edge (_layoutMenu), whether the row is folded or not: the tab stays put
+	local right = -row.Size.X.Offset / 2 + self._travelShift - TRAVEL_GAP - FOLD_W - TRAVEL_GAP
+	holder.Position = UDim2.new(0.5, math.floor(right), 1, -MARGIN)
 end
 
 -- The running potions' chips (#963, Derek 2026-11-03: "can show active like this screenshot"): beside the Potions
@@ -4335,6 +4317,10 @@ function HUD._placePotionTimers(self: any)
 		local low = top + BuffChips.potionsHeight() > rowTop
 		beside = not low or left - timersW >= rowRight + Theme.sizes.gap
 	end
+	if TOUCH then
+		-- #2529: over the Potions tile left of the bottom row, right edges level (in its place before it shows)
+		beside = not tiles
+	end
 	if beside then
 		timers.AnchorPoint = Vector2.new(1, 0)
 		timers.Position = UDim2.fromOffset(math.floor(left), math.floor(top))
@@ -4343,50 +4329,10 @@ function HUD._placePotionTimers(self: any)
 		timers.Position = UDim2.fromOffset(math.floor(right), math.floor(top - Theme.sizes.gap))
 	end
 	if TOUCH then
-		-- #2499 (Derek2: "for ipad ... the 2x cash advert is on the jump button in the bottom right possibly move it so
-		-- its right below the your goal/ready to claim/spin ready text"): right under the right column, right edges
-		-- level, while that keeps clear of the Net button over the jump button
-		local badge: GuiObject = self._moneyBadge
-		local under = self:_underColumn(badge)
-		if under ~= nil then
-			badge.AnchorPoint = Vector2.new(1, 0)
-			badge.Position = UDim2.fromOffset(math.floor(width - MARGIN), math.floor(under))
-			return
+		self:_placeMoneyBadge()
+		if self._carry ~= nil and self._tutorial ~= nil then
+			self:_layoutBottom() -- #2529: the carry banner over the chips while they run
 		end
-		badge.AnchorPoint = Vector2.new(1, 1)
-		-- #2393: else the money badge over the Potions tile, right edges level; over the potion chips when they sit there
-		local foot = top - Theme.sizes.gap
-		if not beside and timers.Visible then
-			foot -= BuffChips.potionsHeight() + Theme.sizes.gap
-		end
-		local x1 = right
-		if scale > 0 then
-			-- clear of the right column's pieces beside it (the goal card, the Grand Opening strip): a small phone lifts
-			-- the pair up to them, so the badge moves left of what it would cover
-			local gap = Theme.sizes.gap
-			local origin = self._root.AbsolutePosition
-			local badgeW, badgeH = badge.AbsoluteSize.X / scale, badge.AbsoluteSize.Y / scale
-			local parts: { { number } } = {}
-			for _, part in { self._goal.frame, self._roadmap.frame } :: { GuiObject } do
-				if part.Visible then
-					local at, size = part.AbsolutePosition, part.AbsoluteSize
-					table.insert(parts, { at.X, at.Y, at.X + size.X, at.Y + size.Y })
-				end
-			end
-			for _, part in parts do
-				local x0, y0 = (part[1] - origin.X) / scale, (part[2] - origin.Y) / scale
-				local px1, py1 = (part[3] - origin.X) / scale, (part[4] - origin.Y) / scale
-				if
-					py1 + gap > foot - badgeH
-					and y0 - gap < foot
-					and x0 - gap < x1
-					and px1 + gap > x1 - badgeW
-				then
-					x1 = math.min(x1, x0 - gap)
-				end
-			end
-		end
-		badge.Position = UDim2.fromOffset(math.floor(x1), math.floor(foot))
 	end
 end
 

@@ -4905,22 +4905,29 @@ local SCENES = {
 			assert(math.abs(countersMiddle - middle) <= 2, "uigate: the counters are not centred on touch (#2393)")
 		end
 		assert(counters.AbsolutePosition.Y < root.AbsolutePosition.Y + root.AbsoluteSize.Y / 4, "uigate: the counters are not at the top on touch (#2393)")
-		local corner = root:FindFirstChild("Corner") :: GuiObject
-		assert(badge.AbsolutePosition.X > middle, "uigate: the money badge is not on the right on touch (#2393)")
-		-- #2499 (Derek2: "the 2x cash advert is on the jump button ... move it so its right below the your goal/ready
-		-- to claim/spin ready text"): under the right column, right edges level, where it clears the Net button; else
-		-- over the Potions corner as before
-		local goal = root:FindFirstChild("TierGoal") :: GuiObject?
-		local underColumn = badge.AnchorPoint.Y == 0 -- HUD._underColumn's spot (the fallback hangs from its foot)
-		if underColumn then
-			assert(goal ~= nil and goal.Visible, "uigate: the money badge is under a hidden goal card (#2499)")
-			assert(badge.AbsolutePosition.Y >= goal.AbsolutePosition.Y + goal.AbsoluteSize.Y, "uigate: the money badge is not under the goal card (#2499)")
-			assert(math.abs(right(badge) - right(goal)) <= 2, "uigate: the money badge is not level with the goal card (#2499)")
-		else
-			assert(badge.AbsolutePosition.Y + badge.AbsoluteSize.Y <= corner.AbsolutePosition.Y, "uigate: the money badge is not over the Potions corner (#2393)")
-			-- level with the corner's right edge, or left of it where the right column's words reach down (a small phone)
-			assert(right(badge) <= right(corner) + 2, "uigate: the money badge runs past the Potions corner (#2393)")
+		-- #2533 (Derek2: "move the 2x cash below the money on mobile/ipad ... where it currently is is too close to
+		-- net/takcle button"): right under the money, left edges level (under the Luck row when that is under it)
+		local luckRow = root:FindFirstChild("Potions") :: GuiObject?
+		local over = counters.AbsolutePosition.Y + counters.AbsoluteSize.Y
+		if luckRow and luckRow.Visible and luckRow.AbsolutePosition.Y >= over then
+			over = luckRow.AbsolutePosition.Y + luckRow.AbsoluteSize.Y
 		end
+		local drop = badge.AbsolutePosition.Y - over
+		assert(drop >= 0 and drop <= 24, ("uigate: the money badge sits %d px under the money (#2533)"):format(drop))
+		assert(math.abs(badge.AbsolutePosition.X - money.AbsolutePosition.X) <= 2, "uigate: the money badge is not level with the money (#2533)")
+		-- and well clear of the Net button and the Tackle button left of it
+		local NetButtonPlace = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.NetButtonPlace")
+		local tackleAt = NetButtonPlace.tackle(workspace.CurrentCamera.ViewportSize)
+		local guiInset = game:GetService("GuiService"):GetGuiInset()
+		assert(badge.AbsolutePosition.Y + badge.AbsoluteSize.Y + guiInset.Y + 40 <= tackleAt.Y or right(badge) + guiInset.X + 40 <= tackleAt.X, "uigate: the money badge is near the Net and Tackle buttons (#2533)")
+		-- #2529 (Derek2: "move potions and the dropdown menu to the left of the my cafe button on mobile"): left to right
+		-- the Potions tile, the arrow tab, then the bottom row, all clear of the bottom right
+		local corner = root:FindFirstChild("Corner") :: GuiObject
+		local fold = root:FindFirstChild("TravelFold") :: GuiObject
+		local travel = root:FindFirstChild("Travel") :: GuiObject
+		assert(right(corner) <= fold.AbsolutePosition.X, "uigate: the Potions tile is not left of the arrow tab (#2529)")
+		assert(right(fold) <= travel.AbsolutePosition.X, "uigate: the arrow tab is not left of the bottom row (#2529)")
+		assert(right(travel) <= tackleAt.X + guiInset.X, "uigate: the bottom row reaches the Tackle button (#2529)")
 		-- clear of Roblox's touch jump button (70 px at 95, 90 from the bottom right; 120 at 170, 210 on a big screen)
 		local view = workspace.CurrentCamera.ViewportSize
 		local guiTop = game:GetService("GuiService"):GetGuiInset().Y

@@ -103,6 +103,15 @@ return function()
 				LuckLogic.rows(player({ luckSources = { { id = "statue", value = 0.2 } } }), NOW)
 			expect(rows[1].name).to.equal("Lucky Cat statue, level 2")
 		end)
+
+		it("names a Cafe Event's luck by its title, with hours on its clock (#2539)", function()
+			local event = { { id = "event", value = 0.5, endsAt = NOW + 7180 } }
+			local rows = LuckLogic.rows(player({ luckSources = event }), NOW, "Cafe Party")
+			expect(rows[1].name).to.equal("Cafe Party")
+			expect(rows[1].value).to.equal("+50%")
+			expect(rows[1].time).to.equal("1:59:40")
+			expect(LuckLogic.rows(player({ luckSources = event }), NOW)[1].name).to.equal("Cafe Event")
+		end)
 	end)
 
 	describe("LuckLogic.food and crate", function()

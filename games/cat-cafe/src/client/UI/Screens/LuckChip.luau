@@ -11,6 +11,7 @@
 -- the menu on a phone), so the chip stays in view. A tap on the card closes it, and so does any window opening
 -- (HUD.screenOpened).
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -48,6 +49,12 @@ local PILL_H = 22 -- #1776: a rarity pill
 local PILL_GAP = 4
 
 local LuckChip = {}
+
+-- #2539: a Cafe Event's luck row reads the running event's title ("Cafe Party"), from the attribute the server sets
+local function eventTitle(): string?
+	local title = ReplicatedStorage:GetAttribute("EventTitle")
+	return if type(title) == "string" and title ~= "" then title else nil
+end
 LuckChip.__index = LuckChip
 
 -- outlined HUD text, as the HUD's own label (wrapped text skips the outline, which muddies small lines)
@@ -370,7 +377,7 @@ function LuckChip._draw(self: any)
 	end
 	local timed = false
 	if state ~= nil and shown then
-		for _, row in LuckLogic.rows(state, now) do
+		for _, row in LuckLogic.rows(state, now, eventTitle()) do
 			if row.time ~= nil then
 				timed = true
 			end
@@ -472,7 +479,7 @@ function LuckChip._renderCard(self: any)
 	end
 	local now = Workspace:GetServerTimeNow()
 	local luck = LuckLogic.current(state, now)
-	local rows = LuckLogic.rows(state, now)
+	local rows = LuckLogic.rows(state, now, eventTitle())
 	-- the card's words, so it is drawn again only when they change (the money ticks render the HUD five times a
 	-- second)
 	local parts: { string } = { tostring(luck) }

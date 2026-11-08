@@ -6,8 +6,9 @@
 --                                          drops off before the next sync and every card shows the odds the roll uses
 --   shown(state, now) -> boolean           the chip shows from the first source (spec 1d: hidden before that)
 --   lucky(state, now) -> boolean           a Lucky Day runs: the chip's text turns gold
---   rows(state, now) -> { Row }            the card's sources, statue first: "Lucky Cat statue, level 3" "+30%", "Lucky
---                                          Potion" "+50%" "8:12", "Lucky Day" "+50%" "3:10" (#2079: percents)
+--   rows(state, now, eventTitle?) -> { Row } the card's sources, statue first: "Lucky Cat statue, level 3" "+30%", "Lucky
+--                                          Potion" "+50%" "8:12", "Lucky Day" "+50%" "3:10" (#2079: percents), "Cafe
+--                                          Party" "+50%" "1:59:40" for a Cafe Event (#2539, its title when given)
 --   food(catalog, state) -> LureDef?       the food the card shows on your bowl: the rarest one in your bag, else the
 --                                          first shop food (Kibble)
 --   crate(catalog, state) -> CrateDef?     the crate the card shows: the first plain crate you own, else the Classic
@@ -71,6 +72,7 @@ local NAMES: { [string]: string } = {
 	statue = "Lucky Cat statue",
 	potion = "Lucky Potion",
 	lucky_day = "Lucky Day",
+	event = "Cafe Event", -- #2539: a Cafe Event's luck; rows() takes the running event's title ("Cafe Party") over it
 }
 
 -- shared/Luck's rounding: to a hundredth, so 1 + 0.1 + 0.1 + 0.1 reads 1.3
@@ -142,16 +144,22 @@ local function plus(value: number): string
 end
 LuckLogic.plus = plus
 
--- 492 -> "8:12", rounded up so the last second still shows "0:01"
+-- 492 -> "8:12", rounded up so the last second still shows "0:01"; from an hour "1:59:40" (a Cafe Event's luck, #2539)
 local function clock(seconds: number): string
 	local whole = math.max(0, math.ceil(seconds))
+	if whole >= 3600 then
+		return ("%d:%02d:%02d"):format(whole // 3600, whole // 60 % 60, whole % 60)
+	end
 	return ("%d:%02d"):format(whole // 60, whole % 60)
 end
 
-function LuckLogic.rows(state: Types.PlayerState, now: number): { Row }
+function LuckLogic.rows(state: Types.PlayerState, now: number, eventTitle: string?): { Row }
 	local rows: { Row } = {}
 	for _, source in running(state, now) do
 		local name = NAMES[source.id] or source.id
+		if source.id == "event" and eventTitle ~= nil and eventTitle ~= "" then
+			name = eventTitle
+		end
 		if source.id == "statue" then
 			local level = state.upgradeLevels[LuckLogic.UPGRADE]
 			if type(level) ~= "number" or level < 1 then

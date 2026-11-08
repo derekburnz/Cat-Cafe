@@ -17,8 +17,8 @@ workflow (Actions) to turn into an rbxassetid for an ImageLabel.
   CatCafe_Icon_PotionFlask_<Name>  the potion rework (#1176, potion_icons.py): a clear flask per potion in its Theme
                             colour, sized weak, mid or strong within its family, with a badge for what it does
   CatCafe_Icon_Hud_<Name>   the HUD buttons (#1176, hud_icons.py): Store, Cats, Index, Quests, Upgrades, Decor,
-                            Rewards, Tutorial, Feedback, Menu, MyCafe, Cannon, Areas, Potions, Bait and
-                            NightMarket (the Night Market map bubble, #1607)
+                            Rewards, Tutorial, Feedback, Menu, MyCafe, Cannon, Areas, Potions, Bait,
+                            NightMarket (the Night Market map bubble, #1607) and Bag (a backpack, #2453)
   CatCafe_Icon_Cat_<Name>   the shop-only cats' Store card and cat book picture (#1191): the sitting cat in its props
   CatCafe_Icon_StoreTab_<Tab>  the Store's sidebar tabs (#1674, store_tabs.py): Featured, Passes, Cats, Potions and
                             Codes, in place of the tabs' emoji
@@ -140,7 +140,7 @@ HUD_VIEWS = {"Store": (24.0, 18.0), "Cats": (-14.0, 8.0), "Index": (-8.0, 52.0),
              "Upgrades": (-20.0, 10.0), "Decor": (-24.0, 16.0), "Rewards": (-26.0, 22.0), "Tutorial": (-12.0, 6.0),
              "Feedback": (-14.0, 8.0), "Menu": (-16.0, 8.0), "MyCafe": (-28.0, 16.0), "Cannon": (-32.0, 12.0),
              "Areas": (-20.0, 24.0), "Potions": (8.0, 10.0), "Bait": (-24.0, 20.0),
-             "NightMarket": (-22.0, 24.0)}
+             "NightMarket": (-22.0, 24.0), "Bag": (-24.0, 14.0)}
 
 
 def _hud_icons():

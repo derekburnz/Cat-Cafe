@@ -15,7 +15,10 @@
 #      read on its own the same way, since CustomEventName is a filter only too
 #      (session_start carries the join source in its first field: organic, unknown or ad_<tag> from a link's
 #      launchData=ad_<tag>; robux_purchase, store_cancelled, cafe_pass_level and jukebox_pick since #1888)
-# The API takes 30 queries a minute, and a window with 40 custom events needs about 90, so a run paces itself and can
+#   5. audience (#2391): players new and returning and day 1 retention by Platform, Country and AgeGroupV2; average
+#      session by Platform; the current onboarding funnel and first_hour (time steps, played_2m to played_60m) by
+#      Platform, so phone and PC drop-offs read side by side. Funnels take no Country breakdown.
+# The API takes 30 queries a minute, and a window with 40 custom events needs about 100, so a run paces itself and can
 # take three or four minutes.
 # Run by .github/workflows/analytics.yml; also works from Git Bash on a PC with the same variables set.
 #
@@ -193,6 +196,10 @@ declare -A names=(
 	[catch_attempt.1]=swing_hit [catch_attempt.2]=engaged [catch_attempt.3]=caught [catch_attempt.4]=checked_in
 	[catch_attempt.5]=working [bait_cycle.1]=set [bait_cycle.2]=seen [bait_cycle.3]=tamed
 )
+# first_hour (#2391, one session per player, account playtime): Onboarding.FIRST_HOUR_FUNNEL and FIRST_HOUR_STEPS
+# win when Onboarding.luau has them; these are the names Research-Agent proposed.
+firstHourFunnel=first_hour
+firstHourSteps=(joined played_2m played_5m played_10m played_20m played_30m played_45m played_60m)
 onboardingFunnel=onboarding_v4
 introFunnel=onboarding_v4_intro
 onboardingSteps=()
@@ -202,6 +209,7 @@ onboardingV2Steps=()
 storeFunnel=store
 storeSteps=()
 onboardingV1Steps=()
+onboardingV4Steps=()
 if [ -f "$onboarding" ]; then
 	luaNames() { sed -n "/^Onboarding\.$1 = {/,/^}/p" "$onboarding" | grep -o '"[a-z0-9_]*"' | tr -d '"'; }
 	luaString() { sed -n "s/^Onboarding\.$1 = \"\([A-Za-z0-9_]*\)\".*/\1/p" "$onboarding"; }
@@ -212,6 +220,12 @@ if [ -f "$onboarding" ]; then
 	onboardingV3Steps=("${onboardingSteps[@]:0:${v3Count:-37}}")
 	mapfile -t onboardingV2Steps < <(luaNames V2_STEPS)
 	mapfile -t onboardingV1Steps < <(luaNames V1_STEPS)
+	# once FUNNEL moves on (onboarding_v5), v4 keeps its labels only through V4_STEPS; without it, numbers only
+	mapfile -t onboardingV4Steps < <(luaNames V4_STEPS)
+	mapfile -t list < <(luaNames FIRST_HOUR_STEPS)
+	[ "${#list[@]}" = 0 ] || firstHourSteps=("${list[@]}")
+	funnelName=$(luaString FIRST_HOUR_FUNNEL)
+	firstHourFunnel=${funnelName:-$firstHourFunnel}
 	funnelName=$(luaString FUNNEL)
 	onboardingFunnel=${funnelName:-$onboardingFunnel}
 	funnelName=$(luaString INTRO_FUNNEL)
@@ -232,17 +246,21 @@ stepName() { # funnel step label
 		printf '%s' "${names[$funnel.$step]}"
 	elif [[ $step =~ ^[0-9]+$ ]] && [ "$step" -ge 1 ]; then
 		# exact names first: onboarding_v4_intro also contains onboarding_v4
-		if [ "${funnel,,}" = "${introFunnel,,}" ] || [ "${funnel,,}" = onboarding_v3_intro ]; then
+		if [ "${funnel,,}" = "${introFunnel,,}" ] || [[ ${funnel,,} =~ ^onboarding_v[0-9]+_intro$ ]]; then
 			list=("${introSteps[@]}")
 		elif [ "${funnel,,}" = "${onboardingFunnel,,}" ]; then
 			list=("${onboardingSteps[@]}")
+		elif [ "${funnel,,}" = "${firstHourFunnel,,}" ]; then
+			list=("${firstHourSteps[@]}")
+		elif [ "${funnel,,}" = onboarding_v4 ]; then
+			list=("${onboardingV4Steps[@]}")
 		elif [ "${funnel,,}" = onboarding_v3 ]; then
 			list=("${onboardingV3Steps[@]}")
 		elif [ "${funnel,,}" = "${storeFunnel,,}" ]; then
 			list=("${storeSteps[@]}")
 		elif [ "${funnel,,}" = onboarding_v2 ]; then
 			list=("${onboardingV2Steps[@]}")
-		elif [[ ${funnel,,} == *onboarding* ]]; then
+		elif [[ ${funnel,,} == *onboarding* && ! ${funnel,,} =~ onboarding_v[0-9]+ ]]; then
 			list=("${onboardingV1Steps[@]}")
 		fi
 		if [ "$step" -le "${#list[@]}" ]; then
@@ -267,7 +285,7 @@ declare -A renumbered=(
 funnelTable() { # funnel: the table for one funnel, or its error
 	local funnel=$1 line step label users first=0 previous=0 share lost unit=Runs change=
 	local -a lines=()
-	[[ ${funnel,,} != *onboarding* ]] || unit=Players
+	[[ ${funnel,,} != *onboarding* && ${funnel,,} != "${firstHourFunnel,,}" ]] || unit=Players
 	say "#### $funnel"
 	say ""
 	if ! query FunnelUserTotalCount None FunnelStep "$(only FunnelName "$funnel")"; then
@@ -435,6 +453,137 @@ if values CustomEventCount CustomEventName; then
 else
 	failed
 fi
+
+# 5. Audience (#2391). Players are summed over the window's days, so one player on three days counts three times
+# (player-days); retention and session length are the average of the days Roblox filled. Every breakdown is one
+# dimension at a time (plus IsNewUser), never two crossed, so no cell gets smaller than the report needs.
+say "### Audience"
+say ""
+say "Players are player-days: each day's players added up over the window. Day 1 retention and session length are"
+say "the average of the days Roblox filled. Roblox sends only the top values of a breakdown."
+say ""
+pct() { awk -v v="$1" 'BEGIN { if (v == "") { print "-"; exit } if (v <= 1) v *= 100; printf "%.0f%%", v }'; }
+# byNew dim: $result's rows as "value<TAB>new<TAB>returning", the biggest first (DailyActiveUsers by dim,IsNewUser)
+byNew() {
+	jq -r --arg d "$1" '[.values[]? | (.breakdowns // []) as $b
+		| {k: (($b | map(select(.dimension == $d))[0] // $b[0] // {}) | (.displayValue // .value // "?") | tostring),
+			n: (($b | map(select(.dimension == "IsNewUser"))[0] // $b[1] // {}) | (.value // "") | tostring
+				| ascii_downcase | test("^(true|new)")),
+			v: ([(.dataPoints // [])[] | .value // 0] | add // 0)}]
+		| group_by(.k) | map({k: .[0].k, new: (map(select(.n)) | map(.v) | add // 0),
+			ret: (map(select(.n | not)) | map(.v) | add // 0)})
+		| sort_by(-(.new + .ret)) | .[] | [.k, (.new | floor), (.ret | floor)] | @tsv' <<<"$result"
+}
+# mean dim: $result's rows as "value<TAB>average of its data points", for a metric broken down by dim
+mean() {
+	jq -r --arg d "$1" '.values[]? | (.breakdowns // []) as $b
+		| [(($b | map(select(.dimension == $d))[0] // $b[0] // {}) | (.displayValue // .value // "?") | tostring),
+			([(.dataPoints // [])[] | .value | select(. != null)] | if length > 0 then add / length else "" end
+				| tostring)] | @tsv' <<<"$result"
+}
+for dim in Platform Country AgeGroupV2; do
+	say "#### By $dim"
+	say ""
+	declare -A dayOne=() minutes=()
+	order=()
+	if query ForwardD1Retention OneDay "$dim"; then
+		while IFS=$'\t' read -r key value; do
+			dayOne[$key]=$value
+		done < <(mean "$dim")
+	else
+		failed
+	fi
+	if [ "$dim" = Platform ]; then
+		if query AverageSessionLengthMinutes OneDay "$dim"; then
+			while IFS=$'\t' read -r key value; do
+				minutes[$key]=$value
+			done < <(mean "$dim")
+		else
+			failed
+		fi
+	fi
+	if ! query DailyActiveUsers OneDay "$dim,IsNewUser"; then
+		failed
+		unset dayOne minutes
+		continue
+	fi
+	mapfile -t order < <(byNew "$dim")
+	if [ "${#order[@]}" = 0 ]; then
+		say "No players by $dim in this window."
+		say ""
+		unset dayOne minutes
+		continue
+	fi
+	if [ "$dim" = Platform ]; then
+		say "| $dim | New players | Returning | Day 1 retention | Avg session (min) |"
+		say "|---|---:|---:|---:|---:|"
+	else
+		say "| $dim | New players | Returning | Day 1 retention |"
+		say "|---|---:|---:|---:|"
+	fi
+	for line in "${order[@]}"; do
+		IFS=$'\t' read -r key fresh back <<<"$line"
+		row="| ${key//|/\\|} | $fresh | $back | $(pct "${dayOne[$key]:-}") |"
+		if [ "$dim" = Platform ]; then
+			value=${minutes[$key]:-}
+			row="$row $( [ -n "$value" ] && awk -v v="$value" 'BEGIN { printf "%.1f", v }' || printf -- -) |"
+		fi
+		say "$row"
+	done
+	say ""
+	unset dayOne minutes
+done
+
+# The onboarding funnel and first_hour by Platform: players per step on each kind of device, with each column's share
+# of its own step 1, so a phone drop that PC players do not have shows as a gap between the columns.
+for funnel in "$onboardingFunnel" "$firstHourFunnel"; do
+	say "#### $funnel by Platform"
+	say ""
+	if ! query FunnelUserTotalCount None FunnelStep,Platform "$(only FunnelName "$funnel")"; then
+		failed
+		continue
+	fi
+	mapfile -t lines < <(jq -r '.values[]? | (.breakdowns // []) as $b
+		| ($b | map(select(.dimension == "FunnelStep"))[0] // $b[0] // {}) as $s
+		| ($b | map(select(.dimension == "Platform"))[0] // $b[1] // {}) as $p
+		| [($s.value // "" | tostring), ($s.displayValue // "" | tostring), ($p.displayValue // $p.value // "?" | tostring),
+			((.dataPoints // [])[0].value // 0 | floor | tostring)] | join("|")' <<<"$result" | sort -t'|' -k1,1n)
+	if [ "${#lines[@]}" = 0 ]; then
+		say "No steps of $funnel logged in this window."
+		say ""
+		continue
+	fi
+	declare -A cell=() firstOf=() label=()
+	steps=()
+	platforms=()
+	for line in "${lines[@]}"; do
+		IFS='|' read -r step name platform users <<<"$line"
+		[ -n "${label[$step]+x}" ] || steps+=("$step")
+		label[$step]=$name
+		printf '%s\n' "${platforms[@]}" | grep -qxF -- "$platform" || platforms+=("$platform")
+		cell[$step.$platform]=$users
+	done
+	mapfile -t steps < <(printf '%s\n' "${steps[@]}" | sort -n)
+	header="| Step | Name |"
+	rule="|---:|---|"
+	for platform in "${platforms[@]}"; do
+		header="$header ${platform//|/\\|} |"
+		rule="$rule---:|"
+		firstOf[$platform]=${cell[${steps[0]}.$platform]:-0}
+	done
+	say "$header"
+	say "$rule"
+	for step in "${steps[@]}"; do
+		row="| $step | $(stepName "$funnel" "$step" "${label[$step]}") |"
+		for platform in "${platforms[@]}"; do
+			users=${cell[$step.$platform]:-0}
+			row="$row $users ($(awk -v a="$users" -v b="${firstOf[$platform]}" 'BEGIN { if (b > 0) printf "%d%%", a * 100 / b; else print "-" }')) |"
+		done
+		say "$row"
+	done
+	say ""
+	unset cell firstOf label
+done
 
 cat "$out"
 echo "== raw (request, then answer, one query per line)"

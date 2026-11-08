@@ -203,6 +203,9 @@ export type CustomEvent =
 	-- #2486: a Cafe Event shower cat, value its number in the event; the event id, area, kind, and spawned, secured,
 	-- lost (another server's catch won), gone or expired
 	| "event_shower"
+	-- #2486: a Cafe Event's reward paid for a secure (or to everyone at an early end); the event id, and "first" for
+	-- the account's first event reward (the badge's), else "again"
+	| "event_reward"
 	-- #1947 (like-prompts.md section 3): a like or favourite card's button, once per card a session, value 1; the gift
 	-- ("like" or "fav") and the button (like, favourite or close). A card paid (Source like_gift or fav_gift) with no
 	-- report is "none"

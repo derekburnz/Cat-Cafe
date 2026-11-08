@@ -342,8 +342,9 @@ function Quests.measure(profile: Types.PlayerProfile, measure: string): number
 		local n = 0
 		for decorId, owned in profile.decorOwned do
 			local def = if owned then Catalog.getDecor(decorId) else nil
-			-- #1645: pass decor (bought, not found) never moves progress, like an exclusive cat above
-			if owned and not (def ~= nil and def.source == "pass") then
+			-- #1645: pass decor (bought, not found) never moves progress, like an exclusive cat above; nor does a
+			-- Cafe Event's free piece (#2486)
+			if owned and not (def ~= nil and (def.source == "pass" or def.source == "event")) then
 				n += 1
 			end
 		end

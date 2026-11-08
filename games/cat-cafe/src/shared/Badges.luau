@@ -1,5 +1,5 @@
 --!strict
--- Roblox badges (#1934, release.md section 1), pure: the 20 badges in creation order (5 a day in Creator Hub), what
+-- Roblox badges (#1934, release.md section 1), pure: the 21 badges in creation order (5 a day in Creator Hub), what
 -- earns each, read from the profile alone, and which are due. The server's BadgeAwardService awards them; nothing
 -- here is sent to the client. A badge is earned by playing only: never for liking, favouriting, buying or inviting
 -- (a shop-only cat counts toward none), and nothing has a streak that can be lost once earned.
@@ -214,6 +214,15 @@ local LIST: { Badge } = {
 		description = "Make 5 PURRFECT catches in a row.",
 		earned = function(profile)
 			return profile.stats.bestPurrfectStreak >= Badges.PURRFECT_RUN
+		end,
+	},
+	-- #2486 (live-events.md section 2e): one badge for every Cafe Event, earned by catching a cat in one
+	{
+		key = "partyGuest",
+		name = "Cafe Party Guest",
+		description = "Catch a cat during a Cafe Event.",
+		earned = function(profile)
+			return profile.eventLast ~= ""
 		end,
 	},
 }

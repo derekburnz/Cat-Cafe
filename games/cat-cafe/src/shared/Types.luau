@@ -143,7 +143,8 @@ export type UpgradeDef = {
 
 -- "shop" decor is bought with BuyDecor; "crate" decor (F53) only comes out of a Cafe Crate. The F48 Index pieces
 -- became their zones' Epic crate pieces in F54, and the gold Index pieces were retired before anyone earned one.
-export type DecorSource = "shop" | "crate" | "pass" -- #1645: "pass", a pass piece (a rarity and bonus since #2006)
+-- #2486: "event", a Cafe Event's free reward piece (Catalog.passDecor holds it too, live-events.md section 2e)
+export type DecorSource = "shop" | "crate" | "pass" | "event" -- #1645: "pass", a pass piece (a rarity and bonus since #2006)
 
 -- What a crate piece is (F53, golden-fish.md section 4). The cafe has one wallpaper, one floor and one paint in use
 -- at a time, and since F80 (section 4b) one door set (front and back door together) and one cat flap; furniture and
@@ -1122,6 +1123,11 @@ export type PlayerProfile = {
 	-- #1947 (save version 42, like-prompts.md section 2): the like and favourite gifts were paid (shared/PlaytimeGifts)
 	likeGift: boolean,
 	favGift: boolean,
+	-- #2486 (save version 43, live-events.md section 2e): each Cafe Event reward piece given, cosmeticId -> os.time()
+	-- it was first given, and the last event (its reward key, CafeEvents.rewardKey) this account was rewarded in, ""
+	-- for none; the "Cafe Party Guest" badge reads it
+	eventRewards: { [string]: number },
+	eventLast: string,
 }
 
 -- What ProfileSync sends. Matches ui-contract PlayerState plus a few extras the controller uses.

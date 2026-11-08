@@ -36,6 +36,7 @@ export type Toasts = {
 	prize: (self: Toasts, text: string, prize: Types.IndexPrize?) -> (),
 	setCatalog: (self: Toasts, catalog: Types.Catalog) -> (),
 	avoid: (self: Toasts, boxes: () -> { Types.Box }, floor: (() -> number)?) -> (),
+	lastShown: (self: Toasts) -> number?,
 	destroy: (self: Toasts) -> (),
 }
 
@@ -113,6 +114,7 @@ function Toasts.new(parent: Instance): Toasts
 	self._room = MAX_VISIBLE
 	self._said = {} :: { [string]: number } -- #2399: when each line last showed (os.clock)
 	self._queue = {} :: { Waiting } -- #2338: toasts waiting for one on screen to go
+	self._lastAt = nil :: number? -- #2407: when a toast last drew (os.clock), so tips keep clear of it
 	self._resized = root:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		self:_place()
 	end)
@@ -301,6 +303,7 @@ function Toasts._push(
 		return
 	end
 	self._order += 1
+	self._lastAt = os.clock()
 	local toast: Frame = Create("Frame", {
 		Name = "Toast",
 		BackgroundColor3 = fill,
@@ -495,6 +498,11 @@ function Toasts._fade(
 			self:_push(waiting.text, waiting.fill, waiting.lifetime, waiting.bands, waiting.prize)
 		end
 	end)
+end
+
+-- #2407: when a toast last drew (os.clock), or nil if none has; the tip pump keeps TipQueue.TOAST_QUIET clear of it.
+function Toasts.lastShown(self: any): number?
+	return self._lastAt
 end
 
 function Toasts.destroy(self: any)

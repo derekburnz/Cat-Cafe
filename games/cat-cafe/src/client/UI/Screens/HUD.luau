@@ -167,8 +167,12 @@ local MARGIN = 16
 -- the money and golden fish counters, one row in the bottom left corner with no box behind them (the lighter HUD);
 -- each is as wide as its amount, the money at most MONEY_W, and MONEY_H tall
 local MONEY_W = 232
--- #2194: the money amount's line never narrower than this (padding in), so the row beside it never moves
-local MONEY_AMOUNT_W = 140
+-- #2194: the money amount takes the room of its shape with the widest digits ("$33.7M" takes "$88.8M"), so the golden
+-- fish beside it holds still while the digits tick. #2383 (Derek2 11-08: "isn't supposed to be a big gap between the
+-- money and fish"): it used to take at least 140 px, a wide gap after a short amount
+local function moneyShape(text: string): string
+	return (text:gsub("%d", "8"))
+end
 local MONEY_H = 44
 local COUNTER_COIN = 36
 local COUNTER_TEXT = 30
@@ -567,18 +571,29 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 		-- no clip, so the last letter and its dark outline always show whole ("$1.23B" was cut, Derek 2026-11-02);
-		-- the amount is short (Format.money), and the golden fish keeps clear of the widest one. #2194 (playtester
-		-- Dread via Derek2, 11-07: "The cash at the bottom left should probably not push the 2x cash and fish"): at
-		-- least MONEY_AMOUNT_W wide, room for the usual widest amounts ("$88,888", "$999Qa"), so the golden fish and
-		-- the badge after it stay put while the money grows
+		-- the amount is short (Format.money). #2194 (playtester Dread via Derek2, 11-07: "The cash at the bottom left
+		-- should probably not push the 2x cash and fish"): the amount sits in the room of its shape (moneyShape), so
+		-- the golden fish and the badge after it stay put while the digits tick
 		Create("UISizeConstraint", {
-			Name = "Steady",
-			MinSize = Vector2.new(MONEY_AMOUNT_W, 0),
 			MaxSize = Vector2.new(MONEY_W - COUNTER_COIN - 8, MONEY_H),
 		}),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 5) }),
 	})
-	self._moneySteady = line:FindFirstChild("Steady") :: UISizeConstraint
+	-- the room: the amount's shape in unseen text (no outline), as wide as the widest digits; the amount on it
+	local room: TextLabel = Create("TextLabel", {
+		Name = "Room",
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 36),
+		FontFace = Theme.fonts.display,
+		TextSize = COUNTER_TEXT,
+		TextTransparency = 1,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = moneyShape(Format.money(0)),
+		LayoutOrder = 1,
+		Parent = line,
+	})
+	self._moneyRoom = room
 	self._moneyText = label({
 		Name = "Amount",
 		AutomaticSize = Enum.AutomaticSize.X,
@@ -586,8 +601,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		TextSize = COUNTER_TEXT,
 		TextTruncate = Enum.TextTruncate.None,
 		Text = Format.money(0),
-		LayoutOrder = 1,
-		Parent = line,
+		Parent = room,
 	})
 
 	-- Golden fish (F52): the rare currency's counter beside the money, with the gold fish (F97). Hidden until
@@ -2337,6 +2351,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 
 	-- money with a little green flash for a lump (a sale, a tip, a reward), not for the steady income ticks (#1026)
 	self._moneyText.Text = Format.money(state.money)
+	self._moneyRoom.Text = moneyShape(self._moneyText.Text)
 	if MoneyFlash.shouldFlash(self._lastMoney, state.money, state.incomePerSecond) then
 		self._moneyText.TextColor3 = Theme.hud.income
 		Tween.to(self._moneyText, Tween.RISE, { TextColor3 = Theme.hud.text })
@@ -3343,11 +3358,8 @@ function HUD.setMoneyBadge(
 	end
 	self._buffs:setLead(owned, "cash")
 	button.Visible = badge ~= nil and not owned
-	-- #2254 (Derek2 11-07: "gold fish is hovering wrong now if you did already buy the 2x/3x/4x money"): #2194's
-	-- steady width keeps the for-sale badge from being pushed as the money grows; with no badge beside the money (a
-	-- pass owned) that room was an empty gap before the golden fish, so the fish sits a normal gap after the amount
-	local steady: UISizeConstraint = self._moneySteady
-	steady.MinSize = Vector2.new(if button.Visible then MONEY_AMOUNT_W else 0, 0)
+	-- #2254 (Derek2 11-07: "gold fish is hovering wrong now if you did already buy the 2x/3x/4x money"): the golden
+	-- fish sits a normal gap after the amount with or without the badge (since #2383 the money's room is its shape's)
 	if badge == nil or owned then
 		self:_pulseMoneyBadge(false)
 		return

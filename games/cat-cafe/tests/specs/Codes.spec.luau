@@ -169,7 +169,7 @@ return function()
 			expect(def.active).to.equal(true)
 			expect(def.prize :: any).to.deepEqual({
 				coins = 5000,
-				fish = 300,
+				fish = 100, -- #2497: was 300
 				spins = 10,
 				crates = { classic_crate = 3, alley_crate = 1, classic_golden_crate = 1 },
 				lures = { tuna = 3, salmon = 2, caviar = 1 },
@@ -232,7 +232,7 @@ return function()
 			expect(Catalog.codes.launch.prize :: any).to.deepEqual({
 				coins = 1000,
 				coinSeconds = 300,
-				fish = 25,
+				fish = 10, -- #2497: was 25
 			}) -- F94: no spins or Tuna
 			expect(Catalog.codes.group.active).to.equal(true) -- #1118
 			expect(Catalog.codes.group.requiresGroup).to.equal(true)
@@ -241,7 +241,7 @@ return function()
 			expect(Catalog.codes.group.prize :: any).to.deepEqual({
 				coins = 2500,
 				coinSeconds = 900,
-				fish = 100,
+				fish = 40, -- #2497: was 100
 				crates = { classic_crate = 1 },
 			}) -- F94: no spins, Caviar or potion
 		end)

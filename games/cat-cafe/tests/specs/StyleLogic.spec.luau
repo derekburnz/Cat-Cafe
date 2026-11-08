@@ -112,16 +112,16 @@ return function()
 			expect(StyleLogic.shows({ jukeboxTracks = tracks })).to.equal(true)
 		end)
 
-		it("puts Shuffle right after the mix only while the client can play it (#2077)", function()
+		it("puts Shuffle first, before the mix, only while the client can play it (#2077, #2401)", function()
 			local tracks = { "jukebox_rainy_window", "jukebox_catnap_waltz" }
 			local plain = StyleLogic.rows({ jukeboxTracks = tracks, jukebox = "shuffle" })
 			expect(names(plain[1])).to.equal("Day and night mix*,Rainy Window,Catnap Waltz")
 			local rows = StyleLogic.rows({ jukeboxTracks = tracks, jukeboxShuffle = "shuffle" })
-			expect(names(rows[1])).to.equal("Day and night mix*,Shuffle,Rainy Window,Catnap Waltz")
-			expect(rows[1].options[2].icon).to.equal("🔀")
+			expect(names(rows[1])).to.equal("Shuffle,Day and night mix*,Rainy Window,Catnap Waltz")
+			expect(rows[1].options[1].icon).to.equal("🔀")
 			local picked =
 				StyleLogic.rows({ jukeboxTracks = tracks, jukeboxShuffle = "shuffle", jukebox = "shuffle" })
-			expect(names(picked[1])).to.equal("Day and night mix,Shuffle*,Rainy Window,Catnap Waltz")
+			expect(names(picked[1])).to.equal("Shuffle*,Day and night mix,Rainy Window,Catnap Waltz")
 			expect(#tracks).to.equal(2) -- the server's list is left as it was
 			expect(StyleLogic.shows({ jukeboxTracks = {}, jukeboxShuffle = "shuffle" })).to.equal(false)
 		end)

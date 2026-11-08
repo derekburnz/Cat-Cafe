@@ -1149,6 +1149,13 @@ local SCENES = {
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local row = modals and modals:FindFirstChild("music", true)
 		assert(row, "uigate: no Cafe music row on the Style tab (#1168)")
+		-- #2401: Shuffle is the row's first button, left of the mix on the same line
+		local shuffleButton = row:FindFirstChild("shuffle", true) :: GuiObject
+		local mixButton = row:FindFirstChild("Default", true) :: GuiObject
+		assert(
+			shuffleButton and mixButton and shuffleButton.AbsolutePosition.X < mixButton.AbsolutePosition.X,
+			"uigate: Shuffle is not first in the music row (#2401)"
+		)
 		local asked: { string } = {}
 		local connection = UI.events.pickStyle:Connect(function(kind: string, id: string)
 			table.insert(asked, kind .. ":" .. id)

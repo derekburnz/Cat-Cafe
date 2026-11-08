@@ -4534,8 +4534,19 @@ local SCENES = {
 		-- badge is in the right half, its foot over the Potions corner, clear of the right column's lines
 		local root = hud:FindFirstChild("Root") :: Frame
 		local middle = root.AbsolutePosition.X + root.AbsoluteSize.X / 2
-		local countersMiddle = counters.AbsolutePosition.X + counters.AbsoluteSize.X / 2
-		assert(math.abs(countersMiddle - middle) <= 2, "uigate: the counters are not centred on touch (#2393)")
+		if right(counters) > 0 and counters.AbsolutePosition.Y + counters.AbsoluteSize.Y <= root.AbsolutePosition.Y + 2 then
+			-- #2447 (Derek2 11-08: "move these into this little bar between chat and tutorial"): up in Roblox's top
+			-- bar, between its buttons and the icon row
+			local inset = game:GetService("GuiService"):GetGuiInset()
+			local bar = game:GetService("GuiService").TopbarInset
+			local icons = root:FindFirstChild("Icons") :: GuiObject
+			assert(counters.AbsolutePosition.X + inset.X >= bar.Min.X, "uigate: the counters run into Roblox's buttons (#2447)")
+			assert(right(counters) <= icons.AbsolutePosition.X, "uigate: the counters run into the icon row (#2447)")
+			assert(counters.AbsolutePosition.Y + inset.Y >= 0, "uigate: the counters poke over the screen's top (#2447)")
+		else
+			local countersMiddle = counters.AbsolutePosition.X + counters.AbsoluteSize.X / 2
+			assert(math.abs(countersMiddle - middle) <= 2, "uigate: the counters are not centred on touch (#2393)")
+		end
 		assert(counters.AbsolutePosition.Y < root.AbsolutePosition.Y + root.AbsoluteSize.Y / 4, "uigate: the counters are not at the top on touch (#2393)")
 		local corner = root:FindFirstChild("Corner") :: GuiObject
 		assert(badge.AbsolutePosition.X > middle, "uigate: the money badge is not on the right on touch (#2393)")
@@ -4580,10 +4591,19 @@ local SCENES = {
 		end
 		local row = root:FindFirstChild("Potions") :: GuiObject
 		assert(row.Visible, "uigate: no Luck row with luck 2x (#2393)")
-		assert(row.AbsolutePosition.Y >= bottom, "uigate: the Luck row is not under the counters on touch (#2393)")
-		local middle = counters.AbsolutePosition.X + counters.AbsoluteSize.X / 2
-		local rowMiddle = row.AbsolutePosition.X + row.AbsoluteSize.X / 2
-		assert(math.abs(rowMiddle - middle) <= 2, "uigate: the Luck row is not centred under the counters (#2393)")
+		if bottom <= root.AbsolutePosition.Y + 2 then
+			-- #2447: in the top bar the Luck row sits right of the counters, level with them
+			local gap = row.AbsolutePosition.X - (counters.AbsolutePosition.X + counters.AbsoluteSize.X)
+			assert(gap >= 0 and gap <= 30, ("uigate: the Luck row sits %d px after the counters in the top bar (#2447)"):format(gap))
+			local rowMid = row.AbsolutePosition.Y + row.AbsoluteSize.Y / 2
+			local countersMid = counters.AbsolutePosition.Y + counters.AbsoluteSize.Y / 2
+			assert(math.abs(rowMid - countersMid) <= 2, "uigate: the Luck row is not level with the counters (#2447)")
+		else
+			assert(row.AbsolutePosition.Y >= bottom, "uigate: the Luck row is not under the counters on touch (#2393)")
+			local middle = counters.AbsolutePosition.X + counters.AbsoluteSize.X / 2
+			local rowMiddle = row.AbsolutePosition.X + row.AbsoluteSize.X / 2
+			assert(math.abs(rowMiddle - middle) <= 2, "uigate: the Luck row is not centred under the counters (#2393)")
+		end
 		press("CatCafeHUD", "Counters.Money")
 		local card = root:FindFirstChild("Boosts") :: GuiObject
 		assert(card.Visible, "uigate: the money did not open the boosts card on touch (#2393)")
@@ -4673,7 +4693,12 @@ local SCENES = {
 			for _, money in { 1234, 373e9, 88888, 999e15 } do
 				UI.update({ money = money })
 				UIShim.advance(1 / 60)
-				local gap = (fish.AbsolutePosition.X - (amount.AbsolutePosition.X + amount.TextBounds.X)) / scale
+				-- (#2447: on touch the small cash tag sits between them, so the fish is measured from the tag)
+				local chip = counters:FindFirstChild("CashChip") :: GuiObject?
+				local before = if chip and chip.Visible
+					then chip.AbsolutePosition.X + chip.AbsoluteSize.X
+					else amount.AbsolutePosition.X + amount.TextBounds.X
+				local gap = (fish.AbsolutePosition.X - before) / scale
 				assert(gap >= 4 and gap <= 40, ("uigate: with the %dx pass the golden fish sits %d px after %s (#2254)"):format(pass, gap, amount.Text))
 			end
 		end

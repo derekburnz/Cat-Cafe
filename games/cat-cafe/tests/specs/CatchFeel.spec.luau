@@ -45,12 +45,7 @@ return function()
 	-- Circles.ringCap rings are used. With the rarity's twists, each ring after the first is a double (two presses,
 	-- two rings, while two are left) at DoubleRingChance and each after the second a paw ring (left alone: +1, no
 	-- ring used; never two in a row) at PawRingChance, as Circles.ringKind rolls them.
-	local function catchChance(
-		netLevel: number,
-		rarity: Types.Rarity,
-		spread: number,
-		areaId: string?
-	): number
+	local function catchChance(netLevel: number, rarity: Types.Rarity, spread: number, areaId: string?): number
 		local windows = Circles.windowsFor(netLevel, rarity, areaId)
 		local perfect = within(windows.perfect, spread)
 		local good = within(windows.good, spread) - perfect
@@ -182,8 +177,7 @@ return function()
 			end
 			local q = p[done + 1]
 			-- #2327: a miss takes one hit away (the zone and speed before); with none yet it only costs the paw
-			local chance = q * from(done + 1, paws)
-				+ (1 - q) * from(math.max(0, done - 1), paws - 1)
+			local chance = q * from(done + 1, paws) + (1 - q) * from(math.max(0, done - 1), paws - 1)
 			memo[key] = chance
 			return chance
 		end
@@ -213,27 +207,9 @@ return function()
 					-- run out first, so only the bar emptying ends a try (was Basic 50 ms 98, 94, 80, 55, 36 and Basic 70 ms
 					-- 84, 65, 39, 18, 8)
 					local rows = {
-						{
-							"Basic 50 ms",
-							0,
-							0.05,
-							{ 100, 100, 100, 99, 98 },
-							{ 100, 100, 100, 99, 98 },
-						},
-						{
-							"Sturdy 50 ms",
-							1,
-							0.05,
-							{ 100, 100, 100, 100, 99 },
-							{ 100, 100, 100, 100, 99 },
-						},
-						{
-							"Pro 50 ms",
-							2,
-							0.05,
-							{ 100, 100, 100, 100, 100 },
-							{ 100, 100, 100, 100, 100 },
-						},
+						{ "Basic 50 ms", 0, 0.05, { 100, 100, 100, 99, 98 }, { 100, 100, 100, 99, 98 } },
+						{ "Sturdy 50 ms", 1, 0.05, { 100, 100, 100, 100, 99 }, { 100, 100, 100, 100, 99 } },
+						{ "Pro 50 ms", 2, 0.05, { 100, 100, 100, 100, 100 }, { 100, 100, 100, 100, 100 } },
 						{
 							"Master 50 ms",
 							3,
@@ -242,13 +218,7 @@ return function()
 							{ 100, 100, 100, 100, 100 },
 						},
 						{ "Basic 70 ms", 0, 0.07, { 99, 99, 97, 90, 83 }, { 99, 99, 97, 90, 83 } },
-						{
-							"Master 70 ms",
-							3,
-							0.07,
-							{ 100, 100, 100, 100, 99 },
-							{ 100, 100, 100, 100, 99 },
-						},
+						{ "Master 70 ms", 3, 0.07, { 100, 100, 100, 100, 99 }, { 100, 100, 100, 100, 99 } },
 					}
 					for _, row in rows do
 						local got = {}
@@ -263,20 +233,17 @@ return function()
 
 			-- #2322 (Derek2: "lower the difficulty of catching cats from first zone a little bit so people get used to it
 			-- first"): the Alleyway's bands are 1.2 times as wide, so a shaky new player (Basic Net, 70 ms) nets more
-			it(
-				"makes the first area's catches a little easier than the same cat elsewhere",
-				function()
-					local alley = {}
-					for i, rarity in RARITIES do
-						local here = catchChance(0, rarity, 0.07, "alley")
-						local elsewhere = catchChance(0, rarity, 0.07)
-						alley[i] = here
-						expect(here >= elsewhere).to.equal(true)
-					end
-					-- elsewhere 99, 99, 97, 90, 83 (the Basic 70 ms row above)
-					rowMatches("Alleyway Basic 70 ms", alley, { 100, 100, 99, 97, 94 })
+			it("makes the first area's catches a little easier than the same cat elsewhere", function()
+				local alley = {}
+				for i, rarity in RARITIES do
+					local here = catchChance(0, rarity, 0.07, "alley")
+					local elsewhere = catchChance(0, rarity, 0.07)
+					alley[i] = here
+					expect(here >= elsewhere).to.equal(true)
 				end
-			)
+				-- elsewhere 99, 99, 97, 90, 83 (the Basic 70 ms row above)
+				rowMatches("Alleyway Basic 70 ms", alley, { 100, 100, 99, 97, 94 })
+			end)
 
 			it(
 				"keeps a new player's Common easy and makes every better net help at every rarity",

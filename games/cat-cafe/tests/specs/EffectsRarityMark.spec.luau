@@ -19,29 +19,26 @@ return function()
 			expect(Presets.rarityMark.glints.Mythical).to.equal(true)
 		end)
 
-		it(
-			"stays visible up close while the cat is free, hides only while it is being caught",
-			function()
-				local r = Presets.rarityMark
-				expect(Logic.rarityMarkShows("Epic", 123456, 40, true)).to.equal(false)
-				expect(Logic.rarityMarkShows("Epic", nil, 40, false)).to.equal(true) -- LockedBy not replicated yet
-				expect(Logic.rarityMarkShows("Epic", 0, r.maxDistance, true)).to.equal(true)
-				expect(Logic.rarityMarkShows("Epic", 0, r.maxDistance + 1, true)).to.equal(false)
-				expect(r.hideWithin).to.equal(0) -- no close-up hiding: the gem stays over a free cat you stand next to
-				expect(Logic.rarityMarkShows("Epic", 0, 0.5, true)).to.equal(true)
-				expect(Logic.rarityMarkShows("Epic", 0, 5, true)).to.equal(true)
-				expect(Logic.rarityMarkShows("Epic", 0, 5, false)).to.equal(true)
-				expect(Logic.rarityMarkShows("Epic", 123456, 2, true)).to.equal(false) -- still hidden while LockedBy is set
-				expect(Logic.rarityMarkShows("Epic", 123456, 2, false)).to.equal(false)
-				-- the hysteresis still reads hideWithin + showAfter for a hidden gem, so a tuned hideWithin never flickers
-				expect(Logic.rarityMarkShows("Epic", 0, r.hideWithin + r.showAfter * 0.5, false)).to.equal(
-					false
-				)
-				expect(Logic.rarityMarkShows("Epic", 0, r.hideWithin + r.showAfter + 0.1, false)).to.equal(
-					true
-				)
-			end
-		)
+		it("stays visible up close while the cat is free, hides only while it is being caught", function()
+			local r = Presets.rarityMark
+			expect(Logic.rarityMarkShows("Epic", 123456, 40, true)).to.equal(false)
+			expect(Logic.rarityMarkShows("Epic", nil, 40, false)).to.equal(true) -- LockedBy not replicated yet
+			expect(Logic.rarityMarkShows("Epic", 0, r.maxDistance, true)).to.equal(true)
+			expect(Logic.rarityMarkShows("Epic", 0, r.maxDistance + 1, true)).to.equal(false)
+			expect(r.hideWithin).to.equal(0) -- no close-up hiding: the gem stays over a free cat you stand next to
+			expect(Logic.rarityMarkShows("Epic", 0, 0.5, true)).to.equal(true)
+			expect(Logic.rarityMarkShows("Epic", 0, 5, true)).to.equal(true)
+			expect(Logic.rarityMarkShows("Epic", 0, 5, false)).to.equal(true)
+			expect(Logic.rarityMarkShows("Epic", 123456, 2, true)).to.equal(false) -- still hidden while LockedBy is set
+			expect(Logic.rarityMarkShows("Epic", 123456, 2, false)).to.equal(false)
+			-- the hysteresis still reads hideWithin + showAfter for a hidden gem, so a tuned hideWithin never flickers
+			expect(Logic.rarityMarkShows("Epic", 0, r.hideWithin + r.showAfter * 0.5, false)).to.equal(
+				false
+			)
+			expect(Logic.rarityMarkShows("Epic", 0, r.hideWithin + r.showAfter + 0.1, false)).to.equal(
+				true
+			)
+		end)
 
 		it("is small but readable far away", function()
 			local r = Presets.rarityMark
@@ -58,9 +55,7 @@ return function()
 
 	describe("Effects stray rarity gem edges (QA)", function()
 		it("wears each rarity's colour from data-model section 2, Common grey included", function()
-			local Catalog = require(
-				game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog")
-			)
+			local Catalog = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog"))
 			for rarity, def in Catalog.rarities do
 				local colour = Presets.rarity[rarity]
 				expect(colour ~= nil).to.equal(true)
@@ -75,22 +70,19 @@ return function()
 			end
 		end)
 
-		it(
-			"matches the effects list: never hidden up close, back at once when the lock clears, to 80 studs for the 12 nearest",
-			function()
-				local r = Presets.rarityMark
-				expect(r.hideWithin).to.equal(0)
-				expect(r.hideWithin + r.showAfter).to.equal(0)
-				expect(r.maxDistance).to.equal(80)
-				expect(r.most).to.equal(12)
-				expect(r.above).to.equal(0.9)
-				expect(r.bob).to.equal(0.15)
-				expect(r.bobSeconds * 2).to.equal(1.8)
-				expect(r.glintEvery.Mythical).to.equal(1.6) -- #2231: Legendary glints too, Mythical the most often
-				expect(r.glintEvery.Legendary).to.equal(2.6)
-				expect(r.checkEvery).to.equal(0.25)
-			end
-		)
+		it("matches the effects list: never hidden up close, back at once when the lock clears, to 80 studs for the 12 nearest", function()
+			local r = Presets.rarityMark
+			expect(r.hideWithin).to.equal(0)
+			expect(r.hideWithin + r.showAfter).to.equal(0)
+			expect(r.maxDistance).to.equal(80)
+			expect(r.most).to.equal(12)
+			expect(r.above).to.equal(0.9)
+			expect(r.bob).to.equal(0.15)
+			expect(r.bobSeconds * 2).to.equal(1.8)
+			expect(r.glintEvery.Mythical).to.equal(1.6) -- #2231: Legendary glints too, Mythical the most often
+			expect(r.glintEvery.Legendary).to.equal(2.6)
+			expect(r.checkEvery).to.equal(0.25)
+		end)
 
 		it("never shows for a broken distance and only Legendary and Mythical glint", function()
 			for _, shown in { true, false } do

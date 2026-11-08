@@ -16,15 +16,7 @@ return function()
 			name = name,
 			ready = false,
 			confirmed = false,
-			cats = {
-				{
-					uid = name .. "_1",
-					catId = "tabby",
-					rarity = "Common",
-					level = 1,
-					rateForMe = 10,
-				},
-			},
+			cats = { { uid = name .. "_1", catId = "tabby", rarity = "Common", level = 1, rateForMe = 10 } },
 		}
 		for key, value in extra or {} do
 			data[key] = value
@@ -122,13 +114,9 @@ return function()
 		end)
 
 		it("walks the confirm screen from check to waiting", function()
-			expect(TradeLogic.headline(trade({ phase = "confirm" }), NOW)).to.equal(
-				"Check the trade, then confirm"
-			)
+			expect(TradeLogic.headline(trade({ phase = "confirm" }), NOW)).to.equal("Check the trade, then confirm")
 			local theirs = trade({ phase = "confirm", them = side("Sam", { confirmed = true }) })
-			expect(TradeLogic.headline(theirs, NOW)).to.equal(
-				"Sam confirmed. Check it, then confirm"
-			)
+			expect(TradeLogic.headline(theirs, NOW)).to.equal("Sam confirmed. Check it, then confirm")
 			local mine = trade({ phase = "confirm", me = side("You", { confirmed = true }) })
 			expect(TradeLogic.headline(mine, NOW)).to.equal("Waiting for Sam to confirm")
 		end)
@@ -140,9 +128,8 @@ return function()
 			expect(button.text).to.equal("Ready")
 			expect(button.enabled).to.equal(true)
 			expect(button.ready).to.equal(true)
-			local empty = TradeLogic.readyButton(
-				trade({ me = side("You", { cats = {} }), them = side("Sam", { cats = {} }) })
-			)
+			local empty =
+				TradeLogic.readyButton(trade({ me = side("You", { cats = {} }), them = side("Sam", { cats = {} }) }))
 			expect(empty.enabled).to.equal(false)
 		end)
 
@@ -150,8 +137,7 @@ return function()
 			local pressed = TradeLogic.readyButton(trade({ me = side("You", { ready = true }) }))
 			expect(pressed.text).to.equal("Not ready")
 			expect(pressed.ready).to.equal(false)
-			local counting =
-				TradeLogic.readyButton(trade({ phase = "countdown", countdownEndsAt = NOW + 3 }))
+			local counting = TradeLogic.readyButton(trade({ phase = "countdown", countdownEndsAt = NOW + 3 }))
 			expect(counting.text).to.equal("Not ready")
 			expect(counting.style).to.equal("ghost")
 		end)
@@ -159,9 +145,7 @@ return function()
 
 	describe("TradeLogic.warning and confirmButton", function()
 		it("warns on a gift before a lopsided trade, and says nothing on a fair one", function()
-			expect(TradeLogic.warning(trade({ gift = true, lopsided = true }))).to.equal(
-				"You get nothing back"
-			)
+			expect(TradeLogic.warning(trade({ gift = true, lopsided = true }))).to.equal("You get nothing back")
 			expect(TradeLogic.warning(trade({ lopsided = true }))).to.equal(
 				"You're giving much more than you get. Are you sure?"
 			)
@@ -196,19 +180,14 @@ return function()
 				string.format("Confirm (%d)", TradeLogic.CONFIRM_WAIT)
 			)
 			state.confirmAt = 0 / 0
-			expect(TradeLogic.confirmButton(state, TradeLogic.CONFIRM_WAIT, 1000).enabled).to.equal(
-				true
-			)
+			expect(TradeLogic.confirmButton(state, TradeLogic.CONFIRM_WAIT, 1000).enabled).to.equal(true)
 		end)
 
 		it("lets a fair trade confirm at once, then waits on the other player", function()
 			local fair = TradeLogic.confirmButton(trade({ phase = "confirm" }), 0)
 			expect(fair.enabled).to.equal(true)
 			expect(fair.style).to.equal("primary")
-			local mine = TradeLogic.confirmButton(
-				trade({ phase = "confirm", me = side("You", { confirmed = true }) }),
-				5
-			)
+			local mine = TradeLogic.confirmButton(trade({ phase = "confirm", me = side("You", { confirmed = true }) }), 5)
 			expect(mine.text).to.equal("Waiting for Sam")
 			expect(mine.enabled).to.equal(false)
 		end)
@@ -283,11 +262,7 @@ return function()
 		end)
 
 		it("uses a cat's own name and reads a missing list as empty", function()
-			local picks = TradeLogic.myCats(
-				{ a = { uid = "a", catId = "tabby", name = "Biscuit" } },
-				defOf,
-				{}
-			)
+			local picks = TradeLogic.myCats({ a = { uid = "a", catId = "tabby", name = "Biscuit" } }, defOf, {})
 			expect(picks[1].name).to.equal("Biscuit")
 			expect(picks[1].level).to.equal(1)
 			expect(#TradeLogic.myCats(nil, defOf, {})).to.equal(0)
@@ -296,12 +271,8 @@ return function()
 
 	describe("TradeLogic.playerButton", function()
 		it("says Asked, Busy or the tier needed, else Trade", function()
-			expect(TradeLogic.playerButton({ tier = 5, asked = true, trading = true }, 3).text).to.equal(
-				"Asked"
-			)
-			expect(TradeLogic.playerButton({ tier = 5, asked = false, trading = true }, 3).text).to.equal(
-				"Busy"
-			)
+			expect(TradeLogic.playerButton({ tier = 5, asked = true, trading = true }, 3).text).to.equal("Asked")
+			expect(TradeLogic.playerButton({ tier = 5, asked = false, trading = true }, 3).text).to.equal("Busy")
 			local low = TradeLogic.playerButton({ tier = 2, asked = false }, 3)
 			expect(low.text).to.equal("Tier 3 needed")
 			expect(low.enabled).to.equal(false)
@@ -324,9 +295,7 @@ return function()
 		it("holds a fresh press until the server agrees or the hold runs out", function()
 			local tap = { value = "off", at = 10 }
 			expect(TradeLogic.requestsMode("everyone", tap, 11)).to.equal("off")
-			expect(TradeLogic.requestsMode("everyone", tap, 10 + TradeLogic.HOLD_SECONDS)).to.equal(
-				"everyone"
-			)
+			expect(TradeLogic.requestsMode("everyone", tap, 10 + TradeLogic.HOLD_SECONDS)).to.equal("everyone")
 			expect(TradeLogic.requestsMode("off", tap, 11)).to.equal("off")
 			expect(TradeLogic.requestsMode(nil, tap, 999)).to.equal("off")
 		end)
@@ -358,13 +327,7 @@ return function()
 
 		it("lists the newest first with who and when", function()
 			local rows = TradeLogic.logRows({
-				{
-					id = "a",
-					at = BIG - 7200,
-					partnerName = "Sam",
-					gave = { { catId = "tabby", rarity = "Common", level = 2 } },
-					got = {},
-				},
+				{ id = "a", at = BIG - 7200, partnerName = "Sam", gave = { { catId = "tabby", rarity = "Common", level = 2 } }, got = {} },
 				{
 					id = "b",
 					at = BIG - 60,
@@ -387,10 +350,7 @@ return function()
 		it("keeps the last 20 and drops broken entries and cats", function()
 			local log: { any } = {}
 			for index = 1, 25 do
-				table.insert(
-					log,
-					{ id = "t" .. index, at = BIG - index, partnerName = "Sam", gave = {}, got = {} }
-				)
+				table.insert(log, { id = "t" .. index, at = BIG - index, partnerName = "Sam", gave = {}, got = {} })
 			end
 			table.insert(log, { at = BIG, partnerName = "No id" })
 			table.insert(log, { id = "no_time", partnerName = "No time" })

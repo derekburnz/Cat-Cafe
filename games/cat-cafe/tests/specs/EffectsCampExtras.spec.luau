@@ -39,42 +39,39 @@ return function()
 			expect(Logic.keyed(keys, 0.75) < 15).to.equal(true)
 		end)
 
-		it(
-			"lands the fish: lifts the tip, casts back past rest into the water and comes to rest",
-			function()
-				local turns = sample(c.rod.keys)
-				expect(turns[1]).to.equal(0)
-				expect(turns[#turns]).to.equal(0)
-				local lowest, at = 0, 1
-				for i, turn in turns do
-					if turn < lowest then
-						lowest, at = turn, i
-					end
+		it("lands the fish: lifts the tip, casts back past rest into the water and comes to rest", function()
+			local turns = sample(c.rod.keys)
+			expect(turns[1]).to.equal(0)
+			expect(turns[#turns]).to.equal(0)
+			local lowest, at = 0, 1
+			for i, turn in turns do
+				if turn < lowest then
+					lowest, at = turn, i
 				end
-				expect(lowest <= -30).to.equal(true) -- the tip lifted high
-				expect(at * FRAME < 1).to.equal(true) -- early, before the cast
-				-- after the lift the swing back down crosses rest into the water: the rodCast beat sounds once
-				local plops = 0
-				for i = at + 1, #turns do
-					if turns[i - 1] < 0 and turns[i] >= 0 then
-						plops += 1
-					end
-				end
-				expect(plops >= 1).to.equal(true)
-				local firstPlop = 0
-				for i = at + 1, #turns do
-					if turns[i - 1] < 0 and turns[i] >= 0 then
-						firstPlop = i
-						break
-					end
-				end
-				local deepest = 0
-				for i = firstPlop, #turns do
-					deepest = math.max(deepest, turns[i])
-				end
-				expect(deepest > 0 and deepest <= 10).to.equal(true) -- past rest, a small dip
 			end
-		)
+			expect(lowest <= -30).to.equal(true) -- the tip lifted high
+			expect(at * FRAME < 1).to.equal(true) -- early, before the cast
+			-- after the lift the swing back down crosses rest into the water: the rodCast beat sounds once
+			local plops = 0
+			for i = at + 1, #turns do
+				if turns[i - 1] < 0 and turns[i] >= 0 then
+					plops += 1
+				end
+			end
+			expect(plops >= 1).to.equal(true)
+			local firstPlop = 0
+			for i = at + 1, #turns do
+				if turns[i - 1] < 0 and turns[i] >= 0 then
+					firstPlop = i
+					break
+				end
+			end
+			local deepest = 0
+			for i = firstPlop, #turns do
+				deepest = math.max(deepest, turns[i])
+			end
+			expect(deepest > 0 and deepest <= 10).to.equal(true) -- past rest, a small dip
+		end)
 
 		it("moves the rod and the lid with no jumps at 60 frames a second", function()
 			for _, keys in { c.rod.keys, c.lid.pop } do
@@ -132,19 +129,13 @@ return function()
 			local beyond = c.rod.hangBeyond
 			expect(Logic.hangs(part(0, 0.8356, 0.9959, tilted), beyond)).to.equal(false) -- the rod
 			expect(Logic.hangs(part(0, 0.1511, 0.18, tilted), beyond)).to.equal(false) -- the handle
-			expect(Logic.hangs(part(0.08, 0.3857, 0.4596, Vector3.new(0, -1, 0)), beyond)).to.equal(
-				false
-			) -- the reel
-			expect(Logic.hangs(part(0, 0.4856, 1.9917, Vector3.new(0, 1, 0)), beyond)).to.equal(
-				true
-			) -- the line
+			expect(Logic.hangs(part(0.08, 0.3857, 0.4596, Vector3.new(0, -1, 0)), beyond)).to.equal(false) -- the reel
+			expect(Logic.hangs(part(0, 0.4856, 1.9917, Vector3.new(0, 1, 0)), beyond)).to.equal(true) -- the line
 			expect(Logic.hangs(part(0, -0.7, 1.9917, Vector3.new(0, 1, 0)), beyond)).to.equal(true) -- the bobber
 		end)
 
 		it("reads the Lost and Found's waiting prizes from the camp extras state", function()
-			expect(Logic.campHeld({ lostFound = { held = 2, nextAt = 100 } }, "lostFound")).to.equal(
-				2
-			)
+			expect(Logic.campHeld({ lostFound = { held = 2, nextAt = 100 } }, "lostFound")).to.equal(2)
 			expect(Logic.campHeld({ lostFound = 3 }, "lostFound")).to.equal(3)
 			expect(Logic.campHeld({ lostFound = { held = 0 } }, "lostFound")).to.equal(0)
 			expect(Logic.campHeld({ pond = { held = 5 } }, "lostFound")).to.equal(0)

@@ -10,30 +10,22 @@ return function()
 	local Guard = require(ServerScriptService.Server.Util.Guard)
 
 	describe("Guard.id", function()
-		it(
-			"passes a cat uid as CafeService makes them (12 characters of a lowercased GUID)",
-			function()
-				expect(Guard.id("fa3848f6-e97")).to.equal("fa3848f6-e97")
-				expect(Guard.id("0c1d2e3f-4a5")).to.equal("0c1d2e3f-4a5")
-			end
-		)
+		it("passes a cat uid as CafeService makes them (12 characters of a lowercased GUID)", function()
+			expect(Guard.id("fa3848f6-e97")).to.equal("fa3848f6-e97")
+			expect(Guard.id("0c1d2e3f-4a5")).to.equal("0c1d2e3f-4a5")
+		end)
 
-		it(
-			"passes every uid CatStats.uidFromGuid makes from a GenerateGUID(false) string",
-			function()
-				for _, guid in
-					{
-						"FA3848F6-E97B-4C1D-9A2E-3F4A5B6C7D8E",
-						"00000000-0000-0000-0000-000000000000",
-						"ABCDEF12-3456-7890-ABCD-EF1234567890",
-					}
-				do
-					local uid = CatStats.uidFromGuid(guid)
-					expect(#uid).to.equal(12)
-					expect(Guard.id(uid)).to.equal(uid)
-				end
+		it("passes every uid CatStats.uidFromGuid makes from a GenerateGUID(false) string", function()
+			for _, guid in {
+				"FA3848F6-E97B-4C1D-9A2E-3F4A5B6C7D8E",
+				"00000000-0000-0000-0000-000000000000",
+				"ABCDEF12-3456-7890-ABCD-EF1234567890",
+			} do
+				local uid = CatStats.uidFromGuid(guid)
+				expect(#uid).to.equal(12)
+				expect(Guard.id(uid)).to.equal(uid)
 			end
-		)
+		end)
 
 		it("passes the starter cat, catalog ids, spot ids and stray ids", function()
 			for _, id in { "starter_tabby", "waiter_1", "plants", "home", "stray_4821_17" } do

@@ -2,8 +2,7 @@
 -- The opened crate on the Market counter (F53): which model each crate shows and how its lid swings. Written by the
 -- vfx-animator; QA moved it into tests/specs and added the edges.
 return function()
-	local Catalog =
-		require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog"))
+	local Catalog = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Catalog"))
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
 	local Effects = Client:WaitForChild("Effects")
@@ -49,22 +48,19 @@ return function()
 			MODELS["CatCafe_Prop_Crate_" .. pool .. "_Gold"] = true
 		end
 
-		it(
-			"names one of the thirteen crate models for every crate in the Catalog, and each model once",
-			function()
-				local used: { [string]: string } = {}
-				local count = 0
-				for _, def in Catalog.crates do
-					local name = Logic.crateModelName(def.area, def.golden)
-					expect(name ~= nil and MODELS[name] == true).to.equal(true)
-					expect(string.sub(name, -5) == "_Gold").to.equal(def.golden == true)
-					expect(used[name] == nil).to.equal(true)
-					used[name] = def.id
-					count += 1
-				end
-				expect(count).to.equal(13)
+		it("names one of the thirteen crate models for every crate in the Catalog, and each model once", function()
+			local used: { [string]: string } = {}
+			local count = 0
+			for _, def in Catalog.crates do
+				local name = Logic.crateModelName(def.area, def.golden)
+				expect(name ~= nil and MODELS[name] == true).to.equal(true)
+				expect(string.sub(name, -5) == "_Gold").to.equal(def.golden == true)
+				expect(used[name] == nil).to.equal(true)
+				used[name] = def.id
+				count += 1
 			end
-		)
+			expect(count).to.equal(13)
+		end)
 
 		it("matches the effects list and only ever opens the lid further", function()
 			local c = Presets.marketCrate

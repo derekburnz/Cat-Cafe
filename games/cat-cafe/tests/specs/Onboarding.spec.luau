@@ -328,14 +328,16 @@ return function()
 		end)
 
 		it("lists what a save shows in step order, all of them steps", function()
-			local shown = Onboarding.fromSave(facts({
-				catsCaught = 9,
-				distinctCats = 6,
-				tables = 2,
-				bowl = 1,
-				tier = 3,
-				parkCats = 1,
-			}))
+			local shown = Onboarding.fromSave(
+				facts({
+					catsCaught = 9,
+					distinctCats = 6,
+					tables = 2,
+					bowl = 1,
+					tier = 3,
+					parkCats = 1,
+				})
+			)
 			local last = 0
 			for _, name in shown do
 				expect(Onboarding.index(name) > last).to.equal(true)

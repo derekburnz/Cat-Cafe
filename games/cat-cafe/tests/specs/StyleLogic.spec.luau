@@ -99,23 +99,18 @@ return function()
 			expect(StyleLogic.name("x", { x = "Named" })).to.equal("Named")
 		end)
 
-		it(
-			"adds a Cafe music row with the songs the server sends, last, the mix first (#1875)",
-			function()
-				local tracks = { "jukebox_rainy_window", "jukebox_catnap_waltz" }
-				local rows =
-					StyleLogic.rows({ signStyles = { "bakery_stripes" }, jukeboxTracks = tracks })
-				expect(#rows).to.equal(2)
-				expect(rows[2].kind).to.equal("music")
-				expect(rows[2].title).to.equal("Cafe music")
-				expect(names(rows[2])).to.equal("Day and night mix*,Rainy Window,Catnap Waltz")
-				local picked =
-					StyleLogic.rows({ jukeboxTracks = tracks, jukebox = "jukebox_catnap_waltz" })
-				expect(names(picked[1])).to.equal("Day and night mix,Rainy Window,Catnap Waltz*")
-				expect(StyleLogic.shows({ jukeboxTracks = {} })).to.equal(false)
-				expect(StyleLogic.shows({ jukeboxTracks = tracks })).to.equal(true)
-			end
-		)
+		it("adds a Cafe music row with the songs the server sends, last, the mix first (#1875)", function()
+			local tracks = { "jukebox_rainy_window", "jukebox_catnap_waltz" }
+			local rows = StyleLogic.rows({ signStyles = { "bakery_stripes" }, jukeboxTracks = tracks })
+			expect(#rows).to.equal(2)
+			expect(rows[2].kind).to.equal("music")
+			expect(rows[2].title).to.equal("Cafe music")
+			expect(names(rows[2])).to.equal("Day and night mix*,Rainy Window,Catnap Waltz")
+			local picked = StyleLogic.rows({ jukeboxTracks = tracks, jukebox = "jukebox_catnap_waltz" })
+			expect(names(picked[1])).to.equal("Day and night mix,Rainy Window,Catnap Waltz*")
+			expect(StyleLogic.shows({ jukeboxTracks = {} })).to.equal(false)
+			expect(StyleLogic.shows({ jukeboxTracks = tracks })).to.equal(true)
+		end)
 
 		it("puts Shuffle right after the mix only while the client can play it (#2077)", function()
 			local tracks = { "jukebox_rainy_window", "jukebox_catnap_waltz" }
@@ -124,18 +119,11 @@ return function()
 			local rows = StyleLogic.rows({ jukeboxTracks = tracks, jukeboxShuffle = "shuffle" })
 			expect(names(rows[1])).to.equal("Day and night mix*,Shuffle,Rainy Window,Catnap Waltz")
 			expect(rows[1].options[2].icon).to.equal("🔀")
-			local picked = StyleLogic.rows({
-				jukeboxTracks = tracks,
-				jukeboxShuffle = "shuffle",
-				jukebox = "shuffle",
-			})
-			expect(names(picked[1])).to.equal(
-				"Day and night mix,Shuffle*,Rainy Window,Catnap Waltz"
-			)
+			local picked =
+				StyleLogic.rows({ jukeboxTracks = tracks, jukeboxShuffle = "shuffle", jukebox = "shuffle" })
+			expect(names(picked[1])).to.equal("Day and night mix,Shuffle*,Rainy Window,Catnap Waltz")
 			expect(#tracks).to.equal(2) -- the server's list is left as it was
-			expect(StyleLogic.shows({ jukeboxTracks = {}, jukeboxShuffle = "shuffle" })).to.equal(
-				false
-			)
+			expect(StyleLogic.shows({ jukeboxTracks = {}, jukeboxShuffle = "shuffle" })).to.equal(false)
 		end)
 
 		it("names every shared/Jukebox song as the Jukebox names it", function()
@@ -185,20 +173,16 @@ return function()
 			end
 		end)
 
-		it(
-			"names every theme, uniform, accessory and song as shared/Looks and Jukebox do",
-			function()
-				for _, list in { Looks.THEMES, Looks.UNIFORMS, Looks.ACCESSORIES, Jukebox.TRACKS } do
-					for _, item in list do
-						expect(StyleLogic.name(item.id)).to.equal(item.name)
-					end
+		it("names every theme, uniform, accessory and song as shared/Looks and Jukebox do", function()
+			for _, list in { Looks.THEMES, Looks.UNIFORMS, Looks.ACCESSORIES, Jukebox.TRACKS } do
+				for _, item in list do
+					expect(StyleLogic.name(item.id)).to.equal(item.name)
 				end
 			end
-		)
+		end)
 
 		it("titles a row with the option in use, Plain when the pick is cleared", function()
-			local crest =
-				StyleLogic.rows({ signStyles = { "royal_crest" }, signStyle = "royal_crest" })
+			local crest = StyleLogic.rows({ signStyles = { "royal_crest" }, signStyle = "royal_crest" })
 			expect(StyleLogic.inUse(crest[1])).to.equal("Cafe sign: 👑 Royal Crest")
 			local plain = StyleLogic.rows({ signStyles = { "royal_crest" }, signStyle = "" })
 			expect(names(plain[1])).to.equal("Plain*,Royal Crest")

@@ -40,9 +40,7 @@ return function()
 			expect(near(DayLight.progress("day", 1000 + day, 1000 + day / 2), 0.5)).to.equal(true)
 			expect(DayLight.progress("day", 1000 + day, 1000 + day)).to.equal(1)
 			local night = Config.NightLengthSeconds
-			expect(near(DayLight.progress("night", 500 + night, 500 + night / 4), 0.25)).to.equal(
-				true
-			)
+			expect(near(DayLight.progress("night", 500 + night, 500 + night / 4), 0.25)).to.equal(true)
 		end)
 
 		it("holds at the ends when the clock reads outside the phase", function()
@@ -93,25 +91,20 @@ return function()
 			end
 		end)
 
-		it(
-			"keeps the day's haze light and none at midday, so no grey veil from the high camera (Derek 00:45)",
-			function()
-				for i = 0, 100 do
-					local look = DayLight.at("day", i / 100)
-					expect(look.Haze <= 0.6).to.equal(true)
-					expect(look.Density <= 0.3).to.equal(true)
-				end
-				expect(DayLight.at("day", 0.45).Haze).to.equal(0)
+		it("keeps the day's haze light and none at midday, so no grey veil from the high camera (Derek 00:45)", function()
+			for i = 0, 100 do
+				local look = DayLight.at("day", i / 100)
+				expect(look.Haze <= 0.6).to.equal(true)
+				expect(look.Density <= 0.3).to.equal(true)
 			end
-		)
+			expect(DayLight.at("day", 0.45).Haze).to.equal(0)
+		end)
 
 		it("is brightest around midday and dimmer at sunrise and sunset", function()
 			local midday = DayLight.at("day", 0.45).Brightness
 			expect(DayLight.at("day", 0).Brightness < midday).to.equal(true)
 			expect(DayLight.at("day", 0.85).Brightness < midday).to.equal(true)
-			expect(DayLight.at("day", 1).Brightness < DayLight.at("day", 0.85).Brightness).to.equal(
-				true
-			)
+			expect(DayLight.at("day", 1).Brightness < DayLight.at("day", 0.85).Brightness).to.equal(true)
 		end)
 
 		it("holds the #239 night look through the middle of the night", function()

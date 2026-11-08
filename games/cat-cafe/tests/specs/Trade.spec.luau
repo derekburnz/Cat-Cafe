@@ -440,11 +440,7 @@ return function()
 		-- the first lawn piece of `rarity` that isn't a tier gift
 		local function lawnOf(rarity: string): string
 			for _, piece in Catalog.lawn do
-				if
-					piece.rarity == rarity
-					and Lawn.TIER_GIFTS[2] ~= piece.id
-					and Lawn.TIER_GIFTS[3] ~= piece.id
-				then
+				if piece.rarity == rarity and Lawn.TIER_GIFTS[2] ~= piece.id and Lawn.TIER_GIFTS[3] ~= piece.id then
 					return piece.id
 				end
 			end
@@ -455,60 +451,50 @@ return function()
 			return ProfileSchema.template(1000)
 		end
 
-		it(
-			"trades crate decor and lawn pieces, never a lawn style, a tier gift or an unknown id",
-			function()
-				local common = Trade.piece(decorOf("Common")) :: any
-				expect(common.kind).to.equal("decor")
-				expect(common.rarity).to.equal("Common")
-				expect(common.bonus > 0).to.equal(true)
-				local lawn = Trade.piece(lawnOf("Rare")) :: any
-				expect(lawn.kind).to.equal("lawn")
-				expect(lawn.bonus).to.equal(Lawn.rarityBonus("Rare"))
-				for _, gift in Lawn.TIER_GIFTS do
-					expect(Trade.piece(gift)).never.to.be.ok()
-				end
-				expect(Trade.piece(Lawn.DEFAULT_PATH)).never.to.be.ok() -- a style
-				expect(Trade.piece("nope")).never.to.be.ok()
-				-- a piece id names one thing: no crate decor id is also a lawn piece id
-				for id in Catalog.decorById do
-					expect(Catalog.getLawn(id)).never.to.be.ok()
-				end
-				expect(Config.TradeMaxDecor).to.equal(9)
+		it("trades crate decor and lawn pieces, never a lawn style, a tier gift or an unknown id", function()
+			local common = Trade.piece(decorOf("Common")) :: any
+			expect(common.kind).to.equal("decor")
+			expect(common.rarity).to.equal("Common")
+			expect(common.bonus > 0).to.equal(true)
+			local lawn = Trade.piece(lawnOf("Rare")) :: any
+			expect(lawn.kind).to.equal("lawn")
+			expect(lawn.bonus).to.equal(Lawn.rarityBonus("Rare"))
+			for _, gift in Lawn.TIER_GIFTS do
+				expect(Trade.piece(gift)).never.to.be.ok()
 			end
-		)
+			expect(Trade.piece(Lawn.DEFAULT_PATH)).never.to.be.ok() -- a style
+			expect(Trade.piece("nope")).never.to.be.ok()
+			-- a piece id names one thing: no crate decor id is also a lawn piece id
+			for id in Catalog.decorById do
+				expect(Catalog.getLawn(id)).never.to.be.ok()
+			end
+			expect(Config.TradeMaxDecor).to.equal(9)
+		end)
 
-		it(
-			"refuses a piece not owned, locked, the partner's already or past TradeMaxDecor",
-			function()
-				local me, them = profile(), profile()
-				local common, legend = decorOf("Common"), decorOf("Legendary")
-				expect(Trade.pieceRefusal(me, them, common, {})).to.equal(
-					Trade.Messages.pieceNotOwned
-				)
-				me.decorOwned[common] = true
-				me.decorOwned[legend] = true
-				expect(Trade.pieceRefusal(me, them, common, {})).never.to.be.ok()
-				-- Legendary and up arrive locked: unlocked on their card first
-				expect(Trade.pieceLocked(me, legend)).to.equal(true)
-				expect(Trade.pieceLocked(me, common)).to.equal(false)
-				expect(Trade.pieceRefusal(me, them, legend, {})).to.equal(Trade.Messages.locked)
-				me.decorUnlocked[legend] = true
-				expect(Trade.pieceRefusal(me, them, legend, {})).never.to.be.ok()
-				them.decorOwned[common] = true
-				expect(Trade.pieceRefusal(me, them, common, {})).to.equal(Trade.Messages.theyHaveIt)
-				expect(Trade.pieceRefusal(me, them, common, { common })).never.to.be.ok() -- on offer already
-				local full: { string } = table.create(Config.TradeMaxDecor, "x")
-				expect(Trade.pieceRefusal(me, them, legend, full)).to.equal(
-					string.format(Trade.Messages.fullDecor, Config.TradeMaxDecor)
-				)
-				local gift = Lawn.TIER_GIFTS[2]
-				me.lawnOwned[gift] = true
-				expect(Trade.pieceRefusal(me, them, gift, {})).to.equal(
-					Trade.Messages.pieceNotTradable
-				)
-			end
-		)
+		it("refuses a piece not owned, locked, the partner's already or past TradeMaxDecor", function()
+			local me, them = profile(), profile()
+			local common, legend = decorOf("Common"), decorOf("Legendary")
+			expect(Trade.pieceRefusal(me, them, common, {})).to.equal(Trade.Messages.pieceNotOwned)
+			me.decorOwned[common] = true
+			me.decorOwned[legend] = true
+			expect(Trade.pieceRefusal(me, them, common, {})).never.to.be.ok()
+			-- Legendary and up arrive locked: unlocked on their card first
+			expect(Trade.pieceLocked(me, legend)).to.equal(true)
+			expect(Trade.pieceLocked(me, common)).to.equal(false)
+			expect(Trade.pieceRefusal(me, them, legend, {})).to.equal(Trade.Messages.locked)
+			me.decorUnlocked[legend] = true
+			expect(Trade.pieceRefusal(me, them, legend, {})).never.to.be.ok()
+			them.decorOwned[common] = true
+			expect(Trade.pieceRefusal(me, them, common, {})).to.equal(Trade.Messages.theyHaveIt)
+			expect(Trade.pieceRefusal(me, them, common, { common })).never.to.be.ok() -- on offer already
+			local full: { string } = table.create(Config.TradeMaxDecor, "x")
+			expect(Trade.pieceRefusal(me, them, legend, full)).to.equal(
+				string.format(Trade.Messages.fullDecor, Config.TradeMaxDecor)
+			)
+			local gift = Lawn.TIER_GIFTS[2]
+			me.lawnOwned[gift] = true
+			expect(Trade.pieceRefusal(me, them, gift, {})).to.equal(Trade.Messages.pieceNotTradable)
+		end)
 
 		it("values a piece by its rarity, as the Collector values a cat", function()
 			expect(Trade.pieceValue(decorOf("Common"))).to.equal(Config.CollectorValue.Common)
@@ -519,49 +505,36 @@ return function()
 			expect(gift).to.equal(false)
 		end)
 
-		it(
-			"moves placed pieces off their spots and lands new ones unplaced, locked when Legendary",
-			function()
-				local giver, taker = profile(), profile()
-				local decor, legend, lawn = decorOf("Common"), decorOf("Legendary"), lawnOf("Rare")
-				giver.decorOwned[decor] = true
-				giver.decorPlaced[decor] = true
-				giver.decorOwned[legend] = true
-				giver.decorUnlocked[legend] = true
-				giver.lawnOwned[lawn] = true
-				local spot = (Catalog.getLawn(lawn) :: any).spot
-				local spotId = assert(Lawn.firstFreeSpot(giver, spot))
-				giver.lawn[spotId] = lawn
-				local pieces = { decor, legend, lawn }
-				expect(
-					Trade.apply(giver, "t1", "Alex", {}, {}, {}, 2000, { gave = pieces, got = {} })
-				).to.equal(true)
-				expect(giver.decorOwned[decor]).never.to.be.ok()
-				expect(giver.decorPlaced[decor]).never.to.be.ok()
-				expect(giver.decorOwned[legend]).never.to.be.ok()
-				expect(giver.decorUnlocked[legend]).never.to.be.ok()
-				expect(giver.lawnOwned[lawn]).never.to.be.ok()
-				expect(giver.lawn[spotId]).never.to.be.ok()
-				expect(#(giver.tradeLog[1].gaveDecor :: any)).to.equal(3)
-				expect(
-					Trade.apply(taker, "t1", "Sam", {}, {}, {}, 2000, { gave = {}, got = pieces })
-				).to.equal(true)
-				expect(taker.decorOwned[decor]).to.equal(true)
-				expect(taker.decorPlaced[decor]).never.to.be.ok() -- Equip Best puts it out
-				expect(taker.lawnOwned[lawn]).to.equal(true)
-				expect(Trade.pieceLocked(taker, legend)).to.equal(true) -- arrives locked
-				expect((taker.tradeLog[1].gotDecor :: any)[3]).to.deepEqual({
-					id = lawn,
-					kind = "lawn",
-					rarity = "Rare",
-				})
-				-- once per trade id
-				expect(
-					Trade.apply(taker, "t1", "Sam", {}, {}, {}, 2000, { gave = pieces, got = {} })
-				).to.equal(false)
-				expect(taker.decorOwned[decor]).to.equal(true)
-			end
-		)
+		it("moves placed pieces off their spots and lands new ones unplaced, locked when Legendary", function()
+			local giver, taker = profile(), profile()
+			local decor, legend, lawn = decorOf("Common"), decorOf("Legendary"), lawnOf("Rare")
+			giver.decorOwned[decor] = true
+			giver.decorPlaced[decor] = true
+			giver.decorOwned[legend] = true
+			giver.decorUnlocked[legend] = true
+			giver.lawnOwned[lawn] = true
+			local spot = (Catalog.getLawn(lawn) :: any).spot
+			local spotId = assert(Lawn.firstFreeSpot(giver, spot))
+			giver.lawn[spotId] = lawn
+			local pieces = { decor, legend, lawn }
+			expect(Trade.apply(giver, "t1", "Alex", {}, {}, {}, 2000, { gave = pieces, got = {} })).to.equal(true)
+			expect(giver.decorOwned[decor]).never.to.be.ok()
+			expect(giver.decorPlaced[decor]).never.to.be.ok()
+			expect(giver.decorOwned[legend]).never.to.be.ok()
+			expect(giver.decorUnlocked[legend]).never.to.be.ok()
+			expect(giver.lawnOwned[lawn]).never.to.be.ok()
+			expect(giver.lawn[spotId]).never.to.be.ok()
+			expect(#(giver.tradeLog[1].gaveDecor :: any)).to.equal(3)
+			expect(Trade.apply(taker, "t1", "Sam", {}, {}, {}, 2000, { gave = {}, got = pieces })).to.equal(true)
+			expect(taker.decorOwned[decor]).to.equal(true)
+			expect(taker.decorPlaced[decor]).never.to.be.ok() -- Equip Best puts it out
+			expect(taker.lawnOwned[lawn]).to.equal(true)
+			expect(Trade.pieceLocked(taker, legend)).to.equal(true) -- arrives locked
+			expect((taker.tradeLog[1].gotDecor :: any)[3]).to.deepEqual({ id = lawn, kind = "lawn", rarity = "Rare" })
+			-- once per trade id
+			expect(Trade.apply(taker, "t1", "Sam", {}, {}, {}, 2000, { gave = pieces, got = {} })).to.equal(false)
+			expect(taker.decorOwned[decor]).to.equal(true)
+		end)
 
 		it("keeps the log's decor and only owned, lockable unlocked pieces in the save", function()
 			local log = Trade.sanitizeLog({
@@ -575,15 +548,12 @@ return function()
 					gotDecor = "nope",
 				},
 			})
-			expect(log[1].gaveDecor :: any).to.deepEqual({
-				{ id = "rug", kind = "decor", rarity = "Common" },
-			})
+			expect(log[1].gaveDecor :: any).to.deepEqual({ { id = "rug", kind = "decor", rarity = "Common" } })
 			expect(log[1].gotDecor :: any).to.deepEqual({})
 			local legend, common = decorOf("Legendary"), decorOf("Common")
 			local raw: any = ProfileSchema.template(1000)
 			raw.decorOwned = { [legend] = true, [common] = true }
-			raw.decorUnlocked =
-				{ [legend] = true, [common] = true, [decorOf("Mythical")] = true, nope = true }
+			raw.decorUnlocked = { [legend] = true, [common] = true, [decorOf("Mythical")] = true, nope = true }
 			local loaded = ProfileSchema.migrate(raw, 1000)
 			expect(loaded.decorUnlocked :: any).to.deepEqual({ [legend] = true })
 			expect(ProfileSchema.template(1000).decorUnlocked :: any).to.deepEqual({})

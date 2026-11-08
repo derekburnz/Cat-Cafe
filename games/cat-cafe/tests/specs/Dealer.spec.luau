@@ -95,27 +95,23 @@ return function()
 	end)
 
 	describe("dealer amounts edges (QA, F59)", function()
-		it(
-			"the weights match the design: 0 to 4 of each, out of 100, Sardines most and Star Treat least",
-			function()
-				local means =
-					{ sardines = 1.85, caviar = 0.95, moon_milk = 0.65, star_treat = 0.20 } -- #1442
-				for _, lureId in Dealer.FOODS do
-					local weights = Catalog.dealerAmountWeights[lureId]
-					assert(weights, lureId)
-					expect(#weights).to.equal(5)
-					local total, mean = 0, 0
-					for index, weight in weights do
-						expect(weight >= 0).to.equal(true)
-						total += weight
-						mean += (index - 1) * weight / 100
-					end
-					expect(total).to.equal(100)
-					expect(mean).to.be.near(means[lureId], 1e-9)
-					expect(weights[1] < 100).to.equal(true) -- every food can come up
+		it("the weights match the design: 0 to 4 of each, out of 100, Sardines most and Star Treat least", function()
+			local means = { sardines = 1.85, caviar = 0.95, moon_milk = 0.65, star_treat = 0.20 } -- #1442
+			for _, lureId in Dealer.FOODS do
+				local weights = Catalog.dealerAmountWeights[lureId]
+				assert(weights, lureId)
+				expect(#weights).to.equal(5)
+				local total, mean = 0, 0
+				for index, weight in weights do
+					expect(weight >= 0).to.equal(true)
+					total += weight
+					mean += (index - 1) * weight / 100
 				end
+				expect(total).to.equal(100)
+				expect(mean).to.be.near(means[lureId], 1e-9)
+				expect(weights[1] < 100).to.equal(true) -- every food can come up
 			end
-		)
+		end)
 
 		it("never rolls an amount with no weight, whatever the roll", function()
 			for step = 0, 1000 do
@@ -126,14 +122,7 @@ return function()
 				for _, food in Dealer.roll(always) do
 					local weights = Catalog.dealerAmountWeights[food.lureId]
 					if weights[food.amount + 1] == 0 then
-						error(
-							string.format(
-								"roll %.3f gave %d %s, a zero weight",
-								roll,
-								food.amount,
-								food.lureId
-							)
-						)
+						error(string.format("roll %.3f gave %d %s, a zero weight", roll, food.amount, food.lureId))
 					end
 				end
 			end

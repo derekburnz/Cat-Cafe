@@ -75,36 +75,30 @@ return function()
 			expect(view.done).to.equal(false)
 		end)
 
-		it(
-			"puts the five steps at 15%, 30%, 50%, 75% and the end with their pictures (#2018)",
-			function()
-				local view = RallyLogic.view(rally(), NOW)
-				expect(#view.steps).to.equal(5)
-				expect(view.steps[1].share).to.equal(0.15)
-				expect(view.steps[3].share).to.equal(0.5)
-				expect(view.steps[5].share).to.equal(1)
-				expect(view.steps[1].picture.kind).to.equal("fish")
-				expect(view.steps[2].picture.kind).to.equal("potion")
-				expect(view.steps[4].picture.kind).to.equal("crate")
-				expect(view.steps[5].picture.kind).to.equal("crate")
-				-- 50 of 90: the first three are reached (14, 27, 45), not 68 or 90
-				expect(view.steps[3].reached).to.equal(true)
-				expect(view.steps[4].reached).to.equal(false)
-				expect(view.steps[5].reached).to.equal(false)
-			end
-		)
+		it("puts the five steps at 15%, 30%, 50%, 75% and the end with their pictures (#2018)", function()
+			local view = RallyLogic.view(rally(), NOW)
+			expect(#view.steps).to.equal(5)
+			expect(view.steps[1].share).to.equal(0.15)
+			expect(view.steps[3].share).to.equal(0.5)
+			expect(view.steps[5].share).to.equal(1)
+			expect(view.steps[1].picture.kind).to.equal("fish")
+			expect(view.steps[2].picture.kind).to.equal("potion")
+			expect(view.steps[4].picture.kind).to.equal("crate")
+			expect(view.steps[5].picture.kind).to.equal("crate")
+			-- 50 of 90: the first three are reached (14, 27, 45), not 68 or 90
+			expect(view.steps[3].reached).to.equal(true)
+			expect(view.steps[4].reached).to.equal(false)
+			expect(view.steps[5].reached).to.equal(false)
+		end)
 
-		it(
-			"gives each step the points it pays at, for the number under its marker (#2078)",
-			function()
-				local view = RallyLogic.view(rally(), NOW)
-				local at = {}
-				for _, step in view.steps do
-					table.insert(at, step.at)
-				end
-				expect(table.concat(at, " ")).to.equal("14 27 45 68 90")
+		it("gives each step the points it pays at, for the number under its marker (#2078)", function()
+			local view = RallyLogic.view(rally(), NOW)
+			local at = {}
+			for _, step in view.steps do
+				table.insert(at, step.at)
 			end
-		)
+			expect(table.concat(at, " ")).to.equal("14 27 45 68 90")
+		end)
 
 		it("reaches a step at the server's point (Rally.stepAt rounds up)", function()
 			-- 15% of 90 is 13.5, so the first step pays at 14
@@ -144,9 +138,7 @@ return function()
 		end
 
 		it("counts down in the last 12 hours before a Rally", function()
-			expect(RallyLogic.soon(waiting(NOW + 5 * HOUR + 20 * 60), NOW)).to.equal(
-				"Rescue Rally in 5h 20m"
-			)
+			expect(RallyLogic.soon(waiting(NOW + 5 * HOUR + 20 * 60), NOW)).to.equal("Rescue Rally in 5h 20m")
 			expect(RallyLogic.soon(waiting(NOW + 12 * HOUR), NOW)).to.equal("Rescue Rally in 12h")
 		end)
 

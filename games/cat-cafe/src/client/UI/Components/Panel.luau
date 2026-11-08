@@ -8,6 +8,9 @@
 -- On a touch screen the red X is finger sized (44 real px at the phone's 0.75 scale, review N313) and sits over the
 -- top-right corner like the badge on the left, poking out a little, since the header is too short for it.
 --
+-- #2339: on a short screen (a phone held sideways, Scale.isShort) the header is slimmer (HEADER_SHORT) and the title
+-- and its subtitle closer, so the content gets the rows back.
+--
 -- Roblox terms: `frame` is a see-through holder that does not clip, so the ears, badge and touch X can stick out of the
 -- window; the window itself is its child `Body`, which clips the content to the rounded corners. A child
 -- GuiObject turns with its parent's Rotation, so each ear is one square turned 45 degrees with its pink inside.
@@ -43,7 +46,12 @@ export type Panel = {
 	destroy: (self: Panel) -> (),
 }
 
-local HEADER_HEIGHT = 56
+local HEADER_TALL = 56
+local HEADER_SHORT = 44 -- #2339: on a short screen
+-- the title's box (its words sit at the bottom of it), the subtitle's top and height, per header height
+local TITLE_H: { [number]: number } = { [HEADER_TALL] = 34, [HEADER_SHORT] = 28 }
+local SUBTITLE_Y: { [number]: number } = { [HEADER_TALL] = 32, [HEADER_SHORT] = 26 }
+local SUBTITLE_H: { [number]: number } = { [HEADER_TALL] = 20, [HEADER_SHORT] = 16 }
 local HEADER_SHADE = 0.86
 local EAR_SIZE = 46 -- the square before it turns; about 26 px pokes above the window
 local EAR_X = 0.17 -- each ear's centre, from either side
@@ -67,6 +75,7 @@ Panel.__index = Panel
 
 function Panel.new(props: Props): Panel
 	local color = props.color or Theme.modal.header
+	local HEADER_HEIGHT = if Scale.isShort() then HEADER_SHORT else HEADER_TALL
 	local frame: Frame = Create("Frame", {
 		Name = props.name or "Panel",
 		BackgroundTransparency = 1,
@@ -166,7 +175,7 @@ function Panel.new(props: Props): Panel
 			1,
 			-(textLeft + HEADER_HEIGHT + Theme.sizes.padding),
 			0,
-			if props.subtitle then 34 else HEADER_HEIGHT
+			if props.subtitle then TITLE_H[HEADER_HEIGHT] else HEADER_HEIGHT
 		),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textTitle,
@@ -184,8 +193,13 @@ function Panel.new(props: Props): Panel
 	local subtitle: TextLabel = Create("TextLabel", {
 		Name = "Subtitle",
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(textLeft, 32),
-		Size = UDim2.new(1, -(textLeft + HEADER_HEIGHT + Theme.sizes.padding), 0, 20),
+		Position = UDim2.fromOffset(textLeft, SUBTITLE_Y[HEADER_HEIGHT]),
+		Size = UDim2.new(
+			1,
+			-(textLeft + HEADER_HEIGHT + Theme.sizes.padding),
+			0,
+			SUBTITLE_H[HEADER_HEIGHT]
+		),
 		FontFace = Theme.fonts.body,
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.modal.headerText,
@@ -291,11 +305,12 @@ function Panel.setTitle(self: any, title: string, subtitle: string?)
 	self._title.Text = title
 	self._subtitle.Text = subtitle or ""
 	self._subtitle.Visible = subtitle ~= nil
+	local height: number = self.headerHeight
 	self._title.Size = UDim2.new(
 		1,
-		-(self._title.Position.X.Offset + HEADER_HEIGHT + Theme.sizes.padding),
+		-(self._title.Position.X.Offset + height + Theme.sizes.padding),
 		0,
-		if subtitle then 34 else HEADER_HEIGHT
+		if subtitle then TITLE_H[height] else height
 	)
 	self._title.TextYAlignment = if subtitle
 		then Enum.TextYAlignment.Bottom

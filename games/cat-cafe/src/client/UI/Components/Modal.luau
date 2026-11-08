@@ -33,6 +33,9 @@ export type Modal = {
 	destroy: (self: Modal) -> (),
 }
 
+local SHORT_TOP = 20 -- #2339: on a short screen, above the window (its ears poke up about 17)
+local SHORT_BOTTOM = 8
+
 local Modal = {}
 Modal.__index = Modal
 
@@ -78,15 +81,26 @@ function Modal.new(parent: Instance): Modal
 	})
 	local uiScale = Scale.bind(root)
 
-	-- Container keeps every screen inside 92% x 86% of the (scaled) viewport.
+	-- Container keeps every screen inside 92% x 86% of the (scaled) viewport. #2339 (Laptop-Tester, iPhone SE: "windows
+	-- show only about 1.5 rows"): on a short screen (Scale.isShort) it takes the height down to SHORT_TOP, room for the
+	-- window's ears, and SHORT_BOTTOM
 	local container: Frame = Create("Frame", {
 		Name = "Container",
 		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromScale(0.92, 0.86),
 		Parent = root,
 	})
+	local function fit()
+		if Scale.isShort() then
+			container.AnchorPoint = Vector2.new(0.5, 0)
+			container.Position = UDim2.new(0.5, 0, 0, SHORT_TOP)
+			container.Size = UDim2.new(0.92, 0, 1, -(SHORT_TOP + SHORT_BOTTOM))
+		else
+			container.AnchorPoint = Vector2.new(0.5, 0.5)
+			container.Position = UDim2.fromScale(0.5, 0.5)
+			container.Size = UDim2.fromScale(0.92, 0.86)
+		end
+	end
+	fit()
 
 	local self = setmetatable({}, Modal) :: any
 	self.screenGui = screenGui
@@ -100,6 +114,7 @@ function Modal.new(parent: Instance): Modal
 	self._screens = {} :: { [string]: Screen }
 	self._current = nil :: string?
 	self._closing = nil :: GuiObject? -- the frame still shrinking away after close()
+	self._fitConnection = Scale.changed:Connect(fit)
 
 	if parent then
 		dimGui.Parent = parent
@@ -209,6 +224,7 @@ function Modal.toggle(self: any, name: string)
 end
 
 function Modal.destroy(self: any)
+	self._fitConnection:Disconnect()
 	Scale.unbind(self._uiScale)
 	self.changed:DisconnectAll()
 	self.screenGui:Destroy()

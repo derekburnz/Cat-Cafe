@@ -12,6 +12,7 @@
 --                                     all the way around it)
 --   frontOffset(front, radius, range) how far in front of a station's pivot its ring's centre sits
 --   aroundRadius(half, range)         the radius of a ring all the way round a station
+--   fitRing(radius, blocks, most, least)  where that ring moves, and how small it gets, to clear what stands in it
 -- Pure, so the cloud spec runner checks it; Controllers/WalkUpController measures and opens, World/WalkUpCircles
 -- lays the rings.
 
@@ -44,6 +45,53 @@ end
 function WalkUp.aroundRadius(half: number, range: number, cap: number?): number
 	local most = math.min(range - WalkUp.EDGE_SLACK, cap or math.huge)
 	return math.max(1, math.min(math.max(0, half) + WalkUp.AROUND_PAD, most))
+end
+
+-- How far a ring may slide off its station's pivot to clear a wall (#2433), and the floor kept between its rim and
+-- what it clears.
+WalkUp.FIT_SHIFT_MAX = 1.5
+WalkUp.FIT_CLEAR = 0.15
+
+-- #2433 (Laptop-Tester on #2432: each camp's cannon ring ran up to 1.1 studs under the camp's low side wall): a ring of
+-- `radius` round a station, with `blocks` the flat points (from the ring's centre) where something stands on its
+-- floor. It slides away from them, at most `most` studs, and then shrinks to clear what is left, never below
+-- `least`. Returns the slide and the radius.
+function WalkUp.fitRing(
+	radius: number,
+	blocks: { Vector2 },
+	most: number,
+	least: number
+): (Vector2, number)
+	local shift = Vector2.zero
+	local limit = math.max(0, most)
+	-- each pass moves by the average of every block's push, so blocks on opposite sides cancel instead of bouncing
+	for _ = 1, 24 do
+		local push = Vector2.zero
+		local count = 0
+		for _, block in blocks do
+			local away = block - shift
+			local gap = radius + WalkUp.FIT_CLEAR - away.Magnitude
+			if gap > 1e-3 and away.Magnitude > 1e-3 then
+				push -= away.Unit * gap
+				count += 1
+			end
+		end
+		if count == 0 or push.Magnitude / count < 1e-3 then
+			break
+		end
+		shift += push / count
+		if shift.Magnitude > limit then
+			shift = if limit > 0 then shift.Unit * limit else Vector2.zero
+		end
+	end
+	local fitted = radius
+	for _, block in blocks do
+		local room = (block - shift).Magnitude - WalkUp.FIT_CLEAR
+		if room < fitted - 1e-3 then
+			fitted = room
+		end
+	end
+	return shift, math.max(math.min(least, radius), fitted)
 end
 
 -- One station this look: its key, the window it opens (the UI's modal name), the flat studs from the character

@@ -286,6 +286,9 @@ def _props(p, asset, uid):
         props["Transparency"] = transparency
     if BACKDROP in asset or (asset.startswith("CatCafe_Alley_Blocker_") and p["name"].endswith("_Barrier")):
         props["CanQuery"] = False                 # blocker barriers: the camera and clicks pass through
+    if p["name"].endswith("_RingIcon_Decor"):     # #2449: flat pictures in the walk-up rings, never in the way
+        props["CanQuery"] = False
+        props["CastShadow"] = False
     look = LOOKS.get(p["name"])
     if look:
         props["Color"], props["Material"] = [_r(c) for c in look[0]], look[1]

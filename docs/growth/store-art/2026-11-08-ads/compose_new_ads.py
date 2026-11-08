@@ -178,3 +178,14 @@ def decor(out):
         c=pcard(P%k,autobox(P%k),w,h,cols[(i+i//4)%4])
         im=shadowed(im,c,(x0+(i%4)*(w+gx),y0+(i//4)*(h+gy)))
     im.convert('RGB').save(out,optimize=True)
+def catsatwork2(src, out):
+    """Slot 1 v3: Model-Agent's clean render, waiter cat with the tray on its head."""
+    im=Image.open(src).convert('RGBA')
+    im,_=text(im,'CATCH A',1430,440,70,YELLOW)
+    im,_=text(im,'CAT CAFE',1430,530,120,CREAM,stroke=18)
+    im,_=text(im,'Your cats take the orders!',1430,690,46,WHITE,stroke=8)
+    b=pill(im,'Barista cat makes it',(560,40),cap=42,bg=(80,180,150))
+    arrow(im,(b[2]+10,(b[1]+b[3])//2),(1310,190))
+    b=pill(im,'Waiter cat brings the cake!',(1150,880),cap=42,bg=(255,140,60))
+    arrow(im,(b[0]+30,b[1]-4),(945,650))
+    im.convert('RGB').save(out,optimize=True)

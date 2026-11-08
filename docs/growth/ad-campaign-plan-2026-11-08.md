@@ -28,7 +28,7 @@ The finished pictures are in `store-art/2026-11-08-ads/`, and its README has the
 | 4 | Income (+$6,075/s) | `Ad_04_TopEarner.png` |
 | 5 | Decorate your cafe | `Ad_05_DecorateCafe.png` |
 | 6 | Earn while offline (Derek2, 2026-11-08) | `Ad_06_EarnOffline.png` |
-| 7 | Rescue stuck cats (placeholder until the rainbow Mythical "1 IN 5,000+" render is ready) | `Ad_07_RescueCats.png` |
+| 7 | Rainbow Mythical, 1 in 5,000+ | `Ad_07_RainbowMythical.png` |
 | 8 | Rainbow cats, x2 money | `Ad_08_RainbowCats.png` |
 | 9 | Collection: 50 cats to catch | `Ad_09_FiftyCats.png` |
 | 10 | Golden cats | `Ad_10_GoldenCats.png` |

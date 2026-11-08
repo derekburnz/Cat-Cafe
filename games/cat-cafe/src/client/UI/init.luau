@@ -1351,7 +1351,11 @@ function UI.init(config: Types.InitConfig)
 			UI.events.netSwing:Fire()
 		end,
 		blocked = function()
-			return UI.catch.circlesActive() or UI.rescue.isActive()
+			-- #2409: the catch prompt's touch button takes the Net button's spot while it shows
+			local prompt = catch
+			return UI.catch.circlesActive()
+				or UI.rescue.isActive()
+				or (prompt ~= nil and prompt:grabShowing())
 		end,
 	})
 	local toastsInstance = Toasts.new(parent)

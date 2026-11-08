@@ -3126,6 +3126,27 @@ local SCENES = {
 		assert(label and label.Text == "RESCUE", "uigate: the touch button reads " .. (if label then label.Text else "nothing"))
 		local key = gui:FindFirstChild("Key", true) :: GuiObject?
 		assert(key == nil or not key.Visible, "uigate: the [E] key cap still shows for a touch prompt (#2315)")
+		-- #2409 (Derek2: "rescue button is overlapping net button on mobile"): on a phone the button takes the Net
+		-- button's spot, the Net button steps away meanwhile, and neither lands on Roblox's jump button
+		if not UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			return
+		end
+		local NetButtonPlace = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.NetButtonPlace")
+		UI.setZone("Alley")
+		UI.net.setEnabled(true)
+		UIShim.advance(0.3)
+		local net = UIShim.playerGui:FindFirstChild("CatCafeNetButton") :: ScreenGui
+		assert(net and not net.Enabled, "uigate: the Net button shows under the RESCUE button (#2409)")
+		local viewport = workspace.CurrentCamera.ViewportSize
+		local netAt, netSize = NetButtonPlace.place(viewport)
+		local jumpAt = NetButtonPlace.jump(viewport)
+		local inset = game:GetService("GuiService"):GetGuiInset()
+		local x0, y0 = grab.AbsolutePosition.X + inset.X, grab.AbsolutePosition.Y + inset.Y
+		assert(math.abs(x0 - netAt.X) <= 2 and math.abs(y0 - netAt.Y) <= 2, ("uigate: the RESCUE button is at %d,%d, not the Net button's %d,%d (#2409)"):format(x0, y0, netAt.X, netAt.Y))
+		assert(math.abs(grab.AbsoluteSize.X - netSize) <= 2, "uigate: the RESCUE button is not the Net button's size (#2409)")
+		assert(y0 + grab.AbsoluteSize.Y <= jumpAt.Y, "uigate: the RESCUE button runs onto the jump button (#2409)")
+		assert(label.TextFits, "uigate: RESCUE does not fit its button (#2409)")
+		UI.net.setEnabled(false)
 	end },
 	{ "CatchPromptCatch", function()
 		UI.catch.show({

@@ -332,7 +332,7 @@ local GOAL_TOP = CLOCK_TOP + CLOCK_H + 6
 local NIGHT_LINE = 20
 local LUCKY_LINE_W = 260 -- F88: the Lucky Day line under the clock
 local LUCKY_CLOVER = 18 -- #1258: the luck chip's circle in front of that line
-local LUCKY_GAP = 5 -- #2084: between that circle and the first letter
+local LUCKY_GAP = 8 -- #2084: between that circle and the first letter (#2416: clear of the words' outline too)
 local DAY_CARD_W = 300 -- #1572: the day line's card
 local DAY_CARD_Z = 20
 -- The top right column (icon row, clock, tips line, tier and goal) is this wide at most. The HUD keeps clear of
@@ -1069,21 +1069,40 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	-- F88 (luck-and-rare-moments.md 1c): the day line under the clock, in gold; since #1572 today's kinds from the Clock
 	-- folder's LuckyDay, GoldenDay and RainbowDay (LuckLogic.dayLine, "Lucky · Golden Day"), with a card on a tap
-	self._luckyLine = label({
-		Name = "LuckyDay",
+	-- #2416 (Derek2: "the clover in the lucky day overlaps the name still"): the clover and the words are one row,
+	-- right-aligned as a whole, the clover first. The words are left-aligned in their own label, so whatever the
+	-- label's measured width misses (the outline, a long "Lucky · Golden · Rainbow Day" at the width cap) spills
+	-- right, away from the clover, never back over it (#2084 hung the clover off a right-aligned label instead)
+	local luckyRow: Frame = Create("Frame", {
+		Name = "LuckyRow",
+		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H),
-		-- #2084 (Derek2: "lucky day has overlap with the symbols"): as wide as its words (AutomaticSize), so the clover
-		-- hangs off its left edge with no measuring; the old TextBounds sum came out short at some UI scales and the
-		-- clover covered the "L"
+		Size = UDim2.fromOffset(0, NIGHT_LINE),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Visible = false,
+		Parent = root,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Right,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, LUCKY_GAP),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._luckyRow = luckyRow
+	self._luckyLine = label({
+		Name = "LuckyDay",
 		Size = UDim2.fromOffset(0, NIGHT_LINE),
 		AutomaticSize = Enum.AutomaticSize.X,
 		TextSize = Theme.sizes.textBody,
 		TextColor3 = Theme.colors.gold,
-		TextXAlignment = Enum.TextXAlignment.Right,
+		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.None,
+		LayoutOrder = 2,
 		Visible = false,
-		Parent = root,
+		Parent = luckyRow,
 	})
 	Create(
 		"UISizeConstraint",
@@ -1092,10 +1111,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- #1258: the luck chip's circle and clean clover in front of the right-aligned words, LUCKY_GAP left of the first
 	-- letter whatever the words are
 	local luckyClover = LuckChip.circle(LUCKY_CLOVER, {
-		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(0, -LUCKY_GAP, 0.5, 0),
+		LayoutOrder = 1,
 		ZIndex = self._luckyLine.ZIndex,
-		Parent = self._luckyLine,
+		Parent = luckyRow,
 	})
 	local luckyLine: TextLabel = self._luckyLine
 	self._luckyClover = luckyClover
@@ -2807,6 +2825,7 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 		self._clock.Visible = false
 		self._nightTips.Visible = false
 		self._luckyLine.Visible = false
+		self._luckyRow.Visible = false
 		self._rallyLine.Visible = false
 		self._night = false
 		self._clockSeen = false
@@ -2877,6 +2896,7 @@ function HUD._renderLuckyLine(self: any)
 	self._luckyLine.Text = line or "" -- the clover is the circle in front (LuckChip.circle) on a Lucky Day
 	self._luckyClover.Visible = view ~= nil and view.luckyDay == true
 	self._luckyLine.Visible = line ~= nil and self._clock.Visible
+	self._luckyRow.Visible = self._luckyLine.Visible
 	if not self._luckyLine.Visible then
 		self._dayCard.Visible = false
 	end
@@ -2929,6 +2949,20 @@ function HUD.buffRow(self: any): GuiObject
 	return self._buffs.frame
 end
 
+-- #2415: the top of the touch Net button (Components/NetButtonPlace, screen pixels) in design px from the root's top,
+-- or nil before the screen has a size.
+function HUD._netTop(self: any): number?
+	local camera = Workspace.CurrentCamera
+	local root: Frame = self._root
+	local scale = Scale.get()
+	if camera == nil or scale <= 0 or root.AbsoluteSize.Y <= 0 then
+		return nil
+	end
+	local at = NetButtonPlace.place(camera.ViewportSize)
+	local top = root.AbsolutePosition.Y + GuiService:GetGuiInset().Y
+	return (at.Y - top) / scale
+end
+
 function HUD.counterRow(self: any): GuiObject
 	return self._counters
 end
@@ -2978,7 +3012,7 @@ function HUD._layoutRight(self: any)
 		top += NIGHT_LINE
 	end
 	-- F88: the Lucky Day line under the clock (and under the night tips line when that shows)
-	self._luckyLine.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
+	self._luckyRow.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
 	self._dayCard.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift + NIGHT_LINE + 4)
 	if self._luckyLine.Visible then
 		top += NIGHT_LINE
@@ -3008,6 +3042,14 @@ function HUD._layoutRight(self: any)
 		lineTop += self._roadmap:closedHeight() + Theme.sizes.gap
 	end
 	self._questLine.Position = UDim2.new(1, -MARGIN, 0, lineTop - lift)
+	if TOUCH then
+		-- #2415 (Derek2: "net overlaps your goal bubble"): on a phone the quest line goes while it would reach the Net
+		-- button up and left of the jump button (the Quests tile's count still shows what is ready)
+		local netTop = self:_netTop()
+		local fits = netTop == nil or lineTop - lift + QUEST_LINE_H + Theme.sizes.gap <= netTop
+		self._questRoom = fits
+		self._questLine.Visible = fits and self._questText.Text ~= ""
+	end
 	local spinTop = if self._questLine.Visible then lineTop + QUEST_LINE_H + 2 else lineTop
 	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, spinTop - lift)
 	if TOUCH and self._corner ~= nil then
@@ -3061,7 +3103,7 @@ function HUD._renderQuests(self: any, state: Types.PlayerState, catalog: Types.C
 			)
 		end
 	end
-	self._questLine.Visible = line ~= nil
+	self._questLine.Visible = line ~= nil and self._questRoom ~= false -- (#2415: room above the Net button on touch)
 	local said = self._questText.Text
 	self._questText.Text = line or ""
 	if TOUCH and self._questText.Text ~= said then

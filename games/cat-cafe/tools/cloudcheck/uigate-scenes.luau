@@ -3771,10 +3771,11 @@ local SCENES = {
 		assert(#rowText > 0, "uigate: the Luck card's Lucky Day row doesn't read +50% (#2079)")
 		-- #2084: the clover sits left of the day line's first letter, never over it
 		local line = hud:FindFirstChild("LuckyDay", true)
-		local clover = line and line:FindFirstChild("Clover")
+		-- #2416: the clover and the words share a row; the words start at their label's left edge
+		local clover = line and line.Parent and line.Parent:FindFirstChild("Clover")
 		assert(line and line.Visible and clover and clover.Visible, "uigate: no Lucky Day line with its clover (#2084)")
 		local cloverRight = clover.AbsolutePosition.X + clover.AbsoluteSize.X
-		local textLeft = line.AbsolutePosition.X + line.AbsoluteSize.X - line.TextBounds.X
+		local textLeft = line.AbsolutePosition.X
 		assert(cloverRight <= textLeft + 1, ("uigate: the clover ends at %d, over the day line's words from %d (#2084)"):format(cloverRight, textLeft))
 	end },
 	-- F88: the night before a Lucky, Golden and Rainbow Day, LuckyDayWarnSeconds before sunrise: "Triple Day soon!"
@@ -4334,7 +4335,29 @@ local SCENES = {
 		local goal = root:FindFirstChild("TierGoal") :: GuiObject
 		local scale = (root:FindFirstChildOfClass("UIScale") :: UIScale).Scale
 		local area = goal.AbsoluteSize.X * goal.AbsoluteSize.Y / (scale * scale)
-		assert(area <= 0.75 * 250 * 160, ("uigate: the goal card is %d design px², not a quarter smaller (#2397)"):format(area))
+		assert(area <= 0.55 * 250 * 160, ("uigate: the goal card is %d design px², not about half (#2397, #2415)"):format(area))
+		-- #2415 (Derek2: "net overlaps your goal bubble"): the goal card and the quest line under it end above the Net
+		-- button, on a Lucky Day too (its line under the clock pushes the column down)
+		local clock = Instance.new("Folder")
+		clock.Name = "Clock"
+		clock:SetAttribute("Phase", "day")
+		clock:SetAttribute("PhaseEndsAt", workspace:GetServerTimeNow() + 190)
+		clock:SetAttribute("AreasOpen", true)
+		clock:SetAttribute("Day", 4)
+		clock:SetAttribute("NextLuckyDay", 8)
+		clock:SetAttribute("LuckyDay", true)
+		UI.clock.bind(clock)
+		UIShim.advance(0.1)
+		local NetButtonPlace = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.NetButtonPlace")
+		local netAt = NetButtonPlace.place(workspace.CurrentCamera.ViewportSize)
+		local inset = game:GetService("GuiService"):GetGuiInset()
+		for _, name in { "TierGoal", "QuestLine" } do
+			local part = root:FindFirstChild(name) :: GuiObject
+			if part.Visible then
+				local foot = part.AbsolutePosition.Y + part.AbsoluteSize.Y + inset.Y
+				assert(foot <= netAt.Y, ("uigate: %s ends at %d px, over the Net button from %d (#2415)"):format(name, foot, netAt.Y))
+			end
+		end
 	end },
 	-- #2194 (playtester Dread via Derek2: "The cash at the bottom left should probably not push the 2x cash and fish"):
 	-- the money badge and the golden fish stay put while the digits tick within an amount's shape ("$1.24M" to

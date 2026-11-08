@@ -57,6 +57,7 @@ local TipService = require(script.Parent.TipService)
 local Tips = require(ReplicatedStorage.Shared.Tips)
 local Trade = require(ReplicatedStorage.Shared.Trade)
 local Types = require(ReplicatedStorage.Shared.Types)
+local WalkUpCircles = require(script.Parent.Parent.World.WalkUpCircles)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 type Profile = Types.PlayerProfile
@@ -961,8 +962,18 @@ local FOOD_SCALE = 1.2 -- the food item sits in the bowl
 -- #2255: the food's base rests on the bowl's inner floor (CatCafe_Item_FoodBowl's tan disc, top 0.18 at scale 1), a
 -- hair above it; at 0.1 the bottom of every food sat inside the floor and Tuna, Sardines, Caviar and Star Treat sank.
 local FOOD_LIFT = 0.18 * BOWL_SCALE + 0.01
+-- #2476 (Derek2: "make the bait bowl to open if you walk outside the backdoor near it"): the first bowl's walk-up ring
+-- (World/WalkUpCircles, Controllers/WalkUpController) on its yard side, out from the back wall, in a warm peach with
+-- a bowl icon (#2449). BOWL_RANGE is the owner's prompt reach (UIController's BaitPrompt); RING_BOWL_RADIUS keeps it
+-- clear of the second bowl's spot 3.6 studs along the step.
+local RING_BOWL = Color3.fromRGB(255, 176, 120)
+local RING_BOWL_RADIUS = 2.2
+local BOWL_RANGE = 8
+local ICON_BOWL: WalkUpCircles.Icon =
+	{ emoji = "🥣", art = "CatCafe_Plot_BaitBowl_RingIcon_Decor" }
 
--- One bowl's models in its folder (#1161: bowl 1 in Bait/, bowl 2 in Bait2/). `shown` is whether the bowl stands.
+-- One bowl's models in its folder (#1161: bowl 1 in Bait/, bowl 2 in Bait2/). `shown` is whether the bowl stands;
+-- `walkUp`, whether it gets the walk-up ring (#2476: the first bowl).
 local function refreshBowl(
 	player: Player,
 	folder: Folder,
@@ -970,7 +981,8 @@ local function refreshBowl(
 	catAnchor: BasePart,
 	profile: Profile,
 	shown: boolean,
-	bait: Types.BaitState?
+	bait: Types.BaitState?,
+	walkUp: boolean
 )
 	if not shown then
 		folder:ClearAllChildren()
@@ -985,6 +997,18 @@ local function refreshBowl(
 		bowl:ScaleTo(BOWL_SCALE)
 		bowl:PivotTo(bowlAnchor.CFrame)
 		bowl.Parent = folder
+		if walkUp then
+			-- the plot's +Z is out of the back wall, onto the yard (World/Layout's baitBowl)
+			WalkUpCircles.toward(
+				bowl,
+				RING_BOWL,
+				BOWL_RANGE,
+				bowlAnchor.CFrame.ZVector,
+				RING_BOWL_RADIUS,
+				folder,
+				ICON_BOWL
+			)
+		end
 	end
 
 	local lureId = if bait ~= nil then bait.lureId else nil
@@ -1035,7 +1059,7 @@ local function refreshBait(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		"BaitReadyAt",
 		if bait ~= nil then CafeService.baitReadyAt(profile, bait) else 0
 	)
-	refreshBowl(player, plot.bait, plot.baitBowl, plot.baitCat, profile, owned, bait)
+	refreshBowl(player, plot.bait, plot.baitBowl, plot.baitCat, profile, owned, bait, true)
 	-- #1161: the second bowl stands while it is "on", and while food is still in it without the pass (a refund),
 	-- so that food's cat can still be tamed or let go
 	local bait2 = if owned then profile.bait2 else nil
@@ -1044,7 +1068,7 @@ local function refreshBait(player: Player, plot: WorldBuilder.Plot, profile: Pro
 		"BaitReadyAt2",
 		if bait2 ~= nil then CafeService.baitReadyAt(profile, bait2) else 0
 	)
-	refreshBowl(player, plot.bait2, plot.baitBowl2, plot.baitCat2, profile, shown2, bait2)
+	refreshBowl(player, plot.bait2, plot.baitBowl2, plot.baitCat2, profile, shown2, bait2, false)
 end
 
 function CafeService.refreshPlot(player: Player)

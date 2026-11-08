@@ -367,6 +367,30 @@ local function ownBowlPart(index: number): BasePart?
 	return if bowl ~= nil and bowl:IsA("BasePart") then bowl :: BasePart else nil
 end
 
+-- A bowl's window, as its prompt or its walk-up ring (#2476) opens it: the cat waiting there, else the food picker.
+function UIController.openBowl(index: number)
+	local waiting = if state ~= nil then baitCat(bowlBait(state, index)) else nil
+	if waiting ~= nil then
+		baitUI.showReady(waiting, index)
+	else
+		UI.bait.openPicker()
+	end
+end
+
+-- #2476: the own cafe's first bowl model, whose walk-up ring the server puts beside it, and its owner prompt, for
+-- WalkUpController. Nil before the Bait bowl is bought.
+function UIController.ownBowlModel(): Model?
+	local plot = ownPlot()
+	local folder = if plot ~= nil then plot:FindFirstChild("Bait") else nil
+	local bowl = if folder ~= nil then folder:FindFirstChild("Bowl") else nil
+	return if bowl ~= nil and bowl:IsA("Model") then bowl :: Model else nil
+end
+
+function UIController.bowlPrompt(): ProximityPrompt?
+	local prompt = bowlPrompts[1]
+	return if prompt ~= nil and prompt.Parent ~= nil then prompt else nil
+end
+
 -- One bowl's owner prompt (made here so only the owner sees it): "See the cat", "Check" or "Add food". Gone while
 -- `show` is false.
 local function refreshBowlPrompt(
@@ -398,12 +422,7 @@ local function refreshBowlPrompt(
 			made.RequiresLineOfSight = true -- on the back step: no pill through the back wall from inside (N91)
 			made.Style = Enum.ProximityPromptStyle.Custom
 			made.Triggered:Connect(function()
-				local waiting = if state ~= nil then baitCat(bowlBait(state, index)) else nil
-				if waiting ~= nil then
-					baitUI.showReady(waiting, index)
-				else
-					UI.bait.openPicker()
-				end
+				UIController.openBowl(index)
 			end)
 			made.Parent = point
 			bowlPrompts[index] = made

@@ -27,7 +27,7 @@ The finished pictures are in `store-art/2026-11-08-ads/`, and its README has the
 | 3 | Catch moment (Mythical) | `Ad_03_MythicalCatch.png` |
 | 4 | Income (+$6,075/s) | `Ad_04_TopEarner.png` |
 | 5 | Cannon, player hero | `Ad_05_PlayerCannon.png` |
-| 6 | Cannon, cat hero (A/B with 5) | `Ad_06_CatCannon.png` |
+| 6 | Earn while offline (Derek2, 2026-11-08) | `Ad_06_EarnOffline.png` |
 | 7 | Lucky Cat, more rare cats | `Ad_07_LuckyCat.png` |
 | 8 | Rainbow cats, x2 money | `Ad_08_RainbowCats.png` |
 | 9 | Collection: 50 cats to catch | `Ad_09_FiftyCats.png` |

@@ -9,7 +9,7 @@ These are the 10 pictures for the first Ads Manager campaign in `docs/growth/ad-
 | `Ad_03_MythicalCatch.png` | Catch moment | Set 3 N v2, unchanged | The Balloon Cat is Mythical in Catalog, and the player swings the net |
 | `Ad_04_TopEarner.png` | Income | Set 3 L v2, unchanged | Mythical 75/s x Sewer 81 = 6,075/s (Catalog `AREA_INCOME`) |
 | `Ad_05_PlayerCannon.png` | Cannon, player hero | Set 3 O v2, unchanged | F84 Cat Cannon flight |
-| `Ad_06_CatCannon.png` | Cannon, cat hero (A/B test against 05) | Set 3 M, unchanged | F84 |
+| `Ad_06_EarnOffline.png` | Earn while offline (Derek2, 2026-11-08: "can also use earn offline for ads") | New: night sky with the Sleepy Cat (Ragdoll) in its nightcap | `Config.OfflineRate = 0.5` for up to 8 hours, free for everyone (the pass raises it, but the picture doesn't mention the pass) |
 | `Ad_07_LuckyCat.png` | Rare cats | Set 2 I, with CATCH A added | The Lucky Cat statue adds luck (`Config.LuckPerStatueLevel`) |
 | `Ad_08_RainbowCats.png` | Rainbow cats | Set 2 F, with CATCH A added and the pill changed from x3 to **x2** | `Config.RainbowMultiplier = 2` (Derek2, 2026-11-07) |
 | `Ad_09_FiftyCats.png` | Collection | New: 12 cat cards from the preview renders, with rarity borders in the game's rarity colours | 50 catchable cats in Catalog; each card's rarity matches Catalog |
@@ -17,8 +17,8 @@ These are the 10 pictures for the first Ads Manager campaign in `docs/growth/ad-
 
 Left out:
 
-- Set 3 K ("1 IN 200"): the rainbow odds are now 1.5% (`RainbowChanceNet = 0.015`), so that figure is wrong.
-- Set 2 H: it repeats the cannon hook.
+- Set 3 K ("1 IN 200"): a rainbow cat is now 1 in 67 (`RainbowChanceNet = 0.015`), so 200 overstates how rare it is. A rainbow Mythical really is about 1 in 5,500 per stray (1.2% Mythical in every area's odds x 1.5% rainbow). "1 IN 5,000+" would be a true and stronger hook, but it needs a new render of a rainbow Mythical.
+- Set 2 H and set 3 M: they repeat the cannon hook (M was in the first cut, and Derek2's offline idea replaced it).
 - J and N v1: they repeat the catch hook.
 
 The plan also listed "friends" and "cozy night" scenes. They need new Blender renders, which this session could not make, so they are a follow-up.

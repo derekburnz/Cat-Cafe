@@ -70,3 +70,26 @@ def golden2(out, name='Blossom'):
     # arrow
     d.polygon([(760,640),(930,640),(930,600),(1020,690),(930,780),(930,740),(760,740)],fill=(255,255,255),outline=(90,45,10),width=10)
     im.convert('RGB').save(out,optimize=True)
+
+def offline(out, name='Ragdoll_Sit'):
+    import random
+    W,H=1920,1080
+    ys=np.linspace(0,1,H)[:,None,None]
+    top=np.array((28,30,88),float); bot=np.array((92,64,160),float)
+    bg=(top*(1-ys)+bot*ys)*np.ones((1,W,1))
+    im=Image.fromarray(bg.astype(np.uint8)).convert('RGBA')
+    d=ImageDraw.Draw(im); rnd=random.Random(7)
+    for _ in range(140):
+        x,y=rnd.randrange(W),rnd.randrange(H); r=rnd.choice([1,2,2,3])
+        d.ellipse((x-r,y-r,x+r,y+r),fill=(255,250,220,rnd.randrange(120,255)))
+    # moon
+    d.ellipse((1560,70,1800,310),fill=(255,236,170)); d.ellipse((1620,40,1860,280),fill=tuple(int(v) for v in bg[60,1700]))
+    im,_=text(im,'EARN WHILE',560,120,112,YELLOW,outline=(30,24,70),stroke=16)
+    im,_=text(im,'OFFLINE!',560,290,150,(255,255,255),outline=(30,24,70),stroke=20)
+    im,_=text(im,'Your cafe keeps earning',560,520,52,(255,255,255),outline=(30,24,70),stroke=8)
+    im,_=text(im,'while you sleep',560,600,52,(255,255,255),outline=(30,24,70),stroke=8)
+    c=card(name,None,620,620,border=(140,120,230))
+    im=shadowed(im,c,(1130,330))
+    for i,(x,y,s) in enumerate([(1660,350,60),(1730,280,80),(1810,190,100)]):
+        im,_=text(im,'Z',x,y,s,(255,255,255),outline=(30,24,70),stroke=max(6,s//9),anchor_x='l')
+    im.convert('RGB').save(out,optimize=True)

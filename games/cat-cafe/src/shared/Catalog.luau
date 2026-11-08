@@ -1026,9 +1026,9 @@ Catalog.tiers = {
 	{
 		tier = 4,
 		name = "Famous Cafe",
-		cost = 90000000, -- #2230 ("a lot" harder): 60,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
+		cost = 160000000, -- #2496 (Derek2: "more money"; Design 160M, Pace Tier 4 5 h 15): 90,000,000 before; #2230 ("a lot" harder): 60,000,000 before; #1452 (economy-ladder 3 v3); F95 v2 40,000,000 (was 27,000,000; 700,000 before F95)
 		distinctCats = 25, -- #2230: 20 before
-		needsRarity = "Legendary",
+		needsRarity = "Mythical", -- #2496 (Derek2: "requires at least 1 mythic"): Legendary before
 		needsRarityCount = 1,
 		slots = 8,
 		multiplier = 1.75,

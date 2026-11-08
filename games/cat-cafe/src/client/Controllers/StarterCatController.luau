@@ -96,7 +96,7 @@ local function addFallbackPrompt(stand: Instance)
 	prompt.Name = "StarterCatPrompt"
 	prompt.ActionText = "Take me home"
 	prompt.ObjectText = "Bellhop Cat (free)"
-	prompt.HoldDuration = 0.3
+	prompt.HoldDuration = 0 -- one press (#2340, Derek2: "a one click confirm instead of hold")
 	prompt.MaxActivationDistance = Config.StarterCatRangeStuds - 3
 	prompt.RequiresLineOfSight = false
 	prompt.Triggered:Connect(function()

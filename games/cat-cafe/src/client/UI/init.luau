@@ -1353,9 +1353,13 @@ function UI.init(config: Types.InitConfig)
 		tackle = function()
 			UI.events.tackle:Fire()
 		end,
-		-- hidden while carrying or during the circles or the rescue bar (reviewer N85)
+		-- hidden while carrying or during the circles or the rescue bar (reviewer N85), and while the intro's screen
+		-- plays: the tackle lesson draws its own pressed Tackle bar over the caption (#2474, Laptop-Tester: two bars)
 		blocked = function()
-			return hudInstance:isCarrying() or UI.catch.circlesActive() or UI.rescue.isActive()
+			return hudInstance:isCarrying()
+				or UI.catch.circlesActive()
+				or UI.rescue.isActive()
+				or UI.intro.playing()
 		end,
 		lift = function()
 			return hudInstance:bottomTop()

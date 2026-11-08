@@ -3,19 +3,18 @@
 -- tutorial that happens either after your first catch ... that explains tackling", then "maybe more then a tip a
 -- forced cut scene after first catch or something because likely people will turn tips off with the X pretty fast").
 -- It plays once, in place of the `tackle` context tip the server sends at the first check-in (the end of the newcomer
--- shield, easy-start.md section 3), on the intro's screen: one caption a shot, each held long enough to read (the
--- intro's 1.0 + 0.4 s a word, shared/Intro), Next from 1 s in and no Skip. Screens/TackleLesson plays it.
+-- shield, easy-start.md section 3), on the intro's screen: one caption a shot, each held long enough to read, Next
+-- from 1 s in and no Skip. Screens/TackleLesson plays it. #2474 (Derek2: play it "into the end of the tutorial
+-- briefly"): BASE + PER_WORD a word (0.6 + 0.3 s, quicker than the intro's 1.0 + 0.4 s), never under MIN_HOLD, which
+-- covers the slowest staged beat (shared/TackleStage: shot 3's pick-up done by about 2.1 s; shot 2's hit lands at
+-- 1.35 s and shot 4's net is down at 1.05 s).
 --   TIP                          the server's tip it plays for ("tackle_lesson" since #2409, its own id so an account
 --                                that saw the old tackle card still gets it), whose seen flag it saves
 --   lines(device) -> { string }  the captions; the third names the input the player last used (TipQueue.device)
---   hold(caption) -> number      seconds a caption holds when nobody presses Next
+--   hold(caption) -> number      seconds a caption holds when nobody presses Next (at least MIN_HOLD)
 --   CUE_SHOT, cueKey(device)     #2469: the caption that shows the Tackle bar pressed as the lunge starts, and the
 --                                key cap on it ("Q", "Y", or "" on touch, where the bar itself is the button)
 -- Pure, so the cloud spec runner checks it.
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local Intro = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Intro")) :: any
 
 export type Device = "keyboard" | "touch" | "gamepad"
 
@@ -23,8 +22,9 @@ local TackleLessonLogic = {}
 
 TackleLessonLogic.TIP = "tackle_lesson" -- shared/Tips.LESSON
 
-local BASE = if type(Intro.CAPTION_BASE) == "number" then Intro.CAPTION_BASE else 1.0
-local PER_WORD = if type(Intro.CAPTION_PER_WORD) == "number" then Intro.CAPTION_PER_WORD else 0.4
+TackleLessonLogic.BASE = 0.6 -- #2474: seconds a caption holds, plus PER_WORD a word
+TackleLessonLogic.PER_WORD = 0.3
+TackleLessonLogic.MIN_HOLD = 2.4 -- shot 3's pick-up is done by about 2.1 s, and a beat to see the cat taken
 
 -- The keys are TackleBar's (Q, gamepad Y); on touch the Tackle bar itself is the button.
 local HOW: { keyboard: string, touch: string, gamepad: string } = {
@@ -56,7 +56,10 @@ function TackleLessonLogic.hold(caption: string): number
 	for _ in string.gmatch(caption, "%S+") do
 		words += 1
 	end
-	return BASE + PER_WORD * words
+	return math.max(
+		TackleLessonLogic.BASE + TackleLessonLogic.PER_WORD * words,
+		TackleLessonLogic.MIN_HOLD
+	)
 end
 
 return TackleLessonLogic

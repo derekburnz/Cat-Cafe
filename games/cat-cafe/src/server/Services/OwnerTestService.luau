@@ -119,19 +119,39 @@ function OwnerTestService.eventCommand(userId: number, text: string): string?
 	return "Owner test mode: " .. line
 end
 
+local function answer(player: Player?, userId: number, text: string)
+	local reply = OwnerTestService.eventCommand(userId, text)
+	if player ~= nil and reply ~= nil then
+		Net.toast(player, reply, "good")
+	end
+end
+
+-- With TextChatService chat, a TextChatCommand: the message never reaches the channel. With the legacy chat (the dev
+-- copy's setting, Laptop-Tester 2026-11-08) TextChatCommands never fire, so Player.Chatted reads it instead.
 local function eventCommand()
-	local command = Instance.new("TextChatCommand")
-	command.Name = "OwnerTestEventCommand"
-	command.PrimaryAlias = "/event"
-	command.AutocompleteVisible = false
-	command.Triggered:Connect(function(source: TextSource, text: string)
-		local player = Players:GetPlayerByUserId(source.UserId)
-		local reply = OwnerTestService.eventCommand(source.UserId, text)
-		if player ~= nil and reply ~= nil then
-			Net.toast(player, reply, "good")
-		end
-	end)
-	command.Parent = TextChatService
+	if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+		local command = Instance.new("TextChatCommand")
+		command.Name = "OwnerTestEventCommand"
+		command.PrimaryAlias = "/event"
+		command.AutocompleteVisible = false
+		command.Triggered:Connect(function(source: TextSource, text: string)
+			answer(Players:GetPlayerByUserId(source.UserId), source.UserId, text)
+		end)
+		command.Parent = TextChatService
+		return
+	end
+	local function listen(player: Player)
+		player.Chatted:Connect(function(message: string)
+			local lower = string.lower(message)
+			if lower == "/event" or string.sub(lower, 1, 7) == "/event " then
+				answer(player, player.UserId, message)
+			end
+		end)
+	end
+	Players.PlayerAdded:Connect(listen)
+	for _, player in Players:GetPlayers() do
+		listen(player)
+	end
 end
 
 function OwnerTestService.start()

@@ -26,6 +26,7 @@ local StarterCatController = require(script.Parent.Controllers.StarterCatControl
 local StyleController = require(script.Parent.Controllers.StyleController)
 local TradeController = require(script.Parent.Controllers.TradeController)
 local UIController = require(script.Parent.Controllers.UIController)
+local WalkUpController = require(script.Parent.Controllers.WalkUpController)
 local WorldController = require(script.Parent.Controllers.WorldController)
 
 Audio.start()
@@ -43,6 +44,7 @@ GoldHutController.start() -- #1368: the Golden Pond pass's gold Fishing Hut, on 
 RallyController.start() -- F101: the Rescue Rally's state for the UI's banner
 TradeController.start() -- F102: trading, after the UI whose trade window it feeds
 CodesController.start()
+WalkUpController.start() -- #2398: the stations' windows open as you walk up, after the UI that draws them
 ChatTagController.start() -- #1624: the VIP tag in chat
 RareCatchChatController.start() -- #2203: rare catches here and in other servers, as chat lines
 StarterCatController.start() -- F96: the Bellhop Cat's stand card

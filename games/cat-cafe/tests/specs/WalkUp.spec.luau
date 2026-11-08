@@ -97,4 +97,23 @@ return function()
 			expect(close).to.equal(true)
 		end)
 	end)
+
+	describe("the floor rings", function()
+		it("puts a front ring against the station's front, its far edge inside the server's range", function()
+			-- a stall 3 studs deep in front of its pivot, range 14: the ring touches the front
+			expect(WalkUp.frontOffset(3, 4, 14)).to.equal(7)
+			-- a deep stall: pulled in so the far edge is EDGE_SLACK inside the range
+			expect(WalkUp.frontOffset(9, 4, 14)).to.equal(14 - WalkUp.EDGE_SLACK - 4)
+			expect(WalkUp.frontOffset(9, 4, 14) + 4 <= 14 - WalkUp.EDGE_SLACK).to.equal(true)
+			-- never behind the pivot
+			expect(WalkUp.frontOffset(-2, 4, 14)).to.equal(4)
+			expect(WalkUp.frontOffset(5, 4, 6)).to.equal(0)
+		end)
+
+		it("rings the cannon all the way round, clear of it and inside its range", function()
+			expect(WalkUp.aroundRadius(6, 10)).to.equal(10 - WalkUp.EDGE_SLACK)
+			expect(WalkUp.aroundRadius(3, 10)).to.equal(3 + WalkUp.AROUND_PAD)
+			expect(WalkUp.aroundRadius(0, 2)).to.equal(1)
+		end)
+	end)
 end

@@ -5,7 +5,9 @@
 -- when the catch ends; the badge pops in and goes with it. It sits just above where the catcher's trust bar hangs
 -- (Components/TrustBar), whatever the distance, as the billboard is that bar's height plus the badge's, centred on
 -- the bar's spot. The mood icon hides while the cat is locked (MoodIcons), so the two never stack.
---   CatchMark.new()   watches the Stray tag
+-- #2469 (Derek2's tackle lesson): the lesson's staged cat (shared/TackleStage.STRAY_TAG, "StagedStray") gets the same
+-- "!" when IntroController sets its NetDown, so the "safe while catching" shot shows a net pinning a cat as a real one.
+--   CatchMark.new()   watches the Stray and StagedStray tags
 --   mark:destroy()
 --
 -- Roblox terms: a BillboardGui parented under a part draws over it and always faces the camera; an offset Size stays
@@ -28,6 +30,7 @@ local CatchMark = {}
 CatchMark.__index = CatchMark
 
 CatchMark.TAG = "Stray"
+CatchMark.TAGS = { CatchMark.TAG, "StagedStray" } -- #2469: TackleStage.STRAY_TAG, the lesson's local cat
 CatchMark.ATTRIBUTE = "NetDown"
 CatchMark.BADGE = 40 -- px, the round badge
 local GAP = 6 -- px between the badge and the trust bar's top
@@ -58,21 +61,23 @@ function CatchMark.new(): CatchMark
 	self._marks = {} :: { [Instance]: BillboardGui }
 	self._watched = {} :: { [Instance]: { RBXScriptConnection } }
 	self._connections = {} :: { RBXScriptConnection }
-	for _, stray in CollectionService:GetTagged(CatchMark.TAG) do
-		self:_watch(stray)
-	end
-	table.insert(
-		self._connections,
-		CollectionService:GetInstanceAddedSignal(CatchMark.TAG):Connect(function(stray: Instance)
+	for _, tag in CatchMark.TAGS do
+		for _, stray in CollectionService:GetTagged(tag) do
 			self:_watch(stray)
-		end)
-	)
-	table.insert(
-		self._connections,
-		CollectionService:GetInstanceRemovedSignal(CatchMark.TAG):Connect(function(stray: Instance)
-			self:_unwatch(stray)
-		end)
-	)
+		end
+		table.insert(
+			self._connections,
+			CollectionService:GetInstanceAddedSignal(tag):Connect(function(stray: Instance)
+				self:_watch(stray)
+			end)
+		)
+		table.insert(
+			self._connections,
+			CollectionService:GetInstanceRemovedSignal(tag):Connect(function(stray: Instance)
+				self:_unwatch(stray)
+			end)
+		)
+	end
 	return self :: CatchMark
 end
 

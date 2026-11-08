@@ -1560,6 +1560,13 @@ local SCENES = {
 		assert(markOf(other), "uigate: a NetDown set later should show its ! (#2005)")
 		other:SetAttribute("NetDown", nil)
 		assert(markOf(other) == nil, "uigate: the ! should go when the catch ends (#2005)")
+		-- #2469: the tackle lesson's staged cat (TackleStage.STRAY_TAG) with its NetDown gets the same !
+		other:RemoveTag("Stray")
+		other:AddTag("StagedStray")
+		other:SetAttribute("NetDown", true)
+		UI.catch.mark:destroy()
+		UI.catch.mark = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.CatchMark").new()
+		assert(markOf(other), "uigate: no ! over the tackle lesson's pinned cat (#2469)")
 		other:Destroy()
 	end },
 	-- #2015: no glyph in the Theme's icon tables is an emoji from Unicode 12 on, which Roblox's font draws blank (the
@@ -3539,6 +3546,28 @@ local SCENES = {
 		UIShim.fire(UIShim.eventOf(nextPill, "Activated"))
 		assert(caption.Text == "Get tackled and you drop your cat!", "uigate: Next did not move the lesson on (#2198)")
 		assert(#seen == 0, "uigate: the lesson was saved as seen before it ended (#2198)")
+		assert(gui:FindFirstChild("TackleCue", true) == nil, "uigate: the Tackle cue shows before its caption (#2469)")
+		-- #2469: the third caption shows the Tackle bar with this device's key and presses it as the lunge starts
+		UIShim.advance(1.1)
+		UIShim.fire(UIShim.eventOf(nextPill, "Activated"))
+		local cue = gui:FindFirstChild("TackleCue", true) :: Frame?
+		assert(cue and cue.Visible, "uigate: no Tackle bar on the lesson's third caption (#2469)")
+		local key = cue:FindFirstChild("Key") :: TextLabel?
+		local Logic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.TackleLessonLogic")
+		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
+		if Scale.isTouch() then
+			assert(key == nil, "uigate: the touch Tackle cue has a key cap (#2469)")
+		else
+			assert(key and key.Text == Logic.cueKey("keyboard"), "uigate: the Tackle cue's key cap is wrong (#2469)")
+		end
+		assert(cue:GetAttribute("Pressed") == nil, "uigate: the Tackle cue pressed before the lunge (#2469)")
+		local cueTop = cue.AbsolutePosition.Y + cue.AbsoluteSize.Y
+		assert(cueTop <= caption.AbsolutePosition.Y + 1, "uigate: the Tackle cue overlaps the caption (#2469)")
+		UIShim.advance(1.0)
+		assert(cue:GetAttribute("Pressed") == true, "uigate: the Tackle cue was not pressed as the lunge starts (#2469)")
+		UIShim.advance(1.1)
+		UIShim.fire(UIShim.eventOf(nextPill, "Activated"))
+		assert(gui:FindFirstChild("TackleCue", true) == nil, "uigate: the Tackle cue stays on the last caption (#2469)")
 		UIShim.advance(20)
 		assert(not UI.intro.playing(), "uigate: the lesson did not end by itself (#2198)")
 		assert(#seen == 1 and seen[1] == "tackle_lesson", "uigate: the lesson's end did not save the tackle tip as seen (#2198)")

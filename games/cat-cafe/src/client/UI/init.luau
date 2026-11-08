@@ -2830,6 +2830,14 @@ function UI.intro.playing(): boolean
 	return screen ~= nil and screen:playing()
 end
 
+-- #2469: the tackling lesson's Tackle bar over the caption, its key cap `key` ("" on touch), pressed `pressIn` seconds
+-- on as the staged lunge starts; nil clears it (Screens/Intro.tackleCue)
+function UI.intro.tackleCue(key: string?, pressIn: number?)
+	if introScreen then
+		introScreen:tackleCue(key, pressIn)
+	end
+end
+
 -- #2312: IntroController's stageTackle(shot), which takes the camera for the tackling lesson: 1 to 4 stage that
 -- shot, 0 ends it and gives the camera, controls and prompts back. The controller hands it over at start; the lesson
 -- (Screens/TackleLesson) calls it through `stage`.
@@ -4237,6 +4245,7 @@ do
 					setShot = UI.intro.setShot,
 					finish = UI.intro.finish,
 					playing = UI.intro.playing,
+					cue = UI.intro.tackleCue,
 					stage = function(shot: number)
 						local stager = UI.intro.tackleStager
 						if stager then

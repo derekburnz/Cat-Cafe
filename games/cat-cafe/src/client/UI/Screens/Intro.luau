@@ -19,6 +19,9 @@
 --                    anywhere but Skip, Space, Enter or gamepad A fires callbacks.nextShot(shot) once for that shot.
 --   read bar         #2182: a thin gold bar under the caption filling over the shot's hold, so a player sees when it
 --                    moves on by itself
+--   tackle cue       #2469: the tackling lesson's Tackle bar (TackleBar's look: dark pill, orange fill, 💨 TACKLE and
+--                    the key cap) just over the caption, pressed as the staged lunge starts: it dips, flashes gold
+--                    and empties as the real bar does after a tackle; on touch a 👆 taps it
 -- #2198: a short lesson (the tackling one, Screens/TackleLesson) plays on the same screen with start's `shots` (its
 -- dots), `skip = false` (no Skip: it is meant to be watched) and `onNext` (its own Next in place of callbacks.nextShot).
 -- Numbers live in Components/IntroLogic.
@@ -62,6 +65,7 @@ export type Intro = {
 	demoCatch: (self: Intro, worldPosition: Vector3) -> (),
 	jobCard: (self: Intro, worldPosition: Vector3, role: string) -> (),
 	tipPop: (self: Intro, worldPosition: Vector3, amount: number) -> (),
+	tackleCue: (self: Intro, key: string?, pressIn: number?) -> (), -- #2469
 	finish: (self: Intro) -> (),
 	playing: (self: Intro) -> boolean,
 	destroy: (self: Intro) -> (),
@@ -435,6 +439,7 @@ function Intro.start(self: any, options: Types.IntroOptions?)
 	self:_clearRing()
 	self:_clearJob()
 	self:_clearTip()
+	self:_clearCue()
 	self:_hideSkip()
 	self:_hideNext()
 	self._playing = true
@@ -868,6 +873,141 @@ function Intro.tipPop(self: any, worldPosition: Vector3, amount: number)
 	Tween.popIn(pop, 0.6)
 end
 
+-- #2469: the tackling lesson's Tackle bar over the caption, as TackleBar draws it, with `key` on its cap ("" for
+-- none: on touch the bar is the button). `pressIn` seconds on it is pressed as the staged lunge starts: it dips,
+-- flashes gold and empties, and on touch a finger taps it. nil clears it.
+local CUE_WIDTH = 220
+local CUE_INSET = 4
+local CUE_GAP = 12 -- px over the caption's top
+function Intro.tackleCue(self: any, key: string?, pressIn: number?)
+	self:_clearCue()
+	if key == nil or not self._playing then
+		return
+	end
+	local touch = Scale.isTouch()
+	local height = if touch then 44 else 34
+	local caption: TextLabel = self._captionLabel
+	local bar: Frame = Create("Frame", {
+		Name = "TackleCue",
+		BackgroundColor3 = Theme.hud.panel,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = caption.Position + UDim2.fromOffset(0, -(CAPTION_HEIGHT + CUE_GAP)),
+		Size = UDim2.fromOffset(CUE_WIDTH, height),
+		ZIndex = 5,
+		Parent = self._root,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+	})
+	Outline.border(bar, Theme.sizes.outline, Theme.hud.stroke)
+	local press = Create("UIScale", { Parent = bar })
+	local glow: UIStroke = Create("UIStroke", {
+		Name = "Glow",
+		Color = Theme.colors.gold,
+		Thickness = 0,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Parent = bar,
+	})
+	local fill: Frame = Create("Frame", {
+		Name = "Fill",
+		BackgroundColor3 = Theme.colors.warn,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(CUE_INSET, CUE_INSET),
+		Size = UDim2.new(1, -2 * CUE_INSET, 1, -2 * CUE_INSET),
+		ZIndex = 6,
+		Parent = bar,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+	})
+	Outline.shade(fill, 0.22)
+	local word: TextLabel = Create("TextLabel", {
+		Name = "Word",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody + 1,
+		TextColor3 = Theme.colors.white,
+		Text = "💨 TACKLE",
+		ZIndex = 8,
+		Parent = bar,
+	})
+	Outline.text(word, 2)
+	if key ~= "" then
+		local cap: TextLabel = Create("TextLabel", {
+			Name = "Key",
+			BackgroundColor3 = Theme.colors.paper,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0, 0.5),
+			Position = UDim2.new(0, CUE_INSET + 2, 0.5, 0),
+			Size = UDim2.fromOffset(height - 2 * CUE_INSET - 2, height - 2 * CUE_INSET - 2),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textSmall,
+			TextColor3 = Theme.colors.ink,
+			Text = key,
+			ZIndex = 9,
+			Parent = bar,
+		}, { Create("UICorner", { CornerRadius = UDim.new(0, 6) }) })
+		Outline.border(cap, 2)
+	end
+	Tween.popIn(bar, 0.85)
+	self._cue = bar
+	task.delay(math.max(pressIn or 0, 0), function()
+		if self._cue ~= bar then
+			return
+		end
+		bar:SetAttribute("Pressed", true)
+		if touch then
+			local finger: TextLabel = Create("TextLabel", {
+				Name = "Finger",
+				BackgroundTransparency = 1,
+				AnchorPoint = Vector2.new(0.5, 0),
+				Position = UDim2.new(0.62, 0, 0.45, 0),
+				Size = UDim2.fromOffset(40, 40),
+				FontFace = Theme.fonts.display,
+				TextSize = 34,
+				Text = "👆",
+				ZIndex = 10,
+				Parent = bar,
+			})
+			Tween.popIn(finger, 0.6)
+		end
+		-- the press: a dip and back, a gold flash round it, and the fill emptying as a used Tackle's does
+		Tween.to(
+			press,
+			TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+			{ Scale = 0.88 }
+		)
+		task.delay(0.1, function()
+			if self._cue == bar then
+				Tween.to(
+					press,
+					TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+					{ Scale = 1 }
+				)
+			end
+		end)
+		glow.Thickness = 4
+		Tween.to(
+			glow,
+			TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+			{ Thickness = 0 }
+		)
+		Tween.to(
+			fill,
+			TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+			{ Size = UDim2.new(0, 0, 1, -2 * CUE_INSET) }
+		)
+	end)
+end
+
+function Intro._clearCue(self: any)
+	local cue: Frame? = self._cue
+	if cue then
+		cue:Destroy()
+		self._cue = nil
+	end
+end
+
 function Intro._clearTip(self: any)
 	local loop: RBXScriptConnection? = self._tipLoop
 	if loop then
@@ -975,6 +1115,7 @@ function Intro.finish(self: any)
 	self:_clearRing()
 	self:_clearJob()
 	self:_clearTip()
+	self:_clearCue()
 	self:_hideSkip()
 	self:_hideNext()
 	self._root.Visible = false
@@ -998,6 +1139,7 @@ function Intro.destroy(self: any)
 	self:_clearRing()
 	self:_clearJob()
 	self:_clearTip()
+	self:_clearCue()
 	self:_hideSkip()
 	self:_hideNext()
 	for _, connection in self._connections do

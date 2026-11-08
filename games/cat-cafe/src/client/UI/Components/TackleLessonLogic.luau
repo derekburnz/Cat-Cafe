@@ -9,6 +9,8 @@
 --                                that saw the old tackle card still gets it), whose seen flag it saves
 --   lines(device) -> { string }  the captions; the third names the input the player last used (TipQueue.device)
 --   hold(caption) -> number      seconds a caption holds when nobody presses Next
+--   CUE_SHOT, cueKey(device)     #2469: the caption that shows the Tackle bar pressed as the lunge starts, and the
+--                                key cap on it ("Q", "Y", or "" on touch, where the bar itself is the button)
 -- Pure, so the cloud spec runner checks it.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -38,6 +40,15 @@ function TackleLessonLogic.lines(device: Device): { string }
 		(HOW :: any)[device] or HOW.keyboard,
 		"You're safe while catching a cat", -- #2312: since #2284 only the catch minigame is safe, not the camps
 	}
+end
+
+TackleLessonLogic.CUE_SHOT = 3
+
+local KEYS: { keyboard: string, touch: string, gamepad: string } =
+	{ keyboard = "Q", touch = "", gamepad = "Y" }
+
+function TackleLessonLogic.cueKey(device: Device): string
+	return (KEYS :: any)[device] or KEYS.keyboard
 end
 
 function TackleLessonLogic.hold(caption: string): number

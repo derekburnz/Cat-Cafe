@@ -37,6 +37,14 @@ return function()
 			end
 		)
 
+		it("shows the Tackle cue on the third caption with that device's key (#2469)", function()
+			expect(TackleLessonLogic.CUE_SHOT).to.equal(3)
+			expect(TackleLessonLogic.cueKey("keyboard")).to.equal("Q")
+			expect(TackleLessonLogic.cueKey("gamepad")).to.equal("Y")
+			expect(TackleLessonLogic.cueKey("touch")).to.equal("")
+			expect(TackleLessonLogic.cueKey("toaster" :: any)).to.equal("Q")
+		end)
+
 		it("holds each caption 1 s plus 0.4 s a word, as the intro does", function()
 			expect(
 				math.abs(TackleLessonLogic.hold("Get tackled and you drop your cat!") - 3.8) < 1e-9

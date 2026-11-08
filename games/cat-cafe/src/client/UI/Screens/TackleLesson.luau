@@ -9,9 +9,16 @@
 -- #2312 (Derek2: "the cut scene for explaining tackling doesn't actually take control of your camera like tutorial"):
 -- api.stage(index) has IntroController stage each caption's shot (you carrying, a tackle knocking you, the cat
 -- dropping, then a pull-up over the scene), and stage(0) at the end gives the camera back.
+-- #2469 (Derek2): on the third caption ("Tap Tackle near a carrier", Q or Y) api.cue shows the Tackle bar over the
+-- caption and presses it as the staged lunge starts, TackleStage.LUNGE_AT after the shot is staged; cue(nil) clears it.
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local TackleLessonLogic = require(script.Parent.Parent.Components.TackleLessonLogic)
 local Types = require(script.Parent.Parent.Types)
+
+local TackleStage =
+	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("TackleStage")) :: any
 
 export type Api = {
 	start: (options: Types.IntroOptions?) -> (),
@@ -20,6 +27,8 @@ export type Api = {
 	playing: () -> boolean,
 	-- #2312: the controller's camera for each caption (1 to 4), and 0 to give the camera back; nil leaves it alone
 	stage: ((shot: number) -> ())?,
+	-- #2469: the Tackle bar over the caption with this key cap ("" on touch), pressed `pressIn` seconds on; nil clears
+	cue: ((key: string?, pressIn: number?) -> ())?,
 }
 
 local TackleLesson = {}
@@ -33,6 +42,10 @@ function TackleLesson.play(api: Api, device: TackleLessonLogic.Device, done: () 
 			return
 		end
 		ended = true
+		local cue = api.cue
+		if cue then
+			cue(nil)
+		end
 		local stage = api.stage
 		if stage then
 			stage(0)
@@ -59,6 +72,18 @@ function TackleLesson.play(api: Api, device: TackleLessonLogic.Device, done: () 
 			stage(index)
 		end
 		api.setShot(index, caption, nil, hold)
+		local cue = api.cue
+		if cue then
+			local lunge = if type(TackleStage.LUNGE_AT) == "number"
+				then TackleStage.LUNGE_AT
+				else 0.9
+			cue(
+				if index == TackleLessonLogic.CUE_SHOT
+					then TackleLessonLogic.cueKey(device)
+					else nil,
+				lunge
+			)
+		end
 		task.delay(hold, function()
 			if shown == index then
 				show(index + 1)

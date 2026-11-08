@@ -18,7 +18,7 @@ At $0.008 a play, $10 to $15 a day buys about 1,250 to 1,900 plays a day, or abo
 5. **Thumbnails that win** (Roblox staff tips on thumbnail personalization, Feb 2025): make each one clearly different (a different player reason to play, not the same scene recoloured), show real gameplay and new content, never clickbait (it can trigger low-quality warnings and players bounce). Games that tested up to 5 organic thumbnails saw an average +12% in play-through, up to +56%. Don't restart a thumbnail test before 7 days or the next update.
 6. **What popular games do.** Grow a Garden: a friendly, non-competitive loop, a clear hook on the icon ("Grows Offline"), and an update at a fixed time every Saturday with a limited-time event, so players learn when to come back. SpongeBob Tower Defense shipped 52 weekly updates in a row. Deconstructor of Fun's 2026 read: Roblox ads cost "less than a penny per user" and are best for starting the flywheel and boosting after a big update; Home recommendations are the real engine, and the thumbnail, details page and first minutes are what move them.
 
-## The 8 starting thumbnails (Derek2: start with 6 to 10)
+## The 9 starting thumbnails (Derek2: start with 6 to 10)
 Each one shows a different reason to play, uses real in-game scenes, one short line of text at most, and nothing paid. Store-art makes them (asset-artist lane); I will open a `store-art` issue when Derek2 says go.
 | # | Hook | What is in the picture | Text (optional) |
 |---|---|---|---|
@@ -30,13 +30,14 @@ Each one shows a different reason to play, uses real in-game scenes, one short l
 | F | Friends | 3 or 4 players together rescuing or playing with cats | "Play with friends" |
 | G | Before and after | Empty cafe on the left, full cafe on the right | none |
 | H | Cozy mood | Night cafe, warm lights, cats sleeping | none |
-Optional 9 and 10: the game icon as a thumbnail (often a weak click-to-play, kept as a control) and a short in-game video if Ads Manager offers video for us at the time.
+| I | Cats at work (Derek2, 2026-11-08: "a scene of cats carrying to customers or making food") | A busy cafe at daytime: one cat carrying a tray to a smiling customer, another cat cooking behind the counter, tip piles on the tables | "Your cats run the cafe!" |
+Optional 10: the game icon as a thumbnail (often a weak click-to-play, kept as a control) and a short in-game video if Ads Manager offers video for us at the time.
 
 ## The week, day by day (Derek2's plan with numbers)
 Ad day 1 is launch day 2 (launch day 1 stays friends-only, per the launch plan).
 | Ad day | Spend | What happens | Decision rule |
 |---|---|---|---|
-| 1 | $10 to $15 | One Plays campaign, New Players, all 8 thumbnails, daily budget. Targeting left broad (all devices, all locations Roblox offers) unless Derek2 picks otherwise. | none, just let it run |
+| 1 | $10 to $15 | One Plays campaign, New Players, all 9 thumbnails, daily budget. Targeting left broad (all devices, all locations Roblox offers) unless Derek2 picks otherwise. | none, just let it run |
 | 2 | same | First look. Plays may still be catching up, so judge on CTR and clicks. | Pause any thumbnail under **1.5% CTR** with at least 2,000 impressions. |
 | 3 | same | Plays from day 1 are in now. | Pause any thumbnail with CPP over **$0.016** (twice the bar) or click-to-play under 2%, once it has 100 or more clicks. Keep at most 4 to 5. |
 | 4 | same | Run the survivors. | Lower or pause the weakest if one is clearly behind on CPP. |

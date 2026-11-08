@@ -48,6 +48,9 @@ local IntroController = {}
 local player = Players.LocalPlayer
 local RENDER_STEP = "CatCafeIntro"
 local DEMO_FADE_SECONDS = 0.4 -- with no copy of you to catch it, the demo cat fades at the hop instead
+local LESSON_IN = 3 -- #2446: the tackling lesson's viewpoint, this far into the Alleyway past the middle of its way in
+local LESSON_CLEAR = 4 -- real strays this much further out than the intro's DEMO_HIDE_RADIUS are hidden for it
+local LESSON_CAMERA_BACK = 60 -- studs: the lesson's end puts back the view it started with only this near the player
 local STREAMED_RADIUS = 40 -- a camp counts as streamed in when a part stands this close to the point checked
 local WHEEL_TURNS = 2
 local BLEND = 0.15 -- seconds an animation of your copy fades in or out
@@ -1585,8 +1588,24 @@ local function lessonEnd()
 	end
 	local camera = Workspace.CurrentCamera
 	if camera ~= nil then
-		camera.CameraType = l.cameraTypeWas
-		camera.CFrame = l.cameraWas
+		-- the camera goes back to following the player (Laptop-Tester on #2452: right after the intro the type saved
+		-- at the lesson's start can still be Fixed, which left the view down the Alleyway, far from the player)
+		local character = player.Character
+		local humanoid = if character ~= nil
+			then character:FindFirstChildOfClass("Humanoid") :: Humanoid?
+			else nil
+		camera.CameraType = Enum.CameraType.Custom
+		if humanoid ~= nil then
+			camera.CameraSubject = humanoid
+		end
+		-- the view it had, when that was near the player; otherwise the follow camera finds the player itself
+		local root = rootOf(character)
+		if
+			root ~= nil
+			and (l.cameraWas.Position - root.Position).Magnitude <= LESSON_CAMERA_BACK
+		then
+			camera.CFrame = l.cameraWas
+		end
 	end
 	if l.controls ~= nil then
 		pcall(function()
@@ -1605,9 +1624,26 @@ local function lessonBegin(): Lesson?
 		return nil
 	end
 	local r: any = { staged = {}, hidden = {}, tweens = {} }
-	local feet = (root :: BasePart).Position
-		- Vector3.new(0, (humanoid :: Humanoid).HipHeight + (root :: BasePart).Size.Y / 2, 0)
-	local scene = TackleStage.scene(feet, (root :: BasePart).CFrame.LookVector)
+	-- #2446 (Derek2: "show the tackling scene in an actual area using a cat instead of at spawn inside of the
+	-- cannon"): the lesson follows the starting tutorial, when the player is usually at spawn on the town cannon, so
+	-- it is staged in the Alleyway, where the intro's catch is filmed: LESSON_IN studs past the middle of its way in,
+	-- facing into the lane (90 wide, so the whole scene is on open floor). The camera glides there and back; the
+	-- player stays put. Without the camp (no Alleyway in this place) it falls back to the player's feet.
+	local camp = Intro.camp(Intro.AREA)
+	local scene: TackleStage.Scene
+	if camp ~= nil then
+		scene = TackleStage.scene(camp.wayOut + camp.u * LESSON_IN, camp.u)
+		streamAround(scene.centre)
+		-- real strays wandering through the shots are hidden on this screen, as in the intro's catch
+		local points = { scene.walkFrom, scene.walkTo, scene.tackler, scene.centre }
+		for _, real in straysNear(points, Intro.DEMO_HIDE_RADIUS + LESSON_CLEAR) do
+			hide(r, real)
+		end
+	else
+		local feet = (root :: BasePart).Position
+			- Vector3.new(0, (humanoid :: Humanoid).HipHeight + (root :: BasePart).Size.Y / 2, 0)
+		scene = TackleStage.scene(feet, (root :: BasePart).CFrame.LookVector)
+	end
 	local l: Lesson = {
 		r = r,
 		scene = scene,

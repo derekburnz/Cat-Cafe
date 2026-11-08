@@ -203,6 +203,8 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 	end
 	self._top = bar("TopBar")
 	self._bottom = bar("BottomBar")
+	self._lowerBar = IntroLogic.lowerBar(Scale.isTouch()) -- #2394: none on touch, more camera
+	self._bottom.Visible = self._lowerBar
 
 	local root: Frame = Create("Frame", {
 		Name = "Root",
@@ -395,11 +397,18 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 	return self :: Intro
 end
 
--- The Skip pill grows to a finger's size on touch and sits on the lower bar however tall the screen is.
+-- The Skip pill grows to a finger's size on touch and sits on the lower bar however tall the screen is; with no
+-- lower bar (touch, #2394) it sits NO_BAR_EDGE over the bottom edge and the caption and read bar just over it.
 function Intro._layout(self: any)
 	local camera = Workspace.CurrentCamera
 	local viewport = if camera then camera.ViewportSize else Scale.DESIGN
-	local height, below = IntroLogic.skipPlace(viewport.Y, Scale.get(), Scale.isTouch())
+	local noBar = not self._lowerBar
+	local height, below = IntroLogic.skipPlace(viewport.Y, Scale.get(), Scale.isTouch(), noBar)
+	if noBar then
+		local pillTop = below + height
+		self._captionLabel.Position = UDim2.new(0.5, 0, 1, -(pillTop + 10))
+		self._read.Position = UDim2.new(0.5, 0, 1, -(pillTop + 4))
+	end
 	local width = SKIP_WIDTH + height - IntroLogic.SKIP_HEIGHT
 	self._skipButton.Size = UDim2.fromOffset(width, height)
 	self._skipButton.Position = UDim2.new(1, -SIDE, 1, -below)

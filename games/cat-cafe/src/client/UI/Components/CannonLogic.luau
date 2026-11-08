@@ -26,6 +26,9 @@ export type HintView = {
 	told: boolean, -- the onboarding line (UI.tutorial.show) is up
 	opened: string?, -- the area a rank up to Tier 2 opened this session, until the next launch
 	first: string?, -- the Tier 1 area's name, for the first flight
+	-- #2477: the walk-through ended this session (tutorialStep reached WALKTHROUGH_STEP, the bait bowl step done), and
+	-- nothing has launched since
+	wrapUp: boolean?,
 }
 
 local CannonLogic = {}
@@ -39,6 +42,9 @@ CannonLogic.CARRY_REFUSED = "Bring your cat to the camp first"
 -- hint stops for good, and the Tutorial tile's × hides the tutorial strip; before it the walk-through shows anyway
 -- ("should still make the first walk through of the game play after closing the X").
 CannonLogic.WALKTHROUGH_STEP = 5
+-- #2477 (Derek2: "the tutorial should guide you to cannon after bait bowl"): the line once the walk-through's last
+-- step (the bowl) is done this session, until the next flight
+CannonLogic.WRAP_UP_HINT = "Hop in the cannon to catch more cats!"
 CannonLogic.HINT_TIER = 2 -- the rank up that gets its own "is open!" hint (section 3a)
 -- how long that hint, its marker and its trail of dots stay up when the player does not fly (Derek 2026-11-03: "the
 -- tutorial yellow dots are still showing")
@@ -183,7 +189,9 @@ end
 -- The hint line and arrow at the cannon (section 3a): "The Park is open! Hop in the cannon to fly there." after the
 -- rank up to Tier 2, and "Hop in the cannon to fly to the Alleyway!" for a Tier 1 player who has not flown yet this
 -- session. Only in town and never during the intro. Before the first catch it takes the place of the onboarding
--- line (the catch needs the flight); after that the onboarding line comes first.
+-- line (the catch needs the flight); after that the onboarding line comes first. #2477: once the walk-through ends
+-- this session (the bait bowl step), "Hop in the cannon to catch more cats!" with the arrow until the next flight,
+-- ahead of any onboarding line; it is session-only, so a rejoin does not bring it back (#2411).
 function CannonLogic.hint(view: HintView): string?
 	if not view.on or view.wild or view.intro then
 		return nil
@@ -198,6 +206,8 @@ function CannonLogic.hint(view: HintView): string?
 		and view.tutorialStep < CannonLogic.WALKTHROUGH_STEP
 	then
 		text = "Hop in the cannon to fly to the " .. view.first .. "!"
+	elseif view.wrapUp and not view.launched then
+		return CannonLogic.WRAP_UP_HINT
 	end
 	if text and view.told and view.tutorialStep >= 2 then
 		return nil

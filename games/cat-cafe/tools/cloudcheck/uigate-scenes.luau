@@ -3510,6 +3510,27 @@ local SCENES = {
 	-- #2198 (Derek2: "a forced cut scene after first catch"): the server's tackle tip plays as the tackling lesson on
 	-- the intro's screen: four captions with four dots, the read bar and Next, no Skip; it ends by itself and saves
 	-- the tip as seen
+	-- #2477 (Derek2: "the tutorial should guide you to cannon after bait bowl"): the walk-through ending this session
+	-- (step 4, the bowl, to 5) puts "Hop in the cannon to catch more cats!" on the tutorial strip, with the arrow
+	{ "CannonAfterBowl", function()
+		UI.cannon.setWild(nil)
+		UI.update({ tutorialStep = 4, tier = 2 } :: any)
+		UI.update({ tutorialStep = 5 } :: any)
+		task.wait(0.1)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD", true) :: Instance
+		local texts: { string } = {}
+		for _, piece in hud:GetDescendants() do
+			if piece.Name == "Tutorial" and piece:IsA("TextLabel") and piece.Visible then
+				table.insert(texts, piece.Text)
+			end
+		end
+		assert(
+			table.find(texts, "Hop in the cannon to catch more cats!"),
+			"uigate: the tutorial strip after the bowl reads " .. table.concat(texts, " | ") .. " (#2477)"
+		)
+		UI.cannon.wrapUp.on = false -- as a flight clears it, so later scenes keep their own lines
+		UI.update({ tutorialStep = 9 } :: any)
+	end },
 	{ "TackleLesson", function()
 		local seen: { string } = {}
 		local counting = UI.events.tipSeen:Connect(function(id: string)

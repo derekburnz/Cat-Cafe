@@ -15,6 +15,8 @@
 #         events.sh test [effects JSON]       a 5 minute event starting in about 2 minutes (id test-<time>)
 #         events.sh remove <id>
 #         events.sh clear                     an empty schedule: no event runs or counts down
+#         events.sh roblox                    list the experience's Roblox Experience Events (Creator Hub > Engagement >
+#                                             Events & Updates; Open Cloud game-events, needs universe.event:read)
 # effects, every part optional (left out: no boost), for example
 #   {"days":["lucky","golden","rainbow"],"money":2,"luck":0.5,"showers":{"count":8,"gapSeconds":900,"firstAfter":600},
 #    "reward":{"cosmeticId":"Decor_PartyBunting"}}
@@ -58,7 +60,7 @@ BIG_GAP=$(cap EventBigMinGapSeconds 518400)
 LIST_MAX=$(cap EventScheduleMax 10)
 
 usage() {
-	echo 'usage: events.sh show | add <id> <title> <"YYYY-MM-DD HH:MM" UTC> <minutes> [big] [effects JSON] | test [effects JSON] | remove <id> | clear' >&2
+	echo 'usage: events.sh show | roblox | add <id> <title> <"YYYY-MM-DD HH:MM" UTC> <minutes> [big] [effects JSON] | test [effects JSON] | remove <id> | clear' >&2
 	exit 2
 }
 
@@ -213,10 +215,32 @@ effects_json() {
 		refuse "effects must be a JSON object, got: $text"
 }
 
+
+# roblox: the experience's Roblox Experience Events (the "Notify Me" ones on the game page), read only. Open Cloud
+# game-events (create.roblox.com/docs/cloud/reference/features/virtual-events); prints only event fields.
+roblox() {
+	call GET "https://apis.roblox.com/virtual-events/v3/universes/$UNIVERSE_ID/game-events"
+	if [ "$status" != 200 ]; then
+		echo "Open Cloud answered HTTP $status: $body" >&2
+		case "$status" in
+		401 | 403) echo "The key needs universe.event:read on universe $UNIVERSE_ID." >&2 ;;
+		esac
+		exit 1
+	fi
+	echo "== Roblox Experience Events (HTTP $status; fields: $(jq -r '[(.gameEvents // .data // .events // [])[0] // {} | keys[]] | join(", ")' <<<"$body"))"
+	jq -r '(.gameEvents // .data // .events // []) as $l | if ($l | length) == 0 then "No Experience Events."
+		else $l[] | "\(.id // .path // "?") \"\(.title // .displayTitle // "")\" \(.startTime // .eventTime.startTime // "?") to \(.endTime // .eventTime.endTime // "?"), \(.visibility // .eventVisibility // "?"), \(.status // .eventStatus // "")" end' <<<"$body"
+}
+
 action=${1:-show}
 case "$action" in
 show)
 	[ $# -le 1 ] || usage
+	;;
+roblox)
+	[ $# -le 1 ] || usage
+	roblox
+	exit 0
 	;;
 add)
 	[ $# -ge 5 ] && [ $# -le 7 ] || usage

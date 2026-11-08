@@ -11,9 +11,9 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "show | add | test (5 minutes, starting in about 2) | remove (by id) | clear (empty the schedule)"
+        description: "show | add | test (5 minutes, starting in about 2) | remove (by id) | clear (empty the schedule) | roblox (list the Creator Hub Experience Events, read only)"
         type: choice
-        options: [show, add, test, remove, clear]
+        options: [show, add, test, remove, clear, roblox]
         default: show
       store:
         description: "live (CatCafe_Events) or dev (CatCafe_Events_dev, what Studio reads)"
@@ -61,7 +61,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
-      ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
+      # OWNER_KEY (the group owner's key, with universe.event:read and :write as well as the data store scopes) wins
+      ROBLOX_PUBLISH_KEY: ${{ secrets.OWNER_KEY || secrets.ROBLOX_PUBLISH_KEY }}
       EVENTS_STORE: ${{ inputs.store }}
       ACTION: ${{ inputs.action }}
       ID: ${{ inputs.id }}
@@ -98,4 +99,5 @@ jobs:
           test) bash "$script" test "$EFFECTS" ;;
           remove) bash "$script" remove "$ID" ;;
           clear) bash "$script" clear ;;
+          roblox) bash "$script" roblox ;;
           esac

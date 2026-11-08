@@ -73,8 +73,11 @@ local KINDS: { Kind } = {
 	},
 }
 
-local prompts: { [Instance]: ProximityPrompt? } = setmetatable({}, { __mode = "k" }) :: any
-local keys: { [Instance]: string } = setmetatable({}, { __mode = "k" }) :: any
+-- Strong tables, cleared when the station is destroyed: a weak-keyed table by Instance lost its entries while the
+-- model still stood (Laptop-Tester on #2427), the station took a new key, and the walk-up read that as walking away
+-- and shut the window after a second
+local prompts: { [Instance]: ProximityPrompt? } = {}
+local keys: { [Instance]: string } = {}
 local lastKey = 0
 
 -- The station's prompt, found once and again if it streamed out.
@@ -97,6 +100,10 @@ local function keyOf(model: Instance): string
 		lastKey += 1
 		key = tostring(lastKey)
 		keys[model] = key
+		model.Destroying:Connect(function()
+			keys[model] = nil
+			prompts[model] = nil
+		end)
 	end
 	return key :: string
 end
@@ -177,12 +184,14 @@ function WalkUpController.start()
 						continue -- the templates in ReplicatedStorage.Assets carry the tags too
 					end
 					local prompt = promptOf(model, kind.prompt)
-					local live = prompt ~= nil and prompt.Enabled
+					-- a prompt that is off (during a flight, say) still measures, so landing inside a ring is not
+					-- read as stepping in once the prompt comes back; it only cannot open the window (WalkUp.step)
+					local off = prompt == nil or not prompt.Enabled
 					local hasRing, centre, ringRadius = ringOf(model)
-					local position = if not live
-						then nil
-						elseif hasRing then centre
-						else promptPosition(prompt :: ProximityPrompt)
+					local position = if hasRing
+						then centre
+						elseif prompt ~= nil then promptPosition(prompt :: ProximityPrompt)
+						else nil
 					local distance = if at ~= nil and position ~= nil
 						then Vector2.new(at.X - position.X, at.Z - position.Z).Magnitude
 						else nil
@@ -194,6 +203,7 @@ function WalkUpController.start()
 						key = key,
 						window = kind.window,
 						distance = distance,
+						off = off,
 						radius = if hasRing
 							then ringRadius
 							elseif

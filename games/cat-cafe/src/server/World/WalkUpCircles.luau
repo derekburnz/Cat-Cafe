@@ -5,7 +5,7 @@
 -- Cat's circle: a soft fill and a bright rim in the station's own colour, drawn flat on a SurfaceGui that ignores the
 -- light, so it glows by day and night without Neon bloom.
 --   front(model, color, range, into?)   a ring on the floor in front of the station (its -Z, which faces the cannon)
---   around(model, color, range, into?)  a ring on the floor all the way round it (the Cat Cannons)
+--   around(model, color, range, into?, cap?)  a ring all the way round it (the Cat Cannons), at most `cap` wide
 -- `range` is the server's reach for the station's window, so the whole ring stays inside it (shared/WalkUp). The ring
 -- goes in `into`, else beside the model.
 --
@@ -127,13 +127,19 @@ function WalkUpCircles.front(model: Model, color: Color3, range: number, into: I
 end
 
 -- A ring round the whole station, centred on its pivot.
-function WalkUpCircles.around(model: Model, color: Color3, range: number, into: Instance?)
+function WalkUpCircles.around(
+	model: Model,
+	color: Color3,
+	range: number,
+	into: Instance?,
+	cap: number?
+)
 	local _, half, bottom = footprint(model)
 	local at = model:GetPivot().Position
 	ring(
 		model,
 		Vector3.new(at.X, bottom + LIFT, at.Z),
-		WalkUp.aroundRadius(half, range),
+		WalkUp.aroundRadius(half, range, cap),
 		color,
 		into
 	)

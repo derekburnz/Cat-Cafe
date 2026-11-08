@@ -12,6 +12,8 @@
 --                                     all the way around it)
 --   frontOffset(front, radius, range) how far in front of a station's pivot its ring's centre sits
 --   aroundRadius(half, range)         the radius of a ring all the way round a station
+--   fitRing(radius, blocks, most, least, keep?)  where that ring moves, and how small it gets, to clear what stands
+--                                     in it while still holding the station's base
 -- Pure, so the cloud spec runner checks it; Controllers/WalkUpController measures and opens, World/WalkUpCircles
 -- lays the rings.
 
@@ -44,6 +46,96 @@ end
 function WalkUp.aroundRadius(half: number, range: number, cap: number?): number
 	local most = math.min(range - WalkUp.EDGE_SLACK, cap or math.huge)
 	return math.max(1, math.min(math.max(0, half) + WalkUp.AROUND_PAD, most))
+end
+
+-- How far a ring may slide off its station's pivot to clear a wall (#2433), and the floor kept between its rim and
+-- what it clears.
+WalkUp.FIT_SHIFT_MAX = 1.5
+WalkUp.FIT_CLEAR = 0.02
+
+-- #2433 (Laptop-Tester on #2432: each camp's cannon ring ran up to 1.1 studs under the camp's low side wall): a ring of
+-- `radius` round a station, with `blocks` the flat points (from the station's pivot) where something stands on its
+-- floor, and `keep` the points of the station's own base that the ring must hold (Laptop-Tester on #2435: sliding off
+-- the wall alone left the cannon's base trim 0.73 studs past the rim). It slides away from the blocks while it still
+-- holds `keep`, at most `most` studs, then shrinks to clear what is left, never below `least` and never so far that
+-- `keep` pokes out. Where both can't be had, the station stays inside. Kept points past `radius` from the pivot are
+-- left out. Returns the slide and the radius.
+function WalkUp.fitRing(
+	radius: number,
+	blocks: { Vector2 },
+	most: number,
+	least: number,
+	keep: { Vector2 }?
+): (Vector2, number)
+	local shift = Vector2.zero
+	local limit = math.max(0, most)
+	-- only what the ring holds where it starts: a base wider than the ring could never be held, and chasing it would
+	-- throw the ring about
+	local hold: { Vector2 } = {}
+	local given: { Vector2 } = keep or {}
+	for _, point in given do
+		if point.Magnitude <= radius then
+			table.insert(hold, point)
+		end
+	end
+	-- each pass moves by the average of every push (off a block) and pull (back over a kept point), so pushes on
+	-- opposite sides cancel instead of bouncing, and a wall and the station's own base meet in the middle
+	for _ = 1, 60 do
+		local push = Vector2.zero
+		local count = 0
+		for _, block in blocks do
+			local away = block - shift
+			local gap = radius + WalkUp.FIT_CLEAR - away.Magnitude
+			if gap > 1e-4 and away.Magnitude > 1e-3 then
+				push -= away.Unit * gap
+				count += 1
+			end
+		end
+		for _, point in hold do
+			local away = point - shift
+			local over = away.Magnitude - radius
+			if over > 1e-4 then
+				push += away.Unit * over
+				count += 1
+			end
+		end
+		if count == 0 or push.Magnitude / count < 1e-4 then
+			break
+		end
+		shift += push / count
+		if shift.Magnitude > limit then
+			shift = if limit > 0 then shift.Unit * limit else Vector2.zero
+		end
+	end
+	-- then the station's base wins: pull back until every kept point is inside, if the wall and the base can't both
+	-- be had
+	for _ = 1, 60 do
+		local worst: Vector2? = nil
+		local over = 1e-4
+		for _, point in hold do
+			local beyond = (point - shift).Magnitude - radius
+			if beyond > over then
+				over = beyond
+				worst = point
+			end
+		end
+		if worst == nil then
+			break
+		end
+		shift += ((worst :: Vector2) - shift).Unit * over
+	end
+	local fitted = radius
+	for _, block in blocks do
+		local room = (block - shift).Magnitude - WalkUp.FIT_CLEAR
+		if room < fitted - 1e-3 then
+			fitted = room
+		end
+	end
+	local reach = 0
+	for _, point in hold do
+		reach = math.max(reach, (point - shift).Magnitude)
+	end
+	return shift, math.min(radius, math.max(math.min(least, radius), reach, fitted))
 end
 
 -- One station this look: its key, the window it opens (the UI's modal name), the flat studs from the character

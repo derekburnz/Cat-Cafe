@@ -5,7 +5,8 @@
 -- Cat's circle: a soft fill and a bright rim in the station's own colour, drawn flat on a SurfaceGui that ignores the
 -- light, so it glows by day and night without Neon bloom.
 --   front(model, color, range, into?)   a ring on the floor in front of the station (its -Z, which faces the cannon)
---   around(model, color, range, into?, cap?)  a ring all the way round it (the Cat Cannons), at most `cap` wide
+--   around(model, color, range, into?, cap?)  a ring all the way round it (the Cat Cannons), at most `cap` wide, slid
+--                                         off a wall on its floor (#2433)
 -- `range` is the server's reach for the station's window, so the whole ring stays inside it (shared/WalkUp). The ring
 -- goes in `into`, else beside the model.
 --
@@ -15,6 +16,7 @@
 -- its top face draws the circle with a rounded Frame and a UIStroke.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local WalkUp = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("WalkUp"))
 
@@ -26,6 +28,11 @@ local RIM = 0.3 -- studs: the bright rim
 local HALO = 0.35 -- studs: the softer band inside it
 local FILL = 0.82 -- the disc's see-through share
 local HALO_SEEN = 0.55
+-- #2433: what stands on a round ring's floor is found by PROBES flat rays out from its centre, PROBE_UP studs over the
+-- station's lowest point (low enough to meet a camp's 0.3-stud side wall), and the ring slides off it
+local PROBES = 48
+local PROBE_UP = 0.15
+local BASE_UP = 1.5 -- studs over its lowest point that count as the station's base, which the ring must hold
 
 -- The station's footprint in its own frame: how far its widest point reaches from the pivot along -Z (its front) and
 -- in any flat direction, and the height of its lowest point.
@@ -126,7 +133,56 @@ function WalkUpCircles.front(model: Model, color: Color3, range: number, into: I
 	ring(model, Vector3.new(at.X, bottom + LIFT, at.Z), radius, color, into)
 end
 
--- A ring round the whole station, centred on its pivot.
+-- The flat points, from `centre`, where something other than the station stands on the floor within `reach`.
+local function blocksAround(model: Model, centre: Vector3, reach: number): { Vector2 }
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = { model }
+	params.IgnoreWater = true
+	params.RespectCanCollide = true -- walls and props, not the see-through trigger volumes that walk through
+	local found: { Vector2 } = {}
+	for index = 1, PROBES do
+		local angle = (index - 1) / PROBES * math.pi * 2
+		local direction = Vector3.new(math.cos(angle), 0, math.sin(angle))
+		local hit = Workspace:Raycast(centre, direction * reach, params)
+		if hit ~= nil then
+			table.insert(found, Vector2.new(hit.Position.X - centre.X, hit.Position.Z - centre.Z))
+		end
+	end
+	return found
+end
+
+-- The flat corners, from `centre`, of the station's visible parts that start within BASE_UP of its lowest point: its
+-- base on the floor, which a fitted ring still holds (Laptop-Tester on #2435).
+local function baseOf(model: Model, centre: Vector3, bottom: number): { Vector2 }
+	local found: { Vector2 } = {}
+	for _, piece in model:GetDescendants() do
+		if piece:IsA("BasePart") and piece.Transparency < 1 then
+			local half = piece.Size / 2
+			local corners: { Vector3 } = {}
+			local low = math.huge
+			for _, x in { -1, 1 } do
+				for _, y in { -1, 1 } do
+					for _, z in { -1, 1 } do
+						local corner = piece.CFrame
+							* Vector3.new(half.X * x, half.Y * y, half.Z * z)
+						low = math.min(low, corner.Y)
+						table.insert(corners, corner)
+					end
+				end
+			end
+			if low <= bottom + BASE_UP then
+				for _, corner in corners do
+					table.insert(found, Vector2.new(corner.X - centre.X, corner.Z - centre.Z))
+				end
+			end
+		end
+	end
+	return found
+end
+
+-- A ring round the whole station, centred on its pivot, slid off (and if need be shrunk to clear) anything standing
+-- on its floor, such as a camp's low side wall (#2433), while it still holds the station's own base.
 function WalkUpCircles.around(
 	model: Model,
 	color: Color3,
@@ -136,13 +192,12 @@ function WalkUpCircles.around(
 )
 	local _, half, bottom = footprint(model)
 	local at = model:GetPivot().Position
-	ring(
-		model,
-		Vector3.new(at.X, bottom + LIFT, at.Z),
-		WalkUp.aroundRadius(half, range, cap),
-		color,
-		into
-	)
+	local radius = WalkUp.aroundRadius(half, range, cap)
+	local most = math.min(WalkUp.FIT_SHIFT_MAX, range - WalkUp.EDGE_SLACK - radius)
+	local reach = radius + WalkUp.FIT_CLEAR + math.max(0, most)
+	local blocks = blocksAround(model, Vector3.new(at.X, bottom + PROBE_UP, at.Z), reach)
+	local shift, fitted = WalkUp.fitRing(radius, blocks, most, 1, baseOf(model, at, bottom))
+	ring(model, Vector3.new(at.X + shift.X, bottom + LIFT, at.Z + shift.Y), fitted, color, into)
 end
 
 return WalkUpCircles

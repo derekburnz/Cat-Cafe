@@ -700,6 +700,28 @@ end
 -- presses a button the way a player does: the first TextButton or ImageButton named `name` under the window;
 -- "Daily.Quest2.Claim" walks down one name at a time
 -- #2314: tutorial step 3 (a table to buy), with its strip, so the Upgrades tile glows and the big arrow comes
+-- #2403 (Derek2: "the equip best for decor top of banner is too big and sticking out and also equip best disappears
+-- while in style menu"): the Decor window's Equip Best shows, within its header's top and bottom edges
+local function assertEquipBestInHeader(where: string)
+	local modal = UIShim.playerGui:FindFirstChild("CatCafeModals") :: ScreenGui
+	local best = modal:FindFirstChild("EquipBest", true) :: GuiObject
+	assert(best and best.Visible, "uigate: no Equip Best on " .. where .. " (#2403)")
+	local header = (best.Parent :: Instance):FindFirstChild("Header", true) :: GuiObject
+	assert(header, "uigate: the Decor window has no header (#2403)")
+	local top, bottom = best.AbsolutePosition.Y, best.AbsolutePosition.Y + best.AbsoluteSize.Y
+	local headTop, headBottom = header.AbsolutePosition.Y, header.AbsolutePosition.Y + header.AbsoluteSize.Y
+	assert(
+		top >= headTop - 1 and bottom <= headBottom + 1,
+		("uigate: Equip Best (%d to %d) sticks out of the header (%d to %d) on %s (#2403)"):format(
+			top,
+			bottom,
+			headTop,
+			headBottom,
+			where
+		)
+	)
+end
+
 local function tutorialArrowStep()
 	local levels = { tables = 0, lure_bowl = 0, espresso = 0, net = 0, lucky_cat = 0 }
 	UI.update({ tutorialStep = 3, tier = 1, upgradeLevels = levels } :: any)
@@ -956,6 +978,7 @@ local SCENES = {
 	end },
 	{ "Decor", function()
 		UI.open("Decor")
+		assertEquipBestInHeader("the All tab")
 	end },
 	-- #2053 (Derek2: "fish tank background shows blue but its an epic"): a crate piece's picture sits on its rarity's
 	-- tint (the Epic Fish tank purple, the Rare Neon cat sign blue), as its pill
@@ -1066,6 +1089,7 @@ local SCENES = {
 		})
 		UI.open("Decor")
 		press("Decor", "Style")
+		assertEquipBestInHeader("the Style tab")
 	end },
 	-- #2147 (store-pass-looks.md 7.4): with the Cat Accessories pass owned, the accessory row has its small gold line
 	-- under the buttons, "+15% money on every working cat, whatever you pick"
@@ -1149,6 +1173,13 @@ local SCENES = {
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local row = modals and modals:FindFirstChild("music", true)
 		assert(row, "uigate: no Cafe music row on the Style tab (#1168)")
+		-- #2401: Shuffle is the row's first button, left of the mix on the same line
+		local shuffleButton = row:FindFirstChild("shuffle", true) :: GuiObject
+		local mixButton = row:FindFirstChild("Default", true) :: GuiObject
+		assert(
+			shuffleButton and mixButton and shuffleButton.AbsolutePosition.X < mixButton.AbsolutePosition.X,
+			"uigate: Shuffle is not first in the music row (#2401)"
+		)
 		local asked: { string } = {}
 		local connection = UI.events.pickStyle:Connect(function(kind: string, id: string)
 			table.insert(asked, kind .. ":" .. id)
@@ -1833,6 +1864,34 @@ local SCENES = {
 		assert(gui.Enabled, "uigate: the bait card never showed after the catch (#2014)")
 		local banner = gui:FindFirstChild("Banner", true)
 		assert(banner.Text == "A CAT CAME TO BOWL 2!", "uigate: the cat's card says " .. banner.Text)
+	end },
+	-- #2412 (Derek2: "make food bowl cat pop ups never appear mid catch or while holding a cat"): a cat (an Epic, so the
+	-- first wow card comes too) reaches the bowl while a cat is carried; neither card shows until the carry ends
+	{ "BaitWaitsForCarry", function()
+		local epic: string? = nil
+		for _, def in Catalog.cats do
+			if def.rarity == "Epic" then
+				epic = def.id
+				break
+			end
+		end
+		assert(epic, "uigate: no Epic cat in the catalog")
+		local now = workspace:GetServerTimeNow()
+		UI.bait.set({ lureId = Catalog.lures[2].id, readyAt = now - 1, placedAt = now - 300 }, 1)
+		UI.setCarrying({ catId = Catalog.cats[1].id, catName = Catalog.cats[1].name, rarity = Catalog.cats[1].rarity })
+		UI.bait.arrived({ catId = epic, stars = 2 }, 1)
+		UI.bait.wow("Epic", false, epic)
+		task.wait(UI.bait.SETTLE + 0.5)
+		local card = UIShim.playerGui:FindFirstChild("CatCafeBaitCard")
+		local pull = UIShim.playerGui:FindFirstChild("CatCafeBigPull")
+		assert(card and not card.Enabled, "uigate: the bait card popped up while carrying a cat (#2412)")
+		assert(not (pull and pull.Enabled), "uigate: the wow card popped up while carrying a cat (#2412)")
+		UI.setCarrying(nil)
+		task.wait(UI.bait.SETTLE + 0.6)
+		assert(card.Enabled, "uigate: the bait card never showed after the carry (#2412)")
+		pull = UIShim.playerGui:FindFirstChild("CatCafeBigPull")
+		assert(pull and pull.Enabled, "uigate: the wow card never showed after the carry (#2412)")
+		UI.bait.set(nil, 1) -- the bowl empty again for the scenes after
 	end },
 	-- #1161: the cat's card with two bowls names the bowl, and its banner stays clear of the X on a phone
 	{ "BaitCardBowl2", function()
@@ -3017,6 +3076,20 @@ local SCENES = {
 			UI.catch.showGrades("gate_stray", { "perfect", "good", "perfect", "perfect" }, true, 0)
 		end)
 	end },
+	-- #2405 (Derek2: "for mobile people who need to click screen to move cant move for a second due to their screen
+	-- being covered"): the full-screen tap catcher goes with the result, so the result word shows over a screen that
+	-- moves again; the next catch brings it back
+	{ "CatchResultTapThrough", function()
+		startCatch("gate_tap", "Rare", 2, 1, 1)
+		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
+		local tap = layer and layer:FindFirstChild("Tap")
+		assert(tap and tap.Visible, "uigate: no tap catcher during the catch (#2405)")
+		UI.catch.showGrades("gate_tap", { "perfect", "good" }, true, 0)
+		assert(not tap.Visible, "uigate: the tap catcher still covers the screen after the catch (#2405)")
+		UIShim.advance(3)
+		startCatch("gate_tap2", "Rare", 2, 1, 1)
+		assert(tap.Visible, "uigate: the next catch has no tap catcher (#2405)")
+	end },
 	-- Catch v3 (#1884, catch-rework.md 7b, 7c): the trust bar over the stray, no progress strip, a red paw ring with a
 	-- paw print, and the bar moving to the server's trust from CatchJudged
 	{ "CatchV3Trust", function()
@@ -3588,7 +3661,10 @@ local SCENES = {
 		local money = (UI.getState() :: any).money
 		UI.update({ money = 0 } :: any)
 		tutorialArrowStep()
-		UI.update({ tutorialStep = 5 } :: any)
+		-- money 0 keeps the rank up from being ready, so the goal card's own arrow (#2331) never stands in for the
+		-- tutorial's: whether it was ready came from whichever scenes ran before this one in its shard
+		local money = (UI.getState() :: any).money
+		UI.update({ tutorialStep = 5, money = 0 } :: any)
 		task.wait(0.1)
 		for _, piece in UIShim.playerGui:GetDescendants() do
 			assert(

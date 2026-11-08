@@ -295,6 +295,7 @@ function CatchCircles.new(parent: Instance): CatchCircles
 		Size = UDim2.fromScale(1, 1),
 		Parent = screenGui,
 	})
+	self._tap = tap
 	self._tapConnection = tap.InputBegan:Connect(function(input: InputObject)
 		if
 			input.UserInputType == Enum.UserInputType.Touch
@@ -642,6 +643,7 @@ function CatchCircles.show(
 		table.unpack(PRESS_KEYS)
 	)
 
+	self._tap.Visible = true
 	self.screenGui.Enabled = true
 	Tween.popIn(self._header, 0.9)
 	if count > 0 then
@@ -968,6 +970,10 @@ function CatchCircles.showResult(self: any, outcome: Outcome, onDone: (() -> ())
 	self._awaitingResult = true
 	self._ended = true
 	self._onPress = nil -- the catch is over: later taps go nowhere
+	-- #2405 (Derek2: "for mobile people who need to click screen to move cant move for a second due to their screen
+	-- being covered"): the full-screen tap catcher goes at once, so the result word and strip show over a screen that
+	-- moves again (a thumbstick or a tap to move) instead of eating every touch for the result's 1.8 s
+	self._tap.Visible = false
 	ContextActionService:UnbindAction(ACTION_NAME)
 	local grades = outcome.grades
 	for index, view in self._views :: { CircleView } do

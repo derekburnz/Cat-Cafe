@@ -114,6 +114,7 @@ export type HUD = {
 	setLuckyDay: (self: HUD, view: LuckLogic.DayView?) -> (),
 	-- F101: "🏁 Rescue Rally in 5h 20m" under the clock in the last hours before a Rally, nil hides it
 	setRallySoon: (self: HUD, line: string?) -> (),
+	setEvent: (self: HUD, lines: { string }?, kind: string?) -> (),
 	-- F101: the potion timers' row (with the Luck and pal chips), which the Rally banner keeps clear of on a phone
 	buffRow: (self: HUD) -> GuiObject,
 	counterRow: (self: HUD) -> GuiObject, -- #2393: the money and golden fish (top middle on touch)
@@ -1218,6 +1219,32 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = root,
 	})
 	self._rallySoon = nil :: string?
+	-- #2487 (live-events.md section 3): the Cafe Event's chip under those, "⏳ Cafe Party in 2:59" from T-3h, gold
+	-- while it runs, with "next shower 9:12" on a line of its own under it (EventNext; Components/EventLogic.chip,
+	-- painted from UI.cafeEvent)
+	self._eventLine = label({
+		Name = "EventChip",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H),
+		Size = UDim2.fromOffset(RIGHT_COLUMN_W, NIGHT_LINE),
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Visible = false,
+		Parent = root,
+	})
+	self._eventNext = label({
+		Name = "EventNext",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H + NIGHT_LINE),
+		Size = UDim2.fromOffset(RIGHT_COLUMN_W, NIGHT_LINE),
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.gold,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Visible = false,
+		Parent = root,
+	})
+	self._event = nil :: string?
 
 	-- Tier and next goal (right, under the clock): the tier, the next tier's requirements as slim bars; a tap opens
 	-- rank up
@@ -2929,6 +2956,8 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 		self._luckyLine.Visible = false
 		self._luckyRow.Visible = false
 		self._rallyLine.Visible = false
+		self._eventLine.Visible = false
+		self._eventNext.Visible = false
 		self._night = false
 		self._clockSeen = false
 		self:_renderBowl()
@@ -2951,6 +2980,8 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 	self._nightTips.Visible = shown and isNight and NIGHT_TIPS < 1
 	self:_renderLuckyLine()
 	self._rallyLine.Visible = self._rallySoon ~= nil and shown
+	self._eventLine.Visible = self._event ~= nil and shown
+	self._eventNext.Visible = self._event ~= nil and shown and self._eventNext.Text ~= ""
 	self:_layoutRight()
 	local function tick()
 		local remaining = current.phaseEndsAt - Workspace:GetServerTimeNow()
@@ -3045,6 +3076,24 @@ function HUD.setRallySoon(self: any, line: string?)
 	self:_layoutRight()
 end
 
+-- #2487: the Cafe Event chip's lines (EventLogic.chip), nil to hide it; kind "running" paints it gold.
+function HUD.setEvent(self: any, lines: { string }?, kind: string?)
+	local text = if lines ~= nil and #lines > 0 then table.concat(lines, "\n") else nil
+	local key = if text ~= nil then (kind or "") .. "|" .. text else nil
+	if key == self._event then
+		return
+	end
+	self._event = key
+	local line: TextLabel = self._eventLine
+	local nextLine: TextLabel = self._eventNext
+	line.Text = if lines ~= nil and lines[1] ~= nil then lines[1] else ""
+	line.TextColor3 = if kind == "running" then Theme.colors.gold else Theme.colors.white
+	line.Visible = text ~= nil and self._clock.Visible
+	nextLine.Text = if lines ~= nil and lines[2] ~= nil then lines[2] else ""
+	nextLine.Visible = line.Visible and nextLine.Text ~= ""
+	self:_layoutRight()
+end
+
 -- F101: the potion timers' row. On a phone it sits level with the menu's top, where a long row (Luck, potions,
 -- pals) can reach the top centre; the Rally banner moves down under it then.
 function HUD.buffRow(self: any): GuiObject
@@ -3053,6 +3102,35 @@ end
 
 -- #2415: the top of the touch Net button (Components/NetButtonPlace, screen pixels) in design px from the root's top,
 -- or nil before the screen has a size.
+-- #2499: the top of the money badge's spot right under the right column (the goal card, the Grand Opening strip, the
+-- quest line and the free spin line, whichever show), in design px from the root's top; nil when the badge would
+-- reach the Net button (over the jump button) there.
+function HUD._underColumn(self: any, badge: GuiObject): number?
+	local scale = Scale.get()
+	if scale <= 0 then
+		return nil
+	end
+	local foot: number? = nil
+	for _, part in
+		{ self._goal.frame, self._roadmap.frame, self._questLine, self._spinLine } :: { GuiObject }
+	do
+		if part.Visible and part.AnchorPoint.Y == 0 then
+			local bottom = part.Position.Y.Offset + part.AbsoluteSize.Y / scale
+			foot = if foot == nil then bottom else math.max(foot, bottom)
+		end
+	end
+	if foot == nil then
+		return nil
+	end
+	local gap = Theme.sizes.gap
+	local top = foot + gap
+	local netTop = self:_netTop()
+	if netTop ~= nil and top + badge.AbsoluteSize.Y / scale + gap > netTop then
+		return nil
+	end
+	return top
+end
+
 function HUD._netTop(self: any): number?
 	local camera = Workspace.CurrentCamera
 	local root: Frame = self._root
@@ -3122,6 +3200,15 @@ function HUD._layoutRight(self: any)
 	-- F101: the Rescue Rally countdown under those
 	self._rallyLine.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
 	if self._rallyLine.Visible then
+		top += NIGHT_LINE
+	end
+	-- #2487: the Cafe Event chip under those, and its next shower line
+	self._eventLine.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
+	if self._eventLine.Visible then
+		top += NIGHT_LINE
+	end
+	self._eventNext.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
+	if self._eventNext.Visible then
 		top += NIGHT_LINE
 	end
 	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top - lift)
@@ -4330,12 +4417,22 @@ function HUD._placePotionTimers(self: any)
 		timers.Position = UDim2.fromOffset(math.floor(right), math.floor(top - Theme.sizes.gap))
 	end
 	if TOUCH then
-		-- #2393: the money badge over the Potions tile, right edges level; over the potion chips when they sit there
+		-- #2499 (Derek2: "for ipad ... the 2x cash advert is on the jump button in the bottom right possibly move it so
+		-- its right below the your goal/ready to claim/spin ready text"): right under the right column, right edges
+		-- level, while that keeps clear of the Net button over the jump button
+		local badge: GuiObject = self._moneyBadge
+		local under = self:_underColumn(badge)
+		if under ~= nil then
+			badge.AnchorPoint = Vector2.new(1, 0)
+			badge.Position = UDim2.fromOffset(math.floor(width - MARGIN), math.floor(under))
+			return
+		end
+		badge.AnchorPoint = Vector2.new(1, 1)
+		-- #2393: else the money badge over the Potions tile, right edges level; over the potion chips when they sit there
 		local foot = top - Theme.sizes.gap
 		if not beside and timers.Visible then
 			foot -= BuffChips.potionsHeight() + Theme.sizes.gap
 		end
-		local badge: GuiObject = self._moneyBadge
 		local x1 = right
 		if scale > 0 then
 			-- clear of the right column's pieces beside it (the goal card, the Grand Opening strip, the quest line's

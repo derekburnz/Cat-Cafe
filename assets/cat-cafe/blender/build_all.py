@@ -459,7 +459,8 @@ for _n in ringicons.NAMES:
     PIVOT_NOTES[_n] = "the centre of its bottom face, lying flat; the picture's top points +Z"
     STUDIO_NOTES[_n] = ("#2449: a flat picture for the middle of a walk-up floor ring (" + {
         ringicons.SPIN: "the Spin Wheel", ringicons.FISH: "the Fish Market",
-        ringicons.SHOP: "the Corner Shop and the Day Cart", ringicons.DEALER: "the night market's Dealer Cart"}[_n]
+        ringicons.SHOP: "the Corner Shop and the Day Cart", ringicons.DEALER: "the night market's Dealer Cart",
+        ringicons.BOWL: "the bait bowl, #2476"}[_n]
         + "). Plain parts, never Neon; CanCollide, CanTouch and CanQuery off, no shadow, no scripts. At most 4 x 4 "
         "studs and under 0.1 thick: centre it in the ring, scale it to fit (Model:ScaleTo) and lift it just above "
         "the ring's top.")

@@ -6,6 +6,7 @@
 -- light, so it glows by day and night without Neon bloom.
 --   front(model, color, range, into?, icon?)  a ring on the floor in front of the station (its -Z, which faces the
 --                                         cannon), with `icon` lying in its middle (#2449)
+--   toward(model, color, range, outward, radius, into?, icon?)  a ring on its `outward` side (the bait bowl, #2476)
 --   around(model, color, range, into?, cap?)  a ring all the way round it (the Cat Cannons), at most `cap` wide, slid
 --                                         off a wall on its floor (#2433)
 -- `range` is the server's reach for the station's window, so the whole ring stays inside it (shared/WalkUp). The ring
@@ -225,6 +226,24 @@ function WalkUpCircles.front(
 	local pivot = model:GetPivot()
 	local out = WalkUp.frontOffset(front, radius, range)
 	local at = (pivot * CFrame.new(0, 0, -out)).Position
+	ring(model, Vector3.new(at.X, bottom + LIFT, at.Z), radius, color, into, icon)
+end
+
+-- #2476: a ring touching the station on its `outward` side (a flat direction), inside `range` of its pivot, with
+-- `icon` in its middle: the bait bowl's, out from the back wall onto the yard.
+function WalkUpCircles.toward(
+	model: Model,
+	color: Color3,
+	range: number,
+	outward: Vector3,
+	radius: number,
+	into: Instance?,
+	icon: Icon?
+)
+	local _, half, bottom = footprint(model)
+	local flat = Vector3.new(outward.X, 0, outward.Z)
+	local way = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, 1)
+	local at = model:GetPivot().Position + way * WalkUp.frontOffset(half, radius, range)
 	ring(model, Vector3.new(at.X, bottom + LIFT, at.Z), radius, color, into, icon)
 end
 

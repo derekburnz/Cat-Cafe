@@ -449,6 +449,67 @@ local function tradeState(fields)
 	return state
 end
 
+-- #2487: a Cafe Party on ReplicatedStorage's attributes (EventService's shape, shared/CafeEvents), painted at once
+local function cafeEvent(fields: { [string]: any })
+	local store = game:GetService("ReplicatedStorage")
+	local attrs: { [string]: any } = {
+		EventId = "party-gate",
+		EventTitle = "Cafe Party",
+		EventEffects = "gate-full",
+	}
+	-- the shim has no HttpService: the gate's one effects string decodes to the full party's effects
+	UI.cafeEvent.decode = function(json: string): any
+		if json ~= "gate-full" then
+			return nil
+		end
+		return {
+			days = { "lucky", "golden", "rainbow" },
+			money = 2,
+			luck = 0.5,
+			showers = { count = 8, gapSeconds = 900, firstAfter = 600 },
+			reward = { cosmeticId = "Decor_PartyBunting" },
+		}
+	end
+	for key, value in fields do
+		attrs[key] = value
+	end
+	for key, value in attrs do
+		store:SetAttribute(key, value)
+	end
+	-- the chip sits under the day clock and shows with it
+	local clock = Instance.new("Folder")
+	clock.Name = "Clock"
+	clock:SetAttribute("Phase", "day")
+	clock:SetAttribute("PhaseEndsAt", workspace:GetServerTimeNow() + 300)
+	clock:SetAttribute("AreasOpen", true)
+	clock:SetAttribute("Day", 3)
+	clock:SetAttribute("NextLuckyDay", 5)
+	clock:SetAttribute("LuckyDay", false)
+	UI.clock.bind(clock)
+	UI.cafeEvent.tick()
+end
+
+-- #2487: the event chip shows with `lines` lines, its words fit, and it ends above the goal card
+local function assertEventChip(lines: number): TextLabel
+	local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+	local chip = hud:FindFirstChild("EventChip", true) :: TextLabel
+	assert(chip and chip.Visible, "uigate: no Cafe Event chip under the clock (#2487)")
+	assert(chip.TextFits, "uigate: the Cafe Event chip's words do not fit (#2487)")
+	local nextLine = hud:FindFirstChild("EventNext", true) :: TextLabel
+	local shown = if nextLine.Visible then 2 else 1
+	assert(shown == lines, ("uigate: the Cafe Event chip has %d lines, not %d (#2487)"):format(shown, lines))
+	assert(not nextLine.Visible or nextLine.TextFits, "uigate: the next shower line does not fit (#2487)")
+	local last = if nextLine.Visible then nextLine else chip
+	local chipBottom = chip.AbsolutePosition.Y + chip.AbsoluteSize.Y
+	assert(last == chip or last.AbsolutePosition.Y >= chipBottom - 1, "uigate: the next shower line is over the chip (#2487)")
+	local goal = hud:FindFirstChild("TierGoal", true) :: GuiObject?
+	if goal and goal.Visible then
+		local bottom = last.AbsolutePosition.Y + last.AbsoluteSize.Y
+		assert(bottom <= goal.AbsolutePosition.Y + 1, "uigate: the Cafe Event chip runs into the goal card (#2487)")
+	end
+	return chip
+end
+
 local function rallyState(fields)
 	local t = workspace:GetServerTimeNow()
 	local state = {
@@ -2683,6 +2744,38 @@ local SCENES = {
 		assert(not table.find(shown(), "Someone tamed an Epic Cat!"), "uigate: an Epic shout-out pill is up (#2399)")
 		UIShim.advance(12)
 	end },
+	-- #2479 (Derek2: Claim all's rewards "make it look so cluttered"): a many-reward toast shows its title and the
+	-- rewards as chips with pictures, all inside the pill and on the screen
+	{ "ToastClaimAll", function()
+		UI.toast(
+			"4 Index rewards: +$11.3M, +25 golden fish, 1 Alley Crate, +5% gold luck forever, 1 spin, +2% faster bait forever",
+			"good"
+		)
+		task.wait(0.4)
+		local found: Frame? = nil
+		for _, piece in UIShim.playerGui:GetDescendants() do
+			if piece.Name == "Toast" and piece:FindFirstChild("Rewards") then
+				found = piece :: Frame
+			end
+		end
+		assert(found, "uigate: the Claim all toast has no reward chips (#2479)")
+		local toast = found :: Frame
+		local title = toast:FindFirstChild("Text") :: TextLabel
+		assert(title.Text == "4 Index rewards", "uigate: the Claim all toast's title reads " .. title.Text .. " (#2479)")
+		local chips = 0
+		local view = workspace.CurrentCamera.ViewportSize
+		for _, chip in (toast:FindFirstChild("Rewards") :: Instance):GetChildren() do
+			if chip:IsA("TextLabel") then
+				chips += 1
+				local left, right = chip.AbsolutePosition.X, chip.AbsolutePosition.X + chip.AbsoluteSize.X
+				local bottom = chip.AbsolutePosition.Y + chip.AbsoluteSize.Y
+				assert(left >= toast.AbsolutePosition.X - 1 and right <= toast.AbsolutePosition.X + toast.AbsoluteSize.X + 1, "uigate: a reward chip sticks out of its toast (#2479)")
+				assert(bottom <= toast.AbsolutePosition.Y + toast.AbsoluteSize.Y + 1, "uigate: a reward chip hangs under its toast (#2479)")
+				assert(left >= 0 and right <= view.X, "uigate: a reward chip runs off the screen (#2479)")
+			end
+		end
+		assert(chips == 6, ("uigate: the Claim all toast shows %d chips, not 6 (#2479)"):format(chips))
+	end },
 	-- F99 section 2: a rainbow stray's once-a-minute toast on a turning rainbow edge
 	{ "RainbowSpawn", function()
 		UI.rainbowSpawned(firstArea(), Catalog.cats[10].id)
@@ -3507,41 +3600,30 @@ local SCENES = {
 		counting:Disconnect()
 		UI.update({ tipsSeen = before } :: any)
 	end },
+	-- #2477 (Derek2: "the tutorial should guide you to cannon after bait bowl"): the walk-through ending this session
+	-- (step 4, the bowl, to 5) puts "Hop in the cannon to catch more cats!" on the tutorial strip, with the arrow
+	{ "CannonAfterBowl", function()
+		UI.cannon.setWild(nil)
+		UI.update({ tutorialStep = 4, tier = 2 } :: any)
+		UI.update({ tutorialStep = 5 } :: any)
+		task.wait(0.1)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD", true) :: Instance
+		local texts: { string } = {}
+		for _, piece in hud:GetDescendants() do
+			if piece.Name == "Tutorial" and piece:IsA("TextLabel") and piece.Visible then
+				table.insert(texts, piece.Text)
+			end
+		end
+		assert(
+			table.find(texts, "Hop in the cannon to catch more cats!"),
+			"uigate: the tutorial strip after the bowl reads " .. table.concat(texts, " | ") .. " (#2477)"
+		)
+		UI.cannon.wrapUp.on = false -- as a flight clears it, so later scenes keep their own lines
+		UI.update({ tutorialStep = 9 } :: any)
+	end },
 	-- #2198 (Derek2: "a forced cut scene after first catch"): the server's tackle tip plays as the tackling lesson on
 	-- the intro's screen: four captions with four dots, the read bar and Next, no Skip; it ends by itself and saves
 	-- the tip as seen
-	-- #2479 (Derek2: Claim all's rewards "make it look so cluttered"): a many-reward toast shows its title and the
-	-- rewards as chips with pictures, all inside the pill and on the screen
-	{ "ToastClaimAll", function()
-		UI.toast(
-			"4 Index rewards: +$11.3M, +25 golden fish, 1 Alley Crate, +5% gold luck forever, 1 spin, +2% faster bait forever",
-			"good"
-		)
-		task.wait(0.4)
-		local found: Frame? = nil
-		for _, piece in UIShim.playerGui:GetDescendants() do
-			if piece.Name == "Toast" and piece:FindFirstChild("Rewards") then
-				found = piece :: Frame
-			end
-		end
-		assert(found, "uigate: the Claim all toast has no reward chips (#2479)")
-		local toast = found :: Frame
-		local title = toast:FindFirstChild("Text") :: TextLabel
-		assert(title.Text == "4 Index rewards", "uigate: the Claim all toast's title reads " .. title.Text .. " (#2479)")
-		local chips = 0
-		local view = workspace.CurrentCamera.ViewportSize
-		for _, chip in (toast:FindFirstChild("Rewards") :: Instance):GetChildren() do
-			if chip:IsA("TextLabel") then
-				chips += 1
-				local left, right = chip.AbsolutePosition.X, chip.AbsolutePosition.X + chip.AbsoluteSize.X
-				local bottom = chip.AbsolutePosition.Y + chip.AbsoluteSize.Y
-				assert(left >= toast.AbsolutePosition.X - 1 and right <= toast.AbsolutePosition.X + toast.AbsoluteSize.X + 1, "uigate: a reward chip sticks out of its toast (#2479)")
-				assert(bottom <= toast.AbsolutePosition.Y + toast.AbsoluteSize.Y + 1, "uigate: a reward chip hangs under its toast (#2479)")
-				assert(left >= 0 and right <= view.X, "uigate: a reward chip runs off the screen (#2479)")
-			end
-		end
-		assert(chips == 6, ("uigate: the Claim all toast shows %d chips, not 6 (#2479)"):format(chips))
-	end },
 	{ "TackleLesson", function()
 		local seen: { string } = {}
 		local counting = UI.events.tipSeen:Connect(function(id: string)
@@ -4323,6 +4405,38 @@ local SCENES = {
 	end },
 	-- #2214 (crispi_255): a red "!" over the Fish Market while crates wait to open, "📦 3 crates to open" under it;
 	-- with none it is gone
+	-- #2501 (Derek2: "put an exclamation mark above the free group cat station"): a "!" over the Bellhop Cat's stand
+	-- while the cat is not taken, gone once it is
+	{ "StarterCatBang", function()
+		local stand = Instance.new("Model")
+		stand.Name = "CatCafe_Street_BellhopStand"
+		local base = Instance.new("Part")
+		base.Name = "Base"
+		base.Size = Vector3.new(6, 4, 4)
+		base.Position = Vector3.new(10, 2, -20)
+		base.Parent = stand
+		stand.PrimaryPart = base
+		stand.Parent = workspace
+		stand:AddTag("BellhopStand")
+		local before = (UI.getState() :: any).starterCatClaimed
+		local function bang(): BillboardGui?
+			for _, gui in UIShim.playerGui:GetDescendants() do
+				if gui:IsA("BillboardGui") and gui.Name == "CatCafeStarterBang" and gui.Adornee == base then
+					return gui
+				end
+			end
+			return nil
+		end
+		UI.update({ starterCatClaimed = false } :: any)
+		local gui = bang()
+		assert(gui and gui.Enabled, "uigate: no ! over the free cat's stand (#2501)")
+		local line = (gui :: BillboardGui):FindFirstChild("Line", true) :: TextLabel
+		assert(string.find(string.lower(line.Text), "free cat", 1, true), "uigate: the stand's bubble reads " .. line.Text .. " (#2501)")
+		UI.update({ starterCatClaimed = true } :: any)
+		assert(not (gui :: BillboardGui).Enabled, "uigate: the stand's ! stays after the cat is taken (#2501)")
+		UI.update({ starterCatClaimed = before } :: any)
+		stand:Destroy()
+	end },
 	{ "MarketBang", function()
 		local stall = Instance.new("Model")
 		stall.Name = "CatCafe_FishMarket"
@@ -4574,6 +4688,98 @@ local SCENES = {
 		local t = workspace:GetServerTimeNow()
 		UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = t + 5 * 3600 + 1200 }))
 	end },
+	-- #2487 (live-events.md section 3): a Cafe Party 2:59:10 away: the hourglass chip under the clock, clear of the
+	-- goal card
+	{ "CafeEventSoon", function()
+		local t = workspace:GetServerTimeNow()
+		Scenes._cafeEvent = true
+		cafeEvent({ EventStartsAt = t + 10750, EventEndsAt = t + 10750 + 7200, EventRunning = false })
+		local chip = assertEventChip(1)
+		assert(chip.Text == "⏳ Cafe Party in 2:59", "uigate: the event chip reads " .. chip.Text .. " (#2487)")
+	end },
+	-- #2487: the party running: the start banner and the gold chip with the end and the next shower
+	{ "CafeEventRunning", function()
+		local t = workspace:GetServerTimeNow()
+		Scenes._cafeEvent = true
+		UIShim.advance(4) -- earlier scenes' toasts gone
+		cafeEvent({ EventStartsAt = t - 20, EventEndsAt = t + 7180, EventRunning = true })
+		local chip = assertEventChip(2)
+		assert(chip.Text:find("Cafe Party · ends in 1:59:", 1, true) ~= nil, "uigate: the running chip reads " .. chip.Text .. " (#2487)")
+		local nextLine = (UIShim.playerGui:FindFirstChild("EventNext", true) :: TextLabel).Text
+		assert(nextLine:find("^next shower 9:") ~= nil, "uigate: the running chip's next shower reads " .. nextLine .. " (#2487)")
+		local banner = false
+		for _, label in UIShim.playerGui:GetDescendants() do
+			if label:IsA("TextLabel") and label.Name == "Text" and label.Parent and label.Parent.Name == "Toast" then
+				if label.Text:find("^Cafe Party! x2 cafe earnings and rare cat showers until %d%d:%d%d$") then
+					banner = true
+				end
+			end
+		end
+		assert(banner, "uigate: no Cafe Party start banner (#2487)")
+		-- a second pass shows no second banner
+		UI.cafeEvent.tick()
+		local banners = 0
+		for _, label in UIShim.playerGui:GetDescendants() do
+			if label:IsA("TextLabel") and label.Name == "Text" and label.Parent and label.Parent.Name == "Toast" then
+				if label.Text:find("^Cafe Party!") then
+					banners += 1
+				end
+			end
+		end
+		assert(banners == 1, ("uigate: %d Cafe Party banners, not 1 (#2487)"):format(banners))
+	end },
+	-- #2487: the Town Square board's face while the party runs, its words drawn on a 10 x 7.5 stud face
+	{ "CafeEventBoard", function()
+		local t = workspace:GetServerTimeNow()
+		Scenes._cafeEvent = true
+		cafeEvent({ EventStartsAt = t - 20, EventEndsAt = t + 7180, EventRunning = true })
+		-- the board: a tagged model with a Screen part, its face's words moved onto a frame the shot can show
+		local EventBoards = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.EventBoards")
+		local EventLogic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.EventLogic")
+		local model = Instance.new("Model")
+		model.Name = "CatCafe_Square_EventBoard"
+		local screen = Instance.new("Part")
+		screen.Name = "Screen"
+		screen.Parent = model
+		model.Parent = workspace
+		model:AddTag(EventBoards.TAG)
+		local gui = Instance.new("ScreenGui")
+		gui.Name = "EventBoardFaceGate"
+		gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+		gui.DisplayOrder = 100 -- over the HUD, so the shot shows the face
+		gui.Parent = UIShim.playerGui
+		Scenes._eventFace = { gui = gui, model = model }
+		local boards = EventBoards.new(gui)
+		Scenes._eventFace.boards = boards
+		local attrs = game:GetService("ReplicatedStorage")
+		local view = EventLogic.read(function(name: string): any
+			return attrs:GetAttribute(name)
+		end, UI.cafeEvent.decode)
+		boards:set(view, nil)
+		local surface = gui:FindFirstChild("EventBoardFace")
+		assert(surface and surface:IsA("SurfaceGui"), "uigate: the tagged board got no face (#2487)")
+		local face = Instance.new("Frame")
+		face.Name = "Face"
+		face.BackgroundColor3 = Color3.fromHex("2B2F3A")
+		face.AnchorPoint = Vector2.new(0.5, 0.5)
+		face.Position = UDim2.fromScale(0.5, 0.5)
+		face.Size = UDim2.fromOffset(400, 300) -- a 10 x 7.5 stud face at 40 px a stud, inside a small phone's height
+		face.Parent = gui
+		for _, child in surface:GetChildren() do
+			child.Parent = face
+		end
+		local heading = face:FindFirstChild("Heading") :: TextLabel
+		assert(heading.Text == "Cafe Party!", "uigate: the board's heading reads " .. heading.Text .. " (#2487)")
+		local shown = 0
+		for index = 1, EventBoards.LINES do
+			local line = face:FindFirstChild("Line" .. index) :: TextLabel
+			if line.Visible then
+				shown += 1
+				assert(line.TextFits, "uigate: the board's line " .. line.Text .. " does not fit (#2487)")
+			end
+		end
+		assert(shown == 5, ("uigate: the board shows %d effect lines, not 5 (#2487)"):format(shown))
+	end },
 	-- F102: TradeService runs, so the HUD's top row holds seven tiles with Trade before Invite (review N334)
 	{ "HUDTrade", function()
 		workspace:SetAttribute("TradingOn", true)
@@ -4655,9 +4861,31 @@ local SCENES = {
 		assert(counters.AbsolutePosition.Y < root.AbsolutePosition.Y + root.AbsoluteSize.Y / 4, "uigate: the counters are not at the top on touch (#2393)")
 		local corner = root:FindFirstChild("Corner") :: GuiObject
 		assert(badge.AbsolutePosition.X > middle, "uigate: the money badge is not on the right on touch (#2393)")
-		assert(badge.AbsolutePosition.Y + badge.AbsoluteSize.Y <= corner.AbsolutePosition.Y, "uigate: the money badge is not over the Potions corner (#2393)")
-		-- level with the corner's right edge, or left of it where the right column's words reach down (a small phone)
-		assert(right(badge) <= right(corner) + 2, "uigate: the money badge runs past the Potions corner (#2393)")
+		-- #2499 (Derek2: "the 2x cash advert is on the jump button ... move it so its right below the your goal/ready
+		-- to claim/spin ready text"): under the right column, right edges level, where it clears the Net button; else
+		-- over the Potions corner as before
+		local goal = root:FindFirstChild("TierGoal") :: GuiObject?
+		local underColumn = badge.AnchorPoint.Y == 0 -- HUD._underColumn's spot (the fallback hangs from its foot)
+		if underColumn then
+			assert(goal ~= nil and goal.Visible, "uigate: the money badge is under a hidden goal card (#2499)")
+			assert(badge.AbsolutePosition.Y >= goal.AbsolutePosition.Y + goal.AbsoluteSize.Y, "uigate: the money badge is not under the goal card (#2499)")
+			assert(math.abs(right(badge) - right(goal)) <= 2, "uigate: the money badge is not level with the goal card (#2499)")
+		else
+			assert(badge.AbsolutePosition.Y + badge.AbsoluteSize.Y <= corner.AbsolutePosition.Y, "uigate: the money badge is not over the Potions corner (#2393)")
+			-- level with the corner's right edge, or left of it where the right column's words reach down (a small phone)
+			assert(right(badge) <= right(corner) + 2, "uigate: the money badge runs past the Potions corner (#2393)")
+		end
+		-- clear of Roblox's touch jump button (70 px at 95, 90 from the bottom right; 120 at 170, 210 on a big screen)
+		local view = workspace.CurrentCamera.ViewportSize
+		local guiTop = game:GetService("GuiService"):GetGuiInset().Y
+		local small = math.min(view.X, view.Y) <= 500
+		local jumpSize = if small then 70 else 120
+		local jumpX = view.X - (if small then 95 else 170)
+		local jumpY = view.Y - (if small then 90 else 210)
+		local bx, by = badge.AbsolutePosition.X, badge.AbsolutePosition.Y + guiTop
+		local onJump = bx < jumpX + jumpSize and bx + badge.AbsoluteSize.X > jumpX
+			and by < jumpY + jumpSize and by + badge.AbsoluteSize.Y > jumpY
+		assert(not onJump, "uigate: the money badge sits on the jump button (#2499)")
 		for _, name in { "QuestLine", "FreeSpin", "TierGoal", "Menu" } do
 			local other = root:FindFirstChild(name) :: GuiObject?
 			if other and other.Visible then
@@ -4668,6 +4896,7 @@ local SCENES = {
 					else other.AbsolutePosition.X
 				local apart = badge.AbsolutePosition.Y >= other.AbsolutePosition.Y + other.AbsoluteSize.Y
 					or right(badge) <= left
+					or badge.AbsolutePosition.X >= right(other)
 					or badge.AbsolutePosition.Y + badge.AbsoluteSize.Y <= other.AbsolutePosition.Y
 				assert(apart, "uigate: the money badge runs into " .. name .. " on touch (#2393)")
 			end
@@ -5306,6 +5535,18 @@ function Scenes.close()
 	if Scenes._rallyFace then
 		Scenes._rallyFace:Destroy() -- #2078's board face
 		Scenes._rallyFace = nil
+	end
+	if Scenes._eventFace then
+		Scenes._eventFace.boards:destroy() -- #2487's board face
+		Scenes._eventFace.gui:Destroy()
+		Scenes._eventFace.model:Destroy()
+		Scenes._eventFace = nil
+	end
+	if Scenes._cafeEvent then
+		Scenes._cafeEvent = nil
+		game:GetService("ReplicatedStorage"):SetAttribute("EventId", "") -- #2487: the party put away
+		UI.cafeEvent.forget()
+		UI.cafeEvent.tick()
 	end
 	if UI.recap.card and UI.recap.card:isShowing() then
 		UI.recap.card:hide() -- #1920

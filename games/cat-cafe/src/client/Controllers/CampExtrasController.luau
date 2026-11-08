@@ -9,8 +9,15 @@
 -- YARD_SALE_HOLD seconds rather than WorldBuilder's 0.3, so a buy is never a tap (review N325). CampExtraResult ok
 -- fires Moments.CampExtraCollect(extraId, anchor position) and shows what it paid with
 -- `UI.campExtras.collected(extraId, paid, prize)`, else a toast; a refusal's toast comes from the server.
+-- #2498 (Derek2: "auto claim when walking infront of it instead of needing a click"): standing within the prompt's
+-- reach of an extra with something waiting (CampExtras.autoClaim) sends the same CollectCampExtra, or BuyYardSale for
+-- the Yard Sale's free crate, as a press would, once until the server answers; the press still works. Nothing is
+-- claimed during a catch, a rescue, a flight or the intro, or while the prompts are off. The server checks the range
+-- and what waits, as for a press.
 
 local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
@@ -28,6 +35,10 @@ CampExtrasController.state = nil :: Types.CampExtrasState?
 
 local LABEL_SECONDS = 1
 local YARD_SALE_HOLD = 1 -- seconds held to buy at the Yard Sale while it buys at once (no UI card yet)
+
+local AUTO_SECONDS = 0.25 -- #2498: how often the walk-up claim looks
+local AUTO_WAIT = 3 -- seconds a sent claim holds back the next one for that extra while no answer comes
+local pending: { [string]: number } = {} -- #2498: os.clock() of each extra's claim still unanswered
 
 local prompts: { [ProximityPrompt]: string } = {} -- each extra's prompt on this client and its extra id
 local holds: { [ProximityPrompt]: number } = {} -- each prompt's HoldDuration as the server made it
@@ -126,6 +137,52 @@ local function onTriggered(extraId: string)
 	end
 end
 
+-- #2498: whether the player is busy, as the walk-up windows see it (WalkUpController): nothing is taken then.
+local function busy(): boolean
+	local ui: any = UI
+	local character = Players.LocalPlayer.Character
+	return not ProximityPromptService.Enabled
+		or (character ~= nil and (character:GetAttribute("Launching") == true or character:GetAttribute(
+			"CloudHopAt"
+		) ~= nil))
+		or ui.catch.circlesActive()
+		or ui.rescue.isActive()
+		or ui.intro.playing()
+end
+
+-- #2498: takes what waits at each extra the player stands at, within its prompt's reach.
+local function autoClaim()
+	local character = Players.LocalPlayer.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root == nil or not root:IsA("BasePart") or busy() then
+		return
+	end
+	local at = (root :: BasePart).Position
+	local now = os.clock()
+	for prompt, extraId in prompts do
+		local position = anchorPosition(extraId)
+		if position == nil or (position - at).Magnitude > prompt.MaxActivationDistance then
+			if pending[extraId] == math.huge then
+				pending[extraId] = nil -- walked away after a refusal: the next walk-up tries again
+			end
+			continue
+		end
+		local sent = pending[extraId]
+		local view = viewOf(extraId)
+		if (sent ~= nil and now - sent < AUTO_WAIT) or view == nil or not prompt.Enabled then
+			continue
+		end
+		local how, crateId = CampExtras.autoClaim(extraId, view)
+		if how == "collect" then
+			pending[extraId] = now
+			Net.fire("CollectCampExtra", extraId)
+		elseif how == "yard" and crateId ~= nil then
+			pending[extraId] = now
+			Net.fire("BuyYardSale", crateId)
+		end
+	end
+end
+
 -- Picks up a placed camp extra's prompt (again after its model streams back in).
 local function track(instance: Instance)
 	if not instance:IsA("Model") or not instance:IsDescendantOf(Workspace) then
@@ -174,6 +231,7 @@ function CampExtrasController.start()
 	end
 	Net.on("CampExtrasState", function(state: Types.CampExtrasState)
 		CampExtrasController.state = state
+		table.clear(pending) -- #2498: the new view says what still waits
 		Moments.CampExtrasState:Fire(state)
 		local update = hook("update")
 		if update ~= nil then
@@ -185,6 +243,8 @@ function CampExtrasController.start()
 		"CampExtraResult",
 		function(extraId: string, ok: boolean, paid: { string }, prize: Types.IndexPrize?)
 			if not ok then
+				-- #2498: a refused walk-up claim is not sent again for this view (the state's next change frees it)
+				pending[extraId] = math.huge
 				local refused = hook("refused")
 				if refused ~= nil then
 					refused(extraId)
@@ -214,6 +274,12 @@ function CampExtrasController.start()
 		while true do
 			task.wait(LABEL_SECONDS)
 			labelAll()
+		end
+	end)
+	task.spawn(function()
+		while true do
+			task.wait(AUTO_SECONDS)
+			pcall(autoClaim) -- a UI that is rebuilding misses one look
 		end
 	end)
 end

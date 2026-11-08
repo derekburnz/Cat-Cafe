@@ -45,16 +45,28 @@ return function()
 			expect(TackleLessonLogic.cueKey("toaster" :: any)).to.equal("Q")
 		end)
 
-		it("holds each caption 1 s plus 0.4 s a word, as the intro does", function()
-			expect(
-				math.abs(TackleLessonLogic.hold("Get tackled and you drop your cat!") - 3.8) < 1e-9
-			).to.equal(true)
-			local total = 0
-			for _, line in TackleLessonLogic.lines("keyboard") do
-				total += TackleLessonLogic.hold(line)
+		it(
+			"holds each caption briefly, 0.6 s plus 0.3 s a word, never under the staged beats (#2474)",
+			function()
+				expect(
+					math.abs(TackleLessonLogic.hold("Get tackled and you drop your cat!") - 2.7)
+						< 1e-9
+				).to.equal(true)
+				expect(TackleLessonLogic.hold("Hi")).to.equal(TackleLessonLogic.MIN_HOLD)
+				for _, device in { "keyboard", "touch", "gamepad" } do
+					local lines = TackleLessonLogic.lines(device)
+					local total = 0
+					for _, line in lines do
+						total += TackleLessonLogic.hold(line)
+					end
+					expect(total <= 12).to.equal(true)
+					-- shot 2's hit at 1.35 s, shot 3's pick-up by about 2.1 s, shot 4's net at 1.05 s
+					expect(TackleLessonLogic.hold(lines[2]) >= 1.35 + 0.5).to.equal(true)
+					expect(TackleLessonLogic.hold(lines[3]) >= 2.1 + 0.3).to.equal(true)
+					expect(TackleLessonLogic.hold(lines[4]) >= 1.05 + 0.5).to.equal(true)
+				end
 			end
-			expect(total < 20).to.equal(true)
-		end)
+		)
 	end)
 
 	describe("IntroLogic.shotCount (#2198)", function()
@@ -63,8 +75,19 @@ return function()
 			expect(IntroLogic.shotCount({})).to.equal(IntroLogic.SHOTS)
 			expect(IntroLogic.shotCount({ shots = 4 })).to.equal(4)
 			expect(IntroLogic.shotCount({ shots = 0 })).to.equal(1)
-			expect(IntroLogic.shotCount({ shots = 99 })).to.equal(IntroLogic.SHOTS)
+			expect(IntroLogic.shotCount({ shots = 99 })).to.equal(IntroLogic.MAX_SHOTS)
 			expect(IntroLogic.shotCount({ shots = 0 / 0 })).to.equal(IntroLogic.SHOTS)
 		end)
+
+		it(
+			"makes room for the lesson's four captions after the intro's last shot (#2495)",
+			function()
+				expect(IntroLogic.MAX_SHOTS).to.equal(IntroLogic.SHOTS + 4)
+				expect(IntroLogic.LESSON_SHOTS).to.equal(#TackleLessonLogic.lines("keyboard"))
+				local tail = IntroLogic.SHOTS + 4
+				expect(IntroLogic.shotCount({ shots = tail })).to.equal(tail)
+				expect(IntroLogic.shotCount({ shots = tail + 1 })).to.equal(IntroLogic.MAX_SHOTS)
+			end
+		)
 	end)
 end

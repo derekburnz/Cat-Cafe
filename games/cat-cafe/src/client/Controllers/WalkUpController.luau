@@ -1,6 +1,7 @@
 --!strict
 -- Walk-up windows on this client (#2398; shared/WalkUp for the rules). Walking up to the Cat Cannons, the Spin Wheel,
--- the Golden Fish Market, the Corner Shop or Day Cart and, at night, the night market's cart opens its window, and
+-- the Golden Fish Market, the Corner Shop or Day Cart, at night the night market's cart and, for its owner, the cafe's
+-- bait bowl on the back step (#2476) opens its window, and
 -- walking away closes it, as the Codes Cat's circle does (CodesController). The stations' prompts stay, so a window
 -- closed by hand opens again with a press. Nothing opens during a catch or a rescue, while carrying a cat or flying,
 -- during the intro or while another window is open. Every window still checks its range on the server.
@@ -178,41 +179,54 @@ function WalkUpController.start()
 			local at = rootPosition()
 			local stations: { WalkUp.Station } = {}
 			local opener: { [string]: () -> () } = {}
+			local function add(
+				model: Instance,
+				prompt: ProximityPrompt?,
+				window: string,
+				open: () -> ()
+			)
+				-- a prompt that is off (during a flight, say) still measures, so landing inside a ring is not
+				-- read as stepping in once the prompt comes back; it only cannot open the window (WalkUp.step)
+				local off = prompt == nil or not prompt.Enabled
+				local hasRing, centre, ringRadius = ringOf(model)
+				local position = if hasRing
+					then centre
+					elseif prompt ~= nil then promptPosition(prompt :: ProximityPrompt)
+					else nil
+				local distance = if at ~= nil and position ~= nil
+					then Vector2.new(at.X - position.X, at.Z - position.Z).Magnitude
+					else nil
+				local key = keyOf(model)
+				opener[key] = open
+				table.insert(stations, {
+					key = key,
+					window = window,
+					distance = distance,
+					off = off,
+					radius = if hasRing
+						then ringRadius
+						elseif prompt ~= nil then (prompt :: ProximityPrompt).MaxActivationDistance
+							* WalkUp.RADIUS_SHARE
+						else 0,
+				})
+			end
 			for _, kind in KINDS do
 				for _, model in CollectionService:GetTagged(kind.tag) do
 					if not model:IsDescendantOf(Workspace) then
 						continue -- the templates in ReplicatedStorage.Assets carry the tags too
 					end
-					local prompt = promptOf(model, kind.prompt)
-					-- a prompt that is off (during a flight, say) still measures, so landing inside a ring is not
-					-- read as stepping in once the prompt comes back; it only cannot open the window (WalkUp.step)
-					local off = prompt == nil or not prompt.Enabled
-					local hasRing, centre, ringRadius = ringOf(model)
-					local position = if hasRing
-						then centre
-						elseif prompt ~= nil then promptPosition(prompt :: ProximityPrompt)
-						else nil
-					local distance = if at ~= nil and position ~= nil
-						then Vector2.new(at.X - position.X, at.Z - position.Z).Magnitude
-						else nil
-					local key = keyOf(model)
-					opener[key] = function()
+					add(model, promptOf(model, kind.prompt), kind.window, function()
 						kind.open(model)
-					end
-					table.insert(stations, {
-						key = key,
-						window = kind.window,
-						distance = distance,
-						off = off,
-						radius = if hasRing
-							then ringRadius
-							elseif
-								prompt ~= nil
-							then (prompt :: ProximityPrompt).MaxActivationDistance
-								* WalkUp.RADIUS_SHARE
-							else 0,
-					})
+					end)
 				end
+			end
+			-- #2476 (Derek2: "make the bait bowl to open if you walk outside the backdoor near it"): the own first
+			-- bowl, whose prompt this client makes (UIController), so only the owner's opens
+			local bowl = UIController.ownBowlModel()
+			if bowl ~= nil then
+				add(bowl, UIController.bowlPrompt(), "Bait", function()
+					UIController.openBowl(1)
+				end)
 			end
 			local ok, open, close = pcall(function()
 				local current = UI.isOpen()

@@ -14,6 +14,8 @@
 --   IconArt.setImages(label, images, scale?) the first of several pictures that loads (a failed fetch moves on)
 --   IconArt.setTransparency(label, value)    fade or grey the icon, picture or emoji, whichever shows
 --   IconArt.preload(images)                  fetch pictures ahead of time (the crate reel's tiles, #1728)
+--   IconArt.quietWait(label, seconds)        #2500: while its picture first loads, up to `seconds`, the label shows
+--                                            nothing instead of its emoji (the Store's cards); the emoji after that
 --
 -- Roblox terms: ImageRectOffset and ImageRectSize cut one cell out of a bigger picture; IsLoaded turns true once
 -- the picture has downloaded.
@@ -56,6 +58,8 @@ function IconArt.cell(glyph: string?): Vector2?
 	return sheet.cells[glyph]
 end
 
+local QUIET = "IconQuietUntil" -- #2500: os.clock() until which a loading picture hides the emoji
+
 local function apply(label: TextLabel)
 	local art = label:FindFirstChild(ART) :: ImageLabel?
 	local value = label:GetAttribute(BASE)
@@ -64,7 +68,13 @@ local function apply(label: TextLabel)
 		label.TextTransparency = 1
 		art.ImageTransparency = transparency
 	else
-		label.TextTransparency = transparency
+		local quiet = label:GetAttribute(QUIET)
+		local hush = art ~= nil
+			and art.Visible
+			and not failed[art.Image]
+			and type(quiet) == "number"
+			and os.clock() < quiet
+		label.TextTransparency = if hush then 1 else transparency
 		if art then
 			art.ImageTransparency = if art.Visible then WAITING else 1
 		end
@@ -230,6 +240,21 @@ function IconArt.preload(images: { string })
 			fetch(image)
 		end
 	end
+end
+
+-- #2500: the first time only, so a Store that redraws every money tick never pushes it back; a picture still not
+-- loaded when it runs out shows the emoji, as before.
+function IconArt.quietWait(label: TextLabel, seconds: number)
+	if label:GetAttribute(QUIET) ~= nil then
+		return
+	end
+	label:SetAttribute(QUIET, os.clock() + seconds)
+	apply(label)
+	task.delay(seconds, function()
+		if label.Parent then
+			apply(label)
+		end
+	end)
 end
 
 function IconArt.setTransparency(label: TextLabel, transparency: number)

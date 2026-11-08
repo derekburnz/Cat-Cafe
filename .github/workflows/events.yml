@@ -1,0 +1,103 @@
+# Schedule, list or remove Cafe Events (#2486, #2488) in the CatCafe_Events data store, so an event can be set up days
+# ahead and every server starts and ends it together, with no publish. Start it from the Actions tab (events > Run
+# workflow) or from any thread with the GitHub actions_run_trigger tool on main. Script and rules:
+# games/cat-cafe/tools/opencloud/events.sh (it refuses anything over a Config cap, an overlap, a big event less than
+# 6 days from another or with under 3 hours of countdown). The announce checklist is docs/growth/launch-ops.md
+# section 6. Needs the repo secret ROBLOX_PUBLISH_KEY with universe-datastores.objects:read, :create and :update
+# (docs/setup-guide.md step 24), the same as flags.
+name: events
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "show | add | test (5 minutes, starting in about 2) | remove (by id) | clear (empty the schedule) | roblox (list the Creator Hub Experience Events, read only)"
+        type: choice
+        options: [show, add, test, remove, clear, roblox]
+        default: show
+      store:
+        description: "live (CatCafe_Events) or dev (CatCafe_Events_dev, what Studio reads)"
+        type: choice
+        options: [live, dev]
+        default: live
+      id:
+        description: "add and remove: 1 to 32 of a-z, 0-9, - and _, for example party-1121"
+        required: false
+        default: ""
+      title:
+        description: "add: what players see, 1 to 24 characters"
+        required: false
+        default: ""
+      start:
+        description: "add: the start in UTC, YYYY-MM-DD HH:MM"
+        required: false
+        default: ""
+      minutes:
+        description: "add: how long, 5 to 120"
+        required: false
+        default: "60"
+      big:
+        description: "add: a big event (6 days apart, needs 3 hours of countdown)"
+        type: boolean
+        default: false
+      effects:
+        description: 'add and test: JSON, every part optional, e.g. {"days":["lucky","golden"],"money":2,"luck":0.5}'
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: events
+  cancel-in-progress: false
+
+env:
+  UNIVERSE_ID: "10773193456" # the Cat Cafe experience
+
+jobs:
+  events:
+    name: Cafe Events schedule
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      # OWNER_KEY (the group owner's key, with universe.event:read and :write as well as the data store scopes) wins
+      ROBLOX_PUBLISH_KEY: ${{ secrets.OWNER_KEY || secrets.ROBLOX_PUBLISH_KEY }}
+      EVENTS_STORE: ${{ inputs.store }}
+      ACTION: ${{ inputs.action }}
+      ID: ${{ inputs.id }}
+      TITLE: ${{ inputs.title }}
+      START: ${{ inputs.start }}
+      MINUTES: ${{ inputs.minutes }}
+      BIG: ${{ inputs.big }}
+      EFFECTS: ${{ inputs.effects }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # the script, and Config.luau for the caps it checks
+          sparse-checkout: |
+            games/cat-cafe/tools/opencloud
+            games/cat-cafe/src/shared
+
+      - name: Check the key is set
+        run: |
+          if [ -z "$ROBLOX_PUBLISH_KEY" ]; then
+            echo "::error::The repo secret ROBLOX_PUBLISH_KEY is missing. Steps: docs/setup-guide.md step 15."
+            exit 1
+          fi
+
+      - name: Read or change the schedule
+        run: |
+          script=games/cat-cafe/tools/opencloud/events.sh
+          case "$ACTION" in
+          show) bash "$script" show ;;
+          add)
+            big=""
+            [ "$BIG" != true ] || big=big
+            bash "$script" add "$ID" "$TITLE" "$START" "$MINUTES" $big "$EFFECTS"
+            ;;
+          test) bash "$script" test "$EFFECTS" ;;
+          remove) bash "$script" remove "$ID" ;;
+          clear) bash "$script" clear ;;
+          roblox) bash "$script" roblox ;;
+          esac

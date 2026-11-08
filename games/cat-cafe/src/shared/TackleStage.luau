@@ -9,7 +9,7 @@
 --   shot 3  over the shoulder of the tackler, the carrier walking by with its cat again: the tackler (you) lunges,
 --           knocks it, walks to the dropped cat and picks it up (#2469)
 --   shot 4  the knocked copy swings its net at a new cat beside it; the net pins the cat with its "!" (StagedStray,
---           NetDown) while the tackler stands by holding its cat: you are safe while catching (#2469)
+--           NetDown): you are safe while catching (#2469). The tackler and its cat are off the stage (#2495)
 -- Studs and seconds, y up.
 
 local TackleStage = {}

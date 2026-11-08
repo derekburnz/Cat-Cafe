@@ -92,6 +92,7 @@ local UI = {}
 UI.together = {} -- F92 playing together, filled at the end of the file
 UI.campExtras = {} -- F100 camp extras, filled at the end of the file
 UI.rally = {} -- F101 Rescue Rally, filled at the end of the file
+UI.cafeEvent = {} -- #2487 Cafe Events' chip, banner and board, filled at the end of the file
 UI.trade = {} -- F102 trading, filled at the end of the file
 UI.nursery = {} -- #1200 the Garden Nursery's window, filled at the end of the file
 UI.store = {} -- the Store window behind the HUD's Store tile, filled at the end of the file
@@ -392,6 +393,7 @@ local function cannonHint(): string?
 		told = tutorialText ~= nil,
 		opened = cannonOpened,
 		first = first,
+		wrapUp = UI.cannon.wrapUp.on,
 	})
 end
 
@@ -1353,9 +1355,13 @@ function UI.init(config: Types.InitConfig)
 		tackle = function()
 			UI.events.tackle:Fire()
 		end,
-		-- hidden while carrying or during the circles or the rescue bar (reviewer N85)
+		-- hidden while carrying or during the circles or the rescue bar (reviewer N85), and while the intro's screen
+		-- plays: the tackle lesson draws its own pressed Tackle bar over the caption (#2474, Laptop-Tester: two bars)
 		blocked = function()
-			return hudInstance:isCarrying() or UI.catch.circlesActive() or UI.rescue.isActive()
+			return hudInstance:isCarrying()
+				or UI.catch.circlesActive()
+				or UI.rescue.isActive()
+				or UI.intro.playing()
 		end,
 		lift = function()
 			return hudInstance:bottomTop()
@@ -1463,6 +1469,7 @@ function UI.init(config: Types.InitConfig)
 	UI.campExtras.start(parent) -- the Yard Sale card, the Cannon picker's strips and the stations' "!" (F100)
 	UI.cornerShop.start() -- the Corner Shop window (#1052)
 	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
+	UI.cafeEvent.start(parent) -- the Cafe Event chip, its start banner and the square's board face (#2487)
 	UI.trade.start() -- the Trade window in the modal (F102)
 	UI.nursery.start() -- the Garden Nursery window, opened from its stall's prompt (#1200)
 	UI.store.start() -- the Store window and the HUD's Store tile (shown on sale or not, #1167)
@@ -1553,6 +1560,23 @@ function UI.update(partial: Types.PartialState)
 			end
 		end
 	end
+	-- #2477 (Derek2: "the tutorial should guide you to cannon after bait bowl"): the walk-through ending in this
+	-- session (tutorialStep from under WALKTHROUGH_STEP to it) points the cannon hint at the cannon until the next
+	-- flight, even if the player flew earlier. The first update with a step only records it, so a rejoin never does.
+	local step: number? = partial.tutorialStep
+	if step ~= nil then
+		local wrap = UI.cannon.wrapUp
+		local before = wrap.step
+		wrap.step = step
+		if
+			before ~= nil
+			and before < CannonLogic.WALKTHROUGH_STEP
+			and step >= CannonLogic.WALKTHROUGH_STEP
+		then
+			wrap.on = true
+			cannonLaunched = false
+		end
+	end
 	deriveState(partial)
 	render()
 end
@@ -1585,6 +1609,7 @@ function UI.destroy()
 	UI.together.reset()
 	UI.campExtras.reset()
 	UI.rally.reset()
+	UI.cafeEvent.reset()
 	UI.trade.reset()
 	UI.nursery.reset()
 	UI.store.reset()
@@ -1699,6 +1724,7 @@ function UI.destroy()
 	cannonScreen, cannonCard, cannonPart, cannonOpened, hintTier, hintShown =
 		nil, nil, nil, nil, nil, nil
 	cannonOn, cannonWild, cannonLaunched = false, false, false
+	UI.cannon.wrapUp.step, UI.cannon.wrapUp.on = nil, false
 	if gateSigns then
 		gateSigns:destroy()
 	end
@@ -2857,6 +2883,11 @@ UI.cannon = {}
 -- On: the HUD's Cannon button takes the Areas button's place and fires events.travel("cannon") (the server moves
 -- the player to the front of the nearest cannon), the Alley button goes, and the carry banner reads "Bring it to the
 -- camp!".
+-- #2477: the tutorialStep in the last update that carried one, and whether the walk-through ended this session (the
+-- bait bowl step), so the cannon hint points at the cannon until the next flight. On UI.cannon, as init's main chunk
+-- is at Luau's 200 locals.
+UI.cannon.wrapUp = { step = nil :: number?, on = false }
+
 function UI.cannon.setEnabled(on: boolean)
 	cannonOn = on
 	if hud then
@@ -2915,6 +2946,7 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 		end
 		cannonLaunched = true
 		cannonOpened = nil
+		UI.cannon.wrapUp.on = false
 		applyTutorial()
 	end
 	local name = CannonLogic.TOWN_NAME
@@ -5394,6 +5426,7 @@ do
 		bang = nil :: ReadyBang.ReadyBang?, -- the red "!" over each ready station (camp-stations.md section 1)
 		market = nil :: MarketBang.MarketBang?, -- #2214: the "!" over the Fish Market while crates wait to open
 		spin = nil :: MarketBang.MarketBang?, -- #2358: the "!" over the Spin Wheel while the player has a spin
+		starter = nil :: MarketBang.MarketBang?, -- #2501: the "!" over the free Bellhop Cat's stand until it is taken
 		rescue = nil :: RescueBang.RescueBang?, -- #2214: the "!" over a rescue spot while someone else rescues there
 	}
 
@@ -5444,6 +5477,22 @@ do
 		})
 		spinBang:update(state.spin)
 		camp.spin = spinBang
+		-- #2501 (Derek2: "put an exclamation mark above the free group cat station to help entice people to go join
+		-- group to take the cat"): the stand's "!" until the cat is taken; only once the sync says it isn't
+		local starterBang = MarketBang.new(into, {
+			tag = "BellhopStand", -- shared/StarterCat.TAG
+			name = "CatCafeStarterBang",
+			line = function(claimed: any): string?
+				if claimed ~= false then
+					return nil
+				end
+				return if (SharedConfig.GroupId or 0) ~= 0
+					then "🐱 Free cat: join the group!"
+					else "🐱 A free cat waits here!"
+			end,
+		})
+		starterBang:update((state :: any).starterCatClaimed)
+		camp.starter = starterBang
 		local modalView = modal
 		if modalView == nil then
 			return
@@ -5573,6 +5622,11 @@ do
 			spinBang:destroy()
 		end
 		camp.spin = nil
+		local starterBang = camp.starter
+		if starterBang then
+			starterBang:destroy()
+		end
+		camp.starter = nil
 	end
 
 	-- #2214: every render, the Fish Market's "!" with the crates waiting to open
@@ -5585,6 +5639,11 @@ do
 		local spinBang = camp.spin
 		if spinBang then
 			spinBang:update(state.spin)
+		end
+		-- #2501: the free cat's stand with the same render
+		local starterBang = camp.starter
+		if starterBang then
+			starterBang:update((state :: any).starterCatClaimed)
 		end
 	end
 end
@@ -6848,5 +6907,82 @@ end
 UI.autoEquip = {}
 
 function UI.autoEquip.swapped(_raw: any) end
+
+----------------------------------------------------------------------------------------------------
+-- Cafe Events (#2487, live-events.md section 3)
+----------------------------------------------------------------------------------------------------
+
+-- EventService (#2486) keeps the running event, or the next one, on ReplicatedStorage's attributes; this reads them
+-- every second: the HUD chip under the day clock from T-3h, a banner the first time this client sees one running,
+-- and the Town Square board's face. Its own block, as the module is short of locals.
+do
+	local HttpService = game:GetService("HttpService")
+	local EventBoards = require(script.Screens.EventBoards)
+	local EventLogic = require(script.Components.EventLogic)
+	local TICK_SECONDS = 1
+	local events = {
+		boards = nil :: EventBoards.EventBoards?,
+		seen = nil :: EventLogic.Seen?, -- kept across rebuilds, so a respawn neither repeats the banner nor forgets the end
+		token = 0,
+	}
+
+	-- EventEffects' JSON; the UI gate's shim has no HttpService, so its scenes put their own decoder here
+	function UI.cafeEvent.decode(json: string): any
+		local ok, data = pcall(HttpService.JSONDecode, HttpService, json)
+		return if ok then data else nil
+	end
+
+	local function get(name: string): any
+		return ReplicatedStorage:GetAttribute(name)
+	end
+
+	-- one pass: read, follow, paint; the banner shows once per event this session
+	function UI.cafeEvent.tick()
+		local now = Workspace:GetServerTimeNow()
+		local view = EventLogic.read(get, UI.cafeEvent.decode)
+		local seen, started = EventLogic.follow(events.seen, view, now)
+		events.seen = seen
+		if started and view ~= nil and toasts then
+			toasts:announce(
+				EventLogic.banner(view, os.date("%H:%M", math.floor(view.endsAt)) :: string)
+			)
+		end
+		local current = hud
+		if current then
+			current:setEvent(EventLogic.chip(view, seen, now))
+		end
+		local boards = events.boards
+		if boards then
+			boards:set(view, seen)
+		end
+	end
+
+	function UI.cafeEvent.start(parent: Instance)
+		UI.cafeEvent.reset()
+		events.boards = EventBoards.new(parent)
+		events.token += 1
+		local token = events.token
+		task.spawn(function()
+			while events.token == token do
+				UI.cafeEvent.tick()
+				task.wait(TICK_SECONDS)
+			end
+		end)
+	end
+
+	-- the UI gate's scenes: forget the watched event, so a put-away test party is not "ended early"
+	function UI.cafeEvent.forget()
+		events.seen = nil
+	end
+
+	function UI.cafeEvent.reset()
+		events.token += 1
+		local boards = events.boards
+		if boards then
+			boards:destroy()
+		end
+		events.boards = nil
+	end
+end
 
 return UI

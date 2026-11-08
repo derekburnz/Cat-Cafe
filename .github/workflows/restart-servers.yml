@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       warn_players:
-        description: "Tell every server 5, 3 and 1 minutes ahead and at the restart (adds 5 minutes)"
+        description: "Tell every server 10, 5, 3 and 1 minutes and 10 seconds ahead and at the restart (adds 10 minutes)"
         type: boolean
         default: true
 
@@ -26,7 +26,7 @@ jobs:
   restart:
     name: Restart running servers onto the newest version
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     env:
       ROBLOX_PUBLISH_KEY: ${{ secrets.ROBLOX_PUBLISH_KEY }}
       UNIVERSE_ID: "10773193456" # the Cat Cafe experience
@@ -43,7 +43,7 @@ jobs:
             exit 1
           fi
 
-      - name: Warn players in game (5, 3 and 1 minutes, then now)
+      - name: Warn players in game (10, 5, 3 and 1 minutes, 10 seconds, then now)
         if: inputs.warn_players
         run: bash tools/opencloud/restart-countdown.sh
 

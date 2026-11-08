@@ -122,6 +122,22 @@ function ClaimAll.tipJar(claimed: { boolean }, sessionStartedAt: number, now: nu
 	return ready
 end
 
+-- #2479 (Derek2: the Claim all bubble listed "+$4.53M" and "+$6.79M" apart): the amount of a money line as Payout.pay
+-- writes it (ShortNumber: "+$300", "+$8,420", "+$54K", "+$4.53M", up to Qi), or nil for any other line. A short line
+-- reads back as its shown digits, which ShortNumber cut down, so a total is never more than was paid.
+local MONEY_UNITS: { [string]: number } =
+	{ [""] = 1, K = 1e3, M = 1e6, B = 1e9, T = 1e12, Qa = 1e15, Qi = 1e18 }
+
+function ClaimAll.money(line: string): number?
+	local digits, suffix = string.match(line, "^%+%$([%d,]*%d%.?%d*)(%a*)$")
+	local unit = if suffix ~= nil then MONEY_UNITS[suffix] else nil
+	if digits == nil or unit == nil then
+		return nil
+	end
+	local amount = tonumber((string.gsub(digits, ",", "")))
+	return if amount ~= nil then math.floor(amount * unit + 0.5) else nil
+end
+
 -- Adds up the lines Payout.pay returned for several prizes, in the order each first came: money, golden fish, spins,
 -- "+N% <what> forever" and counted items ("2 Tuna", "1 Alley Crate") by name. A spin line that hit the cap and a tag
 -- stay as they are.
@@ -140,13 +156,13 @@ function ClaimAll.merge(lines: { string }): { string }
 		entry.total = (entry.total :: number) + amount
 	end
 	for _, line in lines do
-		local coins = string.match(line, "^%+%$(%d+)$")
+		local coins = ClaimAll.money(line)
 		local fish = string.match(line, "^%+(%d+) golden fish$")
 		local percent, what = string.match(line, "^%+(%d+)%% (.+) forever$")
 		local spins = string.match(line, "^(%d+) spins?$")
 		local count, name = string.match(line, "^(%d+) (.+)$")
 		if coins ~= nil then
-			add("coins", "coins", nil, tonumber(coins) :: number)
+			add("coins", "coins", nil, coins)
 		elseif fish ~= nil then
 			add("fish", "fish", nil, tonumber(fish) :: number)
 		elseif percent ~= nil and what ~= nil then

@@ -42,6 +42,8 @@
 --   D:Invoke("tradeMinTier", 0)        -- trading from Tier 0 in this server (F102; nil goes back to the flag or Config)
 --   D:Invoke("trading", false)         -- the trading kill switch off in this server, as CatCafe_Flags would (F102)
 --   D:Invoke("flag", "codes", false)   -- a live switch (codes or rally) off in this server, as CatCafe_Flags would (#2119)
+--   D:Invoke("event", "full", 10)     -- a 10 minute test Cafe Event in this server (full, days, money, luck, showers;
+--                                      -- "stop" ends it); returns "<id> until <unix seconds>" (#2486)
 --   D:Invoke("freshCatch")             -- forget this window's Fresh Catch buys and heads up; returns the stock (F94)
 --   D:Invoke("seedCafe", nil, 5, 12, { extraSlot = true, grandCafe = true })  -- Tier 5, 12 cats, slots filled (#2050)
 --   D:Invoke("levelCat", nil, "<uid>", 1)    -- that cat one level up, as play would (Auto Equip may re-plan) (#2050)
@@ -85,6 +87,7 @@ local DailyTreat = require(ReplicatedStorage.Shared.DailyTreat)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
+local EventService = require(script.Parent.EventService)
 local FishMarketService = require(script.Parent.FishMarketService)
 local FreshCatch = require(ReplicatedStorage.Shared.FreshCatch)
 local GlobalCatchService = require(script.Parent.GlobalCatchService)
@@ -542,6 +545,13 @@ function Debug.flag(key: unknown, on: unknown): boolean
 	guard()
 	assert(type(key) == "string", "flag needs a switch name")
 	return LiveFlagService.debugSet(key, if type(on) == "boolean" then on else nil)
+end
+
+-- #2486: a test Cafe Event (CafeEvents.test) in this server only, `minutes` long from now; "stop" ends it.
+function Debug.event(preset: unknown, minutes: unknown): string
+	guard()
+	assert(type(preset) == "string", "event needs a preset or stop")
+	return EventService.startTest(preset, tonumber(minutes) or 10)
 end
 
 function Debug.rally(player: (Player | number | string)?, action: string?, value: any): string

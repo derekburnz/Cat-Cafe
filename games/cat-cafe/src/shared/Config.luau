@@ -300,6 +300,27 @@ local Config = {
 	-- kinds, and the day after rolls as usual. Empty until a drop: each week's PR adds its row, e.g.
 	-- { kind = "lucky", from = 1795219200, to = 1795305600 } for Sat 2026-11-21 UTC.
 	ForcedDays = {} :: { { kind: string, from: number, to: number } },
+	-- #2486 Cafe Events (docs/design/cat-cafe/live-events.md section 4; shared/CafeEvents, EventService): each server
+	-- reads CatCafe_Events every EventPollSeconds. An event runs EventMinSeconds to EventMaxSeconds (a record outside
+	-- is ignored); its money multiplier on cafe income is at most EventMoneyMax, its Luck at most EventLuckMax (total
+	-- Luck still at most LuckMax), its showers at most EventShowerMax, at least EventShowerGapMinSeconds apart (a value
+	-- past a cap is clamped). EventShowerDefaults is the 2-hour preset; EventShowerAreaWeights picks a shower's area,
+	-- equal over the five. The countdown shows from EventCountdownSeconds before the start. A player who already owns
+	-- the event's cosmetic gets EventRepeatGiftIncomeMinutes of income instead. The workflow keeps big events
+	-- EventBigMinGapSeconds apart. At most EventScheduleMax records are read.
+	EventPollSeconds = 60,
+	EventMinSeconds = 300,
+	EventMaxSeconds = 7200,
+	EventMoneyMax = 2,
+	EventLuckMax = 1.0,
+	EventShowerMax = 12,
+	EventShowerGapMinSeconds = 300,
+	EventShowerDefaults = { count = 8, gapSeconds = 900, firstAfter = 600 },
+	EventShowerAreaWeights = { alley = 20, park = 20, neighbourhood = 20, woods = 20, sewer = 20 } :: { [string]: number },
+	EventCountdownSeconds = 10800,
+	EventRepeatGiftIncomeMinutes = 10,
+	EventBigMinGapSeconds = 518400,
+	EventScheduleMax = 10,
 	-- #1572 (luck-and-rare-moments.md 1h): the global pity cat (shared/Pity). A slot every PityLegendarySeconds from
 	-- ClockEpoch, every PityMythicalEvery-th a Mythical one; its area by PityAreaWeights (by area id), and the first
 	-- catch anywhere claims it in MemoryStore, tried PityClaimRetries times before the catcher keeps it anyway.

@@ -214,7 +214,9 @@ return function()
 					"rbxassetid://83823033546025"
 				)
 				-- #1168: the new cards' own pictures (Tools-Agent 11-06), no stand-ins
-				expect(ShopIcons.store(StoreLogic.THANK_YOU.key)).to.equal("rbxassetid://124763763193731")
+				expect(ShopIcons.store(StoreLogic.THANK_YOU.key)).to.equal(
+					"rbxassetid://124763763193731"
+				)
 				expect(ShopIcons.store("steadyPaw")).to.equal("rbxassetid://124844091674201")
 				expect(ShopIcons.store("signStylePack")).to.equal("rbxassetid://82356296722315")
 				expect(ShopIcons.store("gardenDecor")).to.equal("rbxassetid://76001339098213")
@@ -260,6 +262,21 @@ return function()
 			expect(ShopIcons.snackGlyph("nope")).to.equal(ShopIcons.SNACK_GLYPH)
 			expect(ShopIcons.catFood("nope")).never.to.equal(nil)
 			expect(ShopIcons.catFood(nil)).to.equal(nil)
+		end)
+
+		it("lists every Store picture once, for the background fetch (#2500)", function()
+			local list = ShopIcons.storeImages()
+			expect(#list > 20).to.equal(true)
+			local seen: { [string]: boolean } = {}
+			for _, id in list do
+				expect(seen[id]).to.equal(nil)
+				seen[id] = true
+				expect(string.sub(id, 1, 13)).to.equal("rbxassetid://")
+			end
+			expect(seen[ShopIcons.clean("Bag") :: string]).to.equal(true)
+			expect(
+				seen[ShopIcons.storeTab("Passes") :: string] or ShopIcons.storeTab("Passes") == nil
+			).to.equal(true)
 		end)
 	end)
 end

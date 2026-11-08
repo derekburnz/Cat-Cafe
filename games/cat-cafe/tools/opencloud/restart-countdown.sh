@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Warn everyone in game before the running servers restart: one cross-server message at 5, 3 and 1 minutes and one
-# at restart (Open Cloud MessagingService publishMessage, topic CatCafeAnnounce). Every server subscribes to the topic
+# Warn everyone in game before the running servers restart: one cross-server message at 10, 5, 3 and 1 minutes, at
+# 10 seconds and at restart (Open Cloud MessagingService publishMessage, topic CatCafeAnnounce). Every server subscribes to the topic
 # (src/server, Gameplay-Engineer) and shows the line to its players as a warning toast, so nobody is cut off mid-catch
 # without notice (Derek 2026-10-29: "announcement in game for all servers that servers will be restarting in 5min,
 # 3min, 1min, now and then publish"). publish.yml runs it after the live publish (new servers already start on the new
@@ -10,7 +10,8 @@
 #   ROBLOX_PUBLISH_KEY   Open Cloud API key that also has universe-messaging-service:publish on the Cat Cafe
 #                        experience (docs/setup-guide.md step 21)
 #   UNIVERSE_ID          default below
-#   WARNINGS             seconds before the restart to warn at, largest first (default "300 180 60 0")
+#   WARNINGS             seconds before the restart to warn at, largest first (default "600 300 180 60 10 0": Derek
+#                        2026-11-08, the game is public and ads run: "warnings 10min 5min 3min 1min 10 seconds")
 #
 # Each message is JSON text: {"kind":"restart","seconds":300}. The server writes the words players see.
 # Without the permission the first message is refused; the script then says so and returns at once, so a publish is
@@ -18,7 +19,7 @@
 set -euo pipefail
 
 UNIVERSE_ID=${UNIVERSE_ID:-10773193456}
-WARNINGS=${WARNINGS:-300 180 60 0}
+WARNINGS=${WARNINGS:-600 300 180 60 10 0}
 TOPIC=CatCafeAnnounce
 : "${ROBLOX_PUBLISH_KEY:?set ROBLOX_PUBLISH_KEY (docs/setup-guide.md step 21)}"
 

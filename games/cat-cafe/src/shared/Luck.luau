@@ -4,8 +4,10 @@
 -- Potion (LuckyPotionLuck) and a Lucky Day (LuckyDayPlayerLuck, the day phase of a Lucky Day, #1572 Clock.dayKinds, of a
 -- server, shared/Clock). On a roll it multiplies the Epic, Legendary and Mythical chances; Rare keeps its chance and
 -- Common takes the difference, so the odds keep their total.
---   sources(profile, now, luckyDay) -> { Source }   what adds Luck now, in a fixed order (statue, potion, day)
---   of(profile, now, luckyDay) -> number             1 plus the sources, at most LuckMax
+--   sources(profile, now, luckyDay, event?) -> { Source }   what adds Luck now, in a fixed order (statue, potion,
+--                                                    day, event)
+--   of(profile, now, luckyDay, event?) -> number     1 plus the sources, at most LuckMax
+-- `event` is the running Cafe Event's Luck for everyone (#2486, EventService.luck(), at most EventLuckMax).
 --   apply(odds, luck) -> LureOdds                    the odds a roll uses at that Luck
 --   text(luck) -> string                             "Luck x1.3", as the HUD chip shows it
 
@@ -21,8 +23,8 @@ Luck.UPGRADE = "lucky_cat"
 Luck.DAY_WARNING = "A Lucky Day starts at sunrise!"
 Luck.DAY_BANNER = "Lucky Day! Rare cats are twice as likely until night"
 
--- A source of Luck: "statue", "potion" or "lucky_day", and what it adds.
-export type SourceId = "statue" | "potion" | "lucky_day"
+-- A source of Luck: "statue", "potion", "lucky_day" or "event" (#2486), and what it adds.
+export type SourceId = "statue" | "potion" | "lucky_day" | "event"
 export type Source = { id: SourceId, value: number }
 
 local function statueLevel(profile: Types.PlayerProfile): number
@@ -30,7 +32,12 @@ local function statueLevel(profile: Types.PlayerProfile): number
 	return if type(level) == "number" then math.max(0, math.floor(level)) else 0
 end
 
-function Luck.sources(profile: Types.PlayerProfile, now: number, luckyDay: boolean): { Source }
+function Luck.sources(
+	profile: Types.PlayerProfile,
+	now: number,
+	luckyDay: boolean,
+	event: number?
+): { Source }
 	local out: { Source } = {}
 	local function add(id: SourceId, value: number)
 		local source: Source = { id = id, value = value }
@@ -46,6 +53,9 @@ function Luck.sources(profile: Types.PlayerProfile, now: number, luckyDay: boole
 	if luckyDay then
 		add("lucky_day", Config.LuckyDayPlayerLuck)
 	end
+	if event ~= nil and event > 0 then
+		add("event", math.min(event, Config.EventLuckMax))
+	end
 	return out
 end
 
@@ -54,9 +64,14 @@ local function round(luck: number): number
 	return math.floor(luck * 100 + 0.5) / 100
 end
 
-function Luck.of(profile: Types.PlayerProfile, now: number, luckyDay: boolean): number
+function Luck.of(
+	profile: Types.PlayerProfile,
+	now: number,
+	luckyDay: boolean,
+	event: number?
+): number
 	local luck = 1
-	for _, source in Luck.sources(profile, now, luckyDay) do
+	for _, source in Luck.sources(profile, now, luckyDay, event) do
 		luck += source.value
 	end
 	return math.clamp(round(luck), 1, Config.LuckMax)

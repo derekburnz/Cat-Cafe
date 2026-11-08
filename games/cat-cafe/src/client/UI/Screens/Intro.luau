@@ -4,7 +4,8 @@
 -- seconds). The engineer's IntroController moves the camera and calls UI.intro; this draws over it:
 --   letterbox bars   9% of the screen each, near black; they slide in on start and out over 0.45 s at the end
 --   caption          one line just above the lower bar, popping from 0.9 to full size on each shot
---   shot dots        one per shot on the top bar (IntroLogic.SHOTS, from shared/Intro), the current one gold
+--   shot dots        one per shot on the top bar (IntroLogic.SHOTS, from shared/Intro, up to MAX_SHOTS with the
+--                    tackling lesson's tail, #2495), the current one gold
 --   demo ring        shot 2's closing catch circle over the stray: PERFECT at 1.3 s, a sparkle to 2.0 s
 --   job card         shot 4's four role buttons in miniature beside the cat; the given role lights with a tap
 --   tip pop          #2242: the rich visitor shot's big gold "+$1,234" over the tip bag your copy grabs, rising and
@@ -252,7 +253,7 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, BAR / 2),
-		Size = UDim2.fromOffset(IntroLogic.SHOTS * (DOT_NOW + DOT_GAP), DOT_NOW),
+		Size = UDim2.fromOffset(IntroLogic.MAX_SHOTS * (DOT_NOW + DOT_GAP), DOT_NOW),
 		Parent = root,
 	}, {
 		Create("UIListLayout", {
@@ -264,7 +265,7 @@ function Intro.new(parent: Instance, callbacks: Callbacks): Intro
 		}),
 	})
 	self._dots = {} :: { Frame }
-	for index = 1, IntroLogic.SHOTS do
+	for index = 1, IntroLogic.MAX_SHOTS do -- #2495: room for the lesson's tail; _renderDots hides the rest
 		self._dots[index] = Create("Frame", {
 			Name = "Dot" .. index,
 			BackgroundColor3 = Theme.colors.paper,

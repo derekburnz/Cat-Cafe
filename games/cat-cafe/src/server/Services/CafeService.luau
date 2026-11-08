@@ -1435,9 +1435,9 @@ function CafeService.addCaughtCat(
 				),
 				"good"
 			)
-		elseif spot ~= nil then
-			-- #2399 (Derek2: "way too many bubble pop ups"): no "X is working as Y" toast; the Cats window shows it
-		else
+		elseif spot == nil then
+			-- #2399 (Derek2: "way too many bubble pop ups"): no "X is working as Y" toast for a cat that took a role (the
+			-- Cats window shows it); one with no role free is still told where it went
 			Net.toast(
 				player,
 				string.format(
@@ -1815,7 +1815,6 @@ local function onSellExtraCommons(player: Player)
 		CafeService.sync(player)
 		return
 	end
-	local value = Catalog.rarities[SellExtras.RARITY].sellValue
 	for _, uid in plan.uids do
 		local instance = profile.cats[uid]
 		profile.cats[uid] = nil

@@ -1015,10 +1015,6 @@ local function attachHeldCat(player: Player, carry: Carry)
 end
 
 -- "an Epic Maine Coon", "a Tabby": the article for the word that follows it.
-local function withArticle(phrase: string): string
-	return (if phrase:match("^[AEIOUaeiou]") then "an " else "a ") .. phrase
-end
-
 -- The getaway after a net catch or a rescue (v0.8 F55, data-model section 10c). Every other player within
 -- CatchBurstRadiusStuds is pushed CatchBurstStuds straight away from the catcher by their own client (CatchBurst, the
 -- shove's push without its hold), unless they are in a catch or rescue, so nobody is pushed into a miss. It is not a

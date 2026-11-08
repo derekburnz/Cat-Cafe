@@ -4225,7 +4225,9 @@ local SCENES = {
 		assert(right(fish) <= badge.AbsolutePosition.X, "uigate: the money badge is not right of the golden fish (#2334)")
 	end },
 	-- #2194 (playtester Dread via Derek2: "The cash at the bottom left should probably not push the 2x cash and fish"):
-	-- the money badge and the golden fish stay put while the money grows from $0 to the widest usual amounts
+	-- the money badge and the golden fish stay put while the digits tick within an amount's shape ("$1.24M" to
+	-- "$1.29M"); #2383 (Derek2: "isn't supposed to be a big gap between the money and fish"): at every amount the fish
+	-- sits a short gap after it, never on it
 	{ "HUDCashSteady", function()
 		-- an earlier scene's 2x Money pass hides the badge (it shows as the side chip): no pass here, the golden fish
 		-- shown, both put back by Scenes.close
@@ -4239,17 +4241,24 @@ local SCENES = {
 		local fish = counters:FindFirstChild("Fish") :: GuiObject
 		local amount = (counters:FindFirstChild("Money") :: Instance):FindFirstChild("Amount", true) :: TextLabel
 		assert(badge.Visible and fish.Visible, "uigate: the money badge or the golden fish is hidden (#2194)")
-		local badgeX, fishX
-		for _, money in { 0, 7, 999, 88888, 99999, 1240000, 99900000, 999e15 } do
-			UI.update({ money = money })
-			UIShim.advance(1 / 60)
-			if badgeX == nil then
-				badgeX, fishX = badge.AbsolutePosition.X, fish.AbsolutePosition.X
+		local scale = amount.AbsoluteSize.Y / 36
+		-- each run is one shape: the fish and the badge hold still through it
+		for _, run in { { 0, 7 }, { 111, 999 }, { 11111, 88888 }, { 1210000, 1290000 }, { 33300000, 33700000 }, { 111e15, 999e15 } } do
+			local badgeX, fishX
+			for _, money in run do
+				UI.update({ money = money })
+				UIShim.advance(1 / 60)
+				if badgeX == nil then
+					badgeX, fishX = badge.AbsolutePosition.X, fish.AbsolutePosition.X
+				end
+				assert(math.abs(badge.AbsolutePosition.X - badgeX) < 1, ("uigate: %s moves the money badge %d px (#2194)"):format(amount.Text, badge.AbsolutePosition.X - badgeX))
+				assert(math.abs(fish.AbsolutePosition.X - fishX) < 1, ("uigate: %s moves the golden fish %d px (#2194)"):format(amount.Text, fish.AbsolutePosition.X - fishX))
+				local gap = (fish.AbsolutePosition.X - (amount.AbsolutePosition.X + amount.TextBounds.X)) / scale
+				assert(gap >= 4, "uigate: " .. amount.Text .. " runs into the golden fish (#2194, #2334)")
+				-- (at most the room's slack, widest for an amount of 1s, plus the row's own gap)
+				assert(gap <= 45, ("uigate: the golden fish sits %d px after %s (#2383)"):format(gap, amount.Text))
+				assert(fish.AbsolutePosition.X + fish.AbsoluteSize.X <= badge.AbsolutePosition.X, "uigate: the golden fish runs into the money badge (#2334)")
 			end
-			assert(math.abs(badge.AbsolutePosition.X - badgeX) < 1, ("uigate: %s moves the money badge %d px (#2194)"):format(amount.Text, badge.AbsolutePosition.X - badgeX))
-			assert(math.abs(fish.AbsolutePosition.X - fishX) < 1, ("uigate: %s moves the golden fish %d px (#2194)"):format(amount.Text, fish.AbsolutePosition.X - fishX))
-			assert(amount.AbsolutePosition.X + amount.TextBounds.X <= fish.AbsolutePosition.X, "uigate: " .. amount.Text .. " runs into the golden fish (#2194, #2334)")
-			assert(fish.AbsolutePosition.X + fish.AbsoluteSize.X <= badge.AbsolutePosition.X, "uigate: the golden fish runs into the money badge (#2334)")
 		end
 	end },
 	-- #2254 (Derek2 11-07: "gold fish is hovering wrong now if you did already buy the 2x/3x/4x money"): with a money

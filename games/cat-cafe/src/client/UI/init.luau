@@ -4285,7 +4285,7 @@ do
 		if
 			bar ~= nil
 			and TackleTry.due({
-				lessonSeen = tipKnown("tackle"),
+				lessonSeen = tipKnown(TackleLessonLogic.TIP), -- #2409: the lesson's own id
 				tried = tipKnown(TackleTry.TIP),
 				ready = bar:ready(),
 				from = from,
@@ -4325,7 +4325,10 @@ do
 	-- A tip's moment came: ShowTip from the server, or the client's own finds. Queued and timed; unknown ids, the two
 	-- asks the UI times itself (feedback_ask, stuck_help) and tips already seen are left alone.
 	function UI.tips.show(id: string)
-		if type(id) ~= "string" or (Tips.get(id) == nil and id ~= Tips.LIKE_ASK) then
+		if
+			type(id) ~= "string"
+			or (Tips.get(id) == nil and id ~= Tips.LIKE_ASK and id ~= TackleLessonLogic.TIP)
+		then
 			return
 		end
 		if tipKnown(id) or tipQueue:has(id) then

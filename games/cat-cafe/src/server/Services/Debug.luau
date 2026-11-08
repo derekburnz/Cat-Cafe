@@ -112,6 +112,7 @@ local Telemetry = require(script.Parent.Telemetry)
 local TipJarService = require(script.Parent.TipJarService)
 local TipPileService = require(script.Parent.TipPileService)
 local TipService = require(script.Parent.TipService)
+local Tips = require(ReplicatedStorage.Shared.Tips)
 local TradeService = require(script.Parent.TradeService)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -505,7 +506,7 @@ end
 -- client plays the tackling lesson again (#2198, #2201). Returns whether it went out.
 function Debug.tackleLesson(player: (Player | number | string)?): boolean
 	guard()
-	return TipService.debugResend(resolve(player), "tackle")
+	return TipService.debugResend(resolve(player), Tips.LESSON)
 end
 
 -- A rescue bar press for `player` that hits or misses on purpose (`kind` "hit" or "miss"), for testers who cannot time

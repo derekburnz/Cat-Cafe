@@ -122,6 +122,20 @@ return function()
 			expect(#Tips.due(profile, DAY)).to.equal(0)
 		end)
 
+		it("has the tackling lesson once the intro was seen, until it is (#2409)", function()
+			local profile = fresh()
+			expect(table.find(Tips.due(profile, DAY), Tips.LESSON)).never.to.be.ok()
+			profile.introSeen = true
+			expect(Tips.due(profile, DAY) :: any).to.deepEqual({ Tips.LESSON })
+			-- the old tackle card's seen flag does not stand in for the lesson
+			profile.tipsSeen = { tackle = true }
+			expect(Tips.due(profile, DAY) :: any).to.deepEqual({ Tips.LESSON })
+			profile.tipsSeen = { tackle_lesson = true }
+			expect(#Tips.due(profile, DAY)).to.equal(0)
+			expect(Tips.seenId(Tips.LESSON)).to.equal(true)
+			expect(Tips.LESSON).to.equal("tackle_lesson")
+		end)
+
 		it("lists only server tips", function()
 			local profile = fresh()
 			profile.goldenFish = 3
@@ -129,6 +143,9 @@ return function()
 			profile.tutorialStep = 5
 			profile.potions = { tip_potion = 1 }
 			for _, id in Tips.due(profile, { duskWarning = true, night = true }) do
+				if id == Tips.LESSON then
+					continue -- #2409: the lesson is not in LIST
+				end
 				local def = Tips.get(id)
 				assert(def ~= nil, id)
 				expect(def.by).to.equal("server")

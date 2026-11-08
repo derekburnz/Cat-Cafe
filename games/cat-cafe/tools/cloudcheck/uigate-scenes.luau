@@ -3391,6 +3391,53 @@ local SCENES = {
 		counting:Disconnect()
 		UI.update({ tipsSeen = before } :: any)
 	end },
+	-- #2408 (Derek2: "because of so many pop ups on cafe tier up its hard to see the cutscene showing next place
+	-- unlocked"): the rank up's camera cut (a stand-in cut player here): the HUD steps aside, a toast sent meanwhile
+	-- waits, and both come back when the cut ends
+	{ "RankUpCutQuiet", function()
+		local before: any = (UI.getState() :: any).tipsSeen or {}
+		local tipsSeen = table.clone(before)
+		for _, def in UIShim.require("ReplicatedStorage.Shared.Tips").LIST do
+			tipsSeen[def.id] = true
+		end
+		tipsSeen.rank_up = nil
+		UI.update({ tipsSeen = tipsSeen } :: any)
+		local cut: { started: boolean, done: ((boolean) -> ())? } = { started = false, done = nil }
+		UI.tips.setCutPlayer(function(id: string, _caption: string, _seconds: number, done: (boolean) -> ()): boolean
+			if id ~= "rank_up" then
+				return false
+			end
+			cut.started = true
+			cut.done = done
+			return true
+		end)
+		UIShim.advance(tipGap() + 1) -- past TipGapSeconds after an earlier scene's tip
+		UI.tips.show("rank_up")
+		UIShim.advance(1)
+		assert(cut.started, "uigate: the rank up cut never played (#2408)")
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		assert(not hud.Enabled, "uigate: the HUD stays over the rank up cut (#2408)")
+		local line = "Your cafe is now a Cozy Cafe! Two new role slots are ready"
+		UI.toast(line, "good")
+		task.wait(0.2)
+		local function toastUp(): boolean
+			for _, piece in UIShim.playerGui:GetDescendants() do
+				if piece.Name == "Toast" and piece:GetAttribute("Line") == line then
+					local gui = piece:FindFirstAncestorOfClass("ScreenGui")
+					return gui ~= nil and gui.Enabled
+				end
+			end
+			return false
+		end
+		assert(not toastUp(), "uigate: a toast drew over the rank up cut (#2408)")
+		local done = cut.done :: (boolean) -> ()
+		done(false)
+		task.wait(0.2)
+		assert(hud.Enabled, "uigate: the HUD did not come back after the cut (#2408)")
+		assert(toastUp(), "uigate: the toast held over the cut never showed (#2408)")
+		UI.tips.setCutPlayer(nil)
+		UI.update({ tipsSeen = before } :: any)
+	end },
 	-- #2302 (Derek2: "add tackling somewhere in tutorial or something if it's not already"): the "tackle them" card,
 	-- with the key or button for this device, on one card that fits, saved as seen
 	{ "TackleTryTip", function()

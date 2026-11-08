@@ -36,6 +36,8 @@ export type Toasts = {
 	prize: (self: Toasts, text: string, prize: Types.IndexPrize?) -> (),
 	setCatalog: (self: Toasts, catalog: Types.Catalog) -> (),
 	avoid: (self: Toasts, boxes: () -> { Types.Box }, floor: (() -> number)?) -> (),
+	setHeld: (self: Toasts, held: boolean) -> (),
+	isHeld: (self: Toasts) -> boolean,
 	lastShown: (self: Toasts) -> number?,
 	destroy: (self: Toasts) -> (),
 }
@@ -114,6 +116,7 @@ function Toasts.new(parent: Instance): Toasts
 	self._room = MAX_VISIBLE
 	self._said = {} :: { [string]: number } -- #2399: when each line last showed (os.clock)
 	self._queue = {} :: { Waiting } -- #2338: toasts waiting for one on screen to go
+	self._held = false -- #2408: a camera cut on screen; new toasts wait in _queue
 	self._lastAt = nil :: number? -- #2407: when a toast last drew (os.clock), so tips keep clear of it
 	self._resized = root:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		self:_place()
@@ -275,6 +278,22 @@ function Toasts._push(
 	bands: boolean?,
 	prize: Types.IndexPrize?
 )
+	-- #2408: held (a camera cut on screen): it waits in the queue and shows when the hold ends
+	if self._held then
+		for _, waiting in self._queue do
+			if waiting.text == text and prize == nil then
+				return
+			end
+		end
+		table.insert(
+			self._queue,
+			{ text = text, fill = fill, lifetime = lifetime, bands = bands, prize = prize }
+		)
+		if #self._queue > QUEUE_MAX then
+			table.remove(self._queue, 1)
+		end
+		return
+	end
 	-- the same words already up (and not fading out): that toast again, never a copy under it (#1435)
 	if prize == nil then
 		for _, live in self._alive do
@@ -381,7 +400,7 @@ function Toasts._push(
 	end
 	self:_place()
 	while #self._alive > self._room do
-		local oldest = table.remove(self._alive, 1)
+		local oldest = table.remove(self._alive :: { Frame }, 1)
 		if oldest then
 			self._restart[oldest] = nil
 			oldest:Destroy()
@@ -498,6 +517,28 @@ function Toasts._fade(
 			self:_push(waiting.text, waiting.fill, waiting.lifetime, waiting.bands, waiting.prize)
 		end
 	end)
+end
+
+-- #2408 (Derek2: "because of so many pop ups on cafe tier up its hard to see the cutscene showing next place
+-- unlocked"): while held, new toasts wait (QUEUE_MAX at most, the newest kept) instead of drawing over a camera cut;
+-- the hold's end shows them, as many as fit, the rest as rows free up.
+function Toasts.setHeld(self: any, held: boolean)
+	if self._held == held then
+		return
+	end
+	self._held = held
+	if held then
+		return
+	end
+	local waiting: { Waiting } = table.clone(self._queue)
+	table.clear(self._queue)
+	for _, line in waiting do
+		self:_push(line.text, line.fill, line.lifetime, line.bands, line.prize)
+	end
+end
+
+function Toasts.isHeld(self: any): boolean
+	return self._held == true
 end
 
 -- #2407: when a toast last drew (os.clock), or nil if none has; the tip pump keeps TipQueue.TOAST_QUIET clear of it.

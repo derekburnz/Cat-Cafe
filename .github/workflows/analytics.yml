@@ -1,6 +1,8 @@
 # Read the first-session numbers from Roblox analytics (Open Cloud Analytics Query API, beta), so threads see where
 # new players quit without Creator Hub: players per step of every funnel (onboarding first), players per day new and
-# returning, session length, day 1 retention, first-session lengths and the most logged custom events. Start it from
+# returning, session length, day 1 retention, first-session lengths, the most logged custom events and the audience
+# (players and day 1 retention by Platform, Country and AgeGroupV2; session length and the onboarding and first_hour
+# funnels by Platform, #2391). Start it from
 # the Actions tab (analytics > Run workflow) or from any thread with the GitHub actions_run_trigger tool on main; the
 # run summary holds the tables, the job log the same plus every raw answer. It also runs by itself every morning at
 # 10:17 UTC for yesterday and the last 7 days. Read only. Needs the repo secret

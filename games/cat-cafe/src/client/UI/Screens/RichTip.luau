@@ -8,6 +8,8 @@
 -- `collected` fires only on "claimed" so the caller can float "+$X" and toast it; on "missed" `missed` fires.
 --
 --   bind(plot)  watch this plot's RichTipAmount, RichTipExpiresAt (server os.time()) and RichTipOutcome; nil stops
+--   preview(position, amount)  #2395: the same bubble over a world point, timer full and Collect inert, for the
+--                intro's rich-tip shot; nil hides it (Gameplay-Engineer, with UI-Engineer's OK)
 --
 -- Roblox terms: the plot attributes are display copies the server keeps in step with its own record; the button is
 -- inside a BillboardGui, which only passes taps and clicks to its children when Active.
@@ -44,6 +46,7 @@ export type Callbacks = {
 
 export type RichTip = {
 	bind: (self: RichTip, plot: Instance?) -> (),
+	preview: (self: RichTip, position: Vector3?, amount: number?) -> (),
 	destroy: (self: RichTip) -> (),
 }
 
@@ -61,6 +64,7 @@ function RichTip.new(parent: Instance, callbacks: Callbacks): RichTip
 	self._cleared = nil :: { amount: number, position: Vector3? }? -- a cleared tip waiting for its outcome
 	self._pendingUntil = 0
 	self._shown = false
+	self._previewPart = nil :: BasePart? -- #2395: the intro's staged point while a preview shows
 
 	local billboard: BillboardGui = Create("BillboardGui", {
 		Name = "CatCafeRichTip",
@@ -198,6 +202,9 @@ local function distanceTo(part: BasePart): number?
 end
 
 function RichTip._collect(self: any)
+	if self._previewPart ~= nil then
+		return -- #2395: a preview pays nothing
+	end
 	local anchor = self:_findAnchor()
 	local distance = if anchor then distanceTo(anchor) else nil
 	if distance and distance > RANGE then
@@ -304,6 +311,9 @@ function RichTip._refresh(self: any)
 		self._cleared = nil -- a new tip; an older one's outcome no longer matters
 	end
 	self._lastAmount = amount
+	if self._previewPart ~= nil then
+		return -- #2395: the intro's preview keeps the bubble; preview(nil) refreshes again
+	end
 	local view = self:_view()
 	local anchor = self:_findAnchor()
 	if view and anchor then
@@ -359,7 +369,67 @@ function RichTip.bind(self: any, plot: Instance?)
 	refresh()
 end
 
+-- #2395: the intro's staged rich tip. Shows the bubble over `position` with `amount`, the timer full and Collect
+-- inert, on a local invisible part; nil hides it and gives the bubble back to a real tip if one shows.
+function RichTip.preview(self: any, position: Vector3?, amount: number?)
+	local old: BasePart? = self._previewPart
+	if position == nil then
+		if old == nil then
+			return
+		end
+		self._previewPart = nil
+		old:Destroy()
+		if self._shown then
+			self._shown = false -- the real tip's _show adorns its anchor again
+			self:_refresh()
+			if not self._shown then
+				local billboard: BillboardGui = self._billboard
+				Tween.popOut(self._bubble, function()
+					if not self._shown and self._previewPart == nil then
+						billboard.Enabled = false
+					end
+				end)
+			end
+		end
+		return
+	end
+	local loop: RBXScriptConnection? = self._loop
+	if loop then
+		loop:Disconnect() -- the real tip's ticks would take the bubble back
+		self._loop = nil
+	end
+	local part = old
+	if part == nil then
+		local made = Instance.new("Part")
+		made.Name = "CatCafeRichTipPreview"
+		made.Anchored = true
+		made.CanCollide = false
+		made.CanQuery = false
+		made.CanTouch = false
+		made.Transparency = 1
+		made.Size = Vector3.new(0.2, 0.2, 0.2)
+		made.Parent = Workspace
+		self._previewPart = made
+		part = made
+	end
+	assert(part, "preview part")
+	part.Position = position
+	self._amount.Text = "💰 " .. Format.money(amount or 0)
+	self._title.Text = "RICH TIP  ·  " .. RichTipState.clock(STAY)
+	self._fill.Size = UDim2.fromScale(1, 1)
+	self._button:setText("Collect")
+	self._button:setEnabled(true)
+	self._billboard.StudsOffset = Vector3.new(0, OFFSET, 0)
+	self._billboard.Adornee = part
+	if not self._shown or old == nil then
+		self._shown = true
+		self._billboard.Enabled = true
+		Tween.popIn(self._bubble, 0.5)
+	end
+end
+
 function RichTip.destroy(self: any)
+	self:preview(nil)
 	self:bind(nil)
 	local loop: RBXScriptConnection? = self._loop
 	if loop then

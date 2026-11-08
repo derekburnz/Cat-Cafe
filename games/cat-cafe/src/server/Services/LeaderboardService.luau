@@ -4,7 +4,8 @@
 --     all time and this week) go to one OrderedDataStore per list, keyed by user id, on join, every
 --     LeaderboardWriteSeconds, on a rank up and on leave, each only when it changed since this server last wrote it.
 --     Never in Studio or with Config.LeaderboardWrites off, so playtests never land on the live boards.
---   Reads: every LeaderboardRefreshSeconds the top LeaderboardSize of every list, spread across the period, names
+--   Reads: every LeaderboardRefreshSeconds the top LeaderboardSize of every list, spread across the period (all at
+--     once on a server's first refresh, #2400, so a new server's boards are full from the start), names
 --     from UserService in batches (cached for the server's life), the hidden list (DataStore key
 --     CatCafe_LB_Hidden) dropped.
 --   Shown: each list as read with the players in this server put in at their values now (Leaderboards.withPresent,
@@ -290,11 +291,13 @@ function showPresent()
 	crown()
 end
 
--- One refresh: the hidden list, then each list a step apart across LeaderboardRefreshSeconds, then everyone's sync.
+-- One refresh: the hidden list, then each list a step apart across LeaderboardRefreshSeconds (all at once on the
+-- server's first, #2400), then everyone's sync.
+local refreshed = false
 local function refresh()
 	readHidden()
 	local week = Leaderboards.week(os.time())
-	local step = Config.LeaderboardRefreshSeconds / (#Leaderboards.LISTS + 1)
+	local step = Leaderboards.readGap(not refreshed)
 	if week ~= listWeek then
 		-- a new week: last week's lists are not this week's
 		lists.playtime_week = {}
@@ -302,8 +305,11 @@ local function refresh()
 	end
 	for _, list in Leaderboards.LISTS do
 		readList(list, week)
-		task.wait(step)
+		if step > 0 then
+			task.wait(step)
+		end
 	end
+	refreshed = true
 	listWeek = week
 	showPresent()
 	for _, player in Players:GetPlayers() do
@@ -417,7 +423,7 @@ function LeaderboardService.start()
 	task.spawn(function()
 		while true do
 			refresh()
-			task.wait(Config.LeaderboardRefreshSeconds / (#Leaderboards.LISTS + 1))
+			task.wait(Leaderboards.readGap(false))
 		end
 	end)
 end

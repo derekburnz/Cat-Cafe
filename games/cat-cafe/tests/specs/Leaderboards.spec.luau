@@ -148,6 +148,16 @@ return function()
 		end)
 	end)
 
+	describe("the reads (#2400)", function()
+		it("read every list at once on a server's first refresh, then spread across the period", function()
+			expect(Leaderboards.readGap(true)).to.equal(0)
+			local gap = Leaderboards.readGap(false)
+			expect(gap > 0).to.equal(true)
+			-- the five reads and the pause after the refresh fill LeaderboardRefreshSeconds
+			expect(gap * (#Leaderboards.LISTS + 1)).to.equal(Config.LeaderboardRefreshSeconds)
+		end)
+	end)
+
 	describe("the rows", function()
 		local function name(userId: number): string
 			return "P" .. userId

@@ -106,7 +106,6 @@ export type HUD = {
 	screenGui: ScreenGui,
 	setCatalog: (self: HUD, catalog: Types.Catalog) -> (),
 	render: (self: HUD, state: Types.PlayerState) -> (),
-	setPinnedQuest: (self: HUD, key: string?) -> (), -- #1573: the quest pinned in the Quests window, or nil
 	goalSeen: (self: HUD) -> (), -- #2331: the rank up card opened, so the goal card's ready pulse and arrow stop
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
@@ -347,8 +346,10 @@ local DAY_CARD_Z = 20
 -- (GuiService.TopbarInset) runs over the column, the column moves up into it. TOPBAR_SLACK is how far short of the
 -- screen's right edge that stretch may stop and still count.
 local RIGHT_COLUMN_W = math.max(300, ICON_ROW_W)
-local QUEST_LINE_W = 300 -- F73: the quest line under the goal card
-local QUEST_LINE_H = 24
+-- #2528 (Derek2: "remove the quest line showing a brief summary under your goal"): F73's quest line under the goal
+-- card is gone (the Quests tile's count still shows what is ready); the free spin line keeps its size
+local SPIN_LINE_W = 300
+local SPIN_LINE_H = 24
 -- F49: the Town Square's red free-spin dot went with its place bubble (Derek 2026-10-28 01:39), so the HUD says it
 -- instead (Derek okayed 12:02): a gold line under the quest line, no box, not a button, since the wheel is a station
 -- you walk up to
@@ -1267,26 +1268,13 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end
 		self:_layoutRight()
 	end)
-	-- F73: one outlined line under it, the closest unfinished daily quest or what is ready to claim; a tap opens Quests
-	local questLine: TextButton = Create("TextButton", {
-		Name = "QuestLine",
-		Text = "",
-		AutoButtonColor = false,
-		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -MARGIN, 0, GOAL_TOP),
-		Size = UDim2.fromOffset(QUEST_LINE_W, QUEST_LINE_H),
-		Visible = false,
-		Parent = root,
-	})
-	self._questLine = questLine
 	-- #2358 (Derek2: "show an exclamation mark near spin when you have one"): the red "!" at the line's left, the
 	-- words right-aligned after it
 	local spinLine: Frame = Create("Frame", {
 		Name = "FreeSpin",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
-		Size = UDim2.fromOffset(QUEST_LINE_W, QUEST_LINE_H),
+		Size = UDim2.fromOffset(SPIN_LINE_W, SPIN_LINE_H),
 		Visible = false,
 		Parent = root,
 	}, {
@@ -1300,12 +1288,12 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	self._spinLine = spinLine
 	local spinBang = claimBadge(spinLine, 2)
-	spinBang.Size = UDim2.fromOffset(QUEST_LINE_H - 2, QUEST_LINE_H - 2)
+	spinBang.Size = UDim2.fromOffset(SPIN_LINE_H - 2, SPIN_LINE_H - 2)
 	spinBang.LayoutOrder = 1
 	spinBang.Visible = true
 	self._spinText = label({
 		Name = "Text",
-		Size = UDim2.fromOffset(0, QUEST_LINE_H),
+		Size = UDim2.fromOffset(0, SPIN_LINE_H),
 		AutomaticSize = Enum.AutomaticSize.X,
 		TextSize = Theme.sizes.textBody,
 		TextColor3 = Theme.colors.gold,
@@ -1315,20 +1303,6 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = spinLine,
 	})
 	self._spinTimer = nil :: thread?
-	self._questText = label({
-		Name = "Text",
-		Size = UDim2.fromScale(1, 1),
-		TextSize = Theme.sizes.textBody,
-		TextXAlignment = Enum.TextXAlignment.Right,
-		Parent = questLine,
-	})
-	table.insert(
-		self._connections,
-		questLine.Activated:Connect(function()
-			Sound.play("uiClick")
-			callbacks.openScreen("Quests")
-		end)
-	)
 	-- the column follows the top bar as Roblox's menu opens and closes and as the window resizes
 	table.insert(
 		self._connections,
@@ -2916,7 +2890,7 @@ function HUD.toastAvoid(self: any): { Types.Box }
 	box({ self._goal.frame })
 	box({ self._corner }) -- the Potions and side tiles over the bottom right
 	-- a line's words: each label's text, from its right edge when right-aligned
-	for _, line in { self._questLine, self._spinLine } :: { GuiObject } do
+	for _, line in { self._spinLine } :: { GuiObject } do
 		if line.Visible then
 			local labels: { Instance } = line:GetDescendants()
 			table.insert(labels, line)
@@ -3102,8 +3076,8 @@ end
 
 -- #2415: the top of the touch Net button (Components/NetButtonPlace, screen pixels) in design px from the root's top,
 -- or nil before the screen has a size.
--- #2499: the top of the money badge's spot right under the right column (the goal card, the Grand Opening strip, the
--- quest line and the free spin line, whichever show), in design px from the root's top; nil when the badge would
+-- #2499: the top of the money badge's spot right under the right column (the goal card, the Grand Opening strip and
+-- the free spin line, whichever show), in design px from the root's top; nil when the badge would
 -- reach the Net button (over the jump button) there.
 function HUD._underColumn(self: any, badge: GuiObject): number?
 	local scale = Scale.get()
@@ -3111,9 +3085,7 @@ function HUD._underColumn(self: any, badge: GuiObject): number?
 		return nil
 	end
 	local foot: number? = nil
-	for _, part in
-		{ self._goal.frame, self._roadmap.frame, self._questLine, self._spinLine } :: { GuiObject }
-	do
+	for _, part in { self._goal.frame, self._roadmap.frame, self._spinLine } :: { GuiObject } do
 		if part.Visible and part.AnchorPoint.Y == 0 then
 			local bottom = part.Position.Y.Offset + part.AbsoluteSize.Y / scale
 			foot = if foot == nil then bottom else math.max(foot, bottom)
@@ -3214,7 +3186,7 @@ function HUD._layoutRight(self: any)
 	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top - lift)
 	local goal = self._goal.frame
 	local lineTop = if goal.Visible then top + goal.Size.Y.Offset + Theme.sizes.gap else top
-	-- #1893: the Grand Opening strip under the goal card, the quest line under it
+	-- #1893: the Grand Opening strip under the goal card, the free spin line under it
 	local roadmap: TextButton = self._roadmap.frame
 	local stripTop = lineTop - lift
 	if roadmap.Visible and self._roadmapOpen == true then
@@ -3230,33 +3202,13 @@ function HUD._layoutRight(self: any)
 	if roadmap.Visible then
 		lineTop += self._roadmap:closedHeight() + Theme.sizes.gap
 	end
-	self._questLine.Position = UDim2.new(1, -MARGIN, 0, lineTop - lift)
-	if TOUCH then
-		-- #2415 (Derek2: "net overlaps your goal bubble"): on a phone the quest line goes while it would reach the Net
-		-- button up and left of the jump button (the Quests tile's count still shows what is ready)
-		local netTop = self:_netTop()
-		local fits = netTop == nil or lineTop - lift + QUEST_LINE_H + Theme.sizes.gap <= netTop
-		self._questRoom = fits
-		self._questLine.Visible = fits and self._questText.Text ~= ""
-	end
-	local spinTop = if self._questLine.Visible then lineTop + QUEST_LINE_H + 2 else lineTop
-	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, spinTop - lift)
+	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, lineTop - lift)
 	if TOUCH and self._corner ~= nil then
 		self:_placePotionTimers() -- #2393: the money badge keeps clear of the column
 	end
 end
 
--- F73: the Quests pill (shown once ProfileSync has quests) with its count of what is ready to claim, and the quest
--- line under the goal card once the tutorial is done.
--- #1573: the quest pinned in the Quests window leads the quest line (QuestLogic.tracker); nil goes back to the closest.
-function HUD.setPinnedQuest(self: any, key: string?)
-	self._pinnedQuest = key
-	local state: Types.PlayerState? = self._state
-	if state then
-		self:_renderQuests(state, self._catalog)
-	end
-end
-
+-- F73: the Quests pill (shown once ProfileSync has quests) with its count of what is ready to claim.
 function HUD._renderQuests(self: any, state: Types.PlayerState, catalog: Types.Catalog?)
 	local pill = self._questsPill
 	local live = state.quests ~= nil
@@ -3273,32 +3225,6 @@ function HUD._renderQuests(self: any, state: Types.PlayerState, catalog: Types.C
 	self._questDot.Visible = ready > 0
 	self._questCount.Text = tostring(ready)
 	self:_renderFoldDot()
-
-	local line: string? = nil
-	if live and (state.tutorialStep or TUTORIAL_DONE) >= TUTORIAL_DONE then
-		local quest, pinned = QuestLogic.tracker(state.quests, self._pinnedQuest)
-		if ready > 0 then
-			line = ("%s %d ready to claim"):format(Theme.icons.quests, ready)
-		elseif quest then
-			local needs = math.max(1, quest.needs)
-			local progress = math.clamp(quest.progress, 0, needs)
-			local count = if QuestLogic.isCoins(catalog, quest.id)
-				then Format.money(progress) .. "/" .. Format.money(needs)
-				else ("%d/%d"):format(math.floor(progress), math.floor(needs))
-			line = ("%s %s  %s"):format(
-				if pinned then "📌" else Theme.icons.quests,
-				quest.text,
-				count
-			)
-		end
-	end
-	self._questLine.Visible = line ~= nil and self._questRoom ~= false -- (#2415: room above the Net button on touch)
-	local said = self._questText.Text
-	self._questText.Text = line or ""
-	if TOUCH and self._questText.Text ~= said then
-		self:_placePotionTimers() -- #2393: the money badge keeps clear of the quest line's words
-	end
-	self._questText.TextColor3 = if ready > 0 then Theme.colors.gold else Theme.hud.text
 end
 
 -- F49: the free spin line shows while today's free spin waits (SpinLogic.freeDue), once ProfileSync has the spin
@@ -4435,26 +4361,17 @@ function HUD._placePotionTimers(self: any)
 		end
 		local x1 = right
 		if scale > 0 then
-			-- clear of the right column's pieces beside it (the goal card, the Grand Opening strip, the quest line's
-			-- words): a small phone lifts the pair up to them, so the badge moves left of what it would cover
+			-- clear of the right column's pieces beside it (the goal card, the Grand Opening strip): a small phone lifts
+			-- the pair up to them, so the badge moves left of what it would cover
 			local gap = Theme.sizes.gap
 			local origin = self._root.AbsolutePosition
 			local badgeW, badgeH = badge.AbsoluteSize.X / scale, badge.AbsoluteSize.Y / scale
-			local words: TextLabel = self._questText
-			local line: GuiObject = self._questLine
 			local parts: { { number } } = {}
 			for _, part in { self._goal.frame, self._roadmap.frame } :: { GuiObject } do
 				if part.Visible then
 					local at, size = part.AbsolutePosition, part.AbsoluteSize
 					table.insert(parts, { at.X, at.Y, at.X + size.X, at.Y + size.Y })
 				end
-			end
-			if line.Visible and words.Text ~= "" then
-				local at, size = line.AbsolutePosition, line.AbsoluteSize
-				table.insert(
-					parts,
-					{ at.X + size.X - words.TextBounds.X, at.Y, at.X + size.X, at.Y + size.Y }
-				)
 			end
 			for _, part in parts do
 				local x0, y0 = (part[1] - origin.X) / scale, (part[2] - origin.Y) / scale

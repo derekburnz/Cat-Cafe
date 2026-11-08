@@ -11,8 +11,9 @@
 -- and fades as the hand does (the player's own in first person). The smack (Avatar.smack) starts on the swinger's
 -- own screen at the press (Moments.NetSmackPress) and elsewhere when the server's NetSwung arrives
 -- (Moments.NetSwung), which also says whether it hit; a miss bounces the net back up from where the arm is when this
--- client hears it. A server that never sets `NetLevel` shows the Basic net. Nothing
--- here replicates or fires a remote.
+-- client hears it. A staged character (no player) smacks from the server time in its own `SmackAt` (the tackle
+-- lesson's carrier, TackleStage.SWING_ATTRIBUTE, #2469). A server that never sets `NetLevel` shows the Basic net.
+-- Nothing here replicates or fires a remote.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -36,8 +37,10 @@ type Held = {
 	parts: { BasePart }, -- the net's parts, to fade with the hand
 	smackAt: number?, -- server time the last smack began
 	missedAt: number?, -- seconds into that smack this client heard it hit nothing
+	stagedSmack: number?, -- a staged character's last SmackAt already swung
 }
 
+local SMACK_AT = "SmackAt" -- TackleStage.SWING_ATTRIBUTE: server time a staged character's smack begins
 local NO_NET = "IntroNoNet" -- true on a staged character (no player) that shows no net and keeps its arm down
 local held: { [Model]: Held } = {}
 local started = false
@@ -105,6 +108,7 @@ local function entryOf(character: Model, rig: Avatar.Rig): Held
 			parts = {},
 			smackAt = nil,
 			missedAt = nil,
+			stagedSmack = nil,
 		}
 	held[character] = entry
 	entry.rig = rig
@@ -147,6 +151,12 @@ function NetHold.weight(character: Model, rig: Avatar.Rig, dt: number, near: boo
 		end
 	else
 		drop(entry)
+	end
+	-- a staged character's smack, once its arm is up with the net in it (#2469)
+	local smackAt = if player == nil then character:GetAttribute(SMACK_AT) else nil
+	if type(smackAt) == "number" and smackAt ~= entry.stagedSmack and entry.model ~= nil then
+		entry.stagedSmack = smackAt
+		entry.smackAt, entry.missedAt = smackAt, nil
 	end
 	return entry.weight
 end

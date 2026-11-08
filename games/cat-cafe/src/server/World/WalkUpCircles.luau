@@ -4,7 +4,8 @@
 -- ring marks where the station's window pops (Controllers/WalkUpController opens it on stepping inside), like the Codes
 -- Cat's circle: a soft fill and a bright rim in the station's own colour, drawn flat on a SurfaceGui that ignores the
 -- light, so it glows by day and night without Neon bloom.
---   front(model, color, range, into?)   a ring on the floor in front of the station (its -Z, which faces the cannon)
+--   front(model, color, range, into?, icon?)  a ring on the floor in front of the station (its -Z, which faces the
+--                                         cannon), with `icon` lying in its middle (#2449)
 --   around(model, color, range, into?, cap?)  a ring all the way round it (the Cat Cannons), at most `cap` wide, slid
 --                                         off a wall on its floor (#2433)
 -- `range` is the server's reach for the station's window, so the whole ring stays inside it (shared/WalkUp). The ring
@@ -18,6 +19,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local AssetRegistry = require(script.Parent.AssetRegistry)
 local WalkUp = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("WalkUp"))
 
 local WalkUpCircles = {}
@@ -57,7 +59,90 @@ local function footprint(model: Model): (number, number, number)
 	return front, half, bottom
 end
 
-local function ring(model: Model, centre: Vector3, radius: number, color: Color3, into: Instance?)
+-- #2449 (Derek2: "add cute images in the circles infront of the stations similar to how codes cat has a coupon with a
+-- paw on it"): a station's icon in its ring. `art` is a flat decor model in ReplicatedStorage.Assets (Model-Agent's
+-- CatCafe_Street_<Station>_RingIcon_Decor, like the Codes Cat's ticket), laid in the middle and shrunk to fit; until
+-- it is in, `emoji` on a little cream card with a paw stamp, drawn on the ring's own surface.
+export type Icon = { emoji: string, art: string? }
+
+local CARD = Color3.fromRGB(255, 246, 228)
+local CARD_TILT = -8 -- degrees, a card dropped on the floor
+local CARD_EDGE = 0.12 -- studs: the card's outline, in the station's colour
+local ICON_LIFT = 0.01 -- studs above the ring, so the art never z-fights its fill (Model-Agent, #2455)
+
+-- The stand-in: the card, its emoji and the paw stamp, on the ring's SurfaceGui (which spans the ring's width).
+local function card(gui: SurfaceGui, icon: Icon, color: Color3)
+	local frame = Instance.new("Frame")
+	frame.Name = "Icon"
+	frame.AnchorPoint = Vector2.new(0.5, 0.5)
+	frame.Position = UDim2.fromScale(0.5, 0.5)
+	frame.Size = UDim2.fromScale(WalkUp.ICON_SHARE, WalkUp.ICON_SHARE)
+	frame.Rotation = CARD_TILT
+	frame.BackgroundColor3 = CARD
+	frame.BorderSizePixel = 0
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0.2, 0)
+	corner.Parent = frame
+	local edge = Instance.new("UIStroke")
+	edge.Color = color
+	edge.Thickness = CARD_EDGE * PIXELS_PER_STUD
+	edge.Parent = frame
+	local function glyph(name: string, text: string, size: number, x: number, y: number)
+		local label = Instance.new("TextLabel")
+		label.Name = name
+		label.AnchorPoint = Vector2.new(0.5, 0.5)
+		label.Position = UDim2.fromScale(x, y)
+		label.Size = UDim2.fromScale(size, size)
+		label.BackgroundTransparency = 1
+		label.Text = text
+		label.TextScaled = true
+		label.Font = Enum.Font.GothamBold
+		label.TextColor3 = color
+		label.Parent = frame
+	end
+	glyph("Emoji", icon.emoji, 0.72, 0.5, 0.47)
+	glyph("Paw", "🐾", 0.3, 0.8, 0.8)
+	frame.Parent = gui
+end
+
+-- The art, laid flat in the ring's middle, at most ICON_ART_SHARE of its width across; false when it is not in.
+local function art(part: BasePart, icon: Icon, radius: number): boolean
+	local name = icon.art
+	if name == nil or not AssetRegistry.has(name) then
+		return false
+	end
+	local decor = AssetRegistry.clone(name)
+	local size = decor:GetExtentsSize()
+	local across = math.max(size.X, size.Z)
+	local most = radius * 2 * WalkUp.ICON_ART_SHARE
+	if across > most and across > 0 then
+		decor:ScaleTo(decor:GetScale() * most / across)
+	end
+	for _, piece in decor:GetDescendants() do
+		if piece:IsA("BasePart") then
+			piece.Anchored = true
+			piece.CanCollide = false
+			piece.CanQuery = false
+			piece.CanTouch = false
+			piece.CastShadow = false
+		elseif piece:IsA("Script") or piece:IsA("LocalScript") then
+			piece:Destroy() -- decor carries no code (rule 7)
+		end
+	end
+	decor.Name = "Icon"
+	decor:PivotTo(part.CFrame * CFrame.new(0, part.Size.Y / 2 + ICON_LIFT, 0))
+	decor.Parent = part
+	return true
+end
+
+local function ring(
+	model: Model,
+	centre: Vector3,
+	radius: number,
+	color: Color3,
+	into: Instance?,
+	icon: Icon?
+)
 	local old = model:FindFirstChild(WalkUp.CIRCLE)
 	if old ~= nil and old:IsA("ObjectValue") then
 		local was = (old :: ObjectValue).Value
@@ -112,6 +197,9 @@ local function ring(model: Model, centre: Vector3, radius: number, color: Color3
 	end
 	circle(radius, FILL, RIM, 0) -- the disc and its bright rim
 	circle(radius - RIM, 1, HALO, HALO_SEEN) -- the softer band just inside the rim
+	if icon ~= nil and not art(part, icon, radius) then
+		card(gui, icon, color)
+	end
 	gui.Parent = part
 	part.Parent = into or model.Parent or model
 	local link = Instance.new("ObjectValue")
@@ -123,14 +211,20 @@ local function ring(model: Model, centre: Vector3, radius: number, color: Color3
 	end)
 end
 
--- A ring in front of the station, touching its front, inside `range` of its pivot.
-function WalkUpCircles.front(model: Model, color: Color3, range: number, into: Instance?)
+-- A ring in front of the station, touching its front, inside `range` of its pivot, with `icon` in its middle.
+function WalkUpCircles.front(
+	model: Model,
+	color: Color3,
+	range: number,
+	into: Instance?,
+	icon: Icon?
+)
 	local front, _, bottom = footprint(model)
 	local radius = WalkUp.FRONT_RADIUS
 	local pivot = model:GetPivot()
 	local out = WalkUp.frontOffset(front, radius, range)
 	local at = (pivot * CFrame.new(0, 0, -out)).Position
-	ring(model, Vector3.new(at.X, bottom + LIFT, at.Z), radius, color, into)
+	ring(model, Vector3.new(at.X, bottom + LIFT, at.Z), radius, color, into, icon)
 end
 
 -- The flat points, from `centre`, where something other than the station stands on the floor within `reach`.

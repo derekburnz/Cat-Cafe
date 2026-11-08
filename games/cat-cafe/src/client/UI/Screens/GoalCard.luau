@@ -40,6 +40,9 @@ export type GoalCard = {
 	destroy: (self: GoalCard) -> (),
 }
 
+-- #2447: a requirement's shorter caption on a touch screen
+local TOUCH_SHORT: { [string]: string } = { ["Different cats"] = "Cats" }
+
 -- The compact card of Derek's 11-04 HUD mockup (#1176): a dark rounded card with the next tier's name, a pink
 -- "Rank up!" pill at its right once ready and a thin bar per requirement under its caption and numbers ("Coins
 -- $879 / $1.5K", "Different cats ✓"; the friend 11-04: "put the labels back"). At the top tier the card holds the
@@ -304,7 +307,11 @@ function GoalCard.render(self: any, progress: RankUp.Progress?, tierText: string
 		row.frame.Visible = item ~= nil
 		if item then
 			count = index
-			row.label.Text = item.short
+			-- #2447 (Derek2 11-08: "change different cats to just Cats on mobile for main goal because it gets cut
+			-- off"): the phone's card is too narrow for "Different cats" beside its count
+			row.label.Text = if TOUCH_SHORT[item.short] and Scale.isTouch()
+				then TOUCH_SHORT[item.short]
+				else item.short
 			row.status.Text = if item.met then "✓" else item.status
 			row.status.TextColor3 = if item.met then Theme.colors.gold else Theme.hud.text
 			row.fill.Size = UDim2.fromScale(math.clamp(item.fraction, 0, 1), 1)

@@ -1826,8 +1826,13 @@ local SCENES = {
 		local now = workspace:GetServerTimeNow()
 		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now + 102, placedAt = now - 18 }, 1)
 		local chip = UIShim.playerGui:FindFirstChild("CatComing", true)
-		assert(chip and chip.Visible and string.find(chip.Text, "A cat is coming!", 1, true),
-			"uigate: no \"A cat is coming!\" over the money during the first bait (#1895)")
+		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			-- #2447: never on touch, where the counters' row is up in the top bar
+			assert(chip and not chip.Visible, "uigate: \"A cat is coming!\" shows on touch (#2447)")
+		else
+			assert(chip and chip.Visible and string.find(chip.Text, "A cat is coming!", 1, true),
+				"uigate: no \"A cat is coming!\" over the money during the first bait (#1895)")
+		end
 		UI.bait.openPicker()
 		local status = baitWindow():FindFirstChild("Status", true)
 		local sub = status and status:FindFirstChild("Sub", true)
@@ -4693,7 +4698,22 @@ local SCENES = {
 		UI.store.preview(storePrices(true), { [Config.MoneyPassIds[3]] = true })
 		-- #1962: the owned multiplier is the bold gold chip on the side, over the money
 		local chip = UIShim.playerGui:FindFirstChild("CashChip", true)
-		assert(chip and chip.Visible and chip.Text == "💰 Cash x3", "uigate: the cash chip reads " .. tostring(chip and chip.Text) .. " (#1962)")
+		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			-- #2447: on touch a small tag in the counters' row, right after the money, up in Roblox's top bar
+			UIShim.advance(1 / 60)
+			local tag = chip and chip:FindFirstChild("Tag") :: TextLabel?
+			assert(chip and chip.Visible and tag and tag.Text == "💰 x3", "uigate: the cash tag reads " .. tostring(tag and tag.Text) .. " (#2447)")
+			local money = UIShim.playerGui:FindFirstChild("Money", true) :: GuiObject
+			assert(chip.Parent == money.Parent, "uigate: the cash tag is not in the counters' row (#2447)")
+			local gap = chip.AbsolutePosition.X - (money.AbsolutePosition.X + money.AbsoluteSize.X)
+			assert(gap >= 0 and gap <= 30, ("uigate: the cash tag sits %d px after the money (#2447)"):format(gap))
+			assert(tag.AbsoluteSize.Y <= 30, ("uigate: the cash tag is %d px tall, not a small tag (#2447)"):format(tag.AbsoluteSize.Y))
+			local inset = game:GetService("GuiService"):GetGuiInset()
+			assert(money.AbsolutePosition.Y + money.AbsoluteSize.Y <= 2, ("uigate: the money's bottom is %d px under the top bar (#2447)"):format(money.AbsolutePosition.Y + money.AbsoluteSize.Y))
+			assert(money.AbsolutePosition.Y + inset.Y >= 0, "uigate: the money pokes over the screen's top (#2447)")
+		else
+			assert(chip and chip.Visible and chip.Text == "💰 Cash x3", "uigate: the cash chip reads " .. tostring(chip and chip.Text) .. " (#1962)")
+		end
 	end },
 	-- #1770 owner test mode: the server's OwnerTest attribute on the owner's account shows a small label up top
 	{ "HUDOwnerTest", function()

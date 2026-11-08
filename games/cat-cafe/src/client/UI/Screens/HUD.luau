@@ -191,6 +191,8 @@ local COUNTER_GAP = 14
 -- the row's widest usual reach (the money at MONEY_W and "12.3K" golden fish): the bottom row moves right of it
 local CORNER_W = MONEY_W + COUNTER_GAP + COUNTER_COIN + 8 + 90
 local BUFFS_GAP = 8 -- the potion timers sit this far over the counters (F64)
+local TOP_GAP = 10 -- #2447: on touch, between the top bar's ends, the counters and the Luck row
+local CASH_TAG_H = 24 -- #2447: the owned Cash multiplier's small tag beside the money on touch
 local BOOSTS_W = 300 -- the money's boosts card
 local BOOST_ROW_H = 24
 local BOOST_ROWS_TIGHT = 10 -- more rows than this draw each row shorter (#1624)
@@ -1935,6 +1937,26 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 
 	self:_layoutBottom()
 	self:_buildBoosts(root)
+	if TOUCH then
+		-- #2447: the counters' row follows the top bar again now the row under it and the boosts card are built, and
+		-- whenever the amount grows or shrinks
+		self:_liftTop()
+		-- the amount, the Luck row and the icon row (the Tutorial tile comes and goes) all change what fits
+		for _, item in { self._counters, self._buffs.frame, self._icons } :: { GuiObject } do
+			table.insert(
+				self._connections,
+				item:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+					self:_liftTop()
+				end)
+			)
+		end
+		table.insert(
+			self._connections,
+			(self._buffs.frame :: Frame):GetPropertyChangedSignal("Visible"):Connect(function()
+				self:_liftTop()
+			end)
+		)
+	end
 	pop.Parent = root -- the Rewards and Menu list goes in last, so it draws over the clock and the goal card
 	-- F88: the Luck chip leads the potion timers' row; its card opens over the counters as the boosts card does (built
 	-- after the menu, so it draws over it)
@@ -1977,8 +1999,51 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
 		Create("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12) }),
 	})
-	Outline.text(cash, 2.5)
-	Outline.border(cash, 3)
+	if TOUCH then
+		-- #2447 (Derek2 11-08: "if someone bought 4x cash make the bubble much smaller on the side of the money"): on
+		-- touch the chip is a small gold tag right after the amount, in the counters' row at the top; the button
+		-- around it keeps the counters' height so a finger still finds it
+		cash.BackgroundTransparency = 1
+		cash.Size = UDim2.fromOffset(0, self._counterH)
+		cash.LayoutOrder = 2
+		cash.Parent = self._counters
+		self._fishPanel.LayoutOrder = 3
+		local pad = cash:FindFirstChildOfClass("UIPadding")
+		if pad then
+			pad:Destroy()
+		end
+		local tag: TextLabel = Create("TextLabel", {
+			Name = "Tag",
+			BackgroundColor3 = Theme.colors.gold,
+			BorderSizePixel = 0,
+			AnchorPoint = Vector2.new(0, 0.5),
+			Position = UDim2.fromScale(0, 0.5),
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, CASH_TAG_H),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textSmall + 1,
+			TextColor3 = Theme.colors.white,
+			Text = "",
+			Parent = cash,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			Create("UIPadding", { PaddingLeft = UDim.new(0, 7), PaddingRight = UDim.new(0, 7) }),
+		})
+		Outline.text(tag, 1.5)
+		Outline.border(tag, 2)
+		-- the button sizes to its tag
+		tag:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+			local scale = math.max(Scale.get(), 0.01)
+			cash.Size = UDim2.fromOffset(
+				math.max(math.ceil(tag.AbsoluteSize.X / scale), Scale.tapHeight(0)),
+				self._counterH
+			)
+		end)
+		self._cashTag = tag
+	else
+		Outline.text(cash, 2.5)
+		Outline.border(cash, 3)
+	end
 	self._cashChip = cash
 	table.insert(
 		self._connections,
@@ -2103,7 +2168,9 @@ function HUD._renderBowl(self: any)
 	local coming: TextLabel? = self._coming
 	if coming then
 		local line = FirstBait.chip(bait, Workspace:GetServerTimeNow())
-		local shown = line ~= nil
+		-- #2447 (Derek2 11-08: "remove the cat is coming text from the middle top for mobile"): never on touch; the
+		-- bowl's own timer still counts down
+		local shown = line ~= nil and not TOUCH
 		if shown and not coming.Visible then
 			Tween.popIn(coming, 0.7)
 		end
@@ -3206,6 +3273,74 @@ function HUD._liftRight(self: any)
 		self._lift = lift
 		self:_layoutRight()
 	end
+	self:_liftTop()
+end
+
+-- #2447 (Derek2 11-08: "move all the other ui you put in the middle of screen to be against the top of screen the
+-- money/gold fish/luck", 15:17: "it should just be able to move these into this little bar between chat and
+-- tutorial"): on touch the counters (top middle since #2393) and the Luck and pal row go side by side into Roblox's top
+-- bar, centred in its free stretch between Roblox's chat button and the HUD's icon row. When the pair doesn't fit
+-- there (a narrow phone, a long amount), they keep #2393's place: the counters at the top middle, the row under them.
+function HUD._counterTop(self: any): number
+	return self._counterY or MARGIN
+end
+
+function HUD._liftTop(self: any)
+	if not TOUCH then
+		return
+	end
+	local counters: GuiObject = self._counters
+	local root: Frame = self._root
+	local inset = GuiService.TopbarInset
+	local scale = Scale.get()
+	local buffs = self._buffs
+	local row: GuiObject? = if buffs ~= nil then buffs.frame else nil
+	local rowW = if row ~= nil and row.Visible then row.AbsoluteSize.X else 0
+	local fits = false
+	local x, top = 0, MARGIN
+	if scale > 0 and inset.Height > 0 and root.AbsoluteSize.X > 0 then
+		-- in screen pixels: the root's left edge (GUI space starts under the top bar inset), the free stretch from
+		-- Roblox's buttons to the icon row
+		local origin = root.AbsolutePosition.X + GuiService:GetGuiInset().X
+		local icons: GuiObject = self._icons
+		local left = inset.Min.X + TOP_GAP * scale
+		local right = math.min(inset.Max.X, icons.AbsolutePosition.X + GuiService:GetGuiInset().X)
+			- TOP_GAP * scale
+		local gap = if rowW > 0 then TOP_GAP * scale else 0
+		local width = counters.AbsoluteSize.X + gap + rowW
+		if width <= right - left then
+			fits = true
+			x = (left + (right - left - width) / 2 - origin) / scale
+			-- the bar sits over the root's top, so the counters are centred in it at a negative Y
+			top = -(inset.Max.Y / scale + self._counterH) / 2
+		end
+	end
+	self._counterY = top
+	local under = top + self._counterH + BUFFS_GAP -- the boosts card's top, and the row's when it is not beside
+	if fits then
+		counters.AnchorPoint = Vector2.new(0, 0)
+		counters.Position = UDim2.fromOffset(x, top)
+		if buffs ~= nil then
+			local rowH = if row ~= nil then row.AbsoluteSize.Y / scale else self._counterH
+			buffs:place(
+				UDim2.fromOffset(
+					x + (counters.AbsoluteSize.X + TOP_GAP * scale) / scale,
+					top + (self._counterH - rowH) / 2
+				),
+				Vector2.new(0, 0)
+			)
+		end
+	else
+		counters.AnchorPoint = Vector2.new(0.5, 0)
+		counters.Position = UDim2.new(0.5, 0, 0, top)
+		if buffs ~= nil then
+			buffs:place(UDim2.new(0.5, 0, 0, under), Vector2.new(0.5, 0))
+		end
+	end
+	local boosts: GuiObject? = self._boosts
+	if boosts then
+		boosts.Position = UDim2.new(0.5, 0, 0, under)
+	end
 end
 
 -- Red dots: a screen's dot shows while it has a key the player has not seen on that screen. Keys seen while
@@ -3587,9 +3722,15 @@ function HUD.setMoneyBadge(
 	local owned = badge ~= nil and badge.owned
 	chip.Visible = owned
 	if badge ~= nil and owned then
-		chip.Text = "💰 Cash " .. (badge.text:gsub("^(%d+)x$", "x%1"))
+		local said = (badge.text:gsub("^(%d+)x$", "x%1"))
+		local tag: TextLabel? = self._cashTag
+		if tag then
+			tag.Text = "💰 " .. said -- #2447: the small tag beside the money on touch
+		else
+			chip.Text = "💰 Cash " .. said
+		end
 	end
-	self._buffs:setLead(owned, "cash")
+	self._buffs:setLead(owned and not TOUCH, "cash")
 	button.Visible = badge ~= nil and not owned
 	-- #2254 (Derek2 11-07: "gold fish is hovering wrong now if you did already buy the 2x/3x/4x money"): the golden
 	-- fish sits a normal gap after the amount with or without the badge (since #2383 the money's room is its shape's)
@@ -3660,7 +3801,7 @@ function HUD._buildBoosts(self: any, root: Frame)
 		-- over the counters, or under them at the top middle on touch (#2393)
 		AnchorPoint = if TOUCH then Vector2.new(0.5, 0) else Vector2.new(0, 1),
 		Position = if TOUCH
-			then UDim2.new(0.5, 0, 0, MARGIN + self._counterH + BUFFS_GAP)
+			then UDim2.new(0.5, 0, 0, self:_counterTop() + self._counterH + BUFFS_GAP)
 			else UDim2.new(0, MARGIN, 1, -(MARGIN + self._counterH + BUFFS_GAP)),
 		Size = UDim2.fromOffset(BOOSTS_W, 0),
 		AutomaticSize = Enum.AutomaticSize.Y,
@@ -4024,10 +4165,7 @@ function HUD._layoutMenu(self: any)
 	self._buffsLow = roomy or MARGIN + storeH + menuH + gap <= bandBottom - (buffsH + BUFFS_GAP)
 	if TOUCH then
 		-- #2393: under the counters at the top middle, wherever the menu goes
-		self._buffs:place(
-			UDim2.new(0.5, 0, 0, MARGIN + self._counterH + BUFFS_GAP),
-			Vector2.new(0.5, 0)
-		)
+		self:_liftTop()
 	elseif self._buffsLow and not roomy then
 		self._buffs:place(
 			UDim2.new(0, MARGIN, 1, -(MARGIN + self._counterH + BUFFS_GAP)),

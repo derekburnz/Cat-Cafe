@@ -4,13 +4,13 @@ These are the 10 pictures for the first Ads Manager campaign in `docs/growth/ad-
 
 | File | Hook | Made from | Claim, and where it is true |
 |---|---|---|---|
-| `Ad_01_CatsAtWork.png` | Cats serving customers. Derek2 asked for this one: "cats carrying to customers or making food". | Set 2 G, with CATCH A added above the old CAT CAFE title | F90: the Barista and Waiter cats serve orders |
+| `Ad_01_CatsAtWork.png` | Cats serving customers. Derek2 asked for this one: "cats carrying to customers or making food". | Re-rendered by Model-Agent (v2): the waiter cat now stands on its work body and holds the tray out to the seated customer, so it reads as serving, not as food on its head. The labels and the CATCH A CAT CAFE title stay. | F90: the Barista and Waiter cats serve orders |
 | `Ad_02_BellhopCafe.png` | Cute cat and the brand | Set 3 P v3, unchanged | The Bellhop Cat is the free starter cat (F96) |
 | `Ad_03_MythicalCatch.png` | Catch moment | Set 3 N v2, unchanged | The Balloon Cat is Mythical in Catalog, and the player swings the net |
 | `Ad_04_TopEarner.png` | Income | Set 3 L v2, unchanged | Mythical 75/s x Sewer 81 = 6,075/s (Catalog `AREA_INCOME`) |
-| `Ad_05_PlayerCannon.png` | Cannon, player hero | Set 3 O v2, unchanged | F84 Cat Cannon flight |
+| `Ad_05_DecorateCafe.png` | Decorating your cafe (Derek2 2026-11-08: "show cute decor and customizing cafe") | New: 8 decor pieces from the preview renders (jukebox, duck fountain, blossom tree, bathtub sofa, cat tree tower, ice cream counter, mushroom lamp, porch swing) | All are decor pieces in Catalog (crate decor, earned in play) |
 | `Ad_06_EarnOffline.png` | Earn while offline (Derek2, 2026-11-08: "can also use earn offline for ads") | New: night sky with the Sleepy Cat (Ragdoll) in its nightcap | `Config.OfflineRate = 0.5` for up to 8 hours, free for everyone (the pass raises it, but the picture doesn't mention the pass) |
-| `Ad_07_LuckyCat.png` | Rare cats | Set 2 I, with CATCH A added | The Lucky Cat statue adds luck (`Config.LuckPerStatueLevel`) |
+| `Ad_07_RainbowMythical.png` | Rainbow Mythical odds (Derek2, 2026-11-08) | Rendered by Model-Agent in Blender: Wisp (Mythical, Woods) in the F99 rainbow coat on set 3 K's purple-ray layout; sources in `/mnt/project-files/Model-Agent/ads-2026-11-08/` | "1 IN 5,000+": Mythical is 1.2% in every area's stray odds and `RainbowChanceNet = 0.015`, so about 1 in 5,556 per stray |
 | `Ad_08_RainbowCats.png` | Rainbow cats | Set 2 F, with CATCH A added and the pill changed from x3 to **x2** | `Config.RainbowMultiplier = 2` (Derek2, 2026-11-07) |
 | `Ad_09_FiftyCats.png` | Collection | New: 12 cat cards from the preview renders, with rarity borders in the game's rarity colours | 50 catchable cats in Catalog; each card's rarity matches Catalog |
 | `Ad_10_GoldenCats.png` | Gold cats | New: Blossom next to its gold twin | Any stray can roll gold (`GoldChanceNet` / `GoldChanceBait`), and a gold cat earns `GoldMultiplier = 1.5` |
@@ -18,7 +18,7 @@ These are the 10 pictures for the first Ads Manager campaign in `docs/growth/ad-
 Left out:
 
 - Set 3 K ("1 IN 200"): a rainbow cat is now 1 in 67 (`RainbowChanceNet = 0.015`), so 200 overstates how rare it is. A rainbow Mythical really is about 1 in 5,500 per stray (1.2% Mythical in every area's odds x 1.5% rainbow). "1 IN 5,000+" would be a true and stronger hook, but it needs a new render of a rainbow Mythical.
-- Set 2 H and set 3 M: they repeat the cannon hook (M was in the first cut, and Derek2's offline idea replaced it).
+- The cannon (set 2 H, set 3 M and O v2) and the Lucky Cat (set 2 I): Derek2 swapped them out on 2026-11-08.
 - J and N v1: they repeat the catch hook.
 
 The plan also listed "friends" and "cozy night" scenes. They need new Blender renders, which this session could not make, so they are a follow-up.

@@ -26,9 +26,9 @@ The finished pictures are in `store-art/2026-11-08-ads/`, and its README has the
 | 2 | Cute cat and the brand | `Ad_02_BellhopCafe.png` |
 | 3 | Catch moment (Mythical) | `Ad_03_MythicalCatch.png` |
 | 4 | Income (+$6,075/s) | `Ad_04_TopEarner.png` |
-| 5 | Cannon, player hero | `Ad_05_PlayerCannon.png` |
+| 5 | Decorate your cafe | `Ad_05_DecorateCafe.png` |
 | 6 | Earn while offline (Derek2, 2026-11-08) | `Ad_06_EarnOffline.png` |
-| 7 | Lucky Cat, more rare cats | `Ad_07_LuckyCat.png` |
+| 7 | Rainbow Mythical, 1 in 5,000+ | `Ad_07_RainbowMythical.png` |
 | 8 | Rainbow cats, x2 money | `Ad_08_RainbowCats.png` |
 | 9 | Collection: 50 cats to catch | `Ad_09_FiftyCats.png` |
 | 10 | Golden cats | `Ad_10_GoldenCats.png` |
@@ -37,11 +37,11 @@ Next round (needs new Blender renders): friends rescuing cats together, and a co
 ## The 16+ limit and the 250 highly engaged players (Derek2, 2026-11-08)
 Until the game passes the Kids and Select evaluation, both Ads Manager and Roblox only show it to players 16 and over. The game becomes eligible for Kids and Select audiences once it has **250 unique plays by highly engaged, age-checked players 16+ within 60 days**, counted hourly in Creator Hub > Audience Reach. Roblox says a highly engaged player has an older account, has played your game for a while, and has bought something anywhere on Roblox in the last 60 days. It does not publish the exact numbers. A highly engaged player does not have to spend in our game.
 
-**Estimate of the plays needed (my guess, not a Roblox figure).** Of the 16+ players an ad brings in, I assume about 30 to 50% are age-checked, 20 to 35% bought Robux in the last 60 days, and 30 to 50% play long enough to count. That means roughly 2 to 9 in every 100 ad plays qualify, with about 5 as the middle case. 250 qualifying plays therefore takes about **5,000 ad plays** (range 2,500 to 12,500). At our $0.008 bar that costs about $20 to $100, and the week's 9,000 to 13,000 plays should reach it, most likely by days 3 to 5. Ads Manager also has an **Engagement** objective that aims only at players who count toward this threshold. It costs more per play, and one DevForum report says it only reached a few players at a time.
+**Estimate of the plays needed.** Derek2's friend's game, which started running ads in November 2026, sees **2 highly engaged plays in every 100** ad plays (Derek2, 2026-11-08). That is the real number we plan with. My earlier guess was 2 to 9 in 100, with 5 as the middle, so this sits at the bottom of that range. At 2 in 100, 250 qualifying plays takes about **12,500 ad plays**, which costs about **$100** at our $0.008 bar, or more if our CPP is worse. That is about the whole week's budget, so expect to reach it near day 7, not day 3. Ads Manager also has an **Engagement** objective that aims only at players who count toward this threshold. It costs more per play, and one DevForum report says it only reached a few players at a time.
 
 **Changes to the plan:**
 - Run the Plays campaign as planned. Each day, read Audience Reach next to the ad table.
-- If Audience Reach is under about 100 by the end of day 3, move $3 to $5 a day into a small Engagement campaign using the best 1 or 2 thumbnails.
+- If Audience Reach is under about 60 by the end of day 3 (on track at 2 in 100 is roughly 35 to 40 a day), move $3 to $5 a day into a small Engagement campaign using the best 1 or 2 thumbnails.
 - Until eligibility, every number comes from a 16+ audience, and our game is made for younger players. CTR, retention and Home recs will probably look weaker than they will after eligibility. So:
   - The day 5 gate is read as "Some" at worst while eligibility is pending.
   - Once eligibility lands, the week clock restarts for the gates: one more week of ads at the same budget, now reaching all ages, before the strong / some / none call.

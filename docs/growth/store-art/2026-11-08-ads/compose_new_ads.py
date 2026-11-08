@@ -93,3 +93,41 @@ def offline(out, name='Ragdoll_Sit'):
     for i,(x,y,s) in enumerate([(1660,350,60),(1730,280,80),(1810,190,100)]):
         im,_=text(im,'Z',x,y,s,(255,255,255),outline=(30,24,70),stroke=max(6,s//9),anchor_x='l')
     im.convert('RGB').save(out,optimize=True)
+
+def pcard(path, box, w, h, border):
+    """A card from any preview render, cropped to box."""
+    src=Image.open(path).convert('RGBA'); bg=src.getpixel((box[0]+4,box[1]+4))
+    cw,ch=w-24,h-24
+    crop=src.crop(box); s=min(cw/crop.width,ch/crop.height); crop=crop.resize((int(crop.width*s),int(crop.height*s)),Image.LANCZOS)
+    inner=Image.new('RGBA',(cw,ch),bg); inner.paste(crop,((cw-crop.width)//2,(ch-crop.height)//2))
+    c=Image.new('RGBA',(w,h),(0,0,0,0)); d=ImageDraw.Draw(c)
+    d.rounded_rectangle((0,0,w-1,h-1),radius=28,fill=(40,24,60,255)); d.rounded_rectangle((6,6,w-7,h-7),radius=24,fill=border+(255,))
+    mi=Image.new('L',(cw,ch),0); ImageDraw.Draw(mi).rounded_rectangle((0,0,cw-1,ch-1),radius=18,fill=255); c.paste(inner,(12,12),mi)
+    return c
+
+def dealer(out):
+    import random
+    W,H=1920,1080; P='docs/concepts/cat-cafe/previews/'
+    ys=np.linspace(0,1,H)[:,None,None]; top=np.array((20,22,70),float); bot=np.array((70,40,120),float)
+    im=Image.fromarray(((top*(1-ys)+bot*ys)*np.ones((1,W,1))).astype(np.uint8)).convert('RGBA')
+    d=ImageDraw.Draw(im); rnd=random.Random(11)
+    for _ in range(160):
+        x,y=rnd.randrange(W),rnd.randrange(H); r=rnd.choice([1,2,2,3]); d.ellipse((x-r,y-r,x+r,y+r),fill=(255,250,220,rnd.randrange(120,255)))
+    im,_=text(im,'THE NIGHT DEALER',960,48,104,YELLOW,outline=(25,20,60),stroke=15)
+    im,_=text(im,'Rare foods that bring rare cats',960,200,52,(255,255,255),outline=(25,20,60),stroke=8)
+    a=pcard(P+'CatCafe_NPC_Dealer.png',(150,40,490,440),560,620,(150,120,240))
+    b=pcard(P+'CatCafe_Street_DealerCart.png',(130,70,560,420),760,620,(150,120,240))
+    im=shadowed(im,a,(250,330)); im=shadowed(im,b,(870,330))
+    im,_=text(im,'Every night!',1250,880,56,YELLOW,outline=(25,20,60),stroke=9)
+    im.convert('RGB').save(out,optimize=True)
+
+def rescue(out):
+    P='docs/concepts/cat-cafe/previews/'
+    im=rays((1920,1080),(1350,620),(70,170,90),(95,195,110),glow=(240,255,220))
+    im,_=text(im,'RESCUE',520,150,150,YELLOW,outline=(30,60,30),stroke=20)
+    im,_=text(im,'STUCK CATS!',520,340,110,(255,255,255),outline=(30,60,30),stroke=16)
+    im,_=text(im,'Some turn out gold',520,520,54,(255,255,255),outline=(30,60,30),stroke=8)
+    c=pcard(P+'CatCafe_Park_RescueTree.png',(140,50,440,330),760,720,(255,214,92))
+    im=shadowed(im,c,(1040,230))
+    im,_=text(im,'HELP!',1560,330,64,(255,255,255),outline=(160,40,40),stroke=10)
+    im.convert('RGB').save(out,optimize=True)

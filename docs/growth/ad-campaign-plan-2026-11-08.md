@@ -26,9 +26,9 @@ The finished pictures are in `store-art/2026-11-08-ads/`, and its README has the
 | 2 | Cute cat and the brand | `Ad_02_BellhopCafe.png` |
 | 3 | Catch moment (Mythical) | `Ad_03_MythicalCatch.png` |
 | 4 | Income (+$6,075/s) | `Ad_04_TopEarner.png` |
-| 5 | Cannon, player hero | `Ad_05_PlayerCannon.png` |
+| 5 | The night dealer: rare foods every night | `Ad_05_NightDealer.png` |
 | 6 | Earn while offline (Derek2, 2026-11-08) | `Ad_06_EarnOffline.png` |
-| 7 | Lucky Cat, more rare cats | `Ad_07_LuckyCat.png` |
+| 7 | Rescue stuck cats | `Ad_07_RescueCats.png` |
 | 8 | Rainbow cats, x2 money | `Ad_08_RainbowCats.png` |
 | 9 | Collection: 50 cats to catch | `Ad_09_FiftyCats.png` |
 | 10 | Golden cats | `Ad_10_GoldenCats.png` |
@@ -59,7 +59,7 @@ Ad day 1 is launch day 2 (launch day 1 stays friends-only, per the launch plan).
 | 2 | same | First look. Plays may still be catching up, so judge on CTR and clicks. | Pause any thumbnail under **1.5% CTR** with at least 2,000 impressions. |
 | 3 | same | Plays from day 1 are in now. | Pause any thumbnail with CPP over **$0.016** (twice the bar) or click-to-play under 2%, once it has 100 or more clicks. Keep at most 4 to 5. |
 | 4 | same | Run the survivors. | Lower or pause the weakest if one is clearly behind on CPP. |
-| 5 | same | **Checkpoint.** Keep the best 2 to 3, different from each other. Read RFY (below). If the game is doing decently (gate "Strong" or "Some" below), raise to about **$15 to $20** and add 1 to 2 new thumbnails built on what won. | see gates |
+| 5 | The night dealer: rare foods every night | `Ad_05_NightDealer.png` |
 | 6 to 7 | $10 to $20 | Run the 2 to 3 winners plus the 1 to 2 new ones. | End-of-week gate. |
 
 A thumbnail with too few impressions to judge (under 2,000 by day 3) is neither kept nor cut; Roblox's auto bidding may be starving it, and I flag that.

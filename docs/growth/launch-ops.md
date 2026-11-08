@@ -63,11 +63,11 @@ Added by Tools-Agent on 2026-11-08 for Cafe Events (#2483 to #2488; research in 
 2. Experience Event (Creator Hub > the experience > Engagement > Events & Updates > Create):
    - Title: the event's name as players will see it in game (for example "Cafe Party: Lucky + Golden + Rainbow").
    - Start and end: the same UTC times as the event record (step 3). Creator Hub shows your local time, so check the conversion.
-   - Thumbnail: an event picture (16:9) from Model-Agent, showing what players actually get.
+   - Thumbnail: Model-Agent's 16:9 event picture in `assets/cat-cafe/exports/event-art/`. Use `CatCafe_Event_CafeParty.png` only when the event has all three of stacked days, x2 money and rare cats, since its labels name them. For any other mix, use `CatCafe_Event_CafeParty_TitleOnly.png`. The picture must show only what players actually get.
    - Description: what happens, that it is free for everyone, and the end time.
    - Visibility: public. Up to 10 upcoming events can be listed at once.
    - RSVPs ("Notify Me") send players an inbox or push message at the start. Events with about 1,000 or more RSVPs can show in "Trending Events".
-3. Event record: Tools-Agent schedules it with the events workflow (`events.yml`, once #2486 and the workflow are merged), and `show` confirms the start, end, title and effects. A record never needs a publish.
+3. Event record: Tools-Agent schedules it with the events workflow (`events.yml`, merged in #2506; the game reads it since place v387), and `show` confirms the start, end, title and effects. A record never needs a publish.
 4. Optional: a group post, and a What's New board line from UI-Engineer in the next weekly update.
 
 **On the day**

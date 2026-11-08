@@ -44,6 +44,7 @@ local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
+local Tips = require(ReplicatedStorage.Shared.Tips)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 type Profile = Types.PlayerProfile
@@ -1118,8 +1119,8 @@ local function logJoined(player: Player)
 		passLevel = CafePass.levelOf(profile.pass.xp),
 		spent = spentBefore(player, profile, 0, nil),
 		goalsDone = GrandOpening.doneCount(profile.grandOpening),
-		tackleLessonSeen = profile.tipsSeen.tackle == true
-			or profile.tipsSeen.tackle_lesson == true,
+		-- #2409: the lesson's own id; before it the lesson saved as the old card's `tackle`
+		tackleLessonSeen = profile.tipsSeen[Tips.LESSON] == true or profile.tipsSeen.tackle == true,
 	})
 	for _, name in shown do
 		Telemetry.onboarding(player, profile, name :: Onboarding.StepName)

@@ -7,11 +7,14 @@
 --   The server-wide toast for a cat is the check-in shout-out (Announce, Catching.shoutOut); `shoutOut` holds a
 --   Legendary or Mythical one back within TOAST_SECONDS of the player's last toast. One that goes out is also a chat
 --   line here and in every other server (#2203, GlobalCatchService). A Mythical crate piece sends
---   FoundRareDecor(userId, decorId) to everyone, on the same once-a-minute rule.
+--   FoundRareDecor(userId, decorId) to everyone, on the same once-a-minute rule. #2429: a Legendary or Mythical crate
+--   piece is also a chat line here and in every other server (GlobalCatch.crateLine): a Mythical always, a Legendary
+--   at most once a minute per player, so an Open all of many crates cannot flood the chat.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local GlobalCatch = require(ReplicatedStorage.Shared.GlobalCatch)
 local GlobalCatchService = require(script.Parent.GlobalCatchService)
 local Net = require(script.Parent.Net)
 local RareMoments = require(ReplicatedStorage.Shared.RareMoments)
@@ -21,6 +24,7 @@ local Types = require(ReplicatedStorage.Shared.Types)
 local RareMomentService = {}
 
 local lastToastAt: { [Player]: number } = {} -- os.clock() of each player's last cat or crate toast
+local lastChatAt: { [Player]: number } = {} -- os.clock() of each player's last Legendary crate chat line (#2429)
 
 -- Whether a toast from `player` may go out now; one that may is counted.
 local function takeToast(player: Player): boolean
@@ -72,14 +76,27 @@ end
 
 -- `player` opened `decor` from a crate: a Mythical piece toasts the server, at most once a minute.
 function RareMomentService.foundDecor(player: Player, decor: Types.DecorDef)
-	if RareMoments.decorToasts(decor.rarity or "Common") and takeToast(player) then
+	local rarity = decor.rarity or "Common"
+	if RareMoments.decorToasts(rarity) and takeToast(player) then
 		Net.fireAll("FoundRareDecor", player.UserId, decor.id)
 	end
+	local text = GlobalCatch.crateLine(player.DisplayName, rarity, decor.name)
+	if text == nil then
+		return
+	end
+	local now = os.clock()
+	local last = lastChatAt[player]
+	if rarity ~= "Mythical" and last ~= nil and now - last < RareMoments.TOAST_SECONDS then
+		return
+	end
+	lastChatAt[player] = now
+	GlobalCatchService.share(text, rarity) -- #2429: the chat line here and in every other server
 end
 
 function RareMomentService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		lastToastAt[player] = nil
+		lastChatAt[player] = nil
 	end)
 end
 

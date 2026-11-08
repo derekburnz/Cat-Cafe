@@ -4,6 +4,8 @@
 -- walking away closes it, as the Codes Cat's circle does (CodesController). The stations' prompts stay, so a window
 -- closed by hand opens again with a press. Nothing opens during a catch or a rescue, while carrying a cat or flying,
 -- during the intro or while another window is open. Every window still checks its range on the server.
+-- Each station's glowing floor ring (World/WalkUpCircles, WalkUp.CIRCLE) is where its window opens: stepping inside the
+-- ring opens it. A station without a ring falls back to its prompt's reach (WalkUp.RADIUS_SHARE).
 --
 -- Roblox terms: each station is the server's model, tagged (CollectionService) and Persistent, with a
 -- ProximityPrompt floating on an Attachment or a part; the prompt's MaxActivationDistance is how close its pill shows.
@@ -71,8 +73,11 @@ local KINDS: { Kind } = {
 	},
 }
 
-local prompts: { [Instance]: ProximityPrompt? } = setmetatable({}, { __mode = "k" }) :: any
-local keys: { [Instance]: string } = setmetatable({}, { __mode = "k" }) :: any
+-- Strong tables, cleared when the station is destroyed: a weak-keyed table by Instance lost its entries while the
+-- model still stood (Laptop-Tester on #2427), the station took a new key, and the walk-up read that as walking away
+-- and shut the window after a second
+local prompts: { [Instance]: ProximityPrompt? } = {}
+local keys: { [Instance]: string } = {}
 local lastKey = 0
 
 -- The station's prompt, found once and again if it streamed out.
@@ -95,6 +100,10 @@ local function keyOf(model: Instance): string
 		lastKey += 1
 		key = tostring(lastKey)
 		keys[model] = key
+		model.Destroying:Connect(function()
+			keys[model] = nil
+			prompts[model] = nil
+		end)
 	end
 	return key :: string
 end
@@ -108,6 +117,23 @@ local function promptPosition(prompt: ProximityPrompt): Vector3?
 		return (holder :: BasePart).Position
 	end
 	return nil
+end
+
+-- The station's ring: its centre and radius, or nil when it has none. `has` is false without a ring at all (the
+-- prompt's reach is used then), true with one, even while the ring itself is streamed out.
+local function ringOf(model: Instance): (boolean, Vector3?, number)
+	local link = model:FindFirstChild(WalkUp.CIRCLE)
+	if link == nil or not link:IsA("ObjectValue") then
+		return false, nil, 0
+	end
+	local ring = (link :: ObjectValue).Value
+	if ring == nil or not ring:IsA("BasePart") then
+		return true, nil, 0
+	end
+	local radius = ring:GetAttribute("Radius")
+	return true,
+		(ring :: BasePart).Position,
+		if type(radius) == "number" then radius else (ring :: BasePart).Size.X / 2
 end
 
 local function rootPosition(): Vector3?
@@ -158,8 +184,13 @@ function WalkUpController.start()
 						continue -- the templates in ReplicatedStorage.Assets carry the tags too
 					end
 					local prompt = promptOf(model, kind.prompt)
-					local position = if prompt ~= nil and prompt.Enabled
-						then promptPosition(prompt :: ProximityPrompt)
+					-- a prompt that is off (during a flight, say) still measures, so landing inside a ring is not
+					-- read as stepping in once the prompt comes back; it only cannot open the window (WalkUp.step)
+					local off = prompt == nil or not prompt.Enabled
+					local hasRing, centre, ringRadius = ringOf(model)
+					local position = if hasRing
+						then centre
+						elseif prompt ~= nil then promptPosition(prompt :: ProximityPrompt)
 						else nil
 					local distance = if at ~= nil and position ~= nil
 						then Vector2.new(at.X - position.X, at.Z - position.Z).Magnitude
@@ -172,8 +203,13 @@ function WalkUpController.start()
 						key = key,
 						window = kind.window,
 						distance = distance,
-						radius = if prompt ~= nil
-							then (prompt :: ProximityPrompt).MaxActivationDistance * WalkUp.RADIUS_SHARE
+						off = off,
+						radius = if hasRing
+							then ringRadius
+							elseif
+								prompt ~= nil
+							then (prompt :: ProximityPrompt).MaxActivationDistance
+								* WalkUp.RADIUS_SHARE
 							else 0,
 					})
 				end

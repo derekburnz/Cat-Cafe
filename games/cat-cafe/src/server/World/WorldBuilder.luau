@@ -18,6 +18,8 @@ local Layout = require(script.Parent.Layout)
 local SafeWords = require(script.Parent.SafeWords)
 local StarterCat = require(ReplicatedStorage.Shared.StarterCat)
 local Types = require(ReplicatedStorage.Shared.Types)
+local WalkUp = require(ReplicatedStorage.Shared.WalkUp)
+local WalkUpCircles = require(script.Parent.WalkUpCircles)
 
 export type Plot = {
 	index: number,
@@ -92,6 +94,11 @@ local MINT = Color3.fromRGB(165, 214, 190)
 local ASPHALT = Color3.fromRGB(70, 70, 75)
 local BRICK = Color3.fromRGB(150, 85, 70)
 local GRASS = Color3.fromRGB(110, 170, 90)
+-- #2398: each walk-up station's floor ring in its own colour (World/WalkUpCircles); the Codes Cat's is mint
+local RING_CANNON = Color3.fromRGB(90, 215, 225)
+local RING_SPIN = Color3.fromRGB(255, 125, 195)
+local RING_MARKET = Color3.fromRGB(255, 201, 77)
+local RING_SHOP = Color3.fromRGB(255, 150, 70)
 local PICKET = Color3.fromRGB(250, 246, 236)
 local PATH = Color3.fromRGB(214, 200, 176)
 local BACK_DOOR_ART = "CatCafe_Plot_BackDoor" -- Model-Agent #509; its _Leaf, _Flap and _Sign models carry the name too
@@ -1798,6 +1805,7 @@ local function buildSpinWheel(parent: Instance): Model
 			prompt.Parent = float
 		end
 	end
+	WalkUpCircles.front(model, RING_SPIN, Config.SpinStationRange)
 	return model
 end
 
@@ -1834,6 +1842,7 @@ local function buildFishMarket(parent: Instance): Model
 			prompt.Parent = float
 		end
 	end
+	WalkUpCircles.front(model, RING_MARKET, Config.FishMarketRange)
 	return model
 end
 
@@ -1938,6 +1947,7 @@ local function buildCornerShop(parent: Instance): Model?
 		float.WorldPosition = (model:GetPivot() * CFrame.new(0, 3, -2)).Position
 		prompt.Parent = float
 	end
+	WalkUpCircles.front(model, RING_SHOP, Config.CornerShopRange)
 	return model
 end
 
@@ -2315,6 +2325,9 @@ local function buildCannon(id: string, parent: Instance): Model
 			prompt.Parent = float
 		end
 	end
+	-- all the way round; a camp's no wider than its paving
+	local cap = if id == "town" then nil else WalkUp.CAMP_RING_MAX
+	WalkUpCircles.around(model, RING_CANNON, W.CannonRangeStuds, parent, cap)
 	return model
 end
 

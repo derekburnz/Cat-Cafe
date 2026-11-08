@@ -131,3 +131,50 @@ def rescue(out):
     im=shadowed(im,c,(1040,230))
     im,_=text(im,'HELP!',1560,330,64,(255,255,255),outline=(160,40,40),stroke=10)
     im.convert('RGB').save(out,optimize=True)
+
+def pill(im, s, xy, cap=40, fill=(255,255,255), bg=(255,94,126), outline=(60,30,20)):
+    from PIL import ImageFont
+    f=None
+    for sz in range(8,300):
+        f=ImageFont.truetype(FRED,sz); b=f.getbbox("H")
+        if b[3]-b[1]>=cap: break
+    bb=f.getbbox(s); w=bb[2]-bb[0]; h=cap
+    x,y=xy; pad=int(cap*0.6)
+    box=(x,y,x+w+2*pad,y+h+2*pad)
+    d=ImageDraw.Draw(im)
+    d.rounded_rectangle((box[0]+4,box[1]+8,box[2]+4,box[3]+8),radius=(h+2*pad)//2,fill=(40,20,10,90))
+    d.rounded_rectangle(box,radius=(h+2*pad)//2,fill=bg,outline=outline,width=7)
+    d.text((x+pad-bb[0],y+pad-f.getbbox("H")[1]),s,font=f,fill=fill)
+    return box
+def arrow(im, p0, p1, color=(255,255,255), outline=(60,30,20), w=16):
+    d=ImageDraw.Draw(im)
+    import math
+    ang=math.atan2(p1[1]-p0[1],p1[0]-p0[0]); L=46
+    head=[p1,(p1[0]-L*math.cos(ang-0.5),p1[1]-L*math.sin(ang-0.5)),(p1[0]-L*math.cos(ang+0.5),p1[1]-L*math.sin(ang+0.5))]
+    q=(p1[0]-L*0.7*math.cos(ang),p1[1]-L*0.7*math.sin(ang))
+    d.line([p0,q],fill=outline,width=w+12); d.polygon(head,fill=outline,outline=outline,width=12)
+    d.line([p0,q],fill=color,width=w); d.polygon(head,fill=color)
+def catsatwork(src, out):
+    im=Image.open(src).convert('RGBA')
+    b=pill(im,'Barista cat makes it',(560,70),cap=42,bg=(80,180,150))
+    arrow(im,(b[2]+10,(b[1]+b[3])//2),(1350,170))
+    b=pill(im,'Waiter cat brings the cake!',(1060,890),cap=42,bg=(255,140,60))
+    arrow(im,(b[0]+40,b[1]-6),(905,610))
+    im.convert('RGB').save(out,optimize=True)
+def autobox(path, pad=28):
+    a=np.asarray(Image.open(path).convert('RGB')).astype(int); bg=a[4,4]
+    m=np.abs(a-bg).sum(-1)>40; ys,xs=np.nonzero(m)
+    x0,x1,y0,y1=xs.min(),xs.max(),ys.min(),ys.max()
+    return (max(0,x0-pad),max(0,y0-pad),min(a.shape[1],x1+pad),min(a.shape[0],y1+pad))
+def decor(out):
+    P='docs/concepts/cat-cafe/previews/CatCafe_Decor_%s.png'
+    im=rays((1920,1080),(960,1250),(255,170,190),(255,195,210),glow=(255,245,250))
+    im,_=text(im,'DECORATE YOUR CAFE!',960,40,110,YELLOW,outline=(120,40,70),stroke=16)
+    im,_=text(im,'Make it cozy. Make it yours.',960,200,52,(255,255,255),outline=(120,40,70),stroke=8)
+    n='RetroJukebox DuckFountain BlossomTree BathtubSofa CatTreeTower IceCreamCounter MushroomLamp PorchSwing'.split()
+    w,h,gx,gy=400,330,30,26; x0=(1920-(4*w+3*gx))//2; y0=310
+    cols=[(255,214,92),(120,200,255),(255,150,190),(150,220,160)]
+    for i,k in enumerate(n):
+        c=pcard(P%k,autobox(P%k),w,h,cols[(i+i//4)%4])
+        im=shadowed(im,c,(x0+(i%4)*(w+gx),y0+(i//4)*(h+gy)))
+    im.convert('RGB').save(out,optimize=True)

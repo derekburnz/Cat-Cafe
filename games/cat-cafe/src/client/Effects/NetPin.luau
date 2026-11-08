@@ -9,6 +9,10 @@
 -- away while theirs is down (NetHold asks `NetPin.pinning`), and the catch finish wobbles this net
 -- (`NetPin.wobble`, from CatchReact) instead of the older closing ball. Reduce Motion: no drop, rise or wobble; it
 -- appears and goes. Local copies that nothing collides with; nothing here fires a remote or moves the stray.
+-- A staged stray (tagged StagedStray, the tackle lesson's cat, #2469) gets the same net while it carries NetDown. It
+-- has no LockedBy, so its catcher is the staged character that swung at it (the lesson's LessonCarrier, by its
+-- SmackAt; else the nearest staged character): the net is that copy's level and the handle lies toward it. A staged
+-- stray is always in range, since the intro films it away from your real character.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -30,11 +34,16 @@ type Pin = {
 	parts: { BasePart },
 	base: { number }, -- each part's own transparency
 	catcher: number?,
+	catcherModel: Model?, -- a staged stray's catcher, the staged character nearest it
 	downAt: number,
 	liftAt: number?,
 	wobbleAt: number?,
 	last: CFrame?, -- the last floor frame, for a net still lifting after its stray has gone
 }
+
+local STRAY = "Stray"
+local STAGED_STRAY = "StagedStray" -- TackleStage.STRAY_TAG
+local STAGED_CHARACTER = "StagedCharacter"
 
 local pins: { [Model]: Pin } = {}
 local watched: { [Model]: RBXScriptConnection } = {}
@@ -130,7 +139,10 @@ local function floorFrame(pin: Pin): CFrame?
 	local at = Vector3.new(pivot.Position.X, frame.Position.Y - size.Y / 2, pivot.Position.Z)
 	local toward: Vector3? = nil
 	local player = if pin.catcher ~= nil then Players:GetPlayerByUserId(pin.catcher) else nil
-	local character = if player ~= nil then player.Character else nil
+	local character = if player ~= nil then player.Character else pin.catcherModel
+	if character ~= nil and character.Parent == nil then
+		character = nil
+	end
 	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
 	if root ~= nil and root:IsA("BasePart") then
 		local flat = (root :: BasePart).Position - at
@@ -148,10 +160,34 @@ local function floorFrame(pin: Pin): CFrame?
 	return CFrame.lookAt(at, at - (toward :: Vector3))
 end
 
+-- A staged stray's catcher: the nearest staged character that swung (SmackAt), else the nearest at all, nil when
+-- none is staged.
+local function stagedCatcher(stray: Model): Model?
+	local at = stray:GetPivot().Position
+	local best: Model?, bestScore = nil, math.huge
+	for _, tagged in CollectionService:GetTagged(STAGED_CHARACTER) do
+		if tagged:IsA("Model") and tagged.Parent ~= nil then
+			local model = tagged :: Model
+			local swung = type(model:GetAttribute("SmackAt")) == "number"
+			local score = (model:GetPivot().Position - at).Magnitude + if swung then 0 else 1e6
+			if score < bestScore then
+				best, bestScore = model, score
+			end
+		end
+	end
+	return best
+end
+
 local function make(stray: Model): Pin?
 	local catcher = stray:GetAttribute("LockedBy")
 	local userId = if type(catcher) == "number" and catcher ~= 0 then catcher else nil
-	local source = template(netLevelOf(userId))
+	local catcherModel = if CollectionService:HasTag(stray, STAGED_STRAY)
+		then stagedCatcher(stray)
+		else nil
+	local level = if catcherModel ~= nil
+		then Avatar.netModel(catcherModel:GetAttribute("NetLevel"))
+		else netLevelOf(userId)
+	local source = template(level)
 	if source == nil then
 		return nil
 	end
@@ -190,6 +226,7 @@ local function make(stray: Model): Pin?
 		parts = parts,
 		base = base,
 		catcher = userId,
+		catcherModel = catcherModel,
 		downAt = os.clock(),
 		liftAt = nil,
 		wobbleAt = nil,
@@ -264,7 +301,10 @@ local function update(stray: Model)
 			drop(pin) -- a new catch while the last net was still lifting
 		end
 		local frame = stray:GetPivot()
-		if Context.distance(frame.Position) > Context.budget.animRadius then
+		if
+			not CollectionService:HasTag(stray, STAGED_STRAY)
+			and Context.distance(frame.Position) > Context.budget.animRadius
+		then
 			return
 		end
 		local made = make(stray)
@@ -339,10 +379,12 @@ function NetPin.start()
 		return
 	end
 	started = true
-	CollectionService:GetInstanceAddedSignal("Stray"):Connect(watch)
-	CollectionService:GetInstanceRemovedSignal("Stray"):Connect(unwatch)
-	for _, instance in CollectionService:GetTagged("Stray") do
-		watch(instance)
+	for _, tag in { STRAY, STAGED_STRAY } do
+		CollectionService:GetInstanceAddedSignal(tag):Connect(watch)
+		CollectionService:GetInstanceRemovedSignal(tag):Connect(unwatch)
+		for _, instance in CollectionService:GetTagged(tag) do
+			watch(instance)
+		end
 	end
 end
 

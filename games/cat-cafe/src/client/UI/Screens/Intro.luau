@@ -880,13 +880,15 @@ end
 local CUE_WIDTH = 220
 local CUE_INSET = 4
 local CUE_GAP = 12 -- px over the caption's top
+local CUE_ROUND = 72 -- #2510: the touch cue's round button
 function Intro.tackleCue(self: any, key: string?, pressIn: number?)
 	self:_clearCue()
 	if key == nil or not self._playing then
 		return
 	end
 	local touch = Scale.isTouch()
-	local height = if touch then 44 else 34
+	-- #2510: on touch the cue is the round Tackle button the player will tap, not the bar
+	local height = if touch then CUE_ROUND else 34
 	local caption: TextLabel = self._captionLabel
 	local bar: Frame = Create("Frame", {
 		Name = "TackleCue",
@@ -894,7 +896,7 @@ function Intro.tackleCue(self: any, key: string?, pressIn: number?)
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = caption.Position + UDim2.fromOffset(0, -(CAPTION_HEIGHT + CUE_GAP)),
-		Size = UDim2.fromOffset(CUE_WIDTH, height),
+		Size = UDim2.fromOffset(if touch then CUE_ROUND else CUE_WIDTH, height),
 		ZIndex = 5,
 		Parent = self._root,
 	}, {
@@ -928,10 +930,16 @@ function Intro.tackleCue(self: any, key: string?, pressIn: number?)
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textBody + 1,
 		TextColor3 = Theme.colors.white,
-		Text = "💨 TACKLE",
+		Text = if touch then "💨\nTACKLE" else "💨 TACKLE",
+		TextScaled = touch,
 		ZIndex = 8,
 		Parent = bar,
 	})
+	if touch then
+		word.AnchorPoint = Vector2.new(0.5, 0.5)
+		word.Position = UDim2.fromScale(0.5, 0.5)
+		word.Size = UDim2.fromScale(0.72, 0.6)
+	end
 	Outline.text(word, 2)
 	if key ~= "" then
 		local cap: TextLabel = Create("TextLabel", {

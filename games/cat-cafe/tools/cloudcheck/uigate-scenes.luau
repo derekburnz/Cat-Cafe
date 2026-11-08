@@ -3082,6 +3082,62 @@ local SCENES = {
 		UI.setZone("Alley")
 		UI.net.setEnabled(true)
 	end },
+	-- #2510 (Derek2: "add a tackle button instead of the bar in the middle of screen for mobile/ipad players"): in a
+	-- catching area on touch the Tackle is a round button left of the Net button, clear of the jump button, the Net
+	-- button and the potion timers; a tap greys it with the seconds left. With a mouse it stays the bar.
+	{ "TackleButton", function()
+		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
+		local NetButtonPlace = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.NetButtonPlace")
+		UI.setZone("Alley")
+		UI.net.setEnabled(true)
+		UI.shove.setEnabled(true)
+		Scenes._tackle = true
+		UIShim.advance(0.3)
+		local gui = UIShim.playerGui:FindFirstChild("CatCafeTackle") :: ScreenGui
+		assert(gui and gui.Enabled, "uigate: no Tackle in a catching area (#2510)")
+		local button = gui:FindFirstChild("Tackle", true) :: TextButton
+		assert(button and button.Visible, "uigate: no Tackle button (#2510)")
+		local function box(object: GuiObject): (number, number, number, number)
+			local at, size = object.AbsolutePosition, object.AbsoluteSize
+			return at.X, at.Y, at.X + size.X, at.Y + size.Y
+		end
+		local function apart(a: GuiObject, b: GuiObject, what: string)
+			local ax1, ay1, ax2, ay2 = box(a)
+			local bx1, by1, bx2, by2 = box(b)
+			local clear = ax2 <= bx1 + 0.5 or bx2 <= ax1 + 0.5 or ay2 <= by1 + 0.5 or by2 <= ay1 + 0.5
+			assert(clear, "uigate: the Tackle button covers " .. what .. " (#2510)")
+		end
+		if not Scale.isTouch() then
+			assert(button.AbsoluteSize.X > button.AbsoluteSize.Y * 3, "uigate: the mouse Tackle is not the bar (#2510)")
+			return
+		end
+		local size = button.AbsoluteSize
+		assert(math.abs(size.X - size.Y) < 1 and size.X >= 44, "uigate: the touch Tackle is not a round thumb-sized button (#2510)")
+		local word = button:FindFirstChild("Word") :: TextLabel
+		assert(word.Text == "TACKLE" and word.TextFits, "uigate: the Tackle button's word reads " .. word.Text .. " (#2510)")
+		local net = UIShim.playerGui:FindFirstChild("CatCafeNetButton")
+		local netButton = net and net:FindFirstChild("Net", true) :: GuiObject?
+		assert(netButton and (net :: ScreenGui).Enabled, "uigate: no Net button beside the Tackle (#2510)")
+		apart(button, netButton :: GuiObject, "the Net button")
+		local ay = button.AbsolutePosition.Y
+		assert(math.abs(ay - (netButton :: GuiObject).AbsolutePosition.Y) < 1, "uigate: the Tackle button is not level with Net (#2510)")
+		local camera = workspace.CurrentCamera
+		local jumpAt, jumpSize = NetButtonPlace.jump(camera.ViewportSize)
+		local bx1, by1, bx2, by2 = box(button)
+		local jumpClear = bx2 <= jumpAt.X or jumpAt.X + jumpSize <= bx1 or by2 <= jumpAt.Y or jumpAt.Y + jumpSize <= by1
+		assert(jumpClear, "uigate: the Tackle button covers the jump button (#2510)")
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local timers = hud and hud:FindFirstChild("PotionTimers", true) :: GuiObject?
+		if timers and timers.Visible then
+			apart(button, timers :: GuiObject, "the potion timers")
+		end
+		-- a tap: the grey covers it and the word counts the seconds
+		UIShim.fire(UIShim.eventOf(button, "Activated"))
+		UIShim.advance(0.2)
+		local cool = button:FindFirstChild("Cool") :: Frame
+		assert(cool.Visible and cool.Size.Y.Scale > 0.8, "uigate: the Tackle button did not grey after a tap (#2510)")
+		assert(word.Text:match("^%ds$") ~= nil, "uigate: the recharging Tackle button reads " .. word.Text .. " (#2510)")
+	end },
 	-- F93: a catch three circles in: Perfect, Good, Perfect, each cleared with its word, the pips filling
 	{ "Catch", function()
 		local list = startCatch("gate_stray", "Epic", 5, 0, 0.82)
@@ -5346,6 +5402,10 @@ function Scenes.close()
 	if Scenes._rallyPeek then
 		Scenes._rallyPeek = nil
 		UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = 0 })) -- #2098: the banner put away
+	end
+	if Scenes._tackle then
+		Scenes._tackle = nil
+		UI.shove.setEnabled(false) -- #2510's Tackle button
 	end
 	if Scenes._rallyFace then
 		Scenes._rallyFace:Destroy() -- #2078's board face

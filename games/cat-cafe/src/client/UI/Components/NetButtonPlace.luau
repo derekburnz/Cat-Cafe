@@ -5,6 +5,8 @@
 -- up and left of it, its right edge a little in from the jump button's left edge so one thumb rolls between them.
 --   jump(viewport) -> (Vector2, number)      the jump button's top left corner and size, in screen pixels
 --   place(viewport) -> (Vector2, number)     the Net button's top left corner and size, in screen pixels
+--   tackle(viewport) -> (Vector2, number)    #2510: the touch Tackle button's, left of the Net button at its height,
+--                                            the same size, so the thumb rolls Jump, Net, Tackle
 -- Pure, so the cloud spec runner checks it.
 
 local NetButtonPlace = {}
@@ -26,6 +28,11 @@ function NetButtonPlace.place(viewport: Vector2): (Vector2, number)
 	local right = jumpAt.X + math.floor(size * NetButtonPlace.TUCK)
 	local bottom = jumpAt.Y - NetButtonPlace.GAP
 	return Vector2.new(right - size, bottom - size), size
+end
+
+function NetButtonPlace.tackle(viewport: Vector2): (Vector2, number)
+	local netAt, size = NetButtonPlace.place(viewport)
+	return Vector2.new(netAt.X - NetButtonPlace.GAP - size, netAt.Y), size
 end
 
 return NetButtonPlace

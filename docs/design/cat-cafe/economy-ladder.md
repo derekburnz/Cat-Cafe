@@ -55,6 +55,8 @@ v3, 2026-11-05 (Design-Agent, friend's project, for #1452 / #1462): more wild st
 
 v4, 2026-11-07 (#2230, built in #2236; Derek2: "increase the difficulty of goals between tier 2->3 slightly and 3->4 a lot and 4->5 slightly"): Tier 3 **920,000** coins and 13 different cats (was 800,000 and 12), Tier 4 **90M** and 25 cats (60M and 20), Tier 5 **2.3B** and 33 cats (2.0B and 30). The rarity needs are unchanged. Pace.spec, all 25 checks pass. First hour, 20 runs: Tier 2 at 11.9 min, Tier 3 at 53.1 (fastest tenth 39.5). One go, 10 runs: Tier 2 0 h 13, Tier 3 1 h 02, Tier 4 4 h 25, Tier 5 11 h 26 (10th to 90th 9 h 39 to 12 h 28). An hour a day: Tier 3 on day 2, Tier 4 on day 3 and Tier 5 on day 6, the top of the day 4 to 6 guard. The guards moved to Tier 3 50 to 62 min and one-go Tier 5 9 to 14 h. The table below is older.
 
+v5, 2026-11-08 (#2496, built in #2518; Derek2: "increase the difficuilty of goals for tier 3 to tier 4 upgrade and make it so it requires at least 1 mythic and more money"): Tier 4 costs **160M** (was 90M) and needs **one Mythical or better** (was one Legendary). It keeps 25 cats, and Tiers 2, 3 and 5 are unchanged. 120M and 140M only reached 4 h 28 and 4 h 53, so the cost went to 160M. One go, 10 runs: Tier 3 0 h 56, Tier 4 **5 h 15** (4 h 25 before), Tier 5 12 h 20 (10th to 90th 9 h 12 to 13 h 54). The median time from Tier 3 to the first Mythical is 0 h 30. New guard: one-go Tier 4 5 to 6 h.
+
 Time to each tier, in minutes or hours of play (the day it comes in brackets). Medians of the pace model, 40 to 200 seeded runs:
 
 | player | Tier 2 | Tier 3 | Tier 4 | Tier 5 |

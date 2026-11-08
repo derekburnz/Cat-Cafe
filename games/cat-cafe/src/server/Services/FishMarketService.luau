@@ -29,6 +29,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Crates = require(ReplicatedStorage.Shared.Crates)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local EventService = require(script.Parent.EventService)
 local FreshCatch = require(ReplicatedStorage.Shared.FreshCatch)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -98,7 +99,7 @@ local function open(
 	-- roll first (pure), then pay, so an error in the roll never takes the crate or the fish (review N168)
 	local luck = profile.crateLuck[crate.area] or 0
 	-- F88: the player's Luck now multiplies a plain open's Epic and rarer chances (not the twentieth or golden ones)
-	local playerLuck = Luck.of(profile, os.time(), ClockService.luckyDay())
+	local playerLuck = Luck.of(profile, os.time(), ClockService.luckyDay(), EventService.luck())
 	local decorId, lucky =
 		Crates.roll(crate, luck, random:NextNumber(), random:NextNumber(), playerLuck)
 	local def = Catalog.getDecor(decorId) :: Types.DecorDef

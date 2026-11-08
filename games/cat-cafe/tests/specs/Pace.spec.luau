@@ -109,6 +109,7 @@ return function()
 		quickBait: boolean?, -- #1716: a Quick Bait Potion runs the whole time (+0.25 bait speed, inside BaitSpeedMax)
 		lawn: ("greedy" | "saving")?, -- #1283: buys the best affordable lawn piece or style and lays the best lawn; "greedy" the moment it can, "saving" only with the next rank up's cost left over
 		pals: number?, -- pals on the server (Economy.setPals, #1165): tips, piles and rich visitors earn the pal bonus
+		event: { from: number, to: number }?, -- #2486: a Cafe Event's money (EventMoneyMax) over these seconds of play
 	}
 	-- The daytime top-ups (#1159, shared/StrayTopUp) as the one catcher sees them. `players` sets the floor of live
 	-- strays (StrayTopUp.floor); `wait` fixes the seconds between top-ups (60 is StrayTopUpMinSeconds, the most a
@@ -204,6 +205,8 @@ return function()
 		if options.pals ~= nil then
 			Economy.setPals(profile, options.pals)
 		end
+		Economy.setEventMoney(1)
+		local eventOn = false
 		-- the pals' share on top of tip piles and rich visitors (TipPileService and RichTipService use
 		-- Economy.tipMultiplier; Economy.settle pays it on the per second income itself); offline pay has none
 		local palBoost = 1 + Economy.palBonus(profile)
@@ -545,6 +548,16 @@ return function()
 				local phase, left = Clock.phaseAt(clockT)
 				local day = phase == "day"
 				local lucky = day and Clock.isLuckyDay(Clock.dayAt(clockT))
+				-- #2486: the event's x money on the cafe's income, tip piles, rich tips and the Tip Jar (live-events.md
+				-- 2b), the time before it settled at the old rate
+				local window = options.event
+				local inEvent = window ~= nil and t >= window.from and t < window.to
+				if inEvent ~= eventOn then
+					Economy.settle(profile, now, epoch)
+					Economy.setEventMoney(if inEvent then Config.EventMoneyMax else 1)
+					eventOn = inEvent
+					dirty = true
+				end
 				-- every tick on the Tier 2 runs; a long run settles every LONG_SETTLE and right after a change, and
 				-- shops only then
 				local settling = dirty or s - settledAt >= settleEvery
@@ -554,7 +567,7 @@ return function()
 						plannedAt = t
 						placeBest(nil)
 					end
-					r = rate()
+					r = rate() * Economy.eventMoney()
 					settledAt = s
 					dirty = false
 				end
@@ -748,6 +761,7 @@ return function()
 					table.insert(run.events, { t = t, kind = "rank", id = "tier" .. def.tier })
 					run.dayAt[def.tier] = session
 					if def.tier >= target then
+						Economy.setEventMoney(1)
 						return run
 					end
 					placeBest(nil) -- the new role slots
@@ -792,6 +806,7 @@ return function()
 			leftAt = joined + length
 			rateAtLogout = rate() -- the day rate; no potions in the model
 		end
+		Economy.setEventMoney(1)
 		return run
 	end
 
@@ -976,6 +991,22 @@ return function()
 				local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
 				if median < 9 * HOUR or median > 14 * HOUR then
 					error("Tier 5 outside 9 to 14 hours of play: " .. text)
+				end
+			end)
+
+			it("takes 9 to 14 hours in one go with one 2-hour x2 Cafe Event in the run (#2486)", function()
+				-- live-events.md 2b: if not, the event's window gets shorter, not its multiplier smaller. The window
+				-- sits late in the run, where the cafe earns the most and the boost is worth the most.
+				local list, text = toTier5({
+					catches = 4,
+					target = 5,
+					limit = 16 * HOUR,
+					long = true,
+					event = { from = 6 * HOUR, to = 8 * HOUR },
+				})
+				local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
+				if median < 9 * HOUR or median > 14 * HOUR then
+					error("Tier 5 outside 9 to 14 hours of play with a 2-hour x2 event: " .. text)
 				end
 			end)
 

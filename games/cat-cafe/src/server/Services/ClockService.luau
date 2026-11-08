@@ -35,6 +35,20 @@ local currentDay = 1
 local published = false
 local generation = 0 -- bumps on every reschedule, so a timer from before a debug jump never fires
 local dayUntil = 0 -- #2184: the clock time until which this server shows day whatever the global phase
+local eventDays: Clock.DayKinds? = nil -- #2486: the running Cafe Event's forced kinds (EventService)
+local eventHeld = false -- #2486: the event ended by day, so eventDays stay until that day's dusk
+
+-- The day's own kinds with the running event's on top (#2486).
+local function kindsOf(day: number): Clock.DayKinds
+	local kinds = Clock.dayKinds(day)
+	local forced = eventDays
+	if forced ~= nil then
+		kinds.lucky = kinds.lucky or forced.lucky
+		kinds.golden = kinds.golden or forced.golden
+		kinds.rainbow = kinds.rainbow or forced.rainbow
+	end
+	return kinds
+end
 
 -- The day number and its kinds on the folder; at the sunrise that ends a skipped first night (#2184) this is all that
 -- changes, so `changed` doesn't fire a second sunrise.
@@ -45,7 +59,7 @@ local function publishDay()
 		folder:SetAttribute("Day", currentDay)
 		folder:SetAttribute("NextLuckyDay", Clock.nextLuckyDay(currentDay))
 		-- #1572: the day's kinds, each true from its sunrise to night
-		local kinds = Clock.dayKinds(currentDay)
+		local kinds = kindsOf(currentDay)
 		folder:SetAttribute("LuckyDay", currentPhase == "day" and kinds.lucky)
 		folder:SetAttribute("GoldenDay", currentPhase == "day" and kinds.golden)
 		folder:SetAttribute("RainbowDay", currentPhase == "day" and kinds.rainbow)
@@ -55,6 +69,11 @@ end
 local function publish(phase: Types.ClockPhase, secondsLeft: number)
 	published = true
 	currentPhase = phase
+	if phase ~= "day" and eventHeld then
+		-- #2486: the day under way at an event's end kept its kinds until now
+		eventHeld = false
+		eventDays = nil
+	end
 	currentEndsAt = Workspace:GetServerTimeNow() + secondsLeft
 	local folder = clockFolder
 	if folder ~= nil then
@@ -122,13 +141,28 @@ end
 
 -- F88: true in the day phase of a Lucky Day (#1572: one day in three, rolled from the global day).
 function ClockService.luckyDay(): boolean
-	return currentPhase == "day" and Clock.isLuckyDay(currentDay)
+	return currentPhase == "day" and kindsOf(currentDay).lucky
 end
 
 -- #1572: the kinds of today in the day phase (Lucky, Golden, Rainbow), nil at night, for Clock.goldChance and
 -- Clock.rainbowChance.
 function ClockService.dayKinds(): Clock.DayKinds?
-	return if currentPhase == "day" then Clock.dayKinds(currentDay) else nil
+	return if currentPhase == "day" then kindsOf(currentDay) else nil
+end
+
+-- #2486: a Cafe Event's day kinds forced on in every day phase while it runs, on top of the day's own roll (nil when
+-- none runs). EventService sets it; the folder's LuckyDay, GoldenDay and RainbowDay follow at once. Spec 2a: an event
+-- that ends by day leaves its kinds on that day until its dusk (nil holds them, the next night clears them).
+function ClockService.setEventDays(kinds: { lucky: boolean, golden: boolean, rainbow: boolean }?)
+	if kinds == nil and eventDays ~= nil and currentPhase == "day" then
+		eventHeld = true
+		return
+	end
+	eventHeld = false
+	eventDays = if kinds ~= nil
+		then { lucky = kinds.lucky, golden = kinds.golden, rainbow = kinds.rainbow }
+		else nil
+	publishDay()
 end
 
 -- The server's day number (Clock.dayAt): at night, the day that just ended.

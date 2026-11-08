@@ -25,6 +25,7 @@ local CornerShopService = require(script.Parent.Services.CornerShopService)
 local DailyTreatService = require(script.Parent.Services.DailyTreatService)
 local DataService = require(script.Parent.Services.DataService)
 local DealerService = require(script.Parent.Services.DealerService)
+local EventService = require(script.Parent.Services.EventService)
 local FeedService = require(script.Parent.Services.FeedService)
 local FishMarketService = require(script.Parent.Services.FishMarketService)
 local GlobalCatchService = require(script.Parent.Services.GlobalCatchService)
@@ -82,6 +83,7 @@ local world = WorldBuilder.build()
 
 Net.start()
 ClockService.start()
+EventService.start() -- #2486: Cafe Events, after the clock whose days they force
 PlotService.start(world)
 CafeService.start()
 LawnService.start() -- F91: the front lawn's remotes

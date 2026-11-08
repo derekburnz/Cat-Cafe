@@ -1603,10 +1603,17 @@ end
 
 -- Stages shot `shot` (1 to TackleStage.SHOTS) of the tackling lesson, starting it on the first call; 0 or nil ends
 -- it and puts everything back. Does nothing while the intro plays.
+local lessonReported = false -- #2391: tackle_lesson_shown goes out once a session
+
 function IntroController.stageTackle(shot: number?)
 	if shot == nil or shot <= 0 or shot > TackleStage.SHOTS then
 		lessonEnd()
 		return
+	end
+	if shot == 1 and not lessonReported then
+		-- #2391: the funnel's tackle_lesson_shown (Onboarding.REPORTABLE), as the lesson's first shot is staged
+		lessonReported = true
+		Net.fire("TelemetryReport", "step", "tackle_lesson_shown")
 	end
 	local l = lesson or lessonBegin()
 	if l == nil then

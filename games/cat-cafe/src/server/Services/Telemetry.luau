@@ -39,6 +39,7 @@ local Net = require(script.Parent.Net)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local OwnerTest = require(ReplicatedStorage.Shared.OwnerTest)
 local PassService = require(script.Parent.PassService)
+local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
@@ -705,6 +706,32 @@ function Telemetry.grandOpening(player: Player, profile: Profile, n: number)
 		step.id,
 		{ tostring(Economy.tier(profile)) }
 	)
+	-- #2391 (onboarding v5): the first milestone paid, and all of them (called after the mark)
+	Telemetry.onboarding(player, profile, "first_goal_done")
+	if GrandOpening.doneCount(profile.grandOpening) >= GrandOpening.COUNT then
+		Telemetry.onboarding(player, profile, "grand_opening_done")
+	end
+end
+
+-- #2391: the first_hour funnel (Onboarding.FIRST_HOUR_STEPS), one run per player with the user id as its session:
+-- every step the account's play time has reached since the last one logged.
+local function logFirstHour(player: Player, profile: Profile)
+	local state = profile.telemetry
+	for _, step in Onboarding.firstHourDue(state.firstHourStep, PlayTime.seconds(player, profile)) do
+		state.firstHourStep = step
+		local name = Onboarding.FIRST_HOUR_STEPS[step]
+		remember(player, "funnel", Onboarding.FIRST_HOUR_FUNNEL .. " " .. name, step, {})
+		send(player, "funnel " .. Onboarding.FIRST_HOUR_FUNNEL, function()
+			AnalyticsService:LogFunnelStepEvent(
+				player,
+				Onboarding.FIRST_HOUR_FUNNEL,
+				tostring(player.UserId),
+				step,
+				name,
+				nil
+			)
+		end)
+	end
 end
 
 function Telemetry.catchCaught(player: Player, funnel: CatchFunnel)
@@ -1067,6 +1094,7 @@ local function logJoined(player: Player)
 	end
 	session.joinLogged = true
 	Telemetry.onboarding(player, profile, "joined", { session.source })
+	logFirstHour(player, profile)
 	if session.returnedNextDay then
 		Telemetry.onboarding(player, profile, "returned_next_day")
 	end
@@ -1089,6 +1117,8 @@ local function logJoined(player: Player)
 		passClaims = #profile.pass.claimedFree + #profile.pass.claimedPaid,
 		passLevel = CafePass.levelOf(profile.pass.xp),
 		spent = spentBefore(player, profile, 0, nil),
+		goalsDone = GrandOpening.doneCount(profile.grandOpening),
+		tackleLessonSeen = profile.tipsSeen.tackle == true,
 	})
 	for _, name in shown do
 		Telemetry.onboarding(player, profile, name :: Onboarding.StepName)
@@ -1482,6 +1512,9 @@ local function watchOnboarding(player: Player, session: Session)
 	local profile = DataService.get(player)
 	if profile == nil then
 		return
+	end
+	if session.joinLogged then
+		logFirstHour(player, profile)
 	end
 	if not Onboarding.reached(profile.telemetry, "first_move") then
 		local character = player.Character

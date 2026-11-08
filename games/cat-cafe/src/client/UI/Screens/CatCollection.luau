@@ -362,7 +362,7 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 	end
 	local titleLabel = header:FindFirstChild("Title") :: TextLabel
 	local subtitleLabel = header:FindFirstChild("Subtitle") :: TextLabel
-	local function fitPerks()
+	local function fitNow()
 		-- AbsoluteContentSize already includes the UIScale, so divide it back out for the row's own width; the room
 		-- is the bar's width past the title's or the count's words, whichever is longer, and the X's corner
 		local natural = perksLayout.AbsoluteContentSize.X / math.max(perksScale.Scale, 0.01)
@@ -382,6 +382,23 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		if (overflows and want < now) or want - now > 0.04 then
 			perksScale.Scale = want
 		end
+	end
+	-- #2493 (44,651 "Maximum event re-entrancy depth exceeded ... when calling fitPerks" on 11-07): the new Scale
+	-- changes AbsoluteContentSize, which used to call the fit again from inside its own event. The fit now runs
+	-- deferred, once per burst of changes, so a Scale it sets can never call it again in the same event; a change it
+	-- causes queues one more pass, where #2301's step test settles it.
+	local fitPending = false
+	local function fitPerks()
+		if fitPending then
+			return
+		end
+		fitPending = true
+		task.defer(function()
+			fitPending = false
+			if header.Parent ~= nil then
+				fitNow()
+			end
+		end)
 	end
 	perksLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(fitPerks)
 	header:GetPropertyChangedSignal("AbsoluteSize"):Connect(fitPerks)

@@ -34,6 +34,7 @@ export type MarketBang = {
 export type Options = {
 	tag: string, -- CollectionService tag of the models to hang a "!" over
 	line: (value: any) -> string?, -- the bubble's words for the value, nil for no "!"
+	name: string?, -- #2501: the billboards' name (default CatCafeMarketBang), so each kind can be told apart
 }
 
 local MarketBang = {}
@@ -65,9 +66,9 @@ local function anchorOf(model: Instance): (BasePart?, Vector3)
 end
 
 -- The red "!" over a dark bubble with one line; also the rescue spots' (Components/RescueBang).
-function MarketBang.build(parent: Instance): Bang
+function MarketBang.build(parent: Instance, name: string?): Bang
 	local gui: BillboardGui = Create("BillboardGui", {
-		Name = "CatCafeMarketBang",
+		Name = name or "CatCafeMarketBang",
 		-- studs up close, never smaller than 130 x 64 px far away, so it reads across the plaza
 		Size = UDim2.new(6, 130, 3, 64),
 		LightInfluence = 0,
@@ -142,6 +143,7 @@ function MarketBang.new(parent: Instance, options: Options?): MarketBang
 	self._parent = parent
 	self._tag = if options then options.tag else MarketBang.TAG
 	self._line = if options then options.line else MarketBangLogic.line
+	self._name = if options then options.name else nil
 	self._bangs = {} :: { [Instance]: Bang }
 	self._crates = nil :: { [string]: number }?
 	self._connections = {} :: { RBXScriptConnection }
@@ -203,7 +205,7 @@ function MarketBang._apply(self: any)
 	for _, model in CollectionService:GetTagged(self._tag) do
 		local bang: Bang? = self._bangs[model]
 		if bang == nil and words ~= nil then
-			bang = MarketBang.build(self._parent)
+			bang = MarketBang.build(self._parent, self._name)
 			self._bangs[model] = bang
 		end
 		if bang ~= nil then

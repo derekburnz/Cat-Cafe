@@ -4291,6 +4291,38 @@ local SCENES = {
 	end },
 	-- #2214 (crispi_255): a red "!" over the Fish Market while crates wait to open, "📦 3 crates to open" under it;
 	-- with none it is gone
+	-- #2501 (Derek2: "put an exclamation mark above the free group cat station"): a "!" over the Bellhop Cat's stand
+	-- while the cat is not taken, gone once it is
+	{ "StarterCatBang", function()
+		local stand = Instance.new("Model")
+		stand.Name = "CatCafe_Street_BellhopStand"
+		local base = Instance.new("Part")
+		base.Name = "Base"
+		base.Size = Vector3.new(6, 4, 4)
+		base.Position = Vector3.new(10, 2, -20)
+		base.Parent = stand
+		stand.PrimaryPart = base
+		stand.Parent = workspace
+		stand:AddTag("BellhopStand")
+		local before = (UI.getState() :: any).starterCatClaimed
+		local function bang(): BillboardGui?
+			for _, gui in UIShim.playerGui:GetDescendants() do
+				if gui:IsA("BillboardGui") and gui.Name == "CatCafeStarterBang" and gui.Adornee == base then
+					return gui
+				end
+			end
+			return nil
+		end
+		UI.update({ starterCatClaimed = false } :: any)
+		local gui = bang()
+		assert(gui and gui.Enabled, "uigate: no ! over the free cat's stand (#2501)")
+		local line = (gui :: BillboardGui):FindFirstChild("Line", true) :: TextLabel
+		assert(string.find(string.lower(line.Text), "free cat", 1, true), "uigate: the stand's bubble reads " .. line.Text .. " (#2501)")
+		UI.update({ starterCatClaimed = true } :: any)
+		assert(not (gui :: BillboardGui).Enabled, "uigate: the stand's ! stays after the cat is taken (#2501)")
+		UI.update({ starterCatClaimed = before } :: any)
+		stand:Destroy()
+	end },
 	{ "MarketBang", function()
 		local stall = Instance.new("Model")
 		stall.Name = "CatCafe_FishMarket"

@@ -116,4 +116,26 @@ return function()
 			)
 		end)
 	end)
+
+	describe("crate pulls (#2429)", function()
+		it("writes a line for a Legendary or Mythical piece only", function()
+			expect(GlobalCatch.crateLine("Sam", "Mythical", "Starry Wallpaper")).to.equal(
+				"Sam pulled a Mythical Starry Wallpaper from a crate!"
+			)
+			expect(GlobalCatch.crateLine("Sam", "Legendary", "Gold Lamp")).to.equal(
+				"Sam pulled a Legendary Gold Lamp from a crate!"
+			)
+			expect(GlobalCatch.crateLine("Sam", "Epic", "Rug")).to.equal(nil)
+			expect(GlobalCatch.crateLine("Sam", "Common", "Rug")).to.equal(nil)
+			expect(GlobalCatch.crateLine("Sam", "Shiny", "Rug")).to.equal(nil)
+		end)
+
+		it("fits a message and colours like a catch line", function()
+			local text = GlobalCatch.crateLine("Sam", "Mythical", "Starry Wallpaper") :: string
+			expect(#text <= GlobalCatch.MAX_TEXT).to.equal(true)
+			expect(GlobalCatch.chatLine(text, "Mythical", false)).to.equal(
+				'<font color="#FF5E7E">Sam pulled a Mythical Starry Wallpaper from a crate!</font>'
+			)
+		end)
+	end)
 end

@@ -4623,9 +4623,31 @@ local SCENES = {
 		assert(counters.AbsolutePosition.Y < root.AbsolutePosition.Y + root.AbsoluteSize.Y / 4, "uigate: the counters are not at the top on touch (#2393)")
 		local corner = root:FindFirstChild("Corner") :: GuiObject
 		assert(badge.AbsolutePosition.X > middle, "uigate: the money badge is not on the right on touch (#2393)")
-		assert(badge.AbsolutePosition.Y + badge.AbsoluteSize.Y <= corner.AbsolutePosition.Y, "uigate: the money badge is not over the Potions corner (#2393)")
-		-- level with the corner's right edge, or left of it where the right column's words reach down (a small phone)
-		assert(right(badge) <= right(corner) + 2, "uigate: the money badge runs past the Potions corner (#2393)")
+		-- #2499 (Derek2: "the 2x cash advert is on the jump button ... move it so its right below the your goal/ready
+		-- to claim/spin ready text"): under the right column, right edges level, where it clears the Net button; else
+		-- over the Potions corner as before
+		local goal = root:FindFirstChild("TierGoal") :: GuiObject?
+		local underColumn = badge.AnchorPoint.Y == 0 -- HUD._underColumn's spot (the fallback hangs from its foot)
+		if underColumn then
+			assert(goal ~= nil and goal.Visible, "uigate: the money badge is under a hidden goal card (#2499)")
+			assert(badge.AbsolutePosition.Y >= goal.AbsolutePosition.Y + goal.AbsoluteSize.Y, "uigate: the money badge is not under the goal card (#2499)")
+			assert(math.abs(right(badge) - right(goal)) <= 2, "uigate: the money badge is not level with the goal card (#2499)")
+		else
+			assert(badge.AbsolutePosition.Y + badge.AbsoluteSize.Y <= corner.AbsolutePosition.Y, "uigate: the money badge is not over the Potions corner (#2393)")
+			-- level with the corner's right edge, or left of it where the right column's words reach down (a small phone)
+			assert(right(badge) <= right(corner) + 2, "uigate: the money badge runs past the Potions corner (#2393)")
+		end
+		-- clear of Roblox's touch jump button (70 px at 95, 90 from the bottom right; 120 at 170, 210 on a big screen)
+		local view = workspace.CurrentCamera.ViewportSize
+		local guiTop = game:GetService("GuiService"):GetGuiInset().Y
+		local small = math.min(view.X, view.Y) <= 500
+		local jumpSize = if small then 70 else 120
+		local jumpX = view.X - (if small then 95 else 170)
+		local jumpY = view.Y - (if small then 90 else 210)
+		local bx, by = badge.AbsolutePosition.X, badge.AbsolutePosition.Y + guiTop
+		local onJump = bx < jumpX + jumpSize and bx + badge.AbsoluteSize.X > jumpX
+			and by < jumpY + jumpSize and by + badge.AbsoluteSize.Y > jumpY
+		assert(not onJump, "uigate: the money badge sits on the jump button (#2499)")
 		for _, name in { "QuestLine", "FreeSpin", "TierGoal", "Menu" } do
 			local other = root:FindFirstChild(name) :: GuiObject?
 			if other and other.Visible then
@@ -4636,6 +4658,7 @@ local SCENES = {
 					else other.AbsolutePosition.X
 				local apart = badge.AbsolutePosition.Y >= other.AbsolutePosition.Y + other.AbsoluteSize.Y
 					or right(badge) <= left
+					or badge.AbsolutePosition.X >= right(other)
 					or badge.AbsolutePosition.Y + badge.AbsoluteSize.Y <= other.AbsolutePosition.Y
 				assert(apart, "uigate: the money badge runs into " .. name .. " on touch (#2393)")
 			end

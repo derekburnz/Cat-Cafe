@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-08 00:26 UTC",
+  "generated": "2026-11-08 15:22 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -237179,6 +237179,218 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Plot_GrandOpeningBunting.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Plot_GrandOpeningBunting.png"
+    },
+    {
+      "name": "CatCafe_Street_SpinWheel_RingIcon_Decor",
+      "category": "Street",
+      "module": "ringicons",
+      "objects": [
+        "CatCafe_Street_SpinWheel_RingIcon_Decor"
+      ],
+      "triangles": 904,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.38,
+        "y": 3.8,
+        "z": 0.08
+      },
+      "size_roblox": [
+        3.38,
+        0.08,
+        3.8
+      ],
+      "bounds_min": [
+        -1.69,
+        -1.9,
+        -0.0
+      ],
+      "bounds_max": [
+        1.69,
+        1.9,
+        0.08
+      ],
+      "pivot": "the centre of its bottom face, lying flat; the picture's top points +Z",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#2449: a flat picture for the middle of a walk-up floor ring (the Spin Wheel). Plain parts, never Neon; CanCollide, CanTouch and CanQuery off, no shadow, no scripts. At most 4 x 4 studs and under 0.1 thick: centre it in the ring, scale it to fit (Model:ScaleTo) and lift it just above the ring's top.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_SpinWheel_RingIcon_Decor.model.json",
+      "rbx_parts": 25,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Street_SpinWheel_RingIcon_Decor.fbx",
+        "assets/cat-cafe/exports/CatCafe_Street_SpinWheel_RingIcon_Decor.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "904/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "300 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Street_FishMarket_RingIcon_Decor",
+      "category": "Street",
+      "module": "ringicons",
+      "objects": [
+        "CatCafe_Street_FishMarket_RingIcon_Decor"
+      ],
+      "triangles": 996,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.6,
+        "y": 2.52,
+        "z": 0.09
+      },
+      "size_roblox": [
+        3.6,
+        0.09,
+        2.52
+      ],
+      "bounds_min": [
+        -1.8,
+        -1.26,
+        -0.0
+      ],
+      "bounds_max": [
+        1.8,
+        1.26,
+        0.09
+      ],
+      "pivot": "the centre of its bottom face, lying flat; the picture's top points +Z",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#2449: a flat picture for the middle of a walk-up floor ring (the Fish Market). Plain parts, never Neon; CanCollide, CanTouch and CanQuery off, no shadow, no scripts. At most 4 x 4 studs and under 0.1 thick: centre it in the ring, scale it to fit (Model:ScaleTo) and lift it just above the ring's top.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_FishMarket_RingIcon_Decor.model.json",
+      "rbx_parts": 28,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Street_FishMarket_RingIcon_Decor.fbx",
+        "assets/cat-cafe/exports/CatCafe_Street_FishMarket_RingIcon_Decor.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "996/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "330 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Street_CornerShop_RingIcon_Decor",
+      "category": "Street",
+      "module": "ringicons",
+      "objects": [
+        "CatCafe_Street_CornerShop_RingIcon_Decor"
+      ],
+      "triangles": 328,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.78,
+        "y": 3.43,
+        "z": 0.07
+      },
+      "size_roblox": [
+        2.78,
+        0.07,
+        3.43
+      ],
+      "bounds_min": [
+        -1.39,
+        -1.72,
+        0.0
+      ],
+      "bounds_max": [
+        1.39,
+        1.71,
+        0.07
+      ],
+      "pivot": "the centre of its bottom face, lying flat; the picture's top points +Z",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#2449: a flat picture for the middle of a walk-up floor ring (the Corner Shop and the Day Cart). Plain parts, never Neon; CanCollide, CanTouch and CanQuery off, no shadow, no scripts. At most 4 x 4 studs and under 0.1 thick: centre it in the ring, scale it to fit (Model:ScaleTo) and lift it just above the ring's top.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_CornerShop_RingIcon_Decor.model.json",
+      "rbx_parts": 16,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Street_CornerShop_RingIcon_Decor.fbx",
+        "assets/cat-cafe/exports/CatCafe_Street_CornerShop_RingIcon_Decor.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "328/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "130 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Street_DealerCart_RingIcon_Decor",
+      "category": "Street",
+      "module": "ringicons",
+      "objects": [
+        "CatCafe_Street_DealerCart_RingIcon_Decor"
+      ],
+      "triangles": 1332,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.53,
+        "y": 3.89,
+        "z": 0.07
+      },
+      "size_roblox": [
+        3.53,
+        0.07,
+        3.89
+      ],
+      "bounds_min": [
+        -1.76,
+        -1.95,
+        0.0
+      ],
+      "bounds_max": [
+        1.77,
+        1.94,
+        0.07
+      ],
+      "pivot": "the centre of its bottom face, lying flat; the picture's top points +Z",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#2449: a flat picture for the middle of a walk-up floor ring (the night market's Dealer Cart). Plain parts, never Neon; CanCollide, CanTouch and CanQuery off, no shadow, no scripts. At most 4 x 4 studs and under 0.1 thick: centre it in the ring, scale it to fit (Model:ScaleTo) and lift it just above the ring's top.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Street_DealerCart_RingIcon_Decor.model.json",
+      "rbx_parts": 47,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Street_DealerCart_RingIcon_Decor.fbx",
+        "assets/cat-cafe/exports/CatCafe_Street_DealerCart_RingIcon_Decor.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1332/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "460 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.01"
+        }
+      }
     },
     {
       "name": "CatCafe_Sign_VipPlate",

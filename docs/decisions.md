@@ -681,3 +681,6 @@ A scheduled event record in `CatCafe_Events` that every server reads each minute
 
 ## 2026-11-08: Tier 4 needs a Mythical and 160M; codes give fewer fish (Design-Agent, friend's project, #2496, #2497)
 Tier 4 costs 160M (was 90M) and needs one Mythical or better (was a Legendary). One go now reaches Tier 4 at 5 h 15 and Tier 5 at 12 h 20, inside the 9 to 14 h band (economy-ladder.md §3 v5, built in #2518). Code fish: playtest 100, group 40, release stays 60, launch 10, so the active codes give 200 fish in all instead of 460 (golden-fish.md, built in #2508). Reason: Derek2's asks.
+
+## 2026-11-08: Party Bunting is a Rare decoration (Design-Agent, friend's project, #2534)
+The first Cafe Event reward is a Rare decoration with the Rare crate bonus (+4% money while in use) and can't be traded, like other Rare pieces. Test events pay rewards only in Studio or to an owner. Reason: Gameplay's build choice. A small bonus makes the free reward worth attending for, and since rewards come back later it is never a limited item. live-events.md 2e.

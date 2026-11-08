@@ -3692,6 +3692,12 @@ local SCENES = {
 			end
 			return count
 		end
+		local touch = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch()
+		if touch then
+			-- #2396 (Derek2: "make it just default to shrunk down"): on touch the row starts folded
+			assert(timers.Folded.Visible and chips() == 0, "uigate: the potion row does not start folded on touch (#2396)")
+			press("CatCafeHUD", "PotionTimers.Folded")
+		end
 		local running = chips()
 		assert(running >= 2, "uigate: the scene needs two or more potions running (#2090)")
 		assert(timers.Fold.Visible, "uigate: no arrow tab with " .. running .. " potions running (#2090)")
@@ -4026,16 +4032,26 @@ local SCENES = {
 			end
 			return nil
 		end
+		-- #2397 (Derek2: "for mobile remove the free spin at town square"): on touch the line never shows (its words
+		-- are still kept up to date); the wheel's "!" shows either way
+		local touch = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch()
+		local function lineShows(): boolean
+			if touch then
+				assert(not line.Visible, "uigate: the free spin line shows on touch (#2397)")
+				return true
+			end
+			return line.Visible
+		end
 		UI.update({ tutorialStep = 9, spin = { lastFreeDay = today - 1, banked = 0 } } :: any)
 		UIShim.advance(1.1) -- the wheel's "!" finds the new model within a second
-		assert(line.Visible and mark.Visible, "uigate: no ! on the free spin line (#2358)")
+		assert(lineShows() and mark.Visible, "uigate: no ! on the free spin line (#2358)")
 		assert(words.Text == "🎡 Free spin at the Town Square", "uigate: the spin line reads " .. words.Text .. " (#2358)")
 		local gui = bang()
 		assert(gui and gui.Enabled, "uigate: no ! over the Spin Wheel with a free spin (#2358)")
 		local bubble = (gui :: BillboardGui):FindFirstChild("Line", true) :: TextLabel
 		assert(bubble.Text == "🎡 Free spin!", "uigate: the Spin Wheel bubble reads " .. bubble.Text .. " (#2358)")
 		UI.update({ spin = { lastFreeDay = today, banked = 2 } } :: any)
-		assert(line.Visible and words.Text == "🎡 2 spins at the Town Square", "uigate: banked spins read " .. words.Text .. " (#2358)")
+		assert(lineShows() and words.Text == "🎡 2 spins at the Town Square", "uigate: banked spins read " .. words.Text .. " (#2358)")
 		assert(bubble.Text == "🎡 2 spins to use", "uigate: the Spin Wheel bubble reads " .. bubble.Text .. " with 2 banked (#2358)")
 		UI.update({ spin = { lastFreeDay = today, banked = 0 } } :: any)
 		assert(not line.Visible, "uigate: the spin line stays with no spin left (#2358)")
@@ -4222,16 +4238,85 @@ local SCENES = {
 		UI.update({ passBoosts = false, goldenFish = 1234 } :: any)
 		UI.store.preview(storePrices(true), {})
 		UIShim.advance(1 / 60)
-		local counters = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Counters", true) :: Frame
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local counters = hud:FindFirstChild("Counters", true) :: Frame
 		local money = counters:FindFirstChild("Money") :: GuiObject
 		local fish = counters:FindFirstChild("Fish") :: GuiObject
-		local badge = counters:FindFirstChild("MoneyBadge") :: GuiObject
+		local badge = hud:FindFirstChild("MoneyBadge", true) :: GuiObject
 		assert(fish.Visible and badge.Visible, "uigate: the golden fish or the money badge is hidden (#2334)")
 		local function right(gui: GuiObject): number
 			return gui.AbsolutePosition.X + gui.AbsoluteSize.X
 		end
 		assert(right(money) <= fish.AbsolutePosition.X, "uigate: the golden fish is not right of the money (#2334)")
-		assert(right(fish) <= badge.AbsolutePosition.X, "uigate: the money badge is not right of the golden fish (#2334)")
+		local touch = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch()
+		if not touch then
+			assert(right(fish) <= badge.AbsolutePosition.X, "uigate: the money badge is not right of the golden fish (#2334)")
+			return
+		end
+		-- #2393 (Derek2: "make it on the top middle of the screen for at least the luck/money/gold fish ... and put the
+		-- 2x money advertising on the right side above potions"): on touch the counters are centred at the top, the
+		-- badge is in the right half, its foot over the Potions corner, clear of the right column's lines
+		local root = hud:FindFirstChild("Root") :: Frame
+		local middle = root.AbsolutePosition.X + root.AbsoluteSize.X / 2
+		local countersMiddle = counters.AbsolutePosition.X + counters.AbsoluteSize.X / 2
+		assert(math.abs(countersMiddle - middle) <= 2, "uigate: the counters are not centred on touch (#2393)")
+		assert(counters.AbsolutePosition.Y < root.AbsolutePosition.Y + root.AbsoluteSize.Y / 4, "uigate: the counters are not at the top on touch (#2393)")
+		local corner = root:FindFirstChild("Corner") :: GuiObject
+		assert(badge.AbsolutePosition.X > middle, "uigate: the money badge is not on the right on touch (#2393)")
+		assert(badge.AbsolutePosition.Y + badge.AbsoluteSize.Y <= corner.AbsolutePosition.Y, "uigate: the money badge is not over the Potions corner (#2393)")
+		-- level with the corner's right edge, or left of it where the right column's words reach down (a small phone)
+		assert(right(badge) <= right(corner) + 2, "uigate: the money badge runs past the Potions corner (#2393)")
+		for _, name in { "QuestLine", "FreeSpin", "TierGoal", "Menu" } do
+			local other = root:FindFirstChild(name) :: GuiObject?
+			if other and other.Visible then
+				-- a line's words, from its right edge (right-aligned)
+				local words = other:FindFirstChild("Text") :: TextLabel?
+				local left = if words and name == "QuestLine"
+					then right(other) - words.TextBounds.X
+					else other.AbsolutePosition.X
+				local apart = badge.AbsolutePosition.Y >= other.AbsolutePosition.Y + other.AbsoluteSize.Y
+					or right(badge) <= left
+					or badge.AbsolutePosition.Y + badge.AbsoluteSize.Y <= other.AbsolutePosition.Y
+				assert(apart, "uigate: the money badge runs into " .. name .. " on touch (#2393)")
+			end
+			if other and other.Visible and name ~= "QuestLine" and name ~= "FreeSpin" then
+				local clear = counters.AbsolutePosition.X >= right(other) or right(counters) <= other.AbsolutePosition.X
+					or counters.AbsolutePosition.Y >= other.AbsolutePosition.Y + other.AbsoluteSize.Y
+				assert(clear, "uigate: the counters run into " .. name .. " on touch (#2393)")
+			end
+		end
+	end },
+	-- #2393: on touch the Luck row sits centred under the counters at the top and the money's boosts card opens under
+	-- the counters; #2397: the goal card takes at least a quarter less room than on a PC. A PC keeps the counters in
+	-- the bottom left.
+	{ "HUDTouchTop", function()
+		local touch = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch()
+		UI.update({ luck = 2 } :: any)
+		UIShim.advance(1 / 60)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local root = hud:FindFirstChild("Root") :: Frame
+		local counters = root:FindFirstChild("Counters") :: Frame
+		local bottom = counters.AbsolutePosition.Y + counters.AbsoluteSize.Y
+		if not touch then
+			local rootBottom = root.AbsolutePosition.Y + root.AbsoluteSize.Y
+			assert(bottom > rootBottom - 80 and counters.AbsolutePosition.X < root.AbsolutePosition.X + 40, "uigate: the counters left the bottom left on a PC (#2393)")
+			return
+		end
+		local row = root:FindFirstChild("Potions") :: GuiObject
+		assert(row.Visible, "uigate: no Luck row with luck 2x (#2393)")
+		assert(row.AbsolutePosition.Y >= bottom, "uigate: the Luck row is not under the counters on touch (#2393)")
+		local middle = counters.AbsolutePosition.X + counters.AbsoluteSize.X / 2
+		local rowMiddle = row.AbsolutePosition.X + row.AbsoluteSize.X / 2
+		assert(math.abs(rowMiddle - middle) <= 2, "uigate: the Luck row is not centred under the counters (#2393)")
+		press("CatCafeHUD", "Counters.Money")
+		local card = root:FindFirstChild("Boosts") :: GuiObject
+		assert(card.Visible, "uigate: the money did not open the boosts card on touch (#2393)")
+		assert(card.AbsolutePosition.Y >= bottom, "uigate: the boosts card covers the counters on touch (#2393)")
+		press("CatCafeHUD", "Counters.Money")
+		local goal = root:FindFirstChild("TierGoal") :: GuiObject
+		local scale = (root:FindFirstChildOfClass("UIScale") :: UIScale).Scale
+		local area = goal.AbsoluteSize.X * goal.AbsoluteSize.Y / (scale * scale)
+		assert(area <= 0.75 * 250 * 160, ("uigate: the goal card is %d design px², not a quarter smaller (#2397)"):format(area))
 	end },
 	-- #2194 (playtester Dread via Derek2: "The cash at the bottom left should probably not push the 2x cash and fish"):
 	-- the money badge and the golden fish stay put while the digits tick within an amount's shape ("$1.24M" to
@@ -4246,7 +4331,8 @@ local SCENES = {
 		UI.store.preview(storePrices(true), {})
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
 		local counters = hud:FindFirstChild("Counters", true) :: Frame
-		local badge = counters:FindFirstChild("MoneyBadge") :: GuiObject
+		local badge = hud:FindFirstChild("MoneyBadge", true) :: GuiObject -- (over the Potions corner on touch, #2393)
+		local touch = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch()
 		local fish = counters:FindFirstChild("Fish") :: GuiObject
 		local amount = (counters:FindFirstChild("Money") :: Instance):FindFirstChild("Amount", true) :: TextLabel
 		assert(badge.Visible and fish.Visible, "uigate: the money badge or the golden fish is hidden (#2194)")
@@ -4266,7 +4352,8 @@ local SCENES = {
 				assert(gap >= 4, "uigate: " .. amount.Text .. " runs into the golden fish (#2194, #2334)")
 				-- (at most the room's slack, widest for an amount of 1s, plus the row's own gap)
 				assert(gap <= 45, ("uigate: the golden fish sits %d px after %s (#2383)"):format(gap, amount.Text))
-				assert(fish.AbsolutePosition.X + fish.AbsoluteSize.X <= badge.AbsolutePosition.X, "uigate: the golden fish runs into the money badge (#2334)")
+				-- (on touch the badge is over the Potions corner instead, #2393)
+				assert(touch or fish.AbsolutePosition.X + fish.AbsoluteSize.X <= badge.AbsolutePosition.X, "uigate: the golden fish runs into the money badge (#2334)")
 			end
 		end
 	end },

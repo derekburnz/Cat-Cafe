@@ -117,6 +117,7 @@ export type HUD = {
 	setRallySoon: (self: HUD, line: string?) -> (),
 	-- F101: the potion timers' row (with the Luck and pal chips), which the Rally banner keeps clear of on a phone
 	buffRow: (self: HUD) -> GuiObject,
+	counterRow: (self: HUD) -> GuiObject, -- #2393: the money and golden fish (top middle on touch)
 	luckShown: (self: HUD) -> boolean,
 	setAreasOpen: (self: HUD, open: boolean) -> (),
 	setBait: (self: HUD, bait: Types.BaitView?, catWaiting: boolean) -> (),
@@ -517,6 +518,15 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		}),
 	})
 	self._counters = counters
+	-- #2393 (Derek2 11-08: "the 2x money pop up, money amount/breakdown menu, golden fish, and lucky and the breakdown
+	-- menu are all kind of where you want your left thumb to move around maybe make it on the top middle of the screen
+	-- ... and put the 2x money advertising on the right side above potions"): on touch the counters sit at the top
+	-- middle, the Luck row under them (_layoutMenu) and their cards open under that; the money badge goes over the
+	-- Potions tile on the right (_placePotionTimers). A PC keeps the bottom left.
+	if TOUCH then
+		counters.AnchorPoint = Vector2.new(0.5, 0)
+		counters.Position = UDim2.new(0.5, 0, 0, MARGIN)
+	end
 	-- a phone's finger needs 44 px, so the counters' tap areas grow there (the amounts stay the same size)
 	local counterH = Scale.tapHeight(MONEY_H)
 	self._counterH = counterH
@@ -630,8 +640,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Size = UDim2.fromOffset(0, counterH),
 		AutomaticSize = Enum.AutomaticSize.X,
 		LayoutOrder = 3, -- #2334: after the golden fish
+		AnchorPoint = if TOUCH then Vector2.new(1, 1) else nil, -- #2393: over the Potions tile on touch
 		Visible = false,
-		Parent = counters,
+		Parent = if TOUCH then root else counters,
 	}, {
 		Create("UISizeConstraint", { MinSize = Vector2.new(counterH, 0) }),
 		Create("UIListLayout", {
@@ -730,6 +741,23 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			self:_placePotionTimers()
 		end)
 	table.insert(self._connections, timersResized)
+	if TOUCH then
+		-- #2393: the money badge sits over the potion chips while they run over the Potions tile, and drops back after;
+		-- it keeps clear of the quest line's words as they change (_placePotionTimers)
+		for _, signal in
+			{
+				timers:GetPropertyChangedSignal("Visible"),
+				badge:GetPropertyChangedSignal("AbsoluteSize"),
+			} :: { RBXScriptSignal }
+		do
+			table.insert(
+				self._connections,
+				signal:Connect(function()
+					self:_placePotionTimers()
+				end)
+			)
+		end
+	end
 	-- #2334: the bottom row keeps clear of the counters as they grow (the badge showing, the golden fish arriving)
 	local countersResized: RBXScriptConnection = counters
 		:GetPropertyChangedSignal("AbsoluteSize")
@@ -1890,7 +1918,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._luck = LuckChip.new(
 		self._buffs.frame,
 		root,
-		UDim2.new(0, MARGIN, 1, -(MARGIN + self._counterH + BUFFS_GAP)),
+		UDim2.new(0, MARGIN, 1, -(MARGIN + self._counterH + BUFFS_GAP)), -- (LuckChip._place opens it under the chip at the top)
 		function(shown: boolean)
 			self._buffs:setLead(shown)
 		end,
@@ -2140,6 +2168,16 @@ function HUD.setCatching(self: any, active: boolean)
 	self._catching = active
 	self._travelRow.Visible = not active
 	self._travelFold.instance.Visible = not active
+	if TOUCH then
+		-- #2393: the catch's strip and header take the top middle while it runs, so the counters and Luck row step
+		-- away (and their cards close)
+		self._counters.Visible = not active
+		self._buffs:setHidden(active)
+		if active then
+			self:_hideBoosts()
+			self._luck:hide()
+		end
+	end
 	self:_layoutBottom()
 	self:_renderTutorialTile()
 	if changed then
@@ -2716,12 +2754,17 @@ function HUD.toastAvoid(self: any): { Types.Box }
 		add(x0, y0, x1, y1)
 	end
 	local left: { GuiObject } = { self._menu, self._storeTile.instance, self._menuFold.instance }
-	if not self._buffsLow then
+	local buffsOwn = self._buffsLow or TOUCH -- over the counters, or under them at the top middle on touch (#2393)
+	if not buffsOwn then
 		table.insert(left, self._buffs.frame)
 	end
 	box(left)
-	if self._buffsLow then
-		box({ self._buffs.frame }) -- over the counters
+	if buffsOwn then
+		box({ self._buffs.frame })
+	end
+	if TOUCH then
+		box({ self._counters }) -- #2393: the top middle
+		box({ self._moneyBadge }) -- over the Potions tile
 	end
 	box({ self._goal.frame })
 	box({ self._corner }) -- the Potions and side tiles over the bottom right
@@ -2886,6 +2929,10 @@ function HUD.buffRow(self: any): GuiObject
 	return self._buffs.frame
 end
 
+function HUD.counterRow(self: any): GuiObject
+	return self._counters
+end
+
 -- F88: the Luck chip shows with luck above 1x (the chip itself always shows since #1150, so the first boost), for
 -- the `luck` context tip.
 function HUD.luckShown(self: any): boolean
@@ -2963,6 +3010,9 @@ function HUD._layoutRight(self: any)
 	self._questLine.Position = UDim2.new(1, -MARGIN, 0, lineTop - lift)
 	local spinTop = if self._questLine.Visible then lineTop + QUEST_LINE_H + 2 else lineTop
 	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, spinTop - lift)
+	if TOUCH and self._corner ~= nil then
+		self:_placePotionTimers() -- #2393: the money badge keeps clear of the column
+	end
 end
 
 -- F73: the Quests pill (shown once ProfileSync has quests) with its count of what is ready to claim, and the quest
@@ -3012,7 +3062,11 @@ function HUD._renderQuests(self: any, state: Types.PlayerState, catalog: Types.C
 		end
 	end
 	self._questLine.Visible = line ~= nil
+	local said = self._questText.Text
 	self._questText.Text = line or ""
+	if TOUCH and self._questText.Text ~= said then
+		self:_placePotionTimers() -- #2393: the money badge keeps clear of the quest line's words
+	end
 	self._questText.TextColor3 = if ready > 0 then Theme.colors.gold else Theme.hud.text
 end
 
@@ -3037,10 +3091,13 @@ function HUD._renderFreeSpin(self: any)
 	if line ~= nil then
 		self._spinText.Text = Theme.icons.spin .. " " .. line
 	end
-	if due and not self._spinLine.Visible then
+	-- #2397 (Derek2 11-08: "for mobile remove the free spin at town square"): never on touch; the wheel's own "!"
+	-- still shows in the world
+	local shown = due and not TOUCH
+	if shown and not self._spinLine.Visible then
 		Tween.popIn(self._spinLine, 0.8)
 	end
-	self._spinLine.Visible = due
+	self._spinLine.Visible = shown
 	if not SpinLogic.freeDue(spin, now) then
 		self._spinTimer = task.delay(SpinLogic.nextFreeIn(spin, now) + 1, function()
 			self._spinTimer = nil
@@ -3507,8 +3564,11 @@ end
 function HUD._buildBoosts(self: any, root: Frame)
 	self._boostsSaid = nil :: string? -- what the rows last said (_renderBoosts)
 	local card = hudPanel("Boosts", {
-		AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.new(0, MARGIN, 1, -(MARGIN + self._counterH + BUFFS_GAP)),
+		-- over the counters, or under them at the top middle on touch (#2393)
+		AnchorPoint = if TOUCH then Vector2.new(0.5, 0) else Vector2.new(0, 1),
+		Position = if TOUCH
+			then UDim2.new(0.5, 0, 0, MARGIN + self._counterH + BUFFS_GAP)
+			else UDim2.new(0, MARGIN, 1, -(MARGIN + self._counterH + BUFFS_GAP)),
 		Size = UDim2.fromOffset(BOOSTS_W, 0),
 		AutomaticSize = Enum.AutomaticSize.Y,
 		Visible = false,
@@ -3850,10 +3910,12 @@ function HUD._layoutMenu(self: any)
 	self._menuLayout.FillDirectionMaxCells = columns
 	local menuW = menuWidth(columns)
 	if roomy then
-		self._buffs:place(
-			UDim2.new(0, MARGIN, 1, -(MARGIN + self._counterH + BUFFS_GAP)),
-			Vector2.new(0, 1)
-		)
+		if not TOUCH then
+			self._buffs:place(
+				UDim2.new(0, MARGIN, 1, -(MARGIN + self._counterH + BUFFS_GAP)),
+				Vector2.new(0, 1)
+			)
+		end
 		bandBottom -= buffsH + BUFFS_GAP
 	end
 	local band = bandBottom - MARGIN
@@ -3867,7 +3929,13 @@ function HUD._layoutMenu(self: any)
 	-- the luck, potion and pal chips stay just over the counters on a short screen too, when they fit under the grid
 	-- (Derek 2026-11-02: "the luck on mobile should be moved somewhere better"); else they go beside the arrow tab
 	self._buffsLow = roomy or MARGIN + storeH + menuH + gap <= bandBottom - (buffsH + BUFFS_GAP)
-	if self._buffsLow and not roomy then
+	if TOUCH then
+		-- #2393: under the counters at the top middle, wherever the menu goes
+		self._buffs:place(
+			UDim2.new(0.5, 0, 0, MARGIN + self._counterH + BUFFS_GAP),
+			Vector2.new(0.5, 0)
+		)
+	elseif self._buffsLow and not roomy then
 		self._buffs:place(
 			UDim2.new(0, MARGIN, 1, -(MARGIN + self._counterH + BUFFS_GAP)),
 			Vector2.new(0, 1)
@@ -3928,7 +3996,9 @@ function HUD._placeCornerPair(self: any)
 	local camera = Workspace.CurrentCamera
 	local root: Frame = self._root
 	local scale = Scale.get()
-	if shown == 0 or not TOUCH or camera == nil or scale <= 0 or root.AbsoluteSize.Y <= 0 then
+	-- (with nothing shown it still moves on touch, so the money badge over it stays clear of jump, #2393)
+	rowW = math.max(rowW, SYMBOL)
+	if not TOUCH or camera == nil or scale <= 0 or root.AbsoluteSize.Y <= 0 then
 		holder.Position = corner
 		return
 	end
@@ -3980,7 +4050,14 @@ function HUD._placePotionTimers(self: any)
 	local at = holder.Position
 	local right = at.X.Scale * width + at.X.Offset -- the pair's right edge and foot, design px from the root's corner
 	local top = at.Y.Scale * height + at.Y.Offset - SYMBOL_H
-	local left = right - holder.Size.X.Offset - CORNER_GAP
+	local tiles = false
+	for _, child in holder:GetChildren() do
+		if child:IsA("GuiObject") and child.Visible then
+			tiles = true
+		end
+	end
+	-- #2396: with no tile showing yet (the Potions tile comes later) the chips take its place, right edges level
+	local left = if tiles then right - holder.Size.X.Offset - CORNER_GAP else right
 	local timersW = if scale > 0 then timers.AbsoluteSize.X / scale else 0
 	local beside = true
 	local row: Frame? = self._travelRow
@@ -3997,6 +4074,51 @@ function HUD._placePotionTimers(self: any)
 		timers.AnchorPoint = Vector2.new(1, 1)
 		timers.Position = UDim2.fromOffset(math.floor(right), math.floor(top - Theme.sizes.gap))
 	end
+	if TOUCH then
+		-- #2393: the money badge over the Potions tile, right edges level; over the potion chips when they sit there
+		local foot = top - Theme.sizes.gap
+		if not beside and timers.Visible then
+			foot -= BuffChips.potionsHeight() + Theme.sizes.gap
+		end
+		local badge: GuiObject = self._moneyBadge
+		local x1 = right
+		if scale > 0 then
+			-- clear of the right column's pieces beside it (the goal card, the Grand Opening strip, the quest line's
+			-- words): a small phone lifts the pair up to them, so the badge moves left of what it would cover
+			local gap = Theme.sizes.gap
+			local origin = self._root.AbsolutePosition
+			local badgeW, badgeH = badge.AbsoluteSize.X / scale, badge.AbsoluteSize.Y / scale
+			local words: TextLabel = self._questText
+			local line: GuiObject = self._questLine
+			local parts: { { number } } = {}
+			for _, part in { self._goal.frame, self._roadmap.frame } :: { GuiObject } do
+				if part.Visible then
+					local at, size = part.AbsolutePosition, part.AbsoluteSize
+					table.insert(parts, { at.X, at.Y, at.X + size.X, at.Y + size.Y })
+				end
+			end
+			if line.Visible and words.Text ~= "" then
+				local at, size = line.AbsolutePosition, line.AbsoluteSize
+				table.insert(
+					parts,
+					{ at.X + size.X - words.TextBounds.X, at.Y, at.X + size.X, at.Y + size.Y }
+				)
+			end
+			for _, part in parts do
+				local x0, y0 = (part[1] - origin.X) / scale, (part[2] - origin.Y) / scale
+				local px1, py1 = (part[3] - origin.X) / scale, (part[4] - origin.Y) / scale
+				if
+					py1 + gap > foot - badgeH
+					and y0 - gap < foot
+					and x0 - gap < x1
+					and px1 + gap > x1 - badgeW
+				then
+					x1 = math.min(x1, x0 - gap)
+				end
+			end
+		end
+		badge.Position = UDim2.fromOffset(math.floor(x1), math.floor(foot))
+	end
 end
 
 -- The menu's arrow tab: under the menu, or beside its last row on a short screen; at the edge once folded.
@@ -4010,7 +4132,7 @@ function HUD._placeMenuFold(self: any)
 		local x = if self._menuFolded then MARGIN else MARGIN + self._menu.Size.X.Offset + MENU_GAP
 		local middle = self._gridTop + menuH - MENU_CELL_H / 2
 		fold.Position = UDim2.fromOffset(x, middle - FOLD_H / 2)
-		if not self._buffsLow then
+		if not self._buffsLow and not TOUCH then
 			self._buffs:place(UDim2.fromOffset(x + FOLD_W + 12, middle), Vector2.new(0, 0.5))
 		end
 	else

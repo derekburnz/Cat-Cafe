@@ -130,7 +130,7 @@ return function()
 			-- #2468: not straight after the intro; the first catch brings it
 			expect(table.find(Tips.due(profile, DAY), Tips.LESSON)).never.to.be.ok()
 			expect(Tips.lessonDue(profile)).to.equal(false)
-			Onboarding.reach(profile.telemetry, "first_catch")
+			profile.stats.grabsSucceeded = 1
 			expect(Tips.due(profile, DAY) :: any).to.deepEqual({ Tips.LESSON })
 			-- the old tackle card's seen flag does not stand in for the lesson
 			profile.tipsSeen = { tackle = true }
@@ -141,11 +141,20 @@ return function()
 			expect(Tips.LESSON).to.equal("tackle_lesson")
 		end)
 
-		it("counts a cat caught before the first_catch step existed (#2468)", function()
+		it("waits for a real catch, not a cat checked in without one (#2468, Laptop-Tester on #2470)", function()
 			local profile = fresh()
 			profile.introSeen = true
+			-- a store, starter or granted cat checked in: catsCaught and the funnel's first_checkin, no catch
 			profile.stats.catsCaught = 1
-			expect(Tips.lessonDue(profile)).to.equal(true)
+			Onboarding.reach(profile.telemetry, "first_checkin")
+			expect(Onboarding.reached(profile.telemetry, "first_catch")).to.equal(true)
+			expect(Tips.lessonDue(profile)).to.equal(false)
+			for _, stat in { "grabsSucceeded", "rescues", "baitsTamed" } do
+				local one = fresh()
+				one.introSeen = true
+				one.stats[stat] = 1
+				expect(Tips.lessonDue(one)).to.equal(true)
+			end
 		end)
 
 		it("keeps the lesson's seen flag through a save and load, and never marks it for a veteran (#2409)", function()

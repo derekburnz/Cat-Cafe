@@ -24,8 +24,8 @@
 -- last steps on the same screen (dots Intro.SHOTS + 1 to + 4, Next and Skip as for any shot), staged
 -- by stageTackle once the intro's own shots are put back. Played out on a first play, the lesson is saved as seen
 -- (TipSeen; a replay saves nothing, as for the intro); a Skip
--- ends both, and the server's first check-in plays the lesson on its own (Tips.lessonDue). It needs the screen's
--- dots past Intro.SHOTS (IntroLogic.MAX_SHOTS, UI-Engineer); without them the lesson waits for that check-in.
+-- ends both. Since #2544 the lesson never plays on its own anywhere else. It needs the screen's dots past
+-- Intro.SHOTS (IntroLogic.MAX_SHOTS, UI-Engineer); without them it doesn't play.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")

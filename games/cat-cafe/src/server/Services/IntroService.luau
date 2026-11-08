@@ -33,7 +33,7 @@ local function onIntroDone(player: Player, rawShot: unknown, rawReplay: unknown)
 		CafeService.sync(player)
 	end
 	-- #2495: the tackling lesson is the intro's last steps on the client (IntroController), saved by its TipSeen;
-	-- skipped, it waits for the first check-in (CafeService, Tips.lessonDue), so nothing is sent from here
+	-- since #2544 nothing else sends it, so nothing is sent from here
 	local count = (events[player] or 0) + 1
 	if count <= MAX_EVENTS then
 		events[player] = count

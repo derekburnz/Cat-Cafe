@@ -122,17 +122,13 @@ return function()
 			expect(#Tips.due(profile, DAY)).to.equal(0)
 		end)
 
-		it("has the tackling lesson once the intro was seen, until it is, with no catch needed (#2409, #2474)", function()
+		it("never lists the tackling lesson, which plays only in the intro (#2544)", function()
 			local profile = fresh()
 			expect(table.find(Tips.due(profile, DAY), Tips.LESSON)).never.to.be.ok()
-			profile.introSeen = true
-			expect(Tips.lessonDue(profile)).to.equal(true)
-			expect(Tips.due(profile, DAY) :: any).to.deepEqual({ Tips.LESSON })
-			-- the old tackle card's seen flag does not stand in for the lesson
-			profile.tipsSeen = { tackle = true }
-			expect(Tips.due(profile, DAY) :: any).to.deepEqual({ Tips.LESSON })
-			profile.tipsSeen = { tackle_lesson = true }
+			profile.introSeen = true -- seen the intro but not the lesson (a replay saves nothing)
+			expect(table.find(Tips.due(profile, DAY), Tips.LESSON)).never.to.be.ok()
 			expect(#Tips.due(profile, DAY)).to.equal(0)
+			-- its seen flag is still kept, for the intro's first play
 			expect(Tips.seenId(Tips.LESSON)).to.equal(true)
 			expect(Tips.LESSON).to.equal("tackle_lesson")
 		end)

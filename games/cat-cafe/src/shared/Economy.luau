@@ -402,6 +402,25 @@ function Economy.eventMoney(): number
 	return eventMoney
 end
 
+-- #2486 (live-events.md section 7, event_money): the coins the event's multiplier added to each player's cafe
+-- income, tips, rich tips and Tip Jar since EventService last took them.
+local eventExtraByProfile: { [Types.PlayerProfile]: number } = setmetatable({}, { __mode = "k" }) :: any
+
+-- Counts the boost's share of `total`, coins paid at `multiplier` (the event's money when it was worked out).
+function Economy.noteEventExtra(profile: Types.PlayerProfile, total: number, multiplier: number)
+	if multiplier > 1 and total > 0 then
+		eventExtraByProfile[profile] = (eventExtraByProfile[profile] or 0)
+			+ total * (1 - 1 / multiplier)
+	end
+end
+
+-- The coins the boost added since the last call; resets to 0.
+function Economy.takeEventExtra(profile: Types.PlayerProfile): number
+	local extra = eventExtraByProfile[profile] or 0
+	eventExtraByProfile[profile] = nil
+	return extra
+end
+
 function Economy.settle(profile: Types.PlayerProfile, now: number, clockEpoch: number?): number
 	local elapsed = math.max(0, now - profile.lastTick)
 	local earned = 0
@@ -417,6 +436,7 @@ function Economy.settle(profile: Types.PlayerProfile, now: number, clockEpoch: n
 		end
 		profile.coins += earned
 		profile.lifetimeCoins += earned
+		Economy.noteEventExtra(profile, earned, eventMoney)
 		Economy.grantXp(profile, elapsed)
 		Potions.tick(profile, elapsed)
 	end

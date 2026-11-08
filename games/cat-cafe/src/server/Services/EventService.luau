@@ -15,10 +15,15 @@
 -- ignored) are logged when they change. `startTest` (Studio, and OwnerTest's `event <preset> <minutes>`) runs a test
 -- event in this server only and writes nothing to the store.
 --
+-- Section 7's analytics (not for test events): event_join once per player in a running event (joined during it, or in
+-- the server as it started), and event_money, the coins its multiplier added for each player (Economy.noteEventExtra),
+-- at its end or their leave.
+--
 -- Roblox terms: a DataStore keeps values by key across servers; GetAsync with UseCache false skips the 4 second
 -- read cache, so a new schedule is seen at the next check.
 
 local DataStoreService = game:GetService("DataStoreService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -29,6 +34,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Signal = require(ReplicatedStorage.Shared.Signal)
+local Telemetry = require(script.Parent.Telemetry)
 
 local EventService = {}
 
@@ -44,6 +50,7 @@ local test: CafeEvents.Event? = nil -- startTest's, in this server only
 local running: CafeEvents.Event? = nil
 local failing = false
 local lastNotes = ""
+local joined: { [Player]: boolean } = {} -- event_join logged for the running event
 
 local function now(): number
 	return Workspace:GetServerTimeNow()
@@ -110,10 +117,46 @@ local function publish(at: number)
 	ReplicatedStorage:SetAttribute(names.running, event ~= nil)
 end
 
+-- event_money for one player: what the running event's money added for them since the last take.
+local function logMoney(player: Player, event: CafeEvents.Event)
+	local profile = DataService.get(player)
+	if profile == nil then
+		return
+	end
+	local extra = math.floor(Economy.takeEventExtra(profile))
+	if extra > 0 and not event.test then
+		Telemetry.custom(player, "event_money", extra, { event.id, tostring(profile.tier) })
+	end
+end
+
+-- event_join for every loaded player not logged yet in the running event.
+local function logJoins(event: CafeEvents.Event)
+	if event.test then
+		return
+	end
+	for _, player in DataService.loadedPlayers() do
+		if not joined[player] then
+			joined[player] = true
+			local source, joinEvent = Telemetry.joinOf(player)
+			Telemetry.custom(player, "event_join", 1, { event.id, joinEvent, source })
+		end
+	end
+end
+
 -- Sets the running event's effects when it changes (a new id, or its record edited while it runs).
 local function apply(at: number)
 	local event = pick(at)
 	local was = running
+	if was ~= nil and (event == nil or event.id ~= was.id) then
+		-- the end (or the next event): each player's boost coins under the event that paid them
+		for _, player in DataService.loadedPlayers() do
+			logMoney(player, was)
+		end
+		table.clear(joined)
+	end
+	if event ~= nil then
+		logJoins(event)
+	end
 	local same = was ~= nil
 		and event ~= nil
 		and was.id == event.id
@@ -182,6 +225,13 @@ local function read()
 end
 
 function EventService.start()
+	Players.PlayerRemoving:Connect(function(player)
+		local event = running
+		if event ~= nil then
+			logMoney(player, event)
+		end
+		joined[player] = nil
+	end)
 	publish(now())
 	task.spawn(function()
 		while true do

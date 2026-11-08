@@ -195,6 +195,11 @@ export type CustomEvent =
 	-- (bait, store or cafePass), why (no_tap: no tap in the last 2 seconds; busy: during a catch, rescue or cutscene),
 	-- tier
 	| "store_guard_blocked"
+	-- #2486 (live-events.md section 7): a player in a running Cafe Event (joined during it, or in the server as it
+	-- started), value 1; the event id, the Experience Event id the join came through ("" for none), the join source
+	| "event_join"
+	-- #2486: the coins a Cafe Event's money added for one player, at the event's end or their leave; the event id, tier
+	| "event_money"
 	-- #1947 (like-prompts.md section 3): a like or favourite card's button, once per card a session, value 1; the gift
 	-- ("like" or "fav") and the button (like, favourite or close). A card paid (Source like_gift or fav_gift) with no
 	-- report is "none"
@@ -308,6 +313,7 @@ type Session = {
 	uiOpened: { [string]: boolean }, -- ui_opened logged this session, by screen, so a flood logs each once (review)
 	tutorialClosed: boolean, -- #1273: tutorial_closed logged this session
 	source: string, -- #1888: where the join came from (JoinSource.parse of the launch data)
+	joinEvent: string, -- #2486: the Experience Event id the join came through (GameJoinContext.EventId), "" for none
 	store: StoreVisit?, -- #1888: the Store visit open now, for the Store funnel
 	storeVisits: number, -- #1888: Store funnels started this session (StoreFunnel.VISITS_MAX)
 	recapShown: boolean, -- #1920: session_recap logged this session
@@ -580,6 +586,15 @@ function Telemetry.fishSink(
 		sku,
 		FISH_CURRENCY
 	)
+end
+
+-- #2486: where this player's join came from (JoinSource) and the Experience Event id it came through ("" for none).
+function Telemetry.joinOf(player: Player): (string, string)
+	local session = sessions[player]
+	if session == nil then
+		return JoinSource.ORGANIC, ""
+	end
+	return session.source, session.joinEvent
 end
 
 function Telemetry.custom(player: Player, name: CustomEvent, value: number, values: { string }?)
@@ -1279,6 +1294,7 @@ local function onLoaded(player: Player, profile: Profile)
 		uiOpened = {},
 		tutorialClosed = false,
 		source = JoinSource.ORGANIC,
+		joinEvent = "",
 		store = nil,
 		storeVisits = 0,
 		recapShown = false,
@@ -1293,6 +1309,16 @@ local function onLoaded(player: Player, profile: Profile)
 	end)
 	if ok and type(joinData) == "table" then
 		session.source = JoinSource.parse(joinData.LaunchData)
+		-- #2486: a join from an Experience Event's page carries its id; only digits are kept, as anything a link
+		-- carries could be pasted
+		local context = joinData.GameJoinContext
+		local eventId = if type(context) == "table" then context.EventId else nil
+		local text = if type(eventId) == "string" or type(eventId) == "number"
+			then tostring(eventId)
+			else ""
+		if #text <= 24 and string.match(text, "^%d+$") ~= nil then
+			session.joinEvent = text
+		end
 	end
 	sessions[player] = session
 	Telemetry.custom(

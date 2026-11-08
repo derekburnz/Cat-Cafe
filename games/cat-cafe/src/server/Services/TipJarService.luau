@@ -19,6 +19,7 @@ local CafeService = require(script.Parent.CafeService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClaimAll = require(ReplicatedStorage.Shared.ClaimAll)
 local DataService = require(script.Parent.DataService)
+local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
@@ -54,7 +55,9 @@ local function pay(
 ): { string }
 	local def = Catalog.tipJar[step]
 	session.claimed[step] = true
-	local paid = Payout.pay(player, profile, def.prize, "tip_jar", "TimedReward")
+	-- #2486: the Tip Jar counts as tips, so a running Cafe Event's money is on its coins (live-events.md 2b)
+	local paid =
+		Payout.pay(player, profile, def.prize, "tip_jar", "TimedReward", Economy.eventMoney())
 	profile.stats.tipJarClaims += 1
 	Telemetry.custom(player, "tip_jar", step, { TipJar.kind(def) })
 	return paid

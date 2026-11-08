@@ -116,7 +116,7 @@ return function()
 		TutorialRetrySeconds = 1.0,
 		StuckNudgeSeconds = 40,
 		StuckHelpSeconds = 90,
-		TipGapSeconds = 60,
+		TipGapSeconds = 150, -- #2407
 		TipCutMaxSeconds = 4,
 		FeedbackAskMinutes = 12,
 		TipStartSeconds = 10,

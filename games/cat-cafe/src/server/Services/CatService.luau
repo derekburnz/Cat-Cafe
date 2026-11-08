@@ -1132,18 +1132,8 @@ local function startCarry(
 	if funnel ~= nil then
 		Telemetry.catchCaught(player, funnel)
 	end
-	local verb = if pickedUp == true
-		then "picked up"
-		elseif method == "rescue" then "rescued"
-		else "caught"
-	local name = if variant == "gold" or variant == "rainbow"
-		then variant .. " " .. def.name
-		else def.name
-	Net.toast(
-		player,
-		string.format("You %s %s! Bring it to the camp to check in.", verb, withArticle(name)),
-		"good"
-	)
+	-- #2399 (Derek2: "way too many bubble pop ups ... you caught this cat"): no "You caught X! Bring it to the camp"
+	-- toast; the catch's result word, the found card and the carry portrait already say it
 	return true
 end
 

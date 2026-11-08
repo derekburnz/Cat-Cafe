@@ -297,7 +297,9 @@ local function step(dt: number)
 		end
 		local root = entry.rig.root
 		local mine = character == me
-		local near = mine or Context.distance(root.Position) <= radius
+		-- #2445: a staged copy (no player) is always near. The radius is measured from your real character, which
+		-- waits at the spawn while the intro films your copy in the camp, so the copy's arms let go of the demo cat
+		local near = mine or userId == nil or Context.distance(root.Position) <= radius
 		local layers: { Layer } = {}
 		local holding = NetHold.weight(character, entry.rig, dt, near)
 		if holding > 0 then

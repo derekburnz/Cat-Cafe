@@ -6,6 +6,7 @@ The list comes from games/cat-cafe/src/shared/Catalog.luau, read the way Catalog
 a picture on the next run:
   - the crate pieces (CRATE_PIECES, every pool): asset `row.asset`, else CatCafe_Door_<Name> (the set's _Front is
     drawn), CatCafe_CatFlap_<Name>, CatCafe_Style_<Name> (wallpaper, floor, paint) or CatCafe_Decor_<Name>
+  - the Cafe Event reward pieces (EVENT_DECOR, #2534): asset CatCafe_<id>
   - the four old Classic pieces (Catalog.decor, their `asset`)
   - the front lawn pieces (Catalog.lawn) and its path and fence styles (Catalog.lawnStyles), their `model`
 
@@ -104,6 +105,10 @@ def catalog_items():
         else:
             asset = "CatCafe_Decor_" + _plain(name)
         out.append((cid, name, kind, asset))
+    if "local EVENT_DECOR" in s:                    # Cafe Event reward pieces (#2534): asset CatCafe_<id>
+        ev = s[s.index("local EVENT_DECOR"):s.index("Catalog.eventDecor = {}")]
+        for m in re.finditer(r"id = \"(\w+)\",\s*\n.*?name = \"([^\"]+)\",\s*\n\s*kind = \"(\w+)\"", ev, re.S):
+            out.append((m.group(1), m.group(2), m.group(3), "CatCafe_" + m.group(1)))
     old = s[s.index("Catalog.decor = {"):s.index("Catalog.decorById")]
     for m in re.finditer(r"id = \"(\w+)\",\s*\n\s*name = \"([^\"]+)\",.*?asset = \"([^\"]+)\"", old, re.S):
         out.append((m.group(1), m.group(2), "decoration", m.group(3)))

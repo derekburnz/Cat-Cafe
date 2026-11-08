@@ -43,6 +43,7 @@ import leaderboards  # noqa: E402
 import rally  # noqa: E402
 import menu  # noqa: E402
 import rallycrate  # noqa: E402
+import eventdecor  # noqa: E402
 import camps  # noqa: E402
 import cannon  # noqa: E402
 import areakit  # noqa: E402
@@ -113,7 +114,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            parkf85, woodsset, sewerset, neighbourhoodset, neighbourhoodf85, woodsf85, sewerf85, doors, doorsets, crates, potions, mystery, collector,
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
-           gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons]
+           gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor]
 
 PIVOT_NOTES = {
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
@@ -421,7 +422,7 @@ for _n in seasondecor.ASSETS:   # Cafe Pass season 1 paid-track decor (#1637): l
 for _n in gardendecor.ASSETS:   # the Garden Decor Pack pass's decor (#1852, #1851): looks only, not in the Decor Index
     STUDIO_NOTES[_n] = ("Garden Decor Pack decor: on a decor spot, 1.4 studs off the wall; pivot base centre, front -Z, "
                         "no collision (CatCafe_Decor_). Looks only: no cafeMultiplier.")
-for _n in {**crate_decor.ASSETS, **rallycrate.ASSETS}:   # F53 crate pieces (F101 Rally's too): on decor spots
+for _n in {**crate_decor.ASSETS, **rallycrate.ASSETS, **eventdecor.ASSETS}:   # F53 crate pieces (F101 Rally's too): on decor spots
     _index = _n.endswith(("MailboxPlanter", "MushroomLamp", "PipeFountain"))
     STUDIO_NOTES[_n] = ("F53 crate piece: " + ("its zone's Epic, on the Index anchor or a decor spot" if _index
                         else "on a decor spot, 1.4 studs off the wall") + "; pivot base centre, front -Z, no "

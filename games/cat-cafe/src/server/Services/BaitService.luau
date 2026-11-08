@@ -173,7 +173,6 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 		1,
 		{ lureId, rarity, if lucky then Potions.LUCKY else "none" }
 	)
-	Telemetry.baitStep(player, bait, 1)
 	if profile.tutorialStep == 4 then
 		CafeService.advanceTutorial(player, profile, 5) -- the last step: set bait
 	end
@@ -218,9 +217,6 @@ local function onResolveBait(player: Player, rawChoice: unknown, rawBowl: unknow
 		1,
 		{ bait.lureId, if def ~= nil then def.rarity :: string else "unknown", choice }
 	)
-	if choice == "tame" then
-		Telemetry.baitStep(player, bait, 3)
-	end
 	if choice == "tame" and def ~= nil then
 		profile.stats.baitsTamed += 1
 		local hadEpicOrBetter = RareMoments.ownsEpicOrBetter(profile.collection) -- F89: the first Epic's card
@@ -300,7 +296,6 @@ local function checkArrivals()
 			then
 				shown[bowl] = bait.placedAt
 				changed = true
-				Telemetry.baitStep(player, bait, 2)
 				if bait.wow then
 					local send = wowArrived(player, profile, bait)
 					if send ~= nil then

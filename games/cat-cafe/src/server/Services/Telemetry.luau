@@ -1,8 +1,9 @@
 --!strict
--- Analytics (feature F16, growth analytics-plan.md): the onboarding funnel, the catch_attempt and bait_cycle funnels,
+-- Analytics (feature F16, growth analytics-plan.md): the onboarding_v5, first_hour and catch_attempt funnels (only
+-- these since #2444; the intro, grand_opening and bait_cycle funnels are no longer sent, their custom events stay),
 -- coin sources and sinks, tier and area Index progression and the custom events, sent through AnalyticsService.
 -- Server only; Roblox records nothing from Studio or a client. What only the client knows (its device, a screen it
--- opened, a tutorial card or an intro shot it showed) arrives through TelemetryReport, allowlisted and limited to 40 a
+-- opened or a tutorial card it showed) arrives through TelemetryReport, allowlisted and limited to 40 a
 -- minute; nothing it sends pays anything.
 -- Every Log call is wrapped in pcall: telemetry must never throw into gameplay. In Studio the last LOG_SIZE events
 -- are also kept in memory for QA (`recent`, Debug.telemetry).
@@ -32,7 +33,6 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
-local Intro = require(ReplicatedStorage.Shared.Intro)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
@@ -234,7 +234,6 @@ local REPORTS = {
 	"intro_choice",
 	"stuck_nudge",
 	"step",
-	"intro",
 	"screen",
 	"tutorial_closed",
 	"store_opened", -- #1888: the Store opened, from StoreFunnel.SOURCES
@@ -514,26 +513,6 @@ function Telemetry.onboarding(
 	end
 end
 
--- One step of the intro funnel (#1273, Onboarding.INTRO_FUNNEL): logged when it is past the furthest intro step
--- logged, once per player.
-function Telemetry.intro(player: Player, profile: Profile, stepName: Onboarding.IntroStepName)
-	if not Onboarding.reachIntro(profile.telemetry, stepName) then
-		return
-	end
-	local step = Onboarding.introIndex(stepName)
-	remember(player, "onboarding intro", stepName, step, {})
-	send(player, "onboarding " .. stepName, function()
-		AnalyticsService:LogFunnelStepEvent(
-			player,
-			Onboarding.INTRO_FUNNEL,
-			tostring(player.UserId),
-			step,
-			stepName,
-			nil
-		)
-	end)
-end
-
 -- Call right after Economy.credit(profile, amount) for anything that is not cafe income (section 5).
 function Telemetry.source(
 	player: Player,
@@ -690,24 +669,12 @@ function Telemetry.catchEngaged(
 end
 
 -- Step 3: the cat is in the player's arms.
--- #1893: the Grand Opening funnel (first-hour.md 1c), one step per milestone as it is paid, field the tier. Steps
--- can come out of order (two at once, or a later one first); each is logged once, as it is marked done.
-Telemetry.GRAND_OPENING_FUNNEL = "grand_opening"
-
+-- A Grand Opening milestone paid (called after the mark). #2444: its own grand_opening funnel (#1893) is no longer
+-- sent; onboarding_v5's first_goal_done and grand_opening_done carry it (#2391).
 function Telemetry.grandOpening(player: Player, profile: Profile, n: number)
-	local step = GrandOpening.STEPS[n]
-	if step == nil then
+	if GrandOpening.STEPS[n] == nil then
 		return
 	end
-	funnelStep(
-		player,
-		Telemetry.GRAND_OPENING_FUNNEL,
-		tostring(player.UserId),
-		n,
-		step.id,
-		{ tostring(Economy.tier(profile)) }
-	)
-	-- #2391 (onboarding v5): the first milestone paid, and all of them (called after the mark)
 	Telemetry.onboarding(player, profile, "first_goal_done")
 	if GrandOpening.doneCount(profile.grandOpening) >= GrandOpening.COUNT then
 		Telemetry.onboarding(player, profile, "grand_opening_done")
@@ -766,27 +733,6 @@ function Telemetry.catWorking(player: Player, uid: string)
 	end
 	session.waitingForRole[uid] = nil
 	funnelStep(player, "catch_attempt", funnel.id, 5, "working", funnel.values)
-end
-
--- bait_cycle (analytics-plan 4.2): one persistent session id per bowl of food, because the timer runs offline.
--- `step` is 1 set (UseLure), 2 seen (the owner is shown the arrived cat) or 3 tamed.
-function Telemetry.baitStep(player: Player, bait: Types.BaitState, step: number)
-	local def = Catalog.getCat(bait.catId)
-	local lure = Catalog.getLure(bait.lureId)
-	local values = {
-		bait.lureId,
-		if lure ~= nil then lure.source else "unknown",
-		if def ~= nil then def.rarity :: string else "unknown",
-	}
-	local names = { "set", "seen", "tamed" }
-	funnelStep(
-		player,
-		"bait_cycle",
-		string.format("%d-%d", player.UserId, bait.placedAt),
-		step,
-		names[step],
-		values
-	)
 end
 
 -- A shove knocked this player's cat loose: if they leave within LEFT_AFTER_SHOVE_SECONDS, left_after_shove fires.
@@ -1158,7 +1104,6 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if from ~= nil and session.introChoices < INTRO_CHOICES then
 			session.introChoices += 1
 			Telemetry.custom(player, "intro_choice", 1, { from })
-			Telemetry.intro(player, profile, "intro_choice_made")
 		end
 	elseif name == "stuck_nudge" then
 		local kind = Guard.oneOf(rawValue, NUDGE_KINDS)
@@ -1175,13 +1120,6 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		local step = Guard.oneOf(rawValue, Onboarding.REPORTABLE)
 		if step ~= nil then
 			Telemetry.onboarding(player, profile, step :: Onboarding.StepName)
-		end
-	elseif name == "intro" then
-		-- 0 as the intro starts, then each shot as it shows
-		local shot = Guard.int(rawValue, 0, Intro.SHOTS)
-		if shot ~= nil then
-			local step = if shot == 0 then "intro_started" else "intro_shot_" .. tostring(shot)
-			Telemetry.intro(player, profile, step :: Onboarding.IntroStepName)
 		end
 	elseif name == "screen" then
 		-- the screen open now, "none" when it closed; kept for the time markers and the leave events

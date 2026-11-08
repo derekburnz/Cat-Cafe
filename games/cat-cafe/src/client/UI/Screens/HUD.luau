@@ -211,7 +211,10 @@ local TILE_LAYOUT: Button.Layout = if TOUCH then "tile" else "clean"
 -- #1676 (Derek2 live 11-05: "the buttons became way too big and spread so they take up too much screen"): 66 on a PC
 -- (was 78), its label 15, the Store 68 tall, and the gaps only the outline clear of the key caps and red dots. On a
 -- phone or tablet 60 (was 64): 45 px at the smallest touch scale (Scale.TOUCH_FLOOR), still a finger's 44.
-local MENU_TILE = if TOUCH then 60 else 66
+-- #2372 (Derek2 11-07: "scale down the button sizes for mobile users so it doesn't take up so much of the screen"):
+-- on touch 54, drawn 40 px on a phone; Button's invisible Hit pad still takes a finger's 44 round each, and the
+-- columns sit far enough apart (MENU_GAP) that the pads never overlap
+local MENU_TILE = if TOUCH then 54 else 66
 local MENU_TEXT = if TOUCH then Theme.sizes.textTiny + 1 else 15 -- a menu tile's label
 local MENU_CELL_H = if TOUCH then MENU_TILE else MENU_TILE + MENU_TEXT + 4 -- the square and the label's strip
 local STORE_H = 68 -- the Store's wide tile, two tiles wide, over the grid
@@ -235,7 +238,9 @@ local THUMB_ZONE = 180
 -- the empty space between two tiles' drawn edges: #1210 asked for the outline plus the button foot (9), but the clean
 -- tiles draw no foot since #1105 and #1676 asks for a tighter column, so it is the outline's width (4)
 local TILE_CLEAR = Button.OUTLINE
-local KEY_REACH = 6 -- a key cap at (-4, -4) with its 2 px outline pokes this far past the tile's top and left
+-- a key cap at (-4, -4) with its 2 px outline pokes this far past the tile's top and left; a touch screen shows none
+-- (showKeys is the keyboard's), so on touch the tiles need no room for them (#2372)
+local KEY_REACH = if TOUCH then 0 else 6
 -- the red dot (22 px, its middle 3 px down the tile's top edge, its right edge 2 px past the side since #1176, a 2 px
 -- outline) past the tile's top and its right side
 local DOT_TOP = 10
@@ -249,13 +254,17 @@ local SIDE_REACH = if TOUCH then math.max(Button.OUTLINE, GLOW_REACH) else Butto
 local FOOT_REACH = if TOUCH then SIDE_REACH else Theme.sizes.textOutline
 -- Between the columns: a tile's right side (its outline, or the Store's glow) and the next one's key cap keep
 -- TILE_CLEAR apart, and a lit red dot on the top right keeps at least the outline from that key cap.
-local MENU_GAP =
-	math.max(SIDE_REACH + KEY_REACH + TILE_CLEAR, DOT_SIDE + KEY_REACH + Button.OUTLINE) -- 19, 21 touch
+-- On touch a long label inside the smaller tile ("Upgrades") runs up to LABEL_REACH past its sides (#2372).
+local LABEL_REACH = if TOUCH then 4 else 0
+local MENU_GAP = math.max(
+	SIDE_REACH + KEY_REACH + TILE_CLEAR,
+	DOT_SIDE + KEY_REACH + Button.OUTLINE
+) + LABEL_REACH -- 19, 14 touch
 -- Under a tile whose foot reaches this far: TILE_CLEAR to the next row's key caps, the outline to its red dots.
 local function rowGap(foot: number): number
 	return math.max(foot + KEY_REACH + TILE_CLEAR, foot + DOT_TOP + Button.OUTLINE)
 end
-local ROW_GAP = rowGap(FOOT_REACH) -- between the rows (17 on a PC, 21 on touch)
+local ROW_GAP = rowGap(FOOT_REACH) -- between the rows (17 on a PC, 20 on touch)
 local STORE_GAP = rowGap(GLOW_REACH + STORE_HOVER) -- under the wide Store tile, over the grid (23)
 local function menuWidth(columns: number): number
 	return columns * MENU_TILE + (columns - 1) * MENU_GAP

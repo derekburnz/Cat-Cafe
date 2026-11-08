@@ -178,5 +178,19 @@ return function()
 			)
 			expect(CannonLogic.hint(view({ tutorialStep = 1 }))).to.equal("Hop in the cannon to fly to the Alleyway!")
 		end)
+
+		it("stops the first-flight hint for good once the walk-through is done (#2411)", function()
+			expect(CannonLogic.WALKTHROUGH_STEP).to.equal(5)
+			local done = CannonLogic.WALKTHROUGH_STEP
+			expect(CannonLogic.hint(view({ tutorialStep = done - 1, told = false }))).to.equal(
+				"Hop in the cannon to fly to the Alleyway!"
+			)
+			expect(CannonLogic.hint(view({ tutorialStep = done, told = false }))).to.equal(nil)
+			expect(CannonLogic.hint(view({ tutorialStep = done + 3, told = false }))).to.equal(nil)
+			-- a rank up's "is open!" hint still shows after it
+			expect(CannonLogic.hint(view({ tier = 2, tutorialStep = done, opened = "Park", told = false }))).to.equal(
+				"The Park is open! Hop in the cannon to fly there."
+			)
+		end)
 	end)
 end

@@ -3968,6 +3968,71 @@ local SCENES = {
 		UI.update({ crates = { park = 1 } } :: any)
 		assert(gui.Enabled and line.Text == "📦 1 crate to open", "uigate: one crate reads " .. line.Text .. " (#2214)")
 	end },
+	-- #2345 (Derek2: "add an exclamation mark to the upgrades if something is available to buy that you can afford"):
+	-- the Upgrades tile's red "!" shows with an upgrade affordable, stays after Upgrades is opened, and goes with no
+	-- money to spend
+	{ "UpgradesBang", function()
+		local before: any = UI.getState()
+		Scenes._spinState = { money = before.money, spin = before.spin, tutorialStep = before.tutorialStep }
+		UI.update({ money = 1e12, tutorialStep = 9 } :: any)
+		local tile = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Upgrades", true) :: Instance
+		local dot = tile:FindFirstChild("Dot", true) :: GuiObject
+		assert(dot and dot.Visible, "uigate: no ! on the Upgrades tile with an upgrade affordable (#2345)")
+		UI.open("Upgrades")
+		UI.close()
+		UI.update({ money = 1e12 + 1 } :: any)
+		assert(dot.Visible, "uigate: the Upgrades ! went when Upgrades was opened, with an upgrade still affordable (#2345)")
+		UI.update({ money = 0 } :: any)
+		task.wait(0.1)
+		assert(not dot.Visible, "uigate: the Upgrades ! stays with nothing affordable (#2345)")
+		UI.update({ money = 1e12 } :: any)
+	end },
+	-- #2358 (Derek2: "show an exclamation mark near spin when you have one"): the HUD's spin line with its red "!" for
+	-- today's free spin and for banked spins, gone with none; and the "!" over the Spin Wheel in the world
+	{ "SpinBang", function()
+		local before: any = UI.getState()
+		Scenes._spinState = Scenes._spinState
+			or { money = before.money, spin = before.spin, tutorialStep = before.tutorialStep }
+		local wheel = Instance.new("Model")
+		wheel.Name = "SpinWheel"
+		local post = Instance.new("Part")
+		post.Name = "Post"
+		post.Size = Vector3.new(2, 10, 2)
+		post.Position = Vector3.new(-10, 5, -24)
+		post.Parent = wheel
+		wheel.PrimaryPart = post
+		wheel.Parent = workspace
+		wheel:AddTag("SpinWheel")
+		Scenes._spinWheel = wheel
+		local today = math.floor(workspace:GetServerTimeNow() / 86400)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local line = hud:FindFirstChild("FreeSpin", true) :: GuiObject
+		local words = line:FindFirstChild("Text") :: TextLabel
+		local mark = line:FindFirstChild("Claim") :: GuiObject
+		local function bang(): BillboardGui?
+			for _, gui in UIShim.playerGui:GetDescendants() do
+				if gui:IsA("BillboardGui") and gui.Adornee == post then
+					return gui
+				end
+			end
+			return nil
+		end
+		UI.update({ tutorialStep = 9, spin = { lastFreeDay = today - 1, banked = 0 } } :: any)
+		UIShim.advance(1.1) -- the wheel's "!" finds the new model within a second
+		assert(line.Visible and mark.Visible, "uigate: no ! on the free spin line (#2358)")
+		assert(words.Text == "🎡 Free spin at the Town Square", "uigate: the spin line reads " .. words.Text .. " (#2358)")
+		local gui = bang()
+		assert(gui and gui.Enabled, "uigate: no ! over the Spin Wheel with a free spin (#2358)")
+		local bubble = (gui :: BillboardGui):FindFirstChild("Line", true) :: TextLabel
+		assert(bubble.Text == "🎡 Free spin!", "uigate: the Spin Wheel bubble reads " .. bubble.Text .. " (#2358)")
+		UI.update({ spin = { lastFreeDay = today, banked = 2 } } :: any)
+		assert(line.Visible and words.Text == "🎡 2 spins at the Town Square", "uigate: banked spins read " .. words.Text .. " (#2358)")
+		assert(bubble.Text == "🎡 2 spins to use", "uigate: the Spin Wheel bubble reads " .. bubble.Text .. " with 2 banked (#2358)")
+		UI.update({ spin = { lastFreeDay = today, banked = 0 } } :: any)
+		assert(not line.Visible, "uigate: the spin line stays with no spin left (#2358)")
+		assert(not (gui :: BillboardGui).Enabled, "uigate: the Spin Wheel's ! stays with no spin left (#2358)")
+		UI.update({ spin = { lastFreeDay = today - 1, banked = 2 } } :: any) -- the sample's spins, for the snapshot
+	end },
 	-- #2214 add-on (Derek2: "show exclamation mark when someone is doing a rescue also"): another player rescuing at a
 	-- spot puts the "!" over it, "🆘 Rescue on! Come help"; a helper joining reads "🐾 Team Rescue on!"; it goes when
 	-- the rescue ends, and the rescuer never sees their own
@@ -4653,6 +4718,14 @@ function Scenes.close()
 	if Scenes._rescueSpot ~= nil then
 		Scenes._rescueSpot:Destroy() -- #2214's rescue scene
 		Scenes._rescueSpot = nil
+	end
+	if Scenes._spinWheel ~= nil then
+		Scenes._spinWheel:Destroy() -- #2358's scene
+		Scenes._spinWheel = nil
+	end
+	if Scenes._spinState ~= nil then
+		UI.update(Scenes._spinState :: any) -- #2345 and #2358's scenes
+		Scenes._spinState = nil
 	end
 	if Scenes._market ~= nil then
 		Scenes._market.stall:Destroy() -- #2214's scene

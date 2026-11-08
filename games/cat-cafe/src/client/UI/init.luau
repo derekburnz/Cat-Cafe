@@ -5269,6 +5269,7 @@ do
 	local ReadyBang = require(script.Components.ReadyBang)
 	local MarketBang = require(script.Components.MarketBang)
 	local RescueBang = require(script.Components.RescueBang)
+	local SpinLogic = require(script.Components.SpinLogic) -- #2358
 	local SharedConfig =
 		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
 	local CAMP_TAG = "CampExtra" -- shared/CampExtras.TAG: the placed models, with their ExtraId attribute
@@ -5279,6 +5280,7 @@ do
 		yard = nil :: YardSale.YardSale?,
 		bang = nil :: ReadyBang.ReadyBang?, -- the red "!" over each ready station (camp-stations.md section 1)
 		market = nil :: MarketBang.MarketBang?, -- #2214: the "!" over the Fish Market while crates wait to open
+		spin = nil :: MarketBang.MarketBang?, -- #2358: the "!" over the Spin Wheel while the player has a spin
 		rescue = nil :: RescueBang.RescueBang?, -- #2214: the "!" over a rescue spot while someone else rescues there
 	}
 
@@ -5316,6 +5318,19 @@ do
 		market:update(state.crates)
 		camp.market = market
 		camp.rescue = RescueBang.new(into)
+		-- #2358: the Spin Wheel's "!", "🎡 Free spin!" or "🎡 2 spins to use", read again each second for 00:00 UTC
+		local spinBang = MarketBang.new(into, {
+			tag = "SpinWheel", -- WorldBuilder's station tag
+			line = function(spin: any): string?
+				-- not synced yet, or the tutorial still running (the HUD's spin line waits for it too)
+				if spin == nil or ((state :: any).tutorialStep or 5) < 5 then
+					return nil
+				end
+				return SpinLogic.bubble(spin, Workspace:GetServerTimeNow())
+			end,
+		})
+		spinBang:update(state.spin)
+		camp.spin = spinBang
 		local modalView = modal
 		if modalView == nil then
 			return
@@ -5440,6 +5455,11 @@ do
 			rescue:destroy()
 		end
 		camp.rescue = nil
+		local spinBang = camp.spin
+		if spinBang then
+			spinBang:destroy()
+		end
+		camp.spin = nil
 	end
 
 	-- #2214: every render, the Fish Market's "!" with the crates waiting to open
@@ -5447,6 +5467,11 @@ do
 		local market = camp.market
 		if market then
 			market:update(crates)
+		end
+		-- #2358: the Spin Wheel's "!" with the same render
+		local spinBang = camp.spin
+		if spinBang then
+			spinBang:update(state.spin)
 		end
 	end
 end

@@ -9,6 +9,7 @@
 local DecorPieces = require(script.Parent.Components.DecorPieces)
 local IndexRewards = require(script.Parent.Components.IndexRewards)
 local Types = require(script.Parent.Types)
+local UpgradeReady = require(script.Parent.Components.UpgradeReady)
 
 export type Candidates = {
 	Upgrades: { string },
@@ -17,24 +18,13 @@ export type Candidates = {
 
 local Notices = {}
 
--- The same rules as the shop rows: not maxed, the tier gate met, and enough coins for the next level.
+-- The same rule as the shop rows (Components/UpgradeReady, #2345): not maxed, the tier gate met, and enough coins for
+-- the next level.
 local function upgradeKeys(catalog: Types.Catalog, state: Types.PlayerState): { string }
 	local keys = {}
 	for _, def in catalog.upgrades do
-		local level = state.upgradeLevels[def.id] or 0
-		if level >= def.maxLevel then
-			continue
-		end
-		local needsTier: number? = def.requiresTier
-		local perLevel = def.requiresTierAtLevel
-		if perLevel and perLevel[level + 1] then
-			needsTier = math.max(needsTier or 0, perLevel[level + 1])
-		end
-		if needsTier ~= nil and state.tier < (needsTier :: number) then
-			continue
-		end
-		local cost = def.costs[level + 1]
-		if cost ~= nil and state.money >= cost then
+		local level = UpgradeReady.level(def, state.upgradeLevels)
+		if UpgradeReady.status(def, level, state.tier, state.money).kind == "buy" then
 			table.insert(keys, ("%s:%d"):format(def.id, level + 1))
 		end
 	end

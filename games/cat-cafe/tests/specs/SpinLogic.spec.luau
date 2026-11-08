@@ -32,6 +32,18 @@ return function()
 			expect(SpinLogic.spins(nil, now)).to.equal(1)
 		end)
 
+		-- #2358: the HUD line and the wheel's bubble while the player has a spin
+		it("says a free spin, held spins, or nothing for the HUD line and the wheel's bubble", function()
+			local now = 20000 * DAY
+			expect(SpinLogic.line({ lastFreeDay = 19999, banked = 0 }, now)).to.equal("Free spin at the Town Square")
+			expect(SpinLogic.bubble({ lastFreeDay = 19999, banked = 0 }, now)).to.equal("🎡 Free spin!")
+			expect(SpinLogic.line({ lastFreeDay = 20000, banked = 1 }, now)).to.equal("1 spin at the Town Square")
+			expect(SpinLogic.line({ lastFreeDay = 19999, banked = 2 }, now)).to.equal("3 spins at the Town Square")
+			expect(SpinLogic.bubble({ lastFreeDay = 20000, banked = 2 }, now)).to.equal("🎡 2 spins to use")
+			expect(SpinLogic.line({ lastFreeDay = 20000, banked = 0 }, now)).to.equal(nil)
+			expect(SpinLogic.bubble({ lastFreeDay = 20000, banked = 0 }, now)).to.equal(nil)
+		end)
+
 		it("counts down to 00:00 UTC once today's free spin is used", function()
 			local now = 20000 * DAY + 5 * 3600
 			expect(SpinLogic.nextFreeIn({ lastFreeDay = 20000, banked = 0 }, now)).to.equal(

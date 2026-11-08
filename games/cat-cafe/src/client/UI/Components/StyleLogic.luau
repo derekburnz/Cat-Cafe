@@ -221,13 +221,23 @@ function StyleLogic.rows(state: any, names: { [string]: string }?): { Row }
 	local tracks: { string } = if type(state.jukeboxTracks) == "table"
 		then state.jukeboxTracks
 		else {}
-	-- #2077: Shuffle right after the mix, while the client can play it (state.jukeboxShuffle is its id)
-	if type(state.jukeboxShuffle) == "string" and #tracks > 0 then
+	-- #2077: Shuffle, while the client can play it (state.jukeboxShuffle is its id); #2401 (Derek2: "move the shuffle
+	-- in style to be the first button not have it after day and night mix"): first in the row, before the mix
+	local shuffle: string? = if type(state.jukeboxShuffle) == "string" and #tracks > 0
+		then state.jukeboxShuffle
+		else nil
+	if shuffle then
 		tracks = table.clone(tracks)
-		table.insert(tracks, 1, state.jukeboxShuffle)
+		table.insert(tracks, 1, shuffle)
 	end
 	local music = row("music", tracks, state.jukebox, names)
 	if music then
+		for index, option in music.options do
+			if option.id == shuffle and index > 1 then
+				table.insert(music.options, 1, table.remove(music.options, index) :: Option)
+				break
+			end
+		end
 		table.insert(out, music)
 	end
 	return out

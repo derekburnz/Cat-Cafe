@@ -392,6 +392,7 @@ local function cannonHint(): string?
 		told = tutorialText ~= nil,
 		opened = cannonOpened,
 		first = first,
+		wrapUp = UI.cannon.wrapUp.on,
 	})
 end
 
@@ -1553,6 +1554,23 @@ function UI.update(partial: Types.PartialState)
 			end
 		end
 	end
+	-- #2477 (Derek2: "the tutorial should guide you to cannon after bait bowl"): the walk-through ending in this
+	-- session (tutorialStep from under WALKTHROUGH_STEP to it) points the cannon hint at the cannon until the next
+	-- flight, even if the player flew earlier. The first update with a step only records it, so a rejoin never does.
+	local step: number? = partial.tutorialStep
+	if step ~= nil then
+		local wrap = UI.cannon.wrapUp
+		local before = wrap.step
+		wrap.step = step
+		if
+			before ~= nil
+			and before < CannonLogic.WALKTHROUGH_STEP
+			and step >= CannonLogic.WALKTHROUGH_STEP
+		then
+			wrap.on = true
+			cannonLaunched = false
+		end
+	end
 	deriveState(partial)
 	render()
 end
@@ -1699,6 +1717,7 @@ function UI.destroy()
 	cannonScreen, cannonCard, cannonPart, cannonOpened, hintTier, hintShown =
 		nil, nil, nil, nil, nil, nil
 	cannonOn, cannonWild, cannonLaunched = false, false, false
+	UI.cannon.wrapUp.step, UI.cannon.wrapUp.on = nil, false
 	if gateSigns then
 		gateSigns:destroy()
 	end
@@ -2857,6 +2876,11 @@ UI.cannon = {}
 -- On: the HUD's Cannon button takes the Areas button's place and fires events.travel("cannon") (the server moves
 -- the player to the front of the nearest cannon), the Alley button goes, and the carry banner reads "Bring it to the
 -- camp!".
+-- #2477: the tutorialStep in the last update that carried one, and whether the walk-through ended this session (the
+-- bait bowl step), so the cannon hint points at the cannon until the next flight. On UI.cannon, as init's main chunk
+-- is at Luau's 200 locals.
+UI.cannon.wrapUp = { step = nil :: number?, on = false }
+
 function UI.cannon.setEnabled(on: boolean)
 	cannonOn = on
 	if hud then
@@ -2915,6 +2939,7 @@ function UI.cannon.flight(destination: string, launchAt: number, hold: number?)
 		end
 		cannonLaunched = true
 		cannonOpened = nil
+		UI.cannon.wrapUp.on = false
 		applyTutorial()
 	end
 	local name = CannonLogic.TOWN_NAME

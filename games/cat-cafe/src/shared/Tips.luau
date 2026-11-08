@@ -112,12 +112,10 @@ end
 -- nightfall to sunrise (the dealer's cart is out).
 export type Moment = { duskWarning: boolean, night: boolean }
 
--- The tackling lesson's moment: once the intro was seen (played out or skipped), until the lesson has played out.
--- Since #2495 it plays as the intro's last steps on the client (IntroController), saved by its TipSeen; this catches
--- a player who skipped the intro, saw it before then, or left before the lesson, at the first check-in.
-function Tips.lessonDue(profile: Types.PlayerProfile): boolean
-	return profile.introSeen and profile.tipsSeen[Tips.LESSON] ~= true
-end
+-- The tackling lesson plays only as the intro's last steps on the client (IntroController, #2495), on every play
+-- (#2522), saved by its TipSeen on a first play. #2544 (Derek2: "remove the random tackling tutorial scenes that
+-- happen because its in the main tutorial now"): the server never sends it on its own any more, so `due` leaves it
+-- out and the first check-in shows nothing (Debug.tackleLesson still sends it in Studio).
 
 -- The server's tips whose moment follows from the saved state and the clock, not yet seen, in LIST order. The event
 -- tips (second_cat, tackle, dropped) are sent where they happen; the asks come from `dueAsk`.
@@ -141,9 +139,6 @@ function Tips.due(profile: Types.PlayerProfile, moment: Moment): { string }
 		if now[def.id] == true and profile.tipsSeen[def.id] ~= true then
 			table.insert(out, def.id)
 		end
-	end
-	if Tips.lessonDue(profile) then -- #2409, #2474
-		table.insert(out, Tips.LESSON)
 	end
 	return out
 end

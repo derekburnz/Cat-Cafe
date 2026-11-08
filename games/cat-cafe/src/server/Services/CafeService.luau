@@ -55,7 +55,6 @@ local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
 local StoreTabs = require(ReplicatedStorage.Shared.StoreTabs)
 local Telemetry = require(script.Parent.Telemetry)
 local TipService = require(script.Parent.TipService)
-local Tips = require(ReplicatedStorage.Shared.Tips)
 local Trade = require(ReplicatedStorage.Shared.Trade)
 local Types = require(ReplicatedStorage.Shared.Types)
 local WalkUpCircles = require(script.Parent.Parent.World.WalkUpCircles)
@@ -1425,9 +1424,6 @@ function CafeService.addCaughtCat(
 	if notify then
 		-- F87 context tips (easy-start.md section 3): the first check-in ends the newcomer shield; a second cat wants
 		-- a job. The like ask's moment (a first Legendary or better) is TipService's since F96 (Tips.dueAsk).
-		if firstCheckIn and Tips.lessonDue(profile) then
-			TipService.show(player, Tips.LESSON) -- #2474: the lesson, if the intro's turn never came
-		end
 		if profile.stats.catsCaught >= 2 then
 			TipService.show(player, "second_cat")
 		end

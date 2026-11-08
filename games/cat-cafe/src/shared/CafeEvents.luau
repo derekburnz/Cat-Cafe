@@ -26,12 +26,18 @@
 --   upcoming(list, now) -> Event?                 the next one to start after `now`
 --   showerTimes(event) -> { number }              when each shower cat is due, unix seconds
 --   showerKind(n) -> ShowerKind                   the n-th shower's cat (1 is a rainbow Legendary)
+--   showerKey(event, n, job) -> string            the MemoryStore claim key of the n-th shower (2c)
+--   showerPick(event, n) -> ShowerPick            its kind, coat, area (EventShowerAreaWeights) and cat, the same
+--                                                 in every server
+--   showerText(pick, opensAtTier?) / showerCaughtText(winner)   the banner lines
 --   effectsData(event) -> table                   the effects as EventEffects carries them
 --   effectsJson(event) -> string                  effectsData as JSON, the EventEffects attribute
 --   test(preset, now, minutes) -> Event?          OwnerTest's and Studio's event in one server
 
 local HttpService = game:GetService("HttpService")
 
+local Catalog = require(script.Parent.Catalog)
+local Catching = require(script.Parent.Catching)
 local Config = require(script.Parent.Config)
 
 local CafeEvents = {}
@@ -61,6 +67,13 @@ CafeEvents.TEST_SHOWERS_MAX = 3
 
 export type DayKinds = { lucky: boolean, golden: boolean, rainbow: boolean }
 export type ShowerKind = "rainbow_legendary" | "mythical"
+export type ShowerPick = {
+	n: number,
+	kind: "Legendary" | "Mythical",
+	coat: string?, -- "rainbow" for the odd ones; nil rolls the coat as a normal stray's
+	areaId: string,
+	catId: string,
+}
 export type Showers = { count: number, gapSeconds: number, firstAfter: number }
 export type Effects = {
 	days: DayKinds,
@@ -304,6 +317,87 @@ end
 -- Section 2c: the odd showers are a rainbow Legendary, the even ones a Mythical.
 function CafeEvents.showerKind(n: number): ShowerKind
 	return if n % 2 == 1 then "rainbow_legendary" else "mythical"
+end
+
+-- Section 2c: the n-th shower's claim key, "event:<id>:<n>", one catch game-wide; a test event's, "test:<job>:<id>:<n>",
+-- claims under its own server's job id, so it never touches live servers or another test.
+function CafeEvents.showerKey(event: Event, n: number, job: string): string
+	if event.test then
+		return string.format("test:%s:%s:%d", job, event.id, n)
+	end
+	return string.format("event:%s:%d", event.id, n)
+end
+
+-- A number in [0, 1) for `text` and `salt`, the same everywhere (a Park-Miller fold of its bytes).
+local MODULUS = 2147483647
+local MULTIPLIER = 48271
+local function roll(text: string, salt: number): number
+	local hash = salt % MODULUS
+	for index = 1, #text do
+		hash = ((hash + string.byte(text, index)) * MULTIPLIER) % MODULUS
+	end
+	for _ = 1, 4 do
+		hash = (hash * MULTIPLIER) % MODULUS
+		hash = bit32.bxor(hash, bit32.rshift(hash, 13))
+	end
+	hash = (hash * MULTIPLIER) % MODULUS
+	return hash / MODULUS
+end
+
+-- The area a roll in [0, 1) lands on, by EventShowerAreaWeights in Catalog.areas order (equal: 20 each).
+function CafeEvents.showerAreaFor(r: number): string
+	local weights = Config.EventShowerAreaWeights
+	local total = 0
+	for _, area in Catalog.areas do
+		total += weights[area.id] or 0
+	end
+	local point = math.clamp(r, 0, 1) * total
+	local last = Catalog.areas[1].id
+	for _, area in Catalog.areas do
+		local weight = weights[area.id] or 0
+		if weight > 0 then
+			last = area.id
+			if point < weight then
+				return area.id
+			end
+			point -= weight
+		end
+	end
+	return last
+end
+
+-- The n-th shower's cat: odd ones a Legendary in a rainbow coat, even ones a Mythical whose coat rolls as a stray's;
+-- the area and the cat from the event id and n, so every server spawns the same one.
+function CafeEvents.showerPick(event: Event, n: number): ShowerPick
+	local seed = event.id .. ":" .. tostring(n)
+	local rainbow = CafeEvents.showerKind(n) == "rainbow_legendary"
+	local kind: "Legendary" | "Mythical" = if rainbow then "Legendary" else "Mythical"
+	local areaId = CafeEvents.showerAreaFor(roll(seed, 0x61726561)) -- "area"
+	local def = Catching.pickCat(kind, areaId, roll(seed, 0x63617473)) -- "cats"
+	return {
+		n = n,
+		kind = kind,
+		coat = if rainbow then "rainbow" else nil,
+		areaId = areaId,
+		catId = def.id,
+	}
+end
+
+-- "Event cat! A Mythical appeared in the Woods!", with "(opens at Tier 4)" for a player whose tier has not opened
+-- the area, as the pity banner does.
+function CafeEvents.showerText(pick: ShowerPick, opensAtTier: number?): string
+	local area = Catalog.getArea(pick.areaId)
+	local name = if area ~= nil then area.name else pick.areaId
+	local what = if pick.coat == "rainbow" then "Rainbow " .. pick.kind else pick.kind
+	local text = string.format("Event cat! A %s appeared in the %s!", what, name)
+	if opensAtTier ~= nil then
+		text ..= string.format(" (opens at Tier %d)", opensAtTier)
+	end
+	return text
+end
+
+function CafeEvents.showerCaughtText(winnerName: string): string
+	return string.format("Event cat caught by %s!", winnerName)
 end
 
 -- The effects as the EventEffects attribute's short JSON: days (a list), money, luck, showers and reward.

@@ -200,6 +200,9 @@ export type CustomEvent =
 	| "event_join"
 	-- #2486: the coins a Cafe Event's money added for one player, at the event's end or their leave; the event id, tier
 	| "event_money"
+	-- #2486: a Cafe Event shower cat, value its number in the event; the event id, area, kind, and spawned, secured,
+	-- lost (another server's catch won), gone or expired
+	| "event_shower"
 	-- #1947 (like-prompts.md section 3): a like or favourite card's button, once per card a session, value 1; the gift
 	-- ("like" or "fav") and the button (like, favourite or close). A card paid (Source like_gift or fav_gift) with no
 	-- report is "none"

@@ -164,8 +164,11 @@ local function leafParts(
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") and (skip == nil or not descendant:IsDescendantOf(skip)) then
 			local part = descendant :: BasePart
-			local offset = parts[part]
-			if offset == nil then
+			local known: CFrame? = parts[part]
+			local offset: CFrame
+			if known ~= nil then
+				offset = known
+			else
 				offset = shut:ToObjectSpace(part.CFrame)
 				parts[part] = offset
 				fresh = true

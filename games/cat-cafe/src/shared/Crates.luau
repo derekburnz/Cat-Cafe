@@ -61,19 +61,35 @@ end
 
 export type PartLook = { color: Color3, material: Enum.Material }
 
+-- #2256: how a style's texture tiles on a part's Top face: one image every TEXTURE_STUDS studs both ways, untinted.
+Crates.TEXTURE_STUDS = 6
+Crates.TEXTURE_FACE = Enum.NormalId.Top
+
 -- #2106: what a styled part shows for the slot's `decorId`: the style's colour (and its material, else the part's
 -- own) while one is in use, and the part's `own` look as soon as none is (a removed paint puts the default back).
--- `styled` says which, so StyleController keeps or drops the part's own look.
+-- `styled` says which, so StyleController keeps or drops the part's own look. #2256: `texture` is the style's tiled
+-- image while one with a texture is in use, and nil otherwise (StyleController then takes its Texture off).
 function Crates.partLook(
 	decorId: string?,
 	kind: Types.DecorKind,
 	own: PartLook
-): { color: Color3, material: Enum.Material, styled: boolean }
+): {
+	color: Color3,
+	material: Enum.Material,
+	styled: boolean,
+	texture: string?,
+}
 	local color, material = Crates.styleLook(decorId, kind)
 	if color == nil then
-		return { color = own.color, material = own.material, styled = false }
+		return { color = own.color, material = own.material, styled = false, texture = nil }
 	end
-	return { color = color, material = material or own.material, styled = true }
+	local def = Catalog.getDecor(decorId :: string)
+	local texture = if def ~= nil
+			and type(def.texture) == "string"
+			and def.texture ~= ""
+		then def.texture
+		else nil
+	return { color = color, material = material or own.material, styled = true, texture = texture }
 end
 
 -- The Enum.Material named `name` (a part's kept StyleOwnMaterial attribute), or nil.

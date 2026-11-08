@@ -6,6 +6,8 @@
 -- Parts that stream in later are styled as they arrive. Only this client's copy changes.
 -- #2106: a part's own look is kept in attributes on the part (StyleOwnColor, StyleOwnMaterial), not in a weak table:
 -- Roblox can drop a weak table's Instance key while the part still stands, and then a removed paint stayed on.
+-- #2256: a style with a `texture` also lays that image on each part's Top face (a StyleTexture child, 6 studs a
+-- tile), over the style's colour and material; it comes off when the style changes to one without, or is put away.
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -17,6 +19,37 @@ local StyleController = {}
 
 local OWN_COLOR = "StyleOwnColor"
 local OWN_MATERIAL = "StyleOwnMaterial"
+local TEXTURE_NAME = "StyleTexture" -- #2256: the Texture a style with an image puts on the part
+
+-- #2256: puts the style's tiled image on the part's Top face, or takes it off when `texture` is nil.
+local function showTexture(part: BasePart, texture: string?)
+	local made = part:FindFirstChild(TEXTURE_NAME)
+	if texture == nil then
+		if made ~= nil then
+			made:Destroy()
+		end
+		return
+	end
+	local image: Texture
+	if made ~= nil and made:IsA("Texture") then
+		image = made :: Texture
+	else
+		if made ~= nil then
+			made:Destroy()
+		end
+		image = Instance.new("Texture")
+		image.Name = TEXTURE_NAME
+		image.Face = Crates.TEXTURE_FACE
+		image.StudsPerTileU = Crates.TEXTURE_STUDS
+		image.StudsPerTileV = Crates.TEXTURE_STUDS
+		image.Color3 = Color3.new(1, 1, 1)
+		image.Transparency = 0
+		image.Parent = part
+	end
+	if image.Texture ~= texture then
+		image.Texture = texture
+	end
+end
 
 -- The Plot-tagged model the part belongs to, or nil.
 local function plotOf(instance: Instance): Model?
@@ -64,6 +97,7 @@ local function apply(
 	end
 	part.Color = look.color
 	part.Material = look.material
+	showTexture(part, look.texture)
 end
 
 local function applyTagged(instance: Instance, slot: { kind: Types.DecorKind, attribute: string })

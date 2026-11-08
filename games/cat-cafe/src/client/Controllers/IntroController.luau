@@ -60,6 +60,7 @@ local RENDER_STEP = "CatCafeIntro"
 local DEMO_FADE_SECONDS = 0.4 -- with no copy of you to catch it, the demo cat fades at the hop instead
 local LESSON_IN = 3 -- #2446: the tackling lesson's viewpoint, this far into the Alleyway past the middle of its way in
 local LESSON_CLEAR = 4 -- real strays this much further out than the intro's DEMO_HIDE_RADIUS are hidden for it
+local LESSON_CAMERA_BACK = 60 -- studs: the lesson's end puts back the view it started with only this near the player
 local STREAMED_RADIUS = 40 -- a camp counts as streamed in when a part stands this close to the point checked
 local WHEEL_TURNS = 2
 local BLEND = 0.15 -- seconds an animation of your copy fades in or out
@@ -1598,8 +1599,24 @@ local function lessonEnd()
 	end
 	local camera = Workspace.CurrentCamera
 	if camera ~= nil then
-		camera.CameraType = l.cameraTypeWas
-		camera.CFrame = l.cameraWas
+		-- the camera goes back to following the player (Laptop-Tester on #2452: right after the intro the type saved
+		-- at the lesson's start can still be Fixed, which left the view down the Alleyway, far from the player)
+		local character = player.Character
+		local humanoid = if character ~= nil
+			then character:FindFirstChildOfClass("Humanoid")
+			else nil
+		camera.CameraType = Enum.CameraType.Custom
+		if humanoid ~= nil then
+			camera.CameraSubject = humanoid
+		end
+		-- the view it had, when that was near the player; otherwise the follow camera finds the player itself
+		local root = rootOf(character)
+		if
+			root ~= nil
+			and (l.cameraWas.Position - root.Position).Magnitude <= LESSON_CAMERA_BACK
+		then
+			camera.CFrame = l.cameraWas
+		end
 	end
 	if l.controls ~= nil then
 		pcall(function()

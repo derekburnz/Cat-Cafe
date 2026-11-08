@@ -23,6 +23,7 @@ local DataService = require(script.Parent.DataService)
 local DecorBest = require(ReplicatedStorage.Shared.DecorBest)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local EquipBest = require(ReplicatedStorage.Shared.EquipBest)
+local EventService = require(script.Parent.EventService)
 local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
@@ -127,6 +128,7 @@ local function currentRate(profile: Profile): number
 	return Economy.incomePerSecond(profile)
 		* Economy.phaseMultiplier(ClockService.phase())
 		* Economy.tipMultiplier(profile, os.time())
+		* Economy.eventMoney() -- #2486: a running Cafe Event's money
 end
 
 -- The cats as the client sees them: saved fields plus rating, stars and XP progress (CatStats.view). A name is
@@ -182,19 +184,22 @@ end
 -- F88: the player's Luck and its sources, each with when it ends (os.time()) where it ends, for the Luck chip.
 local function luckView(profile: Profile, now: number): (number, { Types.LuckSource })
 	local luckyDay = ClockService.luckyDay()
+	local event = EventService.luck() -- #2486: the running Cafe Event's Luck
 	local sources: { Types.LuckSource } = {}
-	for _, source in Luck.sources(profile, now, luckyDay) do
+	for _, source in Luck.sources(profile, now, luckyDay, event) do
 		local endsAt: number? = nil
 		if source.id == "potion" then
 			endsAt = now + Potions.left(profile, Potions.LUCKY, now)
 		elseif source.id == "lucky_day" then
 			endsAt = now + math.max(0, ClockService.phaseEndsAt() - Workspace:GetServerTimeNow())
+		elseif source.id == "event" then
+			endsAt = EventService.endsAt()
 		end
 		local row: Types.LuckSource =
 			{ id = source.id :: string, value = source.value, endsAt = endsAt }
 		table.insert(sources, row)
 	end
-	return Luck.of(profile, now, luckyDay), sources
+	return Luck.of(profile, now, luckyDay, event), sources
 end
 
 function CafeService.buildState(player: Player, profile: Profile): Types.PlayerState
@@ -2422,6 +2427,19 @@ function CafeService.start()
 			-- #1534: at nightfall the cats napping on the sleep spots by day go back to the cat room before the
 			-- working cats walk to bed; at sunrise they come out on the spots that are free
 			CafeService.refreshPlot(player)
+			CafeService.sync(player)
+		end
+	end)
+
+	-- #2486: a Cafe Event starting or ending changes the rate and Luck: the time before it is paid at the old rate,
+	-- then everyone gets the new rate, Luck chip and odds cards at once
+	EventService.changing:Connect(function()
+		for _, player in DataService.loadedPlayers() do
+			profileFor(player)
+		end
+	end)
+	EventService.changed:Connect(function()
+		for _, player in DataService.loadedPlayers() do
 			CafeService.sync(player)
 		end
 	end)

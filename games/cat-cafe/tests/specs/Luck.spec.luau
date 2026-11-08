@@ -163,6 +163,22 @@ return function()
 			expect(Luck.text(2)).to.equal("Luck x2.0")
 			expect(Luck.text(1.25)).to.equal("Luck x1.25")
 		end)
+
+		it("adds a Cafe Event's Luck last, at most EventLuckMax, the total still at most LuckMax (#2486)", function()
+			local profile = fresh()
+			expect(#Luck.sources(profile, NOW, false, 0)).to.equal(0)
+			local sources = Luck.sources(profile, NOW, false, 0.5)
+			expect(#sources).to.equal(1)
+			expect(sources[1].id).to.equal("event")
+			expect(sources[1].value).to.equal(0.5)
+			expect(Luck.of(profile, NOW, false, 0.5)).to.equal(1.5)
+			expect(Luck.sources(profile, NOW, false, 9)[1].value).to.equal(Config.EventLuckMax)
+			profile.upgradeLevels[Luck.UPGRADE] = 5
+			profile.buffs[Potions.LUCKY] = 600
+			sources = Luck.sources(profile, NOW, true, 0.5)
+			expect(sources[#sources].id).to.equal("event")
+			expect(Luck.of(profile, NOW, true, 0.5)).to.equal(Config.LuckMax)
+		end)
 	end)
 
 	describe("the Lucky Cat upgrade", function()

@@ -25,6 +25,7 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local EventService = require(script.Parent.EventService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Luck = require(ReplicatedStorage.Shared.Luck)
@@ -104,7 +105,7 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 	end
 	-- F82: the bowl's level now, its luck fixed in the roll, so a level bought later never touches this food. F88:
 	-- then the player's Luck now (statue, Lucky Potion, Lucky Day), fixed in the same roll
-	local luck = Luck.of(profile, os.time(), ClockService.luckyDay())
+	local luck = Luck.of(profile, os.time(), ClockService.luckyDay(), EventService.luck())
 	local rarity: Types.Rarity = Catching.pickRarity(
 		Luck.apply(Bait.oddsFor(lure.odds, Economy.level(profile, "lure_bowl")), luck),
 		rng:NextNumber()

@@ -230,6 +230,18 @@ return function()
 		LuckyDayPlayerLuck = 0.5,
 		LuckyDayWarnSeconds = 15,
 		PityLegendarySeconds = 1800, -- #1572 (1h): the global pity cat (shared/Pity)
+		-- #2486 Cafe Events (live-events.md section 4)
+		EventPollSeconds = 60,
+		EventMinSeconds = 300,
+		EventMaxSeconds = 7200,
+		EventMoneyMax = 2,
+		EventLuckMax = 1.0,
+		EventShowerMax = 12,
+		EventShowerGapMinSeconds = 300,
+		EventCountdownSeconds = 10800,
+		EventRepeatGiftIncomeMinutes = 10,
+		EventBigMinGapSeconds = 518400,
+		EventScheduleMax = 10,
 		PityMythicalEvery = 4,
 		PityMythicalSeconds = 7200, -- #1946 (1i): the restarting Mythical timer
 		PityClaimRetries = 3,
@@ -480,6 +492,8 @@ return function()
 				YardDecorRows = true, -- #1537 (lawn-nursery.md section 7): checked in YardSale.spec
 				YardDecorRarityWeights = true, -- #1537: a table, checked in YardSale.spec
 				PityAreaWeights = true, -- #1572 (luck-and-rare-moments.md 1h): a table, checked in Pity.spec
+				EventShowerDefaults = true, -- #2486 (live-events.md section 4): a table, checked in CafeEvents.spec
+				EventShowerAreaWeights = true, -- #2486: a table, checked in CafeEvents.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

@@ -389,13 +389,26 @@ end
 -- lastTick, so time away settles nothing and the timers pause). F73: every potion with `tips` (the Big Tip Potion
 -- too) pays its own share the same way, the shares together at most TimedTipsMax at any moment. F92: with pals on
 -- the server the window pays palBonus more on top, counted for Telemetry's pal_bonus.
+-- #2486: the running Cafe Event's money multiplier on every player's cafe income, on top of passes (1 while none
+-- runs, at most Config.EventMoneyMax). The server's EventService sets it; settle reads it.
+local eventMoney = 1
+
+function Economy.setEventMoney(multiplier: number)
+	eventMoney =
+		math.clamp(if multiplier == multiplier then multiplier else 1, 1, Config.EventMoneyMax)
+end
+
+function Economy.eventMoney(): number
+	return eventMoney
+end
+
 function Economy.settle(profile: Types.PlayerProfile, now: number, clockEpoch: number?): number
 	local elapsed = math.max(0, now - profile.lastTick)
 	local earned = 0
 	if elapsed > 0 then
 		local base = paidSecondsFrom(profile.lastTick, elapsed, clockEpoch)
 		local paidSeconds = base + tipBonusSeconds(profile, elapsed, clockEpoch)
-		local rate = Economy.incomePerSecond(profile)
+		local rate = Economy.incomePerSecond(profile) * eventMoney -- #2486: x the running event's money
 		-- F92: the pal bonus over the whole window; the caller settled when the pal count last changed
 		local palCoins = rate * base * Economy.palBonus(profile)
 		earned = rate * paidSeconds + palCoins

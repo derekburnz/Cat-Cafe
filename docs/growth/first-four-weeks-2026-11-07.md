@@ -6,7 +6,7 @@ Owner: growth-analyst (Monetization-Agent). Source: `docs/design/cat-cafe/releas
 |---|---|---|
 | Before day 1 | All open PRs and issues finished (no separate release-blocker list). Freeze 24 hours before day 1: only fixes merge. Purchases pass their owner tests. | none |
 | 1 | Game goes public; 3 to 5 of Derek2's friends play (no feedback form); no ads, no outside posts. "We're open!" entry goes live. I do the day 1 quick check, which is mostly "no errors, purchases work". | `OPENING` |
-| 2 to 8 | Ads at about $10 to $15 a day if Derek2 turns them on (Set 12 Q4). The ad account and ad targeting are parked until the game is finished (Set 13 Q2 and Q3). Fixes only. I send the daily read (below). | none |
+| 2 to 8 | Ads at about $10 to $15 a day if Derek2 turns them on (Set 12 Q4), run as in `ad-campaign-plan-2026-11-08.md` (8 test thumbnails, cuts on days 2 to 3, gates on days 5 and 7). The ad account and ad targeting are parked until the game is finished (Set 13 Q2 and Q3). Fixes only. I send the daily read (below). | none |
 | 9 | Decision read. The main signal for "doing well" is **Home recommendation impressions** in Creator Hub analytics. D1 and session length are background only. Few Home recommendations means ads and updates stop and the game stays a learning project. Derek2 decides. | none |
 | After 9, only when Derek2 says the game is doing well | Updates restart from the menu below. | `RALLY`, `COZY`, `SNOWY` |
 

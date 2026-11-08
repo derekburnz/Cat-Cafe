@@ -33,7 +33,7 @@ Tips.LIST = table.freeze({
 	tip("bowl", "cut", "server"),
 	tip("second_cat", "card", "server"),
 	tip("stuck_cat", "card", "client"),
-	tip("tackle", "card", "server"),
+	tip("tackle", "card", "server"), -- the old card's seen flag; since #2409 the lesson is Tips.LESSON
 	tip("dropped", "card", "server"),
 	tip("night", "card", "server"),
 	tip("rank_up", "cut", "server"),
@@ -54,6 +54,12 @@ Tips.LIST = table.freeze({
 
 -- The offline card gets its line ("Your cats earned while you were away!") after this long away (section 3).
 Tips.OFFLINE_SECONDS = 600
+
+-- #2409 (Derek2: "the tackle tutorial didn't play at all maybe added it to the starting tutorial cutscenes"): the
+-- tackling lesson's tip (UI's TackleLessonLogic.TIP), its own id so an account that saw the old tackle card still
+-- gets it. Not in LIST, since it is never a card: due once the starting tutorial (the intro) has been seen, so it
+-- follows the intro for a new player and comes on the next join for everyone else who has not seen it.
+Tips.LESSON = "tackle_lesson"
 
 Tips.LIKE_ASK = "like_ask"
 Tips.FAVORITE_ASK = "favorite_ask" -- F96
@@ -86,7 +92,11 @@ end
 
 -- Whether TipSeen may carry `id`: a tip, an ask, the feedback ask or the help card.
 function Tips.seenId(id: string): boolean
-	return byId[id] ~= nil or Tips.isAsk(id) or id == Tips.FEEDBACK_ASK or id == Tips.STUCK_HELP
+	return byId[id] ~= nil
+		or Tips.isAsk(id)
+		or id == Tips.FEEDBACK_ASK
+		or id == Tips.STUCK_HELP
+		or id == Tips.LESSON
 end
 
 local function anyCount(counts: { [string]: number }): boolean
@@ -123,6 +133,9 @@ function Tips.due(profile: Types.PlayerProfile, moment: Moment): { string }
 		if now[def.id] == true and profile.tipsSeen[def.id] ~= true then
 			table.insert(out, def.id)
 		end
+	end
+	if profile.introSeen and profile.tipsSeen[Tips.LESSON] ~= true then
+		table.insert(out, Tips.LESSON) -- #2409
 	end
 	return out
 end
@@ -199,7 +212,7 @@ function Tips.sanitizeSeen(raw: any, veteran: boolean): { [string]: boolean }
 			if
 				type(key) == "string"
 				and value == true
-				and (byId[key] ~= nil or Tips.isAsk(key))
+				and (byId[key] ~= nil or Tips.isAsk(key) or key == Tips.LESSON) -- #2409: the lesson's own flag
 			then
 				seen[key] = true
 			end

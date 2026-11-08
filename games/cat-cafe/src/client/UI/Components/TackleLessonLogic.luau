@@ -5,7 +5,8 @@
 -- It plays once, in place of the `tackle` context tip the server sends at the first check-in (the end of the newcomer
 -- shield, easy-start.md section 3), on the intro's screen: one caption a shot, each held long enough to read (the
 -- intro's 1.0 + 0.4 s a word, shared/Intro), Next from 1 s in and no Skip. Screens/TackleLesson plays it.
---   TIP                          the context tip it stands in for ("tackle"), whose seen flag it saves
+--   TIP                          the server's tip it plays for ("tackle_lesson" since #2409, its own id so an account
+--                                that saw the old tackle card still gets it), whose seen flag it saves
 --   lines(device) -> { string }  the captions; the third names the input the player last used (TipQueue.device)
 --   hold(caption) -> number      seconds a caption holds when nobody presses Next
 -- Pure, so the cloud spec runner checks it.
@@ -18,7 +19,7 @@ export type Device = "keyboard" | "touch" | "gamepad"
 
 local TackleLessonLogic = {}
 
-TackleLessonLogic.TIP = "tackle"
+TackleLessonLogic.TIP = "tackle_lesson" -- shared/Tips.LESSON
 
 local BASE = if type(Intro.CAPTION_BASE) == "number" then Intro.CAPTION_BASE else 1.0
 local PER_WORD = if type(Intro.CAPTION_PER_WORD) == "number" then Intro.CAPTION_PER_WORD else 0.4

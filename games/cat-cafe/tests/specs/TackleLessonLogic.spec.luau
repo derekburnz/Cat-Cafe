@@ -11,8 +11,8 @@ return function()
 	) :: any
 
 	describe("TackleLessonLogic", function()
-		it("stands in for the server's tackle tip", function()
-			expect(TackleLessonLogic.TIP).to.equal("tackle")
+		it("plays for the server's tackle_lesson tip (#2409)", function()
+			expect(TackleLessonLogic.TIP).to.equal("tackle_lesson")
 		end)
 
 		it(

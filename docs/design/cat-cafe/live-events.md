@@ -55,11 +55,11 @@ The reward pops up on the secure, as other prizes do. The cosmetic is free and c
 ## 3. What players see
 
 - **Countdown, from T-3h** (`EventCountdownSeconds` 10800):
-  - A Town Square board, `CatCafe_Square_EventBoard`, with an hourglass frame, beside the pity sign (Model-Agent #2488). It reads "Cafe Party in 2:59:10", then the effects, one line each: "x2 money", "8 rare cat showers", "Lucky, Golden and Rainbow Day", "+0.5 Luck", "Free Party Bunting".
+  - A Town Square board, `CatCafe_Square_EventBoard`, with an hourglass frame, beside the pity sign (Model-Agent #2488). It reads "Cafe Party in 2:59:10", then the effects, one line each: "x2 cafe earnings", "8 rare cat showers", "Lucky, Golden and Rainbow Day", "+0.5 Luck", "Free Party Bunting".
   - A small hourglass chip on the HUD by the day clock, "Cafe Party in 2:59". It shows the hours until the last hour, then minutes and seconds.
-- **Start.** A banner, "Cafe Party! x2 money and rare cat showers until 17:00". The end time shows in the player's local time, from `os.date` on the client. The chip turns gold: "Cafe Party · ends in 1:59:40 · next shower 9:12".
+- **Start.** A banner, "Cafe Party! x2 cafe earnings and rare cat showers until 17:00". The end time shows in the player's local time, from `os.date` on the client. The chip turns gold: "Cafe Party · ends in 1:59:40 · next shower 9:12".
 - **The end time always shows**, on the chip, the board and the banner. An event is never extended once it has started. If it has to end early, for a bug, the chip says "Cafe Party ended early". Everyone who already qualified keeps the reward, and the reward is granted to everyone who was in the window when it ended.
-- **What's New.** One line from T-24h: "Saturday 15:00 UTC: Cafe Party, x2 money and rare cat showers!".
+- **What's New.** One line from T-24h: "Saturday 15:00 UTC: Cafe Party, x2 cafe earnings and rare cat showers!".
 - **After.** "Thanks for coming! See you next Saturday" on the board for an hour, and only if another event is actually scheduled. Otherwise it reads "Thanks for coming!".
 - **Reduce Motion** skips the board's sand animation and the chip's glow.
 
@@ -96,7 +96,11 @@ Server safety: shower cats are one per slot, at most one new shower every 5 minu
 - **Countdowns only for real events.** The chip and board show a countdown only for a stored, scheduled event. Nothing counts down to a fake deadline, and no "last chance" wording is used.
 - **The end time always shows**, and an event that has started is never extended (section 3).
 - **No limited items.** Free rewards come back at later events (2e), and nothing paid is limited.
-- **Monetization-Agent's policy check** goes on #2485 before the build merges. It covers the money boost multiplying with the paid passes (an existing pass benefit, so not a new paid edge), and event Luck on bait rolls when food can be bought with Robux (`monetization-policy`: the odds cards show the boosted odds, as they do for any Luck).
+- **Monetization-Agent's policy check (on #2486, passed with conditions):**
+  - **No copy advertises the stack.** Event text always says "x2 cafe earnings". Never "x16", "x8" or a pass named next to the event, on the board, chip, banner, What's New, the icon, the group post or the Experience Event page.
+  - **No purchase prompts at all during the window.** That means no store pop-ups or pass prompts from anywhere, not just the event's own UI. The store stays open for a player who walks in or taps it.
+  - **Odds cards show the boosted odds.** Food cards and the Fish Market odds card include event Luck and stacked-day effects while they apply.
+  - **Tradeable decor is fine** because rewards come back at later events (2e), so a traded piece is never a one-time item.
 - Players under 13 get no notification prompts from the event. The Experience Event RSVP is Roblox's own and follows Roblox's rules.
 
 ## 7. Analytics
@@ -125,4 +129,4 @@ Research-Agent's measures: first_hour by join source, and D1 of event joiners ag
 6. Securing any cat in the window gives the badge (once) and the Party Bunting. Securing one after the end gives nothing.
 7. A record over its caps is clamped and logged. One with no end, longer than 2 hours, or overlapping another event is ignored and logged.
 8. `OwnerTest event` works only in Studio and private servers, and never reaches live servers.
-9. Nothing in the store changes, and no purchase prompt opens from the event's banner, chip or board.
+9. Nothing in the store changes, and no purchase prompt opens anywhere during the window. No event text names a stacked multiplier above x2.

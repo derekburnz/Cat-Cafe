@@ -1118,7 +1118,8 @@ local function logJoined(player: Player)
 		passLevel = CafePass.levelOf(profile.pass.xp),
 		spent = spentBefore(player, profile, 0, nil),
 		goalsDone = GrandOpening.doneCount(profile.grandOpening),
-		tackleLessonSeen = profile.tipsSeen.tackle == true,
+		tackleLessonSeen = profile.tipsSeen.tackle == true
+			or profile.tipsSeen.tackle_lesson == true,
 	})
 	for _, name in shown do
 		Telemetry.onboarding(player, profile, name :: Onboarding.StepName)

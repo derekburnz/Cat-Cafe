@@ -2744,6 +2744,38 @@ local SCENES = {
 		assert(not table.find(shown(), "Someone tamed an Epic Cat!"), "uigate: an Epic shout-out pill is up (#2399)")
 		UIShim.advance(12)
 	end },
+	-- #2479 (Derek2: Claim all's rewards "make it look so cluttered"): a many-reward toast shows its title and the
+	-- rewards as chips with pictures, all inside the pill and on the screen
+	{ "ToastClaimAll", function()
+		UI.toast(
+			"4 Index rewards: +$11.3M, +25 golden fish, 1 Alley Crate, +5% gold luck forever, 1 spin, +2% faster bait forever",
+			"good"
+		)
+		task.wait(0.4)
+		local found: Frame? = nil
+		for _, piece in UIShim.playerGui:GetDescendants() do
+			if piece.Name == "Toast" and piece:FindFirstChild("Rewards") then
+				found = piece :: Frame
+			end
+		end
+		assert(found, "uigate: the Claim all toast has no reward chips (#2479)")
+		local toast = found :: Frame
+		local title = toast:FindFirstChild("Text") :: TextLabel
+		assert(title.Text == "4 Index rewards", "uigate: the Claim all toast's title reads " .. title.Text .. " (#2479)")
+		local chips = 0
+		local view = workspace.CurrentCamera.ViewportSize
+		for _, chip in (toast:FindFirstChild("Rewards") :: Instance):GetChildren() do
+			if chip:IsA("TextLabel") then
+				chips += 1
+				local left, right = chip.AbsolutePosition.X, chip.AbsolutePosition.X + chip.AbsoluteSize.X
+				local bottom = chip.AbsolutePosition.Y + chip.AbsoluteSize.Y
+				assert(left >= toast.AbsolutePosition.X - 1 and right <= toast.AbsolutePosition.X + toast.AbsoluteSize.X + 1, "uigate: a reward chip sticks out of its toast (#2479)")
+				assert(bottom <= toast.AbsolutePosition.Y + toast.AbsoluteSize.Y + 1, "uigate: a reward chip hangs under its toast (#2479)")
+				assert(left >= 0 and right <= view.X, "uigate: a reward chip runs off the screen (#2479)")
+			end
+		end
+		assert(chips == 6, ("uigate: the Claim all toast shows %d chips, not 6 (#2479)"):format(chips))
+	end },
 	-- F99 section 2: a rainbow stray's once-a-minute toast on a turning rainbow edge
 	{ "RainbowSpawn", function()
 		UI.rainbowSpawned(firstArea(), Catalog.cats[10].id)
@@ -3624,9 +3656,6 @@ local SCENES = {
 		counting:Disconnect()
 		UI.update({ tipsSeen = before } :: any)
 	end },
-	-- #2198 (Derek2: "a forced cut scene after first catch"): the server's tackle tip plays as the tackling lesson on
-	-- the intro's screen: four captions with four dots, the read bar and Next, no Skip; it ends by itself and saves
-	-- the tip as seen
 	-- #2477 (Derek2: "the tutorial should guide you to cannon after bait bowl"): the walk-through ending this session
 	-- (step 4, the bowl, to 5) puts "Hop in the cannon to catch more cats!" on the tutorial strip, with the arrow
 	{ "CannonAfterBowl", function()
@@ -3648,6 +3677,9 @@ local SCENES = {
 		UI.cannon.wrapUp.on = false -- as a flight clears it, so later scenes keep their own lines
 		UI.update({ tutorialStep = 9 } :: any)
 	end },
+	-- #2198 (Derek2: "a forced cut scene after first catch"): the server's tackle tip plays as the tackling lesson on
+	-- the intro's screen: four captions with four dots, the read bar and Next, no Skip; it ends by itself and saves
+	-- the tip as seen
 	{ "TackleLesson", function()
 		local seen: { string } = {}
 		local counting = UI.events.tipSeen:Connect(function(id: string)

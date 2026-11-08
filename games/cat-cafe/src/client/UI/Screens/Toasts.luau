@@ -16,11 +16,15 @@
 -- clear of the HUD's columns (avoid, HUD.toastAvoid). It stays centred where there is room, slides sideways into the
 -- gap between the menu and the goal card when that gap takes the widest pill, else drops under them; on a short screen
 -- only as many toasts show as fit over the bottom row (Toasts._place), and the rest wait their turn (QUEUE_MAX).
+-- #2479 (Derek2: Claim all's rewards "make it look so cluttered"): a green "<title>: <reward>, <reward>, ..." toast
+-- with at least three rewards (Components/RewardList) shows the title on its own line and the rewards under it as a
+-- wrapped row of small chips, each with its picture, and stays a little longer the more it holds.
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
 local Rainbow = require(script.Parent.Parent.Components.Rainbow)
+local RewardList = require(script.Parent.Parent.Components.RewardList)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
@@ -57,6 +61,8 @@ local CLEAR_GAP = 12 -- between the HUD's boxes and the stack (#2338)
 local EDGE = 16 -- the stack's least room to the screen's sides
 local TOP = 148 -- the stack's top: under the tier pill and the corner icons
 local STACK_GAP = 6 -- between the toasts
+local REWARD_ROW = 400 -- #2479: the reward chips' row, which wraps onto more rows
+local CHIP_H = 28
 local QUEUE_MAX = 3 -- toasts waiting for room on a short screen; past that the oldest waiting one is dropped
 
 -- Every kind is white outlined text on a coloured pill with a dark border (simulator notifications).
@@ -363,7 +369,18 @@ function Toasts._push(
 			MaxSize = Vector2.new(if prize ~= nil then PRIZE_TEXT_MAX else TEXT_MAX, ROW_H),
 		}),
 	})
-	Toasts._wrap(toast, message, if prize ~= nil then PRIZE_TEXT_MAX else TEXT_MAX)
+	-- #2479: several rewards: the title on top and the rewards as chips under it
+	local title, rewards = nil, nil
+	if prize == nil and fill == KIND_COLORS.good then
+		title, rewards = RewardList.split(text)
+	end
+	if title ~= nil and rewards ~= nil then
+		message.Text = title
+		Toasts._rewardRows(toast, message, rewards)
+		lifetime = RewardList.lifetime(#rewards, math.max(lifetime, PRIZE_LIFETIME))
+	else
+		Toasts._wrap(toast, message, if prize ~= nil then PRIZE_TEXT_MAX else TEXT_MAX)
+	end
 	local textOutline = Outline.text(message)
 	textOutline.Transparency = 1
 	local chips: PrizeChips.PrizeChips? = nil
@@ -438,6 +455,71 @@ function Toasts._push(
 	expire(generation)
 end
 
+-- #2479: the reward toast's shape: a taller pill, the title centred on top and under it the chips, each a darker
+-- rounded tag with its picture and words, wrapping onto more rows within REWARD_ROW.
+function Toasts._rewardRows(toast: Frame, message: TextLabel, rewards: { string })
+	toast.AutomaticSize = Enum.AutomaticSize.XY
+	toast.Size = UDim2.fromOffset(0, 0)
+	local pillCap = toast:FindFirstChildOfClass("UISizeConstraint") :: UISizeConstraint?
+	if pillCap then
+		pillCap.MaxSize = Vector2.new(PILL_MAX, math.huge)
+	end
+	local pad = toast:FindFirstChildOfClass("UIPadding") :: UIPadding?
+	if pad then
+		pad.PaddingTop = UDim.new(0, WRAP_PAD)
+		pad.PaddingBottom = UDim.new(0, WRAP_PAD + 2)
+	end
+	local corner = toast:FindFirstChildOfClass("UICorner") :: UICorner?
+	if corner then
+		corner.CornerRadius = UDim.new(0, ROW_H / 2)
+	end
+	Create("UIListLayout", {
+		FillDirection = Enum.FillDirection.Vertical,
+		HorizontalAlignment = Enum.HorizontalAlignment.Center,
+		Padding = UDim.new(0, 6),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Parent = toast,
+	})
+	message.LayoutOrder = 1
+	message.Size = UDim2.fromOffset(0, 26)
+	local row: Frame = Create("Frame", {
+		Name = "Rewards",
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Size = UDim2.fromOffset(REWARD_ROW, 0),
+		LayoutOrder = 2,
+		Parent = toast,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			Wraps = true,
+			Padding = UDim.new(0, 6),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	for index, reward in rewards do
+		local chip: TextLabel = Create("TextLabel", {
+			Name = "Reward",
+			BackgroundColor3 = Theme.colors.black,
+			BackgroundTransparency = 0.72,
+			BorderSizePixel = 0,
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, CHIP_H),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textSmall + 1,
+			TextColor3 = Theme.colors.white,
+			Text = RewardList.icon(reward) .. " " .. reward,
+			LayoutOrder = index,
+			Parent = row,
+		}, {
+			Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			Create("UIPadding", { PaddingLeft = UDim.new(0, 9), PaddingRight = UDim.new(0, 9) }),
+		})
+		Outline.text(chip, 1.5)
+	end
+end
+
 -- A line wider than its row (in the label's own font and size) wraps: the label takes the row's full width and
 -- grows down, and the pill grows with it, keeping its rounded ends at the one-row radius. GetTextBoundsAsync
 -- yields, so a long line shows cut for a moment first and then opens up; a short line never changes.
@@ -498,6 +580,10 @@ function Toasts._fade(
 	end
 	if chips then
 		chips.frame.Visible = false
+	end
+	local rewards = toast:FindFirstChild("Rewards") :: GuiObject? -- #2479
+	if rewards then
+		rewards.Visible = false
 	end
 	Tween.to(border, Tween.SETTLE, { Transparency = 1 })
 	Tween.to(message, Tween.SETTLE, { TextTransparency = 1 })

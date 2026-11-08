@@ -106,6 +106,11 @@ local HERO_MIN = 100
 -- fit with no scrolling; each pick keeps its picture, name and price, and the tabs show the details.
 local HERO_ROOM = 150 -- the hero wants at least this much beside the picks before they keep their words
 
+local PRELOAD_AFTER = 3 -- #2500: seconds after the Store is built (at join) before its pictures are fetched
+local PRELOAD_BATCH = 8 -- pictures asked for at once
+local PRELOAD_GAP = 0.25 -- seconds between batches
+local QUIET_SECONDS = 2.5 -- a card's picture this long to load before its emoji shows
+
 local Store = {}
 Store.__index = Store
 
@@ -141,6 +146,17 @@ end
 
 function Store.new(callbacks: Callbacks): Store
 	local self = setmetatable({}, Store) :: any
+	-- #2500 (Derek2: "lots of store images when first opening store take a second to load and show old default
+	-- images"): fetch every Store picture in the background a little after joining, a few at a time
+	task.delay(PRELOAD_AFTER, function()
+		local list = ShopIcons.storeImages()
+		for start = 1, #list, PRELOAD_BATCH do
+			IconArt.preload(
+				table.move(list, start, math.min(start + PRELOAD_BATCH - 1, #list), 1, {})
+			)
+			task.wait(PRELOAD_GAP)
+		end
+	end)
 	self._callbacks = callbacks
 	self._cards = {} :: { [string]: any } -- "hero", "pick1" to "pick3", and "grid:<key>" for the tab pages
 	self._railButtons = {} :: { [string]: any }
@@ -613,6 +629,8 @@ function Store._fill(self: any, entry: any, row: StoreLogic.Row?)
 			padding.PaddingBottom = UDim.new(inset, 0)
 		end
 		if #images > 0 then
+			-- #2500: no old emoji flashing while the picture first loads (it shows only if the picture never comes)
+			IconArt.quietWait(entry.glyph, QUIET_SECONDS)
 			IconArt.setImages(entry.glyph, images, PICTURE_SCALE)
 		else
 			IconArt.setImage(entry.glyph, nil)

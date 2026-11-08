@@ -288,6 +288,26 @@ for key, id in IDS do
 	end
 end
 
+-- #2500 (Derek2: "lots of store images when first opening store take a second to load and show old default images"):
+-- every picture the Store can show (its cards, tabs, shop-only cats, potion flasks and the clean symbols behind
+-- them), for Screens/Store to fetch in the background before it is first opened.
+local STORE_PREFIXES = { "Icon_Store", "Icon_ShopCat", "Icon_Flask", "Icon_Clean_", "Potion" }
+function ShopIcons.storeImages(): { string }
+	local list: { string } = {}
+	local seen: { [string]: boolean } = {}
+	for key, id in IDS do
+		for _, prefix in STORE_PREFIXES do
+			if string.sub(key, 1, #prefix) == prefix and not seen[id] then
+				seen[id] = true
+				table.insert(list, id)
+				break
+			end
+		end
+	end
+	table.sort(list)
+	return list
+end
+
 function ShopIcons.backup(image: string?): string?
 	return if type(image) == "string" then BACKUP[image] else nil
 end

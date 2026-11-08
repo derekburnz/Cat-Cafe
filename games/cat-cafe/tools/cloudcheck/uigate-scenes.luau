@@ -3507,7 +3507,10 @@ local SCENES = {
 	end },
 	{ "TutorialArrowGone", function()
 		tutorialArrowStep()
-		UI.update({ tutorialStep = 5 } :: any)
+		-- money 0 keeps the rank up from being ready, so the goal card's own arrow (#2331) never stands in for the
+		-- tutorial's: whether it was ready came from whichever scenes ran before this one in its shard
+		local money = (UI.getState() :: any).money
+		UI.update({ tutorialStep = 5, money = 0 } :: any)
 		task.wait(0.1)
 		for _, piece in UIShim.playerGui:GetDescendants() do
 			assert(
@@ -3515,6 +3518,7 @@ local SCENES = {
 				"uigate: the tutorial arrow stays after its step (#2314)"
 			)
 		end
+		UI.update({ money = money } :: any)
 	end },
 	-- #2331 (Derek2: "cozy cafe (tier up cafe) is more obviously your main goal to tier up and maybe flash and point
 	-- towards it when tier up is ready"): the goal card's gold "YOUR GOAL" line over the bigger tier name, its edge

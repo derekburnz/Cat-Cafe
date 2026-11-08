@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-07 21:01 UTC",
+  "generated": "2026-11-08 00:26 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -737,6 +737,20 @@
         "RotSpeed": "-40 to 40",
         "ZOffset": 0.5,
         "parent": "the cat's Body (emits from its box)"
+      }
+    },
+    "CatCafe_Tex_LeafLitter": {
+      "file": "assets/cat-cafe/exports/CatCafe_Tex_LeafLitter.png",
+      "size_px": 512,
+      "format": "PNG RGB, seamless tile",
+      "use": "a Texture on the Top face of every Floor-tagged part while the Leaf Litter floor style (woods_leaf_litter) shows; removed with the style",
+      "suggested_texture": {
+        "Face": "Top",
+        "StudsPerTileU": 6,
+        "StudsPerTileV": 6,
+        "Color3": "white (the picture's own colours)",
+        "Transparency": 0,
+        "part": "Color (160, 100, 50) and Material Ground stay under it, so the floor keeps its catalog look where the texture hasn't loaded"
       }
     }
   },

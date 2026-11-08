@@ -6,7 +6,8 @@ Run inside the Blender GUI:   Scripting tab, open this file, Run Script (add --n
                                to keep your current scene; objects appear at the origin).
 
 Outputs (relative to the repo root, override with --out and --docs):
-  assets/cat-cafe/exports/<Name>.fbx and .glb, CatCafe_Palette.png, CatCafe_VFX_ShinySparkle.png, manifest.json, gates.md
+  assets/cat-cafe/exports/<Name>.fbx and .glb, CatCafe_Palette.png, CatCafe_VFX_ShinySparkle.png,
+  CatCafe_Tex_LeafLitter.png, manifest.json, gates.md
   assets/cat-cafe/rbx/<Name>.model.json (the same model as Roblox Parts, Rojo synced into ReplicatedStorage.Assets)
   docs/concepts/cat-cafe/previews/<Name>.png, views/<Name>.png (five-view sheet), contact sheets, vignettes
 
@@ -102,6 +103,7 @@ import square  # noqa: E402
 import stations  # noqa: E402
 import street  # noqa: E402
 import vfx  # noqa: E402
+import floortex  # noqa: E402
 import woods  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
@@ -658,6 +660,7 @@ def main():
     palette.write_palette_png(png)
     mat = common.palette_material(png)
     sparkle_png = vfx.write_sparkle_png(os.path.join(args.out, vfx.SPARKLE + ".png"))
+    leaf_png = os.path.join(args.out, floortex.LEAF_LITTER + ".png")   # PIL, not bpy: `python floortex.py` writes it
 
     wanted = [s.strip() for s in args.only.split(",") if s.strip()]
     manifest, failed, built = [], [], {}
@@ -903,7 +906,8 @@ def main():
                    "cat_poses": {k: poses.manifest_cat_pose(v) for k, v in poses.CAT_POSES.items()},
                    "role_outfits": accessories.ROLE_OUTFITS,
                    "sit_slots": {k: _slot_entry(*v) for k, v in accessories.SIT_SLOTS.items()},
-                   "textures": {vfx.SPARKLE: vfx.manifest_entry(sparkle_png, ROOT)},
+                   "textures": {vfx.SPARKLE: vfx.manifest_entry(sparkle_png, ROOT),
+                                floortex.LEAF_LITTER: floortex.manifest_entry(leaf_png, ROOT)},
                    "assets": manifest}, f, indent=2)
     gates.write_report(os.path.join(args.out, "gates.md"), manifest, ROOT)
 

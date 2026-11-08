@@ -4,7 +4,11 @@
 -- unlocked (setEnabled). Derek 2026-10-27 23:25: "dont need a tackle button taking up a lot of the screen make a bar
 -- that slowly recharges after tackle so people can tell when ready". The bar is full and bright orange when a tackle
 -- is ready; a press empties it and it refills from the left over the TackleCooldownSeconds (5), then pops once when
--- it is full again. On touch the bar itself is the tap target, since phones have no Q.
+-- it is full again.
+-- #2510 (Derek2 11-08: "add a tackle button instead of the bar in the middle of screen for mobile/ipad players"): on a
+-- touch screen it is a round Tackle button left of the Net button instead (Components/NetButtonPlace.tackle), in
+-- screen pixels like the Net and jump buttons, so the thumb rolls Jump, Net, Tackle. Orange when ready, a grey that
+-- drains down while it recharges with the seconds left, all grey while down.
 -- There is no lock-on (Derek 2026-10-27: "so you can just spam it and chase people it needs to be like skill"): a
 -- press fires tackle() and the character lunges straight ahead, TackleLungeStuds (12). There is no aim arrow on the
 -- ground (Derek 2026-10-28: "take away the tackle arrow no need"). A miss never gives the cooldown back;
@@ -23,6 +27,7 @@ local Workspace = game:GetService("Workspace")
 
 local Cooldown = require(script.Parent.Parent.Components.Cooldown)
 local Create = require(script.Parent.Parent.Components.Create)
+local NetButtonPlace = require(script.Parent.Parent.Components.NetButtonPlace)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
 local TackleLogic = require(script.Parent.Parent.Components.TackleLogic)
@@ -32,8 +37,7 @@ local Tween = require(script.Parent.Parent.Components.Tween)
 local KEYS = { Enum.KeyCode.Q, Enum.KeyCode.ButtonY }
 local TICK = 0.1 -- seconds between look checks; the fill itself moves every frame while it recharges
 local WIDTH = 240 -- design pixels
-local HEIGHT = 30
-local TOUCH_HEIGHT = 44 -- Theme.sizes.touchMin, so a thumb can hit it
+local HEIGHT = 36 -- #2510: a click target the UI gate accepts (it was 30)
 local INSET = 4 -- the fill sits this far inside the bar's dark edge
 local ICON = "💨"
 
@@ -83,6 +87,7 @@ function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 	self._state = nil :: TackleLogic.Look? -- the look last drawn, nil while hidden
 	self._loop = nil :: RBXScriptConnection?
 	self._connections = {} :: { RBXScriptConnection }
+	self._touch = Scale.isTouch()
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeTackle",
@@ -93,6 +98,11 @@ function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 		Enabled = false,
 	})
 	self.screenGui = screenGui
+	if self._touch then
+		self:_buildButton(screenGui)
+		screenGui.Parent = parent
+		return self :: TackleBar
+	end
 	local root: Frame = Create("Frame", {
 		Name = "Root",
 		BackgroundTransparency = 1,
@@ -101,7 +111,7 @@ function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 	})
 	self._uiScale = Scale.bind(root)
 
-	local height = if Scale.isTouch() then TOUCH_HEIGHT else HEIGHT
+	local height = HEIGHT
 	self._height = height
 	-- the bar: a dark pill (a TextButton, so a tap or click tackles too) with the orange fill inside
 	local bar: TextButton = Create("TextButton", {
@@ -146,7 +156,7 @@ function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 	Outline.text(word, 2)
 	self._word = word
 
-	if UserInputService.KeyboardEnabled and not Scale.isTouch() then
+	if UserInputService.KeyboardEnabled then
 		local key: TextLabel = Create("TextLabel", {
 			Name = "Key",
 			BackgroundColor3 = Theme.colors.paper,
@@ -206,6 +216,105 @@ function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 	return self :: TackleBar
 end
 
+-- #2510: the touch Tackle button, round like the Net button and in screen pixels like it (no UIScale), so it lines up
+-- with Roblox's jump button.
+function TackleBar._buildButton(self: any, screenGui: ScreenGui)
+	screenGui.IgnoreGuiInset = true
+	local button: TextButton = Create("TextButton", {
+		Name = "Tackle",
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundColor3 = Theme.colors.warn,
+		BorderSizePixel = 0,
+		ClipsDescendants = true,
+		Parent = screenGui,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+	})
+	Outline.border(button, Theme.sizes.outline, Theme.hud.stroke)
+	self._bar = button
+	self._pressScale = Create("UIScale", { Parent = button })
+	-- the grey over the orange: all of it while down, draining down from the top while it recharges
+	self._fill = Create("Frame", {
+		Name = "Cool",
+		BackgroundColor3 = Theme.colors.disabledDark,
+		BackgroundTransparency = 0.25,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 0),
+		Visible = false,
+		ZIndex = 2,
+		Parent = button,
+	})
+	self._icon = Create("TextLabel", {
+		Name = "Icon",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.4),
+		Size = UDim2.fromScale(0.6, 0.5),
+		FontFace = Theme.fonts.display,
+		TextScaled = true,
+		Text = ICON,
+		ZIndex = 3,
+		Parent = button,
+	})
+	local word: TextLabel = Create("TextLabel", {
+		Name = "Word",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.fromScale(0.5, 0.64),
+		Size = UDim2.fromScale(0.86, 0.24),
+		FontFace = Theme.fonts.display,
+		TextScaled = true,
+		TextColor3 = Theme.colors.white,
+		Text = "TACKLE",
+		ZIndex = 3,
+		Parent = button,
+	})
+	Outline.text(word, 2)
+	self._word = word
+	self:_place()
+	table.insert(
+		self._connections,
+		button.InputBegan:Connect(function(input: InputObject)
+			if input.UserInputType == Enum.UserInputType.Touch then
+				Tween.press(self._pressScale, true)
+			end
+		end)
+	)
+	table.insert(
+		self._connections,
+		button.InputEnded:Connect(function(input: InputObject)
+			if input.UserInputType == Enum.UserInputType.Touch then
+				Tween.press(self._pressScale, false)
+			end
+		end)
+	)
+	table.insert(
+		self._connections,
+		button.Activated:Connect(function()
+			self:_press()
+		end)
+	)
+	local camera = Workspace.CurrentCamera
+	if camera then
+		table.insert(
+			self._connections,
+			camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+				self:_place()
+			end)
+		)
+	end
+end
+
+-- #2510: left of the Net button, level with it, in screen pixels.
+function TackleBar._place(self: any)
+	local camera = Workspace.CurrentCamera
+	local viewport = if camera then camera.ViewportSize else Vector2.new(844, 390)
+	local at, size = NetButtonPlace.tackle(viewport)
+	self._bar.Position = UDim2.fromOffset(at.X, at.Y)
+	self._bar.Size = UDim2.fromOffset(size, size)
+end
+
 -- Whether a lunge, a miss slide, a hit's hold or someone else's tackle has this player down right now.
 function TackleBar._down(self: any): boolean
 	if os.clock() < self._holdUntil then
@@ -246,11 +355,23 @@ function TackleBar._tick(self: any)
 		self._state = nil
 		return
 	end
-	self._bar.Position = UDim2.new(0.5, 0, 1, self._callbacks.lift())
+	if not self._touch then
+		self._bar.Position = UDim2.new(0.5, 0, 1, self._callbacks.lift())
+	end
 	local was: TackleLogic.Look? = self._state
 	self._state = look
 	if look == "ready" and was ~= nil and was ~= "ready" then
 		Tween.popIn(self._bar, 0.88) -- full again: one pop so the eye catches it
+	end
+	if self._touch then
+		-- #2510: the button keeps its orange; the grey over it shows what is left, and the seconds take the word
+		local left = math.ceil(math.max(self._coolUntil - os.clock(), 0))
+		self._word.Text = if look == "cooling" and left > 0 then left .. "s" else "TACKLE"
+		self._bar.BackgroundColor3 = if look == "down"
+			then Theme.colors.disabledDark
+			else Theme.colors.warn
+		self:_drawFill()
+		return
 	end
 	self._fill.BackgroundColor3 = if look == "ready"
 		then Theme.colors.warn
@@ -268,6 +389,13 @@ function TackleBar._drawFill(self: any)
 	local share = if self._state == "cooling"
 		then 1 - TackleLogic.share(self._coolUntil - os.clock())
 		else 1
+	if self._touch then
+		-- #2510: the grey drains down from the top as the button recharges
+		local grey = if self._state == "cooling" then 1 - share else 0
+		self._fill.Size = UDim2.fromScale(1, grey)
+		self._fill.Visible = grey > 0.02
+		return
+	end
 	self._fill.Size = UDim2.new(share, -2 * INSET * share, 1, -2 * INSET)
 	self._fill.Visible = share > 0.02
 end
@@ -329,7 +457,9 @@ function TackleBar.destroy(self: any)
 	for _, connection in self._connections do
 		connection:Disconnect()
 	end
-	Scale.unbind(self._uiScale)
+	if self._uiScale then
+		Scale.unbind(self._uiScale)
+	end
 	self.screenGui:Destroy()
 end
 

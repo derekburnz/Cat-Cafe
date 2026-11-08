@@ -41,5 +41,22 @@ return function()
 			expect(at.X < jumpAt.X).to.equal(true)
 			expect(overlaps(at, size, jumpAt, jumpSize)).to.equal(false)
 		end)
+
+		it("puts the touch Tackle button left of the Net button, level with it (#2510)", function()
+			for _, viewport in
+				{ Vector2.new(844, 390), Vector2.new(667, 375), Vector2.new(1180, 820) }
+			do
+				local jumpAt, jumpSize = NetButtonPlace.jump(viewport)
+				local netAt, netSize = NetButtonPlace.place(viewport)
+				local at, size = NetButtonPlace.tackle(viewport)
+				expect(size).to.equal(netSize)
+				expect(size >= 44).to.equal(true)
+				expect(at.Y).to.equal(netAt.Y)
+				expect(at.X + size + NetButtonPlace.GAP).to.equal(netAt.X)
+				expect(overlaps(at, size, netAt, netSize)).to.equal(false)
+				expect(overlaps(at, size, jumpAt, jumpSize)).to.equal(false)
+				expect(at.X >= 0 and at.Y >= 0).to.equal(true)
+			end
+		end)
 	end)
 end

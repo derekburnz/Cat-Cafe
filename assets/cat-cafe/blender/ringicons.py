@@ -9,6 +9,8 @@ in the style of the Codes Cat's paw-stamped ticket (stations._circle). One per s
                                              a folded top and a paw on the front
   CatCafe_Street_DealerCart_RingIcon_Decor   the night market: an orange paper lantern with a warm glow, a cap, a handle
                                              ring and a little crescent moon beside it
+  CatCafe_Plot_BaitBowl_RingIcon_Decor       the bait bowl (#2476): a red food bowl seen from the side with a gold rim
+                                             and a paw on the front, heaped with kibble and a little blue fish treat
 
 Each is one Model of plain parts (not Neon, so a glowing ring does not wash it out), CanCollide, CanTouch and
 CanQuery off (rbx_export: the `_RingIcon_Decor` suffix), no scripts. Flat: under 0.1 studs thick in all, a 0.04
@@ -25,7 +27,8 @@ SPIN = "CatCafe_Street_SpinWheel_RingIcon_Decor"
 FISH = "CatCafe_Street_FishMarket_RingIcon_Decor"
 SHOP = "CatCafe_Street_CornerShop_RingIcon_Decor"
 DEALER = "CatCafe_Street_DealerCart_RingIcon_Decor"
-NAMES = (SPIN, FISH, SHOP, DEALER)
+BOWL = "CatCafe_Plot_BaitBowl_RingIcon_Decor"
+NAMES = (SPIN, FISH, SHOP, DEALER, BOWL)
 
 Y0, Y1, Y2, Y3 = 0.0, 0.04, 0.06, 0.075     # base, first detail layer, second detail layer tops
 OUTLINE = 0.14                                # how far each dark outline shows past the fill
@@ -179,9 +182,44 @@ def build_dealer(mat):
     return [b.finalize(DEALER, mat)]
 
 
+def build_bowl(mat):
+    """The bait bowl 3.1 wide (#2476), seen from the side: a kibble heap with a chocolate outline, the red bowl in front
+    of it (a box with sloped sides, wider at the rim), a gold rim, a white paw on the front, kibble bits on the heap
+    and a little blue fish treat on top. Plastic swatches only, so it stays bright at night (#2449)."""
+    b = RB()
+    _k[0], _off[:] = 0, (0.0, 0.0)
+    heap = ((0.0, 0.2, 1.05), (-0.78, -0.05, 0.62), (0.78, -0.05, 0.62))
+    for x, z, r in heap:                                                              # the heap's outline
+        disc(b, x, z, r + OUTLINE, Y0, Y1, "choco", segments=22)
+    for x, z, r in heap:
+        disc(b, x, z, r, Y0 + 0.01, Y1 + 0.005, "kibble", segments=22)
+    zb, db, wb, slope = -0.85, 1.05, 2.0, 0.85                                        # the bowl: body centre, depth,
+    rim = zb + db / 2                                                                 # bottom width, side slope width
+    flat_box(b, 0, zb, wb + 2 * OUTLINE, db + 2 * OUTLINE, Y0, Y1, "fur_ink")         # outline
+    for sx in (-1, 1):
+        tri(b, sx * wb / 2, zb + OUTLINE * 0.3, slope + OUTLINE * 2.4, db + OUTLINE * 2.2, Y0, Y1, "fur_ink")
+    flat_box(b, 0, rim + 0.04, wb + slope + 0.5 + 2 * OUTLINE, 0.36 + 2 * OUTLINE, Y0, Y1, "fur_ink")
+    flat_box(b, 0, zb, wb, db, Y0 + 0.01, Y1 + 0.005, "bowl_red")                     # body
+    for sx in (-1, 1):
+        tri(b, sx * wb / 2, zb, slope, db, Y0 + 0.01, Y1 + 0.005, "bowl_red")
+    flat_box(b, 0, rim + 0.04, wb + slope + 0.5, 0.36, Y1, Y2, "rarity_legend")      # the rim
+    paw(b, 0, zb - 0.02, 0.26, Y2 - 0.01, Y3, "offwhite")
+    for x, z, r in ((-0.55, 0.15, 0.13), (-0.15, 0.6, 0.12), (0.35, 0.3, 0.14), (0.85, -0.02, 0.11),
+                    (-0.95, -0.05, 0.11), (0.05, 0.05, 0.1), (0.55, 0.75, 0.1)):        # kibble bits on the heap
+        disc(b, x, z, r, Y1, Y2, "treat_tan", segments=10)
+    fx, fz = -0.1, 1.05                                                               # the fish treat on top
+    disc(b, fx, fz, 0.32 + 0.08, Y1, Y2, "fur_ink", segments=14)
+    tri(b, fx + 0.48, fz, 0.5 + 0.16, 0.36 + 0.12, Y1, Y2, "fur_ink", turn=90)
+    disc(b, fx, fz, 0.32, Y2 - 0.005, Y3, "fish_blue", segments=14)
+    tri(b, fx + 0.48, fz, 0.5, 0.36, Y2 - 0.005, Y3, "fish_blue", turn=90)
+    disc(b, fx - 0.14, fz + 0.06, 0.06, Y3 - 0.005, Y3 + 0.005, "fur_ink", segments=8)
+    return [b.finalize(BOWL, mat)]
+
+
 ASSETS = {
     SPIN: (build_spin, 1500),
     FISH: (build_fish, 1500),
     SHOP: (build_shop, 1500),
     DEALER: (build_dealer, 1500),
+    BOWL: (build_bowl, 1500),
 }

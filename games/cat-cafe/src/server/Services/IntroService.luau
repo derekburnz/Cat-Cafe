@@ -14,8 +14,6 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local Intro = require(ReplicatedStorage.Shared.Intro)
 local Net = require(script.Parent.Net)
 local Telemetry = require(script.Parent.Telemetry)
-local TipService = require(script.Parent.TipService)
-local Tips = require(ReplicatedStorage.Shared.Tips)
 
 local IntroService = {}
 
@@ -33,10 +31,6 @@ local function onIntroDone(player: Player, rawShot: unknown, rawReplay: unknown)
 	if not replay and not profile.introSeen then
 		profile.introSeen = true
 		CafeService.sync(player)
-	end
-	-- #2409: the tackling lesson follows the starting tutorial at once (played out or skipped), unless already seen
-	if not replay then
-		TipService.show(player, Tips.LESSON)
 	end
 	local count = (events[player] or 0) + 1
 	if count <= MAX_EVENTS then

@@ -14,6 +14,7 @@
 
 local Catalog = require(script.Parent.Catalog)
 local Economy = require(script.Parent.Economy)
+local Onboarding = require(script.Parent.Onboarding)
 local Types = require(script.Parent.Types)
 
 local Tips = {}
@@ -114,6 +115,14 @@ export type Moment = { duskWarning: boolean, night: boolean }
 
 -- The server's tips whose moment follows from the saved state and the clock, not yet seen, in LIST order. The event
 -- tips (second_cat, tackle, dropped) are sent where they happen; the asks come from `dueAsk`.
+-- The tackling lesson's moment: after the intro and a first catch (a cat caught before the funnel step existed
+-- counts too), until it has played out.
+function Tips.lessonDue(profile: Types.PlayerProfile): boolean
+	local caught = Onboarding.reached(profile.telemetry, "first_catch")
+		or profile.stats.catsCaught > 0
+	return profile.introSeen and caught and profile.tipsSeen[Tips.LESSON] ~= true
+end
+
 function Tips.due(profile: Types.PlayerProfile, moment: Moment): { string }
 	local tier = Economy.tier(profile)
 	local now: { [string]: boolean } = {
@@ -134,8 +143,10 @@ function Tips.due(profile: Types.PlayerProfile, moment: Moment): { string }
 			table.insert(out, def.id)
 		end
 	end
-	if profile.introSeen and profile.tipsSeen[Tips.LESSON] ~= true then
-		table.insert(out, Tips.LESSON) -- #2409
+	-- #2409, #2468: the tackling lesson waits for the first catch (Derek2: "only happen after they catch their first
+	-- cat so it doesn't overwhelm new players"); the client holds it while the cat is carried
+	if Tips.lessonDue(profile) then
+		table.insert(out, Tips.LESSON)
 	end
 	return out
 end

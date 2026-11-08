@@ -1466,7 +1466,8 @@ end
 -- your camera like tutorial so it doesn't show you it properly"): UI's lesson (Screens/TackleLesson) calls
 -- stageTackle(shot) as each caption shows and stageTackle(0) at its end. In front of the player (shared/TackleStage) a
 -- copy of you carries a cat across, another copy (StagedTackle, so Effects/Tackle dives it) lunges and knocks it back,
--- the cat drops, then the camera looks over the tackler's shoulder and pulls up. The camera is this screen's while it
+-- the cat drops; over the tackler's shoulder it happens again and the tackler takes the cat (#2469); last the knocked
+-- copy pins a new cat with its net, the "!" over it, while the tackler stands by. The camera is this screen's while it
 -- plays and the controls and prompts are off; everything is local and goes at the end, the camera back as it was.
 type Lesson = {
 	r: any, -- staged, hidden and tweens, like a Run's, for stageYou
@@ -1474,7 +1475,10 @@ type Lesson = {
 	carrier: You?,
 	tackler: You?,
 	cat: Model?,
-	held: boolean,
+	holder: You?, -- who has the cat in its arms: the carrier, the tackler once it took it (#2469), or nobody
+	catch: Model?, -- shot 4's cat, pinned by the knocked copy's net (#2469)
+	swung: boolean,
+	pinned: boolean,
 	shot: number,
 	shotAt: number, -- os.clock() the showing shot began
 	cameraFrom: CFrame, -- where the camera was when the shot began, for the glide
@@ -1491,29 +1495,48 @@ local LESSON_GLIDE = 0.6 -- seconds the camera glides to each shot's view
 local KNOCK_SECONDS = 0.25
 local lesson: Lesson? = nil
 
-local function lessonHold(l: Lesson)
-	local carrier, cat = l.carrier, l.cat
-	if carrier == nil or cat == nil or l.held then
-		return
-	end
-	l.held = true
-	HeldCat.attach(cat, carrier.model, carrier.root)
-	cat.Parent = carrier.model
-	carrier.model:SetAttribute("CarryingCatId", Intro.DEMO_CAT)
-end
-
 local function lessonDrop(l: Lesson, at: Vector3)
-	local carrier, cat = l.carrier, l.cat
-	if cat == nil or not l.held then
+	local holder, cat = l.holder, l.cat
+	if cat == nil or holder == nil then
 		return
 	end
-	l.held = false
-	if carrier ~= nil then
-		carrier.model:SetAttribute("CarryingCatId", nil)
-	end
+	l.holder = nil
+	holder.model:SetAttribute("CarryingCatId", nil)
 	HeldCat.release(cat)
 	cat.Parent = Workspace
 	cat:PivotTo(CFrame.lookAt(at, at + l.scene.forward))
+end
+
+-- The cat into `who`'s arms, out of anyone else's.
+local function lessonHold(l: Lesson, who: You?)
+	local cat = l.cat
+	if who == nil or cat == nil or l.holder == who then
+		return
+	end
+	lessonDrop(l, who.root.Position)
+	l.holder = who
+	HeldCat.attach(cat, who.model, who.root)
+	cat.Parent = who.model
+	who.model:SetAttribute("CarryingCatId", Intro.DEMO_CAT)
+end
+
+-- Shot 4's catch, `t` seconds in (#2469): the knocked copy holds its net up, swings at SWING_AT and from PIN_AT the
+-- net is down on the cat with its "!" (NetDown on a StagedStray, as the server sets it on a stray being caught), the
+-- hand empty as a real catcher's is.
+local function lessonCatch(l: Lesson, t: number)
+	local carrier, cat = l.carrier, l.catch
+	if carrier == nil or cat == nil then
+		return
+	end
+	if t >= TackleStage.SWING_AT and not l.swung then
+		l.swung = true
+		carrier.model:SetAttribute(TackleStage.SWING_ATTRIBUTE, Workspace:GetServerTimeNow())
+	end
+	if t >= TackleStage.PIN_AT and not l.pinned then
+		l.pinned = true
+		cat:SetAttribute("NetDown", true)
+		carrier.model:SetAttribute(NO_NET, true)
+	end
 end
 
 local function lessonStep()
@@ -1525,36 +1548,52 @@ local function lessonStep()
 	local scene = l.scene
 	local carrier, tackler = l.carrier, l.tackler
 	local landed = TackleStage.LUNGE_AT + TackleStage.LUNGE_SECONDS
-	local walking = l.shot ~= 4 and not l.knocked
-	local carrierAt =
-		TackleStage.walkAt(scene.walkFrom, scene.walkTo, if l.shot == 4 then 99 else t)
-	if l.shot == 2 and t >= landed then
-		local hit = TackleStage.hitPoint(scene.walkFrom, scene.walkTo)
+	local tackling = l.shot == 2 or l.shot == 3 -- #2469: shot 3 is you tackling, not only the camera over you
+	local walking = l.shot ~= 4
+	local carrierAt = TackleStage.walkAt(scene.walkFrom, scene.walkTo, t)
+	local carrierFacing = scene.right
+	if tackling and t >= landed then
 		if not l.knocked then
 			l.knocked = true
-			lessonDrop(l, hit - scene.forward * TackleStage.DROP_SIDE)
-			Moments.Shove:Fire("bystander", hit)
-			Moments.BumpLoose:Fire("bystander", hit)
+			lessonDrop(l, scene.drop)
+			Moments.Shove:Fire("bystander", scene.hit)
+			Moments.BumpLoose:Fire("bystander", scene.hit)
 		end
-		local away = toward(scene.tackler, hit)
-		carrierAt = hit
-			+ away * TackleStage.KNOCK_STUDS * math.clamp((t - landed) / KNOCK_SECONDS, 0, 1)
+		carrierAt = scene.hit
+			+ scene.knock
+				* TackleStage.KNOCK_STUDS
+				* math.clamp((t - landed) / KNOCK_SECONDS, 0, 1)
 		walking = false
-	elseif l.shot == 4 and l.knocked then
-		local hit = TackleStage.hitPoint(scene.walkFrom, scene.walkTo)
-		carrierAt = hit + toward(scene.tackler, hit) * TackleStage.KNOCK_STUDS
+	elseif l.shot == 4 then
+		carrierAt = scene.knocked
+		carrierFacing = toward(scene.knocked, scene.catchAt)
+		lessonCatch(l, t)
 	end
 	if carrier ~= nil then
 		local moving = walking and (carrierAt - scene.walkTo).Magnitude > 0.05
-		placeYou(carrier, carrierAt, scene.right)
+		placeYou(carrier, carrierAt, carrierFacing)
 		playYou(carrier, if moving then "run" else "idle")
 	end
 	if tackler ~= nil then
-		local at = if l.shot == 2 or (l.shot == 4 and l.knocked)
-			then TackleStage.lungeAt(scene, t + if l.shot == 4 then 99 else 0)
-			else scene.tackler
-		placeYou(tackler, at, toward(at, carrierAt))
-		playYou(tackler, "idle")
+		local at, facing, moving = scene.tackler, toward(scene.tackler, carrierAt), false
+		if l.shot == 2 then
+			at = TackleStage.lungeAt(scene, t)
+			facing = toward(at, carrierAt)
+		elseif l.shot == 3 then
+			local taken
+			at, taken = TackleStage.pickupAt(scene, t)
+			local from = TackleStage.pickupTimes(scene)
+			facing = if t < from then toward(at, carrierAt) else toward(at, scene.drop)
+			moving = t >= from and not taken
+			if taken and l.knocked then
+				lessonHold(l, tackler)
+			end
+		elseif l.shot == 4 then
+			at = scene.pickup
+			facing = toward(at, scene.catchAt)
+		end
+		placeYou(tackler, at, facing)
+		playYou(tackler, if moving then "run" else "idle")
 	end
 	local camera = Workspace.CurrentCamera
 	local key = scene.cameras[l.shot]
@@ -1635,7 +1674,7 @@ local function lessonBegin(): Lesson?
 		scene = TackleStage.scene(camp.wayOut + camp.u * LESSON_IN, camp.u)
 		streamAround(scene.centre)
 		-- real strays wandering through the shots are hidden on this screen, as in the intro's catch
-		local points = { scene.walkFrom, scene.walkTo, scene.tackler, scene.centre }
+		local points = { scene.walkFrom, scene.walkTo, scene.tackler, scene.centre, scene.catchAt }
 		for _, real in straysNear(points, Intro.DEMO_HIDE_RADIUS + LESSON_CLEAR) do
 			hide(r, real)
 		end
@@ -1650,7 +1689,10 @@ local function lessonBegin(): Lesson?
 		carrier = stageYou(r),
 		tackler = stageYou(r),
 		cat = stageCat(r, Intro.DEMO_CAT, CFrame.new(scene.walkFrom)),
-		held = false,
+		holder = nil,
+		catch = nil,
+		swung = false,
+		pinned = false,
 		shot = 0,
 		shotAt = os.clock(),
 		cameraFrom = camera.CFrame,
@@ -1710,26 +1752,38 @@ function IntroController.stageTackle(shot: number?)
 	l.shot = shot
 	l.shotAt = os.clock()
 	l.cameraFrom = if camera ~= nil then camera.CFrame else l.cameraFrom
-	if shot == 1 or shot == 3 then
+	local tackler = l.tackler
+	if shot <= 3 then
 		-- the walk again, the cat back in the carrier's arms and the tackler back on its spot
 		l.knocked = false
-		lessonHold(l)
-		local tackler = l.tackler
+		lessonHold(l, l.carrier)
 		if tackler ~= nil then
 			tackler.model:SetAttribute("TackleAt", nil)
 			tackler.model:SetAttribute("TackleMissAt", nil)
 		end
-	elseif shot == 2 then
-		l.knocked = false
-		lessonHold(l)
-		local tackler = l.tackler
-		if tackler ~= nil then
-			local model = tackler.model
-			task.delay(TackleStage.LUNGE_AT, function()
-				if lesson == l and l.shot == 2 and model.Parent ~= nil then
-					model:SetAttribute("TackleAt", Workspace:GetServerTimeNow())
-				end
-			end)
+	end
+	if (shot == 2 or shot == 3) and tackler ~= nil then
+		-- the dive (Effects/Tackle, StagedTackle) from LUNGE_AT; in shot 3 it is you, over your shoulder (#2469)
+		local model = tackler.model
+		task.delay(TackleStage.LUNGE_AT, function()
+			if lesson == l and l.shot == shot and model.Parent ~= nil then
+				model:SetAttribute("TackleAt", Workspace:GetServerTimeNow())
+			end
+		end)
+	elseif shot == 4 then
+		-- shot 3 played out, even when Next cut it short: the carrier knocked, the cat in the tackler's arms
+		l.knocked = true
+		lessonHold(l, tackler)
+		local carrier = l.carrier
+		if carrier ~= nil and l.catch == nil then
+			carrier.model:SetAttribute(NO_NET, nil) -- its net up for the swing (#2469)
+			local at = l.scene.catchAt
+			local cat = stageCat(l.r, Intro.DEMO_CAT, CFrame.lookAt(at, at + l.scene.right))
+			if cat ~= nil then
+				cat.Name = "LessonStray"
+				CollectionService:AddTag(cat, TackleStage.STRAY_TAG)
+				l.catch = cat
+			end
 		end
 	end
 end

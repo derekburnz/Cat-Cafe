@@ -1,5 +1,8 @@
 --!strict
--- Short messages that drop in under the tier pill and travel row and fade out. Max four on screen.
+-- Short messages that drop in under the tier pill and travel row and fade out. #2399 (Derek2: "way too many bubble pop
+-- ups in the middle top of screen especially for mobile"): at most two on a phone and three on a PC
+-- (ToastRules.maxVisible), and the same words again within ToastRules.REPEAT_SECONDS of the last time show nothing
+-- (a warning always shows).
 -- rainbow(text, rarity) is the rainbow stray's shout-out (F99, rainbow-coat.md section 2): the announce pill with a
 -- slowly turning rainbow edge (Components/Rainbow), silent as the sound is Sound-Agent's shimmer.
 -- prize(title, prize) is the prize toast (F94 rule 3, F100 camp extras): the line on the green pill with what it
@@ -21,6 +24,7 @@ local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
+local ToastRules = require(script.Parent.Parent.Components.ToastRules)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
 
@@ -37,7 +41,7 @@ export type Toasts = {
 
 local LIFETIME = 2.4
 local ANNOUNCE_LIFETIME = 4 -- server shout-outs stay a little longer
-local MAX_VISIBLE = 4
+local MAX_VISIBLE = ToastRules.maxVisible(Scale.isTouch()) -- #2399
 local PRIZE_LIFETIME = 3.2 -- a prize toast stays long enough to read its pictures
 local PRIZE_TILE = 30
 local PRIZE_TEXT_MAX = 300 -- the line's widest on a prize toast, leaving room for the pictures
@@ -107,6 +111,7 @@ function Toasts.new(parent: Instance): Toasts
 	self._boxes = nil :: (() -> { Types.Box })?
 	self._floor = nil :: (() -> number)?
 	self._room = MAX_VISIBLE
+	self._said = {} :: { [string]: number } -- #2399: when each line last showed (os.clock)
 	self._queue = {} :: { Waiting } -- #2338: toasts waiting for one on screen to go
 	self._resized = root:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		self:_place()
@@ -143,10 +148,35 @@ local function announceColor(text: string): Color3?
 	return best
 end
 
+-- #2399: the same words shown again within ToastRules.REPEAT_SECONDS (and gone already) are dropped; a warning never
+-- is. One still up starts its time over instead (_push, #1435).
+function Toasts._repeat(self: any, text: string, kind: string?): boolean
+	local now = os.clock()
+	for line, at in self._said do
+		if now - at >= ToastRules.REPEAT_SECONDS then
+			self._said[line] = nil
+		end
+	end
+	local up = false
+	for _, live in self._alive do
+		if live:GetAttribute("Line") == text then
+			up = true
+		end
+	end
+	local again = not up and ToastRules.isRepeat(kind, now, self._said[text])
+	if not again then
+		self._said[text] = now
+	end
+	return again
+end
+
 -- quiet skips the toast's own sound when the moment already has one (a miss hisses).
 function Toasts.show(self: any, text: string, kind: Types.ToastKind?, quiet: boolean?)
 	if kind == "announce" then
 		self:announce(text)
+		return
+	end
+	if self:_repeat(text, kind) then
 		return
 	end
 	-- warn covers can't afford, not allowed and bumps: the gentle bonk; everything else the small pop

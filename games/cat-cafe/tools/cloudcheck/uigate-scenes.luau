@@ -2449,9 +2449,9 @@ local SCENES = {
 	-- #2207 (Derek2: "IBowBeforeGod tamed an Epic Gardener Cat at their..."): a toast too long for one row wraps and
 	-- the pill grows taller, every word showing; a short one stays one 40 px row
 	{ "ToastWrap", function()
-		local long = "IBowBeforeGod tamed an Epic Gardener Cat at their bait bowl!"
+		local long = "IBowBeforeGod tamed a Legendary Gardener Cat at their bait bowl!"
 		local short = "Saved!"
-		UI.announce(long, "Epic")
+		UI.announce(long, "Legendary") -- (#2399: Epic shout-outs no longer show)
 		UI.toast(short, "good")
 		-- (a short phone shows fewer toasts at once and the rest wait their turn, #2338: the clock runs till it is up)
 		local function find(text: string): TextLabel
@@ -2525,6 +2525,44 @@ local SCENES = {
 		if reach < screen.X / 2 - 240 then
 			assert(math.abs(middle - screen.X / 2) < 2, ("uigate: the toast sits %d px off centre with room to spare (#2338)"):format(middle - screen.X / 2))
 		end
+	end },
+	-- #2399 (Derek2: "way too many bubble pop ups in the middle top of screen especially for mobile"): at most two
+	-- toasts on a phone and three on a PC, the same words again inside ten seconds show nothing (a warning always
+	-- does), and an Epic shout-out shows nothing
+	{ "ToastFewer", function()
+		local ToastRules = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.ToastRules")
+		local touch = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch()
+		local function shown(): { string }
+			local lines = {}
+			for _, label in UIShim.playerGui:GetDescendants() do
+				if label:IsA("TextLabel") and label.Name == "Text" and label.Parent and label.Parent.Name == "Toast" then
+					table.insert(lines, label.Text)
+				end
+			end
+			return lines
+		end
+		UIShim.advance(4) -- earlier scenes' toasts gone
+		for index = 1, 4 do
+			UI.toast("Fewer toast " .. index, "info")
+		end
+		UIShim.advance(0.1)
+		local most = ToastRules.maxVisible(touch)
+		assert(#shown() <= most, ("uigate: %d toasts on screen, at most %d (#2399)"):format(#shown(), most))
+		UIShim.advance(12) -- all gone, queued ones too
+		UI.toast("Same words", "good")
+		UIShim.advance(3)
+		UI.toast("Same words", "good")
+		UIShim.advance(0.1)
+		assert(not table.find(shown(), "Same words"), "uigate: the same words showed again inside ten seconds (#2399)")
+		UI.toast("Not enough coins", "warn")
+		UIShim.advance(3)
+		UI.toast("Not enough coins", "warn")
+		UIShim.advance(0.1)
+		assert(table.find(shown(), "Not enough coins"), "uigate: a repeated warning did not show (#2399)")
+		assert(UI.announce("Someone tamed an Epic Cat!", "Epic") == false, "uigate: an Epic shout-out showed (#2399)")
+		UIShim.advance(0.1)
+		assert(not table.find(shown(), "Someone tamed an Epic Cat!"), "uigate: an Epic shout-out pill is up (#2399)")
+		UIShim.advance(12)
 	end },
 	-- F99 section 2: a rainbow stray's once-a-minute toast on a turning rainbow edge
 	{ "RainbowSpawn", function()
@@ -3492,6 +3530,11 @@ local SCENES = {
 		assertArrowAt(window:FindFirstChild("tables", true) :: GuiObject, "the table row")
 	end },
 	{ "TutorialArrowGone", function()
+		-- the sample cafe's money can make its rank up ready, and then the goal card's own arrow (#2331) comes and goes
+		-- on a timer, so whether it shows here depended on how long the scenes before took: no rank up ready while
+		-- this checks, so only the tutorial step's arrow counts
+		local money = (UI.getState() :: any).money
+		UI.update({ money = 0 } :: any)
 		tutorialArrowStep()
 		UI.update({ tutorialStep = 5 } :: any)
 		task.wait(0.1)
@@ -3501,6 +3544,7 @@ local SCENES = {
 				"uigate: the tutorial arrow stays after its step (#2314)"
 			)
 		end
+		UI.update({ money = money } :: any)
 	end },
 	-- #2331 (Derek2: "cozy cafe (tier up cafe) is more obviously your main goal to tier up and maybe flash and point
 	-- towards it when tier up is ready"): the goal card's gold "YOUR GOAL" line over the bigger tier name, its edge

@@ -1329,14 +1329,16 @@ function UI.init(config: Types.InitConfig)
 		end,
 		-- only a claimed tip pays (data-model 12 v0.13.4); a missed one leaves with nothing
 		collected = function(amount: number, position: Vector3?)
+			-- #2399: the gold "+$" over the tip says it; the toast only when there is no spot to float it over
 			if position then
 				UI.floatText(
 					position + Vector3.new(0, 2, 0),
 					"+" .. Format.money(amount),
 					Theme.colors.gold
 				)
+			else
+				UI.toast("Rich tip! +" .. Format.money(amount), "good")
 			end
-			UI.toast("Rich tip! +" .. Format.money(amount), "good")
 		end,
 		missed = function()
 			UI.toast("Rich tip missed", "info")
@@ -1883,10 +1885,23 @@ end
 
 -- Server-wide shout-out (Epic and better catches), Announce(text, rarity?). The rarity colours it; without it the
 -- last rarity named as a whole word in the text decides. Silent: Audio plays the sting from the remote.
-function UI.announce(text: string, rarity: string?)
+-- #2399: only Legendary and better show, and on touch one every ToastRules.ANNOUNCE_GAP seconds below Mythical
+-- (ToastRules.announce); true when it showed.
+-- (init.luau is at Luau's 200 locals a scope, so the rules load here and the time lives on UI.shoutout)
+UI.shoutout = { at = nil :: number? }
+function UI.announce(text: string, rarity: string?): boolean
+	local ToastRules = require(script.Components.ToastRules)
+	local now = os.clock()
+	if not ToastRules.announce(rarity, now, UI.shoutout.at, Scale.isTouch()) then
+		return false
+	end
+	if rarity ~= nil then
+		UI.shoutout.at = now
+	end
 	if toasts then
 		toasts:announce(text, rarity)
 	end
+	return true
 end
 
 -- `extra` is optional: { stars, shiny, rainbow, charmGain }. Missing stars, shiny and rainbow are read from the newest copy of the
@@ -6772,27 +6787,10 @@ function UI.gift.show(kind: any, paid: any)
 	end
 end
 
--- #1955 (auto-equip.md): UIController's hook for AutoEquipped(swaps). The first swap starts a short wait; every swap
--- in the next AutoEquipToast.MERGE_SECONDS joins it, then one toast names the cat or counts them.
-UI.autoEquip = { pending = {} :: { any }, waiting = false }
+-- #1955 (auto-equip.md): UIController's hook for AutoEquipped(swaps). #2399 (Derek2: "auto equip bubble pop-ups are
+-- also just more bloat on the screen"): no toast any more; the Cats window shows the jobs.
+UI.autoEquip = {}
 
-function UI.autoEquip.swapped(raw: any)
-	local AutoEquipToast = require(script.Components.AutoEquipToast)
-	for _, swap in AutoEquipToast.clean(raw) do
-		table.insert(UI.autoEquip.pending, swap)
-	end
-	if UI.autoEquip.waiting or #UI.autoEquip.pending == 0 then
-		return
-	end
-	UI.autoEquip.waiting = true
-	task.delay(AutoEquipToast.MERGE_SECONDS, function()
-		UI.autoEquip.waiting = false
-		local text = AutoEquipToast.text(UI.autoEquip.pending, Format.money)
-		table.clear(UI.autoEquip.pending)
-		if text then
-			UI.toast(text, "good")
-		end
-	end)
-end
+function UI.autoEquip.swapped(_raw: any) end
 
 return UI

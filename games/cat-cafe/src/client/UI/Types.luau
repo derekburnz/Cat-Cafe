@@ -75,6 +75,8 @@ export type Catalog = {
 -- The Daily Treat (F70, data-model section 11e): one day of the card, its prize in the Index prize shape, and what
 -- ProfileSync sends: `stamp` the last day paid (0 on a fresh card, 7 on a full one), `lastDay` the UTC day number
 -- (os.time() // 86400) of that claim, `due` whether a stamp can be claimed now and `nextDay` the day it pays.
+-- #2338: a screen box in design pixels from the top left (HUD.toastAvoid)
+export type Box = { x0: number, y0: number, x1: number, y1: number }
 export type DailyTreatDay = { day: number, prize: IndexPrize? }
 export type DailyTreatView = { stamp: number, lastDay: number, due: boolean, nextDay: number }
 

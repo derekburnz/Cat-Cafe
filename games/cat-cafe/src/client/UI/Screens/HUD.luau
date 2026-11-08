@@ -126,6 +126,7 @@ export type HUD = {
 	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
 	isCarrying: (self: HUD) -> boolean,
 	bottomTop: (self: HUD) -> number,
+	toastAvoid: (self: HUD) -> { Types.Box }, -- #2338: what the toasts keep clear of
 	setCatching: (self: HUD, active: boolean) -> (),
 	roadmapStep: (self: HUD, n: number) -> (),
 	setCatchStreak: (self: HUD, streak: number) -> (),
@@ -2630,6 +2631,79 @@ function HUD.bottomTop(self: any): number
 		y -= self._tutorial.AbsoluteSize.Y / Scale.get() + Theme.sizes.gap
 	end
 	return y
+end
+
+-- #2338 (Laptop-Tester, iPhone SE: the Welcome back toast lay over the menu tiles): what the toasts (Screens/Toasts) keep
+-- clear of, as boxes in design pixels from the screen's top left: the left column (the menu grid, the Store tile, the
+-- arrow tab and the chips beside it on a short screen), the right one (the goal card, and the quest and free spin
+-- lines by their words, which sit right-aligned in wider boxes), the chips over the counters and the corner tiles over
+-- the bottom right. Measured, so a folded menu or a hidden card counts as
+-- nothing; none while the HUD is hidden.
+function HUD.toastAvoid(self: any): { Types.Box }
+	local scale = Scale.get()
+	local boxes: { Types.Box } = {}
+	if scale <= 0 or not self.screenGui.Enabled then
+		return boxes
+	end
+	local origin = self._root.AbsolutePosition
+	local function add(x0: number, y0: number, x1: number, y1: number)
+		if x1 > x0 and y1 > y0 then
+			table.insert(boxes, {
+				x0 = (x0 - origin.X) / scale,
+				y0 = (y0 - origin.Y) / scale,
+				x1 = (x1 - origin.X) / scale,
+				y1 = (y1 - origin.Y) / scale,
+			})
+		end
+	end
+	local function box(parts: { GuiObject })
+		local x0, y0, x1, y1 = math.huge, math.huge, -math.huge, -math.huge
+		for _, part in parts do
+			if part.Visible and part.AbsoluteSize.X > 0 then
+				x0 = math.min(x0, part.AbsolutePosition.X)
+				y0 = math.min(y0, part.AbsolutePosition.Y)
+				x1 = math.max(x1, part.AbsolutePosition.X + part.AbsoluteSize.X)
+				y1 = math.max(y1, part.AbsolutePosition.Y + part.AbsoluteSize.Y)
+			end
+		end
+		add(x0, y0, x1, y1)
+	end
+	local left: { GuiObject } = { self._menu, self._storeTile.instance, self._menuFold.instance }
+	if not self._buffsLow then
+		table.insert(left, self._buffs.frame)
+	end
+	box(left)
+	if self._buffsLow then
+		box({ self._buffs.frame }) -- over the counters
+	end
+	box({ self._goal.frame })
+	box({ self._corner }) -- the Potions and side tiles over the bottom right
+	-- a line's words: each label's text, from its right edge when right-aligned
+	for _, line in { self._questLine, self._spinLine } :: { GuiObject } do
+		if line.Visible then
+			local labels: { Instance } = line:GetDescendants()
+			table.insert(labels, line)
+			for _, label in labels do
+				if
+					(label:IsA("TextLabel") or label:IsA("TextButton"))
+					and label.Visible
+					and label.Text ~= ""
+				then
+					local x1 = label.AbsolutePosition.X + label.AbsoluteSize.X
+					local x0 = if label.TextXAlignment == Enum.TextXAlignment.Right
+						then x1 - label.TextBounds.X
+						else label.AbsolutePosition.X
+					add(
+						x0,
+						label.AbsolutePosition.Y,
+						x1,
+						label.AbsolutePosition.Y + label.AbsoluteSize.Y
+					)
+				end
+			end
+		end
+	end
+	return boxes
 end
 
 -- Day and night clock. nil hides it. The countdown runs on Workspace:GetServerTimeNow(), the server's

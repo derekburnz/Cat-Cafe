@@ -1354,7 +1354,16 @@ function UI.init(config: Types.InitConfig)
 			return UI.catch.circlesActive() or UI.rescue.isActive()
 		end,
 	})
-	toasts = Toasts.new(parent)
+	local toastsInstance = Toasts.new(parent)
+	toasts = toastsInstance
+	toastsInstance:avoid(
+		function() -- #2338: clear of the HUD's menu column and goal card on a phone
+			return hudInstance:toastAvoid()
+		end,
+		function()
+			return hudInstance:bottomTop()
+		end
+	)
 	popups = Popups.new(parent)
 	-- #2157 (Desktop-Tester on #2128): a replay waits up to STREAM_WAIT for the camp to stream in before the intro
 	-- hides the UI, so the window it was asked from stayed up about 1.5 s, and a Welcome back card that was up or

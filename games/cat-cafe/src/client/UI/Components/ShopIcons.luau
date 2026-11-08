@@ -131,6 +131,7 @@ local IDS: { [string]: string } = {
 	Icon_Hud_Areas = "rbxassetid://111104265458192",
 	Icon_Hud_Potions = "rbxassetid://128266096924783",
 	Icon_Hud_Bait = "rbxassetid://118400972292559",
+	Icon_Hud_Bag = "rbxassetid://88244676943674", -- #2453: the Bag tile's backpack (Model-Agent, uploaded 2026-11-08)
 	-- #1665: the 8-slice Spin wheel (#1603's render; upload run 42119348490, 11-05), every spin picture prefers it
 	Icon_Hud_Spin = "rbxassetid://137218266791913",
 	-- #1204: Model-Agent's potion flasks (#1193), ShopIcons.potion prefers them; re-uploaded 11-05 with the Cat Whistles
@@ -260,10 +261,6 @@ end
 -- A HUD tile's picture (#1185): the 3D-rendered button picture when there is one, else the clean symbol. Named as the
 -- clean symbols are (Home is My Cafe, Potion the Potions tile, Bowl the Bait tile).
 local HUD_FOR: { [string]: string } = { Home = "MyCafe", Potion = "Potions", Bowl = "Bait" }
--- #2453 (Derek2 11-08: "change the bag symbol to be a backpack since its a potion right now but potion menu already
--- uses that"): HUD tiles with no picture of ours yet, which draw their own glyph (the Bag's 🎒). Without this the Bag
--- would fall back to Icon_Clean_Bag, the gold money bag.
-local HUD_GLYPH_ONLY: { [string]: boolean } = { Bag = true }
 -- #1965: HUD tiles drawn with another picture of ours; the Pass tile wears the Cafe Pass medal from its Store card.
 local HUD_PICTURE: { [string]: string } = { Pass = "Icon_Store_CafePass" }
 function ShopIcons.hud(name: string): string?
@@ -271,19 +268,21 @@ function ShopIcons.hud(name: string): string?
 	if picture then
 		return IDS[picture]
 	end
-	if HUD_GLYPH_ONLY[name] then
-		return nil
-	end
 	return IDS["Icon_Hud_" .. (HUD_FOR[name] or name)] or IDS["Icon_Clean_" .. name]
 end
 
 -- #1665: each HUD picture's clean symbol, drawn in its place if the picture fails to load (IconArt.setImage). The
 -- HUD names that differ from the clean ones are HUD_FOR's, the other way round.
 local CLEAN_OF_HUD: { [string]: string } = { MyCafe = "Home", Potions = "Potion", Bait = "Bowl" }
+-- #2453 (Derek2 11-08: "change the bag symbol to be a backpack since its a potion right now"): the Bag's backpack has
+-- no clean symbol to fall back to (Icon_Clean_Bag is the gold money bag), so a failed load leaves the tile's 🎒
+local NO_BACKUP: { [string]: boolean } = { Bag = true }
 local BACKUP: { [string]: string } = {}
 for key, id in IDS do
 	local name = key:match("^Icon_Hud_(.+)$")
-	local clean = if name then IDS["Icon_Clean_" .. (CLEAN_OF_HUD[name] or name)] else nil
+	local clean = if name and not NO_BACKUP[name]
+		then IDS["Icon_Clean_" .. (CLEAN_OF_HUD[name] or name)]
+		else nil
 	if clean and clean ~= id then
 		BACKUP[id] = clean
 	end

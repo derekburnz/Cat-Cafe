@@ -10,7 +10,14 @@ return function()
 	local Types = require(Shared.Types)
 
 	local function fresh(): Types.TelemetryState
-		return { onboardingStep = 0, achieved = {}, funnel = 4, firstDay = 0, introStep = 0 }
+		return {
+			onboardingStep = 0,
+			achieved = {},
+			funnel = 5,
+			firstDay = 0,
+			introStep = 0,
+			firstHourStep = 0,
+		}
 	end
 
 	-- every step a list of reach calls logs, in the order they were logged
@@ -26,16 +33,26 @@ return function()
 
 	describe("steps", function()
 		it(
-			"are the 46 of funnel v4, logged as onboarding_v4 (and the intro's 13 as onboarding_v4_intro)",
+			"are the 50 of funnel v5, logged as onboarding_v5 (and the intro's 13 still as onboarding_v4_intro)",
 			function()
-				expect(Onboarding.VERSION).to.equal(4)
-				expect(Onboarding.FUNNEL).to.equal("onboarding_v4")
+				expect(Onboarding.VERSION).to.equal(5)
+				expect(Onboarding.FUNNEL).to.equal("onboarding_v5")
 				expect(Onboarding.INTRO_FUNNEL).to.equal("onboarding_v4_intro")
-				expect(Onboarding.COUNT).to.equal(46) -- #1897: first_wow_cat is step 46
+				expect(Onboarding.COUNT).to.equal(50) -- #2391: v4's 46 and four new ones
+				expect(#Onboarding.V4_STEPS).to.equal(46)
 				expect(#Onboarding.V3_STEPS).to.equal(37)
 				for i, name in Onboarding.V3_STEPS do
-					expect(Onboarding.STEPS[i]).to.equal(name) -- v3's steps keep their numbers
+					expect(Onboarding.V4_STEPS[i]).to.equal(name) -- v3's steps are v4's first 37
 				end
+				-- v5 is v4 in the same order with four steps let in: every v4 name is still a step, in v4's order
+				local last = 0
+				for _, name in Onboarding.V4_STEPS do
+					expect(Onboarding.index(name) > last).to.equal(true)
+					last = Onboarding.index(name)
+				end
+				expect(Onboarding.GRAND_OPENING_COUNT).to.equal(
+					require(Shared.GrandOpening).COUNT
+				)
 				expect(Onboarding.INTRO_COUNT).to.equal(13)
 				-- Roblox: at most 100 steps a funnel and 10 funnels
 				expect(Onboarding.COUNT <= 100).to.equal(true)
@@ -59,6 +76,8 @@ return function()
 				"first_catch",
 				"carrying_first_cat",
 				"first_checkin",
+				"tackle_lesson_shown",
+				"tackle_lesson_done",
 				"first_role_assigned",
 				"tut_3_shown",
 				"first_customer_served",
@@ -72,6 +91,7 @@ return function()
 				"first_rescue_started",
 				"first_rescue_done",
 				"first_bait_resolved",
+				"first_goal_done",
 				"five_cats",
 				"rank_up_card_seen",
 				"rank_up_ready",
@@ -80,6 +100,7 @@ return function()
 				"returned_next_day",
 				"first_offline_claim",
 				"tier_3",
+				"grand_opening_done",
 				"starter_cat",
 				"first_store_open",
 				"first_pass_xp",
@@ -215,6 +236,8 @@ return function()
 				"first_catch",
 				"carrying_first_cat",
 				"first_checkin",
+				"tackle_lesson_shown",
+				"tackle_lesson_done",
 				"first_role_assigned",
 				"tut_3_shown",
 				"first_customer_served",
@@ -228,14 +251,42 @@ return function()
 				"first_rescue_started",
 				"first_rescue_done",
 				"first_bait_resolved",
+				"first_goal_done",
 			})
-			expect(#logged).to.equal(28)
+			expect(#logged).to.equal(31)
 			for i, name in logged do
 				expect(Onboarding.index(name)).to.equal(i)
 			end
 		end)
 
-		it("logs 1 to 37 once each and holds nothing, over 500 seeded orders", function()
+		it("holds the cafe loop behind the tackling lesson until it plays out (#2391)", function()
+			local state = fresh()
+			play(state, { "joined", "first_checkin", "first_role_assigned" })
+			-- the role came with the check-in, the lesson waits for a free moment: the role is held
+			expect(Onboarding.furthest(state)).to.equal("first_checkin")
+			expect(Onboarding.reach(state, "tackle_lesson_shown") :: any).to.deepEqual({
+				"tackle_lesson_shown",
+			})
+			expect(Onboarding.reach(state, "tackle_lesson_done") :: any).to.deepEqual({
+				"tackle_lesson_done",
+				"first_role_assigned",
+			})
+			-- a lesson played with the starting tutorial (#2409) logs nothing early and claims no check-in: both wait
+			local early = fresh()
+			play(early, { "joined" })
+			expect(#Onboarding.reach(early, "tackle_lesson_shown")).to.equal(0)
+			expect(#Onboarding.reach(early, "tackle_lesson_done")).to.equal(0)
+			expect(Onboarding.furthest(early)).to.equal("joined")
+			-- the server's done reaches the client's shown when that report never came
+			local quiet = fresh()
+			play(quiet, { "joined", "first_checkin" })
+			expect(Onboarding.reach(quiet, "tackle_lesson_done") :: any).to.deepEqual({
+				"tackle_lesson_shown",
+				"tackle_lesson_done",
+			})
+		end)
+
+		it("logs every step once each and holds nothing, over 500 seeded orders", function()
 			local rng = Random.new(1273)
 			for _ = 1, 500 do
 				local order = table.clone(Onboarding.STEPS)
@@ -296,7 +347,7 @@ return function()
 		end)
 	end)
 
-	describe("fromOld (funnels v1, v2 and v3)", function()
+	describe("fromOld (funnels v1 to v4)", function()
 		it(
 			"takes a save past its first catch out of the funnel, and starts any other at joined",
 			function()
@@ -309,6 +360,9 @@ return function()
 				expect(Onboarding.fromOld(3, 13)).to.equal(Onboarding.COUNT) -- v3 step 13 is first_catch
 				expect(Onboarding.fromOld(3, 37)).to.equal(Onboarding.COUNT)
 				expect(Onboarding.fromOld(3, 12)).to.equal(0)
+				expect(Onboarding.fromOld(4, 13)).to.equal(Onboarding.COUNT) -- v4 step 13 is first_catch
+				expect(Onboarding.fromOld(4, 46)).to.equal(Onboarding.COUNT)
+				expect(Onboarding.fromOld(4, 12)).to.equal(0)
 			end
 		)
 	end)
@@ -346,6 +400,31 @@ return function()
 			expect(#shown).to.equal(7)
 		end)
 
+		it("shows the tackling lesson and the Grand Opening, in step order (#2391)", function()
+			local all = Onboarding.fromSave(facts({
+				catsCaught = 9,
+				distinctCats = 12,
+				tables = 2,
+				bowl = 1,
+				tier = 3,
+				parkCats = 1,
+				goalsDone = 8,
+				tackleLessonSeen = true,
+			} :: any))
+			local last = 0
+			for _, name in all do
+				expect(Onboarding.index(name) > last).to.equal(true)
+				last = Onboarding.index(name)
+			end
+			for _, name in { "tackle_lesson_done", "first_goal_done", "grand_opening_done" } do
+				expect(table.find(all, name :: any)).to.be.ok()
+			end
+			local some = Onboarding.fromSave(facts({ goalsDone = 3 } :: any))
+			expect(table.find(some, "first_goal_done" :: any)).to.be.ok()
+			expect(table.find(some, "grand_opening_done" :: any)).never.to.be.ok()
+			expect(table.find(some, "tackle_lesson_done" :: any)).never.to.be.ok()
+		end)
+
 		it("shows the Cafe Pass, Tier 4 and a Robux spend (#1888)", function()
 			local shown = Onboarding.fromSave(facts({
 				tier = 4,
@@ -373,8 +452,8 @@ return function()
 		it("logs nothing twice on the next join", function()
 			local state = fresh()
 			local save = facts({ catsCaught = 2, tables = 1, bowl = 1 })
-			play(state, { "joined", "first_checkin" })
-			-- second_cat, first_table (and the window it implies) and bowl_bought wait behind steps 16 to 18
+			play(state, { "joined", "first_checkin", "tackle_lesson_done" })
+			-- second_cat, first_table (and the window it implies) and bowl_bought wait behind steps 18 to 20
 			expect(#play(state, Onboarding.fromSave(save) :: any)).to.equal(0)
 			expect(#play(state, Onboarding.fromSave(save) :: any)).to.equal(0)
 			local logged = play(state, { "first_customer_served", "tut_3_shown" })
@@ -386,6 +465,37 @@ return function()
 				"first_window_opened",
 				"first_table",
 			})
+		end)
+	end)
+
+	describe("first_hour (#2391)", function()
+		it("is joined then 2 to 60 minutes of play, as analytics.sh reads it", function()
+			expect(Onboarding.FIRST_HOUR_FUNNEL).to.equal("first_hour")
+			expect(Onboarding.FIRST_HOUR_STEPS :: any).to.deepEqual({
+				"joined",
+				"played_2m",
+				"played_5m",
+				"played_10m",
+				"played_20m",
+				"played_30m",
+				"played_45m",
+				"played_60m",
+			})
+			expect(#Onboarding.FIRST_HOUR_SECONDS).to.equal(Onboarding.FIRST_HOUR_COUNT)
+			for i = 2, Onboarding.FIRST_HOUR_COUNT do
+				local minutes = tonumber(string.match(Onboarding.FIRST_HOUR_STEPS[i], "(%d+)m$"))
+				expect(Onboarding.FIRST_HOUR_SECONDS[i]).to.equal((minutes :: number) * 60)
+			end
+		end)
+
+		it("logs each step once, as the play time reaches it", function()
+			expect(Onboarding.firstHourDue(0, 0) :: any).to.deepEqual({ 1 })
+			expect(Onboarding.firstHourDue(1, 119) :: any).to.deepEqual({})
+			expect(Onboarding.firstHourDue(1, 120) :: any).to.deepEqual({ 2 })
+			expect(Onboarding.firstHourDue(2, 650) :: any).to.deepEqual({ 3, 4 })
+			expect(Onboarding.firstHourDue(0, 99999) :: any).to.deepEqual({ 1, 2, 3, 4, 5, 6, 7, 8 })
+			expect(Onboarding.firstHourDue(8, 99999) :: any).to.deepEqual({})
+			expect(Onboarding.firstHourDue(1, 0 / 0) :: any).to.deepEqual({})
 		end)
 	end)
 

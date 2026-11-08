@@ -108,6 +108,11 @@ Intro.FLOOR_Y = 0.2
 Intro.cafe = {
 	waiterSpot = { x = -5.5, z = -3.04 }, -- the bigger cafes' (#917)
 	richTip = { x = -12.22, y = 2.7, z = -10.32 }, -- #2242: Layout.plot.richTip, the RichTipAnchor on table 1
+	-- #2395: table 1 (Layout.plot.tables[1]), its first chair (Layout.plot.seatOffsets[1]) and the aisle's half width
+	-- (Layout.plot.aisleX), for shot 6 in a new cafe that has no table yet
+	table1 = { x = -12.22, z = -10.32, lane = -6.56 },
+	seat1 = { x = -2.4, rotY = -90 },
+	aisleX = 2,
 }
 
 -- Shot 6 (#2242, Derek2 2026-11-07: "add the rare customers chance to the tutorial scene like rich customer tips"), in
@@ -390,6 +395,46 @@ end
 
 function Intro.doorPoint(plot: Plot): Vector3
 	return Intro.plotPoint(plot, 0, 0, -Config.World.PlotDepth / 2 + 1.5)
+end
+
+-- #2395: the rich visitor's way to table 1's first chair, after the door, as CafeService gives a chair's Aisle and
+-- Approach: beside the aisle at the table's lane, then on the lane in line with the chair, so it walks round the
+-- tables instead of through them. In the world, on the cafe floor.
+function Intro.richRoute(plot: Plot): { Vector3 }
+	local spot = Intro.cafe.table1
+	local x = spot.x + Intro.cafe.seat1.x
+	local side = if x < 0 then -1 else 1
+	return {
+		Intro.plotPoint(plot, side * Intro.cafe.aisleX, 0, spot.lane),
+		Intro.plotPoint(plot, x, 0, spot.lane),
+	}
+end
+
+-- #2395: the point `k` (0 to 1) of the way along `points` by distance, and the flat way it heads there. One point
+-- (or none of length) stays put, facing -Z.
+function Intro.alongPath(points: { Vector3 }, k: number): (Vector3, Vector3)
+	local total = 0
+	for i = 2, #points do
+		total += (points[i] - points[i - 1]).Magnitude
+	end
+	local heading = Vector3.new(0, 0, -1)
+	if #points == 0 then
+		return Vector3.zero, heading
+	end
+	local left = math.clamp(k, 0, 1) * total
+	for i = 2, #points do
+		local a, b = points[i - 1], points[i]
+		local step = (b - a).Magnitude
+		local flat = Vector3.new(b.X - a.X, 0, b.Z - a.Z)
+		if flat.Magnitude > 1e-6 then
+			heading = flat.Unit
+		end
+		if left <= step and step > 1e-6 then
+			return a:Lerp(b, left / step), heading
+		end
+		left -= step
+	end
+	return points[#points], heading
 end
 
 -- #2242: where your copy stops to grab the tip at `tip` coming in from `door`: RICH_REACH short of it, on the floor.

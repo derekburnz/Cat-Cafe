@@ -2536,6 +2536,13 @@ UI.richTip = {}
 -- it; a missed one only toasts "Rich tip missed".
 -- F63: the same plot's CollectorSpot, where the Cat Collector's tag and card follow UI.collector.offer.
 -- Call it again when the player gets a new plot; nil stops watching.
+-- #2395: the intro's staged rich tip: the same gold bubble over `position` with `amount`, Collect inert; nil hides it.
+function UI.richTip.preview(position: Vector3?, amount: number?)
+	if richTipScreen then
+		richTipScreen:preview(position, amount)
+	end
+end
+
 function UI.richTip.bind(plot: Instance?)
 	if richTipScreen then
 		richTipScreen:bind(plot)

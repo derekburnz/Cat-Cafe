@@ -982,6 +982,9 @@ export type TelemetryState = {
 	-- #1273: the furthest step logged of the intro funnel (Onboarding.INTRO_STEPS), 0 before any. A field inside
 	-- telemetry with a default, so it needs no save version
 	introStep: number,
+	-- #2391: the furthest step logged of the first_hour funnel (Onboarding.FIRST_HOUR_STEPS), 0 before any; a default
+	-- too, and COUNT for a player who was out of the onboarding funnel when it came (a veteran's hour is behind them)
+	firstHourStep: number,
 }
 
 -- One player's dealer stock as DealerStock sends it: every dealer food in Dealer.FOODS order with tonight's amount

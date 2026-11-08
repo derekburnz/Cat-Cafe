@@ -101,7 +101,13 @@ local function park()
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	model.Parent = Workspace:FindFirstChild("World") or Workspace
 	-- #2398: the night market's own violet floor ring, where its window pops; it leaves with the cart at sunrise
-	WalkUpCircles.front(model, Color3.fromRGB(170, 120, 255), Config.DealerRangeStuds)
+	WalkUpCircles.front(
+		model,
+		Color3.fromRGB(170, 120, 255),
+		Config.DealerRangeStuds,
+		nil,
+		{ emoji = "🏮", art = "CatCafe_Street_DealerCart_RingIcon_Decor" } -- #2449
+	)
 	cart = model
 end
 

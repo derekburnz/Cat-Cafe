@@ -99,6 +99,13 @@ local RING_CANNON = Color3.fromRGB(90, 215, 225)
 local RING_SPIN = Color3.fromRGB(255, 125, 195)
 local RING_MARKET = Color3.fromRGB(255, 201, 77)
 local RING_SHOP = Color3.fromRGB(255, 150, 70)
+-- #2449: the icon in each ring (the cannon's has none); Model-Agent's art once it is in, an emoji card until then
+local ICON_SPIN: WalkUpCircles.Icon =
+	{ emoji = "🎡", art = "CatCafe_Street_SpinWheel_RingIcon_Decor" }
+local ICON_MARKET: WalkUpCircles.Icon =
+	{ emoji = "🐟", art = "CatCafe_Street_FishMarket_RingIcon_Decor" }
+local ICON_SHOP: WalkUpCircles.Icon =
+	{ emoji = "🛍️", art = "CatCafe_Street_CornerShop_RingIcon_Decor" }
 local PICKET = Color3.fromRGB(250, 246, 236)
 local PATH = Color3.fromRGB(214, 200, 176)
 local BACK_DOOR_ART = "CatCafe_Plot_BackDoor" -- Model-Agent #509; its _Leaf, _Flap and _Sign models carry the name too
@@ -1805,7 +1812,7 @@ local function buildSpinWheel(parent: Instance): Model
 			prompt.Parent = float
 		end
 	end
-	WalkUpCircles.front(model, RING_SPIN, Config.SpinStationRange)
+	WalkUpCircles.front(model, RING_SPIN, Config.SpinStationRange, nil, ICON_SPIN)
 	return model
 end
 
@@ -1842,7 +1849,7 @@ local function buildFishMarket(parent: Instance): Model
 			prompt.Parent = float
 		end
 	end
-	WalkUpCircles.front(model, RING_MARKET, Config.FishMarketRange)
+	WalkUpCircles.front(model, RING_MARKET, Config.FishMarketRange, nil, ICON_MARKET)
 	return model
 end
 
@@ -1947,7 +1954,7 @@ local function buildCornerShop(parent: Instance): Model?
 		float.WorldPosition = (model:GetPivot() * CFrame.new(0, 3, -2)).Position
 		prompt.Parent = float
 	end
-	WalkUpCircles.front(model, RING_SHOP, Config.CornerShopRange)
+	WalkUpCircles.front(model, RING_SHOP, Config.CornerShopRange, nil, ICON_SHOP)
 	return model
 end
 

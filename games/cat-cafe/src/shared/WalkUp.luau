@@ -27,6 +27,10 @@ WalkUp.RADIUS_SHARE = 0.75
 -- its centre, with its radius in the Radius attribute. The window opens on stepping inside it.
 WalkUp.CIRCLE = "WalkUpCircle"
 WalkUp.FRONT_RADIUS = 4 -- as the Codes Cat's circle (Config.CodesCircleRadius)
+-- #2449: a station's icon in its ring (World/WalkUpCircles): the stand-in card this share of the ring's width (its
+-- corners stay inside the rim even tilted), the art at most this share across
+WalkUp.ICON_SHARE = 0.42
+WalkUp.ICON_ART_SHARE = 0.6
 WalkUp.AROUND_PAD = 2.5 -- studs of floor between a station's widest point and a ring all the way round it
 WalkUp.EDGE_SLACK = 2 -- the ring's far edge stays this far inside the server's range for the window
 -- A camp cannon's ring at most this wide, so it stays on the camp's paving (Laptop-Tester on #2427: 7.3 ran under the

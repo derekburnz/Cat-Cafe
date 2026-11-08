@@ -2359,7 +2359,9 @@ end
 -- ends mid-moment (a catch, a cut, a window), when the pulse played unseen or not at all; it now waits up to
 -- HIDE_WAIT_SECONDS for the tile to be on screen with no catch, and a gold "Hide tips" tag beside the tile points at it.
 function HUD._hideFree(self: any): boolean
-	return self._tutorialTile.instance.Visible and self.screenGui.Enabled and not self._catching
+	return self._tutorialTile.instance.Visible == true
+		and self.screenGui.Enabled == true
+		and self._catching ~= true
 end
 
 function HUD.pulseHide(self: any)

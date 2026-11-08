@@ -192,5 +192,48 @@ return function()
 			expect(still.Magnitude).to.equal(0)
 			expect(math.abs(kept - (4.4 - WalkUp.FIT_CLEAR)) < 1e-3).to.equal(true)
 		end)
+
+		-- Laptop-Tester on #2435: the slide left the cannon's base trim 0.73 studs past the rim on the wall side
+		local function base(towardWall: number): { Vector2 }
+			return {
+				Vector2.new(-3, -3),
+				Vector2.new(3, -3),
+				Vector2.new(-3, 3),
+				Vector2.new(3, 3),
+				Vector2.new(-1.3, towardWall),
+				Vector2.new(1.3, towardWall),
+			}
+		end
+		local wall: { Vector2 } = {}
+		for x = -3, 3 do
+			table.insert(wall, Vector2.new(x, 4.4))
+		end
+
+		it("slides off the wall only as far as still holds the station's base", function()
+			local keep = base(4.2)
+			local shift, radius = WalkUp.fitRing(5.5, wall, 1.5, 1, keep)
+			expect(clear(shift, radius, wall)).to.equal(true)
+			for _, point in keep do
+				expect((point - shift).Magnitude <= radius + 1e-3).to.equal(true)
+			end
+			expect(shift.Y < -1).to.equal(true)
+			expect(shift.Y > -1.2).to.equal(true)
+		end)
+
+		it("keeps the station inside when its base reaches past the wall", function()
+			local keep = base(4.6)
+			local shift, radius = WalkUp.fitRing(5.5, wall, 1.5, 1, keep)
+			for _, point in keep do
+				expect((point - shift).Magnitude <= radius + 1e-3).to.equal(true)
+			end
+			expect(radius <= 5.5).to.equal(true)
+		end)
+
+		it("leaves out a base wider than the ring, so it never throws the ring about", function()
+			local wide = { Vector2.new(-9, 0), Vector2.new(9, 0), Vector2.new(0, 9), Vector2.new(0, -9) }
+			local shift, radius = WalkUp.fitRing(8, {}, 1.5, 1, wide)
+			expect(shift.Magnitude).to.equal(0)
+			expect(radius).to.equal(8)
+		end)
 	end)
 end

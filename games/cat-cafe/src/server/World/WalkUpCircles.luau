@@ -32,7 +32,7 @@ local HALO_SEEN = 0.55
 -- station's lowest point (low enough to meet a camp's 0.3-stud side wall), and the ring slides off it
 local PROBES = 48
 local PROBE_UP = 0.15
-local LEAST_PAD = 0.3 -- a fitted ring stays at least this far round the station's widest point
+local BASE_UP = 1.5 -- studs over its lowest point that count as the station's base, which the ring must hold
 
 -- The station's footprint in its own frame: how far its widest point reaches from the pivot along -Z (its front) and
 -- in any flat direction, and the height of its lowest point.
@@ -152,8 +152,37 @@ local function blocksAround(model: Model, centre: Vector3, reach: number): { Vec
 	return found
 end
 
+-- The flat corners, from `centre`, of the station's visible parts that start within BASE_UP of its lowest point: its
+-- base on the floor, which a fitted ring still holds (Laptop-Tester on #2435).
+local function baseOf(model: Model, centre: Vector3, bottom: number): { Vector2 }
+	local found: { Vector2 } = {}
+	for _, piece in model:GetDescendants() do
+		if piece:IsA("BasePart") and piece.Transparency < 1 then
+			local half = piece.Size / 2
+			local corners: { Vector3 } = {}
+			local low = math.huge
+			for _, x in { -1, 1 } do
+				for _, y in { -1, 1 } do
+					for _, z in { -1, 1 } do
+						local corner = piece.CFrame
+							* Vector3.new(half.X * x, half.Y * y, half.Z * z)
+						low = math.min(low, corner.Y)
+						table.insert(corners, corner)
+					end
+				end
+			end
+			if low <= bottom + BASE_UP then
+				for _, corner in corners do
+					table.insert(found, Vector2.new(corner.X - centre.X, corner.Z - centre.Z))
+				end
+			end
+		end
+	end
+	return found
+end
+
 -- A ring round the whole station, centred on its pivot, slid off (and if need be shrunk to clear) anything standing
--- on its floor, such as a camp's low side wall (#2433).
+-- on its floor, such as a camp's low side wall (#2433), while it still holds the station's own base.
 function WalkUpCircles.around(
 	model: Model,
 	color: Color3,
@@ -167,7 +196,7 @@ function WalkUpCircles.around(
 	local most = math.min(WalkUp.FIT_SHIFT_MAX, range - WalkUp.EDGE_SLACK - radius)
 	local reach = radius + WalkUp.FIT_CLEAR + math.max(0, most)
 	local blocks = blocksAround(model, Vector3.new(at.X, bottom + PROBE_UP, at.Z), reach)
-	local shift, fitted = WalkUp.fitRing(radius, blocks, most, half + LEAST_PAD)
+	local shift, fitted = WalkUp.fitRing(radius, blocks, most, 1, baseOf(model, at, bottom))
 	ring(model, Vector3.new(at.X + shift.X, bottom + LIFT, at.Z + shift.Y), fitted, color, into)
 end
 

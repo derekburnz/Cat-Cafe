@@ -2930,8 +2930,6 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 		self._luckyLine.Visible = false
 		self._luckyRow.Visible = false
 		self._rallyLine.Visible = false
-		self._eventLine.Visible = false
-		self._eventNext.Visible = false
 		self._night = false
 		self._clockSeen = false
 		self:_renderBowl()
@@ -2954,8 +2952,6 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 	self._nightTips.Visible = shown and isNight and NIGHT_TIPS < 1
 	self:_renderLuckyLine()
 	self._rallyLine.Visible = self._rallySoon ~= nil and shown
-	self._eventLine.Visible = self._event ~= nil and shown
-	self._eventNext.Visible = self._event ~= nil and shown and self._eventNext.Text ~= ""
 	self:_layoutRight()
 	local function tick()
 		local remaining = current.phaseEndsAt - Workspace:GetServerTimeNow()
@@ -3062,7 +3058,9 @@ function HUD.setEvent(self: any, lines: { string }?, kind: string?)
 	local nextLine: TextLabel = self._eventNext
 	line.Text = if lines ~= nil and lines[1] ~= nil then lines[1] else ""
 	line.TextColor3 = if kind == "running" then Theme.colors.gold else Theme.colors.white
-	line.Visible = text ~= nil and self._clock.Visible
+	-- #2539 (Laptop-Tester): not tied to the clock, which the small HUD hides until tutorial step 5, so a new player
+	-- sees the event too
+	line.Visible = text ~= nil
 	nextLine.Text = if lines ~= nil and lines[2] ~= nil then lines[2] else ""
 	nextLine.Visible = line.Visible and nextLine.Text ~= ""
 	self:_layoutRight()

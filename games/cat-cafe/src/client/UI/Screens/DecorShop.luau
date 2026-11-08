@@ -831,13 +831,16 @@ function DecorShop.render(self: any, state: Types.PlayerState)
 			card.action:setEnabled(false)
 		elseif card.crateOnly then
 			-- F97: crate find only (hidden until owned, so this only shows for a moment after a trade or a reset); a
-			-- Cafe Pass piece (#1721) says where it really comes from
+			-- Cafe Pass piece (#1721) and a Cafe Event's free reward piece (#2534) say where they really come from
 			card.mode = "crate"
-			card.action:setText(
-				if (def :: any).source == "pass"
-					then "From the " .. ((def :: any).pack or "Cafe Pass")
-					else Theme.icons.crate .. " From crates"
-			)
+			local source = (def :: any).source
+			local from = Theme.icons.crate .. " From crates"
+			if source == "pass" then
+				from = "From the " .. ((def :: any).pack or "Cafe Pass")
+			elseif source == "event" then
+				from = "From a Cafe Event"
+			end
+			card.action:setText(from)
 			card.action:setStyle("ghost")
 			card.action:setEnabled(false)
 		elseif locked then

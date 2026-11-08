@@ -448,6 +448,27 @@ function CampExtras.nextYardCrate(view: Types.CampExtraView): Types.YardSaleCrat
 	return nil
 end
 
+-- #2498 (Derek2: "auto claim when walking infront of it instead of needing a click"): what stepping up to an extra
+-- takes on its own: "collect" (CollectCampExtra) while the Picnic Basket, Fish Pond or Lost and Found holds
+-- something, "yard" and the crate id (BuyYardSale) while the Yard Sale's free crate waits, else nil. Nothing that
+-- costs is ever bought this way: the Yard Sale's lawn rows stay on its card.
+function CampExtras.autoClaim(extraId: string, view: Types.CampExtraView): (string?, string?)
+	if not view.open or view.held <= 0 then
+		return nil, nil
+	end
+	if extraId == CampExtras.YARD_SALE then
+		local crate = CampExtras.nextYardCrate(view)
+		if crate ~= nil and crate.price == 0 then
+			return "yard", crate.crateId
+		end
+		return nil, nil
+	end
+	if table.find(CampExtras.COLLECT, extraId) ~= nil then
+		return "collect", nil
+	end
+	return nil, nil
+end
+
 local function plural(count: number, one: string, many: string): string
 	return string.format("%d %s", count, if count == 1 then one else many)
 end

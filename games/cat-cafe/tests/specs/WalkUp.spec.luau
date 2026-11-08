@@ -116,4 +116,35 @@ return function()
 			expect(WalkUp.aroundRadius(0, 2)).to.equal(1)
 		end)
 	end)
+
+	describe("Laptop-Tester's fixes on #2427", function()
+		it("opens nothing on a landing inside a ring while the prompt was off", function()
+			local state = WalkUp.new()
+			WalkUp.step(state, { at("cannon", 40, "Cannon") }, true, nil) -- mid flight, far away
+			local landed = at("cannon", 3, "Cannon")
+			landed.off = true -- the prompt is off until the flight ends
+			expect((WalkUp.step(state, { landed }, false, nil))).to.equal(nil)
+			-- the prompt back on: already inside, so nothing opens until the player walks out and back
+			expect((WalkUp.step(state, { at("cannon", 3, "Cannon") }, false, nil))).to.equal(nil)
+			WalkUp.step(state, { at("cannon", 20, "Cannon") }, false, nil)
+			expect((WalkUp.step(state, { at("cannon", 3, "Cannon") }, false, nil))).to.equal("cannon")
+		end)
+
+		it("keeps a window open while the player stands still in the ring", function()
+			local state = WalkUp.new()
+			WalkUp.step(state, { at("market", 20, "Market") }, false, nil)
+			expect((WalkUp.step(state, { at("market", 3, "Market") }, false, nil))).to.equal("market")
+			for _ = 1, 20 do
+				local open, close = WalkUp.step(state, { at("market", 3, "Market") }, false, "Market")
+				expect(open).to.equal(nil)
+				expect(close).to.equal(false)
+			end
+		end)
+
+		it("caps a camp cannon's ring", function()
+			expect(WalkUp.aroundRadius(4.8, 10, WalkUp.CAMP_RING_MAX)).to.equal(WalkUp.CAMP_RING_MAX)
+			expect(WalkUp.aroundRadius(2, 10, WalkUp.CAMP_RING_MAX)).to.equal(2 + WalkUp.AROUND_PAD)
+			expect(WalkUp.aroundRadius(4.8, 10)).to.equal(4.8 + WalkUp.AROUND_PAD) -- the town cannon: no cap
+		end)
+	end)
 end

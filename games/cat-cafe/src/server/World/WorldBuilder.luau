@@ -18,6 +18,7 @@ local Layout = require(script.Parent.Layout)
 local SafeWords = require(script.Parent.SafeWords)
 local StarterCat = require(ReplicatedStorage.Shared.StarterCat)
 local Types = require(ReplicatedStorage.Shared.Types)
+local WalkUp = require(ReplicatedStorage.Shared.WalkUp)
 local WalkUpCircles = require(script.Parent.WalkUpCircles)
 
 export type Plot = {
@@ -2324,7 +2325,9 @@ local function buildCannon(id: string, parent: Instance): Model
 			prompt.Parent = float
 		end
 	end
-	WalkUpCircles.around(model, RING_CANNON, W.CannonRangeStuds, parent) -- all the way round
+	-- all the way round; a camp's no wider than its paving
+	local cap = if id == "town" then nil else WalkUp.CAMP_RING_MAX
+	WalkUpCircles.around(model, RING_CANNON, W.CannonRangeStuds, parent, cap)
 	return model
 end
 

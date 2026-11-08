@@ -27,6 +27,9 @@ WalkUp.CIRCLE = "WalkUpCircle"
 WalkUp.FRONT_RADIUS = 4 -- as the Codes Cat's circle (Config.CodesCircleRadius)
 WalkUp.AROUND_PAD = 2.5 -- studs of floor between a station's widest point and a ring all the way round it
 WalkUp.EDGE_SLACK = 2 -- the ring's far edge stays this far inside the server's range for the window
+-- A camp cannon's ring at most this wide, so it stays on the camp's paving (Laptop-Tester on #2427: 7.3 ran under the
+-- camp walls and over the ground beyond)
+WalkUp.CAMP_RING_MAX = 5.5
 
 -- Studs from a station's pivot to its front ring's centre, along its front: the ring just touches the station's front
 -- (`front` studs out from the pivot), pulled in until its far edge is EDGE_SLACK inside `range`, the server's reach
@@ -37,14 +40,23 @@ function WalkUp.frontOffset(front: number, radius: number, range: number): numbe
 end
 
 -- The radius of a ring round a station whose widest point is `half` studs from its pivot: AROUND_PAD clear of it,
--- at most EDGE_SLACK inside `range`.
-function WalkUp.aroundRadius(half: number, range: number): number
-	return math.max(1, math.min(math.max(0, half) + WalkUp.AROUND_PAD, range - WalkUp.EDGE_SLACK))
+-- at most EDGE_SLACK inside `range` and at most `cap` when given.
+function WalkUp.aroundRadius(half: number, range: number, cap: number?): number
+	local most = math.min(range - WalkUp.EDGE_SLACK, cap or math.huge)
+	return math.max(1, math.min(math.max(0, half) + WalkUp.AROUND_PAD, most))
 end
 
 -- One station this look: its key, the window it opens (the UI's modal name), the flat studs from the character
 -- (nil while streamed out or its prompt is off) and its radius.
-export type Station = { key: string, window: string, distance: number?, radius: number }
+-- `off` while its prompt is off (a flight, a closed stall): the character still counts as at it or not, but stepping
+-- in opens nothing, so a landing inside a ring opens nothing once the prompt is back.
+export type Station = {
+	key: string,
+	window: string,
+	distance: number?,
+	radius: number,
+	off: boolean?,
+}
 
 -- What the controller keeps between looks: whether the character was at each station (nil before the first look at
 -- it), and the station whose window a walk-up opened (nil after it closed it, or when nothing was opened).
@@ -85,6 +97,7 @@ function WalkUp.step(
 		if
 			now
 			and was == false
+			and station.off ~= true
 			and (
 				entered == nil
 				or (station.distance :: number) < ((entered :: Station).distance :: number)

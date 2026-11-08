@@ -216,6 +216,18 @@ return function()
 			end
 		)
 
+		it("adds up shortened money into one line (#2479)", function()
+			expect(ClaimAll.merge({ "+$4.53M", "+$6.79M" }) :: any).to.deepEqual({ "+$11.3M" })
+			expect(ClaimAll.merge({ "+$8,420", "+$54K", "+$300", "1 Tuna" }) :: any).to.deepEqual({
+				"+$62K",
+				"1 Tuna",
+			})
+			expect(ClaimAll.money("+$1.24B")).to.equal(1240000000)
+			expect(ClaimAll.money("+$8,420")).to.equal(8420)
+			expect(ClaimAll.money("+$12Zz")).never.to.be.ok()
+			expect(ClaimAll.money("2 Tuna")).never.to.be.ok()
+		end)
+
 		it("keeps a capped spin line and a tag as they are, and an empty list empty", function()
 			expect(ClaimAll.merge({}) :: any).to.deepEqual({})
 			expect(ClaimAll.merge({ "2 spins" }) :: any).to.deepEqual({ "2 spins" })

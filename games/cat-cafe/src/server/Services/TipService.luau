@@ -152,7 +152,7 @@ local function onTipSeen(player: Player, rawId: unknown, rawSkipped: unknown)
 		profile.stuckHelpShown[tostring(math.clamp(profile.tutorialStep, 0, 5))] = true
 		return
 	end
-	if id == "tackle" or id == "tackle_lesson" then -- #2409 gives the lesson its own id, tackle_lesson
+	if id == Tips.LESSON then -- #2409: the lesson's own id
 		-- #2391: the tackling lesson (#2198) is this tip, saved as seen when it has played out
 		Telemetry.onboarding(player, profile, "tackle_lesson_done")
 	end

@@ -47,7 +47,6 @@ local BuffChips = require(script.Parent.BuffChips)
 local Button = require(script.Parent.Parent.Components.Button)
 local CannonLogic = require(script.Parent.Parent.Components.CannonLogic)
 local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
-local CatchTrust = require(script.Parent.Parent.Components.CatchTrust)
 local Create = require(script.Parent.Parent.Components.Create)
 local FirstBait = require(script.Parent.Parent.Components.FirstBait)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
@@ -2073,22 +2072,6 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = self._buffs.frame,
 	})
 	Outline.text(self._coming, 2)
-	-- Catch v3 (#1884, catch-rework.md 7d): "🐾 Purrfect x3" in the potion timers' row over the money from the second
-	-- Purrfect in a row (Components/CatchTrust.streakText); this session only, gone on any other result
-	self._streak = Create("TextLabel", {
-		Name = "PurrfectStreak",
-		BackgroundTransparency = 1,
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 28),
-		FontFace = Theme.fonts.display,
-		TextSize = 18,
-		TextColor3 = Theme.colors.gold,
-		Text = "",
-		LayoutOrder = 90, -- after the Luck chip and the potion timers, before the pals
-		Visible = false,
-		Parent = self._buffs.frame,
-	})
-	Outline.text(self._streak, 2)
 	self:_layoutMenu()
 	-- the left side follows the screen's size (a phone turned, a window resized)
 	table.insert(
@@ -2286,17 +2269,9 @@ function HUD.roadmapStep(self: any, n: number)
 	self._roadmap:pop(n)
 end
 
-function HUD.setCatchStreak(self: any, streak: number)
-	local line = CatchTrust.streakText(streak)
-	local label: TextLabel = self._streak
-	local was = label.Text
-	label.Text = if line then "🐾 " .. line else ""
-	label.Visible = line ~= nil
-	self._buffs:setLead(line ~= nil, "streak")
-	if line ~= nil and label.Text ~= was then
-		Tween.popIn(label, 0.6)
-	end
-end
+-- #2464 (Derek2 11-08: "remove the purrrfect text from top as that squishes the buttons especially mobile"): the
+-- "🐾 Purrfect x3" streak label is gone, so the top row keeps its place; the PURRFECT! banner over the catch stays
+function HUD.setCatchStreak(_self: any, _streak: number) end
 
 function HUD.isCatching(self: any): boolean
 	return self._catching == true

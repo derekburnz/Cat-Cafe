@@ -3235,7 +3235,7 @@ local SCENES = {
 		local bottom = warning.AbsolutePosition.Y + warning.AbsoluteSize.Y
 		assert(bottom < view.Y - 8, "uigate: the paw ring's Don't swing! runs off the screen (#2060)")
 	end },
-	-- Catch v3 (#1884, 7d): a Purrfect catch's banner (Root.FinishBanner, after the net wrap) and the HUD's streak
+	-- Catch v3 (#1884, 7d): a Purrfect catch's banner (Root.FinishBanner, after the net wrap); #2464: no HUD streak
 	{ "CatchV3Finish", function()
 		startCatchV3("gate_v3f", "Common", { "single", "single", "single" }, 2, 8)
 		task.wait(0.4)
@@ -3245,8 +3245,8 @@ local SCENES = {
 		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
 		local banner = layer and layer:FindFirstChild("FinishBanner", true)
 		assert(banner and banner.Visible and banner.Text == "PURRFECT!", "uigate: no PURRFECT! banner after the wrap (#1884)")
-		local streak = UIShim.playerGui:FindFirstChild("PurrfectStreak", true)
-		assert(streak and streak.Visible and streak.Text == "🐾 Purrfect x3", "uigate: the HUD has no Purrfect x3 streak (#1884)")
+		-- #2464: no streak text over the money any more, it pushed the top row down
+		assert(UIShim.playerGui:FindFirstChild("PurrfectStreak", true) == nil, "uigate: the Purrfect x3 text is back (#2464)")
 	end },
 	-- Catch v3 (#1884): UIController's way in: the circles first, then UI.catch.trust; a Miss doesn't end it; then
 	-- UI.catch.finished just before the grades
@@ -3277,8 +3277,7 @@ local SCENES = {
 		local layer = UIShim.playerGui:FindFirstChild("CatCafeCatchCircles")
 		local banner = layer and layer:FindFirstChild("FinishBanner", true)
 		assert(banner and banner.Visible and banner.Text == "NICE!", "uigate: no NICE! banner (#1884)")
-		local streak = UIShim.playerGui:FindFirstChild("PurrfectStreak", true)
-		assert(streak and not streak.Visible, "uigate: the streak still shows after a NICE (#1884)")
+		assert(UIShim.playerGui:FindFirstChild("PurrfectStreak", true) == nil, "uigate: the Purrfect x3 text is back (#2464)")
 	end },
 	-- 2026-11-03 (Derek: "too much text on screen make pictures easy for kids"): the prompt cards with no hint line,
 	-- a little picture of the minigame in its place: a stuck cat's rescue bar, a stray's catch ring

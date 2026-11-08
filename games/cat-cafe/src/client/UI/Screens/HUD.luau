@@ -114,6 +114,7 @@ export type HUD = {
 	setLuckyDay: (self: HUD, view: LuckLogic.DayView?) -> (),
 	-- F101: "🏁 Rescue Rally in 5h 20m" under the clock in the last hours before a Rally, nil hides it
 	setRallySoon: (self: HUD, line: string?) -> (),
+	setEvent: (self: HUD, lines: { string }?, kind: string?) -> (),
 	-- F101: the potion timers' row (with the Luck and pal chips), which the Rally banner keeps clear of on a phone
 	buffRow: (self: HUD) -> GuiObject,
 	counterRow: (self: HUD) -> GuiObject, -- #2393: the money and golden fish (top middle on touch)
@@ -1218,6 +1219,32 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = root,
 	})
 	self._rallySoon = nil :: string?
+	-- #2487 (live-events.md section 3): the Cafe Event's chip under those, "⏳ Cafe Party in 2:59" from T-3h, gold
+	-- while it runs, with "next shower 9:12" on a line of its own under it (EventNext; Components/EventLogic.chip,
+	-- painted from UI.cafeEvent)
+	self._eventLine = label({
+		Name = "EventChip",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H),
+		Size = UDim2.fromOffset(RIGHT_COLUMN_W, NIGHT_LINE),
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.white,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Visible = false,
+		Parent = root,
+	})
+	self._eventNext = label({
+		Name = "EventNext",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H + NIGHT_LINE),
+		Size = UDim2.fromOffset(RIGHT_COLUMN_W, NIGHT_LINE),
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.gold,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Visible = false,
+		Parent = root,
+	})
+	self._event = nil :: string?
 
 	-- Tier and next goal (right, under the clock): the tier, the next tier's requirements as slim bars; a tap opens
 	-- rank up
@@ -2929,6 +2956,8 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 		self._luckyLine.Visible = false
 		self._luckyRow.Visible = false
 		self._rallyLine.Visible = false
+		self._eventLine.Visible = false
+		self._eventNext.Visible = false
 		self._night = false
 		self._clockSeen = false
 		self:_renderBowl()
@@ -2951,6 +2980,8 @@ function HUD.setClock(self: any, clock: Types.ClockState?)
 	self._nightTips.Visible = shown and isNight and NIGHT_TIPS < 1
 	self:_renderLuckyLine()
 	self._rallyLine.Visible = self._rallySoon ~= nil and shown
+	self._eventLine.Visible = self._event ~= nil and shown
+	self._eventNext.Visible = self._event ~= nil and shown and self._eventNext.Text ~= ""
 	self:_layoutRight()
 	local function tick()
 		local remaining = current.phaseEndsAt - Workspace:GetServerTimeNow()
@@ -3045,6 +3076,24 @@ function HUD.setRallySoon(self: any, line: string?)
 	self:_layoutRight()
 end
 
+-- #2487: the Cafe Event chip's lines (EventLogic.chip), nil to hide it; kind "running" paints it gold.
+function HUD.setEvent(self: any, lines: { string }?, kind: string?)
+	local text = if lines ~= nil and #lines > 0 then table.concat(lines, "\n") else nil
+	local key = if text ~= nil then (kind or "") .. "|" .. text else nil
+	if key == self._event then
+		return
+	end
+	self._event = key
+	local line: TextLabel = self._eventLine
+	local nextLine: TextLabel = self._eventNext
+	line.Text = if lines ~= nil and lines[1] ~= nil then lines[1] else ""
+	line.TextColor3 = if kind == "running" then Theme.colors.gold else Theme.colors.white
+	line.Visible = text ~= nil and self._clock.Visible
+	nextLine.Text = if lines ~= nil and lines[2] ~= nil then lines[2] else ""
+	nextLine.Visible = line.Visible and nextLine.Text ~= ""
+	self:_layoutRight()
+end
+
 -- F101: the potion timers' row. On a phone it sits level with the menu's top, where a long row (Luck, potions,
 -- pals) can reach the top centre; the Rally banner moves down under it then.
 function HUD.buffRow(self: any): GuiObject
@@ -3122,6 +3171,15 @@ function HUD._layoutRight(self: any)
 	-- F101: the Rescue Rally countdown under those
 	self._rallyLine.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
 	if self._rallyLine.Visible then
+		top += NIGHT_LINE
+	end
+	-- #2487: the Cafe Event chip under those, and its next shower line
+	self._eventLine.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
+	if self._eventLine.Visible then
+		top += NIGHT_LINE
+	end
+	self._eventNext.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
+	if self._eventNext.Visible then
 		top += NIGHT_LINE
 	end
 	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top - lift)

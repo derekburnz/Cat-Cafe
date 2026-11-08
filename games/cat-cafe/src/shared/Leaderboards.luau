@@ -58,6 +58,14 @@ function Leaderboards.week(now: number): number
 	return Quests.week(now)
 end
 
+-- Seconds between one list's read and the next in a refresh. #2400: none on a server's first refresh, so a new server's
+-- boards fill as soon as it starts. They used to show only the players in the server for about 100 s after every
+-- start (each publish restarts the servers), which looked like a reset. Later refreshes spread their reads across
+-- LeaderboardRefreshSeconds.
+function Leaderboards.readGap(first: boolean): number
+	return if first then 0 else Config.LeaderboardRefreshSeconds / (#Leaderboards.LISTS + 1)
+end
+
 -- os.time() the week holding `now` began.
 function Leaderboards.weekStartsAt(now: number): number
 	return Quests.weekEndsAt(now) - WEEK_SECONDS

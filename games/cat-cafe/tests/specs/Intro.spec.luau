@@ -258,6 +258,52 @@ return function()
 			expect(near(door, Intro.plotPoint(WEST, 0, 0, -Config.World.PlotDepth / 2 + 1.5))).to.equal(true)
 		end)
 
+		it("stages table 1 as Layout.plot builds it, for a cafe with no table yet (#2395)", function()
+			local spot = Layout.plot.tables[1]
+			expect(Intro.cafe.table1.x).to.equal(spot.x)
+			expect(Intro.cafe.table1.z).to.equal(spot.z)
+			expect(Intro.cafe.table1.lane).to.equal(spot.lane)
+			local first, second = Layout.plot.seatOffsets[1], Layout.plot.seatOffsets[2]
+			expect(Intro.cafe.seat1.x).to.equal(first.x)
+			expect(Intro.cafe.seat1.rotY).to.equal(first.rotY)
+			-- the second chair is the first one mirrored
+			expect(second.x).to.equal(-first.x)
+			expect(second.rotY).to.equal(-(first.rotY :: number))
+			expect(Intro.cafe.aisleX).to.equal(Layout.plot.aisleX)
+		end)
+
+		it("walks the rich visitor round the tables to table 1's first chair (#2395)", function()
+			local route = Intro.richRoute(WEST)
+			expect(#route).to.equal(2)
+			local spot = Intro.cafe.table1
+			local x = spot.x + Intro.cafe.seat1.x
+			expect(near(route[1], Intro.plotPoint(WEST, -Intro.cafe.aisleX, 0, spot.lane))).to.equal(true)
+			expect(near(route[2], Intro.plotPoint(WEST, x, 0, spot.lane))).to.equal(true)
+			-- both on the floor
+			expect(math.abs(route[1].Y - Intro.FLOOR_Y) < 1e-6).to.equal(true)
+		end)
+
+		it("goes along a path by distance, heading along the leg it is on (#2395)", function()
+			local points = { Vector3.new(0, 1, 0), Vector3.new(0, 1, -4), Vector3.new(6, 1, -4) }
+			local at, heading = Intro.alongPath(points, 0)
+			expect(near(at, points[1])).to.equal(true)
+			expect(near(heading, Vector3.new(0, 0, -1))).to.equal(true)
+			at, heading = Intro.alongPath(points, 0.2) -- 2 of 10 studs
+			expect(near(at, Vector3.new(0, 1, -2))).to.equal(true)
+			at, heading = Intro.alongPath(points, 0.7) -- 7 of 10: 3 along the second leg
+			expect(near(at, Vector3.new(3, 1, -4))).to.equal(true)
+			expect(near(heading, Vector3.new(1, 0, 0))).to.equal(true)
+			at = Intro.alongPath(points, 5) -- clamped
+			expect(near(at, points[3])).to.equal(true)
+			-- every point keeps its height: no sinking into the floor
+			for k = 0, 1, 0.05 do
+				expect((Intro.alongPath(points, k)).Y).to.equal(1)
+			end
+			at, heading = Intro.alongPath({ Vector3.new(2, 0, 2) }, 0.5)
+			expect(near(at, Vector3.new(2, 0, 2))).to.equal(true)
+			expect(near(heading, Vector3.new(0, 0, -1))).to.equal(true)
+		end)
+
 		it("stops your copy RICH_REACH short of the coins, on the door's side, on the floor", function()
 			local door = Vector3.new(0, 0.2, 0)
 			local tip = Vector3.new(10, 2.9, 0)

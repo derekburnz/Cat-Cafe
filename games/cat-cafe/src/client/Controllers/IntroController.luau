@@ -96,6 +96,8 @@ type Rich = {
 	door: Vector3, -- where the visitor and your copy come in (the plot's Door waypoint), at the visitor's pivot height
 	tip: Vector3, -- the coin pile's anchor (the plot's RichTipAnchor)
 	seat: CFrame?, -- table 1's chair, where the visitor sits
+	route: { Vector3 }, -- #2395: the door, then round the tables to the chair (or the grab spot), at the door's height
+	furniture: { Model }, -- #2395: table 1 and its chairs, staged in a new cafe that has no table yet
 	visitor: Model?, -- walking, then its seated twin
 	coins: Model?,
 	you: You?,
@@ -737,17 +739,73 @@ local function richPlace(r: Run): Rich
 		then (anchor :: BasePart).Position
 		else Intro.richTipPoint(r.plot)
 	local seat: CFrame? = nil
+	local between: { Vector3 } = {}
+	local furniture: { Model } = {}
 	local tables = if plot ~= nil then plot:FindFirstChild("Tables") else nil
 	local group = if tables ~= nil then tables:FindFirstChild("table_1") else nil
 	if group ~= nil then
-		for _, child in group:GetChildren() do
-			if child:IsA("Model") and child.Name:match("^Chair_") then
-				seat = (child :: Model):GetPivot()
-				break
+		local chair = group:FindFirstChild("Chair_1")
+		if chair ~= nil and chair:IsA("Model") then
+			seat = (chair :: Model):GetPivot()
+			-- CafeService's way to the chair, round the tables
+			for _, name in { "Aisle", "Approach" } do
+				local point = chair:GetAttribute(name)
+				if typeof(point) == "Vector3" then
+					table.insert(between, point)
+				end
+			end
+		end
+	else
+		-- #2395 (Derek2: "doesn't go to the first table location"): a new cafe has no table yet, so table 1 and its
+		-- chairs are staged on its anchor for the shot, as CafeService builds them
+		local anchors = if plot ~= nil then plot:FindFirstChild("TableAnchors") else nil
+		local spot = if anchors ~= nil then anchors:FindFirstChild("table_1") else nil
+		if spot ~= nil and spot:IsA("BasePart") then
+			local at = (spot :: BasePart).CFrame
+			local tableModel = stageAsset(r, "CatCafe_Furniture_TableRound", at)
+			if tableModel ~= nil then
+				table.insert(furniture, tableModel)
+			end
+			for index, offset in
+				{ Intro.cafe.seat1, { x = -Intro.cafe.seat1.x, rotY = -Intro.cafe.seat1.rotY } }
+			do
+				local chairAt = at
+					* CFrame.new(offset.x, 0, 0)
+					* CFrame.Angles(0, math.rad(offset.rotY), 0)
+				local chair = stageAsset(r, "CatCafe_Furniture_Chair", chairAt)
+				if chair ~= nil then
+					table.insert(furniture, chair)
+					if index == 1 then
+						seat = chairAt
+					end
+				end
+			end
+			if seat ~= nil then
+				between = Intro.richRoute(r.plot)
 			end
 		end
 	end
-	return { door = door, tip = tip, seat = seat, visitor = nil, coins = nil, you = nil }
+	local route = { door }
+	for _, point in between do
+		table.insert(route, Vector3.new(point.X, door.Y, point.Z))
+	end
+	-- #2395 (Derek2: "floats into the ground"): the walk stays at the door's height, as CustomerController's does
+	table.insert(
+		route,
+		if seat ~= nil
+			then Vector3.new((seat :: CFrame).X, door.Y, (seat :: CFrame).Z)
+			else Intro.grabSpot(door, tip)
+	)
+	return {
+		door = door,
+		tip = tip,
+		seat = seat,
+		route = route,
+		furniture = furniture,
+		visitor = nil,
+		coins = nil,
+		you = nil,
+	}
 end
 
 local function clearRich(r: Run)
@@ -761,6 +819,10 @@ local function clearRich(r: Run)
 			model:Destroy()
 		end
 	end
+	for _, model in rich.furniture do
+		model:Destroy()
+	end
+	UI.richTip.preview(nil)
 end
 
 -- The rich tip's gold coins on `tip` (CustomerController's pile: two stacks, 4 and 2), local, staged.
@@ -1124,22 +1186,17 @@ local function stageRich(r: Run, t: number)
 		end
 		return false
 	end
-	local seatAt = if rich.seat ~= nil
-		then Vector3.new((rich.seat :: CFrame).X, rich.door.Y, (rich.seat :: CFrame).Z)
-		else Intro.grabSpot(rich.door, rich.tip) + Vector3.new(0, rich.door.Y - rich.tip.Y, 0)
 	if once("richIn", Intro.RICH_WALK_AT) then
-		rich.visitor = stageAsset(
-			r,
-			Intro.RICH_ASSET,
-			CFrame.lookAt(rich.door, rich.door + toward(rich.door, seatAt))
-		)
+		local _, heading = Intro.alongPath(rich.route, 0)
+		rich.visitor =
+			stageAsset(r, Intro.RICH_ASSET, CFrame.lookAt(rich.door, rich.door + heading))
 	end
 	if rich.visitor ~= nil and t < Intro.RICH_SIT_AT then
 		local k =
 			math.clamp((t - Intro.RICH_WALK_AT) / (Intro.RICH_SIT_AT - Intro.RICH_WALK_AT), 0, 1)
-		local at = rich.door:Lerp(seatAt, Intro.ease("InOut", k))
+		local at, heading = Intro.alongPath(rich.route, Intro.ease("InOut", k))
 		local visitor = rich.visitor :: Model
-		visitor:PivotTo(CFrame.lookAt(at, at + toward(rich.door, seatAt)))
+		visitor:PivotTo(CFrame.lookAt(at, at + heading))
 	end
 	if once("richSit", Intro.RICH_SIT_AT) and rich.visitor ~= nil and rich.seat ~= nil then
 		local seated = stageAsset(r, Intro.RICH_ASSET .. "_Sit", rich.seat :: CFrame)
@@ -1150,6 +1207,8 @@ local function stageRich(r: Run, t: number)
 	end
 	if once("richTip", Intro.RICH_TIP_AT) then
 		rich.coins = stageCoins(r, rich.tip)
+		-- #2395 (Derek2: "doesn't show the rich tip bubble like it would in game"): the game's gold bubble over it
+		UI.richTip.preview(rich.tip, Intro.richTip())
 	end
 	local floor = Vector3.new(rich.door.X, Intro.FLOOR_Y, rich.door.Z)
 	local grab = Intro.grabSpot(floor, rich.tip)
@@ -1180,7 +1239,9 @@ local function stageRich(r: Run, t: number)
 			(rich.coins :: Model):Destroy()
 			rich.coins = nil
 		end
-		(UI.intro :: any).tipPop(rich.tip + Vector3.new(0, 1, 0), Intro.richTip())
+		local intro: any = UI.intro
+		intro.tipPop(rich.tip + Vector3.new(0, 1, 0), Intro.richTip())
+		UI.richTip.preview(nil) -- the bubble goes as the "+$" pops, as a claimed tip's does
 	end
 end
 
@@ -1366,6 +1427,7 @@ finish = function(finished: boolean)
 	for _, item in r.staged do
 		item:Destroy()
 	end
+	clearRich(r) -- #2395: and the rich tip's bubble, on a skip mid-shot
 	if r.characterHidden then
 		hideCharacter(r, false)
 	end

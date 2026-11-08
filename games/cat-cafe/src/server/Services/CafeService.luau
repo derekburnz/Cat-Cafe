@@ -1396,7 +1396,7 @@ function CafeService.addCaughtCat(
 		-- F87 context tips (easy-start.md section 3): the first check-in ends the newcomer shield; a second cat wants
 		-- a job. The like ask's moment (a first Legendary or better) is TipService's since F96 (Tips.dueAsk).
 		if firstCheckIn and Tips.lessonDue(profile) then
-			TipService.show(player, Tips.LESSON) -- #2468: the lesson comes after the first catch, at the check-in at latest
+			TipService.show(player, Tips.LESSON) -- #2474: the lesson, if the intro's turn never came
 		end
 		if profile.stats.catsCaught >= 2 then
 			TipService.show(player, "second_cat")

@@ -407,7 +407,11 @@ function applyTutorial()
 	if hint ~= nil then
 		text, target, label = hint, cannonPart, "Cannon"
 	end
-	if not tutorialButtonOn then
+	-- #2411: the × hides the strip only once the first walk-through is done; before that it still guides
+	if
+		not tutorialButtonOn
+		and (state.tutorialStep or math.huge) >= CannonLogic.WALKTHROUGH_STEP
+	then
 		text, target = nil, nil
 	end
 	if hud then
@@ -790,7 +794,12 @@ function UI.init(config: Types.InitConfig)
 			if settingsScreen then
 				settingsScreen:set(SettingsList.TUTORIAL_KEY, false)
 			end
-			UI.toast("Tutorial and tips hidden. Turn them on in Settings.", "info")
+			UI.toast(
+				if (state.tutorialStep or math.huge) < CannonLogic.WALKTHROUGH_STEP
+					then "Tips hidden. Your first walk-through still shows. Turn tips on in Settings."
+					else "Tutorial and tips hidden. Turn them on in Settings.",
+				"info"
+			)
 		end,
 		setSetting = function(key: string, value: boolean)
 			UI.events.setSetting:Fire(key, value) -- #1893: the Grand Opening strip's roadmapOpen
@@ -1351,7 +1360,11 @@ function UI.init(config: Types.InitConfig)
 			UI.events.netSwing:Fire()
 		end,
 		blocked = function()
-			return UI.catch.circlesActive() or UI.rescue.isActive()
+			-- #2409: the catch prompt's touch button takes the Net button's spot while it shows
+			local prompt = catch
+			return UI.catch.circlesActive()
+				or UI.rescue.isActive()
+				or (prompt ~= nil and prompt:grabShowing())
 		end,
 	})
 	local toastsInstance = Toasts.new(parent)
@@ -1375,7 +1388,14 @@ function UI.init(config: Types.InitConfig)
 			UI.events.claimOffline:Fire()
 		end
 	end)
-	tipCard = TipCard.new(parent)
+	-- #2393: on a phone the card comes down under the counters and the Luck row at the top centre
+	tipCard = TipCard.new(parent, function(): { GuiObject }
+		local current = hud
+		if current == nil then
+			return {}
+		end
+		return { current:buffRow(), current:counterRow() }
+	end)
 	UI.recap.card = require(script.Screens.RecapCard).new(parent) -- #1920
 	UI.gift.card = require(script.Screens.GiftCard).new(parent) -- #1947
 	-- #1947: every press counts for the gift card's idle wait, so it never shows on an old reading
@@ -5526,13 +5546,13 @@ do
 	-- UI.init: the banner and the board faces, painted from the kept state.
 	function UI.rally.start(parent: Instance)
 		UI.rally.reset()
-		-- on a phone the potion timers' row can reach the top centre; the banner moves under it then
+		-- on a phone the Luck row and the counters sit at the top centre (#2393); the banner moves under them then
 		rally.banner = RallyBanner.new(parent, function(): { GuiObject }
 			local current = hud
 			if current == nil then
 				return {}
 			end
-			return { current:buffRow() }
+			return { current:buffRow(), current:counterRow() }
 		end)
 		-- the banner steps aside while a catch or rescue runs, clear of their headers (review S113)
 		local hudNow = hud

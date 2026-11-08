@@ -34,6 +34,11 @@ CannonLogic.TOWN = "town" -- the Town Square cannon's id, and a camp cannon's wa
 CannonLogic.TOWN_NAME = "Town Square"
 CannonLogic.CARRY_SUB = "Bring it to the camp!" -- the carry banner's line once every area is a wild area
 CannonLogic.CARRY_REFUSED = "Bring your cat to the camp first"
+-- #2411 (Derek2: "don't have to continue showing them how to walk to cannon etc every rejoin after"): the saved
+-- tutorialStep at which the first walk-through is done (the first loop, as Tips reads it). From here the first-flight
+-- hint stops for good, and the Tutorial tile's × hides the tutorial strip; before it the walk-through shows anyway
+-- ("should still make the first walk through of the game play after closing the X").
+CannonLogic.WALKTHROUGH_STEP = 5
 CannonLogic.HINT_TIER = 2 -- the rank up that gets its own "is open!" hint (section 3a)
 -- how long that hint, its marker and its trail of dots stay up when the player does not fly (Derek 2026-11-03: "the
 -- tutorial yellow dots are still showing")
@@ -186,7 +191,12 @@ function CannonLogic.hint(view: HintView): string?
 	local text: string? = nil
 	if view.opened then
 		text = "The " .. view.opened .. " is open! Hop in the cannon to fly there."
-	elseif not view.launched and view.tier <= 1 and view.first then
+	elseif
+		not view.launched
+		and view.tier <= 1
+		and view.first
+		and view.tutorialStep < CannonLogic.WALKTHROUGH_STEP
+	then
 		text = "Hop in the cannon to fly to the " .. view.first .. "!"
 	end
 	if text and view.told and view.tutorialStep >= 2 then

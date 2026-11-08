@@ -99,27 +99,28 @@ def build_spin(mat):
 
 def build_fish(mat):
     """A plump gold fish 3.6 long, its head toward -X: an oval body from overlapping discs, a forked tail, a dorsal fin,
-    three scale arcs, a big eye and a smile line."""
+    three scale arcs, a big eye and a smile line. Bright plastic gold, not the Metal gold swatches: Laptop-Tester found
+    the Metal gold-brown too dark at dusk and night next to the ring's bright rim (#2449)."""
     b = RB()
     _k[0], _off[:] = 0, (-0.20, -0.11)
     body = ((-0.35, 0, 1.0), (0.35, 0, 0.92), (-0.85, 0, 0.62), (0.85, 0, 0.6))
     for x, z, r in body:                                                              # outline
-        disc(b, x, z, r + OUTLINE, Y0, Y1, "gold_dark", segments=22)
-    tri(b, 1.55, 0.42, 0.95 + OUTLINE, 0.9 + OUTLINE, Y0, Y1, "gold_dark", turn=-60)    # tail outline
-    tri(b, 1.55, -0.42, 0.95 + OUTLINE, 0.9 + OUTLINE, Y0, Y1, "gold_dark", turn=-120)
-    tri(b, 0.05, 0.95, 1.0 + OUTLINE, 0.55 + OUTLINE, Y0, Y1, "gold_dark", turn=8)     # fin outline
+        disc(b, x, z, r + OUTLINE, Y0, Y1, "fur_croissant_dark", segments=22)
+    tri(b, 1.55, 0.42, 0.95 + OUTLINE, 0.9 + OUTLINE, Y0, Y1, "fur_croissant_dark", turn=-60)    # tail outline
+    tri(b, 1.55, -0.42, 0.95 + OUTLINE, 0.9 + OUTLINE, Y0, Y1, "fur_croissant_dark", turn=-120)
+    tri(b, 0.05, 0.95, 1.0 + OUTLINE, 0.55 + OUTLINE, Y0, Y1, "fur_croissant_dark", turn=8)     # fin outline
     for x, z, r in body:
-        disc(b, x, z, r, Y0 + 0.01, Y1 + 0.005, "gold_mid", segments=22)
-    tri(b, 1.55, 0.42, 0.95, 0.9, Y0 + 0.01, Y1 + 0.005, "gold_mid", turn=-60)       # forked tail
-    tri(b, 1.55, -0.42, 0.95, 0.9, Y0 + 0.01, Y1 + 0.005, "gold_mid", turn=-120)
-    tri(b, 0.05, 0.95, 1.0, 0.55, Y0 + 0.01, Y1 + 0.005, "gold_light", turn=8)         # dorsal fin
-    disc(b, -0.45, -0.38, 0.38, Y1, Y2, "gold_light", segments=16)                   # belly shine
+        disc(b, x, z, r, Y0 + 0.01, Y1 + 0.005, "rarity_legend", segments=22)
+    tri(b, 1.55, 0.42, 0.95, 0.9, Y0 + 0.01, Y1 + 0.005, "rarity_legend", turn=-60)       # forked tail
+    tri(b, 1.55, -0.42, 0.95, 0.9, Y0 + 0.01, Y1 + 0.005, "rarity_legend", turn=-120)
+    tri(b, 0.05, 0.95, 1.0, 0.55, Y0 + 0.01, Y1 + 0.005, "pastel_butter", turn=8)         # dorsal fin
+    disc(b, -0.45, -0.38, 0.38, Y1, Y2, "pastel_butter", segments=16)                   # belly shine
     for k, x in enumerate((0.15, 0.6, 1.0)):                                          # scale arcs
-        flat_box(b, x, 0.1, 0.12, 0.85 - 0.18 * k, Y1, Y2, "gold_dark", turn=0)
+        flat_box(b, x, 0.1, 0.12, 0.85 - 0.18 * k, Y1, Y2, "fur_croissant_dark", turn=0)
     disc(b, -0.95, 0.18, 0.3, Y1, Y2, "offwhite", segments=16)                      # eye
     disc(b, -1.02, 0.18, 0.16, Y2, Y3, "fur_ink", segments=12)
     disc(b, -1.07, 0.24, 0.05, Y2 + 0.005, Y3 + 0.005, "offwhite", segments=8)
-    flat_box(b, -1.3, -0.3, 0.32, 0.09, Y1, Y2, "gold_dark", turn=-25)              # smile
+    flat_box(b, -1.3, -0.3, 0.32, 0.09, Y1, Y2, "fur_croissant_dark", turn=-25)              # smile
     return [b.finalize(FISH, mat)]
 
 

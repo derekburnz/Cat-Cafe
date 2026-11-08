@@ -17,6 +17,8 @@ CatCafe_Icon_Hud_<Name> (transparent, dark outline, 512 px) for UI-Engineer to p
   Potions   a flask (potions.py's Swift Potion)
   Bait      the food bowl (items.py) with a heap of kibble
   NightMarket  the Night Market map bubble (#1607): the dealer's cart, striped canopy, lantern, gold moon and stars
+  Bag       the Bag tile (#2453, Derek2 2026-11-08): an orange backpack with a rounded top and carry loop, a darker
+            flap with a gold buckle, a cream front pocket with a pink paw, side pockets and brown straps
 
 Each builder lays its object out in Blender axes (x right, -y toward the camera, z up) and returns its objects; nothing
 here is a game model.
@@ -257,6 +259,27 @@ def night_market(mat):
     return _fin(b, "NightMarket", mat)
 
 
+def backpack(mat):
+    """The Bag tile (#2453): a chunky kid's backpack, no potion bottle."""
+    b = Builder()
+    b.box((0, 0, 0.78), (1.5, 0.9, 1.56), "fur_orange")                            # body
+    b.cyl((0, 0, 1.56), 0.75, 0.9, "fur_orange", segments=18, rot=X)               # the rounded top
+    b.ring((0, 0.0, 2.28), 0.26, 0.09, 0.16, "dark_wood", segments=12, rot=X)      # carry loop
+    b.cyl((0, -0.47, 1.56), 0.66, 0.08, "fur_orange_dark", segments=18, rot=X)     # the flap: a rounded top
+    b.box((0, -0.49, 1.25), (1.32, 0.08, 0.62), "fur_orange_dark")  # its straight sides, a hair in front
+    b.box((0, -0.55, 1.02), (0.36, 0.06, 0.22), "gold_mid")                        # buckle
+    b.box((0, -0.575, 1.02), (0.16, 0.04, 0.1), "fur_orange_dark")
+    b.box((0, -0.5, 0.48), (1.12, 0.22, 0.66), "cream")                            # front pocket
+    b.box((0, -0.62, 0.8), (1.12, 0.03, 0.06), "fur_orange_dark")                  # its zip line
+    b.cyl((0, -0.625, 0.4), 0.15, 0.02, "nose_pink", segments=12, rot=X)           # a paw on it
+    for dx, dz in ((-0.17, 0.22), (-0.06, 0.29), (0.06, 0.29), (0.17, 0.22)):
+        b.cyl((dx, -0.625, 0.4 + dz), 0.055, 0.02, "nose_pink", segments=8, rot=X)
+    for sx in (-1, 1):
+        b.box((sx * 0.82, -0.05, 0.55), (0.18, 0.62, 0.7), "fur_orange_dark")     # side pockets
+        b.box((sx * 0.45, 0.5, 0.95), (0.2, 0.12, 1.5), "dark_wood")              # shoulder straps at the back
+    return _fin(b, "Bag", mat)
+
+
 def builders():
     """Picture name -> builder, for icons.py."""
     import icons      # noqa: F401  (icons imports this module; the Decor builder lives there)
@@ -266,5 +289,5 @@ def builders():
         "Decor": icons._hud_decor, "Rewards": gift, "Tutorial": question, "Feedback": speech, "Menu": gear,
         "MyCafe": house, "Cannon": cannon, "Areas": map_pin,
         "Potions": lambda m: potions.build_potion("Swift", m),
-        "Bait": bait, "NightMarket": night_market,
+        "Bait": bait, "NightMarket": night_market, "Bag": backpack,
     }

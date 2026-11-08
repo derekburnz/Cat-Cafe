@@ -48,7 +48,7 @@ A Cafe Event is a short, scheduled window when every server gets the same free b
 - **The badge** "Cafe Party Guest", once per account. The same badge serves every event, so no new badge is needed each week.
 - **The event's free cosmetic**, a decor piece made for that event. The first is the "Party Bunting" (`Decor_PartyBunting`, Model-Agent, #2488).
 
-The reward pops up on the secure, as other prizes do. The cosmetic is free and can't be sold or traded for Robux. It may be traded between players like other decor, unless decor trading rules say otherwise.
+The reward pops up on the secure, as other prizes do. The piece is free and can't be sold or traded for Robux. Since #2534 (2026-11-08), the Party Bunting is a Rare decoration with the Rare crate bonus (+4% money while in use), the same as the Rare pass pieces. Like every Rare piece, it can't be traded. A test event (`OwnerTest`) pays its reward only in Studio or to an owner.
 
 **Rewards come back (Derek2, 2026-11-08: "free event rewards can come back later but no need to really give limited items").** No event reward is limited. Each event's cosmetic returns at a later event, no sooner than 4 weeks after it was last given, so a player who missed it can still get it. A player who already has it gets the badge only, plus a small coin gift (`EventRepeatGiftIncomeMinutes`, 10 minutes of income). The build stores each reward by `cosmeticId`.
 

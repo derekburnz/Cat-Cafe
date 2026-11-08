@@ -271,6 +271,12 @@ return function()
 				"tackle_lesson_done",
 				"first_role_assigned",
 			})
+			-- a lesson played with the starting tutorial (#2409) logs nothing early and claims no check-in: both wait
+			local early = fresh()
+			play(early, { "joined" })
+			expect(#Onboarding.reach(early, "tackle_lesson_shown")).to.equal(0)
+			expect(#Onboarding.reach(early, "tackle_lesson_done")).to.equal(0)
+			expect(Onboarding.furthest(early)).to.equal("joined")
 			-- the server's done reaches the client's shown when that report never came
 			local quiet = fresh()
 			play(quiet, { "joined", "first_checkin" })

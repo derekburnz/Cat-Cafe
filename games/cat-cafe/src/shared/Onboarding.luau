@@ -280,7 +280,9 @@ Onboarding.IMPLIES = {
 	first_catch = { "first_circle_hit" },
 	carrying_first_cat = { "first_catch" },
 	first_checkin = { "carrying_first_cat" },
-	tackle_lesson_done = { "tackle_lesson_shown", "first_checkin" }, -- the lesson's tip comes with the first check-in
+	-- not first_checkin: the lesson can also play with the starting tutorial (#2409), before any catch, and is then
+	-- held until the first check-in
+	tackle_lesson_done = { "tackle_lesson_shown" },
 	first_role_assigned = { "first_checkin" },
 	first_customer_served = { "first_role_assigned" },
 	second_cat = { "first_checkin" },
@@ -525,7 +527,7 @@ function Onboarding.fromSave(facts: SaveFacts): { StepName }
 		table.insert(out, name)
 	end
 	if facts.tackleLessonSeen == true then
-		add("tackle_lesson_done") -- reaches tackle_lesson_shown and first_checkin first
+		add("tackle_lesson_done") -- reaches tackle_lesson_shown; held until first_checkin
 	end
 	if facts.catsCaught >= 2 then
 		add("second_cat")

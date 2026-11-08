@@ -1,8 +1,8 @@
 --!strict
 -- The restart warning (Derek 2026-10-29: "send an announcement in game for all servers that servers will be
 -- restarting in 5min, 3min, 1min, now and then publish"; decisions.md 2026-11-01), pure. tools/opencloud's
--- restart-countdown.sh publishes JSON text {"kind":"restart","seconds":N} on MessagingService topic TOPIC at 300,
--- 180, 60 and 0 seconds before a restart; every server reads it with `parse` and toasts its players `text(seconds)`.
+-- restart-countdown.sh publishes JSON text {"kind":"restart","seconds":N} on MessagingService topic TOPIC at 600,
+-- 300, 180, 60, 10 and 0 seconds before a restart (Derek 2026-11-08); every server reads it with `parse` and toasts its players `text(seconds)`.
 -- Anything that is not such a message, or whose seconds are not a whole number from 0 to MAX_SECONDS, is ignored.
 
 local RestartNotice = {}

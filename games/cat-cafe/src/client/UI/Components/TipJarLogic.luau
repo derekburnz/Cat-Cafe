@@ -58,6 +58,21 @@ function TipJarLogic.dayRate(incomePerSecond: number, night: boolean, nightShare
 	return incomePerSecond
 end
 
+-- #2539 (c) (Laptop-Tester: the Daily Treat's coins read double during a Cafe Event): the rate a coin prize pays from,
+-- the server's prizeRate (Economy.incomePerSecond: no night drop, tip potion or event money) when it sent one, else
+-- the synced income with the night drop taken back out as before.
+function TipJarLogic.prizeRate(
+	prizeRate: number?,
+	incomePerSecond: number,
+	night: boolean,
+	nightShare: number
+): number
+	if type(prizeRate) == "number" and prizeRate == prizeRate and prizeRate >= 0 then
+		return prizeRate
+	end
+	return TipJarLogic.dayRate(incomePerSecond, night, nightShare)
+end
+
 function TipJarLogic.coins(row: Row, dayRate: number): number
 	return IndexRewards.coins(TipJarLogic.prize(row), dayRate)
 end

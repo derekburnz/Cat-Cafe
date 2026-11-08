@@ -474,7 +474,12 @@ function Codes._look(self: any): PrizeChips.Look
 		return {}
 	end
 	return {
-		dayRate = TipJarLogic.dayRate(state.incomePerSecond, self._night, NIGHT_SHARE),
+		dayRate = TipJarLogic.prizeRate(
+			state.prizeRate,
+			state.incomePerSecond,
+			self._night,
+			NIGHT_SHARE
+		),
 		tier = state.tier,
 	}
 end

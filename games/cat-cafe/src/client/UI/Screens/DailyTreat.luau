@@ -289,6 +289,7 @@ function DailyTreat.render(self: any, state: Types.PlayerState)
 	local stamped = DailyTreatLogic.claimedDay(self._view, view)
 	self._view = view
 	self._income = state.incomePerSecond
+	self._prizeRate = state.prizeRate -- #2539
 	self._spin = state.spin
 	if stamped then
 		self._pendingAt = nil
@@ -316,7 +317,7 @@ function DailyTreat._refresh(self: any)
 	local catalog: Types.Catalog? = self._catalog
 	local spin: Types.SpinState? = self._spin
 	local look: PrizeChips.Look = {
-		dayRate = TipJarLogic.dayRate(self._income, self._night, NIGHT_SHARE),
+		dayRate = TipJarLogic.prizeRate(self._prizeRate, self._income, self._night, NIGHT_SHARE),
 		spinsBanked = if spin then spin.banked else nil,
 	}
 	local pendingAt: number? = self._pendingAt

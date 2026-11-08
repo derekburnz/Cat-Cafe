@@ -30,6 +30,42 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- Derek2 (11-08): "update whats new and include mobile support/overhaul" (#2465): the phone overhaul leads
+	{ id = "mobile_overhaul", date = "2026-11-08", icon = "new", text = "Mobile support overhaul" },
+	{ id = "phone_top_bar", date = "2026-11-08", icon = "look", text = "Phone HUD in the top bar" },
+	{
+		id = "phone_tap_feed",
+		date = "2026-11-08",
+		icon = "new",
+		text = "Tap to feed cats on phone",
+	},
+	{ id = "ring_icons", date = "2026-11-08", icon = "look", text = "Walk-up rings show icons" },
+	{
+		id = "move_after_catch",
+		date = "2026-11-08",
+		icon = "faster",
+		text = "Move right after catches",
+	},
+	{
+		id = "move_after_rescue",
+		date = "2026-11-08",
+		icon = "faster",
+		text = "Move right after rescues",
+	},
+	{
+		id = "fewer_phone_popups",
+		date = "2026-11-08",
+		icon = "faster",
+		text = "Fewer pop-ups on phone",
+	},
+	{
+		id = "trade_unlock_tier",
+		date = "2026-11-08",
+		icon = "look",
+		text = "Trade shows its unlock tier",
+	},
+	{ id = "phone_tutorial", date = "2026-11-08", icon = "fix", text = "Tutorial fixes on phone" },
+	{ id = "bag_backpack", date = "2026-11-08", icon = "look", text = "Bag has a backpack icon" },
 	-- Derek2 (11-07): the next changes merged that day (#2244, #2216, #2225, #2252, #2257, #2233, #2260); crispi_255
 	-- suggested the Fish Market's "!" (#2214), the rest were Derek's own asks
 	{

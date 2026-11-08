@@ -14,8 +14,6 @@ local Guard = require(script.Parent.Parent.Util.Guard)
 local Intro = require(ReplicatedStorage.Shared.Intro)
 local Net = require(script.Parent.Net)
 local Telemetry = require(script.Parent.Telemetry)
-local TipService = require(script.Parent.TipService)
-local Tips = require(ReplicatedStorage.Shared.Tips)
 
 local IntroService = {}
 
@@ -34,11 +32,8 @@ local function onIntroDone(player: Player, rawShot: unknown, rawReplay: unknown)
 		profile.introSeen = true
 		CafeService.sync(player)
 	end
-	-- #2474 (Derek2: "add the tackle cut scene into the end of the tutorial briefly"): the tackling lesson is the
-	-- intro's closing beat, played out or skipped, once (its seen flag)
-	if not replay then
-		TipService.show(player, Tips.LESSON)
-	end
+	-- #2495: the tackling lesson is the intro's last steps on the client (IntroController), saved by its TipSeen;
+	-- skipped, it waits for the first check-in (CafeService, Tips.lessonDue), so nothing is sent from here
 	local count = (events[player] or 0) + 1
 	if count <= MAX_EVENTS then
 		events[player] = count

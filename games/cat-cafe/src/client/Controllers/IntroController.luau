@@ -18,6 +18,12 @@
 -- turn and moon cover, the turning wheel and the short night. The end, played out or skipped (UI.events.introSkip) or
 -- cut short by a respawn, puts all of it back and sends IntroDone(shot, replay): 0 when it played out, else the shot
 -- showing.
+-- #2495 (Derek2: "instead of playing the tackle cutscene right after finish tutorial to make it part of the actual
+-- tutorial just the last steps"): on a first play by a player who has not seen the tackling lesson, its four captions
+-- are the intro's last steps on the same screen (dots Intro.SHOTS + 1 to + 4, Next and Skip as for any shot), staged
+-- by stageTackle once the intro's own shots are put back. Played out, the lesson is saved as seen (TipSeen); a Skip
+-- ends both, and the server's first check-in plays the lesson on its own (Tips.lessonDue). It needs the screen's
+-- dots past Intro.SHOTS (IntroLogic.MAX_SHOTS, UI-Engineer); without them the lesson waits for that check-in.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -34,6 +40,7 @@ local Catalog = require(Shared:WaitForChild("Catalog"))
 local Config = require(Shared:WaitForChild("Config"))
 local HeldCat = require(Shared:WaitForChild("HeldCat"))
 local Intro = require(Shared:WaitForChild("Intro"))
+local UserInputService = game:GetService("UserInputService")
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
 local Presets = require(script.Parent.Parent.Effects.Presets)
@@ -44,6 +51,19 @@ local UIController = require(script.Parent.UIController)
 local WorldController = require(script.Parent.WorldController)
 
 local IntroController = {}
+
+-- #2495: the tackling lesson as the intro's last steps; one table, as the module is short of locals
+local Tail = {
+	Logic = require(script.Parent.Parent.UI.Components.TackleLessonLogic),
+	IntroLogic = require(script.Parent.Parent.UI.Components.IntroLogic) :: any,
+	TipQueue = require(script.Parent.Parent.UI.Components.TipQueue),
+	Scale = require(script.Parent.Parent.UI.Scale),
+	shown = 0, -- the lesson step showing, 0 while no tail runs
+	lines = {} :: { string },
+	device = "keyboard" :: any,
+	show = nil :: ((index: number) -> ())?,
+	stop = nil :: ((played: boolean) -> ())?,
+}
 
 local player = Players.LocalPlayer
 local RENDER_STEP = "CatCafeIntro"
@@ -144,6 +164,7 @@ type Run = {
 	promptsWere: boolean,
 	cameraType: Enum.CameraType,
 	ended: boolean,
+	tail: boolean, -- #2495: the tackling lesson follows as the last steps
 }
 
 local run: Run? = nil
@@ -1373,6 +1394,11 @@ end
 -- shows at once; on the last shot it ends the intro as a finish. In shot 1 it goes on to the fuse instead, since the
 -- BOOM BOOM_LEAD later starts shot 2.
 local function nextShot()
+	local tailShow = Tail.show
+	if Tail.shown > 0 and tailShow ~= nil then
+		tailShow(Tail.shown + 1) -- #2495: the screen lets one Next through a step, from NEXT_AFTER
+		return
+	end
 	local r = run
 	if r == nil or r.ended or r.shot == 0 then
 		return
@@ -1451,7 +1477,11 @@ finish = function(finished: boolean)
 	end
 	ProximityPromptService.Enabled = r.promptsWere
 
-	UI.intro.finish()
+	-- #2495: played out, the screen stays up for the tackling lesson's steps
+	local tailing = finished and r.tail and Tail.show ~= nil
+	if not tailing then
+		UI.intro.finish()
+	end
 	local showing = r.shots[r.shot]
 	Net.fire(
 		"IntroDone",
@@ -1459,7 +1489,15 @@ finish = function(finished: boolean)
 		r.replay
 	)
 	run = nil
-	Moments.IntroEnd:Fire()
+	local tailShow = Tail.show
+	if tailing and tailShow ~= nil then
+		Tail.device =
+			Tail.TipQueue.device(UserInputService:GetLastInputType().Name, Tail.Scale.isTouch())
+		Tail.lines = Tail.Logic.lines(Tail.device)
+		tailShow(1)
+	else
+		Moments.IntroEnd:Fire()
+	end
 end
 
 -- The tackling lesson's stage (#2312, Derek2: "the cut scene for explaining tackling doesn't actually take control of
@@ -1467,7 +1505,8 @@ end
 -- stageTackle(shot) as each caption shows and stageTackle(0) at its end. In front of the player (shared/TackleStage) a
 -- copy of you carries a cat across, another copy (StagedTackle, so Effects/Tackle dives it) lunges and knocks it back,
 -- the cat drops; over the tackler's shoulder it happens again and the tackler takes the cat (#2469); last the knocked
--- copy pins a new cat with its net, the "!" over it, while the tackler stands by. The camera is this screen's while it
+-- copy pins a new cat with its net, the "!" over it, alone (#2495, Derek2: "remove the second random player holding
+-- a cat in the last part": the tackler and its cat are off the stage for that shot). The camera is this screen's while it
 -- plays and the controls and prompts are off; everything is local and goes at the end, the camera back as it was.
 type Lesson = {
 	r: any, -- staged, hidden and tweens, like a Run's, for stageYou
@@ -1574,7 +1613,7 @@ local function lessonStep()
 		placeYou(carrier, carrierAt, carrierFacing)
 		playYou(carrier, if moving then "run" else "idle")
 	end
-	if tackler ~= nil then
+	if tackler ~= nil and tackler.model.Parent ~= nil then -- #2495: off the stage in shot 4
 		local at, facing, moving = scene.tackler, toward(scene.tackler, carrierAt), false
 		if l.shot == 2 then
 			at = TackleStage.lungeAt(scene, t)
@@ -1588,9 +1627,6 @@ local function lessonStep()
 			if taken and l.knocked then
 				lessonHold(l, tackler)
 			end
-		elseif l.shot == 4 then
-			at = scene.pickup
-			facing = toward(at, scene.catchAt)
 		end
 		placeYou(tackler, at, facing)
 		playYou(tackler, if moving then "run" else "idle")
@@ -1756,6 +1792,9 @@ function IntroController.stageTackle(shot: number?)
 	if shot <= 3 then
 		-- the walk again, the cat back in the carrier's arms and the tackler back on its spot
 		l.knocked = false
+		if tackler ~= nil and tackler.model.Parent == nil then
+			tackler.model.Parent = Workspace
+		end
 		lessonHold(l, l.carrier)
 		if tackler ~= nil then
 			tackler.model:SetAttribute("TackleAt", nil)
@@ -1771,9 +1810,17 @@ function IntroController.stageTackle(shot: number?)
 			end
 		end)
 	elseif shot == 4 then
-		-- shot 3 played out, even when Next cut it short: the carrier knocked, the cat in the tackler's arms
+		-- shot 3 played out, even when Next cut it short: the carrier knocked; the tackler and the cat it took leave
+		-- the stage (#2495), so only the catcher and its new cat are in the shot
 		l.knocked = true
-		lessonHold(l, tackler)
+		local cat = l.cat
+		if cat ~= nil then
+			lessonDrop(l, l.scene.drop)
+			cat.Parent = nil -- lessonEnd destroys it
+		end
+		if tackler ~= nil then
+			tackler.model.Parent = nil
+		end
 		local carrier = l.carrier
 		if carrier ~= nil and l.catch == nil then
 			carrier.model:SetAttribute(NO_NET, nil) -- its net up for the swing (#2469)
@@ -1786,6 +1833,67 @@ function IntroController.stageTackle(shot: number?)
 			end
 		end
 	end
+end
+
+-- #2495: whether this play ends with the tackling lesson's steps: a first play, the lesson unseen and the screen able
+-- to show its dots.
+local function tailWanted(replay: boolean): boolean
+	local most = Tail.IntroLogic.MAX_SHOTS
+	if replay or type(most) ~= "number" or most < Intro.SHOTS + TackleStage.SHOTS then
+		return false
+	end
+	local state = UIController.state
+	local seen = if state ~= nil then state.tipsSeen else nil
+	return not (seen ~= nil and seen[Tail.Logic.TIP] == true)
+end
+
+-- Ends the lesson's steps and the screen; `played` saves the lesson as seen.
+Tail.stop = function(played: boolean)
+	if Tail.shown == 0 then
+		return
+	end
+	Tail.shown = 0
+	UI.intro.tackleCue(nil)
+	IntroController.stageTackle(0)
+	if UI.intro.playing() then
+		UI.intro.finish()
+	end
+	if played then
+		Net.fire("TipSeen", Tail.Logic.TIP, false)
+	end
+	Moments.IntroEnd:Fire()
+end
+
+-- Step `index` of the lesson (TackleLesson.play's captions and holds), past the last one the end.
+Tail.show = function(index: number)
+	local stop = Tail.stop :: (boolean) -> ()
+	if index > #Tail.lines then
+		stop(true)
+		return
+	end
+	if index > 1 and (Tail.shown ~= index - 1 or not UI.intro.playing()) then
+		stop(false) -- a stale timer, or the screen ended some other way
+		return
+	end
+	Tail.shown = index
+	IntroController.stageTackle(index)
+	if not IntroController.stagingTackle() then
+		stop(false) -- nowhere to stage it (no character): the first check-in plays it instead
+		return
+	end
+	local caption = Tail.lines[index]
+	local hold = Tail.Logic.hold(caption)
+	local screen: any = UI.intro
+	screen.setShot(Intro.SHOTS + index, caption, nil, hold)
+	UI.intro.tackleCue(
+		if index == Tail.Logic.CUE_SHOT then Tail.Logic.cueKey(Tail.device) else nil,
+		TackleStage.LUNGE_AT
+	)
+	task.delay(hold, function()
+		if Tail.shown == index then
+			(Tail.show :: (number) -> ())(index + 1)
+		end
+	end)
 end
 
 -- Whether the tackling lesson's stage is up.
@@ -1856,6 +1964,7 @@ function IntroController.play(replay: boolean)
 		promptsWere = ProximityPromptService.Enabled,
 		cameraType = if camera ~= nil then camera.CameraType else Enum.CameraType.Custom,
 		ended = false,
+		tail = tailWanted(replay),
 	}
 	run = r
 
@@ -1886,7 +1995,11 @@ function IntroController.play(replay: boolean)
 	aimTurret(r, 0) -- at rest, facing north, until it turns toward the Alleyway in shot 1
 	cover(r, false) -- lifted for shots 1 and 2 when it is night
 
-	UI.intro.start({ skipAfter = if replay then 0 else Intro.SKIP_AFTER, replay = replay })
+	UI.intro.start({
+		skipAfter = if replay then 0 else Intro.SKIP_AFTER,
+		replay = replay,
+		shots = if r.tail then Intro.SHOTS + TackleStage.SHOTS else nil, -- #2495: the lesson's steps last
+	})
 	Moments.IntroStart:Fire(replay)
 	-- at Camera priority, under Effects/Cannon's BOOM shake at Camera + 1
 	RunService:BindToRenderStep(RENDER_STEP, Enum.RenderPriority.Camera.Value, step)
@@ -1910,6 +2023,10 @@ function IntroController.start()
 		end
 	end)
 	UI.events.introSkip:Connect(function()
+		if Tail.shown > 0 then
+			(Tail.stop :: (boolean) -> ())(false) -- #2495: Skip on the lesson's steps
+			return
+		end
 		finish(false) -- the UI sends the shot; this side knows it already
 	end)
 	-- #2182: UI-Engineer's Next (the pill, a tap, Space, Enter or gamepad A), once the UI has it
@@ -1929,6 +2046,9 @@ function IntroController.start()
 		(setStager :: any)(IntroController.stageTackle)
 	end
 	player.CharacterAdded:Connect(function(character)
+		if Tail.shown > 0 and lesson ~= nil and lesson.character ~= character then
+			(Tail.stop :: (boolean) -> ())(false) -- #2495: a respawn ends the lesson's steps
+		end
 		if lesson ~= nil and lesson.character ~= character then
 			lessonEnd() -- a respawn ends the lesson's stage
 		end

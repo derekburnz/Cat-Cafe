@@ -222,6 +222,7 @@ end
 
 function TipJar.render(self: any, state: Types.PlayerState)
 	self._income = state.incomePerSecond
+	self._prizeRate = state.prizeRate -- #2539
 	self._spin = state.spin
 	self:_refresh()
 end
@@ -416,7 +417,7 @@ function TipJar._refresh(self: any)
 	if not self.frame.Visible then
 		return
 	end
-	local dayRate = TipJarLogic.dayRate(self._income, self._night, NIGHT_SHARE)
+	local dayRate = TipJarLogic.prizeRate(self._prizeRate, self._income, self._night, NIGHT_SHARE)
 	local spin: Types.SpinState? = self._spin
 	local banked = if spin then spin.banked else nil
 	local look: PrizeChips.Look = { dayRate = dayRate, spinsBanked = banked }

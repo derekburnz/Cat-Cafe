@@ -604,7 +604,12 @@ function IndexBoards._renderBoard(self: any, board: Board)
 	board.nextLabel.TextColor3 = if ready then Theme.colors.goodDark else Theme.modal.text
 	board.chips:set(nextView.prize, {
 		gold = IndexRewards.isGold(nextView.milestone),
-		dayRate = TipJarLogic.dayRate(state.incomePerSecond, self._night, NIGHT_SHARE),
+		dayRate = TipJarLogic.prizeRate(
+			state.prizeRate,
+			state.incomePerSecond,
+			self._night,
+			NIGHT_SHARE
+		),
 		spinsBanked = if state.spin then state.spin.banked else nil,
 		tier = state.tier,
 	})

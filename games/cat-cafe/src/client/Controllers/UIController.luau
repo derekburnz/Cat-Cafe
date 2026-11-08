@@ -569,6 +569,7 @@ local function applyState(s: Types.PlayerState)
 	UI.update({
 		money = s.money,
 		incomePerSecond = s.incomePerSecond,
+		prizeRate = s.prizeRate, -- #2539: what coin prizes pay from, for the prize previews
 		tier = s.tier,
 		-- #2047 (Derek2: "with the extra slots it doesn't show all the working cats"): sent but never copied, so the
 		-- Cats window and the Staff tab counted only the tier's slots and hid the pass-only ones with cats on them

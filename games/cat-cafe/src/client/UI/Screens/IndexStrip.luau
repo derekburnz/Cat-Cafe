@@ -525,7 +525,12 @@ function IndexStrip._refresh(self: any)
 	local nextGold = IndexRewards.nextView(views, "gold")
 	local nextRainbow = IndexRewards.nextView(views, "rainbow")
 	local look: PrizeChips.Look = {
-		dayRate = TipJarLogic.dayRate(state.incomePerSecond, self._night, NIGHT_SHARE),
+		dayRate = TipJarLogic.prizeRate(
+			state.prizeRate,
+			state.incomePerSecond,
+			self._night,
+			NIGHT_SHARE
+		),
 		spinsBanked = if state.spin then state.spin.banked else nil,
 		tier = state.tier,
 	}

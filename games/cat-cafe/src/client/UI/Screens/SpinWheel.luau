@@ -587,6 +587,7 @@ end
 function SpinWheel.render(self: any, state: Types.PlayerState)
 	self._spin = state.spin
 	self._income = state.incomePerSecond
+	self._prizeRate = state.prizeRate -- #2539
 	if state.tier ~= self._tier then
 		self._tier = state.tier
 		for _, tile: Tile in self._tiles do
@@ -743,7 +744,9 @@ function SpinWheel._showAllCard(self: any, count: number, prize: Types.IndexPriz
 	if catalog then
 		view.chips:setCatalog(catalog)
 	end
-	view.chips:set(prize, { dayRate = self._income })
+	view.chips:set(prize, {
+		dayRate = TipJarLogic.prizeRate(self._prizeRate, self._income, self._night, NIGHT_SHARE),
+	})
 	view.cover.Visible = true
 	Tween.popIn(view.cover:FindFirstChild("Card") :: GuiObject, 0.9)
 end
@@ -1176,7 +1179,8 @@ end
 -- current day rate.
 function SpinWheel._prize(self: any, row: Types.SpinRow, amount: number?): string
 	if row.kind == "coins" then
-		local dayRate = TipJarLogic.dayRate(self._income, self._night, NIGHT_SHARE)
+		local dayRate =
+			TipJarLogic.prizeRate(self._prizeRate, self._income, self._night, NIGHT_SHARE)
 		local coins = if amount and amount > 0 then amount else SpinLogic.coins(row, dayRate)
 		return Format.money(coins)
 	end
@@ -1194,7 +1198,8 @@ end
 -- A wheel tile's short line (#1816 v3): "+1.2K" (the coins at the current day rate), "5 fish", "1 Crate", "1 Caviar".
 function SpinWheel._amount(self: any, row: Types.SpinRow): string
 	if row.kind == "coins" then
-		local dayRate = TipJarLogic.dayRate(self._income, self._night, NIGHT_SHARE)
+		local dayRate =
+			TipJarLogic.prizeRate(self._prizeRate, self._income, self._night, NIGHT_SHARE)
 		return "+" .. Format.short(SpinLogic.coins(row, dayRate))
 	end
 	local count = row.count or 1

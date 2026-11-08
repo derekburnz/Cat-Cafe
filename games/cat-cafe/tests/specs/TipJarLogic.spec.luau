@@ -25,6 +25,14 @@ return function()
 			expect(TipJarLogic.dayRate(6, false, 0.6)).to.equal(6)
 			expect(TipJarLogic.dayRate(6, true, 0)).to.equal(6)
 		end)
+
+		it("takes the server's prize rate over the live income when it sent one (#2539)", function()
+			-- a Cafe Event doubles the live income at night: the prize still pays from the base day rate
+			expect(TipJarLogic.prizeRate(5, 12, true, 0.6)).to.equal(5)
+			expect(TipJarLogic.prizeRate(0, 12, false, 0.6)).to.equal(0)
+			expect(TipJarLogic.prizeRate(nil, 6, true, 0.6)).to.be.near(10, 1e-9)
+			expect(TipJarLogic.prizeRate(0 / 0, 6, false, 0.6)).to.equal(6)
+		end)
 	end)
 
 	-- F68 (data-model 11b v0.10): rows move to the Index prize shape, and the 60 and 120 minute gifts pay several

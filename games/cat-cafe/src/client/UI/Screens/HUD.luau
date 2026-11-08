@@ -3053,6 +3053,35 @@ end
 
 -- #2415: the top of the touch Net button (Components/NetButtonPlace, screen pixels) in design px from the root's top,
 -- or nil before the screen has a size.
+-- #2499: the top of the money badge's spot right under the right column (the goal card, the Grand Opening strip, the
+-- quest line and the free spin line, whichever show), in design px from the root's top; nil when the badge would
+-- reach the Net button (over the jump button) there.
+function HUD._underColumn(self: any, badge: GuiObject): number?
+	local scale = Scale.get()
+	if scale <= 0 then
+		return nil
+	end
+	local foot: number? = nil
+	for _, part in
+		{ self._goal.frame, self._roadmap.frame, self._questLine, self._spinLine } :: { GuiObject }
+	do
+		if part.Visible and part.AnchorPoint.Y == 0 then
+			local bottom = part.Position.Y.Offset + part.AbsoluteSize.Y / scale
+			foot = if foot == nil then bottom else math.max(foot, bottom)
+		end
+	end
+	if foot == nil then
+		return nil
+	end
+	local gap = Theme.sizes.gap
+	local top = foot + gap
+	local netTop = self:_netTop()
+	if netTop ~= nil and top + badge.AbsoluteSize.Y / scale + gap > netTop then
+		return nil
+	end
+	return top
+end
+
 function HUD._netTop(self: any): number?
 	local camera = Workspace.CurrentCamera
 	local root: Frame = self._root
@@ -4330,12 +4359,22 @@ function HUD._placePotionTimers(self: any)
 		timers.Position = UDim2.fromOffset(math.floor(right), math.floor(top - Theme.sizes.gap))
 	end
 	if TOUCH then
-		-- #2393: the money badge over the Potions tile, right edges level; over the potion chips when they sit there
+		-- #2499 (Derek2: "for ipad ... the 2x cash advert is on the jump button in the bottom right possibly move it so
+		-- its right below the your goal/ready to claim/spin ready text"): right under the right column, right edges
+		-- level, while that keeps clear of the Net button over the jump button
+		local badge: GuiObject = self._moneyBadge
+		local under = self:_underColumn(badge)
+		if under ~= nil then
+			badge.AnchorPoint = Vector2.new(1, 0)
+			badge.Position = UDim2.fromOffset(math.floor(width - MARGIN), math.floor(under))
+			return
+		end
+		badge.AnchorPoint = Vector2.new(1, 1)
+		-- #2393: else the money badge over the Potions tile, right edges level; over the potion chips when they sit there
 		local foot = top - Theme.sizes.gap
 		if not beside and timers.Visible then
 			foot -= BuffChips.potionsHeight() + Theme.sizes.gap
 		end
-		local badge: GuiObject = self._moneyBadge
 		local x1 = right
 		if scale > 0 then
 			-- clear of the right column's pieces beside it (the goal card, the Grand Opening strip, the quest line's

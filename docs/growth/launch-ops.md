@@ -59,7 +59,7 @@ Proposed for docs/decisions.md: 2026-10-25, growth runs codes (small, expiring, 
 Added by Tools-Agent on 2026-11-08 for Cafe Events (#2483 to #2488; research in the library's `Research-Agent/live-events-2026-11-08.md`). Use it only for a real, scheduled event: the countdown must end in the event it names, and the end time is always shown.
 
 **A week to 3 days before**
-1. Icon variants: Model-Agent's "3 HOURS", "NOW" and "NEW UPDATE!" versions of the game icon are uploaded with your OK through the upload-image workflow, and each shows as approved in moderation. Uploads can sit in review for a while, so never upload on the day.
+1. Icon variants: Model-Agent's "3 HOURS", "NOW" and "NEW UPDATE!" versions of the game icon (`assets/cat-cafe/exports/game-icon/`) go through moderation early, with your OK, as plain Image uploads (upload-image workflow). Creator Hub has a single icon slot, so this early upload is only a moderation pre-check: an approved Image tells us the same picture will pass when it goes into the icon slot on the day.
 2. Experience Event (Creator Hub > the experience > Engagement > Events & Updates > Create):
    - Title: the event's name as players will see it in game (for example "Cafe Party: Lucky + Golden + Rainbow").
    - Start and end: the same UTC times as the event record (step 3). Creator Hub shows your local time, so check the conversion.
@@ -71,8 +71,8 @@ Added by Tools-Agent on 2026-11-08 for Cafe Events (#2483 to #2488; research in 
 4. Optional: a group post, and a What's New board line from UI-Engineer in the next weekly update.
 
 **On the day**
-5. T-3 hours: swap the game icon to "3 HOURS" (Creator Hub > the experience > Places or Configure > Icon > choose the approved variant). The in-game countdown chip starts at the same time.
+5. T-3 hours: swap the game icon to "3 HOURS" (Creator Hub > the experience > Configure > Basic Settings > Icon > upload the pre-checked file). Swap about 15 minutes early, since the new icon can take a few minutes to show. The in-game countdown chip starts at the same time.
 6. Start: swap the icon to "NOW". Check two servers show the banner within a minute.
 7. End: swap the icon back to the normal one, or to "NEW UPDATE!" if a weekly update went out with the event (back to normal within a day or two).
 
-Notes: Open Cloud has no route for the experience icon with an API key, so steps 5 to 7 are done by hand, or by the Claude on your PC through Remote Control when you leave it on. An Experience Event can post one update at most every 3 days, up to 60 characters. Joiners from the event page carry the event id in `GetJoinData()`, which #2486 logs through JoinSource for the post-event read.
+Notes: the Open Cloud icon route (store-media `icon`) only changes translated icons. For the source language, English, Roblox answers 400 code 26 (seen on #1032), so steps 5 to 7 are done by hand in Creator Hub, or by the Claude on your PC through Remote Control when you leave it on. An Experience Event can post one update at most every 3 days, up to 60 characters. Joiners from the event page carry the event id in `GetJoinData()`, which #2486 logs through JoinSource for the post-event read.

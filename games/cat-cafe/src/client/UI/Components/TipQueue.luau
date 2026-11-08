@@ -3,9 +3,9 @@
 -- per account, the first time a player meets something: one line on a card (Screens/TipCard) or a camera cut of 3 to
 -- 4 seconds with one caption. The rules:
 --   * never during a catch, a rescue, a carry, the intro, a cannon flight or with a window or popup up, and never in
---     the dusk warning's last DUSK_QUIET seconds (`free`)
---   * at most one every Config.TipGapSeconds (60); a tip that cannot show yet waits in a queue of three and the
---     oldest drops (the server sends it again next session, since it was never seen)
+--     the dusk warning's last DUSK_QUIET seconds, nor within TOAST_QUIET seconds of a toast (#2407) (`free`)
+--   * at most one every Config.TipGapSeconds; a tip that cannot show yet waits in a queue of SIZE and the oldest
+--     drops (the server sends it again next session, since it was never seen)
 --   * a card needs no press and goes after CARD_SECONDS or on a tap
 -- The lines name the input the player last used: a letter key on a keyboard, "tap" on touch and the button on a
 -- gamepad; on touch a line never names a letter key (section 2e). F96's favorite and like asks share the card and its
@@ -24,7 +24,9 @@ export type Device = "keyboard" | "touch" | "gamepad"
 
 TipQueue.CARD_SECONDS = 5 -- a card goes by itself after this
 TipQueue.DUSK_QUIET = 5 -- no tip in the dusk warning's last seconds (section 3)
-TipQueue.SIZE = 3 -- tips waiting at most
+-- #2407 (Derek2: "tips pop up a little to often"): two waiting, not three, and none right after a toast
+TipQueue.SIZE = 2 -- tips waiting at most
+TipQueue.TOAST_QUIET = 20 -- seconds after a toast showed before a tip may
 TipQueue.ASK_SECONDS = 7 -- F96: the favorite and like asks stay a little longer (UI.asks.show)
 
 -- A line per device where the input matters; one string where it does not.
@@ -138,6 +140,7 @@ export type Moment = {
 	window: boolean?, -- a window or a centre popup open
 	hidden: boolean?, -- the HUD is hidden (a photo mode, the intro's bars)
 	duskLeft: number?, -- seconds to night while the day is in its dusk warning, else nil
+	toastAgo: number?, -- seconds since a toast last showed, nil if none has (#2407)
 }
 
 function TipQueue.free(moment: Moment): boolean
@@ -150,6 +153,10 @@ function TipQueue.free(moment: Moment): boolean
 		or moment.window
 		or moment.hidden
 	then
+		return false
+	end
+	local toastAgo = moment.toastAgo
+	if toastAgo ~= nil and toastAgo < TipQueue.TOAST_QUIET then
 		return false
 	end
 	local dusk = moment.duskLeft

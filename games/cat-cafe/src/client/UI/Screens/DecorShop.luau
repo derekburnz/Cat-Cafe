@@ -77,7 +77,9 @@ local CARD_WIDTH = 164
 local CARD_TOP = 152 -- the card above its button: art, name, effect
 local CHIP_HEIGHT = 44 -- was 36 with a 31 px face (Derek 2026-10-28: "squished")
 local CHIP_GAP = 10 -- the chips share the row's width equally (#1120), so none is squished or scrolled off
-local EQUIP_W = 156 -- Equip Best, right of the chips
+local EQUIP_W = 156 -- Equip Best, in the header left of the X
+local EQUIP_W_TOUCH = 128 -- #2403: narrower beside the X's bigger touch reach
+local EQUIP_INSET = 8 -- #2403: on touch, this much shorter than the header so it sits inside it
 local PRESS_HOLD = 3 -- seconds Equip Best stays grey after a press when no sync comes
 local FOOTER_HEIGHT = 56
 local SPOTS_BY_TIER: { number } = Config.DecorSpots or DecorPieces.SPOTS_BY_TIER
@@ -174,11 +176,19 @@ function DecorShop.new(callbacks: Callbacks): DecorShop
 			icon = Theme.icons.equipBest,
 			image = ShopIcons.clean("EquipBest"), -- the clean sparkles (#1136)
 			style = "berry", -- the HUD's Equip Best pink, apart from the gold chip that is picked
-			size = UDim2.fromOffset(EQUIP_W, chipHeight),
+			-- #2403 (Derek2: "the equip best for decor top of banner is too big and sticking out"): on a touch screen the
+			-- chips' tall tap height made it stick out past the header; it is the header's height there, and its Hit
+			-- pad (Components/Button) still takes a full 44 px tap
+			size = if Scale.isTouch()
+				then UDim2.fromOffset(
+					EQUIP_W_TOUCH,
+					math.min(chipHeight, panel.headerHeight - EQUIP_INSET)
+				)
+				else UDim2.fromOffset(EQUIP_W, chipHeight),
 			anchorPoint = Vector2.new(1, 0.5),
 			-- on the window frame, not the header, so a phone's taller button is not clipped by the body
 			position = UDim2.new(1, -(panel.closeReach + 8), 0, panel.headerHeight / 2 - 2),
-			textSize = Theme.sizes.textBody,
+			textSize = if Scale.isTouch() then Theme.sizes.textSmall else Theme.sizes.textBody,
 			zIndex = 4,
 			parent = panel.frame,
 			onClick = function()
@@ -317,8 +327,8 @@ function DecorShop._setFilter(self: any, category: string)
 	for _, chip in self._chips do
 		chip.button:setStyle(if chip.category == category then "gold" else "ghost")
 	end
-	-- F91: the Lawn cards take the strip's and grid's place (Equip Best stays, #1283); the Style tab too (#1624),
-	-- where Equip Best steps aside
+	-- F91: the Lawn cards take the strip's and grid's place (Equip Best stays, #1283); the Style tab too (#1624), where
+	-- Equip Best stays as well since #2403 (Derek2: "equip best disappears while in style menu so fix that")
 	local lawn = category == LAWN_CHIP
 	local style = category == STYLE_CHIP
 	local tab = lawn or style
@@ -329,10 +339,6 @@ function DecorShop._setFilter(self: any, category: string)
 	end
 	self._grid.Visible = not tab
 	self._total.Visible = not tab
-	local equipBest: Button.Button? = self._equipBest
-	if equipBest then
-		equipBest.instance.Visible = not style
-	end
 	if lawn and self._state then
 		self._lawnTab:render(self._state)
 	end

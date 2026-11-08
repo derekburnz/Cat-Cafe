@@ -2604,7 +2604,7 @@ Catalog.codes = {
 		active = true,
 		prize = {
 			coins = 5000,
-			fish = 300,
+			fish = 100, -- #2497: was 300
 			spins = 10,
 			crates = { classic_crate = 3, alley_crate = 1, classic_golden_crate = 1 },
 			lures = { tuna = 3, salmon = 2, caviar = 1 },
@@ -2628,7 +2628,7 @@ Catalog.codes = {
 	launch = {
 		id = "launch",
 		active = false,
-		prize = { coins = 1000, coinSeconds = 300, fish = 25 }, -- F94 (was also 2 spins and 3 Tuna)
+		prize = { coins = 1000, coinSeconds = 300, fish = 10 }, -- F94 (was also 2 spins and 3 Tuna); #2497: fish was 25
 	},
 	-- #1937 (release.md section 4): the first four weeks' codes, coins only (about 10 minutes of income at most, no
 	-- fish, spins, potions or crates). Each ships off; that week's small PR turns it on, on its day. Each ends 60 days
@@ -2661,8 +2661,8 @@ Catalog.codes = {
 		id = "group",
 		active = true, -- #1118: on since the game's group (Config.GroupId) is set
 		requiresGroup = true,
-		-- F94 (was also 5 spins, 2 Caviar and a Tip Potion)
-		prize = { coins = 2500, coinSeconds = 900, fish = 100, crates = { classic_crate = 1 } },
+		-- F94 (was also 5 spins, 2 Caviar and a Tip Potion); #2497: fish was 100
+		prize = { coins = 2500, coinSeconds = 900, fish = 40, crates = { classic_crate = 1 } },
 	},
 } :: { [string]: Types.CodeDef }
 for _, code in Catalog.codes do

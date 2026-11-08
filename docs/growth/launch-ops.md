@@ -53,3 +53,26 @@ Status 2026-10-25 (late): both accepted by the designer and written into common-
 - Catnip (design 14) is a probability modifier. The design already shows the modified odds while it is active. If coins are ever sold for Robux, the May 2026 clarification also requires the numeric effect ("25% chance to shift the roll one rarity up") to be shown before the purchase of the Catnip itself, and that applies to Catnip granted by codes and the Daily Treat as well as Catnip bought with coins. Cheap to add now: one line on the shop card.
 
 Proposed for docs/decisions.md: 2026-10-25, growth runs codes (small, expiring, one per milestone or season, never cats), the group bonus (5% tips, GroupService-verified) and the Saturday What's New board as the launch acquisition and retention channels; the likes milestone becomes an announced code; growth recommends the Daily Treat streak pause rather than reset.
+
+## 6. Cafe Event announce checklist (for Derek2, #2488)
+
+Added by Tools-Agent on 2026-11-08 for Cafe Events (#2483 to #2488; research in the library's `Research-Agent/live-events-2026-11-08.md`). Use it only for a real, scheduled event: the countdown must end in the event it names, and the end time is always shown.
+
+**A week to 3 days before**
+1. Icon variants: Model-Agent's "3 HOURS", "NOW" and "NEW UPDATE!" versions of the game icon are uploaded with your OK through the upload-image workflow, and each shows as approved in moderation. Uploads can sit in review for a while, so never upload on the day.
+2. Experience Event (Creator Hub > the experience > Engagement > Events & Updates > Create):
+   - Title: the event's name as players will see it in game (for example "Cafe Party: Lucky + Golden + Rainbow").
+   - Start and end: the same UTC times as the event record (step 3). Creator Hub shows your local time, so check the conversion.
+   - Thumbnail: an event picture (16:9) from Model-Agent, showing what players actually get.
+   - Description: what happens, that it is free for everyone, and the end time.
+   - Visibility: public. Up to 10 upcoming events can be listed at once.
+   - RSVPs ("Notify Me") send players an inbox or push message at the start. Events with about 1,000 or more RSVPs can show in "Trending Events".
+3. Event record: Tools-Agent schedules it with the events workflow (`events.yml`, once #2486 and the workflow are merged), and `show` confirms the start, end, title and effects. A record never needs a publish.
+4. Optional: a group post, and a What's New board line from UI-Engineer in the next weekly update.
+
+**On the day**
+5. T-3 hours: swap the game icon to "3 HOURS" (Creator Hub > the experience > Places or Configure > Icon > choose the approved variant). The in-game countdown chip starts at the same time.
+6. Start: swap the icon to "NOW". Check two servers show the banner within a minute.
+7. End: swap the icon back to the normal one, or to "NEW UPDATE!" if a weekly update went out with the event (back to normal within a day or two).
+
+Notes: Open Cloud has no route for the experience icon with an API key, so steps 5 to 7 are done by hand, or by the Claude on your PC through Remote Control when you leave it on. An Experience Event can post one update at most every 3 days, up to 60 characters. Joiners from the event page carry the event id in `GetJoinData()`, which #2486 logs through JoinSource for the post-event read.

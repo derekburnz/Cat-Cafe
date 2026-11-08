@@ -3530,6 +3530,11 @@ local SCENES = {
 		assertArrowAt(window:FindFirstChild("tables", true) :: GuiObject, "the table row")
 	end },
 	{ "TutorialArrowGone", function()
+		-- the sample cafe's money can make its rank up ready, and then the goal card's own arrow (#2331) comes and goes
+		-- on a timer, so whether it shows here depended on how long the scenes before took: no rank up ready while
+		-- this checks, so only the tutorial step's arrow counts
+		local money = (UI.getState() :: any).money
+		UI.update({ money = 0 } :: any)
 		tutorialArrowStep()
 		UI.update({ tutorialStep = 5 } :: any)
 		task.wait(0.1)
@@ -3539,6 +3544,7 @@ local SCENES = {
 				"uigate: the tutorial arrow stays after its step (#2314)"
 			)
 		end
+		UI.update({ money = money } :: any)
 	end },
 	-- #2331 (Derek2: "cozy cafe (tier up cafe) is more obviously your main goal to tier up and maybe flash and point
 	-- towards it when tier up is ready"): the goal card's gold "YOUR GOAL" line over the bigger tier name, its edge

@@ -19,9 +19,11 @@
 -- cut short by a respawn, puts all of it back and sends IntroDone(shot, replay): 0 when it played out, else the shot
 -- showing.
 -- #2495 (Derek2: "instead of playing the tackle cutscene right after finish tutorial to make it part of the actual
--- tutorial just the last steps"): on a first play by a player who has not seen the tackling lesson, its four captions
--- are the intro's last steps on the same screen (dots Intro.SHOTS + 1 to + 4, Next and Skip as for any shot), staged
--- by stageTackle once the intro's own shots are put back. Played out, the lesson is saved as seen (TipSeen); a Skip
+-- tutorial just the last steps"): on every play, a replay from the Tutorial tile or Settings too (#2522, Derek2:
+-- "Tackling still seems to not be added to tutorial cutscenes"), the tackling lesson's four captions are the intro's
+-- last steps on the same screen (dots Intro.SHOTS + 1 to + 4, Next and Skip as for any shot), staged
+-- by stageTackle once the intro's own shots are put back. Played out on a first play, the lesson is saved as seen
+-- (TipSeen; a replay saves nothing, as for the intro); a Skip
 -- ends both, and the server's first check-in plays the lesson on its own (Tips.lessonDue). It needs the screen's
 -- dots past Intro.SHOTS (IntroLogic.MAX_SHOTS, UI-Engineer); without them the lesson waits for that check-in.
 
@@ -59,6 +61,7 @@ local Tail = {
 	TipQueue = require(script.Parent.Parent.UI.Components.TipQueue),
 	Scale = require(script.Parent.Parent.UI.Scale),
 	shown = 0, -- the lesson step showing, 0 while no tail runs
+	save = false, -- a first play's tail: played out, it saves the lesson as seen
 	lines = {} :: { string },
 	device = "keyboard" :: any,
 	show = nil :: ((index: number) -> ())?,
@@ -1494,6 +1497,7 @@ finish = function(finished: boolean)
 		Tail.device =
 			Tail.TipQueue.device(UserInputService:GetLastInputType().Name, Tail.Scale.isTouch())
 		Tail.lines = Tail.Logic.lines(Tail.device)
+		Tail.save = not r.replay
 		tailShow(1)
 	else
 		Moments.IntroEnd:Fire()
@@ -1835,16 +1839,11 @@ function IntroController.stageTackle(shot: number?)
 	end
 end
 
--- #2495: whether this play ends with the tackling lesson's steps: a first play, the lesson unseen and the screen able
--- to show its dots.
-local function tailWanted(replay: boolean): boolean
+-- #2495: whether this play ends with the tackling lesson's steps: every play, first or replay (#2522), once the
+-- screen can show its dots.
+local function tailWanted(): boolean
 	local most = Tail.IntroLogic.MAX_SHOTS
-	if replay or type(most) ~= "number" or most < Intro.SHOTS + TackleStage.SHOTS then
-		return false
-	end
-	local state = UIController.state
-	local seen = if state ~= nil then state.tipsSeen else nil
-	return not (seen ~= nil and seen[Tail.Logic.TIP] == true)
+	return type(most) == "number" and most >= Intro.SHOTS + TackleStage.SHOTS
 end
 
 -- Ends the lesson's steps and the screen; `played` saves the lesson as seen.
@@ -1858,7 +1857,7 @@ Tail.stop = function(played: boolean)
 	if UI.intro.playing() then
 		UI.intro.finish()
 	end
-	if played then
+	if played and Tail.save then
 		Net.fire("TipSeen", Tail.Logic.TIP, false)
 	end
 	Moments.IntroEnd:Fire()
@@ -1964,7 +1963,7 @@ function IntroController.play(replay: boolean)
 		promptsWere = ProximityPromptService.Enabled,
 		cameraType = if camera ~= nil then camera.CameraType else Enum.CameraType.Custom,
 		ended = false,
-		tail = tailWanted(replay),
+		tail = tailWanted(),
 	}
 	run = r
 

@@ -4,6 +4,7 @@ return function()
 	local ReplicatedStorage = game:GetService("ReplicatedStorage")
 	local Shared = ReplicatedStorage:WaitForChild("Shared")
 	local Config = require(Shared.Config)
+	local Onboarding = require(Shared.Onboarding)
 	local ProfileSchema = require(Shared.ProfileSchema)
 	local Tips = require(Shared.Tips)
 
@@ -122,10 +123,14 @@ return function()
 			expect(#Tips.due(profile, DAY)).to.equal(0)
 		end)
 
-		it("has the tackling lesson once the intro was seen, until it is (#2409)", function()
+		it("has the tackling lesson once the intro was seen and a cat caught, until it is (#2409, #2468)", function()
 			local profile = fresh()
 			expect(table.find(Tips.due(profile, DAY), Tips.LESSON)).never.to.be.ok()
 			profile.introSeen = true
+			-- #2468: not straight after the intro; the first catch brings it
+			expect(table.find(Tips.due(profile, DAY), Tips.LESSON)).never.to.be.ok()
+			expect(Tips.lessonDue(profile)).to.equal(false)
+			Onboarding.reach(profile.telemetry, "first_catch")
 			expect(Tips.due(profile, DAY) :: any).to.deepEqual({ Tips.LESSON })
 			-- the old tackle card's seen flag does not stand in for the lesson
 			profile.tipsSeen = { tackle = true }
@@ -134,6 +139,13 @@ return function()
 			expect(#Tips.due(profile, DAY)).to.equal(0)
 			expect(Tips.seenId(Tips.LESSON)).to.equal(true)
 			expect(Tips.LESSON).to.equal("tackle_lesson")
+		end)
+
+		it("counts a cat caught before the first_catch step existed (#2468)", function()
+			local profile = fresh()
+			profile.introSeen = true
+			profile.stats.catsCaught = 1
+			expect(Tips.lessonDue(profile)).to.equal(true)
 		end)
 
 		it("keeps the lesson's seen flag through a save and load, and never marks it for a veteran (#2409)", function()

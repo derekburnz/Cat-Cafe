@@ -51,4 +51,47 @@ return function()
 			expect((TackleStage.lungeAt(scene, 9) - hit).Magnitude).to.be.near(1, 1e-6)
 		end)
 	end)
+
+	describe("the shots (#2468, #2469)", function()
+		local function flat(v: Vector3): Vector3
+			return Vector3.new(v.X, 0, v.Z).Unit
+		end
+
+		it("films the hit side on, square to the knock, from the player's side", function()
+			local scene = TackleStage.scene(GROUND, FACING)
+			local key = scene.cameras[2]
+			local view = flat(key.look - key.position)
+			expect(math.abs(view:Dot(scene.knock)) < 0.05).to.equal(true)
+			expect(view:Dot(scene.forward) > 0).to.equal(true) -- looking away from the player, so it stands behind
+			expect((scene.knocked - scene.hit).Magnitude).to.be.near(TackleStage.KNOCK_STUDS, 1e-6)
+			-- the lunge starts once the camera's glide to the shot is over
+			expect(TackleStage.LUNGE_AT >= 0.6).to.equal(true)
+		end)
+
+		it("walks the tackler from the lunge to a stud short of the dropped cat, and has it take the cat", function()
+			local scene = TackleStage.scene(GROUND, FACING)
+			local start, startTaken = TackleStage.pickupAt(scene, 0)
+			expect((start - scene.tackler).Magnitude).to.be.near(0, 1e-6)
+			expect(startTaken).to.equal(false)
+			local from, taken = TackleStage.pickupTimes(scene)
+			expect(from > TackleStage.LUNGE_AT + TackleStage.LUNGE_SECONDS).to.equal(true)
+			local mid, midTaken = TackleStage.pickupAt(scene, from)
+			expect((mid - scene.stop).Magnitude).to.be.near(0, 1e-6)
+			expect(midTaken).to.equal(false)
+			local done, doneTaken = TackleStage.pickupAt(scene, taken)
+			expect((done - scene.pickup).Magnitude).to.be.near(0, 1e-6)
+			expect(doneTaken).to.equal(true)
+			expect((scene.pickup - scene.drop).Magnitude).to.be.near(1, 1e-6)
+			-- taken well before the third caption's 4.2 s hold ends
+			expect(taken < 3).to.equal(true)
+		end)
+
+		it("puts shot 4's cat beside the knocked copy, clear of the tackler, and pins it after the swing", function()
+			local scene = TackleStage.scene(GROUND, FACING)
+			expect((scene.catchAt - scene.knocked).Magnitude).to.be.near(TackleStage.CATCH_STUDS, 1e-6)
+			expect((scene.catchAt - scene.pickup).Magnitude > 3).to.equal(true)
+			expect(TackleStage.PIN_AT > TackleStage.SWING_AT).to.equal(true)
+			expect(scene.catchAt.Y).to.equal(GROUND.Y)
+		end)
+	end)
 end

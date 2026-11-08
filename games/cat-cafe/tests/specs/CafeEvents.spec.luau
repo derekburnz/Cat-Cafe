@@ -231,6 +231,62 @@ return function()
 		end)
 	end)
 
+	describe("shower cats (2c)", function()
+		local Catalog = require(Shared.Catalog)
+
+		it("claim under event:<id>:<n>, a test event's under its own server", function()
+			local event = CafeEvents.parse({ raw() }, NOW)[1]
+			expect(CafeEvents.showerKey(event, 3, "job-1")).to.equal("event:party-1121:3")
+			local test = assert(CafeEvents.test("showers", NOW, 10))
+			expect(CafeEvents.showerKey(test, 1, "job-1")).to.equal("test:job-1:test-showers:1")
+		end)
+
+		it("pick a rainbow Legendary for odd ones and a Mythical for even ones, the same every time", function()
+			local event = CafeEvents.parse({ raw() }, NOW)[1]
+			for n = 1, 8 do
+				local pick = CafeEvents.showerPick(event, n)
+				local again = CafeEvents.showerPick(event, n)
+				expect(again.catId).to.equal(pick.catId)
+				expect(again.areaId).to.equal(pick.areaId)
+				local def = assert(Catalog.getCat(pick.catId))
+				expect(def.rarity).to.equal(pick.kind)
+				expect(def.area).to.equal(pick.areaId)
+				if n % 2 == 1 then
+					expect(pick.kind).to.equal("Legendary")
+					expect(pick.coat).to.equal("rainbow")
+				else
+					expect(pick.kind).to.equal("Mythical")
+					expect(pick.coat).to.equal(nil)
+				end
+			end
+		end)
+
+		it("land on every area about equally (EventShowerAreaWeights, 20 each)", function()
+			local counts: { [string]: number } = {}
+			for i = 1, 500 do
+				local event = CafeEvents.parse({ raw({ id = "e" .. i }) }, NOW)[1]
+				local area = CafeEvents.showerPick(event, 1).areaId
+				counts[area] = (counts[area] or 0) + 1
+			end
+			for _, area in Catalog.areas do
+				expect((counts[area.id] or 0) >= 60).to.equal(true) -- 100 expected of 500
+			end
+			expect(CafeEvents.showerAreaFor(0)).to.equal(Catalog.areas[1].id)
+			expect(CafeEvents.showerAreaFor(0.999)).to.equal(Catalog.areas[#Catalog.areas].id)
+		end)
+
+		it("announce as the spec words it", function()
+			local pick = { n = 2, kind = "Mythical", coat = nil, areaId = "woods", catId = "x" }
+			expect(CafeEvents.showerText(pick :: any)).to.equal("Event cat! A Mythical appeared in the Woods!")
+			expect(CafeEvents.showerText(pick :: any, 4)).to.equal(
+				"Event cat! A Mythical appeared in the Woods! (opens at Tier 4)"
+			)
+			local rainbow = { n = 1, kind = "Legendary", coat = "rainbow", areaId = "woods", catId = "x" }
+			expect(CafeEvents.showerText(rainbow :: any)).to.equal("Event cat! A Rainbow Legendary appeared in the Woods!")
+			expect(CafeEvents.showerCaughtText("Sam")).to.equal("Event cat caught by Sam!")
+		end)
+	end)
+
 	describe("the EventEffects attribute", function()
 		it("lists the days in Lucky, Golden, Rainbow order, with showers and reward only when set", function()
 			local event = CafeEvents.parse({ raw() }, NOW)[1]

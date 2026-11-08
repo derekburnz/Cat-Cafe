@@ -24,18 +24,26 @@
 --   copy puffs away (CatService.removePity) with "Sam caught the pity cat!".
 -- - At night every uncaught copy goes with the other strays (CatService.nightFalls) and its State clears.
 -- No client remote: clients only read the folder, the stray's PityCat attribute and the clock. Analytics `pity_cat`.
+-- #2486 (live-events.md 2c): a Cafe Event's rare showers ride the same path. Each shower (CafeEvents.showerTimes of
+-- EventService.recent()) is a pity cat on its own claim key (CafeEvents.showerKey) with its own cat number here
+-- (SHOWER_BASE up), spawned in every server when it is due (at the next sunrise if that is at night), out until dusk,
+-- claimed through the same MAP and announced on the same TOPIC ({ shower = key, winner }). It never touches the pity
+-- timers. A server that starts late reads the claim first, as for a pity cat. Analytics `event_shower`.
 
 local MemoryStoreService = game:GetService("MemoryStoreService")
 local MessagingService = game:GetService("MessagingService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
+local CafeEvents = require(ReplicatedStorage.Shared.CafeEvents)
 local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
+local EventService = require(script.Parent.EventService)
 local Net = require(script.Parent.Net)
 local Pity = require(ReplicatedStorage.Shared.Pity)
 local Telemetry = require(script.Parent.Telemetry)
@@ -81,6 +89,22 @@ local pending: { [string]: Pending } = {}
 local handled: { [string]: boolean } = {} -- claim keys of cats started here, so none spawns twice
 local readAt = 0 -- os.clock() of the next read
 local reading = false
+
+-- #2486: the Cafe Event showers started here, by claim key, and the cat numbers they run under
+type Shower = {
+	key: string,
+	number: number,
+	eventId: string,
+	pick: CafeEvents.ShowerPick,
+	state: Pity.State,
+	winner: string?,
+	wonHere: boolean,
+	spawnedAt: number, -- ClockService.now()
+}
+local SHOWER_BASE = 1e9 -- far above any pity cat's number (Pity.number)
+local showers: { [string]: Shower } = {}
+local showerHandled: { [string]: boolean } = {}
+local showerNumber = SHOWER_BASE
 
 local function timerOf(kind: Pity.Kind, now: number): Pity.Timer
 	local timer = timers[kind]
@@ -382,6 +406,182 @@ local function endCat(kind: Pity.Kind)
 	publishState()
 end
 
+-- #2486: the shower cats' analytics, under a player in the server.
+local function logShower(player: Player?, s: Shower, outcome: string)
+	local subject = player or someone()
+	if subject ~= nil then
+		Telemetry.custom(
+			subject,
+			"event_shower",
+			s.pick.n,
+			{ s.eventId, s.pick.areaId, s.pick.kind, outcome }
+		)
+	end
+end
+
+local function showerCaught(s: Shower, winner: string)
+	if s.state == "caught" then
+		return
+	end
+	s.state = "caught"
+	s.winner = winner
+	Net.fireAll("Announce", CafeEvents.showerCaughtText(winner), s.pick.kind)
+end
+
+-- Spawns the n-th shower of `event` here (it may yield on a late start's claim read).
+local function startShower(
+	event: CafeEvents.Event,
+	n: number,
+	key: string,
+	spawn: number,
+	now: number
+)
+	showerHandled[key] = true
+	showerNumber += 1
+	local s: Shower = {
+		key = key,
+		number = showerNumber,
+		eventId = event.id,
+		pick = CafeEvents.showerPick(event, n),
+		state = "out",
+		winner = nil,
+		wonHere = false,
+		spawnedAt = spawn,
+	}
+	showers[key] = s
+	local late = now - spawn > LATE_BANNER_SECONDS
+	if late then
+		local claimed = readClaim(key)
+		if claimed ~= nil then
+			s.state = "caught"
+			s.winner = claimed.winner
+			return
+		end
+	end
+	local pick = s.pick
+	if CatService.spawnPity(pick.catId, pick.areaId, pick.kind, s.number, pick.coat) == nil then
+		warn(
+			string.format(
+				"[PityService] shower %s: could not spawn %s in %s",
+				key,
+				pick.catId,
+				pick.areaId
+			)
+		)
+		showers[key] = nil
+		return
+	end
+	if late then
+		return -- joins in quietly, as a late pity cat does
+	end
+	local area = Catalog.getArea(pick.areaId)
+	for _, player in Players:GetPlayers() do
+		local profile = DataService.get(player)
+		local opensAt = if area ~= nil
+				and profile ~= nil
+				and profile.tier < area.tier
+			then area.tier
+			else nil
+		Net.fire(player, "Announce", CafeEvents.showerText(pick, opensAt), pick.kind)
+	end
+	logShower(nil, s, "spawned")
+end
+
+-- Each tick: showers past dusk go, and the event's due ones start (by day only).
+local function showerTick(now: number)
+	for key, s in showers do
+		if not Pity.stillOut(s.spawnedAt, now) then
+			showers[key] = nil
+			if s.state == "out" then
+				logShower(nil, s, "expired")
+			end
+		end
+	end
+	local event = EventService.recent()
+	if event == nil or event.effects.showers == nil or not ClockService.areasOpen() then
+		return
+	end
+	-- the shower times are server time; the clock's t runs alongside it
+	local offset = Workspace:GetServerTimeNow() - now
+	for n, due in CafeEvents.showerTimes(event) do
+		local key = CafeEvents.showerKey(event, n, game.JobId)
+		if showerHandled[key] then
+			continue
+		end
+		local spawn = Pity.spawnTime(due - offset)
+		if now < spawn then
+			break -- in time order: the rest are later
+		end
+		if not Pity.stillOut(spawn, now) then
+			showerHandled[key] = true -- a night came since: that one went at dusk
+			continue
+		end
+		task.spawn(startShower, event, n, key, spawn, now)
+	end
+end
+
+local function showerFor(number: number): Shower?
+	for _, s in showers do
+		if s.number == number then
+			return s
+		end
+	end
+	return nil
+end
+
+-- A shower cat's catch (it yields), as `claim` for a pity cat: true when this catch keeps it.
+local function claimShower(player: Player, s: Shower): boolean
+	if s.wonHere then
+		return true
+	end
+	if s.state == "caught" then
+		Net.toast(
+			player,
+			CafeEvents.showerCaughtText(s.winner or "Someone") .. " It puffed out of your net.",
+			"warn"
+		)
+		logShower(player, s, "lost")
+		return false
+	end
+	local mine: Claim = { job = game.JobId, userId = player.UserId, winner = player.DisplayName }
+	local stored: Claim? = nil
+	for _ = 1, Config.PityClaimRetries do
+		local ok = pcall(function()
+			hashMap():UpdateAsync(s.key, function(old: any): any
+				if type(old) == "table" and type(old.job) == "string" then
+					stored = old :: Claim
+					return nil
+				end
+				stored = mine
+				return mine
+			end, CLAIM_EXPIRY_SECONDS)
+		end)
+		if ok then
+			break
+		end
+		stored = nil
+	end
+	if showers[s.key] ~= s then
+		return false -- dusk came meanwhile
+	end
+	local winner: Claim = stored or mine -- MemoryStore failed every time: the catcher keeps it
+	if winner.job == game.JobId then
+		s.wonHere = true
+		showerCaught(s, player.DisplayName)
+		logShower(player, s, "secured")
+		publish({ shower = s.key, winner = player.DisplayName })
+		return true
+	end
+	showerCaught(s, winner.winner)
+	Net.toast(
+		player,
+		CafeEvents.showerCaughtText(winner.winner) .. " It puffed out of your net.",
+		"warn"
+	)
+	logShower(player, s, "lost")
+	return false
+end
+
 local function tick()
 	local now = ClockService.now()
 	eachKind(function(kind: Pity.Kind)
@@ -417,6 +617,7 @@ local function tick()
 			end
 		end
 	end)
+	showerTick(now) -- #2486
 	publishState() -- the fixed slots' timers move on their own
 	if not reading and os.clock() >= readAt then
 		reading = true
@@ -444,6 +645,10 @@ end
 
 -- CatService's claim on a pity cat's catch (it yields): true when this catch keeps the cat.
 local function claim(player: Player, number: number): boolean
+	local shower = showerFor(number)
+	if shower ~= nil then
+		return claimShower(player, shower)
+	end
 	local c = currentFor(number)
 	if c == nil then
 		return true -- not a cat this server is running: nothing to claim
@@ -518,6 +723,18 @@ end
 local function onMessage(message: any)
 	local data = if type(message) == "table" then message.Data else nil
 	if type(data) ~= "table" or data.job == game.JobId then
+		return
+	end
+	if type(data.shower) == "string" and type(data.winner) == "string" then
+		-- #2486: another server's catch got a shower cat: this server's copy puffs away
+		local s = showers[data.shower]
+		if s ~= nil and not s.wonHere then
+			local removed = CatService.removePity(s.number)
+			if s.state == "out" then
+				logShower(nil, s, if removed > 0 then "gone" else "lost")
+			end
+			showerCaught(s, string.sub(data.winner, 1, 40))
+		end
 		return
 	end
 	local kind: Pity.Kind? = if data.kind == "Legendary"

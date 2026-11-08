@@ -556,7 +556,7 @@ local function spawnStray(
 	position: Vector3,
 	pointIndex: number?,
 	lifetime: number?, -- nil: stays until the next dusk clears it
-	forceCoat: string?, -- Studio's debug hook: "gold" or "rainbow"
+	forceCoat: string?, -- "gold" or "rainbow": Studio's debug hook, or a Cafe Event shower's rainbow (#2486)
 	kept: Kept?, -- a Dropped cat keeps its charm, coat and rescued flag
 	beginner: number? -- F87: the tutorial stray's beginner
 ): Stray
@@ -2766,7 +2766,13 @@ end
 -- area for its rarity (point 1 when all are taken), coat rolled as any stray's, out until dusk. ATTRIBUTE (its kind,
 -- for the gold beam) and SLOT_ATTRIBUTE go on the model. A normal stray in every way, except that a catch asks the
 -- pity claim first. Nil when the area or cat is unknown.
-function CatService.spawnPity(catId: string, areaId: string, kind: string, slot: number): string?
+function CatService.spawnPity(
+	catId: string,
+	areaId: string,
+	kind: string,
+	slot: number,
+	coat: string? -- #2486: a Cafe Event shower's "rainbow"; nil rolls the coat as a stray's
+): string?
 	local def = Catalog.getCat(catId)
 	local area = world.areas[areaId]
 	if def == nil or area == nil or #area.spawnPoints == 0 then
@@ -2774,7 +2780,7 @@ function CatService.spawnPity(catId: string, areaId: string, kind: string, slot:
 	end
 	local pointIndex = freeSpawnPoint(areaId, def.rarity) or 1
 	local point = area.spawnPoints[pointIndex]
-	local stray = spawnStray(def, areaId, point.Position, pointIndex)
+	local stray = spawnStray(def, areaId, point.Position, pointIndex, nil, coat)
 	stray.model:SetAttribute(Pity.ATTRIBUTE, kind)
 	stray.model:SetAttribute(Pity.SLOT_ATTRIBUTE, slot)
 	return stray.id

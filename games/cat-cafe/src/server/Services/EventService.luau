@@ -51,6 +51,9 @@ local running: CafeEvents.Event? = nil
 local failing = false
 local lastNotes = ""
 local joined: { [Player]: boolean } = {} -- event_join logged for the running event
+local ended: CafeEvents.Event? = nil -- the last event that ended here, and when (server time), for recent()
+local endedAt = 0
+local RECENT_SECONDS = 300 -- a shower due by its end at night still spawns at the next sunrise (nights are 70 s)
 
 local function now(): number
 	return Workspace:GetServerTimeNow()
@@ -83,6 +86,15 @@ end
 -- The running event, or nil.
 function EventService.current(): CafeEvents.Event?
 	return running
+end
+
+-- The running event, else the one that ended in the last RECENT_SECONDS (PityService's showers), else nil.
+function EventService.recent(): CafeEvents.Event?
+	local event = running
+	if event ~= nil then
+		return event
+	end
+	return if ended ~= nil and now() - endedAt < RECENT_SECONDS then ended else nil
 end
 
 -- When the running event ends (unix seconds, the os.time() of the Luck chip's timers), or nil.
@@ -153,6 +165,7 @@ local function apply(at: number)
 			logMoney(player, was)
 		end
 		table.clear(joined)
+		ended, endedAt = was, at
 	end
 	if event ~= nil then
 		logJoins(event)

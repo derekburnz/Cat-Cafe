@@ -9,6 +9,10 @@
 -- that is already on screen is not stacked again; that toast moves to the newest spot, pops and starts its time over.
 -- #2207 (Derek2 11-07: "IBowBeforeGod tamed an Epic Gardener Cat at their..."): a line too long for one row wraps
 -- onto more rows and the pill grows taller, so every word shows (Toasts._wrap).
+-- #2338 (Laptop-Tester, iPhone SE: the Welcome back toast lay over the Index, Quests and Potions tiles): the stack keeps
+-- clear of the HUD's columns (avoid, HUD.toastAvoid). It stays centred where there is room, slides sideways into the
+-- gap between the menu and the goal card when that gap takes the widest pill, else drops under them; on a short screen
+-- only as many toasts show as fit over the bottom row (Toasts._place), and the rest wait their turn (QUEUE_MAX).
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -27,6 +31,7 @@ export type Toasts = {
 	rainbow: (self: Toasts, text: string, rarity: string?) -> (),
 	prize: (self: Toasts, text: string, prize: Types.IndexPrize?) -> (),
 	setCatalog: (self: Toasts, catalog: Types.Catalog) -> (),
+	avoid: (self: Toasts, boxes: () -> { Types.Box }, floor: (() -> number)?) -> (),
 	destroy: (self: Toasts) -> (),
 }
 
@@ -39,6 +44,13 @@ local PRIZE_TEXT_MAX = 300 -- the line's widest on a prize toast, leaving room f
 local TEXT_MAX = 424 -- the line's widest on any other toast
 local ROW_H = 40 -- a one-row pill
 local WRAP_PAD = 9 -- above and below the rows of a line that wraps
+local PILL_MAX = 460 -- a plain toast's widest pill (its line and padding)
+local PRIZE_PILL_MAX = 540 -- a prize toast's, with its pictures
+local CLEAR_GAP = 12 -- between the HUD's boxes and the stack (#2338)
+local EDGE = 16 -- the stack's least room to the screen's sides
+local TOP = 148 -- the stack's top: under the tier pill and the corner icons
+local STACK_GAP = 6 -- between the toasts
+local QUEUE_MAX = 3 -- toasts waiting for room on a short screen; past that the oldest waiting one is dropped
 
 -- Every kind is white outlined text on a coloured pill with a dark border (simulator notifications).
 local KIND_COLORS: { [string]: Color3 } = {
@@ -46,6 +58,14 @@ local KIND_COLORS: { [string]: Color3 } = {
 	good = Theme.colors.good,
 	warn = Theme.colors.warn,
 	announce = Theme.colors.gold,
+}
+
+type Waiting = {
+	text: string,
+	fill: Color3,
+	lifetime: number,
+	bands: boolean?,
+	prize: Types.IndexPrize?,
 }
 
 local Toasts = {}
@@ -71,18 +91,26 @@ function Toasts.new(parent: Instance): Toasts
 		Name = "Stack",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, 148), -- under the tier pill and the travel row
-		Size = UDim2.fromOffset(420, 300),
+		Position = UDim2.new(0.5, 0, 0, TOP), -- _place keeps it clear of the HUD
+		Size = UDim2.fromOffset(PRIZE_PILL_MAX, 300),
 		Parent = root,
 	}, {
 		Create("UIListLayout", {
 			FillDirection = Enum.FillDirection.Vertical,
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
-			Padding = UDim.new(0, 6),
+			Padding = UDim.new(0, STACK_GAP),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
 	self.screenGui = screenGui
+	self._root = root
+	self._boxes = nil :: (() -> { Types.Box })?
+	self._floor = nil :: (() -> number)?
+	self._room = MAX_VISIBLE
+	self._queue = {} :: { Waiting } -- #2338: toasts waiting for one on screen to go
+	self._resized = root:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		self:_place()
+	end)
 	self._catalog = nil :: Types.Catalog?
 	self._order = 0
 	self._alive = {} :: { Frame }
@@ -145,6 +173,60 @@ function Toasts.rainbow(self: any, text: string, rarity: string?)
 	self:_push(text, fill, ANNOUNCE_LIFETIME, true)
 end
 
+-- #2338: boxes gives what the stack keeps clear of (HUD.toastAvoid), floor the top of what the bottom centre stacks,
+-- as an offset up from the screen's bottom edge (HUD.bottomTop); each new toast places the stack again.
+function Toasts.avoid(self: any, boxes: () -> { Types.Box }, floor: (() -> number)?)
+	self._boxes = boxes
+	self._floor = floor
+	self:_place()
+end
+
+-- Where the stack goes, in design pixels: its centre and top. From TOP down, the boxes beside the two-row band under
+-- the top split into a left and a right side; the stack takes the middle when the widest pill fits between them,
+-- else the nearest spot in the gap; when the gap is too narrow the top moves under the lowest of those boxes.
+function Toasts.spot(boxes: { Types.Box }, width: number, pill: number): (number, number)
+	local middle = width / 2
+	local top = TOP
+	for _ = 1, #boxes + 1 do
+		local left, right = EDGE, width - EDGE
+		local under = top
+		for _, box in boxes do
+			if box.y1 > top and box.y0 < top + ROW_H * 2 + STACK_GAP then
+				if (box.x0 + box.x1) / 2 < middle then
+					left = math.max(left, box.x1 + CLEAR_GAP)
+				else
+					right = math.min(right, box.x0 - CLEAR_GAP)
+				end
+				under = math.max(under, box.y1 + CLEAR_GAP)
+			end
+		end
+		if right - left >= pill then
+			return math.clamp(middle, left + pill / 2, right - pill / 2), top
+		end
+		top = under
+	end
+	return middle, top
+end
+
+function Toasts._place(self: any)
+	local scale = Scale.get()
+	local size = self._root.AbsoluteSize / (if scale > 0 then scale else 1)
+	local pill = PILL_MAX
+	for _, live in self._alive do
+		if live:GetAttribute("Prize") then
+			pill = PRIZE_PILL_MAX
+		end
+	end
+	local boxes: (() -> { Types.Box })? = self._boxes
+	local x, top = Toasts.spot(if boxes then boxes() else {}, size.X, pill)
+	self._stack.Position = UDim2.new(0, math.floor(x), 0, top)
+	-- as many rows as fit over the bottom row (at least the newest toast)
+	local floor: (() -> number)? = self._floor
+	local bottom = size.Y + (if floor then floor() else -EDGE)
+	self._room =
+		math.clamp(math.floor((bottom - top + STACK_GAP) / (ROW_H + STACK_GAP)), 1, MAX_VISIBLE)
+end
+
 function Toasts.setCatalog(self: any, catalog: Types.Catalog)
 	self._catalog = catalog
 end
@@ -170,6 +252,23 @@ function Toasts._push(
 				return
 			end
 		end
+	end
+	-- #2338: a short screen with every row taken keeps it until one goes (the same words wait only once)
+	self:_place()
+	if self._room < MAX_VISIBLE and #self._alive >= self._room then
+		for _, waiting in self._queue do
+			if waiting.text == text and prize == nil then
+				return
+			end
+		end
+		table.insert(
+			self._queue,
+			{ text = text, fill = fill, lifetime = lifetime, bands = bands, prize = prize }
+		)
+		if #self._queue > QUEUE_MAX then
+			table.remove(self._queue, 1)
+		end
+		return
 	end
 	self._order += 1
 	local toast: Frame = Create("Frame", {
@@ -244,7 +343,11 @@ function Toasts._push(
 		chips = row
 	end
 	table.insert(self._alive, toast)
-	while #self._alive > MAX_VISIBLE do
+	if prize ~= nil then
+		toast:SetAttribute("Prize", true)
+	end
+	self:_place()
+	while #self._alive > self._room do
 		local oldest = table.remove(self._alive, 1)
 		if oldest then
 			self._restart[oldest] = nil
@@ -357,10 +460,15 @@ function Toasts._fade(
 			chips:destroy()
 		end
 		toast:Destroy()
+		local waiting = table.remove(self._queue, 1)
+		if waiting then
+			self:_push(waiting.text, waiting.fill, waiting.lifetime, waiting.bands, waiting.prize)
+		end
 	end)
 end
 
 function Toasts.destroy(self: any)
+	self._resized:Disconnect()
 	Scale.unbind(self._uiScale)
 	self.screenGui:Destroy()
 end

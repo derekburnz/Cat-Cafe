@@ -2444,11 +2444,16 @@ local SCENES = {
 		local short = "Saved!"
 		UI.announce(long, "Epic")
 		UI.toast(short, "good")
+		-- (a short phone shows fewer toasts at once and the rest wait their turn, #2338: the clock runs till it is up)
 		local function find(text: string): TextLabel
-			for _, label in UIShim.playerGui:GetDescendants() do
-				if label:IsA("TextLabel") and label.Text == text and label.Name == "Text" then
-					return label
+			for _ = 1, 40 do
+				for _, label in UIShim.playerGui:GetDescendants() do
+					if label:IsA("TextLabel") and label.Text == text and label.Name == "Text" then
+						UIShim.advance(0.3)
+						return label
+					end
 				end
+				UIShim.advance(0.25)
 			end
 			error("uigate: no toast reading " .. text)
 		end
@@ -2458,14 +2463,59 @@ local SCENES = {
 		assert(line.TextTruncate == Enum.TextTruncate.None, "uigate: the long toast still ends in ... (#2207)")
 		assert(line.TextFits, "uigate: the long toast's words do not all fit (#2207)")
 		assert(pill.AbsoluteSize.Y > line.TextBounds.Y, "uigate: the long toast's pill is shorter than its rows (#2207)")
+		local tall = pill.AbsoluteSize.Y
 		local lone = find(short)
 		assert(not lone.TextWrapped, "uigate: a short toast wrapped (#2207)")
 		local lonePill = lone.Parent :: Frame
 		assert(lone.TextFits, "uigate: the short toast's word does not fit (#2207)")
-		assert(
-			pill.AbsoluteSize.Y > lonePill.AbsoluteSize.Y + 4,
-			"uigate: the long toast's pill is no taller than a one-row pill (#2207)"
-		)
+		assert(tall > lonePill.AbsoluteSize.Y + 4, "uigate: the long toast's pill is no taller than a one-row pill (#2207)")
+	end },
+	-- #2338 (Laptop-Tester, iPhone SE: the Welcome back toast lay over the Index, Quests and Potions tiles): the pill
+	-- keeps clear of the menu's tiles, the goal card, the corner tiles and the bottom row, and on screen; a wide screen
+	-- keeps it centred
+	{ "ToastClear", function()
+		local line = "Welcome back! +$12,345 while you were away"
+		UI.toast(line, "good")
+		task.wait(0.1)
+		UIShim.advance(0.5)
+		local pill: GuiObject? = nil
+		for _, label in UIShim.playerGui:GetDescendants() do
+			if label:IsA("TextLabel") and label.Text == line and label.Name == "Text" then
+				pill = label.Parent :: GuiObject
+			end
+		end
+		assert(pill, "uigate: no Welcome back toast (#2338)")
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local root = hud:FindFirstChild("Root") :: Frame
+		local menu = root:FindFirstChild("Menu") :: Frame -- the tile grid (the bottom row has a Menu button too)
+		local parts: { GuiObject } = {}
+		for _, tile in menu:GetChildren() do
+			if tile:IsA("GuiObject") and tile.Visible then
+				table.insert(parts, tile)
+			end
+		end
+		for _, name in { "MenuFold", "TierGoal", "Travel", "Corner" } do
+			local part = root:FindFirstChild(name) :: GuiObject?
+			if part and part.Visible then
+				table.insert(parts, part)
+			end
+		end
+		local p0, p1 = pill.AbsolutePosition, pill.AbsolutePosition + pill.AbsoluteSize
+		local reach = 0
+		for _, part in parts do
+			local a0, a1 = part.AbsolutePosition, part.AbsolutePosition + part.AbsoluteSize
+			if part.Parent == menu then
+				reach = math.max(reach, a1.X)
+			end
+			local apart = a1.X <= p0.X or p1.X <= a0.X or a1.Y <= p0.Y or p1.Y <= a0.Y
+			assert(apart, "uigate: the Welcome back toast lies over the HUD's " .. part.Name .. " (#2338)")
+		end
+		local screen = hud.AbsoluteSize
+		assert(p1.X <= screen.X, "uigate: the Welcome back toast runs off the right edge (#2338)")
+		local middle = (p0.X + p1.X) / 2
+		if reach < screen.X / 2 - 240 then
+			assert(math.abs(middle - screen.X / 2) < 2, ("uigate: the toast sits %d px off centre with room to spare (#2338)"):format(middle - screen.X / 2))
+		end
 	end },
 	-- F99 section 2: a rainbow stray's once-a-minute toast on a turning rainbow edge
 	{ "RainbowSpawn", function()

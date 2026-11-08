@@ -2016,13 +2016,14 @@ local SCENES = {
 		UI.bait.set({ lureId = Catalog.lures[2].id, readyAt = now - 5, placedAt = now - 300 }, 2)
 		UI.bait.showReady({ catId = Catalog.cats[2].id, stars = 2 }, 2)
 	end },
-	-- #1919: the Tame card shows the cat's area count as it stands ("Park N / M"), in the Park's colour
+	-- #2530 (Derek2: "remove pop ups for cats caught progress towards goal just adds more clutter"): the Tame card has
+	-- no "Park N / M" area count any more (#1919)
 	{ "BaitCardArea", function()
 		local now = workspace:GetServerTimeNow()
 		UI.bait.set({ lureId = Catalog.lures[1].id, readyAt = now - 5, placedAt = now - 300 }, 1)
 		UI.bait.showReady({ catId = missingCat("park").id, stars = 2 }, 1)
 		local pill = UIShim.playerGui:FindFirstChild("CatCafeBaitCard"):FindFirstChild("AreaCount", true)
-		assert(pill and pill.Visible and string.match(pill.Text, "^Park %d+ / %d+$"), "uigate: the Tame card's area line reads " .. tostring(pill and pill.Text))
+		assert(pill == nil, "uigate: the Tame card still shows an area count (#2530)")
 	end },
 	-- #1161: a cat at each bowl: bowl 1 first, and each tab says its own bowl
 	{ "BaitBothReady", function()
@@ -4035,12 +4036,12 @@ local SCENES = {
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
 	end },
-	-- #1919: a new Park cat's reveal shows "Park N / M" in the Park's colour, counting the new cat
+	-- #2530: a new Park cat's reveal has no "Park N / M" area count any more (#1919)
 	{ "CatFoundArea", function()
 		local def = missingCat("park")
 		UI.showCatFound(def.id, true)
 		local pill = UIShim.playerGui:FindFirstChild("CatCafePopups"):FindFirstChild("AreaCount", true)
-		assert(pill and pill.Visible and string.match(pill.Text, "^Park %d+ / %d+$"), "uigate: the reveal's area line reads " .. tostring(pill and pill.Text))
+		assert(pill == nil, "uigate: the new-cat reveal still shows an area count (#2530)")
 	end },
 	-- F99: a rainbow cat's card: NEW RAINBOW ... CAT! and a turning rainbow edge
 	{ "CatFoundRainbow", function()

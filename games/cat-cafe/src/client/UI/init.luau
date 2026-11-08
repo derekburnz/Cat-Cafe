@@ -1939,13 +1939,6 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 			line = extra and extra.line,
 			rate = extra and extra.rate,
 		}
-		-- #1919: the area's count, counting this cat while the sync has not caught up; a given cat (its own
-		-- banner) shows none
-		local catalog = currentCatalog
-		if catalog and not (extra and extra.banner) then
-			local IndexHints = require(script.Components.IndexHints)
-			info.areaLine = IndexHints.areaLine(catalog, state, catId, true)
-		end
 		local cats: { [string]: Types.CatInstance } = state.cats or {}
 		local newest: Types.CatInstance? = nil
 		for _, instance in cats do
@@ -2189,15 +2182,11 @@ function UI.bait.showReady(cat: Types.BaitCat, bowl: number?)
 		local lureId = if view then view.lureId else nil
 		-- #1161: with two bowls the banner names the bowl
 		local two = bowls.second == "on" or bowls.views[2] ~= nil
-		local catalog = currentCatalog
-		local IndexHints = require(script.Components.IndexHints)
 		baitCard:show(
 			def :: Types.CatDef,
 			cat,
 			if lureId then foodName(lureId) else nil,
-			if two then index else nil,
-			-- #1919: the area's count as it stands; taming adds the cat
-			if catalog then IndexHints.areaLine(catalog, state, cat.catId) else nil
+			if two then index else nil
 		)
 	end
 	renderBait()

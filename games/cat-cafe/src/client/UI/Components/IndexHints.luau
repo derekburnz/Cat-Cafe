@@ -1,13 +1,11 @@
 --!strict
--- Where to find the missing cats (#1919, first-hour.md section 5): the Index's hint line for a cat not found yet, the
--- "Park 4 / 10" line on the new-cat reveal and the bait Tame card, and the goal card's "Find N more cats" nudge while
--- the Grand Opening's twelve cats step is next. Every line is built from data the client already has, so each is true:
+-- Where to find the missing cats (#1919, first-hour.md section 5): the Index's hint line for a cat not found yet and
+-- the goal card's "Find N more cats" nudge while the Grand Opening's twelve cats step is next (#2530 took the "Park 4 /
+-- 10" line off the new-cat reveal and the bait Tame card). Every line is built from data the client already has, so each is true:
 -- bait picks from every open area (data-model section 8), and Epic and up are the Skittish ones (catch-rework.md 7a).
 -- Nothing is sold and no odds change. Pure (no Theme, no Format), so the cloud specs load it.
 --   hint(catalog, state, def) -> string?        the detail card's line for a missing cat, nil for an exclusive one
 --                                               (it keeps "Not found yet")
---   areaLine(catalog, state, catId, counted)    { text = "Park 4 / 10", area = "park" }, or nil for a cat with no
---                                               Index page; `counted` adds this cat when the state has not caught up
 --   nudge(catalog, state) -> Nudge?             { text = "Find 3 more cats", area = "park" } while step 7 is next
 --   TWELVE_STEP, TWELVE                         the Grand Opening step and its count (the server's distinctCats >= 12)
 
@@ -15,7 +13,6 @@ local IndexBook = require(script.Parent.IndexBook)
 local RoadmapLogic = require(script.Parent.RoadmapLogic)
 local Types = require(script.Parent.Parent.Types)
 
-export type Line = { text: string, area: string }
 export type Nudge = { text: string, area: string? }
 
 local IndexHints = {}
@@ -73,42 +70,6 @@ function IndexHints.hint(
 		line ..= " " .. IndexHints.SHY
 	end
 	return line
-end
-
-function IndexHints.areaLine(
-	catalog: Types.Catalog,
-	state: Types.PlayerState,
-	catId: string,
-	counted: boolean?
-): Line?
-	local def: Types.CatDef? = nil
-	for _, each in catalog.cats do
-		if each.id == catId then
-			def = each
-			break
-		end
-	end
-	if def == nil or exclusive(def) then
-		return nil
-	end
-	local areaId: string = def.area or IndexBook.FALLBACK_AREA
-	for _, section in IndexBook.sections(catalog, state, "normal") do
-		if section.id == areaId and not section.exclusive and section.total > 0 then
-			local have = section.have
-			if counted and not IndexBook.found(state, "normal")[catId] then
-				have += 1 -- the reveal can come before ProfileSync carries the new cat
-			end
-			return {
-				text = ("%s %d / %d"):format(
-					section.name,
-					math.min(have, section.total),
-					section.total
-				),
-				area = areaId,
-			}
-		end
-	end
-	return nil -- a spare cat: no Index page
 end
 
 -- The server's Economy.distinctCats: collection entries that are not exclusive (an id the catalog lacks counts).

@@ -120,11 +120,12 @@ local function art(part: BasePart, icon: Icon, radius: number): boolean
 	end
 	for _, piece in decor:GetDescendants() do
 		if piece:IsA("BasePart") then
-			piece.Anchored = true
-			piece.CanCollide = false
-			piece.CanQuery = false
-			piece.CanTouch = false
-			piece.CastShadow = false
+			local solid = piece :: BasePart
+			solid.Anchored = true
+			solid.CanCollide = false
+			solid.CanQuery = false
+			solid.CanTouch = false
+			solid.CastShadow = false
 		elseif piece:IsA("Script") or piece:IsA("LocalScript") then
 			piece:Destroy() -- decor carries no code (rule 7)
 		end

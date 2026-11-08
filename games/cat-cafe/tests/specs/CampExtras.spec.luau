@@ -319,6 +319,36 @@ return function()
 		end)
 	end)
 
+	describe("walk-up claims (#2498)", function()
+		it("takes what waits at the basket, pond and lost and found, and nothing while empty or shut", function()
+			local fresh = at(CampExtras.fresh(T), 5, T)
+			for _, id in CampExtras.COLLECT do
+				local view = (fresh :: any)[id]
+				expect(view.held > 0).to.equal(true)
+				expect((CampExtras.autoClaim(id, view))).to.equal("collect")
+			end
+			local empty = CampExtras.view(emptied(5), 5, T)
+			for _, id in CampExtras.COLLECT do
+				expect((CampExtras.autoClaim(id, (empty :: any)[id]))).to.equal(nil)
+			end
+			local shut = at(CampExtras.fresh(T), 1, T)
+			expect((CampExtras.autoClaim("pond", shut.pond))).to.equal(nil)
+		end)
+
+		it("takes the Yard Sale's free crate while it waits, and nothing once taken", function()
+			local save = CampExtras.fresh(T)
+			local view = at(save, 3, T).yardSale
+			local how, crateId = CampExtras.autoClaim(CampExtras.YARD_SALE, view)
+			expect(how).to.equal("yard")
+			expect(crateId).to.equal((CampExtras.nextYardCrate(view) :: any).crateId)
+			local taken = table.clone(view)
+			taken.held = 0
+			expect((CampExtras.autoClaim(CampExtras.YARD_SALE, taken))).to.equal(nil)
+			local unknown = { open = true, held = 1 }
+			expect((CampExtras.autoClaim("mystery", unknown :: any))).to.equal(nil)
+		end)
+	end)
+
 	describe("lines (section 3)", function()
 		it("shows each extra's line on its area's card in the picker, and none for a shut one (check 1)", function()
 			local tier2 = at(emptied(2), 2, T + 6 * HOUR)
@@ -347,7 +377,7 @@ return function()
 			local soon = at(emptied(5), 5, T + HOUR)
 			expect(select(2, CampExtras.promptText("lostFound", soon.lostFound, T + HOUR))).to.equal("Next in 1 h")
 			expect(select(2, CampExtras.promptText("yardSale", view.yardSale, now))).to.equal("Take a free crate")
-			local shut = CampExtras.view(CampExtras.fresh(T), 1, T)
+			local shut = at(CampExtras.fresh(T), 1, T)
 			expect(select(2, CampExtras.promptText("pond", shut.pond, T))).to.equal("Opens at Tier 4")
 		end)
 	end)

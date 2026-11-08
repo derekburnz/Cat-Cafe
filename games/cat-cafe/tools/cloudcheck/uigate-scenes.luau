@@ -1257,6 +1257,27 @@ local SCENES = {
 	{ "Index", function()
 		UI.open("Collection")
 	end },
+	-- #2493: the forever pills' fit runs deferred and settles: after a few frames its scale holds still, and the row
+	-- stays inside the title bar
+	{ "IndexPerksFit", function()
+		UI.open("Collection")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local row = modals and modals:FindFirstChild("Forever", true) :: Frame?
+		assert(row, "uigate: no forever pills row in the Index (#2493)")
+		local scale = row:FindFirstChildOfClass("UIScale") :: UIScale
+		for _ = 1, 5 do
+			UIShim.advance(1 / 60)
+		end
+		local settled = scale.Scale
+		for _ = 1, 5 do
+			UIShim.advance(1 / 60)
+			assert(scale.Scale == settled, ("uigate: the forever pills' scale still moves (%.3f to %.3f, #2493)"):format(settled, scale.Scale))
+		end
+		local header = row.Parent :: GuiObject
+		if row.Visible then
+			assert(row.AbsolutePosition.X >= header.AbsolutePosition.X, "uigate: the forever pills run off the title bar (#2493)")
+		end
+	end },
 	-- #1919: a missing Park cat at Tier 3 says to catch it there or wait for bait
 	{ "IndexHintPark", function()
 		local text = indexHint(missingCat("park"))

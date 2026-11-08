@@ -1138,6 +1138,9 @@ export type LuckSource = { id: string, value: number, endsAt: number? }
 export type PlayerState = {
 	money: number,
 	incomePerSecond: number,
+	-- the day rate prizes pay from (Economy.incomePerSecond: no night drop, tip potion or Cafe Event money), for prize
+	-- previews such as the Daily Treat's coins (Laptop-Tester 2026-11-08, #2486)
+	prizeRate: number?,
 	tier: number,
 	cafeProgress: number?,
 	cafeProgressText: string?,

@@ -210,6 +210,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 	return {
 		money = math.floor(profile.coins),
 		incomePerSecond = currentRate(profile), -- drops at nightfall; the client predicts coins with it
+		prizeRate = Economy.incomePerSecond(profile), -- what coinSeconds prizes pay from (Payout)
 		tier = Economy.tier(profile),
 		cafeProgress = nil,
 		cafeProgressText = nil,

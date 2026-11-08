@@ -1829,6 +1829,34 @@ local SCENES = {
 		local banner = gui:FindFirstChild("Banner", true)
 		assert(banner.Text == "A CAT CAME TO BOWL 2!", "uigate: the cat's card says " .. banner.Text)
 	end },
+	-- #2412 (Derek2: "make food bowl cat pop ups never appear mid catch or while holding a cat"): a cat (an Epic, so the
+	-- first wow card comes too) reaches the bowl while a cat is carried; neither card shows until the carry ends
+	{ "BaitWaitsForCarry", function()
+		local epic: string? = nil
+		for _, def in Catalog.cats do
+			if def.rarity == "Epic" then
+				epic = def.id
+				break
+			end
+		end
+		assert(epic, "uigate: no Epic cat in the catalog")
+		local now = workspace:GetServerTimeNow()
+		UI.bait.set({ lureId = Catalog.lures[2].id, readyAt = now - 1, placedAt = now - 300 }, 1)
+		UI.setCarrying({ catId = Catalog.cats[1].id, catName = Catalog.cats[1].name, rarity = Catalog.cats[1].rarity })
+		UI.bait.arrived({ catId = epic, stars = 2 }, 1)
+		UI.bait.wow("Epic", false, epic)
+		task.wait(UI.bait.SETTLE + 0.5)
+		local card = UIShim.playerGui:FindFirstChild("CatCafeBaitCard")
+		local pull = UIShim.playerGui:FindFirstChild("CatCafeBigPull")
+		assert(card and not card.Enabled, "uigate: the bait card popped up while carrying a cat (#2412)")
+		assert(not (pull and pull.Enabled), "uigate: the wow card popped up while carrying a cat (#2412)")
+		UI.setCarrying(nil)
+		task.wait(UI.bait.SETTLE + 0.6)
+		assert(card.Enabled, "uigate: the bait card never showed after the carry (#2412)")
+		pull = UIShim.playerGui:FindFirstChild("CatCafeBigPull")
+		assert(pull and pull.Enabled, "uigate: the wow card never showed after the carry (#2412)")
+		UI.bait.set(nil, 1) -- the bowl empty again for the scenes after
+	end },
 	-- #1161: the cat's card with two bowls names the bowl, and its banner stays clear of the X on a phone
 	{ "BaitCardBowl2", function()
 		local now = workspace:GetServerTimeNow()

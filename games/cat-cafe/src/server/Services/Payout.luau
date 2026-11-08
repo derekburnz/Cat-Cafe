@@ -29,13 +29,18 @@ function Payout.pay(
 	profile: Types.PlayerProfile,
 	prize: Types.IndexPrize,
 	sku: string,
-	transaction: Telemetry.TransactionType?
+	transaction: Telemetry.TransactionType?,
+	coinBoost: number? -- #2486: the Tip Jar's coins x a running Cafe Event's money; prizes pass none
 ): ({ string }, number)
 	local kind: Telemetry.TransactionType = transaction or "Gameplay"
 	local paid: { string } = {}
-	local coins = Prizes.coins(prize.coins, prize.coinSeconds, Economy.incomePerSecond(profile))
+	local boost = math.max(1, coinBoost or 1)
+	local coins = math.floor(
+		Prizes.coins(prize.coins, prize.coinSeconds, Economy.incomePerSecond(profile)) * boost
+	)
 	if coins > 0 then
 		Economy.credit(profile, coins)
+		Economy.noteEventExtra(profile, coins, boost)
 		Telemetry.source(player, profile, coins, kind, sku)
 		table.insert(paid, "+$" .. ShortNumber.format(coins))
 	end

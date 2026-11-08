@@ -34,6 +34,7 @@ type Tip = {
 	ownerUserId: number,
 	serial: number, -- which tip this is, for the logs and a later async path; a plot holds one at a time
 	amount: number,
+	boost: number, -- #2486: the Cafe Event's money in `amount` (1 without one), for event_money
 	expiresAt: number, -- os.time()
 	plot: WorldBuilder.Plot,
 }
@@ -79,6 +80,7 @@ local function pay(player: Player, tip: Tip)
 		return
 	end
 	Economy.credit(profile, tip.amount)
+	Economy.noteEventExtra(profile, tip.amount, tip.boost)
 	logTip(player, profile, tip.amount, "claimed")
 	CafeService.sync(player)
 end
@@ -145,7 +147,8 @@ local function open(
 	local tip: Tip = {
 		ownerUserId = player.UserId,
 		serial = serial,
-		amount = Economy.richTipAmount(dayRate),
+		amount = Economy.richTipAmount(dayRate * Economy.eventMoney()), -- #2486: x a running Cafe Event's money
+		boost = Economy.eventMoney(),
 		expiresAt = math.min(now + Config.RichTipStaySeconds, lastsUntil),
 		plot = plot,
 	}

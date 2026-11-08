@@ -66,8 +66,11 @@ local function addPile(
 	local current: Piles = piles[plot.index]
 		or { ownerUserId = player.UserId, plot = plot, shown = {} }
 	piles[plot.index] = current
-	local amount = Economy.tipPileAmount(dayRate * Economy.tipMultiplier(profile, now))
+	-- #2486: a running Cafe Event's money counts on tips (live-events.md 2b)
+	local boost = Economy.eventMoney()
+	local amount = Economy.tipPileAmount(dayRate * Economy.tipMultiplier(profile, now) * boost)
 	Economy.credit(profile, amount)
+	Economy.noteEventExtra(profile, amount, boost)
 	profile.stats.tipPilesCollected += 1 -- F73: each pile counts
 	Telemetry.source(player, profile, amount, "Gameplay", "tip_pile")
 	Telemetry.onboarding(player, profile, "first_tip_collected") -- #1273

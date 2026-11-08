@@ -3378,6 +3378,17 @@ local SCENES = {
 		assert(read.Visible, "uigate: no read bar on a shot with a hold (#2182)")
 		assert(read.AbsolutePosition.Y >= caption.AbsolutePosition.Y + caption.AbsoluteSize.Y - 1, "uigate: the read bar is not under the caption (#2182)")
 		assert(read.AbsolutePosition.Y + read.AbsoluteSize.Y <= bottom.AbsolutePosition.Y + 1, "uigate: the read bar sits on the lower bar (#2182)")
+		-- #2394 (Derek2: "the bottom just takes up a lot of space that could be camera"): on touch no lower bar; the
+		-- caption and its read bar sit over Skip and Next, which stay inside the screen
+		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			assert(not bottom.Visible, "uigate: the lower bar shows on touch (#2394)")
+			assert(read.AbsolutePosition.Y + read.AbsoluteSize.Y <= skip.AbsolutePosition.Y, "uigate: the read bar runs onto Skip and Next (#2394)")
+			assert(caption.AbsolutePosition.Y + caption.AbsoluteSize.Y <= skip.AbsolutePosition.Y, "uigate: the caption runs onto Skip and Next (#2394)")
+			local screenBottom = gui.AbsoluteSize.Y
+			assert(skip.AbsolutePosition.Y + skip.AbsoluteSize.Y <= screenBottom - 12, "uigate: Skip sits on the bottom edge (#2394)")
+		else
+			assert(bottom.Visible, "uigate: no lower bar on a PC (#2394)")
+		end
 		-- a press in the first second of a shot does nothing (the shim's os.clock runs with UIShim.advance; its tweens end at once,
 		-- so the bar's fill is not checked here)
 		UI.intro.setShot(2, "Boom! Every area starts at a safe camp", nil, 4.2)

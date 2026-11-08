@@ -13,6 +13,10 @@ local IntroLogic = {}
 -- one dot per shot, as many as the controller's shared/Intro has (ten since 2026-10-28)
 IntroLogic.SHOTS = if type(Intro.SHOTS) == "number" then Intro.SHOTS else 10
 IntroLogic.BAR = 0.09 -- each letterbox bar's share of the screen height
+-- #2394 (Derek2: "the black bars on top and bottom of screen top is fine because it shows how far through tutorial but
+-- the bottom just takes up a lot of space that could be camera"): on touch there is no lower bar; Skip and Next sit
+-- this far over the bottom edge instead (clear of a phone's home bar), and the caption just over them
+IntroLogic.NO_BAR_EDGE = 24
 IntroLogic.OUT_SECONDS = 0.45 -- the bars slide out this long at the end while the HUD comes back
 -- Skip's bar fills this long into a first play before a press counts (Derek 2026-10-28: "make it 5 seconds"); a
 -- replay starts full
@@ -61,13 +65,26 @@ function IntroLogic.closerRadius(t: number): number
 	return IntroLogic.START_RADIUS + (IntroLogic.RING_RADIUS - IntroLogic.START_RADIUS) * share
 end
 
+-- Whether the cutscene draws its lower letterbox bar: not on touch (#2394), where the screen is short.
+function IntroLogic.lowerBar(touch: boolean): boolean
+	return not touch
+end
+
 -- The Skip pill's height and its gap above the bottom edge, in design pixels, on a screen `screenY` real pixels
 -- tall drawn at `scale`: at least TOUCH_MIN real pixels tall on touch, centred on the lower bar when it fits
--- there and never nearer than 4 to the edge when it does not.
-function IntroLogic.skipPlace(screenY: number, scale: number, touch: boolean): (number, number)
+-- there and never nearer than 4 to the edge when it does not; NO_BAR_EDGE over the edge with no lower bar (#2394).
+function IntroLogic.skipPlace(
+	screenY: number,
+	scale: number,
+	touch: boolean,
+	noBar: boolean?
+): (number, number)
 	local height = IntroLogic.SKIP_HEIGHT
 	if touch and scale > 0 then
 		height = math.max(height, math.ceil(IntroLogic.TOUCH_MIN / scale))
+	end
+	if noBar then
+		return height, IntroLogic.NO_BAR_EDGE
 	end
 	local bar = if scale > 0 then screenY * IntroLogic.BAR / scale else 0
 	return height, math.max(4, (bar - height) / 2)

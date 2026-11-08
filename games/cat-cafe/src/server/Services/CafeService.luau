@@ -128,6 +128,7 @@ local function currentRate(profile: Profile): number
 	return Economy.incomePerSecond(profile)
 		* Economy.phaseMultiplier(ClockService.phase())
 		* Economy.tipMultiplier(profile, os.time())
+		* Economy.eventMoney() -- #2486: a running Cafe Event's money
 end
 
 -- The cats as the client sees them: saved fields plus rating, stars and XP progress (CatStats.view). A name is
@@ -2426,6 +2427,19 @@ function CafeService.start()
 			-- #1534: at nightfall the cats napping on the sleep spots by day go back to the cat room before the
 			-- working cats walk to bed; at sunrise they come out on the spots that are free
 			CafeService.refreshPlot(player)
+			CafeService.sync(player)
+		end
+	end)
+
+	-- #2486: a Cafe Event starting or ending changes the rate and Luck: the time before it is paid at the old rate,
+	-- then everyone gets the new rate, Luck chip and odds cards at once
+	EventService.changing:Connect(function()
+		for _, player in DataService.loadedPlayers() do
+			profileFor(player)
+		end
+	end)
+	EventService.changed:Connect(function()
+		for _, player in DataService.loadedPlayers() do
 			CafeService.sync(player)
 		end
 	end)

@@ -34,6 +34,8 @@ local EventService = {}
 
 -- Fires (event or nil) when the running event changes, after its effects are set.
 EventService.changed = Signal.new() :: Signal.Signal<CafeEvents.Event?>
+-- Fires just before the effects change, so CafeService settles every cafe at the old rate.
+EventService.changing = Signal.new() :: Signal.Signal<nil>
 
 local SUFFIX = if RunService:IsStudio() then "_dev" else ""
 
@@ -121,6 +123,7 @@ local function apply(at: number)
 		running = event
 		return
 	end
+	EventService.changing:Fire(nil)
 	running = event
 	ClockService.setEventDays(if event ~= nil then event.effects.days else nil)
 	Economy.setEventMoney(if event ~= nil then event.effects.money else 1)

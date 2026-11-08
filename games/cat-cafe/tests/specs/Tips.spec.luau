@@ -136,6 +136,17 @@ return function()
 			expect(Tips.LESSON).to.equal("tackle_lesson")
 		end)
 
+		it("keeps the lesson's seen flag through a save and load, and never marks it for a veteran (#2409)", function()
+			expect(Tips.sanitizeSeen({ tackle_lesson = true }, false) :: any).to.deepEqual({ tackle_lesson = true })
+			expect(Tips.sanitizeSeen({}, true)[Tips.LESSON]).never.to.be.ok()
+			local profile = ProfileSchema.template(0)
+			profile.introSeen = true
+			profile.tipsSeen[Tips.LESSON] = true
+			local loaded = ProfileSchema.migrate(profile, 0)
+			expect(loaded.tipsSeen[Tips.LESSON]).to.equal(true)
+			expect(#Tips.due(loaded, DAY)).to.equal(0)
+		end)
+
 		it("lists only server tips", function()
 			local profile = fresh()
 			profile.goldenFish = 3

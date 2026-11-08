@@ -212,7 +212,7 @@ function Tips.sanitizeSeen(raw: any, veteran: boolean): { [string]: boolean }
 			if
 				type(key) == "string"
 				and value == true
-				and (byId[key] ~= nil or Tips.isAsk(key))
+				and (byId[key] ~= nil or Tips.isAsk(key) or key == Tips.LESSON) -- #2409: the lesson's own flag
 			then
 				seen[key] = true
 			end

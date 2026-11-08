@@ -3,7 +3,8 @@
 -- trade (TradeState through UI.trade.state); these say what the trade window, the request card and the players list
 -- show, and which buttons can be pressed.
 --   minTier(attribute) -> number         the live minimum tier: Workspace's TradeMinTier, else Config, else 3
---   shown(tier, minTier) -> boolean      the HUD's Trade tile shows from that tier
+--   shown(tier, minTier) -> boolean      the HUD's Trade tile works from that tier (greyed below it, #2462)
+--   lockedText(minTier) -> string        "Unlocks at Tier 3", a tap on the greyed tile (#2462)
 --   askTitle(name) -> string             the request card: "Sam wants to trade"
 --   rate(n, forMe) -> string             a card's earnings, short: "$24/s" on your cats, "+$1.2K/s" on theirs
 --   compact(n) -> string                 950, 1.2K, 12K, 1.5M (cut down)
@@ -113,6 +114,11 @@ end
 
 function TradeLogic.shown(tier: number?, minTier: number): boolean
 	return (tier or 0) >= minTier
+end
+
+-- #2462: what a tap on the greyed Trade tile says below the trading tier
+function TradeLogic.lockedText(minTier: number): string
+	return string.format("Unlocks at Tier %d", minTier)
 end
 
 function TradeLogic.askTitle(name: string): string

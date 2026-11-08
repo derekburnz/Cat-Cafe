@@ -4519,6 +4519,20 @@ local SCENES = {
 		workspace:SetAttribute("TradingOn", true)
 		UI.update({ tier = 3 })
 	end },
+	-- #2462 (Derek2 11-08: "show the trade button but grayed out until unlocked and when clicked it says unlocks at
+	-- Tier 3"): below the trading tier the Trade tile shows greyed, a tap opens nothing and says which tier opens it
+	{ "HUDTradeLocked", function()
+		workspace:SetAttribute("TradingOn", true)
+		Scenes._tradeTier = { tier = (UI.getState() :: any).tier }
+		UI.update({ tier = 1 })
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local tile = hud:FindFirstChild("Trade", true) :: GuiObject
+		assert(tile and tile.Visible, "uigate: no Trade tile below the trading tier (#2462)")
+		press("CatCafeHUD", "Icons.Trade")
+		local note = hud:FindFirstChild("LockedNote", true) :: TextLabel?
+		assert(note and note.Text == "Unlocks at Tier 3", "uigate: the greyed Trade tile says " .. tostring(note and note.Text) .. " (#2462)")
+		assert(UI.isOpen() ~= "Trade", "uigate: the greyed Trade tile opened the Trade window (#2462)")
+	end },
 	-- Fewer buttons (Derek 2026-11-02): the Rewards tile's list (gifts and the Daily Treat) and the Menu tile's list
 	-- (Settings, Invite) under the icon row
 	{ "HUDRewards", function()
@@ -5189,6 +5203,10 @@ end
 
 function Scenes.close()
 	reel(false)
+	if Scenes._tradeTier ~= nil then
+		UI.update(Scenes._tradeTier :: any) -- #2462's scene
+		Scenes._tradeTier = nil
+	end
 	if Scenes._rescueSpot ~= nil then
 		Scenes._rescueSpot:Destroy() -- #2214's rescue scene
 		Scenes._rescueSpot = nil

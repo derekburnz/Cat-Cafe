@@ -65,6 +65,8 @@ export type Props = {
 	layoutOrder: number?,
 	enabled: boolean?,
 	onClick: (() -> ())?,
+	-- #2462: a tap on the greyed button (after its bonk), e.g. to say when it unlocks
+	onLocked: (() -> ())?,
 	-- cue played on press; default "uiClick", false when the action already sounds (a modal's open or close swish)
 	sound: (string | false)?,
 	name: string?,
@@ -437,6 +439,7 @@ function Button.new(props: Props): Button
 	self._enabled = enabled
 	self._connections = connections
 	self._onClick = props.onClick
+	self._onLocked = props.onLocked
 	self._sound = if props.sound == nil then "uiClick" else props.sound
 
 	local function applyStyle()
@@ -524,6 +527,10 @@ function Button.new(props: Props): Button
 			-- fires Activated, so scrolling past "can't afford" rows stays quiet (reviewer N57).
 			if not self._enabled then
 				Sound.play("uiError")
+				local onLocked = self._onLocked
+				if onLocked then
+					onLocked()
+				end
 				return
 			end
 			local sound = self._sound

@@ -132,7 +132,10 @@ local ProfileSchema = {}
 -- Version 42 (#1947, like-prompts.md section 2) adds likeGift and favGift, the two once-per-account gifts for play
 -- time: an older server would drop them and pay each gift again. A save from before it gets them by its play time:
 -- one past 10 or 30 minutes already is paid on its next join.
-ProfileSchema.VERSION = 42
+-- Version 43 (#2486, live-events.md section 2e) adds eventRewards and eventLast, the Cafe Event reward pieces given and
+-- the last event rewarded: an older server would drop eventLast and pay the event's reward (or its repeat coin gift)
+-- again by hopping servers during a rollout.
+ProfileSchema.VERSION = 43
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -315,6 +318,8 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		firstWow = false,
 		likeGift = false,
 		favGift = false,
+		eventRewards = {},
+		eventLast = "",
 	}
 end
 
@@ -1005,6 +1010,18 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- #1947 (version 42): the like and favourite gifts
 	profile.likeGift = raw.likeGift == true
 	profile.favGift = raw.favGift == true
+	-- #2486 (version 43): the Cafe Event reward pieces (string ids of at most 64 characters, whole times) and the
+	-- last event rewarded
+	if type(raw.eventRewards) == "table" then
+		for id, at in raw.eventRewards do
+			if type(id) == "string" and #id >= 1 and #id <= 64 and type(at) == "number" then
+				profile.eventRewards[id] = asInt(at, 0)
+			end
+		end
+	end
+	profile.eventLast = if type(raw.eventLast) == "string" and #raw.eventLast <= 96
+		then raw.eventLast
+		else ""
 
 	if fromVersion < 3 then
 		EquipBest.apply(profile, EquipBest.plan(profile))

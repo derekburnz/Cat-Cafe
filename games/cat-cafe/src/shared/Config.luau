@@ -92,6 +92,7 @@ local Config = {
 		helpingPaw = 0,
 		firstTrade = 0,
 		purrfectStreak = 0,
+		partyGuest = 0, -- #2486: "Cafe Party Guest", the Cafe Event reward badge (live-events.md section 2e)
 	} :: { [string]: number },
 	-- #1770 owner test mode (Monetization-Agent's policy): the Roblox user ids whose every made pass counts as owned
 	-- and who may grant themselves a product with OwnerGrant, with no receipt record and no Robux (OwnerTestService).

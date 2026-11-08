@@ -77,7 +77,10 @@ return function()
 			for _, def in Catalog.passDecor do
 				local rarity = def.rarity :: string
 				expect(count[rarity]).to.be.ok()
-				count[rarity] += 1
+				-- #2486: a Cafe Event's piece stands with them but is no pass piece
+				if def.source == "pass" then
+					count[rarity] += 1
+				end
 				expect(def.bonus).to.equal(Config.CratePieceBonus[rarity])
 				expect(def.bonus > 0).to.equal(true)
 				expect(def.effect).to.equal(

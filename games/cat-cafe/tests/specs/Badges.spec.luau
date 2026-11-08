@@ -1,5 +1,5 @@
 --!strict
--- Badges.luau against release.md section 1 (#1934): the 20 badges in creation order with their Config keys, what
+-- Badges.luau against release.md section 1 (#1934): the 21 badges in creation order with their Config keys, what
 -- earns each (read from the profile alone, never a shop-only cat), which are due (made, not owned, not waiting on a
 -- retry) and the PURRFECT counts.
 return function()
@@ -65,7 +65,7 @@ return function()
 	end
 
 	describe("the list (section 1)", function()
-		it("is the 20 badges in creation order, each with a Config key", function()
+		it("is the 21 badges in creation order, each with a Config key", function()
 			local keys = {
 				"welcome",
 				"firstCatch",
@@ -87,6 +87,7 @@ return function()
 				"helpingPaw",
 				"firstTrade",
 				"purrfectStreak",
+				"partyGuest",
 			}
 			expect(#Badges.LIST).to.equal(#keys)
 			for i, key in keys do

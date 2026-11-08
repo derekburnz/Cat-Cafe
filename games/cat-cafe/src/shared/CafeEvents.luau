@@ -33,12 +33,15 @@
 --   effectsData(event) -> table                   the effects as EventEffects carries them
 --   effectsJson(event) -> string                  effectsData as JSON, the EventEffects attribute
 --   test(preset, now, minutes) -> Event?          OwnerTest's and Studio's event in one server
+--   rewardKey(event) -> string                    the key its reward is paid under once per account
+--   reward(profile, event, now) -> (RewardKind?, boolean)   pays the reward for a secure in the window (2e)
 
 local HttpService = game:GetService("HttpService")
 
 local Catalog = require(script.Parent.Catalog)
 local Catching = require(script.Parent.Catching)
 local Config = require(script.Parent.Config)
+local Types = require(script.Parent.Types)
 
 local CafeEvents = {}
 
@@ -64,6 +67,7 @@ CafeEvents.TEST_MINUTES_MAX = 120
 CafeEvents.TEST_SHOWER_GAP = 60
 CafeEvents.TEST_SHOWER_FIRST = 30
 CafeEvents.TEST_SHOWERS_MAX = 3
+CafeEvents.TEST_REWARD = "Decor_PartyBunting" -- the "full" preset's reward (section 8)
 
 export type DayKinds = { lucky: boolean, golden: boolean, rainbow: boolean }
 export type ShowerKind = "rainbow_legendary" | "mythical"
@@ -465,10 +469,48 @@ function CafeEvents.test(preset: string, now: number, minutes: number): Event?
 					firstAfter = CafeEvents.TEST_SHOWER_FIRST,
 				}
 				else nil,
-			reward = nil,
+			reward = if all then CafeEvents.TEST_REWARD else nil,
 		},
 	}
 	return event
+end
+
+-- Section 2e: the key `event`'s reward is paid under, once per account (profile.eventLast): its id, or for a test
+-- event its id and start, so a test started again pays again.
+function CafeEvents.rewardKey(event: Event): string
+	return if event.test then `{event.id}@{math.floor(event.startsAt)}` else event.id
+end
+
+-- "first": the piece went into decorOwned and eventRewards; "repeat": it was owned already, so the caller pays the
+-- coin gift (EventRepeatGiftIncomeMinutes of income); "badge": the record names no Catalog decor, so the badge only.
+export type RewardKind = "first" | "repeat" | "badge"
+
+-- Section 2e: securing a cat while `event` runs pays its reward once per account per event: the "Cafe Party Guest"
+-- badge (Badges reads eventLast) and the event's piece, or the coin gift for a player who has it already. Nil when
+-- the event has no reward or this account was paid in it already. The second value is true for the account's
+-- first event reward (event_reward's "first badge").
+function CafeEvents.reward(
+	profile: Types.PlayerProfile,
+	event: Event,
+	now: number
+): (RewardKind?, boolean)
+	local cosmeticId = event.effects.reward
+	local key = CafeEvents.rewardKey(event)
+	if cosmeticId == nil or profile.eventLast == key then
+		return nil, false
+	end
+	local firstBadge = profile.eventLast == ""
+	profile.eventLast = key
+	local def = Catalog.getDecor(cosmeticId)
+	if def == nil or def.source ~= "event" then
+		return "badge", firstBadge
+	end
+	if profile.decorOwned[cosmeticId] == true then
+		return "repeat", firstBadge
+	end
+	profile.decorOwned[cosmeticId] = true
+	profile.eventRewards[cosmeticId] = math.floor(now)
+	return "first", firstBadge
 end
 
 return CafeEvents

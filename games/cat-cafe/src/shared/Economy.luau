@@ -539,6 +539,9 @@ function Economy.decorBlocker(profile: Types.PlayerProfile, decorId: string): st
 	if def.source == "pass" then
 		return "Earned on the Cafe Pass, not for sale"
 	end
+	if def.source == "event" then
+		return "A Cafe Event reward, not for sale" -- #2486
+	end
 	if profile.decorOwned[decorId] then
 		return "Already owned"
 	end

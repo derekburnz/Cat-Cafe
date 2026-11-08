@@ -27,6 +27,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Cooldown = require(ReplicatedStorage.Shared.Cooldown)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local EventRewardService = require(script.Parent.EventRewardService)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local HeldCat = require(ReplicatedStorage.Shared.HeldCat)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
@@ -1960,6 +1961,7 @@ local function checkIn(player: Player, carry: Carry, notify: boolean, profile: T
 			Catching.shoutOut(player.DisplayName, verb, def, carry.variant)
 		)
 		RareMomentService.secured(player, def, carry.variant, carry.method, hadEpicOrBetter)
+		EventRewardService.secured(player) -- #2486: a Cafe Event's reward for a secure in its window
 		-- F101: a check-in scores for the Rescue Rally, a rescued cat three times (the rescue's points)
 		RallyService.score(player, if carry.method == "rescue" then "rescue" else "checkIn")
 	end

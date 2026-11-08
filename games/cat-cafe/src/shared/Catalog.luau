@@ -3648,6 +3648,41 @@ for _, row in PASS_DECOR do
 	table.insert(Catalog.passDecor, def)
 end
 
+-- #2486 (live-events.md section 2e): each Cafe Event's free reward piece, by the cosmeticId its record names. It is
+-- given by catching a cat during the event (CafeEvents.reward), comes back at later events, is never sold and only
+-- trades as other decor does. It joins Catalog.passDecor, the pieces that stand on the next free decor spots, with
+-- source "event". Model-Agent makes the models (#2488).
+local EVENT_DECOR: { { id: string, rarity: Types.Rarity, name: string, kind: Types.DecorKind, description: string } } =
+	{
+		{
+			id = "Decor_PartyBunting",
+			rarity = "Rare",
+			name = "Party Bunting",
+			kind = "decoration",
+			description = "Bright flags from the Cafe Party.",
+		},
+	}
+Catalog.eventDecor = {} :: { Types.DecorDef }
+for _, row in EVENT_DECOR do
+	local bonus = Config.CratePieceBonus[row.rarity]
+	local def: Types.DecorDef = {
+		id = row.id,
+		name = row.name,
+		cost = 0,
+		category = KIND_CATEGORY[row.kind],
+		effect = string.format("+%d%% money while in use", math.floor(bonus * 100 + 0.5)),
+		description = row.description,
+		bonus = bonus,
+		rarity = row.rarity,
+		asset = "CatCafe_" .. row.id,
+		source = "event",
+		kind = row.kind,
+	}
+	Catalog.decorById[row.id] = def
+	table.insert(Catalog.passDecor, def)
+	table.insert(Catalog.eventDecor, def)
+end
+
 Catalog.crates = {} :: { Types.CrateDef }
 for _, pool in CRATE_POOLS do
 	table.insert(Catalog.crates, {

@@ -355,6 +355,7 @@ local QUEST_LINE_H = 24
 local SPIN_TEXT = Theme.icons.spin .. " Free spin at the Town Square"
 local TUTORIAL_DONE = 5 -- the tutorial's last step (UIController.refreshTutorial): the quest line waits for it
 local TOPBAR_SLACK = 48
+local TRADE_NOTE_SECONDS = 3 -- #2462: the greyed Trade tile's "Unlocks at Tier 3" note
 -- F87: a newly unlocked button's gold "New!" stays this long
 local NEW_SECONDS = 6
 -- the left menu tiles each small HUD key shows (F87; Quests has its own rule too, Potions is the corner symbol)
@@ -957,7 +958,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	table.insert(self._buttons, self._menuTile)
 	-- F102 (trading.md section 3): the Trade window, from TradeMinTier (Workspace's live value, so a test server's
-	-- lower minimum shows it too); hidden below it
+	-- lower minimum shows it too). #2462 (Derek2 11-08: "show the trade button but grayed out until unlocked and when
+	-- clicked it says unlocks at Tier 3 so that it entices people to stay until Tier 3"): below it the tile shows
+	-- greyed, and a tap says which tier opens it (_tradeLockedNote)
 	self._tradeTile = Button.new({
 		name = "Trade",
 		text = "Trade",
@@ -972,6 +975,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		sound = false, -- the modal swish is the sound
 		onClick = function()
 			callbacks.openScreen("Trade")
+		end,
+		onLocked = function()
+			self:_tradeLockedNote()
 		end,
 	})
 	self._tradeTile.instance.Visible = false
@@ -2529,9 +2535,12 @@ function HUD.render(self: any, state: Types.PlayerState)
 	)
 	-- F102: the Trade tile from the live minimum tier, with the rest of the full HUD, once TradeService runs (it sets
 	-- the Workspace's TradingOn; while that is false the window says trading is resting)
+	-- #2462: shown greyed below the minimum tier, so new players see what Tier 3 brings
+	local tradeMin = TradeLogic.minTier(Workspace:GetAttribute("TradeMinTier"))
+	self._tradeMin = tradeMin
 	self._tradeTile.instance.Visible = self:_open("invite")
 		and Workspace:GetAttribute("TradingOn") ~= nil
-		and TradeLogic.shown(state.tier, TradeLogic.minTier(Workspace:GetAttribute("TradeMinTier")))
+	self._tradeTile:setEnabled(TradeLogic.shown(state.tier, tradeMin))
 
 	-- money with a little green flash for a lump (a sale, a tip, a reward), not for the steady income ticks (#1026)
 	self._moneyText.Text = Format.money(state.money)
@@ -3450,6 +3459,46 @@ function HUD._pressRewards(self: any)
 	elseif daily then
 		self._callbacks.openScreen("DailyTreat")
 	end
+end
+
+-- #2462: a tap on the greyed Trade tile says which tier opens it, in a small dark pill under the tile for
+-- TRADE_NOTE_SECONDS; a second tap restarts it.
+function HUD._tradeLockedNote(self: any)
+	local tile: GuiObject = self._tradeTile.instance
+	local root: Frame = self._root
+	local old: Instance? = root:FindFirstChild("LockedNote")
+	if old then
+		old:Destroy()
+	end
+	-- on the root, over the goal card under the icon row, centred under the tile
+	local scale = math.max(Scale.get(), 0.01)
+	local x = (tile.AbsolutePosition.X + tile.AbsoluteSize.X / 2 - root.AbsolutePosition.X) / scale
+	local y = (tile.AbsolutePosition.Y + tile.AbsoluteSize.Y - root.AbsolutePosition.Y) / scale + 4
+	local note: TextLabel = Create("TextLabel", {
+		Name = "LockedNote",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.fromOffset(x, y),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 26),
+		BackgroundColor3 = Theme.colors.ink,
+		BackgroundTransparency = 0.1,
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textSmall + 1,
+		TextColor3 = Theme.colors.gold,
+		Text = TradeLogic.lockedText(self._tradeMin or TradeLogic.minTier(nil)),
+		ZIndex = 30,
+		Parent = root,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }),
+	})
+	Outline.text(note, 1.5)
+	Tween.popIn(note, 0.8)
+	task.delay(TRADE_NOTE_SECONDS, function()
+		if note.Parent ~= nil then
+			note:Destroy()
+		end
+	end)
 end
 
 -- The Menu tile's press: the list (Settings, Invite) once Invite is unlocked, else Settings at once.

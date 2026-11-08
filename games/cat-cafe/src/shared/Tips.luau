@@ -112,14 +112,12 @@ end
 -- nightfall to sunrise (the dealer's cart is out).
 export type Moment = { duskWarning: boolean, night: boolean }
 
--- The tackling lesson's moment: after the intro and a first real catch (a net catch, a rescue or a bait tamed), until
--- it has played out. Not the first_catch funnel step or catsCaught: a cat checked in without a catch (a store or
--- starter cat, Studio's owner grants) logs first_checkin, which implies first_catch, and counts in catsCaught
--- (Laptop-Tester on #2470: the lesson came 4.7 s after the intro).
+-- The tackling lesson's moment: once the intro was seen (played out or skipped), until the lesson has played out.
+-- IntroService sends it as the intro ends, its brief closing beat (#2474, Derek2: "add the tackle cut scene into the
+-- end of the tutorial briefly instead and remove it from the first catch"); this catches a player who saw the intro
+-- before then, or left before the lesson.
 function Tips.lessonDue(profile: Types.PlayerProfile): boolean
-	local stats = profile.stats
-	local caught = stats.grabsSucceeded > 0 or stats.rescues > 0 or stats.baitsTamed > 0
-	return profile.introSeen and caught and profile.tipsSeen[Tips.LESSON] ~= true
+	return profile.introSeen and profile.tipsSeen[Tips.LESSON] ~= true
 end
 
 -- The server's tips whose moment follows from the saved state and the clock, not yet seen, in LIST order. The event
@@ -145,9 +143,7 @@ function Tips.due(profile: Types.PlayerProfile, moment: Moment): { string }
 			table.insert(out, def.id)
 		end
 	end
-	-- #2409, #2468: the tackling lesson waits for the first catch (Derek2: "only happen after they catch their first
-	-- cat so it doesn't overwhelm new players"); the client holds it while the cat is carried
-	if Tips.lessonDue(profile) then
+	if Tips.lessonDue(profile) then -- #2409, #2474
 		table.insert(out, Tips.LESSON)
 	end
 	return out

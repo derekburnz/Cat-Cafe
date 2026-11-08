@@ -2964,27 +2964,16 @@ local SCENES = {
 	{ "Quests", function()
 		UI.open("Quests")
 	end },
-	-- #1573: a tap on an unfinished daily pins it: its row reads "📌 ..." and the HUD's quest line follows it
-	{ "QuestsPinned", function()
+	-- #2528 (Derek2: "remove the quest line showing a brief summary under your goal"): no quest line under the goal
+	-- card, and no pin on a quest's row (it only led that line, #1573)
+	{ "QuestsNoLine", function()
 		UI.open("Quests")
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		assert(hud and hud:FindFirstChild("QuestLine", true) == nil, "uigate: the HUD still has a quest line (#2528)")
 		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
 		local window = modals and modals:FindFirstChild("Quests", true)
 		assert(window, "uigate: no Quests window")
-		local daily = window:FindFirstChild("Quest1", true).Parent
-		local pinnedRow = nil
-		for slot = 1, 5 do
-			local row = daily:FindFirstChild("Quest" .. slot)
-			local claim = row and row:FindFirstChild("Claim", true)
-			local check = row and row:FindFirstChild("Check", true)
-			if row and row.Visible and not (claim and claim.Visible) and not (check and check.Visible) then
-				pinnedRow = row
-				press("Quests", "Quest" .. slot .. ".Pin")
-				break
-			end
-		end
-		assert(pinnedRow, "uigate: no unfinished daily to pin")
-		local title = pinnedRow:FindFirstChild("Title")
-		assert(string.sub(title.Text, 1, 4) == "📌", ("uigate: the pinned quest reads %q (#1573)"):format(title.Text))
+		assert(window:FindFirstChild("Pin", true) == nil, "uigate: a quest row still has a pin (#2528)")
 	end },
 	{ "QuestsWeekly", function()
 		UI.open("Quests")
@@ -4942,21 +4931,17 @@ local SCENES = {
 		local onJump = bx < jumpX + jumpSize and bx + badge.AbsoluteSize.X > jumpX
 			and by < jumpY + jumpSize and by + badge.AbsoluteSize.Y > jumpY
 		assert(not onJump, "uigate: the money badge sits on the jump button (#2499)")
-		for _, name in { "QuestLine", "FreeSpin", "TierGoal", "Menu" } do
+		for _, name in { "FreeSpin", "TierGoal", "Menu" } do
 			local other = root:FindFirstChild(name) :: GuiObject?
 			if other and other.Visible then
-				-- a line's words, from its right edge (right-aligned)
-				local words = other:FindFirstChild("Text") :: TextLabel?
-				local left = if words and name == "QuestLine"
-					then right(other) - words.TextBounds.X
-					else other.AbsolutePosition.X
+				local left = other.AbsolutePosition.X
 				local apart = badge.AbsolutePosition.Y >= other.AbsolutePosition.Y + other.AbsoluteSize.Y
 					or right(badge) <= left
 					or badge.AbsolutePosition.X >= right(other)
 					or badge.AbsolutePosition.Y + badge.AbsoluteSize.Y <= other.AbsolutePosition.Y
 				assert(apart, "uigate: the money badge runs into " .. name .. " on touch (#2393)")
 			end
-			if other and other.Visible and name ~= "QuestLine" and name ~= "FreeSpin" then
+			if other and other.Visible and name ~= "FreeSpin" then
 				local clear = counters.AbsolutePosition.X >= right(other) or right(counters) <= other.AbsolutePosition.X
 					or counters.AbsolutePosition.Y >= other.AbsolutePosition.Y + other.AbsoluteSize.Y
 				assert(clear, "uigate: the counters run into " .. name .. " on touch (#2393)")
@@ -5003,7 +4988,7 @@ local SCENES = {
 		local scale = (root:FindFirstChildOfClass("UIScale") :: UIScale).Scale
 		local area = goal.AbsoluteSize.X * goal.AbsoluteSize.Y / (scale * scale)
 		assert(area <= 0.55 * 250 * 160, ("uigate: the goal card is %d design px², not about half (#2397, #2415)"):format(area))
-		-- #2415 (Derek2: "net overlaps your goal bubble"): the goal card and the quest line under it end above the Net
+		-- #2415 (Derek2: "net overlaps your goal bubble"): the goal card ends above the Net
 		-- button, on a Lucky Day too (its line under the clock pushes the column down)
 		local clock = Instance.new("Folder")
 		clock.Name = "Clock"
@@ -5018,7 +5003,7 @@ local SCENES = {
 		local NetButtonPlace = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.NetButtonPlace")
 		local netAt = NetButtonPlace.place(workspace.CurrentCamera.ViewportSize)
 		local inset = game:GetService("GuiService"):GetGuiInset()
-		for _, name in { "TierGoal", "QuestLine" } do
+		for _, name in { "TierGoal" } do
 			local part = root:FindFirstChild(name) :: GuiObject
 			if part.Visible then
 				local foot = part.AbsolutePosition.Y + part.AbsoluteSize.Y + inset.Y

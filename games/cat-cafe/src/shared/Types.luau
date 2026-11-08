@@ -176,6 +176,9 @@ export type DecorDef = {
 	kind: DecorKind?,
 	color: Color3?,
 	material: Enum.Material?,
+	-- #2256: a floor style's tiled image (an rbxassetid), drawn on the Top face of each Floor part over its colour and
+	-- material, which stay underneath as the fallback while the image loads or if it never does
+	texture: string?,
 	-- #1822: a pass decor piece that comes with this game pass (by name) instead of the Cafe Pass track
 	pack: string?,
 	-- #1168 row 3: the Config field of the game pass that gives this pass decor piece (PassDecor.toGrant)

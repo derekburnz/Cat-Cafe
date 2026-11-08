@@ -2719,6 +2719,7 @@ type PieceRow = {
 	rarity: Types.Rarity,
 	color: Color3?,
 	material: Enum.Material?,
+	texture: string?, -- #2256: a floor's tiled Top-face image (Types.DecorDef.texture)
 	asset: string?, -- an F48 Index piece keeps its model; the rest are named after the piece
 	description: string?,
 }
@@ -3055,6 +3056,8 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			rarity = "Rare",
 			color = Color3.fromRGB(160, 100, 50),
 			material = Enum.Material.Ground,
+			-- #2256: CatCafe_Tex_LeafLitter (Model-Agent's #2382), tiled on the floor's Top face over the Ground colour
+			texture = "rbxassetid://100787729125099",
 			description = "Crunchy autumn leaves underfoot.",
 		},
 		{
@@ -3459,6 +3462,7 @@ for _, pool in CRATE_POOLS do
 			kind = row.kind,
 			color = row.color,
 			material = row.material,
+			texture = row.texture,
 		}
 		Catalog.decorById[row.id] = def
 		table.insert(Catalog.crateDecor, def)

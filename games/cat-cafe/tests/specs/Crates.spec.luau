@@ -1075,6 +1075,27 @@ return function()
 			end
 		)
 
+		it("gives Leaf Litter its tiled leaf image and no other style one (#2256)", function()
+			local own = { color = Color3.fromRGB(10, 20, 30), material = Enum.Material.Wood }
+			for _, def in Catalog.crateDecor do
+				if def.texture ~= nil then
+					expect(def.kind).to.equal("floor")
+					expect(string.match(def.texture, "^rbxassetid://%d+$") ~= nil).to.equal(true)
+				end
+			end
+			local leaves = Catalog.getDecor("woods_leaf_litter") :: any
+			expect(type(leaves.texture)).to.equal("string")
+			local shown = Crates.partLook("woods_leaf_litter", "floor", own)
+			expect(shown.texture).to.equal(leaves.texture)
+			-- the colour and material stay underneath as the fallback
+			expect(shown.color).to.equal(Color3.fromRGB(160, 100, 50))
+			expect(shown.material).to.equal(Enum.Material.Ground)
+			expect(Crates.partLook("woods_mossy_planks", "floor", own).texture).to.equal(nil)
+			expect(Crates.partLook(nil, "floor", own).texture).to.equal(nil)
+			expect(Crates.partLook("woods_leaf_litter", "paint", own).texture).to.equal(nil)
+			expect(Crates.TEXTURE_STUDS).to.equal(6)
+		end)
+
 		it("reads a kept material back by name", function()
 			expect(Crates.materialNamed("Wood")).to.equal(Enum.Material.Wood)
 			expect(Crates.materialNamed(Enum.Material.SmoothPlastic.Name)).to.equal(

@@ -38,10 +38,6 @@ local function onIntroDone(player: Player, rawShot: unknown, rawReplay: unknown)
 	if not replay then
 		TipService.show(player, Tips.LESSON)
 	end
-	-- #1273: the intro funnel's last step, once it played out (a skip's shot is in intro_cutscene below)
-	if shot == 0 then
-		Telemetry.intro(player, profile, "intro_done")
-	end
 	local count = (events[player] or 0) + 1
 	if count <= MAX_EVENTS then
 		events[player] = count

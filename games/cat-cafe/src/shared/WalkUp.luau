@@ -7,13 +7,40 @@
 --   RADIUS_SHARE                      the share of a prompt's MaxActivationDistance that opens its window
 --   inside(was, distance, radius)     whether the character counts as at the station now
 --   step(state, stations, blocked, current)  one look: the station to open (or nil) and whether to close the window
--- Pure, so the cloud spec runner checks it; Controllers/WalkUpController measures and opens.
+--   CIRCLE, FRONT_RADIUS, AROUND_PAD  the glowing floor ring that marks where a window opens (Derek2 2026-11-08: "adding
+--                                     the circle infront of the stations designed for each station"; the cannon's goes
+--                                     all the way around it)
+--   frontOffset(front, radius, range) how far in front of a station's pivot its ring's centre sits
+--   aroundRadius(half, range)         the radius of a ring all the way round a station
+-- Pure, so the cloud spec runner checks it; Controllers/WalkUpController measures and opens, World/WalkUpCircles
+-- lays the rings.
 
 local WalkUp = {}
 
 WalkUp.LEAVE_EXTRA = 2
 -- The prompt's pill shows from its MaxActivationDistance; the window waits until the player is most of the way in.
 WalkUp.RADIUS_SHARE = 0.75
+
+-- The ring's part inside a station's model (World/WalkUpCircles): a flat part `radius` studs across each way from
+-- its centre, with its radius in the Radius attribute. The window opens on stepping inside it.
+WalkUp.CIRCLE = "WalkUpCircle"
+WalkUp.FRONT_RADIUS = 4 -- as the Codes Cat's circle (Config.CodesCircleRadius)
+WalkUp.AROUND_PAD = 2.5 -- studs of floor between a station's widest point and a ring all the way round it
+WalkUp.EDGE_SLACK = 2 -- the ring's far edge stays this far inside the server's range for the window
+
+-- Studs from a station's pivot to its front ring's centre, along its front: the ring just touches the station's front
+-- (`front` studs out from the pivot), pulled in until its far edge is EDGE_SLACK inside `range`, the server's reach
+-- from the pivot for that window, and never behind the pivot.
+function WalkUp.frontOffset(front: number, radius: number, range: number): number
+	local touching = math.max(0, front) + radius
+	return math.max(0, math.min(touching, range - WalkUp.EDGE_SLACK - radius))
+end
+
+-- The radius of a ring round a station whose widest point is `half` studs from its pivot: AROUND_PAD clear of it,
+-- at most EDGE_SLACK inside `range`.
+function WalkUp.aroundRadius(half: number, range: number): number
+	return math.max(1, math.min(math.max(0, half) + WalkUp.AROUND_PAD, range - WalkUp.EDGE_SLACK))
+end
 
 -- One station this look: its key, the window it opens (the UI's modal name), the flat studs from the character
 -- (nil while streamed out or its prompt is off) and its radius.

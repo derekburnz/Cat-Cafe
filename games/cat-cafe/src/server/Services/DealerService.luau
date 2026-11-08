@@ -25,6 +25,7 @@ local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
 local Telemetry = require(script.Parent.Telemetry)
 local Types = require(ReplicatedStorage.Shared.Types)
+local WalkUpCircles = require(script.Parent.Parent.World.WalkUpCircles)
 
 local DealerService = {}
 
@@ -99,6 +100,8 @@ local function park()
 	-- Persistent: a cart that streamed out and back in would read as leaving and arriving again on the client
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	model.Parent = Workspace:FindFirstChild("World") or Workspace
+	-- #2398: the night market's own violet floor ring, where its window pops; it leaves with the cart at sunrise
+	WalkUpCircles.front(model, Color3.fromRGB(170, 120, 255), Config.DealerRangeStuds)
 	cart = model
 end
 

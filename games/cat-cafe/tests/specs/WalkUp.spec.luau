@@ -147,4 +147,50 @@ return function()
 			expect(WalkUp.aroundRadius(4.8, 10)).to.equal(4.8 + WalkUp.AROUND_PAD) -- the town cannon: no cap
 		end)
 	end)
+
+	describe("fitRing (#2433)", function()
+		local function clear(shift: Vector2, radius: number, blocks: { Vector2 }): boolean
+			for _, block in blocks do
+				if (block - shift).Magnitude < radius + WalkUp.FIT_CLEAR - 1e-3 then
+					return false
+				end
+			end
+			return true
+		end
+
+		it("stays put and whole with nothing in the way", function()
+			local shift, radius = WalkUp.fitRing(5.5, {}, 1.5, 4.6)
+			expect(shift.Magnitude).to.equal(0)
+			expect(radius).to.equal(5.5)
+			shift, radius = WalkUp.fitRing(5.5, { Vector2.new(0, 8) }, 1.5, 4.6)
+			expect(shift.Magnitude).to.equal(0)
+			expect(radius).to.equal(5.5)
+		end)
+
+		it("slides off a low side wall 4.4 studs out, as at each camp", function()
+			local wall: { Vector2 } = {}
+			for x = -3, 3 do
+				table.insert(wall, Vector2.new(x, 4.4))
+			end
+			local shift, radius = WalkUp.fitRing(5.5, wall, 1.5, 4.6)
+			expect(radius).to.equal(5.5)
+			expect(shift.Y < -1).to.equal(true) -- away from the wall
+			expect(math.abs(shift.X) < 0.05).to.equal(true)
+			expect(shift.Magnitude <= 1.5 + 1e-6).to.equal(true)
+			expect(clear(shift, radius, wall)).to.equal(true)
+		end)
+
+		it("shrinks, but not below least, when sliding is not enough", function()
+			local walls = { Vector2.new(0, 4.4), Vector2.new(0, -4.4) }
+			local shift, radius = WalkUp.fitRing(5.5, walls, 1.5, 4)
+			expect(shift.Magnitude < 0.05).to.equal(true)
+			expect(math.abs(radius - (4.4 - WalkUp.FIT_CLEAR)) < 1e-3).to.equal(true)
+			local _, least =
+				WalkUp.fitRing(5.5, { Vector2.new(0, 2), Vector2.new(0, -2) }, 1.5, 4.6)
+			expect(least).to.equal(4.6)
+			local still, kept = WalkUp.fitRing(5.5, { Vector2.new(0, 4.4) }, 0, 4)
+			expect(still.Magnitude).to.equal(0)
+			expect(math.abs(kept - (4.4 - WalkUp.FIT_CLEAR)) < 1e-3).to.equal(true)
+		end)
+	end)
 end

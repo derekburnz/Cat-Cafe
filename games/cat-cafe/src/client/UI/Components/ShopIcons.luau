@@ -259,14 +259,20 @@ end
 
 -- A HUD tile's picture (#1185): the 3D-rendered button picture when there is one, else the clean symbol. Named as the
 -- clean symbols are (Home is My Cafe, Potion the Potions tile, Bowl the Bait tile).
-local HUD_FOR: { [string]: string } =
-	{ Home = "MyCafe", Potion = "Potions", Bowl = "Bait", Bag = "Potions" }
+local HUD_FOR: { [string]: string } = { Home = "MyCafe", Potion = "Potions", Bowl = "Bait" }
+-- #2453 (Derek2 11-08: "change the bag symbol to be a backpack since its a potion right now but potion menu already
+-- uses that"): HUD tiles with no picture of ours yet, which draw their own glyph (the Bag's 🎒). Without this the Bag
+-- would fall back to Icon_Clean_Bag, the gold money bag.
+local HUD_GLYPH_ONLY: { [string]: boolean } = { Bag = true }
 -- #1965: HUD tiles drawn with another picture of ours; the Pass tile wears the Cafe Pass medal from its Store card.
 local HUD_PICTURE: { [string]: string } = { Pass = "Icon_Store_CafePass" }
 function ShopIcons.hud(name: string): string?
 	local picture = HUD_PICTURE[name]
 	if picture then
 		return IDS[picture]
+	end
+	if HUD_GLYPH_ONLY[name] then
+		return nil
 	end
 	return IDS["Icon_Hud_" .. (HUD_FOR[name] or name)] or IDS["Icon_Clean_" .. name]
 end

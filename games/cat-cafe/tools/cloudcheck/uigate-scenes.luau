@@ -4064,6 +4064,13 @@ local SCENES = {
 		end
 		assert(found, "uigate: the sunrise warning doesn't say tomorrow is a Triple Day (#1572)")
 	end },
+	-- #2453: the Bag tile is a backpack, not the Potions tile's bottle (nor the gold money bag)
+	{ "HUDBagBackpack", function()
+		local ShopIcons = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.ShopIcons")
+		local bag = ShopIcons.hud("Bag")
+		assert(bag == nil or bag ~= ShopIcons.hud("Potion"), "uigate: the Bag tile shows the Potions bottle (#2453)")
+		assert(bag ~= ShopIcons.clean("Bag"), "uigate: the Bag tile shows the gold money bag (#2453)")
+	end },
 	-- #1737: the Night Market banner at nightfall with the market cart's picture left of the title (was a moon emoji)
 	{ "NightMarketBanner", function()
 		local AreaTitle = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.AreaTitle")

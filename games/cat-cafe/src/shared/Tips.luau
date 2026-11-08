@@ -113,9 +113,8 @@ end
 export type Moment = { duskWarning: boolean, night: boolean }
 
 -- The tackling lesson's moment: once the intro was seen (played out or skipped), until the lesson has played out.
--- IntroService sends it as the intro ends, its brief closing beat (#2474, Derek2: "add the tackle cut scene into the
--- end of the tutorial briefly instead and remove it from the first catch"); this catches a player who saw the intro
--- before then, or left before the lesson.
+-- Since #2495 it plays as the intro's last steps on the client (IntroController), saved by its TipSeen; this catches
+-- a player who skipped the intro, saw it before then, or left before the lesson, at the first check-in.
 function Tips.lessonDue(profile: Types.PlayerProfile): boolean
 	return profile.introSeen and profile.tipsSeen[Tips.LESSON] ~= true
 end

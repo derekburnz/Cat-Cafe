@@ -1167,6 +1167,9 @@ export type PlayerProfile = {
 	-- (the "!" over the cart until then). New fields with defaults: the shelf opens with a VERSION bump (MysteryOpen).
 	mystery: { [string]: boolean },
 	mysterySeen: boolean,
+	-- #2792 (shared/FirstVisits): the special visitors met once ("rich", "mystery", "collector" -> true). No VERSION
+	-- bump: an older server dropping it only matters inside the first FirstVisitWindowSeconds of play.
+	firstVisits: { [string]: boolean },
 	codesRedeemed: { [string]: number }, -- code id -> os.time() it was redeemed (F65)
 	introSeen: boolean, -- the intro cutscene has played to the end or been skipped once (F72)
 	potions: { [string]: number }, -- F64: potionId -> count in the bag

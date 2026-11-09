@@ -600,6 +600,13 @@ local Config = {
 	CollectorGoldMultiplier = 3,
 	CollectorRollMin = 0.8,
 	CollectorRollMax = 1.5,
+	-- #2792 (retention-ideas.md section 2, shared/FirstVisits): a new account's first rich customer, Mystery Visitor
+	-- and Cat Collector come at these seconds of play on the account (about 3, 6 and 9 minutes), each once, and stay
+	-- FirstVisitStaySeconds so a player out catching can still get back for it. Past FirstVisitWindowSeconds of play
+	-- only the normal timers run.
+	FirstVisitAt = { rich = 180, mystery = 360, collector = 540 },
+	FirstVisitStaySeconds = 300,
+	FirstVisitWindowSeconds = 1800,
 	-- #2797 (retention-ideas.md 5d, shared/Invites): the invite reward. A new player who joined through an invite gets
 	-- InviteRewardFish on their first catch; the inviter gets InviteRewardFish once that joiner has played
 	-- InviteQualifySeconds or caught a cat, for at most InviteDailyMax joiners a UTC day and once per joiner (the last

@@ -9,6 +9,7 @@ local Config = require(script.Parent.Config)
 local CornerShop = require(script.Parent.CornerShop)
 local DailyTreat = require(script.Parent.DailyTreat)
 local EquipBest = require(script.Parent.EquipBest)
+local FirstVisits = require(script.Parent.FirstVisits)
 local FreshCatch = require(script.Parent.FreshCatch)
 local GrandOpening = require(script.Parent.GrandOpening)
 local Invites = require(script.Parent.Invites)
@@ -287,6 +288,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		fishPerks = {},
 		mystery = {},
 		mysterySeen = false,
+		firstVisits = {},
 		codesRedeemed = {},
 		introSeen = false,
 		potions = {},
@@ -926,6 +928,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- #2565: the Mystery Market's owned items and its first visit; a save without them owns none, not yet seen
 	profile.mystery = MysteryMarket.sanitize(raw.mystery)
 	profile.mysterySeen = raw.mysterySeen == true
+	-- #2792: the special visitors met once (no version: see Types.PlayerProfile.firstVisits)
+	profile.firstVisits = FirstVisits.sanitize(raw.firstVisits)
 	profile.codesRedeemed = sanitizeCodes(raw.codesRedeemed) -- F65; saves before version 9 have used none
 	-- F72: every save from before version 10 plays the intro once too (Derek, intro-cutscene.md answer 2)
 	profile.introSeen = raw.introSeen == true

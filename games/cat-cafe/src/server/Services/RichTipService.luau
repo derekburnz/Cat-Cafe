@@ -21,6 +21,8 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local FirstVisit = require(script.Parent.Parent.Util.FirstVisit)
+local FirstVisits = require(ReplicatedStorage.Shared.FirstVisits)
 local Net = require(script.Parent.Net)
 local PlotService = require(script.Parent.PlotService)
 local Telemetry = require(script.Parent.Telemetry)
@@ -37,6 +39,8 @@ type Tip = {
 	boost: number, -- #2486: the Cafe Event's money in `amount` (1 without one), for event_money
 	expiresAt: number, -- os.time()
 	plot: WorldBuilder.Plot,
+	first: boolean, -- #2792: the account's first rich customer, which stays FirstVisitStaySeconds
+	arrivedAt: number, -- os.time()
 }
 
 local tips: { [number]: Tip } = {} -- plot index -> its open tip, one at a time
@@ -66,6 +70,10 @@ local function take(index: number, outcome: string): Tip?
 	end
 	tips[index] = nil
 	show(tip.plot, 0, 0, outcome)
+	if tip.first then
+		local owner = Players:GetPlayerByUserId(tip.ownerUserId)
+		FirstVisit.ended(owner, tip.plot.model, "rich", outcome, os.time() - tip.arrivedAt)
+	end
 	return tip
 end
 
@@ -141,7 +149,8 @@ local function open(
 	plot: WorldBuilder.Plot,
 	dayRate: number,
 	now: number,
-	lastsUntil: number
+	lastsUntil: number,
+	first: boolean
 ): Tip
 	serial += 1
 	local tip: Tip = {
@@ -149,8 +158,10 @@ local function open(
 		serial = serial,
 		amount = Economy.richTipAmount(dayRate * Economy.eventMoney()), -- #2486: x a running Cafe Event's money
 		boost = Economy.eventMoney(),
-		expiresAt = math.min(now + Config.RichTipStaySeconds, lastsUntil),
+		expiresAt = math.min(now + FirstVisits.stay(first, Config.RichTipStaySeconds), lastsUntil),
 		plot = plot,
+		first = first,
+		arrivedAt = now,
 	}
 	tips[plot.index] = tip
 	show(plot, tip.amount, tip.expiresAt, "")
@@ -185,8 +196,13 @@ local function tickTimers(dt: number)
 				/ Economy.richRate(profile)
 		local due: boolean
 		left, due = VisitTimer.tick(left, dt, ready)
+		-- #2792: a new account's first rich customer comes at FirstVisitAt.rich seconds of play, timer or not
+		if ready and not due and FirstVisit.due(player, profile, "rich") then
+			due = true
+		end
 		if due then
-			open(player, plot, dayRate * Economy.tipMultiplier(profile, now), now, dusk)
+			local first = FirstVisit.arrive(player, profile, plot.model, "rich")
+			open(player, plot, dayRate * Economy.tipMultiplier(profile, now), now, dusk, first)
 			left = VisitTimer.draw(Config.RichEveryMin, Config.RichEveryMax, rng:NextNumber())
 				/ Economy.richRate(profile)
 		end
@@ -240,7 +256,8 @@ function RichTipService.debugOpen(player: Player, staySeconds: number?): number
 		plot,
 		Economy.incomePerSecond(profile),
 		now,
-		now + (staySeconds or Config.RichTipStaySeconds)
+		now + (staySeconds or Config.RichTipStaySeconds),
+		false
 	)
 	if staySeconds ~= nil then
 		tip.expiresAt = now + staySeconds

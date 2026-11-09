@@ -69,6 +69,10 @@ export type CustomEvent =
 	-- #1181 (corner-shop-v2.md section 4): a food fed from the Bag, value its XP; the food id
 	| "cat_fed"
 	| "rich_tip"
+	-- #2792: a new account's first rich customer, Mystery Visitor or Cat Collector: the kind ("rich", "mystery",
+	-- "collector") and "arrived" (value the account's seconds of play), or how it ended, "claimed" or "missed" (value
+	-- its seconds at the cafe)
+	| "first_visit"
 	-- #2797 (retention-ideas.md 5d): the invite card's buttons, value the account's minutes played; "shown", "invite"
 	-- or "notnow"
 	| "invite_card"

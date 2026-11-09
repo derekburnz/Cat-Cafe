@@ -21,12 +21,9 @@ return function()
 			expect(BigPullLogic.forCat("Rare", false, "rainbow")).to.equal("big")
 		end)
 
-		it(
-			"plays the smaller card for a plain Epic, which the server sends only for the first",
-			function()
-				expect(BigPullLogic.forCat("Epic", false, "base")).to.equal("first_epic")
-			end
-		)
+		it("plays the smaller card for a plain Epic, which the server sends only for the first", function()
+			expect(BigPullLogic.forCat("Epic", false, "base")).to.equal("first_epic")
+		end)
 
 		it("plays nothing for a plain or gold Common or Rare", function()
 			expect(BigPullLogic.forCat("Common", false, nil)).to.equal(nil)
@@ -50,9 +47,7 @@ return function()
 			expect(BigPullLogic.word("big", "Mythical", true, "gold")).to.equal("GOLD MYTHICAL!")
 			expect(BigPullLogic.word("big", "Epic", true, nil)).to.equal("GOLD EPIC!")
 			expect(BigPullLogic.word("big", "Common", false, "rainbow")).to.equal("RAINBOW COMMON!")
-			expect(BigPullLogic.word("big", "Mythical", true, "rainbow")).to.equal(
-				"RAINBOW MYTHICAL!"
-			)
+			expect(BigPullLogic.word("big", "Mythical", true, "rainbow")).to.equal("RAINBOW MYTHICAL!")
 			expect(BigPullLogic.word("first_epic", "Epic", false, "base")).to.equal("FIRST EPIC!")
 		end)
 

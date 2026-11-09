@@ -194,26 +194,22 @@ return function()
 			return { window = window, bought = {}, day = 0, today = {}, foodXpToday = 0 }
 		end
 
-		it(
-			"plans from the shown stock exactly as the server's planAll on the same state",
-			function()
-				for _, kind in { "potion", "food", "bait" } do
-					local window = windowFor(kind, 2)
-					local view = CornerShop.view(state(window), window, 5)
-					local plan = Logic.buyAll(view, kind, 5, 1e12, NONE)
-					local server, total =
-						CornerShop.planAll(state(window), window, kind, 5, 1e12, NONE)
-					local count = 0
-					for _, item in server do
-						count += item.count
-					end
-					expect(plan.count).to.equal(count)
-					expect(plan.total).to.equal(total)
-					expect(plan.partial).to.equal(nil)
-					expect(string.find(plan.list, "^%d+ ")).to.be.ok()
+		it("plans from the shown stock exactly as the server's planAll on the same state", function()
+			for _, kind in { "potion", "food", "bait" } do
+				local window = windowFor(kind, 2)
+				local view = CornerShop.view(state(window), window, 5)
+				local plan = Logic.buyAll(view, kind, 5, 1e12, NONE)
+				local server, total = CornerShop.planAll(state(window), window, kind, 5, 1e12, NONE)
+				local count = 0
+				for _, item in server do
+					count += item.count
 				end
+				expect(plan.count).to.equal(count)
+				expect(plan.total).to.equal(total)
+				expect(plan.partial).to.equal(nil)
+				expect(string.find(plan.list, "^%d+ ")).to.be.ok()
 			end
-		)
+		end)
 
 		it("says how many fit when coins run short, and is nil when none do", function()
 			local window = windowFor("potion", 2)
@@ -246,22 +242,8 @@ return function()
 				restocksAt = 0,
 				snackXp = 0,
 				stock = {
-					{
-						itemId = limited.id,
-						price = 1,
-						amount = 3,
-						bought = 1,
-						size = "regular",
-						leftToday = 1,
-					},
-					{
-						itemId = "x_unknown",
-						price = 1,
-						amount = 1,
-						bought = 0,
-						size = "regular",
-						outToday = true,
-					},
+					{ itemId = limited.id, price = 1, amount = 3, bought = 1, size = "regular", leftToday = 1 },
+					{ itemId = "x_unknown", price = 1, amount = 1, bought = 0, size = "regular", outToday = true },
 				},
 			} :: any)
 			expect(rebuilt.window).to.equal(9)
@@ -272,16 +254,7 @@ return function()
 				window = 9,
 				restocksAt = 0,
 				snackXp = 0,
-				stock = {
-					{
-						itemId = limited.id,
-						price = 1,
-						amount = 3,
-						bought = 0,
-						size = "regular",
-						outToday = true,
-					},
-				},
+				stock = { { itemId = limited.id, price = 1, amount = 3, bought = 0, size = "regular", outToday = true } },
 			} :: any)
 			expect(out.today[limited.id]).to.equal(limit)
 		end)

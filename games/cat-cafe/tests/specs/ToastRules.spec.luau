@@ -49,9 +49,7 @@ return function()
 	describe("ToastRules.quiet (#2600)", function()
 		it("drops the purchase confirmations and keeps refusals and other toasts", function()
 			expect(ToastRules.quiet("Bought Tuna (40)", "good")).to.equal(true)
-			expect(ToastRules.quiet("Bought a Money Potion. It's in your potion bag.", "good")).to.equal(
-				true
-			)
+			expect(ToastRules.quiet("Bought a Money Potion. It's in your potion bag.", "good")).to.equal(true)
 			expect(ToastRules.quiet("Bought 5 foods for 12.4M coins", nil)).to.equal(true)
 			expect(ToastRules.quiet("Bought Tuna (40)", "warn")).to.equal(false)
 			expect(ToastRules.quiet("Not enough coins", "warn")).to.equal(false)

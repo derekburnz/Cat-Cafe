@@ -45,8 +45,7 @@ return function()
 
 		it("stops inside the won slice, well clear of its edges, wide or narrow", function()
 			local w = Presets.wheel
-			local wheels =
-				{ Logic.wheelSpans(nil, w.slices), Logic.wheelSpans("52,52,52,52,52,52,24,24", 6) }
+			local wheels = { Logic.wheelSpans(nil, w.slices), Logic.wheelSpans("52,52,52,52,52,52,24,24", 6) }
 			for _, spans in wheels do
 				for slice = 1, #spans do
 					local width = math.rad(spans[slice])
@@ -85,10 +84,10 @@ return function()
 					).to.equal(true)
 				end
 			end
-			expect(
-				Logic.wheelRest(1793113500.25, nil, Logic.wheelSpans(nil, 6))
-					~= Logic.wheelRest(1793113504.9, nil, Logic.wheelSpans(nil, 6))
-			).to.equal(true)
+			expect(Logic.wheelRest(1793113500.25, nil, Logic.wheelSpans(nil, 6))
+					~= Logic.wheelRest(1793113504.9, nil, Logic.wheelSpans(nil, 6))).to.equal(
+				true
+			)
 		end)
 
 		it("knocks the pointer as each slice edge passes and lets it spring back", function()
@@ -102,13 +101,9 @@ return function()
 				local slice = if k == 0 then 1 else #spans - k + 1
 				edge += if k == 0 then spans[1] / 2 else spans[slice]
 				local past = math.rad(edge + 0.01)
-				expect(Logic.pointerTilt(past, spans, w.tick, w.tickShare) > w.tick * 0.95).to.equal(
-					true
-				)
+				expect(Logic.pointerTilt(past, spans, w.tick, w.tickShare) > w.tick * 0.95).to.equal(true)
 				local before = math.rad(edge - 0.5)
-				expect(Logic.pointerTilt(before, spans, w.tick, w.tickShare) < w.tick * 0.2).to.equal(
-					true
-				)
+				expect(Logic.pointerTilt(before, spans, w.tick, w.tickShare) < w.tick * 0.2).to.equal(true)
 			end
 			for angle = 0, TAU * 2, 0.05 do
 				local tilt = Logic.pointerTilt(angle, spans, w.tick, w.tickShare)

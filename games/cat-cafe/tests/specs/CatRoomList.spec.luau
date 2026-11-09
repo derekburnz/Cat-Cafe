@@ -49,15 +49,12 @@ return function()
 			expect(uids(CatRoomList.list(cats, defs, rank, "Resting", ""))).to.equal("c,b,e,a")
 		end)
 
-		it(
-			"searches the player's name, the breed and the rarity, ignoring case and spaces",
-			function()
-				expect(uids(CatRoomList.list(cats, defs, rank, "All", "moc"))).to.equal("b")
-				expect(uids(CatRoomList.list(cats, defs, rank, "All", "  TUX "))).to.equal("b")
-				expect(uids(CatRoomList.list(cats, defs, rank, "All", "epic"))).to.equal("c")
-				expect(uids(CatRoomList.list(cats, defs, rank, "Resting", "tabby"))).to.equal("e,a")
-			end
-		)
+		it("searches the player's name, the breed and the rarity, ignoring case and spaces", function()
+			expect(uids(CatRoomList.list(cats, defs, rank, "All", "moc"))).to.equal("b")
+			expect(uids(CatRoomList.list(cats, defs, rank, "All", "  TUX "))).to.equal("b")
+			expect(uids(CatRoomList.list(cats, defs, rank, "All", "epic"))).to.equal("c")
+			expect(uids(CatRoomList.list(cats, defs, rank, "Resting", "tabby"))).to.equal("e,a")
+		end)
 
 		it("treats pattern characters in the query as plain text", function()
 			expect(#CatRoomList.list(cats, defs, rank, "All", "%a")).to.equal(0)
@@ -65,8 +62,7 @@ return function()
 		end)
 
 		it("keeps a cat whose breed is missing from the catalog", function()
-			local list =
-				CatRoomList.list({ z = { uid = "z", catId = "ghost" } }, defs, rank, "All", "")
+			local list = CatRoomList.list({ z = { uid = "z", catId = "ghost" } }, defs, rank, "All", "")
 			expect(#list).to.equal(1)
 			expect(CatRoomList.matches(list[1], nil, "gho")).to.equal(true)
 		end)

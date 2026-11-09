@@ -11,17 +11,7 @@ return function()
 
 	local AREAS = { "alley", "park", "neighbourhood", "woods", "sewer", "desert", "ruins" } -- #2651: Tier 6 and 7
 	-- rally: F101; desert and ruins: #2651
-	local POOLS = {
-		"alley",
-		"park",
-		"neighbourhood",
-		"woods",
-		"sewer",
-		"desert",
-		"ruins",
-		"classic",
-		"rally",
-	}
+	local POOLS = { "alley", "park", "neighbourhood", "woods", "sewer", "desert", "ruins", "classic", "rally" }
 	local AREA_MILESTONES =
 		{ "cats3", "cats6", "cats10", "gold1", "gold2", "gold4", "gold6", "gold8", "gold10" }
 
@@ -90,39 +80,36 @@ return function()
 			})
 		end)
 
-		it(
-			"gives every area page both tracks: +7% tips and +30% gold luck forever (none past the Sewer)",
-			function()
-				for _, areaId in AREAS do
-					local prizes = Catalog.indexPrizes[areaId]
-					assert(prizes)
-					local ids: { string } = {}
-					for id in pairs(prizes) do
-						table.insert(ids, id)
-					end
-					table.sort(ids)
-					local want = table.clone(AREA_MILESTONES)
-					table.sort(want)
-					expect(ids :: any).to.deepEqual(want)
-					expect(
-						sum(
-							{ cats3 = prizes.cats3, cats6 = prizes.cats6, cats10 = prizes.cats10 },
-							"bonus"
-						)
-					).to.be.near(0.07, 1e-9)
-					-- #2651 (tier6-7-areas.md 7b): the first five pages already reach GoldLuckMax, so the Desert and Ruins add none
-					local late = areaId == "desert" or areaId == "ruins"
-					expect(sum(prizes, "goldLuck")).to.be.near(if late then 0 else 0.30, 1e-9)
-					expect(sum(prizes, "baitSpeed")).to.equal(0)
-					expect(prizes.gold10.tag).to.equal(
-						(Catalog.getArea(areaId) :: any).name .. " Gold Master"
-					)
-					-- the finishing prizes (v0.10): the area's Golden Crate at cats10, two at gold10
-					expect((prizes.cats10.crates :: any)[areaId .. "_golden_crate"]).to.equal(1)
-					expect((prizes.gold10.crates :: any)[areaId .. "_golden_crate"]).to.equal(2)
+		it("gives every area page both tracks: +7% tips and +30% gold luck forever (none past the Sewer)", function()
+			for _, areaId in AREAS do
+				local prizes = Catalog.indexPrizes[areaId]
+				assert(prizes)
+				local ids: { string } = {}
+				for id in pairs(prizes) do
+					table.insert(ids, id)
 				end
+				table.sort(ids)
+				local want = table.clone(AREA_MILESTONES)
+				table.sort(want)
+				expect(ids :: any).to.deepEqual(want)
+				expect(
+					sum(
+						{ cats3 = prizes.cats3, cats6 = prizes.cats6, cats10 = prizes.cats10 },
+						"bonus"
+					)
+				).to.be.near(0.07, 1e-9)
+				-- #2651 (tier6-7-areas.md 7b): the first five pages already reach GoldLuckMax, so the Desert and Ruins add none
+				local late = areaId == "desert" or areaId == "ruins"
+				expect(sum(prizes, "goldLuck")).to.be.near(if late then 0 else 0.30, 1e-9)
+				expect(sum(prizes, "baitSpeed")).to.equal(0)
+				expect(prizes.gold10.tag).to.equal(
+					(Catalog.getArea(areaId) :: any).name .. " Gold Master"
+				)
+				-- the finishing prizes (v0.10): the area's Golden Crate at cats10, two at gold10
+				expect((prizes.cats10.crates :: any)[areaId .. "_golden_crate"]).to.equal(1)
+				expect((prizes.gold10.crates :: any)[areaId .. "_golden_crate"]).to.equal(2)
 			end
-		)
+		end)
 
 		it("pays the Alleyway rows as the design table says", function()
 			-- F94 (rewards-and-shops.md section 2e): no shop food and no spins beside a crate

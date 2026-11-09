@@ -4,9 +4,8 @@
 return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
-	local FreshCatchLogic = require(
-		Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("FreshCatchLogic")
-	) :: any
+	local FreshCatchLogic =
+		require(Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("FreshCatchLogic")) :: any
 
 	local function sample()
 		return {
@@ -24,10 +23,7 @@ return function()
 		it("keeps a good stock and drops bad rows", function()
 			local raw = sample() :: any
 			table.insert(raw.stock, { itemId = 7, fish = 1, amount = 1, bought = 0 })
-			table.insert(
-				raw.stock,
-				{ itemId = "lucky_potion", fish = 0 / 0, amount = 1, bought = 0 }
-			)
+			table.insert(raw.stock, { itemId = "lucky_potion", fish = 0 / 0, amount = 1, bought = 0 })
 			table.insert(raw.stock, "junk")
 			local stock = FreshCatchLogic.normalize(raw)
 			expect(stock).to.be.ok()

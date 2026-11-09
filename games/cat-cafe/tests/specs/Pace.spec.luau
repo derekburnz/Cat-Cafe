@@ -1092,38 +1092,34 @@ return function()
 	-- the only blocker: the cats and the Mythicals are in within minutes of each rank up. Design's targets: Tier 6 5 to 7 h
 	-- after Tier 5, Tier 7 8 to 11 h after Tier 6, both in one go. Fit run (10 runs): Tier 6 16 h 17, Tier 7 26 h 19.
 	describe("Tiers 6 and 7 on the money ladder (QA edges, #2651)", function()
-		it(
-			"Tier 6 comes 5 to 7.5 h after Tier 5 and Tier 7 8 to 11.5 h after Tier 6, in one go",
-			function()
-				local limit = 40 * HOUR
-				local list =
-					runs({ catches = 4, target = 7, limit = limit, long = true }, LONG_RUNS)
-				local function gap(from: number, to: number): (Run) -> number?
-					return function(run: Run): number?
-						local a, b = run.tierAt[from], run.tierAt[to]
-						return if a ~= nil and b ~= nil then b - a else nil
-					end
-				end
-				local six = quantile(list, gap(5, 6), 0.5, limit)
-				local seven = quantile(list, gap(6, 7), 0.5, limit)
-				local text = string.format(
-					"medians of %d runs: Tier 5 %s, Tier 6 %s (%s after Tier 5), Tier 7 %s (%s after Tier 6)",
-					#list,
-					clock(quantile(list, tierAt(5), 0.5, limit)),
-					clock(quantile(list, tierAt(6), 0.5, limit)),
-					clock(six),
-					clock(quantile(list, tierAt(7), 0.5, limit)),
-					clock(seven)
-				)
-				print("[Pace #2651] " .. text)
-				if six < 5 * HOUR or six > 7.5 * HOUR then
-					error("Tier 6 outside 5 to 7.5 h after Tier 5: " .. text)
-				end
-				if seven < 8 * HOUR or seven > 11.5 * HOUR then
-					error("Tier 7 outside 8 to 11.5 h after Tier 6: " .. text)
+		it("Tier 6 comes 5 to 7.5 h after Tier 5 and Tier 7 8 to 11.5 h after Tier 6, in one go", function()
+			local limit = 40 * HOUR
+			local list = runs({ catches = 4, target = 7, limit = limit, long = true }, LONG_RUNS)
+			local function gap(from: number, to: number): (Run) -> number?
+				return function(run: Run): number?
+					local a, b = run.tierAt[from], run.tierAt[to]
+					return if a ~= nil and b ~= nil then b - a else nil
 				end
 			end
-		)
+			local six = quantile(list, gap(5, 6), 0.5, limit)
+			local seven = quantile(list, gap(6, 7), 0.5, limit)
+			local text = string.format(
+				"medians of %d runs: Tier 5 %s, Tier 6 %s (%s after Tier 5), Tier 7 %s (%s after Tier 6)",
+				#list,
+				clock(quantile(list, tierAt(5), 0.5, limit)),
+				clock(quantile(list, tierAt(6), 0.5, limit)),
+				clock(six),
+				clock(quantile(list, tierAt(7), 0.5, limit)),
+				clock(seven)
+			)
+			print("[Pace #2651] " .. text)
+			if six < 5 * HOUR or six > 7.5 * HOUR then
+				error("Tier 6 outside 5 to 7.5 h after Tier 5: " .. text)
+			end
+			if seven < 8 * HOUR or seven > 11.5 * HOUR then
+				error("Tier 7 outside 8 to 11.5 h after Tier 6: " .. text)
+			end
+		end)
 	end)
 
 	-- #1159 (stray top-ups) and #1165 (the friends boost): the pace with both on. The catchers here set out back to back

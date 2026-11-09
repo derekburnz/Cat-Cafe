@@ -400,9 +400,7 @@ return function()
 					local def = Catalog.getCat(id)
 					expect(def).to.be.ok()
 					assert(def)
-					expect({ def.name, def.rarity, def.area :: string, def.favoriteRole :: string }).to.deepEqual(
-						row
-					)
+					expect({ def.name, def.rarity, def.area :: string, def.favoriteRole :: string }).to.deepEqual(row)
 				end
 				for id in pairs(spares) do
 					expect(Catalog.getCat(id)).to.be.ok()

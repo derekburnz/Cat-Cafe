@@ -274,8 +274,7 @@ return function()
 						expect(total(rescue)).to.be.near(100, 1e-9)
 						for _, rarity in ipairs(Catalog.rarityOrder) do
 							if rarity ~= "Common" then
-								local boost = if rarity == "Legendary"
-										or rarity == "Mythical"
+								local boost = if rarity == "Legendary" or rarity == "Mythical"
 									then Catching.RESCUE_TOP_BOOST
 									else Catching.RESCUE_BOOST
 								expect(rescue[rarity] / rescue.Common).to.be.near(

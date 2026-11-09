@@ -187,48 +187,34 @@ return function()
 			end
 		)
 
-		it(
-			"finds how high a head prop reaches, so a hat taller than the ears steps aside under a tray",
-			function()
-				local x, y, z = Vector3.new(1, 0, 0), Vector3.new(0, 1, 0), Vector3.new(0, 0, 1)
-				-- upright: half its own height
-				expect(Logic.halfHeight(Vector3.new(0.6, 0.8, 0.4), x, y, z)).to.be.near(0.4, 1e-9)
-				-- lying on its side (turned 90 degrees about Z): half its width
-				expect(Logic.halfHeight(Vector3.new(0.6, 0.8, 0.4), y, Vector3.new(-1, 0, 0), z)).to.be.near(
-					0.3,
-					1e-9
-				)
-				-- tipped 45 degrees about X: the corner reaches up by both
-				local r = math.sqrt(0.5)
-				local reach = Logic.halfHeight(
-					Vector3.new(1, 1, 1),
-					x,
-					Vector3.new(0, r, r),
-					Vector3.new(0, -r, r)
-				)
-				expect(reach).to.be.near(r, 1e-9)
-				expect(c.tallAbove >= 0 and c.tallAbove < 0.2).to.equal(true)
-			end
-		)
+		it("finds how high a head prop reaches, so a hat taller than the ears steps aside under a tray", function()
+			local x, y, z = Vector3.new(1, 0, 0), Vector3.new(0, 1, 0), Vector3.new(0, 0, 1)
+			-- upright: half its own height
+			expect(Logic.halfHeight(Vector3.new(0.6, 0.8, 0.4), x, y, z)).to.be.near(0.4, 1e-9)
+			-- lying on its side (turned 90 degrees about Z): half its width
+			expect(Logic.halfHeight(Vector3.new(0.6, 0.8, 0.4), y, Vector3.new(-1, 0, 0), z)).to.be.near(0.3, 1e-9)
+			-- tipped 45 degrees about X: the corner reaches up by both
+			local r = math.sqrt(0.5)
+			local reach = Logic.halfHeight(Vector3.new(1, 1, 1), x, Vector3.new(0, r, r), Vector3.new(0, -r, r))
+			expect(reach).to.be.near(r, 1e-9)
+			expect(c.tallAbove >= 0 and c.tallAbove < 0.2).to.equal(true)
+		end)
 
-		it(
-			"rides the tray by what is on it, level while standing and subtle when walking (#1576)",
-			function()
-				local c = Presets.cafeWalk.carry
-				for _, style in c.styles do
-					local roll, bob = Logic.traySway(0.25, 0, style, 1)
-					expect(roll).to.equal(0)
-					expect(bob).to.equal(0)
-					roll, bob = Logic.traySway(0.25, c.swayAt * 2, style, 1)
-					expect(math.abs(roll) <= math.rad(3)).to.equal(true)
-					expect(bob <= 0.05).to.equal(true)
-				end
-				local drink = Logic.traySway(0.25, c.swayAt, c.styles.drink, 1)
-				local bake = Logic.traySway(0.25, c.swayAt, c.styles.bake, 1)
-				expect(math.abs(drink) < math.abs(bake)).to.equal(true)
-				local none = Logic.traySway(0.25, c.swayAt, c.styles.bake, 0)
-				expect(none).to.equal(0)
+		it("rides the tray by what is on it, level while standing and subtle when walking (#1576)", function()
+			local c = Presets.cafeWalk.carry
+			for _, style in c.styles do
+				local roll, bob = Logic.traySway(0.25, 0, style, 1)
+				expect(roll).to.equal(0)
+				expect(bob).to.equal(0)
+				roll, bob = Logic.traySway(0.25, c.swayAt * 2, style, 1)
+				expect(math.abs(roll) <= math.rad(3)).to.equal(true)
+				expect(bob <= 0.05).to.equal(true)
 			end
-		)
+			local drink = Logic.traySway(0.25, c.swayAt, c.styles.drink, 1)
+			local bake = Logic.traySway(0.25, c.swayAt, c.styles.bake, 1)
+			expect(math.abs(drink) < math.abs(bake)).to.equal(true)
+			local none = Logic.traySway(0.25, c.swayAt, c.styles.bake, 0)
+			expect(none).to.equal(0)
+		end)
 	end)
 end

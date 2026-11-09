@@ -115,24 +115,18 @@ return function()
 			local state = YardSale.fresh()
 			YardSale.refresh(state, day)
 			expect(YardSale.buyBlocker(state, day, id, nil)).to.equal(nil)
-			expect(YardSale.buyBlocker(state, day, id, "You already have it.")).to.equal(
-				"You already have it."
-			)
+			expect(YardSale.buyBlocker(state, day, id, "You already have it.")).to.equal("You already have it.")
 			local notToday = "golden_paw_statue"
 			if YardSale.inStock(day, notToday) then
 				notToday = "tulip_bed"
 			end
 			if not YardSale.inStock(day, notToday) then
-				expect(YardSale.buyBlocker(state, day, notToday, nil)).to.equal(
-					YardSale.Messages.notToday
-				)
+				expect(YardSale.buyBlocker(state, day, notToday, nil)).to.equal(YardSale.Messages.notToday)
 			end
 			state.bought[id] = true
 			expect(YardSale.buyBlocker(state, day, id, nil)).to.equal(YardSale.Messages.boughtToday)
 			-- a server a day behind sells nothing; the next day clears the rows, a step back never does
-			expect(YardSale.buyBlocker(state, day - 1, id, nil)).to.equal(
-				YardSale.Messages.newStock
-			)
+			expect(YardSale.buyBlocker(state, day - 1, id, nil)).to.equal(YardSale.Messages.newStock)
 			YardSale.refresh(state, day - 1)
 			expect(state.bought[id]).to.equal(true)
 			YardSale.refresh(state, day + 1)
@@ -160,10 +154,7 @@ return function()
 
 		it("sanitizes the save", function()
 			expect(YardSale.sanitize(nil)).to.deepEqual({ day = 0, bought = {} })
-			expect(YardSale.sanitize({ day = "x", bought = 5 })).to.deepEqual({
-				day = 0,
-				bought = {},
-			})
+			expect(YardSale.sanitize({ day = "x", bought = 5 })).to.deepEqual({ day = 0, bought = {} })
 			local raw0 = { day = 12.7, bought = { tulip_bed = true, nope = true, mailbox = 1 } }
 			expect(YardSale.sanitize(raw0)).to.deepEqual({ day = 12, bought = { tulip_bed = true } })
 			local raw: any = ProfileSchema.template(1000)

@@ -33,29 +33,16 @@ return function()
 		end)
 
 		-- #2358: the HUD line and the wheel's bubble while the player has a spin
-		it(
-			"says a free spin, held spins, or nothing for the HUD line and the wheel's bubble",
-			function()
-				local now = 20000 * DAY
-				expect(SpinLogic.line({ lastFreeDay = 19999, banked = 0 }, now)).to.equal(
-					"Free spin at the Town Square"
-				)
-				expect(SpinLogic.bubble({ lastFreeDay = 19999, banked = 0 }, now)).to.equal(
-					"🎡 Free spin!"
-				)
-				expect(SpinLogic.line({ lastFreeDay = 20000, banked = 1 }, now)).to.equal(
-					"1 spin at the Town Square"
-				)
-				expect(SpinLogic.line({ lastFreeDay = 19999, banked = 2 }, now)).to.equal(
-					"3 spins at the Town Square"
-				)
-				expect(SpinLogic.bubble({ lastFreeDay = 20000, banked = 2 }, now)).to.equal(
-					"🎡 2 spins to use"
-				)
-				expect(SpinLogic.line({ lastFreeDay = 20000, banked = 0 }, now)).to.equal(nil)
-				expect(SpinLogic.bubble({ lastFreeDay = 20000, banked = 0 }, now)).to.equal(nil)
-			end
-		)
+		it("says a free spin, held spins, or nothing for the HUD line and the wheel's bubble", function()
+			local now = 20000 * DAY
+			expect(SpinLogic.line({ lastFreeDay = 19999, banked = 0 }, now)).to.equal("Free spin at the Town Square")
+			expect(SpinLogic.bubble({ lastFreeDay = 19999, banked = 0 }, now)).to.equal("🎡 Free spin!")
+			expect(SpinLogic.line({ lastFreeDay = 20000, banked = 1 }, now)).to.equal("1 spin at the Town Square")
+			expect(SpinLogic.line({ lastFreeDay = 19999, banked = 2 }, now)).to.equal("3 spins at the Town Square")
+			expect(SpinLogic.bubble({ lastFreeDay = 20000, banked = 2 }, now)).to.equal("🎡 2 spins to use")
+			expect(SpinLogic.line({ lastFreeDay = 20000, banked = 0 }, now)).to.equal(nil)
+			expect(SpinLogic.bubble({ lastFreeDay = 20000, banked = 0 }, now)).to.equal(nil)
+		end)
 
 		it("counts down to 00:00 UTC once today's free spin is used", function()
 			local now = 20000 * DAY + 5 * 3600
@@ -157,30 +144,15 @@ return function()
 		end)
 
 		-- #1500: the two jackpots are the world wheel's narrow gold wedges, SliceSpans "52,52,52,52,52,52,24,24"
-		it(
-			"gives jackpots 24 degree wedges and the other slices the rest, as the world wheel",
-			function()
-				local rows: { any } = table.clone(ROWS)
-				table.insert(
-					rows,
-					{
-						slice = 7,
-						kind = "crate",
-						crate = "highest_golden",
-						weight = 1,
-						jackpot = true,
-					}
-				)
-				table.insert(
-					rows,
-					{ slice = 8, kind = "fish", count = 100, weight = 1, jackpot = true }
-				)
-				local spans = SpinLogic.spans(rows)
-				expect(table.concat(spans, ",")).to.equal("52,52,52,52,52,52,24,24")
-				expect(table.concat(SpinLogic.spans(ROWS), ",")).to.equal("60,60,60,60,60,60")
-				expect(#SpinLogic.spans({})).to.equal(0)
-			end
-		)
+		it("gives jackpots 24 degree wedges and the other slices the rest, as the world wheel", function()
+			local rows: { any } = table.clone(ROWS)
+			table.insert(rows, { slice = 7, kind = "crate", crate = "highest_golden", weight = 1, jackpot = true })
+			table.insert(rows, { slice = 8, kind = "fish", count = 100, weight = 1, jackpot = true })
+			local spans = SpinLogic.spans(rows)
+			expect(table.concat(spans, ",")).to.equal("52,52,52,52,52,52,24,24")
+			expect(table.concat(SpinLogic.spans(ROWS), ",")).to.equal("60,60,60,60,60,60")
+			expect(#SpinLogic.spans({})).to.equal(0)
+		end)
 
 		it("lands in the middle of a narrow jackpot wedge and reads it back", function()
 			local spans = { 52, 52, 52, 52, 52, 52, 24, 24 }

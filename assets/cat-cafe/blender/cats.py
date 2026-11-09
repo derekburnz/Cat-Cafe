@@ -40,7 +40,9 @@ from common import Builder, scale_mesh
 # eyes), curl (the tail tip curls over: up and forward on A, up off the floor and back on B), exclusive (no gold
 # twins); #1191 (the shop-only cats): eye_k (eyes that much bigger), apron ((cloth, sprinkle colours): an apron
 # painted on the chest with sprinkles on it, under where the Barista's apron goes), shop (sold for Robux only: the
-# model carries a BubbleAnchor), lids (half-closed eyes: a lid in the fur over the top of each eye, a calm gaze); #2584: ear_k (ears that much bigger). Themed cats wear a prop, some two (props.py).
+# model carries a BubbleAnchor), lids (half-closed eyes: a lid in the fur over the top of each eye, a calm gaze); #2584: ear_k (ears that much bigger), glyphs (rows of carved glyphs in the second colour between bands of the
+# third along the flanks) and tiles (mosaic tiles in the second and third colours and cream on the flanks, back and
+# crown), both built as geometry so they hold in gold. Themed cats wear a prop, some two (props.py).
 ROSTER = {
     "Tabby":   dict(rarity="Common", fur="fur_orange", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white"),
     "Tuxedo":  dict(rarity="Common", fur="fur_black", second="fur_white", eyes="eye_green", pattern="patches", muzzle="fur_white", tuxedo=True),
@@ -206,6 +208,31 @@ ROSTER = {
     "Sphinx":  dict(rarity="Mythical", fur="fur_dune", second="fur_sand", eyes="fish_blue", pattern="stripes",
                     muzzle="fur_vanilla", ruff="fur_sand", scale=1.3, body_scale=(1.1, 1.0, 1.08), tail_thick=0.3,
                     tip="fur_brown", glow_eyes=True, nose="nose_brick"),
+    # #2584 Tier 7 Ruins (tier6-7-areas.md section 6b), nearest swatches again, each on a main coat no other cat uses
+    # where one is close enough (Ivy's fur_moss and the Golem's fur_dusty are Design's picks)
+    "Pebble":  dict(rarity="Common", fur="concrete", second="fur_silver", third="fur_charcoal", eyes="eye_amber",
+                    pattern="solid", muzzle="fur_silver", nose="nose_dark"),
+    "Rubble":  dict(rarity="Common", fur="paving_grout", second="fur_soot", third="floor_tile", eyes="eye_green",
+                    pattern="patches", muzzle="floor_tile", nose="nose_dark"),
+    "Clay":    dict(rarity="Common", fur="terracotta", second="fur_apricot", third="hair_brown", eyes="eye_green",
+                    pattern="solid", muzzle="fur_apricot", nose="nose_brick", tip="hair_brown"),
+    "Ivy":     dict(rarity="Common", fur="fur_moss", second="leaf_dark", third="floor_tile", eyes="eye_amber",
+                    pattern="stripes", muzzle="floor_tile"),
+    "Glyph":   dict(rarity="Rare", fur="paving_sand", second="fur_seal", third="fur_golden", eyes="eye_green",
+                    pattern="solid", muzzle=None, nose="nose_dark", glyphs=True),
+    "Torch":   dict(rarity="Rare", fur="skin_deep", second="eye_amber", third="pastel_butter", eyes="eye_amber",
+                    pattern="solid", muzzle="caramel_wood", nose="nose_dark", tip="eye_amber"),
+    "Gargoyle": dict(rarity="Epic", fur="concrete_dark", second="fur_charcoal", third="bowl_red", eyes="eye_amber",
+                     pattern="solid", muzzle=None, nose="nose_dark", body_scale=(1.05, 1.0, 1.0)),
+    "Mosaic":  dict(rarity="Epic", fur="paw_sewer", second="fur_golden", third="terracotta", eyes="eye_amber",
+                    pattern="solid", muzzle=None, nose="nose_brick", tiles=True),
+    "Golem":   dict(rarity="Legendary", fur="fur_dusty", second="sign_teal", third="fur_ash", eyes="sign_teal",
+                    pattern="solid", muzzle=None, nose="nose_dark", glow_eyes=True, scale=1.2,
+                    body_scale=(1.15, 1.0, 1.1), tail_thick=0.3),
+    # a jade statue fading to dark jade, its gold kept to the trim (the ruff, the tail tip and the crown, props.py)
+    "JadeGuardian": dict(rarity="Mythical", fur="fur_emerald", second="leaf_dark", third="paw_woods", eyes="gold_light",
+                         pattern="gradient", muzzle=None, nose="nose_dark", glow_eyes=True, scale=1.15,
+                         body_scale=(1.05, 1.0, 1.05), ruff="fur_golden", tip="fur_golden"),
 }
 
 COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks", "blaze")
@@ -447,6 +474,8 @@ def _head(spec, c, h):
     elif pat == "gradient":                             # the back of the head fades into the second colour
         lift = 0.06 if h.get("arms") else 0.0           # S: the band's sharp lower corners keep off a waving arm
         b.box((0, cy + sy * 0.3, cz + lift / 2), (sx + 0.03, sy * 0.42, sz + 0.03 - lift), c["second"], bevel=False)
+    if spec.get("tiles"):                               # #2584 the Mosaic Cat: four tiles on the crown
+        _top_tiles(b, c, 0.0, cy + 0.04, top, 2, 2, sx * 0.34, sy * 0.4)
     surf, under = fy, c["fur"]                          # the face the mouth is drawn on, and its colour
     if pat == "points":
         surf, under = fy - 0.02, c["second"]
@@ -690,6 +719,49 @@ def _apron(b, spec, front, w, z0, z1, sides=None):
             b.box((side * (hx + 0.006), (y0 + y1) / 2, z), (0.012, y1 - y0, 0.045), cloth, bevel=False)
 
 
+# #2584 the Hieroglyph Cat's glyphs: each one's boxes in a unit cell, (u along the flank, v up, width, height), both
+# -0.5 to 0.5; no two boxes of a glyph overlap, so their fronts never share a plane
+GLYPHS = (
+    ((0.0, 0.3, 0.8, 0.12), (0.0, 0.0, 0.32, 0.32), (-0.2, -0.32, 0.12, 0.26)),                     # an eye
+    ((0.0, -0.2, 0.14, 0.5), (0.0, 0.1, 0.62, 0.1), (-0.15, 0.3, 0.1, 0.22), (0.15, 0.3, 0.1, 0.22),
+     (0.0, 0.46, 0.4, 0.08)),                                                                         # an ankh
+    ((0.0, 0.25, 0.75, 0.09), (0.0, 0.0, 0.75, 0.09), (0.0, -0.25, 0.75, 0.09)),                     # water
+    ((0.0, 0.05, 0.46, 0.46), (0.0, -0.36, 0.7, 0.1)),                                               # the sun rising
+)
+
+
+def _flank_art(b, spec, c, side, x, yc, length, zc, h):
+    """#2584 coat marks built as geometry on one flank (x is the flank's face): the Hieroglyph Cat's row of glyphs
+    between two bands, or the Mosaic Cat's two rows of tiles. Each is 0.03 thick, 0.02 proud, and kept apart."""
+    t, px = 0.03, side * (x + 0.005)
+    if spec.get("glyphs"):
+        for dz in (h / 2 - 0.02, -h / 2 + 0.02):                                    # the bands, in the third colour
+            b.box((px, yc, zc + dz), (t, length, 0.04), c["third"], bevel=False)
+        n = max(2, round(length / 0.18))
+        cw, gh = length / n * 0.8, h - 0.1
+        for i in range(n):
+            y = yc - length / 2 + length / n * (i + 0.5)
+            for u, v, w, hh in GLYPHS[(i + (side > 0)) % len(GLYPHS)]:
+                b.box((px, y + u * cw, zc + v * gh), (t, w * cw, hh * gh), c["second"], bevel=False)
+    if spec.get("tiles"):
+        n = max(2, round(length / 0.15))
+        tw, th = length / n - 0.025, h / 2 - 0.025
+        cols = (c["second"], c["third"], "offwhite")
+        for row, dz in enumerate((h / 4, -h / 4)):
+            for i in range(n):
+                y = yc - length / 2 + length / n * (i + 0.5)
+                b.box((px, y, zc + dz), (t, tw, th), cols[(i + row * 2 + (side > 0)) % 3], bevel=False)
+
+
+def _top_tiles(b, c, xc, yc, z, nx, ny, w, d):
+    """#2584 the Mosaic Cat's tiles on a top face at height z: nx by ny over w by d."""
+    cols = (c["third"], "offwhite", c["second"])
+    for i in range(nx):
+        for j in range(ny):
+            b.box((xc - w / 2 + w / nx * (i + 0.5), yc - d / 2 + d / ny * (j + 0.5), z + 0.005),
+                  (w / nx - 0.025, d / ny - 0.025, 0.03), cols[(i + j) % 3], bevel=False)
+
+
 def _body_a(spec, c, d):
     b = Builder()
     (x0, y0, z0), (sx, sy, sz) = d["body"]
@@ -725,6 +797,11 @@ def _body_a(spec, c, d):
     if spec.get("checker"):                             # along each flank, over the stripes
         for side in (-1, 1):
             _checker(b, spec["checker"], side, hx + 0.02, y0 - 0.02, sy * 0.78, z0 - 0.02, 0.14)
+    if spec.get("glyphs") or spec.get("tiles"):         # #2584 glyphs or tiles along each flank
+        for side in (-1, 1):
+            _flank_art(b, spec, c, side, hx, y0 + 0.02, sy * 0.7, z0 - 0.03, 0.3)
+        if spec.get("tiles"):
+            _top_tiles(b, c, 0.0, y0 + 0.12, top, 2, 3, sx * 0.5, sy * 0.45)
     if spec.get("mane"):                                # down the neck and along the front of the back
         for i in range(3):
             b.box((0, y0 - hy + 0.08 + i * 0.15, top + 0.03 + 0.01 * (i % 2)), (0.16 + 0.02 * (i % 2), 0.17, 0.1),
@@ -775,6 +852,12 @@ def _body_b(spec, c, d):
     if spec.get("checker"):                             # along each haunch, over the stripes
         for side in (-1, 1):
             _checker(b, spec["checker"], side, hsx / 2 + 0.02, hy0 + 0.02, hsy * 0.8, hz0 + 0.02, 0.14)
+    if spec.get("glyphs") or spec.get("tiles"):         # #2584 on each haunch and each side of the chest
+        for side in (-1, 1):
+            _flank_art(b, spec, c, side, hsx / 2, hy0 + 0.04, hsy * 0.75, hz0 + 0.01, 0.26)
+            _flank_art(b, spec, c, side, csx / 2, cy0 + 0.02, csy * 0.7, 0.82, 0.22)
+        if spec.get("tiles"):
+            _top_tiles(b, c, 0.0, hy0 + 0.17, htop, 2, 2, hsx * 0.45, hsy * 0.3)
     _coat_extras(b, {**spec, "petals": False}, c, d["chest"][0], d["chest"][1], top=False)
     if spec.get("mane"):                                # down the back of the chest
         for i in range(3):
@@ -818,6 +901,9 @@ def _body_s(spec, c, d):
     if spec.get("checker"):                             # along each side of the chest, over the stripes
         for side in (-1, 1):
             _checker(b, spec["checker"], side, csx / 2 + 0.02, cy0, csy * 0.8, 0.62, 0.14)
+    if spec.get("glyphs") or spec.get("tiles"):         # #2584 on each side of the chest, under the shoulders
+        for side in (-1, 1):
+            _flank_art(b, spec, c, side, csx / 2, cy0 + 0.02, csy * 0.7, 0.56, 0.24)
     if spec.get("mane"):                                # down the back of the chest
         for i in range(3):
             b.box((0, cy0 + csy / 2 + 0.03 + 0.01 * (i % 2), 1.0 - i * 0.16), (0.16 + 0.02 * (i % 2), 0.1, 0.17),

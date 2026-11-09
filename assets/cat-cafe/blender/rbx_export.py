@@ -14,7 +14,8 @@ transparency (Roblox's Glass material bends the view through a window) and water
 (_Bars) is ForceField, the gold coat tones (palette.METAL_SWATCHES) are Metal. Hanging lamp bulbs (lit all day) are
 Neon; other
 _Bulb, _Bulbs, _Pane and _Tube parts keep their day look and WorldController lights them at night. _Glow parts are
-Neon day and night (WorldController leaves them alone), and a walk-in circle (_CodesCircle) is Neon at 0.85.
+Neon day and night (WorldController leaves them alone), as are the Ruins cats' _Flame, _Runes and _RuneRing (#2584),
+and a walk-in circle (_CodesCircle) is Neon at 0.85.
 
 Model layout (pivots match the FBX exports and manifest.json, so placement code works with either):
   <Name>                     Model, pivot at the asset origin (base centre, front -Z), PrimaryPart = biggest
@@ -241,6 +242,8 @@ def _material(obname, swatch):
     if any(k in obname for k in ALWAYS_LIT) and obname.endswith("_Bulb"):
         return "Neon", 0.0
     if obname.endswith(("_Glow", "_RimLight")):   # the Spin Wheel's rim lights: Neon, and SmoothPlastic when off
+        return "Neon", 0.0
+    if obname.endswith(("_Flame", "_Runes", "_RuneRing")):   # #2584 the Ruins cats' torch flame and glowing runes
         return "Neon", 0.0
     if obname.endswith("_CodesCircle"):           # a see-through glowing pad you walk into, calm enough that the
         return "Neon", 0.85                       # ticket on it reads

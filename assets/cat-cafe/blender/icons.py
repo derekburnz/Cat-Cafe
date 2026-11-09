@@ -147,7 +147,10 @@ HUD_VIEWS = {"Store": (24.0, 18.0), "Cats": (-14.0, 8.0), "Index": (-8.0, 52.0),
 
 
 def _hud_icons():
-    return {f"CatCafe_Icon_Hud_{n}": (fn, INK, 10, HUD_VIEWS[n]) for n, fn in hud_icons.builders().items()}
+    import window_icons   # #2836: window badges, perks, upgrade rows, staff roles and buttons that drew an emoji
+    out = {f"CatCafe_Icon_Hud_{n}": (fn, INK, 10, HUD_VIEWS[n]) for n, fn in hud_icons.builders().items()}
+    out.update({f"CatCafe_Icon_Hud_{n}": (fn, INK, 10, window_icons.VIEWS[n]) for n, fn in window_icons.ICONS.items()})
+    return out
 
 
 SIZE, PAD = 512, 0.05

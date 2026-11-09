@@ -2,9 +2,9 @@
 -- Playing together's words on the UI (F92, playing-together.md sections 2, 3 and 5), pure so the cloud spec runner
 -- checks them:
 --   list(userIds, selfId)            the pals from PalsChanged, cleaned: whole positive ids, no repeats, never you
---   chip(count)                      the HUD chip's words, "+10% with pals" with one and "+15% with pals" with two or
+--   chip(count, short?)              the HUD chip's words, "+10% with pals" with one and "+15% with pals" with two or
 --                                    more (shared Pals.bonus, so they match the tips), nil with none: a solo player
---                                    never sees a missing bonus
+--                                    never sees a missing bonus; `short` (touch, #2712) "+10%" beside the headshots
 --   faces(userIds)                   up to FACES ids for the chip's headshots, and how many more ("+2")
 --   headshot(userId)                 the Roblox headshot picture for an id
 --   arrived(name, areaName?)         the marker for a joiner whose pal is out: "Sam is in the Park", nil without an
@@ -48,12 +48,14 @@ function PalsLogic.list(userIds: unknown, selfId: number?): { number }
 	return out
 end
 
-function PalsLogic.chip(count: number): string?
+function PalsLogic.chip(count: number, short: boolean?): string?
 	if count < 1 then
 		return nil
 	end
 	local bonus: number = Pals.bonus(count)
-	return ("+%d%% with pals"):format(math.floor(bonus * 100 + 0.5))
+	local percent = math.floor(bonus * 100 + 0.5)
+	-- #2712: on touch "+10%" beside the headshots, so the chip takes less of the top bar
+	return if short then ("+%d%%"):format(percent) else ("+%d%% with pals"):format(percent)
 end
 
 function PalsLogic.faces(userIds: { number }): ({ number }, number)

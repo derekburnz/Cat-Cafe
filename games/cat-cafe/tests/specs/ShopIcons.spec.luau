@@ -157,6 +157,8 @@ return function()
 			)
 			expect(ShopIcons.backup(ShopIcons.clean("Cats"))).to.equal(nil)
 			expect(ShopIcons.backup(nil)).to.equal(nil)
+			-- #2866: the redrawn Bag falls back to the group's earlier backpack, not the window's potion glyph
+			expect(ShopIcons.backup(ShopIcons.hud("Bag"))).to.equal("rbxassetid://88244676943674")
 		end)
 
 		it("offers the next net, staying on the top one", function()

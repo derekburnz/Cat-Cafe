@@ -356,6 +356,10 @@ for key, id in IDS do
 		BACKUP[id] = clean
 	end
 end
+-- #2866 (Derek2: "the bag image ... is using old images or potion placeholder"): the redrawn Bag (#2836) was uploaded
+-- under a user, not the Creampuff Games group that owns the game, so it does not load there; until the group's copy
+-- is in, a failed load falls back to the group's earlier backpack (#2453) instead of the window's potion glyph
+BACKUP[IDS.Icon_Hud_Bag] = "rbxassetid://88244676943674"
 
 -- #2500 (Derek2: "lots of store images when first opening store take a second to load and show old default images"):
 -- every picture the Store can show (its cards, tabs, shop-only cats, potion flasks and the clean symbols behind

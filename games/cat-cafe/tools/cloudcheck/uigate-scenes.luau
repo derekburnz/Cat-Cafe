@@ -5258,7 +5258,8 @@ local SCENES = {
 		local bag = ShopIcons.hud("Bag")
 		assert(bag == "rbxassetid://124246973096601", "uigate: the Bag tile is not Model-Agent's backpack (#2453)")
 		assert(bag ~= ShopIcons.hud("Potion"), "uigate: the Bag tile shows the Potions bottle (#2453)")
-		assert(ShopIcons.backup(bag) == nil, "uigate: the Bag's backpack falls back to another picture (#2453)")
+		-- #2866: its only backup is the group's earlier backpack, never a bottle or the money bag
+		assert(ShopIcons.backup(bag) == "rbxassetid://88244676943674", "uigate: the Bag's backpack does not fall back to the earlier backpack (#2866)")
 		assert(bag ~= ShopIcons.clean("Bag"), "uigate: the Bag tile shows the gold money bag (#2453)")
 	end },
 	-- #1737: the Night Market banner at nightfall with the market cart's picture left of the title (was a moon emoji)

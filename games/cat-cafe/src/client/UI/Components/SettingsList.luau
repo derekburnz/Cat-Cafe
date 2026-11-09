@@ -91,6 +91,14 @@ SettingsList.SECTIONS = {
 				detail = "Cats in other cafes and in other arms",
 			},
 			{
+				-- #2551 (Derek2 11-09): the "+$3/s" over each working cat, yours and everyone else's
+				key = "catIncome",
+				kind = "switch",
+				icon = "💰",
+				name = "Cat income",
+				detail = "The money a second over each working cat",
+			},
+			{
 				key = "markers",
 				kind = "switch",
 				icon = "📍",

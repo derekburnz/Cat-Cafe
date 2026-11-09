@@ -1016,6 +1016,7 @@ export type Settings = {
 	roadmapOpen: boolean, -- #1893: the Grand Opening strip opened into its list
 	sessionRecap: boolean, -- #1920: the session recap card after Config.RecapAfterSeconds of play
 	autoEquip: boolean, -- #1955: Auto Equip, on for new accounts and off for saves from before it
+	catIncome: boolean, -- #2551: the rate tags over working cats (UI WorldTags), on by default
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished

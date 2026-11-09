@@ -21,6 +21,7 @@
 -- camera.
 -- Listening only: nothing here fires a remote.
 
+local CollectionService = game:GetService("CollectionService")
 local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -300,6 +301,7 @@ type View = {
 	pitch: number, -- radians, negative looking down
 	body: Vector3, -- the body's middle when last seen
 	last: CFrame,
+	flat: Vector3?, -- #2779: the flat way the landing camera looks, picked once as the drop starts (clearOfCannons)
 }
 local view: View? = nil
 -- The CannonLaunchAt whose camera went back to the game's at cannonPose's `ends`, when the server lets go (#2690),
@@ -346,6 +348,84 @@ local function grounded(me: Model?): boolean
 	end
 	local root = me:FindFirstChild("HumanoidRootPart")
 	return not (root ~= nil and root:IsA("BasePart") and (root :: BasePart).Anchored and arrowsHeld)
+end
+
+-- #2779 (Laptop-Tester: after a landing in the Alleyway the screen was solid red and yellow): a camp's pad is
+-- 13.5 studs in front of its cannon and the flyer lands facing away from it, so the camera behind them sat inside the
+-- turret. Most of the cannon's parts do not collide, and the game's camera only pops in front of parts that do, so
+-- after the hand-back it stayed there. The landing camera turns round the flyer, the least it can, until the line
+-- from them to it misses every Cat Cannon's box; the game's camera keeps that way after the hand-back.
+local CLEAR_TURNS = { 0, 35, -35, 70, -70, 105, -105, 140, -140, 180 }
+local CLEAR_PAD = 1.5 -- studs round each cannon's box
+local CLEAR_FROM = 1.5 -- the line starts this far behind the flyer, so a flyer close to a cannon still finds a way
+local CLEAR_NEAR = 80 -- studs: cannons further than this from the flyer are not checked
+
+-- The part of the line a + t * d (t in t0..t1) inside the slab -h..h on one axis, or nil when none is.
+local function slab(s: number, d: number, h: number, t0: number, t1: number): (number?, number)
+	if math.abs(d) < 1e-6 then
+		return if s < -h or s > h then nil else t0, t1
+	end
+	local u, w = (-h - s) / d, (h - s) / d
+	if u > w then
+		u, w = w, u
+	end
+	t0, t1 = math.max(t0, u), math.min(t1, w)
+	return if t0 > t1 then nil else t0, t1
+end
+
+local function lineHitsBox(a: Vector3, b: Vector3, box: CFrame, size: Vector3): boolean
+	local p = box:PointToObjectSpace(a)
+	local d = box:PointToObjectSpace(b) - p
+	local half = size / 2 + Vector3.one * CLEAR_PAD
+	local t0: number?, t1 = 0, 1
+	t0, t1 = slab(p.X, d.X, half.X, t0 :: number, t1)
+	if t0 == nil then
+		return false
+	end
+	t0, t1 = slab(p.Y, d.Y, half.Y, t0 :: number, t1)
+	if t0 == nil then
+		return false
+	end
+	t0, t1 = slab(p.Z, d.Z, half.Z, t0 :: number, t1)
+	return t0 ~= nil
+end
+
+function CannonGlide.clearOfCannons(
+	focus: Vector3,
+	flat: Vector3,
+	pitch: number,
+	distance: number,
+	boxes: { { cframe: CFrame, size: Vector3 } }
+): Vector3
+	for _, turn in CLEAR_TURNS do
+		local way = CFrame.Angles(0, math.rad(turn), 0):VectorToWorldSpace(flat)
+		local look = way * math.cos(pitch) + Vector3.yAxis * math.sin(pitch)
+		local from, to = focus - look * CLEAR_FROM, focus - look * distance
+		local blocked = false
+		for _, box in boxes do
+			if lineHitsBox(from, to, box.cframe, box.size) then
+				blocked = true
+				break
+			end
+		end
+		if not blocked then
+			return way
+		end
+	end
+	return flat
+end
+
+local function cannonBoxes(near: Vector3): { { cframe: CFrame, size: Vector3 } }
+	local boxes: { { cframe: CFrame, size: Vector3 } } = {}
+	for _, model in CollectionService:GetTagged("CatCannon") do
+		if model:IsA("Model") and model:IsDescendantOf(Workspace) then
+			local cframe, size = (model :: Model):GetBoundingBox()
+			if (cframe.Position - near).Magnitude <= CLEAR_NEAR + size.Magnitude / 2 then
+				table.insert(boxes, { cframe = cframe, size = size })
+			end
+		end
+	end
+	return boxes
 end
 
 -- The camera for this player's own flight, after the game's camera has had its turn each frame.
@@ -423,7 +503,19 @@ local function track()
 		local focus = if seconds < c.touch
 			then coming:Lerp(rest, smooth((seconds - (c.touch - c.open)) / c.open))
 			else rest
-		local look = root.LookVector * math.cos(v.pitch) + Vector3.yAxis * math.sin(v.pitch)
+		if v.flat == nil then
+			local flat = Vector3.new(root.LookVector.X, 0, root.LookVector.Z)
+			flat = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.zAxis
+			v.flat = CannonGlide.clearOfCannons(
+				rest,
+				flat,
+				v.pitch,
+				v.distance * k.wide,
+				cannonBoxes(rest)
+			)
+		end
+		local flat = v.flat :: Vector3
+		local look = flat * math.cos(v.pitch) + Vector3.yAxis * math.sin(v.pitch)
 		-- `wide` times the player's distance down to the player's own by the touch, then one quick, slight push in
 		-- (`push` closer) that is back on the player's own distance within `bump` seconds, and the game's camera
 		-- after (#1131). Reduce Motion: no bump.

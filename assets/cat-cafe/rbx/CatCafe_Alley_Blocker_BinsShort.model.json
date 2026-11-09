@@ -13,7 +13,7 @@
      "CFrame": {
       "position": [
        -9.935,
-       6.9,
+       4.3,
        -0.81
       ],
       "orientation": [
@@ -37,7 +37,7 @@
     },
     "Size": [
      6.83,
-     7.0,
+     1.8,
      1.38
     ],
     "Color": [
@@ -56,7 +56,7 @@
      "CFrame": {
       "position": [
        9.935,
-       -6.9,
+       -4.3,
        0.81
       ],
       "orientation": [
@@ -238,7 +238,7 @@
      "CFrame": {
       "position": [
        -9.935,
-       5.26,
+       2.66,
        0.0
       ],
       "orientation": [
@@ -262,7 +262,7 @@
     },
     "Size": [
      6.83,
-     10.28,
+     5.08,
      0.24
     ],
     "Color": [
@@ -337,300 +337,6 @@
       "position": [
        -9.935,
        4.6,
-       -1.51
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     6.83,
-     0.06,
-     0.02
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_BinsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.935,
-       5.5,
-       -1.51
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     6.83,
-     0.06,
-     0.02
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_BinsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.935,
-       6.4,
-       -1.51
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     6.83,
-     0.06,
-     0.02
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_BinsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.935,
-       7.3,
-       -1.51
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     6.83,
-     0.06,
-     0.02
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_BinsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.935,
-       8.2,
-       -1.51
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     6.83,
-     0.06,
-     0.02
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_BinsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.935,
-       9.1,
-       -1.51
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     6.83,
-     0.06,
-     0.02
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_BinsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.935,
-       10.0,
        -1.51
       ],
       "orientation": [
@@ -2342,7 +2048,7 @@
      "CFrame": {
       "position": [
        -9.935,
-       6.95,
+       4.37,
        -1.525
       ],
       "orientation": [
@@ -2366,7 +2072,7 @@
     },
     "Size": [
      4.78,
-     1.3,
+     1.1,
      0.05
     ],
     "Color": [
@@ -2391,7 +2097,7 @@
      "CFrame": {
       "position": [
        -8.015,
-       7.19,
+       4.61,
        -1.57
       ],
       "orientation": [
@@ -2440,7 +2146,7 @@
      "CFrame": {
       "position": [
        -7.955,
-       7.07,
+       4.49,
        -1.57
       ],
       "orientation": [
@@ -2489,7 +2195,7 @@
      "CFrame": {
       "position": [
        -8.195,
-       7.07,
+       4.49,
        -1.57
       ],
       "orientation": [
@@ -2538,7 +2244,7 @@
      "CFrame": {
       "position": [
        -8.015,
-       6.95,
+       4.37,
        -1.57
       ],
       "orientation": [
@@ -2587,7 +2293,7 @@
      "CFrame": {
       "position": [
        -7.955,
-       6.83,
+       4.25,
        -1.57
       ],
       "orientation": [
@@ -2636,7 +2342,7 @@
      "CFrame": {
       "position": [
        -8.195,
-       6.83,
+       4.25,
        -1.57
       ],
       "orientation": [
@@ -2685,7 +2391,7 @@
      "CFrame": {
       "position": [
        -8.015,
-       6.71,
+       4.13,
        -1.57
       ],
       "orientation": [
@@ -2734,7 +2440,7 @@
      "CFrame": {
       "position": [
        -8.555,
-       7.19,
+       4.61,
        -1.57
       ],
       "orientation": [
@@ -2783,7 +2489,7 @@
      "CFrame": {
       "position": [
        -8.555,
-       7.07,
+       4.49,
        -1.57
       ],
       "orientation": [
@@ -2832,7 +2538,7 @@
      "CFrame": {
       "position": [
        -8.555,
-       6.95,
+       4.37,
        -1.57
       ],
       "orientation": [
@@ -2881,7 +2587,7 @@
      "CFrame": {
       "position": [
        -8.555,
-       6.83,
+       4.25,
        -1.57
       ],
       "orientation": [
@@ -2930,7 +2636,7 @@
      "CFrame": {
       "position": [
        -8.555,
-       6.71,
+       4.13,
        -1.57
       ],
       "orientation": [
@@ -2979,7 +2685,7 @@
      "CFrame": {
       "position": [
        -8.915,
-       7.19,
+       4.61,
        -1.57
       ],
       "orientation": [
@@ -3028,7 +2734,7 @@
      "CFrame": {
       "position": [
        -9.275,
-       7.19,
+       4.61,
        -1.57
       ],
       "orientation": [
@@ -3077,7 +2783,7 @@
      "CFrame": {
       "position": [
        -8.975,
-       7.07,
+       4.49,
        -1.57
       ],
       "orientation": [
@@ -3126,7 +2832,7 @@
      "CFrame": {
       "position": [
        -9.275,
-       7.07,
+       4.49,
        -1.57
       ],
       "orientation": [
@@ -3175,7 +2881,7 @@
      "CFrame": {
       "position": [
        -8.915,
-       6.95,
+       4.37,
        -1.57
       ],
       "orientation": [
@@ -3224,7 +2930,7 @@
      "CFrame": {
       "position": [
        -9.215,
-       6.95,
+       4.37,
        -1.57
       ],
       "orientation": [
@@ -3273,7 +2979,7 @@
      "CFrame": {
       "position": [
        -8.915,
-       6.83,
+       4.25,
        -1.57
       ],
       "orientation": [
@@ -3322,7 +3028,7 @@
      "CFrame": {
       "position": [
        -9.275,
-       6.83,
+       4.25,
        -1.57
       ],
       "orientation": [
@@ -3371,7 +3077,7 @@
      "CFrame": {
       "position": [
        -8.915,
-       6.71,
+       4.13,
        -1.57
       ],
       "orientation": [
@@ -3420,7 +3126,7 @@
      "CFrame": {
       "position": [
        -9.275,
-       6.71,
+       4.13,
        -1.57
       ],
       "orientation": [
@@ -3469,7 +3175,7 @@
      "CFrame": {
       "position": [
        -9.875,
-       7.19,
+       4.61,
        -1.57
       ],
       "orientation": [
@@ -3518,7 +3224,7 @@
      "CFrame": {
       "position": [
        -9.755,
-       7.07,
+       4.49,
        -1.57
       ],
       "orientation": [
@@ -3567,7 +3273,7 @@
      "CFrame": {
       "position": [
        -9.875,
-       6.95,
+       4.37,
        -1.57
       ],
       "orientation": [
@@ -3616,7 +3322,7 @@
      "CFrame": {
       "position": [
        -9.995,
-       6.83,
+       4.25,
        -1.57
       ],
       "orientation": [
@@ -3665,7 +3371,7 @@
      "CFrame": {
       "position": [
        -9.875,
-       6.71,
+       4.13,
        -1.57
       ],
       "orientation": [
@@ -3714,7 +3420,7 @@
      "CFrame": {
       "position": [
        -10.355,
-       7.19,
+       4.61,
        -1.57
       ],
       "orientation": [
@@ -3763,7 +3469,7 @@
      "CFrame": {
       "position": [
        -10.355,
-       7.07,
+       4.49,
        -1.57
       ],
       "orientation": [
@@ -3812,7 +3518,7 @@
      "CFrame": {
       "position": [
        -10.355,
-       6.95,
+       4.37,
        -1.57
       ],
       "orientation": [
@@ -3861,7 +3567,7 @@
      "CFrame": {
       "position": [
        -10.355,
-       6.83,
+       4.25,
        -1.57
       ],
       "orientation": [
@@ -3910,7 +3616,7 @@
      "CFrame": {
       "position": [
        -10.355,
-       6.71,
+       4.13,
        -1.57
       ],
       "orientation": [
@@ -3959,7 +3665,7 @@
      "CFrame": {
       "position": [
        -10.835,
-       7.19,
+       4.61,
        -1.57
       ],
       "orientation": [
@@ -4008,7 +3714,7 @@
      "CFrame": {
       "position": [
        -10.715,
-       7.07,
+       4.49,
        -1.57
       ],
       "orientation": [
@@ -4057,7 +3763,7 @@
      "CFrame": {
       "position": [
        -10.955,
-       7.07,
+       4.49,
        -1.57
       ],
       "orientation": [
@@ -4106,7 +3812,7 @@
      "CFrame": {
       "position": [
        -10.715,
-       6.95,
+       4.37,
        -1.57
       ],
       "orientation": [
@@ -4155,7 +3861,7 @@
      "CFrame": {
       "position": [
        -10.955,
-       6.95,
+       4.37,
        -1.57
       ],
       "orientation": [
@@ -4204,7 +3910,7 @@
      "CFrame": {
       "position": [
        -10.715,
-       6.83,
+       4.25,
        -1.57
       ],
       "orientation": [
@@ -4253,7 +3959,7 @@
      "CFrame": {
       "position": [
        -10.955,
-       6.83,
+       4.25,
        -1.57
       ],
       "orientation": [
@@ -4302,7 +4008,7 @@
      "CFrame": {
       "position": [
        -10.835,
-       6.71,
+       4.13,
        -1.57
       ],
       "orientation": [
@@ -4351,7 +4057,7 @@
      "CFrame": {
       "position": [
        -11.255,
-       7.19,
+       4.61,
        -1.57
       ],
       "orientation": [
@@ -4400,7 +4106,7 @@
      "CFrame": {
       "position": [
        -11.195,
-       7.07,
+       4.49,
        -1.57
       ],
       "orientation": [
@@ -4449,7 +4155,7 @@
      "CFrame": {
       "position": [
        -11.435,
-       7.07,
+       4.49,
        -1.57
       ],
       "orientation": [
@@ -4498,7 +4204,7 @@
      "CFrame": {
       "position": [
        -11.255,
-       6.95,
+       4.37,
        -1.57
       ],
       "orientation": [
@@ -4547,7 +4253,7 @@
      "CFrame": {
       "position": [
        -11.195,
-       6.83,
+       4.25,
        -1.57
       ],
       "orientation": [
@@ -4596,7 +4302,7 @@
      "CFrame": {
       "position": [
        -11.435,
-       6.83,
+       4.25,
        -1.57
       ],
       "orientation": [
@@ -4645,7 +4351,7 @@
      "CFrame": {
       "position": [
        -11.195,
-       6.71,
+       4.13,
        -1.57
       ],
       "orientation": [
@@ -4694,7 +4400,7 @@
      "CFrame": {
       "position": [
        -11.435,
-       6.71,
+       4.13,
        -1.57
       ],
       "orientation": [
@@ -4743,7 +4449,7 @@
      "CFrame": {
       "position": [
        -11.795,
-       7.19,
+       4.61,
        -1.57
       ],
       "orientation": [
@@ -4792,7 +4498,7 @@
      "CFrame": {
       "position": [
        -11.675,
-       7.07,
+       4.49,
        -1.57
       ],
       "orientation": [
@@ -4841,7 +4547,7 @@
      "CFrame": {
       "position": [
        -11.735,
-       6.95,
+       4.37,
        -1.57
       ],
       "orientation": [
@@ -4890,7 +4596,7 @@
      "CFrame": {
       "position": [
        -11.675,
-       6.83,
+       4.25,
        -1.57
       ],
       "orientation": [
@@ -4939,7 +4645,7 @@
      "CFrame": {
       "position": [
        -11.795,
-       6.71,
+       4.13,
        -1.57
       ],
       "orientation": [
@@ -4988,7 +4694,7 @@
      "CFrame": {
       "position": [
        -9.935,
-       6.9,
+       4.3,
        0.81
       ],
       "orientation": [
@@ -5012,7 +4718,7 @@
     },
     "Size": [
      6.83,
-     7.0,
+     1.8,
      1.38
     ],
     "Color": [
@@ -5087,300 +4793,6 @@
       "position": [
        -9.935,
        4.6,
-       1.51
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     6.83,
-     0.06,
-     0.02
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_BinsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.935,
-       5.5,
-       1.51
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     6.83,
-     0.06,
-     0.02
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_BinsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.935,
-       6.4,
-       1.51
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     6.83,
-     0.06,
-     0.02
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_BinsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.935,
-       7.3,
-       1.51
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     6.83,
-     0.06,
-     0.02
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_BinsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.935,
-       8.2,
-       1.51
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     6.83,
-     0.06,
-     0.02
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_BinsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.935,
-       9.1,
-       1.51
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     6.83,
-     0.06,
-     0.02
-    ],
-    "Color": [
-     0.3686,
-     0.2745,
-     0.2039
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_BinsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.935,
-       10.0,
        1.51
       ],
       "orientation": [
@@ -7092,7 +6504,7 @@
      "CFrame": {
       "position": [
        -9.935,
-       6.95,
+       4.37,
        1.525
       ],
       "orientation": [
@@ -7116,7 +6528,7 @@
     },
     "Size": [
      4.78,
-     1.3,
+     1.1,
      0.05
     ],
     "Color": [
@@ -7141,7 +6553,7 @@
      "CFrame": {
       "position": [
        -11.855,
-       7.19,
+       4.61,
        1.57
       ],
       "orientation": [
@@ -7190,7 +6602,7 @@
      "CFrame": {
       "position": [
        -11.915,
-       7.07,
+       4.49,
        1.57
       ],
       "orientation": [
@@ -7239,7 +6651,7 @@
      "CFrame": {
       "position": [
        -11.675,
-       7.07,
+       4.49,
        1.57
       ],
       "orientation": [
@@ -7288,7 +6700,7 @@
      "CFrame": {
       "position": [
        -11.855,
-       6.95,
+       4.37,
        1.57
       ],
       "orientation": [
@@ -7337,7 +6749,7 @@
      "CFrame": {
       "position": [
        -11.915,
-       6.83,
+       4.25,
        1.57
       ],
       "orientation": [
@@ -7386,7 +6798,7 @@
      "CFrame": {
       "position": [
        -11.675,
-       6.83,
+       4.25,
        1.57
       ],
       "orientation": [
@@ -7435,7 +6847,7 @@
      "CFrame": {
       "position": [
        -11.855,
-       6.71,
+       4.13,
        1.57
       ],
       "orientation": [
@@ -7484,7 +6896,7 @@
      "CFrame": {
       "position": [
        -11.315,
-       7.19,
+       4.61,
        1.57
       ],
       "orientation": [
@@ -7533,7 +6945,7 @@
      "CFrame": {
       "position": [
        -11.315,
-       7.07,
+       4.49,
        1.57
       ],
       "orientation": [
@@ -7582,7 +6994,7 @@
      "CFrame": {
       "position": [
        -11.315,
-       6.95,
+       4.37,
        1.57
       ],
       "orientation": [
@@ -7631,7 +7043,7 @@
      "CFrame": {
       "position": [
        -11.315,
-       6.83,
+       4.25,
        1.57
       ],
       "orientation": [
@@ -7680,7 +7092,7 @@
      "CFrame": {
       "position": [
        -11.315,
-       6.71,
+       4.13,
        1.57
       ],
       "orientation": [
@@ -7729,7 +7141,7 @@
      "CFrame": {
       "position": [
        -10.955,
-       7.19,
+       4.61,
        1.57
       ],
       "orientation": [
@@ -7778,7 +7190,7 @@
      "CFrame": {
       "position": [
        -10.595,
-       7.19,
+       4.61,
        1.57
       ],
       "orientation": [
@@ -7827,7 +7239,7 @@
      "CFrame": {
       "position": [
        -10.895,
-       7.07,
+       4.49,
        1.57
       ],
       "orientation": [
@@ -7876,7 +7288,7 @@
      "CFrame": {
       "position": [
        -10.595,
-       7.07,
+       4.49,
        1.57
       ],
       "orientation": [
@@ -7925,7 +7337,7 @@
      "CFrame": {
       "position": [
        -10.955,
-       6.95,
+       4.37,
        1.57
       ],
       "orientation": [
@@ -7974,7 +7386,7 @@
      "CFrame": {
       "position": [
        -10.655,
-       6.95,
+       4.37,
        1.57
       ],
       "orientation": [
@@ -8023,7 +7435,7 @@
      "CFrame": {
       "position": [
        -10.955,
-       6.83,
+       4.25,
        1.57
       ],
       "orientation": [
@@ -8072,7 +7484,7 @@
      "CFrame": {
       "position": [
        -10.595,
-       6.83,
+       4.25,
        1.57
       ],
       "orientation": [
@@ -8121,7 +7533,7 @@
      "CFrame": {
       "position": [
        -10.955,
-       6.71,
+       4.13,
        1.57
       ],
       "orientation": [
@@ -8170,7 +7582,7 @@
      "CFrame": {
       "position": [
        -10.595,
-       6.71,
+       4.13,
        1.57
       ],
       "orientation": [
@@ -8219,7 +7631,7 @@
      "CFrame": {
       "position": [
        -9.995,
-       7.19,
+       4.61,
        1.57
       ],
       "orientation": [
@@ -8268,7 +7680,7 @@
      "CFrame": {
       "position": [
        -10.115,
-       7.07,
+       4.49,
        1.57
       ],
       "orientation": [
@@ -8317,7 +7729,7 @@
      "CFrame": {
       "position": [
        -9.995,
-       6.95,
+       4.37,
        1.57
       ],
       "orientation": [
@@ -8366,7 +7778,7 @@
      "CFrame": {
       "position": [
        -9.875,
-       6.83,
+       4.25,
        1.57
       ],
       "orientation": [
@@ -8415,7 +7827,7 @@
      "CFrame": {
       "position": [
        -9.995,
-       6.71,
+       4.13,
        1.57
       ],
       "orientation": [
@@ -8464,7 +7876,7 @@
      "CFrame": {
       "position": [
        -9.515,
-       7.19,
+       4.61,
        1.57
       ],
       "orientation": [
@@ -8513,7 +7925,7 @@
      "CFrame": {
       "position": [
        -9.515,
-       7.07,
+       4.49,
        1.57
       ],
       "orientation": [
@@ -8562,7 +7974,7 @@
      "CFrame": {
       "position": [
        -9.515,
-       6.95,
+       4.37,
        1.57
       ],
       "orientation": [
@@ -8611,7 +8023,7 @@
      "CFrame": {
       "position": [
        -9.515,
-       6.83,
+       4.25,
        1.57
       ],
       "orientation": [
@@ -8660,7 +8072,7 @@
      "CFrame": {
       "position": [
        -9.515,
-       6.71,
+       4.13,
        1.57
       ],
       "orientation": [
@@ -8709,7 +8121,7 @@
      "CFrame": {
       "position": [
        -9.035,
-       7.19,
+       4.61,
        1.57
       ],
       "orientation": [
@@ -8758,7 +8170,7 @@
      "CFrame": {
       "position": [
        -9.155,
-       7.07,
+       4.49,
        1.57
       ],
       "orientation": [
@@ -8807,7 +8219,7 @@
      "CFrame": {
       "position": [
        -8.915,
-       7.07,
+       4.49,
        1.57
       ],
       "orientation": [
@@ -8856,7 +8268,7 @@
      "CFrame": {
       "position": [
        -9.155,
-       6.95,
+       4.37,
        1.57
       ],
       "orientation": [
@@ -8905,7 +8317,7 @@
      "CFrame": {
       "position": [
        -8.915,
-       6.95,
+       4.37,
        1.57
       ],
       "orientation": [
@@ -8954,7 +8366,7 @@
      "CFrame": {
       "position": [
        -9.155,
-       6.83,
+       4.25,
        1.57
       ],
       "orientation": [
@@ -9003,7 +8415,7 @@
      "CFrame": {
       "position": [
        -8.915,
-       6.83,
+       4.25,
        1.57
       ],
       "orientation": [
@@ -9052,7 +8464,7 @@
      "CFrame": {
       "position": [
        -9.035,
-       6.71,
+       4.13,
        1.57
       ],
       "orientation": [
@@ -9101,7 +8513,7 @@
      "CFrame": {
       "position": [
        -8.615,
-       7.19,
+       4.61,
        1.57
       ],
       "orientation": [
@@ -9150,7 +8562,7 @@
      "CFrame": {
       "position": [
        -8.675,
-       7.07,
+       4.49,
        1.57
       ],
       "orientation": [
@@ -9199,7 +8611,7 @@
      "CFrame": {
       "position": [
        -8.435,
-       7.07,
+       4.49,
        1.57
       ],
       "orientation": [
@@ -9248,7 +8660,7 @@
      "CFrame": {
       "position": [
        -8.615,
-       6.95,
+       4.37,
        1.57
       ],
       "orientation": [
@@ -9297,7 +8709,7 @@
      "CFrame": {
       "position": [
        -8.675,
-       6.83,
+       4.25,
        1.57
       ],
       "orientation": [
@@ -9346,7 +8758,7 @@
      "CFrame": {
       "position": [
        -8.435,
-       6.83,
+       4.25,
        1.57
       ],
       "orientation": [
@@ -9395,7 +8807,7 @@
      "CFrame": {
       "position": [
        -8.675,
-       6.71,
+       4.13,
        1.57
       ],
       "orientation": [
@@ -9444,7 +8856,7 @@
      "CFrame": {
       "position": [
        -8.435,
-       6.71,
+       4.13,
        1.57
       ],
       "orientation": [
@@ -9493,7 +8905,7 @@
      "CFrame": {
       "position": [
        -8.075,
-       7.19,
+       4.61,
        1.57
       ],
       "orientation": [
@@ -9542,7 +8954,7 @@
      "CFrame": {
       "position": [
        -8.195,
-       7.07,
+       4.49,
        1.57
       ],
       "orientation": [
@@ -9591,7 +9003,7 @@
      "CFrame": {
       "position": [
        -8.135,
-       6.95,
+       4.37,
        1.57
       ],
       "orientation": [
@@ -9640,7 +9052,7 @@
      "CFrame": {
       "position": [
        -8.195,
-       6.83,
+       4.25,
        1.57
       ],
       "orientation": [
@@ -9689,7 +9101,7 @@
      "CFrame": {
       "position": [
        -8.075,
-       6.71,
+       4.13,
        1.57
       ],
       "orientation": [
@@ -9738,7 +9150,7 @@
      "CFrame": {
       "position": [
        -9.935,
-       10.49,
+       5.29,
        0.0
       ],
       "orientation": [
@@ -9787,7 +9199,7 @@
      "CFrame": {
       "position": [
        -12.95,
-       10.61,
+       5.41,
        0.0
       ],
       "orientation": [
@@ -9836,7 +9248,7 @@
      "CFrame": {
       "position": [
        -11.85,
-       10.61,
+       5.41,
        0.0
       ],
       "orientation": [
@@ -9885,7 +9297,7 @@
      "CFrame": {
       "position": [
        -10.75,
-       10.61,
+       5.41,
        0.0
       ],
       "orientation": [
@@ -9934,7 +9346,7 @@
      "CFrame": {
       "position": [
        -9.65,
-       10.61,
+       5.41,
        0.0
       ],
       "orientation": [
@@ -9983,7 +9395,7 @@
      "CFrame": {
       "position": [
        -8.55,
-       10.61,
+       5.41,
        0.0
       ],
       "orientation": [
@@ -10032,7 +9444,7 @@
      "CFrame": {
       "position": [
        -7.45,
-       10.61,
+       5.41,
        0.0
       ],
       "orientation": [
@@ -10081,7 +9493,7 @@
      "CFrame": {
       "position": [
        -10.8,
-       11.115,
+       5.915,
        -0.3
       ],
       "orientation": [
@@ -10144,7 +9556,7 @@
      "CFrame": {
       "position": [
        -10.8,
-       11.672,
+       6.472,
        -0.3
       ],
       "orientation": [
@@ -10193,7 +9605,7 @@
      "CFrame": {
       "position": [
        -10.8,
-       11.756,
+       6.556,
        -0.3
       ],
       "orientation": [
@@ -10242,7 +9654,7 @@
      "CFrame": {
       "position": [
        -10.8,
-       11.84,
+       6.64,
        -0.3
       ],
       "orientation": [
@@ -10291,7 +9703,7 @@
      "CFrame": {
       "position": [
        -10.8,
-       11.868,
+       6.668,
        -0.3
       ],
       "orientation": [
@@ -10340,7 +9752,7 @@
      "CFrame": {
       "position": [
        -9.9,
-       11.047,
+       5.847,
        0.4
       ],
       "orientation": [
@@ -10403,7 +9815,7 @@
      "CFrame": {
       "position": [
        -9.9,
-       11.5312,
+       6.3312,
        0.4
       ],
       "orientation": [
@@ -10452,7 +9864,7 @@
      "CFrame": {
       "position": [
        -9.9,
-       11.6056,
+       6.4056,
        0.4
       ],
       "orientation": [
@@ -10501,7 +9913,7 @@
      "CFrame": {
       "position": [
        -9.9,
-       11.68,
+       6.48,
        0.4
       ],
       "orientation": [
@@ -10550,7 +9962,7 @@
      "CFrame": {
       "position": [
        -9.9,
-       11.7048,
+       6.5048,
        0.4
       ],
       "orientation": [
@@ -10649,7 +10061,7 @@
      "CFrame": {
       "position": [
        -6.85,
-       6.07,
+       4.82,
        0.0
       ],
       "orientation": [
@@ -10672,7 +10084,7 @@
      }
     },
     "Size": [
-     11.1,
+     8.6,
      0.28,
      0.28
     ],
@@ -10699,7 +10111,7 @@
      "CFrame": {
       "position": [
        -6.15,
-       11.47,
+       8.97,
        0.0
       ],
       "orientation": [
@@ -10748,7 +10160,7 @@
      "CFrame": {
       "position": [
        -5.35,
-       11.42,
+       8.92,
        0.0
       ],
       "orientation": [
@@ -10803,7 +10215,7 @@
        "CFrame": {
         "position": [
          -5.35,
-         11.07,
+         8.57,
          0.0
         ],
         "orientation": [
@@ -10846,7 +10258,7 @@
        "CFrame": {
         "position": [
          5.35,
-         -11.07,
+         -8.57,
          0.0
         ],
         "orientation": [
@@ -10903,123 +10315,6 @@
     }
    },
    "name": "CatCafe_Alley_Blocker_BinsShort_Bulb"
-  },
-  {
-   "className": "Model",
-   "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Alley_Blocker_BinsShort/2"
-   },
-   "children": [
-    {
-     "name": "CatCafe_Alley_Blocker_BinsShort_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -10.75,
-         5.7,
-         0.0
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       8.5,
-       11.4,
-       0.5
-      ],
-      "Color": [
-       0.5451,
-       0.5608,
-       0.6
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0,
-      "CanQuery": false,
-      "PivotOffset": {
-       "CFrame": {
-        "position": [
-         10.75,
-         -5.7,
-         0.0
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     },
-     "attributes": {
-      "Rojo_Id": "CatCafe_Alley_Blocker_BinsShort/2"
-     }
-    }
-   ],
-   "properties": {
-    "WorldPivotData": {
-     "OptionalCFrame": {
-      "position": [
-       0.0,
-       0.0,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    }
-   },
-   "name": "CatCafe_Alley_Blocker_BinsShort_Barrier"
   }
  ],
  "properties": {

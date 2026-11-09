@@ -14,7 +14,8 @@
 --                                       the slide-in ask shown (feedbackAsked) or the help card shown
 --                                       (stuckHelpShown for the current tutorialStep)
 --   ClearTips()                 C -> S  1 per 10 s: Settings' "Show tips again" (Tips.cleared keeps the asks)
---   SendFeedback(face, chip?)   C -> S  1 per 10 s and FeedbackSessionLimit a session: logs `feedback`
+--   SendFeedback(face, chip?)   C -> S  1 per 10 s and FeedbackSessionLimit a session: logs `feedback`,
+--                                       feedback_ctx and feedback_env, and the open feedback_v1 run's steps (#2681)
 -- Requires no gameplay service, so CafeService and ShoveService can require it; `changed` fires after ClearTips so
 -- CafeService sends the new tipsSeen.
 
@@ -132,6 +133,9 @@ local function askSeen(
 		1,
 		{ string.sub(id, 1, #id - #"_ask"), tostring(profile.stats.sessions) }
 	)
+	if id == Tips.LIKE_ASK then
+		Telemetry.likeAskShown(player, profile) -- #2681
+	end
 end
 
 local function onTipSeen(player: Player, rawId: unknown, rawSkipped: unknown)
@@ -152,6 +156,7 @@ local function onTipSeen(player: Player, rawId: unknown, rawSkipped: unknown)
 	end
 	if id == Tips.FEEDBACK_ASK then
 		profile.feedbackAsked = true
+		Telemetry.feedbackAsked(player, profile) -- #2681: opens a feedback_v1 run, capped a session
 		return
 	end
 	if id == Tips.STUCK_HELP then
@@ -201,6 +206,7 @@ local function onSendFeedback(player: Player, rawFace: unknown, rawChip: unknown
 		1,
 		{ face, chip or "none", tostring(Economy.tier(profile)) }
 	)
+	Telemetry.feedbackAnswered(player, profile, face, chip) -- #2681: feedback_ctx, feedback_env, feedback_v1
 end
 
 -- Studio hook (Debug.tips): forgets every tip, the asks and the help cards, and this session's sends.

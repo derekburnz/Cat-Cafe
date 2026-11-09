@@ -61,6 +61,10 @@ local lastCornerShopBuy = -math.huge
 local CORNER_SHOP_QUIET_SECONDS = 3
 local lastCarrying: string? = nil
 local shownCamp: BasePart? = nil -- #2730: the camp basket the carry marker leads to now, or nil for the door
+-- #2864: the Backpack cat the marker leads home while the hands are empty (the character's PackedCatId), and its
+-- camp basket now; nil when none is shown
+local shownBag: string? = nil
+local shownBagCamp: BasePart? = nil
 local lastPushedMoney = -1
 local lastTier: number? = nil
 local pendingCharmGain = 0 -- the last catch's Purrfect bonus, shown on the cat reveal at check-in
@@ -2342,6 +2346,33 @@ local function wireServerEvents()
 	end)
 end
 
+-- #2864 (Derek2 2026-11-09: "if you have a cat in bag it doesn't show the safe zone here bubble unless one is in
+-- your hands"): with only a Backpack cat, the same marker through UI.setBagCarry, which shows it and leaves the
+-- HUD's carry state alone (the "Drop bag cat" pill stays). A cat in the hands leads instead (UI.setCarrying). Looked
+-- up loosely, so this lands before or after the UI build that adds it.
+local function refreshBagMarker()
+	local hook: unknown = (UI :: any).setBagCarry
+	if type(hook) ~= "function" then
+		return
+	end
+	local setBag = hook :: (UITypes.CarryInfo?) -> ()
+	local character = Players.LocalPlayer.Character
+	local packedId = if character ~= nil then character:GetAttribute("PackedCatId") else nil
+	local bag = if lastCarrying == nil and type(packedId) == "string" then packedId else nil
+	if bag == nil then
+		if shownBag ~= nil then
+			shownBag, shownBagCamp = nil, nil
+			setBag(nil)
+		end
+		return
+	end
+	local camp = carryCamp()
+	if bag ~= shownBag or camp ~= shownBagCamp then
+		shownBag, shownBagCamp = bag, camp
+		setBag({ catId = bag, door = UIController.ownDoor(), camp = camp })
+	end
+end
+
 -- #2730: moves the carry marker between the area's camp basket and the cafe door as the carrier walks.
 local function startCampWatch()
 	task.spawn(function()
@@ -2355,6 +2386,7 @@ local function startCampWatch()
 					UI.setCarrying({ catId = catId, door = UIController.ownDoor(), camp = camp })
 				end
 			end
+			refreshBagMarker() -- #2864
 		end
 	end)
 end

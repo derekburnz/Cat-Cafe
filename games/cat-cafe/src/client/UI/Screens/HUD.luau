@@ -318,6 +318,27 @@ local GLOW = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out,
 local CARRY_W = 420
 local CARRY_H = 56
 local TUTORIAL_W = 520 -- the tutorial strip's widest box (design px), padding included
+-- #2762 (Derek2: "for phone too big"; the strip took half a phone's width): on a phone held sideways (Scale.isPhone)
+-- the strip is a size smaller, in words, padding and box
+local function stripLayout(): {
+	w: number,
+	text: number,
+	padX: number,
+	padY: number,
+	minH: number,
+	maxH: number,
+}
+	return if Scale.isPhone()
+		then { w = 440, text = Theme.sizes.textSmall, padX = 12, padY = 5, minH = 28, maxH = 50 }
+		else {
+			w = TUTORIAL_W,
+			text = Theme.sizes.textBody + 1,
+			padX = 18,
+			padY = 9,
+			minH = 40,
+			maxH = 64,
+		}
+end
 local DROP_W = 104
 -- the arrow tabs that fold the left menu and the bottom row out of the way (Derek 2026-10-27: less clutter)
 local FOLD_W = 44
@@ -1936,6 +1957,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- bottom anchor so the carry banner stacking is unchanged. It wraps only when setTutorial measures a line too
 	-- long for one row: wrapped from the start, Roblox's AutomaticSize broke a 46 character hint over the player on
 	-- a phone well short of 520 (device pass 2026-11-07).
+	local strip = stripLayout()
+	self._strip = strip
 	self._tutorial = label({
 		Name = "Tutorial",
 		BackgroundColor3 = Theme.colors.gold,
@@ -1946,7 +1969,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		AutomaticSize = Enum.AutomaticSize.XY,
 		Size = UDim2.fromOffset(0, 0),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody + 1,
+		TextSize = strip.text,
 		TextColor3 = Theme.colors.white,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextWrapped = false,
@@ -1958,16 +1981,16 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	Outline.text(self._tutorial) -- label() skips the outline on wrapped text
 	Create("UICorner", { CornerRadius = UDim.new(0, 20), Parent = self._tutorial })
 	Create("UIPadding", {
-		PaddingLeft = UDim.new(0, 18),
-		PaddingRight = UDim.new(0, 18),
-		PaddingTop = UDim.new(0, 9),
-		PaddingBottom = UDim.new(0, 9),
+		PaddingLeft = UDim.new(0, strip.padX),
+		PaddingRight = UDim.new(0, strip.padX),
+		PaddingTop = UDim.new(0, strip.padY),
+		PaddingBottom = UDim.new(0, strip.padY),
 		Parent = self._tutorial,
 	})
 	-- one line is 40 px tall; two lines stop at 64, and a longer hint truncates there
 	Create("UISizeConstraint", {
-		MinSize = Vector2.new(0, 40),
-		MaxSize = Vector2.new(TUTORIAL_W, 64),
+		MinSize = Vector2.new(0, strip.minH),
+		MaxSize = Vector2.new(strip.w, strip.maxH),
 		Parent = self._tutorial,
 	})
 
@@ -2856,7 +2879,7 @@ function HUD._wrapTutorial(self: any, text: string)
 			return game:GetService("TextService"):GetTextBoundsAsync(params)
 		end)
 		if ok and bounds and strip.Text == text then
-			strip.TextWrapped = bounds.X > TUTORIAL_W - 2 * 18
+			strip.TextWrapped = bounds.X > self._strip.w - 2 * self._strip.padX
 			self:_layoutBottom()
 		end
 	end)

@@ -71,6 +71,31 @@ function Scale.isShort(): boolean
 	return viewportSize().Y / current < Scale.SHORT
 end
 
+-- #2762 (Derek2: tips, the "How is it so far?" ask and the bubbles are "for phone too big"): a touch screen that is
+-- short, a phone held sideways. The touch floor draws the UI there at about 1.6 times its share of a PC's screen, so
+-- the pop-ups that need no finger-sized parts (tip cards, the hint strip, the ask's title) take a smaller layout.
+function Scale.isPhone(): boolean
+	return Scale.isTouch() and Scale.isShort()
+end
+
+-- #2762: a world BillboardGui's pixel part for this screen. Billboards sit outside every UIScale, so a 120 px bubble
+-- took a sixth of a phone's width; this scales `px` with the screen's height, full size from 720 px tall and down to
+-- BILLBOARD_MIN on a phone held sideways. A screen not measured yet (under 100 px) counts as full size.
+Scale.BILLBOARD_MIN = 0.55
+function Scale.billboard(px: number): number
+	local height = viewportSize().Y
+	local share = if height < 100
+		then 1
+		else math.clamp(height / Scale.DESIGN.Y, Scale.BILLBOARD_MIN, 1)
+	return math.floor(px * share + 0.5)
+end
+
+-- #2762: a world bubble's studs on this screen: 0.8 of them on a phone, so one close by covers less of it.
+Scale.PHONE_STUDS = 0.8
+function Scale.phoneStuds(): number
+	return if Scale.isPhone() then Scale.PHONE_STUDS else 1
+end
+
 function Scale.refresh()
 	current = Scale.compute(viewportSize())
 	for _, entry in bound do

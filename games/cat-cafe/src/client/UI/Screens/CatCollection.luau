@@ -360,49 +360,20 @@ function CatCollection.new(callbacks: Callbacks): CatCollection
 		PrizeChips.paintPerk(label, perk) -- rainbow luck on the turning bands
 		self._perkPills[perk] = label
 	end
-	local titleLabel = header:FindFirstChild("Title") :: TextLabel
-	local subtitleLabel = header:FindFirstChild("Subtitle") :: TextLabel
-	local function fitNow()
-		-- AbsoluteContentSize already includes the UIScale, so divide it back out for the row's own width; the room
-		-- is the bar's width past the title's or the count's words, whichever is longer, and the X's corner
-		local natural = perksLayout.AbsoluteContentSize.X / math.max(perksScale.Scale, 0.01)
-		local words = math.max(titleLabel.TextBounds.X, subtitleLabel.TextBounds.X)
-		local left = titleLabel.AbsolutePosition.X - header.AbsolutePosition.X + words
-		local room = header.AbsoluteSize.X
-			- left
-			- PERKS_RIGHT * scaleOf(header)
-			- Theme.sizes.gap * 2
-		local want = if room > 0 and natural > room then room / natural else 1
-		-- #2270, #2301 (Derek2: "the index bar attached is spazzing back and fourth"): the pills' pixel padding,
-		-- borders and whole pixel text sizes do not shrink in step with the scale, so `natural` moves a little with
-		-- each new Scale and the fit flipped between two or three values every frame. The row shrinks only while it
-		-- really overflows at its current scale (measured, not estimated), and grows only past a 4% step.
-		local now = perksScale.Scale
-		local overflows = room > 0 and perksLayout.AbsoluteContentSize.X > room + 1
-		if (overflows and want < now) or want - now > 0.04 then
-			perksScale.Scale = want
-		end
+	self._perksScale = perksScale
+	self._perksGap = perksLayout.Padding.Offset
+	self._perksHeader = header
+	self._perksTitle = header:FindFirstChild("Title") :: TextLabel
+	self._perksSubtitle = header:FindFirstChild("Subtitle") :: TextLabel
+	self._perksWanted = false
+	self._perkWidths = {} :: { [string]: number } -- a pill's or the caption's words, measured once at scale 1
+	-- only the title bar's size and the title's words move the fit; the row's own size never does (#2884)
+	local function refit()
+		self:_fitPerks()
 	end
-	-- #2493 (44,651 "Maximum event re-entrancy depth exceeded ... when calling fitPerks" on 11-07): the new Scale
-	-- changes AbsoluteContentSize, which used to call the fit again from inside its own event. The fit now runs
-	-- deferred, once per burst of changes, so a Scale it sets can never call it again in the same event; a change it
-	-- causes queues one more pass, where #2301's step test settles it.
-	local fitPending = false
-	local function fitPerks()
-		if fitPending then
-			return
-		end
-		fitPending = true
-		task.defer(function()
-			fitPending = false
-			if header.Parent ~= nil then
-				fitNow()
-			end
-		end)
-	end
-	perksLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(fitPerks)
-	header:GetPropertyChangedSignal("AbsoluteSize"):Connect(fitPerks)
-	subtitleLabel:GetPropertyChangedSignal("TextBounds"):Connect(fitPerks)
+	header:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
+	self._perksTitle:GetPropertyChangedSignal("TextBounds"):Connect(refit)
+	self._perksSubtitle:GetPropertyChangedSignal("TextBounds"):Connect(refit)
 
 	-- Cats, Gold and Rainbow: one scroll of areas
 	local indexTop = tabH + Theme.sizes.gap
@@ -1301,14 +1272,107 @@ function CatCollection._renderPerks(self: any, state: Types.PlayerState)
 	if catalog then
 		local totals = IndexRewards.totals(catalog, state)
 		for _, perk in IndexRewards.PERKS do
-			local label = IndexRewards.perkLabel(perk, (totals :: any)[perk] or 0)
+			local label = IndexRewards.perkShort(perk, (totals :: any)[perk] or 0)
 			local pillLabel: TextLabel = self._perkPills[perk]
 			pillLabel.Visible = label ~= nil
 			pillLabel.Text = label or ""
 			any = any or label ~= nil
 		end
 	end
-	self._perks.Visible = any
+	self._perksWanted = any
+	self:_fitPerks()
+end
+
+local PERK_PAD = 16 -- a pill's padding, 8 each side (pill)
+
+-- A label's words' width at scale 1, keyed by the label (one font and size each) and its words.
+local function perkKey(label: TextLabel): string
+	return label.Name .. "\0" .. label.Text
+end
+
+-- #2884 (Derek2: "the banner from index spazzes back and forth ... might need to be summarized much better because
+-- it runs out of space and keeps twitching"; #2270, #2301 and #2493 before it): the fit used to read the row's own
+-- width back after each new scale, and the pills' whole-pixel padding and text kept that width moving, so the scale
+-- chased it. The pills now read short (perkShort) and the fit works from their words' measured widths at scale 1,
+-- which nothing it sets can change: Forever and the pills when they fit, the pills alone when not, then the pills
+-- at one smaller scale in 5% steps. The row stays hidden until its words are measured, so it never shows overflowing.
+function CatCollection._fitPerks(self: any)
+	local perks: Frame = self._perks
+	if not self._perksWanted then
+		perks.Visible = false
+		return
+	end
+	local caption: TextLabel = self._perksCaption
+	local labels: { TextLabel } = { caption }
+	for _, perk in IndexRewards.PERKS do
+		local pillLabel: TextLabel = self._perkPills[perk]
+		if pillLabel.Visible then
+			table.insert(labels, pillLabel)
+		end
+	end
+	local widths: { [string]: number } = self._perkWidths
+	local missing: { TextLabel } = {}
+	for _, label in labels do
+		if widths[perkKey(label)] == nil then
+			table.insert(missing, label)
+		end
+	end
+	if #missing > 0 then
+		perks.Visible = false
+		if self._perksMeasuring then
+			return
+		end
+		self._perksMeasuring = true
+		task.spawn(function()
+			for _, label in missing do
+				local key = perkKey(label)
+				local ok, bounds = pcall(function()
+					local params = Instance.new("GetTextBoundsParams")
+					params.Text = label.Text
+					params.Font = label.FontFace
+					params.Size = label.TextSize
+					params.Width = 100000 -- no wrap
+					return game:GetService("TextService"):GetTextBoundsAsync(params)
+				end)
+				widths[key] = if ok and bounds
+					then math.ceil(bounds.X)
+					else #label.Text * label.TextSize * 0.6
+			end
+			self._perksMeasuring = false
+			if perks.Parent ~= nil then
+				self:_fitPerks()
+			end
+		end)
+		return
+	end
+	local gap: number = self._perksGap
+	local pillsWidth = 0
+	for index, label in labels do
+		if index > 1 then
+			pillsWidth += widths[perkKey(label)] + PERK_PAD + (if index > 2 then gap else 0)
+		end
+	end
+	local captionWidth = widths[perkKey(caption)] + gap
+	-- the room in design pixels: the bar past the title's or the count's words, whichever is longer, and the X
+	local header: Frame = self._perksHeader
+	local title: TextLabel = self._perksTitle
+	local subtitle: TextLabel = self._perksSubtitle
+	local scale = scaleOf(header)
+	local words = math.max(title.TextBounds.X, subtitle.TextBounds.X)
+	local left = title.AbsolutePosition.X - header.AbsolutePosition.X + words
+	local room = (header.AbsoluteSize.X - left) / scale - PERKS_RIGHT - Theme.sizes.gap * 2
+	local showCaption = captionWidth + pillsWidth <= room
+	local fit = if showCaption or pillsWidth <= room
+		then 1
+		else math.clamp(math.floor(math.max(room, 0) / pillsWidth * 20) / 20, 0.5, 1)
+	if caption.Visible ~= showCaption then
+		caption.Visible = showCaption
+	end
+	local perksScale: UIScale = self._perksScale
+	if perksScale.Scale ~= fit then
+		perksScale.Scale = fit
+	end
+	perks.Visible = true
 end
 
 function CatCollection.destroy(self: any)

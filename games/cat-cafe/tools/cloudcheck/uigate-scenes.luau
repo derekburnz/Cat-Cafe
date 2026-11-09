@@ -1378,6 +1378,83 @@ local SCENES = {
 			assert(row.AbsolutePosition.X >= header.AbsolutePosition.X, "uigate: the forever pills run off the title bar (#2493)")
 		end
 	end },
+	-- #2884 (Derek2: the forever banner "runs out of space and keeps twitching"): with every bonus claimed the pills read
+	-- short, measure once and hold still frame after frame (scale, caption and each pill's width), clear of the title's
+	-- words and inside the title bar
+	{ "IndexPerksBusy", function()
+		local before: any = UI.getState()
+		local restore = {
+			goldLuck = before.goldLuck or 0,
+			rainbowLuck = before.rainbowLuck or 0,
+			baitSpeed = before.baitSpeed or 0,
+			indexRewards = before.indexRewards or {},
+		}
+		UI.update({
+			indexRewards = { rainbow = { rainbow1 = true, rainbow3 = true, rainbow5 = true } },
+			goldLuck = 1.25,
+			rainbowLuck = 0.75,
+			baitSpeed = 0.35,
+		})
+		UI.open("Collection")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local row = modals and modals:FindFirstChild("Forever", true) :: Frame?
+		assert(row, "uigate: no forever pills row in the Index (#2884)")
+		for _ = 1, 5 do
+			UIShim.advance(1 / 60)
+		end
+		assert(
+			row.Visible,
+			"uigate: the forever pills row is hidden with bonuses claimed (#2884)"
+		)
+		local scale = row:FindFirstChildOfClass("UIScale") :: UIScale
+		local caption = row:FindFirstChild("Caption") :: TextLabel
+		local function snapshot(): string
+			local parts = { ("%.3f"):format(scale.Scale), tostring(caption.Visible) }
+			for _, child in row:GetChildren() do
+				if child:IsA("TextLabel") and child.Visible then
+					assert(
+						not string.find(child.Text, "(", 1, true),
+						("uigate: the forever pill %q is not the short form (#2884)"):format(
+							child.Text
+						)
+					)
+					table.insert(
+						parts,
+						child.Name .. "=" .. math.floor(child.AbsoluteSize.X + 0.5)
+					)
+				end
+			end
+			table.sort(parts)
+			return table.concat(parts, ",")
+		end
+		local settled = snapshot()
+		for _ = 1, 10 do
+			UIShim.advance(1 / 60)
+			local now = snapshot()
+			assert(
+				now == settled,
+				("uigate: the forever pills still move (%s to %s, #2884)"):format(settled, now)
+			)
+		end
+		local header = row.Parent :: GuiObject
+		local title = header:FindFirstChild("Title") :: TextLabel
+		local subtitle = header:FindFirstChild("Subtitle") :: TextLabel
+		local wordsEnd = title.AbsolutePosition.X
+			+ math.max(title.TextBounds.X, subtitle.TextBounds.X)
+		assert(
+			row.AbsolutePosition.X >= wordsEnd - 1,
+			("uigate: the forever pills cover the Index title (row at %d, words end at %d, #2884)"):format(
+				row.AbsolutePosition.X,
+				wordsEnd
+			)
+		)
+		assert(
+			row.AbsolutePosition.X + row.AbsoluteSize.X
+				<= header.AbsolutePosition.X + header.AbsoluteSize.X + 1,
+			"uigate: the forever pills run past the title bar (#2884)"
+		)
+		UI.update(restore :: any)
+	end },
 	-- #1919: a missing Park cat at Tier 3 says to catch it there or wait for bait
 	{ "IndexHintPark", function()
 		local text = indexHint(missingCat("park"))

@@ -167,6 +167,78 @@
     "model": "CatCafe_Decor_VelvetBooth",
     "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_classic_velvet_booth.png"
   },
+  "desert_arch_gate_door": {
+    "name": "Arch Gate Door",
+    "kind": "door",
+    "model": "CatCafe_Door_ArchGate_Front",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_desert_arch_gate_door.png"
+  },
+  "desert_caravan_bench": {
+    "name": "Caravan Bench",
+    "kind": "furniture",
+    "model": "CatCafe_Decor_CaravanBench",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_desert_caravan_bench.png"
+  },
+  "desert_cushion_pile": {
+    "name": "Cushion Pile",
+    "kind": "furniture",
+    "model": "CatCafe_Decor_CushionPile",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_desert_cushion_pile.png"
+  },
+  "desert_dune_gold": {
+    "name": "Dune Gold",
+    "kind": "paint",
+    "model": "CatCafe_Style_DuneGold",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_desert_dune_gold.png"
+  },
+  "desert_lantern_palm": {
+    "name": "Lantern Palm",
+    "kind": "decoration",
+    "model": "CatCafe_Decor_LanternPalm",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_desert_lantern_palm.png"
+  },
+  "desert_market_stripes": {
+    "name": "Market Stripes",
+    "kind": "wallpaper",
+    "model": "CatCafe_Style_MarketStripes",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_desert_market_stripes.png"
+  },
+  "desert_mirage_glass": {
+    "name": "Mirage Glass",
+    "kind": "floor",
+    "model": "CatCafe_Style_MirageGlass",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_desert_mirage_glass.png"
+  },
+  "desert_oasis_fountain": {
+    "name": "Oasis Fountain",
+    "kind": "decoration",
+    "model": "CatCafe_Decor_OasisFountain",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_desert_oasis_fountain.png"
+  },
+  "desert_oasis_teal": {
+    "name": "Oasis Teal",
+    "kind": "paint",
+    "model": "CatCafe_Style_OasisTeal",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_desert_oasis_teal.png"
+  },
+  "desert_sand_ripple": {
+    "name": "Sand Ripple",
+    "kind": "floor",
+    "model": "CatCafe_Style_SandRipple",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_desert_sand_ripple.png"
+  },
+  "desert_sandstone_blocks": {
+    "name": "Sandstone Blocks",
+    "kind": "wallpaper",
+    "model": "CatCafe_Style_SandstoneBlocks",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_desert_sandstone_blocks.png"
+  },
+  "desert_sun_disc_flap": {
+    "name": "Sun Disc Flap",
+    "kind": "catflap",
+    "model": "CatCafe_CatFlap_SunDisc",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_desert_sun_disc_flap.png"
+  },
   "fairy_light_arch": {
     "name": "Fairy Light Arch",
     "kind": "lawn",
@@ -514,6 +586,78 @@
     "kind": "decoration",
     "model": "CatCafe_Decor_Rug",
     "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_rug.png"
+  },
+  "ruins_brazier_pair": {
+    "name": "Brazier Pair",
+    "kind": "decoration",
+    "model": "CatCafe_Decor_BrazierPair",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_ruins_brazier_pair.png"
+  },
+  "ruins_carved_stone": {
+    "name": "Carved Stone",
+    "kind": "wallpaper",
+    "model": "CatCafe_Style_CarvedStone",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_ruins_carved_stone.png"
+  },
+  "ruins_cracked_flagstone": {
+    "name": "Cracked Flagstone",
+    "kind": "floor",
+    "model": "CatCafe_Style_CrackedFlagstone",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_ruins_cracked_flagstone.png"
+  },
+  "ruins_gargoyle_statue": {
+    "name": "Gargoyle Statue",
+    "kind": "decoration",
+    "model": "CatCafe_Decor_GargoyleStatue",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_ruins_gargoyle_statue.png"
+  },
+  "ruins_glyph_frieze": {
+    "name": "Glyph Frieze",
+    "kind": "wallpaper",
+    "model": "CatCafe_Style_GlyphFrieze",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_ruins_glyph_frieze.png"
+  },
+  "ruins_glyph_gold": {
+    "name": "Glyph Gold",
+    "kind": "paint",
+    "model": "CatCafe_Style_GlyphGold",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_ruins_glyph_gold.png"
+  },
+  "ruins_jade_inlay": {
+    "name": "Jade Inlay",
+    "kind": "floor",
+    "model": "CatCafe_Style_JadeInlay",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_ruins_jade_inlay.png"
+  },
+  "ruins_keyhole_flap": {
+    "name": "Keyhole Flap",
+    "kind": "catflap",
+    "model": "CatCafe_CatFlap_Keyhole",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_ruins_keyhole_flap.png"
+  },
+  "ruins_moss_stone": {
+    "name": "Moss Stone",
+    "kind": "paint",
+    "model": "CatCafe_Style_MossStone",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_ruins_moss_stone.png"
+  },
+  "ruins_pillar_table": {
+    "name": "Pillar Table",
+    "kind": "furniture",
+    "model": "CatCafe_Decor_PillarTable",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_ruins_pillar_table.png"
+  },
+  "ruins_stone_throne": {
+    "name": "Stone Throne",
+    "kind": "furniture",
+    "model": "CatCafe_Decor_StoneThrone",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_ruins_stone_throne.png"
+  },
+  "ruins_temple_gate_door": {
+    "name": "Temple Gate Door",
+    "kind": "door",
+    "model": "CatCafe_Door_TempleGate_Front",
+    "file": "assets/cat-cafe/exports/icons/decor/CatCafe_DecorIcon_ruins_temple_gate_door.png"
   },
   "sandwich_board": {
     "name": "Sandwich Board",

@@ -169,24 +169,29 @@ return function()
 			expect(ShopIcons.image("Net_L4")).to.be.ok()
 		end)
 
-		it("has a clean picture for every decor piece in the catalog and every event piece (#1072, #2486)", function()
-			local missing: { string } = {}
-			for _, decor in Catalog.decor do
-				if ShopIcons.decor(decor.id) == nil then
-					table.insert(missing, decor.id)
+		it(
+			"has a clean picture for every decor piece in the catalog and every event piece (#1072, #2486)",
+			function()
+				local missing: { string } = {}
+				for _, decor in Catalog.decor do
+					if ShopIcons.decor(decor.id) == nil then
+						table.insert(missing, decor.id)
+					end
 				end
-			end
-			for _, decor in Catalog.eventDecor do
-				if ShopIcons.decor(decor.id) == nil then
-					table.insert(missing, decor.id)
+				for _, decor in Catalog.eventDecor do
+					if ShopIcons.decor(decor.id) == nil then
+						table.insert(missing, decor.id)
+					end
 				end
+				expect(table.concat(missing, ",")).to.equal("")
+				expect(ShopIcons.decor("Decor_PartyBunting")).to.equal(
+					"rbxassetid://126747238801401"
+				)
+				expect(ShopIcons.decor("alley_brick_wall")).to.equal("rbxassetid://98250313136423")
+				expect(ShopIcons.decor("not_a_piece")).to.equal(nil)
+				expect(ShopIcons.decor(nil)).to.equal(nil)
 			end
-			expect(table.concat(missing, ",")).to.equal("")
-			expect(ShopIcons.decor("Decor_PartyBunting")).to.equal("rbxassetid://126747238801401")
-			expect(ShopIcons.decor("alley_brick_wall")).to.equal("rbxassetid://98250313136423")
-			expect(ShopIcons.decor("not_a_piece")).to.equal(nil)
-			expect(ShopIcons.decor(nil)).to.equal(nil)
-		end)
+		)
 
 		it("has the HUD's Decor picture", function()
 			expect(ShopIcons.image("Icon_Decor")).to.equal("rbxassetid://88901788469222")
@@ -224,7 +229,7 @@ return function()
 					"rbxassetid://124763763193731"
 				)
 				expect(ShopIcons.store("steadyPaw")).to.equal("rbxassetid://124844091674201")
-				expect(ShopIcons.store("signStylePack")).to.equal("rbxassetid://82356296722315")
+				expect(ShopIcons.store("signStylePack")).to.equal("rbxassetid://111176293548634")
 				expect(ShopIcons.store("gardenDecor")).to.equal("rbxassetid://76001339098213")
 				expect(ShopIcons.store("longNap")).to.equal("rbxassetid://136378395182949")
 				expect(ShopIcons.store("money", 2)).to.equal("rbxassetid://82155674128354")

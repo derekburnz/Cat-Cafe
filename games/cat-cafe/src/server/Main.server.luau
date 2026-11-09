@@ -27,6 +27,7 @@ local DataService = require(script.Parent.Services.DataService)
 local DealerService = require(script.Parent.Services.DealerService)
 local EventRewardService = require(script.Parent.Services.EventRewardService)
 local EventService = require(script.Parent.Services.EventService)
+local FallCatchService = require(script.Parent.Services.FallCatchService)
 local FeedService = require(script.Parent.Services.FeedService)
 local FishMarketService = require(script.Parent.Services.FishMarketService)
 local GlobalCatchService = require(script.Parent.Services.GlobalCatchService)
@@ -98,6 +99,7 @@ TravelService.start(world)
 NightService.start(world) -- after the cats, traps and travel: the first sunrise wave
 PityService.start() -- #1572: the global pity cat, after the cats it spawns and the clock it counts on
 CannonService.start(world) -- F84: after the cats, travel and the night sweep it hands landings to
+FallCatchService.start() -- #2651: the Ruins' mist catch, after the cannon whose pads it lands you on
 DealerService.start()
 RichTipService.start()
 TipPileService.start()

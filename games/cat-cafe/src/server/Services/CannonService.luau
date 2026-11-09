@@ -306,6 +306,18 @@ local function coverCannons(covered: boolean)
 end
 
 -- After CatService, TravelService and NightService.
+-- #2651: puts the player's character on a free spot of `destination`'s landing pad, as a flight's landing does; false
+-- when there is no character or no pad (FallCatchService's mist catch).
+function CannonService.landOnPad(player: Player, destination: string): boolean
+	local character = player.Character
+	local landing = if character ~= nil then landingFor(player, destination) else nil
+	if character == nil or landing == nil then
+		return false
+	end
+	character:PivotTo(landing)
+	return true
+end
+
 function CannonService.start(builtWorld: WorldBuilder.World)
 	world = builtWorld
 	Net.on("LaunchCannon", onLaunchCannon)

@@ -81,6 +81,10 @@ export type AreaSpec = {
 	-- RescueService picks rescueSpots' mix of trap types from it (RescuePick). Nil: rescueSpots are the traps every day.
 	rescuePool: { RescuePoint }?,
 	props: { Prop },
+	-- #2651 (tier6-7-areas.md section 5): an area on a plateau over mist catches anything that falls this far below
+	-- its floor, within catchMargin of its footprint, and sends it back to the camp (FallCatchService)
+	catchBelow: number?,
+	catchMargin: number?,
 }
 
 local Layout = {}
@@ -1511,6 +1515,9 @@ Layout.ruins = {
 	gateZ = RGATE,
 	openingHalfWidth = W.CampOpeningWidth / 2,
 	set = "CatCafe_Ruins_Set",
+	-- the mist catch (section 5): 20 below the plateau, 40 round it; the set keeps that band clear of anything solid
+	catchBelow = 20,
+	catchMargin = 40,
 	spawnPoints = gridPoints(RX, RZ, RTURN, W.RuinsWidth / 2, W.RuinsDepth / 2, 28, 42),
 	-- two rubble piles, two stone urns and the broken bridge ledge (section 5)
 	rescueSpots = {
@@ -1813,6 +1820,17 @@ Layout.campExtras = {
 	woods = { x = 21.5, y = 0, z = -250 }, -- F85: the Fish Pond beside the long camp's way out (Model-Agent)
 	sewer = { x = 20, y = 0, z = -289.5 }, -- F85: the Lost and Found 3.5 inside the long camp's gate line (Model-Agent)
 } :: { [string]: Point }
+
+-- #2651 (tier6-7-areas.md section 5): true when (x, y, z) has fallen into `spec`'s mist catch: more than catchBelow
+-- under its floor, within catchMargin of its footprint. Always false for an area without one.
+function Layout.fallCaught(spec: AreaSpec, x: number, y: number, z: number): boolean
+	local below, margin = spec.catchBelow, spec.catchMargin or 0
+	if below == nil or y > spec.floorY - below then
+		return false
+	end
+	return math.abs(x - spec.center.x) <= spec.halfWidth + margin
+		and math.abs(z - spec.center.z) <= spec.halfDepth + margin
+end
 
 -- Where an area's camp extra stands in the world: x, the floor's y and z, the turn about Y (the camp's), or nil for an
 -- area with no extra or no camp.

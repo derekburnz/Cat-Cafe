@@ -112,15 +112,15 @@ The same shape as every area: 4 Common (one for each role), 2 Rare, 2 Epic, 1 Le
 | id | Name | Rarity | Role | Pattern | Coat (fur / second / third) | Blurb | Model notes |
 |---|---|---|---|---|---|---|---|
 | `sandy` | Sandy | Common | barista | solid | (226, 196, 140) / (246, 230, 200) / (120, 90, 60) | "Shakes a little sand out of every cup." | base body |
-| `dune` | Dune | Common | waiter | stripes | (214, 168, 110) / (170, 120, 70) / (250, 235, 210) | "Stripes like wind on a dune." | base body, wavy stripes |
-| `dusty` | Dusty | Common | greeter | patches | (190, 160, 130) / (240, 225, 205) / (110, 85, 65) | "Waves hello in a little puff of dust." | base body |
-| `sunny` | Sunny | Common | entertainer | points | (250, 230, 180) / (210, 140, 70) / (90, 60, 40) | "Always finds the warmest spot." | base body |
-| `fennec` | Fennec Cat | Rare | greeter | solid | (232, 196, 150) / (255, 240, 220) / (80, 60, 50) | "Those ears hear a tip from across town." | very large ears (about 1.6x), slim body |
-| `camel` | Camel Cat | Rare | waiter | patches | (196, 150, 100) / (240, 220, 190) / (160, 40, 50) | "Carries three trays at once on its saddle." | woven saddle blanket with a little hump cushion |
-| `scarab` | Scarab Cat | Epic | barista | gradient | (40, 120, 110) / (90, 200, 160) / (230, 190, 80) | "Shiny as a beetle, twice as busy." | glossy teal-green shell cape on the back |
-| `mirage` | Mirage Cat | Epic | entertainer | gradient | (240, 200, 160) / (160, 200, 240) / (255, 255, 255) | "Now you see it, now it's serving you." | slightly see-through shimmer coat (Transparency 0.15 on the body only, never the eyes) |
-| `pharaoh` | Pharaoh Cat | Legendary | waiter | solid | (40, 40, 50) / (232, 190, 80) / (40, 90, 170) | "Rules the cafe from a cushion." | striped gold-and-blue headdress, gold collar |
-| `sphinx` | Sphinx | Mythical | barista | solid | (210, 170, 110) / (232, 190, 80) / (60, 110, 180) | "Asks a riddle before every order." | bigger lion-like body, headdress, stone-gold coat with faint carved lines, glowing blue eyes |
+| `dune` | Dune | Common | waiter | stripes | (214, 168, 110) / (170, 120, 70) / (250, 235, 210) | "Stripes like wind on a dune." | base body, wavy stripes taken dark (`fur_toffee`) so it doesn't read as Biscuit or Sandy |
+| `dusty` | Dusty | Common | greeter | patches | (190, 160, 130) / (240, 225, 205) / (110, 85, 65) | "Waves hello in a little puff of dust." | base body, grey-brown `fur_bramble` patches on a `floor_tile` base so it doesn't read as Cream |
+| `sunny` | Sunny | Common | entertainer | points | (250, 230, 180) / (210, 140, 70) / (90, 60, 40) | "Always finds the warmest spot." | base body, points in deep `fur_ginger` for contrast |
+| `fennec` | Fennec Cat | Rare | greeter | solid | (232, 196, 150) / (255, 240, 220) / (80, 60, 50) | "Those ears hear a tip from across town." | large ears (1.4x, so the greeter's Boater still fits), slim body |
+| `camel` | Camel Cat | Rare | waiter | patches | (196, 150, 100) / (240, 220, 190) / (160, 40, 50) | "Carries three trays at once on its saddle." | woven saddle blanket with a little hump cushion, kept low on the rump behind the waiter Vest's cinch strap |
+| `scarab` | Scarab Cat | Epic | barista | gradient | (40, 120, 110) / (90, 200, 160) / (230, 190, 80) | "Shiny as a beetle, twice as busy." | matte teal-green shell cape on the back (`PropSlot = "Back"`; no gloss in the pipeline) |
+| `mirage` | Mirage Cat | Epic | entertainer | gradient | (240, 200, 160) / (160, 200, 240) / (255, 255, 255) | "Now you see it, now it's serving you." | slightly see-through shimmer coat (Transparency 0.15 on the body Part, set in Roblox, never the eyes; the gold and rainbow Mirage are fully opaque) |
+| `pharaoh` | Pharaoh Cat | Legendary | waiter | solid | (40, 40, 50) / (232, 190, 80) / (40, 90, 170) | "Rules the cafe from a cushion." | striped gold-and-blue headdress, gold collar in the bow tie's slot (the waiter's BowTie stays off) |
+| `sphinx` | Sphinx | Mythical | barista | solid | (210, 170, 110) / (232, 190, 80) / (60, 110, 180) | "Asks a riddle before every order." | lion-like body at 1.3x at most, headdress in the Head slot (the BaristaCap stays off), a plain stone coat (`fur_dune`) with faint carved lines and gold only on the headdress, so the Gold Sphinx reads differently, glowing blue eyes |
 
 `sphinx` is a new id. The DJ Cat's id is `sphynx` (the breed), and the two must not be confused: the model name is `CatCafe_Cat_Sphinx` and the DJ Cat stays `CatCafe_Cat_Sphynx`. Model-Agent checks the two can't clash.
 
@@ -132,14 +132,19 @@ The same shape as every area: 4 Common (one for each role), 2 Rare, 2 Epic, 1 Le
 | `rubble` | Rubble | Common | waiter | patches | (160, 150, 135) / (110, 100, 90) / (220, 210, 195) | "A little bit of everything, held together by naps." | base body, uneven patches |
 | `clay` | Clay | Common | greeter | solid | (190, 110, 70) / (230, 170, 130) / (90, 50, 30) | "Warm as a fresh pot." | base body |
 | `ivy` | Ivy | Common | entertainer | stripes | (120, 130, 110) / (80, 140, 90) / (210, 210, 190) | "Climbs everything, falls off nothing." | base body, leafy green stripes |
-| `glyph` | Hieroglyph Cat | Rare | barista | patches | (222, 196, 150) / (60, 50, 40) / (232, 190, 80) | "Its coat tells the whole cafe's story." | glyph markings as a coat texture (decal on the body) |
+| `glyph` | Hieroglyph Cat | Rare | barista | patches | (222, 196, 150) / (60, 50, 40) / (232, 190, 80) | "Its coat tells the whole cafe's story." | glyph markings as geometry (small inset blocks in `patches`, no decal), so they hold up in gold and rainbow |
 | `torch` | Torch Cat | Rare | greeter | solid | (120, 80, 60) / (240, 170, 60) / (255, 230, 150) | "Lights the way to your table." | a small held torch with a soft flame (no particles under Reduce Motion) |
 | `gargoyle` | Gargoyle Cat | Epic | waiter | solid | (110, 115, 120) / (80, 85, 90) / (200, 70, 60) | "Sits so still you'll think it's a statue." | stone coat, small folded wings, a little horn nub |
-| `mosaic` | Mosaic Cat | Epic | entertainer | patches | (60, 120, 170) / (232, 190, 80) / (200, 90, 70) | "Made of a thousand tiny tiles." | a tile-grid patch texture |
+| `mosaic` | Mosaic Cat | Epic | entertainer | patches | (60, 120, 170) / (232, 190, 80) / (200, 90, 70) | "Made of a thousand tiny tiles." | tile patches built as geometry, about 30 tiles at most |
 | `golem` | Golem Cat | Legendary | barista | solid | (130, 125, 115) / (90, 200, 170) / (60, 55, 50) | "Big, gentle and very good at carrying trays." | chunky stone body (about 1.2x), glowing rune lines |
 | `jade_guardian` | Jade Guardian | Mythical | greeter | gradient | (70, 160, 120) / (232, 190, 80) / (20, 60, 50) | "The temple's oldest guard, awake at last." | a jade statue with gold trim, glowing eyes and floating rune rings (still under Reduce Motion) |
 
 Golem, Hieroglyph and Gargoyle are Derek2's. The Golem is the Legendary because it's the cat most players will chase. The Jade Guardian is the Mythical so the top cat feels rarer than all three. If Derek2 would rather the Golem be the Mythical, they swap with no other change.
+
+**Model check result** (Model-Agent, #2584): 10 pass, 9 fixed above, and Mirage confirmed. Three rules for the whole set:
+- The palette is full (128 of 128). Each colour uses the nearest existing swatch where it's within about ΔE 6. Colours that are truly new go in a second texture, `CatCafe_Palette2`, used only by the Tier 6 and 7 cats. Model-Agent proposes that in decisions.md.
+- The Desert beige cats each get a clear second colour (Dune, Dusty and Sunny above). Sandy stays plain as the base sand cat.
+- Markings are geometry, never decals. Everything is matte, except the golds.
 
 ### 6c. Model check (Model-Agent, sub-issue)
 For every cat, Model-Agent checks:

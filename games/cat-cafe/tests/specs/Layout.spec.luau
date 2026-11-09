@@ -1196,7 +1196,7 @@ return function()
 
 		it("puts plots 1 to 4 by the square and 5 to 8 one row out, west then east", function()
 			-- the bigger cafes (44 x 34, #917)
-			local want = { { -41, -62 }, { 41, -62 }, { -41, 62 }, { 41, 62 } }
+			local want = { { -41, -74 }, { 41, -74 }, { -41, 74 }, { 41, 74 } } -- #2707: 62 before the roomier square
 			for n = 1, 4 do
 				want[n + 4] = { want[n][1], want[n][2] + (if want[n][2] < 0 then -52 else 52) }
 			end
@@ -2241,10 +2241,10 @@ return function()
 		)
 
 		it(
-			"lines the square's edge with six benches, each turned square to face in (Derek 10-28, #726, #2565)",
+			"lines the square's edge with eight benches, each turned square to face in (Derek 10-28, #726, #2565, #2707)",
 			function()
 				local benches = piecesOf("CatCafe_Square_Bench")
-				expect(#benches).to.equal(6)
+				expect(#benches).to.equal(8)
 				for i, bench in benches do
 					-- WorldBuilder turns a prop by CFrame.Angles(0, rad(rotY), 0); its front (-Z) is (-sin, -cos)
 					local turn = math.rad(bench.rotY or 0)
@@ -2272,6 +2272,7 @@ return function()
 						"CatCafe_Square_Bench",
 						"CatCafe_Square_Lamp",
 						"CatCafe_Square_Bunting",
+						"CatCafe_Square_BuntingSide",
 						"CatCafe_Square_BuntingShort",
 					}
 				do
@@ -2289,7 +2290,10 @@ return function()
 						end
 					end
 				end
-				expect(#piecesOf("CatCafe_Square_Bunting")).to.equal(8)
+				-- #2707: the north and south sides keep the long Bunting; the east and west sides take two BuntingSide
+				-- each between three lamps
+				expect(#piecesOf("CatCafe_Square_Bunting")).to.equal(4)
+				expect(#piecesOf("CatCafe_Square_BuntingSide")).to.equal(8)
 				expect(#piecesOf("CatCafe_Square_BuntingShort")).to.equal(2)
 			end
 		)
@@ -2313,7 +2317,7 @@ return function()
 					expect(math.sqrt(dx * dx + dz * dz) >= 6).to.equal(true)
 				end
 			end
-			expect(#piecesOf("CatCafe_Square_Lamp")).to.equal(12)
+			expect(#piecesOf("CatCafe_Square_Lamp")).to.equal(16) -- #2707: a halfway lamp on each east and west side
 		end)
 
 		it("puts the gardens in the garden strips, clear of the path to the side arches", function()

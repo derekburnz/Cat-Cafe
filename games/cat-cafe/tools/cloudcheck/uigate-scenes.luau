@@ -3497,8 +3497,8 @@ local SCENES = {
 		local netButton = net and net:FindFirstChild("Net", true) :: GuiObject?
 		assert(netButton and (net :: ScreenGui).Enabled, "uigate: no Net button beside the Tackle (#2510)")
 		apart(button, netButton :: GuiObject, "the Net button")
-		local ay = button.AbsolutePosition.Y
-		assert(math.abs(ay - (netButton :: GuiObject).AbsolutePosition.Y) < 1, "uigate: the Tackle button is not level with Net (#2510)")
+		-- #2721: on the thumb's arc above Net, not level with it
+		assert(button.AbsolutePosition.Y + size.Y <= (netButton :: GuiObject).AbsolutePosition.Y + 0.5, "uigate: the Tackle button is not above Net (#2721)")
 		local camera = workspace.CurrentCamera
 		local jumpAt, jumpSize = NetButtonPlace.jump(camera.ViewportSize)
 		local bx1, by1, bx2, by2 = box(button)
@@ -3562,6 +3562,76 @@ local SCENES = {
 		-- and the screen as it looks mid-catch, for the snapshot
 		startCatch("gate_focus2", "Rare", 3, 0.2, 0.9)
 		UIShim.advance(0.3)
+	-- #2721 (Derek2: "do some research for where mobile players like their buttons and move the net/tackle to where it
+	-- would fit best"): NET just left of the jump button, centres level, and TACKLE on the thumb's arc up and left of
+	-- it, both within 1.8 jump widths of the jump button's centre, clear of each other, the jump button, the bottom
+	-- row and the goal card, on screen and thumb sized. No touch buttons with a mouse.
+	{ "ActionButtonsReach", function()
+		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
+		local NetButtonPlace = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.NetButtonPlace")
+		UI.setZone("Alley")
+		UI.net.setEnabled(true)
+		UI.shove.setEnabled(true)
+		Scenes._tackle = true
+		UIShim.advance(0.3)
+		local netGui = UIShim.playerGui:FindFirstChild("CatCafeNetButton") :: ScreenGui
+		local tackleGui = UIShim.playerGui:FindFirstChild("CatCafeTackle") :: ScreenGui
+		local net = netGui and netGui:FindFirstChild("Net", true) :: GuiObject?
+		local tackle = tackleGui and tackleGui:FindFirstChild("Tackle", true) :: GuiObject?
+		if not Scale.isTouch() then
+			assert(netGui == nil or not netGui.Enabled, "uigate: the touch Net button shows with a mouse (#2721)")
+			return
+		end
+		assert(net and netGui.Enabled and tackle and tackleGui.Enabled, "uigate: no Net or Tackle button in a catching area (#2721)")
+		local viewport = workspace.CurrentCamera.ViewportSize
+		local jumpAt, jumpSize = NetButtonPlace.jump(viewport)
+		local jumpCentre = jumpAt + Vector2.new(jumpSize, jumpSize) / 2
+		-- AbsolutePosition is measured below the top bar's inset, even in a ScreenGui that ignores it; the jump
+		-- button's spot is in screen pixels
+		local inset = game:GetService("GuiService"):GetGuiInset()
+		local function box(object: GuiObject): (number, number, number, number)
+			local at = object.AbsolutePosition + inset
+			return at.X, at.Y, at.X + object.AbsoluteSize.X, at.Y + object.AbsoluteSize.Y
+		end
+		local function apart(a: { number }, b: { number }): boolean
+			return a[3] <= b[1] + 0.5 or b[3] <= a[1] + 0.5 or a[4] <= b[2] + 0.5 or b[4] <= a[2] + 0.5
+		end
+		local jumpBox = { jumpAt.X, jumpAt.Y, jumpAt.X + jumpSize, jumpAt.Y + jumpSize }
+		local boxes = {}
+		for name, button in { NET = net :: GuiObject, TACKLE = tackle :: GuiObject } do
+			local x1, y1, x2, y2 = box(button)
+			local b = { x1, y1, x2, y2 }
+			boxes[name] = b
+			assert(x2 - x1 >= 44 and y2 - y1 >= 44, ("uigate: %s is %d px, under a thumb's 44 (#2721)"):format(name, x2 - x1))
+			assert(x1 >= 0 and y1 >= 0 and x2 <= viewport.X + 0.5 and y2 <= viewport.Y + 0.5, "uigate: " .. name .. " runs off screen (#2721)")
+			local reach = (Vector2.new((x1 + x2) / 2, (y1 + y2) / 2) - jumpCentre).Magnitude
+			assert(reach <= jumpSize * 1.8, ("uigate: %s is %d px from the jump button, out of the thumb's reach (#2721)"):format(name, reach))
+			assert(apart(b, jumpBox), "uigate: " .. name .. " covers the jump button (#2721)")
+		end
+		assert(apart(boxes.NET, boxes.TACKLE), "uigate: NET and TACKLE overlap (#2721)")
+		assert(math.abs((boxes.NET[2] + boxes.NET[4]) / 2 - jumpCentre.Y) <= 1, "uigate: NET is not level with the jump button (#2721)")
+		assert(boxes.TACKLE[4] <= boxes.NET[2] + 0.5, "uigate: TACKLE is not above NET (#2721)")
+		-- every HUD button on screen (the bottom row's tiles, the menu) and the goal card
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local function shown(object: Instance): boolean
+			local at: Instance? = object
+			while at and at ~= hud do
+				if at:IsA("GuiObject") and not at.Visible then
+					return false
+				end
+				at = at.Parent
+			end
+			return true
+		end
+		for _, other in hud:GetDescendants() do
+			local goal = other.Name == "TierGoal"
+			if other:IsA("GuiObject") and (goal or other:IsA("GuiButton")) and other.AbsoluteSize.X >= 20 and shown(other) then
+				local x1, y1, x2, y2 = box(other)
+				for which, b in boxes do
+					assert(apart(b, { x1, y1, x2, y2 }), ("uigate: %s covers the HUD's %s (#2721)"):format(which, other:GetFullName()))
+				end
+			end
+		end
 	end },
 	-- F93: a catch three circles in: Perfect, Good, Perfect, each cleared with its word, the pips filling
 	{ "Catch", function()
@@ -3817,7 +3887,10 @@ local SCENES = {
 		local x0, y0 = grab.AbsolutePosition.X + inset.X, grab.AbsolutePosition.Y + inset.Y
 		assert(math.abs(x0 - netAt.X) <= 2 and math.abs(y0 - netAt.Y) <= 2, ("uigate: the RESCUE button is at %d,%d, not the Net button's %d,%d (#2409)"):format(x0, y0, netAt.X, netAt.Y))
 		assert(math.abs(grab.AbsoluteSize.X - netSize) <= 2, "uigate: the RESCUE button is not the Net button's size (#2409)")
-		assert(y0 + grab.AbsoluteSize.Y <= jumpAt.Y, "uigate: the RESCUE button runs onto the jump button (#2409)")
+		local jumpSize = select(2, NetButtonPlace.jump(viewport))
+		local gx2, gy2 = x0 + grab.AbsoluteSize.X, y0 + grab.AbsoluteSize.Y
+		local jumpClear = gx2 <= jumpAt.X + 0.5 or jumpAt.X + jumpSize <= x0 + 0.5 or gy2 <= jumpAt.Y + 0.5 or jumpAt.Y + jumpSize <= y0 + 0.5
+		assert(jumpClear, "uigate: the RESCUE button runs onto the jump button (#2409)")
 		assert(label.TextFits, "uigate: RESCUE does not fit its button (#2409)")
 		UI.net.setEnabled(false)
 	end },

@@ -2171,6 +2171,26 @@ local SCENES = {
 		end
 		assert(open, "uigate: index_hint_tap named " .. tostring(tapped) .. ", not an open area (#1919)")
 	end },
+	-- #2797 (Derek2: "reward for inviting and do after 5 min-15 min"): the one invite card with its reward, on the
+	-- slide-in ask card (UIController's offerInvite times it); its two lines fit a small phone
+	{ "InviteRewardCard", function()
+		local InviteCardLogic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.InviteCardLogic")
+		local view = { cardShown = false, fish = 20, leftToday = 5, cardFrom = 300, cardBy = 900 }
+		local shown = UI.asks.card({
+			title = InviteCardLogic.title(view),
+			choices = {
+				{ id = "invite", label = InviteCardLogic.INVITE, style = "primary" },
+				{ id = "later", label = InviteCardLogic.NOT_NOW, style = "ghost" },
+			},
+			seconds = InviteCardLogic.SECONDS,
+			lines = 2,
+			answer = function() end,
+		})
+		assert(shown, "uigate: the invite card didn't show (#2797)")
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		local title = ask and ask:FindFirstChild("Title", true)
+		assert(title and string.find(title.Text, "you both get", 1, true), "uigate: the invite card reads " .. tostring(title and title.Text) .. " (#2797)")
+	end },
 	-- #1893: step 8's Grand Opening banner
 	{ "GrandOpeningDone", function()
 		UI.update({ tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true } } })

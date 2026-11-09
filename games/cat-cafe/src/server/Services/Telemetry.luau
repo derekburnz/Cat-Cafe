@@ -69,6 +69,13 @@ export type CustomEvent =
 	-- #1181 (corner-shop-v2.md section 4): a food fed from the Bag, value its XP; the food id
 	| "cat_fed"
 	| "rich_tip"
+	-- #2797 (retention-ideas.md 5d): the invite card's buttons, value the account's minutes played; "shown", "invite"
+	-- or "notnow"
+	| "invite_card"
+	-- #2797: an invited new player's progress, value 1; "linked" (joined through an invite on a fresh save),
+	-- "joiner_paid" (their first catch), "inviter_sent" (the inviter's reward sent), "inviter_paid", "inviter_capped"
+	-- (InviteDailyMax reached today) or "inviter_repeat" (that joiner paid this inviter before)
+	| "invite_join"
 	| "cat_sold"
 	| "cat_renamed"
 	| "autopress_flag"

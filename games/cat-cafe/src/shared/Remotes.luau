@@ -144,6 +144,8 @@ Remotes.ClientToServer = {
 	"SpaTakeOut", -- (slot: number)  any time, no level gained
 	"SpaCollect", -- ()  every finished slot: +1 level each, back to the cat room
 	"SpaBuySlot", -- (slot: number)  the next slot only (2, then 3), for its SpaSlotPrices golden fish
+	"InviteCard", -- (action: string)  #2797 (retention-ideas.md 5d): the invite card's report, "shown", "invite" or
+	-- "notnow"; analytics invite_card, and "shown" marks invites.cardShown so it never comes back. Pays nothing
 	"MuseumDonate", -- (uid: string)  Tier 7; a cat with an empty exhibit, owned, unlocked, not at the spa, no open
 	-- trade, another copy of its kind kept; the copy leaves the save and fills the exhibit
 	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), the crate up

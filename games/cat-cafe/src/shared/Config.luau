@@ -600,6 +600,19 @@ local Config = {
 	CollectorGoldMultiplier = 3,
 	CollectorRollMin = 0.8,
 	CollectorRollMax = 1.5,
+	-- #2797 (retention-ideas.md 5d, shared/Invites): the invite reward. A new player who joined through an invite gets
+	-- InviteRewardFish on their first catch; the inviter gets InviteRewardFish once that joiner has played
+	-- InviteQualifySeconds or caught a cat, for at most InviteDailyMax joiners a UTC day and once per joiner (the last
+	-- InviteRewardedMax remembered). The invite card shows once, between InviteCardFromSeconds and
+	-- InviteCardBySeconds of play on the account; InvitePendingCheckSeconds is how often an online inviter's
+	-- cross-server rewards are picked up.
+	InviteRewardFish = 20,
+	InviteQualifySeconds = 300,
+	InviteDailyMax = 5,
+	InviteRewardedMax = 50,
+	InviteCardFromSeconds = 300,
+	InviteCardBySeconds = 900,
+	InvitePendingCheckSeconds = 60,
 	CollectorRangeStuds = 12, -- AnswerCollector from this close to him (his card opens there)
 	PotionMaxMinutes = 1440, -- one kind's time left never goes over this; a drink that would is refused (v0.13.8; F95: 24 h, Derek 2026-10-28 17:36)
 	TipPotionBonus = 0.25, -- tip_potion: +25% on income, the tip piles and rich visitors

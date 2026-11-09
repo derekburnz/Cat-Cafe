@@ -35,6 +35,7 @@ local GrandOpeningService = require(script.Parent.Services.GrandOpeningService)
 local IdeaCreditsService = require(script.Parent.Services.IdeaCreditsService)
 local IndexRewardService = require(script.Parent.Services.IndexRewardService)
 local IntroService = require(script.Parent.Services.IntroService)
+local InviteService = require(script.Parent.Services.InviteService)
 local LateStationService = require(script.Parent.Services.LateStationService)
 local LawnService = require(script.Parent.Services.LawnService)
 local LeaderboardService = require(script.Parent.Services.LeaderboardService)
@@ -138,6 +139,7 @@ PalService.start() -- F92: pals; before Telemetry so pal_time goes out before it
 LeaderboardService.start() -- F98: before DataService so its onLoaded sees every join
 CampExtraService.start() -- F100: before DataService so its onLoaded sees every join
 LateStationService.start() -- #2651 part 4: the Oasis Spa and Relic Museum, before DataService (onLoaded)
+InviteService.start() -- #2797: the invite reward, before DataService (onLoaded links an invited new player)
 CafePassService.start() -- #1645: the Cafe Pass, before DataService so its onLoaded sees every join
 GrandOpeningService.start() -- #1893: the Grand Opening roadmap's checks and payouts
 SessionRecapService.start() -- #1920: the session recap after about 40 minutes of play

@@ -24,7 +24,7 @@ Findings on PR #2587 as of 2026-11-09. None blocks the draft; items 1 to 4 need 
 - [ ] Desert and Ruins camp cannons list Town Square first, then the other areas; the Cannon button walks to the right cannon.
 - [ ] Below Tier 6 the Desert row reads "(opens at Tier 6)" and can't be picked; below Tier 7 the same for the Ruins. Server refuses a forced fire (remote with the area id) below the tier.
 - [ ] From each new area to each other area, the flight never shows another area's set below.
-- [ ] Carrying a cat: the cannon refuses, as elsewhere.
+- [ ] Carrying a cat, held or packed in the Backpack: the cannon refuses with "Bring your cat to the camp first", as elsewhere. This is expected (mystery-market.md section 1, "A packed cat blocks the cannon"; Laptop-Tester 2026-11-09).
 - [ ] **cloud** `Cannon.spec` and `Layout.spec`: aim, pad and picker rows for 7 areas; tier locks.
 
 ### B2. Terrain and edges (section 3)

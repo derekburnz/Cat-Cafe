@@ -2226,12 +2226,7 @@ local function onClaimOffline(player: Player)
 		else "60+"
 	Telemetry.custom(player, "offline_claim", amount, { away })
 	Telemetry.onboarding(player, profile, "first_offline_claim")
-	-- #1814: short like the HUD's counter ("+$3.42M"), not every digit
-	Net.toast(
-		player,
-		string.format("Welcome back! +$%s while you were away", ShortNumber.format(amount)),
-		"good"
-	)
+	-- #2829 (Derek2): no "Welcome back! +$X" toast; the Welcome back card already shows the amount
 	CafeService.sync(player)
 end
 

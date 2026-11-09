@@ -2199,6 +2199,81 @@ local SCENES = {
 		assert(not ask:FindFirstChild("Holder", true).Visible, "uigate: the card stays after the visit ended (#2792)")
 		UI.firstVisit.changed("collector", away)
 	end },
+	-- #2791 (Derek2: "we have gift milestones can be improved but don't make this ... take a lot of precious phone
+	-- screen space"): the gift ladder on the Rewards tile, no new slot: the tile counts down to the next step and its
+	-- list shows the next two with what they pay
+	{ "GiftLadder", function()
+		Scenes._ladder = true -- Scenes.close takes the ladder away again
+		UI.update({
+			playSeconds = 15,
+			giftNext = {
+				{ id = "m2", at = 120, prize = { coinSeconds = 60 } },
+				{ id = "m4", at = 240, prize = { lures = { tuna = 1 } } },
+			},
+		} :: any)
+		local hudGui = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local tile = hudGui and hudGui:FindFirstChild("Rewards", true)
+		assert(tile and tile.Visible, "uigate: no Rewards tile with the gift ladder (#2791)")
+		local label = tile:FindFirstChild("Label", true)
+		local text = label and label.Text or ""
+		-- the time to the next gift, or "Rewards" with the red "!" while a Tip Jar gift waits (the sample player's)
+		local dot = tile:FindFirstChild("Dot", true)
+		assert(string.match(text, "^%d+:%d%d$") or (text == "Rewards" and dot and dot.Visible), "uigate: the Rewards tile reads " .. text .. ", not the next gift's time (#2791)")
+		press("CatCafeHUD", "Icons.Rewards")
+		local pop = hudGui:FindFirstChild("Pop", true)
+		assert(pop and pop.Visible, "uigate: the Rewards tile didn't open the gift list (#2791)")
+		local first = pop:FindFirstChild("Ladder1")
+		local second = pop:FindFirstChild("Ladder2")
+		assert(first and second, "uigate: the gift list doesn't show the next two steps (#2791)")
+		local words = first:FindFirstChild("Label", true)
+		assert(words and string.find(words.Text, "$", 1, true), "uigate: the first step reads " .. tostring(words and words.Text) .. " (#2791)")
+	end },
+	-- #2797 (Derek2: "reward for inviting and do after 5 min-15 min"): the one invite card with its reward, on the
+	-- slide-in ask card (UIController's offerInvite times it); its two lines fit a small phone
+	{ "InviteRewardCard", function()
+		local InviteCardLogic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.InviteCardLogic")
+		local view = { cardShown = false, fish = 20, leftToday = 5, cardFrom = 300, cardBy = 900 }
+		local shown = UI.asks.card({
+			title = InviteCardLogic.title(view),
+			choices = {
+				{ id = "invite", label = InviteCardLogic.INVITE, style = "primary" },
+				{ id = "later", label = InviteCardLogic.NOT_NOW, style = "ghost" },
+			},
+			seconds = InviteCardLogic.SECONDS,
+			lines = 2,
+			answer = function() end,
+		})
+		assert(shown, "uigate: the invite card didn't show (#2797)")
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		local title = ask and ask:FindFirstChild("Title", true)
+		assert(title and string.find(title.Text, "you both get", 1, true), "uigate: the invite card reads " .. tostring(title and title.Text) .. " (#2797)")
+	end },
+	-- #2798 (Derek2: the Cozy Cafe countdown is the gift icon's tooltip, not a new strip): standing in your cafe, the
+	-- Rewards list says when the next Cozy gift comes; once the bag waits on the counter the tile wears the red "!"
+	{ "CozyCountdown", function()
+		local plot = Instance.new("Model")
+		plot.Name = "CozyPlot"
+		plot:SetAttribute("CozyActive", true)
+		plot:SetAttribute("CozyNextAt", workspace:GetServerTimeNow() + 130)
+		plot:SetAttribute("CozyBagAt", 0)
+		Scenes._cozy = plot -- Scenes.close takes it away again
+		UI.cozy.plot = plot
+		UI.cozy.refresh()
+		press("CatCafeHUD", "Icons.Rewards")
+		local hudGui = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local pop = hudGui:FindFirstChild("Pop", true)
+		local row = pop and pop.Visible and pop:FindFirstChild("Cozy")
+		local words = row and row:FindFirstChild("Label", true)
+		assert(words and string.match(words.Text, "^Cozy gift in 2:%d%d$"), "uigate: the Cozy row reads " .. tostring(words and words.Text) .. " (#2798)")
+		plot:SetAttribute("CozyActive", false)
+		plot:SetAttribute("CozyBagAt", workspace:GetServerTimeNow())
+		UI.cozy.refresh()
+		assert(hudGui:FindFirstChild("Rewards", true):FindFirstChild("Dot", true).Visible, "uigate: no red ! on the Rewards tile for a waiting Cozy bag (#2798)")
+		-- the open list's row follows (HUD._fillPop)
+		assert(pop.Visible, "uigate: the Rewards list closed (#2798)")
+		words = row:FindFirstChild("Label", true)
+		assert(words and words.Text == "Cozy gift waiting!", "uigate: the waiting bag's row reads " .. tostring(words and words.Text) .. " (#2798)")
+	end },
 	-- #1893: step 8's Grand Opening banner
 	{ "GrandOpeningDone", function()
 		UI.update({ tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true } } })
@@ -3803,11 +3878,11 @@ local SCENES = {
 	{ "CatchFocus", function()
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
 		local root = hud:FindFirstChild("Root") :: Frame
-		-- #2808: with a potion running, its timers redraw every second, and still stay down mid-catch
+		-- #2808: with a potion running, its timers stay down mid-catch (since #2827 they never show at all)
 		UI.update({ buffs = { tip_potion = workspace:GetServerTimeNow() + 492 } } :: any)
 		UIShim.advance(0.1)
 		local timers = root:FindFirstChild("PotionTimers") :: Frame
-		assert(timers ~= nil and timers.Visible, "uigate: the potion timers did not show before the catch (#2808)")
+		assert(timers ~= nil and not timers.Visible, "uigate: the potion timers showed before the catch (#2827)")
 		local before: { [Instance]: boolean } = {}
 		for _, child in root:GetChildren() do
 			if child:IsA("GuiObject") then
@@ -4777,11 +4852,11 @@ local SCENES = {
 		assert(title.Visible and title.TextFits, "uigate: the goal card's tier name does not fit (#2331)")
 		assertArrowAt(goal, "the goal card")
 	end },
-	-- #2714 (Derek2 11-09: "let you shrink down your goal so they have more screen space"): on touch the ▸ tab folds the
+	-- #2714 (Derek2 11-09: "let you shrink down your goal so they have more screen space"): on touch the ▶ button folds the
 	-- goal card into one finger-tall chip and saves goalFolded; a tap on the chip opens it again. Desktop has no tab.
 	{ "GoalFolded", function()
 		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
-		local fold = goal:FindFirstChild("Fold") :: GuiButton
+		local fold = goal:FindFirstChild("Fold") :: GuiObject
 		local touch = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch()
 		if not touch then
 			assert(not fold.Visible, "uigate: a fold tab on the goal card on desktop (#2714)")
@@ -4793,7 +4868,14 @@ local SCENES = {
 		end)
 		local tall = goal.AbsoluteSize.Y
 		assert(fold.Visible, "uigate: no fold tab on the goal card on touch (#2714)")
-		UIShim.fire(UIShim.eventOf(fold, "Activated"))
+		-- #2828 (Derek2: "set it to be one of the white arrows like the rest"): the HUD's white arrow button, its size
+		local arrow = fold:FindFirstChild("Label", true) :: TextLabel?
+		local menuFold = UIShim.playerGui:FindFirstChild("MenuFold", true) :: GuiObject?
+		assert(arrow and arrow.Text == "▶", "uigate: the goal card's fold button is not the white ▶ arrow (#2828)")
+		assert(menuFold == nil or (fold.AbsoluteSize - menuFold.AbsoluteSize).Magnitude < 1, ("uigate: the goal fold button is %dx%d, the menu's %dx%d (#2828)"):format(fold.AbsoluteSize.X, fold.AbsoluteSize.Y, menuFold and menuFold.AbsoluteSize.X or 0, menuFold and menuFold.AbsoluteSize.Y or 0))
+		assert(fold.AbsolutePosition.X + fold.AbsoluteSize.X <= goal.AbsolutePosition.X + 0.5, "uigate: the goal fold button covers the card (#2828)")
+		assert(fold.AbsolutePosition.X >= 0, "uigate: the goal fold button is off screen (#2828)")
+		press("TierGoal", "Fold")
 		task.wait(0.1)
 		assert(goal.AbsoluteSize.Y < tall * 0.6, ("uigate: the folded goal card is %d px tall, was %d (#2714)"):format(goal.AbsoluteSize.Y, tall))
 		local title = goal:FindFirstChild("Title") :: TextLabel
@@ -5015,87 +5097,18 @@ local SCENES = {
 		end
 		assert(named["Cat Accessories"] and named["Uniform Styles"], "uigate: the money card names no outfit pass (#2147)")
 	end },
-	-- #2090 (Derek2: "add an arrow to hide potion effects ... a lot of screen clutter"): four potions running, so the
-	-- row has the arrow tab; a tap folds them into one "x4" chip, a tap on that brings them back; the shot is folded
-	{ "HUDPotionsFold", function()
+	-- #2827 (Derek2 11-09: "fully hide that active potions bubble (people can just look in bag if they care)"): four
+	-- potions running and no potion chip, folded or not, on any device; the Luck and pal row is not this one
+	{ "HUDPotionsHidden", function()
 		local t = workspace:GetServerTimeNow()
 		UI.update({
 			buffs = { tip_potion = t + 492, swift_potion = t + 130, lucky_potion = t + 492, steady_potion = t + 300 },
 		})
-		local timers = UIShim.playerGui:FindFirstChild("PotionTimers", true)
-		assert(timers and timers.Visible, "uigate: no potion timers row (#2090)")
-		local function chips()
-			local count = 0
-			for _, child in timers:GetChildren() do
-				if child:IsA("TextButton") and child.Name ~= "Fold" and child.Name ~= "Folded" and child.Visible then
-					count += 1
-				end
-			end
-			return count
-		end
-		-- #2396 (Derek2: "make sure potion list defaults to closed down on every join"): the row starts folded
-		assert(timers.Folded.Visible and chips() == 0, "uigate: the potion row does not start folded (#2396)")
-		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
-			-- #2710 (Derek2: "move potions to bag for mobile and remove that button entirely"): on touch there is no
-			-- Potions tile and the row is only ever the one chip, "x8" and the soonest time, on screen with eight
-			-- running and clear of the left menu's tab; a tap opens the Bag on its Potions tab
-			local all = { "tip_potion", "swift_potion", "lucky_potion", "steady_potion", "big_tip_potion", "gold_rush_potion", "quick_bait_potion" }
-			local buffs = {}
-			for index, id in all do
-				buffs[id] = t + 100 + index * 60
-			end
-			UI.update({ buffs = buffs } :: any)
-			UIShim.advance(1.2)
-			local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
-			local tile = hud:FindFirstChild("Corner", true) and (hud:FindFirstChild("Corner", true) :: Instance):FindFirstChild("Potions")
-			assert(tile == nil or not (tile :: GuiObject).Visible, "uigate: the Potions tile still shows on touch (#2710) " .. (if tile then tile:GetFullName() else ""))
-			assert(chips() == 0 and timers.Folded.Visible and not timers.Fold.Visible, "uigate: the potion row is more than one chip on touch (#2710)")
-			local count = timers.Folded.Count :: TextLabel
-			assert(string.match(count.Text, "^x" .. #all .. " %d+:%d%d$") ~= nil, "uigate: the potion chip reads " .. count.Text .. " (#2710)")
-			assert(count.TextFits, "uigate: the potion chip's words do not fit (#2710)")
-			local chip = timers.Folded :: GuiObject
-			local at, size = chip.AbsolutePosition, chip.AbsoluteSize
-			local root = hud:FindFirstChild("Root") :: GuiObject
-			assert(at.X >= root.AbsolutePosition.X and at.X + size.X <= root.AbsolutePosition.X + root.AbsoluteSize.X + 0.5, "uigate: the potion chip runs off screen (#2710)")
-			local fold = hud:FindFirstChild("MenuFold", true) :: GuiObject?
-			if fold and fold.Visible then
-				local f = fold.AbsolutePosition
-				local apart = at.X >= f.X + fold.AbsoluteSize.X or f.X >= at.X + size.X or at.Y >= f.Y + fold.AbsoluteSize.Y or f.Y >= at.Y + size.Y
-				assert(apart, "uigate: the potion chip covers the left menu's tab (#2710)")
-			end
-			UI.open("Potions")
-			press("Potions", "BaitTab") -- last on another tab
-			UI.close()
-			press("CatCafeHUD", "PotionTimers.Folded")
-			UIShim.advance(0.5)
-			local function shown(object: Instance): boolean
-				local at: Instance? = object
-				while at and not at:IsA("PlayerGui") do
-					if (at:IsA("GuiObject") and not at.Visible) or (at:IsA("ScreenGui") and not at.Enabled) then
-						return false
-					end
-					at = at.Parent
-				end
-				return true
-			end
-			local tab = UIShim.playerGui:FindFirstChild("PotionsTab", true)
-			assert(tab and shown(tab), "uigate: the potion chip did not open the Bag (#2710)")
-			local bait = UIShim.playerGui:FindFirstChild("BaitList", true)
-			assert(not (bait and shown(bait)), "uigate: the potion chip opened the Bag on another tab (#2710)")
-			return
-		end
-		press("CatCafeHUD", "PotionTimers.Folded")
-		local running = chips()
-		assert(running >= 2, "uigate: the scene needs two or more potions running (#2090)")
-		assert(timers.Fold.Visible, "uigate: no arrow tab with " .. running .. " potions running (#2090)")
-		press("CatCafeHUD", "PotionTimers.Fold")
-		assert(chips() == 0 and timers.Folded.Visible, "uigate: the arrow did not fold the potions away (#2090)")
-		assert(timers.Folded.Count.Text == "x" .. running, "uigate: the folded chip says " .. timers.Folded.Count.Text .. " (#2090)")
-		assert(not timers.Fold.Visible, "uigate: the arrow tab shows while folded (#2090)")
-		press("CatCafeHUD", "PotionTimers.Folded")
-		assert(chips() == running and not timers.Folded.Visible, "uigate: the folded chip did not bring the potions back (#2090)")
-		press("CatCafeHUD", "PotionTimers.Fold") -- folded for the shot
-		Scenes._potionsFolded = timers
+		UIShim.advance(1.2) -- past a tick
+		local timers = UIShim.playerGui:FindFirstChild("PotionTimers", true) :: GuiObject?
+		assert(timers == nil or not timers.Visible, "uigate: the potion chip still shows (#2827)")
+		local count = timers and timers:FindFirstChild("Count", true) :: TextLabel?
+		assert(count == nil or count.Text == "" or count.Text == "x0", "uigate: the hidden potion row still counts (#2827)")
 	end },
 	-- F88: a Lucky Day with a Lucky Potion running: the Luck chip with gold text at the start of the potion row, its card
 	-- open over the counters (closing the boosts card), and "Lucky Day now" under the clock
@@ -5943,6 +5956,10 @@ local SCENES = {
 			assert(bottom > rootBottom - 80 and counters.AbsolutePosition.X < root.AbsolutePosition.X + 40, "uigate: the counters left the bottom left on a PC (#2393)")
 			return
 		end
+		-- #2710 (kept when #2827 hid the potion chip): on touch there is no Potions tile; the Bag has the potions
+		local corner = hud:FindFirstChild("Corner", true)
+		local tile = corner and corner:FindFirstChild("Potions")
+		assert(tile == nil or not (tile :: GuiObject).Visible, "uigate: the Potions tile shows on touch (#2710)")
 		local row = root:FindFirstChild("Potions") :: GuiObject
 		assert(row.Visible, "uigate: no Luck row with luck 2x (#2393)")
 		if bottom <= root.AbsolutePosition.Y + 2 then
@@ -6556,15 +6573,6 @@ function Scenes.close()
 	if UI.intro.playing() then
 		UI.intro.finish() -- #2182's Next scene
 	end
-	if Scenes._potionsFolded then
-		-- #2090: the potions back out for the other scenes
-		local folded = Scenes._potionsFolded:FindFirstChild("Folded")
-		local touch = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() -- #2710: the Bag
-		if folded and folded.Visible and not touch then
-			press("CatCafeHUD", "PotionTimers.Folded")
-		end
-		Scenes._potionsFolded = nil
-	end
 	if Scenes._rallyPeek then
 		Scenes._rallyPeek = nil
 		UI.rally.update(rallyState({ active = false, endsAt = 0, startsAt = 0 })) -- #2098: the banner put away
@@ -6694,6 +6702,15 @@ function Scenes.close()
 	local pop = hudGui and hudGui:FindFirstChild("Pop", true)
 	if pop and pop.Visible then
 		press("CatCafeHUD", if pop:FindFirstChild("Settings") then "Icons.Menu" else "Icons.Rewards")
+	end
+	if Scenes._cozy then
+		Scenes._cozy = nil
+		UI.cozy.plot = nil -- #2798's scene: no Cozy line
+		UI.cozy.refresh()
+	end
+	if Scenes._ladder then
+		Scenes._ladder = nil
+		UI.update({ giftNext = {} } :: any) -- #2791's scene: the ladder done, the Rewards tile as it was
 	end
 	-- the help card waits for Got it
 	local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")

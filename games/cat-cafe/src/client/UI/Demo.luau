@@ -135,6 +135,8 @@ local DEMO_INDEX_PRIZES: { [string]: { [string]: Types.IndexPrize } } = {
 	neighbourhood = indexPrizes(3000, "caviar", { moon_milk = 1 }, "neighbourhood"),
 	woods = indexPrizes(10000, "moon_milk", { star_treat = 1 }, "woods"),
 	sewer = indexPrizes(30000, "star_treat", { star_treat = 2 }, "sewer"),
+	desert = indexPrizes(100000, "star_treat", { star_treat = 3 }, "desert"), -- #2656: Tier 6, until the catalog's
+	ruins = indexPrizes(300000, "star_treat", { star_treat = 4 }, "ruins"), -- #2656: Tier 7
 }
 
 -- golden-fish.md section 4's draft pieces (names can change), until the engineer's F53 pieces land: per crate,

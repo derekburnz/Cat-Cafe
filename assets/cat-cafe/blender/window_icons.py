@@ -28,6 +28,14 @@ renders each as CatCafe_Icon_Hud_<Name> (512 px, transparent, dark outline) like
     Replay         a round sky-blue arrow curling back on itself with a play triangle in the middle
     Tag            a rainbow name tag on a string (the Mythical tag prize)
     Plate          a plate with a fish biscuit and a fork (a food without its own picture)
+  Settings rows (pass 2; Income reuses CatCafe_Icon_Coins, "Tutorial and tips" CatCafe_Icon_Hud_Tutorial)
+    SetMusic       two beamed violet music notes          SetMusicVolume  blue headphones with pink cushions
+    SetSound       a gold bell ringing                     SetSoundVolume  a blue speaker with three sound arcs
+    SetShake       a phone with a paw on its screen, shake lines either side
+    SetGraphics    a little green turtle ("Lighter graphics", for slower devices)
+    SetOtherCats   two cat heads, grey and orange          SetMapIcons     a red map pin on a folded map
+    SetAlerts      a megaphone with sound arcs             SetRecap        a clipboard with ticked rows
+    SetAutoEquip   a big gold sparkle and a green tick badge
 
 Each builder lays its object out in Blender axes (x right, -y toward the camera, z up) and returns its objects.
 """
@@ -419,6 +427,173 @@ def plate(mat):
     return _fin(b, "Plate", mat)
 
 
+# ------------------------------------------------------------------------------- #2836 pass 2: Settings rows --
+# Settings draws its row icons through IconArt (Components/SettingsList.luau). Income reuses CatCafe_Icon_Coins and
+# "Tutorial and tips" CatCafe_Icon_Hud_Tutorial; these are the rest.
+
+def _arcs(b, c, n, sw, r0=0.35, step=0.28, span=70, t=0.14):
+    """n sound arcs to the right of c, facing the camera."""
+    for i in range(n):
+        r = r0 + step * i
+        for a in range(-span // 2, span // 2 + 1, 14):
+            ra = math.radians(a)
+            b.box((c[0] + r * math.cos(ra), c[1], c[2] + r * math.sin(ra)),
+                  (t, 0.12, r * math.radians(14) * 1.2 + 0.02), sw, rot=(-ra, "Y"))   # overlapping: one solid arc
+
+
+def set_music(mat):
+    b = Builder()
+    R = _rot((0, -10, 0))
+    for x in (-0.55, 0.55):                                                          # two notes, heads low
+        h = Vector((x, 0, 0.55 if x < 0 else 0.75))
+        b.sphere(tuple(h), 0.36, "aurora_violet", segments=14, rings=8, scale=(1.25, 0.75, 0.95), rot=_rot((0, -25, 0)))
+        b.box(tuple(h + Vector((0.34, 0, 0.75))), (0.14, 0.2, 1.5), "aurora_violet")
+    b.box((0.0, 0, 2.1), (1.44, 0.22, 0.3), "aurora_violet", rot=_rot((0, -9, 0)))   # the beam
+    b.box((0.0, 0, 1.78), (1.44, 0.22, 0.22), "aurora_violet", rot=_rot((0, -9, 0)))
+    b.sphere((-0.68, -0.27, 0.66), 0.09, "milk", segments=8, rings=5, scale=(1.0, 0.4, 1.4))   # shines
+    b.sphere((0.42, -0.27, 0.86), 0.09, "milk", segments=8, rings=5, scale=(1.0, 0.4, 1.4))
+    _star_front(b, (-1.0, -0.1, 1.7), 0.2, "rarity_legend", 0.06)
+    del R
+    return _fin(b, "SetMusic", mat)
+
+
+def set_music_volume(mat):
+    b = Builder()
+    for k in range(9):                                                               # the band over the top
+        a = math.radians(180 - k * 22.5)
+        b.box((0.82 * math.cos(a), 0, 1.0 + 0.82 * math.sin(a)), (0.3, 0.3, 0.24), "fish_blue", rot=(-a + math.pi / 2, "Y"))
+    for sx in (-1, 1):
+        b.cyl((sx * 0.92, 0, 0.75), 0.42, 0.34, "fish_blue", segments=16, rot=(math.radians(90), "Y"))   # cups
+        b.cyl((sx * 0.7, 0, 0.75), 0.36, 0.14, "nose_pink", segments=14, rot=(math.radians(90), "Y"))    # cushions
+        b.cyl((sx * 1.1, 0, 0.75), 0.2, 0.04, "milk", segments=12, rot=(math.radians(90), "Y"))
+    _paw(b, (1.12, 0, 0.75), 0.75, "milk", y=-0.0)
+    return _fin(b, "SetMusicVolume", mat)
+
+
+def set_sound(mat):
+    b = Builder()
+    b.cyl((0, 0, 0.75), 0.82, 0.9, "rarity_legend", segments=18, radius2=0.5)        # the bell, flared
+    b.sphere((0, 0, 1.2), 0.5, "rarity_legend", segments=16, rings=8, scale=(1.0, 1.0, 0.8))
+    b.ring((0, 0, 0.32), 0.86, 0.12, 0.14, "gold_mid", segments=18)                 # its lip
+    b.ico((0, 0, 0.12), 0.2, "gold_mid")                                             # the clapper
+    b.ring((0, 0, 1.68), 0.14, 0.06, 0.1, "gold_mid", segments=10, rot=X)           # the loop on top
+    b.sphere((-0.3, -0.62, 1.0), 0.1, "milk", segments=8, rings=5, scale=(1.0, 0.4, 1.8))
+    for sx in (-1, 1):                                                               # little ring lines
+        for k in range(2):
+            a = sx * (0.95 + 0.3 * k)
+            _bar(b, (a, 0, 1.2 + 0.15 * k), (a + sx * 0.25, 0, 1.45 + 0.2 * k), 0.12, 0.12, "fur_orange")
+    return _fin(b, "SetSound", mat)
+
+
+def set_sound_volume(mat):
+    b = Builder()
+    b.box((-0.85, 0, 1.0), (0.5, 0.5, 0.75), "shirt_blue")                          # the speaker's back box
+    b.cyl((-0.35, 0, 1.0), 0.32, 0.55, "shirt_blue", segments=14, radius2=0.72, rot=(math.radians(90), "Y"))
+    b.cyl((-0.06, 0, 1.0), 0.55, 0.06, "pastel_sky", segments=16, rot=(math.radians(90), "Y"))
+    _arcs(b, (0.05, 0, 1.0), 3, "rarity_legend", r0=0.45, step=0.32)
+    return _fin(b, "SetSoundVolume", mat)
+
+
+def set_shake(mat):
+    b = Builder()
+    R = _rot((0, -14, 0))
+    o = Vector((0, 0, 1.05))
+    b.box(tuple(o), (1.0, 0.22, 1.8), "fur_charcoal", rot=R)                        # the phone
+    b.box(tuple(o + R @ Vector((0, -0.12, 0.05))), (0.82, 0.04, 1.45), "pastel_sky", rot=R)   # its screen
+    _paw(b, tuple(o + R @ Vector((0, 0, -0.05))), 1.2, "milk", y=-0.16)
+    b.box(tuple(o + R @ Vector((0, -0.12, 0.8))), (0.26, 0.04, 0.06), "concrete", rot=R)
+    for sx in (-1, 1):                                                               # shake lines both sides
+        for k in range(2):
+            x = sx * (0.85 + 0.28 * k)
+            _bar(b, (x, 0, 0.6 + 0.2 * k), (x, 0, 1.5 - 0.2 * k), 0.13, 0.13, "fur_orange")
+    return _fin(b, "SetShake", mat)
+
+
+def set_graphics(mat):
+    b = Builder()
+    b.sphere((0, 0, 0.55), 0.95, "leaf_green", segments=16, rings=8, scale=(1.0, 0.9, 0.62))   # the shell
+    b.ring((0, 0, 0.32), 0.97, 0.12, 0.14, "fur_moss", segments=18)
+    for (x, z) in ((0, 1.08), (-0.45, 0.82), (0.45, 0.82), (-0.65, 0.55), (0.65, 0.55), (0, 0.72)):
+        b.cyl((x, -0.5 if z < 1.0 else -0.25, z), 0.17, 0.08, "leaf_dark", segments=6,
+              rot=_rot((90 - 40 * (1.08 - z), 0, 0)))
+    b.sphere((-1.05, -0.2, 0.55), 0.36, "mint", segments=12, rings=7)         # the head
+    for dx in (-0.12, 0.12):
+        b.sphere((-1.15 + dx, -0.5, 0.65), 0.07, "fur_ink", segments=8, rings=5)
+    for (x, y) in ((-0.6, -0.45), (0.6, -0.45), (-0.55, 0.45), (0.55, 0.45)):          # feet
+        b.sphere((x, y, 0.15), 0.2, "mint", segments=10, rings=5, scale=(1.0, 1.0, 0.75))
+    return _fin(b, "SetGraphics", mat)
+
+
+def _cat_head(b, c, k, fur, inner):
+    x, y, z = c
+    b.box((x, y, z), (1.1 * k, 0.8 * k, 0.95 * k), fur)
+    for sx in (-1, 1):
+        b.prism((x + sx * 0.32 * k, y, z + 0.47 * k), [(-0.2 * k, 0.0), (0.2 * k, 0.0), (0.0, 0.34 * k)], 0.3 * k,
+                fur, rot=X)
+        b.prism((x + sx * 0.32 * k, y - 0.16 * k, z + 0.5 * k), [(-0.1 * k, 0.0), (0.1 * k, 0.0), (0.0, 0.18 * k)],
+                0.04 * k, inner, rot=X)
+        b.box((x + sx * 0.22 * k, y - 0.41 * k, z + 0.05 * k), (0.14 * k, 0.03, 0.2 * k), "fur_ink")
+    b.box((x, y - 0.41 * k, z - 0.13 * k), (0.12 * k, 0.03, 0.08 * k), "nose_pink")
+
+
+def set_other_cats(mat):
+    b = Builder()
+    _cat_head(b, (0.45, 0.3, 1.25), 1.0, "fur_grey", "nose_pink")
+    _cat_head(b, (-0.4, -0.2, 0.85), 1.1, "fur_orange", "nose_pink")
+    return _fin(b, "SetOtherCats", mat)
+
+
+def set_map_icons(mat):
+    b = Builder()
+    for k, (x, sw) in enumerate(((-0.7, "mint"), (0.0, "pastel_butter"), (0.7, "mint"))):   # folded map
+        b.box((x, 0, 0.1), (0.72, 1.5, 0.08), sw, rot=_rot((0, 8 if k % 2 else -8, 0)))
+    _bar(b, (-0.9, -0.5, 0.18), (0.8, 0.3, 0.18), 0.08, 0.03, "fur_orange", up=(0, 0, 1))     # a path on it
+    b.sphere((0.1, 0, 1.45), 0.55, "bowl_red", segments=16, rings=9)                 # the pin
+    b.cyl((0.1, 0, 0.7), 0.3, 0.9, "bowl_red", segments=14, radius2=0.0)
+    b.cyl((0.1, -0.42, 1.48), 0.22, 0.12, "milk", segments=14, rot=X)
+    b.sphere((-0.15, -0.38, 1.7), 0.08, "milk", segments=8, rings=5, scale=(1.0, 0.5, 1.4))
+    return _fin(b, "SetMapIcons", mat)
+
+
+def set_alerts(mat):
+    b = Builder()
+    R = _rot((0, 20, 0))
+    o = Vector((-0.3, 0, 1.0))
+    b.cyl(tuple(o), 0.28, 1.2, "pastel_butter", segments=16, radius2=0.7, rot=R @ _rot((0, 90, 0)))   # the horn
+    b.ring(tuple(o + R @ Vector((0.62, 0, 0))), 0.72, 0.1, 0.12, "bowl_red", segments=16, rot=R @ _rot((0, 90, 0)))
+    b.box(tuple(o + R @ Vector((-0.7, 0, 0))), (0.3, 0.42, 0.42), "bowl_red", rot=R)          # its back
+    _bar(b, tuple(o + Vector((-0.3, 0, -0.2))), tuple(o + Vector((-0.4, 0, -0.85))), 0.18, 0.18, "bowl_red")   # handle
+    _arcs(b, tuple(o + R @ Vector((0.7, 0, 0))), 2, "fur_orange", r0=0.5, step=0.32)
+    return _fin(b, "SetAlerts", mat)
+
+
+def set_recap(mat):
+    b = Builder()
+    R = _rot((0, -8, 0))
+    o = Vector((0, 0, 1.0))
+    b.box(tuple(o), (1.5, 0.12, 2.0), "caramel_wood", rot=R)                        # the board
+    b.box(tuple(o + R @ Vector((0, -0.08, -0.08))), (1.25, 0.04, 1.65), "milk", rot=R)   # the paper
+    b.box(tuple(o + R @ Vector((0, -0.09, 0.98))), (0.6, 0.16, 0.24), "gold_mid", rot=R)   # the clip
+    for k in range(4):                                                               # ticked rows
+        z = 0.5 - 0.36 * k
+        b.box(tuple(o + R @ Vector((-0.38, -0.11, z))), (0.18, 0.03, 0.18), ("shirt_green", "shirt_green", "fur_orange",
+                                                                             "pastel_sky")[k], rot=R)
+        b.box(tuple(o + R @ Vector((0.2, -0.11, z))), (0.7, 0.03, 0.09), "concrete", rot=R)
+    return _fin(b, "SetRecap", mat)
+
+
+def set_auto_equip(mat):
+    b = Builder()
+    b.star((0, 0, 1.05), 1.0, 0.3, 0.3, "rarity_legend", points=4, rot=X)             # the big sparkle
+    b.star((0, -0.12, 1.05), 0.55, 0.17, 0.12, "pastel_butter", points=4, rot=X)
+    b.star((0.85, -0.1, 1.85), 0.32, 0.1, 0.12, "rarity_legend", points=4, rot=X)
+    b.star((-0.85, -0.1, 0.35), 0.26, 0.08, 0.12, "nose_pink", points=4, rot=X)
+    b.cyl((0.75, -0.2, 0.35), 0.36, 0.14, "shirt_green", segments=16, rot=X)          # a green tick badge
+    _bar(b, (0.57, -0.3, 0.38), (0.7, -0.3, 0.24), 0.08, 0.05, "milk")
+    _bar(b, (0.7, -0.3, 0.24), (0.95, -0.3, 0.52), 0.08, 0.05, "milk")
+    return _fin(b, "SetAutoEquip", mat)
+
+
 ICONS = {
     "MysteryMarket": mystery_market, "Codes": codes, "Collector": collector, "CornerShop": corner_shop,
     "LawnStall": lawn_stall, "RankUp": rank_up, "Bellhop": bellhop, "YardSale": yard_sale,
@@ -427,6 +602,10 @@ ICONS = {
     "RoleBarista": role_barista, "RoleWaiter": role_waiter, "RoleGreeter": role_greeter,
     "RoleEntertainer": role_entertainer,
     "Drop": drop, "Replay": replay, "Tag": tag, "Plate": plate,
+    "SetMusic": set_music, "SetMusicVolume": set_music_volume, "SetSound": set_sound,
+    "SetSoundVolume": set_sound_volume, "SetShake": set_shake, "SetGraphics": set_graphics,
+    "SetOtherCats": set_other_cats, "SetMapIcons": set_map_icons, "SetAlerts": set_alerts, "SetRecap": set_recap,
+    "SetAutoEquip": set_auto_equip,
 }
 # name -> (yaw, pitch) for icons.py
 VIEWS = {
@@ -437,4 +616,8 @@ VIEWS = {
     "RoleBarista": (-14.0, 34.0), "RoleWaiter": (-22.0, 22.0), "RoleGreeter": (-10.0, 6.0),
     "RoleEntertainer": (-14.0, 8.0),
     "Drop": (-18.0, 14.0), "Replay": (-8.0, 4.0), "Tag": (-12.0, 8.0), "Plate": (-18.0, 40.0),
+    "SetMusic": (-10.0, 6.0), "SetMusicVolume": (-10.0, 8.0), "SetSound": (-14.0, 12.0),
+    "SetSoundVolume": (-16.0, 10.0), "SetShake": (-10.0, 6.0), "SetGraphics": (-24.0, 22.0),
+    "SetOtherCats": (-16.0, 8.0), "SetMapIcons": (-14.0, 30.0), "SetAlerts": (-12.0, 8.0), "SetRecap": (-10.0, 6.0),
+    "SetAutoEquip": (-10.0, 6.0),
 }

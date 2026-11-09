@@ -925,7 +925,7 @@ return function()
 		local list = runs(options, LONG_RUNS)
 		local limit = assert(options.limit)
 		local parts = {}
-		for tier = 2, Catalog.maxTier do
+		for tier = 2, options.target or 5 do
 			local played = quantile(list, tierAt(tier), 0.5, limit)
 			local part = string.format("Tier %d %s", tier, clock(played))
 			if options.session ~= nil then

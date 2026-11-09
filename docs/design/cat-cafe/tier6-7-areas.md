@@ -310,7 +310,7 @@ These are stations in the vein of the Yard Sale, the Fish Pond and the Lost and 
 | **Statue Workshop** | Ruins, Statue Avenue | Turn a duplicate Legendary or Mythical into a stone statue of that cat for your cafe: a Rare decoration with the Rare bonus (+4%) | Shows off rare catches, and cuts duplicates |
 | **Star Observatory** | Town, on a rooftop deck | Shows the next 3 days' Lucky, Golden and Rainbow Days, and the next pity cat's area 10 minutes early | Pure information, for players who plan their time |
 
-My picks for the first two to build are the **Oasis Spa** and the **Relic Museum**, one camp extra each, because they match the existing camp-extra slots (`Layout.campExtras`). Each station gets its own spec and a Pace check before it's built.
+My picks for the first two to build are the **Oasis Spa** and the **Relic Museum**, one camp extra each, because they match the existing camp-extra slots (`Layout.campExtras`). Each station gets its own spec and a Pace check before it's built. **Specs:** [late-stations.md](late-stations.md) (Oasis Spa and Relic Museum, 2026-11-09).
 
 ## 9. Decisions (made for Derek2, 2026-11-09)
 

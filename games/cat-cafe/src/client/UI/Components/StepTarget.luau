@@ -115,7 +115,9 @@ function StepTarget.new(parent: Instance): StepTarget
 	highlight.OutlineTransparency = 0
 	highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 	highlight.Enabled = false
-	highlight.Parent = gui
+	-- under the camera (this client's own, inside Workspace) so it draws for sure with its Adornee in the world; a
+	-- Highlight under a ScreenGui may not (Review-Agent on #2751)
+	highlight.Parent = Workspace.CurrentCamera or gui
 	self._highlight = highlight
 	return self :: StepTarget
 end
@@ -209,6 +211,7 @@ end
 
 function StepTarget.destroy(self: any)
 	self:hide()
+	self._highlight:Destroy()
 	self._gui:Destroy()
 end
 

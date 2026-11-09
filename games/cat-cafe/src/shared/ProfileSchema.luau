@@ -14,6 +14,7 @@ local GrandOpening = require(script.Parent.GrandOpening)
 local Jukebox = require(script.Parent.Jukebox)
 local Lawn = require(script.Parent.Lawn)
 local Looks = require(script.Parent.Looks)
+local MysteryMarket = require(script.Parent.MysteryMarket)
 local Onboarding = require(script.Parent.Onboarding)
 local Products = require(script.Parent.Products)
 local Rally = require(script.Parent.Rally)
@@ -271,6 +272,8 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		crates = {},
 		crateLuck = {},
 		fishPerks = {},
+		mystery = {},
+		mysterySeen = false,
 		codesRedeemed = {},
 		introSeen = false,
 		potions = {},
@@ -900,6 +903,9 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.crates = sanitizeCrates(raw.crates)
 	profile.crateLuck = sanitizeCrateLuck(raw.crateLuck)
 	profile.fishPerks = sanitizeFishPerks(raw.fishPerks)
+	-- #2565: the Mystery Market's owned items and its first visit; a save without them owns none, not yet seen
+	profile.mystery = MysteryMarket.sanitize(raw.mystery)
+	profile.mysterySeen = raw.mysterySeen == true
 	profile.codesRedeemed = sanitizeCodes(raw.codesRedeemed) -- F65; saves before version 9 have used none
 	-- F72: every save from before version 10 plays the intro once too (Derek, intro-cutscene.md answer 2)
 	profile.introSeen = raw.introSeen == true

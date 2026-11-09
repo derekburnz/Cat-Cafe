@@ -234,6 +234,9 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		crates = profile.crates,
 		crateLuck = profile.crateLuck,
 		fishPerks = profile.fishPerks,
+		mystery = profile.mystery, -- #2565
+		mysterySeen = profile.mysterySeen,
+		mysteryOpen = Config.MysteryOpen or RunService:IsStudio(),
 		goldLuck = totals.goldLuck,
 		rainbowLuck = IndexRewards.rainbowLuck(profile), -- F99: the food card's "Rainbow 0.5%" line
 		baitSpeed = totals.baitSpeed,

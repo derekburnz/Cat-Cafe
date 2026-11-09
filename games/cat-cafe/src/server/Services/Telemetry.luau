@@ -96,6 +96,7 @@ export type CustomEvent =
 	| "index_reward"
 	| "spin"
 	| "crate_opened"
+	| "mystery_buy" -- #2565: value fish before; item, week slot, tier
 	| "code_redeemed"
 	| "intro_cutscene" -- F72: "finished" or "skipped", version:shot ("2:4"), "first" or "replay"
 	| "potion_used" -- F64: potion id, tier

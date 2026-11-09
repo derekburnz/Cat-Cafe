@@ -646,6 +646,16 @@ local Config = {
 		[string]: number,
 	},
 	FishMarketRange = 14, -- OpenCrate and BuyFishItem from this close to a FishMarket station
+	-- #2565 (mystery-market.md section 2): Juniper's Mystery Market. Every item is on the shelf all the time; one a week
+	-- is on sale at MysterySaleShare of its price. The week starts at MysteryEpoch, Saturday 2026-11-07 00:00 UTC, so
+	-- the launch week's sale is the Backpack (Catalog.mysteryItems' first row). MysteryOpen false refuses BuyMystery
+	-- outside Studio: the owned items are new save fields an older server would drop, so the shelf opens with the
+	-- ProfileSchema.VERSION bump in a publish that restarts the servers (Derek2's call).
+	MysteryEpoch = 1794009600,
+	MysteryRotateSeconds = 604800, -- one week
+	MysterySaleShare = 0.75,
+	MysteryOpen = false,
+	MysteryMarketRange = 14, -- BuyMystery from this close to the MysteryMarket cart, like the Fish Market
 	-- #1146: a spam limit between OpenCrate starts, not a wait for the reveal; overlapping opens are refused by the
 	-- in-flight check (Crates.openRefusal) instead. Was 2 s, which refused a Quick open's next crate. The
 	-- Market window waits 0.2 s longer (its GATE_SLACK), so network jitter never lands a real press inside it.

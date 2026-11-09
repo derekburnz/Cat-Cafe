@@ -430,6 +430,11 @@ return function()
 				GrabRateLimitSeconds = true,
 				LureReserveSeconds = true,
 				IntroAutoPlay = true, -- true since #1575, checked below
+				MysteryOpen = true, -- #2565: the Mystery Market buy switch, checked in MysteryMarket.spec
+				MysteryEpoch = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
+				MysteryRotateSeconds = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
+				MysterySaleShare = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
+				MysteryMarketRange = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
 				WaveMinRareRerollOdds = true, -- a table, checked in Catching.spec (F97 section 7)
 				FoodTierPriceFactor = true, -- a table, checked below (F97 section 3)

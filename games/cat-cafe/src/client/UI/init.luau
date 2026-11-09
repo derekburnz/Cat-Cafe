@@ -340,6 +340,7 @@ local introLive = false -- the intro exists on this server: state.introSeen arri
 -- #2759: a fresh save's intro on its way: begun once one started this session; the strip waits LIMIT seconds from
 -- the UI's start at most (a field, as the module has no local registers to spare)
 UI._introWait = { begun = false, LIMIT = 30, startedAt = os.clock(), timed = false }
+UI._baitNudged = false -- #2775: the first bait's tip card was queued this session (UI.bait.set)
 local introGlowed = false -- the Tutorial tile has had its two pulses after a first play
 local tutorialButtonOn = true -- the Tutorial button setting as shown (F72)
 local tutorialTarget: (BasePart | Attachment | Vector3)? = nil -- UI.tutorial.show's, put back after an intro
@@ -2196,6 +2197,17 @@ function UI.bait.setBowl(_part: BasePart?) end
 function UI.bait.set(bait: Types.BaitView?, bowl: number?)
 	local index = if bowl == 2 then 2 else 1
 	bowls.views[index] = bait
+	-- #2775: the account's short first bait (Components/FirstBait) brings one tip card saying to go catch another
+	-- cat meanwhile, at the next free moment (after the Bait window closes)
+	if bait ~= nil and not UI._baitNudged then
+		local FirstBait = require(script.Components.FirstBait)
+		if FirstBait.coming(bait) then
+			UI._baitNudged = true
+			UI.tips.nudge(function(): string?
+				return FirstBait.nudge(bowls.views[index], Workspace:GetServerTimeNow())
+			end, FirstBait.NUDGE_ICON)
+		end
+	end
 	if bait == nil then
 		bowls.cats[index] = nil
 		if baitCard and bowls.card == index then
@@ -4284,6 +4296,8 @@ do
 		lessonDue = false,
 		-- #2626: another player's tackle landed on this player this session; the lesson plays once they are safe again
 		tackled = false,
+		-- #2775: a one-off card ahead of the queue (UI.tips.nudge); line() is asked again as it shows
+		nudge = nil :: { line: () -> string?, icon: string }?,
 	}
 	Moments.Shove:Connect(function(role: string)
 		if role == "target" then
@@ -4385,6 +4399,26 @@ do
 			return
 		end
 		local card = tipCard
+		local nudge = TIP.nudge
+		if
+			nudge ~= nil
+			and card ~= nil
+			and not tipBusy
+			and initialized
+			and tutorialButtonOn
+			and TipQueue.free(tipMoment())
+		then
+			TIP.nudge = nil
+			local line = nudge.line()
+			if line ~= nil then
+				tipBusy = true
+				tipQueue:shown(os.clock())
+				card:show(line, nudge.icon, TipQueue.CARD_SECONDS, function()
+					tipBusy = false
+				end)
+			end
+			return
+		end
 		-- the Tutorial tile's × (its setting off) holds the tip cards back too (Derek 2026-11-03)
 		if
 			card == nil
@@ -4551,6 +4585,12 @@ do
 		end
 	end
 
+	-- #2775: one card ahead of the queue at the next free moment, with line() asked as it shows (nil skips it); a
+	-- newer nudge replaces one still waiting. The Tutorial tile's × holds it back like the other tips.
+	function UI.tips.nudge(line: () -> string?, icon: string)
+		TIP.nudge = { line = line, icon = icon }
+	end
+
 	-- A tip's moment came: ShowTip from the server, or the client's own finds. Queued and timed; unknown ids, the two
 	-- asks the UI times itself (feedback_ask, stuck_help) and tips already seen are left alone.
 	function UI.tips.show(id: string)
@@ -4657,6 +4697,7 @@ do
 	function UI.tips.reset()
 		table.clear(tipAnswered)
 		tipQueue:clear()
+		TIP.nudge = nil
 		if state.tipsSeen ~= nil then
 			(state :: any).tipsSeen = Tips.cleared(state.tipsSeen)
 		end

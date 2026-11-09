@@ -537,13 +537,16 @@ function RescueBar.show(
 	self._rarity.BackgroundColor3 = Theme.rarityColor(rarity)
 	self._rarity.TextColor3 = Theme.rarityTextColor(rarity)
 	local shake = challenge.kind == "shake_catch"
+	-- #2775 (Research-Agent: 0 of 10 tablet players got past the first rescue): "Hit the green!" never said how on a
+	-- touch screen, so a touch player is told to tap, as the zone-less bar already did (#2315)
+	local touch = TouchPrompt.wants(nil, UserInputService:GetLastInputType().Name, Scale.isTouch())
 	self._hint.Text = if self._helper
 		then "Helping! Your misses cost no paws"
+		elseif shake and touch then "Tap on the green to shake it!"
 		elseif shake then "Hit the green to shake the branch!"
+		elseif rules(challenge).zone ~= nil and touch then "Tap when the paw hits the green!"
 		elseif rules(challenge).zone ~= nil then "Hit the green!"
-		elseif
-			TouchPrompt.wants(nil, UserInputService:GetLastInputType().Name, Scale.isTouch())
-		then "Tap when the bar is in the green!" -- #2315: on any sign of touch
+		elseif touch then "Tap when the bar is in the green!" -- #2315: on any sign of touch
 		else "Press Space or click when the bar is in the green!"
 	self._pawRow:set(challenge.paws, challenge.paws)
 	self._hint.Size = UDim2.new(1, if challenge.paws ~= nil then -110 else -28, 0, 22)

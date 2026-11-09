@@ -30,6 +30,49 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- Derek2 (11-09): "update the whats new every 20-50 minor changes" (#2718): the
+	-- player-facing changes since the 11-08 rows, 163 merges; no player ideas came in through feedback this time
+	{
+		id = "desert_ruins",
+		date = "2026-11-09",
+		icon = "new",
+		text = "Desert and Ruins areas open",
+	},
+	{ id = "twenty_new_cats", date = "2026-11-09", icon = "cat", text = "20 new cats to catch" },
+	{
+		id = "cannon_locked_areas",
+		date = "2026-11-09",
+		icon = "look",
+		text = "Cannon shows locked areas",
+	},
+	{ id = "net_reach", date = "2026-11-09", icon = "faster", text = "Net reaches a bit further" },
+	{
+		id = "quicker_tutorial",
+		date = "2026-11-09",
+		icon = "faster",
+		text = "Shorter, quicker tutorial",
+	},
+	{ id = "mystery_market", date = "2026-11-09", icon = "new", text = "Juniper's Mystery Market" },
+	{
+		id = "backpack_two_cats",
+		date = "2026-11-09",
+		icon = "new",
+		text = "Backpack carries 2 cats",
+	},
+	{ id = "trade_anywhere", date = "2026-11-09", icon = "new", text = "Trade from anywhere" },
+	{ id = "gift_wraps", date = "2026-11-09", icon = "new", text = "Rare and Super gift wraps" },
+	{
+		id = "day_cart_buy_all",
+		date = "2026-11-09",
+		icon = "faster",
+		text = "Buy all at the Day Cart",
+	},
+	{
+		id = "rare_rescue_easier",
+		date = "2026-11-09",
+		icon = "faster",
+		text = "Easier rare cat rescues",
+	},
 	-- Derek2 (11-08): "update whats new and include mobile support/overhaul" (#2465): the phone overhaul leads
 	{ id = "mobile_overhaul", date = "2026-11-08", icon = "new", text = "Mobile support overhaul" },
 	{ id = "phone_top_bar", date = "2026-11-08", icon = "look", text = "Phone HUD in the top bar" },

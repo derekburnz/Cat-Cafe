@@ -11,6 +11,7 @@ local DailyTreat = require(script.Parent.DailyTreat)
 local EquipBest = require(script.Parent.EquipBest)
 local FreshCatch = require(script.Parent.FreshCatch)
 local GrandOpening = require(script.Parent.GrandOpening)
+local Invites = require(script.Parent.Invites)
 local Jukebox = require(script.Parent.Jukebox)
 local LateStations = require(script.Parent.LateStations)
 local Lawn = require(script.Parent.Lawn)
@@ -146,7 +147,9 @@ local ProfileSchema = {}
 -- Version 46 (#2651 part 4, late-stations.md section 3) adds spa and museum, the Oasis Spa's slots and soaking cats
 -- and the Relic Museum's filled exhibits: an older server would drop them, losing slots bought with golden fish and
 -- the exhibits (whose cats left the save) and their tip bonus.
-ProfileSchema.VERSION = 46
+-- Version 47 (#2797, retention-ideas.md 5d) adds invites and referredBy, the invite reward's two sides: an older server
+-- would drop them and could pay a joiner or an inviter twice for the same friend.
+ProfileSchema.VERSION = 47
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -311,6 +314,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		campExtras = CampExtras.fresh(now),
 		spa = LateStations.freshSpa(),
 		museum = LateStations.freshMuseum(),
+		invites = Invites.fresh(),
 		rally = Rally.fresh(now),
 		tradeLog = {},
 		tradeIds = {},
@@ -973,6 +977,9 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- #2651 part 4 (version 46): the Oasis Spa (its cats must still be owned) and the Relic Museum's exhibits
 	profile.spa = LateStations.sanitizeSpa(raw.spa, profile.cats, now)
 	profile.museum = LateStations.sanitizeMuseum(raw.museum)
+	-- #2797 (version 47): the invite reward; a save without them has invited nobody and was invited by nobody
+	profile.invites = Invites.sanitize(raw.invites)
+	profile.referredBy = Invites.sanitizeReferred(raw.referredBy)
 	-- F101 (version 26): the Rescue Rally laps this weekend
 	profile.rally = Rally.sanitize(raw.rally, now)
 	-- F102 (version 27): the Trades page and the trades this save has applied

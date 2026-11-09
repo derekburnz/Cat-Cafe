@@ -28,6 +28,7 @@ local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
+local Invites = require(ReplicatedStorage.Shared.Invites)
 local Jukebox = require(ReplicatedStorage.Shared.Jukebox)
 local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local Lawn = require(ReplicatedStorage.Shared.Lawn)
@@ -254,6 +255,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		dataSaves = DataService.saves(),
 		tutorialStep = profile.tutorialStep,
 		playSeconds = PlayTime.seconds(player, profile), -- #1936: the store guard's first 30 minutes
+		invite = Invites.view(profile, os.time()), -- #2797: the invite card and the Friends button
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		introSeen = profile.introSeen,
 		potions = profile.potions, -- F64

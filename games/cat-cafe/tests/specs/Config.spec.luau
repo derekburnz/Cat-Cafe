@@ -180,6 +180,14 @@ return function()
 		CollectorGoldMultiplier = 3,
 		CollectorRollMin = 0.8,
 		CollectorRollMax = 1.5,
+		-- #2797 (retention-ideas.md 5d): the invite reward
+		InviteRewardFish = 20,
+		InviteQualifySeconds = 300,
+		InviteDailyMax = 5,
+		InviteRewardedMax = 50,
+		InviteCardFromSeconds = 300,
+		InviteCardBySeconds = 900,
+		InvitePendingCheckSeconds = 60,
 		-- the Spin Wheel station (F49, section 11c, design v0.6)
 		SpinStationRange = 14,
 		SpinCooldownSeconds = 4,

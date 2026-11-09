@@ -8,23 +8,32 @@ return function()
 	local StrayTopUp = require(Shared.StrayTopUp)
 
 	describe("StrayTopUp", function()
-		it("keeps a floor that grows with the players in the area, never past StrayLiveMax", function()
-			expect(StrayTopUp.floor(1)).to.equal(Config.StrayFloorBase)
-			expect(StrayTopUp.floor(0)).to.equal(Config.StrayFloorBase)
-			expect(StrayTopUp.floor(4)).to.equal(Config.StrayFloorBase + 3 * Config.StrayFloorPerPlayer)
-			expect(StrayTopUp.floor(8)).to.equal(math.min(Config.StrayLiveMax, Config.StrayFloorBase + 7))
-			expect(StrayTopUp.floor(50)).to.equal(Config.StrayLiveMax)
-			-- a lone player keeps at least as many as the long areas' sunrise waves gave (Derek: "low even solo")
-			for _, area in Catalog.areas do
-				if area.id ~= "alley" then
-					expect(StrayTopUp.floor(1) >= area.waveSize).to.equal(true)
+		it(
+			"keeps a floor that grows with the players in the area, never past StrayLiveMax",
+			function()
+				expect(StrayTopUp.floor(1)).to.equal(Config.StrayFloorBase)
+				expect(StrayTopUp.floor(0)).to.equal(Config.StrayFloorBase)
+				expect(StrayTopUp.floor(4)).to.equal(
+					Config.StrayFloorBase + 3 * Config.StrayFloorPerPlayer
+				)
+				expect(StrayTopUp.floor(8)).to.equal(
+					math.min(Config.StrayLiveMax, Config.StrayFloorBase + 7)
+				)
+				expect(StrayTopUp.floor(50)).to.equal(Config.StrayLiveMax)
+				-- a lone player keeps at least as many as the long areas' sunrise waves gave (Derek: "low even solo")
+				for _, area in Catalog.areas do
+					if area.id ~= "alley" then
+						expect(StrayTopUp.floor(1) >= area.waveSize).to.equal(true)
+					end
 				end
 			end
-		end)
+		)
 
 		it("waits 60 to 120 s between top-ups", function()
 			expect(StrayTopUp.wait(0)).to.equal(Config.StrayTopUpMinSeconds)
-			expect(StrayTopUp.wait(0.5)).to.equal((Config.StrayTopUpMinSeconds + Config.StrayTopUpMaxSeconds) / 2)
+			expect(StrayTopUp.wait(0.5)).to.equal(
+				(Config.StrayTopUpMinSeconds + Config.StrayTopUpMaxSeconds) / 2
+			)
 			expect(StrayTopUp.wait(5)).to.equal(Config.StrayTopUpMaxSeconds)
 		end)
 
@@ -35,22 +44,24 @@ return function()
 		end)
 
 		it("keeps strays by each gate (#1621, no cats at the start of the Sewer)", function()
-			expect(Config.StrayEntryFloor).to.equal(3)
+			expect(Config.StrayEntryFloor).to.equal(4) -- #2557 (was 3)
 			expect(Config.StrayEntryStuds).to.equal(120)
-			expect(Config.StrayEntryTopUpSeconds).to.equal(20)
+			expect(Config.StrayEntryTopUpSeconds).to.equal(15) -- #2557 (was 20)
 			expect(StrayTopUp.nearGate(100, 0, 0, 0)).to.equal(true)
 			expect(StrayTopUp.nearGate(120, 0, 0, 0)).to.equal(true)
 			expect(StrayTopUp.nearGate(90, 90, 0, 0)).to.equal(false)
-			expect(StrayTopUp.entryPool({ 1, 2, 3 }, { [2] = true, [3] = false }) :: any).to.deepEqual({ 2 })
+			expect(StrayTopUp.entryPool({ 1, 2, 3 }, { [2] = true, [3] = false }) :: any).to.deepEqual({
+				2,
+			})
 			expect(StrayTopUp.entryPool({ 1, 3 }, { [2] = true }) :: any).to.deepEqual({ 1, 3 })
 			-- short while fewer than the floor stand by the gate, never past the live cap
-			expect(StrayTopUp.entryShort(2, 5)).to.equal(true)
-			expect(StrayTopUp.entryShort(3, 5)).to.equal(false)
+			expect(StrayTopUp.entryShort(3, 5)).to.equal(true)
+			expect(StrayTopUp.entryShort(4, 5)).to.equal(false)
 			expect(StrayTopUp.entryShort(0, Config.StrayLiveMax)).to.equal(false)
-			-- the last three placed from a wave (rarest first) are the commonest and go by the gate
-			expect(StrayTopUp.waveEntry(6, 8)).to.equal(true)
-			expect(StrayTopUp.waveEntry(5, 8)).to.equal(false)
-			expect(StrayTopUp.waveEntry(8, 8)).to.equal(true)
+			-- the last four placed from a wave (rarest first) are the commonest and go by the gate
+			expect(StrayTopUp.waveEntry(8, 11)).to.equal(true)
+			expect(StrayTopUp.waveEntry(7, 11)).to.equal(false)
+			expect(StrayTopUp.waveEntry(11, 11)).to.equal(true)
 		end)
 
 		it("has room by every gate for the floor (#1621)", function()
@@ -64,7 +75,10 @@ return function()
 				end
 				local near = 0
 				for _, point in spec.spawnPoints do
-					if StrayTopUp.nearGate(point.x, point.z, gateX, gateZ) and point.zone ~= "rare" then
+					if
+						StrayTopUp.nearGate(point.x, point.z, gateX, gateZ)
+						and point.zone ~= "rare"
+					then
 						near += 1
 					end
 				end

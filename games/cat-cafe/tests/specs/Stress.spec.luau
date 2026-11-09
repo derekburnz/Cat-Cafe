@@ -110,7 +110,7 @@ return function()
 			decorCount += 1
 		end
 		expect(PLAYERS).to.equal(8)
-		expect(Config.StrayLiveMax).to.equal(16)
+		expect(Config.StrayLiveMax).to.equal(21) -- #2557 (was 16)
 		expect(ProfileSchema.catCount(profiles[1])).to.equal(CATS)
 		print(
 			string.format(

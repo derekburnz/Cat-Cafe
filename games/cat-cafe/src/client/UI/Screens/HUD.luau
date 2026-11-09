@@ -2072,6 +2072,9 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = self._buffs.frame,
 	})
 	Outline.text(self._coming, 2)
+	-- #2552: the size and visibility handlers above can fire while new() is still building the menu and the corner
+	-- pair; the layouts wait for this flag, then run once here
+	self._built = true
 	self:_layoutMenu()
 	-- the left side follows the screen's size (a phone turned, a window resized)
 	table.insert(
@@ -4136,6 +4139,9 @@ end
 -- menu's last row with the arrow tab; the menu grid centred in what is left above; the bottom row moved right of the
 -- counters when the screen is too narrow for it to sit in the middle; and the Potions symbol.
 function HUD._layoutMenu(self: any)
+	if not self._built then
+		return -- #2552: still being built (new() lays it out once it is)
+	end
 	local scale = Scale.get()
 	local size = self._root.AbsoluteSize
 	local width, height = Scale.DESIGN.X, Scale.DESIGN.Y - 58
@@ -4287,6 +4293,9 @@ end
 -- tile, left of the corner pair with their tops level with its squares; when that would run into the bottom row (the
 -- pair on the bottom edge of a narrow screen) they sit over the pair instead, right edges level.
 function HUD._placePotionTimers(self: any)
+	if not self._built then
+		return -- #2552: still being built (_layoutMenu places them once it is)
+	end
 	local timers: Frame = self._buffs.potions
 	local holder: Frame = self._corner
 	local scale = Scale.get()

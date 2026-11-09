@@ -54,6 +54,7 @@ return function()
 	local GrandOpening = require(Shared.GrandOpening)
 	local EquipBest = require(Shared.EquipBest)
 	local IndexRewards = require(Shared.IndexRewards)
+	local StationPerks = require(Shared.StationPerks)
 	local Lawn = require(Shared.Lawn)
 	local Luck = require(Shared.Luck)
 	local Prizes = require(Shared.Prizes)
@@ -488,7 +489,11 @@ return function()
 		-- The wait for food going in now. With QUICK_BAIT, a Quick Bait Potion is running the whole time: the Day Cart
 		-- sells 2 of each size a day (10, 30 and 60 minutes, #1716), so an hour a day is covered from one day's buys.
 		local function baitWait(night: boolean): number
-			local speed = IndexRewards.totals(profile).baitSpeed
+			-- #2687: Fresh Bait from Tier 2, as Economy.baitWaitSeconds
+			local speed = math.min(
+				IndexRewards.totals(profile).baitSpeed + StationPerks.baitSpeed(profile.tier),
+				Config.BaitSpeedMax
+			)
 			if options.quickBait then
 				speed = math.min(speed + 0.25, Config.BaitSpeedMax)
 			end
@@ -1041,7 +1046,7 @@ return function()
 						target = 5,
 						limit = 16 * HOUR,
 						long = true,
-						event = { from = 3 * HOUR, to = 5 * HOUR }, -- #2683: 6 to 8 h, after the new Tier 5
+						event = { from = 3.5 * HOUR, to = 5.5 * HOUR }, -- #2683: 6 to 8 h, after the new Tier 5; #2687: 3 to 5 h before the station perks
 					})
 					local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
 					-- #2557 with #2559 (Design-Agent): 8 h 00, plus 15%, with the one-go floor of 8 h (was 9 to 14)

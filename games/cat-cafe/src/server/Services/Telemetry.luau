@@ -778,6 +778,49 @@ local function logFirstHour(player: Player, profile: Profile)
 	end
 end
 
+-- #2796 (retention-ideas.md 5c): the pity_v1 funnel, one run per player per pity cat (`key`, the cat's claim key):
+-- 1 pity_seen (the player came within PITY_SEEN_STUDS of it), 2 pity_catch_started, 3 pity_caught (the claim won).
+-- Fields: the kind (Legendary or Mythical), the area and the player's minutes played on the account as a band.
+-- Counts only, never who. Spawns are pity_cat's "spawned".
+Telemetry.PITY_FUNNEL = "pity_v1"
+Telemetry.PITY_STEPS = { "pity_seen", "pity_catch_started", "pity_caught" }
+
+local function minutesBand(seconds: number): string
+	local minutes = seconds / 60
+	if minutes < 10 then
+		return "0-10"
+	elseif minutes < 30 then
+		return "10-30"
+	elseif minutes < 60 then
+		return "30-60"
+	elseif minutes < 180 then
+		return "60-180"
+	end
+	return "180+"
+end
+
+function Telemetry.pityStep(
+	player: Player,
+	profile: Profile,
+	key: string,
+	step: number,
+	kind: string,
+	area: string
+)
+	local name = Telemetry.PITY_STEPS[step]
+	if name == nil then
+		return
+	end
+	funnelStep(
+		player,
+		Telemetry.PITY_FUNNEL,
+		key .. ":" .. tostring(player.UserId),
+		step,
+		name,
+		{ kind, area, minutesBand(PlayTime.seconds(player, profile)) }
+	)
+end
+
 function Telemetry.catchCaught(player: Player, funnel: CatchFunnel)
 	funnelStep(player, "catch_attempt", funnel.id, 3, "caught", funnel.values)
 end

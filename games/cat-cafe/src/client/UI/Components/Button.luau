@@ -265,8 +265,10 @@ function Button.new(props: Props): Button
 			then Vector2.new(0, 1)
 			elseif layout == "clean" then Vector2.new(0.5, 1)
 			else Vector2.new(),
+		-- #2771 (Laptop-Tester, Galaxy A06: "Upgrades" read "Upgr"): a tile's word may run 2 px past each side of the
+		-- square, over its outline, before FitText shrinks it
 		Size = if isTile
-			then UDim2.new(1, -2, 0, textSize + 6)
+			then UDim2.new(1, 4, 0, textSize + 6)
 			elseif
 				layout == "clean"
 			then UDim2.new(1, 28, 0, band) -- a long word may pass the square's sides
@@ -276,7 +278,7 @@ function Button.new(props: Props): Button
 		AutomaticSize = if pictureRow then Enum.AutomaticSize.X else Enum.AutomaticSize.None,
 		LayoutOrder = 2,
 		Position = if isTile
-			then UDim2.new(0, 1, 1, -4)
+			then UDim2.new(0, -2, 1, -4)
 			elseif layout == "clean" then UDim2.fromScale(0.5, 1)
 			elseif layout == "wide" then UDim2.fromOffset(symbol + 12, 0)
 			elseif pictureRow then UDim2.new()

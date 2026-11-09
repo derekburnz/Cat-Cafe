@@ -18,6 +18,8 @@
 #   5. audience (#2391): players new and returning and day 1 retention by Platform, Country and AgeGroupV2; average
 #      session by Platform; the current onboarding funnel and first_hour (time steps, played_2m to played_60m) by
 #      Platform, so phone and PC drop-offs read side by side. Funnels take no Country breakdown.
+#   6. event fields (2026-11-09): quit_state, step_time, cat_caught_area, first_bait_wait and first_bait_arrived read
+#      by their custom fields (CustomField1 to 3) and by Platform, players or the average value
 # The API takes 30 queries a minute, and a window with 40 custom events needs about 100, so a run paces itself and can
 # take three or four minutes.
 # Run by .github/workflows/analytics.yml; also works from Git Bash on a PC with the same variables set.
@@ -601,6 +603,67 @@ for funnel in "$onboardingFunnel" "$firstHourFunnel"; do
 	done
 	say ""
 	unset cell firstOf label
+done
+
+# 6. Event fields (Research-Agent, 2026-11-09): the funnel events from #2774/#2776 read by their custom fields, so a
+# report says where the leavers stopped and how long each step took, not only how many logged the event. Each line of
+# fieldEvents is "event|fields|metric|label": fields is the breakdown (CustomField1, CustomField2, CustomField3 and
+# Platform, comma separated), metric is CustomEventCountUser (players) or CustomEventAvgValue (the average of the
+# event's value, in seconds for these). CustomEventName is a filter only, as in section 4.
+#   quit_state          value seconds played; fields furthest step, where, "carry|empty bait|nobait" (Tier < 2 leavers)
+#   step_time           value account seconds of play at the step; field the onboarding step name
+#   cat_caught_area     value 1; fields area id, rarity
+#   first_bait_wait     value seconds from food in to resolve; fields lure, rarity, choice
+#   first_bait_arrived  value seconds from food in to arrival; field where the player was
+fieldEvents=(
+	"quit_state|CustomField1|CustomEventCountUser|Leavers before Tier 2 by furthest step"
+	"quit_state|CustomField1|CustomEventAvgValue|Leavers: average seconds played by furthest step"
+	"quit_state|CustomField2|CustomEventCountUser|Leavers by where they were"
+	"quit_state|CustomField3|CustomEventCountUser|Leavers by carry and bait state"
+	"quit_state|Platform|CustomEventCountUser|Leavers by device"
+	"step_time|CustomField1|CustomEventAvgValue|Average seconds of play when each step came"
+	"step_time|CustomField1|CustomEventCountUser|Players per step (step_time)"
+	"cat_caught_area|CustomField1,CustomField2|CustomEventCountUser|Players catching by area and rarity"
+	"first_bait_wait|CustomField3|CustomEventAvgValue|First bait: average seconds food in to resolve, by choice"
+	"first_bait_arrived|CustomField1|CustomEventAvgValue|First bait cat arrived: average seconds, by where the player was"
+)
+say "### Event fields"
+say ""
+for line in "${fieldEvents[@]}"; do
+	IFS='|' read -r event fields metric heading <<<"$line"
+	say "#### $heading ($event, $metric by $fields)"
+	say ""
+	if ! query "$metric" None "$fields" "$(only CustomEventName "$event")"; then
+		failed
+		continue
+	fi
+	mapfile -t lines < <(rows)
+	if [ "${#lines[@]}" = 0 ]; then
+		say "Not logged in this window."
+		say ""
+		continue
+	fi
+	header="|"
+	rule="|"
+	IFS=',' read -r -a dims <<<"$fields"
+	for dim in "${dims[@]}"; do
+		header="$header $dim |"
+		rule="$rule---|"
+	done
+	say "$header Value |"
+	say "$rule---:|"
+	while IFS=$'\t' read -r -a cols; do
+		row="|"
+		for ((i = 0; i < ${#cols[@]}; i++)); do
+			value=${cols[$i]//|/\\|}
+			if [ "$i" = $((${#cols[@]} - 1)) ]; then
+				value=$(awk -v v="$value" 'BEGIN { if (v == int(v)) printf "%d", v; else printf "%.1f", v }')
+			fi
+			row="$row $value |"
+		done
+		say "$row"
+	done < <(printf '%s\n' "${lines[@]}" | sort -t$'\t' -k"$((${#dims[@]} + 1))","$((${#dims[@]} + 1))"nr)
+	say ""
 done
 
 cat "$out"

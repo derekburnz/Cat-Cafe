@@ -154,6 +154,7 @@ local rng = Random.new()
 local nextStrayNumber = 0
 -- #1572: PityService's claim on a pity cat's catch (the first catch in any server wins): true to keep it. It yields.
 local pityClaim: ((Player, number) -> boolean)? = nil
+local pityStarted: ((Player, number) -> ())? = nil -- #2796: PityService's pity_v1 catch-started step
 local debugNextCoat: string? = nil -- Studio's debug hook: the coat the next stray spawned by a wave or refill gets
 local lastRainbowToastAt: number? = nil -- os.clock() of this server's last rainbow stray toast (F99)
 -- RescueService's answer to "is this player in a rescue attempt?", so a catch cannot start during one.
@@ -1768,6 +1769,10 @@ function startCatch(
 		trust.need
 	)
 	stray.funnel = Telemetry.catchEngaged(player, stray.def.rarity, "net", stray.area, funnel)
+	local pitySlot = stray.model:GetAttribute(Pity.SLOT_ATTRIBUTE)
+	if type(pitySlot) == "number" and pityStarted ~= nil then
+		pityStarted(player, pitySlot) -- #2796
+	end
 	-- a catch starts in reach of a stray, so catch_started implies near_stray when the tutorial stray was never the one
 	-- (a player who caught another cat first would hold every later step behind it)
 	Telemetry.onboarding(player, profile, "catch_started")
@@ -3066,6 +3071,21 @@ end
 -- #1572: PityService's claim, asked on a pity cat's catch.
 function CatService.setPityClaim(claim: (Player, number) -> boolean)
 	pityClaim = claim
+end
+
+-- #2796: PityService's hook, told when a catch starts on the pity cat of `slot`.
+function CatService.setPityStarted(started: (Player, number) -> ())
+	pityStarted = started
+end
+
+-- #2796: where the uncaught pity cat of `slot` is in this server, or nil.
+function CatService.pityPosition(slot: number): Vector3?
+	for _, stray in strays do
+		if stray.alive and stray.model:GetAttribute(Pity.SLOT_ATTRIBUTE) == slot then
+			return stray.body.Position
+		end
+	end
+	return nil
 end
 
 -- Studio-only test hook: spawns a given cat at a free spawn point of the area (or point 1 if all are taken), in the

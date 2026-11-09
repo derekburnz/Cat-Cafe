@@ -231,7 +231,7 @@ return function()
 		LuckyDayWaveLuck = 2,
 		LuckyDayPlayerLuck = 0.5,
 		LuckyDayWarnSeconds = 15,
-		PityLegendarySeconds = 1800, -- #1572 (1h): the global pity cat (shared/Pity)
+		PityLegendarySeconds = 900, -- #1572 (1h): the global pity cat (shared/Pity); #2796: halved for now, was 1800
 		-- #2486 Cafe Events (live-events.md section 4)
 		EventPollSeconds = 60,
 		EventMinSeconds = 300,
@@ -245,7 +245,7 @@ return function()
 		EventBigMinGapSeconds = 518400,
 		EventScheduleMax = 10,
 		PityMythicalEvery = 4,
-		PityMythicalSeconds = 7200, -- #1946 (1i): the restarting Mythical timer
+		PityMythicalSeconds = 3600, -- #1946 (1i): the restarting Mythical timer; #2796: halved for now, was 7200
 		PityClaimRetries = 3,
 		-- Pals (F92, playing-together.md 6)
 		PalTipBonus = 0.10,

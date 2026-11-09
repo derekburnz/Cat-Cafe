@@ -16,6 +16,7 @@ export const DEVICE_PROFILES = [
   { name: 'tablet', width: 1180, height: 820, touch: true, inset: 58 },
   { name: 'smallphone', width: 667, height: 375, touch: true, inset: 58 },
   { name: 'console', width: 1920, height: 1080, touch: false, inset: 58 },
+  { name: 'a06', width: 705, height: 338, touch: true, inset: 58 }, // #2771: a Galaxy A06's game view in Studio's Device Simulator (800 x 360 screen)
 ];
 
 export const LIMITS = {

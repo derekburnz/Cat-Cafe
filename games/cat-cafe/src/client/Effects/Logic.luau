@@ -3061,4 +3061,63 @@ function Logic.buildFall(u: number): number
 	return 1 - k * k
 end
 
+-- #2687's camp growth: which of `areas` (the townsfolk cats' home camps, in order) sits in seat `n` (from 1) at
+-- `area`'s camp: its own first, then the next camps' round the list. Nil for an area not in it.
+function Logic.folkAt(areas: { string }, area: string, n: number): number?
+	local at = table.find(areas, area)
+	if at == nil or #areas == 0 then
+		return nil
+	end
+	return (at - 1 + (n - 1)) % #areas + 1
+end
+
+-- #2687's townsfolk cats at a grown camp, idling: how far the head turns (yaw) and nods (pitch) and the tail sways,
+-- in degrees, at `t` seconds for a cat whose loops start at `phase` (0 to 1, so the cats at one camp don't move as
+-- one). Slow sums of sines, so it wanders and never repeats a beat.
+function Logic.townsfolkIdle(t: number, phase: number, c: any): (number, number, number)
+	local p = phase * 2 * math.pi
+	local yaw = c.lookYaw * (0.7 * math.sin(t * 0.37 + p) + 0.3 * math.sin(t * 0.91 + 2 * p))
+	local pitch = c.lookPitch * math.sin(t * 0.53 + 3 * p)
+	local tail = c.tailYaw * math.sin(t * c.tailHz * 2 * math.pi + p)
+	return yaw, pitch, tail
+end
+
+-- An ear flick, degrees, `t` seconds into it: a quick twitch back and a settle over `seconds`.
+function Logic.townsfolkFlick(t: number, seconds: number, degrees: number): number
+	if t < 0 or t >= seconds then
+		return 0
+	end
+	local u = t / seconds
+	return degrees * math.sin(u * math.pi) * (1 - u)
+end
+
+-- A greet's wave, `t` seconds into it: the front paw's lift (degrees about its shoulder, up and forward) and its
+-- side to side wave (degrees), up over `up`, `waves` waves over `wave` seconds, down over `up`. Nil once it is done.
+function Logic.townsfolkWave(t: number, c: any): (number?, number)
+	local total = c.up * 2 + c.wave
+	if t < 0 or t >= total then
+		return nil, 0
+	end
+	local lift: number
+	local side = 0
+	if t < c.up then
+		lift = c.lift * Logic.easeInOut(t / c.up)
+	elseif t < c.up + c.wave then
+		lift = c.lift
+		side = c.side * math.sin((t - c.up) / c.wave * c.waves * 2 * math.pi)
+	else
+		lift = c.lift * (1 - Logic.easeInOut((t - c.up - c.wave) / c.up))
+	end
+	return lift, side
+end
+
+-- The head turn, degrees about Y, that points a -Z facing head at a point `dx`, `dz` studs off in its own space,
+-- held within `limit` either way. 0 when the point is right on top of it.
+function Logic.lookYaw(dx: number, dz: number, limit: number): number
+	if math.abs(dx) < 1e-6 and math.abs(dz) < 1e-6 then
+		return 0
+	end
+	return math.clamp(math.deg(math.atan2(-dx, -dz)), -limit, limit)
+end
+
 return Logic

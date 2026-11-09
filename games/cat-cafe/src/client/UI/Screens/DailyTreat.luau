@@ -18,6 +18,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local DailyTreatLogic = require(script.Parent.Parent.Components.DailyTreatLogic)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
+local Scale = require(script.Parent.Parent.Scale)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
@@ -54,6 +55,9 @@ type Card = {
 }
 
 local CARD = Vector2.new(150, 140)
+-- #2771 (Laptop-Tester, Galaxy A06: the bottom row cut off): on a phone held sideways (Scale.isPhone) the cards drop
+-- the empty band between the prizes and Claim, and the strip is slimmer, so both rows show without scrolling
+local PHONE_CARD_H, PHONE_STRIP_H = 116, 32
 local GAP = Theme.sizes.gap + 4
 local ICON = 44
 local STRIP_HEIGHT = 40
@@ -92,6 +96,10 @@ function DailyTreat.new(callbacks: Callbacks): DailyTreat
 	self._pendingAt = nil :: number? -- os.clock() of the last Claim press
 	self._shown = false -- what status last said
 	self._due = false
+	if Scale.isPhone() then
+		CARD = Vector2.new(CARD.X, PHONE_CARD_H)
+		STRIP_HEIGHT = PHONE_STRIP_H
+	end
 
 	local panel = Panel.new({
 		name = "DailyTreat",

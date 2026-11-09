@@ -48,9 +48,11 @@ local CAT_TAG = "WorkingCat"
 local CUSTOMERS = "LocalCustomers"
 local MAX_DISTANCE = 40 -- world-and-feel section 4: the order and making bubbles within 40 studs
 local RATE_DISTANCE = 70 -- #2551: the rate tags within 70 studs (40 before), the whole cafe from its door
-local RATE_SIZE = Vector2.new(4, 1.1) -- studs
+-- #2784 (Derek2 11-09: "scale the text size down to at least half of current for yours and other peoples"): half
+-- the size they were in studs (4 x 1.1, a 0.7 stud name line); the #2551 pixel floor stays, so far ones still read
+local RATE_SIZE = Vector2.new(2, 0.55) -- studs
 local RATE_MIN = Vector2.new(30, 14) -- #2551: pixels on top of the studs, so a far tag stays readable
-local NAME_HEIGHT = 0.7 -- studs, the name line over the rate
+local NAME_HEIGHT = 0.35 -- studs, the name line over the rate
 local BUBBLE_SIZE = 1.7 -- studs, square
 local HEART_SECONDS = 1.6 -- the heart stays this long, then fades
 local MAKING_SIZE = 1.5 -- studs, square: the making bubble over a Barista, a little smaller than an order bubble
@@ -120,6 +122,8 @@ function WorldTags.new(rates: boolean?): WorldTags
 	self._watched = {} :: { [Instance]: { RBXScriptConnection } }
 	self._labels = {} :: { [Instance]: BillboardGui }
 	self._renders = {} :: { [Instance]: () -> () } -- rate tags redraw when day turns to night
+	-- #2784: cats tagged before their parts arrived, waiting for a part to hang the tag on
+	self._waiting = {} :: { [Instance]: RBXScriptConnection }
 	-- F90: the making bubbles, by cat, and the one Heartbeat that fills their rings while any is filling
 	self._making = {} :: { [Instance]: Making }
 	self._fill = nil :: RBXScriptConnection?
@@ -198,12 +202,27 @@ end
 
 -- Rate tags ------------------------------------------------------------------------------------------------
 
+-- #2784 (Derek2: no tags over his own cats; Laptop-Tester found none of the 18 own-cafe models had one, while a
+-- fresh WorldTags made all 16): your own cafe's cats are tagged WorkingCat before this client has their parts (they are
+-- in place before the UI starts), and a cat without a part was skipped for good. It now waits for its first part, and
+-- a tag that goes with its part (the server re-dressing or rebuilding the cat) is made again.
 function WorldTags._attachCat(self: any, cat: Instance)
-	if self._labels[cat] then
+	if self._labels[cat] or self._waiting[cat] then
 		return
 	end
 	local part, height = anchorOf(cat)
 	if not part then
+		self._waiting[cat] = cat.DescendantAdded:Connect(function(descendant: Instance)
+			if not descendant:IsA("BasePart") then
+				return
+			end
+			local waiting: RBXScriptConnection? = self._waiting[cat]
+			if waiting then
+				waiting:Disconnect()
+			end
+			self._waiting[cat] = nil
+			self:_retry(cat)
+		end)
 		return
 	end
 	local billboard: BillboardGui = Create("BillboardGui", {
@@ -265,6 +284,12 @@ function WorldTags._attachCat(self: any, cat: Instance)
 		self:_retimeMaking(cat)
 	end
 	self._watched[cat] = {
+		billboard.AncestryChanged:Connect(function()
+			if self._labels[cat] == billboard and not billboard:IsDescendantOf(cat) then
+				self:_detach(cat)
+				self:_retry(cat)
+			end
+		end),
 		cat:GetAttributeChangedSignal("Rate"):Connect(render),
 		cat:GetAttributeChangedSignal("Napping"):Connect(render),
 		cat:GetAttributeChangedSignal("Rarity"):Connect(render),
@@ -274,6 +299,16 @@ function WorldTags._attachCat(self: any, cat: Instance)
 	}
 	render()
 	making()
+end
+
+-- #2784: attaches `cat` again a frame later (so the rest of its parts are in), while it is still a tagged cat in the
+-- world.
+function WorldTags._retry(self: any, cat: Instance)
+	task.defer(function()
+		if not self._destroyed and cat:IsDescendantOf(Workspace) and cat:HasTag(CAT_TAG) then
+			self:_attachCat(cat)
+		end
+	end)
 end
 
 -- #2551: the Cat income switch. Off hides every rate tag (the making and order bubbles stay); on draws them again.
@@ -515,6 +550,11 @@ function WorldTags._bubble(self: any, customer: Instance): BillboardGui?
 end
 
 function WorldTags._detach(self: any, model: Instance)
+	local waiting: RBXScriptConnection? = self._waiting[model]
+	if waiting then
+		waiting:Disconnect()
+	end
+	self._waiting[model] = nil
 	local connections: { RBXScriptConnection }? = self._watched[model]
 	if connections then
 		for _, connection in connections do
@@ -529,10 +569,10 @@ function WorldTags._detach(self: any, model: Instance)
 	end
 	self._making[model] = nil
 	local label: BillboardGui? = self._labels[model]
+	self._labels[model] = nil -- first, so the tag's own AncestryChanged does not take it for a lost one
 	if label then
 		label:Destroy()
 	end
-	self._labels[model] = nil
 end
 
 function WorldTags.destroy(self: any)
@@ -552,6 +592,11 @@ function WorldTags.destroy(self: any)
 	end
 	for model in self._labels do
 		if not self._watched[model] then
+			table.insert(models, model)
+		end
+	end
+	for model in self._waiting do
+		if not self._watched[model] and not self._labels[model] then
 			table.insert(models, model)
 		end
 	end

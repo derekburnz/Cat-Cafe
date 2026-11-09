@@ -121,9 +121,10 @@ local function inCatchingArea(position: Vector3): boolean
 		return false
 	end
 	for _, box in zones:GetChildren() do
-		if box:IsA("BasePart") and box.Name ~= "Cafe" then
-			local offset = box.CFrame:PointToObjectSpace(position)
-			local half = box.Size / 2
+		local part = if box:IsA("BasePart") then box :: BasePart else nil
+		if part ~= nil and part.Name ~= "Cafe" then
+			local offset = part.CFrame:PointToObjectSpace(position)
+			local half = part.Size / 2
 			if
 				math.abs(offset.X) <= half.X
 				and math.abs(offset.Y) <= half.Y

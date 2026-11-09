@@ -985,49 +985,66 @@ return function()
 	describe(
 		"Tier 5 on the money ladder (F95, economy-ladder.md section 8 checks 3 and 7)",
 		function()
-			it("takes 9 to 14 hours of play in one go, Tier 4 at 5 to 6 (#2230: was 8 to 12; #2496)", function()
-				local list, text =
-					toTier5({ catches = 4, target = 5, limit = 16 * HOUR, long = true })
-				local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
-				if median < 9 * HOUR or median > 14 * HOUR then
-					error("Tier 5 outside 9 to 14 hours of play: " .. text)
-				end
-				-- #2496: Tier 4 wants a Mythical and 120M; the time from Tier 3 to the first Mythical is reported
-				local four = quantile(list, tierAt(4), 0.5, 16 * HOUR)
-				local wait = quantile(list, function(run: Run): number?
-					local three = run.tierAt[3]
-					if three == nil then
-						return nil
+			it(
+				"takes 9 to 14 hours of play in one go, Tier 4 at 2.5 to 3.5 (#2230: was 8 to 12; #2559: was 5 to 6)",
+				function()
+					local list, text =
+						toTier5({ catches = 4, target = 5, limit = 16 * HOUR, long = true })
+					local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
+					if median < 9 * HOUR or median > 14 * HOUR then
+						error("Tier 5 outside 9 to 14 hours of play: " .. text)
 					end
-					for _, event in run.events do
-						local def = if event.kind == "newcat" then Catalog.getCat(event.id) else nil
-						if def ~= nil and def.rarity == "Mythical" then
-							return math.max(0, event.t - three)
+					-- #2496: Tier 4 wants a Mythical and 120M; the time from Tier 3 to the first Mythical is reported
+					local four = quantile(list, tierAt(4), 0.5, 16 * HOUR)
+					local wait = quantile(list, function(run: Run): number?
+						local three = run.tierAt[3]
+						if three == nil then
+							return nil
 						end
+						for _, event in run.events do
+							local def = if event.kind == "newcat"
+								then Catalog.getCat(event.id)
+								else nil
+							if def ~= nil and def.rarity == "Mythical" then
+								return math.max(0, event.t - three)
+							end
+						end
+						return nil
+					end, 0.5, 16 * HOUR)
+					print(
+						string.format(
+							"[Pace #2496] Tier 3 to the first Mythical %s (median); %s",
+							clock(wait),
+							text
+						)
+					)
+					-- #2559 (Derek2: Tier 3 to 4 about 70% cheaper; Design-Agent's band): 3 h 01 (was 5 h 15 at 160M)
+					if four < 2.5 * HOUR or four > 3.5 * HOUR then
+						error("Tier 4 outside 2.5 to 3.5 hours of play: " .. text)
 					end
-					return nil
-				end, 0.5, 16 * HOUR)
-				print(string.format("[Pace #2496] Tier 3 to the first Mythical %s (median); %s", clock(wait), text))
-				if four < 5 * HOUR or four > 6 * HOUR then
-					error("Tier 4 outside 5 to 6 hours of play: " .. text)
 				end
-			end)
+			)
 
-			it("takes 9 to 14 hours in one go with one 2-hour x2 Cafe Event in the run (#2486)", function()
-				-- live-events.md 2b: if not, the event's window gets shorter, not its multiplier smaller. The window
-				-- sits late in the run, where the cafe earns the most and the boost is worth the most.
-				local list, text = toTier5({
-					catches = 4,
-					target = 5,
-					limit = 16 * HOUR,
-					long = true,
-					event = { from = 6 * HOUR, to = 8 * HOUR },
-				})
-				local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
-				if median < 9 * HOUR or median > 14 * HOUR then
-					error("Tier 5 outside 9 to 14 hours of play with a 2-hour x2 event: " .. text)
+			it(
+				"takes 9 to 14 hours in one go with one 2-hour x2 Cafe Event in the run (#2486)",
+				function()
+					-- live-events.md 2b: if not, the event's window gets shorter, not its multiplier smaller. The window
+					-- sits late in the run, where the cafe earns the most and the boost is worth the most.
+					local list, text = toTier5({
+						catches = 4,
+						target = 5,
+						limit = 16 * HOUR,
+						long = true,
+						event = { from = 6 * HOUR, to = 8 * HOUR },
+					})
+					local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
+					if median < 9 * HOUR or median > 14 * HOUR then
+						error(
+							"Tier 5 outside 9 to 14 hours of play with a 2-hour x2 event: " .. text
+						)
+					end
 				end
-			end)
+			)
 
 			it("comes on day 4 to 6 for an hour a day with free offline pay", function()
 				local list, text = toTier5({
@@ -1145,7 +1162,7 @@ return function()
 		)
 
 		it(
-			"takes 9 to 14 hours in one go on a server of 4 friends, the non-stop catcher",
+			"takes 8 to 14 hours in one go on a server of 4 friends, the non-stop catcher (#2559: was 9 to 14)",
 			function()
 				local list, text = toTier5({
 					catches = NON_STOP,
@@ -1156,8 +1173,9 @@ return function()
 					strays = { players = 4, wait = 60 },
 				})
 				local median = quantile(list, tierAt(5), 0.5, 16 * HOUR)
-				if median < 9 * HOUR or median > 14 * HOUR then
-					error("Tier 5 outside 9 to 14 hours of play: " .. text)
+				-- #2559 (Design-Agent): 8 h 55 with the cheaper Tier 4
+				if median < 8 * HOUR or median > 14 * HOUR then
+					error("Tier 5 outside 8 to 14 hours of play: " .. text)
 				end
 			end
 		)

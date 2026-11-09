@@ -435,6 +435,7 @@ return function()
 				MysteryRotateSeconds = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				MysterySaleShare = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				MysteryMarketRange = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
+				LongNetReachStuds = true, -- #2565: the Long Net's extra reach, checked in NetSwing.spec
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
 				WaveMinRareRerollOdds = true, -- a table, checked in Catching.spec (F97 section 7)
 				FoodTierPriceFactor = true, -- a table, checked below (F97 section 3)

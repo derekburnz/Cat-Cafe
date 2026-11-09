@@ -176,6 +176,21 @@ function HeldCat.pack(character: Model): Model?
 	return if pack ~= nil and pack:IsA("Model") then pack :: Model else nil
 end
 
+-- #2856: whether `character` wears its pack and the pack is still welded to the character's current torso. False
+-- when the pack is gone, or when the avatar's appearance rebuilt the torso after it went on (the weld went with it).
+function HeldCat.packHeld(character: Model): boolean
+	local pack = HeldCat.pack(character)
+	local torso = HeldCat.torso(character)
+	if pack == nil or torso == nil then
+		return false
+	end
+	local weld = pack:FindFirstChild("PackWeld", true)
+	return weld ~= nil
+		and weld:IsA("Weld")
+		and (weld :: Weld).Part0 == torso
+		and (weld :: Weld).Part1 ~= nil
+end
+
 -- Puts `pack` (a clone of CatCafe_Item_Backpack, not yet parented) on `character`'s back: behind the torso, turned so
 -- the cat face looks backward, scaled to the torso, every part welded (massless, colliding with nothing), the flap
 -- on a Weld that HeldCat.openPack turns. The caller parents it to the character. False without a torso.

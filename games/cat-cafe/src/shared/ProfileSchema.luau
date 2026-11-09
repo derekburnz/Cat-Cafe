@@ -136,7 +136,10 @@ local ProfileSchema = {}
 -- Version 43 (#2486, live-events.md section 2e) adds eventRewards and eventLast, the Cafe Event reward pieces given and
 -- the last event rewarded: an older server would drop eventLast and pay the event's reward (or its repeat coin gift)
 -- again by hopping servers during a rollout.
-ProfileSchema.VERSION = 43
+-- Version 44 (#2565, mystery-market.md section 2) adds mystery and mysterySeen, the Mystery Market items owned and
+-- whether its walk-in card was seen: an older server would drop a bought item, which was paid for in golden fish.
+-- Config.MysteryOpen opens buying with this version, in a publish that restarts the servers.
+ProfileSchema.VERSION = 44
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 

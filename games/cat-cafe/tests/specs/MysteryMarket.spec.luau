@@ -94,8 +94,9 @@ return function()
 			expect(why).to.equal(MysteryMarket.OWNED_TEXT)
 		end)
 
-		it("stays shut outside Studio until the save version bump (Config.MysteryOpen)", function()
-			expect(Config.MysteryOpen).to.equal(false)
+		it("opens with the save version bump (Config.MysteryOpen, version 44)", function()
+			expect(Config.MysteryOpen).to.equal(true)
+			expect(ProfileSchema.VERSION >= 44).to.equal(true)
 		end)
 	end)
 end

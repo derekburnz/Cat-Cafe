@@ -242,6 +242,10 @@ local function refreshTutorial(s: Types.PlayerState)
 	if s.tutorialStep <= 1 or s.tutorialStep == 3 or s.tutorialStep == 4 then
 		reportStep(string.format("tut_%d_shown", s.tutorialStep))
 	end
+	-- #2636 (onboarding_v6): the first instruction after the first check-in (card 2, 3 or 4) is on screen
+	if s.tutorialStep >= 2 and s.tutorialStep <= 4 then
+		reportStep("next_goal_shown")
+	end
 	if s.tutorialStep < 2 then
 		showTutorial(
 			s,
@@ -626,6 +630,11 @@ local function applyState(s: Types.PlayerState)
 		-- #2555: the free Bellhop Cat's stand "!" (#2501) and its speech bubble show only while this is false
 		starterCatClaimed = s.starterCatClaimed,
 		storeSeen = s.storeSeen, -- #1823 §4: the Store tabs' New dots
+		-- #2574: Juniper's Mystery Market: the items owned, the cart's "!" until the first visit, and whether buys are
+		-- taken yet
+		mystery = s.mystery,
+		mysterySeen = s.mysterySeen,
+		mysteryOpen = s.mysteryOpen,
 		signStyles = s.signStyles, -- #1625: the Style tab's sign row
 		-- #2007: "" for the plain sign, as UI.update skips a nil and the old pick stayed gold
 		signStyle = s.signStyle or "",
@@ -793,6 +802,18 @@ local function wireIntents()
 				Net.fire("BuyCornerShop", itemId, window, shownPrice, catUid)
 			end
 		)
+	end
+	-- #2574: Buy in Juniper's window, with the price it showed (the server refuses a sale that ended meanwhile), and
+	-- the first open, which clears the cart's "!"
+	if looseEvents.buyMystery ~= nil then
+		looseEvents.buyMystery:Connect(function(itemId: string, shownPrice: number)
+			Net.fire("BuyMystery", itemId, shownPrice)
+		end)
+	end
+	if looseEvents.mysterySeen ~= nil then
+		looseEvents.mysterySeen:Connect(function()
+			Net.fire("MarkMysterySeen")
+		end)
 	end
 	-- #2593: Buy all on a Day Cart section; the server plans from its own state and answers with CornerShopStock
 	if looseEvents.buyCornerShopAll ~= nil then
@@ -1335,6 +1356,10 @@ local function bindStations()
 		if shop ~= nil and type(shop.open) == "function" then
 			(shop.open :: any)()
 		end
+	end)
+	-- #2574: Juniper's cart
+	bindStationPrompts("MysteryMarket", "MysteryPrompt", function()
+		UI.mystery.open()
 	end)
 end
 

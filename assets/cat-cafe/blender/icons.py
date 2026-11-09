@@ -23,6 +23,8 @@ workflow (Actions) to turn into an rbxassetid for an ImageLabel.
   CatCafe_Icon_StoreTab_<Tab>  the Store's sidebar tabs (#1674, store_tabs.py): Featured, Passes, Cats, Potions and
                             Codes, in place of the tabs' emoji
   CatCafe_Icon_Badge_<Name>  the Roblox badges (#1934, badge_icons.py): a round gold-rimmed medal with one picture
+  CatCafe_Icon_Lawn_<Name>  the Garden Nursery's lawn pieces, paths and fences (#2836 pass 2, lawn.py), named after
+                            the model (CatCafe_Lawn_<Name>)
   CatCafe_Icon_Menu_<Id>    the F90 order bubble pictures (#950): each of the 12 menu dishes on its plate (menu.py),
                             Coffee, Milk, CakeSlice, PawCookie, Tea, FishBiscuit, KittyCupcake, HotCocoa,
                             PancakeStack, Sundae, StrawberryRoll and RainbowCake, from the front and a little above
@@ -46,6 +48,7 @@ import crates  # noqa: E402
 import icon_art  # noqa: E402
 import hud_icons  # noqa: E402
 import items  # noqa: E402
+import lawn  # noqa: E402
 import market_icons  # noqa: E402
 import menu  # noqa: E402
 import potion_icons  # noqa: E402
@@ -59,6 +62,23 @@ from common import RB  # noqa: E402
 OUT = os.path.join(ROOT, "assets", "cat-cafe", "exports", "icons")
 INK, GOLD_INK = (0.24, 0.16, 0.12), (0.42, 0.24, 0.04)
 QUARTER = (-32.0, 24.0)          # (yaw, pitch) in degrees: the front and the right side, from a little above
+LAWN_VIEWS = {"Path": (-20.0, 52.0), "Fence": (-30.0, 18.0)}   # #2836: paths from above, fences from the front
+
+
+def _lawn_piece(name, fn):
+    """#2836: a lawn picture's builder. A fence style is drawn as one short run (3.5 studs, posts at both ends) in
+    place of its two long halves, so it reads at tile size."""
+    if "_Fence_" not in name:
+        return fn
+
+    def build(mat):
+        whole = lawn._halves
+        lawn._halves = lambda: ((lawn.GAP, lawn.GAP + 3.5),)
+        try:
+            return fn(mat)
+        finally:
+            lawn._halves = whole
+    return build
 
 
 def _hud_decor(mat):
@@ -137,6 +157,10 @@ ICONS = {
     # #1191: the shop-only cats' Store card and cat book picture, the sitting cat in its props, three-quarter front
     **{f"CatCafe_Icon_Cat_{n}": ((lambda m, n=n: cats.build_cat(n, m, body="sit")), INK, 10, (-24.0, 8.0))
        for n, spec in cats.ROSTER.items() if spec.get("shop")},
+    # #2836 pass 2: the Garden Nursery's lawn pieces, paths and fences (lawn.py), one picture per Catalog.lawn model
+    **{"CatCafe_Icon_Lawn_" + n[len("CatCafe_Lawn_"):]: (_lawn_piece(n, fn), INK, 10, LAWN_VIEWS.get(n[len("CatCafe_Lawn_"):].split("_")[0],
+                                                                                (-28.0, 22.0)))
+       for n, (fn, _budget) in lawn.ASSETS.items()},
 }
 # The HUD buttons (#1176): name -> (yaw, pitch); builders in hud_icons.py
 HUD_VIEWS = {"Store": (24.0, 18.0), "Cats": (-14.0, 8.0), "Index": (-8.0, 52.0), "Quests": (-14.0, 8.0),

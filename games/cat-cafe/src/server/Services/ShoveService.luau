@@ -26,6 +26,7 @@ local PlotService = require(script.Parent.PlotService)
 local Shove = require(ReplicatedStorage.Shared.Shove)
 local Telemetry = require(script.Parent.Telemetry)
 local TipService = require(script.Parent.TipService)
+local TradeService = require(script.Parent.TradeService)
 local WorldBuilder = require(script.Parent.Parent.World.WorldBuilder)
 
 local ShoveService = {}
@@ -80,6 +81,7 @@ local function targetRefusal(
 		targetBusy = CatService.inMinigame(target),
 		targetFlying = CatService.inFlight(target),
 		targetNewcomer = newcomer(target),
+		targetTrading = TradeService.isTrading(target), -- #2568: trading from anywhere
 		sinceShoveTarget = since((lastShoveOf[player] or {})[target.UserId], now),
 		sinceTargetShoved = since(lastShovedAt[target.UserId], now),
 	})

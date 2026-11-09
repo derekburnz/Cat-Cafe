@@ -427,7 +427,9 @@ def model_json(objs, asset, attachments=(), attributes=None, nest=None, part_att
                 sub["attributes"].update(attrs)
         _add_attachments(sub, parts, wanted(o))
         subs[o.name] = sub
-        host = next((o.name[:-len(sfx)] + to for sfx, to in nests.items() if o.name.endswith(sfx)), None)
+        # the longest matching suffix wins (#2739: _Tail_Flame goes in the Tail, not in the _Prop that _Flame names)
+        hit = max((sfx for sfx in nests if o.name.endswith(sfx)), key=len, default=None)
+        host = o.name[:-len(hit)] + nests[hit] if hit else None
         nested.append((sub, host))
     for sub, host in nested:
         (subs[host]["children"] if host in subs else root["children"]).append(sub)

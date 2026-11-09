@@ -227,7 +227,7 @@ ROSTER = {
     "Mosaic":  dict(rarity="Epic", fur="paw_sewer", second="fur_golden", third="terracotta", eyes="eye_amber",
                     pattern="solid", muzzle=None, nose="nose_brick", tiles=True),
     "Golem":   dict(rarity="Legendary", fur="fur_dusty", second="sign_teal", third="fur_ash", eyes="sign_teal",
-                    pattern="solid", muzzle=None, nose="nose_dark", glow_eyes=True, scale=1.2,
+                    pattern="solid", muzzle=None, nose="nose_dark", glow_eyes=True, scale=1.2, rocks=True,
                     body_scale=(1.15, 1.0, 1.1), tail_thick=0.3),
     # a jade statue fading to dark jade, its gold kept to the trim (the ruff, the tail tip and the crown, props.py)
     "JadeGuardian": dict(rarity="Mythical", fur="fur_emerald", second="leaf_dark", third="paw_woods", eyes="gold_light",
@@ -463,6 +463,15 @@ def _head(spec, c, h):
     w = sx / 0.92                                       # marking spread, 1 on B's head
     b.box(h["c"], h["s"], c["fur"])
     pat = spec["pattern"]
+    if spec.get("rocks"):                               # #2739 a slab on the crown, a chip behind it, one on each cheek
+        _rock_plates(b, c, [((0.0, fy - 0.015, top - 0.06), (sx * 0.84, 0.08, 0.11), 1, 0),        # the brow
+                            ((0.05 * w, cy + 0.1, top - 0.02), (0.44 * w, sy * 0.5, 0.08), 0, 7)], bevel=True)
+        _rock_plates(b, c, [((-0.22 * w, cy + sy * 0.34, top - 0.025), (0.22 * w, 0.18, 0.07), 1, -6),
+                            ((sx / 2 + 0.015, cy + 0.1, cz + 0.06), (0.07, sy * 0.44, sz * 0.38), 1, 0),
+                            ((-sx / 2 - 0.015, cy + 0.04, cz - 0.08), (0.07, sy * 0.4, sz * 0.34), 0, 0),
+                            ((sx / 2 - 0.06, fy - 0.02, top - 0.2), (0.1, 0.06, 0.12), 0, 0),       # brow corners
+                            ((-sx / 2 + 0.06, fy - 0.02, top - 0.22), (0.1, 0.06, 0.09), 0, 0),
+                            ((sx / 2 - 0.05, fy - 0.02, cz - sz / 2 + 0.07), (0.09, 0.06, 0.1), 1, 0)])   # jaw
     if pat == "stripes":                                # three stripes over the crown
         for i, x in enumerate((-0.2, 0.0, 0.2)):
             b.box((x * w, cy + 0.05, top + 0.01), (0.08, sy * 0.68, 0.06), _stripe(spec, c, i), bevel=False)
@@ -615,10 +624,30 @@ def _tail(c, t):
     return b
 
 
-def _leg(c, hip_z, w, paw, paw_y=-0.01, toe=None):
-    """A leg hanging from its hip pivot to the floor, with a paw (its front dipped in paint when `toe` is set)."""
+def tail_tip(t):
+    """#2739 the end of a tail chain (_tail, no curl) in the Tail's space: (tip point, last segment's direction,
+    its thickness). The Torch Cat's flame stands on it."""
+    pos, d = Vector((0.0, 0.0, 0.0)), Vector((0.0, 1.0, 0.0))
+    lean = Matrix.Rotation(math.radians(t.get("lean", 0)), 3, "Y")
+    for deg in t["angles"]:
+        a = math.radians(deg)
+        if t["plane"] == "X":
+            d = Vector((0.0, math.cos(a), math.sin(a)))
+            if t.get("lean"):
+                d = lean @ d
+        else:
+            d = Vector((math.cos(a), math.sin(a), 0.0))
+        pos = pos + d * t["seg"]
+    return pos, d, t["thick"] - (len(t["angles"]) - 1) * t["taper"]
+
+
+def _leg(c, hip_z, w, paw, paw_y=-0.01, toe=None, rock=None):
+    """A leg hanging from its hip pivot to the floor, with a paw (its front dipped in paint when `toe` is set) and,
+    for the Golem Cat (#2739, `rock`), a stone plate on the front of the shin."""
     b = Builder()
     b.box_base((0, 0, 0.05 - hip_z), (w, w, hip_z - 0.05), c["leg"])          # the leg ends inside the paw
+    if rock:
+        b.box((0, -w / 2 - 0.015, -hip_z * 0.5), (w * 0.8, 0.06, min(0.18, hip_z * 0.4)), rock, bevel=False)
     b.box_base((0, paw_y, -hip_z), paw, c["paw"])
     if toe:
         _toe(b, (0, paw_y, -hip_z), paw, toe)
@@ -753,6 +782,18 @@ def _flank_art(b, spec, c, side, x, yc, length, zc, h):
                 b.box((px, y, zc + dz), (t, tw, th), cols[(i + row * 2 + (side > 0)) % 3], bevel=False)
 
 
+def _rock(c, i):
+    """#2739 the Golem Cat's two stones, a pale mist and a dark soot, both off its dusty grey coat."""
+    return ("fur_mist", "fur_soot")[i % 2]
+
+
+def _rock_plates(b, c, slabs, bevel=False):
+    """#2739 the Golem Cat's rocky skin: stone slabs (centre, size, tone, turn about Z in degrees), each standing proud
+    of the fur (never on its plane). Only the head's big ones are bevelled into chunks: the triangle budget."""
+    for centre, size, tone, turn in slabs:
+        b.box(centre, size, _rock(c, tone), bevel=bevel, rot=_rot(turn, "Z") if turn else None)
+
+
 def _top_tiles(b, c, xc, yc, z, nx, ny, w, d):
     """#2584 the Mosaic Cat's tiles on a top face at height z: nx by ny over w by d."""
     cols = (c["third"], "offwhite", c["second"])
@@ -802,6 +843,11 @@ def _body_a(spec, c, d):
             _flank_art(b, spec, c, side, hx, y0 + 0.02, sy * 0.7, z0 - 0.03, 0.3)
         if spec.get("tiles"):
             _top_tiles(b, c, 0.0, y0 + 0.12, top, 2, 3, sx * 0.5, sy * 0.45)
+    if spec.get("rocks"):                               # #2739 slabs over the back, down to the runes, and the chest
+        _rock_plates(b, c, [((-0.02, y0 - 0.3 * sy, top - 0.035), (sx + 0.05, 0.2, 0.1), 0, -4),
+                            ((0.02, y0 - 0.02 * sy, top - 0.03), (sx + 0.07, 0.24, 0.1), 1, 3),
+                            ((0.0, y0 + 0.3 * sy, top - 0.035), (sx + 0.05, 0.18, 0.1), 0, -2),
+                            ((0.06, y0 - hy - 0.03, z0 - 0.02), (0.32, 0.07, 0.26), 0, 0)])
     if spec.get("mane"):                                # down the neck and along the front of the back
         for i in range(3):
             b.box((0, y0 - hy + 0.08 + i * 0.15, top + 0.03 + 0.01 * (i % 2)), (0.16 + 0.02 * (i % 2), 0.17, 0.1),
@@ -858,6 +904,16 @@ def _body_b(spec, c, d):
             _flank_art(b, spec, c, side, csx / 2, cy0 + 0.02, csy * 0.7, 0.82, 0.22)
         if spec.get("tiles"):
             _top_tiles(b, c, 0.0, hy0 + 0.17, htop, 2, 2, hsx * 0.45, hsy * 0.3)
+    if spec.get("rocks"):                               # #2739 slabs on the haunches, the chest front and its back
+        _rock_plates(b, c, [((0.17, hy0 + 0.1, htop - 0.025), (0.3, 0.28, 0.08), 0, 6),
+                            ((-0.18, hy0 + 0.14, htop - 0.03), (0.26, 0.24, 0.08), 1, -5),
+                            ((0.08, front - 0.03, 0.9), (0.34, 0.07, 0.3), 0, 0),
+                            ((-0.2, front - 0.025, 0.66), (0.22, 0.06, 0.2), 1, 0),
+                            ((-0.04, cy0 + csy / 2 + 0.02, 0.86), (0.34, 0.07, 0.26), 1, 0),
+                            ((hsx / 2 - 0.08, hy0 - hsy / 2 - 0.03, hsz * 0.55), (0.14, 0.07, 0.22), 0, 0),
+                            ((-hsx / 2 + 0.08, hy0 - hsy / 2 - 0.03, hsz * 0.5), (0.14, 0.07, 0.2), 0, 0),
+                            ((csx / 2 + 0.02, cy0 - 0.04, 0.96), (0.08, 0.3, 0.2), 1, 0),        # the shoulders,
+                            ((-csx / 2 - 0.02, cy0 + 0.02, 0.95), (0.08, 0.26, 0.2), 0, 0)])     # over the runes
     _coat_extras(b, {**spec, "petals": False}, c, d["chest"][0], d["chest"][1], top=False)
     if spec.get("mane"):                                # down the back of the chest
         for i in range(3):
@@ -904,6 +960,9 @@ def _body_s(spec, c, d):
     if spec.get("glyphs") or spec.get("tiles"):         # #2584 on each side of the chest, under the shoulders
         for side in (-1, 1):
             _flank_art(b, spec, c, side, csx / 2, cy0 + 0.02, csy * 0.7, 0.56, 0.24)
+    if spec.get("rocks"):                               # #2739 slabs on the chest front and its back
+        _rock_plates(b, c, [((0.06, front - 0.03, cz0 + 0.12), (0.3, 0.07, 0.24), 0, 0),
+                            ((-0.04, cy0 + csy / 2 + 0.02, cz0 + 0.06), (0.34, 0.07, 0.26), 1, 0)])
     if spec.get("mane"):                                # down the back of the chest
         for i in range(3):
             b.box((0, cy0 + csy / 2 + 0.03 + 0.01 * (i % 2), 1.0 - i * 0.16), (0.16 + 0.02 * (i % 2), 0.1, 0.17),
@@ -968,23 +1027,24 @@ def build_cat(name, mat, spec=None, base=None, body="walk"):
               ("EarL", _ear(spec, c, h, 1)), ("EarR", _ear(spec, c, h, -1)),
               ("Tail", _tail(c, d["tail_chain"]))]
     toes = spec.get("toes") or (None,) * 4
+    rock = "fur_soot" if spec.get("rocks") else None
     rides, at_ = {}, {}
     if body == "work":                                  # arms, then legs; each role's held thing rides its arm
         pieces += [(n, _arm(c, 1 if n == "LegF1" else -1, toes[i])) for i, n in enumerate(("LegF1", "LegF2"))]
-        pieces += [(n, _leg(c, d["legs"][n][2], w, paw, paw_y, toes[2 + i])) for i, n in enumerate(("LegB1", "LegB2"))]
+        pieces += [(n, _leg(c, d["legs"][n][2], w, paw, paw_y, toes[2 + i], rock)) for i, n in enumerate(("LegB1", "LegB2"))]
         for role, arm in HELD.items():
             piece = "Held_" + role.capitalize()
             pieces.append((piece, _held(role, arm)))
             rides[piece] = arm
             at_[piece] = tuple(d["legs"][arm][i] + (0.0, -0.01, S_PAW_Z)[i] for i in range(3))
     else:
-        pieces += [(n, _leg(c, d["legs"][n][2], w, paw, paw_y, toes[i])) for i, n in enumerate(LEGS[body])]
+        pieces += [(n, _leg(c, d["legs"][n][2], w, paw, paw_y, toes[i], rock)) for i, n in enumerate(LEGS[body])]
     import props                                        # themed cats' props (props imports this module)
     shift = {}
     if name in props.PROPS:                             # S wears B's props: the same chest, its own head
         for suffix, (b, at) in props.build(name, spec, body, d).items():
             pieces.append((suffix, b))
-            rides[suffix] = props.follows(props.piece_slot(name, suffix))
+            rides[suffix] = props.piece_follows(name, suffix)
             shift[suffix] = at                          # a prop pivoted at its own hinge (the Bellhop's cap, its bell)
     objs = []
     for piece, b in pieces:

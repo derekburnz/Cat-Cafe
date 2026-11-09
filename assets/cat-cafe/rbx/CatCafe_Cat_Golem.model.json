@@ -122,6 +122,202 @@
    ]
   },
   {
+   "name": "CatCafe_Cat_Golem_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.024,
+       1.1196,
+       -0.198
+      ],
+      "orientation": [
+       [
+        0.9976,
+        0.0,
+        -0.0698
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0698,
+        0.0,
+        0.9976
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.1364,
+     0.12,
+     0.24
+    ],
+    "Color": [
+     0.7647,
+     0.8157,
+     0.8706
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Golem_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.024,
+       1.1256,
+       0.1212
+      ],
+      "orientation": [
+       [
+        0.9986,
+        0.0,
+        0.0523
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.0523,
+        0.0,
+        0.9986
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.1604,
+     0.12,
+     0.288
+    ],
+    "Color": [
+     0.3843,
+     0.3647,
+     0.349
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Golem_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.1196,
+       0.486
+      ],
+      "orientation": [
+       [
+        0.9994,
+        0.0,
+        -0.0349
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0349,
+        0.0,
+        0.9994
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.1364,
+     0.12,
+     0.216
+    ],
+    "Color": [
+     0.7647,
+     0.8157,
+     0.8706
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Golem_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.072,
+       0.7548,
+       -0.462
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.384,
+     0.312,
+     0.084
+    ],
+    "Color": [
+     0.7647,
+     0.8157,
+     0.8706
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
    "className": "Model",
    "attributes": {
     "Rojo_Target_PrimaryPart": "CatCafe_Cat_Golem/1"
@@ -590,6 +786,398 @@
        }
       }
      ]
+    },
+    {
+     "name": "CatCafe_Cat_Golem_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.8936,
+         -1.122
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       1.008,
+       0.108,
+       0.096
+      ],
+      "Color": [
+       0.3843,
+       0.3647,
+       0.349
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Golem_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0652,
+         1.9626,
+         -0.504
+        ],
+        "orientation": [
+         [
+          0.9925,
+          0.0,
+          0.1219
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          -0.1219,
+          0.0,
+          0.9925
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.5739,
+       0.114,
+       0.48
+      ],
+      "Color": [
+       0.7647,
+       0.8157,
+       0.8706
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Golem_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.287,
+         1.9776,
+         -0.2976
+        ],
+        "orientation": [
+         [
+          0.9945,
+          0.0,
+          -0.1045
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.1045,
+          0.0,
+          0.9945
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.287,
+       0.144,
+       0.216
+      ],
+      "Color": [
+       0.3843,
+       0.3647,
+       0.349
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Golem_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.618,
+         1.5456,
+         -0.504
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.084,
+       0.383,
+       0.4224
+      ],
+      "Color": [
+       0.3843,
+       0.3647,
+       0.349
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Golem_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.618,
+         1.3776,
+         -0.576
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.084,
+       0.3427,
+       0.384
+      ],
+      "Color": [
+       0.7647,
+       0.8157,
+       0.8706
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Golem_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.528,
+         1.7376,
+         -1.128
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.12,
+       0.144,
+       0.072
+      ],
+      "Color": [
+       0.7647,
+       0.8157,
+       0.8706
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Golem_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.528,
+         1.7136,
+         -1.128
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.12,
+       0.108,
+       0.072
+      ],
+      "Color": [
+       0.7647,
+       0.8157,
+       0.8706
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Golem_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.54,
+         1.0536,
+         -1.128
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.108,
+       0.12,
+       0.072
+      ],
+      "Color": [
+       0.3843,
+       0.3647,
+       0.349
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
     },
     {
      "name": "CatCafe_Cat_Golem_Head",
@@ -2156,6 +2744,55 @@
        "CFrame": {
         "position": [
          -0.3036,
+         0.252,
+         -0.402
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2304,
+       0.2016,
+       0.072
+      ],
+      "Color": [
+       0.3843,
+       0.3647,
+       0.349
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Golem_LegF1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3036,
          0.066,
          -0.252
         ],
@@ -2310,6 +2947,55 @@
      },
      "attributes": {
       "Rojo_Id": "CatCafe_Cat_Golem/8"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Golem_LegF2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.3036,
+         0.252,
+         -0.402
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2304,
+       0.2016,
+       0.072
+      ],
+      "Color": [
+       0.3843,
+       0.3647,
+       0.349
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
      }
     },
     {
@@ -2484,6 +3170,55 @@
        "CFrame": {
         "position": [
          -0.3036,
+         0.252,
+         0.342
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2304,
+       0.2016,
+       0.072
+      ],
+      "Color": [
+       0.3843,
+       0.3647,
+       0.349
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Golem_LegB1",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3036,
          0.066,
          0.492
         ],
@@ -2638,6 +3373,55 @@
      },
      "attributes": {
       "Rojo_Id": "CatCafe_Cat_Golem/10"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Golem_LegB2",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.3036,
+         0.252,
+         0.342
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.2304,
+       0.2016,
+       0.072
+      ],
+      "Color": [
+       0.3843,
+       0.3647,
+       0.349
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
      }
     },
     {

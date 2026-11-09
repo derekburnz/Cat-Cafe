@@ -4598,15 +4598,25 @@ end
 
 -- F87 section 4: the one slide-in faces ask, once per account, after FeedbackAskMinutes of this session's play and
 -- only between activities (UI.tips.quiet: no tip showing either). It waits for ProfileSync's feedbackAsked (false,
--- not nil). Its own block, as the module is short of locals.
+-- not nil). #2681: a player never asked gets it once earlier (FeedbackLogic.earlyDue: 4 minutes, or once a cat has
+-- served customers); it is saved as asked, but left unanswered the FeedbackAskMinutes one still comes this session.
+-- Its own block, as the module is short of locals.
 do
 	local FeedbackLogic = require(script.Components.FeedbackLogic)
 	local Tips = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Tips")) :: any
 	local sessionStart = os.clock()
 	local asked = false -- this session
+	-- #2681: the early ask this session (shown, and whether a face came back), and since when a cat has held a role
+	local early = { shown = false, at = 0, answered = false, workingSince = nil :: number? }
 
 	local function openAsk(card: AskCard.AskCard)
-		asked = true
+		local first = not early.shown and not asked and state.feedbackAsked == false
+		if first then
+			early.shown = true
+			early.at = os.clock() - sessionStart
+		else
+			asked = true
+		end
 		local faces: { AskCard.Choice } = {}
 		for _, face in FeedbackLogic.FACES do
 			table.insert(faces, { id = face.id, label = face.label, icon = face.glyph })
@@ -4618,6 +4628,7 @@ do
 			thanks = "Thanks!",
 			answer = function(face: string?)
 				if face ~= nil then
+					early.answered = true
 					(state :: any).feedbackAsked = true
 					UI.events.sendFeedback:Fire(face, nil)
 				end
@@ -4635,7 +4646,31 @@ do
 			return
 		end
 		local played = os.clock() - sessionStart
-		if FeedbackLogic.askDue(state.feedbackAsked, played, UI.tips.quiet()) then
+		local working = false
+		for _, cat in (state.cats or {}) :: { [string]: any } do
+			if cat.spotId ~= nil then
+				working = true
+				break
+			end
+		end
+		if not working then
+			early.workingSince = nil
+		elseif early.workingSince == nil then
+			early.workingSince = os.clock()
+		end
+		local since = early.workingSince
+		local worked = if since ~= nil then os.clock() - since else 0
+		local quiet = UI.tips.quiet()
+		-- earlyDue holds whenever askDue does, so a player never asked gets this one first; an early ask left
+		-- unanswered brings the usual one, once, at FeedbackAskMinutes (it is saved as asked already)
+		local firstDue = not early.shown
+			and FeedbackLogic.earlyDue(state.feedbackAsked, played, worked, quiet)
+		local againDue = early.shown
+			and not early.answered
+			and early.at < FeedbackLogic.ASK_MINUTES * 60
+			and played >= FeedbackLogic.ASK_MINUTES * 60
+			and quiet
+		if firstDue or againDue then
 			openAsk(card)
 		end
 	end

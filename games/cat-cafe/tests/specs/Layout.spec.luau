@@ -728,7 +728,13 @@ return function()
 			expect(Layout.bedsOpen(5, 0)).to.equal(6)
 			expect(Layout.bedsOpen(5, 1)).to.equal(7)
 			expect(Layout.bedsOpen(5, 2)).to.equal(8) -- the 12 cats of Tier 5 with both pass-only waiters
-			expect(Layout.bedsOpen(5, 3)).to.equal(#Layout.plot.beds)
+			expect(Layout.bedsOpen(5, 3)).to.equal(9)
+			-- #2651: Tier 6's 12 and Tier 7's 14, two more each with the pass
+			expect(Layout.bedsOpen(6, 0)).to.equal(8)
+			expect(Layout.bedsOpen(6, 2)).to.equal(10)
+			expect(Layout.bedsOpen(7, 0)).to.equal(10)
+			expect(Layout.bedsOpen(7, 2)).to.equal(12)
+			expect(Layout.bedsOpen(7, 3)).to.equal(#Layout.plot.beds)
 		end)
 
 		it("keeps the beds in tier order, so the first ones are the tier's", function()

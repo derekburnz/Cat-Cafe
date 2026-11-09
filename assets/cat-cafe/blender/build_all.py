@@ -77,6 +77,7 @@ import market  # noqa: E402
 import daycart  # noqa: E402
 import mysterymarket  # noqa: E402
 import mysteryitems  # noqa: E402
+import desertset  # noqa: E402
 import gardendecor  # noqa: E402
 import grandopening  # noqa: E402
 import gardennursery  # noqa: E402
@@ -117,7 +118,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
-           mysterymarket, mysteryitems]
+           mysterymarket, mysteryitems, desertset]
 
 PIVOT_NOTES = {
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
@@ -195,6 +196,7 @@ PIVOT_NOTES = {
     "CatCafe_Neighbourhood_SetF85": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
     "CatCafe_Woods_SetF85": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
     "CatCafe_Sewer_SetF85": "the wild part's centre on the floor, gate side -Z toward the camp (areakit, F85)",
+    "CatCafe_Desert_Set": "the wild part's centre on the floor, camp side -Z (areakit; Tier 6)",
     "CatCafe_Woods_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Sewer_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
     "CatCafe_Neighbourhood_SetV32": "area centre on the floor, gate side -Z: turn it so -Z faces the gate (areakit)",
@@ -469,6 +471,11 @@ STUDIO_NOTES["CatCafe_Neighbourhood_GateF85"] = STUDIO_NOTES["CatCafe_Neighbourh
     "Turn the Park, Woods and Sewer gates 180 degrees so -Z faces the street or back alley.",
     "F85: the long Neighbourhood's gate over its 24 stud opening, -Z toward the camp, in place of "
     "CatCafe_Neighbourhood_Gate.")
+STUDIO_NOTES[desertset.NAME] = (
+    "Tier 6 (tier6-7-areas.md section 4). Place it at the Desert's centre on its floor with the camp's turn (180: the "
+    "camp on the north edge), like the F85 sets. The floor is sand right out to the walls. Every blocker has a "
+    "_Barrier BLOCK_OVER over its top and the walls a 30 high one all round but the 24 stud way in at z -280. The "
+    "rescue spots (points_roblox trap_sand_dune, trap_clay_urn, trap_collapsed_canopy) carry their piece's turn.")
 STUDIO_NOTES["CatCafe_NPC_MysteryVisitor"] = (
     "F64 Mystery Visitor: the client pivots it at a MysteryTable chair's seat on the floor, looking at the table, and "
     "tags it MysteryVisitor. A sitting cat (scale 1.3) with the usual hinged pieces (Head, Eye1, Eye2, EarL, EarR, "

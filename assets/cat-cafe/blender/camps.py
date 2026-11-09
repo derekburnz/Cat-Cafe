@@ -38,6 +38,7 @@ from mathutils import Vector
 
 import alley
 import alleyway
+import desertset as ds
 import neighbourhood as nb
 import park
 import sewer as sw
@@ -78,6 +79,9 @@ AREAS = {
     # F85: the long Sewer, 120 x 570 behind its 24 stud gate
     "SewerF85": dict(W=120.0, D=570.0, half=12.0, ground="concrete_dark", path="concrete", wall="brick",
                      top="concrete", trim="paw_sewer", theme="Sewer"),
+    # Tier 6 (tier6-7-areas.md section 4): the Oasis Camp across the north end of the 150 x 560 Desert
+    "Desert": dict(W=150.0, D=560.0, half=12.0, ground=ds.SAND, path=ds.PATH, wall=ds.STONE, top=ds.STONE_LIGHT,
+                   trim="eye_amber", theme="Desert"),
 }
 CAMPS = {}               # asset -> the manifest's camp entry
 ATTACHMENTS = {}         # asset -> [(object suffix, name, Roblox point, Roblox rotation)]
@@ -274,6 +278,27 @@ def _theme(s, mat, area, G, B, W, half):
         s.put(sw.barrel(mat), 24.5, G - 25.5, 0)
         s.put(sw.tyre_stack(mat), 34, G - 20, 30)
         s.put(sw.traffic_cone(mat), 21, G - 10.5, 0)
+    elif AREAS[area].get("theme") == "Desert":
+        # the Oasis Camp (section 4): a palm-ringed pool east, the stone well west, striped canopies, lamps by the
+        # cannon, pots and crates along the back wall. Clear of the pad, the basket, the paths, the Index Board
+        # (-16, 4 in) and the camp extra's spot (20, 3.5 in).
+        px, pz = 46.0, G - 15.0
+        s.put(ds.oasis_pool(mat), px, pz, 0)
+        for (x, z, h, rot) in ((px - 10.5, pz + 6.5, 10.5, 200), (px + 9.5, pz + 6.0, 9.0, -30),
+                               (px + 7.5, pz - 9.5, 11.5, 60)):
+            s.put(ds.palm(mat, h), x, z, rot)
+        s.put(ds.well(mat), -40, G - 15, 0)
+        s.put(ds.canopy(mat, 7.0, 5.5), -26, B + 6.5, 0)
+        s.put(ds.canopy(mat, 7.0, 5.5), 26, B + 6.5, 0)
+        for sx in (1, -1):
+            s.put(ds.lamp(mat), sx * 9, cz, 0)
+            s.put(ds.lamp(mat), sx * (W / 2 - 3), G - 2.5, 0)
+        for (x, r) in ((-60.0, 1.1), (-57.4, 0.8), (62.0, 1.0), (-50.0, 0.9)):
+            s.put(ds.pot(mat, r), x, B + 2.2, 0)
+        s.put(ds.crate(mat), 58.0, B + 2.4, 10)
+        s.put(ds.crate(mat), -66.0, B + 2.4, -5)
+        s.put(ds.shrub(mat), -62, G - 6, 0)
+        s.put(ds.rock(mat, 1.2), 66, G - 22, 40)
 
 
 def rbx_attachments(name):

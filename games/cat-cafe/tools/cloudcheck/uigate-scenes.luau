@@ -2345,6 +2345,32 @@ local SCENES = {
 		local fishJackpot = Catalog.spinWheel[8].count -- #2237: 60 since the fish cut
 		assert(prize and string.find(prize.Text, "^Jackpot: " .. fishJackpot .. " golden fish"), "uigate: slice 8 is not the fish jackpot")
 	end },
+	-- #2574: Juniper's window at Tier 1 with 350 golden fish: this week's item on sale on the gold card, the "?" teaser
+	-- and the rest at full price (the Long Net greyed until Tier 2); opening sends MarkMysterySeen once
+	{ "MysteryMarket", function()
+		local before: any = UI.getState()
+		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
+		UI.update({ goldenFish = 350, mystery = {}, mysterySeen = false, mysteryOpen = true } :: any)
+		local seen = 0
+		local counting = UI.events.mysterySeen:Connect(function()
+			seen += 1
+		end)
+		UI.mystery.open()
+		counting:Disconnect()
+		assert(seen == 1, "uigate: the first open should send MarkMysterySeen once (#2574)")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local window = modals and modals:FindFirstChild("MysteryMarket", true)
+		assert(window and window:FindFirstChild("Featured", true), "uigate: no featured card (#2574)")
+		assert(window:FindFirstChild("Teaser", true), "uigate: no next week teaser (#2574)")
+		UI.update({ mysterySeen = true } :: any)
+	end },
+	-- #2574: the featured item owned and buys not open yet ("Soon")
+	{ "MysteryMarketOwned", function()
+		local before: any = UI.getState()
+		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
+		UI.update({ goldenFish = 1200, mystery = { backpack = true, long_net = true }, mysterySeen = true, mysteryOpen = false } :: any)
+		UI.mystery.open()
+	end },
 	{ "Market", function()
 		-- #2571: a save that never opened Treats and perks shows the tab's red "!"; opening the tab clears it and
 		-- sends it as seen once

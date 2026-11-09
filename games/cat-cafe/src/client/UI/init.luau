@@ -223,6 +223,8 @@ UI.events = {
 	buyYardSale = Signal.new(), -- (crateId)   Buy on the Yard Sale card: forward as BuyYardSale
 	-- (itemId, window, shownPrice, catUid?)   Buy in the Corner Shop (#1052): forward as BuyCornerShop
 	buyCornerShop = Signal.new(),
+	buyMystery = Signal.new(), -- #2574: (itemId, shownPrice), forwarded as BuyMystery
+	mysterySeen = Signal.new(), -- #2574: Juniper's window opened, forwarded as MarkMysterySeen
 	-- (foodId, catUid)   #1181: Feed a cat from the Bag's Cat Food tab: forward as FeedCat; FeedResult calls UI.bag.fed
 	feedCat = Signal.new(),
 	-- (hide)   #1083: Settings' "Show my name on the Thank You board" off (true) or on: forward as SetHideCredit
@@ -548,6 +550,7 @@ local function render()
 	end
 	UI.campExtras.render(state)
 	UI.cornerShop.render(state)
+	UI.mystery.render(state)
 	UI.trade.render(state)
 	UI.nursery.render(state)
 	UI.store.render()
@@ -1472,6 +1475,7 @@ function UI.init(config: Types.InitConfig)
 	UI.together.start(parent) -- the Team Rescue pop and the pal chip (F92)
 	UI.campExtras.start(parent) -- the Yard Sale card, the Cannon picker's strips and the stations' "!" (F100)
 	UI.cornerShop.start() -- the Corner Shop window (#1052)
+	UI.mystery.start(parent) -- Juniper's Mystery Market window and the cart's "!" (#2574)
 	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
 	UI.cafeEvent.start(parent) -- the Cafe Event chip, its start banner and the square's board face (#2487)
 	UI.trade.start() -- the Trade window in the modal (F102)
@@ -1612,6 +1616,7 @@ function UI.destroy()
 	UI.leaderboards.reset()
 	UI.together.reset()
 	UI.campExtras.reset()
+	UI.mystery.reset()
 	UI.rally.reset()
 	UI.cafeEvent.reset()
 	UI.trade.reset()
@@ -5393,6 +5398,134 @@ do
 		if modalView and modalView:current() == "CornerShop" then
 			modalView:close()
 		end
+	end
+end
+
+-- Juniper's Mystery Market (#2565 mystery-market.md section 2a, #2574): the window, opened by walking into the ring in
+-- front of the cart (Controllers/WalkUpController) or its prompt, and the gold "!" over the cart until the player first
+-- opens it (PlayerState.mysterySeen). A Buy fires UI.events.buyMystery(itemId, shownPrice); the first open fires
+-- UI.events.mysterySeen. Walking away closes it. Its own block, as the module is short of locals.
+UI.mystery = {}
+do
+	local MysteryMarketScreen = require(script.Screens.MysteryMarket)
+	local MysteryLogic = require(script.Components.MysteryLogic)
+	local MarketBang = require(script.Components.MarketBang)
+	local SharedConfig =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config")) :: any
+	local CART_TAG = "MysteryMarket" -- MysteryMarketService.TAG: Juniper's cart
+	local WINDOW = "MysteryMarket"
+	local FAR_STUDS: number = (SharedConfig.MysteryMarketRange or 14) + 6
+	local mystery = {
+		view = nil :: MysteryMarketScreen.MysteryMarket?,
+		bang = nil :: MarketBang.MarketBang?,
+	}
+
+	local function cartDistance(): number?
+		local character = Players.LocalPlayer.Character
+		local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+		if root == nil or not root:IsA("BasePart") then
+			return nil
+		end
+		local best: number? = nil
+		for _, cart in CollectionService:GetTagged(CART_TAG) do
+			local at: Vector3? = if cart:IsA("Model")
+				then (cart :: Model):GetPivot().Position
+				elseif cart:IsA("BasePart") then (cart :: BasePart).Position
+				else nil
+			if at ~= nil and cart:IsDescendantOf(Workspace) then
+				local distance = (at - (root :: BasePart).Position).Magnitude
+				if best == nil or distance < best then
+					best = distance
+				end
+			end
+		end
+		return best
+	end
+
+	function UI.mystery.start(into: Instance)
+		UI.mystery.reset()
+		local modalView = modal
+		if modalView == nil then
+			return
+		end
+		local view = MysteryMarketScreen.new({
+			buy = function(itemId: string, shownPrice: number)
+				UI.events.buyMystery:Fire(itemId, shownPrice)
+			end,
+			seen = function()
+				UI.events.mysterySeen:Fire()
+			end,
+			close = function()
+				if modalView:current() == WINDOW then
+					modalView:close()
+				end
+			end,
+			far = function(): boolean
+				local distance = cartDistance()
+				return distance ~= nil and distance > FAR_STUDS
+			end,
+		})
+		mystery.view = view
+		modalView:register(WINDOW, {
+			frame = view.frame,
+			onOpen = function()
+				view:render(state)
+				view:opened()
+			end,
+			onClose = function()
+				view:closed()
+			end,
+		})
+		-- the gold "!" over the cart until the first visit
+		local bang = MarketBang.new(into, {
+			tag = CART_TAG,
+			name = "CatCafeMysteryBang",
+			line = function(value: any): string?
+				return MysteryLogic.bang(value)
+			end,
+		})
+		bang:update(state)
+		mystery.bang = bang
+	end
+
+	function UI.mystery.render(playerState: Types.PlayerState)
+		local view = mystery.view
+		if view then
+			view:render(playerState)
+		end
+		local bang = mystery.bang
+		if bang then
+			bang:update(playerState)
+		end
+	end
+
+	-- The cart's prompt and its walk-in ring.
+	function UI.mystery.open()
+		local modalView = modal
+		if mystery.view == nil or modalView == nil then
+			return
+		end
+		modalView:open(WINDOW)
+	end
+
+	function UI.mystery.close()
+		local modalView = modal
+		if modalView and modalView:current() == WINDOW then
+			modalView:close()
+		end
+	end
+
+	function UI.mystery.reset()
+		local view = mystery.view
+		if view then
+			view:destroy()
+		end
+		mystery.view = nil
+		local bang = mystery.bang
+		if bang then
+			bang:destroy()
+		end
+		mystery.bang = nil
 	end
 end
 

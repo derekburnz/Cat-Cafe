@@ -377,6 +377,10 @@ local LUCKY_LINE_W = 260 -- F88: the Lucky Day line under the clock
 local LUCKY_CLOVER = 18 -- #1258: the luck chip's circle in front of that line
 local LUCKY_GAP = 8 -- #2084: between that circle and the first letter (#2416: clear of the words' outline too)
 local DAY_CARD_W = 300 -- #1572: the day line's card
+local BANNER_RING = 2.5 -- #2885: the status banner's ring
+local BANNER_PAD_X = 10
+local BANNER_PAD_Y = 4
+local BANNER_GAP = 2 -- between its lines
 local DAY_CARD_Z = 20
 -- The top right column (icon row, clock, tips line, tier and goal) is this wide at most. The HUD keeps clear of
 -- Roblox's top bar, which left a tall empty band over that column (Derek 2026-10-27); when the bar's free stretch
@@ -1288,6 +1292,79 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = root,
 	})
 	self._event = nil :: string?
+
+	-- #2885 (Derek2 11-09: "moves the banner for lucky days/events going on and cat showers to slightly below the
+	-- currency ... give it a better border or outline for events and special days"): the day kinds, the Rally
+	-- countdown, the Cafe Event and its next shower are one banner, a dark card ringed in the moment's colour. On touch
+	-- it hangs under the money and golden fish (_placeBanner), beside the money badge; on a PC it keeps the right
+	-- column under the clock. Each line sizes to its words, so none is cut (#2882: the "y" of "Golden Day").
+	local banner: Frame = Create("Frame", {
+		Name = "StatusBanner",
+		BackgroundColor3 = Theme.dark.panel,
+		BackgroundTransparency = 0.1,
+		BorderSizePixel = 0,
+		AnchorPoint = if TOUCH then Vector2.new(0, 0) else Vector2.new(1, 0),
+		Position = UDim2.new(1, -MARGIN, 0, CLOCK_TOP + CLOCK_H),
+		Size = UDim2.fromOffset(0, 0),
+		AutomaticSize = Enum.AutomaticSize.XY,
+		Visible = false,
+		Parent = root,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }),
+		Create("UIStroke", {
+			Name = "Ring",
+			Color = Theme.colors.gold,
+			Thickness = BANNER_RING,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		}),
+		Create("UIPadding", {
+			PaddingTop = UDim.new(0, BANNER_PAD_Y),
+			PaddingBottom = UDim.new(0, BANNER_PAD_Y),
+			PaddingLeft = UDim.new(0, BANNER_PAD_X),
+			PaddingRight = UDim.new(0, BANNER_PAD_X),
+		}),
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Vertical,
+			HorizontalAlignment = if TOUCH
+				then Enum.HorizontalAlignment.Left
+				else Enum.HorizontalAlignment.Right,
+			Padding = UDim.new(0, BANNER_GAP),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	self._banner = banner
+	local bannerLines: { GuiObject } =
+		{ luckyRow, self._rallyLine, self._eventLine, self._eventNext }
+	self._bannerLines = bannerLines
+	for order, bannerLine in bannerLines do
+		bannerLine.AnchorPoint = Vector2.new(0, 0)
+		bannerLine.Position = UDim2.fromOffset(0, 0)
+		bannerLine.LayoutOrder = order
+		if bannerLine:IsA("TextLabel") then
+			bannerLine.Size = UDim2.fromOffset(0, NIGHT_LINE)
+			bannerLine.AutomaticSize = Enum.AutomaticSize.X
+			bannerLine.TextTruncate = Enum.TextTruncate.None
+			bannerLine.TextXAlignment = Enum.TextXAlignment.Left
+		end
+		bannerLine.Parent = banner
+		table.insert(
+			self._connections,
+			bannerLine:GetPropertyChangedSignal("Visible"):Connect(function()
+				self:_paintBanner()
+			end)
+		)
+	end
+	-- the words' own width, with room for their outline (the cap cut "Golden Day" short, #2882)
+	local cap = self._luckyLine:FindFirstChildWhichIsA("UISizeConstraint")
+	if cap then
+		cap:Destroy()
+	end
+	table.insert(
+		self._connections,
+		self._luckyLine:GetPropertyChangedSignal("Visible"):Connect(function()
+			self:_paintBanner()
+		end)
+	)
 
 	-- Tier and next goal (right, under the clock): the tier, the next tier's requirements as slim bars; a tap opens
 	-- rank up
@@ -3370,6 +3447,7 @@ end
 
 -- The top right column, top down: the icon row, the clock, the night tips line when it shows, the tier and goal.
 function HUD._layoutRight(self: any)
+	self:_paintBanner() -- #2885: its ring and whether it shows, before the column counts it
 	local lift = self._lift
 	self._icons.Position = UDim2.new(1, -MARGIN, 0, MARGIN - lift)
 	self._pop.Position = UDim2.new(1, -MARGIN, 0, MARGIN + ICON_H + 6 - lift)
@@ -3379,25 +3457,16 @@ function HUD._layoutRight(self: any)
 	if self._nightTips.Visible then
 		top += NIGHT_LINE
 	end
-	-- F88: the Lucky Day line under the clock (and under the night tips line when that shows)
-	self._luckyRow.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
-	self._dayCard.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift + NIGHT_LINE + 4)
-	if self._luckyLine.Visible then
-		top += NIGHT_LINE
-	end
-	-- F101: the Rescue Rally countdown under those
-	self._rallyLine.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
-	if self._rallyLine.Visible then
-		top += NIGHT_LINE
-	end
-	-- #2487: the Cafe Event chip under those, and its next shower line
-	self._eventLine.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
-	if self._eventLine.Visible then
-		top += NIGHT_LINE
-	end
-	self._eventNext.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
-	if self._eventNext.Visible then
-		top += NIGHT_LINE
+	-- F88, F101, #2487: the Lucky Day line, the Rally countdown, the Cafe Event and its next shower, since #2885 in the
+	-- status banner: under the clock on a PC, under the counters on touch (_placeBanner)
+	local banner: Frame = self._banner
+	if not TOUCH then
+		banner.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift)
+		self._dayCard.AnchorPoint = Vector2.new(1, 0)
+		self._dayCard.Position = UDim2.new(1, -MARGIN, 0, top - 6 - lift + self:_bannerHeight() + 4)
+		if banner.Visible then
+			top += self:_bannerHeight() + 4
+		end
 	end
 	self._goal.frame.Position = UDim2.new(1, -MARGIN, 0, top - lift)
 	local goal = self._goal.frame
@@ -3424,6 +3493,95 @@ function HUD._layoutRight(self: any)
 	if TOUCH and self._corner ~= nil then
 		self:_placePotionTimers() -- #2393: the money badge keeps clear of the column
 	end
+	self:_placeBanner()
+end
+
+-- #2885: the banner's height from its shown lines (its automatic size can lag a frame behind a change).
+function HUD._bannerHeight(self: any): number
+	local shown = 0
+	for _, line in self._bannerLines :: { GuiObject } do
+		if line.Visible and (line ~= self._luckyRow or self._luckyLine.Visible) then
+			shown += 1
+		end
+	end
+	if shown == 0 then
+		return 0
+	end
+	return BANNER_PAD_Y * 2 + shown * NIGHT_LINE + (shown - 1) * BANNER_GAP
+end
+
+-- #2885: shown while any line is, ringed in the moment's colour: the Cafe Event's (gold while it runs), else the
+-- Lucky Day's gold, else the Rally's sky blue.
+function HUD._paintBanner(self: any)
+	local banner: Frame? = self._banner
+	if banner == nil then
+		return
+	end
+	local event: TextLabel = self._eventLine
+	local lucky = self._luckyRow.Visible and self._luckyLine.Visible
+	local shown = self:_bannerHeight() > 0
+	local ring = banner:FindFirstChild("Ring") :: UIStroke?
+	if ring then
+		ring.Color = if event.Visible
+			then event.TextColor3
+			elseif lucky then Theme.colors.gold
+			else Theme.colors.sky
+	end
+	if banner.Visible ~= shown then
+		banner.Visible = shown
+		if self._goal ~= nil then -- built: the column moves up or down for it
+			self:_layoutRight()
+		end
+	end
+end
+
+-- #2885, #2881 (touch): the first design-pixel x right of the menu grid and its arrow tab, for what hangs under the
+-- counters (on a narrow phone the counters' left edge sits over the grid's last column or the tab).
+function HUD._leftClear(self: any): number
+	local scale = Scale.get()
+	local root: Frame = self._root
+	local clear = 0
+	for _, part in { self._menu, self._menuFold and self._menuFold.instance } :: { GuiObject? } do
+		if part ~= nil and part.Visible and scale > 0 then
+			local right = (part.AbsolutePosition.X + part.AbsoluteSize.X - root.AbsolutePosition.X)
+				/ scale
+			clear = math.max(clear, right + Theme.sizes.gap)
+		end
+	end
+	return clear
+end
+
+-- #2885 (touch): the banner under the money and golden fish, left edges level, under the Luck row too when that sits
+-- under the counters, and right of the money badge when that shows there; the day card opens under it.
+function HUD._placeBanner(self: any)
+	local banner: Frame? = self._banner
+	local counters: GuiObject? = self._counters
+	local scale = Scale.get()
+	if not TOUCH or banner == nil or counters == nil or scale <= 0 then
+		return
+	end
+	local root: Frame = self._root
+	local left = (counters.AbsolutePosition.X - root.AbsolutePosition.X) / scale
+	if counters.AnchorPoint.X > 0 then
+		left = root.AbsoluteSize.X / scale / 2 - counters.AbsoluteSize.X / scale / 2
+	elseif counters.Position.X.Scale == 0 then
+		left = counters.Position.X.Offset
+	end
+	local top = self:_counterTop() + self._counterH + BUFFS_GAP
+	local buffs = self._buffs
+	local row: GuiObject? = if buffs ~= nil then buffs.frame else nil
+	if row ~= nil and row.Visible and self._rowUnder == true then
+		top += row.AbsoluteSize.Y / scale + BUFFS_GAP
+	end
+	local badge: GuiObject? = self._moneyBadge
+	if badge ~= nil and badge.Visible then
+		left += badge.AbsoluteSize.X / scale + Theme.sizes.gap
+	end
+	left = math.max(left, self:_leftClear()) -- clear of the menu grid and its arrow tab
+	banner.Position = UDim2.fromOffset(math.floor(left), math.floor(top))
+	self._dayCard.AnchorPoint = Vector2.new(0, 0)
+	self._dayCard.Position =
+		UDim2.fromOffset(math.floor(left), math.floor(top + self:_bannerHeight() + 4))
 end
 
 -- #2614: a Mystery gift waits on this player's plot in the `tier` wrap ("common", "rare", "super"), or nil when none
@@ -3565,12 +3723,18 @@ function HUD._liftTop(self: any)
 	end
 	self._counterY = top
 	local under = top + self._counterH + BUFFS_GAP -- the boosts card's top, and the row's when it is not beside
+	self._rowUnder = not fits
 	if alone then
 		counters.AnchorPoint = Vector2.new(0, 0)
 		counters.Position = UDim2.fromOffset(x, top)
 		local middle = x + counters.AbsoluteSize.X / scale / 2
 		if buffs ~= nil then
-			buffs:place(UDim2.fromOffset(middle, under), Vector2.new(0.5, 0))
+			-- #2881 (Derek2: "luck gets pushed down into middle of screen when having 2x money or more"): the row hangs
+			-- right under the money, left edges level, not centred under the pair (and clear of the menu grid)
+			buffs:place(
+				UDim2.fromOffset(math.floor(math.max(x, self:_leftClear())), under),
+				Vector2.new(0, 0)
+			)
 		end
 		local boosts: GuiObject? = self._boosts
 		if boosts then
@@ -3596,7 +3760,12 @@ function HUD._liftTop(self: any)
 		counters.AnchorPoint = Vector2.new(0.5, 0)
 		counters.Position = UDim2.new(0.5, 0, 0, top)
 		if buffs ~= nil then
-			buffs:place(UDim2.new(0.5, 0, 0, under), Vector2.new(0.5, 0))
+			-- #2881: under the money, left edges level, not centred under the pair (and clear of the menu grid)
+			local left = (root.AbsoluteSize.X - counters.AbsoluteSize.X) / scale / 2
+			buffs:place(
+				UDim2.fromOffset(math.floor(math.max(left, self:_leftClear())), under),
+				Vector2.new(0, 0)
+			)
 		end
 	end
 	local boosts: GuiObject? = self._boosts
@@ -3628,12 +3797,13 @@ function HUD._placeMoneyBadge(self: any)
 	local top = self:_counterTop() + self._counterH + BUFFS_GAP
 	local buffs = self._buffs
 	local row: GuiObject? = if buffs ~= nil then buffs.frame else nil
-	if row ~= nil and row.Visible and row.AnchorPoint.X > 0 then
+	if row ~= nil and row.Visible and self._rowUnder == true then
 		-- the Luck row under the counters (they did not fit in Roblox's top bar)
 		top += row.AbsoluteSize.Y / scale + BUFFS_GAP
 	end
 	badge.AnchorPoint = Vector2.new(0, 0)
 	badge.Position = UDim2.fromOffset(math.floor(left), math.floor(top))
+	self:_placeBanner()
 end
 
 -- Red dots: a screen's dot shows while it has a key the player has not seen on that screen. Keys seen while

@@ -20,10 +20,10 @@ QA-Planner, 2026-11-09. Console is ticked under Playable Devices (Derek, 2026-11
 - [ ] Closing a window gives the selection back, or clears it, so the character can walk again.
 
 ## C. Carrying, Drop and the Backpack (#2873)
-- [ ] Carry a cat and drop it with the new Drop button.
-- [ ] Pack a cat in the Backpack and drop it with the same button.
-- [ ] The Drop button does nothing during a catch or with a window open.
-- [ ] The carry hint shows the controller button.
+- [ ] Carry a cat and drop it with DPad down (#2879).
+- [ ] Pack a cat in the Backpack and drop it with DPad down: one cat a press, the hands first, then the Backpack.
+- [ ] DPad down does nothing during a catch or rescue, or with a window open.
+- [ ] The Drop button and the bag pill show "DPad ↓" on a controller.
 
 ## D. Other screens (#2874)
 - [ ] Settings: change every slider with the DPad or stick, and flip every toggle.

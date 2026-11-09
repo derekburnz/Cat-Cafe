@@ -2199,6 +2199,35 @@ local SCENES = {
 		assert(not ask:FindFirstChild("Holder", true).Visible, "uigate: the card stays after the visit ended (#2792)")
 		UI.firstVisit.changed("collector", away)
 	end },
+	-- #2791 (Derek2: "we have gift milestones can be improved but don't make this ... take a lot of precious phone
+	-- screen space"): the gift ladder on the Rewards tile, no new slot: the tile counts down to the next step and its
+	-- list shows the next two with what they pay
+	{ "GiftLadder", function()
+		Scenes._ladder = true -- Scenes.close takes the ladder away again
+		UI.update({
+			playSeconds = 15,
+			giftNext = {
+				{ id = "m2", at = 120, prize = { coinSeconds = 60 } },
+				{ id = "m4", at = 240, prize = { lures = { tuna = 1 } } },
+			},
+		} :: any)
+		local hudGui = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local tile = hudGui and hudGui:FindFirstChild("Rewards", true)
+		assert(tile and tile.Visible, "uigate: no Rewards tile with the gift ladder (#2791)")
+		local label = tile:FindFirstChild("Label", true)
+		local text = label and label.Text or ""
+		-- the time to the next gift, or "Rewards" with the red "!" while a Tip Jar gift waits (the sample player's)
+		local dot = tile:FindFirstChild("Dot", true)
+		assert(string.match(text, "^%d+:%d%d$") or (text == "Rewards" and dot and dot.Visible), "uigate: the Rewards tile reads " .. text .. ", not the next gift's time (#2791)")
+		press("CatCafeHUD", "Icons.Rewards")
+		local pop = hudGui:FindFirstChild("Pop", true)
+		assert(pop and pop.Visible, "uigate: the Rewards tile didn't open the gift list (#2791)")
+		local first = pop:FindFirstChild("Ladder1")
+		local second = pop:FindFirstChild("Ladder2")
+		assert(first and second, "uigate: the gift list doesn't show the next two steps (#2791)")
+		local words = first:FindFirstChild("Label", true)
+		assert(words and string.find(words.Text, "$", 1, true), "uigate: the first step reads " .. tostring(words and words.Text) .. " (#2791)")
+	end },
 	-- #1893: step 8's Grand Opening banner
 	{ "GrandOpeningDone", function()
 		UI.update({ tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true } } })
@@ -6694,6 +6723,10 @@ function Scenes.close()
 	local pop = hudGui and hudGui:FindFirstChild("Pop", true)
 	if pop and pop.Visible then
 		press("CatCafeHUD", if pop:FindFirstChild("Settings") then "Icons.Menu" else "Icons.Rewards")
+	end
+	if Scenes._ladder then
+		Scenes._ladder = nil
+		UI.update({ giftNext = {} } :: any) -- #2791's scene: the ladder done, the Rewards tile as it was
 	end
 	-- the help card waits for Got it
 	local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")

@@ -1,0 +1,38 @@
+--!strict
+-- TutorialMoves.luau (#2697 part 2): which step moves the player where, and where they stand.
+return function()
+	local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+	local TutorialMoves = require(Shared.TutorialMoves)
+
+	describe("TutorialMoves", function()
+		it("moves to the bowl on reaching step 4 and to the cannon on reaching step 5", function()
+			expect(TutorialMoves.target(3, 4)).to.equal("bowl")
+			expect(TutorialMoves.target(4, 5)).to.equal("cannon")
+			expect(TutorialMoves.target(3, 5)).to.equal("cannon")
+			expect(TutorialMoves.target(2, 3)).to.equal(nil)
+			expect(TutorialMoves.target(0, 2)).to.equal(nil)
+			expect(TutorialMoves.target(5, 5)).to.equal(nil)
+			expect(TutorialMoves.target(4, 4)).to.equal(nil)
+		end)
+
+		it("stands the given studs out toward a point, facing the target", function()
+			local target = Vector3.new(10, 0, 10)
+			local at, look = TutorialMoves.standAt(target, Vector3.new(10, 5, 30), 4, 3)
+			expect(at.X).to.be.near(10, 1e-6)
+			expect(at.Y).to.be.near(3, 1e-6)
+			expect(at.Z).to.be.near(14, 1e-6)
+			expect(look.Z).to.be.near(-1, 1e-6)
+			expect(look.Y).to.be.near(0, 1e-6)
+		end)
+
+		it("stands out along -Z when the point is right above the target", function()
+			local at, look = TutorialMoves.standAt(Vector3.zero, Vector3.new(0, 9, 0), 7, 3)
+			expect(at.Z).to.be.near(-7, 1e-6)
+			expect(look.Z).to.be.near(1, 1e-6)
+		end)
+
+		it("stands the cannon move inside the cannon's range", function()
+			expect(TutorialMoves.CANNON_STUDS < 10).to.equal(true)
+		end)
+	end)
+end

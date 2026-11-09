@@ -728,7 +728,13 @@ return function()
 			expect(Layout.bedsOpen(5, 0)).to.equal(6)
 			expect(Layout.bedsOpen(5, 1)).to.equal(7)
 			expect(Layout.bedsOpen(5, 2)).to.equal(8) -- the 12 cats of Tier 5 with both pass-only waiters
-			expect(Layout.bedsOpen(5, 3)).to.equal(#Layout.plot.beds)
+			expect(Layout.bedsOpen(5, 3)).to.equal(9)
+			-- #2651: Tier 6's 12 and Tier 7's 14, two more each with the pass
+			expect(Layout.bedsOpen(6, 0)).to.equal(8)
+			expect(Layout.bedsOpen(6, 2)).to.equal(10)
+			expect(Layout.bedsOpen(7, 0)).to.equal(10)
+			expect(Layout.bedsOpen(7, 2)).to.equal(12)
+			expect(Layout.bedsOpen(7, 3)).to.equal(#Layout.plot.beds)
 		end)
 
 		it("keeps the beds in tier order, so the first ones are the tier's", function()
@@ -1674,6 +1680,8 @@ return function()
 					neighbourhood = { 0, 1 },
 					woods = { -1, 0 },
 					sewer = { 1, 0 },
+					desert = { 1, -1 }, -- #2651: the free diagonals (tier6-7-areas.md section 2)
+					ruins = { 1, 1 },
 				} :: { [string]: { number } }
 				local town: Rect = {
 					x1 = -W.TownGroundWidth / 2,
@@ -1715,6 +1723,8 @@ return function()
 					neighbourhood = { 0, W.NeighbourhoodCenterZ - W.NeighbourhoodDepth / 2, 0 },
 					woods = { W.WoodsCenterX + W.WoodsDepth / 2, 0, -90 }, -- F85: its depth along X
 					sewer = { W.SewerCenterX - W.SewerDepth / 2, 0, 90 }, -- F85: its depth along X too
+					desert = { W.DesertCenterX, W.DesertCenterZ + W.DesertDepth / 2, 180 }, -- #2651: its north end
+					ruins = { W.RuinsCenterX, W.RuinsCenterZ - W.RuinsDepth / 2, 0 }, -- #2651: its south end
 				} :: { [string]: { number } }
 				for id, spec in Layout.areas do
 					local x, z = Layout.gatePosition(spec)
@@ -1767,16 +1777,14 @@ return function()
 
 		it("turns the town cannon toward each area's landing pad (#2651)", function()
 			local aims: { number } = {}
-			for _, set in { Layout.camps, Layout.lateCamps } do
-				for id, camp in set do
-					local aim = math.rad(Layout.cannonAim(id))
-					local pad = camp.pad
-					local out = math.sqrt(pad.x ^ 2 + pad.z ^ 2)
-					-- the barrel rests along +Z; turned by aim it points along (sin, cos)
-					local dot = (math.sin(aim) * pad.x + math.cos(aim) * pad.z) / out
-					expect(dot).to.be.near(1, 1e-9)
-					table.insert(aims, Layout.cannonAim(id))
-				end
+			for id, camp in Layout.camps do
+				local aim = math.rad(Layout.cannonAim(id))
+				local pad = camp.pad
+				local out = math.sqrt(pad.x ^ 2 + pad.z ^ 2)
+				-- the barrel rests along +Z; turned by aim it points along (sin, cos)
+				local dot = (math.sin(aim) * pad.x + math.cos(aim) * pad.z) / out
+				expect(dot).to.be.near(1, 1e-9)
+				table.insert(aims, Layout.cannonAim(id))
 			end
 			expect(#aims).to.equal(7)
 			-- every destination at least 35 degrees from every other, so the barrel visibly turns (section 2 says about 38;
@@ -1797,7 +1805,7 @@ return function()
 		end)
 
 		it("catches a fall into the Ruins' mist and nothing above it or in another area (#2651)", function()
-			local ruins = Layout.lateAreas.ruins
+			local ruins = Layout.areas.ruins
 			local c = ruins.center
 			expect(ruins.catchBelow).to.equal(20)
 			-- on the plateau, a jump, and just above the band: not caught
@@ -1812,24 +1820,25 @@ return function()
 			local far = c.x + ruins.halfWidth + (ruins.catchMargin :: number) + 1
 			expect(Layout.fallCaught(ruins, far, ruins.floorY - 30, c.z)).to.equal(false)
 			-- no other area has a catch
-			for _, set in { Layout.areas, { desert = Layout.lateAreas.desert } } do
-				for _, spec in set do
+			for id, spec in Layout.areas do
+				if id ~= "ruins" then
 					expect(spec.catchBelow).to.equal(nil)
 					expect(Layout.fallCaught(spec, spec.center.x, spec.floorY - 100, spec.center.z)).to.equal(false)
 				end
 			end
 		end)
 
-		it("lays out the Desert and the Ruins on the east diagonals, not yet in the game (#2651)", function()
-			local want = {
-				desert = { aim = 129, near = 26, deep = 40, gateNorth = true },
-				ruins = { aim = 51.5, near = 28, deep = 42, gateNorth = false },
+		it("lays out the Desert and the Ruins on the east diagonals from their sets' spots (#2651)", function()
+			local want: { [string]: { aim: number, near: number, deep: number, gateNorth: boolean } } = {
+				desert = { aim = 128.3, near = 50, deep = 56, gateNorth = true },
+				ruins = { aim = 52.2, near = 55, deep = 45, gateNorth = false },
 			}
-			for id, spec in Layout.lateAreas do
-				local w = want[id]
-				expect(w).to.be.ok()
-				expect(Layout.areas[id]).to.equal(nil)
-				expect(Layout.camps[id]).to.equal(nil)
+			for id, w in want do
+				local spec = Layout.areas[id]
+				expect(spec).to.be.ok()
+				expect(Layout.camps[id]).to.be.ok()
+				expect(#spec.spawnPoints).to.equal((Catalog.getArea(id) :: any).spawnPoints)
+				expect(#(spec.rescuePool :: { any })).to.equal(15)
 				expect(spec.center.x > 0).to.equal(true)
 				-- long along world Z, the camp on the town end
 				expect(spec.halfDepth > spec.halfWidth).to.equal(true)
@@ -1837,7 +1846,7 @@ return function()
 				expect(math.abs(spec.gateZ :: number) < math.abs(spec.center.z)).to.equal(true)
 				expect(Layout.cannonAim(id)).to.be.near(w.aim, 1)
 				-- the pad is about 1790 to 1800 out, a little short of the Alleyway's 1900 (section 2, check 2)
-				local pad = Layout.lateCamps[id].pad
+				local pad = Layout.camps[id].pad
 				local out = math.sqrt(pad.x ^ 2 + pad.z ^ 2)
 				expect(out > 1700 and out < 1900).to.equal(true)
 				local counts: { [string]: number } = {}
@@ -1855,6 +1864,9 @@ return function()
 				end
 				-- clear of every other area by more than 500 studs
 				for other, there in Layout.areas do
+					if other == id then
+						continue
+					end
 					local dx = math.max(0, math.abs(spec.center.x - there.center.x) - spec.halfWidth - there.halfWidth)
 					local dz = math.max(0, math.abs(spec.center.z - there.center.z) - spec.halfDepth - there.halfDepth)
 					if math.sqrt(dx * dx + dz * dz) < 500 then
@@ -2340,7 +2352,7 @@ return function()
 		it(
 			"adds two beds a tier from Tier 3 and two for the extra slots (#2047), so every working slot sleeps",
 			function()
-				expect(#plot.beds).to.equal(8)
+				expect(#plot.beds).to.equal(12) -- #2651: four more for Tier 7 and its extra slots
 				for n, bed in plot.beds do
 					expect(bed.id).to.equal("bed_" .. n)
 					expect(bed.tier).to.equal(2 + math.ceil(n / 2))

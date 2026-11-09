@@ -139,7 +139,10 @@ local ProfileSchema = {}
 -- Version 44 (#2565, mystery-market.md section 2) adds mystery and mysterySeen, the Mystery Market items owned and
 -- whether its walk-in card was seen: an older server would drop a bought item, which was paid for in golden fish.
 -- Config.MysteryOpen opens buying with this version, in a publish that restarts the servers.
-ProfileSchema.VERSION = 44
+-- Version 45 (#2651, tier6-7-areas.md) opens Tier 6 and 7, the Desert and the Ruins, with their 20 cats, their crate
+-- pieces and two more Espresso and Lucky Cat levels: an older server would drop the new cat and decor ids from a save
+-- and clamp a Tier 6 or 7 cafe back to Tier 5 by hopping servers during a rollout.
+ProfileSchema.VERSION = 45
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 

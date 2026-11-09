@@ -32,7 +32,8 @@ local function check(ids: { string })
 	for _, player in Players:GetPlayers() do
 		local character = player.Character
 		local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
-		if root ~= nil and root:IsA("BasePart") then
+		-- a cannon flight is the cannon's to land (Review-Agent on #2665): never pulled out of the air mid-arc
+		if root ~= nil and root:IsA("BasePart") and not CatService.inFlight(player) then
 			local at = root.Position
 			for _, id in ids do
 				if Layout.fallCaught(Layout.areas[id], at.X, at.Y, at.Z) then
@@ -50,7 +51,7 @@ end
 function FallCatchService.start()
 	local ids = catchAreas()
 	if #ids == 0 then
-		return -- no area has a catch yet (the Ruins open in #2651 part 3)
+		return -- no area has a catch
 	end
 	task.spawn(function()
 		while true do

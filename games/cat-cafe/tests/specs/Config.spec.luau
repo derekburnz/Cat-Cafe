@@ -357,6 +357,10 @@ return function()
 		NetReachStuds = 7,
 		NetSlackStuds = 1.5,
 		NetArcDegrees = 60,
+		NetNearStuds = 4,
+		NetNearArcDegrees = 80,
+		NetFrontArcDegrees = 25,
+		NetFrontExtraStuds = 0.5,
 		NetMissHopStuds = 12,
 		NetMissHopShare = 0.25,
 		RescueSpeedUpPerHit = 0.08,
@@ -533,7 +537,7 @@ return function()
 				Legendary = 2,
 				Mythical = 5,
 			})
-			expect(Config.FishRankUp :: any).to.deepEqual({ 5, 15, 30, 60 })
+			expect(Config.FishRankUp :: any).to.deepEqual({ 5, 15, 30, 60, 100, 150 }) -- #2651: Tiers 6 and 7
 		end)
 
 		it(

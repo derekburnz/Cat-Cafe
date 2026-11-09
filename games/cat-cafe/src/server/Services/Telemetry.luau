@@ -302,7 +302,7 @@ local MORE_SCREENS: { [string]: string } = {
 	Settings = "settings",
 }
 -- progressionPathName "tier", levelName by tier (analytics-plan section 7)
-local TIER_NAMES = { "corner", "cozy", "busy", "famous", "grand" }
+local TIER_NAMES = { "corner", "cozy", "busy", "famous", "grand", "sunstone", "wonder" }
 local FIELD_KEYS = {
 	Enum.AnalyticsCustomFieldKeys.CustomField01.Name,
 	Enum.AnalyticsCustomFieldKeys.CustomField02.Name,

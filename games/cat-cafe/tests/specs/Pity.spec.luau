@@ -109,10 +109,13 @@ return function()
 		end)
 
 		it("maps a roll onto the weights in area order", function()
+			-- weights 10, 15, 20, 25, 30, 35 and 40 (#2651), 175 in all
 			expect(Pity.areaFor(0)).to.equal("alley")
-			expect(Pity.areaFor(0.099)).to.equal("alley")
-			expect(Pity.areaFor(0.1)).to.equal("park")
-			expect(Pity.areaFor(0.999)).to.equal("sewer")
+			expect(Pity.areaFor(9.9 / 175)).to.equal("alley")
+			expect(Pity.areaFor(10.1 / 175)).to.equal("park")
+			expect(Pity.areaFor(134.9 / 175)).to.equal("desert")
+			expect(Pity.areaFor(135.1 / 175)).to.equal("ruins")
+			expect(Pity.areaFor(0.999)).to.equal("ruins")
 		end)
 	end)
 

@@ -1183,6 +1183,9 @@ function UI.init(config: Types.InitConfig)
 		bigPull = function(decorId: string, onUse: (() -> ())?)
 			UI.bigPull.piece(decorId, onUse)
 		end,
+		seen = function(tab: string)
+			UI.events.storeSeen:Fire(tab) -- #2571: the Treats tab opened, forwarded as MarkStoreSeen
+		end,
 	})
 	freshBoard = FreshCatchBoard.new(parent)
 	local marketView = marketScreen :: FishMarket.FishMarket
@@ -5447,7 +5450,7 @@ do
 		bang:update(camp.state)
 		camp.bang = bang
 		local market = MarketBang.new(into)
-		market:update(state.crates)
+		market:update(state.crates, (state :: any).storeSeen) -- #2571: and the Treats tab's "!"
 		camp.market = market
 		camp.rescue = RescueBang.new(into)
 		-- #2358: the Spin Wheel's "!", "🎡 Free spin!" or "🎡 2 spins to use", read again each second for 00:00 UTC
@@ -5619,7 +5622,7 @@ do
 	function UI.campExtras.crates(crates: { [string]: number }?)
 		local market = camp.market
 		if market then
-			market:update(crates)
+			market:update(crates, (state :: any).storeSeen) -- #2571: the Treats tab's "!" until it is opened
 		end
 		-- #2358: the Spin Wheel's "!" with the same render
 		local spinBang = camp.spin

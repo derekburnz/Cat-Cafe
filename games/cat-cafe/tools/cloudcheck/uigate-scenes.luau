@@ -2289,7 +2289,26 @@ local SCENES = {
 		assert(prize and string.find(prize.Text, "^Jackpot: " .. fishJackpot .. " golden fish"), "uigate: slice 8 is not the fish jackpot")
 	end },
 	{ "Market", function()
+		-- #2571: a save that never opened Treats and perks shows the tab's red "!"; opening the tab clears it and
+		-- sends it as seen once
+		local seenBefore = (UI.getState() :: any).storeSeen
+		UI.update({ storeSeen = { featured = 1 } } :: any)
+		local sent: { string } = {}
+		local counting = UI.events.storeSeen:Connect(function(tab: string)
+			table.insert(sent, tab)
+		end)
 		UI.market.open()
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local tab = modals and modals:FindFirstChild("TreatsTab", true)
+		local dot = tab and tab:FindFirstChild("NewDot", true)
+		assert(dot and (dot :: GuiObject).Visible, "uigate: no ! on Treats and perks before it is opened (#2571)")
+		press("FishMarket", "TreatsTab")
+		assert(not (dot :: GuiObject).Visible, "uigate: opening Treats and perks did not clear its ! (#2571)")
+		press("FishMarket", "CratesTab")
+		press("FishMarket", "TreatsTab")
+		assert(table.concat(sent, ",") == "treats", "uigate: Treats and perks sent as seen: " .. table.concat(sent, ","))
+		counting:Disconnect()
+		UI.update({ storeSeen = if type(seenBefore) == "table" then seenBefore else {} } :: any)
 		press("FishMarket", "CratesTab")
 	end },
 	-- #2290 (Derek2: "buying items fast from shop sometimes stays too long on the ... waiting button"): three Treats
@@ -4515,7 +4534,8 @@ local SCENES = {
 		stall.PrimaryPart = counter
 		stall.Parent = workspace
 		stall:AddTag("FishMarket")
-		Scenes._market = { stall = stall, crates = UI.getState().crates }
+		Scenes._market = { stall = stall, crates = UI.getState().crates, seen = (UI.getState() :: any).storeSeen }
+		UI.update({ storeSeen = { treats = 1 } } :: any) -- #2571: Treats and perks seen, so only crates raise the !
 		local function bang(): BillboardGui
 			local gui = UIShim.playerGui:FindFirstChild("CatCafeMarketBang", true)
 			assert(gui and gui:IsA("BillboardGui"), "uigate: no ! billboard over the Fish Market (#2214)")
@@ -4530,6 +4550,16 @@ local SCENES = {
 		assert(not gui.Enabled, "uigate: the Fish Market's ! stays up with no crates (#2214)")
 		UI.update({ crates = { park = 1 } } :: any)
 		assert(gui.Enabled and line.Text == "📦 1 crate to open", "uigate: one crate reads " .. line.Text .. " (#2214)")
+		-- #2571: never opened Treats and perks: the ! asks to check them with no crates, and crates come first
+		UI.update({ storeSeen = { featured = 1 } } :: any)
+		assert(line.Text == "📦 1 crate to open", "uigate: crates did not come first over the treats line (#2571)")
+		UI.update({ crates = {} } :: any)
+		assert(
+			gui.Enabled and line.Text == "🍪 Treats and perks to check out!",
+			"uigate: the Fish Market's ! does not ask to check the treats: " .. line.Text .. " (#2571)"
+		)
+		UI.update({ storeSeen = { treats = 1 } } :: any)
+		assert(not gui.Enabled, "uigate: the treats ! stays after Treats and perks was seen (#2571)")
 	end },
 	-- #2345 (Derek2: "add an exclamation mark to the upgrades if something is available to buy that you can afford"):
 	-- the Upgrades tile's red "!" shows with an upgrade affordable, stays after Upgrades is opened, and goes with no
@@ -5580,7 +5610,7 @@ function Scenes.close()
 	end
 	if Scenes._market ~= nil then
 		Scenes._market.stall:Destroy() -- #2214's scene
-		UI.update({ crates = Scenes._market.crates } :: any)
+		UI.update({ crates = Scenes._market.crates, storeSeen = Scenes._market.seen or {} } :: any)
 		Scenes._market = nil
 	end
 	if Scenes._cashMoney ~= nil then

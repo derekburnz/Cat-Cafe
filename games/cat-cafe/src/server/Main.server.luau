@@ -22,6 +22,7 @@ local ClockService = require(script.Parent.Services.ClockService)
 local CodeService = require(script.Parent.Services.CodeService)
 local CollectorService = require(script.Parent.Services.CollectorService)
 local CornerShopService = require(script.Parent.Services.CornerShopService)
+local CozyService = require(script.Parent.Services.CozyService)
 local DailyTreatService = require(script.Parent.Services.DailyTreatService)
 local DataService = require(script.Parent.Services.DataService)
 local DealerService = require(script.Parent.Services.DealerService)
@@ -145,6 +146,7 @@ GrandOpeningService.start() -- #1893: the Grand Opening roadmap's checks and pay
 SessionRecapService.start() -- #1920: the session recap after about 40 minutes of play
 BadgeAwardService.start() -- #1934: Roblox badges, awarded from the profile with retries and a catch-up on join
 PlaytimeGiftService.start() -- #1947: the like and favourite gifts at 10 and 30 minutes of play
+CozyService.start() -- #2798: Cozy Cafe, the gift bags for staying in your cafe
 RallyService.start() -- F101: before Telemetry (rally_points on leave) and DataService (RallyState on join)
 RestartNoticeService.start() -- the restart countdown's warnings; before DataService so a joiner hears one
 TradeService.start() -- F102: before DataService, whose joins it settles owed trades in (onLoading)

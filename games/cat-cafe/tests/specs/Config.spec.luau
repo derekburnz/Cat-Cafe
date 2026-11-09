@@ -180,6 +180,15 @@ return function()
 		CollectorGoldMultiplier = 3,
 		CollectorRollMin = 0.8,
 		CollectorRollMax = 1.5,
+		-- #2798 (retention-ideas.md idea 10): Cozy Cafe
+		CozyStartSeconds = 60,
+		CozyBagSeconds = 180,
+		CozyBagsPerDay = 8,
+		CozyCoinSeconds = 60,
+		CozyLureChance = 0.25,
+		CozyFishChance = 0.05,
+		CozyFishMin = 1,
+		CozyFishMax = 3,
 		FirstVisitStaySeconds = 300, -- #2792 (retention-ideas.md section 2): a first visit waits 5 minutes
 		FirstVisitWindowSeconds = 1800, -- #2792: the schedule only inside an account's first 30 minutes of play
 		-- #2797 (retention-ideas.md 5d): the invite reward
@@ -523,6 +532,7 @@ return function()
 				EventShowerAreaWeights = true, -- #2486: a table, checked in CafeEvents.spec
 				UpdateEventId = true, -- #2766: the next update's Roblox Event id, set per Event, checked in EventRsvp.spec
 				UpdateEventStartsAt = true, -- #2766: that Event's start (os.time(), UTC), set per Event
+				CozyLure = true, -- #2798: a lure id, checked in CozyCafe.spec
 				PlaytimeGiftSteps = true, -- #2791: a table, checked in PlaytimeGifts.spec
 				FirstVisitAt = true, -- #2792: a table, checked in FirstVisits.spec
 				SpaSlotPrices = true, -- #2651 part 4 (late-stations.md): a table, checked in LateStations.spec

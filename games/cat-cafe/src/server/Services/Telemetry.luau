@@ -69,6 +69,9 @@ export type CustomEvent =
 	-- #1181 (corner-shop-v2.md section 4): a food fed from the Bag, value its XP; the food id
 	| "cat_fed"
 	| "rich_tip"
+	-- #2798: a Cozy Cafe bag collected, value today's bags so far; what it held ("coins", "coins+lure", "coins+fish",
+	-- "coins+lure+fish")
+	| "cozy_bag"
 	-- #2792: a new account's first rich customer, Mystery Visitor or Cat Collector: the kind ("rich", "mystery",
 	-- "collector") and "arrived" (value the account's seconds of play), or how it ended, "claimed" or "missed" (value
 	-- its seconds at the cafe)

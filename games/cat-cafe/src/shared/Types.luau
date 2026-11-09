@@ -242,6 +242,8 @@ export type IndexPrize = {
 	passXp: number?, -- #1645 (quests.md section 8): Cafe Pass XP for the running season (CafePass.addXp)
 }
 
+-- #2798: the Cozy Cafe bags given on `day` (a UTC day number)
+export type CozySave = { day: number, bags: number }
 -- #2791: one step of the gift ladder still to come. `id` "m2", "m4", "m6", "like", "m15", "m20" or "fav"; `at` the
 -- seconds of play on the account when it pays (PlayerState.playSeconds counts toward it); `prize` what it pays.
 export type GiftStepView = {
@@ -1234,6 +1236,9 @@ export type PlayerProfile = {
 	-- #1947 (save version 42, like-prompts.md section 2): the like and favourite gifts were paid (shared/PlaytimeGifts)
 	likeGift: boolean,
 	favGift: boolean,
+	-- #2798 (shared/CozyCafe): Cozy Cafe bags given on a UTC day. No VERSION bump: an older server dropping it can only
+	-- give that day's few small bags again
+	cozy: CozySave,
 	-- #2791 (shared/PlaytimeGifts): the gift ladder's small steps paid ("m2", "m4", "m6", "m15", "m20" -> true). No
 	-- VERSION bump: an older server dropping it can only pay a few small steps again.
 	giftSteps: { [string]: boolean },

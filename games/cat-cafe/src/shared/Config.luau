@@ -283,6 +283,18 @@ local Config = {
 	LikeGiftIncomeMinutes = 15,
 	FavGiftMinutes = 30,
 	FavGiftIncomeMinutes = 30,
+	-- #2798 (retention-ideas.md idea 10, shared/CozyCafe): Cozy Cafe. After CozyStartSeconds in your own cafe a cat
+	-- curls up on the counter; every CozyBagSeconds more it leaves a bag of CozyCoinSeconds of income, CozyLureChance
+	-- of one CozyLure and CozyFishChance of CozyFishMin to CozyFishMax golden fish; CozyBagsPerDay a UTC day
+	CozyStartSeconds = 60,
+	CozyBagSeconds = 180,
+	CozyBagsPerDay = 8,
+	CozyCoinSeconds = 60,
+	CozyLure = "tuna",
+	CozyLureChance = 0.25,
+	CozyFishChance = 0.05,
+	CozyFishMin = 1,
+	CozyFishMax = 3,
 	-- #2791 (retention-ideas.md 5a): the small steps on the same track, paid with a toast (shared/PlaytimeGifts)
 	PlaytimeGiftSteps = {
 		{ id = "m2", minutes = 2, prize = { coinSeconds = 60 } },

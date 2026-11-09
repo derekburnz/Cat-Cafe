@@ -179,27 +179,33 @@ return function()
 			expect(m.seq).to.equal(1)
 		end)
 
-		it("restarts a kind's timer a period after its cat spawned, with the next number", function()
-			local l = Pity.restart(9000, legendary, 4)
-			expect(l.at).to.equal(9000 + Config.PityLegendarySeconds)
-			expect(l.seq).to.equal(5)
-			local m = Pity.restart(9000, mythical, 2)
-			expect(m.at).to.equal(9000 + Config.PityMythicalSeconds)
-			expect(m.seq).to.equal(3)
-		end)
+		it(
+			"restarts a kind's timer a period after its cat spawned, with the next number",
+			function()
+				local l = Pity.restart(9000, legendary, 4)
+				expect(l.at).to.equal(9000 + Config.PityLegendarySeconds)
+				expect(l.seq).to.equal(5)
+				local m = Pity.restart(9000, mythical, 2)
+				expect(m.at).to.equal(9000 + Config.PityMythicalSeconds)
+				expect(m.seq).to.equal(3)
+			end
+		)
 
-		it("finds the cat before a moved timer, for a server that starts while it is out (#2003)", function()
-			local spawned = 9000
-			local moved = Pity.restart(spawned, legendary, 4)
-			local before = Pity.previous(moved, legendary) :: Pity.Timer
-			expect(before.seq).to.equal(4)
-			expect(before.at).to.equal(spawned)
-			local m = Pity.previous(Pity.restart(spawned, mythical, 2), mythical) :: Pity.Timer
-			expect(m.seq).to.equal(2)
-			expect(m.at).to.equal(spawned)
-			expect(Pity.previous(Pity.first(spawned, legendary), legendary)).to.equal(nil)
-			expect(Pity.previous({ at = 100, seq = -3 }, legendary)).to.equal(nil)
-		end)
+		it(
+			"finds the cat before a moved timer, for a server that starts while it is out (#2003)",
+			function()
+				local spawned = 9000
+				local moved = Pity.restart(spawned, legendary, 4)
+				local before = Pity.previous(moved, legendary) :: Pity.Timer
+				expect(before.seq).to.equal(4)
+				expect(before.at).to.equal(spawned)
+				local m = Pity.previous(Pity.restart(spawned, mythical, 2), mythical) :: Pity.Timer
+				expect(m.seq).to.equal(2)
+				expect(m.at).to.equal(spawned)
+				expect(Pity.previous(Pity.first(spawned, legendary), legendary)).to.equal(nil)
+				expect(Pity.previous({ at = 100, seq = -3 }, legendary)).to.equal(nil)
+			end
+		)
 
 		it("moves the stored timer once when two servers spawn the same cat", function()
 			local stored = { at = 100, seq = 4 }
@@ -260,21 +266,24 @@ return function()
 			end
 		end)
 
-		it("moves a started fixed slot on to the next of its kind, never one that is due already", function()
-			for t = 0, 20000, 311 do
-				for _, kind in { legendary, mythical } do
-					local timer = Pity.fixedTimer(t, kind)
-					local after = Pity.fixedNext(timer, kind)
-					expect(-after.seq > -timer.seq).to.equal(true)
-					expect(Pity.kindOf(-after.seq)).to.equal(kind)
-					expect(after.at).to.equal(Pity.dueAt(-after.seq))
-					expect(Pity.spawnTime(after.at) > t).to.equal(true)
-					for slot = -timer.seq + 1, -after.seq - 1 do
-						expect(Pity.kindOf(slot) ~= kind).to.equal(true)
+		it(
+			"moves a started fixed slot on to the next of its kind, never one that is due already",
+			function()
+				for t = 0, 20000, 311 do
+					for _, kind in { legendary, mythical } do
+						local timer = Pity.fixedTimer(t, kind)
+						local after = Pity.fixedNext(timer, kind)
+						expect(-after.seq > -timer.seq).to.equal(true)
+						expect(Pity.kindOf(-after.seq)).to.equal(kind)
+						expect(after.at).to.equal(Pity.dueAt(-after.seq))
+						expect(Pity.spawnTime(after.at) > t).to.equal(true)
+						for slot = -timer.seq + 1, -after.seq - 1 do
+							expect(Pity.kindOf(slot) ~= kind).to.equal(true)
+						end
 					end
 				end
 			end
-		end)
+		)
 
 		it("gives each cat its own number, claim key and pick across both kinds", function()
 			local seen = {}
@@ -298,13 +307,22 @@ return function()
 			expect(fixed.catId).to.equal(Pity.pick(5).catId)
 		end)
 
-		it("writes each line: a countdown, out now, any moment now, never a negative time", function()
-			expect(Pity.timerLine(100, legendary, 850, false)).to.equal("Legendary cat in 12:30")
-			expect(Pity.timerLine(100, mythical, 100, false)).to.equal("Mythical cat in 0:00")
-			expect(Pity.timerLine(160, legendary, 100, false)).to.equal("Legendary cat in 0:00")
-			expect(Pity.timerLine(161, legendary, 100, false)).to.equal("Legendary cat: any moment now!")
-			expect(Pity.timerLine(5000, legendary, 100, true)).to.equal("Legendary cat out now!")
-		end)
+		it(
+			"writes each line: a countdown, out now, any moment now, never a negative time",
+			function()
+				expect(Pity.timerLine(100, legendary, 850, false)).to.equal(
+					"Legendary cat in 12:30"
+				)
+				expect(Pity.timerLine(100, mythical, 100, false)).to.equal("Mythical cat in 0:00")
+				expect(Pity.timerLine(160, legendary, 100, false)).to.equal("Legendary cat in 0:00")
+				expect(Pity.timerLine(161, legendary, 100, false)).to.equal(
+					"Legendary cat: any moment now!"
+				)
+				expect(Pity.timerLine(5000, legendary, 100, true)).to.equal(
+					"Legendary cat out now!"
+				)
+			end
+		)
 
 		it("puts the folder's timers on the sign's lines", function()
 			local t = 1000
@@ -315,6 +333,23 @@ return function()
 			expect(lines[1]).to.equal("Legendary cat in 30:00")
 			expect(lines[2]).to.equal("Mythical cat out now!")
 			expect(lines[3]).to.equal("Caught by Sam")
+		end)
+	end)
+
+	describe("a pity cat caught in another server (#2567)", function()
+		it("shows its banner and name only in the winner's server", function()
+			expect(Pity.caughtBanner("Sam")).to.equal("Sam caught the pity cat!")
+			expect(Pity.caughtBanner(nil)).to.equal(nil)
+			expect(Pity.caughtBanner("")).to.equal(nil)
+			-- the sign of a server that didn't win shows no "Caught by"
+			expect(Pity.signLines(0, "caught", "woods", "")[3]).to.equal("")
+			expect(Pity.signLines(0, "caught", "woods", nil)[3]).to.equal("")
+		end)
+
+		it("tells a beaten catcher here without naming the winner", function()
+			expect(Pity.LOST_TEXT).to.equal(
+				"A player in another server caught it first, so it puffed out of your net."
+			)
 		end)
 	end)
 end

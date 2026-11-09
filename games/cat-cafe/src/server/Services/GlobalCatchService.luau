@@ -36,10 +36,14 @@ local function onMessage(message: any)
 end
 
 -- A catch shout-out `text` of a `rarity` cat that this server just toasted: in this server's chat, and to the
--- others when the publish gate lets it through.
-function GlobalCatchService.share(text: string, rarity: string)
+-- others when the publish gate lets it through. `here` (#2567: a pity or shower cat) keeps it in this server.
+function GlobalCatchService.share(text: string, rarity: string, here: boolean?)
 	Net.fireAll("RareCatchChat", text, rarity, false)
-	if #text > GlobalCatch.MAX_TEXT or not GlobalCatch.take(publishGate, os.clock(), rarity) then
+	if
+		here == true
+		or #text > GlobalCatch.MAX_TEXT
+		or not GlobalCatch.take(publishGate, os.clock(), rarity)
+	then
 		return
 	end
 	local message = GlobalCatch.encode(text, rarity, game.JobId)

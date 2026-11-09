@@ -1270,6 +1270,85 @@ return function()
 		)
 
 		it(
+			"fits the Codes Cat, Juniper's cart and the Day Cart in the south-west corner, facing the cannon (#2565)",
+			function()
+				local corner: { [string]: Point } = {
+					codesCat = Layout.codesCat,
+					mysteryCart = Layout.mysteryCart,
+					dayCart = Layout.dayCart,
+				}
+				for name, point in corner do
+					if not (point.x < 0 and point.z < 0) then
+						fail("%s at (%g, %g) left the south-west quarter", name, point.x, point.z)
+					end
+					expect(inside(point.x, point.z, square.floor, 4)).to.equal(true)
+					local yaw = math.rad(point.rotY or 0)
+					local lookX, lookZ = -math.sin(yaw), -math.cos(yaw)
+					local length = math.sqrt(point.x * point.x + point.z * point.z)
+					expect((lookX * -point.x + lookZ * -point.z) / length > 0.999).to.equal(true)
+				end
+				-- Model-Agent's check used the real footprints; centres at least 12 studs apart keep the wagon
+				-- (12 x 7) off its neighbours
+				local function apart(a: Point, b: Point): number
+					return math.sqrt((a.x - b.x) ^ 2 + (a.z - b.z) ^ 2)
+				end
+				expect(apart(Layout.mysteryCart, Layout.codesCat) > 12).to.equal(true)
+				expect(apart(Layout.mysteryCart, Layout.dayCart) > 12).to.equal(true)
+				expect(apart(Layout.codesCat, Layout.dayCart) > 12).to.equal(true)
+			end
+		)
+
+		it(
+			"keeps every station off the square's props and the other stations (QA 2026-11-09, #2565)",
+			function()
+				-- QA found the Mystery cart's stopgap spot 2 studs from the Rally board, which no station check
+				-- covered: centres stay 8 studs from another station and 6.5 from any prop
+				local all: { [string]: Point } = {
+					spinWheel = Layout.spinWheel,
+					fishMarket = Layout.fishMarket,
+					codesCat = Layout.codesCat,
+					dealerCart = Layout.dealerCart,
+					bellhopStand = Layout.bellhopStand,
+					mysteryCart = Layout.mysteryCart,
+					leaderboards = Layout.leaderboards,
+					cornerShop = Layout.cornerShop,
+					dayCart = Layout.dayCart,
+					thanksBoard = Layout.thanksBoard,
+				}
+				local props: { any } = { Layout.townSquare.pitySign, Layout.playerSpawn }
+				for _, prop in Layout.townSquare.rallyBoards do
+					table.insert(props, prop)
+				end
+				for _, prop in Layout.townSquare.props do
+					if prop.asset ~= "CatCafe_Square_Paving" then
+						table.insert(props, prop)
+					end
+				end
+				for name, point in all do
+					for other, there in all do
+						local gap = math.sqrt((point.x - there.x) ^ 2 + (point.z - there.z) ^ 2)
+						if other ~= name and gap < 8 then
+							fail("%s stands %.1f studs from %s", name, gap, other)
+						end
+					end
+					for _, prop in props do
+						local gap = math.sqrt((point.x - prop.x) ^ 2 + (point.z - prop.z) ^ 2)
+						if gap < 6.5 then
+							fail(
+								"%s stands %.1f studs from %s at (%g, %g)",
+								name,
+								gap,
+								prop.asset or "the spawn",
+								prop.x,
+								prop.z
+							)
+						end
+					end
+				end
+			end
+		)
+
+		it(
 			"keeps the Codes circle clear of the cross and of the Spin Wheel's prompt (QA check 2)",
 			function()
 				local codes = Layout.codesCat
@@ -2062,10 +2141,10 @@ return function()
 		)
 
 		it(
-			"lines the square's edge with eight benches, each turned square to face in (Derek 10-28, #726)",
+			"lines the square's edge with six benches, each turned square to face in (Derek 10-28, #726, #2565)",
 			function()
 				local benches = piecesOf("CatCafe_Square_Bench")
-				expect(#benches).to.equal(8)
+				expect(#benches).to.equal(6)
 				for i, bench in benches do
 					-- WorldBuilder turns a prop by CFrame.Angles(0, rad(rotY), 0); its front (-Z) is (-sin, -cos)
 					local turn = math.rad(bench.rotY or 0)

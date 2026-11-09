@@ -164,15 +164,17 @@ local FLAP_HINGE = "FlapHinge" -- the Weld that holds the flap, open or shut
 local FLAP_OPEN = 90
 local PACK_RIM = 0.66 -- the top of the pack's opening
 local PACK_MOUTH_Z = -0.33 -- the middle of the opening, front to back
-local PACKED_SCALE = 0.7 -- the packed cat's size, so its head fits the opening
+-- the packed cat's size, so its head fits the opening. #2888 (Derek2: the cat's head "like 60% smaller"): 0.4 in
+-- the 1.4x pack is about 0.56x the cat, was 0.7 in the 2x pack (1.4x)
+local PACKED_SCALE = 0.4
 local HEAD_OUT = 0.75 -- how much of the head's height shows over the rim
 local PACK_PART = "PackPart" -- the Weld that holds each part of the bag (not the flap) to its body
 -- #2733: how much wider (x) and deeper (z) the bag gets with a cat in it; its back stays against the wearer
 local BULGE = Vector3.new(1.12, 1, 1.1)
 -- #2849 (Derek2: the worn Backpack and its cat "at least 2x bigger"): the pack's size over the torso-fit one; the
 -- packed cat follows through the pack's scale. PACK_DROP (per unit of scale) lowers it so the taller bag does not
--- ride up past the shoulders.
-local PACK_GROW = 2
+-- ride up past the shoulders. #2888 (Derek2: "about 30% smaller"): 1.4, was 2.
+local PACK_GROW = 1.4
 local PACK_DROP = 0.15
 
 -- The worn pack on `character`, nil without one.

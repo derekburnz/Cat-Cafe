@@ -113,6 +113,19 @@ return function()
 			expect(Intro.shots(EAST, false)[8].caption).to.equal(Intro.SPIN_CAPTION)
 		end)
 
+		it("frames the Spin Wheel and the Codes Cat in shot 8 on a phone (#2644)", function()
+			local cuts = Intro.shots(EAST, true)[8].cuts
+			local last = cuts[#cuts].to
+			local axis = Vector3.new(last.look.X - last.position.X, 0, last.look.Z - last.position.Z).Unit
+			-- a 16:9 phone in landscape at the default 70 degree field of view shows about 51 degrees either side;
+			-- 32 leaves room for the models' width and the caption
+			for _, station in { Layout.spinWheel, Layout.codesCat } do
+				local to = Vector3.new(station.x - last.position.X, 0, station.z - last.position.Z).Unit
+				local degrees = math.deg(math.acos(math.clamp(axis:Dot(to), -1, 1)))
+				expect(degrees < 32).to.equal(true)
+			end
+		end)
+
 		it("shows night and its fresh cats before the free spin and the codes (#2113)", function()
 			local shots = Intro.shots(EAST, true)
 			expect(shots[7].night).to.equal(true)

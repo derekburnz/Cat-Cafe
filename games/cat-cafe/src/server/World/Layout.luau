@@ -292,12 +292,18 @@ Layout.plot = {
 		-- walk from the back door to the front door, the other in front of the Collector's spot.
 		waiter_4 = { x = -7, y = 0, z = 4.25 },
 		waiter_5 = { x = 4.5, y = 0, z = 8 },
+		-- #2651: Tier 6's and 7's stations (Model-Agent's fit, /mnt/project-files/Model-Agent/tier67/stations_fit.py)
+		barista_4 = { x = -4.6, y = 0, z = 11.1 },
+		greeter_3 = { x = 6.6, y = 0, z = -12.5, rotY = 55.7 },
+		entertainer_3 = { x = -12.3, y = 4.47, z = 10.1 }, -- the third cat tree's top cushion
+		waiter_6 = { x = 9.2, y = 0, z = 9.2 },
 	} :: { [string]: Point },
 
 	-- Station furniture under a slot, for the roles that have one (Catalog.spotFurniture)
 	spotFurniture = {
 		entertainer_1 = { x = -17.11, y = 0, z = 9.71 },
 		entertainer_2 = { x = 17.11, y = 0, z = 9.71 },
+		entertainer_3 = { x = -11.8, y = 0, z = 10.5 }, -- #2651: Tier 7
 	} :: { [string]: Point },
 
 	decorAnchors = {
@@ -456,6 +462,11 @@ Layout.plot = {
 		{ id = "bed_6", x = 20.4, y = 0, z = 10.32, rotY = 90, tier = 5 },
 		{ id = "bed_7", x = -20, y = 0, z = -3.5, rotY = -90, tier = 6 }, -- the left wall, past the fish tank
 		{ id = "bed_8", x = 20, y = 0, z = -5.5, rotY = 90, tier = 6 }, -- the right wall
+		-- #2651: Tier 7's two and the two more its extra slots need (Model-Agent's fit with the new stations)
+		{ id = "bed_9", x = 10.8, y = 0, z = -14.1, rotY = 180, tier = 7 }, -- left of the Tier 4 glass case
+		{ id = "bed_10", x = -17.5, y = 0, z = -12.0, rotY = -90, tier = 7 }, -- front left, in front of bed_3
+		{ id = "bed_11", x = 13.7, y = 0, z = 9.0, rotY = 0, tier = 8 }, -- behind table 6, left of the right cat tree
+		{ id = "bed_12", x = -14.7, y = 0, z = 12.5, rotY = 0, tier = 8 }, -- the back left nook between the cat trees
 	} :: { BedSpot },
 }
 
@@ -1457,42 +1468,10 @@ Layout.sewer = {
 	props = {},
 } :: AreaSpec
 
--- The Desert and the Ruins (Tier 6 and 7, tier6-7-areas.md sections 4 and 5; #2651 part 2): placeholder layouts to
--- the contract Model-Agent builds CatCafe_Desert_Set and CatCafe_Ruins_Set to (set space: the pivot at the centre on
--- the floor, -Z toward the camp and the town). Both are long along world Z. Their cat spots are a placeholder grid,
--- `near` in the first third and `deep` past it, until the sets' manifest points_roblox replace them; their five
--- rescue spots are the drafts' traps, built into the sets. WorldBuilder builds only Catalog.areas, so nothing here is
--- in the world until the areas open (part 3).
-local function gridPoints(
-	cx: number,
-	cz: number,
-	turn: number,
-	halfWidth: number,
-	halfDepth: number,
-	near: number,
-	deep: number
-): { Point }
-	local points: { Point } = {}
-	local split = -halfDepth + (2 * halfDepth) / 3 -- set z where the deep zone starts
-	local function fill(count: number, z1: number, z2: number, zone: string)
-		local columns = 4
-		local rows = math.ceil(count / columns)
-		local spots: { { number } } = {}
-		for index = 0, count - 1 do
-			local column, row = index % columns, index // columns
-			local x = -halfWidth + 12 + (2 * halfWidth - 24) * (column + 0.5) / columns
-			local z = z1 + (z2 - z1) * (row + 0.5) / rows
-			table.insert(spots, { x, 0, z })
-		end
-		for _, point in setPoints(cx, cz, turn, 0.1, spots, zone) do
-			table.insert(points, point)
-		end
-	end
-	fill(near, -halfDepth + 12, split, "near")
-	fill(deep, split, halfDepth - 12, "deep")
-	return points
-end
-
+-- The Desert and the Ruins (Tier 6 and 7, tier6-7-areas.md sections 4 and 5; #2651): Model-Agent's CatCafe_Desert_Set
+-- and CatCafe_Ruins_Set (#2666, #2669; set space: the pivot at the centre on the floor, -Z toward the camp and the
+-- town), both long along world Z. Their cat spots and trap spots are the sets' manifest points_roblox, `near` on the
+-- camp half and `deep` past it; each set has a pool of 15 traps built into it.
 local DX, DZ = W.DesertCenterX, W.DesertCenterZ
 local DGATE = DZ + W.DesertDepth / 2 -- its north side, toward the town
 local DTURN = townTurn(DX, DZ, nil, DGATE)
@@ -1504,14 +1483,149 @@ Layout.desert = {
 	gateZ = DGATE,
 	openingHalfWidth = W.CampOpeningWidth / 2,
 	set = "CatCafe_Desert_Set",
-	spawnPoints = gridPoints(DX, DZ, DTURN, W.DesertWidth / 2, W.DesertDepth / 2, 26, 40),
-	-- two dunes a cat is stuck in to its chest, two clay urns and a collapsed canopy (section 4)
+	spawnPoints = (function(): { Point }
+		local points = setPoints(DX, DZ, DTURN, 0.1, {
+			{ -28.02, 0, -263 }, -- pot
+			{ -42.38, 0, -249 },
+			{ 37.16, 0, -257 },
+			{ 57.8, 0, -239 },
+			{ -25.16, 0, -197 },
+			{ 41.8, 0, -191 },
+			{ -60.02, 0, -183 },
+			{ 55.16, 0, -173 },
+			{ -18.2, 0, -135 },
+			{ 65.98, 0, -127 },
+			{ -38.2, 0, -11 },
+			{ -60.7, 0, -266.47 }, -- crate
+			{ 45.3, 0, -268.47 },
+			{ -49.61, 0, -202.11 },
+			{ 24.39, 0, -180.11 },
+			{ -55.61, 0, -128.11 },
+			{ 22, 0, -241.6 }, -- dune shade
+			{ -16, 0, -188.4 },
+			{ 44, 0, -208.4 },
+			{ -44, 0, -138.4 },
+			{ -8, 1.6, -230 }, -- rock
+			{ 60, 1.6, -200 },
+			{ -36, 1.6, -170 },
+			{ 8, 1.6, -140 },
+			{ -60, 0, -228 }, -- dune
+			{ 30, 0, -232 },
+			{ -30, 0, -228 },
+			{ 60, 0, -214 },
+			{ -66, 0, -146 },
+			{ 46, 0, -136 },
+			{ -6, 0, -168 },
+			{ -52, 0, -246 }, -- canopy shade
+			{ -14.5, 0, -79.5 }, -- alcove
+			{ -11.85, 0, -76.46 },
+			{ 14.5, 0, -49.5 },
+			{ 10.57, 0, -48.02 },
+			{ 5.5, 0, -102 }, -- canyon
+			{ -5.5, 0, -84 },
+			{ -5.5, 0, -56 },
+			{ -3.5, 0, -28 },
+			{ 66, 0, -96 }, -- side passage
+			{ 63, 0, -70 },
+			{ 63, 0, -46 },
+			{ 63, 0, -30 },
+			{ -2.9, 0, -93.6 }, -- boulder
+			{ 5.61, 0, -67.28 },
+			{ 68.1, 0, -86.47 },
+			{ 14, 0, -6 }, -- flats
+			{ -63, 2.42, -7 }, -- terrace
+			{ 63, 2.42, -1 },
+		}, "near")
+		for _, point in
+			setPoints(DX, DZ, DTURN, 0.1, {
+				{ 39.16, 0, 99 }, -- pot
+				{ -0.02, 0, 69 },
+				{ -56.84, 0, 247 },
+				{ 63.8, 0, 195 },
+				{ -60.02, 0, 165 },
+				{ -46, 1.8, 72 }, -- rock
+				{ 48, 1.8, 18 },
+				{ 12, 1.8, 120 },
+				{ 30, 0, 12 }, -- canopy shade
+				{ -34, 0, 88 },
+				{ -27.6, 0, 19.23 }, -- wagon
+				{ -30.15, 0, 26.01 },
+				{ -38, 0, 4 }, -- flats
+				{ 40, 0, 36 },
+				{ -18, 0, 46 },
+				{ 26, 0, 82 },
+				{ -24, 0, 112 },
+				{ 42, 0, 122 },
+				{ -44, 0, 124 },
+				{ -63, 2.42, 31 }, -- terrace
+				{ -63, 2.42, 75 },
+				{ -63, 2.42, 117 },
+				{ 63, 2.42, 37 },
+				{ 63, 2.42, 81 },
+				{ 63, 2.42, 123 },
+				{ -53.5, 1.2, 24 }, -- terrace step
+				{ -53.5, 1.2, 96 },
+				{ 53.5, 1.2, 24 },
+				{ 53.5, 1.2, 96 },
+				{ -43.6, 0, 38.6 }, -- palm stump
+				{ 48.4, 0, 64.6 },
+				{ -5.6, 0, 98.6 },
+				{ -16.4, 0, 167.4 }, -- obelisk
+				{ 23.6, 0, 167.4 },
+				{ -16.4, 0, 193.4 },
+				{ 23.6, 0, 193.4 },
+				{ -40.4, 0, 179.4 },
+				{ 49.6, 0, 157.4 },
+				{ -8, 0, 162 }, -- courtyard
+				{ 10, 0, 190 },
+				{ -34, 0, 200 },
+				{ 36, 0, 186 },
+				{ -15.5, 2.8, 213.25 }, -- pyramid tier
+				{ 15.5, 2.8, 213.25 },
+				{ -11, 5.6, 217.75 },
+				{ 11, 5.6, 217.75 },
+				{ -7, 8.4, 222.25 },
+				{ 7, 8.4, 222.25 },
+				{ -7, 11.2, 226.75 },
+				{ 7, 11.2, 226.75 },
+				{ -3.4, 14, 231.6 }, -- pyramid top
+				{ 3.4, 14, 231.6 },
+				{ -50, 0, 230 }, -- pyramid foot
+				{ 52, 0, 252 },
+				{ -56, 0, 262 },
+				{ 40, 0, 214 },
+			}, "deep")
+		do
+			table.insert(points, point)
+		end
+		return points
+	end)(),
+	-- two dunes a cat is stuck in to its chest, two clay urns and a collapsed canopy (section 4), each spot with its
+	-- piece's turn (manifest.json points_roblox trap_sand_dune, trap_clay_urn, trap_collapsed_canopy)
 	rescueSpots = {
-		setTrap(DX, DZ, DTURN, "sand_dune", { -40, 0, -60 }),
-		setTrap(DX, DZ, DTURN, "sand_dune", { 40, 0, 150 }),
-		setTrap(DX, DZ, DTURN, "clay_urn", { 45, 0, 20 }),
-		setTrap(DX, DZ, DTURN, "clay_urn", { -45, 0, 210 }),
-		setTrap(DX, DZ, DTURN, "canopy", { 0, 0, 90 }),
+		setTrap(DX, DZ, DTURN, "sand_dune", { -62, 0, -160 }),
+		setTrap(DX, DZ, DTURN, "sand_dune", { 44, 0, 172 }),
+		setTrap(DX, DZ, DTURN, "clay_urn", { -60, 0, 102 }, -30),
+		setTrap(DX, DZ, DTURN, "clay_urn", { 60, 0, 262 }, 200),
+		setTrap(DX, DZ, DTURN, "collapsed_canopy", { 30, 0, 112 }, 20),
+	},
+	-- the spots the day's traps are picked from (RescuePick, #2240): today's five first, then the rest of the set's 15
+	rescuePool = {
+		setTrap(DX, DZ, DTURN, "sand_dune", { -62, 0, -160 }),
+		setTrap(DX, DZ, DTURN, "sand_dune", { 44, 0, 172 }),
+		setTrap(DX, DZ, DTURN, "clay_urn", { -60, 0, 102 }, -30),
+		setTrap(DX, DZ, DTURN, "clay_urn", { 60, 0, 262 }, 200),
+		setTrap(DX, DZ, DTURN, "collapsed_canopy", { 30, 0, 112 }, 20),
+		setTrap(DX, DZ, DTURN, "sand_dune", { 43, 0, -176 }),
+		setTrap(DX, DZ, DTURN, "sand_dune", { -30, 0, -6 }),
+		setTrap(DX, DZ, DTURN, "sand_dune", { -30, 0, 180 }),
+		setTrap(DX, DZ, DTURN, "sand_dune", { -20, 0, 88 }),
+		setTrap(DX, DZ, DTURN, "clay_urn", { -32, 0, -124 }, 160),
+		setTrap(DX, DZ, DTURN, "clay_urn", { -30, 0, 122 }, 30),
+		setTrap(DX, DZ, DTURN, "clay_urn", { 42, 0, 204 }, -120),
+		setTrap(DX, DZ, DTURN, "collapsed_canopy", { 52, 0, -126 }, -70),
+		setTrap(DX, DZ, DTURN, "collapsed_canopy", { -58, 0, 156 }, 80),
+		setTrap(DX, DZ, DTURN, "collapsed_canopy", { 56, 0, 236 }, -100),
 	},
 	props = {},
 } :: AreaSpec
@@ -1530,14 +1644,143 @@ Layout.ruins = {
 	-- the mist catch (section 5): 20 below the plateau, 40 round it; the set keeps that band clear of anything solid
 	catchBelow = 20,
 	catchMargin = 40,
-	spawnPoints = gridPoints(RX, RZ, RTURN, W.RuinsWidth / 2, W.RuinsDepth / 2, 28, 42),
-	-- two rubble piles, two stone urns and the broken bridge ledge (section 5)
+	spawnPoints = (function(): { Point }
+		local points = setPoints(RX, RZ, RTURN, 0.1, {
+			{ -33.6, 0, -279 }, -- gargoyle plinth
+			{ 33.6, 0, -279 },
+			{ -33.6, 0, -263 },
+			{ 33.6, 0, -263 },
+			{ -33.6, 0, -247 },
+			{ 33.6, 0, -247 },
+			{ -33.6, 0, -231 },
+			{ 33.6, 0, -231 },
+			{ -33.6, 0, -215 },
+			{ 33.6, 0, -215 },
+			{ -33.6, 0, -199 },
+			{ 33.6, 0, -199 },
+			{ -33.6, 0, -183 },
+			{ 33.6, 0, -183 },
+			{ -18, 0, -272 }, -- avenue
+			{ 18, 0, -272 },
+			{ -18, 0, -240 },
+			{ 18, 0, -240 },
+			{ -18, 0, -208 },
+			{ 18, 0, -208 },
+			{ -18, 0, -176 },
+			{ 18, 0, -176 },
+			{ -47.6, 0, -271.6 }, -- rubble
+			{ 50.4, 0, -263.6 },
+			{ -55.6, 0, -237.6 },
+			{ 59.4, 0, -225.6 },
+			{ -42.6, 0, -207.6 },
+			{ 54.4, 0, -197.6 },
+			{ -57.6, 0, -185.6 },
+			{ -42.6, 0, -139.6 },
+			{ 26.4, 0, -113.6 },
+			{ -41.2, 0, -255.4 }, -- urn
+			{ 46.8, 0, -241.4 },
+			{ -37.2, 0, -191.4 },
+			{ -57.07, 0, -223.7 }, -- column foot
+			{ 54.93, 0, -277.7 },
+			{ 38.93, 0, -211.7 },
+			{ 37.2, 0, -120.2 },
+			{ 49.2, 0, -86.2 },
+			{ 31.2, 0, -12.2 },
+			{ 55.2, 0, -12.2 },
+			{ -0.8, 0, -138.2 },
+			{ -58, 3.6, -110 }, -- stylobate
+			{ -46, 3.6, -92 },
+			{ -26, 3.6, -68 },
+			{ -58, 3.6, -44 },
+			{ -30, 3.6, -28 },
+			{ -14, 3.6, -112 },
+			{ 22.38, 0, -134.57 }, -- drums
+			{ 45.91, 0, -106.56 },
+			{ 26.93, 0, -86.75 },
+			{ 22.38, 0, -38.17 },
+			{ 47.72, 0, -34.19 },
+			{ 40, 0, -142 }, -- colonnade
+			{ 24, 0, -54 },
+		}, "near")
+		for _, point in
+			setPoints(RX, RZ, RTURN, 0.1, {
+				{ -47.4, 0, 197 }, -- gargoyle plinth
+				{ 52.6, 0, 197 },
+				{ -31.6, 0, 6.4 }, -- rubble
+				{ -37.2, 0, 26.6 }, -- urn
+				{ 42.8, 0, 24.6 },
+				{ -17.2, 0, 174.6 },
+				{ 26.8, 0, 174.6 },
+				{ 36, 0, 6 }, -- colonnade
+				{ -53.25, 0, 50 }, -- glyph hall
+				{ -27, 0, 62 },
+				{ 0, 0, 56 },
+				{ 27, 0, 84 },
+				{ 53.25, 0, 60 },
+				{ -53.25, 0, 140 },
+				{ -27, 0, 132 },
+				{ 27, 0, 118 },
+				{ 53.25, 0, 160 },
+				{ -27, 0, 160 },
+				{ 0, 0, 150 },
+				{ 27, 0, 162 },
+				{ -6, 0, 92 },
+				{ 16.63, 0, 242.89 }, -- court
+				{ 6.89, 0, 252.63 },
+				{ -6.89, 0, 252.63 },
+				{ -16.63, 0, 242.89 },
+				{ -16.63, 0, 229.11 },
+				{ -6.89, 0, 219.37 },
+				{ 6.89, 0, 219.37 },
+				{ 16.63, 0, 229.11 },
+				{ 27.71, 1.2, 252 }, -- court step
+				{ -27.71, 1.2, 252 },
+				{ -24.51, 1.2, 215.43 },
+				{ 24.51, 1.2, 215.43 },
+				{ 31.18, 2.4, 254 },
+				{ -31.18, 2.4, 254 },
+				{ -27.58, 2.4, 212.86 },
+				{ 27.58, 2.4, 212.86 },
+				{ 8.6, 0, 234 }, -- fountain
+				{ 0, 4.2, 262.4 }, -- throne
+				{ -7, 1.2, 258.5 }, -- throne dais
+				{ -56, 0, 250 }, -- court edge
+				{ 58, 0, 260 },
+				{ -50, 0, 214 },
+				{ 46, 0, 286 },
+				{ -20, 0, 286 },
+			}, "deep")
+		do
+			table.insert(points, point)
+		end
+		return points
+	end)(),
+	-- two rubble piles, two stone urns and the broken bridge ledge (section 5), the ledge's prompt reaching about 6
+	-- across from the parapet (manifest.json points_roblox trap_rubble_pile, trap_stone_urn, trap_bridge_ledge)
 	rescueSpots = {
-		setTrap(RX, RZ, RTURN, "rubble_pile", { -40, 0, -70 }),
-		setTrap(RX, RZ, RTURN, "rubble_pile", { 40, 0, 160 }),
-		setTrap(RX, RZ, RTURN, "stone_urn", { 42, 0, 10 }),
-		setTrap(RX, RZ, RTURN, "stone_urn", { -42, 0, 230 }),
-		setTrap(RX, RZ, RTURN, "bridge_ledge", { 0, 0, 100 }),
+		setTrap(RX, RZ, RTURN, "rubble_pile", { -54, 0, -140 }),
+		setTrap(RX, RZ, RTURN, "rubble_pile", { 30, 0, 196 }, 30),
+		setTrap(RX, RZ, RTURN, "stone_urn", { -56, 0, 30 }),
+		setTrap(RX, RZ, RTURN, "stone_urn", { 54, 0, 282 }),
+		setTrap(RX, RZ, RTURN, "bridge_ledge", { 63.2, 0.8, -100 }, 90),
+	},
+	-- the spots the day's traps are picked from (RescuePick, #2240): today's five first, then the rest of the set's 15
+	rescuePool = {
+		setTrap(RX, RZ, RTURN, "rubble_pile", { -54, 0, -140 }),
+		setTrap(RX, RZ, RTURN, "rubble_pile", { 30, 0, 196 }, 30),
+		setTrap(RX, RZ, RTURN, "stone_urn", { -56, 0, 30 }),
+		setTrap(RX, RZ, RTURN, "stone_urn", { 54, 0, 282 }),
+		setTrap(RX, RZ, RTURN, "bridge_ledge", { 63.2, 0.8, -100 }, 90),
+		setTrap(RX, RZ, RTURN, "rubble_pile", { 52, 0, -180 }, 60),
+		setTrap(RX, RZ, RTURN, "rubble_pile", { 40, 0, -20 }, -30),
+		setTrap(RX, RZ, RTURN, "rubble_pile", { -30, 0, 182 }, 10),
+		setTrap(RX, RZ, RTURN, "rubble_pile", { 56, 0, 210 }, 80),
+		setTrap(RX, RZ, RTURN, "rubble_pile", { -54, 0, 276 }, -40),
+		setTrap(RX, RZ, RTURN, "stone_urn", { -48, 0, 0 }),
+		setTrap(RX, RZ, RTURN, "stone_urn", { 54, 0, 30 }),
+		setTrap(RX, RZ, RTURN, "stone_urn", { -60, 0, 120 }),
+		setTrap(RX, RZ, RTURN, "stone_urn", { 60, 0, 150 }),
+		setTrap(RX, RZ, RTURN, "stone_urn", { -30, 0, 290 }),
 	},
 	props = {},
 } :: AreaSpec
@@ -1592,12 +1835,12 @@ Layout.townSquare = {
 	-- north sign arch, each turned to face the spawn. #2367 (Derek2 11-07, "only 1 is needed 2 juts adds clutter")
 	-- keeps the left one, off the Fish Market's side. WorldBuilder.setRally shows it while a Rally runs.
 	rallyBoards = {
-		{ asset = "CatCafe_Square_RallyBoard", x = -15, y = 0.1, z = 25, rotY = -21.04 },
+		{ asset = "CatCafe_Square_RallyBoard", x = -15.5, y = 0.1, z = 35, rotY = -17.55 }, -- #2707
 	} :: { Prop },
 	-- The pity cat's sign (#1572, luck-and-rare-moments.md 1h; Model-Agent #1592: `CatCafe_Square_PitySign`, front
 	-- -Z, its Screen 5.6 x 2.8): the manifest's suggested spot across the street from the Day Cart, turned to face the
 	-- player spawn (#1753: it was never placed). WorldBuilder tags it PitySign for the countdown on its Screen.
-	pitySign = { asset = "CatCafe_Square_PitySign", x = 13.5, y = 0.1, z = -23, rotY = 123.69 } :: Prop,
+	pitySign = { asset = "CatCafe_Square_PitySign", x = 15, y = 0.1, z = -33, rotY = 141.71 } :: Prop, -- #2707
 	-- The Town Square set (Model-Agent #435): the asset manifest's placements_roblox rows for each CatCafe_Square_*
 	-- piece, in world space (x, y, z, turn in degrees): the paving with its own slab, the two sign arches over the
 	-- street, then the edge (Derek 10-28, Model-Agent #726): twelve lamps on the brick border, eight long buntings
@@ -1608,59 +1851,76 @@ Layout.townSquare = {
 	-- its model is in (AssetRegistry.known).
 	props = {
 		{ asset = "CatCafe_Square_Paving", x = 0, y = 0.1, z = 0 },
-		{ asset = "CatCafe_Square_SignArch", x = 0, y = 0.1, z = -32 },
-		{ asset = "CatCafe_Square_SignArch", x = 0, y = 0.1, z = 32, rotY = 180 },
-		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = -31, rotY = 45 },
-		{ asset = "CatCafe_Square_Lamp", x = -24.5, y = 0.1, z = -31, rotY = 90 },
+		{ asset = "CatCafe_Square_SignArch", x = 0, y = 0.1, z = -44 },
+		{ asset = "CatCafe_Square_SignArch", x = 0, y = 0.1, z = 44, rotY = 180 },
+		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = -43, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = -24.5, y = 0.1, z = -43, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = -25.75 },
 		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = -8.5 },
-		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = 31, rotY = 45 },
-		{ asset = "CatCafe_Square_Lamp", x = -24.5, y = 0.1, z = 31, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = 43, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = -24.5, y = 0.1, z = 43, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = 25.75 },
 		{ asset = "CatCafe_Square_Lamp", x = -47, y = 0.1, z = 8.5 },
-		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = -31, rotY = 45 },
-		{ asset = "CatCafe_Square_Lamp", x = 24.5, y = 0.1, z = -31, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = -43, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = 24.5, y = 0.1, z = -43, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = -25.75 },
 		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = -8.5 },
-		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = 31, rotY = 45 },
-		{ asset = "CatCafe_Square_Lamp", x = 24.5, y = 0.1, z = 31, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = 43, rotY = 45 },
+		{ asset = "CatCafe_Square_Lamp", x = 24.5, y = 0.1, z = 43, rotY = 90 },
+		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = 25.75 },
 		{ asset = "CatCafe_Square_Lamp", x = 47, y = 0.1, z = 8.5 },
-		{ asset = "CatCafe_Square_Bunting", x = -35.75, y = 0.1, z = -31 },
-		{ asset = "CatCafe_Square_Bunting", x = -47, y = 0.1, z = -19.75, rotY = 90 },
-		{ asset = "CatCafe_Square_Bunting", x = -35.75, y = 0.1, z = 31 },
-		{ asset = "CatCafe_Square_Bunting", x = -47, y = 0.1, z = 19.75, rotY = 90 },
-		{ asset = "CatCafe_Square_Bunting", x = 35.75, y = 0.1, z = -31 },
-		{ asset = "CatCafe_Square_Bunting", x = 47, y = 0.1, z = -19.75, rotY = 90 },
-		{ asset = "CatCafe_Square_Bunting", x = 35.75, y = 0.1, z = 31 },
-		{ asset = "CatCafe_Square_Bunting", x = 47, y = 0.1, z = 19.75, rotY = 90 },
+		{ asset = "CatCafe_Square_Bunting", x = -35.75, y = 0.1, z = -43 },
+		{ asset = "CatCafe_Square_Bunting", x = -35.75, y = 0.1, z = 43 },
+		{ asset = "CatCafe_Square_Bunting", x = 35.75, y = 0.1, z = -43 },
+		{ asset = "CatCafe_Square_Bunting", x = 35.75, y = 0.1, z = 43 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -47, y = 0.1, z = -17.125, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -47, y = 0.1, z = -34.375, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -47, y = 0.1, z = 17.125, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = -47, y = 0.1, z = 34.375, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 47, y = 0.1, z = -17.125, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 47, y = 0.1, z = -34.375, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 47, y = 0.1, z = 17.125, rotY = 90 },
+		{ asset = "CatCafe_Square_BuntingSide", x = 47, y = 0.1, z = 34.375, rotY = 90 },
 		{ asset = "CatCafe_Square_BuntingShort", x = -47, y = 0.1, z = 0, rotY = 90 },
 		{ asset = "CatCafe_Square_BuntingShort", x = 47, y = 0.1, z = 0, rotY = 90 },
-		{ asset = "CatCafe_Square_Bench", x = -35.75, y = 0.1, z = 29.4 },
-		{ asset = "CatCafe_Square_Bench", x = -45.4, y = 0.1, z = 19.75, rotY = 270 },
-		{ asset = "CatCafe_Square_Bench", x = 35.75, y = 0.1, z = -29.4, rotY = 180 },
-		{ asset = "CatCafe_Square_Bench", x = 45.4, y = 0.1, z = -19.75, rotY = 90 },
-		{ asset = "CatCafe_Square_Bench", x = 35.75, y = 0.1, z = 29.4 },
-		{ asset = "CatCafe_Square_Bench", x = 45.4, y = 0.1, z = 19.75, rotY = 90 },
+		{ asset = "CatCafe_Square_Bench", x = -35.75, y = 0.1, z = -41.4, rotY = 180 },
+		{ asset = "CatCafe_Square_Bench", x = -45.4, y = 0.1, z = -34.375, rotY = 270 },
+		{ asset = "CatCafe_Square_Bench", x = -35.75, y = 0.1, z = 41.4 },
+		{ asset = "CatCafe_Square_Bench", x = -45.4, y = 0.1, z = 34.375, rotY = 270 },
+		{ asset = "CatCafe_Square_Bench", x = 35.75, y = 0.1, z = -41.4, rotY = 180 },
+		{ asset = "CatCafe_Square_Bench", x = 45.4, y = 0.1, z = -34.375, rotY = 90 },
+		{ asset = "CatCafe_Square_Bench", x = 35.75, y = 0.1, z = 41.4 },
+		{ asset = "CatCafe_Square_Bench", x = 45.4, y = 0.1, z = 34.375, rotY = 90 },
 		{ asset = "CatCafe_Square_Garden", x = -58.5, y = 0.1, z = -19.5, rotY = -90 },
 		{ asset = "CatCafe_Square_Garden", x = -58.5, y = 0.1, z = 19.5, rotY = -90 },
 		{ asset = "CatCafe_Square_Garden", x = 58.5, y = 0.1, z = -19.5, rotY = 90 },
 		{ asset = "CatCafe_Square_Garden", x = 58.5, y = 0.1, z = 19.5, rotY = 90 },
-		-- #1130: the bed between each side's two gardens (17 x 12, kerbs front and back), where the paving's side paths
-		-- were; it spans z -8.5 to 8.5 and meets the gardens' end kerbs
+		{ asset = "CatCafe_Square_GardenEnd", x = -58.5, y = 0.1, z = -36.5, rotY = -90 },
+		{ asset = "CatCafe_Square_GardenEnd", x = -58.5, y = 0.1, z = 36.5, rotY = -90 },
+		{ asset = "CatCafe_Square_GardenEnd", x = 58.5, y = 0.1, z = -36.5, rotY = 90 },
+		{ asset = "CatCafe_Square_GardenEnd", x = 58.5, y = 0.1, z = 36.5, rotY = 90 },
 		{ asset = "CatCafe_Square_GardenMid", x = -58.5, y = 0.1, z = 0, rotY = -90 },
 		{ asset = "CatCafe_Square_GardenMid", x = 58.5, y = 0.1, z = 0, rotY = 90 },
 	} :: { Prop },
 }
 
+-- #2707 (Derek2 2026-11-09: the Mystery cart hid the Codes Cat; "expand the town square by 25-50%"): the square is
+-- 44 deep either side (was 32) and every quarter station moved to Model-Agent's re-fit (handoff in
+-- Model-Agent/square2707: bodies 3 apart, walk-up rings clear, and no station hides more than 25% of another from
+-- the spawn or the cannon but the Thanks board behind the night cart, #1388). Sixteen edge lamps, eight side buntings,
+-- eight benches and four GardenEnd beds; the cannon, its pad, the spawn, the Bellhop stand and the leaderboards stay.
 -- The stations, one per quarter: the Spin Wheel (F49) and the Golden Fish Market (F53) north of the lane, the Codes
 -- Cat (F65; its CodesCircle 6 studs in front, toward the fountain) and the night dealer's cart (data-model section
 -- 8b, parked from dusk; the dealer stands at its +X end) south of it. #1215: the Fish Market sits back toward the
 -- north-east corner, clear of the leaderboard row by 3.2 studs and the north bench by 2.9 (Model-Agent's check).
-Layout.spinWheel = station(-28, 16)
-Layout.fishMarket = station(33.5, 20)
+Layout.spinWheel = station(-28, 22)
+Layout.fishMarket = station(33.5, 28)
 -- #2565 (mystery-market.md section 1): the Codes Cat moved from (-28, -16) to the south-west corner with the Day Cart
 -- and Juniper's cart (Model-Agent's clearance check with the real model sizes, 2026-11-09).
-Layout.codesCat = station(-41, -25)
+Layout.codesCat = station(-29, -16)
 -- #1388: the night market parks in front of the Thank You board (below), on its line to the cannon, so the board
 -- stands 8.5 studs behind the cart with about 6.5 clear between them.
-Layout.dealerCart = station(29.5, -16)
+Layout.dealerCart = station(29.5, -22)
 Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
 -- The free Bellhop Cat's stand (F96, starter-cat.md section 2): between the Codes Cat and the Spin Wheel, at the west
 -- end of the lane, which leads nowhere since the side arches closed (v4). Out at x -38 its 12 stud card stays clear
@@ -1670,7 +1930,7 @@ Layout.bellhopStand = station(-38, 0)
 -- between the Codes Cat and the Day Cart (Model-Agent's spot, 2026-11-09; the two south-west benches came out). For
 -- its 12 x 7 wagon with the r4 walk-in circle 1 stud in front: the Codes circle is 2.6 studs off, the Day Cart 3.2
 -- and the lane 2.5. Design's (-24, -14) put the circle 0.3 into the lane.
-Layout.mysteryCart = station(-27, -17)
+Layout.mysteryCart = station(-36, -31)
 
 -- The leaderboards (F98, leaderboards.md section 2; Model-Agent #758): CatCafe_Town_LeaderboardRow, three chalkboards
 -- in a row 23.8 long and 2.7 deep, at the lane's east end, mirroring the Bellhop stand, facing the cannon. Turned, the
@@ -1682,18 +1942,18 @@ Layout.leaderboards = station(40, 0)
 -- Fish Market by 1.95 studs, the north sign arch's post by 1.2, the bunting line by 0.8, the lamp by 4.4 and the
 -- street by 7.1.
 -- #1577 (day-cart.md section 3): the shop's old building, built only until the Day Cart's model arrives.
-Layout.cornerShop = station(21, 24)
+Layout.cornerShop = station(21, 33)
 
 -- The Day Cart (#1577, day-cart.md section 3): the Corner Shop on CatCafe_Town_DayCart, in the square's south-west
 -- quarter opposite the Golden Fish Market. Model-Agent's spot (#1592) keeps the walk lines and the cannon clear.
 -- #2565: nudged from (-17, -24) for the Mystery Market corner; 2.6 studs from the street and 4.2 from the arch post.
-Layout.dayCart = station(-15, -25)
+Layout.dayCart = station(-17, -35)
 
 -- The Thank You board (#1083, idea-credits.md section 3): CatCafe_Street_ThanksBoard (12 x 1.5), facing the cannon.
 -- #1388 (the friend, 11-05): moved from beside the Codes Cat to the left of the leaderboard row (its Index end, -Z),
 -- with the night dealer's cart parked in front of it. Model-Agent's spot: it runs from about (34, -25) to (40, -15),
 -- clear of the row's corner by 2.5 studs, the east bench behind it by 5, the south bench by 3.1 and the lane by 8.4.
-Layout.thanksBoard = station(37, -20)
+Layout.thanksBoard = station(37, -28.5)
 
 -- The Index Boards (F50, areas-and-stations.md; the asset manifest's `placement`): one in each camp (v4, F84,
 -- hometown-cannon.md section 4), in camp space (Layout.campPoint), filled in with the camps below.
@@ -1723,13 +1983,8 @@ Layout.areas = {
 	neighbourhood = Layout.neighbourhood,
 	woods = Layout.woods,
 	sewer = Layout.sewer,
-} :: { [string]: AreaSpec }
-
--- #2651 part 2: the Desert and the Ruins, laid out but not yet in the game. They join Layout.areas when they open
--- (part 3), which brings their camps, pads, gates and traps into everything that walks Layout.areas.
-Layout.lateAreas = {
-	desert = Layout.desert,
-	ruins = Layout.ruins,
+	desert = Layout.desert, -- #2651: Tier 6
+	ruins = Layout.ruins, -- Tier 7
 } :: { [string]: AreaSpec }
 
 -- Camps (v4, F84, hometown-cannon.md section 4): every wild area's camp lies across its whole width in front of its
@@ -1804,11 +2059,6 @@ local function campFor(id: string, spec: AreaSpec): Camp?
 end
 
 Layout.camps = {} :: { [string]: Camp }
--- #2651: the late areas' camps, worked out the same way and kept apart until they open
-Layout.lateCamps = {} :: { [string]: Camp }
-for id, spec in Layout.lateAreas do
-	Layout.lateCamps[id] = campFor(id, spec) :: Camp
-end
 for id, spec in Layout.areas do
 	local camp = campFor(id, spec)
 	if camp ~= nil then
@@ -1943,10 +2193,10 @@ for id, camp in Layout.camps do
 end
 
 -- The turn about Y (degrees) from the town cannon's rest that points its barrel at `destination`'s landing pad: south
--- for the Park, north for the Neighbourhood, west for the Woods, east for the Sewer, about -137 for the Alleyway, 129
--- for the Desert and 51.5 for the Ruins. 0 for anything else.
+-- for the Park, north for the Neighbourhood, west for the Woods, east for the Sewer, about -132 for the Alleyway, 128.3
+-- for the Desert and 52.2 for the Ruins. 0 for anything else.
 function Layout.cannonAim(destination: string): number
-	local camp = Layout.camps[destination] or Layout.lateCamps[destination]
+	local camp = Layout.camps[destination]
 	if camp == nil then
 		return 0
 	end

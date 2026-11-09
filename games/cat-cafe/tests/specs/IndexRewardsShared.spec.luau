@@ -9,8 +9,9 @@ return function()
 	local Prizes = require(ReplicatedStorage.Shared.Prizes)
 	local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 
-	local AREAS = { "alley", "park", "neighbourhood", "woods", "sewer" }
-	local POOLS = { "alley", "park", "neighbourhood", "woods", "sewer", "classic", "rally" } -- rally: F101
+	local AREAS = { "alley", "park", "neighbourhood", "woods", "sewer", "desert", "ruins" } -- #2651: Tier 6 and 7
+	-- rally: F101; desert and ruins: #2651
+	local POOLS = { "alley", "park", "neighbourhood", "woods", "sewer", "desert", "ruins", "classic", "rally" }
 	local AREA_MILESTONES =
 		{ "cats3", "cats6", "cats10", "gold1", "gold2", "gold4", "gold6", "gold8", "gold10" }
 
@@ -79,7 +80,7 @@ return function()
 			})
 		end)
 
-		it("gives every area page both tracks: +7% tips and +30% gold luck forever", function()
+		it("gives every area page both tracks: +7% tips and +30% gold luck forever (none past the Sewer)", function()
 			for _, areaId in AREAS do
 				local prizes = Catalog.indexPrizes[areaId]
 				assert(prizes)
@@ -97,7 +98,9 @@ return function()
 						"bonus"
 					)
 				).to.be.near(0.07, 1e-9)
-				expect(sum(prizes, "goldLuck")).to.be.near(0.30, 1e-9)
+				-- #2651 (tier6-7-areas.md 7b): the first five pages already reach GoldLuckMax, so the Desert and Ruins add none
+				local late = areaId == "desert" or areaId == "ruins"
+				expect(sum(prizes, "goldLuck")).to.be.near(if late then 0 else 0.30, 1e-9)
 				expect(sum(prizes, "baitSpeed")).to.equal(0)
 				expect(prizes.gold10.tag).to.equal(
 					(Catalog.getArea(areaId) :: any).name .. " Gold Master"
@@ -207,7 +210,7 @@ return function()
 		)
 
 		it(
-			"has no page beyond the areas, All Cats, the seven Decor Index pages and Rainbow",
+			"has no page beyond the areas, All Cats, the nine Decor Index pages and Rainbow",
 			function()
 				for pageId in pairs(Catalog.indexPrizes) do
 					local known = table.find(AREAS, pageId) ~= nil
@@ -256,7 +259,7 @@ return function()
 		end)
 
 		it("retired the gold Index decor; the five Index pieces are their zones' Epics", function()
-			for _, areaId in AREAS do
+			for _, areaId in { "alley", "park", "neighbourhood", "woods", "sewer" } do -- #2651: the late Epics are plain
 				expect(Catalog.getDecor("index_" .. areaId .. "_gold")).never.to.be.ok()
 				local piece = Catalog.getDecor("index_" .. areaId)
 				assert(piece)
@@ -284,7 +287,7 @@ return function()
 			for _, area in Catalog.areas do
 				expect(Prizes.crateFor(Prizes.HIGHEST, area.tier)).to.equal(area.id .. "_crate")
 			end
-			expect(Prizes.crateFor(Prizes.HIGHEST, 99)).to.equal("sewer_crate")
+			expect(Prizes.crateFor(Prizes.HIGHEST, 99)).to.equal("ruins_crate")
 			expect(Prizes.crateFor("classic_golden_crate", 1)).to.equal("classic_golden_crate")
 			expect(Prizes.crateFor("nope", 3)).never.to.be.ok()
 		end)
@@ -749,7 +752,7 @@ return function()
 
 		-- golden-fish.md sections 4, 5 and 5b: +7% tips a normal track, +5% a full Decor page, +30% gold
 		-- luck a gold track up to GoldLuckMax, 38% faster bait. No cap may eat a bonus a card promises.
-		it("sums the whole Index once: +70% tips, gold luck at its cap, 38% faster bait", function()
+		it("sums the whole Index once: +94% tips, gold luck at its cap, 38% faster bait", function()
 			local profile = fullProfile()
 			local sums = { bonus = 0, goldLuck = 0, baitSpeed = 0 }
 			for _, areaId in pages() do
@@ -768,11 +771,13 @@ return function()
 				end
 			end
 			local totals = IndexRewards.totals(profile)
-			expect(math.abs(totals.bonus - 0.70) < 1e-9).to.equal(true) -- +5% more from F101's Rally page
+			-- +5% more from F101's Rally page; #2651: +7% from each of the Desert's and the Ruins' pages and +5% from each
+			-- of their Decor pages
+			expect(math.abs(totals.bonus - 0.94) < 1e-9).to.equal(true)
 			expect(math.abs(totals.goldLuck - Config.GoldLuckMax) < 1e-9).to.equal(true)
 			expect(math.abs(totals.baitSpeed - 0.38) < 1e-9).to.equal(true)
 			-- the full Decor pages count through their decor10 claims only, not a second time for being full
-			expect(math.abs(Economy.cafeMultiplier(profile) - before - 0.70) < 1e-9).to.equal(true)
+			expect(math.abs(Economy.cafeMultiplier(profile) - before - 0.94) < 1e-9).to.equal(true)
 			expect(
 				math.abs(IndexRewards.goldChance(Config.GoldChanceBait, totals.goldLuck) - 0.125)
 					< 1e-9

@@ -1,7 +1,7 @@
 --!strict
 -- The like and favourite gift cards (#1947, like-prompts.md section 2): a small card in the middle of the screen with
 -- a thank-you line, "Gift added!" over the gift's pictures (coins and potions, at most two pictures, F94) and two
--- buttons of the same size, "How to like" or "Favorite" and Close. The gift was paid before the card came, so Close
+-- buttons of the same size, "How to like" or "Favorite" and Close (#2705: the like card on touch has Got it alone). The gift was paid before the card came, so Close
 -- keeps it. There is no backdrop, countdown or guilt line, and the card never comes back. The words are
 -- Components/GiftCardLogic's.
 --   show(kind, prize, onButton)   onButton(button) once: the first button's name ("like" or "favourite"), "close",
@@ -53,6 +53,7 @@ GiftCard.__index = GiftCard
 function GiftCard.new(parent: Instance): GiftCard
 	local self = setmetatable({}, GiftCard) :: any
 	self._onButton = nil :: ((button: string?) -> ())?
+	self._single = false -- #2705: Got it alone
 	self._kind = "like" :: GiftCardLogic.Kind
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
@@ -182,6 +183,11 @@ function GiftCard.new(parent: Instance): GiftCard
 		layoutOrder = 1,
 		parent = row,
 		onClick = function()
+			if self._single then
+				self:_press(GiftCardLogic.GOT_IT_BUTTON) -- #2705: the like card on touch closes
+				self:hide()
+				return
+			end
 			self:_press(GiftCardLogic.TEXT[self._kind].button)
 		end,
 	})
@@ -237,8 +243,15 @@ function GiftCard.show(
 	self._onButton = onButton
 	self._title.Text = text.icon .. " " .. text.title
 	self._body.Text = text.body
-	self._action:setText(text.action)
+	-- #2705: the like card on touch has Got it alone, the whole row wide
+	local single = GiftCardLogic.single(kind, Scale.isTouch())
+	self._single = single
+	self._action:setText(if single then GiftCardLogic.GOT_IT else text.action)
 	self._action.instance.Visible = true
+	self._action.instance.Size = if single
+		then UDim2.new(1, 0, 0, Theme.sizes.touchMin)
+		else UDim2.new(0.5, -GAP / 2, 0, Theme.sizes.touchMin)
+	self._closeButton.instance.Visible = not single
 	self._closeButton.instance.Size = UDim2.new(0.5, -GAP / 2, 0, Theme.sizes.touchMin)
 	self._chips:set(prize)
 	self:_layout()

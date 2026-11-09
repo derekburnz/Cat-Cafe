@@ -56,6 +56,7 @@ local predictedMoney = 0
 local lastCornerShopBuy = -math.huge
 local CORNER_SHOP_QUIET_SECONDS = 3
 local lastCarrying: string? = nil
+local shownCamp: BasePart? = nil -- #2730: the camp basket the carry marker leads to now, or nil for the door
 local lastPushedMoney = -1
 local lastTier: number? = nil
 local pendingCharmGain = 0 -- the last catch's Purrfect bonus, shown on the cat reveal at check-in
@@ -106,6 +107,56 @@ function UIController.ownDoor(): BasePart?
 	local plot = ownPlot()
 	local door = if plot ~= nil then plot:FindFirstChild("Door") else nil
 	return if door ~= nil and door:IsA("BasePart") then door :: BasePart else nil
+end
+
+-- #2730 (Derek2 2026-11-09: "when holding a cat show a bubble back to the area safe zone so people can see their way
+-- back easier"): while carrying inside a catching area (a World.Zones box other than Cafe, WorldBuilder), the carry
+-- marker leads to that area's camp basket (the nearest `CampBasket`, the camp being its safe zone, F84) instead of
+-- the far cafe door. Checked again every CAMP_CHECK_SECONDS while carrying, so walking out of an area moves it back.
+local CAMP_CHECK_SECONDS = 0.5
+
+local function inCatchingArea(position: Vector3): boolean
+	local world = Workspace:FindFirstChild("World")
+	local zones = if world ~= nil then world:FindFirstChild("Zones") else nil
+	if zones == nil then
+		return false
+	end
+	for _, box in zones:GetChildren() do
+		local part = if box:IsA("BasePart") then box :: BasePart else nil
+		if part ~= nil and part.Name ~= "Cafe" then
+			local offset = part.CFrame:PointToObjectSpace(position)
+			local half = part.Size / 2
+			if
+				math.abs(offset.X) <= half.X
+				and math.abs(offset.Y) <= half.Y
+				and math.abs(offset.Z) <= half.Z
+			then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+-- The camp basket the carry marker leads to, or nil (outside every catching area, or no basket streamed in).
+local function carryCamp(): BasePart?
+	local character = Players.LocalPlayer.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root == nil or not root:IsA("BasePart") or not inCatchingArea(root.Position) then
+		return nil
+	end
+	local best: BasePart? = nil
+	local bestDistance = math.huge
+	for _, tagged in CollectionService:GetTagged("CampBasket") do
+		local basket = if tagged:IsA("Model") then tagged.PrimaryPart else nil
+		if basket ~= nil then
+			local distance = (basket.Position - root.Position).Magnitude
+			if distance < bestDistance then
+				best, bestDistance = basket, distance
+			end
+		end
+	end
+	return best
 end
 
 -- The own cafe's back door: check-in works there too (layout v2).
@@ -668,8 +719,10 @@ local function applyState(s: Types.PlayerState)
 	if s.carrying ~= lastCarrying then
 		lastCarrying = s.carrying
 		if s.carrying ~= nil then
-			UI.setCarrying({ catId = s.carrying, door = UIController.ownDoor() })
+			shownCamp = carryCamp()
+			UI.setCarrying({ catId = s.carrying, door = UIController.ownDoor(), camp = shownCamp })
 		else
+			shownCamp = nil
 			UI.setCarrying(nil)
 		end
 	end
@@ -1115,6 +1168,13 @@ local function wireIntents()
 	if events.sessionRecapClose ~= nil then
 		events.sessionRecapClose:Connect(function(secondsUp: number)
 			Net.fire("TelemetryReport", "session_recap_close", secondsUp)
+		end)
+	end
+	-- #2694: how each "How is it so far?" ask ended, "answered|closed|ignored:early|late"; the server logs it as
+	-- feedback_ask_end, capped at the asks shown this session
+	if events.feedbackOutcome ~= nil then
+		events.feedbackOutcome:Connect(function(how: string)
+			Net.fire("TelemetryReport", "feedback_outcome", how)
 		end)
 	end
 	-- #1947: the button pressed on a like or favourite gift card, "kind:button"; the server allowlists and caps it
@@ -2043,6 +2103,23 @@ local function wireServerEvents()
 	end)
 end
 
+-- #2730: moves the carry marker between the area's camp basket and the cafe door as the carrier walks.
+local function startCampWatch()
+	task.spawn(function()
+		while true do
+			task.wait(CAMP_CHECK_SECONDS)
+			local catId = lastCarrying
+			if catId ~= nil then
+				local camp = carryCamp()
+				if camp ~= shownCamp then
+					shownCamp = camp
+					UI.setCarrying({ catId = catId, door = UIController.ownDoor(), camp = camp })
+				end
+			end
+		end
+	end)
+end
+
 -- Coins tick up locally between syncs; every ProfileSync snaps the value back to the server's.
 local function startPrediction()
 	local accumulated = 0
@@ -2165,6 +2242,7 @@ function UIController.start()
 	bindStations()
 	bindHelpPrompts()
 	startPrediction()
+	startCampWatch()
 	Net.fire("RequestSync")
 	print(string.format("[CatCafe] client ready for %s", player.Name))
 end

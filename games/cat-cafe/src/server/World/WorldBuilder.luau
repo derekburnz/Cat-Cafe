@@ -144,6 +144,17 @@ local AREA_LOOKS: { [string]: AreaLook } = {
 		floorMaterial = Enum.Material.Slate,
 		wall = Color3.fromRGB(80, 90, 85),
 	},
+	-- #2651: the plates under the Desert and Ruins sets match their backdrops (Model-Agent, #2669)
+	desert = {
+		floor = Color3.fromRGB(230, 207, 168),
+		floorMaterial = Enum.Material.Sand,
+		wall = Color3.fromRGB(204, 170, 120),
+	},
+	ruins = {
+		floor = Color3.fromRGB(167, 149, 124),
+		floorMaterial = Enum.Material.Ground,
+		wall = Color3.fromRGB(150, 145, 135),
+	},
 }
 
 local function part(
@@ -2056,6 +2067,7 @@ local SQUARE_PAVING = "CatCafe_Square_Paving"
 local RALLY_TWINS: { [string]: string } = {
 	CatCafe_Square_Bunting = "CatCafe_Square_RallyBunting",
 	CatCafe_Square_BuntingShort = "CatCafe_Square_RallyBuntingShort",
+	CatCafe_Square_BuntingSide = "CatCafe_Square_RallyBuntingSide", -- #2707: the east and west sides' buntings
 }
 local RALLY_BOARD_TAG = "RallyBoard"
 -- #1753: the pity cat's sign (Layout.townSquare.pitySign), tagged for the client's countdown on its Screen part.

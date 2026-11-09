@@ -3,8 +3,8 @@
 -- Pure: no Roblox globals, so tests can require it.
 
 export type Rarity = "Common" | "Rare" | "Epic" | "Legendary" | "Mythical"
-export type Area = "alley" | "park" | "neighbourhood" | "woods" | "sewer"
--- A cat's area: one of the five, the spare pool of cats an area-themed cat replaced (data-model 3d, F78), or
+export type Area = "alley" | "park" | "neighbourhood" | "woods" | "sewer" | "desert" | "ruins"
+-- A cat's area: one of the seven, the spare pool of cats an area-themed cat replaced (data-model 3d, F78), or
 -- "exclusive" for a cat that never spawns and is only given or sold (F95, the free Bellhop Cat of F96).
 export type CatArea = Area | "spare" | "exclusive"
 -- How an exclusive cat is had (F96): "free" from its stand, "shop" for Robux, "pass" from the Cafe Pass paid track.
@@ -1049,6 +1049,7 @@ export type Settings = {
 	sessionRecap: boolean, -- #1920: the session recap card after Config.RecapAfterSeconds of play
 	autoEquip: boolean, -- #1955: Auto Equip, on for new accounts and off for saves from before it
 	catIncome: boolean, -- #2551: the rate tags over working cats (UI WorldTags), on by default
+	goalFolded: boolean, -- #2714: the HUD's goal card folded into its chip (touch), off by default
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished

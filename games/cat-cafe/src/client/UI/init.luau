@@ -213,6 +213,7 @@ UI.events = {
 	-- #1947 (like-prompts.md section 3), analytics only: the button pressed on a like or favourite gift card, once a
 	-- card ("like:like", "fav:favourite", "like:close"); a card left alone sends nothing
 	playtimeGift = Signal.new(), -- (what)   forward as TelemetryReport("playtime_gift", what)
+	feedbackOutcome = Signal.new(), -- (how)   #2694: "answered|closed|ignored:early|late", forward as TelemetryReport("feedback_outcome", how)
 	-- #1936 (release.md section 3), analytics only: a purchase prompt refused with no tap or during a catch, rescue or
 	-- cutscene, "source:reason" (bait, store or cafePass; no_tap or busy)
 	storeGuardBlocked = Signal.new(), -- (what)   forward as TelemetryReport("store_guard_blocked", what)
@@ -742,6 +743,15 @@ function UI.init(config: Types.InitConfig)
 	end
 	hud = HUD.new(parent, {
 		openScreen = function(name: Types.ScreenName)
+			-- #2710: on touch the Bag holds the potions, so the potion chip (and the Bag) open it on its Potions tab
+			if
+				name == "Potions"
+				and potionsScreen
+				and Scale.isTouch()
+				and modalInstance:current() ~= name
+			then
+				potionsScreen:showTab("Potions")
+			end
 			modalInstance:toggle(name)
 			if name == "Store" and modalInstance:current() ~= "Store" then
 				-- #1888: the tap closed the Store, so a noted source tags no open
@@ -1423,8 +1433,9 @@ function UI.init(config: Types.InitConfig)
 		UI.recap.lastInput = os.clock()
 	end)
 	askCard = AskCard.new(parent, {
+		-- #2694: a clear gap over the bottom row, so the ask never sits on it
 		lift = function()
-			return hudInstance:bottomTop() - Theme.sizes.gap
+			return hudInstance:bottomTop() - Theme.sizes.gap * 2
 		end,
 	})
 	table.insert(
@@ -1444,7 +1455,7 @@ function UI.init(config: Types.InitConfig)
 		end,
 	})
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
-	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker")
+	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker", nil, true) -- #2697: flashes its target
 	-- the Cat Whistle (corner-shop-v2.md section 4): a paw over the nearest stray while its buff runs
 	CatWhistle.new(
 		WorldMarker.new(parent, "CatCafeWhistleMarker", CatWhistle.REACH),
@@ -4476,13 +4487,16 @@ do
 		if ask ~= nil and popups ~= nil then
 			ask.screenGui.Enabled = not popups:isShowing()
 		end
+		if ask ~= nil then
+			ask:follow()
+		end
 		clocks.pump += dt
 		clocks.look += dt
 		if clocks.look >= TIP.LOOK_EVERY then
 			clocks.look = 0
 			lookForTips()
-			local ask: any = UI.tips -- lookForAsk is set by the ask's block below
-			ask.lookForAsk()
+			local tips: any = UI.tips -- lookForAsk is set by the ask's block below
+			tips.lookForAsk()
 		end
 		if clocks.pump >= TIP.PUMP_EVERY then
 			clocks.pump = 0
@@ -4598,15 +4612,30 @@ end
 
 -- F87 section 4: the one slide-in faces ask, once per account, after FeedbackAskMinutes of this session's play and
 -- only between activities (UI.tips.quiet: no tip showing either). It waits for ProfileSync's feedbackAsked (false,
--- not nil). Its own block, as the module is short of locals.
+-- not nil). #2681: a player never asked gets it once earlier (FeedbackLogic.earlyDue: 4 minutes, or once a cat has
+-- served customers); it is saved as asked, but left unanswered the FeedbackAskMinutes one still comes this session.
+-- Its own block, as the module is short of locals.
 do
 	local FeedbackLogic = require(script.Components.FeedbackLogic)
 	local Tips = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Tips")) :: any
 	local sessionStart = os.clock()
 	local asked = false -- this session
+	-- #2681: the early ask this session (shown, and whether a face came back), and since when a cat has held a role
+	local early = {
+		shown = false,
+		at = 0,
+		answered = false,
+		workingSince = nil :: number?,
+	}
 
 	local function openAsk(card: AskCard.AskCard)
-		asked = true
+		local first = not early.shown and not asked and state.feedbackAsked == false
+		if first then
+			early.shown = true
+			early.at = os.clock() - sessionStart
+		else
+			asked = true
+		end
 		local faces: { AskCard.Choice } = {}
 		for _, face in FeedbackLogic.FACES do
 			table.insert(faces, { id = face.id, label = face.label, icon = face.glyph })
@@ -4616,8 +4645,18 @@ do
 			choices = faces,
 			seconds = FeedbackLogic.ASK_SECONDS,
 			thanks = "Thanks!",
+			-- #2694: how it ended ("answered", "closed", "ignored", "hidden" or "replaced"); the first three go to
+			-- the funnel once each ask, after the answer's SendFeedback
+			ended = function(how: string)
+				if how == "answered" or how == "closed" or how == "ignored" then
+					UI.events.feedbackOutcome:Fire(
+						how .. ":" .. (if first then "early" else "late")
+					)
+				end
+			end,
 			answer = function(face: string?)
 				if face ~= nil then
+					early.answered = true
 					(state :: any).feedbackAsked = true
 					UI.events.sendFeedback:Fire(face, nil)
 				end
@@ -4635,7 +4674,31 @@ do
 			return
 		end
 		local played = os.clock() - sessionStart
-		if FeedbackLogic.askDue(state.feedbackAsked, played, UI.tips.quiet()) then
+		local working = false
+		for _, cat in (state.cats or {}) :: { [string]: any } do
+			if cat.spotId ~= nil then
+				working = true
+				break
+			end
+		end
+		if not working then
+			early.workingSince = nil
+		elseif early.workingSince == nil then
+			early.workingSince = os.clock()
+		end
+		local since = early.workingSince
+		local worked = if since ~= nil then os.clock() - since else 0
+		local quiet = UI.tips.quiet()
+		-- earlyDue holds whenever askDue does, so a player never asked gets this one first; an early ask left
+		-- unanswered brings the usual one, once, at FeedbackAskMinutes (it is saved as asked already)
+		local firstDue = not early.shown
+			and FeedbackLogic.earlyDue(state.feedbackAsked, played, worked, quiet)
+		local againDue = early.shown
+			and not early.answered
+			and early.at < FeedbackLogic.ASK_MINUTES * 60
+			and played >= FeedbackLogic.ASK_MINUTES * 60
+			and quiet
+		if firstDue or againDue then
 			openAsk(card)
 		end
 	end
@@ -4674,18 +4737,9 @@ do
 
 	local function hintFor(s: any, device: TipQueue.Device): string?
 		local catalog = currentCatalog
-		local levels: { [string]: number } = s.upgradeLevels or {}
-		return TutorialHints.line({
-			step = s.tutorialStep or TutorialHints.DONE,
-			device = device,
-			resting = TutorialHints.resting(
-				s.cats,
-				if catalog then catalog.spots else nil,
-				s.tier or 1
-			),
-			bowl = (levels.lure_bowl or 0) >= 1,
-			baited = s.bait ~= nil,
-		})
+		return TutorialHints.line(
+			TutorialHints.view(s, if catalog then catalog.spots else nil, device)
+		)
 	end
 
 	-- UIController's tutorialLine: the strip's words for this state on the input the player used last, or nil from

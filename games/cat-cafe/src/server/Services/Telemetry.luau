@@ -90,6 +90,7 @@ export type CustomEvent =
 	| "shove"
 	| "drop_outcome"
 	| "left_after_shove"
+	| "left_after_restart_warning" -- #2720: value the seconds since the last restart warning; warnings seen, its seconds left
 	| "slots_full"
 	| "role_favorite"
 	| "travel"
@@ -151,6 +152,9 @@ export type CustomEvent =
 	-- #2694: how a slide-in faces ask ended, at most one per ask shown, value 1: answered, closed or ignored; early or
 	-- late (the client's report); minutes played bucket
 	| "feedback_ask_end"
+	-- #2692: a beginner's night pass let a cannon flight go at night, once a session, value 1; the destination, the
+	-- clock's phase
+	| "night_pass_used"
 	-- F96 (starter-cat.md section 4): the free Bellhop Cat taken home; the gate it passed, "task" or "group"
 	| "starter_cat"
 	| "shop_cat" -- #1447: a shop-only cat given on its pass (catId)
@@ -257,6 +261,7 @@ local SWING_FLUSH_SECONDS = 300
 local LOG_SIZE = 200
 local DAY_SECONDS = 86400
 local LEFT_AFTER_SHOVE_SECONDS = 120
+local LEFT_AFTER_RESTART_WARNING_SECONDS = 120 -- #2720
 local REPORTS = {
 	"device",
 	"ui_opened",
@@ -314,7 +319,7 @@ local MORE_SCREENS: { [string]: string } = {
 	Settings = "settings",
 }
 -- progressionPathName "tier", levelName by tier (analytics-plan section 7)
-local TIER_NAMES = { "corner", "cozy", "busy", "famous", "grand" }
+local TIER_NAMES = { "corner", "cozy", "busy", "famous", "grand", "sunstone", "wonder" }
 local FIELD_KEYS = {
 	Enum.AnalyticsCustomFieldKeys.CustomField01.Name,
 	Enum.AnalyticsCustomFieldKeys.CustomField02.Name,
@@ -331,6 +336,9 @@ type Session = {
 	waitingForRole: { [string]: CatchFunnel }, -- checked-in cats whose funnel waits for step 4 (uid -> funnel)
 	knockedAt: number?, -- os.clock() of the last shove that knocked this player's cat loose
 	knockedRarity: string?,
+	restartWarnedAt: number?, -- #2720: os.clock() of the last restart warning this player was shown
+	restartWarnedLeft: number, -- #2720: the seconds to the restart that warning said
+	restartWarnings: number, -- #2720: restart warnings shown this session
 	swings: { [string]: { count: number, values: { string } } }, -- net swings not logged yet, by their fields
 	origin: Vector3?, -- F87: where the character's root was first seen this session, for first_move
 	nudges: { [string]: boolean }, -- F87: stuck_nudge already logged this session, by "<tutorialStep>:<kind>"
@@ -786,6 +794,17 @@ function Telemetry.knockedLoose(player: Player, rarity: string)
 	if session ~= nil then
 		session.knockedAt = os.clock()
 		session.knockedRarity = rarity
+	end
+end
+
+-- #2720: a restart warning `secondsLeft` before the restart was shown to this player: if they leave within
+-- LEFT_AFTER_RESTART_WARNING_SECONDS, left_after_restart_warning fires (does the warning drive players out?).
+function Telemetry.restartWarned(player: Player, secondsLeft: number)
+	local session = sessions[player]
+	if session ~= nil then
+		session.restartWarnedAt = os.clock()
+		session.restartWarnedLeft = math.max(0, math.ceil(secondsLeft))
+		session.restartWarnings += 1
 	end
 end
 
@@ -1399,6 +1418,9 @@ local function onLoaded(player: Player, profile: Profile)
 		waitingForRole = {},
 		knockedAt = nil,
 		knockedRarity = nil,
+		restartWarnedAt = nil,
+		restartWarnedLeft = 0,
+		restartWarnings = 0,
 		swings = {},
 		origin = nil,
 		nudges = {},
@@ -1551,6 +1573,14 @@ local function onRelease(player: Player, profile: Profile)
 		Telemetry.custom(player, "left_after_shove", 1, {
 			session.knockedRarity or "unknown",
 			if os.clock() - knockedAt < 30 then "under_30" else "30-120",
+		})
+	end
+	local warnedAt = session.restartWarnedAt
+	if warnedAt ~= nil and os.clock() - warnedAt <= LEFT_AFTER_RESTART_WARNING_SECONDS then
+		Telemetry.custom(player, "left_after_restart_warning", math.floor(os.clock() - warnedAt), {
+			tostring(session.restartWarnings),
+			tostring(session.restartWarnedLeft),
+			tierText(profile),
 		})
 	end
 	flushSwings(player)

@@ -77,6 +77,12 @@ return function()
 			expect(height * 0.75 >= 44).to.equal(true)
 			expect(below).to.equal(IntroLogic.NO_BAR_EDGE)
 		end)
+
+		it("has no top bar on touch either, only the shot dots near the top (#2702)", function()
+			expect(IntroLogic.topBar(true)).to.equal(false)
+			expect(IntroLogic.topBar(false)).to.equal(true)
+			expect(IntroLogic.DOTS_TOP > 0 and IntroLogic.DOTS_TOP < 40).to.equal(true)
+		end)
 	end)
 
 	describe("IntroLogic dots and Skip's shot", function()

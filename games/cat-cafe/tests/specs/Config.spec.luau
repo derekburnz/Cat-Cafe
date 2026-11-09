@@ -102,6 +102,7 @@ return function()
 		TravelCooldownSeconds = 1, -- v0.4 (F19) 3; #1434 1
 		SyncIntervalSeconds = 10,
 		NormalWalkSpeed = 20, -- v0.4
+		TownWalkSpeedBonus = 4, -- #2706
 		CameraMaxZoomStuds = 60, -- Derek 2026-11-02, the zoom card
 		StrayWanderRadius = 5,
 		StrayWanderSpeed = 3,
@@ -340,7 +341,7 @@ return function()
 		TackleMissRecoverSeconds = 1.2,
 		TackledDownSeconds = 0.8,
 		-- the Cat Cannon (F84, section 17 v0.13.17)
-		CannonLaunchSeconds = 4.0,
+		CannonLaunchSeconds = 3.75,
 		CannonTeleportAtSeconds = 2.6,
 		CannonCloudsAt = 2.0,
 		CannonTouchdownAt = 3.5,
@@ -357,6 +358,10 @@ return function()
 		NetReachStuds = 7,
 		NetSlackStuds = 1.5,
 		NetArcDegrees = 60,
+		NetNearStuds = 4,
+		NetNearArcDegrees = 80,
+		NetFrontArcDegrees = 25,
+		NetFrontExtraStuds = 0.5,
 		NetMissHopStuds = 12,
 		NetMissHopShare = 0.25,
 		RescueSpeedUpPerHit = 0.08,
@@ -533,7 +538,7 @@ return function()
 				Legendary = 2,
 				Mythical = 5,
 			})
-			expect(Config.FishRankUp :: any).to.deepEqual({ 5, 15, 30, 60 })
+			expect(Config.FishRankUp :: any).to.deepEqual({ 5, 15, 30, 60, 100, 150 }) -- #2651: Tiers 6 and 7
 		end)
 
 		it(

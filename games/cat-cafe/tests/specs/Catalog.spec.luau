@@ -9,7 +9,7 @@ return function()
 	local ROLES = { "barista", "waiter", "greeter", "entertainer" }
 	local ROLE_SET: { [string]: boolean } =
 		{ barista = true, waiter = true, greeter = true, entertainer = true }
-	local AREA_ORDER = { "alley", "park", "neighbourhood", "woods", "sewer" }
+	local AREA_ORDER = { "alley", "park", "neighbourhood", "woods", "sewer", "desert", "ruins" }
 	local RARITIES = { "Common", "Rare", "Epic", "Legendary", "Mythical" }
 	-- Per area: four Common, two Rare, two Epic, one Legendary, one Mythical (section 3).
 	local PER_AREA: { [string]: number } =
@@ -349,14 +349,39 @@ return function()
 			lantern = { "Lantern", "Rare", "sewer", "waiter" },
 		}
 
+		-- #2651 (tier6-7-areas.md section 6): the Desert's and the Ruins' ten each, id -> { name, rarity, area, favoriteRole }
+		local late: { [string]: { string } } = {
+			sandy = { "Sandy", "Common", "desert", "barista" },
+			dune = { "Dune", "Common", "desert", "waiter" },
+			dusty = { "Dusty", "Common", "desert", "greeter" },
+			sunny = { "Sunny", "Common", "desert", "entertainer" },
+			fennec = { "Fennec Cat", "Rare", "desert", "greeter" },
+			camel = { "Camel Cat", "Rare", "desert", "waiter" },
+			scarab = { "Scarab Cat", "Epic", "desert", "barista" },
+			mirage = { "Mirage Cat", "Epic", "desert", "entertainer" },
+			pharaoh = { "Pharaoh Cat", "Legendary", "desert", "waiter" },
+			sphinx = { "Sphinx", "Mythical", "desert", "barista" },
+			pebble = { "Pebble", "Common", "ruins", "barista" },
+			rubble = { "Rubble", "Common", "ruins", "waiter" },
+			clay = { "Clay", "Common", "ruins", "greeter" },
+			ivy = { "Ivy", "Common", "ruins", "entertainer" },
+			glyph = { "Hieroglyph Cat", "Rare", "ruins", "barista" },
+			torch = { "Torch Cat", "Rare", "ruins", "greeter" },
+			gargoyle = { "Gargoyle Cat", "Epic", "ruins", "waiter" },
+			mosaic = { "Mosaic Cat", "Epic", "ruins", "entertainer" },
+			golem = { "Golem Cat", "Legendary", "ruins", "barista" },
+			jade_guardian = { "Jade Guardian", "Mythical", "ruins", "greeter" },
+		}
+
 		it(
-			"has exactly 65 cats: the 20 slice, 30 later and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles and Maple Muffin",
+			"has exactly 85 cats: the 20 slice, 30 later, the 20 of Tier 6 and 7 and 10 spare, the Bellhop Cat, 2 shop cats, Sprinkles and Maple Muffin",
 			function()
-				expect(#Catalog.cats).to.equal(65)
+				expect(#Catalog.cats).to.equal(85)
 				for _, def in ipairs(Catalog.cats) do
 					expect(
 						slice[def.id] ~= nil
 							or reserved[def.id] ~= nil
+							or late[def.id] ~= nil
 							or spares[def.id] ~= nil
 							or def.id == "bellhop_cat"
 							or def.id == "duchess_marzipan"
@@ -370,6 +395,12 @@ return function()
 				end
 				for id in pairs(reserved) do
 					expect(Catalog.getCat(id)).to.be.ok()
+				end
+				for id, row in pairs(late) do
+					local def = Catalog.getCat(id)
+					expect(def).to.be.ok()
+					assert(def)
+					expect({ def.name, def.rarity, def.area :: string, def.favoriteRole :: string }).to.deepEqual(row)
 				end
 				for id in pairs(spares) do
 					expect(Catalog.getCat(id)).to.be.ok()
@@ -509,8 +540,13 @@ return function()
 				greeter_2 = { "greeter", 4 },
 				barista_3 = { "barista", 5 },
 				entertainer_2 = { "entertainer", 5 },
+				-- #2651 (tier6-7-areas.md section 1): two a tier at Tier 6 and 7, #1624's two pass waiters first
+				waiter_4 = { "waiter", 6 },
+				waiter_5 = { "waiter", 6 },
+				barista_4 = { "barista", 7 },
+				greeter_3 = { "greeter", 7 },
 			}
-			expect(#Catalog.spots).to.equal(10)
+			expect(#Catalog.spots).to.equal(14)
 			for id, row in pairs(expected) do
 				local spot = Catalog.getSpot(id)
 				expect(spot).to.be.ok()
@@ -620,17 +656,20 @@ return function()
 		-- tier -> { name, cost, distinctCats, needsRarity, needsRarityCount, slots, multiplier, area, caps }
 		local expected: { { any } } = {
 			{ "Corner Cafe", 0, 0, nil, nil, 2, 1.00, "alley", { 2, 2, 1 } },
-			{ "Cozy Cafe", 30000, 5, nil, nil, 4, 1.25, "park", { 5, 4, 2 } }, -- #1896: Tables 5 and Espresso 4
+			{ "Cozy Cafe", 22000, 5, nil, nil, 4, 1.25, "park", { 5, 4, 2 } }, -- #1896: Tables 5 and Espresso 4
 			-- economy-ladder.md section 3 v3.1 (#1452, more wild cats; #1499 Tier 2 30,000): 30,000, 700,000, 60M and 2B;
 			-- #1896 (first-hour.md 4): Tier 3 900,000
-			{ "Busy Cafe", 1240000, 13, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
-			{ "Famous Cafe", 48000000, 25, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 3 } },
-			{ "Grand Cafe", 2300000000, 33, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
+			{ "Busy Cafe", 600000, 11, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
+			{ "Famous Cafe", 24000000, 22, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 3 } },
+			{ "Grand Cafe", 700000000, 28, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
+			-- #2651 (tier6-7-areas.md sections 1 and 7b), QA-Planner's Pace fit
+			{ "Sunstone Cafe", 8000000000, 42, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
+			{ "Wonder Cafe", 60000000000, 52, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
 		}
 
-		it("has five tiers matching the table", function()
-			expect(#Catalog.tiers).to.equal(5)
-			expect(Catalog.maxTier).to.equal(5)
+		it("has seven tiers matching the table", function()
+			expect(#Catalog.tiers).to.equal(7)
+			expect(Catalog.maxTier).to.equal(7)
 			for tier, row in ipairs(expected) do
 				local def = Catalog.getTier(tier)
 				expect(def).to.be.ok()
@@ -649,7 +688,7 @@ return function()
 				expect(def.caps.net).to.equal(row[9][3])
 			end
 			expect(Catalog.getTier(0)).never.to.be.ok()
-			expect(Catalog.getTier(6)).never.to.be.ok()
+			expect(Catalog.getTier(8)).never.to.be.ok()
 		end)
 
 		it("each tier opens one new area, in the order of section 9", function()
@@ -758,10 +797,10 @@ return function()
 				},
 				espresso = {
 					name = "Espresso machine",
-					maxLevel = 5,
-					costs = { 0, 2000, 15000, 550000, 6000000 }, -- F95; #1896
+					maxLevel = 7, -- #2651: 6 and 7 at Tier 6 and 7
+					costs = { 0, 2000, 15000, 550000, 6000000, 200000000, 1300000000 }, -- F95; #1896; #2651
 					startLevel = 1,
-					atLevel = { [3] = 2, [4] = 2, [5] = 4 }, -- #1896: Espresso 4 at Tier 2
+					atLevel = { [3] = 2, [4] = 2, [5] = 4, [6] = 6, [7] = 7 }, -- #1896: Espresso 4 at Tier 2
 				},
 				net = {
 					name = "Net",
@@ -779,10 +818,10 @@ return function()
 				},
 				lucky_cat = { -- F88 (luck-and-rare-moments.md 1a): level n needs Tier n, level 3 Tier 2 (#1896)
 					name = "Lucky Cat",
-					maxLevel = 5,
-					costs = { 2000, 20000, 300000, 8000000, 80000000 },
+					maxLevel = 7, -- #2651: 6 and 7 at Tier 6 and 7
+					costs = { 2000, 20000, 300000, 8000000, 80000000, 250000000, 1700000000 }, -- #2651
 					startLevel = 0,
-					atLevel = { [2] = 2, [3] = 2, [4] = 4, [5] = 5 },
+					atLevel = { [2] = 2, [3] = 2, [4] = 4, [5] = 5, [6] = 6, [7] = 7 },
 				},
 			}
 
@@ -1206,7 +1245,7 @@ return function()
 		end)
 
 		it(
-			"five areas in tier order with the section 9 spawn points, wave sizes (v0.13.5), odds and income (v0.13.7)",
+			"seven areas in tier order with the section 9 spawn points, wave sizes (v0.13.5), odds and income (v0.13.7)",
 			function()
 				-- id -> { name, tier, spawnPoints, odds, waveSize, incomeMultiplier }; v0.13.7: one set of odds everywhere
 				local same = { 54, 29, 11, 4.8, 1.2 } -- #1452 (was 72, 22, 5, 0.9, 0.1)
@@ -1217,6 +1256,8 @@ return function()
 					{ "neighbourhood", "Neighbourhood", 3, 77, same, 12, 9 }, -- F85's long set's cat spots (#810, #905)
 					{ "woods", "Woods", 4, 72, same, 11, 27 }, -- F85's long set (#847) and the oak top
 					{ "sewer", "Sewer", 5, 60, same, 11, 81 }, -- F85's long set's cat spots (#860)
+					{ "desert", "Desert", 6, 106, same, 11, 243 }, -- #2651: the set's cat spots (#2666)
+					{ "ruins", "Ruins", 7, 100, same, 11, 729 }, -- #2651: the set's cat spots (#2669)
 				}
 				expect(#Catalog.areas).to.equal(#want)
 				for i, row in want do

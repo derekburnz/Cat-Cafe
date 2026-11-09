@@ -40,9 +40,11 @@ local others: { TutorialArrowLogic.Rect } = {}
 local othersFor: GuiObject? = nil
 local othersAt = -math.huge
 
-local function build(): Frame
+-- The big arrow, drawn pointing down: its Rotation turns it, and its Bob child bobs toward the tip. #2697: also
+-- Components/StepTarget's arrow at the screen's edge.
+function TutorialArrow.make(name: string?): Frame
 	local holder: Frame = Create("Frame", {
-		Name = TutorialArrow.NAME,
+		Name = name or TutorialArrow.NAME,
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Size = UDim2.fromOffset(SIZE, SIZE),
@@ -198,7 +200,7 @@ local function update()
 		hide()
 		return
 	end
-	local current = arrow or build()
+	local current = arrow or TutorialArrow.make()
 	arrow = current
 	local px = SIZE * Scale.get()
 	local into = gui :: ScreenGui

@@ -50,7 +50,7 @@ return function()
 			expect(table.find(CampExtrasLogic.BANG_EXTRAS, "lostFound")).to.be.ok()
 			expect(CampExtrasLogic.bangShows({ lostFound = { open = true, held = 1 } }, "lostFound")).to.equal(true)
 			expect(CampExtrasLogic.bangShows({ lostFound = { open = true, held = 0 } }, "lostFound")).to.equal(false)
-			expect(CampExtrasLogic.BANG_RANGE).to.equal(150)
+			expect(CampExtrasLogic.BANG_RANGE).to.equal(40) -- #2730: only close by
 		end)
 	end)
 

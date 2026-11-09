@@ -101,6 +101,9 @@ return function()
 					expect(pressed).to.equal(button)
 				end
 			end
+			local gift, pressed = PlaytimeGifts.report("like:gotit") -- #2705
+			expect(gift).to.equal("like")
+			expect(pressed).to.equal("gotit")
 			for _, bad in
 				{ "like", "like:", ":close", "fav:buy", "spin:close", "like:close:x", 3, "" }
 			do

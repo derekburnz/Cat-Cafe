@@ -108,10 +108,10 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 44 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 45 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(44)
-			expect(profile.version).to.equal(44)
+			expect(ProfileSchema.VERSION).to.equal(45) -- #2651: Tier 6 and 7
+			expect(profile.version).to.equal(45)
 			-- #2565 (version 44): no Mystery Market item yet
 			expect(next(profile.mystery)).never.to.be.ok()
 			expect(profile.mysterySeen).to.equal(false)
@@ -182,6 +182,7 @@ return function()
 				sessionRecap = true,
 				autoEquip = true, -- #1955: on for a new account
 				catIncome = true, -- #2551
+				goalFolded = false, -- #2714
 			})
 		end)
 
@@ -319,8 +320,9 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 45 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 46 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 45 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 44 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 43 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 42 })).to.equal(false)
@@ -607,6 +609,7 @@ return function()
 					sessionRecap = true,
 					autoEquip = false, -- #1955: a save from before Auto Equip
 					catIncome = true, -- #2551: on for a save from before it
+					goalFolded = false, -- #2714
 				})
 				-- Decor bought in v2 is kept even where v0.3 gates it behind Tier 2; only known and owned decor counts.
 				expect(profile.decorOwned :: any).to.deepEqual({ plants = true, rug = true })
@@ -865,8 +868,8 @@ return function()
 			end
 		)
 
-		it("clamps the tier to 1 to 5 and levels to each upgrade's range", function()
-			for _, case in ipairs({ { 0, 1 }, { 9, 5 }, { "2", 1 }, { 2.5, 2 } }) do
+		it("clamps the tier to 1 to 7 and levels to each upgrade's range", function()
+			for _, case in ipairs({ { 0, 1 }, { 9, 7 }, { "2", 1 }, { 2.5, 2 } }) do
 				local raw = v3Save()
 				raw.tier = case[1]
 				expect(ProfileSchema.migrate(raw, 500).tier).to.equal(case[2])

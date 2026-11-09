@@ -170,8 +170,9 @@ local Config = {
 	-- (section 5): CloudHopSeconds long, the move at CloudHopMoveAtSeconds. Derek 2026-11-03 ("should be much further
 	-- with less summer salting"): the longer flight with Animation-Engineer's arc, 4.0 s with the move at 2.6, while
 	-- the body is out of sight in the clouds (2.0 to 3.0). The flyer goes into the clouds at CannonCloudsAt and the
-	-- feet touch the pad at CannonTouchdownAt, both from CannonLaunchAt, for the sounds (Sound-Agent).
-	CannonLaunchSeconds = 4.0,
+	-- feet touch the pad at CannonTouchdownAt, both from CannonLaunchAt, for the sounds (Sound-Agent). #2690 (Derek2
+	-- 2026-11-09: movement and camera "locked too long" after landing): let go 0.25 after the touch, was 4.0.
+	CannonLaunchSeconds = 3.75,
 	CannonTeleportAtSeconds = 2.6,
 	CannonCloudsAt = 2.0,
 	CannonTouchdownAt = 3.5,
@@ -249,6 +250,12 @@ local Config = {
 	NetReachStuds = 7,
 	NetSlackStuds = 1.5,
 	NetArcDegrees = 60,
+	-- #2693 (Derek2 2026-11-09: easier to hit on mobile): within NetNearStuds of the feet the arc is NetNearArcDegrees
+	-- either side, and within NetFrontArcDegrees of straight ahead the reach is NetFrontExtraStuds longer
+	NetNearStuds = 4,
+	NetNearArcDegrees = 80,
+	NetFrontArcDegrees = 25,
+	NetFrontExtraStuds = 0.5,
 	NetMissHopStuds = 12,
 	NetMissHopShare = 0.25,
 	-- The bait bowl (data-model section 8): a cat comes LureWaitSeconds after the food goes in, online or not.
@@ -317,7 +324,15 @@ local Config = {
 	EventShowerMax = 12,
 	EventShowerGapMinSeconds = 300,
 	EventShowerDefaults = { count = 8, gapSeconds = 900, firstAfter = 600 },
-	EventShowerAreaWeights = { alley = 20, park = 20, neighbourhood = 20, woods = 20, sewer = 20 } :: { [string]: number },
+	EventShowerAreaWeights = {
+		alley = 20,
+		park = 20,
+		neighbourhood = 20,
+		woods = 20,
+		sewer = 20,
+		desert = 20, -- #2651 (tier6-7-areas.md section 7): the same as every area
+		ruins = 20,
+	} :: { [string]: number },
 	EventCountdownSeconds = 10800,
 	EventRepeatGiftIncomeMinutes = 10,
 	EventBigMinGapSeconds = 518400,
@@ -337,6 +352,8 @@ local Config = {
 		neighbourhood = 20,
 		woods = 25,
 		sewer = 30,
+		desert = 35, -- #2651 (tier6-7-areas.md section 7)
+		ruins = 40,
 	} :: { [string]: number },
 	PityClaimRetries = 3,
 	BaitBowlRangeStuds = 12, -- the bowl's own prompt shows from this close (UseLure works from anywhere since 2026-10-28)
@@ -352,6 +369,7 @@ local Config = {
 	CharmStarOdds = { 7.84, 23.53, 35.67, 24.31, 8.65 } :: { number },
 	CarryWalkSpeed = 16,
 	NormalWalkSpeed = 20,
+	TownWalkSpeedBonus = 4, -- #2706 (Derek2 2026-11-09: "increase walking/running speed in spawn by a bit"): no cat, on the Town Square
 	-- How far the camera zooms out (Derek 2026-11-02, the zoom card: "Cap it closer (60 studs)"; Roblox's default is
 	-- 128): it stays near the player, and the edges of the long areas and the backdrops stay out of view.
 	CameraMaxZoomStuds = 60,
@@ -634,7 +652,8 @@ local Config = {
 	FishFirstCatch = { Common = 1, Rare = 2, Epic = 5, Legendary = 12, Mythical = 25 } :: { [string]: number }, -- was 1/3/8/20/40
 	-- a cat already in the Index, by net or rescue (never bait, so food bought with coins never turns into fish)
 	FishRepeatCatch = { Epic = 1, Legendary = 2, Mythical = 5 } :: { [string]: number }, -- #2237: was 1/3/8
-	FishRankUp = { 5, 15, 30, 60 } :: { number }, -- reaching Tier 2, 3, 4 and 5 (#2237: was 10/25/50/100)
+	-- reaching Tier 2 to 7 (#2237: was 10/25/50/100); #2651: Tier 6 and 7 carry the climb on, 100 and 150
+	FishRankUp = { 5, 15, 30, 60, 100, 150 } :: { number },
 	CrateLuckyEvery = 20, -- F53: after 19 opens of one pool with nothing Epic or better, the next opens on golden odds
 
 	-- Cafe Crates and the Golden Fish Market (F53, golden-fish.md sections 3 and 4). Pure rules in Crates.
@@ -884,19 +903,19 @@ local Config = {
 		-- Town layout v3 (F76, town-layout-v3.md, Derek 2026-10-27: "the main town should be wider so that it can have
 		-- a central middle area"): a 32 wide street with the Town Square in its middle, two rows of cafes either side.
 		StreetHalfWidth = 16,
-		StreetSouthZ = -140,
-		StreetNorthZ = 140, -- the street ends at the hometown's north welcome arch (v4)
+		StreetSouthZ = -152, -- #2707: -140 before the roomier square
+		StreetNorthZ = 152, -- #2707: 140 before; the street ends at the hometown's north welcome arch (v4)
 		-- v4 (F84, hometown-cannon.md section 2): the hometown's own ground round the town, and each wild area its own
 		-- CatCafe_Town_Backdrop (Model-Agent #733) is built against 272 by 332 (#917): tell Model-Agent when these change
 		TownGroundWidth = 272,
-		TownGroundDepth = 332,
+		TownGroundDepth = 356, -- #2707: 332 before
 		WallHeight = 9,
 		DoorWidth = 7,
 		-- The Town Square: paved, centred on the origin across the street, with the stations round the Cat Cannon (the
 		-- fountain until v4) and a cross of open paving (the street's line and an east to west lane, which led to the
 		-- side arches into the back alleys until v4 closed them). Its gardens fill the rest of the width out to the yards.
 		TownSquareHalfWidth = 48,
-		TownSquareHalfDepth = 32,
+		TownSquareHalfDepth = 44, -- #2707 (Derek2: "expand the town square by 25-50%"): 32 before
 		TownSquareLaneHalfWidth = 8, -- the street's line through the square
 		TownSquareCrossHalfWidth = 6, -- the east to west lane
 		-- The hometown's back edge (v4, F84, hometown-cannon.md section 2): a fence at |x| TownEdgeX behind each row of
@@ -945,7 +964,7 @@ local Config = {
 		NeighbourhoodDepth = 430,
 		-- The Desert and the Ruins (Tier 6 and 7, tier6-7-areas.md sections 2, 4 and 5; #2651): on the two free
 		-- diagonals on the town's east side, about 1980 out, both long along world Z with the camp on the town end, the
-		-- Desert's north and the Ruins' south. Laid out in Layout but built by nothing until they open (#2651 part 3).
+		-- Desert's north and the Ruins' south. Built by WorldBuilder from Catalog.areas since version 462.
 		DesertCenterX = 1400,
 		DesertCenterZ = -1400,
 		DesertWidth = 150,

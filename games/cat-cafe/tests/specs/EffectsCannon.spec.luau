@@ -22,7 +22,7 @@ return function()
 			expect(c.gone).to.equal(2)
 			expect(c.drop).to.equal(3)
 			expect(c.touch).to.equal(3.5)
-			expect(c.ends).to.equal(4)
+			expect(c.ends).to.equal(3.75) -- #2690: a quarter second after the touch, was 4
 			expect((Avatar.flight(-0.01))).to.equal(nil)
 			expect((Avatar.flight(c.ends + c.blendOut))).to.equal(nil)
 			local _, _, _, _, weight = Avatar.flight(c.ends + c.blendOut / 2)

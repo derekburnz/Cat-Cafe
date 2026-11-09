@@ -76,6 +76,15 @@ do
 		require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config"))
 	DUSK_SECONDS = (Config :: any).DuskWarningSeconds or DUSK_SECONDS
 end
+-- #2692: a new player before the first check-in holds the night pass (the server's NightPass player attribute), so
+-- the cards stay open through dusk and the night for them, as the server flies them then
+local NightPass =
+	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("NightPass"))
+
+local function hasNightPass(): boolean
+	local player = Players.LocalPlayer
+	return player ~= nil and player:GetAttribute(NightPass.ATTRIBUTE) == true
+end
 
 local Cannon = {}
 Cannon.__index = Cannon
@@ -103,6 +112,14 @@ function Cannon.new(callbacks: Callbacks): Cannon
 	self._catalog = nil :: Types.Catalog?
 	self._cannonId = CannonLogic.TOWN
 	self._areasOpen = true
+	self._passConnection = nil :: RBXScriptConnection?
+	if Players.LocalPlayer then
+		self._passConnection = Players.LocalPlayer
+			:GetAttributeChangedSignal(NightPass.ATTRIBUTE)
+			:Connect(function()
+				self:_rerender() -- #2692: the first check-in ends the pass
+			end)
+	end
 	self._phase = nil :: Types.ClockPhase?
 	self._phaseEndsAt = nil :: number?
 	self._state = nil :: Types.PlayerState?
@@ -171,11 +188,11 @@ function Cannon._buildCards(self: any)
 	if not catalog then
 		return
 	end
-	local places: { { id: string, name: string } } =
-		{ { id = CannonLogic.TOWN, name = CannonLogic.TOWN_NAME } }
+	local places: { { id: string, name: string, tier: number } } =
+		{ { id = CannonLogic.TOWN, name = CannonLogic.TOWN_NAME, tier = 0 } }
 	local areaList: { Types.AreaDef } = catalog.areas or {}
 	for _, area in areaList do
-		table.insert(places, { id = area.id, name = area.name })
+		table.insert(places, { id = area.id, name = area.name, tier = area.tier })
 	end
 	for _, place in places do
 		local id = place.id
@@ -257,6 +274,40 @@ function Cannon._buildCards(self: any)
 			Parent = night,
 		})
 		Outline.text(nightLine, 2)
+		-- #2682: the lock cover, shading an area the player's tier has not opened yet, with a lock and its tier
+		local lock: Frame = Create("Frame", {
+			Name = "Lock",
+			BackgroundColor3 = Theme.colors.skyText,
+			BackgroundTransparency = 0.25,
+			BorderSizePixel = 0,
+			Size = UDim2.fromScale(1, 1),
+			Visible = false,
+			ZIndex = 3,
+			Parent = art,
+		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }) })
+		text({
+			Name = "Padlock",
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.new(0.5, 0, 0, 10),
+			Size = UDim2.fromOffset(48, 48),
+			FontFace = Theme.fonts.display,
+			TextScaled = true,
+			Text = Theme.icons.lock,
+			ZIndex = 4,
+			Parent = lock,
+		})
+		local lockLine = text({
+			Name = "Line",
+			Position = UDim2.new(0, 6, 0, 62),
+			Size = UDim2.new(1, -12, 0, 22),
+			FontFace = Theme.fonts.display,
+			TextSize = Theme.sizes.textBody,
+			TextColor3 = Theme.colors.white,
+			Text = ("Opens at Tier %d"):format(place.tier),
+			ZIndex = 4,
+			Parent = lock,
+		})
+		Outline.text(lockLine, 2)
 		Outline.border(art, 2)
 		Outline.shade(art, 0.2)
 		-- F92: the joiner's pal is here
@@ -416,6 +467,8 @@ function Cannon._buildCards(self: any)
 			rally = rally,
 			night = night,
 			nightLine = nightLine,
+			lock = lock,
+			tier = place.tier,
 			count = count,
 			extra = extra,
 			extraIcon = extraIcon,
@@ -543,18 +596,22 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 	end
 	local areas: { Types.AreaDef } = catalog.areas or {}
 	local tier = state.tier or 1
-	local closed = not NightClock.areasOpen(self._areasOpen)
+	local pass = hasNightPass()
+	local closed = not NightPass.open(NightClock.areasOpen(self._areasOpen), pass)
 	local remaining = self:_remaining()
-	local dusk = self._phase ~= nil
+	local dusk = not pass
+		and self._phase ~= nil
 		and remaining ~= nil
 		and NightClock.isDusk(self._phase :: NightClock.Phase, remaining, DUSK_SECONDS)
 	local pending = os.clock() < self._pendingUntil
 	local rallyLine =
 		RallyLogic.nightLine(self._rally, Workspace:GetServerTimeNow(), self._phase == "night")
-	local list = CannonLogic.destinations(areas :: any, tier, self._cannonId)
+	local list = CannonLogic.cards(areas :: any, tier, self._cannonId)
 	local shown: { [string]: number } = {}
+	local lockedIds: { [string]: boolean } = {}
 	for index, destination in list do
 		shown[destination.id] = index
+		lockedIds[destination.id] = destination.locked == true
 	end
 	local now = Workspace:GetServerTimeNow()
 	local tall = false
@@ -565,10 +622,13 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			continue
 		end
 		card.frame.LayoutOrder = order
-		local buttonState: CannonLogic.ButtonState = CannonLogic.button(id, closed, dusk, carrying)
+		local locked = lockedIds[id]
+		local buttonState: CannonLogic.ButtonState =
+			CannonLogic.button(id, closed, dusk, carrying, locked)
 		card.night.Visible = buttonState == "night"
-		-- the Town Square has no night cover and no rescues, so no tag (review N327)
-		local tag: string? = if id ~= CannonLogic.TOWN then rallyLine else nil
+		card.lock.Visible = locked
+		-- the Town Square has no night cover and no rescues, so no tag (review N327); a locked area has none either
+		local tag: string? = if id ~= CannonLogic.TOWN and not locked then rallyLine else nil
 		card.rally.Visible = tag ~= nil
 		-- the tag takes the cover's "Closed until sunrise" spot; the header and the button still say it
 		card.nightLine.Visible = tag == nil
@@ -577,7 +637,7 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 			local counts = IndexRewards.counts(catalog, state, id)
 			card.count.Text = ("%d/%d cats"):format(counts.found, counts.total)
 		end
-		local line = CampExtrasLogic.pickerLine(self._extras, id, now)
+		local line = if locked then nil else CampExtrasLogic.pickerLine(self._extras, id, now)
 		card.extra.Visible = line ~= nil
 		if line ~= nil then
 			tall = true
@@ -602,8 +662,9 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 		if card.buttonState ~= buttonState then
 			card.buttonState = buttonState
 			card.launch:setText(
-				if buttonState == "night"
-					then Theme.icons.moon .. " Sunrise"
+				if buttonState == "locked"
+					then ("%s Tier %d"):format(Theme.icons.lock :: string, card.tier :: number)
+					elseif buttonState == "night" then Theme.icons.moon .. " Sunrise"
 					elseif buttonState == "dusk" then "Night soon"
 					else "Launch"
 			)
@@ -621,9 +682,6 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 	local plain = if self._cannonId == CannonLogic.TOWN
 		then "Pick where to fly"
 		else "Fly home to " .. CannonLogic.TOWN_NAME .. " or on to another area"
-	if notice == nil and CannonLogic.moreToOpen(areas :: any, tier) then
-		plain ..= ". More open as you rank up."
-	end
 	self._panel:setTitle("Cat Cannon", notice or plain)
 end
 
@@ -667,6 +725,10 @@ function Cannon.result(self: any, ok: boolean, destination: string?)
 end
 
 function Cannon.destroy(self: any)
+	local passConnection: RBXScriptConnection? = self._passConnection
+	if passConnection then
+		passConnection:Disconnect()
+	end
 	self._open = false
 	self._tick += 1
 	for _, card in self._cards do

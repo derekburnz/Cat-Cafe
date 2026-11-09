@@ -53,6 +53,10 @@ local FOLDED_W = 58 -- the folded chip: the bottle over "x5"
 -- on every device (the choice is never saved), and the arrow shows with one potion too, so it always folds back
 local FOLD_FROM = 1 -- running potions before the arrow shows
 local FOLD_DEFAULT = true
+-- #2710 (Derek2 11-09: "potions when too many are used goes off screen and cant shrink it on mobile ... maybe just move
+-- potions to bag for mobile"): on touch the row is always the one folded chip, a little wider for the soonest time
+-- under the count ("x5 8:12"), and a tap opens the Bag on its Potions tab; it never grows sideways
+local TOUCH_FOLDED_W = 92
 
 type Chip = { frame: TextButton, time: TextLabel }
 
@@ -96,7 +100,8 @@ function BuffChips.new(parent: Instance, x: number, onOpen: () -> ()): BuffChips
 	self._clock = 0
 	self._onOpen = onOpen
 	self._leads = {} :: { [string]: boolean } -- F88: the Luck chip at the row's start; F92: the pal chip at its end
-	self._folded = foldedNow
+	self._touch = Scale.isTouch() -- #2710
+	self._folded = foldedNow or self._touch
 	self._hidden = false
 
 	self.frame = Create("Frame", {
@@ -160,7 +165,7 @@ function BuffChips.new(parent: Instance, x: number, onOpen: () -> ()): BuffChips
 		BackgroundColor3 = Theme.colors.outline,
 		BackgroundTransparency = 0.18,
 		BorderSizePixel = 0,
-		Size = UDim2.fromOffset(FOLDED_W, CHIP_H),
+		Size = UDim2.fromOffset(if self._touch then TOUCH_FOLDED_W else FOLDED_W, CHIP_H),
 		LayoutOrder = 1000,
 		Visible = false,
 		Parent = self.potions,
@@ -175,6 +180,7 @@ function BuffChips.new(parent: Instance, x: number, onOpen: () -> ()): BuffChips
 		TextSize = 12,
 		TextColor3 = Theme.colors.white,
 		Text = "◀",
+		Visible = not self._touch, -- #2710: on touch it opens the Bag, it does not unfold
 		Parent = folded,
 	})
 	-- #2396 (Derek2: "the potion is using a old image when collapsed"): the first running potion's own bottle, as on its
@@ -205,6 +211,10 @@ function BuffChips.new(parent: Instance, x: number, onOpen: () -> ()): BuffChips
 	})
 	Outline.text(count, 2)
 	folded.Activated:Connect(function()
+		if self._touch then
+			self._onOpen() -- #2710: the Bag, on its Potions tab
+			return
+		end
 		self:setFolded(false)
 	end)
 	self._foldedChip = folded
@@ -214,6 +224,7 @@ end
 
 -- #2090: fold the running potions into one chip, or bring them back.
 function BuffChips.setFolded(self: any, folded: boolean)
+	folded = folded or self._touch -- #2710: always the one chip on touch
 	self._folded = folded
 	foldedNow = folded
 	self:_draw()
@@ -320,6 +331,14 @@ function BuffChips._draw(self: any)
 	self._tab.Visible = look.tab
 	self._foldedChip.Visible = look.folded
 	self._count.Text = "x" .. #running
+	if self._touch and #running > 0 then
+		-- #2710: and the soonest to end
+		local soonest = running[1].secondsLeft
+		for _, row in running do
+			soonest = math.min(soonest, row.secondsLeft)
+		end
+		self._count.Text = "x" .. #running .. " " .. PotionLogic.clock(soonest)
+	end
 	local lead: string? = if #running > 0 then running[1].potion.id else nil
 	if lead ~= nil and lead ~= self._foldedId then
 		self._foldedId = lead

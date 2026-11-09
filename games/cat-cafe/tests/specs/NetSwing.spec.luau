@@ -56,14 +56,30 @@ return function()
 			expect(NetSwing.inReach(ORIGIN, AHEAD, at(7, 0))).to.equal(true)
 		end)
 
-		it("misses one 9 studs ahead and one right behind the player", function()
-			expect(NetSwing.inReach(ORIGIN, AHEAD, at(9, 0))).to.equal(false)
+		it("misses one 9.1 studs ahead and one right behind the player", function()
+			expect(NetSwing.inReach(ORIGIN, AHEAD, at(9.1, 0))).to.equal(false)
 			expect(NetSwing.inReach(ORIGIN, AHEAD, at(3, 180))).to.equal(false)
 		end)
 
-		it("takes the slack for latency: 8.4 studs is in, 8.6 out", function()
-			expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.4, 10))).to.equal(true)
-			expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.6, 10))).to.equal(false)
+		it("takes the slack for latency: 8.4 studs is in, 8.6 out, off the straight-ahead line", function()
+			expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.4, 30))).to.equal(true)
+			expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.6, 30))).to.equal(false)
+		end)
+
+		it("#2693: reaches NetFrontExtraStuds further within 25 degrees of straight ahead", function()
+			expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.9, 0))).to.equal(true)
+			expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.9, 24))).to.equal(true)
+			expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.9, -24))).to.equal(true)
+			expect(NetSwing.inReach(ORIGIN, AHEAD, at(8.9, 26))).to.equal(false)
+			expect(NetSwing.inReach(ORIGIN, AHEAD, at(9.1, 0))).to.equal(false)
+			expect(NetSwing.inReach(ORIGIN, AHEAD, at(9.4, 0), 1)).to.equal(true)
+		end)
+
+		it("#2693: within 4 studs of the feet covers 80 degrees either side", function()
+			expect(NetSwing.inReach(ORIGIN, AHEAD, at(3.9, 79))).to.equal(true)
+			expect(NetSwing.inReach(ORIGIN, AHEAD, at(3.9, -79))).to.equal(true)
+			expect(NetSwing.inReach(ORIGIN, AHEAD, at(3.9, 81))).to.equal(false)
+			expect(NetSwing.inReach(ORIGIN, AHEAD, at(4.1, 70))).to.equal(false)
 		end)
 
 		it("covers 60 degrees either side of the facing and no more", function()
@@ -76,6 +92,8 @@ return function()
 
 		it("a cat at the feet is hit whichever way the player faces", function()
 			expect(NetSwing.inReach(ORIGIN, AHEAD, at(0.5, 180))).to.equal(true)
+			expect(NetSwing.inReach(ORIGIN, AHEAD, at(1.4, 180))).to.equal(true) -- #2693: FEET_STUDS 1.5
+			expect(NetSwing.inReach(ORIGIN, AHEAD, at(1.6, 180))).to.equal(false)
 		end)
 
 		it(
@@ -107,7 +125,7 @@ return function()
 		it("lands on nothing when every stray is out of reach or out of the arc", function()
 			expect(NetSwing.pick(ORIGIN, AHEAD, {
 				{ id = "far", position = at(10, 0) },
-				{ id = "side", position = at(4, 75) },
+				{ id = "side", position = at(4.5, 75) },
 			})).never.to.be.ok()
 			expect(NetSwing.pick(ORIGIN, AHEAD, {})).never.to.be.ok()
 		end)
@@ -195,7 +213,7 @@ return function()
 		end)
 
 		it("so a runner's swing lands on a cat just past reach from where they stand", function()
-			local cat = ORIGIN + Vector3.new(0, 0, -9)
+			local cat = ORIGIN + Vector3.new(0, 0, -9.2) -- #2693: 9 straight ahead is in now
 			local origin = NetSwing.landingOrigin(ORIGIN, Vector3.new(0, 0, -16))
 			expect(NetSwing.inReach(ORIGIN, AHEAD, cat)).to.equal(false)
 			expect(NetSwing.inReach(origin, AHEAD, cat)).to.equal(true)
@@ -235,7 +253,7 @@ return function()
 			expect(NetSwing.extraFor({ long_net = true })).to.equal(1)
 			expect(Config.LongNetReachStuds).to.equal(8)
 			expect(NetSwing.reach(1)).to.be.near(9.5, 1e-12)
-			local ahead = Vector3.new(0, 0, -9)
+			local ahead = Vector3.new(0, 0, -9.3) -- #2693: past the 9 studs straight ahead
 			expect(NetSwing.inReach(Vector3.zero, Vector3.new(0, 0, -1), ahead)).to.equal(false)
 			expect(NetSwing.inReach(Vector3.zero, Vector3.new(0, 0, -1), ahead, 1)).to.equal(true)
 		end)

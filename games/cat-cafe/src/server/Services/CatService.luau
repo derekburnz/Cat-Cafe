@@ -37,6 +37,7 @@ local Moods = require(ReplicatedStorage.Shared.Moods)
 local Mover = require(ReplicatedStorage.Shared.Mover)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
+local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local Payout = require(script.Parent.Payout)
 local Pity = require(ReplicatedStorage.Shared.Pity)
@@ -141,7 +142,8 @@ local occupiedPoints: { [string]: { [number]: string } } = {} -- area -> point i
 local carrying: { [Player]: Carry } = {}
 -- #2565 (mystery-market.md section 3): a Backpack's second cat, packed on the back with the net still out. It goes in
 -- first (hands free) and the next catch goes into the hands; it checks in with the held one, drops with it on a
--- tackle, a death or the Drop button's second press, and blocks the cannon, travel and tackling like a held cat.
+-- tackle, a death or the Drop button's second press, and blocks the cannon and travel like a held cat (tackling only
+-- since #2731, which lets a player with only a packed cat tackle).
 local packed: { [Player]: Carry } = {}
 local circleHistory: { [Player]: { boolean } } = {} -- last judged circles per player, true for Perfect (S23)
 local snackRandom = Random.new() -- #1181: the catch's snack drop
@@ -219,6 +221,15 @@ local function outOfCamp(position: Vector3): Vector3
 	local out = Vector3.new(x, position.Y, z)
 	local area = if campId ~= nil then world.areas[campId] else nil
 	return if area ~= nil then WorldBuilder.clampToArea(area, out, 2) else out
+end
+
+-- #2692: whether the areas are open for this player: by the clock, or by the night pass of a beginner who has not
+-- checked in a first cat (shared/NightPass).
+local function openFor(profile: Types.PlayerProfile?): boolean
+	return NightPass.open(
+		ClockService.areasOpen(),
+		profile ~= nil and NightPass.has(profile.tutorialStep)
+	)
 end
 
 local function areaUnlocked(profile: Types.PlayerProfile, areaId: string): boolean
@@ -791,9 +802,18 @@ end
 -- point (v4, F84, data-model section 9 v0.13.18: plot p owns near point p), where the intro shows it. Since F87
 -- (easy-start.md section 2b) it is theirs alone until their first check-in: one that waits at their point for
 -- someone who left the plot is handed over, and one whose beginner left or checked in a cat is freed.
+-- #2692: nothing else spawns at night (v0.9, F66), but a beginner holds the night pass, so their stray comes at night
+-- too, and one whose beginner has gone or checked in leaves at once by night instead of waiting for the sunrise.
 local function tutorialTick()
-	if not ClockService.areasOpen() then
-		return -- nothing spawns at night (v0.9, F66); the beginner's stray comes with the sunrise
+	local night = not ClockService.areasOpen()
+	for _, player in DataService.loadedPlayers() do
+		local profile = DataService.get(player)
+		if profile ~= nil then
+			local pass = NightPass.has(profile.tutorialStep)
+			if player:GetAttribute(NightPass.ATTRIBUTE) ~= pass then
+				player:SetAttribute(NightPass.ATTRIBUTE, pass)
+			end
+		end
 	end
 	local occupied = occupiedPoints[TUTORIAL_AREA] or {}
 	local near = tutorialPoints()
@@ -840,10 +860,19 @@ local function tutorialTick()
 			spawnAt(TUTORIAL_AREA, own, "Common", player.UserId)
 		end
 	end
+	local leaving: { Stray } = {}
 	for _, stray in strays do
 		local beginner = stray.beginner
 		if beginner ~= nil and not beginners[beginner] then
 			reserve(stray, nil)
+			if night then
+				table.insert(leaving, stray)
+			end
+		end
+	end
+	for _, stray in leaving do
+		if stray.drop == nil and (stray.lockedBy == 0 or lockExpired(stray)) then
+			despawn(stray)
 		end
 	end
 end
@@ -1075,12 +1104,33 @@ local function hasBackpack(player: Player): boolean
 	return profile ~= nil and profile.mystery.backpack == true
 end
 
--- #2565: the packed cat's model on the back, and the character attribute PackedCatId for the clients.
+-- #2719: the Backpack's owner wears it (HeldCat.wearPack), at spawn and after the buy; every player sees it.
+local function wearBackpack(player: Player)
+	local character = player.Character
+	if
+		character == nil
+		or not hasBackpack(player)
+		or HeldCat.pack(character) ~= nil
+		or not AssetRegistry.has(HeldCat.PACK_ASSET)
+	then
+		return
+	end
+	local pack = AssetRegistry.clone(HeldCat.PACK_ASSET)
+	if HeldCat.wearPack(pack, character) then
+		pack.Parent = character
+	else
+		pack:Destroy()
+	end
+end
+
+-- #2565: the packed cat's model on the back, and the character attribute PackedCatId for the clients. #2719: in the
+-- worn pack with only its head out.
 local function attachPacked(player: Player, carry: Carry)
 	local character = player.Character
 	if character == nil then
 		return
 	end
+	wearBackpack(player)
 	if carry.model ~= nil then
 		carry.model:Destroy()
 		carry.model = nil
@@ -1117,6 +1167,7 @@ local function endPacked(player: Player): Carry?
 	local character = player.Character
 	if character ~= nil then
 		character:SetAttribute("PackedCatId", nil)
+		HeldCat.openPack(character, false) -- #2719
 	end
 	return carry
 end
@@ -1640,8 +1691,8 @@ function startCatch(
 	if not areaUnlocked(profile, stray.area) then
 		return "This area opens at a higher tier. Rank up to catch cats here"
 	end
-	if not ClockService.areasOpen() then
-		-- a stray still waiting out someone's catch at dusk (v0.9, F66)
+	if not openFor(profile) then
+		-- a stray still waiting out someone's catch at dusk (v0.9, F66); #2692: not for a night pass
 		return Clock.CLOSED_TEXT
 	end
 	if stray.lockedBy ~= 0 and not lockExpired(stray) then
@@ -1799,7 +1850,7 @@ local function pickUp(player: Player, profile: Types.PlayerProfile, stray: Stray
 		busy = inRescue(player) or holdsCatch(player) or inFlight(player),
 		inCamp = campOf(player) ~= nil,
 		areaUnlocked = areaUnlocked(profile, stray.area),
-		areasClosed = not ClockService.areasOpen(),
+		areasClosed = not openFor(profile), -- #2692: the night pass picks up as by day
 		distance = if root ~= nil then (root - stray.body.Position).Magnitude else nil,
 		sinceGrab = if last ~= nil then now - last else nil,
 	})
@@ -1947,7 +1998,7 @@ local function landSwing(player: Player)
 	end
 	local now = serverNow()
 	local origin, look = root.Position, root.CFrame.LookVector
-	local open = ClockService.areasOpen()
+	local open = openFor(profile) -- #2692: a night pass swings at its own tutorial stray
 	local targets: { NetSwing.Target } = {}
 	local near = 0
 	if open then
@@ -2204,6 +2255,12 @@ local function markCamps()
 		if character:GetAttribute("NetHidden") ~= netHidden then
 			character:SetAttribute("NetHidden", netHidden)
 		end
+		-- #2706: the walk speed follows stepping on and off the Town Square
+		local onSquare = if inTownSquare(player) then true else nil
+		if character:GetAttribute("OnSquare") ~= onSquare then
+			character:SetAttribute("OnSquare", onSquare)
+			CatService.refreshSpeed(player)
+		end
 	end
 end
 
@@ -2392,7 +2449,7 @@ local function dropCarry(player: Player, died: boolean)
 	if carry == nil or character == nil or (root == nil and not died) then
 		return
 	end
-	if not ClockService.areasOpen() then
+	if not openFor(DataService.get(player)) then -- #2692: a night pass drops as by day
 		if died then
 			dropAtNight(player, carry, root)
 		else
@@ -2437,8 +2494,14 @@ local function dropCarry(player: Player, died: boolean)
 end
 
 local function onDropCat(player: Player)
-	-- #2565: the first press drops the held cat, the next the packed one
-	if carrying[player] == nil and ClockService.areasOpen() then
+	-- #2565: the first press drops the held cat, the next the packed one. #2731: with only the packed cat, Drop
+	-- (now on the HUD for it) unpacks and drops it; while the areas are shut for this player it says why not, as for a
+	-- held cat, and stays packed
+	if carrying[player] == nil then
+		if packed[player] ~= nil and not openFor(DataService.get(player)) then
+			Net.toast(player, "Keep hold of it, the areas are closed.", "warn")
+			return
+		end
 		unpackCat(player)
 	end
 	dropCarry(player, false)
@@ -2604,6 +2667,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 					finishCatch(player, stray, attempt)
 				end
 			end
+			wearBackpack(player) -- #2719
 			local pack = packed[player]
 			if pack ~= nil then
 				attachPacked(player, pack) -- #2565
@@ -2673,7 +2737,9 @@ end
 function CatService.nightFalls()
 	local leaving: { Stray } = {}
 	for _, stray in strays do
-		table.insert(leaving, stray)
+		if stray.beginner == nil then -- #2692: a beginner's own tutorial stray stays for their night pass
+			table.insert(leaving, stray)
+		end
 	end
 	for _, stray in leaving do
 		whenUnlocked(stray, leaveAtDusk)
@@ -2736,6 +2802,12 @@ function CatService.inMinigame(player: Player): boolean
 end
 
 -- F84: true mid Cat Cannon flight or cloud hop.
+-- #2692: whether the night leaves this player alone: a beginner who has not checked in a first cat (shared/NightPass).
+function CatService.nightPass(player: Player): boolean
+	local profile = DataService.get(player)
+	return profile ~= nil and NightPass.has(profile.tutorialStep)
+end
+
 function CatService.inFlight(player: Player): boolean
 	return inFlight(player)
 end
@@ -2797,19 +2869,25 @@ function CatService.isCarrying(player: Player): boolean
 	return carrying[player] ~= nil
 end
 
--- #2565: a cat in the hands or in the Backpack: blocks the cannon and tackling (CannonService, ShoveService).
+-- #2565: a cat in the hands or in the Backpack: blocks the cannon (CannonService); tackling reads isCarrying (#2731).
 function CatService.isLoaded(player: Player): boolean
 	return carrying[player] ~= nil or packed[player] ~= nil
 end
 
 -- #2565: the packed cat's id, or nil.
+-- #2719: puts the Backpack on the player's character now (MysteryMarketService, right after the buy).
+function CatService.wearBackpack(player: Player)
+	wearBackpack(player)
+end
+
 function CatService.packedOf(player: Player): string?
 	local carry = packed[player]
 	return if carry ~= nil then carry.def.id else nil
 end
 
 -- A Swift Potion started or ran out (PotionService, F64), or a Startled slow (F57): the character's speed follows at
--- once, from whatever it is doing now (a Catch Rush, a carry, Startled or neither).
+-- once, from whatever it is doing now (a Catch Rush, a carry, Startled or neither). #2706: with no cat, on the Town
+-- Square (the character's OnSquare, kept by markCamps), TownWalkSpeedBonus more.
 function CatService.refreshSpeed(player: Player)
 	local character = player.Character
 	local humanoid = if character ~= nil
@@ -2821,7 +2899,9 @@ function CatService.refreshSpeed(player: Player)
 	local carry = carrying[player]
 	local startled = startledUntil[player]
 	local base = if carry == nil
-		then Config.NormalWalkSpeed
+		then Config.NormalWalkSpeed + (if (character :: Model):GetAttribute("OnSquare") == true
+			then Config.TownWalkSpeedBonus
+			else 0) -- #2706: a little faster on the Town Square
 		elseif
 			carry.rushUntil ~= nil and carry.rushUntil > serverNow()
 		then Config.CatchRushWalkSpeed

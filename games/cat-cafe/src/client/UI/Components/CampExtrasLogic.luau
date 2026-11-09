@@ -187,7 +187,11 @@ function CampExtrasLogic.remoteCollect(line: Line?, owner: boolean): boolean
 end
 
 CampExtrasLogic.BANG_EXTRAS = { "picnic", "yardSale", "pond", "lostFound" } -- lostFound: #1733
-CampExtrasLogic.BANG_RANGE = 150 -- studs, camp-stations.md section 5 (ReadyBangRange)
+-- studs from the camera (a BillboardGui's MaxDistance). Was 150 (camp-stations.md section 5, ReadyBangRange). #2730
+-- (Derek2 11-09: "remove the obnoxious highlighting from stations in areas unless close by"): 40 from the camera is
+-- about 25 from the player at the usual zoom, the same "close by" as Wayfinding's NEAR; the HUD dot and the Cat Cannon
+-- picker still say something waits from further off
+CampExtrasLogic.BANG_RANGE = 40
 -- #2096: studs from a station bubble's middle to just under it (half its 1.8 studs, plus its 18 px at a typical
 -- distance and a little air), so a bubble lifted by bubbleLift sits clear over its station
 CampExtrasLogic.BUBBLE_CLEAR = 1.8

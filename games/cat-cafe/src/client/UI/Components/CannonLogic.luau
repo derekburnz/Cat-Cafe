@@ -4,8 +4,11 @@
 -- and at night, the hints that point a player at the cannon, and when the destination's name card in the clouds
 -- pops in, wobbles and flies off. Every catching area is a cannon area since 14:09, the Alleyway included.
 --   destinations(areas, tier, cannonId)  the picker's cards: opened areas in tier order, Town Square first from a camp
---   moreToOpen(areas, tier)  whether a rank up opens more ("More open as you rank up.")
---   button(destination, closed, dusk, carrying)  a card's Launch: "launch", "carrying", "dusk" or "night"
+--   cards(areas, tier, cannonId)  #2682: the picker's cards, the opened ones (destinations) then every area the tier has
+--                        not opened yet, locked, in tier order, so the picker teases what ranking up brings
+--   moreToOpen(areas, tier)  whether a rank up opens more
+--   button(destination, closed, dusk, carrying, locked?)  a card's Launch: "launch", "carrying", "dusk", "night" or
+--                        "locked"
 --   notice(closed, dusk, carrying, remaining)  the line under the picker's title, or nil for the plain one
 --   cardTitle            "To the Woods!" (the card's sub line went 2026-11-03)
 --   cardTimes(hold?, from?) / cardPhase(elapsed, hold?, from?)  the name card's steps, seconds after its start
@@ -13,8 +16,8 @@
 -- Pure, no Theme, so the cloud spec runner can load it.
 
 export type AreaLike = { id: string, name: string, tier: number }
-export type Destination = { id: string, name: string, tier: number }
-export type ButtonState = "launch" | "carrying" | "dusk" | "night"
+export type Destination = { id: string, name: string, tier: number, locked: boolean? }
+export type ButtonState = "launch" | "carrying" | "dusk" | "night" | "locked"
 export type CardPhase = "waiting" | "in" | "wobble" | "out" | "gone"
 export type HintView = {
 	on: boolean, -- the cannon is live on this server (UI.cannon.setEnabled)
@@ -95,6 +98,34 @@ function CannonLogic.destinations(
 	return list
 end
 
+-- #2682 (Derek2: "show all areas when in cannon just make them shaded out and have a lock on them until you hit the
+-- proper tier"): destinations, then the areas above `tier`, locked, in tier order (catalog order within a tier). The
+-- server refuses a launch to any of them all the same (Cannon.launchRefusal: "<Area> opens at Tier N").
+function CannonLogic.cards(areas: { AreaLike }, tier: number, cannonId: string): { Destination }
+	local list = CannonLogic.destinations(areas, tier, cannonId)
+	local locked: { Destination } = {}
+	local order: { [string]: number } = {}
+	for index, area in areas do
+		if area.tier > tier and area.id ~= cannonId and area.id ~= CannonLogic.TOWN then
+			table.insert(
+				locked,
+				{ id = area.id, name = area.name, tier = area.tier, locked = true }
+			)
+			order[area.id] = index
+		end
+	end
+	table.sort(locked, function(a: Destination, b: Destination): boolean
+		if a.tier ~= b.tier then
+			return a.tier < b.tier
+		end
+		return order[a.id] < order[b.id]
+	end)
+	for _, destination in locked do
+		table.insert(list, destination)
+	end
+	return list
+end
+
 function CannonLogic.moreToOpen(areas: { AreaLike }, tier: number): boolean
 	for _, area in areas do
 		if area.tier > tier then
@@ -104,15 +135,19 @@ function CannonLogic.moreToOpen(areas: { AreaLike }, tier: number): boolean
 	return false
 end
 
--- A card's Launch. Carrying shuts every one (the server refuses it); Town Square is open at dusk and at night, so a
--- player at a camp can always fly home; an area shuts in the dusk warning and at night.
+-- A card's Launch. A locked area (#2682) stays shut whatever else holds; carrying shuts every one (the server refuses
+-- it); Town Square is open at dusk and at night, so a player at a camp can always fly home; an area shuts in the dusk
+-- warning and at night.
 function CannonLogic.button(
 	destination: string,
 	closed: boolean,
 	dusk: boolean,
-	carrying: boolean
+	carrying: boolean,
+	locked: boolean?
 ): ButtonState
-	if carrying then
+	if locked then
+		return "locked"
+	elseif carrying then
 		return "carrying"
 	elseif destination == CannonLogic.TOWN then
 		return "launch"

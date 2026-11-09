@@ -173,6 +173,7 @@ SettingsList.TRADE_REQUESTS_KEY = "tradeRequests"
 SettingsList.OTHER_KEYS = {
 	[SettingsList.TRADE_REQUESTS_KEY] = true,
 	roadmapOpen = true,
+	goalFolded = true, -- #2714: the goal card's fold tab and chip set it
 } :: { [string]: boolean }
 
 -- Every row in screen order.

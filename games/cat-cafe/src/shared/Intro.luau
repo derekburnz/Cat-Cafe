@@ -236,6 +236,14 @@ function Intro.camp(area: string): Camp?
 		-- F85: the long Sewer's depth runs along world X too, its camp on its west side
 		ox, oz, turn, opening =
 			W.SewerCenterX - W.SewerDepth / 2, W.SewerCenterZ, 90, W.SideGateHalfWidth
+	elseif area == "desert" then
+		-- #2651: the Desert's camp on its north end (toward the town), a half turn like the Park
+		ox, oz, turn, opening =
+			W.DesertCenterX, W.DesertCenterZ + W.DesertDepth / 2, 180, W.CampOpeningWidth / 2
+	elseif area == "ruins" then
+		-- #2651: the Ruins' camp on its south end (toward the town), no turn like the Neighbourhood
+		ox, oz, turn, opening =
+			W.RuinsCenterX, W.RuinsCenterZ - W.RuinsDepth / 2, 0, W.CampOpeningWidth / 2
 	else
 		return nil
 	end
@@ -555,8 +563,10 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 	-- #2644: the Codes Cat moved to the south-west corner (-41, -25) in #2643, so the shot ends further east and looks
 	-- along the bisector between it and the Spin Wheel (-28, 16): each about 27 degrees off the axis, in frame on a phone,
 	-- and high enough (18) to see the Codes Cat over Juniper's cart, which stands near that line of sight
-	local stations = v(-30, 3, -2.5) -- between the Spin Wheel and the Codes Cat
-	local stationsCam = v(6, 18, -6)
+	-- between the Spin Wheel and the Codes Cat; #2707's roomier square put them 38 studs apart (-28, 22 and -29, -16),
+	-- so the camera stands back east of the cannon to fit both on a phone
+	local stations = v(-28.5, 3, 3)
+	local stationsCam = v(14, 20, 3)
 	local shotFrom = key(v(px - (halfD + 16) * s, 9, pz - 6), v(px - (halfD + 0.3) * s, 7, pz))
 	local streamed = alleyStreamed ~= false
 	local all: { Shot } = {

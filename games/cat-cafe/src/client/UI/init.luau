@@ -1428,6 +1428,11 @@ function UI.init(config: Types.InitConfig)
 	})
 	local toastsInstance = Toasts.new(parent)
 	toasts = toastsInstance
+	-- #2724/#2727: toasts that come while the catch circles or the rescue bar run wait for the end (the HUD steps aside
+	-- then too, HUD._applyFocus)
+	hudInstance.catchingChanged:Connect(function(active: boolean)
+		toastsInstance:setFocus(active)
+	end)
 	toastsInstance:avoid(
 		function() -- #2338: clear of the HUD's menu column and goal card on a phone
 			return hudInstance:toastAvoid()

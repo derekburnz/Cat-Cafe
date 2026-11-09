@@ -553,7 +553,11 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 	local town = v(0, 0, -20) -- shot 7 looks up the whole town from the south
 	-- shot 6 (#2242): from inside the front wall right of the door, across the door to table 1's coin pile
 	local richLook = local3(-6, 2.5, -halfD + 4)
-	local stations = v(-28, 4, 0) -- between the Spin Wheel and the Codes Cat
+	-- #2644: the Codes Cat moved to the south-west corner (-41, -25) in #2643, so the shot ends further east and looks
+	-- along the bisector between it and the Spin Wheel (-28, 16): each about 27 degrees off the axis, in frame on a phone,
+	-- and high enough (18) to see the Codes Cat over Juniper's cart, which stands near that line of sight
+	local stations = v(-30, 3, -2.5) -- between the Spin Wheel and the Codes Cat
+	local stationsCam = v(6, 18, -6)
 	local shotFrom = key(v(px - (halfD + 16) * s, 9, pz - 6), v(px - (halfD + 0.3) * s, 7, pz))
 	local streamed = alleyStreamed ~= false
 	local all: { Shot } = {
@@ -703,7 +707,7 @@ function Intro.shots(plot: Plot, codesCat: boolean, alleyStreamed: boolean?): { 
 				{
 					-- down into the Town Square from its south side until the Spin Wheel and the Codes Cat are in frame
 					from = key(v(0, 24, -36), v(0, 5, 0)),
-					to = key(v(-8, 10, 0), stations),
+					to = key(stationsCam, stations),
 					seconds = 2.7,
 				},
 			},

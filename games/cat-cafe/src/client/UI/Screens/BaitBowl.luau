@@ -45,7 +45,9 @@ local Panel = require(script.Parent.Parent.Components.Panel)
 local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
 local Scale = require(script.Parent.Parent.Scale)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
+local StepTarget = require(script.Parent.Parent.Components.StepTarget)
 local Theme = require(script.Parent.Parent.Theme)
+local TutorialHints = require(script.Parent.Parent.Components.TutorialHints)
 local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
@@ -737,6 +739,19 @@ function BaitBowl.render(self: any, state: Types.PlayerState)
 			row.count.Text = "Get more at the Corner Shop"
 		end
 		row.use:setEnabled(owned and takes and empty and have > 0)
+		-- #2697: while the tutorial asks for food in the bowl, the Kibble row's Use rings
+		StepTarget.ui(
+			row.use.face,
+			lureId == TutorialHints.KIBBLE
+				and owned
+				and takes
+				and empty
+				and have > 0
+				and TutorialHints.ask(
+						TutorialHints.view(state, if catalog then catalog.spots else nil)
+					)
+					== "food"
+		)
 	end
 	self:_renderStatus()
 end

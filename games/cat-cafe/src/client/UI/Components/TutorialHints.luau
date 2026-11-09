@@ -7,6 +7,11 @@
 --   upgrade(step, levels) -> string?          #1796: the upgrade the step asks for, "tables" at step 3 and "lure_bowl"
 --                                             at step 4 until it is owned, so the HUD's Upgrades tile and that row in
 --                                             Upgrades glow (Components/TutorialGlow); nil otherwise
+--   view(state, spots, device?) -> View       #2697: the view of a player's state, for line and ask
+--   ask(view) -> string?                      #2697: what the step asks for ("catch", "job", "more", "table", "bowl",
+--                                             "food" or "waiting"), so each screen rings its own part of it
+--                                             (Components/StepTarget): "job" the HUD's Cats tile and Equip Best,
+--                                             "food" the HUD's Bowl tile and the Kibble row's Use
 -- The steps (server tutorialStep): below 2 the first catch, 2 the first check-in with no free slot, 3 the first
 -- table, 4 the Bait bowl and food in it, 5 done. Each line keeps to about 50 characters, one line on the strip.
 -- Pure, so the cloud spec runner checks it.
@@ -63,7 +68,7 @@ local LINES: { [string]: Line } = {
 	waiting = "A cat is on its way to your bowl",
 }
 
--- Which line the view asks for, nil when none.
+-- What the view asks for, nil when none.
 local function pick(view: View): string?
 	local step = view.step
 	if step < 2 then
@@ -83,6 +88,23 @@ end
 
 TutorialHints.TABLE = "tables"
 TutorialHints.BOWL = "lure_bowl"
+TutorialHints.KIBBLE = "kibble" -- the food step's line names it, so its row's Use rings
+
+function TutorialHints.ask(view: View): string?
+	return pick(view)
+end
+
+-- The view of `state` (a PlayerState), with the catalog's spots for step 2's choice.
+function TutorialHints.view(state: any, spots: { any }?, device: TipQueue.Device?): View
+	local levels: { [string]: number } = state.upgradeLevels or {}
+	return {
+		step = state.tutorialStep or TutorialHints.DONE,
+		device = device or "keyboard",
+		resting = TutorialHints.resting(state.cats, spots, state.tier or 1),
+		bowl = (levels[TutorialHints.BOWL] or 0) >= 1,
+		baited = state.bait ~= nil,
+	}
+end
 
 function TutorialHints.upgrade(step: number?, levels: { [string]: number }?): string?
 	local owned: { [string]: number } = levels or {}

@@ -811,6 +811,31 @@ local function assertArrowAt(target: GuiObject, where: string)
 	local gap = math.max(t0.X - a1.X, a0.X - t1.X, t0.Y - a1.Y, a0.Y - t1.Y)
 	assert(gap < 24, ("uigate: the arrow sits %d px from %s (#2314)"):format(gap, where))
 end
+-- #2697: step 2 with every sample cat resting at Tier 1 (Scenes.close puts the crew back)
+local function stepTwoResting()
+	local before = UI.getState() :: any
+	Scenes._crew = { cats = before.cats, tier = before.tier, extraSlots = before.extraSlots or 0 }
+	local cats = {}
+	for uid, cat in before.cats do
+		local copy = table.clone(cat)
+		copy.spotId = nil
+		cats[uid] = copy
+	end
+	UI.update({ tutorialStep = 2, tier = 1, extraSlots = 0, cats = cats } :: any)
+	UI.tutorial.show(UI.tutorial.hint(UI.getState()) or "Tap Cats and give your new cat a job")
+	task.wait(0.1)
+end
+-- #2697: step 4 with the Bait bowl owned and empty and Kibble in the bag
+local function stepFourFood()
+	local before = UI.getState() :: any
+	Scenes._stepState = { upgradeLevels = before.upgradeLevels, lures = before.lures, bait = before.bait }
+	local levels = table.clone(before.upgradeLevels or {})
+	levels.lure_bowl = math.max(levels.lure_bowl or 0, 1)
+	UI.update({ tutorialStep = 4, upgradeLevels = levels, lures = { kibble = 3 } } :: any)
+	UI.bait.set(nil)
+	UI.tutorial.show(UI.tutorial.hint(UI.getState()) or "Tap the Bait bowl and put Kibble in it")
+	task.wait(0.1)
+end
 -- #1161: the Bait bowl window, and its bowl tabs shown with `selected` chosen and the status title holding `title`.
 local function baitWindow()
 	local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
@@ -4390,6 +4415,63 @@ local SCENES = {
 		local window = UIShim.playerGui:FindFirstChild("CatCafeModals"):FindFirstChild("Upgrades", true)
 		assertArrowAt(window:FindFirstChild("tables", true) :: GuiObject, "the table row")
 	end },
+	-- #2697 (Derek2: "make it insanely clear what to click with arrows and flashing highlights around buttons"): step
+	-- 2 with a resting cat rings the HUD's Cats tile, then Equip Best inside Cats, each with the big arrow at it
+	{ "TutorialJob", function()
+		stepTwoResting()
+		local tile = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Cats", true)
+		local glow = tile and tile:FindFirstChild("TutorialGlow", true)
+		assert(glow, "uigate: the Cats tile does not ring at step 2 with a resting cat (#2697)")
+		assertArrowAt(glow.Parent :: GuiObject, "the Cats tile")
+	end },
+	{ "TutorialJobEquip", function()
+		stepTwoResting()
+		UI.open("Cats")
+		task.wait(0.1)
+		-- Decor has an Equip Best too: the one in a shown window
+		local glow: Instance? = nil
+		for _, piece in UIShim.playerGui:FindFirstChild("CatCafeModals"):GetDescendants() do
+			if piece.Name == "EquipBest" and piece:IsA("GuiObject") and piece.AbsoluteSize.X > 0 then
+				local ring = piece:FindFirstChild("TutorialGlow", true)
+				local shown = true
+				local node: Instance? = piece
+				while node and node:IsA("GuiObject") do
+					shown = shown and (node :: GuiObject).Visible
+					node = node.Parent
+				end
+				if shown then
+					glow = ring
+					assert(ring, "uigate: Equip Best does not ring at step 2 with a resting cat (#2697)")
+				end
+			end
+		end
+		assert(glow, "uigate: no Equip Best on screen in Cats (#2697)")
+		assertArrowAt((glow :: Instance).Parent :: GuiObject, "Equip Best")
+	end },
+	-- #2697: step 4 with the bowl owned and empty rings the HUD's Bowl tile, then the Kibble row's Use
+	{ "TutorialFood", function()
+		stepFourFood()
+		local tile = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Bowl", true)
+		local glow = tile and tile:FindFirstChild("TutorialGlow", true)
+		assert(glow, "uigate: the Bowl tile does not ring at the food step (#2697)")
+		local cats = UIShim.playerGui:FindFirstChild("CatCafeHUD"):FindFirstChild("Cats", true)
+		assert(cats:FindFirstChild("TutorialGlow", true) == nil, "uigate: the Cats tile rings at the food step (#2697)")
+	end },
+	{ "TutorialFoodUse", function()
+		stepFourFood()
+		UI.bait.openPicker()
+		task.wait(0.2)
+		local window = baitWindow()
+		local rings = {}
+		for _, piece in window:GetDescendants() do
+			if piece.Name == "TutorialGlow" then
+				table.insert(rings, piece)
+			end
+		end
+		assert(#rings == 1, ("uigate: %d rings in the bowl window at the food step, wants the Kibble row's Use (#2697)"):format(#rings))
+		local use = rings[1].Parent :: GuiObject
+		assertArrowAt(use, "the Kibble row's Use")
+	end },
 	{ "TutorialArrowGone", function()
 		-- the sample cafe's money can make its rank up ready, and then the goal card's own arrow (#2331) comes and goes
 		-- on a timer, so whether it shows here depended on how long the scenes before took: no rank up ready while
@@ -6287,7 +6369,7 @@ function Scenes.close()
 		end
 	end
 	if Scenes._stepState then
-		UI.update(Scenes._stepState :: any) -- #2712's top row scene: the money and potions back
+		UI.update(Scenes._stepState :: any) -- #2697's food steps and #2712's top row scenes: the state back
 		Scenes._stepState = nil
 	end
 	if Scenes._crew then

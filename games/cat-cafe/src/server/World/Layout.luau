@@ -1565,10 +1565,12 @@ Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
 -- end of the lane, which leads nowhere since the side arches closed (v4). Out at x -38 its 12 stud card stays clear
 -- of the Codes circle, and its 9.2 stud dais leaves the lane open from the street to x -33. Its sign faces the cannon.
 Layout.bellhopStand = station(-38, 0)
--- #2565 (mystery-market.md section 1): Juniper's Mystery Market cart, across the street from the pity sign (13.5,
--- -23) in the south-west quarter, clear of the Codes Cat's circle and the bench row, facing the cannon. A draft spot
--- until Model-Agent places the art.
-Layout.mysteryCart = station(-14, -24)
+-- #2565 (mystery-market.md section 1): Juniper's Mystery Market cart, facing the cannon. QA 2026-11-09: the first
+-- spot (-14, -24) sat 3 studs from the Day Cart, so until Model-Agent's south-west relayout (mystery-market.md
+-- section 1: the Codes Cat and the Day Cart move to the corner) it stands in the north-west quarter, the Day Cart's
+-- mirror: about 4.6 studs from the Spin Wheel, its walk-in ring 11 from the wheel's and clear of the street (x -8),
+-- the north lamp (-24.5, 31) by 3.6.
+Layout.mysteryCart = station(-17, 24)
 
 -- The leaderboards (F98, leaderboards.md section 2; Model-Agent #758): CatCafe_Town_LeaderboardRow, three chalkboards
 -- in a row 23.8 long and 2.7 deep, at the lane's east end, mirroring the Bellhop stand, facing the cannon. Turned, the

@@ -154,6 +154,11 @@ return function()
 			expect(Logic.areaSongFor("Desert", only({}))).to.equal(nil)
 		end)
 
+		it("keeps playing the area song when it is the only one, even right after itself", function()
+			expect(Logic.nextSong({ "musicAreaDesert" }, "musicAreaDesert", 0.5)).to.equal("musicAreaDesert")
+			expect(Logic.nextSong({ "musicAreaRuins" }, "musicDayA", 0.99)).to.equal("musicAreaRuins")
+		end)
+
 		it("gives each area song four sections like the day and night songs", function()
 			for _, id in { "musicAreaDesert", "musicAreaRuins" } do
 				local cue = Cues[id]

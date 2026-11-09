@@ -74,6 +74,7 @@ local catchToken = 0
 local zone: string? = nil
 local areaSong: string? = nil -- #2651: the area song the music follows (Audio.setZone), nil for the cafe music
 local AREA_LEAVE_DELAY = 4 -- seconds out of an area before its song gives way
+local areaLeaveRun = 0 -- bumped on every area change, so a stale leave timer does nothing
 local music: Bed = { cue = nil, sound = nil, ducks = {} }
 local ambience: Bed = { cue = nil, sound = nil, ducks = {} }
 
@@ -2115,12 +2116,16 @@ function Audio.setZone(newZone: string?)
 		return
 	end
 	if target ~= nil then
+		areaLeaveRun += 1 -- stepping back in cancels a pending leave
 		areaSong = target
 		refreshMusic(false)
 		return
 	end
+	areaLeaveRun += 1
+	local run = areaLeaveRun
 	task.delay(AREA_LEAVE_DELAY, function()
-		if areaSong ~= nil and Logic.areaSongFor(zone, has) == nil then
+		-- only the latest leave counts, and only if the zone now (not the one left) still has no area song
+		if run == areaLeaveRun and areaSong ~= nil and Logic.areaSongFor(zone, has) == nil then
 			areaSong = nil
 			refreshMusic(false)
 		end

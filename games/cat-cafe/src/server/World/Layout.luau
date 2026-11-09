@@ -462,6 +462,11 @@ Layout.plot = {
 		{ id = "bed_6", x = 20.4, y = 0, z = 10.32, rotY = 90, tier = 5 },
 		{ id = "bed_7", x = -20, y = 0, z = -3.5, rotY = -90, tier = 6 }, -- the left wall, past the fish tank
 		{ id = "bed_8", x = 20, y = 0, z = -5.5, rotY = 90, tier = 6 }, -- the right wall
+		-- #2651: Tier 7's two and the two more its extra slots need (Model-Agent's fit with the new stations)
+		{ id = "bed_9", x = 15.8, y = 0, z = -15.4, rotY = 180, tier = 7 }, -- under the right window, on bed_1..3's line
+		{ id = "bed_10", x = 12.2, y = 0, z = -15.4, rotY = 180, tier = 7 }, -- beside it, toward the door
+		{ id = "bed_11", x = 13.7, y = 0, z = 9.0, rotY = 0, tier = 8 }, -- behind table 6, left of the right cat tree
+		{ id = "bed_12", x = -14.7, y = 0, z = 12.5, rotY = 0, tier = 8 }, -- the back left nook between the cat trees
 	} :: { BedSpot },
 }
 

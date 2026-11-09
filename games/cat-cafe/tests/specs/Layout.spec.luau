@@ -1823,7 +1823,7 @@ return function()
 		end)
 
 		it("lays out the Desert and the Ruins on the east diagonals from their sets' spots (#2651)", function()
-			local want = {
+			local want: { [string]: { aim: number, near: number, deep: number, gateNorth: boolean } } = {
 				desert = { aim = 128.3, near = 50, deep = 56, gateNorth = true },
 				ruins = { aim = 52.2, near = 55, deep = 45, gateNorth = false },
 			}
@@ -2346,7 +2346,7 @@ return function()
 		it(
 			"adds two beds a tier from Tier 3 and two for the extra slots (#2047), so every working slot sleeps",
 			function()
-				expect(#plot.beds).to.equal(8)
+				expect(#plot.beds).to.equal(12) -- #2651: four more for Tier 7 and its extra slots
 				for n, bed in plot.beds do
 					expect(bed.id).to.equal("bed_" .. n)
 					expect(bed.tier).to.equal(2 + math.ceil(n / 2))

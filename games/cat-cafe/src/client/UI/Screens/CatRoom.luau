@@ -74,7 +74,8 @@ export type CatRoom = {
 }
 
 local GAP = Theme.sizes.gap
-local SQUARE = Theme.sizes.touchMin
+-- #2675: a 44 px face on the smallest phone scale too, now that seven tiers of role slots fill the strip (it scrolls)
+local SQUARE = Scale.tapHeight(Theme.sizes.touchMin)
 local CREW_LABEL = 16
 local CREW_H = CREW_LABEL + 4 + SQUARE + 8
 local TOOL_H = Theme.sizes.touchMin

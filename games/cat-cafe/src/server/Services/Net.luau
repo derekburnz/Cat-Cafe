@@ -99,7 +99,12 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	TradeConfirm = RateLimiter.new(2, 1),
 	TradeCancel = RateLimiter.new(1, 1),
 }
-local overLimitLog: { [number]: number } = {} -- userId -> last warn time
+local overLimitLog: { [number]: number } = {} -- userId -> last handler-failure warn time
+-- #2630: rate limit drops are counted per player and remote, and written as one summary line a minute at most.
+-- A drop is harmless (the server just ignores the extra tap), so one warning each hid the real errors in the log.
+local DROP_SUMMARY_SECONDS = 60
+local dropCounts: { [number]: { [string]: number } } = {} -- userId -> remote -> drops since the last summary
+local dropLoggedAt: { [number]: number } = {} -- userId -> when the last summary line was written
 
 local function limiterFor(name: string): RateLimiter.RateLimiter
 	return slowLimiters[name] or defaultLimiter
@@ -112,6 +117,31 @@ local function logOnce(player: Player, message: string)
 		overLimitLog[player.UserId] = now
 		warn(message)
 	end
+end
+
+-- #2630: count a dropped call; write "user N: Remote xK, ..." when the minute since the last line is up, so the
+-- first drop of a quiet player still shows at once and a burst becomes one line.
+local function noteDrop(player: Player, name: string)
+	local userId = player.UserId
+	local counts = dropCounts[userId]
+	if counts == nil then
+		counts = {}
+		dropCounts[userId] = counts
+	end
+	counts[name] = (counts[name] or 0) + 1
+	local now = os.clock()
+	local last = dropLoggedAt[userId]
+	if last ~= nil and last + DROP_SUMMARY_SECONDS > now then
+		return
+	end
+	dropLoggedAt[userId] = now
+	local parts = {}
+	for remote, count in counts do
+		table.insert(parts, string.format("%s x%d", remote, count))
+	end
+	table.sort(parts)
+	dropCounts[userId] = nil
+	warn(string.format("[Net] rate limit drops for user %d: %s", userId, table.concat(parts, ", ")))
 end
 
 function Net.start()
@@ -144,10 +174,12 @@ function Net.start()
 			limiter:forget(key .. name)
 		end
 		overLimitLog[player.UserId] = nil
+		dropCounts[player.UserId] = nil
+		dropLoggedAt[player.UserId] = nil
 	end)
 end
 
--- Connects a client -> server handler behind the rate limiter. Over the limit: dropped silently, logged once a second.
+-- Connects a client -> server handler behind the rate limiter. Over the limit: dropped, counted in a summary line.
 function Net.on(name: string, handler: (player: Player, ...any) -> ())
 	local event: RemoteEvent? = events[name]
 	if event == nil then
@@ -156,10 +188,7 @@ function Net.on(name: string, handler: (player: Player, ...any) -> ())
 	event.OnServerEvent:Connect(function(player: Player, ...: any)
 		local key = tostring(player.UserId)
 		if not (globalLimiter:allow(key) and limiterFor(name):allow(key .. name)) then
-			logOnce(
-				player,
-				string.format("[Net] rate limit hit: user %d on %s", player.UserId, name)
-			)
+			noteDrop(player, name)
 			return
 		end
 		local ok, err = xpcall(function(...: any)

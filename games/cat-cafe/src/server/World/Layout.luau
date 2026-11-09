@@ -1501,7 +1501,7 @@ Layout.townSquare = {
 	-- piece, in world space (x, y, z, turn in degrees): the paving with its own slab, the two sign arches over the
 	-- street, then the edge (Derek 10-28, Model-Agent #726): twelve lamps on the brick border, eight long buntings
 	-- round the sides and two short ones over the lane's ends (each ends 0.25 inside its lamps' hook rings, so the
-	-- lamps need no nudge), eight benches facing in, and the four gardens. The middle holds only the Cat Cannon
+	-- lamps need no nudge), six benches facing in (the south-west two came out for the Mystery Market corner, #2565), and the four gardens. The middle holds only the Cat Cannon
 	-- (v4, placed by WorldBuilder) and its pad, and the quarters only the stations. The finger signpost south-west of
 	-- the cannon came out 2026-11-03 (Derek: its tier arms no longer matched the areas). A short bunting skips until
 	-- its model is in (AssetRegistry.known).
@@ -1531,8 +1531,6 @@ Layout.townSquare = {
 		{ asset = "CatCafe_Square_Bunting", x = 47, y = 0.1, z = 19.75, rotY = 90 },
 		{ asset = "CatCafe_Square_BuntingShort", x = -47, y = 0.1, z = 0, rotY = 90 },
 		{ asset = "CatCafe_Square_BuntingShort", x = 47, y = 0.1, z = 0, rotY = 90 },
-		{ asset = "CatCafe_Square_Bench", x = -35.75, y = 0.1, z = -29.4, rotY = 180 },
-		{ asset = "CatCafe_Square_Bench", x = -45.4, y = 0.1, z = -19.75, rotY = 270 },
 		{ asset = "CatCafe_Square_Bench", x = -35.75, y = 0.1, z = 29.4 },
 		{ asset = "CatCafe_Square_Bench", x = -45.4, y = 0.1, z = 19.75, rotY = 270 },
 		{ asset = "CatCafe_Square_Bench", x = 35.75, y = 0.1, z = -29.4, rotY = 180 },
@@ -1556,7 +1554,9 @@ Layout.townSquare = {
 -- north-east corner, clear of the leaderboard row by 3.2 studs and the north bench by 2.9 (Model-Agent's check).
 Layout.spinWheel = station(-28, 16)
 Layout.fishMarket = station(33.5, 20)
-Layout.codesCat = station(-28, -16)
+-- #2565 (mystery-market.md section 1): the Codes Cat moved from (-28, -16) to the south-west corner with the Day Cart
+-- and Juniper's cart (Model-Agent's clearance check with the real model sizes, 2026-11-09).
+Layout.codesCat = station(-41, -25)
 -- #1388: the night market parks in front of the Thank You board (below), on its line to the cannon, so the board
 -- stands 8.5 studs behind the cart with about 6.5 clear between them.
 Layout.dealerCart = station(29.5, -16)
@@ -1565,12 +1565,11 @@ Layout.dealerNpc = { x = 5.4, y = 0, z = -0.4 } :: Point -- relative to the cart
 -- end of the lane, which leads nowhere since the side arches closed (v4). Out at x -38 its 12 stud card stays clear
 -- of the Codes circle, and its 9.2 stud dais leaves the lane open from the street to x -33. Its sign faces the cannon.
 Layout.bellhopStand = station(-38, 0)
--- #2565 (mystery-market.md section 1): Juniper's Mystery Market cart, facing the cannon. QA 2026-11-09: the first
--- spot (-14, -24) sat 3 studs from the Day Cart, so until Model-Agent's south-west relayout (mystery-market.md
--- section 1: the Codes Cat and the Day Cart move to the corner) it stands in the north-west quarter, the Day Cart's
--- mirror: about 4.6 studs from the Spin Wheel, its walk-in ring 11 from the wheel's and clear of the street (x -8),
--- the north lamp (-24.5, 31) by 3.6.
-Layout.mysteryCart = station(-17, 24)
+-- #2565 (mystery-market.md section 1): Juniper's Mystery Market cart, facing the cannon, in the south-west corner
+-- between the Codes Cat and the Day Cart (Model-Agent's spot, 2026-11-09; the two south-west benches came out). For
+-- its 12 x 7 wagon with the r4 walk-in circle 1 stud in front: the Codes circle is 2.6 studs off, the Day Cart 3.2
+-- and the lane 2.5. Design's (-24, -14) put the circle 0.3 into the lane.
+Layout.mysteryCart = station(-27, -17)
 
 -- The leaderboards (F98, leaderboards.md section 2; Model-Agent #758): CatCafe_Town_LeaderboardRow, three chalkboards
 -- in a row 23.8 long and 2.7 deep, at the lane's east end, mirroring the Bellhop stand, facing the cannon. Turned, the
@@ -1586,7 +1585,8 @@ Layout.cornerShop = station(21, 24)
 
 -- The Day Cart (#1577, day-cart.md section 3): the Corner Shop on CatCafe_Town_DayCart, in the square's south-west
 -- quarter opposite the Golden Fish Market. Model-Agent's spot (#1592) keeps the walk lines and the cannon clear.
-Layout.dayCart = station(-17, -24)
+-- #2565: nudged from (-17, -24) for the Mystery Market corner; 2.6 studs from the street and 4.2 from the arch post.
+Layout.dayCart = station(-15, -25)
 
 -- The Thank You board (#1083, idea-credits.md section 3): CatCafe_Street_ThanksBoard (12 x 1.5), facing the cannon.
 -- #1388 (the friend, 11-05): moved from beside the Codes Cat to the left of the leaderboard row (its Index end, -Z),

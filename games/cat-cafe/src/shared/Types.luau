@@ -319,12 +319,30 @@ export type PotionDef = {
 
 -- One thing a Mystery Visitor's gift can hold (F64): `chance` in percent, the rows summing to 100. A "potion" row
 -- has no id: the potion is one of Catalog.potions at even odds.
-export type MysteryGiftKind = "potion" | "lure" | "fish" | "spin"
+-- #2614: "coins" counts seconds of income, "crate" a crate id (or "highest") plus `fish`, "food" a cat food id, and
+-- "questPotion" one of the 30-minute quest potions at even odds.
+export type MysteryGiftKind =
+	"potion"
+	| "questPotion"
+	| "lure"
+	| "fish"
+	| "spin"
+	| "coins"
+	| "crate"
+	| "food"
 export type MysteryGiftRow = {
 	kind: MysteryGiftKind,
 	id: string?,
 	count: number,
 	chance: number,
+	fish: number?, -- #2614: golden fish paid with the row (the Super crate's 15)
+}
+-- #2614: a gift's wrap, rolled first at `chance` percent, then one of its rows at theirs.
+export type MysteryGiftTierName = "Common" | "Rare" | "Super"
+export type MysteryGiftTier = {
+	tier: MysteryGiftTierName,
+	chance: number,
+	rows: { MysteryGiftRow },
 }
 
 -- One row of Catalog.collectorOffers (F63, data-model section 12b): what the Cat Collector offers for a cat he values

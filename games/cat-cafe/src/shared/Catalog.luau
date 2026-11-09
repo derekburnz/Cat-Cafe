@@ -2191,15 +2191,49 @@ end
 -- Section 12b (F64): what a Mystery Visitor's gift holds, rolled when it appears and shown before it is opened.
 -- Chances in percent; a potion is one of Catalog.potions at even odds. F94 (rewards-and-shops.md section 2f): the 2
 -- Salmon go to the golden fish (was 10%).
-Catalog.mysteryGift = {
-	{ kind = "potion", count = 1, chance = 60 },
-	{ kind = "fish", count = 10, chance = 30 },
-	{ kind = "spin", count = 1, chance = 10 },
-} :: { Types.MysteryGiftRow }
-for _, row in Catalog.mysteryGift do
-	table.freeze(row)
+-- #2614 (Derek2 2026-11-09: "make mystery gifts better"; Design-Agent's tiers): the wrap is rolled first, Common 70,
+-- Rare 25, Super 5, then a row of it. A Common potion is Money, Lucky or Steady (the Swift Potion left the pool), its
+-- coins are 3 minutes of income, a Rare quest potion is one of the three 30-minute ones, and a Super crate is the one
+-- of the highest open area plus 15 golden fish. About 3.8 golden fish a gift on average (it was 3).
+Catalog.mysteryGiftTiers = {
+	{
+		tier = "Common",
+		chance = 70,
+		rows = {
+			{ kind = "potion", count = 1, chance = 45 },
+			{ kind = "coins", count = 180, chance = 35 },
+			{ kind = "fish", count = 8, chance = 20 },
+		},
+	},
+	{
+		tier = "Rare",
+		chance = 25,
+		rows = {
+			{ kind = "questPotion", count = 1, chance = 40 },
+			{ kind = "fish", count = 20, chance = 25 },
+			{ kind = "spin", count = 1, chance = 20 },
+			{ kind = "food", id = "big_cat_snack", count = 2, chance = 15 },
+		},
+	},
+	{
+		tier = "Super",
+		chance = 5,
+		rows = {
+			{ kind = "crate", id = "highest", count = 1, fish = 15, chance = 60 },
+			{ kind = "fish", count = 50, chance = 40 },
+		},
+	},
+} :: { Types.MysteryGiftTier }
+for _, tier in Catalog.mysteryGiftTiers do
+	for _, row in tier.rows do
+		table.freeze(row)
+	end
+	table.freeze(tier.rows)
+	table.freeze(tier)
 end
-table.freeze(Catalog.mysteryGift)
+table.freeze(Catalog.mysteryGiftTiers)
+-- The Common wrap's rows, for the prompt's odds line until it reads the wrap's own (#2614).
+Catalog.mysteryGift = Catalog.mysteryGiftTiers[1].rows
 
 -- Section 12b (F63): the Cat Collector's offers by the value he puts on the cat, lowest first. He offers the best row
 -- his value reaches, and the first below that, so a Common always gets 3 golden fish (#2237, was 5). The crate rows start at 6 and 11

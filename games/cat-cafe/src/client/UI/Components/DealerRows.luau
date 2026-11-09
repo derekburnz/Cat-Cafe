@@ -11,10 +11,16 @@
 --   group(stock, lureById) -> rows   foods the catalog does not know are left out
 --   amountOdds(weights) -> string?   "Stock odds: 0 (15%) · 1 (25%) · 2 (30%) · 3 (20%) · 4 (10%)"
 --   clock(seconds) -> "4:12"
+--   buyAll(stock, lureById, money) -> BuyAll?   #2573 (riverpopcorn886 via Derek2): what Buy all would take, from the
+--                                    server's own shared Dealer.planAll (best grade first, what fits), with the words
+--                                    of its confirm card; nil when nothing fits
 -- Pure, so the cloud test runner checks it.
 
 local FoodOrder = require(script.Parent.FoodOrder)
 local Types = require(script.Parent.Parent.Types)
+
+local Dealer =
+	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Dealer"))
 
 export type Row = {
 	lureId: string,
@@ -23,6 +29,16 @@ export type Row = {
 	amount: number, -- this window's stock of it, 0 to 4
 	bought: number, -- how many of it this player bought this window
 	left: number, -- amount less bought, never below 0
+}
+
+-- #2573: Buy all's plan and its confirm card's words.
+export type BuyAll = {
+	count: number, -- foods it buys
+	of: number, -- foods left on the cart for this player (known ones with a price)
+	total: number, -- coins
+	after: number, -- coins left after
+	list: string, -- "1 Star Treat · 2 Caviar"
+	partial: string?, -- "You can afford 6 of 10. The best go first." when it can't take everything
 }
 
 local DealerRows = {}
@@ -135,6 +151,45 @@ end
 function DealerRows.clock(seconds: number): string
 	local whole = math.max(0, math.ceil(seconds))
 	return ("%d:%02d"):format(whole // 60, whole % 60)
+end
+
+function DealerRows.buyAll(
+	stock: Types.DealerStock?,
+	lureById: { [string]: Types.LureDef },
+	money: number
+): BuyAll?
+	if stock == nil or type(stock.stock) ~= "table" then
+		return nil
+	end
+	local plan, total = Dealer.planAll(stock.stock :: any, money)
+	local units = 0
+	local parts: { string } = {}
+	for _, item in plan do
+		units += item.count
+		local def = lureById[item.lureId]
+		table.insert(parts, ("%d %s"):format(item.count, if def then def.name else item.lureId))
+	end
+	if units == 0 then
+		return nil
+	end
+	local of = 0
+	for _, food in stock.stock :: { Types.DealerFood } do
+		if lureById[food.lureId] ~= nil and (food.cost or 0) > 0 then
+			of += math.max(0, count(food.amount) - count(food.bought))
+		end
+	end
+	of = math.max(of, units)
+	local after = math.max(0, money - total)
+	return {
+		count = units,
+		of = of,
+		total = total,
+		after = after,
+		list = table.concat(parts, " · "),
+		partial = if units < of
+			then ("You can afford %d of %d. The best go first."):format(units, of)
+			else nil,
+	}
 end
 
 return DealerRows

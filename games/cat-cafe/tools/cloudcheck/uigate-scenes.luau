@@ -2143,6 +2143,56 @@ local SCENES = {
 		assert(star and sardines, "uigate: the dealer drew no Star Treat or Sardines row (#2057)")
 		assert(star < sardines, "uigate: the dealer lists Sardines above Star Treat, wants rarest first (#2057)")
 	end },
+	-- #2573 (riverpopcorn886's idea): Buy all on the strip; its card lists the plan, best grade first, and at 3M coins
+	-- says 3 of 4 fit (one Star Treat, two Sardines); Buy sends one buyDealerAll with the night shown
+	{ "DealerBuyAll", function()
+		local before: any = UI.getState()
+		Scenes._cashMoney = { money = before.money, passBoosts = before.passBoosts or false, goldenFish = before.goldenFish or 0 }
+		UI.update({ money = 3000000 })
+		UI.dealer.setStock({
+			window = 20400,
+			restocksAt = workspace:GetServerTimeNow() + 7 * 60 + 12,
+			stock = {
+				{ lureId = "sardines", cost = 25000, amount = 3, bought = 1 },
+				{ lureId = "caviar", cost = 120000, amount = 1, bought = 1 },
+				{ lureId = "moon_milk", cost = 400000, amount = 0, bought = 0 },
+				{ lureId = "star_treat", cost = 2500000, amount = 2, bought = 0 },
+			},
+		})
+		UI.dealer.open()
+		local window = UIShim.playerGui:FindFirstChild("Dealer", true)
+		local all = window and window:FindFirstChild("BuyAll", true)
+		assert(all and all.Visible, "uigate: the dealer has no Buy all while foods fit (#2573)")
+		local sent: { any } = {}
+		local connection = UI.events.buyDealerAll:Connect(function(night)
+			table.insert(sent, night)
+		end)
+		press("Dealer", "BuyAll")
+		local cover = window:FindFirstChild("BuyAllCover", true)
+		assert(cover and cover.Visible, "uigate: Buy all opened no confirm card (#2573)")
+		local list = cover:FindFirstChild("List", true).Text
+		assert(string.find(list, "1 Star Treat", 1, true) == 1, "uigate: the Buy all card lists " .. list .. " (#2573)")
+		local partial = cover:FindFirstChild("Partial", true)
+		assert(partial.Visible and string.find(partial.Text, "3 of 4", 1, true), "uigate: the card reads " .. partial.Text .. " (#2573)")
+		press("Dealer", "BuyAllCover.Cancel")
+		assert(not cover.Visible and #sent == 0, "uigate: Cancel sent Buy all or kept the card (#2573)")
+		press("Dealer", "BuyAll")
+		press("Dealer", "BuyAllCover.Buy")
+		connection:Disconnect()
+		assert(#sent == 1 and sent[1] == 20400, "uigate: Buy sent " .. #sent .. " Buy all (#2573)")
+		-- the shot shows the card again
+		UI.dealer.setStock({
+			window = 20400,
+			restocksAt = workspace:GetServerTimeNow() + 7 * 60 + 12,
+			stock = {
+				{ lureId = "sardines", cost = 25000, amount = 3, bought = 1 },
+				{ lureId = "caviar", cost = 120000, amount = 1, bought = 1 },
+				{ lureId = "moon_milk", cost = 400000, amount = 0, bought = 0 },
+				{ lureId = "star_treat", cost = 2500000, amount = 2, bought = 0 },
+			},
+		})
+		press("Dealer", "BuyAll")
+	end },
 	{ "Settings", function()
 		UI.open("Settings")
 	end },

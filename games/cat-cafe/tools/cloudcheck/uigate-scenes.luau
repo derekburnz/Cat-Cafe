@@ -3562,6 +3562,7 @@ local SCENES = {
 		-- and the screen as it looks mid-catch, for the snapshot
 		startCatch("gate_focus2", "Rare", 3, 0.2, 0.9)
 		UIShim.advance(0.3)
+	end },
 	-- #2721 (Derek2: "do some research for where mobile players like their buttons and move the net/tackle to where it
 	-- would fit best"): NET just left of the jump button, centres level, and TACKLE on the thumb's arc up and left of
 	-- it, both within 1.8 jump widths of the jump button's centre, clear of each other, the jump button, the bottom

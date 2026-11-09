@@ -3,9 +3,9 @@
 -- card, "Grand Opening 3/8" over eight dots, that opens in place into a short list. The server checks and pays each
 -- milestone; this only reads what ProfileSync says is done. Pure, so the cloud specs check it.
 --   STEPS                                 the eight milestones' card text and reward, in order
---   view(state) -> View?                  what the strip shows, or nil while it is hidden: before the tutorial's end
---                                         (tutorialStep 5), once finished, and for an account that never had it
---   toast(n) -> string                    "Grand Opening 4/8: Tier 2! +10 golden fish"
+--   view(state) -> View?                  what the strip shows, or nil while it is hidden: before the first catch
+--                                         (tutorialStep 2, #2795), once finished, and for an account that never had it
+--   toast(n) -> string                    "Grand Opening 4/8: Tier 2! +5 golden fish"
 --   BANNER                                the banner after step 8
 
 local RoadmapLogic = {}
@@ -14,25 +14,28 @@ export type Step = { text: string, short: string, reward: string }
 export type Row = { n: number, text: string, reward: string, done: boolean, next: boolean }
 export type View = { count: number, total: number, rows: { Row }, title: string }
 
-RoadmapLogic.TUTORIAL_DONE = 5 -- tutorialStep at the tutorial's end (easy-start.md)
+-- #2795: the tutorialStep the strip shows from, the first catch (shared GrandOpening.SHOW_FROM_STEP; it was the
+-- tutorial's end, 5)
+RoadmapLogic.SHOW_FROM = 2
+RoadmapLogic.TUTORIAL_DONE = 5 -- tutorialStep at the tutorial's end (easy-start.md; RecapLogic waits for it)
 RoadmapLogic.TITLE = "Grand Opening"
 -- the banner's 72 px title fits a small phone at 14 letters, so the spec's "Your cafe's Grand Opening!" is the line
 RoadmapLogic.BANNER = "Grand Opening!"
-RoadmapLogic.BANNER_LINE = "Your cafe's Grand Opening! +50 golden fish"
+RoadmapLogic.BANNER_LINE = "Your cafe's Grand Opening! +30 golden fish"
 
--- first-hour.md 1a: the card text, the toast's short words and the reward
+-- first-hour.md 1a: the card text, the toast's short words and the reward (#2795: the server's prizes since #2237)
 RoadmapLogic.STEPS = {
-	{ text = "Open your first table", short = "First table!", reward = "+5 golden fish" },
-	{ text = "Your first bait cat", short = "First bait cat!", reward = "+5 golden fish" },
+	{ text = "Open your first table", short = "First table!", reward = "+3 golden fish" },
+	{ text = "Your first bait cat", short = "First bait cat!", reward = "+3 golden fish" },
 	{ text = "Five different cats", short = "Five cats!", reward = "+1 spin" },
-	{ text = "Rank up to Tier 2", short = "Tier 2!", reward = "+10 golden fish" },
+	{ text = "Rank up to Tier 2", short = "Tier 2!", reward = "+5 golden fish" },
 	{ text = "Catch a cat in the Park", short = "A Park cat!", reward = "+1 Swift Potion" },
 	{ text = "A full Tier 2 cafe", short = "Full cafe!", reward = "+1 spin" },
-	{ text = "Twelve different cats", short = "Twelve cats!", reward = "+10 golden fish" },
+	{ text = "Twelve different cats", short = "Twelve cats!", reward = "+5 golden fish" },
 	{
 		text = "Grand Opening! Rank up to Tier 3",
 		short = "Grand Opening!",
-		reward = "+50 golden fish, a crate and a tag",
+		reward = "+30 golden fish, a crate and a tag",
 	},
 } :: { Step }
 
@@ -59,7 +62,7 @@ function RoadmapLogic.view(state: { [string]: any }): View?
 	if raw == nil then
 		return nil -- the server sends it only to accounts that get the roadmap (not Tier 3 and up when it shipped)
 	end
-	if (state.tutorialStep or RoadmapLogic.TUTORIAL_DONE) < RoadmapLogic.TUTORIAL_DONE then
+	if (state.tutorialStep or RoadmapLogic.SHOW_FROM) < RoadmapLogic.SHOW_FROM then
 		return nil
 	end
 	local done, finished = doneOf(raw)

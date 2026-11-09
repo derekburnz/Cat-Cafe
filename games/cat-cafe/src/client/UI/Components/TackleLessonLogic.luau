@@ -14,7 +14,13 @@
 --   hold(caption) -> number      seconds a caption holds when nobody presses Next (at least MIN_HOLD)
 --   CUE_SHOT, cueKey(device)     #2469: the caption that shows the Tackle bar pressed as the lunge starts, and the
 --                                key cap on it ("Q", "Y", or "" on touch, where the bar itself is the button)
+--   contextDue(view) -> boolean  #2626: whether the lesson is due as a context tip: this session tackled the player,
+--                                they are back on the safe street or in a cafe, the tutorial strip is done
+--                                (TutorialHints.DONE) and the lesson was never seen
 -- Pure, so the cloud spec runner checks it.
+-- #2626 (Derek2: "make tackle lesson removed from tutorial for now so less people leave ... add tackle tutorial as a
+-- context tutorial your first time your in the safe after being tackled"): no longer the intro's tail; UI's tip pump
+-- plays it once contextDue says so, and its TipSeen saves it as seen for good.
 
 export type Device = "keyboard" | "touch" | "gamepad"
 
@@ -60,6 +66,23 @@ function TackleLessonLogic.hold(caption: string): number
 		TackleLessonLogic.BASE + TackleLessonLogic.PER_WORD * words,
 		TackleLessonLogic.MIN_HOLD
 	)
+end
+
+TackleLessonLogic.DONE_STEP = 5 -- TutorialHints.DONE: the tutorial strip's last step is behind the player
+
+export type Context = {
+	tackled: boolean, -- another player's tackle landed on this player this session
+	safe: boolean, -- standing on the safe street or in a cafe (Wayfinding.isSafe)
+	seen: boolean, -- the lesson's tip is on the save or played this session
+	step: number?, -- the server's tutorialStep (nil on an older server: treated as done)
+}
+
+function TackleLessonLogic.contextDue(view: Context): boolean
+	local step: number = if type(view.step) == "number" then view.step else math.huge
+	return view.tackled == true
+		and view.safe == true
+		and view.seen ~= true
+		and step >= TackleLessonLogic.DONE_STEP
 end
 
 return TackleLessonLogic

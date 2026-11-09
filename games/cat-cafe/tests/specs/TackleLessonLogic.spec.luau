@@ -67,6 +67,27 @@ return function()
 				end
 			end
 		)
+
+		it(
+			"is due as a context tip once a tackled player is safe again, after the tutorial strip (#2626)",
+			function()
+				local function due(over: { [string]: any }): boolean
+					local view: any = { tackled = true, safe = true, seen = false, step = 5 }
+					for key, value in over do
+						view[key] = value
+					end
+					return TackleLessonLogic.contextDue(view)
+				end
+				expect(due({})).to.equal(true)
+				expect(due({ tackled = false })).to.equal(false) -- never tackled this session
+				expect(due({ safe = false })).to.equal(false) -- still in the catching area
+				expect(due({ seen = true })).to.equal(false) -- once per account
+				expect(due({ step = 3 })).to.equal(false) -- not during the tutorial
+				expect(due({ step = 9 })).to.equal(true)
+				local older: any = { tackled = true, safe = true, seen = false } -- an older server sends no step
+				expect(TackleLessonLogic.contextDue(older)).to.equal(true)
+			end
+		)
 	end)
 
 	describe("IntroLogic.shotCount (#2198)", function()

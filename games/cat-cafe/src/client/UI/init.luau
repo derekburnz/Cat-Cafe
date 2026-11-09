@@ -4196,7 +4196,14 @@ do
 		-- #2198: the server's `tackle` tip came and plays as the tackling lesson (Screens/TackleLesson) at the next free
 		-- moment, not as a card
 		lessonDue = false,
+		-- #2626: another player's tackle landed on this player this session; the lesson plays once they are safe again
+		tackled = false,
 	}
+	Moments.Shove:Connect(function(role: string)
+		if role == "target" then
+			TIP.tackled = true
+		end
+	end)
 
 	local tipQueue = TipQueue.new(TIP.GAP)
 	local tipAnswered: { [string]: boolean } = {} -- tips shown this session, before ProfileSync's tipsSeen says so
@@ -4390,6 +4397,18 @@ do
 		-- itself always shows since #1150)
 		if not tipKnown("luck") and hud ~= nil and hud:luckShown() then
 			UI.tips.show("luck")
+		end
+		-- #2626: the tackling lesson, the first time the player is back on the safe street after being tackled
+		if
+			TackleLessonLogic.contextDue({
+				tackled = TIP.tackled,
+				safe = Wayfinding.isSafe(currentZone),
+				seen = tipKnown(TackleLessonLogic.TIP),
+				step = state.tutorialStep,
+			})
+		then
+			TIP.tackled = false
+			UI.tips.show(TackleLessonLogic.TIP)
 		end
 		local from = characterPosition()
 		if from == nil then

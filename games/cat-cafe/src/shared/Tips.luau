@@ -67,6 +67,8 @@ Tips.NOTIFY_ASK = "notify_ask" -- F96
 Tips.INVITE_ASK = "invite_ask" -- F92: the one invite nudge, after the first rank up
 -- #2313: the notification ask waits for this much play (with the first rank up) or a second day
 Tips.NOTIFY_PLAY_SECONDS = 30 * 60
+-- #2553: in a return visit, the notification ask waits this long into the session
+Tips.NOTIFY_RETURN_SECONDS = 5 * 60
 -- The asks in the order `dueAsk` offers them (starter-cat.md section 3's table, then F92's invite nudge).
 Tips.ASKS = table.freeze({ Tips.NOTIFY_ASK, Tips.FAVORITE_ASK, Tips.LIKE_ASK, Tips.INVITE_ASK })
 Tips.FEEDBACK_ASK = "feedback_ask"
@@ -157,10 +159,32 @@ local function securedLegendary(profile: Types.PlayerProfile): boolean
 	return false
 end
 
+-- #2553: the notification ask's long-play path: NOTIFY_PLAY_SECONDS of play, Tier 2 and a first rescue.
+function Tips.notifyLongPlay(profile: Types.PlayerProfile, playSeconds: number?): boolean
+	return (playSeconds or profile.stats.playtimeSeconds) >= Tips.NOTIFY_PLAY_SECONDS
+		and Economy.tier(profile) >= 2
+		and profile.stats.rescues >= 1
+end
+
+-- #2553: the notification ask's return path: a second session or later (stats.sessions counts this one), on a later
+-- UTC day than the first join, NOTIFY_RETURN_SECONDS into it. Never in the first session.
+function Tips.notifyReturn(
+	profile: Types.PlayerProfile,
+	day: number,
+	sessionSeconds: number?
+): boolean
+	return profile.stats.sessions >= 2
+		and day > profile.telemetry.firstDay
+		and (sessionSeconds or 0) >= Tips.NOTIFY_RETURN_SECONDS
+end
+
 -- The ask whose moment has come, or nil (F96, starter-cat.md section 3), in ASKS order: none before the first loop
 -- (tutorialStep 5); the notification ask (#2313, Derek2: "move the notification turn on prompt for much later in
--- gameplay") once `playSeconds` (PlayTime.seconds: saved play plus this session) reaches NOTIFY_PLAY_SECONDS with the
--- first rank up done, or on a later UTC day than the account's first, whichever comes first; once, then again at most
+-- gameplay"; #2553, "it asks for notifications to be turned on way too early in gameplay") once `playSeconds`
+-- (PlayTime.seconds: saved play plus this session) reaches NOTIFY_PLAY_SECONDS with the first rank up and the first
+-- rescue done, or in a return visit: a second session or later, on a later UTC day than the account's first, once
+-- `sessionSeconds` (this session's) reaches NOTIFY_RETURN_SECONDS. A first session that crosses midnight UTC no
+-- longer counts as a later day. Once, then again at most
 -- once NOTIFY_RETRY_SECONDS after `notifyAskAt` (os.time() when it first showed, 0 before); the favorite ask from Tier 2;
 -- the like ask once a Legendary or Mythical is in the collection or on a later UTC day (`day`, os.time() // 86400)
 -- than the account's first; F92's invite nudge from Tier 2, after the others. The caller sends at most one a session;
@@ -169,7 +193,8 @@ function Tips.dueAsk(
 	profile: Types.PlayerProfile,
 	now: number,
 	day: number,
-	playSeconds: number?
+	playSeconds: number?,
+	sessionSeconds: number?
 ): string?
 	if profile.tutorialStep < 5 then
 		return nil
@@ -177,9 +202,11 @@ function Tips.dueAsk(
 	local seen = profile.tipsSeen
 	if
 		seen[Tips.NOTIFY_ASK] ~= true
-		and (((playSeconds or profile.stats.playtimeSeconds) >= Tips.NOTIFY_PLAY_SECONDS and Economy.tier(
-			profile
-		) >= 2) or day > profile.telemetry.firstDay)
+		and (Tips.notifyLongPlay(profile, playSeconds) or Tips.notifyReturn(
+			profile,
+			day,
+			sessionSeconds
+		))
 		and (profile.notifyAskAt <= 0 or now - profile.notifyAskAt >= Tips.NOTIFY_RETRY_SECONDS)
 	then
 		return Tips.NOTIFY_ASK

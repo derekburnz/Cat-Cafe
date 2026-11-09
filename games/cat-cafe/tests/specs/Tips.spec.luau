@@ -133,16 +133,21 @@ return function()
 			expect(Tips.LESSON).to.equal("tackle_lesson")
 		end)
 
-		it("keeps the lesson's seen flag through a save and load, and never marks it for a veteran (#2409)", function()
-			expect(Tips.sanitizeSeen({ tackle_lesson = true }, false) :: any).to.deepEqual({ tackle_lesson = true })
-			expect(Tips.sanitizeSeen({}, true)[Tips.LESSON]).never.to.be.ok()
-			local profile = ProfileSchema.template(0)
-			profile.introSeen = true
-			profile.tipsSeen[Tips.LESSON] = true
-			local loaded = ProfileSchema.migrate(profile, 0)
-			expect(loaded.tipsSeen[Tips.LESSON]).to.equal(true)
-			expect(#Tips.due(loaded, DAY)).to.equal(0)
-		end)
+		it(
+			"keeps the lesson's seen flag through a save and load, and never marks it for a veteran (#2409)",
+			function()
+				expect(Tips.sanitizeSeen({ tackle_lesson = true }, false) :: any).to.deepEqual({
+					tackle_lesson = true,
+				})
+				expect(Tips.sanitizeSeen({}, true)[Tips.LESSON]).never.to.be.ok()
+				local profile = ProfileSchema.template(0)
+				profile.introSeen = true
+				profile.tipsSeen[Tips.LESSON] = true
+				local loaded = ProfileSchema.migrate(profile, 0)
+				expect(loaded.tipsSeen[Tips.LESSON]).to.equal(true)
+				expect(#Tips.due(loaded, DAY)).to.equal(0)
+			end
+		)
 
 		it("lists only server tips", function()
 			local profile = fresh()
@@ -331,6 +336,7 @@ return function()
 			local profile = settled()
 			profile.stats.baitsTamed = 1
 			profile.stats.playtimeSeconds = Tips.NOTIFY_PLAY_SECONDS
+			profile.stats.rescues = 1
 			profile.tier = 2
 			profile.collection[legendaryId()] = NOW
 			return profile
@@ -377,7 +383,7 @@ return function()
 		end)
 
 		it(
-			"asks for notifications after 30 minutes and the first rank up, or on a second day (#2313)",
+			"asks for notifications after 30 minutes, the first rank up and a rescue, or minutes into a later visit (#2313, #2553)",
 			function()
 				local HALF_HOUR = Tips.NOTIFY_PLAY_SECONDS
 				expect(HALF_HOUR).to.equal(30 * 60)
@@ -388,17 +394,29 @@ return function()
 				profile.tipsSeen[Tips.FAVORITE_ASK] = true -- so the favorite ask (also Tier 2) does not answer first
 				profile.tipsSeen[Tips.INVITE_ASK] = true
 				expect(Tips.dueAsk(profile, NOW, TODAY, HALF_HOUR - 1)).to.equal(nil)
+				-- #2553: the half hour and Tier 2 still wait for a first rescue
+				expect(Tips.dueAsk(profile, NOW, TODAY, HALF_HOUR)).to.equal(nil)
+				profile.stats.rescues = 1
 				expect(Tips.dueAsk(profile, NOW, TODAY, HALF_HOUR)).to.equal(Tips.NOTIFY_ASK)
 				-- without the session's seconds it reads the saved play
 				profile.stats.playtimeSeconds = HALF_HOUR
 				expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(Tips.NOTIFY_ASK)
-				-- a second day is enough on its own, still past the first loop
+				-- a return visit on a later day is enough on its own, five minutes in (#2553)
+				local RETURN = Tips.NOTIFY_RETURN_SECONDS
+				expect(RETURN).to.equal(5 * 60)
 				local back = settled()
-				expect(Tips.dueAsk(back, NOW, TODAY, 60)).to.equal(nil)
+				back.stats.sessions = 2
+				expect(Tips.dueAsk(back, NOW, TODAY, 60, RETURN)).to.equal(nil) -- same day
 				back.tipsSeen[Tips.LIKE_ASK] = true -- the like ask also opens on a later day
-				expect(Tips.dueAsk(back, NOW, TODAY + 1, 60)).to.equal(Tips.NOTIFY_ASK)
+				expect(Tips.dueAsk(back, NOW, TODAY + 1, 60, RETURN - 1)).to.equal(nil)
+				expect(Tips.dueAsk(back, NOW, TODAY + 1, 60, RETURN)).to.equal(Tips.NOTIFY_ASK)
+				expect(Tips.dueAsk(back, NOW, TODAY + 1, 60)).to.equal(nil) -- no session time given
+				-- the first session never asks, even past midnight
+				back.stats.sessions = 1
+				expect(Tips.dueAsk(back, NOW, TODAY + 1, 60, RETURN)).to.equal(nil)
+				back.stats.sessions = 2
 				back.tutorialStep = 4
-				expect(Tips.dueAsk(back, NOW, TODAY + 1, 60)).to.equal(nil)
+				expect(Tips.dueAsk(back, NOW, TODAY + 1, 60, RETURN)).to.equal(nil)
 				-- shown once and dismissed: it waits the 30 days
 				profile.notifyAskAt = NOW
 				expect(Tips.NOTIFY_RETRY_SECONDS).to.equal(30 * 86400)
@@ -427,10 +445,16 @@ return function()
 			function()
 				local profile = settled()
 				expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(nil)
-				-- a later day opens the notification ask first (#2313), then the like ask
-				expect(Tips.dueAsk(profile, NOW + 86400, TODAY + 1)).to.equal(Tips.NOTIFY_ASK)
+				-- a later visit opens the notification ask first (#2313, #2553), then the like ask
+				profile.stats.sessions = 2
+				local RETURN = Tips.NOTIFY_RETURN_SECONDS
+				expect(Tips.dueAsk(profile, NOW + 86400, TODAY + 1, nil, RETURN)).to.equal(
+					Tips.NOTIFY_ASK
+				)
 				profile.tipsSeen[Tips.NOTIFY_ASK] = true
-				expect(Tips.dueAsk(profile, NOW + 86400, TODAY + 1)).to.equal(Tips.LIKE_ASK)
+				expect(Tips.dueAsk(profile, NOW + 86400, TODAY + 1, nil, RETURN)).to.equal(
+					Tips.LIKE_ASK
+				)
 				profile.collection[legendaryId()] = NOW
 				expect(Tips.dueAsk(profile, NOW, TODAY)).to.equal(Tips.LIKE_ASK)
 				local mythical = settled()

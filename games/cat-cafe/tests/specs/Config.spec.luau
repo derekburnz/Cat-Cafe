@@ -523,6 +523,7 @@ return function()
 				EventShowerAreaWeights = true, -- #2486: a table, checked in CafeEvents.spec
 				UpdateEventId = true, -- #2766: the next update's Roblox Event id, set per Event, checked in EventRsvp.spec
 				UpdateEventStartsAt = true, -- #2766: that Event's start (os.time(), UTC), set per Event
+				PlaytimeGiftSteps = true, -- #2791: a table, checked in PlaytimeGifts.spec
 				FirstVisitAt = true, -- #2792: a table, checked in FirstVisits.spec
 				SpaSlotPrices = true, -- #2651 part 4 (late-stations.md): a table, checked in LateStations.spec
 				LateStationsOpen = true, -- #2651 part 4: false until the cards are in (a false value reads as missing)

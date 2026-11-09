@@ -45,6 +45,7 @@ local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local PalService = require(script.Parent.PalService)
 local PassService = require(script.Parent.PassService)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
+local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local PlotService = require(script.Parent.PlotService)
 local Potions = require(ReplicatedStorage.Shared.Potions)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
@@ -255,6 +256,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		dataSaves = DataService.saves(),
 		tutorialStep = profile.tutorialStep,
 		playSeconds = PlayTime.seconds(player, profile), -- #1936: the store guard's first 30 minutes
+		giftNext = PlaytimeGifts.upcoming(profile, 2), -- #2791: the gift icon's next step and the popover's two
 		invite = Invites.view(profile, os.time()), -- #2797: the invite card and the Friends button
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		introSeen = profile.introSeen,

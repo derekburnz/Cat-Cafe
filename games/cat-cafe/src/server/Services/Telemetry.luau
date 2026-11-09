@@ -260,7 +260,8 @@ export type CustomEvent =
 	| "event_reward"
 	-- #1947 (like-prompts.md section 3): a like or favourite card's button, once per card a session, value 1; the gift
 	-- ("like" or "fav") and the button (like, favourite or close). A card paid (Source like_gift or fav_gift) with no
-	-- report is "none"
+	-- report is "none". #2791: the server logs each gift ladder step as it pays, value the account's minutes played; the
+	-- step ("m2", "m4", "m6", "like", "m15", "m20", "fav") and "paid"
 	| "playtime_gift"
 	-- #1934 (release.md section 1): a Roblox badge awarded, value the account's minutes played; the badge key, "live"
 	-- (earned this session) or "catchup" (earned before, awarded on join)

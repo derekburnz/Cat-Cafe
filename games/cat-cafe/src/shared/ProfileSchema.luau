@@ -19,6 +19,7 @@ local Lawn = require(script.Parent.Lawn)
 local Looks = require(script.Parent.Looks)
 local MysteryMarket = require(script.Parent.MysteryMarket)
 local Onboarding = require(script.Parent.Onboarding)
+local PlaytimeGifts = require(script.Parent.PlaytimeGifts)
 local Products = require(script.Parent.Products)
 local Rally = require(script.Parent.Rally)
 local Settings = require(script.Parent.Settings)
@@ -339,6 +340,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		firstWow = false,
 		likeGift = false,
 		favGift = false,
+		giftSteps = {},
 		eventRewards = {},
 		eventLast = "",
 	}
@@ -1046,6 +1048,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- #1947 (version 42): the like and favourite gifts
 	profile.likeGift = raw.likeGift == true
 	profile.favGift = raw.favGift == true
+	profile.giftSteps = PlaytimeGifts.sanitize(raw.giftSteps) -- #2791, no version
 	-- #2486 (version 43): the Cafe Event reward pieces (string ids of at most 64 characters, whole times) and the
 	-- last event rewarded
 	if type(raw.eventRewards) == "table" then

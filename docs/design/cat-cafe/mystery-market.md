@@ -6,16 +6,16 @@ Derek2, 2026-11-09: "a mystery market guy that sells one rare item at a time and
 
 ## 1. The seller
 
-- **Who.** Moss, a travelling cat in a hooded cloak, with a covered cart under a lantern. Moss is new and ours (rule 8), and doesn't look like the night food dealer or the Fish Market's shopkeeper. Model `CatCafe_Square_MysteryCart` (Model-Agent), tag `MysteryMarket`, on the Town Square across from the pity sign.
+- **Who.** Juniper (renamed from Moss on 2026-11-09, because the Woods already has a cat called Moss), a travelling cat in a hooded cloak, with a covered cart under a lantern. Juniper is new and ours (rule 8), and doesn't look like the night food dealer or the Fish Market's shopkeeper. Model `CatCafe_Square_MysteryCart` (Model-Agent), tag `MysteryMarket`, on the Town Square across from the pity sign.
 - **What.** Derek2, 2026-11-09: "I will make it so the featured item is discounted like a sale but can be bought anytime from the mystery market just for more expensive". So every item is on sale at its full price all the time, and one featured item each week is discounted. Every item is a permanent perk or a cosmetic, bought once with golden fish. Nothing is random (rule 9), nothing is sold for Robux, and nothing is limited.
 - **How it differs from the other sellers:**
   - The night food dealer (data-model §8b) sells food you use up, at night only.
   - The Fish Market (golden-fish.md §3) has a fixed list.
   - The Yard Sale is player to player.
-  - Moss is the only one with a weekly featured sale and one-off items.
+  - Juniper is the only one with a weekly featured sale and one-off items.
 
 ### 2a. The window
-A walk-up prompt (14 studs, like the Fish Market) opens Moss's window:
+A walk-up prompt (14 studs, like the Fish Market) opens Juniper's window:
 - **This week's featured item** at the top, large, with a "SALE" ribbon. It shows the sale price with the full price struck through ("300 ~~400~~"), what the item does in one line, and "Sale ends in 4d 06h".
 - **Next week's featured item** below it, as a "?" silhouette with "Next sale: 4d 06h". That keeps the mystery.
 - **Every other item** in a list under that, at its full price, each with a Buy button.
@@ -38,7 +38,7 @@ Every item can be bought at any time at full price, and each one comes back on s
 ### 2d. Fair sale rules (young audience)
 - The full price is the real everyday price, and a player can always pay it.
 - The sale is the same length every week and ends when the card says. It is never extended, and there is no fake countdown.
-- No "last chance" pop-ups. The sale shows only on Moss's window, the board and the What's New line.
+- No "last chance" pop-ups. The sale shows only on Juniper's window, the board and the What's New line.
 - Golden fish only, so no Robux is involved. Monetization-Agent checks this section with the build.
 
 ## 3. The Backpack (first item)
@@ -78,7 +78,7 @@ Every item can be bought at any time at full price, and each one comes back on s
 ### 3d. Look
 - **The backpack** (Model-Agent): a small canvas pack with a cat-ear flap, welded to the back like `HeldCat` (massless, so the walk doesn't change). It hides the avatar's own back accessories only while a cat is in it.
 - **The packed cat** (Animation-Engineer): awake, with an ear wiggle and a look around every few seconds. Reduce Motion keeps it still.
-- **The cart and Moss** (Model-Agent), plus the card (UI-Engineer, `Screens/MysteryMarket.luau`).
+- **The cart and Juniper** (Model-Agent), plus the card (UI-Engineer, `Screens/MysteryMarket.luau`).
 
 ## 4. Candidate items for the rotation (Derek2 picks)
 
@@ -96,7 +96,7 @@ Not on the list: anything that raises Luck (the Luck ladder is already full, Luc
 
 ### 4b. More featured items (Derek2, 2026-11-09: "what other featured items we could do could add them every couple days")
 
-A longer pool, so the shelf grows. A **new item joins the shelf every 2 to 3 days** at full price, one small PR each, with Model-Agent's art. The weekly sale picks from everything on the shelf. Each item gets "NEW!" on Moss's window and a What's New line on the day it arrives. Every row follows the same rules: permanent, golden fish only, not random, no Luck, no walk speed, never sold for Robux. Prices are full price, and the sale is 0.75 of it.
+A longer pool, so the shelf grows. A **new item joins the shelf every 2 to 3 days** at full price, one small PR each, with Model-Agent's art. The weekly sale picks from everything on the shelf. Each item gets "NEW!" on Juniper's window and a What's New line on the day it arrives. Every row follows the same rules: permanent, golden fish only, not random, no Luck, no walk speed, never sold for Robux. Prices are full price, and the sale is 0.75 of it.
 
 | Item | Kind | What it does | Full price | Opens at |
 |---|---|---|---|---|
@@ -105,12 +105,12 @@ A longer pool, so the shelf grows. A **new item joins the shelf every 2 to 3 day
 | Trail Map | tool | the area's hiding spots and rescue traps show on the minimap for the day | 280 | Tier 3 |
 | Snack Pouch | tool | a free Small Snack (the net-catch drop food) at each sunrise, once a game day | 260 | Tier 2 |
 | Window Flower Box | decor | a Common decoration for the cafe front, +2% (Common crate bonus) | 160 | Tier 1 |
-| Moss's Lantern | decor | a hanging lantern, Rare, +4%, glows at night | 260 | Tier 2 |
+| Juniper's Lantern | decor | a hanging lantern, Rare, +4%, glows at night | 260 | Tier 2 |
 | Wind Chimes | decor | a cafe decoration that chimes when a customer tips big (sound only, no bonus) | 180 | Tier 1 |
 | Cafe Awning | cafe look | a striped awning over your cafe door in one of 4 colours | 220 | Tier 2 |
 | Explorer Hat | player look | a hat for your own avatar while in the game | 200 | Tier 1 |
 | Paw Print Trail | player look | soft paw prints behind you as you walk (Reduce Motion hides it) | 240 | Tier 2 |
-| Moss's Cloak | player look | a hooded cloak like Moss's, for your avatar | 300 | Tier 3 |
+| Juniper's Cloak | player look | a hooded cloak like Juniper's, for your avatar | 300 | Tier 3 |
 | Cat Beret | cat look | an outfit piece for working cats | 180 | Tier 1 |
 | Star Collar | cat look | a collar with a little star tag, for working cats | 220 | Tier 2 |
 | Jukebox song | cafe music | one more song for the free Jukebox (sound-designer) | 150 | Tier 1 |
@@ -168,7 +168,7 @@ The SVG plan [mystery-market-corner.svg](mystery-market-corner.svg) still shows 
 
 Three looks for Model-Agent to block out. **A is recommended.**
 
-- **A. The covered wagon (recommended).** A round-topped wagon, about 12 x 7 studs, in deep teal with a patched cream canvas hood stitched with little stars, big wooden wheels, and a paw-print door at the back. Moss sits on the front step under a hanging lantern.
+- **A. The covered wagon (recommended).** A round-topped wagon, about 12 x 7 studs, in deep teal with a patched cream canvas hood stitched with little stars, big wooden wheels, and a paw-print door at the back. Juniper sits on the front step under a hanging lantern.
   - The wagon's side folds down into a counter with a pedestal, where the featured item turns slowly in 3D (the Backpack on a cat-shaped stand).
   - A chalkboard on an easel reads "This week: SALE", and a smaller board with a "?" shows next week's silhouette.
   - Around it: a round rug, stacked crates and baskets, a string of lanterns from the wagon to two posts, and a tied-up pony-cat plush.
@@ -177,10 +177,10 @@ Three looks for Model-Agent to block out. **A is recommended.**
 - **C. The landed balloon.** A small hot-air balloon basket on the ground with the balloon tethered 20 studs up, which is visible from anywhere in town. Each Saturday the balloon bobs and drops a puff of confetti when the new sale starts. It's the most eye-catching, but the biggest model and the most motion. It could be a later upgrade to A: the wagon could get a balloon flag.
 
 For all three:
-- **Lighting.** Warm lantern light, brighter at night with a few fireflies (Reduce Motion: none). Moss is the only seller lit like this, so the corner reads as special.
+- **Lighting.** Warm lantern light, brighter at night with a few fireflies (Reduce Motion: none). Juniper is the only seller lit like this, so the corner reads as special.
 - **Sound** (sound-designer): soft wind chimes near the cart, and a little bell when someone buys.
 - **Markers.** A "?" icon over the cart on the town map and the place marker list ("Mystery Market"), with a gold dot while a sale is on and you can afford the featured item. No pop-up and no HUD nag.
-- **Names** (asset-pipeline): `CatCafe_Square_MysteryCart`, `CatCafe_Square_MysteryRug`, `CatCafe_Square_MysteryLanterns`, `Npc_Moss`, `Prop_MysteryPedestal`.
+- **Names** (asset-pipeline): `CatCafe_Square_MysteryCart`, `CatCafe_Square_MysteryRug`, `CatCafe_Square_MysteryLanterns`, `Npc_Juniper`, `Prop_MysteryPedestal`.
 
 ## 5. Contracts (proposed, final names are Gameplay's)
 

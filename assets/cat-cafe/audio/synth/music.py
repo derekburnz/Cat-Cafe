@@ -760,10 +760,124 @@ def jukebox_starlight_purr(tmp: Path) -> np.ndarray:
                   "pad": (pad, -28, 0.45), "stars": (stars, -32, 0.5), "purr": (purr, -34, 0.0)}, 704, tmp)
 
 
+# --- the Tier 6 and 7 area songs (#2651, tier6-7-areas.md sections 4 and 5, 2026-11-09) -------------------------
+# Each area past the town has its own song in place of the cafe rotation while you are in it. They match the day and
+# night songs: 32 bars (four 8 bar sections, a play is two of them), mastered to the same -18 LUFS. Both share one
+# upload, sheets/CatCafe_Sheet_MusicAreas.ogg (see AREAS below). No kick or bass thump, as in all our music.
+
+
+def hand_drum(seed: int, f: float, velocity: float = 1.0) -> np.ndarray:
+    """A small hand drum: a short pitched skin tone that bends down a little, with a soft slap of noise."""
+    t = seconds(0.35)
+    bend = f * (1 + 0.25 * np.exp(-t / 0.015))
+    tone = np.sin(2 * np.pi * np.cumsum(bend) / SR) * np.exp(-t / 0.09)
+    slap = noise_hit(seed, 0.35, 700, 3500, 0.0008, 0.02) * 0.35
+    return (tone + slap) * velocity
+
+
+def area_desert(tmp: Path) -> np.ndarray:
+    """Sunstone Caravan: D minor, 88 BPM. A plucked oud-like ostinato rocks over the Andalusian steps (Dm C Bb A)
+    with hand drums and a shaker; a breathy flute sings the tune; a marimba answers with the strings holding the
+    heat; the flute again an octave up with glockenspiel glints, like the stars over the dunes at night."""
+    s = Song(88, 4, seed=81)
+    bars = [  # bass root, the chord the oud rocks on
+        ("D2", "D3 A3 D4 F4"), ("D2", "D3 A3 D4 F4"), ("C2", "C3 G3 C4 E4"), ("C2", "C3 G3 C4 E4"),
+        ("Bb1", "Bb2 F3 Bb3 D4"), ("Bb1", "Bb2 F3 Bb3 D4"), ("A1", "A2 E3 A3 C#4"), ("A1", "A2 E3 A3 C#4"),
+    ]
+    tune = melody("0 0 1.5 A4; 0 1.5 0.5 Bb4; 0 2 2 A4; 1 0 1 G4; 1 1 1 F4; 1 2 2 E4;"
+                  "2 0 1.5 G4; 2 1.5 0.5 A4; 2 2 1 G4; 2 3 1 E4; 3 0 3 C4; 3 3 1 E4;"
+                  "4 0 1.5 F4; 4 1.5 0.5 G4; 4 2 1 A4; 4 3 1 D5; 5 0 2 Bb4; 5 2 2 A4;"
+                  "6 0 1 G4; 6 1 1 F4; 6 2 1 E4; 6 3 1 C#4; 7 0 4 D4")
+    oud, bass, lead, pad, kit = s.stem(), s.stem(), s.stem(), s.stem(), s.stem()
+    for bar in range(BARS):
+        root, voicing = bars[bar % 8]
+        section = bar // 8
+        notes = chord(voicing)
+        for k, i in enumerate((0, 2, 1, 2, 3, 2, 1, 2)):  # the rocking eighths
+            s.put(oud, pluck(0.3, notes[i], bar * 16 + k, bright=0.7, ring=0.8) * (0.85 if k % 4 == 0 else 0.55),
+                  bar, k * 0.5, pan=-0.35 + 0.1 * i, loose=0.005)
+        s.put(bass, upright(1.6, note(root), 0.7), bar, 0.0, pan=-0.05)
+        if bar % 2 == 1:
+            s.put(bass, upright(0.8, note(root) * 1.5, 0.5), bar, 2.5, pan=-0.05)
+        soft = 0.6 if section == 0 else 1.0
+        for beat, f, v in ((0.0, 180, 0.8), (1.5, 260, 0.5), (2.0, 180, 0.6), (3.0, 260, 0.6), (3.5, 260, 0.4)):
+            s.put(kit, hand_drum(bar * 8 + int(beat * 2), f, v * soft), bar, beat, pan=0.25)
+        for k in range(8):
+            s.put(kit, noise_hit(9000 + bar * 8 + k, 0.09, 4500, 10000, 0.01, 0.03), bar, k * 0.5, pan=-0.4,
+                  gain=0.35 if k % 2 else 0.2)
+        if section in (2, 3):
+            s.put(pad, strings(4 * s.beat, notes[1:], 810 + bar), bar, 0.0, loose=0)
+        for b, beat, length, f in tune:
+            if b != bar % 8:
+                continue
+            if section == 1:
+                s.put(lead, flute(length * s.beat * 0.92, f * 2, bar * 10 + int(beat * 2)), bar, beat, pan=0.1)
+            elif section == 2:
+                s.put(lead, marimba(f * 2, 0.85), bar, beat, pan=0.15)
+            elif section == 3:
+                s.put(lead, flute(length * s.beat * 0.92, f * 2, bar * 10 + int(beat * 2)), bar, beat, pan=0.1)
+                s.put(lead, glock(f * 4) * 0.2, bar, beat, pan=0.35)
+        if bar % 8 == 7:  # a little turn up into the next phrase
+            for k, name in enumerate(("D5", "E5", "F5", "A5")):
+                s.put(lead, marimba(note(name), 0.4), bar, 2.0 + 0.5 * k, pan=0.3)
+    return blend({"lead": (lead, -20, 0.3), "oud": (oud, -23, 0.2), "bass": (bass, -27, 0.05),
+                  "pad": (pad, -30, 0.4), "kit": (kit, -32, 0.15)}, 801, tmp)
+
+
+def area_ruins(tmp: Path) -> np.ndarray:
+    """Glyph Halls: E minor, 84 BPM. Old stone, but friendly: a marimba walks slow arpeggios (Em Cmaj7 Am Bsus4 B)
+    under low strings, with chimes for the glowing glyphs; a vibraphone sings the tune; a flute takes it while the
+    chimes thicken; the vibraphone again with a music box an octave up, jade and gold."""
+    s = Song(84, 4, seed=82)
+    bars = [  # bass root, the chord the marimba walks
+        ("E2", "E3 B3 E4 G4"), ("C2", "C3 G3 B3 E4"), ("A1", "A2 E3 A3 C4"), ("B1", "B2 E3 F#3 B3"),
+        ("E2", "E3 B3 E4 G4"), ("C2", "C3 G3 B3 E4"), ("A1", "A2 E3 A3 C4"), ("B1", "B2 D#3 F#3 B3"),
+    ]
+    tune = melody("0 0 2 B4; 0 2 1 G4; 0 3 1 A4; 1 0 3 E4; 1 3 1 G4;"
+                  "2 0 1.5 A4; 2 1.5 0.5 B4; 2 2 2 C5; 3 0 4 B4;"
+                  "4 0 2 B4; 4 2 1 D5; 4 3 1 E5; 5 0 3 B4; 5 3 1 G4;"
+                  "6 0 1.5 A4; 6 1.5 0.5 G4; 6 2 2 F#4; 7 0 4 E4")
+    mar, bass, lead, pad, chimes, kit = s.stem(), s.stem(), s.stem(), s.stem(), s.stem(), s.stem()
+    rng = np.random.default_rng(8200)
+    glyphs = ("E6", "F#6", "G6", "B6", "D7")
+    for bar in range(BARS):
+        root, voicing = bars[bar % 8]
+        section = bar // 8
+        notes = chord(voicing)
+        for k, i in enumerate((0, 1, 2, 3, 2, 1, 2, 3)):
+            s.put(mar, marimba(notes[i] * 2, 0.75 if k % 4 == 0 else 0.5), bar, k * 0.5,
+                  pan=-0.3 + 0.12 * i, loose=0.004)
+        s.put(bass, upright(3.0, note(root), 0.6), bar, 0.0)
+        s.put(pad, strings(4 * s.beat, [f for f in notes[:3]], 820 + bar), bar, 0.0, loose=0)
+        soft = 0.6 if section == 0 else 1.0
+        for beat in (1, 3):
+            s.put(kit, rim(8300 + bar * 4 + beat), bar, beat, pan=0.3, gain=0.45 * soft)
+        s.put(kit, hand_drum(8400 + bar, 140, 0.6 * soft), bar, 0.0, pan=-0.1)
+        for k in range(4):
+            s.put(kit, noise_hit(8500 + bar * 4 + k, 0.09, 5000, 11000, 0.01, 0.025), bar, k + 0.5, pan=-0.35,
+                  gain=0.25)
+        chance = 0.8 if section == 2 else 0.45
+        for k in range(2):  # a glyph or two lights up each bar
+            if rng.random() < chance:
+                s.put(chimes, music_box(note(glyphs[int(rng.integers(len(glyphs)))])) * 0.3, bar,
+                      float(rng.choice([0.5, 1.5, 2.5, 3.5])), pan=float(rng.uniform(-0.6, 0.6)))
+        for b, beat, length, f in tune:
+            if b != bar % 8:
+                continue
+            if section in (1, 3):
+                s.put(lead, vibraphone(length * s.beat * 0.9, f * 2), bar, beat, pan=0.1)
+                if section == 3:
+                    s.put(lead, music_box(f * 4) * 0.35, bar, beat, pan=0.3)
+            elif section == 2:
+                s.put(lead, flute(length * s.beat * 0.92, f * 2, bar * 10 + int(beat * 2)), bar, beat, pan=0.05)
+    return blend({"lead": (lead, -20, 0.35), "mar": (mar, -23, 0.25), "bass": (bass, -27, 0.05),
+                  "pad": (pad, -29, 0.45), "chimes": (chimes, -31, 0.5), "kit": (kit, -34, 0.15)}, 802, tmp)
+
+
 SONGS = {"DayA": day_a, "DayB": day_b, "NightA": night_a, "DayC": day_c, "DayD": day_d, "NightB": night_b,
          "Tutorial": tutorial, "JukeboxRainyWindow": jukebox_rainy_window,
          "JukeboxCatnapWaltz": jukebox_catnap_waltz, "JukeboxBakeryBounce": jukebox_bakery_bounce,
-         "JukeboxStarlightPurr": jukebox_starlight_purr}
+         "JukeboxStarlightPurr": jukebox_starlight_purr, "AreaDesert": area_desert, "AreaRuins": area_ruins}
 
 # The music sheet (#980, 2026-11-03). Audio uploads were used up (100 a month until an account is ID verified), so the
 # three songs Derek approved on 2026-11-03 share one upload: each renders on its own to sheet-parts/music/ (gated
@@ -773,6 +887,8 @@ SONGS = {"DayA": day_a, "DayB": day_b, "NightA": night_a, "DayC": day_c, "DayD":
 SHEET = ("DayC", "DayD", "NightB")
 # The Jukebox Pass songs (#1168 row 2) share one upload the same way: sheets/CatCafe_Sheet_MusicJukebox.ogg (named Music* so the audio gate treats it as a music sheet).
 JUKEBOX = ("JukeboxRainyWindow", "JukeboxCatnapWaltz", "JukeboxBakeryBounce", "JukeboxStarlightPurr")
+# The area songs (#2651) share one upload too: sheets/CatCafe_Sheet_MusicAreas.ogg.
+AREAS = ("AreaDesert", "AreaRuins")
 SHEET_GAP = 0.5
 
 
@@ -837,7 +953,7 @@ def main() -> int:
             rendered[name] = x
             wav = tmp / f"{name}.wav"
             write_wav(wav, x)
-            folder = "sheet-parts/music" if name in SHEET or name in JUKEBOX else "music"
+            folder = "sheet-parts/music" if name in SHEET or name in JUKEBOX or name in AREAS else "music"
             out = ROOT / folder / f"CatCafe_Music_{name}.ogg"
             encode(wav, out, ["-c:a", "libvorbis", "-q:a", "5"])
             print(f"music: {out.relative_to(ROOT.parents[2]).as_posix()}  {len(x) / SR:.1f} s")
@@ -845,6 +961,8 @@ def main() -> int:
             write_sheet(rendered, tmp)
         if any(name in rendered for name in JUKEBOX):
             write_sheet(rendered, tmp, JUKEBOX, "MusicJukebox", "sheetMusicJukebox")
+        if any(name in rendered for name in AREAS):
+            write_sheet(rendered, tmp, AREAS, "MusicAreas", "sheetMusicAreas")
         if args.preview:
             folder = Path(args.preview)
             folder.mkdir(parents=True, exist_ok=True)

@@ -142,6 +142,27 @@ return function()
 			expect(Logic.ambienceFor(nil, "day", has)).to.equal(nil)
 		end)
 
+		it("plays an area's own song only where one is uploaded (#2651)", function()
+			local has = only({ "musicAreaDesert", "musicAreaRuins" })
+			expect(Logic.areaSongFor("Desert", has)).to.equal("musicAreaDesert")
+			expect(Logic.areaSongFor("ruins", has)).to.equal("musicAreaRuins")
+			expect(Logic.areaSongFor("RUINS", has)).to.equal("musicAreaRuins")
+			expect(Logic.areaSongFor("Cafe", has)).to.equal(nil)
+			expect(Logic.areaSongFor("Alley", has)).to.equal(nil)
+			expect(Logic.areaSongFor(nil, has)).to.equal(nil)
+			expect(Logic.areaSongFor("", has)).to.equal(nil)
+			expect(Logic.areaSongFor("Desert", only({}))).to.equal(nil)
+		end)
+
+		it("gives each area song four sections like the day and night songs", function()
+			for _, id in { "musicAreaDesert", "musicAreaRuins" } do
+				local cue = Cues[id]
+				expect(cue.sheet).to.equal("sheetMusicAreas")
+				expect(cue.sections).to.equal(4)
+				expect(math.abs(cue.seconds - (cue.region[2] - cue.region[1])) < 0.01).to.equal(true)
+			end
+		end)
+
 		it("ducks to the lowest active level and mutes by setting", function()
 			expect(Logic.duckLevel({})).to.equal(1)
 			expect(Logic.duckLevel({ catch = 0.6, sting = 0.4 })).to.equal(0.4)

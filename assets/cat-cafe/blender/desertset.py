@@ -661,6 +661,48 @@ def shrub(mat):
     return [b.finalize(N + "Shrub", mat)]
 
 
+CACTUS, CACTUS_DARK, BLOOM = "leaf_green", "leaf_dark", "blush"
+
+
+def soft_cactus(mat, kind=0):
+    """A soft decor cactus (Derek2 11-09: yes to cacti as scenery; the design doc bars cactus traps): chunky rounded
+    shapes with no spines at all, a pink bloom on top, standing in a little sand drift. kind 0 a paddle cactus (flat
+    round pads stacked), 1 a barrel (a squat ribbed ball), 2 an arm cactus (a trunk with two raised arms), each about
+    player height or a little more."""
+    b = Builder()
+    b.sphere((0, 0, 0), 1.0, SAND_DUNE, segments=12, rings=6, scale=(1.9, 1.7, 0.45))           # the sand drift
+    if kind == 0:
+        for (x, z, w, h, a, sw) in ((0.0, 1.3, 1.25, 1.5, 0, CACTUS), (-0.75, 3.4, 0.95, 1.15, -28, CACTUS_DARK),
+                                    (0.85, 3.6, 0.95, 1.15, 25, CACTUS), (-0.2, 5.0, 0.7, 0.85, 8, CACTUS)):
+            b.sphere((x, 0, z), 1.0, sw, segments=14, rings=8, scale=(w, 0.38, h), rot=(math.radians(a), "Y"))
+        for (x, z) in ((-1.1, 4.45), (1.35, 4.65), (-0.25, 5.85)):
+            b.sphere((x, 0, z), 0.26, BLOOM, segments=8, rings=4)
+    elif kind == 1:
+        b.sphere((0, 0, 1.25), 1.0, CACTUS, segments=16, rings=8, scale=(1.45, 1.45, 1.3))
+        for k in range(8):                                                                       # soft ribs
+            a = 2 * PI * k / 8
+            b.sphere((1.2 * math.cos(a), 1.2 * math.sin(a), 1.25), 1.0, CACTUS_DARK, segments=8, rings=6,
+                     scale=(0.22, 0.22, 1.05), rot=(a, "Z"))
+        for k in range(3):
+            a = 2 * PI * k / 3 + 0.4
+            b.sphere((0.3 * math.cos(a), 0.3 * math.sin(a), 2.55), 0.3, BLOOM, segments=8, rings=4)
+        b.sphere((0, 0, 2.62), 0.2, "pastel_butter", segments=8, rings=4)
+    else:
+        b.cyl_base((0, 0, 0), 0.75, 6.2, CACTUS, segments=12, bevel=False)                      # the trunk
+        b.sphere((0, 0, 6.2), 0.75, CACTUS, segments=12, rings=6)
+        for (sx, z0, up) in ((-1, 2.4, 2.0), (1, 3.3, 1.6)):                                   # the arms
+            b.cyl((sx * 0.95, 0, z0), 0.5, 1.5, CACTUS, segments=10, bevel=False, rot=(PI / 2, "Y"))
+            b.sphere((sx * 1.7, 0, z0), 0.5, CACTUS, segments=10, rings=6)
+            b.cyl_base((sx * 1.7, 0, z0), 0.5, up, CACTUS, segments=10, bevel=False)
+            b.sphere((sx * 1.7, 0, z0 + up), 0.5, CACTUS, segments=10, rings=6)
+        for k in range(4):                                                                       # soft ribs
+            a = 2 * PI * k / 4 + PI / 4
+            b.box_base((0.7 * math.cos(a), 0.7 * math.sin(a), 0.3), (0.16, 0.16, 5.6), CACTUS_DARK, bevel=False,
+                       rot=(a, "Z"))
+        b.sphere((0.15, 0, 6.95), 0.3, BLOOM, segments=8, rings=4)
+    return [b.finalize(N + "Cactus", mat)]
+
+
 def lamp(mat):
     """A brass lantern on a sandstone post, lit at night (_Bulb)."""
     b, bulb = Builder(), Builder()
@@ -1036,8 +1078,10 @@ def build_set(mat):
                 continue
             if k % 3 == 0:
                 s.put(rock(mat, 0.9 + 0.2 * (k % 3)), x, z, (k * 37) % 360)
-            elif k % 3 == 1:
+            elif k % 6 == 1:
                 s.put(shrub(mat), x, z, (k * 53) % 360)
+            elif k % 6 == 4:                                         # soft cacti, scenery only, away from spots
+                s.put(soft_cactus(mat, (k // 6) % 3), x, z, (k * 41) % 360)
     return s.finish(_ground(), mat), s
 
 

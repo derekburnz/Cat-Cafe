@@ -9,9 +9,14 @@
 --   * F92's one invite nudge, "Playing with a friend gives you both +10% tips. Invite one?" with Invite and Not now,
 --     on two title lines (Ask.lines)
 --   show(ask)      slides it up with these words and buttons; an ask already up is answered nil and replaced
---   hide()         slides it away, answering nil
+--   hide(how?)     slides it away, answering nil
+--   follow()       keeps a shown card just over the HUD's bottom row as that row moves (#2694)
 --   isShowing() -> boolean
--- An ask's answer(id) runs once: the id of the button pressed, or nil when it drained, was hidden or was replaced.
+-- An ask's answer(id) runs once: the id of the button pressed, or nil when it drained, was closed, was hidden or was
+-- replaced; its ended(how), when given, says which: "answered", "closed" (the X), "ignored" (it drained), "hidden"
+-- or "replaced" (#2694's funnel). #2694 (Derek2: "make it easier to notice the close and make the tips bubbles (and
+-- this bubble) smaller and less on your hotbar"): a red X on the card's corner, a narrower card, and its foot kept
+-- clear of the bottom row.
 
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
@@ -38,6 +43,7 @@ export type Ask = {
 	thanks: string?, -- said for THANKS_SECONDS after a press, in place of the title; nil slides away at once
 	lines: number?, -- F92: 2 wraps a long title onto two lines and makes the card that much taller; 1 by default
 	answer: (id: string?) -> (),
+	ended: ((how: string) -> ())?,
 }
 
 export type Callbacks = {
@@ -47,15 +53,16 @@ export type Callbacks = {
 export type AskCard = {
 	screenGui: ScreenGui,
 	show: (self: AskCard, ask: Ask) -> (),
-	hide: (self: AskCard) -> (),
+	hide: (self: AskCard, how: string?) -> (),
+	follow: (self: AskCard) -> (),
 	isShowing: (self: AskCard) -> boolean,
 	destroy: (self: AskCard) -> (),
 }
 
-local CARD_W = 460
-local TITLE_H = 30
-local CHOICE_H = 50
-local PAD = 12
+local CARD_W = 400
+local TITLE_H = 26
+local CHOICE_H = 44
+local PAD = 10
 local GAP = 8
 local BAR_H = 5
 local THANKS_SECONDS = 1.5
@@ -94,15 +101,23 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 	self._choiceH = choiceH
 	local cardH = PAD + TITLE_H + 6 + choiceH + PAD + BAR_H
 	self._cardH = cardH
+	-- the card and its X move together: the holder slides, the card fills it, the X hangs off its corner
+	local holder: Frame = Create("Frame", {
+		Name = "Holder",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Size = UDim2.fromOffset(CARD_W, cardH),
+		Visible = false,
+		Parent = root,
+	})
+	self._holder = holder
 	local card: Frame = Create("Frame", {
 		Name = "Card",
 		BackgroundColor3 = Theme.modal.panel,
 		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(0.5, 1),
-		Size = UDim2.fromOffset(CARD_W, cardH),
+		Size = UDim2.fromScale(1, 1),
 		ClipsDescendants = true,
-		Visible = false,
-		Parent = root,
+		Parent = holder,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 4) }),
 	})
@@ -114,10 +129,30 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 		Position = UDim2.fromOffset(PAD, PAD),
 		Size = UDim2.new(1, -2 * PAD, 0, TITLE_H),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge,
+		TextSize = Theme.sizes.textLarge - 2,
 		TextColor3 = Theme.modal.text,
 		Text = "",
 		Parent = card,
+	})
+	-- the X: a finger wide on a touch screen (Scale.tapHeight), in the close red every window uses
+	local touch = Scale.isTouch()
+	local side = if touch then Theme.sizes.touchMin else 36 -- the UI gate's desktop minimum
+	local tall = Scale.tapHeight(side, Theme.sizes.buttonDepth)
+	local wide = math.max(side, tall - Theme.sizes.buttonDepth)
+	self._close = Button.new({
+		name = "Close",
+		text = "X",
+		style = "close",
+		size = UDim2.fromOffset(wide, tall),
+		anchorPoint = Vector2.new(0.5, 0.5),
+		position = UDim2.new(1, -6, 0, 4),
+		textSize = Theme.sizes.textLarge,
+		sound = "uiClose",
+		zIndex = 4,
+		parent = holder,
+		onClick = function()
+			self:hide("closed")
+		end,
 	})
 	self._row = Create("Frame", {
 		Name = "Choices",
@@ -158,8 +193,8 @@ end
 -- CARD_W wide, or the screen less 16 px a side when narrower.
 function AskCard._fit(self: any)
 	local scale = math.max(self._uiScale.Scale, 0.01)
-	local width = self._card.Parent.AbsoluteSize.X / scale
-	self._card.Size = UDim2.fromOffset(math.min(CARD_W, math.max(280, width - 32)), self._cardH)
+	local width = self._holder.Parent.AbsoluteSize.X / scale
+	self._holder.Size = UDim2.fromOffset(math.min(CARD_W, math.max(280, width - 32)), self._cardH)
 end
 
 -- F92: one title line or two; the buttons and the card's foot move down with it.
@@ -210,18 +245,37 @@ function AskCard._buildChoices(self: any, choices: { Choice })
 	end
 end
 
--- Runs the ask's answer once.
-function AskCard._answer(self: any, id: string?)
+-- Runs the ask's answer once, and its ended with how it went.
+function AskCard._answer(self: any, id: string?, how: string)
 	local ask: Ask? = self._ask
 	self._ask = nil
 	if ask ~= nil then
 		ask.answer(id)
+		local ended = ask.ended
+		if ended ~= nil then
+			ended(how)
+		end
+	end
+end
+
+-- #2694: the HUD's bottom row can fold, unfold or grow a line under a shown card; it moves with it.
+function AskCard.follow(self: any)
+	if not self._showing then
+		return
+	end
+	local slide: Tween? = self._slide
+	if slide ~= nil and slide.PlaybackState == Enum.PlaybackState.Playing then
+		return
+	end
+	local at = self:_place(true)
+	if self._holder.Position ~= at then
+		self._holder.Position = at
 	end
 end
 
 function AskCard.show(self: any, ask: Ask)
 	if self._showing then
-		self:_answer(nil)
+		self:_answer(nil, "replaced")
 	end
 	self._showing = true
 	self._ask = ask
@@ -230,14 +284,17 @@ function AskCard.show(self: any, ask: Ask)
 	self._title.Text = ask.title
 	self:_setLines(ask.lines or 1)
 	self:_buildChoices(ask.choices)
-	local card: Frame = self._card
+	local card: Frame = self._holder
 	local wasVisible = card.Visible
 	card.Visible = true
+	self._close.instance.Visible = true
 	if GuiService.ReducedMotionEnabled or wasVisible then
 		card.Position = self:_place(true)
 	else
 		card.Position = self:_place(false)
-		TweenService:Create(card, SLIDE, { Position = self:_place(true) }):Play()
+		local slide = TweenService:Create(card, SLIDE, { Position = self:_place(true) })
+		self._slide = slide
+		slide:Play()
 	end
 	Sound.play("uiHint")
 	local bar: Frame = self._bar
@@ -255,7 +312,7 @@ function AskCard.show(self: any, ask: Ask)
 	drain:Play()
 	task.delay(ask.seconds, function()
 		if self._token == token then
-			self:hide()
+			self:hide("ignored")
 		end
 	end)
 end
@@ -274,7 +331,8 @@ function AskCard._press(self: any, id: string)
 	for _, button: Button.Button in self._buttons do
 		button:setEnabled(false)
 	end
-	self:_answer(id)
+	self._close.instance.Visible = false
+	self:_answer(id, "answered")
 	local thanks = ask.thanks
 	if thanks == nil then
 		self:hide()
@@ -288,15 +346,15 @@ function AskCard._press(self: any, id: string)
 	end)
 end
 
-function AskCard.hide(self: any)
+function AskCard.hide(self: any, how: string?)
 	if not self._showing then
 		return
 	end
-	self:_answer(nil)
+	self:_answer(nil, how or "hidden")
 	self._showing = false
 	self._token += 1
 	local token = self._token
-	local card: Frame = self._card
+	local card: Frame = self._holder
 	if GuiService.ReducedMotionEnabled then
 		card.Visible = false
 		return
@@ -321,6 +379,7 @@ function AskCard.destroy(self: any)
 	for _, button: Button.Button in self._buttons do
 		button:destroy()
 	end
+	self._close:destroy()
 	Scale.unbind(self._uiScale)
 	self.screenGui:Destroy()
 end

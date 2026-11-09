@@ -20,10 +20,13 @@ return function()
 					math.min(Config.StrayLiveMax, Config.StrayFloorBase + 7)
 				)
 				expect(StrayTopUp.floor(50)).to.equal(Config.StrayLiveMax)
+				-- #2794: an area's own floor base
+				expect(StrayTopUp.floor(1, 16)).to.equal(math.min(Config.StrayLiveMax, 16))
+				expect(StrayTopUp.floor(50, 16)).to.equal(Config.StrayLiveMax)
 				-- a lone player keeps at least as many as the long areas' sunrise waves gave (Derek: "low even solo")
 				for _, area in Catalog.areas do
 					if area.id ~= "alley" then
-						expect(StrayTopUp.floor(1) >= area.waveSize).to.equal(true)
+						expect(StrayTopUp.floor(1, area.floorBase) >= area.waveSize).to.equal(true)
 					end
 				end
 			end
@@ -62,6 +65,25 @@ return function()
 			expect(StrayTopUp.waveEntry(8, 11)).to.equal(true)
 			expect(StrayTopUp.waveEntry(7, 11)).to.equal(false)
 			expect(StrayTopUp.waveEntry(11, 11)).to.equal(true)
+			-- #2794: an area's own entry floor
+			expect(StrayTopUp.entryShort(5, 10, 6)).to.equal(true)
+			expect(StrayTopUp.entryShort(6, 10, 6)).to.equal(false)
+			expect(StrayTopUp.waveEntry(11, 16, 6)).to.equal(true)
+			expect(StrayTopUp.waveEntry(10, 16, 6)).to.equal(false)
+		end)
+
+		it("#2794: the Alleyway and the Park start busy, with a rescue by the camp", function()
+			for _, area in Catalog.areas do
+				local starting = area.id == "alley" or area.id == "park"
+				expect(area.starterRescue == true).to.equal(starting)
+				if starting then
+					expect(area.floorBase).to.equal(16)
+					expect((area.floorBase :: number) > area.waveSize).to.equal(true)
+					expect(area.entryFloor).to.equal(6)
+					expect(area.rescueMinStuck).to.equal(2)
+					expect(StrayTopUp.floor(1, area.floorBase) <= Config.StrayLiveMax).to.equal(true)
+				end
+			end
 		end)
 
 		it("has room by every gate for the floor (#1621)", function()
@@ -82,7 +104,7 @@ return function()
 						near += 1
 					end
 				end
-				if near < Config.StrayEntryFloor * 2 then
+				if near < (area.entryFloor or Config.StrayEntryFloor) * 2 then
 					error(string.format("%s has %d spawn points by its gate", area.id, near))
 				end
 			end

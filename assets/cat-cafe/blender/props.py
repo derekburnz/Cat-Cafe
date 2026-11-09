@@ -1791,17 +1791,16 @@ def torch_sling(ctx):
 
 
 def _tail_flame(ctx):
-    """#2739 (Derek2 11-09: "a little gentle fire on the tail for light"): a small soft flame standing up off the
-    ember-tipped tail, the child Model _Tail_Flame (Neon) inside the Tail Model, riding the tail (Follows Tail). Half
-    the size of the torch's flame, a rounded amber body, a short tip and a butter core toward the front."""
+    """#2739 (Derek2 11-09: "a little gentle fire on the tail for light"; then "too big maybe just a glow there"): a
+    small soft glow round the ember-tipped tail's end, the child Model _Tail_Flame (Neon) inside the Tail Model, riding
+    the tail (Follows Tail). No flame shape: an amber ball a little wider than the tail, with a butter core toward
+    the front."""
     tip, d, th = cats.tail_tip(ctx.d["tail_chain"])
-    c = tip + d * 0.02
+    c = tip + d * 0.01
     F = ctx.piece("Tail_Flame", "tail", tuple(c))
-    r = max(0.07, th * 0.55)
-    F.sphere(tuple(c + Vector((0, 0, r * 0.7))), r, "eye_amber", scale=(1.0, 1.0, 1.3), segments=8, rings=5)
-    F.cyl(tuple(c + Vector((0, 0, r * 2.05))), r * 0.68, r * 1.2, "eye_amber", r2=0.0, segments=8)   # the tip
-    F.sphere(tuple(c + Vector((0, -r * 0.45, r * 0.7))), r * 0.62, "pastel_butter", scale=(1.0, 1.0, 1.25),
-             segments=8, rings=5)                                                                # the hot core
+    r = max(0.05, th * 0.62)
+    F.sphere(tuple(c), r, "eye_amber", segments=8, rings=5)
+    F.sphere(tuple(c + Vector((0, -r * 0.4, 0.0))), r * 0.62, "pastel_butter", segments=8, rings=5)  # the core
 
 
 def gargoyle_wings(ctx):

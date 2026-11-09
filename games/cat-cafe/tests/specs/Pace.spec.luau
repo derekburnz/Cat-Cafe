@@ -615,7 +615,7 @@ return function()
 				local topUps = options.strays
 				if topUps ~= nil and day then
 					local live = #wave + (if trip ~= nil and trip.rarity ~= nil then 1 else 0)
-					if live >= StrayTopUp.floor(topUps.players) then
+					if live >= StrayTopUp.floor(topUps.players, area.floorBase) then
 						topUpIn = nil
 					else
 						topUpIn = (topUpIn or topUps.wait or StrayTopUp.wait(rng())) - step

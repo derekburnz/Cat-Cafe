@@ -88,6 +88,8 @@ function MarketBang.build(parent: Instance, name: string?): Bang
 		LightInfluence = 0,
 		AlwaysOnTop = false, -- walls in front hide it, as they hide the stall
 		MaxDistance = MarketBang.RANGE,
+		-- #2770 (Laptop-Tester: one close to the camera covered half a phone's screen): no bigger than at this many studs
+		DistanceLowerLimit = Scale.BUBBLE_NEAR,
 		ResetOnSpawn = false,
 		Enabled = false,
 		Parent = parent,

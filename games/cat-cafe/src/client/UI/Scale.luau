@@ -90,6 +90,9 @@ function Scale.billboard(px: number): number
 	return math.floor(px * share + 0.5)
 end
 
+-- #2770: a world bubble stops growing once the camera is closer than this (its BillboardGui's DistanceLowerLimit)
+Scale.BUBBLE_NEAR = 14
+
 -- #2762: a world bubble's studs on this screen: 0.8 of them on a phone, so one close by covers less of it.
 Scale.PHONE_STUDS = 0.8
 function Scale.phoneStuds(): number

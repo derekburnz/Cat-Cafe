@@ -522,6 +522,12 @@ local Config = {
 	-- #1575 (Derek, 2026-11-05): the intro plays again on a first join (introSeen false), with Skip at the bottom right
 	-- and a replay from the ? tile
 	IntroAutoPlay = true,
+	-- #2766 (Derek2 2026-11-09, audience 16+ and past 100 visits): the next update's Roblox Event (Creator Hub,
+	-- Events), its id and when it starts (os.time(), UTC). Until then a player past the tutorial gets one slide-in ask
+	-- a session to tap Remind me, which opens Roblox's own Notify Me prompt; nil (or a past time) asks nothing. Set
+	-- these for each new Event.
+	UpdateEventId = "8839991594911400494" :: string?,
+	UpdateEventStartsAt = 1794265200 :: number?, -- 2026-11-09 23:00 UTC
 	TutorialShrinkSeconds = 1.6,
 	TutorialWindowScale = 2,
 	TutorialRetrySeconds = 1.0,

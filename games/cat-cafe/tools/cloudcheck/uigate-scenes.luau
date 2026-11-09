@@ -3627,6 +3627,21 @@ local SCENES = {
 	{ "InviteAsk", function()
 		UI.asks.show("invite_ask")
 	end },
+	-- #2766: the update Event's Notify Me ask on the slide-in card, its two lines and two buttons
+	{ "EventAsk", function()
+		local EventRsvp = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.EventRsvp")
+		local shown = UI.asks.card({
+			title = EventRsvp.title(3600, 0),
+			choices = {
+				{ id = "remind", label = EventRsvp.REMIND, style = "primary" },
+				{ id = "later", label = EventRsvp.LATER },
+			},
+			seconds = EventRsvp.ASK_SECONDS,
+			lines = 2,
+			answer = function() end,
+		})
+		assert(shown == true, "uigate: the Event ask did not show on a free card (#2766)")
+	end },
 	-- F93: the touch Net button, in a catching area while a swing could go (phones only)
 	{ "NetButton", function()
 		UI.setZone("Alley")

@@ -4576,6 +4576,17 @@ do
 	-- and says true, or false (a tip or another card is up, or the id is not one of the two) for the toast instead.
 	-- The ask counts as this session's tip for the gap. The notification ask is Roblox's prompt, never this.
 	-- F92: the invite ask is the slide-in card with an Invite button instead (UI.together.inviteAsk).
+	-- #2766: an ask the controllers time themselves (the update Event's Notify Me ask) on the slide-in card, when it is
+	-- free; true when it shows. The card answers through the ask's own answer.
+	function UI.asks.card(ask: any): boolean
+		local card = askCard
+		if card == nil or not initialized or card:isShowing() then
+			return false
+		end
+		card:show(ask)
+		return true
+	end
+
 	function UI.asks.show(id: string): boolean
 		if id == Tips.INVITE_ASK then
 			local together: any = UI.together -- filled later in the file

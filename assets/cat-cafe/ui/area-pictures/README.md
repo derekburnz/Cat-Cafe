@@ -11,3 +11,4 @@ Card pictures for the F84 cannon picker and the Areas screen, 512 x 256 PNG each
 | `Area_sewer.png` | Sewer | `rbxassetid://139316344682802` |
 | `Area_town.png` | Town Square | `rbxassetid://95556560149882` |
 | `Area_desert.png` | Desert | `rbxassetid://78191788809166` |
+| `Area_ruins.png` | Ruins | `rbxassetid://76447908818587` |

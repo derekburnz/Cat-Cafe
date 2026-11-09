@@ -658,7 +658,7 @@ local Config = {
 	MysteryEpoch = 1794009600,
 	MysteryRotateSeconds = 604800, -- one week
 	MysterySaleShare = 0.75,
-	MysteryOpen = false,
+	MysteryOpen = true, -- version 44 (#2565): buying opens with the save bump
 	MysteryMarketRange = 14, -- BuyMystery from this close to the MysteryMarket cart, like the Fish Market
 	LongNetReachStuds = 8, -- #2565: the Long Net's reach, for NetReachStuds (mystery-market.md section 4)
 	-- #1146: a spam limit between OpenCrate starts, not a wait for the reveal; overlapping opens are refused by the

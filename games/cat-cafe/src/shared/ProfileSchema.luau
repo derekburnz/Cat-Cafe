@@ -136,7 +136,10 @@ local ProfileSchema = {}
 -- Version 43 (#2486, live-events.md section 2e) adds eventRewards and eventLast, the Cafe Event reward pieces given and
 -- the last event rewarded: an older server would drop eventLast and pay the event's reward (or its repeat coin gift)
 -- again by hopping servers during a rollout.
-ProfileSchema.VERSION = 43
+-- Version 44 (#2565, mystery-market.md section 2) adds mystery and mysterySeen, the Mystery Market items owned and
+-- whether its walk-in card was seen: an older server would drop a bought item, which was paid for in golden fish.
+-- Config.MysteryOpen opens buying with this version, in a publish that restarts the servers.
+ProfileSchema.VERSION = 44
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -762,11 +765,15 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		step = Onboarding.fromOld(old, step)
 		-- a player out of the funnel is out of the intro one too; #2391: v5 keeps v4's intro funnel, so a v4 save keeps
 		-- its intro step
-		if old ~= 4 then
+		if old ~= 4 and old ~= 5 then
 			introStep = if step >= Onboarding.COUNT then Onboarding.INTRO_COUNT else 0
 		end
-		-- #2391: first_hour came with v5, so a player out of the funnel is out of it too
-		firstHourStep = if step >= Onboarding.COUNT then Onboarding.FIRST_HOUR_COUNT else 0
+		-- #2391: first_hour came with v5, so a player out of the funnel is out of it too. #2636: v6 sends
+		-- first_hour_v2, whose steps moved, so a v5 save that logged any of first_hour leaves it as well.
+		local loggedFirstHour = old == 5 and firstHourStep >= 1
+		firstHourStep = if step >= Onboarding.COUNT or loggedFirstHour
+			then Onboarding.FIRST_HOUR_COUNT
+			else 0
 	end
 	telemetry.onboardingStep = math.clamp(step, 0, Onboarding.COUNT)
 	for later = telemetry.onboardingStep + 1, Onboarding.COUNT do

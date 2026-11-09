@@ -142,7 +142,8 @@ local occupiedPoints: { [string]: { [number]: string } } = {} -- area -> point i
 local carrying: { [Player]: Carry } = {}
 -- #2565 (mystery-market.md section 3): a Backpack's second cat, packed on the back with the net still out. It goes in
 -- first (hands free) and the next catch goes into the hands; it checks in with the held one, drops with it on a
--- tackle, a death or the Drop button's second press, and blocks the cannon, travel and tackling like a held cat.
+-- tackle, a death or the Drop button's second press, and blocks the cannon and travel like a held cat (tackling only
+-- since #2731, which lets a player with only a packed cat tackle).
 local packed: { [Player]: Carry } = {}
 local circleHistory: { [Player]: { boolean } } = {} -- last judged circles per player, true for Perfect (S23)
 local snackRandom = Random.new() -- #1181: the catch's snack drop
@@ -2493,8 +2494,14 @@ local function dropCarry(player: Player, died: boolean)
 end
 
 local function onDropCat(player: Player)
-	-- #2565: the first press drops the held cat, the next the packed one
-	if carrying[player] == nil and openFor(DataService.get(player)) then
+	-- #2565: the first press drops the held cat, the next the packed one. #2731: with only the packed cat, Drop
+	-- (now on the HUD for it) unpacks and drops it; while the areas are shut for this player it says why not, as for a
+	-- held cat, and stays packed
+	if carrying[player] == nil then
+		if packed[player] ~= nil and not openFor(DataService.get(player)) then
+			Net.toast(player, "Keep hold of it, the areas are closed.", "warn")
+			return
+		end
 		unpackCat(player)
 	end
 	dropCarry(player, false)
@@ -2862,7 +2869,7 @@ function CatService.isCarrying(player: Player): boolean
 	return carrying[player] ~= nil
 end
 
--- #2565: a cat in the hands or in the Backpack: blocks the cannon and tackling (CannonService, ShoveService).
+-- #2565: a cat in the hands or in the Backpack: blocks the cannon (CannonService); tackling reads isCarrying (#2731).
 function CatService.isLoaded(player: Player): boolean
 	return carrying[player] ~= nil or packed[player] ~= nil
 end

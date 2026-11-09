@@ -19,6 +19,8 @@
 -- #2479 (Derek2: Claim all's rewards "make it look so cluttered"): a green "<title>: <reward>, <reward>, ..." toast
 -- with at least three rewards (Components/RewardList) shows the title on its own line and the rewards under it as a
 -- wrapped row of small chips, each with its picture, and stays a little longer the more it holds.
+-- #2729 (Derek2 11-09: "big claims of index and quests cap at one line and put …"): a good or info toast, a claim
+-- too, is one row that ends in "…" (ToastRules.oneLine); only a warning or a shout-out still wraps.
 
 local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
@@ -79,6 +81,7 @@ type Waiting = {
 	lifetime: number,
 	bands: boolean?,
 	prize: Types.IndexPrize?,
+	oneLine: boolean?, -- #2729
 }
 
 local Toasts = {}
@@ -187,14 +190,22 @@ function Toasts.show(self: any, text: string, kind: Types.ToastKind?, quiet: boo
 		self:announce(text)
 		return
 	end
-	if self:_repeat(text, kind) then
+	-- #2729: the cut lines, whoever shows them (the servers' come through UI.toast, a few client ones come here direct)
+	if ToastRules.quiet(text, kind) or self:_repeat(text, kind) then
 		return
 	end
 	-- warn covers can't afford, not allowed and bumps: the gentle bonk; everything else the small pop
 	if not quiet then
 		Sound.play(if kind == "warn" then "uiError" else "uiToast")
 	end
-	self:_push(text, KIND_COLORS[kind or "info"] or KIND_COLORS.info, LIFETIME)
+	self:_push(
+		text,
+		KIND_COLORS[kind or "info"] or KIND_COLORS.info,
+		LIFETIME,
+		nil,
+		nil,
+		ToastRules.oneLine(kind)
+	)
 end
 
 -- Server shout-outs (Pet Simulator 99 style) on the colour of the cat's rarity, a little longer than a toast.
@@ -282,7 +293,8 @@ function Toasts._push(
 	fill: Color3,
 	lifetime: number,
 	bands: boolean?,
-	prize: Types.IndexPrize?
+	prize: Types.IndexPrize?,
+	oneLine: boolean?
 )
 	-- #2408: held (a camera cut on screen): it waits in the queue and shows when the hold ends
 	if self._held then
@@ -291,10 +303,14 @@ function Toasts._push(
 				return
 			end
 		end
-		table.insert(
-			self._queue,
-			{ text = text, fill = fill, lifetime = lifetime, bands = bands, prize = prize }
-		)
+		table.insert(self._queue, {
+			text = text,
+			fill = fill,
+			lifetime = lifetime,
+			bands = bands,
+			prize = prize,
+			oneLine = oneLine,
+		})
 		if #self._queue > QUEUE_MAX then
 			table.remove(self._queue, 1)
 		end
@@ -318,10 +334,14 @@ function Toasts._push(
 				return
 			end
 		end
-		table.insert(
-			self._queue,
-			{ text = text, fill = fill, lifetime = lifetime, bands = bands, prize = prize }
-		)
+		table.insert(self._queue, {
+			text = text,
+			fill = fill,
+			lifetime = lifetime,
+			bands = bands,
+			prize = prize,
+			oneLine = oneLine,
+		})
 		if #self._queue > QUEUE_MAX then
 			table.remove(self._queue, 1)
 		end
@@ -369,12 +389,18 @@ function Toasts._push(
 			MaxSize = Vector2.new(if prize ~= nil then PRIZE_TEXT_MAX else TEXT_MAX, ROW_H),
 		}),
 	})
-	-- #2479: several rewards: the title on top and the rewards as chips under it
+	-- #2729 (Derek2: "big claims of index and quests cap at one line and put …"): a good or info toast stays one row
+	-- and ends in "…" (TextTruncate), the claims too; the reward chips (#2479) and the wrap are for the rest
 	local title, rewards = nil, nil
-	if prize == nil and fill == KIND_COLORS.good then
+	if prize == nil and fill == KIND_COLORS.good and not oneLine then
 		title, rewards = RewardList.split(text)
 	end
-	if title ~= nil and rewards ~= nil then
+	if oneLine then
+		local _, list = RewardList.split(text)
+		if list ~= nil then
+			lifetime = math.max(lifetime, PRIZE_LIFETIME) -- a claim's one line holds a little longer
+		end
+	elseif title ~= nil and rewards ~= nil then
 		message.Text = title
 		Toasts._rewardRows(toast, message, rewards)
 		lifetime = RewardList.lifetime(#rewards, math.max(lifetime, PRIZE_LIFETIME))
@@ -600,7 +626,14 @@ function Toasts._fade(
 		toast:Destroy()
 		local waiting = table.remove(self._queue, 1)
 		if waiting then
-			self:_push(waiting.text, waiting.fill, waiting.lifetime, waiting.bands, waiting.prize)
+			self:_push(
+				waiting.text,
+				waiting.fill,
+				waiting.lifetime,
+				waiting.bands,
+				waiting.prize,
+				waiting.oneLine
+			)
 		end
 	end)
 end
@@ -619,7 +652,7 @@ function Toasts.setHeld(self: any, held: boolean)
 	local waiting: { Waiting } = table.clone(self._queue)
 	table.clear(self._queue)
 	for _, line in waiting do
-		self:_push(line.text, line.fill, line.lifetime, line.bands, line.prize)
+		self:_push(line.text, line.fill, line.lifetime, line.bands, line.prize, line.oneLine)
 	end
 end
 

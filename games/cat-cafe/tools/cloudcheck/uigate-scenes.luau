@@ -2887,6 +2887,42 @@ local SCENES = {
 		assert(lone.TextFits, "uigate: the short toast's word does not fit (#2207)")
 		assert(tall > lonePill.AbsoluteSize.Y + 4, "uigate: the long toast's pill is no taller than a one-row pill (#2207)")
 	end },
+	-- #2729 (Derek2: "big claims of index and quests cap at one line and put …"; "remove all the extra ones"): a long
+	-- Index claim is one row ending in "…", no reward chips under it; a cut nudge never shows; a long warning wraps
+	{ "ToastOneLine", function()
+		local claim = "3 Index rewards: $5,000, 2 Golden fish, Rare Crate, Luck Potion, Tuna x3, Cat Treat x2, Sardines x4"
+		local warning = "That cat is locked. Unlock it from its card in the Cats window first, then try selling it again."
+		UI.toast("A cheap Rare Crate at the Fish Market!", "info")
+		UI.toast(claim, "good")
+		UI.toast(warning, "warn")
+		local function find(text: string): TextLabel?
+			for _, label in UIShim.playerGui:GetDescendants() do
+				if label:IsA("TextLabel") and label.Name == "Text" and label.Text == text then
+					return label
+				end
+			end
+			return nil
+		end
+		UIShim.advance(0.6)
+		assert(find("A cheap Rare Crate at the Fish Market!") == nil, "uigate: a cut nudge still shows (#2729)")
+		local line = find(claim)
+		assert(line, "uigate: no Index claim toast (#2729)")
+		local pill = (line :: TextLabel).Parent :: Frame
+		assert(pill:FindFirstChild("Rewards") == nil, "uigate: the claim still lists its rewards as chips (#2729)")
+		assert(not (line :: TextLabel).TextWrapped, "uigate: the claim wrapped onto more rows (#2729)")
+		assert((line :: TextLabel).TextTruncate == Enum.TextTruncate.AtEnd, "uigate: the long claim does not end in … (#2729)")
+		local scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").get()
+		assert(pill.AbsoluteSize.Y <= 44 * scale + 1, ("uigate: the claim's pill is %d px tall, more than one row (#2729)"):format(pill.AbsoluteSize.Y))
+		local root = (pill:FindFirstAncestorOfClass("ScreenGui") :: ScreenGui)
+		local at, size = pill.AbsolutePosition, pill.AbsoluteSize
+		local view = workspace.CurrentCamera.ViewportSize
+		assert(at.X >= -0.5 and at.X + size.X <= view.X + 0.5, "uigate: the claim's pill runs off screen (#2729) in " .. root.Name)
+		local warn = find(warning)
+		if warn then -- (a short phone may still be holding it in the queue)
+			UIShim.advance(0.3)
+			assert(warn.TextWrapped, "uigate: the long warning did not wrap (#2729 keeps #2207 for warnings)")
+		end
+	end },
 	-- #2338 (Laptop-Tester, iPhone SE: the Welcome back toast lay over the Index, Quests and Potions tiles): the pill
 	-- keeps clear of the menu's tiles, the goal card, the corner tiles and the bottom row, and on screen; a wide screen
 	-- keeps it centred

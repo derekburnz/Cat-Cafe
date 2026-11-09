@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09 11:37 UTC",
+  "generated": "2026-11-09 11:40 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -305121,12 +305121,12 @@
       "triangles": 9834,
       "budget": 10000,
       "size_studs": {
-        "x": 10.06,
+        "x": 10.09,
         "y": 5.56,
         "z": 7.78
       },
       "size_roblox": [
-        10.06,
+        10.09,
         7.78,
         5.56
       ],
@@ -305136,7 +305136,7 @@
         0.0
       ],
       "bounds_max": [
-        5.05,
+        5.08,
         2.06,
         7.78
       ],
@@ -305290,7 +305290,7 @@
           "uv": "4818 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.02 y=-0.72"
+          "centered": "footprint center x=0.04 y=-0.72"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Square_MysteryCart.png",

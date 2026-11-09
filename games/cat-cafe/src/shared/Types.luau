@@ -242,6 +242,14 @@ export type IndexPrize = {
 	passXp: number?, -- #1645 (quests.md section 8): Cafe Pass XP for the running season (CafePass.addXp)
 }
 
+-- #2791: one step of the gift ladder still to come. `id` "m2", "m4", "m6", "like", "m15", "m20" or "fav"; `at` the
+-- seconds of play on the account when it pays (PlayerState.playSeconds counts toward it); `prize` what it pays.
+export type GiftStepView = {
+	id: string,
+	at: number,
+	prize: IndexPrize,
+}
+
 -- The Cafe Pass (#1645, cafe-pass.md). A paid track's named item, kept forever once claimed: a chat tag, an accessory,
 -- a uniform colour, a decor piece, a sign frame or the season cat.
 -- #1624 (store-pass-looks.md): the saved theme and uniform picks (shared/Looks ids), nil for Classic.
@@ -1161,6 +1169,9 @@ export type PlayerProfile = {
 	-- #1947 (save version 42, like-prompts.md section 2): the like and favourite gifts were paid (shared/PlaytimeGifts)
 	likeGift: boolean,
 	favGift: boolean,
+	-- #2791 (shared/PlaytimeGifts): the gift ladder's small steps paid ("m2", "m4", "m6", "m15", "m20" -> true). No
+	-- VERSION bump: an older server dropping it can only pay a few small steps again.
+	giftSteps: { [string]: boolean },
 	-- #2486 (save version 43, live-events.md section 2e): each Cafe Event reward piece given, cosmeticId -> os.time()
 	-- it was first given, and the last event (its reward key, CafeEvents.rewardKey) this account was rewarded in, ""
 	-- for none; the "Cafe Party Guest" badge reads it
@@ -1221,6 +1232,9 @@ export type PlayerState = {
 	-- #1936 (release.md section 3): seconds of play on the account when this state was sent (stats.playtimeSeconds
 	-- plus the session); the client counts on from its arrival for the store guard. nil from an older server
 	playSeconds: number?,
+	-- #2791 (retention-ideas.md 5a): the gift ladder's next two steps (PlaytimeGifts.upcoming), for the HUD's gift icon
+	-- and its countdown; empty once the ladder is done, nil from an older server
+	giftNext: { GiftStepView }?,
 	-- #2123 (first-hour.md 6a): the welcome back card's line, picked at this join from the save as it was left
 	-- (shared/ReturnHook, "join"); nil for none, and from an older server
 	returnHook: ReturnHookView?,

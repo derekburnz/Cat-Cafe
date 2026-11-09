@@ -283,6 +283,26 @@ local Config = {
 	LikeGiftIncomeMinutes = 15,
 	FavGiftMinutes = 30,
 	FavGiftIncomeMinutes = 30,
+	-- #2791 (retention-ideas.md 5a): the small steps on the same track, paid with a toast (shared/PlaytimeGifts)
+	PlaytimeGiftSteps = {
+		{ id = "m2", minutes = 2, prize = { coinSeconds = 60 } },
+		{ id = "m4", minutes = 4, prize = { lures = { tuna = 1 } } },
+		{ id = "m6", minutes = 6, prize = { spins = 1 } },
+		{ id = "m15", minutes = 15, prize = { fish = 5 } },
+		{ id = "m20", minutes = 20, prize = { potions = { swift_potion = 1 } } },
+	} :: {
+		{
+			id: string,
+			minutes: number,
+			prize: {
+				coinSeconds: number?,
+				lures: { [string]: number }?,
+				spins: number?,
+				fish: number?,
+				potions: { [string]: number }?,
+			},
+		}
+	},
 	GiftIdleSeconds = 3,
 	-- F88 Luck (luck-and-rare-moments.md section 1): one number from x1.0 that multiplies the Epic, Legendary and
 	-- Mythical chances of your bait and crate rolls (shared/Luck), at most LuckMax. The Lucky Cat statue adds

@@ -7,6 +7,13 @@ return function()
 		Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("WelcomeBack")
 	) :: any
 
+	describe("WelcomeBack.away", function()
+		it("says on the money card what time away pays (#2621)", function()
+			expect(WelcomeBack.away(nil)).to.equal("💤 Cats earn while away, up to 8 hours")
+			expect(WelcomeBack.away(true)).to.equal("💤 Cats earn while away, up to 16 hours")
+		end)
+	end)
+
 	describe("WelcomeBack.note", function()
 		it("says the free rate and cap, and the Long Nap pass's, in section 5's words", function()
 			expect(WelcomeBack.note(nil)).to.equal("Half pay while away, up to 8 hours")

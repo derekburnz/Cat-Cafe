@@ -83,6 +83,7 @@ local TutorialGlow = require(script.Parent.Parent.Components.TutorialGlow)
 local TutorialHints = require(script.Parent.Parent.Components.TutorialHints)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
+local WelcomeBack = require(script.Parent.Parent.Components.WelcomeBack)
 
 export type Callbacks = {
 	openScreen: (name: Types.ScreenName) -> (),
@@ -3920,6 +3921,20 @@ function HUD._buildBoosts(self: any, root: Frame)
 		}),
 		Create("UIPadding", { PaddingTop = UDim.new(0, 6) }),
 	})
+	-- #2621 (Derek2: "make the cats earning offline obvious ... without it being to obnoxious"): one quiet line on what
+	-- time away pays, the Long Nap pass's when owned
+	-- one line; on touch it takes the place of "Tap to close", so the card is no taller under the counters (#2393)
+	self._boostsAway = label({
+		Name = "Away",
+		Size = UDim2.new(1, 0, 0, 20),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.gold,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = WelcomeBack.away(nil),
+		LayoutOrder = 5,
+		ZIndex = 6,
+		Parent = list,
+	})
 	label({
 		Name = "Hint",
 		Size = UDim2.new(1, 0, 0, 18),
@@ -3927,7 +3942,8 @@ function HUD._buildBoosts(self: any, root: Frame)
 		TextColor3 = Theme.hud.subtext,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "Tap to close",
-		LayoutOrder = 5,
+		Visible = not TOUCH,
+		LayoutOrder = 6,
 		ZIndex = 6,
 		Parent = list,
 	})
@@ -4010,6 +4026,7 @@ function HUD._renderBoosts(self: any)
 	end
 	self._boostsExact.Text = Theme.currencySymbol .. Format.commas(math.floor(state.money))
 	self._boostsRate.Text = Format.rate(state.incomePerSecond)
+	self._boostsAway.Text = WelcomeBack.away((state :: any).longNap == true)
 	-- the money ticks five times a second while income flows (UIController's prediction), and each tick renders the
 	-- HUD; the rows are made again only when what they say changed
 	-- #2147: which outfit passes Roblox says are owned, so the money card names each one

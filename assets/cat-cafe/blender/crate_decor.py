@@ -9,6 +9,8 @@ day and night), water `_Water`, clear jars and bubbles the glass swatch, and a w
   Woods          _LogStools (C), _HollowLogBooth (L), _LanternStump (R), _MushroomLamp (E, on the Index anchor)
   Sewer          _CrateShelf (C), _BathtubSofa (L), _RubberDuckRow (R), _PipeFountain (E, on the Index anchor)
   Classic        _BistroSet (R), _VelvetBooth (E), _HangingPlants (R), _CatTreeTower (L)
+  Desert         _CushionPile (C), _CaravanBench (L), _LanternPalm (R), _OasisFountain (E, a normal decor spot)
+  Ruins          _PillarTable (C), _StoneThrone (L), _BrazierPair (R), _GargoyleStatue (E, a normal decor spot)
 
 The names come from Catalog.luau CRATE_PIECES: CatCafe_Decor_ and the piece name without spaces.
 """
@@ -1326,6 +1328,225 @@ def build_cat_tree_tower(mat):
     return objs
 
 
+# Desert (#2651, tier6-7-areas.md section 7b) -----------------------------------------------------------------------
+
+
+def _corners(cx, y, cz, sx, sz, deg):
+    """The four corners of a box (sx by sz) centred on (cx, y, cz), turned deg about Y like rot_y."""
+    R = rot_y(deg)
+    return [tuple(Vector((cx, y, cz)) + R @ Vector((ux * sx / 2, 0, uz * sz / 2))) for ux in (-1, 1) for uz in (-1, 1)]
+
+
+def build_cushion_pile(mat):
+    """A heap of tasselled floor cushions on a fringed rug: four square cushions in desert colours, a bolster, gold
+    tassels at the corners."""
+    b = RB()
+    b.span((-1.8, 0.0, -1.1), (1.8, 0.06, 1.1), "terracotta")                              # the rug
+    for z in (-0.88, 0.88):
+        b.span((-1.7, 0.0, z - 0.06), (1.7, 0.075, z + 0.06), "eye_amber")
+    for sx in (-1, 1):                                                                     # its fringe
+        x0, x1 = sorted((sx * 1.8, sx * 1.93))
+        for k in range(7):
+            z = -0.95 + k * 0.317
+            b.span((x0, 0.0, z - 0.04), (x1, 0.03, z + 0.04), "offwhite")
+    pile = ((-0.8, 0.26, -0.15, 1.35, 0.4, 1.05, 12, "sign_teal"), (0.72, 0.26, 0.12, 1.25, 0.4, 1.0, -16, "eye_amber"),
+            (-0.12, 0.66, 0.15, 1.15, 0.38, 0.92, 32, "fur_copper"), (0.22, 1.02, 0.3, 0.95, 0.32, 0.78, 6, "offwhite"))
+    for x, y, z, sx, sy, sz, deg, sw in pile:
+        b.box((x, y, z), (sx, sy, sz), sw, rot=rot_y(deg))
+        b.box((x, y + sy / 2 + 0.005, z), (sx * 0.4, 0.02, sz * 0.4), "fur_golden", rot=rot_y(deg + 45))   # a patch
+        for c in _corners(x, y, z, sx * 0.98, sz * 0.98, deg):
+            b.cyl((c[0], c[1] - 0.06, c[2]), 0.06, 0.2, "fur_golden", r2=0.03, segments=6)
+    b.cyl((1.1, 0.24, -0.72), 0.22, 1.1, "bowl_red", axis="X", segments=10)                # bolster with gold ends
+    for sx in (-1, 1):
+        b.cyl((1.1 + sx * 0.56, 0.24, -0.72), 0.16, 0.04, "fur_golden", axis="X", segments=10)
+    return [b.finalize("CatCafe_Decor_CushionPile", mat)]
+
+
+def build_caravan_bench(mat):
+    """A carved wooden bench with cushions under a striped, fringed canopy on four posts, a brass lantern hanging
+    in the middle (its light `_Glow`)."""
+    name = "CatCafe_Decor_CaravanBench"
+    b, glow = RB(), RB()
+    for sx in (-1, 1):                                                                     # legs and arms
+        for sz in (-1, 1):
+            b.span((sx * 1.5 - 0.1, 0.0, sz * 0.45 - 0.1), (sx * 1.5 + 0.1, 0.9, sz * 0.45 + 0.1), "dark_wood")
+        b.span((sx * 1.62 - 0.1, 0.9, -0.62), (sx * 1.62 + 0.1, 1.55, 0.52), "dark_wood")
+        b.ball((sx * 1.62, 1.6, -0.55), 0.13, "fur_golden")
+    b.span((-1.6, 0.9, -0.6), (1.6, 1.12, 0.5), "caramel_wood")                            # seat
+    b.span((-1.52, 1.12, 0.32), (1.52, 2.2, 0.5), "caramel_wood")                          # back, carved arches
+    for k in range(4):
+        x = -1.14 + k * 0.76
+        b.span((x - 0.2, 1.3, 0.3), (x + 0.2, 1.85, 0.33), "dark_wood")
+        b.box((x, 1.85, 0.315), (0.28, 0.28, 0.03), "dark_wood", rot=rot_z(45))
+    for x, sw, back in ((-0.75, "eye_amber", "terracotta"), (0.75, "sign_teal", "fur_copper")):   # cushions
+        b.box((x, 1.24, -0.06), (1.38, 0.24, 0.86), sw)
+        b.box((x, 1.62, 0.18), (1.2, 0.62, 0.24), back, rot=rot_x(-12))
+    for sx in (-1, 1):                                                                     # canopy posts
+        for sz in (-1, 1):
+            b.cyl((sx * 1.86, 1.8, sz * 0.98), 0.08, 3.6, "dark_wood", segments=8)
+            b.ball((sx * 1.86, 3.8, sz * 0.98), 0.12, "fur_golden")
+    n = 8
+    for k in range(n):                                                                     # striped canopy
+        x0 = -1.96 + k * 3.92 / n
+        b.span((x0, 3.6, -1.06), (x0 + 3.92 / n, 3.72, 1.06), "terracotta" if k % 2 == 0 else "offwhite")
+    b.span((-1.98, 3.72, -0.1), (1.98, 3.82, 0.1), "eye_amber")                            # ridge
+    for sz in (-1, 1):                                                                     # fringe front and back
+        for k in range(16):
+            x = -1.84 + k * 3.68 / 15
+            b.span((x - 0.05, 3.44, sz * 1.06 - 0.025), (x + 0.05, 3.6, sz * 1.06 + 0.025),
+                   "fur_golden" if k % 2 == 0 else "bowl_red")
+    b.span((-0.02, 3.0, -0.02), (0.02, 3.6, 0.02), "brass")                                # hanging lantern
+    b.span((-0.16, 2.95, -0.16), (0.16, 3.0, 0.16), "brass")
+    glow.span((-0.12, 2.65, -0.12), (0.12, 2.95, 0.12), "lamp_warm")
+    b.span((-0.16, 2.6, -0.16), (0.16, 2.65, 0.16), "brass")
+    return [b.finalize(name, mat), glow.finalize(name + "_Glow", mat)]
+
+
+def build_lantern_palm(mat):
+    """A potted palm, its fronds hung with five tiny lanterns (`_Glow`)."""
+    name = "CatCafe_Decor_LanternPalm"
+    b, glow = RB(), RB()
+    b.cyl((0, 0.4, 0), 0.42, 0.8, "terracotta", r2=0.55, segments=12)
+    _ring_flat(b, (0, 0.82, 0), 0.6, 0.12, 0.1, "fur_copper", segments=12)
+    b.cyl((0, 0.76, 0), 0.5, 0.06, "fur_toffee", segments=12)
+    for k in range(3):                                                                      # pot pattern
+        a = math.radians(30 + 120 * k)
+        b.box((0.5 * math.cos(a), 0.5, 0.5 * math.sin(a)), (0.06, 0.2, 0.2), "eye_amber", rot=rot_y(-math.degrees(a)))
+    pts = ((0, 0.78, 0), (0.1, 1.8, 0.04), (0.22, 2.8, 0.08), (0.3, 3.4, 0.1))
+    for (p0, p1, r) in zip(pts, pts[1:], (0.2, 0.17, 0.14)):
+        _limb(b, p0, p1, r, r * 0.85, "fur_toffee")
+        b.cyl(p1, r * 0.95, 0.06, "dark_wood", segments=8)
+    top = Vector(pts[-1])
+    for k in range(7):
+        R = rot_y(k * 360 / 7 + 10) @ rot_z(-28)
+        b.box(tuple(top + R @ Vector((0.62, 0, 0))), (1.25, 0.06, 0.34), ("leaf_green", "leaf_dark")[k % 2], rot=R)
+        if k in (0, 1, 2, 4, 5):
+            tip = top + R @ Vector((1.05, 0, 0))
+            drop = tip.y - 0.42
+            b.span((tip.x - 0.015, drop, tip.z - 0.015), (tip.x + 0.015, tip.y - 0.03, tip.z + 0.015), "fur_black")
+            b.span((tip.x - 0.08, drop - 0.03, tip.z - 0.08), (tip.x + 0.08, drop, tip.z + 0.08), "brass")
+            glow.span((tip.x - 0.06, drop - 0.2, tip.z - 0.06), (tip.x + 0.06, drop - 0.03, tip.z + 0.06),
+                      ("lamp_warm", "eye_amber")[k % 2])
+    b.ball(tuple(top), 0.2, "leaf_dark")
+    return [b.finalize(name, mat), glow.finalize(name + "_Glow", mat)]
+
+
+def build_oasis_fountain(mat):
+    """An eight-sided teal basin brimming with water, an amber band and cream rims, a centre bowl on a cream
+    column that spills from a brass spout. Water `_Water`."""
+    name = "CatCafe_Decor_OasisFountain"
+    b, wat = RB(), RB()
+    b.cyl((0, 0.31, 0), 1.18, 0.62, "sign_teal", segments=8)
+    b.cyl((0, 0.36, 0), 1.2, 0.12, "eye_amber", segments=8)
+    _ring_flat(b, (0, 0.06, 0), 1.24, 0.14, 0.12, "offwhite", segments=8)
+    _ring_flat(b, (0, 0.66, 0), 1.2, 0.18, 0.1, "offwhite", segments=8)
+    wat.cyl((0, 0.635, 0), 1.03, 0.04, WATER, segments=16)
+    b.cyl((0, 1.1, 0), 0.17, 0.9, "offwhite", segments=10)
+    b.cyl((0, 1.6, 0), 0.3, 0.16, "sign_teal", r2=0.55, segments=12)
+    _ring_flat(b, (0, 1.69, 0), 0.57, 0.08, 0.04, "eye_amber", segments=12)
+    wat.cyl((0, 1.68, 0), 0.5, 0.03, WATER, segments=12)
+    b.cyl((0, 1.86, 0), 0.08, 0.36, "brass", segments=8)
+    b.cyl((0, 2.07, 0), 0.14, 0.08, "brass", r2=0.05, segments=8)
+    wat.cyl((0, 2.15, 0), 0.05, 0.1, WATER, segments=6)
+    for k in range(4):                                                                     # spills off the bowl
+        a = math.radians(45 + 90 * k)
+        x, z = 0.54 * math.cos(a), 0.54 * math.sin(a)
+        wat.span((x - 0.025, 0.66, z - 0.025), (x + 0.025, 1.64, z + 0.025), WATER)
+    return [b.finalize(name, mat), wat.finalize(name + "_Water", mat)]
+
+
+# Ruins (#2651) ---------------------------------------------------------------------------------------------------
+
+
+def build_pillar_table(mat):
+    """A round stone table top on a broken fluted pillar, two drum stools, a clay cup, a scroll and a jade gem."""
+    b = RB()
+    b.span((-0.5, 0.0, -0.5), (0.5, 0.22, 0.5), "fur_dusty")
+    b.cyl((0, 0.93, 0), 0.34, 1.42, "fur_pewter", segments=10)
+    for k in range(10):                                                                     # flutes
+        a = math.radians(18 + 36 * k)
+        b.box((0.345 * math.cos(a), 0.93, 0.345 * math.sin(a)), (0.05, 1.2, 0.06), "fur_dusty",
+              rot=rot_y(-math.degrees(a)))
+    b.cyl((0, 1.7, 0), 1.0, 0.14, "fur_dusty", segments=14)
+    b.span((0.2, 1.765, -0.6), (0.24, 1.78, 0.1), "fur_soot")                               # a crack
+    b.cyl((-0.45, 1.88, -0.2), 0.1, 0.22, "terracotta", r2=0.12, segments=8)                # cup
+    b.cyl((0.35, 1.84, 0.25), 0.07, 0.6, "offwhite", axis="X", segments=8)                 # scroll
+    for sx in (-1, 1):
+        b.cyl((0.35 + sx * 0.3, 1.84, 0.25), 0.1, 0.05, "fur_toffee", axis="X", segments=8)
+    b.box((0.0, 1.83, -0.5), (0.16, 0.14, 0.16), "fur_emerald", rot=rot_y(45))
+    for sx in (-1, 1):                                                                      # drum stools
+        b.cyl((sx * 1.55, 0.36, 0.0), 0.42, 0.72, "fur_pewter", segments=10)
+        b.cyl((sx * 1.55, 0.38, 0.0), 0.43, 0.08, "fur_dusty", segments=10)
+    return [b.finalize("CatCafe_Decor_PillarTable", mat)]
+
+
+def build_stone_throne(mat):
+    """A carved stone throne sized for a cat on a two-step dais: a tall back with cat ears and jade eyes under a
+    gold band, paw-ended arms, a jade cushion with gold tassels."""
+    b = RB()
+    b.span((-1.6, 0.0, -1.15), (1.6, 0.2, 1.1), "fur_dusty")                                # dais and its step
+    b.span((-1.4, 0.2, -0.75), (1.4, 0.4, 1.0), "fur_dusty")
+    b.span((-1.0, 0.4, -0.6), (1.0, 1.05, 0.6), "fur_pewter")                               # seat
+    b.span((-1.02, 0.93, -0.62), (1.02, 1.03, 0.62), "fur_golden")
+    b.box((0.0, 1.16, -0.05), (1.7, 0.2, 1.05), "fur_emerald")                               # cushion
+    for c in _corners(0.0, 1.16, -0.05, 1.68, 1.03, 0):
+        b.cyl((c[0], c[1] - 0.08, c[2]), 0.06, 0.2, "fur_golden", r2=0.03, segments=6)
+    b.span((-1.0, 1.05, 0.6), (1.0, 3.2, 0.95), "fur_pewter")                               # back
+    b.span((-1.02, 2.85, 0.58), (1.02, 3.0, 0.97), "fur_golden")
+    b.span((-0.08, 2.15, 0.58), (0.08, 2.25, 0.6), "fur_golden")                            # nose
+    for sx in (-1, 1):
+        b.b.pyramid(RB.p(sx * 0.6, 3.2, 0.775), 0.34, 0.55, "fur_pewter")                   # ears
+        b.span((sx * 0.35 - 0.14, 2.35, 0.58), (sx * 0.35 + 0.14, 2.55, 0.6), "fur_emerald")   # eyes
+        x0, x1 = sorted((sx * 1.0, sx * 1.38))
+        b.span((x0, 0.4, -0.6), (x1, 1.6, 0.6), "fur_dusty")                                # arms
+        b.ball((sx * 1.19, 1.62, -0.55), 0.22, "fur_pewter", scale=(1.0, 0.7, 1.2))            # paw ends
+        b.box((sx * 1.19, 1.62, -0.1), (0.2, 0.1, 0.2), "fur_emerald", rot=rot_y(45))
+    return [b.finalize("CatCafe_Decor_StoneThrone", mat)]
+
+
+def build_brazier_pair(mat):
+    """Two little bronze braziers on tripods, coals and a soft flame glowing in each (`_Glow`), on a low stone
+    step."""
+    name = "CatCafe_Decor_BrazierPair"
+    b, glow = RB(), RB()
+    b.span((-1.9, 0.0, -0.7), (1.9, 0.15, 0.7), "fur_dusty")
+    for sx in (-1, 1):
+        x = sx * 1.2
+        for k in range(3):
+            a = math.radians(90 + 120 * k)
+            _rod(b, (x + 0.42 * math.cos(a), 0.15, 0.42 * math.sin(a)), (x, 1.15, 0), 0.07, "fur_soot")
+        b.cyl((x, 1.32, 0), 0.3, 0.34, "fur_golden", r2=0.48, segments=12)
+        _ring_flat(b, (x, 1.5, 0), 0.52, 0.08, 0.05, "brass", segments=12)
+        glow.ball((x, 1.47, 0), 0.4, "eye_amber", scale=(1.0, 0.3, 1.0))
+        glow.cyl((x, 1.75, 0), 0.24, 0.5, "lamp_warm", r2=0.02, segments=8)
+    return [b.finalize(name, mat), glow.finalize(name + "_Glow", mat)]
+
+
+def build_gargoyle_statue(mat):
+    """A friendly gargoyle cat keeping watch on a stone plinth: folded wings, jade eyes and collar stone, a curled
+    tail and a small smile."""
+    b = RB()
+    b.span((-0.8, 0.0, -0.8), (0.8, 0.25, 0.8), "fur_soot")
+    b.span((-0.65, 0.25, -0.65), (0.65, 0.95, 0.65), "fur_dusty")
+    b.span((-0.8, 0.95, -0.8), (0.8, 1.08, 0.8), "fur_pewter")
+    y = 1.08
+    b.ball((0, y + 0.42, 0.12), 0.48, "fur_pewter", scale=(0.95, 0.9, 1.0))                  # haunches
+    b.box((0, y + 0.6, -0.12), (0.55, 0.9, 0.5), "fur_pewter")                              # chest
+    b.box((0, y + 1.28, -0.18), (0.72, 0.56, 0.6), "fur_pewter")                            # head
+    for sx in (-1, 1):
+        b.b.pyramid(RB.p(sx * 0.22, y + 1.56, -0.18), 0.26, 0.32, "fur_pewter")               # ears
+        b.span((sx * 0.17 - 0.07, y + 1.3, -0.49), (sx * 0.17 + 0.07, y + 1.42, -0.47), "fur_emerald")   # eyes
+        b.box((sx * 0.42, y + 0.85, 0.22), (0.12, 0.7, 0.62), "fur_dusty", rot=rot_y(sx * -22))   # wings
+        b.box((sx * 0.5, y + 1.18, 0.3), (0.1, 0.18, 0.3), "fur_dusty", rot=rot_y(sx * -22))
+        b.span((sx * 0.16 - 0.1, y, -0.5), (sx * 0.16 + 0.1, y + 0.22, -0.3), "fur_pewter")     # paws
+    b.span((-0.05, y + 1.2, -0.49), (0.05, y + 1.26, -0.47), "fur_soot")                      # nose and smile
+    b.span((-0.12, y + 1.11, -0.49), (0.12, y + 1.14, -0.47), "fur_soot")
+    b.box((0, y + 0.92, -0.38), (0.22, 0.2, 0.04), "fur_emerald", rot=rot_z(45))             # collar stone
+    _limb(b, (0.3, y + 0.15, 0.45), (0.58, y + 0.3, 0.1), 0.08, 0.06, "fur_pewter")          # curled tail
+    _limb(b, (0.58, y + 0.3, 0.1), (0.5, y + 0.55, -0.15), 0.06, 0.05, "fur_pewter")
+    return [b.finalize("CatCafe_Decor_GargoyleStatue", mat)]
+
+
 # F89 2c moving parts (VFX-Agent drives them): a child Model ending _Swing swings about its pivot's Z axis, _Spin turns
 # about its Y axis, _Bob rises and falls; a light inside one is a nested _Glow that moves with it. Each moving Model
 # carries its own numbers as attributes (Angle in degrees, Rise in studs, Seconds per cycle; Effects defaults to 2 s).
@@ -1367,4 +1588,12 @@ ASSETS = {
     "CatCafe_Decor_VelvetBooth": (build_velvet_booth, 1800),
     "CatCafe_Decor_HangingPlants": (build_hanging_plants, 1800),
     "CatCafe_Decor_CatTreeTower": (build_cat_tree_tower, 3000),
+    "CatCafe_Decor_CushionPile": (build_cushion_pile, 1500),
+    "CatCafe_Decor_CaravanBench": (build_caravan_bench, 3000),
+    "CatCafe_Decor_LanternPalm": (build_lantern_palm, 1800),
+    "CatCafe_Decor_OasisFountain": (build_oasis_fountain, 1800),
+    "CatCafe_Decor_PillarTable": (build_pillar_table, 1500),
+    "CatCafe_Decor_StoneThrone": (build_stone_throne, 3000),
+    "CatCafe_Decor_BrazierPair": (build_brazier_pair, 1800),
+    "CatCafe_Decor_GargoyleStatue": (build_gargoyle_statue, 1800),
 }

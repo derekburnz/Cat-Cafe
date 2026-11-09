@@ -1,0 +1,1253 @@
+{
+ "className": "Model",
+ "attributes": {
+  "Rojo_Target_PrimaryPart": "CatCafe_Decor_PillarTable/0",
+  "PartBuilt": true
+ },
+ "children": [
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.93,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.42,
+     0.68,
+     0.68
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder",
+    "PivotOffset": {
+     "CFrame": {
+      "position": [
+       -0.93,
+       0.0,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    }
+   },
+   "attributes": {
+    "Rojo_Id": "CatCafe_Decor_PillarTable/0"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.11,
+       0.0
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     1.0,
+     0.22,
+     1.0
+    ],
+    "Color": [
+     0.5882,
+     0.5686,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3281,
+       0.93,
+       0.1066
+      ],
+      "orientation": [
+       [
+        0.9511,
+        0.0,
+        -0.309
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.309,
+        0.0,
+        0.9511
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     1.2,
+     0.06
+    ],
+    "Color": [
+     0.5882,
+     0.5686,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2028,
+       0.93,
+       0.2791
+      ],
+      "orientation": [
+       [
+        0.5878,
+        0.0,
+        -0.809
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.809,
+        0.0,
+        0.5878
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     1.2,
+     0.06
+    ],
+    "Color": [
+     0.5882,
+     0.5686,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.93,
+       0.345
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.0,
+        -1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     1.2,
+     0.06
+    ],
+    "Color": [
+     0.5882,
+     0.5686,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2028,
+       0.93,
+       0.2791
+      ],
+      "orientation": [
+       [
+        -0.5878,
+        0.0,
+        -0.809
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.809,
+        0.0,
+        -0.5878
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     1.2,
+     0.06
+    ],
+    "Color": [
+     0.5882,
+     0.5686,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3281,
+       0.93,
+       0.1066
+      ],
+      "orientation": [
+       [
+        -0.9511,
+        0.0,
+        -0.309
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.309,
+        0.0,
+        -0.9511
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     1.2,
+     0.06
+    ],
+    "Color": [
+     0.5882,
+     0.5686,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.3281,
+       0.93,
+       -0.1066
+      ],
+      "orientation": [
+       [
+        -0.9511,
+        0.0,
+        0.309
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.309,
+        0.0,
+        -0.9511
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     1.2,
+     0.06
+    ],
+    "Color": [
+     0.5882,
+     0.5686,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.2028,
+       0.93,
+       -0.2791
+      ],
+      "orientation": [
+       [
+        -0.5878,
+        0.0,
+        0.809
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.809,
+        0.0,
+        -0.5878
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     1.2,
+     0.06
+    ],
+    "Color": [
+     0.5882,
+     0.5686,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       0.93,
+       -0.345
+      ],
+      "orientation": [
+       [
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        0.0,
+        0.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     1.2,
+     0.06
+    ],
+    "Color": [
+     0.5882,
+     0.5686,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.2028,
+       0.93,
+       -0.2791
+      ],
+      "orientation": [
+       [
+        0.5878,
+        0.0,
+        0.809
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.809,
+        0.0,
+        0.5878
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     1.2,
+     0.06
+    ],
+    "Color": [
+     0.5882,
+     0.5686,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.3281,
+       0.93,
+       -0.1066
+      ],
+      "orientation": [
+       [
+        0.9511,
+        0.0,
+        0.309
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.309,
+        0.0,
+        0.9511
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     1.2,
+     0.06
+    ],
+    "Color": [
+     0.5882,
+     0.5686,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.7,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.14,
+     2.0,
+     2.0
+    ],
+    "Color": [
+     0.5882,
+     0.5686,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.22,
+       1.7825,
+       -0.25
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.04,
+     0.035,
+     0.7
+    ],
+    "Color": [
+     0.3843,
+     0.3647,
+     0.349
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.45,
+       1.825,
+       -0.2
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.11,
+     0.21,
+     0.21
+    ],
+    "Color": [
+     0.7686,
+     0.4784,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.45,
+       1.935,
+       -0.2
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.11,
+     0.23,
+     0.23
+    ],
+    "Color": [
+     0.7686,
+     0.4784,
+     0.3451
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.35,
+       1.84,
+       0.25
+      ],
+      "orientation": [
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.6,
+     0.14,
+     0.14
+    ],
+    "Color": [
+     1.0,
+     0.9765,
+     0.949
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.05,
+       1.84,
+       0.25
+      ],
+      "orientation": [
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.2,
+     0.2
+    ],
+    "Color": [
+     0.549,
+     0.3725,
+     0.2353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.65,
+       1.84,
+       0.25
+      ],
+      "orientation": [
+       [
+        -1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.05,
+     0.2,
+     0.2
+    ],
+    "Color": [
+     0.549,
+     0.3725,
+     0.2353
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.0,
+       1.83,
+       -0.5
+      ],
+      "orientation": [
+       [
+        0.7071,
+        0.0,
+        0.7071
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        -0.7071,
+        0.0,
+        0.7071
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.16,
+     0.14,
+     0.16
+    ],
+    "Color": [
+     0.1804,
+     0.6196,
+     0.4196
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.55,
+       0.36,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.72,
+     0.84,
+     0.84
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -1.55,
+       0.38,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.08,
+     0.86,
+     0.86
+    ],
+    "Color": [
+     0.5882,
+     0.5686,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.55,
+       0.36,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.72,
+     0.84,
+     0.84
+    ],
+    "Color": [
+     0.6471,
+     0.6471,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  },
+  {
+   "name": "CatCafe_Decor_PillarTable",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       1.55,
+       0.38,
+       0.0
+      ],
+      "orientation": [
+       [
+        0.0,
+        -1.0,
+        0.0
+       ],
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.08,
+     0.86,
+     0.86
+    ],
+    "Color": [
+     0.5882,
+     0.5686,
+     0.549
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth",
+    "Shape": "Cylinder"
+   }
+  }
+ ],
+ "properties": {
+  "WorldPivotData": {
+   "OptionalCFrame": {
+    "position": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "orientation": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ]
+   }
+  }
+ }
+}

@@ -5,6 +5,8 @@ see-through barrier and a sign board, the way simulator zone gates work, themed 
   CatCafe_Neighbourhood_Gate   32 wide, street's north end (0, 125)
   CatCafe_Woods_Gate           24 wide, west back alley's outer wall (-94, 0), turned -90
   CatCafe_Sewer_Gate           24 wide, east back alley's outer wall (94, 0), turned 90
+  CatCafe_Desert_Gate          24 wide, Tier 6 (#2651): the Desert's camp opening
+  CatCafe_Ruins_Gate           24 wide, Tier 7 (#2651): the Ruins' camp opening
 
 The Park and Neighbourhood openings follow the street (town-layout-v3.md: StreetHalfWidth 16); the Woods and Sewer
 openings are SideGateHalfWidth 12 either side of z 0 (section 7, v3.1).
@@ -27,7 +29,7 @@ import math
 
 from alleyway import bar, flower_clump, label, lantern
 from common import RB, text_width
-from plot import TRIM
+from plot import TRIM, rot_y
 
 BARS_TOP = 12.0
 PILLAR = 2.6
@@ -287,6 +289,108 @@ def build_neighbourhood_gate_f85(mat):
     return _gate("CatCafe_Neighbourhood_GateF85", mat, 24.0, "rarity_rare", "sign_teal", _neighbourhood)
 
 
+# ------------------------------------------------------------------------------------------- desert --
+def _cactus(b, x, z, h):
+    b.cyl((x, h / 2, z), 0.42, h, "leaf_green", segments=8)
+    b.cyl((x, h, z), 0.42, 0.3, "leaf_green", r2=0.2, segments=8)
+    for sx, y, ln in ((-1, h * 0.45, 0.8), (1, h * 0.62, 0.6)):                         # arms
+        b.span((x + sx * 0.4, y - 0.2, z - 0.22), (x + sx * 0.95, y + 0.2, z + 0.22), "leaf_green")
+        b.cyl((x + sx * 0.95, y + ln / 2, z), 0.24, ln + 0.3, "leaf_green", segments=8)
+
+
+def _desert(b, lamps, flowers, half):
+    for s in (-1, 1):                                  # sandstone pylons with clay bands, sand drifting at the feet
+        x0, x1, cx = _pillar_x(s, half)
+        b.span((x0 - 0.25, 0, -FRONT - 0.25), (x1 + 0.25, 0.9, BACK + 0.25), "fur_caramel")
+        b.span((x0, 0.9, -FRONT), (x1, 13.6, BACK), "paving_tan")
+        for y in (3.0, 6.4, 9.8):
+            b.span((x0 - 0.1, y, -FRONT - 0.1), (x1 + 0.1, y + 0.5, BACK + 0.1), "terracotta")
+        b.span((x0 - 0.3, 13.6, -FRONT - 0.3), (x1 + 0.3, 14.0, BACK + 0.3), "fur_caramel")
+        b.span((x0 - 0.1, 14.0, -FRONT - 0.1), (x1 + 0.1, 14.3, BACK + 0.1), "paving_tan")
+        lantern(b, lamps, cx, 14.3, (BACK - FRONT) / 2, 0.8)
+        b.ball((cx + s * 0.9, 0.0, -2.45), 1.4, "fur_oat", scale=(1.4, 0.35, 0.8))        # drift, clear of the wall
+        _cactus(b, s * (half + PILLAR + 1.9), -3.0, 2.6)
+        b.cyl((s * (half + PILLAR + 0.5), 0.55, -3.6), 0.55, 1.1, "terracotta", r2=0.38, segments=10)   # clay pot
+        b.cyl((s * (half + PILLAR + 0.5), 1.15, -3.6), 0.4, 0.1, "fur_copper", segments=10)
+    reach = half + PILLAR + 0.3
+    b.span((-reach, 12.2, -1.0), (reach, 13.25, 1.0), "fur_caramel")                     # lintel
+    inner = half - INSET
+    n = 12                                                                                 # striped awning, scalloped
+    w = 2 * inner / n
+    for k in range(n):
+        x = -inner + k * w
+        y0 = 11.45 if k % 2 == 0 else 11.75
+        b.span((x, y0, -1.52), (x + w, 13.25, -1.32), "terracotta" if k % 2 == 0 else "offwhite")
+    px = 0.45
+    bw = text_width("THE DESERT", px) + 2.4
+    b.span((-bw / 2, 13.3, -0.22), (bw / 2, 15.8, 0.22), "terracotta")                    # name plate
+    for (ya, yb) in ((13.3, 13.48), (15.62, 15.8)):
+        b.span((-bw / 2 - 0.06, ya, -0.27), (bw / 2 + 0.06, yb, 0.27), "eye_amber")
+    _title(b, "THE DESERT", 14.4 - 2.5 * px, px, -0.22, 0.22, "offwhite")
+    b.cyl((0, 17.1, 0), 1.25, 0.34, "eye_amber", axis="Z", segments=16)                  # sun disc with rays
+    for k in range(8):
+        a = math.radians(k * 45 + 22.5)
+        cxr, cyr = 1.85 * math.cos(a), 17.1 + 1.85 * math.sin(a)
+        if cyr < 16.0:
+            continue
+        b.span((cxr - 0.2, cyr - 0.2, -0.12), (cxr + 0.2, cyr + 0.2, 0.12), "eye_amber")
+    b.span((-0.25, 15.8, -0.12), (0.25, 16.0, 0.12), "fur_caramel")
+    return 12.2
+
+
+def build_desert_gate(mat):
+    """Tier 6: the Desert's 24 stud opening (Config.World.CampOpeningWidth)."""
+    return _gate("CatCafe_Desert_Gate", mat, 24.0, "eye_amber", "terracotta", _desert)
+
+
+# ------------------------------------------------------------------------------------------- ruins --
+def _brazier(b, lamps, x, z):
+    b.span((x - 0.6, 0, z - 0.6), (x + 0.6, 0.3, z + 0.6), "fur_soot")
+    b.cyl((x, 1.25, z), 0.22, 1.9, "fur_soot", segments=8)
+    b.cyl((x, 2.45, z), 0.75, 0.5, "fur_golden", r2=0.45, segments=12)
+    lamps.cyl((x, 3.05, z), 0.5, 0.8, "lamp_warm", r2=0.08, segments=8)
+
+
+def _ruins(b, lamps, flowers, half):
+    for s in (-1, 1):                                  # fluted stone piers, one with its corner broken away
+        x0, x1, cx = _pillar_x(s, half)
+        b.span((x0 - 0.3, 0, -FRONT - 0.3), (x1 + 0.3, 0.9, BACK + 0.3), "fur_soot")
+        b.span((x0, 0.9, -FRONT), (x1, 12.6, BACK), "fur_dusty")
+        for k in range(3):                                                                 # flutes on the faces
+            fx = x0 + (k + 1) * (x1 - x0) / 4
+            for z, d in ((-FRONT, -1), (BACK, 1)):
+                b.span((fx - 0.08, 1.3, min(z, z + d * 0.08)), (fx + 0.08, 12.2, max(z, z + d * 0.08)), "fur_pewter")
+        b.span((x0 - 0.3, 12.6, -FRONT - 0.3), (x1 + 0.3, 13.2, BACK + 0.3), "fur_pewter")   # capital
+        for (dx, dz, sz) in ((1.1, -2.6, 0.7), (1.9, -3.3, 0.45), (0.3, -3.4, 0.5)):          # rubble in front
+            rx = cx + s * dx
+            b.box((rx, sz / 2, dz), (sz * 1.3, sz, sz), "fur_dusty", rot=rot_y(25.0 * s + dx * 30))
+        _brazier(b, lamps, s * (half + PILLAR + 1.6), -3.0)
+    reach = half + PILLAR + 0.3
+    b.span((-reach, 13.2, -1.1), (reach, 14.6, 1.1), "fur_dusty")                        # lintel, with a crack
+    b.span((5.5, 13.2, -1.13), (5.62, 14.6, -1.1), "fur_soot")
+    b.span((-reach + 0.6, 14.6, -0.9), (-reach + 2.6, 15.0, 0.9), "fur_pewter")          # fallen coping end
+    for (x, ln) in ((-9.6, 2.2), (-8.9, 1.4), (-2.0, 1.0), (7.4, 1.8), (8.2, 2.6), (10.3, 1.2)):  # hanging vines
+        b.span((x - 0.16, 13.2 - ln, -1.27), (x + 0.16, 14.6, -1.13), "leaf_dark")
+        b.ball((x, 13.2 - ln, -1.2), 0.3, "leaf_green", scale=(1.0, 1.0, 0.5))
+    px = 0.45
+    bw = text_width("THE RUINS", px) + 2.4
+    b.span((-bw / 2, 14.65, -0.25), (bw / 2, 17.1, 0.25), "fur_soot")                     # name tablet
+    for (ya, yb) in ((14.65, 14.83), (16.92, 17.1)):
+        b.span((-bw / 2 - 0.06, ya, -0.3), (bw / 2 + 0.06, yb, 0.3), "fur_golden")
+    _title(b, "THE RUINS", 15.88 - 2.5 * px, px, -0.25, 0.25, "fur_golden")
+    for i, w in enumerate((bw * 0.55, bw * 0.38, bw * 0.2)):                               # stepped crest
+        b.span((-w / 2, 17.1 + i * 0.55, -0.4 + i * 0.03), (w / 2, 17.65 + i * 0.55, 0.4 - i * 0.03), "fur_dusty")
+    b.span((-0.6, 18.75, -0.3), (0.6, 19.75, 0.3), "fur_emerald")                          # jade cat head
+    for xa in (-0.6, 0.2):                                                                 # ears
+        b.span((xa, 19.75, -0.2), (xa + 0.4, 20.25, 0.2), "fur_emerald")
+    return 13.2
+
+
+def build_ruins_gate(mat):
+    """Tier 7: the Ruins' 24 stud opening (Config.World.CampOpeningWidth)."""
+    return _gate("CatCafe_Ruins_Gate", mat, 24.0, "fur_emerald", "fur_golden", _ruins)
+
+
 ASSETS = {
     "CatCafe_Park_Gate": (build_park_gate, 6000),
     "CatCafe_Park_GateF85": (build_park_gate_f85, 6000),
@@ -294,4 +398,6 @@ ASSETS = {
     "CatCafe_Neighbourhood_GateF85": (build_neighbourhood_gate_f85, 6000),
     "CatCafe_Woods_Gate": (build_woods_gate, 6000),
     "CatCafe_Sewer_Gate": (build_sewer_gate, 6000),
+    "CatCafe_Desert_Gate": (build_desert_gate, 6000),
+    "CatCafe_Ruins_Gate": (build_ruins_gate, 6000),
 }

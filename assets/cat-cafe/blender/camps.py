@@ -39,6 +39,7 @@ from mathutils import Vector
 import alley
 import alleyway
 import desertset as ds
+import ruinsset as rs
 import neighbourhood as nb
 import park
 import sewer as sw
@@ -82,6 +83,9 @@ AREAS = {
     # Tier 6 (tier6-7-areas.md section 4): the Oasis Camp across the north end of the 150 x 560 Desert
     "Desert": dict(W=150.0, D=560.0, half=12.0, ground=ds.SAND, path=ds.PATH, wall=ds.STONE, top=ds.STONE_LIGHT,
                    trim="eye_amber", theme="Desert"),
+    # Tier 7 (section 5): Broken Gate Camp across the south end of the 140 x 600 Ruins
+    "Ruins": dict(W=140.0, D=600.0, half=12.0, ground=rs.EARTH, path=rs.SANDSTONE_LIGHT, wall=rs.STONE,
+                  top=rs.STONE_LIGHT, trim="fur_emerald", theme="Ruins"),
 }
 CAMPS = {}               # asset -> the manifest's camp entry
 ATTACHMENTS = {}         # asset -> [(object suffix, name, Roblox point, Roblox rotation)]
@@ -299,6 +303,23 @@ def _theme(s, mat, area, G, B, W, half):
         s.put(ds.crate(mat), -66.0, B + 2.4, -5)
         s.put(ds.shrub(mat), -62, G - 6, 0)
         s.put(ds.rock(mat, 1.2), 66, G - 22, 40)
+    elif AREAS[area].get("theme") == "Ruins":
+        # Broken Gate Camp (section 5): the camp inside a fallen temple gate, its two broken pylons standing either
+        # side of the camp, the lintel lying where it fell; two braziers by the cannon (soft fire, no smoke) and two
+        # by the way out; columns, drums, urns and rubble along the back wall. Clear of the pad, the basket, the
+        # paths, the Index Board (-16, 4 in) and the camp extra's spot (20, 3.5 in).
+        for sx in (1, -1):
+            s.put(rs.gate_pylon(mat, 14.0, sx), sx * 34.0, G - 14.0, 0)
+            s.put(rs.brazier(mat), sx * 9, cz, 0)
+            s.put(rs.brazier(mat), sx * (W / 2 - 3), G - 2.5, 0)
+            s.put(rs.column(mat, 11.0, sx > 0), sx * 54.0, B + 3.0, 0)
+            s.put(rs.stone_urn(mat), sx * 16.0, B + 2.4, 0)
+        s.put(rs.fallen_lintel(mat), -48.0, G - 24.0, 8)
+        s.put(rs.drums(mat), 46.0, G - 22.0, -15)
+        s.put(rs.gargoyle(mat), -24.0, G - 25.5, 0)
+        s.put(rs.gargoyle(mat), 24.0, G - 25.5, 0)
+        for (x, z, k) in ((-62.0, G - 10.0, 1.0), (60.0, G - 9.0, 1.2), (-30.0, B + 2.0, 0.9), (38.0, B + 2.5, 1.1)):
+            s.put(rs.rubble(mat, k), x, z, (x * 7) % 360)
 
 
 def rbx_attachments(name):

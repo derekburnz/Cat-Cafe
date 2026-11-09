@@ -76,7 +76,7 @@ return function()
 	end)
 
 	describe("tier and tierMultiplier (section 5b)", function()
-		it("reads the saved tier, 1 for a missing or damaged one, clamped to 1 to 5", function()
+		it("reads the saved tier, 1 for a missing or damaged one, clamped to 1 to 7", function()
 			local p = freshProfile()
 			expect(Economy.tier(p)).to.equal(1)
 			for _, case in ipairs({
@@ -86,7 +86,8 @@ return function()
 				{ -3, 1 },
 				{ 2.7, 2 },
 				{ 5, 5 },
-				{ 9, 5 },
+				{ 7, 7 }, -- #2651
+				{ 9, 7 },
 			}) do
 				p.tier = case[1]
 				expect(Economy.tier(p)).to.equal(case[2])
@@ -763,10 +764,10 @@ return function()
 			end
 		)
 
-		it("at Tier 5 everything can go to its max level and then says Already maxed", function()
+		it("at Tier 7 everything can go to its max level and then says Already maxed", function()
 			local p = freshProfile()
-			p.tier = 5
-			p.coins = 1e8 -- the Royal Bowl is 50,000,000 (F82, F95)
+			p.tier = 7 -- #2651
+			p.coins = 1e12 -- the Lucky Cat 7 is 50,000,000,000 (#2651)
 			for _, def in ipairs(Catalog.upgrades) do
 				p.upgradeLevels[def.id] = def.maxLevel - 1
 				expect(Economy.upgradeBlocker(p, def.id)).never.to.be.ok()
@@ -1207,11 +1208,11 @@ return function()
 			end
 		)
 
-		it("at Tier 5 there is nothing left, whatever the coins", function()
-			local p = profileWith(5, 40, "Legendary", 5)
-			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Grand Cafe")
+		it("at Tier 7 there is nothing left, whatever the coins", function()
+			local p = profileWith(7, 60, "Mythical", 5) -- #2651: Tier 7 is the top
+			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Wonder Cafe")
 			p.tier = 99 -- clamped like Economy.tier
-			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Grand Cafe")
+			expect(Economy.rankUpBlocker(p)).to.equal("Your cafe is already a Wonder Cafe")
 		end)
 
 		it("a damaged tier reads the way Economy.tier does (0 and 1.5 are Tier 1)", function()

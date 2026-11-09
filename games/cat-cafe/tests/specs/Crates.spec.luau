@@ -1,5 +1,5 @@
 --!strict
--- shared/Crates.luau and the 84 crate pieces (F53, F80 and F101, golden-fish.md sections 3, 4, 4b and 8, rescue-rally.md
+-- shared/Crates.luau and the 108 crate pieces (F53, F80 and F101, golden-fish.md sections 3, 4, 4b and 8, rescue-rally.md
 -- section 3): the rolls, the
 -- lucky twentieth, refunds, decor spots, style slots, Decor Index pages, what opens and what the Market sells, and
 -- the income they add.
@@ -12,7 +12,8 @@ return function()
 	local ProfileSchema = require(Shared.ProfileSchema)
 
 	local POOLS = { "alley", "park", "neighbourhood", "woods", "sewer", "classic" } -- sold, each with a golden twin
-	local ALL_POOLS = { "alley", "park", "neighbourhood", "woods", "sewer", "classic", "rally" } -- and F101's Rally Crate
+	-- and F101's Rally Crate, and #2651's Desert and Ruins
+	local ALL_POOLS = { "alley", "park", "neighbourhood", "woods", "sewer", "desert", "ruins", "classic", "rally" }
 	local KINDS = { "wallpaper", "floor", "paint", "furniture", "decoration" } -- two of each a pool
 	local MODEL_KINDS = { "door", "catflap" } -- one of each a pool since F80
 	local PER_RARITY: { [string]: number } =
@@ -39,11 +40,11 @@ return function()
 		end
 	end
 
-	describe("the 84 pieces (sections 4 and 4b)", function()
+	describe("the 108 pieces (sections 4 and 4b)", function()
 		it(
 			"gives each pool twelve pieces: two of each kind, a door set and a cat flap, rarities 5, 4, 1, 1, 1",
 			function()
-				expect(#Catalog.crateDecor).to.equal(84)
+				expect(#Catalog.crateDecor).to.equal(108)
 				for _, pool in ALL_POOLS do
 					local kinds: { [string]: number } = {}
 					local rarities: { [string]: number } = {}
@@ -721,6 +722,17 @@ return function()
 				flap = "sewer_pipe_ring_flap",
 				commonDoor = false,
 			},
+			-- #2651 (tier6-7-areas.md 7b): the Desert's Common door and the Ruins' Rare one
+			desert = {
+				door = "desert_arch_gate_door",
+				flap = "desert_sun_disc_flap",
+				commonDoor = true,
+			},
+			ruins = {
+				door = "ruins_temple_gate_door",
+				flap = "ruins_keyhole_flap",
+				commonDoor = false,
+			},
 			classic = {
 				door = "classic_paned_glass_door",
 				flap = "classic_bell_flap",
@@ -786,14 +798,14 @@ return function()
 					listed[want.flap] = true
 				end
 				local pieces = modelPieces()
-				expect(#pieces).to.equal(14)
+				expect(#pieces).to.equal(18)
 				for _, def in pieces do
 					expect(listed[def.id]).to.equal(true)
 				end
 			end
 		)
 
-		it("gives every one of the 84 pieces its own id and its own model", function()
+		it("gives every one of the 108 pieces its own id and its own model", function()
 			local ids: { [string]: boolean } = {}
 			local assets: { [string]: string } = {}
 			for _, def in Catalog.crateDecor do

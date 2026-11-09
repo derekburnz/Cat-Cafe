@@ -249,6 +249,12 @@ local Config = {
 	NetReachStuds = 7,
 	NetSlackStuds = 1.5,
 	NetArcDegrees = 60,
+	-- #2693 (Derek2 2026-11-09: easier to hit on mobile): within NetNearStuds of the feet the arc is NetNearArcDegrees
+	-- either side, and within NetFrontArcDegrees of straight ahead the reach is NetFrontExtraStuds longer
+	NetNearStuds = 4,
+	NetNearArcDegrees = 80,
+	NetFrontArcDegrees = 25,
+	NetFrontExtraStuds = 0.5,
 	NetMissHopStuds = 12,
 	NetMissHopShare = 0.25,
 	-- The bait bowl (data-model section 8): a cat comes LureWaitSeconds after the food goes in, online or not.

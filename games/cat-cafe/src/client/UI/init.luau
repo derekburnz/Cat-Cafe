@@ -143,6 +143,7 @@ UI.events = {
 	buyDealerFood = Signal.new(),
 	buyDealerAll = Signal.new(), -- (window)   #2573: Buy all on the night dealer screen: forward as BuyDealerAll
 	claimRichTip = Signal.new(), -- ()   Collect on the rich tip marker over your cafe: forward as ClaimRichTip (F31)
+	takeCozy = Signal.new(), -- ()   #2854: the Rewards list's "Cozy gift waiting!" row: forward as TakeCozy
 	-- design v0.5
 	tackle = Signal.new(), -- ()   the Tackle button or Q: lunge and forward as Tackle (F74, no target)
 	netSwing = Signal.new(), -- ()   the Net button on a touch screen (F93): swing, as a click in the world or R2 (NetSwingController)
@@ -787,6 +788,9 @@ function UI.init(config: Types.InitConfig)
 			UI.events.travel:Fire(destination)
 		end,
 		openBait = openBait,
+		takeCozy = function()
+			UI.events.takeCozy:Fire()
+		end,
 		-- #2353: the X2 Cash pill opens Roblox's window for the 2x pass, through the Store's tap guard (#1936)
 		buyPass = function(id: number)
 			local PassShop = require(script.Components.PassShop)
@@ -2048,10 +2052,10 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 			end
 		end
 		-- #2833 (Derek2: "only do the double pop-up if its a legendary+ or any new cat"): a repeat below Legendary
-		-- gets a toast, not the big card (Components/CatFoundLogic)
+		-- gets no big card (Components/CatFoundLogic), and #2844 no "joined your cafe" toast either ("it just adds
+		-- bloat"): the catch's own small pop-up already said it
 		local CatFoundLogic = require(script.Components.CatFoundLogic) :: any
 		if not CatFoundLogic.big(def.rarity, isNew, info) then
-			UI.toast(CatFoundLogic.toast(def.name, info.charmGain), "good")
 			return
 		end
 		popups:showCatFound(def, isNew, info)

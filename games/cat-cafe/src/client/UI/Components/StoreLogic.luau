@@ -251,6 +251,7 @@ export type ProductPrize = {
 	potions: { [string]: number },
 	cats: { string }?, -- #1625: the Starter Bundle's Sprinkles
 	signStyles: { string }?, -- #1625: the Starter Bundle's Bakery Stripes
+	moneyMultiplier: number?, -- #2850: the Starter Bundle's 2x Money for good
 }
 -- The running Cafe Pass season for its card: its number, its name, whether its paid track is bought, and the paid
 -- track's contents in words (PassLogic.paidContents).
@@ -309,7 +310,8 @@ StoreLogic.SIGN_STYLE_NAMES = {
 	royal_crest = "Royal Crest",
 } :: { [string]: string }
 
--- "Sprinkles the cat, Bakery Stripes sign style": a prize's cats and sign styles in words, or nil when it has none.
+-- "2x Money for good, Sprinkles the cat, Bakery Stripes sign style": a prize's money multiplier (#2850), cats and sign
+-- styles in words, or nil when it has none.
 -- An id with no name yet reads as its words ("new_cat" is "New Cat").
 local function titled(id: string): string
 	local words: { string } = {}
@@ -321,6 +323,10 @@ end
 function StoreLogic.extras(prize: ProductPrize, catNames: { [string]: string }?): string?
 	local parts: { string } = {}
 	local names: { [string]: string } = catNames or {}
+	local multiplier = prize.moneyMultiplier
+	if type(multiplier) == "number" and multiplier > 1 then
+		table.insert(parts, ("%dx Money for good"):format(multiplier))
+	end
 	local cats: { string } = prize.cats or {}
 	for _, id in cats do
 		table.insert(parts, (names[id] or titled(id)) .. " the cat")
@@ -360,6 +366,21 @@ function StoreLogic.contents(
 	end
 	table.insert(parts, ("In your bag: %d"):format(owned))
 	return table.concat(parts, "\n")
+end
+
+-- #2850: the same contents on one line, biggest first, without the bag count and with "Potion" said once at the end:
+-- "10x Big Money, 5x Swift potions" (the Starter Bundle's card, whose bigger prize no longer fits a row per potion on
+-- the Featured hero of a small phone)
+function StoreLogic.contentsLine(
+	potions: { [string]: number },
+	names: { [string]: string }?
+): string
+	local rows = StoreLogic.contents(potions, names, nil):split("\n")
+	table.remove(rows) -- the "In your bag" line
+	for index, row in rows do
+		rows[index] = row:gsub(" Potion$", "")
+	end
+	return table.concat(rows, ", ") .. " potions"
 end
 
 local function productRows(config: any, view: ShopView?): { Row }
@@ -414,9 +435,10 @@ local function starterRow(config: any, view: ShopView?): Row?
 	if extras then
 		effect ..= "\n" .. extras
 	end
+	-- #2850: the potions on one line, so the bigger bundle still fits the Featured hero on a phone
 	local potions = def.prize.potions
 	if potions and next(potions) ~= nil then
-		effect ..= "\n" .. StoreLogic.contents(potions, view.potionNames, view.have)
+		effect ..= "\n" .. StoreLogic.contentsLine(potions, view.potionNames)
 	end
 	local row: Row = {
 		key = STARTER.key,
@@ -798,13 +820,14 @@ local HERO_ORDER = { "starterBundle", "kingPack", "cafePass", "royalCat", "grand
 -- The top picks, left to right: the money ladder's next rung, Long Nap and the King Cat Pack (the Royal Cat when the
 -- King Cat Pack is the hero).
 -- #1823 §1: the Cafe Pass first, then the best sellers (2x Money and Long Nap until the growth thread has sales data)
-local PICK_ORDER = { "cafePass", "money", "longNap", "kingPack", "royalCat" }
+-- #2850 (Derek2: "move the 999 pack and extra food bowl somewhere in featured"): the King Cat Pack and the Second Bait
+-- Bowl lead, then the Cafe Pass; 2x Money and Long Nap fill in once one of those is owned
+local PICK_ORDER = { "kingPack", "secondBowl", "cafePass", "money", "longNap", "royalCat" }
 -- #2303 (Derek2: "remove the 3 potion bundles and add things like the +1 bowl or more popular passes"): once those
 -- are owned, the next picks are passes the player keeps, ordered by what they do for play first (more cats, more
 -- slots, more pay), then looks (Monetization-Agent's order). Any other pass comes next; the potion packs and the
 -- other products bought each time only fill a pick once every pass is owned.
 local PASS_PICKS = {
-	"secondBowl",
 	"extraSlot",
 	"vip",
 	"accessories",

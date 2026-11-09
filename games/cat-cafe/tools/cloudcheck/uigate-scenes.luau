@@ -1556,6 +1556,23 @@ local SCENES = {
 	end },
 	{ "RankUp", function()
 		UI.open("RankUp")
+		-- #2839 (Derek2, phone: "buttons squished"): the Perks button fits inside the header and stays clear of the X
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local root = modals and modals:FindFirstChild("Root")
+		local container = root and root:FindFirstChild("Container")
+		local window = container and container:FindFirstChild("RankUp") :: GuiObject?
+		local perks = window and window:FindFirstChild("Perks", true) :: GuiObject?
+		local close = window and window:FindFirstChild("Close", true) :: GuiObject?
+		local header = window and window:FindFirstChild("Header", true) :: GuiObject?
+		assert(perks and close and header, "uigate: no Perks button, X or header on Rank Up (#2839)")
+		local face = (perks :: GuiObject):FindFirstChild("Face") :: GuiObject?
+		local shown = face or perks :: GuiObject
+		local top, bottom = shown.AbsolutePosition.Y, shown.AbsolutePosition.Y + shown.AbsoluteSize.Y
+		local headerTop = (header :: GuiObject).AbsolutePosition.Y
+		local headerBottom = headerTop + (header :: GuiObject).AbsoluteSize.Y
+		assert(top >= headerTop - 1 and bottom <= headerBottom + 1, ("uigate: the Perks button (%d-%d) runs out of the header (%d-%d) (#2839)"):format(top, bottom, headerTop, headerBottom))
+		local gap = (close :: GuiObject).AbsolutePosition.X - (shown.AbsolutePosition.X + shown.AbsoluteSize.X)
+		assert(gap >= 8, ("uigate: the Perks button is %d px from the X (#2839)"):format(gap))
 	end },
 	{ "RankUpTier2", function()
 		-- #2121: the Tier 1 card lists all five upgrade caps now Bait Bowl 3 opens at Tier 2; the line still fits
@@ -2273,6 +2290,14 @@ local SCENES = {
 		assert(pop.Visible, "uigate: the Rewards list closed (#2798)")
 		words = row:FindFirstChild("Label", true)
 		assert(words and words.Text == "Cozy gift waiting!", "uigate: the waiting bag's row reads " .. tostring(words and words.Text) .. " (#2798)")
+		-- #2854 (Derek2: "make it auto claim if clicked"): a press on the waiting bag's row asks the server to take it
+		local asked = 0
+		local connection = UI.events.takeCozy:Connect(function()
+			asked += 1
+		end)
+		press("CatCafeHUD", "Pop.Cozy")
+		connection:Disconnect()
+		assert(asked == 1, "uigate: the Cozy gift row's press did not ask to take the bag (#2854)")
 	end },
 	-- #1893: step 8's Grand Opening banner
 	{ "GrandOpeningDone", function()
@@ -4969,8 +4994,8 @@ local SCENES = {
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
 	end },
-	-- #2833 (Derek2: "only do the double pop-up if its a legendary+ or any new cat"): a repeat Common catch gets a toast,
-	-- not the big card; a repeat Legendary still gets the card
+	-- #2833 (Derek2: "only do the double pop-up if its a legendary+ or any new cat"): a repeat Common catch gets no big
+	-- card and (#2844) no toast; a repeat Legendary still gets the card
 	{ "CatFoundRepeat", function()
 		local common, legendary = nil, nil
 		for _, def in Catalog.cats do
@@ -4997,14 +5022,12 @@ local SCENES = {
 		UI.showCatFound(common.id, false, { charmGain = 2 })
 		UIShim.advance(0.3)
 		assert(not shown(), "uigate: a repeat Common catch opened the big card (#2833)")
-		local words = "🐱 " .. common.name .. " joined your cafe!  Charm +2"
-		local toast = nil
+		-- #2844: and no "joined your cafe" toast either
 		for _, label in UIShim.playerGui:GetDescendants() do
-			if label:IsA("TextLabel") and label.Name == "Text" and label.Text == words then
-				toast = label
+			if label:IsA("TextLabel") and string.find(label.Text, "joined your cafe", 1, true) then
+				error("uigate: a repeat Common catch still shows a joined your cafe toast (#2844)")
 			end
 		end
-		assert(toast ~= nil, "uigate: no toast for a repeat Common catch (#2833)")
 		UI.showCatFound(legendary.id, false)
 		UIShim.advance(0.3)
 		assert(shown(), "uigate: a repeat Legendary catch did not open the big card (#2833)")
@@ -5767,6 +5790,28 @@ local SCENES = {
 		local chip = assertEventChip(1)
 		assert(chip.Text == "⏳ Cafe Party in 2:59", "uigate: the event chip reads " .. chip.Text .. " (#2487)")
 	end },
+	-- #2860 (Derek2: the event "flashes and shows during catching minigames when it should be hidden"): the chip's
+	-- countdown repaints every second, and mid-catch it stays down; after the catch it is back
+	{ "CafeEventCatch", function()
+		local t = workspace:GetServerTimeNow()
+		Scenes._cafeEvent = true
+		cafeEvent({ EventStartsAt = t - 20, EventEndsAt = t + 7180, EventRunning = true })
+		local chip = assertEventChip(2) -- running: "ends in 1:59:40" repaints every second
+		local nextLine = UIShim.playerGui:FindFirstChild("EventNext", true) :: TextLabel
+		startCatch("gate_eventchip", "Rare", 3, 0.2, 0.9)
+		UIShim.advance(0.3)
+		assert(UI.catch.circlesActive(), "uigate: the catch circles did not start")
+		for _ = 1, 3 do
+			UIShim.advance(1.1)
+			UI.cafeEvent.tick()
+			assert(not chip.Visible and not nextLine.Visible, "uigate: the Cafe Event chip showed mid-catch on its tick (#2860)")
+		end
+		UI.catch.hideCircles()
+		UI.catch.hide()
+		UIShim.advance(0.5)
+		UI.cafeEvent.tick()
+		assert(chip.Visible and nextLine.Visible, "uigate: the Cafe Event chip did not come back after the catch (#2860)")
+	end },
 	-- #2487: the party running: the start banner and the gold chip with the end and the next shower
 	{ "CafeEventRunning", function()
 		local t = workspace:GetServerTimeNow()
@@ -6166,6 +6211,25 @@ local SCENES = {
 		UI.store.preview(storePrices(true), {})
 		UI.open("Store")
 		assertStoreCards(true)
+	end },
+	-- #2850 (Derek2: "move the 999 pack and extra food bowl somewhere in featured"): with the Starter Bundle unbought
+	-- it is the hero, and the King Cat Pack and the Second Bait Bowl lead the picks; the hero lists the bundle's contents
+	{ "StoreStarter", function()
+		UI.update({ starterBought = false } :: any)
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local storeWindow = modals and modals:FindFirstChild("Store", true)
+		assert(storeWindow, "uigate: no Store window (#2850)")
+		local names = {}
+		for _, label in storeWindow:GetDescendants() do
+			if label:IsA("TextLabel") and label.Visible then
+				names[label.Text] = true
+			end
+		end
+		for _, name in { "Starter Bundle", "King Cat Pack", "Second Bait Bowl" } do
+			assert(names[name], "uigate: Featured does not show " .. name .. " (#2850)")
+		end
 	end },
 	-- #1888: the Store funnel reports each tab once a visit (deferred past the open) and the first buy of a visit
 	{ "StoreFunnel", function()

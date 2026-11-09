@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09 05:43 UTC",
+  "generated": "2026-11-09 06:09 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -301526,11 +301526,11 @@
       "size_studs": {
         "x": 3.38,
         "y": 3.38,
-        "z": 0.08
+        "z": 0.1
       },
       "size_roblox": [
         3.38,
-        0.08,
+        0.1,
         3.38
       ],
       "bounds_min": [
@@ -301541,7 +301541,7 @@
       "bounds_max": [
         1.69,
         1.69,
-        0.08
+        0.1
       ],
       "pivot": "the centre of its bottom face, lying flat; the picture's top points +Z",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -301729,7 +301729,7 @@
         "CatCafe_Square_MysteryCart_Cat_Prop",
         "CatCafe_Square_MysteryCart_Cat_Cloak"
       ],
-      "triangles": 9764,
+      "triangles": 9834,
       "budget": 10000,
       "size_studs": {
         "x": 10.06,
@@ -301883,7 +301883,7 @@
       ],
       "studio": "#2565 (mystery-market.md section 4, look A): Juniper's covered wagon in the Town Square's south-west quarter (Layout.mysteryCart, turned to face the cannon). WorldBuilder names it MysteryMarket, tags it MysteryMarket and hangs the MysteryPrompt on the Attachment PromptAnchor (before the counter, 3 up). The Attachment FeaturedItem is the pedestal's top centre, where the week's featured item can sit and turn. Juniper's hood rides its Head Model; the lanterns (_Bulb) are lit at night; the rug and the lantern cord (_Decor) never collide. Everything, rug included, fits mysterymarket.FOOT so the walk-up ring lands as planned.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_MysteryCart.model.json",
-      "rbx_parts": 711,
+      "rbx_parts": 712,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Square_MysteryCart.fbx",
         "assets/cat-cafe/exports/CatCafe_Square_MysteryCart.glb"
@@ -301895,10 +301895,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "9764/10000 tris",
+          "budget": "9834/10000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "4793 faces on swatch centers",
+          "uv": "4818 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.02 y=-0.72"

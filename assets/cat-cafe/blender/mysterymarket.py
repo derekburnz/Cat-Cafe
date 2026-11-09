@@ -172,7 +172,10 @@ def _under(b):
 
 def _hood(b):
     """The canvas: a half cylinder (its lower half inside the body), dark hoops, stitched patches and gold stars."""
-    b.cyl((OX, BY1, 0), HOOD_R, 2 * HOOD_X, CANVAS, axis="X", segments=24)
+    # #2647: the hood in two halves, so the body (an unturned box) stays the biggest part: rbx_export makes the biggest
+    # part the PrimaryPart, and MarketBang hangs the "!" on the PrimaryPart (a turned hood put it off to the side)
+    for s in (-1, 1):
+        b.cyl((OX + s * HOOD_X / 2, BY1, 0), HOOD_R, HOOD_X, CANVAS, axis="X", segments=24)
     n, rm = 10, HOOD_R - 0.01                                                       # the hoops: the upper half
     chord = 2 * rm * math.sin(math.radians(90 / n)) * 1.08                          # only, ten blocks each
     for x in (OX - HOOD_X + 0.06, OX - 1.1, OX + 1.1, OX + HOOD_X - 0.06):

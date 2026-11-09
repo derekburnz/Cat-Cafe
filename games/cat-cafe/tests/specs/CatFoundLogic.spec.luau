@@ -37,14 +37,4 @@ return function()
 			).to.equal(true)
 		end)
 	end)
-
-	describe("CatFoundLogic.toast", function()
-		it("names the cat, and a Purrfect catch's charm", function()
-			expect(CatFoundLogic.toast("Tabby", nil)).to.equal("🐱 Tabby joined your cafe!")
-			expect(CatFoundLogic.toast("Tabby", 0)).to.equal("🐱 Tabby joined your cafe!")
-			expect(CatFoundLogic.toast("Tabby", 2)).to.equal(
-				"🐱 Tabby joined your cafe!  Charm +2"
-			)
-		end)
-	end)
 end

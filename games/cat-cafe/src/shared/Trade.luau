@@ -31,8 +31,6 @@ Trade.Messages = {
 	off = "Trading is resting for now",
 	tier = "Trading opens at Tier %d",
 	theirTier = "%s can trade from Tier %d",
-	notSafe = "Trade in the town or a camp",
-	theirNotSafe = "%s is out in the wild",
 	busy = "Finish what you're doing first",
 	theirBusy = "%s is busy right now",
 	inTrade = "You're already trading",
@@ -219,7 +217,6 @@ end
 Trade.Ended = {
 	cancelled = "Trade cancelled",
 	left = "%s left",
-	notSafe = "Out of the safe zone",
 	busy = "Trade cancelled: someone got busy",
 	off = "Trading is resting for now",
 	failed = "The trade couldn't finish. Nothing moved.",
@@ -421,7 +418,6 @@ end
 -- What TradeService knows about one player when they ask or are asked (section 2).
 export type Facts = {
 	tier: number,
-	safe: boolean, -- in the town or a camp
 	busy: boolean, -- carrying, catching, rescuing or flying
 	inTrade: boolean,
 	sinceLastTrade: number, -- seconds since their last trade ended in a swap, math.huge for none
@@ -452,8 +448,6 @@ function Trade.askRefusal(
 		return Trade.Messages.asking
 	elseif from.busy then
 		return Trade.Messages.busy
-	elseif not from.safe then
-		return Trade.Messages.notSafe
 	elseif from.sinceLastTrade < Config.TradeCooldownSeconds then
 		return Trade.Messages.cooldown
 	elseif from.today >= Config.TradesPerDay then
@@ -470,26 +464,17 @@ function Trade.askRefusal(
 		return string.format(Trade.Messages.theirInTrade, to.name)
 	elseif to.busy then
 		return string.format(Trade.Messages.theirBusy, to.name)
-	elseif not to.safe then
-		return string.format(Trade.Messages.theirNotSafe, to.name)
 	elseif to.today >= Config.TradesPerDay then
 		return string.format(Trade.Messages.theirDaily, to.name)
 	end
 	return nil
 end
 
--- Why a trade open between two players must end now, or nil: the kill switch, either out of a safe zone or busy.
-function Trade.endReason(
-	on: boolean,
-	aSafe: boolean,
-	bSafe: boolean,
-	aBusy: boolean,
-	bBusy: boolean
-): string?
+-- Why a trade open between two players must end now, or nil: the kill switch, or either busy. #2568 (Derek2
+-- 2026-11-09: "add trading from anywhere"): where they stand no longer matters.
+function Trade.endReason(on: boolean, aBusy: boolean, bBusy: boolean): string?
 	if not on then
 		return Trade.Ended.off
-	elseif not aSafe or not bSafe then
-		return Trade.Ended.notSafe
 	elseif aBusy or bBusy then
 		return Trade.Ended.busy
 	end

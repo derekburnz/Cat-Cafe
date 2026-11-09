@@ -89,6 +89,7 @@ type Stray = {
 	recaught: boolean,
 	funnel: Telemetry.CatchFunnel?, -- the lock holder's catch_attempt funnel (F16)
 	knocks: number, -- F84: times tackles knocked this cat loose since it was first caught (camp_checkin)
+	pity: boolean?, -- #2567: a pity or shower cat (and the cat it became when knocked loose): no cross-server line
 	-- F87 (easy-start.md section 2b): the user id of the beginner this tutorial stray waits for, mirrored in the
 	-- model's Beginner attribute (0 when none). Only they can swing at it; their catch is one slow circle and a
 	-- Miss brings it back instead of sending the cat running. LockedBy stays the catch lock the effects read.
@@ -117,6 +118,7 @@ type Carry = {
 	rushUntil: number?, -- server time the Catch Rush ends (F55); nil for a picked-up cat
 	homePos: Vector3?, -- F67: where it was caught (a rescue: the cat spot nearest its trap), for a Drop to walk back to
 	knocks: number, -- F84: times tackles knocked it loose since it was first caught (camp_checkin)
+	pity: boolean?, -- #2567: a pity or shower cat, so its check-in line stays in this server
 	bonusXp: number?, -- #1884 (catch-rework.md 7d): a PURRFECT catch's XP, given as it checks in
 }
 
@@ -129,6 +131,7 @@ type Kept = {
 	homePos: Vector3?, -- F67: where it was caught, carried on to the next carry
 	returning: boolean?, -- F67: let go with the Drop button, so it walks back to homePos
 	knocks: number?, -- F84: times tackles knocked it loose so far
+	pity: boolean?, -- #2567
 }
 
 local world: WorldBuilder.World
@@ -626,6 +629,7 @@ local function spawnStray(
 		homePos = if kept ~= nil then kept.homePos else nil,
 		returning = kept ~= nil and kept.returning == true,
 		knocks = if kept ~= nil then kept.knocks or 0 else 0,
+		pity = kept ~= nil and kept.pity == true,
 		recaught = false,
 		beginner = beginner,
 		mood = mood,
@@ -1074,7 +1078,8 @@ local function startCarry(
 	funnel: Telemetry.CatchFunnel?,
 	homePos: Vector3?,
 	knocks: number?,
-	bonusXp: number?
+	bonusXp: number?,
+	pity: boolean?
 ): boolean
 	if carrying[player] ~= nil then
 		warn(
@@ -1098,6 +1103,7 @@ local function startCarry(
 		homePos = homePos,
 		knocks = knocks or 0,
 		bonusXp = bonusXp,
+		pity = pity,
 	}
 	carrying[player] = carry
 	attachHeldCat(player, carry)
@@ -1444,6 +1450,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		local at = stray.model:GetPivot().Position
 		local homePos = Vector3.new(at.X, stray.home.Y, at.Z)
 		local knocks = stray.knocks
+		local pity = stray.pity
 		local area = stray.area
 		-- #1181 (corner-shop-v2.md section 3): 1 in CatchSnackChance a stray's net catch drops a Small Snack, never a
 		-- Dropped or re-caught cat's, so shoving and catching one cat again cannot farm them
@@ -1454,7 +1461,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		local bonusXp = if finishKind == "purrfect" and not profile.flags.autoPress
 			then Config.CatXpBase
 			else nil
-		startCarry(player, def, method, charm, variant, nil, funnel, homePos, knocks, bonusXp)
+		startCarry(player, def, method, charm, variant, nil, funnel, homePos, knocks, bonusXp, pity)
 		if dropsSnack then
 			local paid =
 				Payout.pay(player, profile, { catFood = { small_cat_snack = 1 } }, "catch_snack")
@@ -1515,6 +1522,7 @@ local function knockLoose(target: Player, shoverUserId: number, areaId: string):
 		drop = Shove.newDrop(target.UserId, shoverUserId, serverNow()),
 		homePos = carry.homePos,
 		knocks = carry.knocks + (if shoverUserId ~= 0 then 1 else 0),
+		pity = carry.pity,
 	})
 end
 
@@ -1724,9 +1732,9 @@ local function pickUp(player: Player, profile: Types.PlayerProfile, stray: Stray
 	profile.stats.pickups += 1
 	local method: Types.CatchMethod = stray.method
 	local def, charm, variant, homePos = stray.def, stray.charm, stray.variant, stray.homePos
-	local knocks = stray.knocks
+	local knocks, pity = stray.knocks, stray.pity
 	despawn(stray, player) -- logs drop_outcome against the player who ended up with it
-	startCarry(player, def, method, charm, variant, true, nil, homePos, knocks)
+	startCarry(player, def, method, charm, variant, true, nil, homePos, knocks, nil, pity)
 	return nil
 end
 
@@ -1958,7 +1966,8 @@ local function checkIn(player: Player, carry: Carry, notify: boolean, profile: T
 		RareMomentService.shoutOut(
 			player,
 			def.rarity,
-			Catching.shoutOut(player.DisplayName, verb, def, carry.variant)
+			Catching.shoutOut(player.DisplayName, verb, def, carry.variant),
+			carry.pity == true -- #2567: a pity or shower cat's line stays in this server
 		)
 		RareMomentService.secured(player, def, carry.variant, carry.method, hadEpicOrBetter)
 		EventRewardService.secured(player) -- #2486: a Cafe Event's reward for a secure in its window
@@ -1994,6 +2003,7 @@ local function leaveAtDusk(stray: Stray)
 		immuneUntil = 0,
 		funnel = nil,
 		knocks = stray.knocks,
+		pity = stray.pity,
 	}
 	despawn(stray, owner)
 	checkIn(owner, carry, true)
@@ -2261,6 +2271,7 @@ local function dropAtNight(player: Player, carry: Carry, root: Vector3?)
 		drop = Shove.newDrop(player.UserId, 0, serverNow()),
 		homePos = carry.homePos,
 		knocks = carry.knocks,
+		pity = carry.pity,
 	})
 	local areaDef = Catalog.getArea(homeId)
 	Net.toast(
@@ -2318,6 +2329,7 @@ local function dropCarry(player: Player, died: boolean)
 			homePos = home,
 			returning = true,
 			knocks = carry.knocks,
+			pity = carry.pity,
 		}
 	)
 	task.spawn(walkHome, stray, home)
@@ -2744,8 +2756,13 @@ end
 
 -- Why the player cannot leave by fast travel right now, or nil: carrying a cat (walking it home is the loop and
 -- bumps depend on it), or in the middle of a catch or a rescue.
-function CatService.busyReason(player: Player): string?
-	if inFlight(player) then
+-- `hopOk` (#2568, an open trade) lets a cloud hop through: the night's trip home keeps a trade going.
+function CatService.busyReason(player: Player, hopOk: boolean?): string?
+	local character = player.Character
+	local hopping = character ~= nil
+		and character:GetAttribute("CloudHopAt") ~= nil
+		and character:GetAttribute("Launching") ~= true
+	if inFlight(player) and not (hopOk == true and hopping) then
 		return "You're already flying"
 	end
 	if carrying[player] ~= nil then
@@ -2785,6 +2802,7 @@ function CatService.spawnPity(
 	local stray = spawnStray(def, areaId, point.Position, pointIndex, nil, coat)
 	stray.model:SetAttribute(Pity.ATTRIBUTE, kind)
 	stray.model:SetAttribute(Pity.SLOT_ATTRIBUTE, slot)
+	stray.pity = true
 	return stray.id
 end
 

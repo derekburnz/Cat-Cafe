@@ -794,6 +794,12 @@ local function wireIntents()
 			end
 		)
 	end
+	-- #2593: Buy all on a Day Cart section; the server plans from its own state and answers with CornerShopStock
+	if looseEvents.buyCornerShopAll ~= nil then
+		looseEvents.buyCornerShopAll:Connect(function(kind: string, window: number)
+			Net.fire("BuyCornerShopAll", kind, window)
+		end)
+	end
 	-- Feed on the Bag's Cat Food tab or a cat card (#1181): the server answers FeedResult and a ProfileSync, or a toast.
 	-- Loose until UI-Engineer's Signal (friend/bag-ui) is on main.
 	if looseEvents.feedCat ~= nil then

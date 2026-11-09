@@ -302,6 +302,18 @@ function Pity.caughtText(winnerName: string): string
 	return string.format("%s caught the pity cat!", winnerName)
 end
 
+-- #2567: the catch banner in a server, from the winner's name when the catch was there, else nil: a pity cat caught
+-- in another server shows no banner, name or chat line (its copy here still puffs away).
+function Pity.caughtBanner(winnerName: string?): string?
+	if winnerName == nil or winnerName == "" then
+		return nil
+	end
+	return Pity.caughtText(winnerName)
+end
+
+-- #2567: the toast for a catch here that another server's catch beat (a pity or Cafe Event shower cat).
+Pity.LOST_TEXT = "A player in another server caught it first, so it puffed out of your net."
+
 -- A countdown for the sign: "12:30" under an hour, "1:42:10" from an hour.
 function Pity.countdownText(seconds: number): string
 	local left = math.max(0, math.ceil(seconds))

@@ -38,7 +38,7 @@ return function()
 		RescuePatience = 3,
 		RescueRetrySeconds = 3,
 		RescueSelfRetrySeconds = 6,
-		RescueAttemptMaxSeconds = 15,
+		RescueAttemptMaxSeconds = 22, -- #2566 (was 15)
 		GoldChanceRescue = 0.12,
 		RescuedTipsMultiplier = 1.0, -- v0.3 (F22): a rescue pays no more; its reward is the gold chance
 		GrabRangeStuds = 10,
@@ -312,7 +312,9 @@ return function()
 		RallyPointsPerPlayer = 22,
 		RallyMinPlayers = 3,
 		RallyMinPoints = 3,
-		RallyMaxLaps = 4,
+		RallyMaxLaps = 10, -- #2608 (was 4)
+		RallyLapFishStep = 0.10,
+		RallyLapCap = 4,
 		RallyStateSeconds = 0.5,
 		-- Shove (F29 and v0.5 F41, section 10c; v0.5 same target cooldown 20, v0.5.1 target immunity S45; v0.8 F56)
 		BumpEnabled = true,
@@ -823,14 +825,14 @@ return function()
 		)
 
 		it(
-			"the rescue bar matches the section 10b table: rarer is faster with less time in the zone (v0.13.15 F83, #2219, #2320)",
+			"the rescue bar matches the section 10b table: rarer has less time in the zone (v0.13.15 F83, #2219, #2320, #2566)",
 			function()
 				local rows = {
 					Common = { 0.85, 0.30 }, -- #2320
-					Rare = { 1.05, 0.23 }, -- #2320
-					Epic = { 1.4, 0.15 },
-					Legendary = { 1.6, 0.12 },
-					Mythical = { 1.8, 0.14 },
+					Rare = { 0.735, 0.23 }, -- #2320; #2566: Rare and up x0.7
+					Epic = { 0.98, 0.15 },
+					Legendary = { 1.12, 0.12 },
+					Mythical = { 1.26, 0.14 },
 				}
 				-- how long the marker stays inside a zone (tolerance included) on its first pass
 				local function inZoneSeconds(row: { number }): number
@@ -842,7 +844,11 @@ return function()
 					expect(Config.RescueBarSpeed[rarity]).to.be.near(row[1], 1e-9)
 					expect(Config.RescueZoneWidth[rarity]).to.be.near(row[2], 1e-9)
 					if previous ~= nil then
-						expect(row[1] > previous[1]).to.equal(true)
+						-- #2566: the Rare's marker is slower than the Common's (Rare and up x0.7); from Rare up rarer is
+						-- still faster, and every step up still has less time in the zone
+						if rarity ~= "Rare" then
+							expect(row[1] > previous[1]).to.equal(true)
+						end
 						expect(inZoneSeconds(row) < inZoneSeconds(previous)).to.equal(true)
 					end
 					previous = row

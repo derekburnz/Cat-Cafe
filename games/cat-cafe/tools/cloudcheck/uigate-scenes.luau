@@ -2228,6 +2228,26 @@ local SCENES = {
 		local words = first:FindFirstChild("Label", true)
 		assert(words and string.find(words.Text, "$", 1, true), "uigate: the first step reads " .. tostring(words and words.Text) .. " (#2791)")
 	end },
+	-- #2797 (Derek2: "reward for inviting and do after 5 min-15 min"): the one invite card with its reward, on the
+	-- slide-in ask card (UIController's offerInvite times it); its two lines fit a small phone
+	{ "InviteRewardCard", function()
+		local InviteCardLogic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.InviteCardLogic")
+		local view = { cardShown = false, fish = 20, leftToday = 5, cardFrom = 300, cardBy = 900 }
+		local shown = UI.asks.card({
+			title = InviteCardLogic.title(view),
+			choices = {
+				{ id = "invite", label = InviteCardLogic.INVITE, style = "primary" },
+				{ id = "later", label = InviteCardLogic.NOT_NOW, style = "ghost" },
+			},
+			seconds = InviteCardLogic.SECONDS,
+			lines = 2,
+			answer = function() end,
+		})
+		assert(shown, "uigate: the invite card didn't show (#2797)")
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		local title = ask and ask:FindFirstChild("Title", true)
+		assert(title and string.find(title.Text, "you both get", 1, true), "uigate: the invite card reads " .. tostring(title and title.Text) .. " (#2797)")
+	end },
 	-- #2798 (Derek2: the Cozy Cafe countdown is the gift icon's tooltip, not a new strip): standing in your cafe, the
 	-- Rewards list says when the next Cozy gift comes; once the bag waits on the counter the tile wears the red "!"
 	{ "CozyCountdown", function()

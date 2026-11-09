@@ -2067,6 +2067,7 @@ local SQUARE_PAVING = "CatCafe_Square_Paving"
 local RALLY_TWINS: { [string]: string } = {
 	CatCafe_Square_Bunting = "CatCafe_Square_RallyBunting",
 	CatCafe_Square_BuntingShort = "CatCafe_Square_RallyBuntingShort",
+	CatCafe_Square_BuntingSide = "CatCafe_Square_RallyBuntingSide", -- #2707: the east and west sides' buntings
 }
 local RALLY_BOARD_TAG = "RallyBoard"
 -- #1753: the pity cat's sign (Layout.townSquare.pitySign), tagged for the client's countdown on its Screen part.

@@ -19,6 +19,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local DayLight = require(Shared:WaitForChild("DayLight"))
 local Moments = require(script.Parent.Parent.Moments)
 local Net = require(script.Parent.Parent.Net)
+local NightPass = require(Shared:WaitForChild("NightPass"))
 local UI = require(script.Parent.Parent.UI)
 local UIController = require(script.Parent.UIController)
 
@@ -679,7 +680,11 @@ function WorldController.start()
 				-- night waits for the sunrise to open the gate, so the moment does too.
 				local opened: { [string]: Vector3 } = {}
 				local here = rootPosition()
-				local areasOpen = clock:GetAttribute("AreasOpen") ~= false
+				-- #2692: a beginner's night pass keeps their own gates open (the server checks the save itself)
+				local areasOpen = NightPass.open(
+					clock:GetAttribute("AreasOpen") ~= false,
+					Players.LocalPlayer:GetAttribute(NightPass.ATTRIBUTE) == true
+				)
 				for _, gate in gates:GetChildren() do
 					local requires = gate:GetAttribute("RequiresTier")
 					local unlocked = type(requires) == "number" and state.tier >= requires
@@ -715,7 +720,11 @@ function WorldController.start()
 			end
 			for _, fence in CollectionService:GetTagged("NightFence") do
 				if fence:IsDescendantOf(Workspace) then
-					local shown = nightFenceWanted(fence, clock:GetAttribute("AreasOpen") == false)
+					local shown = nightFenceWanted(
+						fence,
+						clock:GetAttribute("AreasOpen") == false
+							and Players.LocalPlayer:GetAttribute(NightPass.ATTRIBUTE) ~= true -- #2692
+					)
 					if fenceShown[fence] ~= shown then
 						fenceShown[fence] = shown
 						setNightShown(fence, shown)

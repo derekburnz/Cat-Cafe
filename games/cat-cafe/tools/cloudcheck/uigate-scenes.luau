@@ -3371,6 +3371,47 @@ local SCENES = {
 		UI.update({ buffs = { tip_potion = t + 492 } })
 		UI.pals({ 4242, 4343, 4444, 4545 })
 	end },
+	-- #2712 (Derek2 11-09: "fix this reoccuring issue of currencys being shoved down on mobile"): the money keeps its
+	-- place whatever chips join the row (pals, a potion timer, a long amount); the row, when it does not fit beside the
+	-- money, goes under it, never moving the money
+	{ "TopRowChips", function()
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local root = hud:FindFirstChild("Root") :: Frame
+		local counters = hud:FindFirstChild("Counters", true) :: Frame
+		local function money(): Vector2
+			UIShim.advance(0.1)
+			return counters.AbsolutePosition - root.AbsolutePosition
+		end
+		local before = UI.getState() :: any
+		Scenes._stepState = { money = before.money, buffs = before.buffs }
+		UI.pals({})
+		UI.update({ buffs = {} } :: any)
+		local base = money()
+		local t = workspace:GetServerTimeNow()
+		local combos = {
+			{ pals = { 4242 }, buffs = {} },
+			{ pals = { 4242, 4343, 4444, 4545 }, buffs = {} },
+			{ pals = { 4242 }, buffs = { tip_potion = t + 492 } },
+			{ pals = { 4242, 4343 }, buffs = { tip_potion = t + 492, lucky_potion = t + 300, swift_potion = t + 200 } },
+		}
+		for index, combo in combos do
+			UI.update({ buffs = combo.buffs } :: any)
+			UI.pals(combo.pals)
+			local now = money()
+			assert(
+				math.abs(now.Y - base.Y) < 1,
+				("uigate: combo %d moved the money from y %d to %d (#2712)"):format(index, base.Y, now.Y)
+			)
+		end
+		-- a longer amount may change what fits, but chips still never move it
+		UI.pals({})
+		UI.update({ money = 987654321098, buffs = {} } :: any)
+		local alone = money()
+		UI.update({ buffs = combos[4].buffs } :: any)
+		UI.pals(combos[4].pals)
+		local long = money()
+		assert(math.abs(long.Y - alone.Y) < 1, ("uigate: with a long amount the chips moved the money from y %d to %d (#2712)"):format(alone.Y, long.Y))
+	end },
 	-- F92: a joiner whose pal is out in the first area: "Your pal is in the Alleyway" over the glowing Cannon
 	{ "PalArrived", function()
 		UI.palArrived(4242, firstArea())
@@ -5970,6 +6011,10 @@ function Scenes.close()
 	if Scenes._feedBefore then
 		UI.update({ catFood = Scenes._feedBefore.catFood or {} } :: any) -- #2418's CatsFeed: the Bag's food back
 		Scenes._feedBefore = nil
+	end
+	if Scenes._stepState then
+		UI.update(Scenes._stepState :: any) -- #2712's top row scene: the money and potions back
+		Scenes._stepState = nil
 	end
 	if Scenes._crew then
 		UI.update(Scenes._crew :: any) -- #2047's extra slots scene: the sample cats, tier and no extra slots back

@@ -148,6 +148,9 @@ export type CustomEvent =
 	| "feedback_env"
 	-- #2681: the like ask ("Having fun? A thumbs up") shown, value 1; tier, minutes played bucket, device
 	| "like_ask_shown"
+	-- #2694: how a slide-in faces ask ended, at most one per ask shown, value 1: answered, closed or ignored; early or
+	-- late (the client's report); minutes played bucket
+	| "feedback_ask_end"
 	-- F96 (starter-cat.md section 4): the free Bellhop Cat taken home; the gate it passed, "task" or "group"
 	| "starter_cat"
 	| "shop_cat" -- #1447: a shop-only cat given on its pass (catId)
@@ -271,6 +274,7 @@ local REPORTS = {
 	"store_guard_blocked", -- #1936: a purchase prompt the guard refused, "<source>:<reason>"
 	"playtime_gift", -- #1947: a gift card's button, "<like|fav>:<like|favourite|close>"
 	"client_error", -- #2681: the client logged its first error line this session (value true)
+	"feedback_outcome", -- #2694: how a slide-in faces ask ended, "<answered|closed|ignored>:<early|late>"
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
 -- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
@@ -346,6 +350,7 @@ type Session = {
 	clientError: boolean, -- #2681: the client reported an error line this session (client_error)
 	feedbackRun: string?, -- #2681: the feedback_v1 run of a slide-in ask shown and not answered yet
 	feedbackAsks: number, -- #2681: feedback_v1 runs started this session (FeedbackFunnel.ASKS_PER_SESSION)
+	feedbackEnds: number, -- #2694: feedback_ask_end events logged this session, never more than feedbackAsks
 }
 
 -- #1888: one Store visit, a funnel session of StoreFunnel's: its id, the furthest step logged and the sku pressed
@@ -1322,6 +1327,16 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 		if rawValue == true then
 			session.clientError = true
 		end
+	elseif name == "feedback_outcome" then
+		local outcome, kind = FeedbackFunnel.outcome(rawValue)
+		if outcome ~= nil and kind ~= nil and session.feedbackEnds < session.feedbackAsks then
+			session.feedbackEnds += 1
+			Telemetry.custom(player, "feedback_ask_end", 1, {
+				outcome,
+				kind,
+				FeedbackFunnel.minutesBucket(PlayTime.seconds(player, profile)),
+			})
+		end
 	elseif name == "playtime_gift" then
 		local kind, button = PlaytimeGifts.report(rawValue)
 		if kind ~= nil and button ~= nil and not session.giftButtons[kind] then
@@ -1403,6 +1418,7 @@ local function onLoaded(player: Player, profile: Profile)
 		clientError = false,
 		feedbackRun = nil,
 		feedbackAsks = 0,
+		feedbackEnds = 0,
 	}
 	-- #1888: the launch data of the link this join came through (an ad's ad_<tag>)
 	local ok, joinData = pcall(function(): any

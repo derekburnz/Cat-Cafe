@@ -47,4 +47,27 @@ function FeedbackFunnel.build(placeVersion: number, clientError: boolean): strin
 	)
 end
 
+-- #2694: how a slide-in ask ended, as the client reports it (TelemetryReport feedback_outcome,
+-- "<outcome>:<kind>"): answered (a face sent), closed (the X) or ignored (its timer ran out), and early (the new
+-- player's first ask) or late (the 12-minute one).
+FeedbackFunnel.OUTCOMES = table.freeze({ "answered", "closed", "ignored" })
+FeedbackFunnel.KINDS = table.freeze({ "early", "late" })
+
+-- The outcome and kind in a feedback_outcome report, or nil for anything else.
+function FeedbackFunnel.outcome(raw: unknown): (string?, string?)
+	if type(raw) ~= "string" or #raw > 16 then
+		return nil, nil
+	end
+	local outcome, kind = string.match(raw, "^(%l+):(%l+)$")
+	if
+		outcome == nil
+		or kind == nil
+		or table.find(FeedbackFunnel.OUTCOMES, outcome) == nil
+		or table.find(FeedbackFunnel.KINDS, kind) == nil
+	then
+		return nil, nil
+	end
+	return outcome, kind
+end
+
 return FeedbackFunnel

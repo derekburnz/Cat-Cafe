@@ -33,5 +33,21 @@ return function()
 			expect(FeedbackFunnel.build(0, false)).to.equal("0:ok")
 			expect(FeedbackFunnel.build(-3.5, true)).to.equal("0:err")
 		end)
+
+		it("#2694: reads an ask's outcome and kind, and nothing else", function()
+			local outcome, kind = FeedbackFunnel.outcome("closed:early")
+			expect(outcome).to.equal("closed")
+			expect(kind).to.equal("early")
+			outcome, kind = FeedbackFunnel.outcome("answered:late")
+			expect(outcome).to.equal("answered")
+			expect(kind).to.equal("late")
+			for _, bad in { "closed", "closed:", "gone:early", "ignored:soon", "closed:early:x", "", 3, true } do
+				outcome, kind = FeedbackFunnel.outcome(bad)
+				expect(outcome).to.equal(nil)
+				expect(kind).to.equal(nil)
+			end
+			outcome = FeedbackFunnel.outcome(string.rep("a", 40))
+			expect(outcome).to.equal(nil)
+		end)
 	end)
 end

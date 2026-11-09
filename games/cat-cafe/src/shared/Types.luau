@@ -244,6 +244,13 @@ export type IndexPrize = {
 
 -- #2798: the Cozy Cafe bags given on `day` (a UTC day number)
 export type CozySave = { day: number, bags: number }
+-- #2791: one step of the gift ladder still to come. `id` "m2", "m4", "m6", "like", "m15", "m20" or "fav"; `at` the
+-- seconds of play on the account when it pays (PlayerState.playSeconds counts toward it); `prize` what it pays.
+export type GiftStepView = {
+	id: string,
+	at: number,
+	prize: IndexPrize,
+}
 
 -- The Cafe Pass (#1645, cafe-pass.md). A paid track's named item, kept forever once claimed: a chat tag, an accessory,
 -- a uniform colour, a decor piece, a sign frame or the season cat.
@@ -496,6 +503,13 @@ export type AreaDef = {
 	incomeMultiplier: number, -- a cat from here earns its rarity's income times this (data-model v0.13.7)
 	-- #2322: a net catch here has its Perfect and Good bands this many times as wide (nil is 1)
 	catchWindowScale: number?,
+	-- #2794 (retention-ideas.md 5b): the starting areas' own stray floor (Config.StrayFloorBase when nil), strays kept
+	-- near the gate (Config.StrayEntryFloor when nil), stuck cats at least each sunrise (Config.RescueMinStuck when
+	-- nil), and `starterRescue`: the pool's trap nearest the camp is out every day and gets the first stuck cat
+	floorBase: number?,
+	entryFloor: number?,
+	rescueMinStuck: number?,
+	starterRescue: boolean?,
 }
 
 export type SpotDef = {
@@ -884,6 +898,57 @@ export type YardDecorRow = {
 	owned: boolean,
 }
 
+-- #2651 part 4 (late-stations.md section 3): the Oasis Spa's save. `slots` is how many are open (1 free, the rest
+-- bought with golden fish); `soaking` holds the cat in each slot by its number as a string ("1" to "3"), with `at` the
+-- os.time() it went in. A finished cat waits in its slot until collected.
+export type SpaSoak = { uid: string, at: number }
+export type SpaSave = { slots: number, soaking: { [string]: SpaSoak } }
+
+-- The Relic Museum's save: each filled exhibit by catId, with the coat of the copy given ("base", "gold", "rainbow").
+export type MuseumSave = { [string]: string }
+
+-- LateStationsState (server to client): the Oasis Spa and the Relic Museum as the cards and the cannon picker show
+-- them. A spa slot's `doneAt` is server time (os.time()); `ready` counts the finished slots. The museum's `canFill`
+-- counts the empty exhibits the player has a spare copy for (the "!"), `rooms` the areas whose rooms are complete.
+export type SpaSlotView = { slot: number, uid: string?, catId: string?, doneAt: number? }
+export type SpaView = {
+	open: boolean,
+	slots: number,
+	nextPrice: number?,
+	soaking: { SpaSlotView },
+	ready: number,
+}
+export type MuseumView = {
+	open: boolean,
+	filled: MuseumSave,
+	count: number,
+	total: number,
+	canFill: number,
+	rooms: { string },
+	bonus: number,
+}
+export type LateStationsState = { live: boolean, spa: SpaView, museum: MuseumView }
+
+-- #2797 (retention-ideas.md 5d, save version 47, shared/Invites): the inviter's side, the joiners who have paid them
+-- (user ids, the last InviteRewardedMax), today's count (a UTC day) and whether the invite card has shown
+export type InviteSave = {
+	rewarded: { number },
+	today: { day: number, count: number },
+	cardShown: boolean,
+}
+-- the joiner's side: who invited them, whether their own first-catch fish is paid and whether the inviter's has been
+-- sent (paid on this server, or left in the inviter's pending key)
+export type ReferredBy = { userId: number, paid: boolean, queued: boolean }
+-- PlayerState.invite: the card's once-per-account flag, the fish each side gets, how many more joiners can pay today,
+-- and the card's play-time window in seconds
+export type InviteView = {
+	cardShown: boolean,
+	fish: number,
+	leftToday: number,
+	cardFrom: number,
+	cardBy: number,
+}
+
 -- CampExtrasState (server to client): every extra's view by id, and the UTC day it was worked out on.
 export type CampExtrasState = {
 	day: number,
@@ -1112,6 +1177,9 @@ export type PlayerProfile = {
 	-- (the "!" over the cart until then). New fields with defaults: the shelf opens with a VERSION bump (MysteryOpen).
 	mystery: { [string]: boolean },
 	mysterySeen: boolean,
+	-- #2792 (shared/FirstVisits): the special visitors met once ("rich", "mystery", "collector" -> true). No VERSION
+	-- bump: an older server dropping it only matters inside the first FirstVisitWindowSeconds of play.
+	firstVisits: { [string]: boolean },
 	codesRedeemed: { [string]: number }, -- code id -> os.time() it was redeemed (F65)
 	introSeen: boolean, -- the intro cutscene has played to the end or been skipped once (F72)
 	potions: { [string]: number }, -- F64: potionId -> count in the bag
@@ -1134,6 +1202,10 @@ export type PlayerProfile = {
 	starterCatClaimed: boolean, -- F96 (starter-cat.md section 4, save version 21): the free Bellhop Cat taken home
 	notifyAskAt: number, -- F96 (section 3, save version 22): os.time() the notification ask first showed, 0 before
 	campExtras: CampExtrasSave, -- F100 (camp-extras.md section 4, save version 25)
+	spa: SpaSave, -- #2651 part 4 (late-stations.md section 1, save version 46): the Oasis Spa
+	museum: MuseumSave, -- #2651 part 4 (late-stations.md section 2, save version 46): the Relic Museum
+	invites: InviteSave, -- #2797 (save version 47): the invite reward, the inviter's side
+	referredBy: ReferredBy?, -- #2797 (save version 47): the joiner's side, set once on a fresh save
 	rally: RallySave, -- F101 (rescue-rally.md section 5, save version 26)
 	-- F102 (trading.md sections 4 and 5, save version 27): the last TradeLogMax trades for the Trades page, and the ids
 	-- of the last TradeIdsMax trades applied to this save, so a trade pending after a shutdown is applied only once
@@ -1167,6 +1239,9 @@ export type PlayerProfile = {
 	-- #2798 (shared/CozyCafe): Cozy Cafe bags given on a UTC day. No VERSION bump: an older server dropping it can only
 	-- give that day's few small bags again
 	cozy: CozySave,
+	-- #2791 (shared/PlaytimeGifts): the gift ladder's small steps paid ("m2", "m4", "m6", "m15", "m20" -> true). No
+	-- VERSION bump: an older server dropping it can only pay a few small steps again.
+	giftSteps: { [string]: boolean },
 	-- #2486 (save version 43, live-events.md section 2e): each Cafe Event reward piece given, cosmeticId -> os.time()
 	-- it was first given, and the last event (its reward key, CafeEvents.rewardKey) this account was rewarded in, ""
 	-- for none; the "Cafe Party Guest" badge reads it
@@ -1227,6 +1302,11 @@ export type PlayerState = {
 	-- #1936 (release.md section 3): seconds of play on the account when this state was sent (stats.playtimeSeconds
 	-- plus the session); the client counts on from its arrival for the store guard. nil from an older server
 	playSeconds: number?,
+	-- #2791 (retention-ideas.md 5a): the gift ladder's next two steps (PlaytimeGifts.upcoming), for the HUD's gift icon
+	-- and its countdown; empty once the ladder is done, nil from an older server
+	giftNext: { GiftStepView }?,
+	-- #2797 (retention-ideas.md 5d): the invite card and the Friends button (shared/Invites.view); nil from an older server
+	invite: InviteView?,
 	-- #2123 (first-hour.md 6a): the welcome back card's line, picked at this join from the save as it was left
 	-- (shared/ReturnHook, "join"); nil for none, and from an older server
 	returnHook: ReturnHookView?,

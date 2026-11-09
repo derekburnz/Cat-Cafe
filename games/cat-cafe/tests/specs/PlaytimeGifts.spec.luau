@@ -14,28 +14,102 @@ return function()
 		return ProfileSchema.template(NOW)
 	end
 
-	describe("when each is due (section 2)", function()
-		it("pays nothing before 10 minutes, the like at 10 and the favourite at 30", function()
+	-- pays every step due at `played` in turn, returning the ids in order
+	local function payAll(profile: any, played: number): { string }
+		local out = {}
+		while true do
+			local step = PlaytimeGifts.due(profile, played)
+			if step == nil then
+				return out
+			end
+			table.insert(out, step)
+			PlaytimeGifts.mark(profile, step)
+		end
+	end
+
+	describe("when each is due (section 2, #2791's ladder)", function()
+		it("pays 2, 4 and 6 minutes, the like at 10, then 15, 20 and the favourite at 30", function()
 			local profile = fresh()
 			expect(Config.LikeGiftMinutes).to.equal(10)
 			expect(Config.FavGiftMinutes).to.equal(30)
 			expect(PlaytimeGifts.due(profile, 0)).to.equal(nil)
-			expect(PlaytimeGifts.due(profile, 5 * MINUTE)).to.equal(nil)
+			expect(PlaytimeGifts.due(profile, 2 * MINUTE - 1)).to.equal(nil)
+			expect(payAll(profile, 2 * MINUTE) :: any).to.deepEqual({ "m2" })
+			expect(payAll(profile, 6 * MINUTE) :: any).to.deepEqual({ "m4", "m6" })
 			expect(PlaytimeGifts.due(profile, 10 * MINUTE - 1)).to.equal(nil)
 			expect(PlaytimeGifts.due(profile, 10 * MINUTE)).to.equal("like")
 			PlaytimeGifts.mark(profile, "like")
-			expect(PlaytimeGifts.due(profile, 29 * MINUTE)).to.equal(nil)
+			expect(payAll(profile, 29 * MINUTE) :: any).to.deepEqual({ "m15", "m20" })
 			expect(PlaytimeGifts.due(profile, 30 * MINUTE)).to.equal("fav")
 			PlaytimeGifts.mark(profile, "fav")
 			expect(PlaytimeGifts.due(profile, 600 * MINUTE)).to.equal(nil)
+			expect(#PlaytimeGifts.upcoming(profile, 2)).to.equal(0)
 		end)
 
-		it("pays the like first for a save already past both marks", function()
+		it("pays a fresh save past every mark one step at a time, in order", function()
 			local profile = fresh()
-			expect(PlaytimeGifts.due(profile, 90 * MINUTE)).to.equal("like")
-			PlaytimeGifts.mark(profile, "like")
-			expect(PlaytimeGifts.due(profile, 90 * MINUTE)).to.equal("fav")
+			expect(payAll(profile, 90 * MINUTE) :: any).to.deepEqual({ "m2", "m4", "m6", "like", "m15", "m20", "fav" })
 			expect(PlaytimeGifts.GAP_SECONDS > 0).to.equal(true)
+		end)
+
+		it("skips the steps before a step already paid, so an older account gets no 2 to 6 minute steps", function()
+			local profile = fresh()
+			PlaytimeGifts.mark(profile, "like")
+			expect(payAll(profile, 25 * MINUTE) :: any).to.deepEqual({ "m15", "m20" })
+			local done = fresh()
+			PlaytimeGifts.mark(done, "like")
+			PlaytimeGifts.mark(done, "fav")
+			expect(payAll(done, 600 * MINUTE) :: any).to.deepEqual({})
+		end)
+
+		it("upcoming lists the next steps with when they pay and what", function()
+			local profile = fresh()
+			local next2 = PlaytimeGifts.upcoming(profile, 2)
+			expect(#next2).to.equal(2)
+			expect(next2[1].id).to.equal("m2")
+			expect(next2[1].at).to.equal(2 * MINUTE)
+			expect(next2[1].prize :: any).to.deepEqual({ coinSeconds = 60 })
+			expect(next2[2].id).to.equal("m4")
+			PlaytimeGifts.mark(profile, "m2")
+			PlaytimeGifts.mark(profile, "m4")
+			PlaytimeGifts.mark(profile, "m6")
+			expect(PlaytimeGifts.upcoming(profile, 1)[1].id).to.equal("like")
+			expect(PlaytimeGifts.upcoming(profile, 1)[1].at).to.equal(10 * MINUTE)
+		end)
+	end)
+
+	describe("the small steps (#2791, retention-ideas.md 5a)", function()
+		it("pay a minute of income, a Tuna, a spin, 5 golden fish and a Swift Potion, with a toast", function()
+			local want = {
+				m2 = { coinSeconds = 60 },
+				m4 = { lures = { tuna = 1 } },
+				m6 = { spins = 1 },
+				m15 = { fish = 5 },
+				m20 = { potions = { swift_potion = 1 } },
+			}
+			local seen = 0
+			for _, step in PlaytimeGifts.STEPS do
+				if PlaytimeGifts.isCard(step.id) then
+					expect(step.id == "like" or step.id == "fav").to.equal(true)
+				else
+					seen += 1
+					expect(PlaytimeGifts.prize(step.id) :: any).to.deepEqual(want[step.id])
+					expect(step.minutes).to.equal(tonumber(string.sub(step.id, 2)))
+				end
+			end
+			expect(seen).to.equal(5)
+		end)
+
+		it("keeps the paid steps through a load, and only the known ones", function()
+			local profile = fresh()
+			expect(next(profile.giftSteps)).never.to.be.ok()
+			PlaytimeGifts.mark(profile, "m2")
+			PlaytimeGifts.mark(profile, "nope")
+			local raw: any = table.clone(profile)
+			raw.giftSteps = { m2 = true, m4 = 1, nope = true }
+			local loaded: any = ProfileSchema.migrate(raw, NOW)
+			expect(loaded.giftSteps).to.deepEqual({ m2 = true })
+			expect(PlaytimeGifts.paid(loaded, "m2")).to.equal(true)
 		end)
 	end)
 

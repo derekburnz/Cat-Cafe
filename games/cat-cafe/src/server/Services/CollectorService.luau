@@ -17,13 +17,17 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local CafeService = require(script.Parent.CafeService)
+local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
 local Collector = require(ReplicatedStorage.Shared.Collector)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local FirstVisit = require(script.Parent.Parent.Util.FirstVisit)
+local FirstVisits = require(ReplicatedStorage.Shared.FirstVisits)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local PlotService = require(script.Parent.PlotService)
@@ -44,6 +48,8 @@ type Visit = {
 	variant: string,
 	offer: Types.CollectorOffer,
 	endsAt: number, -- os.time() he leaves
+	first: boolean, -- #2792: the account's first Collector, who stays FirstVisitStaySeconds and offers his top roll
+	arrivedAt: number, -- os.time()
 }
 
 local visits: { [number]: Visit } = {} -- plot index -> its visit, one at a time
@@ -89,6 +95,7 @@ local function take(index: number, traded: boolean?): Visit?
 	end
 	visits[index] = nil
 	show(visit.plot, 0, "")
+	FirstVisit.clear(visit.plot.model, "collector")
 	local owner = Players:GetPlayerByUserId(visit.ownerUserId)
 	if owner ~= nil then
 		Net.fire(owner, "CollectorOffer", "", nil, 0, traded == true)
@@ -104,6 +111,15 @@ local function logVisit(player: Player, visit: Visit, outcome: string)
 		1,
 		{ outcome, visit.catId .. ":" .. visit.variant, tostring(visit.offer.value) }
 	)
+	if visit.first then
+		FirstVisit.ended(
+			player,
+			visit.plot.model,
+			"collector",
+			outcome,
+			os.time() - visit.arrivedAt
+		)
+	end
 end
 
 -- Why the cat he asks for cannot be traded now, or nil when it can.
@@ -116,6 +132,8 @@ local function blocker(profile: Types.PlayerProfile, visit: Visit): string?
 		return string.format("Your %s is working. Take it off its job to trade it.", name)
 	elseif instance.locked == true then
 		return string.format("Your %s is locked. Unlock it to trade it.", name)
+	elseif CatStats.atSpa(profile, visit.catUid) then
+		return string.format("Your %s is at the spa.", name) -- #2651 part 4
 	elseif ProfileSchema.catCount(profile) <= 1 then
 		return "You cannot trade your last cat."
 	end
@@ -185,7 +203,8 @@ local function arrive(
 	player: Player,
 	plot: WorldBuilder.Plot,
 	instance: Types.CatInstance,
-	now: number
+	now: number,
+	first: boolean
 ): Visit
 	take(plot.index)
 	local visit: Visit = {
@@ -194,8 +213,11 @@ local function arrive(
 		catUid = instance.uid,
 		catId = instance.catId,
 		variant = instance.variant,
-		offer = Collector.offerFor(Collector.value(instance, roll())),
-		endsAt = now + Config.CollectorStaySeconds,
+		-- #2792: his first visit to an account offers the top of his roll
+		offer = Collector.offerFor(Collector.value(instance, if first then 1 else roll())),
+		endsAt = now + FirstVisits.stay(first, Config.CollectorStaySeconds),
+		first = first,
+		arrivedAt = now,
 	}
 	visits[plot.index] = visit
 	show(plot, visit.endsAt, visit.catId)
@@ -219,7 +241,7 @@ local function wantedAt(player: Player, plot: WorldBuilder.Plot): Types.CatInsta
 	if Economy.incomePerSecond(profile) <= 0 or tables < 1 then
 		return nil
 	end
-	return Collector.pickCat(profile.cats, roll, profile.tier)
+	return Collector.pickCat(profile.cats, roll, profile.tier, LateStations.spaUids(profile))
 end
 
 -- Each cafe's Collector timer (#1135, shared/VisitTimer): seconds of open day left until he next comes.
@@ -241,10 +263,29 @@ local function tickTimers(dt: number)
 			or VisitTimer.draw(Config.CollectorEveryMin, Config.CollectorEveryMax, rng:NextNumber())
 		local due: boolean
 		left, due = VisitTimer.tick(left, dt, open_ and visits[plot.index] == nil)
+		-- #2792: a new account's first Collector comes at FirstVisitAt.collector seconds of play, timer or not, and
+		-- waits for a cat to ask for (VisitRetrySeconds) as a timed one does
+		local profile = DataService.get(player)
+		if
+			not due
+			and open_
+			and visits[plot.index] == nil
+			and profile ~= nil
+			and left > Config.VisitRetrySeconds
+			and FirstVisit.due(player, profile, "collector")
+		then
+			due = true
+		end
 		if due then
 			local instance = wantedAt(player, plot)
-			if instance ~= nil then
-				arrive(player, plot, instance, now)
+			if instance ~= nil and profile ~= nil then
+				arrive(
+					player,
+					plot,
+					instance,
+					now,
+					FirstVisit.arrive(player, profile, plot.model, "collector")
+				)
 				left = VisitTimer.draw(
 					Config.CollectorEveryMin,
 					Config.CollectorEveryMax,
@@ -273,7 +314,9 @@ local function checkVisits()
 			take(index)
 		else
 			local instance = profile.cats[visit.catUid]
-			if instance == nil or not Collector.askable(instance) then
+			if
+				instance == nil or not Collector.askable(instance, LateStations.spaUids(profile))
+			then
 				local gone = take(index)
 				if gone ~= nil then
 					logVisit(owner, gone, "withdrawn")
@@ -339,11 +382,11 @@ function CollectorService.debugArrive(
 	end
 	local instance = if uid ~= nil
 		then profile.cats[uid]
-		else Collector.pickCat(profile.cats, roll, profile.tier)
-	if instance == nil or not Collector.askable(instance) then
+		else Collector.pickCat(profile.cats, roll, profile.tier, LateStations.spaUids(profile))
+	if instance == nil or not Collector.askable(instance, LateStations.spaUids(profile)) then
 		return nil, nil
 	end
-	local visit = arrive(player, plot, instance, os.time())
+	local visit = arrive(player, plot, instance, os.time(), false)
 	if valueRoll ~= nil then
 		visit.offer = Collector.offerFor(Collector.value(instance, valueRoll))
 		Net.fire(player, "CollectorOffer", visit.catUid, visit.offer, visit.endsAt, nil)

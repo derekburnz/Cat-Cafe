@@ -224,7 +224,7 @@ return function()
 					"rbxassetid://124763763193731"
 				)
 				expect(ShopIcons.store("steadyPaw")).to.equal("rbxassetid://124844091674201")
-				expect(ShopIcons.store("signStylePack")).to.equal("rbxassetid://82356296722315")
+				expect(ShopIcons.store("signStylePack")).to.equal("rbxassetid://111176293548634")
 				expect(ShopIcons.store("gardenDecor")).to.equal("rbxassetid://76001339098213")
 				expect(ShopIcons.store("longNap")).to.equal("rbxassetid://136378395182949")
 				expect(ShopIcons.store("money", 2)).to.equal("rbxassetid://82155674128354")

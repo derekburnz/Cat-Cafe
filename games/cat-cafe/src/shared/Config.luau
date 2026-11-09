@@ -295,6 +295,26 @@ local Config = {
 	CozyFishChance = 0.05,
 	CozyFishMin = 1,
 	CozyFishMax = 3,
+	-- #2791 (retention-ideas.md 5a): the small steps on the same track, paid with a toast (shared/PlaytimeGifts)
+	PlaytimeGiftSteps = {
+		{ id = "m2", minutes = 2, prize = { coinSeconds = 60 } },
+		{ id = "m4", minutes = 4, prize = { lures = { tuna = 1 } } },
+		{ id = "m6", minutes = 6, prize = { spins = 1 } },
+		{ id = "m15", minutes = 15, prize = { fish = 5 } },
+		{ id = "m20", minutes = 20, prize = { potions = { swift_potion = 1 } } },
+	} :: {
+		{
+			id: string,
+			minutes: number,
+			prize: {
+				coinSeconds: number?,
+				lures: { [string]: number }?,
+				spins: number?,
+				fish: number?,
+				potions: { [string]: number }?,
+			},
+		}
+	},
 	GiftIdleSeconds = 3,
 	-- F88 Luck (luck-and-rare-moments.md section 1): one number from x1.0 that multiplies the Epic, Legendary and
 	-- Mythical chances of your bait and crate rolls (shared/Luck), at most LuckMax. The Lucky Cat statue adds
@@ -612,6 +632,26 @@ local Config = {
 	CollectorGoldMultiplier = 3,
 	CollectorRollMin = 0.8,
 	CollectorRollMax = 1.5,
+	-- #2792 (retention-ideas.md section 2, shared/FirstVisits): a new account's first rich customer, Mystery Visitor
+	-- and Cat Collector come at these seconds of play on the account (about 3, 6 and 9 minutes), each once, and stay
+	-- FirstVisitStaySeconds so a player out catching can still get back for it. Past FirstVisitWindowSeconds of play
+	-- only the normal timers run.
+	FirstVisitAt = { rich = 180, mystery = 360, collector = 540 },
+	FirstVisitStaySeconds = 300,
+	FirstVisitWindowSeconds = 1800,
+	-- #2797 (retention-ideas.md 5d, shared/Invites): the invite reward. A new player who joined through an invite gets
+	-- InviteRewardFish on their first catch; the inviter gets InviteRewardFish once that joiner has played
+	-- InviteQualifySeconds or caught a cat, for at most InviteDailyMax joiners a UTC day and once per joiner (the last
+	-- InviteRewardedMax remembered). The invite card shows once, between InviteCardFromSeconds and
+	-- InviteCardBySeconds of play on the account; InvitePendingCheckSeconds is how often an online inviter's
+	-- cross-server rewards are picked up.
+	InviteRewardFish = 20,
+	InviteQualifySeconds = 300,
+	InviteDailyMax = 5,
+	InviteRewardedMax = 50,
+	InviteCardFromSeconds = 300,
+	InviteCardBySeconds = 900,
+	InvitePendingCheckSeconds = 60,
 	CollectorRangeStuds = 12, -- AnswerCollector from this close to him (his card opens there)
 	PotionMaxMinutes = 1440, -- one kind's time left never goes over this; a drink that would is refused (v0.13.8; F95: 24 h, Derek 2026-10-28 17:36)
 	TipPotionBonus = 0.25, -- tip_potion: +25% on income, the tip piles and rich visitors
@@ -819,6 +859,14 @@ local Config = {
 			lostCat: string?,
 		}
 	},
+	-- #2651 part 4 (late-stations.md): the Oasis Spa (Desert camp, Tier 6) gives a cat +1 level after SpaSeconds of
+	-- real time (offline too), one slot free and two more bought once with golden fish at SpaSlotPrices; each Relic
+	-- Museum (Ruins camp, Tier 7) room filled adds MuseumRoomTipBonus to the tips-forever total. LateStationsOpen
+	-- places them and opens their remotes once the UI's cards are in (UI-Engineer).
+	SpaSeconds = 3600,
+	SpaSlotPrices = { 0, 100, 250 },
+	MuseumRoomTipBonus = 0.02,
+	LateStationsOpen = false,
 	CampExtraRangeStuds = 8,
 
 	-- The Rescue Rally weekend (F101, rescue-rally.md; shared/Rally, Catalog.rallySteps). From RallyStartWeekday (0 is

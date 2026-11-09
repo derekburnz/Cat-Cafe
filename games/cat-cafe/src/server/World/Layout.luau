@@ -1503,7 +1503,7 @@ Layout.desert = {
 			{ -55.61, 0, -128.11 },
 			{ 22, 0, -241.6 }, -- dune shade
 			{ -16, 0, -188.4 },
-			{ 44, 0, -208.4 },
+			{ 46.55, 0, -205.32 }, -- #2823: the dune rows' new settle
 			{ -44, 0, -138.4 },
 			{ -8, 1.6, -230 }, -- rock
 			{ 60, 1.6, -200 },
@@ -1518,19 +1518,19 @@ Layout.desert = {
 			{ -6, 0, -168 },
 			{ -52, 0, -246 }, -- canopy shade
 			{ -14.5, 0, -79.5 }, -- alcove
-			{ -11.85, 0, -76.46 },
+			{ -13, 0, -75.5 }, -- #2823: where the buttes' lanes open on the slot
 			{ 14.5, 0, -49.5 },
-			{ 10.57, 0, -48.02 },
-			{ 5.5, 0, -102 }, -- canyon
+			{ 13, 0, -45.5 },
+			{ 3.88, 0, -100.82 }, -- canyon (#2823: the buttes)
 			{ -5.5, 0, -84 },
 			{ -5.5, 0, -56 },
-			{ -3.5, 0, -28 },
+			{ -5.5, 0, -28 },
 			{ 66, 0, -96 }, -- side passage
 			{ 63, 0, -70 },
 			{ 63, 0, -46 },
 			{ 63, 0, -30 },
 			{ -2.9, 0, -93.6 }, -- boulder
-			{ 5.61, 0, -67.28 },
+			{ 3.85, 0, -64.11 }, -- #2823
 			{ 68.1, 0, -86.47 },
 			{ 14, 0, -6 }, -- flats
 			{ -63, 2.42, -7 }, -- terrace
@@ -2094,10 +2094,19 @@ function Layout.fallCaught(spec: AreaSpec, x: number, y: number, z: number): boo
 		and math.abs(z - spec.center.z) <= spec.halfDepth + margin
 end
 
--- Where an area's camp extra stands in the world: x, the floor's y and z, the turn about Y (the camp's), or nil for an
--- area with no extra or no camp.
-function Layout.campExtraAt(areaId: string): (number?, number?, number?, number?)
-	local at, spec, camp = Layout.campExtras[areaId], Layout.areas[areaId], Layout.camps[areaId]
+-- #2651 part 4 (late-stations.md): the Oasis Spa (Desert) and the Relic Museum (Ruins), each model's pivot in its
+-- area's set space as Layout.campExtras, in the camp beside the way out. Model-Agent's art (#2789) is bigger than the
+-- other extras: the spa 22.8 by 12.2 (its palms; its pivot is not centred front to back, the model runs from -5.0 to
+-- +7.2 in its own Z), the museum 12.8 by 8.3, so each stands far enough over and back from the gate line to keep the
+-- way out and the line clear. The spa's spot is Model-Agent's (2026-11-09): its back edge 1.3 inside the gate line,
+-- its near edge at x 13.6, clear of the Oasis Pool; they move their palm and growth pieces off it in the Desert pass.
+Layout.lateStations = {
+	desert = { x = 25, y = 0, z = -289.5 },
+	ruins = { x = 22, y = 0, z = -306 },
+} :: { [string]: Point }
+
+local function inSetSpace(at: Point?, areaId: string): (number?, number?, number?, number?)
+	local spec, camp = Layout.areas[areaId], Layout.camps[areaId]
 	if at == nil or spec == nil or camp == nil then
 		return nil, nil, nil, nil
 	end
@@ -2106,6 +2115,17 @@ function Layout.campExtraAt(areaId: string): (number?, number?, number?, number?
 		spec.floorY,
 		spec.center.z - at.x * s + at.z * c,
 		camp.turn
+end
+
+-- Where an area's camp extra stands in the world: x, the floor's y and z, the turn about Y (the camp's), or nil for an
+-- area with no extra or no camp.
+function Layout.campExtraAt(areaId: string): (number?, number?, number?, number?)
+	return inSetSpace(Layout.campExtras[areaId], areaId)
+end
+
+-- #2651 part 4: where an area's late station stands, as campExtraAt, or nil for an area without one.
+function Layout.lateStationAt(areaId: string): (number?, number?, number?, number?)
+	return inSetSpace(Layout.lateStations[areaId], areaId)
 end
 
 -- The Garden Nursery (#1200, lawn-nursery.md section 3; Model-Agent #1332): CatCafe_Camp_Park_GardenNursery's pivot

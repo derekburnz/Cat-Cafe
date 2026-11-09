@@ -52,6 +52,22 @@ function CatStats.charm(instance: Types.CatInstance): number
 	return math.clamp(math.floor(charm), CatStats.MIN_CHARM, CatStats.MAX_CHARM)
 end
 
+-- #2651 part 4 (late-stations.md section 3): true when the cat `uid` soaks in the player's Oasis Spa. A spa cat
+-- earns nothing and no XP, and cannot be placed, sold, traded, given to the Collector or donated; Equip Best skips
+-- it. Nil-safe for a profile without a spa (a test fixture or a save before version 46).
+function CatStats.atSpa(profile: Types.PlayerProfile, uid: string): boolean
+	local spa = (profile :: any).spa
+	if type(spa) ~= "table" or type(spa.soaking) ~= "table" then
+		return false
+	end
+	for _, soak in spa.soaking do
+		if type(soak) == "table" and soak.uid == uid then
+			return true
+		end
+	end
+	return false
+end
+
 -- Rolls --------------------------------------------------------------------------------------------------
 
 -- Charm 0 to 100 from two uniform rolls in [0, 1). The average of two rolls is triangular, so most cats sit

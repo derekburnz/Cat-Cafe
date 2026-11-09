@@ -72,6 +72,17 @@ export type CustomEvent =
 	-- #2798: a Cozy Cafe bag collected, value today's bags so far; what it held ("coins", "coins+lure", "coins+fish",
 	-- "coins+lure+fish")
 	| "cozy_bag"
+	-- #2792: a new account's first rich customer, Mystery Visitor or Cat Collector: the kind ("rich", "mystery",
+	-- "collector") and "arrived" (value the account's seconds of play), or how it ended, "claimed" or "missed" (value
+	-- its seconds at the cafe)
+	| "first_visit"
+	-- #2797 (retention-ideas.md 5d): the invite card's buttons, value the account's minutes played; "shown", "invite"
+	-- or "notnow"
+	| "invite_card"
+	-- #2797: an invited new player's progress, value 1; "linked" (joined through an invite on a fresh save),
+	-- "joiner_paid" (their first catch), "inviter_sent" (the inviter's reward sent), "inviter_paid", "inviter_capped"
+	-- (InviteDailyMax reached today) or "inviter_repeat" (that joiner paid this inviter before)
+	| "invite_join"
 	| "cat_sold"
 	| "cat_renamed"
 	| "autopress_flag"
@@ -148,6 +159,13 @@ export type CustomEvent =
 	| "step_time"
 	-- #2774: the account's first bait cat came, value the seconds from food in; where the player was then
 	| "first_bait_arrived"
+	-- #2651 part 4 (late-stations.md section 3): a cat into the Oasis Spa or collected from it, value 1; the level band
+	-- ("1-9", "10-19" and so on) before the soak
+	| "spa_put"
+	| "spa_collect"
+	-- a copy given to the Relic Museum, value 1; its rarity and coat. A room finished, value the rooms done; its area
+	| "museum_donate"
+	| "museum_room"
 	| "stuck_nudge"
 	| "event_rsvp" -- #2766
 	| "intro_choice"
@@ -245,7 +263,8 @@ export type CustomEvent =
 	| "event_reward"
 	-- #1947 (like-prompts.md section 3): a like or favourite card's button, once per card a session, value 1; the gift
 	-- ("like" or "fav") and the button (like, favourite or close). A card paid (Source like_gift or fav_gift) with no
-	-- report is "none"
+	-- report is "none". #2791: the server logs each gift ladder step as it pays, value the account's minutes played; the
+	-- step ("m2", "m4", "m6", "like", "m15", "m20", "fav") and "paid"
 	| "playtime_gift"
 	-- #1934 (release.md section 1): a Roblox badge awarded, value the account's minutes played; the badge key, "live"
 	-- (earned this session) or "catchup" (earned before, awarded on join)

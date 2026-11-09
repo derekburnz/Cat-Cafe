@@ -13,6 +13,9 @@
 -- with potions running (two or more until #2396), an arrow tab sits at the row's left end. A tap folds the chips away into one
 -- compact chip (the bottle and how many run, "x5"), and a tap on that brings them back. The choice holds until it is
 -- tapped again (also across a rebuilt HUD); BuffChips.fold(count, folded) says what shows.
+-- #2827 (Derek2 11-09: "fully hide that active potions bubble (people can just look in bag if they care)"): the
+-- potion row never shows (POTIONS_SHOWN), on any device, and does not tick; the bag's Potions tab still lists what
+-- runs and for how long. The Luck and pal row is unchanged. The row is still built, so turning it back on is one flag.
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -35,6 +38,7 @@ export type BuffChips = {
 	setLead: (self: BuffChips, shown: boolean, key: string?) -> (), -- key "luck" (the default) or "pals"
 	setFolded: (self: BuffChips, folded: boolean) -> (), -- #2090
 	setHidden: (self: BuffChips, hidden: boolean) -> (), -- #2393: the Luck row steps away during a catch on touch
+	setFocus: (self: BuffChips, focus: boolean) -> (), -- #2808: both rows step away while a catch runs
 	destroy: (self: BuffChips) -> (),
 }
 
@@ -62,6 +66,8 @@ type Chip = { frame: TextButton, time: TextLabel }
 
 local BuffChips = {}
 BuffChips.__index = BuffChips
+
+BuffChips.POTIONS_SHOWN = false :: boolean -- #2827: the potion row stays hidden; the bag has the timers
 
 -- the fold holds across a rebuilt HUD (a respawn rebuilds nothing, but a reset of the UI does)
 local foldedNow = FOLD_DEFAULT
@@ -103,6 +109,8 @@ function BuffChips.new(parent: Instance, x: number, onOpen: () -> ()): BuffChips
 	self._touch = Scale.isTouch() -- #2710
 	self._folded = foldedNow or self._touch
 	self._hidden = false
+	self._focus = false -- #2808: a catch is running, so neither row shows (HUD._applyFocus)
+	self._running = 0 -- how many potions ran at the last draw
 
 	self.frame = Create("Frame", {
 		Name = "Potions",
@@ -245,13 +253,25 @@ end
 -- pal chip (LayoutOrder 100) says the same under the key "pals".
 function BuffChips.setLead(self: any, shown: boolean, key: string?)
 	self._leads[key or "luck"] = if shown then true else nil
-	self.frame.Visible = not self._hidden and next(self._leads) ~= nil
+	self:_showRows()
 end
 
 -- #2393: hide the Luck and pal row whatever it holds (the HUD, while a catch has the top middle on touch).
 function BuffChips.setHidden(self: any, hidden: boolean)
 	self._hidden = hidden
-	self.frame.Visible = not hidden and next(self._leads) ~= nil
+	self:_showRows()
+end
+
+-- #2808 (#2724's catch focus): while a catch runs the HUD hides its pieces once, but the timers redraw every second
+-- and a lead can change, so the rows keep this flag and stay down until the catch ends.
+function BuffChips.setFocus(self: any, focus: boolean)
+	self._focus = focus
+	self:_showRows()
+end
+
+function BuffChips._showRows(self: any)
+	self.frame.Visible = not self._hidden and not self._focus and next(self._leads) ~= nil
+	self.potions.Visible = BuffChips.POTIONS_SHOWN and not self._focus and self._running > 0
 end
 
 function BuffChips.render(self: any, state: Types.PlayerState)
@@ -307,7 +327,7 @@ end
 
 function BuffChips._draw(self: any)
 	local state: Types.PlayerState? = self._state
-	local running: { PotionLogic.Row } = if state
+	local running: { PotionLogic.Row } = if state and BuffChips.POTIONS_SHOWN
 		then PotionLogic.running(self._catalog, state, Workspace:GetServerTimeNow())
 		else {}
 	local shown: { [string]: boolean } = {}
@@ -351,7 +371,8 @@ function BuffChips._draw(self: any)
 			self._chips[id] = nil
 		end
 	end
-	self.potions.Visible = #running > 0
+	self._running = #running
+	self.potions.Visible = #running > 0 and not self._focus
 	-- tick once a second while anything runs; stop when the last one ends
 	local loop: RBXScriptConnection? = self._loop
 	if #running > 0 and loop == nil then

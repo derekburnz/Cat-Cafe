@@ -29,6 +29,7 @@ local NightClock = require(script.Parent.Parent.Components.NightClock)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local RallyLogic = require(script.Parent.Parent.Components.RallyLogic)
+local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
@@ -66,6 +67,11 @@ export type Cannon = {
 
 local CARD = Vector2.new(226, 214)
 local ART_H = 100
+-- #2771 (Laptop-Tester, Galaxy A06: the second row cut off): on a phone held sideways (Scale.isPhone) the picture
+-- band is a slim strip and the words and Launch sit closer, so both rows of cards fit the panel
+local PHONE_ART_H, PHONE_CARD_H = 24, 128
+local NAME_GAP = 14 -- the card's name sits this far under the picture (8 on a phone)
+local LAUNCH_INSET = 10 -- Launch's gap to the card's bottom (6 on a phone)
 local EXTRA_H = 40 -- F100: the camp extra's strip, added to the cards while one shows
 local COLLECT_W = 84 -- #1463: the Golden Pond's Collect on the Woods strip
 local COLLECT_REST = 2 -- seconds Collect hides after a press, while the server answers
@@ -108,6 +114,12 @@ end
 function Cannon.new(callbacks: Callbacks): Cannon
 	local self = setmetatable({}, Cannon) :: any
 	self._callbacks = callbacks
+	if Scale.isPhone() then
+		ART_H = PHONE_ART_H
+		NAME_GAP = 8
+		LAUNCH_INSET = 6
+		CARD = Vector2.new(CARD.X, PHONE_CARD_H)
+	end
 	self._cards = {} :: { [string]: any }
 	self._catalog = nil :: Types.Catalog?
 	self._cannonId = CannonLogic.TOWN
@@ -358,7 +370,7 @@ function Cannon._buildCards(self: any)
 		Outline.text(rally, 1.5)
 		text({
 			Name = "Name",
-			Position = UDim2.fromOffset(10, ART_H + 14),
+			Position = UDim2.fromOffset(10, ART_H + NAME_GAP),
 			Size = UDim2.new(1, -20, 0, 26),
 			FontFace = Theme.fonts.display,
 			TextSize = Theme.sizes.textLarge - 2,
@@ -367,7 +379,7 @@ function Cannon._buildCards(self: any)
 		})
 		local count = text({
 			Name = "Count",
-			Position = UDim2.fromOffset(10, ART_H + 40),
+			Position = UDim2.fromOffset(10, ART_H + NAME_GAP + 26),
 			Size = UDim2.new(1, -20, 0, 18),
 			TextSize = Theme.sizes.textSmall,
 			TextColor3 = PAL.subtext,
@@ -379,7 +391,7 @@ function Cannon._buildCards(self: any)
 			Name = "Extra",
 			BackgroundColor3 = PAL.line,
 			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(10, ART_H + 60),
+			Position = UDim2.fromOffset(10, ART_H + NAME_GAP + 46),
 			Size = UDim2.new(1, -20, 0, EXTRA_H - 4),
 			Visible = false,
 			Parent = frame,
@@ -454,7 +466,7 @@ function Cannon._buildCards(self: any)
 			style = "primary",
 			size = UDim2.new(1, -20, 0, 44),
 			anchorPoint = Vector2.new(0.5, 1),
-			position = UDim2.new(0.5, 0, 1, -10),
+			position = UDim2.new(0.5, 0, 1, -LAUNCH_INSET),
 			textSize = Theme.sizes.textBody + 1,
 			parent = frame,
 			onClick = function()

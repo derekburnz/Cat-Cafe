@@ -3017,7 +3017,7 @@ function Logic.moodLayer(o: Offsets, mood: unknown, t: number, weight: number)
 	end
 end
 
--- Which late area (LateTiers.areas: id, centre {x, z}, size {width along X, depth along Z}) holds the point x, z,
+-- Which late area (AreaFx's boxes from Config.World: id, centre {x, z}, size {width along X, depth along Z}) holds the point x, z,
 -- counting `pad` studs past its edges, or nil (#2657).
 function Logic.areaAt(x: number, z: number, areas: { any }, pad: number): string?
 	for _, area in areas do

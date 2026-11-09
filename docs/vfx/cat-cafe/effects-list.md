@@ -988,7 +988,7 @@ The Tier 6 and 7 areas of #2651 (tier6-7-areas.md sections 4 and 5), in their pa
 
 | Look | Hook |
 |---|---|
-| Desert air: sand and sandstone motes drifting downwind in a 36 by 10 by 36 stud box round you, 10 a second at the budget's rate; none in Low performance, a fifth with Reduce Motion | your character inside the Desert's box from `LateTiers.areas` (centre, width along X, depth along Z) plus 40 studs, so the camp and the server's mist catch count, checked every 0.5 s; the boxes are `Config.World`'s Desert* and Ruins* once there (#2655), else LateTiers (#2661) |
+| Desert air: sand and sandstone motes drifting downwind in a 36 by 10 by 36 stud box round you, 10 a second at the budget's rate; none in Low performance, a fifth with Reduce Motion | your character inside the Desert's box from `Config.World`'s Desert* fields (centre, width along X, depth along Z; #2655) plus 40 studs, so the camp and the server's mist catch count, checked every 0.5 s |
 | Ruins air: slow glyph-gold and jade sparkle motes floating up round you, 5 a second, glowing a little | the same for the Ruins |
 | Stray appears or leaves (Desert): 6 sand-coloured smoke puffs at its feet, within the budget's animRadius and at most `areaPuffs` a second (4 on phones, 8 on PC, 2 in Low performance; #2661); none for strays already there when you arrive | the `Stray` tag added or removed on a model in Workspace with `Area` = `"desert"`; where it stands when it goes |
 | Stray appears or leaves (Ruins): 6 jade sparkles at its feet | the same with `Area` = `"ruins"` |

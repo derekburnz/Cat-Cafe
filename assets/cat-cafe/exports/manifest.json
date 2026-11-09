@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09 07:24 UTC",
+  "generated": "2026-11-09 07:26 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -291227,8 +291227,8 @@
           "Neighbourhood": 0,
           "Woods": -90,
           "Sewer": 90,
-          "Desert": 135,
-          "Ruins": 45
+          "Desert": 128.3,
+          "Ruins": 52.2
         },
         "attachments": [
           "Muzzle",

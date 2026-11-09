@@ -343,8 +343,10 @@ def rbx_attachments(name):
 
 
 NEST = {"_Climb": "_Turret", "_MoonCover": "_Turret"}
+# _Turret turn, degrees: a guide only, the game reads the real turns from Layout.cannonAim (each camp's landing pad,
+# not the area centre: Desert 128.3, Ruins 52.2 for #2651)
 FIRE_TURNS = {"Alleyway": -135, "Park": 180, "Neighbourhood": 0, "Woods": -90, "Sewer": 90,
-              "Desert": 135, "Ruins": 45}   # _Turret turn, degrees
+              "Desert": 128.3, "Ruins": 52.2}
 PLACEMENTS = {"CatCafe_Square_Cannon": (0, 0.1, 0, 0), "CatCafe_Square_LandingPad": (PAD_AT[0], 0.1, PAD_AT[1], 0)}
 
 ASSETS = {"CatCafe_Square_Cannon": (build_square_cannon, 8000),

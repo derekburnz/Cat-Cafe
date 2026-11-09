@@ -662,9 +662,9 @@ return function()
 			{ "Busy Cafe", 1240000, 13, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
 			{ "Famous Cafe", 48000000, 25, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 3 } },
 			{ "Grand Cafe", 2300000000, 33, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
-			-- #2651 (tier6-7-areas.md sections 1 and 7b), draft costs until the Pace run
-			{ "Sunstone Cafe", 70000000000, 42, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
-			{ "Wonder Cafe", 1800000000000, 52, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
+			-- #2651 (tier6-7-areas.md sections 1 and 7b), QA-Planner's Pace fit
+			{ "Sunstone Cafe", 9000000000, 42, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
+			{ "Wonder Cafe", 60000000000, 52, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
 		}
 
 		it("has seven tiers matching the table", function()
@@ -798,7 +798,7 @@ return function()
 				espresso = {
 					name = "Espresso machine",
 					maxLevel = 7, -- #2651: 6 and 7 at Tier 6 and 7
-					costs = { 0, 2000, 15000, 550000, 6000000, 1500000000, 40000000000 }, -- F95; #1896
+					costs = { 0, 2000, 15000, 550000, 6000000, 200000000, 1300000000 }, -- F95; #1896; #2651
 					startLevel = 1,
 					atLevel = { [3] = 2, [4] = 2, [5] = 4, [6] = 6, [7] = 7 }, -- #1896: Espresso 4 at Tier 2
 				},
@@ -819,7 +819,7 @@ return function()
 				lucky_cat = { -- F88 (luck-and-rare-moments.md 1a): level n needs Tier n, level 3 Tier 2 (#1896)
 					name = "Lucky Cat",
 					maxLevel = 7, -- #2651: 6 and 7 at Tier 6 and 7
-					costs = { 2000, 20000, 300000, 8000000, 80000000, 2000000000, 50000000000 },
+					costs = { 2000, 20000, 300000, 8000000, 80000000, 250000000, 1700000000 }, -- #2651
 					startLevel = 0,
 					atLevel = { [2] = 2, [3] = 2, [4] = 4, [5] = 5, [6] = 6, [7] = 7 },
 				},

@@ -1262,12 +1262,13 @@ Catalog.tiers = {
 		area = "sewer",
 		caps = { tables = 6, espresso = 5, net = 3, lure_bowl = 5, lucky_cat = 5 },
 	},
-	-- #2651 (tier6-7-areas.md sections 1, 7b and 9): Tier 6 and 7, the draft costs until the Pace run; the caps raise
+	-- #2651 (tier6-7-areas.md sections 1, 7b and 9): Tier 6 and 7 at QA-Planner's Pace fit (Tier 6 about 6.4 h after
+	-- Tier 5, Tier 7 about 10 h after Tier 6; the drafts 70B and 1.8T took 29 h and more than 40 h); the caps raise
 	-- the Espresso machine and the Lucky Cat one level a tier
 	{
 		tier = 6,
 		name = "Sunstone Cafe",
-		cost = 70000000000,
+		cost = 9000000000,
 		distinctCats = 42,
 		needsRarity = "Mythical",
 		needsRarityCount = 2,
@@ -1279,7 +1280,7 @@ Catalog.tiers = {
 	{
 		tier = 7,
 		name = "Wonder Cafe",
-		cost = 1800000000000,
+		cost = 60000000000,
 		distinctCats = 52,
 		needsRarity = "Mythical",
 		needsRarityCount = 3,
@@ -1325,8 +1326,8 @@ Catalog.upgrades = {
 		description = "Better coffee, more money from every cat",
 		maxLevel = 7,
 		-- F95: level 4 four times, 5 (Tier 4) 7.5 times; #1896 (first-hour.md 4): level 4 700,000 (was 400,000), now Tier 2
-		-- #2651 (tier6-7-areas.md 7b): levels 6 and 7 at Tier 6 and 7, draft prices until the Pace run
-		costs = { 0, 2000, 15000, 550000, 6000000, 1500000000, 40000000000 }, -- #1896 re-fit with Catch v3: Espresso 4 700,000 before
+		-- #2651 (tier6-7-areas.md 7b): levels 6 and 7 at Tier 6 and 7, scaled with the tiers' Pace fit
+		costs = { 0, 2000, 15000, 550000, 6000000, 200000000, 1300000000 }, -- #1896 re-fit with Catch v3: Espresso 4 700,000 before
 		startLevel = 1,
 	},
 	{
@@ -1355,8 +1356,8 @@ Catalog.upgrades = {
 		maxLevel = 7,
 		-- level n needs Tier n, but level 3 comes at Tier 2 (#1896 follow-up, a buy inside the Tier 3 save, fitted to
 		-- minute 32 at 300,000; 600,000 before); levels 4 and 5 at economy-ladder.md section 4's prices; #2651 (tier6-7-
-		-- areas.md 7b): 6 and 7 at Tier 6 and 7, draft prices until the Pace run
-		costs = { 2000, 20000, 300000, 8000000, 80000000, 2000000000, 50000000000 },
+		-- areas.md 7b): 6 and 7 at Tier 6 and 7, scaled with the tiers' Pace fit
+		costs = { 2000, 20000, 300000, 8000000, 80000000, 250000000, 1700000000 },
 		startLevel = 0,
 	},
 } :: { Types.UpgradeDef }

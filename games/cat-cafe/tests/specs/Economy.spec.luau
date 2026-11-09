@@ -767,7 +767,7 @@ return function()
 		it("at Tier 7 everything can go to its max level and then says Already maxed", function()
 			local p = freshProfile()
 			p.tier = 7 -- #2651
-			p.coins = 1e12 -- the Lucky Cat 7 is 50,000,000,000 (#2651)
+			p.coins = 1e10 -- the Lucky Cat 7 is 1,700,000,000 (#2651)
 			for _, def in ipairs(Catalog.upgrades) do
 				p.upgradeLevels[def.id] = def.maxLevel - 1
 				expect(Economy.upgradeBlocker(p, def.id)).never.to.be.ok()
@@ -1010,9 +1010,12 @@ return function()
 			-- data-model 11, pace v0.13.6: income grows about five times a tier, and the old costs, growing about four
 			-- times, let every tier's shop be bought the moment it opened. A rank up cheaper than that is Derek's
 			-- 01:38 "max out almost instantly" again.
+			-- #2651: Tier 6 and 7 come from QA-Planner's Pace runs instead (6.4 h and about 10 h after the tier below at
+			-- 9B and 60B, 3.9 and 6.7 times), as the cafe multiplier and Index bonuses keep income climbing; they keep a
+			-- floor of three times
 			for tier = 3, Catalog.maxTier do
 				local ratio = Catalog.tiers[tier].cost / Catalog.tiers[tier - 1].cost
-				if ratio < 5 then
+				if ratio < (if tier >= 6 then 3 else 5) then
 					error(
 						string.format(
 							"Tier %d costs only %.2f times Tier %d",

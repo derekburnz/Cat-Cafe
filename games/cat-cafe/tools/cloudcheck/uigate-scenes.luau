@@ -6167,6 +6167,25 @@ local SCENES = {
 		UI.open("Store")
 		assertStoreCards(true)
 	end },
+	-- #2850 (Derek2: "move the 999 pack and extra food bowl somewhere in featured"): with the Starter Bundle unbought
+	-- it is the hero, and the King Cat Pack and the Second Bait Bowl lead the picks; the hero lists the bundle's contents
+	{ "StoreStarter", function()
+		UI.update({ starterBought = false } :: any)
+		UI.store.preview(storePrices(true), {})
+		UI.open("Store")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local storeWindow = modals and modals:FindFirstChild("Store", true)
+		assert(storeWindow, "uigate: no Store window (#2850)")
+		local names = {}
+		for _, label in storeWindow:GetDescendants() do
+			if label:IsA("TextLabel") and label.Visible then
+				names[label.Text] = true
+			end
+		end
+		for _, name in { "Starter Bundle", "King Cat Pack", "Second Bait Bowl" } do
+			assert(names[name], "uigate: Featured does not show " .. name .. " (#2850)")
+		end
+	end },
 	-- #1888: the Store funnel reports each tab once a visit (deferred past the open) and the first buy of a visit
 	{ "StoreFunnel", function()
 		UI.store.preview(storePrices(true), {})

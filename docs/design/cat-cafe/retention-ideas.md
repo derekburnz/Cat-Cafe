@@ -37,7 +37,7 @@ Effort: S is under a day for one builder, M is one or two days and a couple of b
 | 5 | Tablet pass | tablet 0/10 past rescue | M |
 | 6 | Open loop at every exit, "welcome back" on return | session 2, 7-day return | S–M |
 | 7 | Server-wide timed moment every 15–30 min | 5–30 min, co-play | M |
-| 8 | Invite prompt after the first good moment, free private servers | co-play days | S–M |
+| 8 | Invite prompt after the first good moment | co-play days | S |
 | 9 | Cozy Cafe rewards (the player's AFK idea) | session length up to 60 min | M |
 | 10 | An upgrade every 60–90 s early | 2–10 min | S |
 | 11 | Weekly update at a fixed day and time, with an update gift | play days, D7 | process |
@@ -91,11 +91,12 @@ Changed after Research-Agent's deep dive (section 4): the old #8 Day 2 teaser fo
 - **Measure:** the 20 and 30 min shares, the share of players in the server who join a parade, and session length in 2+ player servers.
 - **Builders:** Gameplay (timer and spawns), UI (countdown), VFX and Sound (parade entrance).
 
-### 8. Invite prompt after the first good moment, free private servers
-- **What:** after the first Rare-or-better cat (idea 2), a one-time card: "Show a friend? Invite them to your cafe", which opens Roblox's own invite prompt. It's skippable, appears once, and gives no reward for inviting (no pressure on kids). Also turn on free private servers, which Roblox now counts as co-play.
+### 8. Invite prompt after the first good moment
+- **What:** after the first Rare-or-better cat (idea 2), a one-time card: "Show a friend? Invite them to your cafe", which opens Roblox's own invite prompt. It's skippable, appears once, and gives no reward for inviting (no pressure on kids). Invited friends join the player's public server.
 - **Why:** co-play days are a ranking signal, and players invite at a high point, not at the start.
 - **Measure:** invite prompt opens and accepts, and co-play days in Creator Analytics.
-- **Builders:** UI (card). Private servers are an experience setting, so they need Derek's OK (store-adjacent).
+- **Builders:** UI (card).
+- **Private servers stay as they are** (Derek, 2026-11-09: free with VIP, 50 Robux otherwise), so players stay in public servers where Derek can join and watch. No idea here leans on private servers or changes their price.
 
 ### 9. Cozy Cafe rewards (the player's AFK suggestion)
 - **What:** "While you're in your cafe, your cats bring you extra rewards."
@@ -142,8 +143,8 @@ Changed after Research-Agent's deep dive (section 4): the old #8 Day 2 teaser fo
   - An open loop at exit and a welcome back (idea 6).
   - A weekly fixed-time update (idea 11).
   - A server-wide timed moment (idea 7).
-  - Co-play invites and private servers (idea 8).
-  - Small full servers (8).
+  - Co-play invites (idea 8). Its private-server half is dropped by Derek's decision above.
+  - Small full servers (8), which is already our server size.
   - A gameplay video on Home.
   - A pacing guard (added to idea 1).
   - Measuring sessions 2 to 5.

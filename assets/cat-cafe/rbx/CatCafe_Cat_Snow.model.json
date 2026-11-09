@@ -726,7 +726,7 @@
        "CFrame": {
         "position": [
          0.0,
-         1.4,
+         1.42,
          -0.932
         ],
         "orientation": [
@@ -749,8 +749,8 @@
        }
       },
       "Size": [
-       0.27,
-       0.054,
+       0.3375,
+       0.0607,
        0.04
       ],
       "Color": [
@@ -775,7 +775,7 @@
        "CFrame": {
         "position": [
          0.0,
-         1.4,
+         1.42,
          -0.935
         ],
         "orientation": [
@@ -798,8 +798,8 @@
        }
       },
       "Size": [
-       0.27,
-       0.054,
+       0.3375,
+       0.0608,
        0.04
       ],
       "Color": [
@@ -824,7 +824,7 @@
        "CFrame": {
         "position": [
          0.0,
-         1.4,
+         1.42,
          -0.938
         ],
         "orientation": [
@@ -847,8 +847,8 @@
        }
       },
       "Size": [
-       0.27,
-       0.054,
+       0.3375,
+       0.0608,
        0.04
       ],
       "Color": [
@@ -872,19 +872,19 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         0.0,
-         1.4,
+         -0.1188,
+         1.42,
          -0.941
         ],
         "orientation": [
          [
-          0.7071,
-          -0.7071,
+          0.0,
+          -1.0,
           0.0
          ],
          [
-          0.7071,
-          0.7071,
+          1.0,
+          0.0,
           0.0
          ],
          [
@@ -896,8 +896,253 @@
        }
       },
       "Size": [
-       0.081,
-       0.081,
+       0.0945,
+       0.0432,
+       0.04
+      ],
+      "Color": [
+       0.2353,
+       0.4902,
+       0.851
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Snow_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.1188,
+         1.42,
+         -0.944
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0945,
+       0.0432,
+       0.04
+      ],
+      "Color": [
+       0.2353,
+       0.4902,
+       0.851
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Snow_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0594,
+         1.3174,
+         -0.947
+        ],
+        "orientation": [
+         [
+          -0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          -0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0945,
+       0.0432,
+       0.04
+      ],
+      "Color": [
+       0.2353,
+       0.4902,
+       0.851
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Snow_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0594,
+         1.5226,
+         -0.95
+        ],
+        "orientation": [
+         [
+          -0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          -0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0945,
+       0.0432,
+       0.04
+      ],
+      "Color": [
+       0.2353,
+       0.4902,
+       0.851
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Snow_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0594,
+         1.5226,
+         -0.953
+        ],
+        "orientation": [
+         [
+          0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0945,
+       0.0432,
+       0.04
+      ],
+      "Color": [
+       0.2353,
+       0.4902,
+       0.851
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Snow_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0594,
+         1.3174,
+         -0.956
+        ],
+        "orientation": [
+         [
+          0.866,
+          -0.5,
+          0.0
+         ],
+         [
+          0.5,
+          0.866,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0945,
+       0.0432,
        0.04
       ],
       "Color": [

@@ -1484,6 +1484,7 @@ function UI.init(config: Types.InitConfig)
 		RunService.Heartbeat:Connect(function(dt: number)
 			ticks.tips(dt)
 			ticks.nudges(dt)
+			UI.giftLadder.tick(dt)
 		end)
 	)
 	introScreen = Intro.new(parent, {
@@ -1643,6 +1644,7 @@ function UI.update(partial: Types.PartialState)
 	end
 	deriveState(partial)
 	render()
+	UI.giftLadder.refresh() -- #2791
 end
 
 function UI.getState(): Types.PlayerState
@@ -2735,6 +2737,8 @@ function UI.richTip.bind(plot: Instance?)
 	if richTipScreen then
 		richTipScreen:bind(plot)
 	end
+	UI.cozy.plot = plot -- #2798: the same plot's Cozy attributes, read each second (UI.cozy.refresh)
+	UI.cozy.refresh()
 	-- F91: the same plot's LawnPath says the Lawn chip is live
 	if decor then
 		decor:bindPlot(plot)
@@ -5040,6 +5044,79 @@ do
 			present(visit.token, away)
 		end
 	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- The gift ladder (#2791, retention-ideas.md 5a)
+----------------------------------------------------------------------------------------------------
+
+-- The next steps of the gift ladder on the HUD's Rewards tile (HUD.setGiftLadder, Components/GiftLadderLogic): from
+-- ProfileSync's giftNext and playSeconds, counted on from when playSeconds came, redrawn each second. The server pays
+-- each step and toasts it. Its own table, as the module is short of locals.
+UI.giftLadder = {
+	played = nil :: number?, -- the last playSeconds the server sent
+	playedAt = 0, -- os.clock() when it came
+	clock = 0,
+}
+
+function UI.giftLadder.refresh()
+	local ladder = UI.giftLadder
+	local sent = (state :: any).playSeconds
+	if sent ~= ladder.played then
+		ladder.played = if type(sent) == "number" then sent else nil
+		ladder.playedAt = os.clock()
+	end
+	local view = hud
+	if view == nil then
+		return
+	end
+	local played: number? = if ladder.played ~= nil
+		then (ladder.played :: number) + (os.clock() - ladder.playedAt)
+		else nil
+	local GiftLadderLogic = require(script.Components.GiftLadderLogic)
+	view:setGiftLadder(
+		GiftLadderLogic.rows(
+			(state :: any).giftNext,
+			played,
+			(state :: any).prizeRate or state.incomePerSecond
+		)
+	)
+end
+
+function UI.giftLadder.tick(dt: number)
+	local ladder = UI.giftLadder
+	ladder.clock += dt
+	if ladder.clock >= 1 then
+		ladder.clock = 0
+		if (state :: any).giftNext ~= nil then
+			UI.giftLadder.refresh()
+		end
+		UI.cozy.refresh()
+	end
+end
+
+-- #2798 (retention-ideas.md idea 10): the Cozy Cafe line on the Rewards list (HUD.setCozy, Components/CozyLogic),
+-- from the own plot's CozyActive, CozyNextAt and CozyBagAt, which the server sets. UI.richTip.bind hands it the plot.
+UI.cozy = { plot = nil :: Instance? }
+
+function UI.cozy.refresh()
+	local view = hud
+	if view == nil then
+		return
+	end
+	local plot = UI.cozy.plot
+	if plot == nil then
+		view:setCozy(nil, false)
+		return
+	end
+	local CozyLogic = require(script.Components.CozyLogic)
+	local line, ready = CozyLogic.line(
+		plot:GetAttribute("CozyActive"),
+		plot:GetAttribute("CozyNextAt"),
+		plot:GetAttribute("CozyBagAt"),
+		Workspace:GetServerTimeNow()
+	)
+	view:setCozy(line, ready)
 end
 
 ----------------------------------------------------------------------------------------------------

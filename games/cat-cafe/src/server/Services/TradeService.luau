@@ -41,6 +41,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local Net = require(script.Parent.Net)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local Telemetry = require(script.Parent.Telemetry)
@@ -370,7 +371,12 @@ local function stillGives(
 	local cats: { Types.CatInstance } = {}
 	for _, uid in side.cats do
 		local instance = profile.cats[uid]
-		if instance == nil or Trade.offerRefusal(instance, {}) ~= nil or other.cats[uid] ~= nil then
+		if
+			instance == nil
+			or Trade.offerRefusal(instance, {}) ~= nil
+			or other.cats[uid] ~= nil
+			or CatStats.atSpa(profile, uid) -- #2651 part 4
+		then
 			return nil
 		end
 		table.insert(cats, table.clone(instance))
@@ -713,6 +719,9 @@ local function onOffer(
 	end
 	local instance = profile.cats[uid]
 	local refusal = Trade.offerRefusal(instance, mine.cats)
+	if refusal == nil and CatStats.atSpa(profile, uid) then
+		refusal = LateStations.Messages.atSpa -- #2651 part 4: collect or take it out of the Oasis Spa first
+	end
 	if refusal == nil and #mine.cats + 1 >= ProfileSchema.catCount(profile) then
 		refusal = Trade.Messages.lastCat
 	end

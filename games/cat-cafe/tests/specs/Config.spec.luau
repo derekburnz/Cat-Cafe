@@ -182,6 +182,14 @@ return function()
 		CollectorRollMax = 1.5,
 		FirstVisitStaySeconds = 300, -- #2792 (retention-ideas.md section 2): a first visit waits 5 minutes
 		FirstVisitWindowSeconds = 1800, -- #2792: the schedule only inside an account's first 30 minutes of play
+		-- #2797 (retention-ideas.md 5d): the invite reward
+		InviteRewardFish = 20,
+		InviteQualifySeconds = 300,
+		InviteDailyMax = 5,
+		InviteRewardedMax = 50,
+		InviteCardFromSeconds = 300,
+		InviteCardBySeconds = 900,
+		InvitePendingCheckSeconds = 60,
 		-- the Spin Wheel station (F49, section 11c, design v0.6)
 		SpinStationRange = 14,
 		SpinCooldownSeconds = 4,
@@ -309,6 +317,8 @@ return function()
 		LostFoundEverySeconds = 7200, -- #1732: a find every 2 h, was one a UTC day
 		LostFoundHold = 3,
 		CampExtraRangeStuds = 8,
+		SpaSeconds = 3600, -- #2651 part 4 (late-stations.md); SpaSlotPrices is checked in LateStations.spec
+		MuseumRoomTipBonus = 0.02,
 		RallyStartWeekday = 6, -- F101 (rescue-rally.md section 5); RallyPoints is checked in Rally.spec
 		RallyHours = 48,
 		RallyExtendFrom = 1794009600, -- #2227: Saturday 2026-11-07 00:00 UTC
@@ -514,6 +524,8 @@ return function()
 				UpdateEventId = true, -- #2766: the next update's Roblox Event id, set per Event, checked in EventRsvp.spec
 				UpdateEventStartsAt = true, -- #2766: that Event's start (os.time(), UTC), set per Event
 				FirstVisitAt = true, -- #2792: a table, checked in FirstVisits.spec
+				SpaSlotPrices = true, -- #2651 part 4 (late-stations.md): a table, checked in LateStations.spec
+				LateStationsOpen = true, -- #2651 part 4: false until the cards are in (a false value reads as missing)
 				RescueAreaEase = true, -- #2786: a table, checked in Rescue.spec
 			}
 			for name, value in pairs(Config :: any) do

@@ -14,6 +14,7 @@ local CampExtras = require(ReplicatedStorage.Shared.CampExtras)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local CornerShop = require(ReplicatedStorage.Shared.CornerShop)
+local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local Layout = require(script.Parent.Layout)
 local SafeWords = require(script.Parent.SafeWords)
 local StarterCat = require(ReplicatedStorage.Shared.StarterCat)
@@ -1785,6 +1786,65 @@ local function buildCampExtras(parent: Instance)
 	end
 end
 
+-- #2651 part 4 (late-stations.md): the Oasis Spa and the Relic Museum, each LateStations.stations model at
+-- Layout.lateStationAt, placed and prompted as the camp extras are (tag LateStation, attributes StationId and Area,
+-- prompt LateStationPrompt). Without the art a plain block stands in. Only once Config.LateStationsOpen, when the UI's
+-- cards are in.
+local function buildLateStations(parent: Instance)
+	if not Config.LateStationsOpen then
+		return
+	end
+	for _, def in LateStations.stations do
+		local x, y, z, turn = Layout.lateStationAt(def.area)
+		if x == nil or y == nil or z == nil or turn == nil then
+			continue
+		end
+		local at = CFrame.new(x, y, z) * CFrame.Angles(0, math.rad(turn), 0)
+		local model: Model
+		if AssetRegistry.has(def.model) then
+			model = place(def.model, at, parent)
+		else
+			model = Instance.new("Model")
+			model.PrimaryPart = part(
+				"Body",
+				Vector3.new(4, 2.5, 3),
+				at * CFrame.new(0, 1.25, 0),
+				CARAMEL,
+				Enum.Material.Sandstone,
+				model
+			)
+			model.Parent = parent
+		end
+		model.Name = (def.name:gsub(" ", ""))
+		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+		model:SetAttribute("StationId", def.id)
+		model:SetAttribute("Area", def.area)
+		CollectionService:AddTag(model, LateStations.TAG)
+		local anchor = model:FindFirstChild("PromptAnchor", true)
+		if anchor == nil or not anchor:IsA("Attachment") then
+			local host = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+			if host == nil then
+				continue
+			end
+			local float = Instance.new("Attachment")
+			float.Name = "PromptAnchor"
+			float.Parent = host
+			float.WorldPosition = (at * CFrame.new(0, 1.5, -2.5)).Position
+			anchor = float
+		end
+		local prompt = Instance.new("ProximityPrompt")
+		prompt.Name = LateStations.PROMPT
+		prompt.ObjectText = def.name
+		prompt.ActionText = "Open"
+		prompt.HoldDuration = 0
+		prompt.MaxActivationDistance = Config.CampExtraRangeStuds
+		prompt.RequiresLineOfSight = false
+		prompt.Style = Enum.ProximityPromptStyle.Custom
+		prompt:SetAttribute("StationId", def.id)
+		prompt.Parent = anchor
+	end
+end
+
 -- The Garden Nursery (#1200) is retired by #1537 (lawn-nursery.md section 7): lawn pieces are sold only at the Yard
 -- Sale, so its stall is no longer placed. Layout.lawnStallAt keeps its Park spot for Model-Agent to reuse.
 
@@ -2573,6 +2633,7 @@ function WorldBuilder.build(): World
 	buildIndexBoards(boardsFolder)
 	local extrasFolder = folder("CampExtras", root)
 	buildCampExtras(extrasFolder)
+	buildLateStations(extrasFolder) -- #2651 part 4
 	-- the SAFE ZONE words last among the camp's dressing, so they find room clear of the gate, the Index Board and the
 	-- extras too (#1132)
 	for _, info in areas do

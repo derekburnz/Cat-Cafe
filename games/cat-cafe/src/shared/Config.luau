@@ -607,6 +607,19 @@ local Config = {
 	FirstVisitAt = { rich = 180, mystery = 360, collector = 540 },
 	FirstVisitStaySeconds = 300,
 	FirstVisitWindowSeconds = 1800,
+	-- #2797 (retention-ideas.md 5d, shared/Invites): the invite reward. A new player who joined through an invite gets
+	-- InviteRewardFish on their first catch; the inviter gets InviteRewardFish once that joiner has played
+	-- InviteQualifySeconds or caught a cat, for at most InviteDailyMax joiners a UTC day and once per joiner (the last
+	-- InviteRewardedMax remembered). The invite card shows once, between InviteCardFromSeconds and
+	-- InviteCardBySeconds of play on the account; InvitePendingCheckSeconds is how often an online inviter's
+	-- cross-server rewards are picked up.
+	InviteRewardFish = 20,
+	InviteQualifySeconds = 300,
+	InviteDailyMax = 5,
+	InviteRewardedMax = 50,
+	InviteCardFromSeconds = 300,
+	InviteCardBySeconds = 900,
+	InvitePendingCheckSeconds = 60,
 	CollectorRangeStuds = 12, -- AnswerCollector from this close to him (his card opens there)
 	PotionMaxMinutes = 1440, -- one kind's time left never goes over this; a drink that would is refused (v0.13.8; F95: 24 h, Derek 2026-10-28 17:36)
 	TipPotionBonus = 0.25, -- tip_potion: +25% on income, the tip piles and rich visitors
@@ -814,6 +827,14 @@ local Config = {
 			lostCat: string?,
 		}
 	},
+	-- #2651 part 4 (late-stations.md): the Oasis Spa (Desert camp, Tier 6) gives a cat +1 level after SpaSeconds of
+	-- real time (offline too), one slot free and two more bought once with golden fish at SpaSlotPrices; each Relic
+	-- Museum (Ruins camp, Tier 7) room filled adds MuseumRoomTipBonus to the tips-forever total. LateStationsOpen
+	-- places them and opens their remotes once the UI's cards are in (UI-Engineer).
+	SpaSeconds = 3600,
+	SpaSlotPrices = { 0, 100, 250 },
+	MuseumRoomTipBonus = 0.02,
+	LateStationsOpen = false,
 	CampExtraRangeStuds = 8,
 
 	-- The Rescue Rally weekend (F101, rescue-rally.md; shared/Rally, Catalog.rallySteps). From RallyStartWeekday (0 is

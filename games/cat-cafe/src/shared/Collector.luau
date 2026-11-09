@@ -10,13 +10,15 @@ local Types = require(script.Parent.Types)
 local Collector = {}
 
 -- True when he may ask for `instance`: an area cat (section 3: never a spare), resting in the cat room (no role slot)
--- and not locked. A cat being carried is not in the cafe yet, so it is never in profile.cats to ask for.
-function Collector.askable(instance: Types.CatInstance): boolean
+-- and not locked. A cat being carried is not in the cafe yet, so it is never in profile.cats to ask for. `busy` (the
+-- uids at the Oasis Spa, #2651 part 4) are never asked for.
+function Collector.askable(instance: Types.CatInstance, busy: { [string]: boolean }?): boolean
 	local def = Catalog.getCat(instance.catId)
 	return def ~= nil
 		and Catalog.getArea(def.area) ~= nil
 		and instance.spotId == nil
 		and instance.locked ~= true
+		and not (busy ~= nil and busy[instance.uid] == true)
 end
 
 -- The cat he wants from `cats`: a catId among the distinct catIds of the askable cats, so a pile of Tabbies does not
@@ -26,12 +28,13 @@ end
 function Collector.pickCat(
 	cats: { [string]: Types.CatInstance },
 	roll: () -> number,
-	tier: number?
+	tier: number?,
+	busy: { [string]: boolean }?
 ): Types.CatInstance?
 	local byId: { [string]: { Types.CatInstance } } = {}
 	local ids: { string } = {}
 	for _, instance in cats do
-		if not Collector.askable(instance) then
+		if not Collector.askable(instance, busy) then
 			continue
 		end
 		local list = byId[instance.catId]

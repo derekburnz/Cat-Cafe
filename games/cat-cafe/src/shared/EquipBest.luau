@@ -122,11 +122,14 @@ function EquipBest.openSpots(profile: Types.PlayerProfile): { Types.SpotDef }
 	return open
 end
 
--- Owned cats in a stable order (best first) so the result never depends on hash iteration order.
+-- Owned cats in a stable order (best first) so the result never depends on hash iteration order. A cat at the Oasis
+-- Spa (#2651 part 4) takes no role, so it is left out.
 local function orderedCats(profile: Types.PlayerProfile): { Types.CatInstance }
 	local cats: { Types.CatInstance } = {}
-	for _, instance in profile.cats do
-		table.insert(cats, instance)
+	for uid, instance in profile.cats do
+		if not CatStats.atSpa(profile, uid) then
+			table.insert(cats, instance)
+		end
 	end
 	table.sort(cats, CatStats.betterFor(profile.tier))
 	return cats

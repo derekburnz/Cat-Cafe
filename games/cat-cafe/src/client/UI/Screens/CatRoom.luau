@@ -45,7 +45,9 @@ local SettingsList = require(script.Parent.Parent.Components.SettingsList)
 local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local StaffSlots = require(script.Parent.Parent.Components.StaffSlots)
+local StepTarget = require(script.Parent.Parent.Components.StepTarget)
 local Theme = require(script.Parent.Parent.Theme)
+local TutorialHints = require(script.Parent.Parent.Components.TutorialHints)
 local Types = require(script.Parent.Parent.Types)
 
 -- the dark window palette (#1028), in place of Theme.modal
@@ -1262,6 +1264,16 @@ function CatRoom.render(self: any, state: Types.PlayerState)
 		chip:setStyle(if filter == self._filter then "gold" else "ghost")
 	end
 	self._equipBest:setEnabled(counts.all > 0)
+	-- #2697: while the tutorial asks for a job, Equip Best rings (one press puts the new cat to work)
+	local catalog: Types.Catalog? = self._catalog
+	StepTarget.ui(
+		self._equipBest.face,
+		counts.all > 0
+			and TutorialHints.ask(
+					TutorialHints.view(state, if catalog then catalog.spots else nil)
+				)
+				== "job"
+	)
 	self._unequipAll:setEnabled(counts.working > 0)
 	-- #1955: the saved switch; #2076: a fresh press wins until the server agrees, as on the Settings screen
 	local settings: { [string]: any } = (state :: any).settings or {}

@@ -1049,6 +1049,7 @@ export type Settings = {
 	sessionRecap: boolean, -- #1920: the session recap card after Config.RecapAfterSeconds of play
 	autoEquip: boolean, -- #1955: Auto Equip, on for new accounts and off for saves from before it
 	catIncome: boolean, -- #2551: the rate tags over working cats (UI WorldTags), on by default
+	goalFolded: boolean, -- #2714: the HUD's goal card folded into its chip (touch), off by default
 }
 
 -- #1893 (first-hour.md 1c): the Grand Opening roadmap, milestone number -> true once done and paid, and finished

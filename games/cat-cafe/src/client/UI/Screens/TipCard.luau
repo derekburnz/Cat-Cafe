@@ -33,15 +33,42 @@ export type TipCard = {
 	destroy: (self: TipCard) -> (),
 }
 
-local CARD_W = 400
-local CARD_H = 64
 local TOP = 12 -- under the top bar (the ScreenGui keeps to the safe insets)
-local ICON = 42
-local X_SIZE = 28 -- the X disc at the card's right end
 local BAR_H = 5
 local SLIDE = TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 local SLIDE_OUT = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-local HIDDEN_Y = -(CARD_H + 20)
+-- The card's sizes (design px). #2762 (Derek2: the tips are "for phone too big"): a phone held sideways draws the UI
+-- at the touch floor, about 1.6 times its share of a PC's screen, so there the card is a size smaller (Scale.isPhone).
+type Layout = {
+	w: number,
+	h: number,
+	icon: number,
+	glyph: number,
+	x: number,
+	xText: number,
+	pad: number,
+	text: number,
+}
+local FULL: Layout = {
+	w = 400,
+	h = 64,
+	icon = 42,
+	glyph = 24,
+	x = 28,
+	xText = 18,
+	pad = 12,
+	text = Theme.sizes.textBody + 1,
+}
+local PHONE: Layout = {
+	w = 300,
+	h = 60, -- the whole card is the close: a finger high (44 px at the touch floor)
+	icon = 30,
+	glyph = 17,
+	x = 22,
+	xText = 14,
+	pad = 8,
+	text = Theme.sizes.textBody,
+}
 local CLEAR = 8 -- the gap kept under anything in `avoid` (#2393)
 
 local TipCard = {}
@@ -55,6 +82,8 @@ function TipCard.new(parent: Instance, avoid: (() -> { GuiObject })?): TipCard
 	self._token = 0
 	self._onDone = nil :: ((tapped: boolean) -> ())?
 	self._drain = nil :: Tween?
+	local L: Layout = if Scale.isPhone() then PHONE else FULL
+	self._layout = L
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeTips",
@@ -80,15 +109,15 @@ function TipCard.new(parent: Instance, avoid: (() -> { GuiObject })?): TipCard
 		BackgroundColor3 = Theme.modal.panel,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, HIDDEN_Y),
-		Size = UDim2.fromOffset(CARD_W, CARD_H),
+		Position = UDim2.new(0.5, 0, 0, -(L.h + 20)),
+		Size = UDim2.fromOffset(L.w, L.h),
 		ClipsDescendants = true,
 		Visible = false,
 		Parent = root,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius + 4) }),
 		-- a phone held upright is narrower than the card: the card keeps 16 px from each edge
-		Create("UISizeConstraint", { MinSize = Vector2.new(240, CARD_H) }),
+		Create("UISizeConstraint", { MinSize = Vector2.new(240, L.h) }),
 	})
 	Outline.border(card, Theme.sizes.outline + 1)
 	self._card = card
@@ -98,8 +127,8 @@ function TipCard.new(parent: Instance, avoid: (() -> { GuiObject })?): TipCard
 		BackgroundColor3 = Theme.colors.gold,
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.new(0, 12, 0.5, -1),
-		Size = UDim2.fromOffset(ICON, ICON),
+		Position = UDim2.new(0, L.pad, 0.5, -1),
+		Size = UDim2.fromOffset(L.icon, L.icon),
 		Parent = card,
 	}, {
 		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
@@ -111,7 +140,7 @@ function TipCard.new(parent: Instance, avoid: (() -> { GuiObject })?): TipCard
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
 		FontFace = Theme.fonts.display,
-		TextSize = 24,
+		TextSize = L.glyph,
 		TextColor3 = Theme.colors.white,
 		Text = "",
 		Parent = disc,
@@ -120,10 +149,10 @@ function TipCard.new(parent: Instance, avoid: (() -> { GuiObject })?): TipCard
 		Name = "Line",
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.new(0, 12 + ICON + 12, 0.5, -1),
-		Size = UDim2.new(1, -(12 + ICON + 12 + 10 + X_SIZE + 10), 1, -12),
+		Position = UDim2.new(0, L.pad + L.icon + L.pad, 0.5, -1),
+		Size = UDim2.new(1, -(L.pad + L.icon + L.pad + 10 + L.x + 10), 1, -12),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody + 1,
+		TextSize = L.text,
 		TextColor3 = Theme.modal.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextWrapped = true,
@@ -137,9 +166,9 @@ function TipCard.new(parent: Instance, avoid: (() -> { GuiObject })?): TipCard
 		BorderSizePixel = 0,
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, -10, 0.5, -1),
-		Size = UDim2.fromOffset(X_SIZE, X_SIZE),
+		Size = UDim2.fromOffset(L.x, L.x),
 		FontFace = Theme.fonts.display,
-		TextSize = 18,
+		TextSize = L.xText,
 		TextColor3 = Theme.colors.white,
 		Text = "X",
 		Parent = card,
@@ -177,11 +206,12 @@ function TipCard.new(parent: Instance, avoid: (() -> { GuiObject })?): TipCard
 	return self :: TipCard
 end
 
--- The card is CARD_W wide, or the screen less 16 px a side when that is narrower.
+-- The card is its layout's width, or the screen less 16 px a side when that is narrower.
 function TipCard._fit(self: any)
 	local scale = math.max(self._uiScale.Scale, 0.01)
 	local width = self._card.Parent.AbsoluteSize.X / scale
-	self._card.Size = UDim2.fromOffset(math.min(CARD_W, math.max(240, width - 32)), CARD_H)
+	local L: Layout = self._layout
+	self._card.Size = UDim2.fromOffset(math.min(L.w, math.max(240, width - 32)), L.h)
 end
 
 -- How far down the card comes (design px): TOP, or just under anything in `avoid` it would cover there.
@@ -204,7 +234,7 @@ function TipCard._clearTop(self: any): number
 			and size.X > 0
 			and at.X < right
 			and at.X + size.X > left
-			and at.Y < rootTop + (TOP + CARD_H + CLEAR) * scale
+			and at.Y < rootTop + (TOP + self._layout.h + CLEAR) * scale
 		then
 			top = math.max(top, math.ceil((at.Y + size.Y - rootTop) / scale) + CLEAR)
 		end
@@ -240,7 +270,7 @@ function TipCard.show(
 	if GuiService.ReducedMotionEnabled then
 		card.Position = UDim2.new(0.5, 0, 0, top)
 	else
-		card.Position = UDim2.new(0.5, 0, 0, HIDDEN_Y)
+		card.Position = UDim2.new(0.5, 0, 0, -(self._layout.h + 20))
 		TweenService:Create(card, SLIDE, { Position = UDim2.new(0.5, 0, 0, top) }):Play()
 	end
 	Sound.play("uiHint")
@@ -275,8 +305,11 @@ function TipCard._close(self: any, tapped: boolean)
 	if GuiService.ReducedMotionEnabled then
 		card.Visible = false
 	else
-		local out =
-			TweenService:Create(card, SLIDE_OUT, { Position = UDim2.new(0.5, 0, 0, HIDDEN_Y) })
+		local out = TweenService:Create(
+			card,
+			SLIDE_OUT,
+			{ Position = UDim2.new(0.5, 0, 0, -(self._layout.h + 20)) }
+		)
 		out.Completed:Once(function()
 			if self._token == token then
 				card.Visible = false

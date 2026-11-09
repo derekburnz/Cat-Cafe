@@ -54,6 +54,7 @@ local ShortNumber = require(ReplicatedStorage.Shared.ShortNumber)
 local SignStyles = require(ReplicatedStorage.Shared.SignStyles)
 local Signal = require(ReplicatedStorage.Shared.Signal)
 local SleepSpots = require(script.Parent.Parent.World.SleepSpots)
+local StationPerks = require(ReplicatedStorage.Shared.StationPerks)
 local StoreTabs = require(ReplicatedStorage.Shared.StoreTabs)
 local Telemetry = require(script.Parent.Telemetry)
 local TipService = require(script.Parent.TipService)
@@ -1425,6 +1426,9 @@ function CafeService.addCaughtCat(
 	-- Golden fish (F52): a new Index entry, a first gold, a first rainbow (F99), or an Epic and better repeat by net
 	-- or rescue
 	local fish = GoldenFish.forCatch(def.rarity, isNew, firstGold, how, firstRainbow)
+	if isNew then
+		fish += StationPerks.firstCatchFish(Economy.tier(profile)) -- #2687: the Fish Pond's Lucky Line from Tier 4
+	end
 	if fish > 0 then
 		GoldenFish.credit(profile, fish)
 		Telemetry.fishSource(
@@ -1840,7 +1844,9 @@ local function onSellCat(player: Player, rawUid: unknown)
 	end
 	profile.cats[uid] = nil
 	profile.stats.catsSold += 1
-	local value = Catalog.rarities[def.rarity].sellValue
+	-- #2687: the Yard Sale's Haggler pays 10% more from Tier 3
+	local value =
+		StationPerks.sellValue(Catalog.rarities[def.rarity].sellValue, Economy.tier(profile))
 	Economy.credit(profile, value)
 	Telemetry.source(player, profile, value, "Gameplay", "sell_cat")
 	Telemetry.custom(player, "cat_sold", 1, { instance.catId, instance.variant })

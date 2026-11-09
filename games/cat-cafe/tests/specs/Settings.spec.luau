@@ -25,6 +25,7 @@ return function()
 					sessionRecap = true,
 					autoEquip = true, -- #1955: on for a new account
 					catIncome = true, -- #2551: the rate tags show, as they always did
+					goalFolded = false, -- #2714
 				})
 				for key in pairs(Settings.defaults() :: any) do
 					expect(Settings.kinds[key]).to.be.ok()
@@ -112,6 +113,7 @@ return function()
 				sessionRecap = true,
 				autoEquip = false, -- #1955: a save from before Auto Equip starts with it off
 				catIncome = true, -- #2551: a save from before Cat income has the tags on
+				goalFolded = false, -- #2714
 			})
 		end)
 

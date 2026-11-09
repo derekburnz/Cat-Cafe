@@ -3032,4 +3032,33 @@ function Logic.areaAt(x: number, z: number, areas: { any }, pad: number): string
 	return nil
 end
 
+-- #2687's station build-in: where piece `rank` of `count` (ranked bottom to top, from 1) is at `t` seconds into the
+-- build, 0 (just starting, up in the air) to 1 (landed). The pieces start `spread` seconds apart in all, each taking
+-- `piece` seconds. Nil before its start.
+function Logic.buildPiece(
+	rank: number,
+	count: number,
+	t: number,
+	spread: number,
+	piece: number
+): number?
+	local start = if count > 1 then (rank - 1) / (count - 1) * spread else 0
+	if t < start then
+		return nil
+	end
+	return math.clamp((t - start) / math.max(piece, 1e-3), 0, 1)
+end
+
+-- How long a station build-in of `count` pieces lasts.
+function Logic.buildSeconds(count: number, spread: number, piece: number): number
+	return (if count > 1 then spread else 0) + piece
+end
+
+-- How far a piece still has to fall at `u` (0 to 1 of its drop): all the way at 0, none at 1, falling faster as it
+-- goes, so it lands with a snap.
+function Logic.buildFall(u: number): number
+	local k = math.clamp(u, 0, 1)
+	return 1 - k * k
+end
+
 return Logic

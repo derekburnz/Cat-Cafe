@@ -54,6 +54,7 @@ local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local GiftLogic = require(script.Parent.Parent.Components.GiftLogic)
 local GoalCard = require(script.Parent.GoalCard)
+local GoalFold = require(script.Parent.Parent.Components.GoalFold)
 local HudUnlocks = require(script.Parent.Parent.Components.HudUnlocks)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexHints = require(script.Parent.Parent.Components.IndexHints)
@@ -78,6 +79,7 @@ local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Signal = require(script.Parent.Parent.Components.Signal)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
+local StepTarget = require(script.Parent.Parent.Components.StepTarget)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
@@ -111,6 +113,7 @@ export type HUD = {
 	goalSeen: (self: HUD) -> (), -- #2331: the rank up card opened, so the goal card's ready pulse and arrow stop
 	setCarrying: (self: HUD, info: Types.CarryInfo?) -> (),
 	setTutorial: (self: HUD, text: string?) -> (),
+	holdTutorial: (self: HUD, held: boolean) -> (),
 	setClock: (self: HUD, clock: Types.ClockState?) -> (),
 	setLuckyDay: (self: HUD, view: LuckLogic.DayView?) -> (),
 	-- F101: "🏁 Rescue Rally in 5h 20m" under the clock in the last hours before a Rally, nil hides it
@@ -319,6 +322,27 @@ local GLOW = TweenInfo.new(0.7, Enum.EasingStyle.Quad, Enum.EasingDirection.Out,
 local CARRY_W = 420
 local CARRY_H = 56
 local TUTORIAL_W = 520 -- the tutorial strip's widest box (design px), padding included
+-- #2762 (Derek2: "for phone too big"; the strip took half a phone's width): on a phone held sideways (Scale.isPhone)
+-- the strip is a size smaller, in words, padding and box
+local function stripLayout(): {
+	w: number,
+	text: number,
+	padX: number,
+	padY: number,
+	minH: number,
+	maxH: number,
+}
+	return if Scale.isPhone()
+		then { w = 440, text = Theme.sizes.textSmall, padX = 12, padY = 5, minH = 28, maxH = 50 }
+		else {
+			w = TUTORIAL_W,
+			text = Theme.sizes.textBody + 1,
+			padX = 18,
+			padY = 9,
+			minH = 40,
+			maxH = 64,
+		}
+end
 local DROP_W = 104
 local PACK_DROP_W = 160 -- #2731: "Drop bag cat" with its icon
 local PACK_DROP_H = 44 -- as the carry banner's Drop; on touch Button's tap pad grows it to a thumb
@@ -491,6 +515,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._cannonMode = false -- F84: Cannon in place of Areas, no Alley button, the carry banner points at the camp
 	-- red dots on the menu tiles: keys seen when each screen was last open (Notices)
 	self._dots = {} :: { [string]: Frame }
+	self._stepTiles = {} :: { [string]: any } -- #2697: the Cats and Bowl tiles, by name
 	self._seen = { Upgrades = {}, Decor = {} } :: { [string]: { [string]: boolean } }
 	self._candidates = nil :: Notices.Candidates?
 	self._indexReady = 0 -- Index rewards waiting to be claimed (F48)
@@ -1263,8 +1288,17 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			return
 		end
 		callbacks.openScreen("RankUp")
+	end, function(folded: boolean)
+		-- #2714: the card folded into its chip or opened again, saved as the goalFolded setting
+		self._goalFolded = folded
+		local save = callbacks.setSetting
+		if save then
+			save(GoalFold.SETTING, folded)
+		end
+		self:_layoutRight()
 	end)
 	self._goalArea = nil :: string?
+	self._goalFolded = nil :: boolean?
 	-- #1893 (first-hour.md 1b): the Grand Opening strip just under the goal card; a tap opens or closes its steps,
 	-- saved as the roadmapOpen setting
 	self._roadmap = Roadmap.new(root, UDim2.new(1, -MARGIN, 0, GOAL_TOP), function(open: boolean)
@@ -1515,6 +1549,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end
 		if item.name == "Upgrades" then
 			self._upgradesTile = button -- #1796: glows while a tutorial step asks for an upgrade
+		elseif item.name == "Cats" or item.name == "Bowl" then
+			self._stepTiles[item.name] = button -- #2697: ring while the step asks for a job, or food in the bowl
 		end
 		if item.name == "Store" then
 			button.instance.Visible = false -- until setStore hands it a window to open
@@ -1710,6 +1746,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	table.insert(self._buttons, potions)
 	self._potionsTile = potions
+	potions.instance.Visible = not TOUCH -- #2710: the Bag holds the potions on touch (_applyUnlocks)
 	if showKeys then
 		keycap(potions.face, "P", UDim2.fromOffset(-4, -4))
 	end
@@ -1952,6 +1989,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- bottom anchor so the carry banner stacking is unchanged. It wraps only when setTutorial measures a line too
 	-- long for one row: wrapped from the start, Roblox's AutomaticSize broke a 46 character hint over the player on
 	-- a phone well short of 520 (device pass 2026-11-07).
+	local strip = stripLayout()
+	self._strip = strip
 	self._tutorial = label({
 		Name = "Tutorial",
 		BackgroundColor3 = Theme.colors.gold,
@@ -1962,7 +2001,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		AutomaticSize = Enum.AutomaticSize.XY,
 		Size = UDim2.fromOffset(0, 0),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody + 1,
+		TextSize = strip.text,
 		TextColor3 = Theme.colors.white,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextWrapped = false,
@@ -1974,16 +2013,16 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	Outline.text(self._tutorial) -- label() skips the outline on wrapped text
 	Create("UICorner", { CornerRadius = UDim.new(0, 20), Parent = self._tutorial })
 	Create("UIPadding", {
-		PaddingLeft = UDim.new(0, 18),
-		PaddingRight = UDim.new(0, 18),
-		PaddingTop = UDim.new(0, 9),
-		PaddingBottom = UDim.new(0, 9),
+		PaddingLeft = UDim.new(0, strip.padX),
+		PaddingRight = UDim.new(0, strip.padX),
+		PaddingTop = UDim.new(0, strip.padY),
+		PaddingBottom = UDim.new(0, strip.padY),
 		Parent = self._tutorial,
 	})
 	-- one line is 40 px tall; two lines stop at 64, and a longer hint truncates there
 	Create("UISizeConstraint", {
-		MinSize = Vector2.new(0, 40),
-		MaxSize = Vector2.new(TUTORIAL_W, 64),
+		MinSize = Vector2.new(0, strip.minH),
+		MaxSize = Vector2.new(strip.w, strip.maxH),
 		Parent = self._tutorial,
 	})
 
@@ -2597,10 +2636,17 @@ function HUD.render(self: any, state: Types.PlayerState)
 	end
 	-- #1796: the Upgrades tile glows while the tutorial asks for a table or the Bait bowl
 	-- on the square alone: round the whole tile it covered the "Upgrades" label under it (device pass 2026-11-07)
+	-- #2759: none of the step rings while a fresh save's intro is on its way (holdTutorial)
+	local held = self._tutorialHeld == true
 	TutorialGlow.set(
 		self._upgradesTile.face,
-		TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
+		not held and TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
 	)
+	-- #2697: the Cats tile while the step asks for a job, the Bowl tile while it asks for food in the bowl
+	local asks =
+		TutorialHints.ask(TutorialHints.view(state, if catalog then catalog.spots else nil))
+	StepTarget.ui(self._stepTiles.Cats and self._stepTiles.Cats.face, not held and asks == "job")
+	StepTarget.ui(self._stepTiles.Bowl and self._stepTiles.Bowl.face, not held and asks == "food")
 	-- F102: the Trade tile from the live minimum tier, with the rest of the full HUD, once TradeService runs (it sets
 	-- the Workspace's TradingOn; while that is false the window says trading is resting)
 	-- #2462: shown greyed below the minimum tier, so new players see what Tier 3 brings
@@ -2657,6 +2703,16 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- #1919: "Find N more cats" while the Grand Opening's twelve cats step is next
 	local nudge = if catalog then IndexHints.nudge(catalog, state) else nil
 	self._goalArea = if nudge then nudge.area else nil
+	-- #2714: folded as the goalFolded setting says, once it first arrives
+	local saved: any = state.settings
+	if
+		self._goalFolded == nil
+		and type(saved) == "table"
+		and type(saved[GoalFold.SETTING]) == "boolean"
+	then
+		self._goalFolded = saved[GoalFold.SETTING]
+		self._goal:setFolded(saved[GoalFold.SETTING])
+	end
 	self._goal:render(
 		tierProgress,
 		Format.tier(state.tier, if catalog then catalog.tiers else nil),
@@ -2730,7 +2786,9 @@ function HUD._applyUnlocks(self: any)
 	self._questsPill.instance.Visible = self._questsLive == true and self:_open("quests")
 	self:_renderRewards()
 	self._feedbackTile.instance.Visible = self:_open("feedback")
-	self._potionsTile.instance.Visible = self:_open("potions")
+	-- #2710 (Derek2: "maybe just move potions to bag for mobile and remove that button entirely"): on touch the Bag
+	-- pill holds the potions (its Potions tab), and the one potion chip takes the tile's place while any run
+	self._potionsTile.instance.Visible = self:_open("potions") and not TOUCH
 	self:_closePop() -- a list made under the old unlocks may hold a row that is gone
 	self._travelButtons.areas.instance.Visible = not self._cannonMode and self:_open("areas")
 	self:_sizeTravelRow()
@@ -2767,7 +2825,9 @@ function HUD._unlockTarget(self: any, key: HudUnlocks.Key): (GuiObject?, boolean
 				elseif key == "gifts" or key == "daily" then self._rewards
 				elseif key == "feedback" then self._feedbackTile
 				elseif key == "invite" then self._menuTile
-				elseif key == "potions" then self._potionsTile
+				elseif key == "potions" then (if TOUCH
+					then self._pills.Bag
+					else self._potionsTile) -- #2710
 				elseif key == "areas" then self._travelButtons.areas
 				else nil
 		)
@@ -2865,6 +2925,18 @@ function HUD.setCarrying(self: any, info: Types.CarryInfo?)
 	self:_layoutBottom()
 end
 
+-- #2759: holds back the step rings (the Upgrades glow and its arrow, the Cats and Bowl targets) while a fresh save's
+-- intro is on its way, and lets them back after.
+function HUD.holdTutorial(self: any, held: boolean)
+	if (self._tutorialHeld == true) == held then
+		return
+	end
+	self._tutorialHeld = held
+	if self._state ~= nil then
+		self:render(self._state)
+	end
+end
+
 function HUD.setTutorial(self: any, text: string?)
 	if text and text ~= "" then
 		-- only a new line chimes and pops; the same line again (a sync, a zone change) stays still
@@ -2898,7 +2970,7 @@ function HUD._wrapTutorial(self: any, text: string)
 			return game:GetService("TextService"):GetTextBoundsAsync(params)
 		end)
 		if ok and bounds and strip.Text == text then
-			strip.TextWrapped = bounds.X > TUTORIAL_W - 2 * 18
+			strip.TextWrapped = bounds.X > self._strip.w - 2 * self._strip.padX
 			self:_layoutBottom()
 		end
 	end)

@@ -337,6 +337,9 @@ local dailyTreatScreen: DailyTreat.DailyTreat? = nil -- the Daily Treat card (F7
 local dailyAutoOpen: boolean? = nil
 local introScreen: Intro.Intro? = nil -- the intro cutscene's bars, captions and Skip (F72, UI.intro)
 local introLive = false -- the intro exists on this server: state.introSeen arrived or UI.intro.start ran
+-- #2759: a fresh save's intro on its way: begun once one started this session; the strip waits LIMIT seconds from
+-- the UI's start at most (a field, as the module has no local registers to spare)
+UI._introWait = { begun = false, LIMIT = 30, startedAt = os.clock(), timed = false }
 local introGlowed = false -- the Tutorial tile has had its two pulses after a first play
 local tutorialButtonOn = true -- the Tutorial button setting as shown (F72)
 local tutorialTarget: (BasePart | Attachment | Vector3)? = nil -- UI.tutorial.show's, put back after an intro
@@ -422,7 +425,26 @@ function applyTutorial()
 	then
 		text, target = nil, nil
 	end
+	-- #2759: a fresh save's intro is on its way (it waits for the camp to stream in): no strip, glow or arrow over the
+	-- loading view. At most UI._introWait.LIMIT seconds from the UI's start, should no intro come.
+	local waited = os.clock() - UI._introWait.startedAt
+	local introPending = Config.IntroAutoPlay
+		and not UI._introWait.begun
+		and state.introSeen == false
+		and waited < UI._introWait.LIMIT
+	if introPending then
+		text, target = nil, nil
+		if not UI._introWait.timed then
+			UI._introWait.timed = true
+			task.delay(UI._introWait.LIMIT - waited + 0.1, function()
+				if hud ~= nil and not UI._introWait.begun then
+					applyTutorial()
+				end
+			end)
+		end
+	end
 	if hud then
+		hud:holdTutorial(introPending)
 		hud:setTutorial(text)
 	end
 	if introScreen ~= nil and introScreen:playing() then
@@ -743,6 +765,15 @@ function UI.init(config: Types.InitConfig)
 	end
 	hud = HUD.new(parent, {
 		openScreen = function(name: Types.ScreenName)
+			-- #2710: on touch the Bag holds the potions, so the potion chip (and the Bag) open it on its Potions tab
+			if
+				name == "Potions"
+				and potionsScreen
+				and Scale.isTouch()
+				and modalInstance:current() ~= name
+			then
+				potionsScreen:showTab("Potions")
+			end
 			modalInstance:toggle(name)
 			if name == "Store" and modalInstance:current() ~= "Store" then
 				-- #1888: the tap closed the Store, so a noted source tags no open
@@ -906,6 +937,12 @@ function UI.init(config: Types.InitConfig)
 			UI.events.rankUp:Fire()
 		end,
 		close = closeModal,
+		perks = function()
+			-- #2687: "Your perks" over the window
+			if UI.perks.card then
+				UI.perks.card:showList(state.tier)
+			end
+		end,
 	})
 	areasScreen = Areas.new({
 		travel = function(areaId: string)
@@ -1419,6 +1456,13 @@ function UI.init(config: Types.InitConfig)
 	end)
 	UI.recap.card = require(script.Screens.RecapCard).new(parent) -- #1920
 	UI.gift.card = require(script.Screens.GiftCard).new(parent) -- #1947
+	UI.perks.card = require(script.Screens.PerkCard).new(parent) -- #2687
+	local stationReveal = (Moments :: any).StationReveal
+	if stationReveal then
+		UI.perks.reveal = stationReveal:Connect(function(_area: string, perkId: string)
+			UI.perks.unlock(perkId)
+		end)
+	end
 	-- #1947: every press counts for the gift card's idle wait, so it never shows on an old reading
 	UI.gift.inputs = UserInputService.InputBegan:Connect(function()
 		UI.recap.lastInput = os.clock()
@@ -1446,7 +1490,7 @@ function UI.init(config: Types.InitConfig)
 		end,
 	})
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
-	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker")
+	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker", nil, true) -- #2697: flashes its target
 	-- the Cat Whistle (corner-shop-v2.md section 4): a paw over the nearest stray while its buff runs
 	CatWhistle.new(
 		WorldMarker.new(parent, "CatCafeWhistleMarker", CatWhistle.REACH),
@@ -1815,6 +1859,15 @@ function UI.destroy()
 		UI.gift.card:destroy()
 		UI.gift.card = nil
 	end
+	if UI.perks.reveal then
+		UI.perks.reveal:Disconnect()
+		UI.perks.reveal = nil
+	end
+	if UI.perks.card then
+		UI.perks.card:destroy()
+		UI.perks.card = nil
+	end
+	UI.perks.token += 1
 	if UI.gift.inputs then
 		UI.gift.inputs:Disconnect()
 		UI.gift.inputs = nil
@@ -2822,6 +2875,7 @@ function UI.intro.start(options: Types.IntroOptions?)
 		introLive = true
 		renderTutorialButton()
 	end
+	UI._introWait.begun = true
 	UI.setVisible(false)
 	if popups then
 		popups:setHeld(true)
@@ -4730,18 +4784,9 @@ do
 
 	local function hintFor(s: any, device: TipQueue.Device): string?
 		local catalog = currentCatalog
-		local levels: { [string]: number } = s.upgradeLevels or {}
-		return TutorialHints.line({
-			step = s.tutorialStep or TutorialHints.DONE,
-			device = device,
-			resting = TutorialHints.resting(
-				s.cats,
-				if catalog then catalog.spots else nil,
-				s.tier or 1
-			),
-			bowl = (levels.lure_bowl or 0) >= 1,
-			baited = s.bait ~= nil,
-		})
+		return TutorialHints.line(
+			TutorialHints.view(s, if catalog then catalog.spots else nil, device)
+		)
 	end
 
 	-- UIController's tutorialLine: the strip's words for this state on the input the player used last, or nil from
@@ -7112,6 +7157,37 @@ end
 -- gift, so the card only thanks: it waits until the player has been idle Config.GiftIdleSeconds, out of the catch
 -- circles, the rescue bar, the intro, any window or card, and not carrying, then shows once. The favourite card comes
 -- a minute or more after the like card, so they queue rather than stack.
+-- #2687 part 4: the station perk card. Moments.StationReveal (WorldController, once per area per account) brings the
+-- "Unlocked!" card a beat after the station's build-in (REVEAL_SECONDS, shorter with Reduce Motion, which has no camera
+-- beat); the rank up window's Perks button shows "Your perks".
+UI.perks = {
+	card = nil :: any,
+	reveal = nil :: RBXScriptConnection?,
+	token = 0, -- the latest unlock's, so a teardown or a second reveal drops an older wait
+	REVEAL_SECONDS = 3,
+	REDUCED_SECONDS = 0.5,
+}
+
+function UI.perks.unlock(perkId: string)
+	local StationPerks =
+		require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("StationPerks")) :: any
+	local perk = StationPerks.get(perkId)
+	if perk == nil then
+		return
+	end
+	UI.perks.token += 1
+	local token = UI.perks.token
+	local seconds = if game:GetService("GuiService").ReducedMotionEnabled
+		then UI.perks.REDUCED_SECONDS
+		else UI.perks.REVEAL_SECONDS
+	task.delay(seconds, function()
+		if UI.perks.token ~= token or UI.perks.card == nil then
+			return
+		end
+		UI.perks.card:showUnlocked(perk)
+	end)
+end
+
 UI.gift = {
 	card = nil :: any,
 	queue = {} :: { { kind: string, paid: { string }? } },

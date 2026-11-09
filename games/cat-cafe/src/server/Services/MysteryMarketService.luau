@@ -17,6 +17,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local CafeService = require(script.Parent.CafeService)
+local CatService = require(script.Parent.CatService)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
@@ -111,6 +112,9 @@ local function onBuy(player: Player, rawItemId: unknown, rawShown: unknown)
 	profile.mystery[item.id] = true
 	profile.mysterySeen = true
 	applyPerks(player, profile)
+	if item.id == "backpack" then
+		CatService.wearBackpack(player) -- #2719: on their back at once
+	end
 	Telemetry.fishSink(player, profile, price, "Shop", "mystery_" .. item.id)
 	Telemetry.custom(player, "mystery_buy", fishBefore, {
 		item.id,

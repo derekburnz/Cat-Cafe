@@ -11,6 +11,7 @@ local IndexRewards = require(script.Parent.IndexRewards)
 local Lawn = require(script.Parent.Lawn)
 local Pals = require(script.Parent.Pals)
 local Potions = require(script.Parent.Potions)
+local StationPerks = require(script.Parent.StationPerks)
 local Types = require(script.Parent.Types)
 
 local Economy = {}
@@ -248,7 +249,11 @@ function Economy.baitWaitSeconds(
 	night: boolean?,
 	now: number?
 ): number
-	local speed = IndexRewards.totals(profile).baitSpeed
+	-- #2687: the Picnic Basket's Fresh Bait from Tier 2
+	local speed = math.min(
+		IndexRewards.totals(profile).baitSpeed + StationPerks.baitSpeed(profile.tier),
+		Config.BaitSpeedMax
+	)
 	if now ~= nil then
 		speed = math.min(speed + Potions.baitSpeed(profile, now), Config.BaitSpeedMax)
 	end
@@ -289,6 +294,7 @@ function Economy.incomePerSecond(profile: Types.PlayerProfile): number
 		* Economy.cafeMultiplier(profile)
 		* Economy.tierMultiplier(profile)
 		* Economy.passMultiplier(profile)
+		* StationPerks.tipMultiplier(profile.tier) -- #2687: the Relic Museum's Curator from Tier 7
 end
 
 -- XP a second for one owned cat (data-model section 4b, v0.12 F75): a working cat earns CatXpPerSecondPlaced, times

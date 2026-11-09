@@ -35,6 +35,9 @@ return function()
 			local ruins = Presets.areaFx.areas.ruins
 			expect(ruins.mist <= Presets.budget.low.maxBurst).to.equal(true)
 			expect(ruins.mistDepth > 0).to.equal(true)
+			local b = Presets.budget
+			expect(b.lowPerformance.areaPuffs <= b.low.areaPuffs).to.equal(true)
+			expect(b.low.areaPuffs <= b.high.areaPuffs).to.equal(true)
 		end)
 	end)
 end

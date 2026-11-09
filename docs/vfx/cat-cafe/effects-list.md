@@ -988,9 +988,9 @@ The Tier 6 and 7 areas of #2651 (tier6-7-areas.md sections 4 and 5), in their pa
 
 | Look | Hook |
 |---|---|
-| Desert air: sand and sandstone motes drifting downwind in a 36 by 10 by 36 stud box round you, 10 a second at the budget's rate; none in Low performance, a fifth with Reduce Motion | your character inside the Desert's box from `LateTiers.areas` (centre, width along X, depth along Z) plus 30 studs, so the camp counts, checked every 0.5 s |
+| Desert air: sand and sandstone motes drifting downwind in a 36 by 10 by 36 stud box round you, 10 a second at the budget's rate; none in Low performance, a fifth with Reduce Motion | your character inside the Desert's box from `LateTiers.areas` (centre, width along X, depth along Z) plus 40 studs, so the camp and the server's mist catch count, checked every 0.5 s; the boxes are `Config.World`'s Desert* and Ruins* once there (#2655), else LateTiers (#2661) |
 | Ruins air: slow glyph-gold and jade sparkle motes floating up round you, 5 a second, glowing a little | the same for the Ruins |
-| Stray appears or leaves (Desert): 6 sand-coloured smoke puffs at its feet, within the budget's animRadius; none for strays already there when you arrive | the `Stray` tag added or removed on a model in Workspace with `Area` = `"desert"`; where it stands when it goes |
+| Stray appears or leaves (Desert): 6 sand-coloured smoke puffs at its feet, within the budget's animRadius and at most `areaPuffs` a second (4 on phones, 8 on PC, 2 in Low performance; #2661); none for strays already there when you arrive | the `Stray` tag added or removed on a model in Workspace with `Area` = `"desert"`; where it stands when it goes |
 | Stray appears or leaves (Ruins): 6 jade sparkles at its feet | the same with `Area` = `"ruins"` |
 | Mist fall (Ruins): 10 violet-grey smoke puffs round you, once per fall | your feet 12 studs or more below the plateau inside the Ruins' box (the server's catch then moves you to the camp pad) |
 | Cannon flight tint | `desert` sand, `ruins` jade in `Presets.cannon.tints` |

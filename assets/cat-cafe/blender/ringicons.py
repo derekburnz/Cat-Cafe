@@ -11,6 +11,8 @@ in the style of the Codes Cat's paw-stamped ticket (stations._circle). One per s
                                              ring and a little crescent moon beside it
   CatCafe_Plot_BaitBowl_RingIcon_Decor       the bait bowl (#2476): a red food bowl seen from the side with a gold rim
                                              and a paw on the front, heaped with kibble and a little blue fish treat
+  CatCafe_Square_MysteryCart_RingIcon_Decor  Juniper's Mystery Market (#2565): a berry coin in a lilac ring with a
+                                             fat gold "?" over its ink shadow, and three butter sparkles
 
 Each is one Model of plain parts (not Neon, so a glowing ring does not wash it out), CanCollide, CanTouch and
 CanQuery off (rbx_export: the `_RingIcon_Decor` suffix), no scripts. Flat: under 0.1 studs thick in all, a 0.04
@@ -28,7 +30,8 @@ FISH = "CatCafe_Street_FishMarket_RingIcon_Decor"
 SHOP = "CatCafe_Street_CornerShop_RingIcon_Decor"
 DEALER = "CatCafe_Street_DealerCart_RingIcon_Decor"
 BOWL = "CatCafe_Plot_BaitBowl_RingIcon_Decor"
-NAMES = (SPIN, FISH, SHOP, DEALER, BOWL)
+MYSTERY = "CatCafe_Square_MysteryCart_RingIcon_Decor"
+NAMES = (SPIN, FISH, SHOP, DEALER, BOWL, MYSTERY)
 
 Y0, Y1, Y2, Y3 = 0.0, 0.04, 0.06, 0.075     # base, first detail layer, second detail layer tops
 OUTLINE = 0.14                                # how far each dark outline shows past the fill
@@ -216,10 +219,37 @@ def build_bowl(mat):
     return [b.finalize(BOWL, mat)]
 
 
+def build_mystery(mat):
+    """Juniper's Mystery Market (#2565): a berry coin 3.4 across in a dark outline with a lilac inner ring, a fat gold
+    "?" (a hook of discs, a stem and a dot) over its ink shadow, and three butter sparkles. Plastic swatches only."""
+    b = RB()
+    _k[0], _off[:] = 0, (0.0, 0.0)
+    R = 1.55
+    disc(b, 0, 0, R + OUTLINE, Y0, Y1, "fur_ink", segments=24)                       # outline
+    disc(b, 0, 0, R, Y0 + 0.01, Y1 + 0.005, "pastel_lilac", segments=24)               # lilac ring
+    disc(b, 0, 0, R - 0.22, Y1 - 0.01, Y1 + 0.01, "royal_berry", segments=24)          # the coin's face
+
+    def question(dx, dz, ya, yb, swatch):
+        """The "?" as a player walking in reads it: their right is -X, so the hook bulges toward -X."""
+        cx, cz, r = dx, 0.38 + dz, 0.5
+        for k in range(10):                                                           # the hook, over the top
+            a = math.radians(165 - k * 26)
+            disc(b, cx - r * math.cos(a), cz + r * math.sin(a), 0.21, ya, yb, swatch, segments=12)
+        flat_box(b, dx - 0.04, dz - 0.3, 0.38, 0.42, ya, yb, swatch)                 # the stem
+        disc(b, dx - 0.02, dz - 0.86, 0.23, ya, yb, swatch, segments=14)              # the dot
+
+    question(-0.08, -0.08, Y1, Y2, "fur_ink")                                          # shadow, down and right
+    question(0.0, 0.0, Y1 + 0.005, Y2 + 0.005, "rarity_legend")
+    for x, z, s in ((0.95, 0.75, 0.3), (-0.95, -0.55, 0.24), (0.85, -0.7, 0.18)):    # sparkles
+        flat_box(b, x, z, s, s, Y1 + 0.005, Y2, "pastel_butter", turn=45)
+    return [b.finalize(MYSTERY, mat)]
+
+
 ASSETS = {
     SPIN: (build_spin, 1500),
     FISH: (build_fish, 1500),
     SHOP: (build_shop, 1500),
     DEALER: (build_dealer, 1500),
     BOWL: (build_bowl, 1500),
+    MYSTERY: (build_mystery, 1500),
 }

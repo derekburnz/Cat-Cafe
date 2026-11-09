@@ -1,39 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 420" font-family="sans-serif" font-size="12">
-  <title>Mystery Market corner, top-down plan (look A, the wagon)</title>
-  <rect width="560" height="420" fill="#f4efe6"/>
-  <!-- hedges closing the west arch -->
-  <rect x="20" y="40" width="30" height="340" fill="#6b8f5a"/>
-  <text x="24" y="30" fill="#333">Hedge (closed west arch, x -63)</text>
-  <!-- rug -->
-  <circle cx="200" cy="210" r="110" fill="#c9a26b" opacity="0.5"/>
-  <!-- wagon -->
-  <rect x="80" y="150" width="120" height="120" rx="20" fill="#2f6f73"/>
-  <text x="96" y="214" fill="#fff">Wagon (12 x 7)</text>
-  <!-- counter and pedestal -->
-  <rect x="200" y="170" width="24" height="80" fill="#8a5a3b"/>
-  <circle cx="250" cy="210" r="16" fill="#e8c35a"/>
-  <text x="270" y="206" fill="#333">Pedestal: featured item turns</text>
-  <!-- Moss -->
-  <circle cx="225" cy="140" r="10" fill="#7a5c8c"/>
-  <text x="240" y="138" fill="#333">Moss on the step, lantern above</text>
-  <!-- boards -->
-  <rect x="230" y="280" width="34" height="18" fill="#333"/>
-  <text x="270" y="293" fill="#333">"This week: SALE" board</text>
-  <rect x="230" y="310" width="22" height="14" fill="#555"/>
-  <text x="258" y="322" fill="#333">"?" next-week board</text>
-  <!-- crates -->
-  <rect x="90" y="290" width="26" height="26" fill="#a87b4f"/>
-  <rect x="120" y="296" width="20" height="20" fill="#a87b4f"/>
-  <rect x="96" y="100" width="22" height="22" fill="#a87b4f"/>
-  <!-- lanterns -->
-  <line x1="200" y1="160" x2="320" y2="90" stroke="#333" stroke-dasharray="4 4"/>
-  <line x1="200" y1="260" x2="320" y2="330" stroke="#333" stroke-dasharray="4 4"/>
-  <circle cx="320" cy="90" r="6" fill="#f2b84b"/><circle cx="320" cy="330" r="6" fill="#f2b84b"/>
-  <text x="330" y="94" fill="#333">Lantern post</text>
-  <!-- lane -->
-  <rect x="340" y="180" width="200" height="60" fill="#d8d2c4"/>
-  <text x="380" y="214" fill="#333">East-west lane (z -6 to 6)</text>
-  <text x="420" y="260" fill="#333">to the cannon (0, 0)</text>
-  <path d="M520 255 l14 0 l-6 -6 m6 6 l-6 6" stroke="#333" fill="none"/>
-  <text x="60" y="405" fill="#333">About 22 studs across (z -11 to 11) x 14 deep (x -63 to -49). Faces east. Not to scale.</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 672 566" font-family="sans-serif" font-size="12">
+<title>Mystery Market, Town Square south-west quarter, top-down plan to scale (Model-Agent clearance check, #2565)</title>
+<rect width="672" height="566" fill="#f4efe6"/>
+<defs><marker id="m" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#333"/></marker></defs>
+<polygon points="56.0,420.0 616.0,420.0 616.0,56.0 56.0,56.0" fill="#e6dccb" />
+<polygon points="56.0,56.0 616.0,56.0 616.0,-112.0 56.0,-112.0" fill="#d3cab8" />
+<text x="336.0" y="21.0" text-anchor="middle" font-size="12" fill="#2b2b2b" font-weight="normal">East-west lane (z -6 to 6): kept clear</text>
+<polygon points="616.0,476.0 672.0,476.0 672.0,0.0 616.0,0.0" fill="#d3cab8" />
+<text x="644.0" y="252.0" text-anchor="middle" font-size="11" fill="#2b2b2b" font-weight="normal">Street</text>
+<polygon points="0.0,476.0 56.0,476.0 56.0,0.0 0.0,0.0" fill="#8fb07a" />
+<text x="28.0" y="238.0" text-anchor="middle" font-size="11" fill="#2b2b2b" font-weight="normal">Gardens</text>
+<polygon points="56.0,476.0 616.0,476.0 616.0,420.0 56.0,420.0" fill="#b9a58a" />
+<text x="224.0" y="452.2" text-anchor="middle" font-size="11" fill="#2b2b2b" font-weight="normal">South border (buntings over it)</text>
+<polygon points="432.6,441.7 481.9,441.7 481.9,398.3 432.6,398.3" fill="#a0583f" />
+<text x="457.8" y="460.6" text-anchor="middle" font-size="10" fill="#fff" font-weight="normal">Arch post</text>
+<polygon points="41.4,396.2 79.8,434.6 98.6,415.8 60.2,377.4" fill="#333" />
+<polygon points="371.7,378.8 371.7,433.2 398.3,433.2 398.3,378.8" fill="#333" />
+<polygon points="42.8,104.3 97.2,104.3 97.2,77.7 42.8,77.7" fill="#333" />
+<text x="112.0" y="95.2" text-anchor="start" font-size="10" fill="#2b2b2b" font-weight="normal">Lamp</text>
+<polygon points="255.5,375.2 199.5,375.2 199.5,394.4 255.5,394.4" fill="none" stroke="#b33" stroke-dasharray="3 2"/>
+<polygon points="100.8,276.5 100.8,220.5 81.6,220.5 81.6,276.5" fill="none" stroke="#b33" stroke-dasharray="3 2"/>
+<text x="262" y="389" text-anchor="start" font-size="10" fill="#b33" font-weight="normal">bench removed</text>
+<text x="128.8" y="193.2" text-anchor="middle" font-size="10" fill="#b33" font-weight="normal">bench removed</text>
+<circle cx="225.7" cy="278.3" r="56.0" fill="#7ed1c2" opacity="0.55"/>
+<polygon points="207.4,355.8 148.4,259.0 98.2,289.6 157.2,386.4" fill="#4a7fb5" />
+<text x="154.0" y="327.6" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Codes Cat</text>
+<text x="215.6" y="264.6" text-anchor="middle" font-size="10" fill="#2b2b2b" font-weight="normal">Codes circle r4</text>
+<polygon points="580.3,329.7 479.4,269.1 453.4,312.3 554.4,372.9" fill="#d98a3d" />
+<text x="518.0" y="327.6" text-anchor="middle" font-size="11" fill="#fff" font-weight="bold">Day Cart</text>
+<circle cx="450.7" cy="146.6" r="56.0" fill="#e8c35a" opacity="0.55"/>
+<polygon points="436.2,255.0 346.7,112.8 263.8,165.0 353.3,307.2" fill="#2f6f73" />
+<text x="350.0" y="212.8" text-anchor="middle" font-size="12" fill="#fff" font-weight="bold">Mystery wagon</text>
+<text x="350.0" y="231.0" text-anchor="middle" font-size="10" fill="#fff" font-weight="normal">12 x 7</text>
+<text x="450.7" y="150.8" text-anchor="middle" font-size="10" fill="#2b2b2b" font-weight="normal">walk-in r4</text>
+<path d="M588.0 112.0 L644.0 56.0" stroke="#333" stroke-width="2" marker-end="url(#m)"/>
+<text x="553.0" y="93.8" text-anchor="end" font-size="10" fill="#2b2b2b" font-weight="normal">to the cannon (0, 0)</text>
+<text x="10" y="494" font-size="11" fill="#333">Every piece faces the cannon (Layout station()). Codes Cat (-41, -25), Day Cart (-15, -25),</text>
+<text x="10" y="510" font-size="11" fill="#333">Mystery wagon (-27, -17) with a footprint of 12 x 7 or less, its walk-in circle (r4) 1 stud in front.</text>
+<text x="10" y="526" font-size="11" fill="#333">Closest gaps: Codes circle to wagon 2.6, Day Cart to wagon 3.2, wagon circle to the lane 2.5, Day Cart to</text>
+<text x="10" y="542" font-size="11" fill="#333">the street 2.6 and to the arch post 4.2, Codes Cat to the south edge 2.4. Both south-west benches come out.</text>
+<text x="10" y="558" font-size="11" fill="#333">Scale 1 stud = 14 px. Model-Agent, 2026-11-09 (replaces the (-52, 0) draft and the (-24, -14) one, whose circle crossed the lane).</text>
 </svg>

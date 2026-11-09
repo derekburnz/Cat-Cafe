@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09 05:17 UTC",
+  "generated": "2026-11-09 05:43 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -301515,6 +301515,62 @@
       }
     },
     {
+      "name": "CatCafe_Square_MysteryCart_RingIcon_Decor",
+      "category": "Square",
+      "module": "ringicons",
+      "objects": [
+        "CatCafe_Square_MysteryCart_RingIcon_Decor"
+      ],
+      "triangles": 1320,
+      "budget": 1500,
+      "size_studs": {
+        "x": 3.38,
+        "y": 3.38,
+        "z": 0.08
+      },
+      "size_roblox": [
+        3.38,
+        0.08,
+        3.38
+      ],
+      "bounds_min": [
+        -1.69,
+        -1.69,
+        0.0
+      ],
+      "bounds_max": [
+        1.69,
+        1.69,
+        0.08
+      ],
+      "pivot": "the centre of its bottom face, lying flat; the picture's top points +Z",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "placements_roblox": [],
+      "studio": "#2449: a flat picture for the middle of a walk-up floor ring (Juniper's Mystery Market, #2565). Plain parts, never Neon; CanCollide, CanTouch and CanQuery off, no shadow, no scripts. At most 4 x 4 studs and under 0.1 thick: centre it in the ring, scale it to fit (Model:ScaleTo) and lift it just above the ring's top.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_MysteryCart_RingIcon_Decor.model.json",
+      "rbx_parts": 30,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_MysteryCart_RingIcon_Decor.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_MysteryCart_RingIcon_Decor.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1320/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "420 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Square_MysteryCart_RingIcon_Decor.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Square_MysteryCart_RingIcon_Decor.png"
+    },
+    {
       "name": "CatCafe_Decor_PartyBunting",
       "category": "Decor",
       "module": "eventdecor",
@@ -301651,6 +301707,205 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Decor_PartyBunting.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Decor_PartyBunting.png"
+    },
+    {
+      "name": "CatCafe_Square_MysteryCart",
+      "category": "Square",
+      "module": "mysterymarket",
+      "objects": [
+        "CatCafe_Square_MysteryCart",
+        "CatCafe_Square_MysteryCart_Bulb",
+        "CatCafe_Square_MysteryCart_Lights_Decor",
+        "CatCafe_Square_MysteryCart_Rug_Decor",
+        "CatCafe_Square_MysteryCart_Cat_Body",
+        "CatCafe_Square_MysteryCart_Cat_Head",
+        "CatCafe_Square_MysteryCart_Cat_Eye1",
+        "CatCafe_Square_MysteryCart_Cat_Eye2",
+        "CatCafe_Square_MysteryCart_Cat_EarL",
+        "CatCafe_Square_MysteryCart_Cat_EarR",
+        "CatCafe_Square_MysteryCart_Cat_Tail",
+        "CatCafe_Square_MysteryCart_Cat_LegF1",
+        "CatCafe_Square_MysteryCart_Cat_LegF2",
+        "CatCafe_Square_MysteryCart_Cat_Prop",
+        "CatCafe_Square_MysteryCart_Cat_Cloak"
+      ],
+      "triangles": 9764,
+      "budget": 10000,
+      "size_studs": {
+        "x": 10.06,
+        "y": 5.56,
+        "z": 7.78
+      },
+      "size_roblox": [
+        10.06,
+        7.78,
+        5.56
+      ],
+      "bounds_min": [
+        -5.01,
+        -3.5,
+        0.0
+      ],
+      "bounds_max": [
+        5.05,
+        2.06,
+        7.78
+      ],
+      "pivot": "base centre; the counter (-Z) faces the players",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Square_MysteryCart_Cat_Body": [
+          -2.85,
+          -2.47,
+          1.24
+        ],
+        "CatCafe_Square_MysteryCart_Cat_Head": [
+          -2.85,
+          -2.61,
+          2.69
+        ],
+        "CatCafe_Square_MysteryCart_Cat_Eye1": [
+          -2.54,
+          -3.35,
+          3.04
+        ],
+        "CatCafe_Square_MysteryCart_Cat_Eye2": [
+          -3.16,
+          -3.35,
+          3.04
+        ],
+        "CatCafe_Square_MysteryCart_Cat_EarL": [
+          -2.45,
+          -2.73,
+          3.59
+        ],
+        "CatCafe_Square_MysteryCart_Cat_EarR": [
+          -3.25,
+          -2.73,
+          3.59
+        ],
+        "CatCafe_Square_MysteryCart_Cat_Tail": [
+          -2.56,
+          -1.85,
+          1.4
+        ],
+        "CatCafe_Square_MysteryCart_Cat_LegF1": [
+          -2.61,
+          -2.9,
+          2.12
+        ],
+        "CatCafe_Square_MysteryCart_Cat_LegF2": [
+          -3.09,
+          -2.9,
+          2.12
+        ],
+        "CatCafe_Square_MysteryCart_Cat_Prop": [
+          -2.85,
+          -2.61,
+          2.69
+        ],
+        "CatCafe_Square_MysteryCart_Cat_Cloak": [
+          -2.85,
+          -2.47,
+          1.24
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Square_MysteryCart_Cat_Body": [
+          2.85,
+          1.24,
+          -2.47
+        ],
+        "CatCafe_Square_MysteryCart_Cat_Head": [
+          2.85,
+          2.69,
+          -2.61
+        ],
+        "CatCafe_Square_MysteryCart_Cat_Eye1": [
+          2.54,
+          3.04,
+          -3.35
+        ],
+        "CatCafe_Square_MysteryCart_Cat_Eye2": [
+          3.16,
+          3.04,
+          -3.35
+        ],
+        "CatCafe_Square_MysteryCart_Cat_EarL": [
+          2.45,
+          3.59,
+          -2.73
+        ],
+        "CatCafe_Square_MysteryCart_Cat_EarR": [
+          3.25,
+          3.59,
+          -2.73
+        ],
+        "CatCafe_Square_MysteryCart_Cat_Tail": [
+          2.56,
+          1.4,
+          -1.85
+        ],
+        "CatCafe_Square_MysteryCart_Cat_LegF1": [
+          2.61,
+          2.12,
+          -2.9
+        ],
+        "CatCafe_Square_MysteryCart_Cat_LegF2": [
+          3.09,
+          2.12,
+          -2.9
+        ],
+        "CatCafe_Square_MysteryCart_Cat_Prop": [
+          2.85,
+          2.69,
+          -2.61
+        ],
+        "CatCafe_Square_MysteryCart_Cat_Cloak": [
+          2.85,
+          1.24,
+          -2.47
+        ]
+      },
+      "placements_roblox": [],
+      "prompt_anchor_roblox": [
+        -0.65,
+        3.0,
+        -3.12
+      ],
+      "featured_item_roblox": [
+        -0.65,
+        3.54,
+        -2.17
+      ],
+      "tags": [
+        "MysteryMarket"
+      ],
+      "studio": "#2565 (mystery-market.md section 4, look A): Juniper's covered wagon in the Town Square's south-west quarter (Layout.mysteryCart, turned to face the cannon). WorldBuilder names it MysteryMarket, tags it MysteryMarket and hangs the MysteryPrompt on the Attachment PromptAnchor (before the counter, 3 up). The Attachment FeaturedItem is the pedestal's top centre, where the week's featured item can sit and turn. Juniper's hood rides its Head Model; the lanterns (_Bulb) are lit at night; the rug and the lantern cord (_Decor) never collide. Everything, rug included, fits mysterymarket.FOOT so the walk-up ring lands as planned.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Square_MysteryCart.model.json",
+      "rbx_parts": 711,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Square_MysteryCart.fbx",
+        "assets/cat-cafe/exports/CatCafe_Square_MysteryCart.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "9764/10000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "4793 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.02 y=-0.72"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Square_MysteryCart.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Square_MysteryCart.png"
     },
     {
       "name": "CatCafe_Sign_VipPlate",

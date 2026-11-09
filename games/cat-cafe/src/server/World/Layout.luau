@@ -600,8 +600,8 @@ local function building(name: string): string
 end
 
 -- F85's low blockers as one lane (hometown-cannon.md section 6b; Model-Agent #875, area-sets.md "The Alleyway as one
--- lane"): four rows right across, each one model at the middle, its pile segments carrying their own invisible
--- _Barrier (so nobody jumps a pile) and its lamp posts at the way through, which moves from row to row: the middle,
+-- lane"): four rows right across, each one model at the middle (low piles since Model-Agent #2841, which dropped their
+-- invisible _Barrier parts) and its lamp posts at the way through, which moves from row to row: the middle,
 -- the west side, the east side (the east Warehouse's crate stack stands in it, 21 left to walk) and the middle again.
 -- Each row stands in a gap between buildings; the string lights hang in the other gaps.
 local BLOCKER_ROWS: { { asset: string, z: number } } = {
@@ -1068,6 +1068,9 @@ Layout.park = {
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { 26, 0, 70 }, 0),
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { 18, 0, 114 }, 0),
 		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -28, 0, -10 }, 0),
+		-- #2794 (Model-Agent #2841): the starter trap, a bin on the camp plaza where a decor bin stood; RescueService
+		-- fills the pool spot nearest the camp every sunrise
+		setPropTrap(PX, PZ, PTURN, "CatCafe_Park_TrashCan", "trashcan", { -11, 0, -134 }, 0),
 	},
 	props = {},
 } :: AreaSpec

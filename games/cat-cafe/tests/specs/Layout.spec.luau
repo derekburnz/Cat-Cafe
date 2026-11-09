@@ -2807,10 +2807,15 @@ return function()
 					end
 				end
 				local pool = spec.rescuePool or {}
+				-- #2794: a starting area keeps one starter trap by the camp (RescueService fills the nearest spot)
+				local def = Catalog.getArea(id)
+				local starters = if def ~= nil and def.starterRescue == true then 1 else 0
 				local far = 0
 				for i, spot in pool do
 					local _, z = Layout.campLocal(camp, spot.x, spot.z)
-					if z <= 100 then
+					if z <= 100 and starters > 0 then
+						starters -= 1
+					elseif z <= 100 then
 						fail("%s pool spot %d (%s) is %.1f studs from the camp", id, i, spot.trap, z)
 					end
 					if z > along / 2 then

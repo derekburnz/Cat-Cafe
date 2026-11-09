@@ -5,6 +5,7 @@ also"). A door set restyles the cafe's front and back doors together; a cat flap
   CatCafe_Door_<Name>_Back      a single door for the back doorway (6 wide by 7.5), hung like CatCafe_Plot_BackDoor
   CatCafe_CatFlap_<Name>        a cat flap for the CatFlap attachment of any back door, the cafe's own included
   CatCafe_CatFlap_Plain         the cafe's own flap on its own, for a door set in use with no flap
+  #2651 adds the Desert's ArchGate set and SunDisc flap and the Ruins' TempleGate set and Keyhole flap.
 
 Pivots are where CafeService.refreshDoors puts each model, facing out (-Z):
   _Front   the foot of the front doorway on the wall's inside face, plot (0, 0, -14); the street is -Z
@@ -533,7 +534,76 @@ class Medal:
         L.knuckles(b, (0.95, (y0 + y1) / 2, y1 - 0.6), 0.07 if L.back else 0.06, "gold_dark")
 
 
-SETS = (FireEscape(), GardenGate(), FrontPorch(), LogCabin(), PortholeHatch(), PanedGlass(), Medal())
+class ArchGate:
+    """Desert (Common, #2651): a warm wooden door with a pointed arch picked out in clay on both faces, rows of brass
+    studs inside it, a small grilled window under the point and a brass ring pull."""
+    NAME, SILL, TRIM, SIGN = "ArchGate", "fur_caramel", "fur_caramel", dict(z=0.1, cu=2.925)
+    BODY, ARCH, STUD = "caramel_wood", "terracotta", "brass"
+
+    def leaf(self, L, b, g):
+        w, y0, y1 = L.w, L.y0, L.y1
+        cu = w / 2
+        ww = 0.7 if L.back else 0.4
+        win = (cu - ww, cu + ww, y1 - 2.7, y1 - 1.95)
+        L.body(b, [win], self.BODY)
+        m, ys, apex = 0.32, y1 - 3.2, y1 - 0.2                     # the arch: two posts, two bars to the point
+        for n0, n1 in L.faces(0.05):
+            L.span(b, m, m + 0.2, y0 + 0.3, ys, n0, n1, self.ARCH)
+            L.span(b, w - m - 0.2, w - m, y0 + 0.3, ys, n0, n1, self.ARCH)
+            L.bar(b, (m + 0.1, ys - 0.1), (cu, apex), 0.2, n0, n1, self.ARCH)
+            L.bar(b, (w - m - 0.1, ys - 0.1), (cu, apex), 0.2, n0, n1, self.ARCH)
+            L.outline(b, win[0] - 0.1, win[1] + 0.1, win[2] - 0.1, win[3] + 0.1, 0.1, n0, n1, self.STUD)
+        L.glass(g, win)
+        for k in range(1, 4):                                       # the window's grille
+            u = win[0] + k * (win[1] - win[0]) / 4
+            L.span(b, u - 0.025, u + 0.025, win[2], win[3], L.mid - 0.04, L.mid + 0.04, self.STUD)
+        u = m + 0.55                                                # brass studs in rows inside the arch
+        while u < w - m - 0.4:
+            y = y0 + 0.75
+            while y < ys - 0.2:
+                in_zone = L.back and ZONE[0] - 0.05 < u < ZONE[1] + 0.05 and y < ZONE[2] + 0.05
+                if not in_zone:
+                    L.span(b, u - 0.05, u + 0.05, y - 0.05, y + 0.05, L.out, L.out + 0.05, self.STUD)
+                y += 0.7
+            u += 0.6
+        hu, hy = w - 0.5, 3.4                                       # ring pull outside, a latch bar inside
+        L.span(b, hu - 0.12, hu + 0.12, hy - 0.16, hy + 0.16, L.out, L.out + 0.03, self.STUD)
+        L.ring(b, hu, hy - 0.25, L.out + 0.03, L.out + 0.07, 0.2, 0.15, self.STUD, segs=8)
+        L.span(b, hu - 0.4, hu + 0.05, hy - 0.05, hy + 0.05, L.inn - 0.12, L.inn, self.STUD)
+        L.knuckles(b, (0.95, (y0 + y1) / 2, y1 - 0.6), 0.07 if L.back else 0.06, self.STUD)
+
+
+class TempleGate:
+    """Ruins (Rare, #2651): a heavy stone door in courses, a gold band round it, a carved cat head with jade eyes on
+    the outside and a gold ring handle."""
+    NAME, SILL, TRIM, SIGN = "TempleGate", "fur_soot", "fur_dusty", dict(z=0.12, cu=2.925)
+    BODY, JOINT, CARVE, GOLD, JADE = "fur_dusty", "fur_soot", "fur_pewter", "fur_golden", "fur_emerald"
+
+    def leaf(self, L, b, g):
+        w, y0, y1 = L.w, L.y0, L.y1
+        cu, cy = w / 2, y1 - 1.9
+        L.body(b, [], self.BODY)
+        for n0, n1 in L.faces(0.04):                                # the gold band round the edge, both faces
+            L.outline(b, 0.12, w - 0.12, y0 + 0.12, y1 - 0.12, 0.16, n0, n1, self.GOLD, L.gap())
+        for y in (y1 - 0.55, cy - 1.12):                            # stone joints across, outside
+            L.span(b, 0.3, w - 0.3, y - 0.025, y + 0.025, L.out, L.out + 0.015, self.JOINT)
+        o = L.out                                                   # the carved cat head
+        L.span(b, cu - 0.55, cu + 0.55, cy - 0.45, cy + 0.4, o, o + 0.07, self.CARVE)
+        for s in (-1, 1):
+            L.box(b, cu + s * 0.35, cy + 0.42, o + 0.035, 0.36, 0.36, 0.06, self.CARVE, deg=45)
+            L.span(b, cu + s * 0.22 - 0.1, cu + s * 0.22 + 0.1, cy - 0.02, cy + 0.12, o + 0.07, o + 0.1, self.JADE)
+            for k in (-1, 1):                                       # whiskers
+                L.span(b, cu + s * 0.45, cu + s * 0.75, cy - 0.22 + k * 0.07 - 0.015, cy - 0.22 + k * 0.07 + 0.015,
+                       o + 0.005, o + 0.04, self.JOINT)
+        L.span(b, cu - 0.07, cu + 0.07, cy - 0.2, cy - 0.1, o + 0.07, o + 0.1, self.GOLD)
+        hu, hy = w - 0.5, 3.4                                       # gold ring handle, a stone grip inside
+        L.span(b, hu - 0.12, hu + 0.12, hy - 0.16, hy + 0.16, L.out, L.out + 0.04, self.GOLD)
+        L.ring(b, hu, hy - 0.25, L.out + 0.04, L.out + 0.08, 0.22, 0.16, self.GOLD, segs=8)
+        L.span(b, hu - 0.4, hu + 0.05, hy - 0.06, hy + 0.06, L.inn - 0.12, L.inn, self.CARVE)
+        L.knuckles(b, (0.95, (y0 + y1) / 2, y1 - 0.6), 0.09 if L.back else 0.07, self.JOINT)
+
+SETS = (FireEscape(), GardenGate(), FrontPorch(), LogCabin(), PortholeHatch(), PanedGlass(), Medal(), ArchGate(),
+        TempleGate())
 
 
 def build_front(style, mat):
@@ -755,11 +825,50 @@ def build_flap_finish_line(mat):
     return [f.finalize(name, mat), p.finalize(name + "_Flap", mat, location=FLAP_HINGE)]
 
 
+def build_flap_sun_disc(mat):
+    """Desert (Rare, #2651): the flap in a golden sun disc, rays round its top, on a clay foot; an amber sun on the
+    panel."""
+    name = "CatCafe_CatFlap_SunDisc"
+    f, p = RB(), RB()
+    _round_frame(f, [(RO, RI, -0.08, -0.005, "fur_golden"), (1.12, 1.02, -0.14, -0.08, "eye_amber")],
+                 ("terracotta", 0.08), 0.06, "fur_caramel")
+    for k in range(16):                                         # rays, none below the ring's middle
+        a = 360.0 * (k + 0.5) / 16
+        if math.sin(math.radians(a)) < -0.2:
+            continue
+        rad = math.radians(a)
+        r = 1.36
+        f.box((r * math.cos(rad), RC + r * math.sin(rad), -0.06), (0.18, 0.12 if k % 2 else 0.08, 0.08), "eye_amber",
+              rot=rot_z(a))
+    _round_panel(p, "fur_caramel")
+    p.cyl((0, -RP, -0.045), 0.42, 0.03, "eye_amber", axis="Z", segments=14)
+    for k in range(8):
+        rad = math.radians(22.5 + 45 * k)
+        p.box((0.55 * math.cos(rad), -RP + 0.55 * math.sin(rad), -0.045), (0.16, 0.08, 0.03), "eye_amber",
+              rot=rot_z(22.5 + 45 * k))
+    return [f.finalize(name, mat), p.finalize(name + "_Flap", mat, location=FLAP_HINGE)]
+
+
+def build_flap_keyhole(mat):
+    """Ruins (Common, #2651): the flap in a keyhole-shaped stone arch (a round top on a flared foot), a gold
+    keystone, a jade keyhole on the panel."""
+    name = "CatCafe_CatFlap_Keyhole"
+    f, p = RB(), RB()
+    _round_frame(f, [(RO, RI, -0.08, -0.005, "fur_dusty")], ("fur_dusty", 0.08), 0.06, "fur_pewter")
+    for s in (-1, 1):                                           # the flared sides down to the foot
+        f.box((s * 1.0, 0.62, -0.06), (0.22, 0.9, 0.1), "fur_pewter", rot=rot_z(s * 12))
+    f.span((-0.14, RC + RO - 0.02, -0.12), (0.14, RC + RO + 0.18, -0.01), "fur_golden")      # keystone
+    _round_panel(p, "fur_pewter")
+    p.cyl((0, -RP + 0.18, -0.045), 0.17, 0.03, "fur_emerald", axis="Z", segments=10)          # keyhole
+    p.box((0, -RP - 0.12, -0.045), (0.16, 0.42, 0.03), "fur_emerald")
+    return [f.finalize(name, mat), p.finalize(name + "_Flap", mat, location=FLAP_HINGE)]
+
 NEST = {"_LeafL_Glass": "_LeafL", "_LeafR_Glass": "_LeafR", "_Leaf_Glass": "_Leaf", "_Sign": "_Leaf",
         "_Sign_Bulb": "_Leaf", "_Flap_Bulb": "_Flap"}
 FLAPS = {"Plain": build_flap_plain, "NeonPaw": build_flap_neon_paw, "Birdhouse": build_flap_birdhouse,
          "MailSlot": build_flap_mail_slot, "TreeStump": build_flap_tree_stump, "PipeRing": build_flap_pipe_ring,
-         "Bell": build_flap_bell, "FinishLine": build_flap_finish_line}
+         "Bell": build_flap_bell, "FinishLine": build_flap_finish_line, "SunDisc": build_flap_sun_disc,
+         "Keyhole": build_flap_keyhole}
 
 ASSETS = {}
 for _s in SETS:

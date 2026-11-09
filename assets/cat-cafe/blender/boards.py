@@ -1,5 +1,6 @@
 """Index Boards (areas-and-stations B4, F50): a noticeboard at each area's entry, inside the gate, styled to the
-area: brick for the Alleyway, wood for the Park and the Woods, cork for the Neighbourhood, tin for the Sewer.
+area: brick for the Alleyway, wood for the Park and the Woods, cork for the Neighbourhood, tin for the Sewer,
+sandstone under an awning for the Desert, carved stone for the Ruins.
 Laid out in Roblox axes through common.RB, front -Z, sizes in studs.
 
   CatCafe_<Area>_IndexBoard          posts, frame, back, header with "INDEX" and the area's trim (collides)
@@ -8,7 +9,8 @@ Laid out in Roblox axes through common.RB, front -Z, sizes in studs.
                                      the area's ten cats on it, so nothing stands in front of that face
 
 Pivot at the base centre, front (-Z) toward the player. The root Model carries the IndexBoard tag, an Area
-attribute (alley, park, neighbourhood, woods, sewer) and ModelStreamingMode Atomic, so the Screen streams in with
+attribute (alley, park, neighbourhood, woods, sewer,
+desert, ruins) and ModelStreamingMode Atomic, so the Screen streams in with
 the board (reviewer S37). PLACEMENT gives each board's spot in the frame of the gate or arch it stands behind
 (x across, y up, z into the area, studs, turn about Y): inside the opening on the right of the path as you walk in,
 turned a little toward it. A locked area's board shows through the gate's bars as a teaser.
@@ -40,6 +42,8 @@ STYLES = {
                       "cardboard"),
     "woods": ("CatCafe_Woods_IndexBoard", "dark_wood", "dark_wood", "caramel_wood", "fur_seal", "cream"),
     "sewer": ("CatCafe_Sewer_IndexBoard", "metal", "concrete_dark", "concrete_dark", "eye_green", "cream"),
+    "desert": ("CatCafe_Desert_IndexBoard", "fur_caramel", "fur_latte", "terracotta", "offwhite", "cream"),
+    "ruins": ("CatCafe_Ruins_IndexBoard", "fur_pewter", "fur_soot", "fur_soot", "fur_golden", "cream"),
 }
 
 # Each board's spot in its gate's or arch's own frame: (x, y, z, turn about Y in degrees). The openings are 24
@@ -50,6 +54,8 @@ PLACEMENT = {
     "neighbourhood": ("CatCafe_Neighbourhood_Gate", (-7.0, 0.0, 8.0, -20.0)),
     "woods": ("CatCafe_Woods_Gate", (-10.0, 0.0, 8.0, -20.0)),
     "sewer": ("CatCafe_Sewer_Gate", (-10.0, 0.0, 8.0, -20.0)),
+    "desert": ("CatCafe_Desert_Gate", (-7.0, 0.0, 8.0, -20.0)),
+    "ruins": ("CatCafe_Ruins_Gate", (-7.0, 0.0, 8.0, -20.0)),
 }
 
 
@@ -171,7 +177,53 @@ def _sewer(b, screen, st):
         b.ball((x, HY - length, FRONT - 0.015), 0.13, "eye_green")
 
 
-BUILD = {"alley": _alley, "park": _park, "neighbourhood": _neighbourhood, "woods": _woods, "sewer": _sewer}
+def _desert(b, screen, st):
+    _board(b, screen, *st)
+    roof = TOP + 0.3
+    for s in (-1, 1):                                                                    # sandstone posts, clay bands
+        x0, x1 = sorted((s * (HX - 0.05), s * (HX + 0.85)))
+        b.span((x0 - 0.15, 0, -0.55), (x1 + 0.15, 0.5, 0.75), "fur_caramel")
+        b.span((x0, 0.49, -0.4), (x1, roof, 0.6), "paving_tan")
+        for y in (1.6, Y0 + H / 2):
+            b.span((x0 - 0.06, y, -0.46), (x1 + 0.06, y + 0.3, 0.66), "terracotta")
+    hw = HX + 1.1
+    b.span((-hw, roof, -0.7), (hw, roof + 0.3, 0.9), "fur_caramel")                       # beam
+    n = 10                                                                               # striped awning over it
+    for k in range(n):
+        x = -hw + k * 2 * hw / n
+        b.span((x, roof + 0.3, -1.2), (x + 2 * hw / n, roof + 0.6, 0.7), "terracotta" if k % 2 == 0 else "offwhite")
+        if k % 2 == 0:
+            b.span((x, roof - 0.15, -1.25), (x + 2 * hw / n, roof + 0.6, -1.2), "terracotta")   # hanging flap
+    b.cyl((0, roof + 1.35, -0.1), 0.65, 0.2, "eye_amber", axis="Z", segments=14)          # sun disc
+    b.span((-0.12, roof + 0.6, -0.15), (0.12, roof + 0.71, -0.05), "fur_caramel")
+    for x in (-HX + 0.9, HX - 0.9):
+        _paw(b, x, HY + HEAD / 2, -0.15, "eye_amber")
+    b.ball((-(HX + 0.9), 0.0, -0.9), 0.9, "fur_oat", scale=(1.3, 0.4, 0.7))              # sand at a post's foot
+
+
+def _ruins(b, screen, st):
+    _board(b, screen, *st)
+    for s in (-1, 1):                                                                    # carved stone uprights
+        x0, x1 = sorted((s * (HX - 0.05), s * (HX + 1.0)))
+        b.span((x0 - 0.2, 0, -0.6), (x1 + 0.2, 0.6, 0.8), "fur_soot")
+        b.span((x0, 0.59, -0.45), (x1, TOP + 0.2, 0.65), "fur_dusty")
+        cx = (x0 + x1) / 2
+        for y in (1.4, 3.4, 5.4):                                                        # glyph blocks
+            b.span((cx - 0.22, y, -0.5), (cx + 0.22, y + 0.9, -0.44), "fur_pewter")
+    hw = HX + 1.4
+    b.span((-hw, TOP + 0.2, -0.6), (hw, TOP + 0.9, 0.8), "fur_dusty")                      # lintel
+    b.span((-hw + 1.6, TOP + 0.9, -0.4), (hw - 1.6, TOP + 1.3, 0.6), "fur_pewter")
+    b.span((-0.5, TOP + 1.3, -0.2), (0.5, TOP + 2.1, 0.4), "fur_emerald")                 # jade cat head
+    for xa in (-0.5, 0.15):
+        b.span((xa, TOP + 2.1, -0.1), (xa + 0.35, TOP + 2.45, 0.3), "fur_emerald")
+    for (x, ln) in ((-HX - 0.9, 1.4), (-HX - 0.4, 0.8), (HX + 0.6, 1.8)):                 # vines over the lintel
+        b.span((x - 0.14, TOP + 0.9 - ln, -0.72), (x + 0.14, TOP + 0.95, -0.61), "leaf_dark")
+        b.ball((x, TOP + 0.9 - ln, -0.67), 0.24, "leaf_green", scale=(1.0, 1.0, 0.5))
+    b.box((HX + 1.9, 0.3, -1.0), (0.8, 0.6, 0.6), "fur_dusty", rot=_rot(25, "Y"))         # a fallen block
+
+
+BUILD = {"alley": _alley, "park": _park, "neighbourhood": _neighbourhood, "woods": _woods, "sewer": _sewer,
+         "desert": _desert, "ruins": _ruins}
 
 
 def build(area, mat):

@@ -24,7 +24,8 @@ a road, the Woods in deep forest under mountains, the Sewer in brick works with 
 shadow or takes a raycast (rbx_export BACKDROP), and every piece keeps KEEP clear of the area's walls and its camp set.
 Built against Config.World's v4 (F84) sizes; each F85 long rectangle gets its own ring with its numbers in AREAS
 (CatCafe_Park_BackdropF85 round the 120 x 310 Park, CatCafe_Neighbourhood_BackdropF85 round the 180 x 430 Neighbourhood,
-CatCafe_Woods_BackdropF85 round the 160 x 490 Woods).
+CatCafe_Woods_BackdropF85 round the 160 x 490 Woods). Tier 6 and 7 (#2651): CatCafe_Desert_Backdrop in dunes, mesas and
+a far pyramid on sand, CatCafe_Ruins_Backdrop in jungle hills, grey cliffs, broken columns and a far temple on earth.
 """
 
 import math
@@ -55,6 +56,8 @@ AREAS = {
     "NeighbourhoodF85": (90.0, 215.0, "houses"),   # F85's long Neighbourhood, 180 x 430 (neighbourhoodf85.py)
     "WoodsF85": (80.0, 245.0, "forest"),      # F85's long Woods, 160 x 490 (woodsf85.py)
     "SewerF85": (60.0, 285.0, "works"),       # F85's long Sewer, 120 x 570 (sewerf85.py)
+    "Desert": (75.0, 280.0, "desert"),        # Tier 6 (#2651), 150 x 560 (desertset.py)
+    "Ruins": (70.0, 300.0, "ruins"),          # Tier 7 (#2651), 140 x 600 (ruinsset.py)
 }
 NAMES = {"ParkF85": "CatCafe_Park_BackdropF85", "NeighbourhoodF85": "CatCafe_Neighbourhood_BackdropF85",
          "WoodsF85": "CatCafe_Woods_BackdropF85",
@@ -641,7 +644,147 @@ def _frame_rects(f, d0, d1, sides=("left", "right", "far", "back")):
     return out
 
 
-THEMES = {"park": theme_park, "forest": theme_forest, "houses": theme_houses, "city": theme_city, "works": theme_works}
+# --------------------------------------------------------------------------------------- desert and ruins --
+SAND_RGB = (230, 207, 168)                     # the Desert's plate and dunes (fur_oat)
+DUNE_RGB = (215, 185, 135)                     # fur_dune
+MESA_RGB = (207, 143, 82)                      # fur_caramel, as Sandstone
+EARTH_RGB = (167, 149, 124)                    # the Ruins' plate (paving_grout)
+JUNGLE_RGB = (62, 127, 78)                     # leaf_dark
+CLIFF_RGB = (150, 145, 140)                    # fur_dusty
+
+
+def palm(rb, f, x, z, s=1.0, leaf="leaf_green"):
+    """A leaning palm: three trunk pieces stepping over, a crown of five long squashed fronds."""
+    y = f.gy(x, z) - 0.3 * s
+    lean = 2 * math.pi * _hash(x, z, 3)
+    dx, dz = math.cos(lean) * 0.5 * s, math.sin(lean) * 0.5 * s
+    for k in range(3):
+        rb.cyl((x + dx * k, y + (1.4 + 2.8 * k) * s, z + dz * k), (0.45 - 0.07 * k) * s, 3.0 * s, "fur_toffee",
+               segments=8)
+    cx, cy, cz = x + dx * 2.5, y + 8.6 * s, z + dz * 2.5
+    for k in range(5):
+        a = 2 * math.pi * k / 5 + lean
+        rb.ball((cx + math.cos(a) * 2.0 * s, cy - 0.5 * s, cz + math.sin(a) * 2.0 * s), 2.4 * s, leaf,
+                scale=(1.0 + 0.6 * abs(math.cos(a)), 0.22, 1.0 + 0.6 * abs(math.sin(a))))
+    rb.ball((cx, cy, cz), 0.8 * s, "fur_toffee")
+
+
+def desert_rock(rb, f, x, z, s=1.0, leaf=None):
+    y = f.gy(x, z)
+    rb.ball((x, y, z), 2.2 * s, "fur_caramel", scale=(1.3, 0.8, 1.0))
+    rb.ball((x + 1.8 * s, y, z + 0.8 * s), 1.3 * s, "fur_latte", scale=(1.0, 0.9, 1.2))
+
+
+def cactus(rb, f, x, z, s=1.0, leaf="leaf_green"):
+    y = f.gy(x, z) - 0.2
+    rb.cyl((x, y + 2.0 * s, z), 0.55 * s, 4.0 * s, leaf, segments=8)
+    for sx, h in ((-1, 1.8), (1, 2.6)):
+        x0, x1 = sorted((x + sx * 0.5 * s, x + sx * 1.3 * s))
+        rb.span((x0, y + (h - 0.25) * s, z - 0.3 * s), (x1, y + (h + 0.25) * s, z + 0.3 * s), leaf)
+        rb.cyl((x + sx * 1.3 * s, y + (h + 0.7) * s, z), 0.32 * s, 1.6 * s, leaf, segments=8)
+
+
+def mesa(t, rb, w, d, h, k):
+    """A flat-topped mesa facing -Z in its frame: two or three stepped tiers with darker strata bands."""
+    tiers = 2 + k % 2
+    y = TOP
+    for i in range(tiers):
+        ww, dd = w * (1 - 0.22 * i), d * (1 - 0.25 * i)
+        hh = h * (0.55 if i == 0 else 0.45 / (tiers - 1))
+        t.span(rb, (-ww / 2, y, -dd / 2), (ww / 2, y + hh, dd / 2), "fur_caramel" if i % 2 == 0 else "terracotta")
+        t.span(rb, (-ww / 2 - 0.3, y + hh * 0.45, -dd / 2 - 0.3), (ww / 2 + 0.3, y + hh * 0.55, dd / 2 + 0.3),
+               "fur_copper")
+        y += hh
+
+
+def theme_desert(f, P):
+    near = ring(f, 55.0, 46.0, (46.0, 26.0, 8.0, 18.0), 61)
+    far = ring(f, 200.0, 80.0, (70.0, 50.0, 20.0, 36.0), 62)
+    f.hills = near + far
+    for h in near:
+        h.add(P["hills"], "fur_dune")
+    for h in far:
+        h.add(P["far"], "fur_dune")
+    rb = P["rb"]
+    for i, (x, z, nx, nz) in enumerate(f.around(14.0, 24.0, 63, wobble=6.0, shift=7.0)):   # palms, rocks, cacti
+        if f.out(x, z) < KEEP + 3:
+            continue
+        r = _hash(i, 64)
+        if r < 0.4:
+            palm(rb, f, x, z, 1.1 + 0.4 * _hash(i, 65), ("leaf_green", "paw_park")[i % 2])
+        elif r < 0.7:
+            desert_rock(rb, f, x, z, 1.0 + 0.8 * _hash(i, 66))
+        else:
+            cactus(rb, f, x, z, 0.9 + 0.5 * _hash(i, 67))
+    for i, (x, z, nx, nz) in enumerate(f.around(125.0, 85.0, 68, wobble=18.0, shift=20.0)):   # mesas between rings
+        if _hash(i, 69) < 0.35 or nz < -0.9:
+            continue                                                    # gaps, and none behind the camp (the town)
+        mesa(Turned.facing(x, z, nx, nz), rb, 34.0 + 20 * _hash(i, 70), 26.0 + 12 * _hash(i, 71),
+             28.0 + 26 * _hash(i, 72), i)
+    px, pz = 0.0, f.ez1 + 150.0                                         # a far pyramid past the area's far end
+    for k in range(6):
+        w = 90.0 - k * 15.0
+        rb.span((px - w / 2, TOP + k * 9.0, pz - w / 2), (px + w / 2, TOP + (k + 1) * 9.0, pz + w / 2),
+                "fur_dune" if k % 2 == 0 else "paving_tan")
+
+
+def ruin_column(rb, f, x, z, s=1.0, leaf="leaf_dark"):
+    """A broken column on a plinth, ivy on it; one in three lies fallen beside its stump."""
+    y = f.gy(x, z) - 0.2
+    rb.span((x - 1.4 * s, y, z - 1.4 * s), (x + 1.4 * s, y + 0.9 * s, z + 1.4 * s), "fur_dusty")
+    h = (5.0 + 7.0 * _hash(x, z, 4)) * s
+    if _hash(z, x, 5) < 0.33:
+        h = 2.0 * s
+        rb.cyl((x + 4.0 * s, y + 0.9 * s, z + 1.0 * s), 0.9 * s, 8.0 * s, "fur_pewter", axis="X", segments=10)
+    rb.cyl((x, y + 0.9 * s + h / 2, z), 0.9 * s, h, "fur_pewter", segments=10)
+    rb.ball((x + 0.6 * s, y + 0.9 * s + h * 0.6, z - 0.6 * s), 0.9 * s, leaf, scale=(0.9, 1.6, 0.9))
+
+
+def ruin_wall(t, rb, w, h, k):
+    """A ruined wall facing -Z in its frame: courses that break off in steps toward one end, ivy over it."""
+    n = 5
+    for i in range(n):
+        ww = w * (1 - 0.15 * i) if k % 2 == 0 else w
+        x0 = -w / 2 if k % 2 == 0 else -w / 2 + w * 0.12 * i
+        t.span(rb, (x0, TOP + i * h / n, -1.0), (x0 + ww * (1 if k % 2 == 0 else 1 - 0.12 * i), TOP + (i + 1) * h / n,
+                                                1.0), "fur_dusty" if i % 2 == 0 else "fur_pewter")
+    t.span(rb, (-w * 0.3, TOP, -1.25), (-w * 0.1, h * 0.7, -1.02), "leaf_dark")
+
+
+def theme_ruins(f, P):
+    near = ring(f, 58.0, 42.0, (40.0, 28.0, 10.0, 20.0), 71)
+    far = ring(f, 210.0, 90.0, (80.0, 56.0, 50.0, 85.0), 72, corner=180.0)
+    f.hills = near + far
+    for h in near:
+        h.add(P["hills"], "leaf_dark")
+    for h in far:
+        h.add(P["far"], "fur_dusty")
+    rb = P["rb"]
+    leaves = ("leaf_dark", "paw_woods", "leaf_green")
+    belt(rb, f, 26.0, 15.0, 73, plant=tree, scale=1.7, leaves=leaves, wobble=5.0)
+    on_hills(rb, f, near, 2, 74, 2.0, plant=tree, leaves=leaves)
+    for i, (x, z, nx, nz) in enumerate(f.around(11.0, 19.0, 75, wobble=3.0, shift=5.0)):   # columns and walls
+        if f.out(x, z) < KEEP + 2.5:
+            continue
+        if _hash(i, 76) < 0.6:
+            ruin_column(rb, f, x, z, 1.0 + 0.3 * _hash(i, 77), leaves[i % 3])
+        else:
+            ruin_wall(Turned.facing(x, z, nx, nz), rb, 10.0 + 6 * _hash(i, 78), 6.0 + 5 * _hash(i, 79), i)
+    tx, tz = 0.0, f.ez1 + 140.0                                          # a stepped temple on the far horizon
+    for k in range(5):
+        w = 80.0 - k * 14.0
+        rb.span((tx - w / 2, TOP + k * 10.0, tz - w / 2), (tx + w / 2, TOP + (k + 1) * 10.0, tz + w / 2),
+                "fur_dusty" if k % 2 == 0 else "fur_pewter")
+    rb.span((tx - 6.0, TOP + 50.0, tz - 6.0), (tx + 6.0, TOP + 60.0, tz + 6.0), "fur_soot")
+    rb.span((tx - 2.0, TOP + 52.0, tz - 6.1), (tx + 2.0, TOP + 57.0, tz - 5.95), "fur_emerald")
+    for sx in (-1, 1):                                                  # two broken towers either side of it
+        x = sx * 70.0
+        rb.span((x - 7.0, TOP, tz - 7.0), (x + 7.0, TOP + 38.0 + 8 * sx, tz + 7.0), "fur_pewter")
+        rb.span((x - 7.6, TOP + 22.0, tz - 7.6), (x + 7.6, TOP + 23.5, tz + 7.6), "fur_dusty")
+
+
+THEMES = {"park": theme_park, "forest": theme_forest, "houses": theme_houses, "city": theme_city, "works": theme_works,
+          "desert": theme_desert, "ruins": theme_ruins}
 
 
 def builder(area, A, H, theme):
@@ -650,6 +793,14 @@ def builder(area, A, H, theme):
     _look(n + "_Ground", ASPHALT_RGB if city else GRASS_RGB, "Asphalt" if city else "Grass")
     _look(n + "_Hills", FOREST_RGB if theme == "forest" else GRASS_RGB, "Grass")
     _look(n + "_HillsFar", MOUNTAIN_RGB if theme == "forest" else PALE_RGB, "Rock" if theme == "forest" else "Grass")
+    if theme == "desert":                       # #2651: sand to the horizon, no grass (Derek2 2026-11-09)
+        _look(n + "_Ground", SAND_RGB, "Sand")
+        _look(n + "_Hills", SAND_RGB, "Sand")
+        _look(n + "_HillsFar", DUNE_RGB, "Sand")
+    elif theme == "ruins":                      # bare earth, jungle hills, grey cliffs
+        _look(n + "_Ground", EARTH_RGB, "Ground")
+        _look(n + "_Hills", JUNGLE_RGB, "Grass")
+        _look(n + "_HillsFar", CLIFF_RGB, "Rock")
     _look(n + "_Snow", (240, 244, 248), "Snow")
     _look(n + "_Road", ASPHALT_RGB if theme != "works" else (150, 150, 150), "Asphalt" if theme != "works" else "Concrete")
 
@@ -657,7 +808,8 @@ def builder(area, A, H, theme):
         f = Frame(A, H)
         P = {k: RB() for k in ("rb", "ground", "hills", "far", "flowers", "lit", "road", "snow")}
         THEMES[theme](f, P)
-        ground(f, P["ground"], "fur_charcoal" if city else "leaf_green")      # after the rings: it ends under them
+        swatch = {"desert": "fur_oat", "ruins": "paving_grout"}.get(theme, "fur_charcoal" if city else "leaf_green")
+        ground(f, P["ground"], swatch)                                         # after the rings: it ends under them
         objs = [P["rb"].finalize(n, mat), P["ground"].finalize(n + "_Ground", mat)]
         for key, suffix in (("hills", "_Hills"), ("far", "_HillsFar"), ("flowers", "_Flowers"), ("lit", "_Bulbs"),
                             ("road", "_Road"), ("snow", "_Snow")):

@@ -6,8 +6,9 @@ common.RB, sizes in studs, front -Z.
                               (south, toward the spawn). The plinth is the fountain's size (radius 6.5 at its step):
                               cream tile with a teal band, a coping with a paw in each area's colour pointing the way
                               the cannon fires to it (Alleyway south-west, Park south, Neighbourhood north, Woods west,
-                              Sewer east), two steps up on the south side, and the brass cat statue waving south on
-                              its own base on the south-east of the deck. On the deck a fixed base and the turret:
+                              Sewer east, Desert south-east, Ruins north-east), two steps up on the south side, and
+                              the brass cat statue waving south on its own base on the south-east of the deck. On
+                              the deck a fixed base and the turret:
     _Turret                   child Model, pivot on the turntable's top centre (0, 2.53, 0), the barrel at rest
                               pointing +Z (north). Turn it about Y (PivotTo) to face where it fires: a turn of theta
                               degrees points the barrel along (sin theta, 0, cos theta), so 0 north, 180 south, -90
@@ -30,8 +31,9 @@ common.RB, sizes in studs, front -Z.
                               its centre on the floor top, placed at (0, 0.1, -16.5) with no turn (its north edge
                               clears the steps by 1). Flat, walk-on, nothing collides.
   CatCafe_Camp_Cannon_<Area>  each camp's cannon, the same cannon at three quarters size in the area's trim (Alleyway
-                              neon pink, Park leaf green, Neighbourhood orange, Woods deep green, Sewer slate blue) on a
-                              low round base with one step at its back, no statue. Pivot at the base centre on the
+                              neon pink, Park leaf green, Neighbourhood orange, Woods deep green, Sewer slate blue,
+                              Desert amber, Ruins jade) on a low round base with one step at its back, no statue.
+                              Pivot at the base centre on the
                               camp's floor, front -Z: place it at the camp's back wall with -Z to the wall, so the
                               barrel at rest points +Z out over the area. Same child Models and attachments; the
                               _Turret pivot is 1.49 up.
@@ -71,9 +73,10 @@ CAMP_TURRET_Y = 1.98
 PAD_R = 8.0
 PAD_AT = (0.0, -16.5)                                # the town pad's centre (world x, z)
 TRIM = {"Alleyway": "neon_pink", "Park": "paw_park", "Neighbourhood": "paw_neighbourhood", "Woods": "paw_woods",
-        "Sewer": "paw_sewer"}
+        "Sewer": "paw_sewer", "Desert": "eye_amber", "Ruins": "fur_emerald"}
 PAWS = (("neon_pink", -1, -1), ("paw_park", 0, -1), ("paw_neighbourhood", 0, 1), ("paw_woods", -1, 0),
-        ("paw_sewer", 1, 0))                         # the coping's paws, (swatch, x, z) toward each fire direction
+        ("paw_sewer", 1, 0), ("eye_amber", 1, -1), ("fur_emerald", 1, 1))   # the coping's paws, (swatch, x, z) toward
+                                                     # each fire direction; #2651 Desert south-east, Ruins north-east
 GOLD, BODY = "rarity_legend", "cream"
 
 
@@ -340,7 +343,10 @@ def rbx_attachments(name):
 
 
 NEST = {"_Climb": "_Turret", "_MoonCover": "_Turret"}
-FIRE_TURNS = {"Alleyway": -135, "Park": 180, "Neighbourhood": 0, "Woods": -90, "Sewer": 90}   # _Turret turn, degrees
+# _Turret turn, degrees: a guide only, the game reads the real turns from Layout.cannonAim (each camp's landing pad,
+# not the area centre: Desert 128.3, Ruins 52.2 for #2651)
+FIRE_TURNS = {"Alleyway": -135, "Park": 180, "Neighbourhood": 0, "Woods": -90, "Sewer": 90,
+              "Desert": 128.3, "Ruins": 52.2}
 PLACEMENTS = {"CatCafe_Square_Cannon": (0, 0.1, 0, 0), "CatCafe_Square_LandingPad": (PAD_AT[0], 0.1, PAD_AT[1], 0)}
 
 ASSETS = {"CatCafe_Square_Cannon": (build_square_cannon, 8000),

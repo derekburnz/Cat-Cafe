@@ -1,6 +1,6 @@
 # Playtime and the 2 to 5 minute drop: ranked ideas
 
-Status: brainstorm by Design-Agent (friend's project), 2026-11-09, for Derek2: "start brainstorming ideas to help with playtime average and getting past 2-5min drop off in players". Nothing here is decided. Derek picks, then each pick gets its own issue. Research-Agent's deep dive on what keeps CCU and playtime high in comparable games will be folded into section 4 when it lands.
+Status: **Derek2 picked on 2026-11-09 16:24 (section 5); Gameplay-Engineer builds.** Brainstorm by Design-Agent (friend's project), 2026-11-09, for Derek2: "start brainstorming ideas to help with playtime average and getting past 2-5min drop off in players". Nothing here is decided. Derek picks, then each pick gets its own issue. Research-Agent's deep dive on what keeps CCU and playtime high in comparable games will be folded into section 4 when it lands.
 
 ## 1. What the numbers say (Research-Agent, stats-2026-11-09-1505)
 
@@ -184,3 +184,67 @@ Derek2, 2026-11-09: "maybe an early rich tip and a mystery gift then cat collect
   - The last step and time on that step for 2–5 minute leavers (`step_time`, `quit_state`).
   - A clean device split at 2 and 5 minutes.
   - Whether leavers had touched the bait bowl.
+
+## 5. Derek2's picks (2026-11-09 16:24) and the build specs
+
+Derek2's answers, item by item, use the numbering in section 2.
+
+**The rule for every item (Derek2: "don't make this or any other updates take a lot of precious phone screen space"):**
+- No new bar, strip or panel that stays on screen.
+- Any new HUD element takes one slot in the existing icon row, the same size as the icons already there.
+- Pop-ups are one toast at a time at the top centre. Each lasts at most 3 s and is at most 2 lines on a phone.
+- Cards (invite, Unlocked) open only on a tap or at a calm moment (GiftIdleSeconds), never during a catch, rescue or flight.
+- UI-Engineer checks each one on a 360 × 640 phone and a tablet before merge.
+
+| # | Idea | Derek2 | What gets built |
+|---|---|---|---|
+| 1 | Gift ladder | yes, improve the existing gift milestones, little screen space | 5a |
+| 2 | First visitors early | yes, needed | section 2 idea 2 as written, with toasts per the rule above |
+| 3 | Wow cat on the first bait | yes, and a faster first bait | first-hour.md §2's guarantee moves to the first bait result; the first bait wait stays at #2776's 45 s |
+| 4 | Stray trio | not needed; instead many starting cats and spawns in the Alleyway and Park, with rescues near the start | 5b |
+| 5 | Grand Opening strip from the first catch | yes | shows from the first catch, collapsed to its one-line "Grand Opening 1/8" chip under the goal card (already its size) |
+| 6 | Tablet pass | test on mobile and tablets | QA-Planner and Laptop-Tester: the first 10 minutes on a phone and a tablet, both orientations; bugs become issues |
+| 7 | Open loop at exit | the game has most of these | dropped |
+| 8 | Server-wide timed moment | not needed; strays are already up; halve the pity timers for now and add a funnel | 5c |
+| 9 | Invite prompt | a reward for inviting, shown between 5 and 15 minutes | 5d |
+| 10 | Cozy Cafe rewards | yes | section 2 idea 10 as written; its "Cozy gift in 2:10" line becomes the gift icon's tooltip (5a) |
+| 11, 12 | Early upgrades, weekly update | not answered | on hold |
+
+### 5a. Gift milestones, improved (idea 1)
+- **Steps.** Keep the existing like and favourite gifts (PlaytimeGifts, 10 and 30 minutes) and add small steps before them on the same track: 2, 4 and 6 minutes, then 10 (like), 15, 20 and 30 (favourite).
+  - **The added steps pay:**
+    - 2 min: 1 minute of income.
+    - 4 min: a bait food.
+    - 6 min: 1 spin.
+    - 15 min: 5 golden fish.
+    - 20 min: a Swift Potion.
+  - **Counted per account.** Played time on the account counts, as PlaytimeGifts does now, so it's once per account and leaving loses nothing.
+- **On screen.** One gift icon in the HUD icon row with a small countdown under it ("1:45"). Tapping it shows the next two steps in a small popover. When a step pays, a toast reads "Gift! +1 spin". After the 30-minute step the icon goes away.
+- **Contracts.** `PlaytimeGifts.KINDS` grows to the seven steps; the like and fav cards stay on their steps. Config `PlaytimeGiftSteps` holds the minutes and prizes. Save: the existing paid marks grow to cover the new kinds, with no version bump if the marks map is keyed by kind (Gameplay to confirm). Analytics: `playtime_gift` with the step.
+
+### 5b. Busier starting areas (instead of idea 4)
+- **More strays where players start.**
+  - Alleyway `waveSize` 11 → 16, and Park 12 → 16.
+  - A per-area floor override, `floorBase`: Alleyway 16, Park 16. Other areas keep `StrayFloorBase` 12, and `StrayLiveMax` 21 still caps every area.
+  - The Alleyway and Park keep at least 6 strays within `StrayEntryStuds` of their camp (a per-area `entryFloor` 6, others stay at 4). New players then see cats as soon as they land.
+- **Rescues near the start.**
+  - Each of the two areas marks one rescue spot within about 40 studs of its camp as `starter`. Gameplay picks it from the existing pool, or asks Model-Agent for one more spot.
+  - At night start, those two areas get at least 2 stuck cats (a per-area `rescueMinStuck` 2), and the first fills the starter spot when it's free.
+  - The tutorial's rescue step uses the starter spot.
+- **Odds unchanged.** More strays means more Commons in absolute terms but the same rare odds per stray, so Pace's tier times barely move. Gameplay re-runs Pace.spec to check Tier 2 stays in #2683's 12–16 min band.
+- **Measure:** onboarding_v6 catch → second cat → five cats, and rescue → bait resolved.
+
+### 5c. Pity timers halved, for now (instead of idea 8)
+- `PityLegendarySeconds` 1800 → 900 and `PityMythicalSeconds` 7200 → 3600. Both are marked "temporary, Derek2 2026-11-09, review 2026-11-16" in Config, and a decisions.md entry records when they go back.
+- **A funnel** `pity_v1`: steps `pity_spawned` (rarity, area), `pity_seen` (a player within 60 studs), `pity_catch_started` and `pity_caught`, with the catcher's minutes played (bands). Counts only, never who.
+- **Measure:** time from spawn to catch, and the share caught by players in their first 30 minutes.
+
+### 5d. Invite with a reward, between 5 and 15 minutes (idea 9)
+- **When.** Once per account, at the first good moment between 5 and 15 minutes of play: the first Rare-or-better cat, the first Collector deal, or the Grand Opening's step 4. If none happens by 15 minutes, it shows at 15 at the next calm moment. It never shows before minute 5.
+- **What.** A small card: "Invite a friend: you both get 🐟 20 when they join!" with Invite (Roblox's own invite prompt, SocialService) and Not now. There's a Friends button in the menu for later invites, inside the existing menu, not a new HUD slot.
+- **Reward.** It pays when an invited friend actually joins through the invite (the invite's launch data names the inviter):
+  - The inviter gets 20 golden fish and the friend gets 20 too, once per inviter–friend pair.
+  - Up to 5 rewarded friends per inviter per game day.
+  - Sending an invite alone pays nothing, which stops invite spam to non-players. Roblox's own invite prompt does the sending, so there's no in-game text.
+  - Fish are earned only, never sold, so this stays outside `monetization-policy`.
+- **Contracts.** Save: `invites = { rewarded: { [friendUserId]: true } (last 50), today: { day, count }, cardShown: boolean }`, a version bump. The server reads the joining player's launch data, checks the inviter is in the server or saves it to the inviter's pending (a small DataStore key, as the trade vault does), and pays both. Analytics: `invite_card` (shown, invite, not now) and `invite_join`.

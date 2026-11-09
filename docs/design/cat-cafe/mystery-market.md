@@ -156,11 +156,11 @@ The draft layout of the quarter is x -48 to -8 and z -32 to -6, the space betwee
 |---|---|---|
 | Bench, south edge | (-35.75, -29.4) | removed |
 | Bench, west edge | (-45.4, -19.75) | removed |
-| Codes Cat stand | (-28, -16) | (-42, -26), into the corner. Its CodesCircle stays 6 studs in front, at about (-37.4, -22.1), radius 4. |
-| Day Cart | (-17, -24) | (-14, -26), along the south edge beside the street |
-| **Mystery Market wagon** | none | **(-24, -14)**, about 12 x 7, with its walk-in circle (#2574) about 6 studs in front, around (-19.2, -10.5), radius 4 |
+| Codes Cat stand | (-28, -16) | **(-41, -25)**, into the corner. Its CodesCircle stays 6 studs in front, radius 4. |
+| Day Cart | (-17, -24) | **(-15, -25)**, along the south edge beside the street |
+| **Mystery Market wagon** | none | **(-27, -17)**, 12 x 7 or less, with its walk-in circle (#2574) 1 stud in front, radius 4 |
 
-Rough clearances from the draft: about 4 studs from the Codes circle to the wagon, about 3 from the wagon to the Day Cart, and the market circle ends at the cross lane's edge (z -6) without crossing it. The street (x -8) and the cross lane stay clear. The corner lamp at (-47, -31) and the border lamp at (-24.5, -31) stay. Model-Agent does the real clearance check with the model sizes, as it did for #1215 and #1592, and can nudge any of these.
+**Final spots (Model-Agent's to-scale check, 2026-11-09):** the table above. It fits without widening the square. The draft's wagon at (-24, -14) put its circle 0.3 studs into the cross lane, so the wagon moved back toward the corner. The smallest gap is now 2.5 studs, from the circle to the lane. The street and the cross lane stay clear, and both lamps stay. Plan: `/mnt/project-files/Model-Agent/mystery-market/mystery-market-corner-plan.png`.
 
 If it doesn't fit cleanly, the fallback (Derek2: "can expand the town square if needed") is to widen the square by 8 studs on the west (`TownSquareHalfWidth` 48 to 56 on that side). That moves the west gardens, lamps and buntings out with it. That's a bigger change, so it only happens if Model-Agent's check fails.
 

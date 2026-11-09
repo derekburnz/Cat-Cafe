@@ -3594,85 +3594,6 @@
          "CFrame": {
           "position": [
            0.0,
-           1.7385,
-           -0.323
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.418,
-         0.209,
-         0.247
-        ],
-        "Color": [
-         1.0,
-         0.7882,
-         0.302
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth",
-        "PivotOffset": {
-         "CFrame": {
-          "position": [
-           0.0,
-           -0.7695,
-           0.228
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        }
-       },
-       "attributes": {
-        "Rojo_Id": "CatCafe_Cat_Taxi_Sit/9",
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Taxi_Sit_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0,
            1.615,
            -0.323
           ],
@@ -3711,22 +3632,13 @@
         "CanTouch": false,
         "CastShadow": true,
         "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Taxi_Sit_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
          "CFrame": {
           "position": [
            0.0,
-           1.8572,
-           -0.323
+           -0.646,
+           0.228
           ],
           "orientation": [
            [
@@ -3746,26 +3658,10 @@
            ]
           ]
          }
-        },
-        "Size": [
-         0.342,
-         0.038,
-         0.19
-        ],
-        "Color": [
-         1.0,
-         0.7882,
-         0.302
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
+        }
        },
        "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Taxi_Sit/9",
         "Follows": "Head"
        }
       },
@@ -4756,6 +4652,174 @@
        "attributes": {
         "Follows": "Head"
        }
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Cat_Taxi_Sit/10"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Cat_Taxi_Sit_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.7385,
+             -0.323
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.418,
+           0.209,
+           0.247
+          ],
+          "Color": [
+           1.0,
+           0.7882,
+           0.302
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.0,
+             0.0,
+             0.0
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Cat_Taxi_Sit/10",
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Taxi_Sit_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.8573,
+             -0.323
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.342,
+           0.038,
+           0.19
+          ],
+          "Color": [
+           1.0,
+           0.7882,
+           0.302
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           1.7385,
+           -0.323
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Cat_Taxi_Sit_Glow"
       }
      ],
      "properties": {

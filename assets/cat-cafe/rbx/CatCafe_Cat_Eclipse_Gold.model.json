@@ -130,7 +130,7 @@
      "CFrame": {
       "position": [
        -0.0,
-       0.62,
+       0.64,
        0.16
       ],
       "orientation": [
@@ -154,7 +154,7 @@
     },
     "Size": [
      0.73,
-     0.53,
+     0.57,
      0.285
     ],
     "Color": [
@@ -1986,7 +1986,7 @@
     {
      "className": "Model",
      "attributes": {
-      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Eclipse_Gold/12"
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Eclipse_Gold/13"
      },
      "children": [
       {
@@ -2065,7 +2065,7 @@
         }
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Cat_Eclipse_Gold/12",
+        "Rojo_Id": "CatCafe_Cat_Eclipse_Gold/13",
         "Follows": "Head"
        }
       },
@@ -5630,6 +5630,226 @@
      "attributes": {
       "Follows": "Body"
      }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Eclipse_Gold/12"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Eclipse_Gold_Spine_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.91,
+           0.2467
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.7071,
+            0.7071
+           ],
+           [
+            0.0,
+            -0.7071,
+            0.7071
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.05,
+         0.19,
+         0.19
+        ],
+        "Color": [
+         0.5608,
+         0.8275,
+         0.7569
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.0896,
+           -0.0896
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.7071,
+            -0.7071
+           ],
+           [
+            0.0,
+            0.7071,
+            0.7071
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Eclipse_Gold/12",
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Eclipse_Gold_Spine_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.91,
+           0.3733
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.7071,
+            0.7071
+           ],
+           [
+            0.0,
+            -0.7071,
+            0.7071
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.05,
+         0.165,
+         0.165
+        ],
+        "Color": [
+         0.5608,
+         0.8275,
+         0.7569
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Eclipse_Gold_Spine_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           0.91,
+           0.5
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.7071,
+            0.7071
+           ],
+           [
+            0.0,
+            -0.7071,
+            0.7071
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.05,
+         0.14,
+         0.14
+        ],
+        "Color": [
+         0.5608,
+         0.8275,
+         0.7569
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Body"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         0.91,
+         0.12
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Eclipse_Gold_Spine_Glow"
     }
    ],
    "properties": {

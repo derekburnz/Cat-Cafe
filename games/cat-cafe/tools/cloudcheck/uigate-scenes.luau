@@ -3393,7 +3393,7 @@ local SCENES = {
 	{ "Potions", function()
 		UI.open("Potions")
 		-- #2588: the Bag window's corner badge is the HUD Bag tile's backpack, not a potion
-		assert(badgeDraws("Potions", "88244676943674"), "uigate: the Bag window's badge is not the backpack (#2588)")
+		assert(badgeDraws("Potions", "124246973096601"), "uigate: the Bag window's badge is not the backpack (#2588)")
 	end },
 	-- #1281: the Bag's Bait tab: the bowl foods the player has, each with its picture, grade badge and count, no Use
 	{ "BagBait", function()
@@ -4986,6 +4986,46 @@ local SCENES = {
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
 	end },
+	-- #2833 (Derek2: "only do the double pop-up if its a legendary+ or any new cat"): a repeat Common catch gets a toast,
+	-- not the big card; a repeat Legendary still gets the card
+	{ "CatFoundRepeat", function()
+		local common, legendary = nil, nil
+		for _, def in Catalog.cats do
+			if common == nil and def.rarity == "Common" then
+				common = def
+			elseif legendary == nil and def.rarity == "Legendary" then
+				legendary = def
+			end
+		end
+		assert(common and legendary, "uigate: no Common or Legendary cat in the catalog (#2833)")
+		local popupsGui = UIShim.playerGui:FindFirstChild("CatCafePopups")
+		local card = popupsGui and popupsGui:FindFirstChild("CatFound", true) :: GuiObject?
+		assert(card ~= nil, "uigate: no cat found card (#2833)")
+		local function shown(): boolean
+			local at: Instance? = card
+			while at and not at:IsA("PlayerGui") do
+				if (at:IsA("GuiObject") and not at.Visible) or (at:IsA("ScreenGui") and not at.Enabled) then
+					return false
+				end
+				at = at.Parent
+			end
+			return true
+		end
+		UI.showCatFound(common.id, false, { charmGain = 2 })
+		UIShim.advance(0.3)
+		assert(not shown(), "uigate: a repeat Common catch opened the big card (#2833)")
+		local words = "🐱 " .. common.name .. " joined your cafe!  Charm +2"
+		local toast = nil
+		for _, label in UIShim.playerGui:GetDescendants() do
+			if label:IsA("TextLabel") and label.Name == "Text" and label.Text == words then
+				toast = label
+			end
+		end
+		assert(toast ~= nil, "uigate: no toast for a repeat Common catch (#2833)")
+		UI.showCatFound(legendary.id, false)
+		UIShim.advance(0.3)
+		assert(shown(), "uigate: a repeat Legendary catch did not open the big card (#2833)")
+	end },
 	-- #2530: a new Park cat's reveal has no "Park N / M" area count any more (#1919)
 	{ "CatFoundArea", function()
 		local def = missingCat("park")
@@ -5210,7 +5250,7 @@ local SCENES = {
 	{ "HUDBagBackpack", function()
 		local ShopIcons = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.ShopIcons")
 		local bag = ShopIcons.hud("Bag")
-		assert(bag == "rbxassetid://88244676943674", "uigate: the Bag tile is not Model-Agent's backpack (#2453)")
+		assert(bag == "rbxassetid://124246973096601", "uigate: the Bag tile is not Model-Agent's backpack (#2453)")
 		assert(bag ~= ShopIcons.hud("Potion"), "uigate: the Bag tile shows the Potions bottle (#2453)")
 		assert(ShopIcons.backup(bag) == nil, "uigate: the Bag's backpack falls back to another picture (#2453)")
 		assert(bag ~= ShopIcons.clean("Bag"), "uigate: the Bag tile shows the gold money bag (#2453)")

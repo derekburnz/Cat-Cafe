@@ -22,6 +22,7 @@ local Format = require(script.Parent.Parent.Components.Format)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
@@ -110,6 +111,7 @@ function StarterCat.new(callbacks: Callbacks): StarterCat
 		subtitle = "Free cat!",
 		color = Theme.colors.red,
 		icon = "🛎️",
+		image = ShopIcons.hud("Bellhop"), -- #2836: the drawn badge (the emoji until it loads)
 		size = UDim2.new(1, 0, 0, height),
 		onClose = callbacks.close,
 	})

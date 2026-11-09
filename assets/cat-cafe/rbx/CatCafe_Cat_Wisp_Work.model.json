@@ -2810,192 +2810,6 @@
          "CFrame": {
           "position": [
            0.0,
-           1.7274,
-           -0.4539
-          ],
-          "orientation": [
-           [
-            0.0,
-            -1.0,
-            0.0
-           ],
-           [
-            0.9613,
-            0.0,
-            0.2756
-           ],
-           [
-            -0.2756,
-            0.0,
-            0.9613
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.1583,
-         0.1773,
-         0.1773
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth",
-        "Shape": "Cylinder",
-        "PivotOffset": {
-         "CFrame": {
-          "position": [
-           -0.828,
-           0.0,
-           0.1359
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.9613,
-            -0.2756
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.2756,
-            0.9613
-           ]
-          ]
-         }
-        }
-       },
-       "attributes": {
-        "Rojo_Id": "CatCafe_Cat_Wisp_Work/14",
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Wisp_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0,
-           1.8796,
-           -0.4975
-          ],
-          "orientation": [
-           [
-            0.0,
-            -1.0,
-            0.0
-           ],
-           [
-            0.9613,
-            0.0,
-            0.2756
-           ],
-           [
-            -0.2756,
-            0.0,
-            0.9613
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.1583,
-         0.1187,
-         0.1187
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth",
-        "Shape": "Cylinder"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Wisp_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0,
-           2.0318,
-           -0.5411
-          ],
-          "orientation": [
-           [
-            0.0,
-            -1.0,
-            0.0
-           ],
-           [
-            0.9613,
-            0.0,
-            0.2756
-           ],
-           [
-            -0.2756,
-            0.0,
-            0.9613
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.1583,
-         0.0602,
-         0.0602
-        ],
-        "Color": [
-         1.0,
-         0.9569,
-         0.6902
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth",
-        "Shape": "Cylinder"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Wisp_Work_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.0,
            1.726,
            -0.4534
           ],
@@ -3035,9 +2849,36 @@
         "CastShadow": true,
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth",
-        "Shape": "Cylinder"
+        "Shape": "Cylinder",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.769,
+           0.0,
+           0.3318
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.9994,
+            -0.0349
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0349,
+            0.9994
+           ]
+          ]
+         }
+        }
        },
        "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Wisp_Work/14",
         "Follows": "Head"
        }
       },
@@ -3146,6 +2987,229 @@
        "attributes": {
         "Follows": "Head"
        }
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Cat_Wisp_Work/15"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Cat_Wisp_Work_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.7274,
+             -0.4539
+            ],
+            "orientation": [
+             [
+              0.0,
+              -1.0,
+              0.0
+             ],
+             [
+              0.9613,
+              0.0,
+              0.2756
+             ],
+             [
+              -0.2756,
+              0.0,
+              0.9613
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1583,
+           0.1773,
+           0.1773
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Cylinder",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             -0.0792,
+             0.0,
+             0.0
+            ],
+            "orientation": [
+             [
+              0.0,
+              0.9613,
+              -0.2756
+             ],
+             [
+              -1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.2756,
+              0.9613
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Cat_Wisp_Work/15",
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Wisp_Work_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.8796,
+             -0.4975
+            ],
+            "orientation": [
+             [
+              0.0,
+              -1.0,
+              0.0
+             ],
+             [
+              0.9613,
+              0.0,
+              0.2756
+             ],
+             [
+              -0.2756,
+              0.0,
+              0.9613
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1583,
+           0.1187,
+           0.1187
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Cylinder"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Wisp_Work_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             2.0318,
+             -0.5411
+            ],
+            "orientation": [
+             [
+              0.0,
+              -1.0,
+              0.0
+             ],
+             [
+              0.9613,
+              0.0,
+              0.2756
+             ],
+             [
+              -0.2756,
+              0.0,
+              0.9613
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1583,
+           0.0602,
+           0.0602
+          ],
+          "Color": [
+           1.0,
+           0.9569,
+           0.6902
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Cylinder"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           1.6513,
+           -0.432
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Cat_Wisp_Work_Glow"
       }
      ],
      "properties": {

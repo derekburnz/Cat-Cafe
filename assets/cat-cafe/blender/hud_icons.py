@@ -259,24 +259,54 @@ def night_market(mat):
     return _fin(b, "NightMarket", mat)
 
 
-def backpack(mat):
-    """The Bag tile (#2453): a chunky kid's backpack, no potion bottle."""
-    b = Builder()
-    b.box((0, 0, 0.78), (1.5, 0.9, 1.56), "fur_orange")                            # body
-    b.cyl((0, 0, 1.56), 0.75, 0.9, "fur_orange", segments=18, rot=X)               # the rounded top
-    b.ring((0, 0.0, 2.28), 0.26, 0.09, 0.16, "dark_wood", segments=12, rot=X)      # carry loop
-    b.cyl((0, -0.47, 1.56), 0.66, 0.08, "fur_orange_dark", segments=18, rot=X)     # the flap: a rounded top
-    b.box((0, -0.49, 1.25), (1.32, 0.08, 0.62), "fur_orange_dark")  # its straight sides, a hair in front
-    b.box((0, -0.55, 1.02), (0.36, 0.06, 0.22), "gold_mid")                        # buckle
-    b.box((0, -0.575, 1.02), (0.16, 0.04, 0.1), "fur_orange_dark")
-    b.box((0, -0.5, 0.48), (1.12, 0.22, 0.66), "cream")                            # front pocket
-    b.box((0, -0.62, 0.8), (1.12, 0.03, 0.06), "fur_orange_dark")                  # its zip line
-    b.cyl((0, -0.625, 0.4), 0.15, 0.02, "nose_pink", segments=12, rot=X)           # a paw on it
-    for dx, dz in ((-0.17, 0.22), (-0.06, 0.29), (0.06, 0.29), (0.17, 0.22)):
-        b.cyl((dx, -0.625, 0.4 + dz), 0.055, 0.02, "nose_pink", segments=8, rot=X)
+def _rx_y(deg):
+    from mathutils import Matrix
+    return Matrix.Rotation(math.radians(deg), 3, "Y") @ Matrix.Rotation(math.radians(90), 3, "X")
+
+
+def draw_backpack(b, full=False):
+    """#2836 redraw (Derek2 11-09: the Bag icon needs to look higher quality): a rounded kid's backpack with cat ears,
+    sky-blue with a navy flap and a gold buckle, a cream front pocket with a pink paw, bottle pockets on the sides,
+    a zip pull and the straps showing at the sides. With `full`, stuffed: a fish and a yarn ball poke out of the top
+    (the Mystery Market's Backpack perk)."""
+    b.box((0, 0, 0.82), (1.6, 1.0, 1.64), "fish_blue")                             # body
+    b.cyl((0, 0, 1.64), 0.8, 1.0, "fish_blue", segments=20, rot=X)                # the rounded top
+    for sx in (-1, 1):                                                             # cat ears on the top corners
+        b.prism((sx * 0.48, 0.0, 2.0), [(-0.26, 0.0), (0.26, 0.0), (sx * 0.1, 0.5)], 0.5, "fish_blue", rot=X)
+        b.prism((sx * 0.48, -0.26, 2.04), [(-0.15, 0.0), (0.15, 0.0), (sx * 0.06, 0.3)], 0.04, "nose_pink",
+                rot=X)
+    b.ring((0, 0.1, 2.5), 0.22, 0.08, 0.14, "pants_navy", segments=12, rot=X)     # carry loop
+    b.cyl((0, -0.52, 1.64), 0.7, 0.08, "pants_navy", segments=20, rot=X)          # flap, round top
+    b.box((0, -0.54, 1.33), (1.4, 0.08, 0.62), "pants_navy")                       # its straight sides
+    for x in (-0.6, 0.6):
+        b.box((x, -0.57, 1.33), (0.04, 0.02, 0.5), "pastel_sky")                   # stitching
+    b.box((0, -0.6, 1.08), (0.42, 0.06, 0.28), "gold_mid")                         # buckle
+    b.box((0, -0.625, 1.08), (0.2, 0.04, 0.12), "pants_navy")
+    b.box((0, -0.56, 0.5), (1.24, 0.24, 0.74), "cream")                            # front pocket
+    b.box((0, -0.68, 0.86), (1.2, 0.03, 0.06), "pastel_sky")                       # its zip line
+    b.box((0.42, -0.71, 0.76), (0.1, 0.04, 0.2), "gold_mid")                       # zip pull
+    b.cyl((0, -0.685, 0.42), 0.17, 0.02, "nose_pink", segments=14, rot=X)         # a paw on it
+    for dx, dz in ((-0.19, 0.24), (-0.07, 0.32), (0.07, 0.32), (0.19, 0.24)):
+        b.cyl((dx, -0.685, 0.42 + dz), 0.06, 0.02, "nose_pink", segments=8, rot=X)
     for sx in (-1, 1):
-        b.box((sx * 0.82, -0.05, 0.55), (0.18, 0.62, 0.7), "fur_orange_dark")     # side pockets
-        b.box((sx * 0.45, 0.5, 0.95), (0.2, 0.12, 1.5), "dark_wood")              # shoulder straps at the back
+        b.box((sx * 0.88, -0.05, 0.5), (0.2, 0.66, 0.74), "pants_navy")           # side pockets
+        b.cyl((sx * 0.9, -0.05, 0.98), 0.17, 0.3, "mint", segments=10)            # a bottle in each
+        b.cyl((sx * 0.9, -0.05, 1.16), 0.09, 0.08, "offwhite", segments=8)
+        b.box((sx * 0.72, 0.45, 1.0), (0.18, 0.14, 1.7), "pants_navy")            # shoulder straps
+    if full:                                                                       # stuffed full, poking out
+        b.box((-0.16, -0.25, 2.25), (0.3, 0.2, 0.8), "rarity_legend", rot=(math.radians(25), "Y"))   # a fish
+        b.prism((-0.36, -0.25, 2.66), [(-0.24, 0.0), (0.24, 0.0), (0.0, 0.3)], 0.2, "rarity_legend",
+                rot=_rx_y(25))
+        b.box((-0.04, -0.36, 2.35), (0.07, 0.03, 0.07), "fur_ink")                  # its eye
+        b.ico((0.32, -0.2, 2.25), 0.34, "fur_strawberry")                            # a yarn ball
+        b.ring((0.32, -0.21, 2.25), 0.35, 0.05, 0.06, "neon_pink", segments=12, rot=X)
+        b.box((0.0, -0.5, 2.05), (1.0, 0.1, 0.14), "pants_navy")                    # the flap lifted
+
+
+def backpack(mat):
+    """The Bag tile (#2453, redrawn for #2836)."""
+    b = Builder()
+    draw_backpack(b)
     return _fin(b, "Bag", mat)
 
 

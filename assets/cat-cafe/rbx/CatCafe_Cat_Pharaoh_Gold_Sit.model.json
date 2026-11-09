@@ -3632,7 +3632,7 @@
     {
      "className": "Model",
      "attributes": {
-      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Pharaoh_Gold_Sit/10"
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Pharaoh_Gold_Sit/11"
      },
      "children": [
       {
@@ -3710,7 +3710,7 @@
         }
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Cat_Pharaoh_Gold_Sit/10",
+        "Rojo_Id": "CatCafe_Cat_Pharaoh_Gold_Sit/11",
         "Follows": "Head"
        }
       },
@@ -4464,6 +4464,176 @@
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Pharaoh_Gold_Sit/10"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Pharaoh_Gold_Sit_Tail_Cuffs",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.6211,
+           0.1045,
+           0.0422
+          ],
+          "orientation": [
+           [
+            0.4226,
+            -0.8214,
+            0.383
+           ],
+           [
+            0.0,
+            0.4226,
+            0.9063
+           ],
+           [
+            -0.9063,
+            -0.383,
+            0.1786
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.057,
+         0.2052,
+         0.2052
+        ],
+        "Color": [
+         0.949,
+         0.7569,
+         0.3059
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.038,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.4226,
+            0.0,
+            -0.9063
+           ],
+           [
+            -0.8214,
+            0.4226,
+            -0.383
+           ],
+           [
+            0.383,
+            0.9063,
+            0.1786
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Pharaoh_Gold_Sit/10",
+        "Follows": "Tail"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Pharaoh_Gold_Sit_Tail_Cuffs",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.6693,
+           0.1045,
+           0.1455
+          ],
+          "orientation": [
+           [
+            0.4226,
+            -0.8214,
+            0.383
+           ],
+           [
+            0.0,
+            0.4226,
+            0.9063
+           ],
+           [
+            -0.9063,
+            -0.383,
+            0.1786
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.057,
+         0.2052,
+         0.2052
+        ],
+        "Color": [
+         0.949,
+         0.7569,
+         0.3059
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder"
+       },
+       "attributes": {
+        "Follows": "Tail"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.6372,
+         0.1045,
+         0.0766
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Pharaoh_Gold_Sit_Tail_Cuffs"
     }
    ],
    "properties": {

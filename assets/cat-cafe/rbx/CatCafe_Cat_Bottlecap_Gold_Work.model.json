@@ -4032,15 +4032,99 @@
        }
       },
       {
-       "name": "CatCafe_Cat_Bottlecap_Gold_Work_Prop",
-       "className": "Part",
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Cat_Bottlecap_Gold_Work/15"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Cat_Bottlecap_Gold_Work_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.7391,
+             -0.5869
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1239,
+           0.1239,
+           0.1239
+          ],
+          "Color": [
+           1.0,
+           0.4196,
+           0.5059
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Ball",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.0,
+             0.0,
+             0.0
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Cat_Bottlecap_Gold_Work/15",
+          "Follows": "Head"
+         }
+        }
+       ],
        "properties": {
-        "CFrame": {
-         "CFrame": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
           "position": [
            0.0,
            1.7391,
-           -0.5766
+           -0.5869
           ],
           "orientation": [
            [
@@ -4060,29 +4144,9 @@
            ]
           ]
          }
-        },
-        "Size": [
-         0.0826,
-         0.0826,
-         0.0826
-        ],
-        "Color": [
-         1.0,
-         0.4196,
-         0.5059
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth",
-        "Shape": "Ball"
+        }
        },
-       "attributes": {
-        "Follows": "Head"
-       }
+       "name": "CatCafe_Cat_Bottlecap_Gold_Work_Glow"
       }
      ],
      "properties": {
@@ -5996,7 +6060,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Bottlecap_Gold_Work/15"
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Bottlecap_Gold_Work/16"
    },
    "children": [
     {
@@ -6074,7 +6138,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Bottlecap_Gold_Work/15",
+      "Rojo_Id": "CatCafe_Cat_Bottlecap_Gold_Work/16",
       "Follows": "Body"
      }
     },

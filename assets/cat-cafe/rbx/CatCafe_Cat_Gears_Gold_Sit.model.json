@@ -5649,6 +5649,176 @@
        "attributes": {
         "Follows": "Head"
        }
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Cat_Gears_Gold_Sit/10"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Cat_Gears_Gold_Sit_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.2095,
+             1.197,
+             -0.6935
+            ],
+            "orientation": [
+             [
+              0.0,
+              -1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ],
+             [
+              -1.0,
+              0.0,
+              0.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0114,
+           0.247,
+           0.247
+          ],
+          "Color": [
+           0.5608,
+           0.8275,
+           0.7569
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Cylinder",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.0,
+             0.2095,
+             0.0
+            ],
+            "orientation": [
+             [
+              0.0,
+              0.0,
+              -1.0
+             ],
+             [
+              -1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Cat_Gears_Gold_Sit/10",
+          "Follows": "Head"
+         }
+        },
+        {
+         "name": "CatCafe_Cat_Gears_Gold_Sit_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.2095,
+             1.197,
+             -0.6935
+            ],
+            "orientation": [
+             [
+              0.0,
+              -1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ],
+             [
+              -1.0,
+              0.0,
+              0.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0114,
+           0.247,
+           0.247
+          ],
+          "Color": [
+           0.5608,
+           0.8275,
+           0.7569
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Cylinder"
+         },
+         "attributes": {
+          "Follows": "Head"
+         }
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           1.197,
+           -0.6935
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Cat_Gears_Gold_Sit_Glow"
       }
      ],
      "properties": {
@@ -5680,178 +5850,6 @@
       }
      },
      "name": "CatCafe_Cat_Gears_Gold_Sit_Prop"
-    },
-    {
-     "className": "Model",
-     "attributes": {
-      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Gears_Gold_Sit/10"
-     },
-     "children": [
-      {
-       "name": "CatCafe_Cat_Gears_Gold_Sit_Prop_Glass",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.2095,
-           1.197,
-           -0.6935
-          ],
-          "orientation": [
-           [
-            0.0,
-            -1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.01,
-         0.247,
-         0.247
-        ],
-        "Color": [
-         0.8118,
-         0.9137,
-         0.8902
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth",
-        "Transparency": 0.6,
-        "Shape": "Cylinder",
-        "PivotOffset": {
-         "CFrame": {
-          "position": [
-           -0.5985,
-           0.2095,
-           -0.228
-          ],
-          "orientation": [
-           [
-            0.0,
-            0.0,
-            -1.0
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ]
-          ]
-         }
-        }
-       },
-       "attributes": {
-        "Rojo_Id": "CatCafe_Cat_Gears_Gold_Sit/10",
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Gears_Gold_Sit_Prop_Glass",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.2095,
-           1.197,
-           -0.6935
-          ],
-          "orientation": [
-           [
-            0.0,
-            -1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ],
-           [
-            -1.0,
-            0.0,
-            0.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.01,
-         0.247,
-         0.247
-        ],
-        "Color": [
-         0.8118,
-         0.9137,
-         0.8902
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": false,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth",
-        "Transparency": 0.6,
-        "Shape": "Cylinder"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      }
-     ],
-     "properties": {
-      "WorldPivotData": {
-       "OptionalCFrame": {
-        "position": [
-         0.0,
-         0.969,
-         -0.095
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     },
-     "name": "CatCafe_Cat_Gears_Gold_Sit_Prop_Glass"
     },
     {
      "className": "Model",

@@ -2329,59 +2329,6 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.0221,
-           1.6651,
-           -0.5351
-          ],
-          "orientation": [
-           [
-            0.1386,
-            -0.9903,
-            -0.0121
-           ],
-           [
-            0.9865,
-            0.1392,
-            -0.0863
-           ],
-           [
-            0.0872,
-            0.0,
-            0.9962
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0652,
-         0.5326,
-         0.5326
-        ],
-        "Color": [
-         1.0,
-         0.4196,
-         0.5059
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth",
-        "Shape": "Cylinder"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Neon_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
            0.0028,
            1.842,
            -0.5195
@@ -2426,6 +2373,123 @@
        "attributes": {
         "Follows": "Head"
        }
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Cat_Neon/12"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Cat_Neon_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.0221,
+             1.6651,
+             -0.5351
+            ],
+            "orientation": [
+             [
+              0.1386,
+              -0.9903,
+              -0.0121
+             ],
+             [
+              0.9865,
+              0.1392,
+              -0.0863
+             ],
+             [
+              0.0872,
+              0.0,
+              0.9962
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.0652,
+           0.5326,
+           0.5326
+          ],
+          "Color": [
+           1.0,
+           0.4196,
+           0.5059
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "Shape": "Cylinder",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.0,
+             0.0,
+             0.0
+            ],
+            "orientation": [
+             [
+              0.1386,
+              0.9865,
+              0.0872
+             ],
+             [
+              -0.9903,
+              0.1392,
+              0.0
+             ],
+             [
+              -0.0121,
+              -0.0863,
+              0.9962
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Cat_Neon/12",
+          "Follows": "Head"
+         }
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           -0.0221,
+           1.6651,
+           -0.5351
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Cat_Neon_Glow"
       }
      ],
      "properties": {
@@ -3346,7 +3410,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Neon/12"
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Neon/13"
    },
    "children": [
     {
@@ -3425,7 +3489,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Neon/12",
+      "Rojo_Id": "CatCafe_Cat_Neon/13",
       "Follows": "Body"
      }
     },

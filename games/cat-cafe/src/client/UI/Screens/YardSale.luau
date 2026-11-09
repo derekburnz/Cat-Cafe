@@ -102,6 +102,7 @@ function YardSale.new(callbacks: Callbacks): YardSale
 		subtitle = "A free crate every day", -- #1051
 		color = Theme.colors.berry,
 		icon = CampExtrasLogic.icon(CampExtrasLogic.YARD_SALE),
+		image = ShopIcons.hud("YardSale"), -- #2836: the drawn badge (the emoji until it loads)
 		size = UDim2.new(1, 0, 0, MAX_SIZE.Y + (self._buyH - 44)),
 		onClose = callbacks.close,
 	})

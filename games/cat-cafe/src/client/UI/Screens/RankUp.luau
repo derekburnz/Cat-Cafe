@@ -16,6 +16,7 @@ local Panel = require(script.Parent.Parent.Components.Panel)
 local PerkCardLogic = require(script.Parent.Parent.Components.PerkCardLogic) -- #2687: the next station's perk
 local RankUpNeeds = require(script.Parent.Parent.Components.RankUpNeeds) -- #1141: the server's own counts
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -251,6 +252,7 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		name = "RankUp",
 		color = Theme.colors.goldDark,
 		icon = "🏆",
+		image = ShopIcons.hud("RankUp"), -- #2836: the drawn badge (the emoji until it loads)
 		title = "Rank up",
 		subtitle = "Tier 1",
 		size = UDim2.fromOffset(TALL.X, TALL.Y),

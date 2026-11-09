@@ -27,10 +27,12 @@ local CatPortrait = require(script.Parent.Parent.Components.CatPortrait)
 local CatVariant = require(script.Parent.Parent.Components.CatVariant)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local KeepUp = require(script.Parent.Parent.Components.KeepUp)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Rainbow = require(script.Parent.Parent.Components.Rainbow)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
@@ -735,6 +737,7 @@ function CatCard._fill(self: any)
 	local loves: string? = if def then def.favoriteRole else nil
 	local roleText, favourite = CatCardLogic.role(role, loves, model:GetAttribute("Asleep") == true)
 	self._roleGlyph.Text = if role then Theme.roleIcons[role] or "✓" else RESTING_ICON
+	IconArt.setImage(self._roleGlyph, ShopIcons.role(role), 0.9) -- #2836: the drawn role picture, nil keeps the glyph
 	self._role.TextColor3 = if role then Theme.modal.text else Theme.modal.subtext
 	self._role.Text = if favourite
 		then ('%s  <font color="#%s">%s</font>'):format(

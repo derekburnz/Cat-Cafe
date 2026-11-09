@@ -2737,6 +2737,8 @@ function UI.richTip.bind(plot: Instance?)
 	if richTipScreen then
 		richTipScreen:bind(plot)
 	end
+	UI.cozy.plot = plot -- #2798: the same plot's Cozy attributes, read each second (UI.cozy.refresh)
+	UI.cozy.refresh()
 	-- F91: the same plot's LawnPath says the Lawn chip is live
 	if decor then
 		decor:bindPlot(plot)
@@ -5089,7 +5091,32 @@ function UI.giftLadder.tick(dt: number)
 		if (state :: any).giftNext ~= nil then
 			UI.giftLadder.refresh()
 		end
+		UI.cozy.refresh()
 	end
+end
+
+-- #2798 (retention-ideas.md idea 10): the Cozy Cafe line on the Rewards list (HUD.setCozy, Components/CozyLogic),
+-- from the own plot's CozyActive, CozyNextAt and CozyBagAt, which the server sets. UI.richTip.bind hands it the plot.
+UI.cozy = { plot = nil :: Instance? }
+
+function UI.cozy.refresh()
+	local view = hud
+	if view == nil then
+		return
+	end
+	local plot = UI.cozy.plot
+	if plot == nil then
+		view:setCozy(nil, false)
+		return
+	end
+	local CozyLogic = require(script.Components.CozyLogic)
+	local line, ready = CozyLogic.line(
+		plot:GetAttribute("CozyActive"),
+		plot:GetAttribute("CozyNextAt"),
+		plot:GetAttribute("CozyBagAt"),
+		Workspace:GetServerTimeNow()
+	)
+	view:setCozy(line, ready)
 end
 
 ----------------------------------------------------------------------------------------------------

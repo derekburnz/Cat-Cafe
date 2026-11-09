@@ -1103,12 +1103,33 @@ local function hasBackpack(player: Player): boolean
 	return profile ~= nil and profile.mystery.backpack == true
 end
 
--- #2565: the packed cat's model on the back, and the character attribute PackedCatId for the clients.
+-- #2719: the Backpack's owner wears it (HeldCat.wearPack), at spawn and after the buy; every player sees it.
+local function wearBackpack(player: Player)
+	local character = player.Character
+	if
+		character == nil
+		or not hasBackpack(player)
+		or HeldCat.pack(character) ~= nil
+		or not AssetRegistry.has(HeldCat.PACK_ASSET)
+	then
+		return
+	end
+	local pack = AssetRegistry.clone(HeldCat.PACK_ASSET)
+	if HeldCat.wearPack(pack, character) then
+		pack.Parent = character
+	else
+		pack:Destroy()
+	end
+end
+
+-- #2565: the packed cat's model on the back, and the character attribute PackedCatId for the clients. #2719: in the
+-- worn pack with only its head out.
 local function attachPacked(player: Player, carry: Carry)
 	local character = player.Character
 	if character == nil then
 		return
 	end
+	wearBackpack(player)
 	if carry.model ~= nil then
 		carry.model:Destroy()
 		carry.model = nil
@@ -1145,6 +1166,7 @@ local function endPacked(player: Player): Carry?
 	local character = player.Character
 	if character ~= nil then
 		character:SetAttribute("PackedCatId", nil)
+		HeldCat.openPack(character, false) -- #2719
 	end
 	return carry
 end
@@ -2638,6 +2660,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 					finishCatch(player, stray, attempt)
 				end
 			end
+			wearBackpack(player) -- #2719
 			local pack = packed[player]
 			if pack ~= nil then
 				attachPacked(player, pack) -- #2565
@@ -2845,6 +2868,11 @@ function CatService.isLoaded(player: Player): boolean
 end
 
 -- #2565: the packed cat's id, or nil.
+-- #2719: puts the Backpack on the player's character now (MysteryMarketService, right after the buy).
+function CatService.wearBackpack(player: Player)
+	wearBackpack(player)
+end
+
 function CatService.packedOf(player: Player): string?
 	local carry = packed[player]
 	return if carry ~= nil then carry.def.id else nil

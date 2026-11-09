@@ -1056,6 +1056,66 @@ local SCENES = {
 		UI.open("Decor")
 		assertEquipBestInHeader("the All tab")
 	end },
+	-- #2735 (Derek2: "see which decor images to make more clear/bigger since so many players are on mobile (make sure
+	-- they don't go out of bounds tho)"): on touch each Decor card's picture is at least 64 real px tall and each Decor
+	-- Index picture at least 60; every piece of a card stays inside its card and every card inside its grid's width
+	{ "DecorArtPhone", function()
+		local Scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale")
+		local touch = Scale.isTouch()
+		local function inside(inner: GuiObject, outer: GuiObject, what: string)
+			local a, b = inner.AbsolutePosition, outer.AbsolutePosition
+			local ok = a.X >= b.X - 1
+				and a.Y >= b.Y - 1
+				and a.X + inner.AbsoluteSize.X <= b.X + outer.AbsoluteSize.X + 1
+				and a.Y + inner.AbsoluteSize.Y <= b.Y + outer.AbsoluteSize.Y + 1
+			assert(ok, "uigate: " .. what .. " runs out of bounds (#2735)")
+		end
+		UI.open("Decor")
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals") :: Instance
+		local window = modals:FindFirstChild("Decor", true) :: Instance
+		local grid = window:FindFirstChild("Grid", true) :: ScrollingFrame
+		local cards = 0
+		for _, card in grid:GetChildren() do
+			if card:IsA("Frame") and card.Visible and card:FindFirstChild("Art") then
+				cards += 1
+				local art = card:FindFirstChild("Art") :: GuiObject
+				if touch then
+					assert(art.AbsoluteSize.Y >= 64, ("uigate: %s's picture is %d px on a phone (#2735)"):format(card.Name, art.AbsoluteSize.Y))
+				end
+				for _, name in { "Art", "Name", "Effect", "Rarity", "Owned", "Action" } do
+					local piece = card:FindFirstChild(name) :: GuiObject?
+					if piece and piece.Visible then
+						inside(piece, card, card.Name .. "'s " .. name)
+					end
+				end
+				local x1, x2 = card.AbsolutePosition.X, card.AbsolutePosition.X + card.AbsoluteSize.X
+				assert(x1 >= grid.AbsolutePosition.X - 1 and x2 <= grid.AbsolutePosition.X + grid.AbsoluteSize.X + 1, "uigate: the " .. card.Name .. " card sticks out of the grid (#2735)")
+			end
+		end
+		assert(cards > 0, "uigate: no Decor cards")
+		UI.close()
+		UI.open("Collection")
+		press("Collection", "DecorTab")
+		local index = modals:FindFirstChild("Collection", true) :: Instance
+		local cells = index:FindFirstChild("Cells", true) :: Instance
+		local shown = 0
+		for _, cell in cells:GetChildren() do
+			if cell:IsA("Frame") and cell.Visible then
+				shown += 1
+				local biggest = 0
+				for _, child in cell:GetChildren() do
+					if child:IsA("GuiObject") and child.Visible then
+						biggest = math.max(biggest, math.min(child.AbsoluteSize.X, child.AbsoluteSize.Y))
+						inside(child, cell, "the Index's " .. cell.Name .. " " .. child.Name)
+					end
+				end
+				if touch then
+					assert(biggest >= 60, ("uigate: the Index's %s picture is %d px on a phone (#2735)"):format(cell.Name, biggest))
+				end
+			end
+		end
+		assert(shown > 0, "uigate: no Decor Index cells")
+	end },
 	-- #2053 (Derek2: "fish tank background shows blue but its an epic"): a crate piece's picture sits on its rarity's
 	-- tint (the Epic Fish tank purple, the Rare Neon cat sign blue), as its pill
 	{ "DecorRarityTint", function()

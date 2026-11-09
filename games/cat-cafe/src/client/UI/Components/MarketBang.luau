@@ -52,7 +52,10 @@ MarketBang.LOOK_SECONDS = 1 -- a stall not streamed in yet is looked for again
 
 export type Bang = { gui: BillboardGui, line: TextLabel, bob: Tween? }
 
--- The stall's main part and how far over it the top of the stall is, or nil while it is streamed out.
+-- The stall's main part and the world-space offset from it to LIFT studs over the top of the stall, straight over the
+-- stall's pivot (its centre, where the services measure their ranges from), or nil while it is streamed out.
+-- Laptop-Tester 11-09 (#2645, the real Mystery wagon): the offset was height only, from the main part, so a model whose
+-- main part sits off to one side (or low) floated the "!" beside it; it is the pivot's X and Z now.
 local function anchorOf(model: Instance): (BasePart?, Vector3)
 	if not model:IsA("Model") or not model:IsDescendantOf(Workspace) then
 		return nil, Vector3.zero
@@ -65,7 +68,9 @@ local function anchorOf(model: Instance): (BasePart?, Vector3)
 	end
 	local box, size = stall:GetBoundingBox()
 	local top = box.Position.Y + size.Y / 2
-	return part, Vector3.new(0, top - (part :: BasePart).Position.Y + MarketBang.LIFT, 0)
+	local centre = stall:GetPivot().Position
+	local from = (part :: BasePart).Position
+	return part, Vector3.new(centre.X - from.X, top - from.Y + MarketBang.LIFT, centre.Z - from.Z)
 end
 
 -- The red "!" over a dark bubble with one line; also the rescue spots' (Components/RescueBang).

@@ -52,7 +52,9 @@ MarketBang.LOOK_SECONDS = 1 -- a stall not streamed in yet is looked for again
 
 export type Bang = { gui: BillboardGui, line: TextLabel, bob: Tween? }
 
--- The stall's main part and how far over it the top of the stall is, or nil while it is streamed out.
+-- The stall's main part and how far over it the top of the stall is, or nil while it is streamed out. The offset goes
+-- into the BillboardGui's StudsOffsetWorldSpace, which is in the Adornee's own axes, so it is turned into the part's
+-- space: a part exported upside down (the Mystery wagon's hood, #2645/#2649) no longer flips the "!" down into it.
 local function anchorOf(model: Instance): (BasePart?, Vector3)
 	if not model:IsA("Model") or not model:IsDescendantOf(Workspace) then
 		return nil, Vector3.zero
@@ -65,7 +67,9 @@ local function anchorOf(model: Instance): (BasePart?, Vector3)
 	end
 	local box, size = stall:GetBoundingBox()
 	local top = box.Position.Y + size.Y / 2
-	return part, Vector3.new(0, top - (part :: BasePart).Position.Y + MarketBang.LIFT, 0)
+	local up = Vector3.new(0, top - (part :: BasePart).Position.Y + MarketBang.LIFT, 0)
+	local lift: Vector3 = (part :: BasePart).CFrame:VectorToObjectSpace(up)
+	return part, lift
 end
 
 -- The red "!" over a dark bubble with one line; also the rescue spots' (Components/RescueBang).

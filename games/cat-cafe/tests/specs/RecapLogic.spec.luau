@@ -94,22 +94,16 @@ return function()
 				baitReadyAt = { 1500 },
 			}))
 			expect(#lines).to.equal(4)
-			expect(lines[3]).to.equal(
-				"Your cats keep earning while you're away: 50% pay, up to 8\u{00A0}h"
-			)
+			expect(lines[3]).to.equal("Your cats keep earning while you're away: 50% pay, up to 8\u{00A0}h")
 			expect(lines[4]).to.equal("Your bait cat will be waiting for you")
 		end)
 
 		it("words each kind, with the treat's day and its prize from the catalog", function()
-			expect(RecapLogic.tomorrow({ kind = "bait" })).to.equal(
-				"Your bait cat will be waiting for you"
-			)
+			expect(RecapLogic.tomorrow({ kind = "bait" })).to.equal("Your bait cat will be waiting for you")
 			expect(RecapLogic.tomorrow({ kind = "treat", day = 2 })).to.equal(
 				"Tomorrow: Daily Treat day 2, " .. RecapLogic.treatWords(2)
 			)
-			expect(RecapLogic.tomorrow({ kind = "treat", day = 99 })).to.equal(
-				"Tomorrow: Daily Treat day 99"
-			)
+			expect(RecapLogic.tomorrow({ kind = "treat", day = 99 })).to.equal("Tomorrow: Daily Treat day 99")
 			expect(RecapLogic.tomorrow({ kind = "treat" })).to.equal("Tomorrow: your Daily Treat")
 			expect(RecapLogic.tomorrow({ kind = "quests" })).to.equal("Tomorrow: new daily quests")
 		end)
@@ -148,13 +142,7 @@ return function()
 		end)
 
 		it("never names a timer or the store", function()
-			for _, hook in
-				{
-					{ kind = "bait" },
-					{ kind = "treat", day = 3, prize = "Gold" },
-					{ kind = "quests" },
-				}
-			do
+			for _, hook in { { kind = "bait" }, { kind = "treat", day = 3, prize = "Gold" }, { kind = "quests" } } do
 				local line = string.lower(RecapLogic.tomorrow(hook))
 				expect(string.find(line, "%d+ ?min")).to.equal(nil)
 				expect(string.find(line, "store", 1, true)).to.equal(nil)

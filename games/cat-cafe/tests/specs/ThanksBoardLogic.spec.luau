@@ -17,15 +17,13 @@ return function()
 			expect(Logic.creditLine({ idea = "x" })).to.equal("Idea from a player")
 		end)
 		it("puts a gold heart by a supporter's name, never on a hidden one (#1168)", function()
-			expect(
-				Logic.creditLine({ idea = "x", version = 2, name = "MochiPie", supporter = true })
-			).to.equal("v2 · Idea from MochiPie 💛")
+			expect(Logic.creditLine({ idea = "x", version = 2, name = "MochiPie", supporter = true })).to.equal(
+				"v2 · Idea from MochiPie 💛"
+			)
 			expect(Logic.creditLine({ idea = "x", name = "MochiPie", supporter = false })).to.equal(
 				"Idea from MochiPie"
 			)
-			expect(Logic.creditLine({ idea = "x", supporter = true })).to.equal(
-				"Idea from a player"
-			)
+			expect(Logic.creditLine({ idea = "x", supporter = true })).to.equal("Idea from a player")
 		end)
 		it("pages six cards at a time and clamps the page", function()
 			local rows = {}
@@ -72,13 +70,7 @@ return function()
 			expect(Logic.whatsNew(updates, nil)[1].credit).to.equal("💡 A player's idea")
 			-- Derek2 11-07: a named playtester's report or suggestion
 			local thanked = Logic.whatsNew({
-				{
-					id = "cash",
-					date = "2026-11-07",
-					icon = "fix",
-					text = "Cash stays put",
-					thanks = "bgdevila",
-				},
+				{ id = "cash", date = "2026-11-07", icon = "fix", text = "Cash stays put", thanks = "bgdevila" },
 				{ id = "plain", date = "2026-11-07", icon = "new", text = "Something new" },
 			}, nil)
 			expect(thanked[1].credit).to.equal("💡 Thanks to bgdevila")

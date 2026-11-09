@@ -19,27 +19,14 @@ return function()
 			expect(BugReportLogic.canSend("the cat fell through the floor")).to.equal(true)
 		end)
 
-		it(
-			"stays off when the server would drop control characters down to under 3 bytes (QA)",
-			function()
-				expect(BugReportLogic.canSend("a\rb")).to.equal(false)
-				expect(BugReportLogic.canSend("a\0b")).to.equal(false)
-				expect(BugReportLogic.canSend("a\tb")).to.equal(true) -- a tab becomes a space
-			end
-		)
+		it("stays off when the server would drop control characters down to under 3 bytes (QA)", function()
+			expect(BugReportLogic.canSend("a\rb")).to.equal(false)
+			expect(BugReportLogic.canSend("a\0b")).to.equal(false)
+			expect(BugReportLogic.canSend("a\tb")).to.equal(true) -- a tab becomes a space
+		end)
 
 		it("lights only for a text the server keeps, and sends what it keeps", function()
-			local samples = {
-				"",
-				"ab",
-				"a\rb",
-				"  hello  ",
-				"two\nlines",
-				"a\0b\0c",
-				"🐞",
-				"abc\255",
-				"x\r\ny",
-			}
+			local samples = { "", "ab", "a\rb", "  hello  ", "two\nlines", "a\0b\0c", "🐞", "abc\255", "x\r\ny" }
 			for _, sample in samples do
 				expect(BugReportLogic.canSend(sample)).to.equal(BugReport.text(sample) ~= nil)
 				expect(BugReportLogic.text(sample)).to.equal(BugReport.text(sample))
@@ -98,13 +85,9 @@ return function()
 
 	describe("BugReportLogic words", function()
 		it("asks each kind its own question, with its own example", function()
-			expect(BugReportLogic.prompt("bug")).to.equal(
-				"What happened, and what were you doing right before?"
-			)
+			expect(BugReportLogic.prompt("bug")).to.equal("What happened, and what were you doing right before?")
 			expect(BugReportLogic.prompt("idea")).to.equal("What would make the game more fun?")
-			expect(BugReportLogic.prompt("stuck")).to.equal(
-				"Where are you stuck, and what were you trying to do?"
-			)
+			expect(BugReportLogic.prompt("stuck")).to.equal("Where are you stuck, and what were you trying to do?")
 			expect(BugReportLogic.example("idea")).to.equal("It would be fun if...")
 			expect(BugReportLogic.example("bug")).to.equal("I was carrying a cat home when...")
 		end)
@@ -154,13 +137,10 @@ return function()
 			expect(BugReportLogic.answer(BugReport.Messages.limited)).to.equal(false)
 		end)
 
-		it(
-			"ignores every other toast, so a shove or a Tip Jar refusal cannot settle a report",
-			function()
-				expect(BugReportLogic.answer("Too far away to shove")).to.equal(nil)
-				expect(BugReportLogic.answer("Your report was sent")).to.equal(nil)
-				expect(BugReportLogic.answer("")).to.equal(nil)
-			end
-		)
+		it("ignores every other toast, so a shove or a Tip Jar refusal cannot settle a report", function()
+			expect(BugReportLogic.answer("Too far away to shove")).to.equal(nil)
+			expect(BugReportLogic.answer("Your report was sent")).to.equal(nil)
+			expect(BugReportLogic.answer("")).to.equal(nil)
+		end)
 	end)
 end

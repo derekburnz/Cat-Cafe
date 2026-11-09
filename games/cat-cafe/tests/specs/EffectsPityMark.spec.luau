@@ -12,14 +12,11 @@ return function()
 	local m = Presets.pity.mark
 
 	describe("pity mark breath", function()
-		it(
-			"starts small, is full size after breathSeconds and small again after twice that",
-			function()
-				expect(math.abs(Logic.pityBreath(0) - 0.9) < 1e-6).to.equal(true)
-				expect(math.abs(Logic.pityBreath(m.breathSeconds) - 1) < 1e-6).to.equal(true)
-				expect(math.abs(Logic.pityBreath(m.breathSeconds * 2) - 0.9) < 1e-6).to.equal(true)
-			end
-		)
+		it("starts small, is full size after breathSeconds and small again after twice that", function()
+			expect(math.abs(Logic.pityBreath(0) - 0.9) < 1e-6).to.equal(true)
+			expect(math.abs(Logic.pityBreath(m.breathSeconds) - 1) < 1e-6).to.equal(true)
+			expect(math.abs(Logic.pityBreath(m.breathSeconds * 2) - 0.9) < 1e-6).to.equal(true)
+		end)
 		it("stays between 90 and 100%", function()
 			for i = 0, 40 do
 				local k = Logic.pityBreath(i * 0.17)

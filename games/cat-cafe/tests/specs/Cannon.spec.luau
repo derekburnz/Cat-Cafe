@@ -85,15 +85,11 @@ return function()
 			for cannonId, spec in Layout.cannons do
 				local from = Vector3.new(spec.x, spec.y, spec.z)
 				local fireTurn = spec.rotY or 0
-				local rest =
-					Vector3.new(math.sin(math.rad(fireTurn)), 0, math.cos(math.rad(fireTurn)))
+				local rest = Vector3.new(math.sin(math.rad(fireTurn)), 0, math.cos(math.rad(fireTurn)))
 				for destination, pad in Layout.landingPads do
 					if destination ~= cannonId then
-						local heading = Cannon.heading(
-							from,
-							Vector3.new(pad.centre.x, pad.centre.y, pad.centre.z),
-							rest
-						)
+						local heading =
+							Cannon.heading(from, Vector3.new(pad.centre.x, pad.centre.y, pad.centre.z), rest)
 						local turn = math.rad(fireTurn + Cannon.aimTurn(heading, fireTurn))
 						local look = Vector3.new(math.sin(turn), 0, math.cos(turn))
 						expect(look:Dot(heading) >= math.cos(math.rad(1))).to.equal(true)
@@ -105,8 +101,7 @@ return function()
 		end)
 
 		it("keeps a cannon's own look when the pad is under it", function()
-			local heading =
-				Cannon.heading(Vector3.zero, Vector3.new(0.2, 0, 0.2), Vector3.new(1, 0, 0))
+			local heading = Cannon.heading(Vector3.zero, Vector3.new(0.2, 0, 0.2), Vector3.new(1, 0, 0))
 			expect(Cannon.aimTurn(heading, 90)).to.be.near(0, 1e-6)
 		end)
 	end)

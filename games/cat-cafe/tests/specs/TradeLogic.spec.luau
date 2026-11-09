@@ -394,13 +394,7 @@ return function()
 			for index = 1, 25 do
 				table.insert(
 					log,
-					{
-						id = "t" .. index,
-						at = BIG - index,
-						partnerName = "Sam",
-						gave = {},
-						got = {},
-					}
+					{ id = "t" .. index, at = BIG - index, partnerName = "Sam", gave = {}, got = {} }
 				)
 			end
 			table.insert(log, { at = BIG, partnerName = "No id" })

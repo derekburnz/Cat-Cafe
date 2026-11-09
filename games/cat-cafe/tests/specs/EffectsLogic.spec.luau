@@ -3,8 +3,7 @@
 -- tier, catch grades, budget picks, plot changes, gate openings and the motion curves. Written by the vfx-animator
 -- (PR #77); the "edges (QA)" block is QA's boundary checks.
 return function()
-	local Client =
-		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
+	local Client = game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
 	local Effects = Client:WaitForChild("Effects")
 	local Logic = require(Effects:WaitForChild("Logic")) :: any
 	local Presets = require(Effects:WaitForChild("Presets")) :: any
@@ -60,9 +59,7 @@ return function()
 		end)
 
 		it("gives every style finite, small offsets", function()
-			for _, style in
-				{ "nap", "stuck", "stray", "barista", "waiter", "greeter", "entertainer", "sit" }
-			do
+			for _, style in { "nap", "stuck", "stray", "barista", "waiter", "greeter", "entertainer", "sit" } do
 				for t = 0, 12, 0.37 do
 					local o = Logic.idle(style, t)
 					for key, value in o do
@@ -123,22 +120,19 @@ return function()
 			expect(Logic.catchSucceeded(nil, nil)).to.equal(false)
 		end)
 
-		it(
-			"keeps a candidate at exactly the radius and copes with a short or zero limit",
-			function()
-				local candidates = {
-					{ key = "edge", distance = 60 },
-					{ key = "out", distance = 60.01 },
-					{ key = "near", distance = 1 },
-				}
-				local picked = Logic.nearest(candidates, 60, 5)
-				expect(#picked).to.equal(2)
-				expect(picked[1]).to.equal("near")
-				expect(picked[2]).to.equal("edge")
-				expect(#Logic.nearest(candidates, 60, 0)).to.equal(0)
-				expect(#Logic.nearest({}, 60, 3)).to.equal(0)
-			end
-		)
+		it("keeps a candidate at exactly the radius and copes with a short or zero limit", function()
+			local candidates = {
+				{ key = "edge", distance = 60 },
+				{ key = "out", distance = 60.01 },
+				{ key = "near", distance = 1 },
+			}
+			local picked = Logic.nearest(candidates, 60, 5)
+			expect(#picked).to.equal(2)
+			expect(picked[1]).to.equal("near")
+			expect(picked[2]).to.equal("edge")
+			expect(#Logic.nearest(candidates, 60, 0)).to.equal(0)
+			expect(#Logic.nearest({}, 60, 3)).to.equal(0)
+		end)
 
 		it("calls a plot passing straight to a new owner a claim", function()
 			expect(Logic.plotChange(42, 3, 7, 1, 10)).to.equal("claim")
@@ -200,9 +194,7 @@ return function()
 			expect(low.maxBurst <= 12).to.equal(true)
 			expect(low.steadyEmitters <= 4).to.equal(true)
 			for _, count in Presets.catchSparkle do
-				expect(math.min(math.floor(count * low.burstScale + 0.5), low.maxBurst) <= 12).to.equal(
-					true
-				)
+				expect(math.min(math.floor(count * low.burstScale + 0.5), low.maxBurst) <= 12).to.equal(true)
 			end
 			expect(Presets.catchSparkle.Mythical <= 30).to.equal(true)
 		end)

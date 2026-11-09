@@ -24,13 +24,10 @@ return function()
 			expect(p.seat <= Presets.bursts.smokePuff).to.equal(true)
 		end)
 
-		it(
-			"hooks a moment the intro really fires, so the swap is not left a plain cut (QA, #471)",
-			function()
-				local Moments = require(Client:WaitForChild("Moments")) :: any
-				expect(Moments.IntroCatSeated).to.be.ok()
-				expect(type(Moments.IntroCatSeated.Connect)).to.equal("function")
-			end
-		)
+		it("hooks a moment the intro really fires, so the swap is not left a plain cut (QA, #471)", function()
+			local Moments = require(Client:WaitForChild("Moments")) :: any
+			expect(Moments.IntroCatSeated).to.be.ok()
+			expect(type(Moments.IntroCatSeated.Connect)).to.equal("function")
+		end)
 	end)
 end

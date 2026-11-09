@@ -32,27 +32,24 @@ return function()
 	end
 
 	describe("the fill order", function()
-		it(
-			"fills the tree tops, then their shelves, then decor cat trees, then the beds",
-			function()
-				local ids = {
-					"bed_2",
-					"decor_3_2",
-					"tree_2_shelf",
-					"bed_10",
-					"tree_1_top",
-					"decor_3_1",
-					"decor_1_2",
-					"tree_1_shelf",
-					"bed_1",
-					"tree_2_top",
-				}
-				expect(joined(Bedtime.order(ids))).to.equal(
-					"tree_1_top tree_2_top tree_1_shelf tree_2_shelf decor_1_2 decor_3_1 decor_3_2 bed_1 bed_2 bed_10"
-				)
-				expect(ids[1]).to.equal("bed_2") -- a new table: the list handed in is left as it was
-			end
-		)
+		it("fills the tree tops, then their shelves, then decor cat trees, then the beds", function()
+			local ids = {
+				"bed_2",
+				"decor_3_2",
+				"tree_2_shelf",
+				"bed_10",
+				"tree_1_top",
+				"decor_3_1",
+				"decor_1_2",
+				"tree_1_shelf",
+				"bed_1",
+				"tree_2_top",
+			}
+			expect(joined(Bedtime.order(ids))).to.equal(
+				"tree_1_top tree_2_top tree_1_shelf tree_2_shelf decor_1_2 decor_3_1 decor_3_2 bed_1 bed_2 bed_10"
+			)
+			expect(ids[1]).to.equal("bed_2") -- a new table: the list handed in is left as it was
+		end)
 
 		it("puts anything it does not know last, by name", function()
 			expect(joined(Bedtime.order({ "zz", "bed_1", "aa", "tree_1_top" }))).to.equal(
@@ -83,17 +80,14 @@ return function()
 			expect(plan.b).to.equal("tree_1_shelf")
 		end)
 
-		it(
-			"moves a cat whose spot has gone, and gives a spot two hold to the better cat",
-			function()
-				local plan = Bedtime.assign({ "a", "b" }, SPOTS, { a = "decor_2_1", b = "bed_1" })
-				expect(plan.b).to.equal("bed_1")
-				expect(plan.a).to.equal("tree_1_top")
-				plan = Bedtime.assign({ "a", "b" }, SPOTS, { a = "bed_1", b = "bed_1" })
-				expect(plan.a).to.equal("bed_1")
-				expect(plan.b).to.equal("tree_1_top")
-			end
-		)
+		it("moves a cat whose spot has gone, and gives a spot two hold to the better cat", function()
+			local plan = Bedtime.assign({ "a", "b" }, SPOTS, { a = "decor_2_1", b = "bed_1" })
+			expect(plan.b).to.equal("bed_1")
+			expect(plan.a).to.equal("tree_1_top")
+			plan = Bedtime.assign({ "a", "b" }, SPOTS, { a = "bed_1", b = "bed_1" })
+			expect(plan.a).to.equal("bed_1")
+			expect(plan.b).to.equal("tree_1_top")
+		end)
 
 		it("leaves the cats past the last spot out, at their stations", function()
 			local plan = Bedtime.assign({ "a", "b", "c", "d", "e", "f" }, SPOTS, {})
@@ -161,20 +155,17 @@ return function()
 		local FROM = Vector3.new(0, 0, 0)
 		local TO = Vector3.new(2, 2, 0)
 
-		it(
-			"leaves from the start, lands on the end and peaks HOP_HEIGHT over the line halfway",
-			function()
-				local start = Bedtime.arc(FROM, TO, 0)
-				local land = Bedtime.arc(FROM, TO, 1)
-				local mid = Bedtime.arc(FROM, TO, 0.5)
-				expect(start.X).to.equal(0)
-				expect(start.Y).to.equal(0)
-				expect(land.X).to.equal(2)
-				expect(land.Y).to.equal(2)
-				expect(mid.X).to.be.near(1, 1e-9)
-				expect(mid.Y).to.be.near(1 + Bedtime.HOP_HEIGHT, 1e-9)
-			end
-		)
+		it("leaves from the start, lands on the end and peaks HOP_HEIGHT over the line halfway", function()
+			local start = Bedtime.arc(FROM, TO, 0)
+			local land = Bedtime.arc(FROM, TO, 1)
+			local mid = Bedtime.arc(FROM, TO, 0.5)
+			expect(start.X).to.equal(0)
+			expect(start.Y).to.equal(0)
+			expect(land.X).to.equal(2)
+			expect(land.Y).to.equal(2)
+			expect(mid.X).to.be.near(1, 1e-9)
+			expect(mid.Y).to.be.near(1 + Bedtime.HOP_HEIGHT, 1e-9)
+		end)
 
 		it("stays at the ends outside 0 to 1", function()
 			expect(Bedtime.arc(FROM, TO, -1).Y).to.equal(0)
@@ -219,21 +210,16 @@ return function()
 			expect(at).to.equal(POINTS[5].at)
 		end)
 
-		it(
-			"faces the first leg's way before it starts, and -Z on a trip that never turns",
-			function()
-				local _, facing = Bedtime.tripAt(POINTS, SPEED, HOP, 0)
-				expect(facing.Z).to.be.near(-1, 1e-9) -- the first leg hops toward -Z
-				local _, still = Bedtime.tripAt({ POINTS[1] }, SPEED, HOP, 1)
-				expect(still).to.equal(Vector3.new(0, 0, -1))
-			end
-		)
+		it("faces the first leg's way before it starts, and -Z on a trip that never turns", function()
+			local _, facing = Bedtime.tripAt(POINTS, SPEED, HOP, 0)
+			expect(facing.Z).to.be.near(-1, 1e-9) -- the first leg hops toward -Z
+			local _, still = Bedtime.tripAt({ POINTS[1] }, SPEED, HOP, 1)
+			expect(still).to.equal(Vector3.new(0, 0, -1))
+		end)
 
 		it("sends the trip as text and reads it back, and refuses anything else", function()
 			local text = Bedtime.encodeTrip(POINTS)
-			expect(text).to.equal(
-				"0.00,3.00,0.00,0;0.00,0.00,-1.00,1;6.00,0.00,-1.00,0;6.00,0.00,-9.00,0;6.00,0.50,-10.00,1"
-			)
+			expect(text).to.equal("0.00,3.00,0.00,0;0.00,0.00,-1.00,1;6.00,0.00,-1.00,0;6.00,0.00,-9.00,0;6.00,0.50,-10.00,1")
 			local back = Bedtime.decodeTrip(text) :: { any }
 			expect(#back).to.equal(#POINTS)
 			for i, point in POINTS do

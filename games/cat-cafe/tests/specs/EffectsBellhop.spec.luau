@@ -27,18 +27,15 @@ return function()
 	end
 
 	describe("Effects Bellhop Cat poses", function()
-		it(
-			"starts every cat with its cap and bell at rest, and blends them like any offset",
-			function()
-				local o = Logic.blank()
-				expect(o.capTip).to.equal(0)
-				expect(o.capDown).to.equal(0)
-				expect(o.bell).to.equal(0)
-				local asleep = Logic.blank()
-				asleep.capDown = 1
-				expect(Logic.mix(o, asleep, 0.25).capDown).to.be.near(0.25, 1e-9)
-			end
-		)
+		it("starts every cat with its cap and bell at rest, and blends them like any offset", function()
+			local o = Logic.blank()
+			expect(o.capTip).to.equal(0)
+			expect(o.capDown).to.equal(0)
+			expect(o.bell).to.equal(0)
+			local asleep = Logic.blank()
+			asleep.capDown = 1
+			expect(Logic.mix(o, asleep, 0.25).capDown).to.be.near(0.25, 1e-9)
+		end)
 
 		it("pulls the cap down only asleep", function()
 			expect(Logic.asleep("nap")).to.equal(true)
@@ -51,31 +48,28 @@ return function()
 			expect(b.sleepCap.forward).to.equal(0.39)
 		end)
 
-		it(
-			"rings: the bell swings both ways and dies away, after a quick shake of the head",
-			function()
-				local most, least = 0, 0
-				for alpha = 0, 0.999, 0.01 do
-					local o = layered("bellRing", alpha)
-					most = math.max(most, o.bell)
-					least = math.min(least, o.bell)
-					if alpha >= b.ring.shakeSeconds / b.ring.seconds then
-						expect(o.headRoll).to.equal(0)
-					end
-				end
-				expect(most > math.rad(b.ring.degrees) * 0.5).to.equal(true)
-				expect(least < -math.rad(b.ring.degrees) * 0.4).to.equal(true)
-				expect(math.abs(layered("bellRing", 0.95).bell) < math.rad(b.ring.degrees) * 0.01).to.equal(
-					true
-				)
-				expect(layered("bellRing", 0).bell).to.be.near(0, 1e-9)
-				for _, alpha in { -0.1, 1, 2 } do
-					local o = layered("bellRing", alpha)
-					expect(o.bell).to.equal(0)
+		it("rings: the bell swings both ways and dies away, after a quick shake of the head", function()
+			local most, least = 0, 0
+			for alpha = 0, 0.999, 0.01 do
+				local o = layered("bellRing", alpha)
+				most = math.max(most, o.bell)
+				least = math.min(least, o.bell)
+				if alpha >= b.ring.shakeSeconds / b.ring.seconds then
 					expect(o.headRoll).to.equal(0)
 				end
 			end
-		)
+			expect(most > math.rad(b.ring.degrees) * 0.5).to.equal(true)
+			expect(least < -math.rad(b.ring.degrees) * 0.4).to.equal(true)
+			expect(math.abs(layered("bellRing", 0.95).bell) < math.rad(b.ring.degrees) * 0.01).to.equal(
+				true
+			)
+			expect(layered("bellRing", 0).bell).to.be.near(0, 1e-9)
+			for _, alpha in { -0.1, 1, 2 } do
+				local o = layered("bellRing", alpha)
+				expect(o.bell).to.equal(0)
+				expect(o.headRoll).to.equal(0)
+			end
+		end)
 
 		it("tips the cap up at the front with a nod, holds it and settles back", function()
 			local top = layered("capTip", 0.4)
@@ -143,9 +137,7 @@ return function()
 			expect(b.every[1]).to.equal(8)
 			expect(b.every[2]).to.equal(12)
 			expect(b.ring.seconds < b.every[1] and b.gap >= b.ring.seconds).to.equal(true)
-			expect(b.tipAfter >= b.ring.shakeSeconds and b.tipAfter < b.ring.seconds + 1).to.equal(
-				true
-			)
+			expect(b.tipAfter >= b.ring.shakeSeconds and b.tipAfter < b.ring.seconds + 1).to.equal(true)
 			expect(b.greet > 0 and b.greet < b.walkUp).to.equal(true)
 		end)
 

@@ -19,14 +19,11 @@ return function()
 			expect((wears("entertainer"))).to.equal("PartyHat,Cape")
 		end)
 
-		it(
-			"one prop leaves off the piece in its slot, and a Face prop clashes with nothing",
-			function()
-				expect((wears("barista", "Head"))).to.equal("Apron")
-				expect((wears("entertainer", "Back"))).to.equal("PartyHat")
-				expect((wears("greeter", "Face"))).to.equal("Sash,Boater")
-			end
-		)
+		it("one prop leaves off the piece in its slot, and a Face prop clashes with nothing", function()
+			expect((wears("barista", "Head"))).to.equal("Apron")
+			expect((wears("entertainer", "Back"))).to.equal("PartyHat")
+			expect((wears("greeter", "Face"))).to.equal("Sash,Boater")
+		end)
 
 		it("a second prop leaves off the piece in its slot too", function()
 			expect((wears("barista", "Head", "Back"))).to.equal("Apron")
@@ -35,30 +32,24 @@ return function()
 			expect((wears("entertainer", "Head", "Face"))).to.equal("Cape")
 		end)
 
-		it(
-			"an Entertainer with a Head and a Back prop swaps its head prop for the party hat",
-			function()
-				local pieces, offProp = wears("entertainer", "Head", "Back")
-				expect(pieces).to.equal("PartyHat")
-				expect(offProp).to.equal("Prop")
-				pieces, offProp = wears("entertainer", "Back", "Head")
-				expect(pieces).to.equal("PartyHat")
-				expect(offProp).to.equal("Prop2")
-			end
-		)
+		it("an Entertainer with a Head and a Back prop swaps its head prop for the party hat", function()
+			local pieces, offProp = wears("entertainer", "Head", "Back")
+			expect(pieces).to.equal("PartyHat")
+			expect(offProp).to.equal("Prop")
+			pieces, offProp = wears("entertainer", "Back", "Head")
+			expect(pieces).to.equal("PartyHat")
+			expect(offProp).to.equal("Prop2")
+		end)
 
-		it(
-			"no other role or slot pair takes a prop off, and an unknown role wears nothing",
-			function()
-				for _, role in { "barista", "waiter", "greeter" } do
-					local _, offProp = wears(role, "Head", "Back")
-					expect(offProp).to.equal(nil)
-				end
-				local _, offProp = wears("entertainer", "Head")
+		it("no other role or slot pair takes a prop off, and an unknown role wears nothing", function()
+			for _, role in { "barista", "waiter", "greeter" } do
+				local _, offProp = wears(role, "Head", "Back")
 				expect(offProp).to.equal(nil)
-				expect((wears("juggler", "Head", "Back"))).to.equal("")
 			end
-		)
+			local _, offProp = wears("entertainer", "Head")
+			expect(offProp).to.equal(nil)
+			expect((wears("juggler", "Head", "Back"))).to.equal("")
+		end)
 	end)
 
 	-- Model-Agent #787: walking cuts of the waistcoat, sash and apron for F90's walking staff (Effects/CafeWalk).
@@ -83,18 +74,15 @@ return function()
 			expect(CatDress.isWalking(body("CatCafe_Cat_Tabby_Gold_Work"))).to.equal(false)
 		end)
 
-		it(
-			"tries the walking cut first on a walking body and the seated cut first on a seated one",
-			function()
-				expect(table.concat(CatDress.assetNames("Vest", true), ",")).to.equal(
-					"CatCafe_Accessory_Vest_Walk,CatCafe_Accessory_Vest"
-				)
-				-- #1624: a seated cut (only the Tiny Lantern has one) else the plain piece
-				expect(table.concat(CatDress.assetNames("Vest", false), ",")).to.equal(
-					"CatCafe_Accessory_Vest_Sit,CatCafe_Accessory_Vest"
-				)
-			end
-		)
+		it("tries the walking cut first on a walking body and the seated cut first on a seated one", function()
+			expect(table.concat(CatDress.assetNames("Vest", true), ",")).to.equal(
+				"CatCafe_Accessory_Vest_Walk,CatCafe_Accessory_Vest"
+			)
+			-- #1624: a seated cut (only the Tiny Lantern has one) else the plain piece
+			expect(table.concat(CatDress.assetNames("Vest", false), ",")).to.equal(
+				"CatCafe_Accessory_Vest_Sit,CatCafe_Accessory_Vest"
+			)
+		end)
 	end)
 
 	-- Model-Agent #826, Derek's pick of 2026-11-02: working cats stand on the worker body (S), posed by the manifest's
@@ -118,37 +106,24 @@ return function()
 		end)
 
 		it("keeps only the role's own held thing, and none for a greeter", function()
-			expect(table.concat(CatDress.heldOff("barista"), ",")).to.equal(
-				"Held_Waiter,Held_Entertainer"
-			)
-			expect(table.concat(CatDress.heldOff("waiter"), ",")).to.equal(
-				"Held_Barista,Held_Entertainer"
-			)
-			expect(table.concat(CatDress.heldOff("entertainer"), ",")).to.equal(
-				"Held_Barista,Held_Waiter"
-			)
-			expect(table.concat(CatDress.heldOff("greeter"), ",")).to.equal(
-				"Held_Barista,Held_Waiter,Held_Entertainer"
-			)
+			expect(table.concat(CatDress.heldOff("barista"), ",")).to.equal("Held_Waiter,Held_Entertainer")
+			expect(table.concat(CatDress.heldOff("waiter"), ",")).to.equal("Held_Barista,Held_Entertainer")
+			expect(table.concat(CatDress.heldOff("entertainer"), ",")).to.equal("Held_Barista,Held_Waiter")
+			expect(table.concat(CatDress.heldOff("greeter"), ",")).to.equal("Held_Barista,Held_Waiter,Held_Entertainer")
 		end)
 
 		it("names the worker after the walking model", function()
 			expect(Catalog.workModelName("CatCafe_Cat_Tabby")).to.equal("CatCafe_Cat_Tabby_Work")
-			expect(Catalog.workModelName("CatCafe_Cat_Tabby_Gold")).to.equal(
-				"CatCafe_Cat_Tabby_Gold_Work"
-			)
+			expect(Catalog.workModelName("CatCafe_Cat_Tabby_Gold")).to.equal("CatCafe_Cat_Tabby_Gold_Work")
 		end)
 	end)
 
 	describe("uniform styles (#1624)", function()
-		it(
-			"puts the main colour on the biggest surface and the trim on the next, leaving the rest",
-			function()
-				-- the Boater: straw over most of it, a red band, a cream bow
-				local slots = CatDress.uniformSlots({ e3b77a = 1.47, d9483b = 0.42, fff9f2 = 0.02 })
-				expect(slots :: any).to.deepEqual({ e3b77a = "main", d9483b = "trim" })
-			end
-		)
+		it("puts the main colour on the biggest surface and the trim on the next, leaving the rest", function()
+			-- the Boater: straw over most of it, a red band, a cream bow
+			local slots = CatDress.uniformSlots({ e3b77a = 1.47, d9483b = 0.42, fff9f2 = 0.02 })
+			expect(slots :: any).to.deepEqual({ e3b77a = "main", d9483b = "trim" })
+		end)
 
 		it("gives a one-colour piece only the main and an empty piece nothing", function()
 			expect(CatDress.uniformSlots({ e8a0a0 = 0.24 }) :: any).to.deepEqual({ e8a0a0 = "main" })
@@ -156,10 +131,7 @@ return function()
 		end)
 
 		it("breaks a tie by the smaller key, the same every time", function()
-			expect(CatDress.uniformSlots({ b = 1, a = 1, c = 0.5 }) :: any).to.deepEqual({
-				a = "main",
-				b = "trim",
-			})
+			expect(CatDress.uniformSlots({ b = 1, a = 1, c = 0.5 }) :: any).to.deepEqual({ a = "main", b = "trim" })
 		end)
 	end)
 
@@ -171,17 +143,14 @@ return function()
 			expect(on).to.equal(true)
 		end)
 
-		it(
-			"puts a Back accessory on in place of the cape, and a Face one beside the whole outfit",
-			function()
-				local wear, _, on = CatDress.plan("entertainer", nil, nil, "Back")
-				expect(table.concat(wear, ",")).to.equal("PartyHat")
-				expect(on).to.equal(true)
-				local fwear, _, fon = CatDress.plan("waiter", nil, nil, "Face")
-				expect(table.concat(fwear, ",")).to.equal("BowTie,Vest")
-				expect(fon).to.equal(true)
-			end
-		)
+		it("puts a Back accessory on in place of the cape, and a Face one beside the whole outfit", function()
+			local wear, _, on = CatDress.plan("entertainer", nil, nil, "Back")
+			expect(table.concat(wear, ",")).to.equal("PartyHat")
+			expect(on).to.equal(true)
+			local fwear, _, fon = CatDress.plan("waiter", nil, nil, "Face")
+			expect(table.concat(fwear, ",")).to.equal("BowTie,Vest")
+			expect(fon).to.equal(true)
+		end)
 
 		it("skips the accessory on a cat whose own prop fills its slot", function()
 			local wear, _, on = CatDress.plan("greeter", "Head", nil, "Head")

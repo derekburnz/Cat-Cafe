@@ -23,26 +23,23 @@ return function()
 	end
 
 	describe("the Garden Decor Pack", function()
-		it(
-			"holds six pass pieces, three Rare and three Epic, that can't be bought or traded",
-			function()
-				local profile = ProfileSchema.template(1000)
-				local pieces = garden()
-				expect(#pieces).to.equal(6)
-				for _, def in pieces do
-					expect(def.source).to.equal("pass")
-					expect(def.pack).to.equal("Garden Decor Pack")
-					expect(def.rarity == "Rare" or def.rarity == "Epic").to.equal(true)
-					expect(def.bonus).to.equal(Config.CratePieceBonus[def.rarity :: string])
-					expect(def.asset:match("^CatCafe_Decor_")).to.be.ok()
-					expect(Crates.takesSpot(def)).to.equal(true)
-					expect(Economy.decorBlocker(profile, def.id)).to.equal(
-						"Comes with the Garden Decor Pack, not for sale"
-					)
-					expect(Trade.piece(def.id)).never.to.be.ok()
-				end
+		it("holds six pass pieces, three Rare and three Epic, that can't be bought or traded", function()
+			local profile = ProfileSchema.template(1000)
+			local pieces = garden()
+			expect(#pieces).to.equal(6)
+			for _, def in pieces do
+				expect(def.source).to.equal("pass")
+				expect(def.pack).to.equal("Garden Decor Pack")
+				expect(def.rarity == "Rare" or def.rarity == "Epic").to.equal(true)
+				expect(def.bonus).to.equal(Config.CratePieceBonus[def.rarity :: string])
+				expect(def.asset:match("^CatCafe_Decor_")).to.be.ok()
+				expect(Crates.takesSpot(def)).to.equal(true)
+				expect(Economy.decorBlocker(profile, def.id)).to.equal(
+					"Comes with the Garden Decor Pack, not for sale"
+				)
+				expect(Trade.piece(def.id)).never.to.be.ok()
 			end
-		)
+		end)
 
 		it(
 			"gives nothing while the pass id is 0 or not owned, and each piece once when owned",
@@ -69,40 +66,35 @@ return function()
 			end
 		)
 
-		it(
-			"gives every pass piece a rarity up to Epic, its bonus and no crate or Index place (#2006)",
-			function()
-				local inPool: { [string]: boolean } = {}
-				for _, crate in Catalog.crates do
-					for _, id in crate.pieces do
-						inPool[id] = true
-					end
+		it("gives every pass piece a rarity up to Epic, its bonus and no crate or Index place (#2006)", function()
+			local inPool: { [string]: boolean } = {}
+			for _, crate in Catalog.crates do
+				for _, id in crate.pieces do
+					inPool[id] = true
 				end
-				local count = { Common = 0, Rare = 0, Epic = 0 } :: { [string]: number }
-				for _, def in Catalog.passDecor do
-					local rarity = def.rarity :: string
-					expect(count[rarity]).to.be.ok()
-					-- #2486: a Cafe Event's piece stands with them but is no pass piece
-					if def.source == "pass" then
-						count[rarity] += 1
-					end
-					expect(def.bonus).to.equal(Config.CratePieceBonus[rarity])
-					expect(def.bonus > 0).to.equal(true)
-					expect(def.effect).to.equal(
-						string.format("+%d%% money while in use", math.floor(def.bonus * 100 + 0.5))
-					)
-					expect(def.crate).to.equal(nil)
-					expect(inPool[def.id]).to.equal(nil)
-					expect(Trade.piece(def.id)).never.to.be.ok()
-				end
-				expect(count.Common).to.equal(3)
-				expect(count.Rare).to.equal(6)
-				expect(count.Epic).to.equal(6)
-				expect((Catalog.getDecor("decor_royal_velvet_booth") :: any).rarity).to.equal(
-					"Epic"
-				)
 			end
-		)
+			local count = { Common = 0, Rare = 0, Epic = 0 } :: { [string]: number }
+			for _, def in Catalog.passDecor do
+				local rarity = def.rarity :: string
+				expect(count[rarity]).to.be.ok()
+				-- #2486: a Cafe Event's piece stands with them but is no pass piece
+				if def.source == "pass" then
+					count[rarity] += 1
+				end
+				expect(def.bonus).to.equal(Config.CratePieceBonus[rarity])
+				expect(def.bonus > 0).to.equal(true)
+				expect(def.effect).to.equal(
+					string.format("+%d%% money while in use", math.floor(def.bonus * 100 + 0.5))
+				)
+				expect(def.crate).to.equal(nil)
+				expect(inPool[def.id]).to.equal(nil)
+				expect(Trade.piece(def.id)).never.to.be.ok()
+			end
+			expect(count.Common).to.equal(3)
+			expect(count.Rare).to.equal(6)
+			expect(count.Epic).to.equal(6)
+			expect((Catalog.getDecor("decor_royal_velvet_booth") :: any).rarity).to.equal("Epic")
+		end)
 
 		it("leaves the Cafe Pass and King Cat Pack pieces to their own grants", function()
 			for _, def in Catalog.passDecor do

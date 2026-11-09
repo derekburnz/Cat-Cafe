@@ -3,9 +3,7 @@
 return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
-	local GiftLogic = require(
-		Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("GiftLogic")
-	) :: any
+	local GiftLogic = require(Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("GiftLogic")) :: any
 
 	describe("GiftLogic", function()
 		it("reads the wrap's tier, common for anything unknown", function()

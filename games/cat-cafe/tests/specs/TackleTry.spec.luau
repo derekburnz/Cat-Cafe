@@ -76,9 +76,7 @@ return function()
 		it("picks the nearest carrier within a step and a lunge", function()
 			expect(TackleTry.cueTarget(cue({}))).to.equal(2)
 			expect(
-				TackleTry.cueTarget(
-					cue({ others = { { position = Vector3.new(20, 0, 0), carrying = true } } })
-				)
+				TackleTry.cueTarget(cue({ others = { { position = Vector3.new(20, 0, 0), carrying = true } } }))
 			).to.equal(nil)
 			expect(TackleTry.cueTarget(cue({ others = {} }))).to.equal(nil)
 		end)

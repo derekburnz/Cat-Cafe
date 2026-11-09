@@ -11,89 +11,47 @@ return function()
 	local DAY = 86400
 
 	describe("Catalog.spinWheel (section 11c)", function()
-		it(
-			"has eight slices in wheel order whose weights add up to 200 half-percents (v2, #1500)",
-			function()
-				expect(#Catalog.spinWheel).to.equal(8)
-				local total = 0
-				for index, row in Catalog.spinWheel do
-					expect(row.slice).to.equal(index)
-					expect(row.weight > 0).to.equal(true)
-					total += row.weight
-				end
-				expect(total).to.equal(200)
+		it("has eight slices in wheel order whose weights add up to 200 half-percents (v2, #1500)", function()
+			expect(#Catalog.spinWheel).to.equal(8)
+			local total = 0
+			for index, row in Catalog.spinWheel do
+				expect(row.slice).to.equal(index)
+				expect(row.weight > 0).to.equal(true)
+				total += row.weight
 			end
-		)
+			expect(total).to.equal(200)
+		end)
 
-		it(
-			"matches the design's prizes and chances (rewards-and-shops.md section 2b v2)",
-			function()
-				local rows = Catalog.spinWheel :: any
-				expect(rows[1]).to.deepEqual({
-					slice = 1,
-					kind = "coins",
-					seconds = 120,
-					minCoins = 200,
-					weight = 70,
-				})
-				expect(rows[2]).to.deepEqual({
-					slice = 2,
-					kind = "coins",
-					seconds = 600,
-					minCoins = 1000,
-					weight = 44,
-				})
-				expect(rows[3]).to.deepEqual({ slice = 3, kind = "fish", count = 3, weight = 30 })
-				expect(rows[4]).to.deepEqual({
-					slice = 4,
-					kind = "coins",
-					seconds = 1800,
-					minCoins = 3000,
-					weight = 24,
-				})
-				expect(rows[5]).to.deepEqual({
-					slice = 5,
-					kind = "lure",
-					lureId = "caviar",
-					count = 1,
-					weight = 18,
-				})
-				expect(rows[6]).to.deepEqual({
-					slice = 6,
-					kind = "crate",
-					crate = "highest",
-					count = 1,
-					weight = 12,
-				})
-				-- the two 0.5% jackpots
-				expect(rows[7]).to.deepEqual({
-					slice = 7,
-					kind = "crate",
-					crate = "highest_golden",
-					count = 1,
-					weight = 1,
-					jackpot = true,
-				})
-				expect(rows[8]).to.deepEqual({
-					slice = 8,
-					kind = "fish",
-					count = 60,
-					weight = 1,
-					jackpot = true,
-				})
-				-- coins land on 69% of spins
-				local coins = 0
-				for _, row in rows do
-					if row.kind == "coins" then
-						coins += row.weight
-					end
+		it("matches the design's prizes and chances (rewards-and-shops.md section 2b v2)", function()
+			local rows = Catalog.spinWheel :: any
+			expect(rows[1]).to.deepEqual({ slice = 1, kind = "coins", seconds = 120, minCoins = 200, weight = 70 })
+			expect(rows[2]).to.deepEqual({ slice = 2, kind = "coins", seconds = 600, minCoins = 1000, weight = 44 })
+			expect(rows[3]).to.deepEqual({ slice = 3, kind = "fish", count = 3, weight = 30 })
+			expect(rows[4]).to.deepEqual({ slice = 4, kind = "coins", seconds = 1800, minCoins = 3000, weight = 24 })
+			expect(rows[5]).to.deepEqual({ slice = 5, kind = "lure", lureId = "caviar", count = 1, weight = 18 })
+			expect(rows[6]).to.deepEqual({ slice = 6, kind = "crate", crate = "highest", count = 1, weight = 12 })
+			-- the two 0.5% jackpots
+			expect(rows[7]).to.deepEqual({
+				slice = 7,
+				kind = "crate",
+				crate = "highest_golden",
+				count = 1,
+				weight = 1,
+				jackpot = true,
+			})
+			expect(rows[8]).to.deepEqual({ slice = 8, kind = "fish", count = 60, weight = 1, jackpot = true })
+			-- coins land on 69% of spins
+			local coins = 0
+			for _, row in rows do
+				if row.kind == "coins" then
+					coins += row.weight
 				end
-				expect(coins / 200).to.be.near(0.69, 1e-9)
-				expect(Spin.amount(rows[3], 100)).to.equal(3) -- #2237: 3 and 60 (was 5 and 100)
-				expect(Spin.amount(rows[8], 100)).to.equal(60)
-				expect(Spin.amount(rows[7], 100)).to.equal(1)
 			end
-		)
+			expect(coins / 200).to.be.near(0.69, 1e-9)
+			expect(Spin.amount(rows[3], 100)).to.equal(3) -- #2237: 3 and 60 (was 5 and 100)
+			expect(Spin.amount(rows[8], 100)).to.equal(60)
+			expect(Spin.amount(rows[7], 100)).to.equal(1)
+		end)
 
 		it("pays the jackpot crate as the golden crate of the highest open zone", function()
 			expect(Prizes.crateFor(Prizes.HIGHEST_GOLDEN, 1)).to.equal("alley_golden_crate")
@@ -104,8 +62,7 @@ return function()
 				local id = Prizes.crateFor(Prizes.HIGHEST_GOLDEN, tier) :: string
 				local crate = Catalog.getCrate(id) :: any
 				expect(crate.golden).to.equal(true)
-				local plain =
-					Catalog.getCrate(Prizes.crateFor(Prizes.HIGHEST, tier) :: string) :: any
+				local plain = Catalog.getCrate(Prizes.crateFor(Prizes.HIGHEST, tier) :: string) :: any
 				expect(crate.area).to.equal(plain.area)
 			end
 		end)
@@ -113,29 +70,24 @@ return function()
 		it("toasts only a jackpot, with its prize", function()
 			local rows = Catalog.spinWheel
 			expect(Spin.jackpotText(rows[8], 100, nil)).to.equal("Jackpot! 100 golden fish")
-			expect(Spin.jackpotText(rows[7], 1, "park_golden_crate")).to.equal(
-				"Jackpot! A Golden Park Crate"
-			)
+			expect(Spin.jackpotText(rows[7], 1, "park_golden_crate")).to.equal("Jackpot! A Golden Park Crate")
 			for slice = 1, 6 do
 				expect(Spin.jackpotText(rows[slice], 1, "park_crate")).to.equal(nil)
 			end
 		end)
 
-		it(
-			"lands each slice within 0.1 point of its chance over 200,000 evenly spread spins (QA)",
-			function()
-				-- evenly spread rolls test the weight walk itself; the server's Random supplies the rolls in play
-				local hits: { number } = {}
-				local count = 200000
-				for i = 0, count - 1 do
-					local slice = Spin.pick((i + 0.5) / count).slice
-					hits[slice] = (hits[slice] or 0) + 1
-				end
-				for _, row in Catalog.spinWheel do
-					expect((hits[row.slice] or 0) / count).to.be.near(row.weight / 200, 0.001)
-				end
+		it("lands each slice within 0.1 point of its chance over 200,000 evenly spread spins (QA)", function()
+			-- evenly spread rolls test the weight walk itself; the server's Random supplies the rolls in play
+			local hits: { number } = {}
+			local count = 200000
+			for i = 0, count - 1 do
+				local slice = Spin.pick((i + 0.5) / count).slice
+				hits[slice] = (hits[slice] or 0) + 1
 			end
-		)
+			for _, row in Catalog.spinWheel do
+				expect((hits[row.slice] or 0) / count).to.be.near(row.weight / 200, 0.001)
+			end
+		end)
 
 		it("names real foods and is frozen", function()
 			for _, row in Catalog.spinWheel do
@@ -235,31 +187,28 @@ return function()
 	end)
 
 	describe("use all (#1078)", function()
-		it(
-			"adds several spins' prizes up for one card, in the order each prize first came",
-			function()
-				local totals = Spin.summarize({
-					{ slice = 3, amount = 5 },
-					{ slice = 1, amount = 250 },
-					{ slice = 8, amount = 100 },
-					{ slice = 2, amount = 1200 },
-					{ slice = 5, amount = 1 },
-					{ slice = 6, amount = 1 },
-					{ slice = 7, amount = 1 },
-					{ slice = 5, amount = 1 },
-					{ slice = 4, amount = 3000 },
-					{ slice = 99, amount = 5 }, -- unknown: left out
-				})
-				expect(totals :: any).to.deepEqual({
-					{ kind = "fish", amount = 105 },
-					{ kind = "coins", amount = 4450 },
-					{ kind = "lure", id = "caviar", amount = 2 },
-					{ kind = "crate", id = "highest", amount = 1 },
-					{ kind = "crate", id = "highest_golden", amount = 1 },
-				})
-				expect(#Spin.summarize({})).to.equal(0)
-			end
-		)
+		it("adds several spins' prizes up for one card, in the order each prize first came", function()
+			local totals = Spin.summarize({
+				{ slice = 3, amount = 5 },
+				{ slice = 1, amount = 250 },
+				{ slice = 8, amount = 100 },
+				{ slice = 2, amount = 1200 },
+				{ slice = 5, amount = 1 },
+				{ slice = 6, amount = 1 },
+				{ slice = 7, amount = 1 },
+				{ slice = 5, amount = 1 },
+				{ slice = 4, amount = 3000 },
+				{ slice = 99, amount = 5 }, -- unknown: left out
+			})
+			expect(totals :: any).to.deepEqual({
+				{ kind = "fish", amount = 105 },
+				{ kind = "coins", amount = 4450 },
+				{ kind = "lure", id = "caviar", amount = 2 },
+				{ kind = "crate", id = "highest", amount = 1 },
+				{ kind = "crate", id = "highest_golden", amount = 1 },
+			})
+			expect(#Spin.summarize({})).to.equal(0)
+		end)
 
 		it("spends a full bank and today's free spin in one press", function()
 			expect(Config.SpinAllMax >= Config.SpinBankCap + 1).to.equal(true)

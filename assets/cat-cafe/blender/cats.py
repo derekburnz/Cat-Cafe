@@ -42,15 +42,26 @@ from common import Builder, scale_mesh
 # painted on the chest with sprinkles on it, under where the Barista's apron goes), shop (sold for Robux only: the
 # model carries a BubbleAnchor), lids (half-closed eyes: a lid in the fur over the top of each eye, a calm gaze); #2584: ear_k (ears that much bigger), glyphs (rows of carved glyphs in the second colour between bands of the
 # third along the flanks) and tiles (mosaic tiles in the second and third colours and cream on the flanks, back and
-# crown), both built as geometry so they hold in gold. Themed cats wear a prop, some two (props.py).
+# crown), both built as geometry so they hold in gold; #2739 (the Cat Makeovers): mark ((shape, colour or colours)): a
+# forehead mark from MARKS. Themed cats wear a prop, some two (props.py).
 ROSTER = {
-    "Tabby":   dict(rarity="Common", fur="fur_orange", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white"),
-    "Tuxedo":  dict(rarity="Common", fur="fur_black", second="fur_white", eyes="eye_green", pattern="patches", muzzle="fur_white", tuxedo=True),
+    "Tabby":   dict(rarity="Common", fur="fur_orange", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white",
+                    # the Cat Makeovers (#2739)
+                    mark=("m", "fur_orange_dark"), eye_k=1.08, curl=True),
+    "Tuxedo":  dict(rarity="Common", fur="fur_black", second="fur_white", eyes="eye_green", pattern="patches", muzzle="fur_white", tuxedo=True,
+                    # the Cat Makeovers (#2739)
+                    blaze="fur_white", tip="fur_white", eye_k=1.08),
     "Ginger":  dict(rarity="Common", fur="fur_ginger", second="fur_ginger", eyes="eye_green", pattern="solid", muzzle="fur_cream",
-                    nose="nose_brick", body_scale=(1.1, 1.05, 1.05)),
+                    nose="nose_brick", body_scale=(1.1, 1.05, 1.05),
+                    # the Cat Makeovers (#2739)
+                    mark=("star", "pastel_butter"), tip="fur_cream", eye_k=1.08),
     "Smoke":   dict(rarity="Common", fur="fur_charcoal", second="fur_charcoal", eyes="eye_chartreuse", pattern="solid",
-                    muzzle="fur_smoke_light", nose="nose_dark"),
-    "Snow":    dict(rarity="Common", fur="fur_white", second="fur_white", eyes="eye_blue", eyes2="eye_amber", pattern="solid", muzzle=None),
+                    muzzle="fur_smoke_light", nose="nose_dark",
+                    # the Cat Makeovers (#2739)
+                    lids=True, ear_tufts=True, tip="fur_smoke_light"),
+    "Snow":    dict(rarity="Common", fur="fur_white", second="fur_white", eyes="eye_blue", eyes2="eye_amber", pattern="solid", muzzle=None,
+                    # the Cat Makeovers (#2739)
+                    mark=("snowflake", "shirt_blue"), tip="pastel_sky", eye_k=1.08),
     "Calico":  dict(rarity="Rare", fur="fur_white", second="fur_orange", third="fur_black", eyes="eye_green", pattern="patches", muzzle=None),
     # Derek 14:24 found the old Siamese "kinda looks off": the dark mask round the eyes is now a small dark muzzle
     # under them, with a pink nose, cream legs and dark paws (every points cat draws it this way)
@@ -69,10 +80,15 @@ ROSTER = {
                       nose="nose_brick", scale=1.2, body_scale=(1.1, 1.05, 1.05), ruff="fur_white", ear_tufts=True, tail_thick=0.28),
     "Midnight":  dict(rarity="Mythical", fur="night_sky", second="sparkle", eyes="sparkle", pattern="solid", muzzle=None,
                       glow_eyes=True, sparkle=True, moon=True, nose="nose_dark"),
-    "Cream":     dict(rarity="Common", fur="fur_latte", second="fur_latte", eyes="eye_chartreuse", pattern="solid", muzzle="fur_cream"),
+    "Cream":     dict(rarity="Common", fur="fur_latte", second="fur_strawberry", third="fur_cream", eyes="eye_chartreuse",
+                      pattern="patches", muzzle="fur_cream", curl=True),   # the Cat Makeovers (#2739): strawberry-cream patches
     "Brownie":   dict(rarity="Common", fur="fur_brown", second="choco", eyes="eye_amber", pattern="stripes", muzzle="fur_cream",
-                      nose="nose_brick"),
-    "Blue":      dict(rarity="Common", fur="fur_blue", second="fur_blue", eyes="eye_green", pattern="solid", muzzle=None, nose="nose_dark"),
+                      nose="nose_brick",
+                      # the Cat Makeovers (#2739)
+                      sprinkles=("choco", "fur_cream"), eye_k=1.08),
+    "Blue":      dict(rarity="Common", fur="fur_blue", second="fur_blue", eyes="eye_green", pattern="solid", muzzle=None, nose="nose_dark",
+                      # the Cat Makeovers (#2739)
+                      mark=("drop", "fish_blue"), eye_k=1.08, curl=True),
     "Persian":   dict(rarity="Epic", fur="fur_lavender", second="pastel_lilac", eyes="eye_copper", pattern="solid", muzzle=None,
                       body_scale=(1.15, 1.0, 1.1), persian=True, tail_thick=0.3),
     "Blossom":   dict(rarity="Legendary", fur="fur_rose", second="fur_white", third="nose_pink", eyes="eye_blue", pattern="patches",
@@ -118,20 +134,36 @@ ROSTER = {
                         pattern="gradient", muzzle=None, glow_eyes=True, nose="nose_dark"),
     # v0.6 plain Commons of the Neighbourhood, Woods and Sewer (data-model 3c): no prop, a coat that reads at a glance
     "Biscuit":     dict(rarity="Common", fur="treat_tan", second="treat_tan", eyes="eye_green", pattern="solid",
-                        muzzle="fur_white", nose="nose_brick", socks="choco", tip="choco"),
+                        muzzle="fur_white", nose="nose_brick", socks="choco", tip="choco",
+                        # the Cat Makeovers (#2739)
+                        sprinkles=("choco", "fur_brown"), eye_k=1.08),
     "Pepper":      dict(rarity="Common", fur="fur_pepper", second="fur_pepper", eyes="eye_amber", pattern="solid",
-                        muzzle="fur_silver", nose="nose_dark", sprinkles=("fur_white", "fur_black")),
+                        muzzle="fur_silver", nose="nose_dark", sprinkles=("fur_white", "fur_black"),
+                        # the Cat Makeovers (#2739)
+                        blaze="fur_white", ear_tufts=True, curl=True),
     "Socks":       dict(rarity="Common", fur="fur_ink", second="fur_ink", eyes="eye_chartreuse", pattern="solid",
-                        muzzle="fur_white", socks="fur_white", tip="fur_white"),
+                        muzzle="fur_white", socks="fur_white", tip="fur_white",
+                        # the Cat Makeovers (#2739)
+                        toes=("fur_strawberry", "mint", "pastel_butter", "pastel_sky"), blaze="fur_white"),
     "Butter":      dict(rarity="Common", fur="pastel_butter", second="pastel_butter", eyes="eye_blue", pattern="solid",
-                        muzzle="fur_white", body_scale=(1.08, 1.0, 1.05)),
+                        muzzle="fur_white", body_scale=(1.08, 1.0, 1.05),
+                        # the Cat Makeovers (#2739)
+                        mark=("pat", ("rarity_legend", "milk")), eye_k=1.08, curl=True),
     "Moss":        dict(rarity="Common", fur="fur_moss", second="fur_moss", eyes="eye_amber", pattern="solid", muzzle="fur_cream",
-                        nose="nose_brick", ear_tufts=True),
+                        nose="nose_brick", ear_tufts=True,
+                        # the Cat Makeovers (#2739)
+                        blaze="fur_cream", curl=True, eye_k=1.08),
     "Acorn":       dict(rarity="Common", fur="fur_acorn", second="fur_acorn", eyes="eye_green", pattern="solid", muzzle="fur_oat",
-                        nose="nose_brick", tip="fur_brown"),
+                        nose="nose_brick", tip="fur_brown",
+                        # the Cat Makeovers (#2739)
+                        mark=("drop", "fur_brown"), eye_k=1.08, curl=True),
     "Bramble":     dict(rarity="Common", fur="fur_bramble", second="fur_seal", eyes="eye_chartreuse", pattern="stripes",
-                        muzzle="fur_hazel", nose="nose_dark"),
-    "Fern":        dict(rarity="Common", fur="fur_fern", second="leaf_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white"),
+                        muzzle="fur_hazel", nose="nose_dark",
+                        # the Cat Makeovers (#2739)
+                        sprinkles=("bowl_red", "fur_ink"), eye_k=1.08),
+    "Fern":        dict(rarity="Common", fur="fur_fern", second="leaf_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white",
+                        # the Cat Makeovers (#2739)
+                        mark=("star", "leaf_dark"), tip="leaf_dark", ear_tufts=True),
     "Rusty":       dict(rarity="Common", fur="fur_rust_red", second="fur_smoke_light", eyes="eye_green", pattern="patches",
                         muzzle="fur_cream", nose="nose_brick"),
     "Soot":        dict(rarity="Common", fur="fur_ash", second="fur_ash", eyes="eye_copper", pattern="solid", muzzle="fur_soot",
@@ -498,6 +530,8 @@ def _head(spec, c, h):
         lo = fz - 0.05 * k                              # the muzzle's top
         b.box((0, fy + 0.012, (lo + fz) / 2), (0.16 * k, 0.06, fz - lo), c["blaze"], bevel=False)
         b.box((0, fy + 0.014, fz + 0.11), (0.11 * k, 0.06, 0.22), c["blaze"], bevel=False)
+    if spec.get("mark"):                                # the Cat Makeovers: a mark on the forehead
+        _forehead_mark(b, spec["mark"][0], spec["mark"][1], fy - 0.012, fz + 0.29, 1.35)
     b.box((0, fy - 0.025, fz - 0.11 * k), (0.1 * k, 0.06, 0.07 * k), c["nose"], bevel=False)
     _mouth(b, surf, fz - 0.145 * k, k, "fur_grey" if palette.lstar(under) < 35 else "fur_black")
     for side in (-1, 1):
@@ -530,6 +564,29 @@ def _head(spec, c, h):
         for dx, dz in ((0.085, 0), (-0.085, 0), (0, 0.085), (0, -0.075)):   # petals overlap the centre; the low one sinks into the head
             b.box((fx + dx, cy - 0.12, fzz + dz), (0.1, 0.06 if dz == 0 else 0.05, 0.1), c["second"], bevel=False)
     return b
+
+
+# The Cat Makeovers (#2739, 2026-11-09): forehead marks for the Common cats, each built from a few boxes on the face
+# front between the eyes' tops and the crown. Box i stands 0.003 * i further out, so overlapping boxes never share a
+# plane. Each entry: (centre x, centre z, width, height, turn about the face normal in degrees).
+MARKS = {
+    "m": ((0.1, 0.0, 0.045, 0.15, 0), (-0.1, 0.0, 0.045, 0.15, 0), (0.05, 0.01, 0.045, 0.13, -35),
+          (-0.05, 0.01, 0.045, 0.13, 35)),                                      # the tabby M
+    "snowflake": ((0, 0, 0.2, 0.04, 0), (0, 0, 0.2, 0.04, 60), (0, 0, 0.2, 0.04, -60),
+                  (0, 0, 0.06, 0.06, 45)),
+    "drop": ((0, -0.03, 0.1, 0.1, 45), (0, 0.035, 0.065, 0.065, 45), (0, 0.08, 0.035, 0.035, 45)),
+    "heart": ((0.04, 0.02, 0.09, 0.09, 45), (-0.04, 0.02, 0.09, 0.09, 45), (0, -0.02, 0.1, 0.1, 45)),
+    "pat": ((0, 0, 0.2, 0.11, 0), (-0.045, 0.025, 0.07, 0.03, 0)),              # a butter pat and its shine
+    "star": ((0, 0, 0.05, 0.17, 0), (0, 0, 0.05, 0.17, 72), (0, 0, 0.05, 0.17, -72), (0, 0, 0.05, 0.17, 36),
+             (0, 0, 0.05, 0.17, -36)),
+}
+
+
+def _forehead_mark(b, shape, colour, y, z, s=1.0):
+    """A forehead mark (MARKS, scaled by s) in `colour`, or colours[i] when colour is a tuple, standing out from the face at y."""
+    for i, (x, dz, w, h, a) in enumerate(MARKS[shape]):
+        col = colour[i % len(colour)] if isinstance(colour, tuple) else colour
+        b.box((x * s, y - 0.003 * i, z + dz * s), (w * s, 0.04, h * s), col, bevel=False, rot=_rot(a, "Y") if a else None)
 
 
 def _mouth(b, surf, nz, k, ink):

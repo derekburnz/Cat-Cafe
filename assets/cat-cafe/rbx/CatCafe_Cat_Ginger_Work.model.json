@@ -922,6 +922,251 @@
        "CFrame": {
         "position": [
          0.0,
+         1.4915,
+         -0.6479
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0641,
+       0.218,
+       0.038
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ginger_Work_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.4915,
+         -0.6507
+        ],
+        "orientation": [
+         [
+          0.309,
+          -0.9511,
+          0.0
+         ],
+         [
+          0.9511,
+          0.309,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0641,
+       0.218,
+       0.038
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ginger_Work_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.4915,
+         -0.6536
+        ],
+        "orientation": [
+         [
+          0.309,
+          0.9511,
+          0.0
+         ],
+         [
+          -0.9511,
+          0.309,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0641,
+       0.218,
+       0.038
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ginger_Work_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.4915,
+         -0.6565
+        ],
+        "orientation": [
+         [
+          0.809,
+          -0.5878,
+          0.0
+         ],
+         [
+          0.5878,
+          0.809,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0641,
+       0.218,
+       0.038
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ginger_Work_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         1.4915,
+         -0.6593
+        ],
+        "orientation": [
+         [
+          0.809,
+          0.5878,
+          0.0
+         ],
+         [
+          -0.5878,
+          0.809,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0641,
+       0.218,
+       0.038
+      ],
+      "Color": [
+       0.9647,
+       0.8745,
+       0.6275
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Ginger_Work_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
          1.0958,
          -0.6603
         ],
@@ -1343,8 +1588,8 @@
          }
         },
         "Size": [
-         0.2185,
-         0.284,
+         0.236,
+         0.3068,
          0.0665
         ],
         "Color": [
@@ -1398,7 +1643,7 @@
          "CFrame": {
           "position": [
            -0.2498,
-           1.1941,
+           1.1924,
            -0.68
           ],
           "orientation": [
@@ -1421,8 +1666,8 @@
          }
         },
         "Size": [
-         0.1311,
-         0.2045,
+         0.1416,
+         0.2209,
          0.0585
         ],
         "Color": [
@@ -1446,8 +1691,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           -0.1912,
-           1.2955,
+           -0.1873,
+           1.3019,
            -0.6888
           ],
           "orientation": [
@@ -1470,8 +1715,8 @@
          }
         },
         "Size": [
-         0.0655,
-         0.0765,
+         0.0708,
+         0.0826,
          0.0285
         ],
         "Color": [
@@ -1556,8 +1801,8 @@
          }
         },
         "Size": [
-         0.2185,
-         0.284,
+         0.236,
+         0.3068,
          0.0665
         ],
         "Color": [
@@ -1611,7 +1856,7 @@
          "CFrame": {
           "position": [
            0.2498,
-           1.1941,
+           1.1924,
            -0.6875
           ],
           "orientation": [
@@ -1634,8 +1879,8 @@
          }
         },
         "Size": [
-         0.1311,
-         0.2045,
+         0.1416,
+         0.2209,
          0.0735
         ],
         "Color": [
@@ -1659,8 +1904,8 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.2895,
-           1.2955,
+           0.3043,
+           1.3019,
            -0.7144
           ],
           "orientation": [
@@ -1683,8 +1928,8 @@
          }
         },
         "Size": [
-         0.0655,
-         0.0765,
+         0.0926,
+         0.0826,
          0.0797
         ],
         "Color": [
@@ -2583,14 +2828,14 @@
        }
       },
       "Size": [
-       0.133,
+       0.0872,
        0.133,
        0.285
       ],
       "Color": [
+       0.9373,
        0.851,
-       0.4,
-       0.1804
+       0.7059
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,

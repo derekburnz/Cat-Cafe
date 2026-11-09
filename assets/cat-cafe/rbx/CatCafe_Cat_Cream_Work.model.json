@@ -336,6 +336,153 @@
     "CFrame": {
      "CFrame": {
       "position": [
+       -0.342,
+       0.7949,
+       -0.0071
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.038,
+     0.3103,
+     0.3212
+    ],
+    "Color": [
+     0.9373,
+     0.851,
+     0.7059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Cream_Work_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       0.342,
+       0.551,
+       -0.038
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.038,
+     0.266,
+     0.323
+    ],
+    "Color": [
+     0.949,
+     0.5608,
+     0.6667
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Cream_Work_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
+       -0.076,
+       0.589,
+       0.2137
+      ],
+      "orientation": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     }
+    },
+    "Size": [
+     0.285,
+     0.285,
+     0.038
+    ],
+    "Color": [
+     0.9373,
+     0.851,
+     0.7059
+    ],
+    "Material": "SmoothPlastic",
+    "Anchored": true,
+    "CanCollide": false,
+    "CanTouch": false,
+    "CastShadow": true,
+    "TopSurface": "Smooth",
+    "BottomSurface": "Smooth"
+   }
+  },
+  {
+   "name": "CatCafe_Cat_Cream_Work_Body",
+   "className": "Part",
+   "properties": {
+    "CFrame": {
+     "CFrame": {
+      "position": [
        -0.3895,
        0.7505,
        -0.057
@@ -864,6 +1011,104 @@
        }
       }
      ]
+    },
+    {
+     "name": "CatCafe_Cat_Cream_Work_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.2272,
+         1.6815,
+         -0.209
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.3511,
+       0.057,
+       0.418
+      ],
+      "Color": [
+       0.949,
+       0.5608,
+       0.6667
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Cream_Work_Head",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.3098,
+         1.33,
+         -0.627
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.19,
+       0.247,
+       0.057
+      ],
+      "Color": [
+       0.9373,
+       0.851,
+       0.7059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
     },
     {
      "name": "CatCafe_Cat_Cream_Work_Head",
@@ -2185,7 +2430,7 @@
           "position": [
            0.3028,
            1.729,
-           -0.3254
+           -0.3089
           ],
           "orientation": [
            [
@@ -2209,7 +2454,7 @@
         "Size": [
          0.1094,
          0.1083,
-         0.0615
+         0.0285
         ],
         "Color": [
          0.8784,
@@ -2559,33 +2804,131 @@
       "CFrame": {
        "CFrame": {
         "position": [
-         -0.0857,
-         0.9612,
-         0.8309
+         -0.0777,
+         0.9158,
+         0.8044
         ],
         "orientation": [
          [
           0.9848,
-          0.0302,
-          -0.171
+          0.0996,
+          -0.1422
          ],
          [
           0.1736,
-          -0.171,
-          0.9698
+          -0.5649,
+          0.8067
          ],
          [
           0.0,
-          -0.9848,
-          -0.1736
+          -0.8192,
+          -0.5736
          ]
         ]
        }
       },
       "Size": [
-       0.133,
-       0.133,
-       0.285
+       0.1252,
+       0.1252,
+       0.209
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Cream_Work_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0892,
+         0.9809,
+         0.6868
+        ],
+        "orientation": [
+         [
+          0.9848,
+          0.1736,
+          0.0
+         ],
+         [
+          0.1736,
+          -0.9848,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.1104,
+       0.1104,
+       0.19
+      ],
+      "Color": [
+       0.7804,
+       0.6235,
+       0.4784
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Cream_Work_Tail",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.0811,
+         0.935,
+         0.5829
+        ],
+        "orientation": [
+         [
+          0.9848,
+          0.0996,
+          0.1422
+         ],
+         [
+          0.1736,
+          -0.5649,
+          -0.8067
+         ],
+         [
+          0.0,
+          0.8192,
+          -0.5736
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.0957,
+       0.0957,
+       0.1615
       ],
       "Color": [
        0.7804,

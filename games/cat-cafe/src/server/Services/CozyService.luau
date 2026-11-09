@@ -3,7 +3,7 @@
 -- cafe (the plot's footprint, PlotWidth by PlotDepth about its centre) counts time there; leaving resets it. After
 -- CozyStartSeconds the plot's CozyActive attribute turns on (a cat curls up on the counter: Model and Animation draw it);
 -- CozyBagSeconds later a gift bag appears on the counter (a CozyBag part with a one-press prompt, owner only, also
--- taken by touching it). One bag waits at a time and the timer stops until it is taken; a bag left behind when the
+-- taken by touching it, by clicking or tapping it, and from anywhere with TakeCozy, #2854). One bag waits at a time and the timer stops until it is taken; a bag left behind when the
 -- owner leaves the cafe stays until the plot is released. The prize is paid on taking (Payout). Attributes for the
 -- client's HUD line ("Cozy gift in 2:10"): CozyActive, CozyNextAt (os.time() the next bag drops while counting, else
 -- 0) and CozyBagAt (os.time() the waiting bag dropped, else 0).
@@ -68,16 +68,23 @@ local function removeBag(index: number, plot: WorldBuilder.Plot?)
 	end
 end
 
-local function take(player: Player)
+-- `anywhere` (#2854, Derek2: "make it auto claim if clicked or click in cafe"): the Rewards list's row (TakeCozy) and
+-- a click on the bag take it without the prompt's range; the bag is the owner's own and is paid once either way.
+local function take(player: Player, anywhere: boolean?)
 	local plot = PlotService.get(player)
 	local profile = DataService.get(player)
 	if plot == nil or profile == nil then
 		return
 	end
 	local bag: BasePart? = bags[plot.index]
-	local root = rootOf(player)
-	if bag == nil or root == nil or (root.Position - bag.Position).Magnitude > RANGE_STUDS + 2 then
+	if bag == nil then
 		return
+	end
+	if anywhere ~= true then
+		local root = rootOf(player)
+		if root == nil or (root.Position - bag.Position).Magnitude > RANGE_STUDS + 2 then
+			return
+		end
 	end
 	removeBag(plot.index, plot)
 	local now = os.time()
@@ -102,7 +109,7 @@ local function dropBag(player: Player, plot: WorldBuilder.Plot)
 	bag.Material = Enum.Material.Fabric
 	bag.Anchored = true
 	bag.CanCollide = false
-	bag.CanQuery = false
+	bag.CanQuery = true -- #2854: a ClickDetector needs the bag in the mouse's raycast
 	bag.CFrame = cf * CFrame.new(0, size.Y / 2 + 0.6, 0)
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "CozyPrompt"
@@ -117,6 +124,16 @@ local function dropBag(player: Player, plot: WorldBuilder.Plot)
 		end
 	end)
 	prompt.Parent = bag
+	-- #2854: a click or tap on the bag takes it too
+	local click = Instance.new("ClickDetector")
+	click.Name = "CozyClick"
+	click.MaxActivationDistance = 60
+	click.MouseClick:Connect(function(who: Player)
+		if who == player then
+			take(who, true)
+		end
+	end)
+	click.Parent = bag
 	bag.Touched:Connect(function(hit: BasePart)
 		local character = hit:FindFirstAncestorOfClass("Model") :: Model?
 		if character ~= nil and Players:GetPlayerFromCharacter(character) == player then
@@ -170,6 +187,9 @@ local function tick(dt: number)
 end
 
 function CozyService.start()
+	Net.on("TakeCozy", function(player: Player)
+		take(player, true)
+	end)
 	DataService.beforeRelease(function(player: Player)
 		stays[player] = nil
 		local plot = PlotService.get(player)

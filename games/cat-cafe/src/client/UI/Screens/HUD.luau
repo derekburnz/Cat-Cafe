@@ -105,6 +105,7 @@ export type Callbacks = {
 	setSetting: ((key: string, value: boolean) -> ())?, -- #1893: the Grand Opening strip saves roadmapOpen
 	-- #1919: the goal card's "Find N more cats" nudge opens the Index on this area's page (nil: its first page)
 	openIndexAt: ((areaId: string?) -> ())?,
+	takeCozy: (() -> ())?, -- #2854: the Rewards list's "Cozy gift waiting!" row takes the bag
 }
 
 export type HUD = {
@@ -3834,13 +3835,18 @@ function HUD._popRowsFor(self: any, kind: string): { PopRow }
 	local callbacks: Callbacks = self._callbacks
 	if kind == "rewards" then
 		local gifts, daily, _, cozy = self:_rewardParts()
-		-- #2798: the Cozy Cafe line first; a press only closes the list (the bag is taken at the counter)
+		-- #2798: the Cozy Cafe line first. #2854 (Derek2: "make it auto claim if clicked"): with a bag waiting a press
+		-- takes it from anywhere; the countdown's press only closes the list
 		if cozy then
 			table.insert(rows, {
 				id = "Cozy",
 				icon = Theme.icons.home,
 				style = "ghost" :: Button.Style,
-				press = function() end,
+				press = function()
+					if self._cozyReady == true and callbacks.takeCozy then
+						callbacks.takeCozy()
+					end
+				end,
 			})
 		end
 		-- #2791: the ladder's next steps first, each "1:45  +1 spin"; a press only closes the list

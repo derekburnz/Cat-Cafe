@@ -2228,6 +2228,32 @@ local SCENES = {
 		local words = first:FindFirstChild("Label", true)
 		assert(words and string.find(words.Text, "$", 1, true), "uigate: the first step reads " .. tostring(words and words.Text) .. " (#2791)")
 	end },
+	-- #2798 (Derek2: the Cozy Cafe countdown is the gift icon's tooltip, not a new strip): standing in your cafe, the
+	-- Rewards list says when the next Cozy gift comes; once the bag waits on the counter the tile wears the red "!"
+	{ "CozyCountdown", function()
+		local plot = Instance.new("Model")
+		plot.Name = "CozyPlot"
+		plot:SetAttribute("CozyActive", true)
+		plot:SetAttribute("CozyNextAt", workspace:GetServerTimeNow() + 130)
+		plot:SetAttribute("CozyBagAt", 0)
+		Scenes._cozy = plot -- Scenes.close takes it away again
+		UI.cozy.plot = plot
+		UI.cozy.refresh()
+		press("CatCafeHUD", "Icons.Rewards")
+		local hudGui = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local pop = hudGui:FindFirstChild("Pop", true)
+		local row = pop and pop.Visible and pop:FindFirstChild("Cozy")
+		local words = row and row:FindFirstChild("Label", true)
+		assert(words and string.match(words.Text, "^Cozy gift in 2:%d%d$"), "uigate: the Cozy row reads " .. tostring(words and words.Text) .. " (#2798)")
+		plot:SetAttribute("CozyActive", false)
+		plot:SetAttribute("CozyBagAt", workspace:GetServerTimeNow())
+		UI.cozy.refresh()
+		assert(hudGui:FindFirstChild("Rewards", true):FindFirstChild("Dot", true).Visible, "uigate: no red ! on the Rewards tile for a waiting Cozy bag (#2798)")
+		-- the open list's row follows (HUD._fillPop)
+		assert(pop.Visible, "uigate: the Rewards list closed (#2798)")
+		words = row:FindFirstChild("Label", true)
+		assert(words and words.Text == "Cozy gift waiting!", "uigate: the waiting bag's row reads " .. tostring(words and words.Text) .. " (#2798)")
+	end },
 	-- #1893: step 8's Grand Opening banner
 	{ "GrandOpeningDone", function()
 		UI.update({ tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true } } })
@@ -6645,6 +6671,11 @@ function Scenes.close()
 	local pop = hudGui and hudGui:FindFirstChild("Pop", true)
 	if pop and pop.Visible then
 		press("CatCafeHUD", if pop:FindFirstChild("Settings") then "Icons.Menu" else "Icons.Rewards")
+	end
+	if Scenes._cozy then
+		Scenes._cozy = nil
+		UI.cozy.plot = nil -- #2798's scene: no Cozy line
+		UI.cozy.refresh()
 	end
 	if Scenes._ladder then
 		Scenes._ladder = nil

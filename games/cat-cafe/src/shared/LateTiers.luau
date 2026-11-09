@@ -87,7 +87,8 @@ LateTiers.areas = {
 	},
 } :: { LateArea }
 
--- Section 1 and section 9 (names decided for Derek2, 2026-11-09). The caps follow Tier 5's until the Pace run.
+-- Section 1 and section 9 (names decided for Derek2, 2026-11-09). The caps follow 7b (#2659): Tier 5's, with Espresso
+-- and the Lucky Cat one level higher per tier; Pace tunes the new levels' prices.
 LateTiers.tiers = {
 	{
 		tier = 6,
@@ -99,7 +100,7 @@ LateTiers.tiers = {
 		slots = 12,
 		multiplier = 2.25,
 		area = "desert",
-		caps = { tables = 6, espresso = 5, net = 3, lure_bowl = 5, lucky_cat = 6 },
+		caps = { tables = 6, espresso = 6, net = 3, lure_bowl = 5, lucky_cat = 6 }, -- 7b: Espresso and Lucky Cat 6
 	},
 	{
 		tier = 7,
@@ -111,7 +112,7 @@ LateTiers.tiers = {
 		slots = 14,
 		multiplier = 2.50,
 		area = "ruins",
-		caps = { tables = 6, espresso = 5, net = 3, lure_bowl = 5, lucky_cat = 7 },
+		caps = { tables = 6, espresso = 7, net = 3, lure_bowl = 5, lucky_cat = 7 }, -- 7b: Espresso and Lucky Cat 7
 	},
 } :: { LateTier }
 

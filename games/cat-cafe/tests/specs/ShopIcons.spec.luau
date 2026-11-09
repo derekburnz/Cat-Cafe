@@ -157,6 +157,8 @@ return function()
 			)
 			expect(ShopIcons.backup(ShopIcons.clean("Cats"))).to.equal(nil)
 			expect(ShopIcons.backup(nil)).to.equal(nil)
+			-- #2866: the redrawn Bag falls back to the group's earlier backpack, not the window's potion glyph
+			expect(ShopIcons.backup(ShopIcons.hud("Bag"))).to.equal("rbxassetid://88244676943674")
 		end)
 
 		it("offers the next net, staying on the top one", function()
@@ -305,6 +307,17 @@ return function()
 				expect(ShopIcons.glyph(glyph)).never.to.equal(nil)
 			end
 			expect(ShopIcons.glyph("🐱")).to.equal(nil)
+		end)
+
+		it("draws every Settings switch row (#2836 pass 2)", function()
+			local SettingsList = require(Components:WaitForChild("SettingsList")) :: any
+			for _, section in SettingsList.SECTIONS do
+				for _, row in section.rows do
+					expect(ShopIcons.setting(row.key)).never.to.equal(nil)
+				end
+			end
+			expect(ShopIcons.setting("resetSave")).to.equal(nil)
+			expect(ShopIcons.setting(nil)).to.equal(nil)
 		end)
 	end)
 end

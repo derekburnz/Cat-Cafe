@@ -223,6 +223,7 @@ UI.events = {
 	buyYardSale = Signal.new(), -- (crateId)   Buy on the Yard Sale card: forward as BuyYardSale
 	-- (itemId, window, shownPrice, catUid?)   Buy in the Corner Shop (#1052): forward as BuyCornerShop
 	buyCornerShop = Signal.new(),
+	buyCornerShopAll = Signal.new(), -- (kind, window)   #2593: Buy all on a Day Cart section: forward as BuyCornerShopAll
 	-- (foodId, catUid)   #1181: Feed a cat from the Bag's Cat Food tab: forward as FeedCat; FeedResult calls UI.bag.fed
 	feedCat = Signal.new(),
 	-- (hide)   #1083: Settings' "Show my name on the Thank You board" off (true) or on: forward as SetHideCredit
@@ -5339,6 +5340,9 @@ do
 		local view = CornerShop.new({
 			buy = function(itemId: string, window: number, shownPrice: number, catUid: string?)
 				UI.events.buyCornerShop:Fire(itemId, window, shownPrice, catUid)
+			end,
+			buyAll = function(kind: string, window: number)
+				UI.events.buyCornerShopAll:Fire(kind, window)
 			end,
 			close = function()
 				if modalView:current() == "CornerShop" then

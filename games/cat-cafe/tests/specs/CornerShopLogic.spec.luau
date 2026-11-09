@@ -169,4 +169,94 @@ return function()
 			end
 		)
 	end)
+
+	describe("CornerShopLogic.buyAll (#2593)", function()
+		local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+		local CornerShop = require(Shared:WaitForChild("CornerShop")) :: any
+		local Catalog = require(Shared:WaitForChild("Catalog")) :: any
+		local NONE = { catFood = {}, lures = {} }
+		local function windowFor(kind: string, rows: number): number
+			for window = 5000, 10000 do
+				local n = 0
+				for _, item in CornerShop.stock(window) do
+					local row = Catalog.getCornerShopRow(item.itemId)
+					if row.kind == kind and item.amount > 0 then
+						n += 1
+					end
+				end
+				if n >= rows then
+					return window
+				end
+			end
+			error("no window")
+		end
+		local function state(window: number): any
+			return { window = window, bought = {}, day = 0, today = {}, foodXpToday = 0 }
+		end
+
+		it("plans from the shown stock exactly as the server's planAll on the same state", function()
+			for _, kind in { "potion", "food", "bait" } do
+				local window = windowFor(kind, 2)
+				local view = CornerShop.view(state(window), window, 5)
+				local plan = Logic.buyAll(view, kind, 5, 1e12, NONE)
+				local server, total = CornerShop.planAll(state(window), window, kind, 5, 1e12, NONE)
+				local count = 0
+				for _, item in server do
+					count += item.count
+				end
+				expect(plan.count).to.equal(count)
+				expect(plan.total).to.equal(total)
+				expect(plan.partial).to.equal(nil)
+				expect(string.find(plan.list, "^%d+ ")).to.be.ok()
+			end
+		end)
+
+		it("says how many fit when coins run short, and is nil when none do", function()
+			local window = windowFor("potion", 2)
+			local view = CornerShop.view(state(window), window, 5)
+			local all = Logic.buyAll(view, "potion", 5, 1e12, NONE)
+			local some = Logic.buyAll(view, "potion", 5, all.total - 1, NONE)
+			if some then
+				expect(some.count < all.count).to.equal(true)
+				expect(some.of).to.equal(all.count)
+				expect(some.partial).to.equal(
+					("You can afford %d of %d. The best go first."):format(some.count, all.count)
+				)
+			end
+			expect(Logic.buyAll(view, "potion", 5, 0, NONE)).to.equal(nil)
+			expect(Logic.buyAll(nil, "potion", 5, 1e12, NONE)).to.equal(nil)
+		end)
+
+		it("rebuilds today's counts from leftToday, else outToday", function()
+			local limited: any = nil
+			for _, row in Catalog.cornerShop do
+				if CornerShop.perDay(row.family) ~= nil then
+					limited = row
+					break
+				end
+			end
+			expect(limited).to.be.ok()
+			local limit = CornerShop.perDay(limited.family)
+			local rebuilt = Logic.stateFromView({
+				window = 9,
+				restocksAt = 0,
+				snackXp = 0,
+				stock = {
+					{ itemId = limited.id, price = 1, amount = 3, bought = 1, size = "regular", leftToday = 1 },
+					{ itemId = "x_unknown", price = 1, amount = 1, bought = 0, size = "regular", outToday = true },
+				},
+			} :: any)
+			expect(rebuilt.window).to.equal(9)
+			expect(rebuilt.bought[limited.id]).to.equal(1)
+			expect(rebuilt.today[limited.id]).to.equal(limit - 1)
+			expect(rebuilt.today.x_unknown).to.equal(nil)
+			local out = Logic.stateFromView({
+				window = 9,
+				restocksAt = 0,
+				snackXp = 0,
+				stock = { { itemId = limited.id, price = 1, amount = 3, bought = 0, size = "regular", outToday = true } },
+			} :: any)
+			expect(out.today[limited.id]).to.equal(limit)
+		end)
+	end)
 end

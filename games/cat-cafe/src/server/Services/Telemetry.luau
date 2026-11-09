@@ -24,9 +24,11 @@ local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
 local CafePass = require(ReplicatedStorage.Shared.CafePass)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
+local Clock = require(ReplicatedStorage.Shared.Clock)
 local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
@@ -127,6 +129,9 @@ export type CustomEvent =
 	-- the session's seconds; the furthest onboarding step, the session's bounce window, device. From the client: a
 	-- stuck nudge (tutorialStep, kind: pulse, help_shown or show_me) and where the intro was played from (tile, help)
 	| "new_player_left"
+	-- #2562 (Derek2: "see if lots of people leave during night time"): on leaving, value the session's seconds; the
+	-- clock's phase (day, dusk or night), which third of it (Clock.leavePhase) and the tier with first or return
+	| "left_in_phase"
 	| "stuck_nudge"
 	| "intro_choice"
 	-- F87 (TipService): a context tip shown (tip id, skipped yes or no), once per id until ClearTips;
@@ -1445,6 +1450,17 @@ local function onRelease(player: Player, profile: Profile)
 	end
 	flushSwings(player)
 	local caught = profile.stats.catsCaught - session.caughtAtJoin
+	-- #2562: night is NightLengthSeconds of every DayLength + NightLength (about 18%); a share of these well over that
+	-- at night means night drives players off
+	local phase, third = Clock.leavePhase(
+		ClockService.phase(),
+		ClockService.phaseEndsAt() - Workspace:GetServerTimeNow()
+	)
+	Telemetry.custom(player, "left_in_phase", math.max(0, now - session.joinedAt), {
+		phase,
+		third,
+		"T" .. tierText(profile) .. (if profile.stats.sessions <= 1 then "_first" else "_return"),
+	})
 	Telemetry.custom(player, "session_end", math.max(0, now - session.joinedAt), {
 		bucket(caught, { 0, 2, 5 }, { "0", "1-2", "3-5", "6+" }),
 		tierText(profile),

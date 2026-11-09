@@ -225,6 +225,7 @@ UI.events = {
 	buyCornerShop = Signal.new(),
 	buyMystery = Signal.new(), -- #2574: (itemId, shownPrice), forwarded as BuyMystery
 	mysterySeen = Signal.new(), -- #2574: Juniper's window opened, forwarded as MarkMysterySeen
+	buyCornerShopAll = Signal.new(), -- (kind, window)   #2593: Buy all on a Day Cart section: forward as BuyCornerShopAll
 	-- (foodId, catUid)   #1181: Feed a cat from the Bag's Cat Food tab: forward as FeedCat; FeedResult calls UI.bag.fed
 	feedCat = Signal.new(),
 	-- (hide)   #1083: Settings' "Show my name on the Thank You board" off (true) or on: forward as SetHideCredit
@@ -1905,6 +1906,10 @@ end
 ----------------------------------------------------------------------------------------------------
 
 function UI.toast(text: string, kind: Types.ToastKind?)
+	-- #2600: no "Bought ..." pop-ups (ToastRules.quiet); init.luau is at the 200-local limit, so it loads here
+	if require(script.Components.ToastRules).quiet(text, kind) then
+		return
+	end
 	-- a bug report waiting on the server: its "Thanks!" closes the window, its refusals keep the words, and any
 	-- other toast leaves the report waiting (review N151)
 	if bugReportScreen and bugReportScreen:pending() then
@@ -5340,6 +5345,9 @@ do
 		local view = CornerShop.new({
 			buy = function(itemId: string, window: number, shownPrice: number, catUid: string?)
 				UI.events.buyCornerShop:Fire(itemId, window, shownPrice, catUid)
+			end,
+			buyAll = function(kind: string, window: number)
+				UI.events.buyCornerShopAll:Fire(kind, window)
 			end,
 			close = function()
 				if modalView:current() == "CornerShop" then

@@ -17,6 +17,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local CafeService = require(script.Parent.CafeService)
+local CatStats = require(ReplicatedStorage.Shared.CatStats)
 local Catalog = require(ReplicatedStorage.Shared.Catalog)
 local ClockService = require(script.Parent.ClockService)
 local Collector = require(ReplicatedStorage.Shared.Collector)
@@ -24,6 +25,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
+local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local PlotService = require(script.Parent.PlotService)
@@ -116,6 +118,8 @@ local function blocker(profile: Types.PlayerProfile, visit: Visit): string?
 		return string.format("Your %s is working. Take it off its job to trade it.", name)
 	elseif instance.locked == true then
 		return string.format("Your %s is locked. Unlock it to trade it.", name)
+	elseif CatStats.atSpa(profile, visit.catUid) then
+		return string.format("Your %s is at the spa.", name) -- #2651 part 4
 	elseif ProfileSchema.catCount(profile) <= 1 then
 		return "You cannot trade your last cat."
 	end
@@ -219,7 +223,7 @@ local function wantedAt(player: Player, plot: WorldBuilder.Plot): Types.CatInsta
 	if Economy.incomePerSecond(profile) <= 0 or tables < 1 then
 		return nil
 	end
-	return Collector.pickCat(profile.cats, roll, profile.tier)
+	return Collector.pickCat(profile.cats, roll, profile.tier, LateStations.spaUids(profile))
 end
 
 -- Each cafe's Collector timer (#1135, shared/VisitTimer): seconds of open day left until he next comes.
@@ -273,7 +277,9 @@ local function checkVisits()
 			take(index)
 		else
 			local instance = profile.cats[visit.catUid]
-			if instance == nil or not Collector.askable(instance) then
+			if
+				instance == nil or not Collector.askable(instance, LateStations.spaUids(profile))
+			then
 				local gone = take(index)
 				if gone ~= nil then
 					logVisit(owner, gone, "withdrawn")
@@ -339,8 +345,8 @@ function CollectorService.debugArrive(
 	end
 	local instance = if uid ~= nil
 		then profile.cats[uid]
-		else Collector.pickCat(profile.cats, roll, profile.tier)
-	if instance == nil or not Collector.askable(instance) then
+		else Collector.pickCat(profile.cats, roll, profile.tier, LateStations.spaUids(profile))
+	if instance == nil or not Collector.askable(instance, LateStations.spaUids(profile)) then
 		return nil, nil
 	end
 	local visit = arrive(player, plot, instance, os.time())

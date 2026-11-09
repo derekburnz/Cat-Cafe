@@ -807,6 +807,14 @@ local Config = {
 			lostCat: string?,
 		}
 	},
+	-- #2651 part 4 (late-stations.md): the Oasis Spa (Desert camp, Tier 6) gives a cat +1 level after SpaSeconds of
+	-- real time (offline too), one slot free and two more bought once with golden fish at SpaSlotPrices; each Relic
+	-- Museum (Ruins camp, Tier 7) room filled adds MuseumRoomTipBonus to the tips-forever total. LateStationsOpen
+	-- places them and opens their remotes once the UI's cards are in (UI-Engineer).
+	SpaSeconds = 3600,
+	SpaSlotPrices = { 0, 100, 250 },
+	MuseumRoomTipBonus = 0.02,
+	LateStationsOpen = false,
 	CampExtraRangeStuds = 8,
 
 	-- The Rescue Rally weekend (F101, rescue-rally.md; shared/Rally, Catalog.rallySteps). From RallyStartWeekday (0 is

@@ -11,6 +11,7 @@
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local Crates = require(script.Parent.Crates)
+local LateStations = require(script.Parent.LateStations)
 local Potions = require(script.Parent.Potions)
 local Types = require(script.Parent.Types)
 
@@ -130,9 +131,9 @@ local function round6(x: number): number
 	return math.floor(x * 1e6 + 0.5) / 1e6
 end
 
--- The permanent bonuses of every claimed milestone: tips, and gold luck and bait speed up to their caps, rounded
--- to six decimals so the server and the UI floor the same bait wait. A claim from before F54 counts too, since
--- the bonus belongs to the milestone.
+-- The permanent bonuses of every claimed milestone (and, for tips, every finished Relic Museum room): tips, and gold
+-- luck and bait speed up to their caps, rounded to six decimals so the server and the UI floor the same bait wait. A
+-- claim from before F54 counts too, since the bonus belongs to the milestone.
 function IndexRewards.totals(profile: Types.PlayerProfile): Totals
 	local totals: Totals = { bonus = 0, goldLuck = 0, baitSpeed = 0 }
 	for areaId, claims in profile.indexRewards do
@@ -145,6 +146,8 @@ function IndexRewards.totals(profile: Types.PlayerProfile): Totals
 			end
 		end
 	end
+	-- #2651 part 4 (late-stations.md section 2): each finished Relic Museum room adds to the same tips-forever total
+	totals.bonus += LateStations.museumBonus((profile :: any).museum)
 	totals.bonus = round6(totals.bonus)
 	totals.goldLuck = math.min(round6(totals.goldLuck), Config.GoldLuckMax)
 	totals.baitSpeed = math.min(round6(totals.baitSpeed), Config.BaitSpeedMax)

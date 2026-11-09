@@ -136,6 +136,16 @@ Remotes.ClientToServer = {
 	"CollectCampExtra", -- (extraId: string)  F100 (camp-extras.md section 4): "picnic", "pond" or "lostFound", the
 	-- player's tier opens its area, within CampExtraRangeStuds (and a little slack) of its PromptAnchor, something held;
 	-- takes it all; 1 a second, answered with CampExtraResult and CampExtrasState
+	-- #2651 part 4 (late-stations.md section 3, LateStationService, shared/LateStations): each refused until
+	-- Config.LateStationsOpen, then the tier opens the station's area and the caller stands within CampExtraRangeStuds
+	-- (and a little slack) of its PromptAnchor; 1 a second each, answered with LateStationResult and LateStationsState
+	"SpaPut", -- (slot: number, uid: string)  Tier 6; slot open and empty; the cat owned, below CatMaxLevel, not at the
+	-- spa, no open trade. A working cat leaves its role (Auto Equip refills it)
+	"SpaTakeOut", -- (slot: number)  any time, no level gained
+	"SpaCollect", -- ()  every finished slot: +1 level each, back to the cat room
+	"SpaBuySlot", -- (slot: number)  the next slot only (2, then 3), for its SpaSlotPrices golden fish
+	"MuseumDonate", -- (uid: string)  Tier 7; a cat with an empty exhibit, owned, unlocked, not at the spa, no open
+	-- trade, another copy of its kind kept; the copy leaves the save and fills the exhibit
 	"BuyYardSale", -- (crateId: string)  F100: within reach of the Yard Sale (Tier 3), the crate up
 	-- now (CampExtras.yardStock), YardSaleClaimHours since the last take (#1154), free since #1051; banked for the
 	-- Market; 1 a second
@@ -305,6 +315,11 @@ Remotes.ServerToClient = {
 	"CafePassState", -- (state: Types.CafePassView)  #1645: the Pass screen, at join and after each claim or season roll
 	"CampExtrasState", -- (state: Types.CampExtrasState)  F100: each camp extra's open, held, nextAt and the Yard
 	-- Sale's stock today, on join and whenever it changes (a fill, a new UTC day, a rank up, a collect or a buy)
+	"LateStationsState", -- (state: Types.LateStationsState)  #2651 part 4: the Oasis Spa's slots and the Relic Museum's
+	-- exhibits, on join and whenever it changes (a cat in or out, a slot finishing, a donation, a rank up)
+	"LateStationResult", -- (stationId: string, ok: boolean, detail: { [string]: any })  #2651 part 4: the answer to a
+	-- spa or museum remote. Spa collect: detail.relaxed { uid, catId, from, to }; a donation: detail.catId and
+	-- detail.room (the area id when it finished a room); a refusal: ok false, the server's toast says why
 	"RallyState", -- (state: Types.RallyState)  F101: the server's Rescue Rally bar and this player's part in it, on
 	-- join, at each step, lap, start and end, and at most every Config.RallyStateSeconds while points come in
 	"RallyPoint", -- (userId: number, amount: number)  F101: to every client for each score in the Rally, for the pops

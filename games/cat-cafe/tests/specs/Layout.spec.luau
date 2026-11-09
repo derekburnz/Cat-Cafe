@@ -2653,6 +2653,45 @@ return function()
 			end
 		)
 
+		it("stands the Oasis Spa and the Relic Museum in their camps, clear of the board, pad and cannon (#2651)", function()
+			local LateStations = require(game:GetService("ReplicatedStorage").Shared.LateStations)
+			for _, def in LateStations.stations do
+				local camp = Layout.camps[def.area]
+				local x, y, z, turn = Layout.lateStationAt(def.area)
+				assert(x ~= nil and y ~= nil and z ~= nil and turn ~= nil, def.id)
+				if not inside(x, z, camp.rect, 2) then
+					fail("%s at (%g, %g) is not inside its camp", def.id, x, z)
+				end
+				expect(Layout.campAt(x, z)).to.equal(def.area)
+				expect(y).to.equal(Layout.areas[def.area].floorY)
+				expect(turn).to.equal(camp.turn)
+				-- #2789's art: the spa 22.8 by 12.2 (its model from -5.0 to +7.2 in its own Z, +Z toward the gate line),
+				-- the museum 12.8 by 8.3 (centred). Its whole footprint stays inside the camp, off the way out (2 clear
+				-- of the opening) and behind the gate line
+				local size = if def.id == LateStations.SPA then Vector2.new(22.8, 12.2) else Vector2.new(12.8, 8.3)
+				local front, back = size.Y / 2, size.Y / 2
+				if def.id == LateStations.SPA then
+					front, back = 5.0, 7.2
+				end
+				local lx, lz = Layout.campLocal(camp, x, z)
+				expect(lx - size.X / 2 > camp.openingHalfWidth + 1).to.equal(true)
+				expect(lx + size.X / 2 < camp.halfAcross - 2).to.equal(true)
+				expect(lz + back < -0.5).to.equal(true)
+				expect(lz - front > -W.CampDepth + 2).to.equal(true)
+				local board = Layout.indexBoards[def.area]
+				local bx, bz = Layout.campPoint(camp, board.x, board.z)
+				expect(apart(x, z, bx, bz) > 2 * Config.CampExtraRangeStuds).to.equal(true)
+				-- clear of the pad, the cannon and its front, and the basket by the footprint's half diagonal
+				local reach = size.Magnitude / 2
+				local pad = Layout.landingPads[def.area].centre
+				expect(apart(x, z, pad.x, pad.z) > W.LandingPadRadius + reach).to.equal(true)
+				for _, point in { Layout.cannons[def.area], Layout.cannonFronts[def.area], camp.basket } do
+					expect(apart(x, z, point.x, point.z) > reach).to.equal(true)
+				end
+			end
+			expect(Layout.lateStationAt("sewer")).to.equal(nil)
+		end)
+
 		it(
 			"stands the Garden Nursery in the Park camp, turned 90 on the camp, clear of the extra and the pad (#1200)",
 			function()

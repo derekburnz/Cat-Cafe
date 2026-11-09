@@ -12,6 +12,7 @@ local EquipBest = require(script.Parent.EquipBest)
 local FreshCatch = require(script.Parent.FreshCatch)
 local GrandOpening = require(script.Parent.GrandOpening)
 local Jukebox = require(script.Parent.Jukebox)
+local LateStations = require(script.Parent.LateStations)
 local Lawn = require(script.Parent.Lawn)
 local Looks = require(script.Parent.Looks)
 local MysteryMarket = require(script.Parent.MysteryMarket)
@@ -142,7 +143,10 @@ local ProfileSchema = {}
 -- Version 45 (#2651, tier6-7-areas.md) opens Tier 6 and 7, the Desert and the Ruins, with their 20 cats, their crate
 -- pieces and two more Espresso and Lucky Cat levels: an older server would drop the new cat and decor ids from a save
 -- and clamp a Tier 6 or 7 cafe back to Tier 5 by hopping servers during a rollout.
-ProfileSchema.VERSION = 45
+-- Version 46 (#2651 part 4, late-stations.md section 3) adds spa and museum, the Oasis Spa's slots and soaking cats
+-- and the Relic Museum's filled exhibits: an older server would drop them, losing slots bought with golden fish and
+-- the exhibits (whose cats left the save) and their tip bonus.
+ProfileSchema.VERSION = 46
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -305,6 +309,8 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		starterCatClaimed = false,
 		notifyAskAt = 0,
 		campExtras = CampExtras.fresh(now),
+		spa = LateStations.freshSpa(),
+		museum = LateStations.freshMuseum(),
 		rally = Rally.fresh(now),
 		tradeLog = {},
 		tradeIds = {},
@@ -964,6 +970,9 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.notifyAskAt = math.clamp(asInt(raw.notifyAskAt, 0), 0, now)
 	-- F100 (version 25): the camp extras, settled for the tier by CampExtraService once the profile loads
 	profile.campExtras = CampExtras.sanitize(raw.campExtras, now)
+	-- #2651 part 4 (version 46): the Oasis Spa (its cats must still be owned) and the Relic Museum's exhibits
+	profile.spa = LateStations.sanitizeSpa(raw.spa, profile.cats, now)
+	profile.museum = LateStations.sanitizeMuseum(raw.museum)
 	-- F101 (version 26): the Rescue Rally laps this weekend
 	profile.rally = Rally.sanitize(raw.rally, now)
 	-- F102 (version 27): the Trades page and the trades this save has applied

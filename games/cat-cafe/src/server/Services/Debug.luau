@@ -27,6 +27,7 @@
 --   D:Invoke("dailyTreat", nil, 6)     -- the Daily Treat card at 6 stamps and a stamp due now: Claim pays day 7 (F70)
 --   D:Invoke("giveCrate", nil, "alley_crate", 5)   -- 5 banked Alleyway Crates the Market opens for free (F53)
 --   D:Invoke("campExtras", nil, 7 * 3600)   -- 7 hours away for the camp extras: the pond full, one picnic (F100)
+--   D:Invoke("spaAway", nil, 3600)     -- an hour away for the Oasis Spa: every soaking cat ready (#2651 part 4)
 --   D:Invoke("rally", nil, "force", true)    -- a Rescue Rally now (F101; false stops it, nil goes back to Config)
 --   D:Invoke("rally", nil, "points", 20)     -- 20 check-ins' points for you through the steps and prizes (F101)
 --   D:Invoke("rally", nil, "laps", 4)        -- your laps paid this weekend; returns the Rally's line either way
@@ -91,6 +92,7 @@ local EventService = require(script.Parent.EventService)
 local FishMarketService = require(script.Parent.FishMarketService)
 local FreshCatch = require(ReplicatedStorage.Shared.FreshCatch)
 local GlobalCatchService = require(script.Parent.GlobalCatchService)
+local LateStationService = require(script.Parent.LateStationService)
 local Layout = require(script.Parent.Parent.World.Layout)
 local LeaderboardService = require(script.Parent.LeaderboardService)
 local LiveFlagService = require(script.Parent.LiveFlagService)
@@ -482,6 +484,21 @@ function Debug.campExtras(player: (Player | number | string)?, seconds: number?)
 		table.insert(parts, string.format("%s=%d", id, state[id].held))
 	end
 	return table.concat(parts, " ")
+end
+
+-- #2651 part 4 (late-stations.md section 4, check 1): every Oasis Spa cat's start `seconds` (default an hour) into
+-- the past. Returns "slots=2 ready=1 museum=23/70 canFill=4".
+function Debug.spaAway(player: (Player | number | string)?, seconds: number?): string
+	local p = resolve(player)
+	local state = LateStationService.debugAway(p, profileOf(p), seconds or 3600)
+	return string.format(
+		"slots=%d ready=%d museum=%d/%d canFill=%d",
+		state.spa.slots,
+		state.spa.ready,
+		state.museum.count,
+		state.museum.total,
+		state.museum.canFill
+	)
 end
 
 -- F101 (rescue-rally.md section 6): `action` "force" (value true, false or nil for Config.RallyForce), "points" (value

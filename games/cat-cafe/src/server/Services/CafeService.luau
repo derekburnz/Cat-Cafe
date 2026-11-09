@@ -29,6 +29,7 @@ local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
 local Jukebox = require(ReplicatedStorage.Shared.Jukebox)
+local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local Lawn = require(ReplicatedStorage.Shared.Lawn)
 local LawnBuilder = require(script.Parent.Parent.World.LawnBuilder)
 local Layout = require(script.Parent.Parent.World.Layout)
@@ -1597,6 +1598,10 @@ local function onPlaceCat(player: Player, rawUid: unknown, rawSpot: unknown)
 		Net.toast(player, "Take the cat off its current role first.", "warn")
 		return
 	end
+	if CatStats.atSpa(profile, uid) then
+		Net.toast(player, LateStations.Messages.atSpa, "warn") -- #2651 part 4
+		return
+	end
 	instance.spotId = spotId
 	noteHand(player, uid) -- #1955: Auto Equip leaves it there a while
 	CafeService.advanceTutorial(player, profile, 3)
@@ -1823,6 +1828,10 @@ local function onSellCat(player: Player, rawUid: unknown)
 	end
 	if instance.locked == true then
 		Net.toast(player, "This cat is locked. Unlock it to sell it.", "warn")
+		return
+	end
+	if CatStats.atSpa(profile, uid) then
+		Net.toast(player, LateStations.Messages.atSpa, "warn") -- #2651 part 4
 		return
 	end
 	if offerCheck(player, uid) then

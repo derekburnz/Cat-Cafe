@@ -48,9 +48,11 @@ local CAT_TAG = "WorkingCat"
 local CUSTOMERS = "LocalCustomers"
 local MAX_DISTANCE = 40 -- world-and-feel section 4: the order and making bubbles within 40 studs
 local RATE_DISTANCE = 70 -- #2551: the rate tags within 70 studs (40 before), the whole cafe from its door
-local RATE_SIZE = Vector2.new(4, 1.1) -- studs
-local RATE_MIN = Vector2.new(30, 14) -- #2551: pixels on top of the studs, so a far tag stays readable
-local NAME_HEIGHT = 0.7 -- studs, the name line over the rate
+-- #2784 (Derek2 11-09: "scale the text size down to at least half of current for yours and other peoples"): half
+-- the size they were (4 x 1.1 studs, 30 x 14 px, a 0.7 stud name line)
+local RATE_SIZE = Vector2.new(2, 0.55) -- studs
+local RATE_MIN = Vector2.new(15, 7) -- #2551: pixels on top of the studs, so a far tag stays readable
+local NAME_HEIGHT = 0.35 -- studs, the name line over the rate
 local BUBBLE_SIZE = 1.7 -- studs, square
 local HEART_SECONDS = 1.6 -- the heart stays this long, then fades
 local MAKING_SIZE = 1.5 -- studs, square: the making bubble over a Barista, a little smaller than an order bubble

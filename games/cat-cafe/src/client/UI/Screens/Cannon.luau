@@ -236,9 +236,13 @@ function Cannon._buildCards(self: any)
 			Text = (Theme.icons :: any)[id] or Theme.icons.travel,
 			Parent = art,
 		})
+		-- #2771: the phone's slim band (ART_H under 60) keeps its emoji, moon and lock in it, and drops the covers'
+		-- lines, which the header and the button already say
+		local slim = ART_H < 60
+		local mark = if slim then ART_H - 4 else 48
 		Create("UIPadding", {
-			PaddingTop = UDim.new(0, 16),
-			PaddingBottom = UDim.new(0, 16),
+			PaddingTop = UDim.new(0, if slim then 2 else 16),
+			PaddingBottom = UDim.new(0, if slim then 2 else 16),
 			Parent = icon,
 		})
 		local picture = Theme.areaPictures[id]
@@ -266,8 +270,8 @@ function Cannon._buildCards(self: any)
 		text({
 			Name = "Moon",
 			AnchorPoint = Vector2.new(0.5, 0),
-			Position = UDim2.new(0.5, 0, 0, 10),
-			Size = UDim2.fromOffset(48, 48),
+			Position = UDim2.new(0.5, 0, 0, if slim then 2 else 10),
+			Size = UDim2.fromOffset(mark, mark),
 			FontFace = Theme.fonts.display,
 			TextScaled = true,
 			Text = Theme.icons.moon,
@@ -282,6 +286,7 @@ function Cannon._buildCards(self: any)
 			TextSize = Theme.sizes.textBody,
 			TextColor3 = Theme.colors.white,
 			Text = "Closed until sunrise",
+			Visible = not slim,
 			ZIndex = 4,
 			Parent = night,
 		})
@@ -300,8 +305,8 @@ function Cannon._buildCards(self: any)
 		text({
 			Name = "Padlock",
 			AnchorPoint = Vector2.new(0.5, 0),
-			Position = UDim2.new(0.5, 0, 0, 10),
-			Size = UDim2.fromOffset(48, 48),
+			Position = UDim2.new(0.5, 0, 0, if slim then 2 else 10),
+			Size = UDim2.fromOffset(mark, mark),
 			FontFace = Theme.fonts.display,
 			TextScaled = true,
 			Text = Theme.icons.lock,
@@ -316,6 +321,7 @@ function Cannon._buildCards(self: any)
 			TextSize = Theme.sizes.textBody,
 			TextColor3 = Theme.colors.white,
 			Text = ("Opens at Tier %d"):format(place.tier),
+			Visible = not slim,
 			ZIndex = 4,
 			Parent = lock,
 		})
@@ -348,8 +354,8 @@ function Cannon._buildCards(self: any)
 		local rally = text({
 			Name = "Rally",
 			AnchorPoint = Vector2.new(0.5, 1),
-			Position = UDim2.new(0.5, 0, 1, -6),
-			Size = UDim2.fromOffset(0, 24),
+			Position = UDim2.new(0.5, 0, 1, if slim then 0 else -6),
+			Size = UDim2.fromOffset(0, math.min(24, ART_H)),
 			AutomaticSize = Enum.AutomaticSize.X,
 			BackgroundColor3 = Color3.fromHex("D9483B"), -- the Rally red (Components/RallyBar)
 			BackgroundTransparency = 0,
@@ -643,7 +649,7 @@ function Cannon.render(self: any, state: Types.PlayerState, carrying: boolean)
 		local tag: string? = if id ~= CannonLogic.TOWN and not locked then rallyLine else nil
 		card.rally.Visible = tag ~= nil
 		-- the tag takes the cover's "Closed until sunrise" spot; the header and the button still say it
-		card.nightLine.Visible = tag == nil
+		card.nightLine.Visible = tag == nil and ART_H >= 60 -- #2771: not in the phone's slim band
 		card.rally.Text = RallyLogic.ICON .. " " .. (tag or "")
 		if id ~= CannonLogic.TOWN then
 			local counts = IndexRewards.counts(catalog, state, id)

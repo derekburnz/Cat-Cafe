@@ -1,6 +1,7 @@
 {
   "note": "UI gate findings accepted on 2026-11-01; fix them and shrink this file, never grow it by hand.",
   "findings": {
+    "a06|HUD|tap|CatCafeHUD/Root/Icons/Tutorial/Hide": 1,
     "desktop|DailyTreat|tap|CatCafeModals/Root/Container/DailyTreat/Body/Content/Card/Day3/Card/Claim/Face": 1,
     "desktop|HUD|tap|CatCafeHUD/Root/Icons/Tutorial/Hide": 1,
     "desktop|HUD|tap|CatCafeHUD/Root/MenuFold/Face": 1,

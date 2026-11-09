@@ -120,7 +120,7 @@ Notes:
 - The decor bonuses use the crate bonus already in the game, so a fish-bought piece is never better than a crate or pass piece of the same rarity.
 - With 5 items now and about 3 new ones a week, the shelf passes 15 in about a month. The weekly sale then cycles round about every 15 weeks, which is fine because everything can be bought at any time.
 
-## 4c. The market corner (look)
+### 4c. The market corner (look)
 
 Where: the **west end of the Town Square's east-west lane**, inside the closed west arch (-63, 0), around (-52, 0). The lane points straight at it from the cannon, and nothing else stands there (town-layout-v3 §3: the four stations are in the corners and the night dealer parks at (28, -16)). It faces east toward the cannon. It is about 22 studs wide (z -11 to 11) and 14 deep (x -63 to -49), and the cross's paving stays clear. Plan: [mystery-market-corner.svg](mystery-market-corner.svg).
 

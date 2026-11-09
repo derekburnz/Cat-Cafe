@@ -13,7 +13,7 @@
      "CFrame": {
       "position": [
        -12.05,
-       7.9,
+       2.95,
        0.0
       ],
       "orientation": [
@@ -37,13 +37,13 @@
     },
     "Size": [
      2.6,
-     5.0,
+     4.7,
      2.8
     ],
     "Color": [
-     0.7882,
-     0.6353,
-     0.451
+     1.0,
+     0.9765,
+     0.949
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -56,7 +56,7 @@
      "CFrame": {
       "position": [
        12.05,
-       -7.9,
+       -2.95,
        0.0
       ],
       "orientation": [
@@ -581,56 +581,7 @@
      "CFrame": {
       "position": [
        -12.05,
-       2.85,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.6,
-     4.5,
-     2.8
-    ],
-    "Color": [
-     1.0,
-     0.9765,
-     0.949
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -12.05,
-       2.85,
+       2.95,
        -1.41
       ],
       "orientation": [
@@ -654,7 +605,7 @@
     },
     "Size": [
      0.06,
-     4.5,
+     4.7,
      0.02
     ],
     "Color": [
@@ -679,7 +630,7 @@
      "CFrame": {
       "position": [
        -12.05,
-       2.85,
+       2.95,
        -1.41
       ],
       "orientation": [
@@ -728,7 +679,7 @@
      "CFrame": {
       "position": [
        -12.7,
-       3.975,
+       4.125,
        -1.41
       ],
       "orientation": [
@@ -786,7 +737,7 @@
      "CFrame": {
       "position": [
        -12.7,
-       3.975,
+       4.125,
        1.41
       ],
       "orientation": [
@@ -844,7 +795,7 @@
      "CFrame": {
       "position": [
        -12.05,
-       2.85,
+       2.95,
        1.41
       ],
       "orientation": [
@@ -868,7 +819,7 @@
     },
     "Size": [
      0.06,
-     4.5,
+     4.7,
      0.02
     ],
     "Color": [
@@ -893,7 +844,7 @@
      "CFrame": {
       "position": [
        -12.05,
-       2.85,
+       2.95,
        1.41
       ],
       "orientation": [
@@ -942,7 +893,7 @@
      "CFrame": {
       "position": [
        -11.4,
-       3.975,
+       4.125,
        -1.41
       ],
       "orientation": [
@@ -1000,7 +951,7 @@
      "CFrame": {
       "position": [
        -11.4,
-       3.975,
+       4.125,
        1.41
       ],
       "orientation": [
@@ -1049,447 +1000,6 @@
      }
     }
    ]
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -12.05,
-       5.14,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.6,
-     0.08,
-     2.8
-    ],
-    "Color": [
-     0.7882,
-     0.6353,
-     0.451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -12.05,
-       5.25,
-       -1.2
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.5,
-     0.14,
-     0.36
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -12.05,
-       5.25,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.5,
-     0.14,
-     0.36
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -12.05,
-       5.25,
-       1.2
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.5,
-     0.14,
-     0.36
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -12.05,
-       5.36,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.6,
-     0.08,
-     2.8
-    ],
-    "Color": [
-     0.7882,
-     0.6353,
-     0.451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -12.05,
-       7.9,
-       -1.41
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     5.0,
-     0.02
-    ],
-    "Color": [
-     0.8902,
-     0.7176,
-     0.4784
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -12.05,
-       7.9,
-       -1.41
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.6,
-     0.06,
-     0.02
-    ],
-    "Color": [
-     0.8902,
-     0.7176,
-     0.4784
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -12.05,
-       7.9,
-       1.41
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     5.0,
-     0.02
-    ],
-    "Color": [
-     0.8902,
-     0.7176,
-     0.4784
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -12.05,
-       7.9,
-       1.41
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.6,
-     0.06,
-     0.02
-    ],
-    "Color": [
-     0.8902,
-     0.7176,
-     0.4784
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
   },
   {
    "name": "CatCafe_Alley_Blocker_PalletsShort",
@@ -2479,252 +1989,7 @@
      "CFrame": {
       "position": [
        -9.45,
-       1.24,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.6,
-     0.08,
-     2.8
-    ],
-    "Color": [
-     0.7882,
-     0.6353,
-     0.451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.45,
-       1.35,
-       -1.2
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.5,
-     0.14,
-     0.36
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.45,
-       1.35,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.5,
-     0.14,
-     0.36
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.45,
-       1.35,
-       1.2
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.5,
-     0.14,
-     0.36
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.45,
-       1.46,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.6,
-     0.08,
-     2.8
-    ],
-    "Color": [
-     0.7882,
-     0.6353,
-     0.451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.45,
-       3.65,
+       3.35,
        0.0
       ],
       "orientation": [
@@ -2773,7 +2038,7 @@
      "CFrame": {
       "position": [
        -9.45,
-       3.65,
+       3.35,
        -1.41
       ],
       "orientation": [
@@ -2822,7 +2087,7 @@
      "CFrame": {
       "position": [
        -9.45,
-       3.65,
+       3.35,
        -1.41
       ],
       "orientation": [
@@ -2871,7 +2136,7 @@
      "CFrame": {
       "position": [
        -9.45,
-       3.65,
+       3.35,
        1.41
       ],
       "orientation": [
@@ -2920,7 +2185,7 @@
      "CFrame": {
       "position": [
        -9.45,
-       3.65,
+       3.35,
        1.41
       ],
       "orientation": [
@@ -2951,888 +2216,6 @@
      0.8902,
      0.7176,
      0.4784
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.45,
-       5.84,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.6,
-     0.08,
-     2.8
-    ],
-    "Color": [
-     0.7882,
-     0.6353,
-     0.451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.45,
-       5.95,
-       -1.2
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.5,
-     0.14,
-     0.36
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.45,
-       5.95,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.5,
-     0.14,
-     0.36
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.45,
-       5.95,
-       1.2
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.5,
-     0.14,
-     0.36
-    ],
-    "Color": [
-     0.4784,
-     0.2902,
-     0.1647
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.45,
-       6.06,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.6,
-     0.08,
-     2.8
-    ],
-    "Color": [
-     0.7882,
-     0.6353,
-     0.451
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.45,
-       8.4,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.6,
-     4.6,
-     2.8
-    ],
-    "Color": [
-     0.2353,
-     0.4902,
-     0.851
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": true,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.45,
-       8.4,
-       -1.41
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     4.6,
-     0.02
-    ],
-    "Color": [
-     0.1843,
-     0.2431,
-     0.3608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.45,
-       8.4,
-       -1.41
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.6,
-     0.06,
-     0.02
-    ],
-    "Color": [
-     0.1843,
-     0.2431,
-     0.3608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -10.1,
-       10.325,
-       -1.41
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.15,
-     0.02
-    ],
-    "Color": [
-     0.1843,
-     0.2431,
-     0.3608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -10.1,
-       8.025,
-       -1.41
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.15,
-     0.02
-    ],
-    "Color": [
-     0.1843,
-     0.2431,
-     0.3608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -10.1,
-       10.325,
-       1.41
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.15,
-     0.02
-    ],
-    "Color": [
-     0.1843,
-     0.2431,
-     0.3608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -10.1,
-       8.025,
-       1.41
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.15,
-     0.02
-    ],
-    "Color": [
-     0.1843,
-     0.2431,
-     0.3608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.45,
-       8.4,
-       1.41
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.06,
-     4.6,
-     0.02
-    ],
-    "Color": [
-     0.1843,
-     0.2431,
-     0.3608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -9.45,
-       8.4,
-       1.41
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     2.6,
-     0.06,
-     0.02
-    ],
-    "Color": [
-     0.1843,
-     0.2431,
-     0.3608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -8.8,
-       10.325,
-       -1.41
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.15,
-     0.02
-    ],
-    "Color": [
-     0.1843,
-     0.2431,
-     0.3608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -8.8,
-       8.025,
-       -1.41
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.15,
-     0.02
-    ],
-    "Color": [
-     0.1843,
-     0.2431,
-     0.3608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -8.8,
-       10.325,
-       1.41
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.15,
-     0.02
-    ],
-    "Color": [
-     0.1843,
-     0.2431,
-     0.3608
-    ],
-    "Material": "SmoothPlastic",
-    "Anchored": true,
-    "CanCollide": false,
-    "CanTouch": false,
-    "CastShadow": true,
-    "TopSurface": "Smooth",
-    "BottomSurface": "Smooth"
-   }
-  },
-  {
-   "name": "CatCafe_Alley_Blocker_PalletsShort",
-   "className": "Part",
-   "properties": {
-    "CFrame": {
-     "CFrame": {
-      "position": [
-       -8.8,
-       8.025,
-       1.41
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    },
-    "Size": [
-     0.6,
-     0.15,
-     0.02
-    ],
-    "Color": [
-     0.1843,
-     0.2431,
-     0.3608
     ],
     "Material": "SmoothPlastic",
     "Anchored": true,
@@ -3851,7 +2234,7 @@
      "CFrame": {
       "position": [
        -12.05,
-       10.42,
+       5.32,
        0.0
       ],
       "orientation": [
@@ -3900,7 +2283,7 @@
      "CFrame": {
       "position": [
        -12.05,
-       9.88,
+       4.78,
        -1.42
       ],
       "orientation": [
@@ -3949,7 +2332,7 @@
      "CFrame": {
       "position": [
        -12.05,
-       10.08,
+       4.98,
        1.42
       ],
       "orientation": [
@@ -3998,7 +2381,7 @@
      "CFrame": {
       "position": [
        -12.05,
-       10.0,
+       4.9,
        -0.9
       ],
       "orientation": [
@@ -4047,7 +2430,7 @@
      "CFrame": {
       "position": [
        -12.05,
-       10.0,
+       4.9,
        0.9
       ],
       "orientation": [
@@ -4096,7 +2479,7 @@
      "CFrame": {
       "position": [
        -9.45,
-       11.95,
+       6.75,
        0.0
       ],
       "orientation": [
@@ -4145,7 +2528,7 @@
      "CFrame": {
       "position": [
        -10.64,
-       11.96,
+       6.76,
        -1.175
       ],
       "orientation": [
@@ -4194,7 +2577,7 @@
      "CFrame": {
       "position": [
        -10.64,
-       11.96,
+       6.76,
        1.175
       ],
       "orientation": [
@@ -4243,7 +2626,7 @@
      "CFrame": {
       "position": [
        -8.26,
-       11.96,
+       6.76,
        -1.175
       ],
       "orientation": [
@@ -4292,7 +2675,7 @@
      "CFrame": {
       "position": [
        -8.26,
-       11.96,
+       6.76,
        1.175
       ],
       "orientation": [
@@ -4341,7 +2724,7 @@
      "CFrame": {
       "position": [
        -9.45,
-       11.5333,
+       6.3333,
        -1.265
       ],
       "orientation": [
@@ -4390,7 +2773,7 @@
      "CFrame": {
       "position": [
        -10.715,
-       11.5333,
+       6.3333,
        0.0
       ],
       "orientation": [
@@ -4439,7 +2822,7 @@
      "CFrame": {
       "position": [
        -8.185,
-       11.5333,
+       6.3333,
        0.0
       ],
       "orientation": [
@@ -4488,7 +2871,7 @@
      "CFrame": {
       "position": [
        -9.45,
-       12.3667,
+       7.1667,
        -1.265
       ],
       "orientation": [
@@ -4537,7 +2920,7 @@
      "CFrame": {
       "position": [
        -10.715,
-       12.3667,
+       7.1667,
        0.0
       ],
       "orientation": [
@@ -4586,7 +2969,7 @@
      "CFrame": {
       "position": [
        -8.185,
-       12.3667,
+       7.1667,
        0.0
       ],
       "orientation": [
@@ -4635,7 +3018,7 @@
      "CFrame": {
       "position": [
        -9.8667,
-       13.215,
+       8.015,
        0.0
       ],
       "orientation": [
@@ -4684,7 +3067,7 @@
      "CFrame": {
       "position": [
        -9.0333,
-       13.215,
+       8.015,
        0.0
       ],
       "orientation": [
@@ -4733,7 +3116,7 @@
      "CFrame": {
       "position": [
        -8.73,
-       12.29,
+       7.09,
        -1.29
       ],
       "orientation": [
@@ -4782,7 +3165,7 @@
      "CFrame": {
       "position": [
        -8.61,
-       12.17,
+       6.97,
        -1.29
       ],
       "orientation": [
@@ -4831,7 +3214,7 @@
      "CFrame": {
       "position": [
        -8.67,
-       12.05,
+       6.85,
        -1.29
       ],
       "orientation": [
@@ -4880,7 +3263,7 @@
      "CFrame": {
       "position": [
        -8.61,
-       11.93,
+       6.73,
        -1.29
       ],
       "orientation": [
@@ -4929,7 +3312,7 @@
      "CFrame": {
       "position": [
        -8.61,
-       11.81,
+       6.61,
        -1.29
       ],
       "orientation": [
@@ -4978,7 +3361,7 @@
      "CFrame": {
       "position": [
        -9.21,
-       12.29,
+       7.09,
        -1.29
       ],
       "orientation": [
@@ -5027,7 +3410,7 @@
      "CFrame": {
       "position": [
        -9.21,
-       12.17,
+       6.97,
        -1.29
       ],
       "orientation": [
@@ -5076,7 +3459,7 @@
      "CFrame": {
       "position": [
        -9.21,
-       12.05,
+       6.85,
        -1.29
       ],
       "orientation": [
@@ -5125,7 +3508,7 @@
      "CFrame": {
       "position": [
        -9.21,
-       11.93,
+       6.73,
        -1.29
       ],
       "orientation": [
@@ -5174,7 +3557,7 @@
      "CFrame": {
       "position": [
        -9.21,
-       11.81,
+       6.61,
        -1.29
       ],
       "orientation": [
@@ -5223,7 +3606,7 @@
      "CFrame": {
       "position": [
        -9.69,
-       12.29,
+       7.09,
        -1.29
       ],
       "orientation": [
@@ -5272,7 +3655,7 @@
      "CFrame": {
       "position": [
        -9.57,
-       12.17,
+       6.97,
        -1.29
       ],
       "orientation": [
@@ -5321,7 +3704,7 @@
      "CFrame": {
       "position": [
        -9.69,
-       12.05,
+       6.85,
        -1.29
       ],
       "orientation": [
@@ -5370,7 +3753,7 @@
      "CFrame": {
       "position": [
        -9.81,
-       11.93,
+       6.73,
        -1.29
       ],
       "orientation": [
@@ -5419,7 +3802,7 @@
      "CFrame": {
       "position": [
        -9.69,
-       11.81,
+       6.61,
        -1.29
       ],
       "orientation": [
@@ -5468,7 +3851,7 @@
      "CFrame": {
       "position": [
        -10.05,
-       12.29,
+       7.09,
        -1.29
       ],
       "orientation": [
@@ -5517,7 +3900,7 @@
      "CFrame": {
       "position": [
        -10.29,
-       12.29,
+       7.09,
        -1.29
       ],
       "orientation": [
@@ -5566,7 +3949,7 @@
      "CFrame": {
       "position": [
        -10.05,
-       12.17,
+       6.97,
        -1.29
       ],
       "orientation": [
@@ -5615,7 +3998,7 @@
      "CFrame": {
       "position": [
        -10.29,
-       12.17,
+       6.97,
        -1.29
       ],
       "orientation": [
@@ -5664,7 +4047,7 @@
      "CFrame": {
       "position": [
        -10.17,
-       12.05,
+       6.85,
        -1.29
       ],
       "orientation": [
@@ -5713,7 +4096,7 @@
      "CFrame": {
       "position": [
        -10.05,
-       11.93,
+       6.73,
        -1.29
       ],
       "orientation": [
@@ -5762,7 +4145,7 @@
      "CFrame": {
       "position": [
        -10.29,
-       11.93,
+       6.73,
        -1.29
       ],
       "orientation": [
@@ -5811,7 +4194,7 @@
      "CFrame": {
       "position": [
        -10.05,
-       11.81,
+       6.61,
        -1.29
       ],
       "orientation": [
@@ -5860,7 +4243,7 @@
      "CFrame": {
       "position": [
        -10.29,
-       11.81,
+       6.61,
        -1.29
       ],
       "orientation": [
@@ -6155,7 +4538,7 @@
      "CFrame": {
       "position": [
        -6.85,
-       5.95,
+       4.7,
        0.0
       ],
       "orientation": [
@@ -6178,7 +4561,7 @@
      }
     },
     "Size": [
-     11.1,
+     8.6,
      0.28,
      0.28
     ],
@@ -6205,7 +4588,7 @@
      "CFrame": {
       "position": [
        -6.15,
-       11.35,
+       8.85,
        0.0
       ],
       "orientation": [
@@ -6254,7 +4637,7 @@
      "CFrame": {
       "position": [
        -5.35,
-       11.3,
+       8.8,
        0.0
       ],
       "orientation": [
@@ -6309,7 +4692,7 @@
        "CFrame": {
         "position": [
          -5.35,
-         10.95,
+         8.45,
          0.0
         ],
         "orientation": [
@@ -6352,7 +4735,7 @@
        "CFrame": {
         "position": [
          5.35,
-         -10.95,
+         -8.45,
          0.0
         ],
         "orientation": [
@@ -6409,123 +4792,6 @@
     }
    },
    "name": "CatCafe_Alley_Blocker_PalletsShort_Bulb"
-  },
-  {
-   "className": "Model",
-   "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Alley_Blocker_PalletsShort/2"
-   },
-   "children": [
-    {
-     "name": "CatCafe_Alley_Blocker_PalletsShort_Barrier",
-     "className": "Part",
-     "properties": {
-      "CFrame": {
-       "CFrame": {
-        "position": [
-         -10.75,
-         5.7,
-         0.0
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      },
-      "Size": [
-       8.5,
-       11.4,
-       0.5
-      ],
-      "Color": [
-       0.5451,
-       0.5608,
-       0.6
-      ],
-      "Material": "SmoothPlastic",
-      "Anchored": true,
-      "CanCollide": true,
-      "CanTouch": false,
-      "CastShadow": false,
-      "TopSurface": "Smooth",
-      "BottomSurface": "Smooth",
-      "Transparency": 1.0,
-      "CanQuery": false,
-      "PivotOffset": {
-       "CFrame": {
-        "position": [
-         10.75,
-         -5.7,
-         0.0
-        ],
-        "orientation": [
-         [
-          1.0,
-          0.0,
-          0.0
-         ],
-         [
-          0.0,
-          1.0,
-          0.0
-         ],
-         [
-          0.0,
-          0.0,
-          1.0
-         ]
-        ]
-       }
-      }
-     },
-     "attributes": {
-      "Rojo_Id": "CatCafe_Alley_Blocker_PalletsShort/2"
-     }
-    }
-   ],
-   "properties": {
-    "WorldPivotData": {
-     "OptionalCFrame": {
-      "position": [
-       0.0,
-       0.0,
-       0.0
-      ],
-      "orientation": [
-       [
-        1.0,
-        0.0,
-        0.0
-       ],
-       [
-        0.0,
-        1.0,
-        0.0
-       ],
-       [
-        0.0,
-        0.0,
-        1.0
-       ]
-      ]
-     }
-    }
-   },
-   "name": "CatCafe_Alley_Blocker_PalletsShort_Barrier"
   }
  ],
  "properties": {

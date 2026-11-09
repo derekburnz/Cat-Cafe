@@ -192,8 +192,9 @@ def _seg_low(b, L, shade, flowers_b):
 
 
 def _seg_tall(b, L, shade, flowers_b):
-    """The F85 railings across the way (#2265): _seg_low's plinth and flower boxes under an iron railing 9.4 high
-    with gilded tips, taller than a jump but still see-through, so a hunter sees a carrier behind it."""
+    """The F85 railings across the way: _seg_low's plinth and flower boxes under an iron railing TALL_RAIL high with
+    gilded tips, see-through, and since #2813 low enough to jump (Derek2 11-09: "slightly more open and less blocking
+    feeling its the start of the game no need to be harsh no invisible barriers either")."""
     b.box_base((0, WALL_D / 2, 0), (L, WALL_D, 1.2), "concrete")
     b.box_base((0, WALL_D / 2, 1.2), (L + 0.1, WALL_D + 0.2, 0.15), "concrete_dark", bevel=False)
     n = max(2, round(L / 1.0))
@@ -201,7 +202,7 @@ def _seg_tall(b, L, shade, flowers_b):
         x = -L / 2 + 0.3 + i * (L - 0.6) / n
         b.box_base((x, 1.6, 1.35), (0.16, 0.16, TALL_RAIL - 1.35), "fur_black", bevel=False)
         b.pyramid((x, 1.6, TALL_RAIL), 0.26, 0.4, "gold_mid")                                  # gilded tips
-    for z in (1.9, 5.2, TALL_RAIL - 0.5):
+    for z in (1.9, TALL_RAIL - 0.5):
         b.box((0, 1.6, z), (L - 0.4, 0.12, 0.18), "fur_black", bevel=False)
     k = max(1, round(L / 7.0))
     for i in range(k):
@@ -213,7 +214,7 @@ def _seg_tall(b, L, shade, flowers_b):
                                bevel=False)
 
 
-TALL_RAIL = 9.4                      # the tall railing's top (#2265): over a jump (7.2) from the ground
+TALL_RAIL = 4.6                      # the railing's top: #2813 brings it back under a jump (7.2) (#2265 had 9.4)
 
 
 SEGMENTS = {"hedge": _seg_hedge, "brick": _seg_brick, "rail": _seg_rail, "stone": _seg_stone}

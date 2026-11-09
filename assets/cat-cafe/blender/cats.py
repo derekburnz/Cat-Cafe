@@ -46,15 +46,15 @@ from common import Builder, scale_mesh
 # forehead mark from MARKS. Themed cats wear a prop, some two (props.py).
 ROSTER = {
     "Tabby":   dict(rarity="Common", fur="fur_orange", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white",
-                    # the Cat Makeovers (#2739)
-                    mark=("m", "fur_orange_dark"), eye_k=1.08, curl=True),
+                    # the Cat Makeovers (#2739); the forehead M came off (Derek2 11-09: "random symbols ... just remove it")
+                    eye_k=1.08, curl=True, bag=("caramel_wood", "dark_wood", "fish")),
     "Tuxedo":  dict(rarity="Common", fur="fur_black", second="fur_white", eyes="eye_green", pattern="patches", muzzle="fur_white", tuxedo=True,
                     # the Cat Makeovers (#2739)
-                    blaze="fur_white", tip="fur_white", eye_k=1.08),
+                    tip="fur_white", eye_k=1.08, bag=("bowl_red", "fur_ink", "newspaper")),
     "Ginger":  dict(rarity="Common", fur="fur_ginger", second="fur_ginger", eyes="eye_green", pattern="solid", muzzle="fur_cream",
                     nose="nose_brick", body_scale=(1.1, 1.05, 1.05),
-                    # the Cat Makeovers (#2739)
-                    mark=("star", "pastel_butter"), tip="fur_cream", eye_k=1.08),
+                    # the Cat Makeovers (#2739); the forehead star came off (Derek2 11-09)
+                    tip="fur_cream", eye_k=1.08, bag=("leaf_dark", "leaf_green", "sunflower")),
     "Smoke":   dict(rarity="Common", fur="fur_charcoal", second="fur_charcoal", eyes="eye_chartreuse", pattern="solid",
                     muzzle="fur_smoke_light", nose="nose_dark",
                     # the Cat Makeovers (#2739)
@@ -85,10 +85,10 @@ ROSTER = {
     "Brownie":   dict(rarity="Common", fur="fur_brown", second="choco", eyes="eye_amber", pattern="stripes", muzzle="fur_cream",
                       nose="nose_brick",
                       # the Cat Makeovers (#2739)
-                      sprinkles=("choco", "fur_cream"), eye_k=1.08),
+                      eye_k=1.08, bag=("fur_cream", "mint", "brownies")),
     "Blue":      dict(rarity="Common", fur="fur_blue", second="fur_blue", eyes="eye_green", pattern="solid", muzzle=None, nose="nose_dark",
                       # the Cat Makeovers (#2739)
-                      mark=("drop", "fish_blue"), eye_k=1.08, curl=True),
+                      eye_k=1.08, curl=True, bag=("pastel_butter", "fur_cream", "yarn")),
     "Persian":   dict(rarity="Epic", fur="fur_lavender", second="pastel_lilac", eyes="eye_copper", pattern="solid", muzzle=None,
                       body_scale=(1.15, 1.0, 1.1), persian=True, tail_thick=0.3),
     "Blossom":   dict(rarity="Legendary", fur="fur_rose", second="fur_white", third="nose_pink", eyes="eye_blue", pattern="patches",
@@ -136,11 +136,11 @@ ROSTER = {
     "Biscuit":     dict(rarity="Common", fur="treat_tan", second="treat_tan", eyes="eye_green", pattern="solid",
                         muzzle="fur_white", nose="nose_brick", socks="choco", tip="choco",
                         # the Cat Makeovers (#2739)
-                        sprinkles=("choco", "fur_brown"), eye_k=1.08),
+                        eye_k=1.08, bag=("shirt_blue", "pastel_sky", "cookies")),
     "Pepper":      dict(rarity="Common", fur="fur_pepper", second="fur_pepper", eyes="eye_amber", pattern="solid",
-                        muzzle="fur_silver", nose="nose_dark", sprinkles=("fur_white", "fur_black"),
+                        muzzle="fur_silver", nose="nose_dark",   # the white face dashes came off (Derek2 11-09)
                         # the Cat Makeovers (#2739)
-                        blaze="fur_white", ear_tufts=True, curl=True),
+                        ear_tufts=True, curl=True, bag=("mint", "leaf_dark", "chilis")),
     "Socks":       dict(rarity="Common", fur="fur_ink", second="fur_ink", eyes="eye_chartreuse", pattern="solid",
                         muzzle="fur_white", socks="fur_white", tip="fur_white",
                         # the Cat Makeovers (#2739)
@@ -148,22 +148,22 @@ ROSTER = {
     "Butter":      dict(rarity="Common", fur="pastel_butter", second="pastel_butter", eyes="eye_blue", pattern="solid",
                         muzzle="fur_white", body_scale=(1.08, 1.0, 1.05),
                         # the Cat Makeovers (#2739)
-                        mark=("pat", ("rarity_legend", "milk")), eye_k=1.08, curl=True),
+                        eye_k=1.08, curl=True, bag=("fur_strawberry", "offwhite", "bread")),
     "Moss":        dict(rarity="Common", fur="fur_moss", second="fur_moss", eyes="eye_amber", pattern="solid", muzzle="fur_cream",
                         nose="nose_brick", ear_tufts=True,
                         # the Cat Makeovers (#2739)
-                        blaze="fur_cream", curl=True, eye_k=1.08),
+                        curl=True, eye_k=1.08, bag=("caramel_wood", "dark_wood", "moss")),
     "Acorn":       dict(rarity="Common", fur="fur_acorn", second="fur_acorn", eyes="eye_green", pattern="solid", muzzle="fur_oat",
                         nose="nose_brick", tip="fur_brown",
                         # the Cat Makeovers (#2739)
-                        mark=("drop", "fur_brown"), eye_k=1.08, curl=True),
+                        eye_k=1.08, curl=True, bag=("leaf_green", "leaf_dark", "acorns")),
     "Bramble":     dict(rarity="Common", fur="fur_bramble", second="fur_seal", eyes="eye_chartreuse", pattern="stripes",
                         muzzle="fur_hazel", nose="nose_dark",
                         # the Cat Makeovers (#2739)
-                        sprinkles=("bowl_red", "fur_ink"), eye_k=1.08),
+                        eye_k=1.08, bag=("fur_oat", "caramel_wood", "berries")),
     "Fern":        dict(rarity="Common", fur="fur_fern", second="leaf_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white",
                         # the Cat Makeovers (#2739)
-                        mark=("star", "leaf_dark"), tip="leaf_dark", ear_tufts=True),
+                        tip="leaf_dark", ear_tufts=True, bag=("terracotta", "caramel_wood", "ferns")),
     "Rusty":       dict(rarity="Common", fur="fur_rust_red", second="fur_smoke_light", eyes="eye_green", pattern="patches",
                         muzzle="fur_cream", nose="nose_brick"),
     "Soot":        dict(rarity="Common", fur="fur_ash", second="fur_ash", eyes="eye_copper", pattern="solid", muzzle="fur_soot",
@@ -531,7 +531,7 @@ def _head(spec, c, h):
         b.box((0, fy + 0.012, (lo + fz) / 2), (0.16 * k, 0.06, fz - lo), c["blaze"], bevel=False)
         b.box((0, fy + 0.014, fz + 0.11), (0.11 * k, 0.06, 0.22), c["blaze"], bevel=False)
     if spec.get("mark"):                                # the Cat Makeovers: a mark on the forehead
-        _forehead_mark(b, spec["mark"][0], spec["mark"][1], fy - 0.012, fz + 0.29, 1.35)
+        _forehead_mark(b, spec["mark"][0], spec["mark"][1], fy - 0.012, fz + 0.31, 1.35)   # clear of the eyes
     b.box((0, fy - 0.025, fz - 0.11 * k), (0.1 * k, 0.06, 0.07 * k), c["nose"], bevel=False)
     _mouth(b, surf, fz - 0.145 * k, k, "fur_grey" if palette.lstar(under) < 35 else "fur_black")
     for side in (-1, 1):
@@ -572,8 +572,9 @@ def _head(spec, c, h):
 MARKS = {
     "m": ((0.1, 0.0, 0.045, 0.15, 0), (-0.1, 0.0, 0.045, 0.15, 0), (0.05, 0.01, 0.045, 0.13, -35),
           (-0.05, 0.01, 0.045, 0.13, 35)),                                      # the tabby M
-    "snowflake": ((0, 0, 0.2, 0.04, 0), (0, 0, 0.2, 0.04, 60), (0, 0, 0.2, 0.04, -60),
-                  (0, 0, 0.06, 0.06, 45)),
+    "snowflake": ((0, 0, 0.25, 0.045, 0), (0, 0, 0.25, 0.045, 60), (0, 0, 0.25, 0.045, -60),
+                  (0.088, -0.000, 0.07, 0.032, 90), (-0.088, 0.000, 0.07, 0.032, 90), (0.044, -0.076, 0.07, 0.032, 150),
+                  (-0.044, 0.076, 0.07, 0.032, 150), (0.044, 0.076, 0.07, 0.032, 30), (-0.044, -0.076, 0.07, 0.032, 30)),   # three bold bars and a crossbar near each arm's tip (Derek2 11-09: "a more clear snowflake")
     "drop": ((0, -0.03, 0.1, 0.1, 45), (0, 0.035, 0.065, 0.065, 45), (0, 0.08, 0.035, 0.035, 45)),
     "heart": ((0.04, 0.02, 0.09, 0.09, 45), (-0.04, 0.02, 0.09, 0.09, 45), (0, -0.02, 0.1, 0.1, 45)),
     "pat": ((0, 0, 0.2, 0.11, 0), (-0.045, 0.025, 0.07, 0.03, 0)),              # a butter pat and its shine
@@ -860,6 +861,120 @@ def _top_tiles(b, c, xc, yc, z, nx, ny, w, d):
                   (w / nx - 0.025, d / ny - 0.025, 0.03), cols[(i + j) % 3], bevel=False)
 
 
+# The Cat Makeovers, take 2 (#2739; Derek2 11-09: "the random symbols or lines on the face are not it ... do it with
+# accessories like acorn could have a hip bag of acorns"): a little bag on the cat's right hip (the tail lies along
+# B's left side), its strap round the body, something themed peeking out of its open top. Built into the Body, not a
+# prop, so it takes no PropSlot and never keeps a role piece or a paid Looks accessory off. bag = (bag colour, flap
+# and strap colour, contents), contents one of HIP_BAG_CONTENTS.
+HIP_BAG_CONTENTS = ("acorns", "fish", "cookies", "brownies", "bread", "berries", "ferns", "moss", "chilis", "yarn",
+                    "newspaper", "sunflower")
+
+
+def _bag_contents(b, kind, x, y, z):
+    """What peeks out of the bag's open top, (x, y, z) the top's middle."""
+    if kind == "acorns":
+        for (dy, dz) in ((-0.07, 0.03), (0.05, 0.05), (0.0, 0.1)):
+            b.ico((x, y + dy, z + dz), 0.055, "fur_acorn", subdivisions=1, scale=(1.0, 1.0, 1.15))
+            b.cyl((x, y + dy, z + dz + 0.055), 0.052, 0.035, "dark_wood", segments=8, bevel=False)
+            b.box((x, y + dy, z + dz + 0.085), (0.015, 0.015, 0.03), "dark_wood", bevel=False)
+    elif kind == "fish":
+        b.box((x, y, z + 0.06), (0.06, 0.08, 0.16), "fish_blue", bevel=False, rot=_rot(12, "X"))
+        for sy in (-1, 1):                                                   # the tail's two lobes
+            b.box((x + 0.004 * sy, y + sy * 0.04 + 0.02, z + 0.17), (0.04, 0.05, 0.1), "fish_blue", bevel=False,
+                  rot=_rot(sy * 35, "X"))
+    elif kind == "cookies":
+        for i, dy in enumerate((-0.05, 0.06)):
+            zc, xc = z + 0.06 + 0.02 * i, x - 0.008 * i
+            b.cyl((xc, y + dy, zc), 0.075, 0.03, "treat_tan", segments=10, bevel=False, rot=_rot(90, "Y"))
+            for (ey, ez) in ((0.025, 0.02), (-0.025, -0.01), (0.0, 0.045)):
+                b.box((xc - 0.019, y + dy + ey, zc + ez), (0.012, 0.022, 0.022), "choco", bevel=False)
+    elif kind == "brownies":
+        for i, dy in enumerate((-0.05, 0.06)):
+            a = _rot(8 - 16 * i, "X")
+            b.box((x, y + dy, z + 0.05 + 0.025 * i), (0.08, 0.09, 0.1), "choco", bevel=False, rot=a)
+            b.box((x, y + dy, z + 0.105 + 0.025 * i), (0.086, 0.096, 0.016), "fur_brown", bevel=False, rot=a)
+    elif kind == "bread":
+        b.cyl((x, y + 0.02, z + 0.1), 0.045, 0.32, "treat_tan", segments=8, bevel=False, rot=_rot(25, "X"))
+        for k in range(3):                                                   # the scores on its crust
+            t = -0.08 + 0.08 * k
+            b.box((x - 0.043, y + 0.02 - t * math.sin(math.radians(25)), z + 0.1 + t * math.cos(math.radians(25))),
+                  (0.01, 0.05, 0.016), "fur_oat", bevel=False, rot=_rot(25, "X"))
+    elif kind == "berries":
+        b.box((x, y - 0.06, z + 0.07), (0.015, 0.11, 0.05), "leaf_dark", bevel=False, rot=_rot(-30, "X"))
+        for (dy, dz) in ((0.0, 0.04), (0.05, 0.05), (-0.03, 0.08), (0.03, 0.1), (0.07, 0.09)):
+            b.ico((x, y + dy, z + dz), 0.04, "royal_berry", subdivisions=1)
+    elif kind == "ferns":
+        for k, a in enumerate((-28, 0, 26)):
+            b.box((x + 0.004 * k, y + 0.03 * (k - 1), z + 0.09), (0.02, 0.06, 0.22), ("leaf_green", "leaf_dark")[k % 2],
+                  bevel=False, rot=_rot(a, "X"))
+    elif kind == "moss":
+        b.ico((x, y - 0.03, z + 0.03), 0.075, "fur_moss", subdivisions=1, scale=(1.0, 1.3, 0.7))
+        b.cyl((x, y + 0.06, z + 0.06), 0.015, 0.09, "fur_cream", segments=6, bevel=False)
+        b.sphere((x, y + 0.06, z + 0.11), 0.045, "bowl_red", segments=8, rings=4, scale=(1.0, 1.0, 0.55))
+    elif kind == "chilis":
+        for k, (dy, a) in enumerate(((-0.04, -12), (0.04, 14))):
+            b.cyl((x, y + dy, z + 0.07), 0.032, 0.16, ("bowl_red", "shirt_red")[k], segments=8, bevel=False,
+                  radius2=0.012, rot=_rot(180 + a, "X"))
+            b.box((x, y + dy, z + 0.165), (0.022, 0.022, 0.05), "leaf_green", bevel=False)
+    elif kind == "yarn":
+        b.sphere((x, y, z + 0.05), 0.085, "fish_blue", segments=10, rings=6)
+        for k, a in enumerate((-30, 30, 90)):
+            b.ring((x, y, z + 0.05), 0.089 + 0.005 * k, 0.012, 0.02, "pastel_sky", segments=10, bevel=False,
+                   rot=_rot(a, "X"))
+    elif kind == "newspaper":
+        b.cyl((x, y, z + 0.08), 0.042, 0.22, "offwhite", segments=8, bevel=False, rot=_rot(-15, "X"))
+        b.cyl((x, y, z + 0.08), 0.044, 0.03, "concrete", segments=8, bevel=False, rot=_rot(-15, "X"))
+    elif kind == "sunflower":
+        b.cyl((x, y, z + 0.08), 0.014, 0.16, "leaf_green", segments=6, bevel=False)
+        b.cyl((x - 0.004, y - 0.01, z + 0.17), 0.08, 0.025, "pastel_butter", segments=10, bevel=False,
+              rot=_rot(70, "X"))
+        b.cyl((x - 0.004, y - 0.022, z + 0.174), 0.036, 0.03, "fur_brown", segments=8, bevel=False, rot=_rot(70, "X"))
+
+
+class _Grow:
+    """Builder calls scaled by k about `at` (the hip bag drawn at its own size, then grown to read at a distance)."""
+
+    def __init__(self, b, at, k):
+        self.b, self.at, self.k = b, at, k
+
+    def _p(self, c):
+        return tuple(self.at[i] + (c[i] - self.at[i]) * self.k for i in range(3))
+
+    def box(self, c, size, sw, bevel=False, rot=None):
+        self.b.box(self._p(c), tuple(v * self.k for v in size), sw, bevel=bevel, rot=rot)
+
+    def cyl(self, c, r, h, sw, segments=12, bevel=False, rot=None, radius2=None):
+        self.b.cyl(self._p(c), r * self.k, h * self.k, sw, segments=segments, bevel=bevel, rot=rot,
+                   radius2=None if radius2 is None else radius2 * self.k)
+
+    def ico(self, c, r, sw, subdivisions=1, scale=(1, 1, 1)):
+        self.b.ico(self._p(c), r * self.k, sw, subdivisions=subdivisions, scale=scale)
+
+    def sphere(self, c, r, sw, segments=10, rings=6, scale=(1, 1, 1)):
+        self.b.sphere(self._p(c), r * self.k, sw, segments=segments, rings=rings, scale=scale)
+
+    def ring(self, c, r, t, h, sw, segments=12, bevel=False, rot=None):
+        self.b.ring(self._p(c), r * self.k, t * self.k, h * self.k, sw, segments=segments, bevel=bevel, rot=rot)
+
+
+HIP_BAG_K = 1.45            # big enough to read on a phone (the big-hero rule); its inner face stays on the fur
+
+
+def _hip_bag(b, spec, side_x, y, z, belt):
+    """The bag on the right hip, its inner face on the fur at x side_x (negative), its middle at (y, z); `belt` the
+    strap's boxes [(centre, size)] round the body at y."""
+    bag, flap, kind = spec["bag"]
+    for (c, size) in belt:
+        b.box(c, size, flap, bevel=False)
+    x = side_x - 0.075
+    g = _Grow(b, (side_x, y, z), HIP_BAG_K)
+    g.box((x, y, z), (0.15, 0.3, 0.26), bag, bevel=True)                                    # the bag
+    g.box((x - 0.078, y, z + 0.06), (0.012, 0.31, 0.15), flap)                               # the flap
+    g.box((x - 0.088, y, z + 0.0), (0.012, 0.06, 0.05), "brass")                             # its clasp
+    g.box((x, y, z + 0.13), (0.11, 0.26, 0.012), "fur_ink")                                  # the open top
+    _bag_contents(g, kind, x, y, z + 0.13)
+
+
 def _body_a(spec, c, d):
     b = Builder()
     (x0, y0, z0), (sx, sy, sz) = d["body"]
@@ -909,6 +1024,11 @@ def _body_a(spec, c, d):
         for i in range(3):
             b.box((0, y0 - hy + 0.08 + i * 0.15, top + 0.03 + 0.01 * (i % 2)), (0.16 + 0.02 * (i % 2), 0.17, 0.1),
                   spec["mane"][(i + 5) % len(spec["mane"])], bevel=False)
+    if spec.get("bag"):                                 # on the right hip, the strap round the waist behind it
+        yb = y0 + 0.24 * sy
+        _hip_bag(b, spec, -hx - 0.01, yb, z0 - 0.04,
+                 [((0, yb, top + 0.012), (sx + 0.03, 0.07, 0.03)), ((hx + 0.012, yb, z0), (0.03, 0.07, sz)),
+                  ((0, yb, bottom - 0.012), (sx + 0.03, 0.07, 0.03))])
     return b
 
 
@@ -976,6 +1096,11 @@ def _body_b(spec, c, d):
         for i in range(3):
             b.box((0, cy0 + csy / 2 + 0.03 + 0.01 * (i % 2), 1.0 - i * 0.16), (0.16 + 0.02 * (i % 2), 0.1, 0.17),
                   spec["mane"][(i + 5) % len(spec["mane"])], bevel=False)
+    if spec.get("bag"):                                 # on the right haunch, the strap over its top
+        yb = hy0 + hsy * 0.22
+        _hip_bag(b, spec, -hsx / 2 - 0.01, yb, hsz * 0.56,
+                 [((0, yb, hsz + 0.012), (hsx + 0.03, 0.07, 0.03)),
+                  ((hsx / 2 + 0.012, yb, hsz * 0.55), (0.03, 0.07, hsz * 0.9))])
     return b
 
 
@@ -1024,6 +1149,12 @@ def _body_s(spec, c, d):
         for i in range(3):
             b.box((0, cy0 + csy / 2 + 0.03 + 0.01 * (i % 2), 1.0 - i * 0.16), (0.16 + 0.02 * (i % 2), 0.1, 0.17),
                   spec["mane"][(i + 5) % len(spec["mane"])], bevel=False)
+    if spec.get("bag"):                                 # low on the right side, behind the arm, the strap round the waist
+        yb, zb, bot = cy0 + csy * 0.24, cz0 - csz / 2 + 0.16, cz0 - csz / 2
+        _hip_bag(b, spec, -csx / 2 - 0.01, yb, zb,
+                 [((0, front - 0.012, bot + 0.1), (csx + 0.03, 0.03, 0.07)),
+                  ((0, cy0 + csy / 2 + 0.012, bot + 0.1), (csx + 0.03, 0.03, 0.07)),
+                  ((csx / 2 + 0.012, cy0, bot + 0.1), (0.03, csy + 0.03, 0.07))])
     return b
 
 

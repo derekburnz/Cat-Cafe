@@ -158,6 +158,18 @@ local IDS: { [string]: string } = {
 	Icon_Hud_RoleWaiter = "rbxassetid://111517233480044",
 	Icon_Hud_RoleGreeter = "rbxassetid://115056498460382",
 	Icon_Hud_RoleEntertainer = "rbxassetid://77187740517808",
+	-- #2836 pass 2: the Settings rows' pictures (Model-Agent, upload run 42704511840, PR #2841); ShopIcons.setting
+	Icon_Hud_SetMusic = "rbxassetid://134599473663618",
+	Icon_Hud_SetMusicVolume = "rbxassetid://87194906943620",
+	Icon_Hud_SetSound = "rbxassetid://102107948699831",
+	Icon_Hud_SetSoundVolume = "rbxassetid://106627454922576",
+	Icon_Hud_SetShake = "rbxassetid://109029473118203",
+	Icon_Hud_SetGraphics = "rbxassetid://137571940751816",
+	Icon_Hud_SetOtherCats = "rbxassetid://83632410735588",
+	Icon_Hud_SetMapIcons = "rbxassetid://106030119059184",
+	Icon_Hud_SetAlerts = "rbxassetid://87756404683127",
+	Icon_Hud_SetRecap = "rbxassetid://120756400912716",
+	Icon_Hud_SetAutoEquip = "rbxassetid://97595871152746",
 	Icon_Hud_Drop = "rbxassetid://94837885389516",
 	Icon_Hud_Replay = "rbxassetid://118937447656193",
 	Icon_Hud_Tag = "rbxassetid://101437335863206",
@@ -575,6 +587,23 @@ local UPGRADE_ART: { [string]: string } = {
 	lure_bowl = "Bait",
 	lucky_cat = "LuckyCat",
 }
+-- #2836 pass 2: a Settings row's picture by setting key; the cat income row draws the coin and the tutorial row the
+-- HUD's Tutorial tile
+local SETTING_ART: { [string]: string } = {
+	music = "Icon_Hud_SetMusic",
+	musicVolume = "Icon_Hud_SetMusicVolume",
+	sfx = "Icon_Hud_SetSound",
+	sfxVolume = "Icon_Hud_SetSoundVolume",
+	screenShake = "Icon_Hud_SetShake",
+	lowPerformance = "Icon_Hud_SetGraphics",
+	showOtherCats = "Icon_Hud_SetOtherCats",
+	markers = "Icon_Hud_SetMapIcons",
+	shopAlerts = "Icon_Hud_SetAlerts",
+	sessionRecap = "Icon_Hud_SetRecap",
+	autoEquip = "Icon_Hud_SetAutoEquip",
+	catIncome = "Coins",
+	tutorialButton = "Icon_Hud_Tutorial",
+}
 local ROLE_ART: { [string]: string } = {
 	barista = "RoleBarista",
 	waiter = "RoleWaiter",
@@ -606,6 +635,12 @@ end
 function ShopIcons.role(role: string?): string?
 	local name = if type(role) == "string" then ROLE_ART[role] else nil
 	return if name then IDS["Icon_Hud_" .. name] else nil
+end
+
+-- A Settings row's picture by its setting key (#2836 pass 2), or nil for a row that keeps its glyph.
+function ShopIcons.setting(key: string?): string?
+	local name = if type(key) == "string" then SETTING_ART[key] else nil
+	return if name then IDS[name] else nil
 end
 
 return ShopIcons

@@ -306,5 +306,16 @@ return function()
 			end
 			expect(ShopIcons.glyph("🐱")).to.equal(nil)
 		end)
+
+		it("draws every Settings switch row (#2836 pass 2)", function()
+			local SettingsList = require(Components:WaitForChild("SettingsList")) :: any
+			for _, section in SettingsList.SECTIONS do
+				for _, row in section.rows do
+					expect(ShopIcons.setting(row.key)).never.to.equal(nil)
+				end
+			end
+			expect(ShopIcons.setting("resetSave")).to.equal(nil)
+			expect(ShopIcons.setting(nil)).to.equal(nil)
+		end)
 	end)
 end

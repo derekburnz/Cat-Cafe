@@ -16,14 +16,15 @@
 -- (Components/TutorialArrow, as a low target so a tutorial step keeps the arrow) points at it, until the player opens
 -- the rank up card (seen()). Once per ready state: it comes back only after the rank up stops being ready and is
 -- ready again, or for the next tier.
--- #2714 (Derek2 11-09: "let you shrink down your goal so they have more screen space"): on touch a small ▸ tab at the
--- card's left folds it into one finger-tall chip, "🏆 Grand Cafe 2/3" or a gold "🏆 Rank up!" (Components/GoalFold);
+-- #2714 (Derek2 11-09: "let you shrink down your goal so they have more screen space"): on touch a white ▶ arrow
+-- button (#2828, like the HUD's other folds) at the card's left folds it into one finger-tall chip, "🏆 Grand Cafe 2/3" or a gold "🏆 Rank up!" (Components/GoalFold);
 -- a tap on the chip opens it again. The choice is the goalFolded setting, saved through `onFold`. The ready pulse and
 -- arrow stay on the chip.
 
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 
+local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local FitText = require(script.Parent.Parent.Components.FitText)
 local GoalFold = require(script.Parent.Parent.Components.GoalFold)
@@ -84,7 +85,10 @@ local ROWS = 3
 local SMALL_OUTLINE = 2 -- small text over the bright world needs a little more outline than in a window
 local ICON = 24 -- the nudge's Index icon
 local NUDGE_CAPTION = "Tap to see where in the Index"
-local FOLD_TAB = 26 -- #2714: the fold tab's width, sticking out at the card's left; its tap is a finger wide
+-- #2828: the fold button, the HUD's white arrow button (HUD's FOLD_W x FOLD_H), FOLD_GAP left of the card's edge
+local FOLD_W = 44
+local FOLD_H = 34
+local FOLD_GAP = 6
 
 type Row = { frame: Frame, fill: Frame, label: TextLabel, status: TextLabel }
 
@@ -277,39 +281,26 @@ function GoalCard.new(
 	self._rows = rows
 	self._ready = false
 
-	-- #2714: the fold tab on touch, a dark tab with "▸" just left of the card; its tap reaches a finger's 44 real px
-	-- without covering the card (the card's own tap opens the rank up)
-	local tap = Scale.tapHeight(Theme.sizes.touchMin)
-	local fold: TextButton = Create("TextButton", {
-		Name = "Fold",
-		Text = "",
-		AutoButtonColor = false,
-		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(0, -(PAD + 2) - 2, 0, -PAD),
-		Size = UDim2.fromOffset(tap, tap),
-		Visible = TOUCH,
-		Parent = frame,
+	-- #2714: the fold button on touch, just left of the card (the card's own tap opens the rank up). #2828 (Derek2 11-09:
+	-- "make the goal shrinking arrow way more obvious it's just a little box right now", "set it to be one of the white
+	-- arrows like the rest"): the same white ghost arrow button as the HUD's menu fold (◀ ▶) and travel fold (▲ ▼),
+	-- the same size, "▶" toward the screen's right edge the card folds to. Components/Button's Hit pad takes the tap.
+	local fold = Button.new({
+		name = "Fold",
+		text = "▶",
+		style = "ghost",
+		size = UDim2.fromOffset(FOLD_W, FOLD_H),
+		textSize = Theme.sizes.textBody,
+		anchorPoint = Vector2.new(1, 0),
+		position = UDim2.new(0, -(PAD + 2) - FOLD_GAP, 0, 0),
+		parent = frame,
+		onClick = function()
+			self:_toggleFold(true)
+		end,
 	})
-	local tab: TextLabel = Create("TextLabel", {
-		Name = "Tab",
-		BackgroundColor3 = Theme.colors.outline,
-		BackgroundTransparency = CARD_TRANSPARENCY,
-		BorderSizePixel = 0,
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, 0, 0, 6),
-		Size = UDim2.fromOffset(FOLD_TAB, 36),
-		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody,
-		TextColor3 = Theme.colors.white,
-		Text = "▸",
-		Parent = fold,
-	}, { Create("UICorner", { CornerRadius = UDim.new(0, 8) }) })
-	Outline.border(tab, 1.5, Theme.colors.gold)
-	self._fold = fold
-	self._foldConnection = fold.Activated:Connect(function()
-		self:_toggleFold(true)
-	end)
+	fold.instance.Visible = TOUCH
+	self._foldButton = fold
+	self._fold = fold.instance
 
 	self._connection = frame.Activated:Connect(function()
 		if self._folded then
@@ -505,7 +496,7 @@ end
 function GoalCard.destroy(self: any)
 	self:_alert(nil)
 	self._connection:Disconnect()
-	self._foldConnection:Disconnect()
+	self._foldButton:destroy()
 	self.frame:Destroy()
 end
 

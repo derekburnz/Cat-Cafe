@@ -68,6 +68,7 @@ function SellExtras.plan(
 				and def.exclusive ~= true
 				and instance.variant == "base"
 				and not (inTrade ~= nil and inTrade(instance.uid))
+				and not CatStats.atSpa(profile, instance.uid) -- #2651 part 4
 			if spare then
 				table.insert(uids, instance.uid)
 			end

@@ -22,6 +22,7 @@ local ClockService = require(script.Parent.Services.ClockService)
 local CodeService = require(script.Parent.Services.CodeService)
 local CollectorService = require(script.Parent.Services.CollectorService)
 local CornerShopService = require(script.Parent.Services.CornerShopService)
+local CozyService = require(script.Parent.Services.CozyService)
 local DailyTreatService = require(script.Parent.Services.DailyTreatService)
 local DataService = require(script.Parent.Services.DataService)
 local DealerService = require(script.Parent.Services.DealerService)
@@ -35,6 +36,8 @@ local GrandOpeningService = require(script.Parent.Services.GrandOpeningService)
 local IdeaCreditsService = require(script.Parent.Services.IdeaCreditsService)
 local IndexRewardService = require(script.Parent.Services.IndexRewardService)
 local IntroService = require(script.Parent.Services.IntroService)
+local InviteService = require(script.Parent.Services.InviteService)
+local LateStationService = require(script.Parent.Services.LateStationService)
 local LawnService = require(script.Parent.Services.LawnService)
 local LeaderboardService = require(script.Parent.Services.LeaderboardService)
 local LiveFlagService = require(script.Parent.Services.LiveFlagService)
@@ -136,11 +139,14 @@ OwnerTestService.start() -- #1770: owner test mode (OwnerGrant, the OwnerTest at
 PalService.start() -- F92: pals; before Telemetry so pal_time goes out before its leave work
 LeaderboardService.start() -- F98: before DataService so its onLoaded sees every join
 CampExtraService.start() -- F100: before DataService so its onLoaded sees every join
+LateStationService.start() -- #2651 part 4: the Oasis Spa and Relic Museum, before DataService (onLoaded)
+InviteService.start() -- #2797: the invite reward, before DataService (onLoaded links an invited new player)
 CafePassService.start() -- #1645: the Cafe Pass, before DataService so its onLoaded sees every join
 GrandOpeningService.start() -- #1893: the Grand Opening roadmap's checks and payouts
 SessionRecapService.start() -- #1920: the session recap after about 40 minutes of play
 BadgeAwardService.start() -- #1934: Roblox badges, awarded from the profile with retries and a catch-up on join
 PlaytimeGiftService.start() -- #1947: the like and favourite gifts at 10 and 30 minutes of play
+CozyService.start() -- #2798: Cozy Cafe, the gift bags for staying in your cafe
 RallyService.start() -- F101: before Telemetry (rally_points on leave) and DataService (RallyState on join)
 RestartNoticeService.start() -- the restart countdown's warnings; before DataService so a joiner hears one
 TradeService.start() -- F102: before DataService, whose joins it settles owed trades in (onLoading)

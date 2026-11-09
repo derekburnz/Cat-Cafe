@@ -7,15 +7,20 @@ local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local CornerShop = require(script.Parent.CornerShop)
+local CozyCafe = require(script.Parent.CozyCafe)
 local DailyTreat = require(script.Parent.DailyTreat)
 local EquipBest = require(script.Parent.EquipBest)
+local FirstVisits = require(script.Parent.FirstVisits)
 local FreshCatch = require(script.Parent.FreshCatch)
 local GrandOpening = require(script.Parent.GrandOpening)
+local Invites = require(script.Parent.Invites)
 local Jukebox = require(script.Parent.Jukebox)
+local LateStations = require(script.Parent.LateStations)
 local Lawn = require(script.Parent.Lawn)
 local Looks = require(script.Parent.Looks)
 local MysteryMarket = require(script.Parent.MysteryMarket)
 local Onboarding = require(script.Parent.Onboarding)
+local PlaytimeGifts = require(script.Parent.PlaytimeGifts)
 local Products = require(script.Parent.Products)
 local Rally = require(script.Parent.Rally)
 local Settings = require(script.Parent.Settings)
@@ -142,7 +147,12 @@ local ProfileSchema = {}
 -- Version 45 (#2651, tier6-7-areas.md) opens Tier 6 and 7, the Desert and the Ruins, with their 20 cats, their crate
 -- pieces and two more Espresso and Lucky Cat levels: an older server would drop the new cat and decor ids from a save
 -- and clamp a Tier 6 or 7 cafe back to Tier 5 by hopping servers during a rollout.
-ProfileSchema.VERSION = 45
+-- Version 46 (#2651 part 4, late-stations.md section 3) adds spa and museum, the Oasis Spa's slots and soaking cats
+-- and the Relic Museum's filled exhibits: an older server would drop them, losing slots bought with golden fish and
+-- the exhibits (whose cats left the save) and their tip bonus.
+-- Version 47 (#2797, retention-ideas.md 5d) adds invites and referredBy, the invite reward's two sides: an older server
+-- would drop them and could pay a joiner or an inviter twice for the same friend.
+ProfileSchema.VERSION = 47
 
 local DAY_SECONDS = 86400 -- telemetry.firstDay is a UTC day number (F87)
 
@@ -280,6 +290,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		fishPerks = {},
 		mystery = {},
 		mysterySeen = false,
+		firstVisits = {},
 		codesRedeemed = {},
 		introSeen = false,
 		potions = {},
@@ -305,6 +316,9 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		starterCatClaimed = false,
 		notifyAskAt = 0,
 		campExtras = CampExtras.fresh(now),
+		spa = LateStations.freshSpa(),
+		museum = LateStations.freshMuseum(),
+		invites = Invites.fresh(),
 		rally = Rally.fresh(now),
 		tradeLog = {},
 		tradeIds = {},
@@ -327,6 +341,8 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		firstWow = false,
 		likeGift = false,
 		favGift = false,
+		cozy = CozyCafe.fresh(),
+		giftSteps = {},
 		eventRewards = {},
 		eventLast = "",
 	}
@@ -916,6 +932,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- #2565: the Mystery Market's owned items and its first visit; a save without them owns none, not yet seen
 	profile.mystery = MysteryMarket.sanitize(raw.mystery)
 	profile.mysterySeen = raw.mysterySeen == true
+	-- #2792: the special visitors met once (no version: see Types.PlayerProfile.firstVisits)
+	profile.firstVisits = FirstVisits.sanitize(raw.firstVisits)
 	profile.codesRedeemed = sanitizeCodes(raw.codesRedeemed) -- F65; saves before version 9 have used none
 	-- F72: every save from before version 10 plays the intro once too (Derek, intro-cutscene.md answer 2)
 	profile.introSeen = raw.introSeen == true
@@ -964,6 +982,12 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	profile.notifyAskAt = math.clamp(asInt(raw.notifyAskAt, 0), 0, now)
 	-- F100 (version 25): the camp extras, settled for the tier by CampExtraService once the profile loads
 	profile.campExtras = CampExtras.sanitize(raw.campExtras, now)
+	-- #2651 part 4 (version 46): the Oasis Spa (its cats must still be owned) and the Relic Museum's exhibits
+	profile.spa = LateStations.sanitizeSpa(raw.spa, profile.cats, now)
+	profile.museum = LateStations.sanitizeMuseum(raw.museum)
+	-- #2797 (version 47): the invite reward; a save without them has invited nobody and was invited by nobody
+	profile.invites = Invites.sanitize(raw.invites)
+	profile.referredBy = Invites.sanitizeReferred(raw.referredBy)
 	-- F101 (version 26): the Rescue Rally laps this weekend
 	profile.rally = Rally.sanitize(raw.rally, now)
 	-- F102 (version 27): the Trades page and the trades this save has applied
@@ -1026,6 +1050,8 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- #1947 (version 42): the like and favourite gifts
 	profile.likeGift = raw.likeGift == true
 	profile.favGift = raw.favGift == true
+	profile.cozy = CozyCafe.sanitize(raw.cozy) -- #2798, no version
+	profile.giftSteps = PlaytimeGifts.sanitize(raw.giftSteps) -- #2791, no version
 	-- #2486 (version 43): the Cafe Event reward pieces (string ids of at most 64 characters, whole times) and the
 	-- last event rewarded
 	if type(raw.eventRewards) == "table" then

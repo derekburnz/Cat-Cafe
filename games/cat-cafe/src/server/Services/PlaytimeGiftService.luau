@@ -4,6 +4,8 @@
 -- hears ProfileSync and PlaytimeGift(kind, paid) for the card. The gift is for playing: nothing the client sends pays
 -- it, and the card's buttons (like, favourite, close) only reach analytics (Telemetry playtime_gift). A second gift
 -- in one session waits PlaytimeGifts.GAP_SECONDS after the first.
+-- #2791: the gift ladder's small steps (2, 4, 6, 15 and 20 minutes) pay the same way, with a "Gift! ..." toast in place
+-- of the card; each paid step logs playtime_gift {step, "paid"}.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,6 +16,7 @@ local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
 local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
+local Telemetry = require(script.Parent.Telemetry)
 
 local PlaytimeGiftService = {}
 
@@ -31,17 +34,29 @@ local function check(player: Player): boolean
 	if last ~= nil and os.clock() - last < PlaytimeGifts.GAP_SECONDS then
 		return false
 	end
-	local due: PlaytimeGifts.Kind? = PlaytimeGifts.due(profile, PlayTime.seconds(player, profile))
+	local played = PlayTime.seconds(player, profile)
+	local due: PlaytimeGifts.Step? = PlaytimeGifts.due(profile, played)
 	if due == nil then
 		return false
 	end
-	local kind: PlaytimeGifts.Kind = due
+	local step: PlaytimeGifts.Step = due
 	-- marked before paying, so a failure inside the payout never pays it twice
-	PlaytimeGifts.mark(profile, kind)
+	PlaytimeGifts.mark(profile, step)
 	lastPaidAt[player] = os.clock()
-	local paid = Payout.pay(player, profile, PlaytimeGifts.prize(kind), kind .. "_gift")
+	local card = PlaytimeGifts.isCard(step)
+	local paid = Payout.pay(
+		player,
+		profile,
+		PlaytimeGifts.prize(step),
+		if card then step .. "_gift" else "ladder_gift"
+	)
+	Telemetry.custom(player, "playtime_gift", math.floor(played / 60), { step, "paid" })
 	CafeService.sync(player)
-	Net.fire(player, "PlaytimeGift", kind, paid)
+	if card then
+		Net.fire(player, "PlaytimeGift", step, paid)
+	else
+		Net.toast(player, "Gift! " .. table.concat(paid, ", "), "good")
+	end
 	return true
 end
 

@@ -2855,13 +2855,46 @@ function UI.setCarrying(info: Types.CarryInfo?)
 	if cannonScreen then
 		cannonScreen:render(state, hudScreen:isCarrying())
 	end
-	if resolved and resolved.camp then
-		marker:show(resolved.camp :: BasePart, "Bring it here", Theme.rarityColor(resolved.rarity))
-	elseif resolved and resolved.door then
-		marker:show(resolved.door :: BasePart, "Check in here", Theme.rarityColor(resolved.rarity))
+	UI.carryMarker.hand = resolved
+	UI.carryMarker.apply()
+end
+
+-- #2864 (Derek2: a Backpack cat alone showed no way home): the carry marker follows a cat in the hands first, else one
+-- packed in the Backpack (UI.setBagCarry), which leaves state.carrying and the HUD's carry banner alone, so the "Drop
+-- bag cat" pill stays.
+UI.carryMarker = { hand = nil :: Types.CarryInfo?, bag = nil :: Types.CarryInfo? }
+
+function UI.carryMarker.apply()
+	local marker = carryMarker
+	if not marker then
+		return
+	end
+	local shown: Types.CarryInfo? = UI.carryMarker.hand or UI.carryMarker.bag
+	if shown and shown.camp then
+		marker:show(shown.camp :: BasePart, "Bring it here", Theme.rarityColor(shown.rarity))
+	elseif shown and shown.door then
+		marker:show(shown.door :: BasePart, "Check in here", Theme.rarityColor(shown.rarity))
 	else
 		marker:hide()
 	end
+end
+
+-- #2864: the Backpack's cat while the hands are empty ({ catId, door, camp }), or nil once the bag is empty or a cat
+-- in the hands takes over (UIController rechecks every 0.5 s). UI.setCarrying's cat wins while both are set.
+function UI.setBagCarry(info: Types.CarryInfo?)
+	local resolved: Types.CarryInfo? = nil
+	if info then
+		local def = if info.catId then lookupCat(info.catId) else nil
+		resolved = {
+			catId = info.catId,
+			catName = info.catName or (if def then def.name else nil),
+			rarity = info.rarity or (if def then def.rarity else nil),
+			door = info.door,
+			camp = info.camp,
+		}
+	end
+	UI.carryMarker.bag = resolved
+	UI.carryMarker.apply()
 end
 
 UI.tutorial = {}

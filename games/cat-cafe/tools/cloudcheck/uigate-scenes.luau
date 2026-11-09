@@ -1631,6 +1631,43 @@ local SCENES = {
 		local at = cardAt + inset
 		assert(at.Y >= 0 and at.Y + cardSize.Y <= view.Y + 0.5, "uigate: Your perks runs off screen (#2687)")
 	end },
+	-- #2784 (Derek2: no "+$/s" tags over his own cats): a working cat tagged before its parts arrive (your own cafe's,
+	-- in place before the UI starts) gets its tag once a part comes, and a tag lost with its part is made again
+	{ "RateTagLateParts", function()
+		local cat = Instance.new("Model")
+		cat.Name = "gate_late_cat"
+		cat:SetAttribute("Rate", 12)
+		cat:SetAttribute("Rarity", "Epic")
+		cat:SetAttribute("Napping", false)
+		cat:SetAttribute("DisplayName", "Late Cat")
+		cat.Parent = workspace
+		cat:AddTag("WorkingCat")
+		local tags = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.WorldTags").new(true)
+		local function tagOf(): BillboardGui?
+			return cat:FindFirstChild("CatCafeRateTag", true) :: BillboardGui?
+		end
+		assert(tagOf() == nil, "uigate: a tag before the cat has a part")
+		local body = Instance.new("Part")
+		body.Name = "Body"
+		body.Size = Vector3.new(2, 2, 3)
+		body.Position = Vector3.new(0, 3, -10)
+		body.Parent = cat
+		cat.PrimaryPart = body
+		UIShim.advance(0.1)
+		local tag = tagOf()
+		assert(tag and tag.Enabled, "uigate: no rate tag once the cat's part arrived (#2784)")
+		assert(((tag :: any).Rate :: TextLabel).Text:find("12") ~= nil, "uigate: the late tag reads " .. ((tag :: any).Rate :: TextLabel).Text)
+		-- the server swaps the cat's body: the tag goes with the old one and comes back on the new
+		local swap = body:Clone()
+		swap.Parent = cat
+		cat.PrimaryPart = swap
+		body:Destroy()
+		UIShim.advance(0.1)
+		local again = tagOf()
+		assert(again and again.Enabled and again.Parent == swap, "uigate: the rate tag did not come back after its part went (#2784)")
+		tags:destroy()
+		cat:Destroy()
+	end },
 	{ "MoodIcons", function()
 		-- Catch v3 (catch-rework.md 7a): a mood icon over each stray with a Mood, Skittish with its arc; hidden
 		-- while caught (LockedBy), gone with the Mood
@@ -1965,6 +2002,33 @@ local SCENES = {
 		local steps = strip:FindFirstChild("Steps")
 		assert(steps and steps.Visible, "uigate: a tap didn't open the Grand Opening steps (#1893)")
 		UI.roadmap.step(4)
+	end },
+	-- #2795 (Derek2: Grand Opening from the first catch, compact on phones): mid tutorial (the first table step) the
+	-- closed strip shows at 0/8 under the goal card beside the tutorial strip, and the first table's toast plays
+	{ "GrandOpeningTutorial", function()
+		local before = UI.getState() :: any
+		-- Scenes.close puts these back, so the scenes after this one keep their bowls, tier and finished tutorial
+		Scenes._stepState = {
+			upgradeLevels = before.upgradeLevels,
+			tutorialStep = before.tutorialStep,
+			tier = before.tier,
+			grandOpening = before.grandOpening,
+		}
+		local levels = { tables = 0, lure_bowl = 0, espresso = 0, net = 0, lucky_cat = 0 }
+		UI.update({ tutorialStep = 3, tier = 1, upgradeLevels = levels, grandOpening = { done = {} } } :: any)
+		UI.tutorial.show(UI.tutorial.hint({ tutorialStep = 3, tier = 1, cats = {}, upgradeLevels = levels }))
+		task.wait(0.1)
+		local strip = UIShim.playerGui:FindFirstChild("GrandOpening", true)
+		assert(strip and strip.Visible, "uigate: no Grand Opening strip after the first catch (#2795)")
+		local title = strip:FindFirstChild("Title")
+		assert(title and title.Text == "Grand Opening 0/8", "uigate: the strip reads " .. tostring(title and title.Text))
+		-- closed, as a new account has it (the roadmapOpen setting starts false), so it takes two lines on a phone
+		local steps = strip:FindFirstChild("Steps")
+		if steps and steps.Visible then
+			UIShim.fire(UIShim.eventOf(strip, "Activated")) -- an earlier scene in this run tapped it open
+		end
+		assert(steps == nil or not steps.Visible, "uigate: the Grand Opening list did not close (#2795)")
+		UI.roadmap.step(1)
 	end },
 	-- #1920 (first-hour.md 6): the session recap card at a calm moment: today, the Grand Opening's next step, a cooking
 	-- bait cat and the offline share with tomorrow, and an X; no countdown and no store link

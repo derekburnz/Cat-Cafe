@@ -33,6 +33,23 @@ its prompt card and a BangAnchor 2 studs over its sign for the owner's red "!" (
                                       over the roof. Attachments: PromptAnchor (the counter's front, 1.5 up),
                                       BangAnchor (2 over the sign), Drip (the pipe's mouth).
 
+  CatCafe_Camp_Desert_OasisSpa        (late-stations.md section 1) a tiled pool about 9 wide in a sandstone deck with a
+                                      terracotta and cream checked edge, white tile rim, teal mosaic band and gold
+                                      corner caps, between two date palms in planters; three striped lounge cushions, a
+                                      stack of rolled towels and an OASIS SPA board on a carved post. Child Model
+                                      `_Water` (see-through, walk-through). Attachments: PromptAnchor (the pool's front,
+                                      1.5 up), BangAnchor (2 over the sign), Steam (the water), Soak_1..3 (where the
+                                      owner's soaking cats sit, their feet under the water).
+  CatCafe_Camp_Desert_SpaTowel        the towel a soaking cat wears on its head, folded in three, white with a teal
+                                      stripe and a terracotta hem; pivot at its underside's middle; nothing collides.
+  CatCafe_Camp_Ruins_RelicMuseum      (late-stations.md section 2) a carved sandstone front about 10 wide with jade
+                                      trim: three steps, two columns with jade rings, a dark doorway in a jade frame,
+                                      an entablature and pediment with a gold sun disc, a RELIC MUSEUM board on the
+                                      beam, a velvet rope on brass posts at the top of the steps, and by the steps a
+                                      glass case (`_Glass`) holding a little gold cat idol with jade eyes. Attachments:
+                                      PromptAnchor (the rope, 1.5 up), BangAnchor (2 over the sign), SparkleAnchor (the
+                                      idol).
+
 Every model: pivot at the base centre on the camp's ground, front -Z, no turn of its own, placed where its camp extra
 stands (Layout.campExtras, the area's set space) so Gameplay only swaps the asset name.
 """
@@ -721,6 +738,270 @@ def build_lost_found_booth(mat):
             bell.finalize(LOST + "_Bell", mat, location=bell_at)]
 
 
+# ------------------------------------------------------------------------------------------ oasis spa --
+# late-stations.md section 1 (#2651 part 4): the Desert camp's Oasis Spa, a small tiled pool between two palms
+SPA = "CatCafe_Camp_Desert_OasisSpa"
+SPA_TOWEL = "CatCafe_Camp_Desert_SpaTowel"
+DECK_X, DECK_Z0, DECK_Z1, DECK_Y = 7.5, -5.0, 5.5, 0.3      # the tiled deck: half width, front, back, top
+POOL_X, POOL_Z0, POOL_Z1 = 4.5, -2.0, 4.0                   # the pool's outer rim
+RIM_T, RIM_Y, WATER_Y = 0.5, 0.95, 0.75                     # rim thickness and top, the water's surface
+SAND_STONE, SAND_LIGHT = "fur_caramel", "paving_tan"
+
+
+def _spa_deck(b):
+    """The deck: a sandstone slab with a terracotta and cream checked border round its edge."""
+    b.span((-DECK_X, 0, DECK_Z0), (DECK_X, DECK_Y, DECK_Z1), SAND_LIGHT)
+    n = 15
+    for k in range(n):                                                   # a checked band along the front edge
+        x0 = -DECK_X + 2 * DECK_X * k / n
+        b.span((x0, DECK_Y, DECK_Z0), (x0 + 2 * DECK_X / n, DECK_Y + 0.03, DECK_Z0 + 0.6),
+               ("terracotta", "cream")[k % 2])
+
+
+def _spa_pool(b, water):
+    """The pool: a raised rim of white tiles with a teal mosaic band round its outside, teal water inside."""
+    x0, x1, z0, z1 = -POOL_X, POOL_X, POOL_Z0, POOL_Z1
+    for lo, hi in (((x0, DECK_Y, z0), (x1, RIM_Y, z0 + RIM_T)), ((x0, DECK_Y, z1 - RIM_T), (x1, RIM_Y, z1)),
+                   ((x0, DECK_Y, z0 + RIM_T), (x0 + RIM_T, RIM_Y, z1 - RIM_T)),
+                   ((x1 - RIM_T, DECK_Y, z0 + RIM_T), (x1, RIM_Y, z1 - RIM_T))):
+        b.span(lo, hi, "offwhite")
+    b.span((x0 + RIM_T, DECK_Y, z0 + RIM_T), (x1 - RIM_T, DECK_Y + 0.05, z1 - RIM_T), "sign_teal")   # the pool floor
+    n = 18                                                                # the mosaic band on the front face
+    for k in range(n):
+        xa = x0 + (x1 - x0) * k / n
+        b.span((xa, DECK_Y + 0.15, z0 - 0.04), (xa + (x1 - x0) / n, DECK_Y + 0.45, z0),
+               ("sign_teal", "fish_blue")[k % 2])
+    for sx in (-1, 1):                                                    # and on each side
+        for k in range(12):
+            za = z0 + (z1 - z0) * k / 12
+            xa = sx * POOL_X
+            b.span((min(xa, xa + 0.04 * sx), DECK_Y + 0.15, za), (max(xa, xa + 0.04 * sx), DECK_Y + 0.45,
+                   za + (z1 - z0) / 12), ("sign_teal", "fish_blue")[k % 2])
+    for (x, z) in ((x0, z0), (x1, z0), (x0, z1), (x1, z1)):               # gold caps on the corners
+        b.span((x - 0.05 if x < 0 else x - RIM_T + 0.05 - 0.1, RIM_Y, z - 0.05 if z < 0 else z - RIM_T - 0.05),
+               (x + RIM_T + 0.05 if x < 0 else x + 0.05, RIM_Y + 0.12, z + RIM_T + 0.05 if z < 0 else z + 0.05),
+               "gold_light")
+    # the water reaches 0.02 into the rim, so its sides never share a plane with the rim's inside faces
+    water.span((x0 + RIM_T - 0.02, DECK_Y + 0.05, z0 + RIM_T - 0.02), (x1 - RIM_T + 0.02, WATER_Y, z1 - RIM_T + 0.02),
+               "sign_teal")
+    for (x, z) in ((-2.6, 1.0), (0.0, 1.6), (2.6, 1.0)):                  # where the owner's soaking cats sit
+        _anchor(SPA, f"Soak_{[-2.6, 0.0, 2.6].index(x) + 1}", (x, WATER_Y - 0.55, z))
+    _anchor(SPA, "Steam", (0.0, WATER_Y + 0.05, 1.0))
+
+
+def _spa_palm(b, x, z, lean):
+    """A date palm in a sandstone planter: a ringed trunk curving outward, eight drooping fronds."""
+    b.span((x - 0.9, DECK_Y, z - 0.9), (x + 0.9, DECK_Y + 0.8, z + 0.9), SAND_STONE)
+    b.span((x - 0.75, DECK_Y + 0.8, z - 0.75), (x + 0.75, DECK_Y + 0.85, z + 0.75), "fur_hazel")
+    h, n, tx = 7.5, 7, x
+    y = DECK_Y + 0.8
+    for j in range(n):
+        t = j / (n - 1)
+        tx = x + lean * t * t * 2.0
+        b.cyl((tx, y + (j + 0.5) * h / n, z), 0.38 - 0.025 * j, h / n + 0.04, ("fur_hazel", "fur_brown")[j % 2],
+              segments=8)
+    top = (tx, y + h + 0.15, z)
+    b.ball(top, 0.55, "fur_brown")
+    for k in range(8):
+        a = 2 * math.pi * k / 8 + 0.3
+        for i, (r, dy, pitch) in enumerate(((0.9, 0.15, 12), (2.0, -0.25, -18), (3.0, -1.0, -40))):
+            c = (top[0] + r * math.cos(a), top[1] + dy, top[2] + r * math.sin(a))
+            R = Matrix.Rotation(-a, 3, "Y") @ Matrix.Rotation(math.radians(pitch), 3, "Z")
+            b.box(c, (1.2, 0.1, 0.7 - 0.15 * i), ("leaf_green", "leaf_dark")[(k + i) % 2], rot=R)
+    for k in range(4):                                                    # dates
+        a = 2 * math.pi * k / 4
+        b.ball((top[0] + 0.45 * math.cos(a), top[1] - 0.6, top[2] + 0.45 * math.sin(a)), 0.18, "fur_toffee")
+
+
+def _spa_cushion(b, x, z, cols):
+    """A striped lounge cushion lying along Z, its head end raised on a wedge of a back rest."""
+    w, L = 1.3, 2.6
+    b.span((x - w / 2, DECK_Y, z - L / 2), (x + w / 2, DECK_Y + 0.15, z + L / 2), "dark_wood")       # the frame
+    n = 6
+    for k in range(n):
+        za = z - L / 2 + L * k / n
+        b.span((x - w / 2 + 0.05, DECK_Y + 0.15, za), (x + w / 2 - 0.05, DECK_Y + 0.45, za + L / n), cols[k % 2])
+    b.box((x, DECK_Y + 0.75, z + L / 2 - 0.35), (w - 0.1, 0.25, 0.9), cols[0], rot=rot_x(-35))       # the back rest
+
+
+def _spa_towels(b, x, z):
+    """A stack of rolled towels on a little teak stand."""
+    b.span((x - 0.75, DECK_Y, z - 0.5), (x + 0.75, DECK_Y + 0.7, z + 0.5), "caramel_wood")
+    cols = ("offwhite", "sign_teal", "terracotta", "offwhite", "pastel_butter", "sign_teal")
+    k = 0
+    for row, n in enumerate((3, 2, 1)):
+        for i in range(n):
+            cx = x + (i - (n - 1) / 2) * 0.46
+            b.cyl((cx, DECK_Y + 0.92 + row * 0.42, z), 0.21, 0.9, cols[k], axis="Z", segments=8)
+            k += 1
+
+
+def _spa_sign(b, x, z):
+    """OASIS SPA on a cream board on a carved sandstone post with a teal cap. Returns the board's top."""
+    b.span((x - 0.25, DECK_Y, z - 0.25), (x + 0.25, DECK_Y + 3.3, z + 0.25), SAND_STONE)
+    for y in (DECK_Y + 0.6, DECK_Y + 1.6):                               # carved bands
+        b.span((x - 0.29, y, z - 0.29), (x + 0.29, y + 0.15, z + 0.29), "fur_latte")
+    hw, y0, y1 = 1.6, DECK_Y + 3.3, DECK_Y + 4.7
+    b.span((-hw + x, y0, z - 0.12), (hw + x, y1, z + 0.12), "dark_wood")
+    b.span((-hw + 0.12 + x, y0 + 0.12, z - 0.15), (hw - 0.12 + x, y1 - 0.12, z - 0.12), "cream")
+    _label_front(b, "OASIS", x, y0 + 0.75, z - 0.15, 0.09, 0.04, "sign_teal")
+    _label_front(b, "SPA", x, y0 + 0.2, z - 0.15, 0.09, 0.04, "terracotta")
+    b.span((-hw - 0.1 + x, y1, z - 0.2), (hw + 0.1 + x, y1 + 0.15, z + 0.2), "sign_teal")
+    return (x, y1 + 0.15, z)
+
+
+def build_oasis_spa(mat):
+    b, water = RB(), RB()
+    _spa_deck(b)
+    _spa_pool(b, water)
+    _spa_palm(b, -6.0, 3.8, -1.0)
+    _spa_palm(b, 6.0, 3.8, 1.0)
+    for z, cols in ((-2.2, ("sign_teal", "offwhite")), (0.8, ("terracotta", "offwhite"))):
+        _spa_cushion(b, -5.9, z, cols)
+    _spa_cushion(b, 5.9, 0.2, ("pastel_butter", "offwhite"))
+    _spa_towels(b, 5.9, -2.9)
+    top = _spa_sign(b, -6.0, -4.1)
+    _anchor(SPA, "PromptAnchor", (0.0, 1.5, POOL_Z0 - 1.2))
+    _anchor(SPA, "BangAnchor", (top[0], top[1] + 2.0, top[2]))
+    return [b.finalize(SPA, mat), water.finalize(SPA + "_Water", mat)]
+
+
+def build_spa_towel(mat):
+    """The towel a soaking cat wears on its head: folded in three, white with a teal stripe and a terracotta hem.
+    Pivot at the middle of its underside, to sit on top of a cat's head; nothing collides."""
+    b = RB()
+    b.span((-0.36, 0.0, -0.26), (0.36, 0.08, 0.26), "offwhite")
+    b.span((-0.34, 0.08, -0.24), (0.34, 0.16, 0.24), "offwhite")
+    b.span((-0.32, 0.16, -0.22), (0.32, 0.24, 0.22), "offwhite")
+    b.span((-0.33, 0.165, -0.08), (0.33, 0.25, 0.08), "sign_teal")
+    b.span((-0.37, 0.0, -0.27), (0.37, 0.04, -0.2), "terracotta")
+    return [b.finalize(SPA_TOWEL, mat)]
+
+
+# ------------------------------------------------------------------------------------------ relic museum --
+# late-stations.md section 2: the Ruins camp's Relic Museum, a little carved sandstone front with jade trim
+MUSEUM = "CatCafe_Camp_Ruins_RelicMuseum"
+MX, MZ0, MZ1 = 5.0, -1.0, 3.0                    # the building block: half width, front face, back
+STEP_H, STEP_D, FLOOR_Y = 0.35, 0.8, 1.05        # three steps up to the floor
+TOP_Y = 6.2                                      # the wall top under the entablature
+DOOR_X, DOOR_Y = 1.3, 4.2                        # the door's half width and top
+COL_X, COL_Z = 3.7, -1.9                         # the two columns
+STONE_M, STONE_ML, JADE, GOLD = "fur_caramel", "paving_tan", "fur_emerald", "gold_light"
+
+
+def _museum_steps(b):
+    """The platform and its three steps across the whole front, the floor running back under the building."""
+    z_front = MZ0 - 1.6
+    b.span((-MX - 0.4, 0, z_front), (MX + 0.4, FLOOR_Y, MZ1 + 0.3), STONE_ML)
+    for k in range(3):
+        y0, y1 = k * STEP_H, (k + 1) * STEP_H
+        zf = z_front - (3 - k) * STEP_D
+        b.span((-MX + 0.6, y0, zf), (MX - 0.6, y1, zf + STEP_D), (STONE_M, STONE_ML)[k % 2])
+    b.span((-MX - 0.45, FLOOR_Y, z_front - 0.05), (MX + 0.45, FLOOR_Y + 0.08, z_front + 0.3), JADE)   # jade edge
+
+
+def _museum_front(b):
+    """The walls round the door: a recessed dark doorway, jade trim bands, the entablature and a pediment."""
+    y0 = FLOOR_Y
+    b.span((-MX, y0, MZ0 + 0.4), (MX, TOP_Y, MZ1), STONE_M)                                    # the block
+    for sx in (-1, 1):                                                                          # the front wall
+        x0, x1 = sorted((sx * DOOR_X, sx * MX))
+        b.span((x0, y0, MZ0), (x1, TOP_Y, MZ0 + 0.4), STONE_ML)
+    b.span((-DOOR_X, DOOR_Y, MZ0), (DOOR_X, TOP_Y, MZ0 + 0.4), STONE_ML)                        # over the door
+    b.span((-DOOR_X, y0, MZ0 + 0.4), (DOOR_X, DOOR_Y, MZ0 + 0.5), "fur_ink")                   # the dark doorway
+    for sx in (-1, 1):                                                                          # jade door frame
+        x0, x1 = sorted((sx * DOOR_X, sx * (DOOR_X + 0.25)))
+        b.span((x0, y0, MZ0 - 0.08), (x1, DOOR_Y + 0.25, MZ0), JADE)
+    b.span((-DOOR_X - 0.25, DOOR_Y, MZ0 - 0.08), (DOOR_X + 0.25, DOOR_Y + 0.25, MZ0), JADE)
+    b.span((-MX, y0 + 0.6, MZ0 - 0.06), (-DOOR_X - 0.25, y0 + 0.8, MZ0), JADE)                 # a jade dado band
+    b.span((DOOR_X + 0.25, y0 + 0.6, MZ0 - 0.06), (MX, y0 + 0.8, MZ0), JADE)
+    for sx in (-1, 1):                                                                          # carved panels
+        cx = sx * (MX + DOOR_X) / 2
+        b.span((cx - 0.9, y0 + 1.4, MZ0 - 0.05), (cx + 0.9, y0 + 3.6, MZ0), "fur_latte")
+        b.span((cx - 0.25, y0 + 2.2, MZ0 - 0.09), (cx + 0.25, y0 + 2.8, MZ0 - 0.05), JADE)    # a jade cat-eye
+    # the entablature over the columns: a beam, a jade frieze, a cornice
+    b.span((-MX - 0.3, TOP_Y, COL_Z - 0.6), (MX + 0.3, TOP_Y + 0.6, MZ1), STONE_ML)
+    b.span((-MX - 0.3, TOP_Y + 0.6, COL_Z - 0.6), (MX + 0.3, TOP_Y + 0.85, MZ1), JADE)
+    b.span((-MX - 0.5, TOP_Y + 0.85, COL_Z - 0.8), (MX + 0.5, TOP_Y + 1.1, MZ1 + 0.2), STONE_M)
+    # the pediment: a low triangle on the cornice, a gold sun disc in it
+    apex = TOP_Y + 2.6
+    base = TOP_Y + 1.1
+    b.fan_z(COL_Z - 0.6, (0.0, apex), [(MX + 0.2, base), (-MX - 0.2, base)], 0.5, STONE_ML)
+    b.cyl((0.0, base + 0.6, COL_Z - 0.65), 0.35, 0.1, GOLD, axis="Z", segments=12)
+    return apex
+
+
+def _museum_columns(b):
+    for sx in (-1, 1):
+        x = sx * COL_X
+        b.span((x - 0.55, FLOOR_Y, COL_Z - 0.55), (x + 0.55, FLOOR_Y + 0.4, COL_Z + 0.55), STONE_M)   # base
+        b.cyl((x, (FLOOR_Y + 0.4 + TOP_Y - 0.4) / 2, COL_Z), 0.4, TOP_Y - 0.8 - FLOOR_Y, STONE_ML, segments=10)
+        for y in (FLOOR_Y + 1.6, FLOOR_Y + 3.4):                                                   # jade rings
+            b.cyl((x, y, COL_Z), 0.43, 0.15, JADE, segments=10)
+        b.span((x - 0.6, TOP_Y - 0.4, COL_Z - 0.6), (x + 0.6, TOP_Y, COL_Z + 0.6), STONE_M)         # capital
+
+
+def _museum_sign(b):
+    """RELIC MUSEUM in gold on a jade board fixed to the beam's front. Returns its top."""
+    z = COL_Z - 0.6
+    hw, y0, y1 = 3.0, TOP_Y + 0.02, TOP_Y + 0.58
+    b.span((-hw, y0, z - 0.06), (hw, y1, z), "night_sky")
+    _label_front(b, "RELIC MUSEUM", 0.0, y0 + 0.07, z - 0.06, 0.085, 0.03, GOLD)
+    return (0.0, TOP_Y + 2.6, z)
+
+
+def _museum_rope(b):
+    """A velvet rope on two brass posts across the top of the steps, sagging in the middle."""
+    z = MZ0 - 1.2
+    y = FLOOR_Y
+    for x in (-2.0, 2.0):
+        b.cyl((x, y + 0.05, z), 0.22, 0.1, "brass", segments=10)
+        b.cyl((x, y + 0.55, z), 0.06, 1.0, "brass", segments=8)
+        b.ball((x, y + 1.1, z), 0.11, "brass")
+    for x0, x1, ya, yb in ((-1.95, 0.0, 1.0, 0.75), (0.0, 1.95, 0.75, 1.0)):
+        L = math.hypot(x1 - x0, yb - ya)
+        ang = math.degrees(math.atan2(yb - ya, x1 - x0))
+        b.box(((x0 + x1) / 2, y + (ya + yb) / 2, z), (L, 0.09, 0.09), "royal_berry",
+              rot=Matrix.Rotation(math.radians(ang), 3, "Z"))
+    return (0.0, y + 0.9, z)
+
+
+def _museum_case(b, glass):
+    """A glass case on a dark plinth by the steps, a little golden cat idol inside on a velvet cushion."""
+    x, z = MX + 1.6, MZ0 - 2.6
+    b.span((x - 0.6, 0, z - 0.6), (x + 0.6, 1.2, z + 0.6), "dark_wood")
+    b.span((x - 0.66, 1.2, z - 0.66), (x + 0.66, 1.3, z + 0.66), "brass")
+    b.span((x - 0.4, 1.3, z - 0.4), (x + 0.4, 1.45, z + 0.4), "royal_berry")
+    y = 1.45                                                              # the idol: a sitting cat in gold
+    b.span((x - 0.17, y, z - 0.12), (x + 0.17, y + 0.38, z + 0.16), GOLD)
+    b.span((x - 0.2, y + 0.38, z - 0.17), (x + 0.2, y + 0.68, z + 0.13), GOLD)
+    for sx in (-1, 1):
+        b.span((x + sx * 0.14 - 0.05, y + 0.68, z - 0.05), (x + sx * 0.14 + 0.05, y + 0.8, z + 0.03), GOLD)
+    b.span((x - 0.1, y + 0.5, z - 0.19), (x - 0.04, y + 0.56, z - 0.17), JADE)                 # jade eyes
+    b.span((x + 0.04, y + 0.5, z - 0.19), (x + 0.1, y + 0.56, z - 0.17), JADE)
+    b.span((x + 0.17, y + 0.02, z + 0.1), (x + 0.3, y + 0.08, z + 0.16), GOLD)                 # its tail
+    for sx in (-1, 1):                                                    # the case's brass corner posts and top
+        for sz in (-1, 1):
+            b.span((x + sx * 0.55 - 0.04, 1.3, z + sz * 0.55 - 0.04), (x + sx * 0.55 + 0.04, 2.5, z + sz * 0.55 + 0.04),
+                   "brass")
+    b.span((x - 0.6, 2.5, z - 0.6), (x + 0.6, 2.58, z + 0.6), "brass")
+    glass.span((x - 0.51, 1.3, z - 0.51), (x + 0.51, 2.5, z + 0.51), "glass")
+
+
+def build_relic_museum(mat):
+    b, glass = RB(), RB()
+    _museum_steps(b)
+    _museum_front(b)
+    _museum_columns(b)
+    top = _museum_sign(b)
+    rope = _museum_rope(b)
+    _museum_case(b, glass)
+    _anchor(MUSEUM, "PromptAnchor", (rope[0], 1.5, rope[2] - 0.5))
+    _anchor(MUSEUM, "BangAnchor", (top[0], top[1] + 2.0, top[2]))
+    _anchor(MUSEUM, "SparkleAnchor", (MX + 1.6, 2.0, MZ0 - 2.6))
+    return [b.finalize(MUSEUM, mat), glass.finalize(MUSEUM + "_Glass", mat)]
+
+
 # #1800: the moving child Models' own numbers for Effects/Motion (rbx_export model_attributes), by asset
 MOVING = {YARD: {"model_attributes": {"_Sign_Swing": {"Angle": {"Float64": SIGN_ANGLE}}}}}
 
@@ -738,4 +1019,7 @@ ASSETS = {
     HUT: (build_fishing_hut, 5000),
     HUT + "_Gold": (lambda m: build_fishing_hut(m, gold=True), 5000),
     LOST: (build_lost_found_booth, 5000),
+    SPA: (build_oasis_spa, 5000),
+    SPA_TOWEL: (build_spa_towel, 200),
+    MUSEUM: (build_relic_museum, 5000),
 }

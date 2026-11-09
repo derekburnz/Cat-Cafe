@@ -509,6 +509,8 @@ return function()
 				PityAreaWeights = true, -- #1572 (luck-and-rare-moments.md 1h): a table, checked in Pity.spec
 				EventShowerDefaults = true, -- #2486 (live-events.md section 4): a table, checked in CafeEvents.spec
 				EventShowerAreaWeights = true, -- #2486: a table, checked in CafeEvents.spec
+				UpdateEventId = true, -- #2766: the next update's Roblox Event id, set per Event, checked in EventRsvp.spec
+				UpdateEventStartsAt = true, -- #2766: that Event's start (os.time(), UTC), set per Event
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09 16:04 UTC",
+  "generated": "2026-11-09 16:21 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -303412,6 +303412,171 @@
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Camp_Sewer_LostFoundBooth.png",
       "views": "docs/concepts/cat-cafe/views/CatCafe_Camp_Sewer_LostFoundBooth.png"
+    },
+    {
+      "name": "CatCafe_Camp_Desert_OasisSpa",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_Desert_OasisSpa",
+        "CatCafe_Camp_Desert_OasisSpa_Water"
+      ],
+      "triangles": 3014,
+      "budget": 5000,
+      "size_studs": {
+        "x": 22.79,
+        "y": 12.19,
+        "z": 9.3
+      },
+      "size_roblox": [
+        22.79,
+        9.3,
+        12.19
+      ],
+      "bounds_min": [
+        -11.39,
+        -5.0,
+        0.0
+      ],
+      "bounds_max": [
+        11.39,
+        7.19,
+        9.3
+      ],
+      "pivot": "the base centre on the camp's ground, front -Z, no turn; the Desert camp's station spot (Layout.campExtras.desert, Desert set space)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "late-stations.md section 1: the Oasis Spa, the Desert camp's station. _Water is see-through and walk-through. Attachments PromptAnchor (the pool's front, 1.5 up), BangAnchor (2 over the OASIS SPA sign), Steam (one emitter over the water) and Soak_1..3 (where the owner's soaking cats sit, each wearing CatCafe_Camp_Desert_SpaTowel on its head). Everything else collides and can be climbed.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Desert_OasisSpa.model.json",
+      "rbx_parts": 231,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Desert_OasisSpa.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Desert_OasisSpa.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "3014/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1527 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=1.10"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Desert_SpaTowel",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_Desert_SpaTowel"
+      ],
+      "triangles": 60,
+      "budget": 200,
+      "size_studs": {
+        "x": 0.74,
+        "y": 0.53,
+        "z": 0.25
+      },
+      "size_roblox": [
+        0.74,
+        0.25,
+        0.53
+      ],
+      "bounds_min": [
+        -0.37,
+        -0.27,
+        0.0
+      ],
+      "bounds_max": [
+        0.37,
+        0.26,
+        0.25
+      ],
+      "pivot": "the middle of its underside, on top of a soaking cat's head",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "late-stations.md section 1: the towel on a soaking cat's head at the Oasis Spa; weld it to the cat's Head. Nothing collides.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Desert_SpaTowel.model.json",
+      "rbx_parts": 5,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Desert_SpaTowel.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Desert_SpaTowel.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "60/200 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "30 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Ruins_RelicMuseum",
+      "category": "Camp",
+      "module": "campstations",
+      "objects": [
+        "CatCafe_Camp_Ruins_RelicMuseum",
+        "CatCafe_Camp_Ruins_RelicMuseum_Glass"
+      ],
+      "triangles": 1852,
+      "budget": 5000,
+      "size_studs": {
+        "x": 12.76,
+        "y": 8.3,
+        "z": 8.8
+      },
+      "size_roblox": [
+        12.76,
+        8.8,
+        8.3
+      ],
+      "bounds_min": [
+        -7.26,
+        -5.0,
+        0.0
+      ],
+      "bounds_max": [
+        5.5,
+        3.3,
+        8.8
+      ],
+      "pivot": "the base centre on the camp's ground, front -Z, no turn; the Ruins camp's station spot (Layout.campExtras.ruins, Ruins set space)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "late-stations.md section 2: the Relic Museum, the Ruins camp's station. _Glass is the case round the gold cat idol (see-through). Attachments PromptAnchor (the velvet rope, 1.5 up), BangAnchor (2 over the RELIC MUSEUM sign) and SparkleAnchor (the idol). Everything else collides and can be climbed.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Ruins_RelicMuseum.model.json",
+      "rbx_parts": 138,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Ruins_RelicMuseum.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Ruins_RelicMuseum.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "1852/5000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "883 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-0.88 y=-0.85"
+        }
+      }
     },
     {
       "name": "CatCafe_Town_DayCart",

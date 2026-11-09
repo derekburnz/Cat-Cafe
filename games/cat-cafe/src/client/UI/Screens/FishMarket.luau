@@ -22,6 +22,9 @@
 -- refusal is CrateResult(crateId, "", false, 0) and the server's toast says why. Buying a treat or perk fires
 -- events.buyFishItem(itemId). Golden fish are earned only: nothing here mentions Robux. Sums in
 -- Components/MarketLogic; walking out of range closes the window (as the wheel, N132).
+-- #2571 (Derek2 11-09: "show an exclamation mark to check treats and perks until its clicked for the first time"): a
+-- red "!" on the Treats and perks tab while the save's storeSeen says it was never opened (MarketBangLogic.treatsNew);
+-- opening the tab hides it and fires callbacks.seen("treats") (MarkStoreSeen), which also clears the stall's "!".
 -- F89 (luck-and-rare-moments.md 2b): a Legendary or Mythical piece also plays the big pull card (callbacks.bigPull,
 -- Screens/BigPull) as the crate's lid blows open, with "Use it" on it for a new style piece.
 -- F103 (crate-reel.md): once shared Config has the CrateReel* numbers, every crate opens with the reel
@@ -49,6 +52,7 @@ local FreshCatchLogic = require(script.Parent.Parent.Components.FreshCatchLogic)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local ItemIcon = require(script.Parent.Parent.Components.ItemIcon)
 local LuckLogic = require(script.Parent.Parent.Components.LuckLogic)
+local MarketBangLogic = require(script.Parent.Parent.Components.MarketBangLogic)
 local MarketLogic = require(script.Parent.Parent.Components.MarketLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
@@ -80,6 +84,8 @@ export type Callbacks = {
 	bigPull: ((decorId: string, onUse: (() -> ())?) -> ())?,
 	-- Open all on a crate card with two or more banked (#2402): opens every banked one, answered by allResult
 	openAllCrates: ((crateId: string) -> ())?,
+	-- #2571: the Treats and perks tab opened while its "!" showed: forward as MarkStoreSeen("treats")
+	seen: ((tab: string) -> ())?,
 }
 
 export type FishMarket = {
@@ -342,6 +348,33 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 			self:_showTab("Treats")
 		end,
 	})
+	-- #2571: the red "!" on the tab's top right corner until it is opened once
+	local treatsDot: Frame = Create("Frame", {
+		Name = "NewDot",
+		BackgroundColor3 = Theme.colors.red,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(1, -6, 0, 6),
+		Size = UDim2.fromOffset(22, 22),
+		Visible = false,
+		ZIndex = 8,
+		Parent = self._treatsTab.instance,
+	}, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+	Outline.border(treatsDot, 2)
+	local treatsMark: TextLabel = Create("TextLabel", {
+		Name = "Mark",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromScale(1, 1),
+		FontFace = Theme.fonts.display,
+		TextSize = 16,
+		TextColor3 = Theme.colors.white,
+		Text = "!",
+		ZIndex = 9,
+		Parent = treatsDot,
+	})
+	Outline.text(treatsMark, 1.5)
+	self._treatsDot = treatsDot
+	self._treatsMarked = false -- #2571: seen sent this session, so a sync from before it cannot bring the "!" back
 	self._freshTab = Button.new({
 		name = "FreshTab",
 		text = "Fresh Catch",
@@ -499,6 +532,19 @@ function FishMarket._showTab(self: any, tab: string)
 	self._freshTab:setStyle(if tab == "Fresh" then "gold" else "ghost")
 	if tab == "Fresh" then
 		self:_renderFresh()
+	end
+	if tab == "Treats" and self._treatsDot.Visible then
+		self:_markTreats()
+	end
+end
+
+-- #2571: the Treats and perks tab is open with its "!" up: hide it and save it as seen.
+function FishMarket._markTreats(self: any)
+	self._treatsMarked = true
+	self._treatsDot.Visible = false
+	local seen: ((string) -> ())? = self._callbacks.seen
+	if seen ~= nil then
+		seen(MarketBangLogic.TREATS_TAB)
 	end
 end
 
@@ -1719,6 +1765,12 @@ function FishMarket.render(self: any, state: Types.PlayerState)
 			self._pending[BUNDLE_KEY .. entry.crate.id] = nil
 		end
 		entry.seen = count
+	end
+	-- #2571: the Treats tab's "!" while the save says it was never opened; already on that tab counts as opening it
+	self._treatsDot.Visible = not self._treatsMarked
+		and MarketBangLogic.treatsNew((state :: any).storeSeen)
+	if self._treatsDot.Visible and self._tab == "Treats" then
+		self:_markTreats()
 	end
 	self:_refresh()
 end

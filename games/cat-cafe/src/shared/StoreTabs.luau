@@ -20,6 +20,10 @@ local VERSIONS: { [string]: number } = {
 	potions = 1,
 	cafePass = 1,
 	codes = 1,
+	-- #2571 (Derek2 11-09: "show an exclamation mark to check treats and perks until its clicked for the first time"):
+	-- not a Store tab but the Golden Fish Market's Treats and perks tab, saved the same way; the "!" over the stall
+	-- and on that tab show until it is opened. Bump it when a new perk comes in to show it once more.
+	treats = 1,
 }
 table.freeze(VERSIONS)
 StoreTabs.VERSIONS = VERSIONS

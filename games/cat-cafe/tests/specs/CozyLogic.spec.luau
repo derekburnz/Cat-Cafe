@@ -25,6 +25,7 @@ return function()
 			expect((CozyLogic.line(false, nil, 0, 1000))).to.equal(nil)
 			expect((CozyLogic.line(nil, nil, nil, 1000))).to.equal(nil)
 			expect((CozyLogic.line(true, nil, 0, 1000))).to.equal(nil)
+			expect((CozyLogic.line(true, 0, 0, 1000))).to.equal(nil) -- the timer stopped (today's cap)
 		end)
 	end)
 end

@@ -22,7 +22,7 @@ function CozyLogic.line(
 	if type(bagAt) == "number" and bagAt > 0 then
 		return CozyLogic.WAITING, true
 	end
-	if active == true and type(nextAt) == "number" then
+	if active == true and type(nextAt) == "number" and nextAt > 0 then -- 0: the timer is not running (cap reached)
 		return "Cozy gift in " .. TipJarLogic.clock(math.max(0, nextAt - now)), false
 	end
 	return nil, false

@@ -22,6 +22,12 @@ Derek2, 2026-11-09: "Start drafting 20 new cats for Tier 6 and Tier 7 10 cats ea
   - Tier 6 about 5 to 7 h after Tier 5 in one sitting.
   - Tier 7 about 8 to 11 h after Tier 6.
   - The Tier 1 to 5 times stay exactly as they are, because nothing here changes them.
+- **Slots and stations** (Gameplay's question, #2651). The cafe has 12 role stations today: the 10 tier spots plus the pass-only `waiter_4` and `waiter_5` (the Extra Slot pass and Grand's extra slot). Those two stay pass-only at every tier, so a paid extra slot always adds a slot. Four new tier stations make the 12 and 14:
+  - Tier 6 opens `barista_4` and `greeter_3`, for 12 slots.
+  - Tier 7 opens `entertainer_3` and `waiter_6`, for 14 slots.
+  - That's 16 stations in all. Gameplay may rename them to even out the role counts, and Model-Agent places them in the cafe.
+  - Pass owners get +2 on top: 14 at Tier 6 and 16 at Tier 7.
+  - **Until the four stations exist**, Tiers 6 and 7 ship at 10 tier slots, the same as Tier 5, so the pass keeps adding its +2.
 - Caps, the upgrade ladder and the bowl levels for Tiers 6 and 7 follow the same steps as Tiers 4 and 5. Gameplay drafts those with the Pace run.
 
 ## 2. Where they go and the cannon

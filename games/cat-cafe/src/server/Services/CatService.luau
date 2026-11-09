@@ -2556,6 +2556,11 @@ local function onDropCat(player: Player)
 	-- #2565: the first press drops the held cat, the next the packed one. #2731: with only the packed cat, Drop
 	-- (now on the HUD for it) unpacks and drops it; while the areas are shut for this player it says why not, as for a
 	-- held cat, and stays packed
+	-- #2873: not mid catch or rescue (the gamepad's DPad down, G and the HUD all land here), so a press meant for the
+	-- circles never lets a cat go
+	if CatService.inMinigame(player) then
+		return
+	end
 	if carrying[player] == nil then
 		if packed[player] ~= nil and not openFor(DataService.get(player)) then
 			Net.toast(player, "Keep hold of it, the areas are closed.", "warn")

@@ -2756,8 +2756,13 @@ end
 
 -- Why the player cannot leave by fast travel right now, or nil: carrying a cat (walking it home is the loop and
 -- bumps depend on it), or in the middle of a catch or a rescue.
-function CatService.busyReason(player: Player): string?
-	if inFlight(player) then
+-- `hopOk` (#2568, an open trade) lets a cloud hop through: the night's trip home keeps a trade going.
+function CatService.busyReason(player: Player, hopOk: boolean?): string?
+	local character = player.Character
+	local hopping = character ~= nil
+		and character:GetAttribute("CloudHopAt") ~= nil
+		and character:GetAttribute("Launching") ~= true
+	if inFlight(player) and not (hopOk == true and hopping) then
 		return "You're already flying"
 	end
 	if carrying[player] ~= nil then

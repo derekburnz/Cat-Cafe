@@ -76,6 +76,41 @@ function Rally.stepAt(index: number, goal: number): number
 	return math.ceil(step.share * goal - 1e-9)
 end
 
+-- #2608: the server lap's step-fish multiplier: 1 + RallyLapFishStep a lap after the first, from lap RallyLapCap on
+-- the same (x1.3), so a long-running server's laps never climb further.
+function Rally.lapMultiplier(lap: number): number
+	local laps = math.clamp(math.floor(lap), 1, Config.RallyLapCap)
+	return 1 + Config.RallyLapFishStep * (laps - 1)
+end
+
+-- #2608 (Design-Agent on the issue): what step `index` pays on the server's lap `lap`. The fish grow by
+-- lapMultiplier, rounded up; from lap 3 step 2's Tip Potion is a Big Tip Potion, and from lap 4 step 3 adds a
+-- Quick Bait Potion. Crates never change. A new table: Catalog.rallySteps stays as it is.
+function Rally.prizeFor(index: number, lap: number): Types.IndexPrize
+	local prize = table.clone(Catalog.rallySteps[index].prize)
+	if prize.fish ~= nil then
+		prize.fish = math.ceil(prize.fish * Rally.lapMultiplier(lap) - 1e-9)
+	end
+	if prize.potions ~= nil then
+		prize.potions = table.clone(prize.potions)
+	end
+	if prize.crates ~= nil then
+		prize.crates = table.clone(prize.crates)
+	end
+	local potions: { [string]: number } = prize.potions or {}
+	local tip = potions.tip_potion
+	if lap >= 3 and index == 2 and tip ~= nil then
+		potions.big_tip_potion = (potions.big_tip_potion or 0) + tip
+		local loose: any = potions
+		loose.tip_potion = nil
+	end
+	if lap >= 4 and index == 3 then
+		potions.quick_bait_potion = (potions.quick_bait_potion or 0) + 1
+	end
+	prize.potions = if next(potions) ~= nil then potions else nil
+	return prize
+end
+
 -- The steps (indexes into Catalog.rallySteps, in order) a bar going from `before` to `after` points of `goal` passed.
 function Rally.stepsCrossed(before: number, after: number, goal: number): { number }
 	local crossed: { number } = {}

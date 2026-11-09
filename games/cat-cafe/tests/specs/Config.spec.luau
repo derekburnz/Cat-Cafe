@@ -312,7 +312,9 @@ return function()
 		RallyPointsPerPlayer = 22,
 		RallyMinPlayers = 3,
 		RallyMinPoints = 3,
-		RallyMaxLaps = 4,
+		RallyMaxLaps = 10, -- #2608 (was 4)
+		RallyLapFishStep = 0.10,
+		RallyLapCap = 4,
 		RallyStateSeconds = 0.5,
 		-- Shove (F29 and v0.5 F41, section 10c; v0.5 same target cooldown 20, v0.5.1 target immunity S45; v0.8 F56)
 		BumpEnabled = true,

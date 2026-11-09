@@ -4,6 +4,9 @@
 -- cats earned, with one line on what time away pays, read from Config so it follows the numbers:
 --   note(longNap?) -> string   "Half pay while away, up to 8 hours", or "Full pay, up to 16 hours" with the Long
 --                              Nap pass
+--   away(longNap?) -> string   #2621 (Derek2: "make the cats earning offline obvious ... without it being to obnoxious"):
+--                              the money card's quiet one-line note, "💤 Cats earn while away, up to 8 hours" (16 with
+--                              the Long Nap pass); the welcome back card says the pay share
 -- `longNap` is PlayerState.longNap once ProfileSync carries it; nil is the free line. The pass is offered elsewhere
 -- (Monetization-Agent's plan), never on this card. Pure, so the cloud spec runner checks it.
 --   hookLine(raw) -> string?   #2123 (first-hour.md 6a): one line under the coins from Gameplay's ReturnHook pick
@@ -53,6 +56,13 @@ function WelcomeBack.note(longNap: boolean?): string
 		WelcomeBack.payWord(Config.OfflineRate or 0.5),
 		WelcomeBack.span(Config.OfflineCapSeconds or 28800)
 	)
+end
+
+function WelcomeBack.away(longNap: boolean?): string
+	local cap: number = if longNap
+		then (Config.OfflineCapPassSeconds or 57600)
+		else (Config.OfflineCapSeconds or 28800)
+	return ("💤 Cats earn while away, up to %s"):format(WelcomeBack.span(cap))
 end
 
 function WelcomeBack.hookLine(raw: any): string?

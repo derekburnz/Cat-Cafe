@@ -46,7 +46,7 @@ local CARD: { [string]: Line } = {
 	},
 	tackle = "Careful: other players can tackle you while you carry a cat",
 	dropped = "You dropped it! Grab it again before someone else does",
-	night = "Night closes the areas. Your cats keep earning!",
+	night = "Night closes the areas. Your cats keep earning, even while you're away!", -- #2621
 	rank_up = "Rank up to open the %s! Tap your tier to see how",
 	golden_fish = "Spend golden fish on crates at the Fish Market",
 	potion = {

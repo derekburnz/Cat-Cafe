@@ -153,8 +153,8 @@ Remotes.ClientToServer = {
 	"SetLawnStyle", -- (kind: "path" | "fence", id: string)  an owned style of that kind; "" lays Grey Slabs or takes
 	-- the fence down; 2 a second, answered with a ProfileSync
 	-- F102 trading (trading.md section 6; TradeService): every one checked against the server's own trade
-	"TradeRequest", -- (userId: number)  another player here; both pass Trade.askRefusal (tier, kill switch, town or
-	-- camp, not busy, one request out, re-ask wait, cooldown, daily cap, the target's tradeRequests); 1 a second
+	"TradeRequest", -- (userId: number)  another player here; both pass Trade.askRefusal (tier, kill switch, not
+	-- busy (#2568: anywhere), one request out, re-ask wait, cooldown, daily cap, the target's tradeRequests); 1 a second
 	"TradeRespond", -- (requestId: string, accept: boolean)  a running request to the caller;
 	-- an accept checks both again and opens the trade
 	"TradeOffer", -- (tradeId: string, action: "add" | "remove", uid: string, kind: "cat" | "decor"?)  the caller's

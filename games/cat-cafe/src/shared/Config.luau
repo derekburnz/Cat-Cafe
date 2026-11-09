@@ -785,7 +785,11 @@ local Config = {
 	RallyPointsPerPlayer = 22, -- #2018: was 30, so a lap fills about a third sooner
 	RallyMinPlayers = 3,
 	RallyMinPoints = 3,
-	RallyMaxLaps = 4,
+	RallyMaxLaps = 10, -- #2608 (Derek2 2026-11-09: "change 4 paid to 10"): was 4
+	-- #2608 (Design-Agent's curve): each lap of a server's Rally pays RallyLapFishStep more step fish than lap 1, up to
+	-- lap RallyLapCap (x1.3), each step rounded up; Rally.prizeFor also upgrades two potions from laps 3 and 4
+	RallyLapFishStep = 0.10,
+	RallyLapCap = 4,
 	RallyPoints = { checkIn = 1, tame = 1, rescue = 3, teamRescue = 3 } :: { [string]: number },
 	RallyForce = false,
 	RallyStateSeconds = 0.5, -- RallyState goes out at most this often while points come in (steps go at once)

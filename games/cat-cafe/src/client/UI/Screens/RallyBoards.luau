@@ -1,7 +1,8 @@
 --!strict
 -- The Rescue Rally board's face in the Town Square (F101, rescue-rally.md section 4: "a big Rally board by the cannon
--- showing the bar"): "🏁 RESCUE RALLY" with a gold "Lap 2" chip from the second lap, the bar with its three step
--- pictures (Components/RallyBar) and the time left in the weekend, big enough to read from the cannon. The board is
+-- showing the bar"): "🏁 RESCUE RALLY", the bar with its three step
+-- pictures (Components/RallyBar) and the time left in the weekend (led by "Lap 2: bigger prizes!" from the second
+-- lap, #2608), big enough to read from the cannon. The board is
 -- Model-Agent's CatCafe_Square_RallyBoard (#759), tagged "RallyBoard" and parented into the square only while a Rally
 -- runs; its Screen part, 10 x 4 studs, faces front (-Z) on a navy face, so the gui has no background of its own.
 -- VFX's Effects/RallyBoard chases the bulbs round it.
@@ -27,7 +28,6 @@ export type RallyBoards = {
 type Board = {
 	model: Instance,
 	gui: SurfaceGui,
-	lap: TextLabel,
 	left: TextLabel,
 	bar: RallyBar.RallyBar,
 }
@@ -165,19 +165,6 @@ function RallyBoards._attach(self: any, model: Instance)
 		Parent = gui,
 	})
 	Outline.text(title, 3)
-	local lap = text({
-		Name = "Lap",
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -24, 0, 18),
-		Size = UDim2.fromOffset(104, 34),
-		BackgroundTransparency = 0,
-		BackgroundColor3 = Theme.colors.gold,
-		TextSize = 22,
-		TextColor3 = Theme.colors.goldText,
-		Visible = false,
-		Parent = gui,
-	})
-	Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = lap })
 	local bar = RallyBar.new({
 		parent = gui,
 		name = "RallyBoardBar", -- not RallyBar: VFX's pops look for the banner's
@@ -198,7 +185,7 @@ function RallyBoards._attach(self: any, model: Instance)
 		TextColor3 = Theme.chalk,
 		Parent = gui,
 	})
-	local board: Board = { model = model, gui = gui, lap = lap, left = left, bar = bar }
+	local board: Board = { model = model, gui = gui, left = left, bar = bar }
 	self._boards[model] = board
 	self:_render(board)
 end
@@ -223,9 +210,8 @@ function RallyBoards._render(self: any, board: Board)
 	if view == nil then
 		return
 	end
-	board.lap.Text = view.lap or ""
-	board.lap.Visible = view.lap ~= nil
-	board.left.Text = view.left
+	-- #2608: "Lap 3: bigger prizes!" leads the bottom line (it was a small "Lap 3" chip in the corner)
+	board.left.Text = if view.lap ~= nil then view.lap .. " · " .. view.left else view.left
 	board.bar:set(view)
 end
 

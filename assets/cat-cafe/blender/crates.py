@@ -5,7 +5,9 @@ Golden Fish Market's shelf, open in the crate reveal and give the shop and inven
   CatCafe_Prop_Crate_<Pool>        Alley (a street slat crate), Park (a picnic hamper), Neighbourhood (a parcel),
                                    Woods (a log chest), Sewer (a steel utility crate with a rubber duck), Classic
                                    (the cafe's own crate with a ribbon), Rally (F101: a navy kit crate with a
-                                   red team stripe, a gold star and a chequered lid; no golden twin)
+                                   red team stripe, a gold star and a chequered lid; no golden twin), Desert
+                                   (#2651: a caravan trunk with a woven band and a potted cactus on the lid), Ruins
+                                   (#2651: a carved stone chest with a jade paw tablet, vines and a jade gem)
   CatCafe_Prop_Crate_<Pool>_Gold   the golden crate: the same crate in the three metal golds, its accents kept
 
 Each crate carries its zone's paw (paw_<zone>; Alley neon pink, Classic blush). Pivot base centre, front -Z, about
@@ -25,7 +27,8 @@ W, D, H = 1.2, 0.95, 1.6         # half width, half depth, body height
 HINGE = (0.0, H, D + 0.06)       # the lid turns about the back top edge
 
 PAW = {"Alley": "neon_pink", "Park": "paw_park", "Neighbourhood": "paw_neighbourhood", "Woods": "paw_woods",
-       "Sewer": "paw_sewer", "Classic": "blush", "Rally": "rarity_legend"}
+       "Sewer": "paw_sewer", "Classic": "blush", "Rally": "rarity_legend",
+       "Desert": "eye_amber", "Ruins": "fur_emerald"}                  # the areas' gate trims (#2651)
 
 
 def _paw(b, cx, cy, z, s, swatch, depth=0.02):
@@ -365,12 +368,112 @@ def rally(b, lid):
     lid.span((-0.5, H + 0.4, -0.06), (0.5, H + 0.48, 0.06), "gold_mid")
 
 
+def desert(b, lid):
+    """A caravan trunk (#2651): sand boards in terracotta corners and rails, a woven terracotta, cream and amber
+    band round it, brass studs and leather handles, the amber paw on a leather tag; on the lid two straps, a brass lock and a little
+    potted cactus in flower."""
+    b.span((-W + 0.06, 0.04, -D + 0.06), (W - 0.06, H - 0.02, D - 0.06), "fur_sand")
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            b.span((min(sx * W, sx * (W - 0.18)), 0.0, min(sz * D, sz * (D - 0.18))),
+                   (max(sx * W, sx * (W - 0.18)), H, max(sz * D, sz * (D - 0.18))), "terracotta")
+
+    def side(axis, sign):
+        half = (W if axis == "z" else D) - 0.18
+        out = (D if axis == "z" else W) - 0.06
+        _side_span(b, axis, sign, -half, half, 0.0, 0.16, out, out + 0.06, "terracotta")       # rails
+        _side_span(b, axis, sign, -half, half, H - 0.16, H, out, out + 0.06, "terracotta")
+        n = 9                                                            # the woven band
+        for k in range(n):
+            u0, u1 = -half + 2 * half * k / n, -half + 2 * half * (k + 1) / n
+            _side_span(b, axis, sign, u0, u1, 0.6, 0.96, out, out + 0.04 - 0.004 * (k % 2),
+                       ("terracotta", "offwhite", "eye_amber")[k % 3])
+        _side_span(b, axis, sign, -half, half, 0.56, 0.6, out, out + 0.03, "caramel_wood")      # its edges
+        _side_span(b, axis, sign, -half, half, 0.96, 1.0, out, out + 0.03, "caramel_wood")
+    _faces(side)
+    for sx in (-1, 1):                                                   # brass studs on the front corners
+        for y in (0.32, 1.22):
+            b.span((sx * (W - 0.09) - 0.04, y - 0.04, -D - 0.03), (sx * (W - 0.09) + 0.04, y + 0.04, -D), "brass")
+    b.span((-0.3, 1.0, -(D - 0.02)), (0.3, 1.43, -(D - 0.06)), "choco")                       # a leather tag
+    _paw(b, 0.0, 1.2, -(D - 0.02), 0.4, PAW["Desert"], depth=0.025)
+    for sx in (-1, 1):                                                   # leather handles on the ends
+        for sz in (-0.35, 0.35):
+            b.span((min(sx * W, sx * (W + 0.14)), 1.1, sz - 0.05), (max(sx * W, sx * (W + 0.14)), 1.18, sz + 0.05),
+                   "choco")
+        b.span((sx * (W + 0.1), 1.1, -0.4), (sx * (W + 0.18), 1.18, 0.4), "choco")
+    # lid: a terracotta rim, the sand top, two straps over it, the lock, the cactus pot
+    lid.span((-W - 0.04, H, -D - 0.04), (W + 0.04, H + 0.08, D + 0.06), "terracotta")
+    lid.span((-W + 0.06, H + 0.08, -D + 0.06), (W - 0.06, H + 0.2, D - 0.04), "fur_sand")
+    for x in (-0.75, 0.75):
+        lid.span((x - 0.09, H + 0.08, -D - 0.07), (x + 0.09, H + 0.225, D + 0.08), "choco")
+        lid.span((x - 0.06, H + 0.12, -D - 0.09), (x + 0.06, H + 0.18, -D - 0.07), "brass")       # buckles
+    lid.span((-0.1, H - 0.14, -D - 0.08), (0.1, H + 0.06, -D - 0.045), "brass")                 # the lock
+    lid.span((-0.035, H - 0.08, -D - 0.09), (0.035, H, -D - 0.08), "fur_black")
+    px, pz = 0.2, 0.1
+    lid.cyl((px, H + 0.32, pz), 0.16, 0.24, "terracotta", r2=0.2, segments=10)                  # the pot
+    lid.cyl((px, H + 0.445, pz), 0.17, 0.01, "choco", segments=10)
+    lid.cyl((px, H + 0.7, pz), 0.09, 0.5, "leaf_green", segments=8)                             # the cactus
+    lid.ball((px, H + 0.95, pz), 0.09, "leaf_green")
+    lid.span((px + 0.08, H + 0.62, pz - 0.04), (px + 0.22, H + 0.69, pz + 0.04), "leaf_green")  # its arm
+    lid.span((px + 0.16, H + 0.69, pz - 0.04), (px + 0.23, H + 0.84, pz + 0.04), "leaf_green")
+    lid.span((px - 0.04, H + 1.01, pz - 0.04), (px + 0.04, H + 1.07, pz + 0.04), "blush")       # in flower
+
+
+def ruins(b, lid):
+    """A carved stone chest (#2651): pewter blocks in a grout plinth and posts, a gold band, a raised tablet with the
+    jade paw, vines up the front corners and stone lugs; on the lid a stepped temple top with a jade gem on a gold
+    mount and moss in the corners."""
+    b.span((-W + 0.06, 0.04, -D + 0.06), (W - 0.06, H - 0.02, D - 0.06), "fur_pewter")
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            b.span((min(sx * W, sx * (W - 0.2)), 0.0, min(sz * D, sz * (D - 0.2))),
+                   (max(sx * W, sx * (W - 0.2)), H, max(sz * D, sz * (D - 0.2))), "paving_grout")
+
+    def side(axis, sign):
+        half = (W if axis == "z" else D) - 0.2
+        out = (D if axis == "z" else W) - 0.06
+        _side_span(b, axis, sign, -half, half, 0.0, 0.2, out, out + 0.06, "paving_grout")      # the plinth
+        _side_span(b, axis, sign, -half, half, H - 0.16, H, out, out + 0.06, "paving_grout")
+        _side_span(b, axis, sign, -half, half, 0.24, 0.32, out, out + 0.035, "fur_golden")      # the gold band
+        for y in (0.78, 1.1):                                            # block courses
+            _side_span(b, axis, sign, -half, half, y - 0.015, y + 0.015, out, out + 0.01, "fur_soot")
+        for k, (y0, y1) in enumerate(((0.32, 0.765), (0.795, 1.085), (1.115, H - 0.16))):
+            for u in ((-0.35 * half, 0.35 * half) if k % 2 == 0 else (0.0,)):
+                _side_span(b, axis, sign, u - 0.015, u + 0.015, y0, y1, out, out + 0.01, "fur_soot")
+    _faces(side)
+    zf = -(D - 0.06)
+    b.span((-0.42, 0.5, zf - 0.07), (0.42, 1.34, zf), "paving_light")                             # the tablet
+    b.span((-0.46, 0.46, zf - 0.05), (0.46, 1.38, zf - 0.015), "fur_golden")                      # its gold frame
+    _paw(b, 0.0, 0.95, zf - 0.07, 0.6, PAW["Ruins"], depth=0.03)
+    for sx in (-1, 1):                                                   # vines up the front corners
+        x = sx * (W - 0.1)
+        b.span((x - 0.025, 0.5, -D - 0.025), (x + 0.025, H, -D - 0.005), "leaf_dark")
+        for k, y in enumerate((0.62, 0.84, 1.06, 1.28, 1.5)):
+            off = (0.06 if k % 2 == 0 else -0.06) * sx
+            b.box((x + off, y, -D - 0.02), (0.13, 0.13, 0.03), "leaf_green", rot=rot_z(45))
+    for sx in (-1, 1):                                                   # stone lugs on the ends
+        b.span((min(sx * W, sx * (W + 0.12)), 0.95, -0.3), (max(sx * W, sx * (W + 0.12)), 1.2, 0.3), "paving_grout")
+    # lid: a stepped temple top, the gem on its mount, moss in the corners
+    lid.span((-W - 0.05, H, -D - 0.05), (W + 0.05, H + 0.12, D + 0.06), "paving_grout")
+    lid.span((-W + 0.1, H + 0.12, -D + 0.1), (W - 0.1, H + 0.26, D - 0.08), "fur_pewter")
+    lid.span((-W + 0.1, H + 0.15, -D + 0.095), (W - 0.1, H + 0.2, -D + 0.1), "fur_golden")
+    lid.span((-W + 0.38, H + 0.26, -D + 0.32), (W - 0.38, H + 0.38, D - 0.3), "paving_grout")
+    lid.span((-0.14, H + 0.38, -0.12), (0.14, H + 0.44, 0.16), "fur_golden")
+    lid.ball((0.0, H + 0.53, 0.02), 0.15, "fur_emerald", scale=(1, 1.25, 1))
+    tufts = ((0.0, 0.0, 0.1, 0.04), (0.09, 0.05, 0.07, 0.025), (-0.06, 0.07, 0.06, 0.05))
+    for (cx, cz) in ((-W + 0.22, -D + 0.22), (W - 0.24, D - 0.2), (W - 0.2, -D + 0.24)):
+        for k, (dx, dz, r, h) in enumerate(tufts):
+            lid.span((cx + dx - r, H + 0.26, cz + dz - r), (cx + dx + r, H + 0.26 + h, cz + dz + r),
+                     ("leaf_green", "fur_moss", "leaf_dark")[k])
+
+
 POOLS = {"Alley": alley, "Park": park, "Neighbourhood": neighbourhood, "Woods": woods, "Sewer": sewer,
-         "Classic": classic, "Rally": rally}
+         "Classic": classic, "Rally": rally, "Desert": desert, "Ruins": ruins}
 NO_GOLD = {"Rally"}           # the Rally Crate only comes from the Rally (F101): no golden twin
 # accents a golden crate keeps, so it still reads as its zone's crate
 KEEP = {"Alley": ("neon_pink",), "Park": ("bowl_red",), "Neighbourhood": ("pastel_sky", "blush", "bowl_red"),
-        "Woods": ("bowl_red", "leaf_green"), "Sewer": ("bowl_red",), "Classic": ("blush", "nose_pink")}
+        "Woods": ("bowl_red", "leaf_green"), "Sewer": ("bowl_red",), "Classic": ("blush", "nose_pink"),
+        "Desert": ("leaf_green", "blush", "choco"), "Ruins": ("leaf_green", "leaf_dark", "fur_moss")}
 
 
 def _gold(pool):

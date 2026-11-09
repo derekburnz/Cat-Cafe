@@ -4167,6 +4167,31 @@ local SCENES = {
 		assert(title.Visible and title.TextFits, "uigate: the goal card's tier name does not fit (#2331)")
 		assertArrowAt(goal, "the goal card")
 	end },
+	-- #2714 (Derek2 11-09: "let you shrink down your goal so they have more screen space"): on touch the ▸ tab folds the
+	-- goal card into one finger-tall chip and saves goalFolded; a tap on the chip opens it again. Desktop has no tab.
+	{ "GoalFolded", function()
+		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
+		local fold = goal:FindFirstChild("Fold") :: GuiButton
+		local touch = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch()
+		if not touch then
+			assert(not fold.Visible, "uigate: a fold tab on the goal card on desktop (#2714)")
+			return
+		end
+		local saved = {}
+		local watch = UI.events.setSetting:Connect(function(key, value)
+			table.insert(saved, tostring(key) .. "=" .. tostring(value))
+		end)
+		local tall = goal.AbsoluteSize.Y
+		assert(fold.Visible, "uigate: no fold tab on the goal card on touch (#2714)")
+		UIShim.fire(UIShim.eventOf(fold, "Activated"))
+		task.wait(0.1)
+		assert(goal.AbsoluteSize.Y < tall * 0.6, ("uigate: the folded goal card is %d px tall, was %d (#2714)"):format(goal.AbsoluteSize.Y, tall))
+		local title = goal:FindFirstChild("Title") :: TextLabel
+		assert(title.Visible and title.TextFits and string.find(title.Text, "🏆", 1, true), "uigate: the folded chip reads " .. title.Text .. " (#2714)")
+		assert(#saved == 1 and saved[1] == "goalFolded=true", "uigate: folding saved " .. table.concat(saved, ", ") .. " (#2714)")
+		Scenes._goalFolded = true -- Scenes.close opens it again
+		watch:Disconnect()
+	end },
 	{ "GoalCardSeen", function()
 		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
 		UI.open("RankUp")
@@ -5935,6 +5960,13 @@ function Scenes.close()
 	if Scenes._feedBefore then
 		UI.update({ catFood = Scenes._feedBefore.catFood or {} } :: any) -- #2418's CatsFeed: the Bag's food back
 		Scenes._feedBefore = nil
+	end
+	if Scenes._goalFolded then
+		Scenes._goalFolded = nil
+		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true)
+		if goal then
+			UIShim.fire(UIShim.eventOf(goal, "Activated")) -- #2714's scene: the chip's tap opens the card again
+		end
 	end
 	if Scenes._crew then
 		UI.update(Scenes._crew :: any) -- #2047's extra slots scene: the sample cats, tier and no extra slots back

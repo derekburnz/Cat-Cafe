@@ -34,6 +34,9 @@ Settings.kinds = {
 	-- #2551 (Derek2 11-09: "a toggle to turn it off"): the "+$3/s" rate tags over working cats in every cafe (UI
 	-- WorldTags). On by default, as they always showed; a save from before it has no value and reads as on
 	catIncome = "switch",
+	-- #2714 (Derek2 11-09: "let you shrink down your goal so they have more screen space"): the HUD's goal card folded
+	-- into its one-line chip (touch only reads it). Off by default, so new players see their goal
+	goalFolded = "switch",
 } :: { [string]: Kind }
 
 -- A choice key -> the strings it takes, the default first.
@@ -58,6 +61,7 @@ function Settings.defaults(): Types.Settings
 		sessionRecap = true,
 		autoEquip = true,
 		catIncome = true,
+		goalFolded = false,
 	}
 end
 

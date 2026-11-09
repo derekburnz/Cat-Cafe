@@ -53,6 +53,7 @@ local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local GiftLogic = require(script.Parent.Parent.Components.GiftLogic)
 local GoalCard = require(script.Parent.GoalCard)
+local GoalFold = require(script.Parent.Parent.Components.GoalFold)
 local HudUnlocks = require(script.Parent.Parent.Components.HudUnlocks)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexHints = require(script.Parent.Parent.Components.IndexHints)
@@ -1258,8 +1259,17 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			return
 		end
 		callbacks.openScreen("RankUp")
+	end, function(folded: boolean)
+		-- #2714: the card folded into its chip or opened again, saved as the goalFolded setting
+		self._goalFolded = folded
+		local save = callbacks.setSetting
+		if save then
+			save(GoalFold.SETTING, folded)
+		end
+		self:_layoutRight()
 	end)
 	self._goalArea = nil :: string?
+	self._goalFolded = nil :: boolean?
 	-- #1893 (first-hour.md 1b): the Grand Opening strip just under the goal card; a tap opens or closes its steps,
 	-- saved as the roadmapOpen setting
 	self._roadmap = Roadmap.new(root, UDim2.new(1, -MARGIN, 0, GOAL_TOP), function(open: boolean)
@@ -2582,6 +2592,16 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- #1919: "Find N more cats" while the Grand Opening's twelve cats step is next
 	local nudge = if catalog then IndexHints.nudge(catalog, state) else nil
 	self._goalArea = if nudge then nudge.area else nil
+	-- #2714: folded as the goalFolded setting says, once it first arrives
+	local saved: any = state.settings
+	if
+		self._goalFolded == nil
+		and type(saved) == "table"
+		and type(saved[GoalFold.SETTING]) == "boolean"
+	then
+		self._goalFolded = saved[GoalFold.SETTING]
+		self._goal:setFolded(saved[GoalFold.SETTING])
+	end
 	self._goal:render(
 		tierProgress,
 		Format.tier(state.tier, if catalog then catalog.tiers else nil),

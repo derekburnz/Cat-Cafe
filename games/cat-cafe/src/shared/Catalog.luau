@@ -109,6 +109,8 @@ local AREA_INCOME: { [string]: number } = {
 	neighbourhood = 9,
 	woods = 27,
 	sewer = 81,
+	desert = 243, -- #2651 (tier6-7-areas.md section 1): Tier 6
+	ruins = 729, -- Tier 7
 }
 
 local function cat(
@@ -660,6 +662,211 @@ Catalog.cats = {
 		{ 25, 20, 30 },
 		"Found down in the Sewer. More soon."
 	),
+	-- #2651 (tier6-7-areas.md section 6): the Desert's and the Ruins' ten each, Model-Agent's CatCafe_Cat_<Name> with
+	-- _Sit, _Work and gold twins (#2611, #2640)
+	-- 6a. the Desert
+	cat(
+		"sandy",
+		"Sandy",
+		"Common",
+		"desert",
+		"barista",
+		"solid",
+		{ 226, 196, 140 },
+		"Shakes a little sand out of every cup."
+	),
+	cat(
+		"dune",
+		"Dune",
+		"Common",
+		"desert",
+		"waiter",
+		"stripes",
+		{ 214, 168, 110 },
+		"Stripes like wind on a dune."
+	),
+	cat(
+		"dusty",
+		"Dusty",
+		"Common",
+		"desert",
+		"greeter",
+		"patches",
+		{ 190, 160, 130 },
+		"Waves hello in a little puff of dust."
+	),
+	cat(
+		"sunny",
+		"Sunny",
+		"Common",
+		"desert",
+		"entertainer",
+		"points",
+		{ 250, 230, 180 },
+		"Always finds the warmest spot."
+	),
+	cat(
+		"fennec",
+		"Fennec Cat",
+		"Rare",
+		"desert",
+		"greeter",
+		"solid",
+		{ 232, 196, 150 },
+		"Those ears hear a tip from across town."
+	),
+	cat(
+		"camel",
+		"Camel Cat",
+		"Rare",
+		"desert",
+		"waiter",
+		"patches",
+		{ 196, 150, 100 },
+		"Carries three trays at once on its saddle."
+	),
+	cat(
+		"scarab",
+		"Scarab Cat",
+		"Epic",
+		"desert",
+		"barista",
+		"gradient",
+		{ 40, 120, 110 },
+		"Bright as a beetle, twice as busy."
+	),
+	cat(
+		"mirage",
+		"Mirage Cat",
+		"Epic",
+		"desert",
+		"entertainer",
+		"gradient",
+		{ 240, 200, 160 },
+		"Now you see it, now it's serving you."
+	),
+	cat(
+		"pharaoh",
+		"Pharaoh Cat",
+		"Legendary",
+		"desert",
+		"waiter",
+		"solid",
+		{ 40, 40, 50 },
+		"Rules the cafe from a cushion."
+	),
+	-- not the DJ Cat's `sphynx` (the breed): CatCafe_Cat_Sphinx and CatCafe_Cat_Sphynx stay apart
+	cat(
+		"sphinx",
+		"Sphinx",
+		"Mythical",
+		"desert",
+		"barista",
+		"solid",
+		{ 210, 170, 110 },
+		"Asks a riddle before every order."
+	),
+	-- 6b. the Ruins
+	cat(
+		"pebble",
+		"Pebble",
+		"Common",
+		"ruins",
+		"barista",
+		"solid",
+		{ 140, 140, 135 },
+		"Small, grey and very hard to move off the counter."
+	),
+	cat(
+		"rubble",
+		"Rubble",
+		"Common",
+		"ruins",
+		"waiter",
+		"patches",
+		{ 160, 150, 135 },
+		"A little bit of everything, held together by naps."
+	),
+	cat(
+		"clay",
+		"Clay",
+		"Common",
+		"ruins",
+		"greeter",
+		"solid",
+		{ 190, 110, 70 },
+		"Warm as a fresh pot."
+	),
+	cat(
+		"ivy",
+		"Ivy",
+		"Common",
+		"ruins",
+		"entertainer",
+		"stripes",
+		{ 120, 130, 110 },
+		"Climbs everything, falls off nothing."
+	),
+	cat(
+		"glyph",
+		"Hieroglyph Cat",
+		"Rare",
+		"ruins",
+		"barista",
+		"patches",
+		{ 222, 196, 150 },
+		"Its coat tells the whole cafe's story."
+	),
+	cat(
+		"torch",
+		"Torch Cat",
+		"Rare",
+		"ruins",
+		"greeter",
+		"solid",
+		{ 120, 80, 60 },
+		"Lights the way to your table."
+	),
+	cat(
+		"gargoyle",
+		"Gargoyle Cat",
+		"Epic",
+		"ruins",
+		"waiter",
+		"solid",
+		{ 110, 115, 120 },
+		"Sits so still you'll think it's a statue."
+	),
+	cat(
+		"mosaic",
+		"Mosaic Cat",
+		"Epic",
+		"ruins",
+		"entertainer",
+		"patches",
+		{ 60, 120, 170 },
+		"Made of a thousand tiny tiles."
+	),
+	cat(
+		"golem",
+		"Golem Cat",
+		"Legendary",
+		"ruins",
+		"barista",
+		"solid",
+		{ 130, 125, 115 },
+		"Big, gentle and very good at carrying trays."
+	),
+	cat(
+		"jade_guardian",
+		"Jade Guardian",
+		"Mythical",
+		"ruins",
+		"greeter",
+		"gradient",
+		{ 70, 160, 120 },
+		"The temple's oldest guard, awake at last."
+	),
 	-- 3d. The spare pool (v0.13, Derek 2026-10-27 23:59): the ten cats the area-themed ones replaced
 	spare(
 		cat(
@@ -932,14 +1139,22 @@ Catalog.spots = {
 	{ id = "greeter_2", spotType = "greeter", tier = 4 },
 	{ id = "barista_3", spotType = "barista", tier = 5 },
 	{ id = "entertainer_2", spotType = "entertainer", tier = 5 },
+	-- #2651 (tier6-7-areas.md section 1, Design-Agent): Tier 6 and 7 add two each, and the pass still adds two at every
+	-- tier. The first two are #1624's waiters, pass-only while Tier 5 was the top, so a Tier 5 save's extra slots keep
+	-- the stations they had; Tier 7's are two of Model-Agent's new stations, and the other two are the pass's now.
+	{ id = "waiter_4", spotType = "waiter", tier = 6 },
+	{ id = "waiter_5", spotType = "waiter", tier = 6 },
+	{ id = "barista_4", spotType = "barista", tier = 7 },
+	{ id = "greeter_3", spotType = "greeter", tier = 7 },
 } :: { Types.SpotDef }
 
--- #1624 (economy-ladder.md section 6, section 6a): two role slots only extra slots reach, for a Tier 5 cafe with Grand
--- Cafe and the Extra Slot pass; below Tier 5 the extra slots open the next tier's spots early instead. Kept apart from
--- the tier slots so the Staff list shows them only once the client knows about extra slots.
+-- #1624 (economy-ladder.md section 6, section 6a): two role slots only extra slots reach, for a top-tier cafe with
+-- Grand Cafe and the Extra Slot pass; below the top tier the extra slots open the next tier's spots early instead.
+-- Kept apart from the tier slots so the Staff list shows them only once the client knows about extra slots. Since
+-- #2651 they are Model-Agent's two newest stations; waiter_4 and waiter_5 became Tier 6's.
 Catalog.passSpots = {
-	{ id = "waiter_4", spotType = "waiter", tier = 6, passOnly = true },
-	{ id = "waiter_5", spotType = "waiter", tier = 6, passOnly = true },
+	{ id = "entertainer_3", spotType = "entertainer", tier = 8, passOnly = true }, -- #2651: was waiter_4 and waiter_5
+	{ id = "waiter_6", spotType = "waiter", tier = 8, passOnly = true },
 } :: { Types.SpotDef }
 
 -- Every role slot in opening order: the tier slots, then the pass-only ones.
@@ -1047,6 +1262,33 @@ Catalog.tiers = {
 		area = "sewer",
 		caps = { tables = 6, espresso = 5, net = 3, lure_bowl = 5, lucky_cat = 5 },
 	},
+	-- #2651 (tier6-7-areas.md sections 1, 7b and 9): Tier 6 and 7 at QA-Planner's Pace fit (Tier 6 about 6.4 h after
+	-- Tier 5, Tier 7 about 10 h after Tier 6; the drafts 70B and 1.8T took 29 h and more than 40 h); the caps raise
+	-- the Espresso machine and the Lucky Cat one level a tier
+	{
+		tier = 6,
+		name = "Sunstone Cafe",
+		cost = 9000000000,
+		distinctCats = 42,
+		needsRarity = "Mythical",
+		needsRarityCount = 2,
+		slots = 12,
+		multiplier = 2.25,
+		area = "desert",
+		caps = { tables = 6, espresso = 6, net = 3, lure_bowl = 5, lucky_cat = 6 },
+	},
+	{
+		tier = 7,
+		name = "Wonder Cafe",
+		cost = 60000000000,
+		distinctCats = 52,
+		needsRarity = "Mythical",
+		needsRarityCount = 3,
+		slots = 14,
+		multiplier = 2.50,
+		area = "ruins",
+		caps = { tables = 6, espresso = 7, net = 3, lure_bowl = 5, lucky_cat = 7 },
+	},
 } :: { Types.TierDef }
 
 Catalog.maxTier = #Catalog.tiers
@@ -1082,9 +1324,10 @@ Catalog.upgrades = {
 		id = "espresso",
 		name = "Espresso machine",
 		description = "Better coffee, more money from every cat",
-		maxLevel = 5,
+		maxLevel = 7,
 		-- F95: level 4 four times, 5 (Tier 4) 7.5 times; #1896 (first-hour.md 4): level 4 700,000 (was 400,000), now Tier 2
-		costs = { 0, 2000, 15000, 550000, 6000000 }, -- #1896 re-fit with Catch v3: Espresso 4 700,000 before
+		-- #2651 (tier6-7-areas.md 7b): levels 6 and 7 at Tier 6 and 7, scaled with the tiers' Pace fit
+		costs = { 0, 2000, 15000, 550000, 6000000, 200000000, 1300000000 }, -- #1896 re-fit with Catch v3: Espresso 4 700,000 before
 		startLevel = 1,
 	},
 	{
@@ -1110,10 +1353,11 @@ Catalog.upgrades = {
 		id = "lucky_cat", -- F88 (luck-and-rare-moments.md 1a): the statue by the front door, shared/Luck
 		name = "Lucky Cat",
 		description = "A beckoning cat by your front door. Each level adds +10% Luck: rarer bait cats and crate finds",
-		maxLevel = 5,
+		maxLevel = 7,
 		-- level n needs Tier n, but level 3 comes at Tier 2 (#1896 follow-up, a buy inside the Tier 3 save, fitted to
-		-- minute 32 at 300,000; 600,000 before); levels 4 and 5 at economy-ladder.md section 4's prices
-		costs = { 2000, 20000, 300000, 8000000, 80000000 },
+		-- minute 32 at 300,000; 600,000 before); levels 4 and 5 at economy-ladder.md section 4's prices; #2651 (tier6-7-
+		-- areas.md 7b): 6 and 7 at Tier 6 and 7, scaled with the tiers' Pace fit
+		costs = { 2000, 20000, 300000, 8000000, 80000000, 250000000, 1700000000 },
 		startLevel = 0,
 	},
 } :: { Types.UpgradeDef }
@@ -2337,6 +2581,27 @@ Catalog.areas = {
 		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 }, -- #1452
 		incomeMultiplier = AREA_INCOME.sewer,
 	},
+	-- #2651 (tier6-7-areas.md sections 4 and 5): Model-Agent's sets' cat spots (#2666, #2669)
+	{
+		id = "desert",
+		name = "Desert",
+		tier = 6,
+		spawnPoints = 106, -- 50 near the camp and 56 deep
+		waveSize = 11,
+		rescueSpots = 5, -- two dunes, two clay urns and a collapsed canopy
+		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 },
+		incomeMultiplier = AREA_INCOME.desert,
+	},
+	{
+		id = "ruins",
+		name = "Ruins",
+		tier = 7,
+		spawnPoints = 100, -- 55 near the camp and 45 deep
+		waveSize = 11,
+		rescueSpots = 5, -- two rubble piles, two stone urns and the broken bridge ledge
+		odds = { Common = 54, Rare = 29, Epic = 11, Legendary = 4.8, Mythical = 1.2 },
+		incomeMultiplier = AREA_INCOME.ruins,
+	},
 } :: { Types.AreaDef }
 
 Catalog.areasById = {} :: { [string]: Types.AreaDef }
@@ -2534,6 +2799,48 @@ Catalog.indexPrizes = {
 			goldLuck = 0.10,
 		},
 	},
+	desert = { -- #2651 (tier6-7-areas.md 7b): about 3 times the Sewer's coins; no goldLuck (the area tracks reach GoldLuckMax)
+		cats3 = { coins = 90000, coinSeconds = 300, fish = 15 },
+		cats6 = { crates = { desert_crate = 1 }, lures = { star_treat = 2 }, bonus = 0.02 },
+		cats10 = {
+			crates = { desert_crate = 2, desert_golden_crate = 1 },
+			fish = 55,
+			bonus = 0.05,
+		},
+		gold1 = { fish = 20, crates = { desert_crate = 1 } },
+		gold2 = { coins = 300000, coinSeconds = 450, fish = 25 },
+		gold4 = { crates = { desert_golden_crate = 1 }, fish = 45 },
+		gold6 = { coins = 600000, coinSeconds = 900, fish = 60 },
+		gold8 = { crates = { desert_golden_crate = 1 }, fish = 80 },
+		gold10 = {
+			coins = 1500000,
+			coinSeconds = 1800,
+			crates = { desert_golden_crate = 2 },
+			fish = 135,
+			tag = "Desert Gold Master",
+		},
+	},
+	ruins = { -- #2651 (tier6-7-areas.md 7b): about 9 times the Sewer's coins; no goldLuck (the area tracks reach GoldLuckMax)
+		cats3 = { coins = 270000, coinSeconds = 300, fish = 20 },
+		cats6 = { crates = { ruins_crate = 1 }, lures = { star_treat = 2 }, bonus = 0.02 },
+		cats10 = {
+			crates = { ruins_crate = 2, ruins_golden_crate = 1 },
+			fish = 60,
+			bonus = 0.05,
+		},
+		gold1 = { fish = 20, crates = { ruins_crate = 1 } },
+		gold2 = { coins = 900000, coinSeconds = 450, fish = 30 },
+		gold4 = { crates = { ruins_golden_crate = 1 }, fish = 50 },
+		gold6 = { coins = 1800000, coinSeconds = 900, fish = 65 },
+		gold8 = { crates = { ruins_golden_crate = 1 }, fish = 85 },
+		gold10 = {
+			coins = 4500000,
+			coinSeconds = 1800,
+			crates = { ruins_golden_crate = 2 },
+			fish = 150,
+			tag = "Ruins Gold Master",
+		},
+	},
 	all = {
 		total5 = { fish = 5, spins = 1, baitSpeed = 0.02 },
 		total10 = { fish = 10, crates = { classic_crate = 1 }, baitSpeed = 0.02 },
@@ -2586,6 +2893,14 @@ Catalog.indexPrizes = {
 		decor10 = { bonus = Config.DecorIndexBonus },
 	},
 	decor_sewer = {
+		decor5 = { fish = Config.DecorIndexHalfFish },
+		decor10 = { bonus = Config.DecorIndexBonus },
+	},
+	decor_desert = {
+		decor5 = { fish = Config.DecorIndexHalfFish },
+		decor10 = { bonus = Config.DecorIndexBonus },
+	},
+	decor_ruins = {
 		decor5 = { fish = Config.DecorIndexHalfFish },
 		decor10 = { bonus = Config.DecorIndexBonus },
 	},
@@ -2733,6 +3048,8 @@ local CRATE_POOLS: { { area: string, name: string, sold: boolean?, golden: boole
 	{ area = "neighbourhood", name = "Neighbourhood" },
 	{ area = "woods", name = "Woods" },
 	{ area = "sewer", name = "Sewer" },
+	{ area = "desert", name = "Desert" }, -- #2651 (tier6-7-areas.md 7b)
+	{ area = "ruins", name = "Ruins" },
 	{ area = "classic", name = "Classic" },
 	{ area = "rally", name = "Rally", sold = false, golden = false },
 }
@@ -3253,6 +3570,203 @@ local CRATE_PIECES: { [string]: { PieceRow } } = {
 			kind = "catflap",
 			rarity = "Common",
 			description = "The flap in a bolted pipe ring.",
+		},
+	},
+	-- #2651 (tier6-7-areas.md 7b): the Epics are plain decorations on decor spots, not F48 index_ pieces
+	desert = {
+		{
+			id = "desert_sandstone_blocks",
+			name = "Sandstone Blocks",
+			kind = "wallpaper",
+			rarity = "Common",
+			color = Color3.fromRGB(204, 170, 120),
+			material = Enum.Material.Sandstone,
+			description = "Warm blocks of desert stone.",
+		},
+		{
+			id = "desert_market_stripes",
+			name = "Market Stripes",
+			kind = "wallpaper",
+			rarity = "Rare",
+			color = Color3.fromRGB(220, 120, 80),
+			material = Enum.Material.Fabric,
+			description = "Bright stripes like a desert tent.",
+		},
+		{
+			id = "desert_sand_ripple",
+			name = "Sand Ripple",
+			kind = "floor",
+			rarity = "Common",
+			color = Color3.fromRGB(232, 205, 150),
+			material = Enum.Material.Sand,
+			description = "Soft sand swept into little waves.",
+		},
+		{
+			id = "desert_mirage_glass",
+			name = "Mirage Glass",
+			kind = "floor",
+			rarity = "Mythical",
+			color = Color3.fromRGB(160, 200, 240),
+			material = Enum.Material.Glass,
+			description = "A floor that shimmers like heat on the dunes.",
+		},
+		{
+			id = "desert_dune_gold",
+			name = "Dune Gold",
+			kind = "paint",
+			rarity = "Common",
+			color = Color3.fromRGB(226, 190, 120),
+			material = Enum.Material.SmoothPlastic,
+			description = "The colour of sand at noon.",
+		},
+		{
+			id = "desert_oasis_teal",
+			name = "Oasis Teal",
+			kind = "paint",
+			rarity = "Rare",
+			color = Color3.fromRGB(64, 168, 160),
+			material = Enum.Material.SmoothPlastic,
+			description = "Cool water green with sandy trim.",
+		},
+		{
+			id = "desert_cushion_pile",
+			name = "Cushion Pile",
+			kind = "furniture",
+			rarity = "Common",
+			description = "A heap of tasselled floor cushions.",
+		},
+		{
+			id = "desert_caravan_bench",
+			name = "Caravan Bench",
+			kind = "furniture",
+			rarity = "Legendary",
+			description = "A carved bench under a fringed canopy.",
+		},
+		{
+			id = "desert_lantern_palm",
+			name = "Lantern Palm",
+			kind = "decoration",
+			rarity = "Rare",
+			description = "A potted palm hung with tiny lanterns.",
+		},
+		{
+			id = "desert_oasis_fountain",
+			name = "Oasis Fountain",
+			kind = "decoration",
+			rarity = "Epic",
+			description = "A little tiled fountain that never runs dry.",
+		},
+		{
+			id = "desert_arch_gate_door",
+			name = "Arch Gate Door",
+			kind = "door",
+			rarity = "Common",
+			description = "A pointed arch door with brass studs.",
+		},
+		{
+			id = "desert_sun_disc_flap",
+			name = "Sun Disc Flap",
+			kind = "catflap",
+			rarity = "Rare",
+			description = "The flap in a golden sun disc.",
+		},
+	},
+	ruins = {
+		{
+			id = "ruins_carved_stone",
+			name = "Carved Stone",
+			kind = "wallpaper",
+			rarity = "Common",
+			color = Color3.fromRGB(150, 145, 135),
+			material = Enum.Material.Slate,
+			description = "Old stone carved with tiny cats.",
+		},
+		{
+			id = "ruins_glyph_frieze",
+			name = "Glyph Frieze",
+			kind = "wallpaper",
+			rarity = "Rare",
+			color = Color3.fromRGB(196, 170, 128),
+			material = Enum.Material.Sandstone,
+			description = "A band of gold glyphs around the room.",
+		},
+		{
+			id = "ruins_cracked_flagstone",
+			name = "Cracked Flagstone",
+			kind = "floor",
+			rarity = "Common",
+			color = Color3.fromRGB(140, 135, 125),
+			material = Enum.Material.Cobblestone,
+			description = "Worn flagstones from the temple road.",
+		},
+		{
+			id = "ruins_jade_inlay",
+			name = "Jade Inlay",
+			kind = "floor",
+			rarity = "Mythical",
+			color = Color3.fromRGB(80, 160, 120),
+			material = Enum.Material.Marble,
+			description = "Polished jade tiles with gold lines between them.",
+		},
+		{
+			id = "ruins_moss_stone",
+			name = "Moss Stone",
+			kind = "paint",
+			rarity = "Common",
+			color = Color3.fromRGB(120, 130, 110),
+			material = Enum.Material.SmoothPlastic,
+			description = "Grey-green like a quiet courtyard.",
+		},
+		{
+			id = "ruins_glyph_gold",
+			name = "Glyph Gold",
+			kind = "paint",
+			rarity = "Rare",
+			color = Color3.fromRGB(232, 190, 80),
+			material = Enum.Material.SmoothPlastic,
+			description = "Trim the colour of glowing glyphs.",
+		},
+		{
+			id = "ruins_pillar_table",
+			name = "Pillar Table",
+			kind = "furniture",
+			rarity = "Common",
+			description = "A table top on a broken pillar.",
+		},
+		{
+			id = "ruins_stone_throne",
+			name = "Stone Throne",
+			kind = "furniture",
+			rarity = "Legendary",
+			description = "A great carved throne, sized for a cat.",
+		},
+		{
+			id = "ruins_brazier_pair",
+			name = "Brazier Pair",
+			kind = "decoration",
+			rarity = "Rare",
+			description = "Two little braziers with a soft glow.",
+		},
+		{
+			id = "ruins_gargoyle_statue",
+			name = "Gargoyle Statue",
+			kind = "decoration",
+			rarity = "Epic",
+			description = "A friendly gargoyle keeping watch.",
+		},
+		{
+			id = "ruins_temple_gate_door",
+			name = "Temple Gate Door",
+			kind = "door",
+			rarity = "Rare",
+			description = "A heavy stone door with a cat-head carving.",
+		},
+		{
+			id = "ruins_keyhole_flap",
+			name = "Keyhole Flap",
+			kind = "catflap",
+			rarity = "Common",
+			description = "The flap in a keyhole-shaped arch.",
 		},
 	},
 	classic = {

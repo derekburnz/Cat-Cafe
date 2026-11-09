@@ -236,6 +236,14 @@ function Intro.camp(area: string): Camp?
 		-- F85: the long Sewer's depth runs along world X too, its camp on its west side
 		ox, oz, turn, opening =
 			W.SewerCenterX - W.SewerDepth / 2, W.SewerCenterZ, 90, W.SideGateHalfWidth
+	elseif area == "desert" then
+		-- #2651: the Desert's camp on its north end (toward the town), a half turn like the Park
+		ox, oz, turn, opening =
+			W.DesertCenterX, W.DesertCenterZ + W.DesertDepth / 2, 180, W.CampOpeningWidth / 2
+	elseif area == "ruins" then
+		-- #2651: the Ruins' camp on its south end (toward the town), no turn like the Neighbourhood
+		ox, oz, turn, opening =
+			W.RuinsCenterX, W.RuinsCenterZ - W.RuinsDepth / 2, 0, W.CampOpeningWidth / 2
 	else
 		return nil
 	end

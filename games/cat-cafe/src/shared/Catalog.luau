@@ -4638,12 +4638,14 @@ Catalog.products = {
 		prize = { potions = { steady_potion = 10 } },
 	},
 	-- #1625 (store-skus.md): R$99, once per account. Sprinkles, 10 Big Money, 5 Swift and the Bakery Stripes sign.
+	-- #2850 (Derek2): plus 5 Steady Paw and 2x money for good, like the 2x Money pass (the higher one counts).
 	{
 		id = "starter_bundle",
 		name = "Starter Bundle",
 		oncePerAccount = true,
 		prize = {
-			potions = { big_tip_potion = 10, swift_potion = 5 },
+			potions = { big_tip_potion = 10, swift_potion = 5, steady_potion = 5 },
+			moneyMultiplier = 2,
 			cats = { "sprinkles" },
 			signStyles = { "bakery_stripes" },
 		},

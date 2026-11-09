@@ -65,12 +65,12 @@ return function()
 				potion_pack_m = { big_tip_potion = 5, swift_potion = 3, steady_potion = 2 },
 				potion_pack_l = { big_tip_potion = 10, swift_potion = 6, steady_potion = 6 },
 				steady_paw_pack = { steady_potion = 10 }, -- #1168 row 8
-				starter_bundle = { big_tip_potion = 10, swift_potion = 5 }, -- #1625
+				starter_bundle = { big_tip_potion = 10, swift_potion = 5, steady_potion = 5 }, -- #1625, #2850
 				thank_you_badge = {}, -- #1168 row 4: a supporter mark only
 				cafe_pass = {}, -- #1626: everything comes from the paid track's levels
 			}
 			-- #1625: besides potions only the Starter Bundle's named cat and sign style, never anything random
-			local extras = { cats = true, signStyles = true }
+			local extras = { cats = true, signStyles = true, moneyMultiplier = true } -- #2850: a fixed 2x, not random
 			for _, product in Catalog.products do
 				expect(Config.ProductIds[product.id]).to.be.ok()
 				expect(product.prize.potions :: any).to.deepEqual(want[product.id])
@@ -159,7 +159,7 @@ return function()
 			expect(firstAgain).to.equal(false)
 			expect(#again.cats).to.equal(0)
 			expect(#again.signStyles).to.equal(0)
-			expect(again.potions :: any).to.deepEqual({ big_tip_potion = 10, swift_potion = 5 })
+			expect(again.potions :: any).to.deepEqual({ big_tip_potion = 10, swift_potion = 5, steady_potion = 5 })
 		end)
 
 		it("never marks a repeatable product bought", function()

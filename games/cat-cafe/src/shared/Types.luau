@@ -213,7 +213,14 @@ export type ProductDef = {
 	id: string,
 	name: string,
 	-- `cats` (shop-only cat ids) and `signStyles` (shared/SignStyles ids) are the Starter Bundle's (#1625)
-	prize: { potions: { [string]: number }, cats: { string }?, signStyles: { string }? },
+	-- `moneyMultiplier` (#2850): owning it (a oncePerAccount product in onceBought) multiplies all cafe income like
+	-- the Money pass; the highest of the two counts, never both (Economy.passMultiplier)
+	prize: {
+		potions: { [string]: number },
+		cats: { string }?,
+		signStyles: { string }?,
+		moneyMultiplier: number?,
+	},
 	-- #1625: sold once per account; a second receipt pays only the potions (Products.prizeFor)
 	oncePerAccount: boolean?,
 	-- #1626: unlocks the running Cafe Pass season's paid track (CafePass.buyPaid); once per season

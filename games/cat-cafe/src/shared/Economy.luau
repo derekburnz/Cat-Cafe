@@ -97,9 +97,20 @@ function Economy.tipMultiplier(profile: Types.PlayerProfile, now: number): numbe
 	return Potions.tipMultiplier(profile, now) + Economy.palBonus(profile)
 end
 
--- The Money pass multiplier on all cafe income, 1 without one.
+-- The Money pass multiplier on all cafe income, 1 without one. #2850: a bought once-per-account product with a
+-- prize.moneyMultiplier (the Starter Bundle's 2x) counts too; the highest one wins, they never stack.
 function Economy.passMultiplier(profile: Types.PlayerProfile): number
-	return math.max(1, Economy.passes(profile).money)
+	local best = math.max(1, Economy.passes(profile).money)
+	local once = profile.onceBought
+	if once ~= nil then
+		for _, product in Catalog.products do
+			local x = product.prize.moneyMultiplier
+			if x ~= nil and x > best and once[product.id] == true then
+				best = x
+			end
+		end
+	end
+	return best
 end
 
 -- #1624 (economy-ladder.md section 6a): what VIP, Cafe Style and Grand Cafe add into cafeMultiplier, 0 without them.

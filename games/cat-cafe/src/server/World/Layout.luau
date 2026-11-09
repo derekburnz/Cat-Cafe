@@ -126,6 +126,18 @@ Layout.setStuckPoses = {
 	tree = { 0.5, -0.55, 0, 0, 0, 1, 0, -1, 0, 1, 0, 0 }, -- hanging under the tree house branch, facing its tip
 	grate = { 0, 0.45, -0.57, -1, 0, 0, 0, 0, 1, 0, 1, 0 }, -- nose down through the grate, back end up
 	drain_pipe = { 0, 0.55, 0.5, -1, 0, 0, 0, 1, 0, 0, 0, -1 }, -- head first into the mouth (-Z side), back end out
+	-- Tier 6 and 7 (#2651), fitted on CatCafe_Desert_Set and CatCafe_Ruins_Set (2026-11-09).
+	-- nose first 60 degrees down into the sand in the ring's middle (+Z, away from the paw trail): the hips, back
+	-- legs and tail stick up out of it
+	sand_dune = { 0, -0.3, -0.3, -1, 0, 0, 0, 0.5, 0.866, 0, 0.866, -0.5 },
+	clay_urn = { -2.1, 0, 0, 0, 0, -1, 0, 1, 0, 1, 0, 0 }, -- head first into the tipped urn's mouth (-X), back end out
+	-- crawled head first under the fallen cloth (+Z), back end out over the hem at the open side
+	collapsed_canopy = { 0, 0, -1.9, -1, 0, 0, 0, 0.9063, 0.4226, 0, 0.4226, -0.9063 },
+	-- wedged head first into the pile through its gap (-Z), back end out between the blocks
+	rubble_pile = { 0, 0.1, -1.3, -1, 0, 0, 0, 0.9063, 0.4226, 0, 0.4226, -0.9063 },
+	stone_urn = { 0, 2.7, -0.6, -1, 0, 0, 0, 0, 1, 0, 1, 0 }, -- nose down into the upright urn, back end out of its mouth
+	-- on its back on the bridge stub, head hanging over the edge toward the gap (-Z)
+	bridge_ledge = { 0, 0.94, -0.45, -1, 0, 0, 0, -1, 0, 0, 0, 1 },
 } :: { [string]: { number } }
 
 local W = Config.World

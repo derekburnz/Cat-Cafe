@@ -66,13 +66,17 @@ return function()
 		it(
 			"moves the character while the body is in the clouds, before the feet touch down",
 			function()
-				expect(Config.CannonLaunchSeconds).to.be.near(4.0, 1e-12)
+				expect(Config.CannonLaunchSeconds).to.be.near(3.75, 1e-12)
 				expect(Config.CannonTeleportAtSeconds).to.be.near(2.6, 1e-12)
 				expect(Config.CannonCloudsAt < Config.CannonTeleportAtSeconds).to.equal(true)
 				expect(Config.CannonTeleportAtSeconds < Config.CannonTouchdownAt).to.equal(true)
 				expect(Config.CannonTouchdownAt < Config.CannonLaunchSeconds).to.equal(true)
 			end
 		)
+		it("lets the landed player move again soon after the feet touch (#2690)", function()
+			local held = Config.CannonLaunchSeconds - Config.CannonTouchdownAt
+			expect(held > 0 and held <= 0.3).to.equal(true)
+		end)
 	end)
 
 	-- #1205: every cannon turns to the pad it fires at, so the seat's look (WorldBuilder.cannonSeat: fireTurn +

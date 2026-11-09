@@ -57,8 +57,10 @@ type Cell = {
 	sub: TextLabel,
 }
 
-local CELL = Vector2.new(112, 134)
-local ICON = 76
+-- #2735 (Derek2: "see which decor images to make more clear/bigger since so many players are on mobile"): on touch
+-- a bigger picture in a wider, taller cell (96 px, about 65 on a phone, was about 50)
+local ICON = if Scale.isTouch() then 96 else 76
+local CELL = Vector2.new(112 + (ICON - 76), 134 + (ICON - 76))
 local CHIP_HEIGHT = 46
 -- #2675: a page tab is never narrower than this (design px), so "Neighbourhood" keeps a 9 px name on a phone; with
 -- more pages than fit, the row scrolls sideways

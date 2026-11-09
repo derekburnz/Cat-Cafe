@@ -16,12 +16,17 @@
 -- (Components/TutorialArrow, as a low target so a tutorial step keeps the arrow) points at it, until the player opens
 -- the rank up card (seen()). Once per ready state: it comes back only after the rank up stops being ready and is
 -- ready again, or for the next tier.
+-- #2714 (Derek2 11-09: "let you shrink down your goal so they have more screen space"): on touch a small ▸ tab at the
+-- card's left folds it into one finger-tall chip, "🏆 Grand Cafe 2/3" or a gold "🏆 Rank up!" (Components/GoalFold);
+-- a tap on the chip opens it again. The choice is the goalFolded setting, saved through `onFold`. The ready pulse and
+-- arrow stay on the chip.
 
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 
 local Create = require(script.Parent.Parent.Components.Create)
 local FitText = require(script.Parent.Parent.Components.FitText)
+local GoalFold = require(script.Parent.Parent.Components.GoalFold)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local RankUp = require(script.Parent.RankUp)
@@ -35,6 +40,8 @@ export type GoalCard = {
 	frame: TextButton,
 	render: (self: GoalCard, progress: RankUp.Progress?, tierText: string, nudge: string?) -> (),
 	nudging: (self: GoalCard) -> boolean, -- the card shows the nudge, so a tap should open the Index
+	setFolded: (self: GoalCard, folded: boolean) -> (), -- #2714: fold into the chip, or open again
+	folded: (self: GoalCard) -> boolean,
 	seen: (self: GoalCard) -> (), -- #2331: the rank up card opened, so the ready pulse and arrow stop
 	alerting: (self: GoalCard) -> boolean, -- #2331: the ready pulse and arrow are on
 	destroy: (self: GoalCard) -> (),
@@ -77,6 +84,7 @@ local ROWS = 3
 local SMALL_OUTLINE = 2 -- small text over the bright world needs a little more outline than in a window
 local ICON = 24 -- the nudge's Index icon
 local NUDGE_CAPTION = "Tap to see where in the Index"
+local FOLD_TAB = 26 -- #2714: the fold tab's width, sticking out at the card's left; its tap is a finger wide
 
 type Row = { frame: Frame, fill: Frame, label: TextLabel, status: TextLabel }
 
@@ -101,8 +109,16 @@ local function text(props: { [string]: any }): TextLabel
 	return label
 end
 
-function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): GoalCard
+function GoalCard.new(
+	parent: Instance,
+	position: UDim2,
+	onOpen: () -> (),
+	onFold: ((folded: boolean) -> ())?
+): GoalCard
 	local self = setmetatable({}, GoalCard) :: any
+	self._folded = false
+	self._onFold = onFold
+	self._last = nil :: { progress: RankUp.Progress?, tierText: string, nudge: string? }?
 
 	-- the whole block is the button
 	local frame: TextButton = Create("TextButton", {
@@ -261,15 +277,113 @@ function GoalCard.new(parent: Instance, position: UDim2, onOpen: () -> ()): Goal
 	self._rows = rows
 	self._ready = false
 
+	-- #2714: the fold tab on touch, a dark tab with "▸" just left of the card; its tap reaches a finger's 44 real px
+	-- without covering the card (the card's own tap opens the rank up)
+	local tap = Scale.tapHeight(Theme.sizes.touchMin)
+	local fold: TextButton = Create("TextButton", {
+		Name = "Fold",
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(0, -(PAD + 2) - 2, 0, -PAD),
+		Size = UDim2.fromOffset(tap, tap),
+		Visible = TOUCH,
+		Parent = frame,
+	})
+	local tab: TextLabel = Create("TextLabel", {
+		Name = "Tab",
+		BackgroundColor3 = Theme.colors.outline,
+		BackgroundTransparency = CARD_TRANSPARENCY,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, 0, 0, 6),
+		Size = UDim2.fromOffset(FOLD_TAB, 36),
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.white,
+		Text = "▸",
+		Parent = fold,
+	}, { Create("UICorner", { CornerRadius = UDim.new(0, 8) }) })
+	Outline.border(tab, 1.5, Theme.colors.gold)
+	self._fold = fold
+	self._foldConnection = fold.Activated:Connect(function()
+		self:_toggleFold(true)
+	end)
+
 	self._connection = frame.Activated:Connect(function()
+		if self._folded then
+			self:_toggleFold(false) -- the chip opens again; the next tap opens the rank up
+			return
+		end
 		onOpen()
 	end)
 	return self :: GoalCard
 end
 
+-- #2714: a press on the tab or the chip: fold or open, re-render, and save the choice
+function GoalCard._toggleFold(self: any, folded: boolean)
+	self:setFolded(folded)
+	local save: ((folded: boolean) -> ())? = self._onFold
+	if save then
+		save(folded)
+	end
+end
+
+function GoalCard.setFolded(self: any, folded: boolean)
+	folded = folded and TOUCH
+	if folded == self._folded then
+		return
+	end
+	self._folded = folded
+	local last = self._last
+	if last then
+		self:render(last.progress, last.tierText, last.nudge)
+	end
+end
+
+function GoalCard.folded(self: any): boolean
+	return self._folded == true
+end
+
+-- #2714: the chip, one finger-tall line; the ready pulse and arrow carry on round it
+function GoalCard._renderFolded(self: any, progress: RankUp.Progress?, nudge: string?)
+	local words, gold = GoalFold.chip(progress :: any, nudge)
+	self._tier.Visible = false
+	self._goalLine.Visible = false
+	self._icon.Visible = false
+	self._caption.Visible = false
+	self._badge.Visible = false
+	self._fold.Visible = false
+	for _, row in self._rows do
+		row.frame.Visible = false
+	end
+	local height = Scale.tapHeight(TITLE_H + PAD * 2)
+	self._title.Visible = true
+	self._title.Text = words
+	self._title.TextColor3 = if gold then Theme.colors.gold else Theme.hud.text
+	self._title.Position = UDim2.fromOffset(0, (height - PAD * 2 - TITLE_H) / 2)
+	self._title.Size = UDim2.new(1, 0, 0, TITLE_H)
+	self.frame.Size = UDim2.fromOffset(WIDTH, height)
+	local ready = progress ~= nil and progress.ready
+	self._ready = ready
+	local nextTier = if progress then progress.nextTier else nil
+	local key = if ready and nextTier then tostring(nextTier.name) else nil
+	if key == nil then
+		self._seenKey = nil
+	end
+	self:_alert(if key ~= nil and key ~= self._seenKey then key else nil)
+end
+
 -- progress nil (no tiers in the catalog yet) shows tierText alone.
 function GoalCard.render(self: any, progress: RankUp.Progress?, tierText: string, nudge: string?)
 	self.frame.Visible = true
+	self._last = { progress = progress, tierText = tierText, nudge = nudge }
+	if self._folded then
+		self:_renderFolded(progress, nudge)
+		return
+	end
+	self._fold.Visible = TOUCH
 	self._tier.Text = tierText
 	local ready = progress ~= nil and progress.ready
 	local nudging = nudge ~= nil and not ready -- a ready rank up still comes first
@@ -391,6 +505,7 @@ end
 function GoalCard.destroy(self: any)
 	self:_alert(nil)
 	self._connection:Disconnect()
+	self._foldConnection:Disconnect()
 	self.frame:Destroy()
 end
 

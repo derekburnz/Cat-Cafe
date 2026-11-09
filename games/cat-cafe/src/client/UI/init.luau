@@ -743,6 +743,15 @@ function UI.init(config: Types.InitConfig)
 	end
 	hud = HUD.new(parent, {
 		openScreen = function(name: Types.ScreenName)
+			-- #2710: on touch the Bag holds the potions, so the potion chip (and the Bag) open it on its Potions tab
+			if
+				name == "Potions"
+				and potionsScreen
+				and Scale.isTouch()
+				and modalInstance:current() ~= name
+			then
+				potionsScreen:showTab("Potions")
+			end
 			modalInstance:toggle(name)
 			if name == "Store" and modalInstance:current() ~= "Store" then
 				-- #1888: the tap closed the Store, so a noted source tags no open
@@ -1459,7 +1468,7 @@ function UI.init(config: Types.InitConfig)
 		end,
 	})
 	carryMarker = WorldMarker.new(parent, "CatCafeCarryMarker")
-	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker")
+	tutorialMarker = WorldMarker.new(parent, "CatCafeTutorialMarker", nil, true) -- #2697: flashes its target
 	-- the Cat Whistle (corner-shop-v2.md section 4): a paw over the nearest stray while its buff runs
 	CatWhistle.new(
 		WorldMarker.new(parent, "CatCafeWhistleMarker", CatWhistle.REACH),
@@ -4750,18 +4759,9 @@ do
 
 	local function hintFor(s: any, device: TipQueue.Device): string?
 		local catalog = currentCatalog
-		local levels: { [string]: number } = s.upgradeLevels or {}
-		return TutorialHints.line({
-			step = s.tutorialStep or TutorialHints.DONE,
-			device = device,
-			resting = TutorialHints.resting(
-				s.cats,
-				if catalog then catalog.spots else nil,
-				s.tier or 1
-			),
-			bowl = (levels.lure_bowl or 0) >= 1,
-			baited = s.bait ~= nil,
-		})
+		return TutorialHints.line(
+			TutorialHints.view(s, if catalog then catalog.spots else nil, device)
+		)
 	end
 
 	-- UIController's tutorialLine: the strip's words for this state on the input the player used last, or nil from

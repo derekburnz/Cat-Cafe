@@ -2,12 +2,13 @@
 -- Mythical cafe styles and decor (F53, golden-fish.md section 4): each of the six Mythical crate pieces has its own
 -- bit of magic while it is in use. Midnight Sky's stars twinkle on the cafe's inside walls and a moon drifts along
 -- the back wall; Aurora Sky's northern lights sway there instead; Glimmer Canal's floor shimmers with light moving
--- under the glass and a glint now and then; Rainbow Shimmer runs a slow rainbow over the cafe front and Gold Leaf
--- sends glints over it, both seen from the street; the Blossom Tree drops petals. Which piece gets what is
--- Presets.decor by decor id. Gold Leaf's real gold trims (F89 2c, luck-and-rare-moments.md: Model-Agent's `_Trim`
--- parts tagged PaintTrim) catch a glint that sweeps across them every 5 s and glow softly at night with a few warm
--- lights (goldTrims); a cafe without them yet gets a sheen over its front instead. The Grand Cafe theme (#1624, the
--- plot's `Theme` "grand") gives its gold trims the same sweep and night glow, unless a Gold Leaf paint already does.
+-- under the glass and a glint now and then; Rainbow Shimmer runs a rainbow over the cafe front with a white glint
+-- and rainbow sparkles (#2734) and Gold Leaf sends glints over it, both seen from the street; the Blossom Tree drops
+-- petals. Which piece gets what is Presets.decor by decor id. Gold Leaf's real gold trims (F89 2c,
+-- luck-and-rare-moments.md: Model-Agent's `_Trim` parts tagged PaintTrim) catch a glint that sweeps across them every
+-- 5 s and glow softly at night with a few warm lights (goldTrims); a cafe without them yet gets a sheen over its
+-- front instead. The Grand Cafe theme (#1624, the plot's `Theme` "grand") gives its gold trims the same sweep and
+-- night glow, unless a Gold Leaf paint already does.
 --
 -- Sources: each Plot's Wallpaper, Floor and Paint attributes (the style in use, which StyleController paints on the
 -- plot's parts with the same tag) and placed pieces carrying DecorId. Walls, floor and front are measured from those
@@ -39,7 +40,7 @@ type Piece = {
 	plot: Model,
 	decorId: string,
 	spec: Presets.DecorSpec,
-	model: Model?, -- a placed piece (the Blossom Tree)
+	model: Model?, -- a placed piece (the Blossom Tree, the Legendary furniture and decorations)
 	mode: Mode?, -- what is built now; nil until its walls, floor or front have streamed in
 	made: { Instance },
 	tweens: { Tween },
@@ -512,17 +513,23 @@ local function rainbow(piece: Piece, gui: SurfaceGui, mode: Mode)
 end
 
 -- Gold Leaf's sheen: a light band sweeping over the front, on the sheet only part of each crossing, in "full".
-local function sheen(piece: Piece, gui: SurfaceGui)
+-- Rainbow Shimmer's glint (#2734) is the same sweep in white, `width` wide and `shown`, every `seconds`.
+type Glint = { width: number, shown: number, seconds: number }
+local function sheen(piece: Piece, gui: SurfaceGui, glint: Glint?)
 	local s = Presets.decorFx.sheen
+	local edge = if glint ~= nil then palette.offwhite else palette.goldLight
+	local width = if glint ~= nil then glint.width else s.width
+	local shown = if glint ~= nil then glint.shown else s.shown
+	local seconds = if glint ~= nil then glint.seconds else s.seconds
 	local band = shape(gui, {
 		Name = "Sheen",
 		Position = UDim2.fromScale(-1.5, 0.5),
-		Size = UDim2.fromScale(s.width, 1.6),
+		Size = UDim2.fromScale(width, 1.6),
 		Rotation = s.tilt,
-		BackgroundColor3 = palette.goldLight,
+		BackgroundColor3 = edge,
 	})
-	softBand(band, { palette.goldLight, palette.offwhite, palette.goldLight }, s.shown, 0)
-	drift(piece, band, -1.5, 2.5, -1.5, s.seconds)
+	softBand(band, { edge, palette.offwhite, edge }, shown, 0)
+	drift(piece, band, -1.5, 2.5, -1.5, seconds)
 end
 
 -- Gold Leaf's real gold trims (F89 2c) -----------------------------------------------------------------------------
@@ -736,6 +743,16 @@ local function build(piece: Piece, mode: Mode): boolean
 				fx.rainbow.light
 			)
 			rainbow(piece, gui, mode)
+			if mode == "full" then
+				sheen(piece, gui, fx.rainbow.glint)
+			end
+			if mode ~= "still" then
+				sprayer(
+					piece,
+					front.frame * CFrame.new(0, 0, -0.15),
+					Vector3.new(front.width, front.height, 0.2)
+				)
+			end
 		elseif mode ~= "still" then
 			-- Gold Leaf's still look is the foil itself. Its real gold trims glint and glow (goldTrims); a cafe
 			-- without them yet gets a sheen over the front instead.
@@ -770,6 +787,21 @@ local function build(piece: Piece, mode: Mode): boolean
 			local at, size = canopyOf(model)
 			local pad = fx.petalPad
 			sprayer(piece, at, Vector3.new(size.X * pad, 0.2, size.Z * pad))
+		end
+		return true
+	elseif look == "sparkle" then
+		-- #2734: a Legendary piece's few gold glints, over the upper part of the piece. No still look.
+		local model = piece.model
+		if model == nil or model.Parent == nil then
+			return false
+		end
+		if mode ~= "still" then
+			local frame, size = model:GetBoundingBox()
+			sprayer(
+				piece,
+				frame * CFrame.new(0, size.Y * 0.15, 0),
+				Vector3.new(size.X * 0.8, size.Y * 0.6, size.Z * 0.8)
+			)
 		end
 		return true
 	elseif look == "grandTrims" then
@@ -892,8 +924,14 @@ local function choose()
 	for model, piece in placed do
 		add(piece, model:GetPivot().Position)
 	end
+	-- The Mythical pieces first; a Legendary piece (`spare`, #2734) moves only in a slot none of them wants.
+	local first: { Logic.Candidate<Piece> } = {}
+	local spare: { Logic.Candidate<Piece> } = {}
+	for _, candidate in candidates do
+		table.insert(if candidate.key.spec.spare then spare else first, candidate)
+	end
 	local chosen: { [Piece]: boolean } = {}
-	local picked = Logic.nearest(candidates, budget.ambientRadius, budget.decorEffects)
+	local picked = Logic.nearestFirst(first, spare, budget.ambientRadius, budget.decorEffects)
 	for _, piece in picked do
 		chosen[piece] = true
 	end

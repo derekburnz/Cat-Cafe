@@ -53,6 +53,7 @@ local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
 local GiftLogic = require(script.Parent.Parent.Components.GiftLogic)
 local GoalCard = require(script.Parent.GoalCard)
+local GoalFold = require(script.Parent.Parent.Components.GoalFold)
 local HudUnlocks = require(script.Parent.Parent.Components.HudUnlocks)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
 local IndexHints = require(script.Parent.Parent.Components.IndexHints)
@@ -77,6 +78,7 @@ local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Signal = require(script.Parent.Parent.Components.Signal)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
+local StepTarget = require(script.Parent.Parent.Components.StepTarget)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
@@ -486,6 +488,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._cannonMode = false -- F84: Cannon in place of Areas, no Alley button, the carry banner points at the camp
 	-- red dots on the menu tiles: keys seen when each screen was last open (Notices)
 	self._dots = {} :: { [string]: Frame }
+	self._stepTiles = {} :: { [string]: any } -- #2697: the Cats and Bowl tiles, by name
 	self._seen = { Upgrades = {}, Decor = {} } :: { [string]: { [string]: boolean } }
 	self._candidates = nil :: Notices.Candidates?
 	self._indexReady = 0 -- Index rewards waiting to be claimed (F48)
@@ -1258,8 +1261,17 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			return
 		end
 		callbacks.openScreen("RankUp")
+	end, function(folded: boolean)
+		-- #2714: the card folded into its chip or opened again, saved as the goalFolded setting
+		self._goalFolded = folded
+		local save = callbacks.setSetting
+		if save then
+			save(GoalFold.SETTING, folded)
+		end
+		self:_layoutRight()
 	end)
 	self._goalArea = nil :: string?
+	self._goalFolded = nil :: boolean?
 	-- #1893 (first-hour.md 1b): the Grand Opening strip just under the goal card; a tap opens or closes its steps,
 	-- saved as the roadmapOpen setting
 	self._roadmap = Roadmap.new(root, UDim2.new(1, -MARGIN, 0, GOAL_TOP), function(open: boolean)
@@ -1510,6 +1522,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end
 		if item.name == "Upgrades" then
 			self._upgradesTile = button -- #1796: glows while a tutorial step asks for an upgrade
+		elseif item.name == "Cats" or item.name == "Bowl" then
+			self._stepTiles[item.name] = button -- #2697: ring while the step asks for a job, or food in the bowl
 		end
 		if item.name == "Store" then
 			button.instance.Visible = false -- until setStore hands it a window to open
@@ -1705,6 +1719,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	})
 	table.insert(self._buttons, potions)
 	self._potionsTile = potions
+	potions.instance.Visible = not TOUCH -- #2710: the Bag holds the potions on touch (_applyUnlocks)
 	if showKeys then
 		keycap(potions.face, "P", UDim2.fromOffset(-4, -4))
 	end
@@ -2527,6 +2542,11 @@ function HUD.render(self: any, state: Types.PlayerState)
 		self._upgradesTile.face,
 		TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
 	)
+	-- #2697: the Cats tile while the step asks for a job, the Bowl tile while it asks for food in the bowl
+	local asks =
+		TutorialHints.ask(TutorialHints.view(state, if catalog then catalog.spots else nil))
+	StepTarget.ui(self._stepTiles.Cats and self._stepTiles.Cats.face, asks == "job")
+	StepTarget.ui(self._stepTiles.Bowl and self._stepTiles.Bowl.face, asks == "food")
 	-- F102: the Trade tile from the live minimum tier, with the rest of the full HUD, once TradeService runs (it sets
 	-- the Workspace's TradingOn; while that is false the window says trading is resting)
 	-- #2462: shown greyed below the minimum tier, so new players see what Tier 3 brings
@@ -2582,6 +2602,16 @@ function HUD.render(self: any, state: Types.PlayerState)
 	-- #1919: "Find N more cats" while the Grand Opening's twelve cats step is next
 	local nudge = if catalog then IndexHints.nudge(catalog, state) else nil
 	self._goalArea = if nudge then nudge.area else nil
+	-- #2714: folded as the goalFolded setting says, once it first arrives
+	local saved: any = state.settings
+	if
+		self._goalFolded == nil
+		and type(saved) == "table"
+		and type(saved[GoalFold.SETTING]) == "boolean"
+	then
+		self._goalFolded = saved[GoalFold.SETTING]
+		self._goal:setFolded(saved[GoalFold.SETTING])
+	end
 	self._goal:render(
 		tierProgress,
 		Format.tier(state.tier, if catalog then catalog.tiers else nil),
@@ -2655,7 +2685,9 @@ function HUD._applyUnlocks(self: any)
 	self._questsPill.instance.Visible = self._questsLive == true and self:_open("quests")
 	self:_renderRewards()
 	self._feedbackTile.instance.Visible = self:_open("feedback")
-	self._potionsTile.instance.Visible = self:_open("potions")
+	-- #2710 (Derek2: "maybe just move potions to bag for mobile and remove that button entirely"): on touch the Bag
+	-- pill holds the potions (its Potions tab), and the one potion chip takes the tile's place while any run
+	self._potionsTile.instance.Visible = self:_open("potions") and not TOUCH
 	self:_closePop() -- a list made under the old unlocks may hold a row that is gone
 	self._travelButtons.areas.instance.Visible = not self._cannonMode and self:_open("areas")
 	self:_sizeTravelRow()
@@ -2692,7 +2724,9 @@ function HUD._unlockTarget(self: any, key: HudUnlocks.Key): (GuiObject?, boolean
 				elseif key == "gifts" or key == "daily" then self._rewards
 				elseif key == "feedback" then self._feedbackTile
 				elseif key == "invite" then self._menuTile
-				elseif key == "potions" then self._potionsTile
+				elseif key == "potions" then (if TOUCH
+					then self._pills.Bag
+					else self._potionsTile) -- #2710
 				elseif key == "areas" then self._travelButtons.areas
 				else nil
 		)

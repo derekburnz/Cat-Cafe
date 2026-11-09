@@ -11,9 +11,9 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "show | add | test (5 minutes, starting in about 2) | remove (by id) | clear (empty the schedule) | roblox (list the Creator Hub Experience Events, read only)"
+        description: "show | add | test (5 minutes, starting in about 2) | remove (by id) | clear (empty the schedule) | roblox (list the Experience Events, the Notify Me cards) | roblox-create | roblox-update (by event id)"
         type: choice
-        options: [show, add, test, remove, clear, roblox]
+        options: [show, add, test, remove, clear, roblox, roblox-create, roblox-update]
         default: show
       store:
         description: "live (CatCafe_Events) or dev (CatCafe_Events_dev, what Studio reads)"
@@ -21,15 +21,15 @@ on:
         options: [live, dev]
         default: live
       id:
-        description: "add and remove: 1 to 32 of a-z, 0-9, - and _, for example party-1121"
+        description: "add and remove: 1 to 32 of a-z, 0-9, - and _, for example party-1121. roblox-update: the event id roblox lists"
         required: false
         default: ""
       title:
-        description: "add: what players see, 1 to 24 characters"
+        description: "add: what players see, 1 to 24 characters. roblox-create and roblox-update: the card title"
         required: false
         default: ""
       start:
-        description: "add: the start in UTC, YYYY-MM-DD HH:MM"
+        description: "add, roblox-create and roblox-update: the start in UTC, YYYY-MM-DD HH:MM"
         required: false
         default: ""
       minutes:
@@ -40,6 +40,10 @@ on:
         description: "add: a big event (6 days apart, needs 3 hours of countdown)"
         type: boolean
         default: false
+      event:
+        description: 'roblox-create and roblox-update: JSON, every part optional, {"subtitle":"","description":"","end":"YYYY-MM-DD HH:MM","category":"","image":"asset id"}'
+        required: false
+        default: ""
       effects:
         description: 'add and test: JSON, every part optional, e.g. {"days":["lucky","golden"],"money":2,"luck":0.5}'
         required: false
@@ -71,6 +75,7 @@ jobs:
       MINUTES: ${{ inputs.minutes }}
       BIG: ${{ inputs.big }}
       EFFECTS: ${{ inputs.effects }}
+      EVENT: ${{ inputs.event }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -100,4 +105,14 @@ jobs:
           remove) bash "$script" remove "$ID" ;;
           clear) bash "$script" clear ;;
           roblox) bash "$script" roblox ;;
+          roblox-create | roblox-update)
+            field() { jq -r --arg k "$1" '.[$k] // "" | tostring' <<<"${EVENT:-}"; }
+            [ -z "$EVENT" ] || jq -e 'type == "object"' <<<"$EVENT" >/dev/null || { echo "::error::event must be a JSON object"; exit 1; }
+            rest=("$(field subtitle)" "$(field description)" "$START" "$(field end)" "$(field category)" "$(field image)")
+            if [ "$ACTION" = roblox-create ]; then
+              bash "$script" roblox-create "$TITLE" "${rest[@]}"
+            else
+              bash "$script" roblox-update "$ID" "$TITLE" "${rest[@]}"
+            fi
+            ;;
           esac

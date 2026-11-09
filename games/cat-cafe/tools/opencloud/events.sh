@@ -17,6 +17,13 @@
 #         events.sh clear                     an empty schedule: no event runs or counts down
 #         events.sh roblox                    list the experience's Roblox Experience Events (Creator Hub > Engagement >
 #                                             Events & Updates; Open Cloud game-events, needs universe.event:read)
+#         events.sh roblox-create <title> <subtitle> <description> <start> <end> [category] [image asset id]
+#                                             create a public Experience Event (the "Notify Me" card on the game page);
+#                                             start and end "YYYY-MM-DD HH:MM" UTC; needs universe.event:write
+#         events.sh roblox-update <event id> [title] [subtitle] [description] [start] [end] [category] [image id]
+#                                             change only the fields given (empty ones are left as they are)
+# Keys: the workflow passes OWNER_KEY (the group owner's key, full scope, Derek2 2026-11-09) when it is set, else
+# ROBLOX_PUBLISH_KEY. When a call answers 401 or 403 with the publish key, try again with OWNER_KEY.
 # effects, every part optional (left out: no boost), for example
 #   {"days":["lucky","golden","rainbow"],"money":2,"luck":0.5,"showers":{"count":8,"gapSeconds":900,"firstAfter":600},
 #    "reward":{"cosmeticId":"Decor_PartyBunting"}}
@@ -60,7 +67,7 @@ BIG_GAP=$(cap EventBigMinGapSeconds 518400)
 LIST_MAX=$(cap EventScheduleMax 10)
 
 usage() {
-	echo 'usage: events.sh show | roblox | add <id> <title> <"YYYY-MM-DD HH:MM" UTC> <minutes> [big] [effects JSON] | test [effects JSON] | remove <id> | clear' >&2
+	echo 'usage: events.sh show | roblox | roblox-create <title> <subtitle> <description> <start> <end> [category] [image id] | roblox-update <event id> [title] [subtitle] [description] [start] [end] [category] [image id] | add <id> <title> <"YYYY-MM-DD HH:MM" UTC> <minutes> [big] [effects JSON] | test [effects JSON] | remove <id> | clear' >&2
 	exit 2
 }
 
@@ -232,6 +239,41 @@ roblox() {
 		else $l[] | "\(.id // .path // "?") \"\(.title // .displayTitle // "")\" \(.startTime // .eventTime.startTime // "?") to \(.endTime // .eventTime.endTime // "?"), \(.visibility // .eventVisibility // "?"), \(.status // .eventStatus // "")" end' <<<"$body"
 }
 
+# iso "YYYY-MM-DD HH:MM" (UTC) -> 2026-11-09T23:00:00.000Z, refusing anything else
+iso() {
+	[[ $1 =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}[T\ ][0-9]{2}:[0-9]{2}Z?$ ]] || refuse "times must be \"YYYY-MM-DD HH:MM\" in UTC, got: $1"
+	date -u -d "${1/T/ } UTC" +%Y-%m-%dT%H:%M:00.000Z 2>/dev/null || refuse "not a real date: $1"
+}
+
+# event_body title subtitle description start end category image -> the JSON fields that are not empty
+event_body() {
+	local start='' end='' sec
+	[ -z "$4" ] || start=$(iso "$4")
+	[ -z "$5" ] || end=$(iso "$5")
+	if [ -n "$start" ] && [ -n "$end" ]; then
+		sec=$(($(date -u -d "$end" +%s) - $(date -u -d "$start" +%s)))
+		[ "$sec" -gt 0 ] || refuse "the end must be after the start"
+	fi
+	[ -z "$7" ] || [[ $7 =~ ^[0-9]{1,20}$ ]] || refuse "the image must be an asset id (digits), got: $7"
+	jq -cn --arg title "$1" --arg sub "$2" --arg desc "$3" --arg start "$start" --arg end "$end" --arg cat "$6" \
+		--arg img "$7" '{}
+		+ (if $title != "" then {title: $title} else {} end)
+		+ (if $sub != "" then {subtitle: $sub} else {} end)
+		+ (if $desc != "" then {description: $desc} else {} end)
+		+ (if $start != "" then {startTime: $start} else {} end)
+		+ (if $end != "" then {endTime: $end} else {} end)
+		+ (if $cat != "" then {categories: [{category: $cat, rank: 0}]} else {} end)
+		+ (if $img != "" then {thumbnails: [{mediaId: $img, rank: 0}]} else {} end)'
+}
+
+event_fail() {
+	echo "Open Cloud answered HTTP $status: $body" >&2
+	case "$status" in
+	401 | 403) echo "The key needs universe.event:write on universe $UNIVERSE_ID; OWNER_KEY has it." >&2 ;;
+	esac
+	exit 1
+}
+
 action=${1:-show}
 case "$action" in
 show)
@@ -239,6 +281,31 @@ show)
 	;;
 roblox)
 	[ $# -le 1 ] || usage
+	roblox
+	exit 0
+	;;
+roblox-create)
+	[ $# -ge 6 ] && [ $# -le 8 ] || usage
+	[ -n "$2" ] && [ -n "$3" ] || refuse "title and subtitle are required"
+	data=$(event_body "$2" "$3" "$4" "$5" "$6" "${7:-}" "${8:-}")
+	data=$(jq -c --argjson place "${PLACE_ID:-119569792798199}" '. + {visibility: "Public", placeId: ($place | tostring)}' <<<"$data")
+	echo "Creating: $data"
+	call POST "https://apis.roblox.com/virtual-events/v3/universes/$UNIVERSE_ID/game-events" \
+		-H 'Content-Type: application/json' --data "$data"
+	case "$status" in 2??) ;; *) event_fail ;; esac
+	echo "== Created (HTTP $status): $(jq -c '{id, title, startTime, endTime, visibility}' <<<"$body" 2>/dev/null || echo "$body")"
+	roblox
+	exit 0
+	;;
+roblox-update)
+	[ $# -ge 2 ] && [ $# -le 9 ] || usage
+	[[ $2 =~ ^[0-9A-Za-z_-]{1,64}$ ]] || refuse "event id must be the id that roblox lists, got: $2"
+	data=$(event_body "${3:-}" "${4:-}" "${5:-}" "${6:-}" "${7:-}" "${8:-}" "${9:-}")
+	[ "$data" != '{}' ] || refuse "nothing to change: give at least one field"
+	echo "Updating $2: $data"
+	call PATCH "https://apis.roblox.com/virtual-events/v3/game-events/$2" -H 'Content-Type: application/json' --data "$data"
+	case "$status" in 2??) ;; *) event_fail ;; esac
+	echo "== Updated (HTTP $status)"
 	roblox
 	exit 0
 	;;

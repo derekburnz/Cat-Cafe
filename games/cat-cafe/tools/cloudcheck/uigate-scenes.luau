@@ -1730,7 +1730,7 @@ local SCENES = {
 			count += if d.Name == "CatCafeRateTag" then 1 else 0
 		end
 		assert(count == 1, "uigate: the resting cat has " .. count .. " tags (#2868)")
-		assert(work.Size.X.Scale <= 1.6 + 1e-6 and work.Size.X.Offset <= 24, "uigate: the rate tag is not smaller (#2868)")
+		assert(work.Size.X.Scale <= 1.6 + 1e-6 and work.Size.X.Offset >= 30, "uigate: the rate tag is not smaller in studs, or lost its #2551 pixel floor (#2868)")
 		tags:setRates(false)
 		assert(not rest.Enabled and not work.Enabled, "uigate: the Cat income switch left a tag on (#2868)")
 		tags:destroy()

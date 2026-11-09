@@ -53,9 +53,10 @@ local MAX_DISTANCE = 40 -- world-and-feel section 4: the order and making bubble
 local RATE_DISTANCE = 70 -- #2551: the rate tags within 70 studs (40 before), the whole cafe from its door
 -- #2784 (Derek2 11-09: "scale the text size down to at least half of current for yours and other peoples"): half
 -- the size they were in studs (4 x 1.1, a 0.7 stud name line); the #2551 pixel floor stays, so far ones still read
--- #2868: a fifth smaller again (2 x 0.55 studs with a 0.35 name line and a 30 x 14 pixel floor before)
+-- #2868: a fifth smaller again in studs (2 x 0.55 with a 0.35 name line before); the #2551 pixel floor stays, so far
+-- ones do not drop under readable text
 local RATE_SIZE = Vector2.new(1.6, 0.44) -- studs
-local RATE_MIN = Vector2.new(24, 11) -- #2551: pixels on top of the studs, so a far tag stays readable
+local RATE_MIN = Vector2.new(30, 14) -- #2551: pixels on top of the studs, so a far tag stays readable
 local NAME_HEIGHT = 0.28 -- studs, the name line over the rate
 local RESTING = "💤 Resting" -- #2868: the line under a resting cat's name
 local PLOT_TAG = "Plot"

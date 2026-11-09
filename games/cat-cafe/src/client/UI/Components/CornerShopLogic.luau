@@ -11,6 +11,8 @@
 --   effect(row)                   what the row does, in a line
 --   catsByLevel(cats)             the snack's cat picker, highest level first
 --   sections(items)               #1599: the stock grouped under "Potions", "Cat food" and "Bait" headers
+--   stateFromView(stock)          #2593: the saved shop state as far as CornerShopStock shows it
+--   buyAll(stock, kind, tier, coins, held)  #2593: a section's Buy all plan and its card's words (shared planAll)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -208,6 +210,88 @@ function CornerShopLogic.catsByLevel(
 		return a.uid < b.uid
 	end)
 	return out
+end
+
+-- #2593: the shop state planAll needs, rebuilt from what CornerShopStock shows: each row's bought, and today's count
+-- from `leftToday` when the server sends it, else the whole limit for a row that is out today (`outToday`) and 0 for
+-- the rest (the server then stops at the limit and the card may have said one more).
+function CornerShopLogic.stateFromView(
+	stock: SharedTypes.CornerShopStock
+): SharedTypes.CornerShopState
+	local bought: { [string]: number } = {}
+	local today: { [string]: number } = {}
+	for _, item in stock.stock do
+		bought[item.itemId] = item.bought or 0
+		local row = Catalog.cornerShopById[item.itemId]
+		local limit = if row then CornerShop.perDay(row.family) else nil
+		local leftToday: number? = (item :: any).leftToday
+		if limit ~= nil and type(leftToday) == "number" then
+			today[item.itemId] = math.max(0, limit - leftToday)
+		elseif limit ~= nil and item.outToday then
+			today[item.itemId] = limit
+		end
+	end
+	return {
+		window = stock.window,
+		bought = bought,
+		day = 0,
+		today = today,
+		foodXpToday = stock.snackXp or 0,
+	}
+end
+
+export type BuyAll = {
+	count: number, -- items it buys
+	of: number, -- items the section has for this player with no coin limit (the tier, stock, daily limits, Bag)
+	total: number,
+	after: number,
+	list: string, -- "2 Money Potion · 1 Lucky Potion", best first
+	partial: string?, -- "You can afford 3 of 5. The best go first." when coins stop it short
+}
+
+local function units(plan: { CornerShop.PlanItem }): number
+	local n = 0
+	for _, item in plan do
+		n += item.count
+	end
+	return n
+end
+
+-- #2593: what Buy all on the `kind` section ("potion", "food" or "bait") takes for `coins`, or nil when nothing fits.
+-- The same CornerShop.planAll the server runs (BuyCornerShopAll), so the card shows what it buys.
+function CornerShopLogic.buyAll(
+	stock: SharedTypes.CornerShopStock?,
+	kind: string,
+	tier: number,
+	coins: number,
+	held: CornerShop.Held
+): BuyAll?
+	if stock == nil then
+		return nil
+	end
+	local state = CornerShopLogic.stateFromView(stock)
+	local plan, total = CornerShop.planAll(state, stock.window, kind, tier, coins, held)
+	local count = units(plan)
+	if count == 0 then
+		return nil
+	end
+	local all = units((CornerShop.planAll(state, stock.window, kind, tier, math.huge, held)))
+	local parts: { string } = {}
+	for _, item in plan do
+		local row = Catalog.cornerShopById[item.itemId]
+		table.insert(parts, ("%d %s"):format(item.count, if row then row.name else item.itemId))
+	end
+	local of = math.max(all, count)
+	return {
+		count = count,
+		of = of,
+		total = total,
+		after = math.max(0, coins - total),
+		list = table.concat(parts, " · "),
+		partial = if count < of
+			then ("You can afford %d of %d. The best go first."):format(count, of)
+			else nil,
+	}
 end
 
 return CornerShopLogic

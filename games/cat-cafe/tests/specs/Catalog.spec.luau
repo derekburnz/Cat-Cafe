@@ -656,14 +656,14 @@ return function()
 		-- tier -> { name, cost, distinctCats, needsRarity, needsRarityCount, slots, multiplier, area, caps }
 		local expected: { { any } } = {
 			{ "Corner Cafe", 0, 0, nil, nil, 2, 1.00, "alley", { 2, 2, 1 } },
-			{ "Cozy Cafe", 30000, 5, nil, nil, 4, 1.25, "park", { 5, 4, 2 } }, -- #1896: Tables 5 and Espresso 4
+			{ "Cozy Cafe", 22000, 5, nil, nil, 4, 1.25, "park", { 5, 4, 2 } }, -- #1896: Tables 5 and Espresso 4
 			-- economy-ladder.md section 3 v3.1 (#1452, more wild cats; #1499 Tier 2 30,000): 30,000, 700,000, 60M and 2B;
 			-- #1896 (first-hour.md 4): Tier 3 900,000
-			{ "Busy Cafe", 1240000, 13, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
-			{ "Famous Cafe", 48000000, 25, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 3 } },
-			{ "Grand Cafe", 2300000000, 33, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
+			{ "Busy Cafe", 600000, 11, "Epic", 1, 6, 1.50, "neighbourhood", { 6, 4, 3 } },
+			{ "Famous Cafe", 24000000, 22, "Mythical", 1, 8, 1.75, "woods", { 6, 5, 3 } },
+			{ "Grand Cafe", 700000000, 28, "Legendary", 2, 10, 2.00, "sewer", { 6, 5, 3 } },
 			-- #2651 (tier6-7-areas.md sections 1 and 7b), QA-Planner's Pace fit
-			{ "Sunstone Cafe", 9000000000, 42, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
+			{ "Sunstone Cafe", 8000000000, 42, "Mythical", 2, 12, 2.25, "desert", { 6, 6, 3 } },
 			{ "Wonder Cafe", 60000000000, 52, "Mythical", 3, 14, 2.50, "ruins", { 6, 7, 3 } },
 		}
 

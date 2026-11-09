@@ -20,6 +20,10 @@ IntroLogic.BAR = 0.09 -- each letterbox bar's share of the screen height
 -- the bottom just takes up a lot of space that could be camera"): on touch there is no lower bar; Skip and Next sit
 -- this far over the bottom edge instead (clear of a phone's home bar), and the caption just over them
 IntroLogic.NO_BAR_EDGE = 24
+-- #2702 (Derek2 11-09: "fix the black bar on the top of screen for mobile so it just shows the dots of what scene we
+-- are on"): on touch there is no top bar either; the shot dots sit this far under the top edge (their centre, design
+-- px), outlined so they read over the world
+IntroLogic.DOTS_TOP = 18
 IntroLogic.OUT_SECONDS = 0.45 -- the bars slide out this long at the end while the HUD comes back
 -- Skip's bar fills this long into a first play before a press counts (Derek 2026-10-28: "make it 5 seconds"); a
 -- replay starts full
@@ -71,6 +75,11 @@ end
 
 -- Whether the cutscene draws its lower letterbox bar: not on touch (#2394), where the screen is short.
 function IntroLogic.lowerBar(touch: boolean): boolean
+	return not touch
+end
+
+-- Whether it draws its top letterbox bar: not on touch (#2702), where only the shot dots show there.
+function IntroLogic.topBar(touch: boolean): boolean
 	return not touch
 end
 

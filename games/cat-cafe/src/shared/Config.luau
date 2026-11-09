@@ -368,6 +368,7 @@ local Config = {
 	CharmStarOdds = { 7.84, 23.53, 35.67, 24.31, 8.65 } :: { number },
 	CarryWalkSpeed = 16,
 	NormalWalkSpeed = 20,
+	TownWalkSpeedBonus = 4, -- #2706 (Derek2 2026-11-09: "increase walking/running speed in spawn by a bit"): no cat, on the Town Square
 	-- How far the camera zooms out (Derek 2026-11-02, the zoom card: "Cap it closer (60 studs)"; Roblox's default is
 	-- 128): it stays near the player, and the edges of the long areas and the backdrops stay out of view.
 	CameraMaxZoomStuds = 60,
@@ -901,19 +902,19 @@ local Config = {
 		-- Town layout v3 (F76, town-layout-v3.md, Derek 2026-10-27: "the main town should be wider so that it can have
 		-- a central middle area"): a 32 wide street with the Town Square in its middle, two rows of cafes either side.
 		StreetHalfWidth = 16,
-		StreetSouthZ = -140,
-		StreetNorthZ = 140, -- the street ends at the hometown's north welcome arch (v4)
+		StreetSouthZ = -152, -- #2707: -140 before the roomier square
+		StreetNorthZ = 152, -- #2707: 140 before; the street ends at the hometown's north welcome arch (v4)
 		-- v4 (F84, hometown-cannon.md section 2): the hometown's own ground round the town, and each wild area its own
 		-- CatCafe_Town_Backdrop (Model-Agent #733) is built against 272 by 332 (#917): tell Model-Agent when these change
 		TownGroundWidth = 272,
-		TownGroundDepth = 332,
+		TownGroundDepth = 356, -- #2707: 332 before
 		WallHeight = 9,
 		DoorWidth = 7,
 		-- The Town Square: paved, centred on the origin across the street, with the stations round the Cat Cannon (the
 		-- fountain until v4) and a cross of open paving (the street's line and an east to west lane, which led to the
 		-- side arches into the back alleys until v4 closed them). Its gardens fill the rest of the width out to the yards.
 		TownSquareHalfWidth = 48,
-		TownSquareHalfDepth = 32,
+		TownSquareHalfDepth = 44, -- #2707 (Derek2: "expand the town square by 25-50%"): 32 before
 		TownSquareLaneHalfWidth = 8, -- the street's line through the square
 		TownSquareCrossHalfWidth = 6, -- the east to west lane
 		-- The hometown's back edge (v4, F84, hometown-cannon.md section 2): a fence at |x| TownEdgeX behind each row of
@@ -962,7 +963,7 @@ local Config = {
 		NeighbourhoodDepth = 430,
 		-- The Desert and the Ruins (Tier 6 and 7, tier6-7-areas.md sections 2, 4 and 5; #2651): on the two free
 		-- diagonals on the town's east side, about 1980 out, both long along world Z with the camp on the town end, the
-		-- Desert's north and the Ruins' south. Laid out in Layout but built by nothing until they open (#2651 part 3).
+		-- Desert's north and the Ruins' south. Built by WorldBuilder from Catalog.areas since version 462.
 		DesertCenterX = 1400,
 		DesertCenterZ = -1400,
 		DesertWidth = 150,

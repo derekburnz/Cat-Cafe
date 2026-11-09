@@ -4,7 +4,8 @@
 -- above its sign. It shows while that extra holds something to claim (open and `held > 0`, the same state the
 -- Cat Cannon picker's dot uses) and hides the moment it is claimed or while it refills. Each client only gets its
 -- own CampExtrasState, and the billboards live in this player's PlayerGui, so only the owner ever sees theirs.
--- Shows within BANG_RANGE studs (`ReadyBangRange`, 150), bobs 1 stud every 2 s, and holds still with Reduce Motion.
+-- Shows within BANG_RANGE studs of the camera (40 since #2730, was 150: only close by), bobs 1 stud every 2 s, and
+-- holds still with Reduce Motion.
 -- #1614 (Derek2 11-05: "always have a bubble up for whatever station is in that area"): each open station now always
 -- wears a bubble within that range, its icon and name over what waits ("14 fish", "Next in 2 h 10 m"), the Cat Cannon
 -- picker's words (CampExtrasLogic.bubble). The red "!" sits on the bubble's corner while there is something to claim,
@@ -104,7 +105,7 @@ end
 local function build(parent: Instance, extraId: string): Bang
 	local gui: BillboardGui = Create("BillboardGui", {
 		Name = "CatCafeReadyBang_" .. extraId,
-		-- studs up close, never smaller than 120 x 36 px far away, so it reads from the cannon landing
+		-- studs up close, never smaller than 120 x 36 px at the edge of its range
 		Size = UDim2.new(6, 120, 1.8, 36),
 		LightInfluence = 0,
 		AlwaysOnTop = false, -- walls in front hide it, as they hide the station (the Rescue "!" does the same)

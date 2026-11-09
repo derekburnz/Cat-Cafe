@@ -1109,17 +1109,17 @@ return function()
 		end)
 
 		it(
-			"Tier 1 to 2: 5 different cats and 30,000 coins (#1499), the starter Tabby counts",
+			"Tier 1 to 2: 5 different cats and 22,000 coins (#2683; 30,000 for #1499), the starter Tabby counts",
 			function()
 				local p = freshProfile()
-				p.coins = 30000
+				p.coins = 22000
 				for _, id in { "ginger", "tuxedo", "smoke" } do
 					p.collection[id] = 1000
 				end
 				expect(Economy.rankUpBlocker(p)).to.equal("Needs 5 different cats (you have 4)")
 				p.collection.calico = 1000
 				expect(Economy.rankUpBlocker(p)).never.to.be.ok()
-				p.coins = 29999
+				p.coins = 21999
 				expect(Economy.rankUpBlocker(p)).to.equal("Not enough coins")
 			end
 		)
@@ -1169,13 +1169,13 @@ return function()
 		it(
 			"reasons come in the order a player works through them: cats, then the rarity, then coins",
 			function()
-				expect(Economy.rankUpBlocker(profileWith(2, 12, nil, nil, 0))).to.equal(
-					"Needs 13 different cats (you have 12)"
+				expect(Economy.rankUpBlocker(profileWith(2, 10, nil, nil, 0))).to.equal(
+					"Needs 11 different cats (you have 10)"
 				)
-				expect(Economy.rankUpBlocker(profileWith(2, 13, nil, nil, 0))).to.equal(
+				expect(Economy.rankUpBlocker(profileWith(2, 11, nil, nil, 0))).to.equal(
 					"Needs one cat, Epic or better"
 				)
-				expect(Economy.rankUpBlocker(profileWith(2, 13, "Epic", 1, 0))).to.equal(
+				expect(Economy.rankUpBlocker(profileWith(2, 11, "Epic", 1, 0))).to.equal(
 					"Not enough coins"
 				)
 			end

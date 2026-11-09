@@ -10,9 +10,10 @@ Rally colours and a big Rally board by the cannon showing the bar"). The Rally c
                                      SurfaceGui (Adornee = Screen) draws the bar, its three steps, the lap and the time
                                      left on it, so nothing stands in front of it
     _Bulbs                           the marquee bulbs: lit at night
-  CatCafe_Square_RallyBunting        the edge bunting (square.build_bunting) in the Rally colours, the same 22 and 16.5
-  CatCafe_Square_RallyBuntingShort   stud spans with the same pennant Models (`_Pennant` in a Model named *Bunting*,
-                                     VFX-Agent's flutter), so the Rally swaps them in at the edge bunting's placements
+  CatCafe_Square_RallyBunting        the edge bunting (square.build_bunting) in the Rally colours, the same 22, 16.5
+  CatCafe_Square_RallyBuntingShort   and 16.75 (#2707) stud spans with the same pennant Models (`_Pennant` in a Model named *Bunting*,
+  CatCafe_Square_RallyBuntingSide    VFX-Agent's flutter), so the Rally swaps them in at the edge bunting's
+                                     placements
 
 Pivots at the base centre on the square's floor top (y 0.1), front -Z. The board stands in the north-east quarter at
 SPOT, turned to face the spawn, off the cross and off the cannon's four firing lines.
@@ -23,7 +24,7 @@ import math
 from alleyway import label
 from common import RB, text_width
 from plot import rot_z
-from square import BUNTING_SPAN, SHORT_SPAN, build_bunting
+from square import BUNTING_SPAN, SHORT_SPAN, SIDE_SPAN, build_bunting
 
 N = "CatCafe_Square_RallyBoard"
 SPOT = (15.0, 0.1, 12.0, 30.0)      # world (x, y, z, rotY): faces the player spawn at (0, -14)
@@ -151,4 +152,6 @@ ASSETS = {
                                                               FLAGS), 1500),
     "CatCafe_Square_RallyBuntingShort": (lambda mat: build_bunting(mat, SHORT_SPAN, "CatCafe_Square_RallyBuntingShort",
                                                                    FLAGS), 1200),
+    "CatCafe_Square_RallyBuntingSide": (lambda mat: build_bunting(mat, SIDE_SPAN, "CatCafe_Square_RallyBuntingSide",
+                                                                  FLAGS), 1200),
 }

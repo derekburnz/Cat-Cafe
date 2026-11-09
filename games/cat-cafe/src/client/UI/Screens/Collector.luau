@@ -29,6 +29,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PrizeChips = require(script.Parent.Parent.Components.PrizeChips)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
@@ -132,6 +133,7 @@ function Collector.new(parent: Instance, callbacks: Callbacks): Collector
 		subtitle = "",
 		color = Theme.colors.cocoa,
 		icon = "🧐",
+		image = ShopIcons.hud("Collector"), -- #2836: the drawn badge (the emoji until it loads)
 		size = UDim2.new(1, 0, 0, MAX_SIZE.Y),
 		onClose = callbacks.close,
 	})

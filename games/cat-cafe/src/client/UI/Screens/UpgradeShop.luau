@@ -298,6 +298,10 @@ function UpgradeShop._buildRows(self: any)
 			Theme.upgradeIcons[upgrade.id] or Theme.icons.upgrades,
 			Theme.colors.caramel
 		)
+		local drawn = ShopIcons.upgrade(upgrade.id) -- #2836: the drawn picture over the emoji
+		if drawn then
+			IconArt.setImage(glyph, drawn, 1)
+		end
 		local name = text({
 			Name = "Name",
 			Position = UDim2.fromOffset(TEXT_LEFT, 8),
@@ -377,7 +381,12 @@ function UpgradeShop._buildRows(self: any)
 	local layout = StaffSlots.rows(catalog.allSpots or catalog.spots or {}, 1, nil)
 	for index, role in layout do
 		local row = card(role.role, ROW_HEIGHT, index, self._staff)
-		iconBox(row, Theme.roleIcons[role.role] or Theme.icons.cats, Theme.colors.mintDark)
+		local roleGlyph =
+			iconBox(row, Theme.roleIcons[role.role] or Theme.icons.cats, Theme.colors.mintDark)
+		local roleArt = ShopIcons.role(role.role) -- #2836
+		if roleArt then
+			IconArt.setImage(roleGlyph, roleArt, 1)
+		end
 		text({
 			Name = "Name",
 			Position = UDim2.fromOffset(TEXT_LEFT, 8),

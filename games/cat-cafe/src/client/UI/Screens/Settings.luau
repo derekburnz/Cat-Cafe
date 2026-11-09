@@ -31,6 +31,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
@@ -396,6 +397,7 @@ function Settings._buildCard(self: any, key: string, icon: string, order: number
 	})
 	Outline.border(tile, 2)
 	Outline.shade(tile, 0.2)
+	IconArt.set(tile:FindFirstChild("Glyph") :: TextLabel, icon) -- #2836: a drawn picture when the glyph has one
 	return card
 end
 

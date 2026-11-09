@@ -16,10 +16,12 @@ local Workspace = game:GetService("Workspace")
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
+local IconArt = require(script.Parent.Parent.Components.IconArt)
 local MysteryLogic = require(script.Parent.Parent.Components.MysteryLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local ShortNumber = require(script.Parent.Parent.Components.ShortNumber)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
@@ -69,6 +71,17 @@ local EMOJI: { [string]: string } = {
 	backpack = "🎒",
 	long_net = "🥅",
 }
+-- #2836 (Derek2: "make sure all our buttons/icons are high quality"): each item's drawn picture (ShopIcons.hud), over
+-- its emoji once it loads; an item with no picture yet keeps the emoji
+local ART: { [string]: string } = {
+	backpack = "BigBackpack",
+	long_net = "LongNet",
+}
+
+local function art(label: TextLabel, id: string)
+	local name = ART[id]
+	IconArt.setImage(label, if name then ShopIcons.hud(name) else nil, 0.8)
+end
 
 local MysteryMarketScreen = {}
 MysteryMarketScreen.__index = MysteryMarketScreen
@@ -131,6 +144,7 @@ function MysteryMarketScreen.new(callbacks: Callbacks): MysteryMarket
 		subtitle = MysteryLogic.SUBTITLE,
 		color = TEAL,
 		icon = MysteryLogic.ICON,
+		image = ShopIcons.hud("MysteryMarket"), -- #2836: the drawn badge (the emoji until it loads)
 		size = UDim2.new(1, 0, 0, MAX_SIZE.Y),
 		onClose = callbacks.close,
 	})
@@ -349,13 +363,14 @@ function MysteryMarketScreen._buildLines(self: any, rows: { MysteryLogic.Row })
 			LayoutOrder = order,
 			Parent = self._others,
 		}, { Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radiusSmall) }) })
-		picture(
+		local small = picture(
 			frame,
 			SMALL_PICTURE,
 			EMOJI[id] or "❓",
 			UDim2.new(0, 9, 0.5, 0),
 			Vector2.new(0, 0.5)
 		)
+		art(small, id)
 		local left = 9 + SMALL_PICTURE + 10
 		local right = BUY_W + 20
 		local name = text({
@@ -438,6 +453,7 @@ function MysteryMarketScreen._paint(self: any)
 		self._featuredName.Text = featured.name
 		self._featuredText.Text = featured.text
 		self._featuredPicture.Text = EMOJI[featured.id] or "❓"
+		art(self._featuredPicture, featured.id)
 		self._featuredPrice.Text = if featured.sale
 			then string.format(
 				'%d <font color="#B8A99C" size="14"><s>%d</s></font>',

@@ -30,6 +30,52 @@ WhatsNew.TEXT_MAX = 28
 WhatsNew.SHOWN = 8 -- #1768 (Derek2: "show more of the whats new stuff"): one compact line each
 
 WhatsNew.rows = table.freeze({
+	-- #2718 refresh (11-09 night): player-facing changes since #2704, 99 merges; no player ideas
+	{ id = "cat_makeovers", date = "2026-11-09", icon = "cat", text = "Cat makeovers for 16 cats" },
+	{
+		id = "spa_and_museum",
+		date = "2026-11-09",
+		icon = "new",
+		text = "Oasis Spa and Relic Museum",
+	},
+	{
+		id = "townsfolk_cats",
+		date = "2026-11-09",
+		icon = "cat",
+		text = "Townsfolk cats in the camps",
+	},
+	{
+		id = "playtime_gifts",
+		date = "2026-11-09",
+		icon = "new",
+		text = "Playtime gifts as you play",
+	},
+	{ id = "invite_fish", date = "2026-11-09", icon = "new", text = "Golden fish for invites" },
+	{
+		id = "quicker_first_bait",
+		date = "2026-11-09",
+		icon = "faster",
+		text = "Quicker first bait",
+	},
+	{
+		id = "easier_rescues",
+		date = "2026-11-09",
+		icon = "faster",
+		text = "Easier rescues near start",
+	},
+	{
+		id = "desert_ruins_remade",
+		date = "2026-11-09",
+		icon = "look",
+		text = "Desert and Ruins remade",
+	},
+	{
+		id = "roomier_town_square",
+		date = "2026-11-09",
+		icon = "look",
+		text = "Roomier Town Square",
+	},
+	{ id = "wear_backpack", date = "2026-11-09", icon = "look", text = "Wear your Backpack" },
 	-- Derek2 (11-09): "update the whats new every 20-50 minor changes" (#2718): the
 	-- player-facing changes since the 11-08 rows, 163 merges; no player ideas came in through feedback this time
 	{

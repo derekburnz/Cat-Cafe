@@ -116,6 +116,8 @@ local function build(parent: Instance, extraId: string): Bang
 		LightInfluence = 0,
 		AlwaysOnTop = false, -- walls in front hide it, as they hide the station (the Rescue "!" does the same)
 		MaxDistance = CampExtrasLogic.BANG_RANGE,
+		-- #2770 (Laptop-Tester: one close to the camera covered half a phone's screen): no bigger than at this many studs
+		DistanceLowerLimit = Scale.BUBBLE_NEAR,
 		ResetOnSpawn = false,
 		Enabled = false,
 		Parent = parent,

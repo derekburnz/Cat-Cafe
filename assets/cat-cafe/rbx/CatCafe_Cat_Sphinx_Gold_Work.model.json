@@ -3904,6 +3904,176 @@
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Sphinx_Gold_Work/15"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Sphinx_Gold_Work_Tail_Cuffs",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.1241,
+           1.3215,
+           1.0673
+          ],
+          "orientation": [
+           [
+            -0.171,
+            -0.9852,
+            -0.0151
+           ],
+           [
+            0.9698,
+            -0.171,
+            0.1736
+           ],
+           [
+            -0.1736,
+            0.0151,
+            0.9847
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0741,
+         0.2964,
+         0.2964
+        ],
+        "Color": [
+         0.949,
+         0.7569,
+         0.3059
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.0494,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            -0.171,
+            0.9698,
+            -0.1736
+           ],
+           [
+            -0.9852,
+            -0.171,
+            0.0151
+           ],
+           [
+            -0.0151,
+            0.1736,
+            0.9847
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Sphinx_Gold_Work/15",
+        "Follows": "Tail"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Sphinx_Gold_Work_Tail_Cuffs",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0988,
+           1.1777,
+           1.093
+          ],
+          "orientation": [
+           [
+            -0.171,
+            -0.9852,
+            -0.0151
+           ],
+           [
+            0.9698,
+            -0.171,
+            0.1736
+           ],
+           [
+            -0.1736,
+            0.0151,
+            0.9847
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0741,
+         0.2964,
+         0.2964
+        ],
+        "Color": [
+         0.949,
+         0.7569,
+         0.3059
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder"
+       },
+       "attributes": {
+        "Follows": "Tail"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.1157,
+         1.2735,
+         1.0759
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Sphinx_Gold_Work_Tail_Cuffs"
     }
    ],
    "properties": {

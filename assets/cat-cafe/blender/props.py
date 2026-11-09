@@ -327,6 +327,7 @@ def ice_cream_hat(ctx):
         P.box(tuple(R @ Vector((0, -0.325, 0.09))), (0.09, 0.035, 0.035), cols[i % len(cols)], rot=R @ _ry(30 * (-1) ** i))
     P.ico((0, 0, 0.67), 0.09, "bowl_red")
     P.bar((0, 0, 0.74), (0.05, 0.02, 0.86), 0.025, 0.025, "leaf_dark")
+    comet_trail(ctx)
 
 
 def plaid_cap(ctx):
@@ -372,6 +373,13 @@ def antlers(ctx):
             P.bar(tuple(a), tuple(a + end), 0.06, 0.06, "caramel_wood", up=(0, 1, 0))
             P.box(tuple(a + end), (0.075, 0.075, 0.075), ("blush", "pastel_butter", "offwhite")[int(f * 2) % 3], rot=_rz(45))
         P.ico(tuple(base + Vector((0, 0, 0.04))), 0.09, "leaf_green", scale=(1.2, 1.2, 0.7))
+        if sx > 0:                              # #2739: a little nest with three eggs in the left antler's fork
+            n = base + (top - base) * 0.8 + Vector((0.0, 0.0, 0.02))
+            P.cyl(tuple(n), 0.15, 0.06, "dark_wood", r2=0.18, segments=10)
+            P.ring(tuple(n + Vector((0, 0, 0.05))), 0.18, 0.05, 0.065, "caramel_wood", segments=10)
+            for k in range(3):
+                e = _rz(k * 120 + 30) @ Vector((0.06, 0.0, 0.0))
+                P.ico(tuple(n + e + Vector((0, 0, 0.08))), 0.055, "pastel_sky", scale=(1.0, 1.0, 1.25))
         P.box(tuple(base + (top - base) * 0.25 + Vector((sx * 0.04, -0.02, 0))), (0.07, 0.07, 0.05), "leaf_dark", rot=_rz(30))
 
 
@@ -381,7 +389,8 @@ def unicorn_horn(ctx):
     R = _rx(16)
     base = Vector((0, -0.17, -0.02))
     d = R @ Vector((0, 0, 1))
-    P.cyl(tuple(base + d * 0.23), 0.1, 0.46, "sparkle", r2=0.015, rot=R, segments=10)
+    H = ctx.piece("Glow", "head", tuple(base))                                          # #2739: the horn is lit
+    H.cyl(tuple(base + d * 0.23), 0.1, 0.46, "sparkle", r2=0.015, rot=R, segments=10)
     for f, r in ((0.12, 0.092), (0.32, 0.068), (0.52, 0.045)):
         P.cyl(tuple(base + d * (0.46 * f + 0.02)), r + 0.012, 0.03, "pastel_lilac", rot=R @ _rx(-14), segments=10)
 
@@ -638,8 +647,9 @@ def firefly_jar(ctx):
     U.cyl((x, y, z + 0.49), 0.21, 0.07, "metal", segments=12)
     U.cyl((x, y, z + 0.54), 0.12, 0.04, "metal", segments=10)
     U.cyl((x, y, z + 0.035), 0.205, 0.05, "metal", segments=12)
+    J = ctx.piece("Jar_Glow", "up", (x, y, z + 0.25))                                     # #2739: the fireflies are lit
     for az, dz in ((20, 0.12), (95, 0.2), (170, 0.32), (240, 0.15), (300, 0.36), (130, 0.4)):   # resting on the glass
-        U.ico(tuple(Vector((x, y, z + dz)) + _rz(az) @ Vector((0, -0.17, 0))), 0.045, "sparkle")
+        J.ico(tuple(Vector((x, y, z + dz)) + _rz(az) @ Vector((0, -0.17, 0))), 0.045, "sparkle")
     U.ring((x, y, z + 0.25), 0.22, 0.025, 0.06, "dark_wood", segments=12)
     if ctx.body == "walk":
         _strap_round(ctx, "dark_wood", at_y=0.25 - ctx.d["body"][1][1] * 0.22)
@@ -668,6 +678,23 @@ def dragon_wings(ctx):
                   up=(0, 1, 0))
         P.ico(tuple(root + Vector((sx * 0.12, -0.02, 0.42))), 0.035, "mint")
     U.box((0, 0.05, 0.05), (0.26, 0.1, 0.12), "fur_emerald")
+    _spines(ctx)
+
+
+def _spines(ctx):
+    """#2739 Eclipse: a row of glowing mint dragon spines down the back behind the wings (the child Model
+    _Spine_Glow, Neon), each a diamond fin half in the fur."""
+    if ctx.body == "walk":
+        sy = ctx.d["body"][1][1]
+        S = ctx.piece("Spine_Glow", "back", (0.0, 0.0, 0.0))
+        for k, y in enumerate((0.12, 0.24, 0.36)):
+            f = 0.19 - 0.025 * k
+            S.box((0.0, y * sy / 0.9, 0.0), (0.05, f, f), "mint", rot=_rx(45))
+    else:
+        S = ctx.piece("Spine_Glow", "up", (0.0, 0.0, -0.2))
+        for k, z in enumerate((-0.14, -0.26, -0.37)):
+            f = 0.16 - 0.02 * k
+            S.box((0.0, 0.0, z), (0.05, f, f), "mint", rot=_rx(45))
 
 
 # ------------------------------------------------------------------------------- F78 area-themed cats --
@@ -754,8 +781,9 @@ def taxi_light(ctx):
     P = ctx.pen("head")
     y, w, dp = -0.1, 0.44, 0.26
     P.box((0, y, 0.02), (w + 0.08, dp + 0.06, 0.05), "fur_black")                        # base on the head
-    P.box((0, y, 0.15), (w, dp, 0.22), "rarity_legend")                                  # the light
-    P.box((0, y, 0.275), (w - 0.08, dp - 0.06, 0.04), "rarity_legend")                   # its rounded top
+    L = ctx.piece("Glow", "head", (0, y, 0.15))                                         # #2739: lit (Neon)
+    L.box((0, y, 0.15), (w, dp, 0.22), "rarity_legend")                                  # the light
+    L.box((0, y, 0.275), (w - 0.08, dp - 0.06, 0.04), "rarity_legend")                   # its rounded top
     n, q = 8, w / 8
     for face in (-1, 1):                                                                  # checkered band, both faces
         fy = y + face * dp / 2
@@ -781,7 +809,8 @@ def fedora(ctx):
         return tuple(o + R @ Vector((x, y, z)))
     P.cyl(at(0, 0, 0.02), 0.38, 0.035, "fur_black", rot=R, segments=14)                  # brim
     P.cyl(at(0, 0, 0.13), 0.24, 0.2, "fur_black", rot=R, r2=0.21, segments=12)          # crown
-    P.cyl(at(0, 0, 0.07), 0.25, 0.06, "neon_pink", rot=R, r2=0.24, segments=12)       # band
+    G = ctx.piece("Glow", "head", at(0, 0, 0.07))                                       # #2739: the band is lit
+    G.cyl(at(0, 0, 0.07), 0.25, 0.06, "neon_pink", rot=R, r2=0.24, segments=12)       # band
     P.box(at(0, 0.0, 0.235), (0.07, 0.3, 0.03), "fur_black", rot=R)                     # the crease on top
 
 
@@ -890,10 +919,12 @@ def balloons(ctx):
         _sling(ctx, "pastel_lilac", xs=(0.0,), down=0.24)                                     # one ribbon down the back
         P.box(tuple(tie), (0.12, 0.06, 0.1), "pastel_lilac")                                  # the strings' tie
     r = 0.24
+    frame = "back" if ctx.body == "walk" else "up"
+    L = ctx.piece("Glow", frame, tuple(tie))                                             # #2739: the balloons are lit
     for c, col in zip(tops, cols):
-        P.sphere(tuple(c), r, col, scale=(1, 1, 1.15), segments=12, rings=8)                 # a balloon
+        L.sphere(tuple(c), r, col, scale=(1, 1, 1.15), segments=12, rings=8)                 # a balloon
         knot = c - Vector((0, 0, r * 1.15))
-        P.pyramid(tuple(knot - Vector((0, 0, 0.045))), 0.07, 0.07, col, rot=_rx(180))         # its knot
+        L.pyramid(tuple(knot - Vector((0, 0, 0.045))), 0.07, 0.07, col, rot=_rx(180))         # its knot
         P.bar(tuple(tie + Vector((0, 0, 0.02))), tuple(knot - Vector((0, 0, 0.035))), 0.02, 0.02, "offwhite")
 
 
@@ -1231,7 +1262,9 @@ def glow_antennae(ctx):
         a, m, t = Vector((sx * 0.13, y, 0.04)), Vector((sx * 0.2, y - 0.05, 0.25)), Vector((sx * 0.3, y - 0.02, 0.42))
         P.bar(tuple(a), tuple(m + (m - a).normalized() * 0.015), 0.035, 0.035, "fur_black", up=(0, 1, 0))
         P.bar(tuple(m), tuple(t), 0.035, 0.035, "fur_black", up=(0, 1, 0))
-        P.ico(tuple(t + (t - m).normalized() * 0.05), 0.075, "sparkle")
+        if sx < 0:
+            T = ctx.piece("Tip_Glow", "head", tuple(t))                                   # #2739: the tips are lit
+        T.ico(tuple(t + (t - m).normalized() * 0.05), 0.075, "sparkle")
 
 
 def _cape_body(ctx, cloth, collar):
@@ -1659,12 +1692,14 @@ def _nemes(ctx, cloth, stripe, uraeus):
 def pharaoh_nemes(ctx):
     """#2584 Pharaoh Cat (Legendary): a gold and lapis-blue striped nemes with a gold cobra on the brow."""
     _nemes(ctx, "fur_golden", "galaxy_blue", uraeus=True)
+    _tail_cuffs(ctx, "fur_golden")
 
 
 def sphinx_nemes(ctx):
     """#2584 Sphinx (Mythical): a shining gold nemes with lapis stripes and no cobra; the only gold on the cat, so
     the Gold Sphinx reads differently from the stone one."""
     _nemes(ctx, "gold_mid", "galaxy_blue", uraeus=False)
+    _tail_cuffs(ctx, "gold_mid")
 
 
 def pharaoh_collar(ctx):
@@ -1915,6 +1950,213 @@ def jade_crown(ctx):
         Rg.box(tuple(p + tilt @ Vector((0, 0, 0.045))), (0.07, 0.07, 0.04), "gold_light", rot=tilt @ _rz(k * 60 + 60))
 
 
+# ----------------------------------------------------------------------------- #2739 theme extras, batch 1 --
+# Derek2 2026-11-09 19:27: "start looking through all 70 cats and see things that might be good for their themes".
+# Plan: /mnt/project-files/Model-Agent/cat-theme-extras/cat-theme-extras-plan.md. Pieces named ..._Glow are Neon.
+
+def _tail_axes(ctx):
+    """The tail's tip, its last segment's direction and thickness, and two directions across it (Tail space)."""
+    tip, d, th = cats.tail_tip(ctx.d["tail_chain"])
+    a = d.cross(Vector((1.0, 0.0, 0.0)))
+    a = (a if a.length > 1e-3 else d.cross(Vector((0.0, 0.0, 1.0)))).normalized()
+    return tip, d, th, a, d.cross(a).normalized()
+
+
+def _tail_cuffs(ctx, sw):
+    """#2739 Pharaoh and Sphinx: two gold cuffs round the tail near its tip (the child Model _Tail_Cuffs)."""
+    tip, d, th, _a, _b = _tail_axes(ctx)
+    R = Vector((0, 0, 1)).rotation_difference(d).to_matrix()
+    C = ctx.piece("Tail_Cuffs", "tail", tuple(tip - d * 0.1))
+    for f in (0.06, 0.18):
+        C.cyl(tuple(tip - d * f), th * 0.6, 0.06, sw, rot=R, segments=8)
+
+
+def monocle(ctx):
+    """#2739 Tuxedo (Common): a gold monocle over its left eye on a thin gold chain to the cheek, dressed for dinner."""
+    F, G, ex = ctx.pen("face"), ctx.gpen("face"), ctx.eye_x
+    F.ring((ex, -0.095, 0.0), 0.17, 0.035, 0.035, "fur_golden", rot=_rx(90), segments=12)
+    G.cyl((ex, -0.1, 0.0), 0.14, 0.012, "glass", rot=_rx(90), segments=12)
+    z = max(ctx.fbot + 0.1, -0.3)
+    F.bar((ex + 0.12, -0.095, -0.12), (ctx.fw + 0.005, -0.02, z), 0.022, 0.022, "fur_golden", up=(0, 1, 0))
+
+
+def banana_peel(ctx):
+    """#2739 Garbage Bag Cat (Rare) second prop: a banana peel flopped on its head, four yellow flaps hanging over
+    the head top with brown tips, the stem up."""
+    P = ctx.pen("head")
+    c = Vector((0.04, 0.04, 0.0))
+    P.cyl(tuple(c + Vector((0, 0, 0.14))), 0.15, 0.28, "pastel_butter", r2=0.1, segments=10)       # the peel's core
+    P.cyl(tuple(c + Vector((0, 0, 0.32))), 0.045, 0.1, "hair_brown", segments=6)                   # the stem
+    for k in range(4):
+        R = _rz(k * 90 + 40)
+        a, m = c + R @ Vector((0.1, 0, 0.24)), c + R @ Vector((0.36, 0, 0.04))
+        P.bar(tuple(a), tuple(m), 0.17, 0.045, "pastel_butter", up=(0, 0, 1))                      # a flap
+        P.bar(tuple(m - R @ Vector((0.02, 0, -0.01))), tuple(m + R @ Vector((0.1, 0, -0.1))), 0.15, 0.04,
+              "pastel_butter", up=(0, 0, 1))                                                      # its drooping end
+        P.box(tuple(m + R @ Vector((0.11, 0, -0.12))), (0.07, 0.13, 0.05), "hair_brown", rot=R @ _ry(45))
+
+
+def loot_sack(ctx):
+    """#2739 Bandit Cat (Epic) second prop: a burlap loot sack tied shut on its back, a gold coin peeking out of a
+    hole in the front, strapped on like the Firefly's jar."""
+    U = ctx.pen("up")
+    if ctx.body == "walk":
+        x, y, z = 0, 0.25, -0.01
+    else:
+        x, y, z = 0, 0.31, ctx.haunch_top - 0.98 + 0.01
+    U.sphere((x, y, z + 0.26), 0.33, "cardboard", scale=(1.0, 0.9, 0.85), segments=10, rings=6)   # the sack
+    U.cyl((x, y, z + 0.54), 0.1, 0.12, "cardboard", r2=0.065, segments=8)                          # its neck
+    U.cyl((x, y, z + 0.62), 0.075, 0.07, "cardboard", r2=0.15, segments=8)                         # the gathered top
+    U.ring((x, y, z + 0.53), 0.11, 0.03, 0.055, "dark_wood", segments=8)                           # the tie
+    U.box((x - 0.14, y - 0.26, z + 0.32), (0.15, 0.03, 0.13), "kibble", rot=_rz(-20))              # a patch
+    U.cyl((x + 0.13, y - 0.265, z + 0.17), 0.1, 0.035, "fur_golden", rot=_rx(80), segments=10)     # the coin
+    if ctx.body == "walk":
+        _strap_round(ctx, "dark_wood", at_y=0.25 - ctx.d["body"][1][1] * 0.22)
+    else:
+        _sling(ctx, "dark_wood", xs=(0.0,), down=0.09)
+
+
+def ninja_scroll(ctx):
+    """#2739 Ninja Cat (Legendary) second prop: a rolled cream scroll with red ends slung across its back."""
+    walk = ctx.body == "walk"
+    if walk:
+        P = ctx.pen("back")
+        c, R = Vector((0.0, 0.08, 0.09)), _rz(35) @ _ry(90)
+        _strap_round(ctx, "shirt_red", at_y=0.08)
+    else:
+        P = ctx.pen("up")
+        c, R = Vector((0.0, B_CLEAR + 0.085, -0.2)), _ry(55)
+        _sling(ctx, "shirt_red", xs=(0.0,), down=0.2)
+    ax = R @ Vector((0, 0, 1))
+    P.cyl(tuple(c), 0.085, 0.62, "offwhite", rot=R, segments=10)                                   # the roll
+    for sx in (-1, 1):
+        P.cyl(tuple(c + ax * sx * 0.33), 0.1, 0.06, "shirt_red", rot=R, segments=10)               # its ends
+        P.cyl(tuple(c + ax * sx * 0.37), 0.04, 0.04, "dark_wood", rot=R, segments=6)               # the rod
+    P.cyl(tuple(c), 0.09, 0.08, "shirt_red", rot=R, segments=10)                                   # the tie
+
+
+def bluebird(ctx):
+    """#2739 Birdwatcher Cat (Rare) second prop: a little bluebird perched on its head, peach breast, yellow beak."""
+    P = ctx.pen("head")
+    P = Pen(P.b, P.at, P.R, P.s * 1.5)                  # big enough to read on a phone (the big-hero rule)
+    x, y = 0.08, 0.01
+    P.sphere((x, y, 0.11), 0.12, "shirt_blue", scale=(0.85, 1.1, 0.95), segments=10, rings=6)     # body
+    P.sphere((x, y - 0.06, 0.1), 0.08, "fur_apricot", scale=(0.9, 0.8, 1.0), segments=8, rings=5)  # breast
+    P.sphere((x, y - 0.1, 0.25), 0.085, "shirt_blue", segments=10, rings=6)                         # head
+    P.cyl((x, y - 0.2, 0.24), 0.028, 0.07, "rarity_legend", r2=0.0, rot=_rx(90), segments=6)      # beak
+    for sx in (-1, 1):
+        P.box((x + sx * 0.05, y - 0.165, 0.27), (0.025, 0.02, 0.03), "fur_ink")                   # eyes
+        P.box((x + sx * 0.095, y + 0.02, 0.12), (0.03, 0.15, 0.1), "pants_navy", rot=_rx(-15))     # wings
+    P.box((x, y + 0.16, 0.13), (0.08, 0.14, 0.03), "pants_navy", rot=_rx(-25))                     # tail
+
+
+def flower_crown(ctx):
+    """#2739 Fairy Cat (Legendary) second prop: a wreath of leaves round the head top with six little flowers."""
+    P, hw, hd = ctx.pen("head"), ctx.hw, ctx.hd
+    r = (hw + hd) / 2 * 0.95
+    P.ring((0, 0, 0.025), r, 0.05, 0.05, "leaf_green", segments=14)
+    cols = ("fur_rose", "offwhite", "pastel_lilac")
+    for k in range(6):
+        a = math.radians(k * 60 + 30)
+        p = Vector((math.cos(a) * r, math.sin(a) * r, 0.065))
+        P.star(tuple(p), 0.13, 0.065, 0.04, cols[k % 3], rot=_rz(k * 20))
+        P.ico(tuple(p + Vector((0, 0, 0.03))), 0.045, "pastel_butter")
+        P.box(tuple(_rz(k * 60) @ Vector((r, 0, 0.05))), (0.06, 0.035, 0.02), "leaf_dark", rot=_rz(k * 60 + 40))
+
+
+def comet_trail(ctx):
+    """#2739 Comet (Mythical): a glowing comet head at the tail tip with a trail of two smaller lights down the tail
+    (the child Model _Tail_Glow, Neon). Drawn by the ice cream hat, ridden by the Tail."""
+    tip, d, th, a, _b = _tail_axes(ctx)
+    G = ctx.piece("Tail_Glow", "tail", tuple(tip))
+    G.ico(tuple(tip + d * 0.05), th * 1.05, "sparkle")
+    for f, r, col in ((0.12, 0.62, "pastel_sky"), (0.24, 0.55, "neon_pink")):
+        G.ico(tuple(tip - d * f + a * th * 0.4), th * r, col)
+
+
+def sun_hat(ctx):
+    """#2739 Sandy (Common, Desert): a woven straw sun hat with a teal band."""
+    P = ctx.pen("head")
+    P.cyl((0, 0, 0.02), 0.6, 0.04, "treat_tan", segments=16)                                       # brim
+    P.ring((0, 0, 0.045), 0.45, 0.018, 0.012, "kibble", segments=16)                               # weave lines
+    P.ring((0, 0, 0.045), 0.55, 0.018, 0.012, "kibble", segments=16)
+    P.cyl((0, 0, 0.15), 0.3, 0.22, "treat_tan", r2=0.26, segments=12)                              # crown
+    P.cyl((0, 0, 0.08), 0.305, 0.07, "sign_teal", r2=0.295, segments=12)                           # band
+
+
+def sand_goggles(ctx):
+    """#2739 Dune (Common, Desert): sand goggles pushed up on the brow, brass rims and amber lenses, on a brown
+    strap round the head."""
+    P, G, w, d = ctx.pen("head"), ctx.gpen("head"), ctx.hw, ctx.hd
+    z, hgt = -0.1, 0.07
+    P.box((0, d + 0.015, z), (2 * w + 0.05, 0.04, hgt), "fur_brown")
+    for sx in (-1, 1):
+        P.box((sx * (w + 0.015), 0, z), (0.04, 2 * d + 0.06, hgt + 0.004), "fur_brown")
+    P.box((0, -(d + 0.015), z), (2 * w + 0.05, 0.04, hgt), "fur_brown")
+    R = _rx(65)
+    for sx in (-1, 1):
+        c = (sx * 0.17, -(d + 0.05), z + 0.02)
+        P.cyl(c, 0.12, 0.07, "brass", rot=R, segments=10)
+        P.cyl(tuple(Vector(c) + R @ Vector((0, 0, 0.03))), 0.085, 0.03, "eye_amber", rot=R, segments=10)
+    P.box((0, -(d + 0.05), z + 0.02), (0.12, 0.04, 0.04), "brass")                                # bridge
+
+
+def neckerchief(ctx):
+    """#2739 Dusty (Common, Desert): a red neckerchief with white dots, knotted at the chin, its point down the front."""
+    F, fw, fd, bot = ctx.pen("face"), ctx.fw, ctx.fd, ctx.fbot
+    F.box((0, 0.0, bot + 0.01), (2 * fw + 0.05, 0.07, 0.07), "bowl_red")
+    for sx in (-1, 1):
+        F.box((sx * (fw + 0.01), fd * 0.2, bot + 0.01), (0.06, fd * 0.4, 0.07), "bowl_red")
+    F.fan((0, -0.02, bot - 0.02), (0.0, 0.0), [(-0.22, 0.0), (0.0, -0.26), (0.22, 0.0)], 0.04, "bowl_red",
+          rot=_rx(90))
+    for (x, z) in ((-0.1, -0.06), (0.1, -0.06), (0.0, -0.15)):
+        F.box((x, -0.045, bot - 0.02 + z), (0.04, 0.012, 0.04), "offwhite")
+    F.ico((0, -0.05, bot - 0.01), 0.05, "bowl_red")
+
+
+def sun_shades(ctx):
+    """#2739 Sunny (Common, Desert): chunky sun shades, dark lenses in sunny yellow frames."""
+    F, ex = ctx.pen("face"), ctx.eye_x
+    for sx in (-1, 1):
+        F.box((sx * ex, -0.085, 0.0), (0.36, 0.03, 0.24), "rarity_legend")
+        F.box((sx * ex, -0.1, -0.005), (0.3, 0.02, 0.18), "night_sky")
+        F.box((sx * (ctx.fw + 0.01), ctx.fd * 0.3 - 0.05, 0.03), (0.04, ctx.fd * 0.6 + 0.1, 0.04), "rarity_legend")
+        F.bar((sx * (ex + 0.17), -0.085, 0.03), (sx * (ctx.fw + 0.01), -0.03, 0.03), 0.04, 0.04, "rarity_legend",
+              up=(0, 0, 1))
+    F.box((0, -0.09, 0.05), (2 * ex - 0.34, 0.035, 0.04), "rarity_legend")
+
+
+def pebble_stack(ctx):
+    """#2739 Pebble (Common, Ruins): three smooth pebbles balanced on its head, biggest at the bottom."""
+    P = ctx.pen("head")
+    for (x, z, r, sw) in ((0.0, 0.07, 0.32, "concrete_dark"), (0.04, 0.23, 0.24, "fur_silver"),
+                          (-0.01, 0.36, 0.16, "paving_light")):
+        P.ico((x, 0.0, z), r, sw, scale=(1.0, 0.9, 0.5))
+
+
+def ivy_garland(ctx):
+    """#2739 Ivy (Common, Ruins): a vine of ivy leaves round the neck (Neck), and the vine winding round the tail
+    near its tip (the child Model _Tail_Vine)."""
+    F, fw, fd, bot = ctx.pen("face"), ctx.fw, ctx.fd, ctx.fbot
+    F.box((0, 0.0, bot - 0.01), (2 * fw + 0.04, 0.06, 0.05), "leaf_dark")
+    for sx in (-1, 1):
+        F.box((sx * (fw + 0.01), fd * 0.2, bot - 0.01), (0.05, fd * 0.4, 0.05), "leaf_dark")
+    for i in range(7):
+        x = -0.33 + 0.11 * i
+        F.box((x, -0.04, bot - 0.06), (0.09, 0.02, 0.1), "leaf_green" if i % 2 else "fur_fern", rot=_ry(20 - 40 * (i % 2)))
+    tip, d, th, a, b = _tail_axes(ctx)
+    R = Vector((0, 0, 1)).rotation_difference(d).to_matrix()
+    V = ctx.piece("Tail_Vine", "tail", tuple(tip - d * 0.12))
+    V.cyl(tuple(tip - d * 0.12), th * 0.58, 0.035, "leaf_dark", rot=R, segments=8)
+    V.cyl(tuple(tip - d * 0.03), th * 0.58, 0.035, "leaf_dark", rot=R, segments=8)
+    for k, f in enumerate((0.03, 0.08, 0.12, 0.17)):
+        ang = math.radians(k * 95)
+        n = a * math.cos(ang) + b * math.sin(ang)
+        Rl = Vector((0, 0, 1)).rotation_difference(n).to_matrix()
+        V.box(tuple(tip - d * f + n * th * 0.58), (0.08, 0.06, 0.02), "leaf_green", rot=Rl)
+
+
+
 PROPS = {
     "Calico": ("Face", eye_patch), "Tortie": ("Back", guitar), "Sphynx": ("Head", headphones),
     "MaineCoon": ("Face", bandit_mask), "Void": ("Head", ninja_band), "Midnight": ("Head", wizard_hat),
@@ -1945,6 +2187,10 @@ PROPS = {
     # #2584 Tier 7 Ruins
     "Glyph": ("Face", glyph_kohl), "Torch": ("Back", torch_sling), "Gargoyle": ("Back", gargoyle_wings),
     "Mosaic": ("Head", mosaic_band), "Golem": ("Back", golem_stones), "JadeGuardian": ("Head", jade_crown),
+    # #2739 theme extras, batch 1 (Derek2 2026-11-09): Commons that were plain, now each with one prop
+    "Tuxedo": ("Face", monocle), "Sandy": ("Head", sun_hat), "Dune": ("Head", sand_goggles),
+    "Dusty": ("Neck", neckerchief), "Sunny": ("Face", sun_shades), "Pebble": ("Head", pebble_stack),
+    "Ivy": ("Neck", ivy_garland),
 }
 # Second props (data-model 3, v0.10 and v0.13: "one or two props is fine"), in a different slot from the first: the
 # object is `..._Prop2` and the model's PropSlot2 attribute names its slot.
@@ -1966,12 +2212,20 @@ PROPS2 = {
     # #2584: the Pharaoh's collar takes the waiter BowTie's place (a Neck slot of its own, Catalog.outfitPieceSlots)
     "Pharaoh": ("Neck", pharaoh_collar),
     "Gargoyle": ("Head", gargoyle_horns),
+    # #2739 theme extras, batch 1 (Derek2 2026-11-09)
+    "Binbag": ("Head", banana_peel), "MaineCoon": ("Back", loot_sack), "Void": ("Back", ninja_scroll),
+    "Birdwatch": ("Head", bluebird), "Blossom": ("Head", flower_crown),
 }
 # Extra objects a prop draws (Ctx.piece): cat -> {suffix: the prop object it hangs from}. They ride what that prop
 # rides, and their Roblox Model nests inside that prop's Model.
 PIECES = {"BellhopCat": {"Bell": "Prop2"}, "KingCroissant": {"CapeTrim": "Prop2"},
           # #2584: the glowing parts, Neon in Roblox (rbx_export: _Flame, _Runes, _RuneRing)
-          "Torch": {"Flame": "Prop", "Tail_Flame": "Tail"}, "Golem": {"Runes": "Prop"}, "JadeGuardian": {"RuneRing": "Prop"}}
+          "Torch": {"Flame": "Prop", "Tail_Flame": "Tail"}, "Golem": {"Runes": "Prop"}, "JadeGuardian": {"RuneRing": "Prop"},
+          # #2739 theme extras, batch 1: lit parts (..._Glow, Neon) and tail pieces
+          "Taxi": {"Glow": "Prop"}, "Neon": {"Glow": "Prop"}, "Wisp": {"Glow": "Prop"}, "Balloon": {"Glow": "Prop"},
+          "Firefly": {"Jar_Glow": "Prop", "Tip_Glow": "Prop2"}, "Eclipse": {"Spine_Glow": "Prop"},
+          "Comet": {"Tail_Glow": "Tail"}, "Pharaoh": {"Tail_Cuffs": "Tail"}, "Sphinx": {"Tail_Cuffs": "Tail"},
+          "Ivy": {"Tail_Vine": "Tail"}}
 # Extra Attachments for VFX (#1191): cat -> [(object suffix, Attachment name, frame, point in that frame)]. Frame
 # "head" is the head-top frame the Head props draw in; "chest" puts it at the middle of the chest (B, S) or body (A).
 ATTACH = {"KingCroissant": [("_Prop", "CrownTop", "head", (0.0, 0.0, CROWN_TOP)), ("_Body", "Glow", "chest", None)]}

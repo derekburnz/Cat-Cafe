@@ -3708,6 +3708,176 @@
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
      }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Sphinx/12"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Sphinx_Tail_Cuffs",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.6313,
+           1.1276
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            0.9848,
+            0.0,
+            -0.1736
+           ],
+           [
+            0.1736,
+            0.0,
+            0.9848
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.078,
+         0.4555,
+         0.4555
+        ],
+        "Color": [
+         0.949,
+         0.7569,
+         0.3059
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.052,
+           0.0,
+           0.0
+          ],
+          "orientation": [
+           [
+            0.0,
+            0.9848,
+            0.1736
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            -0.1736,
+            0.9848
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Sphinx/12",
+        "Follows": "Tail"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Sphinx_Tail_Cuffs",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.0,
+           1.4776,
+           1.1006
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            0.9848,
+            0.0,
+            -0.1736
+           ],
+           [
+            0.1736,
+            0.0,
+            0.9848
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.078,
+         0.4555,
+         0.4555
+        ],
+        "Color": [
+         0.949,
+         0.7569,
+         0.3059
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder"
+       },
+       "attributes": {
+        "Follows": "Tail"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         1.5801,
+         1.1186
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Sphinx_Tail_Cuffs"
     }
    ],
    "properties": {

@@ -1341,10 +1341,11 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		bannerLine.Position = UDim2.fromOffset(0, 0)
 		bannerLine.LayoutOrder = order
 		if bannerLine:IsA("TextLabel") then
-			bannerLine.Size = UDim2.fromOffset(0, NIGHT_LINE)
-			bannerLine.AutomaticSize = Enum.AutomaticSize.X
-			bannerLine.TextTruncate = Enum.TextTruncate.None
-			bannerLine.TextXAlignment = Enum.TextXAlignment.Left
+			local text = bannerLine :: TextLabel
+			text.Size = UDim2.fromOffset(0, NIGHT_LINE)
+			text.AutomaticSize = Enum.AutomaticSize.X
+			text.TextTruncate = Enum.TextTruncate.None
+			text.TextXAlignment = Enum.TextXAlignment.Left
 		end
 		bannerLine.Parent = banner
 		table.insert(
@@ -1355,16 +1356,16 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		)
 	end
 	-- the words' own width, with room for their outline (the cap cut "Golden Day" short, #2882)
-	local cap = self._luckyLine:FindFirstChildWhichIsA("UISizeConstraint")
+	local cap = luckyLine:FindFirstChildWhichIsA("UISizeConstraint")
 	if cap then
 		cap:Destroy()
 	end
-	table.insert(
-		self._connections,
-		self._luckyLine:GetPropertyChangedSignal("Visible"):Connect(function()
+	local luckyShown: RBXScriptConnection = luckyLine
+		:GetPropertyChangedSignal("Visible")
+		:Connect(function()
 			self:_paintBanner()
 		end)
-	)
+	table.insert(self._connections, luckyShown)
 
 	-- Tier and next goal (right, under the clock): the tier, the next tier's requirements as slim bars; a tap opens
 	-- rank up

@@ -139,6 +139,10 @@ local straysFolder: Folder
 local strays: { [string]: Stray } = {}
 local occupiedPoints: { [string]: { [number]: string } } = {} -- area -> point index -> stray id
 local carrying: { [Player]: Carry } = {}
+-- #2565 (mystery-market.md section 3): a Backpack's second cat, packed on the back with the net still out. It goes in
+-- first (hands free) and the next catch goes into the hands; it checks in with the held one, drops with it on a
+-- tackle, a death or the Drop button's second press, and blocks the cannon, travel and tackling like a held cat.
+local packed: { [Player]: Carry } = {}
 local circleHistory: { [Player]: { boolean } } = {} -- last judged circles per player, true for Perfect (S23)
 local snackRandom = Random.new() -- #1181: the catch's snack drop
 local lastCatchStart: { [Player]: number } = {} -- server time of the player's last catch start or pick up
@@ -1065,6 +1069,71 @@ local function getaway(player: Player, carry: Carry)
 	end
 end
 
+-- #2565: whether the player owns the Backpack (Mystery Market).
+local function hasBackpack(player: Player): boolean
+	local profile = DataService.get(player)
+	return profile ~= nil and profile.mystery.backpack == true
+end
+
+-- #2565: the packed cat's model on the back, and the character attribute PackedCatId for the clients.
+local function attachPacked(player: Player, carry: Carry)
+	local character = player.Character
+	if character == nil then
+		return
+	end
+	if carry.model ~= nil then
+		carry.model:Destroy()
+		carry.model = nil
+	end
+	local model = AssetRegistry.cloneCat(carry.def.id, carry.variant)
+	model.Name = "PackedCat"
+	model:SetAttribute("CatId", carry.def.id)
+	model:SetAttribute("Variant", carry.variant or "base")
+	local body = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart")
+	local nameTag = if body ~= nil then body:FindFirstChild("NameTag") else nil
+	if nameTag ~= nil then
+		nameTag:Destroy()
+	end
+	if HeldCat.attachBack(model, character) == nil then
+		model:Destroy()
+	else
+		model.Parent = character
+		carry.model = model
+	end
+	character:SetAttribute("PackedCatId", carry.def.id)
+end
+
+-- #2565: takes the packed cat off the back (nil when none), its model gone.
+local function endPacked(player: Player): Carry?
+	local carry = packed[player]
+	if carry == nil then
+		return nil
+	end
+	packed[player] = nil
+	if carry.model ~= nil then
+		carry.model:Destroy()
+		carry.model = nil
+	end
+	local character = player.Character
+	if character ~= nil then
+		character:SetAttribute("PackedCatId", nil)
+	end
+	return carry
+end
+
+-- #2565: moves the packed cat into empty hands, with no getaway, so the drop, tackle and death paths that handle a
+-- held cat handle it next. False when there is none or the hands are full.
+local function unpackCat(player: Player): boolean
+	if carrying[player] ~= nil or packed[player] == nil then
+		return false
+	end
+	local carry = endPacked(player) :: Carry
+	carrying[player] = carry
+	attachHeldCat(player, carry)
+	CafeService.setCarrying(player, carry.def.id)
+	return true
+end
+
 -- Callers check carrying first; the refusal here keeps one carry per player whatever path calls it. `method` is
 -- "net" or "rescue"; `variant` "gold" or "rainbow" shows on the held cat and in the toast. `pickedUp` is a Dropped
 -- cat taken with a swing (v0.8 F56, F93): only the toast says so, the carry is like any other.
@@ -1105,6 +1174,15 @@ local function startCarry(
 		bonusXp = bonusXp,
 		pity = pity,
 	}
+	if packed[player] == nil and hasBackpack(player) then
+		-- #2565: the first cat rides in the Backpack and the net stays out; the walk speed doesn't change
+		packed[player] = carry
+		attachPacked(player, carry)
+		if funnel ~= nil then
+			Telemetry.catchCaught(player, funnel)
+		end
+		return true
+	end
 	carrying[player] = carry
 	attachHeldCat(player, carry)
 	if pickedUp ~= true then
@@ -1978,6 +2056,10 @@ end
 
 -- `profile` is passed on the save-on-leave path, where the session is closing and a lookup must not race it.
 local function finishCheckIn(player: Player, notify: boolean, profile: Types.PlayerProfile?)
+	local extra = endPacked(player) -- #2565: the packed cat hops in first
+	if extra ~= nil then
+		checkIn(player, extra, notify, profile)
+	end
 	local carry = endCarry(player)
 	if carry ~= nil then
 		checkIn(player, carry, notify, profile)
@@ -2015,7 +2097,7 @@ end
 local CHECK_IN_LAG_STUDS = 4
 
 local function onCheckIn(player: Player)
-	local carry = carrying[player]
+	local carry = carrying[player] or packed[player] -- #2565
 	local plot = PlotService.get(player)
 	if carry == nil or plot == nil then
 		return
@@ -2035,7 +2117,7 @@ end
 -- CampCheckIn goes to every client first, while the cat is still in their arms, so each client copies it into the
 -- camp's basket; then CatCaught as for any check-in.
 local function campCheckIn(player: Player, campId: string)
-	local carry = carrying[player]
+	local carry = carrying[player] or packed[player] -- #2565
 	if carry == nil then
 		return
 	end
@@ -2066,7 +2148,16 @@ local MAX_STEP_STUDS = 16
 local lastCarrierAt: { [Player]: Vector3 } = {}
 local function checkInPassing()
 	local seen: { [Player]: Vector3 } = {}
+	local loaded: { Player } = {}
 	for player in carrying do
+		table.insert(loaded, player)
+	end
+	for player in packed do
+		if carrying[player] == nil then
+			table.insert(loaded, player) -- #2565: a packed cat alone checks in the same way
+		end
+	end
+	for _, player in loaded do
 		local position = rootPosition(player)
 		local plot = PlotService.get(player)
 		if position == nil or plot == nil then
@@ -2346,6 +2437,10 @@ local function dropCarry(player: Player, died: boolean)
 end
 
 local function onDropCat(player: Player)
+	-- #2565: the first press drops the held cat, the next the packed one
+	if carrying[player] == nil and ClockService.areasOpen() then
+		unpackCat(player)
+	end
 	dropCarry(player, false)
 end
 
@@ -2474,7 +2569,7 @@ function CatService.start(builtWorld: WorldBuilder.World)
 	-- A player who leaves mid-carry keeps the cat. The finalizer runs before the session closes and is handed
 	-- the profile, so it never depends on a lookup that is about to go nil.
 	DataService.beforeRelease(function(player, profile)
-		if carrying[player] ~= nil then
+		if carrying[player] ~= nil or packed[player] ~= nil then
 			finishCheckIn(player, false, profile)
 		end
 	end)
@@ -2493,6 +2588,9 @@ function CatService.start(builtWorld: WorldBuilder.World)
 							and player.Character == character
 						then
 							dropCarry(player, true)
+							if unpackCat(player) then
+								dropCarry(player, true) -- #2565: the packed cat drops too
+							end
 						end
 					end)
 				end)
@@ -2505,6 +2603,10 @@ function CatService.start(builtWorld: WorldBuilder.World)
 				if stray.lockedBy == player.UserId and attempt ~= nil then
 					finishCatch(player, stray, attempt)
 				end
+			end
+			local pack = packed[player]
+			if pack ~= nil then
+				attachPacked(player, pack) -- #2565
 			end
 			local carry = carrying[player]
 			if carry ~= nil then
@@ -2523,6 +2625,9 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		-- already gone, so the handler order between services does not matter.
 		if carrying[player] ~= nil and DataService.get(player) == nil then
 			carrying[player] = nil
+		end
+		if packed[player] ~= nil and DataService.get(player) == nil then
+			packed[player] = nil
 		end
 		circleHistory[player] = nil
 		lastCatchStart[player] = nil
@@ -2615,7 +2720,7 @@ end
 -- Checks in the cat the player carries, wherever they are: NightService sends a carrier home at dusk and the cat
 -- is checked in on arrival (CatCaught as usual).
 function CatService.forceCheckIn(player: Player)
-	if carrying[player] ~= nil then
+	if carrying[player] ~= nil or packed[player] ~= nil then
 		finishCheckIn(player, true)
 	end
 end
@@ -2650,6 +2755,9 @@ function CatService.tryKnockLoose(
 	areaId: string,
 	forced: Shove.KnockResult?
 ): Shove.KnockResult?
+	if carrying[target] == nil then
+		unpackCat(target) -- #2565: a packed cat alone is knocked loose like a held one
+	end
 	local carry = carrying[target]
 	local now = serverNow()
 	if carry == nil or not Shove.canKnockLoose(carry, now) then
@@ -2657,6 +2765,9 @@ function CatService.tryKnockLoose(
 	end
 	local loose = if forced ~= nil then forced == "loose" else Shove.landsLoose(rng:NextNumber())
 	if loose and knockLoose(target, shoverUserId, areaId) ~= nil then
+		if unpackCat(target) then
+			knockLoose(target, shoverUserId, areaId) -- #2565: a tackle drops both (Derek2)
+		end
 		return "loose"
 	end
 	carry.immuneUntil = now + Shove.HELD_IMMUNE_SECONDS
@@ -2671,6 +2782,17 @@ end
 
 function CatService.isCarrying(player: Player): boolean
 	return carrying[player] ~= nil
+end
+
+-- #2565: a cat in the hands or in the Backpack: blocks the cannon and tackling (CannonService, ShoveService).
+function CatService.isLoaded(player: Player): boolean
+	return carrying[player] ~= nil or packed[player] ~= nil
+end
+
+-- #2565: the packed cat's id, or nil.
+function CatService.packedOf(player: Player): string?
+	local carry = packed[player]
+	return if carry ~= nil then carry.def.id else nil
 end
 
 -- A Swift Potion started or ran out (PotionService, F64), or a Startled slow (F57): the character's speed follows at
@@ -2765,8 +2887,8 @@ function CatService.busyReason(player: Player, hopOk: boolean?): string?
 	if inFlight(player) and not (hopOk == true and hopping) then
 		return "You're already flying"
 	end
-	if carrying[player] ~= nil then
-		return Cannon.CARRY_TEXT -- every catching area is a wild area with a camp (F84)
+	if carrying[player] ~= nil or packed[player] ~= nil then
+		return Cannon.CARRY_TEXT -- every catching area is a wild area with a camp (F84); #2565: a packed cat too
 	end
 	if CatService.inCatch(player) then
 		return "Finish this catch first"

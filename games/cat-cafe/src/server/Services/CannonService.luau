@@ -124,7 +124,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 		distance = if root ~= nil and model ~= nil
 			then (root.Position - model:GetPivot().Position).Magnitude
 			else nil,
-		carrying = CatService.isCarrying(player),
+		carrying = CatService.isLoaded(player),
 		busy = CatService.inMinigame(player),
 		flying = CatService.inFlight(player),
 		sinceTackled = if type(shovedAt) == "number" then now - shovedAt else nil,
@@ -264,11 +264,7 @@ local function watchCharacter(player: Player, character: Model, respawn: boolean
 		return
 	end
 	task.wait(0.1) -- after Roblox has placed the character at the town spawn
-	if
-		player.Character ~= character
-		or character.Parent == nil
-		or CatService.isCarrying(player)
-	then
+	if player.Character ~= character or character.Parent == nil or CatService.isLoaded(player) then
 		return -- a carrier's death drops its cat first (data-model 10c); this only guards one that could not be dropped
 	end
 	local landing = if area ~= nil and ClockService.areasOpen()

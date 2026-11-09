@@ -153,6 +153,45 @@ function HeldCat.attach(model: Model, character: Model, root: BasePart?): Weld?
 	return hold
 end
 
+--- #2565 (mystery-market.md section 3a): a Backpack's packed cat, upright behind the torso with its head over the
+--- pack's top, welded like the held cat (massless, so the walk doesn't change). Nil when the character has no torso.
+function HeldCat.attachBack(model: Model, character: Model): Weld?
+	local body = bodyOf(model)
+	local torso = HeldCat.torso(character)
+	if body == nil or torso == nil then
+		return nil
+	end
+	local _, size = model:GetBoundingBox()
+	-- behind the back (+Z in the torso's space), a little above its middle, facing the way the player faces
+	local at = CFrame.new(0, torso.Size.Y * 0.15, torso.Size.Z / 2 + size.Z * 0.3)
+	local frame = at * model:GetPivot():ToObjectSpace(body.CFrame)
+	model:PivotTo(torso.CFrame * at)
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			local part = descendant :: BasePart
+			part.Anchored = false
+			part.CanCollide = false
+			part.CanQuery = false
+			part.CanTouch = false
+			part.Massless = true
+			if part ~= body and part:FindFirstChild("HeldWeld") == nil then
+				local weld = Instance.new("WeldConstraint")
+				weld.Name = "HeldWeld"
+				weld.Part0 = body
+				weld.Part1 = part
+				weld.Parent = part
+			end
+		end
+	end
+	local hold = Instance.new("Weld")
+	hold.Name = "HoldWeld"
+	hold.Part0 = torso
+	hold.Part1 = body
+	hold.C0 = frame
+	hold.Parent = body
+	return hold
+end
+
 --- Takes the held cat off its HoldWeld and anchors every part where it is (the intro's check-in hop).
 function HeldCat.release(model: Model)
 	for _, descendant in model:GetDescendants() do

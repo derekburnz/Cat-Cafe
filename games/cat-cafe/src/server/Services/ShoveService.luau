@@ -217,7 +217,7 @@ local function tackle(player: Player, forced: Shove.KnockResult?)
 	local tackleArea: string = if root ~= nil then areaAt(root.Position) or "" else ""
 	local area = Catalog.getArea(tackleArea)
 	local reason = Shove.tackleRefusal({
-		carrying = CatService.isCarrying(player),
+		carrying = CatService.isLoaded(player), -- #2565: a packed cat blocks tackling too
 		busy = CatService.inMinigame(player) or CatService.inFlight(player),
 		area = if tackleArea ~= "" then tackleArea else nil,
 		areaUnlocked = area ~= nil and Economy.tier(profile) >= area.tier,

@@ -2,8 +2,11 @@
 -- Small labels over the life in every cafe (world-and-feel section 4):
 --   Rate tags (Steal a Brainrot): the cat's name in white over "+$3/s" in its rarity colour, over each working cat
 --   within RATE_DISTANCE studs. Cats are the server's models tagged WorkingCat with Rate, Rarity, Napping and
---   DisplayName (the owner's name for it after the server's filter, else the breed; F33) attributes; a napping cat
---   shows no tag.
+--   DisplayName (the owner's name for it after the server's filter, else the breed; F33) attributes.
+--   #2868 (Derek2 11-09: "scale down the money/s a little bit above cats ... ones sleeping doesn't show"): a fifth
+--   smaller, and the resting cats napping in each cafe (the Napping children of a Plot's Cats, which earn nothing
+--   until they get a job, Economy.catRate) carry the tag too: their name over a grey "💤 Resting", never a made-up
+--   rate.
 --   At night (Clock Phase "night") the tag shows the night share behind a moon, "🌙 +$2/s", Rate x
 --   NightIncomeMultiplier, the same number as the cafe's name sign (reviewer N88): the cats curl up but still earn.
 --   #2551 (Derek2 11-09, of a cafe he walked past: "honestly its a good addition ... and a toggle to turn it off"):
@@ -50,9 +53,13 @@ local MAX_DISTANCE = 40 -- world-and-feel section 4: the order and making bubble
 local RATE_DISTANCE = 70 -- #2551: the rate tags within 70 studs (40 before), the whole cafe from its door
 -- #2784 (Derek2 11-09: "scale the text size down to at least half of current for yours and other peoples"): half
 -- the size they were in studs (4 x 1.1, a 0.7 stud name line); the #2551 pixel floor stays, so far ones still read
-local RATE_SIZE = Vector2.new(2, 0.55) -- studs
+-- #2868: a fifth smaller again in studs (2 x 0.55 with a 0.35 name line before); the #2551 pixel floor stays, so far
+-- ones do not drop under readable text
+local RATE_SIZE = Vector2.new(1.6, 0.44) -- studs
 local RATE_MIN = Vector2.new(30, 14) -- #2551: pixels on top of the studs, so a far tag stays readable
-local NAME_HEIGHT = 0.35 -- studs, the name line over the rate
+local NAME_HEIGHT = 0.28 -- studs, the name line over the rate
+local RESTING = "💤 Resting" -- #2868: the line under a resting cat's name
+local PLOT_TAG = "Plot"
 local BUBBLE_SIZE = 1.7 -- studs, square
 local HEART_SECONDS = 1.6 -- the heart stays this long, then fades
 local MAKING_SIZE = 1.5 -- studs, square: the making bubble over a Barista, a little smaller than an order bubble
@@ -145,6 +152,51 @@ function WorldTags.new(rates: boolean?): WorldTags
 		CollectionService:GetInstanceRemovedSignal(CAT_TAG):Connect(function(cat: Instance)
 			self:_detach(cat)
 		end)
+	)
+	-- #2868: the resting cats napping in each cafe, the Napping children of every Plot's Cats folder
+	local function watchCats(folder: Instance)
+		for _, cat in folder:GetChildren() do
+			self:_attachResting(cat)
+		end
+		table.insert(
+			self._connections,
+			folder.ChildAdded:Connect(function(cat: Instance)
+				self:_attachResting(cat)
+			end)
+		)
+		table.insert(
+			self._connections,
+			folder.ChildRemoved:Connect(function(cat: Instance)
+				if not cat:HasTag(CAT_TAG) then
+					self:_detach(cat)
+				end
+			end)
+		)
+	end
+	local function watchPlot(plot: Instance)
+		local cats = plot:FindFirstChild("Cats")
+		if cats then
+			watchCats(cats)
+			return
+		end
+		local waiting: RBXScriptConnection? = nil
+		waiting = plot.ChildAdded:Connect(function(child: Instance)
+			if child.Name == "Cats" then
+				local connection = waiting
+				if connection then
+					connection:Disconnect()
+				end
+				watchCats(child)
+			end
+		end)
+		table.insert(self._connections, waiting :: RBXScriptConnection)
+	end
+	for _, plot in CollectionService:GetTagged(PLOT_TAG) do
+		watchPlot(plot)
+	end
+	table.insert(
+		self._connections,
+		CollectionService:GetInstanceAddedSignal(PLOT_TAG):Connect(watchPlot)
 	)
 
 	local function watchCustomers(folder: Instance)
@@ -261,14 +313,21 @@ function WorldTags._attachCat(self: any, cat: Instance)
 		local rate = cat:GetAttribute("Rate")
 		local napping = cat:GetAttribute("Napping") == true
 		local rarity = cat:GetAttribute("Rarity")
-		local show = self._rates == true and not napping and type(rate) == "number" and rate > 0
+		local earning = not napping and type(rate) == "number" and rate > 0
+		local show = self._rates == true and (earning or napping)
 		billboard.Enabled = show
 		if show then
 			local night: boolean = self._night
-			label.Text = if night
-				then MOON .. " " .. Format.rate((rate :: number) * NIGHT_TIPS)
-				else Format.rate(rate :: number)
-			label.TextColor3 = Theme.rarityColor(if type(rarity) == "string" then rarity else nil)
+			if earning then
+				label.Text = if night
+					then MOON .. " " .. Format.rate((rate :: number) * NIGHT_TIPS)
+					else Format.rate(rate :: number)
+				label.TextColor3 =
+					Theme.rarityColor(if type(rarity) == "string" then rarity else nil)
+			else
+				label.Text = RESTING -- #2868: it earns nothing until it has a job, so no number
+				label.TextColor3 = Theme.colors.muted
+			end
 			-- already filtered by the server for everyone (data-model section 4), so it is safe to show as is
 			local displayName = cat:GetAttribute("DisplayName")
 			nameLabel.Text = if type(displayName) == "string" then displayName else ""
@@ -301,12 +360,25 @@ function WorldTags._attachCat(self: any, cat: Instance)
 	making()
 end
 
+-- #2868: a resting cat in a cafe's Cats folder (Napping, no WorkingCat tag) gets the tag too; a working cat there
+-- has its own from the WorkingCat watch.
+function WorldTags._attachResting(self: any, cat: Instance)
+	if cat:IsA("Model") and cat:GetAttribute("Napping") == true and not cat:HasTag(CAT_TAG) then
+		self:_attachCat(cat)
+	end
+end
+
 -- #2784: attaches `cat` again a frame later (so the rest of its parts are in), while it is still a tagged cat in the
 -- world.
 function WorldTags._retry(self: any, cat: Instance)
 	task.defer(function()
-		if not self._destroyed and cat:IsDescendantOf(Workspace) and cat:HasTag(CAT_TAG) then
+		if self._destroyed or not cat:IsDescendantOf(Workspace) then
+			return
+		end
+		if cat:HasTag(CAT_TAG) then
 			self:_attachCat(cat)
+		elseif cat.Parent ~= nil and cat.Parent.Name == "Cats" then
+			self:_attachResting(cat) -- #2868
 		end
 	end)
 end

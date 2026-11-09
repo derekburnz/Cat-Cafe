@@ -1685,6 +1685,57 @@ local SCENES = {
 		tags:destroy()
 		cat:Destroy()
 	end },
+	-- #2868 (Derek2: the "+$/s" tags a little smaller, and on the sleeping cats too): a resting cat napping in a
+	-- cafe's Cats folder shows its name over "Resting" (it earns nothing), a working cat its rate, both a fifth smaller
+	{ "RateTagResting", function()
+		local plot = Instance.new("Model")
+		plot.Name = "gate_rest_plot"
+		local cats = Instance.new("Folder")
+		cats.Name = "Cats"
+		cats.Parent = plot
+		local function cat(name: string, napping: boolean, x: number): Model
+			local model = Instance.new("Model")
+			model.Name = name
+			local body = Instance.new("Part")
+			body.Name = "Body"
+			body.Size = Vector3.new(2, 2, 3)
+			body.Position = Vector3.new(x, 3, -10)
+			body.Parent = model
+			model.PrimaryPart = body
+			model:SetAttribute("Rate", if napping then 0 else 9)
+			model:SetAttribute("Rarity", "Rare")
+			model:SetAttribute("Napping", napping)
+			model:SetAttribute("DisplayName", name)
+			model.Parent = cats
+			if not napping then
+				model:AddTag("WorkingCat")
+			end
+			return model
+		end
+		local sleeper = cat("Sleepy Cat", true, -3)
+		local worker = cat("Busy Cat", false, 3)
+		plot.Parent = workspace
+		plot:AddTag("Plot")
+		local tags = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Screens.WorldTags").new(true)
+		local function tagOf(model: Model): any
+			return model:FindFirstChild("CatCafeRateTag", true)
+		end
+		local rest, work = tagOf(sleeper), tagOf(worker)
+		assert(rest and rest.Enabled, "uigate: no tag over a resting cat (#2868)")
+		assert(rest.Rate.Text:find("Resting", 1, true) ~= nil, "uigate: the resting tag reads " .. rest.Rate.Text .. " (#2868)")
+		assert(rest.CatName.Text == "Sleepy Cat", "uigate: the resting tag's name reads " .. rest.CatName.Text)
+		assert(work and work.Enabled and work.Rate.Text:find("9") ~= nil, "uigate: the working cat's tag reads wrong (#2868)")
+		local count = 0
+		for _, d in sleeper:GetDescendants() do
+			count += if d.Name == "CatCafeRateTag" then 1 else 0
+		end
+		assert(count == 1, "uigate: the resting cat has " .. count .. " tags (#2868)")
+		assert(work.Size.X.Scale <= 1.6 + 1e-6 and work.Size.X.Offset >= 30, "uigate: the rate tag is not smaller in studs, or lost its #2551 pixel floor (#2868)")
+		tags:setRates(false)
+		assert(not rest.Enabled and not work.Enabled, "uigate: the Cat income switch left a tag on (#2868)")
+		tags:destroy()
+		plot:Destroy()
+	end },
 	{ "MoodIcons", function()
 		-- Catch v3 (catch-rework.md 7a): a mood icon over each stray with a Mood, Skittish with its arc; hidden
 		-- while caught (LockedBy), gone with the Mood

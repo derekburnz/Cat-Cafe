@@ -39,6 +39,7 @@ local Looks = require(ReplicatedStorage.Shared.Looks)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
+local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local PalService = require(script.Parent.PalService)
 local PassService = require(script.Parent.PassService)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
@@ -1320,6 +1321,8 @@ function CafeService.advanceTutorial(player: Player, profile: Profile, step: num
 		for passed = from + 1, step do
 			Telemetry.custom(player, "tutorial_step", 1, { tostring(passed) })
 		end
+		-- #2692: the night pass ends at the first check-in; the client's gates and cannon card read this at once
+		player:SetAttribute(NightPass.ATTRIBUTE, NightPass.has(step))
 		CafeService.tutorialStepped:Fire(player, from, step) -- #2697: TutorialMoveService
 	end
 end

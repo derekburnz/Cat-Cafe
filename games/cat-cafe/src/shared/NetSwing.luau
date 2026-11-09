@@ -10,8 +10,8 @@ local Types = require(script.Parent.Types)
 
 local NetSwing = {}
 
--- A cat closer than this on the ground plane is at the swinger's feet: in reach whichever way they face.
-NetSwing.FEET_STUDS = 1
+-- A cat closer than this on the ground plane is at the swinger's feet: in reach whichever way they face. #2693: was 1.
+NetSwing.FEET_STUDS = 1.5
 -- A swing may arrive this much sooner than NetSwingCooldown after the last one, for the ping wobble between two
 -- presses the client spaced a full cooldown apart.
 NetSwing.COOLDOWN_SLACK = 0.1
@@ -45,20 +45,30 @@ end
 
 -- True when `point` is in the swing from a root at `origin` facing `look`: within reach in 3D, so a cat up on a perch
 -- stays out of reach from the ground, and within NetArcDegrees either side of the facing on the ground plane.
+-- #2693 (Derek2: easier to hit on mobile): within NetNearStuds of the feet the arc is NetNearArcDegrees, and within
+-- NetFrontArcDegrees of straight ahead the reach is NetFrontExtraStuds longer. The client's glow reads this too.
 function NetSwing.inReach(origin: Vector3, look: Vector3, point: Vector3, extra: number?): boolean
 	local offset = point - origin
-	if offset.Magnitude > NetSwing.reach(extra) then
-		return false
-	end
+	local reach = NetSwing.reach(extra)
 	local flat = Vector3.new(offset.X, 0, offset.Z)
 	if flat.Magnitude < NetSwing.FEET_STUDS then
-		return true
+		return offset.Magnitude <= reach
 	end
 	local facing = Vector3.new(look.X, 0, look.Z)
 	if facing.Magnitude < 1e-3 then
 		return false
 	end
-	return flat.Unit:Dot(facing.Unit) >= math.cos(math.rad(Config.NetArcDegrees)) - 1e-9
+	local cos = flat.Unit:Dot(facing.Unit)
+	if cos >= math.cos(math.rad(Config.NetFrontArcDegrees)) - 1e-9 then
+		reach += Config.NetFrontExtraStuds
+	end
+	if offset.Magnitude > reach then
+		return false
+	end
+	local arc = if flat.Magnitude <= Config.NetNearStuds
+		then Config.NetNearArcDegrees
+		else Config.NetArcDegrees
+	return cos >= math.cos(math.rad(arc)) - 1e-9
 end
 
 -- Where the server will judge a swing pressed now from a root at `position` moving at `velocity`: the root carried

@@ -12,7 +12,7 @@ return function()
 
 	describe("slots", function()
 		it("runs a slot every PityLegendarySeconds, every 4th a Mythical one", function()
-			expect(every).to.equal(1800)
+			expect(every).to.equal(900) -- #2796: halved for now, was 1800
 			expect(Config.PityMythicalEvery).to.equal(4)
 			expect(Pity.slot(0)).to.equal(0)
 			expect(Pity.slot(every - 1)).to.equal(0)
@@ -171,13 +171,13 @@ return function()
 			error("no day")
 		end
 
-		it("starts both on the first boot: 30 minutes and 2 hours", function()
-			expect(Config.PityMythicalSeconds).to.equal(7200)
+		it("starts both on the first boot: one Legendary and one Mythical period away", function()
+			expect(Config.PityMythicalSeconds).to.equal(3600) -- #2796: halved for now, was 7200
 			local t = 5000
 			local l = Pity.first(t, legendary)
 			local m = Pity.first(t, mythical)
-			expect(l.at).to.equal(t + 1800)
-			expect(m.at).to.equal(t + 7200)
+			expect(l.at).to.equal(t + Config.PityLegendarySeconds)
+			expect(m.at).to.equal(t + Config.PityMythicalSeconds)
 			expect(l.seq).to.equal(1)
 			expect(m.seq).to.equal(1)
 		end)

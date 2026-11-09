@@ -340,7 +340,7 @@ return function()
 		TackleMissRecoverSeconds = 1.2,
 		TackledDownSeconds = 0.8,
 		-- the Cat Cannon (F84, section 17 v0.13.17)
-		CannonLaunchSeconds = 4.0,
+		CannonLaunchSeconds = 3.75,
 		CannonTeleportAtSeconds = 2.6,
 		CannonCloudsAt = 2.0,
 		CannonTouchdownAt = 3.5,

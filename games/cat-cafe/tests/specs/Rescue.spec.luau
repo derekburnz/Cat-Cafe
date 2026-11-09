@@ -591,4 +591,50 @@ return function()
 			end
 		)
 	end)
+	-- #2786 (Derek2 2026-11-09: "nerf beginning area 1-2 rescue missions difficulty")
+	describe("easier bars in the Alleyway and the Park (#2786)", function()
+		local function bar(rarity: any, areaId: string?, scale: number?): any
+			return Rescue.newChallenge(rarity, "trash_bin", 0, rolls({ 0.2, 0.7, 0.4, 0.9 }), scale, areaId)
+		end
+
+		it("widens the zones, slows the marker and takes a hit off in the Alleyway", function()
+			for _, rarity in Catalog.rarityOrder do
+				local plain, easy = bar(rarity, "neighbourhood"), bar(rarity, "alley")
+				expect(easy.zoneWidth).to.be.near(Config.RescueZoneWidth[rarity] * 1.4, 1e-9)
+				expect(easy.speed).to.be.near(Config.RescueBarSpeed[rarity] * 0.75, 1e-9)
+				expect(easy.hitsNeeded).to.equal(math.max(2, plain.hitsNeeded - 1))
+				expect(#easy.zones).to.equal(easy.hitsNeeded)
+				expect(plain.zoneWidth).to.be.near(Config.RescueZoneWidth[rarity], 1e-9)
+				expect(plain.speed).to.be.near(Config.RescueBarSpeed[rarity], 1e-9)
+			end
+			expect(bar("Common", "alley").hitsNeeded).to.equal(2)
+			expect(bar("Mythical", "alley").hitsNeeded).to.equal(Catalog.rarities.Mythical.rescueHits - 1)
+		end)
+
+		it("widens and slows the Park's bars without taking hits off", function()
+			for _, rarity in Catalog.rarityOrder do
+				local easy = bar(rarity, "park")
+				expect(easy.zoneWidth).to.be.near(Config.RescueZoneWidth[rarity] * 1.2, 1e-9)
+				expect(easy.speed).to.be.near(Config.RescueBarSpeed[rarity] * 0.85, 1e-9)
+				expect(easy.hitsNeeded).to.equal(Catalog.rarities[rarity].rescueHits)
+			end
+		end)
+
+		it("leaves later areas alone and keeps Warm Paws on top", function()
+			for _, areaId in { "neighbourhood", "woods", "sewer", "desert", "ruins" } do
+				expect(Config.RescueAreaEase[areaId]).to.equal(nil)
+			end
+			expect(bar("Rare", "alley", 1.1).zoneWidth).to.be.near(Config.RescueZoneWidth.Rare * 1.4 * 1.1, 1e-9)
+			expect(bar("Rare", nil).zoneWidth).to.be.near(Config.RescueZoneWidth.Rare, 1e-9)
+		end)
+
+		it("can still be freed in the Alleyway, two hits for a Common", function()
+			local attempt = Rescue.newAttempt(bar("Common", "alley"), "Common")
+			expect(Rescue.pressBar(attempt, zoneTime(attempt))).to.equal("hit")
+			expect(attempt.stage).to.equal("bar")
+			expect(Rescue.pressBar(attempt, zoneTime(attempt))).to.equal("hit")
+			expect(attempt.stage).to.equal("done")
+			expect(attempt.success).to.equal(true)
+		end)
+	end)
 end

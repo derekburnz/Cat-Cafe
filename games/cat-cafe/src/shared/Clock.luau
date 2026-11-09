@@ -28,6 +28,25 @@ function Clock.phaseAt(t: number): (Types.ClockPhase, number)
 	return "day", cycle - into
 end
 
+-- #2562 (Derek2: "see if lots of people leave during night time"): where in the clock a player left, for the
+-- left_in_phase event. `phase` and `left` (its seconds to go) as the server's clock has them. The day's last
+-- DuskWarningSeconds count as "dusk" (the "Night falls" banner). The second value is the phase and which third of it
+-- by seconds since it began: "night_early" (just after the areas close), "night_mid", "night_late", and so on.
+function Clock.leavePhase(phase: Types.ClockPhase, left: number): (string, string)
+	local name: string, length: number
+	if phase == "night" then
+		name, length = "night", Config.NightLengthSeconds
+	elseif left <= Config.DuskWarningSeconds then
+		name, length = "dusk", Config.DuskWarningSeconds
+	else
+		name, length = "day", Config.DayLengthSeconds - Config.DuskWarningSeconds
+		left -= Config.DuskWarningSeconds
+	end
+	local into = math.clamp(length - left, 0, length)
+	local third = math.min(2, math.floor(3 * into / length))
+	return name, name .. "_" .. ({ "early", "mid", "late" })[third + 1]
+end
+
 -- Seconds of night between clock times t0 and t1 (t0 <= t1), for settling income across phase boundaries
 -- (data-model section 11). The first stretch of day before the first night counts as day.
 function Clock.nightSecondsBetween(t0: number, t1: number): number

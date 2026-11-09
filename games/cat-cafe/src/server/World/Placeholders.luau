@@ -1486,6 +1486,57 @@ for _, def in Catalog.crateDecor do
 	end
 end
 
+-- #2565 (mystery-market.md section 1): Juniper's covered cart until Model-Agent's art is in: a wagon on four wheels
+-- under a violet hood, with a lantern on a pole. Front toward -Z; PromptAnchor at the front, 3 up.
+builders.CatCafe_Square_MysteryCart = function()
+	local model = newModel("CatCafe_Square_MysteryCart")
+	local bed = addPart(model, {
+		name = "Wagon",
+		size = Vector3.new(6, 2.4, 3.2),
+		offset = Vector3.new(0, 2, 0),
+		color = WOOD,
+		material = Enum.Material.WoodPlanks,
+		collide = true,
+	})
+	local anchor = Instance.new("Attachment")
+	anchor.Name = "PromptAnchor"
+	anchor.Position = Vector3.new(0, 1, -1.9)
+	anchor.Parent = bed
+	for _, x in { -2.3, 2.3 } do
+		for _, z in { -1.7, 1.7 } do
+			addPart(model, {
+				name = "Wheel",
+				size = Vector3.new(0.4, 1.6, 1.6),
+				offset = Vector3.new(x, 0.8, z),
+				shape = Enum.PartType.Cylinder,
+				rotation = Vector3.new(0, 90, 0),
+				color = DARK,
+			})
+		end
+	end
+	addPart(model, {
+		name = "Hood",
+		size = Vector3.new(6.2, 2.6, 3.4),
+		offset = Vector3.new(0, 4.5, 0.2),
+		color = Color3.fromRGB(120, 80, 170),
+		material = Enum.Material.Fabric,
+	})
+	addPart(model, {
+		name = "LanternPole",
+		size = Vector3.new(0.25, 4, 0.25),
+		offset = Vector3.new(3.3, 4, -1.4),
+		color = DARK,
+	})
+	addPart(model, {
+		name = "Lantern",
+		size = Vector3.new(0.7, 0.9, 0.7),
+		offset = Vector3.new(3.3, 6.2, -1.4),
+		color = LAMP_WARM,
+		material = Enum.Material.Neon,
+	})
+	return model
+end
+
 -- The Golden Fish Market (F53, golden-fish.md section 3) until the art is synced: a fishmonger's counter under a
 -- striped awning, a crate of golden fish on top and a sign, front toward -Z. PromptAnchor sits at the front, 3 up.
 builders.CatCafe_Street_FishMarket = function()

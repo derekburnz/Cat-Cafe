@@ -1885,7 +1885,7 @@ local function landSwing(player: Player)
 			end
 		end
 	end
-	local picked = NetSwing.pick(origin, look, targets)
+	local picked = NetSwing.pick(origin, look, targets, NetSwing.extraFor(profile.mystery)) -- #2565: the Long Net
 	local stray = if picked ~= nil then strays[picked.id] else nil
 	local started = false
 	if stray ~= nil then

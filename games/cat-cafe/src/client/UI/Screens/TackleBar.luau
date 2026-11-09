@@ -16,6 +16,10 @@
 -- hit, and while someone else's tackle has you down (Components/TackleLogic). Hidden while you carry a cat or play
 -- the catch circles or the rescue bar (reviewer N85), so Q never fights the keys those sink (E, Space, gamepad A and
 -- R2). The toasts live in UI.shove.result.
+-- #2558 (Derek2 11-09: "makes pressing Q to tackle more obvious for pc players"): off touch, while the bar is ready
+-- and someone carrying a cat is within a step and a lunge, a big pulsing key cap with "Tackle!" hangs over the
+-- nearest of them (Components/TackleCue, TackleTry.cueTarget), until this player has landed TackleTry.CUE_HITS
+-- tackles in the session. The bar's own key cap is bigger too.
 --
 --   setEnabled(on)          inside a catching area this player has unlocked, and tackles are switched on
 --   result(ok, outcome?)    the server refused (false) or took (true) the tackle; a hit outcome holds the bar
@@ -25,12 +29,16 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
+local Config =
+	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config"))
 local Cooldown = require(script.Parent.Parent.Components.Cooldown)
 local Create = require(script.Parent.Parent.Components.Create)
 local NetButtonPlace = require(script.Parent.Parent.Components.NetButtonPlace)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
+local TackleCue = require(script.Parent.Parent.Components.TackleCue)
 local TackleLogic = require(script.Parent.Parent.Components.TackleLogic)
+local TackleTry = require(script.Parent.Parent.Components.TackleTry)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Parent.Components.Tween)
 
@@ -88,6 +96,8 @@ function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 	self._loop = nil :: RBXScriptConnection?
 	self._connections = {} :: { RBXScriptConnection }
 	self._touch = Scale.isTouch()
+	self._hits = 0 -- #2558: tackles landed this session; the big cue stops at TackleTry.CUE_HITS
+	self._cue = nil :: TackleCue.TackleCue?
 
 	local screenGui: ScreenGui = Create("ScreenGui", {
 		Name = "CatCafeTackle",
@@ -110,6 +120,7 @@ function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 		Parent = screenGui,
 	})
 	self._uiScale = Scale.bind(root)
+	self._cue = TackleCue.new(parent)
 
 	local height = HEIGHT
 	self._height = height
@@ -165,7 +176,7 @@ function TackleBar.new(parent: Instance, callbacks: Callbacks): TackleBar
 			Position = UDim2.new(0, INSET + 2, 0.5, 0),
 			Size = UDim2.fromOffset(height - 2 * INSET - 2, height - 2 * INSET - 2),
 			FontFace = Theme.fonts.display,
-			TextSize = Theme.sizes.textSmall,
+			TextSize = Theme.sizes.textBody + 4, -- #2558: big enough to read as a key to press
 			TextColor3 = Theme.colors.ink,
 			Text = "Q",
 			ZIndex = 4,
@@ -353,8 +364,10 @@ function TackleBar._tick(self: any)
 	local look: TackleLogic.Look = if show then self:_look() else "down"
 	if not show then
 		self._state = nil
+		self:_placeCue(false)
 		return
 	end
+	self:_placeCue(look == "ready")
 	if not self._touch then
 		self._bar.Position = UDim2.new(0.5, 0, 1, self._callbacks.lift())
 	end
@@ -382,6 +395,32 @@ function TackleBar._tick(self: any)
 		then Cooldown.text(self._coolUntil - os.clock()) or "Recharging"
 		else ICON .. " TACKLE"
 	self:_drawFill()
+end
+
+-- #2558: the big "Q Tackle!" over the nearest carrier in reach while `ready`, else hidden.
+function TackleBar._placeCue(self: any, ready: boolean)
+	local cue: TackleCue.TackleCue? = self._cue
+	if cue == nil then
+		return
+	end
+	local _, root = character()
+	local others = if ready and self._hits < TackleTry.CUE_HITS
+		then TackleTry.carriers(Players:GetPlayers(), Players.LocalPlayer)
+		else {}
+	local index = TackleTry.cueTarget({
+		ready = ready,
+		hits = self._hits,
+		from = if root ~= nil then root.Position else nil,
+		reach = (Config :: any).TackleLungeStuds or 12,
+		others = others,
+	})
+	local target = if index ~= nil then others[index].root else nil
+	if target == nil then
+		cue:hide()
+		return
+	end
+	local gamepad = string.find(UserInputService:GetLastInputType().Name, "Gamepad") ~= nil
+	cue:show(target, if gamepad then "Y" else "Q")
 end
 
 -- The fill's share of the bar: empty at the press, full when the cooldown is over (and while down, in grey).
@@ -444,6 +483,7 @@ function TackleBar.result(self: any, ok: boolean, outcome: string?)
 		self._coolUntil = 0
 	elseif TackleLogic.isHit(outcome) then
 		self._holdUntil = os.clock() + TackleLogic.HIT_RECOVER
+		self._hits += 1 -- #2558
 	end
 	self:_tick()
 end
@@ -459,6 +499,11 @@ function TackleBar.destroy(self: any)
 	end
 	if self._uiScale then
 		Scale.unbind(self._uiScale)
+	end
+	local cue: TackleCue.TackleCue? = self._cue
+	if cue ~= nil then
+		cue:destroy()
+		self._cue = nil
 	end
 	self.screenGui:Destroy()
 end

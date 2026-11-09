@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09 22:01 UTC",
+  "generated": "2026-11-09 23:31 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -308116,27 +308116,27 @@
         "CatCafe_Item_Backpack",
         "CatCafe_Item_Backpack_Flap"
       ],
-      "triangles": 700,
+      "triangles": 744,
       "budget": 1500,
       "size_studs": {
-        "x": 1.8,
+        "x": 1.76,
         "y": 0.77,
-        "z": 1.84
+        "z": 1.76
       },
       "size_roblox": [
-        1.8,
-        1.84,
+        1.76,
+        1.76,
         0.77
       ],
       "bounds_min": [
-        -1.02,
+        -0.96,
         -0.77,
         -0.75
       ],
       "bounds_max": [
-        0.77,
+        0.8,
         0.0,
-        1.09
+        1.01
       ],
       "pivot": "the middle of the pack's back (wall: the strap side at +Z, the front -Z); the _Flap's pivot is its hinge",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
@@ -308154,9 +308154,9 @@
           -0.06
         ]
       },
-      "studio": "#2565 (mystery-market.md section 3d): the Backpack, for Juniper's window picture (ItemIcon draws its -Z face, the front pocket) and the wagon's FeaturedItem pedestal; #2849 redrew it to match the Bag HUD icon (sky blue, cat ears, a cat tail). Worn: weld it behind the torso like HeldCat.wearPack, turned 180 degrees about Y so the front looks backward, massless and CanCollide off. Open it while a cat rides in it by turning the child Model _Flap about its own X by mysteryitems.FLAP_OPEN (125) degrees.",
+      "studio": "#2565 (mystery-market.md section 3d): the Backpack, for Juniper's window picture (ItemIcon draws its -Z face, the front pocket) and the wagon's FeaturedItem pedestal; #2849 redrew it with cat ears and a cat tail, #2888 made it a cuter lilac and pink. Worn: weld it behind the torso like HeldCat.wearPack, turned 180 degrees about Y so the front looks backward, massless and CanCollide off. Open it while a cat rides in it by turning the child Model _Flap about its own X by mysteryitems.FLAP_OPEN (125) degrees.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_Backpack.model.json",
-      "rbx_parts": 53,
+      "rbx_parts": 52,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Item_Backpack.fbx",
         "assets/cat-cafe/exports/CatCafe_Item_Backpack.glb"
@@ -308168,13 +308168,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "700/1500 tris",
+          "budget": "744/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "358 faces on swatch centers",
+          "uv": "354 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "back plane at y=0.00 (want 0)",
-          "centered": "footprint center x=-0.12 y=-0.38"
+          "centered": "footprint center x=-0.08 y=-0.38"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_Backpack.png",

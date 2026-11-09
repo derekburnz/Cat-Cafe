@@ -1791,8 +1791,15 @@ end
 function methods.GetMouseLocation()
 	return Vector2.new(profile.width / 2, profile.height / 2)
 end
+local lastInput = nil -- #2872: a scene can play on a gamepad (UIShim.setLastInput)
 function methods.GetLastInputType()
+	if lastInput ~= nil then
+		return lastInput
+	end
 	return if profile.touch then Enum.UserInputType.Touch else Enum.UserInputType.MouseMovement
+end
+function UIShim.setLastInput(inputType)
+	lastInput = inputType
 end
 function methods.GetFocusedTextBox()
 	return nil

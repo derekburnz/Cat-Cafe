@@ -108,10 +108,10 @@ return function()
 	end
 
 	describe("template (section 14)", function()
-		it("is version 45 at Tier 1 with 50 coins and the v0.3 start levels", function()
+		it("is version 46 at Tier 1 with 50 coins and the v0.3 start levels", function()
 			local profile = ProfileSchema.template(1000)
-			expect(ProfileSchema.VERSION).to.equal(45) -- #2651: Tier 6 and 7
-			expect(profile.version).to.equal(45)
+			expect(ProfileSchema.VERSION).to.equal(46) -- #2651 part 4: the Oasis Spa and the Relic Museum
+			expect(profile.version).to.equal(46)
 			-- #2565 (version 44): no Mystery Market item yet
 			expect(next(profile.mystery)).never.to.be.ok()
 			expect(profile.mysterySeen).to.equal(false)
@@ -320,10 +320,10 @@ return function()
 		end)
 
 		it("only a save above the code's version is newer", function()
-			expect(ProfileSchema.isNewerThanCode({ version = 46 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 47 })).to.equal(true)
 			expect(ProfileSchema.isNewerThanCode({ version = 99 })).to.equal(true)
+			expect(ProfileSchema.isNewerThanCode({ version = 46 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 45 })).to.equal(false)
-			expect(ProfileSchema.isNewerThanCode({ version = 44 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 43 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 42 })).to.equal(false)
 			expect(ProfileSchema.isNewerThanCode({ version = 41 })).to.equal(false)

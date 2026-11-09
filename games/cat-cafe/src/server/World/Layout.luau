@@ -2094,10 +2094,16 @@ function Layout.fallCaught(spec: AreaSpec, x: number, y: number, z: number): boo
 		and math.abs(z - spec.center.z) <= spec.halfDepth + margin
 end
 
--- Where an area's camp extra stands in the world: x, the floor's y and z, the turn about Y (the camp's), or nil for an
--- area with no extra or no camp.
-function Layout.campExtraAt(areaId: string): (number?, number?, number?, number?)
-	local at, spec, camp = Layout.campExtras[areaId], Layout.areas[areaId], Layout.camps[areaId]
+-- #2651 part 4 (late-stations.md): the Oasis Spa (Desert) and the Relic Museum (Ruins), each model's pivot in its
+-- area's set space as Layout.campExtras, in the camp beside the way out (the Sewer extra's place, 4.5 inside the gate
+-- line). Model-Agent may move them when the art lands.
+Layout.lateStations = {
+	desert = { x = 20, y = 0, z = -284.5 },
+	ruins = { x = 20, y = 0, z = -304.5 },
+} :: { [string]: Point }
+
+local function inSetSpace(at: Point?, areaId: string): (number?, number?, number?, number?)
+	local spec, camp = Layout.areas[areaId], Layout.camps[areaId]
 	if at == nil or spec == nil or camp == nil then
 		return nil, nil, nil, nil
 	end
@@ -2106,6 +2112,17 @@ function Layout.campExtraAt(areaId: string): (number?, number?, number?, number?
 		spec.floorY,
 		spec.center.z - at.x * s + at.z * c,
 		camp.turn
+end
+
+-- Where an area's camp extra stands in the world: x, the floor's y and z, the turn about Y (the camp's), or nil for an
+-- area with no extra or no camp.
+function Layout.campExtraAt(areaId: string): (number?, number?, number?, number?)
+	return inSetSpace(Layout.campExtras[areaId], areaId)
+end
+
+-- #2651 part 4: where an area's late station stands, as campExtraAt, or nil for an area without one.
+function Layout.lateStationAt(areaId: string): (number?, number?, number?, number?)
+	return inSetSpace(Layout.lateStations[areaId], areaId)
 end
 
 -- The Garden Nursery (#1200, lawn-nursery.md section 3; Model-Agent #1332): CatCafe_Camp_Park_GardenNursery's pivot

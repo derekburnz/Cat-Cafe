@@ -320,7 +320,10 @@ function Economy.grantXp(profile: Types.PlayerProfile, seconds: number): number
 		return 0
 	end
 	local gained = 0
-	for _, instance in profile.cats do
+	for uid, instance in profile.cats do
+		if CatStats.atSpa(profile, uid) then
+			continue -- #2651 part 4: a cat at the Oasis Spa earns no XP; it gains its level when collected
+		end
 		gained += CatStats.addXp(instance, seconds * Economy.catXpRate(instance))
 	end
 	if gained > 0 then

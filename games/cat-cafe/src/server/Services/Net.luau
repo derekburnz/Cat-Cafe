@@ -84,6 +84,12 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	SendFeedback = RateLimiter.new(1, 10), -- F87: 1 per 10 s; TipService also holds FeedbackSessionLimit a session
 	ClaimStarterCat = RateLimiter.new(1, 2), -- F96 (starter-cat.md section 4): 1 per 2 s
 	CollectCampExtra = RateLimiter.new(1, 1), -- F100 (camp-extras.md section 4): 1 a second
+	-- #2651 part 4 (late-stations.md section 3): 1 a second each
+	SpaPut = RateLimiter.new(1, 1),
+	SpaTakeOut = RateLimiter.new(1, 1),
+	SpaCollect = RateLimiter.new(1, 1),
+	SpaBuySlot = RateLimiter.new(1, 1),
+	MuseumDonate = RateLimiter.new(1, 1),
 	BuyYardSale = RateLimiter.new(1, 1), -- F100: 1 a second
 	BuyCornerShop = RateLimiter.new(2, 1), -- #1052: 2 a second
 	BuyCornerShopAll = RateLimiter.new(1, 2), -- #2593: a section's Buy all

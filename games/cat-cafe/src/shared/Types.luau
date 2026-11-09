@@ -881,6 +881,37 @@ export type YardDecorRow = {
 	owned: boolean,
 }
 
+-- #2651 part 4 (late-stations.md section 3): the Oasis Spa's save. `slots` is how many are open (1 free, the rest
+-- bought with golden fish); `soaking` holds the cat in each slot by its number as a string ("1" to "3"), with `at` the
+-- os.time() it went in. A finished cat waits in its slot until collected.
+export type SpaSoak = { uid: string, at: number }
+export type SpaSave = { slots: number, soaking: { [string]: SpaSoak } }
+
+-- The Relic Museum's save: each filled exhibit by catId, with the coat of the copy given ("base", "gold", "rainbow").
+export type MuseumSave = { [string]: string }
+
+-- LateStationsState (server to client): the Oasis Spa and the Relic Museum as the cards and the cannon picker show
+-- them. A spa slot's `doneAt` is server time (os.time()); `ready` counts the finished slots. The museum's `canFill`
+-- counts the empty exhibits the player has a spare copy for (the "!"), `rooms` the areas whose rooms are complete.
+export type SpaSlotView = { slot: number, uid: string?, catId: string?, doneAt: number? }
+export type SpaView = {
+	open: boolean,
+	slots: number,
+	nextPrice: number?,
+	soaking: { SpaSlotView },
+	ready: number,
+}
+export type MuseumView = {
+	open: boolean,
+	filled: MuseumSave,
+	count: number,
+	total: number,
+	canFill: number,
+	rooms: { string },
+	bonus: number,
+}
+export type LateStationsState = { live: boolean, spa: SpaView, museum: MuseumView }
+
 -- CampExtrasState (server to client): every extra's view by id, and the UTC day it was worked out on.
 export type CampExtrasState = {
 	day: number,
@@ -1131,6 +1162,8 @@ export type PlayerProfile = {
 	starterCatClaimed: boolean, -- F96 (starter-cat.md section 4, save version 21): the free Bellhop Cat taken home
 	notifyAskAt: number, -- F96 (section 3, save version 22): os.time() the notification ask first showed, 0 before
 	campExtras: CampExtrasSave, -- F100 (camp-extras.md section 4, save version 25)
+	spa: SpaSave, -- #2651 part 4 (late-stations.md section 1, save version 46): the Oasis Spa
+	museum: MuseumSave, -- #2651 part 4 (late-stations.md section 2, save version 46): the Relic Museum
 	rally: RallySave, -- F101 (rescue-rally.md section 5, save version 26)
 	-- F102 (trading.md sections 4 and 5, save version 27): the last TradeLogMax trades for the Trades page, and the ids
 	-- of the last TradeIdsMax trades applied to this save, so a trade pending after a shutdown is applied only once

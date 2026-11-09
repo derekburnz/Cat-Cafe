@@ -146,10 +146,10 @@ local Cues: { [string]: Cue } = {
 		seconds = 58.182, -- 16 bars at 66 BPM
 	}, -- "Starlight Purr"
 	-- #2651 (Tier 6 and 7): each late area has its own song, played in place of the cafe music while you are in it
-	-- (Audio.setZone, Logic.areaSongFor). Both share one upload, the MusicAreas sheet; silent (the cafe music plays on)
-	-- until sheetMusicAreas has an id. Rendered by synth/music.py, which prints the regions.
+	-- (Audio.setZone, Logic.areaSongFor). Both share one upload, the MusicAreas sheet; uploaded by upload-audio run
+	-- 42576766940 (group). Rendered by synth/music.py, which prints the regions.
 	sheetMusicAreas = {
-		ids = {},
+		ids = { "rbxassetid://133058435990072" },
 		group = "Music",
 		volume = 0.3,
 	}, -- stereo, 179.2 s: Sunstone Caravan, Glyph Halls with 0.5 s of silence between

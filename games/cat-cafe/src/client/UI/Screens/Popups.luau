@@ -51,7 +51,13 @@ export type Popups = {
 		note: string?,
 		hook: string?
 	) -> (),
-	showGift: (self: Popups, title: string, prize: Types.IndexPrize) -> (),
+	showGift: (
+		self: Popups,
+		title: string,
+		prize: Types.IndexPrize,
+		heading: string?,
+		look: PrizeChips.Look?
+	) -> (),
 	dropOffline: (self: Popups) -> boolean,
 	setCatalog: (self: Popups, catalog: Types.Catalog) -> (),
 	dismiss: (self: Popups) -> (),
@@ -511,7 +517,7 @@ function Popups.new(parent: Instance): Popups
 		Create("UIStroke", { Color = Theme.colors.berry, Thickness = Theme.sizes.outline + 1 }),
 	})
 	self._giftCard = giftCard
-	text({
+	self._giftTitle = text({
 		Name = "Title",
 		Position = UDim2.fromOffset(16, 16),
 		Size = UDim2.new(1, -32, 0, 30),
@@ -831,10 +837,18 @@ end
 
 -- What a Mystery gift held (MysteryGiftResult, F64): its picture and name ("Money Potion", "2 Salmon"). It closes by
 -- itself after GIFT_AUTO_CLOSE seconds, and plays giftOpen when it shows (sound list 5.11).
-function Popups.showGift(self: any, title: string, prize: Types.IndexPrize)
+-- #2614: `heading` is the wrap's ("Rare gift!", "Super gift!"); nil keeps "Mystery gift!"
+function Popups.showGift(
+	self: any,
+	title: string,
+	prize: Types.IndexPrize,
+	heading: string?,
+	look: PrizeChips.Look?
+)
 	self:_show(function()
 		local token = self:_open(self._giftCard)
-		self._giftChips:set(prize)
+		self._giftTitle.Text = Theme.icons.gifts .. " " .. (heading or "Mystery gift!")
+		self._giftChips:set(prize, look)
 		self._giftName.Text = title
 		Sound.play("giftOpen")
 		task.delay(GIFT_AUTO_CLOSE, function()

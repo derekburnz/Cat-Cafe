@@ -4806,11 +4806,11 @@ local SCENES = {
 		assert(title.Visible and title.TextFits, "uigate: the goal card's tier name does not fit (#2331)")
 		assertArrowAt(goal, "the goal card")
 	end },
-	-- #2714 (Derek2 11-09: "let you shrink down your goal so they have more screen space"): on touch the ▸ tab folds the
+	-- #2714 (Derek2 11-09: "let you shrink down your goal so they have more screen space"): on touch the ▶ button folds the
 	-- goal card into one finger-tall chip and saves goalFolded; a tap on the chip opens it again. Desktop has no tab.
 	{ "GoalFolded", function()
 		local goal = UIShim.playerGui:FindFirstChild("TierGoal", true) :: GuiObject
-		local fold = goal:FindFirstChild("Fold") :: GuiButton
+		local fold = goal:FindFirstChild("Fold") :: GuiObject
 		local touch = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch()
 		if not touch then
 			assert(not fold.Visible, "uigate: a fold tab on the goal card on desktop (#2714)")
@@ -4822,7 +4822,14 @@ local SCENES = {
 		end)
 		local tall = goal.AbsoluteSize.Y
 		assert(fold.Visible, "uigate: no fold tab on the goal card on touch (#2714)")
-		UIShim.fire(UIShim.eventOf(fold, "Activated"))
+		-- #2828 (Derek2: "set it to be one of the white arrows like the rest"): the HUD's white arrow button, its size
+		local arrow = fold:FindFirstChild("Label", true) :: TextLabel?
+		local menuFold = UIShim.playerGui:FindFirstChild("MenuFold", true) :: GuiObject?
+		assert(arrow and arrow.Text == "▶", "uigate: the goal card's fold button is not the white ▶ arrow (#2828)")
+		assert(menuFold == nil or (fold.AbsoluteSize - menuFold.AbsoluteSize).Magnitude < 1, ("uigate: the goal fold button is %dx%d, the menu's %dx%d (#2828)"):format(fold.AbsoluteSize.X, fold.AbsoluteSize.Y, menuFold and menuFold.AbsoluteSize.X or 0, menuFold and menuFold.AbsoluteSize.Y or 0))
+		assert(fold.AbsolutePosition.X + fold.AbsoluteSize.X <= goal.AbsolutePosition.X + 0.5, "uigate: the goal fold button covers the card (#2828)")
+		assert(fold.AbsolutePosition.X >= 0, "uigate: the goal fold button is off screen (#2828)")
+		press("TierGoal", "Fold")
 		task.wait(0.1)
 		assert(goal.AbsoluteSize.Y < tall * 0.6, ("uigate: the folded goal card is %d px tall, was %d (#2714)"):format(goal.AbsoluteSize.Y, tall))
 		local title = goal:FindFirstChild("Title") :: TextLabel
@@ -5972,6 +5979,10 @@ local SCENES = {
 			assert(bottom > rootBottom - 80 and counters.AbsolutePosition.X < root.AbsolutePosition.X + 40, "uigate: the counters left the bottom left on a PC (#2393)")
 			return
 		end
+		-- #2710 (kept when #2827 hid the potion chip): on touch there is no Potions tile; the Bag has the potions
+		local corner = hud:FindFirstChild("Corner", true)
+		local tile = corner and corner:FindFirstChild("Potions")
+		assert(tile == nil or not (tile :: GuiObject).Visible, "uigate: the Potions tile shows on touch (#2710)")
 		local row = root:FindFirstChild("Potions") :: GuiObject
 		assert(row.Visible, "uigate: no Luck row with luck 2x (#2393)")
 		if bottom <= root.AbsolutePosition.Y + 2 then

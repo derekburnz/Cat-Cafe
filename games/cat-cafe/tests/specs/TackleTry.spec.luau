@@ -53,4 +53,41 @@ return function()
 			expect(TackleTry.due(input({ tried = true }))).to.equal(false)
 		end)
 	end)
+
+	describe("TackleTry.cueTarget (#2558)", function()
+		local function cue(overrides: { [string]: any }): any
+			local base: { [string]: any } = {
+				ready = true,
+				hits = 0,
+				from = Vector3.new(0, 0, 0),
+				reach = 12,
+				others = {
+					{ position = Vector3.new(14, 0, 0), carrying = true },
+					{ position = Vector3.new(6, 0, 0), carrying = true },
+					{ position = Vector3.new(2, 0, 0), carrying = false },
+				},
+			}
+			for key, value in overrides do
+				base[key] = value
+			end
+			return base
+		end
+
+		it("picks the nearest carrier within a step and a lunge", function()
+			expect(TackleTry.cueTarget(cue({}))).to.equal(2)
+			expect(
+				TackleTry.cueTarget(cue({ others = { { position = Vector3.new(20, 0, 0), carrying = true } } }))
+			).to.equal(nil)
+			expect(TackleTry.cueTarget(cue({ others = {} }))).to.equal(nil)
+		end)
+
+		it("waits for a ready tackle and stops after CUE_HITS landed tackles", function()
+			expect(TackleTry.cueTarget(cue({ ready = false }))).to.equal(nil)
+			local nowhere = cue({})
+			nowhere.from = nil -- no character yet
+			expect(TackleTry.cueTarget(nowhere)).to.equal(nil)
+			expect(TackleTry.cueTarget(cue({ hits = TackleTry.CUE_HITS - 1 }))).to.equal(2)
+			expect(TackleTry.cueTarget(cue({ hits = TackleTry.CUE_HITS }))).to.equal(nil)
+		end)
+	end)
 end

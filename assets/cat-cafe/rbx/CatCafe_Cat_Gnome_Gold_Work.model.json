@@ -3265,6 +3265,111 @@
         "CFrame": {
          "CFrame": {
           "position": [
+           -0.1549,
+           2.2732,
+           -0.5168
+          ],
+          "orientation": [
+           [
+            0.2577,
+            0.0,
+            -0.9662
+           ],
+           [
+            -0.9662,
+            0.0,
+            -0.2577
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0258,
+         0.0258,
+         0.3206
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gnome_Gold_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3098,
+           2.2113,
+           -0.5168
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0361,
+         0.1239,
+         0.1239
+        ],
+        "Color": [
+         0.1686,
+         0.1686,
+         0.2078
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Gnome_Gold_Work_Prop",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
            0.0361,
            1.8424,
            -0.5289
@@ -3517,6 +3622,131 @@
        "attributes": {
         "Follows": "Head"
        }
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Cat_Gnome_Gold_Work/15"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Cat_Gnome_Gold_Work_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.3098,
+             2.1183,
+             -0.5168
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1859,
+           0.223,
+           0.1859
+          ],
+          "Color": [
+           1.0,
+           0.7882,
+           0.302
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.0,
+             -0.0103,
+             0.0
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Cat_Gnome_Gold_Work/15",
+          "Follows": "Head"
+         },
+         "children": [
+          {
+           "name": "Mesh",
+           "className": "SpecialMesh",
+           "properties": {
+            "MeshType": "Sphere"
+           }
+          }
+         ]
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           -0.3098,
+           2.108,
+           -0.5168
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Cat_Gnome_Gold_Work_Glow"
       }
      ],
      "properties": {
@@ -3552,7 +3782,7 @@
     {
      "className": "Model",
      "attributes": {
-      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Gnome_Gold_Work/15"
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Gnome_Gold_Work/16"
      },
      "children": [
       {
@@ -3630,7 +3860,7 @@
         }
        },
        "attributes": {
-        "Rojo_Id": "CatCafe_Cat_Gnome_Gold_Work/15",
+        "Rojo_Id": "CatCafe_Cat_Gnome_Gold_Work/16",
         "Follows": "Head"
        },
        "children": [

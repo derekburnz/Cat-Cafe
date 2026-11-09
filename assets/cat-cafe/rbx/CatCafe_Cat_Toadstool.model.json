@@ -2686,502 +2686,594 @@
        }
       },
       {
-       "name": "CatCafe_Cat_Toadstool_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.2663,
-           1.6661,
-           -0.9813
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.1522,
-         0.1065,
-         0.1522
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Cat_Toadstool/12"
        },
        "children": [
         {
-         "name": "Mesh",
-         "className": "SpecialMesh",
+         "name": "CatCafe_Cat_Toadstool_Glow",
+         "className": "Part",
          "properties": {
-          "MeshType": "Sphere"
-         }
-        }
-       ],
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Toadstool_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.4518,
-           1.677,
-           -0.7809
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.2663,
+             1.6661,
+             -0.9813
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1522,
+           0.1065,
+           0.1522
           ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
+          "Color": [
+           1.0,
+           0.9765,
+           0.949
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             -0.2663,
+             0.087,
+             0.4613
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Cat_Toadstool/12",
+          "Follows": "Head"
+         },
+         "children": [
+          {
+           "name": "Mesh",
+           "className": "SpecialMesh",
+           "properties": {
+            "MeshType": "Sphere"
+           }
+          }
+         ]
+        },
+        {
+         "name": "CatCafe_Cat_Toadstool_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.4518,
+             1.677,
+             -0.7809
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1304,
+           0.0913,
+           0.1304
+          ],
+          "Color": [
+           1.0,
+           0.9765,
+           0.949
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "children": [
+          {
+           "name": "Mesh",
+           "className": "SpecialMesh",
+           "properties": {
+            "MeshType": "Sphere"
+           }
+          }
+         ],
+         "attributes": {
+          "Follows": "Head"
          }
         },
-        "Size": [
-         0.1304,
-         0.0913,
-         0.1304
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "children": [
         {
-         "name": "Mesh",
-         "className": "SpecialMesh",
+         "name": "CatCafe_Cat_Toadstool_Glow",
+         "className": "Part",
          "properties": {
-          "MeshType": "Sphere"
-         }
-        }
-       ],
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Toadstool_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.2663,
-           1.6661,
-           -0.0587
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.2663,
+             1.6661,
+             -0.0587
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1522,
+           0.1065,
+           0.1522
           ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
+          "Color": [
+           1.0,
+           0.9765,
+           0.949
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "children": [
+          {
+           "name": "Mesh",
+           "className": "SpecialMesh",
+           "properties": {
+            "MeshType": "Sphere"
+           }
+          }
+         ],
+         "attributes": {
+          "Follows": "Head"
          }
         },
-        "Size": [
-         0.1522,
-         0.1065,
-         0.1522
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "children": [
         {
-         "name": "Mesh",
-         "className": "SpecialMesh",
+         "name": "CatCafe_Cat_Toadstool_Glow",
+         "className": "Part",
          "properties": {
-          "MeshType": "Sphere"
-         }
-        }
-       ],
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Toadstool_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.3997,
-           1.677,
-           -0.1846
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.3997,
+             1.677,
+             -0.1846
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1304,
+           0.0913,
+           0.1304
           ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
+          "Color": [
+           1.0,
+           0.9765,
+           0.949
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "children": [
+          {
+           "name": "Mesh",
+           "className": "SpecialMesh",
+           "properties": {
+            "MeshType": "Sphere"
+           }
+          }
+         ],
+         "attributes": {
+          "Follows": "Head"
          }
         },
-        "Size": [
-         0.1304,
-         0.0913,
-         0.1304
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "children": [
         {
-         "name": "Mesh",
-         "className": "SpecialMesh",
+         "name": "CatCafe_Cat_Toadstool_Glow",
+         "className": "Part",
          "properties": {
-          "MeshType": "Sphere"
-         }
-        }
-       ],
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Toadstool_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.4518,
-           1.6661,
-           -0.7809
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.4518,
+             1.6661,
+             -0.7809
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1087,
+           0.0761,
+           0.1087
           ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
+          "Color": [
+           1.0,
+           0.9765,
+           0.949
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "children": [
+          {
+           "name": "Mesh",
+           "className": "SpecialMesh",
+           "properties": {
+            "MeshType": "Sphere"
+           }
+          }
+         ],
+         "attributes": {
+          "Follows": "Head"
          }
         },
-        "Size": [
-         0.1087,
-         0.0761,
-         0.1087
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "children": [
         {
-         "name": "Mesh",
-         "className": "SpecialMesh",
+         "name": "CatCafe_Cat_Toadstool_Glow",
+         "className": "Part",
          "properties": {
-          "MeshType": "Sphere"
-         }
-        }
-       ],
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Toadstool_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.0698,
-           1.7857,
-           -0.9161
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.0698,
+             1.7857,
+             -0.9161
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1304,
+           0.0913,
+           0.1304
           ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
+          "Color": [
+           1.0,
+           0.9765,
+           0.949
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "children": [
+          {
+           "name": "Mesh",
+           "className": "SpecialMesh",
+           "properties": {
+            "MeshType": "Sphere"
+           }
+          }
+         ],
+         "attributes": {
+          "Follows": "Head"
          }
         },
-        "Size": [
-         0.1304,
-         0.0913,
-         0.1304
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "children": [
         {
-         "name": "Mesh",
-         "className": "SpecialMesh",
+         "name": "CatCafe_Cat_Toadstool_Glow",
+         "className": "Part",
          "properties": {
-          "MeshType": "Sphere"
-         }
-        }
-       ],
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Toadstool_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           -0.3577,
-           1.7748,
-           -0.3135
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             -0.3577,
+             1.7748,
+             -0.3135
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1087,
+           0.0761,
+           0.1087
           ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
+          "Color": [
+           1.0,
+           0.9765,
+           0.949
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "children": [
+          {
+           "name": "Mesh",
+           "className": "SpecialMesh",
+           "properties": {
+            "MeshType": "Sphere"
+           }
+          }
+         ],
+         "attributes": {
+          "Follows": "Head"
          }
         },
-        "Size": [
-         0.1087,
-         0.0761,
-         0.1087
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "children": [
         {
-         "name": "Mesh",
-         "className": "SpecialMesh",
+         "name": "CatCafe_Cat_Toadstool_Glow",
+         "className": "Part",
          "properties": {
-          "MeshType": "Sphere"
-         }
-        }
-       ],
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Toadstool_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.2585,
-           1.7857,
-           -0.2119
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.2585,
+             1.7857,
+             -0.2119
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1304,
+           0.0913,
+           0.1304
           ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
+          "Color": [
+           1.0,
+           0.9765,
+           0.949
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "children": [
+          {
+           "name": "Mesh",
+           "className": "SpecialMesh",
+           "properties": {
+            "MeshType": "Sphere"
+           }
+          }
+         ],
+         "attributes": {
+          "Follows": "Head"
          }
         },
-        "Size": [
-         0.1304,
-         0.0913,
-         0.1304
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "children": [
         {
-         "name": "Mesh",
-         "className": "SpecialMesh",
+         "name": "CatCafe_Cat_Toadstool_Glow",
+         "className": "Part",
          "properties": {
-          "MeshType": "Sphere"
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.9052,
+             -0.52
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1522,
+           0.1065,
+           0.1522
+          ],
+          "Color": [
+           1.0,
+           0.9765,
+           0.949
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth"
+         },
+         "children": [
+          {
+           "name": "Mesh",
+           "className": "SpecialMesh",
+           "properties": {
+            "MeshType": "Sphere"
+           }
+          }
+         ],
+         "attributes": {
+          "Follows": "Head"
          }
         }
        ],
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Toadstool_Prop",
-       "className": "Part",
        "properties": {
-        "CFrame": {
-         "CFrame": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
           "position": [
            0.0,
-           1.9052,
+           1.753,
            -0.52
           ],
           "orientation": [
@@ -3202,37 +3294,9 @@
            ]
           ]
          }
-        },
-        "Size": [
-         0.1522,
-         0.1065,
-         0.1522
-        ],
-        "Color": [
-         1.0,
-         0.9765,
-         0.949
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "children": [
-        {
-         "name": "Mesh",
-         "className": "SpecialMesh",
-         "properties": {
-          "MeshType": "Sphere"
-         }
         }
-       ],
-       "attributes": {
-        "Follows": "Head"
-       }
+       },
+       "name": "CatCafe_Cat_Toadstool_Glow"
       }
      ],
      "properties": {
@@ -4153,7 +4217,7 @@
   {
    "className": "Model",
    "attributes": {
-    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Toadstool/12"
+    "Rojo_Target_PrimaryPart": "CatCafe_Cat_Toadstool/13"
    },
    "children": [
     {
@@ -4231,7 +4295,7 @@
       }
      },
      "attributes": {
-      "Rojo_Id": "CatCafe_Cat_Toadstool/12",
+      "Rojo_Id": "CatCafe_Cat_Toadstool/13",
       "Follows": "Body"
      }
     },

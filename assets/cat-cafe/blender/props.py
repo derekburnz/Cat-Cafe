@@ -357,7 +357,9 @@ def mushroom_cap(ctx):
     for (az, rad, z, r) in ((-30, 0.49, 0.07, 0.07), (60, 0.48, 0.08, 0.06), (150, 0.49, 0.07, 0.07), (230, 0.48, 0.08, 0.06),
                             (300, 0.48, 0.07, 0.05), (10, 0.37, 0.18, 0.06), (120, 0.38, 0.17, 0.05), (220, 0.37, 0.18, 0.06),
                             (0, 0.0, 0.29, 0.07)):
-        P.ico(tuple(_rz(az) @ Vector((0, -rad, z))), r, "offwhite", scale=(1, 1, 0.7))
+        if az == -30 and rad == 0.49:
+            S = ctx.piece("Glow", "head", (0.0, 0.0, 0.15))            # #2739: the spots glow softly (Neon)
+        S.ico(tuple(_rz(az) @ Vector((0, -rad, z))), r, "offwhite", scale=(1, 1, 0.7))
 
 
 def antlers(ctx):
@@ -417,7 +419,8 @@ def bottlecap_crown(ctx):
         P.pyramid(tuple(R @ Vector((0, -0.27, 0.2))), 0.2, 0.3, "bronze", rot=R @ _rx(-8) @ _rz(45))
         P.cyl(tuple(R @ Vector((0, -0.3, 0.2))), 0.1, 0.045, cols[i], rot=R @ _rx(90 - 12), segments=8)
         P.cyl(tuple(R @ Vector((0, -0.325, 0.205))), 0.055, 0.012, "offwhite", rot=R @ _rx(90 - 12), segments=8)
-    P.ico((0, -0.31, 0.065), 0.04, "neon_pink")
+    G = ctx.piece("Glow", "head", (0, -0.32, 0.065))                     # #2739: the front gem glows
+    G.ico((0, -0.32, 0.065), 0.06, "neon_pink")
 
 
 # ------------------------------------------------------------------------------------------------- Face --
@@ -489,7 +492,9 @@ def brass_goggles(ctx):
     for sx in (-1, 1):
         F.ring((sx * ex, -0.085, 0.0), 0.17, 0.045, 0.09, "brass", rot=_rx(90), segments=12)
         F.ring((sx * ex, -0.135, 0.0), 0.16, 0.025, 0.02, "bronze", rot=_rx(90), segments=12)
-        G.cyl((sx * ex, -0.12, 0.0), 0.13, 0.01, "glass", rot=_rx(90), segments=12)
+        if sx < 0:
+            L = ctx.piece("Glow", "face", (0.0, -0.12, 0.0))            # #2739: the lenses glow green
+        L.cyl((sx * ex, -0.12, 0.0), 0.13, 0.012, "mint", rot=_rx(90), segments=12)
         F.box((sx * (ex + 0.14), -0.13, 0.1), (0.035, 0.035, 0.035), "bronze")
         F.box((sx * (ex + 0.14), -0.13, -0.1), (0.035, 0.035, 0.035), "bronze")
         F.bar((sx * (ex + 0.16), -0.06, 0.0), (sx * (ctx.fw + 0.015), -0.02, 0.0), 0.08, 0.03, "dark_wood", up=(0, -1, 0))
@@ -1011,6 +1016,12 @@ def gnome_hat(ctx):
         d = R @ Vector((0, 0, 1))
         P.cyl(tuple(at + d * hgt / 2), r1, hgt, red, r2=r2, rot=R, segments=10)
         at, a = at + d * (hgt - 0.02), a + turn
+    tip = at + _rx(a) @ Vector((0, 0, 0.02))                            # #2739: a little glowing lantern hangs off the tip
+    hang = tip + Vector((0.3, 0.0, -0.1))
+    P.bar(tuple(tip), tuple(hang + Vector((0, 0, 0.02))), 0.025, 0.025, "fur_black", up=(0, 1, 0))
+    P.cyl(tuple(hang), 0.06, 0.035, "fur_black", segments=8)
+    L = ctx.piece("Glow", "head", tuple(hang + Vector((0, 0, -0.1))))
+    L.ico(tuple(hang + Vector((0, 0, -0.09))), 0.09, "rarity_legend", scale=(1.0, 1.0, 1.2))
     slope = 0.13 / 0.3                                                                      # the clover, on the cone
     tilt = _rx(-math.degrees(math.atan(slope)))
 
@@ -1737,6 +1748,10 @@ def mirage_shades(ctx):
         F.bar((sx * (ex + 0.18), -0.085, 0.03), (sx * (ctx.fw + 0.01), -0.03, 0.03), 0.04, 0.04, "offwhite",
               up=(0, 0, 1))
     F.box((0, -0.09, 0.05), (2 * ex - 0.36, 0.035, 0.04), "offwhite")
+    tip, d, th, a, _b = _tail_axes(ctx)                                  # #2739: a heat shimmer on the tail tip
+    G = ctx.piece("Tail_Glow", "tail", tuple(tip))
+    G.ico(tuple(tip + d * 0.03), th * 0.85, "pastel_sky")
+    G.ico(tuple(tip - d * 0.1 + a * th * 0.35), th * 0.5, "pastel_lilac")
 
 
 def camel_saddle(ctx):
@@ -1753,13 +1768,23 @@ def camel_saddle(ctx):
         for dy in (-0.13, 0.13):
             P.box((0, y + dy, 0.042), (sx + 0.07, 0.05, 0.02), "rarity_legend")
         P.sphere((0, y, 0.13), 0.17, "fur_cream", scale=(1.2, 1.1, 0.7))
+        for side in (-1, 1):                                            # #2739: tassels and little bells
+            for k, dy in enumerate((-0.16, 0.0, 0.16)):
+                c = Vector((side * (sx / 2 + 0.035), y + dy, -sz * 0.56 - 0.06))
+                P.cyl(tuple(c), 0.025, 0.08, ("rarity_legend", "neon_pink", "rarity_legend")[k], segments=6)
+                if k == 1:
+                    P.ico(tuple(c + Vector((0, 0, -0.07))), 0.04, "gold_mid")
     else:
         o = 0.03
-        P.box((0, 0.2, o), (0.62, 0.34, 0.05), "bowl_red")
+        P.box((0, 0.2, o), (0.626, 0.344, 0.05), "bowl_red")                # a hair wider: clear of the Work coat patch
         for dy in (0.1, 0.3):
             P.box((0, dy, o + 0.03), (0.63, 0.04, 0.02), "rarity_legend")
         P.box((0, 0.38, o), (0.64, 0.04, 0.06), "offwhite")
         P.sphere((0, 0.2, o + 0.11), 0.15, "fur_cream", scale=(1.2, 1.0, 0.65))
+        for k, x in enumerate((-0.2, 0.0, 0.2)):                         # #2739: tassels and a bell along the hem
+            P.cyl((x, 0.43, o), 0.025, 0.08, ("rarity_legend", "neon_pink", "rarity_legend")[k], rot=_rx(90),
+                  segments=6)
+        P.ico((0.0, 0.5, o), 0.04, "gold_mid")
 
 
 def scarab_shell(ctx):
@@ -1771,7 +1796,8 @@ def scarab_shell(ctx):
     for sx in (-1, 1):
         P.sphere((sx * 0.15, y, z - 0.015), 0.31, "sign_teal", scale=(0.62, 1.27, 0.3), segments=10, rings=5)
         P.sphere((sx * 0.15, y, z), 0.3, "dumpster_green", scale=(0.55, 1.25, 0.35), segments=10, rings=5)
-    P.box((0, y, z + 0.1), (0.03, 0.62, 0.03), "fur_golden")
+    G = ctx.piece("Glow", "back", (0, y, z + 0.1))                       # #2739: the gold seam glows
+    G.box((0, y, z + 0.1), (0.04, 0.64, 0.035), "fur_golden")
     P.sphere((0, y - 0.38, z), 0.16, "sign_teal", scale=(1.3, 0.55, 0.45), segments=10, rings=5)
 
 
@@ -1883,7 +1909,8 @@ def mosaic_band(ctx):
         for j in range(m):
             y = -hd + 2 * hd / m * (j + 0.5)
             P.box((sx * (hw + 0.025), y, z), (0.05, 2 * hd / m - 0.025, 0.12), cols[(j + 1) % 3])
-    P.ico((0, -hd - 0.08, z + 0.005), 0.065, "sign_teal", scale=(1.0, 0.7, 1.15))                # the gem
+    G = ctx.piece("Glow", "head", (0, -hd - 0.08, z))                    # #2739: the gem glows
+    G.ico((0, -hd - 0.085, z + 0.005), 0.075, "sign_teal", scale=(1.0, 0.7, 1.15))              # the gem
 
 
 def _rune(P, side, x, yc, zc, length):
@@ -2157,6 +2184,156 @@ def ivy_garland(ctx):
 
 
 
+# ----------------------------------------------------------------------------- #2739 theme extras, batch 2 --
+
+def knit_scarf(ctx):
+    """#2739 Smoke (Common): a soft sky-blue knitted scarf with cream stripes, one end hanging down the front."""
+    F, fw, fd, bot = ctx.pen("face"), ctx.fw, ctx.fd, ctx.fbot
+    F.box((0, 0.0, bot + 0.0), (2 * fw + 0.06, 0.08, 0.1), "pastel_sky")
+    for sx in (-1, 1):
+        F.box((sx * (fw + 0.015), fd * 0.2, bot + 0.0), (0.07, fd * 0.4, 0.08), "pastel_sky")
+    F.box((0.22, -0.045, bot - 0.17), (0.16, 0.05, 0.3), "pastel_sky", rot=_ry(-8))      # the hanging end
+    for k in range(3):
+        F.box((0.22 - 0.024 * k * 0.15, -0.075, bot - 0.06 - 0.09 * k), (0.165, 0.012, 0.035), "offwhite", rot=_ry(-8))
+    for k in range(3):                                                                  # the fringe
+        F.box((0.17 + 0.05 * k, -0.045, bot - 0.33), (0.025, 0.04, 0.07), "offwhite", rot=_ry(-8))
+
+
+def stud_collar(ctx):
+    """#2739 Rocker Cat (Rare) second prop: a red collar with silver studs round the neck."""
+    F, fw, fd, bot = ctx.pen("face"), ctx.fw, ctx.fd, ctx.fbot
+    F.box((0, 0.0, bot - 0.02), (2 * fw + 0.06, 0.08, 0.1), "bowl_red")
+    for sx in (-1, 1):
+        F.box((sx * (fw + 0.015), fd * 0.2, bot - 0.02), (0.07, fd * 0.4, 0.09), "bowl_red")
+    for i in range(5):
+        F.pyramid((-0.32 + 0.16 * i, -0.05, bot - 0.02), 0.06, 0.05, "metal", rot=_rx(90))
+
+
+def earmuffs(ctx):
+    """#2739 Snow (Common): fluffy sky-blue earmuffs over the ears on a white band."""
+    P, hd = ctx.pen("head"), ctx.hd
+    ex = ctx.ear_x
+    for sx in (-1, 1):
+        P.sphere((sx * ex, 0.0, 0.12), 0.2, "pastel_sky", segments=12, rings=7, scale=(1.0, 1.0, 1.05))
+        P.ico((sx * ex, -0.14, 0.13), 0.08, "offwhite")
+    pts = [(-ex, 0.28), (-ex * 0.5, 0.36), (ex * 0.5, 0.36), (ex, 0.28)]
+    for (xa, za), (xb, zb) in zip(pts, pts[1:]):
+        P.bar((xa, 0.0, za), (xb, 0.0, zb), 0.07, 0.06, "offwhite", up=(0, 0, 1))
+
+
+def strawberry_clip(ctx):
+    """#2739 Cream (Common): a big strawberry hair clip on one side of the head, green leaves on top."""
+    P = ctx.pen("head")
+    c = Vector((0.24, -0.12, 0.08))
+    P.sphere(tuple(c), 0.15, "bowl_red", segments=10, rings=7, scale=(1.0, 0.9, 1.15), rot=_ry(180))
+    for k in range(5):                                                                  # seeds
+        dx, dz = 0.09 * math.sin(math.radians(-60 + 30 * k)), 0.04 * (k % 2) - 0.02
+        dy = -0.135 * math.sqrt(1 - (dx / 0.15) ** 2 - (dz / 0.1725) ** 2) - 0.002
+        P.box(tuple(c + Vector((dx, dy, dz))), (0.02, 0.016, 0.03), "pastel_butter")
+    for k in range(4):                                                                  # the leafy top
+        R = _rz(k * 90 + 20)
+        P.box(tuple(c + R @ Vector((0.05, 0, 0.13 + 0.006 * k))), (0.12, 0.05 - 0.004 * k, 0.03), "leaf_green",
+              rot=R @ _ry(-20))
+    P.cyl(tuple(c + Vector((0, 0, 0.2))), 0.02, 0.06, "leaf_dark", segments=6)
+
+
+def canteen(ctx):
+    """#2739 Explorer Cat (Rare) second prop: a round green canteen with a cork cap on a brown strap."""
+    walk = ctx.body == "walk"
+    if walk:
+        P = ctx.pen("back")
+        c, R = Vector((0.12, 0.12, 0.08)), Matrix.Identity(3)
+        _strap_round(ctx, "dark_wood", at_y=0.12)
+    else:
+        P = ctx.pen("up")
+        c, R = Vector((0.1, B_CLEAR + 0.07, -0.2)), _rx(90)
+        _sling(ctx, "dark_wood", xs=(0.1,), down=0.2)
+    P.cyl(tuple(c), 0.22, 0.13, "shirt_green", rot=R, segments=14)
+    P.ring(tuple(c), 0.225, 0.03, 0.14, "dark_wood", rot=R, segments=14)
+    up = R @ Vector((0, 0, 1))
+    side = R @ Vector((0, -1, 0)) if walk else Vector((0, 0, 1))
+    P.cyl(tuple(c + side * 0.24), 0.05, 0.08, "caramel_wood", rot=Vector((0, 0, 1)).rotation_difference(side).to_matrix(),
+          segments=8)
+
+
+def star_pillow(ctx):
+    """#2739 Sleepy Cat (Epic) second prop: a puffy butter-yellow star pillow on its back, strapped on."""
+    walk = ctx.body == "walk"
+    if walk:
+        P = ctx.pen("back")
+        P.star((0.0, 0.12, 0.08), 0.4, 0.2, 0.14, "pastel_butter")
+        P.ico((0.0, 0.12, 0.16), 0.08, "offwhite", scale=(1.0, 1.0, 0.4))
+        _strap_round(ctx, "pastel_lilac", at_y=0.12)
+    else:
+        P = ctx.pen("up")
+        y = B_CLEAR + 0.08
+        P.star((0.0, y, -0.18), 0.4, 0.2, 0.14, "pastel_butter", rot=_rx(90))
+        _sling(ctx, "pastel_lilac", xs=(0.0,), down=0.15)
+
+
+def kerchief_cap(ctx):
+    """#2739 Rusty (Common): a blue work kerchief tied over the head, white dots, the knot at the back."""
+    P, hw, hd = ctx.pen("head"), ctx.hw, ctx.hd
+    P.box((0, 0.02, 0.03), (2 * hw + 0.04, 2 * hd + 0.04, 0.06), "shirt_blue")
+    for sx in (-1, 1):
+        P.box((sx * (hw + 0.02), 0.02, -0.06), (0.04, 2 * hd + 0.04, 0.16), "shirt_blue")
+    P.box((0, -hd - 0.0, -0.065), (2 * hw + 0.1, 0.04, 0.15), "shirt_blue")
+    for (x, y) in ((-0.2, -0.15), (0.15, -0.05), (-0.05, 0.15), (0.25, 0.22), (-0.28, 0.2)):
+        P.box((x, y, 0.065), (0.06, 0.06, 0.012), "offwhite")
+    P.ico((0, hd + 0.06, -0.04), 0.08, "shirt_blue")                                     # the knot
+    for sx in (-1, 1):
+        P.bar((0, hd + 0.08, -0.06), (sx * 0.12, hd + 0.2, -0.2), 0.08, 0.03, "shirt_blue", up=(0, 1, 1))
+
+
+def flat_cap(ctx):
+    """#2739 Soot (Common): a chimney sweep's grey tweed flat cap with a dark brim."""
+    P, hw, hd = ctx.pen("head"), ctx.hw, ctx.hd
+    P.box((0, 0.04, 0.035), (2 * hw + 0.06, 2 * hd + 0.02, 0.07), "fur_grey")
+    P.box((0, 0.0, 0.08), (2 * hw - 0.04, 2 * hd - 0.08, 0.05), "fur_grey")
+    for k in range(3):                                                  # a tweed check
+        P.box((-0.2 + 0.2 * k, 0.0, 0.106), (0.03, 2 * hd - 0.12, 0.012), "fur_charcoal")
+    P.box((0, -hd - 0.1, 0.01), (2 * hw - 0.04, 0.26, 0.035), "fur_charcoal", rot=_rx(6))
+    P.cyl((0, 0.0, 0.115), 0.05, 0.03, "fur_charcoal", segments=8)
+
+
+def rain_hat(ctx):
+    """#2739 Puddle (Common): a yellow rain hat, the brim wider at the back to keep the rain off its neck."""
+    P = ctx.pen("head")
+    P.cyl((0, 0.04, 0.03), 0.52, 0.04, "rarity_legend", segments=16)
+    P.sphere((0, 0.0, 0.06), 0.34, "rarity_legend", segments=12, rings=6, scale=(1.0, 1.0, 0.7))
+    P.cyl((0, 0.0, 0.09), 0.345, 0.04, "fur_orange_dark", segments=12)
+
+
+def desert_flower(ctx):
+    """#2739 Fennec Cat (Rare) second prop: a pink desert flower tucked by its left ear."""
+    P = ctx.pen("head")
+    c = Vector((ctx.hw - 0.06, -ctx.hd + 0.1, 0.04))                     # the front corner of the head, by the ear
+    R = _rx(90) @ _ry(15)
+    P.bar(tuple(c + Vector((0, 0.03, 0))), tuple(c + Vector((-0.14, 0.12, -0.03))), 0.035, 0.03, "leaf_green")
+    P.star(tuple(c), 0.18, 0.09, 0.05, "fur_strawberry", rot=R)
+    P.ico(tuple(c + Vector((0, -0.035, 0))), 0.055, "pastel_butter")
+
+
+def clay_pot(ctx):
+    """#2739 Clay (Common): a little cream clay amphora with two handles and a terracotta band, strapped on its back."""
+    walk = ctx.body == "walk"
+    if walk:
+        U = ctx.pen("up")
+        x, y, z = 0, 0.25, -0.01
+        _strap_round(ctx, "dark_wood", at_y=0.25 - ctx.d["body"][1][1] * 0.22)
+    else:
+        U = ctx.pen("up")
+        x, y, z = 0, 0.29, ctx.haunch_top - 0.98 + 0.01
+        _sling(ctx, "dark_wood", xs=(0.0,), down=0.09)
+    U.sphere((x, y, z + 0.2), 0.2, "fur_cream", segments=12, rings=7, scale=(1.0, 1.0, 1.1))
+    U.cyl((x, y, z + 0.44), 0.08, 0.14, "fur_cream", r2=0.1, segments=10)
+    U.cyl((x, y, z + 0.52), 0.12, 0.04, "terracotta", segments=10)
+    U.ring((x, y, z + 0.2), 0.215, 0.035, 0.07, "terracotta", segments=12)                # a painted band
+    for sx in (-1, 1):
+        U.ring((x + sx * 0.16, y, z + 0.38), 0.07, 0.025, 0.04, "fur_cream", rot=_ry(90), segments=8)
+
+
+
 PROPS = {
     "Calico": ("Face", eye_patch), "Tortie": ("Back", guitar), "Sphynx": ("Head", headphones),
     "MaineCoon": ("Face", bandit_mask), "Void": ("Head", ninja_band), "Midnight": ("Head", wizard_hat),
@@ -2191,6 +2368,10 @@ PROPS = {
     "Tuxedo": ("Face", monocle), "Sandy": ("Head", sun_hat), "Dune": ("Head", sand_goggles),
     "Dusty": ("Neck", neckerchief), "Sunny": ("Face", sun_shades), "Pebble": ("Head", pebble_stack),
     "Ivy": ("Neck", ivy_garland),
+    # #2739 batch 2
+    "Smoke": ("Neck", knit_scarf), "Snow": ("Head", earmuffs), "Cream": ("Head", strawberry_clip),
+    "Rusty": ("Head", kerchief_cap), "Soot": ("Head", flat_cap), "Puddle": ("Head", rain_hat),
+    "Clay": ("Back", clay_pot),
 }
 # Second props (data-model 3, v0.10 and v0.13: "one or two props is fine"), in a different slot from the first: the
 # object is `..._Prop2` and the model's PropSlot2 attribute names its slot.
@@ -2215,6 +2396,9 @@ PROPS2 = {
     # #2739 theme extras, batch 1 (Derek2 2026-11-09)
     "Binbag": ("Head", banana_peel), "MaineCoon": ("Back", loot_sack), "Void": ("Back", ninja_scroll),
     "Birdwatch": ("Head", bluebird), "Blossom": ("Head", flower_crown),
+    # #2739 batch 2
+    "Tortie": ("Neck", stud_collar), "Bengal": ("Back", canteen), "Ragdoll": ("Back", star_pillow),
+    "Fennec": ("Head", desert_flower),
 }
 # Extra objects a prop draws (Ctx.piece): cat -> {suffix: the prop object it hangs from}. They ride what that prop
 # rides, and their Roblox Model nests inside that prop's Model.
@@ -2225,7 +2409,11 @@ PIECES = {"BellhopCat": {"Bell": "Prop2"}, "KingCroissant": {"CapeTrim": "Prop2"
           "Taxi": {"Glow": "Prop"}, "Neon": {"Glow": "Prop"}, "Wisp": {"Glow": "Prop"}, "Balloon": {"Glow": "Prop"},
           "Firefly": {"Jar_Glow": "Prop", "Tip_Glow": "Prop2"}, "Eclipse": {"Spine_Glow": "Prop"},
           "Comet": {"Tail_Glow": "Tail"}, "Pharaoh": {"Tail_Cuffs": "Tail"}, "Sphinx": {"Tail_Cuffs": "Tail"},
-          "Ivy": {"Tail_Vine": "Tail"}}
+          "Ivy": {"Tail_Vine": "Tail"},
+          # #2739 batch 2
+          "Toadstool": {"Glow": "Prop"}, "Gnome": {"Glow": "Prop"}, "Gears": {"Glow": "Prop"},
+          "Bottlecap": {"Glow": "Prop"}, "Scarab": {"Glow": "Prop"}, "Mosaic": {"Glow": "Prop"},
+          "Mirage": {"Tail_Glow": "Tail"}}
 # Extra Attachments for VFX (#1191): cat -> [(object suffix, Attachment name, frame, point in that frame)]. Frame
 # "head" is the head-top frame the Head props draw in; "chest" puts it at the middle of the chest (B, S) or body (A).
 ATTACH = {"KingCroissant": [("_Prop", "CrownTop", "head", (0.0, 0.0, CROWN_TOP)), ("_Body", "Glow", "chest", None)]}

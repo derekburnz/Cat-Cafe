@@ -404,7 +404,7 @@
      "CFrame": {
       "position": [
        -0.076,
-       0.604,
+       0.6049,
        0.2137
       ],
       "orientation": [
@@ -428,7 +428,7 @@
     },
     "Size": [
      0.285,
-     0.315,
+     0.3169,
      0.038
     ],
     "Color": [
@@ -4473,9 +4473,9 @@
        }
       },
       "Size": [
-       0.589,
+       0.5947,
        0.0475,
-       0.323
+       0.3268
       ],
       "Color": [
        0.851,
@@ -4645,6 +4645,218 @@
       "CastShadow": true,
       "TopSurface": "Smooth",
       "BottomSurface": "Smooth"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Camel_Work_Prop",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.19,
+         0.3515,
+         0.2327
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.076,
+       0.0475,
+       0.0475
+      ],
+      "Color": [
+       1.0,
+       0.7882,
+       0.302
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Camel_Work_Prop",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.3515,
+         0.2327
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.076,
+       0.0475,
+       0.0475
+      ],
+      "Color": [
+       1.0,
+       0.4196,
+       0.5059
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Camel_Work_Prop",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         -0.19,
+         0.3515,
+         0.2327
+        ],
+        "orientation": [
+         [
+          0.0,
+          -1.0,
+          0.0
+         ],
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.076,
+       0.0475,
+       0.0475
+      ],
+      "Color": [
+       1.0,
+       0.7882,
+       0.302
+      ],
+      "Material": "SmoothPlastic",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Cylinder"
+     },
+     "attributes": {
+      "Follows": "Body"
+     }
+    },
+    {
+     "name": "CatCafe_Cat_Camel_Work_Prop",
+     "className": "Part",
+     "properties": {
+      "CFrame": {
+       "CFrame": {
+        "position": [
+         0.0,
+         0.285,
+         0.2327
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          -1.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ]
+        ]
+       }
+      },
+      "Size": [
+       0.076,
+       0.076,
+       0.076
+      ],
+      "Color": [
+       0.949,
+       0.7569,
+       0.3059
+      ],
+      "Material": "Metal",
+      "Anchored": true,
+      "CanCollide": false,
+      "CanTouch": false,
+      "CastShadow": true,
+      "TopSurface": "Smooth",
+      "BottomSurface": "Smooth",
+      "Shape": "Ball"
      },
      "attributes": {
       "Follows": "Body"

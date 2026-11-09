@@ -127,7 +127,7 @@ ROSTER = {
     "Gears":       dict(rarity="Epic", fur="fur_copper", second="rust", eyes="eye_green", pattern="stripes", muzzle="fur_cream",
                         nose="nose_brick"),
     "Glimmer":     dict(rarity="Epic", fur="fur_teal_grey", second="fur_teal_grey", eyes="eye_copper", pattern="solid",
-                        muzzle="fur_white"),
+                        muzzle="fur_white", socks="sign_teal"),   # #2739 teal flippers
     "Bottlecap":   dict(rarity="Legendary", fur="fur_caramel", second="bronze", third="bronze", eyes="eye_green", pattern="patches",
                         muzzle="fur_oat", nose="nose_brick"),
     "Eclipse":     dict(rarity="Mythical", fur="fur_emerald", second="sign_teal", third="dumpster_green", eyes="eye_amber",
@@ -183,13 +183,13 @@ ROSTER = {
     "Birdwatch":   dict(rarity="Rare", fur="fur_dune", second="fur_hazel", eyes="eye_copper", pattern="stripes", muzzle="fur_cream",
                         nose="nose_brick"),
     "Duckling":    dict(rarity="Epic", fur="fur_white", second="fur_silver", third="fur_mist", eyes="eye_blue", pattern="patches",
-                        muzzle=None),
+                        muzzle=None, socks="rarity_legend"),   # #2739 yellow rain boots
     "Balloon":     dict(rarity="Mythical", fur="fur_bubblegum", second="mint", third="pastel_butter", eyes="pastel_sky",
                         pattern="patches", muzzle=None, glow_eyes=True),
     "Builder":     dict(rarity="Rare", fur="fur_toffee", second="fur_seal", eyes="eye_amber", pattern="stripes", muzzle="fur_white",
-                        nose="nose_brick", socks="fur_white"),
+                        nose="nose_brick", socks="fur_white", bag=("fur_orange", "dark_wood", "tools")),   # #2739 tool bag
     "Gardener":    dict(rarity="Epic", fur="fur_cream", second="fur_grey", third="fur_smoke_light", eyes="eye_green", pattern="patches",
-                        muzzle="fur_white"),
+                        muzzle="fur_white", socks="shirt_green"),   # #2739 green garden gloves and boots
     "Gnome":       dict(rarity="Legendary", fur="fur_pewter", second="fur_white", third="fur_white", eyes="eye_green",
                         pattern="patches", muzzle="fur_white", fluffy=True, tail_thick=0.28, body_scale=(1.08, 1.0, 1.05)),
     "Plumber":     dict(rarity="Rare", fur="fur_gunmetal", second="fur_white", eyes="eye_copper", pattern="patches", muzzle="fur_white",
@@ -245,7 +245,8 @@ ROSTER = {
     "Pebble":  dict(rarity="Common", fur="concrete", second="fur_silver", third="fur_charcoal", eyes="eye_amber",
                     pattern="solid", muzzle="fur_silver", nose="nose_dark"),
     "Rubble":  dict(rarity="Common", fur="paving_grout", second="fur_soot", third="floor_tile", eyes="eye_green",
-                    pattern="patches", muzzle="floor_tile", nose="nose_dark"),
+                    pattern="patches", muzzle="floor_tile", nose="nose_dark",
+                    bag=("fur_oat", "caramel_wood", "tools")),   # #2739 a dig kit
     "Clay":    dict(rarity="Common", fur="terracotta", second="fur_apricot", third="hair_brown", eyes="eye_green",
                     pattern="solid", muzzle="fur_apricot", nose="nose_brick", tip="hair_brown"),
     "Ivy":     dict(rarity="Common", fur="fur_moss", second="leaf_dark", third="floor_tile", eyes="eye_amber",
@@ -867,7 +868,7 @@ def _top_tiles(b, c, xc, yc, z, nx, ny, w, d):
 # prop, so it takes no PropSlot and never keeps a role piece or a paid Looks accessory off. bag = (bag colour, flap
 # and strap colour, contents), contents one of HIP_BAG_CONTENTS.
 HIP_BAG_CONTENTS = ("acorns", "fish", "cookies", "brownies", "bread", "berries", "ferns", "moss", "chilis", "yarn",
-                    "newspaper", "sunflower", "letters")
+                    "newspaper", "sunflower", "letters", "tools")
 
 
 def _bag_contents(b, kind, x, y, z):
@@ -924,6 +925,11 @@ def _bag_contents(b, kind, x, y, z):
     elif kind == "newspaper":
         b.cyl((x, y, z + 0.08), 0.042, 0.22, "offwhite", segments=8, bevel=False, rot=_rot(-15, "X"))
         b.cyl((x, y, z + 0.08), 0.044, 0.03, "concrete", segments=8, bevel=False, rot=_rot(-15, "X"))
+    elif kind == "tools":                                                    # #2739 Construction Cat and Rubble
+        b.cyl((x, y - 0.05, z + 0.1), 0.018, 0.2, "caramel_wood", segments=6, bevel=False)             # a hammer
+        b.box((x, y - 0.05, z + 0.2), (0.05, 0.12, 0.05), "metal", bevel=False)
+        b.cyl((x - 0.004, y + 0.06, z + 0.09), 0.02, 0.16, "bowl_red", segments=6, bevel=False, rot=_rot(-12, "X"))
+        b.box((x - 0.004, y + 0.075, z + 0.19), (0.045, 0.07, 0.09), "metal", bevel=False, rot=_rot(-12, "X"))
     elif kind == "letters":                                                  # #2739 the Postie's satchel
         for k, (dy, a, sw) in enumerate(((-0.06, -10, "offwhite"), (0.02, 6, "pastel_sky"), (0.08, 14, "offwhite"))):
             b.box((x + 0.006 * (k - 1), y + dy, z + 0.07 + 0.01 * k), (0.03 - 0.005 * k, 0.13, 0.1), sw, bevel=False,

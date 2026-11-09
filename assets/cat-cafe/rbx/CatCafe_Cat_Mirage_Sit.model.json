@@ -439,7 +439,7 @@
     "CFrame": {
      "CFrame": {
       "position": [
-       0.0,
+       0.015,
        0.2434,
        0.1045
       ],
@@ -463,7 +463,7 @@
      }
     },
     "Size": [
-     0.9211,
+     0.8911,
      0.4772,
      0.377
     ],
@@ -3646,6 +3646,176 @@
       "BottomSurface": "Smooth",
       "Transparency": 0.15
      }
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Mirage_Sit/10"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Mirage_Sit_Tail_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.585,
+           0.1045,
+           -0.0353
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2907,
+         0.2907,
+         0.2907
+        ],
+        "Color": [
+         0.6588,
+         0.8471,
+         0.9412
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Ball",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.012,
+           0.0,
+           0.0258
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Mirage_Sit/10",
+        "Follows": "Tail"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Mirage_Sit_Tail_Glow",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.6372,
+           0.1644,
+           0.0766
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.171,
+         0.171,
+         0.171
+        ],
+        "Color": [
+         0.7882,
+         0.7216,
+         0.9098
+        ],
+        "Material": "Neon",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Ball"
+       },
+       "attributes": {
+        "Follows": "Tail"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         -0.597,
+         0.1045,
+         -0.0095
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Mirage_Sit_Tail_Glow"
     }
    ],
    "properties": {

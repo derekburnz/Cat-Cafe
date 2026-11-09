@@ -36,6 +36,7 @@ type Build = {
 	ranks: { number }, -- each part's place bottom to top, from 1
 	from: { CFrame }, -- each part's start, relative to its rest: lifted, shifted and turned
 	landed: { boolean },
+	collide: { boolean }, -- each part's CanCollide, off on this client while it drops so nobody gets bumped
 	seconds: number,
 }
 
@@ -90,6 +91,7 @@ local function finish(build: Build)
 			table.insert(parts, part)
 			table.insert(frames, build.rest[i])
 			part.LocalTransparencyModifier = 0
+			part.CanCollide = build.collide[i]
 		end
 	end
 	if not build.calm and #parts > 0 then
@@ -199,7 +201,10 @@ function StationBuild.play(model: Model)
 	local rest: { CFrame } = {}
 	local from: { CFrame } = {}
 	local landed: { boolean } = {}
+	local collide: { boolean } = {}
 	for i, part in parts do
+		collide[i] = part.CanCollide
+		part.CanCollide = false
 		rest[i] = part.CFrame
 		from[i] = startOffset()
 		landed[i] = false
@@ -215,6 +220,7 @@ function StationBuild.play(model: Model)
 		ranks = ranks,
 		from = from,
 		landed = landed,
+		collide = collide,
 		seconds = if calm then c.calmFade else Logic.buildSeconds(#parts, c.spread, c.piece),
 	}
 	if heartbeat == nil then

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09 03:50 UTC",
+  "generated": "2026-11-09 04:00 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -255331,7 +255331,174 @@
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.00"
         }
-      }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_MysteryGift.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Item_MysteryGift.png"
+    },
+    {
+      "name": "CatCafe_Item_MysteryGift_Common",
+      "category": "Item",
+      "module": "mystery",
+      "objects": [
+        "CatCafe_Item_MysteryGift_Common"
+      ],
+      "triangles": 362,
+      "budget": 700,
+      "size_studs": {
+        "x": 1.01,
+        "y": 1.01,
+        "z": 1.04
+      },
+      "size_roblox": [
+        1.01,
+        1.04,
+        1.01
+      ],
+      "bounds_min": [
+        -0.5,
+        -0.5,
+        0.0
+      ],
+      "bounds_max": [
+        0.5,
+        0.5,
+        1.04
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#2614 the gift tiers: the Mystery Visitor's gift in the tier's wrap (Common cream and red, Rare blue and silver, Super gold with a white ribbon). Same size, pivot and use as CatCafe_Item_MysteryGift: the client picks the one named by the plot's MysteryGiftTier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_MysteryGift_Common.model.json",
+      "rbx_parts": 31,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_MysteryGift_Common.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_MysteryGift_Common.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "362/700 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "181 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_MysteryGift_Common.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Item_MysteryGift_Common.png"
+    },
+    {
+      "name": "CatCafe_Item_MysteryGift_Rare",
+      "category": "Item",
+      "module": "mystery",
+      "objects": [
+        "CatCafe_Item_MysteryGift_Rare"
+      ],
+      "triangles": 362,
+      "budget": 700,
+      "size_studs": {
+        "x": 1.01,
+        "y": 1.01,
+        "z": 1.04
+      },
+      "size_roblox": [
+        1.01,
+        1.04,
+        1.01
+      ],
+      "bounds_min": [
+        -0.5,
+        -0.5,
+        0.0
+      ],
+      "bounds_max": [
+        0.5,
+        0.5,
+        1.04
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#2614 the gift tiers: the Mystery Visitor's gift in the tier's wrap (Common cream and red, Rare blue and silver, Super gold with a white ribbon). Same size, pivot and use as CatCafe_Item_MysteryGift: the client picks the one named by the plot's MysteryGiftTier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_MysteryGift_Rare.model.json",
+      "rbx_parts": 31,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_MysteryGift_Rare.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_MysteryGift_Rare.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "362/700 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "181 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_MysteryGift_Rare.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Item_MysteryGift_Rare.png"
+    },
+    {
+      "name": "CatCafe_Item_MysteryGift_Super",
+      "category": "Item",
+      "module": "mystery",
+      "objects": [
+        "CatCafe_Item_MysteryGift_Super"
+      ],
+      "triangles": 458,
+      "budget": 700,
+      "size_studs": {
+        "x": 1.01,
+        "y": 1.01,
+        "z": 1.04
+      },
+      "size_roblox": [
+        1.01,
+        1.04,
+        1.01
+      ],
+      "bounds_min": [
+        -0.5,
+        -0.5,
+        0.0
+      ],
+      "bounds_max": [
+        0.5,
+        0.5,
+        1.04
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "studio": "#2614 the gift tiers: the Mystery Visitor's gift in the tier's wrap (Common cream and red, Rare blue and silver, Super gold with a white ribbon). Same size, pivot and use as CatCafe_Item_MysteryGift: the client picks the one named by the plot's MysteryGiftTier.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Item_MysteryGift_Super.model.json",
+      "rbx_parts": 39,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Item_MysteryGift_Super.fbx",
+        "assets/cat-cafe/exports/CatCafe_Item_MysteryGift_Super.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "458/700 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "229 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      },
+      "preview": "docs/concepts/cat-cafe/previews/CatCafe_Item_MysteryGift_Super.png",
+      "views": "docs/concepts/cat-cafe/views/CatCafe_Item_MysteryGift_Super.png"
     },
     {
       "name": "CatCafe_NPC_Collector",

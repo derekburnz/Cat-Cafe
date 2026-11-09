@@ -10,6 +10,9 @@
   CatCafe_Item_MysteryGift             a violet gift box with a pink ribbon and bow, pale gold stars and a "?" tag,
                                        about 1 stud; pivot at its base centre, which the client puts on the bottom of
                                        the plot's MysteryGiftAnchor (a 1 stud box on the table top).
+  CatCafe_Item_MysteryGift_Common      #2614 the gift tiers, the same box in the tier's wrap (WRAPS): Common cream with
+  CatCafe_Item_MysteryGift_Rare        a red ribbon, Rare blue with a silver ribbon, Super gold (Metal) with a white
+  CatCafe_Item_MysteryGift_Super       ribbon and twice the stars. Same size and pivot as the first gift.
 """
 
 import math
@@ -158,26 +161,45 @@ def _question(b, x0, y0, z, px, sw):
                 b.span((x - px, y, z - 0.012), (x, y + px, z + 0.004), sw)
 
 
-def build_gift(mat):
-    b = RB()
-    b.span((-0.45, 0.0, -0.45), (0.45, 0.62, 0.45), PAPER)                                   # box
-    b.span((-0.49, 0.62, -0.49), (0.49, 0.78, 0.49), PAPER)                                  # lid
-    for lo, hi in (((-0.08, 0.01, -0.465), (0.08, 0.62, 0.465)), ((-0.465, 0.01, -0.08), (0.465, 0.62, 0.08)),
-                   ((-0.08, 0.62, -0.505), (0.08, 0.795, 0.505)), ((-0.505, 0.62, -0.08), (0.505, 0.795, 0.08))):
-        b.span(lo, hi, "fur_strawberry")                                                     # ribbon
-    for sx in (1, -1):                                                                       # bow loops
-        b.box((sx * 0.17, 0.89, 0.0), (0.3, 0.17, 0.16), "fur_strawberry", rot=_rz(sx * 28))
-    b.box((0.0, 0.85, 0.0), (0.14, 0.14, 0.18), "neon_pink")                                 # knot
-    for x, y in ((0.27, 0.45), (0.3, 0.15)):                                                  # stars: front, left
-        b.box((x, y, -0.452), (0.07, 0.07, 0.07), STAR, rot=_rz(45))
-    for x, y in ((0.27, 0.42), (-0.27, 0.2), (-0.3, 0.48), (0.25, 0.14)):                     # back and sides
-        b.box((-x, y, 0.452), (0.07, 0.07, 0.07), STAR, rot=_rz(45))
-        for sx in (1, -1):
-            b.box((sx * 0.452, y, sx * x), (0.07, 0.07, 0.07), STAR, rot=_rx(45))
-    tag_x, tag_y = -0.13, 0.16                                                               # the "?" tag
-    b.span((tag_x - 0.26, tag_y, -0.475), (tag_x, tag_y + 0.3, -0.455), "milk")
-    _question(b, tag_x - 0.06, tag_y + 0.04, -0.475, 0.045, PAPER)
-    return [b.finalize("CatCafe_Item_MysteryGift", mat)]
+# #2614 gift tiers, shown on the wrap before opening: (paper, ribbon, knot, stars, the "?" ink). The Super wrap's gold is
+# Metal in Roblox (palette.METAL_SWATCHES) with a white ribbon and twice the stars, so it reads at a glance.
+WRAPS = {
+    "": (PAPER, "fur_strawberry", "neon_pink", STAR, PAPER),                    # the first gift, before tiers
+    "_Common": ("cream", "shirt_red", "royal_berry", "fur_golden", "shirt_red"),
+    "_Rare": ("shirt_blue", "metal", "milk", "milk", "shirt_blue"),
+    "_Super": ("gold_mid", "milk", "gold_light", "milk", "gold_dark"),
+}
+
+
+def gift(suffix):
+    paper, ribbon, knot, star, ink = WRAPS[suffix]
+
+    def build_gift(mat):
+        b = RB()
+        b.span((-0.45, 0.0, -0.45), (0.45, 0.62, 0.45), paper)                                   # box
+        b.span((-0.49, 0.62, -0.49), (0.49, 0.78, 0.49), paper)                                  # lid
+        for lo, hi in (((-0.08, 0.01, -0.465), (0.08, 0.62, 0.465)), ((-0.465, 0.01, -0.08), (0.465, 0.62, 0.08)),
+                       ((-0.08, 0.62, -0.505), (0.08, 0.795, 0.505)), ((-0.505, 0.62, -0.08), (0.505, 0.795, 0.08))):
+            b.span(lo, hi, ribbon)                                                               # ribbon
+        for sx in (1, -1):                                                                       # bow loops
+            b.box((sx * 0.17, 0.89, 0.0), (0.3, 0.17, 0.16), ribbon, rot=_rz(sx * 28))
+        b.box((0.0, 0.85, 0.0), (0.14, 0.14, 0.18), knot)                                        # knot
+        front = [(0.27, 0.45), (0.3, 0.15)]                                                      # stars: front,
+        back = [(0.27, 0.42), (-0.27, 0.2), (-0.3, 0.48), (0.25, 0.14)]                          # back and sides
+        if suffix == "_Super":                                                                   # twice the stars
+            front += [(0.38, 0.3), (-0.4, 0.5)]
+            back += [(0.33, 0.28), (-0.36, 0.08)]
+        for x, y in front:
+            b.box((x, y, -0.452), (0.07, 0.07, 0.07), star, rot=_rz(45))
+        for x, y in back:
+            b.box((-x, y, 0.452), (0.07, 0.07, 0.07), star, rot=_rz(45))
+            for sx in (1, -1):
+                b.box((sx * 0.452, y, sx * x), (0.07, 0.07, 0.07), star, rot=_rx(45))
+        tag_x, tag_y = -0.13, 0.16                                                               # the "?" tag
+        b.span((tag_x - 0.26, tag_y, -0.475), (tag_x, tag_y + 0.3, -0.455), "milk")
+        _question(b, tag_x - 0.06, tag_y + 0.04, -0.475, 0.045, ink)
+        return [b.finalize("CatCafe_Item_MysteryGift" + suffix, mat)]
+    return build_gift
 
 
 # Objects whose Model goes inside another's in the export (rbx_export.NEST): the hood turns with the head.
@@ -185,5 +207,5 @@ NEST = {"CatCafe_NPC_MysteryVisitor": {"_Prop": "_Head"}}
 
 ASSETS = {
     "CatCafe_NPC_MysteryVisitor": (build_visitor, 2600),
-    "CatCafe_Item_MysteryGift": (build_gift, 700),
+    **{"CatCafe_Item_MysteryGift" + k: (gift(k), 700) for k in WRAPS},
 }

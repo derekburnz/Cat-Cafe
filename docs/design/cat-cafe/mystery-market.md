@@ -120,6 +120,32 @@ Notes:
 - The decor bonuses use the crate bonus already in the game, so a fish-bought piece is never better than a crate or pass piece of the same rarity.
 - With 5 items now and about 3 new ones a week, the shelf passes 15 in about a month. The weekly sale then cycles round about every 15 weeks, which is fine because everything can be bought at any time.
 
+### 4d. Chosen defaults (Derek2's go, 2026-11-09)
+
+Derek2 gave a general "go" on everything that doesn't need a publish or a restart, so these are the defaults for the build. Derek2 can change any of them.
+- **Backpack:** 400 golden fish full price, 300 on sale, from Tier 3. It is the first featured item, on sale in launch week. Its save fields have defaults, so there's no `ProfileSchema.VERSION` bump.
+- **Launch shelf (5):** Backpack, Long Net, Cat Whistle, Lantern Sign and Cat Scarf, all four candidates from section 4.
+- **The 4b order, one every 2 to 3 days:** looks and decor come first, since they need no balance work. Tools go in between, each after its Pace check.
+
+  | # | Item |
+  |---|---|
+  | 1 | Window Flower Box |
+  | 2 | Explorer Hat |
+  | 3 | Spyglass |
+  | 4 | Cat Beret |
+  | 5 | Cafe Awning |
+  | 6 | Snack Pouch |
+  | 7 | Star Collar |
+  | 8 | Wind Chimes |
+  | 9 | Paw Print Trail |
+  | 10 | Trail Map (after its playtest) |
+  | 11 | Jukebox song |
+  | 12 | The seller's cloak |
+  | 13 | Paw Gloves (after its playtest) |
+
+  The seller's hanging lantern is dropped from 4b, because it's the same idea as the Lantern Sign.
+- **Corner look:** A, the covered wagon.
+
 ### 4c. The market corner (look)
 
 Where: the **west end of the Town Square's east-west lane**, inside the closed west arch (-63, 0), around (-52, 0). The lane points straight at it from the cannon, and nothing else stands there (town-layout-v3 §3: the four stations are in the corners and the night dealer parks at (28, -16)). It faces east toward the cannon. It is about 22 studs wide (z -11 to 11) and 14 deep (x -63 to -49), and the cross's paving stays clear. Plan: [mystery-market-corner.svg](mystery-market-corner.svg).
@@ -174,6 +200,6 @@ For all three:
 ## 8. Questions for Derek2
 
 1. ~~Rotation length~~: weekly, at the Saturday drop (Derek2, 2026-11-09). Every item can be bought any time at full price, and the featured item is on sale (Derek2, 2026-11-09).
-2. Is 400 fish full price and 300 on sale, at Tier 3, right? Pace checks for 2 to 5 hours of saving.
-3. Which of the four other candidates go on the list, and which of the 4b items should come first?
-4. Which look for the corner: A (the wagon, recommended), B or C?
+2. ~~Backpack price~~: 400 full, 300 on sale, Tier 3 (default, section 4d). Pace still checks for 2 to 5 hours of saving.
+3. ~~Candidates and 4b order~~: all four, then the 4b order in section 4d (default).
+4. ~~Corner look~~: A, the wagon (default).

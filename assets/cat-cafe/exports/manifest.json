@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09 20:11 UTC",
+  "generated": "2026-11-09 20:19 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -13565,23 +13565,22 @@
         "CatCafe_Cat_Bengal_LegF2",
         "CatCafe_Cat_Bengal_LegB1",
         "CatCafe_Cat_Bengal_LegB2",
-        "CatCafe_Cat_Bengal_Prop",
-        "CatCafe_Cat_Bengal_Prop2"
+        "CatCafe_Cat_Bengal_Prop"
       ],
-      "triangles": 1260,
-      "budget": 1800,
+      "triangles": 1232,
+      "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.13,
         "y": 2.05,
         "z": 1.88
       },
       "size_roblox": [
-        1.0,
+        1.13,
         1.88,
         2.05
       ],
       "bounds_min": [
-        -0.5,
+        -0.63,
         -1.04,
         -0.0
       ],
@@ -14060,13 +14059,6 @@
           "CatCafe_Cat_Bengal_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Bengal_Prop2"
-        ]
-      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -14079,9 +14071,9 @@
           0.0
         ]
       },
-      "studio": "Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Bengal.model.json",
-      "rbx_parts": 67,
+      "rbx_parts": 58,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Bengal.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Bengal.glb"
@@ -14089,15 +14081,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "1260/1800 tris",
+          "budget": "1232/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "658 faces on swatch centers",
+          "uv": "650 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.02"
+          "centered": "footprint center x=-0.06 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Bengal.png",
@@ -14117,23 +14111,22 @@
         "CatCafe_Cat_Bengal_Sit_Tail",
         "CatCafe_Cat_Bengal_Sit_LegF1",
         "CatCafe_Cat_Bengal_Sit_LegF2",
-        "CatCafe_Cat_Bengal_Sit_Prop",
-        "CatCafe_Cat_Bengal_Sit_Prop2"
+        "CatCafe_Cat_Bengal_Sit_Prop"
       ],
-      "triangles": 1248,
-      "budget": 1800,
+      "triangles": 1220,
+      "budget": 1500,
       "size_studs": {
-        "x": 1.23,
+        "x": 1.4,
         "y": 1.27,
         "z": 1.88
       },
       "size_roblox": [
-        1.23,
+        1.4,
         1.88,
         1.27
       ],
       "bounds_min": [
-        -0.44,
+        -0.6,
         -0.66,
         0.0
       ],
@@ -14592,16 +14585,9 @@
           "CatCafe_Cat_Bengal_Sit_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Bengal_Sit_Prop2"
-        ]
-      },
-      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Bengal for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Bengal for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Bengal_Sit.model.json",
-      "rbx_parts": 66,
+      "rbx_parts": 57,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Bengal_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Bengal_Sit.glb"
@@ -14613,13 +14599,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1248/1800 tris",
+          "budget": "1220/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "652 faces on swatch centers",
+          "uv": "644 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=-0.03"
+          "centered": "footprint center x=0.09 y=-0.03"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Bengal_Sit.png",
@@ -14644,10 +14630,9 @@
         "CatCafe_Cat_Bengal_Work_Held_Barista",
         "CatCafe_Cat_Bengal_Work_Held_Waiter",
         "CatCafe_Cat_Bengal_Work_Held_Entertainer",
-        "CatCafe_Cat_Bengal_Work_Prop",
-        "CatCafe_Cat_Bengal_Work_Prop2"
+        "CatCafe_Cat_Bengal_Work_Prop"
       ],
-      "triangles": 1828,
+      "triangles": 1812,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -15139,16 +15124,9 @@
           "CatCafe_Cat_Bengal_Work_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Bengal_Work_Prop2"
-        ]
-      },
-      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Bengal_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Bengal_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Bengal_Work.model.json",
-      "rbx_parts": 80,
+      "rbx_parts": 72,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Bengal_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Bengal_Work.glb"
@@ -15160,10 +15138,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1828/2400 tris",
+          "budget": "1812/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "940 faces on swatch centers",
+          "uv": "938 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.09"
@@ -16771,23 +16749,22 @@
         "CatCafe_Cat_Ragdoll_LegF2",
         "CatCafe_Cat_Ragdoll_LegB1",
         "CatCafe_Cat_Ragdoll_LegB2",
-        "CatCafe_Cat_Ragdoll_Prop",
-        "CatCafe_Cat_Ragdoll_Prop2"
+        "CatCafe_Cat_Ragdoll_Prop"
       ],
-      "triangles": 948,
-      "budget": 1800,
+      "triangles": 1048,
+      "budget": 1500,
       "size_studs": {
-        "x": 1.23,
+        "x": 1.46,
         "y": 2.37,
         "z": 2.67
       },
       "size_roblox": [
-        1.23,
+        1.46,
         2.67,
         2.37
       ],
       "bounds_min": [
-        -0.6,
+        -0.82,
         -1.19,
         -0.0
       ],
@@ -17266,13 +17243,6 @@
           "CatCafe_Cat_Ragdoll_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Ragdoll_Prop2"
-        ]
-      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -17285,9 +17255,9 @@
           0.0
         ]
       },
-      "studio": "Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ragdoll.model.json",
-      "rbx_parts": 69,
+      "rbx_parts": 58,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Ragdoll.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Ragdoll.glb"
@@ -17295,15 +17265,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "948/1800 tris",
+          "budget": "1048/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "530 faces on swatch centers",
+          "uv": "574 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.02 y=-0.01"
+          "centered": "footprint center x=-0.09 y=-0.01"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ragdoll.png",
@@ -17323,23 +17295,22 @@
         "CatCafe_Cat_Ragdoll_Sit_Tail",
         "CatCafe_Cat_Ragdoll_Sit_LegF1",
         "CatCafe_Cat_Ragdoll_Sit_LegF2",
-        "CatCafe_Cat_Ragdoll_Sit_Prop",
-        "CatCafe_Cat_Ragdoll_Sit_Prop2"
+        "CatCafe_Cat_Ragdoll_Sit_Prop"
       ],
-      "triangles": 916,
-      "budget": 1800,
+      "triangles": 1036,
+      "budget": 1500,
       "size_studs": {
-        "x": 1.51,
+        "x": 1.74,
         "y": 1.49,
         "z": 2.55
       },
       "size_roblox": [
-        1.51,
+        1.74,
         2.55,
         1.49
       ],
       "bounds_min": [
-        -0.52,
+        -0.76,
         -0.78,
         0.0
       ],
@@ -17798,16 +17769,9 @@
           "CatCafe_Cat_Ragdoll_Sit_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Ragdoll_Sit_Prop2"
-        ]
-      },
-      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Ragdoll for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Ragdoll for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ragdoll_Sit.model.json",
-      "rbx_parts": 67,
+      "rbx_parts": 57,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Ragdoll_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Ragdoll_Sit.glb"
@@ -17819,13 +17783,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "916/1800 tris",
+          "budget": "1036/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "504 faces on swatch centers",
+          "uv": "568 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.23 y=-0.03"
+          "centered": "footprint center x=0.11 y=-0.03"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ragdoll_Sit.png",
@@ -17850,10 +17814,9 @@
         "CatCafe_Cat_Ragdoll_Work_Held_Barista",
         "CatCafe_Cat_Ragdoll_Work_Held_Waiter",
         "CatCafe_Cat_Ragdoll_Work_Held_Entertainer",
-        "CatCafe_Cat_Ragdoll_Work_Prop",
-        "CatCafe_Cat_Ragdoll_Work_Prop2"
+        "CatCafe_Cat_Ragdoll_Work_Prop"
       ],
-      "triangles": 1544,
+      "triangles": 1676,
       "budget": 2400,
       "size_studs": {
         "x": 1.84,
@@ -18345,16 +18308,9 @@
           "CatCafe_Cat_Ragdoll_Work_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Ragdoll_Work_Prop2"
-        ]
-      },
-      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Ragdoll_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Ragdoll_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ragdoll_Work.model.json",
-      "rbx_parts": 85,
+      "rbx_parts": 76,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Ragdoll_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Ragdoll_Work.glb"
@@ -18366,10 +18322,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1544/2400 tris",
+          "budget": "1676/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "816 faces on swatch centers",
+          "uv": "886 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.10 y=0.13"
@@ -18392,23 +18348,22 @@
         "CatCafe_Cat_Void_LegF2",
         "CatCafe_Cat_Void_LegB1",
         "CatCafe_Cat_Void_LegB2",
-        "CatCafe_Cat_Void_Prop",
-        "CatCafe_Cat_Void_Prop2"
+        "CatCafe_Cat_Void_Prop"
       ],
-      "triangles": 1032,
-      "budget": 1800,
+      "triangles": 1012,
+      "budget": 1500,
       "size_studs": {
-        "x": 1.08,
+        "x": 1.18,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.08,
+        1.18,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.54,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -18883,13 +18838,6 @@
           "CatCafe_Cat_Void_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Void_Prop2"
-        ]
-      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -18902,9 +18850,9 @@
           0.0
         ]
       },
-      "studio": "Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Void.model.json",
-      "rbx_parts": 55,
+      "rbx_parts": 56,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Void.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Void.glb"
@@ -18912,15 +18860,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "1032/1800 tris",
+          "budget": "1012/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "540 faces on swatch centers",
+          "uv": "550 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.05 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Void.png",
@@ -18940,23 +18890,22 @@
         "CatCafe_Cat_Void_Sit_Tail",
         "CatCafe_Cat_Void_Sit_LegF1",
         "CatCafe_Cat_Void_Sit_LegF2",
-        "CatCafe_Cat_Void_Sit_Prop",
-        "CatCafe_Cat_Void_Sit_Prop2"
+        "CatCafe_Cat_Void_Sit_Prop"
       ],
-      "triangles": 1056,
-      "budget": 1800,
+      "triangles": 1036,
+      "budget": 1500,
       "size_studs": {
-        "x": 1.27,
+        "x": 1.42,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.27,
+        1.42,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.47,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -19411,16 +19360,9 @@
           "CatCafe_Cat_Void_Sit_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Void_Sit_Prop2"
-        ]
-      },
-      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Void for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Void for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Void_Sit.model.json",
-      "rbx_parts": 57,
+      "rbx_parts": 58,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Void_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Void_Sit.glb"
@@ -19432,13 +19374,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1056/1800 tris",
+          "budget": "1036/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "552 faces on swatch centers",
+          "uv": "562 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.17 y=-0.02"
+          "centered": "footprint center x=0.10 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Void_Sit.png",
@@ -19463,10 +19405,9 @@
         "CatCafe_Cat_Void_Work_Held_Barista",
         "CatCafe_Cat_Void_Work_Held_Waiter",
         "CatCafe_Cat_Void_Work_Held_Entertainer",
-        "CatCafe_Cat_Void_Work_Prop",
-        "CatCafe_Cat_Void_Work_Prop2"
+        "CatCafe_Cat_Void_Work_Prop"
       ],
-      "triangles": 1624,
+      "triangles": 1616,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -19954,16 +19895,9 @@
           "CatCafe_Cat_Void_Work_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Void_Work_Prop2"
-        ]
-      },
-      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Void_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Void_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Void_Work.model.json",
-      "rbx_parts": 70,
+      "rbx_parts": 72,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Void_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Void_Work.glb"
@@ -19975,10 +19909,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1624/2400 tris",
+          "budget": "1616/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "834 faces on swatch centers",
+          "uv": "850 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -20001,23 +19935,22 @@
         "CatCafe_Cat_MaineCoon_LegF2",
         "CatCafe_Cat_MaineCoon_LegB1",
         "CatCafe_Cat_MaineCoon_LegB2",
-        "CatCafe_Cat_MaineCoon_Prop",
-        "CatCafe_Cat_MaineCoon_Prop2"
+        "CatCafe_Cat_MaineCoon_Prop"
       ],
-      "triangles": 1228,
-      "budget": 1800,
+      "triangles": 1148,
+      "budget": 1500,
       "size_studs": {
-        "x": 1.27,
+        "x": 1.45,
         "y": 2.46,
         "z": 2.4
       },
       "size_roblox": [
-        1.27,
+        1.45,
         2.4,
         2.46
       ],
       "bounds_min": [
-        -0.63,
+        -0.82,
         -1.22,
         -0.0
       ],
@@ -20500,13 +20433,6 @@
           "CatCafe_Cat_MaineCoon_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_MaineCoon_Prop2"
-        ]
-      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -20519,9 +20445,9 @@
           0.0
         ]
       },
-      "studio": "Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_MaineCoon.model.json",
-      "rbx_parts": 79,
+      "rbx_parts": 69,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_MaineCoon.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_MaineCoon.glb"
@@ -20529,15 +20455,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "1228/1800 tris",
+          "budget": "1148/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "670 faces on swatch centers",
+          "uv": "620 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.01"
+          "centered": "footprint center x=-0.09 y=0.01"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_MaineCoon.png",
@@ -20557,29 +20485,28 @@
         "CatCafe_Cat_MaineCoon_Sit_Tail",
         "CatCafe_Cat_MaineCoon_Sit_LegF1",
         "CatCafe_Cat_MaineCoon_Sit_LegF2",
-        "CatCafe_Cat_MaineCoon_Sit_Prop",
-        "CatCafe_Cat_MaineCoon_Sit_Prop2"
+        "CatCafe_Cat_MaineCoon_Sit_Prop"
       ],
-      "triangles": 1256,
-      "budget": 1800,
+      "triangles": 1176,
+      "budget": 1500,
       "size_studs": {
-        "x": 1.56,
-        "y": 1.71,
+        "x": 1.77,
+        "y": 1.52,
         "z": 2.35
       },
       "size_roblox": [
-        1.56,
+        1.77,
         2.35,
-        1.71
+        1.52
       ],
       "bounds_min": [
-        -0.55,
+        -0.76,
         -0.78,
         0.0
       ],
       "bounds_max": [
         1.01,
-        0.94,
+        0.75,
         2.35
       ],
       "pivot": "base center (floor contact)",
@@ -21036,16 +20963,9 @@
           "CatCafe_Cat_MaineCoon_Sit_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_MaineCoon_Sit_Prop2"
-        ]
-      },
-      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_MaineCoon for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_MaineCoon for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_MaineCoon_Sit.model.json",
-      "rbx_parts": 80,
+      "rbx_parts": 70,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_MaineCoon_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_MaineCoon_Sit.glb"
@@ -21057,13 +20977,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1256/1800 tris",
+          "budget": "1176/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "684 faces on swatch centers",
+          "uv": "634 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.23 y=0.08"
+          "centered": "footprint center x=0.13 y=-0.01"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_MaineCoon_Sit.png",
@@ -21088,10 +21008,9 @@
         "CatCafe_Cat_MaineCoon_Work_Held_Barista",
         "CatCafe_Cat_MaineCoon_Work_Held_Waiter",
         "CatCafe_Cat_MaineCoon_Work_Held_Entertainer",
-        "CatCafe_Cat_MaineCoon_Work_Prop",
-        "CatCafe_Cat_MaineCoon_Work_Prop2"
+        "CatCafe_Cat_MaineCoon_Work_Prop"
       ],
-      "triangles": 1844,
+      "triangles": 1776,
       "budget": 2400,
       "size_studs": {
         "x": 1.84,
@@ -21587,16 +21506,9 @@
           "CatCafe_Cat_MaineCoon_Work_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_MaineCoon_Work_Prop2"
-        ]
-      },
-      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_MaineCoon_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_MaineCoon_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_MaineCoon_Work.model.json",
-      "rbx_parts": 96,
+      "rbx_parts": 87,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_MaineCoon_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_MaineCoon_Work.glb"
@@ -21608,10 +21520,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1844/2400 tris",
+          "budget": "1776/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "976 faces on swatch centers",
+          "uv": "932 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.10 y=0.14"
@@ -125348,23 +125260,22 @@
         "CatCafe_Cat_Clay_LegF1",
         "CatCafe_Cat_Clay_LegF2",
         "CatCafe_Cat_Clay_LegB1",
-        "CatCafe_Cat_Clay_LegB2",
-        "CatCafe_Cat_Clay_Prop"
+        "CatCafe_Cat_Clay_LegB2"
       ],
-      "triangles": 1168,
+      "triangles": 956,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -125844,13 +125755,6 @@
           ]
         }
       },
-      "prop": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Clay_Prop"
-        ]
-      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -125863,9 +125767,8 @@
           0.0
         ]
       },
-      "studio": "Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Clay.model.json",
-      "rbx_parts": 71,
+      "rbx_parts": 47,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Clay.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Clay.glb"
@@ -125873,15 +125776,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "1168/1500 tris",
+          "budget": "956/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "636 faces on swatch centers",
+          "uv": "530 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Clay.png",
@@ -125900,29 +125805,28 @@
         "CatCafe_Cat_Clay_Sit_EarR",
         "CatCafe_Cat_Clay_Sit_Tail",
         "CatCafe_Cat_Clay_Sit_LegF1",
-        "CatCafe_Cat_Clay_Sit_LegF2",
-        "CatCafe_Cat_Clay_Sit_Prop"
+        "CatCafe_Cat_Clay_Sit_LegF2"
       ],
-      "triangles": 1156,
+      "triangles": 944,
       "budget": 1500,
       "size_studs": {
-        "x": 1.24,
-        "y": 1.33,
+        "x": 1.42,
+        "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.24,
+        1.42,
         1.85,
-        1.33
+        1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
       "bounds_max": [
         0.8,
-        0.68,
+        0.6,
         1.85
       ],
       "pivot": "base center (floor contact)",
@@ -126376,16 +126280,9 @@
           ]
         }
       },
-      "prop": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Clay_Sit_Prop"
-        ]
-      },
-      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Clay for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Clay for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Clay_Sit.model.json",
-      "rbx_parts": 70,
+      "rbx_parts": 46,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Clay_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Clay_Sit.glb"
@@ -126397,13 +126294,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1156/1500 tris",
+          "budget": "944/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "630 faces on swatch centers",
+          "uv": "524 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=0.02"
+          "centered": "footprint center x=0.10 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Clay_Sit.png",
@@ -126427,10 +126324,9 @@
         "CatCafe_Cat_Clay_Work_LegB2",
         "CatCafe_Cat_Clay_Work_Held_Barista",
         "CatCafe_Cat_Clay_Work_Held_Waiter",
-        "CatCafe_Cat_Clay_Work_Held_Entertainer",
-        "CatCafe_Cat_Clay_Work_Prop"
+        "CatCafe_Cat_Clay_Work_Held_Entertainer"
       ],
-      "triangles": 1784,
+      "triangles": 1584,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -126923,16 +126819,9 @@
           ]
         }
       },
-      "prop": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Clay_Work_Prop"
-        ]
-      },
-      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Clay_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Clay_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Clay_Work.model.json",
-      "rbx_parts": 88,
+      "rbx_parts": 65,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Clay_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Clay_Work.glb"
@@ -126944,10 +126833,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1784/2400 tris",
+          "budget": "1584/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "942 faces on swatch centers",
+          "uv": "842 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -151177,23 +151066,22 @@
         "CatCafe_Cat_Bengal_Gold_LegF2",
         "CatCafe_Cat_Bengal_Gold_LegB1",
         "CatCafe_Cat_Bengal_Gold_LegB2",
-        "CatCafe_Cat_Bengal_Gold_Prop",
-        "CatCafe_Cat_Bengal_Gold_Prop2"
+        "CatCafe_Cat_Bengal_Gold_Prop"
       ],
-      "triangles": 1236,
-      "budget": 1800,
+      "triangles": 1208,
+      "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.13,
         "y": 2.05,
         "z": 1.88
       },
       "size_roblox": [
-        1.0,
+        1.13,
         1.88,
         2.05
       ],
       "bounds_min": [
-        -0.5,
+        -0.63,
         -1.04,
         -0.0
       ],
@@ -151672,13 +151560,6 @@
           "CatCafe_Cat_Bengal_Gold_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Bengal_Gold_Prop2"
-        ]
-      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -151691,21 +151572,23 @@
           0.0
         ]
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Bengal when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "F42: clone this instead of CatCafe_Cat_Bengal when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Bengal_Gold.model.json",
-      "rbx_parts": 65,
+      "rbx_parts": 56,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "1236/1800 tris",
+          "budget": "1208/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "646 faces on swatch centers",
+          "uv": "638 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.02"
+          "centered": "footprint center x=-0.06 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Bengal_Gold.png",
@@ -151725,23 +151608,22 @@
         "CatCafe_Cat_Bengal_Gold_Sit_Tail",
         "CatCafe_Cat_Bengal_Gold_Sit_LegF1",
         "CatCafe_Cat_Bengal_Gold_Sit_LegF2",
-        "CatCafe_Cat_Bengal_Gold_Sit_Prop",
-        "CatCafe_Cat_Bengal_Gold_Sit_Prop2"
+        "CatCafe_Cat_Bengal_Gold_Sit_Prop"
       ],
-      "triangles": 1224,
-      "budget": 1800,
+      "triangles": 1196,
+      "budget": 1500,
       "size_studs": {
-        "x": 1.23,
+        "x": 1.4,
         "y": 1.27,
         "z": 1.88
       },
       "size_roblox": [
-        1.23,
+        1.4,
         1.88,
         1.27
       ],
       "bounds_min": [
-        -0.44,
+        -0.6,
         -0.66,
         0.0
       ],
@@ -152200,16 +152082,9 @@
           "CatCafe_Cat_Bengal_Gold_Sit_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Bengal_Gold_Sit_Prop2"
-        ]
-      },
-      "studio": "F42: clone this instead of CatCafe_Cat_Bengal_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "F42: clone this instead of CatCafe_Cat_Bengal_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Bengal_Gold_Sit.model.json",
-      "rbx_parts": 64,
+      "rbx_parts": 55,
       "gates": {
         "pass": true,
         "failed": [],
@@ -152217,13 +152092,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1224/1800 tris",
+          "budget": "1196/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "640 faces on swatch centers",
+          "uv": "632 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=-0.03"
+          "centered": "footprint center x=0.09 y=-0.03"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Bengal_Gold_Sit.png",
@@ -152248,10 +152123,9 @@
         "CatCafe_Cat_Bengal_Gold_Work_Held_Barista",
         "CatCafe_Cat_Bengal_Gold_Work_Held_Waiter",
         "CatCafe_Cat_Bengal_Gold_Work_Held_Entertainer",
-        "CatCafe_Cat_Bengal_Gold_Work_Prop",
-        "CatCafe_Cat_Bengal_Gold_Work_Prop2"
+        "CatCafe_Cat_Bengal_Gold_Work_Prop"
       ],
-      "triangles": 1804,
+      "triangles": 1788,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -152743,16 +152617,9 @@
           "CatCafe_Cat_Bengal_Gold_Work_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Bengal_Gold_Work_Prop2"
-        ]
-      },
-      "studio": "F42: clone this instead of CatCafe_Cat_Bengal_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "F42: clone this instead of CatCafe_Cat_Bengal_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Bengal_Gold_Work.model.json",
-      "rbx_parts": 78,
+      "rbx_parts": 70,
       "gates": {
         "pass": true,
         "failed": [],
@@ -152760,10 +152627,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1804/2400 tris",
+          "budget": "1788/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "928 faces on swatch centers",
+          "uv": "926 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.09"
@@ -154359,23 +154226,22 @@
         "CatCafe_Cat_Ragdoll_Gold_LegF2",
         "CatCafe_Cat_Ragdoll_Gold_LegB1",
         "CatCafe_Cat_Ragdoll_Gold_LegB2",
-        "CatCafe_Cat_Ragdoll_Gold_Prop",
-        "CatCafe_Cat_Ragdoll_Gold_Prop2"
+        "CatCafe_Cat_Ragdoll_Gold_Prop"
       ],
-      "triangles": 948,
-      "budget": 1800,
+      "triangles": 1048,
+      "budget": 1500,
       "size_studs": {
-        "x": 1.23,
+        "x": 1.46,
         "y": 2.37,
         "z": 2.67
       },
       "size_roblox": [
-        1.23,
+        1.46,
         2.67,
         2.37
       ],
       "bounds_min": [
-        -0.6,
+        -0.82,
         -1.19,
         -0.0
       ],
@@ -154854,13 +154720,6 @@
           "CatCafe_Cat_Ragdoll_Gold_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Ragdoll_Gold_Prop2"
-        ]
-      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -154873,21 +154732,23 @@
           0.0
         ]
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Ragdoll when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "F42: clone this instead of CatCafe_Cat_Ragdoll when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ragdoll_Gold.model.json",
-      "rbx_parts": 69,
+      "rbx_parts": 58,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "948/1800 tris",
+          "budget": "1048/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "530 faces on swatch centers",
+          "uv": "574 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.02 y=-0.01"
+          "centered": "footprint center x=-0.09 y=-0.01"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ragdoll_Gold.png",
@@ -154907,23 +154768,22 @@
         "CatCafe_Cat_Ragdoll_Gold_Sit_Tail",
         "CatCafe_Cat_Ragdoll_Gold_Sit_LegF1",
         "CatCafe_Cat_Ragdoll_Gold_Sit_LegF2",
-        "CatCafe_Cat_Ragdoll_Gold_Sit_Prop",
-        "CatCafe_Cat_Ragdoll_Gold_Sit_Prop2"
+        "CatCafe_Cat_Ragdoll_Gold_Sit_Prop"
       ],
-      "triangles": 916,
-      "budget": 1800,
+      "triangles": 1036,
+      "budget": 1500,
       "size_studs": {
-        "x": 1.51,
+        "x": 1.74,
         "y": 1.49,
         "z": 2.55
       },
       "size_roblox": [
-        1.51,
+        1.74,
         2.55,
         1.49
       ],
       "bounds_min": [
-        -0.52,
+        -0.76,
         -0.78,
         0.0
       ],
@@ -155382,16 +155242,9 @@
           "CatCafe_Cat_Ragdoll_Gold_Sit_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Ragdoll_Gold_Sit_Prop2"
-        ]
-      },
-      "studio": "F42: clone this instead of CatCafe_Cat_Ragdoll_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "F42: clone this instead of CatCafe_Cat_Ragdoll_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ragdoll_Gold_Sit.model.json",
-      "rbx_parts": 67,
+      "rbx_parts": 57,
       "gates": {
         "pass": true,
         "failed": [],
@@ -155399,13 +155252,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "916/1800 tris",
+          "budget": "1036/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "504 faces on swatch centers",
+          "uv": "568 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.23 y=-0.03"
+          "centered": "footprint center x=0.11 y=-0.03"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ragdoll_Gold_Sit.png",
@@ -155430,10 +155283,9 @@
         "CatCafe_Cat_Ragdoll_Gold_Work_Held_Barista",
         "CatCafe_Cat_Ragdoll_Gold_Work_Held_Waiter",
         "CatCafe_Cat_Ragdoll_Gold_Work_Held_Entertainer",
-        "CatCafe_Cat_Ragdoll_Gold_Work_Prop",
-        "CatCafe_Cat_Ragdoll_Gold_Work_Prop2"
+        "CatCafe_Cat_Ragdoll_Gold_Work_Prop"
       ],
-      "triangles": 1544,
+      "triangles": 1676,
       "budget": 2400,
       "size_studs": {
         "x": 1.84,
@@ -155925,16 +155777,9 @@
           "CatCafe_Cat_Ragdoll_Gold_Work_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Ragdoll_Gold_Work_Prop2"
-        ]
-      },
-      "studio": "F42: clone this instead of CatCafe_Cat_Ragdoll_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "F42: clone this instead of CatCafe_Cat_Ragdoll_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ragdoll_Gold_Work.model.json",
-      "rbx_parts": 85,
+      "rbx_parts": 76,
       "gates": {
         "pass": true,
         "failed": [],
@@ -155942,10 +155787,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1544/2400 tris",
+          "budget": "1676/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "816 faces on swatch centers",
+          "uv": "886 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.10 y=0.13"
@@ -155968,23 +155813,22 @@
         "CatCafe_Cat_Void_Gold_LegF2",
         "CatCafe_Cat_Void_Gold_LegB1",
         "CatCafe_Cat_Void_Gold_LegB2",
-        "CatCafe_Cat_Void_Gold_Prop",
-        "CatCafe_Cat_Void_Gold_Prop2"
+        "CatCafe_Cat_Void_Gold_Prop"
       ],
-      "triangles": 1032,
-      "budget": 1800,
+      "triangles": 1012,
+      "budget": 1500,
       "size_studs": {
-        "x": 1.08,
+        "x": 1.18,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.08,
+        1.18,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.54,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -156459,13 +156303,6 @@
           "CatCafe_Cat_Void_Gold_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Void_Gold_Prop2"
-        ]
-      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -156478,21 +156315,23 @@
           0.0
         ]
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Void when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "F42: clone this instead of CatCafe_Cat_Void when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Void_Gold.model.json",
-      "rbx_parts": 55,
+      "rbx_parts": 56,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "1032/1800 tris",
+          "budget": "1012/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "540 faces on swatch centers",
+          "uv": "550 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.05 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Void_Gold.png",
@@ -156512,23 +156351,22 @@
         "CatCafe_Cat_Void_Gold_Sit_Tail",
         "CatCafe_Cat_Void_Gold_Sit_LegF1",
         "CatCafe_Cat_Void_Gold_Sit_LegF2",
-        "CatCafe_Cat_Void_Gold_Sit_Prop",
-        "CatCafe_Cat_Void_Gold_Sit_Prop2"
+        "CatCafe_Cat_Void_Gold_Sit_Prop"
       ],
-      "triangles": 1056,
-      "budget": 1800,
+      "triangles": 1036,
+      "budget": 1500,
       "size_studs": {
-        "x": 1.27,
+        "x": 1.42,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.27,
+        1.42,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.47,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -156983,16 +156821,9 @@
           "CatCafe_Cat_Void_Gold_Sit_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Void_Gold_Sit_Prop2"
-        ]
-      },
-      "studio": "F42: clone this instead of CatCafe_Cat_Void_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "F42: clone this instead of CatCafe_Cat_Void_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Void_Gold_Sit.model.json",
-      "rbx_parts": 57,
+      "rbx_parts": 58,
       "gates": {
         "pass": true,
         "failed": [],
@@ -157000,13 +156831,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1056/1800 tris",
+          "budget": "1036/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "552 faces on swatch centers",
+          "uv": "562 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.17 y=-0.02"
+          "centered": "footprint center x=0.10 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Void_Gold_Sit.png",
@@ -157031,10 +156862,9 @@
         "CatCafe_Cat_Void_Gold_Work_Held_Barista",
         "CatCafe_Cat_Void_Gold_Work_Held_Waiter",
         "CatCafe_Cat_Void_Gold_Work_Held_Entertainer",
-        "CatCafe_Cat_Void_Gold_Work_Prop",
-        "CatCafe_Cat_Void_Gold_Work_Prop2"
+        "CatCafe_Cat_Void_Gold_Work_Prop"
       ],
-      "triangles": 1624,
+      "triangles": 1616,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -157522,16 +157352,9 @@
           "CatCafe_Cat_Void_Gold_Work_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Void_Gold_Work_Prop2"
-        ]
-      },
-      "studio": "F42: clone this instead of CatCafe_Cat_Void_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "F42: clone this instead of CatCafe_Cat_Void_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Glowing eyes: set the parts of the Eye1 and Eye2 Models to Neon. Prop: the Head prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Head, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Void_Gold_Work.model.json",
-      "rbx_parts": 70,
+      "rbx_parts": 72,
       "gates": {
         "pass": true,
         "failed": [],
@@ -157539,10 +157362,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1624/2400 tris",
+          "budget": "1616/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "834 faces on swatch centers",
+          "uv": "850 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -157565,23 +157388,22 @@
         "CatCafe_Cat_MaineCoon_Gold_LegF2",
         "CatCafe_Cat_MaineCoon_Gold_LegB1",
         "CatCafe_Cat_MaineCoon_Gold_LegB2",
-        "CatCafe_Cat_MaineCoon_Gold_Prop",
-        "CatCafe_Cat_MaineCoon_Gold_Prop2"
+        "CatCafe_Cat_MaineCoon_Gold_Prop"
       ],
-      "triangles": 1228,
-      "budget": 1800,
+      "triangles": 1148,
+      "budget": 1500,
       "size_studs": {
-        "x": 1.27,
+        "x": 1.45,
         "y": 2.46,
         "z": 2.4
       },
       "size_roblox": [
-        1.27,
+        1.45,
         2.4,
         2.46
       ],
       "bounds_min": [
-        -0.63,
+        -0.82,
         -1.22,
         -0.0
       ],
@@ -158064,13 +157886,6 @@
           "CatCafe_Cat_MaineCoon_Gold_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_MaineCoon_Gold_Prop2"
-        ]
-      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -158083,21 +157898,23 @@
           0.0
         ]
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_MaineCoon when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "F42: clone this instead of CatCafe_Cat_MaineCoon when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_MaineCoon_Gold.model.json",
-      "rbx_parts": 79,
+      "rbx_parts": 69,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "1228/1800 tris",
+          "budget": "1148/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "670 faces on swatch centers",
+          "uv": "620 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.01"
+          "centered": "footprint center x=-0.09 y=0.01"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_MaineCoon_Gold.png",
@@ -158117,29 +157934,28 @@
         "CatCafe_Cat_MaineCoon_Gold_Sit_Tail",
         "CatCafe_Cat_MaineCoon_Gold_Sit_LegF1",
         "CatCafe_Cat_MaineCoon_Gold_Sit_LegF2",
-        "CatCafe_Cat_MaineCoon_Gold_Sit_Prop",
-        "CatCafe_Cat_MaineCoon_Gold_Sit_Prop2"
+        "CatCafe_Cat_MaineCoon_Gold_Sit_Prop"
       ],
-      "triangles": 1256,
-      "budget": 1800,
+      "triangles": 1176,
+      "budget": 1500,
       "size_studs": {
-        "x": 1.56,
-        "y": 1.71,
+        "x": 1.77,
+        "y": 1.52,
         "z": 2.35
       },
       "size_roblox": [
-        1.56,
+        1.77,
         2.35,
-        1.71
+        1.52
       ],
       "bounds_min": [
-        -0.55,
+        -0.76,
         -0.78,
         0.0
       ],
       "bounds_max": [
         1.01,
-        0.94,
+        0.75,
         2.35
       ],
       "pivot": "base center (floor contact)",
@@ -158596,16 +158412,9 @@
           "CatCafe_Cat_MaineCoon_Gold_Sit_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_MaineCoon_Gold_Sit_Prop2"
-        ]
-      },
-      "studio": "F42: clone this instead of CatCafe_Cat_MaineCoon_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "F42: clone this instead of CatCafe_Cat_MaineCoon_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_MaineCoon_Gold_Sit.model.json",
-      "rbx_parts": 80,
+      "rbx_parts": 70,
       "gates": {
         "pass": true,
         "failed": [],
@@ -158613,13 +158422,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1256/1800 tris",
+          "budget": "1176/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "684 faces on swatch centers",
+          "uv": "634 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.23 y=0.08"
+          "centered": "footprint center x=0.13 y=-0.01"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_MaineCoon_Gold_Sit.png",
@@ -158644,10 +158453,9 @@
         "CatCafe_Cat_MaineCoon_Gold_Work_Held_Barista",
         "CatCafe_Cat_MaineCoon_Gold_Work_Held_Waiter",
         "CatCafe_Cat_MaineCoon_Gold_Work_Held_Entertainer",
-        "CatCafe_Cat_MaineCoon_Gold_Work_Prop",
-        "CatCafe_Cat_MaineCoon_Gold_Work_Prop2"
+        "CatCafe_Cat_MaineCoon_Gold_Work_Prop"
       ],
-      "triangles": 1844,
+      "triangles": 1776,
       "budget": 2400,
       "size_studs": {
         "x": 1.84,
@@ -159143,16 +158951,9 @@
           "CatCafe_Cat_MaineCoon_Gold_Work_Prop"
         ]
       },
-      "prop2": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_MaineCoon_Gold_Work_Prop2"
-        ]
-      },
-      "studio": "F42: clone this instead of CatCafe_Cat_MaineCoon_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off. Second prop: the Back prop is the child Model <name>_Prop2 and rides the Body; PropSlot2 = Back, so the role piece in that slot stays off too (F71).",
+      "studio": "F42: clone this instead of CatCafe_Cat_MaineCoon_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Face prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Head (its Model is inside the Head Model); PropSlot = Face, so CatPose.dress leaves that slot's role piece off.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_MaineCoon_Gold_Work.model.json",
-      "rbx_parts": 96,
+      "rbx_parts": 87,
       "gates": {
         "pass": true,
         "failed": [],
@@ -159160,10 +158961,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1844/2400 tris",
+          "budget": "1776/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "976 faces on swatch centers",
+          "uv": "932 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.10 y=0.14"
@@ -253954,23 +253755,22 @@
         "CatCafe_Cat_Clay_Gold_LegF1",
         "CatCafe_Cat_Clay_Gold_LegF2",
         "CatCafe_Cat_Clay_Gold_LegB1",
-        "CatCafe_Cat_Clay_Gold_LegB2",
-        "CatCafe_Cat_Clay_Gold_Prop"
+        "CatCafe_Cat_Clay_Gold_LegB2"
       ],
-      "triangles": 1168,
+      "triangles": 956,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -254450,13 +254250,6 @@
           ]
         }
       },
-      "prop": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Clay_Gold_Prop"
-        ]
-      },
       "pose_lifts_roblox": {
         "loaf": [
           0.0,
@@ -254469,21 +254262,23 @@
           0.0
         ]
       },
-      "studio": "F42: clone this instead of CatCafe_Cat_Clay when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "studio": "F42: clone this instead of CatCafe_Cat_Clay when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Clay_Gold.model.json",
-      "rbx_parts": 71,
+      "rbx_parts": 47,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "1168/1500 tris",
+          "budget": "956/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "636 faces on swatch centers",
+          "uv": "530 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Clay_Gold.png",
@@ -254502,29 +254297,28 @@
         "CatCafe_Cat_Clay_Gold_Sit_EarR",
         "CatCafe_Cat_Clay_Gold_Sit_Tail",
         "CatCafe_Cat_Clay_Gold_Sit_LegF1",
-        "CatCafe_Cat_Clay_Gold_Sit_LegF2",
-        "CatCafe_Cat_Clay_Gold_Sit_Prop"
+        "CatCafe_Cat_Clay_Gold_Sit_LegF2"
       ],
-      "triangles": 1156,
+      "triangles": 944,
       "budget": 1500,
       "size_studs": {
-        "x": 1.24,
-        "y": 1.33,
+        "x": 1.42,
+        "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.24,
+        1.42,
         1.85,
-        1.33
+        1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
       "bounds_max": [
         0.8,
-        0.68,
+        0.6,
         1.85
       ],
       "pivot": "base center (floor contact)",
@@ -254978,16 +254772,9 @@
           ]
         }
       },
-      "prop": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Clay_Gold_Sit_Prop"
-        ]
-      },
-      "studio": "F42: clone this instead of CatCafe_Cat_Clay_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "studio": "F42: clone this instead of CatCafe_Cat_Clay_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Clay_Gold_Sit.model.json",
-      "rbx_parts": 70,
+      "rbx_parts": 46,
       "gates": {
         "pass": true,
         "failed": [],
@@ -254995,13 +254782,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1156/1500 tris",
+          "budget": "944/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "630 faces on swatch centers",
+          "uv": "524 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=0.02"
+          "centered": "footprint center x=0.10 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Clay_Gold_Sit.png",
@@ -255025,10 +254812,9 @@
         "CatCafe_Cat_Clay_Gold_Work_LegB2",
         "CatCafe_Cat_Clay_Gold_Work_Held_Barista",
         "CatCafe_Cat_Clay_Gold_Work_Held_Waiter",
-        "CatCafe_Cat_Clay_Gold_Work_Held_Entertainer",
-        "CatCafe_Cat_Clay_Gold_Work_Prop"
+        "CatCafe_Cat_Clay_Gold_Work_Held_Entertainer"
       ],
-      "triangles": 1784,
+      "triangles": 1584,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -255521,16 +255307,9 @@
           ]
         }
       },
-      "prop": {
-        "slot": "Back",
-        "follows": "Body",
-        "objects": [
-          "CatCafe_Cat_Clay_Gold_Work_Prop"
-        ]
-      },
-      "studio": "F42: clone this instead of CatCafe_Cat_Clay_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off.",
+      "studio": "F42: clone this instead of CatCafe_Cat_Clay_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Clay_Gold_Work.model.json",
-      "rbx_parts": 88,
+      "rbx_parts": 65,
       "gates": {
         "pass": true,
         "failed": [],
@@ -255538,10 +255317,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1784/2400 tris",
+          "budget": "1584/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "942 faces on swatch centers",
+          "uv": "842 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"

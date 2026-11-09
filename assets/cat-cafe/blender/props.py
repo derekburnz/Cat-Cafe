@@ -2023,45 +2023,6 @@ def banana_peel(ctx):
         P.box(tuple(m + R @ Vector((0.11, 0, -0.12))), (0.07, 0.13, 0.05), "hair_brown", rot=R @ _ry(45))
 
 
-def loot_sack(ctx):
-    """#2739 Bandit Cat (Epic) second prop: a burlap loot sack tied shut on its back, a gold coin peeking out of a
-    hole in the front, strapped on like the Firefly's jar."""
-    U = ctx.pen("up")
-    if ctx.body == "walk":
-        x, y, z = 0, 0.25, -0.01
-    else:
-        x, y, z = 0, 0.31, ctx.haunch_top - 0.98 + 0.01
-    U.sphere((x, y, z + 0.26), 0.33, "cardboard", scale=(1.0, 0.9, 0.85), segments=10, rings=6)   # the sack
-    U.cyl((x, y, z + 0.54), 0.1, 0.12, "cardboard", r2=0.065, segments=8)                          # its neck
-    U.cyl((x, y, z + 0.62), 0.075, 0.07, "cardboard", r2=0.15, segments=8)                         # the gathered top
-    U.ring((x, y, z + 0.53), 0.11, 0.03, 0.055, "dark_wood", segments=8)                           # the tie
-    U.box((x - 0.14, y - 0.26, z + 0.32), (0.15, 0.03, 0.13), "kibble", rot=_rz(-20))              # a patch
-    U.cyl((x + 0.13, y - 0.265, z + 0.17), 0.1, 0.035, "fur_golden", rot=_rx(80), segments=10)     # the coin
-    if ctx.body == "walk":
-        _strap_round(ctx, "dark_wood", at_y=0.25 - ctx.d["body"][1][1] * 0.22)
-    else:
-        _sling(ctx, "dark_wood", xs=(0.0,), down=0.09)
-
-
-def ninja_scroll(ctx):
-    """#2739 Ninja Cat (Legendary) second prop: a rolled cream scroll with red ends slung across its back."""
-    walk = ctx.body == "walk"
-    if walk:
-        P = ctx.pen("back")
-        c, R = Vector((0.0, 0.08, 0.09)), _rz(35) @ _ry(90)
-        _strap_round(ctx, "shirt_red", at_y=0.08)
-    else:
-        P = ctx.pen("up")
-        c, R = Vector((0.0, B_CLEAR + 0.085, -0.2)), _ry(55)
-        _sling(ctx, "shirt_red", xs=(0.0,), down=0.2)
-    ax = R @ Vector((0, 0, 1))
-    P.cyl(tuple(c), 0.085, 0.62, "offwhite", rot=R, segments=10)                                   # the roll
-    for sx in (-1, 1):
-        P.cyl(tuple(c + ax * sx * 0.33), 0.1, 0.06, "shirt_red", rot=R, segments=10)               # its ends
-        P.cyl(tuple(c + ax * sx * 0.37), 0.04, 0.04, "dark_wood", rot=R, segments=6)               # the rod
-    P.cyl(tuple(c), 0.09, 0.08, "shirt_red", rot=R, segments=10)                                   # the tie
-
-
 def bluebird(ctx):
     """#2739 Birdwatcher Cat (Rare) second prop: a little bluebird perched on its head, peach breast, yellow beak."""
     P = ctx.pen("head")
@@ -2183,7 +2144,6 @@ def ivy_garland(ctx):
         V.box(tuple(tip - d * f + n * th * 0.58), (0.08, 0.06, 0.02), "leaf_green", rot=Rl)
 
 
-
 # ----------------------------------------------------------------------------- #2739 theme extras, batch 2 --
 
 def knit_scarf(ctx):
@@ -2237,40 +2197,6 @@ def strawberry_clip(ctx):
     P.cyl(tuple(c + Vector((0, 0, 0.2))), 0.02, 0.06, "leaf_dark", segments=6)
 
 
-def canteen(ctx):
-    """#2739 Explorer Cat (Rare) second prop: a round green canteen with a cork cap on a brown strap."""
-    walk = ctx.body == "walk"
-    if walk:
-        P = ctx.pen("back")
-        c, R = Vector((0.12, 0.12, 0.08)), Matrix.Identity(3)
-        _strap_round(ctx, "dark_wood", at_y=0.12)
-    else:
-        P = ctx.pen("up")
-        c, R = Vector((0.1, B_CLEAR + 0.07, -0.2)), _rx(90)
-        _sling(ctx, "dark_wood", xs=(0.1,), down=0.2)
-    P.cyl(tuple(c), 0.22, 0.13, "shirt_green", rot=R, segments=14)
-    P.ring(tuple(c), 0.225, 0.03, 0.14, "dark_wood", rot=R, segments=14)
-    up = R @ Vector((0, 0, 1))
-    side = R @ Vector((0, -1, 0)) if walk else Vector((0, 0, 1))
-    P.cyl(tuple(c + side * 0.24), 0.05, 0.08, "caramel_wood", rot=Vector((0, 0, 1)).rotation_difference(side).to_matrix(),
-          segments=8)
-
-
-def star_pillow(ctx):
-    """#2739 Sleepy Cat (Epic) second prop: a puffy butter-yellow star pillow on its back, strapped on."""
-    walk = ctx.body == "walk"
-    if walk:
-        P = ctx.pen("back")
-        P.star((0.0, 0.12, 0.08), 0.4, 0.2, 0.14, "pastel_butter")
-        P.ico((0.0, 0.12, 0.16), 0.08, "offwhite", scale=(1.0, 1.0, 0.4))
-        _strap_round(ctx, "pastel_lilac", at_y=0.12)
-    else:
-        P = ctx.pen("up")
-        y = B_CLEAR + 0.08
-        P.star((0.0, y, -0.18), 0.4, 0.2, 0.14, "pastel_butter", rot=_rx(90))
-        _sling(ctx, "pastel_lilac", xs=(0.0,), down=0.15)
-
-
 def kerchief_cap(ctx):
     """#2739 Rusty (Common): a blue work kerchief tied over the head, white dots, the knot at the back."""
     P, hw, hd = ctx.pen("head"), ctx.hw, ctx.hd
@@ -2314,26 +2240,6 @@ def desert_flower(ctx):
     P.ico(tuple(c + Vector((0, -0.035, 0))), 0.055, "pastel_butter")
 
 
-def clay_pot(ctx):
-    """#2739 Clay (Common): a little cream clay amphora with two handles and a terracotta band, strapped on its back."""
-    walk = ctx.body == "walk"
-    if walk:
-        U = ctx.pen("up")
-        x, y, z = 0, 0.25, -0.01
-        _strap_round(ctx, "dark_wood", at_y=0.25 - ctx.d["body"][1][1] * 0.22)
-    else:
-        U = ctx.pen("up")
-        x, y, z = 0, 0.29, ctx.haunch_top - 0.98 + 0.01
-        _sling(ctx, "dark_wood", xs=(0.0,), down=0.09)
-    U.sphere((x, y, z + 0.2), 0.2, "fur_cream", segments=12, rings=7, scale=(1.0, 1.0, 1.1))
-    U.cyl((x, y, z + 0.44), 0.08, 0.14, "fur_cream", r2=0.1, segments=10)
-    U.cyl((x, y, z + 0.52), 0.12, 0.04, "terracotta", segments=10)
-    U.ring((x, y, z + 0.2), 0.215, 0.035, 0.07, "terracotta", segments=12)                # a painted band
-    for sx in (-1, 1):
-        U.ring((x + sx * 0.16, y, z + 0.38), 0.07, 0.025, 0.04, "fur_cream", rot=_ry(90), segments=8)
-
-
-
 PROPS = {
     "Calico": ("Face", eye_patch), "Tortie": ("Back", guitar), "Sphynx": ("Head", headphones),
     "MaineCoon": ("Face", bandit_mask), "Void": ("Head", ninja_band), "Midnight": ("Head", wizard_hat),
@@ -2371,7 +2277,6 @@ PROPS = {
     # #2739 batch 2
     "Smoke": ("Neck", knit_scarf), "Snow": ("Head", earmuffs), "Cream": ("Head", strawberry_clip),
     "Rusty": ("Head", kerchief_cap), "Soot": ("Head", flat_cap), "Puddle": ("Head", rain_hat),
-    "Clay": ("Back", clay_pot),
 }
 # Second props (data-model 3, v0.10 and v0.13: "one or two props is fine"), in a different slot from the first: the
 # object is `..._Prop2` and the model's PropSlot2 attribute names its slot.
@@ -2394,11 +2299,10 @@ PROPS2 = {
     "Pharaoh": ("Neck", pharaoh_collar),
     "Gargoyle": ("Head", gargoyle_horns),
     # #2739 theme extras, batch 1 (Derek2 2026-11-09)
-    "Binbag": ("Head", banana_peel), "MaineCoon": ("Back", loot_sack), "Void": ("Back", ninja_scroll),
+    "Binbag": ("Head", banana_peel),
     "Birdwatch": ("Head", bluebird), "Blossom": ("Head", flower_crown),
     # #2739 batch 2
-    "Tortie": ("Neck", stud_collar), "Bengal": ("Back", canteen), "Ragdoll": ("Back", star_pillow),
-    "Fennec": ("Head", desert_flower),
+    "Tortie": ("Neck", stud_collar), "Fennec": ("Head", desert_flower),
 }
 # Extra objects a prop draws (Ctx.piece): cat -> {suffix: the prop object it hangs from}. They ride what that prop
 # rides, and their Roblox Model nests inside that prop's Model.

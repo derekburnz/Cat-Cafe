@@ -69,15 +69,17 @@ ROSTER = {
     "Tortie":  dict(rarity="Rare", fur="fur_black", second="fur_ginger", third="fur_apricot", eyes="eye_copper", pattern="patches",
                     muzzle=None, nose="nose_brick"),
     "Bengal":  dict(rarity="Rare", fur="fur_sand", second="fur_seal", eyes="eye_green", pattern="spots", muzzle="fur_cream",
-                    nose="nose_brick", body_scale=(0.95, 1.05, 0.95)),
+                    nose="nose_brick", body_scale=(0.95, 1.05, 0.95),
+                    bag=("caramel_wood", "dark_wood", "scroll")),   # #2739 an explorer's map roll
     "Sphynx":  dict(rarity="Epic", fur="fur_peach", second="fur_peach", eyes="eye_violet", pattern="solid", muzzle=None, sphynx=True),
     "Ragdoll": dict(rarity="Epic", fur="fur_white", second="fur_blue", eyes="eye_blue", pattern="points", muzzle="fur_white", scale=1.2,
-                    body_scale=(1.1, 1.0, 1.05)),
+                    body_scale=(1.1, 1.0, 1.05), bag=("pastel_lilac", "offwhite", "star")),   # #2739 a star pillow
     "Void":    dict(rarity="Legendary", fur="fur_black", second="sparkle", eyes="eye_amber", pattern="solid", muzzle=None, glow_eyes=True,
-                    sparkle=True, nose="nose_dark"),
+                    sparkle=True, nose="nose_dark", bag=("pants_navy", "bowl_red", "scroll")),   # #2739 a ninja scroll
     # v0.3 additions (data-model 3a and 3b)
     "MaineCoon": dict(rarity="Epic", fur="fur_silver", second="fur_black", eyes="eye_amber", pattern="stripes", muzzle="fur_white",
-                      nose="nose_brick", scale=1.2, body_scale=(1.1, 1.05, 1.05), ruff="fur_white", ear_tufts=True, tail_thick=0.28),
+                      nose="nose_brick", scale=1.2, body_scale=(1.1, 1.05, 1.05), ruff="fur_white", ear_tufts=True, tail_thick=0.28,
+                      bag=("fur_oat", "dark_wood", "coins")),   # #2739 the Bandit Cat's loot
     "Midnight":  dict(rarity="Mythical", fur="night_sky", second="sparkle", eyes="sparkle", pattern="solid", muzzle=None,
                       glow_eyes=True, sparkle=True, moon=True, nose="nose_dark"),
     "Cream":     dict(rarity="Common", fur="fur_latte", second="fur_strawberry", third="fur_cream", eyes="eye_chartreuse",
@@ -248,7 +250,8 @@ ROSTER = {
                     pattern="patches", muzzle="floor_tile", nose="nose_dark",
                     bag=("fur_oat", "caramel_wood", "tools")),   # #2739 a dig kit
     "Clay":    dict(rarity="Common", fur="terracotta", second="fur_apricot", third="hair_brown", eyes="eye_green",
-                    pattern="solid", muzzle="fur_apricot", nose="nose_brick", tip="hair_brown"),
+                    pattern="solid", muzzle="fur_apricot", nose="nose_brick", tip="hair_brown",
+                    bag=("caramel_wood", "dark_wood", "jar")),   # #2739 a little clay amphora
     "Ivy":     dict(rarity="Common", fur="fur_moss", second="leaf_dark", third="floor_tile", eyes="eye_amber",
                     pattern="stripes", muzzle="floor_tile"),
     "Glyph":   dict(rarity="Rare", fur="paving_sand", second="fur_seal", third="fur_golden", eyes="eye_green",
@@ -868,7 +871,7 @@ def _top_tiles(b, c, xc, yc, z, nx, ny, w, d):
 # prop, so it takes no PropSlot and never keeps a role piece or a paid Looks accessory off. bag = (bag colour, flap
 # and strap colour, contents), contents one of HIP_BAG_CONTENTS.
 HIP_BAG_CONTENTS = ("acorns", "fish", "cookies", "brownies", "bread", "berries", "ferns", "moss", "chilis", "yarn",
-                    "newspaper", "sunflower", "letters", "tools")
+                    "newspaper", "sunflower", "letters", "tools", "scroll", "star", "coins", "jar")
 
 
 def _bag_contents(b, kind, x, y, z):
@@ -925,6 +928,25 @@ def _bag_contents(b, kind, x, y, z):
     elif kind == "newspaper":
         b.cyl((x, y, z + 0.08), 0.042, 0.22, "offwhite", segments=8, bevel=False, rot=_rot(-15, "X"))
         b.cyl((x, y, z + 0.08), 0.044, 0.03, "concrete", segments=8, bevel=False, rot=_rot(-15, "X"))
+    elif kind == "scroll":                                                   # #2739 a rolled scroll or map
+        b.cyl((x, y, z + 0.09), 0.04, 0.24, "offwhite", segments=8, bevel=False, rot=_rot(-20, "X"))
+        for t in (-1, 1):
+            b.cyl((x, y - t * 0.13 * math.sin(math.radians(20)), z + 0.09 + t * 0.13 * math.cos(math.radians(20))),
+                  0.05, 0.03, "bowl_red", segments=8, bevel=False, rot=_rot(-20, "X"))
+    elif kind == "star":                                                     # #2739 a puffy star pillow
+        for a in range(0, 360, 72):
+            r = _rot(a, "X")
+            b.box((x, y + 0.045 * math.sin(math.radians(a)), z + 0.11 + 0.045 * math.cos(math.radians(a))),
+                  (0.06, 0.06, 0.13), "pastel_butter", bevel=False, rot=r)
+        b.ico((x - 0.03, y, z + 0.11), 0.05, "pastel_butter", subdivisions=1)
+    elif kind == "coins":                                                    # #2739 gold coins spilling out
+        for i, (dy, dz, a) in enumerate(((-0.05, 0.04, 70), (0.04, 0.05, 110), (0.0, 0.1, 85))):
+            b.cyl((x - 0.004 * i, y + dy, z + dz), 0.065, 0.022, "gold_mid", segments=10, bevel=False, rot=_rot(a, "X"))
+    elif kind == "jar":                                                      # #2739 a little cream amphora
+        b.sphere((x, y, z + 0.06), 0.07, "fur_cream", segments=8, rings=5, scale=(1.0, 1.0, 1.15))
+        b.cyl((x, y, z + 0.14), 0.03, 0.06, "fur_cream", segments=8, bevel=False)
+        b.cyl((x, y, z + 0.175), 0.045, 0.02, "terracotta", segments=8, bevel=False)
+        b.cyl((x, y, z + 0.07), 0.073, 0.025, "terracotta", segments=8, bevel=False)
     elif kind == "tools":                                                    # #2739 Construction Cat and Rubble
         b.cyl((x, y - 0.05, z + 0.1), 0.018, 0.2, "caramel_wood", segments=6, bevel=False)             # a hammer
         b.box((x, y - 0.05, z + 0.2), (0.05, 0.12, 0.05), "metal", bevel=False)

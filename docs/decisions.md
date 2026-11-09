@@ -684,3 +684,6 @@ Tier 4 costs 160M (was 90M) and needs one Mythical or better (was a Legendary). 
 
 ## 2026-11-08: Party Bunting is a Rare decoration (Design-Agent, friend's project, #2534)
 The first Cafe Event reward is a Rare decoration with the Rare crate bonus (+4% money while in use) and can't be traded, like other Rare pieces. Test events pay rewards only in Studio or to an owner. Reason: Gameplay's build choice. A small bonus makes the free reward worth attending for, and since rewards come back later it is never a limited item. live-events.md 2e.
+
+## 2026-11-09: Proposed: the Mystery Market and the Backpack (Design-Agent, friend's project, #2565)
+Moss, a travelling cat with a cart on the Town Square, sells one permanent item at a time for golden fish. The rotation is global on the clock and changes weekly with the Saturday drop. Every item comes back and nothing is sold for Robux or random. First item: the Backpack, 300 fish at Tier 3. The first cat rides in the pack with the net still out, the second goes in your hands, a tackle drops both, and you can't tackle with a packed cat. mystery-market.md. Waiting on Derek2 for the rotation length, the price (Pace checks 2 to 5 h of saving) and which candidate items go on the list. Reason: Derek2's idea, 2026-11-09.

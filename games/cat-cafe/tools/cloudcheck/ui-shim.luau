@@ -1610,6 +1610,15 @@ InstanceMT.__newindex = function(self, key, value)
 			if value ~= nil and eventSignals[value] then
 				fire(eventSignals[value].ChildAdded, self)
 			end
+			-- #2784: DescendantAdded on every ancestor, as Roblox fires it
+			local above = value
+			while above ~= nil do
+				local signals = eventSignals[above]
+				if signals and signals.DescendantAdded then
+					fire(signals.DescendantAdded, self)
+				end
+				above = state[above] and state[above].Parent
+			end
 			if events and events.AncestryChanged then
 				fire(events.AncestryChanged, self, value)
 			end

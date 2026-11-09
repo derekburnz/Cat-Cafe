@@ -4005,4 +4005,20 @@ Presets.stationBuild = {
 	clunkGap = 0.12, -- seconds at least between stationClunk beats as pieces land (Sound-Agent's clunk set)
 }
 
+-- #2687's townsfolk cats (Townsfolk.luau), Model-Agent's CatCafe_NPC_Townsfolk_* sitting round a grown camp: an idle
+-- of head turns, ear flicks and a swaying tail, and a greet (head turned to you, a paw lifted and waved) as you come
+-- near. Off with Reduce Motion.
+Presets.townsfolk = {
+	lookYaw = 18, -- degrees the head wanders either way
+	lookPitch = 5, -- degrees it nods
+	tailYaw = 16, -- degrees the tail sways either way
+	tailHz = 0.45,
+	flick = { every = { 3, 7 }, seconds = 0.3, degrees = 28 }, -- an ear twitch now and then
+	greetRadius = 14, -- studs: coming this near starts a greet
+	greetAgain = 25, -- seconds before the same cat greets you again
+	turn = 4, -- how fast the head eases to where it looks (1 / seconds)
+	followLimit = 60, -- degrees the head turns to follow you while you are near
+	wave = { up = 0.3, wave = 1.2, waves = 3, lift = 75, side = 22 },
+}
+
 return Presets

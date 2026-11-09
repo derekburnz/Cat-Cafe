@@ -5,7 +5,7 @@
 --   fresh() -> a new account's state
 --   sanitize(raw, fromVersion, tier) -> a saved state made whole; a save from before version 41 already at Tier 3
 --     or above is finished at once (the first hour is behind it, nothing back-paid)
---   active(profile) -> whether the roadmap shows and pays: from tutorialStep 5 until finished
+--   active(profile) -> whether the roadmap shows and pays: from the first catch (tutorialStep 2) until finished
 --   met(profile, n) -> whether milestone n's condition holds now
 --   due(profile) -> the milestones met and not yet done, lowest first (none while inactive)
 --   mark(state, n, played?) -> records milestone n done; the last one finishes the roadmap at `played` seconds
@@ -45,7 +45,9 @@ GrandOpening.STEPS = {
 } :: { Step }
 GrandOpening.COUNT = #GrandOpening.STEPS
 
-GrandOpening.SHOW_FROM_STEP = 5 -- tutorialStep: the strip appears as the tutorial ends
+-- tutorialStep: the strip appears, and pays, from the first catch (#2795, Derek2 11-09 on retention idea 5: "yes"; it was
+-- the tutorial's end, 5), so the first table and the first bait cat pay as they happen
+GrandOpening.SHOW_FROM_STEP = 2
 GrandOpening.FROM_VERSION = 41 -- the save version that brought it
 GrandOpening.TAG = "tag_grand_opener" -- the chat tag milestone 8 gives (ChatTags.TAGS)
 -- #1922: the cafe front's models (Model-Agent's #1928), placed at the plot pivot

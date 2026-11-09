@@ -2048,10 +2048,10 @@ function UI.showCatFound(catId: string, isNew: boolean?, extra: Types.CatFoundEx
 			end
 		end
 		-- #2833 (Derek2: "only do the double pop-up if its a legendary+ or any new cat"): a repeat below Legendary
-		-- gets a toast, not the big card (Components/CatFoundLogic)
+		-- gets no big card (Components/CatFoundLogic), and #2844 no "joined your cafe" toast either ("it just adds
+		-- bloat"): the catch's own small pop-up already said it
 		local CatFoundLogic = require(script.Components.CatFoundLogic) :: any
 		if not CatFoundLogic.big(def.rarity, isNew, info) then
-			UI.toast(CatFoundLogic.toast(def.name, info.charmGain), "good")
 			return
 		end
 		popups:showCatFound(def, isNew, info)

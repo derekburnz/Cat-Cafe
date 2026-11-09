@@ -711,6 +711,9 @@ local Config = {
 	TradeConfirmWaitSeconds = 2,
 	TradeRequestSeconds = 20,
 	TradeReaskSeconds = 3, -- #2550 (Derek2): was 60; a declined or lapsed ask can be sent again a moment later
+	-- #2550 review (young audience): after this many declines in a row from one player, the asker can't ask them again
+	-- until that player asks back or either leaves the server (TradeBook.declinedOut)
+	TradeDeclinesToStop = 2,
 	TradeCooldownSeconds = 10,
 	TradesPerDay = 50,
 	TradeFlagCheckSeconds = 60,

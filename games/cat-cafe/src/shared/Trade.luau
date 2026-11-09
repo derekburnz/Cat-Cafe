@@ -41,6 +41,7 @@ Trade.Messages = {
 	requestsOff = "%s isn't taking trade requests",
 	friendsOnly = "%s only trades with friends",
 	reask = "Wait a moment before asking %s again",
+	declinedOut = "%s said no for now. They can still ask you", -- #2550 review: TradeDeclinesToStop declines in a row
 	cooldown = "Wait a moment before your next trade",
 	daily = "That's all the trades for today",
 	theirDaily = "%s has traded enough for today", -- review N335: a line of its own, not theirBusy

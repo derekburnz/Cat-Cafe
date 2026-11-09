@@ -5,7 +5,8 @@
 -- TradeService checks who may ask (Trade.askRefusal) and which cat may go on offer (Trade.offerRefusal) against the
 -- profiles; the book keeps the order of things:
 -- - A request runs TradeRequestSeconds. Declined or run out, the asker waits TradeReaskSeconds before asking that
---   player again. One request out at a time a player.
+--   player again. One request out at a time a player. #2550 review: after TradeDeclinesToStop declines in a row from
+--   the same player, the asker may not ask them again until that player asks them or either leaves the server.
 -- - A trade's version goes up on every add or take away, which also clears both Ready and Confirm, stops the countdown
 --   and marks the change (section 3, "any change resets both"). Ready and Confirm carry the version the player saw
 --   and are refused for any other, so a press never lands on an offer they have not seen. Ready itself does not move
@@ -64,6 +65,7 @@ export type Book = {
 	requests: { [string]: Request },
 	asking: { [number]: string }, -- the asker's userId -> their request out
 	reaskAt: { [string]: number }, -- "from:to" -> when `from` may ask `to` again
+	declines: { [string]: number }, -- "from:to" -> `to`'s declines of `from` in a row (#2550 review)
 	trades: { [string]: OpenTrade },
 	tradeOf: { [number]: string }, -- userId -> the trade they are in
 	lastSwap: { [number]: number }, -- userId -> when their last trade swapped cats
@@ -76,6 +78,7 @@ function TradeBook.new(): Book
 		requests = {},
 		asking = {},
 		reaskAt = {},
+		declines = {},
 		trades = {},
 		tradeOf = {},
 		lastSwap = {},
@@ -101,6 +104,12 @@ function TradeBook.reaskLeft(book: Book, from: number, to: number, now: number):
 	return math.max(0, (book.reaskAt[pairKey(from, to)] or 0) - now)
 end
 
+-- #2550 review: whether `to` has declined `from` TradeDeclinesToStop times in a row, so `from` may not ask again until
+-- `to` asks them or either leaves.
+function TradeBook.declinedOut(book: Book, from: number, to: number): boolean
+	return (book.declines[pairKey(from, to)] or 0) >= Config.TradeDeclinesToStop
+end
+
 -- Whether `from` has a request out.
 function TradeBook.isAsking(book: Book, from: number): boolean
 	return book.asking[from] ~= nil
@@ -116,6 +125,7 @@ function TradeBook.ask(book: Book, id: string, from: number, to: number, now: nu
 	}
 	book.requests[id] = request
 	book.asking[from] = id
+	book.declines[pairKey(to, from)] = nil -- #2550 review: asking someone back lets them ask you again
 	return request
 end
 
@@ -162,6 +172,12 @@ function TradeBook.answer(
 		return nil
 	end
 	dropRequest(book, request, not accept, now)
+	local key = pairKey(request.from, request.to)
+	if accept then
+		book.declines[key] = nil
+	else
+		book.declines[key] = (book.declines[key] or 0) + 1
+	end
 	return request
 end
 
@@ -469,6 +485,17 @@ function TradeBook.leave(book: Book, userId: number, now: number): OpenTrade?
 		dropRequest(book, request, false, now)
 	end
 	book.lastSwap[userId] = nil
+	local id = tostring(userId)
+	local forgotten: { string } = {}
+	for key in book.declines do
+		local from, to = string.match(key, "^(%d+):(%d+)$")
+		if from == id or to == id then
+			table.insert(forgotten, key)
+		end
+	end
+	for _, key in forgotten do
+		book.declines[key] = nil
+	end
 	return TradeBook.tradeFor(book, userId)
 end
 

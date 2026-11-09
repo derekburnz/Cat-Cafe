@@ -1472,6 +1472,7 @@ function UI.init(config: Types.InitConfig)
 	UI.leaderboards.start(parent) -- the town boards' faces and the crowns over heads (F98)
 	UI.together.start(parent) -- the Team Rescue pop and the pal chip (F92)
 	UI.campExtras.start(parent) -- the Yard Sale card, the Cannon picker's strips and the stations' "!" (F100)
+	UI.giftWait.start() -- #2614: the HUD's line while a Mystery gift waits on your plot
 	UI.cornerShop.start() -- the Corner Shop window (#1052)
 	UI.rally.start(parent) -- the Rescue Rally banner, the board's face and the clock line (F101)
 	UI.cafeEvent.start(parent) -- the Cafe Event chip, its start banner and the square's board face (#2487)
@@ -1613,6 +1614,7 @@ function UI.destroy()
 	UI.leaderboards.reset()
 	UI.together.reset()
 	UI.campExtras.reset()
+	UI.giftWait.reset()
 	UI.rally.reset()
 	UI.cafeEvent.reset()
 	UI.trade.reset()
@@ -2494,7 +2496,15 @@ end
 
 -- From MysteryGiftResult(kind, id, count): a card with what the gift held ("Money Potion", "2 Salmon",
 -- "10 golden fish", "1 spin") as a picture, closing by itself, with the giftOpen sound.
-function UI.potions.giftResult(kind: string, id: string?, count: number)
+-- #2614: `tier` is the wrap's ("Common", "Rare", "Super"), for the card's heading; `fish` a Super crate's golden fish.
+-- Coins are seconds of income, priced at the cafe's rate, and a "highest" crate shows the crate of the top open area.
+function UI.potions.giftResult(
+	kind: string,
+	id: string?,
+	count: number,
+	tier: string?,
+	fish: number?
+)
 	if popups == nil then
 		return
 	end
@@ -2507,7 +2517,14 @@ function UI.potions.giftResult(kind: string, id: string?, count: number)
 		return nil
 	end
 	local title = PotionLogic.giftTitle(kind, id, count, foodName, potionName)
-	popups:showGift(title, PotionLogic.giftPrize(kind, id, count))
+	if type(fish) == "number" and fish > 0 then
+		title ..= (" + %d golden fish"):format(fish)
+	end
+	local GiftLogic = require(script.Components.GiftLogic)
+	popups:showGift(title, PotionLogic.giftPrize(kind, id, count, fish), GiftLogic.title(tier), {
+		tier = state.tier,
+		dayRate = state.prizeRate or state.incomePerSecond,
+	})
 end
 
 ----------------------------------------------------------------------------------------------------
@@ -3600,7 +3617,13 @@ do
 			muteGift(prompt, plot)
 			return false, nil
 		end
-		return true, PotionLogic.giftLine(PotionLogic.giftRows(currentCatalog), foodName)
+		-- #2614: the chances of the wrap on the table (its MysteryGiftTier), not every wrap's
+		local tier = if plot then plot:GetAttribute("MysteryGiftTier") else nil
+		return true,
+			PotionLogic.giftLine(
+				PotionLogic.giftRows(currentCatalog, if type(tier) == "string" then tier else nil),
+				foodName
+			)
 	end
 
 	local function infoFromPrompt(prompt: ProximityPrompt): Types.CatchInfo
@@ -5401,6 +5424,57 @@ do
 		if modalView and modalView:current() == "CornerShop" then
 			modalView:close()
 		end
+	end
+end
+
+-- #2614: while a Mystery gift waits on this player's plot (its MysteryGiftAt, data-model 13), the HUD shows one quiet
+-- line in the wrap's colour (the plot's MysteryGiftTier), looked at once a second. Its own block, as the module is
+-- short of locals.
+UI.giftWait = {}
+do
+	local GiftLogic = require(script.Components.GiftLogic)
+	local LOOK_SECONDS = 1
+	local wait = { run = 0 }
+
+	local function myPlot(): Instance?
+		local world = Workspace:FindFirstChild("World")
+		local plots = if world ~= nil then world:FindFirstChild("Plots") else nil
+		if plots == nil then
+			return nil
+		end
+		for _, plot in plots:GetChildren() do
+			if plot:GetAttribute("OwnerUserId") == Players.LocalPlayer.UserId then
+				return plot
+			end
+		end
+		return nil
+	end
+
+	-- What the line should say now: the wrap's tier while a gift waits, else nil.
+	function UI.giftWait.look(): string?
+		local plot = myPlot()
+		if plot == nil or not GiftLogic.waiting(plot:GetAttribute("MysteryGiftAt")) then
+			return nil
+		end
+		return GiftLogic.tier(plot:GetAttribute("MysteryGiftTier"))
+	end
+
+	function UI.giftWait.start()
+		wait.run += 1
+		local run = wait.run
+		task.spawn(function()
+			while wait.run == run do
+				local view = hud
+				if view then
+					view:setGift(UI.giftWait.look())
+				end
+				task.wait(LOOK_SECONDS)
+			end
+		end)
+	end
+
+	function UI.giftWait.reset()
+		wait.run += 1
 	end
 end
 

@@ -2091,6 +2091,7 @@ function UIController.start()
 		potions = Catalog.potions, -- F64: the potion bag's rows
 		catFood = Catalog.catFood, -- #1181: the Bag's Cat Food tab rows
 		mysteryGift = Catalog.mysteryGift, -- F64: what a Mystery gift can hold, shown before opening
+		mysteryGiftTiers = Catalog.mysteryGiftTiers, -- #2614: each wrap's own chances, for the gift prompt's line
 		dealerAmountWeights = Catalog.dealerAmountWeights, -- F59: the dealer's stock odds under Details
 		quests = Catalog.quests, -- F73: the quest rows (to tell a coins quest)
 		questPrizes = Catalog.questPrizes, -- F73: daily, dailyBig, dailySet, weekly and weeklySet

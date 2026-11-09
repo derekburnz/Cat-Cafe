@@ -3803,6 +3803,11 @@ local SCENES = {
 	{ "CatchFocus", function()
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
 		local root = hud:FindFirstChild("Root") :: Frame
+		-- #2808: with a potion running, its timers redraw every second, and still stay down mid-catch
+		UI.update({ buffs = { tip_potion = workspace:GetServerTimeNow() + 492 } } :: any)
+		UIShim.advance(0.1)
+		local timers = root:FindFirstChild("PotionTimers") :: Frame
+		assert(timers ~= nil and timers.Visible, "uigate: the potion timers did not show before the catch (#2808)")
 		local before: { [Instance]: boolean } = {}
 		for _, child in root:GetChildren() do
 			if child:IsA("GuiObject") then
@@ -3827,6 +3832,8 @@ local SCENES = {
 				assert(not piece.Visible, "uigate: the HUD's " .. piece.Name .. " still shows mid-catch (#2724)")
 			end
 		end
+		UIShim.advance(1.2) -- past a timer tick
+		assert(not timers.Visible, "uigate: the potion timers came back mid-catch on their tick (#2808)")
 		UI.toast("Tip Jar: 2 gifts claimed!", "good")
 		UI.toast("Your paws are shaking!", "warn")
 		UIShim.advance(0.3)

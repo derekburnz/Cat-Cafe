@@ -241,10 +241,14 @@ Derek2's answers, item by item, use the numbering in section 2.
 
 ### 5d. Invite with a reward, between 5 and 15 minutes (idea 9)
 - **When.** Once per account, at the first good moment between 5 and 15 minutes of play: the first Rare-or-better cat, the first Collector deal, or the Grand Opening's step 4. If none happens by 15 minutes, it shows at 15 at the next calm moment. It never shows before minute 5.
-- **What.** A small card: "Invite a friend: you both get 🐟 20 when they join!" with Invite (Roblox's own invite prompt, SocialService) and Not now. There's a Friends button in the menu for later invites, inside the existing menu, not a new HUD slot.
-- **Reward.** It pays when an invited friend actually joins through the invite (the invite's launch data names the inviter):
-  - The inviter gets 20 golden fish and the friend gets 20 too, once per inviter–friend pair.
-  - Up to 5 rewarded friends per inviter per game day.
-  - Sending an invite alone pays nothing, which stops invite spam to non-players. Roblox's own invite prompt does the sending, so there's no in-game text.
-  - Fish are earned only, never sold, so this stays outside `monetization-policy`.
-- **Contracts.** Save: `invites = { rewarded: { [friendUserId]: true } (last 50), today: { day, count }, cardShown: boolean }`, a version bump. The server reads the joining player's launch data, checks the inviter is in the server or saves it to the inviter's pending (a small DataStore key, as the trade vault does), and pays both. Analytics: `invite_card` (shown, invite, not now) and `invite_join`.
+- **What.** A small card: "Invite a friend: you both get 🐟 20 when they start playing!" with Invite (Roblox's own invite prompt, SocialService) and Not now. There's a Friends button in the menu for later invites, inside the existing menu, not a new HUD slot.
+- **Reward** (Roblox's Friend Invite Reward System guidance, checked by Research-Agent 2026-11-09):
+  - **Detection.** `Player:GetJoinData().ReferredByPlayerId` covers every kind of Roblox invite, links included. There's no "Roblox friends only" rule, since a brand-new player from a shared link can't be a friend yet.
+  - **The joiner must be new** (a fresh save, judged on the server), must not be the inviter, and each joiner pays once, ever.
+  - **When it pays.** The joiner gets 20 golden fish on their first catch. The inviter gets 20 golden fish once the joiner has played 5 minutes or caught their first cat, whichever comes first. This stops join-and-leave farming.
+  - **Cap.** Up to 5 rewarded joiners per inviter per game day.
+  - **No pay for sending.** Sending an invite alone pays nothing.
+  - **The prompt** only opens after `SocialService:CanSendGameInviteAsync` passes. There are no reminders or extra pop-ups beyond the one card (young-audience rules).
+  - **Currency.** Fish are earned only, never sold, so this stays outside `monetization-policy`.
+  - **Optional.** A Creator Hub reward banner describing the reward exactly is a store page change, so it needs Derek's OK first.
+- **Contracts.** Save: `invites = { rewarded: { [joinerUserId]: true } (last 50), today: { day, count }, cardShown: boolean }` on the inviter, and `referredBy = { userId, paid: boolean }` on the joiner, a version bump. The server reads `ReferredByPlayerId` at join, waits for the qualifying play, then pays the inviter if they are in the server, or saves it to the inviter's pending (a small DataStore key, as the trade vault does), and pays both. Analytics: `invite_card` (shown, invite, not now) and `invite_join`.

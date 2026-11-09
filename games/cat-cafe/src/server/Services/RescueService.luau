@@ -37,6 +37,7 @@ local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
+local Layout = require(script.Parent.Parent.World.Layout)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
@@ -260,7 +261,12 @@ local function rollStuckCat(spotId: string, areaDef: Types.AreaDef, spot: BasePa
 end
 
 -- #2240: today's traps in `area`, RescuePick's choice of the area's mix from its pool of spots, away from yesterday's.
-local function pickTraps(areaId: string, area: WorldBuilder.AreaInfo): { string }
+-- #2794: with `starter`, the pool's spot nearest the camp's pad is picked every day and returned second.
+local function pickTraps(
+	areaId: string,
+	area: WorldBuilder.AreaInfo,
+	starter: boolean
+): ({ string }, string?)
 	local pool: { RescuePick.Candidate } = {}
 	for spotId, spot in area.rescueSpots do
 		local trap = spot:GetAttribute("TrapType")
@@ -270,6 +276,11 @@ local function pickTraps(areaId: string, area: WorldBuilder.AreaInfo): { string 
 			position = spot.Position,
 		})
 	end
+	local keep: string? = nil
+	local camp = Layout.camps[areaId]
+	if starter and camp ~= nil then
+		keep = RescuePick.nearest(pool, camp.pad.x, camp.pad.z)
+	end
 	local ids = RescuePick.pick(
 		pool,
 		area.rescueMix,
@@ -277,25 +288,34 @@ local function pickTraps(areaId: string, area: WorldBuilder.AreaInfo): { string 
 		Config.RescueSpotSpacingStuds,
 		function(n: number): number
 			return rng:NextInteger(1, n)
-		end
+		end,
+		keep
 	)
 	local active: { [string]: boolean } = {}
 	for _, spotId in ids do
 		active[spotId] = true
 	end
 	activeSpots[areaId] = active
-	return ids
+	for _, spotId in ids do
+		if spotId == keep then
+			return ids, spotId
+		end
+	end
+	return ids, nil
 end
 
 -- Sunrise: the area's traps for the day are picked from its pool (#2240), each drops any cat still in it and rolls
 -- RescueSpawnChance for a new one, and an area where no trap rolled a cat gets RescueMinStuck anyway, so a new player
 -- always meets a rescue on the first day. A trap someone is mid-attempt on keeps its cat (dusk emptied the rest, so
 -- that only happens after Studio's setPhase), and a cat at a spot not picked today is cleared.
+-- #2794: a starting area (`starterRescue`, the Alleyway and the Park) keeps its trap nearest the camp out every day
+-- and always puts a cat in it, and its own `rescueMinStuck` replaces RescueMinStuck.
 local function rollRescues(areaDef: Types.AreaDef)
 	local area = world.areas[areaDef.id]
 	local stuck = 0
 	local free: { string } = {}
-	local ids = pickTraps(areaDef.id, area) -- sorted, so a spec or a Studio session can predict the guarantee
+	-- sorted, so a spec or a Studio session can predict the guarantee
+	local ids, starter = pickTraps(areaDef.id, area, areaDef.starterRescue == true)
 	local today: { [string]: boolean } = {}
 	for _, spotId in ids do
 		today[spotId] = true
@@ -316,14 +336,14 @@ local function rollRescues(areaDef: Types.AreaDef)
 		if current ~= nil then
 			clearStuck(current)
 		end
-		if rng:NextNumber() < Config.RescueSpawnChance then
+		if spotId == starter or rng:NextNumber() < Config.RescueSpawnChance then
 			rollStuckCat(spotId, areaDef, spot)
 			stuck += 1
 		else
 			table.insert(free, spotId)
 		end
 	end
-	while stuck < Config.RescueMinStuck and #free > 0 do
+	while stuck < (areaDef.rescueMinStuck or Config.RescueMinStuck) and #free > 0 do
 		local spotId = table.remove(free, rng:NextInteger(1, #free)) :: string
 		rollStuckCat(spotId, areaDef, area.rescueSpots[spotId])
 		stuck += 1
@@ -602,10 +622,10 @@ local function onRescueBegin(player: Player, rawSpotId: unknown)
 		return
 	end
 
-	-- #2687: the Oasis Spa's Warm Paws widens the zones from Tier 6
+	-- #2687: the Oasis Spa's Warm Paws widens the zones from Tier 6; #2786: the first two areas' bars are easier
 	local challenge = Rescue.newChallenge(entry.def.rarity, entry.trap, now, function()
 		return rng:NextNumber()
-	end, StationPerks.rescueZoneScale(Economy.tier(profile)))
+	end, StationPerks.rescueZoneScale(Economy.tier(profile)), entry.area)
 	local attempt = Rescue.newAttempt(challenge, entry.def.rarity)
 	entry.attempt = attempt
 	setLock(entry, player.UserId)

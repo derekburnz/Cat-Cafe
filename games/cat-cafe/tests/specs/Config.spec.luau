@@ -233,7 +233,7 @@ return function()
 		LuckyDayWaveLuck = 2,
 		LuckyDayPlayerLuck = 0.5,
 		LuckyDayWarnSeconds = 15,
-		PityLegendarySeconds = 1800, -- #1572 (1h): the global pity cat (shared/Pity)
+		PityLegendarySeconds = 900, -- #1572 (1h): the global pity cat (shared/Pity); #2796: halved for now, was 1800
 		-- #2486 Cafe Events (live-events.md section 4)
 		EventPollSeconds = 60,
 		EventMinSeconds = 300,
@@ -247,7 +247,7 @@ return function()
 		EventBigMinGapSeconds = 518400,
 		EventScheduleMax = 10,
 		PityMythicalEvery = 4,
-		PityMythicalSeconds = 7200, -- #1946 (1i): the restarting Mythical timer
+		PityMythicalSeconds = 3600, -- #1946 (1i): the restarting Mythical timer; #2796: halved for now, was 7200
 		PityClaimRetries = 3,
 		-- Pals (F92, playing-together.md 6)
 		PalTipBonus = 0.10,
@@ -514,6 +514,7 @@ return function()
 				UpdateEventId = true, -- #2766: the next update's Roblox Event id, set per Event, checked in EventRsvp.spec
 				UpdateEventStartsAt = true, -- #2766: that Event's start (os.time(), UTC), set per Event
 				FirstVisitAt = true, -- #2792: a table, checked in FirstVisits.spec
+				RescueAreaEase = true, -- #2786: a table, checked in Rescue.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

@@ -341,12 +341,14 @@ local Config = {
 	-- #1572 (luck-and-rare-moments.md 1h): the global pity cat (shared/Pity). A slot every PityLegendarySeconds from
 	-- ClockEpoch, every PityMythicalEvery-th a Mythical one; its area by PityAreaWeights (by area id), and the first
 	-- catch anywhere claims it in MemoryStore, tried PityClaimRetries times before the catcher keeps it anyway.
-	PityLegendarySeconds = 1800,
+	-- #2796 (Derek2 2026-11-09: "for pity timers we can temporarily half them for more testing and add them to a
+	-- funnel"): TEMPORARY, review 2026-11-16; put back 1800 and 7200.
+	PityLegendarySeconds = 900,
 	PityMythicalEvery = 4,
 	-- #1946 (1i): the restarting timers. The next Legendary is due PityLegendarySeconds after the last Legendary pity
 	-- cat was caught or left at night, the next Mythical this long after the last Mythical (PityMythicalEvery is
 	-- then only the fallback slots' rule).
-	PityMythicalSeconds = 7200,
+	PityMythicalSeconds = 3600, -- #2796: TEMPORARY, was 7200
 	PityAreaWeights = {
 		alley = 10,
 		park = 15,
@@ -502,6 +504,13 @@ local Config = {
 		Mythical = 0.14,
 	} :: { [string]: number },
 	RescueTolerance = 0.03, -- of the bar, either side of the zone
+	-- #2786 (Derek2 2026-11-09: "nerf beginning area 1-2 rescue missions difficulty"; no tablet got past the first
+	-- rescue): the first two areas' bars for every rarity. `zone` times RescueZoneWidth, `speed` times RescueBarSpeed
+	-- and `fewerHits` off rescueHits (never below 2). Other areas are as above; Warm Paws multiplies on top.
+	RescueAreaEase = {
+		alley = { zone = 1.4, speed = 0.75, fewerHits = 1 },
+		park = { zone = 1.2, speed = 0.85, fewerHits = 0 },
+	} :: { [string]: { zone: number, speed: number, fewerHits: number } },
 	-- F93 (catch-rework.md section 4): the marker gets RescueSpeedUpPerHit faster after every hit. Derek 2026-11-03
 	-- ("a little confusing"): the zone stays where it is until it is hit (no more running out after two sweeps), and
 	-- RescueTreeCircle false ends a tree on its last shake like any bar, with no falling cat's catch circle after it.

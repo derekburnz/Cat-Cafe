@@ -8,16 +8,18 @@ return function()
 	) :: any
 
 	describe("RoadmapLogic.view", function()
-		it("hides before the tutorial's end, once finished, and without grandOpening", function()
-			expect(RoadmapLogic.view({ tutorialStep = 3, grandOpening = { done = {} } })).to.equal(
+		it("hides before the first catch, once finished, and without grandOpening", function()
+			expect(RoadmapLogic.view({ tutorialStep = 1, grandOpening = { done = {} } })).to.equal(
 				nil
 			)
-			expect(
-				RoadmapLogic.view({
-					tutorialStep = 5,
-					grandOpening = { done = {}, finished = true },
-				})
-			).to.equal(nil)
+			-- #2795: from the first catch, not the tutorial's end
+			expect(RoadmapLogic.view({ tutorialStep = 2, grandOpening = { done = {} } }) ~= nil).to.equal(
+				true
+			)
+			expect(RoadmapLogic.view({
+				tutorialStep = 5,
+				grandOpening = { done = {}, finished = true },
+			})).to.equal(nil)
 			expect(RoadmapLogic.view({ tutorialStep = 9 })).to.equal(nil)
 		end)
 
@@ -47,7 +49,7 @@ return function()
 
 	describe("RoadmapLogic.toast", function()
 		it("names the step and its reward", function()
-			expect(RoadmapLogic.toast(4)).to.equal("Grand Opening 4/8: Tier 2! +10 golden fish")
+			expect(RoadmapLogic.toast(4)).to.equal("Grand Opening 4/8: Tier 2! +5 golden fish")
 			expect(RoadmapLogic.toast(99)).to.equal("Grand Opening")
 		end)
 	end)

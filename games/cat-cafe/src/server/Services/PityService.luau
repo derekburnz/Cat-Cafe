@@ -68,6 +68,7 @@ type Current = {
 	wonHere: boolean,
 	spawnedAt: number,
 	debug: boolean, -- Studio's debugSpawn: out until night, whatever the timer says
+	steps: { [number]: number }?, -- #2796: the pity_v1 step each player (by user id) has logged for this cat
 }
 
 -- A restart this server owes the store: the timer to write once cat `ended` of its kind has gone.
@@ -162,6 +163,50 @@ local function log(player: Player?, c: Current, outcome: string)
 	local subject = player or someone()
 	if subject ~= nil then
 		Telemetry.custom(subject, "pity_cat", c.seq, { c.areaId, c.kind, outcome })
+	end
+end
+
+-- #2796 (retention-ideas.md 5c): logs every pity_v1 step for `player` and this cat up to `step` not logged yet, so a
+-- run always reads seen, catch started, caught in order.
+local PITY_SEEN_STUDS = 60
+local function stepTo(player: Player, c: Current, step: number)
+	local profile = DataService.get(player)
+	if profile == nil then
+		return
+	end
+	local steps = c.steps or {}
+	c.steps = steps
+	local done = steps[player.UserId] or 0
+	for n = done + 1, step do
+		Telemetry.pityStep(player, profile, Pity.claimKey(c.seq, c.kind), n, c.kind, c.areaId)
+	end
+	steps[player.UserId] = math.max(done, step)
+end
+
+-- #2796: step 1 for every player within PITY_SEEN_STUDS of an uncaught pity cat this server runs.
+local function noteSeen()
+	for _, c in currents do
+		if c.state ~= "out" then
+			continue
+		end
+		local at = CatService.pityPosition(Pity.number(c.seq, c.kind))
+		if at == nil then
+			continue
+		end
+		for _, player in DataService.loadedPlayers() do
+			local character = player.Character
+			local root = if character ~= nil
+				then character:FindFirstChild("HumanoidRootPart")
+				else nil
+			if
+				root ~= nil
+				and root:IsA("BasePart")
+				and (c.steps == nil or (c.steps :: { [number]: number })[player.UserId] == nil)
+				and ((root :: BasePart).Position - at).Magnitude <= PITY_SEEN_STUDS
+			then
+				stepTo(player, c, 1)
+			end
+		end
 	end
 end
 
@@ -617,6 +662,7 @@ local function tick()
 		end
 	end)
 	showerTick(now) -- #2486
+	noteSeen() -- #2796
 	publishState() -- the fixed slots' timers move on their own
 	if not reading and os.clock() >= readAt then
 		reading = true
@@ -703,6 +749,7 @@ local function claim(player: Player, number: number): boolean
 		c.wonHere = true
 		markCaught(c, player.DisplayName)
 		log(player, c, "secured")
+		stepTo(player, c, 3) -- #2796
 		publish({ kind = c.kind, seq = c.seq, winner = player.DisplayName })
 		return true
 	end
@@ -770,6 +817,13 @@ function PityService.start()
 	end
 	publishState()
 	CatService.setPityClaim(claim)
+	-- #2796: pity_v1's catch-started step
+	CatService.setPityStarted(function(player: Player, number: number)
+		local c = currentFor(number)
+		if c ~= nil and c.state == "out" then
+			stepTo(player, c, 2)
+		end
+	end)
 	task.spawn(function()
 		local ok, err = pcall(function()
 			MessagingService:SubscribeAsync(Pity.TOPIC, onMessage)

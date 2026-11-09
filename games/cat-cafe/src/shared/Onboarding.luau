@@ -358,7 +358,7 @@ Onboarding.IMPLIES = {
 	first_pass_claim = { "first_pass_xp" }, -- a reward needs a level, and a level needs XP
 	pass_level_5 = { "first_pass_xp" },
 	tier_4 = { "tier_3" },
-	first_wow_cat = { "first_bait" }, -- the second bait or a later one
+	first_wow_cat = { "first_bait" }, -- the first bait since #2793 (was the second)
 } :: { [string]: { string } }
 
 -- The v2 funnel's 25 steps (F87 to #1273), for a save from it (fromOld) and the report's labels for onboarding_v2.

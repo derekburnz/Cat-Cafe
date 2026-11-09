@@ -4602,6 +4602,55 @@ local SCENES = {
 		end
 		-- #2396 (Derek2: "make sure potion list defaults to closed down on every join"): the row starts folded
 		assert(timers.Folded.Visible and chips() == 0, "uigate: the potion row does not start folded (#2396)")
+		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			-- #2710 (Derek2: "move potions to bag for mobile and remove that button entirely"): on touch there is no
+			-- Potions tile and the row is only ever the one chip, "x8" and the soonest time, on screen with eight
+			-- running and clear of the left menu's tab; a tap opens the Bag on its Potions tab
+			local all = { "tip_potion", "swift_potion", "lucky_potion", "steady_potion", "big_tip_potion", "gold_rush_potion", "quick_bait_potion" }
+			local buffs = {}
+			for index, id in all do
+				buffs[id] = t + 100 + index * 60
+			end
+			UI.update({ buffs = buffs } :: any)
+			UIShim.advance(1.2)
+			local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+			local tile = hud:FindFirstChild("Corner", true) and (hud:FindFirstChild("Corner", true) :: Instance):FindFirstChild("Potions")
+			assert(tile == nil or not (tile :: GuiObject).Visible, "uigate: the Potions tile still shows on touch (#2710) " .. (if tile then tile:GetFullName() else ""))
+			assert(chips() == 0 and timers.Folded.Visible and not timers.Fold.Visible, "uigate: the potion row is more than one chip on touch (#2710)")
+			local count = timers.Folded.Count :: TextLabel
+			assert(string.match(count.Text, "^x" .. #all .. " %d+:%d%d$") ~= nil, "uigate: the potion chip reads " .. count.Text .. " (#2710)")
+			assert(count.TextFits, "uigate: the potion chip's words do not fit (#2710)")
+			local chip = timers.Folded :: GuiObject
+			local at, size = chip.AbsolutePosition, chip.AbsoluteSize
+			local root = hud:FindFirstChild("Root") :: GuiObject
+			assert(at.X >= root.AbsolutePosition.X and at.X + size.X <= root.AbsolutePosition.X + root.AbsoluteSize.X + 0.5, "uigate: the potion chip runs off screen (#2710)")
+			local fold = hud:FindFirstChild("MenuFold", true) :: GuiObject?
+			if fold and fold.Visible then
+				local f = fold.AbsolutePosition
+				local apart = at.X >= f.X + fold.AbsoluteSize.X or f.X >= at.X + size.X or at.Y >= f.Y + fold.AbsoluteSize.Y or f.Y >= at.Y + size.Y
+				assert(apart, "uigate: the potion chip covers the left menu's tab (#2710)")
+			end
+			UI.open("Potions")
+			press("Potions", "BaitTab") -- last on another tab
+			UI.close()
+			press("CatCafeHUD", "PotionTimers.Folded")
+			UIShim.advance(0.5)
+			local function shown(object: Instance): boolean
+				local at: Instance? = object
+				while at and not at:IsA("PlayerGui") do
+					if (at:IsA("GuiObject") and not at.Visible) or (at:IsA("ScreenGui") and not at.Enabled) then
+						return false
+					end
+					at = at.Parent
+				end
+				return true
+			end
+			local tab = UIShim.playerGui:FindFirstChild("PotionsTab", true)
+			assert(tab and shown(tab), "uigate: the potion chip did not open the Bag (#2710)")
+			local bait = UIShim.playerGui:FindFirstChild("BaitList", true)
+			assert(not (bait and shown(bait)), "uigate: the potion chip opened the Bag on another tab (#2710)")
+			return
+		end
 		press("CatCafeHUD", "PotionTimers.Folded")
 		local running = chips()
 		assert(running >= 2, "uigate: the scene needs two or more potions running (#2090)")
@@ -6073,7 +6122,8 @@ function Scenes.close()
 	if Scenes._potionsFolded then
 		-- #2090: the potions back out for the other scenes
 		local folded = Scenes._potionsFolded:FindFirstChild("Folded")
-		if folded and folded.Visible then
+		local touch = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() -- #2710: the Bag
+		if folded and folded.Visible and not touch then
 			press("CatCafeHUD", "PotionTimers.Folded")
 		end
 		Scenes._potionsFolded = nil

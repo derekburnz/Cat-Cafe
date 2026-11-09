@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09 20:19 UTC",
+  "generated": "2026-11-09 20:35 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -274255,19 +274255,18 @@
       "module": "alleyblockers",
       "objects": [
         "CatCafe_Alley_Blocker_Bins",
-        "CatCafe_Alley_Blocker_Bins_Bulb",
-        "CatCafe_Alley_Blocker_Bins_Barrier"
+        "CatCafe_Alley_Blocker_Bins_Bulb"
       ],
-      "triangles": 3836,
+      "triangles": 3680,
       "budget": 6000,
       "size_studs": {
-        "x": 17.6,
+        "x": 16.15,
         "y": 3.6,
-        "z": 11.9
+        "z": 9.17
       },
       "size_roblox": [
-        17.6,
-        11.9,
+        16.15,
+        9.17,
         3.6
       ],
       "bounds_min": [
@@ -274276,15 +274275,15 @@
         0.0
       ],
       "bounds_max": [
-        15.0,
+        13.55,
         1.8,
-        11.9
+        9.17
       ],
       "pivot": "the floor on the back alley lane's middle line (lane x +-78). A long pile: it spans local x -15 to 1 and leaves a 14 stud walk-past gap at +X (x 1 to 15). RotY 180 puts the gap at -X.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 16 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_Bins.model.json",
-      "rbx_parts": 297,
+      "rbx_parts": 284,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Bins.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Bins.glb"
@@ -274296,13 +274295,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "3836/6000 tris",
+          "budget": "3680/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1926 faces on swatch centers",
+          "uv": "1848 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=6.20 y=0.00"
+          "centered": "footprint center x=5.47 y=0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_Bins.png",
@@ -274314,19 +274313,18 @@
       "module": "alleyblockers",
       "objects": [
         "CatCafe_Alley_Blocker_BinsShort",
-        "CatCafe_Alley_Blocker_BinsShort_Bulb",
-        "CatCafe_Alley_Blocker_BinsShort_Barrier"
+        "CatCafe_Alley_Blocker_BinsShort_Bulb"
       ],
-      "triangles": 2712,
+      "triangles": 2556,
       "budget": 6000,
       "size_studs": {
-        "x": 10.1,
+        "x": 8.65,
         "y": 3.6,
-        "z": 11.9
+        "z": 9.17
       },
       "size_roblox": [
-        10.1,
-        11.9,
+        8.65,
+        9.17,
         3.6
       ],
       "bounds_min": [
@@ -274335,15 +274333,15 @@
         0.0
       ],
       "bounds_max": [
-        15.0,
+        13.55,
         1.8,
-        11.9
+        9.17
       ],
       "pivot": "the floor on the back alley lane's middle line (lane x +-78). A short pile: it spans local x -15 to -6.5; place two on one spot at rotY 0 and 180 (any pair) to leave a 13 stud walk-through gap in the middle of the lane.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 8.5 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_BinsShort.model.json",
-      "rbx_parts": 219,
+      "rbx_parts": 206,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_BinsShort.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_BinsShort.glb"
@@ -274355,13 +274353,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "2712/6000 tris",
+          "budget": "2556/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1372 faces on swatch centers",
+          "uv": "1294 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=9.95 y=0.00"
+          "centered": "footprint center x=9.23 y=0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_BinsShort.png",
@@ -274373,19 +274371,18 @@
       "module": "alleyblockers",
       "objects": [
         "CatCafe_Alley_Blocker_Pallets",
-        "CatCafe_Alley_Blocker_Pallets_Bulb",
-        "CatCafe_Alley_Blocker_Pallets_Barrier"
+        "CatCafe_Alley_Blocker_Pallets_Bulb"
       ],
-      "triangles": 2910,
+      "triangles": 2046,
       "budget": 8000,
       "size_studs": {
-        "x": 17.6,
+        "x": 15.95,
         "y": 2.92,
-        "z": 12.93
+        "z": 9.05
       },
       "size_roblox": [
-        17.6,
-        12.93,
+        15.95,
+        9.05,
         2.92
       ],
       "bounds_min": [
@@ -274394,15 +274391,15 @@
         0.0
       ],
       "bounds_max": [
-        15.0,
+        13.35,
         1.46,
-        12.93
+        9.05
       ],
       "pivot": "the floor on the back alley lane's middle line (lane x +-78). A long pile: it spans local x -15 to 1 and leaves a 14 stud walk-past gap at +X (x 1 to 15). RotY 180 puts the gap at -X.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 16 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_Pallets.model.json",
-      "rbx_parts": 238,
+      "rbx_parts": 169,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Pallets.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Pallets.glb"
@@ -274414,13 +274411,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "2910/8000 tris",
+          "budget": "2046/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1559 faces on swatch centers",
+          "uv": "1047 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=6.20 y=0.00"
+          "centered": "footprint center x=5.38 y=0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_Pallets.png",
@@ -274432,19 +274429,18 @@
       "module": "alleyblockers",
       "objects": [
         "CatCafe_Alley_Blocker_PalletsShort",
-        "CatCafe_Alley_Blocker_PalletsShort_Bulb",
-        "CatCafe_Alley_Blocker_PalletsShort_Barrier"
+        "CatCafe_Alley_Blocker_PalletsShort_Bulb"
       ],
-      "triangles": 1600,
+      "triangles": 1202,
       "budget": 6000,
       "size_studs": {
-        "x": 10.1,
+        "x": 8.55,
         "y": 2.92,
-        "z": 13.23
+        "z": 9.05
       },
       "size_roblox": [
-        10.1,
-        13.23,
+        8.55,
+        9.05,
         2.92
       ],
       "bounds_min": [
@@ -274453,15 +274449,15 @@
         0.0
       ],
       "bounds_max": [
-        15.0,
+        13.45,
         1.46,
-        13.23
+        9.05
       ],
       "pivot": "the floor on the back alley lane's middle line (lane x +-78). A short pile: it spans local x -15 to -6.5; place two on one spot at rotY 0 and 180 (any pair) to leave a 13 stud walk-through gap in the middle of the lane.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 8.5 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_PalletsShort.model.json",
-      "rbx_parts": 129,
+      "rbx_parts": 95,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_PalletsShort.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_PalletsShort.glb"
@@ -274473,13 +274469,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1600/6000 tris",
+          "budget": "1202/6000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "824 faces on swatch centers",
+          "uv": "625 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=9.95 y=0.00"
+          "centered": "footprint center x=9.17 y=0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_PalletsShort.png",
@@ -274491,19 +274487,18 @@
       "module": "alleyblockers",
       "objects": [
         "CatCafe_Alley_Blocker_Skip",
-        "CatCafe_Alley_Blocker_Skip_Bulb",
-        "CatCafe_Alley_Blocker_Skip_Barrier"
+        "CatCafe_Alley_Blocker_Skip_Bulb"
       ],
-      "triangles": 3446,
+      "triangles": 3218,
       "budget": 8000,
       "size_studs": {
-        "x": 17.6,
+        "x": 16.04,
         "y": 5.64,
-        "z": 14.6
+        "z": 9.17
       },
       "size_roblox": [
-        17.6,
-        14.6,
+        16.04,
+        9.17,
         5.64
       ],
       "bounds_min": [
@@ -274512,15 +274507,15 @@
         0.0
       ],
       "bounds_max": [
-        15.0,
+        13.44,
         2.82,
-        14.6
+        9.17
       ],
       "pivot": "the floor on the back alley lane's middle line (lane x +-78). A long pile: it spans local x -15 to 1 and leaves a 14 stud walk-past gap at +X (x 1 to 15). RotY 180 puts the gap at -X.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 16 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_Skip.model.json",
-      "rbx_parts": 279,
+      "rbx_parts": 260,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Skip.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Skip.glb"
@@ -274532,13 +274527,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "3446/8000 tris",
+          "budget": "3218/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1699 faces on swatch centers",
+          "uv": "1585 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=6.20 y=0.00"
+          "centered": "footprint center x=5.42 y=0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_Skip.png",
@@ -274550,19 +274545,18 @@
       "module": "alleyblockers",
       "objects": [
         "CatCafe_Alley_Blocker_Van",
-        "CatCafe_Alley_Blocker_Van_Bulb",
-        "CatCafe_Alley_Blocker_Van_Barrier"
+        "CatCafe_Alley_Blocker_Van_Bulb"
       ],
-      "triangles": 2576,
+      "triangles": 2564,
       "budget": 8000,
       "size_studs": {
-        "x": 17.6,
+        "x": 15.95,
         "y": 11.4,
-        "z": 11.56
+        "z": 9.06
       },
       "size_roblox": [
-        17.6,
-        11.56,
+        15.95,
+        9.06,
         11.4
       ],
       "bounds_min": [
@@ -274571,15 +274565,15 @@
         -0.01
       ],
       "bounds_max": [
-        15.0,
+        13.35,
         5.7,
-        11.55
+        9.05
       ],
       "pivot": "the floor on the back alley lane's middle line (lane x +-78). A long pile: it spans local x -15 to 1 and leaves a 14 stud walk-past gap at +X (x 1 to 15). RotY 180 puts the gap at -X.",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "studio": "F85 Alleyway blocker: a laneProp row, placed by WorldBuilder's plain clone. _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (a 16 x 30 x 0.5 wall on the pile's line, ground to 30 studs, so nobody jumps it); the pile collides; the lamp's _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_Van.model.json",
-      "rbx_parts": 190,
+      "rbx_parts": 189,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Van.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_Van.glb"
@@ -274591,13 +274585,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "2576/8000 tris",
+          "budget": "2564/8000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "1248 faces on swatch centers",
+          "uv": "1242 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.01 (want 0)",
-          "centered": "footprint center x=6.20 y=0.00"
+          "centered": "footprint center x=5.38 y=0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_Van.png",
@@ -274611,42 +274605,38 @@
         "CatCafe_Alley_Blocker_RowCamp",
         "CatCafe_Alley_Blocker_RowCamp_Bulb",
         "CatCafe_Alley_Blocker_RowCamp_000_Blocker_Bins",
-        "CatCafe_Alley_Blocker_RowCamp_000_Blocker_Bins_Barrier",
         "CatCafe_Alley_Blocker_RowCamp_001_Blocker_Pallets",
-        "CatCafe_Alley_Blocker_RowCamp_001_Blocker_Pallets_Barrier",
         "CatCafe_Alley_Blocker_RowCamp_002_Blocker_Pallets",
-        "CatCafe_Alley_Blocker_RowCamp_002_Blocker_Pallets_Barrier",
-        "CatCafe_Alley_Blocker_RowCamp_003_Blocker_Bins",
-        "CatCafe_Alley_Blocker_RowCamp_003_Blocker_Bins_Barrier"
+        "CatCafe_Alley_Blocker_RowCamp_003_Blocker_Bins"
       ],
-      "triangles": 13244,
+      "triangles": 11204,
       "budget": 20000,
       "size_studs": {
-        "x": 90.0,
+        "x": 86.9,
         "y": 3.6,
-        "z": 12.93
+        "z": 9.05
       },
       "size_roblox": [
-        90.0,
-        12.93,
+        86.9,
+        9.05,
         3.6
       ],
       "bounds_min": [
-        -45.0,
+        -43.35,
         -1.8,
         0.0
       ],
       "bounds_max": [
-        45.0,
+        43.55,
         1.8,
-        12.93
+        9.05
       ],
       "pivot": "the floor on the one lane's middle line (set x 0), on the row's line; place it at rotY 0",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "points_roblox": {},
       "studio": "Alleyway blocker row across the whole one lane (90 wide, walls at x +-45): the pieces end to end from the walls with one way through 25 to 29 wide and the row's own lamp post at it. Each piece's _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (30 high on the row's line, from the wall to the way through); piles collide; _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_RowCamp.model.json",
-      "rbx_parts": 1060,
+      "rbx_parts": 896,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowCamp.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowCamp.glb"
@@ -274654,15 +274644,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "13244/20000 tris",
+          "budget": "11204/20000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "6878 faces on swatch centers",
+          "uv": "5698 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.00"
+          "centered": "footprint center x=0.10 y=0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_RowCamp.png",
@@ -274676,42 +274668,38 @@
         "CatCafe_Alley_Blocker_RowVan",
         "CatCafe_Alley_Blocker_RowVan_Bulb",
         "CatCafe_Alley_Blocker_RowVan_000_Blocker_Pallets",
-        "CatCafe_Alley_Blocker_RowVan_000_Blocker_Pallets_Barrier",
         "CatCafe_Alley_Blocker_RowVan_001_Blocker_Van",
-        "CatCafe_Alley_Blocker_RowVan_001_Blocker_Van_Barrier",
         "CatCafe_Alley_Blocker_RowVan_002_Blocker_Skip",
-        "CatCafe_Alley_Blocker_RowVan_002_Blocker_Skip_Barrier",
-        "CatCafe_Alley_Blocker_RowVan_003_Blocker_Bins",
-        "CatCafe_Alley_Blocker_RowVan_003_Blocker_Bins_Barrier"
+        "CatCafe_Alley_Blocker_RowVan_003_Blocker_Bins"
       ],
-      "triangles": 12396,
+      "triangles": 11136,
       "budget": 24000,
       "size_studs": {
-        "x": 65.6,
+        "x": 63.95,
         "y": 11.4,
-        "z": 14.61
+        "z": 9.06
       },
       "size_roblox": [
-        65.6,
-        14.61,
+        63.95,
+        9.06,
         11.4
       ],
       "bounds_min": [
-        -45.0,
+        -43.35,
         -5.7,
         -0.01
       ],
       "bounds_max": [
         20.6,
         5.7,
-        14.6
+        9.05
       ],
       "pivot": "the floor on the one lane's middle line (set x 0), on the row's line; place it at rotY 0",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "points_roblox": {},
       "studio": "Alleyway blocker row across the whole one lane (90 wide, walls at x +-45): the pieces end to end from the walls with one way through 25 to 29 wide and the row's own lamp post at it. Each piece's _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (30 high on the row's line, from the wall to the way through); piles collide; _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_RowVan.model.json",
-      "rbx_parts": 989,
+      "rbx_parts": 887,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowVan.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowVan.glb"
@@ -274723,13 +274711,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "12396/24000 tris",
+          "budget": "11136/24000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "6294 faces on swatch centers",
+          "uv": "5584 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.01 (want 0)",
-          "centered": "footprint center x=-12.20 y=0.00"
+          "centered": "footprint center x=-11.37 y=0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_RowVan.png",
@@ -274743,26 +274731,21 @@
         "CatCafe_Alley_Blocker_RowSkip",
         "CatCafe_Alley_Blocker_RowSkip_Bulb",
         "CatCafe_Alley_Blocker_RowSkip_000_Blocker_Bins",
-        "CatCafe_Alley_Blocker_RowSkip_000_Blocker_Bins_Barrier",
         "CatCafe_Alley_Blocker_RowSkip_001_Blocker_Skip",
-        "CatCafe_Alley_Blocker_RowSkip_001_Blocker_Skip_Barrier",
         "CatCafe_Alley_Blocker_RowSkip_002_Blocker_Pallets",
-        "CatCafe_Alley_Blocker_RowSkip_002_Blocker_Pallets_Barrier",
         "CatCafe_Alley_Blocker_RowSkip_003_Blocker_BinsShort",
-        "CatCafe_Alley_Blocker_RowSkip_003_Blocker_BinsShort_Barrier",
-        "CatCafe_Alley_Blocker_RowSkip_004_Blocker_PalletsShort",
-        "CatCafe_Alley_Blocker_RowSkip_004_Blocker_PalletsShort_Barrier"
+        "CatCafe_Alley_Blocker_RowSkip_004_Blocker_PalletsShort"
       ],
-      "triangles": 14008,
+      "triangles": 12206,
       "budget": 24000,
       "size_studs": {
-        "x": 66.6,
+        "x": 65.15,
         "y": 5.64,
-        "z": 14.6
+        "z": 9.05
       },
       "size_roblox": [
-        66.6,
-        14.6,
+        65.15,
+        9.05,
         5.64
       ],
       "bounds_min": [
@@ -274771,16 +274754,16 @@
         0.0
       ],
       "bounds_max": [
-        45.0,
+        43.55,
         2.82,
-        14.6
+        9.05
       ],
       "pivot": "the floor on the one lane's middle line (set x 0), on the row's line; place it at rotY 0",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "points_roblox": {},
       "studio": "Alleyway blocker row across the whole one lane (90 wide, walls at x +-45): the pieces end to end from the walls with one way through 25 to 29 wide and the row's own lamp post at it. Each piece's _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (30 high on the row's line, from the wall to the way through); piles collide; _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_RowSkip.model.json",
-      "rbx_parts": 1142,
+      "rbx_parts": 994,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowSkip.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowSkip.glb"
@@ -274792,13 +274775,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "14008/24000 tris",
+          "budget": "12206/24000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "7196 faces on swatch centers",
+          "uv": "6215 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=11.70 y=0.00"
+          "centered": "footprint center x=10.97 y=0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_RowSkip.png",
@@ -274812,43 +274795,38 @@
         "CatCafe_Alley_Blocker_RowFar",
         "CatCafe_Alley_Blocker_RowFar_Bulb",
         "CatCafe_Alley_Blocker_RowFar_000_Blocker_Pallets",
-        "CatCafe_Alley_Blocker_RowFar_000_Blocker_Pallets_Barrier",
         "CatCafe_Alley_Blocker_RowFar_001_Blocker_BinsShort",
-        "CatCafe_Alley_Blocker_RowFar_001_Blocker_BinsShort_Barrier",
         "CatCafe_Alley_Blocker_RowFar_002_Blocker_Bins",
-        "CatCafe_Alley_Blocker_RowFar_002_Blocker_Bins_Barrier",
-        "CatCafe_Alley_Blocker_RowFar_003_Blocker_Skip",
-        "CatCafe_Alley_Blocker_RowFar_003_Blocker_Skip_Barrier",
-        "CatCafe_Alley_Blocker_RowFar_Barrier"
+        "CatCafe_Alley_Blocker_RowFar_003_Blocker_Skip"
       ],
-      "triangles": 12668,
+      "triangles": 11252,
       "budget": 24000,
       "size_studs": {
-        "x": 90.0,
+        "x": 82.5,
         "y": 5.64,
-        "z": 30.0
+        "z": 9.05
       },
       "size_roblox": [
-        90.0,
-        30.0,
+        82.5,
+        9.05,
         5.64
       ],
       "bounds_min": [
-        -45.0,
+        -43.55,
         -2.82,
         0.0
       ],
       "bounds_max": [
-        45.0,
+        38.95,
         2.82,
-        30.0
+        9.05
       ],
       "pivot": "the floor on the one lane's middle line (set x 0), on the row's line; place it at rotY 0",
       "front": "-Z in Roblox, the LookVector (Blender -Y)",
       "points_roblox": {},
       "studio": "Alleyway blocker row across the whole one lane (90 wide, walls at x +-45): the pieces end to end from the walls with one way through 25 to 29 wide and the row's own lamp post at it. Each piece's _Barrier arrives invisible, CanCollide true, CanQuery false and anchored (30 high on the row's line, from the wall to the way through); piles collide; _Bulb glows at night and does not collide.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Alley_Blocker_RowFar.model.json",
-      "rbx_parts": 1024,
+      "rbx_parts": 909,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowFar.fbx",
         "assets/cat-cafe/exports/CatCafe_Alley_Blocker_RowFar.glb"
@@ -274856,15 +274834,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "12668/24000 tris",
+          "budget": "11252/24000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "6470 faces on swatch centers",
+          "uv": "5682 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.00"
+          "centered": "footprint center x=-2.30 y=0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Alley_Blocker_RowFar.png",
@@ -281627,7 +281607,6 @@
         "CatCafe_Park_SetF85_070_Pillar_Bulb",
         "CatCafe_Park_SetF85_071_Walls_Barrier",
         "CatCafe_Park_SetF85_072_LowHedge",
-        "CatCafe_Park_SetF85_072_LowHedge_Barrier",
         "CatCafe_Park_SetF85_073_Urn",
         "CatCafe_Park_SetF85_073_Urn_Flowers",
         "CatCafe_Park_SetF85_074_Urn",
@@ -281650,175 +281629,175 @@
         "CatCafe_Park_SetF85_083_WallTall_Flowers",
         "CatCafe_Park_SetF85_084_Pillar",
         "CatCafe_Park_SetF85_084_Pillar_Bulb",
-        "CatCafe_Park_SetF85_085_Railing_Barrier",
-        "CatCafe_Park_SetF85_086_Stream",
-        "CatCafe_Park_SetF85_086_Stream_Water",
-        "CatCafe_Park_SetF85_086_Stream_Decor",
-        "CatCafe_Park_SetF85_086_Stream_Barrier",
-        "CatCafe_Park_SetF85_087_FootBridge",
-        "CatCafe_Park_SetF85_087_FootBridge_Bulb",
-        "CatCafe_Park_SetF85_088_LowHedge",
-        "CatCafe_Park_SetF85_088_LowHedge_Barrier",
+        "CatCafe_Park_SetF85_085_Stream",
+        "CatCafe_Park_SetF85_085_Stream_Water",
+        "CatCafe_Park_SetF85_085_Stream_Decor",
+        "CatCafe_Park_SetF85_086_FootBridge",
+        "CatCafe_Park_SetF85_086_FootBridge_Bulb",
+        "CatCafe_Park_SetF85_087_LowHedge",
+        "CatCafe_Park_SetF85_088_Urn",
+        "CatCafe_Park_SetF85_088_Urn_Flowers",
         "CatCafe_Park_SetF85_089_Urn",
         "CatCafe_Park_SetF85_089_Urn_Flowers",
-        "CatCafe_Park_SetF85_090_Urn",
-        "CatCafe_Park_SetF85_090_Urn_Flowers",
-        "CatCafe_Park_SetF85_091_Planter",
-        "CatCafe_Park_SetF85_091_Planter_Flowers",
-        "CatCafe_Park_SetF85_092_MapBoard",
+        "CatCafe_Park_SetF85_090_Planter",
+        "CatCafe_Park_SetF85_090_Planter_Flowers",
+        "CatCafe_Park_SetF85_091_MapBoard",
+        "CatCafe_Park_SetF85_092_Lamp",
+        "CatCafe_Park_SetF85_092_Lamp_Bulb",
         "CatCafe_Park_SetF85_093_Lamp",
         "CatCafe_Park_SetF85_093_Lamp_Bulb",
         "CatCafe_Park_SetF85_094_Lamp",
         "CatCafe_Park_SetF85_094_Lamp_Bulb",
         "CatCafe_Park_SetF85_095_Lamp",
         "CatCafe_Park_SetF85_095_Lamp_Bulb",
-        "CatCafe_Park_SetF85_096_Lamp",
-        "CatCafe_Park_SetF85_096_Lamp_Bulb",
+        "CatCafe_Park_SetF85_096_Bench",
         "CatCafe_Park_SetF85_097_Bench",
-        "CatCafe_Park_SetF85_098_Bench",
+        "CatCafe_Park_SetF85_098_FlowerBed",
+        "CatCafe_Park_SetF85_098_FlowerBed_Flowers",
         "CatCafe_Park_SetF85_099_FlowerBed",
         "CatCafe_Park_SetF85_099_FlowerBed_Flowers",
         "CatCafe_Park_SetF85_100_FlowerBed",
         "CatCafe_Park_SetF85_100_FlowerBed_Flowers",
-        "CatCafe_Park_SetF85_101_FlowerBed",
-        "CatCafe_Park_SetF85_101_FlowerBed_Flowers",
-        "CatCafe_Park_SetF85_102_Bench",
-        "CatCafe_Park_SetF85_103_Bin",
-        "CatCafe_Park_SetF85_104_Bin",
+        "CatCafe_Park_SetF85_101_Bench",
+        "CatCafe_Park_SetF85_102_Bin",
+        "CatCafe_Park_SetF85_103_PicnicTable",
+        "CatCafe_Park_SetF85_104_PicnicTable",
         "CatCafe_Park_SetF85_105_PicnicTable",
-        "CatCafe_Park_SetF85_106_PicnicTable",
-        "CatCafe_Park_SetF85_107_PicnicTable",
-        "CatCafe_Park_SetF85_108_Blanket",
-        "CatCafe_Park_SetF85_109_Oak",
-        "CatCafe_Park_SetF85_110_BlossomOak",
-        "CatCafe_Park_SetF85_111_Pond",
-        "CatCafe_Park_SetF85_111_Pond_Water",
-        "CatCafe_Park_SetF85_111_Pond_Decor",
-        "CatCafe_Park_SetF85_111_Pond_Bulb",
+        "CatCafe_Park_SetF85_106_Blanket",
+        "CatCafe_Park_SetF85_107_Oak",
+        "CatCafe_Park_SetF85_108_BlossomOak",
+        "CatCafe_Park_SetF85_109_Pond",
+        "CatCafe_Park_SetF85_109_Pond_Water",
+        "CatCafe_Park_SetF85_109_Pond_Decor",
+        "CatCafe_Park_SetF85_109_Pond_Bulb",
+        "CatCafe_Park_SetF85_110_Bench",
+        "CatCafe_Park_SetF85_111_Bench",
         "CatCafe_Park_SetF85_112_Bench",
         "CatCafe_Park_SetF85_113_Bench",
-        "CatCafe_Park_SetF85_114_Bench",
-        "CatCafe_Park_SetF85_115_Bench",
+        "CatCafe_Park_SetF85_114_Lamp",
+        "CatCafe_Park_SetF85_114_Lamp_Bulb",
+        "CatCafe_Park_SetF85_115_Lamp",
+        "CatCafe_Park_SetF85_115_Lamp_Bulb",
         "CatCafe_Park_SetF85_116_Lamp",
         "CatCafe_Park_SetF85_116_Lamp_Bulb",
         "CatCafe_Park_SetF85_117_Lamp",
         "CatCafe_Park_SetF85_117_Lamp_Bulb",
-        "CatCafe_Park_SetF85_118_Lamp",
-        "CatCafe_Park_SetF85_118_Lamp_Bulb",
-        "CatCafe_Park_SetF85_119_Lamp",
-        "CatCafe_Park_SetF85_119_Lamp_Bulb",
-        "CatCafe_Park_SetF85_120_Willow",
-        "CatCafe_Park_SetF85_120_Willow_Decor",
-        "CatCafe_Park_SetF85_121_Kiosk",
-        "CatCafe_Park_SetF85_121_Kiosk_Bulb",
-        "CatCafe_Park_SetF85_122_Bistro",
-        "CatCafe_Park_SetF85_123_Bistro",
-        "CatCafe_Park_SetF85_124_Oak",
-        "CatCafe_Park_SetF85_125_Oak",
-        "CatCafe_Park_SetF85_126_Glasshouse",
-        "CatCafe_Park_SetF85_126_Glasshouse_Glass",
-        "CatCafe_Park_SetF85_126_Glasshouse_Decor",
-        "CatCafe_Park_SetF85_126_Glasshouse_Bulb",
-        "CatCafe_Park_SetF85_126_Glasshouse_Barrier",
-        "CatCafe_Park_SetF85_127_Urn",
-        "CatCafe_Park_SetF85_127_Urn_Flowers",
-        "CatCafe_Park_SetF85_128_Urn",
-        "CatCafe_Park_SetF85_128_Urn_Flowers",
+        "CatCafe_Park_SetF85_118_Willow",
+        "CatCafe_Park_SetF85_118_Willow_Decor",
+        "CatCafe_Park_SetF85_119_Kiosk",
+        "CatCafe_Park_SetF85_119_Kiosk_Bulb",
+        "CatCafe_Park_SetF85_120_Bistro",
+        "CatCafe_Park_SetF85_121_Bistro",
+        "CatCafe_Park_SetF85_122_Oak",
+        "CatCafe_Park_SetF85_123_Oak",
+        "CatCafe_Park_SetF85_124_Glasshouse",
+        "CatCafe_Park_SetF85_124_Glasshouse_Glass",
+        "CatCafe_Park_SetF85_124_Glasshouse_Decor",
+        "CatCafe_Park_SetF85_124_Glasshouse_Bulb",
+        "CatCafe_Park_SetF85_124_Glasshouse_Barrier",
+        "CatCafe_Park_SetF85_125_Urn",
+        "CatCafe_Park_SetF85_125_Urn_Flowers",
+        "CatCafe_Park_SetF85_126_Urn",
+        "CatCafe_Park_SetF85_126_Urn_Flowers",
+        "CatCafe_Park_SetF85_127_Lamp",
+        "CatCafe_Park_SetF85_127_Lamp_Bulb",
+        "CatCafe_Park_SetF85_128_Lamp",
+        "CatCafe_Park_SetF85_128_Lamp_Bulb",
         "CatCafe_Park_SetF85_129_Lamp",
         "CatCafe_Park_SetF85_129_Lamp_Bulb",
         "CatCafe_Park_SetF85_130_Lamp",
         "CatCafe_Park_SetF85_130_Lamp_Bulb",
-        "CatCafe_Park_SetF85_131_Lamp",
-        "CatCafe_Park_SetF85_131_Lamp_Bulb",
-        "CatCafe_Park_SetF85_132_Lamp",
-        "CatCafe_Park_SetF85_132_Lamp_Bulb",
+        "CatCafe_Park_SetF85_131_AppleTree",
+        "CatCafe_Park_SetF85_132_AppleTree",
         "CatCafe_Park_SetF85_133_AppleTree",
         "CatCafe_Park_SetF85_134_AppleTree",
-        "CatCafe_Park_SetF85_135_AppleTree",
-        "CatCafe_Park_SetF85_136_AppleTree",
-        "CatCafe_Park_SetF85_137_Blanket",
-        "CatCafe_Park_SetF85_138_Bench",
-        "CatCafe_Park_SetF85_139_Poplar",
-        "CatCafe_Park_SetF85_140_Poplar",
-        "CatCafe_Park_SetF85_141_Bench",
-        "CatCafe_Park_SetF85_142_Lamp",
-        "CatCafe_Park_SetF85_142_Lamp_Bulb",
-        "CatCafe_Park_SetF85_143_GardenFountain",
-        "CatCafe_Park_SetF85_143_GardenFountain_Water",
+        "CatCafe_Park_SetF85_135_Blanket",
+        "CatCafe_Park_SetF85_136_Bench",
+        "CatCafe_Park_SetF85_137_Poplar",
+        "CatCafe_Park_SetF85_138_Poplar",
+        "CatCafe_Park_SetF85_139_Bench",
+        "CatCafe_Park_SetF85_140_Lamp",
+        "CatCafe_Park_SetF85_140_Lamp_Bulb",
+        "CatCafe_Park_SetF85_141_GardenFountain",
+        "CatCafe_Park_SetF85_141_GardenFountain_Water",
+        "CatCafe_Park_SetF85_142_RoseBed",
+        "CatCafe_Park_SetF85_142_RoseBed_Flowers",
+        "CatCafe_Park_SetF85_143_RoseBed",
+        "CatCafe_Park_SetF85_143_RoseBed_Flowers",
         "CatCafe_Park_SetF85_144_RoseBed",
         "CatCafe_Park_SetF85_144_RoseBed_Flowers",
         "CatCafe_Park_SetF85_145_RoseBed",
         "CatCafe_Park_SetF85_145_RoseBed_Flowers",
         "CatCafe_Park_SetF85_146_RoseBed",
         "CatCafe_Park_SetF85_146_RoseBed_Flowers",
-        "CatCafe_Park_SetF85_147_RoseBed",
-        "CatCafe_Park_SetF85_147_RoseBed_Flowers",
-        "CatCafe_Park_SetF85_148_RoseBed",
-        "CatCafe_Park_SetF85_148_RoseBed_Flowers",
-        "CatCafe_Park_SetF85_149_RoseArch",
-        "CatCafe_Park_SetF85_149_RoseArch_Flowers",
-        "CatCafe_Park_SetF85_150_RoseArch",
-        "CatCafe_Park_SetF85_150_RoseArch_Flowers",
-        "CatCafe_Park_SetF85_151_TopiaryCat",
-        "CatCafe_Park_SetF85_152_TopiaryCat",
-        "CatCafe_Park_SetF85_153_Sundial",
-        "CatCafe_Park_SetF85_154_Bench",
-        "CatCafe_Park_SetF85_155_Oak",
-        "CatCafe_Park_SetF85_156_Oak",
-        "CatCafe_Park_SetF85_157_Bench",
-        "CatCafe_Park_SetF85_158_Lamp",
-        "CatCafe_Park_SetF85_158_Lamp_Bulb",
-        "CatCafe_Park_SetF85_159_Lamp",
-        "CatCafe_Park_SetF85_159_Lamp_Bulb",
-        "CatCafe_Park_SetF85_160_Bin",
-        "CatCafe_Park_SetF85_161_Swings",
-        "CatCafe_Park_SetF85_162_Slide",
-        "CatCafe_Park_SetF85_162_Slide_Climb",
-        "CatCafe_Park_SetF85_163_Sandbox",
-        "CatCafe_Park_SetF85_164_Seesaw",
-        "CatCafe_Park_SetF85_165_Roundabout",
-        "CatCafe_Park_SetF85_166_SpringRider",
-        "CatCafe_Park_SetF85_167_SpringRider",
-        "CatCafe_Park_SetF85_168_Bench",
-        "CatCafe_Park_SetF85_169_Lamp",
-        "CatCafe_Park_SetF85_169_Lamp_Bulb",
-        "CatCafe_Park_SetF85_170_Lamp",
-        "CatCafe_Park_SetF85_170_Lamp_Bulb",
-        "CatCafe_Park_SetF85_171_PicnicTable",
-        "CatCafe_Park_SetF85_172_PicnicTable",
-        "CatCafe_Park_SetF85_173_Blanket",
-        "CatCafe_Park_SetF85_174_Bandstand",
-        "CatCafe_Park_SetF85_174_Bandstand_Bulbs",
-        "CatCafe_Park_SetF85_174_Bandstand_Decor",
+        "CatCafe_Park_SetF85_147_RoseArch",
+        "CatCafe_Park_SetF85_147_RoseArch_Flowers",
+        "CatCafe_Park_SetF85_148_RoseArch",
+        "CatCafe_Park_SetF85_148_RoseArch_Flowers",
+        "CatCafe_Park_SetF85_149_TopiaryCat",
+        "CatCafe_Park_SetF85_150_TopiaryCat",
+        "CatCafe_Park_SetF85_151_Sundial",
+        "CatCafe_Park_SetF85_152_Bench",
+        "CatCafe_Park_SetF85_153_Oak",
+        "CatCafe_Park_SetF85_154_Oak",
+        "CatCafe_Park_SetF85_155_Bench",
+        "CatCafe_Park_SetF85_156_Lamp",
+        "CatCafe_Park_SetF85_156_Lamp_Bulb",
+        "CatCafe_Park_SetF85_157_Lamp",
+        "CatCafe_Park_SetF85_157_Lamp_Bulb",
+        "CatCafe_Park_SetF85_158_Bin",
+        "CatCafe_Park_SetF85_159_Swings",
+        "CatCafe_Park_SetF85_160_Slide",
+        "CatCafe_Park_SetF85_160_Slide_Climb",
+        "CatCafe_Park_SetF85_161_Sandbox",
+        "CatCafe_Park_SetF85_162_Seesaw",
+        "CatCafe_Park_SetF85_163_Roundabout",
+        "CatCafe_Park_SetF85_164_SpringRider",
+        "CatCafe_Park_SetF85_165_SpringRider",
+        "CatCafe_Park_SetF85_166_Bench",
+        "CatCafe_Park_SetF85_167_Lamp",
+        "CatCafe_Park_SetF85_167_Lamp_Bulb",
+        "CatCafe_Park_SetF85_168_Lamp",
+        "CatCafe_Park_SetF85_168_Lamp_Bulb",
+        "CatCafe_Park_SetF85_169_PicnicTable",
+        "CatCafe_Park_SetF85_170_PicnicTable",
+        "CatCafe_Park_SetF85_171_Blanket",
+        "CatCafe_Park_SetF85_172_Bandstand",
+        "CatCafe_Park_SetF85_172_Bandstand_Bulbs",
+        "CatCafe_Park_SetF85_172_Bandstand_Decor",
+        "CatCafe_Park_SetF85_173_Lamp",
+        "CatCafe_Park_SetF85_173_Lamp_Bulb",
+        "CatCafe_Park_SetF85_174_Lamp",
+        "CatCafe_Park_SetF85_174_Lamp_Bulb",
         "CatCafe_Park_SetF85_175_Lamp",
         "CatCafe_Park_SetF85_175_Lamp_Bulb",
         "CatCafe_Park_SetF85_176_Lamp",
         "CatCafe_Park_SetF85_176_Lamp_Bulb",
-        "CatCafe_Park_SetF85_177_Lamp",
-        "CatCafe_Park_SetF85_177_Lamp_Bulb",
-        "CatCafe_Park_SetF85_178_Lamp",
-        "CatCafe_Park_SetF85_178_Lamp_Bulb",
-        "CatCafe_Park_SetF85_179_Bench",
-        "CatCafe_Park_SetF85_180_Bench",
+        "CatCafe_Park_SetF85_177_Bench",
+        "CatCafe_Park_SetF85_178_Bench",
+        "CatCafe_Park_SetF85_179_FlowerBed",
+        "CatCafe_Park_SetF85_179_FlowerBed_Flowers",
+        "CatCafe_Park_SetF85_180_FlowerBed",
+        "CatCafe_Park_SetF85_180_FlowerBed_Flowers",
         "CatCafe_Park_SetF85_181_FlowerBed",
         "CatCafe_Park_SetF85_181_FlowerBed_Flowers",
         "CatCafe_Park_SetF85_182_FlowerBed",
         "CatCafe_Park_SetF85_182_FlowerBed_Flowers",
-        "CatCafe_Park_SetF85_183_FlowerBed",
-        "CatCafe_Park_SetF85_183_FlowerBed_Flowers",
-        "CatCafe_Park_SetF85_184_FlowerBed",
-        "CatCafe_Park_SetF85_184_FlowerBed_Flowers",
-        "CatCafe_Park_SetF85_185_Willow",
-        "CatCafe_Park_SetF85_185_Willow_Decor",
-        "CatCafe_Park_SetF85_186_Willow",
-        "CatCafe_Park_SetF85_186_Willow_Decor",
+        "CatCafe_Park_SetF85_183_Willow",
+        "CatCafe_Park_SetF85_183_Willow_Decor",
+        "CatCafe_Park_SetF85_184_Willow",
+        "CatCafe_Park_SetF85_184_Willow_Decor",
+        "CatCafe_Park_SetF85_185_Oak",
+        "CatCafe_Park_SetF85_186_Oak",
         "CatCafe_Park_SetF85_187_Oak",
         "CatCafe_Park_SetF85_188_Oak",
         "CatCafe_Park_SetF85_189_Oak",
-        "CatCafe_Park_SetF85_190_Oak",
-        "CatCafe_Park_SetF85_191_Oak",
-        "CatCafe_Park_SetF85_192_BlossomOak",
-        "CatCafe_Park_SetF85_193_Beehives",
+        "CatCafe_Park_SetF85_190_BlossomOak",
+        "CatCafe_Park_SetF85_191_Beehives",
+        "CatCafe_Park_SetF85_192_FlowerPatch",
+        "CatCafe_Park_SetF85_192_FlowerPatch_Flowers",
+        "CatCafe_Park_SetF85_193_FlowerPatch",
+        "CatCafe_Park_SetF85_193_FlowerPatch_Flowers",
         "CatCafe_Park_SetF85_194_FlowerPatch",
         "CatCafe_Park_SetF85_194_FlowerPatch_Flowers",
         "CatCafe_Park_SetF85_195_FlowerPatch",
@@ -281839,10 +281818,8 @@
         "CatCafe_Park_SetF85_202_FlowerPatch_Flowers",
         "CatCafe_Park_SetF85_203_FlowerPatch",
         "CatCafe_Park_SetF85_203_FlowerPatch_Flowers",
-        "CatCafe_Park_SetF85_204_FlowerPatch",
-        "CatCafe_Park_SetF85_204_FlowerPatch_Flowers",
-        "CatCafe_Park_SetF85_205_FlowerPatch",
-        "CatCafe_Park_SetF85_205_FlowerPatch_Flowers",
+        "CatCafe_Park_SetF85_204_Poplar",
+        "CatCafe_Park_SetF85_205_Poplar",
         "CatCafe_Park_SetF85_206_Poplar",
         "CatCafe_Park_SetF85_207_Poplar",
         "CatCafe_Park_SetF85_208_Poplar",
@@ -281853,11 +281830,9 @@
         "CatCafe_Park_SetF85_213_Poplar",
         "CatCafe_Park_SetF85_214_Poplar",
         "CatCafe_Park_SetF85_215_Poplar",
-        "CatCafe_Park_SetF85_216_Poplar",
-        "CatCafe_Park_SetF85_217_Poplar",
-        "CatCafe_Park_SetF85_218_Poplar"
+        "CatCafe_Park_SetF85_216_Poplar"
       ],
-      "triangles": 98660,
+      "triangles": 98192,
       "budget": 150000,
       "size_studs": {
         "x": 119.5,
@@ -282251,6 +282226,13 @@
         ],
         "trap_trashcan": [
           [
+            -11,
+            0.0,
+            -134,
+            "near",
+            0
+          ],
+          [
             -8,
             0.0,
             64,
@@ -282267,7 +282249,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Park_SetF85.model.json",
-      "rbx_parts": 6154,
+      "rbx_parts": 6127,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Park_SetF85.fbx",
         "assets/cat-cafe/exports/CatCafe_Park_SetF85.glb"
@@ -282280,10 +282262,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "98660/150000 tris",
+          "budget": "98192/150000 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "62796 faces on swatch centers",
+          "uv": "62554 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.05 (want 0)",
           "centered": "footprint center x=0.00 y=-0.12"

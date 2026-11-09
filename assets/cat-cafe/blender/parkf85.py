@@ -11,10 +11,11 @@ navigatable just little areas to walk around to continue forward"), so the far e
 nothing walls you off: a box hedge island (z -112, x -30 to 6), two short railings on a plinth with flower boxes
 (z -50, x +-18 to +-40, open in the middle and by both walls), a stream out of the west wall that ends in a drain at
 x 10 (z 9 to 15; cross on the footbridge at x -24, deck 10 wide, or walk round its end) and a second hedge island
-(z 74, x -14 to 24). Since #2265 (Derek2 11-07: "increase the height of obstacles like you did in alleyway but for
-all areas") each is taller than a jump: the hedges 9 to 9.6, the railings and the stream's rails 9.4 of see-through
-iron, so a hunter still sees a carrier behind those; each `_Barrier` stands BLOCK_OVER above its piece's top, as in the
-Alleyway (#2215), instead of 30.
+(z 74, x -14 to 24). #2265 had made each taller than a jump with an invisible `_Barrier` over it; #2813 (Derek2
+11-09: "make it slightly more open and less blocking feeling its the start of the game no need to be harsh no
+invisible barriers either") brings them back down: the hedges 4 to 4.6, the railings and the stream's rails 4.6 of
+see-through iron, all under a jump (7.2), and no barriers on them. Only the outer walls keep their `_Barrier`, and
+the glasshouse keeps one over its plinth, since its glass doesn't collide.
 The tall pieces that break the view now and then are the willow and the kiosk by the duck pond, the glasshouse past
 the railing, the oaks and the bandstand, the far landmark.
 
@@ -25,8 +26,9 @@ playground to the bandstand loop.
 
 Points (manifest points_roblox): [x, y, z, zone], zone "near" (the camp half, z < 0) or "deep" (the far half). The
 trap spots (trap_tree, trap_trashcan) add a fifth number, the turn in degrees for the world-placed
-CatCafe_Park_RescueTree or CatCafe_Park_TrashCan standing there (a tree's branch points along its -X). Five traps, four
-deep, none within 100 studs of the camp.
+CatCafe_Park_RescueTree or CatCafe_Park_TrashCan standing there (a tree's branch points along its -X). Six traps,
+four deep; the plaza's bin trap at (-11, -134) is about 24 studs inside the gate, the starter rescue by the camp
+(#2794).
 """
 
 import math
@@ -123,15 +125,13 @@ def _walls(s, mat):
 
 
 # ------------------------------------------------------------------------------------------------ blockers --
-HEDGE_H = 9.0                        # the hedge islands' box top (#2265), 9 to 9.6 along a run
-BLOCK_OVER = 1.0                     # each blocker's barrier over its piece's highest top (#2265, as #2215)
+HEDGE_H = 4.0                        # the hedge islands' box top, 4 to 4.6 along a run (#2813; #2265 had 9)
 
 
 def _low_hedge(s, mat, z, runs):
-    """Clipped box hedge islands on the line z, HEDGE_H to 0.6 more (#2265, were 3.4 to 4), each run (x0, x1) with
-    rounded ends and an urn past each end, open ground all round. Its `_Barrier` on each run's footprint stands
-    BLOCK_OVER over the hedge's top."""
-    b, bar = Builder(), Builder()
+    """Clipped box hedge islands on the line z, HEDGE_H to 0.6 more, each run (x0, x1) with rounded ends and an urn
+    past each end, open ground all round; low enough to jump, with no barrier (#2813)."""
+    b = Builder()
     for (a0, a1) in runs:
         n = max(1, round((a1 - a0) / 6.0))
         step = (a1 - a0) / n
@@ -145,10 +145,7 @@ def _low_hedge(s, mat, z, runs):
             x, y, _ = bl(xe, z)
             b.cyl_base((x, y, 0), 1.0, HEDGE_H, "leaf_dark", segments=10, bevel=False)
             b.ico((x, y, HEDGE_H), 1.05, "leaf_dark", subdivisions=1, scale=(1, 1, 0.45))
-        x, y, _ = bl((a0 + a1) / 2, z)
-        top = HEDGE_H + 0.6 + 1.2 * 0.4                                         # the highest box and its rounded top
-        bar.box_base((x, y, 0), (a1 - a0 + 2.0, 2.0, top + BLOCK_OVER), "offwhite", bevel=False)
-    s.put([b.finalize(N + "LowHedge", mat), bar.finalize(N + "LowHedge_Barrier", mat)], 0, 0, 0)
+    s.put([b.finalize(N + "LowHedge", mat)], 0, 0, 0)
     for (a0, a1) in runs:
         for x in (a0 - 2.1, a1 + 2.1):
             if abs(x) < IN_X - 1.5:
@@ -156,10 +153,9 @@ def _low_hedge(s, mat, z, runs):
 
 
 def _railing(s, mat, z, runs):
-    """Short railings on the line z (the camp side's own look: a plinth, flower boxes facing the camp and, since
-    #2265, an iron railing TALL_RAIL high, was 4.6), each run (x0, x1) between 1.8 pillars with a lantern pillar at
-    each end, open ground all round. Its face is at z, its back at z + 2.4."""
-    bar = Builder()
+    """Short railings on the line z (the camp side's own look: a plinth, flower boxes facing the camp and an iron
+    railing TALL_RAIL high), each run (x0, x1) between 1.8 pillars with a lantern pillar at each end, open ground all
+    round, no barrier (#2813). Its face is at z, its back at z + 2.4."""
     for (a0, a1) in runs:
         n = max(1, round((a1 - a0 - 1.8) / 9.0))
         L = (a1 - a0 - (n + 1) * 1.8) / n
@@ -170,9 +166,7 @@ def _railing(s, mat, z, runs):
             p = c + L / 2 + 0.9
             s.put(pillar(mat, top="lantern", h=TALL_RAIL + 1.0) if i == n - 1 else pillar(mat, h=TALL_RAIL + 0.2), p,
                   z, 0)
-        x, y, _ = bl((a0 + a1) / 2, z + WALL_D / 2)
-        bar.box_base((x, y, 0), (a1 - a0, WALL_D, TALL_RAIL + 1.0 + 0.35 + BLOCK_OVER), "offwhite", bevel=False)
-    s.put([bar.finalize(N + "Railing_Barrier", mat)], 0, 0, 0)
+
 
 
 RAIL_BARS = ((1.6, 0.14), (TALL_RAIL - 0.5, 0.2))     # the stream rails' cross bars: height, thickness
@@ -181,10 +175,9 @@ RAIL_BARS = ((1.6, 0.14), (TALL_RAIL - 0.5, 0.2))     # the stream rails' cross 
 def _stream(s, mat):
     """A stream 6 wide between stone kerbs 0.7 high, out of a culvert in the west wall and into a drain at
     STREAM_END, where a kerb closes it and an iron grate takes the water; east of it is open lawn, so a player walks
-    round its end or crosses on the footbridge. An iron rail on each kerb and round the end, TALL_RAIL high (#2265,
-    was 3) with gilded tips, its `_Barrier` a 0.5 thick wall on the rail's line BLOCK_OVER over the tips (style guide:
-    a barrier always stands on something a player can see)."""
-    b, water, decor, bar = Builder(), Builder(), Builder(), Builder()
+    round its end, crosses on the footbridge or hops the rails. An iron rail on each kerb and round the end,
+    TALL_RAIL high with gilded tips, no barrier (#2813)."""
+    b, water, decor = Builder(), Builder(), Builder()
     z0, z1 = STREAM_Z - 3.0, STREAM_Z + 3.0
     E = STREAM_END
     L, cx = E + IN_X, (E - IN_X) / 2
@@ -226,7 +219,7 @@ def _stream(s, mat):
         decor.ico(bl(hx, hz, 1.05), 0.28, "offwhite", subdivisions=1)
         decor.box(bl(hx + 0.3 * math.cos(a), hz + 0.3 * math.sin(a), 1.02), (0.22, 0.14, 0.08), "fur_orange",
                   bevel=False, rot=(-a, "Z"))
-    for i, zc in enumerate((z0 - 0.4, z1 + 0.4)):      # an iron rail on each kerb, its barrier a wall on the rail's line
+    for i, zc in enumerate((z0 - 0.4, z1 + 0.4)):      # an iron rail on each kerb
         kt = 0.7 + 0.006 * i
         for (a0, a1) in ((-IN_X + 0.45, BRIDGE_X - BRIDGE_HX), (BRIDGE_X + BRIDGE_HX, E + 0.4)):    # clear of the culvert
             n = max(1, round((a1 - a0 - 0.6) / 0.6))                # park railings: bars 0.6 apart
@@ -236,8 +229,6 @@ def _stream(s, mat):
                 b.pyramid(bl(px, zc, TALL_RAIL), 0.26, 0.4, "gold_mid")
             for (h, t) in RAIL_BARS:
                 b.box(bl((a0 + a1) / 2, zc, h), (a1 - a0 - 0.4, 0.12, t), "fur_black", bevel=False)
-        for (a0, a1) in ((-IN_X, BRIDGE_X - BRIDGE_HX), (BRIDGE_X + BRIDGE_HX, E + 0.65)):
-            bar.box_base(bl((a0 + a1) / 2, zc), (a1 - a0, 0.5, TALL_RAIL + 0.4 + BLOCK_OVER), "offwhite", bevel=False)
     xe = E + 0.4                                                          # the rail round the end
     for k in range(12):
         b.box_base(bl(xe, z0 - 0.4 + (z1 - z0 + 0.8) * k / 11, 0.7), (0.16, 0.16, TALL_RAIL - 0.7), "fur_black",
@@ -245,9 +236,8 @@ def _stream(s, mat):
         b.pyramid(bl(xe, z0 - 0.4 + (z1 - z0 + 0.8) * k / 11, TALL_RAIL), 0.26, 0.4, "gold_mid")
     for (h, t) in RAIL_BARS:
         b.box(bl(xe, STREAM_Z, h), (0.12, z1 - z0 + 0.8, t), "fur_black", bevel=False)
-    bar.box_base(bl(xe, STREAM_Z), (0.5, z1 - z0 + 1.3, TALL_RAIL + 0.4 + BLOCK_OVER), "offwhite", bevel=False)
     s.put([b.finalize(N + "Stream", mat), water.finalize(N + "Stream_Water", mat),
-           decor.finalize(N + "Stream_Decor", mat), bar.finalize(N + "Stream_Barrier", mat)], 0, 0, 0)
+           decor.finalize(N + "Stream_Decor", mat)], 0, 0, 0)
 
 
 def footbridge(mat):
@@ -450,8 +440,7 @@ def build_set(mat):
         _spot(s, "flowerbed", x, z, y=0.62)
     s.put(bench(mat), 52, -141, 90)
     _spot(s, "bench", *turned(52, -141, 90, 0, -2.4))
-    for (x, z) in ((-11, -134), (52, -122)):
-        s.put(bin_(mat), x, z, 0)
+    s.put(bin_(mat), 52, -122, 0)             # the plaza's other bin, at (-11, -134), is a rescue trap now (#2794)
 
     # the picnic lawn, west of the plaza
     for i, (x, z, r) in enumerate(((-24, -143, 8), (-42, -138, -12), (-30, -122, 5))):
@@ -587,10 +576,11 @@ def build_set(mat):
                    (-52, 30), (52, 30), (-52, -36), (52, -150), (-52, 80)):
         s.put(poplar(mat, h=12.0 + (x * 7 + z) % 3), x, z, 0)
 
-    # rescue traps (props placed by the world): 3 trees, 2 bins, four of the five deep, none near the camp
+    # rescue traps (props placed by the world): 3 trees, 3 bins, four of the six deep. The plaza's bin at (-11, -134)
+    # is the starter trap by the camp (#2794: "have rescues near start"; RescuePick.nearest keeps a cat in it)
     for (x, z, turn) in ((46, -24, 0), (-46, 30, 180), (46, 98, 0)):
         _spot(s, "trap_tree", x, z, turn=turn)
-    for (x, z, turn) in ((-8, 64, 0), (-46, 140, 90)):
+    for (x, z, turn) in ((-11, -134, 0), (-8, 64, 0), (-46, 140, 90)):
         _spot(s, "trap_trashcan", x, z, turn=turn)
     return s.finish(_ground(), mat), s
 

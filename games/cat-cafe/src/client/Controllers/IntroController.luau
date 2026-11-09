@@ -2090,7 +2090,7 @@ function IntroController.start()
 		park(LOADING_VIEW)
 		task.delay(PARK_GIVE_UP, function()
 			gaveUp = true
-			if not firstStarted then
+			if parked and run == nil and not starting then
 				unpark()
 			end
 		end)
@@ -2137,8 +2137,8 @@ function IntroController.start()
 		(setStager :: any)(IntroController.stageTackle)
 	end
 	player.CharacterAdded:Connect(function(character)
-		if parked and not firstStarted and (synced or gaveUp) then
-			task.defer(unpark) -- #2759: the first spawn, and no intro is coming
+		if parked and run == nil and not starting and (synced or gaveUp) then
+			task.defer(unpark) -- #2759: the first spawn, and no intro has the camera (a play that gave up included)
 		end
 		if Tail.shown > 0 and lesson ~= nil and lesson.character ~= character then
 			(Tail.stop :: (boolean) -> ())(false) -- #2495: a respawn ends the lesson's steps

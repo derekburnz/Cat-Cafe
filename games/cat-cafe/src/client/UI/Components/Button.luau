@@ -17,6 +17,7 @@ local FitText = require(script.Parent.FitText)
 local IconArt = require(script.Parent.IconArt)
 local Outline = require(script.Parent.Outline)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.ShopIcons)
 local Sound = require(script.Parent.Sound)
 local Theme = require(script.Parent.Parent.Theme)
 local Tween = require(script.Parent.Tween)
@@ -236,7 +237,7 @@ function Button.new(props: Props): Button
 	local symbol = math.max(8, math.floor(faceH * (if layout == "wide" then 0.9 else CLEAN_SYMBOL)))
 	-- an inline glyph with a whole picture: the picture and the text side by side in a centred row
 	local inlinePicture = if inlineIcon
-		then Theme.glyphImages[props.icon :: string] or props.image
+		then Theme.glyphImages[props.icon :: string] or ShopIcons.glyph(props.icon) or props.image
 		else nil
 	local pictureRow: Frame? = nil
 	if inlinePicture and inlinePicture ~= "" then

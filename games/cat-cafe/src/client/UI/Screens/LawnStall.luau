@@ -13,6 +13,7 @@ local LawnLogic = require(script.Parent.Parent.Components.LawnLogic)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -97,6 +98,7 @@ function LawnStall.new(callbacks: Callbacks): LawnStall
 		subtitle = "Plants, paths and pretty things!",
 		color = Theme.colors.good,
 		icon = GLYPH,
+		image = ShopIcons.hud("LawnStall"), -- #2836: the drawn badge (the emoji until it loads)
 		size = UDim2.new(1, 0, 0, MAX_SIZE.Y),
 		onClose = callbacks.close,
 	})

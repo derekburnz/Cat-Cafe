@@ -3376,7 +3376,7 @@ local SCENES = {
 	{ "Potions", function()
 		UI.open("Potions")
 		-- #2588: the Bag window's corner badge is the HUD Bag tile's backpack, not a potion
-		assert(badgeDraws("Potions", "88244676943674"), "uigate: the Bag window's badge is not the backpack (#2588)")
+		assert(badgeDraws("Potions", "124246973096601"), "uigate: the Bag window's badge is not the backpack (#2588)")
 	end },
 	-- #1281: the Bag's Bait tab: the bowl foods the player has, each with its picture, grade badge and count, no Use
 	{ "BagBait", function()
@@ -5193,7 +5193,7 @@ local SCENES = {
 	{ "HUDBagBackpack", function()
 		local ShopIcons = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.ShopIcons")
 		local bag = ShopIcons.hud("Bag")
-		assert(bag == "rbxassetid://88244676943674", "uigate: the Bag tile is not Model-Agent's backpack (#2453)")
+		assert(bag == "rbxassetid://124246973096601", "uigate: the Bag tile is not Model-Agent's backpack (#2453)")
 		assert(bag ~= ShopIcons.hud("Potion"), "uigate: the Bag tile shows the Potions bottle (#2453)")
 		assert(ShopIcons.backup(bag) == nil, "uigate: the Bag's backpack falls back to another picture (#2453)")
 		assert(bag ~= ShopIcons.clean("Bag"), "uigate: the Bag tile shows the gold money bag (#2453)")

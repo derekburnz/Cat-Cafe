@@ -23,6 +23,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
 local TradeTile = require(script.Parent.Parent.Components.TradeTile)
@@ -157,6 +158,7 @@ function Trade.new(callbacks: Callbacks): Trade
 		subtitle = "Swap cats with players in this server",
 		color = Theme.colors.mintDark,
 		icon = TradeLogic.ICON,
+		image = ShopIcons.clean("Trade"), -- #2836: the drawn badge (the emoji until it loads)
 		size = UDim2.fromScale(1, 1),
 		onClose = function()
 			self:_close()

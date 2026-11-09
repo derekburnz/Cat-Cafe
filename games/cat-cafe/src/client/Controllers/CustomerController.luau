@@ -696,7 +696,21 @@ local function refreshMystery(plot: Model)
 		if gift == nil then
 			-- the anchor is a 1 stud box resting on the table top: the gift's base goes on its bottom face
 			local base = (anchor :: BasePart).CFrame * CFrame.new(0, -0.5, 0)
-			shown.gift = buildMystery(plot, "CatCafe_Item_MysteryGift", "MysteryGift", base)
+			-- #2614: the wrap's own model (Model-Agent #2611), else the plain one
+			local wrap = plot:GetAttribute("MysteryGiftTier")
+			local named = if type(wrap) == "string"
+				then "CatCafe_Item_MysteryGift_" .. wrap
+				else nil
+			local assets = ReplicatedStorage:FindFirstChild("Assets")
+			local asset = if named ~= nil
+					and assets ~= nil
+					and assets:FindFirstChild(named) ~= nil
+				then named
+				else "CatCafe_Item_MysteryGift"
+			shown.gift = buildMystery(plot, asset, "MysteryGift", base)
+			if shown.gift ~= nil and type(wrap) == "string" then
+				(shown.gift :: Model):SetAttribute("GiftTier", wrap)
+			end
 		end
 	elseif gift ~= nil then
 		gift:Destroy()

@@ -152,7 +152,8 @@ return function()
 		MysteryEveryMin = 750, -- 1250 s on average, a fifth more often than #1135's 1500 (2026-11-05)
 		MysteryEveryMax = 1750,
 		MysteryStaySeconds = 120,
-		MysteryGiftKeepSeconds = 600,
+		MysteryGiftKeepSeconds = 900, -- #2614 (was 600)
+		MysteryRareStreak = 4,
 		PotionMaxMinutes = 1440, -- F95 (economy-ladder.md section 6b): potions stack to 24 hours
 		-- quests and achievements and their potions (F73, quests.md section 6)
 		TimedTipsMax = 1.0,

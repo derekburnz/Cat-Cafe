@@ -1689,9 +1689,14 @@ local function wireServerEvents()
 		end
 	end)
 	-- What this player's opened Mystery gift held (F64): the gift card, and the ribbon pop in Effects.
-	Net.on("MysteryGiftResult", function(kind: string, id: string?, count: number)
-		UI.potions.giftResult(kind, id, count)
-	end)
+	Net.on(
+		"MysteryGiftResult",
+		function(kind: string, id: string?, count: number, tier: string?, fish: number?)
+			-- #2614: the wrap and a crate's fish for the card; UI.potions.giftResult reads them when it is ready
+			local result = UI.potions.giftResult :: any
+			result(kind, id, count, tier, fish)
+		end
+	)
 	-- What a quest, a set or an achievement claim paid (F73), for the Quests window's claim effect.
 	Net.on("QuestResult", function(paid: { string })
 		UI.quests.result(paid)

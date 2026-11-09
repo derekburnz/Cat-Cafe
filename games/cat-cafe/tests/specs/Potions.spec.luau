@@ -17,68 +17,76 @@ return function()
 	end
 
 	describe("Catalog.potions and Catalog.mysteryGift (section 12b)", function()
-		it("has the potions in bag order with the design's minutes (Corner Shop v2 adds its own)", function()
-			local minutes: { [string]: number } = {}
-			local order: { string } = {}
-			for _, def in Catalog.potions do
-				minutes[def.id] = def.minutes
-				table.insert(order, def.id)
-				expect(Catalog.getPotion(def.id)).to.equal(def)
-				expect(#def.name > 0 and #def.effect > 0).to.equal(true)
+		it(
+			"has the potions in bag order with the design's minutes (Corner Shop v2 adds its own)",
+			function()
+				local minutes: { [string]: number } = {}
+				local order: { string } = {}
+				for _, def in Catalog.potions do
+					minutes[def.id] = def.minutes
+					table.insert(order, def.id)
+					expect(Catalog.getPotion(def.id)).to.equal(def)
+					expect(#def.name > 0 and #def.effect > 0).to.equal(true)
+				end
+				expect(order).to.deepEqual({
+					"tip_potion",
+					"lucky_potion",
+					"swift_potion",
+					"steady_potion",
+					"big_tip_potion",
+					"gold_rush_potion",
+					"quick_bait_potion",
+					-- corner-shop-v2.md section 1: the Cat Whistle and the Corner Shop's sizes
+					"cat_whistle",
+					"swift_potion_small",
+					"swift_potion_big",
+					"steady_potion_small",
+					"steady_potion_big",
+					"quick_bait_potion_small",
+					"quick_bait_potion_big",
+					"cat_whistle_small",
+					"cat_whistle_big",
+				})
+				expect(minutes).to.deepEqual({
+					tip_potion = 10,
+					lucky_potion = 10,
+					swift_potion = 10, -- corner-shop-v2.md section 1 (was 5)
+					cat_whistle = 10,
+					swift_potion_small = 3,
+					swift_potion_big = 30,
+					steady_potion_small = 5,
+					steady_potion_big = 30,
+					quick_bait_potion_small = 10,
+					quick_bait_potion_big = 60,
+					cat_whistle_small = 5,
+					cat_whistle_big = 30,
+					steady_potion = 10,
+					big_tip_potion = 30,
+					gold_rush_potion = 30,
+					quick_bait_potion = 30,
+				})
+				expect(Catalog.getPotion("nope")).never.to.be.ok()
 			end
-			expect(order).to.deepEqual({
-				"tip_potion",
-				"lucky_potion",
-				"swift_potion",
-				"steady_potion",
-				"big_tip_potion",
-				"gold_rush_potion",
-				"quick_bait_potion",
-				-- corner-shop-v2.md section 1: the Cat Whistle and the Corner Shop's sizes
-				"cat_whistle",
-				"swift_potion_small",
-				"swift_potion_big",
-				"steady_potion_small",
-				"steady_potion_big",
-				"quick_bait_potion_small",
-				"quick_bait_potion_big",
-				"cat_whistle_small",
-				"cat_whistle_big",
-			})
-			expect(minutes).to.deepEqual({
-				tip_potion = 10,
-				lucky_potion = 10,
-				swift_potion = 10, -- corner-shop-v2.md section 1 (was 5)
-				cat_whistle = 10,
-				swift_potion_small = 3,
-				swift_potion_big = 30,
-				steady_potion_small = 5,
-				steady_potion_big = 30,
-				quick_bait_potion_small = 10,
-				quick_bait_potion_big = 60,
-				cat_whistle_small = 5,
-				cat_whistle_big = 30,
-				steady_potion = 10,
-				big_tip_potion = 30,
-				gold_rush_potion = 30,
-				quick_bait_potion = 30,
-			})
-			expect(Catalog.getPotion("nope")).never.to.be.ok()
-		end)
+		)
 
 		it(
-			"shows the gift's chances summing to 100: a potion 60, 10 fish 30, a spin 10 (F94: no Salmon)",
+			"rolls a wrap, Common 70, Rare 25, Super 5, each wrap's rows summing to 100 (#2614)",
 			function()
 				local total = 0
-				for _, row in Catalog.mysteryGift do
-					total += row.chance
+				for _, tier in Catalog.mysteryGiftTiers do
+					total += tier.chance
+					local rows = 0
+					for _, row in tier.rows do
+						rows += row.chance
+					end
+					expect(rows).to.equal(100)
 				end
 				expect(total).to.equal(100)
-				expect(Catalog.mysteryGift :: any).to.deepEqual({
-					{ kind = "potion", count = 1, chance = 60 },
-					{ kind = "fish", count = 10, chance = 30 },
-					{ kind = "spin", count = 1, chance = 10 },
-				})
+				expect(Catalog.mysteryGiftTiers[1].tier).to.equal("Common")
+				expect(Catalog.mysteryGiftTiers[1].chance).to.equal(70)
+				expect(Catalog.mysteryGiftTiers[2].chance).to.equal(25)
+				expect(Catalog.mysteryGiftTiers[3].chance).to.equal(5)
+				expect(Catalog.mysteryGift).to.equal(Catalog.mysteryGiftTiers[1].rows)
 			end
 		)
 	end)
@@ -345,33 +353,88 @@ return function()
 			end
 		end
 
-		it("picks each row at its chance and a potion at even odds", function()
-			expect(Potions.rollGift(rolls({ 0, 0 })) :: any).to.deepEqual({
+		it("picks a wrap, then a row at its chance and a potion at even odds (#2614)", function()
+			expect(Potions.rollGift(rolls({ 0, 0, 0 })) :: any).to.deepEqual({
 				kind = "potion",
 				id = "tip_potion",
 				count = 1,
+				tier = "Common",
 			})
-			expect(Potions.rollGift(rolls({ 0.59, 0.99 })) :: any).to.deepEqual({
+			expect(Potions.rollGift(rolls({ 0, 0.5 })) :: any).to.deepEqual({
+				kind = "coins",
+				count = 180,
+				tier = "Common",
+			})
+			expect(Potions.rollGift(rolls({ 0.69, 0.9 })) :: any).to.deepEqual({
+				kind = "fish",
+				count = 8,
+				tier = "Common",
+			})
+			expect(Potions.rollGift(rolls({ 0.7, 0.1, 0 })) :: any).to.deepEqual({
 				kind = "potion",
-				id = "steady_potion",
+				id = "big_tip_potion",
 				count = 1,
+				tier = "Rare",
 			})
-			expect(Potions.rollGift(rolls({ 0.6 })) :: any).to.deepEqual({
+			expect(Potions.rollGift(rolls({ 0.94, 0.9 })) :: any).to.deepEqual({
+				kind = "food",
+				id = "big_cat_snack",
+				count = 2,
+				tier = "Rare",
+			})
+			expect(Potions.rollGift(rolls({ 0.96, 0.1 })) :: any).to.deepEqual({
+				kind = "crate",
+				id = "highest",
+				count = 1,
+				fish = 15,
+				tier = "Super",
+			})
+			expect(Potions.rollGift(rolls({ 0.9999, 0.9999 })) :: any).to.deepEqual({
 				kind = "fish",
-				count = 10,
+				count = 50,
+				tier = "Super",
 			})
-			expect(Potions.rollGift(rolls({ 0.89 })) :: any).to.deepEqual({
-				kind = "fish",
-				count = 10,
+		end)
+
+		it("never holds a Swift Potion, and a Common potion is Money, Lucky or Steady", function()
+			expect(table.find(Potions.GIFT_POTIONS, "swift_potion")).to.equal(nil)
+			expect(Potions.GIFT_POTIONS :: any).to.deepEqual({
+				"tip_potion",
+				"lucky_potion",
+				"steady_potion",
 			})
-			expect(Potions.rollGift(rolls({ 0.95 })) :: any).to.deepEqual({
-				kind = "spin",
-				count = 1,
+			expect(Potions.QUEST_POTIONS :: any).to.deepEqual({
+				"big_tip_potion",
+				"gold_rush_potion",
+				"quick_bait_potion",
 			})
-			expect(Potions.rollGift(rolls({ 0.9999 })) :: any).to.deepEqual({
-				kind = "spin",
-				count = 1,
-			})
+		end)
+
+		it(
+			"lands near 70/25/5 over 10,000 seeded rolls and pays about 3.8 golden fish a gift",
+			function()
+				local rng = Random.new(2614)
+				local counts: { [string]: number } = { Common = 0, Rare = 0, Super = 0 }
+				for _ = 1, 10000 do
+					local tier = Potions.rollGiftTier(function()
+						return rng:NextNumber()
+					end)
+					counts[tier] += 1
+				end
+				expect(math.abs(counts.Common - 7000) <= 100).to.equal(true)
+				expect(math.abs(counts.Rare - 2500) <= 100).to.equal(true)
+				expect(math.abs(counts.Super - 500) <= 100).to.equal(true)
+				expect(Potions.giftFishAverage()).to.be.near(3.82, 1e-9)
+			end
+		)
+
+		it("makes the gift after MysteryRareStreak Commons in a row Rare or better", function()
+			expect(Config.MysteryRareStreak).to.equal(4)
+			expect(Potions.rollGiftTier(rolls({ 0 }), 3)).to.equal("Common")
+			expect(Potions.rollGiftTier(rolls({ 0 }), 4)).to.equal("Rare")
+			expect(Potions.rollGiftTier(rolls({ 0.82 }), 4)).to.equal("Rare") -- 24.6 of 30
+			expect(Potions.rollGiftTier(rolls({ 0.9 }), 4)).to.equal("Super")
+			expect(Config.MysteryGiftKeepSeconds).to.equal(900)
 		end)
 
 		it("turns a gift into the prize shape Payout pays", function()
@@ -387,6 +450,19 @@ return function()
 			expect(Potions.giftPrize({ kind = "spin", count = 1 }) :: any).to.deepEqual({
 				spins = 1,
 			})
+			expect(Potions.giftPrize({ kind = "coins", count = 180 }) :: any).to.deepEqual({
+				coins = 0,
+				coinSeconds = 180,
+			})
+			expect(
+				Potions.giftPrize({ kind = "crate", id = "highest", count = 1, fish = 15 }) :: any
+			).to.deepEqual({
+				crates = { highest = 1 },
+				fish = 15,
+			})
+			expect(Potions.giftPrize({ kind = "food", id = "big_cat_snack", count = 2 }) :: any).to.deepEqual({
+				catFood = { big_cat_snack = 2 },
+			})
 		end)
 
 		it(
@@ -396,7 +472,14 @@ return function()
 				expect(Potions.giftPaid(spin, Config.SpinBankCap - 1) :: any).to.deepEqual(spin)
 				expect(Potions.giftPaid(spin, Config.SpinBankCap) :: any).to.deepEqual({
 					kind = "fish",
-					count = 10,
+					count = 8,
+				})
+				-- a Rare spin with the bank full pays the Rare wrap's 20
+				local rare = { kind = "spin", count = 1, tier = "Rare" } :: any
+				expect(Potions.giftPaid(rare, Config.SpinBankCap) :: any).to.deepEqual({
+					kind = "fish",
+					count = 20,
+					tier = "Rare",
 				})
 				local potion = { kind = "potion", id = "tip_potion", count = 1 } :: any
 				expect(Potions.giftPaid(potion, Config.SpinBankCap) :: any).to.deepEqual(potion)
@@ -484,7 +567,7 @@ return function()
 						local gift = Potions.rollGift(function()
 							n += 1
 							return values[n] or 0
-						end)
+						end, (({ "Common", "Rare", "Super" }) :: { any })[j % 3 + 1])
 						expect(gift.count > 0).to.equal(true)
 						if gift.kind == "potion" then
 							expect(Catalog.getPotion(gift.id :: string) ~= nil).to.equal(true)
@@ -494,10 +577,12 @@ return function()
 						seen[gift.kind .. ":" .. tostring(gift.id)] = true
 					end
 				end
-				-- F73: the quest potions come only from quest sets and achievements, never from his gift, and the
-				-- Corner Shop's own (corner-shop-v2.md) only from the shop
+				-- #2614: a Rare gift may hold a quest potion; the Swift Potion and the Corner Shop's own
+				-- (corner-shop-v2.md) never come from a gift
 				for _, def in Catalog.potions do
-					expect(seen["potion:" .. def.id] == true).to.equal(def.quest ~= true and def.shopOnly ~= true)
+					expect(seen["potion:" .. def.id] == true).to.equal(
+						def.shopOnly ~= true and def.id ~= "swift_potion"
+					)
 				end
 				expect(seen["fish:nil"] and seen["spin:nil"]).to.equal(true)
 				for key in seen do
@@ -506,7 +591,8 @@ return function()
 				local over = Potions.rollGift(function()
 					return 1
 				end)
-				expect(over.kind).to.equal("spin")
+				expect(over.kind).to.equal("fish") -- the Super wrap's last row (#2614)
+				expect(over.tier).to.equal("Super")
 			end
 		)
 
@@ -556,7 +642,7 @@ return function()
 
 		it("keeps the Config numbers the relay and data-model 12b give", function()
 			expect(Config.MysteryStaySeconds).to.equal(120)
-			expect(Config.MysteryGiftKeepSeconds).to.equal(600)
+			expect(Config.MysteryGiftKeepSeconds).to.equal(900) -- #2614 (was 600)
 			expect(Config.MysteryRangeStuds).to.equal(12)
 			expect(Config.PotionMaxMinutes).to.equal(1440) -- F95 (economy-ladder.md section 6b)
 			expect(Config.TipPotionBonus).to.equal(0.25)

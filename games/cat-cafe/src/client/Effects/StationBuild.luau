@@ -134,7 +134,7 @@ local function draw(build: Build, t: number, now: number): boolean
 		else
 			local k = Logic.buildFall(u)
 			local from = build.from[i]
-			local turn = CFrame.identity:Lerp(from - from.Position, k)
+			local turn = (from - from.Position):Lerp(CFrame.identity, 1 - k)
 			frame = CFrame.new(rest.Position + from.Position * k) * turn * (rest - rest.Position)
 			part.LocalTransparencyModifier = 1 - math.clamp(u / math.max(c.fade, 1e-3), 0, 1)
 			if u >= 1 and not build.landed[i] then

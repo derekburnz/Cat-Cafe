@@ -176,7 +176,9 @@ local starting = false -- a play is waiting for the camp to stream in
 local firstStarted = false -- the first play of this session has begun
 -- #2759: from the client's start to the first spawn, and through play()'s stream wait, the camera holds still on the
 -- town square (parked). The default camera sits inside the town cannon until then: a yellow screen on a slow phone.
-local LOADING_VIEW: Intro.Key = { position = Vector3.new(12, 10, -22), look = Vector3.new(0, 5, 0) } -- near shot 1's last frame
+-- over the cannon from the square's north side, toward the south row's cafes (plots 1 and 2, the beginner's), all near
+-- the spawn so streamed in first (Laptop-Tester: from the south side the first frame looked out at the hills)
+local LOADING_VIEW: Intro.Key = { position = Vector3.new(0, 16, 16), look = Vector3.new(0, 6, -50) }
 local PARK_GIVE_UP = 20 -- seconds: after this a spawn hands the camera back even without a ProfileSync
 local parked = false
 local parkedAt: Intro.Key = LOADING_VIEW

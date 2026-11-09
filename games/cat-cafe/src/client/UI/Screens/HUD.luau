@@ -36,6 +36,7 @@
 -- Roblox terms: SocialService:PromptGameInvite opens Roblox's own invite-friends window; the game only asks.
 
 local GuiService = game:GetService("GuiService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -130,6 +131,8 @@ export type HUD = {
 	setCannonMode: (self: HUD, on: boolean) -> (),
 	travelResult: (self: HUD, destination: string, ok: boolean) -> (),
 	isCarrying: (self: HUD) -> boolean,
+	setPacked: (self: HUD, packed: boolean) -> (), -- #2731: a cat in the backpack
+	isPacked: (self: HUD) -> boolean, -- #2731: the PackDrop pill shows (a backpack cat, empty arms)
 	bottomTop: (self: HUD) -> number,
 	toastAvoid: (self: HUD) -> { Types.Box }, -- #2338: what the toasts keep clear of
 	setCatching: (self: HUD, active: boolean) -> (),
@@ -341,6 +344,8 @@ local function stripLayout(): {
 		}
 end
 local DROP_W = 104
+local PACK_DROP_W = 160 -- #2731: "Drop bag cat" with its icon
+local PACK_DROP_H = 44 -- as the carry banner's Drop; on touch Button's tap pad grows it to a thumb
 -- the arrow tabs that fold the left menu and the bottom row out of the way (Derek 2026-10-27: less clutter)
 local FOLD_W = 44
 local FOLD_H = 34
@@ -1953,6 +1958,32 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	end
 	table.insert(self._buttons, drop)
 
+	-- #2731 (Derek2's backpack bugs: no way to drop a packed cat with empty arms): a small Drop pill where the carry
+	-- banner sits, while the character has a PackedCatId and the arms are empty; it and G fire the same dropCat, and
+	-- the server unpacks and drops the backpack cat (PR #2732)
+	self._packed = false
+	local packDrop = Button.new({
+		name = "PackDrop",
+		text = "Drop bag cat",
+		icon = Theme.icons.drop,
+		iconSize = 22,
+		style = "close",
+		size = UDim2.fromOffset(PACK_DROP_W, PACK_DROP_H),
+		anchorPoint = Vector2.new(0.5, 1),
+		position = UDim2.new(0.5, 0, 1, -(MARGIN + TRAVEL_H + Theme.sizes.gap)),
+		textSize = Theme.sizes.textBody,
+		parent = root,
+		onClick = function()
+			callbacks.dropCat()
+		end,
+	})
+	packDrop.instance.Visible = false
+	if showKeys then
+		keycap(packDrop.face, "G", UDim2.new(1, -4, 0, 4), Vector2.new(1, 0))
+	end
+	table.insert(self._buttons, packDrop)
+	self._packDrop = packDrop
+
 	-- Tutorial strip (bottom centre, above the carry banner when both show). It grows to 520 px wide, then wraps
 	-- onto a second line (reviewer N94: the step hints run to about 100 characters), growing upwards from the
 	-- bottom anchor so the carry banner stacking is unchanged. It wraps only when setTutorial measures a line too
@@ -2146,6 +2177,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	-- renderer orders siblings
 	self._dayCard.Parent = nil
 	self._dayCard.Parent = root
+	self:_watchPacked() -- #2731: last, once the bottom stack is built
 	return self :: HUD
 end
 
@@ -2296,6 +2328,48 @@ end
 
 function HUD.isCarrying(self: any): boolean
 	return self._carryBanner or self._carryState
+end
+
+-- #2731: follows the character's PackedCatId attribute (CatService), through respawns.
+function HUD._watchPacked(self: any)
+	local player = Players.LocalPlayer
+	if player == nil then
+		return
+	end
+	local attributeConnection: RBXScriptConnection? = nil
+	local function follow(character: Model?)
+		if attributeConnection then
+			attributeConnection:Disconnect()
+			attributeConnection = nil
+		end
+		if character == nil then
+			self:setPacked(false)
+			return
+		end
+		attributeConnection = character:GetAttributeChangedSignal("PackedCatId"):Connect(function()
+			self:setPacked(character:GetAttribute("PackedCatId") ~= nil)
+		end)
+		table.insert(self._connections, attributeConnection :: RBXScriptConnection)
+		self:setPacked(character:GetAttribute("PackedCatId") ~= nil)
+	end
+	table.insert(self._connections, player.CharacterAdded:Connect(follow))
+	follow(player.Character)
+end
+
+function HUD.setPacked(self: any, packed: boolean)
+	self._packed = packed
+	local show = packed and not self:isCarrying()
+	if self._packDrop.instance.Visible ~= show then
+		self._packDrop.instance.Visible = show
+		if show then
+			Tween.popIn(self._packDrop.instance, 0.92)
+		end
+		self:_layoutBottom()
+	end
+end
+
+function HUD.isPacked(self: any): boolean
+	return self._packDrop.instance.Visible
 end
 
 -- The server refuses a trip mid catch (N47) and the circles need the screen, so the bottom row steps aside
@@ -2618,6 +2692,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 	self._potionCount.Visible = potions > 0
 	self._state = state
 	self._carryState = state.carrying ~= nil
+	self:setPacked(self._packed) -- #2731
 	self:_renderTravel()
 
 	-- the tier and next goal block: "Tier 1 · Corner Cafe", then the next tier's requirements, or the tier alone
@@ -2846,6 +2921,7 @@ function HUD.setCarrying(self: any, info: Types.CarryInfo?)
 	else
 		self._carry.Visible = false
 	end
+	self:setPacked(self._packed) -- #2731: the pill steps aside while the arms are full
 	self:_layoutBottom()
 end
 
@@ -2929,6 +3005,9 @@ function HUD._layoutBottom(self: any)
 	if self._carry.Visible then
 		self._carry.Position = UDim2.new(0.5, 0, 1, y)
 		y -= CARRY_H + Theme.sizes.gap
+	elseif self._packDrop.instance.Visible then
+		self._packDrop.instance.Position = UDim2.new(0.5, 0, 1, y)
+		y -= PACK_DROP_H + Theme.sizes.gap
 	end
 	self._tutorial.Position = UDim2.new(0.5, 0, 1, y)
 end
@@ -2943,6 +3022,8 @@ function HUD.bottomTop(self: any): number
 	y -= self:_chipsLift()
 	if self._carry.Visible then
 		y -= CARRY_H + Theme.sizes.gap
+	elseif self._packDrop.instance.Visible then
+		y -= PACK_DROP_H + Theme.sizes.gap
 	end
 	if self._tutorial.Visible then
 		y -= self._tutorial.AbsoluteSize.Y / Scale.get() + Theme.sizes.gap

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09 09:15 UTC",
+  "generated": "2026-11-09 11:06 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -307029,6 +307029,393 @@
           "pivot": "floor at z=-0.30 (want 0)",
           "centered": "footprint center x=0.00 y=0.00",
           "cat_spots": "100 cat spots clear of every collidable part"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Park_Growth",
+      "category": "Camp",
+      "module": "campgrowth",
+      "objects": [
+        "CatCafe_Camp_Park_Growth",
+        "CatCafe_Camp_Park_Growth_000_Stall",
+        "CatCafe_Camp_Park_Growth_000_Stall_Decor",
+        "CatCafe_Camp_Park_Growth_001_Lanterns",
+        "CatCafe_Camp_Park_Growth_001_Lanterns_Decor",
+        "CatCafe_Camp_Park_Growth_001_Lanterns_Bulbs",
+        "CatCafe_Camp_Park_Growth_002_FlowerBed",
+        "CatCafe_Camp_Park_Growth_002_FlowerBed_Decor",
+        "CatCafe_Camp_Park_Growth_003_Bench"
+      ],
+      "triangles": 2184,
+      "budget": 8000,
+      "size_studs": {
+        "x": 13.5,
+        "y": 12.05,
+        "z": 6.6
+      },
+      "size_roblox": [
+        13.5,
+        6.6,
+        12.05
+      ],
+      "bounds_min": [
+        -35.5,
+        -11.6,
+        0.0
+      ],
+      "bounds_max": [
+        -22.0,
+        0.45,
+        6.6
+      ],
+      "pivot": "the area's camp extra spot on the camp's ground (Layout.campExtras; the Desert's and Ruins' at (20, 3.5 in from the gate line)), front -Z, no turn: placed exactly like the station",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {},
+      "studio": "#2687 camp growth: show it (client side) once the player's tier opens the area, at Layout.campExtraAt with the camp's turn, like the station. _Bulbs are the lanterns (lit at night), _Decor the table's jars and the lantern wire; the rest collides. Attachments Townsfolk_1..3: where a townsfolk cat sits, facing the camp.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Park_Growth.model.json",
+      "rbx_parts": 112,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Park_Growth.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Park_Growth.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2184/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1206 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-28.75 y=-5.58"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Neighbourhood_Growth",
+      "category": "Camp",
+      "module": "campgrowth",
+      "objects": [
+        "CatCafe_Camp_Neighbourhood_Growth",
+        "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
+        "CatCafe_Camp_Neighbourhood_Growth_000_Stall_Decor",
+        "CatCafe_Camp_Neighbourhood_Growth_001_Lanterns",
+        "CatCafe_Camp_Neighbourhood_Growth_001_Lanterns_Decor",
+        "CatCafe_Camp_Neighbourhood_Growth_001_Lanterns_Bulbs",
+        "CatCafe_Camp_Neighbourhood_Growth_002_FlowerBed",
+        "CatCafe_Camp_Neighbourhood_Growth_002_FlowerBed_Decor",
+        "CatCafe_Camp_Neighbourhood_Growth_003_FlowerBed",
+        "CatCafe_Camp_Neighbourhood_Growth_003_FlowerBed_Decor"
+      ],
+      "triangles": 2236,
+      "budget": 8000,
+      "size_studs": {
+        "x": 13.5,
+        "y": 12.2,
+        "z": 6.6
+      },
+      "size_roblox": [
+        13.5,
+        6.6,
+        12.2
+      ],
+      "bounds_min": [
+        -25.5,
+        -11.6,
+        0.0
+      ],
+      "bounds_max": [
+        -12.0,
+        0.6,
+        6.6
+      ],
+      "pivot": "the area's camp extra spot on the camp's ground (Layout.campExtras; the Desert's and Ruins' at (20, 3.5 in from the gate line)), front -Z, no turn: placed exactly like the station",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {},
+      "studio": "#2687 camp growth: show it (client side) once the player's tier opens the area, at Layout.campExtraAt with the camp's turn, like the station. _Bulbs are the lanterns (lit at night), _Decor the table's jars and the lantern wire; the rest collides. Attachments Townsfolk_1..3: where a townsfolk cat sits, facing the camp.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Neighbourhood_Growth.model.json",
+      "rbx_parts": 133,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood_Growth.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Neighbourhood_Growth.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2236/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1342 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-18.75 y=-5.50"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Woods_Growth",
+      "category": "Camp",
+      "module": "campgrowth",
+      "objects": [
+        "CatCafe_Camp_Woods_Growth",
+        "CatCafe_Camp_Woods_Growth_000_Stall",
+        "CatCafe_Camp_Woods_Growth_000_Stall_Decor",
+        "CatCafe_Camp_Woods_Growth_001_Lanterns",
+        "CatCafe_Camp_Woods_Growth_001_Lanterns_Decor",
+        "CatCafe_Camp_Woods_Growth_001_Lanterns_Bulbs",
+        "CatCafe_Camp_Woods_Growth_002_LogBench",
+        "CatCafe_Camp_Woods_Growth_003_Fern"
+      ],
+      "triangles": 2056,
+      "budget": 8000,
+      "size_studs": {
+        "x": 13.5,
+        "y": 12.59,
+        "z": 6.6
+      },
+      "size_roblox": [
+        13.5,
+        6.6,
+        12.59
+      ],
+      "bounds_min": [
+        -26.0,
+        -11.95,
+        0.0
+      ],
+      "bounds_max": [
+        -12.5,
+        0.64,
+        6.6
+      ],
+      "pivot": "the area's camp extra spot on the camp's ground (Layout.campExtras; the Desert's and Ruins' at (20, 3.5 in from the gate line)), front -Z, no turn: placed exactly like the station",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {},
+      "studio": "#2687 camp growth: show it (client side) once the player's tier opens the area, at Layout.campExtraAt with the camp's turn, like the station. _Bulbs are the lanterns (lit at night), _Decor the table's jars and the lantern wire; the rest collides. Attachments Townsfolk_1..3: where a townsfolk cat sits, facing the camp.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Woods_Growth.model.json",
+      "rbx_parts": 123,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Woods_Growth.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Woods_Growth.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2056/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "952 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-19.25 y=-5.65"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Sewer_Growth",
+      "category": "Camp",
+      "module": "campgrowth",
+      "objects": [
+        "CatCafe_Camp_Sewer_Growth",
+        "CatCafe_Camp_Sewer_Growth_000_Stall",
+        "CatCafe_Camp_Sewer_Growth_000_Stall_Decor",
+        "CatCafe_Camp_Sewer_Growth_001_Lanterns",
+        "CatCafe_Camp_Sewer_Growth_001_Lanterns_Decor",
+        "CatCafe_Camp_Sewer_Growth_001_Lanterns_Bulbs",
+        "CatCafe_Camp_Sewer_Growth_002_Barrel",
+        "CatCafe_Camp_Sewer_Growth_003_Crate",
+        "CatCafe_Camp_Sewer_Growth_004_TyreStack"
+      ],
+      "triangles": 3524,
+      "budget": 8000,
+      "size_studs": {
+        "x": 13.5,
+        "y": 11.98,
+        "z": 6.62
+      },
+      "size_roblox": [
+        13.5,
+        6.62,
+        11.98
+      ],
+      "bounds_min": [
+        -25.5,
+        -11.45,
+        -0.02
+      ],
+      "bounds_max": [
+        -12.0,
+        0.53,
+        6.6
+      ],
+      "pivot": "the area's camp extra spot on the camp's ground (Layout.campExtras; the Desert's and Ruins' at (20, 3.5 in from the gate line)), front -Z, no turn: placed exactly like the station",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {},
+      "studio": "#2687 camp growth: show it (client side) once the player's tier opens the area, at Layout.campExtraAt with the camp's turn, like the station. _Bulbs are the lanterns (lit at night), _Decor the table's jars and the lantern wire; the rest collides. Attachments Townsfolk_1..3: where a townsfolk cat sits, facing the camp.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Sewer_Growth.model.json",
+      "rbx_parts": 151,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Sewer_Growth.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Sewer_Growth.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "3524/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1650 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.02 (want 0)",
+          "centered": "footprint center x=-18.75 y=-5.46"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Desert_Growth",
+      "category": "Camp",
+      "module": "campgrowth",
+      "objects": [
+        "CatCafe_Camp_Desert_Growth",
+        "CatCafe_Camp_Desert_Growth_000_Stall",
+        "CatCafe_Camp_Desert_Growth_000_Stall_Decor",
+        "CatCafe_Camp_Desert_Growth_001_Lanterns",
+        "CatCafe_Camp_Desert_Growth_001_Lanterns_Decor",
+        "CatCafe_Camp_Desert_Growth_001_Lanterns_Bulbs",
+        "CatCafe_Camp_Desert_Growth_002_Pot",
+        "CatCafe_Camp_Desert_Growth_003_Pot",
+        "CatCafe_Camp_Desert_Growth_004_Crate"
+      ],
+      "triangles": 1936,
+      "budget": 8000,
+      "size_studs": {
+        "x": 13.5,
+        "y": 12.58,
+        "z": 7.22
+      },
+      "size_roblox": [
+        13.5,
+        7.22,
+        12.58
+      ],
+      "bounds_min": [
+        -9.5,
+        -16.45,
+        -0.63
+      ],
+      "bounds_max": [
+        4.0,
+        -3.87,
+        6.6
+      ],
+      "pivot": "the area's camp extra spot on the camp's ground (Layout.campExtras; the Desert's and Ruins' at (20, 3.5 in from the gate line)), front -Z, no turn: placed exactly like the station",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {},
+      "studio": "#2687 camp growth: show it (client side) once the player's tier opens the area, at Layout.campExtraAt with the camp's turn, like the station. _Bulbs are the lanterns (lit at night), _Decor the table's jars and the lantern wire; the rest collides. Attachments Townsfolk_1..3: where a townsfolk cat sits, facing the camp.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Desert_Growth.model.json",
+      "rbx_parts": 88,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Desert_Growth.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Desert_Growth.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "pivot",
+          "centered"
+        ],
+        "checks": {
+          "budget": "1936/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "886 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=-0.63 (want 0)",
+          "centered": "footprint center x=-2.75 y=-10.16"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Camp_Ruins_Growth",
+      "category": "Camp",
+      "module": "campgrowth",
+      "objects": [
+        "CatCafe_Camp_Ruins_Growth",
+        "CatCafe_Camp_Ruins_Growth_000_Stall",
+        "CatCafe_Camp_Ruins_Growth_000_Stall_Decor",
+        "CatCafe_Camp_Ruins_Growth_001_Lanterns",
+        "CatCafe_Camp_Ruins_Growth_001_Lanterns_Decor",
+        "CatCafe_Camp_Ruins_Growth_001_Lanterns_Bulbs",
+        "CatCafe_Camp_Ruins_Growth_002_Urn",
+        "CatCafe_Camp_Ruins_Growth_003_Urn",
+        "CatCafe_Camp_Ruins_Growth_004_Brazier",
+        "CatCafe_Camp_Ruins_Growth_004_Brazier_Glow"
+      ],
+      "triangles": 2592,
+      "budget": 8000,
+      "size_studs": {
+        "x": 13.5,
+        "y": 11.9,
+        "z": 6.6
+      },
+      "size_roblox": [
+        13.5,
+        6.6,
+        11.9
+      ],
+      "bounds_min": [
+        -35.5,
+        -12.45,
+        0.0
+      ],
+      "bounds_max": [
+        -22.0,
+        -0.55,
+        6.6
+      ],
+      "pivot": "the area's camp extra spot on the camp's ground (Layout.campExtras; the Desert's and Ruins' at (20, 3.5 in from the gate line)), front -Z, no turn: placed exactly like the station",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "points_roblox": {},
+      "studio": "#2687 camp growth: show it (client side) once the player's tier opens the area, at Layout.campExtraAt with the camp's turn, like the station. _Bulbs are the lanterns (lit at night), _Decor the table's jars and the lantern wire; the rest collides. Attachments Townsfolk_1..3: where a townsfolk cat sits, facing the camp.",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Camp_Ruins_Growth.model.json",
+      "rbx_parts": 97,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Camp_Ruins_Growth.fbx",
+        "assets/cat-cafe/exports/CatCafe_Camp_Ruins_Growth.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [
+          "centered"
+        ],
+        "checks": {
+          "budget": "2592/8000 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "1228 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=-28.75 y=-6.50"
         }
       }
     },

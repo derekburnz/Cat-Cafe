@@ -38,6 +38,7 @@ import wildbackdrop  # noqa: E402
 import luckycat  # noqa: E402
 import welcomearch  # noqa: E402
 import campextras  # noqa: E402
+import campgrowth  # noqa: E402
 import campstations  # noqa: E402
 import leaderboards  # noqa: E402
 import rally  # noqa: E402
@@ -120,9 +121,11 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
-           mysterymarket, mysteryitems, desertset, ruinsset]
+           mysterymarket, mysteryitems, desertset, ruinsset, campgrowth]
 
 PIVOT_NOTES = {
+    **{n: "the area's camp extra spot on the camp's ground (Layout.campExtras; the Desert's and Ruins' at (20, 3.5 in "
+          "from the gate line)), front -Z, no turn: placed exactly like the station" for n in campgrowth.ASSETS},
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
                             "pivot CatCafe_Menu_GoldPlate here for the rich customer)" for n in menu.ITEMS},
     "CatCafe_Menu_GoldPlate": "the base centre, the same as an item's _Plate",
@@ -248,6 +251,10 @@ PIVOT_NOTES = {
                                         "pivot on their ties beside the door (x +-4.8, y 6.4): wobble them there",
 }
 STUDIO_NOTES = {
+    **{n: "#2687 camp growth: show it (client side) once the player's tier opens the area, at Layout.campExtraAt with "
+          "the camp's turn, like the station. _Bulbs are the lanterns (lit at night), _Decor the table's jars and the "
+          "lantern wire; the rest collides. Attachments Townsfolk_1..3: where a townsfolk cat sits, facing the camp."
+       for n in campgrowth.ASSETS},
     "CatCafe_Decor_NeonSign": "Tube: Material Neon, add PointLight (neon_pink). Board stays SmoothPlastic.",
     "CatCafe_Decor_FishTank": "Glass: Transparency 0.5. Water: Transparency 0.3, Material Glass.",
     "CatCafe_Decor_HangingLamp": "Bulb: Material Neon + PointLight 255,214,170 range 14.",
@@ -784,6 +791,8 @@ def main():
             extra = {"attachments": menu.rbx_attachments(name)}
         if name in campstations.ASSETS:           # #1319: PromptAnchor, BangAnchor, and GlowAnchor / Steam
             extra = {"attachments": campstations.rbx_attachments(name), **campstations.MOVING.get(name, {})}
+        if name in campgrowth.ASSETS:             # #2687: the townsfolk cats' spots
+            extra = {"attachments": campgrowth.rbx_attachments(name)}
         if name in campextras.ATTACHMENTS:          # F100: PromptAnchor, and Steam, FishJump or Drip
             extra = {"attachments": campextras.rbx_attachments(name)}
         if name in luckycat.ATTACHED:             # F88: PawHinge at the shoulder the _Paw model turns about

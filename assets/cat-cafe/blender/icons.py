@@ -51,6 +51,7 @@ import menu  # noqa: E402
 import potion_icons  # noqa: E402
 import potions  # noqa: E402
 import badge_icons  # noqa: E402
+import pass_reward_icons  # noqa: E402
 import store_icons  # noqa: E402
 import store_tabs  # noqa: E402
 from common import RB  # noqa: E402
@@ -131,6 +132,8 @@ ICONS = {
     "Ui_Store_Icon_GardenCafe": (store_icons.cafe_style, INK, 5, store_icons.VIEWS["CafeStyle"]),
     "Ui_Store_Icon_GrandCafe": (store_icons.grand_theme, INK, 5, store_icons.VIEWS["GrandTheme"]),
     "Ui_Store_Icon_CrownSign": (store_icons.crown_sign, INK, 5, (-14.0, 6.0)),
+    # Derek2 11-09: the Cafe Pass and Style tab's uniform colours and chat tags (pass_reward_icons.py)
+    **{n: (fn, INK, 10, pass_reward_icons.VIEWS[n]) for n, fn in pass_reward_icons.ICONS.items()},
     # #1191: the shop-only cats' Store card and cat book picture, the sitting cat in its props, three-quarter front
     **{f"CatCafe_Icon_Cat_{n}": ((lambda m, n=n: cats.build_cat(n, m, body="sit")), INK, 10, (-24.0, 8.0))
        for n, spec in cats.ROSTER.items() if spec.get("shop")},

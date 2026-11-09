@@ -229,7 +229,7 @@ PIVOT_NOTES = {
     "CatCafe_Street_FishMarket": "base centre; the counter front (-Z) faces the players",
     daycart.NAME: "base centre; the display front (-Z) faces the players",
     mysterymarket.NAME: "base centre; the counter (-Z) faces the players",
-    mysteryitems.BACKPACK: "the middle of the pack's back (wall: the strap side at +Z, the cat face -Z); the _Flap's "
+    mysteryitems.BACKPACK: "the middle of the pack's back (wall: the strap side at +Z, the front -Z); the _Flap's "
                            "pivot is its hinge",
     mysteryitems.LONG_NET: "the middle of its bounding box's bottom; the net faces -Z",
     pitysign.NAME: "the base centre between its posts on the square's floor (world y 0.1), front -Z; "
@@ -391,9 +391,10 @@ STUDIO_NOTES = {
                   "The shop cat's visor rides its Head Model, the lantern Bulb is lit at night. It replaced "
                   "the Corner Shop stall (#1698).",
     mysteryitems.BACKPACK: "#2565 (mystery-market.md section 3d): the Backpack, for Juniper's window picture "
-                           "(ItemIcon draws its -Z face, the cat face) and the wagon's FeaturedItem pedestal. Worn: "
-                           "weld it behind the torso like HeldCat.attachBack, turned 180 degrees about Y so the cat "
-                           "face looks backward, massless and CanCollide off. Open it while a cat rides in it by "
+                           "(ItemIcon draws its -Z face, the front pocket) and the wagon's FeaturedItem pedestal; #2849 "
+                           "redrew it to match the Bag HUD icon (sky blue, cat ears, a cat tail). Worn: "
+                           "weld it behind the torso like HeldCat.wearPack, turned 180 degrees about Y so the "
+                           "front looks backward, massless and CanCollide off. Open it while a cat rides in it by "
                            "turning the child Model _Flap about its own X by mysteryitems.FLAP_OPEN (125) degrees.",
     mysteryitems.LONG_NET: "#2565 (mystery-market.md section 4): the Long Net's picture for Juniper's window and the "
                            "pedestal: a net with a long telescoping handle and a gold arrow out to the hoop. A "

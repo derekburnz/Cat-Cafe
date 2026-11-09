@@ -1558,9 +1558,23 @@ function UI.init(config: Types.InitConfig)
 	setCatalog(config.catalog)
 
 	if config.keybinds ~= false then
+		-- #2872 (console): the selection ring, and Select starts on the menu grid instead of Roblox's own pick
+		UI.gamepadStart(parent)
 		table.insert(
 			connections,
 			UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: boolean)
+				-- #2872: the gamepad's menu keys come before gameProcessed, which is true while a button is selected
+				if visible and input.KeyCode == Enum.KeyCode.ButtonSelect then
+					UI.gamepadSelect()
+					return
+				elseif
+					visible
+					and input.KeyCode == Enum.KeyCode.ButtonB
+					and modalInstance:current() ~= nil
+				then
+					modalInstance:close()
+					return
+				end
 				if gameProcessed or not visible then
 					return
 				end
@@ -1586,8 +1600,6 @@ function UI.init(config: Types.InitConfig)
 					key == Enum.KeyCode.G and (hudInstance:isCarrying() or hudInstance:isPacked())
 				then
 					UI.events.dropCat:Fire()
-				elseif key == Enum.KeyCode.ButtonB then
-					modalInstance:close()
 				end
 			end)
 		)
@@ -1595,6 +1607,33 @@ function UI.init(config: Types.InitConfig)
 
 	render()
 	return UI
+end
+
+-- #2872 (console): the selection ring in `parent`, and Roblox's own pick on Select off (UI.gamepadSelect starts on the
+-- menu grid instead).
+function UI.gamepadStart(parent: Instance)
+	local nav = require(script.Components.GamepadNav)
+	nav.highlight(parent)
+	local guiService = game:GetService("GuiService")
+	guiService.AutoSelectGuiEnabled = false
+end
+
+-- #2872 (console): Select (the View button) on a gamepad. With a button selected it lets go, so the sticks walk
+-- again; otherwise it selects the open window's first button, or the HUD's Store tile and menu grid.
+function UI.gamepadSelect()
+	local guiService = game:GetService("GuiService")
+	if guiService.SelectedObject ~= nil then
+		guiService.SelectedObject = nil
+		return
+	end
+	local open = if modal ~= nil and modal:current() ~= nil then modal.container else nil
+	local target: GuiObject? = if open ~= nil
+		then require(script.Components.GamepadNav).first(open)
+		elseif hud ~= nil then hud:gamepadMenu()
+		else nil
+	if target ~= nil then
+		guiService.SelectedObject = target
+	end
 end
 
 function UI.isInitialized(): boolean

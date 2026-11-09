@@ -7,8 +7,11 @@
 -- A window shrinks away for 0.16 s as it closes. If another one opens in that time (F, a HUD button or a window's
 -- own "open the next one"), the closing one goes at once, so two never stay up together and closing one never shuts
 -- both (Derek 2026-10-30: "ui pop ups get stuck on top of eachother").
+-- #2872 (console): on a gamepad a window selects its first useful button as it opens, and the last one to close gives
+-- back the selection from before the first opened (GamepadNav), so a controller never has to find the window.
 
 local Create = require(script.Parent.Create)
+local GamepadNav = require(script.Parent.GamepadNav)
 local Scale = require(script.Parent.Parent.Scale)
 local Signal = require(script.Parent.Signal)
 local Sound = require(script.Parent.Sound)
@@ -114,6 +117,8 @@ function Modal.new(parent: Instance): Modal
 	self._screens = {} :: { [string]: Screen }
 	self._current = nil :: string?
 	self._closing = nil :: GuiObject? -- the frame still shrinking away after close()
+	self._selectedBefore = nil :: GuiObject? -- #2872: the gamepad selection before the first window opened
+	self._selecting = false -- #2872: a window took the gamepad selection, so closing hands it back
 	self._fitConnection = Scale.changed:Connect(fit)
 
 	if parent then
@@ -143,6 +148,7 @@ function Modal.open(self: any, name: string)
 	if self._current == name then
 		return
 	end
+	local fresh = self._current == nil
 	if self._current then
 		local previous: Screen = self._screens[self._current]
 		previous.frame.Visible = false
@@ -167,6 +173,17 @@ function Modal.open(self: any, name: string)
 		screen.onOpen()
 	end
 	self.changed:Fire(name)
+	-- #2872: a frame later, once the window has laid out its rows, the gamepad lands on its first button
+	task.defer(function()
+		if self._current ~= name then
+			return
+		end
+		local before, took = GamepadNav.focus(screen.frame)
+		if took and (fresh or not self._selecting) then
+			self._selectedBefore = before
+		end
+		self._selecting = self._selecting or took
+	end)
 end
 
 function Modal.close(self: any)
@@ -200,6 +217,12 @@ function Modal.close(self: any)
 		screen.onClose()
 	end
 	self.changed:Fire(nil)
+	if self._selecting then
+		self._selecting = false
+		local before: GuiObject? = self._selectedBefore
+		self._selectedBefore = nil
+		GamepadNav.restore(before)
+	end
 end
 
 -- The backdrop to one darkness (#1236): the tween before it stops first, so quick opens, closes and switches never

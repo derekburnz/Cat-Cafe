@@ -1534,7 +1534,9 @@ builders.CatCafe_Square_MysteryCart = function()
 		color = LAMP_WARM,
 		material = Enum.Material.Neon,
 	})
-	return model
+	-- QA 2026-11-09: without a PrimaryPart the pivot was the box's middle, so the wagon sat 3.2 studs into the
+	-- paving and its walk-in ring under the floor
+	return finish(model, bed)
 end
 
 -- The Golden Fish Market (F53, golden-fish.md section 3) until the art is synced: a fishmonger's counter under a

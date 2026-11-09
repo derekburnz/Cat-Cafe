@@ -2887,6 +2887,42 @@ local SCENES = {
 		assert(lone.TextFits, "uigate: the short toast's word does not fit (#2207)")
 		assert(tall > lonePill.AbsoluteSize.Y + 4, "uigate: the long toast's pill is no taller than a one-row pill (#2207)")
 	end },
+	-- #2729 (Derek2: "big claims of index and quests cap at one line and put …"; "remove all the extra ones"): a long
+	-- Index claim is one row ending in "…", no reward chips under it; a cut nudge never shows; a long warning wraps
+	{ "ToastOneLine", function()
+		local claim = "3 Index rewards: $5,000, 2 Golden fish, Rare Crate, Luck Potion, Tuna x3, Cat Treat x2, Sardines x4"
+		local warning = "That cat is locked. Unlock it from its card in the Cats window first, then try selling it again."
+		UI.toast("A cheap Rare Crate at the Fish Market!", "info")
+		UI.toast(claim, "good")
+		UI.toast(warning, "warn")
+		local function find(text: string): TextLabel?
+			for _, label in UIShim.playerGui:GetDescendants() do
+				if label:IsA("TextLabel") and label.Name == "Text" and label.Text == text then
+					return label
+				end
+			end
+			return nil
+		end
+		UIShim.advance(0.6)
+		assert(find("A cheap Rare Crate at the Fish Market!") == nil, "uigate: a cut nudge still shows (#2729)")
+		local line = find(claim)
+		assert(line, "uigate: no Index claim toast (#2729)")
+		local pill = (line :: TextLabel).Parent :: Frame
+		assert(pill:FindFirstChild("Rewards") == nil, "uigate: the claim still lists its rewards as chips (#2729)")
+		assert(not (line :: TextLabel).TextWrapped, "uigate: the claim wrapped onto more rows (#2729)")
+		assert((line :: TextLabel).TextTruncate == Enum.TextTruncate.AtEnd, "uigate: the long claim does not end in … (#2729)")
+		local scale = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").get()
+		assert(pill.AbsoluteSize.Y <= 44 * scale + 1, ("uigate: the claim's pill is %d px tall, more than one row (#2729)"):format(pill.AbsoluteSize.Y))
+		local root = (pill:FindFirstAncestorOfClass("ScreenGui") :: ScreenGui)
+		local at, size = pill.AbsolutePosition, pill.AbsoluteSize
+		local view = workspace.CurrentCamera.ViewportSize
+		assert(at.X >= -0.5 and at.X + size.X <= view.X + 0.5, "uigate: the claim's pill runs off screen (#2729) in " .. root.Name)
+		local warn = find(warning)
+		if warn then -- (a short phone may still be holding it in the queue)
+			UIShim.advance(0.3)
+			assert(warn.TextWrapped, "uigate: the long warning did not wrap (#2729 keeps #2207 for warnings)")
+		end
+	end },
 	-- #2338 (Laptop-Tester, iPhone SE: the Welcome back toast lay over the Index, Quests and Potions tiles): the pill
 	-- keeps clear of the menu's tiles, the goal card, the corner tiles and the bottom row, and on screen; a wide screen
 	-- keeps it centred
@@ -2972,37 +3008,26 @@ local SCENES = {
 		assert(not table.find(shown(), "Someone tamed an Epic Cat!"), "uigate: an Epic shout-out pill is up (#2399)")
 		UIShim.advance(12)
 	end },
-	-- #2479 (Derek2: Claim all's rewards "make it look so cluttered"): a many-reward toast shows its title and the
-	-- rewards as chips with pictures, all inside the pill and on the screen
+	-- #2479 (Derek2: Claim all's rewards "make it look so cluttered"), since #2729 (Derek2: "big claims of index and
+	-- quests cap at one line and put …"): a many-reward claim is one row ending in "…", no chips, inside the screen
 	{ "ToastClaimAll", function()
-		UI.toast(
-			"4 Index rewards: +$11.3M, +25 golden fish, 1 Alley Crate, +5% gold luck forever, 1 spin, +2% faster bait forever",
-			"good"
-		)
+		local claim = "4 Index rewards: +$11.3M, +25 golden fish, 1 Alley Crate, +5% gold luck forever, 1 spin, +2% faster bait forever"
+		UI.toast(claim, "good")
 		task.wait(0.4)
 		local found: Frame? = nil
 		for _, piece in UIShim.playerGui:GetDescendants() do
-			if piece.Name == "Toast" and piece:FindFirstChild("Rewards") then
+			if piece.Name == "Toast" and piece:FindFirstChild("Text") and (piece :: any).Text.Text == claim then
 				found = piece :: Frame
 			end
 		end
-		assert(found, "uigate: the Claim all toast has no reward chips (#2479)")
+		assert(found, "uigate: no Claim all toast (#2729)")
 		local toast = found :: Frame
-		local title = toast:FindFirstChild("Text") :: TextLabel
-		assert(title.Text == "4 Index rewards", "uigate: the Claim all toast's title reads " .. title.Text .. " (#2479)")
-		local chips = 0
+		assert(toast:FindFirstChild("Rewards") == nil, "uigate: the Claim all toast still lists chips (#2729)")
+		local line = toast:FindFirstChild("Text") :: TextLabel
+		assert(not line.TextWrapped and line.TextTruncate == Enum.TextTruncate.AtEnd, "uigate: the Claim all toast is not one row ending in … (#2729)")
 		local view = workspace.CurrentCamera.ViewportSize
-		for _, chip in (toast:FindFirstChild("Rewards") :: Instance):GetChildren() do
-			if chip:IsA("TextLabel") then
-				chips += 1
-				local left, right = chip.AbsolutePosition.X, chip.AbsolutePosition.X + chip.AbsoluteSize.X
-				local bottom = chip.AbsolutePosition.Y + chip.AbsoluteSize.Y
-				assert(left >= toast.AbsolutePosition.X - 1 and right <= toast.AbsolutePosition.X + toast.AbsoluteSize.X + 1, "uigate: a reward chip sticks out of its toast (#2479)")
-				assert(bottom <= toast.AbsolutePosition.Y + toast.AbsoluteSize.Y + 1, "uigate: a reward chip hangs under its toast (#2479)")
-				assert(left >= 0 and right <= view.X, "uigate: a reward chip runs off the screen (#2479)")
-			end
-		end
-		assert(chips == 6, ("uigate: the Claim all toast shows %d chips, not 6 (#2479)"):format(chips))
+		local left, right = toast.AbsolutePosition.X, toast.AbsolutePosition.X + toast.AbsoluteSize.X
+		assert(left >= -0.5 and right <= view.X + 0.5, "uigate: the Claim all toast runs off the screen (#2729)")
 	end },
 	-- F99 section 2: a rainbow stray's once-a-minute toast on a turning rainbow edge
 	{ "RainbowSpawn", function()

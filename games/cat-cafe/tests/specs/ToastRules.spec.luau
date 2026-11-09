@@ -56,4 +56,47 @@ return function()
 			expect(ToastRules.quiet("New piece: Lamp! Find it in Decor.", "good")).to.equal(false)
 		end)
 	end)
+
+	describe("ToastRules.quiet cuts (#2729)", function()
+		it("drops the nudges and the lines the screen already shows", function()
+			for _, line in {
+				"New quest: Catch 5 cats",
+				"A cheap Rare Crate at the Fish Market!",
+				"Luck Potions at the Fish Market!",
+				"Something good at the Fish Market!",
+				"🌙 Night bait! Food in your bowl now brings a cat in half the time.",
+				"Bait food is at the Corner Shop now",
+				"🧺 Pirate Cat is on its way to your cafe!",
+				"You dropped Mochi.",
+				"Mochi ran back to the Park.",
+				"You got tackled!",
+			} do
+				expect(ToastRules.quiet(line, "info")).to.equal(true)
+			end
+		end)
+
+		it("keeps what the player must act on, the rewards and every warning", function()
+			for _, line in {
+				"You dropped Mochi. It's walking home.",
+				"It held on tight!",
+				"It dropped! Pick it up quick!",
+				"Town Index reward: $5,000, 2 Golden fish",
+				"Try again! Tap as the circle closes.",
+				"Walk closer to collect the tip",
+				"Welcome back! +$1.2K while you were away",
+			} do
+				expect(ToastRules.quiet(line, "good")).to.equal(false)
+			end
+			expect(ToastRules.quiet("New quest: Catch 5 cats", "warn")).to.equal(false)
+		end)
+	end)
+
+	describe("ToastRules.oneLine (#2729)", function()
+		it("keeps good and info toasts to one row, and lets warnings wrap", function()
+			expect(ToastRules.oneLine("good")).to.equal(true)
+			expect(ToastRules.oneLine("info")).to.equal(true)
+			expect(ToastRules.oneLine(nil)).to.equal(true)
+			expect(ToastRules.oneLine("warn")).to.equal(false)
+		end)
+	end)
 end

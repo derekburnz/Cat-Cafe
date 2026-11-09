@@ -8,7 +8,7 @@ Derek2, 2026-11-09: "Start drafting 20 new cats for Tier 6 and Tier 7 10 cats ea
 
 | | Tier 6 | Tier 7 |
 |---|---|---|
-| Cafe name | Royal Cafe | Wonder Cafe |
+| Cafe name | Sunstone Cafe | Wonder Cafe |
 | Area | Desert | Ruins |
 | Cost | ~70B (draft) | ~1.8T (draft) |
 | Different cats | 42 | 52 |
@@ -208,7 +208,9 @@ These are stations in the vein of the Yard Sale, the Fish Pond and the Lost and 
 
 My picks for the first two to build are the **Oasis Spa** and the **Relic Museum**, one camp extra each, because they match the existing camp-extra slots (`Layout.campExtras`). Each station gets its own spec and a Pace check before it's built.
 
-## 9. Open questions for Derek2
-1. The cafe names (Royal Cafe, Wonder Cafe) and the draft costs: OK, or other ideas? QA notes that "Royal Cafe" sits next to the Royal Bowl and the Royal Velvet Booth. If that's too close, I'd suggest "Sunstone Cafe" instead. "Grand Cafe" is already the Tier 5 name, and "Golden" would sit next to golden fish.
-2. Should the Golem be the Legendary (as drafted) or the Mythical?
-3. Which two big stations come first? I'd pick the Oasis Spa and the Relic Museum.
+## 9. Decisions (made for Derek2, 2026-11-09)
+
+Derek2, 2026-11-09 04:00Z: "Make assumptions for anything needed when asleep but don't wait on me for my ok or checking things I can always tweak later". The open questions are settled with the recommendations, and Derek2 can change any of them later:
+1. **Names:** Tier 6 is **Sunstone Cafe** (not Royal Cafe, which sat too close to the Royal Bowl and the Royal Velvet Booth). Tier 7 is **Wonder Cafe**. The draft costs stand until the Pace run sets them.
+2. **Golem** stays the Legendary, and the Jade Guardian is the Mythical, as drafted.
+3. **First stations:** the Oasis Spa and the Relic Museum. The other four wait.

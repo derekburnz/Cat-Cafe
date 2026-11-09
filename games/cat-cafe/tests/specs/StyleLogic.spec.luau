@@ -58,6 +58,11 @@ return function()
 				expect(#rows).to.equal(1) -- only the default theme: no theme row
 				expect(rows[1].kind).to.equal("uniform")
 				expect(names(rows[1])).to.equal("Classic,Striped,Midnight*,Mint,Pumpkin")
+				-- #2592: every uniform style has its picture; Classic keeps its symbol
+				expect(rows[1].options[1].image).to.equal(nil)
+				for index = 2, 5 do
+					expect(string.sub(rows[1].options[index].image or "", 1, 13)).to.equal("rbxassetid://")
+				end
 				local both = StyleLogic.rows({
 					signStyles = { "bakery_stripes" },
 					looks = {

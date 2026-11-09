@@ -22,14 +22,15 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Catalog")) :: any
 local ChatTags = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("ChatTags"))
 local Looks = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Looks"))
+local ShopIcons = require(script.Parent.ShopIcons)
 local SignStyles = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("SignStyles"))
 local StyleLogic = require(script.Parent.StyleLogic)
 local Types = require(script.Parent.Parent.Types)
 
 export type Track = "free" | "paid"
 -- #2087: a named reward's square: `asset` a model in ReplicatedStorage.Assets, `glyph` its symbol (shown while the
--- model loads, or alone), `tint` the tile's colour in place of the rarity's
-export type ItemArt = { asset: string?, glyph: string, tint: Color3? }
+-- model loads, or alone), `tint` the tile's colour in place of the rarity's, `image` an uploaded picture (#2592)
+export type ItemArt = { asset: string?, glyph: string, tint: Color3?, image: string? }
 export type CellState = "ready" | "claimed" | "ahead" | "locked"
 export type Cell = {
 	track: Track,
@@ -231,6 +232,11 @@ function PassLogic.itemArt(item: Types.PassItem): ItemArt
 		local style = SignStyles.get(id)
 		return { asset = if style then style.model else nil, glyph = StyleLogic.icon("sign", id) }
 	elseif kind == "uniform" then
+		-- #2592: the uniform's own picture (its apron and cap on the rarity's tile); the colour tile until there is one
+		local image = ShopIcons.uniform(id)
+		if image then
+			return { glyph = glyph, image = image }
+		end
 		local uniform = Looks.uniform(id)
 		if uniform then
 			local main = uniform.main
@@ -238,7 +244,10 @@ function PassLogic.itemArt(item: Types.PassItem): ItemArt
 		end
 	elseif kind == "tag" then
 		local tag = ChatTags.TAGS[id]
-		if tag then
+		local image = ShopIcons.tag(id)
+		if tag and image then
+			return { glyph = glyph, image = image } -- #2592: the tag's speech bubble, in its colour
+		elseif tag then
 			-- the tag's own colour as the tile (its words are under it; in the square they'd be too small to read)
 			return { glyph = glyph, tint = Color3.fromHex(tag.color) }
 		end

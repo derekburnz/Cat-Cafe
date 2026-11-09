@@ -468,7 +468,7 @@ function CafePassScreen._fill(self: any, slot: Slot, reward: Types.PassReward)
 			art.asset,
 			art.glyph,
 			if item.kind == "cat" then "Legendary" else "Epic",
-			nil,
+			art.image, -- #2592: the uniform and tag pictures
 			art.tint
 		)
 		slot.icon = icon

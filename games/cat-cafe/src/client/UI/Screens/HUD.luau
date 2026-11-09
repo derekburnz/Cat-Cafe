@@ -52,6 +52,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local FirstBait = require(script.Parent.Parent.Components.FirstBait)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
+local GiftLadderLogic = require(script.Parent.Parent.Components.GiftLadderLogic)
 local GiftLogic = require(script.Parent.Parent.Components.GiftLogic)
 local GoalCard = require(script.Parent.GoalCard)
 local GoalFold = require(script.Parent.Parent.Components.GoalFold)
@@ -146,6 +147,7 @@ export type HUD = {
 	screenOpened: (self: HUD, name: string?) -> (),
 	setTipJar: (self: HUD, summary: { ready: number, nextIn: number?, left: number }?) -> (),
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
+	setGiftLadder: (self: HUD, rows: { GiftLadderLogic.Row }?) -> (), -- #2791
 	-- the gold Store tile at the top of the left menu, shown once init's Store block has its window (#1167)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
 	setStoreNew: (self: HUD, shown: boolean) -> (),
@@ -933,6 +935,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._rewards = rewards
 	self._rewardsText = "Rewards"
 	self._gift = nil :: { ready: number, nextIn: number?, left: number }?
+	self._ladder = nil :: { GiftLadderLogic.Row }? -- #2791: the gift ladder's next steps (setGiftLadder)
 	self._dailyDue = false
 	-- red count of what is ready to claim, on the tile's top right corner
 	local rewardsDot: Frame = Create("Frame", {
@@ -3666,24 +3669,39 @@ function HUD.setDailyTreat(self: any, shown: boolean, due: boolean)
 	self:_renderRewards()
 end
 
--- What the Rewards tile holds now: the gifts and the Daily Treat, each once it is live and unlocked (F87).
-function HUD._rewardParts(self: any): (boolean, boolean)
+-- #2791 (retention-ideas.md 5a): the gift ladder's next steps (Components/GiftLadderLogic.rows), on the Rewards tile
+-- rather than a new slot (Derek2: little phone screen space): the tile counts down to the next one and its list shows
+-- them. Empty or nil once the ladder is done.
+function HUD.setGiftLadder(self: any, rows: { GiftLadderLogic.Row }?)
+	self._ladder = if rows ~= nil and #rows > 0 then rows else nil
+	self:_renderRewards()
+end
+
+-- What the Rewards tile holds now: the gifts and the Daily Treat, each once it is live and unlocked (F87), and the
+-- gift ladder from the first second (#2791).
+function HUD._rewardParts(self: any): (boolean, boolean, boolean)
 	return self._giftsWanted == true and self:_open("gifts"),
-		self._dailyWanted == true and self:_open("daily")
+		self._dailyWanted == true and self:_open("daily"),
+		self._ladder ~= nil
 end
 
 -- The Rewards tile: shown while it holds anything; "Rewards" and a red "!" of what waits (gifts ready, plus one for
 -- a due stamp), else the time to the next gift, "Daily" with only the card, or "Rewards".
 function HUD._renderRewards(self: any)
 	local tile: Button.Button = self._rewards
-	local gifts, daily = self:_rewardParts()
-	tile.instance.Visible = gifts or daily
+	local gifts, daily, ladder = self:_rewardParts()
+	tile.instance.Visible = gifts or daily or ladder
 	local summary: { ready: number, nextIn: number?, left: number }? = if gifts
 		then self._gift
 		else nil
 	local ready = (if summary then summary.ready else 0)
 		+ (if daily and self._dailyDue then 1 else 0)
 	local nextIn: number? = if summary then summary.nextIn else nil
+	if ladder then
+		-- #2791: the sooner of the Tip Jar's next gift and the ladder's next step
+		local left = self._ladder[1].left
+		nextIn = if nextIn == nil then left else math.min(nextIn :: number, left)
+	end
 	-- "Rewards" with the red "!" while anything waits (Derek's 11-04 HUD mockup, #1176), else the time to the next gift
 	local text = if ready > 0
 		then "Rewards"
@@ -3705,10 +3723,11 @@ function HUD._renderRewards(self: any)
 	end
 end
 
--- The Rewards tile's press: the list when both parts are live, else the one window it holds.
+-- The Rewards tile's press: the list when two parts are live or the gift ladder is (#2791: its steps are rows of
+-- the list), else the one window it holds.
 function HUD._pressRewards(self: any)
-	local gifts, daily = self:_rewardParts()
-	if gifts and daily then
+	local gifts, daily, ladder = self:_rewardParts()
+	if ladder or (gifts and daily) then
 		self:_togglePop("rewards")
 	elseif gifts then
 		self._callbacks.openScreen("TipJar")
@@ -3773,6 +3792,15 @@ function HUD._popRowsFor(self: any, kind: string): { PopRow }
 	local callbacks: Callbacks = self._callbacks
 	if kind == "rewards" then
 		local gifts, daily = self:_rewardParts()
+		-- #2791: the ladder's next steps first, each "1:45  +1 spin"; a press only closes the list
+		for index in self._ladder or {} do
+			table.insert(rows, {
+				id = "Ladder" .. index,
+				icon = Theme.icons.gifts,
+				style = "ghost" :: Button.Style,
+				press = function() end,
+			})
+		end
 		if gifts then
 			table.insert(rows, {
 				id = "Gifts",
@@ -3829,6 +3857,9 @@ function HUD._popText(self: any, id: string): string
 			else "Gifts"
 	elseif id == "Daily" then
 		return "Daily treat"
+	elseif string.sub(id, 1, 6) == "Ladder" then
+		local row: GiftLadderLogic.Row? = (self._ladder or {})[tonumber(string.sub(id, 7)) or 0]
+		return if row then GiftLadderLogic.line(row) else "Gift"
 	elseif id == "Invite" then
 		return "Invite friends"
 	end

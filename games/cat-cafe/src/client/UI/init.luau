@@ -1484,6 +1484,7 @@ function UI.init(config: Types.InitConfig)
 		RunService.Heartbeat:Connect(function(dt: number)
 			ticks.tips(dt)
 			ticks.nudges(dt)
+			UI.giftLadder.tick(dt)
 		end)
 	)
 	introScreen = Intro.new(parent, {
@@ -1643,6 +1644,7 @@ function UI.update(partial: Types.PartialState)
 	end
 	deriveState(partial)
 	render()
+	UI.giftLadder.refresh() -- #2791
 end
 
 function UI.getState(): Types.PlayerState
@@ -4966,6 +4968,54 @@ do
 	function UI.tutorial.showHelp()
 		local step = state.tutorialStep or 0
 		askHelp(math.min(step, TutorialHints.DONE - 1))
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- The gift ladder (#2791, retention-ideas.md 5a)
+----------------------------------------------------------------------------------------------------
+
+-- The next steps of the gift ladder on the HUD's Rewards tile (HUD.setGiftLadder, Components/GiftLadderLogic): from
+-- ProfileSync's giftNext and playSeconds, counted on from when playSeconds came, redrawn each second. The server pays
+-- each step and toasts it. Its own table, as the module is short of locals.
+UI.giftLadder = {
+	played = nil :: number?, -- the last playSeconds the server sent
+	playedAt = 0, -- os.clock() when it came
+	clock = 0,
+}
+
+function UI.giftLadder.refresh()
+	local ladder = UI.giftLadder
+	local sent = (state :: any).playSeconds
+	if sent ~= ladder.played then
+		ladder.played = if type(sent) == "number" then sent else nil
+		ladder.playedAt = os.clock()
+	end
+	local view = hud
+	if view == nil then
+		return
+	end
+	local played: number? = if ladder.played ~= nil
+		then (ladder.played :: number) + (os.clock() - ladder.playedAt)
+		else nil
+	local GiftLadderLogic = require(script.Components.GiftLadderLogic)
+	view:setGiftLadder(
+		GiftLadderLogic.rows(
+			(state :: any).giftNext,
+			played,
+			(state :: any).prizeRate or state.incomePerSecond
+		)
+	)
+end
+
+function UI.giftLadder.tick(dt: number)
+	local ladder = UI.giftLadder
+	ladder.clock += dt
+	if ladder.clock >= 1 then
+		ladder.clock = 0
+		if (state :: any).giftNext ~= nil then
+			UI.giftLadder.refresh()
+		end
 	end
 end
 

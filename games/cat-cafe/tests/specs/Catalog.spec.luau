@@ -1212,11 +1212,11 @@ return function()
 				local same = { 54, 29, 11, 4.8, 1.2 } -- #1452 (was 72, 22, 5, 0.9, 0.1)
 				local want = {
 					-- F95 (economy-ladder.md section 1): income 1, 3, 9, 27, 81
-					{ "alley", "Alleyway", 1, 32, same, 8, 1 }, -- v4 (F84, v0.13.18): 24 and the 8 near points
-					{ "park", "Park", 2, 48, same, 9, 3 }, -- F85's long set's cat spots (#799)
-					{ "neighbourhood", "Neighbourhood", 3, 77, same, 9, 9 }, -- F85's long set's cat spots (#810, #905)
-					{ "woods", "Woods", 4, 72, same, 8, 27 }, -- F85's long set (#847) and the oak top
-					{ "sewer", "Sewer", 5, 60, same, 8, 81 }, -- F85's long set's cat spots (#860)
+					{ "alley", "Alleyway", 1, 32, same, 11, 1 }, -- v4 (F84, v0.13.18): 24 and the 8 near points
+					{ "park", "Park", 2, 48, same, 12, 3 }, -- F85's long set's cat spots (#799)
+					{ "neighbourhood", "Neighbourhood", 3, 77, same, 12, 9 }, -- F85's long set's cat spots (#810, #905)
+					{ "woods", "Woods", 4, 72, same, 11, 27 }, -- F85's long set (#847) and the oak top
+					{ "sewer", "Sewer", 5, 60, same, 11, 81 }, -- F85's long set's cat spots (#860)
 				}
 				expect(#Catalog.areas).to.equal(#want)
 				for i, row in want do
@@ -1225,7 +1225,7 @@ return function()
 					expect(def.name).to.equal(row[2])
 					expect(def.tier).to.equal(row[3])
 					expect(def.spawnPoints).to.equal(row[4])
-					expect(def.waveSize).to.equal(row[6]) -- #1621: 8, 9, 9, 8, 8 (#1452 8, 7, 7, 6, 6; v0.13.5 6, 5, 5, 4, 4)
+					expect(def.waveSize).to.equal(row[6]) -- #2557: 11, 12, 12, 11, 11 (#1621 8, 9, 9, 8, 8; #1452 8, 7, 7, 6, 6; v0.13.5 6, 5, 5, 4, 4)
 					expect(def.incomeMultiplier).to.equal(row[7])
 					local odds = row[5] :: { number }
 					expect(def.odds :: any).to.deepEqual({

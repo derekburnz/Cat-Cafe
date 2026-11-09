@@ -155,9 +155,19 @@ return function()
 			for _, area in Catalog.areas do
 				for run = 1, 160 do
 					local rarities = rollWave(area, rng, run % 2 == 0)
+					local uniform = run % 2 == 0
 					local placed, waiting = wave(area.id, rarities, {}, rng)
-					expect(#waiting).to.equal(0)
-					expect(#placed).to.equal(area.waveSize)
+					if uniform then
+						-- #2557: an 11-stray Alleyway wave rolled with every rarity equally likely can hold more Epic
+						-- and up than the area has nooks; a stray only waits when no legal point is left for it
+						for _, allowed in waiting do
+							expect(allowed).to.equal(0)
+						end
+						expect(#placed + #waiting).to.equal(area.waveSize)
+					else
+						expect(#waiting).to.equal(0)
+						expect(#placed).to.equal(area.waveSize)
+					end
 					for _, entry in placed do
 						checkZone(area.id, entry)
 					end

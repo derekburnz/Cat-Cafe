@@ -370,20 +370,22 @@ local Config = {
 	-- Derek 22:38: a wave is scattered, not clumped. A new stray takes a free spawn point at least this far from every
 	-- stray already in its area when one is left (farther ones likelier), else the free point farthest from them all.
 	StraySpawnSpacingStuds = 12,
-	-- #1159 (shared/StrayTopUp): by day an area under its floor of live strays gets one more every 40 to 80 s, at a
+	-- #1159 (shared/StrayTopUp): by day an area under its floor of live strays gets one more every 30 to 60 s, at a
 	-- far point first. The floor is StrayFloorBase for one player plus StrayFloorPerPlayer for each more who has the
 	-- area open, never above StrayLiveMax live cats in the area (the 10-28 "way too many" line is a live cap).
-	StrayFloorBase = 9, -- #1452 (was 5), more strays near the gates (was 7)
+	-- #2557 (Derek2, 2026-11-09: "increase cat spawns by about 33% per area sometimes they run out"): about a third
+	-- more on the floor, the cap, the gate floor and each wave, and top-ups a quarter sooner
+	StrayFloorBase = 12, -- #2557 (was 9; #1452 5, more strays near the gates 7)
 	StrayFloorPerPlayer = 1,
-	StrayLiveMax = 16, -- #1452 (was 12), more strays near the gates (was 14)
+	StrayLiveMax = 21, -- #2557 (was 16; #1452 12, more strays near the gates 14)
 	-- Derek2 2026-11-05, "no cats start of sewer": a gated area keeps StrayEntryFloor live strays within
 	-- StrayEntryStuds of its gate by day. The commonest of each sunrise wave land there, and while it is short one more
 	-- arrives at an entry point every StrayEntryTopUpSeconds, still under StrayLiveMax (shared/StrayTopUp).
-	StrayEntryFloor = 3,
+	StrayEntryFloor = 4, -- #2557 (was 3)
 	StrayEntryStuds = 120,
-	StrayEntryTopUpSeconds = 20,
-	StrayTopUpMinSeconds = 40, -- #1452: 40 to 80 s (was 60 to 120)
-	StrayTopUpMaxSeconds = 80,
+	StrayEntryTopUpSeconds = 15, -- #2557 (was 20)
+	StrayTopUpMinSeconds = 30, -- #2557: 30 to 60 s (#1452 40 to 80, before it 60 to 120)
+	StrayTopUpMaxSeconds = 60,
 	StrayWanderSpeed = 3,
 	-- #2205 (Derek2, 2026-11-07: "just legendary or better or gold/rainbow"): the catch pop-up's floor (was Epic)
 	AnnounceMinRarity = "Legendary",

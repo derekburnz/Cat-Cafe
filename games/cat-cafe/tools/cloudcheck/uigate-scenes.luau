@@ -5842,6 +5842,33 @@ local SCENES = {
 		local chip = assertEventChip(1)
 		assert(chip.Text == "⏳ Cafe Party in 2:59", "uigate: the event chip reads " .. chip.Text .. " (#2487)")
 	end },
+	-- #2864: a Backpack cat with empty hands shows the carry marker over the door ("Check in here"); a cat in the hands
+	-- takes over ("Bring it here" at the camp), the bag's comes back when the hands empty, and none once the bag empties
+	{ "BagCarryMarker", function()
+		local door = Instance.new("Part")
+		door.Name = "GateBagDoor"
+		door.Parent = workspace
+		local camp = Instance.new("Part")
+		camp.Name = "GateBagCamp"
+		camp.Parent = workspace
+		local billboard = UIShim.playerGui:FindFirstChild("CatCafeCarryMarker", true) :: BillboardGui
+		assert(billboard, "uigate: no carry marker (#2864)")
+		local label = billboard:FindFirstChild("Label", true) :: TextLabel
+		local function says(): string?
+			return if billboard.Enabled then label.Text else nil
+		end
+		UI.setBagCarry({ catId = Catalog.cats[1].id, door = door } :: any)
+		assert(says() == "Check in here", "uigate: a Backpack cat shows no door marker (#2864)")
+		assert((UI.getState() :: any).carrying == nil, "uigate: a Backpack cat set state.carrying (#2864)")
+		UI.setCarrying({ catId = Catalog.cats[2].id, camp = camp } :: any)
+		assert(says() == "Bring it here", "uigate: the hands' cat did not win the marker (#2864)")
+		UI.setCarrying(nil)
+		assert(says() == "Check in here", "uigate: the Backpack cat's marker did not come back (#2864)")
+		UI.setBagCarry(nil)
+		assert(says() == nil, "uigate: the marker stayed after the bag emptied (#2864)")
+		door:Destroy()
+		camp:Destroy()
+	end },
 	-- #2860 (Derek2: the event "flashes and shows during catching minigames when it should be hidden"): the chip's
 	-- countdown repaints every second, and mid-catch it stays down; after the catch it is back
 	{ "CafeEventCatch", function()

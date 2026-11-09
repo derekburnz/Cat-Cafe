@@ -148,6 +148,7 @@ export type HUD = {
 	setTipJar: (self: HUD, summary: { ready: number, nextIn: number?, left: number }?) -> (),
 	setDailyTreat: (self: HUD, shown: boolean, due: boolean) -> (),
 	setGiftLadder: (self: HUD, rows: { GiftLadderLogic.Row }?) -> (), -- #2791
+	setCozy: (self: HUD, line: string?, ready: boolean) -> (), -- #2798
 	-- the gold Store tile at the top of the left menu, shown once init's Store block has its window (#1167)
 	setStore: (self: HUD, open: (() -> ())?) -> (),
 	setStoreNew: (self: HUD, shown: boolean) -> (),
@@ -936,6 +937,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._rewardsText = "Rewards"
 	self._gift = nil :: { ready: number, nextIn: number?, left: number }?
 	self._ladder = nil :: { GiftLadderLogic.Row }? -- #2791: the gift ladder's next steps (setGiftLadder)
+	self._cozy = nil :: string? -- #2798: the Cozy Cafe line (setCozy), and whether its bag waits
+	self._cozyReady = false
 	self._dailyDue = false
 	-- red count of what is ready to claim, on the tile's top right corner
 	local rewardsDot: Frame = Create("Frame", {
@@ -3677,25 +3680,43 @@ function HUD.setGiftLadder(self: any, rows: { GiftLadderLogic.Row }?)
 	self:_renderRewards()
 end
 
--- What the Rewards tile holds now: the gifts and the Daily Treat, each once it is live and unlocked (F87), and the
--- gift ladder from the first second (#2791).
-function HUD._rewardParts(self: any): (boolean, boolean, boolean)
+-- #2798 (retention-ideas.md idea 10, Derek2: its "Cozy gift in 2:10" line is the gift icon's tooltip, not a new strip):
+-- the Cozy Cafe line as a row of the Rewards list while you stay in your cafe ("Cozy gift in 2:10"), or with the red
+-- "!" while its bag waits on the counter; nil when neither.
+function HUD.setCozy(self: any, line: string?, ready: boolean)
+	if line == self._cozy and ready == self._cozyReady then
+		return
+	end
+	local rows = (self._cozy == nil) ~= (line == nil)
+	self._cozy = line
+	self._cozyReady = line ~= nil and ready
+	if rows and self._popFor == "rewards" then
+		self:_closePop() -- the list's rows change; the next press builds it again
+	end
+	self:_renderRewards()
+end
+
+-- What the Rewards tile holds now: the gifts and the Daily Treat, each once it is live and unlocked (F87), the gift
+-- ladder from the first second (#2791), and the Cozy Cafe line (#2798).
+function HUD._rewardParts(self: any): (boolean, boolean, boolean, boolean)
 	return self._giftsWanted == true and self:_open("gifts"),
 		self._dailyWanted == true and self:_open("daily"),
-		self._ladder ~= nil
+		self._ladder ~= nil,
+		self._cozy ~= nil
 end
 
 -- The Rewards tile: shown while it holds anything; "Rewards" and a red "!" of what waits (gifts ready, plus one for
 -- a due stamp), else the time to the next gift, "Daily" with only the card, or "Rewards".
 function HUD._renderRewards(self: any)
 	local tile: Button.Button = self._rewards
-	local gifts, daily, ladder = self:_rewardParts()
-	tile.instance.Visible = gifts or daily or ladder
+	local gifts, daily, ladder, cozy = self:_rewardParts()
+	tile.instance.Visible = gifts or daily or ladder or cozy
 	local summary: { ready: number, nextIn: number?, left: number }? = if gifts
 		then self._gift
 		else nil
 	local ready = (if summary then summary.ready else 0)
 		+ (if daily and self._dailyDue then 1 else 0)
+		+ (if cozy and self._cozyReady then 1 else 0)
 	local nextIn: number? = if summary then summary.nextIn else nil
 	if ladder then
 		-- #2791: the sooner of the Tip Jar's next gift and the ladder's next step
@@ -3723,11 +3744,11 @@ function HUD._renderRewards(self: any)
 	end
 end
 
--- The Rewards tile's press: the list when two parts are live or the gift ladder is (#2791: its steps are rows of
--- the list), else the one window it holds.
+-- The Rewards tile's press: the list when two parts are live or the gift ladder or Cozy line is (#2791, #2798: rows
+-- of the list), else the one window it holds.
 function HUD._pressRewards(self: any)
-	local gifts, daily, ladder = self:_rewardParts()
-	if ladder or (gifts and daily) then
+	local gifts, daily, ladder, cozy = self:_rewardParts()
+	if ladder or cozy or (gifts and daily) then
 		self:_togglePop("rewards")
 	elseif gifts then
 		self._callbacks.openScreen("TipJar")
@@ -3791,7 +3812,16 @@ function HUD._popRowsFor(self: any, kind: string): { PopRow }
 	local rows: { PopRow } = {}
 	local callbacks: Callbacks = self._callbacks
 	if kind == "rewards" then
-		local gifts, daily = self:_rewardParts()
+		local gifts, daily, _, cozy = self:_rewardParts()
+		-- #2798: the Cozy Cafe line first; a press only closes the list (the bag is taken at the counter)
+		if cozy then
+			table.insert(rows, {
+				id = "Cozy",
+				icon = Theme.icons.home,
+				style = "ghost" :: Button.Style,
+				press = function() end,
+			})
+		end
 		-- #2791: the ladder's next steps first, each "1:45  +1 spin"; a press only closes the list
 		for index in self._ladder or {} do
 			table.insert(rows, {
@@ -3857,6 +3887,8 @@ function HUD._popText(self: any, id: string): string
 			else "Gifts"
 	elseif id == "Daily" then
 		return "Daily treat"
+	elseif id == "Cozy" then
+		return self._cozy or "Cozy gift"
 	elseif string.sub(id, 1, 6) == "Ladder" then
 		local row: GiftLadderLogic.Row? = (self._ladder or {})[tonumber(string.sub(id, 7)) or 0]
 		return if row then GiftLadderLogic.line(row) else "Gift"
@@ -3873,6 +3905,8 @@ function HUD._popReady(self: any, id: string): boolean
 		return summary ~= nil and summary.ready > 0
 	elseif id == "Daily" then
 		return self._dailyDue == true
+	elseif id == "Cozy" then
+		return self._cozyReady == true
 	end
 	return false
 end

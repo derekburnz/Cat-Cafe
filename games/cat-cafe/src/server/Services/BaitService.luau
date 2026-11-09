@@ -110,8 +110,9 @@ local function onUseLure(player: Player, rawLureId: unknown, rawBowl: unknown)
 		Luck.apply(Bait.oddsFor(lure.odds, Economy.level(profile, "lure_bowl")), luck),
 		rng:NextNumber()
 	)
-	-- #1897: the account's second bait brings a Rare or better, once (saved with the roll, so a rejoin keeps it)
-	local wow = Bait.wowDue(profile.firstWow, profile.stats.luresUsed)
+	-- #1897: the account's first bait (#2793: was the second) brings a Rare or better, once (saved with the roll, so a
+	-- rejoin keeps it)
+	local wow = Bait.wowDue(profile.firstWow)
 	if wow then
 		rarity = Bait.wowRarity(rarity, rng:NextNumber())
 		profile.firstWow = true
@@ -303,8 +304,8 @@ local function checkArrivals()
 				shown[bowl] = bait.placedAt
 				changed = true
 				-- #2774: the account's first bait lands while the tutorial has them out catching (12 set a first bait,
-				-- 7 came back for it), so say so wherever they are
-				if profile.stats.luresUsed == 1 and not bait.wow then
+				-- 7 came back for it), so say so wherever they are. #2793: it is the wow cat now, whose card plays too
+				if profile.stats.luresUsed == 1 then
 					local placedAt = bait.placedAt
 					table.insert(after, function()
 						Telemetry.firstBaitArrived(player, os.time() - placedAt)

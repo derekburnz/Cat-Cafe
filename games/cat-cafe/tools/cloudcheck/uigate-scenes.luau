@@ -1860,7 +1860,14 @@ local SCENES = {
 		assert(card.Visible, "uigate: no like gift card when idle (#1947)")
 		local action = card:FindFirstChild("Action", true)
 		local close = card:FindFirstChild("Close", true)
-		assert(action.Visible and action.Size == close.Size, "uigate: the gift card's Close is not the same size as its ask (#1947)")
+		-- #2705: on touch the like card has Got it alone, the row's width, and says to tap 👍 next time
+		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			assert(action.Visible and not close.Visible, "uigate: the like card on touch is not Got it alone (#2705)")
+			local label = action:FindFirstChildWhichIsA("TextLabel", true) :: TextLabel
+			assert(label and label.Text == "Got it", "uigate: the like card's button reads " .. tostring(label and label.Text) .. " on touch (#2705)")
+		else
+			assert(action.Visible and action.Size == close.Size, "uigate: the gift card's Close is not the same size as its ask (#1947)")
+		end
 	end },
 	{ "GiftCardFav", function()
 		UI.recap.lastInput = os.clock() - 30
@@ -1878,8 +1885,14 @@ local SCENES = {
 		UI.gift.show("like", { "+$12500", "1 Tip Potion" })
 		press("CatCafeGift", "Action")
 		watch:Disconnect()
-		assert(#reports == 1 and reports[1] == "like:like", "uigate: Like the game reported " .. table.concat(reports, ", ") .. " (#1947)")
 		local card = UIShim.playerGui:FindFirstChild("CatCafeGift"):FindFirstChild("Card", true)
+		if UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Scale").isTouch() then
+			-- #2705: Got it reports like:gotit and closes the card
+			assert(#reports == 1 and reports[1] == "like:gotit", "uigate: Got it reported " .. table.concat(reports, ", ") .. " (#2705)")
+			assert(not card.Visible, "uigate: the like card stays after Got it (#2705)")
+			return
+		end
+		assert(#reports == 1 and reports[1] == "like:like", "uigate: Like the game reported " .. table.concat(reports, ", ") .. " (#1947)")
 		assert(card.Visible and not card:FindFirstChild("Action", true).Visible, "uigate: the like card did not thank after Like (#1947)")
 	end },
 	-- #1919 (first-hour.md 5): while step 7 (twelve cats) is next, the goal card reads "Find N more cats" with the

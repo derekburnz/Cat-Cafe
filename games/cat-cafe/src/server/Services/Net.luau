@@ -34,6 +34,7 @@ local slowLimiters: { [string]: RateLimiter.RateLimiter } = {
 	Travel = RateLimiter.new(1, 1), -- a flood guard; TravelService answers TravelCooldownSeconds with a reason
 	LaunchCannon = RateLimiter.new(1, 1), -- hometown-cannon.md section 7: 1 a second
 	BuyDealerFood = RateLimiter.new(2, 1), -- recomputes the stock and answers with DealerStock every time
+	BuyDealerAll = RateLimiter.new(1, 2), -- #2573: a whole plan at once, so slower than one buy
 	UseLure = RateLimiter.new(2, 1), -- rolls a cat and rebuilds the bowl; 2 so both bowls can fill at once (#1161)
 	ResolveBait = RateLimiter.new(2, 1), -- the card retries after 6 s at most; 2 for both bowls' cats (#1161)
 	ClaimRichTip = RateLimiter.new(1, 1), -- the Collect button waits 3 s for an answer

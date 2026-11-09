@@ -141,6 +141,7 @@ UI.events = {
 	-- (index, lureId, window)   Buy on the night dealer screen (F32): forward lureId and window as BuyDealerFood (F59);
 	-- index is the food's row, unused since F59, and window the DealerStock's the screen showed (nil if none came)
 	buyDealerFood = Signal.new(),
+	buyDealerAll = Signal.new(), -- (window)   #2573: Buy all on the night dealer screen: forward as BuyDealerAll
 	claimRichTip = Signal.new(), -- ()   Collect on the rich tip marker over your cafe: forward as ClaimRichTip (F31)
 	-- design v0.5
 	tackle = Signal.new(), -- ()   the Tackle button or Q: lunge and forward as Tackle (F74, no target)
@@ -1013,6 +1014,9 @@ function UI.init(config: Types.InitConfig)
 		buy = function(index: number, lureId: string, window: number?)
 			UI.events.buyDealerFood:Fire(index, lureId, window)
 		end,
+		buyAll = function(window: number?)
+			UI.events.buyDealerAll:Fire(window)
+		end,
 		close = closeModal,
 	})
 	local dealerView = dealerScreen :: Dealer.Dealer
@@ -1182,6 +1186,9 @@ function UI.init(config: Types.InitConfig)
 		end,
 		bigPull = function(decorId: string, onUse: (() -> ())?)
 			UI.bigPull.piece(decorId, onUse)
+		end,
+		seen = function(tab: string)
+			UI.events.storeSeen:Fire(tab) -- #2571: the Treats tab opened, forwarded as MarkStoreSeen
 		end,
 	})
 	freshBoard = FreshCatchBoard.new(parent)
@@ -5447,7 +5454,7 @@ do
 		bang:update(camp.state)
 		camp.bang = bang
 		local market = MarketBang.new(into)
-		market:update(state.crates)
+		market:update(state.crates, (state :: any).storeSeen) -- #2571: and the Treats tab's "!"
 		camp.market = market
 		camp.rescue = RescueBang.new(into)
 		-- #2358: the Spin Wheel's "!", "🎡 Free spin!" or "🎡 2 spins to use", read again each second for 00:00 UTC
@@ -5619,7 +5626,7 @@ do
 	function UI.campExtras.crates(crates: { [string]: number }?)
 		local market = camp.market
 		if market then
-			market:update(crates)
+			market:update(crates, (state :: any).storeSeen) -- #2571: the Treats tab's "!" until it is opened
 		end
 		-- #2358: the Spin Wheel's "!" with the same render
 		local spinBang = camp.spin

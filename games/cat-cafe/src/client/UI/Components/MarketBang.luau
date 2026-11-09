@@ -9,7 +9,9 @@
 -- Roblox terms: a BillboardGui is 2D UI drawn at a point in the 3D world, always facing the camera. Its Adornee is
 -- the part it hangs from, and MaxDistance hides it past that many studs.
 --
---   MarketBang.new(parent)       the billboards; :update(crates) with the player's crates, :destroy()
+--   MarketBang.new(parent)       the billboards; :update(crates, storeSeen?) with the player's crates, :destroy()
+-- #2571: the Fish Market's own "!" also shows "🍪 Treats and perks to check out!" with no crates while the save's
+-- storeSeen says the Treats and perks tab was never opened (MarketBangLogic.treatsNew).
 -- The words (and whether it shows at all) are MarketBangLogic's, pure, so the cloud specs check them.
 -- #2358 (Derek2: "show an exclamation mark near spin when you have one"): MarketBang.new(parent, options) hangs the
 -- same "!" and bubble over other tagged models, options.tag (the Spin Wheel's "SpinWheel"), with options.line(value)
@@ -27,7 +29,8 @@ local Outline = require(script.Parent.Outline)
 local Theme = require(script.Parent.Parent.Theme)
 
 export type MarketBang = {
-	update: (self: MarketBang, value: any) -> (), -- the crates for the Fish Market's, or options.line's value
+	-- the crates for the Fish Market's (with the save's storeSeen, #2571), or options.line's value
+	update: (self: MarketBang, value: any, storeSeen: any?) -> (),
 	destroy: (self: MarketBang) -> (),
 }
 
@@ -142,10 +145,11 @@ function MarketBang.new(parent: Instance, options: Options?): MarketBang
 	local self = setmetatable({}, MarketBang) :: any
 	self._parent = parent
 	self._tag = if options then options.tag else MarketBang.TAG
-	self._line = if options then options.line else MarketBangLogic.line
+	self._line = if options then options.line else nil -- nil: the Fish Market's own words (MarketBangLogic.line)
 	self._name = if options then options.name else nil
 	self._bangs = {} :: { [Instance]: Bang }
 	self._crates = nil :: { [string]: number }?
+	self._treatsNew = false -- #2571
 	self._connections = {} :: { RBXScriptConnection }
 	local function refresh()
 		self:_apply()
@@ -186,8 +190,9 @@ function MarketBang.new(parent: Instance, options: Options?): MarketBang
 	return self :: MarketBang
 end
 
-function MarketBang.update(self: any, value: any)
+function MarketBang.update(self: any, value: any, storeSeen: any?)
 	self._crates = value
+	self._treatsNew = MarketBangLogic.treatsNew(storeSeen)
 	self:_apply()
 end
 
@@ -201,7 +206,10 @@ function MarketBang._still(_self: any, bang: Bang)
 end
 
 function MarketBang._apply(self: any)
-	local words = self._line(self._crates)
+	local line: ((any) -> string?)? = self._line
+	local words = if line ~= nil
+		then line(self._crates)
+		else MarketBangLogic.line(self._crates, self._treatsNew)
 	for _, model in CollectionService:GetTagged(self._tag) do
 		local bang: Bang? = self._bangs[model]
 		if bang == nil and words ~= nil then

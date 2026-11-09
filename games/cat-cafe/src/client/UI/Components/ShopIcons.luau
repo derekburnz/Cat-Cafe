@@ -160,6 +160,18 @@ local IDS: { [string]: string } = {
 	Icon_Hud_RoleWaiter = "rbxassetid://136846403223735",
 	Icon_Hud_RoleGreeter = "rbxassetid://113660188682260",
 	Icon_Hud_RoleEntertainer = "rbxassetid://122759156405446",
+	-- #2836 pass 2: the Settings rows' pictures (Model-Agent, group upload run 42714863021 (#2866), PR #2841); ShopIcons.setting
+	Icon_Hud_SetMusic = "rbxassetid://73874755116021",
+	Icon_Hud_SetMusicVolume = "rbxassetid://105488499187015",
+	Icon_Hud_SetSound = "rbxassetid://121444904115039",
+	Icon_Hud_SetSoundVolume = "rbxassetid://75716081933440",
+	Icon_Hud_SetShake = "rbxassetid://112459776492103",
+	Icon_Hud_SetGraphics = "rbxassetid://101020067002517",
+	Icon_Hud_SetOtherCats = "rbxassetid://103722542206840",
+	Icon_Hud_SetMapIcons = "rbxassetid://129607991876280",
+	Icon_Hud_SetAlerts = "rbxassetid://70517244790381",
+	Icon_Hud_SetRecap = "rbxassetid://80422313296946",
+	Icon_Hud_SetAutoEquip = "rbxassetid://76312765072688",
 	Icon_Hud_Drop = "rbxassetid://125743788740482",
 	Icon_Hud_Replay = "rbxassetid://71017921859211",
 	Icon_Hud_Tag = "rbxassetid://132164260519001",
@@ -358,6 +370,10 @@ for key, id in IDS do
 		BACKUP[id] = clean
 	end
 end
+-- #2866 (Derek2: "the bag image ... is using old images or potion placeholder"): the redrawn Bag (#2836) was uploaded
+-- under a user, not the Creampuff Games group that owns the game, so it does not load there; until the group's copy
+-- is in, a failed load falls back to the group's earlier backpack (#2453) instead of the window's potion glyph
+BACKUP[IDS.Icon_Hud_Bag] = "rbxassetid://88244676943674"
 
 -- #2500 (Derek2: "lots of store images when first opening store take a second to load and show old default images"):
 -- every picture the Store can show (its cards, tabs, shop-only cats, potion flasks and the clean symbols behind
@@ -577,6 +593,23 @@ local UPGRADE_ART: { [string]: string } = {
 	lure_bowl = "Bait",
 	lucky_cat = "LuckyCat",
 }
+-- #2836 pass 2: a Settings row's picture by setting key; the cat income row draws the coin and the tutorial row the
+-- HUD's Tutorial tile
+local SETTING_ART: { [string]: string } = {
+	music = "Icon_Hud_SetMusic",
+	musicVolume = "Icon_Hud_SetMusicVolume",
+	sfx = "Icon_Hud_SetSound",
+	sfxVolume = "Icon_Hud_SetSoundVolume",
+	screenShake = "Icon_Hud_SetShake",
+	lowPerformance = "Icon_Hud_SetGraphics",
+	showOtherCats = "Icon_Hud_SetOtherCats",
+	markers = "Icon_Hud_SetMapIcons",
+	shopAlerts = "Icon_Hud_SetAlerts",
+	sessionRecap = "Icon_Hud_SetRecap",
+	autoEquip = "Icon_Hud_SetAutoEquip",
+	catIncome = "Coins",
+	tutorialButton = "Icon_Hud_Tutorial",
+}
 local ROLE_ART: { [string]: string } = {
 	barista = "RoleBarista",
 	waiter = "RoleWaiter",
@@ -608,6 +641,12 @@ end
 function ShopIcons.role(role: string?): string?
 	local name = if type(role) == "string" then ROLE_ART[role] else nil
 	return if name then IDS["Icon_Hud_" .. name] else nil
+end
+
+-- A Settings row's picture by its setting key (#2836 pass 2), or nil for a row that keeps its glyph.
+function ShopIcons.setting(key: string?): string?
+	local name = if type(key) == "string" then SETTING_ART[key] else nil
+	return if name then IDS[name] else nil
 end
 
 return ShopIcons

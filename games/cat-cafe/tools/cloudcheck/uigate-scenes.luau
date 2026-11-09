@@ -2290,6 +2290,14 @@ local SCENES = {
 		assert(pop.Visible, "uigate: the Rewards list closed (#2798)")
 		words = row:FindFirstChild("Label", true)
 		assert(words and words.Text == "Cozy gift waiting!", "uigate: the waiting bag's row reads " .. tostring(words and words.Text) .. " (#2798)")
+		-- #2854 (Derek2: "make it auto claim if clicked"): a press on the waiting bag's row asks the server to take it
+		local asked = 0
+		local connection = UI.events.takeCozy:Connect(function()
+			asked += 1
+		end)
+		press("CatCafeHUD", "Pop.Cozy")
+		connection:Disconnect()
+		assert(asked == 1, "uigate: the Cozy gift row's press did not ask to take the bag (#2854)")
 	end },
 	-- #1893: step 8's Grand Opening banner
 	{ "GrandOpeningDone", function()
@@ -5250,7 +5258,8 @@ local SCENES = {
 		local bag = ShopIcons.hud("Bag")
 		assert(bag == "rbxassetid://96046816170155", "uigate: the Bag tile is not Model-Agent's backpack (#2453)")
 		assert(bag ~= ShopIcons.hud("Potion"), "uigate: the Bag tile shows the Potions bottle (#2453)")
-		assert(ShopIcons.backup(bag) == nil, "uigate: the Bag's backpack falls back to another picture (#2453)")
+		-- #2866: its only backup is the group's earlier backpack, never a bottle or the money bag
+		assert(ShopIcons.backup(bag) == "rbxassetid://88244676943674", "uigate: the Bag's backpack does not fall back to the earlier backpack (#2866)")
 		assert(bag ~= ShopIcons.clean("Bag"), "uigate: the Bag tile shows the gold money bag (#2453)")
 	end },
 	-- #1737: the Night Market banner at nightfall with the market cart's picture left of the title (was a moon emoji)
@@ -5781,6 +5790,28 @@ local SCENES = {
 		cafeEvent({ EventStartsAt = t + 10750, EventEndsAt = t + 10750 + 7200, EventRunning = false })
 		local chip = assertEventChip(1)
 		assert(chip.Text == "⏳ Cafe Party in 2:59", "uigate: the event chip reads " .. chip.Text .. " (#2487)")
+	end },
+	-- #2860 (Derek2: the event "flashes and shows during catching minigames when it should be hidden"): the chip's
+	-- countdown repaints every second, and mid-catch it stays down; after the catch it is back
+	{ "CafeEventCatch", function()
+		local t = workspace:GetServerTimeNow()
+		Scenes._cafeEvent = true
+		cafeEvent({ EventStartsAt = t - 20, EventEndsAt = t + 7180, EventRunning = true })
+		local chip = assertEventChip(2) -- running: "ends in 1:59:40" repaints every second
+		local nextLine = UIShim.playerGui:FindFirstChild("EventNext", true) :: TextLabel
+		startCatch("gate_eventchip", "Rare", 3, 0.2, 0.9)
+		UIShim.advance(0.3)
+		assert(UI.catch.circlesActive(), "uigate: the catch circles did not start")
+		for _ = 1, 3 do
+			UIShim.advance(1.1)
+			UI.cafeEvent.tick()
+			assert(not chip.Visible and not nextLine.Visible, "uigate: the Cafe Event chip showed mid-catch on its tick (#2860)")
+		end
+		UI.catch.hideCircles()
+		UI.catch.hide()
+		UIShim.advance(0.5)
+		UI.cafeEvent.tick()
+		assert(chip.Visible and nextLine.Visible, "uigate: the Cafe Event chip did not come back after the catch (#2860)")
 	end },
 	-- #2487: the party running: the start banner and the gold chip with the end and the next shower
 	{ "CafeEventRunning", function()

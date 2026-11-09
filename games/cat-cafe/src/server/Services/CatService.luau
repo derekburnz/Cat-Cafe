@@ -1159,6 +1159,36 @@ local function attachPacked(player: Player, carry: Carry)
 	character:SetAttribute("PackedCatId", carry.def.id)
 end
 
+-- #2856 (Derek2 2026-11-09: "make bag shown always no reason to have it go away its a good flex"): puts the worn pack
+-- back when it has gone or come loose, for example when the avatar's appearance finished loading after spawn and
+-- rebuilt the torso it was welded to, with the packed cat back in it. A no-op while it is held, without a Backpack,
+-- or with no living character.
+local PACK_CHECK_SECONDS = 2
+local function keepBackpack(player: Player)
+	local character = player.Character
+	if
+		character == nil
+		or character.Parent == nil
+		or not hasBackpack(player)
+		or HeldCat.packHeld(character)
+	then
+		return
+	end
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if humanoid == nil or humanoid.Health <= 0 then
+		return
+	end
+	local old = HeldCat.pack(character)
+	if old ~= nil then
+		old:Destroy()
+	end
+	wearBackpack(player)
+	local carry = packed[player]
+	if carry ~= nil and HeldCat.pack(character) ~= nil then
+		attachPacked(player, carry)
+	end
+end
+
 -- #2565: takes the packed cat off the back (nil when none), its model gone.
 local function endPacked(player: Player): Carry?
 	local carry = packed[player]
@@ -2526,6 +2556,11 @@ local function onDropCat(player: Player)
 	-- #2565: the first press drops the held cat, the next the packed one. #2731: with only the packed cat, Drop
 	-- (now on the HUD for it) unpacks and drops it; while the areas are shut for this player it says why not, as for a
 	-- held cat, and stays packed
+	-- #2873: not mid catch or rescue (the gamepad's DPad down, G and the HUD all land here), so a press meant for the
+	-- circles never lets a cat go
+	if CatService.inMinigame(player) then
+		return
+	end
 	if carrying[player] == nil then
 		if packed[player] ~= nil and not openFor(DataService.get(player)) then
 			Net.toast(player, "Keep hold of it, the areas are closed.", "warn")
@@ -2672,7 +2707,27 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		wearBackpack(player)
 	end)
 
+	-- #2856: the pack stays on. Again once the avatar's appearance is in (it can rebuild the torso), and a light
+	-- check every PACK_CHECK_SECONDS for any other way it came off.
+	task.spawn(function()
+		while true do
+			task.wait(PACK_CHECK_SECONDS)
+			for _, player in Players:GetPlayers() do
+				local ok, err = pcall(function()
+					keepBackpack(player)
+				end)
+				if not ok then
+					warn("[CatService] keepBackpack: " .. tostring(err))
+				end
+			end
+		end
+	end)
+
 	Players.PlayerAdded:Connect(function(player)
+		player.CharacterAppearanceLoaded:Connect(function()
+			task.wait(0.1)
+			keepBackpack(player)
+		end)
 		player.CharacterAdded:Connect(function(character)
 			local body = character:WaitForChild("Humanoid", 10)
 			if body ~= nil and body:IsA("Humanoid") then

@@ -126,6 +126,7 @@ function Codes.new(callbacks: Callbacks): Codes
 		subtitle = "From the Codes Cat",
 		color = Theme.colors.berry,
 		icon = "🎟️",
+		image = ShopIcons.hud("Codes"), -- #2836: the drawn badge (the emoji until it loads)
 		size = UDim2.new(1, 0, 0, MAX_SIZE.Y),
 		onClose = callbacks.close,
 	})

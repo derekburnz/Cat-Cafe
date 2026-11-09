@@ -136,7 +136,32 @@ local IDS: { [string]: string } = {
 	Icon_Hud_Areas = "rbxassetid://111104265458192",
 	Icon_Hud_Potions = "rbxassetid://128266096924783",
 	Icon_Hud_Bait = "rbxassetid://118400972292559",
-	Icon_Hud_Bag = "rbxassetid://88244676943674", -- #2453: the Bag tile's backpack (Model-Agent, uploaded 2026-11-08)
+	-- #2836: the Bag tile's backpack, redrawn (Model-Agent, upload run 42688251868); was 88244676943674 (#2453)
+	Icon_Hud_Bag = "rbxassetid://124246973096601",
+	-- #2836 (Derek2 11-09: "make sure all our buttons/icons are high quality"): the icons that were still emoji, drawn
+	-- by Model-Agent (PR #2837, upload run 42688251868): window badges, Mystery Market items, Upgrades rows, staff roles
+	-- and the glyphs of ShopIcons.glyph
+	Icon_Hud_MysteryMarket = "rbxassetid://116751810249360",
+	Icon_Hud_Codes = "rbxassetid://80735815355042",
+	Icon_Hud_Collector = "rbxassetid://123860237793173",
+	Icon_Hud_CornerShop = "rbxassetid://115204529463316",
+	Icon_Hud_LawnStall = "rbxassetid://125224598922293",
+	Icon_Hud_RankUp = "rbxassetid://115771653557414",
+	Icon_Hud_Bellhop = "rbxassetid://89455473121061",
+	Icon_Hud_YardSale = "rbxassetid://74792618546082",
+	Icon_Hud_BigBackpack = "rbxassetid://139185312157671",
+	Icon_Hud_LongNet = "rbxassetid://120097146886878",
+	Icon_Hud_Tables = "rbxassetid://118517793906387",
+	Icon_Hud_Espresso = "rbxassetid://95697586145802",
+	Icon_Hud_LuckyCat = "rbxassetid://87647361867703",
+	Icon_Hud_RoleBarista = "rbxassetid://80086649414021",
+	Icon_Hud_RoleWaiter = "rbxassetid://111517233480044",
+	Icon_Hud_RoleGreeter = "rbxassetid://115056498460382",
+	Icon_Hud_RoleEntertainer = "rbxassetid://77187740517808",
+	Icon_Hud_Drop = "rbxassetid://94837885389516",
+	Icon_Hud_Replay = "rbxassetid://118937447656193",
+	Icon_Hud_Tag = "rbxassetid://101437335863206",
+	Icon_Hud_Plate = "rbxassetid://102816311357112",
 	-- #1665: the 8-slice Spin wheel (#1603's render; upload run 42119348490, 11-05), every spin picture prefers it
 	Icon_Hud_Spin = "rbxassetid://137218266791913",
 	-- #1204: Model-Agent's potion flasks (#1193), ShopIcons.potion prefers them; re-uploaded 11-05 with the Cat Whistles
@@ -540,6 +565,47 @@ end
 function ShopIcons.net(level: number?): string?
 	local owned = if type(level) == "number" and level == level then math.floor(level) else 0
 	return IDS["Net_L" .. math.clamp(owned + 2, 1, NETS)] -- level n holds Net_L(n + 1) and offers the next
+end
+
+-- #2836 (Derek2 11-09: "make sure all our buttons/icons are high quality"): the drawn pictures Model-Agent made for
+-- the icons that were still emoji (PR #2837). An id still in moderation draws blank, so the emoji shows until then.
+local UPGRADE_ART: { [string]: string } = {
+	tables = "Tables",
+	espresso = "Espresso",
+	lure_bowl = "Bait",
+	lucky_cat = "LuckyCat",
+}
+local ROLE_ART: { [string]: string } = {
+	barista = "RoleBarista",
+	waiter = "RoleWaiter",
+	greeter = "RoleGreeter",
+	entertainer = "RoleEntertainer",
+}
+
+-- A glyph IconArt.set draws as a drawn picture wherever it shows (the Drop buttons' ⬇️, Settings' 🎬 Replay row, the
+-- Mythical tag prize's 🏷️ and the 🍽️ of a food with no picture of its own), or nil. Glyphs that also mean other
+-- things (☕ is the barista and the espresso machine) are drawn by their callers instead (upgrade, role).
+local GLYPH_ART: { [string]: string } = {
+	["⬇️"] = "Drop",
+	["🎬"] = "Replay",
+	["🏷️"] = "Tag",
+	["🍽️"] = "Plate",
+}
+function ShopIcons.glyph(glyph: string?): string?
+	local name = if type(glyph) == "string" then GLYPH_ART[glyph] else nil
+	return if name then IDS["Icon_Hud_" .. name] else nil
+end
+
+-- An Upgrades row's picture by upgrade id (the Net row has its own, ShopIcons.net), or nil.
+function ShopIcons.upgrade(id: string?): string?
+	local name = if type(id) == "string" then UPGRADE_ART[id] else nil
+	return if name then IDS["Icon_Hud_" .. name] else nil
+end
+
+-- A staff role's picture (barista, waiter, greeter, entertainer), or nil.
+function ShopIcons.role(role: string?): string?
+	local name = if type(role) == "string" then ROLE_ART[role] else nil
+	return if name then IDS["Icon_Hud_" .. name] else nil
 end
 
 return ShopIcons

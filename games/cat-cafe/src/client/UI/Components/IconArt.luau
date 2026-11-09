@@ -178,7 +178,7 @@ end
 
 function IconArt.set(label: TextLabel, glyph: string?, scale: number?)
 	choices[label] = nil
-	local whole = if glyph then Theme.glyphImages[glyph] else nil
+	local whole = if glyph then Theme.glyphImages[glyph] or ShopIcons.glyph(glyph) else nil -- #2836: ShopIcons.glyph
 	local clean = if glyph then Theme.cleanGlyphs[glyph] else nil
 	if (whole == nil or whole == "") and clean then
 		-- the HUD's 3D button picture when there is one (#1185), so a window's badge matches its HUD tile (#1203: the

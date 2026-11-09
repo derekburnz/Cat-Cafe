@@ -152,6 +152,7 @@ function BaitBowl.new(callbacks: Callbacks): BaitBowl
 		name = "Bait",
 		color = Theme.colors.mintDark,
 		icon = Theme.upgradeIcons.lure_bowl,
+		image = ShopIcons.hud("Bait"), -- #2836: the drawn badge (the emoji until it loads)
 		title = TITLE,
 		subtitle = SUBTITLE,
 		size = UDim2.fromScale(1, 1),

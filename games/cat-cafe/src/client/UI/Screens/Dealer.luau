@@ -37,6 +37,7 @@ local Outline = require(script.Parent.Parent.Components.Outline)
 local Panel = require(script.Parent.Parent.Components.Panel)
 local PotionLogic = require(script.Parent.Parent.Components.PotionLogic)
 local Scale = require(script.Parent.Parent.Scale)
+local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Theme = require(script.Parent.Parent.Theme)
 local Types = require(script.Parent.Parent.Types)
 
@@ -132,6 +133,7 @@ function Dealer.new(callbacks: Callbacks): Dealer
 		name = "Dealer",
 		color = Theme.colors.berry,
 		icon = Theme.icons.moon,
+		image = ShopIcons.hud("NightMarket"), -- #2836: the drawn badge (the emoji until it loads)
 		title = "Night dealer",
 		subtitle = "Rare foods for your bait bowl, sold only at night",
 		size = UDim2.fromScale(1, 1),

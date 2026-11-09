@@ -133,6 +133,7 @@ function CornerShop.new(callbacks: Callbacks): CornerShop
 		subtitle = "Coins only",
 		color = Theme.colors.caramel,
 		icon = "🏪",
+		image = ShopIcons.hud("CornerShop"), -- #2836: the drawn badge (the emoji until it loads)
 		size = UDim2.fromScale(1, 1), -- the modal's area, so a phone keeps it clear of Roblox's top bar
 		onClose = callbacks.close,
 	})

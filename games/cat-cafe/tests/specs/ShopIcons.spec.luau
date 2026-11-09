@@ -284,5 +284,27 @@ return function()
 				seen[ShopIcons.storeTab("Passes") :: string] or ShopIcons.storeTab("Passes") == nil
 			).to.equal(true)
 		end)
+
+		it("draws the #2836 icons that were emoji", function()
+			local names = { "MysteryMarket", "Codes", "Collector", "CornerShop", "LawnStall", "RankUp", "Bellhop" }
+			for _, name in { "YardSale", "BigBackpack", "LongNet", "NightMarket" } do
+				table.insert(names, name)
+			end
+			for _, name in names do
+				expect(ShopIcons.hud(name)).never.to.equal(nil)
+			end
+			for _, id in { "tables", "espresso", "lure_bowl", "lucky_cat" } do
+				expect(ShopIcons.upgrade(id)).never.to.equal(nil)
+			end
+			expect(ShopIcons.upgrade("net")).to.equal(nil) -- the Net row has ShopIcons.net
+			for _, role in { "barista", "waiter", "greeter", "entertainer" } do
+				expect(ShopIcons.role(role)).never.to.equal(nil)
+			end
+			expect(ShopIcons.role(nil)).to.equal(nil)
+			for _, glyph in { "⬇️", "🎬", "🏷️", "🍽️" } do
+				expect(ShopIcons.glyph(glyph)).never.to.equal(nil)
+			end
+			expect(ShopIcons.glyph("🐱")).to.equal(nil)
+		end)
 	end)
 end

@@ -7,6 +7,7 @@ local CatStats = require(script.Parent.CatStats)
 local Catalog = require(script.Parent.Catalog)
 local Config = require(script.Parent.Config)
 local CornerShop = require(script.Parent.CornerShop)
+local CozyCafe = require(script.Parent.CozyCafe)
 local DailyTreat = require(script.Parent.DailyTreat)
 local EquipBest = require(script.Parent.EquipBest)
 local FreshCatch = require(script.Parent.FreshCatch)
@@ -327,6 +328,7 @@ function ProfileSchema.template(now: number): Types.PlayerProfile
 		firstWow = false,
 		likeGift = false,
 		favGift = false,
+		cozy = CozyCafe.fresh(),
 		eventRewards = {},
 		eventLast = "",
 	}
@@ -1026,6 +1028,7 @@ function ProfileSchema.migrate(raw: any, now: number): Types.PlayerProfile
 	-- #1947 (version 42): the like and favourite gifts
 	profile.likeGift = raw.likeGift == true
 	profile.favGift = raw.favGift == true
+	profile.cozy = CozyCafe.sanitize(raw.cozy) -- #2798, no version
 	-- #2486 (version 43): the Cafe Event reward pieces (string ids of at most 64 characters, whole times) and the
 	-- last event rewarded
 	if type(raw.eventRewards) == "table" then

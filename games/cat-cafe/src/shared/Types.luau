@@ -242,6 +242,9 @@ export type IndexPrize = {
 	passXp: number?, -- #1645 (quests.md section 8): Cafe Pass XP for the running season (CafePass.addXp)
 }
 
+-- #2798: the Cozy Cafe bags given on `day` (a UTC day number)
+export type CozySave = { day: number, bags: number }
+
 -- The Cafe Pass (#1645, cafe-pass.md). A paid track's named item, kept forever once claimed: a chat tag, an accessory,
 -- a uniform colour, a decor piece, a sign frame or the season cat.
 -- #1624 (store-pass-looks.md): the saved theme and uniform picks (shared/Looks ids), nil for Classic.
@@ -1161,6 +1164,9 @@ export type PlayerProfile = {
 	-- #1947 (save version 42, like-prompts.md section 2): the like and favourite gifts were paid (shared/PlaytimeGifts)
 	likeGift: boolean,
 	favGift: boolean,
+	-- #2798 (shared/CozyCafe): Cozy Cafe bags given on a UTC day. No VERSION bump: an older server dropping it can only
+	-- give that day's few small bags again
+	cozy: CozySave,
 	-- #2486 (save version 43, live-events.md section 2e): each Cafe Event reward piece given, cosmeticId -> os.time()
 	-- it was first given, and the last event (its reward key, CafeEvents.rewardKey) this account was rewarded in, ""
 	-- for none; the "Cafe Party Guest" badge reads it

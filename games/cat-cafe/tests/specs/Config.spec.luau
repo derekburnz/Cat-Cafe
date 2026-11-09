@@ -180,6 +180,15 @@ return function()
 		CollectorGoldMultiplier = 3,
 		CollectorRollMin = 0.8,
 		CollectorRollMax = 1.5,
+		-- #2798 (retention-ideas.md idea 10): Cozy Cafe
+		CozyStartSeconds = 60,
+		CozyBagSeconds = 180,
+		CozyBagsPerDay = 8,
+		CozyCoinSeconds = 60,
+		CozyLureChance = 0.25,
+		CozyFishChance = 0.05,
+		CozyFishMin = 1,
+		CozyFishMax = 3,
 		-- the Spin Wheel station (F49, section 11c, design v0.6)
 		SpinStationRange = 14,
 		SpinCooldownSeconds = 4,
@@ -511,6 +520,7 @@ return function()
 				EventShowerAreaWeights = true, -- #2486: a table, checked in CafeEvents.spec
 				UpdateEventId = true, -- #2766: the next update's Roblox Event id, set per Event, checked in EventRsvp.spec
 				UpdateEventStartsAt = true, -- #2766: that Event's start (os.time(), UTC), set per Event
+				CozyLure = true, -- #2798: a lure id, checked in CozyCafe.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

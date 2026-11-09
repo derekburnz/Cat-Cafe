@@ -72,6 +72,9 @@ local phase: string? = nil
 local bedGeneration = 0
 local catchToken = 0
 local zone: string? = nil
+local areaSong: string? = nil -- #2651: the area song the music follows (Audio.setZone), nil for the cafe music
+local AREA_LEAVE_DELAY = 4 -- seconds out of an area before its song gives way
+local areaLeaveRun = 0 -- bumped on every area change, so a stale leave timer does nothing
 local music: Bed = { cue = nil, sound = nil, ducks = {} }
 local ambience: Bed = { cue = nil, sound = nil, ducks = {} }
 
@@ -461,7 +464,10 @@ local function playSong(generation: number, fromTop: boolean)
 		crossfade(music, "musicTutorial", MUSIC_FADE)
 		return
 	end
-	local shuffle = Logic.shuffleSongs(shuffleCues, has)
+	-- #2651: in an area with its own song (the Desert, the Ruins) it plays in place of the shuffle, the jukebox pick
+	-- and the rotation, two sections at a time with the usual rests.
+	local area = areaSong
+	local shuffle = if area == nil then Logic.shuffleSongs(shuffleCues, has) else {}
 	if #shuffle > 0 then -- #2077: random songs one after another, never the same twice in a row
 		local cueId = Logic.nextSong(shuffle, lastSong, rng:NextNumber())
 		if cueId ~= nil then
@@ -479,13 +485,14 @@ local function playSong(generation: number, fromTop: boolean)
 			return
 		end
 	end
-	local picked = Logic.jukeboxSong(jukeboxCue, has)
+	local picked = if area == nil then Logic.jukeboxSong(jukeboxCue, has) else nil
 	if picked ~= nil then -- the pick loops on its own in place of the day and night rotation
 		lastSong = nil
 		crossfade(music, picked, MUSIC_FADE)
 		return
 	end
-	local cueId = Logic.nextSong(Logic.songsFor(phase, has), lastSong, rng:NextNumber())
+	local songs = if area ~= nil then { area } else Logic.songsFor(phase, has)
+	local cueId = Logic.nextSong(songs, lastSong, rng:NextNumber())
 	if cueId == nil then
 		crossfade(music, nil, MUSIC_FADE)
 		return
@@ -2102,6 +2109,27 @@ end
 function Audio.setZone(newZone: string?)
 	zone = newZone
 	refreshAmbience()
+	-- #2651: walking into an area with its own song switches to it at once; walking out waits AREA_LEAVE_DELAY, so a
+	-- step through a gap between the area's zone boxes does not bounce the music.
+	local target = Logic.areaSongFor(zone, has)
+	if target == areaSong then
+		return
+	end
+	if target ~= nil then
+		areaLeaveRun += 1 -- stepping back in cancels a pending leave
+		areaSong = target
+		refreshMusic(false)
+		return
+	end
+	areaLeaveRun += 1
+	local run = areaLeaveRun
+	task.delay(AREA_LEAVE_DELAY, function()
+		-- only the latest leave counts, and only if the zone now (not the one left) still has no area song
+		if run == areaLeaveRun and areaSong ~= nil and Logic.areaSongFor(zone, has) == nil then
+			areaSong = nil
+			refreshMusic(false)
+		end
+	end)
 end
 
 -- Connects every moment Audio knows to its sounds. `moments` maps a moment name to a signal with :Connect

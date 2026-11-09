@@ -145,6 +145,34 @@ local Cues: { [string]: Cue } = {
 		looped = true,
 		seconds = 58.182, -- 16 bars at 66 BPM
 	}, -- "Starlight Purr"
+	-- #2651 (Tier 6 and 7): each late area has its own song, played in place of the cafe music while you are in it
+	-- (Audio.setZone, Logic.areaSongFor). Both share one upload, the MusicAreas sheet; silent (the cafe music plays on)
+	-- until sheetMusicAreas has an id. Rendered by synth/music.py, which prints the regions.
+	sheetMusicAreas = {
+		ids = {},
+		group = "Music",
+		volume = 0.3,
+	}, -- stereo, 179.2 s: Sunstone Caravan, Glyph Halls with 0.5 s of silence between
+	musicAreaDesert = {
+		ids = {},
+		sheet = "sheetMusicAreas",
+		region = { 0.000, 87.273 },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+		seconds = 87.273, -- 32 bars at 88 BPM
+		sections = 4,
+	}, -- "Sunstone Caravan" (the Desert, Tier 6)
+	musicAreaRuins = {
+		ids = {},
+		sheet = "sheetMusicAreas",
+		region = { 87.773, 179.201 },
+		group = "Music",
+		volume = 0.3,
+		looped = true,
+		seconds = 91.429, -- 32 bars at 84 BPM
+		sections = 4,
+	}, -- "Glyph Halls" (the Ruins, Tier 7)
 	-- 2026-11-05 (#1541, Derek): the tutorial plays its own calm song instead of the day and night songs, from the intro
 	-- cutscene and through the first tutorial steps, until it is skipped or done. Uploaded by upload-audio run
 	-- 42068848366.

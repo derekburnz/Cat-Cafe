@@ -86,6 +86,18 @@ function Logic.songsFor(phase: string?, has: (string) -> boolean): { string }
 	return songs
 end
 
+-- #2651: the song of the area a zone names ("Desert" plays musicAreaDesert), or nil when the zone has none (the cafe
+-- and the town areas) or its file is not uploaded yet. Played in place of the cafe music while you are in it.
+function Logic.areaSongFor(zone: string?, has: (string) -> boolean): string?
+	if zone == nil or zone == "" then
+		return nil
+	end
+	local name = "musicArea"
+		.. string.upper(string.sub(zone, 1, 1))
+		.. string.lower(string.sub(zone, 2))
+	return if has(name) then name else nil
+end
+
 -- The next song, picked by `roll` (0 to 1): never the one that just played while there is another; nil for none.
 function Logic.nextSong(songs: { string }, last: string?, roll: number): string?
 	local choices: { string } = {}

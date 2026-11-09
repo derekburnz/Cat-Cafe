@@ -24,6 +24,7 @@ return function()
 					roadmapOpen = false,
 					sessionRecap = true,
 					autoEquip = true, -- #1955: on for a new account
+					catIncome = true, -- #2551: the rate tags show, as they always did
 				})
 				for key in pairs(Settings.defaults() :: any) do
 					expect(Settings.kinds[key]).to.be.ok()
@@ -110,7 +111,16 @@ return function()
 				roadmapOpen = false,
 				sessionRecap = true,
 				autoEquip = false, -- #1955: a save from before Auto Equip starts with it off
+				catIncome = true, -- #2551: a save from before Cat income has the tags on
 			})
+		end)
+
+		it("keeps Cat income as saved, a switch (#2551)", function()
+			expect(Settings.kinds.catIncome).to.equal("switch")
+			expect(Settings.sanitize({ catIncome = false }).catIncome).to.equal(false)
+			expect(Settings.sanitize({ catIncome = "no" }).catIncome).to.equal(true)
+			expect(Settings.clean("catIncome", false)).to.equal(false)
+			expect(Settings.clean("catIncome", 0)).never.to.be.ok()
 		end)
 
 		it("gives the defaults for a save with no settings", function()

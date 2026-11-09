@@ -103,6 +103,7 @@ local TILE_COLORS: { [string]: Color3 } = {
 	screenShake = Theme.colors.warn,
 	lowPerformance = Theme.colors.mintDark,
 	showOtherCats = Theme.colors.caramel,
+	catIncome = Theme.colors.gold, -- #2551
 	markers = Theme.colors.good,
 	tutorialButton = Theme.colors.gold,
 	replayTutorial = Theme.colors.gold,

@@ -623,6 +623,8 @@ local function applyState(s: Types.PlayerState)
 		-- Derek2 live 11-06 (the Starter Bundle card never showed): these were sent but never copied, so the Store,
 		-- the money card's Boosts list, the Style tab's sign, theme and uniform rows and the Trades page read nil
 		starterBought = s.starterBought, -- #1625: the Starter Bundle card shows while false
+		-- #2555: the free Bellhop Cat's stand "!" (#2501) and its speech bubble show only while this is false
+		starterCatClaimed = s.starterCatClaimed,
 		storeSeen = s.storeSeen, -- #1823 §4: the Store tabs' New dots
 		signStyles = s.signStyles, -- #1625: the Style tab's sign row
 		-- #2007: "" for the plain sign, as UI.update skips a nil and the old pick stayed gold

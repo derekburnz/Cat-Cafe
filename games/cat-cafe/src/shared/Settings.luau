@@ -31,6 +31,9 @@ Settings.kinds = {
 	-- #1955 (auto-equip.md): Equip Best runs by itself after a new or better cat. On for new accounts; a save from
 	-- before it has no value and reads as off until the player turns it on (Settings.sanitize)
 	autoEquip = "switch",
+	-- #2551 (Derek2 11-09: "a toggle to turn it off"): the "+$3/s" rate tags over working cats in every cafe (UI
+	-- WorldTags). On by default, as they always showed; a save from before it has no value and reads as on
+	catIncome = "switch",
 } :: { [string]: Kind }
 
 -- A choice key -> the strings it takes, the default first.
@@ -54,6 +57,7 @@ function Settings.defaults(): Types.Settings
 		roadmapOpen = false,
 		sessionRecap = true,
 		autoEquip = true,
+		catIncome = true,
 	}
 end
 

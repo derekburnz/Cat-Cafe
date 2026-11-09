@@ -620,6 +620,7 @@ local function onRespond(player: Player, rawId: unknown, rawAccept: unknown)
 	if not accept then
 		if asker ~= nil then
 			Net.toast(asker, string.format(Trade.Messages.declined, player.DisplayName), "info")
+			Net.fire(asker, "TradeAskEnded", player.UserId) -- #2550: the asker's Trade button comes back
 		end
 		return
 	end
@@ -866,6 +867,9 @@ local function step()
 		local asker, target = playerOf(request.from), playerOf(request.to)
 		if asker ~= nil and target ~= nil then
 			Net.toast(asker, string.format(Trade.Messages.noAnswer, target.DisplayName), "info")
+		end
+		if asker ~= nil then
+			Net.fire(asker, "TradeAskEnded", request.to) -- #2550
 		end
 	end
 	local open: { TradeBook.OpenTrade } = {}

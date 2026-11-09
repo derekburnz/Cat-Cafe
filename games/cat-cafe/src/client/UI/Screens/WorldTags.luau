@@ -1,10 +1,14 @@
 --!strict
 -- Small labels over the life in every cafe (world-and-feel section 4):
 --   Rate tags (Steal a Brainrot): the cat's name in white over "+$3/s" in its rarity colour, over each working cat
---   within 40 studs. Cats are the server's models tagged WorkingCat with Rate, Rarity, Napping and DisplayName (the
---   owner's name for it after the server's filter, else the breed; F33) attributes; a napping cat shows no tag.
+--   within RATE_DISTANCE studs. Cats are the server's models tagged WorkingCat with Rate, Rarity, Napping and
+--   DisplayName (the owner's name for it after the server's filter, else the breed; F33) attributes; a napping cat
+--   shows no tag.
 --   At night (Clock Phase "night") the tag shows the night share behind a moon, "🌙 +$2/s", Rate x
 --   NightIncomeMultiplier, the same number as the cafe's name sign (reviewer N88): the cats curl up but still earn.
+--   #2551 (Derek2 11-09, of a cafe he walked past: "honestly its a good addition ... and a toggle to turn it off"):
+--   they read from 70 studs (40 before, so passing a cafe showed them for a moment), keep a few pixels' minimum size
+--   far off, and the Settings screen's Cat income switch (setRates) hides them all. Near ones look as before.
 --   Order bubbles: a white bubble with the customer's order over their head from the counter on, which pops into a
 --   heart once they are served, then fades. Customers are this client's own models in Workspace.LocalCustomers with
 --   Order and Served attributes (CustomerController). F90 (cats-make-orders.md): Order is a menu id (coffee up to
@@ -36,13 +40,16 @@ local Catalog = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("C
 local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Config"))
 
 export type WorldTags = {
+	setRates: (self: WorldTags, on: boolean) -> (), -- #2551: the Cat income switch
 	destroy: (self: WorldTags) -> (),
 }
 
 local CAT_TAG = "WorkingCat"
 local CUSTOMERS = "LocalCustomers"
-local MAX_DISTANCE = 40 -- world-and-feel section 4: rate tags within 40 studs
+local MAX_DISTANCE = 40 -- world-and-feel section 4: the order and making bubbles within 40 studs
+local RATE_DISTANCE = 70 -- #2551: the rate tags within 70 studs (40 before), the whole cafe from its door
 local RATE_SIZE = Vector2.new(4, 1.1) -- studs
+local RATE_MIN = Vector2.new(30, 14) -- #2551: pixels on top of the studs, so a far tag stays readable
 local NAME_HEIGHT = 0.7 -- studs, the name line over the rate
 local BUBBLE_SIZE = 1.7 -- studs, square
 local HEART_SECONDS = 1.6 -- the heart stays this long, then fades
@@ -106,7 +113,8 @@ local function anchorOf(model: Instance): (BasePart?, number)
 	return part, top - part.Position.Y
 end
 
-function WorldTags.new(): WorldTags
+-- `rates`: the Cat income switch (#2551), on when left out.
+function WorldTags.new(rates: boolean?): WorldTags
 	local self = setmetatable({}, WorldTags) :: any
 	self._connections = {} :: { RBXScriptConnection }
 	self._watched = {} :: { [Instance]: { RBXScriptConnection } }
@@ -116,6 +124,7 @@ function WorldTags.new(): WorldTags
 	self._making = {} :: { [Instance]: Making }
 	self._fill = nil :: RBXScriptConnection?
 	self._night = false
+	self._rates = rates ~= false -- #2551: the Cat income switch
 	self._destroyed = false
 
 	for _, cat in CollectionService:GetTagged(CAT_TAG) do
@@ -199,9 +208,9 @@ function WorldTags._attachCat(self: any, cat: Instance)
 	end
 	local billboard: BillboardGui = Create("BillboardGui", {
 		Name = "CatCafeRateTag",
-		Size = UDim2.fromScale(RATE_SIZE.X, RATE_SIZE.Y + NAME_HEIGHT),
+		Size = UDim2.new(RATE_SIZE.X, RATE_MIN.X, RATE_SIZE.Y + NAME_HEIGHT, RATE_MIN.Y),
 		StudsOffsetWorldSpace = Vector3.new(0, height + (RATE_SIZE.Y + NAME_HEIGHT) / 2 + 0.3, 0),
-		MaxDistance = MAX_DISTANCE,
+		MaxDistance = RATE_DISTANCE,
 		LightInfluence = 0,
 		ResetOnSpawn = false,
 	})
@@ -233,7 +242,7 @@ function WorldTags._attachCat(self: any, cat: Instance)
 		local rate = cat:GetAttribute("Rate")
 		local napping = cat:GetAttribute("Napping") == true
 		local rarity = cat:GetAttribute("Rarity")
-		local show = not napping and type(rate) == "number" and rate > 0
+		local show = self._rates == true and not napping and type(rate) == "number" and rate > 0
 		billboard.Enabled = show
 		if show then
 			local night: boolean = self._night
@@ -265,6 +274,17 @@ function WorldTags._attachCat(self: any, cat: Instance)
 	}
 	render()
 	making()
+end
+
+-- #2551: the Cat income switch. Off hides every rate tag (the making and order bubbles stay); on draws them again.
+function WorldTags.setRates(self: any, on: boolean)
+	if self._rates == on then
+		return
+	end
+	self._rates = on
+	for _, render in self._renders do
+		render()
+	end
 end
 
 -- Making bubbles (F90) --------------------------------------------------------------------------------------

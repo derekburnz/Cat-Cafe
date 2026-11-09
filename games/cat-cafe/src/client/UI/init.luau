@@ -1031,6 +1031,8 @@ function UI.init(config: Types.InitConfig)
 				locationMarkers:setEnabled(value == true)
 			elseif key == "screenShake" then
 				Motion.screenShake = value == true
+			elseif key == "catIncome" and worldTags ~= nil then
+				worldTags:setRates(value == true) -- #2551: a tap, or the saved value from a sync
 			elseif key == SettingsList.TUTORIAL_KEY then
 				tutorialButtonOn = value == true
 				renderTutorialButton()
@@ -1469,7 +1471,7 @@ function UI.init(config: Types.InitConfig)
 	UI.nursery.start() -- the Garden Nursery window, opened from its stall's prompt (#1200)
 	UI.store.start() -- the Store window and the HUD's Store tile (shown on sale or not, #1167)
 	UI.pass.start() -- the Cafe Pass window; its HUD tile shows while a season runs (#1646)
-	worldTags = WorldTags.new()
+	worldTags = WorldTags.new(UI.settings.value("catIncome")) -- #2551: the Cat income switch as it stands now
 	-- Catch v3 (catch-rework.md 7a): the mood icon over each stray within 20 studs (inline: the module is short of locals)
 	local catchUI: any = UI.catch
 	catchUI.moods = require(script.Screens.MoodIcons).new()
@@ -5932,6 +5934,14 @@ do
 		over(tradeId)
 		if toasts then
 			toasts:show(TradeLogic.doneLine(got), "good")
+		end
+	end
+
+	-- TradeAskEnded (#2550): this player's ask to `toUserId` was declined or ran out, so its Asked wears off soon.
+	function UI.trade.askEnded(toUserId: number)
+		local screen = trading.screen
+		if screen and type(toUserId) == "number" then
+			screen:askEnded(toUserId)
 		end
 	end
 

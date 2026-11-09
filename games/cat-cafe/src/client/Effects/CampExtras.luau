@@ -16,8 +16,9 @@
 --   VFX-Agent's (CampGlow).
 -- Nothing else moves with Reduce Motion. The server places the sets once under Workspace.World and never moves these parts,
 -- so each turn is drawn from the parts' frames read as it starts, and the parts go back to those frames when it ends.
--- VFX-Agent draws the fish jump, the thermos steam, the pipe drips and the Yard Sale sign's sway. Listening only:
--- nothing here fires a remote or changes game state.
+-- None starts while its station builds in (StationBuild.luau, #2687). VFX-Agent draws the fish jump, the thermos
+-- steam, the pipe drips and the Yard Sale sign's sway. Listening only: nothing here fires a remote or changes game
+-- state.
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -27,6 +28,7 @@ local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
 local Moments = require(script.Parent.Parent.Moments)
 local Presets = require(script.Parent.Presets)
+local StationBuild = require(script.Parent.StationBuild)
 
 local CampExtras = {}
 
@@ -129,6 +131,9 @@ end
 -- Starts `kind` on a rod or lid. A play already running there keeps the frames it began from (they are the rest) and
 -- starts over as the new kind.
 local function begin(model: Model, kind: Kind, now: number)
+	if StationBuild.building(model) then
+		return -- #2687: its station is building in, and every part goes back to its own frame when that ends
+	end
 	local play = playing[model]
 	if play ~= nil then
 		play.kind = kind

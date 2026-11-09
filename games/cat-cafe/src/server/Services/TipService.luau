@@ -92,7 +92,13 @@ local function watch()
 			end
 			-- F96: at most one ask a session, when its moment has come
 			if not session.asked then
-				local ask = Tips.dueAsk(profile, clock, day, PlayTime.seconds(player, profile))
+				local ask = Tips.dueAsk(
+					profile,
+					clock,
+					day,
+					PlayTime.seconds(player, profile),
+					now - session.loadedAt -- #2553: this session's seconds, for the return path
+				)
 				if ask ~= nil and TipService.show(player, ask) then
 					session.asked = true
 				end

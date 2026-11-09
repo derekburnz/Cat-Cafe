@@ -4296,6 +4296,8 @@ local SCENES = {
 			fishPerks = { golden_espresso = 2 },
 		})
 		press("CatCafeHUD", "Counters.Money")
+		local away = UIShim.playerGui:FindFirstChild("Away", true) :: TextLabel?
+		assert(away and away.Visible and string.find(away.Text, "earn while away", 1, true), "uigate: no away line on the money card (#2621)")
 	end },
 	-- #1624: the same card for a player with VIP, Cafe Style, both outfit passes and 2x Money: three more rows
 	{ "HUDBoostsPasses", function()

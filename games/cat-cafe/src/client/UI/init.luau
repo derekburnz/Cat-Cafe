@@ -213,6 +213,7 @@ UI.events = {
 	-- #1947 (like-prompts.md section 3), analytics only: the button pressed on a like or favourite gift card, once a
 	-- card ("like:like", "fav:favourite", "like:close"); a card left alone sends nothing
 	playtimeGift = Signal.new(), -- (what)   forward as TelemetryReport("playtime_gift", what)
+	feedbackOutcome = Signal.new(), -- (how)   #2694: "answered|closed|ignored:early|late", forward as TelemetryReport("feedback_outcome", how)
 	-- #1936 (release.md section 3), analytics only: a purchase prompt refused with no tap or during a catch, rescue or
 	-- cutscene, "source:reason" (bait, store or cafePass; no_tap or busy)
 	storeGuardBlocked = Signal.new(), -- (what)   forward as TelemetryReport("store_guard_blocked", what)
@@ -1423,8 +1424,9 @@ function UI.init(config: Types.InitConfig)
 		UI.recap.lastInput = os.clock()
 	end)
 	askCard = AskCard.new(parent, {
+		-- #2694: a clear gap over the bottom row, so the ask never sits on it
 		lift = function()
-			return hudInstance:bottomTop() - Theme.sizes.gap
+			return hudInstance:bottomTop() - Theme.sizes.gap * 2
 		end,
 	})
 	table.insert(
@@ -4476,13 +4478,16 @@ do
 		if ask ~= nil and popups ~= nil then
 			ask.screenGui.Enabled = not popups:isShowing()
 		end
+		if ask ~= nil then
+			ask:follow()
+		end
 		clocks.pump += dt
 		clocks.look += dt
 		if clocks.look >= TIP.LOOK_EVERY then
 			clocks.look = 0
 			lookForTips()
-			local ask: any = UI.tips -- lookForAsk is set by the ask's block below
-			ask.lookForAsk()
+			local tips: any = UI.tips -- lookForAsk is set by the ask's block below
+			tips.lookForAsk()
 		end
 		if clocks.pump >= TIP.PUMP_EVERY then
 			clocks.pump = 0
@@ -4607,7 +4612,12 @@ do
 	local sessionStart = os.clock()
 	local asked = false -- this session
 	-- #2681: the early ask this session (shown, and whether a face came back), and since when a cat has held a role
-	local early = { shown = false, at = 0, answered = false, workingSince = nil :: number? }
+	local early = {
+		shown = false,
+		at = 0,
+		answered = false,
+		workingSince = nil :: number?,
+	}
 
 	local function openAsk(card: AskCard.AskCard)
 		local first = not early.shown and not asked and state.feedbackAsked == false
@@ -4626,6 +4636,15 @@ do
 			choices = faces,
 			seconds = FeedbackLogic.ASK_SECONDS,
 			thanks = "Thanks!",
+			-- #2694: how it ended ("answered", "closed", "ignored", "hidden" or "replaced"); the first three go to
+			-- the funnel once each ask, after the answer's SendFeedback
+			ended = function(how: string)
+				if how == "answered" or how == "closed" or how == "ignored" then
+					UI.events.feedbackOutcome:Fire(
+						how .. ":" .. (if first then "early" else "late")
+					)
+				end
+			end,
 			answer = function(face: string?)
 				if face ~= nil then
 					early.answered = true

@@ -28,6 +28,7 @@ local Economy = require(ReplicatedStorage.Shared.Economy)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local Layout = require(script.Parent.Parent.World.Layout)
 local Net = require(script.Parent.Net)
+local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local NightService = require(script.Parent.NightService)
 local PalService = require(script.Parent.PalService)
 local PlotService = require(script.Parent.PlotService)
@@ -42,6 +43,7 @@ local FLIGHT_ATTRIBUTES =
 
 local world: WorldBuilder.World
 local landedAt: { [Player]: number } = {} -- server time each player's last flight ended
+local passUsed: { [Player]: boolean } = {} -- #2692: night_pass_used logged this session
 local diedIn: { [Player]: string } = {} -- the wild area a character died in by day, for its respawn
 local spawned: { [Player]: boolean } = {} -- the player has had a character this session, so the next is a respawn
 
@@ -110,6 +112,7 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	local now = serverNow()
 	local shovedAt = if character ~= nil then character:GetAttribute("ShovedAt") else nil
 	local landed = landedAt[player]
+	local pass = NightPass.has(profile.tutorialStep) -- #2692: a beginner flies at night and in the dusk warning
 	local reason = Cannon.launchRefusal({
 		cannonId = cannonId,
 		destination = destination,
@@ -119,8 +122,9 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 		destinationName = if area ~= nil then area.name else nil,
 		destinationTier = if area ~= nil then area.tier else nil,
 		tier = Economy.tier(profile),
-		areasOpen = ClockService.areasOpen(),
-		duskWarning = Cannon.inDuskWarning(ClockService.phase(), ClockService.phaseEndsAt(), now),
+		areasOpen = NightPass.open(ClockService.areasOpen(), pass),
+		duskWarning = not pass
+			and Cannon.inDuskWarning(ClockService.phase(), ClockService.phaseEndsAt(), now),
 		distance = if root ~= nil and model ~= nil
 			then (root.Position - model:GetPivot().Position).Magnitude
 			else nil,
@@ -155,6 +159,15 @@ local function onLaunchCannon(player: Player, rawCannonId: unknown, rawDestinati
 	flyer:SetAttribute("CannonHeading", heading)
 	Net.fire(player, "CannonLaunch", destination, now)
 	Telemetry.custom(player, "cannon_launch", 1, { cannonId, destination })
+	if
+		pass
+		and destination ~= Cannon.TOWN
+		and not ClockService.areasOpen()
+		and not passUsed[player]
+	then
+		passUsed[player] = true -- #2692: once a session, a night flight only the pass allowed
+		Telemetry.custom(player, "night_pass_used", 1, { destination, ClockService.phase() })
+	end
 	local launcher = DataService.get(player)
 	if launcher ~= nil then
 		Telemetry.onboarding(player, launcher, "first_cannon") -- #1273: the way out to the first catch
@@ -267,9 +280,12 @@ local function watchCharacter(player: Player, character: Model, respawn: boolean
 	if player.Character ~= character or character.Parent == nil or CatService.isLoaded(player) then
 		return -- a carrier's death drops its cat first (data-model 10c); this only guards one that could not be dropped
 	end
-	local landing = if area ~= nil and ClockService.areasOpen()
-		then landingFor(player, area)
-		else cafeLanding(player)
+	local profile = DataService.get(player)
+	local open = NightPass.open(
+		ClockService.areasOpen(),
+		profile ~= nil and NightPass.has(profile.tutorialStep) -- #2692
+	)
+	local landing = if area ~= nil and open then landingFor(player, area) else cafeLanding(player)
 	if landing == nil then
 		return
 	end
@@ -338,6 +354,7 @@ function CannonService.start(builtWorld: WorldBuilder.World)
 	end
 	Players.PlayerRemoving:Connect(function(player)
 		landedAt[player] = nil
+		passUsed[player] = nil
 		diedIn[player] = nil
 		spawned[player] = nil
 	end)

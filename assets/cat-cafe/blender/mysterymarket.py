@@ -60,7 +60,7 @@ POLE = (OX + BX + 0.12, -BZ + 0.12)         # the lantern pole, bolted to the bo
 POLE_TOP = 6.3
 FAR_TOP, SAG = 5.9, 0.45            # the far post's top and the lantern string's sag
 LAMP = (OX + BX - 0.55, 5.15, -BZ - 0.75)   # the pole lantern's centre
-EASEL = (OX - 4.75, -2.7)                   # the chalkboard's (x, z)
+EASEL = (OX - 4.5, -2.7)                    # the chalkboard's (x, z): in 0.25 for its wider board (#2716)
 QPOST = (OX - 4.9, -0.45)                   # the "?" board's post
 SIGN_PX = 0.14
 PROMPT_ROBLOX = (OX - 1.3, 3.0, CTR_Z0 - 0.4)
@@ -295,9 +295,12 @@ def _chalk(b, s, cx, y, z, px, sw):
 
 
 def _easel(b):
-    """The chalkboard easel: a dark board in a wood frame on three legs, THIS WEEK SALE! in chalk."""
+    """The chalkboard easel: a dark board in a wood frame on three legs, THIS WEEK SALE! in chalk. #2716 (Derek2
+    2026-11-09: "the text inside this week sale sign is getting crushed"): the board was 1.75 x 1.8, so SALE! ran
+    edge to edge and the stars sat on it; now 2.3 x 2.1 with three lines a clear margin inside the frame, the stars
+    beside THIS at the top."""
     x, z = EASEL
-    w, y0, y1 = 1.75, 0.95, 2.75
+    w, y0, y1 = 2.3, 0.9, 3.0
     zf = z
     for s in (-1, 1):                                                               # front legs
         b.span((x + s * (w / 2 - 0.12) - 0.07, 0.0, zf + 0.04), (x + s * (w / 2 - 0.12) + 0.07, y1 + 0.25, zf + 0.18),
@@ -312,12 +315,12 @@ def _easel(b):
         b.span((xa, ya, zf + 0.02), (xb, yb, zf + 0.15), WOOD)
     b.span((x - w / 2 + 0.1, y0 - 0.1, zf - 0.1), (x + w / 2 - 0.1, y0 - 0.04, zf + 0.05), WOOD)   # chalk ledge
     b.span((x + 0.3, y0 - 0.04, zf - 0.06), (x + 0.5, y0 + 0.02, zf - 0.02), "offwhite")         # a stick of chalk
-    px = 0.08
-    _chalk(b, "THIS", x, y1 - 0.15 - 5 * px, zf + 0.06, px, "offwhite")
-    _chalk(b, "WEEK", x, y1 - 0.15 - 10 * px - 0.12, zf + 0.06, px, "offwhite")
-    _chalk(b, "SALE!", x, y0 + 0.15, zf + 0.06, 0.1, "pastel_butter")
-    for sx in (-1, 1):                                                              # little chalk stars
-        _star(b, x + sx * 0.72, y0 + 0.4, zf + 0.04, 0.18, "fur_strawberry")
+    px = 0.085
+    _chalk(b, "THIS", x, y1 - 0.2 - 5 * px, zf + 0.06, px, "offwhite")             # 2.375 to 2.8
+    _chalk(b, "WEEK", x, y1 - 0.2 - 10 * px - 0.18, zf + 0.06, px, "offwhite")      # 1.77 to 2.195
+    _chalk(b, "SALE!", x, y0 + 0.18, zf + 0.06, 0.1, "pastel_butter")              # 1.08 to 1.58
+    for sx in (-1, 1):                                                              # little chalk stars, by THIS
+        _star(b, x + sx * 0.88, y1 - 0.2 - 2.5 * px, zf + 0.04, 0.16, "fur_strawberry")
 
 
 def _qboard(b):

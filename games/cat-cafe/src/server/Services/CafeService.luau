@@ -39,6 +39,7 @@ local Looks = require(ReplicatedStorage.Shared.Looks)
 local Luck = require(ReplicatedStorage.Shared.Luck)
 local NameService = require(script.Parent.NameService)
 local Net = require(script.Parent.Net)
+local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local PalService = require(script.Parent.PalService)
 local PassService = require(script.Parent.PassService)
 local PlayTime = require(script.Parent.Parent.Util.PlayTime)
@@ -1320,6 +1321,8 @@ function CafeService.advanceTutorial(player: Player, profile: Profile, step: num
 		for passed = from + 1, step do
 			Telemetry.custom(player, "tutorial_step", 1, { tostring(passed) })
 		end
+		-- #2692: the night pass ends at the first check-in; the client's gates and cannon card read this at once
+		player:SetAttribute(NightPass.ATTRIBUTE, NightPass.has(step))
 		CafeService.tutorialStepped:Fire(player, from, step) -- #2697: TutorialMoveService
 	end
 end
@@ -1471,13 +1474,9 @@ function CafeService.addCaughtCat(
 			)
 		elseif firstGold then
 			Net.toast(player, string.format("First gold %s! %s", def.name, fishText(fish)), "good")
-		elseif fish > 0 then
-			Net.toast(
-				player,
-				string.format("%s %s again: %s", def.rarity, def.name, fishText(fish)),
-				"good"
-			)
 		end
+		-- #2727 (Derek2 2026-11-09: "remove the pop up bubbles when catching cats ... it just ads clutter"): no
+		-- "<Rarity> <Cat> again: +N golden fish" toast for a repeat catch; the fish are still credited above
 		local spot = if instance.spotId ~= nil
 			then Catalog.getSpot(instance.spotId :: string)
 			else nil
@@ -1493,18 +1492,10 @@ function CafeService.addCaughtCat(
 				),
 				"good"
 			)
-		elseif spot == nil then
-			-- #2399 (Derek2: "way too many bubble pop ups"): no "X is working as Y" toast for a cat that took a role (the
-			-- Cats window shows it); one with no role free is still told where it went
-			Net.toast(
-				player,
-				string.format(
-					"%s is in the cat room. Every role is taken; give it one from there.",
-					def.name
-				),
-				"info"
-			)
 		end
+		-- #2399 (Derek2: "way too many bubble pop ups"): no "X is working as Y" toast for a cat that took a role (the
+		-- Cats window shows it); #2727: nor "X is in the cat room. Every role is taken" for one with no role free (the
+		-- Cats tile's dot shows a resting cat; slots_full is still logged above)
 		CafeService.sync(player)
 	end
 	return instance, isNew

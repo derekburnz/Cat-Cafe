@@ -1,9 +1,10 @@
 """The Town Square set for town layout v3.1 (docs/design/cat-cafe/town-layout-v3.md sections 3 and 7, F76 and F77).
 Derek, 2026-10-28 00:47: "fountain in middle of map needs some finishing"; 00:48: "the default looking roblox texture
 pavement in the middle isn't a good look find something to design the paths to the sides and middle of map a bit
-better". The square is x -48 to 48, z -32 to 32 around the origin, so square space is world space, with a cross of
-open paving (the street's line x -8 to 8 and the lane z -6 to 6) that nothing stands on. Laid out in Roblox axes
-through common.RB, front -Z, sizes in studs. PLACEMENTS below is the table for Layout.townSquare.props; every pivot
+better". The square is x -48 to 48, z -44 to 44 around the origin (z -32 to 32 until #2707, Derek2 2026-11-09:
+"expand the town square by 25-50% so its less cramped"; the cafes moved back along the street), so square space is
+world space, with a cross of open paving (the street's line x -8 to 8 and the lane z -6 to 6) that nothing stands
+on. Laid out in Roblox axes through common.RB, front -Z, sizes in studs. PLACEMENTS below is the table for Layout.townSquare.props; every pivot
 goes on the square's floor top (y 0.1) unless the table says otherwise.
 
   CatCafe_Square_Paving     the whole floor, pivot at (0, 0.1, 0): a 0.4 thick grout slab that players stand on
@@ -29,12 +30,14 @@ goes on the square's floor top (y 0.1) unless the table says otherwise.
                             its own child Model CatCafe_Square_Bunting_Flag<NN>_Pennant (two wedges), its pivot at
                             the middle of its top edge on the line, which VFX-Agent's flutter turns it about (#640).
   CatCafe_Square_BuntingShort  the same over 16.5 studs with 12 flags, strung across the lane's two ends.
+  CatCafe_Square_BuntingSide   the same over 16.75 studs (#2707), the east and west sides' spans, lamps 17.25 apart.
 
 The edge (Derek 2026-10-28: "move triangle flags and lamp posts/benches to perimiter of town square to make more space
-in the middle for other features"): twelve lamps stand on the middle of the brick border (EDGE_X, EDGE_Z), at the
-four corners, beside the sign arches and at both sides of the lane's ends, 22.5 apart along each side, and bunting
-runs lamp to lamp all round except over the street's two ends, where the sign arches are. A bench faces the square
-under the middle of each long span, its back to the border. The middle of the square holds only the cannon and its
+in the middle for other features"): sixteen lamps stand on the middle of the brick border (EDGE_X, EDGE_Z), at the
+four corners, beside the sign arches (22.5 in along the north and south sides), halfway along the east and west sides
+and at both sides of the lane's ends, and bunting runs lamp to lamp all round except over the street's two ends, where
+the sign arches are. A bench faces the square under the middle of each north and south span and each outer east and
+west span, its back to the border. The middle of the square holds only the cannon and its
 pad (the finger signpost to the old gates went on 2026-11-03, Derek: "not related to locations anymore"), and the
 quarters only the stations.
   CatCafe_Square_Garden     a 22 x 12 raised bed for the gardens between the square and the back alleys: brick kerb,
@@ -42,6 +45,8 @@ quarters only the stations.
   CatCafe_Square_GardenMid  the 17 x 12 bed between the two gardens each side, where the lane's path ran (#1130): kerbs
                             front and back only, so its grass and hedge run on to the gardens' end kerbs either side;
                             the hedge, flowers along the front, two round bushes and a stone bird bath in the middle.
+  CatCafe_Square_GardenEnd  #2707: the 12 x 12 bed past each garden toward the square's corner, kerbs all round, the
+                            hedge, a tree, two round bushes and flowers along the front.
 
 Pivots are at the base centre except where noted.
 """
@@ -50,9 +55,9 @@ import math
 
 from alleyway import _arch, flower_clump, label, lantern
 from common import RB
-from plot import TOWN_EDGE_X, rot_x, rot_y, rot_z
+from plot import SQUARE_HALF_D, TOWN_EDGE_X, rot_x, rot_y, rot_z
 
-SQ_W, SQ_D = 48.0, 32.0                        # the square's half width (x) and half depth (z)
+SQ_W, SQ_D = 48.0, SQUARE_HALF_D               # the square's half width (x) and half depth (z): 48 x 32 until #2707
 LANE, CROSS = 8.0, 6.0                         # half widths of the street's line and the east to west lane
 # The gardens' middle, x, between the square and the garden wall (WorldBuilder: 1 thick, centred on |x| TownEdgeX - 1):
 # 58.5 at today's size, as Layout.townSquare.props has them.
@@ -66,9 +71,12 @@ POINT_TIP = 13.6                               # paw paths start past this (Layo
 AREA_POINTS = (("paw_neighbourhood", 0, 1), ("paw_park", 0, -1), ("paw_woods", -1, 0), ("paw_sewer", 1, 0))
 FOUNTAIN_R = 6.5                               # its step
 
-EDGE_X, EDGE_Z = 47.0, 31.0                    # the lamps stand on the middle of the brick border
-LAMP_STEP = 22.5                               # lamp to lamp along a side; a bunting's span is 0.5 less
+EDGE_X, EDGE_Z = SQ_W - 1, SQ_D - 1            # the lamps stand on the middle of the brick border
+LAMP_STEP = 22.5                               # lamp to lamp along the north and south sides; a span is 0.5 less
+LANE_LAMP = 8.5                                # the lamps either side of the lane's ends
+SIDE_STEP = (EDGE_Z - LANE_LAMP) / 2           # #2707: lamp to lamp along the east and west sides, two spans a quarter
 BUNTING_SPAN, SHORT_SPAN = 22.0, 16.5          # the long spans, and the short one across each end of the lane
+SIDE_SPAN = SIDE_STEP - 0.5                    # 16.75: the east and west sides' spans (#2707)
 BENCH_IN = 1.6                                 # a bench's pivot this far inside the lamp line, its back to the border
 HOOK_Y = 9.6                                   # where the bunting ties on
 SAG = 1.0
@@ -573,6 +581,38 @@ def build_garden_mid(mat):
     return [b.finalize("CatCafe_Square_GardenMid", mat), flowers.finalize("CatCafe_Square_GardenMid_Flowers", mat)]
 
 
+GARDEN_END_W = 12.0                                   # #2707: the bed past each garden to the square's corner
+GARDEN_Z = 19.5                                       # the gardens' middles, z either side of the lane
+GARDEN_END_Z = GARDEN_Z + GARDEN_W / 2 + GARDEN_END_W / 2     # 36.5: from the garden's end kerb, 1.5 short of the edge
+
+
+def build_garden_end(mat):
+    """#2707: the bed past each garden, toward the square's corner, on the ground the deeper square added (z 30.5 to
+    42.5). Kerbs all round (its inner end kerb meets the garden's), grass, the hedge along the back, one tree in the
+    middle, a bush either side and flowers along the front. Placed like a garden: x +-58.5, z +-36.5, front (-Z)
+    toward the square (rotY 90 east, -90 west)."""
+    b, flowers = RB(), RB()
+    hw, hd = GARDEN_END_W / 2, GARDEN_D / 2
+    k_ = 0.5
+    b.span((-hw, 0, -hd), (hw, 0.65, -hd + k_), "brick")                                       # front kerb
+    b.span((-hw, 0, hd - k_), (hw, 0.65, hd), "brick")                                         # back kerb
+    for s in (-1, 1):
+        x0, x1 = sorted((s * hw, s * (hw - k_)))
+        b.span((x0, 0, -hd + k_), (x1, 0.65, hd - k_), "brick")                                # end kerbs
+    b.span((-hw + k_, 0, -hd + k_), (hw - k_, 0.5, hd - k_), "leaf_green")                     # grass
+    b.span((-hw + k_, 0.5, hd - 2.3), (hw - k_, 2.1, hd - k_), "leaf_dark")                    # hedge
+    for k in range(3):                                                                         # its rounded top
+        x = -hw + 2.4 + k * (GARDEN_END_W - 4.8) / 2
+        b.ball((x, 2.1, hd - 1.4), 1.0, "leaf_dark", scale=(1.6, 0.55, 0.9))
+    _tree(b, 0.0, 1.0)
+    for x in (-3.6, 3.6):                                                                      # round bushes
+        b.ball((x, 0.95, 1.4), 0.85, "leaf_dark")
+    for k in range(5):                                                                         # flowers along the front
+        x = -hw + 1.5 + k * (GARDEN_END_W - 3.0) / 4
+        flower_clump(flowers, x, 0.5, -hd + 1.4, n=4, spread=0.45)
+    return [b.finalize("CatCafe_Square_GardenEnd", mat), flowers.finalize("CatCafe_Square_GardenEnd_Flowers", mat)]
+
+
 ASSETS = {
     "CatCafe_Square_Paving": (build_paving, 20000),
     "CatCafe_Square_Fountain": (build_fountain, 8000),
@@ -582,20 +622,24 @@ ASSETS = {
     "CatCafe_Square_Lamp": (build_lamp, 1500),
     "CatCafe_Square_Bunting": (build_bunting, 1500),
     "CatCafe_Square_BuntingShort": (lambda mat: build_bunting(mat, SHORT_SPAN, "CatCafe_Square_BuntingShort"), 1200),
+    "CatCafe_Square_BuntingSide": (lambda mat: build_bunting(mat, SIDE_SPAN, "CatCafe_Square_BuntingSide"), 1200),
     "CatCafe_Square_Garden": (build_garden, 4000),
     "CatCafe_Square_GardenMid": (build_garden_mid, 3000),
+    "CatCafe_Square_GardenEnd": (build_garden_end, 3000),
 }
 
 
 def _edge_lamps():
-    """The twelve lamps on the border, (x, z, rot_y), each lamp's lantern arm across its side (diagonal at a corner),
-    so no lantern hangs in a bunting's line."""
+    """The sixteen lamps on the border, (x, z, rot_y), each lamp's lantern arm across its side (diagonal at a corner),
+    so no lantern hangs in a bunting's line. #2707: the east and west sides grew to 34.5 from the corner to the lane's
+    end lamp, so a lamp stands halfway along each (SIDE_STEP)."""
     out = []
     for sx in (-1, 1):
         for sz in (-1, 1):
             out.append((sx * EDGE_X, sz * EDGE_Z, 45))                                   # the corners
             out.append((sx * (EDGE_X - LAMP_STEP), sz * EDGE_Z, 90))                     # beside the sign arches
-            out.append((sx * EDGE_X, sz * (EDGE_Z - LAMP_STEP), 0))                      # at the lane's ends
+            out.append((sx * EDGE_X, sz * (LANE_LAMP + SIDE_STEP), 0))                   # halfway along the side
+            out.append((sx * EDGE_X, sz * LANE_LAMP, 0))                                 # at the lane's ends
     return out
 
 
@@ -604,21 +648,24 @@ def _placements():
     CFrame.Angles(0, math.rad(rot_y), 0). The arches are WorldBuilder's (buildArch)."""
     out = [("CatCafe_Square_Paving", 0, 0, 0), ("CatCafe_Square_Fountain", 0, 0, 0)]
     out += [("CatCafe_Square_Lamp", x, z, r) for (x, z, r) in _edge_lamps()]
-    mx, mz = EDGE_X - LAMP_STEP / 2, EDGE_Z - LAMP_STEP / 2                              # the long spans' middles
+    mx = EDGE_X - LAMP_STEP / 2                                                          # the long spans' middles
+    mz_in, mz_out = LANE_LAMP + SIDE_STEP / 2, LANE_LAMP + 1.5 * SIDE_STEP               # the side spans' middles
     for sx in (-1, 1):
         for sz in (-1, 1):
             out.append(("CatCafe_Square_Bunting", sx * mx, sz * EDGE_Z, 0))              # north and south sides
-            out.append(("CatCafe_Square_Bunting", sx * EDGE_X, sz * mz, 90))             # east and west sides
+            out.append(("CatCafe_Square_BuntingSide", sx * EDGE_X, sz * mz_in, 90))      # east and west sides
+            out.append(("CatCafe_Square_BuntingSide", sx * EDGE_X, sz * mz_out, 90))
     for sx in (-1, 1):
         out.append(("CatCafe_Square_BuntingShort", sx * EDGE_X, 0, 90))                  # over the lane's ends
     for sx in (-1, 1):                                                                   # benches, front inward
         for sz in (-1, 1):
             out.append(("CatCafe_Square_Bench", sx * mx, sz * (EDGE_Z - BENCH_IN), 0 if sz > 0 else 180))
-            out.append(("CatCafe_Square_Bench", sx * (EDGE_X - BENCH_IN), sz * mz, 90 if sx > 0 else 270))
+            out.append(("CatCafe_Square_Bench", sx * (EDGE_X - BENCH_IN), sz * mz_out, 90 if sx > 0 else 270))
     out += [("CatCafe_Square_SignArch", 0, -SQ_D, 0), ("CatCafe_Square_SignArch", 0, SQ_D, 180)]
     for sx in (-1, 1):
         for sz in (-1, 1):
-            out.append(("CatCafe_Square_Garden", sx * GARDEN_CX, sz * 19.5, 90 * sx))  # front toward the square
+            out.append(("CatCafe_Square_Garden", sx * GARDEN_CX, sz * GARDEN_Z, 90 * sx))  # front toward the square
+            out.append(("CatCafe_Square_GardenEnd", sx * GARDEN_CX, sz * GARDEN_END_Z, 90 * sx))   # #2707
     for sx in (-1, 1):
         out.append(("CatCafe_Square_GardenMid", sx * GARDEN_CX, 0, 90 * sx))                  # between them (#1130)
     return out

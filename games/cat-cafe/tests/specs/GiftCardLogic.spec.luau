@@ -26,6 +26,25 @@ return function()
 			expect(GiftCardLogic.report("fav", "favourite")).to.equal("fav:favourite")
 			expect(GiftCardLogic.report("fav", GiftCardLogic.CLOSE_BUTTON)).to.equal("fav:close")
 		end)
+
+		it(
+			"never asks a player to leave now for the 👍, and has Got it alone on touch (#2705)",
+			function()
+				local like = GiftCardLogic.TEXT.like
+				local lines: { string } = { like.body, like.after }
+				for _, words in lines do
+					local low = string.lower(words)
+					expect(string.find(low, "when you leave", 1, true)).to.equal(nil)
+					expect(string.find(low, "next time", 1, true) ~= nil).to.equal(true)
+				end
+				expect(GiftCardLogic.single("like", true)).to.equal(true)
+				expect(GiftCardLogic.single("like", false)).to.equal(false)
+				expect(GiftCardLogic.single("fav", true)).to.equal(false)
+				expect(GiftCardLogic.report("like", GiftCardLogic.GOT_IT_BUTTON)).to.equal(
+					"like:gotit"
+				)
+			end
+		)
 	end)
 
 	describe("GiftCardLogic.prize", function()

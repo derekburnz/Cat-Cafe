@@ -1,5 +1,5 @@
 --!strict
--- The Net button on touch screens (F93, catch-rework.md section 1): a round button just above and left of Roblox's
+-- The Net button on touch screens (F93, catch-rework.md section 1): a round button just left of Roblox's
 -- jump button (Components/NetButtonPlace) that swings the net, since a phone has no mouse click or R2. It fires
 -- swing() (UI.events.netSwing, NetSwingController sends SwingNet) and greys while the net comes back
 -- (Config.NetSwingCooldown, 0.8 s), refilling from the bottom. It shows only on a touch screen, inside a catching
@@ -17,6 +17,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Create = require(script.Parent.Parent.Components.Create)
+local JumpButton = require(script.Parent.Parent.Components.JumpButton)
 local NetButtonPlace = require(script.Parent.Parent.Components.NetButtonPlace)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
@@ -156,11 +157,11 @@ function NetButton.new(parent: Instance, callbacks: Callbacks): NetButton
 	return self :: NetButton
 end
 
--- Up and left of the jump button, in screen pixels.
+-- #2721: just left of the live jump button, centres level, in screen pixels.
 function NetButton._place(self: any)
 	local camera = Workspace.CurrentCamera
 	local viewport = if camera then camera.ViewportSize else Vector2.new(844, 390)
-	local at, size = NetButtonPlace.place(viewport)
+	local at, size = NetButtonPlace.place(viewport, JumpButton.read(viewport))
 	self._button.Position = UDim2.fromOffset(at.X, at.Y)
 	self._button.Size = UDim2.fromOffset(size, size)
 end
@@ -205,6 +206,7 @@ function NetButton._watch(self: any)
 		return
 	end
 	if loop == nil then
+		self:_place() -- #2721: the jump button is up by now, so follow where it really is
 		local accumulator = TICK
 		self._loop = RunService.Heartbeat:Connect(function(dt: number)
 			accumulator += dt

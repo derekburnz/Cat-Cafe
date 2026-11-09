@@ -2267,7 +2267,14 @@ local SCENES = {
 			)
 		end
 		local uniform = window:FindFirstChild("Level3", true).Paid.ItemGroup.Item
-		assert(uniform.BackgroundColor3 == Color3.fromRGB(217, 102, 46), "uigate: the Pumpkin uniform's square is not pumpkin (#2087)")
+		-- #2592: the Pumpkin uniform's own picture (its apron and cap) in place of the 👕 on a pumpkin tile (#2087)
+		local drawn = false
+		for _, piece in uniform:GetDescendants() do
+			if piece:IsA("ImageLabel") and string.find(piece.Image, "119763026239046", 1, true) then
+				drawn = true
+			end
+		end
+		assert(drawn, "uigate: the Pumpkin uniform's square does not draw its picture (#2592)")
 	end },
 	-- #1626: the busiest top strip, a VIP owner who has not bought the paid track: Buy, Claim all and the chat tag
 	{ "CafePassTag", function()

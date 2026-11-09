@@ -17,6 +17,8 @@
 --   StyleLogic.icon(kind, id)            the symbol beside an option (#2007)
 --   StyleLogic.inUse(row)                the row's title with the option in use, "Cafe sign: Royal Crest" (#2007)
 
+local ShopIcons = require(script.Parent.ShopIcons)
+
 local StyleLogic = {}
 
 export type Kind = "sign" | "uniform" | "accessory" | "theme" | "music"
@@ -24,6 +26,7 @@ export type Option = {
 	id: string, -- "" is the default (the plain sign, Classic)
 	name: string,
 	icon: string, -- #2007: a symbol beside the name, so the player sees what each option is
+	image: string?, -- #2592: an uploaded picture drawn in the symbol's place (the uniform styles)
 	picked: boolean,
 }
 export type Row = { kind: Kind, title: string, options: { Option } }
@@ -180,6 +183,7 @@ local function row(kind: Kind, owned: { string }, pick: string?, names: { [strin
 			id = id,
 			name = StyleLogic.name(id, names),
 			icon = StyleLogic.icon(kind, id),
+			image = if kind == "uniform" then ShopIcons.uniform(id) else nil,
 			picked = picked == id,
 		})
 	end

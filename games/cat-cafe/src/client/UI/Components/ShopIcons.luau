@@ -212,6 +212,32 @@ local IDS: { [string]: string } = {
 	Icon_Store_ThankYou = "rbxassetid://124763763193731",
 	Icon_Store_SignStylePack = "rbxassetid://82356296722315",
 	Icon_Store_GardenDecor = "rbxassetid://76001339098213",
+	-- #2592 (Derek2: "these place holders in pass need fixes"): each uniform style's apron and cap, and the chat tags'
+	-- speech bubbles, for the Cafe Pass tiles and the Style tab (Tools-Agent upload 2026-11-09, run 42556000980)
+	Icon_Uniform_Striped = "rbxassetid://127804747085841",
+	Icon_Uniform_Midnight = "rbxassetid://119683626403907",
+	Icon_Uniform_Mint = "rbxassetid://72120020405949",
+	Icon_Uniform_Pumpkin = "rbxassetid://119763026239046",
+	Icon_Uniform_AcornBrown = "rbxassetid://94802328915220",
+	Icon_Uniform_ForestGreen = "rbxassetid://139125716682352",
+	Icon_Uniform_Cranberry = "rbxassetid://91660701696915",
+	Icon_Tag_Maple = "rbxassetid://124452576665708",
+	Icon_Tag_GrandOpener = "rbxassetid://84485042386479",
+}
+
+-- #2592: Looks.UNIFORMS id -> its picture's key, and ChatTags.TAGS id -> its bubble's
+local UNIFORM_ART: { [string]: string } = {
+	striped = "Icon_Uniform_Striped",
+	midnight = "Icon_Uniform_Midnight",
+	mint = "Icon_Uniform_Mint",
+	uniform_pumpkin = "Icon_Uniform_Pumpkin",
+	uniform_acorn_brown = "Icon_Uniform_AcornBrown",
+	uniform_forest_green = "Icon_Uniform_ForestGreen",
+	uniform_cranberry = "Icon_Uniform_Cranberry",
+}
+local TAG_ART: { [string]: string } = {
+	tag_maple = "Icon_Tag_Maple",
+	tag_grand_opener = "Icon_Tag_GrandOpener",
 }
 local NETS = 4
 
@@ -252,6 +278,18 @@ end
 
 function ShopIcons.image(name: string): string?
 	return preferClean(name)
+end
+
+-- #2592: a uniform style's picture (its apron and cap), nil for Classic or a style without one.
+function ShopIcons.uniform(id: string): string?
+	local key = UNIFORM_ART[id]
+	return if key then IDS[key] else nil
+end
+
+-- #2592: a chat tag's speech bubble picture, nil for a tag without one.
+function ShopIcons.tag(id: string): string?
+	local key = TAG_ART[id]
+	return if key then IDS[key] else nil
 end
 
 function ShopIcons.clean(name: string): string?

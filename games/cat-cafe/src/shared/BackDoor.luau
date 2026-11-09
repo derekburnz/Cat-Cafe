@@ -34,6 +34,13 @@ function BackDoor.wantsOpen(
 	return owned and near ~= nil and near <= BackDoor.OPEN_RANGE
 end
 
+-- #2572: whether a door set stands in for the cafe's own doors on this client: the plot's Door attribute is set and
+-- its Decor.DoorBack has come in with parts. Until then the cafe's own door shows, so a late or failed model never
+-- leaves an empty doorway.
+function BackDoor.replaced(doorAttribute: unknown, backHasParts: boolean): boolean
+	return doorAttribute ~= nil and backHasParts
+end
+
 -- Whether a door set's front leaves stand open: all day, and at night while the owner is within OPEN_RANGE.
 function BackDoor.frontOpen(areasOpen: boolean, ownerNearest: number?): boolean
 	return areasOpen or (ownerNearest ~= nil and ownerNearest <= BackDoor.OPEN_RANGE)

@@ -2780,6 +2780,19 @@ function CatService.tryKnockLoose(
 	return "held"
 end
 
+-- #2651 (tier6-7-areas.md section 5): a carrier who fell into an area's mist drops whatever it carried, in the hands
+-- and in the Backpack, back onto the area's floor (knockLoose clamps the spot inside it), never lost. No shover.
+function CatService.dropForFall(player: Player, areaId: string)
+	if carrying[player] == nil then
+		unpackCat(player)
+	end
+	if carrying[player] ~= nil and knockLoose(player, 0, areaId) ~= nil then
+		if unpackCat(player) then
+			knockLoose(player, 0, areaId)
+		end
+	end
+end
+
 function CatService.isCarrying(player: Player): boolean
 	return carrying[player] ~= nil
 end

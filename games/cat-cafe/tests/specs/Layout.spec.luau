@@ -1796,6 +1796,30 @@ return function()
 			expect(Layout.cannonAim("town")).to.equal(0)
 		end)
 
+		it("catches a fall into the Ruins' mist and nothing above it or in another area (#2651)", function()
+			local ruins = Layout.lateAreas.ruins
+			local c = ruins.center
+			expect(ruins.catchBelow).to.equal(20)
+			-- on the plateau, a jump, and just above the band: not caught
+			expect(Layout.fallCaught(ruins, c.x, ruins.floorY, c.z)).to.equal(false)
+			expect(Layout.fallCaught(ruins, c.x, ruins.floorY + 8, c.z)).to.equal(false)
+			expect(Layout.fallCaught(ruins, c.x, ruins.floorY - 19.9, c.z)).to.equal(false)
+			-- off a long side's cliff, in the band and far below it
+			local side = c.x + ruins.halfWidth + 10
+			expect(Layout.fallCaught(ruins, side, ruins.floorY - 21, c.z)).to.equal(true)
+			expect(Layout.fallCaught(ruins, side, ruins.floorY - 200, c.z)).to.equal(true)
+			-- past the margin is someone else's problem (Roblox's own fall floor)
+			local far = c.x + ruins.halfWidth + (ruins.catchMargin :: number) + 1
+			expect(Layout.fallCaught(ruins, far, ruins.floorY - 30, c.z)).to.equal(false)
+			-- no other area has a catch
+			for _, set in { Layout.areas, { desert = Layout.lateAreas.desert } } do
+				for _, spec in set do
+					expect(spec.catchBelow).to.equal(nil)
+					expect(Layout.fallCaught(spec, spec.center.x, spec.floorY - 100, spec.center.z)).to.equal(false)
+				end
+			end
+		end)
+
 		it("lays out the Desert and the Ruins on the east diagonals, not yet in the game (#2651)", function()
 			local want = {
 				desert = { aim = 129, near = 26, deep = 40, gateNorth = true },

@@ -656,6 +656,7 @@ local Config = {
 	MysterySaleShare = 0.75,
 	MysteryOpen = false,
 	MysteryMarketRange = 14, -- BuyMystery from this close to the MysteryMarket cart, like the Fish Market
+	LongNetReachStuds = 8, -- #2565: the Long Net's reach, for NetReachStuds (mystery-market.md section 4)
 	-- #1146: a spam limit between OpenCrate starts, not a wait for the reveal; overlapping opens are refused by the
 	-- in-flight check (Crates.openRefusal) instead. Was 2 s, which refused a Quick open's next crate. The
 	-- Market window waits 0.2 s longer (its GATE_SLACK), so network jitter never lands a real press inside it.

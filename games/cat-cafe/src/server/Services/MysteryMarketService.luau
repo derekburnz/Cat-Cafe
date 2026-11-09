@@ -25,13 +25,22 @@ local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local MysteryMarket = require(ReplicatedStorage.Shared.MysteryMarket)
 local Net = require(script.Parent.Net)
+local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
 local Telemetry = require(script.Parent.Telemetry)
+local Types = require(ReplicatedStorage.Shared.Types)
 
 local MysteryMarketService = {}
 
 MysteryMarketService.TAG = "MysteryMarket"
 
 local MAX_PRICE = 1e6
+
+-- #2565: the Long Net's extra reach as the player attribute NetExtraStuds, for the client's reach glow (the server
+-- reads the profile itself).
+local function applyPerks(player: Player, profile: Types.PlayerProfile)
+	local extra = NetSwing.extraFor(profile.mystery)
+	player:SetAttribute("NetExtraStuds", if extra > 0 then extra else nil)
+end
 
 -- True when the shelf takes buys in this server.
 function MysteryMarketService.isOpen(): boolean
@@ -101,6 +110,7 @@ local function onBuy(player: Player, rawItemId: unknown, rawShown: unknown)
 	end
 	profile.mystery[item.id] = true
 	profile.mysterySeen = true
+	applyPerks(player, profile)
 	Telemetry.fishSink(player, profile, price, "Shop", "mystery_" .. item.id)
 	Telemetry.custom(player, "mystery_buy", fishBefore, {
 		item.id,
@@ -123,6 +133,12 @@ end
 function MysteryMarketService.start()
 	Net.on("BuyMystery", onBuy)
 	Net.on("MarkMysterySeen", onSeen)
+	DataService.onLoaded:Connect(function(player: Player)
+		local profile = DataService.get(player)
+		if profile ~= nil then
+			applyPerks(player, profile)
+		end
+	end)
 end
 
 return MysteryMarketService

@@ -104,6 +104,9 @@ local ICON_SPIN: WalkUpCircles.Icon =
 	{ emoji = "🎡", art = "CatCafe_Street_SpinWheel_RingIcon_Decor" }
 local ICON_MARKET: WalkUpCircles.Icon =
 	{ emoji = "🐟", art = "CatCafe_Street_FishMarket_RingIcon_Decor" }
+local RING_MYSTERY = Color3.fromRGB(165, 120, 230) -- #2565: Juniper's violet
+local ICON_MYSTERY: WalkUpCircles.Icon =
+	{ emoji = "❔", art = "CatCafe_Square_MysteryCart_RingIcon_Decor" }
 local ICON_SHOP: WalkUpCircles.Icon =
 	{ emoji = "🛍️", art = "CatCafe_Street_CornerShop_RingIcon_Decor" }
 local PICKET = Color3.fromRGB(250, 246, 236)
@@ -1853,6 +1856,44 @@ local function buildFishMarket(parent: Instance): Model
 	return model
 end
 
+-- #2565: Juniper's Mystery Market, `CatCafe_Square_MysteryCart` tagged MysteryMarket. Its MysteryPrompt (one press)
+-- and its walk-up ring open Juniper's window on the client; MysteryMarketService measures MysteryMarketRange from the
+-- pivot.
+local function buildMysteryCart(parent: Instance): Model
+	local spec = Layout.mysteryCart
+	local model = place(
+		"CatCafe_Square_MysteryCart",
+		CFrame.new(spec.x, spec.y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY or 0), 0),
+		parent
+	)
+	model.Name = "MysteryMarket"
+	model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	CollectionService:AddTag(model, "MysteryMarket")
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "MysteryPrompt"
+	prompt.ActionText = "Shop"
+	prompt.ObjectText = "Juniper's Mystery Market"
+	prompt.HoldDuration = 0
+	prompt.MaxActivationDistance = Config.MysteryMarketRange - 4
+	prompt.RequiresLineOfSight = false
+	prompt.Style = Enum.ProximityPromptStyle.Custom
+	local anchor = model:FindFirstChild("PromptAnchor", true)
+	if anchor ~= nil and anchor:IsA("Attachment") then
+		prompt.Parent = anchor
+	else
+		local found = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+		if found ~= nil then
+			local float = Instance.new("Attachment")
+			float.Name = "PromptAnchor"
+			float.Parent = found
+			float.WorldPosition = (model:GetPivot() * CFrame.new(0, 3, -2)).Position
+			prompt.Parent = float
+		end
+	end
+	WalkUpCircles.front(model, RING_MYSTERY, Config.MysteryMarketRange, nil, ICON_MYSTERY)
+	return model
+end
+
 -- The Codes Cat (F65): `CatCafe_Street_CodesCat` tagged CodesCat with its CodesCircle on the ground in front.
 -- Walking into the circle opens the code box on the client (no prompt, v0.10); CodeService measures CodesCatRange
 -- from the pivot. A model without a circle gets a plain one where the asset's would be.
@@ -2541,6 +2582,7 @@ function WorldBuilder.build(): World
 	buildNightFences(gates, plots, folder("NightFences", root))
 	buildSpinWheel(root)
 	buildFishMarket(root)
+	buildMysteryCart(root) -- #2565
 	buildCodesCat(root)
 	buildBellhopStand(root)
 	buildLeaderboards(root)

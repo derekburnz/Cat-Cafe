@@ -29,16 +29,25 @@ export type SwingCheck = {
 	sinceSwing: number?, -- seconds since this player's last swing, nil for the first
 }
 
--- How far a swing reaches from the root: NetReachStuds plus NetSlackStuds for the latency.
-function NetSwing.reach(): number
-	return Config.NetReachStuds + Config.NetSlackStuds
+-- How far a swing reaches from the root: NetReachStuds plus NetSlackStuds for the latency, plus `extra` studs (#2565:
+-- the Long Net's, NetSwing.extraFor).
+function NetSwing.reach(extra: number?): number
+	return Config.NetReachStuds + Config.NetSlackStuds + (extra or 0)
+end
+
+-- #2565: the extra reach a player's Mystery Market items give: the Long Net's LongNetReachStuds over NetReachStuds.
+function NetSwing.extraFor(owned: { [string]: boolean }?): number
+	if owned ~= nil and owned.long_net == true then
+		return math.max(0, Config.LongNetReachStuds - Config.NetReachStuds)
+	end
+	return 0
 end
 
 -- True when `point` is in the swing from a root at `origin` facing `look`: within reach in 3D, so a cat up on a perch
 -- stays out of reach from the ground, and within NetArcDegrees either side of the facing on the ground plane.
-function NetSwing.inReach(origin: Vector3, look: Vector3, point: Vector3): boolean
+function NetSwing.inReach(origin: Vector3, look: Vector3, point: Vector3, extra: number?): boolean
 	local offset = point - origin
-	if offset.Magnitude > NetSwing.reach() then
+	if offset.Magnitude > NetSwing.reach(extra) then
 		return false
 	end
 	local flat = Vector3.new(offset.X, 0, offset.Z)
@@ -82,11 +91,11 @@ end
 
 -- The nearest of `targets` the swing lands on, or nil. The caller leaves out strays that are sprinting, catching
 -- their breath or locked by another player.
-function NetSwing.pick(origin: Vector3, look: Vector3, targets: { Target }): Target?
+function NetSwing.pick(origin: Vector3, look: Vector3, targets: { Target }, extra: number?): Target?
 	local best: Target? = nil
 	local bestDistance = math.huge
 	for _, target in targets do
-		if NetSwing.inReach(origin, look, target.position) then
+		if NetSwing.inReach(origin, look, target.position, extra) then
 			local distance = (target.position - origin).Magnitude
 			if distance < bestDistance then
 				best = target

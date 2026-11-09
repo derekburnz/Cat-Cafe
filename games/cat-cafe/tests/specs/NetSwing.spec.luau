@@ -226,4 +226,18 @@ return function()
 			end
 		end)
 	end)
+
+	describe("the Long Net (#2565)", function()
+		it("reaches LongNetReachStuds once owned", function()
+			local Config = require(game:GetService("ReplicatedStorage").Shared.Config)
+			expect(NetSwing.extraFor(nil)).to.equal(0)
+			expect(NetSwing.extraFor({})).to.equal(0)
+			expect(NetSwing.extraFor({ long_net = true })).to.equal(1)
+			expect(Config.LongNetReachStuds).to.equal(8)
+			expect(NetSwing.reach(1)).to.be.near(9.5, 1e-12)
+			local ahead = Vector3.new(0, 0, -9)
+			expect(NetSwing.inReach(Vector3.zero, Vector3.new(0, 0, -1), ahead)).to.equal(false)
+			expect(NetSwing.inReach(Vector3.zero, Vector3.new(0, 0, -1), ahead, 1)).to.equal(true)
+		end)
+	end)
 end

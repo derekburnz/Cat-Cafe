@@ -3884,9 +3884,8 @@ Presets.slotWalk = {
 Presets.bedWalk = { fade = 0.25 }
 
 -- The Desert and the Ruins (Tier 6 and 7, #2657; tier6-7-areas.md sections 4 and 5). While you are inside an area's
--- box (LateTiers.areas' centre and size, plus `pad` studs) its `air` emitter fills a `box` of air round you
+-- box (Config.World's Desert* and Ruins* centre and size, #2655, plus `pad` studs) its `air` emitter fills a `box` of air round you
 -- (`Presets.emitters`, the budget's rateScale; a fifth of the rate with Reduce Motion, none in Low performance).
--- The boxes are Config.World's Desert* and Ruins* (#2655), else LateTiers.areas until those land.
 -- A stray of the area puffs `puff` `puffPreset` particles in `colour` where it appears and where it leaves the ground,
 -- within the budget's animRadius, at most the budget's areaPuffs in any one second (#2661). In the Ruins, falling `mistDepth` studs below the plateau puffs `mist` violet-grey
 -- mist round you once, before the server's catch moves you to the camp pad.

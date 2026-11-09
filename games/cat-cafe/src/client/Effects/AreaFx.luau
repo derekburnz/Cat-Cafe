@@ -3,8 +3,7 @@
 -- round you while you are in it (sand motes in the Desert, glyph-gold and jade motes in the Ruins), a puff in the
 -- area's colour where one of its strays appears and where it leaves the ground (caught or gone), and in the Ruins a
 -- mist puff round you when you drop into the mist below the plateau. The areas' boxes come from Config.World
--- (DesertCenterX and the rest, #2655), else LateTiers.areas;
--- strays from the `Stray` tag and their `Area` attribute. Listening only: no remotes, no game state. The air is off
+-- (DesertCenterX and the rest, #2655); strays from the `Stray` tag and their `Area` attribute. Listening only: no remotes, no game state. The air is off
 -- in Low performance and a fifth as thick with Reduce Motion (Presets.areaFx).
 
 local CollectionService = game:GetService("CollectionService")
@@ -13,7 +12,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Shared.Config)
-local LateTiers = require(ReplicatedStorage.Shared.LateTiers)
 
 local Context = require(script.Parent.Context)
 local Logic = require(script.Parent.Logic)
@@ -32,7 +30,7 @@ local puffSecond = 0 -- the second the puff count is for
 local puffs = 0
 local boxes: { any }? = nil
 
--- The areas' boxes: Config.World's Desert* and Ruins* once there (#2655), else LateTiers.areas.
+-- The areas' boxes: Config.World's Desert* and Ruins* (#2655).
 local function areaBoxes(): { any }
 	local found = boxes
 	if found ~= nil then
@@ -57,9 +55,6 @@ local function areaBoxes(): { any }
 				size = { width = width, depth = depth },
 			})
 		end
-	end
-	if #list == 0 then
-		list = (LateTiers :: any).areas or {}
 	end
 	boxes = list
 	return list

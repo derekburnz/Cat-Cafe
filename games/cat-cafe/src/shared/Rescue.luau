@@ -166,16 +166,25 @@ end
 
 -- A new bar for a cat of `rarity` at a trap of type `trap`, from server time `now`. The marker waits at its phase
 -- for CircleLeadInSeconds, and never waits inside the first zone, where a press at the start would be free.
+-- #2786: `areaId`'s Config.RescueAreaEase (the Alleyway and the Park) widens the zones, slows the marker and takes
+-- hits off, never below 2.
 function Rescue.newChallenge(
 	rarity: Types.Rarity,
 	trap: string,
 	now: number,
 	roll: () -> number,
-	zoneScale: number? -- #2687: StationPerks.rescueZoneScale (Warm Paws), 1 when nil
+	zoneScale: number?, -- #2687: StationPerks.rescueZoneScale (Warm Paws), 1 when nil
+	areaId: string?
 ): Types.RescueChallenge
 	local kind: Types.RescueKind = Rescue.kind(trap)
-	local width = Config.RescueZoneWidth[rarity] * (zoneScale or 1)
+	local ease = if areaId ~= nil then Config.RescueAreaEase[areaId] else nil
+	local width = Config.RescueZoneWidth[rarity]
+		* (zoneScale or 1)
+		* (if ease ~= nil then ease.zone else 1)
 	local hitsNeeded = Rescue.hitsNeeded(rarity, kind)
+	if ease ~= nil and ease.fewerHits > 0 then
+		hitsNeeded = math.max(math.min(hitsNeeded, 2), hitsNeeded - ease.fewerHits)
+	end
 	local zones = Rescue.zones(hitsNeeded, width, roll) -- one per hit: a zone stays until it is hit
 	local endsAt = now + Config.RescueAttemptMaxSeconds
 	local phase = roll() * 2
@@ -184,7 +193,7 @@ function Rescue.newChallenge(
 		phase = if zones[1] > 0.5 then 0 else 1 -- the far end of the bar
 	end
 	local startsAt = now + Config.CircleLeadInSeconds
-	local speed = Config.RescueBarSpeed[rarity]
+	local speed = Config.RescueBarSpeed[rarity] * (if ease ~= nil then ease.speed else 1)
 	return {
 		kind = kind,
 		startsAt = startsAt,

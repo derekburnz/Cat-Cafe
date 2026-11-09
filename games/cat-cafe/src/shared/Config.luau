@@ -524,6 +524,13 @@ local Config = {
 		Mythical = 0.14,
 	} :: { [string]: number },
 	RescueTolerance = 0.03, -- of the bar, either side of the zone
+	-- #2786 (Derek2 2026-11-09: "nerf beginning area 1-2 rescue missions difficulty"; no tablet got past the first
+	-- rescue): the first two areas' bars for every rarity. `zone` times RescueZoneWidth, `speed` times RescueBarSpeed
+	-- and `fewerHits` off rescueHits (never below 2). Other areas are as above; Warm Paws multiplies on top.
+	RescueAreaEase = {
+		alley = { zone = 1.4, speed = 0.75, fewerHits = 1 },
+		park = { zone = 1.2, speed = 0.85, fewerHits = 0 },
+	} :: { [string]: { zone: number, speed: number, fewerHits: number } },
 	-- F93 (catch-rework.md section 4): the marker gets RescueSpeedUpPerHit faster after every hit. Derek 2026-11-03
 	-- ("a little confusing"): the zone stays where it is until it is hit (no more running out after two sweeps), and
 	-- RescueTreeCircle false ends a tree on its last shake like any bar, with no falling cat's catch circle after it.

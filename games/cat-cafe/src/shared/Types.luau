@@ -501,6 +501,13 @@ export type AreaDef = {
 	incomeMultiplier: number, -- a cat from here earns its rarity's income times this (data-model v0.13.7)
 	-- #2322: a net catch here has its Perfect and Good bands this many times as wide (nil is 1)
 	catchWindowScale: number?,
+	-- #2794 (retention-ideas.md 5b): the starting areas' own stray floor (Config.StrayFloorBase when nil), strays kept
+	-- near the gate (Config.StrayEntryFloor when nil), stuck cats at least each sunrise (Config.RescueMinStuck when
+	-- nil), and `starterRescue`: the pool's trap nearest the camp is out every day and gets the first stuck cat
+	floorBase: number?,
+	entryFloor: number?,
+	rescueMinStuck: number?,
+	starterRescue: boolean?,
 }
 
 export type SpotDef = {

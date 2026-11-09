@@ -3061,6 +3061,16 @@ function Logic.buildFall(u: number): number
 	return 1 - k * k
 end
 
+-- #2687's camp growth: which of `areas` (the townsfolk cats' home camps, in order) sits in seat `n` (from 1) at
+-- `area`'s camp: its own first, then the next camps' round the list. Nil for an area not in it.
+function Logic.folkAt(areas: { string }, area: string, n: number): number?
+	local at = table.find(areas, area)
+	if at == nil or #areas == 0 then
+		return nil
+	end
+	return (at - 1 + (n - 1)) % #areas + 1
+end
+
 -- #2687's townsfolk cats at a grown camp, idling: how far the head turns (yaw) and nods (pitch) and the tail sways,
 -- in degrees, at `t` seconds for a cat whose loops start at `phase` (0 to 1, so the cats at one camp don't move as
 -- one). Slow sums of sines, so it wanders and never repeats a beat.

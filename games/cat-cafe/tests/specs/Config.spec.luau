@@ -512,6 +512,7 @@ return function()
 				UpdateEventId = true, -- #2766: the next update's Roblox Event id, set per Event, checked in EventRsvp.spec
 				UpdateEventStartsAt = true, -- #2766: that Event's start (os.time(), UTC), set per Event
 				PlaytimeGiftSteps = true, -- #2791: a table, checked in PlaytimeGifts.spec
+				RescueAreaEase = true, -- #2786: a table, checked in Rescue.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

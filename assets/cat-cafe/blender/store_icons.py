@@ -114,7 +114,9 @@ def _fin(b, name, mat):
 # --- cats ---------------------------------------------------------------------------------------------------------
 
 ACCESSORY_BUILDS = {"BowTie": accessories.build_bow_tie, "Boater": accessories.build_boater,
-                    "Apron": accessories.build_apron, "BaristaCap": accessories.build_barista_cap}
+                    "Apron": accessories.build_apron, "BaristaCap": accessories.build_barista_cap,
+                    "Vest": accessories.build_vest, "Sash": accessories.build_sash,
+                    "Glasses": accessories.build_glasses, "TailBow": accessories.build_tail_bow}
 
 
 def _cat(name, mat, body="sit", dress=(), pose=None, grow=1.0):
@@ -134,6 +136,52 @@ def _cat(name, mat, body="sit", dress=(), pose=None, grow=1.0):
     for ob in worn:
         ob.matrix_world = ob.matrix_world @ Matrix.Scale(grow, 4)
     return objs + worn
+
+
+def _crop(objs, z_cut):
+    """#2578: cut the group off below the world height z_cut (a bust cropped at the chest, a stool at its seat). Each
+    mesh gets its own copy first; a piece wholly below the cut is removed. The cut is left open: the camera looks down
+    on the picture, so it never sees inside."""
+    import bmesh
+    import bpy
+    bpy.context.view_layer.update()
+    keep = []
+    for ob in objs:
+        if ob.type != "MESH":
+            keep.append(ob)
+            continue
+        if max((ob.matrix_world @ Vector(c)).z for c in ob.bound_box) <= z_cut:
+            bpy.data.objects.remove(ob, do_unlink=True)
+            continue
+        if min((ob.matrix_world @ Vector(c)).z for c in ob.bound_box) >= z_cut:
+            keep.append(ob)
+            continue
+        ob.data = ob.data.copy()
+        bm = bmesh.new()
+        bm.from_mesh(ob.data)
+        M = ob.matrix_world
+        co = M.inverted() @ Vector((0.0, 0.0, z_cut))
+        no = (M.to_3x3().transposed() @ Vector((0.0, 0.0, 1.0))).normalized()
+        bmesh.ops.bisect_plane(bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:], plane_co=co, plane_no=no,
+                               clear_inner=True)
+        bm.to_mesh(ob.data)
+        bm.free()
+        if len(ob.data.vertices):
+            keep.append(ob)
+        else:
+            bpy.data.objects.remove(ob, do_unlink=True)
+    return keep
+
+
+def _dressed(name, mat, pieces, look=None, grow=1.0, body="sit"):
+    """A roster cat wearing `pieces`, recoloured to a uniform style's (main, trim) the way the game does it."""
+    objs = _cat(name, mat, body=body, dress=pieces, grow=grow)
+    if look:
+        from pass_reward_icons import recolour
+        for ob in objs:
+            if ob.name.startswith("_v_CatCafe_Accessory_"):
+                recolour(ob, *look)
+    return objs
 
 
 def _top(objs):
@@ -224,25 +272,33 @@ def vip(mat):
 
 
 def accessories_pass(mat):
+    """#2578: what the pass gives, the Round Glasses and the Tail Bow (Looks.ACCESSORIES), both worn by one Mythical
+    cat drawn big, its tail and bow curled up beside it, with twinkles. (It showed a boater, a bow tie and a loose
+    beret, none of which the pass gives.)"""
     b = Builder()
-    _twinkle(b, -0.85, -0.3, 1.75, 0.3)
-    cat = place(_cat("Cream", mat, dress=("BowTie", "Boater"), grow=1.45), at=(-0.25, 0, 0), yaw=-8)
-    beret = place(accessories.build_hat(mat), at=(0.95, -0.3, 1.35), scale=1.7, tilt=-35, roll=-20)
-    bx, bz = 0.95, 0.6                                                                         # a big ribbon bow
-    for sx in (-1, 1):
-        b.ico((bx + sx * 0.26, -0.3, bz + 0.04), 0.24, "fur_bubblegum", scale=(1.25, 0.55, 0.85))
-        b.box((bx + sx * 0.14, -0.28, bz - 0.26), (0.12, 0.06, 0.38), "fur_bubblegum", rot=(math.radians(sx * 22), "Y"))
-    b.ico((bx, -0.4, bz + 0.02), 0.12, "blush")
-    return cat + beret + _fin(b, "Accessories", mat)
+    _twinkle(b, -0.62, -0.5, 1.95, 0.24)
+    _twinkle(b, 0.75, -0.5, 1.75, 0.18)
+    cat = place(_cat("Wisp", mat, dress=("Glasses", "TailBow"), grow=1.15), yaw=-30)
+    return cat + _fin(b, "Accessories", mat)
+
+
+# Looks.UNIFORMS of the Uniform Styles pass as (main, trim) swatches (pass_reward_icons.UNIFORMS)
+PASS_UNIFORMS = {"Striped": ("cream", "caramel_wood"), "Midnight": ("pants_navy", "fur_golden"), "Mint": ("mint", "cream")}
 
 
 def uniforms(mat):
+    """#2578: the three styles the pass sells, one per job, on three cats shoulder to shoulder, cropped at the chest so
+    the faces and outfits fill the circle: in front a Midnight barista (apron and cap), behind on the left a Mint
+    waiter (bow tie and vest), behind on the right a Striped greeter (sash and boater)."""
+    out = []
+    for name, role, style, at, s in (("Golem", "waiter", "Mint", (-0.78, 0.5, 0.72), 0.9),
+                                     ("Eclipse", "greeter", "Striped", (0.78, 0.5, 0.72), 0.9),
+                                     ("Blossom", "barista", "Midnight", (0.0, -0.45, -0.15), 1.3)):
+        cat = _dressed(name, mat, accessories.ROLE_OUTFITS[role], PASS_UNIFORMS[style], grow=1.25)
+        out += place(cat, at=at, scale=s, yaw=-10 if at[0] >= 0 else 10)
     b = Builder()
-    b.cyl((0.75, -0.35, 0.18), 0.17, 0.32, "cream", segments=14, radius2=0.21)                  # a coffee cup
-    b.cyl((0.75, -0.35, 0.35), 0.19, 0.03, "choco", segments=14)
-    b.ring((0.95, -0.35, 0.2), 0.08, 0.03, 0.04, "cream", segments=10, rot=X)
-    _twinkle(b, -0.75, -0.3, 1.5, 0.3)
-    return place(_cat("Ginger", mat, dress=("Apron", "BaristaCap")), yaw=-8) + _fin(b, "Uniforms", mat)
+    _twinkle(b, -0.95, -0.6, 2.2, 0.22)
+    return _crop(out + _fin(b, "Uniforms", mat), 0.3)
 
 
 def _awning(b, x0, x1, z, depth, colours, n):
@@ -319,17 +375,81 @@ def grand_theme(mat):
     return _fin(b, "GrandTheme", mat) + hud
 
 
+def cafe_style_pass(mat):
+    """#2578: the Garden Cafe theme up close, three-quarter view of the awning and window only: big sage and white
+    stripes, a cat face in the window and a trough of flowers across the bottom."""
+    b = Builder()
+    W, H = 2.2, 2.0
+    b.box((0, 0.2, H / 2), (W, 0.4, H), "cream")                                               # the wall
+    b.box((0, -0.02, 0.95), (1.7, 0.06, 1.05), "pastel_sky")                                   # the window
+    for (x, z, sx, sz) in ((0, 0.4, 1.86, 0.1), (0, 1.5, 1.86, 0.1), (-0.88, 0.95, 0.1, 1.2), (0.88, 0.95, 0.1, 1.2),
+                           (0, 0.95, 0.06, 1.05)):
+        b.box((x, -0.06, z), (sx, 0.08, sz), "offwhite", bevel=False)
+    face = place(hud_icons.cat_face(mat), at=(-0.42, -0.1, 0.55), scale=0.42)                 # a cat at the window
+    b.cyl((0.45, -0.12, 0.5), 0.26, 0.06, "offwhite", segments=14)                            # a cake on a stand
+    b.cyl((0.45, -0.12, 0.65), 0.21, 0.24, "fur_bubblegum", segments=14)
+    b.ico((0.45, -0.12, 0.84), 0.07, "shirt_red")
+    b.box((0, -0.28, 0.2), (2.0, 0.44, 0.4), "terracotta")                                     # the flower trough
+    for k in range(9):
+        x = -0.88 + 0.22 * k
+        b.ico((x + 0.08, -0.25, 0.46), 0.12, "leaf_green")
+        b.ico((x, -0.38, 0.5 + 0.04 * (k % 2)), 0.14, ("blush", "offwhite", "pastel_butter")[k % 3])
+    _awning(b, -W / 2 - 0.15, W / 2 + 0.15, 1.82, 0.95, ("fur_fern", "offwhite"), 4)           # four big stripes
+    b.box((0, 0.2, H + 0.08), (W + 0.12, 0.5, 0.16), "fur_moss")                              # cornice
+    _twinkle(b, 1.05, -0.6, 2.3, 0.22)
+    return _fin(b, "CafeStyle", mat) + face
+
+
+def grand_theme_pass(mat):
+    """#2578: the Grand Cafe theme up close, so it reads as our grandest look: two gold columns and the berry
+    pediment with its cat sign fill the circle, a big gold crown breaks the top, gold sparkles round it."""
+    b = Builder()
+    H = 1.7
+    b.box((0, 0.25, H / 2), (3.0, 0.4, H), "cream")                                            # the wall
+    b.box((0, 0.0, 0.72), (0.95, 0.06, 1.24), "royal_berry")                                   # the double doors
+    b.box((0, -0.04, 0.72), (0.04, 0.04, 1.2), "gold_mid", bevel=False)
+    for sx in (-1, 1):
+        b.cyl((sx * 0.1, -0.06, 0.7), 0.045, 0.04, "gold_mid", segments=8, rot=X)
+        b.box((sx * 0.25, -0.05, 1.05), (0.3, 0.03, 0.38), "pastel_sky", bevel=False)            # door lights
+        b.box((sx * 0.95, -0.02, 0.95), (0.5, 0.06, 0.8), "pastel_sky")                         # windows
+        b.box((sx * 0.95, -0.04, 0.95), (0.56, 0.04, 0.06), "gold_mid", bevel=False)
+    b.box((0, -0.1, 0.06), (3.1, 0.6, 0.12), "gold_mid")                                       # the step
+    for x in (-1.32, 1.32):                                                                    # gold columns
+        b.cyl_base((x, -0.2, 0.12), 0.19, H - 0.24, "gold_light", segments=14)
+        for z in (0.55, 1.1):
+            b.ring((x, -0.2, z), 0.2, 0.03, 0.05, "gold_mid", segments=14)
+        b.box((x, -0.2, 0.2), (0.46, 0.46, 0.14), "gold_mid")
+        b.box((x, -0.2, H - 0.06), (0.5, 0.5, 0.14), "gold_mid")
+    b.box((0, -0.12, H + 0.08), (3.2, 0.66, 0.2), "gold_mid")                                 # the entablature
+    b.prism((0, -0.05, H + 0.18), [(-1.65, 0), (1.65, 0), (0, 1.0)], 0.5, "gold_mid", rot=X)   # the pediment
+    b.prism((0, -0.08, H + 0.27), [(-1.38, 0), (1.38, 0), (0, 0.78)], 0.5, "royal_berry", rot=X)
+    b.cyl((0, -0.34, H + 0.55), 0.3, 0.06, "gold_mid", segments=20, rot=X)                     # the cat sign in it
+    b.cyl((0, -0.38, H + 0.55), 0.25, 0.04, "cream", segments=20, rot=X)
+    crown = H + 1.38                                                                           # the big crown
+    b.box((0, -0.1, crown), (1.2, 0.3, 0.3), "rarity_legend")
+    for dx, hh in ((-0.45, 0.42), (0.0, 0.6), (0.45, 0.42)):
+        b.pyramid((dx, -0.1, crown + 0.15), 0.32, hh, "rarity_legend")
+        b.ico((dx, -0.1, crown + 0.18 + hh), 0.09, "offwhite")
+    for dx, sw in ((-0.3, "fish_blue"), (0.0, "shirt_red"), (0.3, "leaf_green")):
+        b.ico((dx, -0.27, crown), 0.08, sw)
+    for (x, z, s) in ((-1.25, 3.0, 0.22), (1.25, 2.85, 0.18)):
+        _star(b, x, -0.3, z, s)
+    _twinkle(b, 1.7, -0.5, 2.3, 0.2)
+    hud = place(hud_icons.cat_face(mat), at=(0, -0.42, H + 0.39), scale=0.19)
+    return _fin(b, "GrandTheme", mat) + hud
+
+
 def extra_slot(mat):
+    """#2578: the stool cropped at its seat so the cat on it is drawn big, with the big mint +1 tag."""
     b = Builder()
     b.cyl((0, 0, 1.15), 0.62, 0.22, "blush", segments=24)                                      # seat cushion
     b.cyl((0, 0, 1.0), 0.6, 0.1, "caramel_wood", segments=24)
-    for k in range(4):                                                                         # legs
+    for k in range(4):                                                                         # the legs' tops
         a = math.radians(45 + 90 * k)
-        b.cyl((0.42 * math.cos(a), 0.42 * math.sin(a), 0.5), 0.06, 1.0, "caramel_wood", segments=8)
-    b.ring((0, 0, 0.4), 0.48, 0.05, 0.06, "dark_wood", segments=20)                           # foot ring
-    _tag(b, "+1", 1.05, 2.15, 0.62, ink="leaf_dark", disc="mint", y=-0.7)
-    cat = place(_cat("Tuxedo", mat, dress=("Apron",)), at=(0, 0.05, 1.26), scale=0.85, yaw=-8)
-    return _fin(b, "ExtraSlot", mat) + cat
+        b.cyl((0.42 * math.cos(a), 0.42 * math.sin(a), 0.8), 0.06, 0.4, "caramel_wood", segments=8)
+    _tag(b, "+1", 1.0, 2.75, 0.55, ink="leaf_dark", disc="mint", y=-0.8)
+    cat = place(_cat("MapleMuffin", mat, dress=("Apron",)), at=(-0.05, 0.05, 1.26), scale=1.25, yaw=-8)
+    return _crop(_fin(b, "ExtraSlot", mat) + cat, 0.8)
 
 
 def royal_cat(mat):
@@ -350,12 +470,14 @@ def royal_cat(mat):
 
 
 def king_pack(mat):
+    """#2578: King Croissant big on his velvet cushion, cropped at the cushion's top, with the Royal Crest sign plate
+    (the pack's sign style) behind his shoulder."""
     b = Builder()
-    _twinkle(b, 1.3, -1.4, 2.9, 0.45)
-    _twinkle(b, -1.3, -1.4, 2.3, 0.3)
-    cushion = place(shopcats.build_king_cushion(mat))
-    cat = place(_cat("KingCroissant", mat), at=(0, 0, shopcats.SEAT_Y), yaw=-8)
-    return cushion + cat + _fin(b, "KingPack", mat)
+    _twinkle(b, -0.9, -0.6, 2.25, 0.22)
+    sign = place(crown_sign(mat), at=(-0.85, 0.9, shopcats.SEAT_Y + 1.25), scale=0.36, yaw=10)
+    cushion = place(shopcats.build_king_cushion(mat), scale=1.0)
+    cat = place(_cat("KingCroissant", mat), at=(0.15, -0.1, shopcats.SEAT_Y), scale=1.3, yaw=-8)
+    return _crop(cushion + cat + sign + _fin(b, "KingPack", mat), shopcats.SEAT_Y - 0.12)
 
 
 def king_cat(mat):
@@ -388,12 +510,15 @@ def golden_pond(mat):
 
 
 def second_bait_bowl(mat):
-    back = place(hud_icons.bait(mat), at=(-0.6, 0.25, 0.0), scale=1.9)
-    front = place(hud_icons.bait(mat), at=(0.55, -0.3, 0.0), scale=1.9)
+    """#2578: two heaped bowls side by side, seen from higher so the kibble shows, closer and bigger, with a cat
+    peeking over the second one and the +1 tag."""
+    face = place(hud_icons.cat_face(mat), at=(0.85, 0.2, 0.6), scale=0.6)
+    back = place(hud_icons.bait(mat), at=(-0.75, 0.35, 0.0), scale=1.9)
+    front = place(hud_icons.bait(mat), at=(0.75, -0.6, 0.0), scale=1.9)
     b = Builder()
-    _tag(b, "+1", 1.1, 1.3, 0.5, ink="leaf_dark", disc="mint", y=-0.9)
-    _twinkle(b, -1.2, -0.4, 1.2, 0.3)
-    return back + front + _fin(b, "SecondBaitBowl", mat)
+    _tag(b, "+1", 1.5, 1.45, 0.5, ink="leaf_dark", disc="mint", y=-0.9)
+    _twinkle(b, -1.1, -0.4, 1.3, 0.28)
+    return face + back + front + _fin(b, "SecondBaitBowl", mat)
 
 
 # --- products -----------------------------------------------------------------------------------------------------
@@ -544,32 +669,31 @@ def _plate(b, c, ang, w, h, board, frame, f=0.12):
 
 
 def sign_style_pack(mat):
+    """#2578: the pack's three sign styles (#1860), Starry Night big in front (navy, gold frame, gold stars and a
+    moon), Flower Box and Paw Chalkboard peeking out behind it on either side, each about twice the old size."""
     b = Builder()
     up = Matrix.Rotation(math.radians(90), 3, "X")                                            # flat shapes face -y
-    W, H = 1.9, 0.95
+    W, H = 1.8, 1.15
     # Flower Box, behind on the left
-    at, R = _plate(b, (-1.45, 0.25, 0.8), -30, W, H, "offwhite", "mint")
-    b.box(at(0, -0.22, -H / 2 - 0.32), (W * 0.85, 0.34, 0.3), "caramel_wood", bevel=False, rot=R)   # its flower box
+    at, R = _plate(b, (-0.95, 0.35, 1.75), -16, W, H, "offwhite", "mint", f=0.15)
+    b.box(at(0, -0.22, -H / 2 - 0.3), (W * 0.85, 0.34, 0.3), "caramel_wood", bevel=False, rot=R)
     for k, sw in enumerate(("apron_pink", "rarity_legend", "pastel_sky", "offwhite", "blush")):
         x = -W * 0.36 + k * W * 0.18
-        b.ico(at(x + 0.07, -0.3, -H / 2 - 0.14), 0.14, "leaf_green")
-        b.ico(at(x, -0.42, -H / 2 - 0.08), 0.15, sw)
+        b.ico(at(x + 0.07, -0.3, -H / 2 - 0.12), 0.15, "leaf_green")
+        b.ico(at(x, -0.42, -H / 2 - 0.06), 0.17, sw)
     # Paw Chalkboard, behind on the right
-    at, R = _plate(b, (1.45, 0.2, 0.8), 30, W, H, "dumpster_green", "caramel_wood")
-    for (x, z, s) in ((0.05, -0.15, 0.4), (0.4, 0.14, 0.36), (0.72, -0.12, 0.32)):
+    at, R = _plate(b, (0.95, 0.3, 1.75), 16, W, H, "dumpster_green", "caramel_wood", f=0.15)
+    for (x, z, s) in ((0.1, 0.18, 0.5), (0.5, -0.12, 0.42)):
         b.cyl(at(x, -0.08, z - 0.05 * s), 0.26 * s, 0.04, "offwhite", segments=12, rot=R @ up)
         for (dx, dz) in ((-0.27, 0.2), (-0.1, 0.34), (0.1, 0.34), (0.27, 0.2)):
             b.cyl(at(x + dx * s, -0.08, z + dz * s), 0.09 * s, 0.04, "offwhite", segments=8, rot=R @ up)
-    # Starry Night, in front in the middle, a little bigger
-    at, R = _plate(b, (0, -0.25, 1.35), 0, W, H, "night_sky", "gold_mid", f=0.14)
-    for (x, z, s) in ((-0.62, 0.17, 0.19), (-0.22, -0.16, 0.13), (0.15, 0.2, 0.15), (0.45, -0.14, 0.11),
-                      (0.74, 0.22, 0.12)):
-        b.star(at(x, -0.09, z), s, s * 0.45, 0.04, "sparkle" if s < 0.15 else "rarity_legend", rot=R @ up)
-    cz = H * 0.55 + 0.14 + 0.42
-    b.box(at(0, -0.04, H * 0.55 + 0.17), (1.0, 0.18, 0.08), "gold_mid", bevel=False, rot=R)     # the moon's plinth
-    _moon(b, at(-0.1, -0.04, cz), 0.42, 0.2, 0.14, "gold_mid")
-    for (x, z, s) in ((0.38, cz + 0.22, 0.17), (0.6, cz - 0.08, 0.12)):
-        b.star(at(x, -0.04, z), s, s * 0.45, 0.1, "gold_light", rot=R @ up)
+    # Starry Night, big in front
+    W, H = 2.5, 1.5
+    at, R = _plate(b, (0, -0.35, 0.8), 0, W, H, "night_sky", "gold_mid", f=0.18)
+    for (x, z, s) in ((-0.85, 0.3, 0.26), (-0.32, -0.3, 0.17), (0.2, 0.38, 0.2), (0.62, -0.22, 0.15),
+                      (0.98, 0.32, 0.17), (-0.95, -0.42, 0.13)):
+        b.star(at(x, -0.09, z), s, s * 0.45, 0.05, "sparkle" if s < 0.16 else "rarity_legend", rot=R @ up)
+    _moon(b, at(0.0, -0.1, -0.02), 0.42, 0.2, 0.16, "gold_mid")
     return _fin(b, "SignStylePack", mat)
 
 
@@ -688,7 +812,8 @@ def thank_you_badge(mat):
     return _fin(b, "ThankYouBadge", mat)
 
 PASSES = {"Money2x": money("2"), "Money3x": money("3"), "Money4x": money("4"), "LongNap": long_nap, "VIP": vip,
-          "Accessories": accessories_pass, "Uniforms": uniforms, "CafeStyle": cafe_style, "GrandTheme": grand_theme,
+          "Accessories": accessories_pass, "Uniforms": uniforms, "CafeStyle": cafe_style_pass,
+          "GrandTheme": grand_theme_pass,
           "ExtraSlot": extra_slot, "RoyalCat": royal_cat, "KingCat": king_cat, "KingPack": king_pack,
           "GoldenPond": golden_pond,
           "SecondBaitBowl": second_bait_bowl, "SignStylePack": sign_style_pack, "GardenDecorPack": garden_decor_pack,
@@ -696,12 +821,26 @@ PASSES = {"Money2x": money("2"), "Money3x": money("3"), "Money4x": money("4"), "
 PRODUCTS = {"StarterBundle": starter_bundle, "PotionXS": potion_xs, "PotionS": potion_s, "PotionM": potion_m,
             "PotionL": potion_l, "CafePass": cafe_pass, "SteadyPawPack": steady_paw_pack,
             "ThankYouBadge": thank_you_badge}
+# #2578: one look for the whole pass set on the Roblox page, where each icon sits in a circle: icons.py also writes
+# CatCafe_Icon_Pass_<Name>_Bg.png, the picture on a soft radial disc with a glow behind it in its family's colour
+# (centre, edge), for the Creator Hub pass icon. The transparent picture stays the in-game Store card's.
+BG_FAMILIES = {
+    "berry": ((236, 150, 186), (142, 42, 74)),          # cats and royalty
+    "mint": ((214, 242, 222), (96, 160, 128)),          # cafe looks: uniforms, accessories, styles, signs, decor
+    "gold": ((255, 236, 160), (214, 146, 30)),          # money and boosts
+    "sky": ((206, 232, 252), (70, 140, 204)),           # cafe items: the slot, the bowl, the pond, the nap
+}
+BG_OF = {"RoyalCat": "berry", "KingCat": "berry", "KingPack": "berry",
+         "Uniforms": "mint", "Accessories": "mint", "CafeStyle": "mint", "GrandTheme": "mint", "SignStylePack": "mint",
+         "GardenDecorPack": "mint", "Jukebox": "mint",
+         "Money2x": "gold", "Money3x": "gold", "Money4x": "gold", "VIP": "gold",
+         "ExtraSlot": "sky", "SecondBaitBowl": "sky", "GoldenPond": "sky", "LongNap": "sky"}
 # name -> (yaw, pitch) for icons.py
 VIEWS = {"Money2x": (-16.0, 30.0), "Money3x": (-16.0, 30.0), "Money4x": (-16.0, 30.0), "LongNap": (-20.0, 26.0),
-         "VIP": (-10.0, 8.0), "Accessories": (-24.0, 8.0), "Uniforms": (-24.0, 8.0), "CafeStyle": (-24.0, 12.0),
-         "GrandTheme": (-20.0, 10.0), "ExtraSlot": (-20.0, 18.0), "RoyalCat": (-24.0, 8.0), "KingCat": (-24.0, 8.0),
+         "VIP": (-10.0, 8.0), "Accessories": (-24.0, 8.0), "Uniforms": (-14.0, 8.0), "CafeStyle": (-26.0, 12.0),
+         "GrandTheme": (-16.0, 8.0), "ExtraSlot": (-20.0, 14.0), "RoyalCat": (-24.0, 8.0), "KingCat": (-24.0, 8.0),
          "KingPack": (-24.0, 12.0),
-         "GoldenPond": (-14.0, 30.0), "SecondBaitBowl": (-20.0, 20.0), "StarterBundle": (-20.0, 16.0),
+         "GoldenPond": (-14.0, 30.0), "SecondBaitBowl": (-18.0, 34.0), "StarterBundle": (-20.0, 16.0),
          "SignStylePack": (-8.0, 6.0), "GardenDecorPack": (-18.0, 24.0),
          "PotionXS": (-12.0, 8.0), "PotionS": (-14.0, 22.0), "PotionM": (-16.0, 26.0), "PotionL": (-16.0, 24.0),
          "CafePass": (0.0, 0.0), "Jukebox": (-18.0, 8.0), "SteadyPawPack": (-16.0, 26.0),

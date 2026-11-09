@@ -2950,6 +2950,20 @@ Presets.decor = {
 		emitter = "decorGlint",
 		colors = { palette.milk, palette.pastelSky },
 	},
+	-- The Desert and Ruins crates' Mythical floors (Tier 6 and 7, #2651): Glimmer Canal's light under the glass with
+	-- glints in their own colours, heat shimmer on Mirage Glass and gold lines over Jade Inlay.
+	desert_mirage_glass = {
+		look = "canal",
+		on = "Floor",
+		emitter = "decorGlint",
+		colors = { Color3.fromRGB(255, 244, 214), Color3.fromRGB(232, 205, 150) },
+	},
+	ruins_jade_inlay = {
+		look = "canal",
+		on = "Floor",
+		emitter = "decorGlint",
+		colors = { Color3.fromRGB(232, 190, 80), Color3.fromRGB(80, 160, 120) },
+	},
 	classic_gold_leaf = {
 		look = "goldLeaf",
 		on = "Paint",

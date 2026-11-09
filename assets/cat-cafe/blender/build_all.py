@@ -240,6 +240,11 @@ PIVOT_NOTES = {
                        "(Layout.campExtras.neighbourhood, Neighbourhood set space)",
     **{n: "the base centre on the camp's ground, front -Z, no turn; the Fish Pond's spot (Layout.campExtras.woods, "
           "Woods set space)" for n in (campstations.HUT, campstations.HUT + "_Gold")},
+    campstations.SPA: "the base centre on the camp's ground, front -Z, no turn; the Desert camp's station spot "
+                      "(Layout.campExtras.desert, Desert set space)",
+    campstations.SPA_TOWEL: "the middle of its underside, on top of a soaking cat's head",
+    campstations.MUSEUM: "the base centre on the camp's ground, front -Z, no turn; the Ruins camp's station spot "
+                         "(Layout.campExtras.ruins, Ruins set space)",
     campstations.LOST: "the base centre on the camp's ground, front -Z, no turn; the Lost and Found's spot "
                        "(Layout.campExtras.sewer, Sewer set space), its back wall toward the gate line",
     gardennursery.NAME: "the base centre on the camp's ground, the bench front (-Z) toward the players; Park set space "
@@ -419,6 +424,17 @@ STUDIO_NOTES = {
           "(the cast turns it), _Fish swims under the water; Attachments FishJump, PromptAnchor (the jetty's foot), "
           "BangAnchor (2 over the FISH POND sign) and GlowAnchor (the doorway). Everything else collides and can be "
           "climbed." for n in (campstations.HUT, campstations.HUT + "_Gold")},
+    campstations.SPA: "late-stations.md section 1: the Oasis Spa, the Desert camp's station. _Water is see-through and "
+                      "walk-through. Attachments PromptAnchor (the pool's front, 1.5 up), BangAnchor (2 over the "
+                      "OASIS SPA sign), Steam (one emitter over the water) and Soak_1..3 (where the owner's soaking "
+                      "cats sit, each wearing CatCafe_Camp_Desert_SpaTowel on its head). Everything else collides "
+                      "and can be climbed.",
+    campstations.SPA_TOWEL: "late-stations.md section 1: the towel on a soaking cat's head at the Oasis Spa; weld it "
+                            "to the cat's Head. Nothing collides.",
+    campstations.MUSEUM: "late-stations.md section 2: the Relic Museum, the Ruins camp's station. _Glass is the case "
+                         "round the gold cat idol (see-through). Attachments PromptAnchor (the velvet rope, 1.5 up), "
+                         "BangAnchor (2 over the RELIC MUSEUM sign) and SparkleAnchor (the idol). Everything else "
+                         "collides and can be climbed.",
     campstations.LOST: "#1732 (camp-stations.md section 4b): the Lost and Found booth, replacing "
                        "CatCafe_Camp_Sewer_LostFound at Layout.campExtras.sewer. _Bell is the desk bell (pivot at its "
                        "base, for the ring-wobble), _Bulb the sign's bulbs (night glow), _Blink_Bulb the one that "

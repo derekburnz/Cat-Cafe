@@ -52,6 +52,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local FirstBait = require(script.Parent.Parent.Components.FirstBait)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
+local GamepadNav = require(script.Parent.Parent.Components.GamepadNav)
 local GiftLadderLogic = require(script.Parent.Parent.Components.GiftLadderLogic)
 local GiftLogic = require(script.Parent.Parent.Components.GiftLogic)
 local GoalCard = require(script.Parent.GoalCard)
@@ -145,6 +146,7 @@ export type HUD = {
 	catchingChanged: Signal.Signal,
 	isCatching: (self: HUD) -> boolean,
 	setMenuFolded: (self: HUD, folded: boolean) -> (),
+	gamepadMenu: (self: HUD) -> GuiButton?, -- #2872
 	setTravelFolded: (self: HUD, folded: boolean) -> (),
 	screenOpened: (self: HUD, name: string?) -> (),
 	setTipJar: (self: HUD, summary: { ready: number, nextIn: number?, left: number }?) -> (),
@@ -2493,6 +2495,17 @@ function HUD.setCatchStreak(_self: any, _streak: number) end
 
 function HUD.isCatching(self: any): boolean
 	return self._catching == true
+end
+
+-- #2872 (console): where a gamepad starts in the HUD, the Store tile over the menu grid, else the grid's first tile;
+-- a folded grid slides back out first. nil while neither shows (the catch hides the HUD).
+function HUD.gamepadMenu(self: any): GuiButton?
+	if self._menuFolded then
+		self:setMenuFolded(false)
+	end
+	local store = self._storeTile
+	local first = if store ~= nil then GamepadNav.first(store.instance) else nil
+	return first or GamepadNav.first(self._menu)
 end
 
 -- The arrow tabs (Derek 2026-10-27): fold the left pills off the edge, or the bottom row below it, and back.

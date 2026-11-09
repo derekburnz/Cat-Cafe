@@ -1685,6 +1685,31 @@ local SCENES = {
 		tags:destroy()
 		cat:Destroy()
 	end },
+	-- #2872 (console): on a gamepad Select lands on the HUD's menu, a window takes the selection on its first useful
+	-- button (never its X) as it opens, closing hands the menu tile back, and Select again lets go
+	{ "GamepadWindow", function()
+		local GuiService = game:GetService("GuiService")
+		UIShim.setLastInput(Enum.UserInputType.Gamepad1)
+		GuiService.SelectedObject = nil
+		UI.gamepadSelect()
+		local tile = GuiService.SelectedObject
+		assert(tile ~= nil and tile:IsA("GuiButton"), "uigate: Select on a gamepad selected nothing in the HUD (#2872)")
+		assert(tile:IsDescendantOf(UIShim.playerGui:FindFirstChild("CatCafeHUD", true) or UIShim.playerGui), "uigate: Select left the HUD")
+		UI.open("Upgrades")
+		UIShim.advance(0.3)
+		local first = GuiService.SelectedObject
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals") :: ScreenGui
+		assert(first ~= nil and first:IsA("GuiButton") and first:IsDescendantOf(modals), "uigate: Upgrades opened on a gamepad selected no button in it (#2872)")
+		assert(first.Name ~= "Close" and (first.Parent :: Instance).Name ~= "Close", "uigate: the window selected its X first (#2872)")
+		assert(first:FindFirstAncestor("Tabs") == nil, "uigate: Upgrades selected a tab, not its first row's button (#2872)")
+		assert((UIShim.playerGui :: any).SelectionImageObject ~= nil, "uigate: no selection ring (#2872)")
+		UI.close()
+		UIShim.advance(0.3)
+		assert(GuiService.SelectedObject == tile, "uigate: closing the window did not hand the menu tile back (#2872)")
+		UI.gamepadSelect()
+		assert(GuiService.SelectedObject == nil, "uigate: Select again did not let go (#2872)")
+		UIShim.setLastInput(nil)
+	end },
 	-- #2868 (Derek2: the "+$/s" tags a little smaller, and on the sleeping cats too): a resting cat napping in a
 	-- cafe's Cats folder shows its name over "Resting" (it earns nothing), a working cat its rate, both a fifth smaller
 	{ "RateTagResting", function()

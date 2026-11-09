@@ -42,7 +42,9 @@ SPOTS = {
     "Neighbourhood": ("NeighbourhoodF85", (22.0, 4.5), (40.0, 10.0), "blush", "offwhite", "offwhite", "lamp_warm"),
     "Woods": ("WoodsF85", (21.5, 4.0), (40.0, 10.0), "fur_orange", "cream", "dark_wood", "lamp_warm"),
     "Sewer": ("SewerF85", (20.0, 3.5), (38.0, 9.0), "sign_teal", "offwhite", "metal", "pastel_butter"),
-    "Desert": ("Desert", (20.0, 3.5), (22.0, 14.0), "terracotta", "cream", "dark_wood", "lamp_warm"),
+    # the Desert's station is the Oasis Spa at (25, 8.5 in) (#2790, about 23 x 12): the growth stands east of the
+    # oasis pool, clear of the spa, the pool and its palms
+    "Desert": ("Desert", (25.0, 8.5), (63.0, 10.0), "terracotta", "cream", "dark_wood", "lamp_warm"),
     "Ruins": ("Ruins", (20.0, 3.5), (48.0, 10.0), "fur_emerald", "fur_golden", "paving_grout", "lamp_warm"),
 }
 ATTACHMENTS = {}         # asset -> [(name, Roblox point, Roblox rotation)]

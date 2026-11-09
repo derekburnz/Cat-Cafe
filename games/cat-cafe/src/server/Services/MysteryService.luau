@@ -21,6 +21,7 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local FirstVisit = require(script.Parent.Parent.Util.FirstVisit)
 local Net = require(script.Parent.Net)
 local Payout = require(script.Parent.Payout)
 local PlotService = require(script.Parent.PlotService)
@@ -43,6 +44,8 @@ type Visit = {
 	gift: Potions.Gift?, -- nil once opened or gone
 	giftUntil: number, -- os.time() an unopened gift is gone
 	anchor: BasePart?, -- MysteryGiftAnchor while the gift waits
+	first: boolean, -- #2792: the account's first Mystery Visitor, whose gift is Rare or better
+	arrivedAt: number, -- os.time()
 }
 
 local visits: { [number]: Visit } = {} -- plot index -> its visit, one at a time
@@ -51,12 +54,14 @@ local rng = Random.new()
 -- Memory only, cleared on leaving, so nothing is saved.
 local commons: { [number]: number } = {}
 
--- A new gift for `player`'s cafe: its wrap (with the streak's guarantee), then what it holds.
-local function rollFor(player: Player): Potions.Gift
+-- A new gift for `player`'s cafe: its wrap (with the streak's guarantee), then what it holds. `first` (#2792: the
+-- account's first Mystery Visitor) makes it Rare or better, as the streak does.
+local function rollFor(player: Player, first: boolean): Potions.Gift
 	local function roll(): number
 		return rng:NextNumber()
 	end
-	local tier: Types.MysteryGiftTierName = Potions.rollGiftTier(roll, commons[player.UserId])
+	local streak = if first then Config.MysteryRareStreak else commons[player.UserId]
+	local tier: Types.MysteryGiftTierName = Potions.rollGiftTier(roll, streak)
 	local streak = 0
 	if tier == "Common" then
 		streak = (commons[player.UserId] or 0) + 1
@@ -91,14 +96,24 @@ local function sendHome(index: number)
 end
 
 -- Takes the gift off the table: out of the visit, MysteryGiftAt cleared and the anchor gone. Only the caller that
--- gets it back may pay it.
-local function takeGift(index: number): Potions.Gift?
+-- gets it back may pay it. `outcome` ("claimed", else "missed") ends a first visit's FirstVisit (#2792).
+local function takeGift(index: number, outcome: string?): Potions.Gift?
 	local visit = visits[index]
 	local gift = if visit ~= nil then visit.gift else nil
 	if visit == nil or gift == nil then
 		return nil
 	end
 	visit.gift = nil
+	if visit.first then
+		local owner = Players:GetPlayerByUserId(visit.ownerUserId)
+		FirstVisit.ended(
+			owner,
+			visit.plot.model,
+			"mystery",
+			outcome or "missed",
+			os.time() - visit.arrivedAt
+		)
+	end
 	visit.plot.model:SetAttribute("MysteryGiftAt", 0)
 	visit.plot.model:SetAttribute("MysteryGiftTier", nil)
 	if visit.anchor ~= nil then
@@ -168,7 +183,7 @@ local function onOpen(player: Player)
 	if profile == nil then
 		return
 	end
-	local rolled = takeGift(plot.index)
+	local rolled = takeGift(plot.index, "claimed")
 	if rolled == nil then
 		return
 	end
@@ -193,7 +208,8 @@ local function arrive(
 	player: Player,
 	plot: WorldBuilder.Plot,
 	tableIndex: number,
-	now: number
+	now: number,
+	first: boolean
 ): Visit
 	takeGift(plot.index)
 	local anchor = Instance.new("Part")
@@ -220,9 +236,11 @@ local function arrive(
 		ownerUserId = player.UserId,
 		plot = plot,
 		visitorUntil = now + Config.MysteryStaySeconds,
-		gift = rollFor(player),
+		gift = rollFor(player, first),
 		giftUntil = now + Config.MysteryGiftKeepSeconds,
 		anchor = anchor,
+		first = first,
+		arrivedAt = now,
 	}
 	visits[plot.index] = visit
 	-- both at once: the gift goes on the table as the visitor sits down (v0.10.1). MysteryTable says which table
@@ -259,8 +277,18 @@ local function tickTimers(dt: number)
 			or VisitTimer.draw(Config.MysteryEveryMin, Config.MysteryEveryMax, rng:NextNumber())
 		local due: boolean
 		left, due = VisitTimer.tick(left, dt, ready)
+		-- #2792: a new account's first Mystery Visitor comes at FirstVisitAt.mystery seconds of play, timer or not
+		if ready and not due and FirstVisit.due(player, profile, "mystery") then
+			due = true
+		end
 		if due then
-			arrive(player, plot, tables, now)
+			arrive(
+				player,
+				plot,
+				tables,
+				now,
+				FirstVisit.arrive(player, profile, plot.model, "mystery")
+			)
 			left = VisitTimer.draw(Config.MysteryEveryMin, Config.MysteryEveryMax, rng:NextNumber())
 		end
 		timers[player] = left
@@ -326,7 +354,7 @@ function MysteryService.debugArrive(player: Player, kind: string?): Potions.Gift
 		return nil
 	end
 	sendHome(plot.index)
-	local visit = arrive(player, plot, tables, os.time())
+	local visit = arrive(player, plot, tables, os.time(), false)
 	for _ = 1, 200 do -- rerolls until the kind asked for; an unknown kind keeps the first roll
 		if kind == nil or visit.gift == nil or (visit.gift :: Potions.Gift).kind == kind then
 			break

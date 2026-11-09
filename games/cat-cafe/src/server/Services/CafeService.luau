@@ -28,7 +28,9 @@ local GoldenFish = require(ReplicatedStorage.Shared.GoldenFish)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local IndexRewards = require(ReplicatedStorage.Shared.IndexRewards)
+local Invites = require(ReplicatedStorage.Shared.Invites)
 local Jukebox = require(ReplicatedStorage.Shared.Jukebox)
+local LateStations = require(ReplicatedStorage.Shared.LateStations)
 local Lawn = require(ReplicatedStorage.Shared.Lawn)
 local LawnBuilder = require(script.Parent.Parent.World.LawnBuilder)
 local Layout = require(script.Parent.Parent.World.Layout)
@@ -255,6 +257,7 @@ function CafeService.buildState(player: Player, profile: Profile): Types.PlayerS
 		tutorialStep = profile.tutorialStep,
 		playSeconds = PlayTime.seconds(player, profile), -- #1936: the store guard's first 30 minutes
 		giftNext = PlaytimeGifts.upcoming(profile, 2), -- #2791: the gift icon's next step and the popover's two
+		invite = Invites.view(profile, os.time()), -- #2797: the invite card and the Friends button
 		returnHook = joinHooks[player], -- #2123: the welcome back card's line
 		introSeen = profile.introSeen,
 		potions = profile.potions, -- F64
@@ -1599,6 +1602,10 @@ local function onPlaceCat(player: Player, rawUid: unknown, rawSpot: unknown)
 		Net.toast(player, "Take the cat off its current role first.", "warn")
 		return
 	end
+	if CatStats.atSpa(profile, uid) then
+		Net.toast(player, LateStations.Messages.atSpa, "warn") -- #2651 part 4
+		return
+	end
 	instance.spotId = spotId
 	noteHand(player, uid) -- #1955: Auto Equip leaves it there a while
 	CafeService.advanceTutorial(player, profile, 3)
@@ -1825,6 +1832,10 @@ local function onSellCat(player: Player, rawUid: unknown)
 	end
 	if instance.locked == true then
 		Net.toast(player, "This cat is locked. Unlock it to sell it.", "warn")
+		return
+	end
+	if CatStats.atSpa(profile, uid) then
+		Net.toast(player, LateStations.Messages.atSpa, "warn") -- #2651 part 4
 		return
 	end
 	if offerCheck(player, uid) then
@@ -2219,12 +2230,7 @@ local function onClaimOffline(player: Player)
 		else "60+"
 	Telemetry.custom(player, "offline_claim", amount, { away })
 	Telemetry.onboarding(player, profile, "first_offline_claim")
-	-- #1814: short like the HUD's counter ("+$3.42M"), not every digit
-	Net.toast(
-		player,
-		string.format("Welcome back! +$%s while you were away", ShortNumber.format(amount)),
-		"good"
-	)
+	-- #2829 (Derek2): no "Welcome back! +$X" toast; the Welcome back card already shows the amount
 	CafeService.sync(player)
 end
 

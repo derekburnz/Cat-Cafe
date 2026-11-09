@@ -6,11 +6,14 @@
 -- Where the window has the room (PC, tablet) it is TALL, everything in one column; on a short screen (a phone, sideways)
 -- it is WIDE: the requirements on the left, what the tier opens and the button on the right, so it never runs off the
 -- screen or under Roblox's menu buttons.
+-- #2687: a gold line under "It opens" teases the next tier's station and its perk, and the "Perks" button in the title
+-- bar opens the "Your perks" card (Screens/PerkCard) over the window.
 
 local Button = require(script.Parent.Parent.Components.Button)
 local Create = require(script.Parent.Parent.Components.Create)
 local Format = require(script.Parent.Parent.Components.Format)
 local Panel = require(script.Parent.Parent.Components.Panel)
+local PerkCardLogic = require(script.Parent.Parent.Components.PerkCardLogic) -- #2687: the next station's perk
 local RankUpNeeds = require(script.Parent.Parent.Components.RankUpNeeds) -- #1141: the server's own counts
 local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
@@ -40,6 +43,7 @@ export type Progress = {
 export type Callbacks = {
 	rankUp: () -> (),
 	close: () -> (),
+	perks: (() -> ())?, -- #2687: the title bar's Perks button
 }
 
 export type RankUp = {
@@ -53,13 +57,17 @@ local RankUp = {}
 RankUp.__index = RankUp
 
 local ROW_HEIGHT = 46
-local TALL = Vector2.new(560, 470) -- the window where the screen has room for it
+local TALL = Vector2.new(560, 492) -- the window where the screen has room for it (#2687: 22 px for the perk teaser)
 local WIDE = Vector2.new(840, 310) -- the window on a shorter screen
 local LEFT = 0.6 -- the wide window's requirements column, a share of the content's width
 local BUTTON = Vector2.new(260, 52)
 local LIST_TOP = 58
 local LIST_H = 3 * ROW_HEIGHT + 2 * Theme.sizes.gap
 local OPENS_TOP = LIST_TOP + LIST_H + 10 -- the tall window's "It opens", under the requirements
+local TEASER_TALL = 20 -- #2687: the perk teaser's one line in the tall window
+local TEASER_WIDE = 38 -- and its two in the wide window's narrower column
+local PERKS_BUTTON = Vector2.new(112, 36) -- #2687: the title bar's Perks button, a 36 px face on a mouse
+local PERKS_RIGHT = 64 -- the title bar's room for the X, right of the Perks button
 
 local RARITY_WORDS: { [number]: string } = { "One", "Two", "Three", "Four", "Five" }
 
@@ -291,6 +299,18 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		Text = "It opens",
 		Parent = content,
 	})
+	-- #2687: the next tier's station and perk, in gold
+	self._teaser = text({
+		Name = "PerkTeaser",
+		Position = UDim2.fromOffset(0, OPENS_TOP + 22),
+		Size = UDim2.new(1, 0, 0, TEASER_TALL),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall + 1,
+		TextColor3 = PAL.gold,
+		TextWrapped = true,
+		Visible = false,
+		Parent = content,
+	})
 	self._opens = text({
 		Name = "Opens",
 		Position = UDim2.fromOffset(0, OPENS_TOP + 22),
@@ -314,6 +334,29 @@ function RankUp.new(callbacks: Callbacks): RankUp
 		parent = content,
 		onClick = callbacks.rankUp,
 	})
+
+	-- #2687: "Your perks", in the title bar left of the X
+	self._perksButton = nil :: any
+	if callbacks.perks then
+		local header = panel.body:FindFirstChild("Header") :: Frame?
+		local touch = Scale.isTouch()
+		self._perksButton = Button.new({
+			name = "Perks",
+			text = "Perks",
+			icon = "⭐",
+			style = "ghost",
+			size = UDim2.fromOffset(
+				PERKS_BUTTON.X,
+				Scale.tapHeight(PERKS_BUTTON.Y, Theme.sizes.buttonDepth)
+			),
+			anchorPoint = Vector2.new(1, 0.5),
+			position = UDim2.new(1, -(if touch then PERKS_RIGHT + 12 else PERKS_RIGHT), 0.5, -2),
+			textSize = Theme.sizes.textBody,
+			zIndex = 3,
+			parent = header or content,
+			onClick = callbacks.perks,
+		})
+	end
 
 	-- the window's room is the modal container it sits in, known once it is parented
 	self._parented = panel.frame.AncestryChanged:Connect(function()
@@ -368,13 +411,18 @@ function RankUp._fit(self: any)
 		local x = UDim.new(LEFT, half)
 		self._opensLabel.Position = UDim2.new(x, UDim.new(0, 0))
 		self._opensLabel.Size = UDim2.new(right, UDim.new(0, 20))
-		self._opens.Position = UDim2.new(x, UDim.new(0, 22))
-		self._opens.Size = UDim2.new(right, UDim.new(1, -(22 + BUTTON.Y + Theme.sizes.gap)))
+		self._teaser.Position = UDim2.new(x, UDim.new(0, 22))
+		self._teaser.Size = UDim2.new(right, UDim.new(0, TEASER_WIDE))
+		self._opens.Position = UDim2.new(x, UDim.new(0, 22 + TEASER_WIDE + 2))
+		self._opens.Size =
+			UDim2.new(right, UDim.new(1, -(22 + TEASER_WIDE + 2 + BUTTON.Y + Theme.sizes.gap)))
 		button.Position = UDim2.new(LEFT + (1 - LEFT) / 2, half / 2, 1, 0)
 	else
 		self._opensLabel.Position = UDim2.fromOffset(0, OPENS_TOP)
 		self._opensLabel.Size = UDim2.new(1, 0, 0, 20)
-		self._opens.Position = UDim2.fromOffset(0, OPENS_TOP + 22)
+		self._teaser.Position = UDim2.fromOffset(0, OPENS_TOP + 22)
+		self._teaser.Size = UDim2.new(1, 0, 0, TEASER_TALL)
+		self._opens.Position = UDim2.fromOffset(0, OPENS_TOP + 22 + TEASER_TALL + 2)
 		self._opens.Size = UDim2.new(1, 0, 0, 84)
 		button.Position = UDim2.new(0.5, 0, 1, 0)
 	end
@@ -458,6 +506,7 @@ function RankUp.render(self: any, state: Types.PlayerState)
 		self._nextTitle.Text = if current then current.name else "Top tier"
 		self._needsLabel.Text = "You reached the top tier. Every area and role slot is open."
 		self._opensLabel.Visible = false
+		self._teaser.Visible = false
 		self._opens.Text = ""
 		self._button.instance.Visible = false
 		return
@@ -469,6 +518,9 @@ function RankUp.render(self: any, state: Types.PlayerState)
 		table.insert(self._rows, row)
 	end
 	self._opensLabel.Visible = true
+	local teaser = PerkCardLogic.teaser(progress.tier)
+	self._teaser.Text = teaser or ""
+	self._teaser.Visible = teaser ~= nil
 	self._opens.Text = table.concat(progress.opens, "\n")
 	self._button.instance.Visible = true
 	self._button:setEnabled(progress.ready)
@@ -484,6 +536,9 @@ function RankUp.destroy(self: any)
 		self._room = nil
 	end
 	self._button:destroy()
+	if self._perksButton then
+		self._perksButton:destroy()
+	end
 	self._panel:destroy()
 end
 

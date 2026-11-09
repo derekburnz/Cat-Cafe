@@ -1571,6 +1571,66 @@ local SCENES = {
 		end
 		assert(found, "uigate: the Tier 2 card does not say bait bowl to 3 (#2121)")
 	end },
+	-- #2687 part 4: the "Unlocked!" card a station's reveal brings: the station's picture and name, the new perk in gold
+	-- and its one line, every word fitting, the card on screen with its button a finger tall
+	{ "PerkUnlocked", function()
+		local StationPerks = UIShim.require("ReplicatedStorage.Shared.StationPerks")
+		UI.perks.card:showUnlocked(StationPerks.get("haggler"))
+		local gui = UIShim.playerGui:FindFirstChild("CatCafePerks") :: ScreenGui
+		local card = gui:FindFirstChild("Card", true) :: Frame
+		assert(card.Visible, "uigate: no Unlocked card (#2687)")
+		local seen = {}
+		for _, piece in card:GetDescendants() do
+			if piece:IsA("TextLabel") and piece.Visible and piece.Text ~= "" then
+				seen[piece.Name] = piece.Text
+				assert(piece.TextFits ~= false, "uigate: the Unlocked card's words do not fit: " .. piece.Text .. " (#2687)")
+			end
+		end
+		assert(seen.Station == "Yard Sale", "uigate: the Unlocked card names " .. tostring(seen.Station) .. " (#2687)")
+		assert(seen.Perk and seen.Perk:find("Haggler", 1, true), "uigate: the Unlocked card does not name its perk (#2687)")
+		local inset = game:GetService("GuiService"):GetGuiInset()
+		local view = workspace.CurrentCamera.ViewportSize
+		local at, size = card.AbsolutePosition + inset, card.AbsoluteSize
+		assert(at.X >= 0 and at.Y >= 0 and at.X + size.X <= view.X + 0.5 and at.Y + size.Y <= view.Y + 0.5, "uigate: the Unlocked card runs off screen (#2687)")
+	end },
+	-- #2687 part 4: the rank up window teases the next station's perk in gold, and its Perks button opens "Your perks"
+	-- over it: one row per owned perk, then the next one locked ("Opens at Tier 6"), every word fitting, the list inside
+	-- the card and the card on screen
+	{ "PerkList", function()
+		Scenes._rankTier = (UI.getState() :: any).tier
+		UI.update({ tier = 5 } :: any)
+		UI.open("RankUp")
+		local teaser = UIShim.playerGui:FindFirstChild("PerkTeaser", true) :: TextLabel
+		assert(teaser and teaser.Visible and teaser.Text:find("Oasis Spa", 1, true), "uigate: the rank up window does not tease the next station (#2687)")
+		assert(teaser.TextFits ~= false, "uigate: the perk teaser does not fit: " .. teaser.Text .. " (#2687)")
+		press("RankUp", "Perks")
+		local gui = UIShim.playerGui:FindFirstChild("CatCafePerks") :: ScreenGui
+		local card = gui:FindFirstChild("Card", true) :: Frame
+		assert(card.Visible, "uigate: Perks did not open Your perks (#2687)")
+		local list = card:FindFirstChild("List") :: ScrollingFrame
+		local owned, locked = 0, 0
+		for _, row in list:GetChildren() do
+			if row:IsA("Frame") then
+				local name = row:FindFirstChild("Name") :: TextLabel
+				local line = row:FindFirstChild("Line") :: TextLabel
+				assert(name.TextFits ~= false and line.TextFits ~= false, "uigate: a perk row's words do not fit: " .. name.Text .. " / " .. line.Text .. " (#2687)")
+				if line.Text:find("Opens at Tier", 1, true) then
+					locked += 1
+					assert(line.Text == "Opens at Tier 6", "uigate: the locked perk reads " .. line.Text .. " (#2687)")
+				else
+					owned += 1
+				end
+			end
+		end
+		assert(owned == 4 and locked == 1, ("uigate: Your perks at Tier 5 shows %d owned and %d locked, not 4 and 1 (#2687)"):format(owned, locked))
+		local cardAt, cardSize = card.AbsolutePosition, card.AbsoluteSize
+		local listAt, listSize = list.AbsolutePosition, list.AbsoluteSize
+		assert(listAt.Y >= cardAt.Y and listAt.Y + listSize.Y <= cardAt.Y + cardSize.Y + 0.5, "uigate: the perks list runs out of its card (#2687)")
+		local inset = game:GetService("GuiService"):GetGuiInset()
+		local view = workspace.CurrentCamera.ViewportSize
+		local at = cardAt + inset
+		assert(at.Y >= 0 and at.Y + cardSize.Y <= view.Y + 0.5, "uigate: Your perks runs off screen (#2687)")
+	end },
 	{ "MoodIcons", function()
 		-- Catch v3 (catch-rework.md 7a): a mood icon over each stray with a Mood, Skittish with its arc; hidden
 		-- while caught (LockedBy), gone with the Mood
@@ -6328,6 +6388,9 @@ function Scenes.close()
 	end
 	if UI.gift.card and UI.gift.card:isShowing() then
 		UI.gift.card:hide() -- #1947
+	end
+	if UI.perks.card and UI.perks.card:isShowing() then
+		UI.perks.card:hide() -- #2687
 	end
 	if Scenes._returnHook then
 		Scenes._returnHook = nil

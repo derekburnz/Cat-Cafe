@@ -337,6 +337,7 @@ local dailyTreatScreen: DailyTreat.DailyTreat? = nil -- the Daily Treat card (F7
 local dailyAutoOpen: boolean? = nil
 local introScreen: Intro.Intro? = nil -- the intro cutscene's bars, captions and Skip (F72, UI.intro)
 local introLive = false -- the intro exists on this server: state.introSeen arrived or UI.intro.start ran
+local introBegun = false -- #2759: an intro has started this session
 local introGlowed = false -- the Tutorial tile has had its two pulses after a first play
 local tutorialButtonOn = true -- the Tutorial button setting as shown (F72)
 local tutorialTarget: (BasePart | Attachment | Vector3)? = nil -- UI.tutorial.show's, put back after an intro
@@ -419,6 +420,15 @@ function applyTutorial()
 	if
 		not tutorialButtonOn
 		and (state.tutorialStep or math.huge) >= CannonLogic.WALKTHROUGH_STEP
+	then
+		text, target = nil, nil
+	end
+	-- #2759: a fresh save's intro is on its way (it waits for the camp to stream in): no strip over the loading view
+	if
+		Config.IntroAutoPlay
+		and not introBegun
+		and state.introSeen == false
+		and ((state :: any).plotIndex or 0) ~= 0
 	then
 		text, target = nil, nil
 	end
@@ -2829,6 +2839,7 @@ function UI.intro.start(options: Types.IntroOptions?)
 		introLive = true
 		renderTutorialButton()
 	end
+	introBegun = true
 	UI.setVisible(false)
 	if popups then
 		popups:setHeld(true)

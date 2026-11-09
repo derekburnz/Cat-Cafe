@@ -1690,6 +1690,33 @@ local SCENES = {
 	{ "Cannon", function()
 		UI.cannon.open()
 	end },
+	-- #2692: at night a new player with the night pass (the NightPass attribute, before the first check-in) sees the
+	-- area cards open, no moon cover; once the pass ends, the cover is back
+	{ "CannonNightPass", function()
+		local t = workspace:GetServerTimeNow()
+		UI.clock.set("night", t + 120)
+		UI.clock.setAreasOpen(false)
+		UIShim.player:SetAttribute("NightPass", true)
+		UI.cannon.open()
+		UIShim.advance(0.3)
+		local window = UIShim.playerGui:FindFirstChild("Cannon", true) :: Instance
+		local function covers(): number
+			local count = 0
+			for _, piece in window:GetDescendants() do
+				if piece.Name == "Night" and piece:IsA("GuiObject") and piece.Visible then
+					count += 1
+				end
+			end
+			return count
+		end
+		assert(covers() == 0, "uigate: a night cover shows for a player with the night pass (#2692)")
+		UIShim.player:SetAttribute("NightPass", nil)
+		UIShim.advance(0.3)
+		assert(covers() > 0, "uigate: no night cover once the night pass ends (#2692)")
+		UIShim.player:SetAttribute("NightPass", true) -- the shot: open cards at night
+		UIShim.advance(0.3)
+		Scenes._nightPass = true
+	end },
 	{ "Bait", function()
 		UI.bait.openPicker()
 		-- #1281: no Buy on any food; each says how many you have, or where to get more
@@ -6003,6 +6030,12 @@ end
 
 function Scenes.close()
 	reel(false)
+	if Scenes._nightPass then
+		UIShim.player:SetAttribute("NightPass", nil) -- #2692's scene
+		UI.clock.setAreasOpen(true)
+		UI.clock.clear()
+		Scenes._nightPass = nil
+	end
 	if Scenes._tradeTier ~= nil then
 		UI.update(Scenes._tradeTier :: any) -- #2462's scene
 		Scenes._tradeTier = nil

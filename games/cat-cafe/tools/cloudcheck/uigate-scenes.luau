@@ -3516,6 +3516,53 @@ local SCENES = {
 		assert(cool.Visible and cool.Size.Y.Scale > 0.8, "uigate: the Tackle button did not grey after a tap (#2510)")
 		assert(word.Text:match("^%ds$") ~= nil, "uigate: the recharging Tackle button reads " .. word.Text .. " (#2510)")
 	end },
+	-- #2724 (Derek2: "remove the extra hud clutter when doing catching so its easier to see / focus") and #2727 ("remove
+	-- the pop up bubbles when catching cats"): while the circles run only the money stays on the HUD's root, a toast
+	-- that comes waits (a warning still shows), and when they end the HUD is back as it was and the toast shows.
+	-- The snapshot is taken mid-catch.
+	{ "CatchFocus", function()
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local root = hud:FindFirstChild("Root") :: Frame
+		local before: { [Instance]: boolean } = {}
+		for _, child in root:GetChildren() do
+			if child:IsA("GuiObject") then
+				before[child] = child.Visible
+			end
+		end
+		local function toast(text: string): TextLabel?
+			for _, label in UIShim.playerGui:GetDescendants() do
+				if label:IsA("TextLabel") and label.Name == "Text" and label.Text == text then
+					return label
+				end
+			end
+			return nil
+		end
+		-- a whole catch, start to end: the HUD steps aside and the toast waits
+		startCatch("gate_focus", "Rare", 3, 0.2, 0.9)
+		UIShim.advance(0.3)
+		assert(UI.catch.circlesActive(), "uigate: the catch circles did not start")
+		for child in before do
+			local piece = child :: GuiObject
+			if piece.Name ~= "Counters" then
+				assert(not piece.Visible, "uigate: the HUD's " .. piece.Name .. " still shows mid-catch (#2724)")
+			end
+		end
+		UI.toast("Tip Jar: 2 gifts claimed!", "good")
+		UI.toast("Your paws are shaking!", "warn")
+		UIShim.advance(0.3)
+		assert(toast("Tip Jar: 2 gifts claimed!") == nil, "uigate: a toast showed mid-catch (#2727)")
+		assert(toast("Your paws are shaking!") ~= nil, "uigate: a warning waited mid-catch (#2727)")
+		UI.catch.hideCircles()
+		UI.catch.hide()
+		UIShim.advance(0.5)
+		for child, was in before do
+			assert((child :: GuiObject).Visible == was, "uigate: the HUD's " .. child.Name .. " did not come back after the catch (#2724)")
+		end
+		assert(toast("Tip Jar: 2 gifts claimed!") ~= nil, "uigate: the waiting toast never showed after the catch (#2727)")
+		-- and the screen as it looks mid-catch, for the snapshot
+		startCatch("gate_focus2", "Rare", 3, 0.2, 0.9)
+		UIShim.advance(0.3)
+	end },
 	-- F93: a catch three circles in: Perfect, Good, Perfect, each cleared with its word, the pips filling
 	{ "Catch", function()
 		local list = startCatch("gate_stray", "Epic", 5, 0, 0.82)

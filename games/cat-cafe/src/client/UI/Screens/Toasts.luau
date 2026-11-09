@@ -43,6 +43,7 @@ export type Toasts = {
 	setCatalog: (self: Toasts, catalog: Types.Catalog) -> (),
 	avoid: (self: Toasts, boxes: () -> { Types.Box }, floor: (() -> number)?) -> (),
 	setHeld: (self: Toasts, held: boolean) -> (),
+	setFocus: (self: Toasts, on: boolean) -> (), -- #2724: mid-catch toasts wait
 	isHeld: (self: Toasts) -> boolean,
 	lastShown: (self: Toasts) -> number?,
 	destroy: (self: Toasts) -> (),
@@ -296,8 +297,12 @@ function Toasts._push(
 	prize: Types.IndexPrize?,
 	oneLine: boolean?
 )
-	-- #2408: held (a camera cut on screen): it waits in the queue and shows when the hold ends
-	if self._held then
+	-- #2408: held (a camera cut on screen): it waits in the queue and shows when the hold ends. #2724/#2727: so does
+	-- any but a warning or the catch's own "Try again" while the catch circles or the rescue bar run (setFocus)
+	local focusWait = self._focus
+		and fill ~= KIND_COLORS.warn
+		and string.sub(text, 1, 9) ~= "Try again"
+	if self._held or focusWait then
 		for _, waiting in self._queue do
 			if waiting.text == text and prize == nil then
 				return
@@ -647,6 +652,23 @@ function Toasts.setHeld(self: any, held: boolean)
 	end
 	self._held = held
 	if held then
+		return
+	end
+	local waiting: { Waiting } = table.clone(self._queue)
+	table.clear(self._queue)
+	for _, line in waiting do
+		self:_push(line.text, line.fill, line.lifetime, line.bands, line.prize, line.oneLine)
+	end
+end
+
+-- #2724 (Derek2: "remove the extra hud clutter when doing catching so its easier to see / focus") and #2727
+-- ("remove the pop up bubbles when catching cats"): toasts that come mid-catch wait and show when it ends.
+function Toasts.setFocus(self: any, on: boolean)
+	if self._focus == on then
+		return
+	end
+	self._focus = on
+	if on or self._held then
 		return
 	end
 	local waiting: { Waiting } = table.clone(self._queue)

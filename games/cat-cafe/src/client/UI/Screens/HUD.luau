@@ -211,6 +211,8 @@ local BOWL_ICON = "🥣" -- the bait bowl symbol's glyph, under the Big Bowl per
 -- On a touch screen the label sits inside each tile (Button layout "tile") and the Store is the grid's first square,
 -- so the grid stays up at the top, clear of Roblox's thumbstick on a small phone.
 local TOUCH = Scale.isTouch()
+-- #2724: what stays on the HUD's root while the catch circles or the rescue bar run: the money (a catch pays into it)
+local FOCUS_KEEP: { [string]: boolean } = { Counters = true }
 local TILE_LAYOUT: Button.Layout = if TOUCH then "tile" else "clean"
 -- #1676 (Derek2 live 11-05: "the buttons became way too big and spread so they take up too much screen"): 66 on a PC
 -- (was 78), its label 15, the Store 68 tall, and the gaps only the outline clear of the key caps and red dots. On a
@@ -507,6 +509,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		Parent = screenGui,
 	})
 	self._root = root
+	self._focusHidden = {} :: { [GuiObject]: boolean } -- #2724
 	self._uiScale = Scale.bind(root)
 
 	-- Money and golden fish (bottom left, Derek 2026-10-28: "The money and coins should be displayed in bottom left"):
@@ -2278,8 +2281,43 @@ function HUD.setCatching(self: any, active: boolean)
 	end
 	self:_layoutBottom()
 	self:_renderTutorialTile()
+	self:_applyFocus()
 	if changed then
 		self.catchingChanged:Fire(active)
+	end
+end
+
+-- #2724 (Derek2 11-09: "remove the extra hud clutter when doing catching so its easier to see / focus"): while the
+-- catch circles or the rescue bar run, every piece on the HUD's root steps aside except the money (FOCUS_KEEP): the
+-- top right icons, the clock, the goal card, the strip, the menu and its tab, the corner tiles, the chips and notes.
+-- What each piece wanted is kept, so a render mid-catch (which may show one) is hidden again here, and the catch's end
+-- puts each back as its own logic left it.
+function HUD._applyFocus(self: any)
+	local root: Frame = self._root
+	local hidden: { [GuiObject]: boolean } = self._focusHidden
+	if self._catching then
+		for _, child in root:GetChildren() do
+			if child:IsA("GuiObject") and not FOCUS_KEEP[child.Name] and child.Visible then
+				local piece = child :: GuiObject
+				hidden[piece] = true
+				piece.Visible = false
+			end
+		end
+		return
+	end
+	if next(hidden) == nil then
+		return
+	end
+	for child in hidden do
+		if child.Parent == root then
+			child.Visible = true
+		end
+	end
+	table.clear(hidden)
+	-- and the last state again, so a piece whose time ran out mid-catch (a free spin, a rally) hides as it should
+	local state: Types.PlayerState? = self._state
+	if state then
+		self:render(state)
 	end
 end
 
@@ -2612,6 +2650,7 @@ function HUD.render(self: any, state: Types.PlayerState)
 		self:_renderDots(catalog, state)
 	end
 	self:_renderBowlSlot(state)
+	self:_applyFocus() -- #2724: a render mid-catch keeps the clutter hidden
 end
 
 -- F87 (easy-start.md section 2f): whether a piece of the small HUD shows yet; everything before the first state.

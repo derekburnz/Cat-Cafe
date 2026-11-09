@@ -166,6 +166,9 @@ local PACK_RIM = 0.66 -- the top of the pack's opening
 local PACK_MOUTH_Z = -0.33 -- the middle of the opening, front to back
 local PACKED_SCALE = 0.7 -- the packed cat's size, so its head fits the opening
 local HEAD_OUT = 0.75 -- how much of the head's height shows over the rim
+local PACK_PART = "PackPart" -- the Weld that holds each part of the bag (not the flap) to its body
+-- #2733: how much wider (x) and deeper (z) the bag gets with a cat in it; its back stays against the wearer
+local BULGE = Vector3.new(1.12, 1, 1.1)
 
 -- The worn pack on `character`, nil without one.
 function HeldCat.pack(character: Model): Model?
@@ -204,11 +207,23 @@ function HeldCat.wearPack(pack: Model, character: Model): boolean
 			part.CanTouch = false
 			part.Massless = true
 			local onFlap = flap ~= nil and flapBody ~= nil and part:IsDescendantOf(flap)
-			local anchor = if onFlap then flapBody else body
-			if part ~= body and part ~= flapBody and anchor ~= nil then
+			if part == body then
+				part:SetAttribute("RestSize", part.Size)
+			elseif onFlap and flapBody ~= nil and part ~= flapBody then
 				local weld = Instance.new("WeldConstraint")
-				weld.Part0 = anchor
+				weld.Part0 = flapBody
 				weld.Part1 = part
+				weld.Parent = part
+			elseif not onFlap then
+				-- a Weld rather than a WeldConstraint, so the bulge can move it out
+				local rest = body.CFrame:ToObjectSpace(part.CFrame)
+				local weld = Instance.new("Weld")
+				weld.Name = PACK_PART
+				weld.Part0 = body
+				weld.Part1 = part
+				weld.C0 = rest
+				weld:SetAttribute("Rest", rest)
+				weld:SetAttribute("RestSize", part.Size)
 				weld.Parent = part
 			end
 		end
@@ -233,14 +248,63 @@ function HeldCat.wearPack(pack: Model, character: Model): boolean
 	hold.Part0 = torso
 	hold.Part1 = body
 	hold.C0 = torso.CFrame:ToObjectSpace(body.CFrame)
+	hold:SetAttribute("Rest", hold.C0)
 	hold.Parent = body
 	return true
 end
 
--- Opens or shuts the worn pack's flap (open while a cat rides in it). Nothing without a worn pack.
+-- How much a part turned by `rotation` (in the bag body's space) grows along each of its own axes when the bag
+-- grows by `factor` along the body's axes.
+local function grownSize(rotation: CFrame, factor: Vector3): Vector3
+	local function along(axis: Vector3): number
+		return (axis * factor).Magnitude
+	end
+	return Vector3.new(
+		along(rotation.RightVector),
+		along(rotation.UpVector),
+		along(rotation.LookVector)
+	)
+end
+
+-- #2733: the bag full (BULGE) or empty. The body moves away from the wearer by its own growth, so its back stays on
+-- the torso; every other bag part moves out with it and grows along its own axes. The flap keeps its size.
+local function bulge(pack: Model, full: boolean)
+	local body = bodyOf(pack)
+	local restSize = if body ~= nil then body:GetAttribute("RestSize") else nil
+	if body == nil or typeof(restSize) ~= "Vector3" then
+		return
+	end
+	local factor = if full then BULGE else Vector3.one
+	body.Size = restSize * factor
+	local hold = body:FindFirstChild("PackWeld")
+	local holdRest = if hold ~= nil then hold:GetAttribute("Rest") else nil
+	if hold ~= nil and hold:IsA("Weld") and typeof(holdRest) == "CFrame" then
+		-- the body's back face, against the wearer, is at +Z/2 in its own space
+		(hold :: Weld).C0 = holdRest * CFrame.new(0, 0, -(factor.Z - 1) * restSize.Z / 2)
+	end
+	for _, descendant in pack:GetDescendants() do
+		if descendant.Name == PACK_PART and descendant:IsA("Weld") then
+			local weld = descendant :: Weld
+			local rest = weld:GetAttribute("Rest")
+			local size = weld:GetAttribute("RestSize")
+			local part = weld.Part1
+			if typeof(rest) == "CFrame" and typeof(size) == "Vector3" and part ~= nil then
+				weld.C0 = CFrame.new(rest.Position * factor) * rest.Rotation
+				part.Size = size * grownSize(rest.Rotation, factor)
+			end
+		end
+	end
+end
+
+-- Opens or shuts the worn pack's flap and fills or empties the bag: open and a little wider while a cat rides in it
+-- (#2733). Nothing without a worn pack.
 function HeldCat.openPack(character: Model, open: boolean)
 	local pack = HeldCat.pack(character)
-	local hinge = if pack ~= nil then pack:FindFirstChild(FLAP_HINGE, true) else nil
+	if pack == nil then
+		return
+	end
+	bulge(pack, open)
+	local hinge = pack:FindFirstChild(FLAP_HINGE, true)
 	if hinge == nil or not hinge:IsA("Weld") then
 		return
 	end

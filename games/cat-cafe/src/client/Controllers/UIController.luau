@@ -24,6 +24,8 @@ local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
 local Effects = require(script.Parent.Parent.Effects)
 local EventRsvp = require(script.Parent.Parent.UI.Components.EventRsvp)
 local FirstVisitLogic = require(script.Parent.Parent.UI.Components.FirstVisitLogic)
+local Invite = require(script.Parent.Parent.UI.Components.Invite)
+local InviteCardLogic = require(script.Parent.Parent.UI.Components.InviteCardLogic)
 local Jukebox = require(Shared:WaitForChild("Jukebox"))
 local Luck = require(Shared:WaitForChild("Luck"))
 local Moments = require(script.Parent.Parent.Moments)
@@ -1623,6 +1625,11 @@ local function showAsk(id: string)
 		if asks ~= nil and type(asks.show) == "function" then
 			shown = (asks.show :: (string) -> unknown)(id) == true
 		end
+		if id == Tips.INVITE_ASK and state ~= nil and (state :: any).invite ~= nil then
+			-- #2797: a server with the invite reward has its own card (offerInvite), so the older +10% tips nudge stays
+			-- quiet rather than a second invite ask; left unanswered, as below
+			return
+		end
 		if not shown and id == Tips.INVITE_ASK then
 			-- Review N320: the invite ask is only worth its card (which opens Roblox's invite prompt). Until the UI
 			-- has one, leave it unanswered so the server offers it again in a later session instead of a toast
@@ -1696,10 +1703,108 @@ local function offerEvent()
 	end)
 end
 
+-- #2797 (retention-ideas.md 5d): the one invite card with its reward (UI/Components/InviteCardLogic), once per
+-- account between PlayerState.invite's cardFrom and cardBy seconds of play: at the first good moment (a Rare-or-better
+-- cat caught, rescued or at the bowl, or the Grand Opening's step 4), else at cardBy, at a calm moment. InviteCard
+-- reports "shown", "invite" and "notnow" (the server marks it shown); Invite opens Roblox's window after its
+-- CanSendGameInviteAsync check (UI/Components/Invite).
+local inviteCard = { asked = false, good = false, done = false, sent = nil :: number?, sentAt = 0 }
+
+local function offerInvite()
+	if inviteCard.asked or state == nil then
+		return
+	end
+	local view = (state :: any).invite
+	local sent = (state :: any).playSeconds
+	if sent ~= inviteCard.sent then
+		inviteCard.sent = if type(sent) == "number" then sent else nil
+		inviteCard.sentAt = os.clock()
+	end
+	local played = InviteCardLogic.played(inviteCard.sent, inviteCard.sentAt, os.clock())
+	if not InviteCardLogic.due(view, played, inviteCard.good) then
+		return
+	end
+	inviteCard.asked = true
+	task.spawn(function()
+		local waited = 0
+		while not quiet() do
+			if waited >= ASK_WAIT_SECONDS then
+				inviteCard.asked = false
+				return
+			end
+			waited += task.wait(1)
+		end
+		local now: any = state
+		if now == nil or not InviteCardLogic.due(now.invite, played, true) then
+			return
+		end
+		local asks: any = (UI :: any).asks
+		local card: any = if asks ~= nil then asks.card else nil
+		local shown = type(card) == "function"
+			and (card :: (any) -> unknown)({
+					title = InviteCardLogic.title(now.invite),
+					choices = {
+						{ id = "invite", label = InviteCardLogic.INVITE, style = "primary" },
+						{ id = "later", label = InviteCardLogic.NOT_NOW, style = "ghost" },
+					},
+					seconds = InviteCardLogic.SECONDS,
+					lines = 2,
+					answer = function(choice: string?)
+						if choice == "invite" then
+							Net.fire("InviteCard", "invite")
+							Invite.prompt()
+						elseif choice == "later" then
+							Net.fire("InviteCard", "notnow")
+						end
+					end,
+				})
+				== true
+		if shown then
+			inviteCard.done = true
+			Net.fire("InviteCard", "shown")
+		else
+			inviteCard.asked = false -- another card was up: the next check tries again
+		end
+	end)
+end
+
+-- The good moments, and a check every few seconds so cardBy comes without a sync.
+local function trackInvite()
+	local function good(rarity: string?)
+		if InviteCardLogic.goodRarity(rarity) and not inviteCard.good then
+			inviteCard.good = true
+			offerInvite()
+		end
+	end
+	Moments.CatchSuccess:Connect(function(_strayId: string, rarity: string?)
+		good(rarity)
+	end)
+	Moments.RescueDone:Connect(function(_spotId: string, rarity: string?)
+		good(rarity)
+	end)
+	task.spawn(function()
+		local started = os.clock()
+		while not inviteCard.done do
+			task.wait(5)
+			local view = if state ~= nil then (state :: any).invite else nil
+			-- review: stop once it was shown, or when the server has sent no invite view for 10 minutes (a server
+			-- without the reward card)
+			if
+				(type(view) == "table" and view.cardShown == true)
+				or (view == nil and os.clock() - started > 600)
+			then
+				break
+			end
+			offerInvite()
+		end
+	end)
+end
+
 local function wireServerEvents()
 	Net.on("ProfileSync", function(s: Types.PlayerState)
 		applyState(s)
 		offerEvent()
+		offerInvite()
 		reportDevice()
 		reportClientError()
 	end)
@@ -1988,6 +2093,7 @@ local function wireServerEvents()
 	-- the UI has one the tips wait unseen, so they still show once the cards land. F96: the notification and favorite
 	-- asks (and F92's invite nudge) are this controller's (showAsk); the like ask goes to the queue when there is one.
 	trackBusy()
+	trackInvite()
 	Net.on("ShowTip", function(id: unknown)
 		if type(id) ~= "string" or not Tips.seenId(id) then
 			return
@@ -2106,6 +2212,10 @@ local function wireServerEvents()
 	-- #1893: a Grand Opening milestone was just paid; the ProfileSync that shows it came first. UI.roadmap.step plays
 	-- the toast and confetti (and on the last, the Grand Opening) once the UI has it.
 	Net.on("RoadmapStep", function(n: number)
+		if n == InviteCardLogic.GOOD_STEP then
+			inviteCard.good = true -- #2797: a good moment for the invite card
+			task.defer(offerInvite)
+		end
 		local roadmap = (UI :: any).roadmap
 		local step: ((number) -> ())? = if roadmap ~= nil then roadmap.step else nil
 		if step ~= nil and type(n) == "number" then
@@ -2114,6 +2224,10 @@ local function wireServerEvents()
 	end)
 	-- #1897: the guaranteed Rare-or-better bait cat is at the bowl ("Your first Rare!" or "A Rare visitor!")
 	Net.on("FirstWow", function(rarity: string, first: boolean)
+		if InviteCardLogic.goodRarity(rarity) then
+			inviteCard.good = true -- #2797: a Rare-or-better cat at the bowl
+			task.defer(offerInvite)
+		end
 		local wow: ((string, boolean) -> ())? = (UI.bait :: any).wow
 		if wow ~= nil and type(rarity) == "string" then
 			wow(rarity, first == true)

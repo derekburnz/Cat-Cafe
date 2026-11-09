@@ -1081,6 +1081,18 @@ local function wireIntents()
 			end
 			Net.fire("DropCat")
 		end)
+		-- #2873 (console, #2871): DPad down drops too, one cat a press like G (the hands first, then the Backpack). Not
+		-- while a window is open or the UI took the press (selection mode), and the server refuses it mid catch.
+		UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: boolean)
+			if gameProcessed or input.KeyCode ~= Enum.KeyCode.DPadDown or UI.isOpen() ~= nil then
+				return
+			end
+			local character = player.Character
+			local packedId = if character ~= nil then character:GetAttribute("PackedCatId") else nil
+			if lastCarrying ~= nil or packedId ~= nil then
+				dropCat:Fire()
+			end
+		end)
 	end
 	UI.events.rankUp:Connect(function()
 		Net.fire("RankUp")

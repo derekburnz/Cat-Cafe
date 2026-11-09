@@ -392,7 +392,7 @@ STUDIO_NOTES = {
                   "the Corner Shop stall (#1698).",
     mysteryitems.BACKPACK: "#2565 (mystery-market.md section 3d): the Backpack, for Juniper's window picture "
                            "(ItemIcon draws its -Z face, the front pocket) and the wagon's FeaturedItem pedestal; #2849 "
-                           "redrew it to match the Bag HUD icon (sky blue, cat ears, a cat tail). Worn: "
+                           "redrew it with cat ears and a cat tail, #2888 made it a cuter lilac and pink. Worn: "
                            "weld it behind the torso like HeldCat.wearPack, turned 180 degrees about Y so the "
                            "front looks backward, massless and CanCollide off. Open it while a cat rides in it by "
                            "turning the child Model _Flap about its own X by mysteryitems.FLAP_OPEN (125) degrees.",

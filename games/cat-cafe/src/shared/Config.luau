@@ -170,8 +170,9 @@ local Config = {
 	-- (section 5): CloudHopSeconds long, the move at CloudHopMoveAtSeconds. Derek 2026-11-03 ("should be much further
 	-- with less summer salting"): the longer flight with Animation-Engineer's arc, 4.0 s with the move at 2.6, while
 	-- the body is out of sight in the clouds (2.0 to 3.0). The flyer goes into the clouds at CannonCloudsAt and the
-	-- feet touch the pad at CannonTouchdownAt, both from CannonLaunchAt, for the sounds (Sound-Agent).
-	CannonLaunchSeconds = 4.0,
+	-- feet touch the pad at CannonTouchdownAt, both from CannonLaunchAt, for the sounds (Sound-Agent). #2690 (Derek2
+	-- 2026-11-09: movement and camera "locked too long" after landing): let go 0.25 after the touch, was 4.0.
+	CannonLaunchSeconds = 3.75,
 	CannonTeleportAtSeconds = 2.6,
 	CannonCloudsAt = 2.0,
 	CannonTouchdownAt = 3.5,

@@ -1821,7 +1821,7 @@ Presets.carryPose = {
 
 -- The Cat Cannon flight (F84, hometown-cannon.md section 3b; Derek 2026-11-03: "much further with less summer
 -- salting", "it's cool to see your character fly"), drawn by CannonGlide.luau on every character from its
--- `CannonLaunchAt`, in seconds from it (CannonLaunchSeconds 4.0 in all). The server holds the character's root
+-- `CannonLaunchAt`, in seconds from it (CannonLaunchSeconds 3.75 in all, #2690). The server holds the character's root
 -- anchored at the barrel's seat, upright and facing where the barrel fires, then on the landing pad from
 -- CannonTeleportAtSeconds (2.6); the body moves away from the root through the Root joint, so nothing replicates.
 -- From where it stood the character crouches for `hopCrouch` and hops in a `hopHeight` arc into the barrel by `hop`,
@@ -1835,7 +1835,8 @@ Presets.carryPose = {
 -- a curve onto the pad, the curve's own speed slowing to `arrive` of it at the end; it swings into the landing over
 -- the last `open` seconds and lands at `touch`. The hero landing: down on one knee with a fist on the ground by
 -- `kneel` seconds after the touch, held to `hold`, then up standing at `ends`, and the joints go back over
--- `blendOut`. A key's numbers are Avatar.Pose degrees, as in tacklePose; `ball` hugs the shins with the chin tucked.
+-- `blendOut`. #2690 (Derek2 2026-11-09: "locked too long" after landing): the server lets go at `ends`, a quarter
+-- second after the touch (was half a second), so the landing is quicker. A key's numbers are Avatar.Pose degrees, as in tacklePose; `ball` hugs the shins with the chin tucked.
 Presets.cannonPose = {
 	hopCrouch = 0.1,
 	hop = 0.4,
@@ -1843,7 +1844,7 @@ Presets.cannonPose = {
 	gone = 2.0,
 	drop = 3.0,
 	touch = 3.5,
-	ends = 4.0,
+	ends = 3.75, -- Config.CannonLaunchSeconds: the server lets go here
 	hopHeight = 2.5,
 	tilt = 50,
 	speed = 260, -- was 190 (#1174: "shoot faster and further")
@@ -1860,8 +1861,8 @@ Presets.cannonPose = {
 	back = 30,
 	arrive = 0.2,
 	open = 0.15,
-	kneel = 0.1,
-	hold = 0.25,
+	kneel = 0.08,
+	hold = 0.12,
 	blendOut = 0.15,
 	poses = {
 		hopCrouch = {
@@ -1948,8 +1949,8 @@ Presets.cannonGlide = {
 -- player's own pitch, following the flyer down from `wide` times the player's own distance, and closes in to it and
 -- onto the player's own focus as the feet touch (cannonPose's `open`). At the touch it gives one quick, slight push in
 -- (`push`, a fraction closer: 0.12 is 12%) that peaks `bumpIn` of the way through `bump` seconds and is back on the
--- player's own distance by the end of them, where the game's camera takes over (cannonPose's `ends`); with Reduce
--- Motion there is no bump. The landing used to close to `land` (1.35, #1081) and settle slowly; #1131 (Derek
+-- player's own distance by the end of them, where the game's camera takes over (cannonPose's `ends`, when the server
+-- lets go, #2690); with Reduce Motion there is no bump. The landing used to close to `land` (1.35, #1081) and settle slowly; #1131 (Derek
 -- 2026-11-04) asked for a quick, slight zoom in and straight back.
 Presets.cannonCamera = {
 	launch = Vector3.new(5, 5, 14),
@@ -1959,7 +1960,7 @@ Presets.cannonCamera = {
 	over = 0.1,
 	wide = 1.8,
 	push = 0.12,
-	bump = 0.5, -- touch + bump = cannonPose.ends, where the game camera takes over
+	bump = 0.25, -- touch + bump = cannonPose.ends, where the game camera takes over (was 0.5, #2690)
 	bumpIn = 0.25,
 }
 
@@ -3228,7 +3229,7 @@ Presets.mystery = {
 	},
 }
 
--- The Cat Cannon flight (F84, hometown-cannon.md section 3b; CannonLaunchSeconds 4.0 is `endAt`). Seconds from the
+-- The Cat Cannon flight (F84, hometown-cannon.md section 3b; CannonLaunchSeconds 3.75 is `endAt`). Seconds from the
 -- server's `CannonLaunchAt`: the fuse fizzes until `boomAt`, then a smoke ring, confetti and a shake at the muzzle
 -- and a sparkle trail on the flying body until `puffAt`, where a cloud puff swallows it in the sky. The trail comes
 -- back as it drops onto the landing pad from `dropAt`, and a dust poof goes off at `landAt`, when its feet touch
@@ -3241,7 +3242,7 @@ Presets.cannon = {
 	puffAt = 2.0,
 	dropAt = 3.0,
 	landAt = 3.5,
-	endAt = 4.0,
+	endAt = 3.75, -- #2690: was 4.0
 	stale = 0.5, -- seconds past endAt a flight still plays (joined or streamed in late: none)
 	fuseSeconds = 0.5, -- the fizz runs over this long before the boom
 	fuseEvery = 0.08, -- seconds between fizzes

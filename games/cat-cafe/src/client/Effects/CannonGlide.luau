@@ -16,7 +16,8 @@
 -- it posed in a ViewportFrame that VFX-Agent's cloud tunnel lays between its clouds (`CannonGlide.mount`).
 -- The launching player's camera (section 7): it follows the hop, chases the flyer out of the barrel, waits under the
 -- clouds, follows it down onto the pad from further out than the player's own view, closes to that view, gives one
--- quick, slight push in at the touch and straight back, then hands back to the game's camera at the end of the flight (Presets.cannonCamera). Everyone else keeps their own
+-- quick, slight push in at the touch and straight back, then hands back to the game's camera at the end of the flight,
+-- when the server lets go (Presets.cannonCamera; #2690). Everyone else keeps their own
 -- camera.
 -- Listening only: nothing here fires a remote.
 
@@ -301,6 +302,9 @@ type View = {
 	last: CFrame,
 }
 local view: View? = nil
+-- The CannonLaunchAt whose camera went back to the game's at cannonPose's `ends`, when the server lets go (#2690),
+-- while the landing pose still blends out, so the player can turn the view as soon as they can walk.
+local handedBack: number? = nil
 
 -- While this player is in flight and until the server lets go of the landed character (its root anchored until
 -- Config.CannonLaunchSeconds, and a moment more for that to reach this client), the Left and Right arrows are
@@ -351,15 +355,18 @@ local function track()
 	local f = if me ~= nil then flights[me] else nil
 	local launchAt = if f ~= nil then f.launchAt else nil
 	holdArrows(launchAt ~= nil or not grounded(me))
-	if camera == nil or me == nil or f == nil or launchAt == nil then
+	local c, k = Presets.cannonPose, Presets.cannonCamera
+	local seconds = if launchAt ~= nil then Workspace:GetServerTimeNow() - launchAt else 0
+	if launchAt ~= nil and seconds >= c.ends then
+		handedBack = launchAt
+	end
+	if camera == nil or me == nil or f == nil or launchAt == nil or launchAt == handedBack then
 		if view ~= nil and camera ~= nil then
 			camera.CameraType = Enum.CameraType.Custom -- the game's camera again, from where this left it
 		end
 		view = nil
 		return
 	end
-	local c, k = Presets.cannonPose, Presets.cannonCamera
-	local seconds = Workspace:GetServerTimeNow() - launchAt
 	local root = f.root.CFrame
 	local body = CannonGlide.body(me)
 	local current: View? = view

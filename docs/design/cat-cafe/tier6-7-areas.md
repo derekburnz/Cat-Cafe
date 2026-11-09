@@ -193,6 +193,103 @@ The build lists each of these with its new rows:
 - **Heat shimmer:** it turns off under Reduce Motion and under Low performance. It uses one screen-space effect per client, never one per part.
 - **Cannon picker:** seven rows scroll on a phone, as #2339 lays out. The picker lists the areas in tier order.
 
+## 7b. Area contents for opening the areas (Gameplay-Engineer's ask, #2651)
+
+Every value follows the Sewer's pattern in Catalog. Pace can still tune the coin numbers.
+
+### Crates and decor
+
+There are two new crate pools, `desert` ("Desert Crate") and `ruins` ("Ruins Crate"), added to `CRATE_POOLS` with their golden twins (`desert_golden_crate`, `ruins_golden_crate`).
+- They're sold at the Golden Fish Market at `Config.CratePrice` (40) like every zone crate, and open once the area is open (Tier 6 and Tier 7).
+- Each pool has **twelve** pieces, the same as every other area today (not 16): 5 Common, 4 Rare, and one each of Epic, Legendary and Mythical.
+- That's two each of wallpaper, floor, paint and furniture, plus two decorations, a door set and a cat flap.
+- Bonuses come from `CratePieceBonus`, and model names come from the usual `CatCafe_Style_`, `CatCafe_Decor_`, `CatCafe_Door_` and `CatCafe_CatFlap_` rules.
+- The Epic is a normal decoration on a decor spot. It isn't an F48 `index_` piece with its own anchor, so the cafe needs no new anchor.
+
+**Desert Crate**
+
+| id | Name | Kind | Rarity | Colour / material | Blurb |
+|---|---|---|---|---|---|
+| `desert_sandstone_blocks` | Sandstone Blocks | wallpaper | Common | (204, 170, 120) Sandstone | "Warm blocks of desert stone." |
+| `desert_market_stripes` | Market Stripes | wallpaper | Rare | (220, 120, 80) Fabric | "Bright stripes like a desert tent." |
+| `desert_sand_ripple` | Sand Ripple | floor | Common | (232, 205, 150) Sand | "Soft sand swept into little waves." |
+| `desert_mirage_glass` | Mirage Glass | floor | Mythical | (160, 200, 240) Glass | "A floor that shimmers like heat on the dunes." |
+| `desert_dune_gold` | Dune Gold | paint | Common | (226, 190, 120) SmoothPlastic | "The colour of sand at noon." |
+| `desert_oasis_teal` | Oasis Teal | paint | Rare | (64, 168, 160) SmoothPlastic | "Cool water green with sandy trim." |
+| `desert_cushion_pile` | Cushion Pile | furniture | Common | | "A heap of tasselled floor cushions." |
+| `desert_caravan_bench` | Caravan Bench | furniture | Legendary | | "A carved bench under a fringed canopy." |
+| `desert_lantern_palm` | Lantern Palm | decoration | Rare | | "A potted palm hung with tiny lanterns." |
+| `desert_oasis_fountain` | Oasis Fountain | decoration | Epic | | "A little tiled fountain that never runs dry." |
+| `desert_arch_gate_door` | Arch Gate Door | door | Common | | "A pointed arch door with brass studs." |
+| `desert_sun_disc_flap` | Sun Disc Flap | catflap | Rare | | "The flap in a golden sun disc." |
+
+**Ruins Crate**
+
+| id | Name | Kind | Rarity | Colour / material | Blurb |
+|---|---|---|---|---|---|
+| `ruins_carved_stone` | Carved Stone | wallpaper | Common | (150, 145, 135) Slate | "Old stone carved with tiny cats." |
+| `ruins_glyph_frieze` | Glyph Frieze | wallpaper | Rare | (196, 170, 128) Sandstone | "A band of gold glyphs around the room." |
+| `ruins_cracked_flagstone` | Cracked Flagstone | floor | Common | (140, 135, 125) Cobblestone | "Worn flagstones from the temple road." |
+| `ruins_jade_inlay` | Jade Inlay | floor | Mythical | (80, 160, 120) Marble | "Polished jade tiles with gold lines between them." |
+| `ruins_moss_stone` | Moss Stone | paint | Common | (120, 130, 110) SmoothPlastic | "Grey-green like a quiet courtyard." |
+| `ruins_glyph_gold` | Glyph Gold | paint | Rare | (232, 190, 80) SmoothPlastic | "Trim the colour of glowing glyphs." |
+| `ruins_pillar_table` | Pillar Table | furniture | Common | | "A table top on a broken pillar." |
+| `ruins_stone_throne` | Stone Throne | furniture | Legendary | | "A great carved throne, sized for a cat." |
+| `ruins_brazier_pair` | Brazier Pair | decoration | Rare | | "Two little braziers with a soft glow." |
+| `ruins_gargoyle_statue` | Gargoyle Statue | decoration | Epic | | "A friendly gargoyle keeping watch." |
+| `ruins_temple_gate_door` | Temple Gate Door | door | Rare | | "A heavy stone door with a cat-head carving." |
+| `ruins_keyhole_flap` | Keyhole Flap | catflap | Common | | "The flap in a keyhole-shaped arch." |
+
+Model-Agent makes the eight models for each area: two furniture, two decorations, a door and a flap. The styles are colour and material only.
+
+### Index prizes
+
+These follow the Sewer's rows, with coins at about 3 times the Sewer's for the Desert and 9 times for the Ruins, and a few more fish. There's **no `goldLuck`** on either gold track: the five area tracks already reach `GoldLuckMax` (1.5), as with the gold-total track. `decor_desert` and `decor_ruins` are the same as every decor page: `decor5` pays `DecorIndexHalfFish`, `decor10` pays `DecorIndexBonus`.
+
+| Prize | Desert | Ruins |
+|---|---|---|
+| cats3 | coins 90,000, coinSeconds 300, fish 15 | coins 270,000, coinSeconds 300, fish 20 |
+| cats6 | desert_crate 1, star_treat 2, bonus 0.02 | ruins_crate 1, star_treat 2, bonus 0.02 |
+| cats10 | desert_crate 2 + desert_golden_crate 1, fish 55, bonus 0.05 | ruins_crate 2 + ruins_golden_crate 1, fish 60, bonus 0.05 |
+| gold1 | fish 20, desert_crate 1 | fish 20, ruins_crate 1 |
+| gold2 | coins 300,000, coinSeconds 450, fish 25 | coins 900,000, coinSeconds 450, fish 30 |
+| gold4 | desert_golden_crate 1, fish 45 | ruins_golden_crate 1, fish 50 |
+| gold6 | coins 600,000, coinSeconds 900, fish 60 | coins 1,800,000, coinSeconds 900, fish 65 |
+| gold8 | desert_golden_crate 1, fish 80 | ruins_golden_crate 1, fish 85 |
+| gold10 | coins 1,500,000, coinSeconds 1800, desert_golden_crate 2, fish 135, tag "Desert Gold Master" | coins 4,500,000, coinSeconds 1800, ruins_golden_crate 2, fish 150, tag "Ruins Gold Master" |
+
+### Rescue traps
+
+All six new trap kinds are **"bar"** rescues, like the bins: `sand_dune`, `clay_urn`, `canopy`, `rubble_pile`, `stone_urn` and `bridge_ledge`. Only the tree shakes. The bridge ledge's prompt reaches across the gap (section 5).
+
+### Quests, Rally and Grand Opening
+
+- **Quests:** no quest names an area id today, so nothing changes. Any quest that picks "an open area" includes the Desert and the Ruins once they're open.
+- **Rally:** the steps are unchanged (#2608 sets the per-lap curve).
+- **GrandOpening:** unchanged. It ends at the Tier 3 rank up.
+- **The rank-up screen** names the new tiers: "Sunstone Cafe" and "Wonder Cafe".
+
+### Caps and the shop ladder
+
+| Tier | tables | espresso | net | lure_bowl | lucky_cat |
+|---|---|---|---|---|---|
+| 5 (today) | 6 | 5 | 3 | 5 | 5 |
+| 6 Sunstone | 6 | **6** | 3 | 5 | **6** |
+| 7 Wonder | 6 | **7** | 3 | 5 | **7** |
+
+There are two new levels each for the Espresso machine and the Lucky Cat. Tables, the Net and the Bait bowl stay at their max: slots come from the tier, and the bowl's names end at Royal.
+
+| Upgrade | Level | Needs | Draft price |
+|---|---|---|---|
+| Espresso machine | 6 | Tier 6 | 1,500,000,000 |
+| Espresso machine | 7 | Tier 7 | 40,000,000,000 |
+| Lucky Cat | 6 | Tier 6 | 2,000,000,000 |
+| Lucky Cat | 7 | Tier 7 | 50,000,000,000 |
+
+- Each Espresso level adds `EspressoBonus` (+15%), and each Lucky Cat level adds +10% Luck, still capped at `LuckMax`.
+- The prices are about 2 to 3% of the next tier's cost, the same share as Tier 5's level-5 prices. Pace sets the final numbers with the Tier 6 and 7 costs.
+- These are coin upgrades only, with nothing for Robux. There's no save bump, because levels are numbers already in the save.
+
 ## 8. Big late-game stations (first draft, Derek2 picks)
 
 These are stations in the vein of the Yard Sale, the Fish Pond and the Lost and Found. Each is free, with no Robux and nothing sold, and gives late-game players a new use for things they already have lots of: duplicate cats, idle working cats and spare coins.

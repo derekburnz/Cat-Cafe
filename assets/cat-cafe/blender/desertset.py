@@ -37,7 +37,9 @@ Points (manifest points_roblox): [x, y, z, zone], zone "near" (z < 0) or "deep".
                             hollow log), the spot the urn's middle on the floor
   trap_collapsed_canopy     a striped canopy fallen off its poles, the cloth sagging over the spot, its open side
                             toward the piece's local -Z
-Four of the five are deep and none is within 100 studs of the camp.
+Four of the five are deep and none is within 100 studs of the camp. The rescue pool (#2240's shape, Gameplay 11-09)
+adds ten more of the three kinds (POOL_DUNES, POOL_URNS, POOL_CANOPIES), 15 in all, ten of them deep, every one 25
+or more from every other, off the trail and the blockers and 8 or more from every cat spot.
 """
 
 import math
@@ -86,6 +88,10 @@ PYRAMID = (0.0, 234.0)
 PYR_BASE, PYR_STEP, PYR_TIERS = 46.0, 2.8, 5
 PYR_TOP = PYR_STEP * PYR_TIERS          # 14
 STAIR_W, STAIR_OUT = 8.0, 4.5           # the pyramid's stair, and how far it starts in front of the base
+# the rescue pool past today's five (x, z, turn)
+POOL_DUNES = ((43.0, -176.0, 0), (-30.0, -6.0, 0), (-30.0, 180.0, 0), (-20.0, 88.0, 0))
+POOL_URNS = ((-32.0, -124.0, 160), (-30.0, 122.0, 30), (42.0, 204.0, -120))
+POOL_CANOPIES = ((52.0, -126.0, -70), (-58.0, 156.0, 80), (56.0, 236.0, -100))
 
 TRAIL = [(0, -IN_Z), (0, -246), (2, -226), (2, -204), (-8, -186), (12, -170), (22, -160), (22, -140), (6, -124),
          (0, -112), (0, -22), (4, -4), (6, 20), (6, 44), (6, 76), (18, 100), (34, 118), (34, 146), (20, 162),
@@ -955,6 +961,19 @@ def build_set(mat):
         _spot(s, "trap_clay_urn", x, z, turn=t)
     put(trap_collapsed_canopy(mat), 30.0, 112.0, 20, r=5)
     _spot(s, "trap_collapsed_canopy", 30.0, 112.0, turn=20)
+
+    # the rest of the rescue pool (as the Park's #2240): scenery until the day's pick puts a stuck cat in one. Ten
+    # more, the kinds mixed, off the trail and the blockers, 8 from every cat spot, 25 from every other trap, none
+    # within 100 of the camp, six of the ten in the far half
+    for (x, z, t) in POOL_DUNES:
+        put(trap_sand_dune(mat), x, z, t, r=4)
+        _spot(s, "trap_sand_dune", x, z, turn=t)
+    for (x, z, t) in POOL_URNS:
+        put(trap_clay_urn(mat), x, z, t, r=4)
+        _spot(s, "trap_clay_urn", x, z, turn=t)
+    for (x, z, t) in POOL_CANOPIES:
+        put(trap_collapsed_canopy(mat), x, z, t, r=5)
+        _spot(s, "trap_collapsed_canopy", x, z, turn=t)
 
     # filler: dry bushes and boulders, clear of the trail, the blockers, the pieces and the spots
     spots = [(p[0], p[2]) for lst in s.points.values() for p in lst]

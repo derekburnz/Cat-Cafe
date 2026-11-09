@@ -11,10 +11,10 @@ red mesas and broken sandstone walls 11 to 16 high. Every blocker stands taller 
 `_Barrier` BLOCK_OVER over its top, and none runs wall to wall, so the way on is a short walk round an end. The
 zones, camp first (the Oasis Camp is the camp set's):
 
-  z -276 to -110   the Dune Sea: two dune ridges 10 to 11 high cross the width as islands (z -215: x -54 to -12 and
+  z -276 to -110   the Dune Sea: two dune ridges 8 to 8.5 high cross the width as islands (z -215: x -54 to -12 and
                    16 to 52; z -150: x -40 to 10 and 34 to the east wall), low walkable dune humps on the trail, sand
                    ripples, half buried pots and old crates
-  z -110 to -20    the Red Canyon: two red rock masses 20 high (x -71.5 to -9 and 9 to 54, strata bands, rock faces)
+  z -110 to -20    the Red Canyon: two red rock masses of stepped buttes 11 to 18 high (x -71.5 to -9 and 9 to 54, strata bands, rock faces)
                    leave the slot canyon 18 wide up the middle, a side alcove off each wall of it, and a side passage
                    17.5 wide along the east wall; a 30 high barrier over each mass
   z -20 to 150     the Mirage Flats: a pan of cracked clay, sunk between sandstone terraces (two steps of 1.2 up to
@@ -70,12 +70,13 @@ STRIPES = ("rarity_common", "rarity_rare", "rarity_epic", "rarity_legend", "rari
 
 DUNE_A_Z, ISLE_A = -215.0, [(-54.0, -12.0), (16.0, 52.0)]
 DUNE_B_Z, ISLE_B = -150.0, [(-40.0, 10.0), (34.0, IN_X)]
-DUNE_TOP = 11.0
+DUNE_TOP = 8.5                          # just over a jump (7.2); was 11, too big (Derek 11-09)
 CANYON_Z0, CANYON_Z1 = -110.0, -20.0
 SLOT_HALF = 9.0                         # the slot canyon, 18 wide
 EAST_MASS = 54.0                        # the east mass ends here; the side passage beyond, to the wall
-CANYON_H = 20.0
-ALCOVES = ((-1, -78.0), (1, -48.0))     # (side, z): a 10 x 10 alcove into each wall of the slot
+CANYON_H = 18.0                         # the tallest butte, by the slot (was 20 all over)
+ARCH_Z = -66.0
+ALCOVES = ((-1, -78.0), (1, -48.0))     # (side, z): where a lane between two buttes meets the slot
 FLATS_Z0, FLATS_Z1 = -16.0, 146.0
 PAN_X = 50.0                            # the clay pan between the terraces
 TERRACE_X, TERRACE_H = 58.0, 1.2        # the upper step from |x| 58
@@ -166,11 +167,20 @@ def _ground():
 
 # -------------------------------------------------------------------------------------------------- walls --
 def _seg_dune(b, L, k):
-    """A sand bank: a core 11 high, one long soft dune leaning out of it into the area, a crest line along its top."""
-    H = 11.0 + 1.2 * (k % 2)
-    b.box_base((0, 1.8, 0), (L, 2.4, H), SAND_DUNE, bevel=False)
-    b.ico((0.6 * (k % 3 - 1), 0.6, 2.0), 1.0, SAND_DUNE, subdivisions=2, scale=(L * 0.62, 3.6, H - 1.6))
-    b.ico((-0.2 * L * ((k % 2) - 0.5), 1.4, H - 0.9), 1.0, SAND, subdivisions=2, scale=(L * 0.42, 1.4, 1.2))
+    """A sand bank against the wall: a bank 8.5 to 10 high in three rolling pieces, each a long slope leaning 3.4
+    into the area (a wedge, not a blob), a lighter crest along its top and wind ripples down the slope."""
+    n = 3
+    w = L / n
+    for i in range(n):
+        x = -L / 2 + (i + 0.5) * w
+        H = 8.5 + 1.5 * (((i * 2 + k) % 3) / 2)
+        b.box_base((x, 1.8, 0), (w + 0.02 * i, 2.4, H), SAND_DUNE, bevel=False)                     # the bank
+        b.wedge((x, -0.9, H * 0.42), (w + 0.03 * i, 3.4, H * 0.84), SAND_DUNE, bevel=False)         # its slope
+        b.box_base((x, 1.5, H), (w * 0.9, 1.4, 0.35), SAND, bevel=False)                            # the crest
+        a = math.atan2(H * 0.84, 3.4)
+        for t in (0.3, 0.62):                                                                       # ripples
+            b.box((x, -2.6 + 3.4 * t - 0.05, H * 0.84 * t + 0.06), (w * 0.8, 0.5, 0.08), SAND, bevel=False,
+                  rot=(a, "X"))
 
 
 def _seg_mesa(b, L, k):
@@ -269,33 +279,34 @@ def _walls(s, mat):
 
 # -------------------------------------------------------------------------------------------- the blockers --
 def _dune_ridge(s, mat, z, runs):
-    """A dune ridge (runs, x0 to x1), taller than a jump: long soft dunes, the windward one toward the camp lower and
-    longer, the crest a sharper line about 11 up, the ends tailing off into the sand. A barrier BLOCK_OVER over the
-    crest on each run."""
+    """A dune ridge (runs, x0 to x1), just taller than a jump: long smooth sand bodies, overlapping and staggered so the
+    ridge's foot wanders, each with a narrow crest along its top in the darker dune sand, so the row reads as a sand
+    ridge with a crest line, not as tents or round clumps (Derek2 11-09). The heights roll from dune to dune and the
+    ends tail off in a low drift. A barrier BLOCK_OVER over the crest covers the ridge."""
     b, bar = Builder(), Builder()
     for k, (a0, a1) in enumerate(runs):
         L = a1 - a0
-        x, y, _ = bl((a0 + a1) / 2, z)
-        b.box_base((x, y, 0), (L - 6.0, 4.0, DUNE_TOP - 2.5), SAND_DUNE, bevel=False)         # the core
-        n = max(1, round(L / 20.0))
+        n = max(2, round(L / 17.0))
         step = L / n
         for i in range(n):
             j = i + 3 * k
-            c = a0 + (i + 0.5) * step
-            x, y, _ = bl(c, z - 1.0)
-            b.ico((x, y, 0.8), 1.0, (SAND_DUNE, SAND)[j % 2], subdivisions=2,
-                  scale=(step * 0.66, 5.6, DUNE_TOP - 1.8 - 0.6 * (j % 2)))                     # the dune
-            x, y, _ = bl(c + 0.1 * step * (1 if j % 2 else -1), z + 0.6)
-            b.ico((x, y, DUNE_TOP - 1.3), 1.0, SAND, subdivisions=2, scale=(step * 0.44, 1.5, 1.3))   # its crest
-            x, y, _ = bl(c - 0.15 * step, z - 4.4)
-            b.ico((x, y, 0.2), 1.0, SAND_DUNE, subdivisions=1, scale=(step * 0.5, 3.0, 2.4))        # windward foot
-        for e, sgn in ((a0, 1), (a1, -1)):                                        # the ends tail off
+            c = a0 + (i + 0.5) * step + 1.0 * ((j % 3) - 1)
+            h = DUNE_TOP - 0.5 * (j % 3) - 0.02 * i              # 7.5 to 8.5
+            ln = step * (0.95 + 0.08 * (j % 2))                    # half its length: the bodies overlap
+            ln = min(ln, IN_X + 1.5 - abs(c))                      # into the side wall, never through it
+            dz = 1.2 * (1 if j % 2 else -1)                        # staggered toward and away from the camp
+            x, _, _ = bl(c, 0)
+            b.sphere((x, z - 2.6 + dz, 0), 1.0, SAND, segments=20, rings=8, scale=(ln, 7.4, h * 0.74))  # the body
+            b.sphere((x + 0.4, z + 0.2 + dz * 0.6, 0), 1.0, SAND_DUNE, segments=16, rings=8,
+                     scale=(ln * 0.72, 2.0, h))                                                     # the crest
+        for e, sgn in ((a0, -1), (a1, 1)):                                    # the ends tail off, low
             if abs(abs(e) - IN_X) < 1:
                 continue
-            x, y, _ = bl(e + sgn * 3.5, z)
-            b.ico((x, y, 0.4), 1.0, SAND_DUNE, subdivisions=1, scale=(5.0, 4.6, 4.2))
-        x, y, _ = bl((a0 + a1) / 2, z)
-        bar.box_base((x, y, 0), (L, 11.0, DUNE_TOP + BLOCK_OVER), "offwhite", bevel=False)
+            x, _, _ = bl(e + sgn * 1.0, 0)
+            b.sphere((x, z - 2.0, 0), 1.0, SAND_DUNE, segments=12, rings=6, scale=(6.0, 5.0, 1.4))
+        z0, z1 = z - 1.9 - 8.0 - 0.5, z + 4.0 + 3.6 + 0.5
+        x, _, _ = bl((a0 + a1) / 2, 0)
+        bar.box_base((x, (z0 + z1) / 2, 0), (L, z1 - z0, DUNE_TOP + BLOCK_OVER), "offwhite", bevel=False)
     s.put([b.finalize(N + "DuneRidge", mat), bar.finalize(N + "DuneRidge_Barrier", mat)], 0, 0, 0)
 
 
@@ -309,38 +320,6 @@ def _hump(s, mat, x, z, w=TRAIL_W + 4.0):
     b.ico((-w / 2, 0, 0.6), 2.4, SAND, subdivisions=1, scale=(1.0, 2.6, 0.5))
     b.ico((w / 2, 0, 0.6), 2.4, SAND, subdivisions=1, scale=(1.0, 2.6, 0.5))
     s.put([b.finalize(N + "Hump", mat)], x, z, 0)
-
-
-def _rock_mass(b, bar, x0, x1, z0, z1, cuts, seed):
-    """A red rock mass from x0 to x1, z0 to z1 (area), CANYON_H high, with cut-out alcoves (x0, x1, z0, z1): its
-    blocks, strata bands standing out of every face, rock faces at the foot and up the top, a sandstone cap."""
-    # split the footprint into blocks round the alcoves
-    blocks = [(x0, x1, z0, z1)]
-    for (cx0, cx1, cz0, cz1) in cuts:
-        out = []
-        for (bx0, bx1, bz0, bz1) in blocks:
-            if cx1 <= bx0 or cx0 >= bx1 or cz1 <= bz0 or cz0 >= bz1:
-                out.append((bx0, bx1, bz0, bz1))
-                continue
-            if cz0 > bz0:
-                out.append((bx0, bx1, bz0, cz0))
-            if cz1 < bz1:
-                out.append((bx0, bx1, cz1, bz1))
-            if cx0 > bx0:
-                out.append((bx0, cx0, max(bz0, cz0), min(bz1, cz1)))
-            if cx1 < bx1:
-                out.append((cx1, bx1, max(bz0, cz0), min(bz1, cz1)))
-        blocks = out
-    for k, (bx0, bx1, bz0, bz1) in enumerate(blocks):
-        H = CANYON_H - 1.5 * ((k + seed) % 2)
-        x, y, _ = bl((bx0 + bx1) / 2, (bz0 + bz1) / 2)
-        w, d = bx1 - bx0, bz1 - bz0
-        b.box_base((x, y, 0), (w, d, H), RED, bevel=False)
-        for j, (zz, sw) in enumerate(((3.0, RED_LIGHT), (7.6, RED_DARK), (12.2, RED_LIGHT), (16.4, STONE))):
-            b.box((x, y, zz), (w + 0.6, d + 0.6, 0.9 + 0.15 * j), sw, bevel=False)           # strata
-        b.box_base((x, y, H), (w + 0.8, d + 0.8, 0.6 + 0.05 * (k % 2)), STONE, bevel=False)  # the cap
-        bar.box_base((x, y, 0), (w, d, BARRIER_H), "offwhite", bevel=False)
-    return blocks
 
 
 def _buttresses(L, seed, H=CANYON_H):
@@ -394,52 +373,107 @@ def _rock_faces_x(b, z0, z1, x, outward, seed=0, H=CANYON_H):
     _place_face(b, _buttresses(L, seed, H), (ox, oy), yaw)
 
 
+# The Red Canyon as a cluster of separate buttes with sand lanes between (Derek 11-09: the middle block was "way too
+# big of a block"). (x0, x1, z0, z1, top): the slot's rims by the arch stand tallest, the rest step down outward.
+BUTTES = (
+    (-30.0, -SLOT_HALF, -108.0, -88.0, 14.0), (-32.0, -SLOT_HALF, -70.0, -50.0, 18.0),
+    (-28.0, -SLOT_HALF, -42.0, -22.0, 12.5),
+    (-IN_X, -42.0, -108.0, -86.0, 11.5), (-66.0, -44.0, -78.0, -52.0, 15.0), (-IN_X, -48.0, -44.0, -22.0, 11.0),
+    (SLOT_HALF, 30.0, -108.0, -90.0, 13.0), (SLOT_HALF, 32.0, -82.0, -56.0, 18.0), (SLOT_HALF, 27.0, -38.0, -22.0, 12.0),
+    (39.0, 53.0, -104.0, -82.0, 12.5), (41.0, 53.0, -72.0, -50.0, 14.5), (37.0, 52.0, -40.0, -24.0, 10.5),
+)
+HOODOOS = ((-36.0, -96.0, 9.0), (-38.0, -46.0, 7.5), (-58.0, -82.0, 8.0), (35.0, -86.0, 8.5), (34.0, -46.0, 9.5),
+           (-25.0, -81.0, 6.5), (25.0, -52.0, 6.0), (46.0, -77.0, 7.0))
+
+
+def _butte(b, bar, x0, x1, z0, z1, H, seed):
+    """One butte: a notched base (corners cut back so it reads as rock, not a crate) in striped courses, a narrower
+    stepped upper tier, sandstone caps, fluted faces round the base and boulders at its foot."""
+    W, D = x1 - x0, z1 - z0
+    cx, cz = (x0 + x1) / 2, (z0 + z1) / 2
+    base = min(H * 0.6, 9.0)
+    x, y, _ = bl(cx, cz)
+    # the two crossing boxes of each course differ a hair in height so no two faces share a plane
+    for n, (w, d) in enumerate(((W - 4.0, D), (W, D - 4.0))):                    # the notched base
+        b.box_base((x, y, 0), (w, d, base - 0.06 * n), RED, bevel=False)
+    for j, (zz, sw) in enumerate(((2.6, RED_LIGHT), (5.8, RED_DARK))):
+        if zz < base - 1.0:
+            for n, (w, d) in enumerate(((W - 4.0, D), (W, D - 4.0))):
+                b.box((x, y, zz), (w + 0.5, d + 0.5, 0.8 + 0.15 * j - 0.08 * n), sw, bevel=False)
+    for n, (w, d) in enumerate(((W - 3.6, D + 0.4), (W + 0.4, D - 3.6))):
+        b.box_base((x, y, base - 0.06 * n), (w, d, 0.5), STONE_LIGHT, bevel=False)
+    # the upper tier, inset from the base and split in steps so the top line is broken
+    ix0, ix1, iz0, iz1 = x0 + 3.0, x1 - 3.0, z0 + 3.0, z1 - 3.0
+    nx, nz = max(1, round((ix1 - ix0) / 9.0)), max(1, round((iz1 - iz0) / 9.0))
+    cw, cd = (ix1 - ix0) / nx, (iz1 - iz0) / nz
+    for i in range(nx):
+        for k in range(nz):
+            hh = (i * 7 + k * 5 + seed) % 4
+            h = H - 1.4 * hh - (0.0 if (i, k) != (0, 0) else 1.0)
+            if h < base + 2.0:
+                continue
+            px, py, _ = bl(ix0 + (i + 0.5) * cw, iz0 + (k + 0.5) * cd)
+            b.box_base((px, py, base), (cw + 0.02 * (i + 1), cd + 0.02 * (k + 1), h - base), (RED, RED_DARK)[hh % 2],
+                       bevel=False)
+            if base + 3.0 < h - 1.2:
+                b.box((px, py, base + 3.0), (cw + 0.5, cd + 0.5, 0.8 + 0.07 * ((i + k) % 3)), RED_LIGHT, bevel=False)
+            b.box_base((px, py, h), (cw + 0.7, cd + 0.7, 0.55), (STONE, STONE_LIGHT)[(i + k) % 2], bevel=False)
+    # the fluted faces round the base, boulders at the foot
+    _rock_faces(b, x0 + 2.0, x1 - 2.0, z0, -1, seed=seed, H=base)
+    _rock_faces(b, x0 + 2.0, x1 - 2.0, z1, 1, seed=seed + 1, H=base)
+    _rock_faces_x(b, z0 + 2.0, z1 - 2.0, x0, -1, seed=seed + 2, H=base)
+    _rock_faces_x(b, z0 + 2.0, z1 - 2.0, x1, 1, seed=seed + 3, H=base)
+    bar.box_base((x, y, 0), (W, D, BARRIER_H), "offwhite", bevel=False)
+
+
+def hoodoo(mat, h=8.0):
+    """A thin rock tower in a lane: stacked, narrowing courses with a wide cap stone balanced on top."""
+    b = Builder()
+    z = 0.0
+    for j, (r, sw) in enumerate(((1.9, RED), (1.6, RED_LIGHT), (1.35, RED), (1.1, RED_DARK))):
+        hj = h / 4 + 0.01 * j
+        b.box_base((0.15 * (j % 2), -0.1 * (j % 2), z), (2 * r, 2 * r * 0.9, hj), sw, bevel=False, rot=(0.12 * j, "Z"))
+        z += hj
+    b.box_base((0, 0, z), (3.4, 3.0, 1.1), STONE, bevel=False, rot=(0.3, "Z"))
+    b.ico((0.8, -1.4, 0.5), 1.1, RED_LIGHT, subdivisions=1, scale=(1.2, 1.0, 0.7))
+    return [b.finalize(N + "Hoodoo", mat)]
+
+
 def _canyon(s, mat):
-    """The Red Canyon: the west mass (x -71.5 to -9) and the east mass (x 9 to 54), the slot canyon between, an alcove
-    off each wall of the slot, the side passage east of the east mass, fallen boulders in the slot."""
+    """The Red Canyon: separate buttes either side of the slot canyon (x -9 to 9) with sand lanes between them, the
+    tallest pair holding the arch, hoodoos in the lanes, fallen boulders in the slot. The slot's old alcoves are the
+    lanes' mouths now, so their spots stay open."""
     b, bar = Builder(), Builder()
-    cuts_w, cuts_e = [], []
-    for side, z in ALCOVES:
-        if side < 0:
-            cuts_w.append((-SLOT_HALF - 10.0, -SLOT_HALF, z - 5.0, z + 5.0))
-        else:
-            cuts_e.append((SLOT_HALF, SLOT_HALF + 10.0, z - 5.0, z + 5.0))
-    _rock_mass(b, bar, -IN_X, -SLOT_HALF, CANYON_Z0, CANYON_Z1, cuts_w, 0)
-    _rock_mass(b, bar, SLOT_HALF, EAST_MASS, CANYON_Z0, CANYON_Z1, cuts_e, 1)
-    # the faces: along the slot (x +-9), the side passage (x 54), the two ends (z -110 and -20)
-    for sx, cuts in ((-1, cuts_w), (1, cuts_e)):
-        zs = [CANYON_Z0] + [v for (_, _, cz0, cz1) in cuts for v in (cz0, cz1)] + [CANYON_Z1]
-        for a, c in zip(zs[0::2], zs[1::2]):
-            _rock_faces_x(b, a, c, sx * SLOT_HALF, -sx, seed=2 + sx)
-        for (cx0, cx1, cz0, cz1) in cuts:                                 # the alcove's three walls
-            back = cx0 if sx < 0 else cx1
-            _rock_faces_x(b, cz0 + 0.5, cz1 - 0.5, back, -sx, seed=5)
-            _rock_faces(b, cx0, cx1, cz0, 1, seed=6)
-            _rock_faces(b, cx0, cx1, cz1, -1, seed=7)
-    _rock_faces_x(b, CANYON_Z0, CANYON_Z1, EAST_MASS, 1, seed=8)
-    for (a0, a1) in ((-IN_X, -SLOT_HALF), (SLOT_HALF, EAST_MASS)):
-        _rock_faces(b, a0, a1, CANYON_Z0, -1, seed=9)
-        _rock_faces(b, a0, a1, CANYON_Z1, 1, seed=10)
+    for i, (x0, x1, z0, z1, H) in enumerate(BUTTES):
+        _butte(b, bar, x0, x1, z0, z1, H, i * 3)
+    for sx in (-1, 1):                                       # the arch's rims, full height right to the slot
+        x, y, _ = bl(sx * (SLOT_HALF + 3.0), ARCH_Z)
+        b.box_base((x, y, 0), (6.0, 12.0, CANYON_H - 0.5), RED, bevel=False)
+        b.box_base((x, y, CANYON_H - 0.5), (6.6, 12.6, 0.55), STONE, bevel=False)
     s.put([b.finalize(N + "Canyon", mat), bar.finalize(N + "Canyon_Barrier", mat)], 0, 0, 0)
-    # fallen boulders and a sandstone arch high over the slot
+    for (x, z, h) in HOODOOS:
+        s.put(hoodoo(mat, h), x, z, (x * 17) % 360)
     for (x, z, r) in ((-6.0, -92.0, 1.6), (6.5, -64.0, 1.3), (-6.5, -36.0, 1.5), (66.0, -84.0, 1.4),
-                      (58.5, -40.0, 1.2)):
+                      (58.5, -40.0, 1.2), (-38.0, -80.0, 1.3), (35.0, -62.0, 1.5), (-50.0, -48.0, 1.1)):
         s.put(rock(mat, r), x, z, (x * 13) % 360)
-    s.put(rock_arch(mat), 0, -66.0, 0)
+    s.put(rock_arch(mat), 0, ARCH_Z, 0)
 
 
 def rock_arch(mat):
-    """A natural sandstone arch from rim to rim of the slot, 15 over the floor."""
+    """A natural sandstone arch from rim to rim of the slot, its underside about 13 over the floor: a thick band of
+    rock (3 deep, 2.6 through) in striped courses, its feet widening into the rims."""
     b = Builder()
     w = 2 * SLOT_HALF + 2.0
-    for k in range(12):
-        t = (k + 0.5) / 12
+    n = 14
+    for k in range(n):
+        t = (k + 0.5) / n
         a = PI * t
         x = -(w / 2) * math.cos(a)
-        z = CANYON_H - 5.5 + 3.0 * math.sin(a)
-        b.box((x, 0, z), (w / 12 * 1.6 + 0.4, 3.0 - 0.01 * (k % 2), 1.8 - 0.03 * (k % 2)), (STONE, RED_LIGHT)[k % 2],
-              bevel=False,
-              rot=(-math.atan2(3.0 * math.cos(a), w / 2 * math.sin(a)), "Y"))      # along the arc
+        z = CANYON_H - 4.6 + 2.6 * math.sin(a)
+        foot = max(0.0, 1.0 - math.sin(a) * 1.6)                              # thicker toward the rims
+        b.box((x, 0, z - 0.6 * foot), (w / n * 1.5 + 0.4, 5.0 + 1.5 * foot - 0.01 * (k % 2), 2.6 + 1.6 * foot),
+              (RED_LIGHT, RED, STONE)[k % 3], bevel=False,
+              rot=(-math.atan2(2.6 * math.cos(a), w / 2 * math.sin(a)), "Y"))      # along the arc
     return [b.finalize(N + "RockArch", mat)]
 
 
@@ -625,6 +659,48 @@ def shrub(mat):
         b.box((0.7 * math.cos(a), 0.7 * math.sin(a), 0.9), (0.08, 1.1, 0.08), "fur_brown", bevel=False,
               rot=Matrix.Rotation(a, 3, "Z") @ Matrix.Rotation(0.7, 3, "X"))
     return [b.finalize(N + "Shrub", mat)]
+
+
+CACTUS, CACTUS_DARK, BLOOM = "leaf_green", "leaf_dark", "blush"
+
+
+def soft_cactus(mat, kind=0):
+    """A soft decor cactus (Derek2 11-09: yes to cacti as scenery; the design doc bars cactus traps): chunky rounded
+    shapes with no spines at all, a pink bloom on top, standing in a little sand drift. kind 0 a paddle cactus (flat
+    round pads stacked), 1 a barrel (a squat ribbed ball), 2 an arm cactus (a trunk with two raised arms), each about
+    player height or a little more."""
+    b = Builder()
+    b.sphere((0, 0, 0), 1.0, SAND_DUNE, segments=12, rings=6, scale=(1.9, 1.7, 0.45))           # the sand drift
+    if kind == 0:
+        for (x, z, w, h, a, sw) in ((0.0, 1.3, 1.25, 1.5, 0, CACTUS), (-0.75, 3.4, 0.95, 1.15, -28, CACTUS_DARK),
+                                    (0.85, 3.6, 0.95, 1.15, 25, CACTUS), (-0.2, 5.0, 0.7, 0.85, 8, CACTUS)):
+            b.sphere((x, 0, z), 1.0, sw, segments=14, rings=8, scale=(w, 0.38, h), rot=(math.radians(a), "Y"))
+        for (x, z) in ((-1.1, 4.45), (1.35, 4.65), (-0.25, 5.85)):
+            b.sphere((x, 0, z), 0.26, BLOOM, segments=8, rings=4)
+    elif kind == 1:
+        b.sphere((0, 0, 1.25), 1.0, CACTUS, segments=16, rings=8, scale=(1.45, 1.45, 1.3))
+        for k in range(8):                                                                       # soft ribs
+            a = 2 * PI * k / 8
+            b.sphere((1.2 * math.cos(a), 1.2 * math.sin(a), 1.25), 1.0, CACTUS_DARK, segments=8, rings=6,
+                     scale=(0.22, 0.22, 1.05), rot=(a, "Z"))
+        for k in range(3):
+            a = 2 * PI * k / 3 + 0.4
+            b.sphere((0.3 * math.cos(a), 0.3 * math.sin(a), 2.55), 0.3, BLOOM, segments=8, rings=4)
+        b.sphere((0, 0, 2.62), 0.2, "pastel_butter", segments=8, rings=4)
+    else:
+        b.cyl_base((0, 0, 0), 0.75, 6.2, CACTUS, segments=12, bevel=False)                      # the trunk
+        b.sphere((0, 0, 6.2), 0.75, CACTUS, segments=12, rings=6)
+        for (sx, z0, up) in ((-1, 2.4, 2.0), (1, 3.3, 1.6)):                                   # the arms
+            b.cyl((sx * 0.95, 0, z0), 0.5, 1.5, CACTUS, segments=10, bevel=False, rot=(PI / 2, "Y"))
+            b.sphere((sx * 1.7, 0, z0), 0.5, CACTUS, segments=10, rings=6)
+            b.cyl_base((sx * 1.7, 0, z0), 0.5, up, CACTUS, segments=10, bevel=False)
+            b.sphere((sx * 1.7, 0, z0 + up), 0.5, CACTUS, segments=10, rings=6)
+        for k in range(4):                                                                       # soft ribs
+            a = 2 * PI * k / 4 + PI / 4
+            b.box_base((0.7 * math.cos(a), 0.7 * math.sin(a), 0.3), (0.16, 0.16, 5.6), CACTUS_DARK, bevel=False,
+                       rot=(a, "Z"))
+        b.sphere((0.15, 0, 6.95), 0.3, BLOOM, segments=8, rings=4)
+    return [b.finalize(N + "Cactus", mat)]
 
 
 def lamp(mat):
@@ -1002,8 +1078,10 @@ def build_set(mat):
                 continue
             if k % 3 == 0:
                 s.put(rock(mat, 0.9 + 0.2 * (k % 3)), x, z, (k * 37) % 360)
-            elif k % 3 == 1:
+            elif k % 6 == 1:
                 s.put(shrub(mat), x, z, (k * 53) % 360)
+            elif k % 6 == 4:                                         # soft cacti, scenery only, away from spots
+                s.put(soft_cactus(mat, (k // 6) % 3), x, z, (k * 41) % 360)
     return s.finish(_ground(), mat), s
 
 

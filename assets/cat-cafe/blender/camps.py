@@ -288,7 +288,8 @@ def _theme(s, mat, area, G, B, W, half):
         # (-16, 4 in) and the camp extra's spot (20, 3.5 in).
         px, pz = 46.0, G - 15.0
         s.put(ds.oasis_pool(mat), px, pz, 0)
-        for (x, z, h, rot) in ((px - 10.5, pz + 6.5, 10.5, 200), (px + 9.5, pz + 6.0, 9.0, -30),
+        # the first palm stands south-west of the pool, clear of the Oasis Spa at (25, 8.5 in) (#2790)
+        for (x, z, h, rot) in ((px - 8.5, pz - 8.0, 10.5, 200), (px + 9.5, pz + 6.0, 9.0, -30),
                                (px + 7.5, pz - 9.5, 11.5, 60)):
             s.put(ds.palm(mat, h), x, z, rot)
         s.put(ds.well(mat), -40, G - 15, 0)

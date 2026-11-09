@@ -651,6 +651,7 @@ MESA_RGB = (207, 143, 82)                      # fur_caramel, as Sandstone
 EARTH_RGB = (167, 149, 124)                    # the Ruins' plate (paving_grout)
 JUNGLE_RGB = (62, 127, 78)                     # leaf_dark
 CLIFF_RGB = (150, 145, 140)                    # fur_dusty
+STONY_RGB = (140, 132, 120)                    # the Ruins' stony skirt (Derek2 11-09: no jungle, rocky sides)
 
 
 def palm(rb, f, x, z, s=1.0, leaf="leaf_green"):
@@ -697,13 +698,79 @@ def mesa(t, rb, w, d, h, k):
         y += hh
 
 
+def _crest(f, h, k=0.34, lift=1.22):
+    """A dune's sharp ridge: a narrow, taller hill along the top of h, set back toward the outside, so the dune has
+    a long gentle face toward the area and a crest line instead of reading as a round clump (Derek2 11-09)."""
+    ct, st = math.cos(h.turn), math.sin(h.turn)
+    ox, oz = st, ct                                                     # h's across axis
+    if ox * h.x + oz * (h.z - f.cz) < 0:
+        ox, oz = -ox, -oz                                               # pointing out, away from the area
+    foot = math.sqrt(1 - (Hill.SINK / (1 + Hill.SINK)) ** 2)
+    a, c = h.a * foot, h.c * foot
+    return Hill(h.x + ox * c * 0.3, h.z + oz * c * 0.3, a * 0.78, c * k, h.rise * lift, h.turn)
+
+
+def cat_sphinx(t, rb):
+    """The Desert's landmark (research section 5: one landmark seen from everywhere): a giant cat sphinx lying on a
+    stepped plinth outside the wall, facing the area in its frame's -Z, about 44 high: front paws out, a striped
+    headcloth in turquoise and gold, cat ears through it, a gold collar and a tail curled along the plinth."""
+    S, G, T, D = "fur_caramel", "brass", "sign_teal", "fur_latte"
+    y = TOP
+    t.span(rb, (-30, y - 2, -40), (30, y + 3, 38), "paving_tan")                         # the plinth, two steps
+    t.span(rb, (-27, y + 3, -37), (27, y + 6, 35), "fur_dune")
+    t.span(rb, (-27.3, y + 4.2, -37.3), (27.3, y + 5.0, 35.3), "terracotta")           # its band
+    y += 6
+    for sx in (-1, 1):                                                                   # the front paws
+        t.span(rb, (sx * 9 - 5, y, -34), (sx * 9 + 5, y + 6, -4), S)
+        for k in (-1, 0, 1):
+            t.ball(rb, (sx * 9 + k * 3.2, y + 2.6, -34), 2.0, S)                         # toes
+    t.span(rb, (-15, y, -6), (15, y + 14, 30), S)                                        # the body
+    t.ball(rb, (0, y + 9, 24), 15.0, S, sy=0.72)                                         # the haunch
+    t.span(rb, (-12, y, -10), (12, y + 22, 6), S)                                        # the chest
+    t.span(rb, (-12.4, y + 18, -10.4), (12.4, y + 20, 6.4), G)                           # the collar
+    t.span(rb, (-3, y + 14, -11.2), (3, y + 19, -10.2), G)                               # its tag
+    hy = y + 20
+    t.span(rb, (-11, hy, -16), (11, hy + 18, 4), S)                                      # the head
+    t.span(rb, (-6, hy + 1, -19), (6, hy + 7, -15.5), "fur_cream")                      # the muzzle
+    t.span(rb, (-1.6, hy + 6, -19.6), (1.6, hy + 8, -18.6), "terracotta")               # the nose
+    for sx in (-1, 1):
+        t.span(rb, (sx * 5.5 - 2.4, hy + 9, -16.4), (sx * 5.5 + 2.4, hy + 13, -15.8), "fur_ink")   # the eyes
+        t.span(rb, (sx * 5.5 - 0.6, hy + 11.6, -16.6), (sx * 5.5 + 0.6, hy + 12.6, -16.3), "offwhite")
+        for k in (0, 1):                                                                  # whiskers
+            t.span(rb, (sx * 6, hy + 3.4 + 1.6 * k, -19.4), (sx * 13, hy + 3.9 + 1.6 * k, -19.0), D)
+        for k, (w, h) in enumerate(((7.0, 4.0), (5.0, 4.0), (3.0, 3.5), (1.4, 3.0))):   # an ear, stepping in
+            x = sx * (7.5 - 0.6 * k)
+            t.span(rb, (x - w / 2, hy + 18 + 3.6 * k, -9), (x + w / 2, hy + 18 + 3.6 * k + h, -4), S)
+        t.span(rb, (sx * 7.5 - 2.0, hy + 19, -9.4), (sx * 7.5 + 2.0, hy + 26, -9.1), "blush")   # the ear's inside
+        for k in range(6):                                                                # the headcloth's lappets
+            t.span(rb, (sx * 11, hy - 2 - 2.6 * k + 16, -14), (sx * 14.5, hy + 16 - 2.6 * k + 2.6, 2),
+                   (T, G)[k % 2])
+    for k in range(5):                                                                    # its stripes over the top
+        t.span(rb, (-11.5, hy + 18, -15 + 3.8 * k), (11.5, hy + 19.2, -13 + 3.8 * k), (T, G)[k % 2])
+    t.span(rb, (-1.6, hy + 14.5, -16.5), (1.6, hy + 17.5, -15.9), "fur_emerald")         # a gem on its brow
+    for k in range(8):                                                                    # the tail, round the side
+        a = k / 7 * math.pi * 0.9
+        x, z = 17 + 4 * math.sin(a), 30 - 34 * k / 7
+        t.span(rb, (x - 2.2, y, z - 2.6), (x + 2.2, y + 4.0 - 0.15 * k, z + 2.6), S)
+    t.span(rb, (13.6, y, -14), (21.4, y + 4.6, -9), G)                                   # its gold tip ring
+    for sx in (-1, 1):                                                                    # two obelisks by it
+        x = sx * 34
+        t.span(rb, (x - 3, TOP, -38), (x + 3, TOP + 3, -32), "paving_tan")
+        t.span(rb, (x - 2, TOP + 3, -37), (x + 2, TOP + 26, -33), "fur_dune")
+        t.span(rb, (x - 1.2, TOP + 26, -36.2), (x + 1.2, TOP + 29, -33.8), G)
+
+
 def theme_desert(f, P):
-    near = ring(f, 55.0, 46.0, (46.0, 26.0, 8.0, 18.0), 61)
-    far = ring(f, 200.0, 80.0, (70.0, 50.0, 20.0, 36.0), 62)
-    f.hills = near + far
-    for h in near:
-        h.add(P["hills"], "fur_dune")
-    for h in far:
+    # dunes in three rows, lower and smaller near the walls, each with its crest (Derek2 11-09: the old ring of round
+    # 18-high hills read as "clumps of nothing")
+    near = ring(f, 46.0, 34.0, (22.0, 13.0, 4.0, 8.0), 61)
+    mid = ring(f, 100.0, 52.0, (36.0, 20.0, 8.0, 14.0), 65)
+    far = ring(f, 210.0, 84.0, (78.0, 40.0, 16.0, 28.0), 62)
+    crests = [_crest(f, h) for h in near + mid]
+    f.hills = near + mid + far + crests
+    for h in near + mid:
+        h.add(P["hills"], "fur_oat")
+    for h in far + crests:
         h.add(P["far"], "fur_dune")
     rb = P["rb"]
     for i, (x, z, nx, nz) in enumerate(f.around(14.0, 24.0, 63, wobble=6.0, shift=7.0)):   # palms, rocks, cacti
@@ -721,6 +788,7 @@ def theme_desert(f, P):
             continue                                                    # gaps, and none behind the camp (the town)
         mesa(Turned.facing(x, z, nx, nz), rb, 34.0 + 20 * _hash(i, 70), 26.0 + 12 * _hash(i, 71),
              28.0 + 26 * _hash(i, 72), i)
+    cat_sphinx(Turned.facing(f.ex + 64.0, f.cz + 70.0, 1.0, 0.0), rb)     # the landmark, east of the far half
     px, pz = 0.0, f.ez1 + 150.0                                         # a far pyramid past the area's far end
     for k in range(6):
         w = 90.0 - k * 15.0
@@ -751,23 +819,114 @@ def ruin_wall(t, rb, w, h, k):
     t.span(rb, (-w * 0.3, TOP, -1.25), (-w * 0.1, h * 0.7, -1.02), "leaf_dark")
 
 
+def crag(t, rb, w, d, h, k):
+    """A grey rock crag facing -Z in its frame: three or four tiers stepping in and leaning a little, darker strata,
+    moss on some ledges (Derek2 11-09: the Ruins' sides are rocky mountains, no trees)."""
+    y = TOP - 1.0
+    tiers = 3 + k % 2
+    for i in range(tiers):
+        f = 1.0 - 0.2 * i
+        hh = h * (0.4 if i == 0 else 0.6 / (tiers - 1))
+        ox, oz = (0.08 * w * ((k + i) % 3 - 1)), 0.06 * d * (i % 2)
+        t.span(rb, (ox - w * f / 2, y, oz - d * f / 2), (ox + w * f / 2, y + hh, oz + d * f / 2),
+               ("fur_dusty", "fur_pewter", "fur_dusty", "concrete")[i])
+        t.span(rb, (ox - w * f / 2 - 0.4, y + hh * 0.5, oz - d * f / 2 - 0.4),
+               (ox + w * f / 2 + 0.4, y + hh * 0.5 + 1.1, oz + d * f / 2 + 0.4), "fur_soot")
+        if (k + i) % 3 == 0:
+            t.span(rb, (ox - w * f / 2, y + hh, oz - d * f / 2), (ox + w * f * 0.1, y + hh + 0.5, oz + d * f / 2),
+                   "leaf_dark")
+        y += hh
+
+
+def carved_cliff(t, rb, k):
+    """A cliff with a temple front carved into it, facing -Z in its frame (Derek2 11-09: "ruin carvings into side of
+    rocks"): a tall rock face, a stepped base, four columns either side of a dark doorway, a pediment, and a giant
+    cat's head in relief over it with jade eyes."""
+    y = TOP - 1.0
+    W, H, D = 46.0, 40.0, 16.0
+    t.span(rb, (-W / 2, y, 0), (W / 2, y + H, D), "fur_dusty")                       # the rock
+    t.span(rb, (-W / 2 - 4, y, 4), (-W / 2 + 6, y + H * 0.75, D + 2), "fur_pewter")   # rough flanks
+    t.span(rb, (W / 2 - 6, y, 3), (W / 2 + 5, y + H * 0.85, D + 2), "concrete")
+    t.span(rb, (-W / 2 + 2, y + H, 2), (W / 2 - 4, y + H + 5, D - 2), "fur_pewter")    # its top
+    t.span(rb, (-W / 2 + 6, y + H + 5, 4), (-2, y + H + 5.6, D - 4), "leaf_dark")       # moss up there
+    t.span(rb, (-16, y, -3), (16, y + 1.5, 0), "fur_pewter")                          # steps cut at its foot
+    t.span(rb, (-14, y + 1.5, -1.5), (14, y + 3, 0), "fur_pewter")
+    t.span(rb, (-4.5, y + 3, -0.2), (4.5, y + 15, 0.4), "fur_soot")                   # the doorway
+    for sx in (-1, 1):
+        for c in (7.0, 12.0):                                                         # columns
+            x = sx * c
+            t.span(rb, (x - 1.3, y + 3, -1.2), (x + 1.3, y + 17, 0.2), "paving_tan")
+            t.span(rb, (x - 1.7, y + 17, -1.5), (x + 1.7, y + 18, 0.2), "fur_dune")
+    t.span(rb, (-15, y + 18, -1.6), (15, y + 20, 0.2), "fur_dune")                    # the lintel
+    for i, w in enumerate((30.0, 22.0, 14.0, 6.0)):                                   # the pediment, stepped
+        t.span(rb, (-w / 2, y + 20 + 1.4 * i, -1.2), (w / 2, y + 21.4 + 1.4 * i, 0.2), "paving_tan")
+    hy = y + 27
+    t.span(rb, (-8, hy, -1.4), (8, hy + 11, 0.2), "fur_pewter")                       # the cat's head
+    for sx in (-1, 1):
+        for i, w in enumerate((5.0, 3.4, 1.8)):
+            t.span(rb, (sx * 5.5 - w / 2, hy + 11 + 1.6 * i, -1.2), (sx * 5.5 + w / 2, hy + 12.6 + 1.6 * i, 0.2),
+                   "fur_pewter")
+        t.span(rb, (sx * 3.6 - 1.4, hy + 5.5, -1.7), (sx * 3.6 + 1.4, hy + 8, -1.3), "fur_emerald")
+    t.span(rb, (-1.0, hy + 3.4, -1.8), (1.0, hy + 4.6, -1.3), "fur_soot")              # its nose
+    for j in range(3 + k % 2):                                                         # vines down the face
+        x = -W / 2 + 4 + j * 11.0 + 2.0 * (k % 3)
+        t.span(rb, (x, y + H - 9 - 3 * (j % 2), -0.3), (x + 1.0, y + H, 0.1), "leaf_dark")
+
+
+def stone_circle(rb, f, cx, cz, r=17.0):
+    """A ring of standing stones on a low mound (Derek2 11-09: "famous stone places like stone henge"): twelve
+    uprights about 18 high, lintels across pairs, two fallen, an altar stone in the middle with a jade glyph."""
+    y = f.gy(cx, cz)
+    rb.ball((cx, y - 3.0, cz), r + 8.0, "fur_pewter", scale=(1.0, 0.18, 1.0))
+    y += 0.8
+    n = 12
+    for i in range(n):
+        a = 2 * math.pi * i / n
+        x, z = cx + r * math.cos(a), cz + r * math.sin(a)
+        if i in (4, 9):                                                               # fallen ones
+            t = Turned(x, z, -math.degrees(a) + 20)
+            t.span(rb, (-6.5, y - 0.4, -1.5), (6.5, y + 2.2, 1.5), "fur_dusty")
+            continue
+        t = Turned(x, z, -math.degrees(a) + 90)
+        h = 18.0 - 2.0 * (i % 3 == 1)
+        t.span(rb, (-2.4, y - 1, -1.6), (2.4, y + h, 1.6), ("fur_dusty", "fur_pewter")[i % 2])
+        if i % 2 == 0 and (i + 1) % n not in (4, 9):                                  # a lintel to the next
+            a2 = 2 * math.pi * (i + 0.5) / n
+            lt = Turned(cx + r * math.cos(a2), cz + r * math.sin(a2), -math.degrees(a2) + 90)
+            lt.span(rb, (-6.6, y + h, -1.4), (6.6, y + h + 2.4, 1.4), "fur_pewter")
+    rb.box((cx, y + 1.0, cz), (6.0, 2.0, 3.4), "fur_soot")                             # the altar
+    rb.box((cx, y + 2.05, cz), (2.0, 0.1, 2.0), "fur_emerald")
+
+
 def theme_ruins(f, P):
-    near = ring(f, 58.0, 42.0, (40.0, 28.0, 10.0, 20.0), 71)
+    # rocky mountains round the plateau, no trees (Derek2 11-09): a low stony skirt, crags in a ring with two cliffs
+    # carved as temple fronts on the long sides, a stone circle outside the west wall, grey peaks behind
+    near = ring(f, 58.0, 42.0, (40.0, 26.0, 3.0, 7.0), 71)
     far = ring(f, 210.0, 90.0, (80.0, 56.0, 50.0, 85.0), 72, corner=180.0)
     f.hills = near + far
     for h in near:
-        h.add(P["hills"], "leaf_dark")
+        h.add(P["hills"], "fur_pewter")
     for h in far:
         h.add(P["far"], "fur_dusty")
     rb = P["rb"]
-    leaves = ("leaf_dark", "paw_woods", "leaf_green")
-    belt(rb, f, 26.0, 15.0, 73, plant=tree, scale=1.7, leaves=leaves, wobble=5.0)
-    on_hills(rb, f, near, 2, 74, 2.0, plant=tree, leaves=leaves)
+    carved = {(-1, 0): f.cz + 40.0, (1, 0): f.cz - 90.0}                               # (nx, nz): z of its middle
+    for (nx, nz), zc in carved.items():
+        carved_cliff(Turned.facing(nx * (f.ex + 34.0), zc, nx, nz), rb, int(zc) % 5)
+    stone_circle(rb, f, -(f.ex + 50.0), f.cz - 110.0, r=19.0)
+    for i, (x, z, nx, nz) in enumerate(f.around(36.0, 24.0, 80, wobble=6.0, shift=6.0)):  # the crags
+        if nz < -0.9 and abs(x) < f.ex:
+            continue                                                    # none behind the camp
+        if any(abs(nx - cx) < 0.1 and abs(z - zc) < 34.0 for (cx, _), zc in carved.items()):
+            continue
+        if math.hypot(x + f.ex + 50.0, z - f.cz + 110.0) < 36.0:
+            continue
+        crag(Turned.facing(x, z, nx, nz), rb, 16.0 + 10 * _hash(i, 81), 12.0 + 6 * _hash(i, 82),
+             16.0 + 16 * _hash(i, 83), i)
     for i, (x, z, nx, nz) in enumerate(f.around(11.0, 19.0, 75, wobble=3.0, shift=5.0)):   # columns and walls
         if f.out(x, z) < KEEP + 2.5:
             continue
         if _hash(i, 76) < 0.6:
-            ruin_column(rb, f, x, z, 1.0 + 0.3 * _hash(i, 77), leaves[i % 3])
+            ruin_column(rb, f, x, z, 1.0 + 0.3 * _hash(i, 77), ("leaf_dark", "paw_woods")[i % 2])
         else:
             ruin_wall(Turned.facing(x, z, nx, nz), rb, 10.0 + 6 * _hash(i, 78), 6.0 + 5 * _hash(i, 79), i)
     tx, tz = 0.0, f.ez1 + 140.0                                          # a stepped temple on the far horizon
@@ -799,7 +958,7 @@ def builder(area, A, H, theme):
         _look(n + "_HillsFar", DUNE_RGB, "Sand")
     elif theme == "ruins":                      # bare earth, jungle hills, grey cliffs
         _look(n + "_Ground", EARTH_RGB, "Ground")
-        _look(n + "_Hills", JUNGLE_RGB, "Grass")
+        _look(n + "_Hills", STONY_RGB, "Ground")
         _look(n + "_HillsFar", CLIFF_RGB, "Rock")
     _look(n + "_Snow", (240, 244, 248), "Snow")
     _look(n + "_Road", ASPHALT_RGB if theme != "works" else (150, 150, 150), "Asphalt" if theme != "works" else "Concrete")

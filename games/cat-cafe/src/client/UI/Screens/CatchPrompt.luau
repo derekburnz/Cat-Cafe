@@ -30,6 +30,7 @@ local Cooldown = require(script.Parent.Parent.Components.Cooldown)
 local Create = require(script.Parent.Parent.Components.Create)
 local JumpButton = require(script.Parent.Parent.Components.JumpButton)
 local NetButtonPlace = require(script.Parent.Parent.Components.NetButtonPlace)
+local PromptKey = require(script.Parent.Parent.Components.PromptKey)
 local Scale = require(script.Parent.Parent.Scale)
 local Signal = require(script.Parent.Parent.Components.Signal)
 local Theme = require(script.Parent.Parent.Theme)
@@ -438,6 +439,11 @@ function CatchPrompt._paintInput(self: any)
 		Scale.isTouch()
 	)
 	self._keyFrame.Visible = not touch
+	-- #2874 (console): the cap names the key of the input in hand, E on a keyboard and X on a gamepad
+	local pad = string.sub(UserInputService:GetLastInputType().Name, 1, 7) == "Gamepad"
+	self._keycap.Text = if pad
+		then PromptKey.label("Gamepad", self._padKeyName or "ButtonX")
+		else PromptKey.label("Keyboard", self._keyName or "E")
 	self._holdTag.Visible = self._holdDuration > 0 and not touch
 	self._grab.Visible = touch
 	if touch then
@@ -501,7 +507,8 @@ function CatchPrompt.show(self: any, info: Types.CatchInfo)
 	self._miniBar.Visible = rescue
 	self._miniRing.Visible = not rescue and not pickUp
 	local key: Enum.KeyCode = info.keyCode or Enum.KeyCode.E
-	self._keycap.Text = key.Name
+	self._keyName = key.Name
+	self._padKeyName = (info.gamepadKeyCode or Enum.KeyCode.ButtonX).Name -- #2874
 	self._promptTouch = info.touch
 	self:_paintInput()
 	if not self.screenGui.Enabled then

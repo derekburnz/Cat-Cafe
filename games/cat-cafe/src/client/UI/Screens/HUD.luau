@@ -71,6 +71,7 @@ local PalChip = require(script.Parent.PalChip)
 local PalMarker = require(script.Parent.PalMarker)
 local PassShop = require(script.Parent.Parent.Components.PassShop)
 local PityLogic = require(script.Parent.Parent.Components.PityLogic)
+local PromptKey = require(script.Parent.Parent.Components.PromptKey)
 local QuestLogic = require(script.Parent.Parent.Components.QuestLogic)
 local RankUp = require(script.Parent.RankUp)
 local Roadmap = require(script.Parent.Roadmap)
@@ -286,6 +287,7 @@ local function menuWidth(columns: number): number
 	return columns * MENU_TILE + (columns - 1) * MENU_GAP
 end
 local MENU_W = menuWidth(MENU_COLUMNS)
+local PAD_DROP = "↓" -- #2874: DPad down drops on a gamepad (#2879), as G does on a keyboard
 local TRAVEL_ICON = 28 -- the pictures on the Rewards and Menu lists' rows
 -- the bottom row is clean tiles since 2026-11-03 (Derek: "cafe and cannon button redo", then "Build it as shown"):
 -- a square each with its label under it, a little apart so a long label ("Walk it home") clears its neighbours. On a
@@ -460,7 +462,15 @@ local function label(props: { [string]: any }): TextLabel
 	return text
 end
 
-local function keycap(parent: Instance, text: string, position: UDim2, anchor: Vector2?): TextLabel
+-- #2874 (console): `pad` is the cap on a gamepad (DPad ↓ for Drop), and a cap without one hides on a gamepad, where
+-- its letter means nothing; HUD._paintKeys swaps them as the input changes.
+local function keycap(
+	parent: Instance,
+	text: string,
+	position: UDim2,
+	anchor: Vector2?,
+	pad: string?
+): TextLabel
 	local key: TextLabel = Create("TextLabel", {
 		Name = "Key",
 		BackgroundColor3 = Theme.colors.paper,
@@ -476,6 +486,8 @@ local function keycap(parent: Instance, text: string, position: UDim2, anchor: V
 		Parent = parent,
 	}, { Create("UICorner", { CornerRadius = UDim.new(0, 6) }) })
 	Outline.border(key, 2)
+	key:SetAttribute("KeyboardKey", text)
+	key:SetAttribute("PadKey", pad or "")
 	return key
 end
 
@@ -1963,8 +1975,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 			callbacks.dropCat()
 		end,
 	})
-	if showKeys then
-		keycap(drop.face, "G", UDim2.new(1, -4, 0, 4), Vector2.new(1, 0))
+	if showKeys or UserInputService.GamepadEnabled then
+		keycap(drop.face, "G", UDim2.new(1, -4, 0, 4), Vector2.new(1, 0), PAD_DROP)
 	end
 	table.insert(self._buttons, drop)
 
@@ -1988,8 +2000,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end,
 	})
 	packDrop.instance.Visible = false
-	if showKeys then
-		keycap(packDrop.face, "G", UDim2.new(1, -4, 0, 4), Vector2.new(1, 0))
+	if showKeys or UserInputService.GamepadEnabled then
+		keycap(packDrop.face, "G", UDim2.new(1, -4, 0, 4), Vector2.new(1, 0), PAD_DROP)
 	end
 	table.insert(self._buttons, packDrop)
 	self._packDrop = packDrop
@@ -2188,7 +2200,33 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._dayCard.Parent = nil
 	self._dayCard.Parent = root
 	self:_watchPacked() -- #2731: last, once the bottom stack is built
+	-- #2874 (console): the key caps follow the input in hand
+	table.insert(
+		self._connections,
+		UserInputService.LastInputTypeChanged:Connect(function()
+			self:_paintKeys()
+		end)
+	)
+	self:_paintKeys()
 	return self :: HUD
+end
+
+-- #2874 (console): every key cap shows its keyboard letter, or on a gamepad its pad key (DPad ↓ on Drop) and hides
+-- when it has none.
+function HUD._paintKeys(self: any)
+	local pad = string.sub(UserInputService:GetLastInputType().Name, 1, 7) == "Gamepad"
+	for _, key in self._root:GetDescendants() do
+		local keyboard = key:GetAttribute("KeyboardKey")
+		if key:IsA("TextLabel") and type(keyboard) == "string" then
+			local padKey = key:GetAttribute("PadKey")
+			local shown = if pad
+				then (if type(padKey) == "string" then padKey else "")
+				else keyboard
+			key.Text = shown
+			key.Visible = shown ~= "" and (pad or UserInputService.KeyboardEnabled)
+			key.Size = UDim2.fromOffset(PromptKey.width(shown, 22), 22)
+		end
+	end
 end
 
 -- What is in the bowl: nil when empty. catWaiting is true while the Tame or Let go card has a cat to show.

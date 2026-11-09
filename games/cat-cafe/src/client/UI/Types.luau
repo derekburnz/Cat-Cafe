@@ -408,6 +408,7 @@ export type CatchInfo = {
 	holdDuration: number?, -- the prompt's HoldDuration: the card fills over it (0.5 s on cat prompts), 0 for a press
 	actionText: string?, -- default "Catch", "Rescue" or "Pick up" (no prompt asks for a hold since #2340)
 	keyCode: Enum.KeyCode?, -- default E
+	gamepadKeyCode: Enum.KeyCode?, -- #2874: default ButtonX (Roblox's prompt default), shown on a gamepad
 	stars: number?, -- 1 to 5 from the stray's Stars attribute
 	charm: number?, -- 0 to 100 from the stray's Charm attribute
 	kind: PromptKind?, -- default "swing" (the net); "rescue" is a stuck cat (F21)

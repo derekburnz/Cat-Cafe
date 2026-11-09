@@ -1527,7 +1527,9 @@ function UI.init(config: Types.InitConfig)
 						UI.toast(CannonLogic.CARRY_REFUSED, "info") -- the greyed Home says it too (F84)
 					end
 					hudInstance:pressTravel("home")
-				elseif key == Enum.KeyCode.G and hudInstance:isCarrying() then
+				elseif
+					key == Enum.KeyCode.G and (hudInstance:isCarrying() or hudInstance:isPacked())
+				then
 					UI.events.dropCat:Fire()
 				elseif key == Enum.KeyCode.ButtonB then
 					modalInstance:close()

@@ -3450,6 +3450,50 @@ local SCENES = {
 		assert(cool.Visible and cool.Size.Y.Scale > 0.8, "uigate: the Tackle button did not grey after a tap (#2510)")
 		assert(word.Text:match("^%ds$") ~= nil, "uigate: the recharging Tackle button reads " .. word.Text .. " (#2510)")
 	end },
+	-- #2731 (Derek2's backpack bugs: no way to drop a packed cat with empty arms): with a PackedCatId on the character
+	-- and nothing in the arms, a small "Drop bag cat" pill sits where the carry banner would, thumb sized, on screen,
+	-- one line; a tap fires dropCat. While carrying, the carry banner's Drop takes over and the pill hides.
+	{ "PackDrop", function()
+		local player = UIShim.player
+		local character = player.Character
+		if character == nil then
+			character = Instance.new("Model")
+			character.Name = "Tester"
+			character.Parent = workspace;
+			(player :: any).Character = character
+			UIShim.fire(UIShim.eventOf(player, "CharacterAdded"), character)
+		end
+		Scenes._packed = character
+		character:SetAttribute("PackedCatId", Catalog.cats[1].id)
+		UIShim.advance(0.5)
+		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
+		local pill = hud:FindFirstChild("PackDrop", true) :: GuiObject
+		assert(pill and pill.Visible, "uigate: no Drop pill with a cat in the backpack (#2731)")
+		local size = pill.AbsoluteSize
+		local hit = (pill:FindFirstChild("Hit") or pill:FindFirstChild("Face", true)) :: GuiButton
+		assert(hit.AbsoluteSize.Y >= 36, ("uigate: the Drop pill takes a %d px tap, under a thumb (#2731)"):format(hit.AbsoluteSize.Y))
+		local root = hud:FindFirstChild("Root") :: GuiObject
+		local at, rootAt, rootSize = pill.AbsolutePosition, root.AbsolutePosition, root.AbsoluteSize
+		assert(at.X >= rootAt.X and at.Y >= rootAt.Y and at.X + size.X <= rootAt.X + rootSize.X + 0.5 and at.Y + size.Y <= rootAt.Y + rootSize.Y + 0.5, "uigate: the Drop pill runs off screen (#2731)")
+		for _, label in pill:GetDescendants() do
+			if label:IsA("TextLabel") and label.Text ~= "" and label.Text ~= "G" then
+				assert(label.TextFits, "uigate: the Drop pill's words do not fit: " .. label.Text .. " (#2731)")
+			end
+		end
+		local fired = 0
+		local connection = UI.events.dropCat:Connect(function()
+			fired += 1
+		end)
+		UIShim.fire(UIShim.eventOf(hit, "Activated"))
+		connection:Disconnect()
+		assert(fired == 1, "uigate: the Drop pill did not fire dropCat (#2731)")
+		UI.setCarrying({ catId = Catalog.cats[1].id, catName = "Mochi", rarity = "Rare" } :: any)
+		UIShim.advance(0.3)
+		assert(not pill.Visible, "uigate: the Drop pill shows beside the carry banner (#2731)")
+		UI.setCarrying(nil)
+		UIShim.advance(0.3)
+		assert(pill.Visible, "uigate: the Drop pill did not come back after carrying (#2731)")
+	end },
 	-- F93: a catch three circles in: Perfect, Good, Perfect, each cleared with its word, the pips filling
 	{ "Catch", function()
 		local list = startCatch("gate_stray", "Epic", 5, 0, 0.82)
@@ -5863,6 +5907,10 @@ end
 
 function Scenes.close()
 	reel(false)
+	if Scenes._packed ~= nil then
+		Scenes._packed:SetAttribute("PackedCatId", nil) -- #2731's scene
+		Scenes._packed = nil
+	end
 	if Scenes._tradeTier ~= nil then
 		UI.update(Scenes._tradeTier :: any) -- #2462's scene
 		Scenes._tradeTier = nil

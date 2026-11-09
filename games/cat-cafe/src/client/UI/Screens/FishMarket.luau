@@ -146,7 +146,11 @@ local FRESH_HEAD = 58
 local RANGE: number = Config.FishMarketRange or 14
 local CLOSE_SLACK = 2 -- studs past the server's range before the window closes
 local LUCKY_EVERY: number = Config.CrateLuckyEvery or 20
-local PENDING_SECONDS = 5 -- a pressed Open waits this long for its CrateResult before it can be pressed again
+-- a pressed Open waits this long for its CrateResult before it can be pressed again (#2577: was 5 s; the server drops
+-- an over-limit OpenCrate with no answer, so the button came back only when the 5 s ran out)
+local PENDING_SECONDS = 2.5
+-- #2577: after a wait runs out with no answer, the button reads "Try again" this long
+local RETRY_SECONDS = 3
 -- #2290: a Buy waits this long after it is sent; its answer (a sync, FreshCatchStock) ends the wait sooner, and a
 -- refusal (a toast, no sync) frees the button after this instead of the Open's 5 s
 local BUY_PENDING_SECONDS = 2
@@ -270,6 +274,7 @@ function FishMarket.new(callbacks: Callbacks): FishMarket
 	self._crateCards = {} :: { CrateCard }
 	self._itemRows = {} :: { ItemRow }
 	self._pending = {} :: { [string]: number } -- crate or item id -> os.clock() when its wait for the server ends
+	self._retry = {} :: { [string]: number } -- #2577: crate id -> os.clock() until its button reads "Try again"
 	self._lastSent = {} :: { [string]: number } -- #2290: "item", "fresh" or "bundle" -> os.clock() of its last send
 	self._potionById = {} :: { [string]: PotionLogic.Potion }
 	self._crateById = {} :: { [string]: Types.CrateDef }
@@ -1578,14 +1583,24 @@ function FishMarket._pendingFor(self: any, id: string): boolean
 	return untilAt ~= nil and os.clock() < untilAt
 end
 
--- #2290: drops the waits that have run out and says whether any did, so the button comes back on time.
+-- #2290: drops the waits that have run out and says whether any did, so the button comes back on time. #2577: a crate
+-- open that ran out with no CrateResult says so (its button reads "Try again", one toast), and a press queued behind
+-- it goes now.
 function FishMarket._expirePending(self: any): boolean
-	local now, any = os.clock(), false
+	local now, any, lost = os.clock(), false, false
 	for id, untilAt in self._pending do
 		if now >= untilAt then
 			self._pending[id] = nil
 			any = true
+			if self._crateById[id] ~= nil then
+				self._retry[id] = now + RETRY_SECONDS
+				lost = true
+			end
 		end
+	end
+	if lost then
+		self._callbacks.toast("That didn't go through. Try again!")
+		self:_flushQueued()
 	end
 	return any
 end
@@ -1641,34 +1656,53 @@ function FishMarket._open(self: any, crate: Types.CrateDef)
 	if self._revealing then
 		return
 	end
-	local gate = self:_crateGate()
-	if gate == "busy" then
-		return
-	elseif gate == "spam" then
+	if self:_crateGate() ~= nil then
 		-- #1146: a press just after the last open (a Quick open, then the next crate) waits out the short spam limit
-		-- and goes then, instead of reaching the server early and being refused
+		-- and goes then, instead of reaching the server early and being refused. #2577: a press while another crate's
+		-- open is in flight waits for its answer (or its time running out) the same way, so only the pressed crate
+		-- reads "..." instead of every Open on the tab
 		if self._queued == nil then
 			self._queued = crate.id
-			local last = self._lastOpenAt :: number
-			task.delay(
-				math.max(0, last + Config.CrateOpenCooldownSeconds + GATE_SLACK - os.clock()) + 0.02,
-				function()
-					local queued = self._queued
-					self._queued = nil
-					if not self._destroyed and queued == crate.id and self.frame.Visible then
-						self:_open(crate)
-					end
-				end
-			)
+			self:_flushQueued()
 		end
 		self:_refresh()
 		return
 	end
+	self._retry[crate.id] = nil
 	self._pending[crate.id] = os.clock() + PENDING_SECONDS
 	self._lastOpenAt = os.clock()
 	self._callbacks.openCrate(crate.id)
 	self:_refresh()
 	self:_refreshAfterGate()
+end
+
+-- #2577: the queued press goes once the gate is clear: at once, after the spam limit, or (while an open is in flight)
+-- when its CrateResult lands or its wait runs out, which call this again.
+function FishMarket._flushQueued(self: any)
+	local queued: string? = self._queued
+	if queued == nil or self._destroyed then
+		return
+	end
+	local gate = self:_crateGate()
+	if gate == "busy" then
+		return
+	elseif gate == "spam" then
+		local last = self._lastOpenAt :: number
+		task.delay(
+			math.max(0, last + Config.CrateOpenCooldownSeconds + GATE_SLACK - os.clock()) + 0.02,
+			function()
+				self:_flushQueued()
+			end
+		)
+		return
+	end
+	self._queued = nil
+	local crate: Types.CrateDef? = self._crateById[queued]
+	if crate ~= nil and self.frame.Visible and not self._revealing then
+		self:_open(crate)
+	else
+		self:_refresh()
+	end
 end
 
 -- #2402: Open all. Every banked crate of this kind in one go, under the same busy and spam rule as Open; the
@@ -1804,11 +1838,13 @@ function FishMarket._refresh(self: any)
 		entry.tier.Text = if tier then ("Tier %d"):format(tier) else ""
 		entry.tier.BackgroundColor3 = if open then Theme.colors.good else Theme.colors.muted
 		local price = crate.price or 0
-		-- #1146: every Open shows busy while any crate is in flight or within the short spam limit
-		local pending = self:_pendingFor(crate.id) or gate ~= nil or self._queued == crate.id
+		-- #2577: "..." only on the crate pressed (in flight or queued); the other Opens stay pressable and queue
+		-- behind it (#1146's rule, kept by _open), and one whose wait ran out unanswered reads "Try again"
+		local pending = self:_pendingFor(crate.id) or self._queued == crate.id
+		local retry = not pending and (self._retry[crate.id] or 0) > os.clock()
 		if count > 0 then
 			entry.line.Text = ("You have %s"):format(Format.commas(count))
-			entry.open:setText(if pending then "..." else "Open")
+			entry.open:setText(if pending then "..." elseif retry then "Try again" else "Open")
 			entry.open:setStyle("primary")
 			entry.open:setEnabled(not pending)
 		elseif not open then
@@ -1823,6 +1859,7 @@ function FishMarket._refresh(self: any)
 				if pending
 					then "..."
 					elseif flashing then MarketLogic.needShort(price - fish)
+					elseif retry then "Try again"
 					else ("Buy 1x · %s"):format(Format.short(price))
 			)
 			entry.open:setStyle(if flashing then "secondary" else "gold")
@@ -1872,10 +1909,12 @@ function FishMarket._refresh(self: any)
 			else UDim2.new(1, -16, 0, ODDS_H)
 		if canAll then
 			local all = math.min(count, Crates.OPEN_ALL_MAX)
+			-- Open all can't queue: it waits while any open is in flight or inside the spam limit
+			local allWaiting = pending or gate ~= nil
 			entry.openAll:setText(
-				if pending then "..." else ("Open all (%s)"):format(Format.short(all))
+				if allWaiting then "..." else ("Open all (%s)"):format(Format.short(all))
 			)
-			entry.openAll:setEnabled(not pending)
+			entry.openAll:setEnabled(not allWaiting)
 		end
 	end
 	self._emptyCrates.Visible = shown == 0
@@ -2113,12 +2152,15 @@ function FishMarket.result(
 	refund: number
 )
 	self._pending[crateId] = nil
+	self._retry[crateId] = nil
 	self:_refreshAfterGate() -- #1146: the Open buttons free up once the spam limit has passed too
 	if decorId == "" then
 		Sound.play("uiError")
+		self:_flushQueued() -- #2577: a press queued behind a refused one goes now (after the spam limit)
 		self:_refresh()
 		return
 	end
+	self._queued = nil -- #2577: a reveal plays; a press queued behind it is dropped, as a press mid-reveal is
 	if not self.frame.Visible then
 		local decor: Types.DecorDef? = self._decorById[decorId]
 		local name = if decor then decor.name else decorId
@@ -2145,6 +2187,7 @@ end
 -- only shows them. Empty when refused (the server's toast says why); a result while closed becomes a toast.
 function FishMarket.allResult(self: any, crateId: string, opened: { any })
 	self._pending[crateId] = nil
+	self._retry[crateId] = nil
 	self:_refreshAfterGate()
 	local list: { Crates.Opened } = {}
 	for _, piece in opened do
@@ -2158,9 +2201,11 @@ function FishMarket.allResult(self: any, crateId: string, opened: { any })
 	end
 	if #list == 0 then
 		Sound.play("uiError")
+		self:_flushQueued() -- #2577
 		self:_refresh()
 		return
 	end
+	self._queued = nil -- #2577: the summary shows; a press queued behind it is dropped
 	if not self.frame.Visible then
 		local summary = Crates.summary(list)
 		self._callbacks.toast(

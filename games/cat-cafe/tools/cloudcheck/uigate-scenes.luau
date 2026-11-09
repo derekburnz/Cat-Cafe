@@ -2407,6 +2407,51 @@ local SCENES = {
 		counting:Disconnect()
 		UI.update({ goldenFish = before } :: any)
 	end },
+	-- #2577 (Derek2: "the buttons for buying crates sometimes get stuck on ... for a while"): only the pressed crate reads
+	-- "...", another crate's press queues behind it, and an open the server never answers frees its button after 2.5 s
+	-- as "Try again" (with a toast), when the queued press goes
+	{ "MarketCrateWait", function()
+		local before = UI.getState()
+		local crates, fish = before.crates, (before :: any).goldenFish
+		UI.update({ crates = { park_crate = 2, alley_crate = 1 }, goldenFish = 100000 } :: any)
+		local sent: { string } = {}
+		local counting = UI.events.openCrate:Connect(function(id: string)
+			table.insert(sent, id)
+		end)
+		UI.market.open()
+		press("FishMarket", "CratesTab")
+		local window = UIShim.playerGui:FindFirstChild("FishMarket", true)
+		local function label(id: string): string
+			local card = window:FindFirstChild(id, true)
+			local open = card and card:FindFirstChild("Open", true)
+			for _, piece in (open :: Instance):GetDescendants() do
+				if (piece:IsA("TextLabel") or piece:IsA("TextButton")) and piece.Text ~= "" then
+					return piece.Text
+				end
+			end
+			return ""
+		end
+		press("FishMarket", "park_crate.Open")
+		assert(#sent == 1 and sent[1] == "park_crate", "uigate: Open sent " .. table.concat(sent, ",") .. " (#2577)")
+		assert(label("park_crate") == "...", "uigate: the pressed crate reads " .. label("park_crate") .. " (#2577)")
+		assert(label("alley_crate") ~= "...", "uigate: another crate reads ... while one opens (#2577)")
+		press("FishMarket", "alley_crate.Open")
+		assert(#sent == 1 and label("alley_crate") == "...", "uigate: a second Open went at once or shows no wait (#2577)")
+		UIShim.advance(2.8) -- no CrateResult for park
+		assert(label("park_crate") == "Try again", "uigate: an unanswered Open reads " .. label("park_crate") .. " after 2.8 s (#2577)")
+		assert(#sent == 2 and sent[2] == "alley_crate", "uigate: the queued Open did not go once the first ran out (#2577)")
+		local toast = false
+		for _, d in UIShim.playerGui:GetDescendants() do
+			if d:IsA("TextLabel") and string.find(d.Text, "didn't go through", 1, true) then
+				toast = true
+			end
+		end
+		assert(toast, "uigate: no toast when an Open ran out unanswered (#2577)")
+		UI.market.result("alley_crate", "", false, 0) -- a refusal frees alley at once
+		assert(label("alley_crate") ~= "...", "uigate: a refused Open still reads ... (#2577)")
+		counting:Disconnect()
+		UI.update({ crates = crates or {}, goldenFish = fish } :: any)
+	end },
 	{ "MarketFresh", function()
 		-- F94: a window mid-way, one row sold out to this player, one not stocked, a crate row
 		UI.freshCatch.setStock({

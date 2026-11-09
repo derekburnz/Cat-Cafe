@@ -1299,6 +1299,56 @@ return function()
 		)
 
 		it(
+			"keeps every station off the square's props and the other stations (QA 2026-11-09, #2565)",
+			function()
+				-- QA found the Mystery cart's stopgap spot 2 studs from the Rally board, which no station check
+				-- covered: centres stay 8 studs from another station and 6.5 from any prop
+				local all: { [string]: Point } = {
+					spinWheel = Layout.spinWheel,
+					fishMarket = Layout.fishMarket,
+					codesCat = Layout.codesCat,
+					dealerCart = Layout.dealerCart,
+					bellhopStand = Layout.bellhopStand,
+					mysteryCart = Layout.mysteryCart,
+					leaderboards = Layout.leaderboards,
+					cornerShop = Layout.cornerShop,
+					dayCart = Layout.dayCart,
+					thanksBoard = Layout.thanksBoard,
+				}
+				local props: { any } = { Layout.townSquare.pitySign, Layout.playerSpawn }
+				for _, prop in Layout.townSquare.rallyBoards do
+					table.insert(props, prop)
+				end
+				for _, prop in Layout.townSquare.props do
+					if prop.asset ~= "CatCafe_Square_Paving" then
+						table.insert(props, prop)
+					end
+				end
+				for name, point in all do
+					for other, there in all do
+						local gap = math.sqrt((point.x - there.x) ^ 2 + (point.z - there.z) ^ 2)
+						if other ~= name and gap < 8 then
+							fail("%s stands %.1f studs from %s", name, gap, other)
+						end
+					end
+					for _, prop in props do
+						local gap = math.sqrt((point.x - prop.x) ^ 2 + (point.z - prop.z) ^ 2)
+						if gap < 6.5 then
+							fail(
+								"%s stands %.1f studs from %s at (%g, %g)",
+								name,
+								gap,
+								prop.asset or "the spawn",
+								prop.x,
+								prop.z
+							)
+						end
+					end
+				end
+			end
+		)
+
+		it(
 			"keeps the Codes circle clear of the cross and of the Spin Wheel's prompt (QA check 2)",
 			function()
 				local codes = Layout.codesCat

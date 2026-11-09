@@ -8,6 +8,9 @@
 --   isRepeat(kind, now, lastAt) -> boolean            the same words again within REPEAT_SECONDS: dropped, except a
 --                                                     warning (a refused press says why every time)
 --   maxVisible(touch) -> number                        toasts on screen at once
+--   quiet(text, kind) -> boolean                       #2600: a purchase confirmation ("Bought Tuna (40)"): dropped;
+--                                                     the shop's button, the counts and the money say it. A warning
+--                                                     (a refused buy) still shows
 
 local ToastRules = {}
 
@@ -45,6 +48,12 @@ end
 
 function ToastRules.maxVisible(touch: boolean): number
 	return if touch then 2 else 3
+end
+
+-- #2600 (Derek2: "remove all the bought pop ups they just add more clutter"): the servers' "Bought ..." toasts from
+-- the Day Cart, the Night Dealer (and its Buy all) and the Fish Market.
+function ToastRules.quiet(text: string, kind: string?): boolean
+	return kind ~= "warn" and string.sub(text, 1, 7) == "Bought "
 end
 
 return ToastRules

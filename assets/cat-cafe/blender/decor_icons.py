@@ -84,6 +84,36 @@ def _plain(name):
     return re.sub(r"[^A-Za-z0-9]", "", name)
 
 
+# Crate pieces whose Catalog rows are not written yet: (id, name, kind), drawn from their models now so the icons ship
+# with them; a catalog row with the same id wins once it exists. #2651: the Desert and Ruins Crates (tier6-7-areas.md
+# 7b), whose rows land with the opening PR.
+PENDING = [
+    ("desert_sandstone_blocks", "Sandstone Blocks", "wallpaper"),
+    ("desert_market_stripes", "Market Stripes", "wallpaper"),
+    ("desert_sand_ripple", "Sand Ripple", "floor"), ("desert_mirage_glass", "Mirage Glass", "floor"),
+    ("desert_dune_gold", "Dune Gold", "paint"), ("desert_oasis_teal", "Oasis Teal", "paint"),
+    ("desert_cushion_pile", "Cushion Pile", "furniture"), ("desert_caravan_bench", "Caravan Bench", "furniture"),
+    ("desert_lantern_palm", "Lantern Palm", "decoration"), ("desert_oasis_fountain", "Oasis Fountain", "decoration"),
+    ("desert_arch_gate_door", "Arch Gate Door", "door"), ("desert_sun_disc_flap", "Sun Disc Flap", "catflap"),
+    ("ruins_carved_stone", "Carved Stone", "wallpaper"), ("ruins_glyph_frieze", "Glyph Frieze", "wallpaper"),
+    ("ruins_cracked_flagstone", "Cracked Flagstone", "floor"), ("ruins_jade_inlay", "Jade Inlay", "floor"),
+    ("ruins_moss_stone", "Moss Stone", "paint"), ("ruins_glyph_gold", "Glyph Gold", "paint"),
+    ("ruins_pillar_table", "Pillar Table", "furniture"), ("ruins_stone_throne", "Stone Throne", "furniture"),
+    ("ruins_brazier_pair", "Brazier Pair", "decoration"), ("ruins_gargoyle_statue", "Gargoyle Statue", "decoration"),
+    ("ruins_temple_gate_door", "Temple Gate Door", "door"), ("ruins_keyhole_flap", "Keyhole Flap", "catflap"),
+]
+
+
+def _asset_for(name, kind):
+    if kind == "door":
+        return "CatCafe_Door_" + _plain(re.sub(r" Door$", "", name))
+    if kind == "catflap":
+        return "CatCafe_CatFlap_" + _plain(re.sub(r" Flap$", "", name))
+    if kind in STYLE_KINDS:
+        return "CatCafe_Style_" + _plain(name)
+    return "CatCafe_Decor_" + _plain(name)
+
+
 def catalog_items():
     """[(id, name, kind, asset)] for every decor and lawn item, in catalog order."""
     s = open(CATALOG, encoding="utf-8").read()
@@ -94,17 +124,9 @@ def catalog_items():
         name = re.search(r"name = \"([^\"]+)\"", body).group(1)
         kind = re.search(r"kind = \"(\w+)\"", body).group(1)
         own = re.search(r"asset = \"([^\"]+)\"", body)
-        if own:
-            asset = own.group(1)
-        elif kind == "door":
-            asset = "CatCafe_Door_" + _plain(re.sub(r" Door$", "", name))
-        elif kind == "catflap":
-            asset = "CatCafe_CatFlap_" + _plain(re.sub(r" Flap$", "", name))
-        elif kind in STYLE_KINDS:
-            asset = "CatCafe_Style_" + _plain(name)
-        else:
-            asset = "CatCafe_Decor_" + _plain(name)
-        out.append((cid, name, kind, asset))
+        out.append((cid, name, kind, own.group(1) if own else _asset_for(name, kind)))
+    have = {row[0] for row in out}
+    out += [(cid, name, kind, _asset_for(name, kind)) for cid, name, kind in PENDING if cid not in have]
     if "local EVENT_DECOR" in s:                    # Cafe Event reward pieces (#2534): asset CatCafe_<id>
         ev = s[s.index("local EVENT_DECOR"):s.index("Catalog.eventDecor = {}")]
         for m in re.finditer(r"id = \"(\w+)\",\s*\n.*?name = \"([^\"]+)\",\s*\n\s*kind = \"(\w+)\"", ev, re.S):

@@ -36,6 +36,19 @@ PENDING = [                               # (id, name, kind, (r, g, b), material
     ("rally_gym_floor", "Gym Floor", "floor", (214, 170, 110), "WoodPlanks"),
     ("rally_team_stripes", "Team Stripes", "paint", (60, 125, 217), "SmoothPlastic"),
     ("rally_trophy_gold", "Trophy Gold", "paint", (255, 201, 77), "Foil"),
+    # #2651 the Desert and Ruins Crates (tier6-7-areas.md 7b); their rows land with the opening PR (part 3)
+    ("desert_sandstone_blocks", "Sandstone Blocks", "wallpaper", (204, 170, 120), "Sandstone"),
+    ("desert_market_stripes", "Market Stripes", "wallpaper", (220, 120, 80), "Fabric"),
+    ("desert_sand_ripple", "Sand Ripple", "floor", (232, 205, 150), "Sand"),
+    ("desert_mirage_glass", "Mirage Glass", "floor", (160, 200, 240), "Glass"),
+    ("desert_dune_gold", "Dune Gold", "paint", (226, 190, 120), "SmoothPlastic"),
+    ("desert_oasis_teal", "Oasis Teal", "paint", (64, 168, 160), "SmoothPlastic"),
+    ("ruins_carved_stone", "Carved Stone", "wallpaper", (150, 145, 135), "Slate"),
+    ("ruins_glyph_frieze", "Glyph Frieze", "wallpaper", (196, 170, 128), "Sandstone"),
+    ("ruins_cracked_flagstone", "Cracked Flagstone", "floor", (140, 135, 125), "Cobblestone"),
+    ("ruins_jade_inlay", "Jade Inlay", "floor", (80, 160, 120), "Marble"),
+    ("ruins_moss_stone", "Moss Stone", "paint", (120, 130, 110), "SmoothPlastic"),
+    ("ruins_glyph_gold", "Glyph Gold", "paint", (232, 190, 80), "SmoothPlastic"),
 ]
 
 

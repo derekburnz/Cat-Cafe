@@ -44,6 +44,11 @@ local IDS: { [string]: string } = {
 	Crate_Woods_Gold = "rbxassetid://92790512876175",
 	Crate_Sewer = "rbxassetid://114716437470272",
 	Crate_Sewer_Gold = "rbxassetid://126554679284620",
+	-- Tier 6/7 (Model-Agent #2677, upload-image run 42585003460); dormant until the opening adds the crates
+	Crate_Desert = "rbxassetid://113188441612780",
+	Crate_Desert_Gold = "rbxassetid://75758913767954",
+	Crate_Ruins = "rbxassetid://130303593286077",
+	Crate_Ruins_Gold = "rbxassetid://89879105168160",
 	Crate_Classic = "rbxassetid://81784091360384",
 	Crate_Classic_Gold = "rbxassetid://116503754623416",
 	Crate_Rally = "rbxassetid://82686246354257", -- F101 Rally Crate (Model-Agent #766), banked only and no golden twin

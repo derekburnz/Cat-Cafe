@@ -61,6 +61,8 @@ local AREA_NAMES: { [string]: string } = {
 	neighbourhood = "Neighbourhood",
 	woods = "Woods",
 	sewer = "Sewer",
+	desert = "Desert", -- #2656: Tier 6 (Sunstone Cafe)
+	ruins = "Ruins", -- #2656: Tier 7 (Wonder Cafe)
 	all = "All Cats", -- the Index's all-areas page (F54)
 	spare = "Spare", -- the Index's page of spare cats (F78)
 }

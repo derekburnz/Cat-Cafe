@@ -2348,4 +2348,15 @@ return function()
 			expect(loaded.mysterySeen).to.equal(false)
 		end)
 	end)
+
+	describe("the first special visitors met (#2792, no version bump)", function()
+		it("start empty, keep only known kinds set to true, and survive a load", function()
+			expect(next(ProfileSchema.template(1000).firstVisits)).never.to.be.ok()
+			local raw: any = ProfileSchema.template(1000)
+			raw.firstVisits = { rich = true, mystery = "yes", nope = true }
+			expect(ProfileSchema.migrate(raw, 1000).firstVisits :: any).to.deepEqual({ rich = true })
+			raw.firstVisits = nil
+			expect(next(ProfileSchema.migrate(raw, 1000).firstVisits)).never.to.be.ok()
+		end)
+	end)
 end

@@ -180,6 +180,8 @@ return function()
 		CollectorGoldMultiplier = 3,
 		CollectorRollMin = 0.8,
 		CollectorRollMax = 1.5,
+		FirstVisitStaySeconds = 300, -- #2792 (retention-ideas.md section 2): a first visit waits 5 minutes
+		FirstVisitWindowSeconds = 1800, -- #2792: the schedule only inside an account's first 30 minutes of play
 		-- the Spin Wheel station (F49, section 11c, design v0.6)
 		SpinStationRange = 14,
 		SpinCooldownSeconds = 4,
@@ -511,6 +513,7 @@ return function()
 				EventShowerAreaWeights = true, -- #2486: a table, checked in CafeEvents.spec
 				UpdateEventId = true, -- #2766: the next update's Roblox Event id, set per Event, checked in EventRsvp.spec
 				UpdateEventStartsAt = true, -- #2766: that Event's start (os.time(), UTC), set per Event
+				FirstVisitAt = true, -- #2792: a table, checked in FirstVisits.spec
 			}
 			for name, value in pairs(Config :: any) do
 				if expected[name] == nil and not known[name] then

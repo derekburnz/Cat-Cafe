@@ -591,6 +591,13 @@ local Config = {
 	CollectorGoldMultiplier = 3,
 	CollectorRollMin = 0.8,
 	CollectorRollMax = 1.5,
+	-- #2792 (retention-ideas.md section 2, shared/FirstVisits): a new account's first rich customer, Mystery Visitor
+	-- and Cat Collector come at these seconds of play on the account (about 3, 6 and 9 minutes), each once, and stay
+	-- FirstVisitStaySeconds so a player out catching can still get back for it. Past FirstVisitWindowSeconds of play
+	-- only the normal timers run.
+	FirstVisitAt = { rich = 180, mystery = 360, collector = 540 },
+	FirstVisitStaySeconds = 300,
+	FirstVisitWindowSeconds = 1800,
 	CollectorRangeStuds = 12, -- AnswerCollector from this close to him (his card opens there)
 	PotionMaxMinutes = 1440, -- one kind's time left never goes over this; a drink that would is refused (v0.13.8; F95: 24 h, Derek 2026-10-28 17:36)
 	TipPotionBonus = 0.25, -- tip_potion: +25% on income, the tip piles and rich visitors

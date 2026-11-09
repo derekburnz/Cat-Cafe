@@ -5782,6 +5782,28 @@ local SCENES = {
 		local chip = assertEventChip(1)
 		assert(chip.Text == "⏳ Cafe Party in 2:59", "uigate: the event chip reads " .. chip.Text .. " (#2487)")
 	end },
+	-- #2860 (Derek2: the event "flashes and shows during catching minigames when it should be hidden"): the chip's
+	-- countdown repaints every second, and mid-catch it stays down; after the catch it is back
+	{ "CafeEventCatch", function()
+		local t = workspace:GetServerTimeNow()
+		Scenes._cafeEvent = true
+		cafeEvent({ EventStartsAt = t - 20, EventEndsAt = t + 7180, EventRunning = true })
+		local chip = assertEventChip(2) -- running: "ends in 1:59:40" repaints every second
+		local nextLine = UIShim.playerGui:FindFirstChild("EventNext", true) :: TextLabel
+		startCatch("gate_eventchip", "Rare", 3, 0.2, 0.9)
+		UIShim.advance(0.3)
+		assert(UI.catch.circlesActive(), "uigate: the catch circles did not start")
+		for _ = 1, 3 do
+			UIShim.advance(1.1)
+			UI.cafeEvent.tick()
+			assert(not chip.Visible and not nextLine.Visible, "uigate: the Cafe Event chip showed mid-catch on its tick (#2860)")
+		end
+		UI.catch.hideCircles()
+		UI.catch.hide()
+		UIShim.advance(0.5)
+		UI.cafeEvent.tick()
+		assert(chip.Visible and nextLine.Visible, "uigate: the Cafe Event chip did not come back after the catch (#2860)")
+	end },
 	-- #2487: the party running: the start banner and the gold chip with the end and the next shower
 	{ "CafeEventRunning", function()
 		local t = workspace:GetServerTimeNow()

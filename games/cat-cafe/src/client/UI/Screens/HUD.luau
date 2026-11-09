@@ -3300,9 +3300,27 @@ function HUD.setEvent(self: any, lines: { string }?, kind: string?)
 	line.TextColor3 = if kind == "running" then Theme.colors.gold else Theme.colors.white
 	-- #2539 (Laptop-Tester): not tied to the clock, which the small HUD hides until tutorial step 5, so a new player
 	-- sees the event too
-	line.Visible = text ~= nil
 	nextLine.Text = if lines ~= nil and lines[2] ~= nil then lines[2] else ""
-	nextLine.Visible = line.Visible and nextLine.Text ~= ""
+	local showLine = text ~= nil
+	local showNext = showLine and nextLine.Text ~= ""
+	-- #2860 (Derek2: the event "flashes and shows during catching minigames when it should be hidden"): its countdown
+	-- repaints every second, so mid-catch it stays down and is only noted for the catch's end (HUD._applyFocus)
+	if self._catching then
+		local hidden: { [GuiObject]: boolean } = self._focusHidden
+		if showLine then
+			hidden[line] = true
+		else
+			hidden[line] = nil
+		end
+		if showNext then
+			hidden[nextLine] = true
+		else
+			hidden[nextLine] = nil
+		end
+		showLine, showNext = false, false
+	end
+	line.Visible = showLine
+	nextLine.Visible = showNext
 	self:_layoutRight()
 end
 

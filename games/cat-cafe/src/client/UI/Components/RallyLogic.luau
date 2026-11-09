@@ -2,8 +2,9 @@
 -- The Rescue Rally on the UI (F101, rescue-rally.md sections 1 to 4), pure so the cloud spec runner checks it. The
 -- server's RallyState comes through UI.rally.update; the steps are Catalog.rallySteps and the rules shared/Rally's.
 --   view(state, now) -> View?        the banner and the Town Square board while a Rally runs, else nil: the lap
---                                    ("Lap 2" from the second), the fill (0 to 1), "45 / 90", the time left ("1d 4h
---                                    left"), each step's share, the points it pays at, whether it is reached and its picture, and this
+--                                    ("Lap 2: bigger prizes!" from the second, #2608), the fill (0 to 1), "45 / 90", the time left ("1d 4h
+--                                    left"), each step's share, the points it pays at, whether it is reached and its
+--                                    picture (its prize on this lap, Rally.prizeFor), and this
 --                                    player's line ("You: 7 points", "Score 3 points to share the prizes", "1 more
 --                                    point to share the prizes", "You've done your laps this weekend")
 --   soon(state, now) -> string?      the line under the clock in the last SOON_SECONDS before a Rally starts:
@@ -31,7 +32,7 @@ export type Step = {
 }
 
 export type View = {
-	lap: string?, -- "Lap 2" from the second lap
+	lap: string?, -- "Lap 2: bigger prizes!" from the second lap (#2608: each lap in a server pays a little more)
 	fill: number,
 	points: string,
 	left: string,
@@ -45,6 +46,7 @@ local RallyLogic = {}
 RallyLogic.TITLE = "Rescue Rally"
 RallyLogic.ICON = "🏁"
 RallyLogic.SOON_SECONDS = 12 * 3600
+RallyLogic.LAP_TEXT = "Lap %d: bigger prizes!" -- #2608 (no wording about leaving the server)
 
 local MIN_POINTS: number = Config.RallyMinPoints or 3
 local RESCUE_POINTS: number = (Config.RallyPoints or {}).rescue or 3
@@ -110,18 +112,19 @@ function RallyLogic.view(state: SharedTypes.RallyState?, now: number): View?
 	local points = math.clamp(math.floor(state.points or 0), 0, goal)
 	local steps: { Step } = {}
 	local defs: { SharedTypes.RallyStep } = Catalog.rallySteps or {}
+	local lap = math.max(1, math.floor(state.lap or 1))
 	for index, step in defs do
 		local at: number = Rally.stepAt(index, goal)
 		table.insert(steps, {
 			share = step.share,
 			at = at,
 			reached = points >= at,
-			picture = RallyLogic.stepPicture(step.prize),
+			-- #2608: the prize this lap pays (a Big Tip Potion from lap 3), not lap 1's
+			picture = RallyLogic.stepPicture(Rally.prizeFor(index, lap)),
 		})
 	end
-	local lap = math.max(1, math.floor(state.lap or 1))
 	return {
-		lap = if lap > 1 then string.format("Lap %d", lap) else nil,
+		lap = if lap > 1 then string.format(RallyLogic.LAP_TEXT, lap) else nil,
 		fill = points / goal,
 		points = string.format("%d / %d", points, goal),
 		left = RallyLogic.left(state.endsAt - now) .. " left",

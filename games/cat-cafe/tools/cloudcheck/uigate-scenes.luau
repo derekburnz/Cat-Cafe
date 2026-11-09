@@ -4882,6 +4882,13 @@ local SCENES = {
 		rallyScore({ lap = 2, points = 50, myPoints = 7 })
 		UI.rescue.show("gate_rescue", rescueChallenge())
 	end },
+	-- #2608: lap 3 in this server: the banner's gold pill reads "Lap 3: bigger prizes!" and the name steps down to the flag
+	{ "RallyLapThree", function()
+		rallyScore({ lap = 3, points = 50, myPoints = 7 })
+		local banner = UIShim.playerGui:FindFirstChild("CatCafeRally", true)
+		local lap = banner and banner:FindFirstChild("Lap", true) :: TextLabel?
+		assert(lap and lap.Visible and lap.Text == "Lap 3: bigger prizes!", "uigate: no lap pill (#2608)")
+	end },
 	-- F101: Friday, 5 h 20 m before the Rally: the countdown under the clock and no banner
 	{ "RallySoon", function()
 		local t = workspace:GetServerTimeNow()

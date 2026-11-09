@@ -1,6 +1,7 @@
 --!strict
 -- Analytics (feature F16, growth analytics-plan.md): the onboarding_v6, first_hour_v2 and catch_attempt funnels (only
 -- these since #2444; the intro, grand_opening and bait_cycle funnels are no longer sent, their custom events stay),
+-- the feedback_v1 funnel (#2681: the slide-in faces ask, a face, a chip),
 -- coin sources and sinks, tier and area Index progression and the custom events, sent through AnalyticsService.
 -- Server only; Roblox records nothing from Studio or a client. What only the client knows (its device, a screen it
 -- opened or a tutorial card it showed) arrives through TelemetryReport, allowlisted and limited to 40 a
@@ -33,6 +34,7 @@ local ClockService = require(script.Parent.ClockService)
 local Config = require(ReplicatedStorage.Shared.Config)
 local DataService = require(script.Parent.DataService)
 local Economy = require(ReplicatedStorage.Shared.Economy)
+local FeedbackFunnel = require(ReplicatedStorage.Shared.FeedbackFunnel)
 local GrandOpening = require(ReplicatedStorage.Shared.GrandOpening)
 local Guard = require(script.Parent.Parent.Util.Guard)
 local JoinSource = require(ReplicatedStorage.Shared.JoinSource)
@@ -138,6 +140,14 @@ export type CustomEvent =
 	| "tip_shown"
 	| "ask_shown" -- F96: value 1; kind (notify, favorite, like or F92's invite), the session number
 	| "feedback"
+	-- #2681: with each feedback answer, value 1: the face, the furthest onboarding_v6 step, the account's minutes
+	-- played (FeedbackFunnel.minutesBucket)
+	| "feedback_ctx"
+	-- #2681: with each feedback answer, value 1: the face, the device, "<place version>:<err|ok>" (whether this
+	-- session's client logged an error before it)
+	| "feedback_env"
+	-- #2681: the like ask ("Having fun? A thumbs up") shown, value 1; tier, minutes played bucket, device
+	| "like_ask_shown"
 	-- F96 (starter-cat.md section 4): the free Bellhop Cat taken home; the gate it passed, "task" or "group"
 	| "starter_cat"
 	| "shop_cat" -- #1447: a shop-only cat given on its pass (catId)
@@ -260,6 +270,7 @@ local REPORTS = {
 	"index_hint_tap", -- #1919: the goal card's hint opened the Index, a Catalog area id or "none"
 	"store_guard_blocked", -- #1936: a purchase prompt the guard refused, "<source>:<reason>"
 	"playtime_gift", -- #1947: a gift card's button, "<like|fav>:<like|favourite|close>"
+	"client_error", -- #2681: the client logged its first error line this session (value true)
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
 -- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
@@ -332,6 +343,9 @@ type Session = {
 	indexHintTaps: number, -- #1919: index_hint_tap events logged this session (INDEX_HINT_TAPS)
 	guardBlocks: number, -- #1936: store_guard_blocked events logged this session (StoreFunnel.GUARD_BLOCKS_MAX)
 	giftButtons: { [string]: boolean }, -- #1947: playtime_gift logged this session, by gift kind
+	clientError: boolean, -- #2681: the client reported an error line this session (client_error)
+	feedbackRun: string?, -- #2681: the feedback_v1 run of a slide-in ask shown and not answered yet
+	feedbackAsks: number, -- #2681: feedback_v1 runs started this session (FeedbackFunnel.ASKS_PER_SESSION)
 }
 
 -- #1888: one Store visit, a funnel session of StoreFunnel's: its id, the furthest step logged and the sku pressed
@@ -1045,6 +1059,77 @@ function Telemetry.device(player: Player): string?
 	return if session ~= nil then session.device else nil
 end
 
+-- #2681: the slide-in feedback faces shown (TipSeen feedback_ask): opens a feedback_v1 run, at most
+-- FeedbackFunnel.ASKS_PER_SESSION a session, which the next answer this session goes on.
+function Telemetry.feedbackAsked(player: Player, profile: Profile)
+	local session = sessions[player]
+	if session == nil or session.feedbackAsks >= FeedbackFunnel.ASKS_PER_SESSION then
+		return
+	end
+	session.feedbackAsks += 1
+	local run = HttpService:GenerateGUID(false)
+	session.feedbackRun = run
+	funnelStep(player, FeedbackFunnel.NAME, run, FeedbackFunnel.index("ask_shown"), "ask_shown", {
+		tierText(profile),
+		FeedbackFunnel.minutesBucket(PlayTime.seconds(player, profile)),
+		Onboarding.furthest(profile.telemetry),
+	})
+end
+
+-- #2681: one feedback answer (TipService took it and logged `feedback`): where the player was, and the open
+-- feedback_v1 run's face and chip steps. An answer from the Feedback button with no ask open logs no run.
+function Telemetry.feedbackAnswered(player: Player, profile: Profile, face: string, chip: string?)
+	local session = sessions[player]
+	if session == nil then
+		return
+	end
+	local minutes = FeedbackFunnel.minutesBucket(PlayTime.seconds(player, profile))
+	Telemetry.custom(
+		player,
+		"feedback_ctx",
+		1,
+		{ face, Onboarding.furthest(profile.telemetry), minutes }
+	)
+	Telemetry.custom(player, "feedback_env", 1, {
+		face,
+		session.device or "unknown",
+		FeedbackFunnel.build(game.PlaceVersion, session.clientError),
+	})
+	local run = session.feedbackRun
+	if run == nil then
+		return
+	end
+	session.feedbackRun = nil
+	funnelStep(
+		player,
+		FeedbackFunnel.NAME,
+		run,
+		FeedbackFunnel.index("face_picked"),
+		"face_picked",
+		{ face, minutes }
+	)
+	if chip ~= nil then
+		funnelStep(
+			player,
+			FeedbackFunnel.NAME,
+			run,
+			FeedbackFunnel.index("chip_picked"),
+			"chip_picked",
+			{ face, chip }
+		)
+	end
+end
+
+-- #2681: the like ask shown (TipService's ask_shown for like_ask), to line up with Creator Hub's daily votes.
+function Telemetry.likeAskShown(player: Player, profile: Profile)
+	local session = sessions[player]
+	Telemetry.custom(player, "like_ask_shown", 1, {
+		tierText(profile),
+		FeedbackFunnel.minutesBucket(PlayTime.seconds(player, profile)),
+		if session ~= nil then session.device or "unknown" else "unknown",
+	})
+end
+
 -- The last LOG_SIZE events, oldest first (Studio only; empty on a live server).
 function Telemetry.recent(count: number?): { LogEntry }
 	local first = math.max(1, #log - (count or #log) + 1)
@@ -1233,6 +1318,10 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 			session.indexHintTaps += 1
 			Telemetry.custom(player, "index_hint_tap", 1, { area })
 		end
+	elseif name == "client_error" then
+		if rawValue == true then
+			session.clientError = true
+		end
 	elseif name == "playtime_gift" then
 		local kind, button = PlaytimeGifts.report(rawValue)
 		if kind ~= nil and button ~= nil and not session.giftButtons[kind] then
@@ -1311,6 +1400,9 @@ local function onLoaded(player: Player, profile: Profile)
 		indexHintTaps = 0,
 		guardBlocks = 0,
 		giftButtons = {},
+		clientError = false,
+		feedbackRun = nil,
+		feedbackAsks = 0,
 	}
 	-- #1888: the launch data of the link this join came through (an ad's ad_<tag>)
 	local ok, joinData = pcall(function(): any

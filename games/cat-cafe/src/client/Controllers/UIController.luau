@@ -6,6 +6,7 @@
 local CollectionService = game:GetService("CollectionService")
 local ExperienceNotificationService = game:GetService("ExperienceNotificationService")
 local GuiService = game:GetService("GuiService")
+local LogService = game:GetService("LogService")
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -1384,6 +1385,24 @@ local function reportDevice()
 	)
 end
 
+-- #2681: whether this session's client logged an error line, for the feedback_env event. Sent once, after the
+-- device report (so the server's telemetry session exists); an error before that waits for it.
+local clientErrorSeen = false
+local clientErrorReported = false
+local function reportClientError()
+	if clientErrorReported or not clientErrorSeen or not deviceReported then
+		return
+	end
+	clientErrorReported = true
+	Net.fire("TelemetryReport", "client_error", true)
+end
+LogService.MessageOut:Connect(function(_message: string, kind: Enum.MessageType)
+	if kind == Enum.MessageType.MessageError and not clientErrorSeen then
+		clientErrorSeen = true
+		reportClientError()
+	end
+end)
+
 -- The circle sounds (sound list: circle pop): one CircleAppear per circle at its startsAt, until CatchResult or the
 -- next CatchSchedule cancels the rest.
 local circleTimers: { thread } = {}
@@ -1501,6 +1520,7 @@ local function wireServerEvents()
 	Net.on("ProfileSync", function(s: Types.PlayerState)
 		applyState(s)
 		reportDevice()
+		reportClientError()
 	end)
 	Net.on("Toast", function(text: string, kind: Types.ToastKind?)
 		UI.toast(text, kind)

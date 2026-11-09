@@ -1739,6 +1739,165 @@ def scarab_shell(ctx):
     P.sphere((0, y - 0.38, z), 0.16, "sign_teal", scale=(1.3, 0.55, 0.45), segments=10, rings=5)
 
 
+# ------------------------------------------------------------------- #2584 Tier 7 Ruins cats --
+def glyph_kohl(ctx):
+    """#2584 Glyph, the Hieroglyph Cat (Rare): kohl lines out from the corners of its eyes, the eye of the old
+    carvings, and a gold and lapis jewel on the brow. A Face prop, so the barista keeps its cap."""
+    F, ex, hw, hh = ctx.pen("face"), ctx.eye_x, ctx.eye_hw, ctx.eye_hh
+    for sx in (-1, 1):
+        o = sx * (ex + hw)
+        F.bar((o - sx * 0.03, -0.045, hh * 0.4), (o + sx * 0.17, -0.045, hh * 0.05), 0.05, 0.03, "fur_seal",
+              up=(0, -1, 0))                                                                     # the wing
+        F.bar((sx * (ex - hw * 0.3), -0.045, -hh - 0.015), (sx * (ex - hw * 0.45), -0.045, -hh - 0.16), 0.045, 0.03,
+              "fur_seal", up=(0, -1, 0))                                                         # the line under it
+    F.box((0, -0.03, hh + 0.14), (0.11, 0.03, 0.11), "fur_golden", rot=_ry(45))                 # the jewel
+    F.box((0, -0.045, hh + 0.14), (0.055, 0.02, 0.055), "galaxy_blue", rot=_ry(45))
+
+
+def torch_sling(ctx):
+    """#2584 Torch, the Torch Cat (Rare): a little torch slung on its back, a wooden handle with two wraps and a brass
+    cup, its soft flame (the child Model _Flame, Neon) standing up over the left shoulder. Flame VFX hang on _Flame;
+    under Reduce Motion it is just the glow."""
+    walk = ctx.body == "walk"
+    if walk:
+        frame, base, top = "back", Vector((0.15, 0.3, 0.04)), Vector((0.34, 0.04, 0.42))
+    else:                                       # leaning out, so the flame shows beside the head from the front
+        yc = B_CLEAR + 0.06
+        frame, base, top = "up", Vector((0.08, yc, -0.3)), Vector((0.46, yc, 0.26))
+    P = ctx.pen(frame)
+    d = top - base
+    n = d.normalized()
+    R = Vector((0, 0, 1)).rotation_difference(d).to_matrix()
+    P.cyl(tuple(base + d / 2), 0.04, d.length, "dark_wood", rot=R, segments=8)                    # handle
+    for f in (0.25, 0.55):
+        P.cyl(tuple(base + d * f), 0.05, 0.05, "caramel_wood", rot=R, segments=8)               # wraps
+    P.cyl(tuple(top + n * 0.04), 0.065, 0.1, "brass", r2=0.1, rot=R, segments=10)               # the cup
+    c = top + n * 0.1
+    F = ctx.piece("Flame", frame, tuple(c))
+    F.sphere(tuple(c + Vector((0, 0, 0.09))), 0.13, "eye_amber", scale=(1.0, 1.0, 1.35), segments=8, rings=5)
+    F.cyl(tuple(c + Vector((0, 0, 0.29))), 0.09, 0.18, "eye_amber", r2=0.0, segments=8)        # the tip
+    F.sphere(tuple(c + Vector((0, -0.07, 0.09))), 0.085, "pastel_butter", scale=(1.0, 1.0, 1.3), segments=8,
+             rings=5)                                                                           # the hot core
+    if walk:
+        _strap_round(ctx, "dark_wood", at_y=0.2)
+    else:
+        x = 0.08 + (0.12 + 0.3) / 0.56 * 0.38           # the handle's x at the strap's foot (z -0.12)
+        _sling(ctx, "dark_wood", xs=(x,), down=0.155 + 0.12)
+        P.box((x, B_CLEAR + 0.03, -0.12), (0.11, 0.08, 0.07), "dark_wood")
+
+
+def gargoyle_wings(ctx):
+    """#2584 Gargoyle Cat (Epic): two small stone wings half folded on its back, their tips up over the shoulders,
+    dark bones over pale stone webs so they read on the dark coat. B_CLEAR off B's back, over the waiter's vest."""
+    U = ctx.pen("up")
+    walk = ctx.body == "walk"
+    if not walk:
+        U = Pen(U.b, tuple(Vector(U.at) + Vector((0, B_CLEAR, -0.08))), U.R, U.s)
+    edge = [(0.1, 0.36), (0.2, 0.26), (0.32, 0.3), (0.38, 0.14), (0.46, 0.12), (0.42, 0.0), (0.24, -0.03),
+            (0.1, -0.02)]
+    tips = [(0.1, 0.36), (0.32, 0.3), (0.46, 0.12)]
+    for sx in (-1, 1):
+        fold = (_rz(sx * 35) @ _rx(-25)) if walk else (_ry(-sx * 20) @ _rz(sx * 10))
+        P = Pen(U.b, U.at, U.R @ fold, U.s * 1.4)
+        root = Vector((sx * 0.1, 0.04, 0.02))
+        P.fan(tuple(root), (0.0, 0.0), [(sx * x, z) for x, z in edge], 0.03, "concrete", rot=_rx(90))
+        for (x, z) in tips:
+            P.bar(tuple(root + Vector((0, -0.02, 0))), tuple(root + Vector((sx * x, -0.02, z))), 0.045, 0.04,
+                  "fur_charcoal", up=(0, 1, 0))
+    U.box((0, 0.04, 0.02), (0.24, 0.1, 0.1), "fur_charcoal")
+
+
+def gargoyle_horns(ctx):
+    """#2584 Gargoyle Cat's second prop: two little stone horn nubs on the brow, between the ears."""
+    P = ctx.pen("head")
+    for sx in (-1, 1):
+        R = _ry(sx * 16) @ _rx(-20)
+        at = Vector((sx * 0.13, -0.14, -0.03))
+        P.cyl(tuple(at + R @ Vector((0, 0, 0.09))), 0.095, 0.18, "concrete", r2=0.05, rot=R, segments=8)
+        P.cyl(tuple(at + R @ Vector((0, 0, 0.22))), 0.05, 0.08, "fur_charcoal", r2=0.0, rot=R, segments=8)
+
+
+def mosaic_band(ctx):
+    """#2584 Mosaic Cat (Epic): a circlet of little tiles, gold, terracotta and cream, round the brow, with a teal
+    gem at the front. A Head prop: it takes the entertainer's party hat's place."""
+    P, hw, hd = ctx.pen("head"), ctx.hw, ctx.hd
+    z, cols = -0.15, ("fur_golden", "terracotta", "offwhite")
+    n = 5
+    for i in range(n):                                                                           # the front
+        x = -hw + 2 * hw / n * (i + 0.5)
+        P.box((x, -hd - 0.025, z), (2 * hw / n - 0.025, 0.05, 0.12), cols[i % 3])
+    m = 4
+    for sx in (-1, 1):                                                                           # round the sides
+        for j in range(m):
+            y = -hd + 2 * hd / m * (j + 0.5)
+            P.box((sx * (hw + 0.025), y, z), (0.05, 2 * hd / m - 0.025, 0.12), cols[(j + 1) % 3])
+    P.ico((0, -hd - 0.08, z + 0.005), 0.065, "sign_teal", scale=(1.0, 0.7, 1.15))                # the gem
+
+
+def _rune(P, side, x, yc, zc, length):
+    """A line of glowing runes on a flank: a long stroke with ticks above and below and a diamond at each end."""
+    t = 0.03
+    px = side * (x + 0.006)
+    P.box((px, yc, zc), (t, length, 0.05), "sign_teal")
+    for k, f in enumerate((-0.3, -0.1, 0.1, 0.3)):
+        dz = 0.085 if k % 2 == 0 else -0.085
+        P.box((px, yc + f * length, zc + dz), (t, 0.05, 0.12), "sign_teal")
+    for e in (-1, 1):
+        P.box((px, yc + e * (length / 2 + 0.065), zc), (t, 0.08, 0.08), "sign_teal", rot=_rx(45))
+
+
+def golem_stones(ctx):
+    """#2584 Golem Cat (Legendary): boulders along its back (on B, resting on the haunches behind it) with a tuft of
+    moss, and lines of glowing teal runes down both flanks (the child Model _Runes, Neon day and night)."""
+    walk = ctx.body == "walk"
+    if walk:
+        P = ctx.pen("back")
+        for (x, y, r, sw) in ((0.04, -0.2, 0.13, "fur_ash"), (-0.05, 0.06, 0.16, "concrete_dark"),
+                              (0.05, 0.3, 0.12, "fur_ash")):
+            P.ico((x, y, 0.06), r, sw, scale=(1.15, 1.0, 0.75))
+        P.ico((-0.1, 0.02, 0.15), 0.07, "leaf_dark", scale=(1.3, 1.0, 0.6))                      # moss
+        (x0, y0, z0), (sx, sy, sz) = ctx.d["body"]
+        R = ctx.piece("Runes", "back", (0.0, 0.0, 0.0))
+        for side in (-1, 1):
+            _rune(R, side, sx / 2, 0.0, -sz * 0.45, sy * 0.6)
+    else:
+        U = ctx.pen("up")                       # boulders resting on the haunches behind the back, under the apron bow
+        (hx0, hy0, hz0), (hsx, hsy, hsz) = ctx.d["haunch"]
+        y, z = (hy0 + hsy / 2 + B_BACK_Y) / 2 - B_BACK_Y + 0.02, hsz - 0.98
+        for (x, r, sw) in ((-0.17, 0.13, "fur_ash"), (0.15, 0.15, "concrete_dark")):
+            U.ico((x, y, z + r * 0.6), r, sw, scale=(1.1, 1.0, 0.8))
+        U.ico((-0.12, y + 0.02, z + 0.18), 0.06, "leaf_dark", scale=(1.3, 1.0, 0.6))
+        (cx0, cy0, cz0), (csx, csy, csz) = ctx.d["chest"]
+        o = Vector((0.0, B_BACK_Y, 0.98))                                                        # the up frame's origin
+        R = ctx.piece("Runes", "up", (0.0, 0.0, 0.0))
+        for side in (-1, 1):
+            _rune(R, side, hsx / 2, hy0 - o.y + 0.03, hz0 - o.z + 0.02, hsy * 0.5)
+            _rune(R, side, csx / 2, cy0 - o.y + 0.02, 0.66 - o.z, csy * 0.45)
+
+
+def jade_crown(ctx):
+    """#2584 Jade Guardian (Mythical): a gold circlet with a dark jade gem and little gold wings at the temples, and
+    over it a floating ring of glowing gold runes (the child Model _RuneRing, Neon, pivoted at its centre so Effects
+    can turn it slowly; it stays still under Reduce Motion). A Head prop: the greeter's boater stays off."""
+    P, hw, hd = ctx.pen("head"), ctx.hw, ctx.hd
+    z = -0.1
+    P.box((0, -hd - 0.025, z), (2 * hw + 0.02, 0.05, 0.08), "fur_golden")                       # front
+    for sx in (-1, 1):
+        P.box((sx * (hw + 0.025), 0.0, z), (0.05, 2 * hd + 0.04, 0.08), "fur_golden")            # sides
+        for k, (y, h) in enumerate(((-hd * 0.45, 0.24), (-hd * 0.1, 0.17))):                   # temple wings
+            P.box((sx * (hw + 0.06), y, z + h / 2 - 0.02), (0.04, 0.09, h), "gold_mid", rot=_rx(-18 - 8 * k))
+    P.ico((0, -hd - 0.075, z + 0.02), 0.07, "leaf_dark", scale=(1.0, 0.7, 1.25))                 # the gem
+    P.box((0, -hd - 0.06, z + 0.02), (0.18, 0.02, 0.2), "gold_mid", rot=_ry(45))                 # its setting
+    c = (0.0, 0.0, 0.32)
+    Rg = ctx.piece("RuneRing", "head", c)
+    tilt = _rx(-12)
+    Rg.ring(c, hw * 0.95, 0.05, 0.05, "fur_golden", rot=tilt, segments=16)
+    for k in range(6):
+        a = math.radians(k * 60 + 15)
+        p = Vector(c) + tilt @ Vector((math.cos(a) * hw * 0.95, math.sin(a) * hw * 0.95, 0.0))
+        Rg.box(tuple(p + tilt @ Vector((0, 0, 0.045))), (0.07, 0.07, 0.04), "gold_light", rot=tilt @ _rz(k * 60 + 60))
+
+
 PROPS = {
     "Calico": ("Face", eye_patch), "Tortie": ("Back", guitar), "Sphynx": ("Head", headphones),
     "MaineCoon": ("Face", bandit_mask), "Void": ("Head", ninja_band), "Midnight": ("Head", wizard_hat),
@@ -1766,6 +1925,9 @@ PROPS = {
     # #2584 Tier 6 Desert
     "Fennec": ("Face", fennec_scarf), "Camel": ("Back", camel_saddle), "Scarab": ("Back", scarab_shell),
     "Mirage": ("Face", mirage_shades), "Pharaoh": ("Head", pharaoh_nemes), "Sphinx": ("Head", sphinx_nemes),
+    # #2584 Tier 7 Ruins
+    "Glyph": ("Face", glyph_kohl), "Torch": ("Back", torch_sling), "Gargoyle": ("Back", gargoyle_wings),
+    "Mosaic": ("Head", mosaic_band), "Golem": ("Back", golem_stones), "JadeGuardian": ("Head", jade_crown),
 }
 # Second props (data-model 3, v0.10 and v0.13: "one or two props is fine"), in a different slot from the first: the
 # object is `..._Prop2` and the model's PropSlot2 attribute names its slot.
@@ -1786,10 +1948,13 @@ PROPS2 = {
     "KingCroissant": ("Back", king_cape),
     # #2584: the Pharaoh's collar takes the waiter BowTie's place (a Neck slot of its own, Catalog.outfitPieceSlots)
     "Pharaoh": ("Neck", pharaoh_collar),
+    "Gargoyle": ("Head", gargoyle_horns),
 }
 # Extra objects a prop draws (Ctx.piece): cat -> {suffix: the prop object it hangs from}. They ride what that prop
 # rides, and their Roblox Model nests inside that prop's Model.
-PIECES = {"BellhopCat": {"Bell": "Prop2"}, "KingCroissant": {"CapeTrim": "Prop2"}}
+PIECES = {"BellhopCat": {"Bell": "Prop2"}, "KingCroissant": {"CapeTrim": "Prop2"},
+          # #2584: the glowing parts, Neon in Roblox (rbx_export: _Flame, _Runes, _RuneRing)
+          "Torch": {"Flame": "Prop"}, "Golem": {"Runes": "Prop"}, "JadeGuardian": {"RuneRing": "Prop"}}
 # Extra Attachments for VFX (#1191): cat -> [(object suffix, Attachment name, frame, point in that frame)]. Frame
 # "head" is the head-top frame the Head props draw in; "chest" puts it at the middle of the chest (B, S) or body (A).
 ATTACH = {"KingCroissant": [("_Prop", "CrownTop", "head", (0.0, 0.0, CROWN_TOP)), ("_Body", "Glow", "chest", None)]}

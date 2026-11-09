@@ -982,6 +982,23 @@ local function enterShot(r: Run, position: number)
 	Moments.IntroShot:Fire(shot.index)
 end
 
+-- #2759 (Derek2 11-09: on a phone emulation the catch steps were "just a yellow screen"): a slow phone can miss
+-- the Alleyway's camp in play()'s STREAM_WAIT, and then shot 2 holds in the clouds and the camp shots (3 and 4) drop
+-- out. play() keeps asking for the camp through shot 1, and at the fuse this looks again: streamed in by then, the
+-- shots are rebuilt with the camp shots and the demo cat is staged, so the flight lands and the catch plays.
+local function lateStream(r: Run)
+	if r.alleyStreamed or not streamedNear(r.camp.pad) then
+		return
+	end
+	r.alleyStreamed = true
+	r.shots = Intro.shots(r.plot, hasCodesCat(), true)
+	if r.demo == nil then
+		local strayAt, catchAt = Intro.strayPoint(), Intro.catchSpot()
+		r.demo =
+			stageCat(r, Intro.DEMO_CAT, CFrame.lookAt(strayAt, strayAt + toward(strayAt, catchAt)))
+	end
+end
+
 -- Shot 1, `t` seconds in: your copy at the ladder's foot, its hop into the barrel, the turn, the wiggle and the fuse.
 local function stageLaunch(r: Run, t: number)
 	local you, cannon = r.you, r.cannon
@@ -1027,6 +1044,7 @@ local function stageLaunch(r: Run, t: number)
 		r.done.fuse = true
 		local boomAt = Workspace:GetServerTimeNow() + Intro.BOOM_LEAD
 		r.boomAt = boomAt
+		lateStream(r) -- #2759: the camp may have streamed in during shot 1
 		local flight = r.shots[r.shot + 1]
 		local stage = if r.alleyStreamed or flight == nil then nil else heldStage(flight.hold)
 		CannonFx.playStaged(
@@ -1928,6 +1946,11 @@ function IntroController.play(replay: boolean)
 	-- the Alleyway's board streams in during shots 1 to 4 (#1542: the other camps are no longer filmed)
 	streamAround(camp.board)
 	local alleyStreamed = streamedNear(camp.pad)
+	if not alleyStreamed then
+		-- #2759: keep asking for the camp and the catch through shot 1; the fuse looks again (lateStream)
+		streamAround(camp.pad)
+		streamAround(Intro.catchSpot())
+	end
 	local plot = Intro.plot(state.plotIndex)
 	local camera = Workspace.CurrentCamera
 	local r: Run = {

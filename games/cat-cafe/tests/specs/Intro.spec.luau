@@ -153,6 +153,19 @@ return function()
 			end
 		)
 
+		-- #2759: the camp streaming in during shot 1 swaps in the full list at the fuse, so shot 1 must be the same
+		-- in both lists (its place, start and hold) for the swap to keep the clock and the shot showing
+		it("has the same shot 1 whether the Alleyway's camp streamed in or not", function()
+			local full, held = Intro.shots(EAST, true, true), Intro.shots(EAST, true, false)
+			expect(full[1].index).to.equal(1)
+			expect(held[1].index).to.equal(1)
+			expect(full[1].starts).to.equal(held[1].starts)
+			expect(full[1].hold).to.equal(held[1].hold)
+			expect(full[1].seconds).to.equal(held[1].seconds)
+			expect(full[2].index).to.equal(2)
+			expect(full[3].index).to.equal(3)
+		end)
+
 		it(
 			"cranes from your cafe front to the cannon in shot 1 and mirrors it for the west row",
 			function()

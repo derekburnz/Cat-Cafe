@@ -65,6 +65,14 @@ local KINDS: { Kind } = {
 		end,
 	},
 	{
+		tag = "MysteryMarket", -- #2574: Juniper's cart in the Town Square, opened from the ring in front of it
+		prompt = "MysteryPrompt",
+		window = "MysteryMarket",
+		open = function()
+			UI.mystery.open()
+		end,
+	},
+	{
 		tag = "DealerCart", -- the night market: the cart is out only at night, so it opens only then
 		prompt = "DealerPrompt",
 		window = "Dealer",

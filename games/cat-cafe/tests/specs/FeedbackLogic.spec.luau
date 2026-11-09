@@ -41,6 +41,27 @@ return function()
 		end)
 	end)
 
+	describe("FeedbackLogic.earlyDue", function()
+		local early = FeedbackLogic.EARLY_MINUTES * 60
+		local served = FeedbackLogic.SERVED_SECONDS
+		it("asks a player never asked at the early minutes, before the usual ask (#2681)", function()
+			expect(early < FeedbackLogic.ASK_MINUTES * 60).to.equal(true)
+			expect(FeedbackLogic.earlyDue(false, early, 0, true)).to.equal(true)
+			expect(FeedbackLogic.earlyDue(false, early - 1, 0, true)).to.equal(false)
+		end)
+
+		it("asks sooner once a cat has served customers", function()
+			expect(FeedbackLogic.earlyDue(false, 60, served, true)).to.equal(true)
+			expect(FeedbackLogic.earlyDue(false, 60, served - 1, true)).to.equal(false)
+		end)
+
+		it("waits for a quiet moment and never asks an account already asked", function()
+			expect(FeedbackLogic.earlyDue(false, early, served, false)).to.equal(false)
+			expect(FeedbackLogic.earlyDue(true, early, served, true)).to.equal(false)
+			expect(FeedbackLogic.earlyDue(nil, early, served, true)).to.equal(false)
+		end)
+	end)
+
 	describe("FeedbackLogic.answer", function()
 		it("sends the face with the first chip, once", function()
 			local answer = FeedbackLogic.answer()

@@ -605,7 +605,7 @@ for _n, _spec in cats.ROSTER.items():           # glowing eyes (Void, Aurora): N
                     f"PropSlot2 = {props.slot2(_n)}, so the role piece in that slot stays off too (F71).")
         for _piece, _host in props.PIECES.get(_n, {}).items():
             _two += (f" The child Model <name>_{_piece} hangs inside <name>_{_host}, pivoted where it hangs, and rides "
-                     f"what that prop rides.")
+                     + ("the Tail (Follows Tail)." if _host == "Tail" else "what that prop rides."))
         for _v in (f"CatCafe_Cat_{_n}{g}{sfx}" for g in ("", "_Gold") if g == "" or cats.has_gold(_n)
                    for sfx in cats.SUFFIX.values()):
             STUDIO_NOTES[_v] = (STUDIO_NOTES.get(_v, "") + f" Prop: the {props.slot(_n)} prop is the child Model "
@@ -672,7 +672,7 @@ def cat_rbx_extras(name):
                 extras["nest"]["_Prop2"] = "_Head"
         for piece, host in props.PIECES.get(cat, {}).items():   # extra objects (the Bellhop's bell): in their host
             extras["nest"]["_" + piece] = "_" + host
-            extras["part_attributes"]["_" + piece] = {"Follows": props.follows(props.piece_slot(cat, piece))}
+            extras["part_attributes"]["_" + piece] = {"Follows": props.piece_follows(cat, piece)}
     return extras
 
 
@@ -864,7 +864,7 @@ def main():
             for piece, host in props.PIECES.get(cat, {}).items():
                 ob = next(o for o in objs if o.name.endswith("_" + piece))
                 entry.setdefault("prop_pieces", {})[piece] = {
-                    "object": ob.name, "inside": host, "follows": props.follows(props.piece_slot(cat, piece)),
+                    "object": ob.name, "inside": host, "follows": props.piece_follows(cat, piece),
                     "pivot_roblox": common.to_roblox(list(ob.location))}
             if spec.get("exclusive"):
                 entry["exclusive"] = True               # no gold twin, never rainbow (F96)

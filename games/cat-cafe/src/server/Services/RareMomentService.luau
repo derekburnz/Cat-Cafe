@@ -38,8 +38,14 @@ local function takeToast(player: Player): boolean
 end
 
 -- The check-in shout-out `text` (nil when the cat is not worth one) to everyone, unless it is a Legendary or
--- Mythical one within a minute of this player's last toast. Epic and gold shout-outs go out as before.
-function RareMomentService.shoutOut(player: Player, rarity: Types.Rarity, text: string?)
+-- Mythical one within a minute of this player's last toast. Epic and gold shout-outs go out as before. `here` keeps
+-- the chat line in this server (#2567: a pity or shower cat, which every server had out).
+function RareMomentService.shoutOut(
+	player: Player,
+	rarity: Types.Rarity,
+	text: string?,
+	here: boolean?
+)
 	if text == nil then
 		return
 	end
@@ -47,7 +53,7 @@ function RareMomentService.shoutOut(player: Player, rarity: Types.Rarity, text: 
 		return
 	end
 	Net.fireAll("Announce", text, rarity)
-	GlobalCatchService.share(text, rarity) -- #2203: the chat line here and in every other server
+	GlobalCatchService.share(text, rarity, here) -- #2203: the chat line here and in every other server
 end
 
 -- `player` secured `def` (variant "base", "gold" or later "rainbow") by `method`; `hadEpicOrBetter` is whether their

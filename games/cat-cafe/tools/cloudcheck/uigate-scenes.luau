@@ -846,6 +846,21 @@ local function assertBowlTile(catWaiting)
 	assert(mark and mark.Visible == catWaiting, "uigate: the HUD bowl tile's ! is wrong for a waiting cat (#1161)")
 end
 
+-- #2588: whether a window's corner badge (Components/Panel) draws the picture with this asset id
+local function badgeDraws(windowName: string, assetId: string): boolean
+	local window = UIShim.playerGui:FindFirstChild(windowName, true)
+	local badge = window and window:FindFirstChild("Badge", true)
+	if badge == nil then
+		return false
+	end
+	for _, piece in badge:GetDescendants() do
+		if piece:IsA("ImageLabel") and string.find(piece.Image, assetId, 1, true) then
+			return true
+		end
+	end
+	return false
+end
+
 local function press(windowName, name)
 	local playerGui = UIShim.playerGui
 	-- windows sit in CatCafeModals.Root.Container; the HUD and the Index have pieces with the same names (Cats)
@@ -2211,6 +2226,8 @@ local SCENES = {
 		UI.pass.set({ season = 1, startsAt = 0, endsAt = 1798934400, level = 4, xp = 3500, xpPerLevel = 800,
 			levels = 30, paid = false, claimedFree = { 2 }, claimedPaid = {}, claimable = 1, items = {} })
 		UI.pass.open()
+		-- #2588: the corner badge is the HUD Pass tile's medal, not the 🍁 emoji
+		assert(badgeDraws("CafePass", "79367870405446"), "uigate: the Cafe Pass badge is not the Pass medal (#2588)")
 		local modals = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("CatCafeModals")
 		local window = modals and modals:FindFirstChild("CafePass", true)
 		assert(window and window:IsA("GuiObject") and window.Visible, "uigate: the Cafe Pass is not open")
@@ -2873,6 +2890,8 @@ local SCENES = {
 	end },
 	{ "Potions", function()
 		UI.open("Potions")
+		-- #2588: the Bag window's corner badge is the HUD Bag tile's backpack, not a potion
+		assert(badgeDraws("Potions", "88244676943674"), "uigate: the Bag window's badge is not the backpack (#2588)")
 	end },
 	-- #1281: the Bag's Bait tab: the bowl foods the player has, each with its picture, grade badge and count, no Use
 	{ "BagBait", function()

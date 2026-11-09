@@ -155,6 +155,7 @@ function Potions.new(callbacks: Callbacks): Potions
 		subtitle = "Potions, cat food and bait",
 		color = Theme.colors.berry,
 		icon = Theme.icons.potion,
+		image = ShopIcons.hud("Bag"), -- #2588: the HUD Bag tile's backpack, not a potion
 		size = UDim2.fromScale(1, 1),
 		onClose = callbacks.close,
 	})

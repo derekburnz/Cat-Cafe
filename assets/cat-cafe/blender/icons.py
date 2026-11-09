@@ -129,8 +129,8 @@ ICONS = {
     **{f"CatCafe_Icon_Badge_{n}": (fn, INK, 10, badge_icons.VIEW, None, STORE_FIT)
        for n, fn in badge_icons.BADGES.items()},
     # #1823 (store-layout-v2.md section 5): the remade Store's 256 px theme and sign icons (UI_SIZE, square framing)
-    "Ui_Store_Icon_GardenCafe": (store_icons.cafe_style, INK, 5, store_icons.VIEWS["CafeStyle"]),
-    "Ui_Store_Icon_GrandCafe": (store_icons.grand_theme, INK, 5, store_icons.VIEWS["GrandTheme"]),
+    "Ui_Store_Icon_GardenCafe": (store_icons.cafe_style, INK, 5, (-24.0, 12.0)),
+    "Ui_Store_Icon_GrandCafe": (store_icons.grand_theme, INK, 5, (-20.0, 10.0)),
     "Ui_Store_Icon_CrownSign": (store_icons.crown_sign, INK, 5, (-14.0, 6.0)),
     # Derek2 11-09: the Cafe Pass and Style tab's uniform colours and chat tags (pass_reward_icons.py)
     **{n: (fn, INK, 10, pass_reward_icons.VIEWS[n]) for n, fn in pass_reward_icons.ICONS.items()},
@@ -230,6 +230,35 @@ def _outline(path, colour, width):
     bpy.data.images.remove(img)
 
 
+def _backdrop(path, out, centre, edge):
+    """#2578: the picture at `path` over a round disc filling the square, `centre` fading to `edge` (0-255 RGB), with a
+    soft white glow behind the middle; outside the disc stays clear. Written to `out`."""
+    img = bpy.data.images.load(path, check_existing=False)
+    w, h = img.size
+    px = np.empty(w * h * 4, dtype=np.float32)
+    img.pixels.foreach_get(px)
+    px = px.reshape(h, w, 4)
+    yy, xx = np.mgrid[0:h, 0:w]
+    r = np.hypot((xx + 0.5) / w - 0.5, (yy + 0.5) / h - 0.5) / 0.5            # 0 at the middle, 1 at the rim
+    t = np.clip(r, 0, 1)[:, :, None] ** 1.4
+    c0, c1 = np.array(centre, np.float32) / 255, np.array(edge, np.float32) / 255
+    disc = c0 * (1 - t) + c1 * t
+    glow = np.clip(1 - r / 0.62, 0, 1)[:, :, None] ** 2 * 0.45
+    disc = disc * (1 - glow) + glow
+    disc_a = np.clip((1 - r) * w / 2, 0, 1)                                    # an antialiased rim
+    a = px[:, :, 3:4]
+    rgb = px[:, :, :3] * a + disc * (1 - a)
+    alpha = np.maximum(px[:, :, 3], disc_a)
+    out_px = np.concatenate([rgb, alpha[:, :, None]], axis=2)
+    res = bpy.data.images.new("_IconBg", w, h, alpha=True)
+    res.pixels.foreach_set(out_px.astype(np.float32).ravel())
+    res.filepath_raw = out
+    res.file_format = "PNG"
+    res.save()
+    bpy.data.images.remove(res)
+    bpy.data.images.remove(img)
+
+
 def render_icon(name, mat, samples=48):
     build, colour, width, view = ICONS[name][:4]
     pad = ICONS[name][4] if len(ICONS[name]) > 4 else None
@@ -258,6 +287,9 @@ def render_icon(name, mat, samples=48):
     sc.render.filepath = path
     bpy.ops.render.render(write_still=True)
     _outline(path, colour, width)
+    family = store_icons.BG_OF.get(name[len("CatCafe_Icon_Pass_"):]) if name.startswith("CatCafe_Icon_Pass_") else None
+    if family:
+        _backdrop(path, os.path.join(OUT, name + "_Bg.png"), *store_icons.BG_FAMILIES[family])
     for ob in objs:
         bpy.data.objects.remove(ob, do_unlink=True)
     return path

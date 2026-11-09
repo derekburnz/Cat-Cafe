@@ -519,7 +519,7 @@
          "CFrame": {
           "position": [
            0.0,
-           0.646,
+           0.76,
            0.0
           ],
           "orientation": [
@@ -1320,7 +1320,7 @@
          "CFrame": {
           "position": [
            -0.2403,
-           1.216,
+           1.2024,
            -0.646
           ],
           "orientation": [
@@ -1344,7 +1344,7 @@
         },
         "Size": [
          0.2185,
-         0.284,
+         0.2568,
          0.0665
         ],
         "Color": [
@@ -1363,7 +1363,7 @@
          "CFrame": {
           "position": [
            0.0,
-           0.0,
+           0.0136,
            0.0
           ],
           "orientation": [
@@ -1399,7 +1399,7 @@
           "position": [
            -0.2498,
            1.1941,
-           -0.68
+           -0.695
           ],
           "orientation": [
            [
@@ -1423,7 +1423,7 @@
         "Size": [
          0.1311,
          0.2045,
-         0.0585
+         0.0886
         ],
         "Color": [
          0.1686,
@@ -1446,9 +1446,58 @@
         "CFrame": {
          "CFrame": {
           "position": [
+           -0.2403,
+           1.2927,
+           -0.6639
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.2786,
+         0.1363,
+         0.0908
+        ],
+        "Color": [
+         0.7882,
+         0.5608,
+         0.1647
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Smoke_Gold_Work_Eye1",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
            -0.1912,
-           1.2955,
-           -0.6888
+           1.1933,
+           -0.7219
           ],
           "orientation": [
            [
@@ -1471,8 +1520,8 @@
         },
         "Size": [
          0.0655,
-         0.0765,
-         0.0285
+         0.0546,
+         0.0947
         ],
         "Color": [
          1.0,
@@ -1533,7 +1582,7 @@
          "CFrame": {
           "position": [
            0.2403,
-           1.216,
+           1.2024,
            -0.646
           ],
           "orientation": [
@@ -1557,7 +1606,7 @@
         },
         "Size": [
          0.2185,
-         0.284,
+         0.2568,
          0.0665
         ],
         "Color": [
@@ -1576,7 +1625,7 @@
          "CFrame": {
           "position": [
            0.0,
-           0.0,
+           0.0136,
            0.0
           ],
           "orientation": [
@@ -1612,7 +1661,7 @@
           "position": [
            0.2498,
            1.1941,
-           -0.6875
+           -0.695
           ],
           "orientation": [
            [
@@ -1636,7 +1685,7 @@
         "Size": [
          0.1311,
          0.2045,
-         0.0735
+         0.0886
         ],
         "Color": [
          0.1686,
@@ -1659,9 +1708,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.2895,
-           1.2955,
-           -0.7144
+           0.2403,
+           1.2927,
+           -0.6639
           ],
           "orientation": [
            [
@@ -1683,9 +1732,58 @@
          }
         },
         "Size": [
-         0.0655,
-         0.0765,
-         0.0797
+         0.2786,
+         0.1363,
+         0.0908
+        ],
+        "Color": [
+         0.7882,
+         0.5608,
+         0.1647
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Smoke_Gold_Work_Eye2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3011,
+           1.1933,
+           -0.7219
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0886,
+         0.0546,
+         0.0947
         ],
         "Color": [
          1.0,
@@ -1962,6 +2060,153 @@
         "TopSurface": "Smooth",
         "BottomSurface": "Smooth"
        }
+      },
+      {
+       "name": "CatCafe_Cat_Smoke_Gold_Work_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3337,
+           1.9107,
+           -0.1995
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0633,
+         0.0507,
+         0.0633
+        ],
+        "Color": [
+         0.7882,
+         0.5608,
+         0.1647
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Smoke_Gold_Work_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3443,
+           1.9603,
+           -0.1995
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.038,
+         0.0507,
+         0.038
+        ],
+        "Color": [
+         0.7882,
+         0.5608,
+         0.1647
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Smoke_Gold_Work_EarL",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3548,
+           2.0098,
+           -0.1995
+          ],
+          "orientation": [
+           [
+            0.9781,
+            -0.2079,
+            0.0
+           ],
+           [
+            0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0127,
+         0.0507,
+         0.0127
+        ],
+        "Color": [
+         0.7882,
+         0.5608,
+         0.1647
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
       }
      ],
      "properties": {
@@ -2217,6 +2462,153 @@
          0.549
         ],
         "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Smoke_Gold_Work_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3337,
+           1.9107,
+           -0.1995
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0633,
+         0.0507,
+         0.0633
+        ],
+        "Color": [
+         0.7882,
+         0.5608,
+         0.1647
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Smoke_Gold_Work_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3443,
+           1.9603,
+           -0.1995
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.038,
+         0.0507,
+         0.038
+        ],
+        "Color": [
+         0.7882,
+         0.5608,
+         0.1647
+        ],
+        "Material": "Metal",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Smoke_Gold_Work_EarR",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3548,
+           2.0098,
+           -0.1995
+          ],
+          "orientation": [
+           [
+            0.9781,
+            0.2079,
+            0.0
+           ],
+           [
+            -0.2079,
+            0.9781,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0127,
+         0.0507,
+         0.0127
+        ],
+        "Color": [
+         0.7882,
+         0.5608,
+         0.1647
+        ],
+        "Material": "Metal",
         "Anchored": true,
         "CanCollide": false,
         "CanTouch": false,
@@ -2583,14 +2975,14 @@
        }
       },
       "Size": [
-       0.133,
+       0.0872,
        0.133,
        0.285
       ],
       "Color": [
-       0.7882,
-       0.5608,
-       0.1647
+       0.9843,
+       0.8941,
+       0.6039
       ],
       "Material": "Metal",
       "Anchored": true,

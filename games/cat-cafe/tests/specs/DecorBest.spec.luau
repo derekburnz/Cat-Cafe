@@ -185,7 +185,9 @@ return function()
 		it("skips a piece the player put out by hand", function()
 			local p, common, rare, legendary = setUp()
 			expect(DecorBest.swapFor(p, legendary, { [common] = true })).to.equal(rare)
-			expect(DecorBest.swapFor(p, legendary, { [common] = true, [rare] = true })).to.equal(nil)
+			expect(DecorBest.swapFor(p, legendary, { [common] = true, [rare] = true })).to.equal(
+				nil
+			)
 		end)
 
 		it("swaps only for a strictly higher bonus", function()

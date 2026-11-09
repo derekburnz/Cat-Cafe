@@ -13,7 +13,17 @@ return function()
 
 	local POOLS = { "alley", "park", "neighbourhood", "woods", "sewer", "classic" } -- sold, each with a golden twin
 	-- and F101's Rally Crate, and #2651's Desert and Ruins
-	local ALL_POOLS = { "alley", "park", "neighbourhood", "woods", "sewer", "desert", "ruins", "classic", "rally" }
+	local ALL_POOLS = {
+		"alley",
+		"park",
+		"neighbourhood",
+		"woods",
+		"sewer",
+		"desert",
+		"ruins",
+		"classic",
+		"rally",
+	}
 	local KINDS = { "wallpaper", "floor", "paint", "furniture", "decoration" } -- two of each a pool
 	local MODEL_KINDS = { "door", "catflap" } -- one of each a pool since F80
 	local PER_RARITY: { [string]: number } =
@@ -1131,34 +1141,38 @@ return function()
 			expect(Crates.OPEN_ALL_FROM).to.equal(2)
 		end)
 
-		it("sums the pieces rarest first, with the duplicates' refund and the rarest new piece", function()
-			local common = pieceOf("alley", "Common")
-			local epic = pieceOf("alley", "Epic")
-			local legendary = pieceOf("alley", "Legendary")
-			local mythical = pieceOf("park", "Mythical")
-			local summary = Crates.summary({
-				{ decorId = common.id, duplicate = false, refund = 0 },
-				{ decorId = common.id, duplicate = true, refund = 4 },
-				{ decorId = epic.id, duplicate = false, refund = 0 },
-				{ decorId = legendary.id, duplicate = false, refund = 0 },
-				{ decorId = mythical.id, duplicate = true, refund = 60 },
-				{ decorId = "not_a_piece", duplicate = false, refund = 99 },
-			})
-			local rows = {}
-			for _, row in summary.rarities do
-				table.insert(rows, row.rarity .. "=" .. row.count)
+		it(
+			"sums the pieces rarest first, with the duplicates' refund and the rarest new piece",
+			function()
+				local common = pieceOf("alley", "Common")
+				local epic = pieceOf("alley", "Epic")
+				local legendary = pieceOf("alley", "Legendary")
+				local mythical = pieceOf("park", "Mythical")
+				local summary = Crates.summary({
+					{ decorId = common.id, duplicate = false, refund = 0 },
+					{ decorId = common.id, duplicate = true, refund = 4 },
+					{ decorId = epic.id, duplicate = false, refund = 0 },
+					{ decorId = legendary.id, duplicate = false, refund = 0 },
+					{ decorId = mythical.id, duplicate = true, refund = 60 },
+					{ decorId = "not_a_piece", duplicate = false, refund = 99 },
+				})
+				local rows = {}
+				for _, row in summary.rarities do
+					table.insert(rows, row.rarity .. "=" .. row.count)
+				end
+				expect(table.concat(rows, ",")).to.equal("Mythical=1,Legendary=1,Epic=1,Common=2")
+				expect(summary.fresh).to.equal(3)
+				expect(summary.duplicates).to.equal(2)
+				expect(summary.refund).to.equal(64)
+				-- the Mythical was a duplicate, so the best new piece is the Legendary
+				expect(summary.best).to.equal(legendary.id)
 			end
-			expect(table.concat(rows, ",")).to.equal("Mythical=1,Legendary=1,Epic=1,Common=2")
-			expect(summary.fresh).to.equal(3)
-			expect(summary.duplicates).to.equal(2)
-			expect(summary.refund).to.equal(64)
-			-- the Mythical was a duplicate, so the best new piece is the Legendary
-			expect(summary.best).to.equal(legendary.id)
-		end)
+		)
 
 		it("has no best piece when every one was a duplicate, and is empty for nothing", function()
 			local common = pieceOf("alley", "Common")
-			local summary = Crates.summary({ { decorId = common.id, duplicate = true, refund = 4 } })
+			local summary =
+				Crates.summary({ { decorId = common.id, duplicate = true, refund = 4 } })
 			expect(summary.best).to.equal(nil)
 			expect(summary.fresh).to.equal(0)
 			local empty = Crates.summary({})

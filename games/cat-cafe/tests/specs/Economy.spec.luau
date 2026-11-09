@@ -331,24 +331,27 @@ return function()
 			expect(Economy.settle(p, 1010)).to.equal(0)
 		end)
 
-		it("settle pays a Cafe Event's money on top and counts the boost's share (#2486)", function()
-			local p = freshProfile(1000)
-			Economy.setEventMoney(2)
-			local earned = Economy.settle(p, 1010)
-			Economy.setEventMoney(1)
-			expect(earned).to.be.near(30)
-			expect(Economy.takeEventExtra(p)).to.be.near(15)
-			expect(Economy.takeEventExtra(p)).to.equal(0) -- taken
-			expect(Economy.settle(p, 1020)).to.be.near(15) -- the event over: no boost, nothing counted
-			expect(Economy.takeEventExtra(p)).to.equal(0)
-			Economy.setEventMoney(9)
-			expect(Economy.eventMoney()).to.equal(Config.EventMoneyMax)
-			Economy.setEventMoney(0 / 0)
-			expect(Economy.eventMoney()).to.equal(1)
-			Economy.noteEventExtra(p, 100, 2) -- a rich tip worked out at x2
-			Economy.noteEventExtra(p, 100, 1) -- one with no event
-			expect(Economy.takeEventExtra(p)).to.be.near(50)
-		end)
+		it(
+			"settle pays a Cafe Event's money on top and counts the boost's share (#2486)",
+			function()
+				local p = freshProfile(1000)
+				Economy.setEventMoney(2)
+				local earned = Economy.settle(p, 1010)
+				Economy.setEventMoney(1)
+				expect(earned).to.be.near(30)
+				expect(Economy.takeEventExtra(p)).to.be.near(15)
+				expect(Economy.takeEventExtra(p)).to.equal(0) -- taken
+				expect(Economy.settle(p, 1020)).to.be.near(15) -- the event over: no boost, nothing counted
+				expect(Economy.takeEventExtra(p)).to.equal(0)
+				Economy.setEventMoney(9)
+				expect(Economy.eventMoney()).to.equal(Config.EventMoneyMax)
+				Economy.setEventMoney(0 / 0)
+				expect(Economy.eventMoney()).to.equal(1)
+				Economy.noteEventExtra(p, 100, 2) -- a rich tip worked out at x2
+				Economy.noteEventExtra(p, 100, 1) -- one with no event
+				expect(Economy.takeEventExtra(p)).to.be.near(50)
+			end
+		)
 
 		it("settle never pays for negative elapsed time", function()
 			local p = freshProfile(1000)

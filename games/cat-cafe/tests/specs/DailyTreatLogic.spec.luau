@@ -34,7 +34,9 @@ return function()
 			expect(view.lastDay).to.equal(0)
 			expect(view.due).to.equal(false)
 			expect(view.nextDay).to.equal(1)
-			expect(DailyTreatLogic.view({ stamp = 2, lastDay = TODAY, due = true }).nextDay).to.equal(3)
+			expect(DailyTreatLogic.view({ stamp = 2, lastDay = TODAY, due = true }).nextDay).to.equal(
+				3
+			)
 		end)
 	end)
 
@@ -65,7 +67,9 @@ return function()
 		it("shows a full card until the next stamp is due, then a fresh one", function()
 			local full = DailyTreatLogic.view({ stamp = 7, lastDay = TODAY, due = false })
 			expect(states(DailyTreatLogic.cells(full, days, NOON))).to.equal("sssssss")
-			expect(states(DailyTreatLogic.cells(full, days, (TODAY + 1) * DAY + 5))).to.equal("rllllll")
+			expect(states(DailyTreatLogic.cells(full, days, (TODAY + 1) * DAY + 5))).to.equal(
+				"rllllll"
+			)
 			local fresh = DailyTreatLogic.view({ stamp = 0, lastDay = 0, due = true })
 			expect(states(DailyTreatLogic.cells(fresh, nil, NOON))).to.equal("rllllll")
 		end)

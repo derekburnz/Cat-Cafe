@@ -102,6 +102,7 @@ return function()
 		TravelCooldownSeconds = 1, -- v0.4 (F19) 3; #1434 1
 		SyncIntervalSeconds = 10,
 		NormalWalkSpeed = 20, -- v0.4
+		TownWalkSpeedBonus = 4, -- #2706
 		CameraMaxZoomStuds = 60, -- Derek 2026-11-02, the zoom card
 		StrayWanderRadius = 5,
 		StrayWanderSpeed = 3,
@@ -357,6 +358,10 @@ return function()
 		NetReachStuds = 7,
 		NetSlackStuds = 1.5,
 		NetArcDegrees = 60,
+		NetNearStuds = 4,
+		NetNearArcDegrees = 80,
+		NetFrontArcDegrees = 25,
+		NetFrontExtraStuds = 0.5,
 		NetMissHopStuds = 12,
 		NetMissHopShare = 0.25,
 		RescueSpeedUpPerHit = 0.08,

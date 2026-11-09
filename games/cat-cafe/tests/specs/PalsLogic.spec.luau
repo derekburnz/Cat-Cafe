@@ -34,6 +34,8 @@ return function()
 			function()
 				expect(PalsLogic.chip(0)).to.equal(nil)
 				expect(PalsLogic.chip(1)).to.equal("+10% with pals")
+				expect(PalsLogic.chip(1, true)).to.equal("+10%") -- #2712: touch
+				expect(PalsLogic.chip(0, true)).to.equal(nil)
 				expect(PalsLogic.chip(2)).to.equal("+15% with pals")
 				expect(PalsLogic.chip(3)).to.equal("+20% with pals")
 				expect(PalsLogic.chip(6)).to.equal("+20% with pals")

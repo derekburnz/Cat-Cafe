@@ -2,7 +2,9 @@
 -- A context tip's card (F87, easy-start.md section 3): one line with a glyph, sliding down from the top centre under
 -- Roblox's top bar, over the clear band the lighter HUD keeps and above the toasts. It needs no press: a thin bar
 -- along its foot drains over the card's seconds and it slides away, or a tap anywhere on it sends it away at once.
--- Components/TipQueue decides which tip and when; this only shows one.
+-- Components/TipQueue decides which tip and when; this only shows one. #2694 (Derek2: "make it easier to notice the
+-- close and make the tips bubbles ... smaller"): a narrower, shorter card with a red X at its right end, which the
+-- tap anywhere still answers.
 --   show(text, icon, seconds, onDone)   onDone(tapped) once the card has gone
 --   hide()                              sends a showing card away as if its time ran out
 --   isShowing() -> boolean
@@ -31,10 +33,11 @@ export type TipCard = {
 	destroy: (self: TipCard) -> (),
 }
 
-local CARD_W = 460
-local CARD_H = 76
+local CARD_W = 400
+local CARD_H = 64
 local TOP = 12 -- under the top bar (the ScreenGui keeps to the safe insets)
-local ICON = 50
+local ICON = 42
+local X_SIZE = 28 -- the X disc at the card's right end
 local BAR_H = 5
 local SLIDE = TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 local SLIDE_OUT = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
@@ -108,7 +111,7 @@ function TipCard.new(parent: Instance, avoid: (() -> { GuiObject })?): TipCard
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
 		FontFace = Theme.fonts.display,
-		TextSize = 28,
+		TextSize = 24,
 		TextColor3 = Theme.colors.white,
 		Text = "",
 		Parent = disc,
@@ -118,15 +121,32 @@ function TipCard.new(parent: Instance, avoid: (() -> { GuiObject })?): TipCard
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.new(0, 12 + ICON + 12, 0.5, -1),
-		Size = UDim2.new(1, -(12 + ICON + 12 + 14), 1, -14),
+		Size = UDim2.new(1, -(12 + ICON + 12 + 10 + X_SIZE + 10), 1, -12),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textBody + 2,
+		TextSize = Theme.sizes.textBody + 1,
 		TextColor3 = Theme.modal.text,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextWrapped = true,
 		Text = "",
 		Parent = card,
 	})
+	-- the X: the whole card is the close, this shows it
+	local x: TextLabel = Create("TextLabel", {
+		Name = "X",
+		BackgroundColor3 = Theme.colors.red,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -10, 0.5, -1),
+		Size = UDim2.fromOffset(X_SIZE, X_SIZE),
+		FontFace = Theme.fonts.display,
+		TextSize = 18,
+		TextColor3 = Theme.colors.white,
+		Text = "X",
+		Parent = card,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(1, 0) }),
+	})
+	Outline.border(x, 2)
 	local track: Frame = Create("Frame", {
 		Name = "Track",
 		BackgroundColor3 = Theme.colors.line,

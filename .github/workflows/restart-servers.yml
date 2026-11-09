@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       warn_players:
-        description: "Tell every server 10, 5, 3 and 1 minutes and 10 seconds ahead and at the restart (adds 10 minutes)"
+        description: "Tell every server 10 and 2 minutes and 30 seconds ahead and at the restart (adds 10 minutes)"
         type: boolean
         default: true
 
@@ -43,7 +43,7 @@ jobs:
             exit 1
           fi
 
-      - name: Warn players in game (10, 5, 3 and 1 minutes, 10 seconds, then now)
+      - name: Warn players in game (10 and 2 minutes, 30 seconds, then now)
         if: inputs.warn_players
         run: bash tools/opencloud/restart-countdown.sh
 

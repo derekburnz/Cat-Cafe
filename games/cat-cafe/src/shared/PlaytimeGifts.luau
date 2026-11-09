@@ -21,7 +21,8 @@ export type Kind = "like" | "fav"
 local KINDS: { Kind } = { "like", "fav" }
 table.freeze(KINDS)
 PlaytimeGifts.KINDS = KINDS
-PlaytimeGifts.BUTTONS = table.freeze({ "like", "favourite", "close" }) :: { string } -- playtime_gift's buttons
+PlaytimeGifts.BUTTONS = table.freeze({ "like", "favourite", "close", "gotit" }) :: { string } -- playtime_gift's buttons
+-- (#2705: "gotit" is the like card's one button on touch, where Roblox has no in-game like prompt)
 PlaytimeGifts.GAP_SECONDS = 60
 
 -- The gift due at `played` seconds of play on the account, like before fav, or nil.

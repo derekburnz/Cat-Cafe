@@ -24,7 +24,8 @@
 -- last steps on the same screen (dots Intro.SHOTS + 1 to + 4, Next and Skip as for any shot), staged
 -- by stageTackle once the intro's own shots are put back. Played out on a first play, the lesson is saved as seen
 -- (TipSeen; a replay saves nothing, as for the intro); a Skip
--- ends both. Since #2544 the lesson never plays on its own anywhere else. It needs the screen's dots past
+-- ends both. Since #2544 the lesson never plays on its own anywhere else. #2626 turned the tail off (TAIL_ON): the
+-- lesson is the UI's context tip again, the first time the player is safe after being tackled. It needs the screen's dots past
 -- Intro.SHOTS (IntroLogic.MAX_SHOTS, UI-Engineer); without them it doesn't play.
 
 local CollectionService = game:GetService("CollectionService")
@@ -1840,8 +1841,13 @@ function IntroController.stageTackle(shot: number?)
 end
 
 -- #2495: whether this play ends with the tackling lesson's steps: every play, first or replay (#2522), once the
--- screen can show its dots.
+-- screen can show its dots. #2626 (Derek2: "make tackle lesson removed from tutorial for now so less people leave"):
+-- off for now; UI plays the lesson the first time the player is back on the safe street after being tackled.
+local TAIL_ON = false
 local function tailWanted(): boolean
+	if not TAIL_ON then
+		return false
+	end
 	local most = Tail.IntroLogic.MAX_SHOTS
 	return type(most) == "number" and most >= Intro.SHOTS + TackleStage.SHOTS
 end

@@ -35,7 +35,7 @@ return function()
 				local shots = Intro.shots(EAST, true)
 				expect(#shots).to.equal(Intro.SHOTS)
 				expect(Intro.SHOTS).to.equal(8)
-				expect(Intro.VERSION).to.equal(9)
+				expect(Intro.VERSION).to.equal(10)
 				local at = 0
 				for i, shot in shots do
 					expect(shot.index).to.equal(i)
@@ -117,7 +117,7 @@ return function()
 			local shots = Intro.shots(EAST, true)
 			expect(shots[7].night).to.equal(true)
 			expect(shots[8].spinWheel).to.equal(true)
-			expect(Intro.VERSION).to.equal(9)
+			expect(Intro.VERSION).to.equal(10)
 		end)
 
 		it(
@@ -232,22 +232,26 @@ return function()
 	end)
 
 	describe("the rich visitor (#2242)", function()
-		it("films your cafe's door and table 1's coin pile from inside, under its ceiling", function()
-			for _, plot in { EAST, WEST } do
-				local shot = Intro.shots(plot, true)[6]
-				local tip, door = Intro.richTipPoint(plot), Intro.doorPoint(plot)
-				for _, key in { shot.cuts[1].from, shot.cuts[1].to } do
-					expect(key.position.Y - Intro.FLOOR_Y < 9).to.equal(true)
-					expect(
-						flat(key.position, Vector3.new(plot.x, 0, plot.z)) < Config.World.PlotDepth / 2
-					).to.equal(true)
-					-- the coin pile and the door both in front of the camera
-					local ahead = (key.look - key.position).Unit
-					expect((tip - key.position).Unit:Dot(ahead) > 0.5).to.equal(true)
-					expect((door - key.position).Unit:Dot(ahead) > 0.3).to.equal(true)
+		it(
+			"films your cafe's door and table 1's coin pile from inside, under its ceiling",
+			function()
+				for _, plot in { EAST, WEST } do
+					local shot = Intro.shots(plot, true)[6]
+					local tip, door = Intro.richTipPoint(plot), Intro.doorPoint(plot)
+					for _, key in { shot.cuts[1].from, shot.cuts[1].to } do
+						expect(key.position.Y - Intro.FLOOR_Y < 9).to.equal(true)
+						expect(
+							flat(key.position, Vector3.new(plot.x, 0, plot.z))
+								< Config.World.PlotDepth / 2
+						).to.equal(true)
+						-- the coin pile and the door both in front of the camera
+						local ahead = (key.look - key.position).Unit
+						expect((tip - key.position).Unit:Dot(ahead) > 0.5).to.equal(true)
+						expect((door - key.position).Unit:Dot(ahead) > 0.3).to.equal(true)
+					end
 				end
 			end
-		end)
+		)
 
 		it("uses Layout.plot's rich tip anchor and the front door", function()
 			local tip = Layout.plot.richTip
@@ -255,29 +259,36 @@ return function()
 			expect(Intro.cafe.richTip.y).to.equal(tip.y)
 			expect(Intro.cafe.richTip.z).to.equal(tip.z)
 			local door = Intro.doorPoint(WEST)
-			expect(near(door, Intro.plotPoint(WEST, 0, 0, -Config.World.PlotDepth / 2 + 1.5))).to.equal(true)
+			expect(near(door, Intro.plotPoint(WEST, 0, 0, -Config.World.PlotDepth / 2 + 1.5))).to.equal(
+				true
+			)
 		end)
 
-		it("stages table 1 as Layout.plot builds it, for a cafe with no table yet (#2395)", function()
-			local spot = Layout.plot.tables[1]
-			expect(Intro.cafe.table1.x).to.equal(spot.x)
-			expect(Intro.cafe.table1.z).to.equal(spot.z)
-			expect(Intro.cafe.table1.lane).to.equal(spot.lane)
-			local first, second = Layout.plot.seatOffsets[1], Layout.plot.seatOffsets[2]
-			expect(Intro.cafe.seat1.x).to.equal(first.x)
-			expect(Intro.cafe.seat1.rotY).to.equal(first.rotY)
-			-- the second chair is the first one mirrored
-			expect(second.x).to.equal(-first.x)
-			expect(second.rotY).to.equal(-(first.rotY :: number))
-			expect(Intro.cafe.aisleX).to.equal(Layout.plot.aisleX)
-		end)
+		it(
+			"stages table 1 as Layout.plot builds it, for a cafe with no table yet (#2395)",
+			function()
+				local spot = Layout.plot.tables[1]
+				expect(Intro.cafe.table1.x).to.equal(spot.x)
+				expect(Intro.cafe.table1.z).to.equal(spot.z)
+				expect(Intro.cafe.table1.lane).to.equal(spot.lane)
+				local first, second = Layout.plot.seatOffsets[1], Layout.plot.seatOffsets[2]
+				expect(Intro.cafe.seat1.x).to.equal(first.x)
+				expect(Intro.cafe.seat1.rotY).to.equal(first.rotY)
+				-- the second chair is the first one mirrored
+				expect(second.x).to.equal(-first.x)
+				expect(second.rotY).to.equal(-(first.rotY :: number))
+				expect(Intro.cafe.aisleX).to.equal(Layout.plot.aisleX)
+			end
+		)
 
 		it("walks the rich visitor round the tables to table 1's first chair (#2395)", function()
 			local route = Intro.richRoute(WEST)
 			expect(#route).to.equal(2)
 			local spot = Intro.cafe.table1
 			local x = spot.x + Intro.cafe.seat1.x
-			expect(near(route[1], Intro.plotPoint(WEST, -Intro.cafe.aisleX, 0, spot.lane))).to.equal(true)
+			expect(near(route[1], Intro.plotPoint(WEST, -Intro.cafe.aisleX, 0, spot.lane))).to.equal(
+				true
+			)
 			expect(near(route[2], Intro.plotPoint(WEST, x, 0, spot.lane))).to.equal(true)
 			-- both on the floor
 			expect(math.abs(route[1].Y - Intro.FLOOR_Y) < 1e-6).to.equal(true)
@@ -304,14 +315,17 @@ return function()
 			expect(near(heading, Vector3.new(0, 0, -1))).to.equal(true)
 		end)
 
-		it("stops your copy RICH_REACH short of the coins, on the door's side, on the floor", function()
-			local door = Vector3.new(0, 0.2, 0)
-			local tip = Vector3.new(10, 2.9, 0)
-			local at = Intro.grabSpot(door, tip)
-			expect(near(at, Vector3.new(10 - Intro.RICH_REACH, 0.2, 0))).to.equal(true)
-			-- standing on the tip falls back to a fixed side
-			expect(Intro.grabSpot(tip, tip).Y).to.equal(tip.Y)
-		end)
+		it(
+			"stops your copy RICH_REACH short of the coins, on the door's side, on the floor",
+			function()
+				local door = Vector3.new(0, 0.2, 0)
+				local tip = Vector3.new(10, 2.9, 0)
+				local at = Intro.grabSpot(door, tip)
+				expect(near(at, Vector3.new(10 - Intro.RICH_REACH, 0.2, 0))).to.equal(true)
+				-- standing on the tip falls back to a fixed side
+				expect(Intro.grabSpot(tip, tip).Y).to.equal(tip.Y)
+			end
+		)
 
 		it("times the walk in, the sit, the coins and the grab inside the shot", function()
 			local shot = Intro.shots(EAST, true)[6]
@@ -326,8 +340,8 @@ return function()
 				expect(beats[i - 1] < beats[i]).to.equal(true)
 			end
 			expect(Intro.RICH_GRAB_AT < shot.seconds).to.equal(true)
-			-- 8 words: a 4.2 s reading hold (section 2b)
-			expect(shot.hold).to.be.near(4.2, 1e-9)
+			-- 8 words: a 3.36 s reading hold (section 2b, #2626)
+			expect(shot.hold).to.be.near(3.36, 1e-9)
 		end)
 
 		it("pops a rich tip on a new cafe's day rate at Tier 1, at least $50", function()
@@ -647,9 +661,9 @@ return function()
 
 	describe("the intro_cutscene event", function()
 		it(
-			"carries version 9 since #2357 took out the last shot (8 since #2242, 7 since #2182, 6 since #2113, 5 since #1782, 4 since #1542)",
+			"carries version 10 since #2626 sped it up (9 since #2357 took out the last shot, 8 since #2242, 7 since #2182, 6 since #2113, 5 since #1782, 4 since #1542))",
 			function()
-				expect(Intro.VERSION).to.equal(9)
+				expect(Intro.VERSION).to.equal(10)
 			end
 		)
 
@@ -690,22 +704,26 @@ return function()
 	end)
 	describe("reading holds and Next (#2182, section 2b)", function()
 		local EAST = { x = 40, z = 0, side = 1, index = 1 }
-		it("holds each shot for 1.0 s plus 0.4 s a word, at least its section 2 length", function()
-			expect(Intro.words("Tap as each circle closes!")).to.equal(5)
-			expect(Intro.words("  two   words ")).to.equal(2)
-			expect(Intro.hold(2.5, "Tap as each circle closes!")).to.be.near(3.0, 1e-9)
-			expect(Intro.hold(5, "Short")).to.equal(5)
-			local holds = {}
-			for _, shot in Intro.shots(EAST, true, true) do
-				expect(shot.hold).to.be.near(Intro.hold(shot.seconds, shot.caption), 1e-9)
-				expect(shot.hold >= shot.seconds).to.equal(true)
-				table.insert(holds, math.floor(shot.hold * 10 + 0.5) / 10)
+		it(
+			"holds each shot for 0.8 s plus 0.32 s a word (#2626), at least its section 2 length",
+			function()
+				expect(Intro.words("Tap as each circle closes!")).to.equal(5)
+				expect(Intro.words("  two   words ")).to.equal(2)
+				expect(Intro.hold(2.5, "Tap as each circle closes!")).to.equal(2.5) -- #2626: 0.8 + 5 x 0.32 is 2.4
+				expect(Intro.hold(2, "Carry it into the camp to keep it!")).to.be.near(3.36, 1e-9)
+				expect(Intro.hold(5, "Short")).to.equal(5)
+				local holds = {}
+				for _, shot in Intro.shots(EAST, true, true) do
+					expect(shot.hold).to.be.near(Intro.hold(shot.seconds, shot.caption), 1e-9)
+					expect(shot.hold >= shot.seconds).to.equal(true)
+					table.insert(holds, math.floor(shot.hold * 10 + 0.5) / 10)
+				end
+				expect(holds :: any).to.deepEqual({ 3.4, 3.4, 2.5, 3.4, 3.4, 3.4, 3.4, 3.7 }) -- #2626: 26.6 s, was 33.0
 			end
-			expect(holds :: any).to.deepEqual({ 4.2, 4.2, 3.0, 4.2, 4.2, 4.2, 4.2, 4.6 })
-		end)
+		)
 
 		it("eases the camera to a stop at the end of its moves and holds it there", function()
-			local shot = Intro.shots(EAST, true, true)[1] -- 2.5 s of moves, a 4.2 s hold
+			local shot = Intro.shots(EAST, true, true)[1] -- 2.5 s of moves, a 3.4 s hold
 			local settle = Intro.SETTLE_SECONDS
 			expect(Intro.cameraTime(shot, 1)).to.equal(1)
 			expect(Intro.cameraTime(shot, shot.seconds - settle)).to.be.near(
@@ -734,7 +752,10 @@ return function()
 			local shot = Intro.shots(EAST, true, true)[1]
 			local inBarrel = Intro.CLIMB_AT + Intro.CLIMB_SECONDS
 			expect(Intro.launchTime(shot, Intro.CLIMB_AT)).to.equal(Intro.CLIMB_AT)
-			expect(Intro.launchTime(shot, inBarrel + 1)).to.equal(inBarrel)
+			-- #2626: half of the extra hold in (0.86 s of it since the faster captions)
+			expect(Intro.launchTime(shot, inBarrel + (shot.hold - shot.seconds) / 2)).to.equal(
+				inBarrel
+			)
 			expect(Intro.launchTime(shot, Intro.fuseAt(shot))).to.be.near(Intro.FUSE_AT, 1e-9)
 			expect(Intro.fuseAt(shot) + Intro.BOOM_LEAD).to.be.near(shot.hold, 1e-9)
 			expect(Intro.launchTime(shot, shot.hold)).to.be.near(shot.seconds, 1e-9)

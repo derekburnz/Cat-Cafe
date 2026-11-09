@@ -22,8 +22,9 @@ Intro.SHOTS = 8
 -- cannon (F84), 4 since #1542 took out the camp cuts, 5 since #1782 took out the Index Board shot, 6 since #2113
 -- put the night (now shot 7) before the free spin and codes (now shot 8), 7 since #2182 gave each shot a reading hold
 -- and Next, 8 since #2242 put the rich visitor in as shot 6, 9 since #2357 (Derek2: "showing the cat waiting in
--- alleyway at the end scene is not needed") took out the last shot, "Your first cat is waiting in the Alleyway!".
-Intro.VERSION = 9
+-- alleyway at the end scene is not needed") took out the last shot, "Your first cat is waiting in the Alleyway!", 10
+-- since #2626 (Derek2: "make tutorial slightly faster 20% roughly") read faster and dropped the tackling lesson's tail.
+Intro.VERSION = 10
 Intro.SKIP_AFTER = 5.0 -- seconds into the first play before Skip can be pressed (its bar fills until then; Derek 00:57); a replay allows it at once
 Intro.MAX_CAPTION = 46 -- characters, so a caption fits one line on a phone ("about 45")
 Intro.STREAM_WAIT = 5 -- seconds the intro waits for the Alleyway's camp to stream in before it starts (section 3)
@@ -31,9 +32,10 @@ Intro.STREAM_WAIT = 5 -- seconds the intro waits for the Alleyway's camp to stre
 -- #2182 (section 2b, two playtesters: the captions go by too fast to read): each shot shows for its hold, its section
 -- 2 length or CAPTION_BASE plus CAPTION_PER_WORD a word of its caption, whichever is longer. The action runs on its
 -- section 2 timings, then the camera eases to a stop over SETTLE_SECONDS and the scene idles until the hold ends.
--- From NEXT_AFTER into a shot, Next moves on at once.
-Intro.CAPTION_BASE = 1.0
-Intro.CAPTION_PER_WORD = 0.4
+-- From NEXT_AFTER into a shot, Next moves on at once. #2626 (Derek2: "make tutorial slightly faster 20% roughly"):
+-- 0.8 + 0.32 s a word, a fifth off the 1.0 + 0.4 s every caption-bound hold had (about 31 s down to 25 s).
+Intro.CAPTION_BASE = 0.8
+Intro.CAPTION_PER_WORD = 0.32
 Intro.NEXT_AFTER = 1.0
 Intro.SETTLE_SECONDS = 0.3
 

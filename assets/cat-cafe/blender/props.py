@@ -1625,6 +1625,120 @@ def king_cape(ctx):
     U.cyl((0, -0.07, 0.08), 0.07, 0.04, "gold_light", rot=_rx(90), segments=10)                 # clasp, at the front
 
 
+# ------------------------------------------------------------------ #2584 Tier 6 Desert cats --
+def _bands(P, c, size, n, cols, axis=2):
+    """A panel of `n` stripes along `axis`, alternating the colours in `cols` (a nemes cloth)."""
+    lo = c[axis] - size[axis] / 2
+    step = size[axis] / n
+    for i in range(n):
+        cc, ss = list(c), list(size)
+        cc[axis], ss[axis] = lo + step * (i + 0.5), step + 0.002
+        P.box(tuple(cc), tuple(ss), cols[i % len(cols)])
+
+
+def _nemes(ctx, cloth, stripe, uraeus):
+    """A striped nemes headdress: a cap over the head top, striped side panels down past the cheeks, a back flap,
+    two striped lappets hanging in front of the shoulders and a band across the brow (the ears poke through, as
+    with the role hats). With `uraeus`, a little gold cobra rears from the brow band."""
+    P, hw, hd, hh = ctx.pen("head"), ctx.hw, ctx.hd, ctx.hh
+    P.box((0, 0.02, 0.035), (2 * hw + 0.08, 2 * hd + 0.06, 0.07), cloth)                             # cap
+    for sx in (-1, 1):
+        _bands(P, (sx * (hw + 0.035), 0.04, -hh * 0.38), (0.06, 2 * hd - 0.06, hh * 0.76 + 0.07), 5,
+               (cloth, stripe))                                                                     # side panels
+        _bands(P, (sx * (hw + 0.02), -hd + 0.16, -hh * 0.78 - 0.08), (0.16, 0.07, hh * 0.5), 4,
+               (stripe, cloth))                                                                     # lappets
+    P.box((0, hd + 0.045, -hh * 0.42), (2 * hw + 0.02, 0.06, hh * 0.84), cloth)                     # back flap
+    P.box((0, -hd - 0.03, -0.05), (2 * hw + 0.1, 0.05, 0.09), stripe)                               # brow band
+    if uraeus:
+        P.box((0, -hd - 0.07, 0.03), (0.07, 0.05, 0.16), "gold_mid")
+        P.ico((0, -hd - 0.1, 0.11), 0.05, "gold_mid", scale=(1.3, 0.8, 1.0))
+        P.ico((0, -hd - 0.13, 0.11), 0.022, "bowl_red")
+
+
+def pharaoh_nemes(ctx):
+    """#2584 Pharaoh Cat (Legendary): a gold and lapis-blue striped nemes with a gold cobra on the brow."""
+    _nemes(ctx, "fur_golden", "galaxy_blue", uraeus=True)
+
+
+def sphinx_nemes(ctx):
+    """#2584 Sphinx (Mythical): a shining gold nemes with lapis stripes and no cobra; the only gold on the cat, so
+    the Gold Sphinx reads differently from the stone one."""
+    _nemes(ctx, "gold_mid", "galaxy_blue", uraeus=False)
+
+
+def pharaoh_collar(ctx):
+    """#2584 Pharaoh Cat's second prop: a broad collar of gold, lapis and gold bands at the chin. It is in the Neck
+    slot, the waiter's BowTie's place (Catalog.outfitPieceSlots BowTie = "Neck"), so the bow tie stays off."""
+    F, fw, fd, bot = ctx.pen("face"), ctx.fw, ctx.fd, ctx.fbot
+    F.box((0, 0.0, bot - 0.02), (2 * fw + 0.14, 0.08, 0.08), "fur_golden")
+    F.box((0, -0.01, bot - 0.09), (2 * fw - 0.02, 0.07, 0.07), "galaxy_blue")
+    F.box((0, -0.02, bot - 0.155), (2 * fw - 0.2, 0.06, 0.06), "fur_golden")
+    for i in range(5):
+        F.ico((-0.24 + 0.12 * i, -0.04, bot - 0.2), 0.03, "galaxy_blue" if i % 2 else "bowl_red")
+    for sx in (-1, 1):
+        F.box((sx * (fw + 0.04), fd * 0.22, bot - 0.02), (0.07, fd * 0.44, 0.08), "fur_golden")
+
+
+def fennec_scarf(ctx):
+    """#2584 Fennec Cat (Rare): a teal desert kerchief knotted at the chin, its point hanging down the front."""
+    F, fw, fd, bot = ctx.pen("face"), ctx.fw, ctx.fd, ctx.fbot
+    F.box((0, 0.0, bot + 0.01), (2 * fw + 0.05, 0.07, 0.07), "sign_teal")
+    for sx in (-1, 1):
+        F.box((sx * (fw + 0.01), fd * 0.2, bot + 0.01), (0.06, fd * 0.4, 0.07), "sign_teal")
+    F.fan((0, -0.02, bot - 0.02), (0.0, 0.0), [(-0.2, 0.0), (0.0, -0.24), (0.2, 0.0)], 0.04, "sign_teal",
+          rot=_rx(90))
+    F.ico((0, -0.05, bot - 0.01), 0.05, "pastel_butter")
+
+
+def mirage_shades(ctx):
+    """#2584 Mirage Cat (Epic): wide white-framed shades with lenses fading from sky to lilac, a heat shimmer."""
+    F, ex = ctx.pen("face"), ctx.eye_x
+    for sx in (-1, 1):
+        F.box((sx * ex, -0.085, 0.0), (0.38, 0.03, 0.26), "offwhite")
+        F.box((sx * ex, -0.1, 0.045), (0.32, 0.02, 0.1), "pastel_sky")
+        F.box((sx * ex, -0.1, -0.045), (0.32, 0.02, 0.08), "pastel_lilac")
+        F.box((sx * (ctx.fw + 0.01), ctx.fd * 0.3 - 0.05, 0.03), (0.04, ctx.fd * 0.6 + 0.1, 0.04), "offwhite")
+        F.bar((sx * (ex + 0.18), -0.085, 0.03), (sx * (ctx.fw + 0.01), -0.03, 0.03), 0.04, 0.04, "offwhite",
+              up=(0, 0, 1))
+    F.box((0, -0.09, 0.05), (2 * ex - 0.36, 0.035, 0.04), "offwhite")
+
+
+def camel_saddle(ctx):
+    """#2584 Camel Cat (Rare): a red woven saddle blanket with gold and white stripes and a cream hump cushion, low
+    on the rump: behind the middle of A's back, and on B low on the back, under the waiter Vest's cinch strap."""
+    P = ctx.pen("back")
+    if ctx.body == "walk":
+        (_x0, _y0, _z0), (sx, sy, sz) = ctx.d["body"]
+        y = sy * 0.18
+        P.box((0, y, 0.02), (sx + 0.06, 0.44, 0.04), "bowl_red")
+        for side in (-1, 1):
+            P.box((side * (sx / 2 + 0.03), y, -sz * 0.28), (0.04, 0.44, sz * 0.56), "bowl_red")
+            P.box((side * (sx / 2 + 0.035), y, -sz * 0.56), (0.04, 0.46, 0.05), "offwhite")
+        for dy in (-0.13, 0.13):
+            P.box((0, y + dy, 0.042), (sx + 0.07, 0.05, 0.02), "rarity_legend")
+        P.sphere((0, y, 0.13), 0.17, "fur_cream", scale=(1.2, 1.1, 0.7))
+    else:
+        o = 0.03
+        P.box((0, 0.2, o), (0.62, 0.34, 0.05), "bowl_red")
+        for dy in (0.1, 0.3):
+            P.box((0, dy, o + 0.03), (0.63, 0.04, 0.02), "rarity_legend")
+        P.box((0, 0.38, o), (0.64, 0.04, 0.06), "offwhite")
+        P.sphere((0, 0.2, o + 0.11), 0.15, "fur_cream", scale=(1.2, 1.0, 0.65))
+
+
+def scarab_shell(ctx):
+    """#2584 Scarab Cat (Epic): a matte green beetle shell over the back, two wing cases edged teal with a gold
+    seam, and a teal plate at the shoulders."""
+    P = ctx.pen("back")
+    walk = ctx.body == "walk"
+    y, z = (0.1, 0.05) if walk else (0.05, 0.11)
+    for sx in (-1, 1):
+        P.sphere((sx * 0.15, y, z - 0.015), 0.31, "sign_teal", scale=(0.62, 1.27, 0.3), segments=10, rings=5)
+        P.sphere((sx * 0.15, y, z), 0.3, "dumpster_green", scale=(0.55, 1.25, 0.35), segments=10, rings=5)
+    P.box((0, y, z + 0.1), (0.03, 0.62, 0.03), "fur_golden")
+    P.sphere((0, y - 0.38, z), 0.16, "sign_teal", scale=(1.3, 0.55, 0.45), segments=10, rings=5)
+
+
 PROPS = {
     "Calico": ("Face", eye_patch), "Tortie": ("Back", guitar), "Sphynx": ("Head", headphones),
     "MaineCoon": ("Face", bandit_mask), "Void": ("Head", ninja_band), "Midnight": ("Head", wizard_hat),
@@ -1649,6 +1763,9 @@ PROPS = {
     "KingCroissant": ("Head", king_crown),
     # #1637 the Cafe Pass season 1 cat
     "MapleMuffin": ("Head", maple_beret),
+    # #2584 Tier 6 Desert
+    "Fennec": ("Face", fennec_scarf), "Camel": ("Back", camel_saddle), "Scarab": ("Back", scarab_shell),
+    "Mirage": ("Face", mirage_shades), "Pharaoh": ("Head", pharaoh_nemes), "Sphinx": ("Head", sphinx_nemes),
 }
 # Second props (data-model 3, v0.10 and v0.13: "one or two props is fine"), in a different slot from the first: the
 # object is `..._Prop2` and the model's PropSlot2 attribute names its slot.
@@ -1667,6 +1784,8 @@ PROPS2 = {
     # #1191: Duchess Marzipan's velvet cape
     "DuchessMarzipan": ("Back", velvet_cape),
     "KingCroissant": ("Back", king_cape),
+    # #2584: the Pharaoh's collar takes the waiter BowTie's place (a Neck slot of its own, Catalog.outfitPieceSlots)
+    "Pharaoh": ("Neck", pharaoh_collar),
 }
 # Extra objects a prop draws (Ctx.piece): cat -> {suffix: the prop object it hangs from}. They ride what that prop
 # rides, and their Roblox Model nests inside that prop's Model.

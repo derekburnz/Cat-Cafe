@@ -1441,6 +1441,88 @@ Layout.sewer = {
 	props = {},
 } :: AreaSpec
 
+-- The Desert and the Ruins (Tier 6 and 7, tier6-7-areas.md sections 4 and 5; #2651 part 2): placeholder layouts to
+-- the contract Model-Agent builds CatCafe_Desert_Set and CatCafe_Ruins_Set to (set space: the pivot at the centre on
+-- the floor, -Z toward the camp and the town). Both are long along world Z. Their cat spots are a placeholder grid,
+-- `near` in the first third and `deep` past it, until the sets' manifest points_roblox replace them; their five
+-- rescue spots are the drafts' traps, built into the sets. WorldBuilder builds only Catalog.areas, so nothing here is
+-- in the world until the areas open (part 3).
+local function gridPoints(
+	cx: number,
+	cz: number,
+	turn: number,
+	halfWidth: number,
+	halfDepth: number,
+	near: number,
+	deep: number
+): { Point }
+	local points: { Point } = {}
+	local split = -halfDepth + (2 * halfDepth) / 3 -- set z where the deep zone starts
+	local function fill(count: number, z1: number, z2: number, zone: string)
+		local columns = 4
+		local rows = math.ceil(count / columns)
+		local spots: { { number } } = {}
+		for index = 0, count - 1 do
+			local column, row = index % columns, index // columns
+			local x = -halfWidth + 12 + (2 * halfWidth - 24) * (column + 0.5) / columns
+			local z = z1 + (z2 - z1) * (row + 0.5) / rows
+			table.insert(spots, { x, 0, z })
+		end
+		for _, point in setPoints(cx, cz, turn, 0.1, spots, zone) do
+			table.insert(points, point)
+		end
+	end
+	fill(near, -halfDepth + 12, split, "near")
+	fill(deep, split, halfDepth - 12, "deep")
+	return points
+end
+
+local DX, DZ = W.DesertCenterX, W.DesertCenterZ
+local DGATE = DZ + W.DesertDepth / 2 -- its north side, toward the town
+local DTURN = townTurn(DX, DZ, nil, DGATE)
+Layout.desert = {
+	floorY = 0.1,
+	center = { x = DX, y = 0, z = DZ },
+	halfWidth = W.DesertWidth / 2,
+	halfDepth = W.DesertDepth / 2,
+	gateZ = DGATE,
+	openingHalfWidth = W.CampOpeningWidth / 2,
+	set = "CatCafe_Desert_Set",
+	spawnPoints = gridPoints(DX, DZ, DTURN, W.DesertWidth / 2, W.DesertDepth / 2, 26, 40),
+	-- two dunes a cat is stuck in to its chest, two clay urns and a collapsed canopy (section 4)
+	rescueSpots = {
+		setTrap(DX, DZ, DTURN, "sand_dune", { -40, 0, -60 }),
+		setTrap(DX, DZ, DTURN, "sand_dune", { 40, 0, 150 }),
+		setTrap(DX, DZ, DTURN, "clay_urn", { 45, 0, 20 }),
+		setTrap(DX, DZ, DTURN, "clay_urn", { -45, 0, 210 }),
+		setTrap(DX, DZ, DTURN, "canopy", { 0, 0, 90 }),
+	},
+	props = {},
+} :: AreaSpec
+
+local RX, RZ = W.RuinsCenterX, W.RuinsCenterZ
+local RGATE = RZ - W.RuinsDepth / 2 -- its south side, toward the town
+local RTURN = townTurn(RX, RZ, nil, RGATE)
+Layout.ruins = {
+	floorY = 0.1,
+	center = { x = RX, y = 0, z = RZ },
+	halfWidth = W.RuinsWidth / 2,
+	halfDepth = W.RuinsDepth / 2,
+	gateZ = RGATE,
+	openingHalfWidth = W.CampOpeningWidth / 2,
+	set = "CatCafe_Ruins_Set",
+	spawnPoints = gridPoints(RX, RZ, RTURN, W.RuinsWidth / 2, W.RuinsDepth / 2, 28, 42),
+	-- two rubble piles, two stone urns and the broken bridge ledge (section 5)
+	rescueSpots = {
+		setTrap(RX, RZ, RTURN, "rubble_pile", { -40, 0, -70 }),
+		setTrap(RX, RZ, RTURN, "rubble_pile", { 40, 0, 160 }),
+		setTrap(RX, RZ, RTURN, "stone_urn", { 42, 0, 10 }),
+		setTrap(RX, RZ, RTURN, "stone_urn", { -42, 0, 230 }),
+		setTrap(RX, RZ, RTURN, "bridge_ledge", { 0, 0, 100 }),
+	},
+	props = {},
+} :: AreaSpec
+
 -- The Town Square (F76, town-layout-v3.md section 3): paved, in the middle of the street and the safe zone, with the
 -- Cat Cannon at the origin since v4 (F84, where the fountain stood) and a cross of open paving through it (the
 -- street's line north to south and a lane east to west to the side arches). The four stations stand in its quarters,
@@ -1624,6 +1706,13 @@ Layout.areas = {
 	sewer = Layout.sewer,
 } :: { [string]: AreaSpec }
 
+-- #2651 part 2: the Desert and the Ruins, laid out but not yet in the game. They join Layout.areas when they open
+-- (part 3), which brings their camps, pads, gates and traps into everything that walks Layout.areas.
+Layout.lateAreas = {
+	desert = Layout.desert,
+	ruins = Layout.ruins,
+} :: { [string]: AreaSpec }
+
 -- Camps (v4, F84, hometown-cannon.md section 4): every wild area's camp lies across its whole width in front of its
 -- gate, outside the set, CampDepth deep, with the gate as its way out into the wild part. Camp space has its origin
 -- at the middle of the gate's opening on the floor, +Z running into the wild part and X across, turned by the area's
@@ -1696,6 +1785,11 @@ local function campFor(id: string, spec: AreaSpec): Camp?
 end
 
 Layout.camps = {} :: { [string]: Camp }
+-- #2651: the late areas' camps, worked out the same way and kept apart until they open
+Layout.lateCamps = {} :: { [string]: Camp }
+for id, spec in Layout.lateAreas do
+	Layout.lateCamps[id] = campFor(id, spec) :: Camp
+end
 for id, spec in Layout.areas do
 	local camp = campFor(id, spec)
 	if camp ~= nil then
@@ -1818,14 +1912,19 @@ for id, camp in Layout.camps do
 	Layout.cannonFronts[id] = { x = x, y = camp.origin.y, z = z, rotY = camp.turn % 360 }
 end
 
--- The turn about Y (degrees) from the town cannon's rest that points its barrel at `destination`'s area: south for the
--- Park, north for the Neighbourhood, west for the Woods and east for the Sewer. 0 for anything else.
+-- The turn about Y (degrees) from the town cannon's rest that points its barrel at `destination`'s landing pad: south
+-- for the Park, north for the Neighbourhood, west for the Woods, east for the Sewer, about -137 for the Alleyway, 129
+-- for the Desert and 51.5 for the Ruins. 0 for anything else.
 function Layout.cannonAim(destination: string): number
-	local spec = Layout.areas[destination]
-	if spec == nil or Layout.camps[destination] == nil then
+	local camp = Layout.camps[destination] or Layout.lateCamps[destination]
+	if camp == nil then
 		return 0
 	end
-	return math.deg(math.atan2(spec.center.x, spec.center.z))
+	-- #2651 (tier6-7-areas.md section 2): at the landing pad, where the flight comes down, not the area's middle;
+	-- the same for the Park, Neighbourhood, Woods and Sewer, whose pads sit on their axes
+	-- the camp's turn leaves the Park's pad a hair west of x 0, which would read -180; snap it so the Park stays 180
+	local x = if math.abs(camp.pad.x) < 1e-6 then 0 else camp.pad.x
+	return math.deg(math.atan2(x, camp.pad.z))
 end
 
 -- The landing pads (section 3b): `town` at the town cannon's foot on its south side (the spawn stands on it), one on

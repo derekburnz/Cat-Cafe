@@ -466,7 +466,8 @@ return function()
 
 		it("aims the town cannon at the Alleyway as the server does", function()
 			expect(Intro.cannonAim()).to.be.near(Layout.cannonAim("alley"), 1e-9)
-			expect(Intro.cannonAim()).to.be.near(-135, 1e-6)
+			-- #2651: at the pad, about 3 degrees off the -135 of the Alleyway's middle
+			expect(Intro.cannonAim()).to.be.near(-132.02, 0.01)
 		end)
 
 		it("flies the ball up out of the muzzle into the sky and drops you onto the pad", function()

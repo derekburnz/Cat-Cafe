@@ -1765,15 +1765,79 @@ return function()
 			end
 		)
 
-		it("turns the town cannon toward each area it fires at", function()
-			for id, spec in Layout.areas do
-				local aim = math.rad(Layout.cannonAim(id))
-				local out = math.sqrt(spec.center.x ^ 2 + spec.center.z ^ 2)
-				-- the barrel rests along +Z; turned by aim it points along (sin, cos)
-				local dot = (math.sin(aim) * spec.center.x + math.cos(aim) * spec.center.z) / out
-				expect(dot).to.be.near(1, 1e-9)
+		it("turns the town cannon toward each area's landing pad (#2651)", function()
+			local aims: { number } = {}
+			for _, set in { Layout.camps, Layout.lateCamps } do
+				for id, camp in set do
+					local aim = math.rad(Layout.cannonAim(id))
+					local pad = camp.pad
+					local out = math.sqrt(pad.x ^ 2 + pad.z ^ 2)
+					-- the barrel rests along +Z; turned by aim it points along (sin, cos)
+					local dot = (math.sin(aim) * pad.x + math.cos(aim) * pad.z) / out
+					expect(dot).to.be.near(1, 1e-9)
+					table.insert(aims, Layout.cannonAim(id))
+				end
 			end
+			expect(#aims).to.equal(7)
+			-- every destination at least 35 degrees from every other, so the barrel visibly turns (section 2 says about 38;
+			-- the Ruins pad sits 37.8 from the Sewer)
+			for i, a in aims do
+				for j, b in aims do
+					local apart = math.abs((a - b + 180) % 360 - 180)
+					if i ~= j and apart < 35 then
+						fail("two cannon aims only %.1f degrees apart", apart)
+					end
+				end
+			end
+			expect(Layout.cannonAim("park")).to.be.near(180, 1e-9)
+			expect(Layout.cannonAim("neighbourhood")).to.be.near(0, 1e-9)
+			expect(Layout.cannonAim("woods")).to.be.near(-90, 1e-9)
+			expect(Layout.cannonAim("sewer")).to.be.near(90, 1e-9)
 			expect(Layout.cannonAim("town")).to.equal(0)
+		end)
+
+		it("lays out the Desert and the Ruins on the east diagonals, not yet in the game (#2651)", function()
+			local want = {
+				desert = { aim = 129, near = 26, deep = 40, gateNorth = true },
+				ruins = { aim = 51.5, near = 28, deep = 42, gateNorth = false },
+			}
+			for id, spec in Layout.lateAreas do
+				local w = want[id]
+				expect(w).to.be.ok()
+				expect(Layout.areas[id]).to.equal(nil)
+				expect(Layout.camps[id]).to.equal(nil)
+				expect(spec.center.x > 0).to.equal(true)
+				-- long along world Z, the camp on the town end
+				expect(spec.halfDepth > spec.halfWidth).to.equal(true)
+				expect((spec.gateZ :: number) > spec.center.z).to.equal(w.gateNorth)
+				expect(math.abs(spec.gateZ :: number) < math.abs(spec.center.z)).to.equal(true)
+				expect(Layout.cannonAim(id)).to.be.near(w.aim, 1)
+				-- the pad is about 1790 to 1800 out, a little short of the Alleyway's 1900 (section 2, check 2)
+				local pad = Layout.lateCamps[id].pad
+				local out = math.sqrt(pad.x ^ 2 + pad.z ^ 2)
+				expect(out > 1700 and out < 1900).to.equal(true)
+				local counts: { [string]: number } = {}
+				for _, point in spec.spawnPoints do
+					counts[point.zone :: string] = (counts[point.zone :: string] or 0) + 1
+					expect(math.abs(point.x - spec.center.x) < spec.halfWidth).to.equal(true)
+					expect(math.abs(point.z - spec.center.z) < spec.halfDepth).to.equal(true)
+				end
+				expect(counts.near).to.equal(w.near)
+				expect(counts.deep).to.equal(w.deep)
+				expect(#spec.rescueSpots).to.equal(5)
+				for _, trap in spec.rescueSpots do
+					expect(math.abs(trap.x - spec.center.x) < spec.halfWidth).to.equal(true)
+					expect(math.abs(trap.z - spec.center.z) < spec.halfDepth).to.equal(true)
+				end
+				-- clear of every other area by more than 500 studs
+				for other, there in Layout.areas do
+					local dx = math.max(0, math.abs(spec.center.x - there.center.x) - spec.halfWidth - there.halfWidth)
+					local dz = math.max(0, math.abs(spec.center.z - there.center.z) - spec.halfDepth - there.halfDepth)
+					if math.sqrt(dx * dx + dz * dz) < 500 then
+						fail("the %s is too close to the %s", id, other)
+					end
+				end
+			end
 		end)
 
 		it(

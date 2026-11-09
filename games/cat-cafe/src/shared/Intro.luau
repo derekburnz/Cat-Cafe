@@ -267,12 +267,11 @@ local function alleyCamp(): Camp
 	return Intro.camp(Intro.AREA) :: Camp
 end
 
--- The turn about Y (degrees) from the town cannon's rest that points it at the Alleyway, as Layout.cannonAim does.
+-- The turn about Y (degrees) from the town cannon's rest that points it at the Alleyway's landing pad, as
+-- Layout.cannonAim does (#2651: the pad, not the area's middle).
 function Intro.cannonAim(): number
-	local W = Config.World
-	return math.deg(
-		math.atan2(W.AlleyCenterX, W.AlleyCenterZ + (W.AlleySouthZ + W.AlleyNorthZ) / 2)
-	)
+	local camp = Intro.camp("alley") :: Camp
+	return math.deg(math.atan2(camp.pad.X, camp.pad.Z))
 end
 
 -- Where plot `index` (1-based) stands: the same numbers as the server's Layout.plotPlacement (a test checks they

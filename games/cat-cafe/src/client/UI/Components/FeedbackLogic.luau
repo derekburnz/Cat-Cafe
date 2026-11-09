@@ -10,8 +10,8 @@
 --   askDue(asked, played, free) -> boolean   the one ask: the save says not asked yet (false, not nil), the session
 --                                     has run ASK_MINUTES and nothing else is going on
 --   earlyDue(asked, played, working, free) -> boolean   #2681: the same ask once earlier for a player never asked,
---                                     at EARLY_MINUTES or once a cat has worked the cafe for SERVED_SECONDS (its first
---                                     customers served), whichever comes first
+--                                     at EARLY_MINUTES (#2880: 8, and no longer sooner once a cat has served; `working`
+--                                     is kept for the callers but no longer read)
 --   answer() -> Answer                :pick(face, now), :chip(id) -> (face, chip)?, :due(now) -> (face, nil)?,
 --                                     :flush() -> (face, nil)?, :face(), :sent(), :reset()
 -- Pure, so the cloud spec runner checks it.
@@ -28,10 +28,10 @@ export type Choice = { id: string, label: string, glyph: string }
 FeedbackLogic.WAIT_SECONDS = 20 -- a face with no chip is sent alone after this
 FeedbackLogic.ASK_SECONDS = 10 -- the slide-in ask stays this long
 FeedbackLogic.ASK_MINUTES = (Config.FeedbackAskMinutes or 12) :: number
--- #2681: about 70% of new players leave before 10 minutes, so a player never asked gets the faces at 4 minutes, or
--- sooner once their first cat has served customers; an early ask left unanswered still gets the ASK_MINUTES one
-FeedbackLogic.EARLY_MINUTES = 4
-FeedbackLogic.SERVED_SECONDS = 45 -- a cat in a role this long has served its first customers (first_customer_served)
+-- #2681: about 70% of new players leave before 10 minutes, so a player never asked gets the faces early. #2880 (Derek2:
+-- "too early and too often"): at 8 minutes, not at 4 or 45 s after a first cat served, and once a session: an early
+-- ask left unanswered no longer comes back at ASK_MINUTES (init); AskPacing spaces it from the other asks
+FeedbackLogic.EARLY_MINUTES = 8
 
 local FACE_LOOKS: { [string]: { label: string, glyph: string } } = {
 	love = { label = "Love it", glyph = "😍" },
@@ -74,12 +74,10 @@ end
 function FeedbackLogic.earlyDue(
 	asked: boolean?,
 	played: number,
-	working: number,
+	_working: number,
 	free: boolean
 ): boolean
-	return asked == false
-		and free
-		and (played >= FeedbackLogic.EARLY_MINUTES * 60 or working >= FeedbackLogic.SERVED_SECONDS)
+	return asked == false and free and played >= FeedbackLogic.EARLY_MINUTES * 60
 end
 
 export type Answer = {

@@ -1685,6 +1685,24 @@ local SCENES = {
 		tags:destroy()
 		cat:Destroy()
 	end },
+	-- #2880 (Derek2: "the pop ups ... are too early and too often"): no slide-in ask in a session's first minutes, and
+	-- none right after another; once the gap has passed the next one shows
+	{ "AskPacing", function()
+		local function ask(): boolean
+			return UI.asks.card({
+				title = "Gate ask",
+				choices = { { id = "ok", label = "OK", style = "primary" } },
+				seconds = 5,
+				answer = function() end,
+			})
+		end
+		assert(not UI.asks.paced(), "uigate: an ask may show in the session's first minutes (#2880)")
+		assert(ask() == false, "uigate: a slide-in ask showed in the session's first minutes (#2880)")
+		UI.asks.skipPace()
+		assert(ask() == true, "uigate: the ask did not show once the first minutes had passed (#2880)")
+		UIShim.advance(6)
+		assert(ask() == false, "uigate: a second ask showed right after the first (#2880)")
+	end },
 	{ "MoodIcons", function()
 		-- Catch v3 (catch-rework.md 7a): a mood icon over each stray with a Mood, Skittish with its arc; hidden
 		-- while caught (LockedBy), gone with the Mood
@@ -2250,6 +2268,7 @@ local SCENES = {
 	{ "InviteRewardCard", function()
 		local InviteCardLogic = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.InviteCardLogic")
 		local view = { cardShown = false, fish = 20, leftToday = 5, cardFrom = 300, cardBy = 900 }
+		UI.asks.skipPace() -- #2880: as if the session had run its first minutes
 		local shown = UI.asks.card({
 			title = InviteCardLogic.title(view),
 			choices = {
@@ -3818,11 +3837,13 @@ local SCENES = {
 	end },
 	-- F92: the one invite nudge on the slide-in ask card
 	{ "InviteAsk", function()
+		UI.asks.skipPace() -- #2880
 		UI.asks.show("invite_ask")
 	end },
 	-- #2766: the update Event's Notify Me ask on the slide-in card, its two lines and two buttons
 	{ "EventAsk", function()
 		local EventRsvp = UIShim.require("StarterPlayer.StarterPlayerScripts.Client.UI.Components.EventRsvp")
+		UI.asks.skipPace() -- #2880
 		local shown = UI.asks.card({
 			title = EventRsvp.title(3600, 0),
 			choices = {

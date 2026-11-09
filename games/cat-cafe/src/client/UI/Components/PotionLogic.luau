@@ -11,10 +11,13 @@
 --                              Potions.goldLuck, Potions.baitSpeed and Potions.baitGoldChance (F73): gold luck, bait
 --                              speed and the Lucky Potion's gold scale
 --   clock(seconds)             "9:05", "60:00"; whole seconds, rounded up so a potion never reads 0:00 early
---   giftRows(catalog)          what a Mystery gift can hold: Catalog.mysteryGift, else the data model's table
+--   giftRows(catalog, tier?)   what a Mystery gift can hold: #2614 the `tier` wrap's rows of Catalog.mysteryGiftTiers,
+--                              else Catalog.mysteryGift, else the data model's table
 --   giftLine(rows, foodName)   "Potion 60%  ·  2 Salmon 20%  ·  10 golden fish 10%  ·  1 spin 10%"
---   giftPrize(kind, id, count) a MysteryGiftResult as the prize shape PrizeChips draws
---   giftTitle(...)             "Money Potion", "2 Salmon", "10 golden fish", "1 spin"
+--   giftPrize(kind, id, count, fish?)  a MysteryGiftResult as the prize shape PrizeChips draws (#2614: coins as
+--                              seconds of income, a crate with its fish, cat food)
+--   giftTitle(...)             "Money Potion", "2 Salmon", "10 golden fish", "1 spin", "3 minutes of earnings",
+--                              "Zone crate", "2 Big Cat Snacks"
 -- `buffs` holds each running potion's endsAt in server time (Workspace:GetServerTimeNow()); the server pauses the
 -- timers while the player is away, so the client only counts down to endsAt.
 
@@ -48,10 +51,11 @@ export type Boosts = {
 }
 
 export type GiftRow = {
-	kind: string, -- "potion", "lure", "fish" or "spin"
+	kind: string, -- "potion", "lure", "fish" or "spin"; #2614 "coins", "crate", "food", "questPotion"
 	id: string?,
 	count: number,
 	chance: number, -- percent
+	fish: number?, -- #2614: a crate's golden fish with it
 }
 
 PotionLogic.MAX_MINUTES = if type(Config.PotionMaxMinutes) == "number"
@@ -288,10 +292,23 @@ function PotionLogic.clock(seconds: number): string
 	return ("%d:%02d"):format(whole // 60, whole % 60)
 end
 
-function PotionLogic.giftRows(catalog: Types.Catalog?): { GiftRow }
+function PotionLogic.giftRows(catalog: Types.Catalog?, tier: string?): { GiftRow }
 	local rows: { any } = if catalog and type((catalog :: any).mysteryGift) == "table"
 		then (catalog :: any).mysteryGift
 		else {}
+	local tiers: any = if catalog then (catalog :: any).mysteryGiftTiers else nil
+	if type(tier) == "string" and type(tiers) == "table" then
+		for _, wrap in tiers do
+			if
+				type(wrap) == "table"
+				and type(wrap.tier) == "string"
+				and string.lower(wrap.tier) == string.lower(tier)
+				and type(wrap.rows) == "table"
+			then
+				rows = wrap.rows
+			end
+		end
+	end
 	local list: { GiftRow } = {}
 	for _, row in rows do
 		if type(row) == "table" and type(row.kind) == "string" and type(row.chance) == "number" then
@@ -300,6 +317,7 @@ function PotionLogic.giftRows(catalog: Types.Catalog?): { GiftRow }
 				id = if type(row.id) == "string" then row.id else nil,
 				count = if type(row.count) == "number" then row.count else 1,
 				chance = row.chance,
+				fish = if type(row.fish) == "number" then row.fish else nil,
 			})
 		end
 	end
@@ -335,6 +353,20 @@ function PotionLogic.giftTitle(
 		return ("%d golden fish"):format(count)
 	elseif kind == "spin" then
 		return if count == 1 then "1 spin" else ("%d spins"):format(count)
+	elseif kind == "coins" then
+		-- #2614: `count` is seconds of income
+		local minutes = math.max(1, math.floor(count / 60 + 0.5))
+		return if minutes == 1
+			then "1 minute of earnings"
+			else ("%d minutes of earnings"):format(minutes)
+	elseif kind == "crate" then
+		return "Zone crate"
+	elseif kind == "food" then
+		local name = (if id then foodName(id) else nil)
+			or (if id then titleCase(id) else "Cat Snack")
+		return if count > 1 then ("%d %ss"):format(count, name) else name
+	elseif kind == "questPotion" then
+		return "30-min Potion"
 	end
 	return "A surprise"
 end
@@ -343,13 +375,29 @@ function PotionLogic.giftLine(rows: { GiftRow }, foodName: (id: string) -> strin
 	local parts: { string } = {}
 	for _, row in rows do
 		local what = PotionLogic.giftTitle(row.kind, row.id, row.count, foodName)
+		if row.fish ~= nil and row.fish > 0 then
+			what ..= (" + %d golden fish"):format(row.fish) -- #2614: the Super crate's fish
+		end
 		table.insert(parts, ("%s %s"):format(what, percent(row.chance)))
 	end
 	return table.concat(parts, "  ·  ")
 end
 
-function PotionLogic.giftPrize(kind: string, id: string?, count: number): Types.IndexPrize
+function PotionLogic.giftPrize(
+	kind: string,
+	id: string?,
+	count: number,
+	fish: number?
+): Types.IndexPrize
 	local amount = math.max(1, math.floor(count))
+	if kind == "coins" then
+		return { coinSeconds = amount }
+	elseif kind == "crate" then
+		local extra = if type(fish) == "number" and fish > 0 then math.floor(fish) else nil
+		return { crates = { [id or "highest"] = 1 }, fish = extra }
+	elseif kind == "food" and id then
+		return { catFood = { [id] = amount } }
+	end
 	if kind == "potion" and id then
 		return { potions = { [id] = amount } }
 	elseif kind == "lure" and id then

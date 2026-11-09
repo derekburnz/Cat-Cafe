@@ -152,7 +152,8 @@ return function()
 		MysteryEveryMin = 750, -- 1250 s on average, a fifth more often than #1135's 1500 (2026-11-05)
 		MysteryEveryMax = 1750,
 		MysteryStaySeconds = 120,
-		MysteryGiftKeepSeconds = 600,
+		MysteryGiftKeepSeconds = 900, -- #2614 (was 600)
+		MysteryRareStreak = 4,
 		PotionMaxMinutes = 1440, -- F95 (economy-ladder.md section 6b): potions stack to 24 hours
 		-- quests and achievements and their potions (F73, quests.md section 6)
 		TimedTipsMax = 1.0,
@@ -437,6 +438,7 @@ return function()
 				MysteryRotateSeconds = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				MysterySaleShare = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
 				MysteryMarketRange = true, -- #2565: checked in MysteryMarket.spec (mystery-market.md section 2)
+				LongNetReachStuds = true, -- #2565: the Long Net's extra reach, checked in NetSwing.spec
 				RichTipRangeStuds = true, -- sections 12 and 15: ClaimRichTip within 12 studs of RichTipAnchor
 				WaveMinRareRerollOdds = true, -- a table, checked in Catching.spec (F97 section 7)
 				FoodTierPriceFactor = true, -- a table, checked below (F97 section 3)

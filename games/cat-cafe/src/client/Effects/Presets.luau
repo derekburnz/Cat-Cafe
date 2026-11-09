@@ -3148,6 +3148,11 @@ Presets.mystery = {
 	ringSeconds = 0.45,
 	confetti = 0.4,
 	ribbon = { palette.neonPink, palette.aurora, palette.sparkle, palette.offwhite },
+	-- one small camera shake as it opens, `shake` s of `shakeStuds`; the pop, confetti, ring and shake grow by the
+	-- wrap's `tierScale` (#2614: Super pops twice as big)
+	shake = 0.25,
+	shakeStuds = 0.15,
+	tierScale = { Common = 1, Rare = 1.3, Super = 2 } :: { [string]: number },
 	-- the red "!" over every waiting gift (#1638): `studs` wide plus `pixels`, so it still reads from across the
 	-- street, `lift` studs over the gift, seen within `within` studs, bobbing `bob` studs every `seconds`
 	bang = {

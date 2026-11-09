@@ -249,8 +249,16 @@ def _material(obname, swatch):
     return "SmoothPlastic", 0.0
 
 
+# #2584 (tier6-7-areas.md section 6a): the Mirage Cat's shimmer coat, Transparency 0.15 on its body, tail and legs
+# (never the head, so the face and eyes stay solid); its gold twins stay opaque, so only the plain models are listed
+SHIMMER = {"CatCafe_Cat_Mirage", "CatCafe_Cat_Mirage_Sit", "CatCafe_Cat_Mirage_Work"}
+SHIMMER_PIECES = ("_Body", "_Tail", "_LegF1", "_LegF2", "_LegB1", "_LegB2")
+
+
 def _props(p, asset, uid):
     material, transparency = _material(p["name"], p["swatch"])
+    if asset in SHIMMER and p["name"].endswith(SHIMMER_PIECES):
+        transparency = 0.15
     material = SWATCH_MATERIALS.get(asset, {}).get(p["swatch"], material)
     see_through = material == "Glass" or p["swatch"] == "glass" or p["name"].endswith("_Glass")
     climb = p["name"].endswith(CLIMB_OBJECTS)

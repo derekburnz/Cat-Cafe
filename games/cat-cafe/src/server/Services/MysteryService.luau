@@ -47,6 +47,23 @@ type Visit = {
 
 local visits: { [number]: Visit } = {} -- plot index -> its visit, one at a time
 local rng = Random.new()
+-- #2614: Common gifts in a row this session, by owner; the MysteryRareStreak-th makes the next one Rare or better.
+-- Memory only, cleared on leaving, so nothing is saved.
+local commons: { [number]: number } = {}
+
+-- A new gift for `player`'s cafe: its wrap (with the streak's guarantee), then what it holds.
+local function rollFor(player: Player): Potions.Gift
+	local function roll(): number
+		return rng:NextNumber()
+	end
+	local tier: Types.MysteryGiftTierName = Potions.rollGiftTier(roll, commons[player.UserId])
+	local streak = 0
+	if tier == "Common" then
+		streak = (commons[player.UserId] or 0) + 1
+	end
+	commons[player.UserId] = streak
+	return Potions.rollGift(roll, tier)
+end
 
 local function withinRange(player: Player, position: Vector3, range: number): boolean
 	local character = player.Character
@@ -83,6 +100,7 @@ local function takeGift(index: number): Potions.Gift?
 	end
 	visit.gift = nil
 	visit.plot.model:SetAttribute("MysteryGiftAt", 0)
+	visit.plot.model:SetAttribute("MysteryGiftTier", nil)
 	if visit.anchor ~= nil then
 		visit.anchor:Destroy()
 		visit.anchor = nil
@@ -98,7 +116,8 @@ local function logGift(
 	outcome: string
 )
 	-- three positional fields (review N245): the kind and id share one ("potion:tip_potion", "lure:salmon", "fish")
-	local what = if gift.id ~= nil then gift.kind .. ":" .. gift.id else gift.kind
+	local what = (if gift.id ~= nil then gift.kind .. ":" .. gift.id else gift.kind)
+	what = (gift.tier or "Common") .. " " .. what -- #2614: the wrap first
 	Telemetry.custom(
 		player,
 		"mystery_gift",
@@ -158,7 +177,15 @@ local function onOpen(player: Player)
 	Payout.pay(player, profile, Potions.giftPrize(gift), "mystery_gift")
 	profile.stats.mysteryGifts = (profile.stats.mysteryGifts or 0) + 1
 	logGift(player, profile, gift, "opened")
-	Net.fire(player, "MysteryGiftResult", gift.kind, gift.id, gift.count)
+	Net.fire(
+		player,
+		"MysteryGiftResult",
+		gift.kind,
+		gift.id,
+		gift.count,
+		gift.tier or "Common",
+		gift.fish
+	)
 	CafeService.sync(player)
 end
 
@@ -193,9 +220,7 @@ local function arrive(
 		ownerUserId = player.UserId,
 		plot = plot,
 		visitorUntil = now + Config.MysteryStaySeconds,
-		gift = Potions.rollGift(function()
-			return rng:NextNumber()
-		end),
+		gift = rollFor(player),
 		giftUntil = now + Config.MysteryGiftKeepSeconds,
 		anchor = anchor,
 	}
@@ -205,6 +230,8 @@ local function arrive(
 	plot.model:SetAttribute("MysteryTable", tableIndex)
 	plot.model:SetAttribute("MysteryVisitorUntil", visit.visitorUntil)
 	plot.model:SetAttribute("MysteryGiftAt", now)
+	-- #2614: the wrap, "Common", "Rare" or "Super", for each client's gift model and the HUD chip
+	plot.model:SetAttribute("MysteryGiftTier", (visit.gift :: Potions.Gift).tier or "Common")
 	return visit
 end
 
@@ -256,6 +283,7 @@ function MysteryService.start()
 	Net.on("OpenMysteryGift", onOpen)
 	-- leaving: the visitor goes home and an unopened gift is gone with its owner
 	DataService.beforeRelease(function(player, profile)
+		commons[player.UserId] = nil
 		for index, visit in visits do
 			if visit.ownerUserId == player.UserId then
 				missGift(index, profile)

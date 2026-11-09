@@ -120,7 +120,13 @@ local function findInReach(): Model?
 		table.insert(targets, { id = id, position = position })
 	end
 	local origin = NetSwing.landingOrigin(root.Position, root.AssemblyLinearVelocity)
-	local picked = NetSwing.pick(origin, root.CFrame.LookVector, targets)
+	local extra = player:GetAttribute("NetExtraStuds") -- #2565: the Long Net (MysteryMarketService)
+	local picked = NetSwing.pick(
+		origin,
+		root.CFrame.LookVector,
+		targets,
+		if type(extra) == "number" then extra else 0
+	)
 	return if picked ~= nil then byId[picked.id] else nil
 end
 

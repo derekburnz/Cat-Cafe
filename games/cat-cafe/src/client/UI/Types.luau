@@ -61,6 +61,7 @@ export type Catalog = {
 	potions: { PotionDef }?, -- F64: Catalog.potions, the potion bag's order (data-model section 12b)
 	catFood: { SharedTypes.CatFoodDef }?, -- #1181: Catalog.catFood, the Bag's Cat Food tab order
 	mysteryGift: { MysteryGiftRow }?, -- F64: Catalog.mysteryGift, what a Mystery Visitor's gift can hold
+	mysteryGiftTiers: { any }?, -- #2614: Catalog.mysteryGiftTiers, each wrap's chance and rows
 	-- F59: Catalog.dealerAmountWeights, lureId -> percent chance of stocking 0, 1, 2, 3 or 4 (the dealer's Details)
 	dealerAmountWeights: { [string]: { number } }?,
 	-- F73 (quests.md section 6): Catalog.quests (to tell a coins quest), Catalog.questPrizes (daily, dailyBig,
@@ -127,6 +128,7 @@ export type MysteryGiftRow = {
 	id: string?,
 	count: number?,
 	chance: number,
+	fish: number?, -- #2614: a Super crate's golden fish
 }
 
 -- A Cafe Crate (F53): ten cosmetics of one pool (a zone id or "classic"); golden ones are Epic or better.

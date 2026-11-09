@@ -134,6 +134,17 @@ export type CustomEvent =
 	-- #2562 (Derek2: "see if lots of people leave during night time"): on leaving, value the session's seconds; the
 	-- clock's phase (day, dusk or night), which third of it (Clock.leavePhase) and the tier with first or return
 	| "left_in_phase"
+	-- #2774 (the 2 to 5 minute drop): a net or rescue catch checked in from an area, value 1; the area id, the rarity
+	| "cat_caught_area"
+	-- #2774: a pre-Tier 2 player left, value the seconds played; the furthest onboarding step, where (cafe, an area id
+	-- or none), "carry" or "empty" with " bait" or " nobait"
+	| "quit_state"
+	-- #2774: the account's first bait resolved, value the seconds from food in to resolve; lure, rarity, tame or let go
+	| "first_bait_wait"
+	-- #2774: an onboarding step reached, value the account's seconds of play then; the step name
+	| "step_time"
+	-- #2774: the account's first bait cat came, value the seconds from food in; where the player was then
+	| "first_bait_arrived"
 	| "stuck_nudge"
 	| "event_rsvp" -- #2766
 	| "intro_choice"
@@ -559,6 +570,13 @@ function Telemetry.onboarding(
 				customFields(fields)
 			)
 		end)
+		-- #2774 (Derek2: "setup funnels"): when in the account's play the step came, once per step
+		Telemetry.custom(
+			player,
+			"step_time",
+			math.floor(PlayTime.seconds(player, profile)),
+			{ name }
+		)
 	end
 end
 
@@ -773,6 +791,11 @@ function Telemetry.catchCheckedIn(
 	working: boolean
 )
 	funnelStep(player, "catch_attempt", funnel.id, 4, "checked_in", funnel.values)
+	-- #2774: cat_caught has no field left for the area (values: rarity, method, area)
+	local area = funnel.values[3]
+	if type(area) == "string" and area ~= "" then
+		Telemetry.custom(player, "cat_caught_area", 1, { area, funnel.values[1] or "unknown" })
+	end
 	if working then
 		funnelStep(player, "catch_attempt", funnel.id, 5, "working", funnel.values)
 		return
@@ -1555,6 +1578,17 @@ local function whereOf(player: Player): string
 	return "town"
 end
 
+-- #2774: the account's first bait cat came `seconds` after the food went in; where the player was (cafe, an area id or
+-- none), to see whether the cannon trip has them away when it lands.
+function Telemetry.firstBaitArrived(player: Player, seconds: number)
+	Telemetry.custom(
+		player,
+		"first_bait_arrived",
+		math.max(0, math.floor(seconds)),
+		{ whereOf(player) }
+	)
+end
+
 -- Runs after the other services' leave work (Telemetry starts last), so a carried cat saved on leave or a rich tip
 -- paid on leave has logged its own Source first.
 local function onRelease(player: Player, profile: Profile)
@@ -1628,12 +1662,17 @@ local function onRelease(player: Player, profile: Profile)
 		)
 	end
 	if Economy.tier(profile) < 2 then
-		Telemetry.custom(
-			player,
-			"quit_point",
-			played,
-			whereInFunnel(profile, session, whereOf(player))
-		)
+		local where = whereOf(player)
+		Telemetry.custom(player, "quit_point", played, whereInFunnel(profile, session, where))
+		-- #2774: what a leaving beginner was doing
+		local character = player.Character
+		local carrying = character ~= nil and character:GetAttribute("CarryingCatId") ~= nil
+		local baiting = profile.bait ~= nil or profile.bait2 ~= nil
+		Telemetry.custom(player, "quit_state", played, {
+			Onboarding.furthest(profile.telemetry),
+			where,
+			(if carrying then "carry" else "empty") .. (if baiting then " bait" else " nobait"),
+		})
 	end
 	sessions[player] = nil
 	pendingPasses[player] = nil

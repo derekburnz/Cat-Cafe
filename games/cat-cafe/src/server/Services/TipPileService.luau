@@ -6,7 +6,7 @@
 -- and achievements. The piles still show on the tables: each stays TipPileShowSeconds and at most TipPilesMax show,
 -- mirrored to the plot attributes TipPiles (count) and TipPilesAmount (their total) for display only. F90's Waiter
 -- will sweep them to the till instead. Night adds none. The rich visitor, the Collector and the Mystery gift are
--- still collected by hand.
+-- still collected by hand. #2774: an account's first pile comes at once (firstPiles), even at night.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -119,6 +119,27 @@ local function tick()
 	end
 end
 
+-- #2774 (the 2 to 5 minute drop: 15 first tables, 12 first tips): an account's first pile comes within a second of
+-- its cafe earning with a table, day or night, so the first table pays off at once; every later one keeps the clock.
+local function firstPiles()
+	local now = os.time()
+	for _, player in DataService.loadedPlayers() do
+		local profile = DataService.get(player)
+		if
+			profile == nil
+			or profile.stats.tipPilesCollected > 0
+			or Economy.level(profile, "tables") < 1
+		then
+			continue
+		end
+		local plot = PlotService.get(player)
+		local dayRate = Economy.incomePerSecond(profile)
+		if plot ~= nil and dayRate > 0 then
+			addPile(player, profile, plot, dayRate, now)
+		end
+	end
+end
+
 function TipPileService.start()
 	-- leaving: the piles leave the tables with the owner
 	DataService.beforeRelease(function(player)
@@ -138,6 +159,7 @@ function TipPileService.start()
 		while true do
 			task.wait(1)
 			sweep()
+			firstPiles()
 		end
 	end)
 end

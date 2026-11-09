@@ -1440,6 +1440,14 @@ local function startle(player: Player)
 	end)
 end
 
+-- #2774 (Derek2 2026-11-09: "make the first players catch buffed no matter the rarity so its super easy"): until
+-- their first check-in, a beginner's catch on any free stray, not only their own tutorial stray, is the tutorial's
+-- one slow circle with doubled bands, and a Miss only brings the circle back.
+local function easyCatch(player: Player, profile: Types.PlayerProfile, stray: Stray): boolean
+	return profile.tutorialStep < Config.TutorialGuaranteedStrayStep
+		and (stray.beginner == nil or stray.beginner == player.UserId)
+end
+
 -- startCatch, below; a beginner's Miss on their tutorial stray starts the circle again through it (F87).
 local startCatch: (Player, Types.PlayerProfile, Stray, Telemetry.CatchFunnel?) -> string?
 
@@ -1479,7 +1487,7 @@ local function tutorialMiss(
 			profile == nil
 			or player.Parent ~= Players
 			or not stray.alive
-			or stray.beginner ~= player.UserId
+			or not easyCatch(player, profile, stray)
 			or stray.attempt ~= nil
 		then
 			return
@@ -1605,7 +1613,7 @@ local function finishCatch(player: Player, stray: Stray, attempt: Circles.Attemp
 		return
 	end
 
-	if stray.beginner == player.UserId then
+	if easyCatch(player, profile, stray) then
 		tutorialMiss(player, stray, attempt, forfeit, funnel)
 		return
 	end
@@ -1732,8 +1740,7 @@ function startCatch(
 		return rng:NextNumber()
 	end
 	-- F87: a beginner's own tutorial stray is one slow circle with doubled bands (easy-start.md section 2b)
-	local tutorial = stray.beginner == player.UserId
-		and profile.tutorialStep < Config.TutorialGuaranteedStrayStep
+	local tutorial = easyCatch(player, profile, stray) -- #2774: any rarity, until the first check-in
 	-- F83: the rarer the cat, the narrower its bands; CatchSchedule sends these, so the client draws the real ones
 	local windows = if tutorial
 		then Circles.tutorialWindows(netLevel)
@@ -2016,6 +2023,20 @@ local function landSwing(player: Player)
 		end
 	end
 	local picked = NetSwing.pick(origin, look, targets, NetSwing.extraFor(profile.mystery)) -- #2565: the Long Net
+	-- #2774: a beginner's swing near their own tutorial stray lands on it whichever way they face
+	if picked == nil and profile.tutorialStep < Config.TutorialGuaranteedStrayStep then
+		for _, target in targets do
+			local candidate = strays[target.id]
+			if
+				candidate ~= nil
+				and candidate.beginner == player.UserId
+				and NetSwing.beginnerReach(origin, target.position)
+			then
+				picked = target
+				break
+			end
+		end
+	end
 	local stray = if picked ~= nil then strays[picked.id] else nil
 	local started = false
 	if stray ~= nil then

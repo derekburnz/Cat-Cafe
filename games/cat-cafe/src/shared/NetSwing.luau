@@ -116,6 +116,19 @@ function NetSwing.pick(origin: Vector3, look: Vector3, targets: { Target }, extr
 	return best
 end
 
+-- #2774 (the 2 to 5 minute drop: 24 came near their first stray, 21 started a catch): a beginner's swing that hits
+-- nothing still lands on their own tutorial stray within BEGINNER_STUDS on the ground plane, whichever way they face,
+-- and BEGINNER_RISE up or down, so a first swing that is roughly near the cat starts the catch.
+NetSwing.BEGINNER_STUDS = 9
+NetSwing.BEGINNER_RISE = 6
+
+function NetSwing.beginnerReach(origin: Vector3, point: Vector3): boolean
+	local offset = point - origin
+	local flat = Vector3.new(offset.X, 0, offset.Z)
+	return flat.Magnitude <= NetSwing.BEGINNER_STUDS
+		and math.abs(offset.Y) <= NetSwing.BEGINNER_RISE
+end
+
 -- True when a free stray at `point` is near enough a swing that hit nothing to hop away: within NetMissHopStuds of
 -- the root on the ground plane, whichever way the player faces.
 function NetSwing.nearMiss(origin: Vector3, point: Vector3): boolean

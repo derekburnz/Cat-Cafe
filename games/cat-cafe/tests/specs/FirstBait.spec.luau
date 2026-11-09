@@ -10,7 +10,7 @@ return function()
 		it("caps the empty bowl's wait only before the first bait", function()
 			local first = FirstBait.wait()
 			expect(FirstBait.firstWait(true, 600)).to.equal(first)
-			expect(FirstBait.firstWait(true, 60)).to.equal(60)
+			expect(FirstBait.firstWait(true, 30)).to.equal(30) -- #2774: below the 45 s first wait
 			expect(FirstBait.firstWait(false, 600)).to.equal(600)
 			expect(FirstBait.firstWait(nil, 600)).to.equal(600)
 		end)

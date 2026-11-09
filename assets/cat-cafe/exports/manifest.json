@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09 09:09 UTC",
+  "generated": "2026-11-09 09:15 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -305465,9 +305465,9 @@
             "near"
           ],
           [
-            -13.87,
+            -11.85,
             0.0,
-            -76.0,
+            -76.46,
             "near"
           ],
           [
@@ -305477,9 +305477,9 @@
             "near"
           ],
           [
-            13.87,
+            10.57,
             0.0,
-            -46.0,
+            -48.02,
             "near"
           ]
         ],

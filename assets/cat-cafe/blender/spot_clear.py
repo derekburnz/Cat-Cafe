@@ -3,8 +3,8 @@ of the Ruins' were inside crates, canyon walls, rocks, urns, columns and the lik
 
 A set's cat spots (manifest points_roblox, every label but the trap_ rescue spots, which stand inside their trap on
 purpose) each need a cat-sized box clear of every CanCollide part of the set's Part model: CAT_HALF across in x and
-z (the cat may face any way) from LIFT above the spot to CAT_TOP. The check reads the written rbx model, so it sees
-the parts as Roblox will, invisible barriers and colliders included.
+z (the cat may face any way) from LIFT above the spot to CAT_TOP, and any two stand MIN_GAP apart. The check reads
+the written rbx model, so it sees the parts as Roblox will, invisible barriers and colliders included.
 
 `settle` moves a blocked spot to the nearest place beside it that is clear by MARGIN more (at the same height when
 a top holds it there, else on the floor), keeping its zone (near z < 0, deep z > 0), MIN_GAP from the other cat spots
@@ -26,7 +26,7 @@ REPO = os.path.join(ROOT, "..", "..")
 CAT_HALF = 1.1          # studs: half the cat's footprint, any facing (a walking Tabby is about 2.2 long)
 LIFT = 0.2              # the box starts this far above the spot, clear of the floor and low ground pieces
 CAT_TOP = 2.0           # and ends this far above it
-MIN_GAP = 2.5           # a moved spot keeps this far from every other cat spot
+MIN_GAP = 4.0           # a moved spot keeps this far from every other cat spot (Layout.spec: spawn points 4 apart)
 TRAP_GAP = 6.0          # and this far from every rescue spot
 EDGE = 6.0              # and this far inside the set's footprint
 MARGIN = 0.4           # a moved spot's box is this much wider all round, so it stands clear rather than touching
@@ -129,6 +129,12 @@ def check(rbx_path, points):
             hit = blockers(ps, pt[0], pt[1], pt[2])
             if hit:
                 bad.append((label, i, tuple(pt[:3]), sorted(set(hit))))
+    flat = [(lb, i, p) for lb in cat_labels(points) for i, p in enumerate(points[lb])]
+    close = [(a, b) for k, a in enumerate(flat) for b in flat[k + 1:]
+             if math.hypot(a[2][0] - b[2][0], a[2][2] - b[2][2]) < MIN_GAP]
+    if close:
+        return False, f"{len(close)} pairs of cat spots under {MIN_GAP} apart: " + "; ".join(
+            f"{a[0]}[{a[1]}] and {b[0]}[{b[1]}]" for a, b in close[:8]), bad
     if not bad:
         return True, f"{n} cat spots clear of every collidable part", bad
     return False, f"{len(bad)} of {n} cat spots in a collidable part: " + "; ".join(

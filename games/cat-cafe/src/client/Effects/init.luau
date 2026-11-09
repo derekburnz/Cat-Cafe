@@ -17,6 +17,7 @@
 -- Wiring and file map: README.md next to this file.
 
 local Ambient = require(script.Ambient)
+local AreaFx = require(script.AreaFx)
 local BedWalk = require(script.BedWalk)
 local Bellhop = require(script.Bellhop)
 local CafeWalk = require(script.CafeWalk)
@@ -142,6 +143,7 @@ function Effects.start()
 	Whistle.start()
 	DoorSign.start()
 	CampGlow.start()
+	AreaFx.start()
 	-- the context tips' camera cuts (#976): the UI calls them once they are handed over
 	ContextCut.start(require(script.Parent.UI) :: any)
 end

@@ -3017,4 +3017,19 @@ function Logic.moodLayer(o: Offsets, mood: unknown, t: number, weight: number)
 	end
 end
 
+-- Which late area (LateTiers.areas: id, centre {x, z}, size {width along X, depth along Z}) holds the point x, z,
+-- counting `pad` studs past its edges, or nil (#2657).
+function Logic.areaAt(x: number, z: number, areas: { any }, pad: number): string?
+	for _, area in areas do
+		local c, size = area.centre, area.size
+		if
+			math.abs(x - c.x) <= size.width / 2 + pad
+			and math.abs(z - c.z) <= size.depth / 2 + pad
+		then
+			return area.id
+		end
+	end
+	return nil
+end
+
 return Logic

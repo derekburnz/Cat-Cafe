@@ -64,6 +64,7 @@ export type Budget = {
 	burstScale: number, -- multiplies every burst count
 	maxBurst: number, -- no single burst is bigger than this
 	confetti: number, -- pieces in one confetti burst
+	areaPuffs: number, -- Desert and Ruins stray puffs in any one second (#2661)
 	napLabels: number, -- napping cats that show floating z's
 	rushLines: number, -- speed lines on a player in a Catch Rush (F55)
 	signatureCats: number, -- Legendary and Mythical themed cats showing their signature effect at once
@@ -105,6 +106,7 @@ Presets.budget = {
 		burstScale = 0.5,
 		maxBurst = 12,
 		confetti = 14,
+		areaPuffs = 4,
 		napLabels = 4,
 		rushLines = 2,
 		signatureCats = 3,
@@ -141,6 +143,7 @@ Presets.budget = {
 		burstScale = 1,
 		maxBurst = 30,
 		confetti = 28,
+		areaPuffs = 8,
 		napLabels = 10,
 		rushLines = 3,
 		signatureCats = 6,
@@ -177,6 +180,7 @@ Presets.budget = {
 		burstScale = 0.35,
 		maxBurst = 8,
 		confetti = 8,
+		areaPuffs = 2,
 		napLabels = 2,
 		rushLines = 1,
 		signatureCats = 1,
@@ -219,6 +223,33 @@ export type EmitterPreset = {
 
 Presets.emitters = {
 	-- Ambient
+	-- The Desert's air (#2657, tier6-7-areas.md section 4): sand motes drifting downwind round you, in sand and
+	-- sandstone; the Ruins' air (section 5): slow glyph-gold and jade motes floating up, glowing a little at night.
+	desertSand = {
+		texture = Presets.textures.smoke,
+		colors = { Color3.fromRGB(232, 205, 150), Color3.fromRGB(204, 150, 96) },
+		size = { 0.25, 0.1 },
+		transparency = { 0.35, 1 },
+		lifetime = { 2.5, 4 },
+		speed = { 0.3, 0.8 },
+		spread = 60,
+		rate = 10,
+		acceleration = Vector3.new(3, -0.2, 1),
+		drag = 0.3,
+	},
+	ruinsMotes = {
+		texture = Presets.textures.sparkle,
+		colors = { Color3.fromRGB(232, 190, 80), Color3.fromRGB(80, 160, 120) },
+		size = { 0.18, 0 },
+		transparency = { 0.2, 1 },
+		lifetime = { 3, 5 },
+		speed = { 0.2, 0.5 },
+		spread = 180,
+		rate = 5,
+		acceleration = Vector3.new(0, 0.15, 0),
+		lightEmission = 0.5,
+		rotSpeed = { -30, 30 },
+	},
 	steam = {
 		texture = Presets.textures.smoke,
 		colors = { Presets.palette.offwhite },
@@ -3236,6 +3267,8 @@ Presets.cannon = {
 		neighbourhood = Color3.fromRGB(240, 150, 70),
 		woods = Color3.fromRGB(46, 122, 74),
 		sewer = Color3.fromRGB(96, 116, 158),
+		desert = Color3.fromRGB(232, 205, 150), -- Tier 6 (#2657): sand
+		ruins = Color3.fromRGB(80, 160, 120), -- Tier 7 (#2657): jade
 	} :: { [string]: Color3 },
 }
 
@@ -3849,5 +3882,46 @@ Presets.slotWalk = {
 }
 
 Presets.bedWalk = { fade = 0.25 }
+
+-- The Desert and the Ruins (Tier 6 and 7, #2657; tier6-7-areas.md sections 4 and 5). While you are inside an area's
+-- box (LateTiers.areas' centre and size, plus `pad` studs) its `air` emitter fills a `box` of air round you
+-- (`Presets.emitters`, the budget's rateScale; a fifth of the rate with Reduce Motion, none in Low performance).
+-- The boxes are Config.World's Desert* and Ruins* (#2655), else LateTiers.areas until those land.
+-- A stray of the area puffs `puff` `puffPreset` particles in `colour` where it appears and where it leaves the ground,
+-- within the budget's animRadius, at most the budget's areaPuffs in any one second (#2661). In the Ruins, falling `mistDepth` studs below the plateau puffs `mist` violet-grey
+-- mist round you once, before the server's catch moves you to the camp pad.
+export type AreaFxSpec = {
+	air: string,
+	colour: Color3,
+	puffPreset: string,
+	puff: number,
+	mist: number?,
+	mistColour: Color3?,
+	mistDepth: number?,
+}
+Presets.areaFx = {
+	pad = 40, -- the camp lies outside the floor box, and the server's mist catch reaches 40 studs past it
+	box = Vector3.new(36, 10, 36),
+	lift = 3, -- the box's centre over your feet
+	checkSeconds = 0.5,
+	calmRate = 0.2,
+	areas = {
+		desert = {
+			air = "desertSand",
+			colour = Color3.fromRGB(232, 205, 150),
+			puffPreset = "smokePuff",
+			puff = 6,
+		},
+		ruins = {
+			air = "ruinsMotes",
+			colour = Color3.fromRGB(80, 160, 120),
+			puffPreset = "catchSparkle",
+			puff = 6,
+			mist = 10,
+			mistColour = Color3.fromRGB(196, 186, 210),
+			mistDepth = 12,
+		},
+	} :: { [string]: AreaFxSpec },
+}
 
 return Presets

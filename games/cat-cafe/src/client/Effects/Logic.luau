@@ -3061,4 +3061,14 @@ function Logic.buildFall(u: number): number
 	return 1 - k * k
 end
 
+-- #2687's camp growth: which of `areas` (the townsfolk cats' home camps, in order) sits in seat `n` (from 1) at
+-- `area`'s camp: its own first, then the next camps' round the list. Nil for an area not in it.
+function Logic.folkAt(areas: { string }, area: string, n: number): number?
+	local at = table.find(areas, area)
+	if at == nil or #areas == 0 then
+		return nil
+	end
+	return (at - 1 + (n - 1)) % #areas + 1
+end
+
 return Logic

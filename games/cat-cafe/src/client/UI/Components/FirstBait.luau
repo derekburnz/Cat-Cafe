@@ -8,6 +8,9 @@
 --   coming(bait) -> boolean                   the bait in the bowl is the short first one: a day bait whose whole
 --                                             wait (readyAt - placedAt) is the first wait or less, not yet ready
 --   chip(bait, now) -> string?                "A cat is coming! 1m 42s" while it waits, else nil
+--   nudge(bait, now) -> string?               #2775 (Research-Agent: players leave in minutes 2 to 5): the tip card's
+--                                             "A cat is coming in 40s! Go catch another while you wait", else nil
+--                                             (also nil in the last NUDGE_MIN seconds, when the cat is nearly there)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -16,6 +19,8 @@ local Config = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Co
 local FirstBait = {}
 
 FirstBait.SLACK = 1 -- seconds: the server stamps placedAt and readyAt from one os.time(), so the gap is exact
+FirstBait.NUDGE_MIN = 10
+FirstBait.NUDGE_ICON = "🐾"
 
 export type Bait = { readyAt: number, placedAt: number?, night: boolean? }
 
@@ -46,13 +51,27 @@ function FirstBait.chip(bait: Bait?, now: number): string?
 	if left <= 0 then
 		return nil
 	end
-	-- Format.duration's words ("1m 42s", "40s"), here so the cloud specs need no Theme
+	return "A cat is coming! " .. FirstBait.words(left)
+end
+
+function FirstBait.nudge(bait: Bait?, now: number): string?
+	if bait == nil or not FirstBait.coming(bait) then
+		return nil
+	end
+	local left = bait.readyAt - now
+	if left < FirstBait.NUDGE_MIN then
+		return nil
+	end
+	return "A cat is coming in " .. FirstBait.words(left) .. "! Go catch another while you wait"
+end
+
+-- Format.duration's words ("1m 42s", "40s"), here so the cloud specs need no Theme
+function FirstBait.words(left: number): string
 	local seconds = math.ceil(left)
 	local minutes = seconds // 60
-	local when = if minutes > 0
+	return if minutes > 0
 		then string.format("%dm %ds", minutes, seconds % 60)
 		else string.format("%ds", seconds)
-	return "A cat is coming! " .. when
 end
 
 return FirstBait

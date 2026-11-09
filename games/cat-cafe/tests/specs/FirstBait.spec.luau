@@ -3,8 +3,9 @@
 return function()
 	local Client =
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
-	local FirstBait =
-		require(Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("FirstBait")) :: any
+	local FirstBait = require(
+		Client:WaitForChild("UI"):WaitForChild("Components"):WaitForChild("FirstBait")
+	) :: any
 
 	describe("FirstBait", function()
 		it("caps the empty bowl's wait only before the first bait", function()
@@ -19,7 +20,9 @@ return function()
 			local first = FirstBait.wait()
 			expect(FirstBait.coming({ placedAt = 1000, readyAt = 1000 + first })).to.equal(true)
 			expect(FirstBait.coming({ placedAt = 1000, readyAt = 1600 })).to.equal(false)
-			expect(FirstBait.coming({ placedAt = 1000, readyAt = 1000 + first, night = true })).to.equal(false)
+			expect(FirstBait.coming({ placedAt = 1000, readyAt = 1000 + first, night = true })).to.equal(
+				false
+			)
 			expect(FirstBait.coming({ readyAt = 1100 })).to.equal(false)
 			expect(FirstBait.coming(nil)).to.equal(false)
 		end)
@@ -31,5 +34,19 @@ return function()
 			expect(FirstBait.chip(bait, 1000 + first)).to.equal(nil)
 			expect(FirstBait.chip({ placedAt = 1000, readyAt = 1600 }, 1100)).to.equal(nil)
 		end)
+
+		it(
+			"nudges the player to catch another while it waits, but not in its last seconds (#2775)",
+			function()
+				local first = FirstBait.wait()
+				local bait = { placedAt = 1000, readyAt = 1000 + first }
+				expect(FirstBait.nudge(bait, 1000 + first - 40)).to.equal(
+					"A cat is coming in 40s! Go catch another while you wait"
+				)
+				expect(FirstBait.nudge(bait, 1000 + first - FirstBait.NUDGE_MIN + 1)).to.equal(nil)
+				expect(FirstBait.nudge({ placedAt = 1000, readyAt = 1600 }, 1100)).to.equal(nil)
+				expect(FirstBait.nudge(nil, 1000)).to.equal(nil)
+			end
+		)
 	end)
 end

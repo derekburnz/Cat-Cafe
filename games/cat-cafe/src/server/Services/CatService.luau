@@ -2666,6 +2666,12 @@ function CatService.start(builtWorld: WorldBuilder.World)
 		end
 	end)
 
+	-- #2845: an owner's save usually loads after their first character spawns, so CharacterAdded's wearBackpack finds
+	-- no Backpack yet; put it on once the save is in (a no-op without a character, or with the pack already worn)
+	DataService.onLoaded:Connect(function(player: Player)
+		wearBackpack(player)
+	end)
+
 	Players.PlayerAdded:Connect(function(player)
 		player.CharacterAdded:Connect(function(character)
 			local body = character:WaitForChild("Humanoid", 10)

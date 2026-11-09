@@ -28,6 +28,7 @@ local Workspace = game:GetService("Workspace")
 
 local Cooldown = require(script.Parent.Parent.Components.Cooldown)
 local Create = require(script.Parent.Parent.Components.Create)
+local JumpButton = require(script.Parent.Parent.Components.JumpButton)
 local NetButtonPlace = require(script.Parent.Parent.Components.NetButtonPlace)
 local Scale = require(script.Parent.Parent.Scale)
 local Signal = require(script.Parent.Parent.Components.Signal)
@@ -453,7 +454,7 @@ function CatchPrompt._placeGrab(self: any)
 	if camera == nil or scale <= 0 or root.AbsoluteSize.Y <= 0 then
 		return
 	end
-	local at, size = NetButtonPlace.place(camera.ViewportSize)
+	local at, size = NetButtonPlace.place(camera.ViewportSize, JumpButton.read(camera.ViewportSize))
 	local inset = GuiService:GetGuiInset()
 	local origin = root.AbsolutePosition + inset
 	local grab: TextButton = self._grab

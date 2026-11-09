@@ -20,7 +20,7 @@ A walk-up prompt (14 studs, like the Fish Market) opens Juniper's window:
 - **Next week's featured item** below it, as a "?" silhouette with "Next sale: 4d 06h". That keeps the mystery.
 - **Every other item** in a list under that, at its full price, each with a Buy button.
 
-An owned item shows "You have this!". An item above the player's tier shows "Opens at Tier 3" with the Buy button greyed out. The sale wording only describes the real price difference (section 2d).
+An owned item shows "You have this!". An item above the player's tier shows its tier, e.g. "Opens at Tier 2", with the Buy button greyed out. The sale wording only describes the real price difference (section 2d).
 
 ### 2b. Global rotation
 The rotation runs on the global clock, so every server shows the same item at the same moment, like the pity cat and `Clock.dayKinds`:
@@ -46,7 +46,7 @@ Every item can be bought at any time at full price, and each one comes back on s
 | | |
 |---|---|
 | Price | **400 golden fish**, or **300** in its featured week, once |
-| Opens at | **Tier 3** |
+| Opens at | **Tier 1** (Derek2, 2026-11-09) |
 | What it does | Hold one more cat before running back |
 | Card text | "Backpack: carry 2 cats! The first rides on your back." |
 
@@ -69,11 +69,11 @@ Every item can be bought at any time at full price, and each one comes back on s
 
 ### 3c. Is 300 fair?
 - golden-fish.md §2 puts late-game fish income, after the discoveries run out, at about 8 to 12 an hour, and that was before #2266 and #2497 cut it. The early game pays more because first catches and rank ups pay fish. So the 300 sale price is most of a day's saving for a mid-game player, between the Big Bowl (150) and Golden Espresso level 5 (400). The 400 full price matches Golden Espresso level 5. It's a goal, not an impulse buy.
-- **Tier 3** keeps it out of the first hour (Tier 3 is at about 53 minutes), and it's where the deep areas begin, which is where fewer round trips matter most.
+- **Tier 1** (Derek2, 2026-11-09: "available at tier 1"). It's on the shelf from the start. The price is what keeps it a goal, not the tier. (The first draft had Tier 3.)
 - **Gameplay measures with Pace before the build merges:**
-  - The median play time to own 300 fish at Tier 3, the sale price. Aim for **2 to 5 hours of play**. If it's outside that, tune the full price only, in steps of 50, and keep the sale at 0.75 of it.
+  - The median play time to own 300 fish, the sale price, from a new save. Aim for **2 to 5 hours of play**. If it's outside that, tune the full price only, in steps of 50, and keep the sale at 0.75 of it.
   - The catches an hour with and without the Backpack.
-  - The tier times with the Backpack bought as soon as it can be. The guards in economy-ladder §3 v5 must still hold: Tier 4 in 5 to 6 h and Tier 5 in 9 to 14 h. If the Backpack pushes Tier 4 under 5 h, it opens at Tier 4 instead, rather than the tier costs moving again.
+  - The tier times with the Backpack bought as soon as it can be. The guards in economy-ladder §3 v5 must still hold: Tier 4 in 5 to 6 h and Tier 5 in 9 to 14 h. If the Backpack pushes Tier 4 under 5 h, Gameplay reports it to Derek2 with the numbers. Tier 1 is Derek2's call, so neither the tier nor the tier costs move without him.
 
 ### 3d. Look
 - **The backpack** (Model-Agent): a small canvas pack with a cat-ear flap, welded to the back like `HeldCat` (massless, so the walk doesn't change). It hides the avatar's own back accessories only while a cat is in it.
@@ -86,7 +86,7 @@ Each one is permanent, bought once with golden fish, and not random.
 
 | Item | What it does | Full price | Sale price | Opens at | Note |
 |---|---|---|---|---|---|
-| **Backpack** | carry 2 cats (section 3) | 400 | 300 | Tier 3 | first |
+| **Backpack** | carry 2 cats (section 3) | 400 | 300 | Tier 1 | first |
 | Long Net | `NetReachStuds` 7 to 8 | 320 | 240 | Tier 2 | small, felt on every swing |
 | Cat Whistle | press to see an arrow to the nearest stray for 10 s, every 60 s | 260 | 195 | Tier 2 | helps in the big areas |
 | Lantern Sign | a cafe decoration that lights up at night, Rare (+4%, like the Party Bunting) | 260 | 195 | Tier 1 | cosmetic with a small bonus |
@@ -120,9 +120,51 @@ Notes:
 - The decor bonuses use the crate bonus already in the game, so a fish-bought piece is never better than a crate or pass piece of the same rarity.
 - With 5 items now and about 3 new ones a week, the shelf passes 15 in about a month. The weekly sale then cycles round about every 15 weeks, which is fine because everything can be bought at any time.
 
+### 4d. Chosen defaults (Derek2's go, 2026-11-09)
+
+Derek2 gave a general "go" on everything that doesn't need a publish or a restart, so these are the defaults for the build. Derek2 can change any of them.
+- **Backpack:** 400 golden fish full price, 300 on sale, from **Tier 1** (Derek2). It is the featured item on sale at launch (Derek2: "featured on sale is backpack"). Its save fields have defaults, so there's no `ProfileSchema.VERSION` bump.
+- **Launch shelf (2):** the Backpack and the Long Net (Derek2, 2026-11-09: "Shelf at launch only includes backpack and longer net hitbox upgrade for now"). The Cat Whistle, Lantern Sign and Cat Scarf wait, like the 4b items, until Derek2 adds them. With two items, the weekly sale alternates between them after the Backpack's launch week.
+- **The 4b order, when Derek2 starts adding items** (one every 2 to 3 days): looks and decor come first, since they need no balance work. Tools go in between, each after its Pace check.
+
+  | # | Item |
+  |---|---|
+  | 1 | Window Flower Box |
+  | 2 | Explorer Hat |
+  | 3 | Spyglass |
+  | 4 | Cat Beret |
+  | 5 | Cafe Awning |
+  | 6 | Snack Pouch |
+  | 7 | Star Collar |
+  | 8 | Wind Chimes |
+  | 9 | Paw Print Trail |
+  | 10 | Trail Map (after its playtest) |
+  | 11 | Jukebox song |
+  | 12 | The seller's cloak |
+  | 13 | Paw Gloves (after its playtest) |
+
+  The seller's hanging lantern is dropped from 4b, because it's the same idea as the Lantern Sign.
+- **Corner look:** A, the covered wagon.
+
 ### 4c. The market corner (look)
 
-Where: the **west end of the Town Square's east-west lane**, inside the closed west arch (-63, 0), around (-52, 0). The lane points straight at it from the cannon, and nothing else stands there (town-layout-v3 §3: the four stations are in the corners and the night dealer parks at (28, -16)). It faces east toward the cannon. It is about 22 studs wide (z -11 to 11) and 14 deep (x -63 to -49), and the cross's paving stays clear. Plan: [mystery-market-corner.svg](mystery-market-corner.svg).
+Where: **in the Town Square's south-west quarter**, as a shop (Derek2, 2026-11-09: "make it a shop in somewhere in time square ... move codes /daycart back closer to the corner and remove benches if needed"). The first draft's spot at (-52, 0) is replaced: it sat on the west GardenMid bed, behind the Bellhop stand at (-38, 0).
+
+The draft layout of the quarter is x -48 to -8 and z -32 to -6, the space between the street's line and the cross lane. Every piece faces the cannon (`station()`).
+
+| Piece | Now | Draft |
+|---|---|---|
+| Bench, south edge | (-35.75, -29.4) | removed |
+| Bench, west edge | (-45.4, -19.75) | removed |
+| Codes Cat stand | (-28, -16) | (-42, -26), into the corner. Its CodesCircle stays 6 studs in front, at about (-37.4, -22.1), radius 4. |
+| Day Cart | (-17, -24) | (-14, -26), along the south edge beside the street |
+| **Mystery Market wagon** | none | **(-24, -14)**, about 12 x 7, with its walk-in circle (#2574) about 6 studs in front, around (-19.2, -10.5), radius 4 |
+
+Rough clearances from the draft: about 4 studs from the Codes circle to the wagon, about 3 from the wagon to the Day Cart, and the market circle ends at the cross lane's edge (z -6) without crossing it. The street (x -8) and the cross lane stay clear. The corner lamp at (-47, -31) and the border lamp at (-24.5, -31) stay. Model-Agent does the real clearance check with the model sizes, as it did for #1215 and #1592, and can nudge any of these.
+
+If it doesn't fit cleanly, the fallback (Derek2: "can expand the town square if needed") is to widen the square by 8 studs on the west (`TownSquareHalfWidth` 48 to 56 on that side). That moves the west gardens, lamps and buntings out with it. That's a bigger change, so it only happens if Model-Agent's check fails.
+
+The SVG plan [mystery-market-corner.svg](mystery-market-corner.svg) still shows the first draft's spot. Model-Agent replaces it when it checks the new one.
 
 Three looks for Model-Agent to block out. **A is recommended.**
 
@@ -158,7 +200,7 @@ For all three:
 ## 6. QA checks
 
 1. Two servers show the same featured item and the same countdown to the second, and it changes at the same moment in both.
-2. The Backpack costs 300 in its featured week and 400 in any other week. It can't be bought below Tier 3, without the fish, or twice. Buying it the moment the sale ends is refused with "The sale just ended", never charged at 400.
+2. The Backpack costs 300 in its featured week and 400 in any other week. It can't be bought without the fish, or twice. Buying it the moment the sale ends is refused with "The sale just ended", never charged at 400.
 3. With the Backpack, the first catch goes in the pack with the net out, and the second goes in the hands with the net away. Both check in on one crossing of the camp line, with one toast.
 4. A tackle drops both cats, each walks home to its own spot, and the tackler can pick them up. A player with a packed cat can't tackle.
 5. A packed cat blocks the cannon and `Travel`, and is handled like a held cat at dusk, on death and on leaving.
@@ -174,6 +216,6 @@ For all three:
 ## 8. Questions for Derek2
 
 1. ~~Rotation length~~: weekly, at the Saturday drop (Derek2, 2026-11-09). Every item can be bought any time at full price, and the featured item is on sale (Derek2, 2026-11-09).
-2. Is 400 fish full price and 300 on sale, at Tier 3, right? Pace checks for 2 to 5 hours of saving.
-3. Which of the four other candidates go on the list, and which of the 4b items should come first?
-4. Which look for the corner: A (the wagon, recommended), B or C?
+2. ~~Backpack price~~: 400 full, 300 on sale (default, section 4d), from Tier 1 (Derek2). Pace still checks for 2 to 5 hours of saving.
+3. ~~Launch shelf~~: the Backpack and the Long Net only, with the Backpack on sale (Derek2). Later items follow the 4b order in section 4d when Derek2 adds them.
+4. ~~Corner look~~: A, the wagon (default).

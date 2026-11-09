@@ -44,6 +44,36 @@ return function()
 		end)
 	end)
 
+	describe("CannonLogic.cards", function()
+		local areas = {
+			{ id = "a", name = "A", tier = 1 },
+			{ id = "c", name = "C", tier = 3 },
+			{ id = "b", name = "B", tier = 2 },
+			{ id = "d", name = "D", tier = 3 },
+		}
+
+		it("lists the opened areas, then every locked one in tier order (#2682)", function()
+			local list = CannonLogic.cards(areas, 1, "town")
+			expect(ids(list)).to.equal("a,b,c,d")
+			expect(list[1].locked).to.equal(nil)
+			expect(list[2].locked).to.equal(true)
+			expect(list[2].tier).to.equal(2)
+			expect(list[4].locked).to.equal(true)
+		end)
+
+		it("keeps Town Square first from a camp and never lists the camp's own area", function()
+			local list = CannonLogic.cards(areas, 2, "b")
+			expect(ids(list)).to.equal("town,a,c,d")
+			expect(list[3].locked).to.equal(true)
+		end)
+
+		it("locks nothing once every area is open", function()
+			for _, card in CannonLogic.cards(areas, 3, "town") do
+				expect(card.locked).to.equal(nil)
+			end
+		end)
+	end)
+
 	describe("CannonLogic.moreToOpen", function()
 		it("is true until the last area is open", function()
 			expect(CannonLogic.moreToOpen(Catalog.areas, 1)).to.equal(true)
@@ -65,6 +95,12 @@ return function()
 			expect(CannonLogic.button("park", true, false, false)).to.equal("night")
 			expect(CannonLogic.button("town", true, false, false)).to.equal("launch")
 			expect(CannonLogic.button("town", false, true, false)).to.equal("launch")
+		end)
+
+		it("keeps a locked area shut whatever else holds (#2682)", function()
+			expect(CannonLogic.button("park", false, false, false, true)).to.equal("locked")
+			expect(CannonLogic.button("park", true, false, true, true)).to.equal("locked")
+			expect(CannonLogic.button("park", false, false, false, false)).to.equal("launch")
 		end)
 	end)
 

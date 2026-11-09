@@ -1110,9 +1110,10 @@ Presets.motion = {
 	-- sticking out or butt", "make the butt sticking out for a lot of the rescue's", "flip the cats upside for some
 	-- rescue missions where fit"). Each TrapType wriggles one of two ways (`kinds`), in bursts once every `every`
 	-- seconds over `seconds` at `hz`, still moving `twitch` as much in between. `butt`: head first into a bin, can,
-	-- bag pile, shed, log, pipe, grate or bramble bush (Derek 14:17: on its back on the bush looked off) with only
-	-- its back end out: the hips wiggle `wiggle` degrees, the back legs paddle `kick` and the raised tail (`tailUp`)
-	-- lashes `tail`. `flip`: upside down, hanging under a branch or on its back across a gutter: all four legs pedal
+	-- bag pile, shed, log, pipe, grate or bramble bush (Derek 14:17: on its back on the bush looked off), or the
+	-- Desert's sand, urn and canopy and the Ruins' rubble and urn (#2651), with only its back end out: the hips
+	-- wiggle `wiggle` degrees, the back legs paddle `kick` and the raised tail (`tailUp`) lashes `tail`. `flip`:
+	-- upside down, hanging under a branch or on its back across a gutter or on the Ruins' bridge stub: all four legs pedal
 	-- `legs` degrees in the air, the body rocks `rock`, the tail swings `tail`, the head looks about `look` and the
 	-- ears go back `ears`. Where the cat sits and which way up is the server's stuck pose for the trap. A trap not in
 	-- `kinds` keeps the plain shake (`every`, `shake`, `seconds`).
@@ -1131,6 +1132,13 @@ Presets.motion = {
 			bramble_bush = "butt",
 			tree = "flip",
 			gutter = "flip",
+			-- Tier 6 and 7 (#2651)
+			sand_dune = "butt",
+			clay_urn = "butt",
+			collapsed_canopy = "butt",
+			rubble_pile = "butt",
+			stone_urn = "butt",
+			bridge_ledge = "flip",
 		} :: { [string]: string },
 		butt = {
 			every = 2.2,

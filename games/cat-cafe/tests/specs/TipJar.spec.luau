@@ -71,10 +71,14 @@ return function()
 				"mixed",
 				"mixed",
 			})
-			expect(TipJar.kind({ step = 0, minutes = 0, prize = { lures = { caviar = 1 } } } :: any)).to.equal("lure")
-			expect(TipJar.kind({ step = 0, minutes = 0, prize = { crates = { classic_crate = 1 } } } :: any)).to.equal(
-				"mixed"
-			)
+			expect(
+				TipJar.kind({ step = 0, minutes = 0, prize = { lures = { caviar = 1 } } } :: any)
+			).to.equal("lure")
+			expect(
+				TipJar.kind(
+					{ step = 0, minutes = 0, prize = { crates = { classic_crate = 1 } } } :: any
+				)
+			).to.equal("mixed")
 		end)
 	end)
 

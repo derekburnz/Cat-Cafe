@@ -5,7 +5,9 @@ return function()
 		game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts"):WaitForChild("Client")
 	local Components = Client:WaitForChild("UI"):WaitForChild("Components")
 	local TillTips = require(Components:WaitForChild("TillTips")) :: any
-	local Config = require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")) :: any
+	local Config = require(
+		game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config")
+	) :: any
 	local World = Config.World
 
 	describe("TillTips.amount", function()
@@ -57,29 +59,35 @@ return function()
 
 		-- the box the server's CollectTips takes (WorldBuilder.inSafeZone with no door radius), from its own numbers
 		local function serverBox(x: number, z: number): boolean
-			return math.abs(x) <= halfW + 1 and z >= Layout.plot.frontGarden.z1 and z <= halfD + 1 + World.YardDepth
+			return math.abs(x) <= halfW + 1
+				and z >= Layout.plot.frontGarden.z1
+				and z <= halfD + 1 + World.YardDepth
 		end
 
-		it("shows Collect exactly where the server pays, a hair either side of every edge", function()
-			local xs = { 0, halfW + 1 - 0.01, halfW + 1, halfW + 1.01, -(halfW + 1), -(halfW + 1.01) }
-			local zs = {
-				0,
-				Layout.plot.frontGarden.z1,
-				Layout.plot.frontGarden.z1 - 0.01,
-				Layout.plot.frontGarden.z1 + 0.01,
-				halfD + 1 + World.YardDepth,
-				halfD + 1 + World.YardDepth + 0.01,
-				halfD + 1 + World.YardDepth - 0.01,
-			}
-			for _, x in xs do
-				for _, z in zs do
-					local at = string.format("(%.2f, %.2f): ", x, z)
-					expect(at .. tostring(TillTips.onPlot(Vector3.new(x, 0, z)))).to.equal(
-						at .. tostring(serverBox(x, z))
-					)
+		it(
+			"shows Collect exactly where the server pays, a hair either side of every edge",
+			function()
+				local xs =
+					{ 0, halfW + 1 - 0.01, halfW + 1, halfW + 1.01, -(halfW + 1), -(halfW + 1.01) }
+				local zs = {
+					0,
+					Layout.plot.frontGarden.z1,
+					Layout.plot.frontGarden.z1 - 0.01,
+					Layout.plot.frontGarden.z1 + 0.01,
+					halfD + 1 + World.YardDepth,
+					halfD + 1 + World.YardDepth + 0.01,
+					halfD + 1 + World.YardDepth - 0.01,
+				}
+				for _, x in xs do
+					for _, z in zs do
+						local at = string.format("(%.2f, %.2f): ", x, z)
+						expect(at .. tostring(TillTips.onPlot(Vector3.new(x, 0, z)))).to.equal(
+							at .. tostring(serverBox(x, z))
+						)
+					end
 				end
 			end
-		end)
+		)
 
 		it("floats the button over the counter the layout builds", function()
 			expect(TillTips.TILL.X).to.be.near(Layout.plot.counter.x + 1.2, 1e-6)
@@ -89,7 +97,9 @@ return function()
 		it("reads 0 for a negative total or count and the whole total at six piles", function()
 			expect(TillTips.amount(1, -5)).to.equal(0)
 			expect(TillTips.amount(-1, 120)).to.equal(0)
-			expect(TillTips.amount(Config.TipPilesMax, 5 * Config.TipPilesMax)).to.equal(5 * Config.TipPilesMax)
+			expect(TillTips.amount(Config.TipPilesMax, 5 * Config.TipPilesMax)).to.equal(
+				5 * Config.TipPilesMax
+			)
 		end)
 	end)
 end

@@ -49,23 +49,26 @@ return function()
 			end
 		end)
 
-		it("waves the hand side to side the set number of times, still while the arm goes up or down", function()
-			local peaks = 0
-			local before, now = 0, 0
-			for t = 0, Avatar.waveSeconds(), 0.001 do
-				local weight, swing = Avatar.waveAt(t)
-				expect(math.abs(swing) <= 1).to.equal(true)
-				if t < w.raise or t > w.raise + w.waves * w.every then
-					expect(swing).to.be.near(0, 1e-6)
+		it(
+			"waves the hand side to side the set number of times, still while the arm goes up or down",
+			function()
+				local peaks = 0
+				local before, now = 0, 0
+				for t = 0, Avatar.waveSeconds(), 0.001 do
+					local weight, swing = Avatar.waveAt(t)
+					expect(math.abs(swing) <= 1).to.equal(true)
+					if t < w.raise or t > w.raise + w.waves * w.every then
+						expect(swing).to.be.near(0, 1e-6)
+					end
+					expect(weight >= 0 and weight <= 1).to.equal(true)
+					if now > before and now > swing then
+						peaks += 1
+					end
+					before, now = now, swing
 				end
-				expect(weight >= 0 and weight <= 1).to.equal(true)
-				if now > before and now > swing then
-					peaks += 1
-				end
-				before, now = now, swing
+				expect(peaks).to.equal(w.waves)
 			end
-			expect(peaks).to.equal(w.waves)
-		end)
+		)
 
 		it("moves with no jumps at 60 frames a second", function()
 			local lastWeight, lastSwing = 0, 0

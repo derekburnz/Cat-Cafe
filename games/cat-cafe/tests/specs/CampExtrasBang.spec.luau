@@ -48,8 +48,12 @@ return function()
 		it("covers the four stations, the Lost and Found too (#1733)", function()
 			expect(#CampExtrasLogic.BANG_EXTRAS).to.equal(4)
 			expect(table.find(CampExtrasLogic.BANG_EXTRAS, "lostFound")).to.be.ok()
-			expect(CampExtrasLogic.bangShows({ lostFound = { open = true, held = 1 } }, "lostFound")).to.equal(true)
-			expect(CampExtrasLogic.bangShows({ lostFound = { open = true, held = 0 } }, "lostFound")).to.equal(false)
+			expect(
+				CampExtrasLogic.bangShows({ lostFound = { open = true, held = 1 } }, "lostFound")
+			).to.equal(true)
+			expect(
+				CampExtrasLogic.bangShows({ lostFound = { open = true, held = 0 } }, "lostFound")
+			).to.equal(false)
 			expect(CampExtrasLogic.BANG_RANGE).to.equal(150)
 		end)
 	end)
@@ -113,7 +117,9 @@ return function()
 		it("lifts the Picnic's bubble over its parasol", function()
 			-- the BangAnchor at 4.33 studs, the parasol's top at 7.48
 			local lift = CampExtrasLogic.bubbleLift(4.33, 7.48)
-			expect(math.abs(4.33 + lift - (7.48 + CampExtrasLogic.BUBBLE_CLEAR)) < 1e-9).to.equal(true)
+			expect(math.abs(4.33 + lift - (7.48 + CampExtrasLogic.BUBBLE_CLEAR)) < 1e-9).to.equal(
+				true
+			)
 		end)
 
 		it("leaves a bubble that already clears its station where it is", function()

@@ -30,7 +30,13 @@ return function()
 		return p
 	end
 
-	local function add(p: any, uid: string, catId: string, charm: number?, extra: { [string]: any }?)
+	local function add(
+		p: any,
+		uid: string,
+		catId: string,
+		charm: number?,
+		extra: { [string]: any }?
+	)
 		local instance: any = CatStats.newInstance(uid, catId, 0, charm)
 		for key, value in extra or {} do
 			instance[key] = value

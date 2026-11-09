@@ -5,6 +5,8 @@
 -- joins while a restart is coming is told how long is left once their profile loads. A subscribe that fails (a
 -- Studio place that was never published) is tried three times, then left with one warning in the log: nothing else
 -- depends on it.
+-- #2720: only the marks RestartNotice.shows are shown (the others still set when the restart comes), as
+-- RestartNotice.kind, and each player shown one is told to Telemetry.restartWarned (left_after_restart_warning).
 
 local HttpService = game:GetService("HttpService")
 local MessagingService = game:GetService("MessagingService")
@@ -14,6 +16,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DataService = require(script.Parent.DataService)
 local Net = require(script.Parent.Net)
 local RestartNotice = require(ReplicatedStorage.Shared.RestartNotice)
+local Telemetry = require(script.Parent.Telemetry)
+local Types = require(ReplicatedStorage.Shared.Types)
 
 local RestartNoticeService = {}
 
@@ -35,9 +39,14 @@ local function warnAll(seconds: number)
 	end
 	lastSeconds, lastShownAt = seconds, now
 	restartAt = now + seconds
+	if not RestartNotice.shows(seconds) then
+		return
+	end
 	local text = RestartNotice.text(seconds)
+	local kind: Types.ToastKind = RestartNotice.kind(seconds)
 	for _, player in Players:GetPlayers() do
-		Net.toast(player, text, "warn")
+		Net.toast(player, text, kind)
+		Telemetry.restartWarned(player, seconds)
 	end
 end
 
@@ -52,8 +61,10 @@ end
 function RestartNoticeService.start()
 	DataService.onLoaded:Connect(function(player: Player)
 		local at = restartAt
-		if at ~= nil and at - os.clock() > 0 then
-			Net.toast(player, RestartNotice.text(at - os.clock()), "warn")
+		local left = if at ~= nil then at - os.clock() else 0
+		if left > 0 then
+			Net.toast(player, RestartNotice.text(left), RestartNotice.kind(left))
+			Telemetry.restartWarned(player, left)
 		end
 	end)
 	task.spawn(function()
@@ -76,7 +87,7 @@ function RestartNoticeService.start()
 end
 
 -- Studio-only test hook (Debug.restartNotice): a restart warning as if the countdown sent `seconds`, through the
--- same parse and toasts. Returns the text shown, or nil when the message would be ignored.
+-- same parse and toasts. Returns the text shown, or nil when the message would be ignored or is a mark not shown (#2720).
 function RestartNoticeService.debugNotice(seconds: unknown): string?
 	local parsed = RestartNotice.parse({ kind = "restart", seconds = seconds }, decode)
 	if parsed == nil then
@@ -84,7 +95,7 @@ function RestartNoticeService.debugNotice(seconds: unknown): string?
 	end
 	lastSeconds = nil
 	warnAll(parsed)
-	return RestartNotice.text(parsed)
+	return if RestartNotice.shows(parsed) then RestartNotice.text(parsed) else nil
 end
 
 return RestartNoticeService

@@ -3399,7 +3399,7 @@ function HUD._liftTop(self: any)
 	local buffs = self._buffs
 	local row: GuiObject? = if buffs ~= nil then buffs.frame else nil
 	local rowW = if row ~= nil and row.Visible then row.AbsoluteSize.X else 0
-	local fits = false
+	local fits, alone = false, false
 	local x, top = 0, MARGIN
 	if scale > 0 and inset.Height > 0 and root.AbsoluteSize.X > 0 then
 		-- in screen pixels: the root's left edge (GUI space starts under the top bar inset), the free stretch from
@@ -3416,10 +3416,30 @@ function HUD._liftTop(self: any)
 			x = (left + (right - left - width) / 2 - origin) / scale
 			-- the bar sits over the root's top, so the counters are centred in it at a negative Y
 			top = -(inset.Max.Y / scale + self._counterH) / 2
+		elseif counters.AbsoluteSize.X <= right - left then
+			-- #2712 (Derek2 11-09: "fix this reoccuring issue of currencys being shoved down on mobile"): a chip that
+			-- makes the pair too wide no longer takes the counters out of the bar; they stay, and the row goes under them
+			alone = true
+			x = (left + (right - left - counters.AbsoluteSize.X) / 2 - origin) / scale
+			top = -(inset.Max.Y / scale + self._counterH) / 2
 		end
 	end
 	self._counterY = top
 	local under = top + self._counterH + BUFFS_GAP -- the boosts card's top, and the row's when it is not beside
+	if alone then
+		counters.AnchorPoint = Vector2.new(0, 0)
+		counters.Position = UDim2.fromOffset(x, top)
+		local middle = x + counters.AbsoluteSize.X / scale / 2
+		if buffs ~= nil then
+			buffs:place(UDim2.fromOffset(middle, under), Vector2.new(0.5, 0))
+		end
+		local boosts: GuiObject? = self._boosts
+		if boosts then
+			boosts.Position = UDim2.fromOffset(middle, under)
+		end
+		self:_placeMoneyBadge()
+		return
+	end
 	if fits then
 		counters.AnchorPoint = Vector2.new(0, 0)
 		counters.Position = UDim2.fromOffset(x, top)

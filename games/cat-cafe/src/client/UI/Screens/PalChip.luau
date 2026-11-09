@@ -86,7 +86,7 @@ function PalChip.count(self: any): number
 end
 
 function PalChip.set(self: any, userIds: { number })
-	local words = PalsLogic.chip(#userIds)
+	local words = PalsLogic.chip(#userIds, Scale.isTouch()) -- #2712: "+10%" alone on touch
 	local key = table.concat(userIds, ",")
 	if key == self._said then
 		return

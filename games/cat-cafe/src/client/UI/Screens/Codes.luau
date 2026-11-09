@@ -67,6 +67,8 @@ export type Codes = {
 -- first (Components/CodeEntry.used). No help line: the placeholder says enough, and case is still ignored. The header
 -- and the list show only in the Store; the walk-up window keeps just the box and the answer.
 local HEADER_LINE = "New codes come with updates and in our Roblox group."
+-- #2610 (Derek2 11-09): under the box in the Store, where to find codes
+local HINT_LINE = "Check the game description for codes"
 local USED_TITLE = "Codes you've used"
 local USED_EMPTY = "Codes you use show up here"
 local PLACEHOLDER = "Type a code"
@@ -251,6 +253,20 @@ function Codes.new(callbacks: Callbacks): Codes
 		end,
 	})
 
+	-- #2610: right under the box, in the Store only
+	self._hint = text({
+		Name = "Hint",
+		Size = UDim2.new(1, 0, 0, 20),
+		FontFace = Theme.fonts.bodyBold,
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = PAL.subtext,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = HINT_LINE,
+		LayoutOrder = 3,
+		Visible = false,
+		Parent = content,
+	})
+
 	-- the answer in place under the box: a green card with the prize, or one calm refusal line (#1714)
 	local result: Frame = Create("Frame", {
 		Name = "Result",
@@ -259,7 +275,7 @@ function Codes.new(callbacks: Callbacks): Codes
 		BorderSizePixel = 0,
 		Size = UDim2.new(1, 0, 0, 0),
 		AutomaticSize = Enum.AutomaticSize.Y,
-		LayoutOrder = 3,
+		LayoutOrder = 4,
 		Visible = false,
 		Parent = content,
 	}, {
@@ -316,7 +332,7 @@ function Codes.new(callbacks: Callbacks): Codes
 		TextSize = Theme.sizes.textBody,
 		TextColor3 = PAL.text,
 		Text = USED_TITLE,
-		LayoutOrder = 4,
+		LayoutOrder = 5,
 		Visible = false,
 		Parent = content,
 	})
@@ -325,7 +341,7 @@ function Codes.new(callbacks: Callbacks): Codes
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, 0, 0, 0),
 		AutomaticSize = Enum.AutomaticSize.Y,
-		LayoutOrder = 5,
+		LayoutOrder = 6,
 		Visible = false,
 		Parent = content,
 	}, {
@@ -576,12 +592,13 @@ function Codes.onClose(self: any)
 end
 
 -- Moves the box into `parent` (the Store's Codes tab), or back into this window with nil. The header and the used
--- list show only in the Store (#1714).
+-- list show only in the Store (#1714), and so does the hint under the box (#2610).
 function Codes.mount(self: any, parent: Instance?)
 	self._body.Parent = parent or self._panel.content
 	local mounted = parent ~= nil
 	self._mounted = mounted
 	self._header.Visible = mounted
+	self._hint.Visible = mounted
 	self._usedTitle.Visible = mounted
 	self._used.Visible = mounted
 end

@@ -2529,6 +2529,8 @@ local SCENES = {
 		local used = store and store:FindFirstChild("Used", true)
 		assert(used and used:FindFirstChild("playtest") and used:FindFirstChild("old_code"), "uigate: no used codes (#1714)")
 		assert(store:FindFirstChild("Header", true), "uigate: no Codes header (#1714)")
+		local hint = store:FindFirstChild("Hint", true) :: TextLabel?
+		assert(hint and hint.Visible and hint.Text == "Check the game description for codes", "uigate: no codes hint (#2610)")
 	end },
 	-- #1714: a refusal is one calm line in place; nothing used yet says so
 	{ "CodesRefused", function()

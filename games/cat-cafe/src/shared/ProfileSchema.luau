@@ -762,11 +762,15 @@ local function sanitizeTelemetry(value: any, now: number): Types.TelemetryState
 		step = Onboarding.fromOld(old, step)
 		-- a player out of the funnel is out of the intro one too; #2391: v5 keeps v4's intro funnel, so a v4 save keeps
 		-- its intro step
-		if old ~= 4 then
+		if old ~= 4 and old ~= 5 then
 			introStep = if step >= Onboarding.COUNT then Onboarding.INTRO_COUNT else 0
 		end
-		-- #2391: first_hour came with v5, so a player out of the funnel is out of it too
-		firstHourStep = if step >= Onboarding.COUNT then Onboarding.FIRST_HOUR_COUNT else 0
+		-- #2391: first_hour came with v5, so a player out of the funnel is out of it too. #2636: v6 sends
+		-- first_hour_v2, whose steps moved, so a v5 save that logged any of first_hour leaves it as well.
+		local loggedFirstHour = old == 5 and firstHourStep >= 1
+		firstHourStep = if step >= Onboarding.COUNT or loggedFirstHour
+			then Onboarding.FIRST_HOUR_COUNT
+			else 0
 	end
 	telemetry.onboardingStep = math.clamp(step, 0, Onboarding.COUNT)
 	for later = telemetry.onboardingStep + 1, Onboarding.COUNT do

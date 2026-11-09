@@ -1,5 +1,5 @@
 --!strict
--- Analytics (feature F16, growth analytics-plan.md): the onboarding_v5, first_hour and catch_attempt funnels (only
+-- Analytics (feature F16, growth analytics-plan.md): the onboarding_v6, first_hour_v2 and catch_attempt funnels (only
 -- these since #2444; the intro, grand_opening and bait_cycle funnels are no longer sent, their custom events stay),
 -- coin sources and sinks, tier and area Index progression and the custom events, sent through AnalyticsService.
 -- Server only; Roblox records nothing from Studio or a client. What only the client knows (its device, a screen it
@@ -46,7 +46,6 @@ local PlaytimeGifts = require(ReplicatedStorage.Shared.PlaytimeGifts)
 local ProfileSchema = require(ReplicatedStorage.Shared.ProfileSchema)
 local ReturnHook = require(ReplicatedStorage.Shared.ReturnHook)
 local StoreFunnel = require(ReplicatedStorage.Shared.StoreFunnel)
-local Tips = require(ReplicatedStorage.Shared.Tips)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 type Profile = Types.PlayerProfile
@@ -1092,8 +1091,6 @@ local function logJoined(player: Player)
 		passLevel = CafePass.levelOf(profile.pass.xp),
 		spent = spentBefore(player, profile, 0, nil),
 		goalsDone = GrandOpening.doneCount(profile.grandOpening),
-		-- #2409: the lesson's own id; before it the lesson saved as the old card's `tackle`
-		tackleLessonSeen = profile.tipsSeen[Tips.LESSON] == true or profile.tipsSeen.tackle == true,
 	})
 	for _, name in shown do
 		Telemetry.onboarding(player, profile, name :: Onboarding.StepName)

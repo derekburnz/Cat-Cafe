@@ -6,8 +6,8 @@
 -- is ready; a press empties it and it refills from the left over the TackleCooldownSeconds (5), then pops once when
 -- it is full again.
 -- #2510 (Derek2 11-08: "add a tackle button instead of the bar in the middle of screen for mobile/ipad players"): on a
--- touch screen it is a round Tackle button left of the Net button instead (Components/NetButtonPlace.tackle), in
--- screen pixels like the Net and jump buttons, so the thumb rolls Jump, Net, Tackle. Orange when ready, a grey that
+-- touch screen it is a round Tackle button instead (Components/NetButtonPlace.tackle), in screen pixels like the Net
+-- and jump buttons; since #2721 it sits on the thumb's arc up and left of the jump button. Orange when ready, a grey that
 -- drains down while it recharges with the seconds left, all grey while down.
 -- There is no lock-on (Derek 2026-10-27: "so you can just spam it and chase people it needs to be like skill"): a
 -- press fires tackle() and the character lunges straight ahead, TackleLungeStuds (12). There is no aim arrow on the
@@ -33,6 +33,7 @@ local Config =
 	require(game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Config"))
 local Cooldown = require(script.Parent.Parent.Components.Cooldown)
 local Create = require(script.Parent.Parent.Components.Create)
+local JumpButton = require(script.Parent.Parent.Components.JumpButton)
 local NetButtonPlace = require(script.Parent.Parent.Components.NetButtonPlace)
 local Outline = require(script.Parent.Parent.Components.Outline)
 local Scale = require(script.Parent.Parent.Scale)
@@ -317,11 +318,11 @@ function TackleBar._buildButton(self: any, screenGui: ScreenGui)
 	end
 end
 
--- #2510: left of the Net button, level with it, in screen pixels.
+-- #2721: on the thumb's arc up and left of the live jump button, between it and the Net button, in screen pixels.
 function TackleBar._place(self: any)
 	local camera = Workspace.CurrentCamera
 	local viewport = if camera then camera.ViewportSize else Vector2.new(844, 390)
-	local at, size = NetButtonPlace.tackle(viewport)
+	local at, size = NetButtonPlace.tackle(viewport, JumpButton.read(viewport))
 	self._bar.Position = UDim2.fromOffset(at.X, at.Y)
 	self._bar.Size = UDim2.fromOffset(size, size)
 end
@@ -464,6 +465,9 @@ function TackleBar.setEnabled(self: any, on: boolean)
 		end
 		self:_tick()
 		return
+	end
+	if self._touch then
+		self:_place() -- #2721: follow where the jump button really is
 	end
 	local accumulator = TICK
 	self._loop = RunService.Heartbeat:Connect(function(dt: number)

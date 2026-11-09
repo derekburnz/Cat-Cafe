@@ -138,6 +138,9 @@ export type CustomEvent =
 	| "tip_shown"
 	| "ask_shown" -- F96: value 1; kind (notify, favorite, like or F92's invite), the session number
 	| "feedback"
+	-- #2692: a beginner's night pass let a cannon flight go at night, once a session, value 1; the destination, the
+	-- clock's phase
+	| "night_pass_used"
 	-- F96 (starter-cat.md section 4): the free Bellhop Cat taken home; the gate it passed, "task" or "group"
 	| "starter_cat"
 	| "shop_cat" -- #1447: a shop-only cat given on its pass (catId)

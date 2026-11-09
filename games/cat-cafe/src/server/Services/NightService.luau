@@ -3,7 +3,8 @@
 -- AreasOpen, which closes the fences on the clients; this service does the closing and opening on the server. At
 -- dusk every stray and rescue trap clears (CatService, RescueService) and anyone standing in a wild area is clouded
 -- home (v4, F84), then again every NightSweepSeconds, a carried cat checked in on arrival. A player mid catch or rescue
--- finishes it first. At sunrise each area gets its wave and its traps. The dusk warning and sunrise banners and the
+-- finishes it first. #2692: a beginner before their first check-in (shared/NightPass) is never swept. At sunrise each
+-- area gets its wave and its traps. The dusk warning and sunrise banners and the
 -- dusk bell are the client's own, from the Clock attributes.
 
 local Players = game:GetService("Players")
@@ -42,6 +43,7 @@ local function sweep()
 			areaOf(player) == nil
 			or CatService.inMinigame(player)
 			or CatService.inFlight(player)
+			or CatService.nightPass(player) -- #2692: a beginner before their first check-in stays
 		then
 			continue
 		end
@@ -60,6 +62,7 @@ function NightService.landed(player: Player)
 		not ClockService.areasOpen()
 		and areaOf(player) ~= nil
 		and not CatService.inMinigame(player)
+		and not CatService.nightPass(player) -- #2692
 	then
 		local sent = TravelService.sendHome(player, function()
 			CatService.forceCheckIn(player)

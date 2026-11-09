@@ -37,6 +37,7 @@ local Moods = require(ReplicatedStorage.Shared.Moods)
 local Mover = require(ReplicatedStorage.Shared.Mover)
 local Net = require(script.Parent.Net)
 local NetSwing = require(ReplicatedStorage.Shared.NetSwing)
+local NightPass = require(ReplicatedStorage.Shared.NightPass)
 local Onboarding = require(ReplicatedStorage.Shared.Onboarding)
 local Payout = require(script.Parent.Payout)
 local Pity = require(ReplicatedStorage.Shared.Pity)
@@ -219,6 +220,15 @@ local function outOfCamp(position: Vector3): Vector3
 	local out = Vector3.new(x, position.Y, z)
 	local area = if campId ~= nil then world.areas[campId] else nil
 	return if area ~= nil then WorldBuilder.clampToArea(area, out, 2) else out
+end
+
+-- #2692: whether the areas are open for this player: by the clock, or by the night pass of a beginner who has not
+-- checked in a first cat (shared/NightPass).
+local function openFor(profile: Types.PlayerProfile?): boolean
+	return NightPass.open(
+		ClockService.areasOpen(),
+		profile ~= nil and NightPass.has(profile.tutorialStep)
+	)
 end
 
 local function areaUnlocked(profile: Types.PlayerProfile, areaId: string): boolean
@@ -791,9 +801,18 @@ end
 -- point (v4, F84, data-model section 9 v0.13.18: plot p owns near point p), where the intro shows it. Since F87
 -- (easy-start.md section 2b) it is theirs alone until their first check-in: one that waits at their point for
 -- someone who left the plot is handed over, and one whose beginner left or checked in a cat is freed.
+-- #2692: nothing else spawns at night (v0.9, F66), but a beginner holds the night pass, so their stray comes at night
+-- too, and one whose beginner has gone or checked in leaves at once by night instead of waiting for the sunrise.
 local function tutorialTick()
-	if not ClockService.areasOpen() then
-		return -- nothing spawns at night (v0.9, F66); the beginner's stray comes with the sunrise
+	local night = not ClockService.areasOpen()
+	for _, player in DataService.loadedPlayers() do
+		local profile = DataService.get(player)
+		if profile ~= nil then
+			local pass = NightPass.has(profile.tutorialStep)
+			if player:GetAttribute(NightPass.ATTRIBUTE) ~= pass then
+				player:SetAttribute(NightPass.ATTRIBUTE, pass)
+			end
+		end
 	end
 	local occupied = occupiedPoints[TUTORIAL_AREA] or {}
 	local near = tutorialPoints()
@@ -840,10 +859,19 @@ local function tutorialTick()
 			spawnAt(TUTORIAL_AREA, own, "Common", player.UserId)
 		end
 	end
+	local leaving: { Stray } = {}
 	for _, stray in strays do
 		local beginner = stray.beginner
 		if beginner ~= nil and not beginners[beginner] then
 			reserve(stray, nil)
+			if night then
+				table.insert(leaving, stray)
+			end
+		end
+	end
+	for _, stray in leaving do
+		if stray.drop == nil and (stray.lockedBy == 0 or lockExpired(stray)) then
+			despawn(stray)
 		end
 	end
 end
@@ -1640,8 +1668,8 @@ function startCatch(
 	if not areaUnlocked(profile, stray.area) then
 		return "This area opens at a higher tier. Rank up to catch cats here"
 	end
-	if not ClockService.areasOpen() then
-		-- a stray still waiting out someone's catch at dusk (v0.9, F66)
+	if not openFor(profile) then
+		-- a stray still waiting out someone's catch at dusk (v0.9, F66); #2692: not for a night pass
 		return Clock.CLOSED_TEXT
 	end
 	if stray.lockedBy ~= 0 and not lockExpired(stray) then
@@ -1799,7 +1827,7 @@ local function pickUp(player: Player, profile: Types.PlayerProfile, stray: Stray
 		busy = inRescue(player) or holdsCatch(player) or inFlight(player),
 		inCamp = campOf(player) ~= nil,
 		areaUnlocked = areaUnlocked(profile, stray.area),
-		areasClosed = not ClockService.areasOpen(),
+		areasClosed = not openFor(profile), -- #2692: the night pass picks up as by day
 		distance = if root ~= nil then (root - stray.body.Position).Magnitude else nil,
 		sinceGrab = if last ~= nil then now - last else nil,
 	})
@@ -1947,7 +1975,7 @@ local function landSwing(player: Player)
 	end
 	local now = serverNow()
 	local origin, look = root.Position, root.CFrame.LookVector
-	local open = ClockService.areasOpen()
+	local open = openFor(profile) -- #2692: a night pass swings at its own tutorial stray
 	local targets: { NetSwing.Target } = {}
 	local near = 0
 	if open then
@@ -2392,7 +2420,7 @@ local function dropCarry(player: Player, died: boolean)
 	if carry == nil or character == nil or (root == nil and not died) then
 		return
 	end
-	if not ClockService.areasOpen() then
+	if not openFor(DataService.get(player)) then -- #2692: a night pass drops as by day
 		if died then
 			dropAtNight(player, carry, root)
 		else
@@ -2438,7 +2466,7 @@ end
 
 local function onDropCat(player: Player)
 	-- #2565: the first press drops the held cat, the next the packed one
-	if carrying[player] == nil and ClockService.areasOpen() then
+	if carrying[player] == nil and openFor(DataService.get(player)) then
 		unpackCat(player)
 	end
 	dropCarry(player, false)
@@ -2673,7 +2701,9 @@ end
 function CatService.nightFalls()
 	local leaving: { Stray } = {}
 	for _, stray in strays do
-		table.insert(leaving, stray)
+		if stray.beginner == nil then -- #2692: a beginner's own tutorial stray stays for their night pass
+			table.insert(leaving, stray)
+		end
 	end
 	for _, stray in leaving do
 		whenUnlocked(stray, leaveAtDusk)
@@ -2736,6 +2766,12 @@ function CatService.inMinigame(player: Player): boolean
 end
 
 -- F84: true mid Cat Cannon flight or cloud hop.
+-- #2692: whether the night leaves this player alone: a beginner who has not checked in a first cat (shared/NightPass).
+function CatService.nightPass(player: Player): boolean
+	local profile = DataService.get(player)
+	return profile ~= nil and NightPass.has(profile.tutorialStep)
+end
+
 function CatService.inFlight(player: Player): boolean
 	return inFlight(player)
 end

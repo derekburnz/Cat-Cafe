@@ -8,7 +8,8 @@ lanterns on two poles in front of it and a few pieces in the area's theme, with 
                                the gate line), where their stations will stand), front -Z, no turn of its own, so it
                                is placed exactly like the station (Layout.campExtraAt). The pieces stand off to the
                                side (C below), clear of the station's 9 x 8 footprint and the camp's own props.
-                               Everything solid collides; lanterns are `_Bulbs` (lit at night like the others).
+                               Everything solid collides (the canopy is a `_Stall`, not a walk-through `_Canopy`);
+                               lanterns are `_Bulbs` (lit at night like the others).
                                Attachments `Townsfolk_1`..`Townsfolk_3`: where a townsfolk cat sits, on the floor,
                                its LookVector the way the cat faces (toward the camp's middle).
 
@@ -138,7 +139,7 @@ def build_growth(area):
         s = Set(name)
         g = RB()
         g.span((cx - 6.0, 0, cz - 5.5), (cx + 7.5, 0.02, cz + 5.5), CAMP_AREAS[camp]["path"])   # a trodden patch
-        s.put(stall_canopy(mat, "CatCafe_Camp_Canopy", cloth, stripe, post), cx + 3.0, cz, 90)
+        s.put(stall_canopy(mat, "CatCafe_Camp_Stall", cloth, stripe, post), cx + 3.0, cz, 90)
         s.put(lantern_string(mat, "CatCafe_Camp_Lanterns", post, lamp), cx - 3.6, cz, 90)
         _theme(s, mat, area, cx, cz)
         R = rot_y(90)                                                       # the cats face -X, to the camp's middle

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09 11:03 UTC",
+  "generated": "2026-11-09 11:06 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -307038,8 +307038,8 @@
       "module": "campgrowth",
       "objects": [
         "CatCafe_Camp_Park_Growth",
-        "CatCafe_Camp_Park_Growth_000_Canopy",
-        "CatCafe_Camp_Park_Growth_000_Canopy_Decor",
+        "CatCafe_Camp_Park_Growth_000_Stall",
+        "CatCafe_Camp_Park_Growth_000_Stall_Decor",
         "CatCafe_Camp_Park_Growth_001_Lanterns",
         "CatCafe_Camp_Park_Growth_001_Lanterns_Decor",
         "CatCafe_Camp_Park_Growth_001_Lanterns_Bulbs",
@@ -307102,8 +307102,8 @@
       "module": "campgrowth",
       "objects": [
         "CatCafe_Camp_Neighbourhood_Growth",
-        "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
-        "CatCafe_Camp_Neighbourhood_Growth_000_Canopy_Decor",
+        "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
+        "CatCafe_Camp_Neighbourhood_Growth_000_Stall_Decor",
         "CatCafe_Camp_Neighbourhood_Growth_001_Lanterns",
         "CatCafe_Camp_Neighbourhood_Growth_001_Lanterns_Decor",
         "CatCafe_Camp_Neighbourhood_Growth_001_Lanterns_Bulbs",
@@ -307167,8 +307167,8 @@
       "module": "campgrowth",
       "objects": [
         "CatCafe_Camp_Woods_Growth",
-        "CatCafe_Camp_Woods_Growth_000_Canopy",
-        "CatCafe_Camp_Woods_Growth_000_Canopy_Decor",
+        "CatCafe_Camp_Woods_Growth_000_Stall",
+        "CatCafe_Camp_Woods_Growth_000_Stall_Decor",
         "CatCafe_Camp_Woods_Growth_001_Lanterns",
         "CatCafe_Camp_Woods_Growth_001_Lanterns_Decor",
         "CatCafe_Camp_Woods_Growth_001_Lanterns_Bulbs",
@@ -307230,8 +307230,8 @@
       "module": "campgrowth",
       "objects": [
         "CatCafe_Camp_Sewer_Growth",
-        "CatCafe_Camp_Sewer_Growth_000_Canopy",
-        "CatCafe_Camp_Sewer_Growth_000_Canopy_Decor",
+        "CatCafe_Camp_Sewer_Growth_000_Stall",
+        "CatCafe_Camp_Sewer_Growth_000_Stall_Decor",
         "CatCafe_Camp_Sewer_Growth_001_Lanterns",
         "CatCafe_Camp_Sewer_Growth_001_Lanterns_Decor",
         "CatCafe_Camp_Sewer_Growth_001_Lanterns_Bulbs",
@@ -307295,8 +307295,8 @@
       "module": "campgrowth",
       "objects": [
         "CatCafe_Camp_Desert_Growth",
-        "CatCafe_Camp_Desert_Growth_000_Canopy",
-        "CatCafe_Camp_Desert_Growth_000_Canopy_Decor",
+        "CatCafe_Camp_Desert_Growth_000_Stall",
+        "CatCafe_Camp_Desert_Growth_000_Stall_Decor",
         "CatCafe_Camp_Desert_Growth_001_Lanterns",
         "CatCafe_Camp_Desert_Growth_001_Lanterns_Decor",
         "CatCafe_Camp_Desert_Growth_001_Lanterns_Bulbs",
@@ -307360,8 +307360,8 @@
       "module": "campgrowth",
       "objects": [
         "CatCafe_Camp_Ruins_Growth",
-        "CatCafe_Camp_Ruins_Growth_000_Canopy",
-        "CatCafe_Camp_Ruins_Growth_000_Canopy_Decor",
+        "CatCafe_Camp_Ruins_Growth_000_Stall",
+        "CatCafe_Camp_Ruins_Growth_000_Stall_Decor",
         "CatCafe_Camp_Ruins_Growth_001_Lanterns",
         "CatCafe_Camp_Ruins_Growth_001_Lanterns_Decor",
         "CatCafe_Camp_Ruins_Growth_001_Lanterns_Bulbs",

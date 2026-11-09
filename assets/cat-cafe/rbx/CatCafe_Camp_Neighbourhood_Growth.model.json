@@ -188,7 +188,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -229,7 +229,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -266,7 +266,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -307,7 +307,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -316,7 +316,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -357,7 +357,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -366,7 +366,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -407,7 +407,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -416,7 +416,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -457,7 +457,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -466,7 +466,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -507,7 +507,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -515,7 +515,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -564,7 +564,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -605,7 +605,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -613,7 +613,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -662,7 +662,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -703,7 +703,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -711,7 +711,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -760,7 +760,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -801,7 +801,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -809,7 +809,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -858,7 +858,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -899,7 +899,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -907,7 +907,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -956,7 +956,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -997,7 +997,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -1005,7 +1005,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1054,7 +1054,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1095,7 +1095,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -1103,7 +1103,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1152,7 +1152,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1201,7 +1201,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1250,7 +1250,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1299,7 +1299,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1348,7 +1348,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1397,7 +1397,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1446,7 +1446,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1487,7 +1487,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -1495,7 +1495,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1536,7 +1536,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -1544,7 +1544,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1585,7 +1585,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -1593,7 +1593,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1634,7 +1634,7 @@
       ],
       "Material": "SmoothPlastic",
       "Anchored": true,
-      "CanCollide": false,
+      "CanCollide": true,
       "CanTouch": false,
       "CastShadow": true,
       "TopSurface": "Smooth",
@@ -1642,7 +1642,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1719,7 +1719,7 @@
      }
     }
    },
-   "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy"
+   "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall"
   },
   {
    "className": "Model",
@@ -1728,7 +1728,7 @@
    },
    "children": [
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy_Decor",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall_Decor",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1806,7 +1806,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy_Decor",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall_Decor",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1857,7 +1857,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy_Decor",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall_Decor",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1907,7 +1907,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy_Decor",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall_Decor",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -1957,7 +1957,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy_Decor",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall_Decor",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2007,7 +2007,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy_Decor",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall_Decor",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2056,7 +2056,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy_Decor",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall_Decor",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2106,7 +2106,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy_Decor",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall_Decor",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2156,7 +2156,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy_Decor",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall_Decor",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2206,7 +2206,7 @@
      }
     },
     {
-     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy_Decor",
+     "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall_Decor",
      "className": "Part",
      "properties": {
       "CFrame": {
@@ -2284,7 +2284,7 @@
      }
     }
    },
-   "name": "CatCafe_Camp_Neighbourhood_Growth_000_Canopy_Decor"
+   "name": "CatCafe_Camp_Neighbourhood_Growth_000_Stall_Decor"
   },
   {
    "className": "Model",

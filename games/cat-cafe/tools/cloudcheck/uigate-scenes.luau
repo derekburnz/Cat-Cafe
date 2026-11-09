@@ -4986,8 +4986,8 @@ local SCENES = {
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
 	end },
-	-- #2833 (Derek2: "only do the double pop-up if its a legendary+ or any new cat"): a repeat Common catch gets a toast,
-	-- not the big card; a repeat Legendary still gets the card
+	-- #2833 (Derek2: "only do the double pop-up if its a legendary+ or any new cat"): a repeat Common catch gets no big
+	-- card and (#2844) no toast; a repeat Legendary still gets the card
 	{ "CatFoundRepeat", function()
 		local common, legendary = nil, nil
 		for _, def in Catalog.cats do
@@ -5014,14 +5014,12 @@ local SCENES = {
 		UI.showCatFound(common.id, false, { charmGain = 2 })
 		UIShim.advance(0.3)
 		assert(not shown(), "uigate: a repeat Common catch opened the big card (#2833)")
-		local words = "🐱 " .. common.name .. " joined your cafe!  Charm +2"
-		local toast = nil
+		-- #2844: and no "joined your cafe" toast either
 		for _, label in UIShim.playerGui:GetDescendants() do
-			if label:IsA("TextLabel") and label.Name == "Text" and label.Text == words then
-				toast = label
+			if label:IsA("TextLabel") and string.find(label.Text, "joined your cafe", 1, true) then
+				error("uigate: a repeat Common catch still shows a joined your cafe toast (#2844)")
 			end
 		end
-		assert(toast ~= nil, "uigate: no toast for a repeat Common catch (#2833)")
 		UI.showCatFound(legendary.id, false)
 		UIShim.advance(0.3)
 		assert(shown(), "uigate: a repeat Legendary catch did not open the big card (#2833)")

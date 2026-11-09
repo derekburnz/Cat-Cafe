@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09 07:45 UTC",
+  "generated": "2026-11-09 08:17 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -288257,6 +288257,270 @@
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.00 y=0.01"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Desert",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Desert",
+        "CatCafe_Prop_Crate_Desert_Lid"
+      ],
+      "triangles": 1140,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.76,
+        "y": 2.07,
+        "z": 2.67
+      },
+      "size_roblox": [
+        2.76,
+        2.67,
+        2.07
+      ],
+      "bounds_min": [
+        -1.38,
+        -1.04,
+        0.0
+      ],
+      "bounds_max": [
+        1.38,
+        1.03,
+        2.67
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Desert_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Desert_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate: pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Desert_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Desert.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Desert.model.json",
+      "rbx_parts": 90,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Desert.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Desert.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1140/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "564 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Desert_Gold",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Desert_Gold",
+        "CatCafe_Prop_Crate_Desert_Gold_Lid"
+      ],
+      "triangles": 1140,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.76,
+        "y": 2.07,
+        "z": 2.67
+      },
+      "size_roblox": [
+        2.76,
+        2.67,
+        2.07
+      ],
+      "bounds_min": [
+        -1.38,
+        -1.04,
+        0.0
+      ],
+      "bounds_max": [
+        1.38,
+        1.03,
+        2.67
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Desert_Gold_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Desert_Gold_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate (golden: gold parts are Metal): pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Desert_Gold_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Desert_Gold.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Desert_Gold.model.json",
+      "rbx_parts": 90,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "1140/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "564 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=-0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Ruins",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Ruins",
+        "CatCafe_Prop_Crate_Ruins_Lid"
+      ],
+      "triangles": 992,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.64,
+        "y": 2.01,
+        "z": 2.32
+      },
+      "size_roblox": [
+        2.64,
+        2.32,
+        2.01
+      ],
+      "bounds_min": [
+        -1.32,
+        -1.0,
+        0.0
+      ],
+      "bounds_max": [
+        1.32,
+        1.01,
+        2.32
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Ruins_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Ruins_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate: pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Ruins_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Ruins.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Ruins.model.json",
+      "rbx_parts": 82,
+      "files": [
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Ruins.fbx",
+        "assets/cat-cafe/exports/CatCafe_Prop_Crate_Ruins.glb"
+      ],
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "992/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "506 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
+        }
+      }
+    },
+    {
+      "name": "CatCafe_Prop_Crate_Ruins_Gold",
+      "category": "Prop",
+      "module": "crates",
+      "objects": [
+        "CatCafe_Prop_Crate_Ruins_Gold",
+        "CatCafe_Prop_Crate_Ruins_Gold_Lid"
+      ],
+      "triangles": 992,
+      "budget": 1500,
+      "size_studs": {
+        "x": 2.64,
+        "y": 2.01,
+        "z": 2.32
+      },
+      "size_roblox": [
+        2.64,
+        2.32,
+        2.01
+      ],
+      "bounds_min": [
+        -1.32,
+        -1.0,
+        0.0
+      ],
+      "bounds_max": [
+        1.32,
+        1.01,
+        2.32
+      ],
+      "pivot": "base center (floor contact)",
+      "front": "-Z in Roblox, the LookVector (Blender -Y)",
+      "part_pivots": {
+        "CatCafe_Prop_Crate_Ruins_Gold_Lid": [
+          -0.0,
+          1.01,
+          1.6
+        ]
+      },
+      "part_pivots_roblox": {
+        "CatCafe_Prop_Crate_Ruins_Gold_Lid": [
+          0.0,
+          1.6,
+          1.01
+        ]
+      },
+      "studio": "F53 Cafe Crate (golden: gold parts are Metal): pivot base centre, front -Z, nothing collides. The child Model CatCafe_Prop_Crate_Ruins_Gold_Lid turns about its pivot's X (the back hinge): positive lifts the front, about 105 degrees is wide open. Its picture is exports/icons/CatCafe_Icon_Crate_Ruins_Gold.png (icons.py).",
+      "rbx_model": "assets/cat-cafe/rbx/CatCafe_Prop_Crate_Ruins_Gold.model.json",
+      "rbx_parts": 82,
+      "gates": {
+        "pass": true,
+        "failed": [],
+        "warnings": [],
+        "checks": {
+          "budget": "992/1500 tris",
+          "transforms": "scale 1, rotation 0",
+          "material": "one material (CatCafe_Palette)",
+          "uv": "506 faces on swatch centers",
+          "naming": "CatCafe_<Category>_<Name>",
+          "pivot": "floor at z=0.00 (want 0)",
+          "centered": "footprint center x=0.00 y=0.00"
         }
       }
     },

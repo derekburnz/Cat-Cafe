@@ -1116,6 +1116,13 @@ local function wireIntents()
 			Net.fire("TelemetryReport", "session_recap_close", secondsUp)
 		end)
 	end
+	-- #2694: how each "How is it so far?" ask ended, "answered|closed|ignored:early|late"; the server logs it as
+	-- feedback_ask_end, capped at the asks shown this session
+	if events.feedbackOutcome ~= nil then
+		events.feedbackOutcome:Connect(function(how: string)
+			Net.fire("TelemetryReport", "feedback_outcome", how)
+		end)
+	end
 	-- #1947: the button pressed on a like or favourite gift card, "kind:button"; the server allowlists and caps it
 	if events.playtimeGift ~= nil then
 		events.playtimeGift:Connect(function(what: string)

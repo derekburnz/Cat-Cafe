@@ -3789,9 +3789,9 @@
         "CFrame": {
          "CFrame": {
           "position": [
-           0.0,
-           1.4583,
-           -0.6555
+           0.4608,
+           1.4535,
+           -0.4916
           ],
           "orientation": [
            [
@@ -3813,14 +3813,14 @@
          }
         },
         "Size": [
-         0.1235,
-         0.142,
-         0.0864
+         0.0475,
+         0.114,
+         0.152
         ],
         "Color": [
-         0.1216,
-         0.6471,
-         0.5608
+         0.7686,
+         0.4784,
+         0.3451
         ],
         "Material": "SmoothPlastic",
         "Anchored": true,
@@ -3832,9 +3832,9 @@
         "PivotOffset": {
          "CFrame": {
           "position": [
-           0.0,
-           -0.4893,
-           0.5605
+           -0.4608,
+           -0.4845,
+           0.3966
           ],
           "orientation": [
            [
@@ -3859,16 +3859,7 @@
        "attributes": {
         "Rojo_Id": "CatCafe_Cat_Mosaic_Gold_Sit/9",
         "Follows": "Head"
-       },
-       "children": [
-        {
-         "name": "Mesh",
-         "className": "SpecialMesh",
-         "properties": {
-          "MeshType": "Sphere"
-         }
-        }
-       ]
+       }
       },
       {
        "name": "CatCafe_Cat_Mosaic_Gold_Sit_Prop",
@@ -4139,58 +4130,6 @@
           "position": [
            0.4608,
            1.4535,
-           -0.4916
-          ],
-          "orientation": [
-           [
-            1.0,
-            0.0,
-            0.0
-           ],
-           [
-            0.0,
-            1.0,
-            0.0
-           ],
-           [
-            0.0,
-            0.0,
-            1.0
-           ]
-          ]
-         }
-        },
-        "Size": [
-         0.0475,
-         0.114,
-         0.152
-        ],
-        "Color": [
-         0.7686,
-         0.4784,
-         0.3451
-        ],
-        "Material": "SmoothPlastic",
-        "Anchored": true,
-        "CanCollide": false,
-        "CanTouch": false,
-        "CastShadow": true,
-        "TopSurface": "Smooth",
-        "BottomSurface": "Smooth"
-       },
-       "attributes": {
-        "Follows": "Head"
-       }
-      },
-      {
-       "name": "CatCafe_Cat_Mosaic_Gold_Sit_Prop",
-       "className": "Part",
-       "properties": {
-        "CFrame": {
-         "CFrame": {
-          "position": [
-           0.4608,
-           1.4535,
            -0.3159
           ],
           "orientation": [
@@ -4545,6 +4484,131 @@
        "attributes": {
         "Follows": "Head"
        }
+      },
+      {
+       "className": "Model",
+       "attributes": {
+        "Rojo_Target_PrimaryPart": "CatCafe_Cat_Mosaic_Gold_Sit/10"
+       },
+       "children": [
+        {
+         "name": "CatCafe_Cat_Mosaic_Gold_Sit_Glow",
+         "className": "Part",
+         "properties": {
+          "CFrame": {
+           "CFrame": {
+            "position": [
+             0.0,
+             1.4583,
+             -0.6603
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          },
+          "Size": [
+           0.1425,
+           0.1639,
+           0.0998
+          ],
+          "Color": [
+           0.1216,
+           0.6471,
+           0.5608
+          ],
+          "Material": "Neon",
+          "Anchored": true,
+          "CanCollide": false,
+          "CanTouch": false,
+          "CastShadow": true,
+          "TopSurface": "Smooth",
+          "BottomSurface": "Smooth",
+          "PivotOffset": {
+           "CFrame": {
+            "position": [
+             0.0,
+             -0.0048,
+             0.0048
+            ],
+            "orientation": [
+             [
+              1.0,
+              0.0,
+              0.0
+             ],
+             [
+              0.0,
+              1.0,
+              0.0
+             ],
+             [
+              0.0,
+              0.0,
+              1.0
+             ]
+            ]
+           }
+          }
+         },
+         "attributes": {
+          "Rojo_Id": "CatCafe_Cat_Mosaic_Gold_Sit/10",
+          "Follows": "Head"
+         },
+         "children": [
+          {
+           "name": "Mesh",
+           "className": "SpecialMesh",
+           "properties": {
+            "MeshType": "Sphere"
+           }
+          }
+         ]
+        }
+       ],
+       "properties": {
+        "WorldPivotData": {
+         "OptionalCFrame": {
+          "position": [
+           0.0,
+           1.4535,
+           -0.6555
+          ],
+          "orientation": [
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "name": "CatCafe_Cat_Mosaic_Gold_Sit_Glow"
       }
      ],
      "properties": {

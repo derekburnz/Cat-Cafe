@@ -6,7 +6,8 @@
   "Scale": {
    "Float64": 1.0
   },
-  "PropSlot": "Back"
+  "PropSlot": "Back",
+  "PropSlot2": "Head"
  },
  "children": [
   {
@@ -2324,6 +2325,853 @@
       }
      },
      "name": "CatCafe_Cat_Binbag_EarR"
+    },
+    {
+     "className": "Model",
+     "attributes": {
+      "Rojo_Target_PrimaryPart": "CatCafe_Cat_Binbag/12"
+     },
+     "children": [
+      {
+       "name": "CatCafe_Cat_Binbag_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0435,
+           1.6661,
+           -0.4765
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1522,
+         0.2989,
+         0.2989
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder",
+        "PivotOffset": {
+         "CFrame": {
+          "position": [
+           -0.8161,
+           -0.0435,
+           0.1765
+          ],
+          "orientation": [
+           [
+            0.0,
+            1.0,
+            0.0
+           ],
+           [
+            -1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        }
+       },
+       "attributes": {
+        "Rojo_Id": "CatCafe_Cat_Binbag/12",
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Binbag_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0435,
+           1.8183,
+           -0.4765
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1522,
+         0.2446,
+         0.2446
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Binbag_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.0435,
+           1.9378,
+           -0.4765
+          ],
+          "orientation": [
+           [
+            0.0,
+            -1.0,
+            0.0
+           ],
+           [
+            1.0,
+            0.0,
+            0.0
+           ],
+           [
+            0.0,
+            0.0,
+            1.0
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1087,
+         0.0978,
+         0.0978
+        ],
+        "Color": [
+         0.3529,
+         0.2275,
+         0.1333
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth",
+        "Shape": "Cylinder"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Binbag_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.235,
+           1.7422,
+           -0.3158
+          ],
+          "orientation": [
+           [
+            0.6428,
+            -0.4671,
+            -0.6072
+           ],
+           [
+            0.0,
+            0.7926,
+            -0.6097
+           ],
+           [
+            0.766,
+            0.3919,
+            0.5095
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1848,
+         0.0489,
+         0.3565
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Binbag_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3765,
+           1.5846,
+           -0.197
+          ],
+          "orientation": [
+           [
+            0.6428,
+            -0.5176,
+            -0.5647
+           ],
+           [
+            0.0,
+            0.7372,
+            -0.6757
+           ],
+           [
+            0.766,
+            0.4343,
+            0.4738
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.163,
+         0.0435,
+         0.1769
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Binbag_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.4348,
+           1.503,
+           -0.1481
+          ],
+          "orientation": [
+           [
+            0.5417,
+            -0.5417,
+            0.6428
+           ],
+           [
+            0.7071,
+            0.7071,
+            0.0
+           ],
+           [
+            -0.4545,
+            0.4545,
+            0.766
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0761,
+         0.0543,
+         0.1413
+        ],
+        "Color": [
+         0.3529,
+         0.2275,
+         0.1333
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Binbag_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.1172,
+           1.7422,
+           -0.285
+          ],
+          "orientation": [
+           [
+            0.766,
+            0.3919,
+            0.5095
+           ],
+           [
+            0.0,
+            0.7926,
+            -0.6097
+           ],
+           [
+            -0.6428,
+            0.4671,
+            0.6072
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1848,
+         0.0489,
+         0.3565
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Binbag_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.236,
+           1.5846,
+           -0.1435
+          ],
+          "orientation": [
+           [
+            0.766,
+            0.4343,
+            0.4738
+           ],
+           [
+            0.0,
+            0.7372,
+            -0.6757
+           ],
+           [
+            -0.6428,
+            0.5176,
+            0.5647
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.163,
+         0.0435,
+         0.1769
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Binbag_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2849,
+           1.503,
+           -0.0852
+          ],
+          "orientation": [
+           [
+            -0.4545,
+            0.4545,
+            0.766
+           ],
+           [
+            0.7071,
+            0.7071,
+            0.0
+           ],
+           [
+            -0.5417,
+            0.5417,
+            -0.6428
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0761,
+         0.0543,
+         0.1413
+        ],
+        "Color": [
+         0.3529,
+         0.2275,
+         0.1333
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Binbag_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.148,
+           1.7422,
+           -0.6372
+          ],
+          "orientation": [
+           [
+            -0.6428,
+            0.4671,
+            0.6072
+           ],
+           [
+            0.0,
+            0.7926,
+            -0.6097
+           ],
+           [
+            -0.766,
+            -0.3919,
+            -0.5095
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1848,
+         0.0489,
+         0.3565
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Binbag_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.2896,
+           1.5846,
+           -0.756
+          ],
+          "orientation": [
+           [
+            -0.6428,
+            0.5176,
+            0.5647
+           ],
+           [
+            0.0,
+            0.7372,
+            -0.6757
+           ],
+           [
+            -0.766,
+            -0.4343,
+            -0.4738
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.163,
+         0.0435,
+         0.1769
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Binbag_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           0.3479,
+           1.503,
+           -0.8049
+          ],
+          "orientation": [
+           [
+            -0.5417,
+            0.5417,
+            -0.6428
+           ],
+           [
+            0.7071,
+            0.7071,
+            0.0
+           ],
+           [
+            0.4545,
+            -0.4545,
+            -0.766
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0761,
+         0.0543,
+         0.1413
+        ],
+        "Color": [
+         0.3529,
+         0.2275,
+         0.1333
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Binbag_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.2042,
+           1.7422,
+           -0.668
+          ],
+          "orientation": [
+           [
+            -0.766,
+            -0.3919,
+            -0.5095
+           ],
+           [
+            0.0,
+            0.7926,
+            -0.6097
+           ],
+           [
+            0.6428,
+            -0.4671,
+            -0.6072
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.1848,
+         0.0489,
+         0.3565
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Binbag_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.323,
+           1.5846,
+           -0.8096
+          ],
+          "orientation": [
+           [
+            -0.766,
+            -0.4343,
+            -0.4738
+           ],
+           [
+            0.0,
+            0.7372,
+            -0.6757
+           ],
+           [
+            0.6428,
+            -0.5176,
+            -0.5647
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.163,
+         0.0435,
+         0.1769
+        ],
+        "Color": [
+         0.9647,
+         0.8745,
+         0.6275
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      },
+      {
+       "name": "CatCafe_Cat_Binbag_Prop2",
+       "className": "Part",
+       "properties": {
+        "CFrame": {
+         "CFrame": {
+          "position": [
+           -0.3719,
+           1.503,
+           -0.8679
+          ],
+          "orientation": [
+           [
+            0.4545,
+            -0.4545,
+            -0.766
+           ],
+           [
+            0.7071,
+            0.7071,
+            0.0
+           ],
+           [
+            0.5417,
+            -0.5417,
+            0.6428
+           ]
+          ]
+         }
+        },
+        "Size": [
+         0.0761,
+         0.0543,
+         0.1413
+        ],
+        "Color": [
+         0.3529,
+         0.2275,
+         0.1333
+        ],
+        "Material": "SmoothPlastic",
+        "Anchored": true,
+        "CanCollide": false,
+        "CanTouch": false,
+        "CastShadow": true,
+        "TopSurface": "Smooth",
+        "BottomSurface": "Smooth"
+       },
+       "attributes": {
+        "Follows": "Head"
+       }
+      }
+     ],
+     "properties": {
+      "WorldPivotData": {
+       "OptionalCFrame": {
+        "position": [
+         0.0,
+         0.85,
+         -0.3
+        ],
+        "orientation": [
+         [
+          1.0,
+          0.0,
+          0.0
+         ],
+         [
+          0.0,
+          1.0,
+          0.0
+         ],
+         [
+          0.0,
+          0.0,
+          1.0
+         ]
+        ]
+       }
+      }
+     },
+     "name": "CatCafe_Cat_Binbag_Prop2"
     }
    ],
    "properties": {

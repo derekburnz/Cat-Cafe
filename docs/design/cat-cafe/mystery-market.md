@@ -78,7 +78,7 @@ Every item can be bought at any time at full price, and each one comes back on s
 ### 3d. Look
 - **The backpack** (Model-Agent): a small canvas pack with a cat-ear flap, welded to the back like `HeldCat` (massless, so the walk doesn't change). It hides the avatar's own back accessories only while a cat is in it.
 - **The packed cat** (Animation-Engineer): awake, with an ear wiggle and a look around every few seconds. Reduce Motion keeps it still.
-- **The cart and Moss** (Model-Agent), plus the card (UI-Engineer, `Screens/MysteryMarket.luau`).
+- **The cart and Juniper** (Model-Agent), plus the card (UI-Engineer, `Screens/MysteryMarket.luau`).
 
 ## 4. Candidate items for the rotation (Derek2 picks)
 

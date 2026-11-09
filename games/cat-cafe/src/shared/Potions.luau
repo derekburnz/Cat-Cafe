@@ -210,44 +210,113 @@ function Potions.endsAt(profile: Types.PlayerProfile, now: number): { [string]: 
 	return out
 end
 
--- The potions a Mystery gift can hold, at even odds: every one but the quest potions (F73), which only quests and
--- achievements pay, and the Corner Shop's own (corner-shop-v2.md: its sizes and the Cat Whistle).
+-- The potions a Common Mystery gift can hold, at even odds: every one but the quest potions (F73), the Corner Shop's
+-- own (corner-shop-v2.md: its sizes and the Cat Whistle) and, since #2614, the Swift Potion. A Rare gift's
+-- "questPotion" is one of the quest potions.
 local GIFT_POTIONS: { string } = {}
+local QUEST_POTIONS: { string } = {}
 for _, def in Catalog.potions do
-	if def.quest ~= true and def.shopOnly ~= true then
+	if def.quest == true then
+		table.insert(QUEST_POTIONS, def.id)
+	elseif def.shopOnly ~= true and def.id ~= "swift_potion" then
 		table.insert(GIFT_POTIONS, def.id)
 	end
 end
+Potions.GIFT_POTIONS = GIFT_POTIONS
+Potions.QUEST_POTIONS = QUEST_POTIONS
 
 -- A Mystery gift's contents, rolled when it appears. `roll` returns a number in [0, 1) each call.
-export type Gift = { kind: Types.MysteryGiftKind, id: string?, count: number }
+export type Gift = {
+	kind: Types.MysteryGiftKind,
+	id: string?,
+	count: number,
+	tier: Types.MysteryGiftTierName?,
+	fish: number?,
+}
 
-function Potions.rollGift(roll: () -> number): Gift
+local function tierNamed(name: Types.MysteryGiftTierName): Types.MysteryGiftTier
+	for _, tier in Catalog.mysteryGiftTiers do
+		if tier.tier == name then
+			return tier
+		end
+	end
+	return Catalog.mysteryGiftTiers[1]
+end
+
+-- #2614: the wrap of a gift. `commons` is how many Common gifts in a row came before it this session: from
+-- MysteryRareStreak on, the Common share is left out and the rest share the roll.
+function Potions.rollGiftTier(roll: () -> number, commons: number?): Types.MysteryGiftTierName
+	local skipCommon = (commons or 0) >= Config.MysteryRareStreak
+	local total = 0
+	for _, tier in Catalog.mysteryGiftTiers do
+		if not (skipCommon and tier.tier == "Common") then
+			total += tier.chance
+		end
+	end
+	local pick = roll() * total
+	local chosen: Types.MysteryGiftTierName = "Common"
+	for _, tier in Catalog.mysteryGiftTiers do
+		if skipCommon and tier.tier == "Common" then
+			continue
+		end
+		chosen = tier.tier
+		if pick < tier.chance then
+			break
+		end
+		pick -= tier.chance
+	end
+	return chosen
+end
+
+-- A gift of wrap `tierName` (rolled with rollGiftTier when nil): a row at its chance, a potion at even odds.
+function Potions.rollGift(roll: () -> number, tierName: Types.MysteryGiftTierName?): Gift
+	local tier = tierNamed(tierName or Potions.rollGiftTier(roll))
 	local pick = roll() * 100
-	local chosen = Catalog.mysteryGift[#Catalog.mysteryGift]
-	for _, row in Catalog.mysteryGift do
+	local chosen = tier.rows[#tier.rows]
+	for _, row in tier.rows do
 		if pick < row.chance then
 			chosen = row
 			break
 		end
 		pick -= row.chance
 	end
-	if chosen.kind == "potion" then
-		local index = math.clamp(math.floor(roll() * #GIFT_POTIONS) + 1, 1, #GIFT_POTIONS)
-		return { kind = "potion", id = GIFT_POTIONS[index], count = chosen.count }
+	if chosen.kind == "potion" or chosen.kind == "questPotion" then
+		local pool = if chosen.kind == "questPotion" then QUEST_POTIONS else GIFT_POTIONS
+		local index = math.clamp(math.floor(roll() * #pool) + 1, 1, #pool)
+		return { kind = "potion", id = pool[index], count = chosen.count, tier = tier.tier }
 	end
-	return { kind = chosen.kind, id = chosen.id, count = chosen.count }
+	return {
+		kind = chosen.kind,
+		id = chosen.id,
+		count = chosen.count,
+		tier = tier.tier,
+		fish = chosen.fish,
+	}
 end
 
--- What an opened gift pays (v0.13.9): a spin opened with the spin bank at SpinBankCap pays the gift table's golden
--- fish instead, so a gift is never empty; every other gift pays as rolled. `banked` is the player's `spin.banked`.
+-- The average golden fish a gift pays (Pace and the spec check it, #2614: about 3.8).
+function Potions.giftFishAverage(): number
+	local total = 0
+	for _, tier in Catalog.mysteryGiftTiers do
+		local fish = 0
+		for _, row in tier.rows do
+			local count = if row.kind == "fish" then row.count else row.fish or 0
+			fish += row.chance / 100 * count
+		end
+		total += tier.chance / 100 * fish
+	end
+	return total
+end
+
+-- What an opened gift pays (v0.13.9): a spin opened with the spin bank at SpinBankCap pays its wrap's golden fish row
+-- instead, so a gift is never empty; every other gift pays as rolled. `banked` is the player's `spin.banked`.
 function Potions.giftPaid(gift: Gift, banked: number): Gift
 	if gift.kind ~= "spin" or banked < Config.SpinBankCap then
 		return gift
 	end
-	for _, row in Catalog.mysteryGift do
+	for _, row in tierNamed(gift.tier or "Common").rows do
 		if row.kind == "fish" then
-			return { kind = "fish", count = row.count }
+			return { kind = "fish", count = row.count, tier = gift.tier }
 		end
 	end
 	return gift
@@ -263,6 +332,12 @@ function Potions.giftPrize(gift: Gift): Types.IndexPrize
 		return { fish = gift.count }
 	elseif gift.kind == "spin" then
 		return { spins = gift.count }
+	elseif gift.kind == "coins" then
+		return { coins = 0, coinSeconds = gift.count } -- #2614: seconds of the player's income
+	elseif gift.kind == "crate" and gift.id ~= nil then
+		return { crates = { [gift.id :: string] = gift.count }, fish = gift.fish }
+	elseif gift.kind == "food" and gift.id ~= nil then
+		return { catFood = { [gift.id :: string] = gift.count } }
 	end
 	return {}
 end

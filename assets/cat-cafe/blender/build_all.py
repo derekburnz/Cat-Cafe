@@ -455,6 +455,11 @@ STUDIO_NOTES["CatCafe_NPC_MysteryVisitor"] = (
 STUDIO_NOTES["CatCafe_Item_MysteryGift"] = (
     "F64 Mystery Visitor's gift: pivot base centre, front -Z (the \"?\" tag), nothing collides; the client puts it "
     "on the bottom of the plot's MysteryGiftAnchor and tags it MysteryGift.")
+for _k in ("_Common", "_Rare", "_Super"):
+    STUDIO_NOTES["CatCafe_Item_MysteryGift" + _k] = (
+        "#2614 the gift tiers: the Mystery Visitor's gift in the tier's wrap (Common cream and red, Rare blue and "
+        "silver, Super gold with a white ribbon). Same size, pivot and use as CatCafe_Item_MysteryGift: the client "
+        "picks the one named by the plot's MysteryGiftTier.")
 PIVOT_NOTES[yardfence.NAME] = "Plot.cframe: floor top centre of the cafe, as CatCafe_Plot_BackDoor; the yard is +Z"
 for _n in ringicons.NAMES:
     PIVOT_NOTES[_n] = "the centre of its bottom face, lying flat; the picture's top points +Z"

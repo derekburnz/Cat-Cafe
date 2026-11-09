@@ -294,7 +294,8 @@ Remotes.ServerToClient = {
 	-- tackler alone
 	"CatchBurst", -- (direction: Vector3)  the getaway (v0.8 F55): a player beside a catch or rescue that just
 	-- succeeded; their client pushes its own character CatchBurstStuds along direction (flat, unit). Not a shove
-	"MysteryGiftResult", -- (kind: "potion" | "lure" | "fish" | "spin", id: string?, count: number)  F64: what the
+	"MysteryGiftResult", -- (kind: "potion" | "lure" | "fish" | "spin" | "coins" | "crate" | "food", id: string?,
+	-- count: number, tier: "Common" | "Rare" | "Super", fish: number?)  #2614 adds the wrap and a crate's fish. F64: what the
 	-- owner's opened Mystery gift held, for the gift card and the ribbon pop
 	"CollectorOffer", -- (catUid: string, offer: Types.CollectorOffer?, endsAt: number, traded: boolean?)  F63: the
 	-- owner's Cat Collector card: the cat he wants, his offer (a Catalog.collectorOffers row; the zone crate is the

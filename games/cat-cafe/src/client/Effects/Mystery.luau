@@ -8,7 +8,7 @@
 --
 -- Sources: the `MysteryVisitor` and `MysteryGift` tags on the models each client builds under a Plot from
 -- `MysteryVisitorUntil` and `MysteryGiftAt` (data-model 13), the plot's `OwnerUserId`, and this player's own
--- `MysteryGiftResult(kind, id, count)`. Puffs play within animRadius. Listening only.
+-- `MysteryGiftResult(kind, id, count, tier)`. Puffs play within animRadius. Listening only.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -185,19 +185,25 @@ local function giftRemoved(instance: Instance)
 	end
 end
 
--- The ribbon pop at your gift for what it held.
-local function opened(kind: unknown, id: unknown)
+-- The ribbon pop at your gift for what it held, with one small shake; a Super wrap (#2614) pops bigger. The wrap is
+-- MysteryGiftResult's 4th argument, else the gift's GiftTier attribute.
+local function opened(kind: unknown, id: unknown, tier: unknown)
 	local gift = mine
 	local spot = if gift ~= nil then spotOf(gift) else mineSpot
 	mineSpot = nil
 	if spot == nil then
 		return
 	end
+	if type(tier) ~= "string" and gift ~= nil then
+		tier = gift:GetAttribute("GiftTier")
+	end
 	local m = Presets.mystery
+	local scale: number = if type(tier) == "string" then (m.tierScale :: any)[tier] or 1 else 1
 	local colour = Logic.giftColour(kind, id)
-	Particles.confetti(spot.top, math.ceil(Context.budget.confetti * m.confetti), m.ribbon)
-	Particles.burst("catchSparkle", spot.top, m.pop, colour)
-	Particles.ring(spot.base, colour, m.ring, m.ringSeconds)
+	Particles.confetti(spot.top, math.ceil(Context.budget.confetti * m.confetti * scale), m.ribbon)
+	Particles.burst("catchSparkle", spot.top, math.ceil(m.pop * scale), colour)
+	Particles.ring(spot.base, colour, m.ring * scale, m.ringSeconds)
+	Context.shake(m.shake, m.shakeStuds * scale) -- off with Reduce Motion or Screen shake off
 end
 
 function Mystery.start()
@@ -217,7 +223,7 @@ function Mystery.start()
 	end
 	CollectionService:GetInstanceAddedSignal("MysteryGift"):Connect(giftAdded)
 	CollectionService:GetInstanceRemovedSignal("MysteryGift"):Connect(giftRemoved)
-	-- MysteryGiftResult(kind, id, count): what your gift held. Net.on waits for the remote with no end, and it only
+	-- MysteryGiftResult(kind, id, count, tier): what your gift held. Net.on waits for the remote with no end, and it only
 	-- exists once the server has F64, so this hooks it up whenever it appears instead.
 	task.spawn(function()
 		local folder = Remotes.folder()
@@ -225,9 +231,11 @@ function Mystery.start()
 			if child.Name ~= "MysteryGiftResult" or not child:IsA("RemoteEvent") then
 				return false
 			end
-			(child :: RemoteEvent).OnClientEvent:Connect(function(kind: unknown, id: unknown)
-				opened(kind, id)
-			end)
+			(child :: RemoteEvent).OnClientEvent:Connect(
+				function(kind: unknown, id: unknown, _count: unknown, tier: unknown)
+					opened(kind, id, tier)
+				end
+			)
 			return true
 		end
 		local existing = folder:FindFirstChild("MysteryGiftResult")

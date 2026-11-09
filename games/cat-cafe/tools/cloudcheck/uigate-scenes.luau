@@ -2362,6 +2362,30 @@ local SCENES = {
 		local fishJackpot = Catalog.spinWheel[8].count -- #2237: 60 since the fish cut
 		assert(prize and string.find(prize.Text, "^Jackpot: " .. fishJackpot .. " golden fish"), "uigate: slice 8 is not the fish jackpot")
 	end },
+	-- #2614: a Super gift waits on your plot: the HUD's gold line under the clock column; opening it shows the
+	-- "Super gift!" card with the top area's crate and its 15 golden fish
+	{ "MysteryGiftSuper", function()
+		local world = workspace:FindFirstChild("World") or Instance.new("Folder")
+		world.Name = "World"
+		world.Parent = workspace
+		local plots = world:FindFirstChild("Plots") or Instance.new("Folder")
+		plots.Name = "Plots"
+		plots.Parent = world
+		local plot = Instance.new("Model")
+		plot.Name = "GatePlot"
+		plot:SetAttribute("OwnerUserId", game:GetService("Players").LocalPlayer.UserId)
+		plot:SetAttribute("MysteryGiftAt", 1794000000)
+		plot:SetAttribute("MysteryGiftTier", "Super")
+		plot.Parent = plots
+		Scenes._giftPlot = plot
+		UI.giftWait.start()
+		local line = UIShim.playerGui:FindFirstChild("GiftWaiting", true) :: TextLabel?
+		assert(line and line.Visible and string.find(line.Text, "super gift", 1, true), "uigate: no gift line (#2614)")
+		UI.potions.giftResult("crate", "highest", 1, "Super", 15)
+		local card = UIShim.playerGui:FindFirstChild("Gift", true)
+		local title = card and card:FindFirstChild("Title") :: TextLabel?
+		assert(title and string.find(title.Text, "Super gift!", 1, true), "uigate: the gift card's heading (#2614)")
+	end },
 	{ "Market", function()
 		-- #2571: a save that never opened Treats and perks shows the tab's red "!"; opening the tab clears it and
 		-- sends it as seen once
@@ -4298,6 +4322,8 @@ local SCENES = {
 			fishPerks = { golden_espresso = 2 },
 		})
 		press("CatCafeHUD", "Counters.Money")
+		local away = UIShim.playerGui:FindFirstChild("Away", true) :: TextLabel?
+		assert(away and away.Visible and string.find(away.Text, "earn while away", 1, true), "uigate: no away line on the money card (#2621)")
 	end },
 	-- #1624: the same card for a player with VIP, Cafe Style, both outfit passes and 2x Money: three more rows
 	{ "HUDBoostsPasses", function()
@@ -4953,6 +4979,13 @@ local SCENES = {
 	{ "RallyRescue", function()
 		rallyScore({ lap = 2, points = 50, myPoints = 7 })
 		UI.rescue.show("gate_rescue", rescueChallenge())
+	end },
+	-- #2608: lap 3 in this server: the banner's gold pill reads "Lap 3: bigger prizes!" and the name steps down to the flag
+	{ "RallyLapThree", function()
+		rallyScore({ lap = 3, points = 50, myPoints = 7 })
+		local banner = UIShim.playerGui:FindFirstChild("CatCafeRally", true)
+		local lap = banner and banner:FindFirstChild("Lap", true) :: TextLabel?
+		assert(lap and lap.Visible and lap.Text == "Lap 3: bigger prizes!", "uigate: no lap pill (#2608)")
 	end },
 	-- F101: Friday, 5 h 20 m before the Rally: the countdown under the clock and no banner
 	{ "RallySoon", function()
@@ -5786,6 +5819,12 @@ function Scenes.close()
 		Scenes._market.stall:Destroy() -- #2214's scene
 		UI.update({ crates = Scenes._market.crates, storeSeen = Scenes._market.seen or {} } :: any)
 		Scenes._market = nil
+	end
+	if Scenes._giftPlot ~= nil then
+		Scenes._giftPlot:Destroy() -- #2614's scene
+		Scenes._giftPlot = nil
+		UI.giftWait.start()
+		UIShim.advance(5) -- the gift card closes by itself
 	end
 	if Scenes._cashMoney ~= nil then
 		UI.update(Scenes._cashMoney :: any) -- #2194's scene

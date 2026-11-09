@@ -1689,9 +1689,14 @@ local function wireServerEvents()
 		end
 	end)
 	-- What this player's opened Mystery gift held (F64): the gift card, and the ribbon pop in Effects.
-	Net.on("MysteryGiftResult", function(kind: string, id: string?, count: number)
-		UI.potions.giftResult(kind, id, count)
-	end)
+	Net.on(
+		"MysteryGiftResult",
+		function(kind: string, id: string?, count: number, tier: string?, fish: number?)
+			-- #2614: the wrap and a crate's fish for the card; UI.potions.giftResult reads them when it is ready
+			local result = UI.potions.giftResult :: any
+			result(kind, id, count, tier, fish)
+		end
+	)
 	-- What a quest, a set or an achievement claim paid (F73), for the Quests window's claim effect.
 	Net.on("QuestResult", function(paid: { string })
 		UI.quests.result(paid)
@@ -2086,6 +2091,7 @@ function UIController.start()
 		potions = Catalog.potions, -- F64: the potion bag's rows
 		catFood = Catalog.catFood, -- #1181: the Bag's Cat Food tab rows
 		mysteryGift = Catalog.mysteryGift, -- F64: what a Mystery gift can hold, shown before opening
+		mysteryGiftTiers = Catalog.mysteryGiftTiers, -- #2614: each wrap's own chances, for the gift prompt's line
 		dealerAmountWeights = Catalog.dealerAmountWeights, -- F59: the dealer's stock odds under Details
 		quests = Catalog.quests, -- F73: the quest rows (to tell a coins quest)
 		questPrizes = Catalog.questPrizes, -- F73: daily, dailyBig, dailySet, weekly and weeklySet

@@ -51,6 +51,7 @@ local Create = require(script.Parent.Parent.Components.Create)
 local FirstBait = require(script.Parent.Parent.Components.FirstBait)
 local FishCoin = require(script.Parent.Parent.Components.FishCoin)
 local Format = require(script.Parent.Parent.Components.Format)
+local GiftLogic = require(script.Parent.Parent.Components.GiftLogic)
 local GoalCard = require(script.Parent.GoalCard)
 local HudUnlocks = require(script.Parent.Parent.Components.HudUnlocks)
 local IconArt = require(script.Parent.Parent.Components.IconArt)
@@ -83,6 +84,7 @@ local TutorialGlow = require(script.Parent.Parent.Components.TutorialGlow)
 local TutorialHints = require(script.Parent.Parent.Components.TutorialHints)
 local Tween = require(script.Parent.Parent.Components.Tween)
 local Types = require(script.Parent.Parent.Types)
+local WelcomeBack = require(script.Parent.Parent.Components.WelcomeBack)
 
 export type Callbacks = {
 	openScreen: (name: Types.ScreenName) -> (),
@@ -112,6 +114,7 @@ export type HUD = {
 	setLuckyDay: (self: HUD, view: LuckLogic.DayView?) -> (),
 	-- F101: "🏁 Rescue Rally in 5h 20m" under the clock in the last hours before a Rally, nil hides it
 	setRallySoon: (self: HUD, line: string?) -> (),
+	setGift: (self: HUD, tier: string?) -> (), -- #2614: a Mystery gift waits on your plot in this wrap, or nil
 	setEvent: (self: HUD, lines: { string }?, kind: string?) -> (),
 	-- F101: the potion timers' row (with the Luck and pal chips), which the Rally banner keeps clear of on a phone
 	buffRow: (self: HUD) -> GuiObject,
@@ -1286,6 +1289,19 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		}),
 	})
 	self._spinLine = spinLine
+	-- #2614: while a Mystery gift waits on your plot, one quiet line in its wrap's colour under the spin line. Info
+	-- only: no press, no pop-up (HUD:setGift from UI's plot watch)
+	self._giftLine = label({
+		Name = "GiftWaiting",
+		AnchorPoint = Vector2.new(1, 0),
+		Size = UDim2.fromOffset(SPIN_LINE_W, SPIN_LINE_H),
+		TextSize = Theme.sizes.textBody,
+		TextColor3 = Theme.colors.cream,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Visible = false,
+		Parent = root,
+	})
+	self._giftTier = nil :: string?
 	local spinBang = claimBadge(spinLine, 2)
 	spinBang.Size = UDim2.fromOffset(SPIN_LINE_H - 2, SPIN_LINE_H - 2)
 	spinBang.LayoutOrder = 1
@@ -3183,9 +3199,38 @@ function HUD._layoutRight(self: any)
 		lineTop += self._roadmap:closedHeight() + Theme.sizes.gap
 	end
 	self._spinLine.Position = UDim2.new(1, -MARGIN, 0, lineTop - lift)
+	local giftTop = if self._spinLine.Visible then lineTop + SPIN_LINE_H + 2 else lineTop
+	self._giftLine.Position = UDim2.new(1, -MARGIN, 0, giftTop - lift)
 	if TOUCH and self._corner ~= nil then
 		self:_placePotionTimers() -- #2393: the money badge keeps clear of the column
 	end
+end
+
+-- #2614: a Mystery gift waits on this player's plot in the `tier` wrap ("common", "rare", "super"), or nil when none
+-- does. The line takes the wrap's colour; it pops in once when a gift appears.
+local GIFT_COLOR: { [string]: Color3 } = {
+	common = Theme.colors.cream,
+	rare = Theme.colors.sky,
+	super = Theme.colors.gold,
+}
+function HUD.setGift(self: any, tier: string?)
+	if tier == self._giftTier then
+		return
+	end
+	local was = self._giftTier
+	self._giftTier = tier
+	local line: TextLabel = self._giftLine
+	if tier == nil then
+		line.Visible = false
+		return
+	end
+	line.Text = Theme.icons.gifts .. " " .. GiftLogic.chip(tier)
+	line.TextColor3 = GIFT_COLOR[GiftLogic.tier(tier)]
+	line.Visible = true
+	if was == nil then
+		Tween.popIn(line, 0.8)
+	end
+	self:_layoutRight()
 end
 
 -- F73: the Quests pill (shown once ProfileSync has quests) with its count of what is ready to claim.
@@ -3920,6 +3965,20 @@ function HUD._buildBoosts(self: any, root: Frame)
 		}),
 		Create("UIPadding", { PaddingTop = UDim.new(0, 6) }),
 	})
+	-- #2621 (Derek2: "make the cats earning offline obvious ... without it being to obnoxious"): one quiet line on what
+	-- time away pays, the Long Nap pass's when owned
+	-- one line; on touch it takes the place of "Tap to close", so the card is no taller under the counters (#2393)
+	self._boostsAway = label({
+		Name = "Away",
+		Size = UDim2.new(1, 0, 0, 20),
+		TextSize = Theme.sizes.textSmall,
+		TextColor3 = Theme.colors.gold,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = WelcomeBack.away(nil),
+		LayoutOrder = 5,
+		ZIndex = 6,
+		Parent = list,
+	})
 	label({
 		Name = "Hint",
 		Size = UDim2.new(1, 0, 0, 18),
@@ -3927,7 +3986,8 @@ function HUD._buildBoosts(self: any, root: Frame)
 		TextColor3 = Theme.hud.subtext,
 		TextXAlignment = Enum.TextXAlignment.Center,
 		Text = "Tap to close",
-		LayoutOrder = 5,
+		Visible = not TOUCH,
+		LayoutOrder = 6,
 		ZIndex = 6,
 		Parent = list,
 	})
@@ -4010,6 +4070,7 @@ function HUD._renderBoosts(self: any)
 	end
 	self._boostsExact.Text = Theme.currencySymbol .. Format.commas(math.floor(state.money))
 	self._boostsRate.Text = Format.rate(state.incomePerSecond)
+	self._boostsAway.Text = WelcomeBack.away((state :: any).longNap == true)
 	-- the money ticks five times a second while income flows (UIController's prediction), and each tick renders the
 	-- HUD; the rows are made again only when what they say changed
 	-- #2147: which outfit passes Roblox says are owned, so the money card names each one

@@ -250,6 +250,37 @@ return function()
 			expect(rows[1].count).to.equal(25)
 		end)
 
+		it("reads the waiting wrap's own rows from Catalog.mysteryGiftTiers (#2614)", function()
+			local catalog = {
+				mysteryGift = { { kind = "fish", count = 8, chance = 100 } },
+				mysteryGiftTiers = {
+					{ tier = "Common", chance = 70, rows = { { kind = "fish", count = 8, chance = 100 } } },
+					{
+						tier = "Super",
+						chance = 5,
+						rows = {
+							{ kind = "crate", id = "highest", count = 1, fish = 15, chance = 60 },
+							{ kind = "fish", count = 50, chance = 40 },
+						},
+					},
+				},
+			}
+			expect(PotionLogic.giftLine(PotionLogic.giftRows(catalog, "Super"), foodName)).to.equal(
+				"Zone crate + 15 golden fish 60%  ·  50 golden fish 40%"
+			)
+			expect(#PotionLogic.giftRows(catalog, nil)).to.equal(1)
+		end)
+
+		it("names and pictures #2614's new prizes", function()
+			expect(PotionLogic.giftTitle("coins", nil, 180, foodName)).to.equal("3 minutes of earnings")
+			expect(PotionLogic.giftTitle("food", "big_cat_snack", 2, foodName)).to.equal("2 Big Cat Snacks")
+			expect(PotionLogic.giftPrize("coins", nil, 180).coinSeconds).to.equal(180)
+			local crate = PotionLogic.giftPrize("crate", "highest", 1, 15)
+			expect(crate.crates.highest).to.equal(1)
+			expect(crate.fish).to.equal(15)
+			expect(PotionLogic.giftPrize("food", "big_cat_snack", 2).catFood.big_cat_snack).to.equal(2)
+		end)
+
 		it("lists the chances in one short line", function()
 			expect(PotionLogic.giftLine(PotionLogic.giftRows(nil), foodName)).to.equal(
 				"Potion 60%  ·  2 Salmon 20%  ·  10 golden fish 10%  ·  1 spin 10%"

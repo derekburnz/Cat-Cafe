@@ -40,7 +40,7 @@ from common import Builder, scale_mesh
 # eyes), curl (the tail tip curls over: up and forward on A, up off the floor and back on B), exclusive (no gold
 # twins); #1191 (the shop-only cats): eye_k (eyes that much bigger), apron ((cloth, sprinkle colours): an apron
 # painted on the chest with sprinkles on it, under where the Barista's apron goes), shop (sold for Robux only: the
-# model carries a BubbleAnchor), lids (half-closed eyes: a lid in the fur over the top of each eye, a calm gaze). Themed cats wear a prop, some two (props.py).
+# model carries a BubbleAnchor), lids (half-closed eyes: a lid in the fur over the top of each eye, a calm gaze); #2584: ear_k (ears that much bigger). Themed cats wear a prop, some two (props.py).
 ROSTER = {
     "Tabby":   dict(rarity="Common", fur="fur_orange", second="fur_orange_dark", eyes="eye_amber", pattern="stripes", muzzle="fur_white"),
     "Tuxedo":  dict(rarity="Common", fur="fur_black", second="fur_white", eyes="eye_green", pattern="patches", muzzle="fur_white", tuxedo=True),
@@ -181,6 +181,31 @@ ROSTER = {
     "MapleMuffin": dict(rarity="Legendary", fur="fur_ginger", second="fur_russet", eyes="eye_amber", pattern="stripes",
                         muzzle="fur_cream", socks="fur_cream", tip="fur_cream", nose="nose_pink", eye_k=1.06,
                         body_scale=(1.0, 1.0, 1.04), exclusive=True, shop=True),
+    # #2584 Tier 6 Desert (tier6-7-areas.md section 6a). The palette is full, so every colour is the nearest swatch
+    # (decisions.md 2026-11-09); the Desert's beige cats each carry a clear second colour so they don't read alike.
+    "Sandy":   dict(rarity="Common", fur="lamp_warm", second="fur_vanilla", eyes="eye_green", pattern="solid",
+                    muzzle="fur_vanilla"),
+    "Dune":    dict(rarity="Common", fur="cardboard", second="fur_toffee", eyes="eye_amber", pattern="stripes",
+                    muzzle="fur_vanilla"),
+    "Dusty":   dict(rarity="Common", fur="floor_tile", second="fur_bramble", third="paving_grout", eyes="eye_copper",
+                    pattern="patches", muzzle="offwhite"),
+    "Sunny":   dict(rarity="Common", fur="paving_light", second="fur_ginger", eyes="eye_blue", pattern="points",
+                    muzzle=None),
+    "Fennec":  dict(rarity="Rare", fur="paving_tan", second="offwhite", eyes="eye_amber", pattern="solid",
+                    muzzle="offwhite", ear_k=1.4, body_scale=(0.9, 1.0, 0.95), nose="nose_dark"),
+    "Camel":   dict(rarity="Rare", fur="kibble", second="fur_cream", eyes="eye_green", pattern="patches",
+                    muzzle="fur_cream", nose="nose_brick"),
+    "Scarab":  dict(rarity="Epic", fur="dumpster_green", second="sign_teal", third="fur_golden", eyes="eye_amber",
+                    pattern="gradient", muzzle=None, nose="nose_dark"),
+    "Mirage":  dict(rarity="Epic", fur="skin_light", second="pastel_sky", third="milk", eyes="pastel_lilac",
+                    pattern="gradient", muzzle=None, sparkle=True),
+    "Pharaoh": dict(rarity="Legendary", fur="fur_black", second="fur_golden", eyes="eye_green", pattern="solid",
+                    muzzle=None, nose="nose_dark", lids=True),
+    # The DJ Cat is "Sphynx" (the breed); this is the Sphinx: a lion of sandstone with faint carved lines, gold only
+    # on its headdress so the Gold Sphinx reads differently, glowing blue eyes.
+    "Sphinx":  dict(rarity="Mythical", fur="fur_dune", second="fur_sand", eyes="fish_blue", pattern="stripes",
+                    muzzle="fur_vanilla", ruff="fur_sand", scale=1.3, body_scale=(1.1, 1.0, 1.08), tail_thick=0.3,
+                    tip="fur_brown", glow_eyes=True, nose="nose_brick"),
 }
 
 COAT_FIELDS = ("fur", "second", "third", "ruff", "muzzle", "eyes", "eyes2", "nose", "tip", "socks", "blaze")
@@ -294,6 +319,8 @@ def _head_dims(spec, body):
         ew, eh = ew * 0.72, eh * 0.7
     if spec.get("fold_ears"):                           # short and folded forward (_ear)
         ew, eh = ew * 0.95, eh * 0.6
+    if spec.get("ear_k"):                               # #2584: the Fennec Cat's big ears
+        ew, eh = ew * spec["ear_k"], eh * spec["ear_k"]
     h["ear"] = (ew, eh)
     h["fy"] = cy - sy / 2                               # the face plane
     h["top"] = cz + sz / 2

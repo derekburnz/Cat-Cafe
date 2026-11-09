@@ -28,16 +28,18 @@ Derek2, 2026-11-09: "Start drafting 20 new cats for Tier 6 and Tier 7 10 cats ea
 
 The five areas today sit about 2000 studs from the Town Square: the Park to the south, the Neighbourhood north, the Woods west, the Sewer east and the Alleyway south-west (Config.World). The two free diagonals near the town side are south-east and north-east.
 
-| Area | Centre (x, z) | Direction from town | Cannon aim (`Layout.cannonAim`, atan2(x, z)) |
+| Area | Centre (x, z) | Direction from town | Barrel aim (at the camp pad) |
 |---|---|---|---|
-| Desert | (1400, -1400) | south-east | 135° |
-| Ruins | (1400, 1400) | north-east | 45° |
+| Desert | (1400, -1400) | south-east | about 129° |
+| Ruins | (1400, 1400) | north-east | about 51.5° |
 
-For comparison, the existing aims are Park 180°, Neighbourhood 0°, Woods -90°, Sewer 90° and Alleyway -135°. Every area has its own direction at least 45° from its neighbours, so the barrel visibly turns to each one.
+**Aim at the pad, for every area** (answers QA #2585, point 1). Each camp sits at the town end of its area, off the centre line, so a barrel aimed at the area's middle points 6 to 7° away from where the flight lands. `Layout.cannonAim` changes to aim at the destination's landing-pad centre, `atan2(pad.x, pad.z)`, for every area, so the barrel always points where you land. The Park, Neighbourhood, Woods and Sewer pads sit on their axes, so they don't move. The Alleyway moves by about 2.4°, and `Intro.cannonAim` follows it, since the cutscene uses the same aim.
+
+For comparison, the existing aims are Park 180°, Neighbourhood 0°, Woods -90°, Sewer 90° and Alleyway about -135°. Every area's direction is still at least 38° from its neighbours, so the barrel visibly turns to each one.
 
 **Cannon checks** (QA-Planner, on the map draft):
-1. The town cannon's turret turns to 135° for the Desert and 45° for the Ruins, and the flight arc leaves the barrel that way.
-2. The flight lands on the new camp's pad, at the same distance as the Alleyway (about 1980 studs), so the flight time matches.
+1. The town cannon's turret turns to about 129° for the Desert and about 51.5° for the Ruins, and the flight arc leaves the barrel that way. For every area, the gap between the barrel and the line to the pad is under 1°.
+2. The flight lands on the new camp's pad. Town to the new pads is about 1790 to 1800 studs (the 1980 in the first draft was the distance to the area's middle). The Alleyway's pad is about 1900 studs, so the new flights are a little shorter, and their flight time should be within 10% of the Alleyway's.
 3. The camp cannons list both new areas, the Desert and Ruins camp cannons list Town Square first, and the Cannon button jumps to the right cannon.
 4. Each picker shows "(opens at Tier 6)" or "(opens at Tier 7)" before the area opens.
 5. From either new area, the flight never crosses another area's set in view.
@@ -57,7 +59,7 @@ Derek2: "no flat overflowing grass lands for the areas". For both areas:
 
 **Zones, camp first:**
 1. **Oasis Camp** (the camp, 30 deep). A palm-ringed pool with a stone well, striped canopies, the landing pad, the Index Board, the camp cannon and the camp extra's spot (section 8). It is the only green in the area: three palms and reeds at the water, not grass.
-2. **Dune Sea.** Rolling dune ridges, 6 to 9 studs high, form the walls of two winding paths that cross twice. There are sand ripples underfoot and half-buried pots and old crates to hide behind.
+2. **Dune Sea.** Rolling dune ridges, 9 to 12 studs high (a jump clears about 7.2, so no path or area edge is under 9), form the walls of two winding paths that cross twice. There are sand ripples underfoot and half-buried pots and old crates to hide behind.
 3. **Red Canyon.** A narrow slot canyon, 14 to 18 wide, with tall red rock walls and two side alcoves. It is the main route deep, and it's easy to be cornered there, which is good for tackles.
 4. **Mirage Flats.** A wide sunken pan of cracked clay with heat shimmer. The shimmer is a soft distortion that Reduce Motion turns off. It has the only open sightlines.
 5. **Sunken Pyramid.** At the far end, a small stepped pyramid half sunk in sand, with a courtyard of broken obelisks. This is the deep zone where Mythicals stay (town-layout-v3 §8d).
@@ -86,10 +88,16 @@ Nothing sharp or painful is used: no cactus traps (young audience).
 
 **Edges.** On the long sides, the plateau ends in cliffs that drop into soft mist, behind broken walls about 9 studs tall so nobody walks off. At the far end there's a tall ruined wall with a giant cat-head carving.
 
+**Falling into the mist** (answers QA #2585, point 4). The 9-stud walls mean nobody should get there, but there is a catch for anything that does:
+- A catch zone sits 30 studs below the plateau, hidden in the mist. There's no floor to stand on.
+- A **player** who reaches it fades out and back in on the Broken Gate Camp's landing pad, as a cannon landing does. There's no damage, no death screen and no loss.
+- A **carried cat** (net or backpack) drops the moment its carrier falls, as a tackle does. That cat, and any **dropped cat or stray** that reaches the zone, goes straight back to its home spot, as if it had walked home. It is never lost.
+- The server does the catch. A client can't send itself or a cat there for a free teleport, since it only moves to the camp pad you would fly to anyway.
+
 **Rescue spots (5):**
 - Two rubble piles.
 - Two stone urns.
-- A broken bridge ledge, where the cat is on the far side of a gap.
+- A broken bridge ledge. The cat sits on the far stub of the bridge, about 5 studs across the gap. The rescue is done on foot from the near side, and the prompt reaches across, inside the rescue's reach (7 studs). The near edge has a low broken parapet with an invisible wall over it, 9 studs in all, so nobody can step into the gap. Nobody needs to cross the gap, and no jump is needed.
 
 **Night.** A violet sky, with the glyph strips glowing brighter.
 
@@ -163,6 +171,13 @@ The build lists each of these with its new rows:
 - `GrandOpening` (it has a check for Tier 5).
 - The rank-up screen.
 - Leaderboards that show a top tier.
+- A stress re-run with 112 live strays across seven areas (QA #2585).
+- The mist catch zone in the Ruins (section 5).
+
+**Smaller QA points (#2585):**
+- **Mirage Cat:** the 0.15 transparency is on the bare body only. Outfits stay opaque. A gold or rainbow coat replaces the shimmer, so the cat draws at full opacity. A carried Mirage Cat looks the same as one on the ground.
+- **Heat shimmer:** it turns off under Reduce Motion and under Low performance. It uses one screen-space effect per client, never one per part.
+- **Cannon picker:** seven rows scroll on a phone, as #2339 lays out. The picker lists the areas in tier order.
 
 ## 8. Big late-game stations (first draft, Derek2 picks)
 
@@ -180,6 +195,6 @@ These are stations in the vein of the Yard Sale, the Fish Pond and the Lost and 
 My picks for the first two to build are the **Oasis Spa** and the **Relic Museum**, one camp extra each, because they match the existing camp-extra slots (`Layout.campExtras`). Each station gets its own spec and a Pace check before it's built.
 
 ## 9. Open questions for Derek2
-1. The cafe names (Royal Cafe, Wonder Cafe) and the draft costs: OK, or other ideas?
+1. The cafe names (Royal Cafe, Wonder Cafe) and the draft costs: OK, or other ideas? QA notes that "Royal Cafe" sits next to the Royal Bowl and the Royal Velvet Booth. If that's too close, I'd suggest "Grand Cafe" instead.
 2. Should the Golem be the Legendary (as drafted) or the Mythical?
 3. Which two big stations come first? I'd pick the Oasis Spa and the Relic Museum.

@@ -76,6 +76,7 @@ import doorsets  # noqa: E402
 import market  # noqa: E402
 import daycart  # noqa: E402
 import mysterymarket  # noqa: E402
+import mysteryitems  # noqa: E402
 import gardendecor  # noqa: E402
 import grandopening  # noqa: E402
 import gardennursery  # noqa: E402
@@ -116,7 +117,7 @@ MODULES = [cats, gold, npc, furniture, decor, alley, park, items, accessories, s
            townbuildings, customers, cannon, camps, lawn, backdrop, wildbackdrop, luckycat, welcomearch, campextras,
            leaderboards, rally, rallycrate, menu, style_icons, yardfence, bellhop, shopcats, signstyles,
            gardennursery, campstations, daycart, pitysign, seasondecor, themes, gardendecor, grandopening, ringicons, eventdecor,
-           mysterymarket]
+           mysterymarket, mysteryitems]
 
 PIVOT_NOTES = {
     **{"CatCafe_Menu_" + n: "the plate's base centre, front -Z; the plate is the child Model <name>_Plate (hide it and "
@@ -218,6 +219,9 @@ PIVOT_NOTES = {
     "CatCafe_Street_FishMarket": "base centre; the counter front (-Z) faces the players",
     daycart.NAME: "base centre; the display front (-Z) faces the players",
     mysterymarket.NAME: "base centre; the counter (-Z) faces the players",
+    mysteryitems.BACKPACK: "the middle of the pack's back (wall: the strap side at +Z, the cat face -Z); the _Flap's "
+                           "pivot is its hinge",
+    mysteryitems.LONG_NET: "the middle of its bounding box's bottom; the net faces -Z",
     pitysign.NAME: "the base centre between its posts on the square's floor (world y 0.1), front -Z; "
                    "pitysign.SPOT, facing the player spawn",
     campstations.PIC: "the base centre on the camp's ground, front -Z, no turn; the Picnic Basket's spot "
@@ -363,6 +367,14 @@ STUDIO_NOTES = {
                   "tags it CornerShop and hangs the shop prompt on the Attachment PromptAnchor (cart front, 3 up). "
                   "The shop cat's visor rides its Head Model, the lantern Bulb is lit at night. It replaced "
                   "the Corner Shop stall (#1698).",
+    mysteryitems.BACKPACK: "#2565 (mystery-market.md section 3d): the Backpack, for Juniper's window picture "
+                           "(ItemIcon draws its -Z face, the cat face) and the wagon's FeaturedItem pedestal. Worn: "
+                           "weld it behind the torso like HeldCat.attachBack, turned 180 degrees about Y so the cat "
+                           "face looks backward, massless and CanCollide off. Open it while a cat rides in it by "
+                           "turning the child Model _Flap about its own X by mysteryitems.FLAP_OPEN (125) degrees.",
+    mysteryitems.LONG_NET: "#2565 (mystery-market.md section 4): the Long Net's picture for Juniper's window and the "
+                           "pedestal: a net with a long telescoping handle and a gold arrow out to the hoop. A "
+                           "picture only; the player's own net (CatCafe_Item_Net_L*) is unchanged.",
     mysterymarket.NAME: "#2565 (mystery-market.md section 4, look A): Juniper's covered wagon in the Town Square's "
                         "south-west quarter (Layout.mysteryCart, turned to face the cannon). WorldBuilder names it "
                         "MysteryMarket, tags it MysteryMarket and hangs the MysteryPrompt on the Attachment "

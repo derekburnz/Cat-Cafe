@@ -101,6 +101,7 @@ import plot  # noqa: E402
 import poses  # noqa: E402
 import props  # noqa: E402
 import rbx_export  # noqa: E402
+import spot_clear  # noqa: E402
 import seasondecor  # noqa: E402
 import sewer  # noqa: E402
 import themes  # noqa: E402
@@ -788,6 +789,13 @@ def main():
         if name in luckycat.ATTACHED:             # F88: PawHinge at the shoulder the _Paw model turns about
             extra = {"attachments": luckycat.hinge_attachments(name)}
         rbx_path, rbx_parts = (None, 0) if args.no_rbx else rbx_export.write_model(objs, name, args.rbx, **extra)
+        spots_ok = None
+        if rbx_path and name in spot_clear.SETTLE and name in areakit.POINTS:   # cat spots out of solid props
+            blo, bhi = common.bounds(objs)
+            moved, stuck = spot_clear.settle(rbx_path, areakit.POINTS[name], (-bhi.x, blo.y), (-blo.x, bhi.y))
+            for label, a, b_ in moved:
+                print(f"  {name}: {label} spot moved from {a} to {b_}")
+            spots_ok = spot_clear.check(rbx_path, areakit.POINTS[name])[:2]
         tris = common.tri_count(objs)
         lo, hi = common.bounds(objs)
         size = [round(v, 2) for v in (hi - lo)]
@@ -920,6 +928,11 @@ def main():
         if not args.no_export and not name.endswith(("_Gold", "_Gold_Sit", "_Gold_Work")):   # gold cats: Part models only
             entry["files"] = [os.path.relpath(p, ROOT) for p in common.export_asset(objs, name, args.out)]
         entry["gates"] = gates.check(objs, name, budget, tris, lo, hi, PIVOT_NOTES.get(name), mat)
+        if spots_ok is not None:                  # spot_clear: every cat spot clear of the collidable parts (FAIL)
+            entry["gates"]["checks"]["cat_spots"] = spots_ok[1]
+            if not spots_ok[0]:
+                entry["gates"]["failed"].append("cat_spots")
+                entry["gates"]["pass"] = False
         if args.render:
             path = os.path.join(args.docs, "previews", name + ".png")
             visible = [o for o in objs if not o.name.endswith(("_Glass", "_Fireflies", "_Climb", "_Barrier"))] or objs   # glass is opaque in Cycles here; firefly volumes are air

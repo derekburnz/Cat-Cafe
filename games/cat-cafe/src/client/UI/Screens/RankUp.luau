@@ -69,6 +69,8 @@ local TEASER_TALL = 20 -- #2687: the perk teaser's one line in the tall window
 local TEASER_WIDE = 38 -- and its two in the wide window's narrower column
 local PERKS_BUTTON = Vector2.new(112, 36) -- #2687: the title bar's Perks button, a 36 px face on a mouse
 local PERKS_RIGHT = 64 -- the title bar's room for the X, right of the Perks button
+local PERKS_GAP = 14 -- #2839: on touch, the space between the Perks button and the X
+local CLOSE_OVERHANG = 10 -- Components/Panel's: how far the touch X sticks out past the window's right edge
 
 local RARITY_WORDS: { [number]: string } = { "One", "Two", "Three", "Four", "Five" }
 
@@ -342,17 +344,29 @@ function RankUp.new(callbacks: Callbacks): RankUp
 	if callbacks.perks then
 		local header = panel.body:FindFirstChild("Header") :: Frame?
 		local touch = Scale.isTouch()
+		-- #2839 (Derek2 11-09, phone: "buttons squished"): on touch the button was a finger tall, taller than a short
+		-- screen's header, and sat against the X. Now its face fits inside the header (Components/Button's Hit pad still
+		-- reaches a finger's 44 px), and it keeps PERKS_GAP clear of the touch X, which is as wide as Panel draws it
+		-- and sticks out past the window's edge.
+		local height = PERKS_BUTTON.Y
+		local right = PERKS_RIGHT
+		if touch then
+			local side = Theme.sizes.touchMin
+			local closeWide = math.max(
+				side,
+				Scale.tapHeight(side, Theme.sizes.buttonDepth) - Theme.sizes.buttonDepth
+			)
+			right = closeWide - CLOSE_OVERHANG + PERKS_GAP
+			height = math.min(PERKS_BUTTON.Y, panel.headerHeight - 14) -- room for its outline and lip
+		end
 		self._perksButton = Button.new({
 			name = "Perks",
 			text = "Perks",
 			icon = "⭐",
 			style = "ghost",
-			size = UDim2.fromOffset(
-				PERKS_BUTTON.X,
-				Scale.tapHeight(PERKS_BUTTON.Y, Theme.sizes.buttonDepth)
-			),
+			size = UDim2.fromOffset(PERKS_BUTTON.X, height),
 			anchorPoint = Vector2.new(1, 0.5),
-			position = UDim2.new(1, -(if touch then PERKS_RIGHT + 12 else PERKS_RIGHT), 0.5, -2),
+			position = UDim2.new(1, -right, 0.5, if touch then 0 else -2),
 			textSize = Theme.sizes.textBody,
 			zIndex = 3,
 			parent = header or content,

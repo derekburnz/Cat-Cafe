@@ -1556,6 +1556,23 @@ local SCENES = {
 	end },
 	{ "RankUp", function()
 		UI.open("RankUp")
+		-- #2839 (Derek2, phone: "buttons squished"): the Perks button fits inside the header and stays clear of the X
+		local modals = UIShim.playerGui:FindFirstChild("CatCafeModals")
+		local root = modals and modals:FindFirstChild("Root")
+		local container = root and root:FindFirstChild("Container")
+		local window = container and container:FindFirstChild("RankUp") :: GuiObject?
+		local perks = window and window:FindFirstChild("Perks", true) :: GuiObject?
+		local close = window and window:FindFirstChild("Close", true) :: GuiObject?
+		local header = window and window:FindFirstChild("Header", true) :: GuiObject?
+		assert(perks and close and header, "uigate: no Perks button, X or header on Rank Up (#2839)")
+		local face = (perks :: GuiObject):FindFirstChild("Face") :: GuiObject?
+		local shown = face or perks :: GuiObject
+		local top, bottom = shown.AbsolutePosition.Y, shown.AbsolutePosition.Y + shown.AbsoluteSize.Y
+		local headerTop = (header :: GuiObject).AbsolutePosition.Y
+		local headerBottom = headerTop + (header :: GuiObject).AbsoluteSize.Y
+		assert(top >= headerTop - 1 and bottom <= headerBottom + 1, ("uigate: the Perks button (%d-%d) runs out of the header (%d-%d) (#2839)"):format(top, bottom, headerTop, headerBottom))
+		local gap = (close :: GuiObject).AbsolutePosition.X - (shown.AbsolutePosition.X + shown.AbsoluteSize.X)
+		assert(gap >= 8, ("uigate: the Perks button is %d px from the X (#2839)"):format(gap))
 	end },
 	{ "RankUpTier2", function()
 		-- #2121: the Tier 1 card lists all five upgrade caps now Bait Bowl 3 opens at Tier 2; the line still fits

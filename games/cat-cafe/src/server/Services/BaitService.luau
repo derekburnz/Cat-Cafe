@@ -212,12 +212,17 @@ local function onResolveBait(player: Player, rawChoice: unknown, rawBowl: unknow
 	end
 	Telemetry.onboarding(player, profile, "first_bait_resolved")
 	local def = Catalog.getCat(bait.catId)
-	Telemetry.custom(
-		player,
-		"bait_resolved",
-		1,
-		{ bait.lureId, if def ~= nil then def.rarity :: string else "unknown", choice }
-	)
+	local rarityText = if def ~= nil then def.rarity :: string else "unknown"
+	Telemetry.custom(player, "bait_resolved", 1, { bait.lureId, rarityText, choice })
+	-- #2774: how long the account's first bait really took, food in to resolve
+	if profile.stats.luresUsed == 1 then
+		Telemetry.custom(
+			player,
+			"first_bait_wait",
+			math.max(0, os.time() - bait.placedAt),
+			{ bait.lureId, rarityText, choice }
+		)
+	end
 	if choice == "tame" and def ~= nil then
 		profile.stats.baitsTamed += 1
 		local hadEpicOrBetter = RareMoments.ownsEpicOrBetter(profile.collection) -- F89: the first Epic's card
@@ -297,6 +302,19 @@ local function checkArrivals()
 			then
 				shown[bowl] = bait.placedAt
 				changed = true
+				-- #2774: the account's first bait lands while the tutorial has them out catching (12 set a first bait,
+				-- 7 came back for it), so say so wherever they are
+				if profile.stats.luresUsed == 1 and not bait.wow then
+					local placedAt = bait.placedAt
+					table.insert(after, function()
+						Telemetry.firstBaitArrived(player, os.time() - placedAt)
+						Net.toast(
+							player,
+							"Your bait cat is here! Head home to your bowl to meet it.",
+							"good"
+						)
+					end)
+				end
 				if bait.wow then
 					local send = wowArrived(player, profile, bait)
 					if send ~= nil then

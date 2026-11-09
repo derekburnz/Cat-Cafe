@@ -269,8 +269,9 @@ local Config = {
 	BowlWaitSeconds = { 600, 570, 540, 510, 480 } :: { number },
 	BowlLuck = { 0, 0.04, 0.08, 0.12, 0.16 } :: { number },
 	BigBowlWaitCutSeconds = 120,
-	-- #1895 (Design-Agent, first-hour.md): the account's first bait waits at most this long; later ones as usual
-	FirstBaitWaitSeconds = 120,
+	-- #1895 (Design-Agent, first-hour.md): the account's first bait waits at most this long; later ones as usual.
+	-- #2774 (Derek2 2026-11-09, the 2 to 5 minute drop: 12 set a first bait, 7 saw it land): was 120
+	FirstBaitWaitSeconds = 45,
 	-- #1920 (Design-Agent, first-hour.md 6): seconds of play in one session before the recap card (SessionRecap)
 	RecapAfterSeconds = 2400,
 	-- #2123 (first-hour.md 6a): the account's first session shows it sooner, as most first sessions end before 40 minutes

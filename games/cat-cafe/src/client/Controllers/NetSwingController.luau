@@ -127,7 +127,21 @@ local function findInReach(): Model?
 		targets,
 		if type(extra) == "number" then extra else 0
 	)
-	return if picked ~= nil then byId[picked.id] else nil
+	if picked ~= nil then
+		return byId[picked.id]
+	end
+	-- #2774: the server lands a beginner's swing on their own tutorial stray within NetSwing.beginnerReach
+	for _, target in targets do
+		local model: Model? = byId[target.id]
+		if
+			model
+			and model:GetAttribute("Beginner") == player.UserId
+			and NetSwing.beginnerReach(origin, target.position)
+		then
+			return model
+		end
+	end
+	return nil
 end
 
 local function watchReach()

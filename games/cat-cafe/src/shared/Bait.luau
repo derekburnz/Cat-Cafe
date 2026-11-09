@@ -75,7 +75,7 @@ function Bait.waitSeconds(bowlLevel: number, bigBowl: boolean, night: boolean?):
 end
 
 -- #1895: the wait for food going in now when the account has set `luresUsed` baits before: the account's first
--- bait waits at most FirstBaitWaitSeconds (2 minutes, so a first session sees its first bait cat), every later one
+-- bait waits at most FirstBaitWaitSeconds (45 seconds since #2774, so a first session sees its first bait cat), every later one
 -- `wait` (Economy.baitWaitSeconds). Speed-ups only ever shorten it. No Robux buys it.
 function Bait.firstWait(wait: number, luresUsed: number): number
 	if luresUsed <= 0 then

@@ -23,6 +23,7 @@ local Config = require(Shared:WaitForChild("Config"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
 local Effects = require(script.Parent.Parent.Effects)
 local EventRsvp = require(script.Parent.Parent.UI.Components.EventRsvp)
+local FirstVisitLogic = require(script.Parent.Parent.UI.Components.FirstVisitLogic)
 local Jukebox = require(Shared:WaitForChild("Jukebox"))
 local Luck = require(Shared:WaitForChild("Luck"))
 local Moments = require(script.Parent.Parent.Moments)
@@ -571,6 +572,39 @@ end
 local richTipPlot: Model? = nil
 local richTipConnection: RBXScriptConnection? = nil
 local richTipAmount = 0
+-- #2792: the same plot's FirstVisit attribute (a new account's first special visitor at the cafe), for the UI's arrival
+-- line; its connection lives here next to the rich tip's
+local firstVisit = { connection = nil :: RBXScriptConnection? }
+
+-- How far the character stands from `plot`, or nil before the character loads.
+function firstVisit.distance(plot: Model): number?
+	local character = Players.LocalPlayer.Character
+	local root = if character ~= nil then character:FindFirstChild("HumanoidRootPart") else nil
+	if root == nil or not root:IsA("BasePart") then
+		return nil
+	end
+	return (root.Position - plot:GetPivot().Position).Magnitude
+end
+
+function firstVisit.bind(plot: Model?)
+	if firstVisit.connection ~= nil then
+		firstVisit.connection:Disconnect()
+		firstVisit.connection = nil
+	end
+	if plot == nil then
+		UI.firstVisit.changed(nil, function()
+			return false
+		end)
+		return
+	end
+	local function away(): boolean
+		return FirstVisitLogic.away(firstVisit.distance(plot))
+	end
+	firstVisit.connection = plot:GetAttributeChangedSignal("FirstVisit"):Connect(function()
+		UI.firstVisit.changed(plot:GetAttribute("FirstVisit"), away)
+	end)
+	UI.firstVisit.changed(plot:GetAttribute("FirstVisit"), away) -- a visit already waiting at a rejoin
+end
 
 local function tipAmount(plot: Model): number
 	local value = plot:GetAttribute("RichTipAmount")
@@ -588,6 +622,7 @@ local function refreshRichTip()
 	end
 	richTipPlot = plot
 	UI.richTip.bind(plot)
+	firstVisit.bind(plot)
 	if plot == nil then
 		return
 	end

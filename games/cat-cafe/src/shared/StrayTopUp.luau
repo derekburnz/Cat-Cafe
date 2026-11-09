@@ -16,9 +16,13 @@ local StrayTopUp = {}
 StrayTopUp.FAR_ZONES = table.freeze({ deep = true, nook = true }) :: { [string]: boolean }
 
 -- The live strays an area keeps by day with `players` players who have it open (a lone player counts as one).
-function StrayTopUp.floor(players: number): number
+-- `base` is the area's own floorBase (#2794: the Alleyway and the Park), Config.StrayFloorBase when nil.
+function StrayTopUp.floor(players: number, base: number?): number
 	local extra = math.max(0, math.floor(players) - 1)
-	return math.min(Config.StrayLiveMax, Config.StrayFloorBase + Config.StrayFloorPerPlayer * extra)
+	return math.min(
+		Config.StrayLiveMax,
+		(base or Config.StrayFloorBase) + Config.StrayFloorPerPlayer * extra
+	)
 end
 
 -- Seconds until the next top-up, `r` a random number in [0, 1).
@@ -56,15 +60,16 @@ function StrayTopUp.entryPool(pool: { number }, near: { [number]: boolean }): { 
 	return if #entry > 0 then entry else pool
 end
 
--- True while an area with `nearGate` live strays near its gate and `live` in all wants an entry top-up.
-function StrayTopUp.entryShort(nearGate: number, live: number): boolean
-	return nearGate < Config.StrayEntryFloor and live < Config.StrayLiveMax
+-- True while an area with `nearGate` live strays near its gate and `live` in all wants an entry top-up. `entryFloor`
+-- is the area's own (#2794), Config.StrayEntryFloor when nil.
+function StrayTopUp.entryShort(nearGate: number, live: number, entryFloor: number?): boolean
+	return nearGate < (entryFloor or Config.StrayEntryFloor) and live < Config.StrayLiveMax
 end
 
 -- Whether the `place`-th stray placed from a wave of `size` (rarest first) goes near the gate: the last
--- StrayEntryFloor placed, the commonest.
-function StrayTopUp.waveEntry(place: number, size: number): boolean
-	return place > size - Config.StrayEntryFloor
+-- `entryFloor` (Config.StrayEntryFloor when nil) placed, the commonest.
+function StrayTopUp.waveEntry(place: number, size: number, entryFloor: number?): boolean
+	return place > size - (entryFloor or Config.StrayEntryFloor)
 end
 
 return StrayTopUp

@@ -2171,6 +2171,63 @@ local SCENES = {
 		end
 		assert(open, "uigate: index_hint_tap named " .. tostring(tapped) .. ", not an open area (#1919)")
 	end },
+	-- #2792 (Derek2: "make it obvious when he visits"): a new account's first rich customer arrives while the player is
+	-- out catching: the ask card's one line says so, and Go to my cafe travels home. The Mystery Visitor's card is next,
+	-- and the rich customer's card went when its visit ended
+	{ "FirstVisitAway", function()
+		local trips = {}
+		local connection = UI.events.travel:Connect(function(destination)
+			table.insert(trips, destination)
+		end)
+		local function away()
+			return true
+		end
+		UI.firstVisit.changed("rich", away)
+		task.wait(0.1)
+		local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
+		local title = ask and ask:FindFirstChild("Title", true)
+		assert(title and title.Text == "💰 A rich customer is at your cafe!", "uigate: the first rich customer's card reads " .. tostring(title and title.Text) .. " (#2792)")
+		press("CatCafeAsk", "Choice_go")
+		connection:Disconnect()
+		assert(#trips == 1 and trips[1] == "home", "uigate: Go to my cafe travelled to " .. table.concat(trips, ", ") .. " (#2792)")
+		UI.firstVisit.changed(nil, away)
+		UI.firstVisit.changed("mystery", away)
+		task.wait(0.1)
+		assert(ask:FindFirstChild("Holder", true).Visible and title.Text == "🎁 A visitor left you a gift!", "uigate: no card for the first Mystery Visitor (#2792)")
+		UI.firstVisit.changed(nil, away)
+		task.wait(0.4)
+		assert(not ask:FindFirstChild("Holder", true).Visible, "uigate: the card stays after the visit ended (#2792)")
+		UI.firstVisit.changed("collector", away)
+	end },
+	-- #2791 (Derek2: "we have gift milestones can be improved but don't make this ... take a lot of precious phone
+	-- screen space"): the gift ladder on the Rewards tile, no new slot: the tile counts down to the next step and its
+	-- list shows the next two with what they pay
+	{ "GiftLadder", function()
+		Scenes._ladder = true -- Scenes.close takes the ladder away again
+		UI.update({
+			playSeconds = 15,
+			giftNext = {
+				{ id = "m2", at = 120, prize = { coinSeconds = 60 } },
+				{ id = "m4", at = 240, prize = { lures = { tuna = 1 } } },
+			},
+		} :: any)
+		local hudGui = UIShim.playerGui:FindFirstChild("CatCafeHUD")
+		local tile = hudGui and hudGui:FindFirstChild("Rewards", true)
+		assert(tile and tile.Visible, "uigate: no Rewards tile with the gift ladder (#2791)")
+		local label = tile:FindFirstChild("Label", true)
+		local text = label and label.Text or ""
+		-- the time to the next gift, or "Rewards" with the red "!" while a Tip Jar gift waits (the sample player's)
+		local dot = tile:FindFirstChild("Dot", true)
+		assert(string.match(text, "^%d+:%d%d$") or (text == "Rewards" and dot and dot.Visible), "uigate: the Rewards tile reads " .. text .. ", not the next gift's time (#2791)")
+		press("CatCafeHUD", "Icons.Rewards")
+		local pop = hudGui:FindFirstChild("Pop", true)
+		assert(pop and pop.Visible, "uigate: the Rewards tile didn't open the gift list (#2791)")
+		local first = pop:FindFirstChild("Ladder1")
+		local second = pop:FindFirstChild("Ladder2")
+		assert(first and second, "uigate: the gift list doesn't show the next two steps (#2791)")
+		local words = first:FindFirstChild("Label", true)
+		assert(words and string.find(words.Text, "$", 1, true), "uigate: the first step reads " .. tostring(words and words.Text) .. " (#2791)")
+	end },
 	-- #1893: step 8's Grand Opening banner
 	{ "GrandOpeningDone", function()
 		UI.update({ tutorialStep = 9, grandOpening = { done = { [1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true } } })
@@ -3775,6 +3832,11 @@ local SCENES = {
 	{ "CatchFocus", function()
 		local hud = UIShim.playerGui:FindFirstChild("CatCafeHUD") :: ScreenGui
 		local root = hud:FindFirstChild("Root") :: Frame
+		-- #2808: with a potion running, its timers redraw every second, and still stay down mid-catch
+		UI.update({ buffs = { tip_potion = workspace:GetServerTimeNow() + 492 } } :: any)
+		UIShim.advance(0.1)
+		local timers = root:FindFirstChild("PotionTimers") :: Frame
+		assert(timers ~= nil and timers.Visible, "uigate: the potion timers did not show before the catch (#2808)")
 		local before: { [Instance]: boolean } = {}
 		for _, child in root:GetChildren() do
 			if child:IsA("GuiObject") then
@@ -3799,6 +3861,8 @@ local SCENES = {
 				assert(not piece.Visible, "uigate: the HUD's " .. piece.Name .. " still shows mid-catch (#2724)")
 			end
 		end
+		UIShim.advance(1.2) -- past a timer tick
+		assert(not timers.Visible, "uigate: the potion timers came back mid-catch on their tick (#2808)")
 		UI.toast("Tip Jar: 2 gifts claimed!", "good")
 		UI.toast("Your paws are shaking!", "warn")
 		UIShim.advance(0.3)
@@ -6660,6 +6724,10 @@ function Scenes.close()
 	if pop and pop.Visible then
 		press("CatCafeHUD", if pop:FindFirstChild("Settings") then "Icons.Menu" else "Icons.Rewards")
 	end
+	if Scenes._ladder then
+		Scenes._ladder = nil
+		UI.update({ giftNext = {} } :: any) -- #2791's scene: the ladder done, the Rewards tile as it was
+	end
 	-- the help card waits for Got it
 	local ask = UIShim.playerGui:FindFirstChild("CatCafeAsk")
 	if ask and ask:FindFirstChild("Choice_ok", true) and ask:FindFirstChild("Card", true).Visible then
@@ -6669,6 +6737,9 @@ function Scenes.close()
 	if ask and ask:FindFirstChild("Choice_later", true) and ask:FindFirstChild("Card", true).Visible then
 		press("CatCafeAsk", "Choice_later")
 	end
+	UI.firstVisit.changed(nil, function() -- #2792's scene: no first visit at the cafe
+		return false
+	end)
 	-- the cat found card goes by itself after 5 s; Nice! now, so it is not over the next scene
 	local found = UIShim.playerGui:FindFirstChild("CatCafePopups")
 	found = found and found:FindFirstChild("CatFound", true)

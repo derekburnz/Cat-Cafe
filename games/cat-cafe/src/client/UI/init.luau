@@ -1484,6 +1484,7 @@ function UI.init(config: Types.InitConfig)
 		RunService.Heartbeat:Connect(function(dt: number)
 			ticks.tips(dt)
 			ticks.nudges(dt)
+			UI.giftLadder.tick(dt)
 		end)
 	)
 	introScreen = Intro.new(parent, {
@@ -1643,6 +1644,7 @@ function UI.update(partial: Types.PartialState)
 	end
 	deriveState(partial)
 	render()
+	UI.giftLadder.refresh() -- #2791
 end
 
 function UI.getState(): Types.PlayerState
@@ -4966,6 +4968,127 @@ do
 	function UI.tutorial.showHelp()
 		local step = state.tutorialStep or 0
 		askHelp(math.min(step, TutorialHints.DONE - 1))
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- First visitors (#2792, retention-ideas.md section 2)
+----------------------------------------------------------------------------------------------------
+
+-- A new account's first rich customer, Mystery Visitor and Cat Collector: the server names the one at the cafe in the
+-- own plot's FirstVisit attribute, and UIController hands each change here with a check of whether the player is away
+-- from the cafe. At a free moment (UI.tips.quiet: no catch, rescue, window or other ask) it toasts at the cafe, or away
+-- puts the slide-in ask card up with "Go to my cafe" (events.travel "home") and Later (Components/FirstVisitLogic).
+-- The card goes when the visit ends. Its own block, as the module is short of locals.
+UI.firstVisit = { kind = nil :: string?, token = 0, carded = false }
+do
+	local FirstVisitLogic = require(script.Components.FirstVisitLogic)
+
+	local function present(token: number, away: () -> boolean)
+		local visit = UI.firstVisit
+		local kind = visit.kind
+		if visit.token ~= token or kind == nil then
+			return -- the visit ended, or another came, while it waited
+		end
+		if not initialized or not UI.tips.quiet() then
+			task.delay(1, present, token, away)
+			return
+		end
+		local how, line = FirstVisitLogic.show(kind, away())
+		if how == "toast" then
+			UI.toast(line, "good")
+		elseif how == "card" then
+			local choices: { AskCard.Choice } = {
+				{
+					id = "go",
+					label = FirstVisitLogic.GO,
+					icon = Theme.icons.home,
+					style = "primary",
+				},
+				{ id = "later", label = FirstVisitLogic.LATER },
+			}
+			visit.carded = UI.asks.card({
+				title = line,
+				choices = choices,
+				seconds = FirstVisitLogic.CARD_SECONDS,
+				answer = function(id: string?)
+					visit.carded = false
+					if id == "go" then
+						UI.events.travel:Fire("home")
+					end
+				end,
+			})
+		end
+	end
+
+	-- `raw` is the attribute's value (nil when no first visit is at the cafe); `away` says whether the player is away
+	-- from the cafe right now, read again when the line shows.
+	function UI.firstVisit.changed(raw: unknown, away: () -> boolean)
+		local visit = UI.firstVisit
+		local kind = FirstVisitLogic.kind(raw)
+		if kind == visit.kind then
+			return
+		end
+		visit.kind = kind
+		visit.token += 1
+		if visit.carded then
+			visit.carded = false
+			local card = askCard
+			if card ~= nil and card:isShowing() then
+				card:hide("hidden")
+			end
+		end
+		if kind ~= nil then
+			present(visit.token, away)
+		end
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- The gift ladder (#2791, retention-ideas.md 5a)
+----------------------------------------------------------------------------------------------------
+
+-- The next steps of the gift ladder on the HUD's Rewards tile (HUD.setGiftLadder, Components/GiftLadderLogic): from
+-- ProfileSync's giftNext and playSeconds, counted on from when playSeconds came, redrawn each second. The server pays
+-- each step and toasts it. Its own table, as the module is short of locals.
+UI.giftLadder = {
+	played = nil :: number?, -- the last playSeconds the server sent
+	playedAt = 0, -- os.clock() when it came
+	clock = 0,
+}
+
+function UI.giftLadder.refresh()
+	local ladder = UI.giftLadder
+	local sent = (state :: any).playSeconds
+	if sent ~= ladder.played then
+		ladder.played = if type(sent) == "number" then sent else nil
+		ladder.playedAt = os.clock()
+	end
+	local view = hud
+	if view == nil then
+		return
+	end
+	local played: number? = if ladder.played ~= nil
+		then (ladder.played :: number) + (os.clock() - ladder.playedAt)
+		else nil
+	local GiftLadderLogic = require(script.Components.GiftLadderLogic)
+	view:setGiftLadder(
+		GiftLadderLogic.rows(
+			(state :: any).giftNext,
+			played,
+			(state :: any).prizeRate or state.incomePerSecond
+		)
+	)
+end
+
+function UI.giftLadder.tick(dt: number)
+	local ladder = UI.giftLadder
+	ladder.clock += dt
+	if ladder.clock >= 1 then
+		ladder.clock = 0
+		if (state :: any).giftNext ~= nil then
+			UI.giftLadder.refresh()
+		end
 	end
 end
 

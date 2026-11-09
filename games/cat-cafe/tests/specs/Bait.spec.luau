@@ -149,11 +149,10 @@ return function()
 			end
 		)
 
-		it("the account's second bait is Rare or better, once (#1897)", function()
-			expect(Bait.wowDue(false, 0)).to.equal(false) -- the first bait: normal odds
-			expect(Bait.wowDue(false, 1)).to.equal(true) -- the second
-			expect(Bait.wowDue(false, 6)).to.equal(true) -- never had one: the next
-			expect(Bait.wowDue(true, 1)).to.equal(false) -- had it
+		it("the account's first bait is Rare or better, once (#1897, #2793)", function()
+			expect(Bait.wowDue(false)).to.equal(true) -- the first bait (#2793: was the second), or the next for an
+			-- account that set baits before without one
+			expect(Bait.wowDue(true)).to.equal(false) -- had it
 			expect(Bait.WOW_EPIC_CHANCE).to.be.near(0.15, 1e-12)
 			expect(Bait.wowRarity("Common", 0.5)).to.equal("Rare")
 			expect(Bait.wowRarity("Common", 0.149)).to.equal("Epic")

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-09 16:21 UTC",
+  "generated": "2026-11-09 17:28 UTC",
   "units": "studs",
   "palette": "assets/cat-cafe/exports/CatCafe_Palette.png",
   "pose_convention": [
@@ -772,20 +772,20 @@
         "CatCafe_Cat_Tabby_LegB1",
         "CatCafe_Cat_Tabby_LegB2"
       ],
-      "triangles": 944,
+      "triangles": 1048,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -1270,7 +1270,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tabby.model.json",
-      "rbx_parts": 49,
+      "rbx_parts": 55,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Tabby.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Tabby.glb"
@@ -1278,15 +1278,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "944/1500 tris",
+          "budget": "1048/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "536 faces on swatch centers",
+          "uv": "592 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tabby.png",
@@ -1307,20 +1309,20 @@
         "CatCafe_Cat_Tabby_Sit_LegF1",
         "CatCafe_Cat_Tabby_Sit_LegF2"
       ],
-      "triangles": 940,
+      "triangles": 1032,
       "budget": 1500,
       "size_studs": {
-        "x": 1.28,
+        "x": 1.45,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.28,
+        1.45,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -1774,7 +1776,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Tabby for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tabby_Sit.model.json",
-      "rbx_parts": 51,
+      "rbx_parts": 56,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Tabby_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Tabby_Sit.glb"
@@ -1786,13 +1788,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "940/1500 tris",
+          "budget": "1032/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "534 faces on swatch centers",
+          "uv": "584 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.20 y=-0.02"
+          "centered": "footprint center x=0.11 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tabby_Sit.png",
@@ -1818,7 +1820,7 @@
         "CatCafe_Cat_Tabby_Work_Held_Waiter",
         "CatCafe_Cat_Tabby_Work_Held_Entertainer"
       ],
-      "triangles": 1500,
+      "triangles": 1604,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -2305,7 +2307,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Tabby_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tabby_Work.model.json",
-      "rbx_parts": 66,
+      "rbx_parts": 72,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Tabby_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Tabby_Work.glb"
@@ -2317,10 +2319,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1500/2400 tris",
+          "budget": "1604/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "808 faces on swatch centers",
+          "uv": "864 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -2344,20 +2346,20 @@
         "CatCafe_Cat_Tuxedo_LegB1",
         "CatCafe_Cat_Tuxedo_LegB2"
       ],
-      "triangles": 728,
+      "triangles": 876,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -2390,10 +2392,6 @@
           "hex": "#6FCF97"
         },
         "tip": {
-          "swatch": "fur_white",
-          "hex": "#F7F1E6"
-        },
-        "blaze": {
           "swatch": "fur_white",
           "hex": "#F7F1E6"
         },
@@ -2850,7 +2848,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tuxedo.model.json",
-      "rbx_parts": 39,
+      "rbx_parts": 46,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Tuxedo.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Tuxedo.glb"
@@ -2858,15 +2856,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "728/1500 tris",
+          "budget": "876/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "416 faces on swatch centers",
+          "uv": "486 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tuxedo.png",
@@ -2887,20 +2887,20 @@
         "CatCafe_Cat_Tuxedo_Sit_LegF1",
         "CatCafe_Cat_Tuxedo_Sit_LegF2"
       ],
-      "triangles": 716,
+      "triangles": 852,
       "budget": 1500,
       "size_studs": {
-        "x": 1.24,
+        "x": 1.42,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.24,
+        1.42,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -2933,10 +2933,6 @@
           "hex": "#6FCF97"
         },
         "tip": {
-          "swatch": "fur_white",
-          "hex": "#F7F1E6"
-        },
-        "blaze": {
           "swatch": "fur_white",
           "hex": "#F7F1E6"
         },
@@ -3362,7 +3358,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Tuxedo for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tuxedo_Sit.model.json",
-      "rbx_parts": 38,
+      "rbx_parts": 44,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Tuxedo_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Tuxedo_Sit.glb"
@@ -3374,13 +3370,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "716/1500 tris",
+          "budget": "852/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "410 faces on swatch centers",
+          "uv": "474 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=-0.02"
+          "centered": "footprint center x=0.10 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tuxedo_Sit.png",
@@ -3406,7 +3402,7 @@
         "CatCafe_Cat_Tuxedo_Work_Held_Waiter",
         "CatCafe_Cat_Tuxedo_Work_Held_Entertainer"
       ],
-      "triangles": 1356,
+      "triangles": 1504,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -3452,10 +3448,6 @@
           "hex": "#6FCF97"
         },
         "tip": {
-          "swatch": "fur_white",
-          "hex": "#F7F1E6"
-        },
-        "blaze": {
           "swatch": "fur_white",
           "hex": "#F7F1E6"
         },
@@ -3901,7 +3893,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Tuxedo_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tuxedo_Work.model.json",
-      "rbx_parts": 57,
+      "rbx_parts": 64,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Tuxedo_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Tuxedo_Work.glb"
@@ -3913,10 +3905,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1356/2400 tris",
+          "budget": "1504/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "728 faces on swatch centers",
+          "uv": "798 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -3940,20 +3932,20 @@
         "CatCafe_Cat_Ginger_LegB1",
         "CatCafe_Cat_Ginger_LegB2"
       ],
-      "triangles": 752,
+      "triangles": 892,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.18,
         "y": 2.02,
         "z": 1.89
       },
       "size_roblox": [
-        1.0,
+        1.18,
         1.89,
         2.02
       ],
       "bounds_min": [
-        -0.5,
+        -0.68,
         -1.01,
         -0.0
       ],
@@ -4442,7 +4434,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ginger.model.json",
-      "rbx_parts": 41,
+      "rbx_parts": 46,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Ginger.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Ginger.glb"
@@ -4450,15 +4442,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "752/1500 tris",
+          "budget": "892/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "428 faces on swatch centers",
+          "uv": "490 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.09 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ginger.png",
@@ -4479,20 +4473,20 @@
         "CatCafe_Cat_Ginger_Sit_LegF1",
         "CatCafe_Cat_Ginger_Sit_LegF2"
       ],
-      "triangles": 752,
+      "triangles": 880,
       "budget": 1500,
       "size_studs": {
-        "x": 1.26,
+        "x": 1.45,
         "y": 1.25,
         "z": 1.85
       },
       "size_roblox": [
-        1.26,
+        1.45,
         1.85,
         1.25
       ],
       "bounds_min": [
-        -0.44,
+        -0.63,
         -0.65,
         0.0
       ],
@@ -4950,7 +4944,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Ginger for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ginger_Sit.model.json",
-      "rbx_parts": 41,
+      "rbx_parts": 45,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Ginger_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Ginger_Sit.glb"
@@ -4962,13 +4956,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "752/1500 tris",
+          "budget": "880/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "428 faces on swatch centers",
+          "uv": "484 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.19 y=-0.02"
+          "centered": "footprint center x=0.10 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ginger_Sit.png",
@@ -4994,7 +4988,7 @@
         "CatCafe_Cat_Ginger_Work_Held_Waiter",
         "CatCafe_Cat_Ginger_Work_Held_Entertainer"
       ],
-      "triangles": 1380,
+      "triangles": 1520,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -5485,7 +5479,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Ginger_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ginger_Work.model.json",
-      "rbx_parts": 59,
+      "rbx_parts": 64,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Ginger_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Ginger_Work.glb"
@@ -5497,10 +5491,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1380/2400 tris",
+          "budget": "1520/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "740 faces on swatch centers",
+          "uv": "802 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -7108,7 +7102,7 @@
         "CatCafe_Cat_Snow_LegB1",
         "CatCafe_Cat_Snow_LegB2"
       ],
-      "triangles": 716,
+      "triangles": 776,
       "budget": 1500,
       "size_studs": {
         "x": 1.0,
@@ -7606,7 +7600,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Snow.model.json",
-      "rbx_parts": 38,
+      "rbx_parts": 43,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Snow.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Snow.glb"
@@ -7616,10 +7610,10 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "716/1500 tris",
+          "budget": "776/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "410 faces on swatch centers",
+          "uv": "440 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.00"
@@ -7643,7 +7637,7 @@
         "CatCafe_Cat_Snow_Sit_LegF1",
         "CatCafe_Cat_Snow_Sit_LegF2"
       ],
-      "triangles": 716,
+      "triangles": 776,
       "budget": 1500,
       "size_studs": {
         "x": 1.24,
@@ -8110,7 +8104,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Snow for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Snow_Sit.model.json",
-      "rbx_parts": 38,
+      "rbx_parts": 43,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Snow_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Snow_Sit.glb"
@@ -8122,10 +8116,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "716/1500 tris",
+          "budget": "776/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "410 faces on swatch centers",
+          "uv": "440 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.18 y=-0.02"
@@ -8154,7 +8148,7 @@
         "CatCafe_Cat_Snow_Work_Held_Waiter",
         "CatCafe_Cat_Snow_Work_Held_Entertainer"
       ],
-      "triangles": 1344,
+      "triangles": 1404,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -8641,7 +8635,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Snow_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Snow_Work.model.json",
-      "rbx_parts": 56,
+      "rbx_parts": 61,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Snow_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Snow_Work.glb"
@@ -8653,10 +8647,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1344/2400 tris",
+          "budget": "1404/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "722 faces on swatch centers",
+          "uv": "752 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -24609,20 +24603,20 @@
         "CatCafe_Cat_Brownie_LegB1",
         "CatCafe_Cat_Brownie_LegB2"
       ],
-      "triangles": 908,
+      "triangles": 928,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -25107,7 +25101,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Brownie.model.json",
-      "rbx_parts": 54,
+      "rbx_parts": 53,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Brownie.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Brownie.glb"
@@ -25115,15 +25109,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "908/1500 tris",
+          "budget": "928/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "506 faces on swatch centers",
+          "uv": "520 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Brownie.png",
@@ -25144,20 +25140,20 @@
         "CatCafe_Cat_Brownie_Sit_LegF1",
         "CatCafe_Cat_Brownie_Sit_LegF2"
       ],
-      "triangles": 980,
+      "triangles": 940,
       "budget": 1500,
       "size_studs": {
-        "x": 1.24,
+        "x": 1.42,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.24,
+        1.42,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -25611,7 +25607,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Brownie for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Brownie_Sit.model.json",
-      "rbx_parts": 60,
+      "rbx_parts": 54,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Brownie_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Brownie_Sit.glb"
@@ -25623,13 +25619,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "980/1500 tris",
+          "budget": "940/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "542 faces on swatch centers",
+          "uv": "526 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=-0.02"
+          "centered": "footprint center x=0.10 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Brownie_Sit.png",
@@ -25655,7 +25651,7 @@
         "CatCafe_Cat_Brownie_Work_Held_Waiter",
         "CatCafe_Cat_Brownie_Work_Held_Entertainer"
       ],
-      "triangles": 1476,
+      "triangles": 1556,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -26142,7 +26138,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Brownie_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Brownie_Work.model.json",
-      "rbx_parts": 67,
+      "rbx_parts": 71,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Brownie_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Brownie_Work.glb"
@@ -26154,10 +26150,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1476/2400 tris",
+          "budget": "1556/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "788 faces on swatch centers",
+          "uv": "832 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -26181,20 +26177,20 @@
         "CatCafe_Cat_Blue_LegB1",
         "CatCafe_Cat_Blue_LegB2"
       ],
-      "triangles": 836,
+      "triangles": 1256,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -26675,7 +26671,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blue.model.json",
-      "rbx_parts": 40,
+      "rbx_parts": 75,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Blue.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Blue.glb"
@@ -26683,15 +26679,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "836/1500 tris",
+          "budget": "1256/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "482 faces on swatch centers",
+          "uv": "706 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Blue.png",
@@ -26712,20 +26710,20 @@
         "CatCafe_Cat_Blue_Sit_LegF1",
         "CatCafe_Cat_Blue_Sit_LegF2"
       ],
-      "triangles": 808,
+      "triangles": 1216,
       "budget": 1500,
       "size_studs": {
-        "x": 1.28,
+        "x": 1.45,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.28,
+        1.45,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -27175,7 +27173,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Blue for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blue_Sit.model.json",
-      "rbx_parts": 40,
+      "rbx_parts": 74,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Blue_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Blue_Sit.glb"
@@ -27187,13 +27185,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "808/1500 tris",
+          "budget": "1216/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "468 faces on swatch centers",
+          "uv": "686 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.20 y=-0.02"
+          "centered": "footprint center x=0.11 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Blue_Sit.png",
@@ -27219,7 +27217,7 @@
         "CatCafe_Cat_Blue_Work_Held_Waiter",
         "CatCafe_Cat_Blue_Work_Held_Entertainer"
       ],
-      "triangles": 1392,
+      "triangles": 1812,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -27702,7 +27700,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Blue_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blue_Work.model.json",
-      "rbx_parts": 57,
+      "rbx_parts": 92,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Blue_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Blue_Work.glb"
@@ -27714,10 +27712,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1392/2400 tris",
+          "budget": "1812/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "754 faces on swatch centers",
+          "uv": "978 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -61736,20 +61734,20 @@
         "CatCafe_Cat_Biscuit_LegB1",
         "CatCafe_Cat_Biscuit_LegB2"
       ],
-      "triangles": 836,
+      "triangles": 952,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -62242,7 +62240,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Biscuit.model.json",
-      "rbx_parts": 48,
+      "rbx_parts": 51,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Biscuit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Biscuit.glb"
@@ -62250,15 +62248,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "836/1500 tris",
+          "budget": "952/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "470 faces on swatch centers",
+          "uv": "520 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Biscuit.png",
@@ -62279,20 +62279,20 @@
         "CatCafe_Cat_Biscuit_Sit_LegF1",
         "CatCafe_Cat_Biscuit_Sit_LegF2"
       ],
-      "triangles": 884,
+      "triangles": 940,
       "budget": 1500,
       "size_studs": {
-        "x": 1.24,
+        "x": 1.42,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.24,
+        1.42,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -62754,7 +62754,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Biscuit for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Biscuit_Sit.model.json",
-      "rbx_parts": 52,
+      "rbx_parts": 50,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Biscuit_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Biscuit_Sit.glb"
@@ -62766,13 +62766,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "884/1500 tris",
+          "budget": "940/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "494 faces on swatch centers",
+          "uv": "514 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=-0.02"
+          "centered": "footprint center x=0.10 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Biscuit_Sit.png",
@@ -62798,7 +62798,7 @@
         "CatCafe_Cat_Biscuit_Work_Held_Waiter",
         "CatCafe_Cat_Biscuit_Work_Held_Entertainer"
       ],
-      "triangles": 1404,
+      "triangles": 1580,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -63293,7 +63293,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Biscuit_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Biscuit_Work.model.json",
-      "rbx_parts": 61,
+      "rbx_parts": 69,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Biscuit_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Biscuit_Work.glb"
@@ -63305,10 +63305,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1404/2400 tris",
+          "budget": "1580/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "752 faces on swatch centers",
+          "uv": "832 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -63332,20 +63332,20 @@
         "CatCafe_Cat_Pepper_LegB1",
         "CatCafe_Cat_Pepper_LegB2"
       ],
-      "triangles": 1004,
+      "triangles": 1032,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.97
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.97,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -63380,10 +63380,6 @@
         "nose": {
           "swatch": "nose_dark",
           "hex": "#4A4450"
-        },
-        "blaze": {
-          "swatch": "fur_white",
-          "hex": "#F7F1E6"
         },
         "eyes2": {
           "swatch": "eye_amber",
@@ -63834,7 +63830,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Pepper.model.json",
-      "rbx_parts": 59,
+      "rbx_parts": 60,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Pepper.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Pepper.glb"
@@ -63842,15 +63838,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "1004/1500 tris",
+          "budget": "1032/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "570 faces on swatch centers",
+          "uv": "580 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Pepper.png",
@@ -63871,20 +63869,20 @@
         "CatCafe_Cat_Pepper_Sit_LegF1",
         "CatCafe_Cat_Pepper_Sit_LegF2"
       ],
-      "triangles": 1024,
+      "triangles": 992,
       "budget": 1500,
       "size_studs": {
-        "x": 1.28,
+        "x": 1.45,
         "y": 1.24,
         "z": 1.96
       },
       "size_roblox": [
-        1.28,
+        1.45,
         1.96,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -63919,10 +63917,6 @@
         "nose": {
           "swatch": "nose_dark",
           "hex": "#4A4450"
-        },
-        "blaze": {
-          "swatch": "fur_white",
-          "hex": "#F7F1E6"
         },
         "eyes2": {
           "swatch": "eye_amber",
@@ -64342,7 +64336,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Pepper for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Pepper_Sit.model.json",
-      "rbx_parts": 63,
+      "rbx_parts": 59,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Pepper_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Pepper_Sit.glb"
@@ -64354,13 +64348,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1024/1500 tris",
+          "budget": "992/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "580 faces on swatch centers",
+          "uv": "560 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.20 y=-0.02"
+          "centered": "footprint center x=0.11 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Pepper_Sit.png",
@@ -64386,7 +64380,7 @@
         "CatCafe_Cat_Pepper_Work_Held_Waiter",
         "CatCafe_Cat_Pepper_Work_Held_Entertainer"
       ],
-      "triangles": 1500,
+      "triangles": 1588,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -64434,10 +64428,6 @@
         "nose": {
           "swatch": "nose_dark",
           "hex": "#4A4450"
-        },
-        "blaze": {
-          "swatch": "fur_white",
-          "hex": "#F7F1E6"
         },
         "eyes2": {
           "swatch": "eye_amber",
@@ -64877,7 +64867,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Pepper_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Pepper_Work.model.json",
-      "rbx_parts": 71,
+      "rbx_parts": 77,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Pepper_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Pepper_Work.glb"
@@ -64889,10 +64879,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1500/2400 tris",
+          "budget": "1588/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "812 faces on swatch centers",
+          "uv": "852 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -66524,20 +66514,20 @@
         "CatCafe_Cat_Butter_LegB1",
         "CatCafe_Cat_Butter_LegB2"
       ],
-      "triangles": 848,
+      "triangles": 1004,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.18,
         "y": 1.97,
         "z": 1.89
       },
       "size_roblox": [
-        1.0,
+        1.18,
         1.89,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.68,
         -0.99,
         -0.0
       ],
@@ -67022,7 +67012,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Butter.model.json",
-      "rbx_parts": 41,
+      "rbx_parts": 50,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Butter.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Butter.glb"
@@ -67030,15 +67020,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "848/1500 tris",
+          "budget": "1004/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "488 faces on swatch centers",
+          "uv": "566 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.09 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Butter.png",
@@ -67059,20 +67051,20 @@
         "CatCafe_Cat_Butter_Sit_LegF1",
         "CatCafe_Cat_Butter_Sit_LegF2"
       ],
-      "triangles": 820,
+      "triangles": 964,
       "budget": 1500,
       "size_studs": {
-        "x": 1.29,
+        "x": 1.48,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.29,
+        1.48,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.63,
         -0.65,
         0.0
       ],
@@ -67526,7 +67518,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Butter for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Butter_Sit.model.json",
-      "rbx_parts": 41,
+      "rbx_parts": 49,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Butter_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Butter_Sit.glb"
@@ -67538,13 +67530,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "820/1500 tris",
+          "budget": "964/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "474 faces on swatch centers",
+          "uv": "546 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.21 y=-0.02"
+          "centered": "footprint center x=0.11 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Butter_Sit.png",
@@ -67570,7 +67562,7 @@
         "CatCafe_Cat_Butter_Work_Held_Waiter",
         "CatCafe_Cat_Butter_Work_Held_Entertainer"
       ],
-      "triangles": 1404,
+      "triangles": 1560,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -68057,7 +68049,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Butter_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Butter_Work.model.json",
-      "rbx_parts": 58,
+      "rbx_parts": 67,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Butter_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Butter_Work.glb"
@@ -68069,10 +68061,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1404/2400 tris",
+          "budget": "1560/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "760 faces on swatch centers",
+          "uv": "838 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -68096,20 +68088,20 @@
         "CatCafe_Cat_Moss_LegB1",
         "CatCafe_Cat_Moss_LegB2"
       ],
-      "triangles": 860,
+      "triangles": 1040,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.97
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.97,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -68144,10 +68136,6 @@
         "nose": {
           "swatch": "nose_brick",
           "hex": "#C4675B"
-        },
-        "blaze": {
-          "swatch": "fur_cream",
-          "hex": "#EFD9B4"
         },
         "eyes2": {
           "swatch": "eye_amber",
@@ -68598,7 +68586,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Moss.model.json",
-      "rbx_parts": 47,
+      "rbx_parts": 55,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Moss.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Moss.glb"
@@ -68606,15 +68594,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "860/1500 tris",
+          "budget": "1040/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "498 faces on swatch centers",
+          "uv": "608 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Moss.png",
@@ -68635,20 +68625,20 @@
         "CatCafe_Cat_Moss_Sit_LegF1",
         "CatCafe_Cat_Moss_Sit_LegF2"
       ],
-      "triangles": 832,
+      "triangles": 1000,
       "budget": 1500,
       "size_studs": {
-        "x": 1.28,
+        "x": 1.45,
         "y": 1.24,
         "z": 1.96
       },
       "size_roblox": [
-        1.28,
+        1.45,
         1.96,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -68683,10 +68673,6 @@
         "nose": {
           "swatch": "nose_brick",
           "hex": "#C4675B"
-        },
-        "blaze": {
-          "swatch": "fur_cream",
-          "hex": "#EFD9B4"
         },
         "eyes2": {
           "swatch": "eye_amber",
@@ -69106,7 +69092,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Moss for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Moss_Sit.model.json",
-      "rbx_parts": 47,
+      "rbx_parts": 54,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Moss_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Moss_Sit.glb"
@@ -69118,13 +69104,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "832/1500 tris",
+          "budget": "1000/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "484 faces on swatch centers",
+          "uv": "588 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.20 y=-0.02"
+          "centered": "footprint center x=0.11 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Moss_Sit.png",
@@ -69150,7 +69136,7 @@
         "CatCafe_Cat_Moss_Work_Held_Waiter",
         "CatCafe_Cat_Moss_Work_Held_Entertainer"
       ],
-      "triangles": 1416,
+      "triangles": 1596,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -69198,10 +69184,6 @@
         "nose": {
           "swatch": "nose_brick",
           "hex": "#C4675B"
-        },
-        "blaze": {
-          "swatch": "fur_cream",
-          "hex": "#EFD9B4"
         },
         "eyes2": {
           "swatch": "eye_amber",
@@ -69641,7 +69623,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Moss_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Moss_Work.model.json",
-      "rbx_parts": 64,
+      "rbx_parts": 72,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Moss_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Moss_Work.glb"
@@ -69653,10 +69635,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1416/2400 tris",
+          "budget": "1596/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "770 faces on swatch centers",
+          "uv": "880 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -69680,20 +69662,20 @@
         "CatCafe_Cat_Acorn_LegB1",
         "CatCafe_Cat_Acorn_LegB2"
       ],
-      "triangles": 860,
+      "triangles": 1120,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -70182,7 +70164,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Acorn.model.json",
-      "rbx_parts": 42,
+      "rbx_parts": 55,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Acorn.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Acorn.glb"
@@ -70190,15 +70172,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "860/1500 tris",
+          "budget": "1120/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "494 faces on swatch centers",
+          "uv": "646 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Acorn.png",
@@ -70219,20 +70203,20 @@
         "CatCafe_Cat_Acorn_Sit_LegF1",
         "CatCafe_Cat_Acorn_Sit_LegF2"
       ],
-      "triangles": 832,
+      "triangles": 1080,
       "budget": 1500,
       "size_studs": {
-        "x": 1.28,
+        "x": 1.45,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.28,
+        1.45,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -70690,7 +70674,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Acorn for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Acorn_Sit.model.json",
-      "rbx_parts": 42,
+      "rbx_parts": 54,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Acorn_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Acorn_Sit.glb"
@@ -70702,13 +70686,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "832/1500 tris",
+          "budget": "1080/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "480 faces on swatch centers",
+          "uv": "626 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.20 y=-0.02"
+          "centered": "footprint center x=0.11 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Acorn_Sit.png",
@@ -70734,7 +70718,7 @@
         "CatCafe_Cat_Acorn_Work_Held_Waiter",
         "CatCafe_Cat_Acorn_Work_Held_Entertainer"
       ],
-      "triangles": 1416,
+      "triangles": 1676,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -71225,7 +71209,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Acorn_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Acorn_Work.model.json",
-      "rbx_parts": 59,
+      "rbx_parts": 72,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Acorn_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Acorn_Work.glb"
@@ -71237,10 +71221,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1416/2400 tris",
+          "budget": "1676/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "766 faces on swatch centers",
+          "uv": "918 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -71264,20 +71248,20 @@
         "CatCafe_Cat_Bramble_LegB1",
         "CatCafe_Cat_Bramble_LegB2"
       ],
-      "triangles": 908,
+      "triangles": 992,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -71762,7 +71746,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Bramble.model.json",
-      "rbx_parts": 54,
+      "rbx_parts": 55,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Bramble.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Bramble.glb"
@@ -71770,15 +71754,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "908/1500 tris",
+          "budget": "992/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "506 faces on swatch centers",
+          "uv": "602 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Bramble.png",
@@ -71799,20 +71785,20 @@
         "CatCafe_Cat_Bramble_Sit_LegF1",
         "CatCafe_Cat_Bramble_Sit_LegF2"
       ],
-      "triangles": 980,
+      "triangles": 1004,
       "budget": 1500,
       "size_studs": {
-        "x": 1.24,
+        "x": 1.42,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.24,
+        1.42,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -72266,7 +72252,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Bramble for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Bramble_Sit.model.json",
-      "rbx_parts": 60,
+      "rbx_parts": 56,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Bramble_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Bramble_Sit.glb"
@@ -72278,13 +72264,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "980/1500 tris",
+          "budget": "1004/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "542 faces on swatch centers",
+          "uv": "608 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=-0.02"
+          "centered": "footprint center x=0.10 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Bramble_Sit.png",
@@ -72310,7 +72296,7 @@
         "CatCafe_Cat_Bramble_Work_Held_Waiter",
         "CatCafe_Cat_Bramble_Work_Held_Entertainer"
       ],
-      "triangles": 1476,
+      "triangles": 1620,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -72797,7 +72783,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Bramble_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Bramble_Work.model.json",
-      "rbx_parts": 67,
+      "rbx_parts": 73,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Bramble_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Bramble_Work.glb"
@@ -72809,10 +72795,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1476/2400 tris",
+          "budget": "1620/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "788 faces on swatch centers",
+          "uv": "914 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -72836,20 +72822,20 @@
         "CatCafe_Cat_Fern_LegB1",
         "CatCafe_Cat_Fern_LegB2"
       ],
-      "triangles": 836,
+      "triangles": 928,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.97
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.97,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -73338,7 +73324,7 @@
         ]
       },
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Fern.model.json",
-      "rbx_parts": 53,
+      "rbx_parts": 58,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Fern.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Fern.glb"
@@ -73346,15 +73332,17 @@
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "836/1500 tris",
+          "budget": "928/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "474 faces on swatch centers",
+          "uv": "524 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Fern.png",
@@ -73375,20 +73363,20 @@
         "CatCafe_Cat_Fern_Sit_LegF1",
         "CatCafe_Cat_Fern_Sit_LegF2"
       ],
-      "triangles": 860,
+      "triangles": 940,
       "budget": 1500,
       "size_studs": {
-        "x": 1.24,
+        "x": 1.42,
         "y": 1.24,
         "z": 1.96
       },
       "size_roblox": [
-        1.24,
+        1.42,
         1.96,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -73846,7 +73834,7 @@
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Fern for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Fern_Sit.model.json",
-      "rbx_parts": 55,
+      "rbx_parts": 59,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Fern_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Fern_Sit.glb"
@@ -73858,13 +73846,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "860/1500 tris",
+          "budget": "940/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "486 faces on swatch centers",
+          "uv": "530 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=-0.02"
+          "centered": "footprint center x=0.10 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Fern_Sit.png",
@@ -73890,7 +73878,7 @@
         "CatCafe_Cat_Fern_Work_Held_Waiter",
         "CatCafe_Cat_Fern_Work_Held_Entertainer"
       ],
-      "triangles": 1464,
+      "triangles": 1556,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -74381,7 +74369,7 @@
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Fern_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright.",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Fern_Work.model.json",
-      "rbx_parts": 71,
+      "rbx_parts": 76,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Fern_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Fern_Work.glb"
@@ -74393,10 +74381,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1464/2400 tris",
+          "budget": "1556/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "786 faces on swatch centers",
+          "uv": "836 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -128966,17 +128954,17 @@
         "CatCafe_Cat_Torch_Flame",
         "CatCafe_Cat_Torch_Tail_Flame"
       ],
-      "triangles": 1132,
+      "triangles": 1118,
       "budget": 1500,
       "size_studs": {
         "x": 1.0,
-        "y": 1.99,
+        "y": 2.0,
         "z": 1.86
       },
       "size_roblox": [
         1.0,
         1.86,
-        1.99
+        2.0
       ],
       "bounds_min": [
         -0.5,
@@ -128985,7 +128973,7 @@
       ],
       "bounds_max": [
         0.5,
-        1.0,
+        1.01,
         1.86
       ],
       "pivot": "base center (floor contact)",
@@ -129483,7 +129471,7 @@
           "follows": "Tail",
           "pivot_roblox": [
             0.0,
-            1.29,
+            1.28,
             0.88
           ]
         }
@@ -129502,7 +129490,7 @@
       },
       "studio": "Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. The child Model <name>_Flame hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Tail_Flame hangs inside <name>_Tail, pivoted where it hangs, and rides the Tail (Follows Tail).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Torch.model.json",
-      "rbx_parts": 55,
+      "rbx_parts": 52,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Torch.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Torch.glb"
@@ -129512,13 +129500,13 @@
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "1132/1500 tris",
+          "budget": "1118/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "636 faces on swatch centers",
+          "uv": "627 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.00"
+          "centered": "footprint center x=0.00 y=0.01"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Torch.png",
@@ -129542,7 +129530,7 @@
         "CatCafe_Cat_Torch_Sit_Flame",
         "CatCafe_Cat_Torch_Sit_Tail_Flame"
       ],
-      "triangles": 1132,
+      "triangles": 1118,
       "budget": 1500,
       "size_studs": {
         "x": 1.24,
@@ -129557,7 +129545,7 @@
       "bounds_min": [
         -0.44,
         -0.65,
-        0.0
+        -0.0
       ],
       "bounds_max": [
         0.8,
@@ -130040,13 +130028,13 @@
           "pivot_roblox": [
             -0.59,
             0.1,
-            -0.03
+            -0.02
           ]
         }
       },
       "studio": "Body B, sitting up: clone this instead of CatCafe_Cat_Torch for a cat resting in the cafe or working at a station. Put the role's outfit pieces on its Outfit_<Piece> Attachments. Parts with their own joint (Head with the eyes and ears, Tail, LegF1, LegF2) are Models pivoted at the joint, for poses (manifest cat_poses). The Head's Attachment Carry (above the ears) takes a carried tray or coin bag's pivot (F90). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. The child Model <name>_Flame hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Tail_Flame hangs inside <name>_Tail, pivoted where it hangs, and rides the Tail (Follows Tail).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Torch_Sit.model.json",
-      "rbx_parts": 55,
+      "rbx_parts": 52,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Torch_Sit.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Torch_Sit.glb"
@@ -130058,12 +130046,12 @@
           "centered"
         ],
         "checks": {
-          "budget": "1132/1500 tris",
+          "budget": "1118/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "636 faces on swatch centers",
+          "uv": "627 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
+          "pivot": "floor at z=-0.00 (want 0)",
           "centered": "footprint center x=0.18 y=-0.02"
         }
       },
@@ -130093,7 +130081,7 @@
         "CatCafe_Cat_Torch_Work_Flame",
         "CatCafe_Cat_Torch_Work_Tail_Flame"
       ],
-      "triangles": 1760,
+      "triangles": 1746,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -130610,14 +130598,14 @@
           "follows": "Tail",
           "pivot_roblox": [
             -0.11,
-            1.09,
+            1.08,
             0.81
           ]
         }
       },
       "studio": "Body S, standing at work (Derek 2026-11-02): clone this instead of CatCafe_Cat_Torch_Sit for a cat working at a station, in the sitting role outfit on its Outfit_<Piece> Attachments. Its front legs are arms (LegF1 the cat's left, LegF2 its right) and LegB1 and LegB2 its legs, each a Model pivoted at its joint, with the Head (eyes and ears inside, Attachment Carry above the ears) and Tail. Each role's held thing is a Model inside an arm, pivoted at the paw: Held_Barista (a cup) and Held_Entertainer (a microphone) in LegF2, Held_Waiter (a tray with a cake) in LegF1; keep the one for the cat's role and remove the others (the greeter holds nothing). Turn the arms with the role's pose (manifest cat_poses work_<role>), which holds the thing upright. Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. The child Model <name>_Flame hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Tail_Flame hangs inside <name>_Tail, pivoted where it hangs, and rides the Tail (Follows Tail).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Torch_Work.model.json",
-      "rbx_parts": 73,
+      "rbx_parts": 70,
       "files": [
         "assets/cat-cafe/exports/CatCafe_Cat_Torch_Work.fbx",
         "assets/cat-cafe/exports/CatCafe_Cat_Torch_Work.glb"
@@ -130629,10 +130617,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1760/2400 tris",
+          "budget": "1746/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "948 faces on swatch centers",
+          "uv": "939 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -137180,20 +137168,20 @@
         "CatCafe_Cat_Tabby_Gold_LegB1",
         "CatCafe_Cat_Tabby_Gold_LegB2"
       ],
-      "triangles": 920,
+      "triangles": 1024,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -137679,19 +137667,21 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Tabby when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tabby_Gold.model.json",
-      "rbx_parts": 47,
+      "rbx_parts": 53,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "920/1500 tris",
+          "budget": "1024/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "524 faces on swatch centers",
+          "uv": "580 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tabby_Gold.png",
@@ -137712,20 +137702,20 @@
         "CatCafe_Cat_Tabby_Gold_Sit_LegF1",
         "CatCafe_Cat_Tabby_Gold_Sit_LegF2"
       ],
-      "triangles": 916,
+      "triangles": 1008,
       "budget": 1500,
       "size_studs": {
-        "x": 1.28,
+        "x": 1.45,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.28,
+        1.45,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -138179,7 +138169,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Tabby_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tabby_Gold_Sit.model.json",
-      "rbx_parts": 49,
+      "rbx_parts": 54,
       "gates": {
         "pass": true,
         "failed": [],
@@ -138187,13 +138177,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "916/1500 tris",
+          "budget": "1008/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "522 faces on swatch centers",
+          "uv": "572 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.20 y=-0.02"
+          "centered": "footprint center x=0.11 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tabby_Gold_Sit.png",
@@ -138219,7 +138209,7 @@
         "CatCafe_Cat_Tabby_Gold_Work_Held_Waiter",
         "CatCafe_Cat_Tabby_Gold_Work_Held_Entertainer"
       ],
-      "triangles": 1476,
+      "triangles": 1580,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -138706,7 +138696,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Tabby_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tabby_Gold_Work.model.json",
-      "rbx_parts": 64,
+      "rbx_parts": 70,
       "gates": {
         "pass": true,
         "failed": [],
@@ -138714,10 +138704,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1476/2400 tris",
+          "budget": "1580/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "796 faces on swatch centers",
+          "uv": "852 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -138741,20 +138731,20 @@
         "CatCafe_Cat_Tuxedo_Gold_LegB1",
         "CatCafe_Cat_Tuxedo_Gold_LegB2"
       ],
-      "triangles": 728,
+      "triangles": 876,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -138789,10 +138779,6 @@
         "tip": {
           "swatch": "gold_light",
           "hex": "#FBE49A"
-        },
-        "blaze": {
-          "swatch": "fur_white",
-          "hex": "#F7F1E6"
         },
         "nose": {
           "swatch": "nose_pink",
@@ -139248,19 +139234,21 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Tuxedo when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tuxedo_Gold.model.json",
-      "rbx_parts": 39,
+      "rbx_parts": 46,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "728/1500 tris",
+          "budget": "876/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "416 faces on swatch centers",
+          "uv": "486 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tuxedo_Gold.png",
@@ -139281,20 +139269,20 @@
         "CatCafe_Cat_Tuxedo_Gold_Sit_LegF1",
         "CatCafe_Cat_Tuxedo_Gold_Sit_LegF2"
       ],
-      "triangles": 716,
+      "triangles": 852,
       "budget": 1500,
       "size_studs": {
-        "x": 1.24,
+        "x": 1.42,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.24,
+        1.42,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -139329,10 +139317,6 @@
         "tip": {
           "swatch": "gold_light",
           "hex": "#FBE49A"
-        },
-        "blaze": {
-          "swatch": "fur_white",
-          "hex": "#F7F1E6"
         },
         "nose": {
           "swatch": "nose_pink",
@@ -139756,7 +139740,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Tuxedo_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tuxedo_Gold_Sit.model.json",
-      "rbx_parts": 38,
+      "rbx_parts": 44,
       "gates": {
         "pass": true,
         "failed": [],
@@ -139764,13 +139748,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "716/1500 tris",
+          "budget": "852/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "410 faces on swatch centers",
+          "uv": "474 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=-0.02"
+          "centered": "footprint center x=0.10 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Tuxedo_Gold_Sit.png",
@@ -139796,7 +139780,7 @@
         "CatCafe_Cat_Tuxedo_Gold_Work_Held_Waiter",
         "CatCafe_Cat_Tuxedo_Gold_Work_Held_Entertainer"
       ],
-      "triangles": 1356,
+      "triangles": 1504,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -139844,10 +139828,6 @@
         "tip": {
           "swatch": "gold_light",
           "hex": "#FBE49A"
-        },
-        "blaze": {
-          "swatch": "fur_white",
-          "hex": "#F7F1E6"
         },
         "nose": {
           "swatch": "nose_pink",
@@ -140291,7 +140271,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Tuxedo_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Tuxedo_Gold_Work.model.json",
-      "rbx_parts": 57,
+      "rbx_parts": 64,
       "gates": {
         "pass": true,
         "failed": [],
@@ -140299,10 +140279,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1356/2400 tris",
+          "budget": "1504/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "728 faces on swatch centers",
+          "uv": "798 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -140326,20 +140306,20 @@
         "CatCafe_Cat_Ginger_Gold_LegB1",
         "CatCafe_Cat_Ginger_Gold_LegB2"
       ],
-      "triangles": 752,
+      "triangles": 892,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.18,
         "y": 2.02,
         "z": 1.89
       },
       "size_roblox": [
-        1.0,
+        1.18,
         1.89,
         2.02
       ],
       "bounds_min": [
-        -0.5,
+        -0.68,
         -1.01,
         -0.0
       ],
@@ -140829,19 +140809,21 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Ginger when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ginger_Gold.model.json",
-      "rbx_parts": 41,
+      "rbx_parts": 46,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "752/1500 tris",
+          "budget": "892/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "428 faces on swatch centers",
+          "uv": "490 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.09 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ginger_Gold.png",
@@ -140862,20 +140844,20 @@
         "CatCafe_Cat_Ginger_Gold_Sit_LegF1",
         "CatCafe_Cat_Ginger_Gold_Sit_LegF2"
       ],
-      "triangles": 752,
+      "triangles": 880,
       "budget": 1500,
       "size_studs": {
-        "x": 1.26,
+        "x": 1.45,
         "y": 1.25,
         "z": 1.85
       },
       "size_roblox": [
-        1.26,
+        1.45,
         1.85,
         1.25
       ],
       "bounds_min": [
-        -0.44,
+        -0.63,
         -0.65,
         0.0
       ],
@@ -141333,7 +141315,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Ginger_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ginger_Gold_Sit.model.json",
-      "rbx_parts": 41,
+      "rbx_parts": 45,
       "gates": {
         "pass": true,
         "failed": [],
@@ -141341,13 +141323,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "752/1500 tris",
+          "budget": "880/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "428 faces on swatch centers",
+          "uv": "484 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.19 y=-0.02"
+          "centered": "footprint center x=0.10 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Ginger_Gold_Sit.png",
@@ -141373,7 +141355,7 @@
         "CatCafe_Cat_Ginger_Gold_Work_Held_Waiter",
         "CatCafe_Cat_Ginger_Gold_Work_Held_Entertainer"
       ],
-      "triangles": 1380,
+      "triangles": 1520,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -141864,7 +141846,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Ginger_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Ginger_Gold_Work.model.json",
-      "rbx_parts": 59,
+      "rbx_parts": 64,
       "gates": {
         "pass": true,
         "failed": [],
@@ -141872,10 +141854,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1380/2400 tris",
+          "budget": "1520/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "740 faces on swatch centers",
+          "uv": "802 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -143472,7 +143454,7 @@
         "CatCafe_Cat_Snow_Gold_LegB1",
         "CatCafe_Cat_Snow_Gold_LegB2"
       ],
-      "triangles": 716,
+      "triangles": 776,
       "budget": 1500,
       "size_studs": {
         "x": 1.0,
@@ -143971,16 +143953,16 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Snow when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Snow_Gold.model.json",
-      "rbx_parts": 38,
+      "rbx_parts": 43,
       "gates": {
         "pass": true,
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "716/1500 tris",
+          "budget": "776/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "410 faces on swatch centers",
+          "uv": "440 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
           "centered": "footprint center x=0.00 y=-0.00"
@@ -144004,7 +143986,7 @@
         "CatCafe_Cat_Snow_Gold_Sit_LegF1",
         "CatCafe_Cat_Snow_Gold_Sit_LegF2"
       ],
-      "triangles": 716,
+      "triangles": 776,
       "budget": 1500,
       "size_studs": {
         "x": 1.24,
@@ -144471,7 +144453,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Snow_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Snow_Gold_Sit.model.json",
-      "rbx_parts": 38,
+      "rbx_parts": 43,
       "gates": {
         "pass": true,
         "failed": [],
@@ -144479,10 +144461,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "716/1500 tris",
+          "budget": "776/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "410 faces on swatch centers",
+          "uv": "440 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.18 y=-0.02"
@@ -144511,7 +144493,7 @@
         "CatCafe_Cat_Snow_Gold_Work_Held_Waiter",
         "CatCafe_Cat_Snow_Gold_Work_Held_Entertainer"
       ],
-      "triangles": 1344,
+      "triangles": 1404,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -144998,7 +144980,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Snow_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Snow_Gold_Work.model.json",
-      "rbx_parts": 56,
+      "rbx_parts": 61,
       "gates": {
         "pass": true,
         "failed": [],
@@ -145006,10 +144988,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1344/2400 tris",
+          "budget": "1404/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "722 faces on swatch centers",
+          "uv": "752 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -160843,20 +160825,20 @@
         "CatCafe_Cat_Brownie_Gold_LegB1",
         "CatCafe_Cat_Brownie_Gold_LegB2"
       ],
-      "triangles": 884,
+      "triangles": 904,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -161342,19 +161324,21 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Brownie when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Brownie_Gold.model.json",
-      "rbx_parts": 52,
+      "rbx_parts": 51,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "884/1500 tris",
+          "budget": "904/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "494 faces on swatch centers",
+          "uv": "508 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Brownie_Gold.png",
@@ -161375,20 +161359,20 @@
         "CatCafe_Cat_Brownie_Gold_Sit_LegF1",
         "CatCafe_Cat_Brownie_Gold_Sit_LegF2"
       ],
-      "triangles": 956,
+      "triangles": 916,
       "budget": 1500,
       "size_studs": {
-        "x": 1.24,
+        "x": 1.42,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.24,
+        1.42,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -161842,7 +161826,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Brownie_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Brownie_Gold_Sit.model.json",
-      "rbx_parts": 58,
+      "rbx_parts": 52,
       "gates": {
         "pass": true,
         "failed": [],
@@ -161850,13 +161834,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "956/1500 tris",
+          "budget": "916/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "530 faces on swatch centers",
+          "uv": "514 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=-0.02"
+          "centered": "footprint center x=0.10 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Brownie_Gold_Sit.png",
@@ -161882,7 +161866,7 @@
         "CatCafe_Cat_Brownie_Gold_Work_Held_Waiter",
         "CatCafe_Cat_Brownie_Gold_Work_Held_Entertainer"
       ],
-      "triangles": 1452,
+      "triangles": 1532,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -162369,7 +162353,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Brownie_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Brownie_Gold_Work.model.json",
-      "rbx_parts": 65,
+      "rbx_parts": 69,
       "gates": {
         "pass": true,
         "failed": [],
@@ -162377,10 +162361,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1452/2400 tris",
+          "budget": "1532/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "776 faces on swatch centers",
+          "uv": "820 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -162404,20 +162388,20 @@
         "CatCafe_Cat_Blue_Gold_LegB1",
         "CatCafe_Cat_Blue_Gold_LegB2"
       ],
-      "triangles": 836,
+      "triangles": 1256,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -162899,19 +162883,21 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Blue when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blue_Gold.model.json",
-      "rbx_parts": 40,
+      "rbx_parts": 75,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "836/1500 tris",
+          "budget": "1256/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "482 faces on swatch centers",
+          "uv": "706 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Blue_Gold.png",
@@ -162932,20 +162918,20 @@
         "CatCafe_Cat_Blue_Gold_Sit_LegF1",
         "CatCafe_Cat_Blue_Gold_Sit_LegF2"
       ],
-      "triangles": 808,
+      "triangles": 1216,
       "budget": 1500,
       "size_studs": {
-        "x": 1.28,
+        "x": 1.45,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.28,
+        1.45,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -163395,7 +163381,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Blue_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blue_Gold_Sit.model.json",
-      "rbx_parts": 40,
+      "rbx_parts": 74,
       "gates": {
         "pass": true,
         "failed": [],
@@ -163403,13 +163389,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "808/1500 tris",
+          "budget": "1216/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "468 faces on swatch centers",
+          "uv": "686 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.20 y=-0.02"
+          "centered": "footprint center x=0.11 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Blue_Gold_Sit.png",
@@ -163435,7 +163421,7 @@
         "CatCafe_Cat_Blue_Gold_Work_Held_Waiter",
         "CatCafe_Cat_Blue_Gold_Work_Held_Entertainer"
       ],
-      "triangles": 1392,
+      "triangles": 1812,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -163918,7 +163904,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Blue_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Blue_Gold_Work.model.json",
-      "rbx_parts": 57,
+      "rbx_parts": 92,
       "gates": {
         "pass": true,
         "failed": [],
@@ -163926,10 +163912,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1392/2400 tris",
+          "budget": "1812/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "754 faces on swatch centers",
+          "uv": "978 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -197696,20 +197682,20 @@
         "CatCafe_Cat_Biscuit_Gold_LegB1",
         "CatCafe_Cat_Biscuit_Gold_LegB2"
       ],
-      "triangles": 812,
+      "triangles": 928,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -198203,19 +198189,21 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Biscuit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Biscuit_Gold.model.json",
-      "rbx_parts": 46,
+      "rbx_parts": 49,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "812/1500 tris",
+          "budget": "928/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "458 faces on swatch centers",
+          "uv": "508 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Biscuit_Gold.png",
@@ -198236,20 +198224,20 @@
         "CatCafe_Cat_Biscuit_Gold_Sit_LegF1",
         "CatCafe_Cat_Biscuit_Gold_Sit_LegF2"
       ],
-      "triangles": 860,
+      "triangles": 916,
       "budget": 1500,
       "size_studs": {
-        "x": 1.24,
+        "x": 1.42,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.24,
+        1.42,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -198711,7 +198699,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Biscuit_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Biscuit_Gold_Sit.model.json",
-      "rbx_parts": 50,
+      "rbx_parts": 48,
       "gates": {
         "pass": true,
         "failed": [],
@@ -198719,13 +198707,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "860/1500 tris",
+          "budget": "916/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "482 faces on swatch centers",
+          "uv": "502 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=-0.02"
+          "centered": "footprint center x=0.10 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Biscuit_Gold_Sit.png",
@@ -198751,7 +198739,7 @@
         "CatCafe_Cat_Biscuit_Gold_Work_Held_Waiter",
         "CatCafe_Cat_Biscuit_Gold_Work_Held_Entertainer"
       ],
-      "triangles": 1380,
+      "triangles": 1556,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -199246,7 +199234,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Biscuit_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Biscuit_Gold_Work.model.json",
-      "rbx_parts": 59,
+      "rbx_parts": 67,
       "gates": {
         "pass": true,
         "failed": [],
@@ -199254,10 +199242,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1380/2400 tris",
+          "budget": "1556/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "740 faces on swatch centers",
+          "uv": "820 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -199281,20 +199269,20 @@
         "CatCafe_Cat_Pepper_Gold_LegB1",
         "CatCafe_Cat_Pepper_Gold_LegB2"
       ],
-      "triangles": 980,
+      "triangles": 1008,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.97
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.97,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -199329,10 +199317,6 @@
         "nose": {
           "swatch": "nose_dark",
           "hex": "#4A4450"
-        },
-        "blaze": {
-          "swatch": "fur_white",
-          "hex": "#F7F1E6"
         },
         "eyes2": {
           "swatch": "eye_amber",
@@ -199784,19 +199768,21 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Pepper when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Pepper_Gold.model.json",
-      "rbx_parts": 57,
+      "rbx_parts": 58,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "980/1500 tris",
+          "budget": "1008/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "558 faces on swatch centers",
+          "uv": "568 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Pepper_Gold.png",
@@ -199817,20 +199803,20 @@
         "CatCafe_Cat_Pepper_Gold_Sit_LegF1",
         "CatCafe_Cat_Pepper_Gold_Sit_LegF2"
       ],
-      "triangles": 1000,
+      "triangles": 968,
       "budget": 1500,
       "size_studs": {
-        "x": 1.28,
+        "x": 1.45,
         "y": 1.24,
         "z": 1.96
       },
       "size_roblox": [
-        1.28,
+        1.45,
         1.96,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -199865,10 +199851,6 @@
         "nose": {
           "swatch": "nose_dark",
           "hex": "#4A4450"
-        },
-        "blaze": {
-          "swatch": "fur_white",
-          "hex": "#F7F1E6"
         },
         "eyes2": {
           "swatch": "eye_amber",
@@ -200288,7 +200270,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Pepper_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Pepper_Gold_Sit.model.json",
-      "rbx_parts": 61,
+      "rbx_parts": 57,
       "gates": {
         "pass": true,
         "failed": [],
@@ -200296,13 +200278,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "1000/1500 tris",
+          "budget": "968/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "568 faces on swatch centers",
+          "uv": "548 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.20 y=-0.02"
+          "centered": "footprint center x=0.11 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Pepper_Gold_Sit.png",
@@ -200328,7 +200310,7 @@
         "CatCafe_Cat_Pepper_Gold_Work_Held_Waiter",
         "CatCafe_Cat_Pepper_Gold_Work_Held_Entertainer"
       ],
-      "triangles": 1476,
+      "triangles": 1564,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -200376,10 +200358,6 @@
         "nose": {
           "swatch": "nose_dark",
           "hex": "#4A4450"
-        },
-        "blaze": {
-          "swatch": "fur_white",
-          "hex": "#F7F1E6"
         },
         "eyes2": {
           "swatch": "eye_amber",
@@ -200819,7 +200797,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Pepper_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Pepper_Gold_Work.model.json",
-      "rbx_parts": 69,
+      "rbx_parts": 75,
       "gates": {
         "pass": true,
         "failed": [],
@@ -200827,10 +200805,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1476/2400 tris",
+          "budget": "1564/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "800 faces on swatch centers",
+          "uv": "840 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -202451,20 +202429,20 @@
         "CatCafe_Cat_Butter_Gold_LegB1",
         "CatCafe_Cat_Butter_Gold_LegB2"
       ],
-      "triangles": 824,
+      "triangles": 980,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.18,
         "y": 1.97,
         "z": 1.89
       },
       "size_roblox": [
-        1.0,
+        1.18,
         1.89,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.68,
         -0.99,
         -0.0
       ],
@@ -202950,19 +202928,21 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Butter when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Butter_Gold.model.json",
-      "rbx_parts": 39,
+      "rbx_parts": 48,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "824/1500 tris",
+          "budget": "980/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "476 faces on swatch centers",
+          "uv": "554 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.09 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Butter_Gold.png",
@@ -202983,20 +202963,20 @@
         "CatCafe_Cat_Butter_Gold_Sit_LegF1",
         "CatCafe_Cat_Butter_Gold_Sit_LegF2"
       ],
-      "triangles": 796,
+      "triangles": 940,
       "budget": 1500,
       "size_studs": {
-        "x": 1.29,
+        "x": 1.48,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.29,
+        1.48,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.63,
         -0.65,
         0.0
       ],
@@ -203450,7 +203430,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Butter_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Butter_Gold_Sit.model.json",
-      "rbx_parts": 39,
+      "rbx_parts": 47,
       "gates": {
         "pass": true,
         "failed": [],
@@ -203458,13 +203438,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "796/1500 tris",
+          "budget": "940/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "462 faces on swatch centers",
+          "uv": "534 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.21 y=-0.02"
+          "centered": "footprint center x=0.11 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Butter_Gold_Sit.png",
@@ -203490,7 +203470,7 @@
         "CatCafe_Cat_Butter_Gold_Work_Held_Waiter",
         "CatCafe_Cat_Butter_Gold_Work_Held_Entertainer"
       ],
-      "triangles": 1380,
+      "triangles": 1536,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -203977,7 +203957,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Butter_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Butter_Gold_Work.model.json",
-      "rbx_parts": 56,
+      "rbx_parts": 65,
       "gates": {
         "pass": true,
         "failed": [],
@@ -203985,10 +203965,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1380/2400 tris",
+          "budget": "1536/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "748 faces on swatch centers",
+          "uv": "826 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -204012,20 +203992,20 @@
         "CatCafe_Cat_Moss_Gold_LegB1",
         "CatCafe_Cat_Moss_Gold_LegB2"
       ],
-      "triangles": 836,
+      "triangles": 1016,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.97
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.97,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -204060,10 +204040,6 @@
         "nose": {
           "swatch": "nose_brick",
           "hex": "#C4675B"
-        },
-        "blaze": {
-          "swatch": "fur_cream",
-          "hex": "#EFD9B4"
         },
         "eyes2": {
           "swatch": "eye_amber",
@@ -204515,19 +204491,21 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Moss when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Moss_Gold.model.json",
-      "rbx_parts": 45,
+      "rbx_parts": 53,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "836/1500 tris",
+          "budget": "1016/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "486 faces on swatch centers",
+          "uv": "596 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Moss_Gold.png",
@@ -204548,20 +204526,20 @@
         "CatCafe_Cat_Moss_Gold_Sit_LegF1",
         "CatCafe_Cat_Moss_Gold_Sit_LegF2"
       ],
-      "triangles": 808,
+      "triangles": 976,
       "budget": 1500,
       "size_studs": {
-        "x": 1.28,
+        "x": 1.45,
         "y": 1.24,
         "z": 1.96
       },
       "size_roblox": [
-        1.28,
+        1.45,
         1.96,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -204596,10 +204574,6 @@
         "nose": {
           "swatch": "nose_brick",
           "hex": "#C4675B"
-        },
-        "blaze": {
-          "swatch": "fur_cream",
-          "hex": "#EFD9B4"
         },
         "eyes2": {
           "swatch": "eye_amber",
@@ -205019,7 +204993,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Moss_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Moss_Gold_Sit.model.json",
-      "rbx_parts": 45,
+      "rbx_parts": 52,
       "gates": {
         "pass": true,
         "failed": [],
@@ -205027,13 +205001,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "808/1500 tris",
+          "budget": "976/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "472 faces on swatch centers",
+          "uv": "576 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.20 y=-0.02"
+          "centered": "footprint center x=0.11 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Moss_Gold_Sit.png",
@@ -205059,7 +205033,7 @@
         "CatCafe_Cat_Moss_Gold_Work_Held_Waiter",
         "CatCafe_Cat_Moss_Gold_Work_Held_Entertainer"
       ],
-      "triangles": 1392,
+      "triangles": 1572,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -205107,10 +205081,6 @@
         "nose": {
           "swatch": "nose_brick",
           "hex": "#C4675B"
-        },
-        "blaze": {
-          "swatch": "fur_cream",
-          "hex": "#EFD9B4"
         },
         "eyes2": {
           "swatch": "eye_amber",
@@ -205550,7 +205520,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Moss_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Moss_Gold_Work.model.json",
-      "rbx_parts": 62,
+      "rbx_parts": 70,
       "gates": {
         "pass": true,
         "failed": [],
@@ -205558,10 +205528,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1392/2400 tris",
+          "budget": "1572/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "758 faces on swatch centers",
+          "uv": "868 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -205585,20 +205555,20 @@
         "CatCafe_Cat_Acorn_Gold_LegB1",
         "CatCafe_Cat_Acorn_Gold_LegB2"
       ],
-      "triangles": 836,
+      "triangles": 1096,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -206088,19 +206058,21 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Acorn when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Acorn_Gold.model.json",
-      "rbx_parts": 40,
+      "rbx_parts": 53,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "836/1500 tris",
+          "budget": "1096/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "482 faces on swatch centers",
+          "uv": "634 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Acorn_Gold.png",
@@ -206121,20 +206093,20 @@
         "CatCafe_Cat_Acorn_Gold_Sit_LegF1",
         "CatCafe_Cat_Acorn_Gold_Sit_LegF2"
       ],
-      "triangles": 808,
+      "triangles": 1056,
       "budget": 1500,
       "size_studs": {
-        "x": 1.28,
+        "x": 1.45,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.28,
+        1.45,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -206592,7 +206564,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Acorn_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Acorn_Gold_Sit.model.json",
-      "rbx_parts": 40,
+      "rbx_parts": 52,
       "gates": {
         "pass": true,
         "failed": [],
@@ -206600,13 +206572,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "808/1500 tris",
+          "budget": "1056/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "468 faces on swatch centers",
+          "uv": "614 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.20 y=-0.02"
+          "centered": "footprint center x=0.11 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Acorn_Gold_Sit.png",
@@ -206632,7 +206604,7 @@
         "CatCafe_Cat_Acorn_Gold_Work_Held_Waiter",
         "CatCafe_Cat_Acorn_Gold_Work_Held_Entertainer"
       ],
-      "triangles": 1392,
+      "triangles": 1652,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -207123,7 +207095,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Acorn_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Acorn_Gold_Work.model.json",
-      "rbx_parts": 57,
+      "rbx_parts": 70,
       "gates": {
         "pass": true,
         "failed": [],
@@ -207131,10 +207103,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1392/2400 tris",
+          "budget": "1652/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "754 faces on swatch centers",
+          "uv": "906 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -207158,20 +207130,20 @@
         "CatCafe_Cat_Bramble_Gold_LegB1",
         "CatCafe_Cat_Bramble_Gold_LegB2"
       ],
-      "triangles": 884,
+      "triangles": 968,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.86
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.86,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -207657,19 +207629,21 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Bramble when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Bramble_Gold.model.json",
-      "rbx_parts": 52,
+      "rbx_parts": 53,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "884/1500 tris",
+          "budget": "968/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "494 faces on swatch centers",
+          "uv": "590 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Bramble_Gold.png",
@@ -207690,20 +207664,20 @@
         "CatCafe_Cat_Bramble_Gold_Sit_LegF1",
         "CatCafe_Cat_Bramble_Gold_Sit_LegF2"
       ],
-      "triangles": 956,
+      "triangles": 980,
       "budget": 1500,
       "size_studs": {
-        "x": 1.24,
+        "x": 1.42,
         "y": 1.24,
         "z": 1.85
       },
       "size_roblox": [
-        1.24,
+        1.42,
         1.85,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -208157,7 +208131,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Bramble_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Bramble_Gold_Sit.model.json",
-      "rbx_parts": 58,
+      "rbx_parts": 54,
       "gates": {
         "pass": true,
         "failed": [],
@@ -208165,13 +208139,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "956/1500 tris",
+          "budget": "980/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "530 faces on swatch centers",
+          "uv": "596 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=-0.02"
+          "centered": "footprint center x=0.10 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Bramble_Gold_Sit.png",
@@ -208197,7 +208171,7 @@
         "CatCafe_Cat_Bramble_Gold_Work_Held_Waiter",
         "CatCafe_Cat_Bramble_Gold_Work_Held_Entertainer"
       ],
-      "triangles": 1452,
+      "triangles": 1596,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -208684,7 +208658,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Bramble_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Bramble_Gold_Work.model.json",
-      "rbx_parts": 65,
+      "rbx_parts": 71,
       "gates": {
         "pass": true,
         "failed": [],
@@ -208692,10 +208666,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1452/2400 tris",
+          "budget": "1596/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "776 faces on swatch centers",
+          "uv": "902 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -208719,20 +208693,20 @@
         "CatCafe_Cat_Fern_Gold_LegB1",
         "CatCafe_Cat_Fern_Gold_LegB2"
       ],
-      "triangles": 812,
+      "triangles": 904,
       "budget": 1500,
       "size_studs": {
-        "x": 1.0,
+        "x": 1.15,
         "y": 1.97,
         "z": 1.97
       },
       "size_roblox": [
-        1.0,
+        1.15,
         1.97,
         1.97
       ],
       "bounds_min": [
-        -0.5,
+        -0.65,
         -0.99,
         -0.0
       ],
@@ -209222,19 +209196,21 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Fern when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Fern_Gold.model.json",
-      "rbx_parts": 51,
+      "rbx_parts": 56,
       "gates": {
         "pass": true,
         "failed": [],
-        "warnings": [],
+        "warnings": [
+          "centered"
+        ],
         "checks": {
-          "budget": "812/1500 tris",
+          "budget": "904/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "462 faces on swatch centers",
+          "uv": "512 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=-0.00"
+          "centered": "footprint center x=-0.07 y=-0.00"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Fern_Gold.png",
@@ -209255,20 +209231,20 @@
         "CatCafe_Cat_Fern_Gold_Sit_LegF1",
         "CatCafe_Cat_Fern_Gold_Sit_LegF2"
       ],
-      "triangles": 836,
+      "triangles": 916,
       "budget": 1500,
       "size_studs": {
-        "x": 1.24,
+        "x": 1.42,
         "y": 1.24,
         "z": 1.96
       },
       "size_roblox": [
-        1.24,
+        1.42,
         1.96,
         1.24
       ],
       "bounds_min": [
-        -0.44,
+        -0.61,
         -0.65,
         0.0
       ],
@@ -209726,7 +209702,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Fern_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Fern_Gold_Sit.model.json",
-      "rbx_parts": 53,
+      "rbx_parts": 57,
       "gates": {
         "pass": true,
         "failed": [],
@@ -209734,13 +209710,13 @@
           "centered"
         ],
         "checks": {
-          "budget": "836/1500 tris",
+          "budget": "916/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "474 faces on swatch centers",
+          "uv": "518 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
-          "centered": "footprint center x=0.18 y=-0.02"
+          "centered": "footprint center x=0.10 y=-0.02"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Fern_Gold_Sit.png",
@@ -209766,7 +209742,7 @@
         "CatCafe_Cat_Fern_Gold_Work_Held_Waiter",
         "CatCafe_Cat_Fern_Gold_Work_Held_Entertainer"
       ],
-      "triangles": 1440,
+      "triangles": 1532,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -210257,7 +210233,7 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Fern_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Fern_Gold_Work.model.json",
-      "rbx_parts": 69,
+      "rbx_parts": 74,
       "gates": {
         "pass": true,
         "failed": [],
@@ -210265,10 +210241,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1440/2400 tris",
+          "budget": "1532/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "774 faces on swatch centers",
+          "uv": "824 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"
@@ -256252,17 +256228,17 @@
         "CatCafe_Cat_Torch_Gold_Flame",
         "CatCafe_Cat_Torch_Gold_Tail_Flame"
       ],
-      "triangles": 1132,
+      "triangles": 1118,
       "budget": 1500,
       "size_studs": {
         "x": 1.0,
-        "y": 1.99,
+        "y": 2.0,
         "z": 1.86
       },
       "size_roblox": [
         1.0,
         1.86,
-        1.99
+        2.0
       ],
       "bounds_min": [
         -0.5,
@@ -256271,7 +256247,7 @@
       ],
       "bounds_max": [
         0.5,
-        1.0,
+        1.01,
         1.86
       ],
       "pivot": "base center (floor contact)",
@@ -256769,7 +256745,7 @@
           "follows": "Tail",
           "pivot_roblox": [
             0.0,
-            1.29,
+            1.28,
             0.88
           ]
         }
@@ -256788,19 +256764,19 @@
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Torch when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. The child Model <name>_Flame hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Tail_Flame hangs inside <name>_Tail, pivoted where it hangs, and rides the Tail (Follows Tail).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Torch_Gold.model.json",
-      "rbx_parts": 55,
+      "rbx_parts": 52,
       "gates": {
         "pass": true,
         "failed": [],
         "warnings": [],
         "checks": {
-          "budget": "1132/1500 tris",
+          "budget": "1118/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "636 faces on swatch centers",
+          "uv": "627 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=-0.00 (want 0)",
-          "centered": "footprint center x=0.00 y=0.00"
+          "centered": "footprint center x=0.00 y=0.01"
         }
       },
       "preview": "docs/concepts/cat-cafe/previews/CatCafe_Cat_Torch_Gold.png",
@@ -256824,7 +256800,7 @@
         "CatCafe_Cat_Torch_Gold_Sit_Flame",
         "CatCafe_Cat_Torch_Gold_Sit_Tail_Flame"
       ],
-      "triangles": 1132,
+      "triangles": 1118,
       "budget": 1500,
       "size_studs": {
         "x": 1.24,
@@ -256839,7 +256815,7 @@
       "bounds_min": [
         -0.44,
         -0.65,
-        0.0
+        -0.0
       ],
       "bounds_max": [
         0.8,
@@ -257322,13 +257298,13 @@
           "pivot_roblox": [
             -0.59,
             0.1,
-            -0.03
+            -0.02
           ]
         }
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Torch_Sit when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. The child Model <name>_Flame hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Tail_Flame hangs inside <name>_Tail, pivoted where it hangs, and rides the Tail (Follows Tail).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Torch_Gold_Sit.model.json",
-      "rbx_parts": 55,
+      "rbx_parts": 52,
       "gates": {
         "pass": true,
         "failed": [],
@@ -257336,12 +257312,12 @@
           "centered"
         ],
         "checks": {
-          "budget": "1132/1500 tris",
+          "budget": "1118/1500 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "636 faces on swatch centers",
+          "uv": "627 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
-          "pivot": "floor at z=0.00 (want 0)",
+          "pivot": "floor at z=-0.00 (want 0)",
           "centered": "footprint center x=0.18 y=-0.02"
         }
       },
@@ -257371,7 +257347,7 @@
         "CatCafe_Cat_Torch_Gold_Work_Flame",
         "CatCafe_Cat_Torch_Gold_Work_Tail_Flame"
       ],
-      "triangles": 1760,
+      "triangles": 1746,
       "budget": 2400,
       "size_studs": {
         "x": 1.53,
@@ -257888,14 +257864,14 @@
           "follows": "Tail",
           "pivot_roblox": [
             -0.11,
-            1.09,
+            1.08,
             0.81
           ]
         }
       },
       "studio": "F42: clone this instead of CatCafe_Cat_Torch_Work when the cat is gold. Same parts, joints, attachments and poses; only the coat colours differ (style guide 2). Prop: the Back prop is the child Model <name>_Prop (and <name>_Prop_Glass, Glass) and rides the Body; PropSlot = Back, so CatPose.dress leaves that slot's role piece off. The child Model <name>_Flame hangs inside <name>_Prop, pivoted where it hangs, and rides what that prop rides. The child Model <name>_Tail_Flame hangs inside <name>_Tail, pivoted where it hangs, and rides the Tail (Follows Tail).",
       "rbx_model": "assets/cat-cafe/rbx/CatCafe_Cat_Torch_Gold_Work.model.json",
-      "rbx_parts": 73,
+      "rbx_parts": 70,
       "gates": {
         "pass": true,
         "failed": [],
@@ -257903,10 +257879,10 @@
           "centered"
         ],
         "checks": {
-          "budget": "1760/2400 tris",
+          "budget": "1746/2400 tris",
           "transforms": "scale 1, rotation 0",
           "material": "one material (CatCafe_Palette)",
-          "uv": "948 faces on swatch centers",
+          "uv": "939 faces on swatch centers",
           "naming": "CatCafe_<Category>_<Name>",
           "pivot": "floor at z=0.00 (want 0)",
           "centered": "footprint center x=0.08 y=0.11"

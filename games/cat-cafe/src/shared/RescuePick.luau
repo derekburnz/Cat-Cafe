@@ -41,15 +41,32 @@ local function clearOf(position: Vector3, picked: { Candidate }, spacing: number
 	return true
 end
 
+-- #2794: the id of the spot in `pool` nearest (x, z) on the ground plane, ties to the lower id; nil for an empty pool.
+function RescuePick.nearest(pool: { Candidate }, x: number, z: number): string?
+	local best: string? = nil
+	local bestD = math.huge
+	for _, spot in pool do
+		local dx, dz = spot.position.X - x, spot.position.Z - z
+		local d = dx * dx + dz * dz
+		if d < bestD or (d == bestD and best ~= nil and spot.id < best) then
+			best, bestD = spot.id, d
+		end
+	end
+	return best
+end
+
 -- Today's active spot ids, sorted: `mix[trap]` spots of each type from `pool` (or every spot of that type when the
 -- pool has fewer), spots in `avoid` (yesterday's) last, and none closer than `spacing` to another pick unless the
 -- type cannot be filled otherwise. Types with the fewest spots pick first, so a scarce type is not crowded out.
+-- `keep` (#2794: the Alleyway's and the Park's trap nearest the camp) is picked every day, yesterday or not, and
+-- counts toward its type; ignored when it is not in the pool or its type is not in the mix.
 function RescuePick.pick(
 	pool: { Candidate },
 	mix: { [string]: number },
 	avoid: { [string]: boolean },
 	spacing: number,
-	rand: (number) -> number
+	rand: (number) -> number,
+	keep: string?
 ): { string }
 	local byTrap: { [string]: { Candidate } } = {}
 	local types: { string } = {}
@@ -78,6 +95,13 @@ function RescuePick.pick(
 	end)
 
 	local picked: { Candidate } = {}
+	local kept: Candidate? = nil
+	for _, spot in pool do
+		if spot.id == keep and (mix[spot.trap] or 0) > 0 then
+			kept = spot
+			table.insert(picked, spot)
+		end
+	end
 	for _, trap in types do
 		local fresh: { Candidate } = {}
 		local stale: { Candidate } = {}
@@ -91,6 +115,10 @@ function RescuePick.pick(
 		local want = math.min(mix[trap], #order)
 		local taken: { [string]: boolean } = {}
 		local got = 0
+		if kept ~= nil and kept.trap == trap then
+			taken[kept.id] = true
+			got = 1
+		end
 		-- first pass keeps the spacing, the second fills what the spacing left short
 		for pass = 1, 2 do
 			for _, spot in order do

@@ -38,7 +38,7 @@ local FOLK: { { area: string, name: string } } = {
 
 local opensAt: { [string]: number } = {} -- area id -> the tier that opens it
 local tier = 0 -- this player's tier, from ProfileSync
-local grown: { [string]: Model } = {} -- area id -> its placed growth
+local grown: { [string]: Model? } = {} -- area id -> its placed growth
 local folder: Folder? = nil
 local started = false
 

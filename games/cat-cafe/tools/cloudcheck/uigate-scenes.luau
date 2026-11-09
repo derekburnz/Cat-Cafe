@@ -4969,6 +4969,46 @@ local SCENES = {
 	{ "CatFound", function()
 		UI.showCatFound(Catalog.cats[2].id, true)
 	end },
+	-- #2833 (Derek2: "only do the double pop-up if its a legendary+ or any new cat"): a repeat Common catch gets a toast,
+	-- not the big card; a repeat Legendary still gets the card
+	{ "CatFoundRepeat", function()
+		local common, legendary = nil, nil
+		for _, def in Catalog.cats do
+			if common == nil and def.rarity == "Common" then
+				common = def
+			elseif legendary == nil and def.rarity == "Legendary" then
+				legendary = def
+			end
+		end
+		assert(common and legendary, "uigate: no Common or Legendary cat in the catalog (#2833)")
+		local popupsGui = UIShim.playerGui:FindFirstChild("CatCafePopups")
+		local card = popupsGui and popupsGui:FindFirstChild("CatFound", true) :: GuiObject?
+		assert(card ~= nil, "uigate: no cat found card (#2833)")
+		local function shown(): boolean
+			local at: Instance? = card
+			while at and not at:IsA("PlayerGui") do
+				if (at:IsA("GuiObject") and not at.Visible) or (at:IsA("ScreenGui") and not at.Enabled) then
+					return false
+				end
+				at = at.Parent
+			end
+			return true
+		end
+		UI.showCatFound(common.id, false, { charmGain = 2 })
+		UIShim.advance(0.3)
+		assert(not shown(), "uigate: a repeat Common catch opened the big card (#2833)")
+		local words = "🐱 " .. common.name .. " joined your cafe!  Charm +2"
+		local toast = nil
+		for _, label in UIShim.playerGui:GetDescendants() do
+			if label:IsA("TextLabel") and label.Name == "Text" and label.Text == words then
+				toast = label
+			end
+		end
+		assert(toast ~= nil, "uigate: no toast for a repeat Common catch (#2833)")
+		UI.showCatFound(legendary.id, false)
+		UIShim.advance(0.3)
+		assert(shown(), "uigate: a repeat Legendary catch did not open the big card (#2833)")
+	end },
 	-- #2530: a new Park cat's reveal has no "Park N / M" area count any more (#1919)
 	{ "CatFoundArea", function()
 		local def = missingCat("park")

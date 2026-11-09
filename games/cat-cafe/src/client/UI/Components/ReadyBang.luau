@@ -29,6 +29,7 @@ local Workspace = game:GetService("Workspace")
 local CampExtrasLogic = require(script.Parent.CampExtrasLogic)
 local Create = require(script.Parent.Create)
 local Outline = require(script.Parent.Outline)
+local Scale = require(script.Parent.Parent.Scale)
 local Theme = require(script.Parent.Parent.Theme)
 
 export type ReadyBang = {
@@ -105,8 +106,13 @@ end
 local function build(parent: Instance, extraId: string): Bang
 	local gui: BillboardGui = Create("BillboardGui", {
 		Name = "CatCafeReadyBang_" .. extraId,
-		-- studs up close, never smaller than 120 x 36 px at the edge of its range
-		Size = UDim2.new(6, 120, 1.8, 36),
+		-- studs up close, never smaller than 120 x 36 px at the edge of its range; #2762: a size smaller on a phone
+		Size = UDim2.new(
+			6 * Scale.phoneStuds(),
+			Scale.billboard(120),
+			1.8 * Scale.phoneStuds(),
+			Scale.billboard(36)
+		),
 		LightInfluence = 0,
 		AlwaysOnTop = false, -- walls in front hide it, as they hide the station (the Rescue "!" does the same)
 		MaxDistance = CampExtrasLogic.BANG_RANGE,

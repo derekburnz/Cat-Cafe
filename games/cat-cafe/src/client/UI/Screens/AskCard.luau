@@ -61,6 +61,9 @@ export type AskCard = {
 
 local CARD_W = 400
 local TITLE_H = 26
+local TITLE_TEXT = Theme.sizes.textLarge - 2
+local CHOICE_TEXT = Theme.sizes.textBody
+local TITLE_RIGHT = 0 -- room kept at the title's right end for the X hanging over the corner
 local CHOICE_H = 44
 local PAD = 10
 local GAP = 8
@@ -97,6 +100,13 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 	})
 	self._uiScale = Scale.bind(root)
 
+	-- #2762 (Derek2: the "How is it so far?" ask is "for phone too big"): a size smaller on a phone held sideways in its
+	-- width, title and padding; the buttons keep a finger's height (Scale.tapHeight)
+	if Scale.isPhone() then
+		CARD_W, TITLE_H, TITLE_TEXT, CHOICE_TEXT, PAD =
+			340, 22, Theme.sizes.textBody + 1, Theme.sizes.textSmall, 7
+		TITLE_RIGHT = 26
+	end
 	local choiceH = Scale.tapHeight(CHOICE_H, Theme.sizes.buttonDepth)
 	self._choiceH = choiceH
 	local cardH = PAD + TITLE_H + 6 + choiceH + PAD + BAR_H
@@ -127,9 +137,9 @@ function AskCard.new(parent: Instance, callbacks: Callbacks): AskCard
 		Name = "Title",
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(PAD, PAD),
-		Size = UDim2.new(1, -2 * PAD, 0, TITLE_H),
+		Size = UDim2.new(1, -2 * PAD - TITLE_RIGHT, 0, TITLE_H),
 		FontFace = Theme.fonts.display,
-		TextSize = Theme.sizes.textLarge - 2,
+		TextSize = TITLE_TEXT,
 		TextColor3 = Theme.modal.text,
 		Text = "",
 		Parent = card,
@@ -201,7 +211,7 @@ end
 function AskCard._setLines(self: any, lines: number)
 	local titleH = if lines >= 2 then TITLE_H * 2 - 2 else TITLE_H
 	self._title.TextWrapped = lines >= 2
-	self._title.Size = UDim2.new(1, -2 * PAD, 0, titleH)
+	self._title.Size = UDim2.new(1, -2 * PAD - TITLE_RIGHT, 0, titleH)
 	self._row.Position = UDim2.fromOffset(PAD, PAD + titleH + 6)
 	self._cardH = PAD + titleH + 6 + self._choiceH + PAD + BAR_H
 	self:_fit()
@@ -232,7 +242,7 @@ function AskCard._buildChoices(self: any, choices: { Choice })
 					then ShopIcons.clean(Theme.cleanGlyphs[choice.icon] or "")
 					else nil,
 				style = choice.style or "ghost",
-				textSize = Theme.sizes.textBody,
+				textSize = CHOICE_TEXT,
 				size = UDim2.new(1 / count, -GAP * (count - 1) / count, 1, 0),
 				layoutOrder = index,
 				parent = self._row,

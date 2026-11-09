@@ -22,6 +22,7 @@ local Clock = require(Shared:WaitForChild("Clock"))
 local Config = require(Shared:WaitForChild("Config"))
 local DeviceKind = require(Shared:WaitForChild("DeviceKind"))
 local Effects = require(script.Parent.Parent.Effects)
+local EventRsvp = require(script.Parent.Parent.UI.Components.EventRsvp)
 local Jukebox = require(Shared:WaitForChild("Jukebox"))
 local Luck = require(Shared:WaitForChild("Luck"))
 local Moments = require(script.Parent.Parent.Moments)
@@ -1600,9 +1601,70 @@ local function showAsk(id: string)
 	end)
 end
 
+-- #2766: the update Event's ask (UI/Components/EventRsvp): once a session at a quiet moment, before the Event starts,
+-- to a player past the tutorial who has not answered Roblox's Notify Me prompt; a busy card tries at the next sync.
+local eventAsk = { asked = false }
+local function reportRsvp(kind: string)
+	Net.fire("TelemetryReport", "event_rsvp", kind)
+end
+local function offerEvent()
+	local id, startsAt = Config.UpdateEventId, Config.UpdateEventStartsAt
+	if
+		eventAsk.asked
+		or state == nil
+		or state.tutorialStep < 5
+		or not EventRsvp.due(id, startsAt, os.time())
+	then
+		return
+	end
+	eventAsk.asked = true
+	local eventId, at = id :: string, startsAt :: number
+	task.spawn(function()
+		local waited = 0
+		while not quiet() do
+			if waited >= ASK_WAIT_SECONDS then
+				return
+			end
+			waited += task.wait(1)
+		end
+		if EventRsvp.status(eventId) ~= "none" or not EventRsvp.due(eventId, at, os.time()) then
+			return -- answered before (or Roblox cannot say), or it has started
+		end
+		local asks: any = (UI :: any).asks
+		local card: any = if asks ~= nil then asks.card else nil
+		local shown = type(card) == "function"
+			and (card :: (any) -> unknown)({
+					title = EventRsvp.title(at, os.time()),
+					choices = {
+						{ id = "remind", label = EventRsvp.REMIND, style = "primary" },
+						{ id = "later", label = EventRsvp.LATER, style = "ghost" },
+					},
+					seconds = EventRsvp.ASK_SECONDS,
+					lines = 2,
+					answer = function(choice: string?)
+						if choice == "remind" then
+							reportRsvp("remind")
+							task.spawn(function()
+								reportRsvp(EventRsvp.prompt(eventId) or "failed")
+							end)
+						elseif choice == "later" then
+							reportRsvp("later")
+						end
+					end,
+				})
+				== true
+		if shown then
+			reportRsvp("shown")
+		else
+			eventAsk.asked = false -- another card was up: the next sync tries again
+		end
+	end)
+end
+
 local function wireServerEvents()
 	Net.on("ProfileSync", function(s: Types.PlayerState)
 		applyState(s)
+		offerEvent()
 		reportDevice()
 		reportClientError()
 	end)

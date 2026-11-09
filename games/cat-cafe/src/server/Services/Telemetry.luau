@@ -135,6 +135,7 @@ export type CustomEvent =
 	-- clock's phase (day, dusk or night), which third of it (Clock.leavePhase) and the tier with first or return
 	| "left_in_phase"
 	| "stuck_nudge"
+	| "event_rsvp" -- #2766
 	| "intro_choice"
 	-- F87 (TipService): a context tip shown (tip id, skipped yes or no), once per id until ClearTips;
 	-- a feedback face (love, ok or no; the chip or none; tier), FeedbackSessionLimit a session
@@ -280,12 +281,16 @@ local REPORTS = {
 	"playtime_gift", -- #1947: a gift card's button, "<like|fav>:<like|favourite|close>"
 	"client_error", -- #2681: the client logged its first error line this session (value true)
 	"feedback_outcome", -- #2694: how a slide-in faces ask ended, "<answered|closed|ignored>:<early|late>"
+	"event_rsvp", -- #2766: the update Event's Notify Me ask, RSVP_KINDS
 }
 local DEVICES = { "phone", "tablet", "pc", "console" }
 -- F87 (easy-start.md section 5): the client's reports with fixed values. A stuck nudge logs once per tutorialStep and
 -- kind a session (the hint pulses every 40 s while it waits); an intro choice at most INTRO_CHOICES times a session.
 local INTRO_FROM = { "tile", "help" }
 local NUDGE_KINDS = { "pulse", "help_shown", "show_me" }
+-- #2766: the update Event's ask: shown, its two buttons, what Roblox's Notify Me prompt answered, or that it failed;
+-- each logs once a session
+local RSVP_KINDS = { "shown", "remind", "later", "going", "not_going", "none", "failed" }
 local INTRO_CHOICES = 5
 local RECAP_CLOSE_MAX = 30 -- #1920: session_recap_close's seconds, 0 to this
 local INDEX_HINT_TAPS = 10 -- #1919: index_hint_tap events logged at most this many times a session
@@ -1247,6 +1252,12 @@ local function onReport(player: Player, rawName: unknown, rawValue: unknown)
 				session.nudges[key] = true
 				Telemetry.custom(player, "stuck_nudge", 1, { step, kind })
 			end
+		end
+	elseif name == "event_rsvp" then
+		local kind = Guard.oneOf(rawValue, RSVP_KINDS)
+		if kind ~= nil and not session.nudges["rsvp:" .. kind] then
+			session.nudges["rsvp:" .. kind] = true -- the stuck nudges' once-a-session set, keyed apart
+			Telemetry.custom(player, "event_rsvp", 1, { kind })
 		end
 	elseif name == "step" then
 		-- a tutorial card or the catch card on screen (Onboarding.REPORTABLE)

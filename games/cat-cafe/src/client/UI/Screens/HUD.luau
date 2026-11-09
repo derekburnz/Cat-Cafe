@@ -77,6 +77,7 @@ local ShopIcons = require(script.Parent.Parent.Components.ShopIcons)
 local Signal = require(script.Parent.Parent.Components.Signal)
 local Sound = require(script.Parent.Parent.Components.Sound)
 local SpinLogic = require(script.Parent.Parent.Components.SpinLogic)
+local StepTarget = require(script.Parent.Parent.Components.StepTarget)
 local Theme = require(script.Parent.Parent.Theme)
 local TipJarLogic = require(script.Parent.Parent.Components.TipJarLogic)
 local TradeLogic = require(script.Parent.Parent.Components.TradeLogic)
@@ -486,6 +487,7 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 	self._cannonMode = false -- F84: Cannon in place of Areas, no Alley button, the carry banner points at the camp
 	-- red dots on the menu tiles: keys seen when each screen was last open (Notices)
 	self._dots = {} :: { [string]: Frame }
+	self._stepTiles = {} :: { [string]: any } -- #2697: the Cats and Bowl tiles, by name
 	self._seen = { Upgrades = {}, Decor = {} } :: { [string]: { [string]: boolean } }
 	self._candidates = nil :: Notices.Candidates?
 	self._indexReady = 0 -- Index rewards waiting to be claimed (F48)
@@ -1510,6 +1512,8 @@ function HUD.new(parent: Instance, callbacks: Callbacks): HUD
 		end
 		if item.name == "Upgrades" then
 			self._upgradesTile = button -- #1796: glows while a tutorial step asks for an upgrade
+		elseif item.name == "Cats" or item.name == "Bowl" then
+			self._stepTiles[item.name] = button -- #2697: ring while the step asks for a job, or food in the bowl
 		end
 		if item.name == "Store" then
 			button.instance.Visible = false -- until setStore hands it a window to open
@@ -2527,6 +2531,11 @@ function HUD.render(self: any, state: Types.PlayerState)
 		self._upgradesTile.face,
 		TutorialHints.upgrade(state.tutorialStep, state.upgradeLevels) ~= nil
 	)
+	-- #2697: the Cats tile while the step asks for a job, the Bowl tile while it asks for food in the bowl
+	local asks =
+		TutorialHints.ask(TutorialHints.view(state, if catalog then catalog.spots else nil))
+	StepTarget.ui(self._stepTiles.Cats and self._stepTiles.Cats.face, asks == "job")
+	StepTarget.ui(self._stepTiles.Bowl and self._stepTiles.Bowl.face, asks == "food")
 	-- F102: the Trade tile from the live minimum tier, with the rest of the full HUD, once TradeService runs (it sets
 	-- the Workspace's TradingOn; while that is false the window says trading is resting)
 	-- #2462: shown greyed below the minimum tier, so new players see what Tier 3 brings

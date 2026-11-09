@@ -132,4 +132,46 @@ return function()
 			expect(TutorialHints.upgrade(nil, nil)).to.equal(nil)
 		end)
 	end)
+
+	describe("TutorialHints.ask and view (#2697)", function()
+		local spots = { { id = "barista", tier = 1 }, { id = "waiter", tier = 2 } }
+		local function state(changes: { [string]: any }): any
+			local out: { [string]: any } = {
+				tutorialStep = 2,
+				tier = 1,
+				cats = { a = {} },
+				upgradeLevels = {},
+				bait = nil,
+			}
+			for key, value in changes do
+				out[key] = value
+			end
+			return out
+		end
+
+		it("asks for a job while a new cat rests and a role is free", function()
+			expect(TutorialHints.ask(TutorialHints.view(state({}), spots))).to.equal("job")
+			local busy = state({ cats = { a = { spotId = "barista" } } })
+			expect(TutorialHints.ask(TutorialHints.view(busy, spots))).to.equal("more")
+		end)
+
+		it("asks for the bowl, then food in it, then waits", function()
+			expect(TutorialHints.ask(TutorialHints.view(state({ tutorialStep = 4 }), spots))).to.equal(
+				"bowl"
+			)
+			local owned = state({ tutorialStep = 4, upgradeLevels = { lure_bowl = 1 } })
+			expect(TutorialHints.ask(TutorialHints.view(owned, spots))).to.equal("food")
+			owned.bait = { readyAt = 10 }
+			expect(TutorialHints.ask(TutorialHints.view(owned, spots))).to.equal("waiting")
+		end)
+
+		it("asks for nothing once the walk-through is done, or with no step saved", function()
+			expect(TutorialHints.ask(TutorialHints.view(state({ tutorialStep = 5 }), spots))).to.equal(
+				nil
+			)
+			expect(TutorialHints.ask(TutorialHints.view(state({ tutorialStep = false }), spots))).to.equal(
+				nil
+			)
+		end)
+	end)
 end

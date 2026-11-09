@@ -49,8 +49,40 @@ function StepTarget.ui(target: GuiObject?, on: boolean)
 	TutorialGlow.set(target, on)
 end
 
--- What the Highlight goes round: the target's model when it is one small thing, else the part, nil for a spot that
--- cannot be seen (a see-through marker part, a bare position).
+-- #2751 (Laptop-Tester: the food step's ring never showed): a see-through marker inside a whole plot (the BaitBowl
+-- anchor) has nothing to ring itself, so the visible thing standing on it (the bowl CafeService puts in the plot's
+-- Bait folder) takes the Highlight: the nearest visible part within NEAR studs that is not a floor or a wall, as its
+-- own model when that is one small thing.
+local NEAR = 5
+local PIECE = 12 -- studs: a part longer than this (a floor, a wall) is not the thing on the marker
+local RETRY_SECONDS = 1 -- a target with nothing to ring looks again this often (the bowl streams in later)
+
+local function visibleNear(within: Instance, at: Vector3): Instance?
+	local best: BasePart? = nil
+	local bestDistance = NEAR
+	for _, item in within:GetDescendants() do
+		if item:IsA("BasePart") and item.Transparency < 0.95 then
+			local size = item.Size
+			if math.max(size.X, size.Y, size.Z) <= PIECE then
+				local distance = (item.Position - at).Magnitude
+				if distance < bestDistance then
+					best, bestDistance = item :: BasePart, distance
+				end
+			end
+		end
+	end
+	if best == nil then
+		return nil
+	end
+	local owner = best:FindFirstAncestorOfClass("Model")
+	if owner ~= nil and owner ~= within and StepTargetLogic.small(owner:GetExtentsSize()) then
+		return owner
+	end
+	return best
+end
+
+-- What the Highlight goes round: the target's model when it is one small thing, else the part, else the visible
+-- thing on a see-through marker (visibleNear), nil for a bare position or a marker with nothing on it.
 local function adornee(target: Target): Instance?
 	if typeof(target) ~= "Instance" then
 		return nil
@@ -73,7 +105,10 @@ local function adornee(target: Target): Instance?
 		return model
 	end
 	if part.Transparency >= 0.95 then
-		return nil
+		local within = model or part.Parent
+		return if within ~= nil and within ~= (Workspace :: Instance)
+			then visibleNear(within, part.Position)
+			else nil
 	end
 	return part
 end
@@ -148,18 +183,14 @@ function StepTarget._place(self: any)
 	arrow.Visible = true
 end
 
-function StepTarget.show(self: any, target: Target)
-	if self._target == target and self._gui.Enabled then
-		return
-	end
-	self:hide()
-	self._target = target
+-- The flashing Highlight round what `target` shows, when there is something to ring.
+function StepTarget._ring(self: any, target: Target)
 	local highlight: Highlight = self._highlight
 	local around = adornee(target)
 	highlight.Adornee = around
 	highlight.Enabled = around ~= nil
 	highlight.FillTransparency = FILL_BRIGHT
-	if around ~= nil and not GuiService.ReducedMotionEnabled then
+	if around ~= nil and self._flash == nil and not GuiService.ReducedMotionEnabled then
 		local flash = TweenService:Create(highlight, FLASH_INFO, {
 			FillTransparency = FILL_DIM,
 			OutlineTransparency = 0.4,
@@ -167,14 +198,30 @@ function StepTarget.show(self: any, target: Target)
 		flash:Play()
 		self._flash = flash
 	end
+end
+
+function StepTarget.show(self: any, target: Target)
+	if self._target == target and self._gui.Enabled then
+		return
+	end
+	self:hide()
+	self._target = target
+	self:_ring(target)
 	self._gui.Enabled = true
-	local clock = 0
+	local clock, retry = 0, 0
 	self._loop = RunService.Heartbeat:Connect(function(dt: number)
 		clock += dt
+		retry += dt
 		if clock < LOOK_SECONDS then
 			return
 		end
 		clock = 0
+		if retry >= RETRY_SECONDS then
+			retry = 0
+			if self._highlight.Adornee == nil then
+				self:_ring(target) -- #2751: the thing to ring may have streamed in since
+			end
+		end
 		local part = if typeof(target) == "Instance" then target else nil
 		if part ~= nil and part.Parent == nil then
 			self:hide() -- streamed out or gone: the next step names a new target

@@ -12,6 +12,7 @@ local BugReport = require(Shared:WaitForChild("BugReport"))
 local CatLock = require(script.Parent.Components.CatLock)
 local Catalog = require(Shared:WaitForChild("Catalog"))
 local Config = require(Shared:WaitForChild("Config"))
+local DealerPlan = require(Shared:WaitForChild("Dealer"))
 local DecorPieces = require(script.Parent.Components.DecorPieces)
 local Format = require(script.Parent.Components.Format)
 local IndexRewards = require(script.Parent.Components.IndexRewards)
@@ -817,6 +818,33 @@ function Demo.run(UI: any): () -> ()
 		UI.dealer.setStock(stock)
 	end
 	connections[#connections + 1] = UI.events.buyDealerFood:Connect(buyDealer)
+	-- #2573: BuyDealerAll as the server runs it: shared Dealer.planAll on the stock and coins, then DealerStock
+	connections[#connections + 1] = UI.events.buyDealerAll:Connect(function(window: number?)
+		local stock = dealerStock
+		if not stock or window ~= stock.window then
+			return
+		end
+		local foods: { Types.DealerFood } = stock.stock or {}
+		local plan, total = DealerPlan.planAll(foods, profile.money)
+		if #plan == 0 then
+			UI.toast("Not enough coins", "warn")
+		else
+			local bought = 0
+			for _, item in plan do
+				for _, food in foods do
+					if food.lureId == item.lureId then
+						food.bought += item.count
+					end
+				end
+				profile.lures[item.lureId] = (profile.lures[item.lureId] or 0) + item.count
+				bought += item.count
+			end
+			profile.money -= total
+			UI.toast(("Bought %d foods for %s"):format(bought, Format.money(total)), "good")
+			push()
+		end
+		UI.dealer.setStock(stock)
+	end)
 	-- SpinWheel as the server runs it (data-model 11c): the free spin first, then a banked one; a weighted slice,
 	-- paid at once; SpinResult(0, 0) when there is no spin. The demo has no station, so range is not checked.
 	local lastSpin = -math.huge

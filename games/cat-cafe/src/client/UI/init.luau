@@ -141,6 +141,7 @@ UI.events = {
 	-- (index, lureId, window)   Buy on the night dealer screen (F32): forward lureId and window as BuyDealerFood (F59);
 	-- index is the food's row, unused since F59, and window the DealerStock's the screen showed (nil if none came)
 	buyDealerFood = Signal.new(),
+	buyDealerAll = Signal.new(), -- (window)   #2573: Buy all on the night dealer screen: forward as BuyDealerAll
 	claimRichTip = Signal.new(), -- ()   Collect on the rich tip marker over your cafe: forward as ClaimRichTip (F31)
 	-- design v0.5
 	tackle = Signal.new(), -- ()   the Tackle button or Q: lunge and forward as Tackle (F74, no target)
@@ -1012,6 +1013,9 @@ function UI.init(config: Types.InitConfig)
 	dealerScreen = Dealer.new({
 		buy = function(index: number, lureId: string, window: number?)
 			UI.events.buyDealerFood:Fire(index, lureId, window)
+		end,
+		buyAll = function(window: number?)
+			UI.events.buyDealerAll:Fire(window)
 		end,
 		close = closeModal,
 	})

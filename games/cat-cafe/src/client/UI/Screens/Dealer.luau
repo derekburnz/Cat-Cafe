@@ -13,6 +13,11 @@
 -- the cart leaves, instead of a 5 minute restock (UIController hands the night as the window and sunrise as
 -- restocksAt). F94 is live, so the pre-F94 5 minute wording and Config.DealerWindowSeconds are gone.
 -- Opened by the cart's prompt (UI.dealer.open).
+-- #2573 (player riverpopcorn886's idea, via Derek2): "Buy all" on the strip's right while something left fits. It opens
+-- a confirm card with what it takes (DealerRows.buyAll: shared Dealer.planAll, best grade first, what fits), the total
+-- and the coins left after, and "You can afford 6 of 10" when it can't take everything. Buy sends
+-- callbacks.buyAll(window) (BuyDealerAll); the server plans again from its own stock and coins, toasts and sends
+-- DealerStock, which ends the wait.
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -42,6 +47,7 @@ export type Callbacks = {
 	-- the food's row, the food and the window the screen showed, so a Buy that lands after a restock is refused (S42)
 	buy: (index: number, lureId: string, window: number?) -> (),
 	close: () -> (),
+	buyAll: ((window: number?) -> ())?, -- #2573: Buy all, with the window (night) the screen showed
 }
 
 export type Dealer = {
@@ -68,6 +74,9 @@ local PENDING_SECONDS = 2
 -- #2290 (Derek2: "buying items fast from shop sometimes stays too long on the ... waiting button"): the server takes
 -- BuyDealerFood 2 a second and drops the rest with no DealerStock, so buys go at least this far apart
 local SEND_GAP = 0.55
+-- #2573: Buy all waits this long for its DealerStock (the server takes BuyDealerAll once every 2 s)
+local ALL_PENDING_SECONDS = 3
+local ALL_BUTTON = Vector2.new(124, 44)
 
 local Dealer = {}
 Dealer.__index = Dealer
@@ -115,6 +124,8 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	self._luck = 1 -- F88: the player's Luck, in the odds rows and the split
 	self._extras = "" -- the gold and charm line the Details were written with
 	self._accumulator = 0
+	self._allUntil = 0 -- #2573: os.clock() when Buy all's wait for DealerStock ends
+	self._plan = nil :: DealerRows.BuyAll?
 
 	local panel = Panel.new({
 		dark = true, -- #1028
@@ -156,7 +167,7 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	self._stripTitle = text({
 		Name = "Title",
 		Position = UDim2.fromOffset(86, 12),
-		Size = UDim2.new(1, -100, 0, 28),
+		Size = UDim2.new(1, -(100 + ALL_BUTTON.X), 0, 28),
 		FontFace = Theme.fonts.display,
 		TextSize = Theme.sizes.textLarge,
 		TextColor3 = Theme.colors.white,
@@ -166,7 +177,7 @@ function Dealer.new(callbacks: Callbacks): Dealer
 	self._stripSub = text({
 		Name = "Sub",
 		Position = UDim2.fromOffset(86, 42),
-		Size = UDim2.new(1, -100, 0, 34),
+		Size = UDim2.new(1, -(100 + ALL_BUTTON.X), 0, 34),
 		TextSize = Theme.sizes.textSmall,
 		TextColor3 = Theme.hud.subtext,
 		TextWrapped = true,
@@ -174,6 +185,26 @@ function Dealer.new(callbacks: Callbacks): Dealer
 		TextYAlignment = Enum.TextYAlignment.Top,
 		Parent = strip,
 	})
+
+	-- #2573: Buy all, on the strip's right
+	self._allButton = Button.new({
+		name = "BuyAll",
+		text = "Buy all",
+		style = "gold",
+		size = UDim2.fromOffset(
+			ALL_BUTTON.X,
+			Scale.tapHeight(ALL_BUTTON.Y, Theme.sizes.buttonDepth)
+		),
+		anchorPoint = Vector2.new(1, 0.5),
+		position = UDim2.new(1, -12, 0.5, 0),
+		textSize = Theme.sizes.textBody,
+		parent = strip,
+		onClick = function()
+			self:_openConfirm()
+		end,
+	})
+	self._allButton.instance.Visible = false
+	self:_buildConfirm(panel.frame)
 
 	self._list = Create("ScrollingFrame", {
 		Name = "Foods",
@@ -428,6 +459,158 @@ function Dealer._buy(self: any, lureId: string)
 	end
 end
 
+-- #2573: the confirm card over the window: what Buy all takes, the total and the coins after, Cancel and Buy.
+function Dealer._buildConfirm(self: any, parent: Instance)
+	local cover: TextButton = Create("TextButton", {
+		Name = "BuyAllCover",
+		Text = "",
+		AutoButtonColor = false,
+		BackgroundColor3 = Color3.new(0, 0, 0),
+		BackgroundTransparency = 0.45,
+		BorderSizePixel = 0,
+		Size = UDim2.fromScale(1, 1),
+		Visible = false,
+		ZIndex = 20,
+		Parent = parent,
+	})
+	local card: Frame = Create("Frame", {
+		Name = "Card",
+		BackgroundColor3 = PAL.card,
+		BorderSizePixel = 0,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.new(1, -40, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		ZIndex = 21,
+		Parent = cover,
+	}, {
+		Create("UICorner", { CornerRadius = UDim.new(0, Theme.sizes.radius) }),
+		Create("UISizeConstraint", { MaxSize = Vector2.new(440, math.huge) }),
+		Create("UIPadding", {
+			PaddingLeft = UDim.new(0, 16),
+			PaddingRight = UDim.new(0, 16),
+			PaddingTop = UDim.new(0, 14),
+			PaddingBottom = UDim.new(0, 14),
+		}),
+		Create("UIListLayout", {
+			Padding = UDim.new(0, 8),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+		}),
+	})
+	Outline.border(card, Theme.sizes.outline)
+	local function line(name: string, order: number, props: { [string]: any }): TextLabel
+		local label = text({
+			Name = name,
+			Size = UDim2.new(1, 0, 0, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			TextWrapped = true,
+			TextTruncate = Enum.TextTruncate.None,
+			TextXAlignment = Enum.TextXAlignment.Center,
+			LayoutOrder = order,
+			ZIndex = 22,
+			Parent = card,
+		})
+		for key, value in props do
+			(label :: any)[key] = value
+		end
+		return label
+	end
+	local title = line("Title", 1, {
+		FontFace = Theme.fonts.display,
+		TextSize = Theme.sizes.textLarge,
+		TextColor3 = Theme.colors.white,
+		Text = "Buy all?",
+	})
+	Outline.text(title, 2)
+	local list = line("List", 2, { TextColor3 = PAL.text })
+	local sums = line("Sums", 3, { FontFace = Theme.fonts.display, TextColor3 = Theme.colors.gold })
+	local partial =
+		line("Partial", 4, { TextSize = Theme.sizes.textSmall, TextColor3 = PAL.subtext })
+	local height = Scale.tapHeight(ALL_BUTTON.Y, Theme.sizes.buttonDepth)
+	local buttons: Frame = Create("Frame", {
+		Name = "Buttons",
+		BackgroundTransparency = 1,
+		Size = UDim2.new(1, 0, 0, height),
+		LayoutOrder = 5,
+		ZIndex = 22,
+		Parent = card,
+	}, {
+		Create("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			Padding = UDim.new(0, 12),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	Button.new({
+		name = "Cancel",
+		text = "Cancel",
+		style = "ghost",
+		size = UDim2.fromOffset(ALL_BUTTON.X, height),
+		textSize = Theme.sizes.textBody,
+		layoutOrder = 1,
+		zIndex = 23,
+		parent = buttons,
+		onClick = function()
+			self:_closeConfirm()
+		end,
+	})
+	Button.new({
+		name = "Buy",
+		text = "Buy",
+		style = "gold",
+		size = UDim2.fromOffset(ALL_BUTTON.X, height),
+		textSize = Theme.sizes.textBody,
+		layoutOrder = 2,
+		zIndex = 23,
+		parent = buttons,
+		onClick = function()
+			self:_confirmBuyAll()
+		end,
+	})
+	self._confirm = { cover = cover, list = list, sums = sums, partial = partial }
+end
+
+-- #2573: Buy all pressed: the card with tonight's plan, or nothing when nothing fits any more.
+function Dealer._openConfirm(self: any)
+	local plan: DealerRows.BuyAll? = self._plan
+	if plan == nil or self:_closedReason() ~= nil or os.clock() < self._allUntil then
+		return
+	end
+	self:_fillConfirm(plan)
+	self._confirm.cover.Visible = true
+end
+
+-- the card's lines from the plan (again on each render while it is up, as coins tick)
+function Dealer._fillConfirm(self: any, plan: DealerRows.BuyAll)
+	local confirm = self._confirm
+	confirm.list.Text = plan.list
+	confirm.sums.Text = ("Total %s · %s left after"):format(
+		Format.money(plan.total),
+		Format.money(plan.after)
+	)
+	confirm.partial.Text = plan.partial or ""
+	confirm.partial.Visible = plan.partial ~= nil
+end
+
+function Dealer._closeConfirm(self: any)
+	self._confirm.cover.Visible = false
+end
+
+-- #2573: Buy on the card: one BuyDealerAll for the night shown; the next DealerStock ends the wait.
+function Dealer._confirmBuyAll(self: any)
+	self:_closeConfirm()
+	local send: ((number?) -> ())? = self._callbacks.buyAll
+	local stock: Types.DealerStock? = self._stock
+	if send == nil or self._plan == nil or self:_closedReason() ~= nil then
+		return
+	end
+	self._allUntil = os.clock() + ALL_PENDING_SECONDS
+	send(if stock then stock.window else nil)
+	self:_renderAll()
+end
+
 -- Why buying is closed for every row right now, or nil when it is open.
 function Dealer._closedReason(self: any): string?
 	local stock: Types.DealerStock? = self._stock
@@ -468,6 +651,7 @@ end
 function Dealer.setStock(self: any, stock: Types.DealerStock?)
 	self._stock = DealerRows.normalize(stock)
 	table.clear(self._pending) -- the server answered: its stock is the truth now
+	self._allUntil = 0 -- #2573: and Buy all's wait
 	self:_buildRows()
 	self:_renderAll()
 end
@@ -567,6 +751,19 @@ function Dealer._renderAll(self: any)
 				else Format.money(group.cost)
 		)
 		row.buy:setEnabled(self:_canBuy(group))
+	end
+	-- #2573: Buy all while the cart is open and something left fits; "Buying..." while its answer is on the way
+	local allPending = os.clock() < self._allUntil
+	self._plan = if self:_closedReason() == nil and self._callbacks.buyAll ~= nil
+		then DealerRows.buyAll(self._stock, self._lureById, state.money)
+		else nil
+	self._allButton.instance.Visible = self._plan ~= nil or allPending
+	self._allButton:setText(if allPending then "Buying..." else "Buy all")
+	self._allButton:setEnabled(self._plan ~= nil and not allPending)
+	if self._plan == nil then
+		self:_closeConfirm()
+	elseif self._confirm.cover.Visible then
+		self:_fillConfirm(self._plan)
 	end
 	local stock: Types.DealerStock? = self._stock
 	self._empty.Visible = #self._rows == 0

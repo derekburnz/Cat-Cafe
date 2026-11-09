@@ -150,6 +150,51 @@ return function()
 		end)
 	end)
 
+	describe("DealerRows.buyAll", function()
+		local function stock(): any
+			return DealerRows.normalize({
+				window = 7,
+				restocksAt = 100,
+				stock = {
+					{ lureId = "sardines", cost = 100, amount = 3, bought = 1 },
+					{ lureId = "caviar", cost = 500, amount = 2, bought = 0 },
+					{ lureId = "star_treat", cost = 3000, amount = 1, bought = 0 },
+				},
+			})
+		end
+
+		it("lists everything, best grade first, with the total and the coins after", function()
+			local plan = DealerRows.buyAll(stock(), lureById, 10000)
+			expect(plan.count).to.equal(5)
+			expect(plan.of).to.equal(5)
+			expect(plan.total).to.equal(3000 + 1000 + 200)
+			expect(plan.after).to.equal(10000 - 4200)
+			expect(plan.list).to.equal(
+				"1 " .. lureById.star_treat.name .. " · 2 " .. lureById.caviar.name .. " · 2 " .. lureById.sardines.name
+			)
+			expect(plan.partial).never.to.be.ok()
+		end)
+
+		it("says how many of the rest fit when coins run short", function()
+			local plan = DealerRows.buyAll(stock(), lureById, 700)
+			expect(plan.count).to.equal(3) -- one Caviar and two Sardines
+			expect(plan.of).to.equal(5)
+			expect(plan.after).to.equal(0)
+			expect(plan.partial).to.equal("You can afford 3 of 5. The best go first.")
+		end)
+
+		it("is nil with no stock, nothing left, or nothing that fits", function()
+			expect(DealerRows.buyAll(nil, lureById, 10000)).never.to.be.ok()
+			expect(DealerRows.buyAll(stock(), lureById, 50)).never.to.be.ok()
+			local sold = DealerRows.normalize({
+				window = 7,
+				restocksAt = 100,
+				stock = { { lureId = "caviar", cost = 500, amount = 2, bought = 2 } },
+			})
+			expect(DealerRows.buyAll(sold, lureById, 10000)).never.to.be.ok()
+		end)
+	end)
+
 	describe("DealerRows.clock", function()
 		it("counts minutes and seconds and stops at zero", function()
 			expect(DealerRows.clock(252)).to.equal("4:12")

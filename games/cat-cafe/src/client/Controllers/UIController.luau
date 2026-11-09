@@ -1018,6 +1018,10 @@ local function wireIntents()
 	UI.events.buyDealerFood:Connect(function(_index: number, lureId: string, window: number?)
 		Net.fire("BuyDealerFood", lureId, window or dealerWindow or -1)
 	end)
+	-- #2573: Buy all; the server plans from its own stock and coins, toasts the result and sends DealerStock
+	UI.events.buyDealerAll:Connect(function(window: number?)
+		Net.fire("BuyDealerAll", window or dealerWindow or -1)
+	end)
 	-- The Fresh Catch tab (F94), once the UI has it: (itemId, window) the row and the window the tab showed; the server
 	-- answers every buy with FreshCatchStock, bought or refused.
 	local buyFreshCatch = (UI.events :: any).buyFreshCatch
